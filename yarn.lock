@@ -14995,18 +14995,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:4.1.0":
-  version: 4.1.0
-  resolution: "enhanced-resolve@npm:4.1.0"
-  dependencies:
-    graceful-fs: ^4.1.2
-    memory-fs: ^0.4.0
-    tapable: ^1.0.0
-  checksum: a2c570450cb552aff2edb5e115ba950e7895941be4f6625b320804502ae4d8ee46a6fb040ff9454335bd933b36d1db457da5869852bb7f5041209979a747dafc
-  languageName: node
-  linkType: hard
-
-"enhanced-resolve@npm:^4.0.0, enhanced-resolve@npm:^4.1.0, enhanced-resolve@npm:^4.3.0":
+"enhanced-resolve@npm:^4.0.0, enhanced-resolve@npm:^4.1.0, enhanced-resolve@npm:^4.1.1, enhanced-resolve@npm:^4.3.0":
   version: 4.3.0
   resolution: "enhanced-resolve@npm:4.3.0"
   dependencies:
@@ -16680,7 +16669,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"findup-sync@npm:3.0.0, findup-sync@npm:^3.0.0":
+"findup-sync@npm:^3.0.0":
   version: 3.0.0
   resolution: "findup-sync@npm:3.0.0"
   dependencies:
@@ -17843,7 +17832,7 @@ fsevents@^1.2.7:
     verror: 1.10.0
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
     webpack: ^4.41.2
-    webpack-cli: ^3.3.10
+    webpack-cli: ^3.3.12
     webpack-dev-middleware: ^3.7.2
     xmlhttprequest: "git://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror"
     yargs: ^15.0.2
@@ -20819,7 +20808,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"import-local@npm:2.0.0, import-local@npm:^2.0.0":
+"import-local@npm:^2.0.0":
   version: 2.0.0
   resolution: "import-local@npm:2.0.0"
   dependencies:
@@ -21211,10 +21200,16 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"interpret@npm:1.2.0, interpret@npm:^1.0.0":
+"interpret@npm:^1.0.0":
   version: 1.2.0
   resolution: "interpret@npm:1.2.0"
   checksum: 06d0dd4af01f9d0a99af8fb20c888db99e7c1bd28835951646a7e426dd99ccfffb9d06ad2e8f7cb60dd2ecc3e5bc61fe83e04c2cc47d92c7b144ff935673463c
+  languageName: node
+  linkType: hard
+
+"interpret@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "interpret@npm:1.4.0"
   languageName: node
   linkType: hard
 
@@ -25446,7 +25441,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"memory-fs@npm:^0.4.0, memory-fs@npm:^0.4.1":
+"memory-fs@npm:^0.4.1":
   version: 0.4.1
   resolution: "memory-fs@npm:0.4.1"
   dependencies:
@@ -27686,7 +27681,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"os-locale@npm:^3.0.0, os-locale@npm:^3.1.0":
+"os-locale@npm:^3.0.0":
   version: 3.1.0
   resolution: "os-locale@npm:3.1.0"
   dependencies:
@@ -34855,15 +34850,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"supports-color@npm:6.1.0, supports-color@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "supports-color@npm:6.1.0"
-  dependencies:
-    has-flag: ^3.0.0
-  checksum: 86821571295ad9f808d5e0149f13c2b0ca6faaf1325c427b369e6f4b2b1e4759046b7a4ea0e3c3c7f2546035fa2fb0d6a90f31c6c4f751eaedbcdc1b983a08cc
-  languageName: node
-  linkType: hard
-
 "supports-color@npm:7.1.0, supports-color@npm:^7.0.0, supports-color@npm:^7.1.0":
   version: 7.1.0
   resolution: "supports-color@npm:7.1.0"
@@ -34886,6 +34872,15 @@ resolve@~1.11.1:
   dependencies:
     has-flag: ^3.0.0
   checksum: edacee6425498440744c418be94b0660181aad2a1828bcf2be85c42bd385da2fd8b2b358d9b62b0c5b03ff5cd3e992458d7b8f879d9fb42f2201fe05a4848a29
+  languageName: node
+  linkType: hard
+
+"supports-color@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "supports-color@npm:6.1.0"
+  dependencies:
+    has-flag: ^3.0.0
+  checksum: 86821571295ad9f808d5e0149f13c2b0ca6faaf1325c427b369e6f4b2b1e4759046b7a4ea0e3c3c7f2546035fa2fb0d6a90f31c6c4f751eaedbcdc1b983a08cc
   languageName: node
   linkType: hard
 
@@ -36965,13 +36960,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"v8-compile-cache@npm:2.0.3":
-  version: 2.0.3
-  resolution: "v8-compile-cache@npm:2.0.3"
-  checksum: 8898e61408fc76e4812197fc2569df6f382a2845b843f7838d16d71e3e1b3b8b02261bce8666f77c6f8d16b503b32be246c835da2d952517af3724025cfdb970
-  languageName: node
-  linkType: hard
-
 "v8-compile-cache@npm:^2.0.3, v8-compile-cache@npm:^2.1.1":
   version: 2.1.1
   resolution: "v8-compile-cache@npm:2.1.1"
@@ -37356,26 +37344,25 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"webpack-cli@npm:^3.3.10":
-  version: 3.3.11
-  resolution: "webpack-cli@npm:3.3.11"
+"webpack-cli@npm:^3.3.12":
+  version: 3.3.12
+  resolution: "webpack-cli@npm:3.3.12"
   dependencies:
-    chalk: 2.4.2
-    cross-spawn: 6.0.5
-    enhanced-resolve: 4.1.0
-    findup-sync: 3.0.0
-    global-modules: 2.0.0
-    import-local: 2.0.0
-    interpret: 1.2.0
-    loader-utils: 1.2.3
-    supports-color: 6.1.0
-    v8-compile-cache: 2.0.3
-    yargs: 13.2.4
+    chalk: ^2.4.2
+    cross-spawn: ^6.0.5
+    enhanced-resolve: ^4.1.1
+    findup-sync: ^3.0.0
+    global-modules: ^2.0.0
+    import-local: ^2.0.0
+    interpret: ^1.4.0
+    loader-utils: ^1.4.0
+    supports-color: ^6.1.0
+    v8-compile-cache: ^2.1.1
+    yargs: ^13.3.2
   peerDependencies:
     webpack: 4.x.x
   bin:
-    webpack-cli: ./bin/cli.js
-  checksum: 3d835a5c7e811159c7fbe0cd8911890c8ad7dc54f4c60b1cdd07073ea7fa67818259383f793f3d21c2a5fdfba3d26a74c0e0983d207b20d5c1b36a35dd2299fa
+    webpack-cli: bin/cli.js
   languageName: node
   linkType: hard
 
@@ -38370,7 +38357,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:13.1.2, yargs-parser@npm:^13.0.0, yargs-parser@npm:^13.1.0, yargs-parser@npm:^13.1.2":
+"yargs-parser@npm:13.1.2, yargs-parser@npm:^13.0.0, yargs-parser@npm:^13.1.2":
   version: 13.1.2
   resolution: "yargs-parser@npm:13.1.2"
   dependencies:
@@ -38451,25 +38438,6 @@ resolve@~1.11.1:
     y18n: ^3.2.1 || ^4.0.0
     yargs-parser: ^11.1.1
   checksum: f015926a07c7bc7cfb55d4a40c6e40eb7d91a62e817093058e2fa6b0c804807c4c2c248eed29e8378a6323a79701a5a7a1daf8b55b87151e2ea4286c7b1b365a
-  languageName: node
-  linkType: hard
-
-"yargs@npm:13.2.4":
-  version: 13.2.4
-  resolution: "yargs@npm:13.2.4"
-  dependencies:
-    cliui: ^5.0.0
-    find-up: ^3.0.0
-    get-caller-file: ^2.0.1
-    os-locale: ^3.1.0
-    require-directory: ^2.1.1
-    require-main-filename: ^2.0.0
-    set-blocking: ^2.0.0
-    string-width: ^3.0.0
-    which-module: ^2.0.0
-    y18n: ^4.0.0
-    yargs-parser: ^13.1.0
-  checksum: a0be3e8df5b91bc19e11ce0a7234db69e9d50e6d284a06bdb3547fb5f26eaa234720c3b8db75abdd358d442ef0db91ee2065e0c28e29617f535f0a26b791225c
   languageName: node
   linkType: hard
 
