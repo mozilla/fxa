@@ -49,6 +49,7 @@ const TYPES = {
     .uri({ scheme: ['android-app', 'http', 'https'] })
     .allow('none'),
   RESUME: joi.string().regex(PATTERNS.BASE64),
+  SETTINGS_VERSION: joi.string().valid('old', 'new'),
   SIGNIN_CODE: joi.string().regex(PATTERNS.BASE64_URL_SAFE).length(8),
   STRING: joi.string().max(1024), // 1024 is arbitrary, seems like it should give CSP reports plenty of space.
   SYNC_ENGINES: joi.array().items(joi.string().regex(PATTERNS.SYNC_ENGINE)),

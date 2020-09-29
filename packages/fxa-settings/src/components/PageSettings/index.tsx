@@ -20,6 +20,7 @@ export const PageSettings = (_: RouteComponentProps) => {
     lang: document.querySelector('html')?.getAttribute('lang'),
     uid,
   });
+  Metrics.usePageViewEvent('settings');
 
   return (
     <div className="flex">

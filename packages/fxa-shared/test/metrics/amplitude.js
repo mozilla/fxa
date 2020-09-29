@@ -380,14 +380,14 @@ describe('metrics/amplitude:', () => {
       before(() => {
         result = transform(
           { type: 'settings.change-password.success' },
-          { settings_version: 'v2' }
+          { settingsVersion: 'new' }
         );
       });
 
       it('returned the correct event data', () => {
         assert.equal(result.event_type, 'fxa_pref - password');
         assert.deepEqual(result.event_properties, {
-          settings_version: 'v2',
+          settings_version: 'new',
         });
       });
     });

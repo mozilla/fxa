@@ -49,11 +49,14 @@ class GetFlowView extends BaseView {
       flowBeginTime,
       flowId,
     } = this.metrics.getFlowEventMetadata();
-    const broker = this.metrics.getFilteredValue('broker');
-    const context = this.metrics.getFilteredValue('context');
-    const isSampledUser = this.metrics.getFilteredValue('isSampledUser');
-    const service = this.metrics.getFilteredValue('service');
-    const uniqueUserId = this.metrics.getFilteredValue('uniqueUserId');
+
+    const {
+      broker,
+      context,
+      isSampledUser,
+      service,
+      uniqueUserId,
+    } = this.metrics.getFilteredData();
 
     let redirectPath = redirectTo;
     let redirectParams = {};

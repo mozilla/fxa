@@ -4,6 +4,13 @@
 
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import { useEffect } from 'react';
+import {
+  hasAccountRecovery,
+  hasSecondaryVerifiedEmail,
+  hasTwoStepAuthentication,
+  useAccount,
+} from '../models';
+import { window } from './window';
 
 const NOT_REPORTED_VALUE = 'none';
 const UNKNOWN_VALUE = 'unknown';
@@ -42,7 +49,7 @@ type ConfigurableProperties = {
   experiments: ExperimentGroup[];
   lang: string | typeof UNKNOWN_VALUE;
   marketing: MarketingCampaign[];
-  newsletters: string[];
+  newsletters: string[] | typeof NOT_REPORTED_VALUE;
   startTime: number;
   uid: Optional<string>;
   userPreferences: UserPreferences;
@@ -69,13 +76,25 @@ let flowEventData: FlowQueryParams;
 let configurableProperties: ConfigurableProperties = defaultConfigProps();
 
 function defaultConfigProps(): ConfigurableProperties {
+  const startTime = () => {
+    if (window.performance && window.performance.getEntriesByType) {
+      return (
+        window.performance.timeOrigin +
+        (window.performance.getEntriesByType(
+          'navigation'
+        )[0] as PerformanceNavigationTiming).fetchStart
+      );
+    }
+
+    return Date.now();
+  };
+
   return {
     experiments: [],
     lang: UNKNOWN_VALUE,
     marketing: [],
-    newsletters: [],
-    // TODO: performance.timing.navigationStart should work, but doesn't
-    startTime: 123,
+    newsletters: NOT_REPORTED_VALUE,
+    startTime: startTime(),
     uid: NOT_REPORTED_VALUE,
     userPreferences: {},
     utm_campaign: NOT_REPORTED_VALUE,
@@ -161,10 +180,14 @@ export function init(flowQueryParams: FlowQueryParams) {
         redirectPath += window.location.search;
       }
 
+      const search = window.location.search
+        ? `${window.location.search}&redirect_to=${encodeURIComponent(
+            redirectPath
+          )}`
+        : `?redirect_to=${encodeURIComponent(redirectPath)}`;
+
       return window.location.replace(
-        `${window.location.origin}/get_flow?redirect_to=${encodeURIComponent(
-          redirectPath
-        )}`
+        `${window.location.origin}/get_flow${search}`
       );
     }
   }
@@ -215,11 +238,16 @@ export function logEvents(
 ) {
   try {
     const now = Date.now();
-    const eventOffset = now - flowEventData.flowBeginTime!;
+    // This is ok for now because there is no batching. But each event should
+    // have its own offset.
+    const eventOffset = now - configurableProperties.startTime;
+    const duration = now - configurableProperties.startTime;
+    // Amplitude events emitted from new Settings should have this property.
+    eventProperties['settingsVersion'] = 'new';
 
     postMetrics(
       Object.assign(configurableProperties, {
-        duration: 0, // TODO where is this set?
+        duration,
         events: eventSlugs.map((slug) => ({ type: slug, offset: eventOffset })),
         flushTime: now,
         referrer: window.document.referrer || NOT_REPORTED_VALUE,
@@ -267,10 +295,26 @@ export function useViewEvent(
   eventProperties: Hash<any> = {},
   dependencies: any[] = []
 ) {
+  useUserPreferences();
+
   useEffect(() => {
     logViewEvent(viewName, eventName, eventProperties);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
+}
+
+/**
+ * A hook to emit a "view" event, e.g. "fxa_pref - view", for a, um, view.  It
+ * is `useViewEvent` with the first argument pre-populated.  'screen' is a
+ * legacy artifact in the content-server; let's capture that bit of weirdness
+ * in this function.
+ */
+export function usePageViewEvent(
+  viewName: string,
+  eventProperties: Hash<any> = {},
+  dependencies: any[] = []
+) {
+  useViewEvent('screen', viewName, eventProperties, dependencies);
 }
 
 /**
@@ -296,7 +340,21 @@ export function logExperiment(
  * @param prefName - Name of preference, typically view name
  */
 export function setUserPreference(prefName: string, value: boolean) {
-  configurableProperties.userPreferences = { [prefName]: value };
+  configurableProperties.userPreferences[prefName] = value;
+}
+
+/**
+ * All three properties must be included if userPreferences is in the request
+ * payload.
+ */
+export function useUserPreferences() {
+  const account = useAccount();
+  setUserPreference('account-recovery', hasAccountRecovery(account));
+  setUserPreference('emails', hasSecondaryVerifiedEmail(account));
+  setUserPreference(
+    'two-step-authentication',
+    hasTwoStepAuthentication(account)
+  );
 }
 
 /**
