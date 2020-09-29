@@ -103,7 +103,7 @@ jobs:
           path: artifacts/tests
       - run:
           name: Reporting code coverage...
-          command: bash <(curl -s https://codecov.io/bash) -X gcov
+          command: bash <(curl -s https://codecov.io/bash) -F << parameters.package >> -X gcov
 
   test-many:
     resource_class: medium+
@@ -144,7 +144,7 @@ jobs:
             done
       - run:
           name: Reporting code coverage...
-          command: bash <(curl -s https://codecov.io/bash) -X gcov
+          command: bash <(curl -s https://codecov.io/bash) -F many -X gcov
 
   test-settings-server:
     executor: content-server-executor
