@@ -1,3 +1,9 @@
+## 1.189.1
+
+### Bug fixes
+
+- scripts: Copy scripts into dist directory ([354a608a0](https://github.com/mozilla/fxa/commit/354a608a0))
+
 ## 1.189.0
 
 ### New features
