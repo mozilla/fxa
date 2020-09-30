@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import gql from 'graphql-tag';
-import { useLazyQuery } from 'react-apollo';
+import { useLazyQuery, gql } from '@apollo/client';
 import Account from './Account';
 import './index.scss';
 
@@ -98,7 +97,7 @@ export const EmailBlocks = () => {
         ></button>
       </form>
 
-      {showResult ? (
+      {showResult && refetch ? (
         <>
           <hr />
           <AccountSearchResult

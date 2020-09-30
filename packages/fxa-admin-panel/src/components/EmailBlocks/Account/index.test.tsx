@@ -30,7 +30,7 @@ it('renders without imploding', () => {
 });
 
 it('displays the account', async () => {
-  const { getByTestId, getByText } = render(<Account {...accountResponse} />);
+  const { getByTestId } = render(<Account {...accountResponse} />);
 
   expect(getByTestId('account-section')).toBeInTheDocument();
   expect(getByTestId('verified-status')).toHaveTextContent('verified');

@@ -5,7 +5,7 @@
 import React from 'react';
 import Chance from 'chance';
 import { render, fireEvent, act } from '@testing-library/react';
-import { MockedProvider, MockedResponse, wait } from '@apollo/react-testing';
+import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import '@testing-library/jest-dom/extend-expect';
 import { CLEAR_BOUNCES_BY_EMAIL } from './Account/index';
 import { GET_ACCOUNT_BY_EMAIL, EmailBlocks } from './index';
@@ -51,6 +51,34 @@ function exampleAccountResponse(email: string): MockedResponse {
   };
 }
 
+function exampleNoResultsAccountResponse(email: string): MockedResponse {
+  return {
+    request: {
+      query: GET_ACCOUNT_BY_EMAIL,
+      variables: {
+        email,
+      },
+    },
+    result: {
+      data: {
+        accountByEmail: {
+          uid: 'a1b2c3',
+          emails: [
+            {
+              email,
+              isPrimary: true,
+              isVerified: true,
+              createdAt: chance.timestamp(),
+            },
+          ],
+          createdAt: chance.timestamp(),
+          emailBounces: [],
+        },
+      },
+    },
+  };
+}
+
 function exampleBounceMutationResponse(email: string): MockedResponse {
   return {
     request: {
@@ -88,10 +116,7 @@ it('renders without imploding', () => {
 it('displays the account email bounces, and can clear them', async () => {
   const hasResultsAccountResponse = exampleAccountResponse(testEmail);
   const bounceMutationResponse = exampleBounceMutationResponse(testEmail);
-  let noResultsAccountResponse = Object.assign(
-    exampleAccountResponse(testEmail),
-    { result: { data: { accountByEmail: { emailBounces: [] } } } }
-  );
+  const noResultsAccountResponse = exampleNoResultsAccountResponse(testEmail);
 
   const renderResult = render(
     <MockedProvider
@@ -114,12 +139,10 @@ it('displays the account email bounces, and can clear them', async () => {
     });
     fireEvent.blur(getByTestId('email-input'));
 
-    await wait(0);
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     fireEvent.click(getByTestId('search-button'));
   });
-
-  await wait(0);
 
   expect(getByTestId('account-section')).toBeInTheDocument();
   expect(queryAllByTestId('bounce-group').length).toEqual(2);
@@ -127,6 +150,7 @@ it('displays the account email bounces, and can clear them', async () => {
   await act(async () => {
     fireEvent.click(getByTestId('clear-button'));
   });
+
   // account should still be visible
   expect(getByTestId('account-section')).toBeInTheDocument();
   // but there should be no bounces anymore
@@ -135,7 +159,7 @@ it('displays the account email bounces, and can clear them', async () => {
   expect(deleteBouncesMutationCalled).toBe(true);
 });
 
-it('displays the error state if theres an error', async () => {
+it('displays the error state if there is an error', async () => {
   const erroredAccountResponse = Object.assign(
     {},
     exampleAccountResponse(testEmail)

@@ -4,8 +4,7 @@
 
 import React from 'react';
 import dateFormat from 'dateformat';
-import { gql } from 'apollo-boost';
-import { useMutation } from 'react-apollo';
+import { gql, useMutation } from '@apollo/client';
 import './index.scss';
 
 type AccountProps = {

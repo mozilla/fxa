@@ -4,16 +4,31 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { ApolloProvider } from 'react-apollo';
-import ApolloClient from 'apollo-boost';
+import { ApolloProvider } from '@apollo/client';
+import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 import { config, readConfigFromMeta } from './lib/config';
 import App from './App';
 import './index.scss';
 
 readConfigFromMeta(headQuerySelector);
 
-const client = new ApolloClient({
+const httpLink = createHttpLink({
   uri: `${config.servers.admin.url}/graphql`,
+});
+
+const authLink = setContext((_, { headers }) => ({
+  headers: {
+    ...headers,
+    ...(process.env.NODE_ENV === 'development' && {
+      'oidc-claim-id-token-email': 'johndope@example.com',
+    }),
+  },
+}));
+
+const client = new ApolloClient({
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache(),
 });
 
 ReactDOM.render(
