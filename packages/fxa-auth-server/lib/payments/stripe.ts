@@ -4,6 +4,11 @@
 import * as Sentry from '@sentry/node';
 import cacheManager, { Cacheable, CacheClear } from '@type-cacheable/core';
 import { useAdapter } from '@type-cacheable/ioredis-adapter';
+import {
+  createAccountCustomer,
+  deleteAccountCustomer,
+  getAccountCustomerByUid,
+} from 'fxa-shared/db/models/auth';
 import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
@@ -179,7 +184,7 @@ export class StripeHelper {
     displayName: string,
     idempotencyKey: string
   ): Promise<Stripe.Customer> {
-    return this.stripe.customers.create(
+    const stripeCustomer = await this.stripe.customers.create(
       {
         email,
         name: displayName,
@@ -190,6 +195,8 @@ export class StripeHelper {
         idempotency_key: idempotencyKey,
       }
     );
+    await createAccountCustomer(uid, stripeCustomer.id);
+    return stripeCustomer;
   }
 
   /**
@@ -315,37 +322,6 @@ export class StripeHelper {
   }
 
   /** END: NEW FLOW HELPERS FOR PAYMENT METHODS **/
-
-  /**
-   * Create a stripe customer
-   */
-  async createCustomer(
-    uid: string,
-    email: string,
-    displayName: string,
-    paymentToken: string,
-    idempotencyKey: string
-  ): Promise<Stripe.Customer> {
-    try {
-      return await this.stripe.customers.create(
-        {
-          source: paymentToken,
-          email,
-          name: displayName,
-          description: uid,
-          metadata: { userid: uid },
-        },
-        {
-          idempotency_key: idempotencyKey,
-        }
-      );
-    } catch (err) {
-      if (err.type === 'StripeCardError') {
-        throw error.rejectedSubscriptionPaymentToken(err.message, err);
-      }
-      throw err;
-    }
-  }
 
   /**
    * Fetch a customer record from Stripe by id and return its userid metadata
@@ -502,9 +478,16 @@ export class StripeHelper {
    * - remove the cache entry
    */
   async removeCustomer(uid: string, email: string) {
-    const customer = await this.fetchCustomer(uid, email);
-    if (customer) {
-      await this.stripe.customers.del(customer.id);
+    const customer = await getAccountCustomerByUid(uid);
+    if (customer && customer.stripeCustomerId) {
+      await this.stripe.customers.del(customer.stripeCustomerId);
+      const recordsDeleted = await deleteAccountCustomer(uid);
+      if (recordsDeleted === 0) {
+        this.log.error(
+          `StripeHelper.removeCustomer failed to remove AccountCustomer record for uid ${uid}`,
+          {}
+        );
+      }
       await this.removeCustomerFromCache(uid, email);
     }
   }

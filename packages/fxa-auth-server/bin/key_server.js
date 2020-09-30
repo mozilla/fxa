@@ -6,6 +6,7 @@
 
 const error = require('../lib/error');
 const jwtool = require('fxa-jwtool');
+const { setupAuthDatabase } = require('fxa-shared/db');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 
@@ -27,6 +28,9 @@ async function run(config) {
 
   const log = require('../lib/log')({ ...config.log, statsd });
   require('../lib/oauth/logging')(log);
+
+  // Establish database connection and bind instance to Model using Knex
+  setupAuthDatabase(config.database.mysql.auth);
 
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;

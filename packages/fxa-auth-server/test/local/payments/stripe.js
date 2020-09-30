@@ -7,12 +7,16 @@
 const sinon = require('sinon');
 const Sentry = require('@sentry/node');
 const { assert } = require('chai');
+const Chance = require('chance');
+const { setupAuthDatabase } = require('fxa-shared/db');
+const Knex = require('knex');
 const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
 const stripeError = require('stripe').Stripe.errors;
 const uuidv4 = require('uuid').v4;
 const moment = require('moment');
 
+const chance = new Chance();
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
 const StripeHelper = proxyquire('../../../lib/payments/stripe', {
@@ -47,6 +51,10 @@ const eventCustomerSubscriptionUpdated = require('./fixtures/event_customer_subs
 const subscriptionCreatedInvoice = require('./fixtures/invoice_payment_succeeded_subscription_create.json');
 const closedPaymementIntent = require('./fixtures/paymentIntent_succeeded.json');
 const newSetupIntent = require('./fixtures/setup_intent_new.json');
+const {
+  createAccountCustomer,
+  getAccountCustomerByUid,
+} = require('fxa-shared/db/models/auth');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -120,6 +128,47 @@ function createMockRedis() {
 
 mockConfig.redis = mockRedisConfig;
 
+const testKnexConfig = {
+  client: 'mysql',
+  connection: {
+    charset: 'UTF8MB4_BIN',
+    host: 'localhost',
+    password: '',
+    port: 3306,
+    user: 'root',
+  },
+};
+
+mockConfig.database = {
+  mysql: {
+    auth: {
+      database: 'testStripeHelper',
+      host: 'localhost',
+      password: '',
+      port: 3306,
+      user: 'root',
+    },
+  },
+};
+
+async function createTestDatabase() {
+  const knex = Knex(testKnexConfig);
+
+  await knex.raw('DROP DATABASE IF EXISTS testStripeHelper');
+  await knex.raw('CREATE DATABASE testStripeHelper');
+  await knex.raw(
+    'CREATE TABLE testStripeHelper.`accountCustomers` (`uid` BINARY(16) PRIMARY KEY,`stripeCustomerId` VARCHAR(32),`createdAt` BIGINT UNSIGNED NOT NULL,`updatedAt` BIGINT UNSIGNED NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;'
+  );
+  await knex.destroy();
+  setupAuthDatabase(mockConfig.database.mysql.auth);
+}
+
+async function destroyTestDatabase() {
+  const knex = Knex(testKnexConfig);
+  await knex.raw('DROP DATABASE IF EXISTS testStripeHelper');
+  await knex.destroy();
+}
+
 /**
  * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
  * a deep copy of the object can be created which uses the test object as a template
@@ -136,8 +185,15 @@ describe('StripeHelper', () => {
   /** @type sinon.SinonSandbox */
   let sandbox;
   let listStripePlans;
-
   let log;
+
+  before(async () => {
+    await createTestDatabase();
+  });
+
+  after(async () => {
+    await destroyTestDatabase();
+  });
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
@@ -161,9 +217,9 @@ describe('StripeHelper', () => {
     it('creates a customer using stripe api', async () => {
       const expected = deepCopy(newCustomerPM);
       sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
-
+      const uid = chance.guid({ version: 4 }).replace(/-/g, '');
       const actual = await stripeHelper.createPlainCustomer(
-        'uid',
+        uid,
         'joe@example.com',
         'Joe Cool',
         uuidv4()
@@ -925,66 +981,6 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('createCustomer', () => {
-    it('creates a customer using stripe api', async () => {
-      const expected = deepCopy(newCustomer);
-      sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
-
-      const actual = await stripeHelper.createCustomer(
-        'uid',
-        'joe@example.com',
-        'Joe Cool',
-        'tok_visa',
-        uuidv4()
-      );
-
-      assert.deepEqual(actual, expected);
-    });
-
-    it('surfaces payment token errors', async () => {
-      const apiError = new stripeError.StripeCardError();
-      sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
-
-      return stripeHelper
-        .createCustomer(
-          'uid',
-          'joe@example.com',
-          'Joe Cool',
-          'tok_visa',
-          uuidv4()
-        )
-        .then(
-          () => Promise.reject(new Error('Method expected to reject')),
-          (err) => {
-            assert.equal(
-              err.errno,
-              error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
-            );
-          }
-        );
-    });
-
-    it('surfaces stripe errors', async () => {
-      const apiError = new stripeError.StripeAPIError();
-      sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
-
-      return stripeHelper
-        .createCustomer(
-          'uid',
-          'joe@example.com',
-          'Joe Cool',
-          'tok_visa',
-          uuidv4()
-        )
-        .then(
-          () => Promise.reject(new Error('Method expected to reject')),
-          (err) => {
-            assert.equal(err, apiError);
-          }
-        );
-    });
-  });
-
   describe('getCustomerUidEmailFromSubscription', () => {
     let customer, subscription;
     let scopeContextSpy, scopeSpy;
@@ -1390,7 +1386,6 @@ describe('StripeHelper', () => {
 
   describe('removeCustomer', () => {
     let stripeCustomerDel;
-    const uid = 'user123';
     const email = 'test@example.com';
 
     beforeEach(() => {
@@ -1402,19 +1397,22 @@ describe('StripeHelper', () => {
     });
 
     describe('when customer is found', () => {
-      it('flags customer for deletion and removes cache record', async () => {
-        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer1);
+      it('deletes customer in Stripe, removes AccountCustomer record, removes Cached record', async () => {
+        const uid = chance.guid({ version: 4 }).replace(/-/g, '');
+        const customerId = 'cus_1234456sdf';
+        const testAccount = await createAccountCustomer(uid, customerId);
 
-        await stripeHelper.removeCustomer(uid, email);
+        await stripeHelper.removeCustomer(testAccount.uid, email);
 
         assert(stripeCustomerDel.calledOnce);
+        assert((await getAccountCustomerByUid(uid)) === undefined);
         assert(stripeHelper.removeCustomerFromCache.calledOnce);
       });
     });
 
     describe('when customer is not found', () => {
       it('does not throw any errors', async () => {
-        sandbox.stub(stripeHelper, 'fetchCustomer').resolves();
+        const uid = chance.guid({ version: 4 }).replace(/-/g, '');
 
         await stripeHelper.removeCustomer(uid, email);
 

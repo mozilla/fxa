@@ -9,3 +9,38 @@ export interface MySQLConfig {
   port: number;
   user: string;
 }
+
+export function makeMySQLConfig(envPrefix: string, database: string) {
+  return {
+    database: {
+      default: database,
+      doc: 'MySQL database',
+      env: envPrefix + '_MYSQL_DATABASE',
+      format: String,
+    },
+    host: {
+      default: 'localhost',
+      doc: 'MySQL host',
+      env: envPrefix + '_MYSQL_HOST',
+      format: String,
+    },
+    password: {
+      default: '',
+      doc: 'MySQL password',
+      env: envPrefix + '_MYSQL_PASSWORD',
+      format: String,
+    },
+    port: {
+      default: 3306,
+      doc: 'MySQL port',
+      env: envPrefix + '_MYSQL_PORT',
+      format: Number,
+    },
+    user: {
+      default: 'root',
+      doc: 'MySQL username',
+      env: envPrefix + '_MYSQL_USERNAME',
+      format: String,
+    },
+  };
+}
