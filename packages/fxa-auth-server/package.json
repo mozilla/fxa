@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.189.0",
+  "version": "1.189.1",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "tsc --build && cp -R lib dist/fxa-auth-server && cp -R fxa-content-server-l10n dist/fxa-auth-server && cp -R config dist/fxa-auth-server",
+    "build": "tsc --build && cp -R config fxa-content-server-l10n lib scripts dist/fxa-auth-server",
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
