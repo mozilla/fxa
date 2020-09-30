@@ -8,19 +8,18 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReactComponent as OpenExternal } from './open-external.svg';
 import { useAccount } from '../../models';
 
-const activeClasses = 'bg-grey-100 font-bold text-blue-500 rounded-sm';
-
-// mobile classes start when working on FXA-1583
-// `nav`: bg-white w-full inset-0 mt-18 mr-24 desktop:bg-transparent text-xl desktop:text-base
-// `nav ul`: px-6 py-7 tablet:px-8 desktop:p-0
-
 export const Nav = () => {
   const account = useAccount();
   const primaryEmail = account.primaryEmail.email;
   const hasSubscription = account.subscriptions.length > 0;
+
+  const activeClasses = 'font-bold text-blue-500 rounded-sm';
   return (
-    <nav className="font-header fixed mt-11" data-testid="nav">
-      <ul>
+    <nav
+      className="font-header fixed bg-white w-full inset-0 mt-18 mr-24 desktop:ml-16 desktop:bg-transparent text-xl desktop:text-base"
+      data-testid="nav"
+    >
+      <ul className="px-6 py-7 text-left tablet:px-8 desktop:p-0 mobileLandscape:mt-8">
         <li className="mb-5">
           <h2 className="font-bold">Settings</h2>
           <ul className="ml-4">
@@ -28,7 +27,10 @@ export const Nav = () => {
               <a
                 data-testid="nav-link-profile"
                 href="#profile"
-                className={classNames(activeClasses, 'inline-block py-1 px-2')}
+                className={classNames(
+                  activeClasses,
+                  'inline-block py-1 px-2 hover:bg-grey-100'
+                )}
               >
                 Profile
               </a>
@@ -37,7 +39,7 @@ export const Nav = () => {
               <a
                 href="#security"
                 data-testid="nav-link-security"
-                className="inline-block py-1 px-2"
+                className="inline-block py-1 px-2 hover:bg-grey-100"
               >
                 Security
               </a>
@@ -46,7 +48,7 @@ export const Nav = () => {
               <a
                 href="#connected-services"
                 data-testid="nav-link-connected-services"
-                className="inline-block py-1 px-2"
+                className="inline-block py-1 px-2 hover:bg-grey-100"
               >
                 Connected Services
               </a>
