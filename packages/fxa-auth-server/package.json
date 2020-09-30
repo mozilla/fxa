@@ -100,7 +100,7 @@
     "sandboxed-regexp": "^0.3.0",
     "stripe": "^8.64.0",
     "typedi": "^0.8.0",
-    "urijs": "1.19.1",
+    "urijs": "1.19.2",
     "uuid": "1.4.1",
     "verror": "^1.10.0",
     "web-push": "3.4.4"
