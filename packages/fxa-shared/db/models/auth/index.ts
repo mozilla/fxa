@@ -11,6 +11,17 @@ export type AccountOptions = {
   include?: 'emails'[];
 };
 
+export async function accountExists(uid: string) {
+  let uidBuffer;
+  try {
+    uidBuffer = uuidTransformer.to(uid);
+  } catch (err) {
+    return false;
+  }
+  const account = await Account.query().findOne({ uid: uidBuffer });
+  return account ? true : false;
+}
+
 export function accountByUid(uid: string, options?: AccountOptions) {
   let uidBuffer;
   try {

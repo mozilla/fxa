@@ -18,6 +18,7 @@ import {
 import {
   Account,
   accountByUid,
+  accountExists,
   AccountCustomers,
   createAccountCustomer,
   deleteAccountCustomer,
@@ -40,6 +41,17 @@ describe('auth', () => {
 
   after(async () => {
     await knex.destroy();
+  });
+
+  describe('accountExists', () => {
+    it('returns true if the account is found', async () => {
+      assert.isTrue(await accountExists(USER_1.uid));
+    });
+
+    it('returns false if the account is not found', async () => {
+      const uid = chance.guid({ version: 4 }).replace(/-/g, '');
+      assert.isFalse(await accountExists(uid));
+    });
   });
 
   describe('accountByUid', () => {
@@ -72,7 +84,7 @@ describe('auth', () => {
 
   describe('accountCustomers CRUD', () => {
     describe('createAccountCustomer', () => {
-      const userId = '27384d1476564252aade14e9c71bec49';
+      const userId = '263e29ad86d245eeabf309e6a125bbfb';
       const customerId = 'cus_I4jZCBRq3aiRKX';
       it('Creates a new customer when the uid and customer id are valid', async () => {
         const testCustomer = (await createAccountCustomer(
