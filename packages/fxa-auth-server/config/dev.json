@@ -180,6 +180,7 @@
     },
     "clientIdToServiceNames": {
       "dcdb5ae7add825d2": "123done",
+      "5882386c6d801776": "firefox-desktop",
       "98e6508e88680e1a": "fxa-settings",
       "7377719276ad44ee": "pocket-mobile",
       "749818d3f2e7857f": "pocket-web"

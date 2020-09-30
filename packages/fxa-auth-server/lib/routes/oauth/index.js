@@ -24,7 +24,10 @@ const {
 
 const error = require('../../error');
 const oauthRouteUtils = require('../utils/oauth');
-const { OAUTH_SCOPE_SESSION_TOKEN } = require('../../constants');
+const {
+  OAUTH_SCOPE_OLD_SYNC,
+  OAUTH_SCOPE_SESSION_TOKEN,
+} = require('../../constants');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const JWTIdToken = require('../../oauth/jwt_id_token');
@@ -299,6 +302,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
             uid,
             ecosystemAnonId,
             clientId: request.payload.client_id,
+            service: request.payload.client_id,
           });
 
           // This is a bit of a hack, but we emit the `account.signed`
@@ -306,10 +310,27 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           // Previously, this event would get emitted on the `/certificate/sign`
           // endpoint however, with the move to sync oauth, this does not happen anymore
           // and we need to "fake" it.
-          await request.emitMetricsEvent('account.signed', {
-            uid: uid,
-            device_id: sessionToken.deviceId,
-          });
+          //
+          // A "fxa_activity - cert_signed" event will be emitted since
+          // "account.signed" is mapped to it.  And cert_signed is used in a
+          // rollup to generate the "fxa_activity - active" event in Amplitude
+          // (ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1632635), where
+          // we need the 'service' event property to distinguish between sync
+          // and browser.
+          //
+          // The service for this event gets special-cased to 'sync' so that it
+          // matches its pre-oauth `/certificate/sign` event.  ref:
+          // https://github.com/mozilla/fxa/pull/6581#issuecomment-702248031
+          if (
+            scopeSet.contains(OAUTH_SCOPE_OLD_SYNC) &&
+            config.oauth.oldSyncClientIds.includes(request.payload.client_id)
+          ) {
+            await request.emitMetricsEvent('account.signed', {
+              uid: uid,
+              device_id: sessionToken.deviceId,
+              service: 'sync',
+            });
+          }
         } catch (ex) {}
 
         return grant;

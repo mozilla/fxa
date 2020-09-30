@@ -14,10 +14,11 @@ const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const JWTIdToken = require(`${ROOT_DIR}/lib/oauth/jwt_id_token`);
 
+const { OAUTH_SCOPE_OLD_SYNC } = require(`${ROOT_DIR}/lib/constants`);
 const MOCK_CLIENT_ID = '0123456789abcdef';
 const MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
 const MOCK_ANON_ID = 'ANONYMOUSID0987654321';
-const MOCK_SCOPES = 'profile https://identity.mozilla.com/apps/scoped-example';
+const MOCK_SCOPES = `profile https://identity.mozilla.com/apps/scoped-example ${OAUTH_SCOPE_OLD_SYNC}`;
 const MOCK_UNIX_TIMESTAMP = Math.round(Date.now() / 1000);
 const MOCK_TOKEN =
   '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
@@ -341,7 +342,7 @@ describe('/oauth/ routes', () => {
       );
       assert.called(mockDB.account);
       assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
-      assert.calledTwice(mockEmitMetricsEvent);
+      assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithMatch(
         mockEmitMetricsEvent.firstCall,
         'oauth.token.created',
@@ -349,15 +350,7 @@ describe('/oauth/ routes', () => {
           grantType: 'fxa-credentials',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
-          clientId: MOCK_CLIENT_ID,
-        }
-      );
-      assert.calledWithMatch(
-        mockEmitMetricsEvent.secondCall,
-        'account.signed',
-        {
-          uid: MOCK_USER_ID,
-          device_id: undefined,
+          service: MOCK_CLIENT_ID,
         }
       );
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
@@ -393,7 +386,7 @@ describe('/oauth/ routes', () => {
       });
       assert.called(mockDB.account);
       assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
-      assert.calledTwice(mockEmitMetricsEvent);
+      assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithMatch(
         mockEmitMetricsEvent.firstCall,
         'oauth.token.created',
@@ -401,7 +394,7 @@ describe('/oauth/ routes', () => {
           grantType: 'authorization_code',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
-          clientId: MOCK_CLIENT_ID,
+          service: MOCK_CLIENT_ID,
         }
       );
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
@@ -439,7 +432,7 @@ describe('/oauth/ routes', () => {
 
       assert.called(mockDB.account);
       assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
-      assert.calledTwice(mockEmitMetricsEvent);
+      assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithMatch(
         mockEmitMetricsEvent.firstCall,
         'oauth.token.created',
@@ -447,7 +440,7 @@ describe('/oauth/ routes', () => {
           grantType: 'authorization_code',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
-          clientId: MOCK_CLIENT_ID,
+          service: MOCK_CLIENT_ID,
         }
       );
 
@@ -485,7 +478,7 @@ describe('/oauth/ routes', () => {
       });
       assert.called(mockDB.account);
       assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
-      assert.calledTwice(mockEmitMetricsEvent);
+      assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithMatch(
         mockEmitMetricsEvent.firstCall,
         'oauth.token.created',
@@ -493,7 +486,7 @@ describe('/oauth/ routes', () => {
           grantType: 'refresh_token',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
-          clientId: MOCK_CLIENT_ID,
+          service: MOCK_CLIENT_ID,
         }
       );
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
@@ -534,7 +527,7 @@ describe('/oauth/ routes', () => {
       );
       assert.called(mockDB.account);
       assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
-      assert.calledTwice(mockEmitMetricsEvent);
+      assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithMatch(
         mockEmitMetricsEvent.firstCall,
         'oauth.token.created',
@@ -542,7 +535,7 @@ describe('/oauth/ routes', () => {
           grantType: 'fxa-credentials',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
-          clientId: MOCK_CLIENT_ID,
+          service: MOCK_CLIENT_ID,
         }
       );
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
@@ -573,7 +566,8 @@ describe('/oauth/ routes', () => {
       assert.equal(mockOAuthDB.grantTokensFromSessionToken.callCount, 0);
     });
 
-    it('emits "flow.complete" event', async () => {
+    it('sets the service event property to "sync" when the client is an old sync client', async () => {
+      mockConfig.oauth.oldSyncClientIds = [MOCK_CLIENT_ID];
       mockOAuthDB = mocks.mockOAuthDB({
         grantTokensFromSessionToken: sinon.spy(async () => {
           return MOCK_TOKEN_RESPONSE;
@@ -585,36 +579,124 @@ describe('/oauth/ routes', () => {
         uid: MOCK_USER_ID,
       });
       sessionToken = await mockSessionToken();
-      const metricsContext = mocks.mockMetricsContext({
-        gather: sinon.spy(() =>
-          Promise.resolve({
-            device_id: 'foo',
-            flow_id: 'bar',
-            flowBeginTime: 123,
-            flowCompleteSignal: 'account.signed',
-          })
-        ),
-      });
-      const mockLog = mocks.mockLog();
       const mockRequest = mocks.mockRequest({
-        log: mockLog,
         credentials: sessionToken,
         payload: {
           client_id: MOCK_CLIENT_ID,
           scope: MOCK_SCOPES,
+          grant_type: 'fxa-credentials',
         },
-        metricsContext,
       });
-      const resp = await loadAndCallRoute('/oauth/token', mockRequest);
+      const mockEmitMetricsEvent = sinon.stub(mockRequest, 'emitMetricsEvent');
+      await loadAndCallRoute('/oauth/token', mockRequest);
+      console.log(mockEmitMetricsEvent.args);
+      assert.calledWithMatch(
+        mockEmitMetricsEvent.secondCall,
+        'account.signed',
+        {
+          uid: MOCK_USER_ID,
+          device_id: undefined,
+          service: 'sync',
+        }
+      );
+    });
 
-      assert.calledWithMatch(mockLog.flowEvent.thirdCall, {
-        event: 'flow.complete',
-        device_id: 'foo',
-        flow_id: 'bar',
-        flowBeginTime: 123,
-        flowCompleteSignal: 'account.signed',
+    describe('"flow.complete" event', async () => {
+      let metricsContext, mockLog;
+
+      beforeEach(async () => {
+        mockDB = mocks.mockDB({
+          ecosystemAnonId: MOCK_ANON_ID,
+          email: 'foo@example.com',
+          uid: MOCK_USER_ID,
+        });
+        sessionToken = await mockSessionToken();
+        metricsContext = mocks.mockMetricsContext({
+          gather: sinon.spy(() =>
+            Promise.resolve({
+              device_id: 'foo',
+              flow_id: 'bar',
+              flowBeginTime: 123,
+              flowCompleteSignal: 'account.signed',
+            })
+          ),
+        });
+        mockLog = mocks.mockLog();
       });
-      assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
+
+      it('emits the event when OLD_SYNC is in the scopes and client is an old one', async () => {
+        mockConfig.oauth.oldSyncClientIds = [MOCK_CLIENT_ID];
+        mockOAuthDB = mocks.mockOAuthDB({
+          grantTokensFromSessionToken: sinon.spy(async () => {
+            return MOCK_TOKEN_RESPONSE;
+          }),
+        });
+        const mockRequest = mocks.mockRequest({
+          log: mockLog,
+          credentials: sessionToken,
+          payload: {
+            client_id: MOCK_CLIENT_ID,
+            scope: MOCK_SCOPES,
+          },
+          metricsContext,
+        });
+        const resp = await loadAndCallRoute('/oauth/token', mockRequest);
+
+        assert.calledWithMatch(mockLog.flowEvent.thirdCall, {
+          event: 'flow.complete',
+          device_id: 'foo',
+          flow_id: 'bar',
+          flowBeginTime: 123,
+          flowCompleteSignal: 'account.signed',
+        });
+        assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
+      });
+
+      it('does not emit the event when OLD_SYNC is not in the scopes', async () => {
+        mockOAuthDB = mocks.mockOAuthDB({
+          grantTokensFromSessionToken: sinon.spy(async () => {
+            return { ...MOCK_TOKEN_RESPONSE, scope: 'somethingelse' };
+          }),
+        });
+        const mockRequest = mocks.mockRequest({
+          log: mockLog,
+          credentials: sessionToken,
+          payload: {
+            client_id: MOCK_CLIENT_ID,
+            scope: MOCK_SCOPES,
+          },
+          metricsContext,
+        });
+        await loadAndCallRoute('/oauth/token', mockRequest);
+        assert.isFalse(
+          mockLog.flowEvent.args.some(
+            (args) => args[0].event && args[0].event === 'flow.complete'
+          )
+        );
+      });
+
+      it('does not emit the event when the client is not an old one', async () => {
+        mockOAuthDB = mocks.mockOAuthDB({
+          grantTokensFromSessionToken: sinon.spy(async () => {
+            return MOCK_TOKEN_RESPONSE;
+          }),
+        });
+        const mockRequest = mocks.mockRequest({
+          log: mockLog,
+          credentials: sessionToken,
+          payload: {
+            client_id: MOCK_CLIENT_ID,
+            scope: MOCK_SCOPES,
+          },
+          metricsContext,
+        });
+        await loadAndCallRoute('/oauth/token', mockRequest);
+        assert.isFalse(
+          mockLog.flowEvent.args.some(
+            (args) => args[0].event && args[0].event === 'flow.complete'
+          )
+        );
+      });
     });
   });
 
