@@ -88,25 +88,17 @@ const webpackConfig = {
     rules: [
       {
         test: require.resolve('jquery'),
-        use: [
-          {
-            loader: 'expose-loader',
-            options: 'jQuery',
-          },
-          {
-            loader: 'expose-loader',
-            options: '$',
-          },
-        ],
+        loader: 'expose-loader',
+        options: {
+          exposes: ['$', 'jQuery'],
+        },
       },
       {
         test: require.resolve('mocha'),
-        use: [
-          {
-            loader: 'expose-loader',
-            options: 'mocha',
-          },
-        ],
+        loader: 'expose-loader',
+        options: {
+          exposes: 'mocha',
+        },
       },
       {
         test: /\.mustache$/,
