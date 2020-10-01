@@ -2890,3 +2890,16 @@ module.exports = {
   visibleByQSA,
   waitForUrl,
 };
+
+// Export helpers methods in a form that can be easily used in
+// async/await. The usage of the helpers are the same except
+// they expect the last argument to be the intern remote object.
+const helpersRemoteWrapped = {};
+Object.keys(module.exports).forEach((key) => {
+  helpersRemoteWrapped[key] = async function () {
+    const args = [...arguments];
+    const remote = args.pop();
+    return remote.then(module.exports[key](...args));
+  };
+});
+module.exports.helpersRemoteWrapped = helpersRemoteWrapped;
