@@ -115,14 +115,10 @@
           }
         }
 
-        &.logo-send {
-          background-image: image-url('graphic-logo-send.svg');
-          background-position-x: -8px;
-          width: 153px;
-
-          html[dir='rtl'] & {
-            background-position-x: 8px;
-          }
+        &.logo-vpn {
+          background-image: image-url('graphic-logo-vpn.svg');
+          background-size: auto 24px;
+          background-position-y: 6px;
         }
       }
     }
