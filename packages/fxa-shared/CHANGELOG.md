@@ -1,5 +1,18 @@
 # Change history
 
+## 1.190.1
+
+No changes.
+
+## 1.190.0
+
+### New features
+
+- auth: Add Create/Delete for Account-Customer Relationship ([147bbe3f6](https://github.com/mozilla/fxa/commit/147bbe3f6))
+- auth: create script to populate accountCustomers table ([b1dfccf6b](https://github.com/mozilla/fxa/commit/b1dfccf6b))
+- settings: emit settings view Amplitude event ([c34a98bd8](https://github.com/mozilla/fxa/commit/c34a98bd8))
+- shared: add CRUD methods for maintaining fxa user and customer relationship ([01122d032](https://github.com/mozilla/fxa/commit/01122d032))
+
 ## 1.189.1
 
 No changes.

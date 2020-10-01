@@ -1,5 +1,20 @@
 # Change history
 
+## 1.190.1
+
+No changes.
+
+## 1.190.0
+
+### Bug fixes
+
+- metrics: fix payload validation for payments metrics ([1bf620c54](https://github.com/mozilla/fxa/commit/1bf620c54))
+
+### Other changes
+
+- deps-dev: bump @types/storybook\_\_addon-links from 3.3.5 to 5.2.1 ([71f748c7a](https://github.com/mozilla/fxa/commit/71f748c7a))
+- deps-dev: bump @types/storybook\_\_addon-actions ([d1ebdbf52](https://github.com/mozilla/fxa/commit/d1ebdbf52))
+
 ## 1.189.1
 
 No changes.

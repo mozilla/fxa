@@ -1,3 +1,24 @@
+## 1.190.1
+
+No changes.
+
+## 1.190.0
+
+### New features
+
+- settings: emit settings view Amplitude event ([c34a98bd8](https://github.com/mozilla/fxa/commit/c34a98bd8))
+- settings: added passwordChange call to new settings ([c48140768](https://github.com/mozilla/fxa/commit/c48140768))
+
+### Bug fixes
+
+- tests: update functional testing docs and settings tests ([32c117bed](https://github.com/mozilla/fxa/commit/32c117bed))
+- fxa-settings: fix nav mobile styles takeover ([c91d73623](https://github.com/mozilla/fxa/commit/c91d73623))
+
+### Other changes
+
+- fxa-settings: add BentoMenu component ([ba9f35c44](https://github.com/mozilla/fxa/commit/ba9f35c44))
+- fxa-settings: mobile navigation tweaks ([2c4f3781f](https://github.com/mozilla/fxa/commit/2c4f3781f))
+
 ## 1.189.1
 
 No changes.

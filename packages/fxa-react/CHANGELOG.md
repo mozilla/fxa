@@ -1,3 +1,13 @@
+## 1.190.1
+
+No changes.
+
+## 1.190.0
+
+### Other changes
+
+- fxa-settings: add BentoMenu component ([ba9f35c44](https://github.com/mozilla/fxa/commit/ba9f35c44))
+
 ## 1.189.1
 
 No changes.

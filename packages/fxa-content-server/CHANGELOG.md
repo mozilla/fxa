@@ -1,3 +1,26 @@
+## 1.190.1
+
+No changes.
+
+## 1.190.0
+
+### New features
+
+- settings: emit settings view Amplitude event ([c34a98bd8](https://github.com/mozilla/fxa/commit/c34a98bd8))
+
+### Bug fixes
+
+- tests: update functional testing docs and settings tests ([32c117bed](https://github.com/mozilla/fxa/commit/32c117bed))
+- tests: Store test results in insights ([325c2f4aa](https://github.com/mozilla/fxa/commit/325c2f4aa))
+
+### Other changes
+
+- marketing: update marketing for vpn ([a3c678948](https://github.com/mozilla/fxa/commit/a3c678948))
+- deps: bump webpack-cli from 3.3.11 to 3.3.12 ([8f08f3f72](https://github.com/mozilla/fxa/commit/8f08f3f72))
+- deps: bump duration-js from 3.6.0 to 4.0.0 ([2d340383d](https://github.com/mozilla/fxa/commit/2d340383d))
+- deps: bump fast-text-encoding from 1.0.2 to 1.0.3 ([2e65b3330](https://github.com/mozilla/fxa/commit/2e65b3330))
+- deps-dev: bump @types/backbone from 1.4.2 to 1.4.4 ([0b9e8a516](https://github.com/mozilla/fxa/commit/0b9e8a516))
+
 ## 1.189.1
 
 No changes.
