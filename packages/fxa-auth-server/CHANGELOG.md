@@ -1,3 +1,18 @@
+## 1.190.0
+
+### New features
+
+- auth: Add Create/Delete for Account-Customer Relationship ([147bbe3f6](https://github.com/mozilla/fxa/commit/147bbe3f6))
+- auth: create script to populate accountCustomers table ([b1dfccf6b](https://github.com/mozilla/fxa/commit/b1dfccf6b))
+
+### Other changes
+
+- deps: bump @hapi/hoek from 8.5.1 to 9.1.0 ([70783c031](https://github.com/mozilla/fxa/commit/70783c031))
+- deps: bump moment-timezone from 0.5.11 to 0.5.31 ([7a5554655](https://github.com/mozilla/fxa/commit/7a5554655))
+- deps: bump urijs from 1.19.1 to 1.19.2 ([b02aa701e](https://github.com/mozilla/fxa/commit/b02aa701e))
+- deps: bump node-zendesk from 1.4.0 to 2.0.3 ([5fc44cc92](https://github.com/mozilla/fxa/commit/5fc44cc92))
+- deps-dev: bump acorn from 5.7.4 to 8.0.1 ([5804a55ab](https://github.com/mozilla/fxa/commit/5804a55ab))
+
 ## 1.189.1
 
 ### Bug fixes

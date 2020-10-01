@@ -1,3 +1,9 @@
+## 1.190.0
+
+### New features
+
+- auth: Add Create/Delete for Account-Customer Relationship ([147bbe3f6](https://github.com/mozilla/fxa/commit/147bbe3f6))
+
 ## 1.189.1
 
 No changes.

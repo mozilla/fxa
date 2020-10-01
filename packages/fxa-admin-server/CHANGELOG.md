@@ -1,3 +1,9 @@
+## 1.190.0
+
+### Other changes
+
+- deps: bump graphql-tools from 4.0.8 to 6.2.3 ([1ad5b0ecd](https://github.com/mozilla/fxa/commit/1ad5b0ecd))
+
 ## 1.189.1
 
 No changes.
