@@ -1,3 +1,9 @@
+## 1.190.1
+
+### Bug fixes
+
+- tests: increase test timeout ([06c693ae8](https://github.com/mozilla/fxa/commit/06c693ae8))
+
 ## 1.190.0
 
 ### New features
