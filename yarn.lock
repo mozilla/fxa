@@ -3094,7 +3094,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/hoek@npm:8.x.x, @hapi/hoek@npm:^8.2.4, @hapi/hoek@npm:^8.3.0, @hapi/hoek@npm:^8.5.1":
+"@hapi/hoek@npm:8.x.x, @hapi/hoek@npm:^8.2.4, @hapi/hoek@npm:^8.3.0":
   version: 8.5.1
   resolution: "@hapi/hoek@npm:8.5.1"
   checksum: 17bf9a0b6f2f9ecb248824dab838c66c50b16b00b1d3785233fafd5abacb06cc6cdcbd6f4c7be87babb227fc02fff46ad1c23de3f5b6f48ffe36b6aac829d82c
@@ -3105,6 +3105,13 @@ __metadata:
   version: 9.0.4
   resolution: "@hapi/hoek@npm:9.0.4"
   checksum: d000f60d5e30db7ed2b838a7ec4a757542f04036c8eb431328fd1139f3f7dbd400a2c7d86acbbaf8b8da11dee6f8ae706f6d88bd71c02b3c5f16fd3f6223aa09
+  languageName: node
+  linkType: hard
+
+"@hapi/hoek@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "@hapi/hoek@npm:9.1.0"
+  checksum: c77ac8f0c1ae6e21b3d77fa63f462dc1b0c84481388f5e54c651e86cf565d58cb701c396a1fa86a746d5dc278013ad5b3513a58c4cb19a493802d17b68c90740
   languageName: node
   linkType: hard
 
@@ -17564,7 +17571,7 @@ fsevents@^1.2.7:
     "@google-cloud/firestore": ^3.7.5
     "@hapi/hapi": ^19.1.1
     "@hapi/hawk": ^8.0.0
-    "@hapi/hoek": ^8.5.1
+    "@hapi/hoek": ^9.1.0
     "@hapi/joi": ^15.1.1
     "@sentry/node": ^5.17.0
     "@type-cacheable/core": ^5.2.0
