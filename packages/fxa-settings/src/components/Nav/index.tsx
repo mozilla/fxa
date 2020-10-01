@@ -16,7 +16,7 @@ export const Nav = () => {
   const activeClasses = 'font-bold text-blue-500 rounded-sm';
   return (
     <nav
-      className="font-header fixed bg-white w-full inset-0 mt-18 mr-24 desktop:ml-16 desktop:bg-transparent text-xl desktop:text-base"
+      className="font-header fixed bg-white w-full inset-0 mt-18 mr-24 desktop:mt-11 desktop:static desktop:bg-transparent text-xl desktop:text-base"
       data-testid="nav"
     >
       <ul className="px-6 py-7 text-left tablet:px-8 desktop:p-0 mobileLandscape:mt-8">
