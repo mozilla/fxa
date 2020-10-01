@@ -60,7 +60,7 @@
     "@types/redux-actions": "^2.6.0",
     "@types/sinon": "9.0.5",
     "@types/storybook__addon-actions": "^5.2.1",
-    "@types/storybook__addon-links": "^3.3.5",
+    "@types/storybook__addon-links": "^5.2.1",
     "@types/storybook__react": "^4.0.1",
     "@types/uuid": "^7.0.2",
     "@types/webpack": "4.41.16",
