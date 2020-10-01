@@ -12,7 +12,7 @@ const config = require('../../config').getProperties();
 const mocks = require('../mocks');
 
 describe('remote account create', function () {
-  this.timeout(15000);
+  this.timeout(30000);
   let server;
   before(async () => {
     server = await TestServer.start(config);
