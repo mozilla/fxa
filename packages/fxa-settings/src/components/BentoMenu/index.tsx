@@ -1,0 +1,138 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import React, { useState } from 'react';
+import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
+import LinkExternal from 'fxa-react/components/LinkExternal';
+import { useEscKeydownEffect } from '../../lib/hooks';
+
+import { ReactComponent as FirefoxIcon } from './logo.svg';
+import { ReactComponent as MonitorIcon } from './monitor.svg';
+import { ReactComponent as PocketIcon } from './pocket.svg';
+import { ReactComponent as DesktopIcon } from './desktop.svg';
+import { ReactComponent as MobileIcon } from './mobile.svg';
+import { ReactComponent as LockwiseIcon } from './lockwise.svg';
+import { ReactComponent as BentoIcon } from './bento.svg';
+import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+
+export const BentoMenu = () => {
+  const [isRevealed, setRevealed] = useState(false);
+  const toggleRevealed = () => setRevealed(!isRevealed);
+  const closeFn = () => setRevealed(false);
+  const bentoMenuInsideRef = useClickOutsideEffect<HTMLDivElement>(setRevealed);
+  useEscKeydownEffect(setRevealed);
+  const dropDownId = 'drop-down-bento-menu';
+
+  return (
+    <div className="relative self-center" ref={bentoMenuInsideRef}>
+      <button
+        onClick={toggleRevealed}
+        data-testid="drop-down-bento-menu-toggle"
+        title="Firefox Bento Menu"
+        aria-expanded={isRevealed}
+        aria-controls={dropDownId}
+        className="rounded p-1 w-7 mx-2 border-transparent hover:bg-grey-200 focus:outline-none transition-standard desktop:mx-8"
+      >
+        <BentoIcon className="cursor-pointer" />
+      </button>
+
+      {isRevealed && (
+        <div
+          id={dropDownId}
+          data-testid={dropDownId}
+          className={`w-full h-full fixed top-0 left-0 bg-white z-10
+                      mobileLandscape:h-auto mobileLandscape:drop-down-menu mobileLandscape:top-10 mobileLandscape:-left-52 desktop:-left-50`}
+        >
+          <div className="flex flex-wrap">
+            <div className="flex w-full pt-4 items-center flex-col tablet:w-auto tablet:relative">
+              <CloseIcon
+                width="16"
+                height="16"
+                className="absolute top-6 right-6 mobileLandscape:hidden"
+                onClick={closeFn}
+              />
+              <div className="mt-12 text-center p-8 pt-2 pb-2 mobileLandscape:mt-0">
+                <FirefoxIcon className="my-2 mx-auto" />
+                <h2>Firefox is tech that fights for your online privacy.</h2>
+              </div>
+              <div className="w-full text-xs mt-2">
+                <ul className="list-none">
+                  <li>
+                    <LinkExternal
+                      data-testid="monitor-link"
+                      href="https://monitor.firefox.com"
+                      className="block p-2 pl-6 hover:bg-grey-100"
+                    >
+                      <div className="inline-block -mb-1 pr-1">
+                        <MonitorIcon />
+                      </div>
+                      Firefox Monitor
+                    </LinkExternal>
+                  </li>
+                  <li>
+                    <LinkExternal
+                      data-testid="pocket-link"
+                      href="https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447"
+                      className="block p-2 pl-6 hover:bg-grey-100"
+                    >
+                      <div className="inline-block -mb-1 pr-1">
+                        <PocketIcon />
+                      </div>
+                      Pocket
+                    </LinkExternal>
+                  </li>
+                  <li>
+                    <LinkExternal
+                      data-testid="desktop-link"
+                      href="https://www.mozilla.org/firefox/new/?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
+                      className="block p-2 pl-6 hover:bg-grey-100"
+                    >
+                      <div className="inline-block -mb-1 pr-1">
+                        <DesktopIcon />
+                      </div>
+                      Firefox Browser for Desktop
+                    </LinkExternal>
+                  </li>
+                  <li>
+                    <LinkExternal
+                      data-testid="mobile-link"
+                      href="http://mozilla.org/firefox/mobile?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
+                      className="block p-2 pl-6 hover:bg-grey-100"
+                    >
+                      <div className="inline-block -mb-1 pr-1">
+                        <MobileIcon />
+                      </div>
+                      Firefox Browser for Mobile
+                    </LinkExternal>
+                  </li>
+                  <li>
+                    <LinkExternal
+                      data-testid="lockwise-link"
+                      href="https://bhqf.adj.st/?adjust_t=6tteyjo&adj_deeplink=lockwise%3A%2F%2F&adj_fallback=https%3A%2F%2Fwww.mozilla.org%2Fen-US%2Ffirefox%2Flockwise"
+                      className="block p-2 pl-6 hover:bg-grey-100"
+                    >
+                      <div className="inline-block -mb-1 pr-1">
+                        <LockwiseIcon />
+                      </div>
+                      Firefox Lockwise
+                    </LinkExternal>
+                  </li>
+                </ul>
+              </div>
+              <LinkExternal
+                data-testid="mozilla-link"
+                className="link-blue text-xs w-full text-center block m-2 p-2 hover:bg-grey-100"
+                href="https://www.mozilla.org/"
+              >
+                Made by Mozilla
+              </LinkExternal>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default BentoMenu;

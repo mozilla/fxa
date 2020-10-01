@@ -21260,6 +21260,7 @@ fsevents@^1.2.7:
 "invert-kv@npm:^1.0.0":
   version: 1.0.0
   resolution: "invert-kv@npm:1.0.0"
+  checksum: fccd6ea4ee18d30b00fc21d6679191690f8447f248cbcdf6f74fe81a4048d51a3858d7af17a0318bd7c6fe6c46abee5a10756109787a3ec0e0a02a2c1b4a635d
   languageName: node
   linkType: hard
 
@@ -24146,6 +24147,7 @@ fsevents@^1.2.7:
   resolution: "lcid@npm:1.0.0"
   dependencies:
     invert-kv: ^1.0.0
+  checksum: 36f50f8be935c90e3f9296d3f7057df950ee27c4f1608549b11b3f88d26d68a19a47cf787b1a6e3eb292e820fcc8c96a67be2fca14f713430adb57b24e06fb96
   languageName: node
   linkType: hard
 
@@ -26144,6 +26146,7 @@ fsevents@^1.2.7:
   resolution: "moment-timezone@npm:0.5.31"
   dependencies:
     moment: ">= 2.9.0"
+  checksum: db8c241301530919ea3091b75c067c1b919973619bed0f3b0c009eb94e44da726452a1382c099d55a876407fd4e22802b45bc51f96c5cbfbb7fbbfa6660079e8
   languageName: node
   linkType: hard
 
@@ -26398,6 +26401,7 @@ fsevents@^1.2.7:
     ini: ^1.3.0
     secure-keys: ^1.0.0
     yargs: ^3.19.0
+  checksum: 2b33d443ad1921d290f74f0e3d8511f625beeef7035813afdbc718da24658a9d67c3f5534723c7d353049320a1ea610a830ad47b459f626bc22d4b5328db8164
   languageName: node
   linkType: hard
 
@@ -26876,6 +26880,7 @@ fsevents@^1.2.7:
     nconf: 0.10.x
     querystring: 0.2.x
     request: 2.88.x
+  checksum: ca9e030c33bc7a3ee790eb803c2ff3b9d25ae27c0def0d33632206d1a17c2e907c439a9ba79c5ce045dfe562d06d1f4b2ba600e037f459294c96913385bc9d5a
   languageName: node
   linkType: hard
 
@@ -27727,6 +27732,7 @@ fsevents@^1.2.7:
   resolution: "os-locale@npm:1.4.0"
   dependencies:
     lcid: ^1.0.0
+  checksum: 19d876790073758c346c8df2ec40a9c28ee1497b185bfb54d3fd082b9b82e61f2ee3a9bd329cdd6ae878c7fce045c0c3b21c1196061af8360aebf2775fa27b2b
   languageName: node
   linkType: hard
 
@@ -32902,6 +32908,7 @@ resolve@~1.11.1:
 "secure-keys@npm:^1.0.0":
   version: 1.0.0
   resolution: "secure-keys@npm:1.0.0"
+  checksum: e42d2252e5d3d6d2e0209dc4a142bb3c11306ec414f488ca4a7f607aa12d9231cb93d19c0644c0b64c97372e059a9e37bbbc859ce2956a49bcb08d8bbca2f4e5
   languageName: node
   linkType: hard
 
@@ -36738,6 +36745,7 @@ resolve@~1.11.1:
 "urijs@npm:1.19.2":
   version: 1.19.2
   resolution: "urijs@npm:1.19.2"
+  checksum: de6b943c354b092be71e10c5c16d9d9b67186d6283031f55382d11507dc8a7748001b5aa8136f515f746f2f4786d7f4e43e17c23ba661abcc7dbbbe254924feb
   languageName: node
   linkType: hard
 
@@ -38357,6 +38365,7 @@ resolve@~1.11.1:
 "y18n@npm:^3.2.0":
   version: 3.2.1
   resolution: "y18n@npm:3.2.1"
+  checksum: e0f3db233608c026dd1d06dc5805c99fedbeb21c6a73bdac70d8a6ec1bbcf1cc38952e7b8a79b46c9d1bdee022cc40e529c760f04f9c6cd3123e5ba657d19322
   languageName: node
   linkType: hard
 
@@ -38601,6 +38610,7 @@ resolve@~1.11.1:
     string-width: ^1.0.1
     window-size: ^0.1.4
     y18n: ^3.2.0
+  checksum: 165018a4853701f493f10b1956b8521de506ea751dcdd2ef3a1db95760676d5bcc5cb7db3c8cf26c41907a81d2c6b58c8f102dfec21f623c61e2b24e37682a2b
   languageName: node
   linkType: hard
 
