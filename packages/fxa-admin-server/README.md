@@ -2,6 +2,20 @@
 
 This is the GraphQL server for an internal resource for FxA Admins to access a set of convenience tools.
 
+## Connecting to the Playground
+
+The [GraphQL playground](https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/) for this package is available at [localhost:8095/graphql](http://localhost:8095/graphql), providing a GUI for an up-to-date schema and API docs, as well as a way to test queries and mutations.
+
+The playground requires an `oidc-claim-id-token-email` authorization header. In production this is supplied through an nginx header after LDAP credentials have been verified but in development, a dummy email should be supplied in the bottom left-hand corner of the GQL playground labeled "HTTP Headers":
+
+```
+{
+  "oidc-claim-id-token-email": "hello@gmail.com"
+}
+```
+
+Hit the "play" button and the schema and docs will populate.
+
 ## Generate test email bounces
 
 If you need to create a handful of test email bounces in development you can use `yarn email-bounce`.

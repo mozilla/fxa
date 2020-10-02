@@ -107,7 +107,7 @@ const conf = convict({
   servers: {
     admin: {
       url: {
-        default: 'http://localhost:8090',
+        default: 'http://localhost:8095',
         doc: 'The url of the fxa-admin-server instance',
         env: 'ADMIN_SERVER_URL',
         format: 'url',
