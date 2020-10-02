@@ -838,6 +838,12 @@ const conf = convict({
       default: {},
       env: 'OAUTH_CLIENT_IDS',
     },
+    oldSyncClientIds: {
+      doc: 'Client IDs of sync clients that migrated to OAuth.',
+      format: Array,
+      default: ['5882386c6d801776', '1b1a3e44c54fbb58'],
+      env: 'OAUTH_OLD_SYNC_CLIENT_IDS',
+    },
     // A safety switch for disabling new signins/signups from particular clients,
     // as a hedge against unexpected client behaviour.
     disableNewConnectionsForClients: {
