@@ -60,6 +60,7 @@ export const UnitRowRecoveryKey = () => {
   return (
     <UnitRow
       header="Recovery key"
+      headerId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
       headerValue={recoveryKey ? 'Enabled' : 'Not Set'}
       route={
