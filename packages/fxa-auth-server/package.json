@@ -74,7 +74,7 @@
     "i18n-abide": "0.0.26",
     "intl": "1.2.5",
     "ioredis": "^4.17.3",
-    "jed": "0.5.4",
+    "jed": "1.1.1",
     "jsonwebtoken": "^8.4.0",
     "jsrsasign": "^8.0.20",
     "keyv": "4.0.3",
