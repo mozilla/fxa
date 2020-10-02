@@ -17632,7 +17632,7 @@ fsevents@^1.2.7:
     i18n-abide: 0.0.26
     intl: 1.2.5
     ioredis: ^4.17.3
-    jed: 0.5.4
+    jed: 1.1.1
     jsonwebtoken: ^8.4.0
     jsrsasign: ^8.0.20
     jsxgettext-recursive-next: 1.1.0
@@ -22350,10 +22350,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jed@npm:0.5.4":
-  version: 0.5.4
-  resolution: "jed@npm:0.5.4"
-  checksum: 86a1699f8eba059f31556d41c781ac377fc1c0da46d518e9ffbf9a6a779d562b4041b1051103300a6d58e3c22019666d78eeb5a02f052a900bb04ca624be69fe
+"jed@npm:1.1.1":
+  version: 1.1.1
+  resolution: "jed@npm:1.1.1"
   languageName: node
   linkType: hard
 
