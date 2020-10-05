@@ -7,6 +7,12 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MockedCache } from '../../models/_mocks';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 import DropDownAvatarMenu, { DESTROY_SESSION_MUTATION } from '.';
+import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
+
+jest.mock('fxa-settings/src/lib/metrics', () => ({
+  logViewEvent: jest.fn(),
+  settingsViewName: 'quuz',
+}));
 
 const mockGqlSuccess = () => ({
   request: {
@@ -126,6 +132,10 @@ describe('DropDownAvatarMenu', () => {
       });
       expect(window.location.assign).toHaveBeenCalledWith(
         `${window.location.origin}/signin`
+      );
+      expect(logViewEvent).toHaveBeenCalledWith(
+        settingsViewName,
+        'signout.success'
       );
     });
 
