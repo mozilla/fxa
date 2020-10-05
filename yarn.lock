@@ -5821,10 +5821,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hapi__joi@npm:*, @types/hapi__joi@npm:17.1.4":
+"@types/hapi__joi@npm:*":
   version: 17.1.4
   resolution: "@types/hapi__joi@npm:17.1.4"
   checksum: ffd3c81bdbdf6dfa0f3f4905f62340bd4dd23479d2eea1eafbdaf19440fb67641690047090a2f6472c654c0b7db9c16f0ef813764bf25808abbcad06530751e3
+  languageName: node
+  linkType: hard
+
+"@types/hapi__joi@npm:17.1.6":
+  version: 17.1.6
+  resolution: "@types/hapi__joi@npm:17.1.6"
+  checksum: 177258c8e24da331077d6e031060cbbfc625abf5978bf9a4f14254a43b34d5982d6459ad37bdc34ce25ecc3587c24a8eab258ecd90cb7eca0111aa3a89ee66b0
   languageName: node
   linkType: hard
 
@@ -18391,7 +18398,7 @@ fsevents@^1.2.7:
     "@types/convict": ^5.2.1
     "@types/eslint": 7.2.0
     "@types/hapi__hapi": ^19.0.4
-    "@types/hapi__joi": 17.1.4
+    "@types/hapi__joi": 17.1.6
     "@types/mocha": ^8.0.2
     "@types/node": ^12.12.7
     "@types/request-promise-native": ^1.0.17
