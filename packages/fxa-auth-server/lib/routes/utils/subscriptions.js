@@ -70,7 +70,6 @@ async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
   const customer = await stripeHelper.customer({
     uid,
     email,
-    cacheOnly: true,
   });
   if (!customer || !customer.subscriptions.data) {
     return [];

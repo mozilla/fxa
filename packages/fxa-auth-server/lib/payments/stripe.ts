@@ -388,25 +388,34 @@ export class StripeHelper {
   }
 
   /**
-   * Fetch a customer for the record from Stripe based on email.
+   * Fetch a customer for the record from Stripe based on user id.
    */
   async fetchCustomer(
     uid: string,
-    email: string,
     expand?: string[]
   ): Promise<Stripe.Customer | void> {
-    const customerResponse = await this.stripe.customers
-      .list({ email, expand })
-      .autoPagingToArray({ limit: 20 });
-    if (customerResponse.length === 0) {
+    const accountCustomer = await getAccountCustomerByUid(uid);
+    if (
+      accountCustomer === undefined ||
+      accountCustomer.stripeCustomerId === undefined
+    ) {
       return;
     }
-    const customer = customerResponse[0];
+
+    const customer = await this.stripe.customers.retrieve(
+      accountCustomer.stripeCustomerId,
+      { expand }
+    );
+
+    if (customer.deleted) {
+      await deleteAccountCustomer(uid);
+      return;
+    }
 
     if (customer.metadata.userid !== uid) {
       // Duplicate email with non-match uid
       const err = new Error(
-        `Customer for email: ${email} in Stripe has mismatched uid`
+        `Stripe Customer: ${customer.id} has mismatched uid in metadata.`
       );
       throw error.backendServiceFailure('stripe', 'fetchCustomer', {}, err);
     }
@@ -436,7 +445,7 @@ export class StripeHelper {
     uid: string,
     email: string
   ): Promise<Stripe.Customer | void> {
-    return this.fetchCustomer(uid, email, [
+    return this.fetchCustomer(uid, [
       'data.sources',
       'data.subscriptions',
       'data.invoice_settings.default_payment_method',
@@ -452,20 +461,11 @@ export class StripeHelper {
     uid,
     email,
     forceRefresh = false,
-    cacheOnly = false,
   }: {
     uid: string;
     email: string;
     forceRefresh?: boolean;
-    cacheOnly?: boolean;
   }): Promise<Stripe.Customer | undefined> {
-    if (cacheOnly) {
-      return (
-        (await cacheManager.client?.get(
-          StripeHelper.customerCacheKey([uid, email])
-        )) || undefined
-      );
-    }
     if (forceRefresh) {
       await this.removeCustomerFromCache(uid, email);
     }
