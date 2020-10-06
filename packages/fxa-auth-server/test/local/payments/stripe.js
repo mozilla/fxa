@@ -66,6 +66,7 @@ const mockConfig = {
     enabled: true,
     url: 'https://foo.bar',
     key: 'foo',
+    customerCacheTtlSeconds: 90,
     plansCacheTtlSeconds: 60,
   },
 };
@@ -1221,8 +1222,11 @@ describe('StripeHelper', () => {
         assert(mockRedis.get.calledOnce);
         assert(mockRedis.set.calledOnce);
 
-        // Assert that no TTL was set for this cache entry - i.e. [ 'EX', 600 ] should not appear.
-        assert.deepEqual(mockRedis.set.args[0][2], []);
+        // Assert that a TTL was set for this cache entry
+        assert.deepEqual(mockRedis.set.args[0][2], [
+          'EX',
+          mockConfig.subhub.customerCacheTtlSeconds,
+        ]);
 
         assert.deepEqual(
           await stripeHelper.customer({ uid: existingUid, email }),
