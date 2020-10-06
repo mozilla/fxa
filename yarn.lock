@@ -4783,7 +4783,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/react@npm:^5.3.19":
+"@storybook/react@npm:*, @storybook/react@npm:^5.3.19":
   version: 5.3.19
   resolution: "@storybook/react@npm:5.3.19"
   dependencies:
@@ -6699,13 +6699,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/storybook__react@npm:^4.0.1":
-  version: 4.0.2
-  resolution: "@types/storybook__react@npm:4.0.2"
+"@types/storybook__react@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "@types/storybook__react@npm:5.2.1"
   dependencies:
-    "@types/react": "*"
-    "@types/webpack-env": "*"
-  checksum: 8cd621cb3c1a9097d78b12e26323c7cb5295b810851162b88cc7d650bb295c44666bd8a11347e3fb9feb5f0ef044382b124c85bb210d5a5f6f231d01fca996cf
+    "@storybook/react": "*"
+  checksum: 9a777121fb0d3b6bda8e18457e9a5bdf4abfaf17d8a134b7a045299b0b57d655b3cf47da3aa174d49ecf3d871b6552632b5636920d12b78af8aeb218b0f0416b
   languageName: node
   linkType: hard
 
@@ -6838,7 +6837,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack-env@npm:*, @types/webpack-env@npm:^1.15.0":
+"@types/webpack-env@npm:^1.15.0":
   version: 1.15.2
   resolution: "@types/webpack-env@npm:1.15.2"
   checksum: 571fa57efdf276b4feaf6d1fafd6b4d25a5e6f146eb517ad6c9f64ccca0146a8ed759f05428fe224ace5040983334d87259da4758fa1c18f44063243eaa9da85
@@ -18074,7 +18073,7 @@ fsevents@^1.2.7:
     "@types/sinon": 9.0.7
     "@types/storybook__addon-actions": ^5.2.1
     "@types/storybook__addon-links": ^5.2.1
-    "@types/storybook__react": ^4.0.1
+    "@types/storybook__react": ^5.2.1
     "@types/uuid": ^7.0.2
     "@types/webpack": 4.41.16
     "@typescript-eslint/eslint-plugin": 2.33.0
