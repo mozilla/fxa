@@ -141,29 +141,12 @@ describe('lib/senders/sms:', () => {
         assert.deepEqual(args[0].Statistics, ['Maximum']);
       });
 
-      it('called log.info correctly', () => {
-        assert.equal(log.info.callCount, 1);
-        const args = log.info.args[0];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], 'sms.budget.ok');
-        assert.deepEqual(args[1], {
-          isBudgetOk: true,
-          current: 0,
-          limit: config.sms.minimumCreditThresholdUSD,
-          threshold: config.sms.minimumCreditThresholdUSD,
-        });
-      });
-
       it('isBudgetOk returns true', () => {
         assert.strictEqual(sms.isBudgetOk(), true);
       });
 
       it('did not call sns.publish', () => {
         assert.equal(sns.publish.callCount, 0);
-      });
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0);
       });
     });
 
@@ -182,10 +165,6 @@ describe('lib/senders/sms:', () => {
         it('isBudgetOk returns false', () => {
           assert.strictEqual(sms.isBudgetOk(), false);
         });
-
-        it('did not call log.error', () => {
-          assert.equal(log.error.callCount, 0);
-        });
       });
     });
 
@@ -200,17 +179,6 @@ describe('lib/senders/sms:', () => {
         it('isBudgetOk returns true', () => {
           assert.strictEqual(sms.isBudgetOk(), true);
         });
-
-        it('called log.error correctly', () => {
-          assert.equal(log.error.callCount, 1);
-          const args = log.error.args[0];
-          assert.lengthOf(args, 2);
-          assert.equal(args[0], 'sms.budget.error');
-          assert.deepEqual(args[1], {
-            err: 'Invalid getMetricStatistics result "wibble"',
-            result: undefined,
-          });
-        });
       });
     });
 
@@ -224,17 +192,6 @@ describe('lib/senders/sms:', () => {
 
         it('isBudgetOk returns true', () => {
           assert.strictEqual(sms.isBudgetOk(), true);
-        });
-
-        it('called log.error correctly', () => {
-          assert.equal(log.error.callCount, 1);
-          const args = log.error.args[0];
-          assert.lengthOf(args, 2);
-          assert.equal(args[0], 'sms.budget.error');
-          assert.deepEqual(args[1], {
-            err: "Cannot read property 'Maximum' of undefined",
-            result: JSON.stringify(results.getMetricStatistics),
-          });
         });
       });
     });
@@ -269,34 +226,7 @@ describe('lib/senders/sms:', () => {
         });
       });
 
-      it('called log.trace correctly', () => {
-        assert.equal(log.trace.callCount, 1);
-        const args = log.trace.args[0];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], 'sms.send');
-        assert.deepEqual(args[1], {
-          templateName: 'installFirefox',
-          acceptLanguage: 'en',
-        });
-      });
-
-      it('called log.info correctly', () => {
-        assert.equal(log.info.callCount, 2);
-        const args = log.info.args[1];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], 'sms.send.success');
-        assert.deepEqual(args[1], {
-          templateName: 'installFirefox',
-          acceptLanguage: 'en',
-          messageId: 'foo',
-        });
-      });
-
       it('did not call mockSns.publish', () => {
-        assert.equal(log.error.callCount, 0);
-      });
-
-      it('did not call log.error', () => {
         assert.equal(log.error.callCount, 0);
       });
     });
@@ -318,10 +248,6 @@ describe('lib/senders/sms:', () => {
           'Thanks for choosing Firefox! You can install Firefox for mobile here: https://wibble/--__ff0'
         );
       });
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0);
-      });
     });
 
     describe('attempt to send an sms with an invalid template name:', () => {
@@ -341,16 +267,6 @@ describe('lib/senders/sms:', () => {
       it('failed correctly', () => {
         assert.equal(error.errno, 131);
         assert.equal(error.message, 'Invalid message id');
-      });
-
-      it('called log.error correctly', () => {
-        assert.equal(log.error.callCount, 1);
-        const args = log.error.args[0];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], 'sms.getMessage.error');
-        assert.deepEqual(args[1], {
-          templateName: 'wibble',
-        });
       });
 
       it('did not call sns.publish', () => {
@@ -457,10 +373,6 @@ describe('lib/senders/sms:', () => {
         assert.equal(sns.getSMSAttributes.callCount, 0);
         assert.equal(cloudwatch.getMetricStatistics.callCount, 0);
       });
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0);
-      });
     });
 
     describe('send an sms:', () => {
@@ -495,10 +407,6 @@ describe('lib/senders/sms:', () => {
 
       it('did not call sns.publish', () => {
         assert.equal(sns.publish.callCount, 0);
-      });
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0);
       });
     });
 
