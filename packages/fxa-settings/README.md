@@ -419,7 +419,6 @@ Relevant environment and account data, such as window measurements, user locale,
 - `setProperties({ key: value })` can be used to configure additional information about the user's environment and session. Refer to `ConfigurableProperties` in the metrics library for the properties that can be configured.
 - `setUserPreference` can be used to log when a user preference is updated.
 - `addExperiment(choice, group)` can be used to add details about an experiment the user is participating in.
-- `addMarketingImpression(url, campaignId)` and `setMarketingClick(url, campaignId)` can be used to add details about a marketing flow the user is a part of, and whether or not a marketing link was interacted with.
 
 #### Event logging
 

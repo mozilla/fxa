@@ -37,12 +37,6 @@ type ExperimentGroup = {
   group: string;
 };
 
-type MarketingCampaign = {
-  campaignId: string;
-  clicked: boolean;
-  url: string;
-};
-
 type UserPreferences = {
   [userPref: string]: boolean;
 };
@@ -50,7 +44,6 @@ type UserPreferences = {
 type ConfigurableProperties = {
   experiments: ExperimentGroup[];
   lang: string | typeof UNKNOWN_VALUE;
-  marketing: MarketingCampaign[];
   newsletters: string[] | typeof NOT_REPORTED_VALUE;
   startTime: number;
   uid: Optional<string>;
@@ -94,7 +87,6 @@ function defaultConfigProps(): ConfigurableProperties {
   return {
     experiments: [],
     lang: UNKNOWN_VALUE,
-    marketing: [],
     newsletters: NOT_REPORTED_VALUE,
     startTime: startTime(),
     uid: NOT_REPORTED_VALUE,
@@ -385,39 +377,4 @@ export function addExperiment(choice: string, group: string) {
   } else {
     configurableProperties.experiments.push(experiment);
   }
-}
-
-/**
- * Log when a marketing snippet is shown to the user
- *
- * @param url - URL of marketing link
- * @param campaignId - Marketing campaign id
- */
-export function addMarketingImpression(url: string, campaignId?: string) {
-  const impression: MarketingCampaign = {
-    campaignId: campaignId || UNKNOWN_VALUE,
-    url,
-    clicked: false,
-  };
-
-  configurableProperties.marketing.push(impression);
-}
-
-/**
- * Log whether the user clicked on a marketing link
- *
- * @param url - URL of marketing link
- * @param campaignId - Marketing campaign id
- */
-export function setMarketingClick(url: string, campaignId: string) {
-  const index = configurableProperties.marketing.findIndex(
-    (impression) =>
-      impression.url === url && impression.campaignId === campaignId
-  );
-
-  if (index < 0) {
-    return;
-  }
-
-  configurableProperties.marketing[index].clicked = true;
 }
