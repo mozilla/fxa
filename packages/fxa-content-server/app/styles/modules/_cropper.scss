@@ -47,6 +47,11 @@
     &::after {
       right: -100%;
     }
+
+    [dir=rtl] & {
+      left: auto;
+      right: calc((100% - #{$avatar-size}) / 2);
+    }
   }
 
   .drag-overlay {
