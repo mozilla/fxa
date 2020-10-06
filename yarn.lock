@@ -6066,12 +6066,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsonwebtoken@npm:*, @types/jsonwebtoken@npm:^8.3.5":
+"@types/jsonwebtoken@npm:*":
   version: 8.3.9
   resolution: "@types/jsonwebtoken@npm:8.3.9"
   dependencies:
     "@types/node": "*"
   checksum: 71a1fb7334ec2793cf5565379e2450cfe0e8f4f85ae664acff47dc1fa548ea0c3b68f20d705645b4783c6d33421ff468151aec5c75a85c58cd53a31fe4640596
+  languageName: node
+  linkType: hard
+
+"@types/jsonwebtoken@npm:^8.5.0":
+  version: 8.5.0
+  resolution: "@types/jsonwebtoken@npm:8.5.0"
+  dependencies:
+    "@types/node": "*"
+  checksum: d1a6b28f826898bc4f5596d91705aa864419c4a5ca49215507260644af8ceff9edb6db1901a108207cfb22558d035655b55309f38b75fa081da01be9f5408b21
   languageName: node
   linkType: hard
 
@@ -17434,7 +17443,7 @@ fsevents@^1.2.7:
     "@types/hapi__hapi": ^19.0.3
     "@types/ioredis": ^4.16.7
     "@types/joi": ^14.3.3
-    "@types/jsonwebtoken": ^8.3.5
+    "@types/jsonwebtoken": ^8.5.0
     "@types/jsrsasign": 8.0.5
     "@types/jws": ^3.2.0
     "@types/lodash": ^4
