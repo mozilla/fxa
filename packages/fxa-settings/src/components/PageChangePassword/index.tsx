@@ -13,6 +13,7 @@ import { useAccount, Account, Session } from '../../models';
 import AlertBar from '../AlertBar';
 import FlowContainer from '../FlowContainer';
 import InputPassword from '../InputPassword';
+import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 
 // eslint-disable-next-line no-empty-pattern
 export const PageChangePassword = ({}: RouteComponentProps) => {
@@ -29,6 +30,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const navigate = useNavigate();
   const changePassword = usePasswordChanger({
     onSuccess: (response) => {
+      logViewEvent(settingsViewName, 'change-password.success');
       changePassword.reset();
       sessionToken(response.sessionToken);
       cache.modify({
@@ -137,6 +139,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
             Cancel
           </button>
           <button
+            data-testid="submit-change-password"
             className="cta-primary mx-2 flex-1"
             disabled={saveBtnDisabled || changePassword.loading}
           >

@@ -12,6 +12,8 @@ import {
 } from '../models';
 import { window } from './window';
 
+export const settingsViewName = 'settings';
+
 const NOT_REPORTED_VALUE = 'none';
 const UNKNOWN_VALUE = 'unknown';
 
