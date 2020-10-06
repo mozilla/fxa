@@ -628,5 +628,19 @@ module.exports = {
     SUBMIT: 'button[type=submit]',
     DO_NOT_SYNC: '#do-not-sync-device',
   },
+  SETTINGS_V2: {
+    HEADER: '#profile',
+    CHANGE_PASSWORD: {
+      OPEN_BUTTON: '[data-testid=password-unit-row-route]',
+      CURRENT_PASSWORD_LABEL: '[data-testid=current-password-input-label]',
+      CURRENT_PASSWORD_INPUT: '[data-testid=current-password-input-field]',
+      NEW_PASSWORD_LABEL: '[data-testid=new-password-input-label]',
+      NEW_PASSWORD_INPUT: '[data-testid=new-password-input-field]',
+      VERIFY_PASSWORD_LABEL: '[data-testid=verify-password-input-label]',
+      VERIFY_PASSWORD_INPUT: '[data-testid=verify-password-input-field]',
+      SAVE_BUTTON: '[data-testid=save-password-button]',
+      FORGOT_PW_BUTTON: '[data-testid=nav-link-reset-password]',
+    },
+  },
 };
 /*eslint-enable max-len*/

@@ -29,6 +29,7 @@ export const Profile = () => {
           headerValue={displayName}
           headerValueClassName="break-all"
           route="/beta/settings/display_name"
+          prefixDataTestId="display-name"
         />
 
         <hr className="unit-row-hr" />
@@ -38,6 +39,7 @@ export const Profile = () => {
           headerValueClassName="tracking-wider"
           headerValue="••••••••••••••••••"
           route="/beta/settings/change_password"
+          prefixDataTestId="password"
         >
           <p className="text-grey-400 text-xs mobileLandscape:mt-3">
             Created {pwdDateText}
@@ -50,6 +52,7 @@ export const Profile = () => {
           header="Primary email"
           headerValue={primaryEmail.email}
           headerValueClassName="break-all"
+          prefixDataTestId="primary-email"
         />
 
         <hr className="unit-row-hr" />

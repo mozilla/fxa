@@ -25,6 +25,7 @@ export type InputTextProps = {
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
   name?: string;
+  prefixDataTestId?: string;
 };
 
 export const InputText = ({
@@ -40,6 +41,7 @@ export const InputText = ({
   inputRef,
   type = 'text',
   name,
+  prefixDataTestId = '',
 }: InputTextProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
@@ -60,6 +62,10 @@ export const InputText = ({
     [onChange]
   );
 
+  function formatDataTestId(id: string) {
+    return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
+  }
+
   return (
     <label
       className={`flex items-center rounded transition-all duration-100 ease-in-out border relative
@@ -67,7 +73,7 @@ export const InputText = ({
         focussed ? 'border-blue-400 shadow-input-blue-focus' : 'border-grey-200'
       }
       ${disabled ? 'border-grey-100 bg-grey-10' : 'bg-white'} ${className}`}
-      data-testid="input-container"
+      data-testid={formatDataTestId('input-container')}
     >
       <span className="block relative flex-auto">
         <span
@@ -78,13 +84,13 @@ export const InputText = ({
               ? 'transform scale-80 mt-1 ml-1 -left-px'
               : 'mt-3 pt-px'
           )}
-          data-testid="input-label"
+          data-testid={formatDataTestId('input-label')}
         >
           {label}
         </span>
         <input
           className="pb-1 pt-5 px-3 w-full font-body text-sm rounded focus:outline-none disabled:bg-grey-10 placeholder-transparent focus:placeholder-grey-500 text-grey-600 disabled:text-grey-300 disabled:cursor-default"
-          data-testid="input-field"
+          data-testid={formatDataTestId('input-field')}
           onChange={textFieldChange}
           ref={inputRef}
           {...{

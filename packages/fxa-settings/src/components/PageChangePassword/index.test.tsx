@@ -50,18 +50,18 @@ it('emits an Amplitude event on success', async () => {
     </AuthContext.Provider>
   );
   await act(async () => {
-    fireEvent.input(screen.getAllByTestId('input-field')[0], {
+    fireEvent.input(screen.getByTestId('current-password-input-field'), {
       target: { value: 'quuz' },
     });
-    fireEvent.input(screen.getAllByTestId('input-field')[1], {
+    fireEvent.input(screen.getByTestId('new-password-input-field'), {
       target: { value: 'testotesto' },
     });
-    fireEvent.input(screen.getAllByTestId('input-field')[2], {
+    fireEvent.input(screen.getByTestId('verify-password-input-field'), {
       target: { value: 'testotesto' },
     });
   });
   await act(async () => {
-    fireEvent.click(screen.getByTestId('submit-change-password'));
+    fireEvent.click(screen.getByTestId('save-password-button'));
   });
   expect(logViewEvent).toHaveBeenCalledWith(
     settingsViewName,
@@ -77,25 +77,25 @@ it('disables save until the form is valid', async () => {
       </MockedCache>
     </AuthContext.Provider>
   );
-  expect(screen.getByTestId('submit-change-password')).toBeDisabled();
+  expect(screen.getByTestId('save-password-button')).toBeDisabled();
   await act(async () => {
-    fireEvent.input(screen.getAllByTestId('input-field')[0], {
+    fireEvent.input(screen.getByTestId('current-password-input-field'), {
       target: { value: 'quuz' },
     });
   });
-  expect(screen.getByTestId('submit-change-password')).toBeDisabled();
+  expect(screen.getByTestId('save-password-button')).toBeDisabled();
   await act(async () => {
-    fireEvent.input(screen.getAllByTestId('input-field')[1], {
+    fireEvent.input(screen.getByTestId('new-password-input-field'), {
       target: { value: 'testotesto' },
     });
   });
-  expect(screen.getByTestId('submit-change-password')).toBeDisabled();
+  expect(screen.getByTestId('save-password-button')).toBeDisabled();
   await act(async () => {
-    fireEvent.input(screen.getAllByTestId('input-field')[2], {
+    fireEvent.input(screen.getByTestId('verify-password-input-field'), {
       target: { value: 'testotesto' },
     });
   });
-  expect(screen.getByTestId('submit-change-password')).toBeEnabled();
+  expect(screen.getByTestId('save-password-button')).toBeEnabled();
 });
 
 it('shows validation feedback', async () => {
@@ -107,7 +107,7 @@ it('shows validation feedback', async () => {
     </AuthContext.Provider>
   );
   await act(async () => {
-    fireEvent.input(screen.getAllByTestId('input-field')[1], {
+    fireEvent.input(screen.getByTestId('new-password-input-field'), {
       target: { value: 'password' },
     });
   });

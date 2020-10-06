@@ -464,8 +464,7 @@ const cleanMemory = thenify(function (selector, attributeName) {
   );
 });
 
-const clearBrowserState = thenify(function (options) {
-  options = options || {};
+const clearBrowserState = thenify(function (options = {}) {
   if (!('contentServer' in options)) {
     options.contentServer = true;
   }
@@ -691,7 +690,7 @@ const getQueryParamValue = thenify(function (paramName) {
  *   to make. Defaults to 10.
  * @returns {promise} resolves with the email if email is found.
  */
-const getEmail = thenify(function (user, index, options) {
+const getEmail = thenify(function (user, index, options = {}) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
@@ -742,7 +741,7 @@ function disableInProd(test) {
  *   to make. Defaults to 10.
  * @returns {Promise} resolves with the SMS, if found.
  */
-const getSms = thenify(function (phoneNumber, index, options) {
+const getSms = thenify(function (phoneNumber, index, options = {}) {
   return this.parent
     .then(getEmail(phoneNumberToEmailAddress(phoneNumber), index, options))
     .then((email) => {
@@ -796,7 +795,7 @@ const SIGNIN_CODE_SMS_FORMAT = /m\/([a-zA-Z0-9_-]{8,8})$/;
  * @param {RegExp} smsFormatRegExp
  * @returns {Promise} resolves with the signinCode when complete
  */
-const getSmsSigninCode = thenify(function (phoneNumber, index, options) {
+const getSmsSigninCode = thenify(function (phoneNumber, index, options = {}) {
   return this.parent
     .then(testSmsFormat(phoneNumber, index, SIGNIN_CODE_SMS_FORMAT))
     .then(getSms(phoneNumber, index, options))
