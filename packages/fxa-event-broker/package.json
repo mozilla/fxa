@@ -45,7 +45,7 @@
     "@nestjs/mapped-types": "^0.1.0",
     "@nestjs/passport": "^7.1.0",
     "@nestjs/platform-express": "^7.4.4",
-    "@nestjs/schedule": "^0.4.0",
+    "@nestjs/schedule": "^0.4.1",
     "@sentry/integrations": "^5.23.0",
     "@sentry/node": "^5.23.0",
     "@types/sinon": "9.0.7",

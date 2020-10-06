@@ -3859,16 +3859,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schedule@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@nestjs/schedule@npm:0.4.0"
+"@nestjs/schedule@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@nestjs/schedule@npm:0.4.1"
   dependencies:
     cron: 1.7.2
-    uuid: 8.0.0
+    uuid: 8.3.0
   peerDependencies:
     "@nestjs/common": ^6.10.11 || ^7.0.0
     reflect-metadata: ^0.1.12
-  checksum: d22660107124379fc28c8d4f82ac1ed24d5b539546e45673bde37835b3cd0ed5d2d7b0773a09b19160deb775db33762a1bdb317876d9011143c071db720099c3
+  checksum: 2d794e82a4c2d0dbd52e2c2771e4611821e8d29b3987ba1bd827b9aa10d867bfd372f40ed2802c3cb96949f1a3f6a19b2bfebc8cebc7c4ec01d6ae046c568c2e
   languageName: node
   linkType: hard
 
@@ -17816,7 +17816,7 @@ fsevents@^1.2.7:
     "@nestjs/mapped-types": ^0.1.0
     "@nestjs/passport": ^7.1.0
     "@nestjs/platform-express": ^7.4.4
-    "@nestjs/schedule": ^0.4.0
+    "@nestjs/schedule": ^0.4.1
     "@nestjs/schematics": ^7.1.2
     "@nestjs/testing": ^7.4.4
     "@sentry/integrations": ^5.23.0
@@ -36800,15 +36800,6 @@ resolve@~1.11.1:
   bin:
     uuid: ./bin/uuid
   checksum: f407d974ca30b20bfbd32ae9cc05d20e18df5fd9e5fa088d91db04a6597125dcc8d09eeeb7237782724daba36418e24f557e0245e6ce7b8e4ad25d6436f1cde1
-  languageName: node
-  linkType: hard
-
-"uuid@npm:8.0.0":
-  version: 8.0.0
-  resolution: "uuid@npm:8.0.0"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: 22da594669649efaa4b2ba80a6c612cf267a5f72c1159fed83d4450c12e4dc16a214dae5f757eb455971539b099af3b5ff5e1c06d9a4f20318db7a3e3bf46b18
   languageName: node
   linkType: hard
 
