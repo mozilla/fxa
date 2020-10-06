@@ -457,7 +457,6 @@ module.exports = function (log, db, config, statsd) {
 
     reportPushAttempt(pushCallback, metricsTags) {
       this.incrementPushMetric(LOG_OP_PUSH_SEND_ATTEMPT, metricsTags);
-      log.info(LOG_OP_PUSH_SEND_ATTEMPT, metricsTags);
       // Log the full callback URL for debugging purposes.
       log.trace(LOG_OP_PUSH_SEND_ATTEMPT, {
         pushCallback,
@@ -476,13 +475,13 @@ module.exports = function (log, db, config, statsd) {
       err.errCode = errCode;
       metricsTags = { errCode, err, ...metricsTags };
       this.incrementPushMetric(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
-      log.warn(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
+      log.debug(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
       return err;
     },
 
     reportPushSuccess(metricsTags) {
       this.incrementPushMetric(LOG_OP_PUSH_SEND_SUCCESS, metricsTags);
-      log.info(LOG_OP_PUSH_SEND_SUCCESS, metricsTags);
+      log.debug(LOG_OP_PUSH_SEND_SUCCESS, metricsTags);
     },
 
     incrementPushMetric(name, tags) {

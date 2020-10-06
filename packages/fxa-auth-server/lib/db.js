@@ -305,7 +305,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       }
       return mergedToken;
     });
-    log.info('db.sessions.count', {
+    log.debug('db.sessions.count', {
       mysql: mysqlSessionTokens.length,
       redis: redisSessionTokens.length,
     });
