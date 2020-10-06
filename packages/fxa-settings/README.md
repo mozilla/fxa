@@ -16,6 +16,7 @@ This documentation is up to date as of 2020-09-23.
 [Styling Components](#styling-components)\
 — [Tailwind](#tailwind)\
 —— [Component Classes](#component-classes)\
+—— [RTL support](#rtl-support)\
 — [PurgeCSS](#purgecss)\
 — [Custom Styles](#custom-styles)\
 [`fxa-react`](#fxa-react)\
@@ -280,6 +281,55 @@ Note that the above doesn't have to be in an external SCSS file, `@apply` and ot
 Keep in mind that custom component classes are not scoped per component and some line of thought should go into custom class names to avoid naming collisions. Generally, you should match the class name to the name of your component and it's recommended to use `[component]-[descriptor]` style (e.g. using a shared UnitRow to display secondary emails could be `unit-row-secondary-emails`). Also, use `@apply` exclusively if possible, keep the selector one level deep, never use `!important` to avoid specificity collisions, and don't use `&-` overzealously as it makes classes difficult to search for (one level deep is fine). These recommendations generally also apply to custom styles.
 
 See the [Tailwind docs on this subject](https://tailwindcss.com/docs/extracting-components/) for more detailed information and examples.
+
+##### RTL support
+
+When padding, margin or relative positions are directional (e.g. more padding on the left), we need to consider support for RTL languages (HE, AR, FA).
+The [Tailwind Direction plugin](https://github.com/RonMelkhior/tailwindcss-dir) will automatically create a set of new classes
+for all directional classes with the `ltr:` and `rtl:` prefixes.
+
+In order to use it properly, we need to use only the prefixed classes, so that instead of the class `ml-3` we should use: `ltr:ml-3 rtl:mr-3`.
+This will give a left margin of `0.75rem` on LTR languages and right margin of `0.75rem` on RTL languages.
+If the class already has a `{screen}:` prefix, the `ltr:` and `rtl:` prefixes will come after the `{screen}:` part. E.g.: `desktop:ltr:mr-3`.
+
+In some cases, we need to flip icons or other graphics (usually those that contain arrows). In order to do so, we can use the `transform` class,
+along with the `rtl:-scale-x-1` to do the flip.
+
+Here is an example that shows the proper use of the above prefixed `ltr:` and `rtl:` classes:
+
+```tsx
+// Before (LTR only):
+<SignOut
+  className="mr-3 desktop:mr-8 inline-block align-middle"
+/>
+
+// After (LTR and RTL):
+<SignOut
+  className="ltr:mr-3 rtl:ml-3 desktop:ltr:mr-8 desktop:rtl:ml-8 inline-block align-middle transform rtl:-scale-x-1"
+/>
+```
+
+Utility classes present a challenge when it comes to RTL support, because you cannot use `@apply` with pseudo-selector. As a workaround, you need to explicitly create
+the RTL/LTR definitions. You can still use the tailwind classes, as shown below:
+
+```scss
+// Before (LTR only):
+.drop-down-menu::before {
+  @apply caret-top absolute -top-3 left-55;
+}
+
+// After (LTR and RTL):
+.drop-down-menu::before {
+  content: '';
+  @apply caret-top absolute -top-3;
+}
+[dir='ltr'] .drop-down-menu::before {
+  @apply left-55;
+}
+[dir='rtl'] .drop-down-menu::before {
+  @apply right-55;
+}
+```
 
 #### PurgeCSS
 

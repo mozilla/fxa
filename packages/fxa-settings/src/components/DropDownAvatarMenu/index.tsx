@@ -71,11 +71,11 @@ export const DropDownAvatarMenu = () => {
           <div
             id={dropDownId}
             data-testid={dropDownId}
-            className="drop-down-menu -left-52"
+            className="drop-down-menu ltr:-left-52 rtl:-right-52"
           >
             <div className="flex flex-wrap">
               <div className="flex w-full p-4 items-center">
-                <div className="mr-3 flex-1">
+                <div className="ltr:mr-3 rtl:ml-3 flex-1">
                   <Avatar className="w-10" />
                 </div>
                 <p className="leading-5 max-w-full truncate">
@@ -99,7 +99,7 @@ export const DropDownAvatarMenu = () => {
                     <SignOut
                       height="18"
                       width="18"
-                      className="mr-3 inline-block stroke-current align-middle"
+                      className="ltr:mr-3 rtl:ml-3 inline-block stroke-current align-middle transform rtl:-scale-x-1"
                     />
                     <span className="group-hover:underline">Sign out</span>
                   </button>
