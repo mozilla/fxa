@@ -3048,9 +3048,7 @@ describe('/account', () => {
 
   it('should return formatted Stripe subscriptions when subscriptions are enabled', () => {
     return runTest(buildRoute(), request, (result) => {
-      assert.deepEqual(mockStripeHelper.customer.args[0], [
-        { uid, email, cacheOnly: true },
-      ]);
+      assert.deepEqual(mockStripeHelper.customer.args[0], [{ uid, email }]);
       assert.deepEqual(mockStripeHelper.subscriptionsToResponse.args[0], [
         mockCustomer.subscriptions,
       ]);

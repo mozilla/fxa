@@ -1471,7 +1471,6 @@ module.exports = (
               const customer = await stripeHelper.customer({
                 uid,
                 email,
-                cacheOnly: true,
               });
               if (!customer) {
                 throw error.unknownCustomer(uid);

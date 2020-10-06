@@ -297,7 +297,6 @@ class DirectStripeRoutes {
     const customer = await this.stripeHelper.customer({
       uid,
       email,
-      cacheOnly: true,
     });
     const activeSubscriptions = [];
 
@@ -375,7 +374,7 @@ class DirectStripeRoutes {
     this.log.begin('subscriptions.getCustomer', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.fetchCustomer(uid, email, [
+    const customer = await this.stripeHelper.fetchCustomer(uid, [
       'data.subscriptions.data.latest_invoice',
       'data.invoice_settings.default_payment_method',
     ]);
@@ -1044,7 +1043,6 @@ class DirectStripeRoutes {
     const customer = await this.stripeHelper.customer({
       uid,
       email,
-      cacheOnly: true,
     });
 
     // A FxA user isn't always a customer.
