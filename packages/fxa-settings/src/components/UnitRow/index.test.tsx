@@ -33,6 +33,7 @@ describe('UnitRow', () => {
     renderWithRouter(
       <UnitRow
         header="Display name"
+        headerId="display-name"
         headerValue="Fred Flinstone"
         route="/display_name"
       />
@@ -43,6 +44,10 @@ describe('UnitRow', () => {
     );
     expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
       'Fred Flinstone'
+    );
+    expect(screen.getByTestId('unit-row-header')).toHaveAttribute(
+      'id',
+      'display-name'
     );
     expect(screen.getByTestId('unit-row-route')).toHaveAttribute(
       'href',

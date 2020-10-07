@@ -52,6 +52,7 @@ export const ModalButton = ({
 
 type UnitRowProps = {
   header: string;
+  headerId?: string;
   headerValue: string | null;
   noHeaderValueText?: string;
   ctaText?: string;
@@ -71,6 +72,7 @@ type UnitRowProps = {
 
 export const UnitRow = ({
   header,
+  headerId,
   headerValue,
   route,
   children,
@@ -96,7 +98,9 @@ export const UnitRow = ({
     <div className="unit-row">
       <div className="unit-row-header">
         <span className="flex justify-between items-center">
-          <h3 data-testid="unit-row-header">{header}</h3>
+          <h3 data-testid="unit-row-header" id={headerId}>
+            {header}
+          </h3>
           <span>{headerContent}</span>
         </span>
       </div>
