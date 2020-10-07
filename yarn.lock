@@ -5402,10 +5402,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/assert@npm:^1.5.1":
-  version: 1.5.1
-  resolution: "@types/assert@npm:1.5.1"
-  checksum: 299654afd3357bee6688ee914c0ba46bb087ed4e1c288c1f01a829a64b735e3b6b2c4b7ee9c8d3fbaff1b33be8ddeae2c1d75d990afb388df84ad00b76ef4e98
+"@types/assert@npm:^1.5.2":
+  version: 1.5.2
+  resolution: "@types/assert@npm:1.5.2"
+  checksum: 4dfffad5ff62b30b744ff8cf3bf314eeef23cd388062c6cc25764a2e2035edab0464f3bf46ad8cbf725c469ae537e4d5597f3e219dec333a24ea640345b7083e
   languageName: node
   linkType: hard
 
@@ -17405,7 +17405,7 @@ fsevents@^1.2.7:
   resolution: "fxa-auth-client@workspace:packages/fxa-auth-client"
   dependencies:
     "@peculiar/webcrypto": ^1.1.2
-    "@types/assert": ^1.5.1
+    "@types/assert": ^1.5.2
     "@types/fast-text-encoding": ^1
     "@types/mocha": ^7
     "@types/node-fetch": ^2
