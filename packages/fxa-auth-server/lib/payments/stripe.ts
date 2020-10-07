@@ -82,6 +82,7 @@ export class StripeHelper {
   // Note that this isn't quite accurate, as the auth-server logger has some extras
   // attached to it in Hapi.
   private log: Logger;
+  private customerCacheTtlSeconds: number;
   private plansAndProductsCacheTtlSeconds: number;
   private webhookSecret: string;
   private stripe: Stripe;
@@ -92,6 +93,7 @@ export class StripeHelper {
    */
   constructor(log: Logger, config: ConfigType, statsd?: StatsD) {
     this.log = log;
+    this.customerCacheTtlSeconds = config.subhub.customerCacheTtlSeconds;
     this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
@@ -437,9 +439,7 @@ export class StripeHelper {
 
   @Cacheable({
     cacheKey: StripeHelper.customerCacheKey,
-    // Note: No TTL specified here, because we don't want customers to expire (yet)
-    // TODO (FXA-2383): Should track FxA users who are Customers with a persistent DB table
-    // TODO (FXA-949 / issue #3922): Should establish a TTL specifically for Customer data
+    ttlSeconds: (args, context) => context.customerCacheTtlSeconds,
   })
   async cachedCustomer(
     uid: string,
