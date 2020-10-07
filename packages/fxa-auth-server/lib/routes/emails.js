@@ -66,8 +66,8 @@ async function updateStripeEmail(
   currentPrimaryEmail,
   newPrimaryEmail
 ) {
-  const customer = await stripeHelper.fetchCustomer(uid, currentPrimaryEmail);
-  if (!customer) {
+  const customer = await stripeHelper.fetchCustomer(uid);
+  if (!customer || customer.email === newPrimaryEmail) {
     // No customer to update, or already updated.
     return;
   }

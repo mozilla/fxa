@@ -446,9 +446,9 @@ export class StripeHelper {
     email: string
   ): Promise<Stripe.Customer | void> {
     return this.fetchCustomer(uid, [
-      'data.sources',
-      'data.subscriptions',
-      'data.invoice_settings.default_payment_method',
+      'sources',
+      'subscriptions',
+      'invoice_settings.default_payment_method',
     ]);
   }
 
