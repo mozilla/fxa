@@ -188,99 +188,101 @@ export const UnitRowSecondaryEmail = () => {
     };
 
     return (
-      <div className="mobileLandscape:flex unit-row-multi-row">
-        <div className="unit-row-content" data-testid="unit-row-content">
-          <p
-            className="font-bold break-all"
-            data-testid="unit-row-header-value"
-          >
-            <span className="flex justify-between items-center">
-              {email}
-              <span>
-                <ButtonIconTrash
-                  title="Remove email"
-                  classNames="mobileLandscape:hidden"
-                  disabled={deleteEmailLoading}
-                  onClick={() => {
-                    queueEmailAction(deleteEmail);
-                  }}
-                />
-                {!verified && (
-                  <ButtonIconReload
-                    title="Refresh email"
+      <>
+        <div className="mobileLandscape:flex unit-row-multi-row">
+          <div className="unit-row-content" data-testid="unit-row-content">
+            <p
+              className="font-bold break-all"
+              data-testid="unit-row-header-value"
+            >
+              <span className="flex justify-between items-center">
+                {email}
+                <span>
+                  <ButtonIconTrash
+                    title="Remove email"
                     classNames="mobileLandscape:hidden"
-                    disabled={accountLoading}
-                    onClick={getAccount}
+                    disabled={deleteEmailLoading}
+                    onClick={() => {
+                      queueEmailAction(deleteEmail);
+                    }}
                   />
-                )}
+                  {!verified && (
+                    <ButtonIconReload
+                      title="Refresh email"
+                      classNames="mobileLandscape:hidden"
+                      disabled={accountLoading}
+                      onClick={getAccount}
+                    />
+                  )}
+                </span>
               </span>
-            </span>
-            {!verified && (
-              <span
-                data-testid="unverified-text"
-                className="uppercase block text-orange-600 font-bold text-xs"
-              >
-                unverified
-              </span>
-            )}
-          </p>
-          {verified && isLastVerifiedSecondaryEmail && (
-            <SecondaryEmailDefaultContent />
-          )}
-          {!verified && (
-            <p className="text-xs mt-3 text-grey-400">
-              Verification needed.
-              <button
-                className="link-blue mx-1"
-                data-testid="resend-secondary-email-code-button"
-                onClick={() => {
-                  setEmail(email);
-                  resendEmailCode({
-                    variables: { input: { email } },
-                  });
-                }}
-              >
-                Resend verification code
-              </button>
-              if it's not in your email or spam.
+              {!verified && (
+                <span
+                  data-testid="unverified-text"
+                  className="uppercase block text-orange-600 font-bold text-xs"
+                >
+                  unverified
+                </span>
+              )}
             </p>
-          )}
-        </div>
-        <div className="unit-row-actions" data-testid="unit-row-actions">
-          <div className="flex items-center -mt-1">
-            {verified && (
-              <button
-                disabled={makeEmailPrimaryLoading}
-                className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
-                onClick={() => {
-                  queueEmailAction(makeEmailPrimary);
-                }}
-                data-testid="secondary-email-make-primary"
-              >
-                Make primary
-              </button>
-            )}
-            <ButtonIconTrash
-              title="Remove email"
-              classNames="hidden mobileLandscape:inline-block"
-              disabled={deleteEmailLoading}
-              testId="secondary-email-delete"
-              onClick={() => {
-                queueEmailAction(deleteEmail);
-              }}
-            />
             {!verified && (
-              <ButtonIconReload
-                title="Refresh email"
-                classNames="hidden mobileLandscape:inline-block"
-                testId="secondary-email-refresh"
-                disabled={accountLoading}
-                onClick={getAccount}
-              />
+              <p className="text-xs mt-3 text-grey-400">
+                Verification needed.
+                <button
+                  className="link-blue mx-1"
+                  data-testid="resend-secondary-email-code-button"
+                  onClick={() => {
+                    setEmail(email);
+                    resendEmailCode({
+                      variables: { input: { email } },
+                    });
+                  }}
+                >
+                  Resend verification code
+                </button>
+                if it's not in your email or spam.
+              </p>
             )}
           </div>
+          <div className="unit-row-actions" data-testid="unit-row-actions">
+            <div className="flex items-center -mt-1">
+              {verified && (
+                <button
+                  disabled={makeEmailPrimaryLoading}
+                  className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
+                  onClick={() => {
+                    queueEmailAction(makeEmailPrimary);
+                  }}
+                  data-testid="secondary-email-make-primary"
+                >
+                  Make primary
+                </button>
+              )}
+              <ButtonIconTrash
+                title="Remove email"
+                classNames="hidden mobileLandscape:inline-block"
+                disabled={deleteEmailLoading}
+                testId="secondary-email-delete"
+                onClick={() => {
+                  queueEmailAction(deleteEmail);
+                }}
+              />
+              {!verified && (
+                <ButtonIconReload
+                  title="Refresh email"
+                  classNames="hidden mobileLandscape:inline-block"
+                  testId="secondary-email-refresh"
+                  disabled={accountLoading}
+                  onClick={getAccount}
+                />
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+        {verified && isLastVerifiedSecondaryEmail && (
+          <SecondaryEmailDefaultContent />
+        )}
+      </>
     );
   };
 
@@ -322,7 +324,7 @@ const SecondaryEmailDefaultContent = () => (
     <p className="text-sm mt-3">
       Access your account if you can't log in to your primary email.
     </p>
-    <p className="text-grey-400 text-xs mt-2">
+    <p className="text-grey-400 text-xs my-2">
       Note: a secondary email won't restore your information—you'll need a{' '}
       <a
         className="link-blue"
