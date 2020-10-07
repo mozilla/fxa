@@ -122,8 +122,8 @@ describe('clientUtils.formatLocation', () => {
     clientUtils.formatLocation(client, request);
     assert.deepEqual(client.location, {});
 
-    assert.equal(log.warn.callCount, 1);
-    const args = log.warn.args[0];
+    assert.equal(log.debug.callCount, 1);
+    const args = log.debug.args[0];
     assert.lengthOf(args, 2);
     assert.equal(args[0], 'attached-clients.formatLocation.warning');
   });

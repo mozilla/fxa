@@ -124,6 +124,7 @@ const LOG_METHOD_NAMES = [
   'warn',
   'summary',
   'trace',
+  'debug',
 ];
 
 const MAILER_METHOD_NAMES = [

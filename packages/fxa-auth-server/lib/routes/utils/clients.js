@@ -51,7 +51,7 @@ module.exports = (log, config) => {
             };
           }
         } catch (err) {
-          log.warn('attached-clients.formatLocation.warning', {
+          log.debug('attached-clients.formatLocation.warning', {
             err: err.message,
             languages: request.app.acceptLanguage,
             language,

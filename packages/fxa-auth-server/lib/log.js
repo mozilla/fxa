@@ -41,6 +41,10 @@ Lug.prototype.trace = function (op, data) {
   this.logger.debug(op, data);
 };
 
+Lug.prototype.debug = function (op, data) {
+  this.logger.debug(op, data);
+};
+
 Lug.prototype.error = function (op, data) {
   // If the error object contains an email address,
   // lift it into top-level fields so that our
@@ -161,7 +165,7 @@ Lug.prototype.notifyAttachedServices = async function (name, request, data) {
   };
   e.data.metricsContext = metricsContextData;
 
-  this.info('notify.attached', e);
+  this.debug('notify.attached', e);
   this.notifier.send(e);
 };
 

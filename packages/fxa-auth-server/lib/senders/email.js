@@ -485,7 +485,7 @@ module.exports = function (log, config, oauthdb) {
             );
           }
 
-          log.info('mailer.send', {
+          log.debug('mailer.send', {
             email: emailAddresses[0],
             template,
             headers: Object.keys(headers).join(','),
@@ -526,7 +526,7 @@ module.exports = function (log, config, oauthdb) {
               return d.reject(err);
             }
 
-            log.info('mailer.send.1', {
+            log.debug('mailer.send.1', {
               status: status && status.message,
               id: status && status.messageId,
               to: emailConfig && emailConfig.to,

@@ -17,7 +17,7 @@ const UnblockCode = require('../../lib/crypto/random').base32(
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 
-const log = { trace() {}, info() {}, error() {} };
+const log = { debug() {}, trace() {}, info() {}, error() {} };
 
 const lastAccessTimeUpdates = {
   enabled: true,

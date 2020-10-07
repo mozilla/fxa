@@ -266,6 +266,7 @@ describe('generateTokens', () => {
 
     mockLog = {
       info: sinon.spy(),
+      debug: sinon.spy(),
     };
 
     mockAmplitude = sinon.spy();
@@ -421,21 +422,6 @@ describe('generateTokens', () => {
       '0123456789',
       'https://resource.server1.com',
     ]);
-  });
-
-  it('should log information about the grant being processed', async () => {
-    await generateTokens(requestedGrant);
-
-    assert.equal(mockLog.info.callCount, 1);
-    const args = mockLog.info.args[0];
-    assert.strictEqual(args[0], 'oauth.generateTokens');
-    assert.deepEqual(args[1], {
-      grantType: 'fxa-credentials',
-      keys: false,
-      resource: undefined,
-      scope: scope.getScopeValues(),
-      service: '0123456789',
-    });
   });
 
   it('should log an amplitude event', async () => {

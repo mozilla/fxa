@@ -130,8 +130,6 @@ describe('metricsContext', () => {
         );
 
         assert.equal(cache.get.callCount, 0, 'cache.get was not called');
-        assert.equal(log.warn.callCount, 0, 'log.warn was not called');
-        assert.equal(log.error.callCount, 0, 'log.error was not called');
       });
   });
 
@@ -157,8 +155,6 @@ describe('metricsContext', () => {
       .then((result) => {
         assert.strictEqual(result, undefined, 'result is undefined');
         assert.equal(cache.add.callCount, 1, 'cache.add was called once');
-        assert.equal(log.warn.callCount, 1, 'log.warn was called once');
-        assert.equal(log.error.callCount, 0, 'log.error was not called');
       });
   });
 
@@ -189,8 +185,6 @@ describe('metricsContext', () => {
           'qux',
           'service property was correct'
         );
-
-        assert.equal(log.error.callCount, 0, 'log.error was not called');
       });
   });
 
@@ -211,39 +205,6 @@ describe('metricsContext', () => {
       )
       .then((result) => {
         assert.equal(result, undefined, 'result is undefined');
-
-        assert.equal(log.error.callCount, 1, 'log.error was called once');
-        assert.equal(
-          log.error.args[0].length,
-          2,
-          'log.error was passed one argument'
-        );
-        assert.equal(
-          log.error.args[0][0],
-          'metricsContext.stash',
-          'op property was correct'
-        );
-        assert.equal(
-          log.error.args[0][1].err.message,
-          'Invalid token',
-          'err.message property was correct'
-        );
-        assert.strictEqual(
-          log.error.args[0][1].hasToken,
-          true,
-          'hasToken property was correct'
-        );
-        assert.strictEqual(
-          log.error.args[0][1].hasId,
-          true,
-          'hasId property was correct'
-        );
-        assert.strictEqual(
-          log.error.args[0][1].hasUid,
-          false,
-          'hasUid property was correct'
-        );
-
         assert.equal(cache.add.callCount, 0, 'cache.add was not called');
       });
   });
@@ -264,7 +225,6 @@ describe('metricsContext', () => {
         assert.equal(result, undefined, 'result is undefined');
 
         assert.equal(cache.add.callCount, 0, 'cache.add was not called');
-        assert.equal(log.error.callCount, 0, 'log.error was not called');
       });
   });
 
@@ -289,7 +249,6 @@ describe('metricsContext', () => {
     });
 
     assert.equal(cache.get.callCount, 0);
-    assert.equal(log.error.callCount, 0);
   });
 
   it('metricsContext.get with payload', async () => {
@@ -313,7 +272,6 @@ describe('metricsContext', () => {
     });
 
     assert.equal(cache.get.callCount, 0);
-    assert.equal(log.error.callCount, 0);
   });
 
   it('metricsContext.get with token', async () => {
@@ -341,8 +299,6 @@ describe('metricsContext', () => {
     assert.equal(cache.get.callCount, 1);
     assert.lengthOf(cache.get.args[0], 1);
     assert.equal(cache.get.args[0][0], hashToken(token));
-
-    assert.equal(log.error.callCount, 0);
   });
 
   it('metricsContext.get with fake token', async () => {
@@ -372,8 +328,6 @@ describe('metricsContext', () => {
     assert.lengthOf(cache.get.args[0], 1);
     assert.equal(cache.get.args[0][0], hashToken(token));
     assert.deepEqual(cache.get.args[0][0], hashToken({ uid, id }));
-
-    assert.equal(log.error.callCount, 0);
   });
 
   it('metricsContext.get with bad token', async () => {
@@ -386,14 +340,6 @@ describe('metricsContext', () => {
     });
 
     assert.deepEqual(result, {});
-
-    assert.equal(log.error.callCount, 1);
-    assert.lengthOf(log.error.args[0], 2);
-    assert.equal(log.error.args[0][0], 'metricsContext.get');
-    assert.equal(log.error.args[0][1].err.message, 'Invalid token');
-    assert.strictEqual(log.error.args[0][1].hasToken, true);
-    assert.strictEqual(log.error.args[0][1].hasId, false);
-    assert.strictEqual(log.error.args[0][1].hasUid, true);
   });
 
   it('metricsContext.get with no token and no payload', async () => {
@@ -402,8 +348,6 @@ describe('metricsContext', () => {
     });
 
     assert.deepEqual(result, {});
-
-    assert.equal(log.error.callCount, 0);
   });
 
   it('metricsContext.get with token and payload', async () => {
@@ -433,7 +377,6 @@ describe('metricsContext', () => {
     });
 
     assert.equal(cache.get.callCount, 0);
-    assert.equal(log.error.callCount, 0);
   });
 
   it('metricsContext.get with cache.get error', async () => {
@@ -450,14 +393,6 @@ describe('metricsContext', () => {
     assert.deepEqual(result, {});
 
     assert.equal(cache.get.callCount, 1);
-
-    assert.equal(log.error.callCount, 1);
-    assert.lengthOf(log.error.args[0], 2);
-    assert.equal(log.error.args[0][0], 'metricsContext.get');
-    assert.equal(log.error.args[0][1].err, 'foo');
-    assert.strictEqual(log.error.args[0][1].hasToken, true);
-    assert.strictEqual(log.error.args[0][1].hasId, true);
-    assert.strictEqual(log.error.args[0][1].hasUid, true);
   });
 
   it('metricsContext.gather with metadata', () => {
@@ -523,7 +458,6 @@ describe('metricsContext', () => {
         assert.equal(result.utm_term, 'mock utm_term');
 
         assert.equal(cache.get.callCount, 0);
-        assert.equal(log.error.callCount, 0);
       });
   });
 
@@ -568,8 +502,6 @@ describe('metricsContext', () => {
         assert.isUndefined(result.utm_medium);
         assert.isUndefined(result.utm_source);
         assert.isUndefined(result.utm_term);
-
-        assert.equal(log.error.callCount, 0);
       });
   });
 
@@ -589,8 +521,6 @@ describe('metricsContext', () => {
         assert.equal(typeof result, 'object', 'result is object');
         assert.notEqual(result, null, 'result is not null');
         assert.strictEqual(result.flow_time, 0, 'result.time is zero');
-
-        assert.equal(log.error.callCount, 0, 'log.error was not called');
       });
   });
 
@@ -618,8 +548,6 @@ describe('metricsContext', () => {
       assert.equal(args[1], 'wibble');
 
       assert.equal(cache.del.callCount, 0);
-      assert.equal(log.warn.callCount, 0);
-      assert.equal(log.error.callCount, 0);
     });
   });
 
@@ -637,9 +565,7 @@ describe('metricsContext', () => {
     return metricsContext.propagate(oldToken, newToken).then(() => {
       assert.equal(cache.get.callCount, 1);
       assert.equal(cache.add.callCount, 1);
-      assert.equal(log.warn.callCount, 1);
       assert.equal(cache.del.callCount, 0);
-      assert.equal(log.error.callCount, 0);
     });
   });
 
@@ -656,9 +582,7 @@ describe('metricsContext', () => {
     };
     return metricsContext.propagate(oldToken, newToken).then(() => {
       assert.equal(cache.get.callCount, 1);
-      assert.equal(log.error.callCount, 1);
       assert.equal(cache.add.callCount, 0);
-      assert.equal(log.warn.callCount, 0);
       assert.equal(cache.del.callCount, 0);
     });
   });
@@ -719,7 +643,6 @@ describe('metricsContext', () => {
       .call({})
       .then(() => {
         assert.equal(cache.del.callCount, 0, 'cache.del was not called');
-        assert.equal(log.error.callCount, 0, 'log.error was not called');
       })
       .catch((err) => assert.fail(err));
   });
@@ -785,17 +708,6 @@ describe('metricsContext', () => {
       '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f',
       'valid flow data was not removed'
     );
-    assert.equal(mockLog.warn.callCount, 0, 'log.warn was not called');
-    assert.equal(mockLog.info.callCount, 1, 'log.info was called once');
-    assert.lengthOf(mockLog.info.args[0], 2);
-    assert.equal(mockLog.info.args[0][0], 'metrics.context.validate');
-    assert.deepEqual(
-      mockLog.info.args[0][1],
-      {
-        valid: true,
-      },
-      'log.info was passed correct argument'
-    );
 
     Date.now.restore();
   });
@@ -822,15 +734,6 @@ describe('metricsContext', () => {
     const valid = metricsContext.validate.call(mockRequest);
 
     assert(!valid, 'the data is treated as invalid');
-    assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
-    assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once');
-    assert.ok(
-      mockLog.warn.calledWithExactly('metrics.context.validate', {
-        valid: false,
-        reason: 'missing payload',
-      }),
-      'log.warn was called with the expected log data'
-    );
   });
 
   it('metricsContext.validate with missing data bundle', () => {
@@ -856,15 +759,6 @@ describe('metricsContext', () => {
     const valid = metricsContext.validate.call(mockRequest);
 
     assert(!valid, 'the data is treated as invalid');
-    assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
-    assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once');
-    assert.ok(
-      mockLog.warn.calledWithExactly('metrics.context.validate', {
-        valid: false,
-        reason: 'missing context',
-      }),
-      'log.warn was called with the expected log data'
-    );
   });
 
   it('metricsContext.validate with missing flowId', () => {
@@ -894,15 +788,6 @@ describe('metricsContext', () => {
     assert(
       !mockRequest.payload.metricsContext.flowBeginTime,
       'the invalid flow data was removed'
-    );
-    assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
-    assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once');
-    assert.ok(
-      mockLog.warn.calledWithExactly('metrics.context.validate', {
-        valid: false,
-        reason: 'missing flowId',
-      }),
-      'log.warn was called with the expected log data'
     );
   });
 
@@ -934,15 +819,6 @@ describe('metricsContext', () => {
     assert(
       !mockRequest.payload.metricsContext.flowId,
       'the invalid flow data was removed'
-    );
-    assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
-    assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once');
-    assert.ok(
-      mockLog.warn.calledWithExactly('metrics.context.validate', {
-        valid: false,
-        reason: 'missing flowBeginTime',
-      }),
-      'log.warn was called with the expected log data'
     );
   });
 
@@ -976,15 +852,6 @@ describe('metricsContext', () => {
       !mockRequest.payload.metricsContext.flowId,
       'the invalid flow data was removed'
     );
-    assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
-    assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once');
-    assert.ok(
-      mockLog.warn.calledWithExactly('metrics.context.validate', {
-        valid: false,
-        reason: 'expired flowBeginTime',
-      }),
-      'log.warn was called with the expected log data'
-    );
   });
 
   it('metricsContext.validate with an invalid flow signature', () => {
@@ -1016,15 +883,6 @@ describe('metricsContext', () => {
     assert(
       !mockRequest.payload.metricsContext.flowId,
       'the invalid flow data was removed'
-    );
-    assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
-    assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once');
-    assert.ok(
-      mockLog.warn.calledWithExactly('metrics.context.validate', {
-        valid: false,
-        reason: 'invalid signature',
-      }),
-      'log.warn was called with the expected log data'
     );
   });
 
@@ -1068,15 +926,6 @@ describe('metricsContext', () => {
       !mockRequest.payload.metricsContext.flowId,
       'the invalid flow data was removed'
     );
-    assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
-    assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once');
-    assert.ok(
-      mockLog.warn.calledWithExactly('metrics.context.validate', {
-        valid: false,
-        reason: 'invalid signature',
-      }),
-      'log.warn was called with the expected log data'
-    );
   });
 
   it('metricsContext.validate with flow signature from different timestamp', () => {
@@ -1118,15 +967,6 @@ describe('metricsContext', () => {
     assert(
       !mockRequest.payload.metricsContext.flowId,
       'the invalid flow data was removed'
-    );
-    assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
-    assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once');
-    assert.ok(
-      mockLog.warn.calledWithExactly('metrics.context.validate', {
-        valid: false,
-        reason: 'invalid signature',
-      }),
-      'log.warn was called with the expected log data'
     );
   });
 
@@ -1173,15 +1013,6 @@ describe('metricsContext', () => {
       !mockRequest.payload.metricsContext.flowId,
       'the invalid flow data was removed'
     );
-    assert.equal(mockLog.info.callCount, 0, 'log.info was not called');
-    assert.equal(mockLog.warn.callCount, 1, 'log.warn was called once');
-    assert.ok(
-      mockLog.warn.calledWithExactly('metrics.context.validate', {
-        valid: false,
-        reason: 'invalid signature',
-      }),
-      'log.warn was called with the expected log data'
-    );
   });
 
   it('metricsContext.validate with flow signature compared without user agent', () => {
@@ -1218,9 +1049,6 @@ describe('metricsContext', () => {
       '1234567890abcdef1234567890abcdef06146f1d05e7ae215885a4e45b66ff1f',
       'valid flow data was not removed'
     );
-    assert.equal(mockLog.warn.callCount, 0, 'log.warn was not called');
-    assert.equal(mockLog.info.callCount, 1, 'log.info was called once');
-
     Date.now.restore();
   });
 

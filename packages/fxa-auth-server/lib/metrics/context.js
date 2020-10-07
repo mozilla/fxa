@@ -130,7 +130,7 @@ module.exports = function (log, config) {
         return (await cache.get(getKey(token))) || {};
       }
     } catch (err) {
-      log.error('metricsContext.get', {
+      log.debug('metricsContext.get', {
         err,
         hasToken: !!token,
         hasId: !!(token && token.id),
@@ -295,7 +295,7 @@ module.exports = function (log, config) {
       return logInvalidContext(this, 'invalid signature');
     }
 
-    log.info('metrics.context.validate', {
+    log.debug('metrics.context.validate', {
       valid: true,
     });
     return true;
@@ -306,7 +306,7 @@ module.exports = function (log, config) {
       delete request.payload.metricsContext.flowId;
       delete request.payload.metricsContext.flowBeginTime;
     }
-    log.warn('metrics.context.validate', {
+    log.debug('metrics.context.validate', {
       valid: false,
       reason: reason,
     });

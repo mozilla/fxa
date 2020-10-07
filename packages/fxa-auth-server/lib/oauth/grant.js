@@ -156,7 +156,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
 // This function does *not* perform any authentication or validation, assuming that
 // the specified grant has been sufficiently vetted by calling code.
 module.exports.generateTokens = async function generateTokens(grant) {
-  logger.info('oauth.generateTokens', {
+  logger.debug('oauth.generateTokens', {
     grantType: grant.grantType,
     keys: !!grant.keysJwe,
     scope: grant.scope.getScopeValues(),
