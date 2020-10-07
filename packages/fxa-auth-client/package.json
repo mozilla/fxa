@@ -22,7 +22,7 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
-    "@types/assert": "^1.5.1",
+    "@types/assert": "^1.5.2",
     "@types/fast-text-encoding": "^1",
     "@types/mocha": "^7",
     "@types/node-fetch": "^2",
