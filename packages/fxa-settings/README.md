@@ -1,7 +1,5 @@
 # Firefox Accounts Settings
 
-This documentation is up to date as of 2020-09-23.
-
 ## Table of Contents
 
 [Relevant ADRs](#relevant-adrs)\
@@ -43,6 +41,8 @@ This documentation is up to date as of 2020-09-23.
 
 ## Development
 
+Note that the fxa-settings code is served by the fxa-content-server. To preview the code locally, visit `http://localhost:3030/beta/settings`, not `http://localhost:3000`.
+
 - `yarn start|stop|restart` to start, stop, and restart the server as a PM2 process
 - `yarn build` to create a production build
 - `yarn test` to run unit tests
@@ -62,7 +62,7 @@ Access the client cache data in top-level objects via custom `use` hooks. At the
 
 ### GQL error handling
 
-When an error occurs from a query or mutation, the Apollo Client GQL response distinguishes between two kinds of errors on the `error` object - `graphQLErrors`, an array of errors provided by a GQL server-side resolver, and `networkError`, an error that is thrown outside of a resolver. Apollo Server [can throw](https://www.apollographql.com/docs/apollo-server/data/errors/) `AuthenticationError`, `ForbiddenError`, `UserInputError`, or a generic `ApolloError` which Apollo Client stores in `graphQLErrors`. We don’t need to send these to Sentry on the client-side because all errors aside from `UserInputError` are logged by the `fxa-gql-api package`, but a `networkError` should be logged because it means the query was rejected and no data was returned, such as if Apollo Client failed to connect to the GQL endpoint. Learn more about [Apollo error handling](https://www.apollographql.com/docs/react/data/error-handling/).
+When an error occurs from a query or mutation, the Apollo Client GQL response distinguishes between two kinds of errors on the `error` object - `graphQLErrors`, an array of errors provided by a GQL server-side resolver, and `networkError`, an error that is thrown outside of a resolver. Apollo Server [can throw](https://www.apollographql.com/docs/apollo-server/data/errors/) `AuthenticationError`, `ForbiddenError`, `UserInputError`, or a generic `ApolloError` which Apollo Client stores in `graphQLErrors`. We don’t need to send these to Sentry on the client-side because all errors aside from `UserInputError` are logged by the `fxa-gql-api` package, but a `networkError` should be logged because it means the query was rejected and no data was returned, such as if Apollo Client failed to connect to the GQL endpoint. Learn more about [Apollo error handling](https://www.apollographql.com/docs/react/data/error-handling/).
 
 All errors should be handled. As a general rule of thumb, validation errors from `graphQLErrors` should be displayed the user, while `networkErrors` should report to Sentry.
 
