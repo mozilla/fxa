@@ -1826,7 +1826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.2.0, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.3.4, @babel/runtime@npm:^7.4.5, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.4, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.10.3, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.2.0, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.3.4, @babel/runtime@npm:^7.4.5, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.4, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
   version: 7.11.2
   resolution: "@babel/runtime@npm:7.11.2"
   dependencies:
@@ -5049,6 +5049,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@testing-library/dom@npm:^7.24.5":
+  version: 7.24.5
+  resolution: "@testing-library/dom@npm:7.24.5"
+  dependencies:
+    "@babel/code-frame": ^7.10.4
+    "@babel/runtime": ^7.10.3
+    "@types/aria-query": ^4.2.0
+    aria-query: ^4.2.2
+    chalk: ^4.1.0
+    dom-accessibility-api: ^0.5.1
+    pretty-format: ^26.4.2
+  checksum: cf1179c4c0079705d0b61a02fb5aaa17faceab90e792ef88e954bfc409b5c20ffaabbe4eacaf83e172434dc27622aff5ac70f4e30adec67a70cefced1ff6aa7f
+  languageName: node
+  linkType: hard
+
 "@testing-library/jest-dom@npm:^5.11.0":
   version: 5.11.0
   resolution: "@testing-library/jest-dom@npm:5.11.0"
@@ -5192,6 +5207,13 @@ __metadata:
   version: 1.3.1
   resolution: "@types/anymatch@npm:1.3.1"
   checksum: 1647865e528a168f66f57a077e9651c10a4c172b656cc3686fddf176555d42ca0a1647bfc626ea2fceb68fc7701426ab708224be1762b4a5216fe8368ffdba3c
+  languageName: node
+  linkType: hard
+
+"@types/aria-query@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@types/aria-query@npm:4.2.0"
+  checksum: 196c811653507cc0601bb1260ddeb58d80797306cf71638605d64d26ae324345b4b95514617942aadf5b899602623cf848ba6780e921526ef5cf0b0cae80825f
   languageName: node
   linkType: hard
 
@@ -14214,6 +14236,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dom-accessibility-api@npm:^0.5.1":
+  version: 0.5.3
+  resolution: "dom-accessibility-api@npm:0.5.3"
+  checksum: 89069ba50bffa32a39f3a436f8d1506f0d2215bc7f19dc3f62fb6982fa084952872815b52b8deea2d4b91a09c79e06f3f5831c21dbb968576d6ad1fd423964eb
+  languageName: node
+  linkType: hard
+
 "dom-converter@npm:^0.2":
   version: 0.2.0
   resolution: "dom-converter@npm:0.2.0"
@@ -16990,7 +17019,7 @@ fsevents@^1.2.7:
     "@storybook/addons": ^5.3.19
     "@storybook/preset-create-react-app": ^2.1.1
     "@storybook/react": ^5.3.19
-    "@testing-library/dom": ^6.15.0
+    "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
     "@testing-library/user-event": ^7.2.1
@@ -17950,7 +17979,7 @@ fsevents@^1.2.7:
     "@storybook/addon-links": ^5.3.19
     "@storybook/addons": ^5.3.19
     "@storybook/react": ^5.3.19
-    "@testing-library/dom": ^6.15.0
+    "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
     "@testing-library/user-event": ^7.2.1
@@ -18005,7 +18034,7 @@ fsevents@^1.2.7:
     "@storybook/addons": ^5.3.19
     "@storybook/preset-create-react-app": ^2.1.1
     "@storybook/react": ^5.3.19
-    "@testing-library/dom": ^6.15.0
+    "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
     "@testing-library/react-hooks": ^3.4.1
