@@ -30,7 +30,7 @@
   "dependencies": {
     "@hapi/hapi": "^20.0.0",
     "@hapi/joi": "^15.1.1",
-    "@hapi/scooter": "^6.0.0",
+    "@hapi/scooter": "^6.0.1",
     "blankie": "^5.0.0",
     "convict": "^6.0.0",
     "convict-format-with-moment": "^6.0.0",
