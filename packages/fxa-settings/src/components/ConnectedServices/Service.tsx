@@ -23,7 +23,7 @@ export function Service({
   canSignOut,
 }: {
   name: string;
-  deviceType: string;
+  deviceType: string | null;
   location: DeviceLocation;
   lastAccessTimeFormatted: string;
   canSignOut: boolean;
