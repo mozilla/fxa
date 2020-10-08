@@ -123,7 +123,7 @@
     "source-map": "^0.7.3",
     "source-map-loader": "^0.2.4",
     "speed-trap": "0.0.10",
-    "thread-loader": "^2.1.2",
+    "thread-loader": "^3.0.0",
     "time-grunt": "1.4.0",
     "typescript": "3.9.7",
     "ua-parser-js": "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version",
