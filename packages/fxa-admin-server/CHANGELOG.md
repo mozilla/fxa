@@ -1,3 +1,13 @@
+## 1.191.1
+
+No changes.
+
+## 1.191.0
+
+### Bug fixes
+
+- admin-panel: Fix connection to admin server in dev, remove unneeded Apollo dependencies, update README ([54925c489](https://github.com/mozilla/fxa/commit/54925c489))
+
 ## 1.190.1
 
 No changes.

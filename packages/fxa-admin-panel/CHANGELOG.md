@@ -1,3 +1,17 @@
+## 1.191.1
+
+No changes.
+
+## 1.191.0
+
+### Bug fixes
+
+- admin-panel: Fix connection to admin server in dev, remove unneeded Apollo dependencies, update README ([54925c489](https://github.com/mozilla/fxa/commit/54925c489))
+
+### Other changes
+
+- deps-dev: bump @testing-library/dom from 6.16.0 to 7.24.5 ([b61199ad2](https://github.com/mozilla/fxa/commit/b61199ad2))
+
 ## 1.190.1
 
 No changes.
