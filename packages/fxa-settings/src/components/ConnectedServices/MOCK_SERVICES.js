@@ -127,7 +127,7 @@ export const MOCK_SERVICES = [
     approximateLastAccessTimeFormatted: null,
   },
   {
-    clientId: null,
+    clientId: 'dsjflksajflkjlkhd74398984',
     deviceId: 'bf7c2ae1fa0ebd146f6478ac68bd8d63',
     sessionTokenId:
       '8ee9174a04f76d5ec5bf0c93bbd91b837796f067da408e58b5bd5d1fd914b45b',
