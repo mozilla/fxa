@@ -17458,7 +17458,7 @@ fsevents@^1.2.7:
     source-map: ^0.7.3
     source-map-loader: ^0.2.4
     speed-trap: 0.0.10
-    thread-loader: ^2.1.2
+    thread-loader: ^3.0.0
     time-grunt: 1.4.0
     ts-loader: ^8.0.4
     ts-node: ^8.10.2
@@ -23910,10 +23910,16 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"loader-runner@npm:^2.3.1, loader-runner@npm:^2.4.0":
+"loader-runner@npm:^2.4.0":
   version: 2.4.0
   resolution: "loader-runner@npm:2.4.0"
   checksum: 9173b602e82801c734d5f78fdbcb7f2de2dd8f68ef0afb9793bd2cc9eab37cd0bc99fda020f83204b5acdcf2ea23d062c49767778c6c1108f6c90face5dde225
+  languageName: node
+  linkType: hard
+
+"loader-runner@npm:^4.0.0":
+  version: 4.1.0
+  resolution: "loader-runner@npm:4.1.0"
   languageName: node
   linkType: hard
 
@@ -25929,6 +25935,12 @@ fsevents@^1.2.7:
   version: 2.6.1
   resolution: "neo-async@npm:2.6.1"
   checksum: b359ccaa5cc3eea9c49605b830382e2ec7661f1746b7210dc1f997645a40f9daf3084328151ecb21800e0e78d891dbf8d46f70c3cb5e8c5dab8a909b5597f9a1
+  languageName: node
+  linkType: hard
+
+"neo-async@npm:^2.6.2":
+  version: 2.6.2
+  resolution: "neo-async@npm:2.6.2"
   languageName: node
   linkType: hard
 
@@ -34919,16 +34931,15 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"thread-loader@npm:^2.1.2":
-  version: 2.1.3
-  resolution: "thread-loader@npm:2.1.3"
+"thread-loader@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "thread-loader@npm:3.0.0"
   dependencies:
-    loader-runner: ^2.3.1
-    loader-utils: ^1.1.0
-    neo-async: ^2.6.0
+    loader-runner: ^4.0.0
+    loader-utils: ^2.0.0
+    neo-async: ^2.6.2
   peerDependencies:
-    webpack: ^2.0.0 || ^3.0.0 || ^4.0.0
-  checksum: b607b8ae84e66c52aae20f77beb1fe921d6a81434ae8595ddcf6019eb39939aa9b15475c19b3f8c8c6e2d49460b13b859c79e62c091bd0f29d5355e51598523c
+    webpack: ^4.27.0 || ^5.0.0
   languageName: node
   linkType: hard
 
