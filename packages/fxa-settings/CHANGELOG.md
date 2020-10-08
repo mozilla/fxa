@@ -1,3 +1,9 @@
+## 1.191.1
+
+### Bug fixes
+
+- fxa-settings: ts errors in Service.tsx ([ba4bc5633](https://github.com/mozilla/fxa/commit/ba4bc5633))
+
 ## 1.191.0
 
 ### New features
