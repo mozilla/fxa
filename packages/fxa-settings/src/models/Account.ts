@@ -20,7 +20,7 @@ export interface Email {
 }
 
 export interface AttachedClient {
-  clientId: string | null;
+  clientId: string;
   isCurrentSession: boolean;
   userAgent: string;
   deviceType: string | null;
