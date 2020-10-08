@@ -1,5 +1,14 @@
 # Change history
 
+## 1.191.0
+
+### Other changes
+
+- deps-dev: bump caniuse-lite from 1.0.30001125 to 1.0.30001144 ([6950f86ed](https://github.com/mozilla/fxa/commit/6950f86ed))
+- deps-dev: bump @types/storybook\_\_react from 4.0.2 to 5.2.1 ([315772d73](https://github.com/mozilla/fxa/commit/315772d73))
+- deps-dev: bump @types/react-router from 5.1.7 to 5.1.8 ([4b51b871e](https://github.com/mozilla/fxa/commit/4b51b871e))
+- deps: bump @types/sinon from 9.0.5 to 9.0.7 ([253383773](https://github.com/mozilla/fxa/commit/253383773))
+
 ## 1.190.1
 
 No changes.

@@ -1,5 +1,12 @@
 # Change history
 
+## 1.191.0
+
+### Other changes
+
+- deps: bump @hapi/scooter from 6.0.0 to 6.0.1 ([e4bc5ed27](https://github.com/mozilla/fxa/commit/e4bc5ed27))
+- deps-dev: bump @types/hapi\_\_joi from 17.1.4 to 17.1.6 ([302d0d188](https://github.com/mozilla/fxa/commit/302d0d188))
+
 ## 1.190.1
 
 No changes.

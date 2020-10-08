@@ -1,3 +1,9 @@
+## 1.191.0
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 1.7.3 to 2.5.0 ([4a7f10cfe](https://github.com/mozilla/fxa/commit/4a7f10cfe))
+
 ## 1.190.1
 
 No changes.

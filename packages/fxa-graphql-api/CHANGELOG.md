@@ -1,3 +1,9 @@
+## 1.191.0
+
+### Other changes
+
+- deps: bump @types/sinon from 9.0.5 to 9.0.7 ([253383773](https://github.com/mozilla/fxa/commit/253383773))
+
 ## 1.190.1
 
 No changes.

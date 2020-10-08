@@ -1,5 +1,12 @@
 # Change history
 
+## 1.191.0
+
+### Other changes
+
+- deps: bump @nestjs/schedule from 0.4.0 to 0.4.1 ([067086077](https://github.com/mozilla/fxa/commit/067086077))
+- deps: bump @types/sinon from 9.0.5 to 9.0.7 ([253383773](https://github.com/mozilla/fxa/commit/253383773))
+
 ## 1.190.1
 
 No changes.

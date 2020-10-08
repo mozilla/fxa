@@ -1,3 +1,15 @@
+## 1.191.0
+
+### Bug fixes
+
+- fxa-settings: fix photo mask on RTL ([8d770c7fc](https://github.com/mozilla/fxa/commit/8d770c7fc))
+
+### Other changes
+
+- deps: bump thread-loader from 2.1.3 to 3.0.0 ([9a8dc88b8](https://github.com/mozilla/fxa/commit/9a8dc88b8))
+- experiments: disable newsletter experiments until next steps ([28eea3183](https://github.com/mozilla/fxa/commit/28eea3183))
+- deps: bump jquery from 3.5.0 to 3.5.1 ([300e68e4a](https://github.com/mozilla/fxa/commit/300e68e4a))
+
 ## 1.190.1
 
 No changes.

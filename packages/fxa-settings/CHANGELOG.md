@@ -1,3 +1,25 @@
+## 1.191.0
+
+### New features
+
+- settings: added validation to change password ([880c42293](https://github.com/mozilla/fxa/commit/880c42293))
+- settings: add display name page ([116fcdc00](https://github.com/mozilla/fxa/commit/116fcdc00))
+- metrics: add more Amplitude events to new settings ([39951245a](https://github.com/mozilla/fxa/commit/39951245a))
+
+### Bug fixes
+
+- fxa-settings: address ts error in Account model ([069c68909](https://github.com/mozilla/fxa/commit/069c68909))
+- fxa-settings: fix recovery key link ([fcbb58fc9](https://github.com/mozilla/fxa/commit/fcbb58fc9))
+- admin-panel: Fix connection to admin server in dev, remove unneeded Apollo dependencies, update README ([54925c489](https://github.com/mozilla/fxa/commit/54925c489))
+
+### Other changes
+
+- fxa-settings: connected services; icons, tests, styles ([de97d4318](https://github.com/mozilla/fxa/commit/de97d4318))
+- deps-dev: bump @testing-library/dom from 6.16.0 to 7.24.5 ([b61199ad2](https://github.com/mozilla/fxa/commit/b61199ad2))
+- fxa-settings: fix secondary email msg placement ([7783b686b](https://github.com/mozilla/fxa/commit/7783b686b))
+- 9e0d6baf0 Document the local URL for new-settings ([9e0d6baf0](https://github.com/mozilla/fxa/commit/9e0d6baf0))
+- metrics: remove marketing metrics code from new settings ([7dbae1a38](https://github.com/mozilla/fxa/commit/7dbae1a38))
+
 ## 1.190.1
 
 No changes.

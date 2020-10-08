@@ -1,3 +1,9 @@
+## 1.191.0
+
+### Other changes
+
+- deps-dev: bump @testing-library/dom from 6.16.0 to 7.24.5 ([b61199ad2](https://github.com/mozilla/fxa/commit/b61199ad2))
+
 ## 1.190.1
 
 No changes.
