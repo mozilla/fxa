@@ -7,14 +7,19 @@ import { storiesOf } from '@storybook/react';
 import { PageChangePassword } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
-import { MockedCache } from 'fxa-settings/src/models/_mocks';
+import { AuthContext, createAuthClient } from '../../lib/auth';
+import { MockedCache } from '../../models/_mocks';
+
+const client = createAuthClient('none');
 
 storiesOf('Pages|ChangePassword', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache>
-      <AppLayout>
-        <PageChangePassword />
-      </AppLayout>
-    </MockedCache>
+    <AuthContext.Provider value={{ auth: client }}>
+      <MockedCache>
+        <AppLayout>
+          <PageChangePassword />
+        </AppLayout>
+      </MockedCache>
+    </AuthContext.Provider>
   ));

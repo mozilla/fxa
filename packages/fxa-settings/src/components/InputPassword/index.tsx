@@ -18,6 +18,7 @@ export const InputPassword = ({
   onChange,
   inputRef,
   errorText,
+  name,
 }: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
@@ -42,13 +43,16 @@ export const InputPassword = ({
         className,
         inputRef,
         errorText,
+        name,
       }}
     >
       <button
+        type="button"
         data-testid="visibility-toggle"
         className={`w-5 px-3 py-2 text-grey-600 focus:text-blue-500 box-content ${
           hasContent ? '-ml-3' : 'hidden'
         }`}
+        tabIndex={-1}
         onClick={() => {
           setVisible(!visible);
         }}

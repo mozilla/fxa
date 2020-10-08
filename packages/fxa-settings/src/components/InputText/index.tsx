@@ -7,7 +7,7 @@ import React, {
   useState,
   useCallback,
   ReactElement,
-  RefObject,
+  Ref,
 } from 'react';
 import classNames from 'classnames';
 import { Tooltip } from '../Tooltip';
@@ -21,9 +21,10 @@ export type InputTextProps = {
   errorText?: string;
   errorTooltipClass?: string;
   className?: string;
-  inputRef?: RefObject<HTMLInputElement>;
+  inputRef?: Ref<HTMLInputElement>;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
+  name?: string;
 };
 
 export const InputText = ({
@@ -38,6 +39,7 @@ export const InputText = ({
   className = '',
   inputRef,
   type = 'text',
+  name,
 }: InputTextProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
@@ -86,6 +88,7 @@ export const InputText = ({
           onChange={textFieldChange}
           ref={inputRef}
           {...{
+            name,
             defaultValue,
             disabled,
             onFocus,
