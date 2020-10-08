@@ -63,11 +63,7 @@ export const UnitRowRecoveryKey = () => {
       headerId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
       headerValue={recoveryKey ? 'Enabled' : 'Not Set'}
-      route={
-        recoveryKey
-          ? undefined
-          : '/beta/settings/account_recovery/confirm_password'
-      }
+      route={recoveryKey ? undefined : '/beta/settings/account_recovery'}
       revealModal={recoveryKey ? revealModal : undefined}
       ctaText={recoveryKey ? 'Remove' : 'Create'}
       alertBarRevealed

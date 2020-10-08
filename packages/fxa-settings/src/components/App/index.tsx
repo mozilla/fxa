@@ -13,6 +13,7 @@ import { Router } from '@reach/router';
 import FlowContainer from '../FlowContainer';
 import PageSettings from '../PageSettings';
 import PageChangePassword from '../PageChangePassword';
+import PageRecoveryKeyAdd from '../PageRecoveryKeyAdd';
 import PageSecondaryEmailAdd from '../PageSecondaryEmailAdd';
 import PageSecondaryEmailVerify from '../PageSecondaryEmailVerify';
 import { PageDisplayName } from '../PageDisplayName';
@@ -93,6 +94,7 @@ export const App = ({ flowQueryParams }: AppProps) => {
         <FlowContainer path="/avatar/change" title="Profile picture" />
         <PageDisplayName path="/display_name" />
         <PageChangePassword path="/change_password" />
+        <PageRecoveryKeyAdd path="/account_recovery" />
         <PageSecondaryEmailAdd path="/emails" />
         <PageSecondaryEmailVerify path="/emails/verify" />
       </Router>
