@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.190.1",
+  "version": "1.191.1",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -40,7 +40,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@google-cloud/firestore": "^3.7.5",
+    "@google-cloud/firestore": "^4.4.0",
     "@hapi/hapi": "^19.1.1",
     "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^9.1.0",
@@ -112,7 +112,7 @@
     "@types/hapi__hapi": "^19.0.3",
     "@types/ioredis": "^4.16.7",
     "@types/joi": "^14.3.3",
-    "@types/jsonwebtoken": "^8.3.5",
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/jsrsasign": "8.0.5",
     "@types/jws": "^3.2.0",
     "@types/lodash": "^4",

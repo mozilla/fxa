@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-panel",
-  "version": "1.190.1",
+  "version": "1.191.1",
   "description": "FxA Admin Panel",
   "scripts": {
     "build-postcss": "postcss src/styles/tailwind.css -o src/styles/tailwind.out.css",
@@ -65,7 +65,7 @@
     "@storybook/addons": "^5.3.19",
     "@storybook/preset-create-react-app": "^2.1.1",
     "@storybook/react": "^5.3.19",
-    "@testing-library/dom": "^6.15.0",
+    "@testing-library/dom": "^7.24.5",
     "@testing-library/jest-dom": "^5.11.0",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",

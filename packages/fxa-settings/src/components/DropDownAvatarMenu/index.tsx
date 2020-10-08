@@ -11,6 +11,7 @@ import { clearSignedInAccountUid } from '../../lib/cache';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useEscKeydownEffect, useMutation, useAlertBar } from '../../lib/hooks';
 import { ReactComponent as SignOut } from './sign-out.svg';
+import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 
 export const DESTROY_SESSION_MUTATION = gql`
   mutation destroySession($input: DestroySessionInput!) {
@@ -32,6 +33,10 @@ export const DropDownAvatarMenu = () => {
   const dropDownId = 'drop-down-avatar-menu';
 
   const [destroySession, { data }] = useMutation(DESTROY_SESSION_MUTATION, {
+    onCompleted: () => {
+      // cannot use a hook here since this callback is not called in a hook
+      logViewEvent(settingsViewName, 'signout.success');
+    },
     onError: (error) => {
       alertBar.error('Sorry, there was a problem signing you out.', error);
     },

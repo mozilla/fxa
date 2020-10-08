@@ -143,7 +143,7 @@ module.exports = function (log, config, statsd) {
         query.index = index.toString();
       }
       const body = await api.retrieve(uid, deviceId, query);
-      log.info('pushbox.retrieve.response', { body: body });
+      log.debug('pushbox.retrieve.response', { body: body });
       if (body.error) {
         log.error('pushbox.retrieve', {
           status: body.status,

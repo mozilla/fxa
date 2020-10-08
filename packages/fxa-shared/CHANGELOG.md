@@ -1,5 +1,16 @@
 # Change history
 
+## 1.191.1
+
+No changes.
+
+## 1.191.0
+
+### Other changes
+
+- deps-dev: bump @types/redis from 2.8.20 to 2.8.27 ([f5e9d0451](https://github.com/mozilla/fxa/commit/f5e9d0451))
+- deps: bump @types/sinon from 9.0.5 to 9.0.7 ([253383773](https://github.com/mozilla/fxa/commit/253383773))
+
 ## 1.190.1
 
 No changes.

@@ -1,6 +1,6 @@
 {
   "name": "fxa-support-panel",
-  "version": "1.190.1",
+  "version": "1.191.1",
   "description": "Small app to help customer support access FxA details",
   "directories": {
     "test": "test"
@@ -30,7 +30,7 @@
   "dependencies": {
     "@hapi/hapi": "^20.0.0",
     "@hapi/joi": "^15.1.1",
-    "@hapi/scooter": "^6.0.0",
+    "@hapi/scooter": "^6.0.1",
     "blankie": "^5.0.0",
     "convict": "^6.0.0",
     "convict-format-with-moment": "^6.0.0",

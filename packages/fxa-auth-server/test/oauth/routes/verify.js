@@ -32,6 +32,7 @@ describe('/verify POST', () => {
         getProperties: sinon.spy(() => ({ key: 'value' })),
       },
       log: {
+        debug: sandbox.spy(),
         info: sandbox.spy(),
         warn: sandbox.spy(),
       },
@@ -110,15 +111,6 @@ describe('/verify POST', () => {
 
     it('verifies the token', () => {
       assert.isTrue(mocks.token.verify.calledOnceWith(TOKEN));
-    });
-
-    it('logs as expected', () => {
-      assert.isTrue(
-        mocks.log.info.calledOnceWith('verify.success', {
-          client_id: 'foo',
-          scope: ['bar:foo', 'clients:write'],
-        })
-      );
     });
 
     it('logs an amplitude event', () => {

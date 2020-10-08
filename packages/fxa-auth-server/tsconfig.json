@@ -9,5 +9,5 @@
     "types": ["accept-language", "mocha", "mozlog", "node"]
   },
   "references": [{ "path": "../fxa-shared" }],
-  "include": ["bin/*"]
+  "include": ["bin/*", "scripts/*.ts"]
 }

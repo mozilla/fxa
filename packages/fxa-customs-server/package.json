@@ -1,6 +1,6 @@
 {
   "name": "fxa-customs-server",
-  "version": "1.190.1",
+  "version": "1.191.1",
   "description": "Firefox Accounts Customs Server",
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
@@ -22,7 +22,7 @@
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^1.1.5",
+    "@google-cloud/pubsub": "^2.5.0",
     "@hapi/hapi": "^19.1.1",
     "@hapi/hoek": "^9.0.4",
     "@sentry/node": "^5.17.0",

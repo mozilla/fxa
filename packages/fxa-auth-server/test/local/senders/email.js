@@ -1431,17 +1431,14 @@ describe('lib/senders/email:', () => {
       };
 
       return mailer.send(message).then(() => {
-        assert.equal(mockLog.info.callCount, 3);
-        const emailEventLog = mockLog.info.getCalls()[2];
+        assert.equal(mockLog.info.callCount, 1);
+        const emailEventLog = mockLog.info.getCalls()[0];
         assert.equal(emailEventLog.args[0], 'emailEvent');
         assert.equal(emailEventLog.args[1].domain, 'other');
         assert.equal(emailEventLog.args[1].flow_id, 'wibble');
         assert.equal(emailEventLog.args[1].template, 'verifyLogin');
         assert.equal(emailEventLog.args[1].type, 'sent');
         assert.equal(emailEventLog.args[1].locale, 'en');
-        const mailerSend1 = mockLog.info.getCalls()[1];
-        assert.equal(mailerSend1.args[0], 'mailer.send.1');
-        assert.equal(mailerSend1.args[1].to, message.email);
       });
     });
   });

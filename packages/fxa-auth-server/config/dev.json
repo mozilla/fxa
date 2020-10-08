@@ -289,7 +289,7 @@
         "hashedSecret": "71b5283536f1f1c331eca2f75c58a5947d7a7ac54164eadb4b33a889afe89fbf",
         "imageUri": "",
         "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
-        "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
+        "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session https://identity.mozilla.com/ids/ecosystem_telemetry",
         "trusted": true,
         "canGrant": true,
         "publicClient": true
@@ -402,6 +402,10 @@
       },
       {
         "scope": "https://identity.mozilla.com/apps/oldsync",
+        "hasScopedKeys": true
+      },
+      {
+        "scope": "https://identity.mozilla.com/ids/ecosystem_telemetry",
         "hasScopedKeys": true
       },
       {

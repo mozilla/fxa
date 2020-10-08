@@ -774,6 +774,12 @@ const conf = convict({
       default: 'YOU MUST CHANGE ME',
       env: 'SUBHUB_KEY',
     },
+    customerCacheTtlSeconds: {
+      doc: 'The number of seconds to cache a Stripe Customer response',
+      format: 'int',
+      default: 3600,
+      env: 'SUBHUB_CUSTOMER_CACHE_TTL_SECONDS',
+    },
     plansCacheTtlSeconds: {
       doc: 'The number of seconds to cache the list of plans from subhub',
       format: 'int',

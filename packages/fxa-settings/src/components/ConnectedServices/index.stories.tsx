@@ -8,10 +8,12 @@ import { LocationProvider } from '@reach/router';
 import { ConnectedServices } from '.';
 import { MockedCache } from '../../models/_mocks';
 
+import { MOCK_SERVICES } from './MOCK_SERVICES';
+
 storiesOf('Components|ConnectedServices', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache account={{ recoveryKey: false, totp: { exists: false } }}>
+    <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
       <ConnectedServices />
     </MockedCache>
   ));

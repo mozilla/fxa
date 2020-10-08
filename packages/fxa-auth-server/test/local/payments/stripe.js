@@ -66,6 +66,7 @@ const mockConfig = {
     enabled: true,
     url: 'https://foo.bar',
     key: 'foo',
+    customerCacheTtlSeconds: 90,
     plansCacheTtlSeconds: 60,
   },
 };
@@ -186,9 +187,13 @@ describe('StripeHelper', () => {
   let sandbox;
   let listStripePlans;
   let log;
+  /** @type AccountCustomers */
+  let existingCustomer;
+  const existingUid = '40cc397def2d487b9b8ba0369079a267';
 
   before(async () => {
     await createTestDatabase();
+    existingCustomer = await createAccountCustomer(existingUid, customer1.id);
   });
 
   after(async () => {
@@ -1099,25 +1104,27 @@ describe('StripeHelper', () => {
 
   describe('fetchCustomer', () => {
     it('fetches an existing customer', async () => {
-      const listResponse = {
-        autoPagingToArray: sinon.fake.resolves([customer1]),
-      };
-      sandbox.stub(stripeHelper.stripe.customers, 'list').returns(listResponse);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'retrieve')
+        .returns(customer1);
       const result = await stripeHelper.fetchCustomer(
-        'user123',
+        existingCustomer.uid,
         'test@example.com'
       );
       assert.deepEqual(result, customer1);
     });
 
     it('throws if the customer record has a fxa id mismatch', async () => {
-      const listResponse = {
-        autoPagingToArray: sinon.fake.resolves([customer1]),
-      };
-      sandbox.stub(stripeHelper.stripe.customers, 'list').returns(listResponse);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'retrieve')
+        .returns(newCustomer);
       let thrown;
       try {
-        await stripeHelper.fetchCustomer('user1234', 'test@example.com');
+        await stripeHelper.fetchCustomer(
+          existingCustomer.uid,
+          'test@example.com'
+        );
+        assert.fail('Error should have been thrown.');
       } catch (err) {
         thrown = err;
       }
@@ -1125,41 +1132,55 @@ describe('StripeHelper', () => {
       assert.equal(thrown.message, 'A backend service request failed.');
       assert.equal(
         thrown.cause().message,
-        'Customer for email: test@example.com in Stripe has mismatched uid'
+        'Stripe Customer: cus_new has mismatched uid in metadata.'
       );
     });
 
-    it('returns void if no customers are found', async () => {
-      const listResponse = {
-        autoPagingToArray: sinon.fake.resolves([]),
-      };
-      sandbox.stub(stripeHelper.stripe.customers, 'list').returns(listResponse);
+    it('returns void if no there is no record of the user-customer relationship in db', async () => {
       assert.isUndefined(
-        await stripeHelper.fetchCustomer('user123', 'test@example.com')
+        await stripeHelper.fetchCustomer(
+          '013b3c2f6c7b41e0991e6707fdbb62b3',
+          'test@example.com'
+        )
       );
+    });
+
+    it('returns void if the stripe customer is deleted and updates db', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'retrieve')
+        .returns(deletedCustomer);
+      assert.isDefined(await getAccountCustomerByUid(existingCustomer.uid));
+      assert.isUndefined(
+        await stripeHelper.fetchCustomer(
+          existingCustomer.uid,
+          'test@example.com'
+        )
+      );
+      assert.isTrue(stripeHelper.stripe.customers.retrieve.calledOnce);
+      assert.isUndefined(await getAccountCustomerByUid(existingCustomer.uid));
+
+      // reset for tests:
+      existingCustomer = await createAccountCustomer(existingUid, customer1.id);
     });
 
     describe('when a customer has subscriptions and they are more than one page', () => {
       it('loads all of the subscriptions for the user', async () => {
-        const customer = deepCopy(newCustomer);
+        const customer = deepCopy(customer1);
         const custSubscription1 = deepCopy(subscription1);
         const custSubscription2 = deepCopy(subscription2);
 
         customer.subscriptions.data = [custSubscription1];
         customer.subscriptions.has_more = true;
 
-        const listResponse = {
-          autoPagingToArray: sinon.fake.resolves([customer]),
-        };
         sandbox
-          .stub(stripeHelper.stripe.customers, 'list')
-          .returns(listResponse);
+          .stub(stripeHelper.stripe.customers, 'retrieve')
+          .returns(customer);
         sandbox
           .stub(stripeHelper, 'fetchAllSubscriptionsForCustomer')
           .resolves([custSubscription2]);
 
         const result = await stripeHelper.fetchCustomer(
-          'testuid',
+          existingCustomer.uid,
           customer.email
         );
 
@@ -1184,42 +1205,43 @@ describe('StripeHelper', () => {
   });
 
   describe('customer caching', () => {
-    const uid = 'user123';
     const email = 'test@example.com';
 
     beforeEach(() => {
-      const listResponse = {
-        autoPagingToArray: sinon.fake.resolves([customer1]),
-      };
-      sandbox.stub(stripeHelper.stripe.customers, 'list').returns(listResponse);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'retrieve')
+        .returns(customer1);
     });
 
     describe('customer', () => {
       it('fetches an existing customer and caches it', async () => {
         assert.deepEqual(
-          await stripeHelper.customer({ uid, email }),
+          await stripeHelper.customer({ uid: existingUid, email }),
           customer1
         );
         assert(mockRedis.get.calledOnce);
         assert(mockRedis.set.calledOnce);
 
-        // Assert that no TTL was set for this cache entry - i.e. [ 'EX', 600 ] should not appear.
-        assert.deepEqual(mockRedis.set.args[0][2], []);
+        // Assert that a TTL was set for this cache entry
+        assert.deepEqual(mockRedis.set.args[0][2], [
+          'EX',
+          mockConfig.subhub.customerCacheTtlSeconds,
+        ]);
 
         assert.deepEqual(
-          await stripeHelper.customer({ uid, email }),
+          await stripeHelper.customer({ uid: existingUid, email }),
           customer1
         );
         assert(mockRedis.get.calledTwice);
         assert(mockRedis.set.calledOnce);
-        assert(stripeHelper.stripe.customers.list.calledOnce);
+        assert(stripeHelper.stripe.customers.retrieve.calledOnce);
 
         const customerKey = StripeHelper.StripeHelper.customerCacheKey([
-          uid,
+          existingUid,
           email,
         ]);
         assert.deepEqual(
-          await stripeHelper.customer({ uid, email }),
+          await stripeHelper.customer({ uid: existingUid, email }),
           JSON.parse(await mockRedis.get(customerKey))
         );
       });
@@ -1228,7 +1250,7 @@ describe('StripeHelper', () => {
     describe('subscriptionForCustomer', () => {
       it('uses cached customer data to look up a subscription', async () => {
         assert.deepEqual(
-          await stripeHelper.customer({ uid, email }),
+          await stripeHelper.customer({ uid: existingUid, email }),
           customer1
         );
         assert(mockRedis.get.calledOnce);
@@ -1236,7 +1258,7 @@ describe('StripeHelper', () => {
 
         assert.deepEqual(
           await stripeHelper.subscriptionForCustomer(
-            uid,
+            existingUid,
             email,
             customer1.subscriptions.data[0].id
           ),
@@ -1244,7 +1266,7 @@ describe('StripeHelper', () => {
         );
         assert(mockRedis.get.calledTwice);
         assert(mockRedis.set.calledOnce);
-        assert(stripeHelper.stripe.customers.list.calledOnce);
+        assert(stripeHelper.stripe.customers.retrieve.calledOnce);
       });
 
       it('returns void if no customer is found', async () => {
@@ -1252,27 +1274,11 @@ describe('StripeHelper', () => {
 
         assert.isUndefined(
           await stripeHelper.subscriptionForCustomer(
-            uid,
+            existingUid,
             email,
             customer1.subscriptions.data[0].id
           )
         );
-      });
-    });
-
-    describe('subscriptionForCustomer', () => {
-      it('uses only cached customer data to look up a subscription', async () => {
-        assert.deepEqual(
-          await stripeHelper.customer({
-            uid: 'nonexistentuid',
-            email,
-            cacheOnly: true,
-          }),
-          undefined
-        );
-        assert(mockRedis.get.calledOnce);
-        assert.equal(mockRedis.set.callCount, 0);
-        assert.equal(stripeHelper.stripe.customers.list.callCount, 0);
       });
     });
 
@@ -1332,22 +1338,25 @@ describe('StripeHelper', () => {
       let customerKey;
 
       beforeEach(async () => {
-        customerKey = StripeHelper.StripeHelper.customerCacheKey([uid, email]);
+        customerKey = StripeHelper.StripeHelper.customerCacheKey([
+          existingUid,
+          email,
+        ]);
         assert.deepEqual(
-          await stripeHelper.customer({ uid, email }),
+          await stripeHelper.customer({ uid: existingUid, email }),
           JSON.parse(await mockRedis.get(customerKey))
         );
       });
 
       describe('refreshCachedCustomer', () => {
         it('forces a refresh of a cached customer by uid and email', async () => {
-          await stripeHelper.refreshCachedCustomer(uid, email);
-          assert(stripeHelper.stripe.customers.list.calledTwice);
+          await stripeHelper.refreshCachedCustomer(existingUid, email);
+          assert(stripeHelper.stripe.customers.retrieve.calledTwice);
         });
 
         it('logs errors', async () => {
           sandbox.stub(stripeHelper, 'customer').rejects(Error);
-          await stripeHelper.refreshCachedCustomer(uid, email);
+          await stripeHelper.refreshCachedCustomer(existingUid, email);
           assert(
             stripeHelper.log.error.calledOnceWith(
               'subhub.refreshCachedCustomer.failed'
@@ -1360,7 +1369,7 @@ describe('StripeHelper', () => {
         it('removes the entry from redis', async () => {
           assert.isNotEmpty(await mockRedis.get(customerKey));
 
-          await stripeHelper.removeCustomerFromCache(uid, email);
+          await stripeHelper.removeCustomerFromCache(existingUid, email);
 
           assert.isTrue(mockRedis.del.calledOnceWithExactly(customerKey));
           assert.isTrue(log.error.notCalled);
@@ -1418,6 +1427,29 @@ describe('StripeHelper', () => {
 
         assert(stripeCustomerDel.notCalled);
         assert(stripeHelper.removeCustomerFromCache.notCalled);
+      });
+    });
+
+    describe('when accountCustomer record is not deleted', () => {
+      it('logs an error', async () => {
+        const uid = chance.guid({ version: 4 }).replace(/-/g, '');
+        const customerId = 'cus_1234456sdf';
+        const testAccount = await createAccountCustomer(uid, customerId);
+
+        const authDbModule = require('fxa-shared/db/models/auth');
+        const deleteCustomer = sandbox
+          .stub(authDbModule, 'deleteAccountCustomer')
+          .returns(0);
+
+        await stripeHelper.removeCustomer(testAccount.uid, email);
+
+        assert(deleteCustomer.calledOnce);
+        assert(stripeHelper.removeCustomerFromCache.calledOnce);
+        assert(stripeHelper.log.error.calledOnce);
+        assert.equal(
+          `StripeHelper.removeCustomer failed to remove AccountCustomer record for uid ${uid}`,
+          stripeHelper.log.error.getCall(0).args[0]
+        );
       });
     });
   });

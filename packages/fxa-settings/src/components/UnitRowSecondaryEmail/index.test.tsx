@@ -188,9 +188,9 @@ describe('UnitRowSecondaryEmail', () => {
         screen.getAllByTestId('secondary-email-default-content')
       ).toHaveLength(1);
 
-      expect(unitRowContents[unitRowContents.length - 1]).toContainElement(
+      expect(
         screen.getByTestId('secondary-email-default-content')
-      );
+      ).toBeInTheDocument();
 
       expect(unitRowHeaderValues).toHaveLength(3);
       secondaryEmails.forEach((email, index) => {

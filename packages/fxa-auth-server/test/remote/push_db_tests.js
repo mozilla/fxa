@@ -42,6 +42,7 @@ const ACCOUNT = {
   tokenVerificationId: zeroBuffer16,
 };
 const mockLog = {
+  debug: function () {},
   error: function () {},
   warn: function () {},
   increment: function () {},
@@ -157,11 +158,11 @@ describe('remote push db', function () {
           'device.pushEndpointExpired is correct'
         );
 
-        const pushWithKnown400 = proxyquire("../../lib/push", mocksKnown400)(
+        const pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(
           mockLog,
           db,
           {},
-          mockStatsD,
+          mockStatsD
         );
         return pushWithKnown400.sendPush(ACCOUNT.uid, devices, 'accountVerify');
       })

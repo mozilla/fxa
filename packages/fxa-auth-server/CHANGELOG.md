@@ -1,3 +1,29 @@
+## 1.191.1
+
+No changes.
+
+## 1.191.0
+
+### New features
+
+- payments: set cache ttl on customers in redis ([d75f6c69a](https://github.com/mozilla/fxa/commit/d75f6c69a))
+- payments: Use AccountCustomer info for Fetching Customer info ([466db2ddd](https://github.com/mozilla/fxa/commit/466db2ddd))
+
+### Bug fixes
+
+- ts: compile ts in the auth-server/scripts dir ([033041819](https://github.com/mozilla/fxa/commit/033041819))
+- metrics: add service name to sync oauth Amplitude events ([4d5cca23a](https://github.com/mozilla/fxa/commit/4d5cca23a))
+
+### Other changes
+
+- deps: bump @google-cloud/firestore from 3.8.6 to 4.4.0 ([f6c0df4e7](https://github.com/mozilla/fxa/commit/f6c0df4e7))
+- payments: bad stripe expand fields ([67c3afa3e](https://github.com/mozilla/fxa/commit/67c3afa3e))
+- logs: updated tests for new log levels ([7ce6d102d](https://github.com/mozilla/fxa/commit/7ce6d102d))
+- logs: lower the log level of some lines ([117685816](https://github.com/mozilla/fxa/commit/117685816))
+- deps-dev: bump @types/jsonwebtoken from 8.3.9 to 8.5.0 ([1c7e7bb0a](https://github.com/mozilla/fxa/commit/1c7e7bb0a))
+- config: Allow Firefox Desktop to request ecosystem telemetry scope. ([95da0e86e](https://github.com/mozilla/fxa/commit/95da0e86e))
+- deps-dev: bump binary-split from 0.1.2 to 1.0.5 ([7adf9d194](https://github.com/mozilla/fxa/commit/7adf9d194))
+
 ## 1.190.1
 
 ### Bug fixes

@@ -100,7 +100,7 @@ class CadReminders {
           return result;
         }, {})
       );
-      this.log.info('cadReminders.delete', {
+      this.log.debug('cadReminders.delete', {
         uid,
       });
       return result;

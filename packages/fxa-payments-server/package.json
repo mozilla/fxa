@@ -1,6 +1,6 @@
 {
   "name": "fxa-payments-server",
-  "version": "1.190.1",
+  "version": "1.191.1",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
     "postinstall": "scripts/download_l10n.sh",
@@ -61,7 +61,7 @@
     "@types/sinon": "9.0.7",
     "@types/storybook__addon-actions": "^5.2.1",
     "@types/storybook__addon-links": "^5.2.1",
-    "@types/storybook__react": "^4.0.1",
+    "@types/storybook__react": "^5.2.1",
     "@types/uuid": "^7.0.2",
     "@types/webpack": "4.41.16",
     "@typescript-eslint/eslint-plugin": "2.33.0",
@@ -71,7 +71,7 @@
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.0.6",
     "browserslist": "^4.7.2",
-    "caniuse-lite": "^1.0.30001010",
+    "caniuse-lite": "^1.0.30001144",
     "eslint": "^6.8.0",
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^23.13.2",

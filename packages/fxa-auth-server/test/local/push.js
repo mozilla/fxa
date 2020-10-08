@@ -115,7 +115,6 @@ describe('push', () => {
     const push = loadMockedPushModule();
     await push.sendPush(mockUid, [], 'accountVerify');
     assert.callCount(mockSendNotification, 0);
-    assert.callCount(mockLog.info, 0);
     assert.callCount(mockStatsD.increment, 0);
   });
 
@@ -128,48 +127,6 @@ describe('push', () => {
     );
     assert.deepEqual(sendErrors, {});
     assert.callCount(mockSendNotification, 2);
-
-    assert.callCount(mockLog.info, 5);
-    assert.calledWith(
-      mockLog.info.getCall(0),
-      'push.filteredUnsupportedDevice'
-    );
-    assert.calledWithExactly(mockLog.info.getCall(1), 'push.send.attempt', {
-      reason: 'accountVerify',
-      uid: mockUid,
-      deviceId: mockDevices[0].id,
-      uaOS: undefined,
-      uaOSVersion: undefined,
-      uaBrowser: undefined,
-      uaBrowserVersion: undefined,
-    });
-    assert.calledWithExactly(mockLog.info.getCall(2), 'push.send.success', {
-      reason: 'accountVerify',
-      uid: mockUid,
-      deviceId: mockDevices[0].id,
-      uaOS: undefined,
-      uaOSVersion: undefined,
-      uaBrowser: undefined,
-      uaBrowserVersion: undefined,
-    });
-    assert.calledWithExactly(mockLog.info.getCall(3), 'push.send.attempt', {
-      reason: 'accountVerify',
-      uid: mockUid,
-      deviceId: mockDevices[1].id,
-      uaOS: 'Windows',
-      uaOSVersion: '10',
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '65.4',
-    });
-    assert.calledWithExactly(mockLog.info.getCall(4), 'push.send.success', {
-      reason: 'accountVerify',
-      uid: mockUid,
-      deviceId: mockDevices[1].id,
-      uaOS: 'Windows',
-      uaOSVersion: '10',
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '65.4',
-    });
 
     assert.callCount(mockStatsD.increment, 4);
     assert.calledWithExactly(
@@ -229,52 +186,6 @@ describe('push', () => {
     );
     sinon.assert.match(sendErrors, match.has(mockDevices[1].id, match.any));
     assert.callCount(mockSendNotification, 2);
-
-    assert.callCount(mockLog.info, 4);
-    assert.calledWith(
-      mockLog.info.getCall(0),
-      'push.filteredUnsupportedDevice'
-    );
-    assert.calledWithExactly(mockLog.info.getCall(1), 'push.send.attempt', {
-      reason: 'accountVerify',
-      uid: mockUid,
-      deviceId: mockDevices[0].id,
-      uaOS: undefined,
-      uaOSVersion: undefined,
-      uaBrowser: undefined,
-      uaBrowserVersion: undefined,
-    });
-    assert.calledWithExactly(mockLog.info.getCall(2), 'push.send.success', {
-      reason: 'accountVerify',
-      uid: mockUid,
-      deviceId: mockDevices[0].id,
-      uaOS: undefined,
-      uaOSVersion: undefined,
-      uaBrowser: undefined,
-      uaBrowserVersion: undefined,
-    });
-    assert.calledWithExactly(mockLog.info.getCall(3), 'push.send.attempt', {
-      reason: 'accountVerify',
-      uid: mockUid,
-      deviceId: mockDevices[1].id,
-      uaOS: 'Windows',
-      uaOSVersion: '10',
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '65.4',
-    });
-
-    assert.callCount(mockLog.warn, 1);
-    assert.calledWithExactly(mockLog.warn.getCall(0), 'push.send.failure', {
-      reason: 'accountVerify',
-      errCode: 'unknown',
-      err: match.has('message', 'intermittent failure'),
-      uid: mockUid,
-      deviceId: mockDevices[1].id,
-      uaOS: 'Windows',
-      uaOSVersion: '10',
-      uaBrowser: 'Firefox',
-      uaBrowserVersion: '65.4',
-    });
 
     assert.callCount(mockStatsD.increment, 4);
     assert.calledWithExactly(
@@ -440,10 +351,8 @@ describe('push', () => {
     ];
     const options = { data: Buffer.from('foobar') };
     await push.sendPush(mockUid, devices, 'deviceConnected', options);
-    assert.callCount(mockLog.info, 1);
-    assert.calledWithMatch(mockLog.info, 'push.send.attempt');
-    assert.callCount(mockLog.warn, 1);
-    assert.calledWithMatch(mockLog.warn, 'push.send.failure', {
+    assert.callCount(mockLog.debug, 1);
+    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
       reason: 'deviceConnected',
       errCode: 'noKeys',
     });
@@ -458,10 +367,8 @@ describe('push', () => {
       },
     ];
     await push.sendPush(mockUid, devices, 'accountVerify');
-    assert.callCount(mockLog.info, 1);
-    assert.calledWithMatch(mockLog.info, 'push.send.attempt');
-    assert.callCount(mockLog.warn, 1);
-    assert.calledWithMatch(mockLog.warn, 'push.send.failure', {
+    assert.callCount(mockLog.debug, 1);
+    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'noCallback',
     });
@@ -479,10 +386,8 @@ describe('push', () => {
       },
     ];
     await push.sendPush(mockUid, devices, 'accountVerify');
-    assert.callCount(mockLog.info, 1);
-    assert.calledWithMatch(mockLog.info, 'push.send.attempt');
-    assert.callCount(mockLog.warn, 1);
-    assert.calledWithMatch(mockLog.warn, 'push.send.failure', {
+    assert.callCount(mockLog.debug, 1);
+    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'expiredCallback',
     });
@@ -494,10 +399,8 @@ describe('push', () => {
     });
     const push = loadMockedPushModule();
     await push.sendPush(mockUid, [mockDevices[0]], 'accountVerify');
-    assert.callCount(mockLog.info, 1);
-    assert.calledWithMatch(mockLog.info, 'push.send.attempt');
-    assert.callCount(mockLog.warn, 1);
-    assert.calledWithMatch(mockLog.warn, 'push.send.failure', {
+    assert.callCount(mockLog.debug, 1);
+    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'unknown',
       err: match.has('message', 'Failed with a nasty error'),
@@ -532,8 +435,8 @@ describe('push', () => {
     const device = JSON.parse(JSON.stringify(mockDevices[0]));
     await push.sendPush(mockUid, [device], 'accountVerify');
     assert.callCount(mockSendNotification, 1);
-    assert.callCount(mockLog.warn, 1);
-    assert.calledWithMatch(mockLog.warn, 'push.send.failure', {
+    assert.callCount(mockLog.debug, 1);
+    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'resetCallback',
     });
@@ -554,8 +457,8 @@ describe('push', () => {
     device.pushPublicKey = `E${device.pushPublicKey.substring(1)}`; // make the key invalid
     await push.sendPush(mockUid, [device], 'accountVerify');
     assert.callCount(mockSendNotification, 1);
-    assert.callCount(mockLog.warn, 1);
-    assert.calledWithMatch(mockLog.warn, 'push.send.failure', {
+    assert.callCount(mockLog.debug, 1);
+    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'resetCallback',
     });
@@ -574,8 +477,8 @@ describe('push', () => {
     const device = JSON.parse(JSON.stringify(mockDevices[0]));
     await push.sendPush(mockUid, [device], 'accountVerify');
     assert.callCount(mockSendNotification, 1);
-    assert.callCount(mockLog.warn, 1);
-    assert.calledWithMatch(mockLog.warn, 'push.send.failure', {
+    assert.callCount(mockLog.debug, 1);
+    assert.calledWithMatch(mockLog.debug, 'push.send.failure', {
       reason: 'accountVerify',
       errCode: 'unknown',
     });

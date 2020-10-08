@@ -82,6 +82,7 @@ export class StripeHelper {
   // Note that this isn't quite accurate, as the auth-server logger has some extras
   // attached to it in Hapi.
   private log: Logger;
+  private customerCacheTtlSeconds: number;
   private plansAndProductsCacheTtlSeconds: number;
   private webhookSecret: string;
   private stripe: Stripe;
@@ -92,6 +93,7 @@ export class StripeHelper {
    */
   constructor(log: Logger, config: ConfigType, statsd?: StatsD) {
     this.log = log;
+    this.customerCacheTtlSeconds = config.subhub.customerCacheTtlSeconds;
     this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
@@ -388,25 +390,34 @@ export class StripeHelper {
   }
 
   /**
-   * Fetch a customer for the record from Stripe based on email.
+   * Fetch a customer for the record from Stripe based on user id.
    */
   async fetchCustomer(
     uid: string,
-    email: string,
     expand?: string[]
   ): Promise<Stripe.Customer | void> {
-    const customerResponse = await this.stripe.customers
-      .list({ email, expand })
-      .autoPagingToArray({ limit: 20 });
-    if (customerResponse.length === 0) {
+    const accountCustomer = await getAccountCustomerByUid(uid);
+    if (
+      accountCustomer === undefined ||
+      accountCustomer.stripeCustomerId === undefined
+    ) {
       return;
     }
-    const customer = customerResponse[0];
+
+    const customer = await this.stripe.customers.retrieve(
+      accountCustomer.stripeCustomerId,
+      { expand }
+    );
+
+    if (customer.deleted) {
+      await deleteAccountCustomer(uid);
+      return;
+    }
 
     if (customer.metadata.userid !== uid) {
       // Duplicate email with non-match uid
       const err = new Error(
-        `Customer for email: ${email} in Stripe has mismatched uid`
+        `Stripe Customer: ${customer.id} has mismatched uid in metadata.`
       );
       throw error.backendServiceFailure('stripe', 'fetchCustomer', {}, err);
     }
@@ -428,18 +439,16 @@ export class StripeHelper {
 
   @Cacheable({
     cacheKey: StripeHelper.customerCacheKey,
-    // Note: No TTL specified here, because we don't want customers to expire (yet)
-    // TODO (FXA-2383): Should track FxA users who are Customers with a persistent DB table
-    // TODO (FXA-949 / issue #3922): Should establish a TTL specifically for Customer data
+    ttlSeconds: (args, context) => context.customerCacheTtlSeconds,
   })
   async cachedCustomer(
     uid: string,
     email: string
   ): Promise<Stripe.Customer | void> {
-    return this.fetchCustomer(uid, email, [
-      'data.sources',
-      'data.subscriptions',
-      'data.invoice_settings.default_payment_method',
+    return this.fetchCustomer(uid, [
+      'sources',
+      'subscriptions',
+      'invoice_settings.default_payment_method',
     ]);
   }
 
@@ -452,20 +461,11 @@ export class StripeHelper {
     uid,
     email,
     forceRefresh = false,
-    cacheOnly = false,
   }: {
     uid: string;
     email: string;
     forceRefresh?: boolean;
-    cacheOnly?: boolean;
   }): Promise<Stripe.Customer | undefined> {
-    if (cacheOnly) {
-      return (
-        (await cacheManager.client?.get(
-          StripeHelper.customerCacheKey([uid, email])
-        )) || undefined
-      );
-    }
     if (forceRefresh) {
       await this.removeCustomerFromCache(uid, email);
     }

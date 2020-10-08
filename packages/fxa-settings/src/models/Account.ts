@@ -6,11 +6,11 @@ import {
   QueryLazyOptions,
 } from '@apollo/client';
 
-export interface Location {
-  city: string;
-  country: string;
-  state: string;
-  stateCode: string;
+export interface DeviceLocation {
+  city: string | null;
+  country: string | null;
+  state: string | null;
+  stateCode: string | null;
 }
 
 export interface Email {
@@ -23,15 +23,15 @@ export interface AttachedClient {
   clientId: string;
   isCurrentSession: boolean;
   userAgent: string;
-  deviceType: string;
-  deviceId: string;
+  deviceType: string | null;
+  deviceId: string | null;
   name: string;
   lastAccessTime: number;
   lastAccessTimeFormatted: string;
-  approximateLastAccessTime: number;
-  approximateLastAccessTimeFormatted: string;
-  location: Location;
-  os: string;
+  approximateLastAccessTime: number | null;
+  approximateLastAccessTimeFormatted: string | null;
+  location: DeviceLocation;
+  os: string | null;
 }
 
 export interface Account {
