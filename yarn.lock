@@ -2940,13 +2940,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/scooter@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "@hapi/scooter@npm:6.0.0"
+"@hapi/scooter@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "@hapi/scooter@npm:6.0.1"
   dependencies:
-    semver: 6.x.x
+    semver: 7.x.x
     useragent: 2.x.x
-  checksum: 8afba8eeec94af95ea51ab56a535a9146703394f1aef6b15544a39f493baac9971da626e5952e3a40053539ca3ef9790306a0e99559f0330a72137ef731f1333
+  checksum: c1161344734c6e62ff6a422ab6a39d9d26be7c8d2d7fe78e163202191d4d0425bea21dda733a639595861dbab8c69578b0d8b7d8be7e3d240ac43a94ef3f1ed7
   languageName: node
   linkType: hard
 
@@ -18133,7 +18133,7 @@ fsevents@^1.2.7:
   dependencies:
     "@hapi/hapi": ^20.0.0
     "@hapi/joi": ^15.1.1
-    "@hapi/scooter": ^6.0.0
+    "@hapi/scooter": ^6.0.1
     "@types/bluebird": ^3.5.32
     "@types/convict": ^5.2.1
     "@types/eslint": 7.2.0
@@ -32422,7 +32422,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"semver@npm:6.3.0, semver@npm:6.x.x, semver@npm:^6.0.0, semver@npm:^6.1.1, semver@npm:^6.1.2, semver@npm:^6.2.0, semver@npm:^6.3.0":
+"semver@npm:6.3.0, semver@npm:^6.0.0, semver@npm:^6.1.1, semver@npm:^6.1.2, semver@npm:^6.2.0, semver@npm:^6.3.0":
   version: 6.3.0
   resolution: "semver@npm:6.3.0"
   bin:
@@ -32440,7 +32440,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"semver@npm:7.x, semver@npm:^7.1.3, semver@npm:^7.2, semver@npm:^7.2.1, semver@npm:^7.3.2":
+"semver@npm:7.x, semver@npm:7.x.x, semver@npm:^7.1.3, semver@npm:^7.2, semver@npm:^7.2.1, semver@npm:^7.3.2":
   version: 7.3.2
   resolution: "semver@npm:7.3.2"
   bin:
