@@ -189,7 +189,7 @@ module.exports = (log, config) => {
 
   function emitFlowEvent(event, request, optionalData) {
     if (!request || !request.headers) {
-      log.error('metricsEvents.emitFlowEvent', { event, badRequest: true });
+      log.trace('metricsEvents.emitFlowEvent', { event, badRequest: true });
       return P.resolve();
     }
 
