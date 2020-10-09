@@ -18082,6 +18082,7 @@ fsevents@^1.2.7:
     react-test-renderer: ^16.13.1
     subscriptions-transport-ws: ^0.9.18
     tailwindcss: ^1.7.3
+    tailwindcss-dir: ^4.0.0
     typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
@@ -34549,7 +34550,16 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^1.7.3":
+"tailwindcss-dir@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "tailwindcss-dir@npm:4.0.0"
+  dependencies:
+    tailwindcss: ^1.0.1
+  checksum: 4c2f5c84e0ad642395934e993b0bebb50e4936f9bc2e89d6ce9d88318b84e26c5749ef33bcc23dd6920f8e569aefa16b5f1f8b2706e991951d3dd45f36c53ec8
+  languageName: node
+  linkType: hard
+
+"tailwindcss@npm:^1.0.1, tailwindcss@npm:^1.7.3":
   version: 1.7.3
   resolution: "tailwindcss@npm:1.7.3"
   dependencies:

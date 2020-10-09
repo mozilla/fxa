@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const plugin = require('tailwindcss/plugin');
+const tailwindcssDir = require('tailwindcss-dir');
 
 module.exports = {
   purge: {
@@ -75,6 +76,7 @@ module.exports = {
       },
       scale: {
         '80': '.8',
+        '-1': '-1',
       },
       backgroundOpacity: {
         '10': '0.1',
@@ -263,6 +265,11 @@ module.exports = {
     placeholderColor: ['responsive', 'focus', 'disabled'],
     cursor: ['responsive', 'disabled'],
     textDecoration: ['responsive', 'hover', 'focus', 'active', 'group-hover'],
+    float: ['responsive', 'direction'],
+    margin: ['responsive', 'direction'],
+    padding: ['responsive', 'direction'],
+    inset: ['responsive', 'direction'],
+    scale: ['responsive', 'hover', 'focus', 'direction'],
   },
   plugins: [
     plugin(function ({ addUtilities }) {
@@ -309,5 +316,6 @@ module.exports = {
       };
       addComponents(carets);
     }),
+    tailwindcssDir(),
   ],
 };

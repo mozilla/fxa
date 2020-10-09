@@ -9,7 +9,7 @@ import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 export const Security = () => {
   return (
     <section className="mt-11" id="security" data-testid="settings-security">
-      <h2 className="font-header font-bold ml-4 mb-4">Security</h2>
+      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4">Security</h2>
       <div className="bg-white tablet:rounded-xl shadow">
         <UnitRowRecoveryKey />
         <hr className="unit-row-hr" />

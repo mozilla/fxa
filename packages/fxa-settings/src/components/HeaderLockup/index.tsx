@@ -18,7 +18,7 @@ export const HeaderLockup = () => {
   const left = (
     <>
       <button
-        className="desktop:hidden mr-6 w-8 h-6 self-center"
+        className="desktop:hidden ltr:mr-6 rtl:ml-6 w-8 h-6 self-center"
         data-testid="header-menu"
         aria-label={navRevealedState ? 'Close menu' : 'Site navigation menu'}
         aria-haspopup={true}
@@ -40,7 +40,7 @@ export const HeaderLockup = () => {
       >
         <LogoLockup>
           <>
-            <span className="font-bold mr-2">Firefox</span> account
+            <span className="font-bold ltr:mr-2 rtl:ml-2">Firefox</span> account
           </>
         </LogoLockup>
       </a>

@@ -11,7 +11,14 @@
     }
     .drop-down-menu::before {
       content: '';
-      @apply caret-top absolute -top-3 left-55;
+      @apply caret-top absolute -top-3;
     }
+    [dir=ltr] .drop-down-menu::before {
+      @apply left-55;
+    }
+    [dir=rtl] .drop-down-menu::before {
+      @apply right-55;
+    }
+
   }
   /* stylelint-enable */

@@ -25,12 +25,12 @@ export const FlowContainer = ({
           onClick={() => window.history.back()}
           data-testid="flow-container-back-btn"
           title="Back"
-          className="relative w-8 h-8 -ml-2 mr-2 tablet:mr-10 tablet:-ml-18"
+          className="relative w-8 h-8 ltr:-ml-2 rtl:-mr-2 ltr:mr-2 rtl:ml-2 tablet:ltr:mr-10 tablet:rtl:ml-10 tablet:ltr:-ml-18 tablet:rtl:-mr-18"
         >
           <BackArrow
             width="16"
             height="14"
-            className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
+            className="absolute top-1/2 ltr:left-1/2 rtl:right-1/2 transform -translate-y-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2 rtl:-scale-x-1 fill-current"
           />
         </button>
         <h1 className="font-header">{title}</h1>

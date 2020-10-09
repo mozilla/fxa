@@ -41,8 +41,8 @@ export const BentoMenu = () => {
         <div
           id={dropDownId}
           data-testid={dropDownId}
-          className={`w-full h-full fixed top-0 left-0 bg-white z-10
-                      mobileLandscape:h-auto mobileLandscape:drop-down-menu mobileLandscape:top-10 mobileLandscape:-left-52 desktop:-left-50`}
+          className={`w-full h-full fixed top-0 ltr:left-0 rtl:right-0 bg-white z-10
+                      mobileLandscape:h-auto mobileLandscape:drop-down-menu mobileLandscape:top-10 mobileLandscape:ltr:-left-52 mobileLandscape:rtl:-right-52 desktop:ltr:-left-50 desktop:rtl:-right-50`}
         >
           <div className="flex flex-wrap">
             <div className="flex w-full pt-4 items-center flex-col tablet:w-auto tablet:relative">
@@ -62,9 +62,9 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="monitor-link"
                       href="https://monitor.firefox.com"
-                      className="block p-2 pl-6 hover:bg-grey-100"
+                      className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 pr-1">
+                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
                         <MonitorIcon />
                       </div>
                       Firefox Monitor
@@ -74,9 +74,9 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="pocket-link"
                       href="https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447"
-                      className="block p-2 pl-6 hover:bg-grey-100"
+                      className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 pr-1">
+                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
                         <PocketIcon />
                       </div>
                       Pocket
@@ -86,9 +86,9 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="desktop-link"
                       href="https://www.mozilla.org/firefox/new/?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
-                      className="block p-2 pl-6 hover:bg-grey-100"
+                      className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 pr-1">
+                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
                         <DesktopIcon />
                       </div>
                       Firefox Browser for Desktop
@@ -98,9 +98,9 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="mobile-link"
                       href="http://mozilla.org/firefox/mobile?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
-                      className="block p-2 pl-6 hover:bg-grey-100"
+                      className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 pr-1">
+                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
                         <MobileIcon />
                       </div>
                       Firefox Browser for Mobile
@@ -110,9 +110,9 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="lockwise-link"
                       href="https://bhqf.adj.st/?adjust_t=6tteyjo&adj_deeplink=lockwise%3A%2F%2F&adj_fallback=https%3A%2F%2Fwww.mozilla.org%2Fen-US%2Ffirefox%2Flockwise"
-                      className="block p-2 pl-6 hover:bg-grey-100"
+                      className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 pr-1">
+                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
                         <LockwiseIcon />
                       </div>
                       Firefox Lockwise

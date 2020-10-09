@@ -16,13 +16,13 @@ export const Nav = () => {
   const activeClasses = 'font-bold text-blue-500 rounded-sm';
   return (
     <nav
-      className="font-header fixed bg-white w-full inset-0 mt-18 mr-24 desktop:mt-11 desktop:static desktop:bg-transparent text-xl desktop:text-base"
+      className="font-header fixed bg-white w-full inset-0 mt-18 ltr:mr-24 rtl:ml-24 desktop:mt-11 desktop:static desktop:bg-transparent text-xl desktop:text-base"
       data-testid="nav"
     >
-      <ul className="px-6 py-7 text-left tablet:px-8 desktop:p-0 mobileLandscape:mt-8">
+      <ul className="px-6 py-7 tablet:px-8 desktop:p-0 mobileLandscape:mt-8">
         <li className="mb-5">
           <h2 className="font-bold">Settings</h2>
-          <ul className="ml-4">
+          <ul className="ltr:ml-4 rtl:mr-4">
             <li className="mt-3">
               <a
                 data-testid="nav-link-profile"
@@ -80,7 +80,7 @@ export const Nav = () => {
           >
             Newsletters
             <OpenExternal
-              className="inline-block w-3 h-3 ml-1"
+              className="inline-block w-3 h-3 ltr:ml-1 rtl:mr-1 transform rtl:-scale-x-1"
               aria-hidden="true"
             />
           </LinkExternal>
