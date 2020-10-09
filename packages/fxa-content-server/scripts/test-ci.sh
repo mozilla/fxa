@@ -55,7 +55,5 @@ test_suite circle 6
 # node 5 currently has the least work to do in the above tests
 if [[ "${CIRCLE_NODE_INDEX}" == "5" ]]; then
   test_suite server 1
-
-  mozinstall /7f10c7614e9fa46-target.tar.bz2
   test_suite pairing 1
 fi
