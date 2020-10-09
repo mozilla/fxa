@@ -12,6 +12,7 @@ const log = {
   error: sinon.spy(),
   flowEvent: sinon.spy(),
   info: sinon.spy(),
+  trace: sinon.spy(),
 };
 const events = require('../../../lib/metrics/events')(log, {
   amplitude: { rawEvents: false },
@@ -813,8 +814,8 @@ describe('metrics/events', () => {
       },
     };
     return events.emit.call(request, 'email.verification.sent').then(() => {
-      assert.equal(log.error.callCount, 1, 'log.error was called once');
-      const args = log.error.args[0];
+      assert.equal(log.trace.callCount, 1, 'log.error was called once');
+      const args = log.trace.args[0];
       assert.lengthOf(args, 2);
       assert.equal(args[0], 'metricsEvents.emitFlowEvent');
       assert.deepEqual(
