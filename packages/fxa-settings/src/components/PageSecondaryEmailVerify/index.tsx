@@ -7,6 +7,7 @@ import { useAlertBar, useMutation } from '../../lib/hooks';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { HomePath } from 'fxa-settings/src/constants';
 
 export const VERIFY_SECONDARY_EMAIL_MUTATION = gql`
   mutation verifySecondaryEmail($input: VerifyEmailInput!) {
@@ -44,13 +45,13 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       });
     },
     onCompleted: () => {
-      navigate('/beta/settings', { replace: true });
+      navigate(HomePath, { replace: true });
     },
   });
 
   useEffect(() => {
     if (!email) {
-      navigate('/beta/settings', { replace: true });
+      navigate(HomePath, { replace: true });
     }
   }, [email, navigate]);
 

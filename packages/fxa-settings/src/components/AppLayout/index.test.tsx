@@ -7,6 +7,7 @@ import { screen } from '@testing-library/react';
 import { MockedCache } from '../../models/_mocks';
 import AppLayout from '.';
 import { renderWithRouter } from '../../models/_mocks';
+import { HomePath } from '../../constants';
 
 it('renders the app with children', async () => {
   const {
@@ -18,7 +19,7 @@ it('renders the app with children', async () => {
       </AppLayout>
     </MockedCache>
   );
-  await navigate('/beta/settings');
+  await navigate(HomePath);
   expect(screen.getByTestId('app')).toBeInTheDocument();
   expect(screen.getByTestId('content-skip')).toBeInTheDocument();
   expect(screen.getByTestId('header')).toBeInTheDocument();

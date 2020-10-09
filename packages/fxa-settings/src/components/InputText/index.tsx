@@ -26,6 +26,7 @@ export type InputTextProps = {
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
   name?: string;
   prefixDataTestId?: string;
+  autoFocus?: boolean;
 };
 
 export const InputText = ({
@@ -42,6 +43,7 @@ export const InputText = ({
   type = 'text',
   name,
   prefixDataTestId = '',
+  autoFocus,
 }: InputTextProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
@@ -50,13 +52,17 @@ export const InputText = ({
     setFocussed(true);
   }, []);
 
-  const onBlur = useCallback(() => {
+  const checkHasContent = (event: ChangeEvent<HTMLInputElement>) =>
+    setHasContent(event.target.value.length > 0);
+
+  const onBlur = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    checkHasContent(event);
     setFocussed(false);
   }, []);
 
   const textFieldChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setHasContent(event.target.value.length > 0);
+      checkHasContent(event);
       onChange && onChange(event);
     },
     [onChange]
@@ -101,6 +107,7 @@ export const InputText = ({
             onBlur,
             placeholder,
             type,
+            autoFocus,
           }}
         />
       </span>

@@ -14,10 +14,11 @@ import { useAccount, Account, Session } from '../../models';
 import AlertBar from '../AlertBar';
 import FlowContainer from '../FlowContainer';
 import InputPassword from '../InputPassword';
-import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
+import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { ReactComponent as ValidIcon } from './valid.svg';
 import { ReactComponent as InvalidIcon } from './invalid.svg';
 import { ReactComponent as UnsetIcon } from './unset.svg';
+import { HomePath } from '../../constants';
 
 type FormData = {
   oldPassword: string;
@@ -87,7 +88,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
           },
         },
       });
-      navigate('/beta/settings');
+      navigate(HomePath);
     },
     onError: (e) => {
       if (e.errno === 103) {

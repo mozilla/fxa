@@ -2,28 +2,83 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps } from '@reach/router';
-import { useAccount } from 'fxa-settings/src/models';
+import { navigate, RouteComponentProps } from '@reach/router';
+import { useAccount } from '../../models';
 import { useForm } from 'react-hook-form';
-import React, { ChangeEvent, useRef, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
+import { useAlertBar, useMutation } from '../../lib/hooks';
+import { gql } from '@apollo/client';
+import AlertBar from '../AlertBar';
+import { cloneDeep } from '@apollo/client/utilities';
+import { HomePath } from '../../constants';
 
 const validateDisplayName = (currentDisplayName: string) => (
   newDisplayName: string
-) => newDisplayName !== '' && newDisplayName !== currentDisplayName;
+) => newDisplayName !== currentDisplayName;
 
-export const PageDisplayName = ({}: RouteComponentProps) => {
-  const user = useAccount();
-  const { register, handleSubmit, formState, trigger } = useForm();
-  const isValidDisplayName = validateDisplayName(user.displayName || '');
+export const UPDATE_DISPLAY_NAME_MUTATION = gql`
+  mutation updateDisplayName($input: UpdateDisplayNameInput!) {
+    updateDisplayName(input: $input) {
+      clientMutationId
+    }
+  }
+`;
 
-  const onSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
-    // TODO FXA-1645
+export const PageDisplayName = (_: RouteComponentProps) => {
+  const account = useAccount();
+  const alertBar = useAlertBar();
+  const [errorText, setErrorText] = useState<string>();
+  const [displayName, setDisplayName] = useState<string>();
+  const initialValue = account.displayName || '';
+  const { register, handleSubmit, formState, trigger } = useForm<{
+    displayName: string;
+  }>({
+    mode: 'onTouched',
+    defaultValues: {
+      displayName: initialValue,
+    },
+  });
+  const isValidDisplayName = validateDisplayName(initialValue);
+
+  const [updateDisplayName] = useMutation(UPDATE_DISPLAY_NAME_MUTATION, {
+    onCompleted: () => {
+      navigate(HomePath, { replace: true });
+    },
+    onError(err) {
+      if (err.graphQLErrors?.length) {
+        setErrorText(err.message);
+      } else {
+        alertBar.error('There was a problem updating your display name.');
+      }
+    },
+    update: (cache) => {
+      cache.modify({
+        fields: {
+          account: (existing: Account) => {
+            const account = cloneDeep(existing);
+            account.displayName = displayName!;
+            return account;
+          },
+        },
+      });
+    },
+  });
+
+  const onSubmit = ({ displayName }: { displayName: string }) => {
+    setDisplayName(displayName);
+    updateDisplayName({ variables: { input: { displayName } } });
   };
 
   return (
     <FlowContainer title="Display Name">
+      {alertBar.visible && (
+        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+          <p data-testid="update-display-name-error">{alertBar.content}</p>
+        </AlertBar>
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="my-6">
           <InputText
@@ -31,11 +86,12 @@ export const PageDisplayName = ({}: RouteComponentProps) => {
             label="Enter display name"
             className="mb-2"
             data-testid="display-name-input"
+            autoFocus
             onChange={() => trigger('displayName')}
             inputRef={register({
-              required: true,
               validate: isValidDisplayName,
             })}
+            {...{ errorText }}
           />
         </div>
         <div className="flex justify-center mb-4 mx-auto max-w-64">
