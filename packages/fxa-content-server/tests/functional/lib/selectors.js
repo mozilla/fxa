@@ -630,6 +630,11 @@ module.exports = {
   },
   SETTINGS_V2: {
     HEADER: '#profile',
+    AVATAR_DROP_DOWN_MENU: {
+      MENU_BUTTON: '[data-testid=drop-down-avatar-menu-toggle]',
+      DISPLAY_NAME_LABEL: '[data-testid=drop-down-name-or-email]',
+      SIGNOUT_BUTTON: '[data-testid=avatar-menu-sign-out]',
+    },
     CHANGE_PASSWORD: {
       OPEN_BUTTON: '[data-testid=password-unit-row-route]',
       CURRENT_PASSWORD_LABEL: '[data-testid=current-password-input-label]',
