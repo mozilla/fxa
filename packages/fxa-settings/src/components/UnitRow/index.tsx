@@ -68,6 +68,7 @@ type UnitRowProps = {
   revealSecondaryModal?: () => void;
   alertBarRevealed?: boolean;
   hideCtaText?: boolean;
+  prefixDataTestId?: string;
 };
 
 export const UnitRow = ({
@@ -88,17 +89,22 @@ export const UnitRow = ({
   revealSecondaryModal,
   alertBarRevealed,
   hideCtaText,
+  prefixDataTestId = '',
 }: UnitRowProps & RouteComponentProps) => {
   ctaText = ctaText || (headerValue ? 'Change' : 'Add');
 
   const location = useLocation();
   const multiButton = !!(route || secondaryCtaRoute);
 
+  function formatDataTestId(id: string) {
+    return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
+  }
+
   return (
     <div className="unit-row">
       <div className="unit-row-header">
         <span className="flex justify-between items-center">
-          <h3 data-testid="unit-row-header" id={headerId}>
+          <h3 data-testid={formatDataTestId('unit-row-header')} id={headerId}>
             {header}
           </h3>
           <span>{headerContent}</span>
@@ -107,7 +113,7 @@ export const UnitRow = ({
       <div className="unit-row-content">
         <p
           className={classNames('font-bold', headerValueClassName)}
-          data-testid="unit-row-header-value"
+          data-testid={formatDataTestId('unit-row-header-value')}
         >
           {headerValue || noHeaderValueText}
         </p>
@@ -119,7 +125,7 @@ export const UnitRow = ({
           {!hideCtaText && route && (
             <Link
               className="cta-neutral cta-base transition-standard mr-1"
-              data-testid="unit-row-route"
+              data-testid={formatDataTestId('unit-row-route')}
               to={`${route}${location.search}`}
             >
               {ctaText}
@@ -136,7 +142,7 @@ export const UnitRow = ({
           {secondaryCtaRoute && (
             <Link
               className="cta-neutral cta-base transition-standard mr-1"
-              data-testid="unit-row-route"
+              data-testid={formatDataTestId('unit-row-route')}
               to={`${secondaryCtaRoute}${location.search}`}
             >
               {secondaryCtaText}

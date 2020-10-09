@@ -165,6 +165,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
             inputRef={register({
               required: true,
             })}
+            prefixDataTestId="current-password"
           />
           <InputPassword
             name="newPassword"
@@ -193,6 +194,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
                 },
               },
             })}
+            prefixDataTestId="new-password"
           />
           <InputPassword
             name="confirmPassword"
@@ -202,6 +204,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
               required: true,
               validate: (value) => value === getValues().newPassword,
             })}
+            prefixDataTestId="verify-password"
           />
         </div>
 
@@ -210,11 +213,12 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
             type="button"
             className="cta-neutral mx-2 flex-1"
             onClick={() => window.history.back()}
+            data-testid="cancel-password-button"
           >
             Cancel
           </button>
           <button
-            data-testid="submit-change-password"
+            data-testid="save-password-button"
             type="submit"
             className="cta-primary mx-2 flex-1"
             disabled={
@@ -225,13 +229,13 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
           </button>
         </div>
 
-        <LinkExternal
+        <a
           className="link-blue text-sm justify-center flex"
           data-testid="nav-link-reset-password"
           href="/reset_password"
         >
           Forgot password?
-        </LinkExternal>
+        </a>
       </form>
     </FlowContainer>
   );

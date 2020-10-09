@@ -19,9 +19,14 @@ export const InputPassword = ({
   inputRef,
   errorText,
   name,
+  prefixDataTestId = '',
 }: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
+
+  function formatDataTestId(id: string) {
+    return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
+  }
 
   const onInputChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -44,11 +49,12 @@ export const InputPassword = ({
         inputRef,
         errorText,
         name,
+        prefixDataTestId,
       }}
     >
       <button
         type="button"
-        data-testid="visibility-toggle"
+        data-testid={formatDataTestId('visibility-toggle')}
         className={`w-5 px-3 py-2 text-grey-600 focus:text-blue-500 box-content ${
           hasContent ? '-ml-3' : 'hidden'
         }`}
