@@ -17536,7 +17536,6 @@ fsevents@^1.2.7:
     lodash.isequal: 4.5.0
     lodash.merge: 4.6.2
     memcached: ^2.2.2
-    npmshrink: 2.0.0
     pm2: ^4.4.1
     prettier: ^2.0.5
     proxyquire: ^2.1.3
@@ -23928,6 +23927,7 @@ fsevents@^1.2.7:
 "loader-runner@npm:^4.0.0":
   version: 4.1.0
   resolution: "loader-runner@npm:4.1.0"
+  checksum: 2b964f3484249acc18f1c28e35aee284ed698a73e9f1913bc045761ad0af3a61b403e22ce170e4cc8bdcea87fddb6a34b42e9f88a023758e635d5276c75dd8c4
   languageName: node
   linkType: hard
 
@@ -25949,6 +25949,7 @@ fsevents@^1.2.7:
 "neo-async@npm:^2.6.2":
   version: 2.6.2
   resolution: "neo-async@npm:2.6.2"
+  checksum: 34a8f5309135be258a97082af810ea43700a3e0121e7b1ea31b3e22e2663d7c0d502cd949abb6d1ab8c11abfd04500ee61721ec5408b2d4bef8105241fd8a4c2
   languageName: node
   linkType: hard
 
@@ -26621,16 +26622,6 @@ fsevents@^1.2.7:
     gauge: ~2.7.3
     set-blocking: ~2.0.0
   checksum: 0cd63f127c1bbda403a112e83b11804aaee2b58b0bc581c3bde9b82e4d957c7ed0ad3bee499af706cdd3599bb93669d7cbbf29fb500407d35fe75687ac96e2c0
-  languageName: node
-  linkType: hard
-
-"npmshrink@npm:2.0.0":
-  version: 2.0.0
-  resolution: "npmshrink@npm:2.0.0"
-  bin:
-    npmshrink: bin/dev
-    "npmshrink:dev": bin/dev
-    "npmshrink:prod": bin/prod
   languageName: node
   linkType: hard
 
@@ -34956,6 +34947,7 @@ resolve@~1.11.1:
     neo-async: ^2.6.2
   peerDependencies:
     webpack: ^4.27.0 || ^5.0.0
+  checksum: d249b9e34053f49f8d63f8418195d95335f1f15b39a9dcafcfb7a00aa4fc518f5bc6abf688ae2e6f7c934709bd4df2af0face0f1e7e75df6a5d4044ac4dfe52c
   languageName: node
   linkType: hard
 
