@@ -5,11 +5,13 @@
 import React, { useState } from 'react';
 import groupBy from 'lodash.groupby';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
+import { useAlertBar } from '../../lib/hooks';
+import { isMobileDevice } from '../../lib/utilities';
+import { AttachedClient, useAccount, useLazyAccount } from '../../models';
 import { AlertBar } from '../AlertBar';
 import { ButtonIconReload } from '../ButtonIcon';
+import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
 import { Service } from './Service';
-import { useAlertBar } from '../../lib/hooks';
-import { AttachedClient, useAccount, useLazyAccount } from '../../models';
 
 const UTM_PARAMS =
   '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -58,6 +60,8 @@ export const ConnectedServices = () => {
     alertBar.show();
   });
 
+  const showMobilePromo = !sortedAndUniqueClients.filter(isMobileDevice).length;
+
   return (
     <section
       className="mt-11"
@@ -91,7 +95,7 @@ export const ConnectedServices = () => {
             />
           ))}
 
-        <div className="mt-5">
+        <div className="mt-5 text-center mobileLandscape:text-left mobileLandscape:rtl:text-right">
           <LinkExternal
             href={DEVICES_SUPPORT_URL}
             className="link-blue text-sm"
@@ -100,6 +104,11 @@ export const ConnectedServices = () => {
             Missing or duplicate items?
           </LinkExternal>
         </div>
+
+        {showMobilePromo && <><hr className="unit-row-hr mt-5 mx-0"/>
+          <div className="mt-5">
+          <ConnectAnotherDevicePromo />
+        </div></>}
 
         {alertBar.visible && (
           <AlertBar
