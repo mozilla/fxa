@@ -10244,13 +10244,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"big-integer@npm:^1.6.31":
-  version: 1.6.48
-  resolution: "big-integer@npm:1.6.48"
-  checksum: 311f86a45e28513ddb12415082c5f437b868d80914bff71689a99e16f597beee5c0f12b0c9e65713b70b0516e6ed27f4006e256ea5393bfcf68bb18dc453f976
-  languageName: node
-  linkType: hard
-
 "big.js@npm:^5.2.2":
   version: 5.2.2
   resolution: "big.js@npm:5.2.2"
@@ -17669,7 +17662,7 @@ fsevents@^1.2.7:
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
-    maxmind: 2.8.0
+    maxmind: 4.3.0
     mkdirp: 0.5.1
     mocha: ^7.1.2
     mozlog: ^3.0.1
@@ -24864,13 +24857,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"maxmind@npm:2.8.0":
-  version: 2.8.0
-  resolution: "maxmind@npm:2.8.0"
+"maxmind@npm:4.3.0":
+  version: 4.3.0
+  resolution: "maxmind@npm:4.3.0"
   dependencies:
-    big-integer: ^1.6.31
-    tiny-lru: ^1.6.1
-  checksum: e12c282796fc481ff23d0b3afadd919d13080812c43fe45cd8493419a4bb6e6e2ff9c45cfbc3a69674d404611f37218038aa7ce3a5ab9eff8402e97b64ac3ab8
+    mmdb-lib: 1.2.0
+    tiny-lru: 7.0.6
   languageName: node
   linkType: hard
 
@@ -25513,6 +25505,12 @@ fsevents@^1.2.7:
   bin:
     mkdirp: bin/cmd.js
   checksum: 1aa3a6a2d7514f094a91329ec09994f5d32d2955a4985ecbb3d86f2aaeafc4aa11521f98d606144c1d49cd9835004d9a73342709b8c692c92e59eacf37412468
+  languageName: node
+  linkType: hard
+
+"mmdb-lib@npm:1.2.0":
+  version: 1.2.0
+  resolution: "mmdb-lib@npm:1.2.0"
   languageName: node
   linkType: hard
 
@@ -35097,10 +35095,9 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tiny-lru@npm:^1.6.1":
-  version: 1.6.4
-  resolution: "tiny-lru@npm:1.6.4"
-  checksum: 3c937a5d34a8839dc4f21159573d971ba7f5e568baf036fe24d3451db23b36e5d26756b58a4539843b179787c52828ad3dd7ce23e42f2b736f1d62082765dfd5
+"tiny-lru@npm:7.0.6":
+  version: 7.0.6
+  resolution: "tiny-lru@npm:7.0.6"
   languageName: node
   linkType: hard
 
