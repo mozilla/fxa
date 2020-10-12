@@ -8719,7 +8719,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:3.2.x, async@npm:~3.2.0":
+"async@npm:3.2.0, async@npm:3.2.x, async@npm:~3.2.0":
   version: 3.2.0
   resolution: "async@npm:3.2.0"
   checksum: 5c7913c08496877a9896dc6670d3a6c64f02d350e74b9e9191194959c473414a0732539ebdfec0fd2f34c20f439714773a30c20e0e68eb27bd8ee5ec9d8ff5ba
@@ -10606,7 +10606,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "browserid-verifier@workspace:packages/browserid-verifier"
   dependencies:
-    async: 2.6.1
+    async: 3.2.0
     audit-filter: 0.5.0
     body-parser: ^1.19.0
     browserid-local-verify: 0.5.2
