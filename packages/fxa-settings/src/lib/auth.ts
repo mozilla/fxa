@@ -1,6 +1,9 @@
 import React, { useContext } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
-import AuthClient, { AuthServerError } from 'fxa-auth-client/browser';
+import AuthClient, {
+  AuthServerError,
+  generateRecoveryKey,
+} from 'fxa-auth-client/browser';
 
 export interface AuthContextValue {
   auth?: AuthClient;
@@ -48,6 +51,49 @@ export function usePasswordChanger({
         }
       );
       return response;
+    },
+    {
+      onSuccess,
+      onError,
+    }
+  );
+}
+
+export function useRecoveryKeyMaker({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (recoveryKey: Uint8Array) => void;
+  onError?: (e: AuthServerError) => void;
+}) {
+  const auth = useAuth();
+  return useAsyncCallback(
+    async (
+      email: string,
+      password: string,
+      uid: hexstring,
+      sessionToken: hexstring
+    ) => {
+      const reauth = await auth.sessionReauth(sessionToken, email, password, {
+        keys: true,
+        reason: 'recovery_key',
+      });
+      const keys = await auth.accountKeys(
+        reauth.keyFetchToken!,
+        reauth.unwrapBKey!
+      );
+      const {
+        recoveryKey,
+        recoveryKeyId,
+        recoveryData,
+      } = await generateRecoveryKey(uid, keys);
+      await auth.createRecoveryKey(
+        sessionToken,
+        recoveryKeyId,
+        recoveryData,
+        true
+      );
+      return recoveryKey;
     },
     {
       onSuccess,

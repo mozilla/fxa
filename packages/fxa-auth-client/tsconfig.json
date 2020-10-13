@@ -3,7 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "./dist/server",
-    "types": ["mocha"]
+    "types": ["mocha", "./lib/types"]
   },
   "include": ["./lib/**/*", "./server.ts"],
   "exclude": ["dist","node_modules"]

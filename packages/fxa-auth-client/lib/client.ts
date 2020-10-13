@@ -143,7 +143,7 @@ export default class AuthClient {
   private async hawkRequest(
     method: string,
     path: string,
-    token: string,
+    token: hexstring,
     kind: tokenType,
     payload?: object,
     extraHeaders: Headers = new Headers()
@@ -171,13 +171,13 @@ export default class AuthClient {
     }
   }
 
-  private async sessionGet(path: string, sessionToken: string) {
+  private async sessionGet(path: string, sessionToken: hexstring) {
     return this.hawkRequest('GET', path, sessionToken, tokenType.sessionToken);
   }
 
   private async sessionPost(
     path: string,
-    sessionToken: string,
+    sessionToken: hexstring,
     payload: object,
     headers?: Headers
   ) {
@@ -193,7 +193,7 @@ export default class AuthClient {
 
   private async sessionPut(
     path: string,
-    sessionToken: string,
+    sessionToken: hexstring,
     payload: object,
     headers?: Headers
   ) {
@@ -257,14 +257,14 @@ export default class AuthClient {
       metricsContext?: MetricsContext;
     } = {}
   ): Promise<{
-    uid: string;
-    sessionToken: string;
+    uid: hexstring;
+    sessionToken: hexstring;
     verified: boolean;
     authAt: number;
-    keyFetchToken?: string;
+    keyFetchToken?: hexstring;
     verificationMethod?: string;
     verificationReason?: string;
-    unwrapBKey?: string;
+    unwrapBKey?: hexstring;
   }> {
     const credentials = await crypto.getCredentials(email, password);
     const payloadOptions = ({ keys, ...rest }: any) => rest;
@@ -301,7 +301,7 @@ export default class AuthClient {
   }
 
   async verifyCode(
-    uid: string,
+    uid: hexstring,
     code: string,
     options: {
       service?: string;
@@ -319,12 +319,12 @@ export default class AuthClient {
     });
   }
 
-  async recoveryEmailStatus(sessionToken: string) {
+  async recoveryEmailStatus(sessionToken: hexstring) {
     return this.sessionGet('/recovery_email/status', sessionToken);
   }
 
   async recoveryEmailResendCode(
-    sessionToken: string,
+    sessionToken: hexstring,
     options: {
       email?: string;
       service?: string;
@@ -368,7 +368,7 @@ export default class AuthClient {
 
   async passwordForgotResendCode(
     email: string,
-    passwordForgotToken: string,
+    passwordForgotToken: hexstring,
     options: {
       service?: string;
       redirectTo?: string;
@@ -393,7 +393,7 @@ export default class AuthClient {
 
   async passwordForgotVerifyCode(
     code: string,
-    passwordForgotToken: string,
+    passwordForgotToken: hexstring,
     options: {
       accountResetWithoutRecoveryKey?: boolean;
     } = {}
@@ -423,7 +423,7 @@ export default class AuthClient {
   async accountReset(
     email: string,
     newPassword: string,
-    accountResetToken: string,
+    accountResetToken: hexstring,
     options: {
       keys?: boolean;
       sessionToken?: boolean;
@@ -448,7 +448,13 @@ export default class AuthClient {
     return accountData;
   }
 
-  async accountKeys(keyFetchToken: string, unwrapBKey: string) {
+  async accountKeys(
+    keyFetchToken: hexstring,
+    unwrapBKey: hexstring
+  ): Promise<{
+    kA: hexstring;
+    kB: hexstring;
+  }> {
     const credentials = await hawk.deriveHawkCredentials(
       keyFetchToken,
       'keyFetchToken'
@@ -475,7 +481,7 @@ export default class AuthClient {
     options: {
       skipCaseError?: boolean;
     } = {},
-    sessionToken?: string
+    sessionToken?: hexstring
   ): Promise<any> {
     const credentials = await crypto.getCredentials(email, password);
     const payload = {
@@ -513,7 +519,7 @@ export default class AuthClient {
     }
   }
 
-  async accountStatus(uid: string) {
+  async accountStatus(uid: hexstring) {
     return this.request('GET', `/account/status?uid=${uid}`);
   }
 
@@ -521,16 +527,16 @@ export default class AuthClient {
     return this.request('POST', '/account/status', { email });
   }
 
-  async accountProfile(sessionToken: string) {
+  async accountProfile(sessionToken: hexstring) {
     return this.sessionGet('/account/profile', sessionToken);
   }
 
-  async account(sessionToken: string) {
+  async account(sessionToken: hexstring) {
     return this.sessionGet('/account', sessionToken);
   }
 
   async sessionDestroy(
-    sessionToken: string,
+    sessionToken: hexstring,
     options: {
       customSessionToken?: string;
     } = {}
@@ -539,13 +545,13 @@ export default class AuthClient {
   }
 
   async sessionStatus(
-    sessionToken: string
+    sessionToken: hexstring
   ): Promise<{ state: 'verified' | 'unverified'; uid: string }> {
     return this.sessionGet('/session/status', sessionToken);
   }
 
   async sessionVerifyCode(
-    sessionToken: string,
+    sessionToken: hexstring,
     code: string,
     options: {
       service?: string;
@@ -561,12 +567,12 @@ export default class AuthClient {
     });
   }
 
-  async sessionResendVerifyCode(sessionToken: string): Promise<{}> {
+  async sessionResendVerifyCode(sessionToken: hexstring): Promise<{}> {
     return this.sessionPost('/session/resend_code', sessionToken, {});
   }
 
   async sessionReauth(
-    sessionToken: string,
+    sessionToken: hexstring,
     email: string,
     password: string,
     options: {
@@ -580,7 +586,15 @@ export default class AuthClient {
       verificationMethod?: string;
       metricsContext?: MetricsContext;
     } = {}
-  ): Promise<any> {
+  ): Promise<{
+    uid: string;
+    verified: boolean;
+    authAt: number;
+    verificationMethod?: string;
+    verificationReason?: string;
+    keyFetchToken?: hexstring;
+    unwrapBKey?: hexstring;
+  }> {
     const credentials = await crypto.getCredentials(email, password);
     const payloadOptions = ({ keys, ...rest }: any) => rest;
     const payload = {
@@ -616,7 +630,7 @@ export default class AuthClient {
   }
 
   async certificateSign(
-    sessionToken: string,
+    sessionToken: hexstring,
     publicKey: any,
     duration: number,
     options: {
@@ -644,15 +658,15 @@ export default class AuthClient {
     newPassword: string,
     options: {
       keys?: boolean;
-      sessionToken?: string;
+      sessionToken?: hexstring;
     } = {}
   ): Promise<{
-    uid: string;
-    sessionToken: string;
+    uid: hexstring;
+    sessionToken: hexstring;
     verified: boolean;
     authAt: number;
-    unwrapBKey?: string;
-    keyFetchToken?: string;
+    unwrapBKey?: hexstring;
+    keyFetchToken?: hexstring;
   }> {
     const oldCredentials = await this.passwordChangeStart(email, oldPassword);
     const keys = await this.accountKeys(
@@ -693,11 +707,11 @@ export default class AuthClient {
       skipCaseError?: boolean;
     } = {}
   ): Promise<{
-    authPW: string;
-    unwrapBKey: string;
+    authPW: hexstring;
+    unwrapBKey: hexstring;
     email: string;
-    keyFetchToken: string;
-    passwordChangeToken: string;
+    keyFetchToken: hexstring;
+    passwordChangeToken: hexstring;
   }> {
     const oldCredentials = await crypto.getCredentials(email, oldPassword);
     try {
@@ -737,7 +751,7 @@ export default class AuthClient {
   }
 
   async deviceRegister(
-    sessionToken: string,
+    sessionToken: hexstring,
     name: string,
     type: string,
     options: {
@@ -755,7 +769,7 @@ export default class AuthClient {
   }
 
   async deviceUpdate(
-    sessionToken: string,
+    sessionToken: hexstring,
     id: string,
     name: string,
     options: {
@@ -772,23 +786,23 @@ export default class AuthClient {
     return this.sessionPost('/account/device', sessionToken, payload);
   }
 
-  async deviceDestroy(sessionToken: string, id: string) {
+  async deviceDestroy(sessionToken: hexstring, id: string) {
     return this.sessionPost('/account/device/destroy', sessionToken, { id });
   }
 
-  async deviceList(sessionToken: string) {
+  async deviceList(sessionToken: hexstring) {
     return this.sessionGet('/account/devices', sessionToken);
   }
 
-  async sessions(sessionToken: string) {
+  async sessions(sessionToken: hexstring) {
     return this.sessionGet('/account/sessions', sessionToken);
   }
 
-  async securityEvents(sessionToken: string) {
+  async securityEvents(sessionToken: hexstring) {
     return this.sessionGet('/securityEvents', sessionToken);
   }
 
-  async deleteSecurityEvents(sessionToken: string) {
+  async deleteSecurityEvents(sessionToken: hexstring) {
     return this.hawkRequest(
       'DELETE',
       '/securityEvents',
@@ -798,11 +812,11 @@ export default class AuthClient {
     );
   }
 
-  async attachedClients(sessionToken: string) {
+  async attachedClients(sessionToken: hexstring) {
     return this.sessionGet('/account/attached_clients', sessionToken);
   }
 
-  async attachedClientDestroy(sessionToken: string, clientInfo: any) {
+  async attachedClientDestroy(sessionToken: hexstring, clientInfo: any) {
     return this.sessionPost('/account/attached_client/destroy', sessionToken, {
       clientId: clientInfo.clientId,
       deviceId: clientInfo.deviceId,
@@ -823,7 +837,7 @@ export default class AuthClient {
     });
   }
 
-  async rejectUnblockCode(uid: string, unblockCode: string) {
+  async rejectUnblockCode(uid: hexstring, unblockCode: string) {
     return this.request('POST', '/account/login/reject_unblock_code', {
       uid,
       unblockCode,
@@ -831,7 +845,7 @@ export default class AuthClient {
   }
 
   async sendSms(
-    sessionToken: string,
+    sessionToken: hexstring,
     phoneNumber: string,
     messageId: string,
     options: {
@@ -850,7 +864,7 @@ export default class AuthClient {
   }
 
   async smsStatus(
-    sessionToken: string,
+    sessionToken: hexstring,
     options: {
       country?: string;
     } = {}
@@ -881,20 +895,20 @@ export default class AuthClient {
     });
   }
 
-  async createSigninCode(sessionToken: string) {
+  async createSigninCode(sessionToken: hexstring) {
     return this.sessionPost('/signinCodes', sessionToken, {});
   }
 
-  async createCadReminder(sessionToken: string) {
+  async createCadReminder(sessionToken: hexstring) {
     return this.sessionPost('/emails/reminders/cad', sessionToken, {});
   }
 
-  async recoveryEmails(sessionToken: string) {
+  async recoveryEmails(sessionToken: hexstring) {
     return this.sessionGet('/recovery_emails', sessionToken);
   }
 
   async recoveryEmailCreate(
-    sessionToken: string,
+    sessionToken: hexstring,
     email: string,
     options: {
       verificationMethod?: string;
@@ -906,18 +920,18 @@ export default class AuthClient {
     });
   }
 
-  async recoveryEmailDestroy(sessionToken: string, email: string) {
+  async recoveryEmailDestroy(sessionToken: hexstring, email: string) {
     return this.sessionPost('/recovery_email/destroy', sessionToken, { email });
   }
 
-  async recoveryEmailSetPrimaryEmail(sessionToken: string, email: string) {
+  async recoveryEmailSetPrimaryEmail(sessionToken: hexstring, email: string) {
     return this.sessionPost('/recovery_email/set_primary', sessionToken, {
       email,
     });
   }
 
   async recoveryEmailSecondaryVerifyCode(
-    sessionToken: string,
+    sessionToken: hexstring,
     email: string,
     code: string
   ): Promise<{}> {
@@ -928,7 +942,10 @@ export default class AuthClient {
     );
   }
 
-  async recoveryEmailSecondaryResendCode(sessionToken: string, email: string) {
+  async recoveryEmailSecondaryResendCode(
+    sessionToken: hexstring,
+    email: string
+  ) {
     return this.sessionPost(
       '/recovery_email/secondary/resend_code',
       sessionToken,
@@ -937,7 +954,7 @@ export default class AuthClient {
   }
 
   async createTotpToken(
-    sessionToken: string,
+    sessionToken: hexstring,
     options: {
       metricsContext?: MetricsContext;
     } = {}
@@ -945,18 +962,18 @@ export default class AuthClient {
     return this.sessionPost('/totp/create', sessionToken, options);
   }
 
-  async deleteTotpToken(sessionToken: string) {
+  async deleteTotpToken(sessionToken: hexstring) {
     return this.sessionPost('/totp/destroy', sessionToken, {});
   }
 
   async checkTotpTokenExists(
-    sessionToken: string
+    sessionToken: hexstring
   ): Promise<{ exists: boolean; verified: boolean }> {
     return this.sessionGet('/totp/exists', sessionToken);
   }
 
   async verifyTotpCode(
-    sessionToken: string,
+    sessionToken: hexstring,
     code: string,
     options: {
       service?: string;
@@ -968,22 +985,22 @@ export default class AuthClient {
     });
   }
 
-  async replaceRecoveryCodes(sessionToken: string) {
+  async replaceRecoveryCodes(sessionToken: hexstring) {
     return this.sessionGet('/recoveryCodes', sessionToken);
   }
 
-  async consumeRecoveryCode(sessionToken: string, code: string) {
+  async consumeRecoveryCode(sessionToken: hexstring, code: string) {
     return this.sessionPost('/session/verify/recoveryCode', sessionToken, {
       code,
     });
   }
 
   async createRecoveryKey(
-    sessionToken: string,
+    sessionToken: hexstring,
     recoveryKeyId: string,
     recoveryData: any,
     enabled: boolean
-  ) {
+  ): Promise<{}> {
     return this.sessionPost('/recoveryKey', sessionToken, {
       recoveryKeyId,
       recoveryData,
@@ -991,7 +1008,7 @@ export default class AuthClient {
     });
   }
 
-  async getRecoveryKey(accountResetToken: string, recoveryKeyId: string) {
+  async getRecoveryKey(accountResetToken: hexstring, recoveryKeyId: string) {
     return this.hawkRequest(
       'GET',
       `/recoveryKey/${recoveryKeyId}`,
@@ -1001,7 +1018,7 @@ export default class AuthClient {
   }
 
   async resetPasswordWithRecoveryKey(
-    accountResetToken: string,
+    accountResetToken: hexstring,
     email: string,
     newPassword: string,
     recoveryKeyId: string,
@@ -1034,7 +1051,7 @@ export default class AuthClient {
     return accountData;
   }
 
-  async deleteRecoveryKey(sessionToken: string) {
+  async deleteRecoveryKey(sessionToken: hexstring) {
     return this.hawkRequest(
       'DELETE',
       '/recoveryKey',
@@ -1044,21 +1061,21 @@ export default class AuthClient {
     );
   }
 
-  async recoveryKeyExists(sessionToken: string | undefined, email?: string) {
+  async recoveryKeyExists(sessionToken: hexstring | undefined, email?: string) {
     if (sessionToken) {
       return this.sessionPost('/recoveryKey/exists', sessionToken, { email });
     }
     return this.request('POST', '/recoveryKey/exists', { email });
   }
 
-  async verifyRecoveryKey(sessionToken: string, recoveryKeyId: string) {
+  async verifyRecoveryKey(sessionToken: hexstring, recoveryKeyId: string) {
     return this.sessionPost('/recoveryKey/verify', sessionToken, {
       recoveryKeyId,
     });
   }
 
   async createOAuthCode(
-    sessionToken: string,
+    sessionToken: hexstring,
     clientId: string,
     state: string,
     options: {
@@ -1087,7 +1104,7 @@ export default class AuthClient {
   }
 
   async createOAuthToken(
-    sessionToken: string,
+    sessionToken: hexstring,
     clientId: string,
     options: {
       access_type?: string;
@@ -1105,7 +1122,7 @@ export default class AuthClient {
   }
 
   async getOAuthScopedKeyData(
-    sessionToken: string,
+    sessionToken: hexstring,
     clientId: string,
     scope: string
   ) {
@@ -1155,7 +1172,7 @@ export default class AuthClient {
     );
   }
 
-  async updateNewsletters(sessionToken: string, newsletters: string[]) {
+  async updateNewsletters(sessionToken: hexstring, newsletters: string[]) {
     return this.sessionPost('/newsletters', sessionToken, {
       newsletters,
     });
