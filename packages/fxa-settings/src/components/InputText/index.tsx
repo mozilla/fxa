@@ -27,6 +27,7 @@ export type InputTextProps = {
   name?: string;
   prefixDataTestId?: string;
   autoFocus?: boolean;
+  maxLength?: number;
 };
 
 export const InputText = ({
@@ -44,6 +45,7 @@ export const InputText = ({
   name,
   prefixDataTestId = '',
   autoFocus,
+  maxLength,
 }: InputTextProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
@@ -108,6 +110,7 @@ export const InputText = ({
             placeholder,
             type,
             autoFocus,
+            maxLength,
           }}
         />
       </span>

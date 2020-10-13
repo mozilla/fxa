@@ -27,7 +27,7 @@ export const DELETE_TOTP_MUTATION = gql`
 export const UnitRowTwoStepAuth = () => {
   const alertBar = useAlertBar();
   const {
-    totp: { exists },
+    totp: { exists, verified },
   } = useAccount();
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const [
@@ -65,25 +65,26 @@ export const UnitRowTwoStepAuth = () => {
     },
   });
 
-  const conditionalUnitRowProps = exists
-    ? {
-        headerValueClassName: 'text-green-800',
-        headerValue: 'Enabled',
-        secondaryCtaText: 'Disable',
-        secondaryButtonClassName: 'cta-caution',
-        // The naming of this is a bit confusing, since they are swapped in this
-        // case, we should come up with a better name here. Filed FXA-2539
-        revealModal: revealSecondaryModal,
-        revealSecondaryModal: revealModal,
-        hideCtaText: true,
-      }
-    : {
-        headerValue: null,
-        noHeaderValueText: 'Not Set',
-        ctaText: 'Add',
-        secondaryCtaText: undefined,
-        revealSecondaryModal: undefined,
-      };
+  const conditionalUnitRowProps =
+    exists && verified
+      ? {
+          headerValueClassName: 'text-green-800',
+          headerValue: 'Enabled',
+          secondaryCtaText: 'Disable',
+          secondaryButtonClassName: 'cta-caution',
+          // The naming of this is a bit confusing, since they are swapped in this
+          // case, we should come up with a better name here. Filed FXA-2539
+          revealModal: revealSecondaryModal,
+          revealSecondaryModal: revealModal,
+          hideCtaText: true,
+        }
+      : {
+          headerValue: null,
+          noHeaderValueText: 'Not Set',
+          ctaText: 'Add',
+          secondaryCtaText: undefined,
+          revealSecondaryModal: undefined,
+        };
 
   return (
     <UnitRow

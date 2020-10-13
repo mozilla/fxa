@@ -17,6 +17,7 @@ import PageRecoveryKeyAdd from '../PageRecoveryKeyAdd';
 import PageSecondaryEmailAdd from '../PageSecondaryEmailAdd';
 import PageSecondaryEmailVerify from '../PageSecondaryEmailVerify';
 import { PageDisplayName } from '../PageDisplayName';
+import PageTwoStepAuthentication from '../PageTwoStepAuthentication';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -97,6 +98,7 @@ export const App = ({ flowQueryParams }: AppProps) => {
         <PageRecoveryKeyAdd path="/account_recovery" />
         <PageSecondaryEmailAdd path="/emails" />
         <PageSecondaryEmailVerify path="/emails/verify" />
+        <PageTwoStepAuthentication path="/two_step_authentication" />
       </Router>
     </AppLayout>
   );
