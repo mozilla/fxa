@@ -18020,6 +18020,7 @@ fsevents@^1.2.7:
     sass: 1.26.10
     sass-loader: ^8.0.2
     tailwindcss: ^1.7.3
+    tailwindcss-dir: ^4.0.0
     ts-jest: ^26.3.0
     typescript: 3.9.7
     webpack: ^4.43.0
@@ -18081,7 +18082,6 @@ fsevents@^1.2.7:
     react-test-renderer: ^16.13.1
     subscriptions-transport-ws: ^0.9.18
     tailwindcss: ^1.7.3
-    tailwindcss-dir: ^4.0.0
     typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
