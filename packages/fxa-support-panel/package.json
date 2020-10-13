@@ -46,7 +46,7 @@
     "@types/bluebird": "^3.5.32",
     "@types/convict": "^5.2.1",
     "@types/eslint": "7.2.0",
-    "@types/hapi__hapi": "^19.0.4",
+    "@types/hapi__hapi": "^20.0.1",
     "@types/hapi__joi": "17.1.6",
     "@types/mocha": "^8.0.2",
     "@types/node": "^12.12.7",
