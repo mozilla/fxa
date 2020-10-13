@@ -41,6 +41,7 @@ export const PageDisplayName = ({}: RouteComponentProps) => {
         <div className="flex justify-center mb-4 mx-auto max-w-64">
           <button
             type="button"
+            data-testid="cancel-display-name"
             className="cta-neutral mx-2 flex-1"
             onClick={() => window.history.back()}
           >

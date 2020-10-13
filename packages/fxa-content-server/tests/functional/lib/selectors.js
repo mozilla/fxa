@@ -630,6 +630,23 @@ module.exports = {
   },
   SETTINGS_V2: {
     HEADER: '#profile',
+    AVATAR_DROP_DOWN_MENU: {
+      MENU_BUTTON: '[data-testid=drop-down-avatar-menu-toggle]',
+      DISPLAY_NAME_LABEL: '[data-testid=drop-down-name-or-email]',
+      SIGNOUT_BUTTON: '[data-testid=avatar-menu-sign-out]',
+    },
+    PICTURE_MENU: {
+      ADD_BUTTON: '[data-testid=unit-row-with-avatar-route]',
+      BACK_BUTTON: '[data-testid=flow-container-back-btn]',
+      HEADER: '.font-header',
+    },
+    DISPLAY_NAME: {
+      ADD_BUTTON: '[data-test-id=display-name-unit-row-route]',
+      CANCEL_BUTTON: '[data-testid=cancel-display-name]',
+      SUBMIT_BUTTON: '[data-testid=submit-display-name]',
+      TEXTBOX: '[data-testid=input-label]',
+      BACK_BUTTON: '[data-testid=flow-container-back-btn]',
+    },
     CHANGE_PASSWORD: {
       OPEN_BUTTON: '[data-testid=password-unit-row-route]',
       CURRENT_PASSWORD_LABEL: '[data-testid=current-password-input-label]',

@@ -128,7 +128,7 @@ describe('DropDownAvatarMenu', () => {
 
       fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
       await act(async () => {
-        fireEvent.click(screen.getByTestId('sign-out'));
+        fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
       expect(window.location.assign).toHaveBeenCalledWith(
         `${window.location.origin}/signin`
@@ -153,7 +153,7 @@ describe('DropDownAvatarMenu', () => {
 
       fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
       await act(async () => {
-        fireEvent.click(screen.getByTestId('sign-out'));
+        fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
 
       expect(screen.getByTestId('sign-out-error').textContent).toContain(
