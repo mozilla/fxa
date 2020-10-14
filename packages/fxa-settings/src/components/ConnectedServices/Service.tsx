@@ -5,15 +5,7 @@
 import React from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { DeviceLocation } from '../../models/Account';
-import { ReactComponent as WebIcon } from './web.svg';
-import { ReactComponent as DesktopIcon } from './desktop.svg';
-import { ReactComponent as TabletIcon } from './tablet.svg';
-import { ReactComponent as MobileIcon } from './mobile.svg';
-import { ReactComponent as LockwiseIcon } from './lockwise.svg';
-import { ReactComponent as PocketIcon } from './pocket.svg';
-import { ReactComponent as MonitorIcon } from './monitor.svg';
-import { ReactComponent as SyncIcon } from './sync.svg';
-import { ReactComponent as FPNIcon } from './fpn.svg';
+import { Icon } from './Icon';
 
 export function Service({
   name,
@@ -30,44 +22,39 @@ export function Service({
 }) {
   const { city, stateCode, country } = location;
   const locationProvided = Boolean(city && stateCode && country);
-  const isPocket = name === 'Pocket';
-  const isMonitor = name === 'Firefox Monitor';
-  const isLockwise = name === 'Firefox Lockwise';
-  const isSync = name === 'Firefox Sync';
-  const isFPN = name === 'Firefox Private Network';
+  let serviceLink, iconName;
 
-  const renderLink = isPocket || isMonitor || isLockwise || isSync || isFPN;
-  let serviceLink = '';
-  let iconSvg = <WebIcon data-testid="web-icon" />;
-
-  if (renderLink) {
-    if (isPocket) {
+  switch (name) {
+    case 'Pocket':
       serviceLink = 'https://www.mozilla.org/en-US/firefox/pocket/';
-      iconSvg = <PocketIcon data-testid="pocket-icon" />;
-    } else if (isMonitor) {
+      iconName = 'pocket';
+      break;
+    case 'Firefox Monitor':
       serviceLink = 'https://monitor.firefox.com/';
-      iconSvg = <MonitorIcon data-testid="monitor-icon" />;
-    } else if (isLockwise) {
+      iconName = 'monitor';
+      break;
+    case 'Firefox Lockwise':
       serviceLink = 'https://www.mozilla.org/en-US/firefox/lockwise/';
-      iconSvg = <LockwiseIcon data-testid="lockwise-icon" />;
-    } else if (isSync) {
-      serviceLink =
-        'https://support.mozilla.org/en-US/kb/how-do-i-set-sync-my-computer';
-      iconSvg = <SyncIcon data-testid="sync-icon" />;
-    } else if (isFPN) {
+      iconName = 'lockwise';
+      break;
+    case 'Firefox Private Network':
       serviceLink = 'https://vpn.mozilla.com/';
-      iconSvg = <FPNIcon data-testid="fpn-icon" />;
-    }
-  } else {
-    const lowerName = name.toLowerCase();
-    if (deviceType === 'mobile') {
-      iconSvg = <MobileIcon data-testid="mobile-icon" />;
-    }
-    if (lowerName.includes('ipad')) {
-      iconSvg = <TabletIcon data-testid="tablet-icon" />;
-    } else if (deviceType === 'desktop') {
-      iconSvg = <DesktopIcon data-testid="desktop-icon" />;
-    }
+      iconName = 'fpn';
+      break;
+    case 'Firefox Sync':
+      serviceLink = 'https://support.mozilla.org/en-US/kb/how-do-i-set-sync-my-computer';
+      iconName = 'sync';
+      break;
+    default:
+      if (name.toLowerCase().includes('ipad')) {
+        iconName = 'tablet';
+      } else if (deviceType === 'mobile') {
+        iconName = 'mobile';
+      } else if (deviceType === 'desktop') {
+        iconName = 'desktop';
+      } else {
+        iconName = 'web';
+      }
   }
 
   return (
@@ -75,11 +62,11 @@ export function Service({
       <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
         <div className="flex flex-grow w-full mobileLandscape:flex-2">
           <span className="flex px-2 w-10 justify-center items-center flex-0">
-            {iconSvg}
+            <Icon name={iconName} />
           </span>
           <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row">
             <div className="flex flex-col mobileLandscape:flex-2">
-              {renderLink ? (
+              {serviceLink ? (
                 <LinkExternal
                   className="link-blue text-sm"
                   href={serviceLink}
