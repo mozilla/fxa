@@ -6454,12 +6454,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:*, @types/sinon@npm:9.0.7, @types/sinon@npm:^9.0.0":
+"@types/sinon@npm:*, @types/sinon@npm:^9.0.0":
   version: 9.0.7
   resolution: "@types/sinon@npm:9.0.7"
   dependencies:
     "@types/sinonjs__fake-timers": "*"
   checksum: 3a71fe364ca377b28f8065104b8fd1c998afadf00b69eec91d8d7c290142e9fa35ca6a63a758caa12197eeecd6aa26cd6b87b16ede55b082fbcac5f860ae3ea4
+  languageName: node
+  linkType: hard
+
+"@types/sinon@npm:9.0.8":
+  version: 9.0.8
+  resolution: "@types/sinon@npm:9.0.8"
+  dependencies:
+    "@types/sinonjs__fake-timers": "*"
+  checksum: b6edb8f2c814bff1af4bbbd2ef60250a682bfe4f55942a6cf80e9350271f15598ea46651aca6badaca46b9a1b1060864105a75b4eba620d9139fb10afc1dfe0e
   languageName: node
   linkType: hard
 
@@ -17611,7 +17620,7 @@ fsevents@^1.2.7:
     "@types/passport": ^1
     "@types/passport-jwt": ^3.0.3
     "@types/rimraf": 3.0.0
-    "@types/sinon": 9.0.7
+    "@types/sinon": 9.0.8
     "@types/supertest": ^2.0.8
     "@types/uuid": ^8.3.0
     "@typescript-eslint/eslint-plugin": 3.0.2
@@ -17700,7 +17709,7 @@ fsevents@^1.2.7:
     "@types/mocha": ^8.0.2
     "@types/node": ^12.x
     "@types/proxyquire": ^1.3.28
-    "@types/sinon": 9.0.7
+    "@types/sinon": 9.0.8
     "@types/superagent": 4.1.10
     "@types/supertest": ^2.0.10
     "@types/yargs": ^15.0.5
@@ -17767,7 +17776,7 @@ fsevents@^1.2.7:
     "@types/convict": ^5.2.1
     "@types/mocha": ^7.0.2
     "@types/node": ^12.12.7
-    "@types/sinon": 9.0.7
+    "@types/sinon": 9.0.8
     ajv: ^6.12.2
     audit-filter: ^0.5.0
     chai: ^4.2.0
@@ -17853,7 +17862,7 @@ fsevents@^1.2.7:
     "@types/react-stripe-elements": ^1.3.5
     "@types/react-transition-group": ^4.2.3
     "@types/redux-actions": ^2.6.0
-    "@types/sinon": 9.0.7
+    "@types/sinon": 9.0.8
     "@types/storybook__addon-actions": ^5.2.1
     "@types/storybook__addon-links": ^5.2.1
     "@types/storybook__react": ^5.2.1
@@ -18114,7 +18123,7 @@ fsevents@^1.2.7:
     "@types/node": ^12.12.38
     "@types/proxyquire": ^1.3.28
     "@types/redis": ^2.8.27
-    "@types/sinon": 9.0.7
+    "@types/sinon": 9.0.8
     accept-language: ^2.0.17
     ajv: ^6.12.2
     audit-filter: ^0.5.0
