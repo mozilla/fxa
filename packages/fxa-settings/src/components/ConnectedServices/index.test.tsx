@@ -6,7 +6,10 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
 import { renderWithRouter, MockedCache } from '../../models/_mocks';
+import { isMobileDevice } from '../../lib/utilities';
 import { MOCK_SERVICES } from './MOCK_SERVICES';
+
+const SERVICES_NON_MOBILE = MOCK_SERVICES.filter(d => !isMobileDevice(d));
 
 const getIconAndServiceLink = async (name: string, testId: string) => {
   const servicesList = MOCK_SERVICES.filter((item) => item.name === name);
@@ -120,5 +123,25 @@ describe('Connected Services', () => {
         'https://support.mozilla.org/en-US/kb/how-do-i-set-sync-my-computer'
       );
     });
+  });
+
+  it('renders <ConnectAnotherDevicePromo/> when no mobile devices in list', async () => {
+    renderWithRouter(
+      <MockedCache account={{ attachedClients: SERVICES_NON_MOBILE }}>
+        <ConnectedServices />
+      </MockedCache>
+    );
+
+    expect(await screen.findByTestId('connect-another-device-promo')).toBeTruthy;
+  });
+
+  it('does not render <ConnectAnotherDevicePromo/> when mobile devices in list', async () => {
+    renderWithRouter(
+      <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
+        <ConnectedServices />
+      </MockedCache>
+    );
+
+    expect(await screen.queryByTestId('connect-another-device-promo')).toBeNull();
   });
 });

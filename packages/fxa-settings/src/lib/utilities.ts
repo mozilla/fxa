@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AttachedClient } from "../models/Account";
+
 // Various utilities that don't fit in a standalone lib
 
 /**
@@ -77,4 +79,8 @@ export function splitEncodedParams(str = '', allowedFields?: string[]) {
   return Object.keys(terms)
     .filter((key) => allowedFields.indexOf(key) >= 0)
     .reduce((newObj, key) => Object.assign(newObj, { [key]: terms[key] }), {});
+}
+
+export function isMobileDevice(d: AttachedClient) {
+  return d.deviceType === 'mobile' || d.name.toLowerCase().includes('ipad');
 }
