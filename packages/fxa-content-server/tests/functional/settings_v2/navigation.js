@@ -68,6 +68,47 @@ describe('navigation', () => {
     );
   });
 
+  it('can click secondary email menu add button and back', async ({
+    remote,
+  }) => {
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.ADD_BUTTON,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.TEXTBOX,
+      remote
+    );
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.BACK_BUTTON,
+      selectors.SETTINGS_V2.HEADER,
+      remote
+    );
+  });
+
+  it('can click security menu', async ({ remote }) => {
+    await click(
+      selectors.SETTINGS_V2.SECURITY.MENU,
+      selectors.SETTINGS_V2.SECURITY.TFA.ADD_BUTTON,
+      remote
+    );
+    await click(
+      selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.CREATE,
+      selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.PASSWORD_TEXTBOX,
+      remote
+    );
+    await click(
+      selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.BACK_BUTTON,
+      selectors.SETTINGS_V2.SECURITY.HEADER,
+      remote
+    );
+  });
+
+  it('can click connected services menu', async ({ remote }) => {
+    await click(
+      selectors.SETTINGS_V2.CONNECTED_SERVICES.MENU,
+      selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER,
+      remote
+    );
+  });
+
   it('can sign out', async ({ remote }) => {
     await click(
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,

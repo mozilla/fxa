@@ -641,9 +641,16 @@ module.exports = {
       HEADER: '.font-header',
     },
     DISPLAY_NAME: {
-      ADD_BUTTON: '[data-test-id=display-name-unit-row-route]',
+      ADD_BUTTON: '[data-testid=display-name-unit-row-route]',
       CANCEL_BUTTON: '[data-testid=cancel-display-name]',
       SUBMIT_BUTTON: '[data-testid=submit-display-name]',
+      TEXTBOX: '[data-testid=input-label]',
+      BACK_BUTTON: '[data-testid=flow-container-back-btn]',
+    },
+    SECONDARY_EMAIL: {
+      ADD_BUTTON: '[data-testid=unit-row-route][href*="emails"]',
+      CANCEL_BUTTON: '[data-testid=cancel-button]',
+      SUBMIT_BUTTON: '[data-testid=save-button]',
       TEXTBOX: '[data-testid=input-label]',
       BACK_BUTTON: '[data-testid=flow-container-back-btn]',
     },
@@ -657,6 +664,25 @@ module.exports = {
       VERIFY_PASSWORD_INPUT: '[data-testid=verify-password-input-field]',
       SAVE_BUTTON: '[data-testid=save-password-button]',
       FORGOT_PW_BUTTON: '[data-testid=nav-link-reset-password]',
+    },
+    SECURITY: {
+      MENU: '[data-testid=nav-link-security]',
+      HEADER: '[data-testid=settings-security]',
+      RECOVERY_KEY: {
+        CREATE: '[data-testid=unit-row-route][href*="account_recovery"]',
+        BACK_BUTTON: '[data-testid=flow-container-back-btn]',
+        PASSWORD_TEXTBOX: '[data-testid=input-label]',
+        CANCEL_BUTTON: '[data-testid=cancel-button]',
+        CONTINUE_BUTTON: '[data-testid=continue-button]',
+      },
+      TFA: {
+        ADD_BUTTON:
+          '[data-testid=unit-row-route][href*="two_step_authentication"]',
+      },
+    },
+    CONNECTED_SERVICES: {
+      MENU: '[data-testid=nav-link-connected-services]',
+      HEADER: '[data-testid=settings-connected-services]',
     },
   },
 };
