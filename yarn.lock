@@ -34554,39 +34554,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^1.0.1":
-  version: 1.7.3
-  resolution: "tailwindcss@npm:1.7.3"
-  dependencies:
-    "@fullhuman/postcss-purgecss": ^2.1.2
-    autoprefixer: ^9.4.5
-    browserslist: ^4.12.0
-    bytes: ^3.0.0
-    chalk: ^3.0.0 || ^4.0.0
-    color: ^3.1.2
-    detective: ^5.2.0
-    fs-extra: ^8.0.0
-    lodash: ^4.17.15
-    node-emoji: ^1.8.1
-    normalize.css: ^8.0.1
-    object-hash: ^2.0.3
-    postcss: ^7.0.11
-    postcss-functions: ^3.0.0
-    postcss-js: ^2.0.0
-    postcss-nested: ^4.1.1
-    postcss-selector-parser: ^6.0.0
-    postcss-value-parser: ^4.1.0
-    pretty-hrtime: ^1.0.3
-    reduce-css-calc: ^2.1.6
-    resolve: ^1.14.2
-  bin:
-    tailwind: lib/cli.js
-    tailwindcss: lib/cli.js
-  checksum: 82e54f7cecf5dc9dc42f505681cb386b1ebd4fb2c79dc2a7e234c9080334b7f92ff6bd72ea82c0f083e994be00a56fa1c670a74ae7187b6704f2161ff5212156
-  languageName: node
-  linkType: hard
-
-"tailwindcss@npm:^1.9.1":
+"tailwindcss@npm:^1.0.1, tailwindcss@npm:^1.9.1":
   version: 1.9.1
   resolution: "tailwindcss@npm:1.9.1"
   dependencies:
