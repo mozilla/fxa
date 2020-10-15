@@ -374,7 +374,7 @@ class DirectStripeRoutes {
     this.log.begin('subscriptions.getCustomer', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.fetchCustomer(uid, [
+    const customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'subscriptions.data.latest_invoice',
       'invoice_settings.default_payment_method',
     ]);

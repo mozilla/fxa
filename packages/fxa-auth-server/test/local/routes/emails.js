@@ -313,7 +313,6 @@ describe('update stripe primary email', () => {
     const result = await updateStripeEmail(
       stripeHelper,
       'test',
-      'test@example.com',
       'updated.email@example.com'
     );
     assert.deepEqual(result, CUSTOMER_1_UPDATED);

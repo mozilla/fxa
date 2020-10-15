@@ -1102,6 +1102,43 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('fetchStripeCustomerByEmail', () => {
+    it('prefixes the expand fields', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'list')
+        .returns({ autoPagingToArray: sandbox.stub().resolves([]) });
+      await stripeHelper.fetchStripeCustomerByEmail('quuz@testo.com', [
+        'data.xyz',
+        'bbc',
+        'gcm',
+      ]);
+      sinon.assert.calledOnceWithExactly(stripeHelper.stripe.customers.list, {
+        email: 'quuz@testo.com',
+        expand: ['data.xyz', 'data.bbc', 'data.gcm'],
+      });
+    });
+
+    it('returns undefined when no customer is found', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'list')
+        .returns({ autoPagingToArray: sandbox.stub().resolves([]) });
+      const actual = await stripeHelper.fetchStripeCustomerByEmail(
+        'quuz@testo.com'
+      );
+      assert.isUndefined(actual);
+    });
+
+    it('returns the first customer in the list', async () => {
+      sandbox.stub(stripeHelper.stripe.customers, 'list').returns({
+        autoPagingToArray: sandbox.stub().resolves([newCustomer, customer1]),
+      });
+      const actual = await stripeHelper.fetchStripeCustomerByEmail(
+        'quuz@testo.com'
+      );
+      assert.deepEqual(actual, newCustomer);
+    });
+  });
+
   describe('fetchCustomer', () => {
     it('fetches an existing customer', async () => {
       sandbox
@@ -1136,15 +1173,6 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('returns void if no there is no record of the user-customer relationship in db', async () => {
-      assert.isUndefined(
-        await stripeHelper.fetchCustomer(
-          '013b3c2f6c7b41e0991e6707fdbb62b3',
-          'test@example.com'
-        )
-      );
-    });
-
     it('returns void if the stripe customer is deleted and updates db', async () => {
       sandbox
         .stub(stripeHelper.stripe.customers, 'retrieve')
@@ -1161,6 +1189,50 @@ describe('StripeHelper', () => {
 
       // reset for tests:
       existingCustomer = await createAccountCustomer(existingUid, customer1.id);
+    });
+
+    describe('no record of the user-customer relationship in db', () => {
+      it('returns undefined if no email address is given', async () => {
+        assert.isUndefined(
+          await stripeHelper.fetchCustomer('013b3c2f6c7b41e0991e6707fdbb62b3')
+        );
+      });
+
+      it('returns undefined if customer is not found in Stripe', async () => {
+        sandbox
+          .stub(stripeHelper.stripe.customers, 'list')
+          .returns({ autoPagingToArray: sandbox.stub().resolves([]) });
+        assert.isUndefined(
+          await stripeHelper.fetchCustomer(
+            '013b3c2f6c7b41e0991e6707fdbb62b3',
+            'quuz@testo.com'
+          )
+        );
+        sinon.assert.calledOnceWithExactly(stripeHelper.stripe.customers.list, {
+          email: 'quuz@testo.com',
+          expand: undefined,
+        });
+      });
+
+      it('creates new account customer with the Stripe customer', async () => {
+        sandbox.stub(stripeHelper.stripe.customers, 'list').returns({
+          autoPagingToArray: sandbox.stub().resolves([newCustomer]),
+        });
+        const actual = await stripeHelper.fetchCustomer(
+          'ac893f80d84647e9504bd9532e9571b5',
+          'test@example.com'
+        );
+        assert.strictEqual(actual, newCustomer);
+      });
+
+      /*
+      it.skip('updates existing account customer with the Stripe customer', async () => {
+        // Note that it is currently not possible to have an account-customer
+        // without a Stripe customer id.  Moreover, we cannot set up the test
+        // as the create/update functions do not accept an undefined/null
+        // Stripe customer id.
+      });
+      //*/
     });
 
     describe('when a customer has subscriptions and they are more than one page', () => {

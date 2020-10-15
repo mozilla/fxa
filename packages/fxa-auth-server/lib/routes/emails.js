@@ -60,12 +60,7 @@ async function updateZendeskPrimaryEmail(
  * @param {string} newPrimaryEmail
  * @returns {Promise<void | import('stripe').Stripe.Customer>}
  */
-async function updateStripeEmail(
-  stripeHelper,
-  uid,
-  currentPrimaryEmail,
-  newPrimaryEmail
-) {
+async function updateStripeEmail(stripeHelper, uid, newPrimaryEmail) {
   const customer = await stripeHelper.fetchCustomer(uid);
   if (!customer || customer.email === newPrimaryEmail) {
     // No customer to update, or already updated.
@@ -862,12 +857,7 @@ module.exports = (
             // Wait here to update stripe and our local cache to avoid loss of
             // valid subscription status.
             try {
-              await updateStripeEmail(
-                stripeHelper,
-                uid,
-                primaryEmail,
-                secondaryEmail.email
-              );
+              await updateStripeEmail(stripeHelper, uid, secondaryEmail.email);
               await stripeHelper.refreshCachedCustomer(
                 uid,
                 secondaryEmail.email

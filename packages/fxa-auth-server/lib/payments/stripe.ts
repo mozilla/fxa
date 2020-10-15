@@ -8,6 +8,7 @@ import {
   createAccountCustomer,
   deleteAccountCustomer,
   getAccountCustomerByUid,
+  updateAccountCustomer,
 } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
 import { StatsD } from 'hot-shots';
@@ -389,25 +390,67 @@ export class StripeHelper {
     return await this.stripe.paymentMethods.detach(paymentMethodId);
   }
 
+  async fetchStripeCustomerByEmail(
+    email: string,
+    expand?: string[]
+  ): Promise<Stripe.Customer | void> {
+    const listExpand = expand?.map((x) =>
+      x.startsWith('data.') ? x : `data.${x}`
+    );
+    const customerResponse = await this.stripe.customers
+      .list({ email, expand: listExpand })
+      .autoPagingToArray({ limit: 20 });
+    if (customerResponse.length === 0) {
+      return;
+    }
+    return customerResponse[0];
+  }
+
   /**
    * Fetch a customer for the record from Stripe based on user id.
    */
   async fetchCustomer(
     uid: string,
+    email?: string,
     expand?: string[]
   ): Promise<Stripe.Customer | void> {
-    const accountCustomer = await getAccountCustomerByUid(uid);
+    let stripeCustomer;
+    let accountCustomer = await getAccountCustomerByUid(uid);
+
+    // It's possible for a customer to be created outside of our subscription
+    // flow, e.g. using the Stripe dashboard.  We need to handle that by adding
+    // a customer that exist in Stripe but not the local database.
+
     if (
       accountCustomer === undefined ||
       accountCustomer.stripeCustomerId === undefined
     ) {
-      return;
+      if (!email) {
+        return;
+      }
+
+      stripeCustomer = await this.fetchStripeCustomerByEmail(email, expand);
+
+      if (!stripeCustomer) {
+        return;
+      }
+
+      if (accountCustomer === undefined) {
+        accountCustomer = await createAccountCustomer(uid, stripeCustomer.id);
+      } else if (accountCustomer.stripeCustomerId === undefined) {
+        // The Stripe customer id column in the DB table is technically
+        // nullable, but currently it is not possible to have such a record
+        // through our code.
+        await updateAccountCustomer(uid, stripeCustomer.id);
+        accountCustomer.stripeCustomerId = stripeCustomer.id;
+      }
     }
 
-    const customer = await this.stripe.customers.retrieve(
-      accountCustomer.stripeCustomerId,
-      { expand }
-    );
+    const customer =
+      stripeCustomer ||
+      (await this.stripe.customers.retrieve(accountCustomer.stripeCustomerId!, {
+        expand,
+      }));
 
     if (customer.deleted) {
       await deleteAccountCustomer(uid);
@@ -445,7 +488,7 @@ export class StripeHelper {
     uid: string,
     email: string
   ): Promise<Stripe.Customer | void> {
-    return this.fetchCustomer(uid, [
+    return this.fetchCustomer(uid, email, [
       'sources',
       'subscriptions',
       'invoice_settings.default_payment_method',
