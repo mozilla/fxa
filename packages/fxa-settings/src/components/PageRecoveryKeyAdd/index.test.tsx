@@ -4,7 +4,6 @@
 
 import 'mutationobserver-shim';
 import React from 'react';
-import base32encode from 'base32-encode';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AuthContext, createAuthClient } from '../../lib/auth';
@@ -21,9 +20,8 @@ jest.mock('../../lib/auth', () => ({
     })),
 }));
 
-jest.mock('base32-encode');
-
 const client = createAuthClient('none');
+window.URL.createObjectURL = jest.fn();
 
 describe('PageRecoveryKeyAdd', () => {
   it('renders as expected', () => {
@@ -97,6 +95,12 @@ describe('PageRecoveryKeyAdd', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('continue-button'));
     });
-    expect(base32encode).toHaveBeenCalled();
+
+    expect(screen.getByTestId('recover-key-confirm')).toBeVisible();
+    expect(screen.getByTestId('datablock-button')).toHaveTextContent(
+      '0000 0000 0000 0000 0000 0000 0000 0000'
+    );
+    expect(screen.getByTestId('databutton-copy')).toBeEnabled();
+    expect(screen.getByTestId('close-button')).toBeEnabled();
   });
 });

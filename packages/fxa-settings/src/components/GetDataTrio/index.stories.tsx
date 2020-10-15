@@ -8,6 +8,6 @@ import GetDataTrio from './index';
 
 storiesOf('Components|GetDataTrio', module).add('default', () => (
   <div className="p-10 max-w-xs">
-    <GetDataTrio value="Copy that" url="https://mozilla.org" />
+    <GetDataTrio value="Copy that" />
   </div>
 ));
