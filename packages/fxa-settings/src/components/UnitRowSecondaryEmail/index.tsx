@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode, useState } from 'react';
-import { ApolloError, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { useNavigate } from '@reach/router';
 import { cloneDeep } from '@apollo/client/utilities';
 import { useAlertBar, useMutation } from '../../lib/hooks';

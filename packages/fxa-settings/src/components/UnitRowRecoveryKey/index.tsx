@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { ApolloError, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAlertBar, useMutation } from '../../lib/hooks';
