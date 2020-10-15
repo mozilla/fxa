@@ -146,7 +146,7 @@ if (proxyUrl) {
 
   const STATIC_INDEX_HTML = fs.readFileSync(
     path.join(STATIC_DIRECTORY, 'index.html'),
-    { encoding: 'UTF-8' }
+    { encoding: 'utf-8' }
   );
 
   ['/', '/email-blocks'].forEach((route) => {

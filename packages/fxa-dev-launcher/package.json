@@ -20,8 +20,5 @@
   },
   "devDependencies": {
     "audit-filter": "^0.5.0"
-  },
-  "engines": {
-    "node": ">=12"
   }
 }

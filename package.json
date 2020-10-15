@@ -30,7 +30,7 @@
     "diffparser": "^2.0.1",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "nps": "^5.10.0",
     "pm2": "^4.4.1",
     "prettier": "^2.0.5",
@@ -38,8 +38,7 @@
     "semver": "^7.3.2"
   },
   "engines": {
-    "node": "^12.18.0",
-    "npm": ">=6.4.1"
+    "node": "^14.15.0"
   },
   "fxa": {
     "moduleDependencies": {
@@ -117,7 +116,8 @@
   "resolutions": {
     "gobbledygook": "git://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
     "tap/typescript": "3.9.7",
-    "@types/node": "12.12.38",
-    "http-proxy": "^1.18.1"
+    "@types/node": "^14.14.5",
+    "http-proxy": "^1.18.1",
+    "browserid-crypto": "git://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d"
   }
 }

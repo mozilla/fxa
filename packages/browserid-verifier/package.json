@@ -11,9 +11,6 @@
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/browserid-verifier/",
   "bugs": "https://github.com/mozilla/fxa/issues/",
   "main": "lib/server.js",
-  "engines": {
-    "node": ">=12"
-  },
   "dependencies": {
     "async": "3.2.0",
     "body-parser": "^1.19.0",

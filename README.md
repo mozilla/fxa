@@ -118,7 +118,7 @@ To update dependencies use [yarn up](https://yarnpkg.com/cli/up) or `yarn worksp
 
 > Required developer dependencies:
 > [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
-> [node.js **12+** with npm 6](http://nodejs.org/),
+> [node.js **14+**](http://nodejs.org/),
 > [Python 2.6+](https://www.python.org/),
 > [Java 8+](https://www.java.com/en/download/),
 > [Rust nightly+](https://doc.rust-lang.org/1.5.0/book/nightly-rust.html),
@@ -172,14 +172,14 @@ sudo service docker restart
 
 #### Installing Node.js
 
-We currently use Node 12.
+We currently use Node 14.
 See https://nodejs.org
 
 Alternatively, the [Node Version Manager](https://github.com/nvm-sh/nvm) makes working with different versions of Node easy.
 
 ```
-nvm install 12
-nvm alias default 12
+nvm install 14
+nvm alias default 14
 ```
 
 #### Installing Java

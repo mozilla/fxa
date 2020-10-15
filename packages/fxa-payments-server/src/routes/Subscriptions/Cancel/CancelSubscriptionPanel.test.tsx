@@ -174,11 +174,13 @@ describe('CancelSubscriptionPanel', () => {
         expect(queryAllByText('no more').length).toBe(2);
         expect(
           queryByText(
-            'Fromage pecorino blue castello FPN after September 13, 2019, sorry dude.'
+            'Fromage pecorino blue castello FPN after 13mh dhen t-Sultain 2019, sorry dude.'
           )
         ).toBeInTheDocument();
         expect(
-          queryByText("Stilton when everybody's FPN on September 13, 2019.")
+          queryByText(
+            "Stilton when everybody's FPN on 13mh dhen t-Sultain 2019."
+          )
         ).toBeInTheDocument();
         expect(queryByText('haha never mind')).toBeInTheDocument();
       });

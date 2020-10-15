@@ -10,7 +10,7 @@ Includes:
 
 ## Prerequisites
 
-- node.js 12
+- node.js 14
 - npm
 - MySQL (we use version 5.6.42 in production)
 
