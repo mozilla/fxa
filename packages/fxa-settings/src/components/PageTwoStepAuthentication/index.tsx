@@ -2,13 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { gql } from '@apollo/client';
 import { RouteComponentProps } from '@reach/router';
-import LinkExternal from 'fxa-react/components/LinkExternal';
-import React, { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { useAlertBar, useMutation } from '../../lib/hooks';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
+import LinkExternal from 'fxa-react/components/LinkExternal';
+import React, { useCallback, useEffect, useState } from 'react';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import AlertBar from '../AlertBar';
+import { useSession } from 'fxa-settings/src/models';
+
+export const CREATE_TOTP_MUTATION = gql`
+  mutation createTotp($input: CreateTotpInput!) {
+    createTotp(input: $input) {
+      clientMutationId
+      qrCodeUrl
+      secret
+      recoveryCodes
+    }
+  }
+`;
 
 type TotpForm = { totp: number };
 
@@ -17,12 +32,40 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const { register, handleSubmit, trigger, formState } = useForm<TotpForm>({
     mode: 'onTouched',
   });
-
   const isValidTotpFormat = (totp: string) => /\d{6}/.test(totp);
+
+  const alertBar = useAlertBar();
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>();
+  const [secret, setSecret] = useState<string>();
+  const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
+
   const onSubmit = ({ totp }: TotpForm) => {};
+
+  const [createTotp] = useMutation(CREATE_TOTP_MUTATION, {
+    onCompleted: (x) => {
+      setQrCodeUrl(x.createTotp.qrCodeUrl);
+      setSecret(x.createTotp.secret);
+      setRecoveryCodes(x.createTotp.recoveryCodes);
+    },
+    onError: () => {
+      alertBar.error('There was a problem retrieving your code.');
+    },
+  });
+
+  const session = useSession();
+
+  useEffect(() => {
+    session.verified && createTotp({ variables: { input: {} } });
+  }, [session]);
 
   return (
     <FlowContainer title="Two Step Authentication" subtitle="Step 1 of 3">
+      {alertBar.visible && (
+        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+          <p data-testid="update-display-name-error">{alertBar.content}</p>
+        </AlertBar>
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
 
@@ -34,7 +77,16 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
           .
         </p>
 
-        <div>{/* QR CODE HERE */}</div>
+        <div>
+          {qrCodeUrl && (
+            <img
+              className="mx-auto w-40 h-40 qr-code-border"
+              data-testid="2fa-qr-code"
+              src={qrCodeUrl}
+              alt={`Use the code ${secret} to set up two-step authentication in supported applications.`}
+            />
+          )}
+        </div>
 
         <p className="mt-4">
           Now enter the security code from the authentication app.
