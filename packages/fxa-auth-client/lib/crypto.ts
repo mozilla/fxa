@@ -1,12 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { hexToUint8, uint8ToHex, xor } from './utils';
+import { hexToUint8, uint8ToBase64Url, uint8ToHex, xor } from './utils';
 
 const encoder = () => new TextEncoder();
 const NAMESPACE = 'identity.mozilla.com/picl/v1/';
-
-type hexstring = string;
 
 // These functions implement the onepw protocol
 // https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol
@@ -135,6 +133,79 @@ export function unwrapKB(wrapKB: hexstring, unwrapBKey: hexstring) {
   return uint8ToHex(xor(hexToUint8(wrapKB), hexToUint8(unwrapBKey)));
 }
 
+export async function hkdf(
+  keyMaterial: Uint8Array,
+  salt: Uint8Array,
+  info: Uint8Array,
+  bytes: number
+) {
+  const key = await crypto.subtle.importKey('raw', keyMaterial, 'HKDF', false, [
+    'deriveBits',
+  ]);
+  const result = await crypto.subtle.deriveBits(
+    {
+      name: 'HKDF',
+      salt,
+      // @ts-ignore
+      info,
+      hash: 'SHA-256',
+    },
+    key,
+    bytes * 8
+  );
+  return new Uint8Array(result);
+}
+
+export async function jweEncrypt(
+  keyMaterial: Uint8Array,
+  kid: hexstring,
+  data: Uint8Array,
+  forTestingOnly?: { testIV: Uint8Array }
+) {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyMaterial,
+    {
+      name: 'AES-GCM',
+    },
+    false,
+    ['encrypt']
+  );
+  const jweHeader = uint8ToBase64Url(
+    encoder().encode(
+      JSON.stringify({
+        enc: 'A256GCM',
+        alg: 'dir',
+        kid,
+      })
+    )
+  );
+  const iv =
+    forTestingOnly?.testIV || crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv,
+      additionalData: encoder().encode(jweHeader),
+      tagLength: 128,
+    },
+    key,
+    data
+  );
+  const ciphertext = new Uint8Array(
+    encrypted.slice(0, encrypted.byteLength - 16)
+  );
+  const authenticationTag = new Uint8Array(
+    encrypted.slice(encrypted.byteLength - 16)
+  );
+  // prettier-ignore
+  const compactJWE = `${jweHeader
+    }..${uint8ToBase64Url(iv)
+    }.${uint8ToBase64Url(ciphertext)
+    }.${uint8ToBase64Url(authenticationTag)}`;
+  return compactJWE;
+}
+
 export async function checkWebCrypto() {
   try {
     await crypto.subtle.importKey(
@@ -161,6 +232,15 @@ export async function checkWebCrypto() {
       },
       false,
       ['sign']
+    );
+    await crypto.subtle.importKey(
+      'raw',
+      crypto.getRandomValues(new Uint8Array(32)),
+      {
+        name: 'AES-GCM',
+      },
+      false,
+      ['encrypt']
     );
     await crypto.subtle.digest(
       'SHA-256',

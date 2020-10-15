@@ -3,7 +3,7 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "./dist/browser",
-    "types": ["mocha"]
+    "types": ["mocha", "./lib/types"]
   },
   "include": ["./lib/**/*", "./browser.ts"],
   "exclude": ["dist","node_modules"]

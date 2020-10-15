@@ -4,17 +4,35 @@
 
 import 'mutationobserver-shim';
 import React from 'react';
+import base32encode from 'base32-encode';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { AuthContext, createAuthClient } from '../../lib/auth';
 import { MockedCache, renderWithRouter, mockEmail } from '../../models/_mocks';
 import { PageRecoveryKeyAdd } from '.';
+
+jest.mock('../../lib/auth', () => ({
+  ...jest.requireActual('../../lib/auth'),
+  useRecoveryKeyMaker: jest
+    .fn()
+    .mockImplementation(({ onSuccess, onError }) => ({
+      execute: () => onSuccess(new Uint8Array(20)),
+      reset: () => {},
+    })),
+}));
+
+jest.mock('base32-encode');
+
+const client = createAuthClient('none');
 
 describe('PageRecoveryKeyAdd', () => {
   it('renders as expected', () => {
     renderWithRouter(
-      <MockedCache>
-        <PageRecoveryKeyAdd />
-      </MockedCache>
+      <AuthContext.Provider value={{ auth: client }}>
+        <MockedCache>
+          <PageRecoveryKeyAdd />
+        </MockedCache>
+      </AuthContext.Provider>
     );
 
     expect(screen.getByTestId('recovery-key-input').textContent).toContain(
@@ -28,9 +46,11 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Enables "continue" button once input is valid', async () => {
     renderWithRouter(
-      <MockedCache>
-        <PageRecoveryKeyAdd />
-      </MockedCache>
+      <AuthContext.Provider value={{ auth: client }}>
+        <MockedCache>
+          <PageRecoveryKeyAdd />
+        </MockedCache>
+      </AuthContext.Provider>
     );
 
     expect(screen.getByTestId('continue-button')).toBeDisabled();
@@ -43,11 +63,13 @@ describe('PageRecoveryKeyAdd', () => {
     expect(screen.getByTestId('continue-button')).toBeEnabled();
   });
 
-  it('Do not Enable "continue" button if validation fails', async () => {
+  it('Does not Enable "continue" button if validation fails', async () => {
     renderWithRouter(
-      <MockedCache>
-        <PageRecoveryKeyAdd />
-      </MockedCache>
+      <AuthContext.Provider value={{ auth: client }}>
+        <MockedCache>
+          <PageRecoveryKeyAdd />
+        </MockedCache>
+      </AuthContext.Provider>
     );
 
     await act(async () => {
@@ -56,5 +78,25 @@ describe('PageRecoveryKeyAdd', () => {
     });
 
     expect(screen.getByTestId('continue-button')).toBeDisabled();
+  });
+
+  it('Generates a recovery key on submit', async () => {
+    renderWithRouter(
+      <AuthContext.Provider value={{ auth: client }}>
+        <MockedCache>
+          <PageRecoveryKeyAdd />
+        </MockedCache>
+      </AuthContext.Provider>
+    );
+
+    await act(async () => {
+      const input = screen.getByTestId('input-field');
+      fireEvent.input(input, { target: { value: 'myFavPassword' } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('continue-button'));
+    });
+    expect(base32encode).toHaveBeenCalled();
   });
 });

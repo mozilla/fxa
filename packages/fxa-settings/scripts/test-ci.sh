@@ -1,6 +1,7 @@
 #!/bin/bash -ex
 
-CI=yes SKIP_PREFLIGHT_CHECK=true yarn test
+CI=false yarn build
+SKIP_PREFLIGHT_CHECK=true yarn test
 
 mkdir -p config
 

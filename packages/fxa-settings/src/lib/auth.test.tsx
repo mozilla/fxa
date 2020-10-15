@@ -12,7 +12,14 @@ import {
   createAuthClient,
   useAuth,
   usePasswordChanger,
+  useRecoveryKeyMaker,
 } from './auth';
+
+jest.mock('fxa-auth-client/browser', () => ({
+  ...jest.requireActual('fxa-auth-client/browser'),
+  __esModule: true,
+  generateRecoveryKey: jest.fn().mockImplementation(() => Promise.resolve({})),
+}));
 
 describe('useAuth', () => {
   const client = createAuthClient('none');
@@ -131,5 +138,102 @@ describe('usePasswordChanger', () => {
     // expect.anything() is the PromiseCallbackOptions of react-async-hook
     expect(onError).toBeCalledWith(error, expect.anything());
     expect(onSuccess).not.toBeCalled();
+  });
+});
+
+describe('useRecoveryKeyMaker', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('calls onSuccess when successful', async () => {
+    const client = ({
+      sessionReauth: jest.fn().mockImplementation(() => Promise.resolve({})),
+      accountKeys: jest.fn().mockImplementation(() => Promise.resolve({})),
+      createRecoveryKey: jest
+        .fn()
+        .mockImplementation(() => Promise.resolve({})),
+    } as any) as AuthClient;
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <AuthContext.Provider value={{ auth: client }}>
+        {children}
+      </AuthContext.Provider>
+    );
+    const { result, waitForNextUpdate } = renderHook(
+      () =>
+        useRecoveryKeyMaker({
+          onSuccess,
+          onError,
+        }),
+      { wrapper }
+    );
+    act(() => {
+      result.current.execute(
+        'email',
+        'password',
+        '0123456789abcdef',
+        'sessionToken'
+      );
+    });
+    await waitForNextUpdate();
+    expect(client.sessionReauth).toBeCalledWith(
+      'sessionToken',
+      'email',
+      'password',
+      {
+        keys: true,
+        reason: 'recovery_key',
+      }
+    );
+    expect(client.accountKeys).toBeCalled();
+    expect(client.createRecoveryKey).toBeCalled();
+    expect(onSuccess).toBeCalled();
+    expect(onError).not.toBeCalled();
+  });
+
+  it('calls onError on failure', async () => {
+    const error = { errno: 103 };
+    const client = ({
+      sessionReauth: jest.fn().mockImplementation(() => Promise.reject(error)),
+    } as any) as AuthClient;
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <AuthContext.Provider value={{ auth: client }}>
+        {children}
+      </AuthContext.Provider>
+    );
+    const { result, waitForNextUpdate } = renderHook(
+      () =>
+        useRecoveryKeyMaker({
+          onSuccess,
+          onError,
+        }),
+      { wrapper }
+    );
+    act(() => {
+      result.current.execute(
+        'email',
+        'password',
+        '0123456789abcdef',
+        'sessionToken'
+      );
+    });
+    await waitForNextUpdate();
+    expect(client.sessionReauth).toBeCalledWith(
+      'sessionToken',
+      'email',
+      'password',
+      {
+        keys: true,
+        reason: 'recovery_key',
+      }
+    );
+    expect(onSuccess).not.toBeCalled();
+    // expect.anything() is the PromiseCallbackOptions of react-async-hook
+    expect(onError).toBeCalledWith(error, expect.anything());
+    expect(onError).toBeCalled();
   });
 });

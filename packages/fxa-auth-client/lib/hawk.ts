@@ -6,7 +6,7 @@ import { hexToUint8, uint8ToBase64, uint8ToHex } from './utils';
 const encoder = () => new TextEncoder();
 const NAMESPACE = 'identity.mozilla.com/picl/v1/';
 
-export async function deriveHawkCredentials(token: string, context: string) {
+export async function deriveHawkCredentials(token: hexstring, context: string) {
   const baseKey = await crypto.subtle.importKey(
     'raw',
     hexToUint8(token),
