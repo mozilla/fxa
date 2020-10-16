@@ -10,6 +10,7 @@ const value = 'Sun Tea';
 const url = 'https://mozilla.org';
 
 it('renders as expected', () => {
+  window.URL.createObjectURL = jest.fn();
   render(<GetDataTrio {...{ value, url }} />);
   expect(screen.getByTestId('databutton-download')).toBeInTheDocument();
   expect(screen.getByTestId('databutton-copy')).toBeInTheDocument();
