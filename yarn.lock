@@ -3823,6 +3823,54 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@otplib/core@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "@otplib/core@npm:12.0.1"
+  checksum: c4a6f3f0c5c5fe3765a92611b281f5ca0147480aabfed46c4f018219db91c67a1693724bec62f7bb08cbb237f0f74c70b28a783805ad6757c4681580e98f9fd4
+  languageName: node
+  linkType: hard
+
+"@otplib/plugin-crypto@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "@otplib/plugin-crypto@npm:12.0.1"
+  dependencies:
+    "@otplib/core": ^12.0.1
+  checksum: e319991527167f800dafd3c7353c5b54cb85b229b5dd1e60d56a7004c0534eb3bd7ef2dda94d81a69d160ed45283ffc182260196cc7eec13c4ab35bc2a990348
+  languageName: node
+  linkType: hard
+
+"@otplib/plugin-thirty-two@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "@otplib/plugin-thirty-two@npm:12.0.1"
+  dependencies:
+    "@otplib/core": ^12.0.1
+    thirty-two: ^1.0.2
+  checksum: 52f6d5208b0a90b347d419b931d51a63ae46440b89040e78710d4bdda37f1831da8e60a7dfb14c1411dd28fea05d817beea7d3451b803c1880ededb307c711fc
+  languageName: node
+  linkType: hard
+
+"@otplib/preset-default@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "@otplib/preset-default@npm:12.0.1"
+  dependencies:
+    "@otplib/core": ^12.0.1
+    "@otplib/plugin-crypto": ^12.0.1
+    "@otplib/plugin-thirty-two": ^12.0.1
+  checksum: 8b702af09bf077c37c81883837b2ef199290e3308634eb6258f6d7976f55e263f06e3c39caa88caa2e2e91a08e71913635cf3b4adca925945fe2e2aece8c6793
+  languageName: node
+  linkType: hard
+
+"@otplib/preset-v11@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "@otplib/preset-v11@npm:12.0.1"
+  dependencies:
+    "@otplib/core": ^12.0.1
+    "@otplib/plugin-crypto": ^12.0.1
+    "@otplib/plugin-thirty-two": ^12.0.1
+  checksum: 2dac0d8df213775a703ff845ab5dbf808d395e85988a9ff3d1615486fe8654fb2f0be7bde2f85c12857254ac3ab6e4bbfdafe54cdadf92f0c38a036c24f06698
+  languageName: node
+  linkType: hard
+
 "@peculiar/asn1-schema@npm:^2.0.1, @peculiar/asn1-schema@npm:^2.0.8":
   version: 2.0.8
   resolution: "@peculiar/asn1-schema@npm:2.0.8"
@@ -17295,7 +17343,7 @@ fsevents@^1.2.7:
     node-zendesk: ^2.0.3
     nodemailer: 2.7.2
     nyc: ^15.0.1
-    otplib: ^11.0.1
+    otplib: ^12.0.1
     p-retry: ^4.2.0
     pem-jwk: ^2.0.0
     pm2: ^4.4.1
@@ -17448,7 +17496,7 @@ fsevents@^1.2.7:
     node-vat: 0.0.9
     normalize.css: 8.0.1
     on-headers: 1.0.2
-    otplib: ^11.0.1
+    otplib: ^12.0.1
     photon-colors: 1.0.3
     pm2: ^4.4.1
     postcss-cli: 7.1.1
@@ -27262,12 +27310,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"otplib@npm:^11.0.1":
-  version: 11.0.1
-  resolution: "otplib@npm:11.0.1"
+"otplib@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "otplib@npm:12.0.1"
   dependencies:
-    thirty-two: 1.0.2
-  checksum: 3823e1c5791767394c67a64f7a436e544dc58dd5eb389bd0914feec51ec327d7ebb07484333d9f886a503a68704efd07a2391f602f10c7b8c1419c89cb944dd0
+    "@otplib/core": ^12.0.1
+    "@otplib/preset-default": ^12.0.1
+    "@otplib/preset-v11": ^12.0.1
   languageName: node
   linkType: hard
 
@@ -34937,7 +34986,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"thirty-two@npm:1.0.2":
+"thirty-two@npm:^1.0.2":
   version: 1.0.2
   resolution: "thirty-two@npm:1.0.2"
   checksum: 81c46a540b8f8984e3f39dbae6df0b1407cfa0b4d0ec17d5aa392d465f033bcc5dbe910260ccd4424711627890ad8b20ba67d9019fbd15f03f2658ce652b2847
