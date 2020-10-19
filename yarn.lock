@@ -19245,6 +19245,7 @@ fsevents@^1.2.7:
     sri-toolbox: ^0.2.0
   peerDependencies:
     grunt: ">=0.4.0"
+  checksum: 584ddfa3edd2c0bff7701170f3b6f5faf8f8a6cb396fbb0aa21945cb3cfd26d9710ba0a40ae27e7fc119658645e8fe7116063d6365ba1f12d94b0d5d8f34962f
   languageName: node
   linkType: hard
 
@@ -23075,6 +23076,7 @@ fsevents@^1.2.7:
   resolution: "json-schema-ref-parser@npm:9.0.6"
   dependencies:
     "@apidevtools/json-schema-ref-parser": 9.0.6
+  checksum: d23f7cec0d95256b5bce991f21d6e38438acad7e2467bc3a4f0035f47b703f98ac55e9215a92937eba08aa678cf254cccdbc9ff887442739c8a6b4f04a4041a8
   languageName: node
   linkType: hard
 
@@ -23096,6 +23098,7 @@ fsevents@^1.2.7:
     stdin: 0.0.1
   bin:
     json2ts: dist/src/cli.js
+  checksum: b3b6a50a9ebc83f65943d246877f7d28483217e89c8e3423881304ab401eeaa3a72e122673ec6269dba08f48f41bb94e010f25516b33755938b18b781e4bef14
   languageName: node
   linkType: hard
 
@@ -23436,6 +23439,7 @@ fsevents@^1.2.7:
 "keygrip@npm:~1.0.3":
   version: 1.0.3
   resolution: "keygrip@npm:1.0.3"
+  checksum: f025d1c201eb0870390749862621b79f7affc15da3cb218631094cc2afc31174718273dee65cff8e8ac8ee4fdcd8fcc5c00d3336e9c85173378733b85d5de6a7
   languageName: node
   linkType: hard
 
@@ -30070,6 +30074,7 @@ fsevents@^1.2.7:
 "ramda@npm:^0.22.1":
   version: 0.22.1
   resolution: "ramda@npm:0.22.1"
+  checksum: b44a1ee8a2e7230c4dad499b617f8c715c68c6fcad6bab6907a878b82e8de9fed75ab1a452c0dcad3771fed05d5dfcb1807f2c2a115a170e2b6578b4e64a1f7f
   languageName: node
   linkType: hard
 
@@ -33519,6 +33524,7 @@ resolve@~1.11.1:
 "sri-toolbox@npm:^0.2.0":
   version: 0.2.0
   resolution: "sri-toolbox@npm:0.2.0"
+  checksum: 37d57713c3dec3beef73d80fee0ed955d95c8edc68d37b295c8d2fa20b3814557de011e882d0bae8aaa6d330e0da72d8c569d77146483b7620054ccc3b7cfd8b
   languageName: node
   linkType: hard
 
