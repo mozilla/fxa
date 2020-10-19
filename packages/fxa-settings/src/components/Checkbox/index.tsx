@@ -10,12 +10,14 @@ export type CheckboxProps = {
   disabled?: boolean;
   label?: string;
   onClick?: (event: MouseEvent<HTMLInputElement>) => void;
+  prefixDataTestId?: string;
 };
 
 export const Checkbox = ({
   defaultChecked,
   disabled,
   label,
+  prefixDataTestId,
 }: CheckboxProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
   const [checked, setChecked] = useState<boolean>(defaultChecked === true);
@@ -35,6 +37,9 @@ export const Checkbox = ({
     },
     [checked]
   );
+  function formatDataTestId(id: string) {
+    return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
+  }
 
   return (
     <label
@@ -54,7 +59,7 @@ export const Checkbox = ({
           onFocus={checkboxFocus}
           onBlur={checkboxBlur}
           onChange={checkboxChange}
-          data-testid="checkbox-input"
+          data-testid={formatDataTestId('checkbox-input')}
           {...{
             defaultChecked,
             disabled,
@@ -90,7 +95,10 @@ export const Checkbox = ({
         </span>
       </span>
       {label && (
-        <span data-testid="checkbox-label" className="text-sm ml-3 font-body">
+        <span
+          data-testid={formatDataTestId('checkbox-label')}
+          className="text-sm ml-3 font-body"
+        >
           {label}
         </span>
       )}

@@ -160,6 +160,7 @@ export const UnitRowSecondaryEmail = () => {
     return (
       <UnitRow
         header="Secondary email"
+        prefixDataTestId="secondary-email"
         headerValue={null}
         route="/beta/settings/emails"
         {...{
@@ -190,10 +191,13 @@ export const UnitRowSecondaryEmail = () => {
     return (
       <>
         <div className="mobileLandscape:flex unit-row-multi-row">
-          <div className="unit-row-content" data-testid="unit-row-content">
+          <div
+            className="unit-row-content"
+            data-testid="secondary-email-unit-row-content"
+          >
             <p
               className="font-bold break-all"
-              data-testid="unit-row-header-value"
+              data-testid="secondary-email-unit-row-header-value"
             >
               <span className="flex justify-between items-center">
                 {email}
@@ -218,7 +222,7 @@ export const UnitRowSecondaryEmail = () => {
               </span>
               {!verified && (
                 <span
-                  data-testid="unverified-text"
+                  data-testid="secondary-email-unverified-text"
                   className="uppercase block text-orange-600 font-bold text-xs"
                 >
                   unverified
@@ -230,7 +234,7 @@ export const UnitRowSecondaryEmail = () => {
                 Verification needed.
                 <button
                   className="link-blue mx-1"
-                  data-testid="resend-secondary-email-code-button"
+                  data-testid="secondary-email-resend-code-button"
                   onClick={() => {
                     setEmail(email);
                     resendEmailCode({
@@ -244,7 +248,10 @@ export const UnitRowSecondaryEmail = () => {
               </p>
             )}
           </div>
-          <div className="unit-row-actions" data-testid="unit-row-actions">
+          <div
+            className="unit-row-actions"
+            data-testid="secondary-email-unit-row-actions"
+          >
             <div className="flex items-center -mt-1">
               {verified && (
                 <button
@@ -299,7 +306,7 @@ export const UnitRowSecondaryEmail = () => {
     <SecondaryEmailUtilities>
       <div className="unit-row">
         <div className="unit-row-header">
-          <h3 data-testid="unit-row-header">Secondary email</h3>
+          <h3 data-testid="secondary-email-unit-row-header">Secondary email</h3>
         </div>
         <div className="mobileLandscape:flex-3 desktop:flex-5">
           {secondaryEmails.map((secondary, index) => (
@@ -329,7 +336,7 @@ const SecondaryEmailDefaultContent = () => (
       <a
         className="link-blue"
         href="#recovery-key"
-        data-testid="link-recovery-key"
+        data-testid="secondary-email-link-recovery-key"
       >
         recovery key
       </a>{' '}

@@ -72,20 +72,18 @@ describe('UnitRowSecondaryEmail', () => {
         </MockedCache>
       );
 
-      expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
-        'None'
-      );
-      expect(screen.getByTestId('unit-row-route')).toHaveAttribute(
-        'href',
-        '/beta/settings/emails'
-      );
+      expect(
+        screen.getByTestId('secondary-email-unit-row-header-value').textContent
+      ).toContain('None');
+      expect(
+        screen.getByTestId('secondary-email-unit-row-route')
+      ).toHaveAttribute('href', '/beta/settings/emails');
       expect(
         screen.getByTestId('secondary-email-default-content')
       ).toBeInTheDocument();
-      expect(screen.getByTestId('link-recovery-key')).toHaveAttribute(
-        'href',
-        '#recovery-key'
-      );
+      expect(
+        screen.getByTestId('secondary-email-link-recovery-key')
+      ).toHaveAttribute('href', '#recovery-key');
     });
   });
 
@@ -101,13 +99,15 @@ describe('UnitRowSecondaryEmail', () => {
         </MockedCache>
       );
 
-      expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
-        'johndope2@example.com'
-      );
       expect(
-        screen.getByTestId('resend-secondary-email-code-button')
+        screen.getByTestId('secondary-email-unit-row-header-value').textContent
+      ).toContain('johndope2@example.com');
+      expect(
+        screen.getByTestId('secondary-email-resend-code-button')
       ).toBeInTheDocument();
-      expect(screen.getByTestId('unverified-text')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('secondary-email-unverified-text')
+      ).toBeInTheDocument();
       expect(screen.getByTestId('secondary-email-delete')).toBeInTheDocument();
     });
 
@@ -123,9 +123,11 @@ describe('UnitRowSecondaryEmail', () => {
       );
 
       expect(
-        screen.queryByTestId('resend-secondary-email-code-button')
+        screen.queryByTestId('secondary-email-resend-code-button')
       ).not.toBeInTheDocument();
-      expect(screen.queryByTestId('unverified-text')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('secondary-email-unverified-text')
+      ).not.toBeInTheDocument();
       expect(
         screen.getByTestId('secondary-email-default-content')
       ).toBeInTheDocument();
@@ -154,11 +156,15 @@ describe('UnitRowSecondaryEmail', () => {
         </MockedCache>
       );
 
-      expect(screen.getByTestId('unverified-text')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('secondary-email-unverified-text')
+      ).toBeInTheDocument();
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-refresh'));
       });
-      expect(screen.queryByTestId('unverified-text')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('secondary-email-unverified-text')
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -175,9 +181,11 @@ describe('UnitRowSecondaryEmail', () => {
           <UnitRowSecondaryEmail />
         </MockedCache>
       );
-      const unitRowContents = screen.getAllByTestId('unit-row-content');
+      const unitRowContents = screen.getAllByTestId(
+        'secondary-email-unit-row-content'
+      );
       const unitRowHeaderValues = screen.getAllByTestId(
-        'unit-row-header-value'
+        'secondary-email-unit-row-header-value'
       );
       const secondaryEmails = emails.filter((email) => !email.isPrimary);
 
@@ -218,9 +226,11 @@ describe('UnitRowSecondaryEmail', () => {
         screen.getAllByTestId('secondary-email-default-content')
       ).toHaveLength(1);
       expect(
-        screen.getAllByTestId('resend-secondary-email-code-button')
+        screen.getAllByTestId('secondary-email-resend-code-button')
       ).toHaveLength(2);
-      expect(screen.getAllByTestId('unverified-text')).toHaveLength(2);
+      expect(
+        screen.getAllByTestId('secondary-email-unverified-text')
+      ).toHaveLength(2);
       expect(screen.getAllByTestId('secondary-email-delete')).toHaveLength(3);
     });
   });
@@ -245,7 +255,7 @@ describe('UnitRowSecondaryEmail', () => {
 
       await act(async () => {
         fireEvent.click(
-          screen.getByTestId('resend-secondary-email-code-button')
+          screen.getByTestId('secondary-email-resend-code-button')
         );
       });
       await wait();
@@ -270,7 +280,7 @@ describe('UnitRowSecondaryEmail', () => {
 
       await act(async () => {
         fireEvent.click(
-          screen.getByTestId('resend-secondary-email-code-button')
+          screen.getByTestId('secondary-email-resend-code-button')
         );
       });
       await wait();

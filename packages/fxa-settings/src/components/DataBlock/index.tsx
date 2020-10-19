@@ -7,10 +7,15 @@ import { copy } from '../../lib/clipboard';
 
 export type DataBlockProps = {
   value: string | string[];
+  prefixDataTestId?: string;
   onCopied?: (copiedValue: string) => void;
 };
 
-export const DataBlock = ({ value, onCopied }: DataBlockProps) => {
+export const DataBlock = ({
+  value,
+  prefixDataTestId,
+  onCopied,
+}: DataBlockProps) => {
   const valueIsArray = Array.isArray(value);
 
   async function copyToClipboard() {
@@ -21,13 +26,16 @@ export const DataBlock = ({ value, onCopied }: DataBlockProps) => {
     await copy(copyValue);
     onCopied && onCopied(copyValue);
   }
+  function formatDataTestId(id: string) {
+    return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
+  }
 
   return (
     <button
       className={`flex rounded-xl px-7 font-mono text-sm text-green-900 bg-green-800 bg-opacity-10 flex-wrap hover:bg-opacity-20 focus:bg-opacity-30 active:bg-opacity-30 ${
         valueIsArray ? 'py-4' : 'py-5'
       }`}
-      data-testid="datablock-button"
+      data-testid={formatDataTestId('datablock-button')}
       onClick={copyToClipboard}
     >
       {valueIsArray ? (
