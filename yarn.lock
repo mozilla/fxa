@@ -17390,7 +17390,7 @@ fsevents@^1.2.7:
     grunt-newer: 1.3.0
     grunt-po2json: "git://github.com/mozilla-fxa/grunt-po2json.git#2f415c8ac0435bf8942dc7131c3916ecd1684a46"
     grunt-remarkable: 1.1.0
-    grunt-sri: 0.0.5
+    grunt-sri: 0.2.0
     grunt-text-replace: 0.4.0
     grunt-todo: 0.5.0
     grunt-usemin: 3.1.1
@@ -19236,16 +19236,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt-sri@npm:0.0.5":
-  version: 0.0.5
-  resolution: "grunt-sri@npm:0.0.5"
+"grunt-sri@npm:0.2.0":
+  version: 0.2.0
+  resolution: "grunt-sri@npm:0.2.0"
   dependencies:
-    async: ^0.9.0
-    ramda: ^0.11.0
-    sri-toolbox: ^0.1.3
+    async: ^2.0.0
+    ramda: ^0.22.1
+    sri-toolbox: ^0.2.0
   peerDependencies:
     grunt: ">=0.4.0"
-  checksum: ceaac36aaacf521c3a4cda1ae598fbba164f15a71167b603d0d6b3eb6d0da48461f1e99abaa62ab186e9f61b8f93756712bb0b8a0a7c43ad9e6e37b0b1bd1228
   languageName: node
   linkType: hard
 
@@ -30061,17 +30060,16 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"ramda@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "ramda@npm:0.11.0"
-  checksum: 4b18fcd220c43d558b6a44dcc953de39322fcb23877113203141c2dc7a025f61c9cf6d5387ef0abe4945b82259878fa925ccc86f4773f6cd8b024a462e59d240
-  languageName: node
-  linkType: hard
-
 "ramda@npm:^0.21.0":
   version: 0.21.0
   resolution: "ramda@npm:0.21.0"
   checksum: 55aafeed7e42871dfac86dbfdb5b91668629b454ca50249361e75f084ca7bc9272b5734ef7c0f66cd2b41ff531f8a2c8874f8797f685d512307211829dce9834
+  languageName: node
+  linkType: hard
+
+"ramda@npm:^0.22.1":
+  version: 0.22.1
+  resolution: "ramda@npm:0.22.1"
   languageName: node
   linkType: hard
 
@@ -33518,10 +33516,9 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sri-toolbox@npm:^0.1.3":
-  version: 0.1.3
-  resolution: "sri-toolbox@npm:0.1.3"
-  checksum: 5d2d17e4027c41ba1c550f5fc2437c6ec2cf0e9d0ba9b9a9a64819c0a2e3a7e0a8785bda6f93c4782876ba407ef4b9de80775e4c97aac128a33c91d280513bfa
+"sri-toolbox@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "sri-toolbox@npm:0.2.0"
   languageName: node
   linkType: hard
 
