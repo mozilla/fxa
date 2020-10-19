@@ -10,7 +10,7 @@ __metadata:
   resolution: "123done@workspace:packages/123done"
   dependencies:
     audit-filter: 0.5.0
-    client-sessions: 0.6.x
+    client-sessions: 0.8.x
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
     express: ^4.17.1
@@ -11940,12 +11940,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"client-sessions@npm:0.6.x":
-  version: 0.6.0
-  resolution: "client-sessions@npm:0.6.0"
+"client-sessions@npm:0.8.x":
+  version: 0.8.0
+  resolution: "client-sessions@npm:0.8.0"
   dependencies:
-    cookies: 0.3.8
-  checksum: 9f51e4fa30fa08746ee15e3e53b0d14460ccc40c2e6c4f4c728ffc7daee8f7ea470c2e1d487b4640b0a68c9660254fdaf9a9a1a901c819d30d35390d5feb6f65
+    cookies: ^0.7.0
+  checksum: a6c1a90c2b3bd8baf63f16100788dfa5ea1d9ad49a1de7a660309dd39e257035a387ed3f58cc623e9e9f823e3d9a4f639b3892397f55dd4a91259efd734ff31c
   languageName: node
   linkType: hard
 
@@ -12646,10 +12646,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookies@npm:0.3.8":
-  version: 0.3.8
-  resolution: "cookies@npm:0.3.8"
-  checksum: b98a6a74eb288ae841c6815c3c1440fcfe0740555ee375c73a933c875e1c5dc265a16df7763edf862648c64f7c7200005987c580655962a432bfb02585f8b39b
+"cookies@npm:^0.7.0":
+  version: 0.7.3
+  resolution: "cookies@npm:0.7.3"
+  dependencies:
+    depd: ~1.1.2
+    keygrip: ~1.0.3
+  checksum: 6a9f1b404dd8e00a8760d36a55a055365d536f259d25c3d11c1026b56a269fbe9cf4103f54fb0eac5f69140bb00cfc5f562dfef339b2f3567695341b0e83f4e2
   languageName: node
   linkType: hard
 
@@ -16693,7 +16696,7 @@ __metadata:
   resolution: "fortress@workspace:packages/fortress"
   dependencies:
     audit-filter: 0.5.0
-    client-sessions: 0.6.x
+    client-sessions: 0.8.x
     ejs: ^3.1.2
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
@@ -23461,6 +23464,12 @@ fsevents@^1.2.7:
   version: 0.0.1
   resolution: "keep-alive-agent@npm:0.0.1"
   checksum: 9e9b68eef8d8b6049de1783779bc19f5099ca91f4ce886380c8ac389c007ae987f317edbddc866dd555231011e7ba31a917cb479785b5a2e69f7533b1025b9a7
+  languageName: node
+  linkType: hard
+
+"keygrip@npm:~1.0.3":
+  version: 1.0.3
+  resolution: "keygrip@npm:1.0.3"
   languageName: node
   linkType: hard
 
