@@ -90,6 +90,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@apidevtools/json-schema-ref-parser@npm:9.0.6":
+  version: 9.0.6
+  resolution: "@apidevtools/json-schema-ref-parser@npm:9.0.6"
+  dependencies:
+    "@jsdevtools/ono": ^7.1.3
+    call-me-maybe: ^1.0.1
+    js-yaml: ^3.13.1
+  checksum: 120138e50195106d5cd5bf4a92c628d341096af69c3742552419974d2a0a95dc7e7c35c447c5bbf6e117126471c9eba1fbc6937e111584b8077c8c20e506b0de
+  languageName: node
+  linkType: hard
+
 "@apollo/client@npm:^3.1.5, @apollo/client@npm:^3.2.2":
   version: 3.2.2
   resolution: "@apollo/client@npm:3.2.2"
@@ -3468,6 +3479,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jsdevtools/ono@npm:^7.1.3":
+  version: 7.1.3
+  resolution: "@jsdevtools/ono@npm:7.1.3"
+  checksum: 0caf54c25db1e5bc7e7f0ccc4c6ff543067fe8d165bf3a1005381273c6e6bb68d03e12fa9a8ffbe99247293fc80a578c0d1afa69161bfba86ed6ff0c19319b88
+  languageName: node
+  linkType: hard
+
 "@mrmlnc/readdir-enhanced@npm:^2.2.1":
   version: 2.2.1
   resolution: "@mrmlnc/readdir-enhanced@npm:2.2.1"
@@ -5756,13 +5774,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/is-glob@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "@types/is-glob@npm:4.0.1"
-  checksum: f91e74136f83f92f0a10bb3edf7bd8e263c78c234bbdc1c76bc514d3d00be2ec573811ebd84d080ca07397f14877b98872e2cf9e63ae4b0763f9ff72e576f415
-  languageName: node
-  linkType: hard
-
 "@types/istanbul-lib-coverage@npm:*, @types/istanbul-lib-coverage@npm:^2.0.0, @types/istanbul-lib-coverage@npm:^2.0.1, @types/istanbul-lib-coverage@npm:~2.0.1":
   version: 2.0.1
   resolution: "@types/istanbul-lib-coverage@npm:2.0.1"
@@ -6038,15 +6049,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mkdirp@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "@types/mkdirp@npm:0.5.2"
-  dependencies:
-    "@types/node": "*"
-  checksum: 3bb3f7ec84b831040b2807104cf9219e3eed61d5cb01a5dbaaeff892e4bcb9cd922a3c1642f87c11eb816ebdd995dd12c5bac33c70a6761631e330d59347e502
-  languageName: node
-  linkType: hard
-
 "@types/mocha@npm:^7, @types/mocha@npm:^7.0.2":
   version: 7.0.2
   resolution: "@types/mocha@npm:7.0.2"
@@ -6169,13 +6171,6 @@ __metadata:
   version: 2.1.1
   resolution: "@types/prettier@npm:2.1.1"
   checksum: 3671bedc845a0e61bb8eb698746e1f6d1201ac784f95c536cd653c1406a51c0e9c338ecbbc73f1b5fd5fe0b0af98edf7e85428810357d959355ab46b3a63ebe6
-  languageName: node
-  linkType: hard
-
-"@types/prettier@npm:^1.16.1":
-  version: 1.19.1
-  resolution: "@types/prettier@npm:1.19.1"
-  checksum: 394a4364ce5e3364bd230eaeed16cfa816b686bb05fc71968188f6a29b1f69abc235ccd4fd0aef4c4eec124480a6e3420962e99406e2bf2f552c9aae46073546
   languageName: node
   linkType: hard
 
@@ -11839,7 +11834,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cli-color@npm:2.0.0":
+"cli-color@npm:2.0.0, cli-color@npm:^2.0.0":
   version: 2.0.0
   resolution: "cli-color@npm:2.0.0"
   dependencies:
@@ -11850,20 +11845,6 @@ __metadata:
     memoizee: ^0.4.14
     timers-ext: ^0.1.7
   checksum: 6a8824e7f14ab1e5a1275de9b284cbb4e48bc9077742cfd3321dce37cc76bd2c0a7428d29c66098542d9c751d4b230643fca10d968db7462adac8228136508f2
-  languageName: node
-  linkType: hard
-
-"cli-color@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "cli-color@npm:1.4.0"
-  dependencies:
-    ansi-regex: ^2.1.1
-    d: 1
-    es5-ext: ^0.10.46
-    es6-iterator: ^2.0.3
-    memoizee: ^0.4.14
-    timers-ext: ^0.1.5
-  checksum: 2330d7c07afe7867d214c4b18b258a3292932f65985e75b289ce8e9d9140d26f24791a0f400fcd2559f1ff290d5de9aa70cb177ad62326d7334887efe4a44b28
   languageName: node
   linkType: hard
 
@@ -16667,13 +16648,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"format-util@npm:^1.0.3":
-  version: 1.0.5
-  resolution: "format-util@npm:1.0.5"
-  checksum: 5b5121b68a6ff08be17c8345de3d49a0574c8dd216e0f59b14a741efa28ab6b65553b079215284273f8ae2b8b81e91bbd73598842e152a5a740d6a3c32b9c423
-  languageName: node
-  linkType: hard
-
 "format@npm:^0.2.0":
   version: 0.2.2
   resolution: "format@npm:0.2.2"
@@ -17776,7 +17750,7 @@ fsevents@^1.2.7:
     convict-format-with-validator: ^6.0.0
     eslint: ^6.8.0
     fxa-shared: "workspace:*"
-    json-schema-to-typescript: ^8.2.0
+    json-schema-to-typescript: ^9.1.1
     mocha: ^7.1.2
     mozlog: ^3.0.1
     prettier: ^2.0.5
@@ -22900,7 +22874,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:3.13.1, js-yaml@npm:^3.12.1, js-yaml@npm:^3.13.1, js-yaml@npm:^3.9.0, js-yaml@npm:~3.13.1":
+"js-yaml@npm:3.13.1, js-yaml@npm:^3.13.1, js-yaml@npm:^3.9.0, js-yaml@npm:~3.13.1":
   version: 3.13.1
   resolution: "js-yaml@npm:3.13.1"
   dependencies:
@@ -23094,39 +23068,32 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"json-schema-ref-parser@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "json-schema-ref-parser@npm:6.1.0"
+"json-schema-ref-parser@npm:^9.0.1":
+  version: 9.0.6
+  resolution: "json-schema-ref-parser@npm:9.0.6"
   dependencies:
-    call-me-maybe: ^1.0.1
-    js-yaml: ^3.12.1
-    ono: ^4.0.11
-  checksum: ccc6fc80471e01c1d1112c07642fe9268746441d22a94e9370872ae01d0bd08d7752391da4665db384d0737424ee6e681f4490ff2a8654f5764521bfc1a91f6f
+    "@apidevtools/json-schema-ref-parser": 9.0.6
   languageName: node
   linkType: hard
 
-"json-schema-to-typescript@npm:^8.2.0":
-  version: 8.2.0
-  resolution: "json-schema-to-typescript@npm:8.2.0"
+"json-schema-to-typescript@npm:^9.1.1":
+  version: 9.1.1
+  resolution: "json-schema-to-typescript@npm:9.1.1"
   dependencies:
-    "@types/is-glob": ^4.0.1
-    "@types/json-schema": ^7.0.3
-    "@types/mkdirp": ^0.5.2
-    "@types/prettier": ^1.16.1
-    cli-color: ^1.4.0
-    glob: ^7.1.4
+    "@types/json-schema": ^7.0.4
+    cli-color: ^2.0.0
+    glob: ^7.1.6
     is-glob: ^4.0.1
-    json-schema-ref-parser: ^6.1.0
+    json-schema-ref-parser: ^9.0.1
     json-stringify-safe: ^5.0.1
-    lodash: ^4.17.11
-    minimist: ^1.2.0
-    mkdirp: ^0.5.1
+    lodash: ^4.17.15
+    minimist: ^1.2.5
+    mkdirp: ^1.0.4
     mz: ^2.7.0
-    prettier: ^1.19.1
+    prettier: ^2.0.5
     stdin: 0.0.1
   bin:
     json2ts: dist/src/cli.js
-  checksum: cacfa6a32e7d3a78ca231c107bf43003cb15b24403a0c999878ef4537c1b51943f9cc3f6c834b5866bbbd71c0f516f034852239e8de58079b7af7eae99e841d0
   languageName: node
   linkType: hard
 
@@ -26991,15 +26958,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"ono@npm:^4.0.11":
-  version: 4.0.11
-  resolution: "ono@npm:4.0.11"
-  dependencies:
-    format-util: ^1.0.3
-  checksum: f06545d3143bac20ff8ad9eafe43ac0aae632ab9fc23b606f5633112909eb183576d1249ee70f0308bf0279ec5173d9cee01a7224dfd64e92cdec8602e222c7b
-  languageName: node
-  linkType: hard
-
 "open@npm:^6.3.0":
   version: 6.4.0
   resolution: "open@npm:6.4.0"
@@ -29468,15 +29426,6 @@ fsevents@^1.2.7:
   version: 1.0.4
   resolution: "prepend-http@npm:1.0.4"
   checksum: f723f34a23394b568a9ff0cd502bdda244b343c03b12a259343566eab1184cf41a6c7e9975d9e6010ccb2901b7c428d296e56a67a72d0a6ecb0f13531a3fa44e
-  languageName: node
-  linkType: hard
-
-"prettier@npm:^1.19.1":
-  version: 1.19.1
-  resolution: "prettier@npm:1.19.1"
-  bin:
-    prettier: ./bin-prettier.js
-  checksum: e5fcdfe5e159ef5c5480245353cf8fb5bbd1b8afff266f31f281641825238f8a645e58472f77cd75a09ccc45d44c335466e8d901ec138c2bda05e1bd6ea1077c
   languageName: node
   linkType: hard
 
