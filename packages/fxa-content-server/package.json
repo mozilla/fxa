@@ -83,7 +83,7 @@
     "grunt-file-rev": "1.0.2",
     "grunt-po2json": "git://github.com/mozilla-fxa/grunt-po2json.git#2f415c8ac0435bf8942dc7131c3916ecd1684a46",
     "grunt-remarkable": "1.1.0",
-    "grunt-sri": "0.0.5",
+    "grunt-sri": "0.2.0",
     "grunt-text-replace": "0.4.0",
     "grunt-usemin": "3.1.1",
     "grunt-z-schema": "0.1.0",
