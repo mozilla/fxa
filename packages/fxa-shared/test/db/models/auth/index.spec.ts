@@ -98,14 +98,15 @@ describe('auth', () => {
         assert.isNotNull(testCustomer.createdAt);
         assert.equal(testCustomer.createdAt, testCustomer.updatedAt);
 
-        try {
-          await createAccountCustomer(userId, 'cus_o8ghropsigjpser');
-          assert.fail(
-            'An error should have been generated when re-using a uid'
-          );
-        } catch (err) {
-          assert.isTrue(err instanceof UniqueViolationError);
-        }
+        // Insert is only attempted when the record for the given uid does not exist.
+        const secondCustomer = await createAccountCustomer(
+          userId,
+          'cus_o8ghropsigjpser'
+        );
+        assert.equal(
+          secondCustomer.stripeCustomerId,
+          testCustomer.stripeCustomerId
+        );
       });
 
       it('Fails to create when the uid is invalid', async () => {

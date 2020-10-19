@@ -248,6 +248,30 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('createLocalCustomer', () => {
+    it('inserts a local customer record', async () => {
+      const uid = '993499bcb0cf4da2bf1b37f1a37f3b88';
+
+      // customer doesn't exist
+      const existingCustomer = await getAccountCustomerByUid(uid);
+      assert.isUndefined(existingCustomer);
+
+      await stripeHelper.createLocalCustomer(uid, newCustomer);
+
+      // customer does exist
+      const insertedCustomer = await getAccountCustomerByUid(uid);
+      assert.isObject(insertedCustomer);
+
+      // inserting again
+      await stripeHelper.createLocalCustomer(uid, {
+        ...newCustomer,
+        id: 'cus_nope',
+      });
+      const sameCustomer = await getAccountCustomerByUid(uid);
+      assert.notEqual(sameCustomer.stripeCustomerId, 'cus_nope');
+    });
+  });
+
   describe('createSetupIntent', () => {
     it('creates a setup intent', async () => {
       const expected = deepCopy(newSetupIntent);

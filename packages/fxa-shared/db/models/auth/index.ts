@@ -45,10 +45,29 @@ export async function createAccountCustomer(
   uid: string,
   stripeCustomerId: string
 ) {
-  return AccountCustomers.query().insertAndFetch({
-    uid: uid,
-    stripeCustomerId: stripeCustomerId,
-  });
+  // This has the side effect of performing the model jsonSchema validation.
+  // Doing this explicitly since we'll use knex.raw() later.
+  AccountCustomers.fromJson({ uid, stripeCustomerId });
+
+  const knex = AccountCustomers.knex();
+  const now = Date.now();
+  const uidBuffer = uuidTransformer.to(uid);
+
+  await knex(
+    knex.raw('?? (??, ??, ??, ??)', [
+      'accountCustomers',
+      'uid',
+      'stripeCustomerId',
+      'createdAt',
+      'updatedAt',
+    ])
+  ).insert(
+    knex.raw(
+      'SELECT ?, ?, ?, ? FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `accountCustomers` WHERE `uid` = ?)',
+      [uidBuffer, stripeCustomerId, now, now, uidBuffer]
+    )
+  );
+  return getAccountCustomerByUid(uid);
 }
 
 /**

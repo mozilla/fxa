@@ -1587,6 +1587,7 @@ describe('DirectStripeRoutes', () => {
         },
       };
       const handlerNames = [
+        'handleCustomerCreatedEvent',
         'handleSubscriptionCreatedEvent',
         'handleSubscriptionUpdatedEvent',
         'handleSubscriptionDeletedEvent',
@@ -1670,6 +1671,13 @@ describe('DirectStripeRoutes', () => {
         );
       });
 
+      describe('when the event.type is customer.created', () => {
+        itOnlyCallsThisHandler('handleCustomerCreatedEvent', {
+          data: { object: customerFixture },
+          type: 'customer.created',
+        });
+      });
+
       describe('when the event.type is customer.subscription.created', () => {
         itOnlyCallsThisHandler(
           'handleSubscriptionCreatedEvent',
@@ -1735,6 +1743,28 @@ describe('DirectStripeRoutes', () => {
         { id: event.data.object.id, productId: event.data.object.plan.product },
         isActive
       );
+
+    describe('handleCustomerCreatedEvent', () => {
+      it('creates a local db record with the account uid', async () => {
+        await directStripeRoutesInstance.handleCustomerCreatedEvent(
+          {},
+          {
+            data: { object: customerFixture },
+            type: 'customer.created',
+          }
+        );
+
+        assert.calledOnceWithExactly(
+          directStripeRoutesInstance.db.accountRecord,
+          customerFixture.email
+        );
+        assert.calledOnceWithExactly(
+          directStripeRoutesInstance.stripeHelper.createLocalCustomer,
+          UID,
+          customerFixture
+        );
+      });
+    });
 
     describe('handleSubscriptionUpdatedEvent', () => {
       let sendSubscriptionUpdatedEmailStub;
