@@ -95,7 +95,7 @@ export const UnitRowTwoStepAuth = () => {
       headerContent={
         <ButtonIconReload
           title="Refresh two-step authentication"
-          classNames="mobileLandscape:hidden"
+          classNames="ltr:ml-1 rtl:mr-1 mobileLandscape:hidden"
           disabled={accountLoading}
           onClick={getAccount}
         />
@@ -103,7 +103,7 @@ export const UnitRowTwoStepAuth = () => {
       actionContent={
         <ButtonIconReload
           title="Refresh two-step authentication"
-          classNames="hidden mobileLandscape:inline-block"
+          classNames="hidden ltr:ml-1 rtl:mr-1 mobileLandscape:inline-block"
           testId="two-step-refresh"
           disabled={accountLoading}
           onClick={getAccount}

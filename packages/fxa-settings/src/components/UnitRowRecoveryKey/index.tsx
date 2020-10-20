@@ -71,7 +71,7 @@ export const UnitRowRecoveryKey = () => {
       headerContent={
         <ButtonIconReload
           title="Refresh recovery key"
-          classNames="mobileLandscape:hidden"
+          classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
           disabled={accountLoading}
           onClick={getAccount}
         />
@@ -79,7 +79,7 @@ export const UnitRowRecoveryKey = () => {
       actionContent={
         <ButtonIconReload
           title="Refresh recovery key"
-          classNames="hidden mobileLandscape:inline-block"
+          classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
           testId="recovery-key-refresh"
           disabled={accountLoading}
           onClick={getAccount}

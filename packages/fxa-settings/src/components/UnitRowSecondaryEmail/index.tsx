@@ -204,7 +204,7 @@ export const UnitRowSecondaryEmail = () => {
                 <span>
                   <ButtonIconTrash
                     title="Remove email"
-                    classNames="mobileLandscape:hidden"
+                    classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
                     disabled={deleteEmailLoading}
                     onClick={() => {
                       queueEmailAction(deleteEmail);
@@ -213,7 +213,7 @@ export const UnitRowSecondaryEmail = () => {
                   {!verified && (
                     <ButtonIconReload
                       title="Refresh email"
-                      classNames="mobileLandscape:hidden"
+                      classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
                       disabled={accountLoading}
                       onClick={getAccount}
                     />
@@ -267,7 +267,7 @@ export const UnitRowSecondaryEmail = () => {
               )}
               <ButtonIconTrash
                 title="Remove email"
-                classNames="hidden mobileLandscape:inline-block"
+                classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
                 disabled={deleteEmailLoading}
                 testId="secondary-email-delete"
                 onClick={() => {
@@ -277,7 +277,7 @@ export const UnitRowSecondaryEmail = () => {
               {!verified && (
                 <ButtonIconReload
                   title="Refresh email"
-                  classNames="hidden mobileLandscape:inline-block"
+                  classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
                   testId="secondary-email-refresh"
                   disabled={accountLoading}
                   onClick={getAccount}
