@@ -3580,21 +3580,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/graphql@npm:^7.6.0":
-  version: 7.6.0
-  resolution: "@nestjs/graphql@npm:7.6.0"
+"@nestjs/graphql@npm:^7.7.0":
+  version: 7.7.0
+  resolution: "@nestjs/graphql@npm:7.7.0"
   dependencies:
     "@apollo/gateway": ^0.17.0
     "@graphql-tools/merge": 6.0.13
-    "@nestjs/mapped-types": 0.0.5
+    "@nestjs/mapped-types": 0.1.0
     apollo-server-core: 2.16.1
-    chokidar: 3.4.1
+    chokidar: 3.4.2
     fast-glob: 3.2.4
     iterall: 1.2.2
-    lodash: 4.17.19
+    lodash: 4.17.20
     normalize-path: 3.0.0
-    ts-morph: ^7.0.0
-    tslib: 2.0.0
+    ts-morph: ^8.0.0
+    tslib: 2.0.1
     uuid: 8.3.0
   peerDependencies:
     "@nestjs/common": ^7.0.0
@@ -3606,7 +3606,7 @@ __metadata:
       optional: true
     ts-morph:
       optional: true
-  checksum: 846413af5d2d91efafa271f68aec1a3c3bf354a94436c0d4726909f8937dff52c1cbbe7b72d25bcb06e5d13d7d34b684538c6d90e08ef00fab23de0885fb5dfd
+  checksum: 7ab18ca51f217e782d8a78d0728e9e3473e98e36bd406d727bf537c9cb95d51477640c592266c2f19d9ef8156f493ce24aae0fe4b6141fa817d7650fcd7fa90c
   languageName: node
   linkType: hard
 
@@ -5180,17 +5180,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-morph/common@npm:~0.5.2":
-  version: 0.5.2
-  resolution: "@ts-morph/common@npm:0.5.2"
+"@ts-morph/common@npm:~0.6.0":
+  version: 0.6.0
+  resolution: "@ts-morph/common@npm:0.6.0"
   dependencies:
     "@dsherret/to-absolute-glob": ^2.0.2
-    fast-glob: ^3.2.2
-    fs-extra: ^9.0.0
+    fast-glob: ^3.2.4
+    fs-extra: ^9.0.1
     is-negated-glob: ^1.0.0
     multimatch: ^4.0.0
-    typescript: ~3.9.7
-  checksum: c7bc650a2fd602efa611ab91714a3417eb65b77cdfcc624a730f14404930d2c4d7b21588bf6b28830e5f5e7c0e8deeca9d85639ed5e9fff1bd1e294390472f0e
+    typescript: ~4.0.2
+  checksum: eff9210f42c3fe679fd8b2adcccda395e175bf6d9db63115dc79057d595fb6707d08f85878d1b8a8f5b55bc25f720ed7c007faa84c9be454a655e3621e7618cd
   languageName: node
   linkType: hard
 
@@ -11649,25 +11649,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:3.4.1":
-  version: 3.4.1
-  resolution: "chokidar@npm:3.4.1"
-  dependencies:
-    anymatch: ~3.1.1
-    braces: ~3.0.2
-    fsevents: ~2.1.2
-    glob-parent: ~5.1.0
-    is-binary-path: ~2.1.0
-    is-glob: ~4.0.1
-    normalize-path: ~3.0.0
-    readdirp: ~3.4.0
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  checksum: fdbeae89bdd7832acb0b7a5192b7d6ec1a81aff915609b0b6ff110e58fa211d793fed16ce41ccd9d4c6c7786db1b97cd88984bfe2b87303f04aa6bf0f31feaaa
-  languageName: node
-  linkType: hard
-
 "chokidar@npm:3.4.2, chokidar@npm:>=2.0.0 <4.0.0, chokidar@npm:^3.3.0, chokidar@npm:^3.4.0":
   version: 3.4.2
   resolution: "chokidar@npm:3.4.2"
@@ -15845,7 +15826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:3.2.4, fast-glob@npm:^3.1.1, fast-glob@npm:^3.2.2":
+"fast-glob@npm:3.2.4, fast-glob@npm:^3.1.1, fast-glob@npm:^3.2.4":
   version: 3.2.4
   resolution: "fast-glob@npm:3.2.4"
   dependencies:
@@ -16777,7 +16758,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:9.0.1, fs-extra@npm:^9.0.0":
+"fs-extra@npm:9.0.1, fs-extra@npm:^9.0.0, fs-extra@npm:^9.0.1":
   version: 9.0.1
   resolution: "fs-extra@npm:9.0.1"
   dependencies:
@@ -17072,7 +17053,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.4.4
     "@nestjs/config": ^0.5.0
     "@nestjs/core": ^7.4.4
-    "@nestjs/graphql": ^7.6.0
+    "@nestjs/graphql": ^7.7.0
     "@nestjs/mapped-types": ^0.1.0
     "@nestjs/platform-express": ^7.4.4
     "@sentry/integrations": ^5.23.0
@@ -17571,7 +17552,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.4.4
     "@nestjs/config": ^0.5.0
     "@nestjs/core": ^7.4.4
-    "@nestjs/graphql": ^7.6.0
+    "@nestjs/graphql": ^7.7.0
     "@nestjs/mapped-types": ^0.1.0
     "@nestjs/passport": ^7.1.0
     "@nestjs/platform-express": ^7.4.4
@@ -18074,7 +18055,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.4.4
     "@nestjs/config": ^0.5.0
     "@nestjs/core": ^7.4.4
-    "@nestjs/graphql": ^7.6.0
+    "@nestjs/graphql": ^7.7.0
     "@nestjs/mapped-types": ^0.1.0
     "@nestjs/testing": ^7.4.4
     "@sentry/browser": ^5.17.0
@@ -24368,13 +24349,6 @@ fsevents@^1.2.7:
   version: 4.7.0
   resolution: "lodash.xorby@npm:4.7.0"
   checksum: 7d7deddf4d455595d4728ef72ee768fdacffe169ac2624b02d536912f7e9659c26b9560edc09c792ae06fefdc75bb8b54efb5e68e9927b51c6a66e001c4b8661
-  languageName: node
-  linkType: hard
-
-"lodash@npm:4.17.19":
-  version: 4.17.19
-  resolution: "lodash@npm:4.17.19"
-  checksum: ff2b7a95f0129dba9101e346d44e0eda0f159d76bbbf23721eec1969b87a32bde3de0cfef0733218c64620e9be08040a973278d46a686540233b356115f3527c
   languageName: node
   linkType: hard
 
@@ -35433,14 +35407,13 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-morph@npm:^7.0.0":
-  version: 7.3.0
-  resolution: "ts-morph@npm:7.3.0"
+"ts-morph@npm:^8.0.0":
+  version: 8.1.2
+  resolution: "ts-morph@npm:8.1.2"
   dependencies:
     "@dsherret/to-absolute-glob": ^2.0.2
-    "@ts-morph/common": ~0.5.2
+    "@ts-morph/common": ~0.6.0
     code-block-writer: ^10.1.0
-  checksum: a66e2d6db9915a3e6f7976ade9f6a977b031b1aa8c80d545422a774ce5dfbfa3850458e3f8d014f5ac160cd9ae613e48a3946c20f79b1f6a24250c918b85aeb7
   languageName: node
   linkType: hard
 
@@ -35515,13 +35488,6 @@ resolve@~1.11.1:
   version: 1.9.3
   resolution: "tslib@npm:1.9.3"
   checksum: 7a776542776e0a05508bc96d27bb3e301b6cfce6308cfdcf73b6decebd3c7da3dd2ebbff8cc6fe2a13a31013a9bede5159d637c00d44f34f7f7420ae986a460e
-  languageName: node
-  linkType: hard
-
-"tslib@npm:2.0.0":
-  version: 2.0.0
-  resolution: "tslib@npm:2.0.0"
-  checksum: a7369a224f12e223fb42f2a720389601a24a1e1c96c55bf0d8d4b60c131e574c175ae23578b8d1bd3f4ec790c7e0a82b43733f022f866d48a23aeadd3910755d
   languageName: node
   linkType: hard
 
@@ -35736,7 +35702,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"typescript@3.9.7, typescript@^3.6.4, typescript@~3.9.7":
+"typescript@3.9.7, typescript@^3.6.4":
   version: 3.9.7
   resolution: "typescript@npm:3.9.7"
   bin:
@@ -35746,13 +35712,31 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@3.9.7#builtin<compat/typescript>, typescript@patch:typescript@^3.6.4#builtin<compat/typescript>, typescript@patch:typescript@~3.9.7#builtin<compat/typescript>":
+"typescript@patch:typescript@3.9.7#builtin<compat/typescript>, typescript@patch:typescript@^3.6.4#builtin<compat/typescript>":
   version: 3.9.7
   resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=5bf698"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: f0d3d9c987860c7c458229ab6dd7e3d322405db36b70abccba610b5efd9f9451e4e67a3fc7983c0d3741033c1f1a8d7aa859a1510caa8f20fad762fc39648bfa
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@~4.0.2#builtin<compat/typescript>":
+  version: 4.0.3
+  resolution: "typescript@patch:typescript@npm%3A4.0.3#builtin<compat/typescript>::version=4.0.3&hash=5bf698"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  languageName: node
+  linkType: hard
+
+typescript@~4.0.2:
+  version: 4.0.3
+  resolution: "typescript@npm:4.0.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
   languageName: node
   linkType: hard
 
