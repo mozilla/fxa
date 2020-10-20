@@ -69,7 +69,7 @@
     "@types/jest": "^24.9.1",
     "@types/lodash.groupby": "^4",
     "@types/node": "^12.12.35",
-    "@types/react": "^16.9.34",
+    "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.6",
     "@types/react-test-renderer": "^16",
     "@types/testing-library__react-hooks": "^3",
