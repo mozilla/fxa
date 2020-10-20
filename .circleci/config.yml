@@ -255,6 +255,8 @@ jobs:
       - store_artifacts:
           path: ~/screenshots
           destination: screenshots
+      - store_test_results:
+          path: artifacts/tests
 
   build-and-deploy-storybooks:
     resource_class: small
