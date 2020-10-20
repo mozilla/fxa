@@ -63,7 +63,7 @@
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "sass": "1.26.10",
-    "sass-loader": "^8.0.2",
+    "sass-loader": "^10.0.3",
     "tailwindcss": "^1.9.1",
     "ts-jest": "^26.3.0",
     "typescript": "3.9.7",
