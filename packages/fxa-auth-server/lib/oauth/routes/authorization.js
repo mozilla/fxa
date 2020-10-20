@@ -54,7 +54,7 @@ module.exports = {
       response_type: Joi.string()
         .valid(RESPONSE_TYPE_CODE, RESPONSE_TYPE_TOKEN)
         .default(RESPONSE_TYPE_CODE),
-      state: Joi.string().max(256).when('response_type', {
+      state: Joi.string().max(512).when('response_type', {
         is: RESPONSE_TYPE_TOKEN,
         then: Joi.optional(),
         otherwise: Joi.required(),
