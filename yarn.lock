@@ -6323,13 +6323,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:16.9.35, @types/react@npm:^16.8.0, @types/react@npm:^16.9.11, @types/react@npm:^16.9.16, @types/react@npm:^16.9.34":
+"@types/react@npm:*, @types/react@npm:16.9.35, @types/react@npm:^16.9.16":
   version: 16.9.35
   resolution: "@types/react@npm:16.9.35"
   dependencies:
     "@types/prop-types": "*"
     csstype: ^2.2.0
   checksum: 17c41e59d76634d3c9e21d30bda9afe311e99d2dd37274c8763a9ae3e20d775ee0220d456f11cc0de2ec337306ae7d9f329177b40c2ef299b35881620e7703c2
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^16.9.53":
+  version: 16.9.53
+  resolution: "@types/react@npm:16.9.53"
+  dependencies:
+    "@types/prop-types": "*"
+    csstype: ^3.0.2
+  checksum: 01c646c8f08306660441a14495e926c0362114da7813c3bc3d4d58b47590ee92274bbbff18f3fafd465a09369daa25982d68ba6628f1080120b62d40ce75ca40
   languageName: node
   linkType: hard
 
@@ -13364,6 +13374,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"csstype@npm:^3.0.2":
+  version: 3.0.3
+  resolution: "csstype@npm:3.0.3"
+  checksum: ec722366b468229bcc6c7fa3f07eb795efddfc4fdcfeb81728046f8bd20e21584735e89973ec18e8b0d4d3c8dddb288872440ee034836c159d664798da4cf832
+  languageName: node
+  linkType: hard
+
 "csv-generate@npm:^3.2.4":
   version: 3.2.4
   resolution: "csv-generate@npm:3.2.4"
@@ -17019,7 +17036,7 @@ fsevents@^1.2.7:
     "@types/jest": ^24.9.1
     "@types/jsdom": ^12.2.4
     "@types/on-headers": ^1.0.0
-    "@types/react": ^16.8.0
+    "@types/react": ^16.9.53
     "@types/react-router-dom": ^5.1.5
     "@types/serve-static": 1.13.5
     "@types/supertest": ^2.0.8
@@ -17821,7 +17838,7 @@ fsevents@^1.2.7:
     "@types/jsdom": ^12.2.4
     "@types/nock": ^11.1.0
     "@types/node": ^12.12.7
-    "@types/react": ^16.9.11
+    "@types/react": ^16.9.53
     "@types/react-document-title": ^2.0.3
     "@types/react-dom": ^16.9.4
     "@types/react-redux": ^7.1.5
@@ -17974,7 +17991,7 @@ fsevents@^1.2.7:
     "@types/jest": ^24.9.1
     "@types/node": ^13.13.0
     "@types/prettier": 2.1.1
-    "@types/react": ^16.9.34
+    "@types/react": ^16.9.53
     "@types/react-dom": ^16.9.6
     "@types/react-transition-group": ^4.2.4
     "@types/rimraf": 3.0.0
@@ -18030,7 +18047,7 @@ fsevents@^1.2.7:
     "@types/jest": ^24.9.1
     "@types/lodash.groupby": ^4
     "@types/node": ^12.12.35
-    "@types/react": ^16.9.34
+    "@types/react": ^16.9.53
     "@types/react-dom": ^16.9.6
     "@types/react-test-renderer": ^16
     "@types/testing-library__react-hooks": ^3
