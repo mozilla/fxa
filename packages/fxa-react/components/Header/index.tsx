@@ -18,8 +18,8 @@ export const Header = (props: HeaderProps) => {
       className={props.className || 'sticky top-0 bg-grey-10 z-10'}
     >
       <div className="px-6 tablet:px-8 py-4 flex justify-between">
-        <div className="flex">{props.left}</div>
-        <div className="flex">{props.right}</div>
+        <div className="flex items-center">{props.left}</div>
+        <div className="flex items-center">{props.right}</div>
       </div>
     </header>
   );

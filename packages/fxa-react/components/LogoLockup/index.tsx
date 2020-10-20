@@ -13,7 +13,7 @@ export const LogoLockup = ({ children }: LogoLockupProps) => (
   <>
     <Logo
       data-testid="logo"
-      className="h-auto w-10 ltr:mr-4 rtl:ml-4"
+      className="h-10 w-10 ltr:mr-4 rtl:ml-4"
       role="img"
       aria-label="Firefox logo"
     />
