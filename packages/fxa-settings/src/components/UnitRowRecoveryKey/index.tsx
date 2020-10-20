@@ -61,6 +61,7 @@ export const UnitRowRecoveryKey = () => {
     <UnitRow
       header="Recovery key"
       headerId="recovery-key"
+      prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
       headerValue={recoveryKey ? 'Enabled' : 'Not Set'}
       route={recoveryKey ? undefined : '/beta/settings/account_recovery'}

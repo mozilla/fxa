@@ -14,6 +14,7 @@ type TooltipProps = {
   anchorLeft?: boolean;
   className?: string;
   position?: PositionType;
+  prefixDataTestId?: string;
 };
 
 export const Tooltip = ({
@@ -22,6 +23,7 @@ export const Tooltip = ({
   type = 'default',
   anchorLeft = false,
   position = 'top',
+  prefixDataTestId,
 }: TooltipProps) => {
   const bgColor = type === 'error' ? 'red-600' : 'grey-500';
   // caret position and the positioning rule for tooltip are actually the opposite
@@ -31,9 +33,13 @@ export const Tooltip = ({
     bottom: 'top',
   }[position];
 
+  function formatDataTestId(id: string) {
+    return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
+  }
+
   return (
     <div
-      data-testid="tooltip"
+      data-testid={formatDataTestId('tooltip')}
       title={message}
       className={classNames(
         `z-50 absolute py-2 px-6 text-center text-white

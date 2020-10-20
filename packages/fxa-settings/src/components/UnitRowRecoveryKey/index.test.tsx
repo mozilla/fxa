@@ -18,12 +18,12 @@ describe('UnitRowRecoveryKey', () => {
         <UnitRowRecoveryKey />
       </MockedCache>
     );
-    expect(screen.getByTestId('unit-row-header').textContent).toContain(
-      'Recovery key'
-    );
-    expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
-      'Enabled'
-    );
+    expect(
+      screen.getByTestId('recovery-key-unit-row-header').textContent
+    ).toContain('Recovery key');
+    expect(
+      screen.getByTestId('recovery-key-unit-row-header-value').textContent
+    ).toContain('Enabled');
     expect(screen.getByTestId('unit-row-modal').textContent).toContain(
       'Remove'
     );
@@ -35,15 +35,15 @@ describe('UnitRowRecoveryKey', () => {
         <UnitRowRecoveryKey />
       </MockedCache>
     );
-    expect(screen.getByTestId('unit-row-header').textContent).toContain(
-      'Recovery key'
-    );
-    expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
-      'Not Set'
-    );
-    expect(screen.getByTestId('unit-row-route').textContent).toContain(
-      'Create'
-    );
+    expect(
+      screen.getByTestId('recovery-key-unit-row-header').textContent
+    ).toContain('Recovery key');
+    expect(
+      screen.getByTestId('recovery-key-unit-row-header-value').textContent
+    ).toContain('Not Set');
+    expect(
+      screen.getByTestId('recovery-key-unit-row-route').textContent
+    ).toContain('Create');
   });
 
   it('can be refreshed', async () => {
@@ -55,14 +55,14 @@ describe('UnitRowRecoveryKey', () => {
         <UnitRowRecoveryKey />
       </MockedCache>
     );
-    expect(screen.getByTestId('unit-row-header-value')).toHaveTextContent(
-      'Not Set'
-    );
+    expect(
+      screen.getByTestId('recovery-key-unit-row-header-value')
+    ).toHaveTextContent('Not Set');
     await act(async () => {
       fireEvent.click(screen.getByTestId('recovery-key-refresh'));
     });
-    expect(screen.getByTestId('unit-row-header-value')).toHaveTextContent(
-      'Enabled'
-    );
+    expect(
+      screen.getByTestId('recovery-key-unit-row-header-value')
+    ).toHaveTextContent('Enabled');
   });
 });

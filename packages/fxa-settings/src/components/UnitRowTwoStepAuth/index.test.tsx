@@ -37,12 +37,12 @@ describe('UnitRowTwoStepAuth', () => {
         <UnitRowTwoStepAuth />
       </MockedCache>
     );
-    expect(screen.getByTestId('unit-row-header').textContent).toContain(
-      'Two-step authentication'
-    );
-    expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
-      'Enabled'
-    );
+    expect(
+      screen.getByTestId('two-step-unit-row-header').textContent
+    ).toContain('Two-step authentication');
+    expect(
+      screen.getByTestId('two-step-unit-row-header-value').textContent
+    ).toContain('Enabled');
     const disableButton = await getModalButtonByIndex(1);
     expect(disableButton.textContent).toContain('Disable');
   });
@@ -70,13 +70,15 @@ describe('UnitRowTwoStepAuth', () => {
         <UnitRowTwoStepAuth />
       </MockedCache>
     );
-    expect(screen.getByTestId('unit-row-header').textContent).toContain(
-      'Two-step authentication'
+    expect(
+      screen.getByTestId('two-step-unit-row-header').textContent
+    ).toContain('Two-step authentication');
+    expect(
+      screen.getByTestId('two-step-unit-row-header-value').textContent
+    ).toContain('Not Set');
+    expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
+      'Add'
     );
-    expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
-      'Not Set'
-    );
-    expect(screen.getByTestId('unit-row-route').textContent).toContain('Add');
   });
 
   it('can be refreshed', async () => {
@@ -95,15 +97,15 @@ describe('UnitRowTwoStepAuth', () => {
         <UnitRowTwoStepAuth />
       </MockedCache>
     );
-    expect(screen.getByTestId('unit-row-header-value')).toHaveTextContent(
-      'Not Set'
-    );
+    expect(
+      screen.getByTestId('two-step-unit-row-header-value')
+    ).toHaveTextContent('Not Set');
     await act(async () => {
       fireEvent.click(screen.getByTestId('two-step-refresh'));
     });
-    expect(screen.getByTestId('unit-row-header-value')).toHaveTextContent(
-      'Enabled'
-    );
+    expect(
+      screen.getByTestId('two-step-unit-row-header-value')
+    ).toHaveTextContent('Enabled');
   });
 
   it('renders view as not enabled after disabling TOTP', async () => {
