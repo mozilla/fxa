@@ -23,7 +23,7 @@ module.exports = (config) => {
           })
           .optional(),
         scope: validators.scope.optional(),
-        state: Joi.string().max(256).required(),
+        state: Joi.string().max(512).required(),
         access_type: Joi.string().valid('offline', 'online').default('online'),
         code_challenge_method: validators.pkceCodeChallengeMethod.optional(),
         code_challenge: validators.pkceCodeChallenge.optional(),
@@ -33,7 +33,7 @@ module.exports = (config) => {
       response: Joi.object({
         redirect: Joi.string(),
         code: validators.authorizationCode,
-        state: Joi.string().max(256),
+        state: Joi.string().max(512),
       }),
     },
   };
