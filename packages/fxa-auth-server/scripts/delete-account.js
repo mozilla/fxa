@@ -69,6 +69,9 @@ DB.connect(config[config.db.backend]).then((db) => {
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
+    // Establish database connection and bind instance to Model using Knex
+    const { setupAuthDatabase } = require('fxa-shared/db');
+    setupAuthDatabase(config.database.mysql.auth);
     const createStripeHelper = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
   }
@@ -137,7 +140,8 @@ DB.connect(config[config.db.backend]).then((db) => {
       },
       (err) => {
         retval = 1;
-        console.log('ERROR:', err.message || err);
+        // we like stack traces
+        console.error(err);
       }
     )
     .finally(() => {
