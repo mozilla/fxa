@@ -718,6 +718,9 @@ class DirectStripeRoutes {
       );
 
       switch (event.type) {
+        case 'customer.created':
+          await this.handleCustomerCreatedEvent(request, event);
+          break;
         case 'customer.subscription.created':
           await this.handleSubscriptionCreatedEvent(request, event);
           break;
@@ -757,6 +760,15 @@ class DirectStripeRoutes {
       this.log.error('subscriptions.handleWebhookEvent.failure', { error });
     }
     return {};
+  }
+
+  /**
+   * Handle `customer.created` Stripe webhook events.
+   */
+  async handleCustomerCreatedEvent(_: AuthRequest, event: Stripe.Event) {
+    const customer = event.data.object as Stripe.Customer;
+    const account = await this.db.accountRecord(customer.email);
+    await this.stripeHelper.createLocalCustomer(account.uid, customer);
   }
 
   /**

@@ -202,6 +202,13 @@ export class StripeHelper {
   }
 
   /**
+   * Insert a local db record for a customer that already exist on Stripe.
+   */
+  async createLocalCustomer(uid: string, stripeCustomer: Stripe.Customer) {
+    await createAccountCustomer(uid, stripeCustomer.id);
+  }
+
+  /**
    * Update an existing customer to use a new payment method id.
    */
   async retryInvoiceWithPaymentId(
@@ -414,7 +421,19 @@ export class StripeHelper {
       return;
     }
 
-    if (customer.metadata.userid !== uid) {
+    // Since the uid is just metadata and it isn't required when creating a new
+    // customer _on Stripe dashboard_, we have an edge case where the customer
+    // is created on Stripe and locally via the `customer.created` event, but
+    // the uid metadata is still missing.  Throwing an error here causes a
+    // profile fetch to fail, thus would block the user completely.
+    //
+    // Customers created through our regular flow will always have their uid in
+    // the metadata.
+    //
+    // So, we'll only throw an error if the uid metadata is found and it does
+    // not match.
+
+    if (customer.metadata.userid && customer.metadata.userid !== uid) {
       // Duplicate email with non-match uid
       const err = new Error(
         `Stripe Customer: ${customer.id} has mismatched uid in metadata.`
