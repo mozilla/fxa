@@ -99,7 +99,7 @@ export const DropDownAvatarMenu = () => {
                   <button
                     className="pl-3 group"
                     onClick={signOut}
-                    data-testid="sign-out"
+                    data-testid="avatar-menu-sign-out"
                   >
                     <SignOut
                       height="18"
