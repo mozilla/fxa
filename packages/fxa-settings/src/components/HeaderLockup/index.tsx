@@ -23,11 +23,12 @@ export const HeaderLockup = () => {
         aria-label={navRevealedState ? 'Close menu' : 'Site navigation menu'}
         aria-haspopup={true}
         aria-expanded={navRevealedState}
+        onClick={() => setNavState(!navRevealedState)}
       >
         {navRevealedState ? (
-          <Close onClick={() => setNavState(!navRevealedState)} />
+          <Close />
         ) : (
-          <Menu onClick={() => setNavState(!navRevealedState)} />
+          <Menu />
         )}
         {navRevealedState && <Nav />}
       </button>
