@@ -8687,10 +8687,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async-wait-until@npm:^1.2.4":
-  version: 1.2.4
-  resolution: "async-wait-until@npm:1.2.4"
-  checksum: 08305bb9a24fef599867561410accae595c54103865343ca3a6ebfb9ae9a74f7c3db8e4664430c6f4f261a6ac218994b0fd1e97336ad0744952bd9d811cb2d29
+"async-wait-until@npm:^1.2.6":
+  version: 1.2.6
+  resolution: "async-wait-until@npm:1.2.6"
+  checksum: dcba651859a1a758d1cbed479ca04fe99fdcdfa721ef910b0a549d68e59706965ef501ea949e6a111eb395744d25e8bc95200077daefe6355c5d2fa2c6aab369
   languageName: node
   linkType: hard
 
@@ -17836,7 +17836,7 @@ fsevents@^1.2.7:
     "@types/webpack": 4.41.16
     "@typescript-eslint/eslint-plugin": 2.33.0
     "@typescript-eslint/parser": 2.33.0
-    async-wait-until: ^1.2.4
+    async-wait-until: ^1.2.6
     audit-filter: ^0.5.0
     babel-eslint: ^10.1.0
     babel-loader: ^8.0.6
