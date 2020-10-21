@@ -97,7 +97,7 @@ export const Checkbox = ({
       {label && (
         <span
           data-testid={formatDataTestId('checkbox-label')}
-          className="text-sm ml-3 font-body"
+          className="leading-tight ltr:ml-2 rtl:mr-2 font-body"
         >
           {label}
         </span>
