@@ -62,7 +62,7 @@
     "prettier": "^2.0.5",
     "sinon": "^9.0.3",
     "ts-node": "^8.10.2",
-    "ts-sinon": "^1.2.0",
+    "ts-sinon": "^2.0.1",
     "typescript": "3.9.7"
   }
 }
