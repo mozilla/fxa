@@ -16317,6 +16317,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"findup-sync@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "findup-sync@npm:2.0.0"
+  dependencies:
+    detect-file: ^1.0.0
+    is-glob: ^3.1.0
+    micromatch: ^3.0.4
+    resolve-dir: ^1.0.1
+  checksum: 34497dd1f567e47124ddf5f7eba98f8cfaa5dd34f7253cb1d972d2205926dd8cbf385b57957acd72e61c2760dbd2e69a330a454449a85dfc5d1d0d7ebfbce9af
+  languageName: node
+  linkType: hard
+
 "findup-sync@npm:^3.0.0":
   version: 3.0.0
   resolution: "findup-sync@npm:3.0.0"
@@ -17231,7 +17243,7 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     google-libphonenumber: ^3.2.13
     grunt: ^1.1.0
-    grunt-cli: ~1.2.0
+    grunt-cli: ~1.3.2
     grunt-contrib-copy: 1.0.0
     grunt-copyright: 0.3.0
     grunt-eslint: ^22.0.0
@@ -17504,7 +17516,7 @@ fsevents@^1.2.7:
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     grunt: ^1.1.0
-    grunt-cli: ~1.2.0
+    grunt-cli: ~1.3.2
     grunt-copyright: 0.3.0
     grunt-eslint: ^22.0.0
     ip: ^1.1.5
@@ -19050,6 +19062,21 @@ fsevents@^1.2.7:
   bin:
     grunt: bin/grunt
   checksum: b886ffd62c2926ac2536e2d9de9fa0c3bf932c8008bbc20a4b9ebd26e41992c8b6dd0c3bf2cddbf7f486f3cc7de0e04f5e92f01f8a58ba32c7cebe7de0bf1d34
+  languageName: node
+  linkType: hard
+
+"grunt-cli@npm:~1.3.2":
+  version: 1.3.2
+  resolution: "grunt-cli@npm:1.3.2"
+  dependencies:
+    grunt-known-options: ~1.1.0
+    interpret: ~1.1.0
+    liftoff: ~2.5.0
+    nopt: ~4.0.1
+    v8flags: ~3.1.1
+  bin:
+    grunt: bin/grunt
+  checksum: 46df0897ed36e81468842f4ea326e06f535c1a338a3c025d1765e771104a9d6bef56098d08bb8a992caa9ca2c7c09ac9809d52f720d1506e6b0ac5f5610bfe02
   languageName: node
   linkType: hard
 
@@ -20770,6 +20797,12 @@ fsevents@^1.2.7:
   version: 2.2.0
   resolution: "interpret@npm:2.2.0"
   checksum: c89b6aa67f6957ab57e3f12c406043ea6a8a00bfd4b36bdb914080a973574bee40e25afc0b162bcab9793e39744c90cc03e23150a79ad6a4b9ea31291a23ced4
+  languageName: node
+  linkType: hard
+
+"interpret@npm:~1.1.0":
+  version: 1.1.0
+  resolution: "interpret@npm:1.1.0"
   languageName: node
   linkType: hard
 
@@ -23786,6 +23819,21 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"liftoff@npm:~2.5.0":
+  version: 2.5.0
+  resolution: "liftoff@npm:2.5.0"
+  dependencies:
+    extend: ^3.0.0
+    findup-sync: ^2.0.0
+    fined: ^1.0.1
+    flagged-respawn: ^1.0.0
+    is-plain-object: ^2.0.4
+    object.map: ^1.0.0
+    rechoir: ^0.6.2
+    resolve: ^1.1.7
+  languageName: node
+  linkType: hard
+
 "limiter@npm:^1.1.5":
   version: 1.1.5
   resolution: "limiter@npm:1.1.5"
@@ -26467,7 +26515,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"nopt@npm:^4.0.1":
+"nopt@npm:^4.0.1, nopt@npm:~4.0.1":
   version: 4.0.3
   resolution: "nopt@npm:4.0.3"
   dependencies:
@@ -36535,6 +36583,14 @@ typescript@~4.0.2:
   dependencies:
     homedir-polyfill: ^1.0.1
   checksum: d68937c42667f91cef97886fab0268d06d37c0de1659f9b3ad57a75aaaed1c21342659bfc80f4558fec21126ef25e486e7717017738b02be4840f465efd6379a
+  languageName: node
+  linkType: hard
+
+"v8flags@npm:~3.1.1":
+  version: 3.1.3
+  resolution: "v8flags@npm:3.1.3"
+  dependencies:
+    homedir-polyfill: ^1.0.1
   languageName: node
   linkType: hard
 
