@@ -20803,6 +20803,7 @@ fsevents@^1.2.7:
 "interpret@npm:~1.1.0":
   version: 1.1.0
   resolution: "interpret@npm:1.1.0"
+  checksum: f1cbb75ea4a4c73a274463a29e50e53cea02626a73f2d3b5839c64a0bf1776f96d3e0ca6cb2ef5274eeaa9bd0de1764217f27979997c3620dae2106f32f907f5
   languageName: node
   linkType: hard
 
@@ -23831,6 +23832,7 @@ fsevents@^1.2.7:
     object.map: ^1.0.0
     rechoir: ^0.6.2
     resolve: ^1.1.7
+  checksum: 9e92d3d1e3f792a3bd6f6f6ae127007d0e96e2a8dc10503ba08004e7f5134e440c6a3d1a6669c8a379d7257acd97f6050555cdbdb965e4591511b27f7bdd4f08
   languageName: node
   linkType: hard
 
@@ -36591,6 +36593,7 @@ typescript@~4.0.2:
   resolution: "v8flags@npm:3.1.3"
   dependencies:
     homedir-polyfill: ^1.0.1
+  checksum: 7249b0dd76fdf56a3e3444d508ec017463710205b45b20e71404018e744cf72698d63c9dd142b67e6d62450bf8c31960f3262291fda150b0b29e08c681634712
   languageName: node
   linkType: hard
 
