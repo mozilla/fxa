@@ -1,5 +1,12 @@
 # Change history
 
+## 1.192.0
+
+### Other changes
+
+- deps: bump @nestjs/graphql from 7.6.0 to 7.7.0 ([69e938f06](https://github.com/mozilla/fxa/commit/69e938f06))
+- deps: bump @types/sinon from 9.0.7 to 9.0.8 ([f74dce522](https://github.com/mozilla/fxa/commit/f74dce522))
+
 ## 1.191.1
 
 No changes.

@@ -1,3 +1,9 @@
+## 1.192.0
+
+### Other changes
+
+- deps: bump @nestjs/graphql from 7.6.0 to 7.7.0 ([69e938f06](https://github.com/mozilla/fxa/commit/69e938f06))
+
 ## 1.191.1
 
 No changes.

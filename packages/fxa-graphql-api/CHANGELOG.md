@@ -1,3 +1,10 @@
+## 1.192.0
+
+### Other changes
+
+- deps-dev: bump ts-sinon from 1.2.0 to 2.0.1 ([915aa0c86](https://github.com/mozilla/fxa/commit/915aa0c86))
+- deps: bump @types/sinon from 9.0.7 to 9.0.8 ([f74dce522](https://github.com/mozilla/fxa/commit/f74dce522))
+
 ## 1.191.1
 
 No changes.

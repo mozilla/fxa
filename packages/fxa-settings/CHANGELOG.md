@@ -1,3 +1,36 @@
+## 1.192.0
+
+### New features
+
+- settings: show QR code for two step auth ([0560dd976](https://github.com/mozilla/fxa/commit/0560dd976))
+- settings: display recovery key page ([04eaaa25e](https://github.com/mozilla/fxa/commit/04eaaa25e))
+- settings: implemented add recovery key ([e23daeeb6](https://github.com/mozilla/fxa/commit/e23daeeb6))
+- fxa-settings: add ConnectAnotherDevicePromo ([fe3915401](https://github.com/mozilla/fxa/commit/fe3915401))
+- settings: add two step authentication page ([6802ed9f3](https://github.com/mozilla/fxa/commit/6802ed9f3))
+- settings: update display name ([444a5f5f4](https://github.com/mozilla/fxa/commit/444a5f5f4))
+- settings: added Recovery key add page ([3265a69df](https://github.com/mozilla/fxa/commit/3265a69df))
+- settings: update save btn state on display name input ([1344f77d6](https://github.com/mozilla/fxa/commit/1344f77d6))
+- fxa-settings: RTL support ([ddd312140](https://github.com/mozilla/fxa/commit/ddd312140))
+
+### Bug fixes
+
+- fxa-settings: add refresh button margin ([274a70a30](https://github.com/mozilla/fxa/commit/274a70a30))
+- fxa-settings: mobile nav toggle visibility ([2bcb43bb1](https://github.com/mozilla/fxa/commit/2bcb43bb1))
+- settings: fix mobile safari failing to render new settings ([1f48c3076](https://github.com/mozilla/fxa/commit/1f48c3076))
+
+### Other changes
+
+- e08478c95 Show modal on connected services 'sign out' click ([e08478c95](https://github.com/mozilla/fxa/commit/e08478c95))
+- deps-dev: bump @types/react from 16.9.35 to 16.9.53 ([3c3f0b16d](https://github.com/mozilla/fxa/commit/3c3f0b16d))
+- settings: set / add unique testids ([c457cff10](https://github.com/mozilla/fxa/commit/c457cff10))
+- lint: fixed some new-settings lint warnings ([d26744c6f](https://github.com/mozilla/fxa/commit/d26744c6f))
+- fxa-setttings: refactor Service component ([64f069a2d](https://github.com/mozilla/fxa/commit/64f069a2d))
+- deps-dev: bump tailwindcss from 1.7.3 to 1.9.1 ([7db53da21](https://github.com/mozilla/fxa/commit/7db53da21))
+- deps-dev: bump @testing-library/user-event from 7.2.1 to 12.1.7 ([a916aef03](https://github.com/mozilla/fxa/commit/a916aef03))
+- deps: moved tailwindcss-dir dep from fxa-settings to fxa-react ([bdd683b25](https://github.com/mozilla/fxa/commit/bdd683b25))
+- Settings_v2: add navigation tests for profile page ([39a471672](https://github.com/mozilla/fxa/commit/39a471672))
+- test: Add functional test for settings v2 change password ([46e2b835d](https://github.com/mozilla/fxa/commit/46e2b835d))
+
 ## 1.191.1
 
 ### Bug fixes

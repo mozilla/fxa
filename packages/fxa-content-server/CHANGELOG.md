@@ -1,3 +1,15 @@
+## 1.192.0
+
+### Other changes
+
+- e08478c95 Show modal on connected services 'sign out' click ([e08478c95](https://github.com/mozilla/fxa/commit/e08478c95))
+- deps: bump sass-loader from 8.0.2 to 10.0.3 ([2ae4df0c4](https://github.com/mozilla/fxa/commit/2ae4df0c4))
+- deps: bump grunt-sri from 0.0.5 to 0.2.0 ([b68e25002](https://github.com/mozilla/fxa/commit/b68e25002))
+- settings_v2: add basic navigation tests ([ac07721a4](https://github.com/mozilla/fxa/commit/ac07721a4))
+- Settings_v2: add navigation tests for profile page ([39a471672](https://github.com/mozilla/fxa/commit/39a471672))
+- test: Remove custom firefox build fore pairing ([e477435b1](https://github.com/mozilla/fxa/commit/e477435b1))
+- test: Add functional test for settings v2 change password ([46e2b835d](https://github.com/mozilla/fxa/commit/46e2b835d))
+
 ## 1.191.1
 
 No changes.
