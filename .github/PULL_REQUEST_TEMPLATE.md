@@ -17,6 +17,7 @@ _Put an `x` in the boxes that apply_
 - [ ] My commit is GPG signed.
 - [ ] If applicable, I have modified or added tests which pass locally.
 - [ ] I have added necessary documentation (if appropriate).
+- [ ] I have verified that my changes render correctly in RTL (if appropriate).
 
 ## Screenshots (Optional)
 
