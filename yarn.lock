@@ -6459,7 +6459,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:*, @types/sinon@npm:9.0.8, @types/sinon@npm:^9.0.0":
+"@types/sinon@npm:*, @types/sinon@npm:9.0.8, @types/sinon@npm:^9.0.5":
   version: 9.0.8
   resolution: "@types/sinon@npm:9.0.8"
   dependencies:
@@ -17723,7 +17723,7 @@ fsevents@^1.2.7:
     superagent: ^6.0.0
     supertest: ^4.0.2
     ts-node: ^8.10.2
-    ts-sinon: ^1.2.0
+    ts-sinon: ^2.0.1
     tslib: 2.0.1
     type-graphql: ^0.17.6
     typedi: ^0.8.0
@@ -18188,7 +18188,7 @@ fsevents@^1.2.7:
     semver: ^7.3.2
     sinon: ^9.0.3
     ts-node: ^8.10.2
-    ts-sinon: ^1.2.0
+    ts-sinon: ^2.0.1
     typesafe-joi: ^2.1.0
     typescript: 3.9.7
   languageName: unknown
@@ -33080,7 +33080,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sinon@npm:^9.0.2, sinon@npm:^9.0.3":
+"sinon@npm:^9.0.3":
   version: 9.0.3
   resolution: "sinon@npm:9.0.3"
   dependencies:
@@ -35560,15 +35560,15 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-sinon@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "ts-sinon@npm:1.2.0"
+"ts-sinon@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "ts-sinon@npm:2.0.1"
   dependencies:
-    "@types/node": ^11.15.10
-    "@types/sinon": ^9.0.0
+    "@types/node": ^14.6.1
+    "@types/sinon": ^9.0.5
     "@types/sinon-chai": ^3.2.4
-    sinon: ^9.0.2
-  checksum: 1d682900aa46d371e1a6e61b17d6956d566003db21111f36d2315fcdc559449aac128bfbd1291b4d1e2d99065d0ef122f9ac119e36ae568962864d342ebd4bfd
+    sinon: ^9.0.3
+  checksum: c274652c3e16393b1767b20c03c8631d3226b56b1f100e75e04fec0ea891cdc221415d953e9ad95d5f3e55e7c91c9b223c7b73620853ccba311d70f9d517b718
   languageName: node
   linkType: hard
 
