@@ -66,7 +66,7 @@
     "@types/webpack": "4.41.16",
     "@typescript-eslint/eslint-plugin": "2.33.0",
     "@typescript-eslint/parser": "2.33.0",
-    "async-wait-until": "^1.2.4",
+    "async-wait-until": "^1.2.6",
     "audit-filter": "^0.5.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.0.6",
