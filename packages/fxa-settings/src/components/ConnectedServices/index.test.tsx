@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { act, fireEvent, screen, wait } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
 import { renderWithRouter, MockedCache } from '../../models/_mocks';
 import { isMobileDevice } from '../../lib/utilities';
 import { MOCK_SERVICES } from './MOCK_SERVICES';
 
-const SERVICES_NON_MOBILE = MOCK_SERVICES.filter(d => !isMobileDevice(d));
+const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
 const getIconAndServiceLink = async (name: string, testId: string) => {
   const servicesList = MOCK_SERVICES.filter((item) => item.name === name);
@@ -132,7 +132,8 @@ describe('Connected Services', () => {
       </MockedCache>
     );
 
-    expect(await screen.findByTestId('connect-another-device-promo')).toBeTruthy;
+    expect(await screen.findByTestId('connect-another-device-promo'))
+      .toBeTruthy;
   });
 
   it('does not render <ConnectAnotherDevicePromo/> when mobile devices in list', async () => {
@@ -142,6 +143,28 @@ describe('Connected Services', () => {
       </MockedCache>
     );
 
-    expect(await screen.queryByTestId('connect-another-device-promo')).toBeNull();
+    expect(
+      await screen.queryByTestId('connect-another-device-promo')
+    ).toBeNull();
+  });
+
+  it('renders proper modal when "sign out" is clicked', async () => {
+    renderWithRouter(
+      <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
+        <ConnectedServices />
+      </MockedCache>
+    );
+
+    await act(async () => {
+      const signOutButtons = await screen.findAllByTestId(
+        'connected-service-sign-out'
+      );
+      fireEvent.click(signOutButtons[0]);
+    });
+    await wait();
+
+    expect(
+      screen.queryByTestId('connected-services-modal-header')
+    ).toBeInTheDocument();
   });
 });

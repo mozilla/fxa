@@ -68,7 +68,9 @@ export const ConnectedServices = () => {
       id="connected-services"
       data-testid="settings-connected-services"
     >
-      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4">Connected Services</h2>
+      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4">
+        Connected Services
+      </h2>
       <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
         <div className="flex justify-between mb-4">
           <p>Everything you are using and signed into.</p>
@@ -105,10 +107,14 @@ export const ConnectedServices = () => {
           </LinkExternal>
         </div>
 
-        {showMobilePromo && <><hr className="unit-row-hr mt-5 mx-0"/>
-          <div className="mt-5">
-          <ConnectAnotherDevicePromo />
-        </div></>}
+        {showMobilePromo && (
+          <>
+            <hr className="unit-row-hr mt-5 mx-0" />
+            <div className="mt-5">
+              <ConnectAnotherDevicePromo />
+            </div>
+          </>
+        )}
 
         {alertBar.visible && (
           <AlertBar

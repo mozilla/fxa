@@ -648,7 +648,7 @@ module.exports = {
       BACK_BUTTON: '[data-testid=flow-container-back-btn]',
     },
     SECONDARY_EMAIL: {
-      ADD_BUTTON: '[data-testid=unit-row-route][href*="emails"]',
+      ADD_BUTTON: '[data-testid=secondary-email-unit-row-route]',
       CANCEL_BUTTON: '[data-testid=cancel-button]',
       SUBMIT_BUTTON: '[data-testid=save-button]',
       TEXTBOX: '[data-testid=input-label]',
@@ -669,15 +669,14 @@ module.exports = {
       MENU: '[data-testid=nav-link-security]',
       HEADER: '[data-testid=settings-security]',
       RECOVERY_KEY: {
-        CREATE: '[data-testid=unit-row-route][href*="account_recovery"]',
+        CREATE: '[data-testid=recovery-key-unit-row-route]',
         BACK_BUTTON: '[data-testid=flow-container-back-btn]',
         PASSWORD_TEXTBOX: '[data-testid=input-label]',
         CANCEL_BUTTON: '[data-testid=cancel-button]',
         CONTINUE_BUTTON: '[data-testid=continue-button]',
       },
       TFA: {
-        ADD_BUTTON:
-          '[data-testid=unit-row-route][href*="two_step_authentication"]',
+        ADD_BUTTON: '[data-testid=two-step-unit-row-route]',
       },
     },
     CONNECTED_SERVICES: {
