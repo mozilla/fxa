@@ -7345,6 +7345,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"abab@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "abab@npm:2.0.5"
+  checksum: a42b91bd9dd2451a3fc6996bc8953139904ff7b1a793719205041148da892337afc97ed0589ef2c44765c4da3d688eed145781db1623b611621d805294c367a3
+  languageName: node
+  linkType: hard
+
 "abbrev@npm:1":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -8733,7 +8740,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:^2.0.0, async@npm:^2.5.0, async@npm:^2.6.1, async@npm:^2.6.2, async@npm:^2.6.3, async@npm:~2.6.1":
+"async@npm:^2.0.0, async@npm:^2.6.1, async@npm:^2.6.2, async@npm:^2.6.3, async@npm:~2.6.1":
   version: 2.6.3
   resolution: "async@npm:2.6.3"
   dependencies:
@@ -17452,7 +17459,7 @@ fsevents@^1.2.7:
     sinon-chai: ^3.5.0
     sinon-express-mock: ^2.2.1
     source-map: ^0.7.3
-    source-map-loader: ^0.2.4
+    source-map-loader: ^1.1.1
     speed-trap: 0.0.10
     thread-loader: ^3.0.0
     time-grunt: 1.4.0
@@ -20233,6 +20240,15 @@ fsevents@^1.2.7:
   dependencies:
     safer-buffer: ">= 2.1.2 < 3"
   checksum: a9b9521066ee81853a8561e92bd7240bc5d3b7d5ef7da807a475e7858b0246e318b6af518c30a20a8749ef5eafeaa9631079446e4e696c7b60f468b34dc2cbfc
+  languageName: node
+  linkType: hard
+
+"iconv-lite@npm:^0.6.2":
+  version: 0.6.2
+  resolution: "iconv-lite@npm:0.6.2"
+  dependencies:
+    safer-buffer: ">= 2.1.2 < 3.0.0"
+  checksum: 0785670120f57b5912c6a4391d6a69914906746d259b59de884dc6d324a52a0abde38d5804f67370192fec6878d01e7306de525568abcea70eb41c2bceb9f547
   languageName: node
   linkType: hard
 
@@ -32181,7 +32197,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"safer-buffer@npm:>= 2.1.2 < 3, safer-buffer@npm:^2.0.2, safer-buffer@npm:^2.1.0, safer-buffer@npm:~2.1.0":
+"safer-buffer@npm:>= 2.1.2 < 3, safer-buffer@npm:>= 2.1.2 < 3.0.0, safer-buffer@npm:^2.0.2, safer-buffer@npm:^2.1.0, safer-buffer@npm:~2.1.0":
   version: 2.1.2
   resolution: "safer-buffer@npm:2.1.2"
   checksum: 549ba83f5b314b59898efe3422120ce1ca7987a6eae5925a5fa5db930dc414d4a9dde0a5594f89638cd6ea60b6840ea961872908933ac2428d1726489db46fa5
@@ -33321,13 +33337,19 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"source-map-loader@npm:^0.2.4":
-  version: 0.2.4
-  resolution: "source-map-loader@npm:0.2.4"
+"source-map-loader@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "source-map-loader@npm:1.1.1"
   dependencies:
-    async: ^2.5.0
-    loader-utils: ^1.1.0
-  checksum: 32d186c66baec6d87297a35d52e2f793397cde7f28a8430b2a81ccb73b1cce877bb3fe155fb56d383ba4ce6c92dcaf1bba5d1819bbbabedad04c8abb7a59a52e
+    abab: ^2.0.5
+    iconv-lite: ^0.6.2
+    loader-utils: ^2.0.0
+    schema-utils: ^3.0.0
+    source-map: ^0.6.1
+    whatwg-mimetype: ^2.3.0
+  peerDependencies:
+    webpack: ^4.0.0 || ^5.0.0
+  checksum: 9fdd9653552fb13b2689c6fc5de83227324f842423bbf62125b2688573ea236ad69e2c5ab20addb21e77b2e7b6b2e872711f0dc2bb6888b0dc3ba48d14ec6f9c
   languageName: node
   linkType: hard
 
