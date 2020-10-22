@@ -592,7 +592,7 @@ No Apollo Client instance can be found. Please ensure that you have called `Apol
 
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
 
-In local development, `yarn storybook` will start a Storybook server at <http://localhost:6008> with hot module replacement to reflect live changes. Storybook provides a way to document and visually show various component states and application routes. Storybook builds from pull requests and commits can be found at https://mozilla-fxa.github.io/storybooks/.
+In local development, `yarn storybook` will start a Storybook server at <http://localhost:6008> with hot module replacement to reflect live changes. Storybook provides a way to document and visually show various component states and application routes. Storybook builds from pull requests and commits can be found at https://storage.googleapis.com/mozilla-storybooks-fxa/index.html.
 
 ## Functional Testing
 
