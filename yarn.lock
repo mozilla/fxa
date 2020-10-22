@@ -8192,33 +8192,36 @@ __metadata:
   languageName: node
   linkType: hard
 
-"archiver-utils@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "archiver-utils@npm:1.3.0"
+"archiver-utils@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "archiver-utils@npm:2.1.0"
   dependencies:
-    glob: ^7.0.0
-    graceful-fs: ^4.1.0
+    glob: ^7.1.4
+    graceful-fs: ^4.2.0
     lazystream: ^1.0.0
-    lodash: ^4.8.0
-    normalize-path: ^2.0.0
+    lodash.defaults: ^4.2.0
+    lodash.difference: ^4.5.0
+    lodash.flatten: ^4.4.0
+    lodash.isplainobject: ^4.0.6
+    lodash.union: ^4.6.0
+    normalize-path: ^3.0.0
     readable-stream: ^2.0.0
-  checksum: 011b902857bf392a27123322e7831f6e629d9ced3608d026222a9dd0e0e24c148da6f5bf251a8d7de67efb9a8095e95bdf0b916f50cd5c78fe299da513f2076f
+  checksum: a4b54783cb3bf4d4810661a992ae2a1901032d05b11eaa4d0f75aae2f6c5fa7bd2269283bb830f467e15863354120e35e1c9a1e14b92fd460faee4fb2c3f4d0f
   languageName: node
   linkType: hard
 
-"archiver@npm:~2.1.0":
-  version: 2.1.1
-  resolution: "archiver@npm:2.1.1"
+"archiver@npm:~5.0.2":
+  version: 5.0.2
+  resolution: "archiver@npm:5.0.2"
   dependencies:
-    archiver-utils: ^1.3.0
-    async: ^2.0.0
+    archiver-utils: ^2.1.0
+    async: ^3.2.0
     buffer-crc32: ^0.2.1
-    glob: ^7.0.0
-    lodash: ^4.8.0
-    readable-stream: ^2.0.0
-    tar-stream: ^1.5.0
-    zip-stream: ^1.2.0
-  checksum: 371f171ef85e383663aa4ccb25a10bd2b8cd1e234c728d23d5dfa55b7bf560aad18b9949d3e7442ecf6edf4ae4ca52c63bcc157693da27832892aa22ff524ffd
+    readable-stream: ^3.6.0
+    readdir-glob: ^1.0.0
+    tar-stream: ^2.1.4
+    zip-stream: ^4.0.0
+  checksum: 648dc644b33d464e75ff2c9b0f07b438402048a3feb22711ed77c16b14b84d3cefc806b0b3206db6ac94b9b407945ab47de023a007caaef572bed97d9811d2e2
   languageName: node
   linkType: hard
 
@@ -8726,7 +8729,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:3.2.0, async@npm:3.2.x, async@npm:~3.2.0":
+"async@npm:3.2.0, async@npm:3.2.x, async@npm:^3.2.0, async@npm:~3.2.0":
   version: 3.2.0
   resolution: "async@npm:3.2.0"
   checksum: 5c7913c08496877a9896dc6670d3a6c64f02d350e74b9e9191194959c473414a0732539ebdfec0fd2f34c20f439714773a30c20e0e68eb27bd8ee5ec9d8ff5ba
@@ -10902,7 +10905,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer-crc32@npm:^0.2.1, buffer-crc32@npm:~0.2.3":
+"buffer-crc32@npm:^0.2.1, buffer-crc32@npm:^0.2.13, buffer-crc32@npm:~0.2.3":
   version: 0.2.13
   resolution: "buffer-crc32@npm:0.2.13"
   checksum: 0340e848d6fd87e49ef6f1067f31b2a8d2e71b433e9bb62ff3d9bc2499146f0be586b5b80b0d099c7110a226161b21cb6cd80162dd5a51d9ebdb03da58b99637
@@ -12338,15 +12341,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compress-commons@npm:^1.2.0":
-  version: 1.2.2
-  resolution: "compress-commons@npm:1.2.2"
+"compress-commons@npm:^4.0.0":
+  version: 4.0.1
+  resolution: "compress-commons@npm:4.0.1"
   dependencies:
-    buffer-crc32: ^0.2.1
-    crc32-stream: ^2.0.0
-    normalize-path: ^2.0.0
-    readable-stream: ^2.0.0
-  checksum: 7530a05c768a1ad8289ca31165901e5d3ea5164a265e96ed006ad3a92279ca615907d8bf7ff65b6d31d36e57a57230f8941a5fdcac51561f56136a2f1e0763f0
+    buffer-crc32: ^0.2.13
+    crc32-stream: ^4.0.0
+    normalize-path: ^3.0.0
+    readable-stream: ^3.6.0
+  checksum: e393278a2e29dee244c6f839dd687cee981d862604059d4a5848dc79d454e1663c8a5b840c4d39ac513e04d68a75a8a1fea32d79671e129a5766a78232bb6ffe
   languageName: node
   linkType: hard
 
@@ -12791,13 +12794,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crc32-stream@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "crc32-stream@npm:2.0.0"
+"crc32-stream@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "crc32-stream@npm:4.0.0"
   dependencies:
     crc: ^3.4.4
-    readable-stream: ^2.0.0
-  checksum: ccf91eff1134a99c57cd2c0638b6b6825fbb7cb9fd30f59b4d053a7f3f349e671f6c1276620848b80a0303333c713dd13b82266cc1207e2069ea6dce97e85e60
+    readable-stream: ^3.4.0
+  checksum: 1e823682dc2d3a629ccce890d051afad8dd0178c4e439faa0254ef545eb3d3491c7208f1b7c8772c1357d353f06675bab98d86cdcba4059bd604666147928e08
   languageName: node
   linkType: hard
 
@@ -16386,12 +16389,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firefox-profile@npm:1.2.0":
-  version: 1.2.0
-  resolution: "firefox-profile@npm:1.2.0"
+"firefox-profile@npm:4.0.0":
+  version: 4.0.0
+  resolution: "firefox-profile@npm:4.0.0"
   dependencies:
     adm-zip: ~0.4.x
-    archiver: ~2.1.0
+    archiver: ~5.0.2
     async: ~2.5.0
     fs-extra: ~4.0.2
     ini: ~1.3.3
@@ -16402,8 +16405,8 @@ __metadata:
     uuid: ^3.0.0
     xml2js: ~0.4.4
   bin:
-    firefox-profile: ./lib/cli.js
-  checksum: 6060a82b74616134d17e05286729d1e1f13d7ea64501234a03ce256fb745ac02d1f332dc22ecd31cdec8786c18f405df916265c34acca648e0e8b0ea9bd754ee
+    firefox-profile: lib/cli.js
+  checksum: 76fe69cb0dfe2525bea2e7c663603809e301027a0b056aac9e97c84ac2b35e7726edd899195a068b25b464eeefe53a74cd7dfc649978d65a601625f32db2cd43
   languageName: node
   linkType: hard
 
@@ -17373,7 +17376,7 @@ fsevents@^1.2.7:
     extract-loader: 5.1.0
     fast-text-encoding: ^1.0.3
     file-loader: ^6.1.0
-    firefox-profile: 1.2.0
+    firefox-profile: 4.0.0
     fxa-auth-client: "workspace:*"
     fxa-common-password-list: 0.0.4
     fxa-crypto-relier: 2.3.0
@@ -18859,7 +18862,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"graceful-fs@npm:^4.1.0, graceful-fs@npm:^4.1.10, graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.1.9, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.2, graceful-fs@npm:^4.2.4":
+"graceful-fs@npm:^4.1.10, graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.1.9, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.2, graceful-fs@npm:^4.2.4":
   version: 4.2.4
   resolution: "graceful-fs@npm:4.2.4"
   checksum: d095ee4dc6eacc76814cd52d5d185b860119378a6fd4888e7d4e94983095c54d4f6369942a5e3d759cdbdd4e3ee7eaeb27a39ff938c6ee4610894fd9de46b6cb
@@ -24157,6 +24160,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"lodash.difference@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.difference@npm:4.5.0"
+  checksum: 7a2c297cf5fb6cf6899825e620cb017694a1891b3b35e11aa7ddc503128222a84d851937c36584a9e690344ccaf84116f137d04fdd8949ee90918edd4637d3b6
+  languageName: node
+  linkType: hard
+
 "lodash.fill@npm:^3.2.2":
   version: 3.4.0
   resolution: "lodash.fill@npm:3.4.0"
@@ -24409,6 +24419,13 @@ fsevents@^1.2.7:
   version: 4.4.0
   resolution: "lodash.toarray@npm:4.4.0"
   checksum: f2b8de1812789321335dd5f4cb60625c4b8874cb3b300367d8a22990072459b76eb893feacd243686493393cccd035115cc149563f7aa5123d06d9a3b2825bf1
+  languageName: node
+  linkType: hard
+
+"lodash.union@npm:^4.6.0":
+  version: 4.6.0
+  resolution: "lodash.union@npm:4.6.0"
+  checksum: 058abf102eed753f13cb85dec138cff5d4d4db17af1ec24da868d20acf7e65e9e27a4b9fed274f881fa7ae55ffa497565c7d6ea1975d86697ffd09f731813462
   languageName: node
   linkType: hard
 
@@ -26548,7 +26565,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"normalize-path@npm:^2.0.0, normalize-path@npm:^2.1.1":
+"normalize-path@npm:^2.1.1":
   version: 2.1.1
   resolution: "normalize-path@npm:2.1.1"
   dependencies:
@@ -30935,6 +30952,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"readdir-glob@npm:^1.0.0":
+  version: 1.1.1
+  resolution: "readdir-glob@npm:1.1.1"
+  dependencies:
+    minimatch: ^3.0.4
+  checksum: 39d729288d36eee8abf80e7473b8b22d0f5f8c686b69be0b671bb8c670205de7c4f3f466ef1c253d5976c0f71b209446f2d180d11d889e23367cd61a811f3d5d
+  languageName: node
+  linkType: hard
+
 "readdirp@npm:^2.2.1":
   version: 2.2.1
   resolution: "readdirp@npm:2.2.1"
@@ -34742,7 +34768,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tar-stream@npm:^1.5.0, tar-stream@npm:^1.5.2":
+"tar-stream@npm:^1.5.2":
   version: 1.6.2
   resolution: "tar-stream@npm:1.6.2"
   dependencies:
@@ -34757,7 +34783,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tar-stream@npm:^2.0.0":
+"tar-stream@npm:^2.0.0, tar-stream@npm:^2.1.4":
   version: 2.1.4
   resolution: "tar-stream@npm:2.1.4"
   dependencies:
@@ -38172,14 +38198,13 @@ typescript@~4.0.2:
   languageName: node
   linkType: hard
 
-"zip-stream@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "zip-stream@npm:1.2.0"
+"zip-stream@npm:^4.0.0":
+  version: 4.0.2
+  resolution: "zip-stream@npm:4.0.2"
   dependencies:
-    archiver-utils: ^1.3.0
-    compress-commons: ^1.2.0
-    lodash: ^4.8.0
-    readable-stream: ^2.0.0
-  checksum: 1623d0ad94dc5f993ea4dad74292e823154d2000f6317d6845781a23946d4cdbe5b4ca717399954d4c4776f89110e0ed5ef663877137cc92c9993ee936ac5628
+    archiver-utils: ^2.1.0
+    compress-commons: ^4.0.0
+    readable-stream: ^3.6.0
+  checksum: eb6ed1e5a056516e03aed9b114d9ffd58a292f846e5230010f02c86408934ba6b851a120aa141a1d1f8ff073c6ad443c686f1840b882730945fa55fac7e4f61e
   languageName: node
   linkType: hard
