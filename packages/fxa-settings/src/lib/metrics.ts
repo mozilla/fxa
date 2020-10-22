@@ -246,6 +246,7 @@ export function logEvents(
         flushTime: now,
         referrer: window.document.referrer || NOT_REPORTED_VALUE,
         screen: getScreenInfo(),
+        marketing: [],
         ...flowEventData,
         ...eventProperties,
       })
