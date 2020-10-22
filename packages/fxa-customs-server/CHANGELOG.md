@@ -1,3 +1,11 @@
+## 1.192.0
+
+### Other changes
+
+- deps-dev: bump grunt-cli from 1.2.0 to 1.3.2 ([352f6e2d1](https://github.com/mozilla/fxa/commit/352f6e2d1))
+- deps: Remove unused npmshrink dev dep ([38485f907](https://github.com/mozilla/fxa/commit/38485f907))
+- deps-dev: bump npmshrink from 1.0.1 to 2.0.0 ([67c4025d0](https://github.com/mozilla/fxa/commit/67c4025d0))
+
 ## 1.191.1
 
 No changes.

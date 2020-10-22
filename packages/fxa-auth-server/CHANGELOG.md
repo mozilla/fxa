@@ -1,3 +1,19 @@
+## 1.192.0
+
+### New features
+
+- subscriptions: handle 'customer.created' Stripe event ([4134ba197](https://github.com/mozilla/fxa/commit/4134ba197))
+
+### Bug fixes
+
+- oauth: increase `state` size limit for oauth requests ([cc45e8923](https://github.com/mozilla/fxa/commit/cc45e8923))
+- script: added setupAuthDatabase to delete-account script. fixes #6704 ([abc48bf6d](https://github.com/mozilla/fxa/commit/abc48bf6d))
+- log: Update metrics error log to trace ([b31f81b73](https://github.com/mozilla/fxa/commit/b31f81b73))
+
+### Other changes
+
+- deps-dev: bump grunt-cli from 1.2.0 to 1.3.2 ([352f6e2d1](https://github.com/mozilla/fxa/commit/352f6e2d1))
+
 ## 1.191.1
 
 No changes.

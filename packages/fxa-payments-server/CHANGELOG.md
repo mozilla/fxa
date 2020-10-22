@@ -1,5 +1,14 @@
 # Change history
 
+## 1.192.0
+
+### Other changes
+
+- deps-dev: bump async-wait-until from 1.2.4 to 1.2.6 ([33666f7fe](https://github.com/mozilla/fxa/commit/33666f7fe))
+- deps-dev: bump @types/react from 16.9.35 to 16.9.53 ([3c3f0b16d](https://github.com/mozilla/fxa/commit/3c3f0b16d))
+- deps: bump react-redux from 7.2.0 to 7.2.1 ([6580c9100](https://github.com/mozilla/fxa/commit/6580c9100))
+- deps: bump @types/sinon from 9.0.7 to 9.0.8 ([f74dce522](https://github.com/mozilla/fxa/commit/f74dce522))
+
 ## 1.191.1
 
 No changes.

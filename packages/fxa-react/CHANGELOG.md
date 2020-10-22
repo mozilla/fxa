@@ -1,3 +1,21 @@
+## 1.192.0
+
+### New features
+
+- fxa-settings: RTL support ([ddd312140](https://github.com/mozilla/fxa/commit/ddd312140))
+
+### Bug fixes
+
+- settings: fix header styles on safari ([5d4e2e94d](https://github.com/mozilla/fxa/commit/5d4e2e94d))
+
+### Other changes
+
+- deps-dev: bump @types/react from 16.9.35 to 16.9.53 ([3c3f0b16d](https://github.com/mozilla/fxa/commit/3c3f0b16d))
+- deps: bump sass-loader from 8.0.2 to 10.0.3 ([2ae4df0c4](https://github.com/mozilla/fxa/commit/2ae4df0c4))
+- deps-dev: bump tailwindcss from 1.7.3 to 1.9.1 ([7db53da21](https://github.com/mozilla/fxa/commit/7db53da21))
+- deps-dev: bump @testing-library/user-event from 7.2.1 to 12.1.7 ([a916aef03](https://github.com/mozilla/fxa/commit/a916aef03))
+- deps: moved tailwindcss-dir dep from fxa-settings to fxa-react ([bdd683b25](https://github.com/mozilla/fxa/commit/bdd683b25))
+
 ## 1.191.1
 
 No changes.
