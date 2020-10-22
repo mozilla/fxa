@@ -10169,7 +10169,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base32-decode@npm:1.0.0":
+"base32-decode@npm:1.0.0, base32-decode@npm:^1.0.0":
   version: 1.0.0
   resolution: "base32-decode@npm:1.0.0"
   checksum: ed3045d2b8872b7023ecf6d320ca58cd0fcca88c49ef44ecac7d26fc4e407cd911ddbd16685009b1040ce190148984b7f63fa0229c5c43f2741de81aae95f83a
@@ -18049,6 +18049,7 @@ fsevents@^1.2.7:
     "@types/testing-library__react-hooks": ^3
     "@types/webpack": 4.41.16
     babel-loader: ^8.0.0
+    base32-decode: ^1.0.0
     base32-encode: ^1.1.1
     classnames: ^2.2.6
     eslint: ^6.8.0

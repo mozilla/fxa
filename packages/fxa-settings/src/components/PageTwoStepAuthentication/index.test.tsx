@@ -14,6 +14,13 @@ import {
 import React from 'react';
 import PageTwoStepAuthentication from '.';
 import { CREATE_TOTP_MOCK } from './_mocks';
+import { checkCode } from '../../lib/totp';
+
+jest.mock('../../lib/totp', () => ({
+  ...jest.requireActual('../../lib/totp'),
+  checkCode: jest.fn().mockResolvedValue(true),
+}));
+window.URL.createObjectURL = jest.fn();
 
 const client = createAuthClient('none');
 
@@ -31,6 +38,13 @@ const inputTotp = async (totp: string) => {
     fireEvent.input(screen.getByTestId('totp-input-field'), {
       target: { value: totp },
     });
+  });
+};
+
+const submitTotp = async (totp: string) => {
+  await inputTotp(totp);
+  await act(async () => {
+    fireEvent.click(screen.getByTestId('submit-totp'));
   });
 };
 
@@ -61,7 +75,7 @@ it('updates the disabled state of the continue button', async () => {
   await inputTotp('90210');
   expect(button).toBeDisabled();
 
-  // valid code
+  // valid code format
   await inputTotp('867530');
   expect(button).not.toBeDisabled();
 });
@@ -83,4 +97,27 @@ it('does not display the QR code for the unverified', async () => {
   });
   expect(screen.queryByTestId('2fa-qr-code')).toBeNull();
   expect(screen.queryByTestId('alert-bar')).toBeNull();
+});
+
+it('shows the recovery codes when valid auth code is submitted', async () => {
+  await act(async () => {
+    render();
+  });
+  await submitTotp('867530');
+  expect(checkCode).toHaveBeenCalledTimes(1);
+  expect(screen.getByTestId('2fa-recovery-codes')).toBeInTheDocument();
+  expect(screen.getByTestId('2fa-recovery-codes')).toHaveTextContent(
+    CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0]
+  );
+});
+
+it('shows an error when an invalid auth code is entered', async () => {
+  await act(async () => {
+    render();
+  });
+  (checkCode as jest.Mock).mockReset();
+  (checkCode as jest.Mock).mockResolvedValue(false);
+  await submitTotp('867530');
+  expect(checkCode).toHaveBeenCalledTimes(1);
+  expect(screen.getByTestId('tooltip')).toBeInTheDocument();
 });
