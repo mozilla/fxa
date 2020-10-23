@@ -14,12 +14,14 @@ import DataBlock from '../DataBlock';
 import { cloneDeep } from '@apollo/client/utilities';
 import { HomePath } from '../../constants';
 import GetDataTrio from '../GetDataTrio';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 
 type FormData = {
   password: string;
 };
 
 export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
+  usePageViewEvent('settings.account-recovery');
   const { handleSubmit, register, formState, setValue } = useForm<FormData>({
     mode: 'all',
     defaultValues: {
@@ -53,6 +55,10 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
           },
         },
       });
+      logViewEvent(
+        'flow.settings.account-recovery',
+        'confirm-password.success'
+      );
     },
     onError: (error) => {
       if (error.errno === 103) {
@@ -62,6 +68,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
         alertBar.setType('error');
         alertBar.setContent(error.message);
         alertBar.show();
+        logViewEvent('flow.settings.account-recovery', 'confirm-password.fail');
       }
     },
   });
@@ -86,7 +93,15 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
           access to your data if you forget your password.
           <div className="mt-6 flex flex-col items-center h-48 justify-between">
             <DataBlock value={formattedRecoveryKey}></DataBlock>
-            <GetDataTrio value={formattedRecoveryKey}></GetDataTrio>
+            <GetDataTrio
+              value={formattedRecoveryKey}
+              onAction={(type) => {
+                logViewEvent(
+                  'flow.settings.account-recovery',
+                  `recovery-key.${type}-option`
+                );
+              }}
+            ></GetDataTrio>
             <button
               className="cta-primary mx-2"
               onClick={() => navigate(HomePath, { replace: true })}
@@ -105,6 +120,10 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               password,
               account.uid,
               sessionToken()!
+            );
+            logViewEvent(
+              'flow.settings.account-recovery',
+              'confirm-password.submit'
             );
           })}
         >

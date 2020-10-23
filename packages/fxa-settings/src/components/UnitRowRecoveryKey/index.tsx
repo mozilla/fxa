@@ -7,11 +7,12 @@ import { gql } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAlertBar, useMutation } from '../../lib/hooks';
+import { useAccount, useLazyAccount } from '../../models';
+import { logViewEvent } from '../../lib/metrics';
 import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { useAccount, useLazyAccount } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 
 export const DELETE_RECOVERY_KEY_MUTATION = gql`
@@ -40,10 +41,12 @@ export const UnitRowRecoveryKey = () => {
     onCompleted: () => {
       hideModal();
       alertBar.success('Account recovery key removed.');
+      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     },
     onError: (error) => {
       hideModal();
       alertBar.error('Your account recovery key could not be removed.', error);
+      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
     },
     ignoreResults: true,
     update: (cache) => {
@@ -108,7 +111,13 @@ export const UnitRowRecoveryKey = () => {
         >
           <Modal
             onDismiss={hideModal}
-            onConfirm={deleteRecoveryKey}
+            onConfirm={() => {
+              deleteRecoveryKey();
+              logViewEvent(
+                'flow.settings.account-recovery',
+                'confirm-revoke.submit'
+              );
+            }}
             confirmBtnClassName="cta-caution"
             confirmText="Remove"
             headerId="recovery-key-header"

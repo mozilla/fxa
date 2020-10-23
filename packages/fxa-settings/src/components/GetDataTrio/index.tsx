@@ -10,9 +10,10 @@ import { ReactComponent as PrintIcon } from './print.svg';
 
 export type GetDataTrioProps = {
   value: string | string[];
+  onAction?: (type: string) => void;
 };
 
-export const GetDataTrio = ({ value }: GetDataTrioProps) => {
+export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
   const print = useCallback(() => {
     const printWindow = window.open('', 'Print', 'height=600,width=800')!;
     printWindow.document.write(Array.isArray(value) ? value.join('\n') : value);
@@ -33,6 +34,7 @@ export const GetDataTrio = ({ value }: GetDataTrioProps) => {
         download
         data-testid="databutton-download"
         className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500"
+        onClick={() => onAction?.('download')}
       >
         <DownloadIcon
           height="24"
@@ -47,6 +49,7 @@ export const GetDataTrio = ({ value }: GetDataTrioProps) => {
         onClick={async () => {
           const copyValue = Array.isArray(value) ? value.join(', ') : value;
           await copy(copyValue);
+          onAction?.('copy');
         }}
         data-testid="databutton-copy"
         className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500"
@@ -64,7 +67,10 @@ export const GetDataTrio = ({ value }: GetDataTrioProps) => {
       <button
         title="Print"
         type="button"
-        onClick={print}
+        onClick={() => {
+          print();
+          onAction?.('print');
+        }}
         data-testid="databutton-print"
         className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500"
       >
