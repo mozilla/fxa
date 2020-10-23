@@ -17298,7 +17298,7 @@ fsevents@^1.2.7:
     read: 1.0.7
     request: ^2.88.2
     rimraf: ^3.0.2
-    safe-regex: ^1.1.0
+    safe-regex: ^2.1.1
     safe-url-assembler: 1.3.5
     sandboxed-regexp: ^0.3.0
     simplesmtp: 0.3.35
@@ -31276,6 +31276,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"regexp-tree@npm:~0.1.1":
+  version: 0.1.21
+  resolution: "regexp-tree@npm:0.1.21"
+  bin:
+    regexp-tree: bin/regexp-tree
+  checksum: b101cb99d4c25e1eb22d7be764464cd414c495d572dcf4c436c05f48942cc885069d46d63cd350523ffd19c667a9be4d0b724ea672769d2602365fa5a917286b
+  languageName: node
+  linkType: hard
+
 "regexp.prototype.flags@npm:^1.2.0, regexp.prototype.flags@npm:^1.3.0":
   version: 1.3.0
   resolution: "regexp.prototype.flags@npm:1.3.0"
@@ -32204,6 +32213,15 @@ resolve@~1.11.1:
   dependencies:
     ret: ~0.1.10
   checksum: c355e3163fda56bef5ef0896de55ab1e26504def2c7f9ee96ee8b90171a7da7a596048d256e61a51e2d041d9f4625d956d3702ebcfb7627c7a4846896d6ce3a4
+  languageName: node
+  linkType: hard
+
+"safe-regex@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "safe-regex@npm:2.1.1"
+  dependencies:
+    regexp-tree: ~0.1.1
+  checksum: 9dcb87ef3f4139cf9680d92b9961f254563fbeb8961e15d329c961d36f15584871c77a2c7d33f40c94a338efd6c1004bc86e2c5f8772f1251335a26634a9b725
   languageName: node
   linkType: hard
 
