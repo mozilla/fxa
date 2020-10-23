@@ -6,6 +6,7 @@ import { navigate, RouteComponentProps } from '@reach/router';
 import { useAccount } from '../../models';
 import { useForm } from 'react-hook-form';
 import React, { useState } from 'react';
+import { Account } from '../../models/Account';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import { useAlertBar, useMutation } from '../../lib/hooks';
