@@ -5723,12 +5723,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/helmet@npm:0.0.48":
-  version: 0.0.48
-  resolution: "@types/helmet@npm:0.0.48"
+"@types/helmet@npm:4.0.0":
+  version: 4.0.0
+  resolution: "@types/helmet@npm:4.0.0"
   dependencies:
-    "@types/express": "*"
-  checksum: 6ac3e2031bd2739817e78cdd52af762da896444b7488b789b26cafd840c2d5654186eafeaa1a45352b901c3f8fc9db6b2016e5c60029837e8000707d63854bdf
+    helmet: "*"
+  checksum: 020a3e51c893f451e173c0db7afb9b00eebd2ee8f9e038a13401d6b93483d76512f8018f62cc52fa7ae3ab3f7d903a1aba92622386de992f6720382594bd2fbf
   languageName: node
   linkType: hard
 
@@ -17028,7 +17028,7 @@ fsevents@^1.2.7:
     "@types/dateformat": ^3.0.1
     "@types/eslint": 6.8.1
     "@types/express": ^4.17.2
-    "@types/helmet": 0.0.48
+    "@types/helmet": 4.0.0
     "@types/jest": ^24.9.1
     "@types/jsdom": ^12.2.4
     "@types/on-headers": ^1.0.0
@@ -19695,7 +19695,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"helmet@npm:^4.1.0, helmet@npm:^4.1.1":
+"helmet@npm:*, helmet@npm:^4.1.0, helmet@npm:^4.1.1":
   version: 4.1.1
   resolution: "helmet@npm:4.1.1"
   checksum: 7d4371e3a4b5cb60c9d0b4e1341cade3836bff9734b837e04c6571ebe1237e6c52b928a4c9e308d80d6996bdf8561105e86911d04cff2f8957d355436191a19e
