@@ -4,7 +4,7 @@
 
 import 'mutationobserver-shim';
 import '@testing-library/jest-dom/extend-expect';
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, wait } from '@testing-library/react';
 import { AuthContext, createAuthClient } from '../../lib/auth';
 import {
   renderWithRouter,
@@ -19,11 +19,16 @@ import { checkCode, getCode } from '../../lib/totp';
 import { MockedProvider } from '@apollo/client/testing';
 import { Account, GET_ACCOUNT } from '../../models/Account';
 import { HomePath } from '../../constants';
+import { alertTextExternal } from 'fxa-settings/src/lib/cache';
 
 jest.mock('../../lib/totp', () => ({
   ...jest.requireActual('../../lib/totp'),
   getCode: jest.fn(),
   checkCode: jest.fn().mockResolvedValue(true),
+}));
+
+jest.mock('../../lib/cache', () => ({
+  alertTextExternal: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
@@ -223,7 +228,9 @@ describe('step 3', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
-    expect(screen.getByTestId('alert-bar')).toBeInTheDocument();
+    await wait(() =>
+      expect(screen.getByTestId('alert-bar')).toBeInTheDocument()
+    );
   });
 
   it('shows the GraphQL error when the code cannot be verified', async () => {
@@ -239,7 +246,7 @@ describe('step 3', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
-    expect(screen.getByTestId('tooltip')).toBeInTheDocument();
+    await wait(() => expect(screen.getByTestId('tooltip')).toBeInTheDocument());
   });
 
   it('verifies and enable two step auth', async () => {
@@ -275,13 +282,17 @@ describe('step 3', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
-
+    await wait(() => expect(modifyCacheSpy).toBeCalledTimes(2));
     expect(getCode).toBeCalledTimes(1);
-    expect(modifyCacheSpy).toBeCalledTimes(2);
+
     const { account } = cache.readQuery<{ account: Account }>({
       query: GET_ACCOUNT,
     })!;
     expect(account.totp.verified).toEqual(true);
     expect(mockNavigate).toHaveBeenCalledWith(HomePath, { replace: true });
+    expect(alertTextExternal).toHaveBeenCalledTimes(1);
+    expect(alertTextExternal).toHaveBeenCalledWith(
+      'Two-step authentication enabled'
+    );
   });
 });

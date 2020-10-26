@@ -19,6 +19,7 @@ import { useSession } from '../../models';
 import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
 import { cloneDeep } from '@apollo/client/utilities';
+import { alertTextExternal } from '../../lib/cache';
 
 export const CREATE_TOTP_MUTATION = gql`
   mutation createTotp($input: CreateTotpInput!) {
@@ -125,6 +126,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   const [verifyTotp] = useMutation(VERIFY_TOTP_MUTATION, {
     onCompleted: () => {
+      alertTextExternal('Two-step authentication enabled');
       goHome();
     },
     onError: (err) => {
