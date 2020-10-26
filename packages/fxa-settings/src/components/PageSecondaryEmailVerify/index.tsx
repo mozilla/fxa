@@ -2,12 +2,13 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { gql } from '@apollo/client';
 import { cloneDeep } from '@apollo/client/utilities';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { Account } from '../../models';
+import { HomePath } from '../../constants';
 import { useAlertBar, useMutation } from '../../lib/hooks';
+import { logViewEvent } from '../../lib/metrics';
+import { Account } from '../../models';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { HomePath } from 'fxa-settings/src/constants';
 
 export const VERIFY_SECONDARY_EMAIL_MUTATION = gql`
   mutation verifySecondaryEmail($input: VerifyEmailInput!) {
@@ -31,6 +32,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         setErrorText(error.message);
       } else {
         alertBar.error('There was a problem sending the verification code.');
+        logViewEvent('verify-secondary-email.verification', 'fail');
       }
     },
     update: (cache) => {
@@ -46,6 +48,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     },
     onCompleted: () => {
       navigate(HomePath, { replace: true });
+      logViewEvent('verify-secondary-email.verification', 'success');
     },
   });
 
@@ -70,6 +73,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
               },
             },
           });
+          logViewEvent('verify-secondary-email.verification', 'clicked');
         }}
       >
         <p>
