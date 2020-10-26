@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 import { cloneDeep } from '@apollo/client/utilities';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useAlertBar, useMutation } from '../../lib/hooks';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { Account } from '../../models';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
@@ -18,6 +19,7 @@ export const CREATE_SECONDARY_EMAIL_MUTATION = gql`
 `;
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
+  usePageViewEvent('settings.emails');
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
   const [errorText, setErrorText] = useState<string>();
   const [email, setEmail] = useState<string>();
@@ -32,6 +34,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         setErrorText(error.message);
       } else {
         alertBar.error('There was a problem creating this email.');
+        // TODO: old settings has no equivalent metrics event here
       }
     },
     update: (cache) => {
@@ -51,6 +54,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
     },
     onCompleted: () => {
       navigate('emails/verify', { state: { email }, replace: true });
+      // TODO: old settings has no equivalent metrics event here
     },
   });
 
@@ -77,6 +81,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
             createSecondaryEmail({
               variables: { input: { email } },
             });
+            logViewEvent('settings.emails', 'submit');
           }
         }}
       >
