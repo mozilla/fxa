@@ -85,7 +85,7 @@ export const BentoMenu = () => {
                   <li>
                     <LinkExternal
                       data-testid="desktop-link"
-                      href="https://www.mozilla.org/firefox/new/?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
+                      href="https://www.mozilla.org/firefox/new/?utm_source=firefox-accounts&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
                       <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
@@ -97,7 +97,7 @@ export const BentoMenu = () => {
                   <li>
                     <LinkExternal
                       data-testid="mobile-link"
-                      href="http://mozilla.org/firefox/mobile?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
+                      href="http://mozilla.org/firefox/mobile?utm_source=firefox-accounts&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
                       <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">

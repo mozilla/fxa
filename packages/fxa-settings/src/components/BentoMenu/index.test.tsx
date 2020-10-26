@@ -23,32 +23,6 @@ describe('BentoMenu', () => {
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
     expect(dropDown).toBeInTheDocument;
 
-    expect(screen.getByTestId('monitor-link')).toHaveAttribute(
-      'href',
-      'https://monitor.firefox.com'
-    );
-    expect(screen.getByTestId('pocket-link')).toHaveAttribute(
-      'href',
-      'https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447'
-    );
-    expect(screen.getByTestId('desktop-link')).toHaveAttribute(
-      'href',
-      'https://www.mozilla.org/firefox/new/?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop'
-    );
-
-    expect(screen.getByTestId('mobile-link')).toHaveAttribute(
-      'href',
-      'http://mozilla.org/firefox/mobile?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop'
-    );
-    expect(screen.getByTestId('lockwise-link')).toHaveAttribute(
-      'href',
-      'https://bhqf.adj.st/?adjust_t=6tteyjo&adj_deeplink=lockwise%3A%2F%2F&adj_fallback=https%3A%2F%2Fwww.mozilla.org%2Fen-US%2Ffirefox%2Flockwise'
-    );
-    expect(screen.getByTestId('mozilla-link')).toHaveAttribute(
-      'href',
-      'https://www.mozilla.org/'
-    );
-
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
     expect(dropDown).not.toBeInTheDocument;

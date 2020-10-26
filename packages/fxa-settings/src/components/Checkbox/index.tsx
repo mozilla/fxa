@@ -25,17 +25,17 @@ export const Checkbox = ({
 
   const checkboxFocus = useCallback(() => {
     setFocussed(true);
-  }, [focussed]);
+  }, [setFocussed]);
 
   const checkboxBlur = useCallback(() => {
     setFocussed(false);
-  }, [focussed]);
+  }, [setFocussed]);
 
   const checkboxChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setChecked(event.target.checked);
     },
-    [checked]
+    [setChecked]
   );
   function formatDataTestId(id: string) {
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
