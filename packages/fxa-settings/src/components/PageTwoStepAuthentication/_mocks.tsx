@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { CREATE_TOTP_MUTATION } from '.';
+import { GraphQLError } from 'graphql';
+import { CREATE_TOTP_MUTATION, VERIFY_TOTP_MUTATION } from '.';
 
 export const CREATE_TOTP_MOCK = [
   {
@@ -21,6 +22,34 @@ export const CREATE_TOTP_MOCK = [
           __typename: 'CreateTotpPayload',
         },
       },
+    },
+  },
+];
+
+export const VERIFY_TOTP_MOCK = [
+  {
+    request: {
+      query: VERIFY_TOTP_MUTATION,
+      variables: { input: { code: '001980' } },
+    },
+    result: {
+      data: { verifyTotp: { success: true } },
+    },
+  },
+  {
+    request: {
+      query: VERIFY_TOTP_MUTATION,
+      variables: { input: { code: '999911' } },
+    },
+    error: new Error('Oops'),
+  },
+  {
+    request: {
+      query: VERIFY_TOTP_MUTATION,
+      variables: { input: { code: '009001' } },
+    },
+    result: {
+      errors: [new GraphQLError('Some sort of server error!')],
     },
   },
 ];
