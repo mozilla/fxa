@@ -51,7 +51,7 @@
     "@types/rimraf": "3.0.0",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
-    "babel-preset-react-app": "^9.1.2",
+    "babel-preset-react-app": "^10.0.0",
     "camelcase": "^6.0.0",
     "eslint": "^6.8.0",
     "file-loader": "^4.3.0",
