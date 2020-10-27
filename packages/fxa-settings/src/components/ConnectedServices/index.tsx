@@ -83,7 +83,7 @@ export const ConnectedServices = () => {
           sortedAndUniqueClients.map((client, i) => (
             <Service
               {...{
-                key: client.clientId,
+                key: `${client.lastAccessTime}:${client.name}`,
                 name: client.name,
                 deviceType: client.deviceType,
                 location: client.location,
