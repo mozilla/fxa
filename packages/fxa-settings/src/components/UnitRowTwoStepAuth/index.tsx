@@ -15,7 +15,8 @@ import { useAccount, useLazyAccount } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { HomePath } from '../../constants';
 
-const replaceCodesRoute = `${HomePath}/two_step_authentication/replace_codes`;
+const route = `${HomePath}/two_step_authentication`;
+const replaceCodesRoute = `${route}/replace_codes`;
 
 export const DELETE_TOTP_MUTATION = gql`
   mutation deleteTotp($input: DeleteTotpInput!) {
@@ -91,7 +92,7 @@ export const UnitRowTwoStepAuth = () => {
     <UnitRow
       header="Two-step authentication"
       prefixDataTestId="two-step"
-      route={replaceCodesRoute}
+      route={route}
       {...conditionalUnitRowProps}
       headerContent={
         <ButtonIconReload
