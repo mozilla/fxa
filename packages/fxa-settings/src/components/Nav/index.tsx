@@ -19,7 +19,7 @@ export const Nav = () => {
       className="font-header fixed bg-white w-full inset-0 mt-18 ltr:mr-24 rtl:ml-24 desktop:mt-11 desktop:static desktop:bg-transparent text-xl desktop:text-base"
       data-testid="nav"
     >
-      <ul className="px-6 py-7 tablet:px-8 desktop:p-0 mobileLandscape:mt-8">
+      <ul className="px-6 py-7 tablet:px-8 desktop:p-0 mobileLandscape:mt-8 ltr:text-left rtl:text-right">
         <li className="mb-5">
           <h2 className="font-bold">Settings</h2>
           <ul className="ltr:ml-4 rtl:mr-4">

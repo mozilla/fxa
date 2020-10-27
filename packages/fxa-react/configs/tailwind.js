@@ -264,6 +264,7 @@ module.exports = {
     backgroundOpacity: ['hover', 'focus', 'active'],
     placeholderColor: ['responsive', 'focus', 'disabled'],
     cursor: ['responsive', 'disabled'],
+    textAlign: ['direction'],
     textDecoration: ['responsive', 'hover', 'focus', 'active', 'group-hover'],
     float: ['responsive', 'direction'],
     margin: ['responsive', 'direction'],
