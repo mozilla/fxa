@@ -50,7 +50,7 @@
     "@sentry/node": "^5.23.0",
     "@types/sinon": "9.0.8",
     "aws-sdk": "^2.733.0",
-    "axios": "^0.20.0",
+    "axios": "^0.21.0",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "convict": "^6.0.0",
