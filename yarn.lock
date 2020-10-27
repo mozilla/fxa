@@ -11557,16 +11557,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"camel-case@npm:3.0.x":
-  version: 3.0.0
-  resolution: "camel-case@npm:3.0.0"
-  dependencies:
-    no-case: ^2.2.0
-    upper-case: ^1.1.1
-  checksum: 1cfcf1eb9725b6e61d3b4b996bd521aa4a4b86c9022d2df2c960e451b557eee259505066a9d6d172f2b38fb7bed07c9d07b08aa645bed5c66f92b5372495cb9f
-  languageName: node
-  linkType: hard
-
 "camel-case@npm:4.1.1, camel-case@npm:^4.1.1":
   version: 4.1.1
   resolution: "camel-case@npm:4.1.1"
@@ -11574,6 +11564,16 @@ __metadata:
     pascal-case: ^3.1.1
     tslib: ^1.10.0
   checksum: c202f62a74c020e51ab6d7d02c0367a6b8cd5d1803e69371421970186d6ca32a20437eb45257baa00a7bb976a202e8fbdb75d509145f5b022f7f80936997c6b8
+  languageName: node
+  linkType: hard
+
+"camel-case@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "camel-case@npm:3.0.0"
+  dependencies:
+    no-case: ^2.2.0
+    upper-case: ^1.1.1
+  checksum: 1cfcf1eb9725b6e61d3b4b996bd521aa4a4b86c9022d2df2c960e451b557eee259505066a9d6d172f2b38fb7bed07c9d07b08aa645bed5c66f92b5372495cb9f
   languageName: node
   linkType: hard
 
@@ -12106,7 +12106,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clean-css@npm:4.2.x, clean-css@npm:^4.2.3, clean-css@npm:~4.2.1":
+"clean-css@npm:^4.2.1, clean-css@npm:^4.2.3, clean-css@npm:~4.2.1":
   version: 4.2.3
   resolution: "clean-css@npm:4.2.3"
   dependencies:
@@ -12537,13 +12537,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:2.17.x":
-  version: 2.17.1
-  resolution: "commander@npm:2.17.1"
-  checksum: 017ef909a7871e0865879bf90cca0527c920010fe5a222b55ba7205baa1d336ea868b7dde4a060c8fc1ede85a1325cc79eef5e1f21170ac626d2ece82a58ad73
-  languageName: node
-  linkType: hard
-
 "commander@npm:2.18.0":
   version: 2.18.0
   resolution: "commander@npm:2.18.0"
@@ -12585,13 +12578,6 @@ __metadata:
   version: 6.0.0
   resolution: "commander@npm:6.0.0"
   checksum: c7dad02c772d6c6eb76f0642756408df98c730a17c764f5329700638045abd9633038251277ce7d6a077a96d89e6261ee268a4249a3bc4edd607ca8a0126642f
-  languageName: node
-  linkType: hard
-
-"commander@npm:~2.19.0":
-  version: 2.19.0
-  resolution: "commander@npm:2.19.0"
-  checksum: 1a18c37b383203c02667a9307c882e966e45f923e1052cc3d799f4007cce51fdc82ffe4c2b1ec2946cded7b3856e7a6e1c048d5d0ab906c8b8014d6ce172db19
   languageName: node
   linkType: hard
 
@@ -17717,7 +17703,7 @@ fsevents@^1.2.7:
     grunt-contrib-concat: 1.0.1
     grunt-contrib-copy: 1.0.0
     grunt-contrib-cssmin: 3.0.0
-    grunt-contrib-htmlmin: 2.4.0
+    grunt-contrib-htmlmin: 3.1.0
     grunt-copyright: 0.3.0
     grunt-file-rev: 1.0.2
     grunt-htmllint: 0.3.0
@@ -19468,14 +19454,14 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt-contrib-htmlmin@npm:2.4.0":
-  version: 2.4.0
-  resolution: "grunt-contrib-htmlmin@npm:2.4.0"
+"grunt-contrib-htmlmin@npm:3.1.0":
+  version: 3.1.0
+  resolution: "grunt-contrib-htmlmin@npm:3.1.0"
   dependencies:
-    chalk: ^1.0.0
-    html-minifier: ~3.5.0
-    pretty-bytes: ^4.0.2
-  checksum: 456895b4e706ba90fabdba093815a78de874c2b0808c725c0c570a293cab5ac8ac9ceb3e871be4972ffb2699859ade3da78beb24bed0cc6db303544991ad62af
+    chalk: ^2.4.2
+    html-minifier: ^4.0.0
+    pretty-bytes: ^5.1.0
+  checksum: 9c22fd827a63495e4b84cbee3efa73fc850d0ccc976d1c5897e2fc588c273658ea393efd54f2807e15f3b2ca6ab9de6a1ac227aa4e9d3b55c2b4b1822532dab8
   languageName: node
   linkType: hard
 
@@ -20010,7 +19996,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"he@npm:1.2.0, he@npm:1.2.x, he@npm:^1.1.0, he@npm:^1.2.0":
+"he@npm:1.2.0, he@npm:^1.1.0, he@npm:^1.2.0":
   version: 1.2.0
   resolution: "he@npm:1.2.0"
   bin:
@@ -20222,20 +20208,20 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"html-minifier@npm:~3.5.0":
-  version: 3.5.21
-  resolution: "html-minifier@npm:3.5.21"
+"html-minifier@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "html-minifier@npm:4.0.0"
   dependencies:
-    camel-case: 3.0.x
-    clean-css: 4.2.x
-    commander: 2.17.x
-    he: 1.2.x
-    param-case: 2.1.x
-    relateurl: 0.2.x
-    uglify-js: 3.4.x
+    camel-case: ^3.0.0
+    clean-css: ^4.2.1
+    commander: ^2.19.0
+    he: ^1.2.0
+    param-case: ^2.1.1
+    relateurl: ^0.2.7
+    uglify-js: ^3.5.1
   bin:
     html-minifier: ./cli.js
-  checksum: c392d2128c7d2f7de9d44fedcae1e899f3825eb7792c90ca55ab07129b89d0a005fa4f898b6bf73a7f0526d3ff827898c2065cccd53c7f00d45b386ddb8821bf
+  checksum: dbd6cf8687ec3b46c36014d7bfbc707399054266734acc2d628cf61503e5b67a0ffc8a9915aff68b8ee8650fffd0ccad095dbdb65297ec9b2b92d7a256fdb771
   languageName: node
   linkType: hard
 
@@ -28386,7 +28372,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"param-case@npm:2.1.x":
+"param-case@npm:^2.1.1":
   version: 2.1.1
   resolution: "param-case@npm:2.1.1"
   dependencies:
@@ -30320,13 +30306,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"pretty-bytes@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "pretty-bytes@npm:4.0.2"
-  checksum: c63ebf8b641793e03ad34feeb5f65a3a344e69c0692125577bf0861597cbfba493ec714137dd255672143d5e66216f56c323ccac19e589350b3edc4b3de071b5
-  languageName: node
-  linkType: hard
-
 "pretty-bytes@npm:^5.1.0":
   version: 5.3.0
   resolution: "pretty-bytes@npm:5.3.0"
@@ -32182,7 +32161,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"relateurl@npm:0.2.x, relateurl@npm:^0.2.7":
+"relateurl@npm:^0.2.7":
   version: 0.2.7
   resolution: "relateurl@npm:0.2.7"
   checksum: 856db0385d82022042584c14702ce58cb4d74c6b6a6d98ba85357638e64c081e6cb85adbbadebc82eec87b6e70ba43ae02d8655e565dbd4baffdc405a1b0b614
@@ -36798,19 +36777,7 @@ typescript@~4.0.2:
   languageName: node
   linkType: hard
 
-"uglify-js@npm:3.4.x":
-  version: 3.4.10
-  resolution: "uglify-js@npm:3.4.10"
-  dependencies:
-    commander: ~2.19.0
-    source-map: ~0.6.1
-  bin:
-    uglifyjs: bin/uglifyjs
-  checksum: 432811d1001fa8e0a9ca4e1867300f4b95abbe80b3025185220c3982448dd2bbb0d2ec2a192002ebc88a8ba3e43d3289ff90bc6a2d2ddf02a92f218ba6bd703b
-  languageName: node
-  linkType: hard
-
-"uglify-js@npm:^3.1.4":
+"uglify-js@npm:^3.1.4, uglify-js@npm:^3.5.1":
   version: 3.9.2
   resolution: "uglify-js@npm:3.9.2"
   dependencies:
