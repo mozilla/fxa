@@ -13,8 +13,9 @@ import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useAccount, useLazyAccount } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
+import { HomePath } from '../../constants';
 
-const route = '/beta/settings/two_step_authentication';
+const replaceCodesRoute = `${HomePath}/two_step_authentication/replace_codes`;
 
 export const DELETE_TOTP_MUTATION = gql`
   mutation deleteTotp($input: DeleteTotpInput!) {
@@ -90,7 +91,7 @@ export const UnitRowTwoStepAuth = () => {
     <UnitRow
       header="Two-step authentication"
       prefixDataTestId="two-step"
-      route={route}
+      route={replaceCodesRoute}
       {...conditionalUnitRowProps}
       headerContent={
         <ButtonIconReload
@@ -168,7 +169,7 @@ export const UnitRowTwoStepAuth = () => {
             descId="two-step-auth-change-codes-description"
             confirmText="Change"
             confirmBtnClassName="cta-primary"
-            route={route}
+            route={replaceCodesRoute}
           >
             <h2
               className="font-bold text-xl text-center mb-2"
