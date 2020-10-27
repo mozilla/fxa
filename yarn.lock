@@ -9103,7 +9103,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:0.20.0, axios@npm:^0.20.0":
+"axios@npm:0.20.0":
   version: 0.20.0
   resolution: "axios@npm:0.20.0"
   dependencies:
@@ -9118,6 +9118,15 @@ __metadata:
   dependencies:
     follow-redirects: 1.5.10
   checksum: bad346deea24050f9953ce09bb8015f85a99a7b8f016806adccfab0b8981827d1fbee9c77c0ef7c70cc48392c1af6bbc65e07c3e88221d17282d2d5fd0a191f6
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.21.0":
+  version: 0.21.0
+  resolution: "axios@npm:0.21.0"
+  dependencies:
+    follow-redirects: ^1.10.0
+  checksum: 4b08ecab39040948c03cae5fa726fdcf8bc299679818179c146e779a922ce887fad9261d82ad57ad1a3aa1fcba3612f14b490fdfa2cd28fa23c190fd48517f5f
   languageName: node
   linkType: hard
 
@@ -17930,7 +17939,7 @@ fsevents@^1.2.7:
     "@typescript-eslint/parser": 3.0.2
     audit-filter: ^0.5.0
     aws-sdk: ^2.733.0
-    axios: ^0.20.0
+    axios: ^0.21.0
     chance: ^1.1.6
     class-transformer: ^0.3.1
     class-validator: ^0.12.2
