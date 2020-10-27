@@ -63,6 +63,7 @@ export const DropDownAvatarMenu = () => {
       )}
       <div className="relative" ref={avatarMenuInsideRef}>
         <button
+          type="button"
           onClick={toggleRevealed}
           data-testid="drop-down-avatar-menu-toggle"
           title="Firefox Account Menu"
@@ -80,7 +81,7 @@ export const DropDownAvatarMenu = () => {
           >
             <div className="flex flex-wrap">
               <div className="flex w-full p-4 items-center">
-                <div className="ltr:mr-3 rtl:ml-3 flex-1">
+                <div className="ltr:mr-3 rtl:ml-3">
                   <Avatar className="w-10" />
                 </div>
                 <p className="leading-5 max-w-full truncate">
