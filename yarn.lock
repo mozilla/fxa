@@ -17948,7 +17948,7 @@ fsevents@^1.2.7:
     graphql: ^14.6.0
     hot-shots: ^7.8.0
     jest: 26.6.1
-    jwks-rsa: ^1.9.0
+    jwks-rsa: ^1.11.0
     mozlog: ^3.0.1
     nock: ^13.0.4
     p-event: ^4.2.0
@@ -24197,18 +24197,21 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jwks-rsa@npm:^1.9.0":
-  version: 1.9.0
-  resolution: "jwks-rsa@npm:1.9.0"
+"jwks-rsa@npm:^1.11.0":
+  version: 1.11.0
+  resolution: "jwks-rsa@npm:1.11.0"
   dependencies:
     "@types/express-jwt": 0.0.42
     axios: ^0.19.2
     debug: ^4.1.0
+    http-proxy-agent: ^4.0.1
+    https-proxy-agent: ^5.0.0
     jsonwebtoken: ^8.5.1
     limiter: ^1.1.5
     lru-memoizer: ^2.1.2
     ms: ^2.1.2
-  checksum: e453e83272fcca9251417e349a267e2fa0c816d05e21feee4dd001846c9b8d646a8bfa267dc19cfa3ef72078d340de7a7ebb35a1af13eac84961bfa15a2b0bd1
+    proxy-from-env: ^1.1.0
+  checksum: 55e2503b300af6342bb1d1d4aa977b1b8a27cac9e1da57501527a553fbc70fdc6cbc8908189b657d2be8699326a6f0ed5222b79660e10b41b1b54c5e4c1da909
   languageName: node
   linkType: hard
 
@@ -30633,7 +30636,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"proxy-from-env@npm:^1.0.0":
+"proxy-from-env@npm:^1.0.0, proxy-from-env@npm:^1.1.0":
   version: 1.1.0
   resolution: "proxy-from-env@npm:1.1.0"
   checksum: 6459372a57f3e8ef5211f7847ca2fffabcdd6490005892fcc0dcd62fe2b3551900c8a07fad7df9de3897547b1ab4ac7a7197964cd6fa7e76303caa4936bfaf32
