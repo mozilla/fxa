@@ -19,7 +19,7 @@ import { checkCode, getCode } from '../../lib/totp';
 import { MockedProvider } from '@apollo/client/testing';
 import { Account, GET_ACCOUNT } from '../../models/Account';
 import { HomePath } from '../../constants';
-import { alertTextExternal } from 'fxa-settings/src/lib/cache';
+import { alertTextExternal } from '../../lib/cache';
 
 jest.mock('../../lib/totp', () => ({
   ...jest.requireActual('../../lib/totp'),
