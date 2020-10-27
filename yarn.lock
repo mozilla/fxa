@@ -16315,13 +16315,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fetch-mock@npm:^8.1.0":
-  version: 8.3.2
-  resolution: "fetch-mock@npm:8.3.2"
+"fetch-mock@npm:^9.10.7":
+  version: 9.10.7
+  resolution: "fetch-mock@npm:9.10.7"
   dependencies:
     babel-runtime: ^6.26.0
     core-js: ^3.0.0
+    debug: ^4.1.1
     glob-to-regexp: ^0.4.0
+    is-subset: ^0.1.1
     lodash.isequal: ^4.5.0
     path-to-regexp: ^2.2.1
     querystring: ^0.2.0
@@ -16331,7 +16333,7 @@ __metadata:
   peerDependenciesMeta:
     node-fetch:
       optional: true
-  checksum: be228ffca498a60e099fe7307428e61ab4d85770f50999b97e0650af04ab56104a62e03ff9985bbdfac0c1c90a2e6d47f0da1f9618c5564c02e26c8a17fcd8af
+  checksum: c8db0d238917bd347e315c0c70a45465bdcda60eceb3d03f3b556123bf519bb9754f71752b001b14788a82edad14286227ef0085d77c5f77d4922f47e44481b9
   languageName: node
   linkType: hard
 
@@ -18191,7 +18193,7 @@ fsevents@^1.2.7:
     eslint-plugin-react: 7.19.0
     express: ^4.17.1
     express-http-proxy: ^1.6.2
-    fetch-mock: ^8.1.0
+    fetch-mock: ^9.10.7
     fxa-content-server: "workspace:*"
     fxa-geodb: "workspace:*"
     fxa-react: "workspace:*"
@@ -21858,6 +21860,13 @@ fsevents@^1.2.7:
   version: 1.0.5
   resolution: "is-string@npm:1.0.5"
   checksum: c64c791eb75935db9055291bc598edc22f03d3879b8a050b2955ba8087642d006338a1dedf7ac414c95f985c77c2d6fce655498d33c0df248fa92228a9945720
+  languageName: node
+  linkType: hard
+
+"is-subset@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "is-subset@npm:0.1.1"
+  checksum: 1ab891ec6de0467bdaa2d8cd8e5d923c7fe617eb8e2d75f33205ff48d21658521d7f86d15637209d57f2ad99aa19241bf62ec31ddb558710d079738bdee3149d
   languageName: node
   linkType: hard
 
