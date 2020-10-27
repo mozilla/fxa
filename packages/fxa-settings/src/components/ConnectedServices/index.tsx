@@ -51,10 +51,6 @@ export const ConnectedServices = () => {
     ...attachedClients,
   ]);
   const [errorText, setErrorText] = useState<string>();
-  const onError = (e: Error) => {
-    setErrorText(e.message);
-    alertBar.show();
-  };
   const [getAccount, { accountLoading }] = useLazyAccount((error) => {
     setErrorText('Sorry, there was a problem refreshing the recovery key.');
     alertBar.show();
