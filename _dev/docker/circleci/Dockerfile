@@ -1,4 +1,4 @@
-FROM circleci/node:12-stretch-browsers
+FROM circleci/node:14-stretch-browsers
 
 USER root
 RUN apt-get update && apt-get install -y \

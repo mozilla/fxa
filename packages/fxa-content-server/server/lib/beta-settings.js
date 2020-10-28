@@ -21,7 +21,7 @@ const settingsIndexPath = join(
 
 if (env !== 'development') {
   settingsIndexFile = readFileSync(settingsIndexPath, {
-    encoding: 'UTF-8',
+    encoding: 'utf-8',
   });
 }
 

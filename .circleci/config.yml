@@ -85,7 +85,7 @@ jobs:
   test-package:
     resource_class: medium+
     docker:
-      - image: circleci/node:12
+      - image: circleci/node:14
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -108,7 +108,7 @@ jobs:
   test-many:
     resource_class: medium+
     docker:
-      - image: circleci/node:12
+      - image: circleci/node:14
       - image: circleci/mysql:5.7.27
       - image: jdlk7/firestore-emulator
       - image: memcached
@@ -208,7 +208,7 @@ jobs:
   deploy-packages:
     resource_class: small
     docker:
-      - image: circleci/node:12
+      - image: circleci/node:14
     environment:
       DOCKER_BUILDKIT: 1
     steps:
@@ -229,7 +229,7 @@ jobs:
   build-and-deploy-fxa-circleci:
     resource_class: small
     docker:
-      - image: circleci/node:12
+      - image: circleci/node:14
     environment:
       DOCKER_BUILDKIT: 1
     steps:
@@ -261,7 +261,7 @@ jobs:
   build-and-deploy-storybooks:
     resource_class: small
     docker:
-      - image: circleci/node:12
+      - image: circleci/node:14
     steps:
       - base-install:
           package: many

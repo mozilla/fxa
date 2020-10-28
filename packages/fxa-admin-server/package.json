@@ -22,9 +22,6 @@
     "type": "git",
     "url": "git+https://github.com/mozilla/fxa.git"
   },
-  "engines": {
-    "node": ">=12"
-  },
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "bugs": {
@@ -66,7 +63,7 @@
     "@types/chance": "^1.1.0",
     "@types/convict": "^5.2.1",
     "@types/graphql": "^14.5.0",
-    "@types/node": "^13.9.1",
+    "@types/node": "^14.14.5",
     "@types/rimraf": "3.0.0",
     "@types/supertest": "^2.0.10",
     "@types/yargs": "^15.0.5",

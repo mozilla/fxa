@@ -31,9 +31,6 @@
     "type": "git",
     "url": "https://github.com/mozilla/fxa.git"
   },
-  "engines": {
-    "node": ">=12"
-  },
   "bugs": "https://github.com/mozilla/fxa/issues/",
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-server",
   "license": "MPL-2.0",
@@ -72,7 +69,6 @@
     "hkdf": "0.0.2",
     "hot-shots": "^7.6.0",
     "i18n-abide": "0.0.26",
-    "intl": "1.2.5",
     "ioredis": "^4.17.3",
     "jed": "0.5.4",
     "jsonwebtoken": "^8.4.0",
@@ -119,7 +115,7 @@
     "@types/memcached": "^2.2.6",
     "@types/mocha": "^7.0.2",
     "@types/nock": "^11.1.0",
-    "@types/node": "^12.11.7",
+    "@types/node": "^14.14.5",
     "@types/request": "2.48.5",
     "@types/safe-regex": "1.1.2",
     "@types/verror": "^1.10.3",

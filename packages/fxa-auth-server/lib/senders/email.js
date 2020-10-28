@@ -23,14 +23,6 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
-// Polyfill Intl.NumberFormat until we are using Node >= 13
-if (parseInt(process.versions.node) > 12) {
-  console.error('Time to remove the intl polyfill module!!1!');
-} else {
-  const IntlPolyfill = require('intl');
-  Intl.NumberFormat = IntlPolyfill.NumberFormat;
-}
-
 module.exports = function (log, config, oauthdb) {
   const oauthClientInfo = require('./oauth_client_info')(log, config, oauthdb);
   const verificationReminders = require('../verification-reminders')(
@@ -201,7 +193,7 @@ module.exports = function (log, config, oauthdb) {
       // The exception could be a verror wrapped one.
       const cause = e.cause ? e.cause() : e;
       // If the language tag is not something Intl can handle, use 'en-US'.
-      if (cause.message.endsWith('is not a structurally valid language tag')) {
+      if (cause.message.endsWith('Incorrect locale information provided')) {
         return getLocalizedCurrencyString(amountInCents, currency, 'en-US');
       }
       throw e;

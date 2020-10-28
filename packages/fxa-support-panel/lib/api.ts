@@ -20,15 +20,8 @@ const MS_IN_SEC = 1000;
 const queryValidator = joi
   .object()
   .keys({
-    requestTicket: joi
-      .number()
-      .integer()
-      .optional(),
-    uid: joi
-      .string()
-      .required()
-      .hex()
-      .length(32),
+    requestTicket: joi.number().integer().optional(),
+    uid: joi.string().required().hex().length(32),
   })
   .required();
 
@@ -128,7 +121,7 @@ class SupportController {
     const accountInfoReqPromises = [
       `${this.config.authdbUrl}/account/${uid}`,
       `${this.config.authdbUrl}/account/${uid}/devices`,
-    ].map(url => requests.get({ ...opts, url }));
+    ].map((url) => requests.get({ ...opts, url }));
 
     try {
       [account, devices] = await Promise.all(accountInfoReqPromises);
@@ -156,7 +149,7 @@ class SupportController {
       return h.response('<h1>Unable to fetch subscriptions</h1>').code(500);
     }
 
-    const formattedSubscriptions = subscriptions.map(s => ({
+    const formattedSubscriptions = subscriptions.map((s) => ({
       ...s,
       created: String(new Date(s.created * MS_IN_SEC)),
       current_period_end: String(new Date(s.current_period_end * MS_IN_SEC)),
@@ -174,7 +167,7 @@ class SupportController {
         ...authServerRequestOptions,
         url: `${this.config.authServer.url}${this.config.authServer.signinLocationsSearchPath}?uid=${uid}`,
       });
-      signinLocations = locations.map(v => ({
+      signinLocations = locations.map((v) => ({
         ...v,
         lastAccessTime: new Date(v.lastAccessTime),
       }));
@@ -201,7 +194,7 @@ class SupportController {
 
     const context = {
       created: String(new Date(account.createdAt)),
-      devices: devices.map(d => {
+      devices: devices.map((d) => {
         return {
           created: String(new Date(d.createdAt)),
           name: d.name,
@@ -239,7 +232,7 @@ export function init(
   }
   const templateDir = path.join(rootDir, 'lib', 'templates');
   const pageTemplate = fs.readFileSync(path.join(templateDir, 'index.html'), {
-    encoding: 'UTF-8',
+    encoding: 'utf-8',
   });
   const template = handlebars.compile(pageTemplate);
 
