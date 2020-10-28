@@ -136,7 +136,7 @@
     "jsxgettext-recursive-next": "1.1.0",
     "jws": "4.0.0",
     "keypair": "1.0.1",
-    "leftpad": "0.0.0",
+    "leftpad": "0.0.1",
     "load-grunt-tasks": "^5.1.0",
     "lodash.chunk": "4.2.0",
     "lodash.pick": "4.4.0",
