@@ -17,6 +17,21 @@ type TooltipProps = {
   prefixDataTestId?: string;
 };
 
+function caretClass(type: TooltipType, position: PositionType) {
+  // caret position and the positioning rule for tooltip are actually the opposite
+  // of the passed in position;
+  if (position === 'top') {
+    if (type === 'error') {
+      return 'caret-bottom-error';
+    }
+    return 'caret-bottom-default';
+  }
+  if (type === 'error') {
+    return 'caret-top-error';
+  }
+  return 'caret-top-default';
+}
+
 export const Tooltip = ({
   message,
   className,
@@ -25,14 +40,6 @@ export const Tooltip = ({
   position = 'top',
   prefixDataTestId,
 }: TooltipProps) => {
-  const bgColor = type === 'error' ? 'red-600' : 'grey-500';
-  // caret position and the positioning rule for tooltip are actually the opposite
-  // of the passed in position;
-  const oppositePositionRule = {
-    top: 'bottom',
-    bottom: 'top',
-  }[position];
-
   function formatDataTestId(id: string) {
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
   }
@@ -44,25 +51,25 @@ export const Tooltip = ({
       className={classNames(
         `z-50 absolute py-2 px-6 text-center text-white
          p-3 rounded text-xs left-0 font-header font-bold
-         ${oppositePositionRule}-full shadow-tooltip-grey-drop
+          shadow-tooltip-grey-drop
          `,
-        `bg-${bgColor}`,
+        type === 'error' ? 'bg-red-600' : 'bg-grey-500',
         className,
         {
           'left-1/2 transform -translate-x-1/2': !anchorLeft,
           'left-0': anchorLeft,
+          'bottom-full': position === 'top',
+          'top-full': position === 'bottom',
         }
       )}
     >
       <span
-        className={classNames(
-          `absolute caret-${oppositePositionRule}-${type}
-            ${position}-full`,
-          {
-            'left-1/2 transform -translate-x-1/2': !anchorLeft,
-            'left-ten': anchorLeft,
-          }
-        )}
+        className={classNames('absolute', caretClass(type, position), {
+          'left-1/2 transform -translate-x-1/2': !anchorLeft,
+          'left-ten': anchorLeft,
+          'top-full': position === 'top',
+          'bottom-full': position === 'bottom',
+        })}
       />
       {message}
     </div>
