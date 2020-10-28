@@ -15,6 +15,9 @@ executors:
           FXA_EMAIL_ENV: dev
           FXA_EMAIL_LOG_LEVEL: debug
           RUST_BACKTRACE: 1
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     environment:
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
 
@@ -90,6 +93,9 @@ jobs:
       - image: memcached
       - image: pafortin/goaws
       - image: circleci/mysql:5.7.27
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     parameters:
       package:
         type: string
@@ -113,6 +119,9 @@ jobs:
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     steps:
       - base-install:
           package: many
@@ -197,6 +206,9 @@ jobs:
           - MYSQL_ALLOW_EMPTY_PASSWORD: yes
           - MYSQL_ROOT_PASSWORD: ''
       - image: redis
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     steps:
       - base-install:
           package: fxa-email-service
@@ -209,6 +221,9 @@ jobs:
     resource_class: small
     docker:
       - image: circleci/node:14
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     environment:
       DOCKER_BUILDKIT: 1
     steps:
@@ -230,6 +245,9 @@ jobs:
     resource_class: small
     docker:
       - image: circleci/node:14
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     environment:
       DOCKER_BUILDKIT: 1
     steps:
@@ -262,6 +280,9 @@ jobs:
     resource_class: small
     docker:
       - image: circleci/node:14
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     steps:
       - base-install:
           package: many

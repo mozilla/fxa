@@ -13,6 +13,12 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
 
   mkdir -p ../../artifacts
 
+  if [ "${DOCKER_USER}" == "" ] || [ "${DOCKER_PASS}" == "" ]; then
+      echo "Skipping Login to Dockerhub, credentials not available."
+  else
+      echo "${DOCKER_PASS}" | docker login -u="${DOCKER_USER}" --password-stdin
+  fi
+
   if [[ -x scripts/build-ci.sh ]]; then
     time ./scripts/build-ci.sh
   elif [[ -r Dockerfile ]]; then
