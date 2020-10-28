@@ -17509,7 +17509,7 @@ fsevents@^1.2.7:
     react: ^16.8.6
     react-dom: ^16.8.6
     request: ^2.88.2
-    request-promise: 4.2.0
+    request-promise: 4.2.6
     sass-loader: ^10.0.3
     serve-static: 1.14.1
     sinon: 4.5.0
@@ -24497,7 +24497,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.20, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.13.1, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.10, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.2, lodash@npm:~4.17.5":
+"lodash@npm:4.17.20, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.10, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.2, lodash@npm:~4.17.5":
   version: 4.17.20
   resolution: "lodash@npm:4.17.20"
   checksum: c62101d2500c383b5f174a7e9e6fe8098149ddd6e9ccfa85f36d4789446195f5c4afd3cfba433026bcaf3da271256566b04a2bf2618e5a39f6e67f8c12030cb6
@@ -31628,17 +31628,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"request-promise-core@npm:1.1.1":
-  version: 1.1.1
-  resolution: "request-promise-core@npm:1.1.1"
-  dependencies:
-    lodash: ^4.13.1
-  peerDependencies:
-    request: ^2.34
-  checksum: 390bf8e48617a5ea4969b61476df0561960c84dd6f2612839f312cf975735ef116560a25a76dbbd435ab4dd0c0883f4833b9381c171c53f89ac3115e0cd5541e
-  languageName: node
-  linkType: hard
-
 "request-promise-core@npm:1.1.4":
   version: 1.1.4
   resolution: "request-promise-core@npm:1.1.4"
@@ -31663,16 +31652,17 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"request-promise@npm:4.2.0":
-  version: 4.2.0
-  resolution: "request-promise@npm:4.2.0"
+"request-promise@npm:4.2.6":
+  version: 4.2.6
+  resolution: "request-promise@npm:4.2.6"
   dependencies:
     bluebird: ^3.5.0
-    request-promise-core: 1.1.1
-    stealthy-require: ^1.0.0
+    request-promise-core: 1.1.4
+    stealthy-require: ^1.1.1
+    tough-cookie: ^2.3.3
   peerDependencies:
     request: ^2.34
-  checksum: c659ce9889cf02b6562a303a2a0edcf5c29455eb812ce87fbb8b1bcfe7586f59d8fa1d1248a438d7a849d14a263052eedab5af0fe51a6e46dca6a14cc48805db
+  checksum: 6a715e7817dd11a77ac2a1eaa334a3fb5616436be1a2ffe07f605711a1cd6bf87149aa6173dfda8897f81e399b86f98ed088c594fa1a726958777fcb4a26a991
   languageName: node
   linkType: hard
 
@@ -33902,7 +33892,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"stealthy-require@npm:^1.0.0, stealthy-require@npm:^1.1.1":
+"stealthy-require@npm:^1.1.1":
   version: 1.1.1
   resolution: "stealthy-require@npm:1.1.1"
   checksum: f24a9bc613817dea37afcbf64578f2ba0195916d906ebdaa1c1d5b8e9d51fd462cbf4c61ae04217babd0cf662e6c0115fd972dffa8e62a7f6f44f3109fb4c796
