@@ -17326,7 +17326,7 @@ fsevents@^1.2.7:
     jws: 4.0.0
     keypair: 1.0.1
     keyv: 4.0.3
-    leftpad: 0.0.0
+    leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.19
     lodash.chunk: 4.2.0
@@ -23768,10 +23768,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"leftpad@npm:0.0.0":
-  version: 0.0.0
-  resolution: "leftpad@npm:0.0.0"
-  checksum: 253994a3084a85a1d5c76f1ecd9f34967c4e72cf624d961a650638f050b1f9de13f469d3b8fec4b8b04ca07925c745e668404ce95e126cfc37e7c3227dbcde87
+"leftpad@npm:0.0.1":
+  version: 0.0.1
+  resolution: "leftpad@npm:0.0.1"
+  checksum: 962fb6d061e92e39ebe867566a1a5f77894d092938050d6df3d11805627a5f11d3ec3bcb39236bba383f905561a86ab075d28b75ea9dca37be7d518084f3b940
   languageName: node
   linkType: hard
 
