@@ -2,39 +2,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const selectors = require('../../lib/selectors');
+const FunctionalHelpers = require('../../lib/helpers');
 
- const selectors = require('../../lib/selectors');
- const FunctionalHelpers = require('../../lib/helpers');
+const { createEmail } = FunctionalHelpers;
+const config = intern._config;
+const EMAIL_FIRST = config.fxaContentRoot;
+const SETTINGS_V2_URL = config.fxaSettingsv2Root;
+const password = 'passwordzxcv';
 
- const { createEmail } = FunctionalHelpers;
- const config = intern._config;
- const EMAIL_FIRST = config.fxaContentRoot;
- const SETTINGS_V2_URL = config.fxaSettingsv2Root;
- const password = 'passwordzxcv';
-
- let email;
- const {
+const {
   clearBrowserState,
   createUser,
   openPage,
   fillOutEmailFirstSignIn,
   testElementExists,
-} = FunctionalHelpers;
+} = FunctionalHelpers.helpersRemoteWrapped;
 
+async function navigateToSettingsV2(remote) {
+  const email = createEmail();
+  await clearBrowserState(remote);
+  await createUser(email, password, { preVerified: true }, remote);
 
- async function navigateToSettingsV2(remote) {
- email = createEmail();
- await clearBrowserState(remote);
- await createUser(email, password, { preVerified: true }, remote);
+  await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
+  await fillOutEmailFirstSignIn(email, password, remote);
+  await testElementExists(selectors.SETTINGS.HEADER, remote);
 
- await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
- await fillOutEmailFirstSignIn(email, password, remote);
- await testElementExists(selectors.SETTINGS.HEADER, remote);
-
- // Open new settings
- await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote);
-};
-
+  // Open new settings
+  await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote);
+  return email;
+}
 
 module.exports = {
   navigateToSettingsV2,

@@ -10,40 +10,17 @@ const selectors = require('../lib/selectors');
 const FunctionalHelpers = require('../lib/helpers');
 const FunctionalSettingsHelpers = require('./lib/helpers');
 
-//const config = intern._config;
-//const EMAIL_FIRST = config.fxaContentRoot;
-//const SETTINGS_V2_URL = config.fxaSettingsv2Root;
-//const password = 'passwordzxcv';
-
-//const { createEmail } = FunctionalHelpers;
 const { navigateToSettingsV2 } = FunctionalSettingsHelpers;
 const {
-  //clearBrowserState,
   click,
-  //createUser,
-  //openPage,
-  //fillOutEmailFirstSignIn,
-  //testElementExists,
   testElementTextEquals,
   type,
 } = FunctionalHelpers.helpersRemoteWrapped;
-let email;
 
 describe('display name', () => {
-
+  var email;
   beforeEach(async ({ remote }) => {
-    //async ({ remote }) => {
-    /*email = createEmail();
-    await clearBrowserState(remote);
-    await createUser(email, password, { preVerified: true }, remote);
-
-    await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
-    await fillOutEmailFirstSignIn(email, password, remote);
-    await testElementExists(selectors.SETTINGS.HEADER, remote);
-
-    // Open new settings
-    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote); */
-    await navigateToSettingsV2(remote);
+    email = await navigateToSettingsV2(remote);
     await click(
       selectors.SETTINGS_V2.DISPLAY_NAME.ADD_BUTTON,
       selectors.SETTINGS_V2.DISPLAY_NAME.TEXTBOX_LABEL,
