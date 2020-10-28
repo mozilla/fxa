@@ -19,10 +19,6 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
     # send Dockerfile over stdin to exclude local context
     # https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#pipe-dockerfile-through-stdin
     time (< Dockerfile docker build --progress=plain -t "${MODULE}:build" - &> "../../artifacts/${MODULE}.log")
-  elif [[ -r pm2.config.js ]]; then
-    # Build a default image with the contents of MODULE at /app
-    time (echo -e "FROM fxa-mono:build\nUSER root\nRUN ln -sF /fxa/packages/${MODULE} /app\nUSER app\nWORKDIR /app" | \
-    docker build --progress=plain -t "${MODULE}:build" - &> "../../artifacts/${MODULE}.log")
   fi
 
   # for debugging:
