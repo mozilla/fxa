@@ -188,6 +188,43 @@ export function init(flowQueryParams: FlowQueryParams) {
 }
 
 /**
+ * Often we need to log a metric event in a place where hooks are not allowed.
+ * However, we do want initialize some event data through the use of hooks.
+ * It also provide a couple functions that ensure the event is logged once.
+ */
+export function useMetrics(): {
+  logViewEventOnce: typeof logViewEvent;
+  logPageViewEventOnce: typeof logPageViewEvent;
+} {
+  useUserPreferences();
+
+  const makeLogOnceFn = (f: Function) => {
+    let hasLogged = false;
+
+    return (
+      ...args:
+        | Parameters<typeof logViewEvent>
+        | Parameters<typeof logPageViewEvent>
+    ) => {
+      if (!hasLogged) {
+        hasLogged = true;
+        f(...args);
+      }
+    };
+  };
+
+  const logViewEventOnce: (
+    ...args: Parameters<typeof logViewEvent>
+  ) => void = makeLogOnceFn(logViewEvent);
+
+  const logPageViewEventOnce: (
+    ...args: Parameters<typeof logPageViewEvent>
+  ) => void = makeLogOnceFn(logPageViewEvent);
+
+  return { logViewEventOnce, logPageViewEventOnce };
+}
+
+/**
  * Set the value of multiple configurable metrics event properties
  *
  * @param properties - Any ConfigurableProperties you wish to assign values to
@@ -274,6 +311,16 @@ export function logViewEvent(
   }
 
   logEvents([`${viewName}.${eventName}`], eventProperties);
+}
+
+/**
+ * A non-hook version of usePageViewEvent.  See comments for that function.
+ */
+export function logPageViewEvent(
+  viewName: string,
+  eventProperties: Hash<any> = {}
+) {
+  logEvents([`screen.${viewName}`], eventProperties);
 }
 
 /**
