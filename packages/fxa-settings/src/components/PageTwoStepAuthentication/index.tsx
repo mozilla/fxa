@@ -20,6 +20,9 @@ import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
 import { cloneDeep } from '@apollo/client/utilities';
 import { alertTextExternal } from '../../lib/cache';
+import { logViewEvent, useMetrics } from '../../lib/metrics';
+
+export const metricsPreInPostFix = 'settings.two-step-authentication';
 
 export const CREATE_TOTP_MUTATION = gql`
   mutation createTotp($input: CreateTotpInput!) {
@@ -60,6 +63,16 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const isValidRecoveryCodeFormat = (recoveryCode: string) =>
     /\w/.test(recoveryCode);
 
+  const { logPageViewEventOnce: logStep1PageViewEvent } = useMetrics();
+  const { logPageViewEventOnce: logStep2PageViewEvent } = useMetrics();
+  const { logViewEventOnce: logTotpSubmitEvent } = useMetrics();
+  const logDataTrioActionEvent = (action: string) => {
+    logViewEvent(
+      `flow.${metricsPreInPostFix}.recovery-codes`,
+      `${action}-option`
+    );
+  };
+
   const alertBar = useAlertBar();
   const [subtitle, setSubtitle] = useState<string>('Step 1 of 3');
   const [qrCodeUrl, setQrCodeUrl] = useState<string>();
@@ -80,6 +93,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     } else {
       setInvalidCodeError('Invalid two-step authentication code');
     }
+    logTotpSubmitEvent(metricsPreInPostFix, 'submit');
   };
 
   // Handles the "Continue" on step two, which doesn't submits any values.
@@ -154,6 +168,16 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   useEffect(() => {
     session.verified && createTotp({ variables: { input: {} } });
   }, [session, createTotp]);
+
+  useEffect(() => {
+    session.verified && logStep1PageViewEvent(metricsPreInPostFix);
+  }, [session, logStep1PageViewEvent]);
+
+  useEffect(() => {
+    totpVerified &&
+      !recoveryCodesAcknowledged &&
+      logStep2PageViewEvent(`${metricsPreInPostFix}.recovery-codes`);
+  }, [totpVerified, recoveryCodesAcknowledged, logStep2PageViewEvent]);
 
   return (
     <FlowContainer title="Two Step Authentication" {...{ subtitle }}>
@@ -236,7 +260,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             have your mobile device.
             <div className="mt-6 flex flex-col items-center h-40 justify-between">
               <DataBlock value={recoveryCodes}></DataBlock>
-              <GetDataTrio value={recoveryCodes}></GetDataTrio>
+              <GetDataTrio
+                value={recoveryCodes}
+                onAction={logDataTrioActionEvent}
+              ></GetDataTrio>
             </div>
           </div>
           <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">

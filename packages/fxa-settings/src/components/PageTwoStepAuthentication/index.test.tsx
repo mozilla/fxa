@@ -13,13 +13,14 @@ import {
   createCache,
 } from '../../models/_mocks';
 import React from 'react';
-import PageTwoStepAuthentication from '.';
+import PageTwoStepAuthentication, { metricsPreInPostFix } from '.';
 import { CREATE_TOTP_MOCK, VERIFY_TOTP_MOCK } from './_mocks';
 import { checkCode, getCode } from '../../lib/totp';
 import { MockedProvider } from '@apollo/client/testing';
 import { Account, GET_ACCOUNT } from '../../models/Account';
 import { HomePath } from '../../constants';
 import { alertTextExternal } from '../../lib/cache';
+import * as Metrics from '../../lib/metrics';
 
 jest.mock('../../lib/totp', () => ({
   ...jest.requireActual('../../lib/totp'),
@@ -293,6 +294,83 @@ describe('step 3', () => {
     expect(alertTextExternal).toHaveBeenCalledTimes(1);
     expect(alertTextExternal).toHaveBeenCalledWith(
       'Two-step authentication enabled'
+    );
+  });
+});
+
+describe('metrics', () => {
+  it('emits the correct metric events', async () => {
+    const mockLogViewEvent = jest.fn();
+    const mockLogPageViewEvent = jest.fn();
+    jest.spyOn(Metrics, 'useMetrics').mockReturnValue({
+      logViewEventOnce: mockLogViewEvent,
+      logPageViewEventOnce: mockLogPageViewEvent,
+    });
+    const logViewEventSpy = jest.spyOn(Metrics, 'logViewEvent');
+
+    // Hey kid, stop all the printing!
+    window.open = jest.fn().mockReturnValue({
+      document: { write: jest.fn(), close: jest.fn() },
+      focus: jest.fn(),
+      print: jest.fn(),
+      close: jest.fn(),
+    });
+
+    await act(async () => {
+      render();
+    });
+    await submitTotp('867530');
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('databutton-copy'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('databutton-print'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('databutton-download'));
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('ack-recovery-code'));
+    });
+
+    (getCode as jest.Mock).mockResolvedValue('001980');
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+        target: {
+          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+        },
+      });
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('submit-recovery-code'));
+    });
+
+    expect(mockLogPageViewEvent).toBeCalledTimes(2);
+    expect(mockLogPageViewEvent).toHaveBeenCalledWith(metricsPreInPostFix);
+    expect(mockLogPageViewEvent).toHaveBeenCalledWith(
+      `${metricsPreInPostFix}.recovery-codes`
+    );
+
+    expect(mockLogViewEvent).toBeCalledTimes(1);
+    expect(mockLogViewEvent).toHaveBeenCalledWith(
+      metricsPreInPostFix,
+      'submit'
+    );
+
+    expect(logViewEventSpy).toBeCalledTimes(3);
+    expect(logViewEventSpy).toHaveBeenCalledWith(
+      `flow.${metricsPreInPostFix}.recovery-codes`,
+      `print-option`
+    );
+    expect(logViewEventSpy).toHaveBeenCalledWith(
+      `flow.${metricsPreInPostFix}.recovery-codes`,
+      `copy-option`
+    );
+    expect(logViewEventSpy).toHaveBeenCalledWith(
+      `flow.${metricsPreInPostFix}.recovery-codes`,
+      `download-option`
     );
   });
 });
