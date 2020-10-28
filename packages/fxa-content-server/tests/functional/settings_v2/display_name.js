@@ -8,30 +8,30 @@ const intern = require('intern').default;
 const { describe, it, beforeEach } = intern.getPlugin('interface.bdd');
 const selectors = require('../lib/selectors');
 const FunctionalHelpers = require('../lib/helpers');
+const FunctionalSettingsHelpers = require('..settings_v2/lib/helpers');
 
-const config = intern._config;
-const EMAIL_FIRST = config.fxaContentRoot;
-const SETTINGS_V2_URL = `${config.fxaContentRoot}beta/settings`;
-const password = 'passwordzxcv';
+//const config = intern._config;
+//const EMAIL_FIRST = config.fxaContentRoot;
+//const SETTINGS_V2_URL = config.fxaSettingsv2Root;
+//const password = 'passwordzxcv';
 
-const { createEmail } = FunctionalHelpers;
-
+//const { createEmail } = FunctionalHelpers;
+const { navigateToSettingsV2 } = FunctionalSettingsHelpers;
 const {
-  clearBrowserState,
+  //clearBrowserState,
   click,
-  createUser,
-  openPage,
-  fillOutEmailFirstSignIn,
-  testElementExists,
+  //createUser,
+  //openPage,
+  //fillOutEmailFirstSignIn,
+  //testElementExists,
   testElementTextEquals,
-
   type,
 } = FunctionalHelpers.helpersRemoteWrapped;
 
 describe('display name', () => {
   let email;
   beforeEach(async ({ remote }) => {
-    email = createEmail();
+    /*email = createEmail();
     await clearBrowserState(remote);
     await createUser(email, password, { preVerified: true }, remote);
 
@@ -40,8 +40,8 @@ describe('display name', () => {
     await testElementExists(selectors.SETTINGS.HEADER, remote);
 
     // Open new settings
-    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote);
-
+    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote); */
+    await navigateToSettingsV2;
     await click(
       selectors.SETTINGS_V2.DISPLAY_NAME.ADD_BUTTON,
       selectors.SETTINGS_V2.DISPLAY_NAME.TEXTBOX_LABEL,
