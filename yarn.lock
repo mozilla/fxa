@@ -17126,7 +17126,7 @@ fsevents@^1.2.7:
     postcss-cli: ^7.1.1
     prettier: ^2.0.5
     react: ^16.13.0
-    react-dom: ^16.13.0
+    react-dom: ^17.0.1
     react-router-dom: ^5.1.2
     react-scripts: ^3.4.1
     serve-static: ^1.14.1
@@ -17507,7 +17507,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     proxyquire: ^2.1.3
     react: ^16.8.6
-    react-dom: ^16.8.6
+    react-dom: ^17.0.1
     request: ^2.88.2
     request-promise: 4.2.6
     sass-loader: ^10.0.3
@@ -17954,7 +17954,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     react: ^16.12.0
     react-document-title: ^2.0.3
-    react-dom: ^16.12.0
+    react-dom: ^17.0.1
     react-redux: ^7.2.1
     react-router-dom: ^5.1.2
     react-scripts: ^3.4.1
@@ -18067,7 +18067,7 @@ fsevents@^1.2.7:
     postcss-cli: ^7.1.1
     prettier: ^2.0.5
     react: ^16.13.1
-    react-dom: ^16.13.1
+    react-dom: ^17.0.1
     react-transition-group: ^4.3.0
     rimraf: ^3.0.2
     sass: 1.26.10
@@ -18131,7 +18131,7 @@ fsevents@^1.2.7:
     postcss-import: ^12.0.1
     react: ^16.13.1
     react-async-hook: ^3.6.1
-    react-dom: ^16.13.1
+    react-dom: ^17.0.1
     react-hook-form: ^6.8.6
     react-scripts: ^3.4.1
     react-test-renderer: ^17.0.1
@@ -30460,7 +30460,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-dom@npm:16.13.1, react-dom@npm:^16.12.0, react-dom@npm:^16.13.0, react-dom@npm:^16.13.1, react-dom@npm:^16.8.3, react-dom@npm:^16.8.6":
+"react-dom@npm:16.13.1, react-dom@npm:^16.8.3":
   version: 16.13.1
   resolution: "react-dom@npm:16.13.1"
   dependencies:
@@ -30471,6 +30471,19 @@ fsevents@^1.2.7:
   peerDependencies:
     react: ^16.13.1
   checksum: fb5c3ad41360c6a8674f33916aa895d05e79d063d31a6963074220c1cda9e07e880799d01670b4ebd570b4d3457584f13cc898b5033a05641e8e801f5611607e
+  languageName: node
+  linkType: hard
+
+"react-dom@npm:^17.0.1":
+  version: 17.0.1
+  resolution: "react-dom@npm:17.0.1"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+    scheduler: ^0.20.1
+  peerDependencies:
+    react: 17.0.1
+  checksum: 6a70028fbe3c95e0056c5e8ce065b4a9b8d4ff3bffde9b016454072bde5e4b012af7668ca45b7235ace428267d5be5237b68ea87ce8c296e54e81a8d678a4355
   languageName: node
   linkType: hard
 
