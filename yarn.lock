@@ -13570,7 +13570,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.8.17, dayjs@npm:~1.8.24, dayjs@npm:~1.8.25":
+"dayjs@npm:^1.9.4":
+  version: 1.9.4
+  resolution: "dayjs@npm:1.9.4"
+  checksum: ee3031a7aeff88d63eef734806f6b193e04a99ed48ae6e5d382aeb21264d47658a322d7f8be29774052427f5f87ac7ed2db4e965ae77f68124c52621fccc7437
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:~1.8.24, dayjs@npm:~1.8.25":
   version: 1.8.26
   resolution: "dayjs@npm:1.8.26"
   checksum: 2fabd204b500e6f24b95d4e4666d5fe3f372bed7dced836dddc160817276c40f47da2b762f08e72a4a76c389bca4e56bab4e464462cb682c80d787985400abad
@@ -17923,7 +17930,7 @@ fsevents@^1.2.7:
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
     convict-format-with-validator: ^6.0.0
-    dayjs: ^1.8.17
+    dayjs: ^1.9.4
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^23.13.2
