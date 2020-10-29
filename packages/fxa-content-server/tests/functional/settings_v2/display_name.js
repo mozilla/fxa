@@ -18,7 +18,7 @@ const {
 } = FunctionalHelpers.helpersRemoteWrapped;
 
 describe('display name', () => {
-  var email;
+  let email;
   beforeEach(async ({ remote }) => {
     email = await navigateToSettingsV2(remote);
     await click(
