@@ -8,17 +8,18 @@ import { cloneDeep } from '@apollo/client/utilities';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
+import { HomePath } from '../../constants';
 import { usePasswordChanger } from '../../lib/auth';
 import { cache, sessionToken } from '../../lib/cache';
+import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { useAccount, Account, Session } from '../../models';
 import AlertBar from '../AlertBar';
 import FlowContainer from '../FlowContainer';
 import InputPassword from '../InputPassword';
-import { logViewEvent, settingsViewName } from '../../lib/metrics';
+import PasswordValidator from './PasswordValidator';
 import { ReactComponent as ValidIcon } from './valid.svg';
 import { ReactComponent as InvalidIcon } from './invalid.svg';
 import { ReactComponent as UnsetIcon } from './unset.svg';
-import { HomePath } from '../../constants';
 
 type FormData = {
   oldPassword: string;
@@ -101,6 +102,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       }
     },
   });
+  const passwordValidator = new PasswordValidator(primaryEmail.email);
   return (
     <FlowContainer title="Change Password">
       {alertBarRevealed && alertText && (
@@ -178,20 +180,15 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
               validate: {
                 length: (value: string) => value.length > 7,
                 notEmail: (value: string) => {
-                  const input = value.toLowerCase();
-                  const email = primaryEmail.email.toLowerCase();
-                  const [username] = email.split('@');
-                  return (
-                    !input.includes(email) &&
-                    !email.includes(input) &&
-                    (!input.includes(username) ||
-                      username.length * 2 < input.length)
-                  );
+                  return !passwordValidator.isSameAsEmail(value.toLowerCase());
                 },
                 uncommon: async (value: string) => {
                   // @ts-ignore
                   const list = await import('fxa-common-password-list');
-                  return !list.test(value.toLowerCase());
+                  const input = value.toLowerCase();
+                  return (
+                    !list.test(input) && !passwordValidator.isBanned(input)
+                  );
                 },
               },
             })}
