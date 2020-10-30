@@ -16134,7 +16134,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"file-loader@npm:4.3.0, file-loader@npm:^4.2.0, file-loader@npm:^4.3.0":
+"file-loader@npm:4.3.0, file-loader@npm:^4.2.0":
   version: 4.3.0
   resolution: "file-loader@npm:4.3.0"
   dependencies:
@@ -16155,6 +16155,18 @@ __metadata:
   peerDependencies:
     webpack: ^4.0.0 || ^5.0.0
   checksum: ad930c9e7fa8c85cc048afa44c370c86f6a9ba89149b2b24e362f0b279595a05d039211263bf65117e4850f337f9bff251288ddff426dda997468a00e1268ffc
+  languageName: node
+  linkType: hard
+
+"file-loader@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "file-loader@npm:6.2.0"
+  dependencies:
+    loader-utils: ^2.0.0
+    schema-utils: ^3.0.0
+  peerDependencies:
+    webpack: ^4.0.0 || ^5.0.0
+  checksum: 0f103418c072ec66c081a9908cd7824ee19905e18be16889cb050f5f373998afaf7ca4c2fd2df4cabf703a2cd526aefe59105930e3f8d266a5b35e6d5f5b3cf4
   languageName: node
   linkType: hard
 
@@ -18065,7 +18077,7 @@ fsevents@^1.2.7:
     camelcase: ^6.0.0
     classnames: ^2.2.6
     eslint: ^6.8.0
-    file-loader: ^4.3.0
+    file-loader: ^6.2.0
     fxa-shared: "workspace:*"
     identity-obj-proxy: ^3.0.0
     jest: ^26.4.2
