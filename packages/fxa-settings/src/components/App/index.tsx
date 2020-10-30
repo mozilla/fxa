@@ -9,6 +9,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import * as Metrics from '../../lib/metrics';
 import { Account } from '../../models';
+import { ACCOUNT_FIELDS } from '../../models/Account';
 import { Router } from '@reach/router';
 import FlowContainer from '../FlowContainer';
 import PageSettings from '../PageSettings';
@@ -24,49 +25,7 @@ import { HomePath } from '../../constants';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
-    account {
-      uid
-      displayName
-      avatarUrl
-      accountCreated
-      passwordCreated
-      recoveryKey
-      primaryEmail @client
-      emails {
-        email
-        isPrimary
-        verified
-      }
-      attachedClients {
-        clientId
-        isCurrentSession
-        userAgent
-        deviceType
-        deviceId
-        name
-        lastAccessTime
-        lastAccessTimeFormatted
-        approximateLastAccessTime
-        approximateLastAccessTimeFormatted
-        userAgent
-        location {
-          city
-          country
-          state
-          stateCode
-        }
-        os
-      }
-      totp {
-        exists
-        verified
-      }
-      subscriptions {
-        created
-        productName
-      }
-      alertTextExternal @client
-    }
+    ${ACCOUNT_FIELDS}
     session {
       verified
     }

@@ -16,6 +16,7 @@ type ModalProps = {
   onConfirm?: () => void;
   children: ReactNode;
   hasButtons?: boolean;
+  hasCancelButton?: boolean;
   headerId: string;
   descId: string;
   route?: string;
@@ -30,6 +31,7 @@ export const Modal = ({
   onConfirm,
   children,
   hasButtons = true,
+  hasCancelButton = true,
   headerId,
   descId,
   route,
@@ -76,13 +78,15 @@ export const Modal = ({
             <div>{children}</div>
             {hasButtons && (
               <div className="flex justify-center mx-auto mt-6 max-w-64">
-                <button
-                  className="cta-neutral mx-2 flex-1"
-                  data-testid="modal-cancel"
-                  onClick={onDismiss}
-                >
-                  Cancel
-                </button>
+                {hasCancelButton && (
+                  <button
+                    className="cta-neutral mx-2 flex-1"
+                    data-testid="modal-cancel"
+                    onClick={onDismiss}
+                  >
+                    Cancel
+                  </button>
+                )}
 
                 {route && (
                   <Link

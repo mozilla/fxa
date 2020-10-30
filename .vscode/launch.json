@@ -65,6 +65,14 @@
       "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}",
       "port": 9150
+    },
+    {
+      "name": "Attach to graphql-api server",
+      "type": "node",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}",
+      "port": 9200
     }
   ]
 }

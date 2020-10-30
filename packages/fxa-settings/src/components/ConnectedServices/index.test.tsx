@@ -3,11 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { act, fireEvent, screen, wait } from '@testing-library/react';
-import ConnectedServices, { sortAndFilterConnectedClients } from '.';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
+import { act, fireEvent, screen, wait, waitFor } from '@testing-library/react';
+import ConnectedServices, {
+  sortAndFilterConnectedClients,
+  ATTACHED_CLIENT_DISCONNECT_MUTATION,
+} from '.';
+import {
+  createCache,
+  renderWithRouter,
+  MockedCache,
+} from '../../models/_mocks';
+import { GET_ACCOUNT } from '../../models';
 import { isMobileDevice } from '../../lib/utilities';
-import { MOCK_SERVICES } from './MOCK_SERVICES';
+import { DESKTOP_SYNC_MOCKS, MOCK_SERVICES } from './MOCK_SERVICES';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
@@ -23,6 +31,58 @@ const getIconAndServiceLink = async (name: string, testId: string) => {
     icon: await screen.findByTestId(testId),
     link: screen.getByTestId('service-name'),
   };
+};
+
+const firstSyncMock = DESKTOP_SYNC_MOCKS[0];
+const mocks = [
+  {
+    request: {
+      query: ATTACHED_CLIENT_DISCONNECT_MUTATION,
+      variables: {
+        input: {
+          clientId: firstSyncMock.clientId,
+          deviceId: firstSyncMock.deviceId,
+          refreshTokenId: firstSyncMock.refreshTokenId,
+          sessionTokenId: firstSyncMock.sessionTokenId,
+        },
+      },
+    },
+    result: {
+      data: {},
+    },
+  },
+];
+
+const clickFirstSignOutButton = async () => {
+  await act(async () => {
+    const signOutButtons = await screen.findAllByTestId(
+      'connected-service-sign-out'
+    );
+    fireEvent.click(signOutButtons[0]);
+  });
+  await wait();
+};
+
+const chooseRadioByLabel = async (label: string) => {
+  await act(async () => {
+    const radio = await screen.findByLabelText(label);
+    fireEvent.click(radio);
+  });
+  await wait();
+};
+
+const clickConfirmDisconnectButton = async () => {
+  await act(async () => {
+    const confirmButton = await screen.findByTestId('modal-confirm');
+    fireEvent.click(confirmButton);
+  });
+  await wait();
+};
+
+const expectDisconnectModalHeader = async () => {
+  expect(
+    await screen.queryByTestId('connected-services-modal-header')
+  ).toBeInTheDocument();
 };
 
 describe('Connected Services', () => {
@@ -154,17 +214,52 @@ describe('Connected Services', () => {
         <ConnectedServices />
       </MockedCache>
     );
+    await clickFirstSignOutButton();
+    await expectDisconnectModalHeader();
+  });
 
-    await act(async () => {
-      const signOutButtons = await screen.findAllByTestId(
-        'connected-service-sign-out'
-      );
-      fireEvent.click(signOutButtons[0]);
-    });
-    await wait();
+  it('renders "lost" modal when user has selected "lost" option', async () => {
+    renderWithRouter(
+      <MockedCache account={{ attachedClients: MOCK_SERVICES }} mocks={mocks}>
+        <ConnectedServices />
+      </MockedCache>
+    );
+    await clickFirstSignOutButton();
+    await expectDisconnectModalHeader();
+    await chooseRadioByLabel('Lost or Stolen');
+    await clickConfirmDisconnectButton();
+    expect(await screen.queryByTestId('lost-device-desc')).toBeInTheDocument();
+  });
 
+  it('renders "suspicious" modal when user has selected "suspicious" option in survey modal', async () => {
+    renderWithRouter(
+      <MockedCache account={{ attachedClients: MOCK_SERVICES }} mocks={mocks}>
+        <ConnectedServices />
+      </MockedCache>
+    );
+    await clickFirstSignOutButton();
+    await expectDisconnectModalHeader();
+    await chooseRadioByLabel('Suspicious');
+    await clickConfirmDisconnectButton();
     expect(
-      screen.queryByTestId('connected-services-modal-header')
+      await screen.queryByTestId('suspicious-device-desc')
     ).toBeInTheDocument();
+  });
+
+  it('after a service is disconnected, removes the row from the UI', async () => {
+    renderWithRouter(
+      <MockedCache account={{ attachedClients: MOCK_SERVICES }} mocks={mocks}>
+        <ConnectedServices />
+      </MockedCache>
+    );
+    const initialCount = (
+      await screen.findAllByTestId('settings-connected-service')
+    ).length;
+    await clickFirstSignOutButton();
+    await clickConfirmDisconnectButton();
+    const finalCount = (
+      await screen.findAllByTestId('settings-connected-service')
+    ).length;
+    expect(finalCount === initialCount - 1).toBeTruthy;
   });
 });

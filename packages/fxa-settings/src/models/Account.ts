@@ -19,6 +19,7 @@ export interface Email {
   verified: boolean;
 }
 
+// TODO: why doesn't this match fxa-graphql-api/src/lib/resolvers/types/attachedClient.ts?
 export interface AttachedClient {
   clientId: string;
   isCurrentSession: boolean;
@@ -32,6 +33,8 @@ export interface AttachedClient {
   approximateLastAccessTimeFormatted: string | null;
   location: DeviceLocation;
   os: string | null;
+  sessionTokenId: string | null;
+  refreshTokenId: string | null;
 }
 
 export interface Account {
@@ -55,8 +58,7 @@ export interface Account {
   alertTextExternal: string | null;
 }
 
-export const GET_ACCOUNT = gql`
-  query GetAccount {
+export const ACCOUNT_FIELDS = `
     account {
       uid
       displayName
@@ -88,6 +90,8 @@ export const GET_ACCOUNT = gql`
           stateCode
         }
         os
+        sessionTokenId
+        refreshTokenId
       }
       totp {
         exists
@@ -99,6 +103,11 @@ export const GET_ACCOUNT = gql`
       }
       alertTextExternal @client
     }
+`;
+
+export const GET_ACCOUNT = gql`
+  query GetAccount {
+    ${ACCOUNT_FIELDS}
   }
 `;
 

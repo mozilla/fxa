@@ -39,6 +39,22 @@ it('renders confirm button as a link if route is passed', () => {
   );
 });
 
+it('does not render the cancel button if hasCancelButton is set to false', () => {
+  const onDismiss = jest.fn();
+  renderWithRouter(
+    <Modal
+      headerId="some-header"
+      descId="some-description"
+      {...{ hasCancelButton: false, onDismiss }}
+    >
+      <div data-testid="children">Hi mom</div>
+    </Modal>
+  );
+  expect(document.activeElement).toBe(screen.getByTestId('modal-tab-fence'));
+  expect(screen.queryByTestId('children')).toBeInTheDocument();
+  expect(screen.queryByTestId('modal-cancel')).not.toBeInTheDocument();
+});
+
 it('accepts an alternate className', () => {
   const onDismiss = jest.fn();
   renderWithRouter(
