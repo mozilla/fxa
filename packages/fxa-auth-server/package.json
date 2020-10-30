@@ -102,7 +102,7 @@
     "web-push": "3.4.4"
   },
   "devDependencies": {
-    "@types/cbor": "5.0.0",
+    "@types/cbor": "5.0.1",
     "@types/chai": "^4.2.4",
     "@types/convict": "^5.2.1",
     "@types/hapi__hapi": "^19.0.3",
