@@ -13,21 +13,34 @@ export type GetDataTrioProps = {
   onAction?: (type: string) => void;
 };
 
+const recoveryCodesPrintTemplate = (recoveryCodes: string | string[]) => {
+  if (typeof recoveryCodes === 'string') recoveryCodes = [recoveryCodes];
+  return `
+    <html>
+    <head><title>Recovery Codes</title></head>
+    <body>
+    ${recoveryCodes.map((code: string) => `<p>${code}</p>`).join('')}
+    </body>
+    </html>
+  `;
+};
+
 export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
   const print = useCallback(() => {
     const printWindow = window.open('', 'Print', 'height=600,width=800')!;
-    printWindow.document.write(Array.isArray(value) ? value.join('\n') : value);
+    printWindow.document.write(recoveryCodesPrintTemplate(value));
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
     printWindow.close();
   }, [value]);
+
   return (
     <div className="flex justify-between w-4/5 max-w-48">
       <a
         title="Download"
         href={URL.createObjectURL(
-          new Blob(Array.isArray(value) ? value : [value], {
+          new Blob(Array.isArray(value) ? [value.join('\r\n')] : [value], {
             type: 'text/plain',
           })
         )}
@@ -47,7 +60,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
         title="Copy"
         type="button"
         onClick={async () => {
-          const copyValue = Array.isArray(value) ? value.join(', ') : value;
+          const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
           await copy(copyValue);
           onAction?.('copy');
         }}
