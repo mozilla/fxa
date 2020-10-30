@@ -40,18 +40,18 @@ describe('navigation', () => {
     await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote);
   });
 
-  it('can click avatar menu add button and back', async ({ remote }) => {
-    await click(
-      selectors.SETTINGS_V2.PICTURE_MENU.ADD_BUTTON,
-      selectors.SETTINGS_V2.PICTURE_MENU.HEADER,
-      remote
-    );
-    await click(
-      selectors.SETTINGS_V2.PICTURE_MENU.BACK_BUTTON,
-      selectors.SETTINGS_V2.HEADER,
-      remote
-    );
-  });
+  // it('can click avatar menu add button and back', async ({ remote }) => {
+  //   await click(
+  //     selectors.SETTINGS_V2.PICTURE_MENU.ADD_BUTTON,
+  //     selectors.SETTINGS_V2.PICTURE_MENU.HEADER,
+  //     remote
+  //   );
+  //   await click(
+  //     selectors.SETTINGS_V2.PICTURE_MENU.BACK_BUTTON,
+  //     selectors.SETTINGS_V2.HEADER,
+  //     remote
+  //   );
+  // });
 
   it('can click display picture menu add button and back', async ({
     remote,
