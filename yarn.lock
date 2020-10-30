@@ -22927,7 +22927,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:3.13.1, js-yaml@npm:^3.13.1, js-yaml@npm:^3.9.0":
+"js-yaml@npm:3.13.1":
   version: 3.13.1
   resolution: "js-yaml@npm:3.13.1"
   dependencies:
@@ -22939,7 +22939,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:~3.14.0":
+"js-yaml@npm:^3.13.1, js-yaml@npm:^3.9.0, js-yaml@npm:~3.14.0":
   version: 3.14.0
   resolution: "js-yaml@npm:3.14.0"
   dependencies:
