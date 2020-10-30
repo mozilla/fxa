@@ -15,14 +15,14 @@ export type GetDataTrioProps = {
 
 const recoveryCodesPrintTemplate = (recoveryCodes: string | string[]) => {
   if (typeof recoveryCodes === 'string') recoveryCodes = [recoveryCodes];
-  return (`
+  return `
     <html>
     <head><title>Recovery Codes</title></head>
     <body>
-    ${recoveryCodes.map((code: string)=> `<p>${code}</p>`).join('')}
+    ${recoveryCodes.map((code: string) => `<p>${code}</p>`).join('')}
     </body>
     </html>
-  `);
+  `;
 };
 
 export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
@@ -40,7 +40,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
       <a
         title="Download"
         href={URL.createObjectURL(
-          new Blob(Array.isArray(value) ? [value.join(' \r\n')] : [value], {
+          new Blob(Array.isArray(value) ? [value.join('\r\n')] : [value], {
             type: 'text/plain',
           })
         )}
@@ -60,7 +60,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
         title="Copy"
         type="button"
         onClick={async () => {
-          const copyValue = Array.isArray(value) ? value.join(' ') : value;
+          const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
           await copy(copyValue);
           onAction?.('copy');
         }}
