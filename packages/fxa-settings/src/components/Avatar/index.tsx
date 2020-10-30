@@ -5,7 +5,6 @@
 import React from 'react';
 import classNames from 'classnames';
 import { useAccount } from '../../models';
-import { ReactComponent as DefaultAvatar } from './avatar-default.svg';
 
 type AvatarProps = {
   className?: string;
@@ -29,11 +28,19 @@ export const Avatar = ({ className }: AvatarProps) => {
   }
 
   return (
-    <DefaultAvatar
+    // whatever webkit version firefox on ios 13 uses
+    // has a bug that makes the image disappear in some case
+    // with inline svgs. img elements don't have this problem.
+    // see: https://github.com/mozilla/fxa/issues/6359
+    <img
       data-testid="avatar-default"
-      role="img"
-      aria-label="Default avatar"
-      className={classNames('rounded-full', className)}
+      // use the default profile image location from content-server
+      src="/images/default-profile.svg"
+      alt="Default avatar"
+      className={classNames(
+        'rounded-full bg-grey-200 text-grey-200',
+        className
+      )}
     />
   );
 };

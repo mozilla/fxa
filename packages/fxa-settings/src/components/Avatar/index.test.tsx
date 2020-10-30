@@ -15,9 +15,8 @@ describe('Avatar', () => {
       </MockedCache>
     );
 
-    expect(screen.getByTestId('avatar-default')).toHaveAttribute('role', 'img');
     expect(screen.getByTestId('avatar-default')).toHaveAttribute(
-      'aria-label',
+      'alt',
       'Default avatar'
     );
     expect(screen.queryByTestId('avatar-nondefault')).toBeNull();
