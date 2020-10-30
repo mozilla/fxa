@@ -5,6 +5,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { useAccount } from '../../models';
+import defaultAvatar from './avatar-default.svg';
 
 type AvatarProps = {
   className?: string;
@@ -34,13 +35,9 @@ export const Avatar = ({ className }: AvatarProps) => {
     // see: https://github.com/mozilla/fxa/issues/6359
     <img
       data-testid="avatar-default"
-      // use the default profile image location from content-server
-      src="/images/default-profile.svg"
+      src={defaultAvatar}
       alt="Default avatar"
-      className={classNames(
-        'rounded-full bg-grey-200 text-grey-200',
-        className
-      )}
+      className={classNames('rounded-full', className)}
     />
   );
 };
