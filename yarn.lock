@@ -11536,7 +11536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:2.4.2, chalk@npm:^2.0.0, chalk@npm:^2.0.1, chalk@npm:^2.1.0, chalk@npm:^2.3.0, chalk@npm:^2.4.1, chalk@npm:^2.4.2, chalk@npm:~2.4.1":
+"chalk@npm:2.4.2, chalk@npm:^2.0.0, chalk@npm:^2.0.1, chalk@npm:^2.1.0, chalk@npm:^2.3.0, chalk@npm:^2.4.1, chalk@npm:^2.4.2":
   version: 2.4.2
   resolution: "chalk@npm:2.4.2"
   dependencies:
@@ -11570,7 +11570,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^3.0.0 || ^4.0.0, chalk@npm:^4.0.0, chalk@npm:^4.1.0":
+"chalk@npm:^3.0.0 || ^4.0.0, chalk@npm:^4.0.0, chalk@npm:^4.1.0, chalk@npm:~4.1.0":
   version: 4.1.0
   resolution: "chalk@npm:4.1.0"
   dependencies:
@@ -12155,16 +12155,6 @@ __metadata:
   version: 1.1.0
   resolution: "code-point-at@npm:1.1.0"
   checksum: 7d9837296e0f1c00239c88542f5a3e0bad11e45d3d0e8d9d097901fe54722dd5d2c006969077a287be8648a202c43f74e096f17552cbd897568308fba7b87ac0
-  languageName: node
-  linkType: hard
-
-"coffeescript@npm:~1.10.0":
-  version: 1.10.0
-  resolution: "coffeescript@npm:1.10.0"
-  bin:
-    cake: ./bin/cake
-    coffee: ./bin/coffee
-  checksum: b84be4a0866e0cc895b8e73ffbebb9248d81434129846fd982a8fdc2e12e6f1b328492313d97f07f2c71580817e4ea23f1ea49b865bd8d2c6b0f06a411105bc8
   languageName: node
   linkType: hard
 
@@ -13551,22 +13541,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dateformat@npm:3.0.3, dateformat@npm:^3.0.3":
+"dateformat@npm:3.0.3, dateformat@npm:^3.0.3, dateformat@npm:~3.0.3":
   version: 3.0.3
   resolution: "dateformat@npm:3.0.3"
   checksum: 8e6b36c4d3d057b6b43a2d9eceb1373aae6a63050153449e26c71b84ecefb1bafc54ff3f7f1e2b8bee3851a2425c1052aaa7c1ed3307b8ff062f38a816d40933
-  languageName: node
-  linkType: hard
-
-"dateformat@npm:~1.0.12":
-  version: 1.0.12
-  resolution: "dateformat@npm:1.0.12"
-  dependencies:
-    get-stdin: ^4.0.1
-    meow: ^3.3.0
-  bin:
-    dateformat: bin/cli.js
-  checksum: 621f645716286b0c1aa7b9540e9c754dc170025575d6c7751d1d62d3afb8d85ad21caa54239ae9758ec6c633cbffdbba35e06b64d413039309f44f5a73bdb6a8
   languageName: node
   linkType: hard
 
@@ -15646,7 +15624,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"exit@npm:^0.1.2, exit@npm:~0.1.1":
+"exit@npm:^0.1.2, exit@npm:~0.1.1, exit@npm:~0.1.2":
   version: 0.1.2
   resolution: "exit@npm:0.1.2"
   checksum: 64022f65df300964bb588a503ecbc582a2d2d4db12f777b64495e840274ec17a71099e5cdc06dc970aba9795d8bbb9ccb6ba016844fdbd6b74541f4fdb25f201
@@ -17314,7 +17292,7 @@ fsevents@^1.2.7:
     fxa-notifier-aws: 1.0.0
     fxa-shared: "workspace:*"
     google-libphonenumber: ^3.2.13
-    grunt: ^1.1.0
+    grunt: ^1.3.0
     grunt-cli: ~1.3.2
     grunt-contrib-copy: 1.0.0
     grunt-copyright: 0.3.0
@@ -17455,7 +17433,7 @@ fsevents@^1.2.7:
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
     got: 11.8.0
-    grunt: ^1.1.0
+    grunt: ^1.3.0
     grunt-babel: 6.0.0
     grunt-ban-word: 0.1.1
     grunt-cdn: 0.6.5
@@ -17586,7 +17564,7 @@ fsevents@^1.2.7:
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
-    grunt: ^1.1.0
+    grunt: ^1.3.0
     grunt-cli: ~1.3.2
     grunt-copyright: 0.3.0
     grunt-eslint: ^22.0.0
@@ -18586,7 +18564,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"glob@npm:7.1.6, glob@npm:^7.0.0, glob@npm:^7.0.3, glob@npm:^7.0.5, glob@npm:^7.1.1, glob@npm:^7.1.2, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:~7.1.1, glob@npm:~7.1.4":
+"glob@npm:7.1.6, glob@npm:^7.0.0, glob@npm:^7.0.3, glob@npm:^7.0.5, glob@npm:^7.1.1, glob@npm:^7.1.2, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:~7.1.1, glob@npm:~7.1.4, glob@npm:~7.1.6":
   version: 7.1.6
   resolution: "glob@npm:7.1.6"
   dependencies:
@@ -18623,20 +18601,6 @@ fsevents@^1.2.7:
     once: ^1.3.0
     path-is-absolute: ^1.0.0
   checksum: 83f9fcdca06df4a40cbf99f20877dbadc0def23fab197303a9a96f726e2f003d6c442b8d455b93745c0d05e6dd574929526db47852f12b762bc93023ba7e84db
-  languageName: node
-  linkType: hard
-
-"glob@npm:~7.0.0":
-  version: 7.0.6
-  resolution: "glob@npm:7.0.6"
-  dependencies:
-    fs.realpath: ^1.0.0
-    inflight: ^1.0.4
-    inherits: 2
-    minimatch: ^3.0.2
-    once: ^1.3.0
-    path-is-absolute: ^1.0.0
-  checksum: 9532abefa3afe287154950018b61ac4c75e7c2c7b5c67dc9c0b65dbde6e451cdfd1302ef0f273f81becef44d96151e24718d00ffbcecc611aa81ac084fec165e
   languageName: node
   linkType: hard
 
@@ -19093,20 +19057,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt-cli@npm:~1.2.0":
-  version: 1.2.0
-  resolution: "grunt-cli@npm:1.2.0"
-  dependencies:
-    findup-sync: ~0.3.0
-    grunt-known-options: ~1.1.0
-    nopt: ~3.0.6
-    resolve: ~1.1.0
-  bin:
-    grunt: bin/grunt
-  checksum: b886ffd62c2926ac2536e2d9de9fa0c3bf932c8008bbc20a4b9ebd26e41992c8b6dd0c3bf2cddbf7f486f3cc7de0e04f5e92f01f8a58ba32c7cebe7de0bf1d34
-  languageName: node
-  linkType: hard
-
 "grunt-cli@npm:~1.3.2":
   version: 1.3.2
   resolution: "grunt-cli@npm:1.3.2"
@@ -19234,40 +19184,40 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt-legacy-log-utils@npm:~2.0.0":
-  version: 2.0.1
-  resolution: "grunt-legacy-log-utils@npm:2.0.1"
+"grunt-legacy-log-utils@npm:~2.1.0":
+  version: 2.1.0
+  resolution: "grunt-legacy-log-utils@npm:2.1.0"
   dependencies:
-    chalk: ~2.4.1
-    lodash: ~4.17.10
-  checksum: 7b573cc04c3f80963ac6c6c142e4dd779b406510fecc7b5bba488bea8cd41e0ba9781c03064af4d70c719845aac2301fe3a698ea2beea3ab934034fe9a76dbe8
+    chalk: ~4.1.0
+    lodash: ~4.17.19
+  checksum: 13f52a06f9402a6a8bb55d71f215563b3e6bcb8576b50160f639ce5eafc2ae29f4c078d90d87d1865ec7afd2f5ce2db82a51b728c0141f31cc3d96050fadd16c
   languageName: node
   linkType: hard
 
-"grunt-legacy-log@npm:~2.0.0":
-  version: 2.0.0
-  resolution: "grunt-legacy-log@npm:2.0.0"
+"grunt-legacy-log@npm:~3.0.0":
+  version: 3.0.0
+  resolution: "grunt-legacy-log@npm:3.0.0"
   dependencies:
     colors: ~1.1.2
-    grunt-legacy-log-utils: ~2.0.0
+    grunt-legacy-log-utils: ~2.1.0
     hooker: ~0.2.3
-    lodash: ~4.17.5
-  checksum: 6cbca36841981ec1dd72536441100a0c3738fd6b172071c7a1beb0484763a62aaaa72dff6fa4868e428f7e4450eb1ee4a97e395e77d539f791e5b757b67b809c
+    lodash: ~4.17.19
+  checksum: d5c212a034983355799ff9ba74055d11280729a97aaed311d9569f9720561e8dda36883a11681f359c99eb677125fd5780e02e61c8c58740b4c3e730ead26f5c
   languageName: node
   linkType: hard
 
-"grunt-legacy-util@npm:~1.1.1":
-  version: 1.1.1
-  resolution: "grunt-legacy-util@npm:1.1.1"
+"grunt-legacy-util@npm:~2.0.0":
+  version: 2.0.0
+  resolution: "grunt-legacy-util@npm:2.0.0"
   dependencies:
     async: ~1.5.2
     exit: ~0.1.1
     getobject: ~0.1.0
     hooker: ~0.2.3
-    lodash: ~4.17.10
-    underscore.string: ~3.3.4
+    lodash: ~4.17.20
+    underscore.string: ~3.3.5
     which: ~1.3.0
-  checksum: 99990fce3424c59f0f3234062c33faca19f5868697b9f50b7f0677df049db82ca12ad69bc454ddf6357c931f62c228862a71259ef74bb866515a6126af607594
+  checksum: 1d6c62b840aea084feaf61608a79933491c0fb5ef061d64dbcf7e7b755deef94d38f055d02d7a600379bfcb5e606e565fb5927b6a6d8b13f0bd2738c28fb3428
   languageName: node
   linkType: hard
 
@@ -19358,30 +19308,28 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "grunt@npm:1.1.0"
+"grunt@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "grunt@npm:1.3.0"
   dependencies:
-    coffeescript: ~1.10.0
-    dateformat: ~1.0.12
+    dateformat: ~3.0.3
     eventemitter2: ~0.4.13
-    exit: ~0.1.1
+    exit: ~0.1.2
     findup-sync: ~0.3.0
-    glob: ~7.0.0
-    grunt-cli: ~1.2.0
+    glob: ~7.1.6
+    grunt-cli: ~1.3.2
     grunt-known-options: ~1.1.0
-    grunt-legacy-log: ~2.0.0
-    grunt-legacy-util: ~1.1.1
+    grunt-legacy-log: ~3.0.0
+    grunt-legacy-util: ~2.0.0
     iconv-lite: ~0.4.13
-    js-yaml: ~3.13.1
-    minimatch: ~3.0.2
-    mkdirp: ~1.0.3
+    js-yaml: ~3.14.0
+    minimatch: ~3.0.4
+    mkdirp: ~1.0.4
     nopt: ~3.0.6
-    path-is-absolute: ~1.0.0
-    rimraf: ~2.6.2
+    rimraf: ~3.0.2
   bin:
     grunt: bin/grunt
-  checksum: 44639617dfec99392e88db0c7328912b4ce9ab94db1f0a2dc2831c836d280c136199c508f896deb714ada4e028b0a55fae05b5a9d04f6244108bc866e8833f86
+  checksum: 3cf27cd666e6de5bfddf23a4193926b0c398e50e351a29a81d8258353e9e94ac008af40fab5978b4e62ec41facd5640a81dea4b4a2723c099cb8e76de34191cb
   languageName: node
   linkType: hard
 
@@ -22979,7 +22927,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:3.13.1, js-yaml@npm:^3.13.1, js-yaml@npm:^3.9.0, js-yaml@npm:~3.13.1":
+"js-yaml@npm:3.13.1, js-yaml@npm:^3.13.1, js-yaml@npm:^3.9.0":
   version: 3.13.1
   resolution: "js-yaml@npm:3.13.1"
   dependencies:
@@ -22988,6 +22936,18 @@ fsevents@^1.2.7:
   bin:
     js-yaml: bin/js-yaml.js
   checksum: 277157fdf235757b71cfbf24f6bef57576a26d9b4cf89b63d89c9044da7b0f9d16c3629c8b5fd549ae343523727a0df1598794e9a4429763cee4e17056ff8523
+  languageName: node
+  linkType: hard
+
+"js-yaml@npm:~3.14.0":
+  version: 3.14.0
+  resolution: "js-yaml@npm:3.14.0"
+  dependencies:
+    argparse: ^1.0.7
+    esprima: ^4.0.0
+  bin:
+    js-yaml: bin/js-yaml.js
+  checksum: 2eb95464e5263aedc20ae2d9280f0e29b00adab15ece080ec42473d7055efaab24b904108644d115f687efe05a5bde02972b883aafa93607c4c108f667a56fa7
   languageName: node
   linkType: hard
 
@@ -24504,7 +24464,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.20, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.10, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.2, lodash@npm:~4.17.5":
+"lodash@npm:4.17.20, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.19, lodash@npm:~4.17.2, lodash@npm:~4.17.20":
   version: 4.17.20
   resolution: "lodash@npm:4.17.20"
   checksum: c62101d2500c383b5f174a7e9e6fe8098149ddd6e9ccfa85f36d4789446195f5c4afd3cfba433026bcaf3da271256566b04a2bf2618e5a39f6e67f8c12030cb6
@@ -25116,7 +25076,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"meow@npm:^3.3.0, meow@npm:^3.7.0":
+"meow@npm:^3.7.0":
   version: 3.7.0
   resolution: "meow@npm:3.7.0"
   dependencies:
@@ -25622,7 +25582,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:1.0.4, mkdirp@npm:1.x, mkdirp@npm:^1.0.3, mkdirp@npm:^1.0.4, mkdirp@npm:~1.0.3":
+"mkdirp@npm:1.0.4, mkdirp@npm:1.x, mkdirp@npm:^1.0.3, mkdirp@npm:^1.0.4, mkdirp@npm:~1.0.4":
   version: 1.0.4
   resolution: "mkdirp@npm:1.0.4"
   bin:
@@ -27923,7 +27883,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"path-is-absolute@npm:^1.0.0, path-is-absolute@npm:^1.0.1, path-is-absolute@npm:~1.0.0":
+"path-is-absolute@npm:^1.0.0, path-is-absolute@npm:^1.0.1":
   version: 1.0.1
   resolution: "path-is-absolute@npm:1.0.1"
   checksum: 907e1e3e6ac0aef6e65adffd75b3892191d76a5b94c5cf26b43667c4240531d11872ca6979c209b2e5e1609f7f579d02f64ba9936b48bb59d36cc529f0d965ed
@@ -31884,7 +31844,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"resolve@1.1.7, resolve@~1.1.0":
+resolve@1.1.7:
   version: 1.1.7
   resolution: "resolve@npm:1.1.7"
   checksum: 3e928e9586d51dd985d42f524646267f08269261d844adfb54bf2e3a2f96e9bdb2be8e3db686145a7ac2b65c7cd894bdfa7b48b80b828ea5cb1d2abc403778b0
@@ -31910,7 +31870,7 @@ resolve@1.15.0:
   languageName: node
   linkType: hard
 
-"resolve@patch:resolve@1.1.7#builtin<compat/resolve>, resolve@patch:resolve@~1.1.0#builtin<compat/resolve>":
+"resolve@patch:resolve@1.1.7#builtin<compat/resolve>":
   version: 1.1.7
   resolution: "resolve@patch:resolve@npm%3A1.1.7#builtin<compat/resolve>::version=1.1.7&hash=3388aa"
   checksum: ca4e21815c78134fdb248d2175d98c2ead024c680a3a9c7b8ee13fc8a7f5157e061b13ae29ee07a60e1b9faea33c3740cb88d48d94966d7e94479add70d3f544
@@ -32173,7 +32133,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"rimraf@npm:3.0.2, rimraf@npm:^3.0.0, rimraf@npm:^3.0.2":
+"rimraf@npm:3.0.2, rimraf@npm:^3.0.0, rimraf@npm:^3.0.2, rimraf@npm:~3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
   dependencies:
@@ -36118,7 +36078,7 @@ typescript@~4.0.2:
   languageName: node
   linkType: hard
 
-"underscore.string@npm:~3.3.4":
+"underscore.string@npm:~3.3.5":
   version: 3.3.5
   resolution: "underscore.string@npm:3.3.5"
   dependencies:
