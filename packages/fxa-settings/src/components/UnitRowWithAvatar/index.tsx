@@ -4,13 +4,13 @@
 
 import React from 'react';
 import Avatar from '../Avatar';
-import { useAccount } from '../../models';
-import { Link, useLocation } from '@reach/router';
+// import { useAccount } from '../../models';
+// import { Link, useLocation } from '@reach/router';
 
 export const UnitRowWithAvatar = () => {
-  const { avatarUrl } = useAccount();
-  const ctaText = avatarUrl ? 'Change' : 'Add';
-  const location = useLocation();
+  // const { avatarUrl } = useAccount();
+  // const ctaText = avatarUrl ? 'Change' : 'Add';
+  // const location = useLocation();
   return (
     <div className="unit-row">
       <div className="unit-row-header">
