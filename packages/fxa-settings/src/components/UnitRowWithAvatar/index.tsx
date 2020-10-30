@@ -21,13 +21,14 @@ export const UnitRowWithAvatar = () => {
       </div>
       <div className="unit-row-actions">
         <div>
-          <Link
+          // Setting avatar will be implemented it v2, FXA-1678
+          {/* <Link
             className="cta-neutral cta-base"
             data-testid="unit-row-with-avatar-route"
             to={`/beta/settings/avatar/change${location.search}`}
           >
             {ctaText}
-          </Link>
+          </Link> */}
         </div>
       </div>
     </div>

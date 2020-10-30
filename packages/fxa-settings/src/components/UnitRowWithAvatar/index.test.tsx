@@ -16,9 +16,9 @@ describe('UnitRowWithAvatar', () => {
       </MockedCache>
     );
 
-    expect(
-      screen.getByTestId('unit-row-with-avatar-route').textContent
-    ).toContain('Add');
+    // expect(
+    //   screen.getByTestId('unit-row-with-avatar-route').textContent
+    // ).toContain('Add');
     expect(screen.getByTestId('avatar-default')).toBeInTheDocument;
     expect(screen.queryByTestId('avatar-nondefault')).toBeNull();
   });
@@ -30,9 +30,9 @@ describe('UnitRowWithAvatar', () => {
       </MockedCache>
     );
 
-    expect(
-      screen.getByTestId('unit-row-with-avatar-route').textContent
-    ).toContain('Change');
+    // expect(
+    //   screen.getByTestId('unit-row-with-avatar-route').textContent
+    // ).toContain('Change');
 
     expect(screen.getByTestId('avatar-nondefault')).toBeInTheDocument;
     expect(screen.queryByTestId('avatar-default')).toBeNull();
