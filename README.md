@@ -200,13 +200,14 @@ Download from [java.com/en/download/](https://www.java.com/en/download/)
 curl https://sh.rustup.rs -sSf | sh
 ```
 
-Once the installer begins:
+Once the installer begins, when prompted:
 
 1. Select "2) Customize installation"
 2. Leave "Default host triple" blank, hit "enter"
 3. Type "nightly" for "Default toolchain"
-4. Type "y" for "Modify PATH variable?"
-5. Select "1) Proceed with installation"
+4. Type "default" for "Profile"
+5. Type "y" for "Modify PATH variable?"
+6. Select "1) Proceed with installation"
 
 ---
 
