@@ -5492,15 +5492,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cors@npm:^2.8.4":
-  version: 2.8.6
-  resolution: "@types/cors@npm:2.8.6"
-  dependencies:
-    "@types/express": "*"
-  checksum: 911a8696e8a8b26687de5facabe78d9966a9970f7489e3cd42589115173eee0b7fcf7cc8941fe25054fc43f4c81c6977582d84cd52c26b6675a9ddac5776c8ca
-  languageName: node
-  linkType: hard
-
 "@types/dateformat@npm:^3.0.1":
   version: 3.0.1
   resolution: "@types/dateformat@npm:3.0.1"
@@ -5568,18 +5559,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express-serve-static-core@npm:*":
-  version: 4.17.7
-  resolution: "@types/express-serve-static-core@npm:4.17.7"
-  dependencies:
-    "@types/node": "*"
-    "@types/qs": "*"
-    "@types/range-parser": "*"
-  checksum: efb5f5b662b00643cf266937ffd676e80dd89fbb6d70a85a8ce646444435a100b0fbb5bd7231f5c9872855aa56769b71b83afb1542c640d56e64d3de5917b64d
-  languageName: node
-  linkType: hard
-
-"@types/express-serve-static-core@npm:4.17.13":
+"@types/express-serve-static-core@npm:*, @types/express-serve-static-core@npm:4.17.13":
   version: 4.17.13
   resolution: "@types/express-serve-static-core@npm:4.17.13"
   dependencies:
@@ -7927,19 +7907,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-cache-control@npm:^0.11.1":
-  version: 0.11.1
-  resolution: "apollo-cache-control@npm:0.11.1"
-  dependencies:
-    apollo-server-env: ^2.4.5
-    apollo-server-plugin-base: ^0.9.1
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: 58cceb5014f32526e39934edc8d27e471d22a7fd2ac4dca10b90b58c2303025b6592fd3d7f4ecd8a46720c1fd49891ca131f8ea01cab1ff865d6af0370dc429e
-  languageName: node
-  linkType: hard
-
-"apollo-cache-control@npm:^0.11.4":
+"apollo-cache-control@npm:^0.11.1, apollo-cache-control@npm:^0.11.4":
   version: 0.11.4
   resolution: "apollo-cache-control@npm:0.11.4"
   dependencies:
@@ -8099,7 +8067,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-core@npm:2.16.1, apollo-server-core@npm:^2.15.1, apollo-server-core@npm:^2.16.1":
+"apollo-server-core@npm:2.16.1":
   version: 2.16.1
   resolution: "apollo-server-core@npm:2.16.1"
   dependencies:
@@ -8131,7 +8099,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-core@npm:^2.19.0":
+"apollo-server-core@npm:^2.15.1, apollo-server-core@npm:^2.19.0":
   version: 2.19.0
   resolution: "apollo-server-core@npm:2.19.0"
   dependencies:
@@ -8186,33 +8154,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-express@npm:^2.16.1":
-  version: 2.16.1
-  resolution: "apollo-server-express@npm:2.16.1"
-  dependencies:
-    "@apollographql/graphql-playground-html": 1.6.26
-    "@types/accepts": ^1.3.5
-    "@types/body-parser": 1.19.0
-    "@types/cors": ^2.8.4
-    "@types/express": 4.17.7
-    accepts: ^1.3.5
-    apollo-server-core: ^2.16.1
-    apollo-server-types: ^0.5.1
-    body-parser: ^1.18.3
-    cors: ^2.8.4
-    express: ^4.17.1
-    graphql-subscriptions: ^1.0.0
-    graphql-tools: ^4.0.0
-    parseurl: ^1.3.2
-    subscriptions-transport-ws: ^0.9.16
-    type-is: ^1.6.16
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: e1c9e649950228695d42c45e0a363fc823dc97eddd5c7ea8aeba39d38a34d3ac6e11d5d8b5749eff232ca1367826074b7d44e9fd228daf006ac771b1acac9ea8
-  languageName: node
-  linkType: hard
-
-"apollo-server-express@npm:^2.19.0":
+"apollo-server-express@npm:^2.16.1, apollo-server-express@npm:^2.19.0":
   version: 2.19.0
   resolution: "apollo-server-express@npm:2.19.0"
   dependencies:
@@ -18956,24 +18898,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^6.0.0, google-auth-library@npm:^6.1.2":
-  version: 6.1.2
-  resolution: "google-auth-library@npm:6.1.2"
-  dependencies:
-    arrify: ^2.0.0
-    base64-js: ^1.3.0
-    ecdsa-sig-formatter: ^1.0.11
-    fast-text-encoding: ^1.0.0
-    gaxios: ^3.0.0
-    gcp-metadata: ^4.2.0
-    gtoken: ^5.0.4
-    jws: ^4.0.0
-    lru-cache: ^6.0.0
-  checksum: 94d37e9536b59a8c43959f8091ea53a8f431459fdd3e1265a43d8b90c373aa6dce1b7bc583b76c74f83bbbe49d1281739309553ae8c0d03bc8ba3ca52ad36c55
-  languageName: node
-  linkType: hard
-
-"google-auth-library@npm:^6.1.3":
+"google-auth-library@npm:^6.0.0, google-auth-library@npm:^6.1.2, google-auth-library@npm:^6.1.3":
   version: 6.1.3
   resolution: "google-auth-library@npm:6.1.3"
   dependencies:
@@ -19061,20 +18986,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"graphql-extensions@npm:^0.12.4":
-  version: 0.12.4
-  resolution: "graphql-extensions@npm:0.12.4"
-  dependencies:
-    "@apollographql/apollo-tools": ^0.4.3
-    apollo-server-env: ^2.4.5
-    apollo-server-types: ^0.5.1
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: 2587b0c6030086b977234df9fd4a05ec13c27ca1299a5432f749bb450d3fba8b55caadfb179f0d78429f4de8536f789f844f56666d7f7a93786ab89a1d384221
-  languageName: node
-  linkType: hard
-
-"graphql-extensions@npm:^0.12.6":
+"graphql-extensions@npm:^0.12.4, graphql-extensions@npm:^0.12.6":
   version: 0.12.6
   resolution: "graphql-extensions@npm:0.12.6"
   dependencies:
