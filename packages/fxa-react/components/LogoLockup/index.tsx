@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactElement } from 'react';
-import { ReactComponent as Logo } from '../../images/ff-logo.svg';
+import logo from '../../images/ff-logo.svg';
 
 type LogoLockupProps = {
   children: string | ReactElement;
@@ -11,11 +11,11 @@ type LogoLockupProps = {
 
 export const LogoLockup = ({ children }: LogoLockupProps) => (
   <>
-    <Logo
+    <img
+      src={logo}
       data-testid="logo"
       className="h-10 w-10 ltr:mr-4 rtl:ml-4"
-      role="img"
-      aria-label="Firefox logo"
+      alt="Firefox logo"
     />
     <h1
       data-testid="logo-text"
