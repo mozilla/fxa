@@ -5,7 +5,10 @@
     </div>
   {{/ccExpired}}
   <header id="fxa-settings-header">
-    <h1 id="fxa-manage-account"><span class="fxa-account-title">{{#t}}Firefox Accounts{{/t}}</span></h1>
+    <div class="header-lockup">
+      <h1 id="fxa-manage-account"><span class="fxa-account-title">{{#t}}Firefox Accounts{{/t}}</span></h1>
+      <a href="/beta/settings" class="nu-settings-button">Switch to new design</a>
+    </div>
     {{#showSignOut}}
       <button id="signout" class="settings-button secondary-button">{{#t}}Sign out{{/t}}</button>
     {{/showSignOut}}

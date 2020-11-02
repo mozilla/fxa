@@ -25,11 +25,7 @@ export const HeaderLockup = () => {
         aria-expanded={navRevealedState}
         onClick={() => setNavState(!navRevealedState)}
       >
-        {navRevealedState ? (
-          <Close />
-        ) : (
-          <Menu />
-        )}
+        {navRevealedState ? <Close /> : <Menu />}
         {navRevealedState && <Nav />}
       </button>
       {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
@@ -41,7 +37,16 @@ export const HeaderLockup = () => {
       >
         <LogoLockup>
           <>
-            <span className="font-bold ltr:mr-2 rtl:ml-2">Firefox</span> account
+            <span className="font-bold ltr:mr-2 rtl:ml-2">
+              Firefox accounts
+            </span>
+            <a
+              href="/settings"
+              title="classic design link"
+              className="cta-base cta-neutral transition-standard text-sm ltr:ml-4 rtl:mr-4 p-2"
+            >
+              Switch to classic design
+            </a>
           </>
         </LogoLockup>
       </a>
