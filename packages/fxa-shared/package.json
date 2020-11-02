@@ -78,7 +78,7 @@
     "@nestjs/mapped-types": "^0.1.0",
     "@sentry/browser": "^5.27.1",
     "@sentry/integrations": "^5.23.0",
-    "@sentry/node": "^5.23.0",
+    "@sentry/node": "^5.27.2",
     "@types/js-md5": "^0.4.2",
     "accept-language": "^2.0.17",
     "ajv": "^6.12.2",
