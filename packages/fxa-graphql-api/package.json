@@ -28,7 +28,7 @@
     "@sentry/integrations": "^5.21.1",
     "@sentry/node": "^5.21.1",
     "apollo-datasource": "^0.7.2",
-    "apollo-server": "^2.16.1",
+    "apollo-server": "^2.19.0",
     "apollo-server-express": "^2.16.1",
     "commander": "^6.0.0",
     "convict": "^6.0.0",
