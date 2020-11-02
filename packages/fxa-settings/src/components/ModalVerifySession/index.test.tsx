@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import 'mutationobserver-shim';
 import React from 'react';
-import { wait, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import {
   MockedCache,
   MOCK_ACCOUNT,
@@ -33,7 +34,7 @@ const happyMocks = [
   {
     request: {
       query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '55556666' } },
+      variables: { input: { code: '445566' } },
     },
     result: {
       data: {
@@ -63,7 +64,7 @@ const sadMocks = [
   {
     request: {
       query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '12345678' } },
+      variables: { input: { code: '123456' } },
     },
     result: {
       errors: [new GraphQLError('invalid code')],
@@ -72,7 +73,7 @@ const sadMocks = [
   {
     request: {
       query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '87654321' } },
+      variables: { input: { code: '654321' } },
     },
     error: networkError,
   },
@@ -94,10 +95,7 @@ describe('ModalVerifySession', () => {
       </MockedCache>
     );
 
-    await wait();
-
     expect(screen.getByTestId('modal-verify-session')).toBeInTheDocument();
-    expect(screen.getByTestId('input-container')).toBeInTheDocument();
     expect(
       screen.getByTestId('modal-verify-session-cancel')
     ).toBeInTheDocument();
@@ -107,6 +105,7 @@ describe('ModalVerifySession', () => {
     expect(screen.getByTestId('modal-desc').textContent).toContain(
       MOCK_ACCOUNT.primaryEmail.email
     );
+    expect(screen.getByTestId('modal-verify-session-submit')).toBeDisabled();
   });
 
   it('calls onCompleted on success', async () => {
@@ -119,14 +118,15 @@ describe('ModalVerifySession', () => {
       </MockedCache>
     );
 
-    await wait();
-
-    fireEvent.change(screen.getByTestId('input-field'), {
-      target: { value: '55556666' },
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
+        target: { value: '445566' },
+      });
     });
-    screen.getByTestId('modal-verify-session-submit').click();
-
-    await wait();
+    expect(screen.getByTestId('modal-verify-session-submit')).toBeEnabled();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('modal-verify-session-submit'));
+    });
 
     expect(onCompleted).toBeCalled();
   });
@@ -140,14 +140,15 @@ describe('ModalVerifySession', () => {
       </MockedCache>
     );
 
-    await wait();
-
-    fireEvent.change(screen.getByTestId('input-field'), {
-      target: { value: '12345678' },
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
+        target: { value: '123456' },
+      });
     });
-    screen.getByTestId('modal-verify-session-submit').click();
-
-    await wait();
+    expect(screen.getByTestId('modal-verify-session-submit')).toBeEnabled();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('modal-verify-session-submit'));
+    });
 
     expect(screen.getByTestId('tooltip').textContent).toContain('invalid code');
   });
@@ -161,14 +162,15 @@ describe('ModalVerifySession', () => {
       </MockedCache>
     );
 
-    await wait();
-
-    fireEvent.change(screen.getByTestId('input-field'), {
-      target: { value: '87654321' },
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
+        target: { value: '654321' },
+      });
     });
-    screen.getByTestId('modal-verify-session-submit').click();
-
-    await wait();
+    expect(screen.getByTestId('modal-verify-session-submit')).toBeEnabled();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('modal-verify-session-submit'));
+    });
 
     expect(onError).toBeCalledWith(networkError);
   });

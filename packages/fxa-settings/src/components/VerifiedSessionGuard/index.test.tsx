@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import 'mutationobserver-shim';
 import React from 'react';
 import { wait, screen } from '@testing-library/react';
 import { MockedCache, renderWithRouter } from '../../models/_mocks';
