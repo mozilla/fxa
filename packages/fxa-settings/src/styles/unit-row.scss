@@ -7,6 +7,9 @@
 
   &-header {
     @apply font-header w-full mb-1;
+    h3 {
+      scroll-margin-top: 8rem;
+    }
   }
 
   &-multi-row + &-multi-row {
