@@ -644,7 +644,9 @@ module.exports = {
       ADD_BUTTON: '[data-testid=display-name-unit-row-route]',
       CANCEL_BUTTON: '[data-testid=cancel-display-name]',
       SUBMIT_BUTTON: '[data-testid=submit-display-name]',
-      TEXTBOX: '[data-testid=input-label]',
+      TEXTBOX_LABEL: '[data-testid=input-label]',
+      TEXTBOX_FIELD: '[data-testid=input-field]',
+      SAVED_DISPLAY_NAME: '[data-testid=display-name-unit-row-header-value]',
       BACK_BUTTON: '[data-testid=flow-container-back-btn]',
     },
     SECONDARY_EMAIL: {

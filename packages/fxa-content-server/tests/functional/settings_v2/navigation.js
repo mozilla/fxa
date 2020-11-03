@@ -58,7 +58,7 @@ describe('navigation', () => {
   }) => {
     await click(
       selectors.SETTINGS_V2.DISPLAY_NAME.ADD_BUTTON,
-      selectors.SETTINGS_V2.DISPLAY_NAME.TEXTBOX,
+      selectors.SETTINGS_V2.DISPLAY_NAME.TEXTBOX_LABEL,
       remote
     );
     await click(
