@@ -11033,10 +11033,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buf@npm:0.1.0":
-  version: 0.1.0
-  resolution: "buf@npm:0.1.0"
-  checksum: f9f290e0672ff9be0326fdc1e0eb82f48930f31deb42e71e97ad8b1e705182b968246af83ea562492d4c1b6c525770d9e5c3e0bac2a0efc23ea99741ccd31c59
+"buf@npm:0.1.1":
+  version: 0.1.1
+  resolution: "buf@npm:0.1.1"
+  checksum: 5d67598aa3f3ec3d7147f029f5a19048d504db139efaa45c1672051e57ce9399abf25f45c3fe9dabc54aba21b78f0cf65380c1bcabbead0f85dcb79d948b246c
   languageName: node
   linkType: hard
 
@@ -17374,7 +17374,7 @@ fsevents@^1.2.7:
     base64url: 3.0.1
     binary-split: 1.0.5
     bluebird: ^3.7.2
-    buf: 0.1.0
+    buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
     cbor: ^5.0.2
     chai: ^4.2.0
@@ -18081,7 +18081,7 @@ fsevents@^1.2.7:
     audit-filter: ^0.5.0
     aws-sdk: ^2.698.0
     bluebird: ^3.7.2
-    buf: 0.1.0
+    buf: 0.1.1
     checksum: 0.1.1
     commander: 2.9.0
     compute-cluster: 0.0.9
