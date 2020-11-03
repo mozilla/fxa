@@ -49,7 +49,7 @@
     "aws-sdk": "^2.698.0",
     "base64url": "3.0.1",
     "bluebird": "^3.7.2",
-    "buf": "0.1.0",
+    "buf": "0.1.1",
     "buffer-equal-constant-time": "1.0.1",
     "cbor": "^5.0.2",
     "cldr-core": "^36.0.0",
