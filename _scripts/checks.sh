@@ -5,7 +5,7 @@ if [[ ! $(which rustup) ]]; then
   curl https://sh.rustup.rs -sSf | sh -s -- -y
   export PATH=$PATH:$HOME/.cargo/bin/
 fi
-if [[ $(ubuntu --version) && $(20.04) ]]; then
+if [[ $(ubuntu --version) -eq 20.04 ]]; then
   ubuntu=y
 else
   ubuntu=n
