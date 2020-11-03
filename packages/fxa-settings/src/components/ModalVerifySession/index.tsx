@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
 import InputText from '../InputText';
 import { ApolloError, gql } from '@apollo/client';
@@ -13,6 +14,10 @@ type ModalProps = {
   onDismiss: () => void;
   onError: (error: ApolloError) => void;
   onCompleted?: () => void;
+};
+
+type FormData = {
+  verificationCode: string;
 };
 
 export const SEND_SESSION_VERIFICATION_CODE_MUTATION = gql`
@@ -37,9 +42,14 @@ export const ModalVerifySession = ({
   onCompleted,
 }: ModalProps) => {
   const session = useSession();
-  const [code, setCode] = useState<string>();
   const [errorText, setErrorText] = useState<string>();
   const { primaryEmail } = useAccount();
+  const { handleSubmit, register, formState } = useForm<FormData>({
+    mode: 'all',
+    defaultValues: {
+      verificationCode: '',
+    },
+  });
 
   const [sendCode] = useMutation(SEND_SESSION_VERIFICATION_CODE_MUTATION, {
     variables: { input: {} },
@@ -47,7 +57,7 @@ export const ModalVerifySession = ({
     onError,
   });
 
-  const [verifySession] = useMutation(VERIFY_SESSION_MUTATION, {
+  const [verifySession, { loading }] = useMutation(VERIFY_SESSION_MUTATION, {
     ignoreResults: true,
     onError: (error) => {
       if (error.graphQLErrors?.length) {
@@ -79,7 +89,7 @@ export const ModalVerifySession = ({
   if (session.verified) {
     return null;
   }
-
+  const buttonDisabled = !formState.isDirty || !formState.isValid || loading;
   return (
     <Modal
       data-testid="modal-verify-session"
@@ -89,16 +99,15 @@ export const ModalVerifySession = ({
       onDismiss={onDismiss}
     >
       <form
-        onSubmit={(event) => {
-          event.preventDefault();
+        onSubmit={handleSubmit(({ verificationCode }) => {
           verifySession({
             variables: {
               input: {
-                code,
+                code: verificationCode.trim(),
               },
             },
           });
-        }}
+        })}
       >
         <h2
           id="modal-verify-session-header"
@@ -118,10 +127,18 @@ export const ModalVerifySession = ({
 
         <div className="mt-4 mb-6">
           <InputText
+            name="verificationCode"
             label="Enter your verification code"
-            onChange={(event) => {
-              setCode(event.target.value);
+            onChange={() => {
+              if (errorText) {
+                setErrorText(undefined);
+              }
             }}
+            inputRef={register({
+              required: true,
+              pattern: /^\s*[0-9]{6}\s*$/,
+            })}
+            prefixDataTestId="verification-code"
             {...{ errorText }}
           ></InputText>
         </div>
@@ -139,6 +156,7 @@ export const ModalVerifySession = ({
             type="submit"
             className="cta-primary mx-2 flex-1"
             data-testid="modal-verify-session-submit"
+            disabled={buttonDisabled}
           >
             Verify
           </button>
