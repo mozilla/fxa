@@ -3955,6 +3955,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@prantlf/jsonlint@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@prantlf/jsonlint@npm:10.2.0"
+  dependencies:
+    ajv: 6.10.2
+    commander: 4.0.1
+  bin:
+    jsonlint: lib/cli.js
+  checksum: 8e11fb9c6c7bbf17d6664bd21dcc78fcb4408410d34cf6691f73c00465b4cf200035012112a6b6dabb5e1fabea93e42ef7d1c96becc1524923b6aae5d7257145
+  languageName: node
+  linkType: hard
+
 "@protobufjs/aspromise@npm:^1.1.1, @protobufjs/aspromise@npm:^1.1.2":
   version: 1.1.2
   resolution: "@protobufjs/aspromise@npm:1.1.2"
@@ -7387,13 +7399,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"JSV@npm:>= 4.0.x":
-  version: 4.0.2
-  resolution: "JSV@npm:4.0.2"
-  checksum: c48771baa0935da2734ba99ee026856c78a25c83242211a7074b51c51d287013a97f1b54500645d28080910933ad750595b67f186fcc6649edc0f23635c930e1
-  languageName: node
-  linkType: hard
-
 "abab@npm:^2.0.0, abab@npm:^2.0.3, abab@npm:^2.0.5":
   version: 2.0.5
   resolution: "abab@npm:2.0.5"
@@ -7680,6 +7685,18 @@ __metadata:
   peerDependencies:
     ajv: ^6.9.1
   checksum: 01f26c292304870c03a1cd14fc1ddcf7c713a05611a122c5193694d4050063d5fba46cbf8b5b2ebde364166fddd3c2e0abdcd97df655b7a7fbb3e6634eeb056a
+  languageName: node
+  linkType: hard
+
+"ajv@npm:6.10.2":
+  version: 6.10.2
+  resolution: "ajv@npm:6.10.2"
+  dependencies:
+    fast-deep-equal: ^2.0.1
+    fast-json-stable-stringify: ^2.0.0
+    json-schema-traverse: ^0.4.1
+    uri-js: ^4.2.2
+  checksum: e6170c10b6448432220ec8979a2e56f85d1e1a4d9c03d8b45a98cdbf6a03e24873e244777637f1af2ad68888323473807343873fa6f69644474ef63f843be556
   languageName: node
   linkType: hard
 
@@ -12413,6 +12430,13 @@ __metadata:
   dependencies:
     graceful-readlink: ">= 1.0.0"
   checksum: 9b1fe7000d68e718b0b97b9f09626645cf833a5d8e5f29d409e731892170db201b71af6e7ff307d4dc327cd3cf26eb335cecf867ef91a9df91e61923511d8ebd
+  languageName: node
+  linkType: hard
+
+"commander@npm:4.0.1":
+  version: 4.0.1
+  resolution: "commander@npm:4.0.1"
+  checksum: 86a2ebdbc2ae6094cc26427ca936b8c2ad563899bd457bb2d8af06f76e6e60d079a0a14a9be5bd1d9113969fe32afb342e491fc2a0978ff02f0a854932e1e4fd
   languageName: node
   linkType: hard
 
@@ -17546,7 +17570,7 @@ fsevents@^1.2.7:
     grunt-copyright: 0.3.0
     grunt-file-rev: 1.0.2
     grunt-htmllint: 0.3.0
-    grunt-jsonlint: 1.0.7
+    grunt-jsonlint: 2.1.3
     grunt-newer: 1.3.0
     grunt-po2json: "git://github.com/mozilla-fxa/grunt-po2json.git#2f415c8ac0435bf8942dc7131c3916ecd1684a46"
     grunt-remarkable: 1.1.0
@@ -19281,13 +19305,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt-jsonlint@npm:1.0.7":
-  version: 1.0.7
-  resolution: "grunt-jsonlint@npm:1.0.7"
+"grunt-jsonlint@npm:2.1.3":
+  version: 2.1.3
+  resolution: "grunt-jsonlint@npm:2.1.3"
   dependencies:
-    jsonlint: 1.6.2
-    strip-json-comments: ^2.0.0
-  checksum: ee8250db4c67288daaa3e82c3921884f84fc1d836da792e8c4845df4db4ab44b85f3afc185d9e5259c125a20a4f814d93c07d77f3705016cc926ae2fb5ca7841
+    "@prantlf/jsonlint": 10.2.0
+  checksum: c6777ace948e4b84ef3776898f9ba7940748df6021dbedd53cebe1646564e10caa9d632d442d957bf16489cf49c74d850463f3f5eb76460b0f275a6c5eda9a10
   languageName: node
   linkType: hard
 
@@ -23413,18 +23436,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jsonlint@npm:1.6.2":
-  version: 1.6.2
-  resolution: "jsonlint@npm:1.6.2"
-  dependencies:
-    JSV: ">= 4.0.x"
-    nomnom: ">= 1.5.x"
-  bin:
-    jsonlint: lib/cli.js
-  checksum: 9f4daa62fb40bfb0c00738cd7e8ae6aa154e75cfca48785e3cd73e7cedba7eded3496ab5e2e458c39016ce28d99340f1cbc99d61e0739852b34a0e90a8312c86
-  languageName: node
-  linkType: hard
-
 "jsonparse@npm:^1.2.0":
   version: 1.3.1
   resolution: "jsonparse@npm:1.3.1"
@@ -26648,7 +26659,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"nomnom@npm:1.8.1, nomnom@npm:>= 1.5.x":
+"nomnom@npm:1.8.1":
   version: 1.8.1
   resolution: "nomnom@npm:1.8.1"
   dependencies:
@@ -34452,7 +34463,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"strip-json-comments@npm:2.0.1, strip-json-comments@npm:^2.0.0, strip-json-comments@npm:~2.0.1":
+"strip-json-comments@npm:2.0.1, strip-json-comments@npm:~2.0.1":
   version: 2.0.1
   resolution: "strip-json-comments@npm:2.0.1"
   checksum: e60d99aa2849c27a04dce0620334f45822197df6b83664dd3746971e9a0a766d989dbb8d87f9cb7350725d2b5df401a2343222ad06e36a1ba7d62c6633267fcb
