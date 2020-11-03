@@ -10,7 +10,7 @@ const selectors = require('./lib/selectors');
 
 const EMAIL_FIRST_FORM_URL = intern._config.fxaContentRoot + '?action=email';
 
-const INVALID_EMAIL = 'nofxauser@asdfafexample.xyz.gd';
+const INVALID_EMAIL = 'nofxauser@asdfafexample.xyz';
 
 const {
   clearBrowserState,
@@ -47,7 +47,7 @@ registerSuite('email domain mx record validation', {
         .then(
           testElementTextInclude(
             selectors.ENTER_EMAIL.TOOLTIP,
-            'Mistyped email? asdfafexample.xyz.gd does not offer email.'
+            'Mistyped email? asdfafexample.xyz does not offer email.'
           )
         );
     },
