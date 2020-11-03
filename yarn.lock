@@ -11308,19 +11308,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-loader@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "cache-loader@npm:3.0.1"
+"cache-loader@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "cache-loader@npm:4.1.0"
   dependencies:
     buffer-json: ^2.0.0
-    find-cache-dir: ^2.1.0
+    find-cache-dir: ^3.0.0
     loader-utils: ^1.2.3
     mkdirp: ^0.5.1
     neo-async: ^2.6.1
-    schema-utils: ^1.0.0
+    schema-utils: ^2.0.0
   peerDependencies:
     webpack: ^4.0.0
-  checksum: 7cefeeea4551e7ad7f3a7a0c926f550d5213543d71f21407abba6e6e19d449c21947fd0d72c7c47e84e15960f1e05b4598da79834b7cf5014e9f21aba5ee7654
+  checksum: 2e369f72e32ee44f29ada210fcea87a85c120aa2619bb74b2f4346ae85034f58166b66135f3cfba307ad4290d893c447d46cea905508829427b5170158f36f08
   languageName: node
   linkType: hard
 
@@ -17495,7 +17495,7 @@ fsevents@^1.2.7:
     base32-decode: 1.0.0
     base64url: 3.0.1
     body-parser: ^1.19.0
-    cache-loader: ^3.0.1
+    cache-loader: ^4.1.0
     chai: ^4.2.0
     chosen-js: "git://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     connect-cachify: 0.0.17
@@ -32617,7 +32617,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"schema-utils@npm:^2.0.1, schema-utils@npm:^2.5.0, schema-utils@npm:^2.6.0, schema-utils@npm:^2.6.1, schema-utils@npm:^2.6.4, schema-utils@npm:^2.6.5, schema-utils@npm:^2.6.6, schema-utils@npm:^2.7.1":
+"schema-utils@npm:^2.0.0, schema-utils@npm:^2.0.1, schema-utils@npm:^2.5.0, schema-utils@npm:^2.6.0, schema-utils@npm:^2.6.1, schema-utils@npm:^2.6.4, schema-utils@npm:^2.6.5, schema-utils@npm:^2.6.6, schema-utils@npm:^2.7.1":
   version: 2.7.1
   resolution: "schema-utils@npm:2.7.1"
   dependencies:
