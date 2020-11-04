@@ -337,6 +337,9 @@ const Router = Backbone.Router.extend({
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
     'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
+    'beta/settings(/)': function () {
+      this.navigateAway('/beta/settings');
+    },
   },
 
   initialize(options = {}) {
