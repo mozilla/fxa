@@ -5527,23 +5527,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:6.8.1":
-  version: 6.8.1
-  resolution: "@types/eslint@npm:6.8.1"
+"@types/eslint@npm:7.2.4":
+  version: 7.2.4
+  resolution: "@types/eslint@npm:7.2.4"
   dependencies:
     "@types/estree": "*"
     "@types/json-schema": "*"
-  checksum: 760b48a596405e328e5f3d4f4357069e8d09c00f77ad23f3e4fbcffae9324698d7f442580523f4aed4dd75d74e9483e8e2bbf175e067d16bb6a995c9b8be12c0
-  languageName: node
-  linkType: hard
-
-"@types/eslint@npm:7.2.0":
-  version: 7.2.0
-  resolution: "@types/eslint@npm:7.2.0"
-  dependencies:
-    "@types/estree": "*"
-    "@types/json-schema": "*"
-  checksum: dcf0fee617bc4bcabd7cf300458cf5711328f9680a96d3b94691065d02dc257457a317c5e75be3017405e310c4c42ac8b6fbc1dd5c7548799d7a43e07e82e8ba
+  checksum: 281fbca931a7a9e4d9512cdb7f7ff92ecbc66362615712bb42f9fa7405b8cfad77e8fef35999c0533954effc0dfd153aa496bef08e3c160e0d89367166d7becb
   languageName: node
   linkType: hard
 
@@ -17197,7 +17187,7 @@ fsevents@^1.2.7:
     "@types/chance": ^1.0.10
     "@types/convict": ^5.2.1
     "@types/dateformat": ^3.0.1
-    "@types/eslint": 6.8.1
+    "@types/eslint": 7.2.4
     "@types/express": ^4.17.2
     "@types/helmet": 4.0.0
     "@types/jest": ^24.9.1
@@ -17853,7 +17843,7 @@ fsevents@^1.2.7:
     "@types/chai": ^4.2.12
     "@types/chance": ^1.1.0
     "@types/convict": ^5.2.1
-    "@types/eslint": 7.2.0
+    "@types/eslint": 7.2.4
     "@types/get-stream": 3.0.2
     "@types/graphql": ^14.5.0
     "@types/graphql-upload": 8.0.3
@@ -18337,7 +18327,7 @@ fsevents@^1.2.7:
     "@hapi/scooter": ^6.0.1
     "@types/bluebird": ^3.5.32
     "@types/convict": ^5.2.1
-    "@types/eslint": 7.2.0
+    "@types/eslint": 7.2.4
     "@types/hapi__hapi": ^19.0.4
     "@types/hapi__joi": 17.1.6
     "@types/mocha": ^8.0.2
