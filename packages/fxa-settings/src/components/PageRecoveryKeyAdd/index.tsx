@@ -103,7 +103,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               }}
             ></GetDataTrio>
             <button
-              className="cta-primary mx-2"
+              className="cta-primary mx-2 px-10"
               onClick={() => navigate(HomePath, { replace: true })}
               data-testid="close-button"
             >
