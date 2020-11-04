@@ -20,6 +20,7 @@ import PasswordValidator from './PasswordValidator';
 import { ReactComponent as ValidIcon } from './valid.svg';
 import { ReactComponent as InvalidIcon } from './invalid.svg';
 import { ReactComponent as UnsetIcon } from './unset.svg';
+import { AuthUiErrors } from '../../lib/auth-errors';
 
 type FormData = {
   oldPassword: string;
@@ -68,6 +69,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const [currentPasswordErrorText, setCurrentPasswordErrorText] = useState<
     string
   >();
+  const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
   const { primaryEmail } = useAccount();
   const navigate = useNavigate();
   const changePassword = usePasswordChanger({
@@ -103,6 +105,19 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     },
   });
   const passwordValidator = new PasswordValidator(primaryEmail.email);
+  const onFormSubmit = ({ oldPassword, newPassword }: FormData) => {
+    if (oldPassword === newPassword) {
+      setNewPasswordErrorText(AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.message);
+      return;
+    }
+    changePassword.execute(
+      primaryEmail.email,
+      oldPassword,
+      newPassword,
+      sessionToken()!
+    );
+  };
+
   return (
     <FlowContainer title="Change Password">
       {alertBarRevealed && alertText && (
@@ -110,16 +125,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
           <p data-testid="sign-out-error">Error text TBD. {alertText}</p>
         </AlertBar>
       )}
-      <form
-        onSubmit={handleSubmit(({ oldPassword, newPassword }) => {
-          changePassword.execute(
-            primaryEmail.email,
-            oldPassword,
-            newPassword,
-            sessionToken()!
-          );
-        })}
-      >
+      <form onSubmit={handleSubmit(onFormSubmit)}>
         <h1>Stay safe — don't reuse passwords. Your password:</h1>
 
         <ul className="text-grey-400 text-xs m-3 list-inside">
@@ -174,7 +180,13 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
             name="newPassword"
             label="Enter new password"
             className="mb-2"
-            onChange={() => trigger(['newPassword', 'confirmPassword'])}
+            errorText={newPasswordErrorText}
+            onChange={() => {
+              if (newPasswordErrorText) {
+                setNewPasswordErrorText(undefined);
+              }
+              trigger(['newPassword', 'confirmPassword']);
+            }}
             inputRef={register({
               required: true,
               validate: {

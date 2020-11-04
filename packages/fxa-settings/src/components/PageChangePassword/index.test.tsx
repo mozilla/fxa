@@ -5,7 +5,7 @@
 import 'mutationobserver-shim';
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, wait } from '@testing-library/react';
 import { AuthContext, createAuthClient } from '../../lib/auth';
 import { MockedCache, renderWithRouter } from '../../models/_mocks';
 import PageChangePassword from '.';
@@ -27,7 +27,7 @@ jest.mock('fxa-settings/src/lib/metrics', () => ({
 
 const client = createAuthClient('none');
 
-it('renders', async () => {
+const render = () => {
   renderWithRouter(
     <AuthContext.Provider value={{ auth: client }}>
       <MockedCache>
@@ -35,6 +35,22 @@ it('renders', async () => {
       </MockedCache>
     </AuthContext.Provider>
   );
+};
+
+const typeByTestIdFn = (testId: string) => async (x: string) => {
+  await act(async () => {
+    fireEvent.input(screen.getByTestId(testId), {
+      target: { value: x },
+    });
+  });
+};
+
+const inputCurrentPassword = typeByTestIdFn('current-password-input-field');
+const inputNewPassword = typeByTestIdFn('new-password-input-field');
+const inputVerifyPassword = typeByTestIdFn('verify-password-input-field');
+
+it('renders', async () => {
+  render();
   expect(screen.getByTestId('flow-container')).toBeInTheDocument();
   expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
   expect(screen.getByTestId('nav-link-common-passwords')).toBeInTheDocument();
@@ -42,24 +58,10 @@ it('renders', async () => {
 });
 
 it('emits an Amplitude event on success', async () => {
-  renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <PageChangePassword />
-      </MockedCache>
-    </AuthContext.Provider>
-  );
-  await act(async () => {
-    fireEvent.input(screen.getByTestId('current-password-input-field'), {
-      target: { value: 'quuz' },
-    });
-    fireEvent.input(screen.getByTestId('new-password-input-field'), {
-      target: { value: 'testotesto' },
-    });
-    fireEvent.input(screen.getByTestId('verify-password-input-field'), {
-      target: { value: 'testotesto' },
-    });
-  });
+  render();
+  await inputCurrentPassword('quuz');
+  await inputNewPassword('testotesto');
+  await inputVerifyPassword('testotesto');
   await act(async () => {
     fireEvent.click(screen.getByTestId('save-password-button'));
   });
@@ -70,48 +72,37 @@ it('emits an Amplitude event on success', async () => {
 });
 
 it('disables save until the form is valid', async () => {
-  renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <PageChangePassword />
-      </MockedCache>
-    </AuthContext.Provider>
-  );
+  render();
   expect(screen.getByTestId('save-password-button')).toBeDisabled();
-  await act(async () => {
-    fireEvent.input(screen.getByTestId('current-password-input-field'), {
-      target: { value: 'quuz' },
-    });
-  });
+  await inputCurrentPassword('quuz');
   expect(screen.getByTestId('save-password-button')).toBeDisabled();
-  await act(async () => {
-    fireEvent.input(screen.getByTestId('new-password-input-field'), {
-      target: { value: 'testotesto' },
-    });
-  });
+  await inputNewPassword('testotesto');
   expect(screen.getByTestId('save-password-button')).toBeDisabled();
-  await act(async () => {
-    fireEvent.input(screen.getByTestId('verify-password-input-field'), {
-      target: { value: 'testotesto' },
-    });
-  });
+  await inputVerifyPassword('testotesto');
   expect(screen.getByTestId('save-password-button')).toBeEnabled();
 });
 
 it('shows validation feedback', async () => {
-  renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <PageChangePassword />
-      </MockedCache>
-    </AuthContext.Provider>
-  );
-  await act(async () => {
-    fireEvent.input(screen.getByTestId('new-password-input-field'), {
-      target: { value: 'password' },
-    });
-  });
+  render();
+  await inputNewPassword('password');
   expect(screen.getByTestId('change-password-common')).toContainElement(
     screen.getByTestId('icon-invalid')
   );
+});
+
+it('shows an error when old and new password are the same', async () => {
+  render();
+  await inputCurrentPassword('testotesto');
+  await inputNewPassword('testotesto');
+  await inputVerifyPassword('testotesto');
+  await act(async () => {
+    fireEvent.click(screen.getByTestId('save-password-button'));
+  });
+
+  await wait(async () => {
+    expect(screen.getByTestId('tooltip')).toBeInTheDocument();
+    expect(screen.getByTestId('tooltip')).toHaveTextContent(
+      'new password must be different'
+    );
+  });
 });
