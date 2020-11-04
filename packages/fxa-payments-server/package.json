@@ -121,7 +121,7 @@
     "helmet": "^4.1.0",
     "hot-shots": "^7.6.0",
     "intl-pluralrules": "^1.2.2",
-    "joi": "^14.3.1",
+    "joi": "^17.3.0",
     "morgan": "^1.10.0",
     "mozlog": "^3.0.1",
     "node-sass": "^4.13.1",
