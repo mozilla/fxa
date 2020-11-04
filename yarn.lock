@@ -3201,6 +3201,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jest/create-cache-key-function@npm:^26.5.0":
+  version: 26.6.2
+  resolution: "@jest/create-cache-key-function@npm:26.6.2"
+  dependencies:
+    "@jest/types": ^26.6.2
+  checksum: 0cd38cdd03131b75da97441f4e84021289603292443f23061d09dcdc6687750095efa2bad18ab0599afb9153f4ee67f77d2a0a5ab04124ebf2685994fc849b43
+  languageName: node
+  linkType: hard
+
 "@jest/environment@npm:^24.3.0, @jest/environment@npm:^24.9.0":
   version: 24.9.0
   resolution: "@jest/environment@npm:24.9.0"
@@ -3476,6 +3485,19 @@ __metadata:
     "@types/yargs": ^15.0.0
     chalk: ^4.0.0
   checksum: dd75ac899d412503a22b5daa6402a76de54f143193d239b9f48a1b685b7278034620997d76f1c222455b938f1218bd9728e6ac94bb19d5ae7cfce28339e1e6c0
+  languageName: node
+  linkType: hard
+
+"@jest/types@npm:^26.6.2":
+  version: 26.6.2
+  resolution: "@jest/types@npm:26.6.2"
+  dependencies:
+    "@types/istanbul-lib-coverage": ^2.0.0
+    "@types/istanbul-reports": ^3.0.0
+    "@types/node": "*"
+    "@types/yargs": ^15.0.0
+    chalk: ^4.0.0
+  checksum: 5c511d7807f414b298299ae4a053abf265f39984942e0eefdfb17a7986a36f1047e0fd9a6f785bdddbf7343a5737595dfabe148719a80e118dd77486502009cc
   languageName: node
   linkType: hard
 
@@ -17296,7 +17318,7 @@ fsevents@^1.2.7:
     rimraf: ^3.0.2
     rxjs: ^6.5.5
     supertest: ^4.0.2
-    ts-jest: 26.1.0
+    ts-jest: 26.4.3
     ts-node: ^8.6.2
     tsconfig-paths: ^3.9.0
     tslib: ^2.0.1
@@ -17810,7 +17832,7 @@ fsevents@^1.2.7:
     rxjs: ^6.5.5
     sqs-consumer: ^5.4.0
     supertest: ^4.0.2
-    ts-jest: 26.1.0
+    ts-jest: 26.4.3
     ts-loader: ^8.0.4
     ts-node: ^8.6.2
     tsconfig-paths: ^3.9.0
@@ -18318,7 +18340,7 @@ fsevents@^1.2.7:
     rxjs: ^6.5.5
     sinon: ^9.0.3
     stripe: ^8.69.0
-    ts-jest: 26.1.0
+    ts-jest: 26.4.3
     ts-loader: ^8.0.4
     ts-node: ^8.10.2
     tsconfig-paths: ^3.9.0
@@ -22829,6 +22851,20 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"jest-util@npm:^26.1.0":
+  version: 26.6.2
+  resolution: "jest-util@npm:26.6.2"
+  dependencies:
+    "@jest/types": ^26.6.2
+    "@types/node": "*"
+    chalk: ^4.0.0
+    graceful-fs: ^4.2.4
+    is-ci: ^2.0.0
+    micromatch: ^4.0.2
+  checksum: 1aef748c8224d00ead3389899177bd3b619479db7318f8d7de7fbedce283ac6a8dc8c9364a40a68e83e68e03fa18afbd6b49c8aafb81112807872f0f90fb5a37
+  languageName: node
+  linkType: hard
+
 "jest-validate@npm:^24.9.0":
   version: 24.9.0
   resolution: "jest-validate@npm:24.9.0"
@@ -25302,16 +25338,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"micromatch@npm:4.x, micromatch@npm:^4.0.0, micromatch@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "micromatch@npm:4.0.2"
-  dependencies:
-    braces: ^3.0.1
-    picomatch: ^2.0.5
-  checksum: 0cb0e11d647cbb65e398a0a8a1340a7fb751ae2722346219c435704cfac8b3275a94a6464236fe867f52ad46a24046d3bc4ac11b3d21ddb73bc44e27cf1e4904
-  languageName: node
-  linkType: hard
-
 "micromatch@npm:^3.0.4, micromatch@npm:^3.1.10, micromatch@npm:^3.1.4":
   version: 3.1.10
   resolution: "micromatch@npm:3.1.10"
@@ -25330,6 +25356,16 @@ fsevents@^1.2.7:
     snapdragon: ^0.8.1
     to-regex: ^3.0.2
   checksum: a60e73539a3ac6c6231f11642257a460861302df5986a94fd418d1b64a817409cda778d7023b53541a2091b523eda2c6f7212721e380d0b696284b7ca0a45bda
+  languageName: node
+  linkType: hard
+
+"micromatch@npm:^4.0.0, micromatch@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "micromatch@npm:4.0.2"
+  dependencies:
+    braces: ^3.0.1
+    picomatch: ^2.0.5
+  checksum: 0cb0e11d647cbb65e398a0a8a1340a7fb751ae2722346219c435704cfac8b3275a94a6464236fe867f52ad46a24046d3bc4ac11b3d21ddb73bc44e27cf1e4904
   languageName: node
   linkType: hard
 
@@ -35702,26 +35738,28 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:26.1.0":
-  version: 26.1.0
-  resolution: "ts-jest@npm:26.1.0"
+"ts-jest@npm:26.4.3":
+  version: 26.4.3
+  resolution: "ts-jest@npm:26.4.3"
   dependencies:
+    "@jest/create-cache-key-function": ^26.5.0
+    "@types/jest": 26.x
     bs-logger: 0.x
     buffer-from: 1.x
     fast-json-stable-stringify: 2.x
+    jest-util: ^26.1.0
     json5: 2.x
     lodash.memoize: 4.x
     make-error: 1.x
-    micromatch: 4.x
     mkdirp: 1.x
     semver: 7.x
-    yargs-parser: 18.x
+    yargs-parser: 20.x
   peerDependencies:
     jest: ">=26 <27"
-    typescript: ">=3.8 <4.0"
+    typescript: ">=3.8 <5.0"
   bin:
     ts-jest: cli.js
-  checksum: 4289da86b257a0cd1afcc6412e6f6d6e25388cb620c5f56cf0deb909dacb3c7f598ca07c4dbd52cccb2d94408419a732b50ceffcb46d041b311b8d5d41668f24
+  checksum: d9c2f802ece58a61ddd23acd6d05c6bb6d5b094b03d90465d2efa67ffbbe9afc6525dd29bfea571d4e8f343a566785372c613f63fae7268b39b88c5b9111b153
   languageName: node
   linkType: hard
 
@@ -38169,6 +38207,13 @@ typescript@~4.0.2:
     camelcase: ^5.0.0
     decamelize: ^1.2.0
   checksum: 33871721679053cc38165afc6356c06c3e820459589b5db78f315886105070eb90cbb583cd6515fa4231937d60c80262ca2b7c486d5942576802446318a39597
+  languageName: node
+  linkType: hard
+
+"yargs-parser@npm:20.x":
+  version: 20.2.3
+  resolution: "yargs-parser@npm:20.2.3"
+  checksum: 6504b053bbb7ac0a3cd4c0e343447f2a7bb7ee18f3de8865a83874531ac8b8b0661cab4a4603a515224d5f5cfcd26d0d9998642b07a58ceab29eea12878123f7
   languageName: node
   linkType: hard
 
