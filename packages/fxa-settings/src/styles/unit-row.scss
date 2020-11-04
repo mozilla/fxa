@@ -34,7 +34,8 @@
     @apply flex-no-wrap px-6;
 
     &-header {
-      @apply flex-1 mb-0 mr-2;
+      @apply flex-none mb-0 mr-2;
+      width: 10rem
     }
 
     &-content {
