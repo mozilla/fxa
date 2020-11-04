@@ -5935,14 +5935,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsdom@npm:^12.2.4":
-  version: 12.2.4
-  resolution: "@types/jsdom@npm:12.2.4"
+"@types/jsdom@npm:^16.2.5":
+  version: 16.2.5
+  resolution: "@types/jsdom@npm:16.2.5"
   dependencies:
     "@types/node": "*"
+    "@types/parse5": "*"
     "@types/tough-cookie": "*"
-    parse5: ^4.0.0
-  checksum: a58c47244a3087ebb1c60bb5be832e50e6008bbc61b9b652b6f73e0c00b01728ed5aa2ab5f11873bb8a516ee0ed6e116192dc6aeef3b43562d5b72f407eec94d
+  checksum: 374b6b90e4c29cb4d2afbf77d182152a26c35bd64d3b6389cf31d78075e00a1950758ade77b7b92e43bf7609a2d2570de6511d7dca8920446bb894c80d633f6f
   languageName: node
   linkType: hard
 
@@ -6188,6 +6188,13 @@ __metadata:
   version: 4.0.0
   resolution: "@types/parse-json@npm:4.0.0"
   checksum: 4a8f720afac47b474d3f2eece312340e72bc31bc9561cda37b596ce2ed218c0099765d302625bb67d659a8452a1f93d514f4863c11c7ebaf65430428687dc426
+  languageName: node
+  linkType: hard
+
+"@types/parse5@npm:*":
+  version: 5.0.3
+  resolution: "@types/parse5@npm:5.0.3"
+  checksum: 62b6ad696aeee22dc26bba2039bfb55773caf7cd705cb1b226a7107c187422782e6759ca6de54f9d1a299f335c2b99973774c9436a378f57927f36619570dc1d
   languageName: node
   linkType: hard
 
@@ -17201,7 +17208,7 @@ fsevents@^1.2.7:
     "@types/express": ^4.17.2
     "@types/helmet": 4.0.0
     "@types/jest": ^24.9.1
-    "@types/jsdom": ^12.2.4
+    "@types/jsdom": ^16.2.5
     "@types/on-headers": ^1.0.0
     "@types/react": ^16.9.53
     "@types/react-router-dom": ^5.1.5
@@ -18002,7 +18009,7 @@ fsevents@^1.2.7:
     "@testing-library/react": ^9.5.0
     "@types/classnames": ^2.2.9
     "@types/jest": ^24.9.1
-    "@types/jsdom": ^12.2.4
+    "@types/jsdom": ^16.2.5
     "@types/nock": ^11.1.0
     "@types/node": ^14.14.5
     "@types/react": ^16.9.53
@@ -27892,7 +27899,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"parse5@npm:4.0.0, parse5@npm:^4.0.0":
+"parse5@npm:4.0.0":
   version: 4.0.0
   resolution: "parse5@npm:4.0.0"
   checksum: 05a06f5bb3e67eede77d5bef314229e23f98e607d10e76c1c1f650bc9831e3e8407c2fe297ee66a7b055e46a9a479bbb68bd0e7de89a640e76ef20dced1cd0c9
