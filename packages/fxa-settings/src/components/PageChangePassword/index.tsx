@@ -157,6 +157,13 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
               list of common passwords
             </LinkExternal>
           </li>
+          <li data-testid="change-password-match">
+            <ValidationIcon
+              isSet={formState.dirtyFields.confirmPassword}
+              hasError={errors.confirmPassword?.types?.validate}
+            />
+            New password matches confirmation
+          </li>
         </ul>
 
         <div className="my-6">
@@ -208,7 +215,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
           />
           <InputPassword
             name="confirmPassword"
-            label="Re-enter new password"
+            label="Confirm new password"
             onChange={() => trigger(['newPassword', 'confirmPassword'])}
             inputRef={register({
               required: true,
