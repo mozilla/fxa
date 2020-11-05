@@ -40,13 +40,13 @@ export const HeaderLockup = () => {
             <span className="font-bold ltr:mr-2 rtl:ml-2">
               Firefox accounts
             </span>
-            <a
+            {/* <a
               href="/settings"
               title="classic design link"
               className="cta-base cta-neutral transition-standard text-sm ltr:ml-4 rtl:mr-4 p-2"
             >
               Switch to classic design
-            </a>
+            </a> */}
           </>
         </LogoLockup>
       </a>
