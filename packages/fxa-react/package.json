@@ -67,7 +67,7 @@
     "tailwindcss": "^1.9.1",
     "ts-jest": "^26.3.0",
     "typescript": "3.9.7",
-    "webpack": "^4.43.0"
+    "webpack": "^5.4.0"
   },
   "repository": {
     "type": "git",
