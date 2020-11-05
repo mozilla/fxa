@@ -529,7 +529,7 @@ module.exports.subscriptionsStripeCustomerValidator = isA
 
 module.exports.ppidSeed = isA.number().integer().min(0).max(1024);
 
-module.exports.style = isA.string().allow(['trailhead']).optional();
+// module.exports.style = isA.string().allow(['trailhead']).optional();
 
 module.exports.scopes = isA.array().items(scope).default([]).optional();
 
