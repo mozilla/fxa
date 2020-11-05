@@ -1,3 +1,9 @@
+## 1.193.0
+
+### Other changes
+
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+
 ## 1.192.0
 
 No changes.

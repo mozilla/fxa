@@ -1,3 +1,50 @@
+## 1.193.0
+
+### New features
+
+- settings: add metrics for two step auth ([666a27aa5](https://github.com/mozilla/fxa/commit/666a27aa5))
+- settings: add replace 2fa recovery codes page ([7637a81f5](https://github.com/mozilla/fxa/commit/7637a81f5))
+- settings: show 2fa enabled message ([4f3846314](https://github.com/mozilla/fxa/commit/4f3846314))
+- settings: added metric events for secondary email to new settings ([702538c37](https://github.com/mozilla/fxa/commit/702538c37))
+- settings: verify recovery code and enable two step auth ([c2c48483a](https://github.com/mozilla/fxa/commit/c2c48483a))
+- settings: added view metrics to account-recovery ([d79337d61](https://github.com/mozilla/fxa/commit/d79337d61))
+- settings: add step 2 of two step auth ([d98c51332](https://github.com/mozilla/fxa/commit/d98c51332))
+
+### Bug fixes
+
+- settings: show error when new password = old ([8def102bb](https://github.com/mozilla/fxa/commit/8def102bb))
+- fxa-settings: fix 2fa unit row alignment ([b0ba04bbe](https://github.com/mozilla/fxa/commit/b0ba04bbe))
+- fxa-settings: bento menu icons grayscale bug ([20433faf0](https://github.com/mozilla/fxa/commit/20433faf0))
+- settings: updated google play logo ([4bd362437](https://github.com/mozilla/fxa/commit/4bd362437))
+- settings: add some padding to solo buttons. fixes #6806 ([01bb2a390](https://github.com/mozilla/fxa/commit/01bb2a390))
+- settings: add scroll margin to UnitRow. fixes #6805 ([77ab529ad](https://github.com/mozilla/fxa/commit/77ab529ad))
+- settings: add form validation to ModalVerifiedSession ([c9357844e](https://github.com/mozilla/fxa/commit/c9357844e))
+- settings: scroll to top on navigation ([675b47cb7](https://github.com/mozilla/fxa/commit/675b47cb7))
+- settings: port old settings pwd validation rules ([fafdc85d0](https://github.com/mozilla/fxa/commit/fafdc85d0))
+- settings: fixed lint warning ([a08afea97](https://github.com/mozilla/fxa/commit/a08afea97))
+- settings: use local default avatar in new settings ([27dbb7fe3](https://github.com/mozilla/fxa/commit/27dbb7fe3))
+- settings: fix disappearing avatar icon. fixes #6359 ([d0db6e927](https://github.com/mozilla/fxa/commit/d0db6e927))
+- fxa-settings: format 2fa recovery codes for export ([de10d9454](https://github.com/mozilla/fxa/commit/de10d9454))
+- settings: use non-interpolated classnames on tooltip. fixes #6777 ([0a05bfcb5](https://github.com/mozilla/fxa/commit/0a05bfcb5))
+- settings: fix two step auth route ([05c157c51](https://github.com/mozilla/fxa/commit/05c157c51))
+- settings: change flex on avatarMenu. fixes #6769 ([ead4c1471](https://github.com/mozilla/fxa/commit/ead4c1471))
+- settings: set text alignment on nav. fixes #6768 ([f46c1b399](https://github.com/mozilla/fxa/commit/f46c1b399))
+- settings: fixes #6656 ([838501e4a](https://github.com/mozilla/fxa/commit/838501e4a))
+
+### Other changes
+
+- fxa-settings: comment out beta links for release ([d40a53bc0](https://github.com/mozilla/fxa/commit/d40a53bc0))
+- deps-dev: bump @storybook/addon-links from 5.3.19 to 6.0.28 ([e61e65f45](https://github.com/mozilla/fxa/commit/e61e65f45))
+- fxa-settings: add beta and classic settings links ([e073084f9](https://github.com/mozilla/fxa/commit/e073084f9))
+- settings: use CRLF for datatrio separator ([351a14c70](https://github.com/mozilla/fxa/commit/351a14c70))
+- settings: fix comment whoops ([813ffddb6](https://github.com/mozilla/fxa/commit/813ffddb6))
+- settings: remove avatar row button for now. closes #6792 ([6a3377b87](https://github.com/mozilla/fxa/commit/6a3377b87))
+- deps: bump react-test-renderer from 16.13.1 to 17.0.1 ([779cb264d](https://github.com/mozilla/fxa/commit/779cb264d))
+- deps: bump @sentry/browser from 5.17.0 to 5.27.1 ([fcc11be76](https://github.com/mozilla/fxa/commit/fcc11be76))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+- settings: fix new settings build warnings ([a4ff5b1f1](https://github.com/mozilla/fxa/commit/a4ff5b1f1))
+- docs: update storybooks index for settings ([a68df24fd](https://github.com/mozilla/fxa/commit/a68df24fd))
+
 ## 1.192.0
 
 ### New features

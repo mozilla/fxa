@@ -1,3 +1,11 @@
+## 1.193.0
+
+### Other changes
+
+- deps: bump grunt from 1.1.0 to 1.3.0 ([562cb5f75](https://github.com/mozilla/fxa/commit/562cb5f75))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+- deps: bump @google-cloud/pubsub from 2.5.0 to 2.6.0 ([a388488c0](https://github.com/mozilla/fxa/commit/a388488c0))
+
 ## 1.192.0
 
 ### Other changes

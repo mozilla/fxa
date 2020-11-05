@@ -1,5 +1,15 @@
 # Change history
 
+## 1.193.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 26.1.0 to 26.4.3 ([b6974132f](https://github.com/mozilla/fxa/commit/b6974132f))
+- deps: bump @sentry/browser from 5.17.0 to 5.27.1 ([fcc11be76](https://github.com/mozilla/fxa/commit/fcc11be76))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+- deps-dev: bump jest from 26.4.2 to 26.6.1 ([f2546787b](https://github.com/mozilla/fxa/commit/f2546787b))
+- deps-dev: bump jsdom from 16.2.2 to 16.4.0 ([d892ab883](https://github.com/mozilla/fxa/commit/d892ab883))
+
 ## 1.192.0
 
 ### New features

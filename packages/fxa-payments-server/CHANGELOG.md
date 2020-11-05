@@ -1,5 +1,16 @@
 # Change history
 
+## 1.193.0
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-links from 5.3.19 to 6.0.28 ([e61e65f45](https://github.com/mozilla/fxa/commit/e61e65f45))
+- deps: bump dayjs from 1.8.26 to 1.9.4 ([72d68d4e5](https://github.com/mozilla/fxa/commit/72d68d4e5))
+- deps: bump react-test-renderer from 16.13.1 to 17.0.1 ([779cb264d](https://github.com/mozilla/fxa/commit/779cb264d))
+- deps: bump @sentry/browser from 5.17.0 to 5.27.1 ([fcc11be76](https://github.com/mozilla/fxa/commit/fcc11be76))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+- deps-dev: bump fetch-mock from 8.3.2 to 9.10.7 ([a10cdedca](https://github.com/mozilla/fxa/commit/a10cdedca))
+
 ## 1.192.0
 
 ### Other changes

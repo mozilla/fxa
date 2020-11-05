@@ -1,5 +1,17 @@
 # Change history
 
+## 1.193.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 26.1.0 to 26.4.3 ([b6974132f](https://github.com/mozilla/fxa/commit/b6974132f))
+- deps: bump google-auth-library from 6.1.2 to 6.1.3 ([43a45381e](https://github.com/mozilla/fxa/commit/43a45381e))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+- deps: bump axios from 0.20.0 to 0.21.0 ([a5a6c8b5e](https://github.com/mozilla/fxa/commit/a5a6c8b5e))
+- deps: bump jwks-rsa from 1.9.0 to 1.11.0 ([ad8409322](https://github.com/mozilla/fxa/commit/ad8409322))
+- deps-dev: bump jest from 26.4.2 to 26.6.1 ([f2546787b](https://github.com/mozilla/fxa/commit/f2546787b))
+- deps: bump @google-cloud/pubsub from 2.5.0 to 2.6.0 ([a388488c0](https://github.com/mozilla/fxa/commit/a388488c0))
+
 ## 1.192.0
 
 ### Other changes
