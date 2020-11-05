@@ -329,6 +329,7 @@ module.exports = function (
           payload: {
             code: validators.DIGITS,
             service: validators.service,
+            // Removed validators.style from the payload
             scopes: validators.scopes,
             // The `marketingOptIn` is safe to remove after train-167+
             marketingOptIn: isA.boolean().optional(),
