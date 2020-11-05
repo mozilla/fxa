@@ -673,9 +673,21 @@ module.exports = {
       RECOVERY_KEY: {
         CREATE: '[data-testid=recovery-key-unit-row-route]',
         BACK_BUTTON: '[data-testid=flow-container-back-btn]',
-        PASSWORD_TEXTBOX: '[data-testid=input-label]',
+        PASSWORD_TEXTBOX_LABEL: '[data-testid=input-label]',
+        PASSWORD_TEXTBOX_INPUT: '[data-testid=input-field]',
         CANCEL_BUTTON: '[data-testid=cancel-button]',
         CONTINUE_BUTTON: '[data-testid=continue-button]',
+        TOOLTIP_INCORRECT_PASSWORD: '[data-testid=tooltip]',
+        RECOVERY_KEY_CONFIRM: '[data-testid=recover-key-confirm]',
+        RECOVERY_KEY_TEXT: '[data-testid=datablock-button]',
+        CLOSE_BUTTON: '[data-testid=close-button]',
+        RECOVERY_KEY_ENABLED:
+          '[data-testid=recovery-key-unit-row-header-value]',
+        REMOVE_RECOVERY_KEY: '[data-testid=unit-row-modal]',
+        REMOVE_KEY_DESCRIPTION: '[data-testid=modal-content-container]',
+        CANCEL_REMOVE_KEY: '[data-testid=modal-cancel]',
+        CONFIRM_REMOVE_KEY: '[data-testid=modal-confirm]',
+        SUCCESS_MSG_REMOVE: '[data-testid=delete-recovery-key-success]',
       },
       TFA: {
         ADD_BUTTON: '[data-testid=two-step-unit-row-route]',
