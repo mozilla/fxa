@@ -1,3 +1,12 @@
+## 1.193.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 26.1.0 to 26.4.3 ([b6974132f](https://github.com/mozilla/fxa/commit/b6974132f))
+- deps: bump apollo-server from 2.16.1 to 2.19.0 ([8d7247246](https://github.com/mozilla/fxa/commit/8d7247246))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+- deps-dev: bump jest from 26.4.2 to 26.6.1 ([f2546787b](https://github.com/mozilla/fxa/commit/f2546787b))
+
 ## 1.192.0
 
 ### Other changes

@@ -1,3 +1,10 @@
+## 1.193.0
+
+### Other changes
+
+- deps: bump apollo-server from 2.16.1 to 2.19.0 ([8d7247246](https://github.com/mozilla/fxa/commit/8d7247246))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+
 ## 1.192.0
 
 ### Other changes

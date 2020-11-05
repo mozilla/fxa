@@ -1,3 +1,17 @@
+## 1.193.0
+
+### Other changes
+
+- deps-dev: bump @types/jsrsasign from 8.0.5 to 8.0.8 ([14a245178](https://github.com/mozilla/fxa/commit/14a245178))
+- deps: bump buf from 0.1.0 to 0.1.1 ([9c02da2de](https://github.com/mozilla/fxa/commit/9c02da2de))
+- deps-dev: bump @types/cbor from 5.0.0 to 5.0.1 ([789f2c483](https://github.com/mozilla/fxa/commit/789f2c483))
+- deps: bump grunt from 1.1.0 to 1.3.0 ([562cb5f75](https://github.com/mozilla/fxa/commit/562cb5f75))
+- build: stop building docker images for each service by default ([a97de2e2a](https://github.com/mozilla/fxa/commit/a97de2e2a))
+- deps-dev: bump leftpad from 0.0.0 to 0.0.1 ([da4280f85](https://github.com/mozilla/fxa/commit/da4280f85))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+- deps: bump email-addresses from 2.0.2 to 3.1.0 ([3635cb766](https://github.com/mozilla/fxa/commit/3635cb766))
+- deps: bump safe-regex from 1.1.0 to 2.1.1 ([65f7ad42d](https://github.com/mozilla/fxa/commit/65f7ad42d))
+
 ## 1.192.0
 
 ### New features

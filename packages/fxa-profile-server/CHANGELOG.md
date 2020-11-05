@@ -1,3 +1,11 @@
+## 1.193.0
+
+### Other changes
+
+- deps: bump buf from 0.1.0 to 0.1.1 ([9c02da2de](https://github.com/mozilla/fxa/commit/9c02da2de))
+- deps: bump @hapi/inert from 6.0.2 to 6.0.3 ([d9c560eae](https://github.com/mozilla/fxa/commit/d9c560eae))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+
 ## 1.192.0
 
 No changes.

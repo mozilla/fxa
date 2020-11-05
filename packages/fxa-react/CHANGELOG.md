@@ -1,3 +1,16 @@
+## 1.193.0
+
+### Bug fixes
+
+- settings: work around weird safari render bug. fixes #6763 ([3024bf525](https://github.com/mozilla/fxa/commit/3024bf525))
+- settings: set text alignment on nav. fixes #6768 ([f46c1b399](https://github.com/mozilla/fxa/commit/f46c1b399))
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-links from 5.3.19 to 6.0.28 ([e61e65f45](https://github.com/mozilla/fxa/commit/e61e65f45))
+- deps-dev: bump @types/prettier from 2.1.1 to 2.1.5 ([69a1c2848](https://github.com/mozilla/fxa/commit/69a1c2848))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+
 ## 1.192.0
 
 ### New features

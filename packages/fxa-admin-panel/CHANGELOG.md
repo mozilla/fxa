@@ -1,3 +1,15 @@
+## 1.193.0
+
+### Bug fixes
+
+- admin-panel: fix updated type incompatibility ([0dacbca70](https://github.com/mozilla/fxa/commit/0dacbca70))
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-links from 5.3.19 to 6.0.28 ([e61e65f45](https://github.com/mozilla/fxa/commit/e61e65f45))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+- deps-dev: bump @types/helmet from 0.0.48 to 4.0.0 ([96dfc9aff](https://github.com/mozilla/fxa/commit/96dfc9aff))
+
 ## 1.192.0
 
 ### Other changes

@@ -1,3 +1,31 @@
+## 1.193.0
+
+### New features
+
+- settings: add beta/settings route to old-settings backbone router ([5a77131e7](https://github.com/mozilla/fxa/commit/5a77131e7))
+
+### Bug fixes
+
+- content: fixed broken functional test from dns change ([94d1641a5](https://github.com/mozilla/fxa/commit/94d1641a5))
+- settings: comment add avatar test until implemented ([a61b19558](https://github.com/mozilla/fxa/commit/a61b19558))
+
+### Other changes
+
+- fxa-settings: comment out beta links for release ([d40a53bc0](https://github.com/mozilla/fxa/commit/d40a53bc0))
+- fxa-settings: add beta and classic settings links ([e073084f9](https://github.com/mozilla/fxa/commit/e073084f9))
+- deps-dev: bump grunt-jsonlint from 1.0.7 to 2.1.3 ([7da3f3a50](https://github.com/mozilla/fxa/commit/7da3f3a50))
+- deps: bump cache-loader from 3.0.1 to 4.1.0 ([93d3b265a](https://github.com/mozilla/fxa/commit/93d3b265a))
+- deps: bump grunt from 1.1.0 to 1.3.0 ([562cb5f75](https://github.com/mozilla/fxa/commit/562cb5f75))
+- Settings_V2: add config and helper functions for settings page redirection ([244765119](https://github.com/mozilla/fxa/commit/244765119))
+- deps: bump @sentry/browser from 5.17.0 to 5.27.1 ([fcc11be76](https://github.com/mozilla/fxa/commit/fcc11be76))
+- deps-dev: bump request-promise from 4.2.0 to 4.2.6 ([bdc792466](https://github.com/mozilla/fxa/commit/bdc792466))
+- deps: update node version to 14 ([6c2b253c1](https://github.com/mozilla/fxa/commit/6c2b253c1))
+- deps: bump grunt-contrib-htmlmin from 2.4.0 to 3.1.0 ([7e7ae95e1](https://github.com/mozilla/fxa/commit/7e7ae95e1))
+- deps: bump got from 6.7.1 to 11.8.0 ([85c6bd7e8](https://github.com/mozilla/fxa/commit/85c6bd7e8))
+- deps: bump source-map-loader from 0.2.4 to 1.1.1 ([0a4a3f9ef](https://github.com/mozilla/fxa/commit/0a4a3f9ef))
+- deps-dev: bump @types/backbone from 1.4.4 to 1.4.5 ([eade536d9](https://github.com/mozilla/fxa/commit/eade536d9))
+- deps-dev: bump firefox-profile from 1.2.0 to 4.0.0 ([94c297da4](https://github.com/mozilla/fxa/commit/94c297da4))
+
 ## 1.192.0
 
 ### Other changes
