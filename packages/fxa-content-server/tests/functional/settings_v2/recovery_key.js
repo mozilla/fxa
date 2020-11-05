@@ -73,10 +73,6 @@ describe('recovery key', () => {
       selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.RECOVERY_KEY_CONFIRM,
       remote
     );
-    await testElementExists(
-      selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.RECOVERY_KEY_CONFIRM,
-      remote
-    );
     await click(
       selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.CLOSE_BUTTON,
       remote
