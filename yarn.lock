@@ -18436,7 +18436,7 @@ fsevents@^1.2.7:
     react: ^16.13.1
     react-async-hook: ^3.6.1
     react-dom: ^16.13.1
-    react-hook-form: ^6.8.6
+    react-hook-form: ^6.10.1
     react-scripts: ^3.4.1
     react-test-renderer: ^17.0.1
     subscriptions-transport-ws: ^0.9.18
@@ -30846,12 +30846,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^6.8.6":
-  version: 6.8.6
-  resolution: "react-hook-form@npm:6.8.6"
+"react-hook-form@npm:^6.10.1":
+  version: 6.10.1
+  resolution: "react-hook-form@npm:6.10.1"
   peerDependencies:
-    react: ^16.8.0
-  checksum: 9031c65e84fe64edc12469b80044dfdd0eb44457598f82e712ba885b4245097be32127f31cb01a6d1709be88e5d86045a09f2ce5d38187d4cac80daac7e63151
+    react: ^16.8.0 || ^17
+  checksum: 531c84d5559ef0820307be10582160d7d90a7d73b9e8de2b83c6eda93c48ff974e4fde67816e55f1de635d5ecfe6935036801f1f8067f01497f07b433990aaca
   languageName: node
   linkType: hard
 
