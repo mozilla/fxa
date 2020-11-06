@@ -630,6 +630,8 @@ module.exports = {
   },
   SETTINGS_V2: {
     HEADER: '#profile',
+    TOOLTIP: '[data-testid=tooltip]',
+    BACK_BUTTON: '[data-testid=flow-container-back-btn]',
     AVATAR_DROP_DOWN_MENU: {
       MENU_BUTTON: '[data-testid=drop-down-avatar-menu-toggle]',
       DISPLAY_NAME_LABEL: '[data-testid=drop-down-name-or-email]',
@@ -649,12 +651,23 @@ module.exports = {
       SAVED_DISPLAY_NAME: '[data-testid=display-name-unit-row-header-value]',
       BACK_BUTTON: '[data-testid=flow-container-back-btn]',
     },
+    PRIMARY_EMAIL: {
+      HEADER_VALUE: '[data-testid=primary-email-unit-row-header-value]',
+    },
     SECONDARY_EMAIL: {
+      HEADER_VALUE: '[data-testid=secondary-email-unit-row-header-value]',
       ADD_BUTTON: '[data-testid=secondary-email-unit-row-route]',
+      DELETE_BUTTON: '[data-testid=secondary-email-delete]',
+      REFRESH_BUTTON: '[data-testid=secondary-email-refresh]',
+      MAKE_PRIMARY: '[data-testid=secondary-email-make-primary]',
+      FORM: '[data-testid=secondary-email-verify-form]',
       CANCEL_BUTTON: '[data-testid=cancel-button]',
       SUBMIT_BUTTON: '[data-testid=save-button]',
-      TEXTBOX: '[data-testid=input-label]',
+      TEXTBOX_FIELD: '[data-testid=input-field]',
+      TEXTBOX_LABEL: '[data-testid=input-label]',
       BACK_BUTTON: '[data-testid=flow-container-back-btn]',
+      VERIFY_FORM_LABEL: '[data-testid=input-container]',
+      VERIFY_FORM_SUBMIT_BUTTON: '[data-testid=secondary-email-verify-submit]',
     },
     CHANGE_PASSWORD: {
       OPEN_BUTTON: '[data-testid=password-unit-row-route]',
