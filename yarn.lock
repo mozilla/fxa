@@ -38,6 +38,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@angular-devkit/core@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@angular-devkit/core@npm:10.2.0"
+  dependencies:
+    ajv: 6.12.4
+    fast-json-stable-stringify: 2.1.0
+    magic-string: 0.25.7
+    rxjs: 6.6.2
+    source-map: 0.7.3
+  checksum: 5c7eb60df1da53db10151aef2af60c320a51a9b0d8004c8cb4a5d1f62256f7b253da144e9933374de1ba3e50389ed0e7a6151053f4fdf95800048584f53f2078
+  languageName: node
+  linkType: hard
+
 "@angular-devkit/core@npm:9.1.12":
   version: 9.1.12
   resolution: "@angular-devkit/core@npm:9.1.12"
@@ -76,6 +89,17 @@ __metadata:
     ora: 4.0.4
     rxjs: 6.5.5
   checksum: f73af0487cff7179484c842adcf97f88b3097f77d31cdc6d0144f800922d78740f3cca1f779e081a00952d3e54922dca116d8101a1290ee76acd4bcbbeaf47ac
+  languageName: node
+  linkType: hard
+
+"@angular-devkit/schematics@npm:10.2.0":
+  version: 10.2.0
+  resolution: "@angular-devkit/schematics@npm:10.2.0"
+  dependencies:
+    "@angular-devkit/core": 10.2.0
+    ora: 5.0.0
+    rxjs: 6.6.2
+  checksum: 519e3684ca8610708981984b1d11743591cde732ca82d03e81addcae877c64dd0a78d64fada47558aaf693cdf45453b27eb6b4ba20eeaf588ecf068b7ae6d4cd
   languageName: node
   linkType: hard
 
@@ -3759,7 +3783,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schematics@npm:^7.1.0, @nestjs/schematics@npm:^7.1.2":
+"@nestjs/schematics@npm:^7.1.0":
   version: 7.1.2
   resolution: "@nestjs/schematics@npm:7.1.2"
   dependencies:
@@ -3770,6 +3794,20 @@ __metadata:
   peerDependencies:
     typescript: ^3.4.5
   checksum: 945b6e11973d9feb24fe94f20e76632784b3fae25236a56ea8e411c4857c74bd3f5d61dc04040c6e1154be791c7ef91a516088a5778af627a7829861fc33cc9a
+  languageName: node
+  linkType: hard
+
+"@nestjs/schematics@npm:^7.2.1":
+  version: 7.2.1
+  resolution: "@nestjs/schematics@npm:7.2.1"
+  dependencies:
+    "@angular-devkit/core": 10.2.0
+    "@angular-devkit/schematics": 10.2.0
+    fs-extra: 9.0.1
+    pluralize: 8.0.0
+  peerDependencies:
+    typescript: ^3.4.5 || ^4.0.0
+  checksum: 6b54abe7c528f68802a38ddc44b794ad359c9db801581fc507ea4d2a7d27fc8be990961f1a717e5b685c3dbb7dffbe7686fccca08ce4aa19facb4f69e0eea8f0
   languageName: node
   linkType: hard
 
@@ -7989,6 +8027,18 @@ __metadata:
     json-schema-traverse: ^0.4.1
     uri-js: ^4.2.2
   checksum: b20a171bf30ede1635c6b1955bcc1db5a6b3e7dfa77f75aace9fb0db87375430c46d5cdd84158a0bf0a8da91e4da97bdb1afe5604a0969d8468b7c11143fdbba
+  languageName: node
+  linkType: hard
+
+"ajv@npm:6.12.4":
+  version: 6.12.4
+  resolution: "ajv@npm:6.12.4"
+  dependencies:
+    fast-deep-equal: ^3.1.1
+    fast-json-stable-stringify: ^2.0.0
+    json-schema-traverse: ^0.4.1
+    uri-js: ^4.2.2
+  checksum: 50d72b0a10326732072f5481b1b6bd5a43f8d770878b8f88ba5bb232abb745cefbf7f87a0e64679bd477d4a8bba0b3aea084675bd34943db5279c15907ee658f
   languageName: node
   linkType: hard
 
@@ -18050,7 +18100,7 @@ fsevents@^1.2.7:
     "@nestjs/passport": ^7.1.0
     "@nestjs/platform-express": ^7.4.4
     "@nestjs/schedule": ^0.4.1
-    "@nestjs/schematics": ^7.1.2
+    "@nestjs/schematics": ^7.2.1
     "@nestjs/testing": ^7.4.4
     "@sentry/integrations": ^5.23.0
     "@sentry/node": ^5.23.0
@@ -32656,6 +32706,15 @@ resolve@~1.11.1:
   dependencies:
     tslib: ^1.9.0
   checksum: a3882e0374af8aa32459ea9219fdcf24cb5a943cdf35f50da4ded48435ec474647c315b85c3e7b703927a55689e54037538cbd24789548d07b74e4865c4adb78
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:6.6.2":
+  version: 6.6.2
+  resolution: "rxjs@npm:6.6.2"
+  dependencies:
+    tslib: ^1.9.0
+  checksum: 9b16cd36093b87ce454726f14783e204b80431e6657d36191877e4d9d4b0713c73e5ee8b45be336b081d47b10cd016b3812ea3bd4b27bf87942b1410aa18ee04
   languageName: node
   linkType: hard
 
