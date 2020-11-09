@@ -7,12 +7,12 @@ import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useEscKeydownEffect } from '../../lib/hooks';
 
-import { ReactComponent as FirefoxIcon } from './logo.svg';
-import { ReactComponent as MonitorIcon } from './monitor.svg';
-import { ReactComponent as PocketIcon } from './pocket.svg';
-import { ReactComponent as DesktopIcon } from './desktop.svg';
-import { ReactComponent as MobileIcon } from './mobile.svg';
-import { ReactComponent as LockwiseIcon } from './lockwise.svg';
+import firefoxIcon from 'fxa-react/images/ff-logo.svg';
+import monitorIcon from './monitor.svg';
+import pocketIcon from './pocket.svg';
+import desktopIcon from './desktop.svg';
+import mobileIcon from './mobile.svg';
+import lockwiseIcon from './lockwise.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 
@@ -46,14 +46,15 @@ export const BentoMenu = () => {
         >
           <div className="flex flex-wrap">
             <div className="flex w-full pt-4 items-center flex-col tablet:w-auto tablet:relative">
-              <CloseIcon
-                width="16"
-                height="16"
-                className="absolute top-6 right-6 mobileLandscape:hidden"
-                onClick={closeFn}
-              />
+              <button type="button" onClick={closeFn} title="Close">
+                <CloseIcon
+                  width="16"
+                  height="16"
+                  className="absolute top-6 right-6 mobileLandscape:hidden"
+                />
+              </button>
               <div className="mt-12 text-center p-8 pt-2 pb-2 mobileLandscape:mt-0">
-                <FirefoxIcon className="my-2 mx-auto" />
+                <img src={firefoxIcon} alt="" className="my-2 mx-auto w-10" />
                 <h2>Firefox is tech that fights for your online privacy.</h2>
               </div>
               <div className="w-full text-xs mt-2">
@@ -65,7 +66,7 @@ export const BentoMenu = () => {
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
                       <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
-                        <MonitorIcon />
+                        <img src={monitorIcon} alt="" />
                       </div>
                       Firefox Monitor
                     </LinkExternal>
@@ -77,7 +78,7 @@ export const BentoMenu = () => {
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
                       <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
-                        <PocketIcon />
+                        <img src={pocketIcon} alt="" />
                       </div>
                       Pocket
                     </LinkExternal>
@@ -89,7 +90,7 @@ export const BentoMenu = () => {
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
                       <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
-                        <DesktopIcon />
+                        <img src={desktopIcon} alt="" />
                       </div>
                       Firefox Browser for Desktop
                     </LinkExternal>
@@ -101,7 +102,7 @@ export const BentoMenu = () => {
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
                       <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
-                        <MobileIcon />
+                        <img src={mobileIcon} alt="" />
                       </div>
                       Firefox Browser for Mobile
                     </LinkExternal>
@@ -113,7 +114,7 @@ export const BentoMenu = () => {
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
                       <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
-                        <LockwiseIcon />
+                        <img src={lockwiseIcon} alt="" />
                       </div>
                       Firefox Lockwise
                     </LinkExternal>
