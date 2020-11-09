@@ -8,4 +8,5 @@ module.exports = [
   'tests/functional/settings_v2/navigation.js',
   'tests/functional/settings_v2/settings.js',
   'tests/functional/settings_v2/change_password.js',
+  'tests/functional/settings_v2/secondary_email.js',
 ];
