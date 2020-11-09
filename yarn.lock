@@ -17823,7 +17823,7 @@ fsevents@^1.2.7:
     uuid: 1.4.1
     verror: ^1.10.0
     web-push: 3.4.4
-    ws: ^6.2.1
+    ws: ^7.4.0
   bin:
     fxa-auth: ./bin/key_server.js
   languageName: unknown
@@ -38344,6 +38344,21 @@ typescript@~4.0.2:
     utf-8-validate:
       optional: true
   checksum: c1f386013bd30afa9e4d0aa28eee85767a9e1b8fa74fc482eac503840f1012c2c1339745be36b0737f0245515646892b6073e376deac911a7bdf1ec90fc0f86f
+  languageName: node
+  linkType: hard
+
+"ws@npm:^7.4.0":
+  version: 7.4.0
+  resolution: "ws@npm:7.4.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ^5.0.2
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 67c0f3b86d89c20e337b0bd712e0a2752068eadc0cf13c024d0532c18d073381ced485fb114a636998327a82c34d83720f4ceb7632395c0cb9580ce221177fd8
   languageName: node
   linkType: hard
 
