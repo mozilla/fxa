@@ -10499,12 +10499,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"backbone.cocktail@npm:0.5.9":
-  version: 0.5.9
-  resolution: "backbone.cocktail@npm:0.5.9"
+"backbone.cocktail@npm:0.5.15":
+  version: 0.5.15
+  resolution: "backbone.cocktail@npm:0.5.15"
   dependencies:
-    underscore: ~1.5.1
-  checksum: aa5d782c34ffaa9a3367ce8c04962d1b5e4742e87e032344cd1b7eadd37f9d28ef44f44c0edfb53ff2bebc82d5bfc422d0e939aa55466b82e09d361a889d7123
+    underscore: ^1.8.3
+  checksum: cf271cc3a55adf869d43cf4ed211d4333b94b502e11d42e8d1c0563fd7f3f06f1cd423e0ec0081da7ee9dc8a5b00bf9186c7d7ce4275cfc737ed09dfa48a7793
   languageName: node
   linkType: hard
 
@@ -17777,7 +17777,7 @@ fsevents@^1.2.7:
     babel-loader: 8.0.6
     babel-plugin-dynamic-import-webpack: 1.1.0
     backbone: ^1.4.0
-    backbone.cocktail: 0.5.9
+    backbone.cocktail: 0.5.15
     base32-decode: 1.0.0
     base64url: 3.0.1
     body-parser: ^1.19.0
@@ -36534,17 +36534,10 @@ typescript@~4.0.2:
   languageName: node
   linkType: hard
 
-"underscore@npm:>=1.3.1, underscore@npm:>=1.8.3, underscore@npm:^1.10.2":
+"underscore@npm:>=1.3.1, underscore@npm:>=1.8.3, underscore@npm:^1.10.2, underscore@npm:^1.8.3":
   version: 1.10.2
   resolution: "underscore@npm:1.10.2"
   checksum: d49b87c03d50a431f8ca146b99be29ce47e0e08057aff58da063d7bdc30c41f9b2ade695a0ec5eab903ba1423dd16319391e953c5464aefcb482d3955766bd94
-  languageName: node
-  linkType: hard
-
-"underscore@npm:~1.5.1":
-  version: 1.5.2
-  resolution: "underscore@npm:1.5.2"
-  checksum: 92e7275b16a265d3ecfe5e4ad5222b351b8a23c65c7ea435c093049f04d0caaeb0e6e550b95726d9c5a816d38321787a486b44f6018a4cc801210819cbf2904a
   languageName: node
   linkType: hard
 
