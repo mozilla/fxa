@@ -637,6 +637,10 @@ module.exports = {
       DISPLAY_NAME_LABEL: '[data-testid=drop-down-name-or-email]',
       SIGNOUT_BUTTON: '[data-testid=avatar-menu-sign-out]',
     },
+    NAVIGATION: {
+      NEWSLETTERS_LINK: '[data-testid=nav-link-newsletters]',
+      SUBSCRIPTIONS_LINK: '[data-testid=nav-link-subscriptions]',
+    },
     PICTURE_MENU: {
       ADD_BUTTON: '[data-testid=unit-row-with-avatar-route]',
       BACK_BUTTON: '[data-testid=flow-container-back-btn]',
@@ -709,6 +713,10 @@ module.exports = {
     CONNECTED_SERVICES: {
       MENU: '[data-testid=nav-link-connected-services]',
       HEADER: '[data-testid=settings-connected-services]',
+    },
+    FOOTER: {
+      PRIVACY_LINK: '[data-testid=link-privacy]',
+      TERMS_LINK: 'data-testid=link-terms',
     },
   },
 };
