@@ -88,7 +88,7 @@ describe('ClientCapabilityService', () => {
     });
 
     it('throws on error', async () => {
-      const mockUpdate = jest.fn().mockResolvedValue({ status: 500 });
+      const mockUpdate = jest.fn().mockRejectedValue({});
       (service as any).axiosInstance = { get: mockUpdate };
       expect.assertions(1);
       try {
@@ -99,7 +99,7 @@ describe('ClientCapabilityService', () => {
     });
 
     it('logs on error', async () => {
-      const mockUpdate = jest.fn().mockResolvedValue({ status: 500 });
+      const mockUpdate = jest.fn().mockRejectedValue({});
       (service as any).axiosInstance = { get: mockUpdate };
       await service.updateCapabilities();
       expect((service as any).log.error).toBeCalledTimes(1);

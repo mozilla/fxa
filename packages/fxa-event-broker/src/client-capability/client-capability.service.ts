@@ -8,7 +8,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { ExtendedError } from 'fxa-shared/nestjs/error';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { AppConfig } from '../config';
@@ -40,15 +41,20 @@ export class ClientCapabilityService
   async updateCapabilities(
     { throwOnError } = { throwOnError: false }
   ): Promise<void> {
-    const result = await this.axiosInstance.get(this.config.clientUrl);
-    if (result.status !== 200) {
+    let result: AxiosResponse;
+    try {
+      result = await this.axiosInstance.get(this.config.clientUrl);
+    } catch (err) {
       if (throwOnError) {
-        throw new Error(
-          'Unexpected error fetching client capabilities from auth-server'
+        throw ExtendedError.withCause(
+          'Unexpected error fetching client capabilities from auth-server',
+          err
         );
       }
       this.log.error('updateCapabilities', {
-        status: result.status,
+        status: err.response
+          ? (err.response as AxiosResponse).status
+          : undefined,
         message: 'Error fetching client capabilities.',
       });
       return;

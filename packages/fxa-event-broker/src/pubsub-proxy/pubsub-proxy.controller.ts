@@ -16,6 +16,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Request } from 'express';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
+import { ExtendedError } from 'fxa-shared/nestjs/error';
 
 import { GoogleJwtAuthGuard } from '../auth/google-jwt-auth.guard';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
@@ -137,6 +138,7 @@ export class PubsubProxyController {
         this.metrics.increment(`proxy.fail`, {
           clientId,
           statusCode: (err.response as AxiosResponse).status.toString(),
+          type: message.event,
         });
         this.log.debug('proxyDeliverFail', {
           response: err.response,
@@ -145,7 +147,7 @@ export class PubsubProxyController {
         return err.response;
       } else {
         this.log.error('proxyDeliverError', { err });
-        throw err;
+        throw ExtendedError.withCause('Proxy delivery error', err);
       }
     }
   }
