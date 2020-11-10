@@ -25,6 +25,7 @@ module.exports = function (config) {
   const CDN_URL = config.get('static_resource_url');
   const DATA = 'data:';
   const GRAVATAR = 'https://secure.gravatar.com';
+  const GQL_SERVER = getOrigin(config.get('settings_gql_url'));
   const OAUTH_SERVER = getOrigin(config.get('oauth_url'));
   const PROFILE_SERVER = getOrigin(config.get('profile_url'));
   const PROFILE_IMAGES_SERVER = getOrigin(config.get('profile_images_url'));
@@ -59,6 +60,7 @@ module.exports = function (config) {
       connectSrc: [
         SELF,
         AUTH_SERVER,
+        GQL_SERVER,
         OAUTH_SERVER,
         PROFILE_SERVER,
         PAIRING_SERVER_WEBSOCKET,
@@ -81,7 +83,9 @@ module.exports = function (config) {
       objectSrc: [NONE],
       reportUri: config.get('csp.reportUri'),
       scriptSrc: addCdnRuleIfRequired([SELF]),
-      styleSrc: addCdnRuleIfRequired([SELF]),
+      styleSrc: addCdnRuleIfRequired(
+        config.get('env') === 'development' ? [SELF, "'unsafe-inline'"] : [SELF]
+      ),
     },
     reportOnly: false,
     // Sources are exported for unit tests
