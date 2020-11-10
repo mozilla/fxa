@@ -2724,7 +2724,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/catbox@npm:11.x.x, @hapi/catbox@npm:^11.1.1":
+"@hapi/catbox@npm:^11.1.1":
   version: 11.1.1
   resolution: "@hapi/catbox@npm:11.1.1"
   dependencies:
@@ -2775,32 +2775,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/hapi@npm:^19.1.1":
-  version: 19.1.1
-  resolution: "@hapi/hapi@npm:19.1.1"
-  dependencies:
-    "@hapi/accept": ^5.0.1
-    "@hapi/ammo": ^5.0.1
-    "@hapi/boom": 9.x.x
-    "@hapi/bounce": 2.x.x
-    "@hapi/call": 8.x.x
-    "@hapi/catbox": 11.x.x
-    "@hapi/catbox-memory": 5.x.x
-    "@hapi/heavy": 7.x.x
-    "@hapi/hoek": 9.x.x
-    "@hapi/joi": 17.x.x
-    "@hapi/mimos": 5.x.x
-    "@hapi/podium": 4.x.x
-    "@hapi/shot": 5.x.x
-    "@hapi/somever": 3.x.x
-    "@hapi/statehood": ^7.0.2
-    "@hapi/subtext": ^7.0.3
-    "@hapi/teamwork": 4.x.x
-    "@hapi/topo": 5.x.x
-  checksum: f2314905a0d52bc0cdfee92793cc06ce646b68fafcdb10094ccbb92349100dc9980cd0a8aadd2d00e5ca0d1337c263d325684292df0749b2426b044315651c0a
-  languageName: node
-  linkType: hard
-
 "@hapi/hapi@npm:^20.0.0":
   version: 20.0.0
   resolution: "@hapi/hapi@npm:20.0.0"
@@ -2827,6 +2801,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/hapi@npm:^20.0.1":
+  version: 20.0.1
+  resolution: "@hapi/hapi@npm:20.0.1"
+  dependencies:
+    "@hapi/accept": ^5.0.1
+    "@hapi/ammo": ^5.0.1
+    "@hapi/boom": 9.x.x
+    "@hapi/bounce": 2.x.x
+    "@hapi/call": 8.x.x
+    "@hapi/catbox": ^11.1.1
+    "@hapi/catbox-memory": 5.x.x
+    "@hapi/heavy": ^7.0.1
+    "@hapi/hoek": 9.x.x
+    "@hapi/mimos": 5.x.x
+    "@hapi/podium": ^4.1.1
+    "@hapi/shot": ^5.0.1
+    "@hapi/somever": 3.x.x
+    "@hapi/statehood": ^7.0.3
+    "@hapi/subtext": ^7.0.3
+    "@hapi/teamwork": 5.x.x
+    "@hapi/topo": 5.x.x
+    "@hapi/validate": ^1.1.0
+  checksum: 4cdbe751f03331cee72d1834e9caa2fcc92d2ab590cb537893e0bcdac967cbc92f4534e04d108ebbcb2781694c217c18befa54c86d0749001601215baca499cf
+  languageName: node
+  linkType: hard
+
 "@hapi/hawk@npm:^8.0.0":
   version: 8.0.0
   resolution: "@hapi/hawk@npm:8.0.0"
@@ -2840,7 +2840,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/heavy@npm:7.x.x, @hapi/heavy@npm:^7.0.1":
+"@hapi/heavy@npm:^7.0.1":
   version: 7.0.1
   resolution: "@hapi/heavy@npm:7.0.1"
   dependencies:
@@ -2917,7 +2917,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/joi@npm:17.x.x, @hapi/joi@npm:^17.1.0, @hapi/joi@npm:^17.1.1":
+"@hapi/joi@npm:^17.1.0, @hapi/joi@npm:^17.1.1":
   version: 17.1.1
   resolution: "@hapi/joi@npm:17.1.1"
   dependencies:
@@ -2998,7 +2998,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/shot@npm:5.x.x, @hapi/shot@npm:^5.0.1":
+"@hapi/shot@npm:^5.0.1":
   version: 5.0.1
   resolution: "@hapi/shot@npm:5.0.1"
   dependencies:
@@ -3030,7 +3030,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/statehood@npm:^7.0.2, @hapi/statehood@npm:^7.0.3":
+"@hapi/statehood@npm:^7.0.3":
   version: 7.0.3
   resolution: "@hapi/statehood@npm:7.0.3"
   dependencies:
@@ -17622,7 +17622,7 @@ fsevents@^1.2.7:
   resolution: "fxa-auth-server@workspace:packages/fxa-auth-server"
   dependencies:
     "@google-cloud/firestore": ^4.4.0
-    "@hapi/hapi": ^19.1.1
+    "@hapi/hapi": ^20.0.1
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.1.0
     "@hapi/joi": ^15.1.1
@@ -17929,7 +17929,7 @@ fsevents@^1.2.7:
   resolution: "fxa-customs-server@workspace:packages/fxa-customs-server"
   dependencies:
     "@google-cloud/pubsub": ^2.6.0
-    "@hapi/hapi": ^19.1.1
+    "@hapi/hapi": ^20.0.1
     "@hapi/hoek": ^9.0.4
     "@sentry/node": ^5.17.0
     audit-filter: ^0.5.0
@@ -18352,7 +18352,7 @@ fsevents@^1.2.7:
     "@hapi/boom": ~9.1.0
     "@hapi/catbox-memory": ~5.0.0
     "@hapi/catbox-redis": ~5.0.5
-    "@hapi/hapi": ^19.1.1
+    "@hapi/hapi": ^20.0.1
     "@hapi/inert": 6.0.3
     "@hapi/joi": ^17.1.1
     "@sentry/node": ^5.17.0
