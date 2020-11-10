@@ -44,7 +44,7 @@
     "autoprefixer": "9.8.6",
     "babel-loader": "8.0.6",
     "backbone": "^1.4.0",
-    "backbone.cocktail": "0.5.9",
+    "backbone.cocktail": "0.5.15",
     "base32-decode": "1.0.0",
     "base64url": "3.0.1",
     "body-parser": "^1.19.0",
