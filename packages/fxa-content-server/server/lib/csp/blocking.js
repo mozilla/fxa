@@ -55,18 +55,27 @@ module.exports = function (config) {
     return target;
   }
 
+  const connectSrc = [
+    SELF,
+    AUTH_SERVER,
+    GQL_SERVER,
+    OAUTH_SERVER,
+    PROFILE_SERVER,
+    PAIRING_SERVER_WEBSOCKET,
+    PAIRING_SERVER_HTTP,
+    SENTRY_SERVER,
+  ];
+  const scriptSrc = addCdnRuleIfRequired([SELF]);
+  const styleSrc = addCdnRuleIfRequired([SELF]);
+  if (config.get('env') === 'development') {
+    connectSrc.push(config.get('public_url').replace(/^http/, 'ws'));
+    scriptSrc.push("'unsafe-inline'");
+    styleSrc.push("'unsafe-inline'");
+  }
+
   const rules = {
     directives: {
-      connectSrc: [
-        SELF,
-        AUTH_SERVER,
-        GQL_SERVER,
-        OAUTH_SERVER,
-        PROFILE_SERVER,
-        PAIRING_SERVER_WEBSOCKET,
-        PAIRING_SERVER_HTTP,
-        SENTRY_SERVER,
-      ],
+      connectSrc,
       defaultSrc: [SELF],
       fontSrc: addCdnRuleIfRequired([SELF]),
       frameSrc: addCdnRuleIfRequired(surveysEnabledAndSet ? SURVEYS : [NONE]),
@@ -82,10 +91,8 @@ module.exports = function (config) {
       mediaSrc: [BLOB],
       objectSrc: [NONE],
       reportUri: config.get('csp.reportUri'),
-      scriptSrc: addCdnRuleIfRequired([SELF]),
-      styleSrc: addCdnRuleIfRequired(
-        config.get('env') === 'development' ? [SELF, "'unsafe-inline'"] : [SELF]
-      ),
+      scriptSrc,
+      styleSrc,
     },
     reportOnly: false,
     // Sources are exported for unit tests
