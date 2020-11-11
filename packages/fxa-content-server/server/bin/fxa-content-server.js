@@ -94,9 +94,6 @@ function makeApp() {
         writeToDisk: true,
       })
     );
-    app.use(betaSettingsPath, useSettingsProxy);
-  } else {
-    app.get(betaSettingsPath, modifySettingsStatic);
   }
 
   app.engine('html', consolidate.handlebars);
@@ -186,6 +183,10 @@ function makeApp() {
       res.status(403);
       res.send('<h1>403 Forbidden</h1>');
     });
+  } else if (config.get('env') === 'development') {
+    app.use(betaSettingsPath, useSettingsProxy);
+  } else {
+    app.get(betaSettingsPath, modifySettingsStatic);
   }
 
   app.use(
