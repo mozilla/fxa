@@ -92,7 +92,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     if (isValidCode) {
       showRecoveryCodes();
     } else {
-      setInvalidCodeError('Invalid two-step authentication code');
+      setInvalidCodeError('Incorrect two-step authentication code');
     }
     logTotpSubmitEvent(metricsPreInPostFix, 'submit');
   };
@@ -115,7 +115,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   const onRecoveryCodeSubmit = async ({ recoveryCode }: RecoveryCodeForm) => {
     if (!recoveryCodes.includes(recoveryCode)) {
-      setRecoveryCodeError('Invalid recovery code');
+      setRecoveryCodeError('Incorrect recovery code');
       return;
     }
     const code = await getCode(secret!);

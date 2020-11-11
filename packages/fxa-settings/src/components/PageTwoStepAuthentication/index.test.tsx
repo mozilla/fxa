@@ -212,7 +212,7 @@ describe('step 3', () => {
     });
     expect(screen.getByTestId('tooltip')).toBeInTheDocument();
     expect(screen.getByTestId('tooltip')).toHaveTextContent(
-      'Invalid recovery code'
+      'Incorrect recovery code'
     );
   });
 
