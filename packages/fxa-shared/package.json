@@ -91,7 +91,7 @@
     "find-up": "^5.0.0",
     "generic-pool": "^3.7.1",
     "graphql": "^14.6.0",
-    "hot-shots": "^7.8.0",
+    "hot-shots": "^8.2.0",
     "joi": "^14.3.1",
     "js-md5": "^0.7.3",
     "lodash.omitby": "^4.6.0",
