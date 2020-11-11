@@ -716,7 +716,7 @@ module.exports = {
     },
     FOOTER: {
       PRIVACY_LINK: '[data-testid=link-privacy]',
-      TERMS_LINK: 'data-testid=link-terms',
+      TERMS_LINK: '[data-testid=link-terms]',
     },
   },
 };
