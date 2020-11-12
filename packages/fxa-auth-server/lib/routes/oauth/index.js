@@ -323,6 +323,12 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           // https://github.com/mozilla/fxa/pull/6581#issuecomment-702248031
           if (
             scopeSet.contains(OAUTH_SCOPE_OLD_SYNC) &&
+            // Desktop requests a profile scope token before adding the device
+            // to the account. To ensure we record accurate device counts, only
+            // emit this event if the request is for an oldsync scope, not a
+            // profile scope. See #6578 for details on the order of API calls
+            // made by both desktop and fenix.
+            !scopeSet.contains('profile') &&
             config.oauth.oldSyncClientIds.includes(request.payload.client_id)
           ) {
             await request.emitMetricsEvent('account.signed', {
