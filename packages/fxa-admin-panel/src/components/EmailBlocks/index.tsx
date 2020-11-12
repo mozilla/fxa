@@ -65,7 +65,7 @@ export const EmailBlocks = () => {
 
   return (
     <div className="email-blocks" data-testid="email-blocks">
-      <h2>Find and Delete Email Blocks</h2>
+      <h2>Account search</h2>
       <p>
         Email addresses are blocked from the FxA email sender when an email sent
         to the address has bounced.

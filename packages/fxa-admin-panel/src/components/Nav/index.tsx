@@ -12,13 +12,13 @@ export const Nav = () => (
       <h2>Navigation</h2>
       <ul>
         <li>
-          <NavLink exact to="/email-blocks">
+          <NavLink exact to="/account-search">
             <img
               className="inline-flex icon"
               src={require('../../images/icon-mail.svg')}
               alt="external link"
             />
-            Email blocks
+            Account search
           </NavLink>
         </li>
       </ul>

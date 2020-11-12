@@ -11,8 +11,8 @@ const App = () => (
   <BrowserRouter>
     <AppLayout>
       <Switch>
-        <Redirect exact from="/" to="/email-blocks" />
-        <Route path="/email-blocks" component={EmailBlocks} />
+        <Redirect exact from="/" to="/account-search" />
+        <Route path="/account-search" component={EmailBlocks} />
       </Switch>
     </AppLayout>
   </BrowserRouter>
