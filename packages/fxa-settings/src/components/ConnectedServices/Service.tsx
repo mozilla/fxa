@@ -5,14 +5,8 @@
 import React from 'react';
 
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
-import { useBooleanState } from 'fxa-react/lib/hooks';
-
-import { Checkbox } from '../Checkbox';
 import { DeviceLocation } from '../../models/Account';
 import { Icon } from './Icon';
-import { Modal } from '../Modal';
-import { useAlertBar } from '../../lib/hooks';
-import { VerifiedSessionGuard } from '../VerifiedSessionGuard';
 
 export function Service({
   name,
@@ -20,18 +14,18 @@ export function Service({
   location,
   lastAccessTimeFormatted,
   canSignOut,
+  handleSignOut,
 }: {
   name: string;
   deviceType: string | null;
   location: DeviceLocation;
   lastAccessTimeFormatted: string;
   canSignOut: boolean;
+  handleSignOut: () => void;
 }) {
-  const alertBar = useAlertBar();
   const { city, stateCode, country } = location;
   const locationProvided = Boolean(city && stateCode && country);
   let serviceLink, iconName;
-  const [modalRevealed, revealModal, hideModal] = useBooleanState();
 
   switch (name) {
     case 'Pocket':
@@ -111,69 +105,12 @@ export function Service({
             <button
               className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
               data-testid="connected-service-sign-out"
-              onClick={revealModal}
+              onClick={handleSignOut}
             >
               Sign out
             </button>
           )}
         </div>
-        {modalRevealed && (
-          <VerifiedSessionGuard
-            onDismiss={hideModal}
-            onError={(error) => {
-              hideModal();
-              alertBar.error(
-                'Sorry, there was a problem verifying your session',
-                error
-              );
-            }}
-          >
-            <Modal
-              onDismiss={hideModal}
-              onConfirm={hideModal} /* to be implemented in a later issue */
-              confirmBtnClassName="cta-primary"
-              confirmText="Sign Out"
-              headerId="connected-services-sign-out-header"
-              descId="connected-services-sign-out-description"
-            >
-              <h2
-                id="connected-services-sign-out-header"
-                className="font-bold text-xl text-center mb-2"
-                data-testid="connected-services-modal-header"
-              >
-                Disconnect from Sync
-              </h2>
-
-              <p id="sign-out-desc" className="my-4 text-center">
-                Your browsing data will remain on your device ({name}), but it
-                will no longer sync with your account.
-              </p>
-
-              <p className="my-4 text-center">
-                What's the main reason for disconnecting this device?
-              </p>
-
-              <ul className="my-4 ltr:text-left rtl:text-right">
-                The device is:
-                <li className="my-2">
-                  <Checkbox {...{ label: 'Suspicious' }} />
-                </li>
-                <li className="my-2">
-                  <Checkbox {...{ label: 'Lost or Stolen' }} />
-                </li>
-                <li className="my-2">
-                  <Checkbox {...{ label: 'Old or replaced' }} />
-                </li>
-                <li className="my-2">
-                  <Checkbox {...{ label: 'Duplicate' }} />
-                </li>
-                <li className="my-2">
-                  <Checkbox {...{ label: 'Rather not say' }} />
-                </li>
-              </ul>
-            </Modal>
-          </VerifiedSessionGuard>
-        )}
       </div>
     </div>
   );

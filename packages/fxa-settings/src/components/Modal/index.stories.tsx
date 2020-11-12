@@ -44,6 +44,26 @@ storiesOf('Components|Modal', module)
         )
       }
     </ModalToggle>
+  ))
+  .add('with confirm and no cancel button', () => (
+    <ModalToggle>
+      {({ modalRevealed, hideModal }) =>
+        modalRevealed && (
+          <Modal
+            headerId="some-id"
+            descId="some-description"
+            onConfirm={hideModal as () => void}
+            onDismiss={hideModal}
+            hasCancelButton={false}
+          >
+            <h2 id="some-id">Header goes here.</h2>
+            <p id="some-description">
+              This is a modal with a confirm button, but no cancel button.
+            </p>
+          </Modal>
+        )
+      }
+    </ModalToggle>
   ));
 
 type ModalToggleChildrenProps = {
