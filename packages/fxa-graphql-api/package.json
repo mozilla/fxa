@@ -47,7 +47,7 @@
     "reflect-metadata": "^0.1.13",
     "superagent": "^6.0.0",
     "tslib": "2.0.1",
-    "type-graphql": "^0.17.6",
+    "type-graphql": "^1.1.1",
     "typedi": "^0.8.0"
   },
   "devDependencies": {
