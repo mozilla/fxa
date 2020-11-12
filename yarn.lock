@@ -7734,13 +7734,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"addressparser@npm:1.0.1":
-  version: 1.0.1
-  resolution: "addressparser@npm:1.0.1"
-  checksum: 47cf44cf97467c55bc1763131971be52f3009a0ff9e0c24f795c50efd31589d26a803658e3f28873a14c40afbae5a8ddc6f87f0168167f4c06e19bb943ef7940
-  languageName: node
-  linkType: hard
-
 "addressparser@npm:~0.3.2":
   version: 0.3.2
   resolution: "addressparser@npm:0.3.2"
@@ -11358,21 +11351,6 @@ __metadata:
     node-gyp: latest
     node-gyp-build: ~3.7.0
   checksum: f83b1ce112ffe60812573facf01a0c33e856a757a37d34afaafa73ff82bcd32ed816a0c22bfc31e108d9bbce6faa4886747e1f512899fb6235a3e3896bbe38c3
-  languageName: node
-  linkType: hard
-
-"buildmail@npm:4.0.1":
-  version: 4.0.1
-  resolution: "buildmail@npm:4.0.1"
-  dependencies:
-    addressparser: 1.0.1
-    libbase64: 0.1.0
-    libmime: 3.0.0
-    libqp: 1.1.0
-    nodemailer-fetch: 1.6.0
-    nodemailer-shared: 1.1.0
-    punycode: 1.4.1
-  checksum: 0f1162c3e13514175c489ad12f8f9866c271d3f410c53c478f7da6fa52b6f61817c5c165583eda08ec5dee05d80c6b8fe3a55fb8e8a08d667dbe69eef504e118
   languageName: node
   linkType: hard
 
@@ -17735,7 +17713,7 @@ fsevents@^1.2.7:
     nock: ^12.0.3
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     node-zendesk: ^2.0.3
-    nodemailer: 2.7.2
+    nodemailer: 6.4.15
     nyc: ^15.0.1
     otplib: ^11.0.1
     p-retry: ^4.2.0
@@ -20540,23 +20518,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"httpntlm@npm:1.6.1":
-  version: 1.6.1
-  resolution: "httpntlm@npm:1.6.1"
-  dependencies:
-    httpreq: ">=0.4.22"
-    underscore: ~1.7.0
-  checksum: 966b2af954d1db29c1734c06eea61b696e396813ccb5d837124eea15f5ddf327d6ba14cc109e4da609a285eaff557628b4230da2fd9e07100428d16bdd185364
-  languageName: node
-  linkType: hard
-
-"httpreq@npm:>=0.4.22":
-  version: 0.4.24
-  resolution: "httpreq@npm:0.4.24"
-  checksum: 5c127d76bb4594ba3bc529a633b393187f0ce04b87e380654e09386f925266bd9198f5848254eb4cded8225ab36ca24aafc6d7c7415a4bc5039c3d412703d475
-  languageName: node
-  linkType: hard
-
 "https-browserify@npm:^1.0.0":
   version: 1.0.0
   resolution: "https-browserify@npm:1.0.0"
@@ -20647,13 +20608,6 @@ fsevents@^1.2.7:
     merge-po: bin/merge-po.sh
     po2json.js: bin/po2json.js
   checksum: a90695d8d66ff2fc56b60f6f763e49c5d7f72ae93db79bd776f1e4a4e47295d2595ac0d5f68be0c636574f8372c8e0d2ca8d69f602e1efdd8d04c6ee71843335
-  languageName: node
-  linkType: hard
-
-"iconv-lite@npm:0.4.15":
-  version: 0.4.15
-  resolution: "iconv-lite@npm:0.4.15"
-  checksum: 4862522e6e41250cb36170e07ae9138b916bb180b3594c3812e6f9731b9f2b01dc664e73420b65895abe36295b9f0a25bc75d75762649ed9a22398fc86203052
   languageName: node
   linkType: hard
 
@@ -21318,7 +21272,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"ip@npm:1.1.5, ip@npm:^1.1.0, ip@npm:^1.1.2, ip@npm:^1.1.5":
+"ip@npm:1.1.5, ip@npm:^1.1.0, ip@npm:^1.1.5":
   version: 1.1.5
   resolution: "ip@npm:1.1.5"
   checksum: 3ad007368cf797ec9b73fbac0a644077198dd85a128d0fe39697a78a9cdd47915577eee5c4eca9933549b575ac4716107896c2d4aa43a1622b3f72104232cad4
@@ -24258,31 +24212,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"libbase64@npm:0.1.0":
-  version: 0.1.0
-  resolution: "libbase64@npm:0.1.0"
-  checksum: 0ab6a631f542f724bbb8b9df797b0d2c0a08995c492cb863c182569ed9aa048fc4242dbf6d5c1d412d8652302ace4cf3721e8d951a653b5f26f260a81b828889
-  languageName: node
-  linkType: hard
-
-"libmime@npm:3.0.0":
-  version: 3.0.0
-  resolution: "libmime@npm:3.0.0"
-  dependencies:
-    iconv-lite: 0.4.15
-    libbase64: 0.1.0
-    libqp: 1.1.0
-  checksum: 2ede4bf17e43fc13d73149e52a9d2ba61f8bd30d441a31ae58c90c232ec1f54d7e0b3a4dd97554346d0e2e25d529d915fda0782292f0af3911d67bd54b70c88c
-  languageName: node
-  linkType: hard
-
-"libqp@npm:1.1.0":
-  version: 1.1.0
-  resolution: "libqp@npm:1.1.0"
-  checksum: 0a466830833dd1d0b51e17798808a10f7c2683d1ca2084acadbf6d1bce3d0c643411f1734167e01a88233cff6606cdc5003ed4dd3f149f22a0a90308e9448b5e
-  languageName: node
-  linkType: hard
-
 "lie@npm:3.1.1":
   version: 3.1.1
   resolution: "lie@npm:3.1.1"
@@ -25190,16 +25119,6 @@ fsevents@^1.2.7:
   dependencies:
     sourcemap-codec: ^1.4.4
   checksum: 4b70c13eb21c6f1c54bf7fb029748dc44d6bfcd3c59e5deeda060eecc38df6144b91d10fb7a3cf6156fadab1a68f83d69a189df20ca5f6bd088bf0196ea8f039
-  languageName: node
-  linkType: hard
-
-"mailcomposer@npm:4.0.1":
-  version: 4.0.1
-  resolution: "mailcomposer@npm:4.0.1"
-  dependencies:
-    buildmail: 4.0.1
-    libmime: 3.0.0
-  checksum: 19c40fd135e3c6fa323fd235cfb4125f0528f46efaf89538a9fc7a8ad8ca63fa882a07abad223893d6d1140ef04ba48feea425f4d0d6c307b3ffea20c8f7aae7
   languageName: node
   linkType: hard
 
@@ -26930,73 +26849,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"nodemailer-direct-transport@npm:3.3.2":
-  version: 3.3.2
-  resolution: "nodemailer-direct-transport@npm:3.3.2"
-  dependencies:
-    nodemailer-shared: 1.1.0
-    smtp-connection: 2.12.0
-  checksum: eb7cdbbe949bb48ae2ff34f40c7272535901ec58e1030a8f15641a449823923574a51bca6495344597e02da3c4463575b990cfd3562b6c394f1548aa0c611db2
-  languageName: node
-  linkType: hard
-
-"nodemailer-fetch@npm:1.6.0":
-  version: 1.6.0
-  resolution: "nodemailer-fetch@npm:1.6.0"
-  checksum: a6d4f16a5d7fc61328505b9d833e318ff1547518b9d7bd6466147ced4c7d69650628a65524b2e759d153005783495d46825ee5f0cee7bb2e9ba7cc97fd404e76
-  languageName: node
-  linkType: hard
-
-"nodemailer-shared@npm:1.1.0":
-  version: 1.1.0
-  resolution: "nodemailer-shared@npm:1.1.0"
-  dependencies:
-    nodemailer-fetch: 1.6.0
-  checksum: 989f452f1060b13ae9d794035305e36dd94f3dc1e67f9097a33ed2f641ff9c00aa44b7d395e85ec1719be45a03e609f463da6c043fea8fdb3884ca0872bd8467
-  languageName: node
-  linkType: hard
-
-"nodemailer-smtp-pool@npm:2.8.2":
-  version: 2.8.2
-  resolution: "nodemailer-smtp-pool@npm:2.8.2"
-  dependencies:
-    nodemailer-shared: 1.1.0
-    nodemailer-wellknown: 0.1.10
-    smtp-connection: 2.12.0
-  checksum: debf7fb72f362a20d1d74ed39fe516c93f724f91c43e5b3518df6b70b6dba3c84bcfe862810c1a94f9d13b80249cd78646e2fb5d563d24f1653e6656078cbf0e
-  languageName: node
-  linkType: hard
-
-"nodemailer-smtp-transport@npm:2.7.2":
-  version: 2.7.2
-  resolution: "nodemailer-smtp-transport@npm:2.7.2"
-  dependencies:
-    nodemailer-shared: 1.1.0
-    nodemailer-wellknown: 0.1.10
-    smtp-connection: 2.12.0
-  checksum: b6e62f46e5698696c69e10ba60ec30cd46f1c3c5c74dd5006f718b9ec7c59abb547770d3fe371e28b1bdcc5ffe1641b743bb2a05d191a7b1c80f7a4d6c819c8e
-  languageName: node
-  linkType: hard
-
-"nodemailer-wellknown@npm:0.1.10":
-  version: 0.1.10
-  resolution: "nodemailer-wellknown@npm:0.1.10"
-  checksum: 59cb1d75f6b044bc60756205b36cf71fc6d7bdb3af36184e6f956c2df20d2cea69aef53c49b497a9349a8883669eebf69928c7daa1d2329c5f4e2e6932b8b69a
-  languageName: node
-  linkType: hard
-
-"nodemailer@npm:2.7.2":
-  version: 2.7.2
-  resolution: "nodemailer@npm:2.7.2"
-  dependencies:
-    libmime: 3.0.0
-    mailcomposer: 4.0.1
-    nodemailer-direct-transport: 3.3.2
-    nodemailer-shared: 1.1.0
-    nodemailer-smtp-pool: 2.8.2
-    nodemailer-smtp-transport: 2.7.2
-    socks: 1.1.9
-  checksum: ed9374ecad046995bd9092dc82c37b5cbacc0fa6c60427ea6aab3a02624b3908c56dae891ceca5571338ee3d4e8053bb10f4d00585d029d8f705338dc545a71f
+"nodemailer@npm:6.4.15":
+  version: 6.4.15
+  resolution: "nodemailer@npm:6.4.15"
+  checksum: 59089dbf6f25216e99cd4f04e123f4f93e2764a3395d53798b659a573c786f5899a6a1fe122fc4cacb6b69fd56da587db0aeb840c91e1a1ef2edc42736da632d
   languageName: node
   linkType: hard
 
@@ -30473,17 +30329,17 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"punycode@npm:1.4.1, punycode@npm:^1.2.4, punycode@npm:^1.3.2, punycode@npm:^1.4.1":
-  version: 1.4.1
-  resolution: "punycode@npm:1.4.1"
-  checksum: 5ce1e044cee2b12f1c65ccd523d7e71d6578f2c77f5c21c2e7a9d588535559c9508571d42638c131dab93cbe9a7b37bce1a7475d43fc8236c99dfe1efc36cfa5
-  languageName: node
-  linkType: hard
-
 "punycode@npm:2.x.x, punycode@npm:^2.0.0, punycode@npm:^2.1.0, punycode@npm:^2.1.1":
   version: 2.1.1
   resolution: "punycode@npm:2.1.1"
   checksum: 0202dc191cb35bfd88870ac99a1e824b03486d4cee20b543ef337a6dee8d8b11017da32a3e4c40b69b19976e982c030b62bd72bba42884acb691bc5ef91354c8
+  languageName: node
+  linkType: hard
+
+"punycode@npm:^1.2.4, punycode@npm:^1.3.2, punycode@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "punycode@npm:1.4.1"
+  checksum: 5ce1e044cee2b12f1c65ccd523d7e71d6578f2c77f5c21c2e7a9d588535559c9508571d42638c131dab93cbe9a7b37bce1a7475d43fc8236c99dfe1efc36cfa5
   languageName: node
   linkType: hard
 
@@ -33764,27 +33620,10 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"smart-buffer@npm:^1.0.4":
-  version: 1.1.15
-  resolution: "smart-buffer@npm:1.1.15"
-  checksum: 6016deb4be4be981f686dc98dea25930ec0effdbcf4ec873cba34992a70d51ad11df9c0e1bea25f7f4b60f693cb99cb1293895422f60c960c836e2b81ed64145
-  languageName: node
-  linkType: hard
-
 "smart-buffer@npm:^4.1.0":
   version: 4.1.0
   resolution: "smart-buffer@npm:4.1.0"
   checksum: 00a23d82a20eced9622cbba18ba781f9f8968ccfa70af7a33336ae55f54651c073aa072084c521f7e78199767e5b3584a0bbf3a47bb60e3e5b79ea4fc1ca61a1
-  languageName: node
-  linkType: hard
-
-"smtp-connection@npm:2.12.0":
-  version: 2.12.0
-  resolution: "smtp-connection@npm:2.12.0"
-  dependencies:
-    httpntlm: 1.6.1
-    nodemailer-shared: 1.1.0
-  checksum: 25278963e890997a4893202693db4ed6f65a3e33e89bc40ab193922e44ea87ad653f3f7701af8af4bb69053cec202ee0e9f31606d51203864800c8a05b9001ba
   languageName: node
   linkType: hard
 
@@ -33880,16 +33719,6 @@ resolve@~1.11.1:
     debug: 4
     socks: ^2.3.3
   checksum: 3d6d5e4425e393847cb0787b688af37e96123a239ffc0269ad65263accdaa9c93df51e0257092ee37651676ec5d6316016bfbb2c2c837933361b728528f35c2a
-  languageName: node
-  linkType: hard
-
-"socks@npm:1.1.9":
-  version: 1.1.9
-  resolution: "socks@npm:1.1.9"
-  dependencies:
-    ip: ^1.1.2
-    smart-buffer: ^1.0.4
-  checksum: d7a54a24d891de17ef90e6e4b9aa48d1e7a48caf9ebafb5c4617a846657c3946d308f189eb69b68023d62b58e61bb5b10f087e3dccc66bf75dbaff529dfdec91
   languageName: node
   linkType: hard
 
@@ -36607,13 +36436,6 @@ typescript@~4.0.2:
   version: 1.6.0
   resolution: "underscore@npm:1.6.0"
   checksum: 0ee8c00c3cc45ef5d3c43d87cec725c66faf21afc5ba0e5dfb732b757d73c05617ae3dfadf80e0e9a43201d97897162240217a1ccabd8680589aa6c9fd9d420c
-  languageName: node
-  linkType: hard
-
-"underscore@npm:~1.7.0":
-  version: 1.7.0
-  resolution: "underscore@npm:1.7.0"
-  checksum: ba1d3ceeb6144bcbb82ec8fc75149755256bdb7c5d5b6bb2adb4fcb00a27c3eb718ee9e5a4a8868f3d5dcf1f821267532863ea44f8488418c8fe0924b05fae77
   languageName: node
   linkType: hard
 
