@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import 'mutationobserver-shim';
 import React from 'react';
-import { screen, fireEvent, wait, act } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { MockedCache, renderWithRouter } from '../../models/_mocks';
 import { PageSecondaryEmailVerify, VERIFY_SECONDARY_EMAIL_MUTATION } from '.';
@@ -14,7 +15,7 @@ const mocks = [
   {
     request: {
       query: VERIFY_SECONDARY_EMAIL_MUTATION,
-      variables: { input: { email: 'johndope@example.com', code: '1234' } },
+      variables: { input: { email: 'johndope@example.com', code: '123456' } },
     },
     result: {
       data: {
@@ -27,7 +28,7 @@ const mocks = [
   {
     request: {
       query: VERIFY_SECONDARY_EMAIL_MUTATION,
-      variables: { input: { email: 'johndope@example.com', code: '4444' } },
+      variables: { input: { email: 'johndope@example.com', code: '666666' } },
     },
     result: {
       errors: [new GraphQLError('invalid code')],
@@ -65,15 +66,15 @@ describe('PageSecondaryEmailVerify', () => {
       </MockedCache>
     );
 
-    await wait();
-
-    fireEvent.change(screen.getByTestId('input-field'), {
-      target: { value: '4444' },
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
+        target: { value: '666666' },
+      });
     });
 
-    act(() => screen.getByTestId('secondary-email-verify-submit').click());
-
-    await wait();
+    await act(async () =>
+      screen.getByTestId('secondary-email-verify-submit').click()
+    );
 
     expect(screen.getByTestId('tooltip').textContent).toContain('invalid code');
   });
@@ -85,15 +86,15 @@ describe('PageSecondaryEmailVerify', () => {
       </MockedCache>
     );
 
-    await wait();
-
-    fireEvent.change(screen.getByTestId('input-field'), {
-      target: { value: '1234' },
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
+        target: { value: '123456' },
+      });
     });
 
-    act(() => screen.getByTestId('secondary-email-verify-submit').click());
-
-    await wait();
+    await act(async () =>
+      screen.getByTestId('secondary-email-verify-submit').click()
+    );
 
     expect(history.location.pathname).toEqual('/beta/settings');
   });

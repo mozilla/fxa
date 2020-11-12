@@ -32,11 +32,8 @@ describe('secondary email', () => {
     await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.ADD_BUTTON);
 
     // try adding the primary as the secondary
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.TEXTBOX_LABEL);
-    await type(
-      selectors.SETTINGS_V2.SECONDARY_EMAIL.TEXTBOX_FIELD,
-      primaryEmail
-    );
+    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL);
+    await type(selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_FIELD, primaryEmail);
     await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.SUBMIT_BUTTON);
     await testElementTextInclude(
       selectors.SETTINGS_V2.TOOLTIP,
@@ -44,9 +41,9 @@ describe('secondary email', () => {
     );
 
     // add secondary email, resend, remove
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.TEXTBOX_LABEL);
+    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL);
     await type(
-      selectors.SETTINGS_V2.SECONDARY_EMAIL.TEXTBOX_FIELD,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_FIELD,
       secondaryEmail
     );
     await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.SUBMIT_BUTTON);
@@ -73,15 +70,15 @@ describe('secondary email', () => {
 
     // add and verify
     await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.ADD_BUTTON);
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.TEXTBOX_LABEL);
+    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL);
     await type(
-      selectors.SETTINGS_V2.SECONDARY_EMAIL.TEXTBOX_FIELD,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_FIELD,
       secondaryEmail
     );
     await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.SUBMIT_BUTTON);
     const verifyCode = await getEmailCode(secondaryEmail, 1);
     await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL);
-    await type(selectors.SETTINGS_V2.SECONDARY_EMAIL.TEXTBOX_FIELD, verifyCode);
+    await type(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD, verifyCode);
     await click(
       selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_SUBMIT_BUTTON
     );
