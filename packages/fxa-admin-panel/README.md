@@ -40,8 +40,8 @@ This package uses [Jest](https://jestjs.io/) to test both the frontend and serve
 Test specific tests with the following commands:
 
 ```bash
-# Test frontend tests for the component EmailBlocks
-yarn test:frontend EmailBlocks
+# Test frontend tests for the component AccountSearch
+yarn test:frontend AccountSearch
 
 # Grep frontend tests for "displays the error"
 yarn test:frontend -t "displays the error"

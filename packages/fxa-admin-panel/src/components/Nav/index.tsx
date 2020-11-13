@@ -5,6 +5,9 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import './index.scss';
+import mailIcon from '../../images/icon-mail.svg';
+import statusIcon from '../../images/icon-site-status.svg';
+import logsIcon from '../../images/icon-logs.svg';
 
 export const Nav = () => (
   <nav>
@@ -12,13 +15,33 @@ export const Nav = () => (
       <h2>Navigation</h2>
       <ul>
         <li>
-          <NavLink exact to="/email-blocks">
+          <NavLink exact to="/account-search">
             <img
               className="inline-flex icon"
-              src={require('../../images/icon-mail.svg')}
+              src={mailIcon}
               alt="external link"
             />
-            Email blocks
+            Account Search
+          </NavLink>
+        </li>
+        <li>
+          <NavLink exact to="/site-status">
+            <img
+              className="inline-flex icon"
+              src={statusIcon}
+              alt="external link"
+            />
+            Site Status
+          </NavLink>
+        </li>
+        <li>
+          <NavLink exact to="/admin-logs">
+            <img
+              className="inline-flex icon"
+              src={logsIcon}
+              alt="external link"
+            />
+            Admin Logs
           </NavLink>
         </li>
       </ul>
