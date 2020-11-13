@@ -9,6 +9,11 @@ import { Account } from '../../models';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { useForm } from 'react-hook-form';
+
+type FormData = {
+  verificationCode: string;
+};
 
 export const VERIFY_SECONDARY_EMAIL_MUTATION = gql`
   mutation verifySecondaryEmail($input: VerifyEmailInput!) {
@@ -19,38 +24,46 @@ export const VERIFY_SECONDARY_EMAIL_MUTATION = gql`
 `;
 
 export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
-  const [code, setCode] = useState<string>();
   const [errorText, setErrorText] = useState<string>();
+  const { handleSubmit, register, formState } = useForm<FormData>({
+    mode: 'all',
+    defaultValues: {
+      verificationCode: '',
+    },
+  });
   const goBack = useCallback(() => window.history.back(), []);
   const navigate = useNavigate();
   const alertBar = useAlertBar();
   const email = (location?.state as any)?.email as string | undefined;
 
-  const [verifySecondaryEmail] = useMutation(VERIFY_SECONDARY_EMAIL_MUTATION, {
-    onError: (error) => {
-      if (error.graphQLErrors?.length) {
-        setErrorText(error.message);
-      } else {
-        alertBar.error('There was a problem sending the verification code.');
-        logViewEvent('verify-secondary-email.verification', 'fail');
-      }
-    },
-    update: (cache) => {
-      cache.modify({
-        fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.emails.find((m) => m.email === email)!.verified = true;
-            return account;
+  const [verifySecondaryEmail, { loading }] = useMutation(
+    VERIFY_SECONDARY_EMAIL_MUTATION,
+    {
+      onError: (error) => {
+        if (error.graphQLErrors?.length) {
+          setErrorText(error.message);
+        } else {
+          alertBar.error('There was a problem sending the verification code.');
+          logViewEvent('verify-secondary-email.verification', 'fail');
+        }
+      },
+      update: (cache) => {
+        cache.modify({
+          fields: {
+            account: (existing: Account) => {
+              const account = cloneDeep(existing);
+              account.emails.find((m) => m.email === email)!.verified = true;
+              return account;
+            },
           },
-        },
-      });
-    },
-    onCompleted: () => {
-      navigate(HomePath, { replace: true });
-      logViewEvent('verify-secondary-email.verification', 'success');
-    },
-  });
+        });
+      },
+      onCompleted: () => {
+        navigate(HomePath, { replace: true });
+        logViewEvent('verify-secondary-email.verification', 'success');
+      },
+    }
+  );
 
   useEffect(() => {
     if (!email) {
@@ -58,23 +71,23 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     }
   }, [email, navigate]);
 
+  const buttonDisabled = !formState.isDirty || !formState.isValid || loading;
   return (
     <FlowContainer title="Secondary email">
       <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
       <form
         data-testid="secondary-email-verify-form"
-        onSubmit={(event) => {
-          event.preventDefault();
+        onSubmit={handleSubmit(({ verificationCode }) => {
           verifySecondaryEmail({
             variables: {
               input: {
-                code,
+                code: verificationCode,
                 email,
               },
             },
           });
           logViewEvent('verify-secondary-email.verification', 'clicked');
-        }}
+        })}
       >
         <p>
           Please enter the verification code that was sent to{' '}
@@ -83,10 +96,18 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
 
         <div className="my-6">
           <InputText
+            name="verificationCode"
             label="Enter your verification code"
-            onChange={(event) => {
-              setCode(event.target.value);
+            onChange={() => {
+              if (errorText) {
+                setErrorText(undefined);
+              }
             }}
+            inputRef={register({
+              required: true,
+              pattern: /^\s*[0-9]{6}\s*$/,
+            })}
+            prefixDataTestId="verification-code"
             {...{ errorText }}
           ></InputText>
         </div>
@@ -104,6 +125,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
             type="submit"
             className="cta-primary mx-2 flex-1"
             data-testid="secondary-email-verify-submit"
+            disabled={buttonDisabled}
           >
             Verify
           </button>
