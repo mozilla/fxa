@@ -1855,6 +1855,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.5":
+  version: 7.12.5
+  resolution: "@babel/runtime@npm:7.12.5"
+  dependencies:
+    regenerator-runtime: ^0.13.4
+  checksum: 423fb0079353db2faa0dad0cbdf0a90fbc5b511d1f77e5645d1aa0b144a144e24502bb023c12a31d7dca63b6e16ae36afa59992f0404e92e21de211051c361e3
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.10.1, @babel/template@npm:^7.10.3, @babel/template@npm:^7.10.4, @babel/template@npm:^7.3.3, @babel/template@npm:^7.4.0, @babel/template@npm:^7.8.6":
   version: 7.10.4
   resolution: "@babel/template@npm:7.10.4"
@@ -4269,13 +4278,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sheerun/mutationobserver-shim@npm:^0.3.2":
-  version: 0.3.3
-  resolution: "@sheerun/mutationobserver-shim@npm:0.3.3"
-  checksum: 95f804bb26b7d8fbe685593f1a73df4ee87e756350b7791abb0d4582abf7292842e6059c88eeb235aec41cab8413df3786632752a0383992a461d1783b728815
-  languageName: node
-  linkType: hard
-
 "@sindresorhus/is@npm:^4.0.0":
   version: 4.0.0
   resolution: "@sindresorhus/is@npm:4.0.0"
@@ -5242,21 +5244,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^6.15.0":
-  version: 6.16.0
-  resolution: "@testing-library/dom@npm:6.16.0"
-  dependencies:
-    "@babel/runtime": ^7.8.4
-    "@sheerun/mutationobserver-shim": ^0.3.2
-    "@types/testing-library__dom": ^6.12.1
-    aria-query: ^4.0.2
-    dom-accessibility-api: ^0.3.0
-    pretty-format: ^25.1.0
-    wait-for-expect: ^3.0.2
-  checksum: b5cd7af424709b6d243d560ed0c65bafc568ae88e1b12fea31502cd5c398374cfb9d7c880a158d3ab7010bc12e39f0c1bcf33d7deafd86db4da2967b29491503
-  languageName: node
-  linkType: hard
-
 "@testing-library/dom@npm:^7.24.5":
   version: 7.24.5
   resolution: "@testing-library/dom@npm:7.24.5"
@@ -5269,6 +5256,22 @@ __metadata:
     dom-accessibility-api: ^0.5.1
     pretty-format: ^26.4.2
   checksum: cf1179c4c0079705d0b61a02fb5aaa17faceab90e792ef88e954bfc409b5c20ffaabbe4eacaf83e172434dc27622aff5ac70f4e30adec67a70cefced1ff6aa7f
+  languageName: node
+  linkType: hard
+
+"@testing-library/dom@npm:^7.26.6":
+  version: 7.26.6
+  resolution: "@testing-library/dom@npm:7.26.6"
+  dependencies:
+    "@babel/code-frame": ^7.10.4
+    "@babel/runtime": ^7.12.5
+    "@types/aria-query": ^4.2.0
+    aria-query: ^4.2.2
+    chalk: ^4.1.0
+    dom-accessibility-api: ^0.5.4
+    lz-string: ^1.4.4
+    pretty-format: ^26.6.2
+  checksum: 4b7b1e2802a685bfee5a7f6dfbf446f4e0c937e1af1e72677c34e514a685d607005a591a575d04ffdff17d3ad7544c7ea7b7be7389bb8a0c6ee9bda4686a0178
   languageName: node
   linkType: hard
 
@@ -5303,17 +5306,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:^9.5.0":
-  version: 9.5.0
-  resolution: "@testing-library/react@npm:9.5.0"
+"@testing-library/react@npm:^11.1.2":
+  version: 11.1.2
+  resolution: "@testing-library/react@npm:11.1.2"
   dependencies:
-    "@babel/runtime": ^7.8.4
-    "@testing-library/dom": ^6.15.0
-    "@types/testing-library__react": ^9.1.2
+    "@babel/runtime": ^7.12.1
+    "@testing-library/dom": ^7.26.6
   peerDependencies:
     react: "*"
     react-dom: "*"
-  checksum: b9682ca22c1c78537c1aa884a053b0ee3a4e11ac39b3f8f590d5159dcc2d2ddb1f36a9196c9d280522b99af63d8a89f8ccc0ca9c6a68708f3961ab8b0c94b319
+  checksum: 64895ea94b2a17eb2c9c0b9b25fb45b32100e50939fa2608756a0c4e8475b7ad6885743d8fc29edc466a8a45ff561eccec44c594624f34e64784e8c04a342eec
   languageName: node
   linkType: hard
 
@@ -6444,7 +6446,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:*, @types/react-dom@npm:^16.9.4, @types/react-dom@npm:^16.9.6":
+"@types/react-dom@npm:^16.9.4, @types/react-dom@npm:^16.9.6":
   version: 16.9.8
   resolution: "@types/react-dom@npm:16.9.8"
   dependencies:
@@ -6772,15 +6774,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/testing-library__dom@npm:*, @types/testing-library__dom@npm:^6.12.1":
-  version: 6.14.0
-  resolution: "@types/testing-library__dom@npm:6.14.0"
-  dependencies:
-    pretty-format: ^24.3.0
-  checksum: 8c52edd75c929bdbd607d55daad971a6a7a88566b8ac245bd0a2dbf71c54e276375adb0790bc31ced2c56da2f478e07f1259383afcb3958ab81c7acbae9d78a5
-  languageName: node
-  linkType: hard
-
 "@types/testing-library__jest-dom@npm:^5.9.1":
   version: 5.9.1
   resolution: "@types/testing-library__jest-dom@npm:5.9.1"
@@ -6796,17 +6789,6 @@ __metadata:
   dependencies:
     "@types/react-test-renderer": "*"
   checksum: acae19c41b5053897ebb7b203158f6ec319a1befdc349f5961d7f105fdb5c322e3e9b6d713dd99aa8e954966cebfa5f9d9309cffd929e9a84aac21391b600cd9
-  languageName: node
-  linkType: hard
-
-"@types/testing-library__react@npm:^9.1.2":
-  version: 9.1.3
-  resolution: "@types/testing-library__react@npm:9.1.3"
-  dependencies:
-    "@types/react-dom": "*"
-    "@types/testing-library__dom": "*"
-    pretty-format: ^25.1.0
-  checksum: 4b810c52276d4810a1e85bb767457d0aa661a2c42e95aba3c89a38f294f76cca72c4f867768e29def3b60157df040ead3054805d268a4449eec8aabdfe8ef326
   languageName: node
   linkType: hard
 
@@ -8618,7 +8600,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aria-query@npm:^4.0.2, aria-query@npm:^4.2.2":
+"aria-query@npm:^4.2.2":
   version: 4.2.2
   resolution: "aria-query@npm:4.2.2"
   dependencies:
@@ -14643,17 +14625,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dom-accessibility-api@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "dom-accessibility-api@npm:0.3.0"
-  checksum: d6b40ffc70e03bc4878ba354fa590772665b9c948ad81f1fd8f47748280d6e4b3e91f1acc2e5b82f600da95833d31311c2b2a80720ed23d2c5c94e657b35bfd2
-  languageName: node
-  linkType: hard
-
 "dom-accessibility-api@npm:^0.5.1":
   version: 0.5.3
   resolution: "dom-accessibility-api@npm:0.5.3"
   checksum: 89069ba50bffa32a39f3a436f8d1506f0d2215bc7f19dc3f62fb6982fa084952872815b52b8deea2d4b91a09c79e06f3f5831c21dbb968576d6ad1fd423964eb
+  languageName: node
+  linkType: hard
+
+"dom-accessibility-api@npm:^0.5.4":
+  version: 0.5.4
+  resolution: "dom-accessibility-api@npm:0.5.4"
+  checksum: 39351d26a3732312f14411effef698204bf6c79a7d5eb0664441897541243f2cdf2e508aca52684ccf3b10df6708a6c265d1fde323eebcb8363a1093f5927b10
   languageName: node
   linkType: hard
 
@@ -17472,7 +17454,7 @@ fsevents@^1.2.7:
     "@storybook/react": ^5.3.19
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
-    "@testing-library/react": ^9.5.0
+    "@testing-library/react": ^11.1.2
     "@testing-library/user-event": ^12.1.7
     "@types/babel__core": 7.1.7
     "@types/chance": ^1.0.10
@@ -17792,7 +17774,7 @@ fsevents@^1.2.7:
     "@babel/preset-typescript": ^7.10.1
     "@sentry/browser": ^5.27.1
     "@sentry/node": ^5.17.0
-    "@testing-library/react": ^9.5.0
+    "@testing-library/react": ^11.1.2
     "@types/backbone": ^1.4.5
     "@types/sinon-chai": 3.2.5
     "@types/sinon-express-mock": 1.3.8
@@ -18280,7 +18262,7 @@ fsevents@^1.2.7:
     "@stripe/stripe-js": ^1.11.0
     "@svgr/webpack": ^5.4.0
     "@testing-library/jest-dom": ^5.11.0
-    "@testing-library/react": ^9.5.0
+    "@testing-library/react": ^11.1.2
     "@types/classnames": ^2.2.9
     "@types/jest": ^24.9.1
     "@types/jsdom": ^12.2.4
@@ -18431,7 +18413,7 @@ fsevents@^1.2.7:
     "@storybook/react": ^5.3.19
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
-    "@testing-library/react": ^9.5.0
+    "@testing-library/react": ^11.1.2
     "@testing-library/user-event": ^12.1.7
     "@types/camelcase": 5.2.0
     "@types/classnames": ^2.2.9
@@ -18487,7 +18469,7 @@ fsevents@^1.2.7:
     "@storybook/react": ^5.3.19
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
-    "@testing-library/react": ^9.5.0
+    "@testing-library/react": ^11.1.2
     "@testing-library/react-hooks": ^3.4.1
     "@testing-library/user-event": ^12.1.7
     "@types/babel__core": 7.1.7
@@ -25197,6 +25179,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"lz-string@npm:^1.4.4":
+  version: 1.4.4
+  resolution: "lz-string@npm:1.4.4"
+  bin:
+    lz-string: bin/bin.js
+  checksum: 60a13f8a724d109cffc7dda4cb98569adfa0516750f8a75b7236f6bc94b47edffb59e8a1e501364404e3867cf399e6612c3981f9c81c2de75751203431bf2e69
+  languageName: node
+  linkType: hard
+
 "macos-release@npm:^2.2.0":
   version: 2.4.1
   resolution: "macos-release@npm:2.4.1"
@@ -30072,7 +30063,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:^24.3.0, pretty-format@npm:^24.9.0":
+"pretty-format@npm:^24.9.0":
   version: 24.9.0
   resolution: "pretty-format@npm:24.9.0"
   dependencies:
@@ -30084,7 +30075,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"pretty-format@npm:^25.1.0, pretty-format@npm:^25.2.1, pretty-format@npm:^25.5.0":
+"pretty-format@npm:^25.2.1, pretty-format@npm:^25.5.0":
   version: 25.5.0
   resolution: "pretty-format@npm:25.5.0"
   dependencies:
@@ -37413,13 +37404,6 @@ typescript@~4.0.2:
   version: 1.3.0
   resolution: "wait-for-expect@npm:1.3.0"
   checksum: 7a222528c565eac826415ecabdc26976f17f5c072c5e3e9d86e0da56ca011659d05901e822355757c4b83b3a5279f7260d569b665da7c135bffe892aeaffecc2
-  languageName: node
-  linkType: hard
-
-"wait-for-expect@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "wait-for-expect@npm:3.0.2"
-  checksum: 487de701ccb29f9edc2fb2d77b3212c29266266156cd13f51b34556faa1061151f078b7200763c684553fcd67823084cd5f871a965d2b6cce97e3b9224b63bdb
   languageName: node
   linkType: hard
 
