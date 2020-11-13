@@ -558,7 +558,6 @@ export default class AuthClient {
       scopes?: string[];
       marketingOptIn?: boolean;
       newsletters?: string[];
-      style?: string;
     } = {}
   ): Promise<{}> {
     return this.sessionPost('/session/verify_code', sessionToken, {
