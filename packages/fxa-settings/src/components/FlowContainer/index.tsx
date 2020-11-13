@@ -9,12 +9,16 @@ import { ReactComponent as BackArrow } from './back-arrow.svg';
 type FlowContainerProps = {
   title?: string;
   subtitle?: string;
+  onBackButtonClick?: (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => void;
   children?: React.ReactNode;
 };
 
 export const FlowContainer = ({
   title,
   subtitle,
+  onBackButtonClick = () => window.history.back(),
   children,
 }: FlowContainerProps & RouteComponentProps) => {
   return (
@@ -24,7 +28,7 @@ export const FlowContainer = ({
     >
       <div className="flex items-center">
         <button
-          onClick={() => window.history.back()}
+          onClick={onBackButtonClick}
           data-testid="flow-container-back-btn"
           title="Back"
           className="relative w-8 h-8 ltr:-ml-2 rtl:-mr-2 ltr:mr-2 rtl:ml-2 tablet:ltr:mr-10 tablet:rtl:ml-10 tablet:ltr:-ml-18 tablet:rtl:-mr-18"
