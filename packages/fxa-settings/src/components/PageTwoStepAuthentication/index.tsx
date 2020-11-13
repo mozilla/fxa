@@ -103,6 +103,11 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     setSubtitle('Step 3 of 3');
   };
 
+  const showQrCodeStep = () => {
+    setTotpVerified(false);
+    setSubtitle('Step 1 of 3');
+  };
+
   const showRecoveryCodes = () => {
     setRecoveryCodesAcknowledged(false);
     setSubtitle('Step 2 of 3');
@@ -180,8 +185,24 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       logStep2PageViewEvent(`${metricsPreInPostFix}.recovery-codes`);
   }, [totpVerified, recoveryCodesAcknowledged, logStep2PageViewEvent]);
 
+  const moveBack = () => {
+    if (!totpVerified) {
+      return goHome();
+    }
+    if (totpVerified && !recoveryCodesAcknowledged) {
+      return showQrCodeStep();
+    }
+    if (recoveryCodesAcknowledged) {
+      return showRecoveryCodes();
+    }
+    goBack();
+  };
+
   return (
-    <FlowContainer title="Two Step Authentication" {...{ subtitle }}>
+    <FlowContainer
+      title="Two Step Authentication"
+      {...{ subtitle, onBackButtonClick: moveBack }}
+    >
       {alertBar.visible && (
         <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
           <p data-testid="update-display-name-error">{alertBar.content}</p>
@@ -329,9 +350,9 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             <button
               type="button"
               className="cta-neutral mx-2 flex-1"
-              onClick={showRecoveryCodes}
+              onClick={goHome}
             >
-              Back
+              Cancel
             </button>
             <button
               type="submit"
