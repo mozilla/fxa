@@ -2893,7 +2893,10 @@ module.exports = {
 // Export helpers methods in a form that can be easily used in
 // async/await. The usage of the helpers are the same except
 // they expect the last argument to be the intern remote object.
-const fnNames = Object.keys(module.exports);
+const noRemotes = Object.keys(TestHelpers);
+const fnNames = Object.keys(module.exports).filter(
+  (x) => !noRemotes.includes(x)
+);
 const helpersRemoteWrapped = {};
 fnNames.forEach((key) => {
   helpersRemoteWrapped[key] = async function () {
