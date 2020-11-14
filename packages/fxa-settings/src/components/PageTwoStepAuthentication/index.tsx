@@ -76,6 +76,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const [subtitle, setSubtitle] = useState<string>('Step 1 of 3');
   const [qrCodeUrl, setQrCodeUrl] = useState<string>();
+  const [showQrCode, setShowQrCode] = useState(true);
   const [secret, setSecret] = useState<string>();
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
   const [invalidCodeError, setInvalidCodeError] = useState<string>('');
@@ -190,29 +191,45 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       {!totpVerified && (
         <form onSubmit={totpForm.handleSubmit(onTotpSubmit)}>
           <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+          {qrCodeUrl && showQrCode && (
+            <>
+              <p className="my-4">
+                Scan this QR code using one of{' '}
+                <LinkExternal
+                  className="link-blue"
+                  href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+                >
+                  these apps
+                </LinkExternal>
+                .
+              </p>
+              <div className="flex flex-col mb-4">
+                <img
+                  className="mx-auto w-48 h-48 qr-code-border"
+                  data-testid="2fa-qr-code"
+                  src={qrCodeUrl}
+                  alt={`Use the code ${secret} to set up two-step authentication in supported applications.`}
+                />
+                <button
+                  type="button"
+                  className="mx-auto link-blue text-sm"
+                  onClick={() => setShowQrCode(false)}
+                >
+                  Can't scan code?
+                </button>
+              </div>
+            </>
+          )}
+          {secret && !showQrCode && (
+            <div className="mt-4 flex flex-col">
+              <p>Enter this secret key into your authenticator app:</p>
+              <p className="my-8 mx-auto font-bold">
+                {secret.toUpperCase().match(/.{4}/g)!.join(' ')}
+              </p>
+            </div>
+          )}
 
-          <p className="mt-4 mb-4">
-            Scan this QR code using one of{' '}
-            <LinkExternal href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication">
-              these apps
-            </LinkExternal>
-            .
-          </p>
-
-          <div>
-            {qrCodeUrl && (
-              <img
-                className="mx-auto w-40 h-40 qr-code-border"
-                data-testid="2fa-qr-code"
-                src={qrCodeUrl}
-                alt={`Use the code ${secret} to set up two-step authentication in supported applications.`}
-              />
-            )}
-          </div>
-
-          <p className="mt-4">
-            Now enter the security code from the authentication app.
-          </p>
+          <p>Now enter the security code from the authentication app.</p>
 
           <div className="mt-4 mb-6" data-testid="recovery-key-input">
             <InputText
