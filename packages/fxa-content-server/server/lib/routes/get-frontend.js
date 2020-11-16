@@ -64,6 +64,7 @@ module.exports = function () {
     'settings/avatar/camera',
     'settings/avatar/change',
     'settings/avatar/crop',
+    'settings/beta_optout',
     'settings/change_password',
     'settings/clients',
     'settings/clients/disconnect',

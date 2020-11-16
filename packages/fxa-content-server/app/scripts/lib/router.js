@@ -222,6 +222,7 @@ const Router = Backbone.Router.extend({
     }),
     'security_events(/)': createViewHandler(SecurityEvents),
     'settings(/)': createViewHandler(SettingsView),
+    'settings/beta_optout(/)': createViewHandler(SettingsView),
     'settings/account_recovery(/)': createChildViewHandler(
       AccountRecoveryView,
       SettingsView
