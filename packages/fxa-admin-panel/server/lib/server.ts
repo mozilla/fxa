@@ -149,7 +149,7 @@ if (proxyUrl) {
     { encoding: 'utf-8' }
   );
 
-  ['/', '/email-blocks'].forEach((route) => {
+  ['/', '/account-search'].forEach((route) => {
     // FIXME: should set ETag, Not-Modified:
     app.get(route, (req, res) => {
       res.send(injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG));

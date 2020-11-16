@@ -8,7 +8,7 @@ import { render, fireEvent, act } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import '@testing-library/jest-dom/extend-expect';
 import { CLEAR_BOUNCES_BY_EMAIL } from './Account/index';
-import { GET_ACCOUNT_BY_EMAIL, EmailBlocks } from './index';
+import { GET_ACCOUNT_BY_EMAIL, AccountSearch } from './index';
 
 const chance = new Chance();
 let testEmail: string;
@@ -107,7 +107,7 @@ beforeEach(() => {
 });
 
 it('renders without imploding', () => {
-  const renderResult = render(<EmailBlocks />);
+  const renderResult = render(<AccountSearch />);
   const getByTestId = renderResult.getByTestId;
 
   expect(getByTestId('search-form')).toBeInTheDocument();
@@ -127,7 +127,7 @@ it('displays the account email bounces, and can clear them', async () => {
       ]}
       addTypename={false}
     >
-      <EmailBlocks />
+      <AccountSearch />
     </MockedProvider>
   );
   let getByTestId = renderResult.getByTestId;
@@ -168,7 +168,7 @@ it('displays the error state if there is an error', async () => {
 
   const renderResult = render(
     <MockedProvider mocks={[erroredAccountResponse]} addTypename={false}>
-      <EmailBlocks />
+      <AccountSearch />
     </MockedProvider>
   );
   let getByTestId = renderResult.getByTestId;

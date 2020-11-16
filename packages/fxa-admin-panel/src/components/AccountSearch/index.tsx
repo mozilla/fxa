@@ -49,7 +49,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
   }
 `;
 
-export const EmailBlocks = () => {
+export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
   const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
@@ -64,8 +64,8 @@ export const EmailBlocks = () => {
   };
 
   return (
-    <div className="email-blocks" data-testid="email-blocks">
-      <h2>Find and Delete Email Blocks</h2>
+    <div className="account-search" data-testid="account-search">
+      <h2>Account Search</h2>
       <p>
         Email addresses are blocked from the FxA email sender when an email sent
         to the address has bounced.
@@ -91,7 +91,7 @@ export const EmailBlocks = () => {
           data-testid="email-input"
         />
         <button
-          className="email-blocks-search-button"
+          className="account-search-search-button"
           title="search"
           data-testid="search-button"
         ></button>
@@ -139,4 +139,4 @@ const AccountSearchResult = ({
   return <p data-testid="no-account-message">Account not found.</p>;
 };
 
-export default EmailBlocks;
+export default AccountSearch;
