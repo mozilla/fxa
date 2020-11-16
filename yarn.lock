@@ -17882,7 +17882,7 @@ fsevents@^1.2.7:
     jquery-modal: "git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     jquery-simulate: 1.0.2
     jquery-ui: 1.12.1
-    jquery-ui-touch-punch-amd: 1.0.0
+    jquery-ui-touch-punch-amd: 1.0.1
     js-md5: 0.6.0
     jsqr: 1.2.0
     jsxgettext-recursive-next: 1.1.0
@@ -23385,10 +23385,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jquery-ui-touch-punch-amd@npm:1.0.0":
-  version: 1.0.0
-  resolution: "jquery-ui-touch-punch-amd@npm:1.0.0"
-  checksum: 7f1edfaf6c3450e50d15b64502a17da0af34078ec73418921e5666771ae7101b957a959ab261814e3dc981621774c262cab7b07bd2c14086aa906c89346695c9
+"jquery-ui-touch-punch-amd@npm:1.0.1":
+  version: 1.0.1
+  resolution: "jquery-ui-touch-punch-amd@npm:1.0.1"
+  checksum: 42e146187732140f5078e0dd040fd2c0f2f2bd3e59336a358501f7e12b84c92341ec041f088b566e4b5caa4f4e0193584221eb045e50afe7f37ed9d9859907f4
   languageName: node
   linkType: hard
 
