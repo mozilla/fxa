@@ -5870,19 +5870,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hapi__hapi@npm:^19.0.3, @types/hapi__hapi@npm:^19.0.4":
-  version: 19.0.4
-  resolution: "@types/hapi__hapi@npm:19.0.4"
+"@types/hapi__hapi@npm:^20.0.2":
+  version: 20.0.2
+  resolution: "@types/hapi__hapi@npm:20.0.2"
   dependencies:
     "@hapi/boom": ^9.0.0
     "@hapi/iron": ^6.0.0
     "@types/hapi__catbox": "*"
-    "@types/hapi__joi": "*"
     "@types/hapi__mimos": "*"
     "@types/hapi__podium": "*"
     "@types/hapi__shot": "*"
+    "@types/joi": "*"
     "@types/node": "*"
-  checksum: a9d0abec7b0b1ec37298c92dda406caecf4c6ce16248323b691c635c7d50d843315d7ce2253ee51614fb85b3a4dd2950d917421ba19f442c74bc25f8563b1efc
+  checksum: fccff753ea1bb220fb512bd12b84ad574a4d2245049608b65ba14608b64c817eb2b12e3dc59b3fee0328264a0d50a2cd12e6f652c8738b52a738456e318e42cb
   languageName: node
   linkType: hard
 
@@ -6076,7 +6076,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/joi@npm:^14.3.3":
+"@types/joi@npm:*, @types/joi@npm:^14.3.3":
   version: 14.3.4
   resolution: "@types/joi@npm:14.3.4"
   checksum: bea51931b08e8ddc6b7612eb0d4a5d19b02157dea69ac6d7080789848218cb05a8f44a7e0ffb95f75b90f3feeb8314a5eed0f1ddd3369a5e6bbe4d7b4bfad0f1
@@ -17667,7 +17667,7 @@ fsevents@^1.2.7:
     "@types/cbor": 5.0.1
     "@types/chai": ^4.2.4
     "@types/convict": ^5.2.1
-    "@types/hapi__hapi": ^19.0.3
+    "@types/hapi__hapi": ^20.0.2
     "@types/ioredis": ^4.16.7
     "@types/joi": ^14.3.3
     "@types/jsonwebtoken": ^8.5.0
@@ -18628,7 +18628,7 @@ fsevents@^1.2.7:
     "@types/bluebird": ^3.5.32
     "@types/convict": ^5.2.1
     "@types/eslint": 7.2.0
-    "@types/hapi__hapi": ^19.0.4
+    "@types/hapi__hapi": ^20.0.2
     "@types/hapi__joi": 17.1.6
     "@types/mocha": ^8.0.2
     "@types/node": ^14.14.5
