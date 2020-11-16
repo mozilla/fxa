@@ -374,3 +374,37 @@ describe('metrics', () => {
     );
   });
 });
+
+describe('back button', () => {
+  it('goes back a step with the flow container back button', async () => {
+    await act(async () => {
+      render();
+    });
+    await submitTotp('867530');
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('ack-recovery-code'));
+    });
+    await act(async () => {
+      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+        target: {
+          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+        },
+      });
+    });
+
+    expect(screen.getByTestId('recovery-code-input-field')).toBeInTheDocument();
+
+    // back to step two
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('flow-container-back-btn'));
+    });
+    expect(screen.getByTestId('2fa-recovery-codes')).toBeInTheDocument();
+
+    // back to step one
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('flow-container-back-btn'));
+    });
+    expect(screen.getByTestId('totp-input-field')).toBeInTheDocument();
+    expect(screen.getByTestId('submit-totp')).toBeInTheDocument();
+  });
+});
