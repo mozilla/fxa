@@ -713,7 +713,9 @@ module.exports = {
     },
     CONNECTED_SERVICES: {
       MENU: '[data-testid=nav-link-connected-services]',
+      REFRESH_BUTTON: '[data-testid=connected-services-refresh]',
       HEADER: '[data-testid=settings-connected-services]',
+      SIGN_OUT: '[data-testid=connected-service-sign-out]',
     },
     FOOTER: {
       PRIVACY_LINK: '[data-testid=link-privacy]',
