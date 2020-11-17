@@ -39,6 +39,8 @@ import TwoStepAuthenticationView from './settings/two_step_authentication';
 import TotpSecretView from './settings/totp_secret';
 import RecoveryCodesView from './settings/recovery_codes';
 
+const RENDER_BETA_SETTINGS_LINK = false;
+
 var PANEL_VIEWS = [
   AvatarView,
   DisplayNameView,
@@ -91,6 +93,9 @@ const View = BaseView.extend({
 
     context.set({
       ccExpired: !!this._ccExpired,
+      showBetaSettingsLink:
+        RENDER_BETA_SETTINGS_LINK &&
+        (navigator.language === 'en' || navigator.language === 'en-US'),
       escapedCcExpiredLinkAttrs: 'href="/subscriptions" class="alert-link"',
       securityEventsVisible: this.displaySecurityEvents(),
       showSignOut:
