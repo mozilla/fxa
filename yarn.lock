@@ -17847,7 +17847,7 @@ fsevents@^1.2.7:
     firefox-profile: 4.0.0
     fxa-auth-client: "workspace:*"
     fxa-common-password-list: 0.0.4
-    fxa-crypto-relier: 2.3.0
+    fxa-crypto-relier: 2.7.0
     fxa-geodb: "workspace:*"
     fxa-mustache-loader: 0.0.2
     fxa-pairing-channel: 1.0.1
@@ -17955,14 +17955,14 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"fxa-crypto-relier@npm:2.3.0":
-  version: 2.3.0
-  resolution: "fxa-crypto-relier@npm:2.3.0"
+"fxa-crypto-relier@npm:2.7.0":
+  version: 2.7.0
+  resolution: "fxa-crypto-relier@npm:2.7.0"
   dependencies:
     base64url: ^3.0.0
     node-hkdf: 0.0.2
     node-jose: 1.0.0
-  checksum: 6536b290239da0705b9abf0743aa901183a415db74c6de5de9f5885acfa75313b0ad7eba396154a64b9f67c5e8ba6aafa5c9a5a1dfd20b4e81b4b7c992f14eef
+  checksum: 50e61d281e5d68f63bd836f719c405d726ac427293fdefb1ff5fecc87159f6c5a24b038edb58268ae37fa1401f8bc6dd1230b1bba9715b1d2e2325c06a76623c
   languageName: node
   linkType: hard
 
