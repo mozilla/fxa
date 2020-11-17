@@ -65,7 +65,7 @@
     "file-loader": "^6.1.0",
     "fxa-auth-client": "workspace:*",
     "fxa-common-password-list": "0.0.4",
-    "fxa-crypto-relier": "2.3.0",
+    "fxa-crypto-relier": "2.7.0",
     "fxa-geodb": "workspace:*",
     "fxa-mustache-loader": "0.0.2",
     "fxa-pairing-channel": "1.0.1",
