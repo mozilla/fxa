@@ -82,7 +82,7 @@ export const DESKTOP_SYNC_MOCKS = [
 const OAUTH_SERVICE_MOCKS = [
   {
     clientId: 'a8c528140153d1c6',
-    deviceId: 'dsalfjsajflkds',
+    deviceId: null,
     sessionTokenId: null,
     refreshTokenId:
       'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8e',
@@ -106,7 +106,7 @@ const OAUTH_SERVICE_MOCKS = [
   },
   {
     clientId: '802d56ef2a9af9fa',
-    deviceId: 'djflkajlkfsjd',
+    deviceId: null,
     sessionTokenId: null,
     refreshTokenId:
       'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8e',

@@ -229,13 +229,6 @@ export const ConnectedServices = () => {
                 deviceType: client.deviceType,
                 location: client.location,
                 lastAccessTimeFormatted: client.lastAccessTimeFormatted,
-                // TODO: move this into the AttachedClient model, following the
-                // approach used by old-settings / content-server?
-                // If the client has a deviceId, we know it's a Sync client.
-                // If the client does not have deviceId or clientId, then we
-                // know it's a web session. The user can sign out of either.
-                canSignOut:
-                  !!client.deviceId || (!client.deviceId && !client.clientId),
                 isCurrentSession: client.isCurrentSession,
                 clientId: client.clientId,
                 handleSignOut: () => {

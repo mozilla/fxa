@@ -208,6 +208,17 @@ describe('Connected Services', () => {
     ).toBeNull();
   });
 
+  it('renders the sign out buttons', async () => {
+    renderWithRouter(
+      <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
+        <ConnectedServices />
+      </MockedCache>
+    );
+    expect(
+      await screen.findAllByTestId('connected-service-sign-out')
+    ).toHaveLength(8);
+  });
+
   it('renders proper modal when "sign out" is clicked', async () => {
     renderWithRouter(
       <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
