@@ -11,6 +11,7 @@ mkdir -p artifacts/tests
 yarn workspaces foreach \
     --verbose \
     --topological-dev \
+    --include 123done \
     --include browserid-verifier \
     --include fxa-auth-db-mysql \
     --include fxa-auth-server \

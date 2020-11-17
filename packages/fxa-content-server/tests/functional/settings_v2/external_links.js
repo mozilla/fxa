@@ -13,13 +13,15 @@ const { navigateToSettingsV2 } = FunctionalSettingsHelpers;
 
 describe('external links', () => {
   let primaryEmail;
-  let testHrefEquals, testElementExists;
+  let testHrefEquals, testElementExists, clearBrowserState;
   beforeEach(async ({ remote }) => {
     ({
+      clearBrowserState,
       testHrefEquals,
       testElementExists,
       testElementExists,
     } = FunctionalHelpers.applyRemote(remote));
+    await clearBrowserState();
     primaryEmail = await navigateToSettingsV2(remote);
   });
 

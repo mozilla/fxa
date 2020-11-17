@@ -10,4 +10,5 @@ module.exports = [
   'tests/functional/settings_v2/change_password.js',
   'tests/functional/settings_v2/secondary_email.js',
   'tests/functional/settings_v2/external_links.js',
+  'tests/functional/settings_v2/connected_services_oauth_clients.js',
 ];
