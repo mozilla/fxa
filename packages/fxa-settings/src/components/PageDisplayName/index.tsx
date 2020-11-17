@@ -17,7 +17,7 @@ import { HomePath } from '../../constants';
 
 const validateDisplayName = (currentDisplayName: string) => (
   newDisplayName: string
-) => newDisplayName !== currentDisplayName;
+) => newDisplayName !== currentDisplayName && newDisplayName.length <= 256;
 
 export const UPDATE_DISPLAY_NAME_MUTATION = gql`
   mutation updateDisplayName($input: UpdateDisplayNameInput!) {
