@@ -220,7 +220,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                   className="link-blue"
                   href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
                 >
-                  these apps
+                  these authentication apps
                 </LinkExternal>
                 .
               </p>
