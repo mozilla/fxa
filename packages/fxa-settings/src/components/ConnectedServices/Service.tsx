@@ -13,14 +13,12 @@ export function Service({
   deviceType,
   location,
   lastAccessTimeFormatted,
-  canSignOut,
   handleSignOut,
 }: {
   name: string;
   deviceType: string | null;
   location: DeviceLocation;
   lastAccessTimeFormatted: string;
-  canSignOut: boolean;
   handleSignOut: () => void;
 }) {
   const { city, stateCode, country } = location;
@@ -101,15 +99,13 @@ export function Service({
         </div>
 
         <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
-          {canSignOut && (
-            <button
-              className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
-              data-testid="connected-service-sign-out"
-              onClick={handleSignOut}
-            >
-              Sign out
-            </button>
-          )}
+          <button
+            className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
+            data-testid="connected-service-sign-out"
+            onClick={handleSignOut}
+          >
+            Sign out
+          </button>
         </div>
       </div>
     </div>
