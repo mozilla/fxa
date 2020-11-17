@@ -38,7 +38,7 @@
     "semver": "^7.3.2"
   },
   "engines": {
-    "node": "^14.15.0"
+    "node": "^14.15.1"
   },
   "fxa": {
     "moduleDependencies": {
