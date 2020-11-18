@@ -4,6 +4,7 @@
 import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import { Request } from 'express';
 import { GraphQLError } from 'graphql';
+import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
 import { Logger } from 'mozlog';
 import * as TypeGraphQL from 'type-graphql';
 import { Container } from 'typedi';
@@ -95,5 +96,17 @@ export async function createServer(
       info: (msg) => logger.info(msg, {}),
       warn: (msg) => logger.warn(msg, {}),
     },
+    validationRules: [
+      queryComplexity({
+        estimators: [simpleEstimator({ defaultComplexity: 1 })],
+        maximumComplexity: 100,
+        variables: {
+          input: 'ignoreme',
+        },
+        onComplete: (complexity: number) => {
+          logger.debug('complexity', { complexity });
+        },
+      }),
+    ],
   });
 }
