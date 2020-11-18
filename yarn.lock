@@ -17566,7 +17566,7 @@ fsevents@^1.2.7:
     graphql-tools: ^7.0.1
     helmet: ^4.1.1
     jest: 26.6.3
-    knex: ^0.21.4
+    knex: ^0.21.12
     mozlog: ^3.0.1
     mysql: ^2.18.1
     objection: ^2.2.2
@@ -18164,7 +18164,7 @@ fsevents@^1.2.7:
     graphql-parse-resolve-info: ^4.9.0
     graphql-upload: ^11.0.0
     ioredis: ^4.17.3
-    knex: ^0.21.4
+    knex: ^0.21.12
     mocha: ^8.1.1
     mozlog: ^3.0.1
     mysql: ^2.18.1
@@ -18581,7 +18581,7 @@ fsevents@^1.2.7:
     js-md5: ^0.7.3
     jsdom: 16.4.0
     jsdom-global: 3.0.2
-    knex: ^0.21.4
+    knex: ^0.21.12
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^7.1.2
@@ -20931,7 +20931,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"inherits@npm:2, inherits@npm:2.0.4, inherits@npm:^2.0.0, inherits@npm:^2.0.1, inherits@npm:^2.0.3, inherits@npm:^2.0.4, inherits@npm:~2.0.0, inherits@npm:~2.0.1, inherits@npm:~2.0.3, inherits@npm:~2.0.4":
+"inherits@npm:2, inherits@npm:2.0.4, inherits@npm:^2.0.0, inherits@npm:^2.0.1, inherits@npm:^2.0.3, inherits@npm:^2.0.4, inherits@npm:~2.0.0, inherits@npm:~2.0.1, inherits@npm:~2.0.3":
   version: 2.0.4
   resolution: "inherits@npm:2.0.4"
   checksum: 98426da247ddfc3dcd7d7daedd90c3ca32d5b08deca08949726f12d49232aef94772a07b36cf4ff833e105ae2ef931777f6de4a6dd8245a216b9299ad4a50bea
@@ -24063,24 +24063,21 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"knex@npm:^0.21.4":
-  version: 0.21.4
-  resolution: "knex@npm:0.21.4"
+"knex@npm:^0.21.12":
+  version: 0.21.12
+  resolution: "knex@npm:0.21.12"
   dependencies:
     colorette: 1.2.1
     commander: ^5.1.0
     debug: 4.1.1
     esm: ^3.2.25
     getopts: 2.2.5
-    inherits: ~2.0.4
     interpret: ^2.2.0
     liftoff: 3.1.0
-    lodash: ^4.17.19
-    mkdirp: ^1.0.4
+    lodash: ^4.17.20
     pg-connection-string: 2.3.0
-    tarn: ^3.0.0
+    tarn: ^3.0.1
     tildify: 2.0.0
-    uuid: ^7.0.3
     v8flags: ^3.2.0
   peerDependencies:
     mssql: ^6.2.1
@@ -24101,7 +24098,7 @@ fsevents@^1.2.7:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: 0039045a77d175ea94ae538e5576bbbc381fabb3a8310b7a72c64a2554d86052ad646411b6f8bcf80ac7b84df4b3cd82b1a659a14f6609df5020bbf891d3d4db
+  checksum: 2fdc620d88da7c335412df4a02aa50b25f9082383cdd6f0cf6b57a08b8dd6394561fab7dcecad1f01ce1a4a18a7e3058ae8ec33981be5071d15d103a556e373e
   languageName: node
   linkType: hard
 
@@ -35447,10 +35444,10 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tarn@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "tarn@npm:3.0.0"
-  checksum: 1dc99733fd7d316ba2a01b71df5504f944d3fc96b3c71db7b5dffc345c74f3c59b2e24c673f3763644800ff91b8eb08932963dc944e71d990ae2f4ef8cb6a7ac
+"tarn@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "tarn@npm:3.0.1"
+  checksum: 132dd6c6c38363cacba65278c02df4e3f56706b8bd428e7b1962501d601a63b39181407035511f50257acf2f6682f6ebc8df5b71b6bbe4487fe12a239ffd59d9
   languageName: node
   linkType: hard
 
@@ -37145,15 +37142,6 @@ typescript@~4.0.2:
   bin:
     uuid: ./bin/uuid
   checksum: 1ce3f37e214d6d0dc94a6a9663a0365013ace66bc3fd5b203e6f5d2eeb978aaee1192367222386345d30b4c6a447928c501121aa84c637724bf105ef57284949
-  languageName: node
-  linkType: hard
-
-"uuid@npm:^7.0.3":
-  version: 7.0.3
-  resolution: "uuid@npm:7.0.3"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: a56be8a5bbf2bae755d749d0693637274935b5ae250dfaaaf79241391cf1a7c142a202492196363ec62ec51a476e5e3fc4de2944d854abf2e9b35a33e0e31d4c
   languageName: node
   linkType: hard
 
