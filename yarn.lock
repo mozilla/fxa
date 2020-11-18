@@ -5290,16 +5290,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-hooks@npm:^3.4.1":
-  version: 3.4.1
-  resolution: "@testing-library/react-hooks@npm:3.4.1"
+"@testing-library/react-hooks@npm:^3.4.2":
+  version: 3.4.2
+  resolution: "@testing-library/react-hooks@npm:3.4.2"
   dependencies:
     "@babel/runtime": ^7.5.4
-    "@types/testing-library__react-hooks": ^3.3.0
+    "@types/testing-library__react-hooks": ^3.4.0
   peerDependencies:
     react: ">=16.9.0"
     react-test-renderer: ">=16.9.0"
-  checksum: e1fd838173f5b879cde8a5c91c78f8e6b0b5dc85e083d037b95e9da8ae553524645d3913630163ded11ac82ec357290bcb92fb0ce97d1fe5245c91ff8d32a05b
+  checksum: 25c3d881fe4ba755388b2120f430a8eafe3d057a0056660c831ca52b48c43a919a9f133dfe4f7bfa6d1762060c77c861bbdb057bdc4f049e09b55a8bc33fb2d8
   languageName: node
   linkType: hard
 
@@ -6790,7 +6790,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/testing-library__react-hooks@npm:^3, @types/testing-library__react-hooks@npm:^3.3.0":
+"@types/testing-library__react-hooks@npm:^3, @types/testing-library__react-hooks@npm:^3.4.0":
   version: 3.4.0
   resolution: "@types/testing-library__react-hooks@npm:3.4.0"
   dependencies:
@@ -18488,7 +18488,7 @@ fsevents@^1.2.7:
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
-    "@testing-library/react-hooks": ^3.4.1
+    "@testing-library/react-hooks": ^3.4.2
     "@testing-library/user-event": ^12.1.7
     "@types/babel__core": 7.1.7
     "@types/classnames": ^2.2.10
