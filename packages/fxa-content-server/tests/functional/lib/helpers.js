@@ -2773,6 +2773,54 @@ const fillOutForceChangePassword = thenify(function (oldPassword, newPassword) {
     .then(click(selectors.POST_VERIFY_FORCE_PASSWORD_CHANGE.SUBMIT));
 });
 
+const signInToTestProduct = thenify(function () {
+  return this.parent
+    .then(openRP())
+    .then(click(selectors['123DONE'].BUTTON_SIGNIN))
+    .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+    .then(click(selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN))
+    .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
+});
+
+const createUserAndLoadSettings = thenify(function (email) {
+  const PASSWORD = 'amazingpassword';
+  const ENTER_EMAIL_URL = config.fxaContentRoot;
+
+  return this.parent
+    .then(createUser(email, PASSWORD, { preVerified: true }))
+    .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+    .then(fillOutEmailFirstSignIn(email, PASSWORD))
+    .then(testElementExists(selectors.SETTINGS.HEADER));
+});
+
+const subscribeAndSigninToRp = thenify(function (email) {
+  return (
+    this.parent
+      .then(
+        clearBrowserState({
+          '123done': true,
+          force: true,
+        })
+      )
+
+      .then(createUserAndLoadSettings(email))
+
+      // subscribe
+      .then(openRP())
+      .then(click(selectors['123DONE'].BUTTON_SIGNIN))
+      .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+      .then(click(selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN))
+      .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
+      .then(visibleByQSA(selectors['123DONE'].BUTTON_SUBSCRIBE))
+      .then(click(selectors['123DONE'].LINK_LOGOUT))
+      .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
+      .then(subscribeToTestProduct())
+
+      // Signin
+      .then(signInToTestProduct())
+  );
+});
+
 module.exports = {
   ...TestHelpers,
   cleanMemory,
@@ -2783,6 +2831,7 @@ module.exports = {
   closeCurrentWindow,
   confirmTotpCode,
   createUser,
+  createUserAndLoadSettings,
   deleteAllEmails,
   deleteAllSms,
   denormalizeStoredEmail,
@@ -2853,7 +2902,9 @@ module.exports = {
   pollUntilHiddenByQSA,
   respondToWebChannelMessage,
   sendVerificationReminders,
+  signInToTestProduct,
   storeWebChannelMessageData,
+  subscribeAndSigninToRp,
   subscribeToTestProduct,
   subscribeToTestProductWithCardNumber,
   switchToWindow,

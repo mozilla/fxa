@@ -5,21 +5,30 @@
 'use strict';
 
 const intern = require('intern').default;
+const config = intern._config;
+const SETTINGS_V2_URL = config.fxaSettingsV2Root;
 const { describe, it, beforeEach } = intern.getPlugin('interface.bdd');
 const selectors = require('../lib/selectors');
 const FunctionalHelpers = require('../lib/helpers');
+const { createEmail } = FunctionalHelpers;
 const FunctionalSettingsHelpers = require('./lib/helpers');
 const { navigateToSettingsV2 } = FunctionalSettingsHelpers;
 
 describe('external links', () => {
-  let primaryEmail;
-  let testHrefEquals, testElementExists, clearBrowserState;
+  let primaryEmail,
+    testHrefEquals,
+    testElementExists,
+    clearBrowserState,
+    openPage,
+    subscribeAndSigninToRp;
+
   beforeEach(async ({ remote }) => {
     ({
       clearBrowserState,
       testHrefEquals,
       testElementExists,
-      testElementExists,
+      openPage,
+      subscribeAndSigninToRp,
     } = FunctionalHelpers.applyRemote(remote));
     await clearBrowserState();
     primaryEmail = await navigateToSettingsV2(remote);
@@ -42,6 +51,25 @@ describe('external links', () => {
     await testHrefEquals(
       selectors.SETTINGS_V2.FOOTER.TERMS_LINK,
       'https://www.mozilla.org/en-US/about/legal/terms/services/'
+    );
+  });
+
+  it('renders Subscriptions link in navigation when we are subscribed to a product', async () => {
+    if (process.env.CIRCLECI === 'true' && !process.env.SUBHUB_STRIPE_APIKEY) {
+      this.skip('missing Stripe API key in CircleCI run');
+    }
+
+    const email = createEmail();
+    await subscribeAndSigninToRp(email);
+    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER);
+
+    // test
+    await testElementExists(
+      selectors.SETTINGS_V2.NAVIGATION.SUBSCRIPTIONS_LINK
+    );
+    await testHrefEquals(
+      selectors.SETTINGS_V2.NAVIGATION.SUBSCRIPTIONS_LINK,
+      `/subscriptions`
     );
   });
 });

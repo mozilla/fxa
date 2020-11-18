@@ -17,6 +17,7 @@ yarn workspaces foreach \
     --include fxa-auth-server \
     --include fxa-content-server \
     --include fxa-profile-server \
+    --include fxa-payments-server \
     --include fxa-react \
     --include fxa-settings \
     --include fxa-shared \

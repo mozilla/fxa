@@ -11,7 +11,7 @@ const FunctionalHelpers = require('../lib/helpers');
 
 const config = intern._config;
 const EMAIL_FIRST = config.fxaContentRoot;
-const SETTINGS_V2_URL = `${config.fxaContentRoot}beta/settings`;
+const SETTINGS_V2_URL = config.fxaSettingsV2Root;
 const password = 'passwordzxcv';
 
 const { createEmail } = FunctionalHelpers;

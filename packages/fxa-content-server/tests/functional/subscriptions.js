@@ -9,20 +9,16 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
-const ENTER_EMAIL_URL = config.fxaContentRoot;
-const PASSWORD = 'amazingpassword';
 
 const {
   clearBrowserState,
   click,
   createEmail,
-  createUser,
-  fillOutEmailFirstSignIn,
+  createUserAndLoadSettings,
   openPage,
-  openRP,
-  subscribeToTestProduct,
+  signInToTestProduct,
+  subscribeAndSigninToRp,
   subscribeToTestProductWithCardNumber,
-  testElementExists,
   testElementTextInclude,
   visibleByQSA,
 } = FunctionalHelpers;
@@ -62,36 +58,7 @@ registerSuite('subscriptions', {
         this.skip('missing Stripe API key in CircleCI run');
       }
       const email = createEmail();
-      return this.remote
-        .then(
-          clearBrowserState({
-            '123done': true,
-            force: true,
-          })
-        )
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-
-        .then(openRP())
-        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
-        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-        .then(click(selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN))
-        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-        .then(visibleByQSA(selectors['123DONE'].BUTTON_SUBSCRIBE))
-
-        .then(click(selectors['123DONE'].LINK_LOGOUT))
-        .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
-
-        .then(subscribeToTestProduct())
-
-        .then(openRP())
-        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
-        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-        .then(click(selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN))
-        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-        .then(visibleByQSA(selectors['123DONE'].SUBSCRIBED));
+      return this.remote.then(subscribeAndSigninToRp(email));
     },
     'sign up, failed to subscribe due to expired CC': function () {
       if (
@@ -108,17 +75,8 @@ registerSuite('subscriptions', {
             force: true,
           })
         )
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-
-        .then(openRP())
-        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
-        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-        .then(click(selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN))
-        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-        .then(visibleByQSA(selectors['123DONE'].BUTTON_SUBSCRIBE))
+        .then(createUserAndLoadSettings(email))
+        .then(signInToTestProduct())
 
         .then(click(selectors['123DONE'].LINK_LOGOUT))
         .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
