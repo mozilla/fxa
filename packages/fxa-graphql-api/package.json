@@ -38,6 +38,7 @@
     "get-stream": "^6.0.0",
     "graphql": "^14.6.0",
     "graphql-parse-resolve-info": "^4.9.0",
+    "graphql-query-complexity": "^0.7.1",
     "graphql-upload": "^11.0.0",
     "ioredis": "^4.17.3",
     "knex": "^0.21.12",

@@ -18162,6 +18162,7 @@ fsevents@^1.2.7:
     get-stream: ^6.0.0
     graphql: ^14.6.0
     graphql-parse-resolve-info: ^4.9.0
+    graphql-query-complexity: ^0.7.1
     graphql-upload: ^11.0.0
     ioredis: ^4.17.3
     knex: ^0.21.12
@@ -19342,6 +19343,17 @@ fsevents@^1.2.7:
   peerDependencies:
     graphql: ^0.13.0 || ^14.0.0
   checksum: 3c905b4cdccbac1aed818a1701b18a88d5a4a41ce034187d5015fb96ee99ac6d03d660be474cee80db866414d54a70a6d6a15497d46729fc5be3731a306520f5
+  languageName: node
+  linkType: hard
+
+"graphql-query-complexity@npm:^0.7.1":
+  version: 0.7.1
+  resolution: "graphql-query-complexity@npm:0.7.1"
+  dependencies:
+    lodash.get: ^4.4.2
+  peerDependencies:
+    graphql: ^0.13.0 || ^14.0.0 || ^15.0.0
+  checksum: 8bd9462de2c114175b8aaf2c2519c17df8af1f2b4c2a4799c1026b8dee5b554d689843cbb3030e6d9338de8ab19bda8badaa4a41e65442453f00130307104329
   languageName: node
   linkType: hard
 
