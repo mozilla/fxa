@@ -17516,7 +17516,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     postcss-cli: ^7.1.1
     prettier: ^2.0.5
-    react: ^16.13.0
+    react: ^17.0.1
     react-dom: ^16.13.0
     react-router-dom: ^5.1.2
     react-scripts: ^3.4.1
@@ -17897,7 +17897,7 @@ fsevents@^1.2.7:
     postcss-loader: 2.1.6
     prettier: ^2.0.5
     proxyquire: ^2.1.3
-    react: ^16.8.6
+    react: ^17.0.1
     react-dom: ^16.8.6
     request: ^2.88.2
     request-promise: 4.2.6
@@ -18344,7 +18344,7 @@ fsevents@^1.2.7:
     on-headers: ^1.0.2
     pm2: ^4.4.1
     prettier: ^2.0.5
-    react: ^16.12.0
+    react: ^17.0.1
     react-document-title: ^2.0.3
     react-dom: ^16.12.0
     react-redux: ^7.2.2
@@ -18458,7 +18458,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     postcss-cli: ^7.1.1
     prettier: ^2.0.5
-    react: ^16.13.1
+    react: ^17.0.1
     react-dom: ^16.13.1
     react-transition-group: ^4.3.0
     rimraf: ^3.0.2
@@ -18521,7 +18521,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     postcss-cli: ^7.1.1
     postcss-import: ^12.0.1
-    react: ^16.13.1
+    react: ^17.0.1
     react-async-hook: ^3.6.1
     react-dom: ^16.13.1
     react-hook-form: ^6.11.0
@@ -31316,7 +31316,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react@npm:16.13.1, react@npm:^16.12.0, react@npm:^16.13.0, react@npm:^16.13.1, react@npm:^16.8.3, react@npm:^16.8.6":
+"react@npm:16.13.1, react@npm:^16.12.0, react@npm:^16.8.3":
   version: 16.13.1
   resolution: "react@npm:16.13.1"
   dependencies:
@@ -31324,6 +31324,16 @@ fsevents@^1.2.7:
     object-assign: ^4.1.1
     prop-types: ^15.6.2
   checksum: 13dcc9ba8a7521ecc3d7e69998dbc5703ae9515308d06a94a474ad34b42f1fc109372265e924a8c9b11d20fa1828407c290b8f61617c36734c4ca907ae7e5f45
+  languageName: node
+  linkType: hard
+
+"react@npm:^17.0.1":
+  version: 17.0.1
+  resolution: "react@npm:17.0.1"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+  checksum: a76d86ec973eb4b25a46071ac7f974adfd66ed89ad1db63043be1d976ec25417520a210e6d724b0ad937422b706afcf9962cedda9e92125992a8c0e8a95f2051
   languageName: node
   linkType: hard
 
