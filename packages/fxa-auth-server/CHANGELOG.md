@@ -1,3 +1,15 @@
+## 1.194.0
+
+### Other changes
+
+- fxa-client: removingparam style from /sessions/verify_code from both the frontend and backend ([0699c1506](https://github.com/mozilla/fxa/commit/0699c1506))
+- deps: bump cbor from 5.0.2 to 5.1.0 ([ec81e397e](https://github.com/mozilla/fxa/commit/ec81e397e))
+- deps: bump @google-cloud/firestore from 4.4.0 to 4.7.1 ([4da9902c2](https://github.com/mozilla/fxa/commit/4da9902c2))
+- deps: bump hot-shots from 7.8.0 to 8.2.0 ([b5c99456d](https://github.com/mozilla/fxa/commit/b5c99456d))
+- deps: bump cldr-core from 36.0.0 to 37.0.0 ([019adc594](https://github.com/mozilla/fxa/commit/019adc594))
+- deps: bump @hapi/hapi from 19.2.0 to 20.0.1 ([8e26a5845](https://github.com/mozilla/fxa/commit/8e26a5845))
+- deps-dev: bump ws from 6.2.1 to 7.4.0 ([9b8ea747a](https://github.com/mozilla/fxa/commit/9b8ea747a))
+
 ## 1.193.1
 
 No changes.

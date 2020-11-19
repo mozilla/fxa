@@ -1,3 +1,12 @@
+## 1.194.0
+
+### Other changes
+
+- deps: bump knex from 0.21.4 to 0.21.12 ([7b7222ca1](https://github.com/mozilla/fxa/commit/7b7222ca1))
+- deps-dev: bump jest from 26.6.1 to 26.6.3 ([239c3e824](https://github.com/mozilla/fxa/commit/239c3e824))
+- deps: bump @nestjs/mapped-types from 0.1.0 to 0.1.1 ([e2b3767ef](https://github.com/mozilla/fxa/commit/e2b3767ef))
+- deps: bump graphql-tools from 6.2.6 to 7.0.1 ([28df7178a](https://github.com/mozilla/fxa/commit/28df7178a))
+
 ## 1.193.1
 
 No changes.

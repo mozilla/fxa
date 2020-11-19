@@ -1,3 +1,34 @@
+## 1.194.0
+
+### New features
+
+- content-server: add new settings opt-out survey ([a9e401b1f](https://github.com/mozilla/fxa/commit/a9e401b1f))
+- settings: nav backwards on 2fa form ([815164a2b](https://github.com/mozilla/fxa/commit/815164a2b))
+- settings: added "Can't scan code?" option to 2fa setup ([b3814c9df](https://github.com/mozilla/fxa/commit/b3814c9df))
+- settings: connected services disconnect flow ([0dba8fe52](https://github.com/mozilla/fxa/commit/0dba8fe52))
+- settings: add password confirmation match to criteria list. fixes #6790 ([c763be88e](https://github.com/mozilla/fxa/commit/c763be88e))
+
+### Bug fixes
+
+- settings: limit display name input to 256 characters ([31d3084a9](https://github.com/mozilla/fxa/commit/31d3084a9))
+- settings: restore the sign out button for OAuth RPs ([23cdd3fc5](https://github.com/mozilla/fxa/commit/23cdd3fc5))
+- fxa-settings: add forgotten work in qr flow copy ([d7804ede3](https://github.com/mozilla/fxa/commit/d7804ede3))
+- settings: add form validation to secondary email confirmation ([1bfac22e9](https://github.com/mozilla/fxa/commit/1bfac22e9))
+- settings: updated bento logos ([9f1219d12](https://github.com/mozilla/fxa/commit/9f1219d12))
+
+### Refactorings
+
+- settings: allow callback override of FlowContainer's back button ([3ec955346](https://github.com/mozilla/fxa/commit/3ec955346))
+
+### Other changes
+
+- deps-dev: bump @testing-library/react-hooks from 3.4.1 to 3.4.2 ([c1709e0fd](https://github.com/mozilla/fxa/commit/c1709e0fd))
+- fxa-settings: add subscriptions link test ([7450c5505](https://github.com/mozilla/fxa/commit/7450c5505))
+- settings: add disconnect RP tests ([f89f3bc5c](https://github.com/mozilla/fxa/commit/f89f3bc5c))
+- fxa-settings: error msg copy updates 2fa ([a21bb35b4](https://github.com/mozilla/fxa/commit/a21bb35b4))
+- deps: bump react-hook-form from 6.10.1 to 6.11.0 ([daad44f40](https://github.com/mozilla/fxa/commit/daad44f40))
+- deps: bump react-hook-form from 6.8.6 to 6.10.1 ([265b32a61](https://github.com/mozilla/fxa/commit/265b32a61))
+
 ## 1.193.1
 
 No changes.

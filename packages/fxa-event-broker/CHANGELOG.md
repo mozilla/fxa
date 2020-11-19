@@ -1,5 +1,20 @@
 # Change history
 
+## 1.194.0
+
+### New features
+
+- event-broker: capture error context ([59a6d1530](https://github.com/mozilla/fxa/commit/59a6d1530))
+
+### Other changes
+
+- deps: bump @google-cloud/firestore from 4.4.0 to 4.7.1 ([4da9902c2](https://github.com/mozilla/fxa/commit/4da9902c2))
+- deps: bump hot-shots from 7.8.0 to 8.2.0 ([b5c99456d](https://github.com/mozilla/fxa/commit/b5c99456d))
+- deps-dev: bump jest from 26.6.1 to 26.6.3 ([239c3e824](https://github.com/mozilla/fxa/commit/239c3e824))
+- deps: bump @nestjs/mapped-types from 0.1.0 to 0.1.1 ([e2b3767ef](https://github.com/mozilla/fxa/commit/e2b3767ef))
+- deps-dev: bump @nestjs/schematics from 7.1.2 to 7.2.1 ([5111c01c8](https://github.com/mozilla/fxa/commit/5111c01c8))
+- deps-dev: bump ts-loader from 8.0.4 to 8.0.9 ([69e5f91f2](https://github.com/mozilla/fxa/commit/69e5f91f2))
+
 ## 1.193.1
 
 No changes.
