@@ -24,7 +24,7 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "fxa-shared": "workspace:*",
-    "react": "^16.13.1",
+    "react": "^17.0.1",
     "react-dom": "^16.13.1",
     "react-transition-group": "^4.3.0",
     "tailwindcss-dir": "^4.0.0"
