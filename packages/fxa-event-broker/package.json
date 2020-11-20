@@ -41,7 +41,7 @@
     "@nestjs/graphql": "^7.7.0",
     "@nestjs/mapped-types": "^0.1.1",
     "@nestjs/passport": "^7.1.0",
-    "@nestjs/platform-express": "^7.4.4",
+    "@nestjs/platform-express": "^7.5.4",
     "@nestjs/schedule": "^0.4.1",
     "@sentry/integrations": "^5.23.0",
     "@sentry/node": "^5.23.0",
