@@ -593,7 +593,6 @@ describe('api', function () {
 
   describe('/_core_profile', () => {
     const tok = token();
-
     it('should be hidden from external callers by default', () => {
       return Server.api
         .get({

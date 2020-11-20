@@ -68,6 +68,7 @@ The currently-defined error responses are:
 - [GET /v1/ecosystem_anon_id][ecosystem_anon_id]
 - [POST /v1/ecosystem_anon_id][ecosystem_anon_id-post]
 - [DELETE /v1/cache/:uid][cache_delete]
+- [GET /v1/\_core_profile][hidden from extra callers by default]
 
 ### GET /v1/profile
 
@@ -391,3 +392,187 @@ Delete cached profile data for user `:uid`
 [ecosystem_anon_id-post]: #post-v1ecosystem_anon_id
 [oauth]: https://github.com/mozilla/fxa-oauth-server
 [cache_delete]: #delete-v1cache:uid
+
+### GET /v1/\_core_profile
+
+##### Condition 1
+
+Return all fields returned by auth-server
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Request
+
+- `ecosystemAnonId` - A new anonymized ecosystem account identifier.
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/_core_profile"
+```
+
+#### Response
+
+```json
+[]
+```
+
+[email]: #get-v1email
+[locale]: 'en-US'
+
+[amrValues]: ['pwd'][twofactorauthentication]: [false][subscriptions]: 'undefined'
+[ecosystemAnonId]: #get-v1/ecosystem_anon_id
+
+##### Condition 2
+
+Return subscriptions if returned by auth-server
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Request
+
+- `ecosystemAnonId` - A new anonymized ecosystem account identifier.
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/_core_profile"
+```
+
+#### Response
+
+```json
+[]
+```
+
+[email]: #get-v1email
+[locale]: 'en-US'
+
+[amrValues]: ['pwd'][twofactorauthentication]: [false][subscriptions]: 'expected'
+[ecosystemAnonId]: #get-v1/ecosystem_anon_id
+
+##### Condition 3
+
+Email not returned by auth-server
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Request
+
+- `ecosystemAnonId` - A new anonymized ecosystem account identifier.
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/_core_profile"
+```
+
+#### Response
+
+```json
+[]
+```
+
+[locale]: 'en-US'
+
+[amrValues]: ['pwd'][twofactorauthentication]: [false]
+
+##### Condition 3
+
+Loclae not returned by auth-server
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Request
+
+- `ecosystemAnonId` - A new anonymized ecosystem account identifier.
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/_core_profile"
+```
+
+#### Response
+
+```json
+[]
+```
+
+[email]: #get-v1email
+
+[amrValues]: ['pwd'][twofactorauthentication]: [false]
+
+##### Condition 4
+
+Auth Info not returned by auth-server
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Request
+
+- `ecosystemAnonId` - A new anonymized ecosystem account identifier.
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/_core_profile"
+```
+
+#### Response
+
+```json
+[]
+```
+
+[email]: #get-v1email
+[locale]: 'en-US'
+
+##### Condition 5
+
+correctly reflect 2FA status of the account
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Request
+
+- `ecosystemAnonId` - A new anonymized ecosystem account identifier.
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/_core_profile"
+```
+
+#### Response
+
+```json
+[]
+```
+
+[email]: #get-v1email
+[locale]: 'en-US'
+
+[amrValues]: ['pwd'][twofactorauthentication]: [false]
+
+##### Condition 6
+
+ecosystem_anon_id if not returned by auth-server
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Request
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/_core_profile"
+```
+
+#### Response
+
+```json
+[]
+```
+
+[email]: #get-v1email
