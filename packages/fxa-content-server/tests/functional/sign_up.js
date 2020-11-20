@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const UA_STRINGS = require('./lib/ua-strings');
 
@@ -29,6 +28,7 @@ const {
   openSignUpInNewTab,
   pollUntilHiddenByQSA,
   switchToWindow,
+  testAttributeIncludes,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -39,7 +39,7 @@ const {
   type,
   visibleByQSA,
   waitForUrl,
-} = FunctionalHelpers;
+} = require('./lib/helpers');
 
 const ENTER_EMAIL_ENTRYPOINT = `entrypoint=${encodeURIComponent(
   'fxa:enter_email'
@@ -351,8 +351,14 @@ registerSuite('signup here', {
             },
           })
         )
-        .then(click(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
-        .then(testElementExists(selectors.MOZILLA_ORG_SYNC.HEADER));
+        .then(testElementExists(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
+        .then(
+          testAttributeIncludes(
+            selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC,
+            'href',
+            'utm_content=fx-sync-get-started'
+          )
+        );
     },
   },
 });

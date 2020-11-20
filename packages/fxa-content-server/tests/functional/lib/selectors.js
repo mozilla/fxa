@@ -234,9 +234,6 @@ module.exports = {
     CANCEL_BUTTON: '.recovery-cancel',
     CONFIRM_BUTTON: '.recovery-confirm-code',
   },
-  MOZILLA_ORG_SYNC: {
-    HEADER: '.mzp-c-navigation',
-  },
   OAUTH_PERMISSIONS: {
     CHECKBOX_DISPLAY_NAME: 'input[name="profile:display_name"]',
     HEADER: '#fxa-permissions-header',
