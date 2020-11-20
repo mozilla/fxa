@@ -1,3 +1,41 @@
+## 1.194.0
+
+### New features
+
+- content-server: add new settings opt-out survey ([a9e401b1f](https://github.com/mozilla/fxa/commit/a9e401b1f))
+- settings: use CSP rules on /beta/settings page ([c1806c90f](https://github.com/mozilla/fxa/commit/c1806c90f))
+
+### Bug fixes
+
+- settings: add form validation to secondary email confirmation ([1bfac22e9](https://github.com/mozilla/fxa/commit/1bfac22e9))
+- fxa-settings: fix functional test selector ([7203911e9](https://github.com/mozilla/fxa/commit/7203911e9))
+
+### Refactorings
+
+- content: refactored csp setup so dev works on safari ([1592fee4a](https://github.com/mozilla/fxa/commit/1592fee4a))
+
+### Other changes
+
+- deps: bump thread-loader from 3.0.0 to 3.0.1 ([ec76dfb7e](https://github.com/mozilla/fxa/commit/ec76dfb7e))
+- fxa-settings: add subscriptions link test ([7450c5505](https://github.com/mozilla/fxa/commit/7450c5505))
+- fxa-content-server: render beta link for en-US ([0c5ef03fd](https://github.com/mozilla/fxa/commit/0c5ef03fd))
+- deps: bump fxa-crypto-relier from 2.3.0 to 2.7.0 ([8863c6b2e](https://github.com/mozilla/fxa/commit/8863c6b2e))
+- settings: add disconnect RP tests ([f89f3bc5c](https://github.com/mozilla/fxa/commit/f89f3bc5c))
+- deps: bump jquery-ui-touch-punch-amd from 1.0.0 to 1.0.1 ([220c6c1bf](https://github.com/mozilla/fxa/commit/220c6c1bf))
+- tests: remove string helpers from helpersRemoteWrapped and applyRemote ([09cc15785](https://github.com/mozilla/fxa/commit/09cc15785))
+- surveys: remove reset password survey ([d90b8c3c6](https://github.com/mozilla/fxa/commit/d90b8c3c6))
+- deps: bump hot-shots from 7.8.0 to 8.2.0 ([b5c99456d](https://github.com/mozilla/fxa/commit/b5c99456d))
+- fxa-settings: temporarily remove newsletters test ([bb6a436b1](https://github.com/mozilla/fxa/commit/bb6a436b1))
+- fxa-settings: E2E external links tests ([d351ea097](https://github.com/mozilla/fxa/commit/d351ea097))
+- deps: bump webpack-cli from 3.3.12 to 4.2.0 ([2dc3ba55f](https://github.com/mozilla/fxa/commit/2dc3ba55f))
+- deps: bump backbone.cocktail from 0.5.9 to 0.5.15 ([40ada5862](https://github.com/mozilla/fxa/commit/40ada5862))
+- settings: add secondary email functional tests ([e55cb878c](https://github.com/mozilla/fxa/commit/e55cb878c))
+- deps-dev: bump ts-loader from 8.0.4 to 8.0.9 ([69e5f91f2](https://github.com/mozilla/fxa/commit/69e5f91f2))
+- deps-dev: bump @types/sinon-chai from 3.2.4 to 3.2.5 ([05e116e6e](https://github.com/mozilla/fxa/commit/05e116e6e))
+- Settings_V2: remove the duplicate statement ([d5ab8a0ac](https://github.com/mozilla/fxa/commit/d5ab8a0ac))
+- Settings_V2: add tests to create and revoke recovery key ([5e0466aa3](https://github.com/mozilla/fxa/commit/5e0466aa3))
+- Settings_V2: add tests for recovery key code ([5e6f5ec29](https://github.com/mozilla/fxa/commit/5e6f5ec29))
+
 ## 1.193.1
 
 No changes.

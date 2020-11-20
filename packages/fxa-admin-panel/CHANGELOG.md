@@ -1,3 +1,9 @@
+## 1.194.0
+
+### Other changes
+
+- 947647648 Resolving issue #6746 ([947647648](https://github.com/mozilla/fxa/commit/947647648))
+
 ## 1.193.1
 
 No changes.

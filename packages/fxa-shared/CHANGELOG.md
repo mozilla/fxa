@@ -1,5 +1,19 @@
 # Change history
 
+## 1.194.0
+
+### New features
+
+- event-broker: capture error context ([59a6d1530](https://github.com/mozilla/fxa/commit/59a6d1530))
+
+### Other changes
+
+- deps: bump knex from 0.21.4 to 0.21.12 ([7b7222ca1](https://github.com/mozilla/fxa/commit/7b7222ca1))
+- deps: bump hot-shots from 7.8.0 to 8.2.0 ([b5c99456d](https://github.com/mozilla/fxa/commit/b5c99456d))
+- deps-dev: bump jest from 26.6.1 to 26.6.3 ([239c3e824](https://github.com/mozilla/fxa/commit/239c3e824))
+- deps: bump @nestjs/mapped-types from 0.1.0 to 0.1.1 ([e2b3767ef](https://github.com/mozilla/fxa/commit/e2b3767ef))
+- deps-dev: bump ts-loader from 8.0.4 to 8.0.9 ([69e5f91f2](https://github.com/mozilla/fxa/commit/69e5f91f2))
+
 ## 1.193.1
 
 No changes.

@@ -1,5 +1,14 @@
 # Change history
 
+## 1.194.0
+
+### Other changes
+
+- deps-dev: bump caniuse-lite from 1.0.30001144 to 1.0.30001158 ([7862d8221](https://github.com/mozilla/fxa/commit/7862d8221))
+- deps: bump react-redux from 7.2.1 to 7.2.2 ([4bd4daf59](https://github.com/mozilla/fxa/commit/4bd4daf59))
+- deps: bump hot-shots from 7.8.0 to 8.2.0 ([b5c99456d](https://github.com/mozilla/fxa/commit/b5c99456d))
+- deps: bump @stripe/stripe-js from 1.7.0 to 1.11.0 ([935869e5b](https://github.com/mozilla/fxa/commit/935869e5b))
+
 ## 1.193.1
 
 No changes.

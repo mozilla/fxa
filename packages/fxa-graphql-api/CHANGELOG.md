@@ -1,3 +1,14 @@
+## 1.194.0
+
+### New features
+
+- gql-api: limit query complexity ([315842825](https://github.com/mozilla/fxa/commit/315842825))
+
+### Other changes
+
+- deps: bump knex from 0.21.4 to 0.21.12 ([7b7222ca1](https://github.com/mozilla/fxa/commit/7b7222ca1))
+- deps: bump graphql-parse-resolve-info from 4.7.0 to 4.9.0 ([161c14052](https://github.com/mozilla/fxa/commit/161c14052))
+
 ## 1.193.1
 
 No changes.
