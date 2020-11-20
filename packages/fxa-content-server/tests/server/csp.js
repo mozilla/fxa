@@ -42,13 +42,15 @@ suite.tests['blockingRules'] = function () {
   assert.isFalse(reportOnly);
 
   const connectSrc = directives.connectSrc;
-  assert.lengthOf(connectSrc, 7);
-  assert.include(connectSrc, Sources.SELF);
+  assert.lengthOf(connectSrc, config.get('env') === 'development' ? 9 : 8);
   assert.include(connectSrc, Sources.AUTH_SERVER);
+  assert.include(connectSrc, Sources.GQL_SERVER);
   assert.include(connectSrc, Sources.OAUTH_SERVER);
-  assert.include(connectSrc, Sources.PROFILE_SERVER);
   assert.include(connectSrc, Sources.PAIRING_SERVER_HTTP);
   assert.include(connectSrc, Sources.PAIRING_SERVER_WEBSOCKET);
+  assert.include(connectSrc, Sources.PROFILE_SERVER);
+  assert.include(connectSrc, Sources.SELF);
+  assert.include(connectSrc, Sources.SENTRY_SERVER);
 
   const defaultSrc = directives.defaultSrc;
   assert.lengthOf(defaultSrc, 1);
@@ -87,12 +89,12 @@ suite.tests['blockingRules'] = function () {
   assert.include(objectSrc, Sources.NONE);
 
   const scriptSrc = directives.scriptSrc;
-  assert.lengthOf(scriptSrc, 2);
+  assert.lengthOf(scriptSrc, config.get('env') === 'development' ? 3 : 2);
   assert.include(scriptSrc, Sources.SELF);
   assert.include(scriptSrc, CDN_SERVER);
 
   const styleSrc = directives.styleSrc;
-  assert.lengthOf(styleSrc, 2);
+  assert.lengthOf(styleSrc, config.get('env') === 'development' ? 3 : 2);
   assert.include(styleSrc, Sources.SELF);
   assert.include(styleSrc, CDN_SERVER);
 };

@@ -548,13 +548,13 @@ registerSuite('routes/get-metrics-flow remote request', {
 });
 
 async function testInvalidFlowQueryParam(paramName, paramValue) {
-  const query = { [paramName]: paramValue };
+  const searchParams = { [paramName]: paramValue };
   const headers = {
     Origin: origin,
   };
 
   try {
-    await got(serverUrl, { headers, query });
+    await got(serverUrl, { headers, searchParams });
     assert.fail('request should have failed');
   } catch (err) {
     assert.equal(err.response.statusCode, 400);
