@@ -88,6 +88,6 @@
     "postcss-cli": "^7.1.1",
     "react-test-renderer": "^17.0.1",
     "tailwindcss": "^1.9.1",
-    "webpack": "^4.43.0"
+    "webpack": "^5.6.0"
   }
 }
