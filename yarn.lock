@@ -6532,7 +6532,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^16.9.16, @types/react@npm:^16.9.53":
+"@types/react@npm:*, @types/react@npm:^16.9.16":
   version: 16.9.53
   resolution: "@types/react@npm:16.9.53"
   dependencies:
@@ -6549,6 +6549,16 @@ __metadata:
     "@types/prop-types": "*"
     csstype: ^2.2.0
   checksum: 17c41e59d76634d3c9e21d30bda9afe311e99d2dd37274c8763a9ae3e20d775ee0220d456f11cc0de2ec337306ae7d9f329177b40c2ef299b35881620e7703c2
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^17.0.0":
+  version: 17.0.0
+  resolution: "@types/react@npm:17.0.0"
+  dependencies:
+    "@types/prop-types": "*"
+    csstype: ^3.0.2
+  checksum: dcef2034b822a949c5528fa8fa3c64da654fdbb822bd8f0488c0084d84cadb8b90af68813a6c95153d4754079f50b1cab206552c7c20f6b67a26c3641383fe31
   languageName: node
   linkType: hard
 
@@ -17484,7 +17494,7 @@ fsevents@^1.2.7:
     "@types/jest": ^24.9.1
     "@types/jsdom": ^12.2.4
     "@types/on-headers": ^1.0.0
-    "@types/react": ^16.9.53
+    "@types/react": ^17.0.0
     "@types/react-router-dom": ^5.1.5
     "@types/serve-static": 1.13.5
     "@types/supertest": ^2.0.8
@@ -18287,7 +18297,7 @@ fsevents@^1.2.7:
     "@types/jsdom": ^12.2.4
     "@types/nock": ^11.1.0
     "@types/node": ^14.14.5
-    "@types/react": ^16.9.53
+    "@types/react": ^17.0.0
     "@types/react-document-title": ^2.0.3
     "@types/react-dom": ^16.9.4
     "@types/react-redux": ^7.1.5
@@ -18440,7 +18450,7 @@ fsevents@^1.2.7:
     "@types/jest": ^24.9.1
     "@types/node": ^14.14.5
     "@types/prettier": 2.1.5
-    "@types/react": ^16.9.53
+    "@types/react": ^17.0.0
     "@types/react-dom": ^16.9.6
     "@types/react-transition-group": ^4.2.4
     "@types/rimraf": 3.0.0
@@ -18496,7 +18506,7 @@ fsevents@^1.2.7:
     "@types/jest": ^24.9.1
     "@types/lodash.groupby": ^4
     "@types/node": ^14.14.5
-    "@types/react": ^16.9.53
+    "@types/react": ^17.0.0
     "@types/react-dom": ^16.9.6
     "@types/react-test-renderer": ^16
     "@types/testing-library__react-hooks": ^3
