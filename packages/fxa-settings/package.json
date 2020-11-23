@@ -47,7 +47,7 @@
     "react-async-hook": "^3.6.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.11.0",
-    "react-scripts": "^3.4.1",
+    "react-scripts": "^4.0.0",
     "subscriptions-transport-ws": "^0.9.18",
     "typescript": "3.9.7"
   },
