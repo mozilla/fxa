@@ -69,6 +69,9 @@ The currently-defined error responses are:
 - [POST /v1/ecosystem_anon_id][ecosystem_anon_id-post]
 - [DELETE /v1/cache/:uid][cache_delete]
 - [GET /v1/\_core_profile][hidden from extra callers by default]
+- [GET /a/:id/type?][default_avatar]
+- [GET /_heartbeat_][]
+- [POST /a/:id][]
 
 ### GET /v1/profile
 
@@ -576,3 +579,55 @@ curl -v \
 ```
 
 [email]: #get-v1email
+
+### GET /a/:id/type?
+
+Returns the DEFAULT AVATAR with the specified type file size.
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Request
+
+```json
+
+```
+
+[type]: req.params.type
+
+#### Response
+
+Depending on the type of file size as mentioned in the URL returns the required DEFAULT_AVATAR with the specified file size.
+
+### GET /_heartbeat_
+
+function to return a error if db gone offline while execution of program.
+
+#### Request
+
+No such request.Just a hello handshake(like HTTP-2 Protocol) with that of the DB.
+
+#### Response
+
+```json
+[]
+```
+
+### POST /a/:id
+
+- Requires header `Authorization: Bearer {secretBearerToken}` where `secretBearerToken` is found from server config
+
+#### Request
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/_core_profile"
+```
+
+#### Response
+
+```json
+[]
+```
+
+[id]: #get-v1uid
