@@ -6,9 +6,6 @@ import { Field, ObjectType } from '@nestjs/graphql';
 @ObjectType()
 export class Totp {
   @Field()
-  public uid!: string;
-
-  @Field()
   public verified!: boolean;
 
   @Field()

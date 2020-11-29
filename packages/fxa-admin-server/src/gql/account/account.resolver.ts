@@ -24,6 +24,15 @@ const EMAIL_COLUMNS = [
   'verifiedAt',
 ];
 
+const TOTP_COLUMNS = [
+  'uid',
+  'sharedSecret',
+  'epoch',
+  'createdAt',
+  'verified',
+  'enabled',
+];
+
 @UseGuards(GqlAuthHeaderGuard)
 @Resolver((of: any) => AccountType)
 export class AccountResolver {
@@ -56,7 +65,7 @@ export class AccountResolver {
     return this.db.account
       .query()
       .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
-      .innerJoin('emails', 'emails.uid', 'accounts.uid', 'totp')
+      .innerJoin('emails', 'emails.uid', 'accounts.uid')
       .where('emails.normalizedEmail', email)
       .first();
   }
@@ -83,6 +92,15 @@ export class AccountResolver {
     return await this.db.emails
       .query()
       .select(EMAIL_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @ResolveField()
+  public async totp(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.totp
+      .query()
+      .select(TOTP_COLUMNS)
       .where('uid', uidBuffer);
   }
 }
