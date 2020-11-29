@@ -56,7 +56,7 @@ export class AccountResolver {
     return this.db.account
       .query()
       .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
-      .innerJoin('emails', 'emails.uid', 'accounts.uid')
+      .innerJoin('emails', 'emails.uid', 'accounts.uid', 'totp')
       .where('emails.normalizedEmail', email)
       .first();
   }
