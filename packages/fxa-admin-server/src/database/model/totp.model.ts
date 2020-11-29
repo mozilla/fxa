@@ -8,7 +8,7 @@ import { intBoolTransformer, uuidTransformer } from '../transformers';
 const binaryFields = ['uid'];
 const booleanFields = ['verified', 'enabled'];
 
-export class Emails extends Model {
+export class Totp extends Model {
   public static tableName = 'totp';
 
   public uid!: string;

@@ -4,5 +4,6 @@
 import { Account } from './account.model';
 import { EmailBounces } from './email-bounces.model';
 import { Emails } from './emails.model';
+import { Totp } from './totp.model';
 
-export { Account, Emails, EmailBounces };
+export { Account, Emails, EmailBounces, Totp };

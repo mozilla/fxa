@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import Knex from 'knex';
 
 import { AppConfig } from '../config';
-import { Account, EmailBounces, Emails } from './model';
+import { Account, EmailBounces, Emails, Totp } from './model';
 
 @Injectable()
 export class DatabaseService {
@@ -14,6 +14,7 @@ export class DatabaseService {
   public account: typeof Account;
   public emails: typeof Emails;
   public emailBounces: typeof EmailBounces;
+  public totp: typeof Totp;
 
   constructor(configService: ConfigService<AppConfig>) {
     const dbConfig = configService.get('database') as AppConfig['database'];
@@ -21,6 +22,7 @@ export class DatabaseService {
     this.account = Account.bindKnex(this.knex);
     this.emails = Emails.bindKnex(this.knex);
     this.emailBounces = EmailBounces.bindKnex(this.knex);
+    this.totp = Totp.bindKnex(this.knex);
   }
 
   async dbHealthCheck(): Promise<Record<string, any>> {
