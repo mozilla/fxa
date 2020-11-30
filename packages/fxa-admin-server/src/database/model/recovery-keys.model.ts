@@ -8,8 +8,8 @@ import { intBoolTransformer, uuidTransformer } from '../transformers';
 const binaryFields = ['uid'];
 const booleanFields = ['enabled'];
 
-export class RecoveryKey extends Model {
-  public static tableName = 'recoveryKey';
+export class RecoveryKeys extends Model {
+  public static tableName = 'recoveryKeys';
 
   public uid!: string;
   public recoveryData!: string;

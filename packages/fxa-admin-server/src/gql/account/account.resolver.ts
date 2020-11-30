@@ -33,6 +33,15 @@ const TOTP_COLUMNS = [
   'enabled',
 ];
 
+const RECOVERYKEY_COLUMNS = [
+  'uid',
+  'recoveryData',
+  'recoveryKeyIdHash',
+  'createdAt',
+  'verifiedAt',
+  'enabled',
+];
+
 @UseGuards(GqlAuthHeaderGuard)
 @Resolver((of: any) => AccountType)
 export class AccountResolver {
@@ -101,6 +110,15 @@ export class AccountResolver {
     return await this.db.totp
       .query()
       .select(TOTP_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @ResolveField()
+  public async recoveryKeys(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.recoveryKeys
+      .query()
+      .select(RECOVERYKEY_COLUMNS)
       .where('uid', uidBuffer);
   }
 }

@@ -4,13 +4,13 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class RecoveryKey {
-  @Field()
+export class RecoveryKeys {
+  @Field({ nullable: true })
   public createdAt!: number;
 
-  @Field()
+  @Field({ nullable: true })
   public verifiedAt!: number;
 
-  @Field()
+  @Field({ nullable: true })
   public enabled!: boolean;
 }
