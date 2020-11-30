@@ -12,6 +12,7 @@ type AccountProps = {
   createdAt: number;
   emails: EmailProps[];
   emailBounces: EmailBounceProps[];
+  totp: TotpProps[];
   onCleared: Function;
   query: string;
 };
@@ -28,6 +29,12 @@ type EmailProps = {
   isVerified: boolean;
   isPrimary: boolean;
   createdAt: number;
+};
+
+type TotpProps = {
+  verified: boolean;
+  createdAt: number;
+  enabled: boolean;
 };
 
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
@@ -71,6 +78,7 @@ export const Account = ({
   emails,
   createdAt,
   emailBounces,
+  totp,
   onCleared,
   query,
 }: AccountProps) => {
@@ -109,11 +117,36 @@ export const Account = ({
             </span>
             <br />
             {date}
+            <br />
           </div>
         </li>
+        <li></li>
+
+        <li>
+          <h3>TOTP (Time-Based One-Time Passwords)</h3>
+        </li>
+        {totp.length > 0 ? (
+          <>
+            {totp.map((totpIndex: TotpProps) => (
+              <TotpEnabled key={totpIndex.createdAt} {...totpIndex} />
+            ))}
+          </>
+        ) : (
+          <li data-testid="" className="gradient-info-display">
+            This account doesn't have TOTP enabled.
+          </li>
+        )}
+        <li></li>
+        <br />
+
+        <li>
+          <h3>Secondary Emails</h3>
+        </li>
         {secondaryEmails.length > 0 && (
-          <li className="secondary-emails" data-testid="secondary-section">
-            secondary emails:
+          <li
+            className="secondary-emails gradient-info-display"
+            data-testid="secondary-section"
+          >
             <ul>
               {secondaryEmails.map((secondaryEmail) => (
                 <li key={secondaryEmail.createdAt}>
@@ -139,10 +172,11 @@ export const Account = ({
           </li>
         )}
         <li></li>
-        <li>
-          <h4>Email bounces</h4>
-        </li>
+        <br />
 
+        <li>
+          <h3>Email bounces</h3>
+        </li>
         {emailBounces.length > 0 ? (
           <>
             <ClearButton
@@ -174,7 +208,7 @@ const EmailBounce = ({
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
     <li data-testid="bounce-group">
-      <ul className="email-bounce">
+      <ul className="gradient-info-display">
         <li>
           email: <span className="result">{email}</span>
         </li>
@@ -186,6 +220,37 @@ const EmailBounce = ({
         </li>
         <li>
           bounce subtype: <span className="result">{bounceSubType}</span>
+        </li>
+      </ul>
+    </li>
+  );
+};
+
+const TotpEnabled = ({ verified, createdAt, enabled }: TotpProps) => {
+  const totpDate = dateFormat(new Date(createdAt), DATE_FORMAT);
+  return (
+    <li data-testid="">
+      <ul className="gradient-info-display">
+        <li>
+          TOTP Created At: <span className="result">{totpDate}</span>
+        </li>
+        <li>
+          TOTP Verified:{' '}
+          <span
+            data-testid="secondary-verified"
+            className={`verification ${verified ? 'verified' : 'not-verified'}`}
+          >
+            {verified ? 'verified' : 'not verified'}
+          </span>
+        </li>
+        <li>
+          TOTP Enabled:{' '}
+          <span
+            data-testid="secondary-verified"
+            className={`verification ${enabled ? 'enabled' : 'not-enabled'}`}
+          >
+            {enabled ? 'enabled' : 'not-enabled'}
+          </span>
         </li>
       </ul>
     </li>

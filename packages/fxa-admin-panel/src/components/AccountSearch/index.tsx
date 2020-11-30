@@ -26,6 +26,13 @@ interface AccountType {
       bounceSubType: string;
     }
   ];
+  totp: [
+    {
+      verified: boolean;
+      createdAt: number;
+      enabled: boolean;
+    }
+  ];
 }
 
 export const GET_ACCOUNT_BY_EMAIL = gql`
@@ -44,6 +51,11 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         createdAt
         bounceType
         bounceSubType
+      }
+      totp {
+        verified
+        createdAt
+        enabled
       }
     }
   }

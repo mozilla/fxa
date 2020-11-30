@@ -52,4 +52,18 @@
   .secondary-emails {
     margin-bottom: 20px;
   }
+
+  .enabled,
+  .not-enabled {
+    color: var(--enabled-color);
+    font-weight: var(--font-weight-semi-bold);
+  }
+
+  .gradient-info-display {
+    border-image: linear-gradient(to bottom, var(--ff-brand-gradient)) 0 100%;
+    border-left: 1px solid;
+    padding-left: 15px;
+    margin-bottom: 15px;
+  }
+
 }
