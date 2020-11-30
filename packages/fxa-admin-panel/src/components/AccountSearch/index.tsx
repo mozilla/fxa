@@ -49,16 +49,39 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
   }
 `;
 
+export const GET_ACCOUNT_BY_UID = gql`
+  query getAccountByUid($uid: String!) {
+    accountByUid(uid: $uid) {
+      uid
+      createdAt
+      emails {
+        email
+        isVerified
+        isPrimary
+        createdAt
+      }
+      emailBounces {
+        email
+        createdAt
+        bounceType
+        bounceSubType
+      }
+    }
+  }
+`;
+
 export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
   const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
-    GET_ACCOUNT_BY_EMAIL
+    inputValue.search('@') == -1 ? GET_ACCOUNT_BY_UID : GET_ACCOUNT_BY_EMAIL
   );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    getAccount({ variables: { email: inputValue } });
+    if (inputValue.search('@') == -1) {
+      getAccount({ variables: { uid: inputValue } });
+    } else getAccount({ variables: { email: inputValue } });
     // Don't hide after the first result is shown
     setShowResult(true);
   };
@@ -78,17 +101,17 @@ export const AccountSearch = () => {
       </p>
 
       <form onSubmit={handleSubmit} data-testid="search-form" className="flex">
-        <label htmlFor="email">Email to search for:</label>
+        <label htmlFor="search">Email or UID to search for:</label>
         <br />
         <input
           autoFocus
           name="email"
-          type="email"
+          type="search"
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
             setInputValue(event.target.value)
           }
-          placeholder="hello@world.com"
-          data-testid="email-input"
+          placeholder="hello@world.com or uid"
+          data-testid="search-input"
         />
         <button
           className="account-search-search-button"
@@ -127,6 +150,7 @@ const AccountSearchResult = ({
   error?: {};
   data?: {
     accountByEmail: AccountType;
+    accountByUid: AccountType;
   };
   query: string;
 }) => {
@@ -135,6 +159,10 @@ const AccountSearchResult = ({
 
   if (data?.accountByEmail) {
     return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
+  }
+
+  if (data?.accountByUid) {
+    return <Account {...{ query, onCleared }} {...data.accountByUid} />;
   }
   return <p data-testid="no-account-message">Account not found.</p>;
 };
