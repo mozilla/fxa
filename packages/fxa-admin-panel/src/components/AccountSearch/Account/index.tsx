@@ -123,26 +123,9 @@ export const Account = ({
         <li></li>
 
         <li>
-          <h3>TOTP (Time-Based One-Time Passwords)</h3>
-        </li>
-        {totp.length > 0 ? (
-          <>
-            {totp.map((totpIndex: TotpProps) => (
-              <TotpEnabled key={totpIndex.createdAt} {...totpIndex} />
-            ))}
-          </>
-        ) : (
-          <li data-testid="" className="gradient-info-display">
-            This account doesn't have TOTP enabled.
-          </li>
-        )}
-        <li></li>
-        <br />
-
-        <li>
           <h3>Secondary Emails</h3>
         </li>
-        {secondaryEmails.length > 0 && (
+        {secondaryEmails.length > 0 ? (
           <li
             className="secondary-emails gradient-info-display"
             data-testid="secondary-section"
@@ -170,6 +153,10 @@ export const Account = ({
               ))}
             </ul>
           </li>
+        ) : (
+          <li data-testid="" className="gradient-info-display">
+            This account doesn't have any secondary emails.
+          </li>
         )}
         <li></li>
         <br />
@@ -194,6 +181,25 @@ export const Account = ({
             This account doesn't have any bounced emails.
           </li>
         )}
+        <li></li>
+        <br />
+
+        <li>
+          <h3>TOTP (Time-Based One-Time Passwords)</h3>
+        </li>
+        {totp.length > 0 ? (
+          <>
+            {totp.map((totpIndex: TotpProps) => (
+              <TotpEnabled key={totpIndex.createdAt} {...totpIndex} />
+            ))}
+          </>
+        ) : (
+          <li data-testid="" className="gradient-info-display">
+            This account doesn't have TOTP enabled.
+          </li>
+        )}
+        <li></li>
+        <br />
       </ul>
     </section>
   );
