@@ -33,6 +33,13 @@ interface AccountType {
       enabled: boolean;
     }
   ];
+  recoveryKeys: [
+    {
+      createdAt: number;
+      verifiedAt: number;
+      enabled: boolean;
+    }
+  ];
 }
 
 export const GET_ACCOUNT_BY_EMAIL = gql`
@@ -55,6 +62,11 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
       totp {
         verified
         createdAt
+        enabled
+      }
+      recoveryKeys {
+        createdAt
+        verifiedAt
         enabled
       }
     }

@@ -13,6 +13,7 @@ type AccountProps = {
   emails: EmailProps[];
   emailBounces: EmailBounceProps[];
   totp: TotpProps[];
+  recoveryKeys: RecoveryKeysProps[];
   onCleared: Function;
   query: string;
 };
@@ -34,6 +35,12 @@ type EmailProps = {
 type TotpProps = {
   verified: boolean;
   createdAt: number;
+  enabled: boolean;
+};
+
+type RecoveryKeysProps = {
+  createdAt: number;
+  verifiedAt: number;
   enabled: boolean;
 };
 
@@ -79,6 +86,7 @@ export const Account = ({
   createdAt,
   emailBounces,
   totp,
+  recoveryKeys,
   onCleared,
   query,
 }: AccountProps) => {
@@ -200,6 +208,26 @@ export const Account = ({
         )}
         <li></li>
         <br />
+
+        <li>
+          <h3>Recovery Key</h3>
+        </li>
+        {recoveryKeys.length > 0 ? (
+          <>
+            {recoveryKeys.map((recoveryKeysIndex: RecoveryKeysProps) => (
+              <RecoveryKeys
+                key={recoveryKeysIndex.createdAt}
+                {...recoveryKeysIndex}
+              />
+            ))}
+          </>
+        ) : (
+          <li data-testid="" className="gradient-info-display">
+            This account doesn't have a recovery key enabled.
+          </li>
+        )}
+        <li></li>
+        <br />
       </ul>
     </section>
   );
@@ -251,6 +279,45 @@ const TotpEnabled = ({ verified, createdAt, enabled }: TotpProps) => {
         </li>
         <li>
           TOTP Enabled:{' '}
+          <span
+            data-testid="secondary-verified"
+            className={`verification ${enabled ? 'enabled' : 'not-enabled'}`}
+          >
+            {enabled ? 'enabled' : 'not-enabled'}
+          </span>
+        </li>
+      </ul>
+    </li>
+  );
+};
+
+const RecoveryKeys = ({
+  verifiedAt,
+  createdAt,
+  enabled,
+}: RecoveryKeysProps) => {
+  const recoveryKeyCreatedDate = dateFormat(new Date(createdAt), DATE_FORMAT);
+  const recoveryKeyVerifiedDate = dateFormat(new Date(verifiedAt), DATE_FORMAT);
+  return (
+    <li data-testid="">
+      <ul className="gradient-info-display">
+        <li>
+          Recovery Key Created At:{' '}
+          <span className="result">{recoveryKeyCreatedDate}</span>
+        </li>
+        <li>
+          Recovery Key Verified At:{' '}
+          <span
+            data-testid="secondary-verified"
+            className={`verification ${
+              verifiedAt ? 'verified' : 'not-verified'
+            }`}
+          >
+            {verifiedAt ? recoveryKeyVerifiedDate : 'not verified'}
+          </span>
+        </li>
+        <li>
+          Recovery Key Enabled:{' '}
           <span
             data-testid="secondary-verified"
             className={`verification ${enabled ? 'enabled' : 'not-enabled'}`}
