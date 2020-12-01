@@ -46,6 +46,12 @@ const conf = convict({
       default: 'http://localhost:9000/v1',
     },
   },
+  corsOrigin: {
+    doc: 'Value for the Access-Control-Allow-Origin response header',
+    format: Array,
+    env: 'CORS_ORIGIN',
+    default: ['http://accounts.firefox.com/'],
+  },
   database: {
     mysql: {
       auth: makeMySQLConfig('AUTH', 'fxa'),
