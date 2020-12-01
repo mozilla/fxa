@@ -37,7 +37,7 @@ export function createApolloClient(gqlServerUri: string) {
     return {
       headers: {
         ...headers,
-        Authorization: sessionToken(),
+        Authorization: 'Bearer ' + sessionToken(),
       },
     };
   });

@@ -39,12 +39,6 @@ function makeRedisConfig(envPrefix: string, prefix: string) {
 }
 
 const conf = convict({
-  authHeader: {
-    default: 'authorization',
-    doc: 'Authentication header that should be logged for the user',
-    env: 'AUTH_HEADER',
-    format: String,
-  },
   authServer: {
     url: {
       doc: 'URL of fxa-auth-server',
@@ -66,7 +60,7 @@ const conf = convict({
     env: 'NODE_ENV',
     format: ['development', 'test', 'stage', 'production'],
   },
-  logging: {
+  log: {
     app: { default: 'fxa-graphql-api-server' },
     fmt: {
       default: 'heka',
@@ -119,7 +113,7 @@ const conf = convict({
   },
   profileServer: {
     url: {
-      doc: 'URL of fxa-aprofile-server',
+      doc: 'URL of fxa-profile-server',
       env: 'PROFILE_SERVER_URL',
       default: 'http://localhost:1111/v1',
     },
@@ -144,11 +138,29 @@ const conf = convict({
       },
     },
   },
+  port: {
+    default: 8290,
+    doc: 'Default port to listen on',
+    env: 'PORT',
+    format: Number,
+  },
   sentryDsn: {
     default: '',
     doc: 'Sentry DSN for error and log reporting',
     env: 'SENTRY_DSN',
     format: 'String',
+  },
+  hstsEnabled: {
+    default: true,
+    doc: 'Send a Strict-Transport-Security header',
+    env: 'HSTS_ENABLED',
+    format: Boolean,
+  },
+  hstsMaxAge: {
+    default: 31536000, // a year
+    doc: 'Max age of the STS directive in seconds',
+    // Note: This format is a number because the value needs to be in seconds
+    format: Number,
   },
 });
 
@@ -165,5 +177,5 @@ conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
 const Config = conf;
 
-export type AppConfig = typeof Config;
+export type AppConfig = ReturnType<typeof Config['getProperties']>;
 export default Config;
