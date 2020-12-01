@@ -17,7 +17,6 @@ const results = ['MX', 'A', 'none'].reduce((accumulator, val) => {
   accumulator[val] = val;
   return accumulator;
 }, {});
-
 const NotFoundErrorCodes = [dns.NODATA, dns.NOTFOUND];
 const WrappedErrorCodes = [
   dns.FORMERR,
@@ -57,7 +56,7 @@ const tryResolveWith = (resolveFunc) => async (domain) => {
   }
 };
 
-module.exports = function () {
+module.exports = function (config) {
   return {
     method: 'get',
     path: '/validate-email-domain',
@@ -68,13 +67,17 @@ module.exports = function () {
     },
     process: async function (req, res, next) {
       const { domain } = req.query;
-
+      const value = config.get('mxRecordValidation');
+      console.log(value);
       try {
         if (await tryResolveWith(resolver.resolveMx.bind(resolver))(domain)) {
           return res.json({ result: results.MX });
         }
         if (await tryResolveWith(resolver.resolve4.bind(resolver))(domain)) {
           return res.json({ result: results.A });
+        }
+        if (!value) {
+          return res.sendStatus(200);
         }
         return res.json({ result: results.none });
       } catch (err) {

@@ -867,7 +867,6 @@ if (conf.get('ecosystem_anon_id.keys_file')) {
     );
   }
 }
-
 // TODO: convict 6+ doesn't like the schema definition we've got
 // for `scopedKeys.validation`. It doesn't cause runtime problems
 // but fails validation. We should change it to pass validation.
@@ -878,3 +877,4 @@ if (conf.get('ecosystem_anon_id.keys_file')) {
 
 // validate the configuration based on the above specification
 // conf.validate(options);
+module.exports.conf = conf;
