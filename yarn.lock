@@ -17970,7 +17970,7 @@ fsevents@^1.2.7:
     mozlog: ^3.0.1
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
-    nock: ^12.0.3
+    nock: ^13.0.5
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     node-zendesk: ^2.0.3
     nodemailer: 2.7.2
@@ -26840,15 +26840,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"nock@npm:^12.0.3":
-  version: 12.0.3
-  resolution: "nock@npm:12.0.3"
+"nock@npm:^13.0.5":
+  version: 13.0.5
+  resolution: "nock@npm:13.0.5"
   dependencies:
     debug: ^4.1.0
     json-stringify-safe: ^5.0.1
-    lodash: ^4.17.13
+    lodash.set: ^4.3.2
     propagate: ^2.0.0
-  checksum: 135b0be475ffd94b5cb1043e3d2de9061084d83c16e295c787eacf671682bf57c41df121efb17eb7bd4e8f5ef54008989d622e352a9ad57f5cacfdfd28b46894
+  checksum: 2000952241d9f78491bd2770a5186b530eddef8710d219917b078e8c1b329abbdb88bcfb3dfd6bf093e860287ad8da7dd4136fbd2a8c1f42a7b56e3b071807f2
   languageName: node
   linkType: hard
 
