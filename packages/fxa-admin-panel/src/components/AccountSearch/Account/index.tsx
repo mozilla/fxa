@@ -14,6 +14,7 @@ type AccountProps = {
   emailBounces: EmailBounceProps[];
   totp: TotpProps[];
   recoveryKeys: RecoveryKeysProps[];
+  sessionTokens: SessionTokensProps[];
   onCleared: Function;
   query: string;
 };
@@ -42,6 +43,19 @@ type RecoveryKeysProps = {
   createdAt: number;
   verifiedAt: number;
   enabled: boolean;
+};
+
+type SessionTokensProps = {
+  tokenId: string;
+  tokenData: string;
+  uid: string;
+  createdAt: number;
+  uaBrowser: string;
+  uaBrowserVersion: string;
+  uaOS: string;
+  uaOSVersion: string;
+  uaDeviceType: string;
+  lastAccessTime: number;
 };
 
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
@@ -87,6 +101,7 @@ export const Account = ({
   emailBounces,
   totp,
   recoveryKeys,
+  sessionTokens,
   onCleared,
   query,
 }: AccountProps) => {
@@ -228,6 +243,26 @@ export const Account = ({
         )}
         <li></li>
         <br />
+
+        <li>
+          <h3>Current Session</h3>
+        </li>
+        {sessionTokens.length > 0 ? (
+          <>
+            {sessionTokens.map((sessionTokensIndex: SessionTokensProps) => (
+              <SessionTokens
+                key={sessionTokensIndex.createdAt}
+                {...sessionTokensIndex}
+              />
+            ))}
+          </>
+        ) : (
+          <li data-testid="" className="gradient-info-display">
+            This account is not currently signed in.
+          </li>
+        )}
+        <li></li>
+        <br />
       </ul>
     </section>
   );
@@ -324,6 +359,45 @@ const RecoveryKeys = ({
           >
             {enabled ? 'enabled' : 'not-enabled'}
           </span>
+        </li>
+      </ul>
+    </li>
+  );
+};
+
+const SessionTokens = ({
+  tokenId,
+  tokenData,
+  uid,
+  createdAt,
+  uaBrowser,
+  uaBrowserVersion,
+  uaOS,
+  uaOSVersion,
+  uaDeviceType,
+  lastAccessTime,
+}: SessionTokensProps) => {
+  const lastAccessDate = dateFormat(new Date(lastAccessTime), DATE_FORMAT);
+  return (
+    <li data-testid="">
+      <ul className="gradient-info-display">
+        <li>
+          Date Accessed: <span className="result">{lastAccessDate}</span>
+        </li>
+        <li>
+          Browser:{' '}
+          <span className="result">
+            {uaBrowser} {uaBrowserVersion}
+          </span>
+        </li>
+        <li>
+          Operating System:{' '}
+          <span className="result">
+            {uaOS} {uaOSVersion}
+          </span>
+        </li>
+        <li>
+          Device: <span className="result">{uaDeviceType}</span>
         </li>
       </ul>
     </li>

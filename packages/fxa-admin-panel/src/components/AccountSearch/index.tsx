@@ -40,6 +40,20 @@ interface AccountType {
       enabled: boolean;
     }
   ];
+  sessionTokens: [
+    {
+      tokenId: string;
+      tokenData: string;
+      uid: string;
+      createdAt: number;
+      uaBrowser: string;
+      uaBrowserVersion: string;
+      uaOS: string;
+      uaOSVersion: string;
+      uaDeviceType: string;
+      lastAccessTime: number;
+    }
+  ];
 }
 
 export const GET_ACCOUNT_BY_EMAIL = gql`
@@ -68,6 +82,18 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         createdAt
         verifiedAt
         enabled
+      }
+      sessionTokens {
+        tokenId
+        tokenData
+        uid
+        createdAt
+        uaBrowser
+        uaBrowserVersion
+        uaOS
+        uaOSVersion
+        uaDeviceType
+        lastAccessTime
       }
     }
   }

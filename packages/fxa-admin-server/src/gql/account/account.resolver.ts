@@ -23,7 +23,6 @@ const EMAIL_COLUMNS = [
   'uid',
   'verifiedAt',
 ];
-
 const TOTP_COLUMNS = [
   'uid',
   'sharedSecret',
@@ -32,7 +31,6 @@ const TOTP_COLUMNS = [
   'verified',
   'enabled',
 ];
-
 const RECOVERYKEY_COLUMNS = [
   'uid',
   'recoveryData',
@@ -40,6 +38,18 @@ const RECOVERYKEY_COLUMNS = [
   'createdAt',
   'verifiedAt',
   'enabled',
+];
+const SESSIONTOKEN_COLUMNS = [
+  'tokenId',
+  'tokenData',
+  'uid',
+  'createdAt',
+  'uaBrowser',
+  'uaBrowserVersion',
+  'uaOS',
+  'uaOSVersion',
+  'uaDeviceType',
+  'lastAccessTime',
 ];
 
 @UseGuards(GqlAuthHeaderGuard)
@@ -119,6 +129,15 @@ export class AccountResolver {
     return await this.db.recoveryKeys
       .query()
       .select(RECOVERYKEY_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @ResolveField()
+  public async sessionTokens(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.sessionTokens
+      .query()
+      .select(SESSIONTOKEN_COLUMNS)
       .where('uid', uidBuffer);
   }
 }
