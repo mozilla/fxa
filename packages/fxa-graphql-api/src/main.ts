@@ -24,6 +24,13 @@ async function bootstrap() {
     app.use(helmet.hsts({ includeSubDomains: true, maxAge }));
   }
 
+  app.enableCors({
+    origin:
+      Config.getProperties().env === 'development'
+        ? '*'
+        : config.get<string[]>('corsOrigin'),
+  });
+
   // Add sentry as error reporter
   app.useGlobalInterceptors(new SentryInterceptor());
 
