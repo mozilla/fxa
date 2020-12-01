@@ -11147,7 +11147,7 @@ __metadata:
     prettier: ^2.0.5
     request: ^2.88.2
     should: 13.2.3
-    temp: 0.9.1
+    temp: 0.9.4
     toobusy-js: 0.5.1
     underscore: ^1.10.2
     walk: 2.3.14
@@ -35822,12 +35822,13 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"temp@npm:0.9.1":
-  version: 0.9.1
-  resolution: "temp@npm:0.9.1"
+"temp@npm:0.9.4":
+  version: 0.9.4
+  resolution: "temp@npm:0.9.4"
   dependencies:
+    mkdirp: ^0.5.1
     rimraf: ~2.6.2
-  checksum: e7f732ef774313b5567fef3597162cdb7bd0420335120e50ec94c5c3fd9e9932419b5ed6747af811d70b0f25c9a382d8bce00461a478be80552002c66290e7e8
+  checksum: 3e19458261509b842f9e142e19939eb4856e859f768a73e9e6736dd4813b495f39f108e9346b0444312c09e417f2565b0acbcb4771bb59779ebc526e3045474c
   languageName: node
   linkType: hard
 
