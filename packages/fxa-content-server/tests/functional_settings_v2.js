@@ -4,6 +4,7 @@
 
 module.exports = [
   'tests/functional/settings_v2/recovery_key.js',
+  'tests/functional/settings_v2/two_step_auth.js',
   'tests/functional/settings_v2/display_name.js',
   'tests/functional/settings_v2/navigation.js',
   'tests/functional/settings_v2/settings.js',
