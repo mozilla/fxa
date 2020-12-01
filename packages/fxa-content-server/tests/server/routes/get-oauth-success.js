@@ -15,7 +15,7 @@ registerSuite('routes/get-oauth-success', {
     },
     'does not resolve with empty client': function () {
       return got(`${serverUrl}/oauth/success`).catch((err) => {
-        assert.equal(err.statusCode, 404);
+        assert.equal(err.response.statusCode, 404);
       });
     },
   },

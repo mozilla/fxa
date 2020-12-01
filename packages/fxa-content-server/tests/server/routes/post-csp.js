@@ -238,10 +238,10 @@ function testInvalidCspReport(cspReport) {
         body: JSON.stringify(cspReport),
         headers: { 'Content-Type': 'application/json' },
       })
-      .then(assert.fail, (resp) => {
+      .then(assert.fail, (err) => {
         //console.log('resp', resp);
-        assert.equal(resp.statusCode, 400);
-        assert.equal(resp.statusMessage, 'Bad Request');
+        assert.equal(err.response.statusCode, 400);
+        assert.equal(err.response.statusMessage, 'Bad Request');
       });
   };
 }
