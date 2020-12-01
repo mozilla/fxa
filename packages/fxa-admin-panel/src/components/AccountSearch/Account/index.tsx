@@ -262,7 +262,18 @@ export const Account = ({
           </li>
         )}
         <li></li>
-        <br />
+        <hr />
+
+        <li>
+          <h3 className="danger-zone-title">Danger Zone</h3>
+          <p>
+            Please run these commands with caution — some actions are
+            irreversible.
+          </p>
+          <br />
+          <p className="danger-zone-info">Delete Account</p>
+          <p className="danger-zone-info">Force Password Change</p>
+        </li>
       </ul>
     </section>
   );

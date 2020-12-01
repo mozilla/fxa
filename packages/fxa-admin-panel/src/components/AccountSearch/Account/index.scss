@@ -66,4 +66,22 @@
     margin-bottom: 15px;
   }
 
+  .danger-zone-title {
+    background: #da3845;
+    color: white;
+    border-radius: 3px;
+    padding-left: 5px;
+    padding-top: 3px;
+    height: 35px;
+    font-size: var(--header-font-size-sm);
+    font-weight: 550;
+  }
+
+  .danger-zone-info {
+    border-left: 1px solid;
+    border-left-color: #da3845;
+    padding-left: 15px;
+    margin-bottom: 15px;
+  }
+
 }
