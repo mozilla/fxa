@@ -1,3 +1,9 @@
+## 1.195.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 7.4.4 to 7.5.4 ([4c14d038a](https://github.com/mozilla/fxa/commit/4c14d038a))
+
 ## 1.194.0
 
 ### Other changes

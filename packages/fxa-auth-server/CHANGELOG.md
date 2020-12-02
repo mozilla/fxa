@@ -1,3 +1,19 @@
+## 1.195.0
+
+### Bug fixes
+
+- metrics: fire the account.signed event for mobile sync as well as desktop ([bac29fc30](https://github.com/mozilla/fxa/commit/bac29fc30))
+- metrics: only fire 'account.signed' event for oldsync scope requests ([ebdfed857](https://github.com/mozilla/fxa/commit/ebdfed857))
+
+### Refactorings
+
+- oauth: move /verify route ([67fde4359](https://github.com/mozilla/fxa/commit/67fde4359))
+
+### Other changes
+
+- deps-dev: bump nock from 12.0.3 to 13.0.5 ([543f5bc54](https://github.com/mozilla/fxa/commit/543f5bc54))
+- deps: bump moment-timezone from 0.5.31 to 0.5.32 ([e65f68c01](https://github.com/mozilla/fxa/commit/e65f68c01))
+
 ## 1.194.0
 
 ### Other changes
