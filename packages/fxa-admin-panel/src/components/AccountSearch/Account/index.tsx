@@ -271,8 +271,19 @@ export const Account = ({
             irreversible.
           </p>
           <br />
-          <p className="danger-zone-info">Delete Account</p>
-          <p className="danger-zone-info">Force Password Change</p>
+          <h2>Permanently Delete Account</h2>
+          <p className="danger-zone-info">
+            Once you delete an account, there is no going back. Please be
+            certain.
+            <br />
+            <button className="danger-zone-button">Delete Account</button>
+          </p>
+          <h2>Force Password Change</h2>
+          <p className="danger-zone-info">
+            Force a password change the next time this account logs in.
+            <br />
+            <button className="danger-zone-button">Force Change</button>
+          </p>
         </li>
       </ul>
     </section>

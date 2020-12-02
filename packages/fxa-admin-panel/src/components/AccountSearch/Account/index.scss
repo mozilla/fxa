@@ -9,6 +9,12 @@
     padding-left: 0;
   }
 
+  h2 {
+    font-size: var(--header-font-size-sm);
+    margin: 0 0 5px;
+    font-weight: 550;
+  }
+
   h3 {
     font-size: var(--header-font-size-sm);
     margin: 0 0 5px;
@@ -82,6 +88,24 @@
     border-left-color: #da3845;
     padding-left: 15px;
     margin-bottom: 15px;
+  }
+
+  .danger-zone-button {
+    background-color: rgb(245, 245, 245);
+    border-radius: 5px;
+    font-weight: 500;
+    color: #da3845;
+    border: 2px solid rgb(230, 230, 230);
+    line-height: 25px;
+    margin-top: 15px;
+    width: 150px;
+    height: 50px;
+  }
+
+  .danger-zone-button:hover {
+    border: 2px solid rgb(245, 245, 245); 
+    background-color: rgb(240, 240, 240);
+    color: #da3845;
   }
 
 }
