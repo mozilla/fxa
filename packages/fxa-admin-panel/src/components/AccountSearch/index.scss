@@ -4,6 +4,7 @@
 
 .account-search {
   form {
+    position: relative;
     flex-wrap: wrap;
     margin-top: 30px;
   }
@@ -18,7 +19,7 @@
   }
 
   input {
-    border: var(--input-border-width) solid var(--color-black-20);
+    border: var(--input-border-width) solid lightgrey;
     font-size: 16px;
     height: var(--input-height);
     padding: var(--input-padding-y) 10px;
@@ -29,8 +30,34 @@
     }
   }
 
+  .suggestions-list {
+    border: var(--input-border-width) solid  5px #f0f0f0;
+    height: var(--input-height);
+    padding: var(--input-padding-y) 10px;
+    width: 240px;
+    position: absolute;
+    background-color: white;
+    outline: none;
+    display: block;
+    top: 63px; 
+
+    ul {
+      cursor: pointer;
+      border-style: solid;
+      border-width: thin;
+      border-radius: 5px;
+    }
+
+    li:hover {
+      background-color: #f0f0f0;
+    }
+    li {
+      padding: 5px;
+    }
+  }
+
   &-search-button {
-    background: 15px 12px no-repeat url('../../images/icon-search.svg')
+    background: 15px 12px no-repeat url("../../images/icon-search.svg")
       var(--color-black-05);
     border: var(--input-border-width) solid var(--color-black-20);
     border-left: 0;
