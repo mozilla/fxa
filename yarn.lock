@@ -9404,7 +9404,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-core@npm:^6.0.12, babel-core@npm:^6.26.0, babel-core@npm:^6.26.3":
+"babel-core@npm:^6.26.0, babel-core@npm:^6.26.3":
   version: 6.26.3
   resolution: "babel-core@npm:6.26.3"
   dependencies:
@@ -18078,7 +18078,7 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     got: 11.8.0
     grunt: ^1.3.0
-    grunt-babel: 6.0.0
+    grunt-babel: 8.0.0
     grunt-ban-word: 0.1.1
     grunt-cdn: 0.6.5
     grunt-contrib-clean: ^2.0.0
@@ -19713,12 +19713,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt-babel@npm:6.0.0":
-  version: 6.0.0
-  resolution: "grunt-babel@npm:6.0.0"
-  dependencies:
-    babel-core: ^6.0.12
-  checksum: c53e15b969e33b11f735c2f25eb8e91f49d8ac45e90464a3021014fd34eadce2da08b3789d01b0ed1a1bcf35149c8f8326a0990012791ae3d64a1a5ad8c61884
+"grunt-babel@npm:8.0.0":
+  version: 8.0.0
+  resolution: "grunt-babel@npm:8.0.0"
+  peerDependencies:
+    "@babel/core": ^7.0.0
+    grunt: ">=0.4.0"
+  checksum: 8735f5207fdc1cae3125bf50051768b185b4b12ff4b44edb38016dda4f7146a95ee50397cca4cd5a4b191b695b97f2f69b4edcc362b0a1d6eea7e739fe130550
   languageName: node
   linkType: hard
 
