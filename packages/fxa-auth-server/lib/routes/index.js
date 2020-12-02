@@ -208,7 +208,11 @@ module.exports = function (
   oauthServer.routes.forEach((r) => {
     r.path = basePath + r.path;
   });
-  const allRoutes = defaults.concat(idp, v1Routes, oauthServer.routes);
+  const allRoutes = defaults.concat(
+    idp,
+    v1Routes,
+    oauthServer.routes.filter((r) => !v1Routes.some((x) => x.path === r.path))
+  );
 
   allRoutes.forEach((r) => {
     // Default auth.payload to 'optional' for all authenticated routes.
