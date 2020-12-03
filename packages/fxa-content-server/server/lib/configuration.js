@@ -289,7 +289,7 @@ const conf = (module.exports = convict({
       format: String,
     },
     defaultLegalLang: {
-      default: 'en-US',
+      default: 'en',
       doc: 'The default language to use for legal (tos, pp) templates',
       format: String,
     },
