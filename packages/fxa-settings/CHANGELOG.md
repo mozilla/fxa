@@ -1,3 +1,13 @@
+## 1.195.0
+
+### New features
+
+- graphql-api: convert to NestJS ([139029248](https://github.com/mozilla/fxa/commit/139029248))
+
+### Other changes
+
+- deps: bump @sentry/browser from 5.27.1 to 5.27.6 ([461dee802](https://github.com/mozilla/fxa/commit/461dee802))
+
 ## 1.194.0
 
 ### New features

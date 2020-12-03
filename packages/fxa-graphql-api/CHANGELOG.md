@@ -1,3 +1,10 @@
+## 1.195.0
+
+### New features
+
+- gql-api: add cors ([41e405576](https://github.com/mozilla/fxa/commit/41e405576))
+- graphql-api: convert to NestJS ([139029248](https://github.com/mozilla/fxa/commit/139029248))
+
 ## 1.194.0
 
 ### New features

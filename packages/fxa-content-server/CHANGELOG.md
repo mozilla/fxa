@@ -1,3 +1,15 @@
+## 1.195.0
+
+### Bug fixes
+
+- content-server: fix test-ci script and server tests ([2b2c8f5a8](https://github.com/mozilla/fxa/commit/2b2c8f5a8))
+- content: fix test that relied on a css selector from mozilla.org ([dc486e2df](https://github.com/mozilla/fxa/commit/dc486e2df))
+
+### Other changes
+
+- deps: bump grunt-babel from 6.0.0 to 8.0.0 ([509963f8b](https://github.com/mozilla/fxa/commit/509963f8b))
+- deps: bump @sentry/browser from 5.27.1 to 5.27.6 ([461dee802](https://github.com/mozilla/fxa/commit/461dee802))
+
 ## 1.194.0
 
 ### New features

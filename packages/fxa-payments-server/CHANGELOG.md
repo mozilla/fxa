@@ -1,5 +1,12 @@
 # Change history
 
+## 1.195.0
+
+### Other changes
+
+- deps-dev: bump wait-for-expect from 1.3.0 to 3.0.2 ([5358e7f0e](https://github.com/mozilla/fxa/commit/5358e7f0e))
+- deps: bump @sentry/browser from 5.27.1 to 5.27.6 ([461dee802](https://github.com/mozilla/fxa/commit/461dee802))
+
 ## 1.194.0
 
 ### Other changes
