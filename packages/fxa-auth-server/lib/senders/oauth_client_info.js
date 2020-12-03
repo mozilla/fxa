@@ -6,7 +6,7 @@
 
 const Keyv = require('keyv');
 
-module.exports = (log, config, oauthdb) => {
+module.exports = (log, config, oauthService) => {
   const OAUTH_CLIENT_INFO_CACHE_TTL = config.oauth.clientInfoCacheTTL;
   const OAUTH_CLIENT_INFO_CACHE_NAMESPACE = 'oauthClientInfo';
   const FIREFOX_CLIENT = {
@@ -41,7 +41,7 @@ module.exports = (log, config, oauthdb) => {
 
     let clientInfo;
     try {
-      clientInfo = await oauthdb.getClientInfo(clientId);
+      clientInfo = await oauthService.getClientInfo(clientId);
     } catch (err) {
       // fallback to the Firefox client if request fails
       if (!err.statusCode) {

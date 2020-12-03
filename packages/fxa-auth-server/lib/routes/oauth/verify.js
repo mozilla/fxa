@@ -7,7 +7,7 @@ const Joi = require('@hapi/joi');
 const token = require('../../oauth/token');
 const validators = require('../../oauth/validators');
 
-module.exports = (log) => ({
+module.exports = ({ log }) => ({
   method: 'POST',
   path: '/verify',
   config: {
