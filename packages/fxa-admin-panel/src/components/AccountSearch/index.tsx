@@ -57,8 +57,9 @@ export const AccountSearch = () => {
   const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
     GET_ACCOUNT_BY_EMAIL
   );
+
   const items = [
-    'test@test.com',
+    'test@yahoo.com',
     '1234@gmail.com',
     'hello@hello.com',
     'test@gmail.com',
@@ -80,7 +81,7 @@ export const AccountSearch = () => {
   const onTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     let suggestions = [];
-    if (value.length > 0) {
+    if (value.length > 1) {
       const regex = new RegExp(`^${value}`, 'i');
       suggestions = items.sort().filter((v) => regex.test(v));
     }
