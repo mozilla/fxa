@@ -102,15 +102,59 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
 export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
+  const [suggestions, setSuggestion] = useState<Array<String>>([]);
+  const [text, setText] = useState<String>('');
   const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
     GET_ACCOUNT_BY_EMAIL
   );
+
+  const items = [
+    'test@yahoo.com',
+    '1234@gmail.com',
+    'hello@hello.com',
+    'test@gmail.com',
+  ];
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     getAccount({ variables: { email: inputValue } });
     // Don't hide after the first result is shown
     setShowResult(true);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+    setSuggestion([]);
+    onTextChanged(event);
+  };
+
+  const onTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    let suggestions = [];
+    if (value.length > 1) {
+      const regex = new RegExp(`^${value}`, 'i');
+      suggestions = items.sort().filter((v) => regex.test(v));
+    }
+    setSuggestion(suggestions);
+    setText(event.target.value);
+  };
+
+  const renderSuggestions = () => {
+    if (suggestions.length === 0) {
+      return null;
+    }
+    return (
+      <ul>
+        {suggestions.map((item) => (
+          <li onClick={() => suggestionSelected(item)}>{item}</li>
+        ))}
+      </ul>
+    );
+  };
+
+  const suggestionSelected = (value) => {
+    setText(value);
+    setSuggestion([]);
   };
 
   return (
@@ -132,14 +176,14 @@ export const AccountSearch = () => {
         <br />
         <input
           autoFocus
+          autoComplete="off"
           name="email"
           type="email"
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setInputValue(event.target.value)
-          }
+          onChange={handleChange}
           placeholder="hello@world.com"
           data-testid="email-input"
         />
+        <div className="suggestions-list">{renderSuggestions()}</div>
         <button
           className="account-search-search-button"
           title="search"
