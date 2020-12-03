@@ -5,6 +5,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GqlModuleOptions } from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { SentryPlugin } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
 import { graphqlUploadExpress } from 'graphql-upload';
 import path, { join } from 'path';
@@ -35,6 +36,7 @@ export const GraphQLConfigFactory = async (
   // Disabling cors here allows the cors middleware from NestJS to be applied
   cors: false,
   uploads: false,
+  plugins: [SentryPlugin],
   validationRules: [
     queryComplexity({
       estimators: [simpleEstimator({ defaultComplexity: 1 })],

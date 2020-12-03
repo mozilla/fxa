@@ -118,10 +118,14 @@ export function captureSqsError(err: Error, message?: SQS.Message): void {
  * @param request A request object if available.
  */
 export function reportRequestException(
-  exception: Error,
+  exception: Error & { reported?: boolean },
   excContexts: ExtraContext[] = [],
   request?: Request
 ) {
+  // Don't report already reported exceptions
+  if (exception.reported) {
+    return;
+  }
   Sentry.withScope((scope: Sentry.Scope) => {
     scope.addEventProcessor((event: Sentry.Event) => {
       if (request) {
@@ -135,6 +139,7 @@ export function reportRequestException(
       scope.setContext(ctx.name, ctx.fieldData);
     }
     Sentry.captureException(exception);
+    exception.reported = true;
   });
 }
 

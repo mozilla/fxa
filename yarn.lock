@@ -18808,6 +18808,7 @@ fsevents@^1.2.7:
     "@types/sinon": 9.0.8
     accept-language: ^2.0.17
     ajv: ^6.12.2
+    apollo-server: ^2.19.0
     audit-filter: ^0.5.0
     aws-sdk: ^2.752.0
     bluebird: ^3.7.2
