@@ -30,7 +30,7 @@ const version = getVersionInfo(__dirname);
     DatabaseModule,
     GqlModule,
     GraphQLModule.forRootAsync({
-      imports: [ConfigModule, LoggerModule],
+      imports: [ConfigModule, LoggerModule, SentryModule],
       inject: [ConfigService, MozLoggerService],
       useFactory: GraphQLConfigFactory,
     }),

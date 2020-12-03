@@ -82,6 +82,7 @@
     "@types/js-md5": "^0.4.2",
     "accept-language": "^2.0.17",
     "ajv": "^6.12.2",
+    "apollo-server": "^2.19.0",
     "aws-sdk": "^2.752.0",
     "bluebird": "^3.7.2",
     "celebrate": "^10.0.1",

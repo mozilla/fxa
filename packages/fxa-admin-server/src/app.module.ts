@@ -7,6 +7,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
 import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
+import { SentryPlugin } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
 
@@ -26,7 +27,7 @@ const version = getVersionInfo(__dirname);
     DatabaseModule,
     GqlModule,
     GraphQLModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule, SentryModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         path: '/graphql',
@@ -35,6 +36,7 @@ const version = getVersionInfo(__dirname);
         playground: configService.get<string>('env') !== 'production',
         autoSchemaFile: join(__dirname, './schema.gql'),
         context: ({ req }) => ({ req }),
+        plugins: [SentryPlugin],
       }),
     }),
     HealthModule.forRootAsync({
