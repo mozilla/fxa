@@ -110,9 +110,13 @@ export const AccountSearch = () => {
 
   const items = [
     'test@yahoo.com',
-    '1234@gmail.com',
+    '123@gmail.com',
     'hello@hello.com',
     'test@gmail.com',
+    'flowers@hotmail.com',
+    'ece496@outlook.ca',
+    'test_342@gmail.co.uk',
+    'hello_world@hotmail.com',
   ];
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -131,7 +135,7 @@ export const AccountSearch = () => {
   const onTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     let suggestions = [];
-    if (value.length > 1) {
+    if (value.length > 0) {
       const regex = new RegExp(`^${value}`, 'i');
       suggestions = items.sort().filter((v) => regex.test(v));
     }
