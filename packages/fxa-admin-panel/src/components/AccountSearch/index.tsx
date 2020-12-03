@@ -99,13 +99,57 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
   }
 `;
 
+// new query for getting account by UID
+export const GET_ACCOUNT_BY_UID = gql`
+  query getAccountByUid($uid: String!) {
+    accountByUid(uid: $uid) {
+      uid
+      createdAt
+      emails {
+        email
+        isVerified
+        isPrimary
+        createdAt
+      }
+      emailBounces {
+        email
+        createdAt
+        bounceType
+        bounceSubType
+      }
+      totp {
+        verified
+        createdAt
+        enabled
+      }
+      recoveryKeys {
+        createdAt
+        verifiedAt
+        enabled
+      }
+      sessionTokens {
+        tokenId
+        tokenData
+        uid
+        createdAt
+        uaBrowser
+        uaBrowserVersion
+        uaOS
+        uaOSVersion
+        uaDeviceType
+        lastAccessTime
+      }
+    }
+  }
+`;
+
 export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
   const [suggestions, setSuggestion] = useState<Array<String>>([]);
   const [text, setText] = useState<String>('');
   const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
-    GET_ACCOUNT_BY_EMAIL
+    inputValue.search('@') == -1 ? GET_ACCOUNT_BY_UID : GET_ACCOUNT_BY_EMAIL // check if searching email or uid
   );
 
   const items = [
@@ -121,9 +165,18 @@ export const AccountSearch = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    getAccount({ variables: { email: inputValue } });
+    // choose correct query if email or uid
+    if (inputValue.search('@') == -1 && inputValue != '') {
+      // uid and non-empty
+      getAccount({ variables: { uid: inputValue } });
+      setShowResult(true);
+    } else if (inputValue.search('@') != -1 && inputValue != '') {
+      // email and non-empty
+      getAccount({ variables: { email: inputValue } });
+      setShowResult(true);
+    }
     // Don't hide after the first result is shown
-    setShowResult(true);
+    else setShowResult(false);
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -176,15 +229,15 @@ export const AccountSearch = () => {
       </p>
 
       <form onSubmit={handleSubmit} data-testid="search-form" className="flex">
-        <label htmlFor="email">Email to search for:</label>
+        <label htmlFor="email">Email or UID to search for:</label>
         <br />
         <input
           autoFocus
           autoComplete="off"
           name="email"
-          type="email"
+          type="search"
           onChange={handleChange}
-          placeholder="hello@world.com"
+          placeholder="hello@world.com or UID"
           data-testid="email-input"
         />
         <div className="suggestions-list">{renderSuggestions()}</div>
@@ -225,6 +278,7 @@ const AccountSearchResult = ({
   error?: {};
   data?: {
     accountByEmail: AccountType;
+    accountByUid: AccountType;
   };
   query: string;
 }) => {
@@ -233,6 +287,9 @@ const AccountSearchResult = ({
 
   if (data?.accountByEmail) {
     return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
+  }
+  if (data?.accountByUid) {
+    return <Account {...{ query, onCleared }} {...data.accountByUid} />;
   }
   return <p data-testid="no-account-message">Account not found.</p>;
 };
