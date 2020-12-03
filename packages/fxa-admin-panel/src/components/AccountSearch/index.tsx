@@ -49,6 +49,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
   }
 `;
 
+// new query for getting account by UID
 export const GET_ACCOUNT_BY_UID = gql`
   query getAccountByUid($uid: String!) {
     accountByUid(uid: $uid) {
@@ -74,16 +75,23 @@ export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
   const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
-    inputValue.search('@') == -1 ? GET_ACCOUNT_BY_UID : GET_ACCOUNT_BY_EMAIL
+    inputValue.search('@') == -1 ? GET_ACCOUNT_BY_UID : GET_ACCOUNT_BY_EMAIL // check if searching email or uid
   );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (inputValue.search('@') == -1) {
+    // choose correct query if email or uid
+    if (inputValue.search('@') == -1 && inputValue != '') {
+      // uid and non-empty
       getAccount({ variables: { uid: inputValue } });
-    } else getAccount({ variables: { email: inputValue } });
+      setShowResult(true);
+    } else if (inputValue.search('@') != -1 && inputValue != '') {
+      // email and non-empty
+      getAccount({ variables: { email: inputValue } });
+      setShowResult(true);
+    }
     // Don't hide after the first result is shown
-    setShowResult(true);
+    else setShowResult(false);
   };
 
   return (
@@ -101,7 +109,7 @@ export const AccountSearch = () => {
       </p>
 
       <form onSubmit={handleSubmit} data-testid="search-form" className="flex">
-        <label htmlFor="search">Email or UID to search for:</label>
+        <label htmlFor="email">Email or UID to search for:</label>
         <br />
         <input
           autoFocus
@@ -111,7 +119,7 @@ export const AccountSearch = () => {
             setInputValue(event.target.value)
           }
           placeholder="hello@world.com or uid"
-          data-testid="search-input"
+          data-testid="email-input"
         />
         <button
           className="account-search-search-button"
