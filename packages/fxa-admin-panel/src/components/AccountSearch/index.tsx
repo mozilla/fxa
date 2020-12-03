@@ -217,15 +217,20 @@ export const AccountSearch = () => {
   return (
     <div className="account-search" data-testid="account-search">
       <h2>Account Search</h2>
+
+      <p>
+        This page searches for an account by email or UID and displays its
+        details, including: secondary emails, email bounces, time-based one-time
+        passwords, recovery keys, and information on the current user session.
+      </p>
+      <br />
       <p>
         Email addresses are blocked from the FxA email sender when an email sent
-        to the address has bounced.
-      </p>
-      <p>
-        Remove an email address from the blocked list by first searching for an
-        account by email. Brief account information will be displayed as well as
-        email bounces attached to the account. Delete the block on the email by
-        deleting the bounced email data.
+        to the address has bounced. Remove an email address from the blocked
+        list by first searching for an account by email. Brief account
+        information will be displayed as well as email bounces attached to the
+        account. Delete the block on the email by deleting the bounced email
+        data.
       </p>
 
       <form onSubmit={handleSubmit} data-testid="search-form" className="flex">

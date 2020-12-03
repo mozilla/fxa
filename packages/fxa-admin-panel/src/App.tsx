@@ -7,6 +7,7 @@ import { Switch, Redirect, Route, BrowserRouter } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import AccountSearch from './components/AccountSearch';
 import AdminLogs from './components/AdminLogs';
+import SiteStatus from './components/SiteStatus';
 
 const App = () => (
   <BrowserRouter>
@@ -18,6 +19,10 @@ const App = () => (
       <Switch>
         <Redirect exact from="/" to="/account-search" />
         <Route path="/account-search" component={AccountSearch} />
+      </Switch>
+      <Switch>
+        <Redirect exact from="/" to="/site-status" />
+        <Route path="/site-status" component={SiteStatus} />
       </Switch>
     </AppLayout>
   </BrowserRouter>

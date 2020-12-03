@@ -5,13 +5,13 @@
 import React from 'react';
 import './index.scss';
 
-export const AdminLogs = () => {
+export const SiteStatus = () => {
   return (
-    <div className="admin-logs">
-      <h2>Admin Logs</h2>
+    <div className="site-status">
+      <h2>Site Status</h2>
       <p>
-        This is a read-only view of all administrative changes that have been
-        done to any user account.
+        This is a read-only page that prints all the current environment
+        variables.
       </p>{' '}
       <br />
       <hr />
@@ -19,4 +19,4 @@ export const AdminLogs = () => {
   );
 };
 
-export default AdminLogs;
+export default SiteStatus;

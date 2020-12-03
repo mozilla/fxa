@@ -25,16 +25,6 @@ export const Nav = () => (
           </NavLink>
         </li>
         <li>
-          <NavLink exact to="/site-status">
-            <img
-              className="inline-flex icon"
-              src={statusIcon}
-              alt="external link"
-            />
-            Site Status
-          </NavLink>
-        </li>
-        <li>
           <NavLink exact to="/admin-logs">
             <img
               className="inline-flex icon"
@@ -42,6 +32,16 @@ export const Nav = () => (
               alt="external link"
             />
             Admin Logs
+          </NavLink>
+        </li>
+        <li>
+          <NavLink exact to="/site-status">
+            <img
+              className="inline-flex icon"
+              src={statusIcon}
+              alt="external link"
+            />
+            Site Status
           </NavLink>
         </li>
       </ul>
