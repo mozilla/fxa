@@ -89,7 +89,7 @@
     "prettier": "^2.0.5",
     "redux-devtools-extension": "^2.13.8",
     "sinon": "^9.0.3",
-    "supertest": "^4.0.2",
+    "supertest": "^6.0.1",
     "ts-jest": "^26.3.0",
     "ts-node": "^8.10.2",
     "typescript": "3.9.7",
