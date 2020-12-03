@@ -17,12 +17,12 @@ const App = () => (
         <Route path="/admin-logs" component={AdminLogs} />
       </Switch>
       <Switch>
-        <Redirect exact from="/" to="/account-search" />
-        <Route path="/account-search" component={AccountSearch} />
-      </Switch>
-      <Switch>
         <Redirect exact from="/" to="/site-status" />
         <Route path="/site-status" component={SiteStatus} />
+      </Switch>
+      <Switch>
+        <Redirect exact from="/" to="/account-search" />
+        <Route path="/account-search" component={AccountSearch} />
       </Switch>
     </AppLayout>
   </BrowserRouter>
