@@ -7,7 +7,6 @@ import { useLazyQuery, gql } from '@apollo/client';
 import Account from './Account';
 import './index.scss';
 
-//testing pushing to a new branch!
 interface AccountType {
   uid: any;
   createdAt: number;
