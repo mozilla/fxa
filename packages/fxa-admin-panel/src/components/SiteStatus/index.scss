@@ -3,18 +3,32 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 .site-status {
-    form {
-      flex-wrap: wrap;
-      margin-top: 30px;
-    }
+  form {
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+
+  h3 {
+    font-size: var(--header-font-size-sm);
+    margin: 0 0 5px;
+    font-weight: 550;
+  }
+
+  label {
+    color: var(--color-black-80);
+    flex-basis: 100%;
+    font-size: var(--body-font-size-xs);
+    font-weight: var(--font-weight-normal);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
   
-    label {
-      color: var(--color-black-80);
-      flex-basis: 100%;
-      font-size: var(--body-font-size-xs);
-      font-weight: var(--font-weight-normal);
-      margin-bottom: 5px;
-      text-transform: uppercase;
-    }
+  .gradient-info-display {
+    border-image: linear-gradient(to bottom, var(--ff-brand-gradient)) 0 100%;
+    border-left: 1px solid;
+    padding-left: 15px;
+    margin-bottom: 15px;
+  }
+
 }
   

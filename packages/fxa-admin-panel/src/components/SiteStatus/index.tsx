@@ -12,9 +12,12 @@ export const SiteStatus = () => {
       <p>
         This is a read-only page that prints all the current environment
         variables.
-      </p>{' '}
+      </p>
       <br />
       <hr />
+      <br />
+      <h3>Redis Environment Variables</h3>
+      <p className="gradient-info-display">Coming soon</p>
     </div>
   );
 };
