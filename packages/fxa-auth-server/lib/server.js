@@ -59,7 +59,7 @@ async function create(
   config,
   routes,
   db,
-  oauthdb,
+  oauthService,
   translator,
   statsd
 ) {
@@ -359,7 +359,7 @@ async function create(
 
   server.auth.scheme(
     'fxa-oauth-refreshToken',
-    schemeRefreshToken(config, db, oauthdb)
+    schemeRefreshToken(config, db, oauthService)
   );
 
   server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken');

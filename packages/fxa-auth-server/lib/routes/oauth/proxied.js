@@ -35,7 +35,7 @@ const JWTIdToken = require('../../oauth/jwt_id_token');
 /**
  * @deprecated to be replaced with direct implementations
  */
-module.exports = (log, config, oauthdb, db, mailer, devices) => {
+module.exports = (log, config, oauthService, db, mailer, devices) => {
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
   );
@@ -53,14 +53,14 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
       path: '/oauth/client/{client_id}',
       options: {
         validate: {
-          params: oauthdb.api.getClientInfo.opts.validate.params,
+          params: oauthService.api.getClientInfo.opts.validate.params,
         },
         response: {
-          schema: oauthdb.api.getClientInfo.opts.validate.response,
+          schema: oauthService.api.getClientInfo.opts.validate.response,
         },
       },
       handler: async function (request) {
-        return oauthdb.getClientInfo(request.params.client_id);
+        return oauthService.getClientInfo(request.params.client_id);
       },
     },
     {
@@ -72,19 +72,19 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         },
         validate: {
           payload: Joi.object(
-            oauthdb.api.getScopedKeyData.opts.validate.payload
+            oauthService.api.getScopedKeyData.opts.validate.payload
           ).keys({
             assertion: Joi.forbidden(),
           }),
         },
         response: {
-          schema: oauthdb.api.getScopedKeyData.opts.validate.response,
+          schema: oauthService.api.getScopedKeyData.opts.validate.response,
         },
       },
       handler: async function (request) {
         checkDisabledClientId(request.payload);
         const sessionToken = request.auth.credentials;
-        return oauthdb.getScopedKeyData(sessionToken, request.payload);
+        return oauthService.getScopedKeyData(sessionToken, request.payload);
       },
     },
     {
@@ -132,7 +132,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           strategy: 'sessionToken',
         },
         validate: {
-          payload: oauthdb.api.createAuthorizationCode.opts.validate.payload.keys(
+          payload: oauthService.api.createAuthorizationCode.opts.validate.payload.keys(
             {
               assertion: Joi.forbidden(),
               resource: Joi.forbidden(),
@@ -140,7 +140,8 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           ),
         },
         response: {
-          schema: oauthdb.api.createAuthorizationCode.opts.validate.response,
+          schema:
+            oauthService.api.createAuthorizationCode.opts.validate.response,
         },
       },
       handler: async function (request) {
@@ -151,7 +152,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         const sessionToken = request.auth.credentials;
         const { email, uid } = sessionToken;
         const devices = await request.app.devices;
-        const result = await oauthdb.createAuthorizationCode(
+        const result = await oauthService.createAuthorizationCode(
           sessionToken,
           request.payload
         );
@@ -183,23 +184,26 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           // `authorization_code` if a `code` parameter is provided, or `fxa-credentials`
           // otherwise. This is intended behaviour.
           payload: Joi.alternatives().try(
-            oauthdb.api.grantTokensFromAuthorizationCode.opts.validate.payload,
-            oauthdb.api.grantTokensFromRefreshToken.opts.validate.payload,
-            oauthdb.api.grantTokensFromCredentials.opts.validate.payload.keys({
-              assertion: Joi.forbidden(),
-            })
+            oauthService.api.grantTokensFromAuthorizationCode.opts.validate
+              .payload,
+            oauthService.api.grantTokensFromRefreshToken.opts.validate.payload,
+            oauthService.api.grantTokensFromCredentials.opts.validate.payload.keys(
+              {
+                assertion: Joi.forbidden(),
+              }
+            )
           ),
         },
         response: {
           schema: Joi.alternatives().try(
-            oauthdb.api.grantTokensFromAuthorizationCode.opts.validate.response.keys(
+            oauthService.api.grantTokensFromAuthorizationCode.opts.validate.response.keys(
               {
                 session_token: validators.sessionToken.optional(),
                 session_token_id: Joi.forbidden(),
               }
             ),
-            oauthdb.api.grantTokensFromRefreshToken.opts.validate.response,
-            oauthdb.api.grantTokensFromCredentials.opts.validate.response
+            oauthService.api.grantTokensFromRefreshToken.opts.validate.response,
+            oauthService.api.grantTokensFromCredentials.opts.validate.response
           ),
         },
       },
@@ -208,18 +212,20 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         let grant;
         switch (request.payload.grant_type) {
           case 'authorization_code':
-            grant = await oauthdb.grantTokensFromAuthorizationCode(
+            grant = await oauthService.grantTokensFromAuthorizationCode(
               request.payload
             );
             break;
           case 'refresh_token':
-            grant = await oauthdb.grantTokensFromRefreshToken(request.payload);
+            grant = await oauthService.grantTokensFromRefreshToken(
+              request.payload
+            );
             break;
           case 'fxa-credentials':
             if (!sessionToken) {
               throw error.invalidToken();
             }
-            grant = await oauthdb.grantTokensFromSessionToken(
+            grant = await oauthService.grantTokensFromSessionToken(
               sessionToken,
               request.payload
             );
@@ -273,7 +279,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           // then we want to send some notifications to the user
           await oauthRouteUtils.newTokenNotification(
             db,
-            oauthdb,
+            oauthService,
             mailer,
             devices,
             request,
@@ -291,7 +297,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           // As mentioned in lib/routes/utils/oauth.js, some grant flows won't
           // have the uid in `credentials`, so we get it from the oauth DB.
           if (!uid) {
-            const tokenVerify = await oauthdb.checkAccessToken(
+            const tokenVerify = await oauthService.checkAccessToken(
               grant.access_token
             );
             uid = tokenVerify.user;
@@ -393,7 +399,10 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           // Only try this method, if the token is syntactically valid for that token type.
           if (!methodArgValidators[methodName].validate(token).error) {
             try {
-              return await oauthdb[methodName](request.payload.token, creds);
+              return await oauthService[methodName](
+                request.payload.token,
+                creds
+              );
             } catch (err) {
               // If that was an invalid token, try the next token type.
               // All other errors are fatal.

@@ -1,7 +1,9 @@
+const oauthDB = require('../../oauth/db/');
 const proxied = require('./proxied');
 
-module.exports = (log, config, oauthdb, db, mailer, devices) => {
-  const routes = proxied(log, config, oauthdb, db, mailer, devices);
-  routes.push(require('./verify')(log));
+module.exports = (log, config, oauthService, db, mailer, devices) => {
+  const routes = proxied(log, config, oauthService, db, mailer, devices);
+  routes.push(require('./client/get')({ log, oauthDB }));
+  routes.push(require('./verify')({ log }));
   return routes;
 };

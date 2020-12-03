@@ -62,14 +62,14 @@ async function run(config) {
     config.i18n.supportedLanguages,
     config.i18n.defaultLanguage
   );
-  const oauthdb = require('../lib/oauthdb')(log, config, statsd);
+  const oauthService = require('../lib/oauthdb')(log, config, statsd);
   const profile = require('../lib/profile/client')(log, config, statsd);
   const senders = await require('../lib/senders')(
     log,
     config,
     error,
     translator,
-    oauthdb,
+    oauthService,
     statsd
   );
 
@@ -97,7 +97,7 @@ async function run(config) {
     serverPublicKeys,
     signer,
     database,
-    oauthdb,
+    oauthService,
     senders.email,
     senders.sms,
     Password,
@@ -117,7 +117,7 @@ async function run(config) {
     config,
     routes,
     database,
-    oauthdb,
+    oauthService,
     translator,
     statsd
   );
@@ -141,7 +141,7 @@ async function run(config) {
       log.info('shutdown', 'gracefully');
       await server.stop();
       await customs.close();
-      oauthdb.close();
+      oauthService.close();
       statsd.close();
       try {
         senders.email.stop();
