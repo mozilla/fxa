@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-shared#readme",
   "devDependencies": {
-    "@nestjs/testing": "^7.4.4",
+    "@nestjs/testing": "^7.5.5",
     "@types/chai": "^4.2.11",
     "@types/chance": "^1",
     "@types/generic-pool": "^3.1.9",
@@ -71,9 +71,9 @@
     "uuid": "^8.3.0"
   },
   "dependencies": {
-    "@nestjs/common": "^7.4.4",
-    "@nestjs/config": "^0.5.0",
-    "@nestjs/core": "^7.4.4",
+    "@nestjs/common": "^7.5.5",
+    "@nestjs/config": "^0.6.1",
+    "@nestjs/core": "^7.5.5",
     "@nestjs/graphql": "^7.9.1",
     "@nestjs/mapped-types": "^0.1.1",
     "@sentry/browser": "^5.27.6",
