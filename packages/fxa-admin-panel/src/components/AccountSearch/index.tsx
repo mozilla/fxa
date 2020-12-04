@@ -159,7 +159,6 @@ export const AccountSearch = () => {
     'test@gmail.com',
     'flowers@hotmail.com',
     'ece496@outlook.ca',
-    'test_342@gmail.co.uk',
     'hello_world@hotmail.com',
   ];
 
@@ -193,7 +192,7 @@ export const AccountSearch = () => {
       suggestions = items.sort().filter((v) => regex.test(v));
     }
     setSuggestion(suggestions);
-    setText(event.target.value);
+    setInputValue(event.target.value);
   };
 
   const renderSuggestions = () => {
@@ -209,8 +208,8 @@ export const AccountSearch = () => {
     );
   };
 
-  const suggestionSelected = (value) => {
-    setText(value);
+  const suggestionSelected = (inputValue) => {
+    setInputValue(inputValue);
     setSuggestion([]);
   };
 
@@ -239,6 +238,7 @@ export const AccountSearch = () => {
         <input
           autoFocus
           autoComplete="off"
+          value={inputValue}
           name="email"
           type="search"
           onChange={handleChange}
@@ -288,7 +288,7 @@ const AccountSearchResult = ({
   query: string;
 }) => {
   if (loading) return <p data-testid="loading-message">Loading...</p>;
-  if (error) return <p data-testid="error-message">An error occured.</p>;
+  if (error) return <p data-testid="error-message">An error occurred.</p>;
 
   if (data?.accountByEmail) {
     return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
