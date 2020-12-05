@@ -116,9 +116,13 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         },
       },
       handler: async function (request) {
+        const otpUtils = require('../utils/otp')(log, {}, db);
         const claims = await JWTIdToken.verify(
           request.payload.id_token,
           request.payload.client_id,
+          db,
+          otpUtils,
+          log,
           request.payload.expiry_grace_period
         );
         return claims;

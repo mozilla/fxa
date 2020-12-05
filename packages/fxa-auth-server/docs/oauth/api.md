@@ -54,6 +54,7 @@ The currently-defined error responses are:
 |     400     |  119  | stale authentication timestamp                |
 |     400     |  120  | mismatch acr value                            |
 |     400     |  121  | invalid grant_type                            |
+|     400     |  122  | unknown token                                 |
 |     500     |  999  | internal server error                         |
 
 ## API Endpoints

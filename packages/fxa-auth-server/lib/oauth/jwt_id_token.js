@@ -4,7 +4,8 @@
 
 const AppError = require('./error');
 const jwt = require('./jwt');
-const logger = require('./logging')('jwt_id_token');
+
+const { ACR_VALUE_AAL2 } = require('../constants');
 
 /**
  * Verify the Expiration Time ('exp') claim value from an ID Token.
@@ -48,6 +49,9 @@ exports._isValidExp = (exp) => {
 exports.verify = async function verify(
   idToken,
   clientId,
+  db,
+  otpUtils,
+  logger,
   expiryGracePeriod = 0
 ) {
   // Step 1 is skipped, as we don't support JWE tokens.
@@ -148,22 +152,57 @@ exports.verify = async function verify(
     throw AppError.invalidToken();
   }
 
-  // The remaining steps don't apply to our use case, so they are skipped.
-  //
+  // This step is currently skipped.
   // 10. The `iat` claim can be used to reject tokens issued too far away from
   //     the current time, limiting the amount of time that nonces need to be
   //     stored to prevent attacks. The acceptable range is Client specific.
-  //
+
+  // This step is currently skipped.
   // 11. If a nonce value was sent in the Authentication Request, a `nonce`
   //     Claim MUST be present and its value checked to verify that it is the
   //     same value as the one that was sent in the Authentication Request.
   //     The Client SHOULD check the nonce value for replay attacks. The
   //     precise method for detecting replay attacks is Client specific.
+
+  // We need to verify that the 'acr' claim in the token matches the current
+  // account state, because a user can disable two-factor auth after an ID
+  // Token has been issued. #6768
   //
   // 12. If the `acr` Claim was requested, Client SHOULD check the asserted
   //     Claim Value is appropriate. The meaning and processing of `acr` Claim
   //     Values is out of scope for the OIDC spec.
-  //
+  if ('acr' in claims) {
+    const acrTokens = claims.acr.trim().split(/\s+/g);
+    let account;
+    try {
+      // db.account throws if the account isn't found
+      account = await db.account(claims.sub);
+    } catch (err) {
+      logger.debug('verify.error.acr.account', {
+        acr: claims.acr,
+        uid: claims.sub,
+      });
+      throw AppError.invalidToken();
+    }
+
+    let hasTotpToken;
+    try {
+      hasTotpToken = await otpUtils.hasTotpToken(account);
+    } catch (err) {
+      logger.debug('verify.error.acr.totp');
+      throw AppError.invalidToken();
+    }
+
+    if (acrTokens.includes(ACR_VALUE_AAL2) && !hasTotpToken) {
+      logger.debug('verify.error.acr', {
+        acr: claims.acr,
+        hasTotpToken,
+      });
+      throw AppError.invalidToken();
+    }
+  }
+
+  // This step is currently skipped.
   // 13. If the `auth_time` Claim was requested, either specifically or by
   //     using the `max_age` parameter, the Client SHOULD check the `auth_time`
   //     Claim Value and request re-authentication if it determines too much
