@@ -13,7 +13,7 @@ const joi = require('joi');
 const dns = require('dns');
 const VError = require('verror');
 const resolver = new dns.promises.Resolver();
-const results = ['MX', 'A', 'none'].reduce((accumulator, val) => {
+const results = ['MX', 'A', 'none', 'skip'].reduce((accumulator, val) => {
   accumulator[val] = val;
   return accumulator;
 }, {});
@@ -57,7 +57,7 @@ const tryResolveWith = (resolveFunc) => async (domain) => {
   }
 };
 
-module.exports = function () {
+module.exports = function (config) {
   return {
     method: 'get',
     path: '/validate-email-domain',
@@ -68,7 +68,10 @@ module.exports = function () {
     },
     process: async function (req, res, next) {
       const { domain } = req.query;
-
+      const shouldValidate = config.get('mxRecordValidation.enabled');
+      if (!shouldValidate) {
+        return res.json({ result: results.skip });
+      }
       try {
         if (await tryResolveWith(resolver.resolveMx.bind(resolver))(domain)) {
           return res.json({ result: results.MX });
