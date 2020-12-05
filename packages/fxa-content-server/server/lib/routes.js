@@ -31,7 +31,7 @@ module.exports = function (config, i18n) {
     require('./routes/redirect-download-firefox')(config),
     require('./routes/redirect-m-to-adjust')(config),
     require('./routes/get-500')(config),
-    require('./routes/validate-email-domain')(),
+    require('./routes/validate-email-domain')(config),
   ];
 
   if (config.get('csp.enabled')) {
