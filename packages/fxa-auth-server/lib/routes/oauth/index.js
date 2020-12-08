@@ -1,4 +1,4 @@
-const oauthDB = require('../../oauth/db/');
+const oauthDB = require('../../oauth/db');
 const proxied = require('./proxied');
 
 module.exports = (log, config, oauthService, db, mailer, devices) => {
@@ -6,6 +6,7 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
   const directRoutes = [
     require('./authorization')({ log, oauthDB }),
     require('./client/get')({ log, oauthDB }),
+    require('./introspect')({ oauthDB }),
     require('./key_data')({ log, oauthDB }),
     require('./redirect')({ log, oauthDB }),
     require('./verify')({ log }),
