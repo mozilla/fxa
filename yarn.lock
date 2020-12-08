@@ -2141,6 +2141,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fullhuman/postcss-purgecss@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@fullhuman/postcss-purgecss@npm:3.0.0"
+  dependencies:
+    postcss: 7.0.32
+    purgecss: ^3.0.0
+  checksum: cb416c956afc3f58b35eb78a9e3e87073f2d77ac190024db033738757f46df7e278dc55080f001548c9847ee8e43556fb7d4afc836776b14f1ac5efea24ee17a
+  languageName: node
+  linkType: hard
+
 "@google-cloud/firestore@npm:^4.7.1":
   version: 4.7.1
   resolution: "@google-cloud/firestore@npm:4.7.1"
@@ -5226,6 +5236,39 @@ __metadata:
   dependencies:
     defer-to-connect: ^2.0.0
   checksum: 13d8f71dbd792b620b2cd13d72d086ef031ebefd5263a9db2f34693a32e4d90920fa1d7075cd59bf0c9810b2b1b93ad36d89fc88aba4cd3b8022df7ecc5ffdec
+  languageName: node
+  linkType: hard
+
+"@tailwindcss/postcss7-compat@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@tailwindcss/postcss7-compat@npm:2.0.1"
+  dependencies:
+    "@fullhuman/postcss-purgecss": ^3.0.0
+    autoprefixer: ^9
+    bytes: ^3.0.0
+    chalk: ^4.1.0
+    color: ^3.1.3
+    detective: ^5.2.0
+    didyoumean: ^1.2.1
+    fs-extra: ^9.0.1
+    html-tags: ^3.1.0
+    lodash: ^4.17.20
+    modern-normalize: ^1.0.0
+    node-emoji: ^1.8.1
+    object-hash: ^2.0.3
+    postcss: ^7
+    postcss-functions: ^3
+    postcss-js: ^2
+    postcss-nested: ^4
+    postcss-selector-parser: ^6.0.4
+    postcss-value-parser: ^4.1.0
+    pretty-hrtime: ^1.0.3
+    reduce-css-calc: ^2.1.6
+    resolve: ^1.19.0
+  bin:
+    tailwind: lib/cli.js
+    tailwindcss: lib/cli.js
+  checksum: 3beecabe7e3f114ea46a1dcf4750674ee5341b06d4cb936a837313133f7417ffdf6fe37755e60be3cfed5023e07d4b4f18509ce2703d96213207e5b4a36d98b2
   languageName: node
   linkType: hard
 
@@ -9163,7 +9206,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autoprefixer@npm:9.8.6, autoprefixer@npm:^9.4.5, autoprefixer@npm:^9.6.1, autoprefixer@npm:^9.7.2, autoprefixer@npm:^9.8.0":
+"autoprefixer@npm:9.8.6, autoprefixer@npm:^9, autoprefixer@npm:^9.4.5, autoprefixer@npm:^9.6.1, autoprefixer@npm:^9.7.2, autoprefixer@npm:^9.8.0":
   version: 9.8.6
   resolution: "autoprefixer@npm:9.8.6"
   dependencies:
@@ -12539,6 +12582,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"color-string@npm:^1.5.4":
+  version: 1.5.4
+  resolution: "color-string@npm:1.5.4"
+  dependencies:
+    color-name: ^1.0.0
+    simple-swizzle: ^0.2.2
+  checksum: 181ab2a0a13dc87b13db1bceab8585c159f1cbf169c4210df61d24349f90e5f6087a18c8c12842dbdd5d4cff9a1008ef86c153201429bc456fb7bf9c9495d366
+  languageName: node
+  linkType: hard
+
 "color-support@npm:^1.1.0":
   version: 1.1.3
   resolution: "color-support@npm:1.1.3"
@@ -12555,6 +12608,16 @@ __metadata:
     color-convert: ^1.9.1
     color-string: ^1.5.2
   checksum: 3fd5d29d43fd10a85a6ba8926e1917ce06ecab7c6be282d1f7e8f13d1482cc1075509edc5811301a1f541180530c4054d37b978729054fc9d46cee283e0e253b
+  languageName: node
+  linkType: hard
+
+"color@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "color@npm:3.1.3"
+  dependencies:
+    color-convert: ^1.9.1
+    color-string: ^1.5.4
+  checksum: d0f4139e986806aaacaa748d170c9778faed93695fb776cd27d9c5825424263eb9354f69033804d0d2d350d9831a31d14dddff045da00713499f279da97e602f
   languageName: node
   linkType: hard
 
@@ -14464,6 +14527,13 @@ __metadata:
   dependencies:
     streamsearch: 0.1.2
   checksum: eb06a8c283287da1f0034cde3f2bafe8bbd70636d4c9b12783f36d919c88533d6d285e044197853e03c1a2ea5d68f8ebcf59d366bd873a4a91e5d370e9871ad7
+  languageName: node
+  linkType: hard
+
+"didyoumean@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "didyoumean@npm:1.2.1"
+  checksum: a886a07b4b9212693644309b302122b128ff5abf2c05b99c8ed4721c0650463a2b6bd49e59d8f10eba1f7cc586b35e726348e9dbf7751e12fc4ad37ad023de79
   languageName: node
   linkType: hard
 
@@ -17247,7 +17317,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:9.0.1, fs-extra@npm:^9.0.0":
+"fs-extra@npm:9.0.1, fs-extra@npm:^9.0.0, fs-extra@npm:^9.0.1":
   version: 9.0.1
   resolution: "fs-extra@npm:9.0.1"
   dependencies:
@@ -17475,6 +17545,7 @@ fsevents@^1.2.7:
     "@storybook/addons": ^5.3.19
     "@storybook/preset-create-react-app": ^2.1.1
     "@storybook/react": ^5.3.19
+    "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
@@ -17527,7 +17598,6 @@ fsevents@^1.2.7:
     react-scripts: ^3.4.1
     serve-static: ^1.14.1
     supertest: ^6.0.1
-    tailwindcss: ^1.9.1
     ts-jest: ^26.3.0
     ts-node: ^8.10.2
     typescript: 3.9.7
@@ -18443,6 +18513,7 @@ fsevents@^1.2.7:
     "@storybook/addon-links": ^6.0.28
     "@storybook/addons": ^5.3.19
     "@storybook/react": ^5.3.19
+    "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
@@ -18477,7 +18548,6 @@ fsevents@^1.2.7:
     rimraf: ^3.0.2
     sass: 1.26.10
     sass-loader: ^10.0.3
-    tailwindcss: ^1.9.1
     tailwindcss-dir: ^4.0.0
     ts-jest: ^26.3.0
     typescript: 3.9.7
@@ -18499,6 +18569,7 @@ fsevents@^1.2.7:
     "@storybook/addons": ^5.3.19
     "@storybook/preset-create-react-app": ^2.1.1
     "@storybook/react": ^5.3.19
+    "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
@@ -18541,7 +18612,6 @@ fsevents@^1.2.7:
     react-scripts: ^3.4.1
     react-test-renderer: ^17.0.1
     subscriptions-transport-ws: ^0.9.18
-    tailwindcss: ^1.9.1
     typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
@@ -21499,6 +21569,15 @@ fsevents@^1.2.7:
   dependencies:
     has: ^1.0.3
   checksum: de99dfbdf14d254f6d078aa37113512295acef3cfff5fb39fdf8020b04788535eae6da39e02b0c4ad07f7bc79594de8d5aeb4fce66f97feb9c597d7d6d6d43d4
+  languageName: node
+  linkType: hard
+
+"is-core-module@npm:^2.1.0":
+  version: 2.2.0
+  resolution: "is-core-module@npm:2.2.0"
+  dependencies:
+    has: ^1.0.3
+  checksum: 2344744de98a3bc22e2bb30895f307d7889f09e963f9bcb1cc321788f508c8b463f75e0a9ca009eeeb8eb9465181b5c15f1ec9299a6bb6921cfbb2423892e0ba
   languageName: node
   linkType: hard
 
@@ -26157,6 +26236,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"modern-normalize@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "modern-normalize@npm:1.0.0"
+  checksum: 013c442ba2a58ce79cf790ffa8ac461ac67b1f3904ba7bf4ff0a83a5e443500730c1dd1d1af66d2066f8f1500ba8e150aa32518c6a294e0ab0c93692a59b77ee
+  languageName: node
+  linkType: hard
+
 "module-deps@npm:^4.0.2":
   version: 4.1.1
   resolution: "module-deps@npm:4.1.1"
@@ -29172,7 +29258,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"postcss-functions@npm:^3.0.0":
+"postcss-functions@npm:^3, postcss-functions@npm:^3.0.0":
   version: 3.0.0
   resolution: "postcss-functions@npm:3.0.0"
   dependencies:
@@ -29237,7 +29323,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"postcss-js@npm:^2.0.0":
+"postcss-js@npm:^2, postcss-js@npm:^2.0.0":
   version: 2.0.3
   resolution: "postcss-js@npm:2.0.3"
   dependencies:
@@ -29477,6 +29563,16 @@ fsevents@^1.2.7:
     icss-utils: ^4.0.0
     postcss: ^7.0.6
   checksum: 01dc4ea51ecc12654b9e46773180d2cf731b69ad7abf5e4b9368b653dbbbc28aa3e1db31027b50d8d7534c0c206e684ae2edaaedb120220871559e43ebe81c9c
+  languageName: node
+  linkType: hard
+
+"postcss-nested@npm:^4":
+  version: 4.2.3
+  resolution: "postcss-nested@npm:4.2.3"
+  dependencies:
+    postcss: ^7.0.32
+    postcss-selector-parser: ^6.0.2
+  checksum: 73b9e0115cfd19cbc2a9bb61bc3f795008dc6d59ebdc460f035499d3ade5e1cc5bd05ddaca525c818f570747fa96aab984eb0c81209c6294d38b2a9a52e62b2e
   languageName: node
   linkType: hard
 
@@ -29847,6 +29943,18 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"postcss-selector-parser@npm:^6.0.4":
+  version: 6.0.4
+  resolution: "postcss-selector-parser@npm:6.0.4"
+  dependencies:
+    cssesc: ^3.0.0
+    indexes-of: ^1.0.1
+    uniq: ^1.0.1
+    util-deprecate: ^1.0.2
+  checksum: f6b6e30f515e0909af2555df29feca42f2141d10fac7f8e719ac72f071729a9b9f631241bb1d8ff88cbec7e8fb2ada22c0c92ee0d629582340551ea090985a74
+  languageName: node
+  linkType: hard
+
 "postcss-svgo@npm:^4.0.2":
   version: 4.0.2
   resolution: "postcss-svgo@npm:4.0.2"
@@ -29926,6 +30034,17 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"postcss@npm:7.0.32, postcss@npm:^7, postcss@npm:^7.0.0, postcss@npm:^7.0.1, postcss@npm:^7.0.11, postcss@npm:^7.0.14, postcss@npm:^7.0.16, postcss@npm:^7.0.17, postcss@npm:^7.0.18, postcss@npm:^7.0.2, postcss@npm:^7.0.21, postcss@npm:^7.0.23, postcss@npm:^7.0.26, postcss@npm:^7.0.27, postcss@npm:^7.0.32, postcss@npm:^7.0.5, postcss@npm:^7.0.6, postcss@npm:^7.0.7":
+  version: 7.0.32
+  resolution: "postcss@npm:7.0.32"
+  dependencies:
+    chalk: ^2.4.2
+    source-map: ^0.6.1
+    supports-color: ^6.1.0
+  checksum: 340f4f6ca6bd37961927f68bf7e38d071a7cba0468240cbba64ccf78012b2acbec974491284cb200e438dd3e655314e6d9508562523cbf9a49d5b00fd7e769fa
+  languageName: node
+  linkType: hard
+
 "postcss@npm:^6.0.0, postcss@npm:^6.0.1, postcss@npm:^6.0.23, postcss@npm:^6.0.9":
   version: 6.0.23
   resolution: "postcss@npm:6.0.23"
@@ -29934,17 +30053,6 @@ fsevents@^1.2.7:
     source-map: ^0.6.1
     supports-color: ^5.4.0
   checksum: 9b61abdfb366491debc6a633ba3703ae43c674b6c1c64def54e131c8ec01862fc95b3271bde221db805389fc76c3b3f1447b5a9c1d0b332c53cfcc9bfe1b1fa6
-  languageName: node
-  linkType: hard
-
-"postcss@npm:^7, postcss@npm:^7.0.0, postcss@npm:^7.0.1, postcss@npm:^7.0.11, postcss@npm:^7.0.14, postcss@npm:^7.0.16, postcss@npm:^7.0.17, postcss@npm:^7.0.18, postcss@npm:^7.0.2, postcss@npm:^7.0.21, postcss@npm:^7.0.23, postcss@npm:^7.0.26, postcss@npm:^7.0.27, postcss@npm:^7.0.32, postcss@npm:^7.0.5, postcss@npm:^7.0.6, postcss@npm:^7.0.7":
-  version: 7.0.32
-  resolution: "postcss@npm:7.0.32"
-  dependencies:
-    chalk: ^2.4.2
-    source-map: ^0.6.1
-    supports-color: ^6.1.0
-  checksum: 340f4f6ca6bd37961927f68bf7e38d071a7cba0468240cbba64ccf78012b2acbec974491284cb200e438dd3e655314e6d9508562523cbf9a49d5b00fd7e769fa
   languageName: node
   linkType: hard
 
@@ -30492,6 +30600,20 @@ fsevents@^1.2.7:
   bin:
     purgecss: bin/purgecss
   checksum: cd04fc853eb92135de870e7f4479ba1d74f2c0eadf3b281133752880811431fb6d8e03b92fbdee9c75043fb566ceb0296ce525a4b91e1883e321f62f8e597cc4
+  languageName: node
+  linkType: hard
+
+"purgecss@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "purgecss@npm:3.0.0"
+  dependencies:
+    commander: ^6.0.0
+    glob: ^7.0.0
+    postcss: 7.0.32
+    postcss-selector-parser: ^6.0.2
+  bin:
+    purgecss: bin/purgecss.js
+  checksum: a7e0bd1c7da5ab4319ec8ac099cb51ce2303508bd05fd7adc8041e6e497cf18daf61f6b1931dfa3272ec10a3b42166e5394a6d6b5860b9907875c92a3c5684eb
   languageName: node
   linkType: hard
 
@@ -32349,6 +32471,16 @@ resolve@1.15.0:
   languageName: node
   linkType: hard
 
+resolve@^1.19.0:
+  version: 1.19.0
+  resolution: "resolve@npm:1.19.0"
+  dependencies:
+    is-core-module: ^2.1.0
+    path-parse: ^1.0.6
+  checksum: 8b23c7fde1224898ffb9fec2a2295a44d1564981343bdbf5fd3769465658f6a6f6647bb7ea66dfb3c1291ca86046b0233be2edfcd8ca05b38886521e8869677c
+  languageName: node
+  linkType: hard
+
 "resolve@patch:resolve@1.1.7#builtin<compat/resolve>":
   version: 1.1.7
   resolution: "resolve@patch:resolve@npm%3A1.1.7#builtin<compat/resolve>::version=1.1.7&hash=3388aa"
@@ -32372,6 +32504,16 @@ resolve@1.15.0:
     is-core-module: ^2.0.0
     path-parse: ^1.0.6
   checksum: 9e62d2803ad1ec21b13780cc6a45b72bb7b6525eb5b44f0ede7cde37c00a8eb310c06ebfcc7de7dc10c2234d7d271bc4f1eed9783fb87acac141597cd4efaeec
+  languageName: node
+  linkType: hard
+
+"resolve@patch:resolve@^1.19.0#builtin<compat/resolve>":
+  version: 1.19.0
+  resolution: "resolve@patch:resolve@npm%3A1.19.0#builtin<compat/resolve>::version=1.19.0&hash=3388aa"
+  dependencies:
+    is-core-module: ^2.1.0
+    path-parse: ^1.0.6
+  checksum: 188d5167e8578a9af8d194faf382b8f3526aad5145391c24ecdc6246c6fc82c10fc66d6352267f8e93c5977c503d61803169c91b9e2ee36dd2de759915c9b673
   languageName: node
   linkType: hard
 
@@ -35200,7 +35342,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^1.0.1, tailwindcss@npm:^1.9.1":
+"tailwindcss@npm:^1.0.1":
   version: 1.9.1
   resolution: "tailwindcss@npm:1.9.1"
   dependencies:
