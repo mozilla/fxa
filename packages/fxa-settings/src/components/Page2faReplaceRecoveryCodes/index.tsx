@@ -65,6 +65,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
         <button
           type="button"
           className="cta-neutral mx-2 px-10"
+          data-testid="close-modal"
           onClick={goBack}
         >
           Close
