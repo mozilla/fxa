@@ -1,31 +1,29 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
+import 'mocha';
 import 'reflect-metadata';
 
 import { assert } from 'chai';
 import Knex from 'knex';
-import 'mocha';
+import { ValidationError } from 'objection';
 
+import {
+  Account,
+  accountByUid,
+  AccountCustomers,
+  accountExists,
+  createAccountCustomer,
+  deleteAccountCustomer,
+  getAccountCustomerByUid,
+  updateAccountCustomer,
+} from '../../../../db/models/auth';
 import {
   chance,
   randomAccount,
   randomEmail,
   testDatabaseSetup,
 } from './helpers';
-
-import {
-  Account,
-  accountByUid,
-  accountExists,
-  AccountCustomers,
-  createAccountCustomer,
-  deleteAccountCustomer,
-  getAccountCustomerByUid,
-  updateAccountCustomer,
-} from '../../../../db/models/auth';
-import { UniqueViolationError, ValidationError } from 'objection';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);

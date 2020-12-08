@@ -4,6 +4,7 @@
 import { NestApplicationOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
 import helmet from 'helmet';
 
@@ -15,13 +16,22 @@ async function bootstrap() {
   if (Config.getProperties().env !== 'development') {
     nestConfig.logger = false;
   }
-  const app = await NestFactory.create(AppModule, nestConfig);
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    nestConfig
+  );
   const config: ConfigService<AppConfig> = app.get(ConfigService);
   const port = config.get('port') as number;
 
   if (config.get<boolean>('hstsEnabled')) {
     const maxAge = config.get<number>('hstsMaxAge');
     app.use(helmet.hsts({ includeSubDomains: true, maxAge }));
+  }
+
+  // We run behind a proxy when deployed, include the express middleware
+  // to extract the X-Forwarded-For header.
+  if (Config.getProperties().env !== 'development') {
+    app.set('trust proxy', true);
   }
 
   app.enableCors({
