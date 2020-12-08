@@ -16,6 +16,9 @@ const cwd = path.resolve(__dirname, ROOT_DIR);
 
 describe('scripts/verification-reminders:', () => {
   it('does not fail', () => {
-    return cp.execAsync('node scripts/verification-reminders', { cwd });
+    return cp.execAsync(
+      'node -r ts-node/register scripts/verification-reminders',
+      { cwd }
+    );
   });
 });

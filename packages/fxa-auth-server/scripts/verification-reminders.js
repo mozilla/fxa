@@ -197,7 +197,6 @@ async function run() {
   }, Promise.resolve());
 
   await db.close();
-  await oauthdb.close();
   await verificationReminders.close();
   await cadReminders.close();
 }

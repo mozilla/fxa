@@ -28,7 +28,7 @@ module.exports = ({ log }) => ({
     handler: async function verify(req) {
       const info = await token.verify(req.payload.token);
       info.scope = info.scope.getScopeValues();
-      log.trace('verify.success', {
+      log.debug('verify.success', {
         client_id: info.client_id,
         scope: info.scope,
       });

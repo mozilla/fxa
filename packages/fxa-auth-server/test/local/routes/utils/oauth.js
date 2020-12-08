@@ -7,6 +7,7 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../../../mocks');
+const proxyquire = require('proxyquire');
 
 const TEST_EMAIL = 'foo@gmail.com';
 const MOCK_UID = '23d4847823f24b0f95e1524987cb0391';
@@ -32,7 +33,13 @@ describe('newTokenNotification', () => {
   let request;
   let credentials;
   let grant;
-  const oauthUtils = require('../../../../lib/routes/utils/oauth');
+  const oauthUtils = proxyquire('../../../../lib/routes/utils/oauth', {
+    '../../oauth/token': {
+      verify: async function () {
+        return MOCK_CHECK_RESPONSE;
+      },
+    },
+  });
 
   beforeEach(() => {
     db = mocks.mockDB({
@@ -40,11 +47,7 @@ describe('newTokenNotification', () => {
       emailVerified: true,
       uid: MOCK_UID,
     });
-    oauthdb = mocks.mockOAuthDB({
-      checkAccessToken: sinon.spy(async () => {
-        return MOCK_CHECK_RESPONSE;
-      }),
-    });
+    oauthdb = mocks.mockOAuthDB();
     mailer = mocks.mockMailer();
     devices = mocks.mockDevices();
     credentials = {
@@ -68,7 +71,6 @@ describe('newTokenNotification', () => {
       grant
     );
 
-    assert.equal(oauthdb.checkAccessToken.callCount, 0);
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
     assert.equal(devices.upsert.callCount, 1, 'created a device');
     const args = devices.upsert.args[0];
@@ -94,12 +96,11 @@ describe('newTokenNotification', () => {
       grant
     );
 
-    assert.equal(oauthdb.checkAccessToken.callCount, 0);
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
     assert.equal(devices.upsert.callCount, 1, 'created a device');
   });
 
-  it('creates a device and sends an email with checkAccessToken uid', async () => {
+  it('creates a device and sends an email with token uid', async () => {
     credentials = {};
     request = mocks.mockRequest({ credentials });
     await oauthUtils.newTokenNotification(
@@ -111,7 +112,6 @@ describe('newTokenNotification', () => {
       grant
     );
 
-    assert.equal(oauthdb.checkAccessToken.callCount, 1);
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
     assert.equal(devices.upsert.callCount, 1, 'created a device');
   });
@@ -127,7 +127,6 @@ describe('newTokenNotification', () => {
       grant
     );
 
-    assert.equal(oauthdb.checkAccessToken.callCount, 0);
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
     assert.equal(devices.upsert.callCount, 0);
   });
@@ -146,7 +145,6 @@ describe('newTokenNotification', () => {
       grant
     );
 
-    assert.equal(oauthdb.checkAccessToken.callCount, 0);
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
     assert.equal(devices.upsert.callCount, 1);
     const args = devices.upsert.args[0];
@@ -169,7 +167,6 @@ describe('newTokenNotification', () => {
       grant
     );
 
-    assert.equal(oauthdb.checkAccessToken.callCount, 0);
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
     assert.equal(devices.upsert.callCount, 1);
     const args = devices.upsert.args[0];

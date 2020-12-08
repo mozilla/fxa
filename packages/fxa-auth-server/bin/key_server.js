@@ -62,7 +62,7 @@ async function run(config) {
     config.i18n.supportedLanguages,
     config.i18n.defaultLanguage
   );
-  const oauthService = require('../lib/oauthdb')(log, config, statsd);
+  const oauthService = require('../lib/oauthdb')(log, config);
   const profile = require('../lib/profile/client')(log, config, statsd);
   const senders = await require('../lib/senders')(
     log,
@@ -141,7 +141,6 @@ async function run(config) {
       log.info('shutdown', 'gracefully');
       await server.stop();
       await customs.close();
-      oauthService.close();
       statsd.close();
       try {
         senders.email.stop();

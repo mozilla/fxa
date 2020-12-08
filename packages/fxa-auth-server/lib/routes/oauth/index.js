@@ -1,9 +1,8 @@
 const oauthDB = require('../../oauth/db');
-const proxied = require('./proxied');
 
-module.exports = (log, config, oauthService, db, mailer, devices) => {
-  const routes = proxied(log, config, oauthService, db, mailer, devices);
-  const directRoutes = [
+module.exports = (log) => {
+  const routes = [
+    require('./redirect')({ log, oauthDB }),
     require('./authorization')({ log, oauthDB }),
     require('./authorized-clients/destroy')({ oauthDB }),
     require('./authorized-clients/list')({ oauthDB }),
@@ -12,11 +11,11 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
     require('./introspect')({ oauthDB }),
     require('./jwks')(),
     require('./key_data')({ log, oauthDB }),
-    require('./redirect')({ log, oauthDB }),
+    require('./token')({ log, oauthDB }),
     require('./verify')({ log }),
   ];
 
-  directRoutes.forEach((r) => {
+  routes.forEach((r) => {
     r.config.cors = { origin: 'ignore' };
     if (r.method !== 'GET' && r.method !== 'HEAD') {
       if (!r.config.payload) {
@@ -26,6 +25,5 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
       }
     }
   });
-
-  return routes.concat(directRoutes);
+  return routes;
 };
