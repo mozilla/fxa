@@ -104,7 +104,8 @@
     "redis": "^2.8.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.5.5",
-    "stripe": "^8.69.0"
+    "stripe": "^8.69.0",
+    "superagent": "^6.0.0"
   },
   "jest": {
     "moduleFileExtensions": [

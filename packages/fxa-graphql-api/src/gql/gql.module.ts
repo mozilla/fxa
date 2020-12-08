@@ -4,6 +4,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GqlModuleOptions } from '@nestjs/graphql';
+import { CustomsModule } from 'fxa-shared/nestjs/customs/customs.module';
+import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
 import { graphqlUploadExpress } from 'graphql-upload';
@@ -50,8 +52,8 @@ export const GraphQLConfigFactory = async (
 });
 
 @Module({
-  imports: [BackendModule],
-  providers: [AccountResolver, SessionResolver],
+  imports: [BackendModule, CustomsModule],
+  providers: [AccountResolver, CustomsService, SessionResolver],
 })
 export class GqlModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
