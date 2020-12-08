@@ -5,9 +5,12 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
   const routes = proxied(log, config, oauthService, db, mailer, devices);
   const directRoutes = [
     require('./authorization')({ log, oauthDB }),
+    require('./authorized-clients/destroy')({ oauthDB }),
+    require('./authorized-clients/list')({ oauthDB }),
     require('./client/get')({ log, oauthDB }),
     require('./destroy')({ log, oauthDB }),
     require('./introspect')({ oauthDB }),
+    require('./jwks')(),
     require('./key_data')({ log, oauthDB }),
     require('./redirect')({ log, oauthDB }),
     require('./verify')({ log }),
