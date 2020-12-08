@@ -52,6 +52,11 @@ const conf = convict({
     env: 'CORS_ORIGIN',
     default: ['http://accounts.firefox.com/'],
   },
+  customsUrl: {
+    doc: "fraud / abuse server url; set to the string 'none' to disable",
+    default: 'http://localhost:7000',
+    env: 'CUSTOMS_SERVER_URL',
+  },
   database: {
     mysql: {
       auth: makeMySQLConfig('AUTH', 'fxa'),

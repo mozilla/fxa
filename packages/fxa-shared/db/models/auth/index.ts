@@ -1,15 +1,33 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
+import { uuidTransformer } from '../../transformers';
 import { Account } from './account';
 import { AccountCustomers } from './account-customers';
 import { AuthBaseModel } from './auth-base';
-import { uuidTransformer } from '../../transformers';
+import { SessionToken } from './session-token';
 
 export type AccountOptions = {
   include?: 'emails'[];
 };
+
+export async function sessionTokenData(
+  tokenId: string
+): Promise<SessionToken | undefined> {
+  let tokenBuffer: Buffer;
+  try {
+    tokenBuffer = uuidTransformer.to(tokenId);
+  } catch (err) {
+    return;
+  }
+  const knex = Account.knex();
+  const [result] = await knex.raw('Call sessionWithDevice_18(?)', tokenBuffer);
+  const rowPacket = result.shift();
+  if (result.length === 0) {
+    return;
+  }
+  return SessionToken.fromDatabaseRow(rowPacket[0]);
+}
 
 export async function accountExists(uid: string) {
   let uidBuffer;

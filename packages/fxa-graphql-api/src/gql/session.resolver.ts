@@ -7,6 +7,7 @@ import AuthClient from 'fxa-auth-client';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
+import { GqlCustomsGuard } from '../auth/gql-customs.guard';
 import { AuthClientService } from '../backend/auth-client.service';
 import { GqlSessionToken, GqlUserId, GqlUserState } from '../decorators';
 import { DestroySessionInput } from './dto/input';
@@ -23,7 +24,7 @@ export class SessionResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Logs out the current session',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   public async destroySession(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DestroySessionInput })
@@ -36,7 +37,7 @@ export class SessionResolver {
   }
 
   @Query((returns) => SessionType)
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   session(@GqlUserId() uid: string, @GqlUserState() state: string) {
     this.log.info('session', { uid });
     return {

@@ -4,6 +4,7 @@
 import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Account, accountByUid } from 'fxa-shared/db/models/auth';
+import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import Knex from 'knex';
 
@@ -39,6 +40,7 @@ describe('AccountResolver', () => {
       providers: [
         AccountResolver,
         MockMozLogger,
+        { provide: CustomsService, useValue: {} },
         { provide: AuthClientService, useValue: authClient },
         { provide: ProfileClientService, useValue: profileClient },
       ],
