@@ -22,10 +22,17 @@ export const ScrollToTop = (
   }, [href, state, navigate]);
 
   useLayoutEffect(() => {
-    if (!(state as typeof state & { scrolled?: boolean })?.scrolled) {
+    // If there's a hash, let the browser scroll to the id.
+    const url = new URL(href);
+    const hasHash = !!url.hash;
+
+    if (
+      !hasHash &&
+      !(state as typeof state & { scrolled?: boolean })?.scrolled
+    ) {
       updateState();
     }
-  }, [state, updateState]);
+  }, [href, state, updateState]);
 
   return <>{props.children}</>;
 };
