@@ -60,6 +60,7 @@
     "@storybook/addons": "^5.3.19",
     "@storybook/preset-create-react-app": "^2.1.1",
     "@storybook/react": "^5.3.19",
+    "@tailwindcss/postcss7-compat": "^2.0.1",
     "@testing-library/dom": "^7.24.5",
     "@testing-library/jest-dom": "^5.11.0",
     "@testing-library/react": "^9.5.0",
@@ -87,7 +88,6 @@
     "pm2": "^4.4.1",
     "postcss-cli": "^7.1.1",
     "react-test-renderer": "^17.0.1",
-    "tailwindcss": "^1.9.1",
     "webpack": "^4.43.0"
   }
 }
