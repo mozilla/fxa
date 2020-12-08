@@ -3,9 +3,24 @@ const proxied = require('./proxied');
 
 module.exports = (log, config, oauthService, db, mailer, devices) => {
   const routes = proxied(log, config, oauthService, db, mailer, devices);
-  routes.push(require('./client/get')({ log, oauthDB }));
-  routes.push(require('./key_data')({ log, oauthDB }));
-  routes.push(require('./token')({ log, oauthDB }));
-  routes.push(require('./verify')({ log }));
-  return routes;
+  const directRoutes = [
+    require('./authorization')({ log, oauthDB }),
+    require('./client/get')({ log, oauthDB }),
+    require('./key_data')({ log, oauthDB }),
+    require('./redirect')({ log, oauthDB }),
+    require('./verify')({ log }),
+  ];
+
+  directRoutes.forEach((r) => {
+    r.config.cors = { origin: 'ignore' };
+    if (r.method !== 'GET' && r.method !== 'HEAD') {
+      if (!r.config.payload) {
+        r.config.payload = {
+          allow: ['application/json', 'application/x-www-form-urlencoded'],
+        };
+      }
+    }
+  });
+
+  return routes.concat(directRoutes);
 };
