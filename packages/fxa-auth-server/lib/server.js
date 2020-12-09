@@ -12,7 +12,6 @@ const url = require('url');
 const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const schemeServerJWT = require('./routes/auth-schemes/serverJWT');
-const authBearer = require('./routes/auth-schemes/auth-bearer');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
 const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
@@ -380,9 +379,6 @@ async function create(
     )
   );
   server.auth.strategy('oauthServerJWT', 'fxa-oauthServerJWT');
-
-  server.auth.scheme(authBearer.AUTH_SCHEME, authBearer.strategy);
-  server.auth.strategy(authBearer.AUTH_STRATEGY, authBearer.AUTH_SCHEME);
 
   server.auth.scheme(
     'supportPanelSecret',
