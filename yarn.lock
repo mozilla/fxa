@@ -8750,6 +8750,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"array-flatten@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "array-flatten@npm:3.0.0"
+  checksum: babaee814eb77dac4c402b4bb7584118f50d73caa808c67f5ae4ef3fc34385dcbbf8ed66e0e00b083d2a27c087f826557de76d39108da5c6dab3eaae353b3399
+  languageName: node
+  linkType: hard
+
 "array-from@npm:^2.1.1":
   version: 2.1.1
   resolution: "array-from@npm:2.1.1"
@@ -18497,7 +18504,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     request: ^2.88.2
     rimraf: ^3.0.2
-    sharp: ^0.26.0
+    sharp: ^0.26.3
     sinon: ^9.0.3
     stream-to-array: 2.3.0
     through: 2.3.8
@@ -26106,7 +26113,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mkdirp-classic@npm:^0.5.2":
+"mkdirp-classic@npm:^0.5.2, mkdirp-classic@npm:^0.5.3":
   version: 0.5.3
   resolution: "mkdirp-classic@npm:0.5.3"
   checksum: b3c46c62840bdc82c2a5bee417e4e7518a8109d32a85a6dc67bdcfecbe6aff5cfc73cdb98844a61178ddd8ac75743f977857f0badd6e12d14fd18cf1639e41a1
@@ -26695,12 +26702,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"node-addon-api@npm:^3.0.0":
-  version: 3.0.1
-  resolution: "node-addon-api@npm:3.0.1"
+"node-addon-api@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "node-addon-api@npm:3.0.2"
   dependencies:
     node-gyp: latest
-  checksum: 4ecc98953e3e235f69955e1b0013cb5c3bf8f5cb60c518f4dc824fce3f37d1ee7fb6143f6bdfc610a94e74ac08c79d172b72c66986ac1f056dcde437caae6b02
+  checksum: 7f401e4ad9ed75cea9ba8590da8048b37e99531e8d8b46b941e6c951ca1cf8e0db29f31ddf25d3e87c13cb6653c06e0db72c05ef50eff9db3529cd929ae69747
   languageName: node
   linkType: hard
 
@@ -30057,15 +30064,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"prebuild-install@npm:^5.3.5":
-  version: 5.3.5
-  resolution: "prebuild-install@npm:5.3.5"
+"prebuild-install@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "prebuild-install@npm:6.0.0"
   dependencies:
     detect-libc: ^1.0.3
     expand-template: ^2.0.3
     github-from-package: 0.0.0
     minimist: ^1.2.3
-    mkdirp: ^0.5.1
+    mkdirp-classic: ^0.5.3
     napi-build-utils: ^1.0.1
     node-abi: ^2.7.0
     noop-logger: ^0.1.1
@@ -30078,7 +30085,7 @@ fsevents@^1.2.7:
     which-pm-runs: ^1.0.0
   bin:
     prebuild-install: ./bin.js
-  checksum: 0bb1e1cc211713feedb095b69efc16f8d60f04f5782491622857a266052d4fc8607411d1e14506b2086ac4ae265441c776c1f043bd11819503f65a8cd79f734e
+  checksum: 02db5ebaf2c45996a5005928996ffcd2cf13ed5daf10386b3b4fc0ea51d27c4d045fa21acaf4359c07474773bed1d4e4f55f8a33b2efb24339566497cbe7d223
   languageName: node
   linkType: hard
 
@@ -33498,21 +33505,22 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.26.0":
-  version: 0.26.0
-  resolution: "sharp@npm:0.26.0"
+"sharp@npm:^0.26.3":
+  version: 0.26.3
+  resolution: "sharp@npm:0.26.3"
   dependencies:
-    color: ^3.1.2
+    array-flatten: ^3.0.0
+    color: ^3.1.3
     detect-libc: ^1.0.3
-    node-addon-api: ^3.0.0
+    node-addon-api: ^3.0.2
     node-gyp: latest
     npmlog: ^4.1.2
-    prebuild-install: ^5.3.5
+    prebuild-install: ^6.0.0
     semver: ^7.3.2
     simple-get: ^4.0.0
-    tar-fs: ^2.1.0
+    tar-fs: ^2.1.1
     tunnel-agent: ^0.6.0
-  checksum: fb578baf9c081919eaec454f52dc3118e474d5fc93432314e46f0ccb8868cf7e55f204fc7b6060ff5f5c73f7507616f154f62402edd970fe022049960a579d13
+  checksum: bda9f3d228007bafd6d0cc8dbd766a9de6d1fb0ecfb662e40daf2a5ee4d71ff4eee662f707bdba324f25bfa7f6a306e93ec622a6e4ba9f0314eed038825838e9
   languageName: node
   linkType: hard
 
@@ -35483,7 +35491,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tar-fs@npm:^2.0.0, tar-fs@npm:^2.1.0":
+"tar-fs@npm:^2.0.0":
   version: 2.1.0
   resolution: "tar-fs@npm:2.1.0"
   dependencies:
@@ -35492,6 +35500,18 @@ resolve@~1.11.1:
     pump: ^3.0.0
     tar-stream: ^2.0.0
   checksum: aa0a6b2fd3b23bc50a10613a53ed1a7aa13202fce24cd86abf85b5347a4b05399abb7e5d160ae071552be13bb7d8b69603172be2cbf2c786dd6d94d147b928fa
+  languageName: node
+  linkType: hard
+
+"tar-fs@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "tar-fs@npm:2.1.1"
+  dependencies:
+    chownr: ^1.1.1
+    mkdirp-classic: ^0.5.2
+    pump: ^3.0.0
+    tar-stream: ^2.1.4
+  checksum: 4739382487b6ed646670a52cac637c818ecdceb728eb4718847dfdaddd7322d8cce2ea9db160ba8ad2920194034fda7c307b44f4eeb50d244f198bd7e28f2914
   languageName: node
   linkType: hard
 
