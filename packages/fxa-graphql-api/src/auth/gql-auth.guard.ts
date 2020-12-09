@@ -12,4 +12,19 @@ export class GqlAuthGuard extends AuthGuard('bearer') {
     const ctx = GqlExecutionContext.create(context);
     return ctx.getContext().req;
   }
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const activate = await super.canActivate(context);
+    if (!activate) {
+      return false;
+    }
+    const ctx = GqlExecutionContext.create(context);
+    const req = ctx.getContext().req as Request;
+
+    // Disallow query bodies in the query string.
+    if (req.query.query) {
+      return false;
+    }
+    return true;
+  }
 }
