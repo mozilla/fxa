@@ -1,5 +1,10 @@
 FROM node:14-slim
 
+ARG yarn_http_proxy=
+ARG yarn_https_proxy=
+ARG yarn_http_timeout=30000
+ARG NODE_TLS_REJECT_UNAUTHORIZED=1
+
 RUN set -x \
     && addgroup --gid 10001 app \
     && adduser --disabled-password \
