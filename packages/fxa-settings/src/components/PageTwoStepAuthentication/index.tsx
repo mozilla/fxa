@@ -234,6 +234,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 <button
                   type="button"
                   className="mx-auto link-blue text-sm"
+                  data-testid="cant-scan-code"
                   onClick={() => setShowQrCode(false)}
                 >
                   Can't scan code?
@@ -244,7 +245,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
           {secret && !showQrCode && (
             <div className="mt-4 flex flex-col">
               <p>Enter this secret key into your authenticator app:</p>
-              <p className="my-8 mx-auto font-bold">
+              <p className="my-8 mx-auto font-bold" data-testid="manual-code">
                 {secret.toUpperCase().match(/.{4}/g)!.join(' ')}
               </p>
             </div>
