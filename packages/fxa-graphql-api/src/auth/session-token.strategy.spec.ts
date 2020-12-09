@@ -38,10 +38,10 @@ describe('SessionTokenStrategy', () => {
   });
 
   it('throws unauthorized', async () => {
-    mockSession.sessionTokenData.mockResolvedValue({ tokenVerified: false });
+    mockSession.sessionTokenData.mockResolvedValue(undefined);
     mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
     await expect(strategy.validate('token')).rejects.toThrowError(
-      new UnauthorizedException('Invalid/unverified token')
+      new UnauthorizedException('Invalid token')
     );
   });
 

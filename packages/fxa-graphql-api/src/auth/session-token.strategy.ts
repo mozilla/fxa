@@ -20,8 +20,8 @@ export class SessionTokenStrategy extends PassportStrategy(Strategy) {
     try {
       const { id } = await deriveHawkCredentials(token, 'sessionToken');
       const session = await sessionTokenData(id);
-      if (!session || !session.tokenVerified) {
-        throw new UnauthorizedException('Invalid/unverified token');
+      if (!session) {
+        throw new UnauthorizedException('Invalid token');
       }
       return { token, session };
     } catch (err) {
