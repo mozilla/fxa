@@ -9,6 +9,7 @@ const joi = require('@hapi/joi');
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');
+const client = require('../../oauth/client');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // the refresh token scheme is currently used by things connected to sync,
@@ -60,7 +61,7 @@ module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
           );
         }
 
-        credentials.client = await oauthdb.getClientInfo(
+        credentials.client = await client.getClientById(
           refreshTokenInfo.client_id
         );
         const devices = await db.devices(refreshTokenInfo.sub);

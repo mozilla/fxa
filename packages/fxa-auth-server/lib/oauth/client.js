@@ -101,7 +101,7 @@ module.exports.authenticateClient = async function authenticateClient(
 ) {
   const creds = exports.getClientCredentials(headers, params);
 
-  const client = await getClientById(creds.client_id);
+  const client = await exports.getClientById(creds.client_id);
 
   // Public clients can't be authenticated in any useful way,
   // and should never submit a client_secret.
@@ -138,11 +138,11 @@ module.exports.authenticateClient = async function authenticateClient(
   throw AppError.incorrectSecret(client.id);
 };
 
-async function getClientById(clientId) {
+module.exports.getClientById = async function getClientById(clientId) {
   const client = await db.getClient(buf(clientId));
   if (!client) {
     logger.debug('client.notFound', { id: clientId });
     throw AppError.unknownClient(clientId);
   }
   return client;
-}
+};

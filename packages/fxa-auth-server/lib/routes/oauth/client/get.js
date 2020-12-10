@@ -14,7 +14,7 @@ module.exports = ({ log, oauthDB }) => ({
   config: {
     validate: {
       params: {
-        client_id: validators.clientId,
+        client_id: validators.clientId.required(),
       },
     },
     response: {

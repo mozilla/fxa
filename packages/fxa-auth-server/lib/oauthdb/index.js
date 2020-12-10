@@ -75,14 +75,6 @@ module.exports = (log, config) => {
       });
     },
 
-    async getClientInfo(clientId) {
-      return callRoute('/client/{client_id}', {
-        params: {
-          client_id: clientId,
-        },
-      });
-    },
-
     async getScopedKeyData(sessionToken, oauthParams) {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
       oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');

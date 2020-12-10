@@ -69,7 +69,6 @@ async function run(config) {
     config,
     error,
     translator,
-    oauthService,
     statsd
   );
 

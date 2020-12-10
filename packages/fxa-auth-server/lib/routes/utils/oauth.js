@@ -4,7 +4,8 @@
 
 'use strict';
 
-const encrypt = require('../../../lib/oauth/encrypt');
+const encrypt = require('../../oauth/encrypt');
+const client = require('../../oauth/client');
 const {
   OAUTH_SCOPE_OLD_SYNC,
   MAX_NEW_ACCOUNT_AGE,
@@ -19,7 +20,6 @@ const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 module.exports = {
   newTokenNotification: async function newTokenNotification(
     db,
-    oauthdb,
     mailer,
     devices,
     request,
@@ -59,7 +59,7 @@ module.exports = {
 
     // we set tokenVerified because the granted scope is part of NOTIFICATION_SCOPES
     credentials.tokenVerified = true;
-    credentials.client = await oauthdb.getClientInfo(clientId);
+    credentials.client = await client.getClientById(clientId);
 
     // Connect the new refreshToken to the existing device record, or create a new placeholder if there isn't one.
     await devices.upsert(request, credentials, {

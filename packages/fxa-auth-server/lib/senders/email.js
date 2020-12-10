@@ -23,12 +23,8 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
-module.exports = function (log, config, oauthService) {
-  const oauthClientInfo = require('./oauth_client_info')(
-    log,
-    config,
-    oauthService
-  );
+module.exports = function (log, config) {
+  const oauthClientInfo = require('./oauth_client_info')(log, config);
   const verificationReminders = require('../verification-reminders')(
     log,
     config

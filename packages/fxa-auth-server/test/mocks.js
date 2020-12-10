@@ -102,7 +102,6 @@ const OAUTHDB_METHOD_NAMES = [
   'revokeAccessToken',
   'revokeRefreshToken',
   'revokeRefreshTokenById',
-  'getClientInfo',
   'getScopedKeyData',
   'createAuthorizationCode',
   'grantTokensFromAuthorizationCode',
@@ -554,6 +553,7 @@ function mockDB(data, errors) {
   });
 }
 
+// TODO: delete me
 function mockOAuthDB(methods = {}) {
   // For OAuthDB, the mock object needs to expose a `.api` property
   // with route validation info, so we load the module directly.

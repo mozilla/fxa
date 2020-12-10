@@ -5,12 +5,28 @@
 'use strict';
 
 const { assert } = require('chai');
+const proxyquire = require('proxyquire');
 const error = require('../../../../lib/error');
-const schemeRefreshToken = require('../../../../lib/routes/auth-schemes/refresh-token');
 const sinon = require('sinon');
 
 const OAUTH_CLIENT_ID = '3c49430b43dfba77';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
+const schemeRefreshToken = proxyquire(
+  '../../../../lib/routes/auth-schemes/refresh-token',
+  {
+    '../../oauth/client': {
+      getClientById: async function () {
+        return {
+          id: OAUTH_CLIENT_ID,
+          name: OAUTH_CLIENT_NAME,
+          trusted: true,
+          image_uri: '',
+          redirect_uri: `http://localhost:3030/oauth/success/${OAUTH_CLIENT_ID}`,
+        };
+      },
+    },
+  }
+);
 
 describe('lib/routes/auth-schemes/refresh-token', () => {
   let config;
@@ -46,15 +62,6 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
 
     oauthdb = {
       checkRefreshToken: sinon.spy(() => () => Promise.resolve({})),
-      getClientInfo: sinon.spy(() =>
-        Promise.resolve({
-          id: OAUTH_CLIENT_ID,
-          name: OAUTH_CLIENT_NAME,
-          trusted: true,
-          image_uri: '',
-          redirect_uri: `http://localhost:3030/oauth/success/${OAUTH_CLIENT_ID}`,
-        })
-      ),
     };
 
     response = {
