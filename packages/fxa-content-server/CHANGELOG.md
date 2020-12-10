@@ -1,3 +1,9 @@
+## 1.195.3
+
+### Other changes
+
+- fxa-content-server: pass env variable to render beta link ([d3ea3afe1](https://github.com/mozilla/fxa/commit/d3ea3afe1))
+
 ## 1.195.2
 
 No changes.
