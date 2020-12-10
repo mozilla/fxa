@@ -44,7 +44,8 @@ export default {
         // This is important for the infamous signin-from-signup feature.
         this.logFlowEvent('attempt', 'signin');
 
-        let verificationMethod = VerificationMethods.EMAIL_2FA;
+        let verificationMethod =
+          account.get('verificationMethod') || VerificationMethods.EMAIL_2FA;
 
         // Check to see if this is an oauth client is requesting 2FA.
         // If it is, set/override the corresponding verificationMethod.

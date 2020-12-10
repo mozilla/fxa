@@ -5,6 +5,7 @@
 import AuthErrors from '../../lib/auth-errors';
 import FormPrefillMixin from './form-prefill-mixin';
 import SigninMixin from './signin-mixin';
+import VerificationMethods from '../../lib/verification-methods';
 
 export default {
   dependsOn: [FormPrefillMixin, SigninMixin],
@@ -83,20 +84,36 @@ export default {
     // the email will be prefilled on the legacy signin page.
     // If the signin fails
     this.formPrefill.set(account.pick('email'));
-    return this.signIn(account, null, {
-      // When using a cached credential, the auth-server routes do not get hit,
-      // This event will cause the content-server to emit the complete event.
-      onSuccess: () => this.logEvent('cached.signin.success'),
-    }).catch((err) => {
-      // Session was invalid. Set a SESSION EXPIRED error on the model
-      // causing an error to be displayed when the view re-renders
-      // due to the sessionToken update.
-      if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-        this.model.set('error', AuthErrors.toError('SESSION_EXPIRED'));
-      } else {
-        throw err;
-      }
-    });
+
+    return account
+      .accountProfile()
+      .then((profile) => {
+        // We need to do a check if the account has TOTP enabled for cached accounts because
+        // it might not hit the login endpoint to find out otherwise.
+        if (
+          profile.authenticationMethods &&
+          profile.authenticationMethods.includes('otp')
+        ) {
+          account.set('verificationMethod', VerificationMethods.TOTP_2FA);
+        }
+
+        return this.signIn(account, null, {
+          // When using a cached credential, the auth-server routes do not get hit,
+          // This event will cause the content-server to emit the complete event.
+          onSuccess: () => this.logEvent('cached.signin.success'),
+        });
+      })
+      .catch((err) => {
+        // Session was invalid. Set a SESSION EXPIRED error on the model
+        // causing an error to be displayed when the view re-renders
+        // due to the sessionToken update.
+        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+          account.discardSessionToken();
+          this.model.set('error', AuthErrors.toError('SESSION_EXPIRED'));
+        } else {
+          throw err;
+        }
+      });
   },
 
   /**
