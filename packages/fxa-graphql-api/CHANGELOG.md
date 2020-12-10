@@ -1,3 +1,9 @@
+## 1.195.2
+
+### Bug fixes
+
+- graphql-api: allow unverified sessions ([bca44e2ff](https://github.com/mozilla/fxa/commit/bca44e2ff))
+
 ## 1.195.1
 
 ### New features
