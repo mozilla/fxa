@@ -54,8 +54,8 @@ AppError.prototype.header = function (name, value) {
 };
 
 AppError.isOauthRoute = function isOauthRoute(path) {
-  const routes = require('./routes').routes;
-  return routes.findIndex((r) => r.path === path) > -1;
+  const routes = require('../routes/oauth')();
+  return routes.findIndex((r) => `/v1${r.path}` === path) > -1;
 };
 
 AppError.translate = function translate(response) {

@@ -51,7 +51,6 @@ module.exports = function (
   // The routing modules themselves.
   const defaults = require('./defaults')(log, db);
   const idp = require('./idp')(log, serverPublicKeys);
-  const oauthServer = require('../oauth/routes');
   const grant = require('../oauth/grant');
   const oauthRawDB = require('../oauth/db');
   grant.setStripeHelper(stripeHelper);
@@ -68,7 +67,8 @@ module.exports = function (
     oauthRawDB,
     stripeHelper
   );
-  const oauth = require('./oauth')(
+  const oauth = require('./oauth')(log);
+  const oauthProxied = require('./oauth/proxied')(
     log,
     config,
     oauthdb,
@@ -181,6 +181,7 @@ module.exports = function (
   const v1Routes = [].concat(
     account,
     oauth,
+    oauthProxied,
     devicesSessions,
     attachedClients,
     emails,
@@ -205,14 +206,7 @@ module.exports = function (
   defaults.forEach((r) => {
     r.path = basePath + r.path;
   });
-  oauthServer.routes.forEach((r) => {
-    r.path = basePath + r.path;
-  });
-  const allRoutes = defaults.concat(
-    idp,
-    v1Routes,
-    oauthServer.routes.filter((r) => !v1Routes.some((x) => x.path === r.path))
-  );
+  const allRoutes = defaults.concat(idp, v1Routes);
 
   allRoutes.forEach((r) => {
     // Default auth.payload to 'optional' for all authenticated routes.

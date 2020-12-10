@@ -23,6 +23,7 @@ const {
 } = require('../../oauth/client');
 
 const error = require('../../error');
+const token = require('../../oauth/token');
 const oauthRouteUtils = require('../utils/oauth');
 const {
   OAUTH_SCOPE_OLD_SYNC,
@@ -51,12 +52,23 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
     {
       method: 'GET',
       path: '/oauth/client/{client_id}',
-      options: {
+      config: {
         validate: {
-          params: oauthService.api.getClientInfo.opts.validate.params,
+          params: {
+            clientId: validators.clientId.required(),
+          },
         },
         response: {
-          schema: oauthService.api.getClientInfo.opts.validate.response,
+          schema: {
+            id: validators.clientId.required(),
+            name: Joi.string()
+              .max(255)
+              .regex(validators.DISPLAY_SAFE_UNICODE)
+              .required(),
+            trusted: Joi.boolean().required(),
+            image_uri: Joi.string().optional().allow(''),
+            redirect_uri: Joi.string().required().allow(''),
+          },
         },
       },
       handler: async function (request) {
@@ -66,19 +78,26 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
     {
       method: 'POST',
       path: '/account/scoped-key-data',
-      options: {
+      config: {
         auth: {
           strategy: 'sessionToken',
         },
         validate: {
-          payload: Joi.object(
-            oauthService.api.getScopedKeyData.opts.validate.payload
-          ).keys({
+          payload: {
+            client_id: validators.clientId.required(),
+            scope: validators.scope.required(),
             assertion: Joi.forbidden(),
-          }),
+          },
         },
         response: {
-          schema: oauthService.api.getScopedKeyData.opts.validate.response,
+          schema: Joi.object().pattern(
+            Joi.any(),
+            Joi.object({
+              identifier: validators.scope.required(),
+              keyRotationSecret: validators.hexString.length(64).required(),
+              keyRotationTimestamp: Joi.number().required(),
+            })
+          ),
         },
       },
       handler: async function (request) {
@@ -90,7 +109,7 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
     {
       method: 'POST',
       path: '/oauth/id-token-verify',
-      options: {
+      config: {
         validate: {
           payload: {
             client_id: Joi.string().required(),
@@ -127,21 +146,39 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
     {
       method: 'POST',
       path: '/oauth/authorization',
-      options: {
+      config: {
         auth: {
           strategy: 'sessionToken',
         },
         validate: {
-          payload: oauthService.api.createAuthorizationCode.opts.validate.payload.keys(
-            {
-              assertion: Joi.forbidden(),
-              resource: Joi.forbidden(),
-            }
-          ),
+          payload: Joi.object({
+            response_type: Joi.string().valid('code').default('code'),
+            client_id: validators.clientId.required(),
+            redirect_uri: Joi.string()
+              .max(256)
+              .uri({
+                scheme: ['http', 'https'],
+              })
+              .optional(),
+            scope: validators.scope.optional(),
+            state: Joi.string().max(512).required(),
+            access_type: Joi.string()
+              .valid('offline', 'online')
+              .default('online'),
+            code_challenge_method: validators.pkceCodeChallengeMethod.optional(),
+            code_challenge: validators.pkceCodeChallenge.optional(),
+            keys_jwe: validators.jwe.optional(),
+            acr_values: Joi.string().max(256).allow(null).optional(),
+            assertion: Joi.forbidden(),
+            resource: Joi.forbidden(),
+          }).and('code_challenge', 'code_challenge_method'),
         },
         response: {
-          schema:
-            oauthService.api.createAuthorizationCode.opts.validate.response,
+          schema: Joi.object({
+            redirect: Joi.string(),
+            code: validators.authorizationCode,
+            state: Joi.string().max(512),
+          }),
         },
       },
       handler: async function (request) {
@@ -172,7 +209,7 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
     {
       method: 'POST',
       path: '/oauth/token',
-      options: {
+      config: {
         auth: {
           // XXX TODO: To be able to fully replace the /token route from oauth-server,
           // this route must also be able to accept 'client_secret' as Basic Auth in header.
@@ -184,26 +221,85 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
           // `authorization_code` if a `code` parameter is provided, or `fxa-credentials`
           // otherwise. This is intended behaviour.
           payload: Joi.alternatives().try(
-            oauthService.api.grantTokensFromAuthorizationCode.opts.validate
-              .payload,
-            oauthService.api.grantTokensFromRefreshToken.opts.validate.payload,
-            oauthService.api.grantTokensFromCredentials.opts.validate.payload.keys(
-              {
-                assertion: Joi.forbidden(),
-              }
-            )
+            // authorization code
+            Joi.object({
+              grant_type: Joi.string()
+                .valid('authorization_code')
+                .default('authorization_code'),
+              client_id: validators.clientId.required(),
+              client_secret: validators.clientSecret.optional(),
+              code: validators.authorizationCode.required(),
+              code_verifier: validators.pkceCodeVerifier.optional(),
+              redirect_uri: validators.url().optional(),
+              // Note: the max allowed TTL is currently configured in oauth-server config,
+              // making it hard to know what limit to set here.
+              ttl: Joi.number().positive().optional(),
+              ppid_seed: validators.ppidSeed.optional(),
+              resource: validators.resourceUrl.optional(),
+            }).xor('client_secret', 'code_verifier'),
+            // refresh token
+            Joi.object({
+              grant_type: Joi.string().valid('refresh_token').required(),
+              client_id: validators.clientId.required(),
+              client_secret: validators.clientSecret.optional(),
+              refresh_token: validators.refreshToken.required(),
+              scope: validators.scope.optional(),
+              // Note: the max allowed TTL is currently configured in oauth-server config,
+              // making it hard to know what limit to set here.
+              ttl: Joi.number().positive().optional(),
+              ppid_seed: validators.ppidSeed.optional(),
+              resource: validators.resourceUrl.optional(),
+            }),
+            // credentials
+            Joi.object({
+              grant_type: Joi.string()
+                .valid('fxa-credentials')
+                .default('fxa-credentials'),
+              client_id: validators.clientId.required(),
+              scope: validators.scope.optional(),
+              access_type: Joi.string()
+                .valid('online', 'offline')
+                .default('online'),
+              // Note: the max allowed TTL is currently configured in oauth-server config,
+              // making it hard to know what limit to set here.
+              ttl: Joi.number().positive().optional(),
+              resource: validators.resourceUrl.optional(),
+              assertion: Joi.forbidden(),
+            })
           ),
         },
         response: {
           schema: Joi.alternatives().try(
-            oauthService.api.grantTokensFromAuthorizationCode.opts.validate.response.keys(
-              {
-                session_token: validators.sessionToken.optional(),
-                session_token_id: Joi.forbidden(),
-              }
-            ),
-            oauthService.api.grantTokensFromRefreshToken.opts.validate.response,
-            oauthService.api.grantTokensFromCredentials.opts.validate.response
+            // authorization code
+            Joi.object({
+              access_token: validators.accessToken.required(),
+              refresh_token: validators.refreshToken.optional(),
+              id_token: validators.assertion.optional(),
+              session_token: validators.sessionToken.optional(),
+              scope: validators.scope.required(),
+              token_type: Joi.string().valid('bearer').required(),
+              expires_in: Joi.number().required(),
+              auth_at: Joi.number().required(),
+              keys_jwe: validators.jwe.optional(),
+            }),
+            // refresh token
+            Joi.object({
+              access_token: validators.accessToken.required(),
+              id_token: validators.assertion.optional(),
+              scope: validators.scope.required(),
+              token_type: Joi.string().valid('bearer').required(),
+              expires_in: Joi.number().required(),
+            }),
+            // credentials
+            Joi.object({
+              access_token: validators.accessToken.required(),
+              refresh_token: validators.refreshToken.optional(),
+              id_token: validators.assertion.optional(),
+              scope: validators.scope.required(),
+              auth_at: Joi.number().required(),
+              token_type: Joi.string().valid('bearer').required(),
+              expires_in: Joi.number().required(),
+            })
           ),
         },
       },
@@ -297,9 +393,7 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
           // As mentioned in lib/routes/utils/oauth.js, some grant flows won't
           // have the uid in `credentials`, so we get it from the oauth DB.
           if (!uid) {
-            const tokenVerify = await oauthService.checkAccessToken(
-              grant.access_token
-            );
+            const tokenVerify = await token.verify(grant.access_token);
             uid = tokenVerify.user;
           }
 
@@ -361,7 +455,7 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
     {
       method: 'POST',
       path: '/oauth/destroy',
-      options: {
+      config: {
         validate: {
           headers: clientAuthValidators.headers,
           payload: {

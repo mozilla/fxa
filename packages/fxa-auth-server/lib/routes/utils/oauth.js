@@ -9,6 +9,7 @@ const {
   OAUTH_SCOPE_OLD_SYNC,
   MAX_NEW_ACCOUNT_AGE,
 } = require('../../constants');
+const token = require('../../oauth/token');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // right now we only care about notifications for the following scopes
@@ -36,7 +37,7 @@ module.exports = {
 
     if (!credentials.uid) {
       // this can be removed once issue #3000 has been resolved
-      const tokenVerify = await oauthdb.checkAccessToken(grant.access_token);
+      const tokenVerify = await token.verify(grant.access_token);
       // some grant flows won't have the uid in `credentials`
       credentials.uid = tokenVerify.user;
     }

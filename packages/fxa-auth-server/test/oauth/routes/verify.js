@@ -27,10 +27,6 @@ describe('/verify POST', () => {
     sandbox = sinon.createSandbox();
 
     mocks = {
-      amplitude: sandbox.spy(),
-      config: {
-        getProperties: sinon.spy(() => ({ key: 'value' })),
-      },
       log: {
         debug: sandbox.spy(),
         info: sandbox.spy(),
@@ -48,32 +44,24 @@ describe('/verify POST', () => {
     };
 
     dependencies = {
-      '../../../config': mocks.config,
-      '../metrics/amplitude': sandbox.spy(() => mocks.amplitude),
-      '../logging': () => mocks.log,
-      '../token': mocks.token,
+      '../../oauth/token': mocks.token,
     };
 
-    route = proxyquire('../../../lib/oauth/routes/verify', dependencies);
+    route = proxyquire(
+      '../../../lib/routes/oauth/verify',
+      dependencies
+    )({ log: mocks.log });
   });
 
   afterEach(() => {
     sandbox.reset();
   });
 
-  describe('setup', () => {
-    it('initializes amplitude correctly', () => {
-      assert.isTrue(dependencies['../metrics/amplitude'].calledOnce);
-      const args = dependencies['../metrics/amplitude'].args[0];
-      assert.strictEqual(args[0], mocks.log);
-      assert.isTrue(mocks.config.getProperties.calledOnce);
-      assert.deepEqual(args[1], { key: 'value' });
-    });
-  });
-
   describe('validation', () => {
     function validate(req, context = {}) {
-      const result = Joi.validate(req, route.validate.payload, { context });
+      const result = Joi.validate(req, route.config.validate.payload, {
+        context,
+      });
       return result.error;
     }
 
@@ -93,14 +81,17 @@ describe('/verify POST', () => {
   });
 
   describe('handler', () => {
+    let req;
     let resp;
 
     beforeEach(async () => {
-      resp = await route.handler({
+      req = {
         payload: {
           token: TOKEN,
         },
-      });
+        emitMetricsEvent: sinon.spy(),
+      };
+      resp = await route.config.handler(req);
     });
 
     it('returns the expected response', () => {
@@ -115,7 +106,7 @@ describe('/verify POST', () => {
 
     it('logs an amplitude event', () => {
       assert.isTrue(
-        mocks.amplitude.calledOnceWith('verify.success', {
+        req.emitMetricsEvent.calledOnceWith('verify.success', {
           service: 'foo',
           uid: 'bar',
         })

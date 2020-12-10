@@ -7,9 +7,9 @@ const proxyquire = require('proxyquire');
 const mocks = require('../../lib/mocks');
 const keys = require('../../../lib/oauth/keys');
 
-const routeModulePath = '../../../lib/oauth/routes/jwks';
+const routeModulePath = '../../../lib/routes/oauth/jwks';
 var dependencies = mocks.require(
-  [{ path: '../keys' }],
+  [{ path: '../../oauth/keys' }],
   routeModulePath,
   __dirname
 );
@@ -21,8 +21,8 @@ describe('/jwks GET', function () {
     beforeEach(() => {
       PUBLIC_KEYS = [];
       getRoute = () => {
-        dependencies['../keys'].PUBLIC_KEYS = PUBLIC_KEYS;
-        return proxyquire(routeModulePath, dependencies);
+        dependencies['../../oauth/keys'].PUBLIC_KEYS = PUBLIC_KEYS;
+        return proxyquire(routeModulePath, dependencies)();
       };
     });
 
@@ -31,7 +31,7 @@ describe('/jwks GET', function () {
         keys.extractPublicKey(keys.generatePrivateKey()),
         keys.extractPublicKey(keys.generatePrivateKey()),
       ];
-      const resp = await getRoute().handler();
+      const resp = await getRoute().config.handler();
       assert.deepEqual(Object.keys(resp), ['keys']);
       assert.deepEqual(resp.keys[0], PUBLIC_KEYS[0]);
       assert.deepEqual(resp.keys[1], PUBLIC_KEYS[1]);

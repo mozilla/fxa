@@ -18,45 +18,15 @@
  * Ref: https://docs.google.com/document/d/1CnTv0Eamy7Lnbmf1ALH00oTKMPhGu70elRivJYjx5v0/
  */
 
-const createBackendServiceAPI = require('../backendService');
 const { mapOAuthError, makeAssertionJWT } = require('./utils');
 const ScopeSet = require('fxa-shared').oauth.scopes;
-const oauthRoutes = require('../oauth/routes').routes;
 
-const routes = new Map(
-  oauthRoutes.map((route) => [route.path, route.config.handler])
-);
+module.exports = (log, config) => {
+  const oauthRoutes = require('../routes/oauth')(log);
 
-module.exports = (log, config, statsd) => {
-  const OAuthAPI = createBackendServiceAPI(
-    log,
-    config,
-    'oauth',
-    {
-      checkRefreshToken: require('./check-refresh-token')(config),
-      revokeAccessToken: require('./revoke-access-token')(config),
-      revokeRefreshToken: require('./revoke-refresh-token')(config),
-      revokeRefreshTokenById: require('./revoke-refresh-token-by-id')(config),
-      getClientInfo: require('./client-info')(config),
-      getScopedKeyData: require('./scoped-key-data')(config),
-      createAuthorizationCode: require('./create-authorization-code')(config),
-      grantTokensFromAuthorizationCode: require('./grant-tokens-from-authorization-code')(
-        config
-      ),
-      grantTokensFromRefreshToken: require('./grant-tokens-from-refresh-token')(
-        config
-      ),
-      grantTokensFromCredentials: require('./grant-tokens-from-credentials')(
-        config
-      ),
-      checkAccessToken: require('./check-access-token')(config),
-      listAuthorizedClients: require('./list-authorized-clients')(config),
-      revokeAuthorizedClient: require('./revoke-authorized-client')(config),
-    },
-    statsd
+  const routes = new Map(
+    oauthRoutes.map((route) => [route.path, route.config.handler])
   );
-
-  const api = new OAuthAPI(config.oauth.url, config.oauth.poolee);
 
   async function callRoute(path, request) {
     try {
@@ -70,14 +40,8 @@ module.exports = (log, config, statsd) => {
   }
 
   return {
-    api,
-
-    close() {
-      api.close();
-    },
-
     async checkRefreshToken(token) {
-      return callRoute('/v1/introspect', {
+      return callRoute('/introspect', {
         payload: {
           token,
         },
@@ -85,7 +49,7 @@ module.exports = (log, config, statsd) => {
     },
 
     async revokeAccessToken(accessToken, clientCredentials = {}) {
-      return callRoute('/v1/destroy', {
+      return callRoute('/destroy', {
         payload: {
           access_token: accessToken,
           ...clientCredentials,
@@ -94,7 +58,7 @@ module.exports = (log, config, statsd) => {
     },
 
     async revokeRefreshToken(refreshToken, clientCredentials = {}) {
-      return callRoute('/v1/destroy', {
+      return callRoute('/destroy', {
         payload: {
           refresh_token: refreshToken,
           ...clientCredentials,
@@ -103,7 +67,7 @@ module.exports = (log, config, statsd) => {
     },
 
     async revokeRefreshTokenById(refreshTokenId, clientCredentials = {}) {
-      return callRoute('/v1/destroy', {
+      return callRoute('/destroy', {
         payload: {
           refresh_token_id: refreshTokenId,
           ...clientCredentials,
@@ -112,7 +76,7 @@ module.exports = (log, config, statsd) => {
     },
 
     async getClientInfo(clientId) {
-      return callRoute('/v1/client/{client_id}', {
+      return callRoute('/client/{client_id}', {
         params: {
           client_id: clientId,
         },
@@ -122,7 +86,7 @@ module.exports = (log, config, statsd) => {
     async getScopedKeyData(sessionToken, oauthParams) {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
       oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
-      return callRoute('/v1/key-data', {
+      return callRoute('/key-data', {
         payload: oauthParams,
       });
     },
@@ -132,13 +96,13 @@ module.exports = (log, config, statsd) => {
       if (oauthParams.scope) {
         oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
       }
-      return callRoute('/v1/authorization', {
+      return callRoute('/authorization', {
         payload: oauthParams,
       });
     },
 
     async grantTokensFromAuthorizationCode(oauthParams) {
-      return callRoute('/v1/token', {
+      return callRoute('/token', {
         payload: oauthParams,
       });
     },
@@ -147,7 +111,7 @@ module.exports = (log, config, statsd) => {
       if (oauthParams.scope) {
         oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
       }
-      return callRoute('/v1/token', {
+      return callRoute('/token', {
         payload: oauthParams,
       });
     },
@@ -157,14 +121,8 @@ module.exports = (log, config, statsd) => {
       if (oauthParams.scope) {
         oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
       }
-      return callRoute('/v1/token', {
+      return callRoute('/token', {
         payload: oauthParams,
-      });
-    },
-
-    async checkAccessToken(token) {
-      return callRoute('/v1/verify', {
-        payload: { token },
       });
     },
 
@@ -172,14 +130,14 @@ module.exports = (log, config, statsd) => {
       const oauthParams = {
         assertion: await makeAssertionJWT(config, sessionToken),
       };
-      return callRoute('/v1/authorized-clients', {
+      return callRoute('/authorized-clients', {
         payload: oauthParams,
       });
     },
 
     async revokeAuthorizedClient(sessionToken, oauthParams) {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
-      return callRoute('/v1/authorized-clients/destroy', {
+      return callRoute('/authorized-clients/destroy', {
         payload: oauthParams,
       });
     },

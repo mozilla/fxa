@@ -38,18 +38,18 @@ describe('/oauth/ routes', () => {
   let mockOAuthDB, mockDB, mockLog, mockConfig, sessionToken;
 
   async function loadAndCallRoute(path, request) {
-    const routes = require('../../../lib/routes/oauth')(
+    const routes = require('../../../lib/routes/oauth/proxied')(
       mockLog,
       mockConfig,
       mockOAuthDB,
       mockDB
-    );
+    ).concat(require('../../../lib/routes/oauth')(mockLog));
     const route = await getRoute(routes, path);
-    if (route.options.validate.payload) {
+    if (route.config.validate.payload) {
       // eslint-disable-next-line require-atomic-updates
       request.payload = await Joi.validate(
         request.payload,
-        route.options.validate.payload,
+        route.config.validate.payload,
         {
           context: {
             headers: request.headers || {},
