@@ -1,5 +1,15 @@
 # Change history
 
+## 1.195.2
+
+No changes.
+
+## 1.195.1
+
+### New features
+
+- gql-api: add customs check on query/mutations ([10e0af619](https://github.com/mozilla/fxa/commit/10e0af619))
+
 ## 1.195.0
 
 ### Other changes

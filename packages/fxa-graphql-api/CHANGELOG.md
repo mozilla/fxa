@@ -1,3 +1,19 @@
+## 1.195.2
+
+### Bug fixes
+
+- graphql-api: allow unverified sessions ([bca44e2ff](https://github.com/mozilla/fxa/commit/bca44e2ff))
+
+## 1.195.1
+
+### New features
+
+- gql-api: add customs check on query/mutations ([10e0af619](https://github.com/mozilla/fxa/commit/10e0af619))
+
+### Bug fixes
+
+- gql-api: disallow query in query string ([be8bedcee](https://github.com/mozilla/fxa/commit/be8bedcee))
+
 ## 1.195.0
 
 ### New features
