@@ -40,6 +40,7 @@ module.exports = function (config) {
   const SCOPED_KEYS_VALIDATION = config.get('scopedKeys.validation');
   const SUBSCRIPTIONS = config.get('subscriptions');
   const SURVEY_FEATURE = config.get('surveyFeature');
+  const ENABLE_BETA = config.get('settings.enableBeta');
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
   // Note that this list is only enforced for clients that use login_hint/email
   // with prompt=none. id_token_hint clients are not subject to this check.
@@ -57,6 +58,7 @@ module.exports = function (config) {
   const configForFrontEnd = {
     authServerUrl: AUTH_SERVER_URL,
     env: ENV,
+    enableBeta: ENABLE_BETA,
     ecosystemAnonIdPublicKeys: ECOSYSTEM_ANON_ID_PUBLIC_KEYS,
     isCoppaEnabled: COPPA_ENABLED,
     isPromptNoneEnabled: PROMPT_NONE_ENABLED,
