@@ -27,7 +27,6 @@ const MOCK_DEVICE_ID = 'a72ed885e66cb9c96a12fde247112daa';
 
 describe('newTokenNotification', () => {
   let db;
-  let oauthdb;
   let mailer;
   let devices;
   let request;
@@ -39,6 +38,11 @@ describe('newTokenNotification', () => {
         return MOCK_CHECK_RESPONSE;
       },
     },
+    '../../oauth/client': {
+      getClientById: async function () {
+        return {};
+      },
+    },
   });
 
   beforeEach(() => {
@@ -47,7 +51,6 @@ describe('newTokenNotification', () => {
       emailVerified: true,
       uid: MOCK_UID,
     });
-    oauthdb = mocks.mockOAuthDB();
     mailer = mocks.mockMailer();
     devices = mocks.mockDevices();
     credentials = {
@@ -62,14 +65,7 @@ describe('newTokenNotification', () => {
   });
 
   it('creates a device and sends an email with credentials uid', async () => {
-    await oauthUtils.newTokenNotification(
-      db,
-      oauthdb,
-      mailer,
-      devices,
-      request,
-      grant
-    );
+    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
     assert.equal(devices.upsert.callCount, 1, 'created a device');
@@ -87,14 +83,7 @@ describe('newTokenNotification', () => {
       uid: MOCK_UID,
       createdAt: Date.now(),
     });
-    await oauthUtils.newTokenNotification(
-      db,
-      oauthdb,
-      mailer,
-      devices,
-      request,
-      grant
-    );
+    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
     assert.equal(devices.upsert.callCount, 1, 'created a device');
@@ -103,14 +92,7 @@ describe('newTokenNotification', () => {
   it('creates a device and sends an email with token uid', async () => {
     credentials = {};
     request = mocks.mockRequest({ credentials });
-    await oauthUtils.newTokenNotification(
-      db,
-      oauthdb,
-      mailer,
-      devices,
-      request,
-      grant
-    );
+    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
     assert.equal(devices.upsert.callCount, 1, 'created a device');
@@ -118,14 +100,7 @@ describe('newTokenNotification', () => {
 
   it('does nothing for non-NOTIFICATION_SCOPES', async () => {
     grant.scope = 'profile';
-    await oauthUtils.newTokenNotification(
-      db,
-      oauthdb,
-      mailer,
-      devices,
-      request,
-      grant
-    );
+    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
     assert.equal(devices.upsert.callCount, 0);
@@ -136,14 +111,7 @@ describe('newTokenNotification', () => {
       uid: MOCK_UID,
     };
     request = mocks.mockRequest({ credentials });
-    await oauthUtils.newTokenNotification(
-      db,
-      oauthdb,
-      mailer,
-      devices,
-      request,
-      grant
-    );
+    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
     assert.equal(devices.upsert.callCount, 1);
@@ -158,14 +126,7 @@ describe('newTokenNotification', () => {
       deviceId: MOCK_DEVICE_ID,
     };
     request = mocks.mockRequest({ credentials });
-    await oauthUtils.newTokenNotification(
-      db,
-      oauthdb,
-      mailer,
-      devices,
-      request,
-      grant
-    );
+    await oauthUtils.newTokenNotification(db, mailer, devices, request, grant);
 
     assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
     assert.equal(devices.upsert.callCount, 1);

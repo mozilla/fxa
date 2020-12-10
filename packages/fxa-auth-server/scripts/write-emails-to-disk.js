@@ -54,7 +54,7 @@ require('../lib/senders/translator')(
   config.i18n.defaultLanguage
 )
   .then((translator) => {
-    return createSenders(log, config, error, translator, {}, {}, mailSender);
+    return createSenders(log, config, error, translator, {}, mailSender);
   })
   .then((senders) => {
     const mailer = senders.email._ungatedMailer;

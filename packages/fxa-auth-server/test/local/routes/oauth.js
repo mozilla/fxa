@@ -90,29 +90,6 @@ describe('/oauth/ routes', () => {
     };
   });
 
-  describe('/oauth/client/{client_id}', () => {
-    it('calls oauthdb.getClientInfo', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        getClientInfo: sinon.spy(async () => {
-          return { id: MOCK_CLIENT_ID, name: 'mock client' };
-        }),
-      });
-      const mockRequest = mocks.mockRequest({
-        params: {
-          client_id: MOCK_CLIENT_ID,
-        },
-      });
-      const resp = await loadAndCallRoute(
-        '/oauth/client/{client_id}',
-        mockRequest
-      );
-      assert.calledOnce(mockOAuthDB.getClientInfo);
-      assert.calledWithExactly(mockOAuthDB.getClientInfo, MOCK_CLIENT_ID);
-      assert.equal(resp.id, MOCK_CLIENT_ID);
-      assert.equal(resp.name, 'mock client');
-    });
-  });
-
   describe('/oauth/id-token-verify', () => {
     let MOCK_ID_TOKEN_CLAIMS, mockVerify;
 

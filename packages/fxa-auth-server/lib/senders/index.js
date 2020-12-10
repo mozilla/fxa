@@ -12,12 +12,11 @@ module.exports = async (
   config,
   error,
   translator,
-  oauthService,
   statsd,
   sender // This is only used in tests
 ) => {
   const defaultLanguage = config.i18n.defaultLanguage;
-  const Mailer = createMailer(log, config, oauthService);
+  const Mailer = createMailer(log, config);
 
   async function createSenders() {
     const templates = await require('./templates')(log, translator);

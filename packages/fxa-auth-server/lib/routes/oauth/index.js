@@ -15,6 +15,10 @@ module.exports = (log) => {
     require('./verify')({ log }),
   ];
 
+  const clientGetAlias = require('./client/get')({ log, oauthDB });
+  clientGetAlias.path = '/oauth/client/{client_id}';
+  routes.push(clientGetAlias);
+
   routes.forEach((r) => {
     r.config.cors = { origin: 'ignore' };
     if (r.method !== 'GET' && r.method !== 'HEAD') {

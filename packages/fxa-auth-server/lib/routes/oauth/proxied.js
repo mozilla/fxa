@@ -50,32 +50,6 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
 
   const routes = [
     {
-      method: 'GET',
-      path: '/oauth/client/{client_id}',
-      config: {
-        validate: {
-          params: {
-            clientId: validators.clientId.required(),
-          },
-        },
-        response: {
-          schema: {
-            id: validators.clientId.required(),
-            name: Joi.string()
-              .max(255)
-              .regex(validators.DISPLAY_SAFE_UNICODE)
-              .required(),
-            trusted: Joi.boolean().required(),
-            image_uri: Joi.string().optional().allow(''),
-            redirect_uri: Joi.string().required().allow(''),
-          },
-        },
-      },
-      handler: async function (request) {
-        return oauthService.getClientInfo(request.params.client_id);
-      },
-    },
-    {
       method: 'POST',
       path: '/account/scoped-key-data',
       config: {
@@ -375,7 +349,6 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
           // then we want to send some notifications to the user
           await oauthRouteUtils.newTokenNotification(
             db,
-            oauthService,
             mailer,
             devices,
             request,
