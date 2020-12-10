@@ -356,10 +356,7 @@ async function create(
   server.auth.scheme(authOauth.AUTH_SCHEME, authOauth.strategy);
   server.auth.strategy('oauthToken', authOauth.AUTH_SCHEME, config.oauth);
 
-  server.auth.scheme(
-    'fxa-oauth-refreshToken',
-    schemeRefreshToken(config, db, oauthService)
-  );
+  server.auth.scheme('fxa-oauth-refreshToken', schemeRefreshToken(config, db));
 
   server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken');
 

@@ -8,12 +8,16 @@ const { assert } = require('chai');
 const proxyquire = require('proxyquire');
 const error = require('../../../../lib/error');
 const sinon = require('sinon');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
+const USER_ID = Buffer.from('620203b5773b4c1d968e1fd4505a6885', 'hex');
 const OAUTH_CLIENT_ID = '3c49430b43dfba77';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
+const oauthDB = { getRefreshToken: sinon.spy(() => Promise.resolve()) };
 const schemeRefreshToken = proxyquire(
   '../../../../lib/routes/auth-schemes/refresh-token',
   {
+    '../../oauth/db': oauthDB,
     '../../oauth/client': {
       getClientById: async function () {
         return {
@@ -22,6 +26,7 @@ const schemeRefreshToken = proxyquire(
           trusted: true,
           image_uri: '',
           redirect_uri: `http://localhost:3030/oauth/success/${OAUTH_CLIENT_ID}`,
+          publicClient: true,
         };
       },
     },
@@ -31,7 +36,6 @@ const schemeRefreshToken = proxyquire(
 describe('lib/routes/auth-schemes/refresh-token', () => {
   let config;
   let db;
-  let oauthdb;
   let response;
 
   beforeEach(() => {
@@ -43,7 +47,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
           {
             id: '5eb89097bab6551de3614facaea59cab',
             refreshTokenId:
-              '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7',
+              '5b541d00ea0c0dc775e060c95a1ee7ca617cf95a05d177ec09fd6f62ca9b2913',
             isCurrentDevice: false,
             location: {},
             name: 'first device',
@@ -58,10 +62,6 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
           },
         ])
       ),
-    };
-
-    oauthdb = {
-      checkRefreshToken: sinon.spy(() => () => Promise.resolve({})),
     };
 
     response = {
@@ -99,7 +99,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
   });
 
   it('works with a good authorization header', async () => {
-    const scheme = schemeRefreshToken(config, db, oauthdb);
+    const scheme = schemeRefreshToken(config, db);
     await scheme().authenticate(
       {
         headers: {
@@ -115,16 +115,14 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
   });
 
   it('authenticates with devices', async () => {
-    oauthdb.checkRefreshToken = sinon.spy(() =>
+    oauthDB.getRefreshToken = sinon.spy(() =>
       Promise.resolve({
-        active: true,
-        scope: 'https://identity.mozilla.com/apps/oldsync',
-        sub: '620203b5773b4c1d968e1fd4505a6885',
-        jti: '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7',
+        scope: ScopeSet.fromString('https://identity.mozilla.com/apps/oldsync'),
+        userId: USER_ID,
       })
     );
 
-    const scheme = schemeRefreshToken(config, db, oauthdb);
+    const scheme = schemeRefreshToken(config, db);
     await scheme().authenticate(
       {
         headers: {
@@ -150,9 +148,10 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
         name: OAUTH_CLIENT_NAME,
         redirect_uri: `http://localhost:3030/oauth/success/${OAUTH_CLIENT_ID}`,
         trusted: true,
+        publicClient: true,
       },
       refreshTokenId:
-        '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7',
+        '5b541d00ea0c0dc775e060c95a1ee7ca617cf95a05d177ec09fd6f62ca9b2913',
       deviceAvailableCommands: {},
       deviceCallbackAuthKey: undefined,
       deviceCallbackIsExpired: undefined,
@@ -163,16 +162,14 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
   });
 
   it('requires an approved scope to authenticate', async () => {
-    oauthdb.checkRefreshToken = sinon.spy(() =>
+    oauthDB.getRefreshToken = sinon.spy(() =>
       Promise.resolve({
-        active: true,
-        scope: 'profile',
-        sub: '620203b5773b4c1d968e1fd4505a6885',
-        jti: '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7',
+        scope: ScopeSet.fromString('profile'),
+        userId: USER_ID,
       })
     );
 
-    const scheme = schemeRefreshToken(config, db, oauthdb);
+    const scheme = schemeRefreshToken(config, db);
     await scheme().authenticate(
       {
         headers: {
@@ -192,9 +189,9 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
   });
 
   it('requires an known refresh token to authenticate', async () => {
-    oauthdb.checkRefreshToken = sinon.spy(() => Promise.resolve());
+    oauthDB.getRefreshToken = sinon.spy(() => Promise.resolve());
 
-    const scheme = schemeRefreshToken(config, db, oauthdb);
+    const scheme = schemeRefreshToken(config, db);
     await scheme().authenticate(
       {
         headers: {
@@ -214,16 +211,9 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
   });
 
   it('requires an active refresh token to authenticate', async () => {
-    oauthdb.checkRefreshToken = sinon.spy(() =>
-      Promise.resolve({
-        active: false,
-        scope: 'https://identity.mozilla.com/apps/oldsync',
-        sub: '620203b5773b4c1d968e1fd4505a6885',
-        jti: '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7',
-      })
-    );
+    oauthDB.getRefreshToken = sinon.spy(() => Promise.resolve());
 
-    const scheme = schemeRefreshToken(config, db, oauthdb);
+    const scheme = schemeRefreshToken(config, db);
     await scheme().authenticate(
       {
         headers: {
@@ -243,17 +233,8 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
   });
 
   it('can be preffed off via feature-flag', async () => {
-    oauthdb.checkRefreshToken = sinon.spy(() =>
-      Promise.resolve({
-        active: false,
-        scope: 'https://identity.mozilla.com/apps/oldsync',
-        sub: '620203b5773b4c1d968e1fd4505a6885',
-        jti: '40f61392cf69b0be709fbd3122d0726bb32247b476b2a28451345e7a5555cec7',
-      })
-    );
-
     config.oauth.deviceAccessEnabled = false;
-    const scheme = schemeRefreshToken(config, db, oauthdb);
+    let scheme = schemeRefreshToken(config, db);
     try {
       await scheme().authenticate(
         {
@@ -269,10 +250,11 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
       assert.equal(err.errno, error.ERRNO.FEATURE_NOT_ENABLED);
     }
     assert.isTrue(response.unauthenticated.notCalled);
-    assert.isTrue(oauthdb.checkRefreshToken.notCalled);
 
+    oauthDB.getRefreshToken = sinon.spy(() => Promise.resolve());
     // eslint-disable-next-line require-atomic-updates
     config.oauth.deviceAccessEnabled = true;
+    scheme = schemeRefreshToken(config, db);
     await scheme().authenticate(
       {
         headers: {

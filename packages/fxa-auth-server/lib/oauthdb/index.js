@@ -40,14 +40,6 @@ module.exports = (log, config) => {
   }
 
   return {
-    async checkRefreshToken(token) {
-      return callRoute('/introspect', {
-        payload: {
-          token,
-        },
-      });
-    },
-
     async revokeAccessToken(accessToken, clientCredentials = {}) {
       return callRoute('/destroy', {
         payload: {
