@@ -17806,7 +17806,7 @@ fsevents@^1.2.7:
     lodash.pick: 4.4.0
     mailparser: 0.6.1
     memcached: ^2.2.2
-    mkdirp: 0.5.1
+    mkdirp: 1.0.4
     mocha: ^7.1.2
     mocha-junit-reporter: ^2.0.0
     moment: ^2.24.0
@@ -17962,7 +17962,7 @@ fsevents@^1.2.7:
     legal-docs: "git://github.com/mozilla/legal-docs.git#192bc493988026c4ebd065132a0796548fb3431e"
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.19
-    mkdirp: 0.5.1
+    mkdirp: 1.0.4
     mocha: ^7.1.2
     morgan: ^1.10.0
     mozlog: ^3.0.1
@@ -18196,7 +18196,7 @@ fsevents@^1.2.7:
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     maxmind: 2.8.0
-    mkdirp: 0.5.1
+    mkdirp: 1.0.4
     mocha: ^7.1.2
     mozlog: ^3.0.1
     nyc: ^15.0.1
@@ -18490,7 +18490,7 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     insist: 1.0.1
     lodash: ^4.17.19
-    mkdirp: 0.5.1
+    mkdirp: 1.0.4
     mocha: ^7.1.2
     mocha-text-cov: 0.1.1
     mozlog: ^3.0.1
