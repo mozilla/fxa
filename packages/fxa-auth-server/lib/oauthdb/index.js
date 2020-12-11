@@ -118,12 +118,5 @@ module.exports = (log, config) => {
         payload: oauthParams,
       });
     },
-
-    async revokeAuthorizedClient(sessionToken, oauthParams) {
-      oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
-      return callRoute('/authorized-clients/destroy', {
-        payload: oauthParams,
-      });
-    },
   };
 };

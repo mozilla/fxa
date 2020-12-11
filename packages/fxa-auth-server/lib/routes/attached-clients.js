@@ -6,6 +6,7 @@
 
 const isA = require('@hapi/joi');
 const validators = require('./validators');
+const authorizedClients = require('../oauth/authorized_clients');
 const error = require('../error');
 
 const HEX_STRING = validators.HEX_STRING;
@@ -276,10 +277,11 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
           // It was probably some sort of race in deleting the token, and the account
           // is in the desired state.
           try {
-            await oauthdb.revokeAuthorizedClient(credentials, {
-              client_id: payload.clientId,
-              refresh_token_id: payload.refreshTokenId,
-            });
+            await authorizedClients.destroy(
+              payload.clientId,
+              credentials.uid,
+              payload.refreshTokenId
+            );
           } catch (err) {
             if (err.errno !== error.ERRNO.REFRESH_TOKEN_UNKNOWN) {
               throw err;
@@ -292,9 +294,7 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
               'sessionTokenId cannot be present for non-device OAuth client'
             );
           }
-          await oauthdb.revokeAuthorizedClient(credentials, {
-            client_id: payload.clientId,
-          });
+          await authorizedClients.destroy(payload.clientId, credentials.uid);
         } else if (payload.sessionTokenId) {
           // We've got a plain web session on our hands.
           // Need to check that it actually belongs to this user, unless it's the current session.
