@@ -52,16 +52,7 @@ function logEndpointErrors(response, log) {
   }
 }
 
-async function create(
-  log,
-  error,
-  config,
-  routes,
-  db,
-  oauthService,
-  translator,
-  statsd
-) {
+async function create(log, error, config, routes, db, translator, statsd) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config);

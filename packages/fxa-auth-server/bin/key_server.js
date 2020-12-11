@@ -116,7 +116,6 @@ async function run(config) {
     config,
     routes,
     database,
-    oauthService,
     translator,
     statsd
   );
