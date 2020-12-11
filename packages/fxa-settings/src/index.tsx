@@ -15,11 +15,11 @@ import { createApolloClient } from './lib/gql';
 import './index.scss';
 
 try {
-  sentryMetrics.configure(config.sentry.dsn, config.version);
   readConfigMeta((name: string) => {
     return document.head.querySelector(name);
   });
 
+  sentryMetrics.configure(config.sentry.dsn, config.version);
   const authClient = createAuthClient(config.servers.auth.url);
   const apolloClient = createApolloClient(config.servers.gql.url);
   const flowQueryParams = searchParams(
