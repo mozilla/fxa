@@ -948,7 +948,7 @@ module.exports = (
       path: '/account/profile',
       options: {
         auth: {
-          strategies: ['sessionToken', 'oauthToken', 'oauthServerJWT'],
+          strategies: ['sessionToken', 'oauthToken'],
         },
         response: {
           schema: {
