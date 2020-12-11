@@ -6099,7 +6099,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/joi@npm:^14.3.3":
+"@types/joi@npm:^14.3.3, @types/joi@npm:^14.3.4":
   version: 14.3.4
   resolution: "@types/joi@npm:14.3.4"
   checksum: bea51931b08e8ddc6b7612eb0d4a5d19b02157dea69ac6d7080789848218cb05a8f44a7e0ffb95f75b90f3feeb8314a5eed0f1ddd3369a5e6bbe4d7b4bfad0f1
@@ -18524,6 +18524,7 @@ fsevents@^1.2.7:
     "@types/chance": ^1
     "@types/generic-pool": ^3.1.9
     "@types/jest": ^26.0.13
+    "@types/joi": ^14.3.4
     "@types/js-md5": ^0.4.2
     "@types/lodash.omitby": ^4
     "@types/lodash.pick": ^4

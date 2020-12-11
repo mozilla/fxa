@@ -16,6 +16,7 @@ mockLink.setOnError((error) => {
 
 const appProps = {
   flowQueryParams: {},
+  config: { metrics: { navTiming: { enabled: false, endpoint: '' } } },
 };
 
 beforeEach(() => {

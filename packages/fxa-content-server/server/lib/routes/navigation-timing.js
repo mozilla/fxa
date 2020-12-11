@@ -9,24 +9,18 @@ const {
   navigationTimingSchema,
 } = require('fxa-shared/metrics/navigation-timing-validation');
 
-module.exports = (statsd) => ({
+module.exports = (config, statsd) => ({
   method: 'post',
   path: '/navigation-timing',
   validate: { body: navigationTimingSchema },
-  // TODO: safe to remove the preProcess function after GH #5071 is in prod
-  preProcess: function (req, res, next) {
-    // convert text/plain to JSON
-    if (req.get('content-type').startsWith('text/plain')) {
-      try {
-        req.body = JSON.parse(req.body);
-      } catch (error) {
-        req.body = {};
-      }
+  preProcess: (_, res, next) => {
+    if (!config.get('statsd').enabled) {
+      res.status(200).end();
+    } else {
+      next();
     }
-
-    next();
   },
-  process(request, response) {
+  process: (request, response) => {
     try {
       const nt = request.body;
       const url = new URL(nt.name);

@@ -29,6 +29,7 @@ const serveStatic = require('serve-static');
 
 const config = require('../lib/configuration');
 const sentry = require('../lib/sentry');
+const statsd = require('../lib/statsd');
 const { cors, routing } = require('fxa-shared/express')();
 const {
   useSettingsProxy,
@@ -173,7 +174,7 @@ function makeApp() {
 
   app.use(noindex);
 
-  const routes = require('../lib/routes')(config, i18n);
+  const routes = require('../lib/routes')(config, i18n, statsd);
   const routeLogger = loggerFactory('server.routes');
   const routeHelpers = routing(app, routeLogger);
   routes.forEach(routeHelpers.addRoute);

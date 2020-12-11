@@ -8,7 +8,12 @@ export const META_CONFIG = 'fxa-config';
 
 export interface Config {
   env: string;
-  version: string;
+  metrics: {
+    navTiming: {
+      enabled: boolean;
+      endpoint: string;
+    };
+  };
   sentry: {
     dsn: string;
   };
@@ -20,11 +25,15 @@ export interface Config {
       url: string;
     };
   };
+  version: string;
 }
 
 export function getDefault() {
   return {
     env: 'development',
+    metrics: {
+      navTiming: { enabled: false, endpoint: '/check-your-metrics-config' },
+    },
     sentry: {
       dsn: '',
     },

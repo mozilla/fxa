@@ -31,7 +31,7 @@ try {
       <ApolloProvider client={apolloClient}>
         <AuthContext.Provider value={{ auth: authClient }}>
           <AppErrorBoundary>
-            <App {...{ flowQueryParams }} />
+            <App {...{ flowQueryParams, config }} />
           </AppErrorBoundary>
         </AuthContext.Provider>
       </ApolloProvider>
