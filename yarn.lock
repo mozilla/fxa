@@ -17842,7 +17842,6 @@ fsevents@^1.2.7:
     ts-node: ^8.10.2
     typedi: ^0.8.0
     typescript: 3.9.7
-    urijs: 1.19.2
     uuid: 1.4.1
     verror: ^1.10.0
     web-push: 3.4.4
@@ -37043,13 +37042,6 @@ typescript@~4.1.2:
   dependencies:
     punycode: ^2.1.0
   checksum: 651a49f55d6d65a15e589ed5ffa23bf99e495699e246c1c3fecbe6f232c675589fdae4e93a88608525ff130f39b6fb854c19982820813a2d94c005c11eafd7ed
-  languageName: node
-  linkType: hard
-
-"urijs@npm:1.19.2":
-  version: 1.19.2
-  resolution: "urijs@npm:1.19.2"
-  checksum: de6b943c354b092be71e10c5c16d9d9b67186d6283031f55382d11507dc8a7748001b5aa8136f515f746f2f4786d7f4e43e17c23ba661abcc7dbbbe254924feb
   languageName: node
   linkType: hard
 

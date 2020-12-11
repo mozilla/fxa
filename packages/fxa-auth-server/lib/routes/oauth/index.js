@@ -2,7 +2,6 @@ const oauthDB = require('../../oauth/db');
 
 module.exports = (log) => {
   const routes = [
-    require('./redirect')({ log, oauthDB }),
     require('./authorization')({ log, oauthDB }),
     require('./authorized-clients/destroy')({ oauthDB }),
     require('./authorized-clients/list')({ oauthDB }),
@@ -14,7 +13,7 @@ module.exports = (log) => {
     require('./key_data')({ log, oauthDB }),
     require('./token')({ log, oauthDB }),
     require('./verify')({ log }),
-  ];
+  ].flat();
 
   const clientGetAlias = require('./client/get')({ log, oauthDB });
   clientGetAlias.path = '/oauth/client/{client_id}';
