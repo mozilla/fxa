@@ -12,7 +12,7 @@ const error = require('../error');
 const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;
 
-module.exports = (log, db, oauthdb, devices, clientUtils) => {
+module.exports = (log, db, devices, clientUtils) => {
   return [
     {
       method: 'GET',
@@ -91,8 +91,8 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         // but would need to add a new db-server endpoint because each set can contain items
         // that the other does not.
         const devicesList = await request.app.devices;
-        const oauthClientsP = oauthdb.listAuthorizedClients(
-          request.auth.credentials
+        const oauthClientsP = authorizedClients.list(
+          request.auth.credentials.uid
         );
         const sessionsP = db.sessions(uid);
 

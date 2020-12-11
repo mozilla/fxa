@@ -15,6 +15,11 @@ const uuid = require('uuid');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
+const mockAuthorizedClients = {
+  destroy: sinon.spy(() => Promise.resolve()),
+  list: sinon.spy(() => Promise.resolve()),
+};
+
 function makeRoutes(options = {}) {
   const config = options.config || {};
   config.smtp = config.smtp || {};
@@ -45,10 +50,8 @@ function makeRoutes(options = {}) {
     options.clientUtils ||
     require('../../../lib/routes/utils/clients')(log, config);
   return proxyquire('../../../lib/routes/attached-clients', {
-    '../oauth/authorized_clients': {
-      async destroy() {},
-    },
-  })(log, db, oauthdb, devices, clientUtils);
+    '../oauth/authorized_clients': mockAuthorizedClients,
+  })(log, db, devices, clientUtils);
 }
 
 function newId(size = 32) {
@@ -186,7 +189,7 @@ describe('/account/attached_clients', () => {
     request.app.devices = (async () => {
       return DEVICES;
     })();
-    oauthdb.listAuthorizedClients = sinon.spy(async () => {
+    mockAuthorizedClients.list = sinon.spy(async () => {
       return OAUTH_CLIENTS;
     });
     db.sessions = sinon.spy(async () => {
@@ -333,7 +336,7 @@ describe('/account/attached_clients', () => {
     request.app.devices = (async () => {
       return DEVICES;
     })();
-    oauthdb.listAuthorizedClients = sinon.spy(async () => {
+    mockAuthorizedClients.list = sinon.spy(async () => {
       return OAUTH_CLIENTS;
     });
     db.sessions = sinon.spy(async () => {

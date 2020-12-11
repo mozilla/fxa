@@ -106,7 +106,6 @@ const OAUTHDB_METHOD_NAMES = [
   'grantTokensFromAuthorizationCode',
   'grantTokensFromRefreshToken',
   'grantTokensFromSessionToken',
-  'listAuthorizedClients',
 ];
 
 const LOG_METHOD_NAMES = [
