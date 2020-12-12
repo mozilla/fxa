@@ -80,69 +80,6 @@ module.exports = (log, config, oauthService, db, mailer, devices) => {
     },
     {
       method: 'POST',
-      path: '/oauth/authorization',
-      config: {
-        auth: {
-          strategy: 'sessionToken',
-        },
-        validate: {
-          payload: Joi.object({
-            response_type: Joi.string().valid('code').default('code'),
-            client_id: validators.clientId.required(),
-            redirect_uri: Joi.string()
-              .max(256)
-              .uri({
-                scheme: ['http', 'https'],
-              })
-              .optional(),
-            scope: validators.scope.optional(),
-            state: Joi.string().max(512).required(),
-            access_type: Joi.string()
-              .valid('offline', 'online')
-              .default('online'),
-            code_challenge_method: validators.pkceCodeChallengeMethod.optional(),
-            code_challenge: validators.pkceCodeChallenge.optional(),
-            keys_jwe: validators.jwe.optional(),
-            acr_values: Joi.string().max(256).allow(null).optional(),
-            assertion: Joi.forbidden(),
-            resource: Joi.forbidden(),
-          }).and('code_challenge', 'code_challenge_method'),
-        },
-        response: {
-          schema: Joi.object({
-            redirect: Joi.string(),
-            code: validators.authorizationCode,
-            state: Joi.string().max(512),
-          }),
-        },
-      },
-      handler: async function (request) {
-        checkDisabledClientId(request.payload);
-        const geoData = request.app.geo;
-        const country = geoData.location && geoData.location.country;
-        const countryCode = geoData.location && geoData.location.countryCode;
-        const sessionToken = request.auth.credentials;
-        const { email, uid } = sessionToken;
-        const devices = await request.app.devices;
-        const result = await oauthService.createAuthorizationCode(
-          sessionToken,
-          request.payload
-        );
-        await log.notifyAttachedServices('login', request, {
-          country,
-          countryCode,
-          deviceCount: devices.length,
-          email,
-          service: request.payload.client_id,
-          clientId: request.payload.client_id,
-          uid,
-          userAgent: request.headers['user-agent'],
-        });
-        return result;
-      },
-    },
-    {
-      method: 'POST',
       path: '/oauth/token',
       config: {
         auth: {

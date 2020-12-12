@@ -5,11 +5,11 @@
 const hex = require('buf').to.hex;
 const Joi = require('@hapi/joi');
 
-const contentUrl = require('../../../config').get('oauthServer.contentUrl');
-const AppError = require('../../oauth/error');
-const config = require('../../../config');
+const OauthError = require('../../oauth/error');
+const AuthError = require('../../error');
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
+const { makeAssertionJWT } = require('../../oauthdb/utils');
 const verifyAssertion = require('../../oauth/assertion');
 
 const RESPONSE_TYPE_CODE = 'code';
@@ -21,34 +21,48 @@ const ACCESS_TYPE_OFFLINE = 'offline';
 const PKCE_SHA256_CHALLENGE_METHOD = 'S256'; // This server only supports S256 PKCE, no 'plain'
 const PKCE_CODE_CHALLENGE_LENGTH = 43;
 
-const MAX_TTL_S = config.get('oauthServer.expiration.accessToken') / 1000;
-
-const DISABLED_CLIENTS = new Set(config.get('oauthServer.disabledClients'));
-
-var ALLOWED_SCHEMES = ['https'];
-
-if (config.get('oauthServer.allowHttpRedirects') === true) {
-  // http scheme used when developing OAuth clients
-  ALLOWED_SCHEMES.push('http');
-}
-
 function isLocalHost(url) {
   var host = new URL(url).hostname;
   return host === 'localhost' || host === 'localhost';
 }
 
-module.exports = ({ log, oauthDB }) => {
+module.exports = ({ log, oauthDB, config }) => {
+  if (!config) {
+    config = require('../../../config').getProperties();
+  }
+  const MAX_TTL_S = config.oauthServer.expiration.accessToken / 1000;
+
+  const DISABLED_CLIENTS = new Set(config.oauthServer.disabledClients);
+
+  const ALLOWED_SCHEMES = ['https'];
+
+  if (config.oauthServer.allowHttpRedirects === true) {
+    // http scheme used when developing OAuth clients
+    ALLOWED_SCHEMES.push('http');
+  }
+  const contentUrl = config.oauthServer.contentUrl;
+  const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
+    // TODO: dedupe config param with `oauthServer.disabledClients`
+    config.oauth.disableNewConnectionsForClients || []
+  );
+
+  function checkDisabledClientId(payload) {
+    const clientId = payload.client_id;
+    if (OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(clientId)) {
+      throw AuthError.disabledClientId(clientId);
+    }
+  }
   async function generateAuthorizationCode(client, payload, grant) {
     // Clients must use PKCE if and only if they are a pubic client.
     if (client.publicClient) {
       if (!payload.code_challenge_method || !payload.code_challenge) {
         log.info('client.missingPkceParameters');
-        throw AppError.missingPkceParameters();
+        throw OauthError.missingPkceParameters();
       }
     } else {
       if (payload.code_challenge_method || payload.code_challenge) {
         log.info('client.notPublicClient');
-        throw AppError.notPublicClient({ id: payload.client_id });
+        throw OauthError.notPublicClient({ id: payload.client_id });
       }
     }
 
@@ -95,7 +109,7 @@ module.exports = ({ log, oauthDB }) => {
         id: hex(client.id),
         grant_type: 'fxa-credentials',
       });
-      throw AppError.invalidResponseType();
+      throw OauthError.invalidResponseType();
     }
     const ttl = Math.min(payload.ttl, MAX_TTL_S);
     return generateTokens({
@@ -116,13 +130,39 @@ module.exports = ({ log, oauthDB }) => {
         registered: client.redirectUri,
       });
       if (
-        config.get('oauthServer.localRedirects') &&
+        config.oauthServer.localRedirects &&
         isLocalHost(payload.redirect_uri)
       ) {
         log.debug('redirect.local', { uri: payload.redirect_uri });
       } else {
-        throw AppError.incorrectRedirect(payload.redirect_uri);
+        throw OauthError.incorrectRedirect(payload.redirect_uri);
       }
+    }
+  }
+
+  async function authorizationHandler(req) {
+    const claims = await verifyAssertion(req.payload.assertion);
+
+    const client = await oauthDB.getClient(
+      Buffer.from(req.payload.client_id, 'hex')
+    );
+    if (!client) {
+      log.debug('notFound', { id: req.payload.client_id });
+      throw OauthError.unknownClient(req.payload.client_id);
+    }
+    validateClientDetails(client, req.payload);
+    const grant = await validateRequestedGrant(claims, client, req.payload);
+    switch (req.payload.response_type) {
+      case RESPONSE_TYPE_CODE:
+        return await generateAuthorizationCode(client, req.payload, grant);
+      case RESPONSE_TYPE_TOKEN:
+        return await generateImplicitGrant(client, req.payload, grant);
+      default:
+        // Joi validation means this should never happen.
+        log.fatal('joi.response_type', {
+          response_type: req.payload.response_type,
+        });
+        throw OauthError.invalidResponseType();
     }
   }
 
@@ -136,7 +176,7 @@ module.exports = ({ log, oauthDB }) => {
           // to prevent a malicious OAuth server from stealing
           // a user's Scoped Keys. See bz1456351
           if (req.query.keys_jwk) {
-            throw AppError.invalidRequestParameter({ keys: ['keys_jwk'] });
+            throw OauthError.invalidRequestParameter({ keys: ['keys_jwk'] });
           }
 
           const redirect = new URL(contentUrl);
@@ -234,44 +274,75 @@ module.exports = ({ log, oauthDB }) => {
             .with('code', ['state', 'redirect'])
             .without('code', ['access_token']),
         },
-        handler: async function authorizationEndpoint(req) {
+        handler: function (req) {
           // Refuse to generate new codes or tokens for disabled clients.
           if (DISABLED_CLIENTS.has(req.payload.client_id)) {
-            throw AppError.disabledClient(req.payload.client_id);
+            throw OauthError.disabledClient(req.payload.client_id);
           }
-
-          const claims = await verifyAssertion(req.payload.assertion);
-
-          const client = await oauthDB.getClient(
-            Buffer.from(req.payload.client_id, 'hex')
-          );
-          if (!client) {
-            log.debug('notFound', { id: req.payload.client_id });
-            throw AppError.unknownClient(req.payload.client_id);
-          }
-          validateClientDetails(client, req.payload);
-          const grant = await validateRequestedGrant(
-            claims,
-            client,
-            req.payload
-          );
-          switch (req.payload.response_type) {
-            case RESPONSE_TYPE_CODE:
-              return await generateAuthorizationCode(
-                client,
-                req.payload,
-                grant
-              );
-            case RESPONSE_TYPE_TOKEN:
-              return await generateImplicitGrant(client, req.payload, grant);
-            default:
-              // Joi validation means this should never happen.
-              log.fatal('joi.response_type', {
-                response_type: req.payload.response_type,
-              });
-              throw AppError.invalidResponseType();
-          }
+          return authorizationHandler(req);
         },
+      },
+    },
+    {
+      method: 'POST',
+      path: '/oauth/authorization',
+      config: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: Joi.object({
+            response_type: Joi.string().valid('code').default('code'),
+            client_id: validators.clientId.required(),
+            redirect_uri: Joi.string()
+              .max(256)
+              .uri({
+                scheme: ['http', 'https'],
+              })
+              .optional(),
+            scope: validators.scope.optional(),
+            state: Joi.string().max(512).required(),
+            access_type: Joi.string()
+              .valid('offline', 'online')
+              .default('online'),
+            code_challenge_method: validators.pkceCodeChallengeMethod.optional(),
+            code_challenge: validators.pkceCodeChallenge.optional(),
+            keys_jwe: validators.jwe.optional(),
+            acr_values: Joi.string().max(256).allow(null).optional(),
+            assertion: Joi.forbidden(),
+            resource: Joi.forbidden(),
+          }).and('code_challenge', 'code_challenge_method'),
+        },
+        response: {
+          schema: Joi.object({
+            redirect: Joi.string(),
+            code: Joi.string(),
+            state: Joi.string().max(512),
+          }),
+        },
+      },
+      handler: async function (req) {
+        checkDisabledClientId(req.payload);
+        const sessionToken = req.auth.credentials;
+        req.payload.assertion = await makeAssertionJWT(config, sessionToken);
+        const result = authorizationHandler(req);
+
+        const geoData = req.app.geo;
+        const country = geoData.location && geoData.location.country;
+        const countryCode = geoData.location && geoData.location.countryCode;
+        const { email, uid } = sessionToken;
+        const devices = await req.app.devices;
+        await log.notifyAttachedServices('login', req, {
+          country,
+          countryCode,
+          deviceCount: devices.length,
+          email,
+          service: req.payload.client_id,
+          clientId: req.payload.client_id,
+          uid,
+          userAgent: req.headers['user-agent'],
+        });
+        return result;
       },
     },
   ];

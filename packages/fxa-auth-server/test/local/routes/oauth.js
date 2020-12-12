@@ -43,7 +43,7 @@ describe('/oauth/ routes', () => {
       mockConfig,
       mockOAuthDB,
       mockDB
-    ).concat(require('../../../lib/routes/oauth')(mockLog));
+    ).concat(require('../../../lib/routes/oauth')(mockLog, mockConfig));
     const route = await getRoute(routes, path);
     if (route.config.validate.payload) {
       // eslint-disable-next-line require-atomic-updates
@@ -87,6 +87,13 @@ describe('/oauth/ routes', () => {
     mockLog = mocks.mockLog();
     mockConfig = {
       oauth: {},
+      oauthServer: {
+        expiration: {
+          accessToken: 999,
+        },
+        disabledClients: [],
+        contentUrl: 'http://localhost:3030',
+      },
     };
   });
 
@@ -215,51 +222,6 @@ describe('/oauth/ routes', () => {
   });
 
   describe('/oauth/authorization', () => {
-    it('calls oauthdb.createAuthorizationCode', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        createAuthorizationCode: sinon.spy(async () => {
-          return {
-            redirect: 'bogus',
-            code: 'aaabbbccc',
-            state: 'xyz',
-          };
-        }),
-      });
-      sessionToken = await mockSessionToken();
-      const mockRequest = mocks.mockRequest({
-        credentials: sessionToken,
-        payload: {
-          client_id: MOCK_CLIENT_ID,
-          scope: MOCK_SCOPES,
-          state: 'xyz',
-        },
-      });
-      const resp = await loadAndCallRoute('/oauth/authorization', mockRequest);
-      assert.calledOnce(mockLog.notifyAttachedServices);
-      const notifyCall = mockLog.notifyAttachedServices.args[0];
-      assert.equal(notifyCall[0], 'login');
-      const notification = notifyCall[2];
-      assert.equal(notification.clientId, MOCK_CLIENT_ID);
-      assert.equal(notification.service, MOCK_CLIENT_ID);
-      assert.calledOnce(mockOAuthDB.createAuthorizationCode);
-      assert.calledWithExactly(
-        mockOAuthDB.createAuthorizationCode,
-        sessionToken,
-        {
-          client_id: MOCK_CLIENT_ID,
-          scope: MOCK_SCOPES,
-          state: 'xyz',
-          access_type: 'online',
-          response_type: 'code',
-        }
-      );
-      assert.deepEqual(resp, {
-        redirect: 'bogus',
-        code: 'aaabbbccc',
-        state: 'xyz',
-      });
-    });
-
     it('can refuse to authorize new grants for selected OAuth clients', async () => {
       mockOAuthDB = mocks.mockOAuthDB();
       mockConfig.oauth.disableNewConnectionsForClients = [MOCK_CLIENT_ID];
@@ -277,10 +239,8 @@ describe('/oauth/ routes', () => {
         assert.fail('should have thrown');
       } catch (err) {
         assert.equal(err.output.statusCode, 503);
-        assert.equal(err.output.headers['retry-after'], '30');
         assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
       }
-      assert.notCalled(mockOAuthDB.createAuthorizationCode);
     });
   });
 

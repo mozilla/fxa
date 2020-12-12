@@ -22,7 +22,7 @@ const { mapOAuthError, makeAssertionJWT } = require('./utils');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 module.exports = (log, config) => {
-  const oauthRoutes = require('../routes/oauth')(log);
+  const oauthRoutes = require('../routes/oauth')(log, config);
 
   const routes = new Map(
     oauthRoutes.map((route) => [route.path, route.config.handler])
@@ -71,16 +71,6 @@ module.exports = (log, config) => {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
       oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
       return callRoute('/key-data', {
-        payload: oauthParams,
-      });
-    },
-
-    async createAuthorizationCode(sessionToken, oauthParams) {
-      oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
-      if (oauthParams.scope) {
-        oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
-      }
-      return callRoute('/authorization', {
         payload: oauthParams,
       });
     },
