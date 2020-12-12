@@ -9,6 +9,7 @@ import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import AlertBar from '../AlertBar';
+import { isEmailValid } from 'fxa-shared/email/helpers';
 
 export const CREATE_SECONDARY_EMAIL_MUTATION = gql`
   mutation createSecondaryEmail($input: EmailInput!) {
@@ -60,8 +61,11 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
 
   const checkEmail = useCallback(
     (ev: ChangeEvent<HTMLInputElement>) => {
-      setSaveBtnDisabled(!ev.target.checkValidity());
+      const email = inputRef.current?.value || '';
+      const isValid = isEmailValid(email);
+      setSaveBtnDisabled(!isValid);
       setEmail(inputRef.current?.value);
+      setErrorText('');
     },
     [setSaveBtnDisabled]
   );
