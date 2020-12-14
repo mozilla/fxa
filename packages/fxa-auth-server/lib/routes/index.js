@@ -67,7 +67,7 @@ module.exports = function (
     oauthRawDB,
     stripeHelper
   );
-  const oauth = require('./oauth')(log);
+  const oauth = require('./oauth')(log, config);
   const oauthProxied = require('./oauth/proxied')(
     log,
     config,

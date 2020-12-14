@@ -24,7 +24,7 @@ const route = require('../../../lib/routes/oauth/authorization')({
     warn: _,
   },
   oauthDB: {},
-});
+})[1];
 
 describe('/authorization POST', function () {
   describe('input validation', () => {

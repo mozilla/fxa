@@ -102,7 +102,6 @@ const OAUTHDB_METHOD_NAMES = [
   'revokeRefreshToken',
   'revokeRefreshTokenById',
   'getScopedKeyData',
-  'createAuthorizationCode',
   'grantTokensFromAuthorizationCode',
   'grantTokensFromRefreshToken',
   'grantTokensFromSessionToken',
@@ -555,12 +554,21 @@ function mockOAuthDB(methods = {}) {
   // For OAuthDB, the mock object needs to expose a `.api` property
   // with route validation info, so we load the module directly.
   const log = methods.log || module.exports.mockLog();
-  const config = methods.config || {
+  const config = methods.config || {};
+  const defaults = {
     oauth: { url: 'http://mocked-oauth-url.net' },
+    oauthServer: {
+      expiration: {
+        accessToken: 999,
+      },
+      disabledClients: [],
+      contentUrl: 'http://localhost:3030',
+    },
   };
+
   return mockObject(
     OAUTHDB_METHOD_NAMES,
-    require('../lib/oauthdb')(log, config)
+    require('../lib/oauthdb')(log, Object.assign(defaults, config))
   )(methods);
 }
 

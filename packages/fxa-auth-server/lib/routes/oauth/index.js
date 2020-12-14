@@ -1,9 +1,8 @@
 const oauthDB = require('../../oauth/db');
 
-module.exports = (log) => {
+module.exports = (log, config) => {
   const routes = [
-    require('./redirect')({ log, oauthDB }),
-    require('./authorization')({ log, oauthDB }),
+    require('./authorization')({ log, oauthDB, config }),
     require('./authorized-clients/destroy')({ oauthDB }),
     require('./authorized-clients/list')({ oauthDB }),
     require('./client/get')({ log, oauthDB }),
@@ -14,13 +13,16 @@ module.exports = (log) => {
     require('./key_data')({ log, oauthDB }),
     require('./token')({ log, oauthDB }),
     require('./verify')({ log }),
-  ];
+  ].flat();
 
   const clientGetAlias = require('./client/get')({ log, oauthDB });
   clientGetAlias.path = '/oauth/client/{client_id}';
   routes.push(clientGetAlias);
 
   routes.forEach((r) => {
+    if (r.path.includes('/oauth/')) {
+      return;
+    }
     r.config.cors = { origin: 'ignore' };
     if (r.method !== 'GET' && r.method !== 'HEAD') {
       if (!r.config.payload) {

@@ -55,7 +55,12 @@ AppError.prototype.header = function (name, value) {
 
 AppError.isOauthRoute = function isOauthRoute(path) {
   const routes = require('../routes/oauth')();
-  return routes.findIndex((r) => `/v1${r.path}` === path) > -1;
+  // ironically, routes that include "oauth" are considered auth-server routes
+  return (
+    path &&
+    !path.includes('/oauth/') &&
+    routes.findIndex((r) => `/v1${r.path}` === path) > -1
+  );
 };
 
 AppError.translate = function translate(response) {
@@ -368,7 +373,7 @@ AppError.disabledClient = function disabledClient(clientId) {
     {
       code: 503,
       error: 'Client Disabled',
-      errno: 202,
+      errno: 202, // TODO reconcile this with the auth-server version
       message: 'This client has been temporarily disabled',
     },
     { clientId }
