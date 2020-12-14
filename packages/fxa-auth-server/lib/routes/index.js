@@ -91,7 +91,6 @@ module.exports = function (
   const attachedClients = require('./attached-clients')(
     log,
     db,
-    oauthdb,
     devicesImpl,
     clientUtils
   );

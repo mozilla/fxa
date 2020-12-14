@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const validators = require('../../../oauth/validators');
-const error = require('../../../oauth/error');
+const authorizedClients = require('../../../oauth/authorized_clients');
 const verifyAssertion = require('../../../oauth/assertion');
 
-module.exports = ({ oauthDB }) => ({
+module.exports = () => ({
   method: 'POST',
   path: '/authorized-clients/destroy',
   config: {
@@ -19,22 +19,11 @@ module.exports = ({ oauthDB }) => ({
     },
     handler: async function (req) {
       const claims = await verifyAssertion(req.payload.assertion);
-      if (req.payload.refresh_token_id) {
-        if (
-          !(await oauthDB.deleteClientRefreshToken(
-            req.payload.refresh_token_id,
-            req.payload.client_id,
-            claims.uid
-          ))
-        ) {
-          throw error.unknownToken();
-        }
-      } else {
-        await oauthDB.deleteClientAuthorization(
-          req.payload.client_id,
-          claims.uid
-        );
-      }
+      await authorizedClients.destroy(
+        req.payload.client_id,
+        claims.uid,
+        req.payload.refresh_token_id
+      );
       return {};
     },
   },

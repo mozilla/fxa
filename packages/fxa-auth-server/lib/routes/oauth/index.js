@@ -8,6 +8,7 @@ module.exports = (log) => {
     require('./authorized-clients/list')({ oauthDB }),
     require('./client/get')({ log, oauthDB }),
     require('./destroy')({ log, oauthDB }),
+    require('./id_token_verify')(),
     require('./introspect')({ oauthDB }),
     require('./jwks')(),
     require('./key_data')({ log, oauthDB }),

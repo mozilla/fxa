@@ -67,15 +67,7 @@ describe('lib/server', () => {
   });
 
   describe('set up mocks:', () => {
-    let config,
-      log,
-      locale,
-      routes,
-      Token,
-      oauthdb,
-      translator,
-      response,
-      statsd;
+    let config, log, locale, routes, Token, translator, response, statsd;
 
     beforeEach(() => {
       config = getConfig();
@@ -83,7 +75,6 @@ describe('lib/server', () => {
       log = mocks.mockLog();
       routes = getRoutes();
       Token = require(`${ROOT_DIR}/lib/tokens`)(log, config);
-      oauthdb = {};
       translator = {
         getTranslator: sinon.spy(() => ({
           en: { format: () => {}, language: 'en' },
@@ -102,17 +93,7 @@ describe('lib/server', () => {
         });
 
         return server
-          .create(
-            log,
-            error,
-            config,
-            routes,
-            db,
-            oauthdb,
-            translator,
-            statsd,
-            Token
-          )
+          .create(log, error, config, routes, db, translator, statsd, Token)
           .then((s) => {
             instance = s;
           });
@@ -575,17 +556,7 @@ describe('lib/server', () => {
         statsd = { increment: sinon.fake(), timing: sinon.fake() };
 
         return server
-          .create(
-            log,
-            error,
-            config,
-            routes,
-            db,
-            oauthdb,
-            translator,
-            statsd,
-            Token
-          )
+          .create(log, error, config, routes, db, translator, statsd, Token)
           .then((s) => {
             instance = s;
             return instance.start().then(() => {

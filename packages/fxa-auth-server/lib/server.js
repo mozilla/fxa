@@ -11,7 +11,6 @@ const path = require('path');
 const url = require('url');
 const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
-const schemeServerJWT = require('./routes/auth-schemes/serverJWT');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
 const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
@@ -52,16 +51,7 @@ function logEndpointErrors(response, log) {
   }
 }
 
-async function create(
-  log,
-  error,
-  config,
-  routes,
-  db,
-  oauthService,
-  translator,
-  statsd
-) {
+async function create(log, error, config, routes, db, translator, statsd) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config);
@@ -365,17 +355,6 @@ async function create(
     sharedSecretAuth.strategy(SUBSCRIPTIONS_SECRET)
   );
   server.auth.strategy('subscriptionsSecret', 'subscriptionsSecret');
-
-  server.auth.scheme(
-    'fxa-oauthServerJWT',
-    schemeServerJWT(
-      config.publicUrl,
-      config.oauth.url,
-      config.oauth.jwtSecretKeys,
-      error
-    )
-  );
-  server.auth.strategy('oauthServerJWT', 'fxa-oauthServerJWT');
 
   server.auth.scheme(
     'supportPanelSecret',
