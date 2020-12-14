@@ -9,7 +9,7 @@ import amplitude from './metrics/amplitude';
 import scopes from './oauth/scopes';
 import promise from './promise';
 import redis from './redis';
-import emailHelpers from './email/helpers';
+import * as emailHelpers from './email/helpers';
 import userAgent from './metrics/user-agent';
 import flowPerformance from './metrics/flow-performance';
 import featureFlags from './feature-flags';
