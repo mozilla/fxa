@@ -6790,7 +6790,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/superagent@npm:*, @types/superagent@npm:4.1.10":
+"@types/superagent@npm:*, @types/superagent@npm:4.1.10, @types/superagent@npm:^4.1.10":
   version: 4.1.10
   resolution: "@types/superagent@npm:4.1.10"
   dependencies:
@@ -18390,6 +18390,7 @@ fsevents@^1.2.7:
     "@types/storybook__addon-actions": ^5.2.1
     "@types/storybook__addon-links": ^5.2.1
     "@types/storybook__react": ^5.2.1
+    "@types/superagent": ^4.1.10
     "@types/uuid": ^7.0.2
     "@types/webpack": 4.41.16
     "@typescript-eslint/eslint-plugin": 2.33.0
