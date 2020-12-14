@@ -1,3 +1,10 @@
+## 1.195.4
+
+### Bug fixes
+
+- settings: use Sentry dsn after config's loaded ([70d88f818](https://github.com/mozilla/fxa/commit/70d88f818))
+- settings: scroll to element id in url hash ([aa64a2d6c](https://github.com/mozilla/fxa/commit/aa64a2d6c))
+
 ## 1.195.3
 
 No changes.
