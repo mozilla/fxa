@@ -40,24 +40,6 @@ module.exports = (log, config) => {
   }
 
   return {
-    async revokeAccessToken(accessToken, clientCredentials = {}) {
-      return callRoute('/destroy', {
-        payload: {
-          access_token: accessToken,
-          ...clientCredentials,
-        },
-      });
-    },
-
-    async revokeRefreshToken(refreshToken, clientCredentials = {}) {
-      return callRoute('/destroy', {
-        payload: {
-          refresh_token: refreshToken,
-          ...clientCredentials,
-        },
-      });
-    },
-
     async revokeRefreshTokenById(refreshTokenId, clientCredentials = {}) {
       return callRoute('/destroy', {
         payload: {

@@ -737,167 +737,6 @@ describe('/oauth/ routes', () => {
   });
 
   describe('/oauth/destroy', () => {
-    const SUCCESS = async () => {
-      return {};
-    };
-    const NOTFOUND = async () => {
-      throw error.invalidToken();
-    };
-
-    it('tries oauthdb.revokeAccessToken then oauthdb.revokeRefreshToken when told nothing about the token', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        revokeAccessToken: sinon.spy(NOTFOUND),
-        revokeRefreshToken: sinon.spy(NOTFOUND),
-      });
-      mockDB = mocks.mockDB({ ecosystemAnonId: MOCK_ANON_ID });
-      const mockRequest = mocks.mockRequest({
-        payload: {
-          client_id: MOCK_CLIENT_ID,
-          token: MOCK_TOKEN,
-        },
-      });
-      await loadAndCallRoute('/oauth/destroy', mockRequest);
-      assert.calledOnce(mockOAuthDB.revokeAccessToken);
-      assert.calledOnce(mockOAuthDB.revokeRefreshToken);
-      assert.ok(
-        mockOAuthDB.revokeAccessToken.calledBefore(
-          mockOAuthDB.revokeRefreshToken
-        )
-      );
-      assert.calledWithExactly(mockOAuthDB.revokeAccessToken, MOCK_TOKEN, {
-        client_id: MOCK_CLIENT_ID,
-      });
-      assert.calledWithExactly(mockOAuthDB.revokeRefreshToken, MOCK_TOKEN, {
-        client_id: MOCK_CLIENT_ID,
-      });
-    });
-
-    it('does not try revokeRefreshToken if revokeAccessToken succeeded', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        revokeAccessToken: sinon.spy(SUCCESS),
-        revokeRefreshToken: sinon.spy(NOTFOUND),
-      });
-      const mockRequest = mocks.mockRequest({
-        payload: {
-          client_id: MOCK_CLIENT_ID,
-          token: MOCK_TOKEN,
-        },
-      });
-      await loadAndCallRoute('/oauth/destroy', mockRequest);
-      assert.calledOnce(mockOAuthDB.revokeAccessToken);
-      assert.notCalled(mockOAuthDB.revokeRefreshToken);
-    });
-
-    it('does not try revokeRefreshToken if the given token looks like a JWT', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        revokeAccessToken: sinon.spy(NOTFOUND),
-        revokeRefreshToken: sinon.spy(NOTFOUND),
-      });
-      const mockRequest = mocks.mockRequest({
-        payload: {
-          client_id: MOCK_CLIENT_ID,
-          token: MOCK_JWT,
-        },
-      });
-      await loadAndCallRoute('/oauth/destroy', mockRequest);
-      assert.calledOnce(mockOAuthDB.revokeAccessToken);
-      assert.notCalled(mockOAuthDB.revokeRefreshToken);
-    });
-
-    it('tries oauthdb.revokeAccessToken then oauthdb.revokeRefreshToken when told this is an access token', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        revokeAccessToken: sinon.spy(NOTFOUND),
-        revokeRefreshToken: sinon.spy(NOTFOUND),
-      });
-      const mockRequest = mocks.mockRequest({
-        payload: {
-          client_id: MOCK_CLIENT_ID,
-          token: MOCK_TOKEN,
-          token_type_hint: 'access_token',
-        },
-      });
-      await loadAndCallRoute('/oauth/destroy', mockRequest);
-      assert.calledOnce(mockOAuthDB.revokeAccessToken);
-      assert.calledOnce(mockOAuthDB.revokeRefreshToken);
-      assert.ok(
-        mockOAuthDB.revokeAccessToken.calledBefore(
-          mockOAuthDB.revokeRefreshToken
-        )
-      );
-    });
-
-    it('tries oauthdb.revokeAccessToken then oauthdb.revokeRefreshToken when given an unknown token-type hint', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        revokeAccessToken: sinon.spy(NOTFOUND),
-        revokeRefreshToken: sinon.spy(NOTFOUND),
-      });
-      const mockRequest = mocks.mockRequest({
-        payload: {
-          client_id: MOCK_CLIENT_ID,
-          token: MOCK_TOKEN,
-          token_type_hint: 'amazing_new_token_type_we_have_never_heard_of',
-        },
-      });
-      await loadAndCallRoute('/oauth/destroy', mockRequest);
-      assert.calledOnce(mockOAuthDB.revokeAccessToken);
-      assert.calledOnce(mockOAuthDB.revokeRefreshToken);
-      assert.ok(
-        mockOAuthDB.revokeAccessToken.calledBefore(
-          mockOAuthDB.revokeRefreshToken
-        )
-      );
-    });
-
-    it('tries oauthdb.revokeRefreshToken then oauthdb.revokeAccessToken when told this is a refresh token', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        revokeAccessToken: sinon.spy(NOTFOUND),
-        revokeRefreshToken: sinon.spy(NOTFOUND),
-      });
-      const mockRequest = mocks.mockRequest({
-        payload: {
-          client_id: MOCK_CLIENT_ID,
-          token: MOCK_TOKEN,
-          token_type_hint: 'refresh_token',
-        },
-      });
-      await loadAndCallRoute('/oauth/destroy', mockRequest);
-      assert.calledOnce(mockOAuthDB.revokeRefreshToken);
-      assert.calledOnce(mockOAuthDB.revokeAccessToken);
-      assert.ok(
-        mockOAuthDB.revokeRefreshToken.calledBefore(
-          mockOAuthDB.revokeAccessToken
-        )
-      );
-      assert.calledWithExactly(mockOAuthDB.revokeRefreshToken, MOCK_TOKEN, {
-        client_id: MOCK_CLIENT_ID,
-      });
-      assert.calledWithExactly(mockOAuthDB.revokeAccessToken, MOCK_TOKEN, {
-        client_id: MOCK_CLIENT_ID,
-      });
-    });
-
-    it('accepts client credentials in request header', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        revokeAccessToken: sinon.spy(SUCCESS),
-      });
-      const mockRequest = mocks.mockRequest({
-        headers: {
-          authorization:
-            'Basic ' +
-            Buffer.from(MOCK_CLIENT_ID + ':' + MOCK_TOKEN).toString('base64'),
-        },
-        payload: {
-          token: MOCK_TOKEN,
-        },
-      });
-      await loadAndCallRoute('/oauth/destroy', mockRequest);
-      assert.calledOnce(mockOAuthDB.revokeAccessToken);
-      assert.calledWithExactly(mockOAuthDB.revokeAccessToken, MOCK_TOKEN, {
-        client_id: MOCK_CLIENT_ID,
-        client_secret: MOCK_TOKEN,
-      });
-    });
-
     it('errors if no client_id is provided', async () => {
       const mockRequest = mocks.mockRequest({
         payload: {
@@ -913,15 +752,9 @@ describe('/oauth/ routes', () => {
     });
 
     it('does not try more token types if client credentials are invalid', async () => {
-      mockOAuthDB = mocks.mockOAuthDB({
-        revokeAccessToken: sinon.spy(async () => {
-          throw error.unknownClientId(MOCK_CLIENT_ID);
-        }),
-        revokeRefreshToken: sinon.spy(SUCCESS),
-      });
       const mockRequest = mocks.mockRequest({
         payload: {
-          client_id: MOCK_CLIENT_ID,
+          client_id: '0000000000000000',
           token: MOCK_TOKEN,
         },
       });
@@ -931,8 +764,6 @@ describe('/oauth/ routes', () => {
       } catch (err) {
         assert.equal(err.errno, error.ERRNO.UNKNOWN_CLIENT_ID);
       }
-      assert.calledOnce(mockOAuthDB.revokeAccessToken);
-      assert.notCalled(mockOAuthDB.revokeRefreshToken);
     });
   });
 });

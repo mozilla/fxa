@@ -84,3 +84,4 @@ exports.ppidSeed = authServerValidators.ppidSeed.default(0);
 exports.resourceUrl = authServerValidators.resourceUrl;
 exports.pkceCodeChallengeMethod = authServerValidators.pkceCodeChallengeMethod;
 exports.pkceCodeChallenge = authServerValidators.pkceCodeChallenge;
+exports.refreshToken = authServerValidators.refreshToken;
