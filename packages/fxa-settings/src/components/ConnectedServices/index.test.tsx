@@ -3,17 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { act, fireEvent, screen, wait, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, wait } from '@testing-library/react';
 import ConnectedServices, {
   sortAndFilterConnectedClients,
   ATTACHED_CLIENT_DISCONNECT_MUTATION,
 } from '.';
-import {
-  createCache,
-  renderWithRouter,
-  MockedCache,
-} from '../../models/_mocks';
-import { GET_ACCOUNT } from '../../models';
+import { renderWithRouter, MockedCache } from '../../models/_mocks';
 import { isMobileDevice } from '../../lib/utilities';
 import { DESKTOP_SYNC_MOCKS, MOCK_SERVICES } from './MOCK_SERVICES';
 

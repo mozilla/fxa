@@ -6,7 +6,15 @@ import React from 'react';
 
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { DeviceLocation } from '../../models/Account';
-import { Icon } from './Icon';
+import { ReactComponent as WebIcon } from './web.svg';
+import { ReactComponent as DesktopIcon } from './desktop.svg';
+import { ReactComponent as FPNIcon } from './fpn.svg';
+import { ReactComponent as MobileIcon } from './mobile.svg';
+import { ReactComponent as SyncIcon } from './sync.svg';
+import { ReactComponent as TabletIcon } from './tablet.svg';
+import { ReactComponent as MonitorIcon } from './monitor.svg';
+import { ReactComponent as PocketIcon } from './pocket.svg';
+import { ReactComponent as LockwiseIcon } from './lockwise.svg';
 
 export function Service({
   name,
@@ -23,39 +31,39 @@ export function Service({
 }) {
   const { city, stateCode, country } = location;
   const locationProvided = Boolean(city && stateCode && country);
-  let serviceLink, iconName;
+  let serviceLink, Icon;
 
   switch (name) {
     case 'Pocket':
       serviceLink = 'https://www.mozilla.org/en-US/firefox/pocket/';
-      iconName = 'pocket';
+      Icon = <PocketIcon data-testid="pocket-icon" />;
       break;
     case 'Firefox Monitor':
       serviceLink = 'https://monitor.firefox.com/';
-      iconName = 'monitor';
+      Icon = <MonitorIcon data-testid="monitor-icon" />;
       break;
     case 'Firefox Lockwise':
       serviceLink = 'https://www.mozilla.org/en-US/firefox/lockwise/';
-      iconName = 'lockwise';
+      Icon = <LockwiseIcon data-testid="lockwise-icon" />;
       break;
     case 'Firefox Private Network':
       serviceLink = 'https://vpn.mozilla.com/';
-      iconName = 'fpn';
+      Icon = <FPNIcon data-testid="fpn-icon" />;
       break;
     case 'Firefox Sync':
       serviceLink =
         'https://support.mozilla.org/en-US/kb/how-do-i-set-sync-my-computer';
-      iconName = 'sync';
+      Icon = <SyncIcon data-testid="sync-icon" />;
       break;
     default:
       if (name.toLowerCase().includes('ipad')) {
-        iconName = 'tablet';
+        Icon = <TabletIcon data-testid="tablet-icon" />;
       } else if (deviceType === 'mobile') {
-        iconName = 'mobile';
+        Icon = <MobileIcon data-testid="mobile-icon" />;
       } else if (deviceType === 'desktop') {
-        iconName = 'desktop';
+        Icon = <DesktopIcon data-testid="desktop-icon" />;
       } else {
-        iconName = 'web';
+        Icon = <WebIcon data-testid="web-icon" />;
       }
   }
 
@@ -64,7 +72,7 @@ export function Service({
       <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
         <div className="flex flex-grow w-full mobileLandscape:flex-2">
           <span className="flex px-2 w-10 justify-center items-center flex-0">
-            <Icon name={iconName} />
+            {Icon}
           </span>
           <div className="flex flex-col flex-5 mobileLandscape:items-center mobileLandscape:flex-row">
             <div className="flex flex-col mobileLandscape:flex-2">
