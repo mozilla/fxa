@@ -124,6 +124,19 @@ describe('totp', () => {
           'uid',
           'third argument was event data with a uid'
         );
+
+        assert.equal(
+          db.verifyTokensWithMethod.callCount,
+          1,
+          'called db.verifyTokensWithMethod'
+        );
+        const dbArgs = db.verifyTokensWithMethod.args[0];
+        assert.equal(dbArgs[0], sessionId, 'first argument was sessionId');
+        assert.equal(
+          dbArgs[1],
+          'email-2fa',
+          `second argument was reduced verification level`
+        );
       });
     });
 
@@ -424,6 +437,9 @@ function setup(results, errors, routePath, requestOptions) {
       qrCodeUrl: 'some base64 encoded png',
       sharedSecret: secret,
     });
+  });
+  db.verifyTokensWithMethod = sinon.spy(() => {
+    return P.resolve();
   });
   db.totpToken = sinon.spy(() => {
     return P.resolve({
