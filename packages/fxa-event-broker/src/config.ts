@@ -118,7 +118,6 @@ const conf = convict({
   },
   metrics: {
     host: {
-      default: 'localhost',
       doc: 'Metrics host to report to',
       env: 'METRIC_HOST',
       format: String,
@@ -174,7 +173,6 @@ const conf = convict({
   },
   pubsub: {
     audience: {
-      default: 'example.com',
       doc: 'PubSub JWT Audience for incoming Push Notifications',
       env: 'PUBSUB_AUDIENCE',
       format: String,

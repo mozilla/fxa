@@ -13,10 +13,10 @@ module.exports = {
       script: 'node server.js',
       cwd: __dirname,
       env: {
+        FORCE_INSECURE_LOOKUP_OVER_HTTP: 'true',
+        IP_ADDRESS: '0.0.0.0',
         PATH,
         PORT: '5050',
-        IP_ADDRESS: '0.0.0.0',
-        FORCE_INSECURE_LOOKUP_OVER_HTTP: 'true',
       },
       filter_env: ['npm_'],
       max_restarts: '1',

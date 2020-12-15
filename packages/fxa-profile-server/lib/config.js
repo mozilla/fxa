@@ -22,7 +22,6 @@ const conf = convict({
     url: {
       doc: 'URL of fxa-auth-server',
       env: 'AUTH_SERVER_URL',
-      default: 'http://localhost:9000/v1',
     },
   },
   clientAddressDepth: {
@@ -80,7 +79,6 @@ const conf = convict({
       },
       fxa: {
         doc: 'Patterns to match a URL to ensure we only accept certain URLs.',
-        default: '^http://localhost:1112/a/[0-9a-f]{32}$',
         env: 'IMG_PROVIDERS_FXA',
       },
     },
@@ -133,7 +131,6 @@ const conf = convict({
     },
     url: {
       doc: 'Pattern to generate FxA avatar URLs. {id} will be replaced.',
-      default: 'http://localhost:1112/a/{id}',
       env: 'IMG_URL',
     },
     defaultAvatarId: {
@@ -179,7 +176,6 @@ const conf = convict({
       env: 'MYSQL_DATABASE',
     },
     host: {
-      default: 'localhost',
       env: 'MYSQL_HOST',
     },
     port: {
@@ -191,7 +187,6 @@ const conf = convict({
     url: {
       doc: 'URL of fxa-oauth-server',
       env: 'OAUTH_SERVER_URL',
-      default: 'http://localhost:9000/v1',
     },
   },
   customsUrl: {
@@ -202,12 +197,10 @@ const conf = convict({
   publicUrl: {
     format: 'url',
     env: 'PUBLIC_URL',
-    default: 'http://localhost:1111',
   },
   server: {
     host: {
       env: 'HOST',
-      default: 'localhost',
     },
     port: {
       env: 'PORT',
@@ -218,7 +211,6 @@ const conf = convict({
   worker: {
     host: {
       env: 'WORKER_HOST',
-      default: 'localhost',
     },
     port: {
       env: 'WORKER_PORT',
@@ -226,7 +218,6 @@ const conf = convict({
       default: 1113,
     },
     url: {
-      default: 'http://localhost:1113',
       env: 'WORKER_URL',
     },
     headers_exclude: {
@@ -255,7 +246,6 @@ const conf = convict({
   serverCache: {
     redis: {
       host: {
-        default: 'localhost',
         env: 'REDIS_HOST',
         format: String,
         doc: 'Url for redis host',

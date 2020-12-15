@@ -135,7 +135,6 @@ const conf = convict({
       format: 'port',
     },
     publicUrl: {
-      default: 'http://localhost:3031',
       env: 'PUBLIC_URL',
       format: 'url',
     },
@@ -205,7 +204,6 @@ const conf = convict({
   servers: {
     auth: {
       url: {
-        default: 'http://localhost:9000',
         doc: 'The url of the fxa-auth-server instance',
         env: 'AUTH_SERVER_URL',
         format: 'url',
@@ -213,7 +211,6 @@ const conf = convict({
     },
     content: {
       url: {
-        default: 'http://localhost:3030',
         doc: 'The url of the corresponding fxa-content-server instance',
         env: 'CONTENT_SERVER_URL',
         format: 'url',
@@ -221,7 +218,6 @@ const conf = convict({
     },
     oauth: {
       url: {
-        default: 'http://localhost:9000',
         doc: 'The url of the corresponding fxa-oauth-server instance',
         env: 'OAUTH_SERVER_URL',
         format: 'url',
@@ -229,7 +225,6 @@ const conf = convict({
     },
     profile: {
       url: {
-        default: 'http://localhost:1111',
         doc: 'The url of the corresponding fxa-profile-server instance',
         env: 'PROFILE_SERVER_URL',
         format: 'url',
@@ -237,7 +232,6 @@ const conf = convict({
     },
     profileImages: {
       url: {
-        default: 'http://localhost:1112',
         doc: 'The url of the Firefox Account Profile Image Server',
         env: 'FXA_PROFILE_IMAGES_URL',
         format: 'url',
@@ -274,7 +268,6 @@ const conf = convict({
       format: 'duration',
     },
     url: {
-      default: 'http://localhost:3031',
       doc: 'The origin of the static resources',
       env: 'STATIC_RESOURCE_URL',
       format: 'url',
@@ -302,7 +295,6 @@ const conf = convict({
     host: {
       doc: 'StatsD host to report to',
       format: String,
-      default: 'localhost',
       env: 'DD_AGENT_HOST',
     },
     port: {

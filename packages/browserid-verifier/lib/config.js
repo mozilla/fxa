@@ -11,7 +11,6 @@ function loadConf() {
     ip: {
       doc: 'The IP address to bind.',
       format: String,
-      default: 'localhost',
       env: 'IP_ADDRESS',
     },
     port: {

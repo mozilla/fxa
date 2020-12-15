@@ -15,12 +15,15 @@ module.exports = {
       max_restarts: '1',
       min_uptime: '2m',
       env: {
-        PATH,
-        NODE_ENV: 'development',
-        TS_NODE_TRANSPILE_ONLY: 'true',
-        TS_NODE_FILES: 'true',
-        PORT: '8290', // TODO: this needs to get added to src/config.ts
+        ACCESS_TOKEN_REDIS_HOST: 'localhost',
+        AUTH_SERVER_URL: 'http://localhost:9000/v1',
         CUSTOMS_SERVER_URL: 'none',
+        NODE_ENV: 'development',
+        PATH,
+        PORT: '8290', // TODO: this needs to get added to src/config.ts
+        PROFILE_SERVER_URL: 'http://localhost:1111/v1',
+        TS_NODE_FILES: 'true',
+        TS_NODE_TRANSPILE_ONLY: 'true',
       },
       filter_env: ['npm_'],
       watch: ['src'],

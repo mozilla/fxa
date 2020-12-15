@@ -113,7 +113,6 @@ const conf = convict({
     address: {
       doc:
         'Address:port of the memcached server (or `none` to disable memcached)',
-      default: 'localhost:11211',
       env: 'MEMCACHE_METRICS_CONTEXT_ADDRESS',
     },
     idle: {
@@ -131,7 +130,6 @@ const conf = convict({
   },
   publicUrl: {
     format: 'url',
-    default: 'http://localhost:9000',
     env: 'PUBLIC_URL',
   },
   domain: {
@@ -202,14 +200,12 @@ const conf = convict({
   httpdb: {
     url: {
       doc: 'database api url',
-      default: 'http://localhost:8000',
       env: 'HTTPDB_URL',
     },
   },
   listen: {
     host: {
       doc: 'The ip address the server should bind',
-      default: 'localhost',
       format: String,
       env: 'IP_ADDRESS',
     },
@@ -222,13 +218,11 @@ const conf = convict({
   },
   customsUrl: {
     doc: "fraud / abuse server url; set to the string 'none' to disable",
-    default: 'http://localhost:7000',
     env: 'CUSTOMS_SERVER_URL',
   },
   contentServer: {
     url: {
       doc: 'The url of the corresponding fxa-content-server instance',
-      default: 'http://localhost:3030',
       env: 'CONTENT_SERVER_URL',
     },
   },
@@ -236,7 +230,6 @@ const conf = convict({
     host: {
       doc: 'host for fxa-email-service',
       format: String,
-      default: 'localhost',
       env: 'EMAIL_SERVICE_HOST',
     },
     port: {
@@ -257,7 +250,6 @@ const conf = convict({
     api: {
       host: {
         doc: 'host for test/mail_helper.js',
-        default: 'localhost',
         env: 'MAILER_HOST',
       },
       port: {
@@ -268,7 +260,6 @@ const conf = convict({
     },
     host: {
       doc: 'SMTP host for sending email',
-      default: 'localhost',
       env: 'SMTP_HOST',
     },
     port: {
@@ -395,7 +386,6 @@ const conf = convict({
   },
   redis: {
     host: {
-      default: 'localhost',
       env: 'REDIS_HOST',
       format: String,
       doc: 'IP address or host name for Redis server',
@@ -408,7 +398,6 @@ const conf = convict({
     },
     accessTokens: {
       host: {
-        default: 'localhost',
         env: 'ACCESS_TOKEN_REDIS_HOST',
         format: String,
       },
@@ -438,7 +427,6 @@ const conf = convict({
         env: 'REFRESH_TOKEN_REDIS_ENABLED',
       },
       host: {
-        default: 'localhost',
         env: 'REFRESH_TOKEN_REDIS_HOST',
         format: String,
       },
@@ -828,7 +816,6 @@ const conf = convict({
     url: {
       format: 'url',
       doc: 'URL at which to verify OAuth tokens',
-      default: 'http://localhost:9000',
       env: 'OAUTH_URL',
     },
     keepAlive: {
@@ -930,7 +917,6 @@ const conf = convict({
     audience: {
       doc: 'audience for oauth JWTs',
       format: 'url',
-      default: 'http://localhost:9000',
       env: 'OAUTH_URL',
     },
     auth: {
@@ -955,7 +941,6 @@ const conf = convict({
         env: 'AUTH_SERVER_SHARED_SECRET',
       },
       url: {
-        default: 'http://localhost:9000',
         doc: 'The auth-server public URL',
         env: 'AUTH_SERVER_URL',
         format: 'url',
@@ -1145,7 +1130,7 @@ const conf = convict({
       user: { default: 'root', env: 'MYSQL_USERNAME' },
       password: { default: '', env: 'MYSQL_PASSWORD' },
       database: { default: 'fxa_oauth', env: 'MYSQL_DATABASE' },
-      host: { default: 'localhost', env: 'MYSQL_HOST' },
+      host: { env: 'MYSQL_HOST' },
       port: { default: '3306', env: 'MYSQL_PORT' },
       connectionLimit: {
         doc: 'The maximum number of connections that the pool can use at once.',
@@ -1249,15 +1234,14 @@ const conf = convict({
     },
     publicUrl: {
       format: 'url',
-      default: 'http://localhost:9000',
       env: 'PUBLIC_URL',
     },
     server: {
-      host: { env: 'HOST', default: 'localhost' },
+      host: { env: 'HOST' },
       port: { env: 'PORT', format: 'port', default: 9000 },
     },
     serverInternal: {
-      host: { env: 'HOST_INTERNAL', default: 'localhost' },
+      host: { env: 'HOST_INTERNAL' },
       port: { env: 'PORT_INTERNAL', format: 'port', default: 9011 },
     },
     i18n: {
@@ -1331,7 +1315,6 @@ const conf = convict({
     host: {
       doc: 'StatsD host to report to',
       format: String,
-      default: 'localhost',
       env: 'DD_AGENT_HOST',
     },
     port: {
@@ -1823,7 +1806,6 @@ const conf = convict({
     },
   },
   syncTokenserverUrl: {
-    default: 'http://localhost:5000/token',
     doc: 'The url of the Firefox Sync tokenserver',
     env: 'SYNC_TOKENSERVER_URL',
     format: 'url',

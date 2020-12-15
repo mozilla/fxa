@@ -59,7 +59,6 @@ const conf = convict({
   },
   listen: {
     host: {
-      default: 'localhost',
       doc: 'The ip address the server should bind',
       env: 'IP_ADDRESS',
       format: String,
@@ -71,12 +70,10 @@ const conf = convict({
       format: 'port',
     },
     publicUrl: {
-      default: 'http://localhost:8091',
       env: 'PUBLIC_URL',
       format: 'url',
     },
     useHttps: {
-      default: false,
       doc: 'set to true to serve directly over https',
       env: 'USE_TLS',
     },

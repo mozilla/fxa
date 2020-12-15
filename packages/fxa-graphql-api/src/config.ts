@@ -43,7 +43,6 @@ const conf = convict({
     url: {
       doc: 'URL of fxa-auth-server',
       env: 'AUTH_SERVER_URL',
-      default: 'http://localhost:9000/v1',
     },
   },
   corsOrigin: {
@@ -54,7 +53,6 @@ const conf = convict({
   },
   customsUrl: {
     doc: "fraud / abuse server url; set to the string 'none' to disable",
-    default: 'http://localhost:7000',
     env: 'CUSTOMS_SERVER_URL',
   },
   database: {
@@ -126,13 +124,11 @@ const conf = convict({
     url: {
       doc: 'URL of fxa-profile-server',
       env: 'PROFILE_SERVER_URL',
-      default: 'http://localhost:1111/v1',
     },
   },
   redis: {
     accessTokens: {
       host: {
-        default: 'localhost',
         env: 'ACCESS_TOKEN_REDIS_HOST',
         format: String,
       },

@@ -35,14 +35,12 @@ const conf = convict({
       format: String,
     },
     url: {
-      default: 'http://localhost:9000',
       doc: 'URL for auth server',
       env: 'AUTH_SERVER_URL',
       format: String,
     },
   },
   authdbUrl: {
-    default: 'http://localhost:8000',
     doc: 'fxa-auth-db-mysql url',
     env: 'AUTHDB_URL',
     format: String,
@@ -79,7 +77,6 @@ const conf = convict({
       format: 'port',
     },
     publicUrl: {
-      default: 'http://localhost:3031',
       env: 'PUBLIC_URL',
       format: 'url',
     },

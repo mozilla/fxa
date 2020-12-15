@@ -16,8 +16,8 @@ module.exports = {
       env: {
         CONFIG_FORTRESS: './config-local.json',
         NODE_ENV: 'dev',
-        PORT: '9292',
         PATH,
+        PORT: '9292',
       },
       filter_env: ['npm_'],
       min_uptime: '2m',

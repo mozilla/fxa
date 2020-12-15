@@ -16,10 +16,10 @@ module.exports = {
       min_uptime: '2m',
       env: {
         NODE_ENV: 'development',
-        TS_NODE_TRANSPILE_ONLY: 'true',
-        TS_NODE_FILES: 'true',
-        PORT: '7100',
         PATH,
+        PORT: '7100',
+        TS_NODE_FILES: 'true',
+        TS_NODE_TRANSPILE_ONLY: 'true',
       },
       filter_env: ['npm_'],
       watch: ['src'],

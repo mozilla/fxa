@@ -16,8 +16,8 @@ module.exports = {
       env: {
         CONFIG_123DONE: './config-local.json',
         NODE_ENV: 'dev',
-        PORT: '8080',
         PATH,
+        PORT: '8080',
       },
       filter_env: ['npm_'],
       min_uptime: '2m',
@@ -31,8 +31,8 @@ module.exports = {
       env: {
         CONFIG_123DONE: './config-local-untrusted.json',
         NODE_ENV: 'dev',
-        PORT: '10139',
         PATH,
+        PORT: '10139',
       },
       filter_env: ['npm_'],
       min_uptime: '2m',

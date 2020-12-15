@@ -14,8 +14,8 @@ module.exports = {
       cwd: __dirname,
       env: {
         NODE_ENV: 'dev',
-        PORT: '8000',
         PATH,
+        PORT: '8000',
       },
       filter_env: ['npm_'],
       max_restarts: '2',
