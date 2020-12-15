@@ -26,7 +26,7 @@ const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
 
 const TEST_EMAIL = 'test@email.com';
-const UID = uuid.v4('binary').toString('hex');
+const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const REQUESTER_ID = 987654321;
 const SUBDOMAIN = 'test';
 

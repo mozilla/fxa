@@ -211,7 +211,7 @@ module.exports = (
 
           const hexes = await random.hex(32, 32);
           account = await db.createAccount({
-            uid: uuid.v4('binary').toString('hex'),
+            uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
             createdAt: Date.now(),
             email: email,
             emailCode: emailCode,

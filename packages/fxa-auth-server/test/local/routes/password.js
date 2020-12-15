@@ -59,7 +59,7 @@ function runRoute(routes, name, request) {
 describe('/password', () => {
   it('/forgot/send_code', () => {
     const mockCustoms = mocks.mockCustoms();
-    const uid = uuid.v4('binary').toString('hex');
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const passwordForgotTokenId = crypto.randomBytes(16).toString('hex');
     const mockDB = mocks.mockDB({
       email: TEST_EMAIL,
@@ -186,7 +186,7 @@ describe('/password', () => {
 
   it('/forgot/resend_code', () => {
     const mockCustoms = mocks.mockCustoms();
-    const uid = uuid.v4('binary').toString('hex');
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const mockDB = mocks.mockDB();
     const mockMailer = mocks.mockMailer();
     const mockMetricsContext = mocks.mockMetricsContext();
@@ -268,7 +268,7 @@ describe('/password', () => {
 
   it('/forgot/verify_code', () => {
     const mockCustoms = mocks.mockCustoms();
-    const uid = uuid.v4('binary').toString('hex');
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const accountResetToken = {
       data: crypto.randomBytes(16).toString('hex'),
       id: crypto.randomBytes(16).toString('hex'),
@@ -402,7 +402,7 @@ describe('/password', () => {
 
   describe('/change/finish', () => {
     it('smoke', () => {
-      const uid = uuid.v4('binary').toString('hex');
+      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
       const devices = [
         { uid: uid, id: crypto.randomBytes(16) },
         { uid: uid, id: crypto.randomBytes(16) },
@@ -544,7 +544,7 @@ describe('/password', () => {
     });
 
     it('succeeds even if notification blocked', () => {
-      const uid = uuid.v4('binary').toString('hex');
+      const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
       const mockDB = mocks.mockDB({
         email: TEST_EMAIL,
         uid: uid,

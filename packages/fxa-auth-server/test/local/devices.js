@@ -322,7 +322,7 @@ describe('lib/devices:', () => {
         });
         credentials = {
           id: crypto.randomBytes(16).toString('hex'),
-          uid: uuid.v4('binary').toString('hex'),
+          uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
           tokenVerified: true,
         };
       });
@@ -597,7 +597,7 @@ describe('lib/devices:', () => {
         });
         credentials = {
           refreshTokenId: crypto.randomBytes(16).toString('hex'),
-          uid: uuid.v4('binary').toString('hex'),
+          uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
           tokenVerified: true,
         };
       });
@@ -859,7 +859,7 @@ describe('lib/devices:', () => {
         refreshTokenId = crypto.randomBytes(32).toString('hex');
         credentials = {
           id: crypto.randomBytes(16).toString('hex'),
-          uid: uuid.v4('binary').toString('hex'),
+          uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
           tokenVerified: true,
         };
         request = mocks.mockRequest({
