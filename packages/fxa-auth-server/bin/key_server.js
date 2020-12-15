@@ -62,7 +62,6 @@ async function run(config) {
     config.i18n.supportedLanguages,
     config.i18n.defaultLanguage
   );
-  const oauthService = require('../lib/oauthdb')(log, config);
   const profile = require('../lib/profile/client')(log, config, statsd);
   const senders = await require('../lib/senders')(
     log,
@@ -96,7 +95,6 @@ async function run(config) {
     serverPublicKeys,
     signer,
     database,
-    oauthService,
     senders.email,
     senders.sms,
     Password,

@@ -8,6 +8,7 @@ module.exports = () => ({
   method: 'GET',
   path: '/jwks',
   config: {
+    cors: { origin: 'ignore' },
     cache: {
       privacy: 'public',
       expiresIn: 10000,

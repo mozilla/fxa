@@ -4,10 +4,13 @@
 
 const Joi = require('@hapi/joi');
 
-const AppError = require('../../oauth/error');
+const OauthError = require('../../oauth/error');
+const AuthError = require('../../error');
+const config = require('../../../config').getProperties();
 const validators = require('../../oauth/validators');
 const verifyAssertion = require('../../oauth/assertion');
 const { validateRequestedGrant } = require('../../oauth/grant');
+const { makeAssertionJWT } = require('../../oauth/util');
 
 /**
  * We don't yet support rotating individual scoped keys,
@@ -20,80 +23,137 @@ const { validateRequestedGrant } = require('../../oauth/grant');
 const DEFAULT_KEY_ROTATION_SECRET = Buffer.alloc(32).toString('hex');
 const DEFAULT_KEY_ROTATION_TIMESTAMP = 0;
 
-module.exports = ({ log, oauthDB }) => ({
-  method: 'POST',
-  path: '/key-data',
-  config: {
-    validate: {
-      payload: {
-        client_id: validators.clientId,
-        assertion: validators.assertion.required(),
-        scope: validators.scope.required(),
+const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
+  config.oauth.disableNewConnectionsForClients || []
+);
+
+function checkDisabledClientId(payload) {
+  const clientId = payload.client_id;
+  if (OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(clientId)) {
+    throw AuthError.disabledClientId(clientId);
+  }
+}
+
+module.exports = ({ log, oauthDB }) => {
+  async function keyDataHandler(req) {
+    const claims = await verifyAssertion(req.payload.assertion);
+
+    const client = await oauthDB.getClient(
+      Buffer.from(req.payload.client_id, 'hex')
+    );
+    if (!client) {
+      log.debug('keyDataRoute.clientNotFound', {
+        id: req.payload.client_id,
+      });
+      throw OauthError.unknownClient(req.payload.client_id);
+    }
+
+    const requestedGrant = await validateRequestedGrant(
+      claims,
+      client,
+      req.payload
+    );
+
+    const keyBearingScopes = [];
+    for (const scope of req.payload.scope.getScopeValues()) {
+      const s = requestedGrant.scopeConfig[scope];
+      if (s && s.hasScopedKeys) {
+        // When we implement key rotation these values will come from the db.
+        // For now all scoped keys have the default values.
+        s.keyRotationSecret = DEFAULT_KEY_ROTATION_SECRET;
+        s.keyRotationTimestamp = DEFAULT_KEY_ROTATION_TIMESTAMP;
+        keyBearingScopes.push(s);
+      }
+    }
+
+    const iat = claims.iat || claims['fxa-lastAuthAt'];
+    const keysChangedAt =
+      claims['fxa-keysChangedAt'] || claims['fxa-generation'];
+    const response = {};
+    for (const keyScope of keyBearingScopes) {
+      const keyRotationTimestamp = Math.max(
+        keysChangedAt,
+        keyScope.keyRotationTimestamp
+      );
+      // If the assertion certificate was issued prior to a key-rotation event,
+      // we don't want to revel the new secrets to such stale assertions,
+      // even if they are technically still valid.
+      if (iat < Math.floor(keyRotationTimestamp / 1000)) {
+        throw OauthError.staleAuthAt(iat);
+      }
+      response[keyScope.scope] = {
+        identifier: keyScope.scope,
+        keyRotationSecret: keyScope.keyRotationSecret,
+        keyRotationTimestamp,
+      };
+    }
+
+    return response;
+  }
+
+  return [
+    {
+      method: 'POST',
+      path: '/key-data',
+      config: {
+        cors: { origin: 'ignore' },
+        validate: {
+          payload: {
+            client_id: validators.clientId,
+            assertion: validators.assertion.required(),
+            scope: validators.scope.required(),
+          },
+        },
+        response: {
+          schema: Joi.object().pattern(/^/, [
+            Joi.object({
+              identifier: Joi.string().required(),
+              keyRotationSecret: Joi.string().required(),
+              keyRotationTimestamp: Joi.number().required(),
+            }),
+          ]),
+        },
+        handler: keyDataHandler,
       },
     },
-    response: {
-      schema: Joi.object().pattern(/^/, [
-        Joi.object({
-          identifier: Joi.string().required(),
-          keyRotationSecret: Joi.string().required(),
-          keyRotationTimestamp: Joi.number().required(),
-        }),
-      ]),
-    },
-    handler: async function keyDataRoute(req) {
-      const claims = await verifyAssertion(req.payload.assertion);
-
-      const client = await oauthDB.getClient(
-        Buffer.from(req.payload.client_id, 'hex')
-      );
-      if (!client) {
-        log.debug('keyDataRoute.clientNotFound', {
-          id: req.payload.client_id,
-        });
-        throw AppError.unknownClient(req.payload.client_id);
-      }
-
-      const requestedGrant = await validateRequestedGrant(
-        claims,
-        client,
-        req.payload
-      );
-
-      const keyBearingScopes = [];
-      for (const scope of req.payload.scope.getScopeValues()) {
-        const s = requestedGrant.scopeConfig[scope];
-        if (s && s.hasScopedKeys) {
-          // When we implement key rotation these values will come from the db.
-          // For now all scoped keys have the default values.
-          s.keyRotationSecret = DEFAULT_KEY_ROTATION_SECRET;
-          s.keyRotationTimestamp = DEFAULT_KEY_ROTATION_TIMESTAMP;
-          keyBearingScopes.push(s);
+    {
+      method: 'POST',
+      path: '/account/scoped-key-data',
+      config: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: {
+            client_id: validators.clientId.required(),
+            scope: validators.scope.required(),
+            assertion: Joi.forbidden(),
+          },
+        },
+        response: {
+          schema: Joi.object().pattern(
+            Joi.any(),
+            Joi.object({
+              identifier: validators.scope.required(),
+              keyRotationSecret: validators.hexString.length(64).required(),
+              keyRotationTimestamp: Joi.number().required(),
+            })
+          ),
+        },
+      },
+      handler: async function (req) {
+        checkDisabledClientId(req.payload);
+        const sessionToken = req.auth.credentials;
+        req.payload.assertion = await makeAssertionJWT(config, sessionToken);
+        try {
+          return await keyDataHandler(req);
+        } catch (err) {
+          if (err.errno === 101) {
+            throw new AuthError.unknownClientId(req.payload.client_id);
+          }
+          throw err;
         }
-      }
-
-      const iat = claims.iat || claims['fxa-lastAuthAt'];
-      const keysChangedAt =
-        claims['fxa-keysChangedAt'] || claims['fxa-generation'];
-      const response = {};
-      for (const keyScope of keyBearingScopes) {
-        const keyRotationTimestamp = Math.max(
-          keysChangedAt,
-          keyScope.keyRotationTimestamp
-        );
-        // If the assertion certificate was issued prior to a key-rotation event,
-        // we don't want to revel the new secrets to such stale assertions,
-        // even if they are technically still valid.
-        if (iat < Math.floor(keyRotationTimestamp / 1000)) {
-          throw AppError.staleAuthAt(iat);
-        }
-        response[keyScope.scope] = {
-          identifier: keyScope.scope,
-          keyRotationSecret: keyScope.keyRotationSecret,
-          keyRotationTimestamp,
-        };
-      }
-
-      return response;
+      },
     },
-  },
-});
+  ];
+};

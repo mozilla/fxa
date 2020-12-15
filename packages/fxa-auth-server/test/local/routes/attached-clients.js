@@ -42,10 +42,9 @@ function makeRoutes(options = {}) {
 
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
-  const oauthdb = options.oauthdb || mocks.mockOAuthDB(log, config);
   const push = options.push || require('../../../lib/push')(log, db, {});
   const devices =
-    options.devices || require('../../../lib/devices')(log, db, oauthdb, push);
+    options.devices || require('../../../lib/devices')(log, db, push);
   const clientUtils =
     options.clientUtils ||
     require('../../../lib/routes/utils/clients')(log, config);
@@ -72,14 +71,13 @@ function locFields(obj) {
 }
 
 describe('/account/attached_clients', () => {
-  let config, uid, log, db, oauthdb, request, route;
+  let config, uid, log, db, request, route;
 
   beforeEach(() => {
     config = {};
     uid = uuid.v4('binary').toString('hex');
     log = mocks.mockLog();
     db = mocks.mockDB();
-    oauthdb = mocks.mockOAuthDB(log, config);
     request = mocks.mockRequest({
       credentials: {
         id: crypto.randomBytes(16).toString('hex'),
@@ -90,7 +88,6 @@ describe('/account/attached_clients', () => {
       config,
       log,
       db,
-      oauthdb,
     });
     route = getRoute(accountRoutes, '/account/attached_clients').handler;
   });
@@ -370,14 +367,13 @@ describe('/account/attached_clients', () => {
 });
 
 describe('/account/attached_client/destroy', () => {
-  let config, uid, log, db, oauthdb, devices, request, route;
+  let config, uid, log, db, devices, request, route;
 
   beforeEach(() => {
     config = {};
     uid = uuid.v4('binary').toString('hex');
     log = mocks.mockLog();
     db = mocks.mockDB();
-    oauthdb = mocks.mockOAuthDB(log, config);
     devices = mocks.mockDevices({});
     request = mocks.mockRequest({
       credentials: {
@@ -390,7 +386,6 @@ describe('/account/attached_client/destroy', () => {
       config,
       log,
       db,
-      oauthdb,
       devices,
     });
     route = getRoute(accountRoutes, '/account/attached_client/destroy').handler;

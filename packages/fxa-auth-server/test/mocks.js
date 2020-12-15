@@ -97,8 +97,6 @@ const DB_METHOD_NAMES = [
   'fetchAccountSubscriptions',
 ];
 
-const OAUTHDB_METHOD_NAMES = ['getScopedKeyData'];
-
 const LOG_METHOD_NAMES = [
   'activityEvent',
   'amplitudeEvent',
@@ -192,7 +190,6 @@ module.exports = {
   mockBounces: mockObject(['check']),
   mockCustoms,
   mockDB,
-  mockOAuthDB,
   mockDevices,
   mockLog: mockObject(LOG_METHOD_NAMES),
   mockMailer: mockObject(MAILER_METHOD_NAMES),
@@ -539,29 +536,6 @@ function mockDB(data, errors) {
       return P.resolve(['12312312', '12312312']);
     }),
   });
-}
-
-// TODO: delete me
-function mockOAuthDB(methods = {}) {
-  // For OAuthDB, the mock object needs to expose a `.api` property
-  // with route validation info, so we load the module directly.
-  const log = methods.log || module.exports.mockLog();
-  const config = methods.config || {};
-  const defaults = {
-    oauth: { url: 'http://mocked-oauth-url.net' },
-    oauthServer: {
-      expiration: {
-        accessToken: 999,
-      },
-      disabledClients: [],
-      contentUrl: 'http://localhost:3030',
-    },
-  };
-
-  return mockObject(
-    OAUTHDB_METHOD_NAMES,
-    require('../lib/oauthdb')(log, Object.assign(defaults, config))
-  )(methods);
 }
 
 function mockObject(methodNames, baseObj) {

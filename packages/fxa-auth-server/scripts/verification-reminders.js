@@ -22,7 +22,6 @@ const config = require(`${ROOT_DIR}/config`).getProperties();
 
 const error = require(`${LIB_DIR}/error`);
 const log = require(`${LIB_DIR}/log`)(config.log);
-const oauthdb = require(`${LIB_DIR}/oauthdb`)(log, config);
 const Promise = require(`${LIB_DIR}/promise`);
 const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
   log,
@@ -31,7 +30,7 @@ const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
 
 const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
 
-const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, oauthdb);
+const Mailer = require(`${LIB_DIR}/senders/email`)(log, config);
 
 run()
   .then(() => {

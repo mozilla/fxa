@@ -20,10 +20,6 @@ module.exports = (log, config, db, mailer, devices) => {
   routes.push(clientGetAlias);
 
   routes.forEach((r) => {
-    if (r.path.includes('/oauth/')) {
-      return;
-    }
-    r.config.cors = { origin: 'ignore' };
     if (r.method !== 'GET' && r.method !== 'HEAD') {
       if (!r.config.payload) {
         r.config.payload = {

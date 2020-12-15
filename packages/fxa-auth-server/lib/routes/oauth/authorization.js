@@ -9,7 +9,7 @@ const OauthError = require('../../oauth/error');
 const AuthError = require('../../error');
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
-const { makeAssertionJWT } = require('../../oauthdb/utils');
+const { makeAssertionJWT } = require('../../oauth/util');
 const verifyAssertion = require('../../oauth/assertion');
 
 const RESPONSE_TYPE_CODE = 'code';
@@ -171,6 +171,7 @@ module.exports = ({ log, oauthDB, config }) => {
       method: 'GET',
       path: '/authorization',
       config: {
+        cors: { origin: 'ignore' },
         handler: async function redirectAuthorization(req, h) {
           // keys_jwk is barred from transiting the OAuth server
           // to prevent a malicious OAuth server from stealing
@@ -190,6 +191,7 @@ module.exports = ({ log, oauthDB, config }) => {
       method: 'POST',
       path: '/authorization',
       config: {
+        cors: { origin: 'ignore' },
         validate: {
           payload: {
             client_id: validators.clientId,

@@ -12,6 +12,7 @@ module.exports = ({ log, oauthDB }) => ({
   method: 'GET',
   path: '/client/{client_id}',
   config: {
+    cors: { origin: 'ignore' },
     validate: {
       params: {
         client_id: validators.clientId.required(),
