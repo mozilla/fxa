@@ -7,6 +7,7 @@
 const isA = require('@hapi/joi');
 const validators = require('./routes/validators');
 const error = require('./error');
+const oauthDB = require('./oauth/db');
 const {
   DISPLAY_SAFE_UNICODE_WITH_NON_BMP,
   HEX_STRING,
@@ -41,7 +42,7 @@ const SCHEMA = {
     .pattern(validators.DEVICE_COMMAND_NAME, isA.string().max(2048)),
 };
 
-module.exports = (log, db, oauthdb, push) => {
+module.exports = (log, db, push) => {
   return { isSpuriousUpdate, upsert, destroy, synthesizeName };
 
   // Clients have been known to send spurious device updates,
@@ -173,7 +174,10 @@ module.exports = (log, db, oauthdb, push) => {
     const deletedDevice = await db.deleteDevice(uid, deviceId);
     if (deletedDevice && deletedDevice.refreshTokenId) {
       try {
-        await oauthdb.revokeRefreshTokenById(deletedDevice.refreshTokenId);
+        const token = await oauthDB.getRefreshToken(
+          deletedDevice.refreshTokenId
+        );
+        await oauthDB.removeRefreshToken(token);
       } catch (err) {
         // The refresh token might already have been deleted, because distributed state.
         // We don't want errors here to fail the deletion request, because the caller

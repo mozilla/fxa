@@ -6,23 +6,15 @@
 
 const { assert } = require('chai');
 const sinon = require('sinon');
+const proxyquire = require('proxyquire');
 const crypto = require('crypto');
 const mocks = require('../mocks');
 const error = require('../../lib/error');
 const uuid = require('uuid');
 
-const MODULE_PATH = '../../lib/devices';
-
 describe('lib/devices:', () => {
-  it('should export the correct interface', () => {
-    assert.equal(typeof require(MODULE_PATH), 'function');
-    assert.equal(require(MODULE_PATH).length, 4);
-    assert.equal(typeof require(MODULE_PATH).schema, 'object');
-    assert.notEqual(require(MODULE_PATH).schema, null);
-  });
-
   describe('instantiate:', () => {
-    let log, deviceCreatedAt, deviceId, device, db, oauthdb, push, devices;
+    let log, deviceCreatedAt, deviceId, device, db, push, devices, oauthDB;
 
     beforeEach(() => {
       log = mocks.mockLog();
@@ -37,9 +29,14 @@ describe('lib/devices:', () => {
         deviceCreatedAt: deviceCreatedAt,
         deviceId: deviceId,
       });
-      oauthdb = mocks.mockOAuthDB({});
       push = mocks.mockPush();
-      devices = require(MODULE_PATH)(log, db, oauthdb, push);
+      oauthDB = {
+        getRefreshToken: sinon.spy(),
+        removeRefreshToken: sinon.spy(),
+      };
+      devices = proxyquire('../../lib/devices', {
+        './oauth/db': oauthDB,
+      })(log, db, push);
     });
 
     it('returns the expected interface', () => {
@@ -895,7 +892,7 @@ describe('lib/devices:', () => {
         ]);
         assert.equal(push.notifyDeviceDisconnected.firstCall.args[2], deviceId);
 
-        assert.equal(oauthdb.revokeRefreshTokenById.callCount, 0);
+        assert.equal(oauthDB.removeRefreshToken.callCount, 0);
 
         assert.equal(
           log.activityEvent.callCount,
@@ -934,7 +931,7 @@ describe('lib/devices:', () => {
       });
 
       it('should revoke the refreshToken if present', async () => {
-        oauthdb.revokeRefreshTokenById = sinon.spy(async () => {
+        oauthDB.removeRefreshToken = sinon.spy(async () => {
           return {};
         });
         device.refreshTokenId = refreshTokenId;
@@ -944,15 +941,13 @@ describe('lib/devices:', () => {
         assert.equal(result.refreshTokenId, refreshTokenId);
 
         assert.equal(db.deleteDevice.callCount, 1);
-        assert.ok(
-          oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId)
-        );
+        assert.ok(oauthDB.getRefreshToken.calledOnceWith(refreshTokenId));
         assert.equal(log.error.callCount, 0);
         assert.equal(log.notifyAttachedServices.callCount, 1);
       });
 
       it('should ignore missing tokens when deleting the refreshToken', async () => {
-        oauthdb.revokeRefreshTokenById = sinon.spy(async () => {
+        oauthDB.removeRefreshToken = sinon.spy(async () => {
           throw error.invalidToken();
         });
         device.refreshTokenId = refreshTokenId;
@@ -962,15 +957,13 @@ describe('lib/devices:', () => {
         assert.equal(result.refreshTokenId, refreshTokenId);
 
         assert.equal(db.deleteDevice.callCount, 1);
-        assert.ok(
-          oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId)
-        );
+        assert.ok(oauthDB.getRefreshToken.calledOnceWith(refreshTokenId));
         assert.equal(log.error.callCount, 0);
         assert.equal(log.notifyAttachedServices.callCount, 1);
       });
 
       it('should log other errors when deleting the refreshToken, without failing', async () => {
-        oauthdb.revokeRefreshTokenById = sinon.spy(async () => {
+        oauthDB.removeRefreshToken = sinon.spy(async () => {
           throw error.unexpectedError();
         });
         device.refreshTokenId = refreshTokenId;
@@ -980,9 +973,7 @@ describe('lib/devices:', () => {
         assert.equal(result.refreshTokenId, refreshTokenId);
 
         assert.equal(db.deleteDevice.callCount, 1);
-        assert.ok(
-          oauthdb.revokeRefreshTokenById.calledOnceWith(refreshTokenId)
-        );
+        assert.ok(oauthDB.getRefreshToken.calledOnceWith(refreshTokenId));
         assert.equal(log.notifyAttachedServices.callCount, 1);
         assert.isTrue(
           log.error.calledOnceWith('deviceDestroy.revokeRefreshTokenById.error')
