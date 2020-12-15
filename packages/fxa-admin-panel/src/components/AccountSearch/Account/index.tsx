@@ -160,6 +160,7 @@ export const Account = ({
             This account doesn't have any bounced emails.
           </li>
         )}
+        <hr />
 
         <li>
           <h3 className="danger-zone-title">Danger Zone</h3>

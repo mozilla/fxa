@@ -109,12 +109,6 @@ export const AccountSearch = () => {
               query: inputValue,
             }}
           />
-          <hr />
-          <h2>Danger Zone</h2>
-          <p>
-            Please run these commands with caution, as some functions are
-            irreversible.
-          </p>
         </>
       ) : null}
     </div>
