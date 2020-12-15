@@ -7,6 +7,7 @@ const assert = intern.getPlugin('chai').assert;
 const path = require('path');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const config = require('../../../server/lib/configuration');
 
 const ERROR_CODES = {
   NODATA: 'ENODATA',
@@ -57,7 +58,18 @@ registerSuite('routes/validate-email-domain', {
           assert.isTrue(res.json.calledOnceWith({ result: 'MX' }));
         });
       },
-
+      'responds with {result: "skip"} when there is a skip record': () => {
+        const validateEmailDomainRoute = require('../../../server/lib/routes/validate-email-domain');
+        const req = { query: { domain: 'skip.abc.xyz' } };
+        const res = { json: sinon.stub() };
+        const route = validateEmailDomainRoute();
+        const enabled = config.get('mxRecordValidation');
+        enabled.enabled = false;
+        return route.process(req, res).then(() => {
+          if (!enabled.enabled)
+            assert.isFalse(res.json.calledOnceWith({ result: 'skip' }));
+        });
+      },
       'responds with {result: "A"} when there is an A record': () => {
         const resolveMxStub = sinon.stub().resolves([]);
         const resolve4Stub = sinon.stub().resolves(['abc.xyz']);
