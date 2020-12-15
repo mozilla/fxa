@@ -160,6 +160,36 @@ export const Account = ({
             This account doesn't have any bounced emails.
           </li>
         )}
+
+        <li>
+          <h3 className="danger-zone-title">Danger Zone</h3>
+          <p>
+            Please run these commands with caution — some actions are
+            irreversible.
+          </p>
+          <br />
+          <h2>Permanently Delete Account</h2>
+          <p className="danger-zone-info">
+            Once you delete an account, there is no going back. Please be
+            certain.
+            <br />
+            <button className="danger-zone-button">Delete Account</button>
+          </p>
+          <h2>Lock or Unlock Account</h2>
+          <p className="danger-zone-info">
+            Locking this account will disable the user from logging in.
+            Unlocking will toggle this state.
+            <br />
+            <button className="danger-zone-button">Lock Account</button>
+            <button className="danger-zone-button">Unlock Account</button>
+          </p>
+          <h2>Force Password Change</h2>
+          <p className="danger-zone-info">
+            Force a password change the next time this account logs in.
+            <br />
+            <button className="danger-zone-button">Force Change</button>
+          </p>
+        </li>
       </ul>
     </section>
   );
