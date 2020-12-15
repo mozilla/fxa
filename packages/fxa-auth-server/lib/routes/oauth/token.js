@@ -26,17 +26,25 @@
 
 /*jshint camelcase: false*/
 const crypto = require('crypto');
-const AppError = require('../../oauth/error');
+const OauthError = require('../../oauth/error');
+const AuthError = require('../../error');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
 const Joi = require('@hapi/joi');
 
+const {
+  OAUTH_SCOPE_OLD_SYNC,
+  OAUTH_SCOPE_SESSION_TOKEN,
+} = require('../../constants');
 const config = require('../../../config');
 const encrypt = require('../../oauth/encrypt');
 const util = require('../../oauth/util');
+const oauthRouteUtils = require('../utils/oauth');
+const token = require('../../oauth/token');
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const verifyAssertion = require('../../oauth/assertion');
+const { makeAssertionJWT } = require('../../oauthdb/utils');
 const {
   authenticateClient,
   clientAuthValidators,
@@ -145,7 +153,7 @@ const PAYLOAD_SCHEMA = Joi.object({
   resource: validators.resourceUrl.optional(),
 });
 
-module.exports = ({ log, oauthDB }) => {
+module.exports = ({ log, oauthDB, db, mailer, devices }) => {
   async function validateGrantParameters(client, params) {
     let requestedGrant;
     switch (params.grant_type) {
@@ -180,7 +188,7 @@ module.exports = ({ log, oauthDB }) => {
     if (params.code_verifier) {
       if (!client.publicClient) {
         log.debug('client.notPublicClient', { id: client.id });
-        throw AppError.notPublicClient(client.id);
+        throw OauthError.notPublicClient(client.id);
       }
       pkceHashValue = pkceHash(params.code_verifier);
     }
@@ -188,7 +196,7 @@ module.exports = ({ log, oauthDB }) => {
     const codeObj = await oauthDB.getCode(buf(code));
     if (!codeObj) {
       log.debug('code.notFound', { code: code });
-      throw AppError.unknownCode(code);
+      throw OauthError.unknownCode(code);
     }
     // Does it belong to this client?
     if (!crypto.timingSafeEqual(codeObj.clientId, client.id)) {
@@ -196,7 +204,7 @@ module.exports = ({ log, oauthDB }) => {
         client: hex(client.id),
         code: hex(codeObj.code),
       });
-      throw AppError.mismatchCode(code, client.id);
+      throw OauthError.mismatchCode(code, client.id);
     }
     // Has it expired?
     // The + is because loldatemath; without it, it does string concat.
@@ -204,7 +212,7 @@ module.exports = ({ log, oauthDB }) => {
       +codeObj.createdAt + config.get('oauthServer.expiration.code');
     if (Date.now() > expiresAt) {
       log.debug('code.expired', { code: code });
-      throw AppError.expiredCode(code, expiresAt);
+      throw OauthError.expiredCode(code, expiresAt);
     }
     // If it used PKCE...
     if (codeObj.codeChallenge) {
@@ -212,11 +220,11 @@ module.exports = ({ log, oauthDB }) => {
       // We should never have written such data, but double-checking in case we add
       // other methods in future but forget to update the code here.
       if (codeObj.codeChallengeMethod !== 'S256') {
-        throw AppError.mismatchCodeChallenge(pkceHashValue);
+        throw OauthError.mismatchCodeChallenge(pkceHashValue);
       }
       // Did they provide a challenge verifier at all?
       if (!pkceHashValue) {
-        throw AppError.missingPkceParameters();
+        throw OauthError.missingPkceParameters();
       }
       // Did they provide the *correct* challenge verifier?
       if (
@@ -225,13 +233,13 @@ module.exports = ({ log, oauthDB }) => {
           Buffer.from(pkceHashValue)
         )
       ) {
-        throw AppError.mismatchCodeChallenge(pkceHashValue);
+        throw OauthError.mismatchCodeChallenge(pkceHashValue);
       }
     }
     // Is a very confused client is attempting to use PCKE to claim a code
     // that wasn't actually created using PKCE?
     if (params.code_verifier && !codeObj.codeChallenge) {
-      throw AppError.mismatchCodeChallenge(pkceHashValue);
+      throw OauthError.mismatchCodeChallenge(pkceHashValue);
     }
     // Looks legit! Codes are one-time-use, so remove it from the db.
     await oauthDB.removeCode(buf(code));
@@ -247,7 +255,7 @@ module.exports = ({ log, oauthDB }) => {
       log.debug('refresh_token.notFound', {
         refresh_token: params.refresh_token,
       });
-      throw AppError.invalidToken();
+      throw OauthError.invalidToken();
     }
     // Does it belong to this client?
     if (!crypto.timingSafeEqual(tokObj.clientId, client.id)) {
@@ -255,7 +263,7 @@ module.exports = ({ log, oauthDB }) => {
         client: hex(client.id),
         code: tokObj.clientId,
       });
-      throw AppError.invalidToken();
+      throw OauthError.invalidToken();
     }
     // Scope should default to those previously requested,
     // but can be further limited on request.
@@ -266,7 +274,7 @@ module.exports = ({ log, oauthDB }) => {
           allowed: tokObj.scope,
           requested: params.scope,
         });
-        throw AppError.invalidScopes(
+        throw OauthError.invalidScopes(
           params.scope.difference(tokObj.scope).getScopeValues()
         );
       }
@@ -280,7 +288,7 @@ module.exports = ({ log, oauthDB }) => {
     // An additional sanity-check that we don't accidentally grant refresh tokens
     // from other refresh tokens.  There should be no way to trigger this in practice.
     if (tokObj.offline) {
-      throw AppError.invalidRequestParameter();
+      throw OauthError.invalidRequestParameter();
     }
     return tokObj;
   }
@@ -292,12 +300,12 @@ module.exports = ({ log, oauthDB }) => {
         id: hex(client.id),
         grant_type: 'fxa-credentials',
       });
-      throw AppError.invalidGrantType();
+      throw OauthError.invalidGrantType();
     }
     // There's no reason a non-public client should ever be allowed
     // to do direct grants, check that as well for extra safety.
     if (!client.publicClient) {
-      throw AppError.notPublicClient(client.id);
+      throw OauthError.notPublicClient(client.id);
     }
     // Did it provide a valid identity assertion?
     const claims = await verifyAssertion(params.assertion);
@@ -315,49 +323,302 @@ module.exports = ({ log, oauthDB }) => {
     );
   }
 
-  return {
-    method: 'POST',
-    path: '/token',
-    config: {
-      validate: {
-        headers: clientAuthValidators.headers,
-        // stripUnknown is used to allow various oauth2 libraries to be used
-        // with FxA OAuth. Sometimes, they will send other parameters that
-        // we don't use, such as `response_type`, or something else. Instead
-        // of giving an error here, we can just ignore them.
-        payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }),
-      },
-      response: {
-        schema: Joi.object().keys({
-          access_token: validators.accessToken.required(),
-          refresh_token: validators.token,
-          id_token: validators.assertion,
-          session_token_id: validators.sessionTokenId.optional(),
-          scope: validators.scope.required(),
-          token_type: Joi.string().valid('bearer').required(),
-          expires_in: Joi.number().max(MAX_TTL_S).required(),
-          auth_at: Joi.number(),
-          keys_jwe: validators.jwe.optional(),
-        }),
-      },
-      handler: async function tokenEndpoint(req) {
-        var params = req.payload;
-        const client = await authenticateClient(req.headers, params);
+  async function tokenHandler(req) {
+    var params = req.payload;
+    const client = await authenticateClient(req.headers, params);
 
-        // Refuse to generate new access tokens for disabled clients that are already
-        // connected to the account.  We allow disabled clients to claim existing authorization
-        // codes, because otherwise we risk erroring out halfway through an app login flow
-        // and presenting a very confusing user experience.  The /authorization endpoint refuses
-        // to create new codes for disabled clients.
-        if (
-          DISABLED_CLIENTS.has(hex(client.id)) &&
-          params.grant_type !== GRANT_AUTHORIZATION_CODE
-        ) {
-          throw AppError.disabledClient(hex(client.id));
-        }
-        const requestedGrant = await validateGrantParameters(client, params);
-        return await generateTokens(requestedGrant);
+    // Refuse to generate new access tokens for disabled clients that are already
+    // connected to the account.  We allow disabled clients to claim existing authorization
+    // codes, because otherwise we risk erroring out halfway through an app login flow
+    // and presenting a very confusing user experience.  The /authorization endpoint refuses
+    // to create new codes for disabled clients.
+    if (
+      DISABLED_CLIENTS.has(hex(client.id)) &&
+      params.grant_type !== GRANT_AUTHORIZATION_CODE
+    ) {
+      throw OauthError.disabledClient(hex(client.id));
+    }
+    const requestedGrant = await validateGrantParameters(client, params);
+    return await generateTokens(requestedGrant);
+  }
+
+  return [
+    {
+      method: 'POST',
+      path: '/token',
+      config: {
+        validate: {
+          headers: clientAuthValidators.headers,
+          // stripUnknown is used to allow various oauth2 libraries to be used
+          // with FxA OAuth. Sometimes, they will send other parameters that
+          // we don't use, such as `response_type`, or something else. Instead
+          // of giving an error here, we can just ignore them.
+          payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }),
+        },
+        response: {
+          schema: Joi.object().keys({
+            access_token: validators.accessToken.required(),
+            refresh_token: validators.token,
+            id_token: validators.assertion,
+            session_token_id: validators.sessionTokenId.optional(),
+            scope: validators.scope.required(),
+            token_type: Joi.string().valid('bearer').required(),
+            expires_in: Joi.number().max(MAX_TTL_S).required(),
+            auth_at: Joi.number(),
+            keys_jwe: validators.jwe.optional(),
+          }),
+        },
+        handler: tokenHandler,
       },
     },
-  };
+    {
+      method: 'POST',
+      path: '/oauth/token',
+      config: {
+        auth: {
+          // XXX TODO: To be able to fully replace the /token route from oauth-server,
+          // this route must also be able to accept 'client_secret' as Basic Auth in header.
+          mode: 'optional',
+          strategy: 'sessionToken',
+        },
+        validate: {
+          // Note: the use of 'alternatives' here means that `grant_type` will default to
+          // `authorization_code` if a `code` parameter is provided, or `fxa-credentials`
+          // otherwise. This is intended behaviour.
+          payload: Joi.alternatives().try(
+            // authorization code
+            Joi.object({
+              grant_type: Joi.string()
+                .valid('authorization_code')
+                .default('authorization_code'),
+              client_id: validators.clientId,
+              client_secret: validators.clientSecret.optional(),
+              code: validators.authorizationCode.required(),
+              code_verifier: validators.pkceCodeVerifier.optional(),
+              redirect_uri: validators.url().optional(),
+              // Note: the max allowed TTL is currently configured in oauth-server config,
+              // making it hard to know what limit to set here.
+              ttl: Joi.number().positive().optional(),
+              ppid_seed: validators.ppidSeed.optional(),
+              resource: validators.resourceUrl.optional(),
+            }).xor('client_secret', 'code_verifier'),
+            // refresh token
+            Joi.object({
+              grant_type: Joi.string().valid('refresh_token').required(),
+              client_id: validators.clientId,
+              client_secret: validators.clientSecret.optional(),
+              refresh_token: validators.refreshToken.required(),
+              scope: validators.scope.optional(),
+              // Note: the max allowed TTL is currently configured in oauth-server config,
+              // making it hard to know what limit to set here.
+              ttl: Joi.number().positive().optional(),
+              ppid_seed: validators.ppidSeed.optional(),
+              resource: validators.resourceUrl.optional(),
+            }),
+            // credentials
+            Joi.object({
+              grant_type: Joi.string()
+                .valid('fxa-credentials')
+                .default('fxa-credentials'),
+              client_id: validators.clientId,
+              scope: validators.scope.optional(),
+              access_type: Joi.string()
+                .valid('online', 'offline')
+                .default('online'),
+              // Note: the max allowed TTL is currently configured in oauth-server config,
+              // making it hard to know what limit to set here.
+              ttl: Joi.number().positive().optional(),
+              resource: validators.resourceUrl.optional(),
+              assertion: Joi.forbidden(),
+            })
+          ),
+        },
+        response: {
+          schema: Joi.alternatives().try(
+            // authorization code
+            Joi.object({
+              access_token: validators.accessToken.required(),
+              refresh_token: validators.refreshToken.optional(),
+              id_token: validators.assertion.optional(),
+              session_token: validators.sessionToken.optional(),
+              scope: validators.scope.required(),
+              token_type: Joi.string().valid('bearer').required(),
+              expires_in: Joi.number().required(),
+              auth_at: Joi.number().required(),
+              keys_jwe: validators.jwe.optional(),
+            }),
+            // refresh token
+            Joi.object({
+              access_token: validators.accessToken.required(),
+              id_token: validators.assertion.optional(),
+              scope: validators.scope.required(),
+              token_type: Joi.string().valid('bearer').required(),
+              expires_in: Joi.number().required(),
+            }),
+            // credentials
+            Joi.object({
+              access_token: validators.accessToken.required(),
+              refresh_token: validators.refreshToken.optional(),
+              id_token: validators.assertion.optional(),
+              scope: validators.scope.required(),
+              auth_at: Joi.number().required(),
+              token_type: Joi.string().valid('bearer').required(),
+              expires_in: Joi.number().required(),
+            })
+          ),
+        },
+      },
+      handler: async function (req) {
+        const sessionToken = req.auth.credentials;
+        delete req.headers.authorization;
+        let grant;
+        switch (req.payload.grant_type) {
+          case 'authorization_code':
+          case 'refresh_token':
+            try {
+              grant = await tokenHandler(req);
+            } catch (err) {
+              // TODO auth/oauth error reconciliation
+              if (err.errno === 108) {
+                throw AuthError.invalidToken();
+              }
+              throw err;
+            }
+            break;
+          case 'fxa-credentials':
+            if (!sessionToken) {
+              throw AuthError.invalidToken();
+            }
+            req.payload.assertion = await makeAssertionJWT(
+              config.getProperties(),
+              sessionToken
+            );
+            grant = await tokenHandler(req);
+            break;
+          default:
+            throw AuthError.internalValidationError();
+        }
+
+        const scopeSet = ScopeSet.fromString(grant.scope);
+
+        if (scopeSet.contains(OAUTH_SCOPE_SESSION_TOKEN)) {
+          // the OAUTH_SCOPE_SESSION_TOKEN allows the client to create a new session token.
+          // the sessionTokens live in the auth-server db, we create them here after the oauth-server has validated the request.
+          let origSessionToken;
+          try {
+            origSessionToken = await db.sessionToken(grant.session_token_id);
+          } catch (e) {
+            throw AuthError.unknownAuthorizationCode();
+          }
+
+          const newTokenData = await origSessionToken.copyTokenState();
+
+          // Update UA info based on the requesting device.
+          const { ua } = req.app;
+          const newUAInfo = {
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uaFormFactor: ua.formFactor,
+          };
+
+          const sessionTokenOptions = {
+            ...newTokenData,
+            ...newUAInfo,
+          };
+
+          const newSessionToken = await db.createSessionToken(
+            sessionTokenOptions
+          );
+          // the new session token information is later
+          // used in 'newTokenNotification' to attach it to device records
+          grant.session_token_id = newSessionToken.id;
+          grant.session_token = newSessionToken.data;
+        }
+
+        if (grant.refresh_token) {
+          // if a refresh token has
+          // been provisioned as part of the flow
+          // then we want to send some notifications to the user
+          await oauthRouteUtils.newTokenNotification(
+            db,
+            mailer,
+            devices,
+            req,
+            grant
+          );
+        }
+
+        // done with 'session_token_id' at this point, do not return it.
+        delete grant.session_token_id;
+
+        // attempt to record metrics, but swallow the error if one is thrown.
+        try {
+          let uid = sessionToken && sessionToken.uid;
+
+          // As mentioned in lib/routes/utils/oauth.js, some grant flows won't
+          // have the uid in `credentials`, so we get it from the oauth DB.
+          if (!uid) {
+            const tokenVerify = await token.verify(grant.access_token);
+            uid = tokenVerify.user;
+          }
+
+          const account = await db.account(uid);
+          const ecosystemAnonId = account.ecosystemAnonId;
+
+          await req.emitMetricsEvent('oauth.token.created', {
+            grantType: req.payload.grant_type,
+            uid,
+            ecosystemAnonId,
+            clientId: req.payload.client_id,
+            service: req.payload.client_id,
+          });
+
+          // This is a bit of a hack, but we emit the `account.signed`
+          // event to signal to the flow it has been completed (see flowCompleteSignal).
+          // Previously, this event would get emitted on the `/certificate/sign`
+          // endpoint however, with the move to sync oauth, this does not happen anymore
+          // and we need to "fake" it.
+          //
+          // A "fxa_activity - cert_signed" event will be emitted since
+          // "account.signed" is mapped to it.  And cert_signed is used in a
+          // rollup to generate the "fxa_activity - active" event in Amplitude
+          // (ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1632635), where
+          // we need the 'service' event property to distinguish between sync
+          // and browser.
+          if (
+            scopeSet.contains(OAUTH_SCOPE_OLD_SYNC) &&
+            // Desktop requests a profile scope token before adding the device
+            // to the account. To ensure we record accurate device counts, only
+            // emit this event if the request is for an oldsync scope, not a
+            // profile scope. See #6578 for details on the order of API calls
+            // made by both desktop and fenix.
+            !scopeSet.contains('profile')
+          ) {
+            // For desktop, the 'service' parameter for this event gets
+            // special-cased to 'sync' so that it matches its pre-oauth
+            // `/certificate/sign` event.
+            // ref: https://github.com/mozilla/fxa/pull/6581#issuecomment-702248031
+            // Otherwise, for mobile browsers, just use the existing client ID
+            // to service name mapping used in the metrics code (see the
+            // OAUTH_CLIENT_IDS config value). #5143
+            const service = config.oauth.oldSyncClientIds.includes(
+              req.payload.client_id
+            )
+              ? 'sync'
+              : req.payload.client_id;
+            await req.emitMetricsEvent('account.signed', {
+              uid: uid,
+              device_id: sessionToken.deviceId,
+              service,
+            });
+          }
+        } catch (ex) {}
+
+        return grant;
+      },
+    },
+  ];
 };
