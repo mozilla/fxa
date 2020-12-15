@@ -97,12 +97,7 @@ const DB_METHOD_NAMES = [
   'fetchAccountSubscriptions',
 ];
 
-const OAUTHDB_METHOD_NAMES = [
-  'getScopedKeyData',
-  'grantTokensFromAuthorizationCode',
-  'grantTokensFromRefreshToken',
-  'grantTokensFromSessionToken',
-];
+const OAUTHDB_METHOD_NAMES = ['getScopedKeyData'];
 
 const LOG_METHOD_NAMES = [
   'activityEvent',

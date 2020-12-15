@@ -47,30 +47,5 @@ module.exports = (log, config) => {
         payload: oauthParams,
       });
     },
-
-    async grantTokensFromAuthorizationCode(oauthParams) {
-      return callRoute('/token', {
-        payload: oauthParams,
-      });
-    },
-
-    async grantTokensFromRefreshToken(oauthParams) {
-      if (oauthParams.scope) {
-        oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
-      }
-      return callRoute('/token', {
-        payload: oauthParams,
-      });
-    },
-
-    async grantTokensFromSessionToken(sessionToken, oauthParams) {
-      oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
-      if (oauthParams.scope) {
-        oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
-      }
-      return callRoute('/token', {
-        payload: oauthParams,
-      });
-    },
   };
 };

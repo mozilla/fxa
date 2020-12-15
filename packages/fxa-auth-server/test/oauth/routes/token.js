@@ -27,7 +27,7 @@ const route = require('../../../lib/routes/oauth/token')({
       return null;
     },
   },
-});
+})[0];
 
 function joiRequired(err, param) {
   assert.ok(err.isJoi);
