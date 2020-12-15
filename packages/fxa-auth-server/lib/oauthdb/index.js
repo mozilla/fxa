@@ -40,15 +40,6 @@ module.exports = (log, config) => {
   }
 
   return {
-    async revokeRefreshTokenById(refreshTokenId, clientCredentials = {}) {
-      return callRoute('/destroy', {
-        payload: {
-          refresh_token_id: refreshTokenId,
-          ...clientCredentials,
-        },
-      });
-    },
-
     async getScopedKeyData(sessionToken, oauthParams) {
       oauthParams.assertion = await makeAssertionJWT(config, sessionToken);
       oauthParams.scope = ScopeSet.fromString(oauthParams.scope || '');
