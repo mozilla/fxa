@@ -1,6 +1,6 @@
 {{{body}}}
 
-Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041
+Mozilla. 2 Harrison St, #175, San Francisco, CA 94105
 
 {{t "Mozilla Privacy Policy" }}
 {{{privacyUrl}}}
