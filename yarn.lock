@@ -5606,10 +5606,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chance@npm:^1, @types/chance@npm:^1.0.10, @types/chance@npm:^1.1.0":
+"@types/chance@npm:^1":
   version: 1.1.0
   resolution: "@types/chance@npm:1.1.0"
   checksum: daaa9528de2d94060c49cca49d0326c974d089a0bf956e33cf63bc427abfceb449de42f5fde5e622089302b47540dd15709595c38bdcf24996d48c02f3024777
+  languageName: node
+  linkType: hard
+
+"@types/chance@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@types/chance@npm:1.1.1"
+  checksum: e422d66bc643b164ff548e2117374e1096d076563f9288ce5e6635e0a269a97909c01e66b24c98a46c779dc9621bb5701f246eda1c9eb620b33c64df02df9843
   languageName: node
   linkType: hard
 
@@ -17558,7 +17565,7 @@ fsevents@^1.2.7:
     "@testing-library/react": ^9.5.0
     "@testing-library/user-event": ^12.1.7
     "@types/babel__core": 7.1.12
-    "@types/chance": ^1.0.10
+    "@types/chance": ^1.1.1
     "@types/convict": ^5.2.1
     "@types/dateformat": ^3.0.1
     "@types/eslint": 6.8.1
@@ -17624,7 +17631,7 @@ fsevents@^1.2.7:
     "@nestjs/platform-express": ^7.5.5
     "@sentry/integrations": ^5.23.0
     "@sentry/node": ^5.23.0
-    "@types/chance": ^1.1.0
+    "@types/chance": ^1.1.1
     "@types/convict": ^5.2.1
     "@types/graphql": ^14.5.0
     "@types/node": ^14.14.5
@@ -18126,7 +18133,7 @@ fsevents@^1.2.7:
     "@nestjs/testing": ^7.5.5
     "@sentry/integrations": ^5.23.0
     "@sentry/node": ^5.23.0
-    "@types/chance": ^1.1.0
+    "@types/chance": ^1.1.1
     "@types/convict": ^5.2.1
     "@types/express": ^4.17.8
     "@types/jest": ^26.0.13
@@ -18220,7 +18227,7 @@ fsevents@^1.2.7:
     "@nestjs/platform-express": ^7.5.5
     "@sentry/integrations": ^5.23.0
     "@sentry/node": ^5.23.0
-    "@types/chance": ^1.1.0
+    "@types/chance": ^1.1.1
     "@types/convict": ^5.2.1
     "@types/get-stream": 3.0.2
     "@types/graphql": ^14.5.0
