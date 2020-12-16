@@ -118,10 +118,16 @@ export function captureSqsError(err: Error, message?: SQS.Message): void {
  * @param request A request object if available.
  */
 export function reportRequestException(
-  exception: Error & { reported?: boolean },
+  exception: Error & { reported?: boolean; status?: number; response?: any },
   excContexts: ExtraContext[] = [],
   request?: Request
 ) {
+  // Don't report HttpExceptions, we test for its two attributes as its more reliable
+  // than instance checks of HttpException
+  if (exception.status && exception.response) {
+    return;
+  }
+
   // Don't report already reported exceptions
   if (exception.reported) {
     return;
