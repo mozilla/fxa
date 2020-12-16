@@ -155,8 +155,14 @@ module.exports = ({ log, oauthDB, config }) => {
     switch (req.payload.response_type) {
       case RESPONSE_TYPE_CODE:
         return await generateAuthorizationCode(client, req.payload, grant);
-      case RESPONSE_TYPE_TOKEN:
-        return await generateImplicitGrant(client, req.payload, grant);
+      case RESPONSE_TYPE_TOKEN: {
+        const tokens = await generateImplicitGrant(client, req.payload, grant);
+        req.emitMetricsEvent('token.created', {
+          service: hex(grant.clientId),
+          uid: hex(grant.userId),
+        });
+        return tokens;
+      }
       default:
         // Joi validation means this should never happen.
         log.fatal('joi.response_type', {

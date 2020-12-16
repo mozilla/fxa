@@ -104,6 +104,14 @@ const EVENTS = {
     group: GROUPS.sms,
     event: 'sent',
   },
+  'token.created': {
+    group: GROUPS.activity,
+    event: 'access_token_created',
+  },
+  'verify.success': {
+    group: GROUPS.activity,
+    event: 'access_token_checked',
+  },
 };
 
 const FUZZY_EVENTS = new Map([

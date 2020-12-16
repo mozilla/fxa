@@ -12,7 +12,6 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 const encrypt = require('../../../lib/oauth/encrypt');
 const db = require('../../../lib/oauth/db');
 const Promise = require('../../../lib/promise');
-const mock = require('../../lib/mocks');
 
 function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');
@@ -461,9 +460,6 @@ describe('db', function () {
       });
 
       it('should throw on empty email', function () {
-        mock.log('db', (rec) => {
-          return rec.levelname === 'ERROR' && rec.args[0] === 'getDeveloper';
-        });
         return db.getDeveloper().then(assert.fail, function (err) {
           assert.equal(err.message, 'Email is required');
         });
@@ -480,11 +476,6 @@ describe('db', function () {
       });
 
       it('should not allow duplicates', function () {
-        mock.log('db', (rec) => {
-          return (
-            rec.levelname === 'ERROR' && rec.args[0] === 'activateDeveloper'
-          );
-        });
         var email = 'email' + randomString(10) + '@mozilla.com';
 
         return db
@@ -503,11 +494,6 @@ describe('db', function () {
       });
 
       it('should throw on empty email', function () {
-        mock.log('db', (rec) => {
-          return (
-            rec.levelname === 'ERROR' && rec.args[0] === 'activateDeveloper'
-          );
-        });
         return db.activateDeveloper().then(assert.fail, function (err) {
           assert.equal(err.message, 'Email is required');
         });

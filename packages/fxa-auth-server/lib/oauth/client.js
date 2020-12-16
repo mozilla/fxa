@@ -10,7 +10,6 @@ const AppError = require('./error');
 const validators = require('./validators');
 const db = require('./db');
 const encrypt = require('./encrypt');
-const logger = require('./logging')('client');
 
 // Client credentials can be provided in either the Authorization header
 // or the request body, but not both.
@@ -125,23 +124,15 @@ module.exports.authenticateClient = async function authenticateClient(
   const storedPrevious = client.hashedSecretPrevious;
   if (storedPrevious) {
     if (crypto.timingSafeEqual(submitted, storedPrevious)) {
-      logger.info('client.matchSecretPrevious', { client: client.id });
       return client;
     }
   }
-  logger.info('client.mismatchSecret', { client: client.id });
-  logger.verbose('client.mismatchSecret.details', {
-    submitted: submitted,
-    db: stored,
-    dbPrevious: storedPrevious,
-  });
   throw AppError.incorrectSecret(client.id);
 };
 
 module.exports.getClientById = async function getClientById(clientId) {
   const client = await db.getClient(buf(clientId));
   if (!client) {
-    logger.debug('client.notFound', { id: clientId });
     throw AppError.unknownClient(clientId);
   }
   return client;
