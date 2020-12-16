@@ -20,7 +20,7 @@ __metadata:
     node-rsa: 1.0.5
     pm2: ^4.4.1
     prettier: ^2.0.5
-    redis: ^2.8.0
+    redis: ^3.0.2
     request: ^2.88.2
   languageName: unknown
   linkType: soft
@@ -14364,7 +14364,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"denque@npm:^1.1.0":
+"denque@npm:^1.1.0, denque@npm:^1.4.1":
   version: 1.4.1
   resolution: "denque@npm:1.4.1"
   checksum: 174e81b3c9407b2149216d9e793fb91d901c19b1225dceefdafe32d5abeca243382ffee9bb111a1f60e42d2791b457d029bb57379d48404b2fb351bf700b6a8c
@@ -14905,13 +14905,6 @@ __metadata:
   version: 6.2.0
   resolution: "dotenv@npm:6.2.0"
   checksum: 2589b4c8e3d9a54eaad276d0a6a3821eb73250b439edd7ba70147dfe4e12148461919817506c7dfae3f1ea72a88cb38bf01b0656fe0c28e8e51df9391ef76e73
-  languageName: node
-  linkType: hard
-
-"double-ended-queue@npm:^2.1.0-0":
-  version: 2.1.0-0
-  resolution: "double-ended-queue@npm:2.1.0-0"
-  checksum: 102d1da1aa4f307792b3431f47f383880c3e36a3d6a41481864b2363dfc6bee720e2dcf7ad535881a78aa3dd598d2b4e91e42cb987a1edf7a1da3e4c4dd637cd
   languageName: node
   linkType: hard
 
@@ -18693,7 +18686,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     prettier: ^2.0.5
     proxyquire: ^2.1.3
-    redis: ^2.8.0
+    redis: ^3.0.2
     reflect-metadata: ^0.1.13
     rxjs: ^6.5.5
     sinon: ^9.0.3
@@ -31744,7 +31737,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"redis-commands@npm:1.6.0, redis-commands@npm:^1.2.0":
+"redis-commands@npm:1.6.0, redis-commands@npm:^1.5.0":
   version: 1.6.0
   resolution: "redis-commands@npm:1.6.0"
   checksum: 11ad01e57fab4927c7410817fcaaf71079d5b50ebb05f9b38ba5719b9461e7b78f7a3f1f8a6d352336a6af336ef4fdc9a21ff1abb5111890edb71d56634ff53f
@@ -31758,13 +31751,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"redis-parser@npm:^2.6.0":
-  version: 2.6.0
-  resolution: "redis-parser@npm:2.6.0"
-  checksum: a5e845e3d48e49c3b3b03f4a64c431d106fa130ac63d32694b2365e989580608f4e5c167548ebc2f6810c0c81316ece10ae84650d80ebe7b6a52c83e255cc8e7
-  languageName: node
-  linkType: hard
-
 "redis-parser@npm:^3.0.0":
   version: 3.0.0
   resolution: "redis-parser@npm:3.0.0"
@@ -31774,14 +31760,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"redis@npm:^2.8.0":
-  version: 2.8.0
-  resolution: "redis@npm:2.8.0"
+"redis@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "redis@npm:3.0.2"
   dependencies:
-    double-ended-queue: ^2.1.0-0
-    redis-commands: ^1.2.0
-    redis-parser: ^2.6.0
-  checksum: d81b1b815461995140764e99294455c74a33451531a036001d64f8a0f321e64a84167e2f9b7cb0e218835c9b637e34b8dc317ca6c730bbc9c11ea4a4dd1f8a1f
+    denque: ^1.4.1
+    redis-commands: ^1.5.0
+    redis-errors: ^1.2.0
+    redis-parser: ^3.0.0
+  checksum: 74858b9f5ae3859ed55435d413315ab3f911aa483a3817c0d1ebe46b966c7061f43ea0d3d5170b540ff4a1f15edd5ea2bc0e107d0e6e516c4d61ea489460f5dc
   languageName: node
   linkType: hard
 
