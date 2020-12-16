@@ -140,6 +140,12 @@ module.exports = (log, db, mailer, customs, config) => {
 
         await db.deleteTotpToken(uid);
 
+        // Downgrade the session to email-based verification when TOTP is
+        // removed. Because we know the session is already verified, there's
+        // no security risk in setting it as verified using a different method.
+        // See #5154.
+        await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
+
         await log.notifyAttachedServices('profileDataChanged', request, {
           uid,
         });
