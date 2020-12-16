@@ -57,9 +57,9 @@ AppError.isOauthRoute = function isOauthRoute(path) {
   const routes = require('../routes/oauth')();
   // ironically, routes that include "oauth" are considered auth-server routes
   return (
-    path &&
-    !path.includes('/oauth/') &&
-    routes.findIndex((r) => `/v1${r.path}` === path) > -1
+    // For now we use a fragile heuristic that all oauth routes set cors config
+    // TODO: when we merge oauth errors into auth, rethink this.
+    routes.findIndex((r) => `/v1${r.path}` === path && r.config.cors) > -1
   );
 };
 

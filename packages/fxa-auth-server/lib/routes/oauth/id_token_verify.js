@@ -9,6 +9,7 @@ module.exports = () => ({
   method: 'POST',
   path: '/oauth/id-token-verify',
   config: {
+    cors: { origin: 'ignore' },
     validate: {
       payload: {
         client_id: Joi.string().required(),

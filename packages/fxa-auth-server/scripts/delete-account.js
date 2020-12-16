@@ -56,7 +56,7 @@ DB.connect(config[config.db.backend]).then((db) => {
   };
 
   const push = require('../lib/push')(log, db, config);
-  const oauthdb = require('../lib/oauth/db');
+  const oauthDB = require('../lib/oauth/db');
   const statsd = {
     increment: () => {},
     timing: () => {},
@@ -87,7 +87,7 @@ DB.connect(config[config.db.backend]).then((db) => {
     signinUtils,
     push,
     verificationReminders,
-    oauthdb,
+    oauthDB,
     stripeHelper
   ).find((r) => r.path === '/account/destroy');
 

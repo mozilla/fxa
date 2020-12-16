@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const encrypt = require('./encrypt');
+const AuthError = require('../error');
+const { signJWT } = require('../serverJWT');
 
 /**
  * .base64URLEncode
@@ -17,13 +19,13 @@ const encrypt = require('./encrypt');
  * @return {String}
  * @api public
  */
-const base64URLEncode = function base64URLEncode(buf) {
+function base64URLEncode(buf) {
   return buf
     .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '');
-};
+}
 
 /**
  * Generates a hash of the access token based on
@@ -36,12 +38,41 @@ const base64URLEncode = function base64URLEncode(buf) {
  * @returns {String}
  * @api public
  */
-const generateTokenHash = function generateTokenHash(accessToken) {
+function generateTokenHash(accessToken) {
   const hash = encrypt.hash(accessToken);
   return base64URLEncode(hash.slice(0, hash.length / 2));
-};
+}
+
+function makeAssertionJWT(config, credentials) {
+  if (!credentials.emailVerified) {
+    throw AuthError.unverifiedAccount();
+  }
+  if (credentials.mustVerify && !credentials.tokenVerified) {
+    throw AuthError.unverifiedSession();
+  }
+  const claims = {
+    sub: credentials.uid,
+    'fxa-generation': credentials.verifierSetAt,
+    'fxa-verifiedEmail': credentials.email,
+    'fxa-sessionTokenId': credentials.id,
+    'fxa-lastAuthAt': credentials.lastAuthAt(),
+    'fxa-tokenVerified': credentials.tokenVerified,
+    'fxa-amr': Array.from(credentials.authenticationMethods),
+    'fxa-aal': credentials.authenticatorAssuranceLevel,
+    'fxa-profileChangedAt': credentials.profileChangedAt,
+    'fxa-keysChangedAt': credentials.keysChangedAt,
+  };
+  return signJWT(
+    claims,
+    config.oauth.url,
+    config.domain,
+    config.oauth.secretKey,
+    60
+  );
+}
 
 module.exports = {
-  base64URLEncode: base64URLEncode,
-  generateTokenHash: generateTokenHash,
+  base64URLEncode,
+  generateTokenHash,
+  makeAssertionJWT,
 };

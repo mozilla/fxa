@@ -11,7 +11,6 @@ module.exports = function (
   serverPublicKeys,
   signer,
   db,
-  oauthdb,
   mailer,
   smsImpl,
   Password,
@@ -68,7 +67,6 @@ module.exports = function (
     stripeHelper
   );
   const oauth = require('./oauth')(log, config, db, mailer, devicesImpl);
-  const oauthProxied = require('./oauth/proxied')(config, oauthdb);
   const devicesSessions = require('./devices-and-sessions')(
     log,
     db,
@@ -173,7 +171,6 @@ module.exports = function (
   const v1Routes = [].concat(
     account,
     oauth,
-    oauthProxied,
     devicesSessions,
     attachedClients,
     emails,

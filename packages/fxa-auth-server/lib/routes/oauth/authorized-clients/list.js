@@ -12,6 +12,7 @@ module.exports = () => ({
   method: 'POST',
   path: '/authorized-clients',
   config: {
+    cors: { origin: 'ignore' },
     validate: {
       payload: {
         assertion: validators.assertion.required(),

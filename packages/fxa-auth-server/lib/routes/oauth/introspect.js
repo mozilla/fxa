@@ -20,6 +20,7 @@ module.exports = ({ oauthDB }) => ({
   method: 'POST',
   path: '/introspect',
   config: {
+    cors: { origin: 'ignore' },
     validate: {
       payload: PAYLOAD_SCHEMA.options({ stripUnknown: true }),
     },

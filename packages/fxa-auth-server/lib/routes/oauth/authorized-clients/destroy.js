@@ -10,6 +10,7 @@ module.exports = () => ({
   method: 'POST',
   path: '/authorized-clients/destroy',
   config: {
+    cors: { origin: 'ignore' },
     validate: {
       payload: {
         client_id: validators.clientId,

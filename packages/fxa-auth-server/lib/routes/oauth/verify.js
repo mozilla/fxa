@@ -11,6 +11,7 @@ module.exports = ({ log }) => ({
   method: 'POST',
   path: '/verify',
   config: {
+    cors: { origin: 'ignore' },
     validate: {
       payload: {
         token: validators.accessToken.required(),

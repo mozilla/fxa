@@ -44,7 +44,7 @@ const token = require('../../oauth/token');
 const validators = require('../../oauth/validators');
 const { validateRequestedGrant, generateTokens } = require('../../oauth/grant');
 const verifyAssertion = require('../../oauth/assertion');
-const { makeAssertionJWT } = require('../../oauthdb/utils');
+const { makeAssertionJWT } = require('../../oauth/util');
 const {
   authenticateClient,
   clientAuthValidators,
@@ -347,6 +347,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
       method: 'POST',
       path: '/token',
       config: {
+        cors: { origin: 'ignore' },
         validate: {
           headers: clientAuthValidators.headers,
           // stripUnknown is used to allow various oauth2 libraries to be used

@@ -41,8 +41,8 @@ async function main() {
   }
 
   const storePrefix = config.firestore.prefix;
-  const oauthdb = await mysql.connect(config.oauthServer.mysql);
-  const results = await oauthdb.getRefreshTokensByClientId(CLIENT_ID);
+  const oauthDB = await mysql.connect(config.oauthServer.mysql);
+  const results = await oauthDB.getRefreshTokensByClientId(CLIENT_ID);
   let inserted = 0;
   for (const { userId } of results) {
     const uid = hex(userId);

@@ -67,6 +67,7 @@ module.exports = ({ log, oauthDB }) => {
       method: 'POST',
       path: '/destroy',
       config: {
+        cors: { origin: 'ignore' },
         validate: {
           headers: clientAuthValidators.headers,
           payload: Joi.object()
