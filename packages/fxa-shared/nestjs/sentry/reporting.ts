@@ -84,7 +84,7 @@ export function filterSentryEvent(event: Sentry.Event, hint: unknown) {
     }
   }
   if (event.tags && event.tags.url) {
-    event.tags.url = event.tags.url.replace(TOKENREGEX, FILTERED);
+    event.tags.url = (event.tags.url as string).replace(TOKENREGEX, FILTERED);
   }
   return event;
 }
@@ -104,7 +104,7 @@ export function captureSqsError(err: Error, message?: SQS.Message): void {
           FILTERED
         );
       }
-      scope.setContext('SQS Message', message);
+      scope.setContext('SQS Message', message as Record<string, unknown>);
     }
     Sentry.captureException(err);
   });
