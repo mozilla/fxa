@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
@@ -18,7 +17,7 @@ const conf = convict({
   },
   authServer: {
     secretBearerToken: {
-      default: 'CHANGE ME!',
+      default: 'YOU MUST CHANGE ME',
       doc: 'Shared secret for accessing certain auth server endpoints',
       env: 'AUTH_SECRET_BEARER_TOKEN',
       format: 'String',
@@ -52,7 +51,19 @@ const conf = convict({
     default: 'production',
     doc: 'The current node.js environment',
     env: 'NODE_ENV',
-    format: ['development', 'stage', 'production'],
+    format: ['development', 'test', 'stage', 'production'],
+  },
+  log: {
+    app: { default: 'fxa-support-panel' },
+    fmt: {
+      default: 'heka',
+      env: 'LOGGING_FORMAT',
+      format: ['heka', 'pretty'],
+    },
+    level: {
+      default: 'info',
+      env: 'LOG_LEVEL',
+    },
   },
   listen: {
     host: {
@@ -73,37 +84,30 @@ const conf = convict({
       format: 'url',
     },
   },
-  logging: {
-    app: { default: 'fxa-support-panel' },
-    fmt: {
-      default: 'heka',
-      env: 'LOGGING_FORMAT',
-      format: ['heka', 'pretty'],
-    },
-    level: {
-      default: 'info',
-      env: 'LOG_LEVEL',
-    },
-    routes: {
-      enabled: {
-        default: true,
-        doc: 'Enable route logging. Set to false to trimming CI logs.',
-        env: 'ENABLE_ROUTE_LOGGING',
-      },
-      format: {
-        default: 'default_fxa',
-        format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny'],
-      },
-    },
+  sentryDsn: {
+    default: '',
+    doc: 'Sentry DSN for error and log reporting',
+    env: 'SENTRY_DSN',
+    format: 'String',
   },
-  security: {
-    csp: {
-      frameAncestors: {
-        default: 'none',
-        doc:
-          'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors',
-        env: 'CSP_FRAME_ANCESTORS',
-      },
+  hstsEnabled: {
+    default: true,
+    doc: 'Send a Strict-Transport-Security header',
+    env: 'HSTS_ENABLED',
+    format: Boolean,
+  },
+  hstsMaxAge: {
+    default: 31536000, // a year
+    doc: 'Max age of the STS directive in seconds',
+    // Note: This format is a number because the value needs to be in seconds
+    format: Number,
+  },
+  csp: {
+    frameAncestors: {
+      default: 'none',
+      doc:
+        'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors',
+      env: 'CSP_FRAME_ANCESTORS',
     },
   },
 });
@@ -119,5 +123,7 @@ envConfig = `${envConfig},${process.env.CONFIG_FILES || ''}`;
 const files = envConfig.split(',').filter(fs.existsSync);
 conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
+const Config = conf;
 
-export default conf;
+export type AppConfig = ReturnType<typeof Config['getProperties']>;
+export default Config;

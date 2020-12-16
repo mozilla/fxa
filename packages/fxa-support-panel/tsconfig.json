@@ -2,13 +2,12 @@
   "extends": "../../_dev/tsconfig.node.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "allowJs": false
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "types": ["mozlog", "jest"]
   },
-  "include": [
-    "./bin/**/*",
-    "./config/**/*",
-    "./lib/**/*",
-    "./test/**/*",
-    "./types/**/*"
-  ]
+  "references": [{ "path": "../fxa-shared" }],
+  "include": ["src"]
 }
