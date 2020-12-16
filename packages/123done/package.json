@@ -25,7 +25,7 @@
     "fxa-jwtool": "0.7.x",
     "morgan": "^1.10.0",
     "node-rsa": "1.0.5",
-    "redis": "^2.8.0",
+    "redis": "^3.0.2",
     "request": "^2.88.2"
   },
   "devDependencies": {

@@ -102,7 +102,7 @@
     "mysql": "^2.18.1",
     "node-uap": "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
     "objection": "^2.2.3",
-    "redis": "^2.8.0",
+    "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.5.5",
     "stripe": "^8.69.0",
