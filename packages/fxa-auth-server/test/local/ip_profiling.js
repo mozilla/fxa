@@ -14,7 +14,7 @@ const uuid = require('uuid');
 
 const TEST_EMAIL = 'foo@gmail.com';
 const MS_ONE_DAY = 1000 * 60 * 60 * 24;
-const UID = uuid.v4('binary').toString('hex');
+const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
 function makeRoutes(options = {}, requireMocks) {
   const { db, mailer } = options;

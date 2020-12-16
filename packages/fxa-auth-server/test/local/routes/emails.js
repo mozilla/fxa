@@ -351,7 +351,7 @@ describe('/recovery_email/status', () => {
 
   const mockRequest = mocks.mockRequest({
     credentials: {
-      uid: uuid.v4('binary').toString('hex'),
+      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
       email: TEST_EMAIL,
     },
   });
@@ -441,7 +441,7 @@ describe('/recovery_email/status', () => {
     });
 
     it('verified account', () => {
-      mockRequest.auth.credentials.uid = uuid.v4('binary').toString('hex');
+      mockRequest.auth.credentials.uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
       mockRequest.auth.credentials.emailVerified = true;
       mockRequest.auth.credentials.tokenVerified = true;
 
@@ -461,7 +461,7 @@ describe('/recovery_email/status', () => {
     pushCalled = false;
     const mockRequest = mocks.mockRequest({
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: true,
@@ -551,7 +551,7 @@ describe('/recovery_email/resend_code', () => {
       log: mockLog,
       metricsContext: mockMetricsContext,
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         deviceId: 'wibble',
         email: TEST_EMAIL,
         emailVerified: false,
@@ -611,8 +611,8 @@ describe('/recovery_email/resend_code', () => {
       log: mockLog,
       metricsContext: mockMetricsContext,
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
-        deviceId: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: false,
@@ -668,8 +668,8 @@ describe('/recovery_email/resend_code', () => {
       log: mockLog,
       metricsContext: mockMetricsContext,
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
-        deviceId: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: false,
@@ -718,7 +718,7 @@ describe('/recovery_email/resend_code', () => {
 });
 
 describe('/recovery_email/verify_code', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
   const mockRequest = mocks.mockRequest({
     log: mockLog,
@@ -1168,7 +1168,7 @@ describe('/recovery_email/verify_code', () => {
 });
 
 describe('/recovery_email', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
   let dbData, accountRoutes, mockDB, mockRequest, route, otpUtils, stripeHelper;
   const mockMailer = mocks.mockMailer();
@@ -1178,8 +1178,8 @@ describe('/recovery_email', () => {
   beforeEach(() => {
     mockRequest = mocks.mockRequest({
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
-        deviceId: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         normalizedEmail: normalizeEmail(TEST_EMAIL),
@@ -1629,7 +1629,7 @@ describe('/recovery_email', () => {
     it('should fail when setting email to email user does not own', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
         return P.resolve({
-          uid: uuid.v4('binary').toString('hex'),
+          uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
           isVerified: true,
           isPrimary: false,
         });
@@ -1749,12 +1749,12 @@ describe('/emails/reminders/cad', () => {
   let accountRoutes, mockRequest, route, uid;
 
   beforeEach(() => {
-    uid = uuid.v4('binary').toString('hex');
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
     mockRequest = mocks.mockRequest({
       credentials: {
         uid,
-        deviceId: uuid.v4('binary').toString('hex'),
+        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         normalizedEmail: normalizeEmail(TEST_EMAIL),

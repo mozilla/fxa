@@ -17842,7 +17842,7 @@ fsevents@^1.2.7:
     ts-node: ^8.10.2
     typedi: ^0.8.0
     typescript: 3.9.7
-    uuid: 1.4.1
+    uuid: ^8.3.0
     verror: ^1.10.0
     web-push: 3.4.4
     ws: ^7.4.0
@@ -37250,13 +37250,6 @@ typescript@~4.1.2:
     escape-string-regexp: ~1.0.5
     extend: ~3.0.0
   checksum: cc762e067a94a97dc3686a8cc1a8e8dad603e00dbe3b4acd36d31b30c9e288fa0103f412baca1e4d837cd9b1c5d625fd565ef0fec668297d74f991f7ee8cead7
-  languageName: node
-  linkType: hard
-
-"uuid@npm:1.4.1":
-  version: 1.4.1
-  resolution: "uuid@npm:1.4.1"
-  checksum: ff1f86d5c0646c4d3eaa4711073f630c2360f2bb62d6f5b319353cbce6a9fba0556f4eefe5f595aa236b4caf94e82567b4c27f8c1761384ebfc156bc947d60f0
   languageName: node
   linkType: hard
 

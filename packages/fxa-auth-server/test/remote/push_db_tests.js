@@ -30,7 +30,7 @@ const zeroBuffer32 = Buffer.from(
 const SESSION_TOKEN_UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:41.0) Gecko/20100101 Firefox/41.0';
 const ACCOUNT = {
-  uid: uuid.v4('binary').toString('hex'),
+  uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
   email: `push${Math.random()}@bar.com`,
   emailCode: zeroBuffer16,
   emailVerified: false,

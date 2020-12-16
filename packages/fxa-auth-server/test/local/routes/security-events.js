@@ -11,7 +11,7 @@ const uuid = require('uuid');
 
 let route, routes, request;
 const TEST_EMAIL = 'foo@gmail.com';
-const UID = uuid.v4('binary').toString('hex');
+const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
 function makeRoutes(options = {}) {
   const log = options.log || mocks.mockLog();

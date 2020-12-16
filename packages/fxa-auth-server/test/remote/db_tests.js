@@ -86,7 +86,7 @@ describe('remote db', function () {
 
   beforeEach(() => {
     account = {
-      uid: uuid.v4('binary').toString('hex'),
+      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
       email: dbServer.uniqueEmail(),
       emailCode: zeroBuffer16,
       emailVerified: false,

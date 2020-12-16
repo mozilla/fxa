@@ -113,7 +113,7 @@ describe('/account/reset', () => {
     mailer;
 
   beforeEach(() => {
-    uid = uuid.v4('binary').toString('hex');
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     mockLog = mocks.mockLog();
     mockMetricsContext = mocks.mockMetricsContext();
     mockRequest = mocks.mockRequest({
@@ -535,7 +535,7 @@ describe('/account/create', () => {
     const emailCode = hexString(16);
     const keyFetchTokenId = hexString(16);
     const sessionTokenId = hexString(16);
-    const uid = uuid.v4('binary').toString('hex');
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const mockDB = mocks.mockDB(
       {
         email: TEST_EMAIL,
@@ -1153,7 +1153,7 @@ describe('/account/login', () => {
   });
   const keyFetchTokenId = hexString(16);
   const sessionTokenId = hexString(16);
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockDB = mocks.mockDB({
     email: TEST_EMAIL,
     emailVerified: true,
@@ -2757,7 +2757,7 @@ describe('/account/login', () => {
 
 describe('/account/keys', () => {
   const keyFetchTokenId = hexString(16);
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
   const mockRequest = mocks.mockRequest({
     credentials: {
@@ -2854,7 +2854,7 @@ describe('/account/keys', () => {
 
 describe('/account/destroy', () => {
   const email = 'foo@example.com';
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const expectedSubscriptions = [
     { uid, subscriptionId: '123' },
     { uid, subscriptionId: '456' },
@@ -2995,7 +2995,7 @@ describe('/account/destroy', () => {
 
 describe('/account', () => {
   const email = 'foo@example.com';
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
   const subscription = {
     current_period_end: Date.now() + 60000,
@@ -3103,7 +3103,7 @@ describe('/account', () => {
 });
 
 describe('/account/ecosystemAnonId', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const ecosystemAnonId = 'bowl of oranges';
   const oldAnonId = 'old id';
   let mockLog, mockDB, mockRequest, route;

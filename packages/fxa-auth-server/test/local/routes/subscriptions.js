@@ -71,7 +71,7 @@ const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
-const UID = uuid.v4('binary').toString('hex');
+const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const NOW = Date.now();
 const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
 const PLANS = [
@@ -374,7 +374,7 @@ describe('subscriptions directRoutes', () => {
 });
 
 describe('handleAuth', () => {
-  const AUTH_UID = uuid.v4('binary').toString('hex');
+  const AUTH_UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const AUTH_EMAIL = 'auth@example.com';
   const DB_EMAIL = 'db@example.com';
 

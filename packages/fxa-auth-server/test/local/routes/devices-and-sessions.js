@@ -97,7 +97,7 @@ function hexString(bytes) {
 }
 
 describe('/account/device', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   const mockDeviceName = 'my awesome device 🍓🔥';
   let config,
@@ -343,7 +343,7 @@ describe('/account/device', () => {
 
 describe('/account/devices/notify', () => {
   const config = {};
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   const mockLog = mocks.mockLog();
   const mockRequest = mocks.mockRequest({
@@ -767,7 +767,7 @@ describe('/account/devices/notify', () => {
 });
 
 describe('/account/device/commands', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const deviceId = crypto.randomBytes(16).toString('hex');
   let mockLog, mockRequest, mockCustoms;
 
@@ -967,7 +967,7 @@ describe('/account/device/commands', () => {
 });
 
 describe('/account/devices/invoke_command', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const command = 'bogusCommandName';
   const mockDevices = [
     {
@@ -1385,7 +1385,7 @@ describe('/account/device/destroy', () => {
   let mockPush;
 
   beforeEach(() => {
-    uid = uuid.v4('binary').toString('hex');
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     deviceId = crypto.randomBytes(16).toString('hex');
     deviceId2 = crypto.randomBytes(16).toString('hex');
     mockDevices = mocks.mockDevices({ deviceId });

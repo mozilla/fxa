@@ -75,7 +75,7 @@ describe('/account/attached_clients', () => {
 
   beforeEach(() => {
     config = {};
-    uid = uuid.v4('binary').toString('hex');
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     log = mocks.mockLog();
     db = mocks.mockDB();
     request = mocks.mockRequest({
@@ -371,7 +371,7 @@ describe('/account/attached_client/destroy', () => {
 
   beforeEach(() => {
     config = {};
-    uid = uuid.v4('binary').toString('hex');
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     log = mocks.mockLog();
     db = mocks.mockDB();
     devices = mocks.mockDevices({});
