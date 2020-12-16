@@ -36,7 +36,7 @@ class FxaRedis {
     config.keyPrefix = config.prefix;
     this.recordLimit = config.recordLimit;
     this.maxttl = config.maxttl;
-    this.log = log;
+    this.log = log || { error: () => {} };
     this.redis = new Redis(config);
     this.timeoutMs = config.timeoutMs || 1000;
     scriptNames.forEach((name) => this.defineCommand(name));

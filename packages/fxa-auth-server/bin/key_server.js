@@ -27,7 +27,6 @@ async function run(config) {
   Container.set(StatsD, statsd);
 
   const log = require('../lib/log')({ ...config.log, statsd });
-  require('../lib/oauth/logging')(log);
 
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth);

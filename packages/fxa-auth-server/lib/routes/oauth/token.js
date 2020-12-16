@@ -338,8 +338,13 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
     ) {
       throw OauthError.disabledClient(hex(client.id));
     }
-    const requestedGrant = await validateGrantParameters(client, params);
-    return await generateTokens(requestedGrant);
+    const grant = await validateGrantParameters(client, params);
+    const tokens = await generateTokens(grant);
+    req.emitMetricsEvent('token.created', {
+      service: hex(grant.clientId),
+      uid: hex(grant.userId),
+    });
+    return tokens;
   }
 
   return [

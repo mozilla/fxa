@@ -28,7 +28,6 @@ const validators = require('./validators');
 
 const AppError = require('./error');
 const config = require('../../config');
-const logger = require('./logging')('assertion');
 const { verifyJWT } = require('../../lib/serverJWT');
 
 const HEX_STRING = /^[0-9a-f]+$/;
@@ -66,7 +65,6 @@ const request = P.promisify(
 );
 
 function error(assertion, msg, val) {
-  logger.info('invalidAssertion', { assertion, msg, val });
   throw AppError.invalidAssertion();
 }
 
@@ -74,19 +72,14 @@ function error(assertion, msg, val) {
 // by posting to an external verifier service.
 
 async function verifyBrowserID(assertion) {
-  let res, body;
-  try {
-    [res, body] = await request({
-      method: 'POST',
-      json: {
-        assertion: assertion,
-        audience: AUDIENCE,
-      },
-    });
-  } catch (err) {
-    logger.error('verify.error', err);
-    throw err;
-  }
+  const [res, body] = await request({
+    method: 'POST',
+    json: {
+      assertion: assertion,
+      audience: AUDIENCE,
+    },
+  });
+
   if (!res || !body || body.status !== 'okay') {
     return error(assertion, 'non-okay response', body);
   }

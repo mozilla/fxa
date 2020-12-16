@@ -11,11 +11,6 @@ const db = require('./db');
 const util = require('./util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const JWTAccessToken = require('./jwt_access_token');
-const logger = require('./logging')('grant');
-const amplitude = require('./metrics/amplitude')(
-  logger,
-  config.getProperties()
-);
 const sub = require('./jwt_sub');
 const {
   determineSubscriptionCapabilities,
@@ -156,14 +151,6 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
 // This function does *not* perform any authentication or validation, assuming that
 // the specified grant has been sufficiently vetted by calling code.
 module.exports.generateTokens = async function generateTokens(grant) {
-  logger.debug('oauth.generateTokens', {
-    grantType: grant.grantType,
-    keys: !!grant.keysJwe,
-    scope: grant.scope.getScopeValues(),
-    service: hex(grant.clientId),
-    resource: grant.resource,
-  });
-
   // We always generate an access_token.
   const access = await exports.generateAccessToken(grant);
 
@@ -194,11 +181,6 @@ module.exports.generateTokens = async function generateTokens(grant) {
     result.session_token_id =
       grant.sessionTokenId && grant.sessionTokenId.toString('hex');
   }
-
-  amplitude('token.created', {
-    service: hex(grant.clientId),
-    uid: hex(grant.userId),
-  });
 
   return result;
 };

@@ -4,7 +4,6 @@
 
 const AppError = require('./error');
 const jwt = require('./jwt');
-const logger = require('./logging')('jwt_id_token');
 
 /**
  * Verify the Expiration Time ('exp') claim value from an ID Token.
@@ -66,7 +65,6 @@ exports.verify = async function verify(
   try {
     claims = await jwt.verify(idToken, { ignoreExpiration: true });
   } catch (err) {
-    logger.debug('verify.error.jwtverify', err);
     throw AppError.invalidToken();
   }
 
@@ -81,10 +79,8 @@ exports.verify = async function verify(
   //    Token does not list the Client as a valid audience, or if it contains
   //    additional audiences not trusted by the Client.
   if (typeof claims.aud === 'string' && claims.aud !== clientId) {
-    logger.debug('verify.error.aud', { aud: claims.aud, clientId });
     throw AppError.invalidToken();
   } else if (!claims.aud.includes(clientId)) {
-    logger.debug('verify.error.aud', { aud: claims.aud, clientId });
     throw AppError.invalidToken();
   }
 
@@ -130,7 +126,6 @@ exports.verify = async function verify(
   //
   // Note also that this time is specified to be in seconds, not milliseconds.
   if (!exports._isValidExp(claims.exp)) {
-    logger.debug('verify.error.exp', { exp: claims.exp });
     throw AppError.invalidToken();
   }
 
@@ -140,11 +135,6 @@ exports.verify = async function verify(
     claims.exp > fiveMinutesAhead ||
     claims.exp + expiryGracePeriod < currentTime
   ) {
-    logger.debug('verify.error.exp', {
-      exp: claims.exp,
-      expiryGracePeriod,
-      currentTime,
-    });
     throw AppError.invalidToken();
   }
 

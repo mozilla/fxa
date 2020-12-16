@@ -5,7 +5,6 @@
 const path = require('path');
 
 const buf = require('buf').hex;
-const hex = require('buf').to.hex;
 const mysql = require('mysql');
 const MysqlPatcher = require('mysql-patcher');
 
@@ -19,12 +18,8 @@ const patch = require('./patch');
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
 
-// logger is not const to support mocking in the unit tests
-var logger = require('../../logging')('db.mysql');
-
 function MysqlStore(options) {
   if (options.charset && options.charset !== REQUIRED_CHARSET) {
-    logger.warn('createDatabase.invalidCharset', { charset: options.charset });
     throw new Error('You cannot use any charset besides ' + REQUIRED_CHARSET);
   } else {
     options.charset = REQUIRED_CHARSET;
@@ -35,25 +30,16 @@ function MysqlStore(options) {
     }
     return next();
   };
-  logger.info('pool.create', { options: options });
-  var pool = (this._pool = mysql.createPool(options));
-  pool.on('enqueue', function () {
-    logger.info('pool.enqueue', {
-      queueLength: pool._connectionQueue && pool._connectionQueue.length,
-    });
-  });
+  this._pool = mysql.createPool(options);
 }
 
 // Apply patches up to the current patch level.
 // This will also create the DB if it is missing.
 
 function updateDbSchema(patcher) {
-  logger.verbose('updateDbSchema', patcher.options);
-
   var d = P.defer();
   patcher.patch(function (err) {
     if (err) {
-      logger.error('updateDbSchema', err);
       return d.reject(err);
     }
     d.resolve();
@@ -65,8 +51,6 @@ function updateDbSchema(patcher) {
 // Sanity-check that we're working with a compatible patch level.
 
 function checkDbPatchLevel(patcher) {
-  logger.verbose('checkDbPatchLevel', patcher.options);
-
   var d = P.defer();
 
   patcher.readDbPatchLevel(function (err) {
@@ -90,9 +74,6 @@ function checkDbPatchLevel(patcher) {
 }
 
 MysqlStore.connect = function mysqlConnect(options) {
-  if (options.logger) {
-    logger = options.logger;
-  }
   if (options.createSchema) {
     options.createDatabase = options.createSchema;
     options.dir = path.join(__dirname, 'patches');
@@ -111,7 +92,6 @@ MysqlStore.connect = function mysqlConnect(options) {
         return checkDbPatchLevel(patcher);
       })
       .catch(function (error) {
-        logger.error('checkDbPatchLevel', error);
         throw error;
       })
       .finally(function () {
@@ -273,14 +253,12 @@ function releaseConn(connection) {
 
 MysqlStore.prototype = {
   ping: function ping() {
-    logger.debug('ping');
     // see bluebird.using():
     // https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management
     return P.using(this._getConnection(), function (conn) {
       return new P(function (resolve, reject) {
         conn.ping(function (err) {
           if (err) {
-            logger.error('ping:', err);
             reject(err);
           } else {
             resolve({});
@@ -292,7 +270,6 @@ MysqlStore.prototype = {
 
   getLock: function getLock(lockName, timeout = 3) {
     // returns `acquired: 1` on success
-    logger.debug('getLock');
     return this._readOne(QUERY_GET_LOCK, [lockName, timeout]);
   },
 
@@ -304,7 +281,6 @@ MysqlStore.prototype = {
     } else {
       id = unique.id();
     }
-    logger.debug('registerClient', { name: client.name, id: hex(id) });
     return this._write(QUERY_CLIENT_REGISTER, [
       id,
       client.name,
@@ -317,7 +293,6 @@ MysqlStore.prototype = {
       !!client.canGrant,
       !!client.publicClient,
     ]).then(function () {
-      logger.debug('registerClient.success', { id: hex(id) });
       client.id = id;
       return client;
     });
@@ -329,12 +304,6 @@ MysqlStore.prototype = {
     }
 
     var rowId = unique.id();
-
-    logger.debug('registerClientDeveloper', {
-      rowId: rowId,
-      developerId: developerId,
-      clientId: clientId,
-    });
 
     return this._write(QUERY_CLIENT_DEVELOPER_INSERT, [
       buf(rowId),
@@ -356,7 +325,6 @@ MysqlStore.prototype = {
     }
 
     var developerId = unique.developerId();
-    logger.debug('activateDeveloper', { developerId: developerId });
     return this._write(QUERY_DEVELOPER_INSERT, [developerId, email]).then(
       function () {
         return this.getDeveloper(email);
