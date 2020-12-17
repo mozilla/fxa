@@ -7,7 +7,6 @@
 const emailUtils = require('./email');
 const isA = require('@hapi/joi');
 const validators = require('../validators');
-const P = require('../../promise');
 const butil = require('../../crypto/butil');
 const error = require('../../error');
 const { emailsMatch } = require('fxa-shared').email.helpers;
@@ -90,7 +89,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
       ) {
         throw error.cannotLoginWithSecondaryEmail();
       }
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
 
     /**
@@ -110,14 +109,14 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
       let accountRecord, originalError;
       let didSigninUnblock = false;
 
-      return P.resolve()
+      return Promise.resolve()
         .then(() => {
           // For testing purposes, some email addresses are forced
           // to go through signin unblock on every login attempt.
           const forced =
             config.signinUnblock && config.signinUnblock.forcedEmailAddresses;
           if (forced && forced.test(email)) {
-            return P.reject(error.requestBlocked(true));
+            return Promise.reject(error.requestBlocked(true));
           }
           return customs.check(request, email, 'accountLogin');
         })

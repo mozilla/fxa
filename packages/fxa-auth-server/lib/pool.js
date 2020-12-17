@@ -4,7 +4,6 @@
 
 'use strict';
 
-const P = require('./promise');
 const Poolee = require('poolee');
 const url = require('url');
 const PROTOCOL_MODULES = {
@@ -40,54 +39,52 @@ Pool.prototype.request = function (
   try {
     path = url.render(params, query);
   } catch (err) {
-    return P.reject(err);
+    return Promise.reject(err);
   }
 
-  const d = P.defer();
-  let data;
-  if (body) {
-    headers['Content-Type'] = 'application/json';
-    data = JSON.stringify(body);
-  }
-  this.poolee.request(
-    {
-      method: method || 'GET',
-      path,
-      headers,
-      data,
-    },
-    handleResponse
-  );
-  return d.promise;
-
-  function handleResponse(err, res, body) {
-    const parsedBody = safeParse(body);
-
-    if (err) {
-      return d.reject(err);
+  return new Promise((resolve, reject) => {
+    let data;
+    if (body) {
+      headers['Content-Type'] = 'application/json';
+      data = JSON.stringify(body);
     }
+    this.poolee.request(
+      {
+        method: method || 'GET',
+        path,
+        headers,
+        data,
+      },
+      (err, res, body) => {
+        const parsedBody = safeParse(body);
 
-    if (res.statusCode < 200 || res.statusCode >= 300) {
-      const error = new Error();
-      if (!parsedBody) {
-        error.message = body;
-      } else {
-        Object.assign(error, parsedBody);
+        if (err) {
+          return reject(err);
+        }
+
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+          const error = new Error();
+          if (!parsedBody) {
+            error.message = body;
+          } else {
+            Object.assign(error, parsedBody);
+          }
+          error.statusCode = res.statusCode;
+          return reject(error);
+        }
+
+        if (!body) {
+          return resolve();
+        }
+
+        if (!parsedBody) {
+          return reject(new Error('Invalid JSON'));
+        }
+
+        resolve(parsedBody);
       }
-      error.statusCode = res.statusCode;
-      return d.reject(error);
-    }
-
-    if (!body) {
-      return d.resolve();
-    }
-
-    if (!parsedBody) {
-      return d.reject(new Error('Invalid JSON'));
-    }
-
-    d.resolve(parsedBody);
-  }
+    );
+  });
 };
 
 Pool.prototype.post = function (

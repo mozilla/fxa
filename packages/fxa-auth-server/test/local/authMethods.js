@@ -8,7 +8,6 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 
 const mocks = require('../mocks');
-const P = require('../../lib/promise');
 const error = require('../../lib/error');
 
 const authMethods = require('../../lib/authMethods');
@@ -26,7 +25,7 @@ describe('availableAuthenticationMethods', () => {
 
   it('returns [`pwd`,`email`] for non-TOTP-enabled accounts', () => {
     mockDb.totpToken = sinon.spy(() => {
-      return P.reject(error.totpTokenNotFound());
+      return Promise.reject(error.totpTokenNotFound());
     });
     return authMethods
       .availableAuthenticationMethods(mockDb, MOCK_ACCOUNT)
@@ -38,7 +37,7 @@ describe('availableAuthenticationMethods', () => {
 
   it('returns [`pwd`,`email`,`otp`] for TOTP-enabled accounts', () => {
     mockDb.totpToken = sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         verified: true,
         enabled: true,
         sharedSecret: 'secret!',
@@ -54,7 +53,7 @@ describe('availableAuthenticationMethods', () => {
 
   it('returns [`pwd`,`email`] when TOTP token is not yet enabled', () => {
     mockDb.totpToken = sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         verified: true,
         enabled: false,
         sharedSecret: 'secret!',
@@ -70,7 +69,7 @@ describe('availableAuthenticationMethods', () => {
 
   it('rethrows unexpected DB errors', () => {
     mockDb.totpToken = sinon.spy(() => {
-      return P.reject(error.serviceUnavailable());
+      return Promise.reject(error.serviceUnavailable());
     });
     return authMethods
       .availableAuthenticationMethods(mockDb, MOCK_ACCOUNT)

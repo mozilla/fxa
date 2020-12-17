@@ -10,7 +10,6 @@ const uuid = require('uuid');
 const { getRoute } = require('../../routes_helpers');
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
-const P = require('../../../lib/promise');
 const Sentry = require('@sentry/node');
 const {
   StripeHelper,
@@ -145,7 +144,7 @@ function runTest(routePath, requestOptions, payments = null) {
   );
   route = getRoute(routes, routePath, requestOptions.method || 'GET');
   request = mocks.mockRequest(requestOptions);
-  request.emitMetricsEvent = sinon.spy(() => P.resolve({}));
+  request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
 
   return route.handler(request);
 }

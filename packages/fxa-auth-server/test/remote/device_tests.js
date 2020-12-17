@@ -10,7 +10,6 @@ const Client = require('../client')();
 const config = require('../../config').getProperties();
 const crypto = require('crypto');
 const base64url = require('base64url');
-const P = require('../../lib/promise');
 const mocks = require('../mocks');
 
 describe('remote device', function () {
@@ -623,7 +622,7 @@ describe('remote device', function () {
             deviceInfo[1].type,
             'devices returned correct type for second item'
           );
-          return P.all([
+          return Promise.all([
             client.destroyDevice(devices[0].id),
             client.destroyDevice(devices[1].id),
           ]);

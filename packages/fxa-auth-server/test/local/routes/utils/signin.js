@@ -7,7 +7,6 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 
-const P = require('../../../../lib/promise');
 const mocks = require('../../../mocks');
 const Password = require('../../../../lib/crypto/password')({}, {});
 const error = require('../../../../lib/error');
@@ -46,13 +45,13 @@ describe('checkPassword', () => {
   beforeEach(() => {
     db = mocks.mockDB();
     customs = {
-      flag: sinon.spy(() => P.resolve({})),
+      flag: sinon.spy(() => Promise.resolve({})),
     };
     signinUtils = makeSigninUtils({ db, customs });
   });
 
   it('should check with correct password', () => {
-    db.checkPassword = sinon.spy((uid) => P.resolve(true));
+    db.checkPassword = sinon.spy((uid) => Promise.resolve(true));
     const authPW = Buffer.from('aaaaaaaaaaaaaaaa');
     const accountRecord = {
       uid: TEST_UID,
@@ -80,7 +79,7 @@ describe('checkPassword', () => {
   });
 
   it('should return false when check with incorrect password', () => {
-    db.checkPassword = sinon.spy((uid) => P.resolve(false));
+    db.checkPassword = sinon.spy((uid) => Promise.resolve(false));
     const authPW = Buffer.from('aaaaaaaaaaaaaaaa');
     const accountRecord = {
       uid: TEST_UID,
@@ -100,33 +99,34 @@ describe('checkPassword', () => {
       accountRecord.verifierVersion
     );
 
-    return P.all([goodPassword.verifyHash(), badPassword.verifyHash()]).spread(
-      (goodHash, badHash) => {
-        assert.notEqual(
-          goodHash,
-          badHash,
-          'bad password actually has a different hash'
-        );
-        return signinUtils
-          .checkPassword(accountRecord, badPassword, CLIENT_ADDRESS)
-          .then((match) => {
-            assert.equal(
-              !!match,
-              false,
-              'password does not match, checkPassword returns false'
-            );
+    return Promise.all([
+      goodPassword.verifyHash(),
+      badPassword.verifyHash(),
+    ]).then(([goodHash, badHash]) => {
+      assert.notEqual(
+        goodHash,
+        badHash,
+        'bad password actually has a different hash'
+      );
+      return signinUtils
+        .checkPassword(accountRecord, badPassword, CLIENT_ADDRESS)
+        .then((match) => {
+          assert.equal(
+            !!match,
+            false,
+            'password does not match, checkPassword returns false'
+          );
 
-            assert.calledOnce(db.checkPassword);
-            assert.calledWithExactly(db.checkPassword, TEST_UID, badHash);
+          assert.calledOnce(db.checkPassword);
+          assert.calledWithExactly(db.checkPassword, TEST_UID, badHash);
 
-            assert.calledOnce(customs.flag);
-            assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
-              email: TEST_EMAIL,
-              errno: error.ERRNO.INCORRECT_PASSWORD,
-            });
+          assert.calledOnce(customs.flag);
+          assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
+            email: TEST_EMAIL,
+            errno: error.ERRNO.INCORRECT_PASSWORD,
           });
-      }
-    );
+        });
+    });
   });
 
   it('should error when checking account whose password must be reset', () => {
@@ -238,8 +238,8 @@ describe('checkCustomsAndLoadAccount', () => {
     });
     log = mocks.mockLog();
     customs = {
-      check: sinon.spy(() => P.resolve()),
-      flag: sinon.spy(() => P.resolve({})),
+      check: sinon.spy(() => Promise.resolve()),
+      flag: sinon.spy(() => Promise.resolve({})),
     };
     config = {
       signinUnblock: {
@@ -252,7 +252,7 @@ describe('checkCustomsAndLoadAccount', () => {
       clientAddress: CLIENT_ADDRESS,
       payload: {},
     });
-    request.emitMetricsEvent = sinon.spy(() => P.resolve());
+    request.emitMetricsEvent = sinon.spy(() => Promise.resolve());
     checkCustomsAndLoadAccount = makeSigninUtils({ log, config, db, customs })
       .checkCustomsAndLoadAccount;
   });
@@ -305,7 +305,7 @@ describe('checkCustomsAndLoadAccount', () => {
 
   it('should re-throw customs errors when no unblock code is specified', () => {
     const origErr = error.tooManyRequests();
-    customs.check = sinon.spy(() => P.reject(origErr));
+    customs.check = sinon.spy(() => Promise.reject(origErr));
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
         assert.fail('should not succeed');
@@ -328,7 +328,7 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('login attempts on an unknown account should be flagged with customs', () => {
-    db.accountRecord = sinon.spy(() => P.reject(error.unknownAccount()));
+    db.accountRecord = sinon.spy(() => Promise.reject(error.unknownAccount()));
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
         assert.fail('should not succeed');
@@ -351,7 +351,7 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('login attempts on an unknown account should be flagged with customs', () => {
-    db.accountRecord = sinon.spy(() => P.reject(error.unknownAccount()));
+    db.accountRecord = sinon.spy(() => Promise.reject(error.unknownAccount()));
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
         assert.fail('should not succeed');
@@ -406,11 +406,11 @@ describe('checkCustomsAndLoadAccount', () => {
 
   it('a valid unblock code can bypass a customs block', () => {
     customs.check = sinon.spy(() =>
-      P.reject(error.tooManyRequests(60, null, true))
+      Promise.reject(error.tooManyRequests(60, null, true))
     );
     request.payload.unblockCode = 'VaLiD';
     db.consumeUnblockCode = sinon.spy(() =>
-      P.resolve({ createdAt: Date.now() })
+      Promise.resolve({ createdAt: Date.now() })
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then((res) => {
       assert.equal(res.didSigninUnblock, true, 'did ignin unblock');
@@ -441,11 +441,11 @@ describe('checkCustomsAndLoadAccount', () => {
 
   it('unblock codes are not checked for non-unblockable customs errors', () => {
     customs.check = sinon.spy(() =>
-      P.reject(error.tooManyRequests(60, null, false))
+      Promise.reject(error.tooManyRequests(60, null, false))
     );
     request.payload.unblockCode = 'VALID';
     db.consumeUnblockCode = sinon.spy(() =>
-      P.resolve({ createdAt: Date.now() })
+      Promise.resolve({ createdAt: Date.now() })
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
@@ -466,10 +466,10 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('unblock codes are not checked for non-customs errors', () => {
-    customs.check = sinon.spy(() => P.reject(error.serviceUnavailable()));
+    customs.check = sinon.spy(() => Promise.reject(error.serviceUnavailable()));
     request.payload.unblockCode = 'VALID';
     db.consumeUnblockCode = sinon.spy(() =>
-      P.resolve({ createdAt: Date.now() })
+      Promise.resolve({ createdAt: Date.now() })
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
@@ -491,12 +491,12 @@ describe('checkCustomsAndLoadAccount', () => {
 
   it('unblock codes are not checked when the account does not exist', () => {
     customs.check = sinon.spy(() =>
-      P.reject(error.tooManyRequests(60, null, true))
+      Promise.reject(error.tooManyRequests(60, null, true))
     );
     request.payload.unblockCode = 'VALID';
-    db.accountRecord = sinon.spy(() => P.reject(error.unknownAccount()));
+    db.accountRecord = sinon.spy(() => Promise.reject(error.unknownAccount()));
     db.consumeUnblockCode = sinon.spy(() =>
-      P.resolve({ createdAt: Date.now() })
+      Promise.resolve({ createdAt: Date.now() })
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
@@ -521,10 +521,10 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('invalid unblock codes are rejected and reported to customs', () => {
-    customs.check = sinon.spy(() => P.reject(error.requestBlocked(true)));
+    customs.check = sinon.spy(() => Promise.reject(error.requestBlocked(true)));
     request.payload.unblockCode = 'INVALID';
     db.consumeUnblockCode = sinon.spy(() =>
-      P.reject(error.invalidUnblockCode())
+      Promise.reject(error.invalidUnblockCode())
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
@@ -560,10 +560,10 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('expired unblock codes are rejected as invalid', () => {
-    customs.check = sinon.spy(() => P.reject(error.requestBlocked(true)));
+    customs.check = sinon.spy(() => Promise.reject(error.requestBlocked(true)));
     request.payload.unblockCode = 'EXPIRED';
     db.consumeUnblockCode = sinon.spy(() =>
-      P.resolve({
+      Promise.resolve({
         createdAt: Date.now() - config.signinUnblock.codeLifetime * 2,
       })
     );
@@ -601,10 +601,10 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('unexpected errors when checking an unblock code, cause the original customs error to be rethrown', () => {
-    customs.check = sinon.spy(() => P.reject(error.requestBlocked(true)));
+    customs.check = sinon.spy(() => Promise.reject(error.requestBlocked(true)));
     request.payload.unblockCode = 'WHOOPSY';
     db.consumeUnblockCode = sinon.spy(() =>
-      P.reject(error.serviceUnavailable())
+      Promise.reject(error.serviceUnavailable())
     );
     return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(
       () => {
@@ -1158,7 +1158,7 @@ describe('sendSigninNotifications', () => {
     });
 
     it('emits correct notifications with one active session', () => {
-      db.sessions = sinon.spy(() => P.resolve([sessionToken]));
+      db.sessions = sinon.spy(() => Promise.resolve([sessionToken]));
       return sendSigninNotifications(
         request,
         accountRecord,
@@ -1179,7 +1179,9 @@ describe('sendSigninNotifications', () => {
     });
 
     it('emits correct notifications  with many active sessions', () => {
-      db.sessions = sinon.spy(() => P.resolve([{}, {}, {}, sessionToken]));
+      db.sessions = sinon.spy(() =>
+        Promise.resolve([{}, {}, {}, sessionToken])
+      );
       return sendSigninNotifications(
         request,
         accountRecord,
@@ -1231,10 +1233,10 @@ describe('createKeyFetchToken', () => {
   beforeEach(() => {
     db = mocks.mockDB();
     password = {
-      unwrap: sinon.spy(() => P.resolve(Buffer.from('abcdef123456'))),
+      unwrap: sinon.spy(() => Promise.resolve(Buffer.from('abcdef123456'))),
     };
     db.createKeyFetchToken = sinon.spy(() =>
-      P.resolve({ id: 'KEY_FETCH_TOKEN' })
+      Promise.resolve({ id: 'KEY_FETCH_TOKEN' })
     );
     metricsContext = mocks.mockMetricsContext();
     request = mocks.mockRequest({

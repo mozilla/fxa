@@ -8,7 +8,6 @@ const { assert } = require('chai');
 const mocks = require('../../mocks');
 const getRoute = require('../../routes_helpers').getRoute;
 
-const P = require('../../../lib/promise');
 const uuid = require('uuid');
 const crypto = require('crypto');
 const error = require('../../../lib/error');
@@ -80,7 +79,7 @@ describe('/password', () => {
       },
     });
     mockLog.flowEvent = sinon.spy(() => {
-      return P.resolve();
+      return Promise.resolve();
     });
     const passwordRoutes = makeRoutes({
       customs: mockCustoms,
@@ -201,7 +200,7 @@ describe('/password', () => {
       },
     });
     mockLog.flowEvent = sinon.spy(() => {
-      return P.resolve();
+      return Promise.resolve();
     });
     const passwordRoutes = makeRoutes({
       customs: mockCustoms,
@@ -295,7 +294,7 @@ describe('/password', () => {
       },
     });
     mockLog.flowEvent = sinon.spy(() => {
-      return P.resolve();
+      return Promise.resolve();
     });
     const passwordRoutes = makeRoutes({
       customs: mockCustoms,
@@ -552,7 +551,7 @@ describe('/password', () => {
       const mockPush = mocks.mockPush();
       const mockMailer = {
         sendPasswordChangedEmail: sinon.spy(() => {
-          return P.reject(error.emailBouncedHard());
+          return Promise.reject(error.emailBouncedHard());
         }),
       };
       const mockLog = mocks.mockLog();

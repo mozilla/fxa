@@ -8,7 +8,6 @@ const emailUtils = require('./utils/email');
 const error = require('../error');
 const isA = require('@hapi/joi');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
-const P = require('../promise');
 const random = require('../crypto/random');
 const requestHelper = require('./utils/request_helper');
 const uuid = require('uuid');
@@ -1136,7 +1135,7 @@ module.exports = (
             return db.getRecoveryKey(accountResetToken.uid, recoveryKeyId);
           }
 
-          return P.resolve();
+          return Promise.resolve();
         }
 
         async function checkTotpToken() {
@@ -1175,7 +1174,7 @@ module.exports = (
           // Notify various interested parties about this password reset.
           // These can all safely happen in parallel.
           account = await db.account(accountResetToken.uid);
-          await P.all([
+          await Promise.all([
             push.notifyPasswordReset(account.uid, devicesToNotify),
             request.emitMetricsEvent('account.reset', {
               uid: account.uid,
@@ -1428,7 +1427,7 @@ module.exports = (
           // Ignore notification errors since this account no longer exists
         }
 
-        await P.all([
+        await Promise.all([
           log.notifyAttachedServices('delete', request, { uid }),
           request.emitMetricsEvent('account.deleted', { uid }),
         ]);

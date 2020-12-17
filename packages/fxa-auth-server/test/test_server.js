@@ -6,7 +6,6 @@
 
 const crypto = require('crypto');
 const EventEmitter = require('events');
-const P = require('../lib/promise');
 const mailbox = require('./mailbox');
 const proxyquire = require('proxyquire').noPreserveCache();
 const createDBServer = require('../../fxa-auth-db-mysql');
@@ -77,7 +76,7 @@ TestServer.prototype.start = function () {
   if (this.config.profileServer.url && !this.profileServer) {
     promises.push(createProfileHelper());
   }
-  return P.all(promises).spread((auth, mail, profileServer) => {
+  return Promise.all(promises).then(([auth, mail, profileServer]) => {
     this.server = auth;
     this.mail = mail;
     this.profileServer = profileServer;
@@ -100,7 +99,7 @@ TestServer.stop = async function (maybeServer) {
     currentDBServer = undefined;
   }
 
-  return P.resolve();
+  return Promise.resolve();
 };
 
 TestServer.prototype.stop = async function () {
@@ -115,9 +114,9 @@ TestServer.prototype.stop = async function () {
     if (this.profileServer) {
       doomed.push(this.profileServer.close());
     }
-    return P.all(doomed);
+    return Promise.all(doomed);
   } else {
-    return P.resolve();
+    return Promise.resolve();
   }
 };
 

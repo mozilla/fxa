@@ -6,16 +6,7 @@
 
 const { assert } = require('chai');
 const config = require('../../../config').getProperties();
-const random = require('../../../lib/crypto/random');
-const hkdf = require('../../../lib/crypto/hkdf');
 const mocks = require('../../mocks');
-const P = require('../../../lib/promise');
-const sinon = require('sinon');
-
-const Bundle = {
-  bundle: sinon.spy(),
-  unbundle: sinon.spy(),
-};
 const log = mocks.mockLog();
 const modulePath = '../../../lib/tokens/token';
 
@@ -24,7 +15,7 @@ describe('Token', () => {
     let Token;
     before(() => {
       config.isProduction = false;
-      Token = require(modulePath)(log, config, random, P, hkdf, Bundle, null);
+      Token = require(modulePath)(log, config);
     });
 
     it('Token constructor was exported', () => {
@@ -133,7 +124,7 @@ describe('Token', () => {
     let Token;
     before(() => {
       config.isProduction = true;
-      Token = require(modulePath)(log, config, random, P, hkdf, Bundle, null);
+      Token = require(modulePath)(log, config);
     });
 
     it('Token.createNewToken defaults createdAt to the current time', () => {

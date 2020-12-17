@@ -10,7 +10,6 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const EventEmitter = require('events').EventEmitter;
 const { mockDB, mockLog } = require('../../mocks');
 const profileUpdates = require('../../../lib/profile/updates');
-const P = require('../../../lib/promise');
 
 const mockDeliveryQueue = new EventEmitter();
 mockDeliveryQueue.start = function start() {};
@@ -27,7 +26,7 @@ const mockPush = {
     if (pushShouldThrow) {
       throw new Error('oops');
     }
-    return P.resolve();
+    return Promise.resolve();
   }),
 };
 
