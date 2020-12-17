@@ -4069,6 +4069,33 @@ module.exports = function (config, DB) {
       });
     });
 
+    describe('downgrade session', () => {
+      let account, sessionToken, tokenId;
+      before(() => {
+        account = createAccount();
+        account.emailVerified = true;
+        tokenId = hex32();
+        sessionToken = makeMockSessionToken(account.uid, false);
+        return db
+          .createAccount(account.uid, account)
+          .then(() => db.createSessionToken(tokenId, sessionToken))
+          .then(() => db.sessionToken(tokenId))
+          .then((session) => {
+            // Returns unverified session
+            assert.equal(
+              session.tokenVerificationId.toString('hex'),
+              sessionToken.tokenVerificationId.toString('hex'),
+              'tokenVerificationId must match sessionToken'
+            );
+            assert.isNull(session.verificationMethod);
+          });
+      });
+      // create one sessionTokens record with a level 2 session. test that calling the method downgrades from 2 to 1.
+      // create one sessionTokens record with a level 1 session. test that, if there are no sessions with method 2, it doesn't throw.
+      // create two sessionTokens records with level 2 sessions. test that, if there are two sessions with method 2, it downgrades both to 1.
+      // throw appropriate error if a random uid is passed in that's not in the database
+    });
+
     describe('recovery codes', () => {
       let account;
       beforeEach(() => {

@@ -163,435 +163,446 @@ describe('remote db', function () {
     let tokenId;
 
     // Fetch all sessions for the account
-    return db
-      .sessions(account.uid)
-      .then((sessions) => {
-        assert.ok(Array.isArray(sessions), 'sessions is array');
-        assert.equal(sessions.length, 0, 'sessions is empty');
+    return (
+      db
+        .sessions(account.uid)
+        .then((sessions) => {
+          assert.ok(Array.isArray(sessions), 'sessions is array');
+          assert.equal(sessions.length, 0, 'sessions is empty');
 
-        // Fetch the email record
-        return db.emailRecord(account.email);
-      })
-      .then((emailRecord) => {
-        emailRecord.createdAt = Date.now() - 1000;
-        emailRecord.tokenVerificationId = account.tokenVerificationId;
-        emailRecord.uaBrowser = 'Firefox';
-        emailRecord.uaBrowserVersion = '41';
-        emailRecord.uaOS = 'Mac OS X';
-        emailRecord.uaOSVersion = '10.10';
-        emailRecord.uaDeviceType = emailRecord.uaFormFactor = null;
+          // Fetch the email record
+          return db.emailRecord(account.email);
+        })
+        .then((emailRecord) => {
+          emailRecord.createdAt = Date.now() - 1000;
+          emailRecord.tokenVerificationId = account.tokenVerificationId;
+          emailRecord.uaBrowser = 'Firefox';
+          emailRecord.uaBrowserVersion = '41';
+          emailRecord.uaOS = 'Mac OS X';
+          emailRecord.uaOSVersion = '10.10';
+          emailRecord.uaDeviceType = emailRecord.uaFormFactor = null;
 
-        // Create a session token
-        return db.createSessionToken(emailRecord);
-      })
-      .then((sessionToken) => {
-        assert.deepEqual(sessionToken.uid, account.uid);
-        tokenId = sessionToken.id;
+          // Create a session token
+          return db.createSessionToken(emailRecord);
+        })
+        .then((sessionToken) => {
+          assert.deepEqual(sessionToken.uid, account.uid);
+          tokenId = sessionToken.id;
 
-        // Fetch all sessions for the account
-        return db.sessions(account.uid);
-      })
-      .then((sessions) => {
-        assert.equal(sessions.length, 1, 'sessions contains one item');
-        assert.equal(
-          Object.keys(sessions[0]).length,
-          20,
-          'session has correct number of properties'
-        );
-        assert.equal(
-          typeof sessions[0].id,
-          'string',
-          'id property is not a buffer'
-        );
-        assert.equal(sessions[0].uid, account.uid, 'uid property is correct');
-        assert.ok(
-          sessions[0].createdAt >= account.createdAt,
-          'createdAt property seems correct'
-        );
-        assert.equal(
-          sessions[0].uaBrowser,
-          'Firefox',
-          'uaBrowser property is correct'
-        );
-        assert.equal(
-          sessions[0].uaBrowserVersion,
-          '41',
-          'uaBrowserVersion property is correct'
-        );
-        assert.equal(sessions[0].uaOS, 'Mac OS X', 'uaOS property is correct');
-        assert.equal(
-          sessions[0].uaOSVersion,
-          '10.10',
-          'uaOSVersion property is correct'
-        );
-        assert.equal(
-          sessions[0].uaDeviceType,
-          null,
-          'uaDeviceType property is correct'
-        );
-        assert.equal(
-          sessions[0].uaFormFactor,
-          null,
-          'uaFormFactor property is correct'
-        );
-        assert.equal(
-          sessions[0].lastAccessTime,
-          sessions[0].createdAt,
-          'lastAccessTime property is correct'
-        );
-        assert.equal(
-          sessions[0].authAt,
-          sessions[0].createdAt,
-          'authAt property is correct'
-        );
-        assert.equal(
-          sessions[0].location,
-          undefined,
-          'location property is correct'
-        );
-        assert.deepEqual(
-          sessions[0].deviceId,
-          null,
-          'deviceId property is correct'
-        );
-        assert.deepEqual(
-          sessions[0].deviceAvailableCommands,
-          null,
-          'deviceAvailableCommands property is correct'
-        );
+          // Fetch all sessions for the account
+          return db.sessions(account.uid);
+        })
+        .then((sessions) => {
+          assert.equal(sessions.length, 1, 'sessions contains one item');
+          assert.equal(
+            Object.keys(sessions[0]).length,
+            20,
+            'session has correct number of properties'
+          );
+          assert.equal(
+            typeof sessions[0].id,
+            'string',
+            'id property is not a buffer'
+          );
+          assert.equal(sessions[0].uid, account.uid, 'uid property is correct');
+          assert.ok(
+            sessions[0].createdAt >= account.createdAt,
+            'createdAt property seems correct'
+          );
+          assert.equal(
+            sessions[0].uaBrowser,
+            'Firefox',
+            'uaBrowser property is correct'
+          );
+          assert.equal(
+            sessions[0].uaBrowserVersion,
+            '41',
+            'uaBrowserVersion property is correct'
+          );
+          assert.equal(
+            sessions[0].uaOS,
+            'Mac OS X',
+            'uaOS property is correct'
+          );
+          assert.equal(
+            sessions[0].uaOSVersion,
+            '10.10',
+            'uaOSVersion property is correct'
+          );
+          assert.equal(
+            sessions[0].uaDeviceType,
+            null,
+            'uaDeviceType property is correct'
+          );
+          assert.equal(
+            sessions[0].uaFormFactor,
+            null,
+            'uaFormFactor property is correct'
+          );
+          assert.equal(
+            sessions[0].lastAccessTime,
+            sessions[0].createdAt,
+            'lastAccessTime property is correct'
+          );
+          assert.equal(
+            sessions[0].authAt,
+            sessions[0].createdAt,
+            'authAt property is correct'
+          );
+          assert.equal(
+            sessions[0].location,
+            undefined,
+            'location property is correct'
+          );
+          assert.deepEqual(
+            sessions[0].deviceId,
+            null,
+            'deviceId property is correct'
+          );
+          assert.deepEqual(
+            sessions[0].deviceAvailableCommands,
+            null,
+            'deviceAvailableCommands property is correct'
+          );
 
-        // Fetch the session token
-        return db.sessionToken(tokenId);
-      })
-      .then((sessionToken) => {
-        assert.equal(sessionToken.id, tokenId, 'token id matches');
-        assert.equal(sessionToken.uaBrowser, 'Firefox');
-        assert.equal(sessionToken.uaBrowserVersion, '41');
-        assert.equal(sessionToken.uaOS, 'Mac OS X');
-        assert.equal(sessionToken.uaOSVersion, '10.10');
-        assert.equal(sessionToken.uaDeviceType, null);
-        assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt);
-        assert.equal(sessionToken.uid, account.uid);
-        assert.equal(sessionToken.email, account.email);
-        assert.equal(sessionToken.emailCode, account.emailCode);
-        assert.equal(sessionToken.emailVerified, account.emailVerified);
-        assert.equal(sessionToken.lifetime < Infinity, true);
+          // Fetch the session token
+          return db.sessionToken(tokenId);
+        })
+        .then((sessionToken) => {
+          assert.equal(sessionToken.id, tokenId, 'token id matches');
+          assert.equal(sessionToken.uaBrowser, 'Firefox');
+          assert.equal(sessionToken.uaBrowserVersion, '41');
+          assert.equal(sessionToken.uaOS, 'Mac OS X');
+          assert.equal(sessionToken.uaOSVersion, '10.10');
+          assert.equal(sessionToken.uaDeviceType, null);
+          assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt);
+          assert.equal(sessionToken.uid, account.uid);
+          assert.equal(sessionToken.email, account.email);
+          assert.equal(sessionToken.emailCode, account.emailCode);
+          assert.equal(sessionToken.emailVerified, account.emailVerified);
+          assert.equal(sessionToken.lifetime < Infinity, true);
 
-        // Disable session token updates
-        lastAccessTimeUpdates.enabled = false;
+          // Disable session token updates
+          lastAccessTimeUpdates.enabled = false;
 
-        // Attempt to update the session token
-        return db.touchSessionToken(sessionToken, {});
-      })
-      .then((result) => {
-        assert.equal(result, undefined);
+          // Attempt to update the session token
+          return db.touchSessionToken(sessionToken, {});
+        })
+        .then((result) => {
+          assert.equal(result, undefined);
 
-        // Fetch all sessions for the account
-        return db.sessions(account.uid);
-      })
-      .then((sessions) => {
-        assert.equal(sessions.length, 1, 'sessions contains one item');
-        assert.equal(
-          Object.keys(sessions[0]).length,
-          20,
-          'session has correct number of properties'
-        );
-        assert.equal(sessions[0].uid, account.uid, 'uid property is correct');
-        assert.equal(
-          sessions[0].lastAccessTime,
-          undefined,
-          'lastAccessTime not reported if disabled'
-        );
-        assert.equal(
-          sessions[0].location,
-          undefined,
-          'location property is correct'
-        );
+          // Fetch all sessions for the account
+          return db.sessions(account.uid);
+        })
+        .then((sessions) => {
+          assert.equal(sessions.length, 1, 'sessions contains one item');
+          assert.equal(
+            Object.keys(sessions[0]).length,
+            20,
+            'session has correct number of properties'
+          );
+          assert.equal(sessions[0].uid, account.uid, 'uid property is correct');
+          assert.equal(
+            sessions[0].lastAccessTime,
+            undefined,
+            'lastAccessTime not reported if disabled'
+          );
+          assert.equal(
+            sessions[0].location,
+            undefined,
+            'location property is correct'
+          );
 
-        // Re-enable session token updates
-        lastAccessTimeUpdates.enabled = true;
+          // Re-enable session token updates
+          lastAccessTimeUpdates.enabled = true;
 
-        // Fetch the session token
-        return db.sessionToken(tokenId);
-      })
-      .then((sessionToken) => {
-        // Update the session token
-        return db.touchSessionToken(
-          Object.assign({}, sessionToken, {
-            lastAccessTime: Date.now(),
-          }),
-          {
-            location: {
-              city: 'Bournemouth',
-              country: 'United Kingdom',
-              countryCode: 'GB',
-              state: 'England',
-              stateCode: 'EN',
+          // Fetch the session token
+          return db.sessionToken(tokenId);
+        })
+        .then((sessionToken) => {
+          // Update the session token
+          return db.touchSessionToken(
+            Object.assign({}, sessionToken, {
+              lastAccessTime: Date.now(),
+            }),
+            {
+              location: {
+                city: 'Bournemouth',
+                country: 'United Kingdom',
+                countryCode: 'GB',
+                state: 'England',
+                stateCode: 'EN',
+              },
+              timeZone: 'Europe/London',
+            }
+          );
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid);
+        })
+        .then((sessions) => {
+          assert.equal(sessions.length, 1, 'sessions contains one item');
+          assert.equal(sessions[0].uid, account.uid, 'uid property is correct');
+          assert.ok(
+            sessions[0].lastAccessTime > sessions[0].createdAt,
+            'lastAccessTime is correct'
+          );
+          assert.equal(
+            sessions[0].location.city,
+            'Bournemouth',
+            'city is correct'
+          );
+          assert.equal(
+            sessions[0].location.country,
+            'United Kingdom',
+            'country is correct'
+          );
+          assert.equal(
+            sessions[0].location.countryCode,
+            'GB',
+            'countryCode is correct'
+          );
+          assert.equal(
+            sessions[0].location.state,
+            'England',
+            'state is correct'
+          );
+          assert.equal(
+            sessions[0].location.stateCode,
+            'EN',
+            'stateCode is correct'
+          );
+          assert.equal(
+            sessions[0].location.timeZone,
+            undefined,
+            'timeZone is not set'
+          );
+
+          // Fetch the session token
+          return db.sessionToken(tokenId);
+        })
+        .then((sessionToken) => {
+          // Update the session token
+          return db.touchSessionToken(
+            Object.assign({}, sessionToken, {
+              uaBrowser: 'Firefox Mobile',
+              uaBrowserVersion: '42',
+              uaOS: 'Android',
+              uaOSVersion: '4.4',
+              uaDeviceType: 'mobile',
+              uaFormFactor: null,
+            }),
+            {}
+          );
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid);
+        })
+        .then((sessions) => {
+          assert.equal(sessions.length, 1, 'sessions still contains one item');
+          assert.equal(
+            sessions[0].uaBrowser,
+            'Firefox Mobile',
+            'uaBrowser property is correct'
+          );
+          assert.equal(
+            sessions[0].uaBrowserVersion,
+            '42',
+            'uaBrowserVersion property is correct'
+          );
+          assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct');
+          assert.equal(
+            sessions[0].uaOSVersion,
+            '4.4',
+            'uaOSVersion property is correct'
+          );
+          assert.equal(
+            sessions[0].uaDeviceType,
+            'mobile',
+            'uaDeviceType property is correct'
+          );
+          assert.equal(
+            sessions[0].uaFormFactor,
+            null,
+            'uaFormFactor property is correct'
+          );
+          assert.equal(
+            sessions[0].location,
+            null,
+            'location property is correct'
+          );
+        })
+        .then(() => {
+          // Fetch the session token
+          return db.sessionToken(tokenId);
+        })
+        .then((sessionToken) => {
+          // this returns previously stored data since sessionToken doesnt read from cache
+          assert.equal(sessionToken.uaBrowser, 'Firefox');
+          assert.equal(sessionToken.uaBrowserVersion, '41');
+          assert.equal(sessionToken.uaOS, 'Mac OS X');
+          assert.equal(sessionToken.uaOSVersion, '10.10');
+          assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt);
+
+          // Attempt to prune a session token that is younger than maxAge
+          sessionToken.createdAt = Date.now() - tokenPruning.maxAge + 10000;
+          return db.pruneSessionTokens(account.uid, [sessionToken]);
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid);
+        })
+        .then((sessions) => {
+          assert.equal(sessions.length, 1, 'sessions still contains one item');
+          assert.equal(
+            sessions[0].uaBrowser,
+            'Firefox Mobile',
+            'uaBrowser property is correct'
+          );
+          assert.equal(
+            sessions[0].uaBrowserVersion,
+            '42',
+            'uaBrowserVersion property is correct'
+          );
+          assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct');
+          assert.equal(
+            sessions[0].uaOSVersion,
+            '4.4',
+            'uaOSVersion property is correct'
+          );
+          assert.equal(
+            sessions[0].uaDeviceType,
+            'mobile',
+            'uaDeviceType property is correct'
+          );
+          assert.equal(
+            sessions[0].uaFormFactor,
+            null,
+            'uaFormFactor property is correct'
+          );
+
+          // Fetch the session token
+          return db.sessionToken(tokenId);
+        })
+        .then((sessionToken) => {
+          // Prune a session token that is older than maxAge
+          sessionToken.createdAt = Date.now() - tokenPruning.maxAge - 1;
+          return db.pruneSessionTokens(account.uid, [sessionToken]);
+        })
+        // TODO: I guess add tests here?
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid);
+        })
+        .then((sessions) => {
+          assert.equal(sessions.length, 1, 'sessions still contains one item');
+          assert.equal(
+            sessions[0].uaBrowser,
+            'Firefox',
+            'uaBrowser property is the original value'
+          );
+          assert.equal(
+            sessions[0].uaBrowserVersion,
+            '41',
+            'uaBrowserVersion property is the original value'
+          );
+          assert.equal(
+            sessions[0].uaOS,
+            'Mac OS X',
+            'uaOS property is the original value'
+          );
+          assert.equal(
+            sessions[0].uaOSVersion,
+            '10.10',
+            'uaOSVersion property is the original value'
+          );
+          assert.equal(
+            sessions[0].uaDeviceType,
+            null,
+            'uaDeviceType property is the original value'
+          );
+          assert.equal(
+            sessions[0].uaFormFactor,
+            null,
+            'uaFormFactor property is the original value'
+          );
+
+          // Fetch the session token
+          return db.sessionToken(tokenId);
+        })
+        .then((sessionToken) => {
+          // Delete the session token
+          return db.deleteSessionToken(sessionToken);
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid);
+        })
+        .then((sessions) => {
+          assert.equal(sessions.length, 0, 'sessions is empty');
+
+          // Attempt to delete the deleted session token
+          return db.sessionToken(tokenId).then(
+            (sessionToken) => {
+              assert(false, 'db.sessionToken should have failed');
             },
-            timeZone: 'Europe/London',
-          }
-        );
-      })
-      .then(() => {
-        // Fetch all sessions for the account
-        return db.sessions(account.uid);
-      })
-      .then((sessions) => {
-        assert.equal(sessions.length, 1, 'sessions contains one item');
-        assert.equal(sessions[0].uid, account.uid, 'uid property is correct');
-        assert.ok(
-          sessions[0].lastAccessTime > sessions[0].createdAt,
-          'lastAccessTime is correct'
-        );
-        assert.equal(
-          sessions[0].location.city,
-          'Bournemouth',
-          'city is correct'
-        );
-        assert.equal(
-          sessions[0].location.country,
-          'United Kingdom',
-          'country is correct'
-        );
-        assert.equal(
-          sessions[0].location.countryCode,
-          'GB',
-          'countryCode is correct'
-        );
-        assert.equal(sessions[0].location.state, 'England', 'state is correct');
-        assert.equal(
-          sessions[0].location.stateCode,
-          'EN',
-          'stateCode is correct'
-        );
-        assert.equal(
-          sessions[0].location.timeZone,
-          undefined,
-          'timeZone is not set'
-        );
+            (err) => {
+              assert.equal(
+                err.errno,
+                110,
+                'sessionToken() fails with the correct error code'
+              );
+              const msg = 'Error: The authentication token could not be found';
+              assert.equal(
+                msg,
+                `${err}`,
+                'sessionToken() fails with the correct message'
+              );
+            }
+          );
+        })
+        .then(() => {
+          // Fetch the email record again
+          return db.emailRecord(account.email);
+        })
+        .then((emailRecord) => {
+          emailRecord.createdAt = Date.now() - 1000;
+          emailRecord.tokenVerificationId = account.tokenVerificationId;
+          emailRecord.uaBrowser = 'Firefox';
+          emailRecord.uaBrowserVersion = '41';
+          emailRecord.uaOS = 'Mac OS X';
+          emailRecord.uaOSVersion = '10.10';
+          emailRecord.uaDeviceType = emailRecord.uaFormFactor = null;
 
-        // Fetch the session token
-        return db.sessionToken(tokenId);
-      })
-      .then((sessionToken) => {
-        // Update the session token
-        return db.touchSessionToken(
-          Object.assign({}, sessionToken, {
-            uaBrowser: 'Firefox Mobile',
-            uaBrowserVersion: '42',
-            uaOS: 'Android',
-            uaOSVersion: '4.4',
-            uaDeviceType: 'mobile',
-            uaFormFactor: null,
-          }),
-          {}
-        );
-      })
-      .then(() => {
-        // Fetch all sessions for the account
-        return db.sessions(account.uid);
-      })
-      .then((sessions) => {
-        assert.equal(sessions.length, 1, 'sessions still contains one item');
-        assert.equal(
-          sessions[0].uaBrowser,
-          'Firefox Mobile',
-          'uaBrowser property is correct'
-        );
-        assert.equal(
-          sessions[0].uaBrowserVersion,
-          '42',
-          'uaBrowserVersion property is correct'
-        );
-        assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct');
-        assert.equal(
-          sessions[0].uaOSVersion,
-          '4.4',
-          'uaOSVersion property is correct'
-        );
-        assert.equal(
-          sessions[0].uaDeviceType,
-          'mobile',
-          'uaDeviceType property is correct'
-        );
-        assert.equal(
-          sessions[0].uaFormFactor,
-          null,
-          'uaFormFactor property is correct'
-        );
-        assert.equal(
-          sessions[0].location,
-          null,
-          'location property is correct'
-        );
-      })
-      .then(() => {
-        // Fetch the session token
-        return db.sessionToken(tokenId);
-      })
-      .then((sessionToken) => {
-        // this returns previously stored data since sessionToken doesnt read from cache
-        assert.equal(sessionToken.uaBrowser, 'Firefox');
-        assert.equal(sessionToken.uaBrowserVersion, '41');
-        assert.equal(sessionToken.uaOS, 'Mac OS X');
-        assert.equal(sessionToken.uaOSVersion, '10.10');
-        assert.equal(sessionToken.lastAccessTime, sessionToken.createdAt);
+          // Create a session token with the same data as the deleted token
+          return db.createSessionToken(emailRecord);
+        })
+        .then(() => {
+          // Fetch all sessions for the account
+          return db.sessions(account.uid);
+        })
+        .then((sessions) => {
+          // Make sure that the data got deleted from redis too
+          assert.equal(sessions.length, 1, 'sessions contains one item');
+          assert.equal(
+            sessions[0].lastAccessTime,
+            sessions[0].createdAt,
+            'lastAccessTime property is correct'
+          );
+          assert.equal(
+            sessions[0].location,
+            undefined,
+            'location property is correct'
+          );
 
-        // Attempt to prune a session token that is younger than maxAge
-        sessionToken.createdAt = Date.now() - tokenPruning.maxAge + 10000;
-        return db.pruneSessionTokens(account.uid, [sessionToken]);
-      })
-      .then(() => {
-        // Fetch all sessions for the account
-        return db.sessions(account.uid);
-      })
-      .then((sessions) => {
-        assert.equal(sessions.length, 1, 'sessions still contains one item');
-        assert.equal(
-          sessions[0].uaBrowser,
-          'Firefox Mobile',
-          'uaBrowser property is correct'
-        );
-        assert.equal(
-          sessions[0].uaBrowserVersion,
-          '42',
-          'uaBrowserVersion property is correct'
-        );
-        assert.equal(sessions[0].uaOS, 'Android', 'uaOS property is correct');
-        assert.equal(
-          sessions[0].uaOSVersion,
-          '4.4',
-          'uaOSVersion property is correct'
-        );
-        assert.equal(
-          sessions[0].uaDeviceType,
-          'mobile',
-          'uaDeviceType property is correct'
-        );
-        assert.equal(
-          sessions[0].uaFormFactor,
-          null,
-          'uaFormFactor property is correct'
-        );
-
-        // Fetch the session token
-        return db.sessionToken(tokenId);
-      })
-      .then((sessionToken) => {
-        // Prune a session token that is older than maxAge
-        sessionToken.createdAt = Date.now() - tokenPruning.maxAge - 1;
-        return db.pruneSessionTokens(account.uid, [sessionToken]);
-      })
-      .then(() => {
-        // Fetch all sessions for the account
-        return db.sessions(account.uid);
-      })
-      .then((sessions) => {
-        assert.equal(sessions.length, 1, 'sessions still contains one item');
-        assert.equal(
-          sessions[0].uaBrowser,
-          'Firefox',
-          'uaBrowser property is the original value'
-        );
-        assert.equal(
-          sessions[0].uaBrowserVersion,
-          '41',
-          'uaBrowserVersion property is the original value'
-        );
-        assert.equal(
-          sessions[0].uaOS,
-          'Mac OS X',
-          'uaOS property is the original value'
-        );
-        assert.equal(
-          sessions[0].uaOSVersion,
-          '10.10',
-          'uaOSVersion property is the original value'
-        );
-        assert.equal(
-          sessions[0].uaDeviceType,
-          null,
-          'uaDeviceType property is the original value'
-        );
-        assert.equal(
-          sessions[0].uaFormFactor,
-          null,
-          'uaFormFactor property is the original value'
-        );
-
-        // Fetch the session token
-        return db.sessionToken(tokenId);
-      })
-      .then((sessionToken) => {
-        // Delete the session token
-        return db.deleteSessionToken(sessionToken);
-      })
-      .then(() => {
-        // Fetch all sessions for the account
-        return db.sessions(account.uid);
-      })
-      .then((sessions) => {
-        assert.equal(sessions.length, 0, 'sessions is empty');
-
-        // Attempt to delete the deleted session token
-        return db.sessionToken(tokenId).then(
-          (sessionToken) => {
-            assert(false, 'db.sessionToken should have failed');
-          },
-          (err) => {
-            assert.equal(
-              err.errno,
-              110,
-              'sessionToken() fails with the correct error code'
-            );
-            const msg = 'Error: The authentication token could not be found';
-            assert.equal(
-              msg,
-              `${err}`,
-              'sessionToken() fails with the correct message'
-            );
-          }
-        );
-      })
-      .then(() => {
-        // Fetch the email record again
-        return db.emailRecord(account.email);
-      })
-      .then((emailRecord) => {
-        emailRecord.createdAt = Date.now() - 1000;
-        emailRecord.tokenVerificationId = account.tokenVerificationId;
-        emailRecord.uaBrowser = 'Firefox';
-        emailRecord.uaBrowserVersion = '41';
-        emailRecord.uaOS = 'Mac OS X';
-        emailRecord.uaOSVersion = '10.10';
-        emailRecord.uaDeviceType = emailRecord.uaFormFactor = null;
-
-        // Create a session token with the same data as the deleted token
-        return db.createSessionToken(emailRecord);
-      })
-      .then(() => {
-        // Fetch all sessions for the account
-        return db.sessions(account.uid);
-      })
-      .then((sessions) => {
-        // Make sure that the data got deleted from redis too
-        assert.equal(sessions.length, 1, 'sessions contains one item');
-        assert.equal(
-          sessions[0].lastAccessTime,
-          sessions[0].createdAt,
-          'lastAccessTime property is correct'
-        );
-        assert.equal(
-          sessions[0].location,
-          undefined,
-          'location property is correct'
-        );
-
-        // Delete the session token again
-        return db.deleteSessionToken(sessions[0]);
-      })
-      .then(() => redis.getAsync(account.uid))
-      .then((result) => assert.equal(result, null, 'redis was cleared'));
+          // Delete the session token again
+          return db.deleteSessionToken(sessions[0]);
+        })
+        .then(() => redis.getAsync(account.uid))
+        .then((result) => assert.equal(result, null, 'redis was cleared'))
+    );
   });
 
   it('device registration', () => {

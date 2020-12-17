@@ -1532,6 +1532,12 @@ module.exports = function (log, error) {
     });
   };
 
+  const DOWNGRADE_SESSION_VERIFICATION_METHOD =
+    'CALL downgradeSessionVerificationMethod_1(?)';
+  MySql.prototype.downgradeSessionVerificationMethod = function (uid) {
+    return this.write(DOWNGRADE_SESSION_VERIFICATION_METHOD, [uid]);
+  };
+
   const DELETE_RECOVERY_CODES = 'CALL deleteRecoveryCodes_1(?)';
   const INSERT_RECOVERY_CODE = 'CALL createRecoveryCode_3(?, ?, ?)';
   MySql.prototype.replaceRecoveryCodes = function (uid, count) {

@@ -17,6 +17,7 @@ There are a number of methods that a DB storage backend should implement:
   - .deleteEmail(uid, email)
   - .resetTokens(uid)
   - .updateEcosystemAnonId(uid, ecosystemAnonId)
+  - .downgradeSessionVerificationMethod(uid)
 - Accounts (using `email`)
   - .emailRecord(emailBuffer)
   - .accountRecord(emailBuffer)
@@ -365,6 +366,22 @@ Returns:
         * an empty object `{}`
     * rejects with:
         * error `{ code: 404, errno: 116 }` if the `uid` was not found in the database
+
+## .downgradeSessionVerificationMethod(uid)
+
+    When a user disables TOTP, this method downgrades the verification method for all sessions from the TOTP
+    verification method to the email code verification method.
+
+    Parameters:
+
+    * `uid` - (Buffer16) the uid of the account with TOTP-verified sessions to downgrade
+
+    Returns:
+
+    * resolves with:
+        * an empty object `{}`
+    * rejects with:
+        * any errors from the underlying storage engine
 
 ## .emailRecord(emailBuffer)
 

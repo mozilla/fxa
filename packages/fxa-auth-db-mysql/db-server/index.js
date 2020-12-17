@@ -119,6 +119,10 @@ function createServer(db) {
   api.post('/account/:id/reset', withIdAndBody(db.resetAccount));
   api.post('/account/:id/resetTokens', withIdAndBody(db.resetAccountTokens));
   api.post(
+    '/account/:id/downgradeSessions',
+    withIdAndBody(db.downgradeSessionVerificationMethod)
+  );
+  api.post(
     '/account/:id/verifyEmail/:emailCode',
     op(function (req) {
       return db.verifyEmail(req.params.id, req.params.emailCode);

@@ -62,6 +62,7 @@ The following datatypes are used throughout this document:
   - devices : `GET /account/:id/devices`
   - deviceFromTokenVerificationId : `GET /account/:id/tokens/:tokenVerificationId/device`
   - updateEcosystemAnonId : `PUT /account/:id/ecosystemAnonId`
+  - downgradeSessions : `POST /account/:id/downgradeSessions`
 - Devices:
   - createDevice : `PUT /account/:id/device/:deviceId`
   - updateDevice : `POST /account/:id/device/:deviceId/update`
@@ -787,6 +788,43 @@ Content-Type: application/json
   - Conditions: if the `uid` is not found
   - Content-Type : 'application/json'
   - Body : `{"message":"Not Found"}`
+
+## downgradeSessions : `PUT /account/<uid>/downgradeSessions`
+
+When a user disables TOTP, this method downgrades the verification method for all sessions from the TOTP verification method to the email code verification method.
+
+### Example
+
+```
+curl \
+    -v \
+    -X POST \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/downgradeSessions \
+    -d '{
+      "uid": "6044486dd15b42e08b1fb9167415b9ac",
+    }'
+```
+
+### Request
+
+- Method : POST
+- Path : `/account/<uid>/downgradeSessions`
+  - uid : hex128
+- Params:
+  - uid : hex128
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{}
+```
+
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : {}
 
 ## createDevice : `PUT /account/<uid>/device/<deviceId>`
 

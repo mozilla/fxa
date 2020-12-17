@@ -979,6 +979,22 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
+  SAFE_URLS.downgradeSessions = new SafeUrl(
+    '/account/:uid/downgradeSessions',
+    'db.downgradeSessions'
+  );
+  DB.prototype.downgradeSessions = async function (uid) {
+    log.trace('DB.downgradeSessions', { uid });
+    try {
+      return await this.pool.post(SAFE_URLS.downgradeSessions, { uid });
+    } catch (err) {
+      if (isNotFoundError(err)) {
+        throw error.unknownAccount();
+      }
+      throw err;
+    }
+  };
+
   SAFE_URLS.forgotPasswordVerified = new SafeUrl(
     '/passwordForgotToken/:id/verified',
     'db.forgotPasswordVerified'
