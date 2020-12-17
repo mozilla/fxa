@@ -1,3 +1,13 @@
+## 1.196.0
+
+### Other changes
+
+- deps-dev: bump @types/chance from 1.1.0 to 1.1.1 ([3938b8484](https://github.com/mozilla/fxa/commit/3938b8484))
+- dep: update tailwindcss to version 2 ([ec97cb07c](https://github.com/mozilla/fxa/commit/ec97cb07c))
+- deps: bump dateformat from 3.0.3 to 4.3.1 ([9c318e80e](https://github.com/mozilla/fxa/commit/9c318e80e))
+- deps-dev: bump supertest from 4.0.2 to 6.0.1 ([1a7f42dd0](https://github.com/mozilla/fxa/commit/1a7f42dd0))
+- deps-dev: bump @types/babel__core from 7.1.7 to 7.1.12 ([a834dab3a](https://github.com/mozilla/fxa/commit/a834dab3a))
+
 ## 1.195.4
 
 No changes.

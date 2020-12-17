@@ -1,3 +1,18 @@
+## 1.196.0
+
+### Bug fixes
+
+- settings: Moved client email validation to fxa-shared ([db96a7c50](https://github.com/mozilla/fxa/commit/db96a7c50))
+- fxa-settings: dynamic loading svg fix ([cb0508069](https://github.com/mozilla/fxa/commit/cb0508069))
+- settings: use Sentry dsn after config's loaded ([76ac89fa7](https://github.com/mozilla/fxa/commit/76ac89fa7))
+- settings: scroll to element id in url hash ([24f4d45f2](https://github.com/mozilla/fxa/commit/24f4d45f2))
+
+### Other changes
+
+- Settings_v2: add tests to enable and disable 2fa ([8df19593f](https://github.com/mozilla/fxa/commit/8df19593f))
+- dep: update tailwindcss to version 2 ([ec97cb07c](https://github.com/mozilla/fxa/commit/ec97cb07c))
+- deps-dev: bump @types/babel__core from 7.1.7 to 7.1.12 ([a834dab3a](https://github.com/mozilla/fxa/commit/a834dab3a))
+
 ## 1.195.4
 
 ### Bug fixes

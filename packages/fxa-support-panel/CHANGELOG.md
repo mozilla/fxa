@@ -1,5 +1,16 @@
 # Change history
 
+## 1.196.0
+
+### New features
+
+- support: convert to NestJS framework ([d43952f81](https://github.com/mozilla/fxa/commit/d43952f81))
+
+### Other changes
+
+- deps: updated @sentry/integrations ([9efc0c5bf](https://github.com/mozilla/fxa/commit/9efc0c5bf))
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+
 ## 1.195.4
 
 No changes.

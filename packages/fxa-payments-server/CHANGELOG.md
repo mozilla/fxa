@@ -1,5 +1,16 @@
 # Change history
 
+## 1.196.0
+
+### Bug fixes
+
+- deps: add superagent types ([0b56cc50f](https://github.com/mozilla/fxa/commit/0b56cc50f))
+
+### Other changes
+
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+- deps-dev: bump supertest from 4.0.2 to 6.0.1 ([1a7f42dd0](https://github.com/mozilla/fxa/commit/1a7f42dd0))
+
 ## 1.195.4
 
 No changes.
