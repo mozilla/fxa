@@ -1,3 +1,9 @@
+## 1.196.0
+
+### Other changes
+
+- dep: update tailwindcss to version 2 ([ec97cb07c](https://github.com/mozilla/fxa/commit/ec97cb07c))
+
 ## 1.195.4
 
 No changes.

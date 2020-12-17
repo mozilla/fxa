@@ -1,3 +1,10 @@
+## 1.196.0
+
+### Other changes
+
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+- deps: bump sharp from 0.26.0 to 0.26.3 ([ac0e9ddbb](https://github.com/mozilla/fxa/commit/ac0e9ddbb))
+
 ## 1.195.4
 
 No changes.

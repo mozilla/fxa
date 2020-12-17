@@ -1,3 +1,20 @@
+## 1.196.0
+
+### Bug fixes
+
+- test: Fix flaky oauth signin test ([8852aac34](https://github.com/mozilla/fxa/commit/8852aac34))
+- settings: Moved client email validation to fxa-shared ([db96a7c50](https://github.com/mozilla/fxa/commit/db96a7c50))
+- 2fa: Fixed cached creds and 2fa redirecting to verify account page ([926727ec9](https://github.com/mozilla/fxa/commit/926727ec9))
+
+### Other changes
+
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+- css: Remove 1ups from signup page ([ced1157c3](https://github.com/mozilla/fxa/commit/ced1157c3))
+- deps-dev: bump ts-loader from 8.0.9 to 8.0.12 ([5f342dbca](https://github.com/mozilla/fxa/commit/5f342dbca))
+- fxa-content-server: pass env variable to render beta link ([7b37b5208](https://github.com/mozilla/fxa/commit/7b37b5208))
+- Settings_v2: add tests to enable and disable 2fa ([8df19593f](https://github.com/mozilla/fxa/commit/8df19593f))
+- fxa-content-server: edit entrypoint regexp for consistency ([2b60709aa](https://github.com/mozilla/fxa/commit/2b60709aa))
+
 ## 1.195.4
 
 No changes.

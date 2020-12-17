@@ -1,3 +1,13 @@
+## 1.196.0
+
+### New features
+
+- db: Create table to store PayPal customer information ([10f4cae5a](https://github.com/mozilla/fxa/commit/10f4cae5a))
+
+### Other changes
+
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+
 ## 1.195.4
 
 No changes.

@@ -1,5 +1,26 @@
 # Change history
 
+## 1.196.0
+
+### New features
+
+- gql-api: add customs check on query/mutations ([80fc6da3b](https://github.com/mozilla/fxa/commit/80fc6da3b))
+
+### Bug fixes
+
+- shared: don't report NestJS HttpExceptions ([e187a25f7](https://github.com/mozilla/fxa/commit/e187a25f7))
+- settings: Moved client email validation to fxa-shared ([db96a7c50](https://github.com/mozilla/fxa/commit/db96a7c50))
+- capture GraphQL errors in field resolvers ([007c47833](https://github.com/mozilla/fxa/commit/007c47833))
+
+### Other changes
+
+- deps: updated @sentry/integrations ([9efc0c5bf](https://github.com/mozilla/fxa/commit/9efc0c5bf))
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+- deps: bump redis from 2.8.0 to 3.0.2 ([3edfabfab](https://github.com/mozilla/fxa/commit/3edfabfab))
+- deps-dev: bump ts-loader from 8.0.9 to 8.0.12 ([5f342dbca](https://github.com/mozilla/fxa/commit/5f342dbca))
+- deps: updated @nestjs/* deps ([4496c9649](https://github.com/mozilla/fxa/commit/4496c9649))
+- deps: bump @nestjs/graphql from 7.7.0 to 7.9.1 ([48c46cbb6](https://github.com/mozilla/fxa/commit/48c46cbb6))
+
 ## 1.195.4
 
 No changes.

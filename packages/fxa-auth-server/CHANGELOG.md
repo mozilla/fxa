@@ -1,3 +1,41 @@
+## 1.196.0
+
+### Bug fixes
+
+- totp: downgrade session to email-based verification after TOTP is removed ([95568bf16](https://github.com/mozilla/fxa/commit/95568bf16))
+
+### Refactorings
+
+- oauth: remove old oauth-server logger ([f0ded6a63](https://github.com/mozilla/fxa/commit/f0ded6a63))
+- oauth: remove final oauthdb functions ([35239ef36](https://github.com/mozilla/fxa/commit/35239ef36))
+- oauth: remove oauthdb token functions ([e41a30edb](https://github.com/mozilla/fxa/commit/e41a30edb))
+- oauth: remove oauthdb.revokeRefreshTokenById ([1b87b776a](https://github.com/mozilla/fxa/commit/1b87b776a))
+- oauth: remove oauthdb.revokeAccessToken ([65778e050](https://github.com/mozilla/fxa/commit/65778e050))
+- oauth: remove oauthdb.createAuthorizationCode ([385a103a8](https://github.com/mozilla/fxa/commit/385a103a8))
+- oauth: rearranging oauth routes ([9f286e41c](https://github.com/mozilla/fxa/commit/9f286e41c))
+- oauth: remove oauthdb.listAuthorizedClients ([66fbbdb4c](https://github.com/mozilla/fxa/commit/66fbbdb4c))
+- oauth: remove oauthdb.revokeAuthorizedClients ([0df72abb9](https://github.com/mozilla/fxa/commit/0df72abb9))
+- oauth: remove unused auth-scheme ([d749bd8b7](https://github.com/mozilla/fxa/commit/d749bd8b7))
+- oauth: moved /oauth/id-token-verify ([f9a87b9d1](https://github.com/mozilla/fxa/commit/f9a87b9d1))
+- oauth: remove unused dep injection ([2da3f170f](https://github.com/mozilla/fxa/commit/2da3f170f))
+- oauth: remove oauthdb.checkRefreshToken ([d4d7df945](https://github.com/mozilla/fxa/commit/d4d7df945))
+- oauth: remove oauthdb.getClientInfo ([76cf78c09](https://github.com/mozilla/fxa/commit/76cf78c09))
+- oauth: remove unused "authBearer" scheme ([7e3af41ff](https://github.com/mozilla/fxa/commit/7e3af41ff))
+- oauth: rewire auth-server to use new oauth route dir and remove previous ([90caa3de4](https://github.com/mozilla/fxa/commit/90caa3de4))
+- oauth: moved /jwks and /authorized-clients implementations ([44fe0353c](https://github.com/mozilla/fxa/commit/44fe0353c))
+- oauth: moved /introspect implementation ([c060d1041](https://github.com/mozilla/fxa/commit/c060d1041))
+- oauth: move GET and POST /authorization routes ([7d1707e79](https://github.com/mozilla/fxa/commit/7d1707e79))
+- oauth: moved /token implementation ([13c798c29](https://github.com/mozilla/fxa/commit/13c798c29))
+- oauth: move /key-data route ([60b7355a4](https://github.com/mozilla/fxa/commit/60b7355a4))
+- oauth: move /client/{client_id} route ([845f131cb](https://github.com/mozilla/fxa/commit/845f131cb))
+
+### Other changes
+
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+- f0f25d0be [fxa-auth-server] Upgrade uuid dependency ([f0f25d0be](https://github.com/mozilla/fxa/commit/f0f25d0be))
+- legal: Update Mozilla Corporation address ([d263160cc](https://github.com/mozilla/fxa/commit/d263160cc))
+- oauth: move oauth destroy route under auth server ([737a67887](https://github.com/mozilla/fxa/commit/737a67887))
+
 ## 1.195.4
 
 No changes.

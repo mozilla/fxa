@@ -1,3 +1,22 @@
+## 1.196.0
+
+### New features
+
+- admin-server: record x-forwarded-for correctly ([f379fddd3](https://github.com/mozilla/fxa/commit/f379fddd3))
+
+### Bug fixes
+
+- capture GraphQL errors in field resolvers ([007c47833](https://github.com/mozilla/fxa/commit/007c47833))
+
+### Other changes
+
+- deps: updated @sentry/integrations ([9efc0c5bf](https://github.com/mozilla/fxa/commit/9efc0c5bf))
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+- deps-dev: bump @types/chance from 1.1.0 to 1.1.1 ([3938b8484](https://github.com/mozilla/fxa/commit/3938b8484))
+- deps: updated @nestjs/* deps ([4496c9649](https://github.com/mozilla/fxa/commit/4496c9649))
+- deps: bump @nestjs/graphql from 7.7.0 to 7.9.1 ([48c46cbb6](https://github.com/mozilla/fxa/commit/48c46cbb6))
+- deps-dev: bump supertest from 4.0.2 to 6.0.1 ([1a7f42dd0](https://github.com/mozilla/fxa/commit/1a7f42dd0))
+
 ## 1.195.4
 
 No changes.
