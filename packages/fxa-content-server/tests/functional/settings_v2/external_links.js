@@ -54,7 +54,7 @@ describe('external links', () => {
     );
   });
 
-  it('renders Subscriptions link in navigation when we are subscribed to a product', async () => {
+  it('renders Subscriptions link in navigation when we are subscribed to a product', async function () {
     if (process.env.CIRCLECI === 'true' && !process.env.SUBHUB_STRIPE_APIKEY) {
       this.skip('missing Stripe API key in CircleCI run');
     }
