@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",
-    "@rescripts/cli": "0.0.14",
+    "@rescripts/cli": "0.0.15",
     "@sentry/browser": "^5.27.6",
     "@storybook/addon-actions": "^5.3.19",
     "@storybook/addon-links": "^6.0.28",
