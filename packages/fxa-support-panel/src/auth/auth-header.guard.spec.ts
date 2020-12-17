@@ -1,11 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { ConfigService } from '@nestjs/config';
+
 import { AuthHeaderGuard } from './auth-header.guard';
 
 describe('AuthHeaderGuard', () => {
   let guard: AuthHeaderGuard;
-  let mockConfig: any;
+  let mockConfig: Partial<ConfigService>;
 
   beforeEach(() => {
     mockConfig = {

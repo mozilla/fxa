@@ -17,29 +17,16 @@ service).
 Read-only access is enforced on the database by using a MySQL user restricted to the stored
 procedures needed to run the queries that fetch basic profile information.
 
-### Code Organization
-
-- `bin/` - Program directory (Note the runnable versions will be under `dist/` when compiled)
-  - `worker` - Primary entry point for running the support-panel in production.
-- `config/` - Configuration loader and `.json` files for runtime environments.
-- `lib/`
-  - `api` - Hapi routes and controller.
-  - `server` - Hapi server setup and CSP configuration for above `api`.
-- `test` - Unit tests, organized in matching heirarchy with the root supprt-panel directory.
-- `types` - Additional TypeScript definitions for dependencies missing type information.
-
 ## Testing
 
-This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will test all files ending under `test/`, and uses `ts-node` so it can process TypeScript files.
+This package uses [Jest](https://mochajs.org/) to test its code. By default `yarn test` will test all files ending in `.spec.ts`.
 
-Test specific tests with the following commands:
+Test commands:
 
 ```bash
-# Test only test/lib/api.spec.ts
-npx mocha -r ts-node/register test/lib/api.spec.ts
+# Test with coverage
+yarn test:cov
 
-# Grep for "has a heartbeat"
-npx mocha -r ts-node/register test/*/** -g "has a heartbeat"
+# Test on file change
+yarn test:watch
 ```
-
-Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
