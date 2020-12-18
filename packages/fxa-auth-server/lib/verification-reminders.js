@@ -19,9 +19,7 @@
 // * https://redis.io/topics/data-types#sorted-sets
 // * https://redis.io/topics/data-types-intro#redis-sorted-sets
 
-'use strict';
-
-const P = require('./promise');
+const { props } = require('fxa-shared/lib/promise-extras');
 
 const INTERVAL_PATTERN = /^([a-z]+)Interval$/;
 const METADATA_KEY = 'metadata';
@@ -94,7 +92,7 @@ module.exports = (log, config) => {
       try {
         if (rolloutRate <= 1 && Math.random() < rolloutRate) {
           const now = Date.now();
-          const result = await P.props(
+          const result = await props(
             keys.reduce((result, key) => {
               result[key] = redis.zadd(key, now, uid);
               return result;
@@ -134,7 +132,7 @@ module.exports = (log, config) => {
      */
     async delete(uid) {
       try {
-        const result = await P.props(
+        const result = await props(
           keys.reduce((result, key) => {
             result[key] = redis.zrem(key, uid);
             return result;
@@ -160,7 +158,7 @@ module.exports = (log, config) => {
     async process() {
       try {
         const now = Date.now();
-        return await P.props(
+        return await props(
           keys.reduce((result, key, keyIndex) => {
             const cutoff = now - intervals[key];
             result[key] = redis
@@ -219,7 +217,7 @@ module.exports = (log, config) => {
             return args;
           }, [])
         );
-        await P.all(
+        await Promise.all(
           metadata.map(({ uid, flowId, flowBeginTime }) => {
             return redis.set(
               `${METADATA_KEY}:${uid}`,

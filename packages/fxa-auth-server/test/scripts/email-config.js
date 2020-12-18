@@ -7,13 +7,13 @@
 const ROOT_DIR = '../..';
 const LIB_DIR = `${ROOT_DIR}/lib`;
 
+const { promisify } = require('util');
 const { assert } = require('chai');
 const cp = require('child_process');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
-const P = require('bluebird');
 const path = require('path');
 
-cp.execAsync = P.promisify(cp.exec);
+cp.execAsync = promisify(cp.exec);
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
 const redis = require(`${LIB_DIR}/redis`)(
@@ -49,7 +49,7 @@ describe('scripts/email-config:', () => {
   });
 
   afterEach(() => {
-    return P.resolve()
+    return Promise.resolve()
       .then(() => {
         if (current) {
           return redis.set(KEYS.current, current);

@@ -6,7 +6,6 @@
 
 const { assert } = require('chai');
 const mocks = require('../../mocks');
-const P = require('bluebird');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
@@ -29,7 +28,7 @@ describe('lib/senders/sms:', () => {
       smtp: {},
       sms: {
         apiRegion: 'us-east-1',
-        enableBudgetChecks: true,
+        enableBudgetChecks: false,
         installFirefoxLink: 'https://baz/qux',
         installFirefoxWithSigninCodeBaseUri: 'https://wibble',
         minimumCreditThresholdUSD: 2,
@@ -42,16 +41,16 @@ describe('lib/senders/sms:', () => {
       getSMSAttributes: {
         attributes: { MonthlySpendLimit: config.sms.minimumCreditThresholdUSD },
       },
-      publish: P.resolve({ MessageId: 'foo' }),
+      publish: Promise.resolve({ MessageId: 'foo' }),
     };
     cloudwatch = {
       getMetricStatistics: sinon.spy(() => ({
-        promise: () => P.resolve(results.getMetricStatistics),
+        promise: () => Promise.resolve(results.getMetricStatistics),
       })),
     };
     sns = {
       getSMSAttributes: sinon.spy(() => ({
-        promise: () => P.resolve(results.getSMSAttributes),
+        promise: () => Promise.resolve(results.getSMSAttributes),
       })),
       publish: sinon.spy(() => ({
         promise: () => results.publish,
@@ -59,7 +58,7 @@ describe('lib/senders/sms:', () => {
     };
     mockSns = {
       getSMSAttributes: sinon.spy(() => ({
-        promise: () => P.resolve(results.getSMSAttributes),
+        promise: () => Promise.resolve(results.getSMSAttributes),
       })),
       publish: sinon.spy(() => ({
         promise: () => results.publish,
@@ -76,7 +75,7 @@ describe('lib/senders/sms:', () => {
         return mockSns;
       },
     });
-    return P.all([
+    return Promise.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
       require(`${ROOT_DIR}/lib/senders/templates`)(mocks.mockLog()),
     ]).then((results) => {
@@ -110,8 +109,8 @@ describe('lib/senders/sms:', () => {
       assert.strictEqual(sms.isBudgetOk(), true);
     });
 
-    describe('wait a tick:', () => {
-      beforeEach((done) => setImmediate(done));
+    describe('getCurrentSpend', () => {
+      beforeEach(() => sms.getCurrentSpend());
 
       it('called sns.getSMSAttributes correctly', () => {
         assert.equal(sns.getSMSAttributes.callCount, 1);
@@ -159,8 +158,8 @@ describe('lib/senders/sms:', () => {
         assert.strictEqual(sms.isBudgetOk(), true);
       });
 
-      describe('wait a tick:', () => {
-        beforeEach((done) => setImmediate(done));
+      describe('getCurrentSpend', () => {
+        beforeEach(() => sms.getCurrentSpend());
 
         it('isBudgetOk returns false', () => {
           assert.strictEqual(sms.isBudgetOk(), false);
@@ -173,8 +172,8 @@ describe('lib/senders/sms:', () => {
         results.getMetricStatistics.Datapoints[0].Maximum = 'wibble';
       });
 
-      describe('wait a tick:', () => {
-        beforeEach((done) => setImmediate(done));
+      describe('getCurrentSpend', () => {
+        beforeEach(() => sms.getCurrentSpend());
 
         it('isBudgetOk returns true', () => {
           assert.strictEqual(sms.isBudgetOk(), true);
@@ -187,8 +186,8 @@ describe('lib/senders/sms:', () => {
         results.getMetricStatistics.Datapoints = [];
       });
 
-      describe('wait a tick:', () => {
-        beforeEach((done) => setImmediate(done));
+      describe('getCurrentSpend', () => {
+        beforeEach(() => sms.getCurrentSpend());
 
         it('isBudgetOk returns true', () => {
           assert.strictEqual(sms.isBudgetOk(), true);
@@ -278,7 +277,7 @@ describe('lib/senders/sms:', () => {
       let error;
 
       beforeEach(() => {
-        results.publish = P.reject({
+        results.publish = Promise.reject({
           statusCode: 400,
           code: 42,
           message: 'this is an error',
@@ -325,7 +324,7 @@ describe('lib/senders/sms:', () => {
       });
 
       it('should collect timing stat on failure', async () => {
-        results.publish = P.reject({
+        results.publish = Promise.reject({
           statusCode: 400,
           code: 42,
           message: 'this is an error',
@@ -362,8 +361,8 @@ describe('lib/senders/sms:', () => {
       assert.strictEqual(sms.isBudgetOk(), true);
     });
 
-    describe('wait a tick:', () => {
-      beforeEach((done) => setImmediate(done));
+    describe('getCurrentSpend', () => {
+      beforeEach(() => sms.getCurrentSpend());
 
       it('isBudgetOk returns true', () => {
         assert.strictEqual(sms.isBudgetOk(), true);

@@ -137,6 +137,7 @@ async function run(config) {
       await server.stop();
       await customs.close();
       statsd.close();
+      senders.sms.close();
       try {
         senders.email.stop();
       } catch (e) {

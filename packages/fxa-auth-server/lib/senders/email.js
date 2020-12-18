@@ -7,7 +7,6 @@
 const emailUtils = require('../email/utils/helpers');
 const moment = require('moment-timezone');
 const nodemailer = require('nodemailer');
-const P = require('bluebird');
 const safeUserAgent = require('../userAgent/safe');
 const url = require('url');
 const i18n = require('i18n-abide');
@@ -446,7 +445,7 @@ module.exports = function (log, config) {
     message.templateVersion = templateVersion;
 
     return this.selectEmailServices(message).then((services) => {
-      return P.all(
+      return Promise.all(
         services.map((service) => {
           const headers = {
             'Content-Language': localized.language,
@@ -502,39 +501,38 @@ module.exports = function (log, config) {
             emailConfig.provider = emailSender;
           }
 
-          const d = P.defer();
-          mailer.sendMail(emailConfig, (err, status) => {
-            if (err) {
-              log.error('mailer.send.error', {
-                err: err.message,
-                code: err.code,
-                errno: err.errno,
-                message: status && status.message,
+          return new Promise((resolve, reject) => {
+            mailer.sendMail(emailConfig, (err, status) => {
+              if (err) {
+                log.error('mailer.send.error', {
+                  err: err.message,
+                  code: err.code,
+                  errno: err.errno,
+                  message: status && status.message,
+                  to: emailConfig && emailConfig.to,
+                  emailSender,
+                  emailService,
+                });
+
+                return reject(err);
+              }
+
+              log.debug('mailer.send.1', {
+                status: status && status.message,
+                id: status && status.messageId,
                 to: emailConfig && emailConfig.to,
                 emailSender,
                 emailService,
               });
 
-              return d.reject(err);
-            }
+              emailUtils.logEmailEventSent(log, {
+                ...message,
+                headers,
+              });
 
-            log.debug('mailer.send.1', {
-              status: status && status.message,
-              id: status && status.messageId,
-              to: emailConfig && emailConfig.to,
-              emailSender,
-              emailService,
+              return resolve(status);
             });
-
-            emailUtils.logEmailEventSent(log, {
-              ...message,
-              headers,
-            });
-
-            return d.resolve(status);
           });
-
-          return d.promise;
         })
       );
     });
