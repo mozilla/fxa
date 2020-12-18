@@ -64,7 +64,7 @@
     "@types/storybook__react": "^5.2.1",
     "@types/uuid": "^7.0.2",
     "@types/webpack": "4.41.16",
-    "@typescript-eslint/eslint-plugin": "2.33.0",
+    "@typescript-eslint/eslint-plugin": "4.10.0",
     "@typescript-eslint/parser": "2.33.0",
     "async-wait-until": "^1.2.6",
     "audit-filter": "^0.5.0",
