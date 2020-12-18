@@ -4708,7 +4708,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/node-logger@npm:*, @storybook/node-logger@npm:5.3.19":
+"@storybook/node-logger@npm:5.3.19":
   version: 5.3.19
   resolution: "@storybook/node-logger@npm:5.3.19"
   dependencies:
@@ -4722,19 +4722,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/preset-create-react-app@npm:^2.1.1":
-  version: 2.1.2
-  resolution: "@storybook/preset-create-react-app@npm:2.1.2"
+"@storybook/preset-create-react-app@npm:^3.1.5":
+  version: 3.1.5
+  resolution: "@storybook/preset-create-react-app@npm:3.1.5"
   dependencies:
-    "@storybook/node-logger": "*"
-    "@types/babel__core": ^7.1.6
-    "@types/webpack": ^4.41.7
+    "@types/babel__core": ^7.1.7
+    "@types/webpack": ^4.41.13
+    babel-plugin-react-docgen: ^4.1.0
     pnp-webpack-plugin: ^1.6.4
-    semver: ^7.1.3
+    react-docgen-typescript-plugin: ^0.6.2
+    semver: ^7.3.2
   peerDependencies:
+    "@babel/core": "*"
+    "@storybook/node-logger": "*"
     "@storybook/react": ">=5.2"
     react-scripts: ">=3.0.0"
-  checksum: ba1590ed8d1884276e37a948d59ed45fafd0cc50a7006dc7290812e100a75c855bc6aee6ee690eaf899d33ced89794b89f9f7934f72057ee816c5b217a2f0e16
+  checksum: d029c14831f1f784c18a71ab65cde0a9733f6da4cc9a3d444d2b525763874deb00e657de3af6d33a69c6b5bfe3f8d171335d4db340b4f73aee7703d2c3f41dde
   languageName: node
   linkType: hard
 
@@ -5470,7 +5473,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:7.1.12, @types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.0, @types/babel__core@npm:^7.1.6, @types/babel__core@npm:^7.1.7":
+"@types/babel__core@npm:7.1.12, @types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.0, @types/babel__core@npm:^7.1.7":
   version: 7.1.12
   resolution: "@types/babel__core@npm:7.1.12"
   dependencies:
@@ -6906,7 +6909,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack@npm:*, @types/webpack@npm:4.41.25, @types/webpack@npm:^4.41.7":
+"@types/webpack@npm:*, @types/webpack@npm:4.41.25":
   version: 4.41.25
   resolution: "@types/webpack@npm:4.41.25"
   dependencies:
@@ -6920,7 +6923,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack@npm:4.41.16":
+"@types/webpack@npm:4.41.16, @types/webpack@npm:^4.41.13":
   version: 4.41.16
   resolution: "@types/webpack@npm:4.41.16"
   dependencies:
@@ -8998,6 +9001,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ast-types@npm:^0.14.2":
+  version: 0.14.2
+  resolution: "ast-types@npm:0.14.2"
+  dependencies:
+    tslib: ^2.0.1
+  checksum: 42bb8a72ce90e3cf726220f93f772ff136aa857d99c1cb6b1fb2bdfa9369b15de54cd9d1ed17ba903a5ef82081676704b93f03eccd1335d7c71da3c5dac88109
+  languageName: node
+  linkType: hard
+
 "astral-regex@npm:^1.0.0":
   version: 1.0.0
   resolution: "astral-regex@npm:1.0.0"
@@ -9833,6 +9845,17 @@ __metadata:
     react-docgen: ^5.0.0
     recast: ^0.14.7
   checksum: 57ad24636582d9c23c53cd2aeef8277e540f98e3d7bed9bbcc692c7405edb96007ded0a59cb93e2da8a9d9aa89991c3e60d7ea80640d2a8470a378e352ba8280
+  languageName: node
+  linkType: hard
+
+"babel-plugin-react-docgen@npm:^4.1.0":
+  version: 4.2.1
+  resolution: "babel-plugin-react-docgen@npm:4.2.1"
+  dependencies:
+    ast-types: ^0.14.2
+    lodash: ^4.17.15
+    react-docgen: ^5.0.0
+  checksum: e375376f2a4f1cfeb28137b970d1b3d5feba22019ecd9226ef50d72af1a3170434922950799aad62b9b77b99d1da16b1eadfaf4362b95807a8fe42036d7c32f2
   languageName: node
   linkType: hard
 
@@ -15024,6 +15047,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"endent@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "endent@npm:2.0.1"
+  dependencies:
+    dedent: ^0.7.0
+    fast-json-parse: ^1.0.3
+    objectorarray: ^1.0.4
+  checksum: d95ab369bdf7102bdd63e4339f2207ffc8f480bfb38215cac234ad13923143556c36c7ed58e91e1ed7e450951a5f622ced63525c39c24227452967213d1a493d
+  languageName: node
+  linkType: hard
+
 "enhanced-resolve@npm:^4.0.0, enhanced-resolve@npm:^4.1.0, enhanced-resolve@npm:^4.3.0":
   version: 4.3.0
   resolution: "enhanced-resolve@npm:4.3.0"
@@ -16292,6 +16326,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-json-parse@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "fast-json-parse@npm:1.0.3"
+  checksum: 9f90cc4a85364505233e13101c583b5cca0c737f612cdd48f34489b2d20c7f5ba6ff6cab67ee007ba64b9bbada260fe5f93acee65c035490fa9651ac08921bf7
+  languageName: node
+  linkType: hard
+
 "fast-json-stable-stringify@npm:2.1.0, fast-json-stable-stringify@npm:2.x, fast-json-stable-stringify@npm:^2.0.0":
   version: 2.1.0
   resolution: "fast-json-stable-stringify@npm:2.1.0"
@@ -17444,7 +17485,7 @@ fsevents@^1.2.7:
     "@storybook/addon-actions": ^5.3.19
     "@storybook/addon-links": ^6.0.28
     "@storybook/addons": ^5.3.19
-    "@storybook/preset-create-react-app": ^2.1.1
+    "@storybook/preset-create-react-app": ^3.1.5
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
@@ -18457,7 +18498,7 @@ fsevents@^1.2.7:
     "@storybook/addon-actions": ^5.3.19
     "@storybook/addon-links": ^6.0.28
     "@storybook/addons": ^5.3.19
-    "@storybook/preset-create-react-app": ^2.1.1
+    "@storybook/preset-create-react-app": ^3.1.5
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
@@ -27349,6 +27390,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"objectorarray@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "objectorarray@npm:1.0.4"
+  checksum: e27b5b1d4ac17712ee2eeb67efef94f3609faff0202a986a788ce125fc0c323c81688d73250386f18689b84eb981c1f2d33dffb49468bb8bd53ed6519f828743
+  languageName: node
+  linkType: hard
+
 "obuf@npm:^1.0.0, obuf@npm:^1.1.2":
   version: 1.1.2
   resolution: "obuf@npm:1.1.2"
@@ -30717,6 +30765,30 @@ fsevents@^1.2.7:
     strip-ansi: 5.2.0
     text-table: 0.2.0
   checksum: 6f7707e755f5d4c17e5fd9daa1a0e841df696577f15ff292d7d8a67fa8f8c10355d92ed5046947a6e5e33a054e404ca25f75ce08fd1cfefff6c99ea42bad6485
+  languageName: node
+  linkType: hard
+
+"react-docgen-typescript-plugin@npm:^0.6.2":
+  version: 0.6.3
+  resolution: "react-docgen-typescript-plugin@npm:0.6.3"
+  dependencies:
+    debug: ^4.1.1
+    endent: ^2.0.1
+    micromatch: ^4.0.2
+    react-docgen-typescript: ^1.20.5
+    tslib: ^2.0.0
+  peerDependencies:
+    typescript: ">= 3.x"
+  checksum: fa970d8ba7dca4739c2ad5d23c84b3e23174908761840f4ed87e182c80d8e0ca4c04260e7fa84e911995d8d3afc1e47fdb7012845adfc9cf0ee6716719f088cf
+  languageName: node
+  linkType: hard
+
+"react-docgen-typescript@npm:^1.20.5":
+  version: 1.20.5
+  resolution: "react-docgen-typescript@npm:1.20.5"
+  peerDependencies:
+    typescript: ">= 3.x"
+  checksum: 10e55a318345d6739caee4511c0701d4f3203b2c8e8bda8f4adee0f5e9e032b8f0bdc77d8fbe2c440badd02f5cac8832e34dd01d0a8e1fbd86ed357719020edc
   languageName: node
   linkType: hard
 
