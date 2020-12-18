@@ -134,7 +134,17 @@ describe('lib/email-domain-validator', () => {
       xhr.ajax.restore();
     });
   });
-
+  it('should resolve on a sucessful skip record', () => {
+    sinon.stub(xhr, 'ajax').returns(Promise.resolve({ result: 'skip' }));
+    $el.val('quuz@great.skip.co.gd');
+    return checkEmailDomain($el, view)
+      .then(() => {
+        xhr.ajax.restore();
+      })
+      .catch(() => {
+        assert.fail('validation should have been skipped');
+      });
+  });
   it('should reject and show a tooltip on a successful A record lookup', () => {
     sinon.stub(xhr, 'ajax').returns(Promise.resolve({ result: 'A' }));
     const renderSpy = sinon.spy(Tooltip.prototype, 'render');

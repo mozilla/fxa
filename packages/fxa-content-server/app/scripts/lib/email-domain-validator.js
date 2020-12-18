@@ -120,6 +120,9 @@ const checkEmailDomain = ($element, view) => {
           return reject(REJECTION_CODE);
         }
 
+        if (result === 'skip') {
+          return resolve();
+        }
         showInvalidDomainError(domain);
         view.logFlowEvent('email-domain-validation.block');
         reject(REJECTION_CODE);

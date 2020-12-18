@@ -50,14 +50,26 @@ registerSuite('routes/validate-email-domain', {
         const validateEmailDomainRoute = proxyquireWithDns(dns);
         const req = { query: { domain: 'abc.xyz' } };
         const res = { json: sinon.stub() };
-        const route = validateEmailDomainRoute();
+        const route = validateEmailDomainRoute({
+          get: sinon.stub().returns(true),
+        });
 
         return route.process(req, res).then(() => {
           assert.isTrue(resolveMxStub.calledOnceWith('abc.xyz'));
           assert.isTrue(res.json.calledOnceWith({ result: 'MX' }));
         });
       },
-
+      'responds with {result: skip} when there is a skip record': () => {
+        const validateEmailDomainRoute = require('../../../server/lib/routes/validate-email-domain');
+        const req = { query: { domain: 'skip.abc.xyz' } };
+        const res = { json: sinon.stub() };
+        const route = validateEmailDomainRoute({
+          get: sinon.stub().returns(false),
+        });
+        return route.process(req, res).then(() => {
+          assert.isTrue(res.json.calledOnceWith({ result: 'skip' }));
+        });
+      },
       'responds with {result: "A"} when there is an A record': () => {
         const resolveMxStub = sinon.stub().resolves([]);
         const resolve4Stub = sinon.stub().resolves(['abc.xyz']);
@@ -74,7 +86,9 @@ registerSuite('routes/validate-email-domain', {
         const validateEmailDomainRoute = proxyquireWithDns(dns);
         const req = { query: { domain: 'abc.xyz' } };
         const res = { json: sinon.stub() };
-        const route = validateEmailDomainRoute();
+        const route = validateEmailDomainRoute({
+          get: sinon.stub().returns(true),
+        });
 
         return route.process(req, res).then(() => {
           assert.isTrue(resolveMxStub.calledOnceWith('abc.xyz'));
@@ -99,7 +113,9 @@ registerSuite('routes/validate-email-domain', {
         const validateEmailDomainRoute = proxyquireWithDns(dns);
         const req = { query: { domain: 'abc.xyz' } };
         const res = { json: sinon.stub() };
-        const route = validateEmailDomainRoute();
+        const route = validateEmailDomainRoute({
+          get: sinon.stub().returns(true),
+        });
 
         return route.process(req, res).then(() => {
           assert.isTrue(resolveMxStub.calledOnceWith('abc.xyz'));
@@ -128,7 +144,9 @@ registerSuite('routes/validate-email-domain', {
         const validateEmailDomainRoute = proxyquireWithDns(dns);
         const req = { query: { domain: 'abc.xyz' } };
         const res = { json: sinon.stub() };
-        const route = validateEmailDomainRoute();
+        const route = validateEmailDomainRoute({
+          get: sinon.stub().returns('true'),
+        });
 
         return route.process(req, res).then(() => {
           assert.isTrue(resolveMxStub.calledOnceWith('abc.xyz'));
@@ -155,7 +173,9 @@ registerSuite('routes/validate-email-domain', {
         const req = { query: { domain: 'abc.xyz' } };
         const res = { json: sinon.stub() };
         const next = sinon.stub();
-        const route = validateEmailDomainRoute();
+        const route = validateEmailDomainRoute({
+          get: sinon.stub().returns(true),
+        });
 
         return route.process(req, res, next).then(() => {
           assert.isTrue(resolveMxStub.calledOnceWith('abc.xyz'));
@@ -182,7 +202,9 @@ registerSuite('routes/validate-email-domain', {
         const req = { query: { domain: 'abc.xyz' } };
         const res = { json: sinon.stub() };
         const next = sinon.stub();
-        const route = validateEmailDomainRoute();
+        const route = validateEmailDomainRoute({
+          get: sinon.stub().returns(true),
+        });
 
         return route.process(req, res, next).then(() => {
           assert.isFalse(next.calledWith(error));
