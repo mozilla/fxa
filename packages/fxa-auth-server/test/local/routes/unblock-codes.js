@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 
@@ -17,7 +16,7 @@ function makeRoutes(options = {}, requireMocks) {
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: function () {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
   };
 

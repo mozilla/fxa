@@ -4,7 +4,6 @@
 
 'use strict';
 
-const Promise = require('../promise');
 const { SandboxedRegExp } = require('sandboxed-regexp');
 
 const SERVICES = {

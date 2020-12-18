@@ -4,8 +4,6 @@
 
 'use strict';
 
-const P = require('../lib/promise');
-
 module.exports = MockSNS;
 
 function MockSNS(options, config) {
@@ -27,7 +25,7 @@ function MockSNS(options, config) {
     getSMSAttributes() {
       return {
         promise: () =>
-          P.resolve({
+          Promise.resolve({
             attributes: {
               MonthlySpendLimit: config.sms.minimumCreditThresholdUSD,
             },
@@ -36,7 +34,7 @@ function MockSNS(options, config) {
     },
 
     publish(params) {
-      const promise = new P((resolve) => {
+      const promise = new Promise((resolve) => {
         // HACK: Enable remote tests to see what was sent
         mailer.sendMail(
           {

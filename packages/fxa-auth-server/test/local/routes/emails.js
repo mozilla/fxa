@@ -13,7 +13,6 @@ const getRoute = require('../../routes_helpers').getRoute;
 const knownIpLocation = require('../../known-ip-location');
 const mocks = require('../../mocks');
 const nock = require('nock');
-const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
@@ -167,7 +166,7 @@ const makeRoutes = function (options = {}, requireMocks) {
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: function () {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
   };
   const push = options.push || require('../../../lib/push')(log, db, {});
@@ -441,7 +440,9 @@ describe('/recovery_email/status', () => {
     });
 
     it('verified account', () => {
-      mockRequest.auth.credentials.uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      mockRequest.auth.credentials.uid = uuid
+        .v4({}, Buffer.alloc(16))
+        .toString('hex');
       mockRequest.auth.credentials.emailVerified = true;
       mockRequest.auth.credentials.tokenVerified = true;
 
@@ -534,7 +535,7 @@ describe('/recovery_email/resend_code', () => {
   const mockDB = mocks.mockDB({ secondEmailCode: secondEmailCode });
   const mockLog = mocks.mockLog();
   mockLog.flowEvent = sinon.spy(() => {
-    return P.resolve();
+    return Promise.resolve();
   });
   const mockMailer = mocks.mockMailer();
   const mockMetricsContext = mocks.mockMetricsContext();
@@ -760,7 +761,7 @@ describe('/recovery_email/verify_code', () => {
   const verificationReminders = mocks.mockVerificationReminders();
   const accountRoutes = makeRoutes({
     checkPassword: function () {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
     config: {},
     customs: mockCustoms,
@@ -1010,7 +1011,7 @@ describe('/recovery_email/verify_code', () => {
         uid,
         tokenVerificationId
       ) {
-        return P.resolve({
+        return Promise.resolve({
           name: 'my device',
           id: '123456789',
           type: 'desktop',
@@ -1199,7 +1200,7 @@ describe('/recovery_email', () => {
     stripeHelper = mocks.mockStripeHelper();
     accountRoutes = makeRoutes({
       checkPassword: function () {
-        return P.resolve(true);
+        return Promise.resolve(true);
       },
       config: {
         secondaryEmail: {
@@ -1224,7 +1225,7 @@ describe('/recovery_email', () => {
   describe('/recovery_email', () => {
     beforeEach(() => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.reject(error.unknownSecondaryEmail());
+        return Promise.reject(error.unknownSecondaryEmail());
       });
 
       mockDB.createEmail.resetHistory();
@@ -1291,7 +1292,7 @@ describe('/recovery_email', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       mockRequest.payload.email = TEST_EMAIL_ADDITIONAL;
       mockDB.account = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           emails: [
             {
               isPrimary: true,
@@ -1317,7 +1318,7 @@ describe('/recovery_email', () => {
     it('should fail when adding secondary email when the account is at its max', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       mockDB.account = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           emails: Array(3).fill({
             isPrimary: false,
           }),
@@ -1340,7 +1341,7 @@ describe('/recovery_email', () => {
 
     it('creates secondary email if another user unverified primary more than day old, deletes unverified account', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           isVerified: false,
           isPrimary: true,
           normalizedEmail: TEST_EMAIL,
@@ -1374,7 +1375,7 @@ describe('/recovery_email', () => {
 
     it('fails create email if another user unverified primary less than day old', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           isVerified: false,
           isPrimary: true,
           normalizedEmail: TEST_EMAIL,
@@ -1399,7 +1400,7 @@ describe('/recovery_email', () => {
     it('deletes secondary email if there was an error sending verification email', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       mockMailer.sendVerifySecondaryEmail = sinon.spy(() => {
-        return P.reject(new Error('failed to send'));
+        return Promise.reject(new Error('failed to send'));
       });
 
       return runTest(route, mockRequest, () => {
@@ -1478,7 +1479,7 @@ describe('/recovery_email', () => {
         email: tempEmail,
       };
       mockDB.account = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           uid: mockRequest.auth.credentials.uid,
           isVerified: true,
           isPrimary: false,
@@ -1516,7 +1517,7 @@ describe('/recovery_email', () => {
         email: tempEmail,
       };
       mockDB.account = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           uid: mockRequest.auth.credentials.uid,
           isVerified: true,
           isPrimary: false,
@@ -1563,7 +1564,7 @@ describe('/recovery_email', () => {
       };
 
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           uid: mockRequest.auth.credentials.uid,
           isVerified: true,
           isPrimary: false,
@@ -1628,7 +1629,7 @@ describe('/recovery_email', () => {
 
     it('should fail when setting email to email user does not own', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
           isVerified: true,
           isPrimary: false,
@@ -1649,7 +1650,7 @@ describe('/recovery_email', () => {
 
     it('should fail when setting email is unverified', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           uid: mockRequest.auth.credentials.uid,
           isVerified: false,
           isPrimary: false,

@@ -8,7 +8,6 @@ const { assert } = require('chai');
 const verror = require('verror');
 const messages = require('@hapi/joi/lib/language');
 const AppError = require('../../lib/error');
-const P = require('../../lib/promise');
 
 describe('AppErrors', () => {
   it('tightly-coupled joi message hack is okay', () => {
@@ -130,8 +129,8 @@ describe('AppErrors', () => {
           os: 'Android',
           osVersion: '9',
         },
-        devices: P.resolve([{ id: 1 }]),
-        metricsContext: P.resolve({
+        devices: Promise.resolve([{ id: 1 }]),
+        metricsContext: Promise.resolve({
           service: 'sync',
         }),
       },

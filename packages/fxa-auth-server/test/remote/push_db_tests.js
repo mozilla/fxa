@@ -5,7 +5,6 @@
 'use strict';
 
 const { assert } = require('chai');
-const P = require('../../lib/promise');
 const uuid = require('uuid');
 const crypto = require('crypto');
 const base64url = require('base64url');
@@ -86,7 +85,7 @@ describe('remote push db', function () {
         sendNotification: function (endpoint, params) {
           const err = new Error('Failed 400 level');
           err.statusCode = 410;
-          return P.reject(err);
+          return Promise.reject(err);
         },
       },
     };
@@ -95,7 +94,7 @@ describe('remote push db', function () {
         sendNotification: function (endpoint, params) {
           const err = new Error('Failed 429 level');
           err.statusCode = 429;
-          return P.reject(err);
+          return Promise.reject(err);
         },
       },
     };
@@ -181,6 +180,6 @@ describe('remote push db', function () {
   });
 
   after(() => {
-    return P.all([TestServer.stop(dbServer), db.close()]);
+    return Promise.all([TestServer.stop(dbServer), db.close()]);
   });
 });

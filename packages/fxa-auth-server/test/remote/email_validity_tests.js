@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const P = require('../../lib/promise');
 
 const config = require('../../config').getProperties();
 
@@ -45,7 +44,7 @@ describe('remote email validity', function () {
       );
     });
 
-    return P.all(emails);
+    return Promise.all(emails);
   });
 
   it('/account/create with a variety of unusual but valid email addresses', () => {
@@ -73,7 +72,7 @@ describe('remote email validity', function () {
       );
     });
 
-    return P.all(emails);
+    return Promise.all(emails);
   });
 
   after(() => {

@@ -4,8 +4,6 @@
 
 const hex = require('buf').to.hex;
 
-const P = require('../../promise');
-
 const config = require('../../../config');
 const encrypt = require('../encrypt');
 const mysql = require('./mysql');
@@ -231,7 +229,7 @@ function convertClientToConfigFormat(client) {
 function preClients() {
   var clients = config.get('oauthServer.clients');
   if (clients && clients.length) {
-    return P.all(
+    return Promise.all(
       clients.map(function (c) {
         if (c.secret) {
           // eslint-disable-next-line no-console
@@ -243,7 +241,7 @@ function preClients() {
             c.id,
             hex(encrypt.hash(c.secret))
           );
-          return P.reject(
+          return Promise.reject(
             new Error('Do not keep client secrets in the config file.')
           );
         }
@@ -265,7 +263,7 @@ function preClients() {
           }
         });
         if (err) {
-          return P.reject(err);
+          return Promise.reject(err);
         }
 
         // ensure booleans are boolean and not undefined
@@ -276,7 +274,7 @@ function preClients() {
         // Modification of the database at startup in production and stage is
         // not preferred. This option will be set to false on those stacks.
         if (!config.get('oauthServer.db.autoUpdateClients')) {
-          return P.resolve();
+          return Promise.resolve();
         }
 
         return module.exports.getClient(c.id).then(function (client) {
@@ -292,7 +290,7 @@ function preClients() {
       })
     );
   } else {
-    return P.resolve();
+    return Promise.resolve();
   }
 }
 
@@ -302,7 +300,7 @@ function preClients() {
 function scopes() {
   var scopes = config.get('oauthServer.scopes');
   if (scopes && scopes.length) {
-    return P.all(
+    return Promise.all(
       scopes.map(function (s) {
         return module.exports.getScope(s.scope).then(function (existing) {
           if (existing) {

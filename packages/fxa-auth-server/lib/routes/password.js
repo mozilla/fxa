@@ -10,7 +10,6 @@ const HEX_STRING = validators.HEX_STRING;
 const butil = require('../crypto/butil');
 const error = require('../error');
 const isA = require('@hapi/joi');
-const P = require('../promise');
 const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
 const { emailsMatch } = require('fxa-shared').email.helpers;
@@ -200,7 +199,7 @@ module.exports = function (
           } else {
             // Don't create a verified session unless they already had one.
             verifiedStatus = false;
-            return P.resolve();
+            return Promise.resolve();
           }
         }
 
@@ -319,7 +318,7 @@ module.exports = function (
         }
 
         function createSessionToken() {
-          return P.resolve()
+          return Promise.resolve()
             .then(() => {
               if (!verifiedStatus) {
                 return random.hex(16);
@@ -445,7 +444,7 @@ module.exports = function (
 
         let passwordForgotToken;
 
-        return P.all([
+        return Promise.all([
           request.emitMetricsEvent('password.forgot.send_code.start'),
           customs.check(request, email, 'passwordForgotSendCode'),
         ])
@@ -463,7 +462,7 @@ module.exports = function (
           })
           .then((result) => {
             passwordForgotToken = result;
-            return P.all([
+            return Promise.all([
               request.stashMetricsContext(passwordForgotToken),
               db.accountEmails(passwordForgotToken.uid),
             ]);
@@ -547,7 +546,7 @@ module.exports = function (
         const { deviceId, flowId, flowBeginTime } = await request.app
           .metricsContext;
 
-        return P.all([
+        return Promise.all([
           request.emitMetricsEvent('password.forgot.resend_code.start'),
           customs.check(
             request,
@@ -635,7 +634,7 @@ module.exports = function (
 
         let accountResetToken;
 
-        return P.all([
+        return Promise.all([
           request.emitMetricsEvent('password.forgot.verify_code.start'),
           customs.check(
             request,
@@ -660,7 +659,7 @@ module.exports = function (
           })
           .then((result) => {
             accountResetToken = result;
-            return P.all([
+            return Promise.all([
               request.propagateMetricsContext(
                 passwordForgotToken,
                 accountResetToken
@@ -673,7 +672,7 @@ module.exports = function (
               // To prevent multiple password change emails being sent to a user,
               // we check for a flag to see if this is a reset using an account recovery key.
               // If it is, then the notification email will be sent in `/account/reset`
-              return P.resolve();
+              return Promise.resolve();
             }
 
             return mailer.sendPasswordResetEmail(emails, passwordForgotToken, {

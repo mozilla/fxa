@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const P = require('../../lib/promise');
 
 const config = require('../../config').getProperties();
 
@@ -27,7 +26,7 @@ describe('remote concurrect', function () {
     // Two shall enter, only one shall survive!
     const r1 = Client.create(config.publicUrl, email, password, server.mailbox);
     const r2 = Client.create(config.publicUrl, email, password, server.mailbox);
-    return P.all([r1, r2])
+    return Promise.all([r1, r2])
       .then(
         () => assert(false, 'created both accounts'),
         (err) => {

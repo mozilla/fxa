@@ -7,10 +7,9 @@
 const config = require('../config').getProperties();
 const hapi = require('@hapi/hapi');
 const url = require('url');
-const P = require('../lib/promise');
 
 module.exports = () => {
-  return new P((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const api = new hapi.Server({
       host: url.parse(config.profileServer.url).hostname,
       port: parseInt(url.parse(config.profileServer.url).port),
@@ -33,7 +32,7 @@ module.exports = () => {
       }
       resolve({
         close() {
-          return new P((resolve, reject) => {
+          return new Promise((resolve, reject) => {
             api.stop().then((err) => {
               if (err) {
                 reject(err);

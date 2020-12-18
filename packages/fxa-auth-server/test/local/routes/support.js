@@ -10,7 +10,6 @@ const uuid = require('uuid');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const nock = require('nock');
-const P = require('../../../lib/promise');
 
 let config,
   log,
@@ -133,7 +132,7 @@ function runTest(routePath, requestOptions) {
   );
   route = getRoute(routes, routePath, requestOptions.method || 'GET');
   request = mocks.mockRequest(requestOptions);
-  request.emitMetricsEvent = sinon.spy(() => P.resolve({}));
+  request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
 
   return route.handler(request);
 }

@@ -8,7 +8,6 @@ const AppError = require('../../../lib/error');
 const { assert } = require('chai');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const P = require('../../../lib/promise');
 const sinon = require('sinon');
 
 function makeRoutes(options = {}, dependencies) {
@@ -42,7 +41,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       },
     };
     sms = {
-      send: sinon.spy(() => P.resolve()),
+      send: sinon.spy(() => Promise.resolve()),
     };
     routes = makeRoutes({ log, db, config, sms });
     route = getRoute(routes, '/sms');
@@ -66,7 +65,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 
   describe('sms.send succeeds', () => {
     beforeEach(() => {
-      sms.send = sinon.spy(() => P.resolve());
+      sms.send = sinon.spy(() => Promise.resolve());
     });
 
     describe('USA phone number', () => {
@@ -367,7 +366,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 
     beforeEach(() => {
       sms.send = sinon.spy(() =>
-        P.reject(AppError.messageRejected('wibble', 7))
+        Promise.reject(AppError.messageRejected('wibble', 7))
       );
       request.payload.phoneNumber = '+18885083401';
       return runTest(route, request).catch((e) => {
@@ -420,7 +419,7 @@ describe('/sms without the signinCodes feature included in the payload', () => {
       },
     };
     sms = {
-      send: sinon.spy(() => P.resolve()),
+      send: sinon.spy(() => Promise.resolve()),
     };
     routes = makeRoutes({ log, db, config, sms });
     route = getRoute(routes, '/sms');
@@ -440,7 +439,7 @@ describe('/sms without the signinCodes feature included in the payload', () => {
         },
       },
     });
-    sms.send = sinon.spy(() => P.resolve());
+    sms.send = sinon.spy(() => Promise.resolve());
     return runTest(route, request);
   });
 
@@ -729,7 +728,7 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
     };
     sms = {
       isBudgetOk: () => true,
-      send: sinon.spy(() => P.resolve()),
+      send: sinon.spy(() => Promise.resolve()),
     };
     routes = makeRoutes({ log, config, sms });
     route = getRoute(routes, '/sms/status');
@@ -777,7 +776,7 @@ describe('/sms/status with query param and disabled geo-ip lookup', () => {
     };
     sms = {
       isBudgetOk: () => true,
-      send: sinon.spy(() => P.resolve()),
+      send: sinon.spy(() => Promise.resolve()),
     };
     routes = makeRoutes({ log, config, sms });
     route = getRoute(routes, '/sms/status');

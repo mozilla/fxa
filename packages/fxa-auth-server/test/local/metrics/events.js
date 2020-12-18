@@ -22,7 +22,6 @@ const events = require('../../../lib/metrics/events')(log, {
   verificationReminders: {},
 });
 const mocks = require('../../mocks');
-const P = require('../../../lib/promise');
 
 describe('metrics/events', () => {
   afterEach(() => {
@@ -381,7 +380,7 @@ describe('metrics/events', () => {
     const metricsContext = mocks.mockMetricsContext();
     const request = {
       app: {
-        devices: P.resolve(),
+        devices: Promise.resolve(),
         geo: {
           location: {
             country: 'United Kingdom',
@@ -800,7 +799,7 @@ describe('metrics/events', () => {
     const metricsContext = mocks.mockMetricsContext();
     const request = {
       app: {
-        devices: P.resolve(),
+        devices: Promise.resolve(),
         geo: {},
         ua: {},
       },

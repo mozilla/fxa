@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const Client = require('../client')();
 const TestServer = require('../test_server');
-const P = require('../../lib/promise');
 
 const config = require('../../config').getProperties();
 
@@ -149,7 +148,7 @@ describe('remote recovery email resend code', function () {
     const options = {
       keys: true,
     };
-    return P.all([
+    return Promise.all([
       Client.createAndVerify(
         config.publicUrl,
         email,
