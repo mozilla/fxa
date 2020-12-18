@@ -15,8 +15,8 @@ import { AppController } from './app.controller';
 
 describe('AppController', () => {
   let controller: AppController;
-  let mockRemote: any;
-  let mockLog: any;
+  let mockRemote: Partial<RemoteLookupService>;
+  let mockLog: Partial<MozLoggerService>;
 
   beforeEach(async () => {
     const mockConfig = jest.fn().mockReturnValue({});

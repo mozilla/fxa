@@ -35,27 +35,32 @@ export class AppController {
     // This is the user who is asking for the information:
     this.log.info('infoRequest', { authUser: user, requestTicket, uid });
 
-    const [account, devices, signinLocations, totpEnabled] = await Promise.all([
+    const [
+      { createdAt, email, emailVerified, locale },
+      devices,
+      signinLocations,
+      totpEnabled,
+    ] = await Promise.all([
       this.remote.account(uid),
       this.remote.devices(uid),
       this.remote.signinLocations(uid),
       this.remote.totpEnabled(uid),
     ]);
-    const subscriptions = await this.remote.subscriptions(uid, account.email);
+    const subscriptions = await this.remote.subscriptions(uid, email);
 
     return {
-      created: String(new Date(account.createdAt)),
+      created: String(new Date(createdAt)),
       devices: devices.map((d) => ({
         created: String(new Date(d.createdAt)),
         name: d.name,
         type: d.type,
       })),
-      email: account.email,
-      emailVerified: !!account.emailVerified,
-      locale: account.locale,
+      email,
+      emailVerified,
+      locale,
       signinLocations,
       subscriptionStatus: subscriptions.length > 0,
-      subscriptions: subscriptions,
+      subscriptions,
       twoFactorAuth: totpEnabled,
       uid,
     };
