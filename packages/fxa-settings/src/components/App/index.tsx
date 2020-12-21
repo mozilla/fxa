@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import AppLayout from '../AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -22,6 +22,8 @@ import PageTwoStepAuthentication from '../PageTwoStepAuthentication';
 import { Page2faReplaceRecoveryCodes } from '../Page2faReplaceRecoveryCodes';
 import { ScrollToTop } from '../ScrollToTop';
 import { HomePath } from '../../constants';
+import { Config } from 'fxa-settings/src/lib/config';
+import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -34,9 +36,15 @@ export const GET_INITIAL_STATE = gql`
 
 type AppProps = {
   flowQueryParams: FlowQueryParams;
+  config: Config;
 };
 
-export const App = ({ flowQueryParams }: AppProps) => {
+export const App = ({ flowQueryParams, config }: AppProps) => {
+  useEffect(() => {
+    config.metrics.navTiming.enabled &&
+      observeNavigationTiming(config.metrics.navTiming.endpoint);
+  });
+
   const { loading, error } = useQuery<{ account: Account }>(GET_INITIAL_STATE);
   Metrics.init(flowQueryParams);
 

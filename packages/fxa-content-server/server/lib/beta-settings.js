@@ -27,6 +27,12 @@ if (env !== 'development') {
 
 const settingsConfig = {
   env,
+  metrics: {
+    navTiming: {
+      enabled: config.get('statsd.enabled'),
+      endpoint: '/navigation-timing',
+    },
+  },
   sentry: {
     dsn: config.get('sentry.client_errors_dsn'),
   },
