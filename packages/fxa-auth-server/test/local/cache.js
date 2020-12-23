@@ -10,7 +10,6 @@ const { assert } = require('chai');
 const crypto = require('crypto');
 const Memcached = require('memcached');
 const mocks = require('../mocks');
-const P = require(`${ROOT_DIR}/lib/promise`);
 const sinon = require('sinon');
 
 const modulePath = `${ROOT_DIR}/lib/cache`;
@@ -59,50 +58,8 @@ describe('cache:', () => {
   describe('memcached resolves:', () => {
     beforeEach(() => {
       sandbox
-        .stub(Memcached.prototype, 'addAsync')
-        .callsFake(() => P.resolve());
-      sandbox
-        .stub(Memcached.prototype, 'delAsync')
-        .callsFake(() => P.resolve());
-      sandbox
-        .stub(Memcached.prototype, 'getAsync')
-        .callsFake(() => P.resolve('mock get result'));
-    });
-
-    describe('add:', () => {
-      beforeEach(() => {
-        return cache.add(digest, 'wibble');
-      });
-
-      it('calls memcached.addAsync correctly', () => {
-        assert.equal(Memcached.prototype.addAsync.callCount, 1);
-        const args = Memcached.prototype.addAsync.args[0];
-        assert.equal(args.length, 3);
-        assert.equal(args[0], digest);
-        assert.equal(args[1], 'wibble');
-        assert.equal(args[2], 30);
-
-        assert.equal(Memcached.prototype.delAsync.callCount, 0);
-        assert.equal(Memcached.prototype.getAsync.callCount, 0);
-        assert.equal(log.error.callCount, 0);
-      });
-    });
-
-    describe('del:', () => {
-      beforeEach(() => {
-        return cache.del(digest);
-      });
-
-      it('calls memcached.delAsync correctly', () => {
-        assert.equal(Memcached.prototype.delAsync.callCount, 1);
-        const args = Memcached.prototype.delAsync.args[0];
-        assert.equal(args.length, 1);
-        assert.equal(args[0], digest);
-
-        assert.equal(Memcached.prototype.addAsync.callCount, 0);
-        assert.equal(Memcached.prototype.getAsync.callCount, 0);
-        assert.equal(log.error.callCount, 0);
-      });
+        .stub(Memcached.prototype, 'get')
+        .callsArgWith(1, null, 'mock get result');
     });
 
     describe('get:', () => {
@@ -115,31 +72,14 @@ describe('cache:', () => {
       it('returns the correct result', () => {
         assert.equal(result, 'mock get result');
       });
-
-      it('calls memcached.getAsync correctly', () => {
-        assert.equal(Memcached.prototype.getAsync.callCount, 1);
-        const args = Memcached.prototype.getAsync.args[0];
-        assert.equal(args.length, 1);
-        assert.equal(args[0], digest);
-
-        assert.equal(Memcached.prototype.addAsync.callCount, 0);
-        assert.equal(Memcached.prototype.delAsync.callCount, 0);
-        assert.equal(log.error.callCount, 0);
-      });
     });
   });
 
   describe('memcached rejects:', () => {
     beforeEach(() => {
-      sandbox
-        .stub(Memcached.prototype, 'addAsync')
-        .callsFake(() => P.reject('foo'));
-      sandbox
-        .stub(Memcached.prototype, 'delAsync')
-        .callsFake(() => P.reject('bar'));
-      sandbox
-        .stub(Memcached.prototype, 'getAsync')
-        .callsFake(() => P.reject('baz'));
+      sandbox.stub(Memcached.prototype, 'add').callsArgWith(3, 'foo');
+      sandbox.stub(Memcached.prototype, 'del').callsArgWith(1, 'bar');
+      sandbox.stub(Memcached.prototype, 'get').callsArgWith(1, 'baz');
     });
 
     describe('add:', () => {
@@ -201,9 +141,11 @@ describe('null cache:', () => {
       uid: Buffer.alloc(32, 'cd'),
       id: 'deadbeef',
     };
-    sandbox.stub(Memcached.prototype, 'addAsync').callsFake(() => P.resolve());
-    sandbox.stub(Memcached.prototype, 'delAsync').callsFake(() => P.resolve());
-    sandbox.stub(Memcached.prototype, 'getAsync').callsFake(() => P.resolve());
+    sandbox.stub(Memcached.prototype, 'add').callsArgWith(3, null, null);
+    sandbox.stub(Memcached.prototype, 'del').callsArgWith(1, null, null);
+    sandbox
+      .stub(Memcached.prototype, 'get')
+      .callsArgWith(1, null, 'mock get result');
   });
 
   afterEach(() => sandbox.restore());
@@ -213,8 +155,8 @@ describe('null cache:', () => {
       return cache.add(token, {});
     });
 
-    it('did not call memcached.addAsync', () => {
-      assert.equal(Memcached.prototype.addAsync.callCount, 0);
+    it('did not call memcached.add', () => {
+      assert.equal(Memcached.prototype.add.callCount, 0);
     });
   });
 
@@ -223,8 +165,8 @@ describe('null cache:', () => {
       return cache.del(token);
     });
 
-    it('did not call memcached.delAsync', () => {
-      assert.equal(Memcached.prototype.delAsync.callCount, 0);
+    it('did not call memcached.del', () => {
+      assert.equal(Memcached.prototype.del.callCount, 0);
     });
   });
 
@@ -233,8 +175,8 @@ describe('null cache:', () => {
       return cache.get(token);
     });
 
-    it('did not call memcached.getAsync', () => {
-      assert.equal(Memcached.prototype.getAsync.callCount, 0);
+    it('did not call memcached.get', () => {
+      assert.equal(Memcached.prototype.get.callCount, 0);
     });
   });
 });

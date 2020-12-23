@@ -8,7 +8,6 @@ const ROOT_DIR = '../../..';
 
 const { assert } = require('chai');
 const mocks = require('../../mocks');
-const P = require('bluebird');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const { URL } = require('url');
@@ -1593,7 +1592,7 @@ describe('lib/senders/email:', () => {
         },
       };
       mailer.selectEmailServices = sinon.spy(() =>
-        P.resolve([
+        Promise.resolve([
           {
             emailAddresses: [message.email],
             emailService: 'fxa-email-service',
@@ -1649,7 +1648,7 @@ describe('lib/senders/email:', () => {
         },
       };
       mailer.selectEmailServices = sinon.spy(() =>
-        P.resolve([
+        Promise.resolve([
           {
             emailAddresses: [message.email, ...message.ccEmails],
             emailService: 'fxa-auth-server',
@@ -1700,7 +1699,7 @@ describe('lib/senders/email:', () => {
         },
       };
       mailer.selectEmailServices = sinon.spy(() =>
-        P.resolve([
+        Promise.resolve([
           {
             emailAddresses: [message.email],
             emailService: 'fxa-email-service',
@@ -1908,7 +1907,7 @@ function configUrl(key, campaign, content, ...params) {
 }
 
 async function setup(log, config, mocks, locale = 'en', sender = null) {
-  const [translator, templates] = await P.all([
+  const [translator, templates] = await Promise.all([
     require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale),
     require(`${ROOT_DIR}/lib/senders/templates`)(log),
   ]);

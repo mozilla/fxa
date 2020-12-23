@@ -14,7 +14,7 @@
 'use strict';
 
 const redis = require('./redis');
-const P = require('./promise');
+const { props } = require('fxa-shared/lib/promise-extras');
 
 // The config file determines the number of intervals. Ex `firstInterval` is stored
 // in set called `first`.
@@ -64,7 +64,7 @@ class CadReminders {
     try {
       if (this.rolloutRate <= 1 && Math.random() < this.rolloutRate) {
         const now = Date.now();
-        const result = await P.props(
+        const result = await props(
           this.keys.reduce((result, key) => {
             result[key] = this.redis.zadd(key, now, uid);
             return result;
@@ -94,7 +94,7 @@ class CadReminders {
    */
   async delete(uid) {
     try {
-      const result = await P.props(
+      const result = await props(
         this.keys.reduce((result, key) => {
           result[key] = this.redis.zrem(key, uid);
           return result;
@@ -126,7 +126,7 @@ class CadReminders {
       this.log.info('cadReminders.get', {
         uid,
       });
-      return await P.props(
+      return await props(
         this.keys.reduce((result, key) => {
           result[key] = this.redis.zrank(key, uid);
           return result;
@@ -152,7 +152,7 @@ class CadReminders {
   async process() {
     try {
       const now = Date.now();
-      return await P.props(
+      return await props(
         this.keys.reduce((result, key) => {
           const cutoff = now - this.intervals[key];
           result[key] = this.redis

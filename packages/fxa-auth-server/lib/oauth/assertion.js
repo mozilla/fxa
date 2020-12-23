@@ -21,8 +21,6 @@
  *
  */
 
-const P = require('../promise');
-
 const Joi = require('@hapi/joi');
 const validators = require('./validators');
 
@@ -47,22 +45,16 @@ const CLAIMS_SCHEMA = Joi.object({
   'fxa-profileChangedAt': Joi.number().integer().min(0).optional(),
   'fxa-keysChangedAt': Joi.number().integer().min(0).optional(),
 }).options({ stripUnknown: true });
-const validateClaims = P.promisify(CLAIMS_SCHEMA.validate, {
-  context: CLAIMS_SCHEMA,
-});
 
 const AUDIENCE = config.get('oauthServer.audience');
 const ALLOWED_ISSUER = config.get('oauthServer.browserid.issuer');
 
-const request = P.promisify(
-  require('request').defaults({
-    url: config.get('oauthServer.browserid.verificationUrl'),
-    pool: {
-      maxSockets: config.get('oauthServer.browserid.maxSockets'),
-    },
-  }),
-  { multiArgs: true }
-);
+const request = require('request').defaults({
+  url: config.get('oauthServer.browserid.verificationUrl'),
+  pool: {
+    maxSockets: config.get('oauthServer.browserid.maxSockets'),
+  },
+});
 
 function error(assertion, msg, val) {
   throw AppError.invalidAssertion();
@@ -72,12 +64,22 @@ function error(assertion, msg, val) {
 // by posting to an external verifier service.
 
 async function verifyBrowserID(assertion) {
-  const [res, body] = await request({
-    method: 'POST',
-    json: {
-      assertion: assertion,
-      audience: AUDIENCE,
-    },
+  const [res, body] = await new Promise((resolve, reject) => {
+    request(
+      {
+        method: 'POST',
+        json: {
+          assertion: assertion,
+          audience: AUDIENCE,
+        },
+      },
+      (err, res, body) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve([res, body]);
+      }
+    );
   });
 
   if (!res || !body || body.status !== 'okay') {
@@ -120,7 +122,7 @@ module.exports = async function verifyAssertion(assertion) {
     }
   }
   try {
-    return await validateClaims(claims);
+    return await CLAIMS_SCHEMA.validate(claims);
   } catch (err) {
     return error(assertion, err, claims);
   }

@@ -6,14 +6,14 @@
 
 const ROOT_DIR = '../..';
 
+const { promisify } = require('util');
 const cp = require('child_process');
 const { assert } = require('chai');
 const path = require('path');
-const P = require('bluebird');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
-cp.execAsync = P.promisify(cp.exec);
+cp.execAsync = promisify(cp.exec);
 
 const log = mocks.mockLog();
 const config = require('../../config').getProperties();

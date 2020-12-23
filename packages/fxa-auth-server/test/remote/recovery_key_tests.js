@@ -9,7 +9,6 @@ const config = require('../../config').getProperties();
 const crypto = require('crypto');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const P = require('bluebird');
 const jwtool = require('fxa-jwtool');
 
 describe('remote recovery keys', function () {
@@ -32,7 +31,7 @@ describe('remote recovery keys', function () {
     const recoveryKey = crypto.randomBytes(16).toString('hex');
     const recoveryData = crypto.randomBytes(32).toString('hex');
 
-    return P.resolve({
+    return Promise.resolve({
       recoveryCode,
       recoveryData,
       recoveryKeyId,

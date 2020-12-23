@@ -5,15 +5,14 @@
 'use strict';
 
 const Memcached = require('memcached');
-const P = require('./promise');
 
-P.promisifyAll(Memcached.prototype);
-
-const NOP = () => P.resolve();
+const NOP = function () {
+  return arguments[arguments.length - 1]();
+};
 const NULL_CACHE = {
-  addAsync: NOP,
-  delAsync: NOP,
-  getAsync: NOP,
+  add: NOP,
+  del: NOP,
+  get: NOP,
 };
 
 module.exports = (log, config, namespace) => {
@@ -36,7 +35,14 @@ module.exports = (log, config, namespace) => {
      */
     async add(key, data) {
       const cache = await getCache();
-      return await cache.addAsync(key, data, CACHE_LIFETIME);
+      return await new Promise((resolve, reject) => {
+        cache.add(key, data, CACHE_LIFETIME, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
     },
 
     /**
@@ -48,7 +54,14 @@ module.exports = (log, config, namespace) => {
      */
     async del(key) {
       const cache = await getCache();
-      return await cache.delAsync(key);
+      return await new Promise((resolve, reject) => {
+        cache.del(key, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
     },
 
     /**
@@ -60,7 +73,14 @@ module.exports = (log, config, namespace) => {
      */
     async get(key) {
       const cache = await getCache();
-      return await cache.getAsync(key);
+      return await new Promise((resolve, reject) => {
+        cache.get(key, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(result);
+        });
+      });
     },
   };
 

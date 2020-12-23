@@ -13,7 +13,6 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const mocks = require(`${ROOT_DIR}/test/mocks`);
 const senders = require(`${ROOT_DIR}/lib/senders`);
 const sinon = require('sinon');
-const P = require('bluebird');
 
 const nullLog = mocks.mockLog();
 
@@ -70,7 +69,9 @@ describe('lib/senders/index', () => {
         return createSender(config)
           .then((e) => {
             email = e;
-            email._ungatedMailer.verifyEmail = sinon.spy(() => P.resolve({}));
+            email._ungatedMailer.verifyEmail = sinon.spy(() =>
+              Promise.resolve({})
+            );
             return email.sendVerifyEmail(EMAILS, acct, { code: code });
           })
           .then(() => {
@@ -91,7 +92,7 @@ describe('lib/senders/index', () => {
           .then((e) => {
             email = e;
             email._ungatedMailer.verifyLoginEmail = sinon.spy(() =>
-              P.resolve({})
+              Promise.resolve({})
             );
             return email.sendVerifyLoginEmail(EMAILS, acct, { code: code });
           })
@@ -122,7 +123,9 @@ describe('lib/senders/index', () => {
         return createSender(config)
           .then((e) => {
             email = e;
-            email._ungatedMailer.recoveryEmail = sinon.spy(() => P.resolve({}));
+            email._ungatedMailer.recoveryEmail = sinon.spy(() =>
+              Promise.resolve({})
+            );
             return email.sendRecoveryEmail(EMAILS, acct, {
               code: code,
               token: token,
@@ -150,7 +153,7 @@ describe('lib/senders/index', () => {
           .then((e) => {
             email = e;
             email._ungatedMailer.passwordChangedEmail = sinon.spy(() =>
-              P.resolve({})
+              Promise.resolve({})
             );
             return email.sendPasswordChangedEmail(EMAILS, acct, {});
           })
@@ -180,7 +183,7 @@ describe('lib/senders/index', () => {
           .then((e) => {
             email = e;
             email._ungatedMailer.passwordResetEmail = sinon.spy(() =>
-              P.resolve({})
+              Promise.resolve({})
             );
             return email.sendPasswordResetEmail(EMAILS, acct, {});
           })
@@ -207,7 +210,7 @@ describe('lib/senders/index', () => {
           .then((e) => {
             email = e;
             email._ungatedMailer.newDeviceLoginEmail = sinon.spy(() =>
-              P.resolve({})
+              Promise.resolve({})
             );
             return email.sendNewDeviceLoginEmail(EMAILS, acct, {});
           })
@@ -234,7 +237,7 @@ describe('lib/senders/index', () => {
           .then((e) => {
             email = e;
             email._ungatedMailer.postVerifyEmail = sinon.spy(() =>
-              P.resolve({})
+              Promise.resolve({})
             );
             return email.sendPostVerifyEmail(EMAILS, acct, {});
           })
@@ -257,7 +260,7 @@ describe('lib/senders/index', () => {
           .then((e) => {
             email = e;
             email._ungatedMailer.unblockCodeEmail = sinon.spy(() =>
-              P.resolve({})
+              Promise.resolve({})
             );
             return email.sendUnblockCodeEmail(EMAILS, acct, { code: code });
           })
@@ -283,7 +286,7 @@ describe('lib/senders/index', () => {
           .then((e) => {
             email = e;
             email._ungatedMailer.postAddTwoStepAuthenticationEmail = sinon.spy(
-              () => P.resolve({})
+              () => Promise.resolve({})
             );
             return email.sendPostAddTwoStepAuthenticationEmail(
               EMAILS,
@@ -318,7 +321,7 @@ describe('lib/senders/index', () => {
           .then((e) => {
             email = e;
             email._ungatedMailer.postRemoveTwoStepAuthenticationEmail = sinon.spy(
-              () => P.resolve({})
+              () => Promise.resolve({})
             );
             return email.sendPostRemoveTwoStepAuthenticationEmail(
               EMAILS,
@@ -351,7 +354,7 @@ describe('lib/senders/index', () => {
       it('called mailer.downloadSubscriptionEmail', async () => {
         const mailer = await createSender(config);
         mailer._ungatedMailer.downloadSubscriptionEmail = sinon.spy(() =>
-          P.resolve({})
+          Promise.resolve({})
         );
         await mailer.sendDownloadSubscriptionEmail(EMAILS, acct, {
           acceptLanguage: 'wibble',

@@ -6,17 +6,17 @@
 
 const ROOT_DIR = '../..';
 
+const { promisify } = require('util');
 const { assert } = require('chai');
 const cp = require('child_process');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
 const path = require('path');
-const P = require('bluebird');
 const rimraf = require('rimraf');
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
-cp.execAsync = P.promisify(cp.exec);
+cp.execAsync = promisify(cp.exec);
 
 const log = mocks.mockLog();
 const config = require('../../config').getProperties();
@@ -83,7 +83,7 @@ describe('scripts/bulk-mailer', function () {
       })
       .then((_db) => {
         db = _db;
-        return P.all([
+        return Promise.all([
           db.createAccount(account1Mock),
           db.createAccount(account2Mock),
         ]);
@@ -97,7 +97,7 @@ describe('scripts/bulk-mailer', function () {
   });
 
   after(() => {
-    return P.all([
+    return Promise.all([
       db.deleteAccount(account1Mock),
       db.deleteAccount(account2Mock),
     ])
