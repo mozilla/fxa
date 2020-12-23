@@ -12260,12 +12260,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cldr-localenames-full@npm:36.0.0":
-  version: 36.0.0
-  resolution: "cldr-localenames-full@npm:36.0.0"
+"cldr-localenames-full@npm:38.0.0":
+  version: 38.0.0
+  resolution: "cldr-localenames-full@npm:38.0.0"
   peerDependencies:
-    cldr-core: 36.0.0
-  checksum: f535c3fecdad5542f717487d88dbb37096d7b68c1727a85370369672404f13a0861269fa2274fe6054e1a600564e00f93526079c2edd9aa3d754291e5b7c0b7a
+    cldr-core: 38.0.0
+  checksum: e985a1736e45ba0d34d2b201c8a6edfb68399936735c7fae99fc9f566fe8070ac0292fc5c50491f20ff807c8d8d8342c8ae05cb6527ad15fc88d6732bce02ddb
   languageName: node
   linkType: hard
 
@@ -17771,7 +17771,7 @@ fsevents@^1.2.7:
     cbor: ^5.1.0
     chai: ^4.2.0
     cldr-core: ^37.0.0
-    cldr-localenames-full: 36.0.0
+    cldr-localenames-full: 38.0.0
     commander: 2.18.0
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
