@@ -6,7 +6,6 @@ import { gql } from '@apollo/client';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { useAlertBar, useMutation } from '../../lib/hooks';
-import { Account } from '../../models/Account';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -18,7 +17,6 @@ import GetDataTrio from '../GetDataTrio';
 import { useSession } from '../../models';
 import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
-import { cloneDeep } from '@apollo/client/utilities';
 import { alertTextExternal } from '../../lib/cache';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
 
@@ -133,11 +131,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     },
     update: (cache) => {
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.totp.exists = true;
-            return account;
+          totp(currentTotp) {
+            return { ...currentTotp, exists: true };
           },
         },
       });
@@ -158,11 +155,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     },
     update: (cache) => {
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.totp.verified = true;
-            return account;
+          totp(currentTotp) {
+            return { ...currentTotp, verified: true };
           },
         },
       });

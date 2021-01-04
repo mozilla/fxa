@@ -1,10 +1,8 @@
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { gql } from '@apollo/client';
-import { cloneDeep } from '@apollo/client/utilities';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { Account } from '../../models';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
@@ -40,15 +38,17 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
     },
     update: (cache) => {
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.emails.push({
-              email: email!,
-              isPrimary: false,
-              verified: false,
-            });
-            return account;
+          emails(existingEmails) {
+            return [
+              ...existingEmails,
+              {
+                email: email!,
+                isPrimary: false,
+                verified: false,
+              },
+            ];
           },
         },
       });

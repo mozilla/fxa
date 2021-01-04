@@ -5,13 +5,12 @@ import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useRecoveryKeyMaker } from '../../lib/auth';
 import { cache, sessionToken } from '../../lib/cache';
 import { useAlertBar } from '../../lib/hooks';
-import { useAccount, Account } from '../../models';
+import { useAccount } from '../../models';
 import InputPassword from '../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import AlertBar from '../AlertBar';
 import DataBlock from '../DataBlock';
-import { cloneDeep } from '@apollo/client/utilities';
 import { HomePath } from '../../constants';
 import GetDataTrio from '../GetDataTrio';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
@@ -47,11 +46,10 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
       );
       setSubtitleText('Step 2 of 2');
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.recoveryKey = true;
-            return account;
+          recoveryKey() {
+            return true;
           },
         },
       });

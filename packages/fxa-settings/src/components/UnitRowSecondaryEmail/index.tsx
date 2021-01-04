@@ -5,9 +5,8 @@
 import React, { ReactNode, useState } from 'react';
 import { gql } from '@apollo/client';
 import { useNavigate } from '@reach/router';
-import { cloneDeep } from '@apollo/client/utilities';
 import { useAlertBar, useMutation } from '../../lib/hooks';
-import { useAccount, useLazyAccount, Email, Account } from '../../models';
+import { useAccount, useLazyAccount, Email } from '../../models';
 import UnitRow from '../UnitRow';
 import AlertBar from '../AlertBar';
 import ModalVerifySession from '../ModalVerifySession';
@@ -83,14 +82,19 @@ export const UnitRowSecondaryEmail = () => {
       },
       update: (cache) => {
         cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
           fields: {
-            account: (existing: Account) => {
-              const account = cloneDeep(existing);
-              account.emails.find((m) => m.email === email)!.isPrimary = true;
-              account.emails.find(
-                (m) => m.isPrimary && m.email !== email
-              )!.isPrimary = false;
-              return account;
+            emails(existingEmails) {
+              return existingEmails.map((x: Email) => {
+                const e = { ...x };
+                if (e.email === email) {
+                  e.isPrimary = true;
+                } else if (e.isPrimary) {
+                  e.isPrimary = false;
+                }
+
+                return e;
+              });
             },
           },
         });
@@ -109,14 +113,15 @@ export const UnitRowSecondaryEmail = () => {
       },
       update: (cache) => {
         cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
           fields: {
-            account: (existing: Account) => {
-              const account = cloneDeep(existing);
-              account.emails.splice(
-                account.emails.findIndex((m) => m.email === email),
+            emails(existingEmails) {
+              const emails = [...existingEmails];
+              emails.splice(
+                emails.findIndex((x) => x.email === email),
                 1
               );
-              return account;
+              return emails;
             },
           },
         });

@@ -8,7 +8,7 @@ import { DELETE_TOTP_MUTATION, UnitRowTwoStepAuth } from '.';
 import {
   renderWithRouter,
   MockedCache,
-  mockAccountQuery,
+  mockTotpStatusQuery,
 } from '../../models/_mocks';
 
 const mockMutationSuccess = {
@@ -86,7 +86,7 @@ describe('UnitRowTwoStepAuth', () => {
       <MockedCache
         account={{ totp: { exists: false } }}
         mocks={[
-          mockAccountQuery({
+          mockTotpStatusQuery({
             totp: {
               exists: true,
               verified: true,

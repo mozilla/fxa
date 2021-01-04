@@ -6,13 +6,11 @@ import { navigate, RouteComponentProps } from '@reach/router';
 import { useAccount } from '../../models';
 import { useForm } from 'react-hook-form';
 import React, { useState } from 'react';
-import { Account } from '../../models/Account';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { gql } from '@apollo/client';
 import AlertBar from '../AlertBar';
-import { cloneDeep } from '@apollo/client/utilities';
 import { HomePath } from '../../constants';
 
 const validateDisplayName = (currentDisplayName: string) => (
@@ -56,11 +54,10 @@ export const PageDisplayName = (_: RouteComponentProps) => {
     },
     update: (cache) => {
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.displayName = displayName!;
-            return account;
+          displayName() {
+            return displayName;
           },
         },
       });
