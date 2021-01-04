@@ -48,7 +48,7 @@ module.exports = function (
     verificationReminders
   );
   // The routing modules themselves.
-  const defaults = require('./defaults')(log, db);
+  const defaults = require('./defaults')(log, config, db);
   const idp = require('./idp')(log, serverPublicKeys);
   const grant = require('../oauth/grant');
   const oauthRawDB = require('../oauth/db');
