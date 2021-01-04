@@ -3529,18 +3529,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:^7.5.5":
-  version: 7.5.5
-  resolution: "@nestjs/common@npm:7.5.5"
+"@nestjs/common@npm:^7.6.4":
+  version: 7.6.4
+  resolution: "@nestjs/common@npm:7.6.4"
   dependencies:
     axios: 0.21.0
     iterare: 1.2.1
     tslib: 2.0.3
-    uuid: 8.3.1
+    uuid: 8.3.2
   peerDependencies:
+    cache-manager: "*"
+    class-transformer: "*"
+    class-validator: "*"
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0
-  checksum: 4128212102341e53f1af76e17dcfff93c1e8b167929b9c4e27fd6a4bbd98a48a13f8d5347636b478e6fcec39d1e636140e1cc69cfa64ab8e820c94679f536042
+  peerDependenciesMeta:
+    cache-manager:
+      optional: true
+    class-transformer:
+      optional: true
+    class-validator:
+      optional: true
+  checksum: 0f1db4d8268e80901c54984e958954a9e71989cf977169d9a205012ee2d86b6cd5e774c92774693007c73a84b36fe376bec1adde4ca8e9401425c12839ad6911
   languageName: node
   linkType: hard
 
@@ -17621,7 +17631,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
-    "@nestjs/common": ^7.5.5
+    "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
     "@nestjs/graphql": ^7.9.1
@@ -18108,7 +18118,7 @@ fsevents@^1.2.7:
     "@hapi/hoek": ^9.0.4
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^7.5.3
-    "@nestjs/common": ^7.5.5
+    "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
     "@nestjs/graphql": ^7.9.1
@@ -18205,7 +18215,7 @@ fsevents@^1.2.7:
   resolution: "fxa-graphql-api@workspace:packages/fxa-graphql-api"
   dependencies:
     "@nestjs/cli": ^7.5.3
-    "@nestjs/common": ^7.5.5
+    "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
     "@nestjs/graphql": ^7.9.1
@@ -18622,7 +18632,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
-    "@nestjs/common": ^7.5.5
+    "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
     "@nestjs/graphql": ^7.9.1
@@ -18703,7 +18713,7 @@ fsevents@^1.2.7:
   resolution: "fxa-support-panel@workspace:packages/fxa-support-panel"
   dependencies:
     "@nestjs/cli": ^7.5.3
-    "@nestjs/common": ^7.5.5
+    "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
     "@nestjs/mapped-types": ^0.1.1
@@ -37067,6 +37077,15 @@ typescript@~4.1.2:
   bin:
     uuid: dist/bin/uuid
   checksum: 6a5d07c5564614271237d8bbc5c1c72abf056343e91af8f67a8e6d29957a1a061f347b8425a1e499af32f5a8f0039c44d200dff663b9a8090c51a7f7b5031534
+  languageName: node
+  linkType: hard
+
+"uuid@npm:8.3.2":
+  version: 8.3.2
+  resolution: "uuid@npm:8.3.2"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: aed2bcef341f95635f308fea8831fb9038b18c485fe7e71feb89d2e05602dfecad0cb6f2246fae096d4da425cca6e8a71056f28abd97ad98cf770a2018853248
   languageName: node
   linkType: hard
 
