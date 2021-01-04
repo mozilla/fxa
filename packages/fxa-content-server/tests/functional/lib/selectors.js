@@ -724,7 +724,7 @@ module.exports = {
         SUBMIT_RECOVERY_KEY: '[data-testid=submit-recovery-code]',
         SUCCESS_MESSAGE: '[data-testid=alert-external-text]',
         DISABLE_TFA:
-          '#security div:nth-child(2) > div:nth-child(3) div.unit-row-actions button:nth-child(2)',
+          '[data-testid=settings-security] div:nth-child(2) > div:nth-child(3) div.unit-row-actions button:nth-child(2)',
         DISABLE_MODAL: '[data-testid=disable-totp-modal-header]',
         DISABLE_TFA_CONFIRM: '[data-testid=modal-confirm]',
         CANCEL_DISABLE_TFA: '[data-testid=modal-cancel]',

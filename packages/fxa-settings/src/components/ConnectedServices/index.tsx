@@ -200,13 +200,10 @@ export const ConnectedServices = () => {
   );
 
   return (
-    <section
-      className="mt-11"
-      id="connected-services"
-      data-testid="settings-connected-services"
-    >
-      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4">
-        Connected Services
+    <section className="mt-11" data-testid="settings-connected-services">
+      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4 relative">
+        <span id="connected-services" className="nav-anchor"></span>Connected
+        Services
       </h2>
       <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
         <div className="flex justify-between mb-4">
