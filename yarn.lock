@@ -6909,7 +6909,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack@npm:*, @types/webpack@npm:4.41.25":
+"@types/webpack@npm:*, @types/webpack@npm:4.41.25, @types/webpack@npm:^4.41.13":
   version: 4.41.25
   resolution: "@types/webpack@npm:4.41.25"
   dependencies:
@@ -6923,7 +6923,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack@npm:4.41.16, @types/webpack@npm:^4.41.13":
+"@types/webpack@npm:4.41.16":
   version: 4.41.16
   resolution: "@types/webpack@npm:4.41.16"
   dependencies:
@@ -9050,26 +9050,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ast-types@npm:0.11.3":
-  version: 0.11.3
-  resolution: "ast-types@npm:0.11.3"
-  checksum: 77eec4f28517af440c957befc03ac44d761ec1ff9753df2a387e7a8b0d3a6e8f0a9b65a02be7ca3a0b8bc1b3466046d71f3804065b9dfe5a8ef79c3ae9727d54
-  languageName: node
-  linkType: hard
-
-"ast-types@npm:0.x.x, ast-types@npm:^0.13.2":
-  version: 0.13.3
-  resolution: "ast-types@npm:0.13.3"
-  checksum: 684ff566539c6a3812480e6ad8e7484472bfed78e0abcd3f18c0618b2f49360e930b9adc8a22d5d372084a3a1074d7ae45c1e1fa3394ee878c5df4e8befb58d8
-  languageName: node
-  linkType: hard
-
-"ast-types@npm:^0.14.2":
+"ast-types@npm:0.x.x, ast-types@npm:^0.14.2":
   version: 0.14.2
   resolution: "ast-types@npm:0.14.2"
   dependencies:
     tslib: ^2.0.1
   checksum: 42bb8a72ce90e3cf726220f93f772ff136aa857d99c1cb6b1fb2bdfa9369b15de54cd9d1ed17ba903a5ef82081676704b93f03eccd1335d7c71da3c5dac88109
+  languageName: node
+  linkType: hard
+
+"ast-types@npm:^0.13.2":
+  version: 0.13.3
+  resolution: "ast-types@npm:0.13.3"
+  checksum: 684ff566539c6a3812480e6ad8e7484472bfed78e0abcd3f18c0618b2f49360e930b9adc8a22d5d372084a3a1074d7ae45c1e1fa3394ee878c5df4e8befb58d8
   languageName: node
   linkType: hard
 
@@ -9900,18 +9893,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-react-docgen@npm:^4.0.0":
-  version: 4.1.0
-  resolution: "babel-plugin-react-docgen@npm:4.1.0"
-  dependencies:
-    lodash: ^4.17.15
-    react-docgen: ^5.0.0
-    recast: ^0.14.7
-  checksum: 57ad24636582d9c23c53cd2aeef8277e540f98e3d7bed9bbcc692c7405edb96007ded0a59cb93e2da8a9d9aa89991c3e60d7ea80640d2a8470a378e352ba8280
-  languageName: node
-  linkType: hard
-
-"babel-plugin-react-docgen@npm:^4.1.0":
+"babel-plugin-react-docgen@npm:^4.0.0, babel-plugin-react-docgen@npm:^4.1.0":
   version: 4.2.1
   resolution: "babel-plugin-react-docgen@npm:4.2.1"
   dependencies:
@@ -26163,14 +26145,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"moment@npm:>= 2.9.0, moment@npm:^2.10.6, moment@npm:^2.24.0":
-  version: 2.25.3
-  resolution: "moment@npm:2.25.3"
-  checksum: 416971ff3c663c850d56095cbfb01a2c153ecc7f3511772c1ff7e09a7be0105e135e8227aba0b82dd058efa8747271906cebe3f75cf4a1c4b17ed1b568003103
-  languageName: node
-  linkType: hard
-
-"moment@npm:^2.29.1":
+"moment@npm:>= 2.9.0, moment@npm:^2.10.6, moment@npm:^2.24.0, moment@npm:^2.29.1":
   version: 2.29.1
   resolution: "moment@npm:2.29.1"
   checksum: 86729013febf7160de5b93da69273dd304d674b0224f9544b3abd09a87671ddd2cdd57598261ce57588910d63747ffd5590965e83c790d8bf327083c0e0a06e0
@@ -30097,7 +30072,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"private@npm:^0.1.6, private@npm:^0.1.8, private@npm:~0.1.5":
+"private@npm:^0.1.6, private@npm:^0.1.8":
   version: 0.1.8
   resolution: "private@npm:0.1.8"
   checksum: 4507890e0e59e27909b714e52d6e8de7e06c83c731721e8c974117bfa96c720173c2aeff048022a0ba5faefa8a354f15120fb4088729b1241fc22e78f3a25912
@@ -31538,18 +31513,6 @@ fsevents@^1.2.7:
   dependencies:
     util.promisify: ^1.0.0
   checksum: 67ce6bdaf8f8dd2a85e771b7b79b74b8a47299315a0a3553947df1ab4117de80d1910a2ba856a480d9e4284172cf8d7df209117f5522475e30bb7ecdee63b75b
-  languageName: node
-  linkType: hard
-
-"recast@npm:^0.14.7":
-  version: 0.14.7
-  resolution: "recast@npm:0.14.7"
-  dependencies:
-    ast-types: 0.11.3
-    esprima: ~4.0.0
-    private: ~0.1.5
-    source-map: ~0.6.1
-  checksum: dc35c8333f19728651f66032bc3740326be751b91ea8db6aa8e612abd9dcf6677eccf4cd1c3be2a262e152c35b84e1cd137f48722dc5165f50a3e1fbc446e6fb
   languageName: node
   linkType: hard
 
@@ -34244,14 +34207,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"stack-utils@npm:^1.0.1":
-  version: 1.0.2
-  resolution: "stack-utils@npm:1.0.2"
-  checksum: 593a8bc5ca6d4bc0f97a5eb9b4d5739614a1037ccbeb05989de7e24c9352e2744c779611fa30a441ab40a97a1cc770d6cd4acdbc621fd80ea8d309c3d8068c49
-  languageName: node
-  linkType: hard
-
-"stack-utils@npm:^1.0.3":
+"stack-utils@npm:^1.0.1, stack-utils@npm:^1.0.3":
   version: 1.0.4
   resolution: "stack-utils@npm:1.0.4"
   dependencies:

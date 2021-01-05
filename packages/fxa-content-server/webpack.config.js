@@ -91,11 +91,21 @@ const webpackConfig = {
         use: [
           {
             loader: 'expose-loader',
-            options: 'jQuery',
+            options: {
+              exposes: {
+                globalName: 'jQuery',
+                override: true,
+              },
+            },
           },
           {
             loader: 'expose-loader',
-            options: '$',
+            options: {
+              exposes: {
+                globalName: '$',
+                override: true,
+              },
+            },
           },
         ],
       },
@@ -104,7 +114,9 @@ const webpackConfig = {
         use: [
           {
             loader: 'expose-loader',
-            options: 'mocha',
+            options: {
+              exposes: 'mocha',
+            },
           },
         ],
       },
