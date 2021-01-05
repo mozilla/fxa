@@ -1,3 +1,20 @@
+## 1.197.0
+
+### New features
+
+- metrics: add nav timing metrics for new settings ([b1f2650a4](https://github.com/mozilla/fxa/commit/b1f2650a4))
+
+### Bug fixes
+
+- settings: account for header height on anchor jump ([db6e88f3b](https://github.com/mozilla/fxa/commit/db6e88f3b))
+- test: Fix settings v2 external link test ([cc770e30c](https://github.com/mozilla/fxa/commit/cc770e30c))
+
+### Other changes
+
+- deps: updated webpack config for new expose-loader ([c0dbb6398](https://github.com/mozilla/fxa/commit/c0dbb6398))
+- deps: bump expose-loader from 0.7.5 to 1.0.3 ([3787e4f0e](https://github.com/mozilla/fxa/commit/3787e4f0e))
+- fxa-content-server: apply the MX record validation feature flag to the validate-email-domain endpoint ([8552a02a1](https://github.com/mozilla/fxa/commit/8552a02a1))
+
 ## 1.196.0
 
 ### Bug fixes

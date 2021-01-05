@@ -1,3 +1,9 @@
+## 1.197.0
+
+### Other changes
+
+- deps-dev: bump tap from 14.10.8 to 14.11.0 ([bdf63c835](https://github.com/mozilla/fxa/commit/bdf63c835))
+
 ## 1.196.0
 
 ### Other changes

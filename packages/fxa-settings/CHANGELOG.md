@@ -1,3 +1,18 @@
+## 1.197.0
+
+### New features
+
+- metrics: add nav timing metrics for new settings ([b1f2650a4](https://github.com/mozilla/fxa/commit/b1f2650a4))
+
+### Bug fixes
+
+- settings: account for header height on anchor jump ([db6e88f3b](https://github.com/mozilla/fxa/commit/db6e88f3b))
+
+### Other changes
+
+- deps-dev: bump @storybook/preset-create-react-app ([3560cca17](https://github.com/mozilla/fxa/commit/3560cca17))
+- deps-dev: bump @rescripts/cli from 0.0.14 to 0.0.15 ([49312d918](https://github.com/mozilla/fxa/commit/49312d918))
+
 ## 1.196.0
 
 ### Bug fixes
@@ -11,7 +26,7 @@
 
 - Settings_v2: add tests to enable and disable 2fa ([8df19593f](https://github.com/mozilla/fxa/commit/8df19593f))
 - dep: update tailwindcss to version 2 ([ec97cb07c](https://github.com/mozilla/fxa/commit/ec97cb07c))
-- deps-dev: bump @types/babel__core from 7.1.7 to 7.1.12 ([a834dab3a](https://github.com/mozilla/fxa/commit/a834dab3a))
+- deps-dev: bump @types/babel\_\_core from 7.1.7 to 7.1.12 ([a834dab3a](https://github.com/mozilla/fxa/commit/a834dab3a))
 
 ## 1.195.4
 
