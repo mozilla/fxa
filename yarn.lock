@@ -6502,6 +6502,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-helmet@npm:^6":
+  version: 6.1.0
+  resolution: "@types/react-helmet@npm:6.1.0"
+  dependencies:
+    "@types/react": "*"
+  checksum: b7aaa3aa2d81cd3b14a0e77a858de86934a3400f4ec35945117edb3979b8a41130e70b8a27241de295195e365962a9b5bc149a2a029d23795fd0f6c740d1de77
+  languageName: node
+  linkType: hard
+
 "@types/react-redux@npm:^7.1.5":
   version: 7.1.8
   resolution: "@types/react-redux@npm:7.1.8"
@@ -18522,6 +18531,7 @@ fsevents@^1.2.7:
     "@types/prettier": 2.1.5
     "@types/react": ^16.9.53
     "@types/react-dom": ^16.9.6
+    "@types/react-helmet": ^6
     "@types/react-transition-group": ^4.2.4
     "@types/rimraf": 3.0.0
     babel-eslint: ^10.1.0
@@ -18540,6 +18550,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     react: ^16.13.1
     react-dom: ^16.13.1
+    react-helmet: ^6.1.0
     react-transition-group: ^4.3.0
     rimraf: ^3.0.2
     sass: 1.26.10
@@ -30931,6 +30942,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"react-fast-compare@npm:^3.1.1":
+  version: 3.2.0
+  resolution: "react-fast-compare@npm:3.2.0"
+  checksum: 6fe65c889eb4f326e97769135f97b3d63ac68737866f9c37f9625c9de4f5eaa9abed6f748eb3fd6a66808392118842916309cab7cfa99c67991f0c837433d6d2
+  languageName: node
+  linkType: hard
+
 "react-focus-lock@npm:^2.1.0":
   version: 2.3.1
   resolution: "react-focus-lock@npm:2.3.1"
@@ -30960,6 +30978,20 @@ fsevents@^1.2.7:
     react: ^16.6.0
     react-dom: ^16.6.0
   checksum: 7b30fad33a212df5e61734b21c8a816e00d5516172c0e74e481f93c2724f673d08f8c1381a015085fbadaa8f9981aae1d9f8aab11c923bd650e70af90fee595a
+  languageName: node
+  linkType: hard
+
+"react-helmet@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "react-helmet@npm:6.1.0"
+  dependencies:
+    object-assign: ^4.1.1
+    prop-types: ^15.7.2
+    react-fast-compare: ^3.1.1
+    react-side-effect: ^2.1.0
+  peerDependencies:
+    react: ">=16.3.0"
+  checksum: 56fd795b0aecc89bac8d2733268751f0ef463bf6764090f8a801778741d4a6eaf135234cdaa50188bbda29c8e2d3ec43e9a42d1ec06b60092645c8754c7bad81
   languageName: node
   linkType: hard
 
@@ -31210,6 +31242,15 @@ fsevents@^1.2.7:
   peerDependencies:
     react: ^0.13.0 || ^0.14.0 || ^15.0.0 || ^16.0.0
   checksum: 5916b3eeaf599087529fbd3a0f879da4179d1ce39fbc368e669815d831531217c6ef638b54ff2ec569d15398f8eb1ec637b31c8ed1fca21960816b0ae529a034
+  languageName: node
+  linkType: hard
+
+"react-side-effect@npm:^2.1.0":
+  version: 2.1.1
+  resolution: "react-side-effect@npm:2.1.1"
+  peerDependencies:
+    react: ^16.3.0 || ^17.0.0
+  checksum: 5896f7c126b9e7147e3ea6cc967dab8e3a2f6c395bd5327d16483adb91177866eec47770500a92fece866ea551f395484f6e6e078796002293bc1b53b7e65b26
   languageName: node
   linkType: hard
 

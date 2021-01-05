@@ -5,6 +5,7 @@
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { ReactComponent as BackArrow } from './back-arrow.svg';
+import Head from 'fxa-react/components/Head';
 
 type FlowContainerProps = {
   title?: string;
@@ -26,6 +27,8 @@ export const FlowContainer = ({
       className="max-w-lg mx-auto mt-6 p-6 pb-7 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl"
       data-testid="flow-container"
     >
+      <Head title={title} />
+
       <div className="flex items-center">
         <button
           onClick={onBackButtonClick}
