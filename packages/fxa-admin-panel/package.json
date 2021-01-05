@@ -64,7 +64,7 @@
     "@storybook/addon-links": "^6.0.28",
     "@storybook/addons": "^5.3.19",
     "@storybook/preset-create-react-app": "^3.1.5",
-    "@storybook/react": "^5.3.19",
+    "@storybook/react": "^6.1.11",
     "@tailwindcss/postcss7-compat": "^2.0.1",
     "@testing-library/dom": "^7.24.5",
     "@testing-library/jest-dom": "^5.11.0",
