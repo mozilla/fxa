@@ -9286,19 +9286,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:2.0.23":
-  version: 2.0.23
-  resolution: "aws-sdk@npm:2.0.23"
-  dependencies:
-    xml2js: 0.2.6
-    xmlbuilder: 0.4.2
-  checksum: 4fc7afb0e2abb98b2773ac7d0c6a8fba91fc68e32d8a7a908facdba311c9823cd0d5bf5238bb18705ce2cf94846bab5b326de906ba562dca7bbdc3aac7fdcd03
-  languageName: node
-  linkType: hard
-
-"aws-sdk@npm:^2.443.0, aws-sdk@npm:^2.698.0, aws-sdk@npm:^2.733.0, aws-sdk@npm:^2.752.0":
-  version: 2.752.0
-  resolution: "aws-sdk@npm:2.752.0"
+"aws-sdk@npm:^2.443.0, aws-sdk@npm:^2.822.0":
+  version: 2.822.0
+  resolution: "aws-sdk@npm:2.822.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -9309,7 +9299,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: 9f3305c0a68deb012a503d601e57ff7dfab2b01f8222a68233a4bcd51f405b2a8302334d5074aa713e4d1fa710ca273c795876a0384179f16a0e4808c89ac8a6
+  checksum: cd32f5564f7d5b05be2c5160bc6189e0d69a6b37bbd7fa1c7f4d546bc0eeeb7c8a047d48d41bcc2c2d89f88b2e5f0da759c440cd572a557dc0487636d1aa4863
   languageName: node
   linkType: hard
 
@@ -17767,7 +17757,7 @@ fsevents@^1.2.7:
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.698.0
+    aws-sdk: ^2.822.0
     base64url: 3.0.1
     binary-split: 1.0.5
     bluebird: ^3.7.2
@@ -17787,7 +17777,6 @@ fsevents@^1.2.7:
     fxa-auth-db-mysql: "workspace:*"
     fxa-geodb: "workspace:*"
     fxa-jwtool: 0.7.2
-    fxa-notifier-aws: 1.0.0
     fxa-shared: "workspace:*"
     google-libphonenumber: ^3.2.13
     grunt: ^1.3.0
@@ -18088,7 +18077,7 @@ fsevents@^1.2.7:
   resolution: "fxa-email-event-proxy@workspace:packages/fxa-email-event-proxy"
   dependencies:
     audit-filter: ^0.5.0
-    aws-sdk: ^2.698.0
+    aws-sdk: ^2.822.0
     bluebird: ^3.7.2
     chai: ^4.2.0
     chai-as-promised: ^7.1.1
@@ -18139,7 +18128,7 @@ fsevents@^1.2.7:
     "@typescript-eslint/eslint-plugin": 4.10.0
     "@typescript-eslint/parser": 3.0.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.733.0
+    aws-sdk: ^2.822.0
     axios: ^0.21.0
     chance: ^1.1.6
     class-transformer: ^0.3.1
@@ -18329,15 +18318,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"fxa-notifier-aws@npm:1.0.0":
-  version: 1.0.0
-  resolution: "fxa-notifier-aws@npm:1.0.0"
-  dependencies:
-    aws-sdk: 2.0.23
-  checksum: f53d1876fd1efc463dbe962c111e812091453c58bfdd1696a7171276d51842a1b46caaf3c99c7677ef645b4c80906aa296332b8fc2c2a692dc237d06b90a016b
-  languageName: node
-  linkType: hard
-
 "fxa-pairing-channel@npm:1.0.1":
   version: 1.0.1
   resolution: "fxa-pairing-channel@npm:1.0.1"
@@ -18474,7 +18454,7 @@ fsevents@^1.2.7:
     "@sentry/node": ^5.29.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.698.0
+    aws-sdk: ^2.822.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 0.1.1
@@ -18485,7 +18465,6 @@ fsevents@^1.2.7:
     convict-format-with-validator: ^6.0.0
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
-    fxa-notifier-aws: 1.0.0
     fxa-shared: "workspace:*"
     insist: 1.0.1
     lodash: ^4.17.19
@@ -18655,7 +18634,7 @@ fsevents@^1.2.7:
     ajv: ^6.12.2
     apollo-server: ^2.19.0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.752.0
+    aws-sdk: ^2.822.0
     bluebird: ^3.7.2
     celebrate: ^10.0.1
     chai: ^4.2.0
@@ -32856,13 +32835,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sax@npm:0.4.2":
-  version: 0.4.2
-  resolution: "sax@npm:0.4.2"
-  checksum: 1146aece397449bc5a05a1c62e6fb8dc89b50349688acc8596cdda9b27cc94833fd1d66adf94ebf19ca7efdd9bed36cbaabd028f4566460cbba1ec3d47f95e40
-  languageName: node
-  linkType: hard
-
 "sax@npm:1.2.1":
   version: 1.2.1
   resolution: "sax@npm:1.2.1"
@@ -38380,15 +38352,6 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"xml2js@npm:0.2.6":
-  version: 0.2.6
-  resolution: "xml2js@npm:0.2.6"
-  dependencies:
-    sax: 0.4.2
-  checksum: e0501b8983feafe86f54c27379370f1a6f6d44155e7714c98989a329e8a227ddf9a8962efe4efed55f47d525f25f58bbe328b361d561cb6c92153e0d7e632fdd
-  languageName: node
-  linkType: hard
-
 "xml2js@npm:0.4.19":
   version: 0.4.19
   resolution: "xml2js@npm:0.4.19"
@@ -38413,13 +38376,6 @@ typescript@~4.1.2:
   version: 1.0.1
   resolution: "xml@npm:1.0.1"
   checksum: adde7652a6f6010d28079586e7f608d616138bcb6c44bbc9174292b5cc2fab09b351d6c5f009e9304df2e0030888198225dd2e9ccbf51b776c8928479bfea4cb
-  languageName: node
-  linkType: hard
-
-"xmlbuilder@npm:0.4.2":
-  version: 0.4.2
-  resolution: "xmlbuilder@npm:0.4.2"
-  checksum: acc016245b569b94fd9f69a98a0b13297f42b77aa4686407ce3a71267e05b981fd69667e01040b09dfde359dfb6d4ce8bdf1370b728acbc44a6f3f613940138b
   languageName: node
   linkType: hard
 

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Sink = require('fxa-notifier-aws').Sink;
+const Sink = require('./sink');
 const P = require('./promise');
 
 const config = require('./config').getProperties();
