@@ -3627,7 +3627,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/mapped-types@npm:^0.1.0, @nestjs/mapped-types@npm:^0.1.1":
+"@nestjs/mapped-types@npm:0.1.1, @nestjs/mapped-types@npm:^0.1.1":
   version: 0.1.1
   resolution: "@nestjs/mapped-types@npm:0.1.1"
   peerDependencies:
@@ -9286,6 +9286,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"aws-sdk@npm:2.0.23":
+  version: 2.0.23
+  resolution: "aws-sdk@npm:2.0.23"
+  dependencies:
+    xml2js: 0.2.6
+    xmlbuilder: 0.4.2
+  checksum: 4fc7afb0e2abb98b2773ac7d0c6a8fba91fc68e32d8a7a908facdba311c9823cd0d5bf5238bb18705ce2cf94846bab5b326de906ba562dca7bbdc3aac7fdcd03
+  languageName: node
+  linkType: hard
+
 "aws-sdk@npm:^2.443.0, aws-sdk@npm:^2.698.0, aws-sdk@npm:^2.733.0, aws-sdk@npm:^2.752.0":
   version: 2.752.0
   resolution: "aws-sdk@npm:2.752.0"
@@ -12111,7 +12121,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:3.4.3, chokidar@npm:>=2.0.0 <4.0.0, chokidar@npm:^3.3.0, chokidar@npm:^3.4.0, chokidar@npm:^3.4.2":
+"chokidar@npm:3.4.3, chokidar@npm:>=2.0.0 <4.0.0, chokidar@npm:^3.3.0, chokidar@npm:^3.4.1, chokidar@npm:^3.4.2":
   version: 3.4.3
   resolution: "chokidar@npm:3.4.3"
   dependencies:
@@ -17454,7 +17464,7 @@ fsevents@^1.2.7:
 
 "fsevents@patch:fsevents@2.1.2#builtin<compat/fsevents>, fsevents@patch:fsevents@^2.1.2#builtin<compat/fsevents>, fsevents@patch:fsevents@~2.1.1#builtin<compat/fsevents>, fsevents@patch:fsevents@~2.1.2#builtin<compat/fsevents>":
   version: 2.1.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.1.2#builtin<compat/fsevents>::version=2.1.2&hash=127e8e"
+  resolution: "fsevents@patch:fsevents@npm%3A2.1.2#builtin<compat/fsevents>::version=2.1.2&hash=11e9ea"
   dependencies:
     node-gyp: latest
   checksum: f4e06c69cb1f888dcefd81822f7789fadb2885efd0f5967cb1ec499d5bdd086fa6b7ab5d76ad2160bed8e68daf81fa96be8b8bf61957d7a531b4c12dbeab3a6a
@@ -17463,7 +17473,7 @@ fsevents@^1.2.7:
 
 "fsevents@patch:fsevents@^1.2.7#builtin<compat/fsevents>":
   version: 1.2.13
-  resolution: "fsevents@patch:fsevents@npm%3A1.2.13#builtin<compat/fsevents>::version=1.2.13&hash=127e8e"
+  resolution: "fsevents@patch:fsevents@npm%3A1.2.13#builtin<compat/fsevents>::version=1.2.13&hash=11e9ea"
   dependencies:
     bindings: ^1.5.0
     nan: ^2.12.1
@@ -32846,6 +32856,13 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
+"sax@npm:0.4.2":
+  version: 0.4.2
+  resolution: "sax@npm:0.4.2"
+  checksum: 1146aece397449bc5a05a1c62e6fb8dc89b50349688acc8596cdda9b27cc94833fd1d66adf94ebf19ca7efdd9bed36cbaabd028f4566460cbba1ec3d47f95e40
+  languageName: node
+  linkType: hard
+
 "sax@npm:1.2.1":
   version: 1.2.1
   resolution: "sax@npm:1.2.1"
@@ -36363,7 +36380,7 @@ typescript@4.0.5:
 
 "typescript@patch:typescript@3.9.7#builtin<compat/typescript>":
   version: 3.9.7
-  resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=5bf698"
+  resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=cc6730"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -36373,21 +36390,21 @@ typescript@4.0.5:
 
 "typescript@patch:typescript@4.0.5#builtin<compat/typescript>":
   version: 4.0.5
-  resolution: "typescript@patch:typescript@npm%3A4.0.5#builtin<compat/typescript>::version=4.0.5&hash=5bf698"
+  resolution: "typescript@patch:typescript@npm%3A4.0.5#builtin<compat/typescript>::version=4.0.5&hash=cc6730"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: d4be0bd2a2050b2d7b132cb2a40329178f181543e9d2ac6d1f06babd9f047208558a736a7effdeb28759ae2e815f070b61d10ee2f02cc93a6221a1490f21ffce
+  checksum: ada6fea7657a51d1b842682d31233e53a3cf509b0edbd6288fda3cfd01643d0190b7ea77837527c4d282c90e61690e19dbfd91be6913e7e7292aa0b588d3506c
   languageName: node
   linkType: hard
 
 "typescript@patch:typescript@~4.1.2#builtin<compat/typescript>":
   version: 4.1.2
-  resolution: "typescript@patch:typescript@npm%3A4.1.2#builtin<compat/typescript>::version=4.1.2&hash=5bf698"
+  resolution: "typescript@patch:typescript@npm%3A4.1.2#builtin<compat/typescript>::version=4.1.2&hash=cc6730"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: acfc7be6a091806432f324ad258c4a7d2a63996106a4c001db1eebb2661608a9fd0d109d0d29249c3e6890e3547a97b8580cbe0833aa64b2fb83f66e4d88a466
+  checksum: 001ab09bb8f597aab1ec43476aedb91b5d547749219273c232bf34cf5a2209d18fa782e64475755115f0907598bb9b503f5e1c0fed06c3651cac584fc88a8172
   languageName: node
   linkType: hard
 
@@ -37030,7 +37047,7 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"uuid@npm:8.3.1, uuid@npm:^8.0.0, uuid@npm:^8.3.0":
+"uuid@npm:8.3.1":
   version: 8.3.1
   resolution: "uuid@npm:8.3.1"
   bin:
@@ -37039,7 +37056,7 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"uuid@npm:8.3.2":
+"uuid@npm:8.3.2, uuid@npm:^8.0.0, uuid@npm:^8.3.0":
   version: 8.3.2
   resolution: "uuid@npm:8.3.2"
   bin:
@@ -37324,29 +37341,39 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"watchpack-chokidar2@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "watchpack-chokidar2@npm:2.0.0"
+"watchpack-chokidar2@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "watchpack-chokidar2@npm:2.0.1"
   dependencies:
     chokidar: ^2.1.8
-  checksum: 1ef78773db2e712d2ad8b2b36f448df9e8f891c003414671aa5fd32fab5649784c20fa82a2cdb6973145a5c31b817e4e181de2812a484d27f25af2fb3146c379
+  checksum: 72cd744a97fab10d9e6e3a3414b09ac6e32d2693f062d73da9525d282f8a74515a6b406282d43569ca709247908554723d5459301465047361230d3a88b18d10
   languageName: node
   linkType: hard
 
-"watchpack@npm:1.7.2":
-  version: 1.7.2
-  resolution: "watchpack@npm:1.7.2"
+"watchpack@npm:^1.6.0, watchpack@npm:^1.6.1, watchpack@npm:^1.7.4":
+  version: 1.7.5
+  resolution: "watchpack@npm:1.7.5"
   dependencies:
-    chokidar: ^3.4.0
+    chokidar: ^3.4.1
     graceful-fs: ^4.1.2
     neo-async: ^2.5.0
-    watchpack-chokidar2: ^2.0.0
+    watchpack-chokidar2: ^2.0.1
   dependenciesMeta:
     chokidar:
       optional: true
     watchpack-chokidar2:
       optional: true
-  checksum: a9d630dd29279b91bb1b1dd319e9142f13906e8cc973c860e0662828cff84e2a3235a66da62759cb4f12dc76a6f672760e62b2c8a6406ff80d5e4977b5717e83
+  checksum: 93bb20dd955adf48daca67e6906ff9518f181e83d2183038e9a2573549a0d4badd23672d3ac542be9d5b766bd27da4baebba5d2d2522a7e05575c7cf7702c60b
+  languageName: node
+  linkType: hard
+
+"watchpack@npm:^2.0.0":
+  version: 2.1.0
+  resolution: "watchpack@npm:2.1.0"
+  dependencies:
+    glob-to-regexp: ^0.4.1
+    graceful-fs: ^4.1.2
+  checksum: a02b3f4023558e8bab20473ca0cfecc0624012272f73f2cac1c0d8fbbd6cfafda2975ff5a3ce3d9b0b1f72770868fe02ff043fceafcc6324acd11fc4cd16b973
   languageName: node
   linkType: hard
 
@@ -38353,6 +38380,15 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
+"xml2js@npm:0.2.6":
+  version: 0.2.6
+  resolution: "xml2js@npm:0.2.6"
+  dependencies:
+    sax: 0.4.2
+  checksum: e0501b8983feafe86f54c27379370f1a6f6d44155e7714c98989a329e8a227ddf9a8962efe4efed55f47d525f25f58bbe328b361d561cb6c92153e0d7e632fdd
+  languageName: node
+  linkType: hard
+
 "xml2js@npm:0.4.19":
   version: 0.4.19
   resolution: "xml2js@npm:0.4.19"
@@ -38377,6 +38413,13 @@ typescript@~4.1.2:
   version: 1.0.1
   resolution: "xml@npm:1.0.1"
   checksum: adde7652a6f6010d28079586e7f608d616138bcb6c44bbc9174292b5cc2fab09b351d6c5f009e9304df2e0030888198225dd2e9ccbf51b776c8928479bfea4cb
+  languageName: node
+  linkType: hard
+
+"xmlbuilder@npm:0.4.2":
+  version: 0.4.2
+  resolution: "xmlbuilder@npm:0.4.2"
+  checksum: acc016245b569b94fd9f69a98a0b13297f42b77aa4686407ce3a71267e05b981fd69667e01040b09dfde359dfb6d4ce8bdf1370b728acbc44a6f3f613940138b
   languageName: node
   linkType: hard
 
