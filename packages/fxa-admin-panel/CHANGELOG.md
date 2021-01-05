@@ -1,3 +1,16 @@
+## 1.197.0
+
+### Other changes
+
+- cbcbbe500 Added a simple window.alert to indicate that the functions of the Danger Zone buttons are not implemented yet. ([cbcbbe500](https://github.com/mozilla/fxa/commit/cbcbbe500))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([eae68b7b7](https://github.com/mozilla/fxa/commit/eae68b7b7))
+- deps-dev: bump @storybook/preset-create-react-app ([3560cca17](https://github.com/mozilla/fxa/commit/3560cca17))
+- deps-dev: bump @rescripts/cli from 0.0.14 to 0.0.15 ([49312d918](https://github.com/mozilla/fxa/commit/49312d918))
+- 121c981ad Removed the AccountSearch/DangerZone folder since there was no code there. ([121c981ad](https://github.com/mozilla/fxa/commit/121c981ad))
+- fa78cc8a4 Made changes to the admin panel danger zone UI under Account Search. ([fa78cc8a4](https://github.com/mozilla/fxa/commit/fa78cc8a4))
+- ce011336e Added some danger zone UI changes. ([ce011336e](https://github.com/mozilla/fxa/commit/ce011336e))
+- 221e6d9fd Adding placeholder lines - exploring the creation of the danger zone UI. ([221e6d9fd](https://github.com/mozilla/fxa/commit/221e6d9fd))
+
 ## 1.196.0
 
 ### Other changes
@@ -6,7 +19,7 @@
 - dep: update tailwindcss to version 2 ([ec97cb07c](https://github.com/mozilla/fxa/commit/ec97cb07c))
 - deps: bump dateformat from 3.0.3 to 4.3.1 ([9c318e80e](https://github.com/mozilla/fxa/commit/9c318e80e))
 - deps-dev: bump supertest from 4.0.2 to 6.0.1 ([1a7f42dd0](https://github.com/mozilla/fxa/commit/1a7f42dd0))
-- deps-dev: bump @types/babel__core from 7.1.7 to 7.1.12 ([a834dab3a](https://github.com/mozilla/fxa/commit/a834dab3a))
+- deps-dev: bump @types/babel\_\_core from 7.1.7 to 7.1.12 ([a834dab3a](https://github.com/mozilla/fxa/commit/a834dab3a))
 
 ## 1.195.4
 

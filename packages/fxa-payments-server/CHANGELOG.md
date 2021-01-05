@@ -1,5 +1,17 @@
 # Change history
 
+## 1.197.0
+
+### New features
+
+- metrics: add nav timing metrics for new settings ([b1f2650a4](https://github.com/mozilla/fxa/commit/b1f2650a4))
+
+### Other changes
+
+- deps-dev: bump @babel/register from 7.9.0 to 7.12.10 ([03075cb28](https://github.com/mozilla/fxa/commit/03075cb28))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([eae68b7b7](https://github.com/mozilla/fxa/commit/eae68b7b7))
+- deps-dev: bump @rescripts/cli from 0.0.14 to 0.0.15 ([49312d918](https://github.com/mozilla/fxa/commit/49312d918))
+
 ## 1.196.0
 
 ### Bug fixes

@@ -1,5 +1,17 @@
 # Change history
 
+## 1.197.0
+
+### Bug fixes
+
+- use proper Sentry arguments ([16fc6592f](https://github.com/mozilla/fxa/commit/16fc6592f))
+
+### Other changes
+
+- deps: bump @nestjs/common from 7.5.5 to 7.6.4 ([afc29280a](https://github.com/mozilla/fxa/commit/afc29280a))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([eae68b7b7](https://github.com/mozilla/fxa/commit/eae68b7b7))
+- deps: bump @google-cloud/firestore from 4.7.1 to 4.8.1 ([51efd64c1](https://github.com/mozilla/fxa/commit/51efd64c1))
+
 ## 1.196.0
 
 ### Other changes
@@ -8,7 +20,7 @@
 - deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
 - deps-dev: bump @types/chance from 1.1.0 to 1.1.1 ([3938b8484](https://github.com/mozilla/fxa/commit/3938b8484))
 - deps-dev: bump ts-loader from 8.0.9 to 8.0.12 ([5f342dbca](https://github.com/mozilla/fxa/commit/5f342dbca))
-- deps: updated @nestjs/* deps ([4496c9649](https://github.com/mozilla/fxa/commit/4496c9649))
+- deps: updated @nestjs/\* deps ([4496c9649](https://github.com/mozilla/fxa/commit/4496c9649))
 - deps: bump @nestjs/graphql from 7.7.0 to 7.9.1 ([48c46cbb6](https://github.com/mozilla/fxa/commit/48c46cbb6))
 - deps-dev: bump supertest from 4.0.2 to 6.0.1 ([1a7f42dd0](https://github.com/mozilla/fxa/commit/1a7f42dd0))
 

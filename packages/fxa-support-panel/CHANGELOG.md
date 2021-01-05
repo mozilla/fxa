@@ -1,5 +1,19 @@
 # Change history
 
+## 1.197.0
+
+### Bug fixes
+
+- use proper Sentry arguments ([16fc6592f](https://github.com/mozilla/fxa/commit/16fc6592f))
+
+### Refactorings
+
+- support-panel: address PR feedback ([4db578626](https://github.com/mozilla/fxa/commit/4db578626))
+
+### Other changes
+
+- deps: bump @nestjs/common from 7.5.5 to 7.6.4 ([afc29280a](https://github.com/mozilla/fxa/commit/afc29280a))
+
 ## 1.196.0
 
 ### New features

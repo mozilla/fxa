@@ -1,3 +1,17 @@
+## 1.197.0
+
+### Refactorings
+
+- oauth: add /config route back ([5a80fd60b](https://github.com/mozilla/fxa/commit/5a80fd60b))
+- auth: use native promises in all production / non-test code ([ea2ab78c1](https://github.com/mozilla/fxa/commit/ea2ab78c1))
+- auth: use native promises more ([ee5b147cd](https://github.com/mozilla/fxa/commit/ee5b147cd))
+
+### Other changes
+
+- deps: bump cldr-localenames-full from 36.0.0 to 38.0.0 ([668adb77b](https://github.com/mozilla/fxa/commit/668adb77b))
+- deps: bump moment from 2.25.3 to 2.29.1 ([76acfdd63](https://github.com/mozilla/fxa/commit/76acfdd63))
+- deps: bump @google-cloud/firestore from 4.7.1 to 4.8.1 ([51efd64c1](https://github.com/mozilla/fxa/commit/51efd64c1))
+
 ## 1.196.0
 
 ### Bug fixes

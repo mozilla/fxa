@@ -1,5 +1,20 @@
 # Change history
 
+## 1.197.0
+
+### New features
+
+- metrics: add nav timing metrics for new settings ([b1f2650a4](https://github.com/mozilla/fxa/commit/b1f2650a4))
+
+### Refactorings
+
+- auth: use native promises in all production / non-test code ([ea2ab78c1](https://github.com/mozilla/fxa/commit/ea2ab78c1))
+
+### Other changes
+
+- deps: bump @nestjs/common from 7.5.5 to 7.6.4 ([afc29280a](https://github.com/mozilla/fxa/commit/afc29280a))
+- deps: bump moment from 2.25.3 to 2.29.1 ([76acfdd63](https://github.com/mozilla/fxa/commit/76acfdd63))
+
 ## 1.196.0
 
 ### New features
@@ -18,7 +33,7 @@
 - deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
 - deps: bump redis from 2.8.0 to 3.0.2 ([3edfabfab](https://github.com/mozilla/fxa/commit/3edfabfab))
 - deps-dev: bump ts-loader from 8.0.9 to 8.0.12 ([5f342dbca](https://github.com/mozilla/fxa/commit/5f342dbca))
-- deps: updated @nestjs/* deps ([4496c9649](https://github.com/mozilla/fxa/commit/4496c9649))
+- deps: updated @nestjs/\* deps ([4496c9649](https://github.com/mozilla/fxa/commit/4496c9649))
 - deps: bump @nestjs/graphql from 7.7.0 to 7.9.1 ([48c46cbb6](https://github.com/mozilla/fxa/commit/48c46cbb6))
 
 ## 1.195.4
