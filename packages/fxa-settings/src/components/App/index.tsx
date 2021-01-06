@@ -11,6 +11,7 @@ import * as Metrics from '../../lib/metrics';
 import { Account } from '../../models';
 import { ACCOUNT_FIELDS } from '../../models/Account';
 import { Router } from '@reach/router';
+import Head from 'fxa-react/components/Head';
 import FlowContainer from '../FlowContainer';
 import PageSettings from '../PageSettings';
 import PageChangePassword from '../PageChangePassword';
@@ -60,6 +61,7 @@ export const App = ({ flowQueryParams, config }: AppProps) => {
 
   return (
     <AppLayout>
+      <Head />
       <Router basepath={HomePath}>
         <ScrollToTop default>
           <PageSettings path="/" />
