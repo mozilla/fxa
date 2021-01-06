@@ -78,7 +78,7 @@ export const Nav = () => {
             data-testid="nav-link-newsletters"
             href={`https://basket.mozilla.org/fxa/?email=${primaryEmail}`}
           >
-            Newsletters
+            Email Communications
             <OpenExternal
               className="inline-block w-3 h-3 ltr:ml-1 rtl:mr-1 transform rtl:-scale-x-1"
               aria-hidden="true"
