@@ -38,7 +38,7 @@ describe('Nav', () => {
     );
 
     expect(screen.getByTestId('nav-link-newsletters')).toHaveTextContent(
-      'Newsletters'
+      'Email Communications'
     );
     expect(screen.getByTestId('nav-link-newsletters')).toHaveAttribute(
       'href',
