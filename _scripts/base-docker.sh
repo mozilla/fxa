@@ -9,6 +9,12 @@ for d in ./packages/*/ ; do
   (cd "$d" && mkdir -p config && cp ../version.json . && cp ../version.json config)
 done
 
+if [ -f _dev/local-build-env.sh ]; then
+    set -a
+    . _dev/local-build-env.sh
+    set +a
+fi
+
 check_build_logs() {
     for log_file in /tmp/xfs-*/build.log; do
         [ -f "$log_file" ] || continue
