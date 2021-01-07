@@ -1,3 +1,14 @@
+## 1.197.1
+
+### Bug fixes
+
+- fxa-content-server: pass params to amplitude ([d13bd8661](https://github.com/mozilla/fxa/commit/d13bd8661))
+
+### Other changes
+
+- fxa-content-server: show settings survey for all ([b624bd4bd](https://github.com/mozilla/fxa/commit/b624bd4bd))
+- fxa-content-server: add log to track down entrypoint sentry error ([07afebb93](https://github.com/mozilla/fxa/commit/07afebb93))
+
 ## 1.197.0
 
 ### New features

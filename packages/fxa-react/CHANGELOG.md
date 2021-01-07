@@ -1,3 +1,9 @@
+## 1.197.1
+
+### New features
+
+- head: Add react-helmet to change page title ([4af241087](https://github.com/mozilla/fxa/commit/4af241087))
+
 ## 1.197.0
 
 No changes.

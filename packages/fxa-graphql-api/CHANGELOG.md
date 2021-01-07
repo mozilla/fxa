@@ -1,3 +1,13 @@
+## 1.197.1
+
+### New features
+
+- security: Add several security headers to graph-ql server ([041cfa148](https://github.com/mozilla/fxa/commit/041cfa148))
+
+### Bug fixes
+
+- gql-api: restore CatchGatewayError decorator ([1639c5400](https://github.com/mozilla/fxa/commit/1639c5400))
+
 ## 1.197.0
 
 ### Bug fixes
