@@ -3627,7 +3627,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/mapped-types@npm:^0.1.0, @nestjs/mapped-types@npm:^0.1.1":
+"@nestjs/mapped-types@npm:0.1.1, @nestjs/mapped-types@npm:^0.1.1":
   version: 0.1.1
   resolution: "@nestjs/mapped-types@npm:0.1.1"
   peerDependencies:
@@ -6600,16 +6600,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:16.9.35":
-  version: 16.9.35
-  resolution: "@types/react@npm:16.9.35"
-  dependencies:
-    "@types/prop-types": "*"
-    csstype: ^2.2.0
-  checksum: 17c41e59d76634d3c9e21d30bda9afe311e99d2dd37274c8763a9ae3e20d775ee0220d456f11cc0de2ec337306ae7d9f329177b40c2ef299b35881620e7703c2
-  languageName: node
-  linkType: hard
-
 "@types/redis@npm:^2.8.27":
   version: 2.8.27
   resolution: "@types/redis@npm:2.8.27"
@@ -8207,36 +8197,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-cache@npm:1.3.5":
-  version: 1.3.5
-  resolution: "apollo-cache@npm:1.3.5"
-  dependencies:
-    apollo-utilities: ^1.3.4
-    tslib: ^1.10.0
-  peerDependencies:
-    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: 5d9fb080c3f562ad15525ce6b5f81e3680bfb1a95082cd6489a9cf8a748aaa00a68762507a60c513c6178b73ea363164e224533fe8ec0eecdac9ce2ad952c62e
-  languageName: node
-  linkType: hard
-
-"apollo-client@npm:2.6.10":
-  version: 2.6.10
-  resolution: "apollo-client@npm:2.6.10"
-  dependencies:
-    "@types/zen-observable": ^0.8.0
-    apollo-cache: 1.3.5
-    apollo-link: ^1.0.0
-    apollo-utilities: 1.3.4
-    symbol-observable: ^1.0.2
-    ts-invariant: ^0.4.0
-    tslib: ^1.10.0
-    zen-observable: ^0.8.0
-  peerDependencies:
-    graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: 83e78f7f5d6e33ad8d16e3afeedb4a94b40fdbe4882db7353921bc71d7ce43a3848aa009c65efb1e9defce957fb7fad82a552445db2329567fe1317a6f192cc3
-  languageName: node
-  linkType: hard
-
 "apollo-datasource@npm:^0.7.2":
   version: 0.7.2
   resolution: "apollo-datasource@npm:0.7.2"
@@ -8323,7 +8283,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-link@npm:^1.0.0, apollo-link@npm:^1.2.14":
+"apollo-link@npm:^1.2.14":
   version: 1.2.14
   resolution: "apollo-link@npm:1.2.14"
   dependencies:
@@ -8581,7 +8541,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-utilities@npm:1.3.4, apollo-utilities@npm:^1.0.1, apollo-utilities@npm:^1.3.0, apollo-utilities@npm:^1.3.4":
+"apollo-utilities@npm:^1.0.1, apollo-utilities@npm:^1.3.0":
   version: 1.3.4
   resolution: "apollo-utilities@npm:1.3.4"
   dependencies:
@@ -9295,9 +9255,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.443.0, aws-sdk@npm:^2.698.0, aws-sdk@npm:^2.733.0, aws-sdk@npm:^2.752.0":
-  version: 2.752.0
-  resolution: "aws-sdk@npm:2.752.0"
+"aws-sdk@npm:^2.443.0, aws-sdk@npm:^2.822.0":
+  version: 2.822.0
+  resolution: "aws-sdk@npm:2.822.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -9308,7 +9268,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: 9f3305c0a68deb012a503d601e57ff7dfab2b01f8222a68233a4bcd51f405b2a8302334d5074aa713e4d1fa710ca273c795876a0384179f16a0e4808c89ac8a6
+  checksum: cd32f5564f7d5b05be2c5160bc6189e0d69a6b37bbd7fa1c7f4d546bc0eeeb7c8a047d48d41bcc2c2d89f88b2e5f0da759c440cd572a557dc0487636d1aa4863
   languageName: node
   linkType: hard
 
@@ -12120,7 +12080,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:3.4.3, chokidar@npm:>=2.0.0 <4.0.0, chokidar@npm:^3.3.0, chokidar@npm:^3.4.0, chokidar@npm:^3.4.2":
+"chokidar@npm:3.4.3, chokidar@npm:>=2.0.0 <4.0.0, chokidar@npm:^3.3.0, chokidar@npm:^3.4.1, chokidar@npm:^3.4.2":
   version: 3.4.3
   resolution: "chokidar@npm:3.4.3"
   dependencies:
@@ -13801,7 +13761,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^2.2.0, csstype@npm:^2.5.7, csstype@npm:^2.6.7":
+"csstype@npm:^2.5.7, csstype@npm:^2.6.7":
   version: 2.6.10
   resolution: "csstype@npm:2.6.10"
   checksum: b48260010e9bdc28ab80554375c14e2aec3f7fd46806a9206c0a15f99a0b559049bc4d75f91676183b76baf03708d10c1308b94be89870958797eced54cfe661
@@ -17463,7 +17423,7 @@ fsevents@^1.2.7:
 
 "fsevents@patch:fsevents@2.1.2#builtin<compat/fsevents>, fsevents@patch:fsevents@^2.1.2#builtin<compat/fsevents>, fsevents@patch:fsevents@~2.1.1#builtin<compat/fsevents>, fsevents@patch:fsevents@~2.1.2#builtin<compat/fsevents>":
   version: 2.1.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.1.2#builtin<compat/fsevents>::version=2.1.2&hash=127e8e"
+  resolution: "fsevents@patch:fsevents@npm%3A2.1.2#builtin<compat/fsevents>::version=2.1.2&hash=11e9ea"
   dependencies:
     node-gyp: latest
   checksum: f4e06c69cb1f888dcefd81822f7789fadb2885efd0f5967cb1ec499d5bdd086fa6b7ab5d76ad2160bed8e68daf81fa96be8b8bf61957d7a531b4c12dbeab3a6a
@@ -17472,7 +17432,7 @@ fsevents@^1.2.7:
 
 "fsevents@patch:fsevents@^1.2.7#builtin<compat/fsevents>":
   version: 1.2.13
-  resolution: "fsevents@patch:fsevents@npm%3A1.2.13#builtin<compat/fsevents>::version=1.2.13&hash=127e8e"
+  resolution: "fsevents@patch:fsevents@npm%3A1.2.13#builtin<compat/fsevents>::version=1.2.13&hash=11e9ea"
   dependencies:
     bindings: ^1.5.0
     nan: ^2.12.1
@@ -17766,7 +17726,7 @@ fsevents@^1.2.7:
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.698.0
+    aws-sdk: ^2.822.0
     base64url: 3.0.1
     binary-split: 1.0.5
     bluebird: ^3.7.2
@@ -17786,7 +17746,6 @@ fsevents@^1.2.7:
     fxa-auth-db-mysql: "workspace:*"
     fxa-geodb: "workspace:*"
     fxa-jwtool: 0.7.2
-    fxa-notifier-aws: 1.0.0
     fxa-shared: "workspace:*"
     google-libphonenumber: ^3.2.13
     grunt: ^1.3.0
@@ -18087,7 +18046,7 @@ fsevents@^1.2.7:
   resolution: "fxa-email-event-proxy@workspace:packages/fxa-email-event-proxy"
   dependencies:
     audit-filter: ^0.5.0
-    aws-sdk: ^2.698.0
+    aws-sdk: ^2.822.0
     bluebird: ^3.7.2
     chai: ^4.2.0
     chai-as-promised: ^7.1.1
@@ -18138,7 +18097,7 @@ fsevents@^1.2.7:
     "@typescript-eslint/eslint-plugin": 4.10.0
     "@typescript-eslint/parser": 3.0.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.733.0
+    aws-sdk: ^2.822.0
     axios: ^0.21.0
     chance: ^1.1.6
     class-transformer: ^0.3.1
@@ -18328,15 +18287,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"fxa-notifier-aws@npm:1.0.0":
-  version: 1.0.0
-  resolution: "fxa-notifier-aws@npm:1.0.0"
-  dependencies:
-    aws-sdk: 2.0.23
-  checksum: f53d1876fd1efc463dbe962c111e812091453c58bfdd1696a7171276d51842a1b46caaf3c99c7677ef645b4c80906aa296332b8fc2c2a692dc237d06b90a016b
-  languageName: node
-  linkType: hard
-
 "fxa-pairing-channel@npm:1.0.1":
   version: 1.0.1
   resolution: "fxa-pairing-channel@npm:1.0.1"
@@ -18473,7 +18423,7 @@ fsevents@^1.2.7:
     "@sentry/node": ^5.29.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.698.0
+    aws-sdk: ^2.822.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 0.1.1
@@ -18484,7 +18434,6 @@ fsevents@^1.2.7:
     convict-format-with-validator: ^6.0.0
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
-    fxa-notifier-aws: 1.0.0
     fxa-shared: "workspace:*"
     insist: 1.0.1
     lodash: ^4.17.19
@@ -18656,7 +18605,7 @@ fsevents@^1.2.7:
     ajv: ^6.12.2
     apollo-server: ^2.19.0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.752.0
+    aws-sdk: ^2.822.0
     bluebird: ^3.7.2
     celebrate: ^10.0.1
     chai: ^4.2.0
@@ -19545,7 +19494,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"graphql@npm:*, graphql@npm:14.6.0, graphql@npm:^14.5.3, graphql@npm:^14.6.0":
+"graphql@npm:*, graphql@npm:^14.5.3, graphql@npm:^14.6.0":
   version: 14.6.0
   resolution: "graphql@npm:14.6.0"
   dependencies:
@@ -22225,13 +22174,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"isomorphic-fetch@npm:^2.1.1":
-  version: 2.2.1
-  resolution: "isomorphic-fetch@npm:2.2.1"
+"isomorphic-fetch@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "isomorphic-fetch@npm:3.0.0"
   dependencies:
-    node-fetch: ^1.0.1
-    whatwg-fetch: ">=0.10.0"
-  checksum: a4174e332ae98fc93269162f1d8a3ee1f7255257d4eaeea5145d4068f64ac2dbff7e7f681889097238e1e009f7a74ba1a23ffd8ed967402777a32cca96204508
+    node-fetch: ^2.6.1
+    whatwg-fetch: ^3.4.1
+  checksum: 999c2845d440a6d53755d7954af40e55b38a25140a81f782aced55d56698f05aae8a0528ba6fd5630cc1040ecbf330c9858340a63b25645c0f81fa2f057fd0bb
   languageName: node
   linkType: hard
 
@@ -26613,16 +26562,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^1.0.1":
-  version: 1.7.3
-  resolution: "node-fetch@npm:1.7.3"
-  dependencies:
-    encoding: ^0.1.11
-    is-stream: ^1.0.1
-  checksum: d04afb2e328ffb974a5ac4800fe5714d7419243d72f089a6a2383d3b93368c61ae88954a4866c476c0d7f95d7af414c1b9a885e051971061efe4054d526e23ed
-  languageName: node
-  linkType: hard
-
 "node-forge@npm:0.9.0":
   version: 0.9.0
   resolution: "node-forge@npm:0.9.0"
@@ -30897,7 +30836,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-dom@npm:16.13.1, react-dom@npm:^16.12.0, react-dom@npm:^16.13.0, react-dom@npm:^16.13.1, react-dom@npm:^16.8.3, react-dom@npm:^16.8.6":
+"react-dom@npm:^16.12.0, react-dom@npm:^16.13.0, react-dom@npm:^16.13.1, react-dom@npm:^16.8.3, react-dom@npm:^16.8.6":
   version: 16.13.1
   resolution: "react-dom@npm:16.13.1"
   dependencies:
@@ -31337,7 +31276,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react@npm:16.13.1, react@npm:^16.12.0, react@npm:^16.13.0, react@npm:^16.13.1, react@npm:^16.8.3, react@npm:^16.8.6":
+"react@npm:^16.12.0, react@npm:^16.13.0, react@npm:^16.13.1, react@npm:^16.8.3, react@npm:^16.8.6":
   version: 16.13.1
   resolution: "react@npm:16.13.1"
   dependencies:
@@ -31764,17 +31703,17 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"regenerator-runtime@npm:0.13.5, regenerator-runtime@npm:^0.13.2, regenerator-runtime@npm:^0.13.3, regenerator-runtime@npm:^0.13.4":
-  version: 0.13.5
-  resolution: "regenerator-runtime@npm:0.13.5"
-  checksum: 8d8ee0eca26e0491085033caf2b1b95379c4db21e38d79cde52bbd4014a3865eee26ec0f4f958682e8600f185f2f5dbcd8c6685b9b9261639767929c19b5bcd2
-  languageName: node
-  linkType: hard
-
 "regenerator-runtime@npm:^0.11.0":
   version: 0.11.1
   resolution: "regenerator-runtime@npm:0.11.1"
   checksum: d98d44b9f5c9c3c670dcb615c5f5374931f937f3075dc8338126f45231643aa8c47ed2bfdef6ae593e311be54ca02d25d943971ca86a3dc1fa99068c2e1b88b2
+  languageName: node
+  linkType: hard
+
+"regenerator-runtime@npm:^0.13.2, regenerator-runtime@npm:^0.13.3, regenerator-runtime@npm:^0.13.4":
+  version: 0.13.5
+  resolution: "regenerator-runtime@npm:0.13.5"
+  checksum: 8d8ee0eca26e0491085033caf2b1b95379c4db21e38d79cde52bbd4014a3865eee26ec0f4f958682e8600f185f2f5dbcd8c6685b9b9261639767929c19b5bcd2
   languageName: node
   linkType: hard
 
@@ -35087,7 +35026,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"symbol-observable@npm:^1.0.2, symbol-observable@npm:^1.0.4, symbol-observable@npm:^1.2.0":
+"symbol-observable@npm:^1.0.4, symbol-observable@npm:^1.2.0":
   version: 1.2.0
   resolution: "symbol-observable@npm:1.2.0"
   checksum: 268834a1d4cba19d40f367e5c2755f612969c8418e43a3be17408e392802a667f8bb542893440d58a080a8ea8da05ea98e27e472b9f4ff6fbda78a21a1a41c53
@@ -36404,7 +36343,7 @@ typescript@4.0.5:
 
 "typescript@patch:typescript@3.9.7#builtin<compat/typescript>":
   version: 3.9.7
-  resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=5bf698"
+  resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=cc6730"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -36414,21 +36353,21 @@ typescript@4.0.5:
 
 "typescript@patch:typescript@4.0.5#builtin<compat/typescript>":
   version: 4.0.5
-  resolution: "typescript@patch:typescript@npm%3A4.0.5#builtin<compat/typescript>::version=4.0.5&hash=5bf698"
+  resolution: "typescript@patch:typescript@npm%3A4.0.5#builtin<compat/typescript>::version=4.0.5&hash=cc6730"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: d4be0bd2a2050b2d7b132cb2a40329178f181543e9d2ac6d1f06babd9f047208558a736a7effdeb28759ae2e815f070b61d10ee2f02cc93a6221a1490f21ffce
+  checksum: ada6fea7657a51d1b842682d31233e53a3cf509b0edbd6288fda3cfd01643d0190b7ea77837527c4d282c90e61690e19dbfd91be6913e7e7292aa0b588d3506c
   languageName: node
   linkType: hard
 
 "typescript@patch:typescript@~4.1.2#builtin<compat/typescript>":
   version: 4.1.2
-  resolution: "typescript@patch:typescript@npm%3A4.1.2#builtin<compat/typescript>::version=4.1.2&hash=5bf698"
+  resolution: "typescript@patch:typescript@npm%3A4.1.2#builtin<compat/typescript>::version=4.1.2&hash=cc6730"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: acfc7be6a091806432f324ad258c4a7d2a63996106a4c001db1eebb2661608a9fd0d109d0d29249c3e6890e3547a97b8580cbe0833aa64b2fb83f66e4d88a466
+  checksum: 001ab09bb8f597aab1ec43476aedb91b5d547749219273c232bf34cf5a2209d18fa782e64475755115f0907598bb9b503f5e1c0fed06c3651cac584fc88a8172
   languageName: node
   linkType: hard
 
@@ -37071,7 +37010,7 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"uuid@npm:8.3.1, uuid@npm:^8.0.0, uuid@npm:^8.3.0":
+"uuid@npm:8.3.1":
   version: 8.3.1
   resolution: "uuid@npm:8.3.1"
   bin:
@@ -37080,7 +37019,7 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"uuid@npm:8.3.2":
+"uuid@npm:8.3.2, uuid@npm:^8.0.0, uuid@npm:^8.3.0":
   version: 8.3.2
   resolution: "uuid@npm:8.3.2"
   bin:
@@ -37365,29 +37304,39 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"watchpack-chokidar2@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "watchpack-chokidar2@npm:2.0.0"
+"watchpack-chokidar2@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "watchpack-chokidar2@npm:2.0.1"
   dependencies:
     chokidar: ^2.1.8
-  checksum: 1ef78773db2e712d2ad8b2b36f448df9e8f891c003414671aa5fd32fab5649784c20fa82a2cdb6973145a5c31b817e4e181de2812a484d27f25af2fb3146c379
+  checksum: 72cd744a97fab10d9e6e3a3414b09ac6e32d2693f062d73da9525d282f8a74515a6b406282d43569ca709247908554723d5459301465047361230d3a88b18d10
   languageName: node
   linkType: hard
 
-"watchpack@npm:1.7.2":
-  version: 1.7.2
-  resolution: "watchpack@npm:1.7.2"
+"watchpack@npm:^1.6.0, watchpack@npm:^1.7.4":
+  version: 1.7.5
+  resolution: "watchpack@npm:1.7.5"
   dependencies:
-    chokidar: ^3.4.0
+    chokidar: ^3.4.1
     graceful-fs: ^4.1.2
     neo-async: ^2.5.0
-    watchpack-chokidar2: ^2.0.0
+    watchpack-chokidar2: ^2.0.1
   dependenciesMeta:
     chokidar:
       optional: true
     watchpack-chokidar2:
       optional: true
-  checksum: a9d630dd29279b91bb1b1dd319e9142f13906e8cc973c860e0662828cff84e2a3235a66da62759cb4f12dc76a6f672760e62b2c8a6406ff80d5e4977b5717e83
+  checksum: 93bb20dd955adf48daca67e6906ff9518f181e83d2183038e9a2573549a0d4badd23672d3ac542be9d5b766bd27da4baebba5d2d2522a7e05575c7cf7702c60b
+  languageName: node
+  linkType: hard
+
+"watchpack@npm:^2.0.0":
+  version: 2.1.0
+  resolution: "watchpack@npm:2.1.0"
+  dependencies:
+    glob-to-regexp: ^0.4.1
+    graceful-fs: ^4.1.2
+  checksum: a02b3f4023558e8bab20473ca0cfecc0624012272f73f2cac1c0d8fbbd6cfafda2975ff5a3ce3d9b0b1f72770868fe02ff043fceafcc6324acd11fc4cd16b973
   languageName: node
   linkType: hard
 
@@ -37695,39 +37644,6 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"webpack@npm:4.43.0":
-  version: 4.43.0
-  resolution: "webpack@npm:4.43.0"
-  dependencies:
-    "@webassemblyjs/ast": 1.9.0
-    "@webassemblyjs/helper-module-context": 1.9.0
-    "@webassemblyjs/wasm-edit": 1.9.0
-    "@webassemblyjs/wasm-parser": 1.9.0
-    acorn: ^6.4.1
-    ajv: ^6.10.2
-    ajv-keywords: ^3.4.1
-    chrome-trace-event: ^1.0.2
-    enhanced-resolve: ^4.1.0
-    eslint-scope: ^4.0.3
-    json-parse-better-errors: ^1.0.2
-    loader-runner: ^2.4.0
-    loader-utils: ^1.2.3
-    memory-fs: ^0.4.1
-    micromatch: ^3.1.10
-    mkdirp: ^0.5.3
-    neo-async: ^2.6.1
-    node-libs-browser: ^2.2.1
-    schema-utils: ^1.0.0
-    tapable: ^1.1.3
-    terser-webpack-plugin: ^1.4.3
-    watchpack: ^1.6.1
-    webpack-sources: ^1.4.1
-  bin:
-    webpack: bin/webpack.js
-  checksum: 9f1e6375ba28368b4a0d02a0807aa4e148b101244d7ab698c99ac478e3043cdacf7d7c89aa7d4af9549509be7d23878ef863bd6a9540e89a18dd2c04e82e2b4f
-  languageName: node
-  linkType: hard
-
 "webpack@npm:5.4.0":
   version: 5.4.0
   resolution: "webpack@npm:5.4.0"
@@ -37766,8 +37682,8 @@ typescript@~4.1.2:
   linkType: hard
 
 "webpack@npm:^4.33.0, webpack@npm:^4.38.0, webpack@npm:^4.41.2, webpack@npm:^4.43.0":
-  version: 4.44.1
-  resolution: "webpack@npm:4.44.1"
+  version: 4.44.2
+  resolution: "webpack@npm:4.44.2"
   dependencies:
     "@webassemblyjs/ast": 1.9.0
     "@webassemblyjs/helper-module-context": 1.9.0
@@ -37792,9 +37708,6 @@ typescript@~4.1.2:
     terser-webpack-plugin: ^1.4.3
     watchpack: ^1.7.4
     webpack-sources: ^1.4.1
-  peerDependencies:
-    webpack-cli: "*"
-    webpack-command: "*"
   peerDependenciesMeta:
     webpack-cli:
       optional: true
@@ -37802,7 +37715,7 @@ typescript@~4.1.2:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: d4d140010bdf1fe4a5ef5435733e4b4fb71081cafd5e995adca0ca6259e271c7b51af909477e03bbbeb35487bd399a672bb0bc4a4726baebac059444b489b412
+  checksum: cb4a9051d64df00494d18afd379d26669b96309f3f41e89e55b8531d99d67060bf8b262a996dbcdc2cda99adfb6c1c2bd9966630d329b09f9f9aa9fc732a3259
   languageName: node
   linkType: hard
 
@@ -37847,10 +37760,10 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"whatwg-fetch@npm:>=0.10.0, whatwg-fetch@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "whatwg-fetch@npm:3.0.0"
-  checksum: 56ffff2db0908b2180830c1c543b16b3cb93f07c771f15af9ce1a31f426c4b843e0a22cb0afd9de585d7583c07f4b84cb5dbf42fe22bcf6ad34f96103b456aaf
+"whatwg-fetch@npm:^3.0.0, whatwg-fetch@npm:^3.4.1":
+  version: 3.5.0
+  resolution: "whatwg-fetch@npm:3.5.0"
+  checksum: dd41999927e87c4cd0af572fe9976dcb1529c00b89c2074b0d1c02baa03670ff7b7cc45ca5b475c02a4a5b274cc1def56a9be7870df7af5c0f9b7d4fb4588ae6
   languageName: node
   linkType: hard
 
