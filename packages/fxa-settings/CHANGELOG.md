@@ -1,3 +1,13 @@
+## 1.197.1
+
+### New features
+
+- head: Add react-helmet to change page title ([4af241087](https://github.com/mozilla/fxa/commit/4af241087))
+
+### Other changes
+
+- settings: s/Newsletters/Email Communications/ ([5d7752cb7](https://github.com/mozilla/fxa/commit/5d7752cb7))
+
 ## 1.197.0
 
 ### New features
