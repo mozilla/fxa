@@ -4,7 +4,6 @@
 
 import React, { useState } from 'react';
 import { useForm, ValidateResult } from 'react-hook-form';
-import { cloneDeep } from '@apollo/client/utilities';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
@@ -12,7 +11,7 @@ import { HomePath } from '../../constants';
 import { usePasswordChanger } from '../../lib/auth';
 import { cache, sessionToken } from '../../lib/cache';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
-import { useAccount, Account, Session } from '../../models';
+import { useAccount } from '../../models';
 import AlertBar from '../AlertBar';
 import FlowContainer from '../FlowContainer';
 import InputPassword from '../InputPassword';
@@ -21,6 +20,7 @@ import { ReactComponent as ValidIcon } from './valid.svg';
 import { ReactComponent as InvalidIcon } from './invalid.svg';
 import { ReactComponent as UnsetIcon } from './unset.svg';
 import { AuthUiErrors } from '../../lib/auth-errors';
+import { gql } from '@apollo/client';
 
 type FormData = {
   oldPassword: string;
@@ -77,18 +77,23 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       logViewEvent(settingsViewName, 'change-password.success');
       changePassword.reset();
       sessionToken(response.sessionToken);
-      cache.modify({
-        fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.passwordCreated = response.authAt * 1000;
-            return account;
+      cache.writeQuery({
+        query: gql`
+          query UpdatePassword {
+            account {
+              passwordCreated
+            }
+            session {
+              verified
+            }
+          }
+        `,
+        data: {
+          account: {
+            passwordCreated: response.authAt * 1000,
+            __typename: 'Account',
           },
-          session: (existing: Session) => {
-            const session = cloneDeep(existing);
-            session.verified = response.verified;
-            return session;
-          },
+          session: { verified: response.verified, __typename: 'Session' },
         },
       });
       navigate(HomePath);

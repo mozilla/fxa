@@ -1,11 +1,10 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { gql } from '@apollo/client';
-import { cloneDeep } from '@apollo/client/utilities';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { HomePath } from '../../constants';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { logViewEvent } from '../../lib/metrics';
-import { Account } from '../../models';
+import { Email } from '../../models';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
@@ -49,11 +48,12 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       },
       update: (cache) => {
         cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
           fields: {
-            account: (existing: Account) => {
-              const account = cloneDeep(existing);
-              account.emails.find((m) => m.email === email)!.verified = true;
-              return account;
+            emails(existingEmails) {
+              return existingEmails.map((x: Email) =>
+                x.email === email ? { ...x, verified: true } : { ...x }
+              );
             },
           },
         });

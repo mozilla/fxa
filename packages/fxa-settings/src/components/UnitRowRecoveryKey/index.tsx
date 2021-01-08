@@ -7,7 +7,7 @@ import { gql } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAlertBar, useMutation } from '../../lib/hooks';
-import { useAccount, useLazyAccount } from '../../models';
+import { useAccount, useLazyRecoveryKeyExists } from '../../models';
 import { logViewEvent } from '../../lib/metrics';
 import AlertBar from '../AlertBar';
 import Modal from '../Modal';
@@ -28,7 +28,10 @@ export const UnitRowRecoveryKey = () => {
   const alertBar = useAlertBar();
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
 
-  const [getAccount, { accountLoading }] = useLazyAccount((error) => {
+  const [
+    getRecoveryKeyExists,
+    { recoveryKeyExistsLoading },
+  ] = useLazyRecoveryKeyExists((error) => {
     hideModal();
     alertBar.error(
       'Sorry, there was a problem refreshing the recovery key.',
@@ -51,9 +54,10 @@ export const UnitRowRecoveryKey = () => {
     ignoreResults: true,
     update: (cache) => {
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing) => {
-            return { ...existing, recoveryKey: false };
+          recoveryKey() {
+            return false;
           },
         },
       });
@@ -75,8 +79,8 @@ export const UnitRowRecoveryKey = () => {
         <ButtonIconReload
           title="Refresh recovery key"
           classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
-          disabled={accountLoading}
-          onClick={getAccount}
+          disabled={recoveryKeyExistsLoading}
+          onClick={getRecoveryKeyExists}
         />
       }
       actionContent={
@@ -84,8 +88,8 @@ export const UnitRowRecoveryKey = () => {
           title="Refresh recovery key"
           classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
           testId="recovery-key-refresh"
-          disabled={accountLoading}
-          onClick={getAccount}
+          disabled={recoveryKeyExistsLoading}
+          onClick={getRecoveryKeyExists}
         />
       }
     >

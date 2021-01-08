@@ -19,7 +19,12 @@ import {
   LocationProvider,
 } from '@reach/router';
 import { render } from '@testing-library/react';
-import { GET_ACCOUNT } from './Account';
+import {
+  GET_ACCOUNT,
+  GET_RECOVERY_KEY_EXISTS,
+  GET_TOTP_STATUS,
+} from './Account';
+import { typeDefs } from '../lib/cache';
 
 export const MOCK_ACCOUNT: Account = {
   uid: 'abc123',
@@ -67,13 +72,20 @@ export function createCache({
   account = {},
   verified = true,
 }: MockedProps = {}) {
-  const cache = new InMemoryCache();
+  const cache = new InMemoryCache({
+    typePolicies: {
+      Account: {
+        keyFields: [],
+      },
+    },
+  });
   cache.writeQuery({
     query: GET_INITIAL_STATE,
     data: {
-      account: deepMerge({}, MOCK_ACCOUNT, account),
+      account: deepMerge({}, MOCK_ACCOUNT, account, { __typename: 'Account' }),
       session: {
         verified,
+        __typename: 'Session',
       },
     },
   });
@@ -124,6 +136,7 @@ export class MockedCache extends React.Component<MockedProps, MockedState> {
       client: new ApolloClient({
         cache: createCache(props),
         link: new MockLink(props.mocks || [], true),
+        typeDefs: typeDefs,
       }),
     };
   }
@@ -171,8 +184,34 @@ export const mockAccountQuery = (
     },
     result: {
       data: {
-        account: Object.assign(MOCK_ACCOUNT, modifications),
+        account: Object.assign(MOCK_ACCOUNT, modifications, {
+          __typename: 'Account',
+        }),
       },
     },
   };
 };
+
+export const mockRecoveryKeyExistsQuery = (
+  mockedData: { recoveryKey: boolean } = { recoveryKey: false }
+) => ({
+  request: {
+    query: GET_RECOVERY_KEY_EXISTS,
+  },
+  result: {
+    data: { account: { ...mockedData, __typename: 'Account' } },
+  },
+});
+
+export const mockTotpStatusQuery = (
+  mockedData: { totp: { exists: boolean; verified: boolean } } = {
+    totp: { exists: false, verified: false },
+  }
+) => ({
+  request: {
+    query: GET_TOTP_STATUS,
+  },
+  result: {
+    data: { account: { ...mockedData, __typename: 'Account' } },
+  },
+});
