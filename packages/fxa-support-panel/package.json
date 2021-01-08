@@ -66,7 +66,7 @@
     "@types/superagent": "4.1.10",
     "@types/supertest": "^2.0.10",
     "audit-filter": "^0.5.0",
-    "eslint": "^7.6.0",
+    "eslint": "^7.17.0",
     "jest": "26.6.3",
     "pm2": "^4.4.1",
     "prettier": "^2.0.5",
