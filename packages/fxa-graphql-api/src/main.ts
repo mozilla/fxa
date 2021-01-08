@@ -63,6 +63,7 @@ async function bootstrap() {
       Config.getProperties().env === 'development'
         ? '*'
         : config.get<string[]>('corsOrigin'),
+    methods: ['OPTIONS', 'POST'],
   });
 
   // Add sentry as error reporter
