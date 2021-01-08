@@ -5851,15 +5851,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/graphql-upload@npm:8.0.3, @types/graphql-upload@npm:^8.0.0":
-  version: 8.0.3
-  resolution: "@types/graphql-upload@npm:8.0.3"
+"@types/graphql-upload@npm:^8.0.0, @types/graphql-upload@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "@types/graphql-upload@npm:8.0.4"
   dependencies:
     "@types/express": "*"
     "@types/fs-capacitor": "*"
     "@types/koa": "*"
-    graphql: ^14.5.3
-  checksum: 9f8425bcd83ab7adb87185165180b70f15e9510583e04566036d7766cba863663c3459035e8d9c2831634f1a19fcd556165dfe006b76be9c0c99531ec8d487e6
+    graphql: ^15.3.0
+  checksum: d148db8a1b70bb8582cd23186d25294205e25e77d7b4568bd0d874cb94744828ea1f60cb6c1877376f4eaa475a55fc47253df10126ff97783b3c2adf108ceac7
   languageName: node
   linkType: hard
 
@@ -17504,7 +17504,7 @@ fsevents@^1.2.7:
     express-http-proxy: ^1.6.2
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
-    graphql: ^14.6.0
+    graphql: ^15.4.0
     helmet: ^4.1.0
     jest: ^26.4.2
     mozlog: ^3.0.1
@@ -17559,7 +17559,7 @@ fsevents@^1.2.7:
     eslint: ^7.6.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
-    graphql: ^14.6.0
+    graphql: ^15.4.0
     graphql-tools: ^7.0.1
     helmet: ^4.1.1
     jest: 26.6.3
@@ -18059,7 +18059,7 @@ fsevents@^1.2.7:
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
     google-auth-library: ^6.1.3
-    graphql: ^14.6.0
+    graphql: ^15.4.0
     hot-shots: ^8.2.0
     jest: 26.6.3
     jwks-rsa: ^1.11.0
@@ -18127,7 +18127,7 @@ fsevents@^1.2.7:
     "@types/convict": ^5.2.1
     "@types/get-stream": 3.0.2
     "@types/graphql": ^14.5.0
-    "@types/graphql-upload": 8.0.3
+    "@types/graphql-upload": ^8.0.4
     "@types/ioredis": ^4.17.3
     "@types/node": ^14.14.5
     "@types/passport": ^1
@@ -18151,7 +18151,7 @@ fsevents@^1.2.7:
     fxa-auth-client: "workspace:*"
     fxa-shared: "workspace:*"
     get-stream: ^6.0.0
-    graphql: ^14.6.0
+    graphql: ^15.4.0
     graphql-parse-resolve-info: ^4.9.0
     graphql-query-complexity: ^0.7.1
     graphql-tools: ^7.0.1
@@ -18498,7 +18498,7 @@ fsevents@^1.2.7:
     fxa-common-password-list: ^0.0.4
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
-    graphql: ^14.6.0
+    graphql: ^15.4.0
     lodash.groupby: ^4.6.0
     mutationobserver-shim: ^0.3.7
     node-sass: ^4.14.0
@@ -18562,7 +18562,7 @@ fsevents@^1.2.7:
     eslint-plugin-fxa: ^2.0.2
     find-up: ^5.0.0
     generic-pool: ^3.7.1
-    graphql: ^14.6.0
+    graphql: ^15.4.0
     hot-shots: ^8.2.0
     jest: 26.6.3
     joi: ^14.3.1
@@ -19439,12 +19439,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"graphql@npm:*, graphql@npm:^14.5.3, graphql@npm:^14.6.0":
-  version: 14.6.0
-  resolution: "graphql@npm:14.6.0"
-  dependencies:
-    iterall: ^1.2.2
-  checksum: 24cab2758cea2ce592c59af28cac0fc80d2f2eac2f2441ce0152ce3c5a3a2416394aadf71b2d8db58f46c44ca3d20747eb168f58502f6eadafab0f11dea13791
+"graphql@npm:*, graphql@npm:^15.3.0, graphql@npm:^15.4.0":
+  version: 15.4.0
+  resolution: "graphql@npm:15.4.0"
+  checksum: 1a307dcfe2646e1e8323d03e8cd24554ba9f7369863bf0b020f2e4b39bff3504dc7d6dcad19cb96899f0825eda4c688819911f0c270e84f1bb0954fe3ac16a31
   languageName: node
   linkType: hard
 
@@ -22288,7 +22286,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"iterall@npm:^1.1.3, iterall@npm:^1.2.1, iterall@npm:^1.2.2":
+"iterall@npm:^1.1.3, iterall@npm:^1.2.1":
   version: 1.3.0
   resolution: "iterall@npm:1.3.0"
   checksum: 25ae2d07cf97fc35d43fa7af814839689416b83d3ade0fec97a62c58b7b9fad5ff89dd0ede99f2d67cae2697ffa6987f0ab10876f40ae6466e802609a05b1006
