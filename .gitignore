@@ -49,6 +49,9 @@ coverage.html
 **/.nyc_output
 test-results.xml
 
+# Local configuration
+/_dev/local-build-env.sh
+
 # System files
 *~
 \#*\#
