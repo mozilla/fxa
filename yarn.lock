@@ -1827,7 +1827,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.10.3, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.2.0, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.3.4, @babel/runtime@npm:^7.4.5, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.4, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.10.3, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.2.0, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.3.4, @babel/runtime@npm:^7.4.5, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.4, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
   version: 7.12.5
   resolution: "@babel/runtime@npm:7.12.5"
   dependencies:
@@ -5349,14 +5349,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^12.1.7":
-  version: 12.1.7
-  resolution: "@testing-library/user-event@npm:12.1.7"
+"@testing-library/user-event@npm:^12.6.0":
+  version: 12.6.0
+  resolution: "@testing-library/user-event@npm:12.6.0"
   dependencies:
-    "@babel/runtime": ^7.10.2
+    "@babel/runtime": ^7.12.5
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: b0a855a5a0c991a9b1e1cd1b1adfc73b54ad10b2baba7f157ca66eb55ad418aa420e1e98af8d5a33dcf62942fb08dea6030986858954d1a5990c648bd7edbadc
+  checksum: d6ad1876131b934137794a2b910f3f875ade748c3f6bd6e210089f740937d6ab8aa7d80201dcdaacdc7e208a69a807fbbe64cbd2c849449c23afa34dd5742f54
   languageName: node
   linkType: hard
 
@@ -17627,7 +17627,7 @@ fsevents@^1.2.7:
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
-    "@testing-library/user-event": ^12.1.7
+    "@testing-library/user-event": ^12.6.0
     "@types/babel__core": 7.1.12
     "@types/chance": ^1.1.1
     "@types/convict": ^5.2.1
@@ -18572,7 +18572,7 @@ fsevents@^1.2.7:
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
-    "@testing-library/user-event": ^12.1.7
+    "@testing-library/user-event": ^12.6.0
     "@types/camelcase": 5.2.0
     "@types/classnames": ^2.2.9
     "@types/file-loader": ^4.2.0
@@ -18631,7 +18631,7 @@ fsevents@^1.2.7:
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
     "@testing-library/react-hooks": ^3.4.2
-    "@testing-library/user-event": ^12.1.7
+    "@testing-library/user-event": ^12.6.0
     "@types/babel__core": 7.1.12
     "@types/classnames": ^2.2.10
     "@types/jest": ^24.9.1
