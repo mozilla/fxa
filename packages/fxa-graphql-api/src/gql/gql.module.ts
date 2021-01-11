@@ -11,11 +11,13 @@ import { SentryPlugin } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
 import { graphqlUploadExpress } from 'graphql-upload';
 import path, { join } from 'path';
+import * as bodyParser from 'body-parser';
 
 import { BackendModule } from '../backend/backend.module';
 import Config, { AppConfig } from '../config';
 import { AccountResolver } from './account.resolver';
 import { SessionResolver } from './session.resolver';
+import { Request, Response } from 'express';
 
 const config = Config.getProperties();
 
@@ -60,6 +62,13 @@ export const GraphQLConfigFactory = async (
 export class GqlModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
+      .apply((req: Request, res: Response, next: Function) => {
+        if (!req.is('application/json') && !req.is('multipart/form-data')) {
+          res.status(415).send();
+        }
+        next();
+      })
+      .forRoutes('graphql')
       .apply(graphqlUploadExpress({ maxFileSize: config.image.maxSize }))
       .forRoutes('graphql');
   }
