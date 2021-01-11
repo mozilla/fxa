@@ -7,11 +7,16 @@ import classNames from 'classnames';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReactComponent as OpenExternal } from './open-external.svg';
 import { useAccount } from '../../models';
+import { useConfig } from 'fxa-settings/src/lib/config';
 
 export const Nav = () => {
   const account = useAccount();
+  const config = useConfig();
   const primaryEmail = account.primaryEmail.email;
   const hasSubscription = account.subscriptions.length > 0;
+  const marketingCommPrefLink = `${
+    config.marketingEmailPreferencesUrl
+  }?email=${encodeURIComponent(primaryEmail)}`;
 
   const activeClasses = 'font-bold text-blue-500 rounded-sm';
   return (
@@ -76,7 +81,7 @@ export const Nav = () => {
           <LinkExternal
             className="font-bold"
             data-testid="nav-link-newsletters"
-            href={`https://basket.mozilla.org/fxa/?email=${primaryEmail}`}
+            href={marketingCommPrefLink}
           >
             Email Communications
             <OpenExternal

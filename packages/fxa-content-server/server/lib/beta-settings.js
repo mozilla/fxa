@@ -27,6 +27,7 @@ if (env !== 'development') {
 
 const settingsConfig = {
   env,
+  marketingEmailPreferencesUrl: config.get('marketing_email.preferences_url'),
   metrics: {
     navTiming: {
       enabled: config.get('statsd.enabled'),

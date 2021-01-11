@@ -23,7 +23,7 @@ import PageTwoStepAuthentication from '../PageTwoStepAuthentication';
 import { Page2faReplaceRecoveryCodes } from '../Page2faReplaceRecoveryCodes';
 import { ScrollToTop } from '../ScrollToTop';
 import { HomePath } from '../../constants';
-import { Config } from 'fxa-settings/src/lib/config';
+import { useConfig } from 'fxa-settings/src/lib/config';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 
 export const GET_INITIAL_STATE = gql`
@@ -37,10 +37,11 @@ export const GET_INITIAL_STATE = gql`
 
 type AppProps = {
   flowQueryParams: FlowQueryParams;
-  config: Config;
 };
 
-export const App = ({ flowQueryParams, config }: AppProps) => {
+export const App = ({ flowQueryParams }: AppProps) => {
+  const config = useConfig();
+
   useEffect(() => {
     config.metrics.navTiming.enabled &&
       observeNavigationTiming(config.metrics.navTiming.endpoint);

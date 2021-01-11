@@ -5,13 +5,17 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MockedCache } from '../../models/_mocks';
+import { getDefault } from '../../lib/config';
 import Nav from '.';
+import { ConfigContext } from 'fxa-settings/src/lib/config';
 
 describe('Nav', () => {
   it('renders as expected', () => {
     render(
       <MockedCache>
-        <Nav />
+        <ConfigContext.Provider value={getDefault()}>
+          <Nav />
+        </ConfigContext.Provider>
       </MockedCache>
     );
 
@@ -42,7 +46,9 @@ describe('Nav', () => {
     );
     expect(screen.getByTestId('nav-link-newsletters')).toHaveAttribute(
       'href',
-      'https://basket.mozilla.org/fxa/?email=johndope@example.com'
+      `https://basket.mozilla.org/fxa/?email=${encodeURIComponent(
+        'johndope@example.com'
+      )}`
     );
 
     expect(screen.queryByTestId('nav-link-subscriptions')).toBeNull();
