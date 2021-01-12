@@ -27,6 +27,35 @@ type PasswordChangeResponse = Resolved<
   ReturnType<typeof AuthClient.prototype.passwordChange>
 >;
 
+type AccountDestroyResponse = Resolved<
+  ReturnType<typeof AuthClient.prototype.accountDestroy>
+>;
+
+export function useAccountDestroyer({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (r: AccountDestroyResponse) => void;
+  onError?: (e: AuthServerError) => void;
+} = {}) {
+  const auth = useAuth();
+  return useAsyncCallback(
+    async (email: string, password: string, sessionToken: hexstring) => {
+      const response = await auth.accountDestroy(
+        email,
+        password,
+        {},
+        sessionToken
+      );
+      return response;
+    },
+    {
+      onSuccess,
+      onError,
+    }
+  );
+}
+
 export function usePasswordChanger({
   onSuccess,
   onError,

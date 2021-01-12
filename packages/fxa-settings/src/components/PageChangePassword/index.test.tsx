@@ -10,6 +10,7 @@ import { AuthContext, createAuthClient } from '../../lib/auth';
 import { MockedCache, renderWithRouter } from '../../models/_mocks';
 import PageChangePassword from '.';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
+import { typeByTestIdFn } from '../../lib/test-utils';
 
 jest.mock('../../lib/auth', () => ({
   ...jest.requireActual('../../lib/auth'),
@@ -35,14 +36,6 @@ const render = () => {
       </MockedCache>
     </AuthContext.Provider>
   );
-};
-
-const typeByTestIdFn = (testId: string) => async (x: string) => {
-  await act(async () => {
-    fireEvent.input(screen.getByTestId(testId), {
-      target: { value: x },
-    });
-  });
 };
 
 const inputCurrentPassword = typeByTestIdFn('current-password-input-field');

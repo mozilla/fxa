@@ -21,6 +21,7 @@ import PageSecondaryEmailVerify from '../PageSecondaryEmailVerify';
 import { PageDisplayName } from '../PageDisplayName';
 import PageTwoStepAuthentication from '../PageTwoStepAuthentication';
 import { Page2faReplaceRecoveryCodes } from '../Page2faReplaceRecoveryCodes';
+import { PageDeleteAccount } from '../PageDeleteAccount';
 import { ScrollToTop } from '../ScrollToTop';
 import { HomePath } from '../../constants';
 import { useConfig } from 'fxa-settings/src/lib/config';
@@ -79,6 +80,7 @@ export const App = ({ flowQueryParams }: AppProps) => {
             <PageSecondaryEmailVerify path="/emails/verify" />
             <PageTwoStepAuthentication path="/two_step_authentication" />
             <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
+            <PageDeleteAccount path="/delete_account" />
           </ScrollToTop>
         </Router>
       </AppLayout>

@@ -19,7 +19,6 @@ export type InputTextProps = {
   label: string;
   placeholder?: string;
   errorText?: string;
-  errorTooltipClass?: string;
   className?: string;
   inputRef?: Ref<HTMLInputElement>;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -39,7 +38,6 @@ export const InputText = ({
   placeholder,
   onChange,
   errorText,
-  errorTooltipClass,
   className = '',
   inputRef,
   type = 'text',
