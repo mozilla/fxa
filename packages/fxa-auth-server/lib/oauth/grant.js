@@ -6,7 +6,7 @@ const buf = require('buf').hex;
 const hex = require('buf').to.hex;
 
 const config = require('../../config');
-const AppError = require('./error');
+const OauthError = require('./error');
 const db = require('./db');
 const util = require('./util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
@@ -71,7 +71,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
       acrTokens.includes(ACR_VALUE_AAL2) &&
       !(verifiedClaims['fxa-aal'] >= 2)
     ) {
-      throw AppError.mismatchAcr(verifiedClaims['fxa-aal']);
+      throw OauthError.mismatchAcr(verifiedClaims['fxa-aal']);
     }
   }
 
@@ -81,7 +81,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
       UNTRUSTED_CLIENT_ALLOWED_SCOPES
     );
     if (!invalidScopes.isEmpty()) {
-      throw AppError.invalidScopes(invalidScopes.getScopeValues());
+      throw OauthError.invalidScopes(invalidScopes.getScopeValues());
     }
   }
 
@@ -104,7 +104,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
       ScopeSet.fromString(client.allowedScopes || '')
     );
     if (!invalidScopes.isEmpty()) {
-      throw AppError.invalidScopes(invalidScopes.getScopeValues());
+      throw OauthError.invalidScopes(invalidScopes.getScopeValues());
     }
   }
 
@@ -117,7 +117,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
     // verified by email before 2FA was enabled on the account. Such sessions must
     // be able to access sync even after 2FA is enabled, hence checking `verified`
     // rather than the `aal`-related properties here.
-    throw AppError.invalidAssertion();
+    throw OauthError.invalidAssertion();
   }
 
   // If we grow our per-client config, there are more things we could check here:

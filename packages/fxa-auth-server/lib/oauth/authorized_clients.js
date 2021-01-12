@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const error = require('./error');
+const OauthError = require('./error');
 const oauthDB = require('./db');
 const hex = require('buf').to.hex;
 const ScopeSet = require('fxa-shared').oauth.scopes;
@@ -28,7 +28,7 @@ module.exports = {
       if (
         !(await oauthDB.deleteClientRefreshToken(refreshTokenId, clientId, uid))
       ) {
-        throw error.unknownToken();
+        throw OauthError.unknownToken();
       }
     } else {
       await oauthDB.deleteClientAuthorization(clientId, uid);
