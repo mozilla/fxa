@@ -4,7 +4,7 @@
 
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
-const AppError = require('./error');
+const OauthError = require('./error');
 const token = require('./token');
 const validators = require('./validators');
 
@@ -24,12 +24,12 @@ exports.strategy = function () {
     authenticate: async function dogfoodStrategy(req, h) {
       const auth = req.headers.authorization;
       if (!auth || auth.indexOf('Bearer ') !== 0) {
-        throw AppError.unauthorized('Bearer token not provided');
+        throw OauthError.unauthorized('Bearer token not provided');
       }
       const tok = auth.split(' ')[1];
 
       if (!validators.HEX_STRING.test(tok)) {
-        throw AppError.unauthorized('Illegal Bearer token');
+        throw OauthError.unauthorized('Illegal Bearer token');
       }
       try {
         const details = await token.verify(tok);
@@ -38,14 +38,14 @@ exports.strategy = function () {
             return re.test(details.email);
           });
           if (blocked) {
-            throw AppError.forbidden();
+            throw OauthError.forbidden();
           }
         }
 
         details.scope = details.scope.getScopeValues();
         return h.authenticated({ credentials: details });
       } catch (err) {
-        throw AppError.unauthorized('Bearer token invalid');
+        throw OauthError.unauthorized('Bearer token invalid');
       }
     },
   };

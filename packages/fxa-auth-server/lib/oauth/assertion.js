@@ -24,7 +24,7 @@
 const Joi = require('@hapi/joi');
 const validators = require('./validators');
 
-const AppError = require('./error');
+const OauthError = require('./error');
 const config = require('../../config');
 const { verifyJWT } = require('../../lib/serverJWT');
 
@@ -57,7 +57,7 @@ const request = require('request').defaults({
 });
 
 function error(assertion, msg, val) {
-  throw AppError.invalidAssertion();
+  throw OauthError.invalidAssertion();
 }
 
 // Verify a BrowserID assertion,

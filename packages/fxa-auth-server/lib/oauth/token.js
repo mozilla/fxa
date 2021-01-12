@@ -4,7 +4,7 @@
 
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
-const AppError = require('./error');
+const OauthError = require('./error');
 const config = require('../../config');
 const db = require('./db');
 const encrypt = require('./encrypt');
@@ -52,7 +52,7 @@ exports.verify = async function verify(accessToken) {
   // until we fully migrate to JWTs.
   const token = await db.getAccessToken(await exports.getTokenId(accessToken));
   if (!token) {
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   } else if (+token.expiresAt < Date.now()) {
     // We dug ourselves a bit of a hole with token expiry,
     // and this logic is here to help us climb back out.
@@ -67,7 +67,7 @@ exports.verify = async function verify(accessToken) {
       +token.expiresAt >=
       config.get('oauthServer.expiration.accessTokenExpiryEpoch')
     ) {
-      throw AppError.expiredToken(token.expiresAt);
+      throw OauthError.expiredToken(token.expiresAt);
     }
   }
   var tokenInfo = {
