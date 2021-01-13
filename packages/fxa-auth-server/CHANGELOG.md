@@ -1,3 +1,9 @@
+## 1.197.2
+
+### Bug fixes
+
+- oauth: fixed oauth -> auth error conversion after refactoring ([fff9a7460](https://github.com/mozilla/fxa/commit/fff9a7460))
+
 ## 1.197.1
 
 No changes.
