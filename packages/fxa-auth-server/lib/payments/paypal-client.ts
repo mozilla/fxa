@@ -1,9 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import pRetry from 'p-retry';
 import querystring from 'querystring';
 import superagent from 'superagent';
-import pRetry from 'p-retry';
 
 export const PAYPAL_SANDBOX_API = 'https://api-3t.sandbox.paypal.com/nvp';
 export const PAYPAL_LIVE_API = 'https://api-3t.paypal.com/nvp';

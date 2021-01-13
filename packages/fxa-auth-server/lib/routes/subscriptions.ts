@@ -15,9 +15,11 @@ import {
 } from 'fxa-shared/subscriptions/stripe';
 import omitBy from 'lodash/omitBy';
 import { Stripe } from 'stripe';
+import Container from 'typedi';
 
 import { ConfigType } from '../../config';
 import error from '../error';
+import { PayPalHelper } from '../payments/paypal';
 import { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
 import { splitCapabilities } from './utils/subscriptions';
@@ -68,6 +70,8 @@ function sanitizePlans(plans: AbbrevPlan[]) {
 }
 
 class DirectStripeRoutes {
+  private paypalHelper: PayPalHelper;
+
   constructor(
     private log: AuthLogger,
     private db: any,
@@ -77,7 +81,9 @@ class DirectStripeRoutes {
     private mailer: any,
     private profile: any,
     private stripeHelper: StripeHelper
-  ) {}
+  ) {
+    this.paypalHelper = Container.get(PayPalHelper);
+  }
 
   /**
    * Reload the customer data to reflect a change.

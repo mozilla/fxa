@@ -40,6 +40,12 @@ describe('remote subscriptions:', function () {
     before(async () => {
       config.subscriptions.enabled = true;
       config.subscriptions.stripeApiKey = 'sk_34523452345';
+      config.subscriptions.paypalNvpSigCredentials = {
+        sandbox: true,
+        user: 'user',
+        pwd: 'pwd',
+        signature: 'sig',
+      };
       mockStripeHelper.allPlans = async () => [
         {
           plan_id: PLAN_ID,
