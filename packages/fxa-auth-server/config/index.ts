@@ -794,6 +794,32 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_ENABLED',
       default: false,
     },
+    paypalNvpSigCredentials: {
+      sandbox: {
+        doc: 'PayPal Sandbox mode',
+        format: Boolean,
+        env: 'PAYPAL_SANDBOX',
+        default: true,
+      },
+      user: {
+        doc: 'PayPal NVP API User name',
+        format: String,
+        default: 'user',
+        env: 'PAYPAL_NVP_USER',
+      },
+      pwd: {
+        doc: 'PayPal NVP API password',
+        format: String,
+        default: 'user',
+        env: 'PAYPAL_NVP_PWD',
+      },
+      signature: {
+        doc: 'PayPal NVP API signature',
+        format: String,
+        default: 'user',
+        env: 'PAYPAL_NVP_SIGNATURE',
+      },
+    },
     sharedSecret: {
       doc:
         'Shared secret for authentication between backend subscription services',
