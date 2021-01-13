@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const buf = require('buf').hex;
 const Joi = require('@hapi/joi');
 
-const AppError = require('./error');
+const OauthError = require('./error');
 const validators = require('./validators');
 const db = require('./db');
 const encrypt = require('./encrypt');
@@ -59,7 +59,7 @@ module.exports.getClientCredentials = function getClientCredentials(
   // the Authorization header or request body, but not both.
   if (headers.authorization) {
     const authzMatch = validators.BASIC_AUTH_HEADER.exec(headers.authorization);
-    const err = new AppError.invalidRequestParameter({
+    const err = new OauthError.invalidRequestParameter({
       keys: ['authorization'],
     });
     if (!authzMatch || creds.client_id || creds.client_secret) {
@@ -106,7 +106,7 @@ module.exports.authenticateClient = async function authenticateClient(
   // and should never submit a client_secret.
   if (client.publicClient) {
     if (creds.client_secret) {
-      throw new AppError.invalidRequestParameter({ keys: ['client_secret'] });
+      throw new OauthError.invalidRequestParameter({ keys: ['client_secret'] });
     }
     return client;
   }
@@ -114,7 +114,7 @@ module.exports.authenticateClient = async function authenticateClient(
   // Check client_secret against both current and previous stored secrets,
   // to allow for seamless rotation of the secret.
   if (!creds.client_secret) {
-    throw new AppError.invalidRequestParameter({ keys: ['client_secret'] });
+    throw new OauthError.invalidRequestParameter({ keys: ['client_secret'] });
   }
   const submitted = encrypt.hash(buf(creds.client_secret));
   const stored = client.hashedSecret;
@@ -127,13 +127,13 @@ module.exports.authenticateClient = async function authenticateClient(
       return client;
     }
   }
-  throw AppError.incorrectSecret(client.id);
+  throw OauthError.incorrectSecret(client.id);
 };
 
 module.exports.getClientById = async function getClientById(clientId) {
   const client = await db.getClient(buf(clientId));
   if (!client) {
-    throw AppError.unknownClient(clientId);
+    throw OauthError.unknownClient(clientId);
   }
   return client;
 };

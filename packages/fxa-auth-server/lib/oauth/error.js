@@ -21,13 +21,14 @@ function merge(target, other) {
   }
 }
 
-function AppError(options, extra, headers) {
+// Deprecated. New error types should be defined in lib/error.js
+function OauthError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message;
   this.isBoom = true;
   if (options.stack) {
     this.stack = options.stack;
   } else {
-    Error.captureStackTrace(this, AppError);
+    Error.captureStackTrace(this, OauthError);
   }
   this.errno = options.errno || DEFAULTS.errno;
   this.output = {
@@ -43,17 +44,17 @@ function AppError(options, extra, headers) {
   };
   merge(this.output.payload, extra);
 }
-util.inherits(AppError, Error);
+util.inherits(OauthError, Error);
 
-AppError.prototype.toString = function () {
+OauthError.prototype.toString = function () {
   return 'Error: ' + this.message;
 };
 
-AppError.prototype.header = function (name, value) {
+OauthError.prototype.header = function (name, value) {
   this.output.headers[name] = value;
 };
 
-AppError.isOauthRoute = function isOauthRoute(path) {
+OauthError.isOauthRoute = function isOauthRoute(path) {
   const routes = require('../routes/oauth')();
   // ironically, routes that include "oauth" are considered auth-server routes
   return (
@@ -63,19 +64,19 @@ AppError.isOauthRoute = function isOauthRoute(path) {
   );
 };
 
-AppError.translate = function translate(response) {
-  if (response instanceof AppError) {
+OauthError.translate = function translate(response) {
+  if (response instanceof OauthError) {
     return response;
   }
 
   var error;
   var payload = response.output.payload;
   if (payload.validation) {
-    error = AppError.invalidRequestParameter(payload.validation);
+    error = OauthError.invalidRequestParameter(payload.validation);
   } else if (payload.statusCode === 415) {
-    error = AppError.invalidContentType();
+    error = OauthError.invalidContentType();
   } else {
-    error = new AppError({
+    error = new OauthError({
       message: payload.message,
       code: payload.statusCode,
       error: payload.error,
@@ -87,16 +88,16 @@ AppError.translate = function translate(response) {
   return error;
 };
 
-AppError.prototype.backtrace = function (traced) {
+OauthError.prototype.backtrace = function (traced) {
   this.output.payload.log = traced;
 };
 
-AppError.unexpectedError = function unexpectedError() {
-  return new AppError({});
+OauthError.unexpectedError = function unexpectedError() {
+  return new OauthError({});
 };
 
-AppError.unknownClient = function unknownClient(clientId) {
-  return new AppError(
+OauthError.unknownClient = function unknownClient(clientId) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -109,8 +110,8 @@ AppError.unknownClient = function unknownClient(clientId) {
   );
 };
 
-AppError.incorrectSecret = function incorrectSecret(clientId) {
-  return new AppError(
+OauthError.incorrectSecret = function incorrectSecret(clientId) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -123,8 +124,8 @@ AppError.incorrectSecret = function incorrectSecret(clientId) {
   );
 };
 
-AppError.incorrectRedirect = function incorrectRedirect(uri) {
-  return new AppError(
+OauthError.incorrectRedirect = function incorrectRedirect(uri) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -137,8 +138,8 @@ AppError.incorrectRedirect = function incorrectRedirect(uri) {
   );
 };
 
-AppError.invalidAssertion = function invalidAssertion() {
-  return new AppError({
+OauthError.invalidAssertion = function invalidAssertion() {
+  return new OauthError({
     code: 401,
     error: 'Bad Request',
     errno: 104,
@@ -146,8 +147,8 @@ AppError.invalidAssertion = function invalidAssertion() {
   });
 };
 
-AppError.unknownCode = function unknownCode(code) {
-  return new AppError(
+OauthError.unknownCode = function unknownCode(code) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -160,8 +161,8 @@ AppError.unknownCode = function unknownCode(code) {
   );
 };
 
-AppError.mismatchCode = function mismatchCode(code, clientId) {
-  return new AppError(
+OauthError.mismatchCode = function mismatchCode(code, clientId) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -175,8 +176,8 @@ AppError.mismatchCode = function mismatchCode(code, clientId) {
   );
 };
 
-AppError.expiredCode = function expiredCode(code, expiredAt) {
-  return new AppError(
+OauthError.expiredCode = function expiredCode(code, expiredAt) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -190,8 +191,8 @@ AppError.expiredCode = function expiredCode(code, expiredAt) {
   );
 };
 
-AppError.invalidToken = function invalidToken() {
-  return new AppError({
+OauthError.invalidToken = function invalidToken() {
+  return new OauthError({
     code: 400,
     error: 'Bad Request',
     errno: 108,
@@ -199,8 +200,8 @@ AppError.invalidToken = function invalidToken() {
   });
 };
 
-AppError.invalidRequestParameter = function invalidRequestParameter(val) {
-  return new AppError(
+OauthError.invalidRequestParameter = function invalidRequestParameter(val) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -213,8 +214,8 @@ AppError.invalidRequestParameter = function invalidRequestParameter(val) {
   );
 };
 
-AppError.invalidResponseType = function invalidResponseType() {
-  return new AppError({
+OauthError.invalidResponseType = function invalidResponseType() {
+  return new OauthError({
     code: 400,
     error: 'Bad Request',
     errno: 110,
@@ -222,8 +223,8 @@ AppError.invalidResponseType = function invalidResponseType() {
   });
 };
 
-AppError.unauthorized = function unauthorized(reason) {
-  return new AppError(
+OauthError.unauthorized = function unauthorized(reason) {
+  return new OauthError(
     {
       code: 401,
       error: 'Unauthorized',
@@ -236,8 +237,8 @@ AppError.unauthorized = function unauthorized(reason) {
   );
 };
 
-AppError.forbidden = function forbidden() {
-  return new AppError({
+OauthError.forbidden = function forbidden() {
+  return new OauthError({
     code: 403,
     error: 'Forbidden',
     errno: 112,
@@ -245,8 +246,8 @@ AppError.forbidden = function forbidden() {
   });
 };
 
-AppError.invalidContentType = function invalidContentType() {
-  return new AppError({
+OauthError.invalidContentType = function invalidContentType() {
+  return new OauthError({
     code: 415,
     error: 'Unsupported Media Type',
     errno: 113,
@@ -256,8 +257,8 @@ AppError.invalidContentType = function invalidContentType() {
   });
 };
 
-AppError.invalidScopes = function invalidScopes(scopes) {
-  return new AppError(
+OauthError.invalidScopes = function invalidScopes(scopes) {
+  return new OauthError(
     {
       code: 400,
       error: 'Invalid scopes',
@@ -270,8 +271,8 @@ AppError.invalidScopes = function invalidScopes(scopes) {
   );
 };
 
-AppError.expiredToken = function expiredToken(expiredAt) {
-  return new AppError(
+OauthError.expiredToken = function expiredToken(expiredAt) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -284,8 +285,8 @@ AppError.expiredToken = function expiredToken(expiredAt) {
   );
 };
 
-AppError.notPublicClient = function notPublicClient(clientId) {
-  return new AppError(
+OauthError.notPublicClient = function notPublicClient(clientId) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -298,8 +299,10 @@ AppError.notPublicClient = function notPublicClient(clientId) {
   );
 };
 
-AppError.mismatchCodeChallenge = function mismatchCodeChallenge(pkceHashValue) {
-  return new AppError(
+OauthError.mismatchCodeChallenge = function mismatchCodeChallenge(
+  pkceHashValue
+) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -312,8 +315,8 @@ AppError.mismatchCodeChallenge = function mismatchCodeChallenge(pkceHashValue) {
   );
 };
 
-AppError.missingPkceParameters = function missingPkceParameters() {
-  return new AppError({
+OauthError.missingPkceParameters = function missingPkceParameters() {
+  return new OauthError({
     code: 400,
     error: 'PKCE parameters missing',
     errno: 118,
@@ -321,8 +324,8 @@ AppError.missingPkceParameters = function missingPkceParameters() {
   });
 };
 
-AppError.staleAuthAt = function staleAuthAt(authAt) {
-  return new AppError(
+OauthError.staleAuthAt = function staleAuthAt(authAt) {
+  return new OauthError(
     {
       code: 401,
       error: 'Bad Request',
@@ -335,8 +338,8 @@ AppError.staleAuthAt = function staleAuthAt(authAt) {
   );
 };
 
-AppError.mismatchAcr = function mismatchAcr(foundValue) {
-  return new AppError(
+OauthError.mismatchAcr = function mismatchAcr(foundValue) {
+  return new OauthError(
     {
       code: 400,
       error: 'Bad Request',
@@ -347,8 +350,8 @@ AppError.mismatchAcr = function mismatchAcr(foundValue) {
   );
 };
 
-AppError.invalidGrantType = function invalidGrantType() {
-  return new AppError({
+OauthError.invalidGrantType = function invalidGrantType() {
+  return new OauthError({
     code: 400,
     error: 'Bad Request',
     errno: 121,
@@ -356,8 +359,8 @@ AppError.invalidGrantType = function invalidGrantType() {
   });
 };
 
-AppError.unknownToken = function unknownToken() {
-  return new AppError({
+OauthError.unknownToken = function unknownToken() {
+  return new OauthError({
     code: 400,
     error: 'Bad Request',
     errno: 122,
@@ -368,8 +371,8 @@ AppError.unknownToken = function unknownToken() {
 // N.B. `errno: 201` is traditionally our generic "service unavailable" error,
 // so let's reserve it for that purpose here as well.
 
-AppError.disabledClient = function disabledClient(clientId) {
-  return new AppError(
+OauthError.disabledClient = function disabledClient(clientId) {
+  return new OauthError(
     {
       code: 503,
       error: 'Client Disabled',
@@ -380,4 +383,6 @@ AppError.disabledClient = function disabledClient(clientId) {
   );
 };
 
-module.exports = AppError;
+// Deprecated. New error types should be defined in lib/error.js
+
+module.exports = OauthError;

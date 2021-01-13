@@ -213,6 +213,8 @@ AppError.translate = function (request, response) {
   }
   if (OauthError.isOauthRoute(request && request.route.path)) {
     return OauthError.translate(response);
+  } else if (response instanceof OauthError) {
+    return appErrorFromOauthError(response);
   }
   const payload = response.output.payload;
   const reason = response.reason;
@@ -1454,6 +1456,53 @@ function scrubHeaders(headers) {
   const scrubbed = { ...headers };
   delete scrubbed['x-forwarded-for'];
   return scrubbed;
+}
+
+function appErrorFromOauthError(err) {
+  switch (err.errno) {
+    case 101:
+      return AppError.unknownClientId(err.clientId);
+    case 102:
+      return AppError.incorrectClientSecret(err.clientId);
+    case 103:
+      return AppError.incorrectRedirectURI(err.redirectUri);
+    case 104:
+      return AppError.invalidToken();
+    case 105:
+      return AppError.unknownAuthorizationCode(err.code);
+    case 106:
+      return AppError.mismatchAuthorizationCode(err.code, err.clientId);
+    case 107:
+      return AppError.expiredAuthorizationCode(err.code, err.expiredAt);
+    case 108:
+      return AppError.invalidToken();
+    case 109:
+      return AppError.invalidRequestParameter(err.validation);
+    case 110:
+      return AppError.invalidResponseType();
+    case 114:
+      return AppError.invalidScopes(err.invalidScopes);
+    case 116:
+      return AppError.notPublicClient();
+    case 117:
+      return AppError.invalidPkceChallenge(err.pkceHashValue);
+    case 118:
+      return AppError.missingPkceParameters();
+    case 119:
+      return AppError.staleAuthAt(err.authAt);
+    case 120:
+      return AppError.insufficientACRValues(err.foundValue);
+    case 121:
+      return AppError.invalidRequestParameter('grant_type');
+    case 122:
+      return AppError.unknownRefreshToken();
+    case 201:
+      return AppError.serviceUnavailable(err.retryAfter);
+    case 202:
+      return AppError.disabledClientId(err.clientId);
+    default:
+      return err;
+  }
 }
 
 module.exports = AppError;

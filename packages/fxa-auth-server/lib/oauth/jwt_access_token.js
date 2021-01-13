@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const hex = require('buf').to.hex;
-const AppError = require('./error');
+const OauthError = require('./error');
 const jwt = require('./jwt');
 const sub = require('./jwt_sub');
 const { OAUTH_SCOPE_OLD_SYNC } = require('../constants');
@@ -89,7 +89,7 @@ exports.tokenId = async function tokenId(accessToken) {
   // a JWT access token.
   const payload = await exports.verify(accessToken);
   if (!payload.jti) {
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   }
   return payload.jti;
 };
@@ -108,11 +108,11 @@ exports.verify = async function verify(accessToken) {
       typ: HEADER_TYP,
     });
   } catch (err) {
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   }
 
   if (!payload) {
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   }
 
   return payload;
