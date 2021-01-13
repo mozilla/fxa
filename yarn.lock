@@ -4288,6 +4288,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sinonjs/commons@npm:^1.8.1":
+  version: 1.8.2
+  resolution: "@sinonjs/commons@npm:1.8.2"
+  dependencies:
+    type-detect: 4.0.8
+  checksum: b7eb499e3537a487160fcc42e65b9ad8c7d70ee4a1bbebacdbe28149e01b2da501912df2fbf06c81eac51de8c0ad10eaae573b31932ee747c9f1949fee30c20d
+  languageName: node
+  linkType: hard
+
 "@sinonjs/fake-timers@npm:^6.0.0, @sinonjs/fake-timers@npm:^6.0.1":
   version: 6.0.1
   resolution: "@sinonjs/fake-timers@npm:6.0.1"
@@ -4345,6 +4354,17 @@ __metadata:
     lodash.get: ^4.4.2
     type-detect: ^4.0.8
   checksum: 666f5da1d766c05c3d6ae88a798c7c5eb2f353af1c05b2caa02570df9f5ee5714238611203917e66ebca928bda4b41a0e1ec14622a86fdc2299c2ab24a362321
+  languageName: node
+  linkType: hard
+
+"@sinonjs/samsam@npm:^5.3.0":
+  version: 5.3.1
+  resolution: "@sinonjs/samsam@npm:5.3.1"
+  dependencies:
+    "@sinonjs/commons": ^1.6.0
+    lodash.get: ^4.4.2
+    type-detect: ^4.0.8
+  checksum: 0277cd0b71146efed3d243edddc98362adcc25c13e0067b91500fd990792194be64b0ace6f4ba9f98cdec60ee46749e24aad44b46193cfa73096c5ef309b00a1
   languageName: node
   linkType: hard
 
@@ -6705,6 +6725,15 @@ __metadata:
   dependencies:
     "@types/sinonjs__fake-timers": "*"
   checksum: b6edb8f2c814bff1af4bbbd2ef60250a682bfe4f55942a6cf80e9350271f15598ea46651aca6badaca46b9a1b1060864105a75b4eba620d9139fb10afc1dfe0e
+  languageName: node
+  linkType: hard
+
+"@types/sinon@npm:^9":
+  version: 9.0.10
+  resolution: "@types/sinon@npm:9.0.10"
+  dependencies:
+    "@types/sinonjs__fake-timers": "*"
+  checksum: dfa431fe83bcaf1c15bf6be9aa6cfa266b3951cffdeb950c0c0a45cddd6f2fa72bd81862d0f4937ac82dbe9d4712d17e33cd629e6f20822324fd713738901d49
   languageName: node
   linkType: hard
 
@@ -16584,6 +16613,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fetch-mock@npm:^9.11.0":
+  version: 9.11.0
+  resolution: "fetch-mock@npm:9.11.0"
+  dependencies:
+    "@babel/core": ^7.0.0
+    "@babel/runtime": ^7.0.0
+    core-js: ^3.0.0
+    debug: ^4.1.1
+    glob-to-regexp: ^0.4.0
+    is-subset: ^0.1.1
+    lodash.isequal: ^4.5.0
+    path-to-regexp: ^2.2.1
+    querystring: ^0.2.0
+    whatwg-url: ^6.5.0
+  peerDependencies:
+    node-fetch: "*"
+  peerDependenciesMeta:
+    node-fetch:
+      optional: true
+  checksum: ba019727c6aeabd8c9109723c5747ff71fc96813c8d52312f239e3d0f6e90612e1ad520895c4919503d05adc79876384050d6b2f947ed16701aafcda441abad3
+  languageName: node
+  linkType: hard
+
 "fetch@npm:0.3.6":
   version: 0.3.6
   resolution: "fetch@npm:0.3.6"
@@ -18565,6 +18617,9 @@ fsevents@^1.2.7:
   resolution: "fxa-react@workspace:packages/fxa-react"
   dependencies:
     "@babel/core": ^7.10.3
+    "@fluent/bundle": ^0.16.0
+    "@fluent/langneg": ^0.5.0
+    "@fluent/react": ^0.13.0
     "@storybook/addon-actions": ^5.3.19
     "@storybook/addon-links": ^6.0.28
     "@storybook/addons": ^5.3.19
@@ -18585,12 +18640,15 @@ fsevents@^1.2.7:
     "@types/react-helmet": ^6
     "@types/react-transition-group": ^4.2.4
     "@types/rimraf": 3.0.0
+    "@types/sinon": ^9
+    async-wait-until: ^1.2.6
     babel-eslint: ^10.1.0
     babel-loader: ^8.1.0
     babel-preset-react-app: ^9.1.2
     camelcase: ^6.0.0
     classnames: ^2.2.6
     eslint: ^7.17.0
+    fetch-mock: ^9.11.0
     file-loader: ^4.3.0
     fxa-shared: "workspace:*"
     identity-obj-proxy: ^3.0.0
@@ -18606,6 +18664,7 @@ fsevents@^1.2.7:
     rimraf: ^3.0.2
     sass: 1.26.10
     sass-loader: ^10.0.3
+    sinon: ^9.2.3
     tailwindcss-dir: ^4.0.0
     ts-jest: ^26.3.0
     typescript: 3.9.7
@@ -18619,6 +18678,7 @@ fsevents@^1.2.7:
   dependencies:
     "@apollo/client": ^3.3.6
     "@babel/core": ^7.10.3
+    "@fluent/react": ^0.13.0
     "@reach/router": ^1.3.4
     "@rescripts/cli": 0.0.15
     "@sentry/browser": ^5.27.6
@@ -33644,6 +33704,20 @@ resolve@~1.11.1:
     nise: ^4.0.4
     supports-color: ^7.1.0
   checksum: 8f8f005d976b85431c391f9fe67b687abb5cf67cd8dd8e2d185d02e0bded02e6fc74a57f9d459d90065fa23d3adca06101ef696aa94547610fc6c8b2e69b65d1
+  languageName: node
+  linkType: hard
+
+"sinon@npm:^9.2.3":
+  version: 9.2.3
+  resolution: "sinon@npm:9.2.3"
+  dependencies:
+    "@sinonjs/commons": ^1.8.1
+    "@sinonjs/fake-timers": ^6.0.1
+    "@sinonjs/samsam": ^5.3.0
+    diff: ^4.0.2
+    nise: ^4.0.4
+    supports-color: ^7.1.0
+  checksum: 7c818e8e3bd257eec8a6c3d0da310ca7331831fcf1742d3f84196979c3df5967636851fe950f9f9987a4da5090962011445df996e2455f8b837fb0938b7bd276
   languageName: node
   linkType: hard
 

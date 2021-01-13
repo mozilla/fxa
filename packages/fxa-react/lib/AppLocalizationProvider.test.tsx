@@ -2,29 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* eslint jest/valid-expect: 0 */
-
-import IntlPolyfill from 'intl';
-Intl.NumberFormat = IntlPolyfill.NumberFormat;
-
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import waitUntil from 'async-wait-until';
-import { Localized } from '@fluent/react';
 import sinon from 'sinon';
+
+import { Localized } from '@fluent/react';
 
 import fetchMock from 'fetch-mock';
 import AppLocalizationProvider from './AppLocalizationProvider';
-import { getLocalizedCurrency } from './formats';
 
 describe('<AppLocalizationProvider/>', () => {
   const locales = ['en-GB', 'en-US', 'es-ES'];
   const bundles = ['greetings', 'farewells'];
   function waitUntilTranslated() {
     return waitUntil(
-      () => AppLocalizationProvider.prototype.render.callCount === 2
+      () => {
+        // @ts-ignore
+        return AppLocalizationProvider.prototype.render.callCount === 2
+      }
     );
   }
 
@@ -32,7 +30,7 @@ describe('<AppLocalizationProvider/>', () => {
     fetchMock.get('/locales/en-US/greetings.ftl', 'hello = Hello\n');
     fetchMock.get('/locales/en-US/farewells.ftl', 'goodbye = Goodbye\n');
     fetchMock.get('/locales/es-ES/greetings.ftl', 'hello = Hola\n');
-    fetchMock.get('/locales/en-GB/greetings.ftl', 'hello = Hello { $amount }')
+    fetchMock.get('/locales/en-GB/greetings.ftl', 'hello = Hello { $amount }');
     fetchMock.get('*', { throws: new Error() });
   });
 
@@ -45,7 +43,8 @@ describe('<AppLocalizationProvider/>', () => {
   });
 
   afterEach(() => {
-    AppLocalizationProvider.prototype.render.restore();
+    // @ts-ignore
+    AppLocalizationProvider.prototype.render.restore()
     cleanup();
   });
 
@@ -120,6 +119,7 @@ describe('<AppLocalizationProvider/>', () => {
 
   test('check code property', () => {
     const err = new Error();
+    // @ts-ignore
     err.code = 404;
 
     return expect(Promise.reject(err)).rejects.toHaveProperty('code', 404);
@@ -129,7 +129,10 @@ describe('<AppLocalizationProvider/>', () => {
     const { getByTestId } = render(
       <AppLocalizationProvider bundles={bundles} userLocales={['en-NZ']}>
         <main data-testid="result">
-          <Localized id="hello" vars={{ amount: getLocalizedCurrency(123, 'USD') }}>
+          <Localized
+            id="hello"
+            vars={{ amount: '$US123.00' }}
+          >
             <div>untranslated</div>
           </Localized>
         </main>
@@ -137,6 +140,6 @@ describe('<AppLocalizationProvider/>', () => {
     );
     await waitUntilTranslated();
 
-    expect(getByTestId('result')).toHaveTextContent('Hello ⁨US$1.23');
+    expect(getByTestId('result')).toHaveTextContent('Hello ⁨$US123.00⁩');
   });
 });

@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.6",
+    "@fluent/react": "^0.13.0",
     "@reach/router": "^1.3.4",
     "base32-decode": "^1.0.0",
     "base32-encode": "^1.1.1",

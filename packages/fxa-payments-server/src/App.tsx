@@ -6,7 +6,7 @@ import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import { Localized } from '@fluent/react';
 import DocumentTitle from 'react-document-title';
 
-import AppLocalizationProvider from './lib/AppLocalizationProvider';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import sentryMetrics from './lib/sentry';
 import { QueryParams } from './lib/types';
 import { Config, config } from './lib/config';

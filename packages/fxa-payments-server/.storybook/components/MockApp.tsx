@@ -6,7 +6,7 @@ import { MockLoader } from './MockLoader';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
 import { config } from '../../src/lib/config';
 import ScreenInfo from '../../src/lib/screen-info';
-import AppLocalizationProvider from '../../src/lib/AppLocalizationProvider';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 // Stripe API key used in official doc examples. Used as fallback if missing
 // from config and is necessary for Stripe elements to render at all

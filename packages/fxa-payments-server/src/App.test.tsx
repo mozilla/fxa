@@ -14,7 +14,7 @@ jest.mock('./lib/sentry');
 
 // Mock most of the components used by App in order to isolate routing logic
 // and avoid mocking external network requests.
-jest.mock('./lib/AppLocalizationProvider', () => ({
+jest.mock('fxa-react/lib/AppLocalizationProvider', () => ({
   __esModule: true,
   default: ({ children }: { children: ReactNode }) => (
     <section data-testid="AppLocalizationProvider">{children}</section>

@@ -3,14 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FluentBundle, FluentResource } from '@fluent/bundle';
-import 'intl-pluralrules';
 import { negotiateLanguages } from '@fluent/langneg';
 import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import React, { Component } from 'react';
 
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 
-const OTHER_EN_LOCALES = ['en-NZ', 'en-CA', 'en-SG', 'en-MY']
+const OTHER_EN_LOCALES = ['en-NZ', 'en-CA', 'en-SG', 'en-MY'];
 
 async function fetchMessages(baseDir: string, locale: string, bundle: string) {
   try {
@@ -41,9 +40,11 @@ async function createFluentBundleGenerator(
   bundles: Array<string>
 ) {
   const fetched = await Promise.all(
-    currentLocales.filter(l => !OTHER_EN_LOCALES.includes(l)).map(async (locale) => {
-      return { [locale]: await fetchAllMessages(baseDir, locale, bundles) };
-    })
+    currentLocales
+      .filter((l) => !OTHER_EN_LOCALES.includes(l))
+      .map(async (locale) => {
+        return { [locale]: await fetchAllMessages(baseDir, locale, bundles) };
+      })
   );
 
   const mergedBundle = fetched.reduce((obj, cur) => Object.assign(obj, cur));
@@ -121,8 +122,6 @@ export default class AppLocalizationProvider extends Component<Props, State> {
       return <div />;
     }
 
-    return (
-      <LocalizationProvider l10n={l10n}>{children}</LocalizationProvider>
-    );
+    return <LocalizationProvider l10n={l10n}>{children}</LocalizationProvider>;
   }
 }
