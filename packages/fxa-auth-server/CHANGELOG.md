@@ -1,3 +1,13 @@
+## 1.198.1
+
+### Bug fixes
+
+- metrics: fixed broken "fxa_reg - compete" metric ([b60af1620](https://github.com/mozilla/fxa/commit/b60af1620))
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
 ## 1.198.0
 
 ### New features

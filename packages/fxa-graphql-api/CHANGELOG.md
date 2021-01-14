@@ -1,3 +1,9 @@
+## 1.198.1
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
 ## 1.198.0
 
 ### Bug fixes
