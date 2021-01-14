@@ -1,3 +1,16 @@
+## 1.198.0
+
+### Bug fixes
+
+- gql-api: return HTTP 415 on unsupported req content type ([a5762ea8c](https://github.com/mozilla/fxa/commit/a5762ea8c))
+
+### Other changes
+
+- gql-api: allow fewer CORS HTTP methods ([a599e6b83](https://github.com/mozilla/fxa/commit/a599e6b83))
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+- deps: updated @types/graphql-upload ([af9705337](https://github.com/mozilla/fxa/commit/af9705337))
+- deps: bump graphql from 14.6.0 to 15.4.0 ([d28e79655](https://github.com/mozilla/fxa/commit/d28e79655))
+
 ## 1.197.2
 
 No changes.

@@ -1,3 +1,9 @@
+## 1.198.0
+
+### Other changes
+
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+
 ## 1.197.2
 
 No changes.

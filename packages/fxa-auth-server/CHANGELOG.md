@@ -1,3 +1,20 @@
+## 1.198.0
+
+### New features
+
+- auth-server: add paypal helper ([109f5f486](https://github.com/mozilla/fxa/commit/109f5f486))
+- auth-server: add paypal API base client ([322f4dcd5](https://github.com/mozilla/fxa/commit/322f4dcd5))
+
+### Bug fixes
+
+- oauth: fixed oauth -> auth error conversion after refactoring ([0be070bed](https://github.com/mozilla/fxa/commit/0be070bed))
+
+### Other changes
+
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+- docs: removed old endpoints from oauth api.md ([341d7f5ac](https://github.com/mozilla/fxa/commit/341d7f5ac))
+- deps: removed fxa-notifier-aws dep ([71c8bc171](https://github.com/mozilla/fxa/commit/71c8bc171))
+
 ## 1.197.2
 
 ### Bug fixes
