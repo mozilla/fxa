@@ -8,6 +8,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReactComponent as OpenExternal } from './open-external.svg';
 import { useAccount } from '../../models';
 import { useConfig } from 'fxa-settings/src/lib/config';
+import { Localized } from '@fluent/react';
 
 export const Nav = () => {
   const account = useAccount();
@@ -26,37 +27,45 @@ export const Nav = () => {
     >
       <ul className="px-6 py-7 tablet:px-8 desktop:p-0 mobileLandscape:mt-8 ltr:text-left rtl:text-right">
         <li className="mb-5">
-          <h2 className="font-bold">Settings</h2>
+          <Localized id="nav-settings">
+            <h2 className="font-bold">Settings</h2>
+          </Localized>
           <ul className="ltr:ml-4 rtl:mr-4">
             <li className="mt-3">
-              <a
-                data-testid="nav-link-profile"
-                href="#profile"
-                className={classNames(
-                  activeClasses,
-                  'inline-block py-1 px-2 hover:bg-grey-100'
-                )}
-              >
-                Profile
-              </a>
+              <Localized id="nav-profile">
+                <a
+                  data-testid="nav-link-profile"
+                  href="#profile"
+                  className={classNames(
+                    activeClasses,
+                    'inline-block py-1 px-2 hover:bg-grey-100'
+                  )}
+                >
+                  Profile
+                </a>
+              </Localized>
             </li>
             <li className="mt-3">
-              <a
-                href="#security"
-                data-testid="nav-link-security"
-                className="inline-block py-1 px-2 hover:bg-grey-100"
-              >
-                Security
-              </a>
+              <Localized id="nav-security">
+                <a
+                  href="#security"
+                  data-testid="nav-link-security"
+                  className="inline-block py-1 px-2 hover:bg-grey-100"
+                >
+                  Security
+                </a>
+              </Localized>
             </li>
             <li className="mt-3">
-              <a
-                href="#connected-services"
-                data-testid="nav-link-connected-services"
-                className="inline-block py-1 px-2 hover:bg-grey-100"
-              >
-                Connected Services
-              </a>
+              <Localized id="nav-connected-services">
+                <a
+                  href="#connected-services"
+                  data-testid="nav-link-connected-services"
+                  className="inline-block py-1 px-2 hover:bg-grey-100"
+                >
+                  Connected Services
+                </a>
+              </Localized>
             </li>
           </ul>
         </li>
@@ -68,7 +77,7 @@ export const Nav = () => {
               data-testid="nav-link-subscriptions"
               href="/subscriptions"
             >
-              Paid Subscriptions
+              <Localized id="nav-paid-subs">Paid Subscriptions</Localized>
               <OpenExternal
                 className="inline-block w-3 h-3 ml-1"
                 aria-hidden="true"
@@ -83,7 +92,7 @@ export const Nav = () => {
             data-testid="nav-link-newsletters"
             href={marketingCommPrefLink}
           >
-            Email Communications
+            <Localized id="nav-email-comm">Email Communications</Localized>
             <OpenExternal
               className="inline-block w-3 h-3 ltr:ml-1 rtl:mr-1 transform rtl:-scale-x-1"
               aria-hidden="true"

@@ -89,6 +89,8 @@
     "pm2": "^4.4.1",
     "postcss-cli": "^7.1.1",
     "react-test-renderer": "^17.0.1",
-    "webpack": "^4.43.0"
+    "webpack": "^4.43.0",
+    "webpack-merge-and-include-globally": "^2.2.3",
+    "webpack-watch-files-plugin": "^1.1.0"
   }
 }

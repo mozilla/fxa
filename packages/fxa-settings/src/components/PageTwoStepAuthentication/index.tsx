@@ -19,6 +19,7 @@ import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
 import { alertTextExternal } from '../../lib/cache';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
+import { Localized } from '@fluent/react';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 
@@ -247,7 +248,9 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             </div>
           )}
 
-          <p>Now enter the security code from the authentication app.</p>
+          <Localized id="tfa-enter-totp">
+            <p>Now enter the security code from the authentication app.</p>
+          </Localized>
 
           <div className="mt-4 mb-6" data-testid="recovery-key-input">
             <InputText
@@ -291,8 +294,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       {totpVerified && !recoveryCodesAcknowledged && (
         <>
           <div className="my-2" data-testid="2fa-recovery-codes">
-            Save these one-time use codes in a safe place for when you don’t
-            have your mobile device.
+            <Localized id="tfa-save-these-codes">
+              Save these one-time use codes in a safe place for when you don’t
+              have your mobile device.
+            </Localized>
             <div className="mt-6 flex flex-col items-center h-40 justify-between">
               <DataBlock value={recoveryCodes}></DataBlock>
               <GetDataTrio
@@ -322,11 +327,13 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       )}
       {totpVerified && recoveryCodesAcknowledged && (
         <form onSubmit={recoveryCodeForm.handleSubmit(onRecoveryCodeSubmit)}>
-          <p className="mt-4 mb-4">
-            Please enter one of your recovery codes now to confirm you've saved
-            it. You'll need a code if you lose your device and want to access
-            your account.
-          </p>
+          <Localized id="tfa-enter-code-to-confirm">
+            <p className="mt-4 mb-4">
+              Please enter one of your recovery codes now to confirm you've
+              saved it. You'll need a code if you lose your device and want to
+              access your account.
+            </p>
+          </Localized>
           <div className="mt-4 mb-6" data-testid="recovery-code-input">
             <InputText
               name="recoveryCode"
