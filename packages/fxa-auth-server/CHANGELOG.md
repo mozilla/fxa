@@ -1,3 +1,9 @@
+## 1.197.3
+
+### Bug fixes
+
+- metrics: fixed broken "fxa_reg - compete" metric ([b60af1620](https://github.com/mozilla/fxa/commit/b60af1620))
+
 ## 1.197.2
 
 ### Bug fixes
