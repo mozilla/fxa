@@ -1,3 +1,19 @@
+## 1.198.1
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### Bug fixes
+
+- settings: fix email communications link ([6c09d7ecf](https://github.com/mozilla/fxa/commit/6c09d7ecf))
+
+### Other changes
+
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+
 ## 1.197.3
 
 No changes.

@@ -1,3 +1,16 @@
+## 1.198.1
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.6.0 to 2.8.0 ([f9b6008f1](https://github.com/mozilla/fxa/commit/f9b6008f1))
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+
 ## 1.197.3
 
 No changes.

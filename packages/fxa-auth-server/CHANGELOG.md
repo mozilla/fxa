@@ -1,3 +1,30 @@
+## 1.198.1
+
+### Bug fixes
+
+- metrics: fixed broken "fxa_reg - compete" metric ([b60af1620](https://github.com/mozilla/fxa/commit/b60af1620))
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### New features
+
+- auth-server: add paypal helper ([109f5f486](https://github.com/mozilla/fxa/commit/109f5f486))
+- auth-server: add paypal API base client ([322f4dcd5](https://github.com/mozilla/fxa/commit/322f4dcd5))
+
+### Bug fixes
+
+- oauth: fixed oauth -> auth error conversion after refactoring ([0be070bed](https://github.com/mozilla/fxa/commit/0be070bed))
+
+### Other changes
+
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+- docs: removed old endpoints from oauth api.md ([341d7f5ac](https://github.com/mozilla/fxa/commit/341d7f5ac))
+- deps: removed fxa-notifier-aws dep ([71c8bc171](https://github.com/mozilla/fxa/commit/71c8bc171))
+
 ## 1.197.3
 
 ### Bug fixes

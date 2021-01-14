@@ -1,5 +1,19 @@
 # Change history
 
+## 1.198.1
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### Other changes
+
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+- deps: bump graphql from 14.6.0 to 15.4.0 ([d28e79655](https://github.com/mozilla/fxa/commit/d28e79655))
+- deps: removed fxa-notifier-aws dep ([71c8bc171](https://github.com/mozilla/fxa/commit/71c8bc171))
+
 ## 1.197.3
 
 No changes.
