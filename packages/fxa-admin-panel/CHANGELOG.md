@@ -6,6 +6,10 @@
 - deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
 - deps: bump graphql from 14.6.0 to 15.4.0 ([d28e79655](https://github.com/mozilla/fxa/commit/d28e79655))
 
+## 1.197.3
+
+No changes.
+
 ## 1.197.2
 
 No changes.

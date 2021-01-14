@@ -15,6 +15,12 @@
 - docs: removed old endpoints from oauth api.md ([341d7f5ac](https://github.com/mozilla/fxa/commit/341d7f5ac))
 - deps: removed fxa-notifier-aws dep ([71c8bc171](https://github.com/mozilla/fxa/commit/71c8bc171))
 
+## 1.197.3
+
+### Bug fixes
+
+- metrics: fixed broken "fxa_reg - compete" metric ([b60af1620](https://github.com/mozilla/fxa/commit/b60af1620))
+
 ## 1.197.2
 
 ### Bug fixes

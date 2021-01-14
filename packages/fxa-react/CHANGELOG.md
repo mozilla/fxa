@@ -5,6 +5,10 @@
 - deps-dev: bump @testing-library/user-event from 12.1.7 to 12.6.0 ([19422c122](https://github.com/mozilla/fxa/commit/19422c122))
 - deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
 
+## 1.197.3
+
+No changes.
+
 ## 1.197.2
 
 No changes.

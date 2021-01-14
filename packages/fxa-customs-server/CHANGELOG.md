@@ -5,6 +5,10 @@
 - deps: bump @google-cloud/pubsub from 2.6.0 to 2.8.0 ([f9b6008f1](https://github.com/mozilla/fxa/commit/f9b6008f1))
 - deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
 
+## 1.197.3
+
+No changes.
+
 ## 1.197.2
 
 No changes.

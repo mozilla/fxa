@@ -5,6 +5,10 @@
 - deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
 - deps: removed fxa-notifier-aws dep ([71c8bc171](https://github.com/mozilla/fxa/commit/71c8bc171))
 
+## 1.197.3
+
+No changes.
+
 ## 1.197.2
 
 No changes.

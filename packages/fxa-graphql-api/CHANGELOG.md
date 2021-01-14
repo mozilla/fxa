@@ -11,6 +11,10 @@
 - deps: updated @types/graphql-upload ([af9705337](https://github.com/mozilla/fxa/commit/af9705337))
 - deps: bump graphql from 14.6.0 to 15.4.0 ([d28e79655](https://github.com/mozilla/fxa/commit/d28e79655))
 
+## 1.197.3
+
+No changes.
+
 ## 1.197.2
 
 No changes.
