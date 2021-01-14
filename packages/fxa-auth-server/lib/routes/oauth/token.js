@@ -610,9 +610,9 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
             // Otherwise, for mobile browsers, just use the existing client ID
             // to service name mapping used in the metrics code (see the
             // OAUTH_CLIENT_IDS config value). #5143
-            const service = config.oauth.oldSyncClientIds.includes(
-              req.payload.client_id
-            )
+            const service = config
+              .get('oauth.oldSyncClientIds')
+              .includes(req.payload.client_id)
               ? 'sync'
               : req.payload.client_id;
             await req.emitMetricsEvent('account.signed', {
