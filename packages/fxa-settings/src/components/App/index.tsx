@@ -25,6 +25,7 @@ import { ScrollToTop } from '../ScrollToTop';
 import { HomePath } from '../../constants';
 import { useConfig } from 'fxa-settings/src/lib/config';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -61,22 +62,27 @@ export const App = ({ flowQueryParams }: AppProps) => {
   }
 
   return (
-    <AppLayout>
-      <Head />
-      <Router basepath={HomePath}>
-        <ScrollToTop default>
-          <PageSettings path="/" />
-          <FlowContainer path="/avatar/change" title="Profile picture" />
-          <PageDisplayName path="/display_name" />
-          <PageChangePassword path="/change_password" />
-          <PageRecoveryKeyAdd path="/account_recovery" />
-          <PageSecondaryEmailAdd path="/emails" />
-          <PageSecondaryEmailVerify path="/emails/verify" />
-          <PageTwoStepAuthentication path="/two_step_authentication" />
-          <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
-        </ScrollToTop>
-      </Router>
-    </AppLayout>
+    <AppLocalizationProvider
+      baseDir="/beta/settings/locales"
+      bundles={['settings']}
+    >
+      <AppLayout>
+        <Head />
+        <Router basepath={HomePath}>
+          <ScrollToTop default>
+            <PageSettings path="/" />
+            <FlowContainer path="/avatar/change" title="Profile picture" />
+            <PageDisplayName path="/display_name" />
+            <PageChangePassword path="/change_password" />
+            <PageRecoveryKeyAdd path="/account_recovery" />
+            <PageSecondaryEmailAdd path="/emails" />
+            <PageSecondaryEmailVerify path="/emails/verify" />
+            <PageTwoStepAuthentication path="/two_step_authentication" />
+            <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
+          </ScrollToTop>
+        </Router>
+      </AppLayout>
+    </AppLocalizationProvider>
   );
 };
 

@@ -22,12 +22,18 @@
     "test": "jest --env=jsdom-fourteen"
   },
   "dependencies": {
+    "@fluent/bundle": "^0.16.0",
+    "@fluent/langneg": "^0.5.0",
+    "@fluent/react": "^0.13.0",
+    "async-wait-until": "^1.2.6",
     "classnames": "^2.2.6",
+    "fetch-mock": "^9.11.0",
     "fxa-shared": "workspace:*",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.1.0",
     "react-transition-group": "^4.3.0",
+    "sinon": "^9.2.3",
     "tailwindcss-dir": "^4.0.0"
   },
   "devDependencies": {
@@ -52,6 +58,7 @@
     "@types/react-helmet": "^6",
     "@types/react-transition-group": "^4.2.4",
     "@types/rimraf": "3.0.0",
+    "@types/sinon": "^9",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "babel-preset-react-app": "^9.1.2",
