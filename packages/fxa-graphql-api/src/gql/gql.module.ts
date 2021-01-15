@@ -1,7 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  HttpException,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GqlModuleOptions } from '@nestjs/graphql';
 import { CustomsModule } from 'fxa-shared/nestjs/customs/customs.module';
@@ -11,7 +16,6 @@ import { SentryPlugin } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
 import { graphqlUploadExpress } from 'graphql-upload';
 import path, { join } from 'path';
-import * as bodyParser from 'body-parser';
 
 import { BackendModule } from '../backend/backend.module';
 import Config, { AppConfig } from '../config';
@@ -64,7 +68,9 @@ export class GqlModule implements NestModule {
     consumer
       .apply((req: Request, res: Response, next: Function) => {
         if (!req.is('application/json') && !req.is('multipart/form-data')) {
-          res.status(415).send();
+          return next(
+            new HttpException('Request content type is not supported.', 415)
+          );
         }
         next();
       })
