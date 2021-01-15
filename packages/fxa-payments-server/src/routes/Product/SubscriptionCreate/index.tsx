@@ -16,6 +16,8 @@ import * as Amplitude from '../../../lib/amplitude';
 import { Localized } from '@fluent/react';
 import * as apiClient from '../../../lib/apiClient';
 
+import { config } from '../../../lib/config';
+
 import '../../Product/SubscriptionCreate/index.scss';
 
 type PaymentError = undefined | StripeError;
@@ -159,6 +161,11 @@ export const SubscriptionCreate = ({
               </Localized>
             )}
           </ErrorMessage>
+
+          {config.featureFlags.usePaypalUIByDefault ? (
+            // To be updated in issue #7097
+            <div id="paypal-button-container"></div>
+          ) : null}
 
           <PaymentForm
             {...{
