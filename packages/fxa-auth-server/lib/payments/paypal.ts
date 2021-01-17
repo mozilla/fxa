@@ -21,4 +21,15 @@ export class PayPalHelper {
     this.client = Container.get(PayPalClient);
     this.metrics = Container.get(StatsD);
   }
+
+  /**
+   * Get a token authorizing transaction to move to the next stage.
+   *
+   * If the call to PayPal fails, a PayPalClientError will be thrown.
+   *
+   */
+  public async getCheckoutToken(): Promise<string> {
+    const response = await this.client.setExpressCheckout();
+    return response.TOKEN;
+  }
 }

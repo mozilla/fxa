@@ -5,8 +5,14 @@ import pRetry from 'p-retry';
 import querystring from 'querystring';
 import superagent from 'superagent';
 
-export const PAYPAL_SANDBOX_API = 'https://api-3t.sandbox.paypal.com/nvp';
-export const PAYPAL_LIVE_API = 'https://api-3t.paypal.com/nvp';
+export const PAYPAL_SANDBOX_BASE = 'https://api-3t.sandbox.paypal.com';
+export const PAYPAL_LIVE_BASE = 'https://api-3t.paypal.com';
+export const PAYPAL_NVP_ROUTE = '/nvp';
+export const PAYPAL_SANDBOX_API = PAYPAL_SANDBOX_BASE + PAYPAL_NVP_ROUTE;
+export const PAYPAL_LIVE_API = PAYPAL_LIVE_BASE + PAYPAL_NVP_ROUTE;
+// See https://developer.paypal.com/docs/checkout/reference/upgrade-integration/#nvp-integrations
+// for information on when to use PLACEHOLDER_URL
+export const PLACEHOLDER_URL = 'https://www.paypal.com/checkoutnow/error';
 const PAYPAL_VERSION = '204';
 const L_LIST = /L_([A-Z]+)(\d+)$/;
 
@@ -30,6 +36,47 @@ export type PAYPAL_METHODS =
   | 'SetExpressCheckout'
   | 'TransactionSearch';
 
+/*
+ * Common response fields
+ * https://developer.paypal.com/docs/nvp-soap-api/NVPAPIOverview/#common-response-fields
+ */
+
+export enum PAYPAL_NVP_ACK_OPTIONS {
+  Success = 'Success',
+  SuccessWithWarning = 'SuccessWithWarning',
+  Failure = 'Failure',
+  FailureWithWarning = 'FailureWithWarning',
+}
+
+type NVPResponse = {
+  ACK: PAYPAL_NVP_ACK_OPTIONS;
+  CORRELATIONID: string;
+  TIMESTAMP: string;
+  VERSION: string;
+  BUILD: string;
+};
+
+type SetCheckoutData = {
+  TOKEN: string;
+};
+
+export type NVPSetCheckoutResponse = NVPResponse & SetCheckoutData;
+
+export class PayPalClientError extends Error {
+  public raw: string;
+  public data: NVPResponse;
+
+  constructor(raw: string, data: NVPResponse, ...params: any) {
+    super(...params);
+    this.name = 'PayPalClientError';
+    if (!this.message) {
+      this.message =
+        'PayPal NVP returned a non-success ACK. See "this.raw" or "this.data" for more details.';
+    }
+    this.raw = raw;
+    this.data = data;
+  }
+}
 export class PayPalClient {
   private url: string;
   private user: string;
@@ -87,7 +134,7 @@ export class PayPalClient {
   private async doRequest(
     method: PAYPAL_METHODS,
     data: Record<string, any>
-  ): Promise<Record<string, any>> {
+  ): Promise<NVPResponse> {
     const payload = this.objectToNVP({
       ...data,
       USER: this.user,
@@ -104,6 +151,35 @@ export class PayPalClient {
           .send(payload),
       this.retryOptions
     );
-    return this.nvpToObject(result.text);
+    const resultObj = this.nvpToObject(result.text) as NVPResponse;
+    if (
+      resultObj.ACK === PAYPAL_NVP_ACK_OPTIONS.Success ||
+      resultObj.ACK === PAYPAL_NVP_ACK_OPTIONS.SuccessWithWarning
+    ) {
+      return resultObj;
+    } else {
+      throw new PayPalClientError(result.text, resultObj);
+    }
+  }
+
+  /**
+   * Call the Paypal SetExpressCheckout NVP API
+   *
+   * Using the Paypal SetExpressCheckout API (https://developer.paypal.com/docs/nvp-soap-api/set-express-checkout-nvp/)
+   * we get back the response which contains a token that we can use in the next step of the transaction.
+   * The API is extensive. Currently this method only supports the situation where you're getting an authorizing
+   * token that allows us to perform billing in the future.
+   */
+  public async setExpressCheckout(): Promise<NVPSetCheckoutResponse> {
+    const data = {
+      PAYMENTREQUEST_0_AMT: '0',
+      RETURNURL: PLACEHOLDER_URL,
+      CANCELURL: PLACEHOLDER_URL,
+      L_BILLINGTYPE0: 'MerchantInitiatedBilling',
+    };
+    return (await this.doRequest(
+      'SetExpressCheckout',
+      data
+    )) as NVPSetCheckoutResponse;
   }
 }
