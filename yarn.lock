@@ -15568,6 +15568,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"es6-promisify@npm:^6.1.1":
+  version: 6.1.1
+  resolution: "es6-promisify@npm:6.1.1"
+  checksum: 03654617c47d261c7cb97a0477a42999f06c638b8ae8d944ce7232a5c5f3add307abe5a4fe93fd7174725e77131ab1a2f9b534bd09a2fe11993f671b46ad75f0
+  languageName: node
+  linkType: hard
+
 "es6-shim@npm:^0.35.5":
   version: 0.35.5
   resolution: "es6-shim@npm:0.35.5"
@@ -18890,6 +18897,8 @@ fsevents@^1.2.7:
     subscriptions-transport-ws: ^0.9.18
     typescript: 3.9.7
     webpack: ^4.43.0
+    webpack-merge-and-include-globally: ^2.2.3
+    webpack-watch-files-plugin: ^1.1.0
   languageName: unknown
   linkType: soft
 
@@ -32766,6 +32775,13 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
+"rev-hash@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "rev-hash@npm:3.0.0"
+  checksum: cd725ae4e775f747578a49a889419538eac2aaef92e9f1cf53d0d5e0bc61e589635e92b2d14aa1f7c839fd5722d10c7d6d19e5dad51122a4026ca40d6ab2e4d5
+  languageName: node
+  linkType: hard
+
 "rework-visit@npm:1.0.0":
   version: 1.0.0
   resolution: "rework-visit@npm:1.0.0"
@@ -37835,6 +37851,19 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
+"webpack-merge-and-include-globally@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "webpack-merge-and-include-globally@npm:2.2.3"
+  dependencies:
+    es6-promisify: ^6.1.1
+    glob: ^7.1.6
+    rev-hash: ^3.0.0
+  peerDependencies:
+    webpack: ">=1.0.0"
+  checksum: 20c0d0de191564f8bbeaab4d0a2e95b6acee0a6d17d1d225737313c6926ea533e16d077424cb00b749abb80de7c90397e23c1c981e90de6660bbf173c5719de7
+  languageName: node
+  linkType: hard
+
 "webpack-merge@npm:^4.2.2":
   version: 4.2.2
   resolution: "webpack-merge@npm:4.2.2"
@@ -37877,6 +37906,18 @@ typescript@~4.1.2:
   dependencies:
     debug: ^3.0.0
   checksum: f06d8f3e8427dd8231d9102e5f3f765329f49f4e6fe3d274bce9c06e386e633a29bca256dd98dfa836334488518e17dcddc0e8d087988cd17d206f25481ebe3c
+  languageName: node
+  linkType: hard
+
+"webpack-watch-files-plugin@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "webpack-watch-files-plugin@npm:1.1.0"
+  dependencies:
+    glob: ^7.1.6
+    lodash: ^4.17.20
+  peerDependencies:
+    webpack: ^3 || ^4
+  checksum: 9534cfe15d03f0111500ea4441f59a8b0f2366a4b6985bfa6be24bf08a3a55b7e55430b636610d6f181538156af93cb68244db5edf4be3a0e02e20043b065b4a
   languageName: node
   linkType: hard
 
