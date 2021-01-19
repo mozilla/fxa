@@ -1,7 +1,5 @@
 #!/bin/bash -ex
 
-set -o pipefail
-
 DIR=$(dirname "$0")
 cd "$DIR/.."
 
@@ -16,6 +14,7 @@ if [ -f _dev/local-build-env.sh ]; then
 fi
 
 check_build_logs() {
+    set +x
     for log_file in /tmp/xfs-*/build.log; do
         [ -f "$log_file" ] || continue
         cat <<EOF
@@ -23,13 +22,15 @@ check_build_logs() {
 EOF
         cat "${log_file}"
         cat <<EOF
-==========================[ END: ${log_file} ]==========================
+===========================[ END: ${log_file} ]===========================
 EOF
     done
 }
 
+trap 'check_build_logs' EXIT
+
 # `npx yarn` because `npm i -g yarn` needs sudo
-npx yarn install || check_build_logs
+npx yarn install
 SKIP_PREFLIGHT_CHECK=true npx yarn workspaces foreach --topological-dev --verbose run build
 rm -rf node_modules
 rm -rf packages/*/node_modules
