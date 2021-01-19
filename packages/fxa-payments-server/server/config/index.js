@@ -20,6 +20,13 @@ const conf = convict({
       env: 'FEATURE_USE_SCA_PAYMENT_UI_BY_DEFAULT',
       format: Boolean,
     },
+    usePaypalUIByDefault: {
+      default: false,
+      doc:
+        'Whether to use PayPal payment UI by default rather than Stripe payment UI alone',
+      env: 'FEATURE_USE_PAYPAL_UI_BY_DEFAULT',
+      format: Boolean,
+    },
   },
   amplitude: {
     enabled: {
