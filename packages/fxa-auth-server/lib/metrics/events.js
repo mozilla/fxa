@@ -34,6 +34,8 @@ const NOT_FLOW_EVENTS = new Set([
   'device.deleted',
   'device.updated',
   'sync.sentTabToDevice',
+  'token.created',
+  'verify.success',
 ]);
 
 // It's an error if a flow event doesn't have a flow_id
