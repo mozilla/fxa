@@ -10,6 +10,7 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { HomePath } from '../../constants';
 import { usePasswordChanger } from '../../lib/auth';
 import { cache, sessionToken } from '../../lib/cache';
+import firefox from '../../lib/firefox';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { useAccount } from '../../models';
 import AlertBar from '../AlertBar';
@@ -78,6 +79,14 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     onSuccess: (response) => {
       logViewEvent(settingsViewName, 'change-password.success');
       changePassword.reset();
+      firefox.passwordChanged(
+        primaryEmail.email,
+        response.uid,
+        response.sessionToken,
+        response.verified,
+        response.keyFetchToken,
+        response.unwrapBKey
+      );
       sessionToken(response.sessionToken);
       cache.writeQuery({
         query: gql`

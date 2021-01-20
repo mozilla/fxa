@@ -109,6 +109,22 @@ export const ACCOUNT_FIELDS = `
     }
 `;
 
+export const GET_PROFILE_INFO = gql`
+  query GetProfileInfo {
+    account {
+      uid
+      displayName
+      avatarUrl
+      primaryEmail @client
+      emails {
+        email
+        isPrimary
+        verified
+      }
+    }
+  }
+`;
+
 export const GET_ACCOUNT = gql`
   query GetAccount {
     ${ACCOUNT_FIELDS}
