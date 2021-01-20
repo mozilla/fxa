@@ -155,6 +155,7 @@ module.exports = function (
         let account,
           verifyHash,
           sessionToken,
+          previousSessionToken,
           keyFetchToken,
           verifiedStatus,
           devicesToNotify,
@@ -167,6 +168,7 @@ module.exports = function (
           .then(changePassword)
           .then(notifyAccount)
           .then(createSessionToken)
+          .then(verifySessionToken)
           .then(createKeyFetchToken)
           .then(createResponse);
 
@@ -187,6 +189,7 @@ module.exports = function (
         function getSessionVerificationStatus() {
           if (sessionTokenId) {
             return db.sessionToken(sessionTokenId).then((tokenData) => {
+              previousSessionToken = tokenData;
               verifiedStatus = tokenData.tokenVerified;
               if (tokenData.deviceId) {
                 originatingDeviceId = tokenData.deviceId;
@@ -356,6 +359,19 @@ module.exports = function (
             .then((result) => {
               sessionToken = result;
             });
+        }
+
+        function verifySessionToken() {
+          if (
+            sessionToken &&
+            previousSessionToken &&
+            previousSessionToken.verificationMethodValue
+          ) {
+            return db.verifyTokensWithMethod(
+              sessionToken.id,
+              previousSessionToken.verificationMethodValue
+            );
+          }
         }
 
         function createKeyFetchToken() {
