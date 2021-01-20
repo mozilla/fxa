@@ -3,12 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-
-// import Cropper from 'react-cropper';
+//import Cropper from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
-// import { ReactComponent as ZoomIn } from './zoom-in.svg';
-// import { ReactComponent as ZoomOut } from './zoom-out.svg';
-// import { ReactComponent as Rotate } from './rotate.svg';
+//import { ReactComponent as ZoomIn } from './zoom-in.svg';
+//import { ReactComponent as ZoomOut } from './zoom-out.svg';
+//import { ReactComponent as Rotate } from './rotate.svg';
 
 type AvatarCropperProps = {};
 

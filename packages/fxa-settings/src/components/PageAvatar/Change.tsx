@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// import { useAccount } from '../../models';
+//import { useAccount } from '../../models';
 import { useAlertBar } from '../../lib/hooks';
 import React /*, { useState } */ from 'react';
-
 import { RouteComponentProps } from '@reach/router';
 
 import AlertBar from '../AlertBar';
@@ -17,7 +16,7 @@ import { ReactComponent as AddIcon } from './add.svg';
 import { ReactComponent as CameraIcon } from './camera.svg';
 import { ReactComponent as RemoveIcon } from './remove.svg';
 
-export const PageAvatar = (_: RouteComponentProps) => {
+export const PageChangeAvatar = (_: RouteComponentProps) => {
   //const account = useAccount();
   const alertBar = useAlertBar();
   //const [errorText, setErrorText] = useState<string>();
@@ -65,4 +64,4 @@ export const PageAvatar = (_: RouteComponentProps) => {
   );
 };
 
-export default PageAvatar;
+export default PageChangeAvatar;

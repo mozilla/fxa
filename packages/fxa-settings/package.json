@@ -50,6 +50,7 @@
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.11.0",
     "react-scripts": "^3.4.1",
+    "react-webcam": "^5.2.2",
     "subscriptions-transport-ws": "^0.9.18",
     "typescript": "3.9.7"
   },

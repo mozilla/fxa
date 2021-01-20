@@ -8,3 +8,4 @@ export const DeleteAccountPath = '/beta/settings/delete_account';
 export const VPNLink = 'https://vpn.mozilla.org/';
 export const LockwiseLink = 'https://lockwise.firefox.com/';
 export const MonitorLink = 'https://monitor.firefox.com/';
+export const CapturePath = '/beta/settings/avatar/capture';
