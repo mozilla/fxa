@@ -795,6 +795,12 @@ const conf = convict({
       default: false,
     },
     paypalNvpSigCredentials: {
+      enabled: {
+        doc: 'Indicates whether PayPal APIs are enabled',
+        format: Boolean,
+        env: 'SUBSCRIPTIONS_PAYPAL_ENABLED',
+        default: false,
+      },
       sandbox: {
         doc: 'PayPal Sandbox mode',
         format: Boolean,
