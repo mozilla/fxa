@@ -36,14 +36,17 @@ async function run(config) {
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
     const createStripeHelper = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
-    const { PayPalClient } = require('../lib/payments/paypal-client');
-    const { PayPalHelper } = require('../lib/payments/paypal');
-    const paypalClient = new PayPalClient(
-      config.subscriptions.paypalNvpSigCredentials
-    );
-    Container.set(PayPalClient, paypalClient);
-    const paypalHelper = new PayPalHelper({ log });
-    Container.set(PayPalHelper, paypalHelper);
+
+    if (config.subscriptions.paypalNvpSigCredentials.enabled) {
+      const { PayPalClient } = require('../lib/payments/paypal-client');
+      const { PayPalHelper } = require('../lib/payments/paypal');
+      const paypalClient = new PayPalClient(
+        config.subscriptions.paypalNvpSigCredentials
+      );
+      Container.set(PayPalClient, paypalClient);
+      const paypalHelper = new PayPalHelper({ log });
+      Container.set(PayPalHelper, paypalHelper);
+    }
   }
 
   const redis = require('../lib/redis')(
