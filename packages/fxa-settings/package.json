@@ -46,6 +46,7 @@
     "postcss-import": "^12.0.1",
     "react": "^16.13.1",
     "react-async-hook": "^3.6.1",
+    "react-cropper": "^2.1.3",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.11.0",
     "react-scripts": "^3.4.1",
