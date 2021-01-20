@@ -143,6 +143,10 @@ const expectedMergedConfig = {
       url: '',
     },
   },
+  paypal: {
+    clientId: '',
+    scriptUrl: '',
+  },
   stripe: {
     apiKey: '',
   },

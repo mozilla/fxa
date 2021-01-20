@@ -1,4 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useContext,
+  useEffect,
+  Suspense,
+} from 'react';
 import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
 import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
@@ -16,7 +22,7 @@ import * as Amplitude from '../../../lib/amplitude';
 import { Localized } from '@fluent/react';
 import * as apiClient from '../../../lib/apiClient';
 
-import { config } from '../../../lib/config';
+import { AppContext } from '../../../lib/AppContext';
 
 import '../../Product/SubscriptionCreate/index.scss';
 
@@ -48,6 +54,8 @@ export type SubscriptionCreateProps = {
   apiClientOverrides?: Partial<SubscriptionCreateAuthServerAPIs>;
 };
 
+const PaypalButton = React.lazy(() => import('../../Product/PayPalButton'));
+
 export const SubscriptionCreate = ({
   isMobile,
   profile,
@@ -70,6 +78,25 @@ export const SubscriptionCreate = ({
     () => Amplitude.createSubscriptionEngaged(selectedPlan),
     [selectedPlan]
   );
+
+  const { config } = useContext(AppContext);
+
+  const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!config.featureFlags.usePaypalUIByDefault) {
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = `${config.paypal.scriptUrl}/sdk/js?client-id=${config.paypal.clientId}&vault=true&commit=false&intent=authorize&disable-funding=credit,card`;
+    script.onload = () => {
+      setPaypalScriptLoaded(true);
+    };
+    script.onerror = () => {
+      throw new Error('Paypal SDK could not be loaded.');
+    };
+    document.body.appendChild(script);
+  }, []);
 
   const [inProgress, setInProgress] = useState(false);
 
@@ -144,6 +171,12 @@ export const SubscriptionCreate = ({
             </Localized>
           </div>
 
+          {!hasExistingCard(customer) && paypalScriptLoaded && (
+            <Suspense fallback={<div>Loading...</div>}>
+              <PaypalButton />
+            </Suspense>
+          )}
+
           <h3 className="billing-title">
             <Localized id="sub-update-title">
               <span className="title">Billing Information</span>
@@ -161,11 +194,6 @@ export const SubscriptionCreate = ({
               </Localized>
             )}
           </ErrorMessage>
-
-          {config.featureFlags.usePaypalUIByDefault ? (
-            // To be updated in issue #7097
-            <div id="paypal-button-container"></div>
-          ) : null}
 
           <PaymentForm
             {...{
