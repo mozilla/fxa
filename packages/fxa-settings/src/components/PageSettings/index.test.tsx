@@ -20,6 +20,7 @@ it('renders without imploding', async () => {
   expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   expect(screen.getByTestId('settings-security')).toBeInTheDocument();
   expect(screen.getByTestId('settings-connected-services')).toBeInTheDocument();
+  expect(screen.getByTestId('settings-delete-account')).toBeInTheDocument();
   expect(Metrics.setProperties).toHaveBeenCalledWith({
     uid: 'abc123',
   });

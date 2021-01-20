@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import Checkbox from './index';
 
 it('renders as expected', () => {
@@ -32,4 +32,11 @@ it('can have a label', () => {
   render(<Checkbox {...{ label }} />);
   expect(screen.getByTestId('checkbox-label')).toBeInTheDocument();
   expect(screen.getByTestId('checkbox-label')).toHaveTextContent(label);
+});
+
+it('will call onChange argument', () => {
+  const onChange = jest.fn();
+  render(<Checkbox {...{ onChange }} />);
+  fireEvent.click(screen.getByTestId('checkbox-input'));
+  expect(onChange).toBeCalled();
 });
