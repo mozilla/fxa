@@ -8,6 +8,7 @@ import { ReactComponent as BackArrow } from './back-arrow.svg';
 import Head from 'fxa-react/components/Head';
 
 type FlowContainerProps = {
+  width?: 'sm' | 'md' | 'lg' | 'xl';
   title?: string;
   subtitle?: string;
   onBackButtonClick?: (

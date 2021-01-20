@@ -39,7 +39,6 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
             <p data-testid="update-avatar-error">{alertBar.content}</p>
           </AlertBar>
         )}
-
         <form onSubmit={handleSubmit}>
           <Avatar className="mx-auto w-32" />
 
