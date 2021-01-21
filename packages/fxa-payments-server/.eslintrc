@@ -1,7 +1,8 @@
 {
   "extends": [
     "plugin:fxa/server",
-    "plugin:jest/recommended"
+    "plugin:jest/recommended",
+    "plugin:react/recommended"
   ],
   "plugins": ["fxa"],
   "parser": "babel-eslint",
