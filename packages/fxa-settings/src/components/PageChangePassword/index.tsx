@@ -21,8 +21,7 @@ import { ReactComponent as InvalidIcon } from './invalid.svg';
 import { ReactComponent as UnsetIcon } from './unset.svg';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { gql } from '@apollo/client';
-import { useLocalization } from '@fluent/react';
-import { Localized } from '@fluent/react';
+import { useLocalization, Localized } from '@fluent/react';
 
 type FormData = {
   oldPassword: string;
