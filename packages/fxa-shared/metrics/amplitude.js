@@ -182,7 +182,9 @@ module.exports = {
    *
    * @param {Object} events   An object of name:definition event mappings, where
    *                          each definition value is itself an object with `group`
-   *                          and `event` string properties.
+   *                          and `event` string properties, with an optional `minimal`
+   *                          property that can be set to `true` to only report
+   *                          uid, service, and version.
    *
    * @param {Map} fuzzyEvents A map of regex:definition event mappings. Each regex
    *                          key may include up to two capturing groups. The first
@@ -258,6 +260,16 @@ module.exports = {
         try {
           version = /([0-9]+)\.([0-9])$/.exec(data.version)[0];
         } catch (err) {}
+
+        // minimal data should be enabled for routes used by internal
+        // services like profile-server and token-server
+        if (mapping.minimal) {
+          data = {
+            uid: data.uid,
+            service: data.service,
+            version: data.version,
+          };
+        }
 
         return pruneUnsetValues({
           op: 'amplitudeEvent',

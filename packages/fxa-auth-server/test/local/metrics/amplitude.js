@@ -693,6 +693,47 @@ describe('metrics/amplitude', () => {
       });
     });
 
+    describe('verify.success', () => {
+      beforeEach(() => {
+        Container.set(StatsD, { increment: sinon.spy() });
+        return amplitude(
+          'verify.success',
+          mocks.mockRequest({
+            uaBrowser: 'foo',
+            credentials: {
+              uid: 'blee',
+            },
+            geo: {
+              location: {
+                country: 'United Kingdom',
+                state: 'England',
+              },
+            },
+            query: {
+              service: '0',
+            },
+          })
+        );
+      });
+      it('only includes minimal data', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args.length, 1);
+        assert.equal(args[0].user_id, 'blee');
+        assert.equal(args[0].country, undefined);
+        assert.equal(args[0].region, undefined);
+        assert.deepEqual(args[0].event_properties, {
+          service: 'amo',
+          oauth_client_id: '0',
+        });
+        assert.deepEqual(args[0].user_properties, {
+          $append: {
+            fxa_services_used: 'amo',
+          },
+        });
+      });
+    });
+
     describe('email templates', () => {
       const templates = require('../../../lib/senders/templates/_versions');
       const emailTypes = amplitudeModule.EMAIL_TYPES;
