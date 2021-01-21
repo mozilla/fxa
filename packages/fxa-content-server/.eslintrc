@@ -10,6 +10,7 @@
     "camelCase": "off",
     "strict": "off",
     "no-useless-escape": "off",
-    "handle-callback-err": "off"
+    "handle-callback-err": "off",
+    "react/jsx-uses-vars": "on"
   }
 }
