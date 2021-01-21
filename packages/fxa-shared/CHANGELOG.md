@@ -1,5 +1,11 @@
 # Change history
 
+## 1.198.2
+
+### Bug fixes
+
+- metrics: fixed 'fxa - activity' metric ([bdd645c48](https://github.com/mozilla/fxa/commit/bdd645c48))
+
 ## 1.198.1
 
 ### Other changes
