@@ -20,16 +20,16 @@ const {
   StripeWebhookHandler,
 } = require('../../../../lib/routes/subscriptions/stripe-webhook');
 
-const customerFixture = require('../../payments/fixtures/customer1.json');
-const subscriptionCreated = require('../../payments/fixtures/subscription_created.json');
-const subscriptionCreatedIncomplete = require('../../payments/fixtures/subscription_created_incomplete.json');
-const subscriptionDeleted = require('../../payments/fixtures/subscription_deleted.json');
-const subscriptionUpdated = require('../../payments/fixtures/subscription_updated.json');
-const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/subscription_updated_from_incomplete.json');
-const eventInvoicePaymentSucceeded = require('../../payments/fixtures/event_invoice_payment_succeeded.json');
-const eventInvoicePaymentFailed = require('../../payments/fixtures/event_invoice_payment_failed.json');
-const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/event_customer_subscription_updated.json');
-const eventCustomerSourceExpiring = require('../../payments/fixtures/event_customer_source_expiring.json');
+const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
+const subscriptionCreated = require('../../payments/fixtures/stripe/subscription_created.json');
+const subscriptionCreatedIncomplete = require('../../payments/fixtures/stripe/subscription_created_incomplete.json');
+const subscriptionDeleted = require('../../payments/fixtures/stripe/subscription_deleted.json');
+const subscriptionUpdated = require('../../payments/fixtures/stripe/subscription_updated.json');
+const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/stripe/subscription_updated_from_incomplete.json');
+const eventInvoicePaymentSucceeded = require('../../payments/fixtures/stripe/event_invoice_payment_succeeded.json');
+const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
+const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
+const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/event_customer_source_expiring.json');
 
 let config, log, db, customs, push, mailer, profile;
 

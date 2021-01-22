@@ -27,18 +27,18 @@ const {
   filterIntent,
 } = require('fxa-shared').subscriptions.stripe;
 
-const subscription2 = require('../../payments/fixtures/subscription2.json');
-const cancelledSubscription = require('../../payments/fixtures/subscription_cancelled.json');
-const trialSubscription = require('../../payments/fixtures/subscription_trialing.json');
-const pastDueSubscription = require('../../payments/fixtures/subscription_past_due.json');
-const customerFixture = require('../../payments/fixtures/customer1.json');
-const customerPMIExpanded = require('../../payments/fixtures/customer_new_pmi_default_invoice_expanded.json');
-const multiPlanSubscription = require('../../payments/fixtures/subscription_multiplan.json');
-const emptyCustomer = require('../../payments/fixtures/customer_new.json');
-const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/subscription_updated_from_incomplete.json');
-const openInvoice = require('../../payments/fixtures/invoice_open.json');
-const newSetupIntent = require('../../payments/fixtures/setup_intent_new.json');
-const stripePlan = require('../../payments/fixtures/plan1.json');
+const subscription2 = require('../../payments/fixtures/stripe/subscription2.json');
+const cancelledSubscription = require('../../payments/fixtures/stripe/subscription_cancelled.json');
+const trialSubscription = require('../../payments/fixtures/stripe/subscription_trialing.json');
+const pastDueSubscription = require('../../payments/fixtures/stripe/subscription_past_due.json');
+const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
+const customerPMIExpanded = require('../../payments/fixtures/stripe/customer_new_pmi_default_invoice_expanded.json');
+const multiPlanSubscription = require('../../payments/fixtures/stripe/subscription_multiplan.json');
+const emptyCustomer = require('../../payments/fixtures/stripe/customer_new.json');
+const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/stripe/subscription_updated_from_incomplete.json');
+const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
+const newSetupIntent = require('../../payments/fixtures/stripe/setup_intent_new.json');
+const stripePlan = require('../../payments/fixtures/stripe/plan1.json');
 
 let config,
   log,

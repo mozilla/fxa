@@ -41,12 +41,11 @@ export type PAYPAL_METHODS =
  * https://developer.paypal.com/docs/nvp-soap-api/NVPAPIOverview/#common-response-fields
  */
 
-export enum PAYPAL_NVP_ACK_OPTIONS {
-  Success = 'Success',
-  SuccessWithWarning = 'SuccessWithWarning',
-  Failure = 'Failure',
-  FailureWithWarning = 'FailureWithWarning',
-}
+export type PAYPAL_NVP_ACK_OPTIONS =
+  | 'Success'
+  | 'SuccessWithWarning'
+  | 'Failure'
+  | 'FailureWithWarning';
 
 type NVPResponse = {
   ACK: PAYPAL_NVP_ACK_OPTIONS;
@@ -131,10 +130,10 @@ export class PayPalClient {
     return result;
   }
 
-  private async doRequest(
+  private async doRequest<T extends NVPResponse>(
     method: PAYPAL_METHODS,
     data: Record<string, any>
-  ): Promise<NVPResponse> {
+  ): Promise<T> {
     const payload = this.objectToNVP({
       ...data,
       USER: this.user,
@@ -151,11 +150,8 @@ export class PayPalClient {
           .send(payload),
       this.retryOptions
     );
-    const resultObj = this.nvpToObject(result.text) as NVPResponse;
-    if (
-      resultObj.ACK === PAYPAL_NVP_ACK_OPTIONS.Success ||
-      resultObj.ACK === PAYPAL_NVP_ACK_OPTIONS.SuccessWithWarning
-    ) {
+    const resultObj = this.nvpToObject(result.text) as T;
+    if (resultObj.ACK === 'Success' || resultObj.ACK === 'SuccessWithWarning') {
       return resultObj;
     } else {
       throw new PayPalClientError(result.text, resultObj);
@@ -177,9 +173,9 @@ export class PayPalClient {
       CANCELURL: PLACEHOLDER_URL,
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
     };
-    return (await this.doRequest(
+    return await this.doRequest<NVPSetCheckoutResponse>(
       'SetExpressCheckout',
       data
-    )) as NVPSetCheckoutResponse;
+    );
   }
 }

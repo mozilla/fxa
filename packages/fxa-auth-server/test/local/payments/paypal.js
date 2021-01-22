@@ -17,7 +17,7 @@ const {
 } = require('../../../lib/payments/paypal-client');
 const { PayPalHelper } = require('../../../lib/payments/paypal');
 
-const successfulSetExpressCheckoutResponse = require('./paypal-fixtures/set_express_checkout_success.json');
+const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
 
 describe('PayPalHelper', () => {
   /** @type PayPalHelper */

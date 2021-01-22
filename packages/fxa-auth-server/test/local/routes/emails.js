@@ -17,8 +17,8 @@ const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 
-const CUSTOMER_1 = require('../payments/fixtures/customer1.json');
-const CUSTOMER_1_UPDATED = require('../payments/fixtures/customer1_new_email.json');
+const CUSTOMER_1 = require('../payments/fixtures/stripe/customer1.json');
+const CUSTOMER_1_UPDATED = require('../payments/fixtures/stripe/customer1_new_email.json');
 const TEST_EMAIL = 'foo@gmail.com';
 const TEST_EMAIL_ADDITIONAL = 'foo2@gmail.com';
 const TEST_EMAIL_INVALID = 'example@dotless-domain';
