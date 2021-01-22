@@ -22,20 +22,23 @@ import {
 } from '../../constants';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { Checkbox } from '../Checkbox';
+import { useLocalization } from '@fluent/react';
+import { Localized } from '@fluent/react';
 
 type FormData = {
   password: string;
 };
 
 const checkboxLabels = [
-  'Any paid subscriptions you have will be cancelled',
-  'Any may lose saved information and features within Mozilla products',
-  'Reactivating with this email may not restore your saved information',
-  'Any extensions and themes that you published to addons.mozilla.org will be deleted',
+  'delete-account-chk-box-1',
+  'delete-account-chk-box-2',
+  'delete-account-chk-box-3',
+  'delete-account-chk-box-4',
 ];
 
 export const PageDeleteAccount = (_: RouteComponentProps) => {
   usePageViewEvent('settings.delete-account');
+  const { l10n } = useLocalization();
   const { handleSubmit, register, formState, setValue } = useForm<FormData>({
     mode: 'all',
     defaultValues: {
@@ -48,7 +51,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
     !formState.isDirty || !formState.isValid || !!formState.errors.password;
   const [errorText, setErrorText] = useState<string>();
   const [confirmed, setConfirmed] = useState<boolean>(false);
-  const [subtitleText, setSubtitleText] = useState<string>('Step 1 of 2');
+  const [subtitleText, setSubtitleText] = useState<string>(
+    l10n.getString('delete-account-step-1-2')
+  );
   const [checkedBoxes, setCheckedBoxes] = useState<string[]>([]);
   const allBoxesChecked = checkboxLabels.every((element) =>
     checkedBoxes.includes(element)
@@ -60,7 +65,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const { primaryEmail } = useAccount();
 
   const advanceStep = () => {
-    setSubtitleText('Step 2 of 2');
+    setSubtitleText(l10n.getString('delete-account-step-2-2'));
     setConfirmed(true);
 
     logViewEvent('flow.settings.account-delete', 'terms-checked.success');
@@ -68,17 +73,18 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
 
   const deleteAccount = useAccountDestroyer({
     onSuccess: () => {
-      // must use location.href over navigate() since this is an exernal link
+      // must use location.href over navigate() since this is an external link
       window.location.href = `${ROOTPATH}?delete_account_success=true`;
       logViewEvent('flow.settings.account-delete', 'confirm-password.success');
     },
     onError: (error) => {
+      const localizedError = l10n.getString(`auth-error-${error.errno}`);
       if (error.errno === 103) {
-        setErrorText(error.message);
+        setErrorText(localizedError);
         setValue('password', '');
       } else {
         alertBar.setType('error');
-        alertBar.setContent(error.message);
+        alertBar.setContent(localizedError);
         alertBar.show();
         logViewEvent('flow.settings.account-delete', 'confirm-password.fail');
       }
@@ -103,113 +109,136 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   };
 
   return (
-    <FlowContainer title="Delete Account" subtitle={subtitleText}>
-      {alertBar.visible && (
-        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-          <p data-testid="delete-account-error">{alertBar.content}</p>
-        </AlertBar>
-      )}
-      <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
-      {!confirmed && (
-        <div className="my-4 text-sm" data-testid="delete-account-confirm">
-          <p className="mb-4">
-            You've connected your Firefox account to Mozilla products that keep
-            you secure and productive on the web:
-          </p>
-          <div className="p-2">
-            <ul className="list-inside mb-4">
-              <li className="list-disc">
-                <a className="link-blue" href={VPNLink}>
-                  Mozilla VPN
-                </a>
-              </li>
-              <li className="list-disc">
-                <a className="link-blue" href={LockwiseLink}>
-                  Firefox Lockwise
-                </a>
-              </li>
-              <li className="list-disc">
-                <a className="link-blue" href={MonitorLink}>
-                  Firefox Monitor
-                </a>
-              </li>
-            </ul>
-          </div>
-          <p className="mb-4">
-            Please acknowledge that by deleting your account:
-          </p>
-          <form>
-            <ul className="mt-4 text-xs">
-              {checkboxLabels.map((label, i) => (
-                <li className="py-2" key={i}>
-                  <Checkbox
-                    data-testid="required-confirm"
-                    label={label}
-                    onChange={handleConfirmChange(label)}
-                  />
+    <Localized id="delete-account-header" attrs={{ title: true }}>
+      <FlowContainer title="Delete Account" subtitle={subtitleText}>
+        {alertBar.visible && (
+          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+            <p data-testid="delete-account-error">{alertBar.content}</p>
+          </AlertBar>
+        )}
+        <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+        {!confirmed && (
+          <div className="my-4 text-sm" data-testid="delete-account-confirm">
+            <Localized id="delete-account-confirm-title">
+              <p className="mb-4">
+                You've connected your Firefox account to Mozilla products that
+                keep you secure and productive on the web:
+              </p>
+            </Localized>
+            <div className="p-2">
+              <ul className="list-inside mb-4">
+                <li className="list-disc">
+                  <a className="link-blue" href={VPNLink}>
+                    <Localized id="mozilla-vpn">Mozilla VPN</Localized>
+                  </a>
                 </li>
-              ))}
-            </ul>
-          </form>
-          <div className="mt-4 flex items-center justify-center">
-            <button
-              className="cta-neutral mx-2 px-10"
-              onClick={() => navigate(HomePath, { replace: true })}
-              data-testid="close-button"
-            >
-              Close
-            </button>
-            <button
-              className="cta-primary mx-2 px-10"
-              disabled={!allBoxesChecked}
-              onClick={() => advanceStep()}
-              data-testid="continue-button"
-            >
-              Continue
-            </button>
+                <li className="list-disc">
+                  <a className="link-blue" href={LockwiseLink}>
+                    <Localized id="firefox-lockwise">
+                      Firefox Lockwise
+                    </Localized>
+                  </a>
+                </li>
+                <li className="list-disc">
+                  <a className="link-blue" href={MonitorLink}>
+                    <Localized id="firefox-monitor">Firefox Monitor</Localized>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <Localized id="delete-account-acknowledge">
+              <p className="mb-4">
+                Please acknowledge that by deleting your account:
+              </p>
+            </Localized>
+            <form>
+              <ul className="mt-4 text-xs">
+                {checkboxLabels.map((label, i) => (
+                  <li className="py-2" key={i}>
+                    <Localized id={label} attrs={{ label: true }}>
+                      <Checkbox
+                        data-testid="required-confirm"
+                        label={label}
+                        onChange={handleConfirmChange(label)}
+                      />
+                    </Localized>
+                  </li>
+                ))}
+              </ul>
+            </form>
+            <div className="mt-4 flex items-center justify-center">
+              <Localized id="delete-account-close-button">
+                <button
+                  className="cta-neutral mx-2 px-10"
+                  onClick={() => navigate(HomePath, { replace: true })}
+                  data-testid="close-button"
+                >
+                  Close
+                </button>
+              </Localized>
+              <Localized id="delete-account-continue-button">
+                <button
+                  className="cta-primary mx-2 px-10"
+                  disabled={!allBoxesChecked}
+                  onClick={() => advanceStep()}
+                  data-testid="continue-button"
+                >
+                  Continue
+                </button>
+              </Localized>
+            </div>
           </div>
-        </div>
-      )}
-      {confirmed && (
-        <form onSubmit={handleSubmit(onFormSubmit)}>
-          <div className="mt-4 mb-6" data-testid="delete-account-input">
-            <InputPassword
-              name="password"
-              label="Enter password"
-              prefixDataTestId="delete-account-confirm"
-              onChange={() => {
-                if (errorText) {
-                  setErrorText(undefined);
-                }
-              }}
-              inputRef={register({
-                required: true,
-              })}
-              {...{ errorText }}
-            />
-          </div>
+        )}
+        {confirmed && (
+          <form onSubmit={handleSubmit(onFormSubmit)}>
+            <div className="mt-4 mb-6" data-testid="delete-account-input">
+              <Localized
+                id="delete-account-password-input"
+                attrs={{ label: true }}
+              >
+                <InputPassword
+                  name="password"
+                  label="Enter password"
+                  prefixDataTestId="delete-account-confirm"
+                  onChange={() => {
+                    if (errorText) {
+                      setErrorText(undefined);
+                    }
+                  }}
+                  inputRef={register({
+                    required: true,
+                  })}
+                  {...{ errorText }}
+                />
+              </Localized>
+            </div>
 
-          <div className="flex items-center justify-center">
-            <button
-              type="button"
-              className="cta-neutral mx-2 px-4 tablet:px-10"
-              data-testid="cancel-button"
-              onClick={goBack}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="cta-primary mx-2 px-4"
-              data-testid="delete-account-button"
-              disabled={disabled}
-            >
-              Delete Account
-            </button>
-          </div>
-        </form>
-      )}
-    </FlowContainer>
+            <div className="flex items-center justify-center">
+              <Localized id="delete-account-cancel-button">
+                <button
+                  type="button"
+                  className="cta-neutral mx-2 px-4 tablet:px-10"
+                  data-testid="cancel-button"
+                  onClick={goBack}
+                >
+                  Cancel
+                </button>
+              </Localized>
+              <Localized id="delete-account-delete-button">
+                <button
+                  type="submit"
+                  className="cta-primary mx-2 px-4"
+                  data-testid="delete-account-button"
+                  disabled={disabled}
+                >
+                  Delete Account
+                </button>
+              </Localized>
+            </div>
+          </form>
+        )}
+      </FlowContainer>
+    </Localized>
   );
 };
 
