@@ -98,7 +98,7 @@
   },
   "dependencies": {
     "@sentry/browser": "^5.27.6",
-    "@sentry/node": "^6.0.0",
+    "@sentry/node": "^6.0.1",
     "@stripe/react-stripe-js": "^1.1.2",
     "@stripe/stripe-js": "^1.11.0",
     "@types/nock": "^11.1.0",
