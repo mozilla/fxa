@@ -125,7 +125,7 @@
     "joi": "^14.3.1",
     "morgan": "^1.10.0",
     "mozlog": "^3.0.1",
-    "node-sass": "^4.13.1",
+    "node-sass": "^5.0.0",
     "on-headers": "^1.0.2",
     "react": "^16.12.0",
     "react-document-title": "^2.0.3",
