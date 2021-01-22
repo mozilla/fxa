@@ -38,7 +38,7 @@
     "@nestjs/passport": "^7.1.5",
     "@nestjs/platform-express": "^7.5.5",
     "@sentry/integrations": "^5.29.1",
-    "@sentry/node": "^6.0.0",
+    "@sentry/node": "^6.0.1",
     "apollo-datasource": "^0.7.2",
     "apollo-server": "^2.19.2",
     "apollo-server-express": "^2.16.1",
