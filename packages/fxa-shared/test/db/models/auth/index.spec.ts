@@ -17,6 +17,11 @@ import {
   deleteAccountCustomer,
   getAccountCustomerByUid,
   updateAccountCustomer,
+  PayPalBillingAgreements,
+  createPayPalBA,
+  getAllPayPalBAByUid,
+  updatePayPalBA,
+  deleteAllPayPalBAs,
 } from '../../../../db/models/auth';
 import {
   chance,
@@ -265,6 +270,216 @@ describe('auth', () => {
       // Test Final Retrieval
       const finallocate = await getAccountCustomerByUid(userId);
       assert.isUndefined(finallocate);
+    });
+  });
+
+  describe('paypalCustomers CRUD', () => {
+    describe('createPayPalBA', () => {
+      const userId = '263e29ad86d245eeabf309e6a125bbfb';
+      const billingAgreementId = 'B-1234XXXXX';
+      const status = 'Active';
+      it('Creates a new billing agreement when the uid and billing agreement id are valid', async () => {
+        const testCustomer = await createPayPalBA(
+          userId,
+          billingAgreementId,
+          status
+        );
+
+        assert.isDefined(testCustomer);
+        assert.equal(testCustomer.uid, userId);
+        assert.equal(testCustomer.billingAgreementId, billingAgreementId);
+        assert.equal(testCustomer.status, status);
+        assert.isNotNull(testCustomer.createdAt);
+      });
+
+      it('Fails to create when the uid is invalid', async () => {
+        try {
+          await createPayPalBA(
+            '27384d1476564252aade14e9c71bec4\\',
+            'B-1234XXXXX',
+            'Active'
+          );
+          assert.fail('Validation error expected for invalid uid');
+        } catch (err) {
+          assert.isTrue(err instanceof ValidationError);
+          assert.isTrue(err.message.includes('uid: should match pattern'));
+        }
+      });
+
+      it('Fails to create when the billing agreement id is invalid', async () => {
+        try {
+          await createPayPalBA(
+            '27384d1476564252aade14e9c71bec53',
+            'BASDFASDF',
+            'Active'
+          );
+          assert.fail(
+            'Validation error expected for invalid billing agreement id'
+          );
+        } catch (err) {
+          assert.isTrue(err instanceof ValidationError);
+          assert.isTrue(
+            err.message.includes('billingAgreementId: should match pattern')
+          );
+        }
+      });
+    });
+    describe('getPayPalBAByUid', () => {
+      const uid = '1bec4927384d147aade165642524e9c7';
+      const billingAgreementId = 'B-1234XXXXX';
+      const status = 'Active';
+
+      before(async () => {
+        await createPayPalBA(uid, billingAgreementId, status);
+      });
+
+      it('finds an existing paypalCustomer', async () => {
+        const result = await getAllPayPalBAByUid(uid);
+        assert.isDefined(result);
+        assert.lengthOf(result, 1);
+        const ba = result[0];
+        assert.equal(ba.uid, uid);
+        assert.equal(ba.billingAgreementId, billingAgreementId);
+      });
+
+      it('does not find a non-existent paypalCustomer', async () => {
+        const result = await getAllPayPalBAByUid(
+          '11114d1476500002aade14e9c71baaaa'
+        );
+        assert.lengthOf(result, 0);
+      });
+
+      it('handles bad input', async () => {
+        try {
+          const result = await getAllPayPalBAByUid('asfgewarger089_');
+          assert.fail();
+        } catch (err) {
+          assert.isTrue(err.message.includes('Invalid hex data'));
+        }
+      });
+    });
+
+    describe('updatePayPalBA', () => {
+      const uid = '00000927384d147aade1656425200000';
+      const billingAgreementId = 'B-1234XXXXX';
+      const status = 'Active';
+
+      before(async () => {
+        await createPayPalBA(uid, billingAgreementId, status);
+      });
+
+      it('Returns 1 when a row is successfully updated', async () => {
+        assert.equal(
+          await updatePayPalBA(uid, billingAgreementId, 'Cancelled'),
+          1
+        );
+      });
+
+      it('Returns 0 when no rows are affected', async () => {
+        assert.equal(
+          await updatePayPalBA('0000', billingAgreementId, 'Cancelled'),
+          0
+        );
+      });
+
+      it('Throws error when validation fails', async () => {
+        try {
+          await updatePayPalBA(uid, billingAgreementId, '1213212312' as any);
+          assert.fail();
+        } catch (err) {
+          assert.isTrue(err instanceof ValidationError);
+        }
+      });
+    });
+
+    describe('deletePayPalBA', () => {
+      const uid = 'aa000927384d147aade1656425200000';
+      const billingAgreementId = 'B-1234XXXXX';
+      const status = 'Active';
+
+      before(async () => {
+        await createPayPalBA(uid, billingAgreementId, status);
+      });
+
+      it('Returns 1 when a row is successfully deleted', async () => {
+        assert.equal(await deleteAllPayPalBAs(uid), 1);
+      });
+
+      it('Returns 0 when no rows are affected', async () => {
+        assert.equal(await deleteAllPayPalBAs('0000'), 0);
+      });
+    });
+
+    it('creates, retrieves, updates, and deletes a Paypal Billing Agreements successfully', async () => {
+      const userId = '27384d1400004252aaaa14e9c71bec49';
+      const billingAgreementId1 = 'B-1234XXXXX';
+      const billingAgreementId2 = 'B-2882XXXXX';
+      const status1 = 'Cancelled';
+      const status2 = 'Active';
+
+      // Test Creation
+      const testBA1 = await createPayPalBA(
+        userId,
+        billingAgreementId1,
+        status1
+      );
+      const testBA2 = await createPayPalBA(
+        userId,
+        billingAgreementId2,
+        status2
+      );
+
+      assert.isDefined(testBA1);
+      assert.equal(testBA1.uid, userId);
+      assert.equal(testBA1.billingAgreementId, billingAgreementId1);
+      assert.isNotNull(testBA1.createdAt);
+
+      assert.isDefined(testBA2);
+      assert.equal(testBA2.uid, userId);
+      assert.equal(testBA2.billingAgreementId, billingAgreementId2);
+      assert.isNotNull(testBA2.createdAt);
+
+      // Test Retrieval
+      const locatedBAs = await getAllPayPalBAByUid(userId);
+      assert.lengthOf(locatedBAs, 2);
+
+      assert.equal(locatedBAs[0].uid, testBA2.uid);
+      assert.equal(
+        locatedBAs[0].billingAgreementId,
+        testBA2.billingAgreementId
+      );
+      assert.equal(locatedBAs[0].createdAt, testBA2.createdAt);
+
+      assert.equal(locatedBAs[1].uid, testBA1.uid);
+      assert.equal(
+        locatedBAs[1].billingAgreementId,
+        testBA1.billingAgreementId
+      );
+      assert.equal(locatedBAs[1].createdAt, testBA1.createdAt);
+
+      // Test Update
+      const newStatus = 'Suspended';
+      const numberOfUpdatedRows = await updatePayPalBA(
+        userId,
+        billingAgreementId2,
+        newStatus
+      );
+      assert.equal(numberOfUpdatedRows, 1);
+
+      // Test Retreival Again
+      const updatedBA = (await getAllPayPalBAByUid(userId))[0];
+      assert.isDefined(updatedBA);
+      assert.equal(updatedBA.uid, userId);
+      assert.equal(updatedBA.billingAgreementId, billingAgreementId2);
+      assert.equal(updatedBA.status, newStatus);
+
+      // Test Deletion
+      const numberOfAffectedRows = await deleteAllPayPalBAs(userId);
+      assert.equal(numberOfAffectedRows, 2);
+
+      // Test Final Retrieval
+      const finallocate = await getAllPayPalBAByUid(userId);
+      assert.lengthOf(finallocate, 0);
     });
   });
 });
