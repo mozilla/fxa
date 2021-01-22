@@ -62,7 +62,7 @@
     "knex": "^0.21.12",
     "mozlog": "^3.0.1",
     "mysql": "^2.18.1",
-    "objection": "^2.2.2",
+    "objection": "^2.2.7",
     "passport": "^0.4.1",
     "passport-http-bearer": "^1.0.1",
     "reflect-metadata": "^0.1.13",
