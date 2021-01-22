@@ -20,6 +20,6 @@ docker run --rm --name=mydb \
   -e MYSQL_ROOT_HOST=% \
   -e MYSQL_DATABASE=pushbox \
   -p 3306:3306 \
-  mysql/mysql-server:5.6 &
+  mysql/mysql-server:5.7 &
 
 while :; do read -r; done
