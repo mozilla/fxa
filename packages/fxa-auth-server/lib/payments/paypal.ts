@@ -5,7 +5,11 @@ import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
 import { Container } from 'typedi';
 
-import { PayPalClient } from './paypal-client';
+import {
+  PayPalClient,
+  NVPDoReferenceTransactionResponse,
+  DoReferenceTransactionOptions,
+} from './paypal-client';
 
 type PaypalHelperOptions = {
   log: Logger;
@@ -31,5 +35,18 @@ export class PayPalHelper {
   public async getCheckoutToken(): Promise<string> {
     const response = await this.client.setExpressCheckout();
     return response.TOKEN;
+  }
+
+  /**
+   * Charge customer based on an existing Billing Agreement.
+   *
+   * If the call to PayPal fails, a PayPalClientError will be thrown.
+   * If the call is successful, all PayPal response data is returned.
+   *
+   */
+  public async chargeCustomer(
+    options: DoReferenceTransactionOptions
+  ): Promise<NVPDoReferenceTransactionResponse> {
+    return await this.client.doReferenceTransaction(options);
   }
 }

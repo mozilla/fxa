@@ -22,6 +22,8 @@ const ERROR_RESPONSE =
   'TIMESTAMP=2011%2d11%2d15T20%3a27%3a02Z&CORRELATIONID=5be53331d9700&ACK=Failure&VERSION=78%2e0&BUILD=000000&L_ERRORCODE0=15005&L_SHORTMESSAGE0=Processor%20Decline&L_LONGMESSAGE0=This%20transaction%20cannot%20be%20processed%2e&L_SEVERITYCODE0=Error&L_ERRORPARAMID0=ProcessorResponse&L_ERRORPARAMVALUE0=0051&AMT=10%2e40&CURRENCYCODE=USD&AVSCODE=X&CVV2MATCH=M';
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
 const unSuccessfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_failure.json');
+const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
+const unSuccessfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
 
 describe('PayPalClient', () => {
   let client;
@@ -217,6 +219,103 @@ describe('PayPalClient', () => {
         .reply(200, client.objectToNVP(unSuccessfulSetExpressCheckoutResponse));
       try {
         await client.setExpressCheckout();
+        assert.fail('Request should have thrown an error.');
+      } catch (err) {
+        assert.instanceOf(err, PayPalClientError);
+        assert.equal(err.name, 'PayPalClientError');
+        assert.include(err.raw, 'ACK=Failure');
+        assert.equal(err.data.ACK, 'Failure');
+      }
+    });
+  });
+
+  describe('doReferenceTransaction', () => {
+    let sandbox;
+
+    const defaultData = {
+      AMT: '5.99',
+      REFERENCEID: 'B-BILLINGAGREEMENTID',
+      PAYMENTACTION: 'Sale',
+    };
+
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    it('calls api with correct method and data', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      await client.doReferenceTransaction({
+        amount: defaultData.AMT,
+        billingAgreementId: defaultData.REFERENCEID,
+      });
+      assert.ok(
+        client.doRequest.calledOnceWithExactly(
+          'DoReferenceTransaction',
+          defaultData
+        )
+      );
+    });
+
+    it('calls api with requested amount', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      const amt = '44.55';
+      await client.doReferenceTransaction({
+        amount: amt,
+        billingAgreementId: defaultData.REFERENCEID,
+      });
+      assert.ok(
+        client.doRequest.calledOnceWithExactly('DoReferenceTransaction', {
+          ...defaultData,
+          AMT: amt,
+        })
+      );
+    });
+
+    it('calls api with requested referenceID', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      const ref = 'B-123588';
+      await client.doReferenceTransaction({
+        amount: defaultData.AMT,
+        billingAgreementId: ref,
+      });
+      assert.ok(
+        client.doRequest.calledOnceWithExactly('DoReferenceTransaction', {
+          ...defaultData,
+          REFERENCEID: ref,
+        })
+      );
+    });
+
+    it('if request unsuccessful, throws PayPalClientError', async () => {
+      const expectedPayload = {
+        ...defaultData,
+        USER: 'user',
+        METHOD: 'DoReferenceTransaction',
+        PWD: 'pwd',
+        SIGNATURE: 'sig',
+        VERSION: '204',
+      };
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, client.objectToNVP(expectedPayload))
+        .reply(
+          200,
+          client.objectToNVP(unSuccessfulDoReferenceTransactionResponse)
+        );
+      try {
+        await client.doReferenceTransaction({
+          amount: defaultData.AMT,
+          billingAgreementId: defaultData.REFERENCEID,
+        });
         assert.fail('Request should have thrown an error.');
       } catch (err) {
         assert.instanceOf(err, PayPalClientError);

@@ -18,6 +18,7 @@ const {
 const { PayPalHelper } = require('../../../lib/payments/paypal');
 
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
+const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
 
 describe('PayPalHelper', () => {
   /** @type PayPalHelper */
@@ -73,6 +74,44 @@ describe('PayPalHelper', () => {
       );
       try {
         await paypalHelper.getCheckoutToken();
+        assert.fail('Request should have thrown an error.');
+      } catch (err) {
+        assert.instanceOf(err, PayPalClientError);
+        assert.equal(err.name, 'PayPalClientError');
+      }
+    });
+  });
+
+  describe('chargeCustomer', () => {
+    const validOptions = {
+      amount: '10.99',
+      billingAgreementId: 'B-12345',
+    };
+
+    it('calls doReferenceTransaction with passed options', async () => {
+      paypalHelper.client.doReferenceTransaction = sinon.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      await paypalHelper.chargeCustomer(validOptions);
+      assert.ok(
+        paypalHelper.client.doReferenceTransaction.calledOnceWith(validOptions)
+      );
+    });
+
+    it('it returns the data from doRequest', async () => {
+      paypalHelper.client.doRequest = sinon.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      const response = await paypalHelper.chargeCustomer(validOptions);
+      assert.deepEqual(response, successfulDoReferenceTransactionResponse);
+    });
+
+    it('if doRequest unsuccessful, throws an error', async () => {
+      paypalHelper.client.doRequest = sinon.fake.throws(
+        new PayPalClientError('Fake', {})
+      );
+      try {
+        await paypalHelper.chargeCustomer(validOptions);
         assert.fail('Request should have thrown an error.');
       } catch (err) {
         assert.instanceOf(err, PayPalClientError);
