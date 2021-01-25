@@ -88,7 +88,7 @@
     "grunt-usemin": "3.1.1",
     "grunt-z-schema": "0.1.0",
     "handlebars": "^4.5.2",
-    "helmet": "^4.1.0",
+    "helmet": "^4.4.1",
     "hot-shots": "^8.2.0",
     "http-proxy-middleware": "^1.0.3",
     "i18n-abide": "0.0.26",

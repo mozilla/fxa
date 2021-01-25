@@ -49,7 +49,7 @@
     "fxa-shared": "workspace:*",
     "graphql": "^15.4.0",
     "graphql-tools": "^7.0.1",
-    "helmet": "^4.1.1",
+    "helmet": "^4.4.1",
     "knex": "^0.21.12",
     "mozlog": "^3.0.1",
     "mysql": "^2.18.1",
