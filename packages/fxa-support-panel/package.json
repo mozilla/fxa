@@ -47,7 +47,7 @@
     "fxa-shared": "workspace:*",
     "handlebars": "^4.7.6",
     "hbs": "^4.1.1",
-    "helmet": "^4.1.1",
+    "helmet": "^4.4.1",
     "mozlog": "^3.0.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

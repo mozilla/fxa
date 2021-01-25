@@ -57,7 +57,7 @@
     "graphql-query-complexity": "^0.7.1",
     "graphql-tools": "^7.0.1",
     "graphql-upload": "^11.0.0",
-    "helmet": "^4.1.1",
+    "helmet": "^4.4.1",
     "ioredis": "^4.17.3",
     "knex": "^0.21.12",
     "mozlog": "^3.0.1",
