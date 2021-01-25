@@ -74,6 +74,28 @@ display-name-input =
 submit-display-name = Save
 cancel-display-name = Cancel
 
+# Add secondary email page
+
+add-secondary-email-error = There was a problem creating this email.
+add-secondary-email-page-title
+  .title = Secondary email
+add-secondary-email-enter-address =
+  .label = Enter email address
+add-secondary-email-cancel-button = Cancel
+add-secondary-email-save-button = Save
+
+# Verify secondary email page
+
+verify-secondary-email-error = There was a problem sending the verification code.
+verify-secondary-email-page-title =
+  .title = Secondary email
+verify-secondary-email-verification-code =
+  .label = Enter your verification code
+verify-secondary-email-cancel-button = Cancel
+verify-secondary-email-verify-button = Verify
+# Note: include the placeholder '{email}' without translation. It will be replaced with the user's email address.
+verify-secondary-email-please-enter-code = Please enter the verification code that was sent to {email} within 5 minutes.
+
 ## Two Step Authentication
 
 tfa-title = Two Step Authentication
