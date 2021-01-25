@@ -4,10 +4,13 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { screen } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 
 import { AuthContext, createAuthClient } from '../../lib/auth';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import {
+  renderWithRouter,
+  MockedCache,
+} from '../../models/_mocks';
 
 import PageAddAvatar from './Add';
 import { PageCaptureAvatar } from './Capture';
@@ -26,14 +29,25 @@ it('PageAddAvatar | renders', async () => {
   expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
 });
 
-// CAPTURE COMPONENT
-it('PageCaptureAvatar | renders', async () => {
+it('PageAddAvatar | render add, take buttons on initial load', async () => {
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
+    <AuthContext.Provider value={{ auth: client}}>
       <MockedCache>
-        <PageCaptureAvatar />
+        <PageAddAvatar />
       </MockedCache>
     </AuthContext.Provider>
   );
-  expect(screen.getByTestId('shutter')).toBeInTheDocument();
+  expect(screen.getByTestId('add-photo-btn')).toBeInTheDocument();
+  expect(screen.getByTestId('take-photo-btn')).toBeInTheDocument();
+});
+
+it('PageAddAvatar | render remove button if avatar is set', async () => {
+  renderWithRouter(
+    <AuthContext.Provider value={{ auth: client }}>
+      <MockedCache account={{avatarUrl: 'https://example.com/avatar.jpg'}}>
+        <PageAddAvatar />
+      </MockedCache>
+    </AuthContext.Provider>
+  );
+  expect(screen.getByTestId('remove-photo-btn')).toBeInTheDocument();
 });
