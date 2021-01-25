@@ -108,8 +108,13 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
           ) : (
             <>
               <Avatar className="mx-auto w-32" />
+<<<<<<< HEAD
               <div className="flex text-center text-xs justify-around max-w-xs my-4 mx-12 mobileLandscape:mx-24">
                 <div onClick={onFileUpload} className="cursor-pointer flex-1">
+=======
+              <div className="flex text-center justify-around max-w-xs my-4 mx-12 mobileLandscape:mx-24">
+                <div onClick={onFileUpload} className="cursor-pointer">
+>>>>>>> feat(fxa-settings): upload and edit avatar
                   {hiddenFileInput}
                   <Localized
                     id="avatar-page-add-photo-button"
@@ -128,7 +133,11 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
                 </div>
                 <div
                   onClick={() => navigate(CapturePath)}
+<<<<<<< HEAD
                   className="cursor-pointer flex-1"
+=======
+                  className="cursor-pointer"
+>>>>>>> feat(fxa-settings): upload and edit avatar
                 >
                   <Localized
                     id="avatar-page-take-photo-button"
@@ -146,7 +155,11 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
                   </Localized>
                 </div>
                 {avatarUrl && (
+<<<<<<< HEAD
                   <div onClick={remove} className="cursor-pointer flex-1">
+=======
+                  <div onClick={remove} className="cursor-pointer">
+>>>>>>> feat(fxa-settings): upload and edit avatar
                     <Localized
                       id="avatar-page-remove-photo-button"
                       attrs={{ title: true }}
