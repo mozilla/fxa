@@ -4,17 +4,41 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import PageChangeAvatar from '.';
 import { LocationProvider } from '@reach/router';
-import AppLayout from '../AppLayout';
-import { MockedCache } from 'fxa-settings/src/models/_mocks';
 
-storiesOf('Pages|PageAvatarChange', module)
+import { MockedCache } from '../../models/_mocks';
+import AppLayout from '../AppLayout';
+
+import PageAddAvatar from './Add';
+import PageChangeAvatar from './Change';
+import { PageCaptureAvatar } from './Capture';
+
+storiesOf('Pages|PageChangeAvatar', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <MockedCache>
       <AppLayout>
         <PageChangeAvatar />
+      </AppLayout>
+    </MockedCache>
+  ));
+
+storiesOf('Pages|PageAddAvatar', module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
+  .add('default', () => (
+    <MockedCache>
+      <AppLayout>
+        <PageAddAvatar />
+      </AppLayout>
+    </MockedCache>
+  ));
+
+storiesOf('Pages|PageCaptureAvatar', module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
+  .add('default', () => (
+    <MockedCache>
+      <AppLayout>
+        <PageCaptureAvatar />
       </AppLayout>
     </MockedCache>
   ));

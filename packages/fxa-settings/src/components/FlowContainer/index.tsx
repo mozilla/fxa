@@ -24,7 +24,7 @@ export const FlowContainer = ({
 }: FlowContainerProps & RouteComponentProps) => {
   return (
     <div
-      className="max-w-lg mx-auto mt-6 p-6 pb-7 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl"
+      className={`max-w-lg mx-auto mt-6 p-6 pb-7 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl`}
       data-testid="flow-container"
     >
       <Head title={title} />
