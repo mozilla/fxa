@@ -27,7 +27,6 @@ import { useConfig } from 'fxa-settings/src/lib/config';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import PageAddAvatar from '../PageAvatar/Add';
-import PageChangeAvatar from '../PageAvatar/Change';
 import PageCaptureAvatar from '../PageAvatar/Capture';
 
 export const GET_INITIAL_STATE = gql`
@@ -76,7 +75,7 @@ export const App = ({ flowQueryParams }: AppProps) => {
             <PageSettings path="/" />
             <PageDisplayName path="/display_name" />
             <PageAddAvatar path="/avatar/add" />
-            <PageChangeAvatar path="/avatar/change" />
+            <PageAddAvatar path="/avatar/change" />
             <PageCaptureAvatar path="/avatar/capture" />
             <PageChangePassword path="/change_password" />
             <PageRecoveryKeyAdd path="/account_recovery" />

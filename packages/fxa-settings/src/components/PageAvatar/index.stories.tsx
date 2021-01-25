@@ -10,18 +10,7 @@ import { MockedCache } from '../../models/_mocks';
 import AppLayout from '../AppLayout';
 
 import PageAddAvatar from './Add';
-import PageChangeAvatar from './Change';
 import { PageCaptureAvatar } from './Capture';
-
-storiesOf('Pages|PageChangeAvatar', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => (
-    <MockedCache>
-      <AppLayout>
-        <PageChangeAvatar />
-      </AppLayout>
-    </MockedCache>
-  ));
 
 storiesOf('Pages|PageAddAvatar', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)

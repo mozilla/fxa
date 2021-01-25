@@ -34,7 +34,8 @@ export const PageCaptureAvatar = (_: RouteComponentProps) => {
   const [showMediaError, setShowMediaError] = useState(false);
 
   const capture = useCallback(() => {
-    const imageSrc = webcamRef.current!.getScreenshot();
+    const webcam: any = webcamRef?.current;
+    const imageSrc = webcam.getScreenshot();
     setImgSrc(imageSrc);
   }, [webcamRef, setImgSrc]);
 
