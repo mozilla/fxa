@@ -20,8 +20,8 @@ const {
 
 const ERROR_RESPONSE =
   'TIMESTAMP=2011%2d11%2d15T20%3a27%3a02Z&CORRELATIONID=5be53331d9700&ACK=Failure&VERSION=78%2e0&BUILD=000000&L_ERRORCODE0=15005&L_SHORTMESSAGE0=Processor%20Decline&L_LONGMESSAGE0=This%20transaction%20cannot%20be%20processed%2e&L_SEVERITYCODE0=Error&L_ERRORPARAMID0=ProcessorResponse&L_ERRORPARAMVALUE0=0051&AMT=10%2e40&CURRENCYCODE=USD&AVSCODE=X&CVV2MATCH=M';
-const successfulSetExpressCheckoutResponse = require('./paypal-fixtures/set_express_checkout_success.json');
-const unSuccessfulSetExpressCheckoutResponse = require('./paypal-fixtures/set_express_checkout_failure.json');
+const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
+const unSuccessfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_failure.json');
 
 describe('PayPalClient', () => {
   let client;
