@@ -62,8 +62,9 @@ export class AccountResolver {
       .first();
   }
 
-  @Query((returns) => [EmailType])
-  public async getAllEmails() {
+  //query to return all emails that are in the database
+  @Query((returns) => [EmailType], { nullable: true })
+  public getAllEmails() {
     return this.db.emails.query().select(EMAIL_COLUMNS);
   }
 

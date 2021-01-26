@@ -49,6 +49,14 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
   }
 `;
 
+export const GET_ALL_EMAILS = gql`
+  query fetchAll {
+    getAllEmails {
+      email
+    }
+  }
+`;
+
 export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
