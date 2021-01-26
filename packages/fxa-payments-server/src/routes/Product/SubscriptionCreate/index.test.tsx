@@ -148,21 +148,33 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
       queryAllByText('30-day money-back guarantee')[0]
     ).toBeInTheDocument();
     expect(queryByText('Billing Information')).toBeInTheDocument();
-    expect(
-      document.getElementById('paypal-button-container')
-    ).not.toBeInTheDocument();
+    expect(queryByTestId('paypal-button')).not.toBeInTheDocument();
   });
 
-  it('renders as expected with PayPal UI enabled', async () => {
+  it('renders as expected with PayPal UI enabled', () => {
+    const { queryByTestId } = screen;
     updateConfig({
       featureFlags: {
         usePaypalUIByDefault: true,
       },
     });
     render(<Subject />);
-    expect(
-      document.getElementById('paypal-button-container')
-    ).toBeInTheDocument();
+    waitForExpect(() =>
+      expect(queryByTestId('paypal-button')).toBeInTheDocument()
+    );
+  });
+
+  it('renders as expected with PayPal UI enabled and an existing customer', () => {
+    const { queryByTestId } = screen;
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+    render(<Subject customer={CUSTOMER} />);
+    waitForExpect(() =>
+      expect(queryByTestId('paypal-button')).not.toBeInTheDocument()
+    );
   });
 
   it('renders as expected for mobile', async () => {

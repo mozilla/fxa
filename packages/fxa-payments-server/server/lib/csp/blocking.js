@@ -31,6 +31,9 @@ module.exports = function (config) {
   const PUBLIC_URL = config.get('listen.publicUrl');
   const HOT_RELOAD_WEBSOCKET = PUBLIC_URL.replace(/^http/, 'ws');
 
+  const PAYPAL_API_URL = getOrigin(config.get('paypal.apiUrl'));
+  const PAYPAL_SCRIPT_URL = getOrigin(config.get('paypal.scriptUrl'));
+
   const STRIPE_API_URL = getOrigin(config.get('stripe.apiUrl'));
   const STRIPE_HOOKS_URL = getOrigin(config.get('stripe.hooksUrl'));
   const STRIPE_SCRIPT_URL = getOrigin(config.get('stripe.scriptUrl'));
@@ -63,6 +66,7 @@ module.exports = function (config) {
         SELF,
         AUTH_SERVER,
         OAUTH_SERVER,
+        PAYPAL_API_URL,
         PROFILE_SERVER,
         SENTRY_SERVER,
         STRIPE_API_URL,
@@ -70,6 +74,8 @@ module.exports = function (config) {
       defaultSrc: [SELF],
       fontSrc: addCdnRuleIfRequired([SELF]),
       frameSrc: [
+        PAYPAL_API_URL,
+        PAYPAL_SCRIPT_URL,
         STRIPE_SCRIPT_URL,
         STRIPE_HOOKS_URL,
         SURVEY_GIZMO_IFRAME_EMBED_URL,
@@ -88,7 +94,11 @@ module.exports = function (config) {
       mediaSrc: [NONE],
       objectSrc: [NONE],
       reportUri: config.get('csp.reportUri'),
-      scriptSrc: addCdnRuleIfRequired([SELF, STRIPE_SCRIPT_URL]),
+      scriptSrc: addCdnRuleIfRequired([
+        SELF,
+        STRIPE_SCRIPT_URL,
+        PAYPAL_SCRIPT_URL,
+      ]),
       styleSrc: addCdnRuleIfRequired([SELF, UNSAFE_INLINE]),
     },
     reportOnly: false,
@@ -104,6 +114,8 @@ module.exports = function (config) {
       PROFILE_IMAGES_SERVER,
       ACCOUNTS_STATIC_CDN,
       SURVEY_GIZMO_IFRAME_EMBED_URL,
+      PAYPAL_API_URL,
+      PAYPAL_SCRIPT_URL,
       PROFILE_SERVER,
       PUBLIC_URL,
       SENTRY_SERVER,

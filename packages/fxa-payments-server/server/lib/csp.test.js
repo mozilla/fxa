@@ -15,10 +15,11 @@ describe('CSP blocking rules', () => {
   it('has correct connectSrc directives', () => {
     const { connectSrc } = directives;
 
-    expect(connectSrc).toHaveLength(6);
+    expect(connectSrc).toHaveLength(7);
     expect(connectSrc).toContain(Sources.SELF);
     expect(connectSrc).toContain(Sources.AUTH_SERVER);
     expect(connectSrc).toContain(Sources.OAUTH_SERVER);
+    expect(connectSrc).toContain(Sources.PAYPAL_API_URL);
     expect(connectSrc).toContain(Sources.PROFILE_SERVER);
     expect(connectSrc).toContain(Sources.STRIPE_API_URL);
   });
@@ -41,7 +42,9 @@ describe('CSP blocking rules', () => {
   it('has correct frameSrc directives', () => {
     const { frameSrc } = directives;
 
-    expect(frameSrc).toHaveLength(3);
+    expect(frameSrc).toHaveLength(5);
+    expect(frameSrc).toContain(Sources.PAYPAL_API_URL);
+    expect(frameSrc).toContain(Sources.PAYPAL_SCRIPT_URL);
     expect(frameSrc).toContain(Sources.STRIPE_SCRIPT_URL);
     expect(frameSrc).toContain(Sources.STRIPE_HOOKS_URL);
     expect(frameSrc).toContain(Sources.SURVEY_GIZMO_IFRAME_EMBED_URL);
@@ -76,7 +79,8 @@ describe('CSP blocking rules', () => {
   it('has correct scriptSrc directives', () => {
     const { scriptSrc } = directives;
 
-    expect(scriptSrc).toHaveLength(3);
+    expect(scriptSrc).toHaveLength(4);
+    expect(scriptSrc).toContain(Sources.PAYPAL_SCRIPT_URL);
     expect(scriptSrc).toContain(Sources.SELF);
     expect(scriptSrc).toContain(Sources.STRIPE_SCRIPT_URL);
     expect(scriptSrc).toContain(CDN_SERVER);
