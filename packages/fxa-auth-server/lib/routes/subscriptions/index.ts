@@ -57,7 +57,9 @@ const createRoutes = (
       )
     );
   }
-  if (stripeHelper && payPalHelper) {
+
+  // TODO: Remove after https://github.com/mozilla/fxa/pull/7393/ lands
+  if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {
     routes.push(
       ...paypalRoutes(
         log,
