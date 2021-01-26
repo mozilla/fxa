@@ -56,6 +56,7 @@ const createRoutes = (
       )
     );
   }
+
   if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {
     routes.push(
       ...paypalRoutes(
