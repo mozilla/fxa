@@ -5386,21 +5386,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^5.11.0":
-  version: 5.11.0
-  resolution: "@testing-library/jest-dom@npm:5.11.0"
+"@testing-library/jest-dom@npm:^5.11.9":
+  version: 5.11.9
+  resolution: "@testing-library/jest-dom@npm:5.11.9"
   dependencies:
     "@babel/runtime": ^7.9.2
     "@types/testing-library__jest-dom": ^5.9.1
     aria-query: ^4.2.2
     chalk: ^3.0.0
-    css: ^2.2.4
+    css: ^3.0.0
     css.escape: ^1.5.1
-    jest-diff: ^25.1.0
-    jest-matcher-utils: ^25.1.0
     lodash: ^4.17.15
     redent: ^3.0.0
-  checksum: c6f6270ca2f4cf88af01cb8872ab2ee92f276a1434e43a49f59fcd2265710f6ff828900b54687f46ec79140646f2eec8765a8162dbe3349010d7841f8fa3567b
+  checksum: c285c044edf42b9c4daffbeddd5489564af1c9d625f0ef3781e2e9864688239ccc2521badec9147fea66685c60b736c922e35ea69011aa577eabc156c0e1f5b6
   languageName: node
   linkType: hard
 
@@ -13956,7 +13954,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css@npm:3.0.0":
+"css@npm:3.0.0, css@npm:^3.0.0":
   version: 3.0.0
   resolution: "css@npm:3.0.0"
   dependencies:
@@ -13967,7 +13965,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css@npm:^2.0.0, css@npm:^2.2.4":
+"css@npm:^2.0.0":
   version: 2.2.4
   resolution: "css@npm:2.2.4"
   dependencies:
@@ -17948,7 +17946,7 @@ fsevents@^1.2.7:
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
-    "@testing-library/jest-dom": ^5.11.0
+    "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
     "@testing-library/user-event": ^12.6.0
     "@types/babel__core": 7.1.12
@@ -18742,7 +18740,7 @@ fsevents@^1.2.7:
     "@stripe/react-stripe-js": ^1.1.2
     "@stripe/stripe-js": ^1.11.0
     "@svgr/webpack": ^5.4.0
-    "@testing-library/jest-dom": ^5.11.0
+    "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
     "@types/classnames": ^2.2.9
     "@types/jest": ^24.9.1
@@ -18897,7 +18895,7 @@ fsevents@^1.2.7:
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
-    "@testing-library/jest-dom": ^5.11.0
+    "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
     "@testing-library/user-event": ^12.6.0
     "@types/camelcase": 5.2.0
@@ -18960,7 +18958,7 @@ fsevents@^1.2.7:
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
-    "@testing-library/jest-dom": ^5.11.0
+    "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
     "@testing-library/react-hooks": ^3.4.2
     "@testing-library/user-event": ^12.6.0
@@ -23004,7 +23002,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jest-diff@npm:^25.1.0, jest-diff@npm:^25.2.1, jest-diff@npm:^25.5.0":
+"jest-diff@npm:^25.2.1":
   version: 25.5.0
   resolution: "jest-diff@npm:25.5.0"
   dependencies:
@@ -23290,18 +23288,6 @@ fsevents@^1.2.7:
     jest-get-type: ^24.9.0
     pretty-format: ^24.9.0
   checksum: 3f7d216a5f3ba562692e8f54add1391516af7dba4ad8e48256a732bbb2fef177b0a9095c3e3f21172ef1f461a73f3fa2c02a60093e3f4d556d6967d25c47e4b7
-  languageName: node
-  linkType: hard
-
-"jest-matcher-utils@npm:^25.1.0":
-  version: 25.5.0
-  resolution: "jest-matcher-utils@npm:25.5.0"
-  dependencies:
-    chalk: ^3.0.0
-    jest-diff: ^25.5.0
-    jest-get-type: ^25.2.6
-    pretty-format: ^25.5.0
-  checksum: f60504e34b39b41e1cf3973e380c4cf338e55ad465d62cf64220a263b53ce2f72566f211f0d36eb27bd11b3f42df636956fbe06d60113e1060dd1f1f79001ee6
   languageName: node
   linkType: hard
 
