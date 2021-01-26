@@ -65,13 +65,10 @@ export const AccountSearch = () => {
   const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
     GET_ACCOUNT_BY_EMAIL
   );
-
-  const items = [
-    'test@yahoo.com',
-    '1234@gmail.com',
-    'hello@hello.com',
-    'test@gmail.com',
-  ];
+  const [
+    getEmails,
+    { loading: loading1, error: error1, data: data1, refetch: refetch1 },
+  ] = useLazyQuery(GET_ALL_EMAILS);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -84,15 +81,22 @@ export const AccountSearch = () => {
     setInputValue(event.target.value);
     setSuggestion([]);
     onTextChanged(event);
+    getEmails();
   };
 
   const onTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
+    let items = [];
     let suggestions = [];
-    if (value.length > 1) {
-      const regex = new RegExp(`^${value}`, 'i');
-      suggestions = items.sort().filter((v) => regex.test(v));
+    if (data1 != null) {
+      for (let i = 0; i < data1.getAllEmails.length; i++) {
+        items[i] = data1.getAllEmails[i].email;
+      }
     }
+    if (value.length > 1) {
+      suggestions = items.filter((v) => v.startsWith(value));
+    }
+    console.log('suggestions:', suggestions);
     setSuggestion(suggestions);
     setText(event.target.value);
   };
