@@ -5,5 +5,5 @@ add-secondary-email-page-title
   .title = Secondary email
 add-secondary-email-enter-address =
   .label = Enter email address
-add-secondary-email-cancel-button = Cancel
-add-secondary-email-save-button = Save
+add-secondary-email-cancel-button = { fxa-cancel-button }
+add-secondary-email-save-button = { fxa-save-button }

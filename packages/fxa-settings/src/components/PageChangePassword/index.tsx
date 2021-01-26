@@ -139,7 +139,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
         )}
         <form onSubmit={handleSubmit(onFormSubmit)}>
           <Localized id="pw-change-stay-safe">
-            <h1>Stay safe — don't reuse passwords. Your password:</h1>
+            <h1>Stay safe — don’t reuse passwords. Your password:</h1>
           </Localized>
           <ul className="text-grey-400 text-xs m-3 list-inside">
             <li data-testid="change-password-length">

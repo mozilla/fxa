@@ -2,14 +2,28 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+# Globally reused strings
+
+# Note: the company name, Mozilla, is not translated.
+-mozilla = Mozilla
+# Note: the product name, Firefox Accounts, is not translated.
+-firefox-accounts = Firefox Accounts
+-firefox-account = Firefox account
+
+# Frequently reused button text. The translations should be short enough to fit in a small button.
+fxa-save-button = Save
+fxa-close-button = Close
+fxa-cancel-button = Cancel
+fxa-continue-button = Continue
+
 # Application
 
-app-default-title = Firefox Accounts
-app-page-title = { $title } | Firefox Accounts
+app-default-title = { -firefox-accounts }
+app-page-title = { $title } | { -firefox-account }
 
 # Application-wide footer
 
-app-footer-mozilla-logo-label = Mozilla logo
+app-footer-mozilla-logo-label = { -mozilla } logo
 app-footer-privacy-notice = Website Privacy Notice
 app-footer-terms-of-service = Terms of Service
 
@@ -19,7 +33,7 @@ header-menu-open = Close menu
 header-menu-closed = Site navigation menu
 header-back-to-top-link =
   .title = Back to top
-header-title = Firefox account
+header-title = { -firefox-account }
 header-switch-title = Switch to classic design
   .title = classic design link
 header-help = Help
@@ -37,12 +51,12 @@ nav-email-comm = Email Communications
 pw-change-header =
  .title = Change Password
 
-pw-change-stay-safe = Stay safe — don't reuse passwords. Your password:
+pw-change-stay-safe = Stay safe — don’t reuse passwords. Your password:
 pw-change-least-8-chars = Must be at least 8 characters
 pw-change-not-contain-email = Must not be your email address
 pw-change-must-match = New password matches confirmation
-pw-change-cancel-button = Cancel
-pw-change-save-button = Save
+pw-change-cancel-button = { fxa-cancel-button }
+pw-change-save-button = { fxa-save-button }
 pw-change-forgot-password-link = Forgot password?
 
 pw-change-current-password =
@@ -59,10 +73,13 @@ delete-account-header =
 delete-account-step-1-2 = Step 1 of 2
 delete-account-step-2-2 = Step 2 of 2
 
-delete-account-confirm-title = You've connected your Firefox account to Mozilla products that keep you secure and productive on the web:
+delete-account-confirm-title = You've connected your { -firefox-account } to { -mozilla } products that keep you secure and productive on the web:
 
+# Note: don't translate this product name.
 mozilla-vpn = Mozilla VPN
+# Note: don't translate this product name.
 firefox-lockwise = Firefox Lockwise
+# Note: don't translate this product name.
 firefox-monitor = Firefox Monitor
 
 delete-account-acknowledge = Please acknowledge that by deleting your account:
@@ -70,26 +87,26 @@ delete-account-acknowledge = Please acknowledge that by deleting your account:
 delete-account-chk-box-1 =
  .label = Any paid subscriptions you have will be cancelled
 delete-account-chk-box-2 =
- .label = Any may lose saved information and features within Mozilla products
+ .label = Any may lose saved information and features within { -mozilla } products
 delete-account-chk-box-3 =
  .label = Reactivating with this email may not restore your saved information
 delete-account-chk-box-4 =
  .label = Any extensions and themes that you published to addons.mozilla.org will be deleted
 
-delete-account-close-button = Close
-delete-account-continue-button = Continue
+delete-account-close-button = { fxa-close-button }
+delete-account-continue-button = { fxa-continue-button }
 
 delete-account-password-input =
  .label = Enter password
 
-delete-account-cancel-button = Cancel
+delete-account-cancel-button = { fxa-cancel-button }
 delete-account-delete-button = Delete Account
 
 ## Display name page
 display-name-input =
  .label = Enter display name
-submit-display-name = Save
-cancel-display-name = Cancel
+submit-display-name = { fxa-save-button }
+cancel-display-name = { fxa-cancel-button }
 
 # Add secondary email page
 
@@ -98,8 +115,8 @@ add-secondary-email-page-title
   .title = Secondary email
 add-secondary-email-enter-address =
   .label = Enter email address
-add-secondary-email-cancel-button = Cancel
-add-secondary-email-save-button = Save
+add-secondary-email-cancel-button = { fxa-cancel-button }
+add-secondary-email-save-button = { fxa-save-button }
 
 # Verify secondary email page
 
@@ -108,7 +125,7 @@ verify-secondary-email-page-title =
   .title = Secondary email
 verify-secondary-email-verification-code =
   .label = Enter your verification code
-verify-secondary-email-cancel-button = Cancel
+verify-secondary-email-cancel-button = { fxa-cancel-button }
 verify-secondary-email-verify-button = Verify
 # Note: include the placeholder '{email}' without translation. It will be replaced with the user's email address.
 verify-secondary-email-please-enter-code = Please enter the verification code that was sent to {email} within 5 minutes.
@@ -121,8 +138,8 @@ tfa-step-1-3 = Step 1 of 3
 tfa-step-2-3 = Step 2 of 3
 tfa-step-3-3 = Step 3 of 3
 
-tfa-button-continue = Continue
-tfa-button-cancel = Cancel
+tfa-button-continue = { fxa-continue-button }
+tfa-button-cancel = { fxa-cancel-button }
 tfa-button-finish = Finish
 
 tfa-incorrect-totp = Incorrect two-step authentication code
@@ -137,7 +154,7 @@ tfa-scan-this-code = Scan this QR code using one of <linkExternal>these
 # Image alt text on QR code. $secret is a long alphanumeric string.
 tfa-qa-code-alt = Use the code { $secret } to set up two-step authentication in
   supported applications.
-tfa-button-cant-scan-qr = Can't scan code?
+tfa-button-cant-scan-qr = Can’t scan code?
 
 # When the user cannot use a QR code.
 tfa-enter-secret-key = Enter this secret key into your authenticator app:
@@ -149,7 +166,7 @@ tfa-save-these-codes = Save these one-time use codes in a safe place for when
   you don’t have your mobile device.
 
 tfa-enter-code-to-confirm = Please enter one of your recovery codes now to
-  confirm you've saved it. You'll need a code if you lose your device and want
+  confirm you’ve saved it. You’ll need a code if you lose your device and want
   to access your account.
 tfa-enter-recovery-code =
  .label = Enter a recovery code
@@ -171,7 +188,7 @@ auth-error-110 = Invalid token
 auth-error-111 = Invalid timestamp in request signature
 auth-error-112 = Missing content-length header
 auth-error-113 = Request body too large
-auth-error-114 = You've tried too many times. Try again later.
+auth-error-114 = You’ve tried too many times. Try again later.
 auth-error-115 = Invalid nonce in request signature
 auth-error-125 = The request was blocked for security reasons
 auth-error-126 = Your account has been locked for security reasons
