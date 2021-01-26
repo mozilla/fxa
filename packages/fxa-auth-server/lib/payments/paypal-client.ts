@@ -55,11 +55,38 @@ type NVPResponse = {
   BUILD: string;
 };
 
-type SetCheckoutData = {
+type SetExpressCheckoutData = {
   TOKEN: string;
 };
 
-export type NVPSetCheckoutResponse = NVPResponse & SetCheckoutData;
+type DoReferenceTransactionData = {
+  BILLINGAGREEMENTID: string;
+  TRANSACTIONID: string;
+  PARENTTRANSACTIONID: string;
+  TRANSACTIONTYPE: string;
+  PAYMENTTYPE: string;
+  ORDERTIME: string;
+  AMT: string;
+  FEEAMT: string;
+  TAXAMT: string;
+  CURRENCYCODE: string;
+  PAYMENTSTATUS: string;
+  PENDINGREASON: string;
+  REASONCODE: string;
+  PROTECTIONELIGIBILITY: string;
+  PROTECTIONELIGIBILITYTYPE: string;
+};
+
+export type NVPSetExpressCheckoutResponse = NVPResponse &
+  SetExpressCheckoutData;
+
+export type NVPDoReferenceTransactionResponse = NVPResponse &
+  DoReferenceTransactionData;
+
+export type DoReferenceTransactionOptions = {
+  amount: string;
+  billingAgreementId: string;
+};
 
 export class PayPalClientError extends Error {
   public raw: string;
@@ -166,15 +193,40 @@ export class PayPalClient {
    * The API is extensive. Currently this method only supports the situation where you're getting an authorizing
    * token that allows us to perform billing in the future.
    */
-  public async setExpressCheckout(): Promise<NVPSetCheckoutResponse> {
+  public async setExpressCheckout(): Promise<NVPSetExpressCheckoutResponse> {
     const data = {
       PAYMENTREQUEST_0_AMT: '0',
       RETURNURL: PLACEHOLDER_URL,
       CANCELURL: PLACEHOLDER_URL,
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
     };
-    return await this.doRequest<NVPSetCheckoutResponse>(
+    return await this.doRequest<NVPSetExpressCheckoutResponse>(
       'SetExpressCheckout',
+      data
+    );
+  }
+
+  /**
+   * Call the Paypal DoReferenceTransaction NVP API
+   *
+   * Using the Paypal DoReferenceTransaction API (https://developer.paypal.com/docs/nvp-soap-api/do-reference-transaction-nvp/)
+   * we charge the customer based on a pre-existing billing agreement.
+   * The API is extensive, we only support the one workflow of pre-existing billing
+   * agreement.
+   *
+   * The amount, that is passed in with options should be a formatted string of USD
+   * that is acceptable to PayPal.
+   */
+  public async doReferenceTransaction(
+    options: DoReferenceTransactionOptions
+  ): Promise<NVPDoReferenceTransactionResponse> {
+    const data = {
+      AMT: options.amount,
+      REFERENCEID: options.billingAgreementId,
+      PAYMENTACTION: 'Sale',
+    };
+    return await this.doRequest<NVPDoReferenceTransactionResponse>(
+      'DoReferenceTransaction',
       data
     );
   }
