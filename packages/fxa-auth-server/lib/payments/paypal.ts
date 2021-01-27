@@ -6,6 +6,7 @@ import { Logger } from 'mozlog';
 import { Container } from 'typedi';
 
 import {
+  CreateBillingAgreementOptions,
   DoReferenceTransactionOptions,
   IpnMessage,
   NVPDoReferenceTransactionResponse,
@@ -36,6 +37,19 @@ export class PayPalHelper {
   public async getCheckoutToken(): Promise<string> {
     const response = await this.client.setExpressCheckout();
     return response.TOKEN;
+  }
+
+  /**
+   * Create billing agreement using the ExpressCheckout token.
+   *
+   * If the call to PayPal fails, a PayPalClientError will be thrown.
+   *
+   */
+  public async createBillingAgreement(
+    options: CreateBillingAgreementOptions
+  ): Promise<string> {
+    const response = await this.client.createBillingAgreement(options);
+    return response.BILLINGAGREEMENTID;
   }
 
   /**
