@@ -71,29 +71,41 @@ export const GET_ACCOUNT_BY_UID = gql`
   }
 `;
 
+function validateUID(uid: string) {
+  // checks if input string is in uid format
+  if (/^[0-9a-fA-F]{32}/.test(uid)) {
+    // alphanumeric, 32 digit
+    return true;
+  }
+  return false;
+}
+
 export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
+  // define two queries to search by either email or uid.
   const [getAccountbyEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
   const [getAccountbyUID, UIDResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
+  // choose which query result to show based on type of query made
   const [isEmail, setIsEmail] = useState<Boolean>(false);
   const queryResults = isEmail && showResult ? emailResults : UIDResults;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    const isUID = validateUID(inputValue);
     // choose correct query if email or uid
-    if (inputValue.search('@') == -1 && inputValue != '') {
+    if (isUID && inputValue.search('@') == -1 && inputValue != '') {
       // uid and non-empty
       getAccountbyUID({ variables: { uid: inputValue } });
       setIsEmail(false);
       setShowResult(true);
-    } else if (inputValue.search('@') != -1 && inputValue != '') {
-      // email and non-empty
+    } else if (!isUID && inputValue.search('@') != -1 && inputValue != '') {
+      // assume email if not uid and non-empty; must at least have '@'
       getAccountbyEmail({ variables: { email: inputValue } });
       setIsEmail(true);
       setShowResult(true);
     }
-    // Don't hide after the first result is shown
+    // invalid input, neither email nor uid
     else setShowResult(false);
   };
 
