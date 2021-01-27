@@ -1,5 +1,15 @@
 # Change history
 
+## 1.199.0
+
+### Other changes
+
+- deps: bump @sentry/node from 6.0.0 to 6.0.1 ([3b6838b18](https://github.com/mozilla/fxa/commit/3b6838b18))
+- deps-dev: bump @nestjs/schematics from 7.2.2 to 7.2.6 ([dd0c7aaba](https://github.com/mozilla/fxa/commit/dd0c7aaba))
+- deps-dev: bump @nestjs/testing from 7.5.5 to 7.6.5 ([ed20e1585](https://github.com/mozilla/fxa/commit/ed20e1585))
+- deps: bump @sentry/node from 5.29.1 to 6.0.0 ([147825a5b](https://github.com/mozilla/fxa/commit/147825a5b))
+- deps-dev: bump eslint-config-prettier from 6.15.0 to 7.1.0 ([2c85737cb](https://github.com/mozilla/fxa/commit/2c85737cb))
+
 ## 1.198.2
 
 No changes.

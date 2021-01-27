@@ -1,3 +1,17 @@
+## 1.199.0
+
+### New features
+
+- fxa-settings: add delete account page ([16ee46a34](https://github.com/mozilla/fxa/commit/16ee46a34))
+
+### Other changes
+
+- deps: bump babel-loader from 8.0.6 to 8.2.2 ([edfbc45cb](https://github.com/mozilla/fxa/commit/edfbc45cb))
+- deps: bump helmet from 4.1.1 to 4.4.1 ([81cc8d6fb](https://github.com/mozilla/fxa/commit/81cc8d6fb))
+- deps: bump @sentry/node from 6.0.0 to 6.0.1 ([3b6838b18](https://github.com/mozilla/fxa/commit/3b6838b18))
+- deps: bump @sentry/node from 5.29.1 to 6.0.0 ([147825a5b](https://github.com/mozilla/fxa/commit/147825a5b))
+- deps: bump postcss-loader from 2.1.6 to 4.1.0 ([236fb43d6](https://github.com/mozilla/fxa/commit/236fb43d6))
+
 ## 1.198.2
 
 No changes.

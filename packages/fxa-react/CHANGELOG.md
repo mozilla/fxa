@@ -1,3 +1,17 @@
+## 1.199.0
+
+### New features
+
+- settings: localize footer ([cd88cca73](https://github.com/mozilla/fxa/commit/cd88cca73))
+- settings: localize page title ([480c70203](https://github.com/mozilla/fxa/commit/480c70203))
+- l10n: Add initial fluent l10n for settings v2 ([c95ee6f8a](https://github.com/mozilla/fxa/commit/c95ee6f8a))
+
+### Other changes
+
+- deps-dev: bump @testing-library/jest-dom from 5.11.0 to 5.11.9 ([d0f1f6301](https://github.com/mozilla/fxa/commit/d0f1f6301))
+- eslint: count jsx var usage ([97fc3aaf3](https://github.com/mozilla/fxa/commit/97fc3aaf3))
+- deps-dev: bump sass from 1.26.10 to 1.32.5 ([f5faade0e](https://github.com/mozilla/fxa/commit/f5faade0e))
+
 ## 1.198.2
 
 No changes.
