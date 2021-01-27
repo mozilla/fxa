@@ -13,6 +13,7 @@ import ConnectedServices from '../ConnectedServices';
 import * as Metrics from '../../lib/metrics';
 import { useAccount } from '../../models';
 import { DeleteAccountPath } from 'fxa-settings/src/constants';
+import { Localized } from '@fluent/react';
 
 export const PageSettings = (_: RouteComponentProps) => {
   const { uid } = useAccount();
@@ -34,13 +35,15 @@ export const PageSettings = (_: RouteComponentProps) => {
         <Security />
         <ConnectedServices />
         <div className="flex mx-4 tablet:mx-0">
-          <Link
-            data-testid="settings-delete-account"
-            className="cta-caution cta-base text-sm transition-standard mt-12"
-            to={DeleteAccountPath}
-          >
-            Delete Account
-          </Link>
+          <Localized id="delete-account-link">
+            <Link
+              data-testid="settings-delete-account"
+              className="cta-caution cta-base text-sm transition-standard mt-12"
+              to={DeleteAccountPath}
+            >
+              Delete Account
+            </Link>
+          </Localized>
         </div>
       </div>
     </div>

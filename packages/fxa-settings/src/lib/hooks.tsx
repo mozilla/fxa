@@ -12,6 +12,7 @@ import {
 import sentry from 'fxa-shared/lib/sentry';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { AlertBarType } from '../components/AlertBar';
+import { useLocalization } from '@fluent/react';
 
 // Focus on the element that triggered some action after the first
 // argument changes from `false` to `true` unless a `triggerException`
@@ -111,14 +112,23 @@ export function useAlertBar({
     },
     [setContent, setType, show]
   );
+  const { l10n } = useLocalization();
 
   const error = useCallback(
     (message: ReactNode, error?: ApolloError) => {
-      setContent(error?.graphQLErrors?.length ? error.message : message);
+      const serverErrorMessage = () =>
+        error?.graphQLErrors[0].extensions?.errno
+          ? l10n.getString(
+              `auth-error-${error.graphQLErrors[0].extensions.errno}`,
+              null,
+              error.message
+            )
+          : error?.message;
+      setContent(error?.graphQLErrors?.length ? serverErrorMessage() : message);
       setType('error');
       show();
     },
-    [setContent, setType, show]
+    [setContent, setType, show, l10n]
   );
 
   const info = useCallback(

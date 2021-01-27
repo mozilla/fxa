@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Localized } from '@fluent/react';
 import React from 'react';
 import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
 import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
@@ -10,7 +11,8 @@ export const Security = () => {
   return (
     <section className="mt-11" data-testid="settings-security">
       <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4 relative">
-        <span id="security" className="nav-anchor"></span>Security
+        <span id="security" className="nav-anchor"></span>
+        <Localized id="security-heading">Security</Localized>
       </h2>
       <div className="bg-white tablet:rounded-xl shadow">
         <UnitRowRecoveryKey />

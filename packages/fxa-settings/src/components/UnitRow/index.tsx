@@ -6,6 +6,7 @@ import React, { useRef } from 'react';
 import classNames from 'classnames';
 import { useFocusOnTriggeringElementOnClose } from '../../lib/hooks';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { useLocalization } from '@fluent/react';
 
 type ModalButtonProps = {
   ctaText: string;
@@ -80,9 +81,9 @@ export const UnitRow = ({
   headerContent,
   actionContent,
   headerValueClassName,
-  noHeaderValueText = 'None',
+  noHeaderValueText,
   ctaText,
-  secondaryCtaText = 'Disable',
+  secondaryCtaText,
   secondaryCtaRoute,
   secondaryButtonClassName,
   revealModal,
@@ -91,7 +92,24 @@ export const UnitRow = ({
   hideCtaText,
   prefixDataTestId = '',
 }: UnitRowProps & RouteComponentProps) => {
-  ctaText = ctaText || (headerValue ? 'Change' : 'Add');
+  const { l10n } = useLocalization();
+  const localizedCtaAdd = l10n.getString(
+    'row-defaults-action-add',
+    null,
+    'Add'
+  );
+  const localizedCtaChange = l10n.getString(
+    'row-defaults-action-change',
+    null,
+    'Change'
+  );
+
+  noHeaderValueText =
+    noHeaderValueText || l10n.getString('row-defaults-status', null, 'None');
+  secondaryCtaText =
+    secondaryCtaText ||
+    l10n.getString('row-defaults-action-disable', null, 'Disable');
+  ctaText = ctaText || (headerValue ? localizedCtaChange : localizedCtaAdd);
 
   const location = useLocation();
   const multiButton = !!(route || secondaryCtaRoute);

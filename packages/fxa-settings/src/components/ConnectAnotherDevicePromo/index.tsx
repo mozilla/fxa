@@ -6,6 +6,7 @@ import React from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import playStoreIcon from './play-store.svg';
 import appStoreIcon from './app-store.svg';
+import { Localized } from '@fluent/react';
 
 export function ConnectAnotherDevicePromo() {
   return (
@@ -14,18 +15,36 @@ export function ConnectAnotherDevicePromo() {
       data-testid="connect-another-device-promo"
     >
       <div className="flex flex-col flex-1 text-center mobileLandscape:text-left mobileLandscape:rtl:text-right">
-        <p className="text-sm">Get Firefox on mobile or tablet</p>
-        <p className="text-grey-300 text-xs">
-          Find Firefox in the Google Play and App Store or
-          <br />
-          <LinkExternal
-            href="https://www.mozilla.org/en-US/firefox/mobile/"
-            className="link-blue"
-            data-testid="download-link"
-          >
-            send a download link to your device.
-          </LinkExternal>
-        </p>
+        <Localized id="connect-another-fx-mobile">
+          <p className="text-sm">Get Firefox on mobile or tablet</p>
+        </Localized>
+        <Localized
+          id="connect-another-find-fx-mobile"
+          elems={{
+            br: <br />,
+            linkExternal: (
+              <LinkExternal
+                href="https://www.mozilla.org/en-US/firefox/mobile/"
+                className="link-blue"
+                data-testid="download-link"
+              >
+                {' '}
+              </LinkExternal>
+            ),
+          }}
+        >
+          <p className="text-grey-300 text-xs">
+            Find Firefox in the Google Play and App Store or
+            <br />
+            <LinkExternal
+              href="https://www.mozilla.org/en-US/firefox/mobile/"
+              className="link-blue"
+              data-testid="download-link"
+            >
+              send a download link to your device.
+            </LinkExternal>
+          </p>
+        </Localized>
       </div>
       <div className="flex flex-2 justify-center mt-5 mobileLandscape:mt-0 mobileLandscape:justify-end mobileLandscape:rtl:justify-start">
         <LinkExternal
