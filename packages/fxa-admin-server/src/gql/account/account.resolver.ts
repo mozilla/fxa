@@ -64,8 +64,12 @@ export class AccountResolver {
 
   //query to return all emails that are in the database
   @Query((returns) => [EmailType], { nullable: true })
-  public getAllEmails() {
-    return this.db.emails.query().select(EMAIL_COLUMNS);
+  public getEmailsLike(@Args('search', { nullable: false }) search: string) {
+    return this.db.emails
+      .query()
+      .select(EMAIL_COLUMNS)
+      .where('email', 'like', `%${search}%`)
+      .limit(10);
   }
 
   @ResolveField()
