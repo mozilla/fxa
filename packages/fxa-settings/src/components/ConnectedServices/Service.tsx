@@ -15,6 +15,7 @@ import { ReactComponent as TabletIcon } from './tablet.svg';
 import { ReactComponent as MonitorIcon } from './monitor.svg';
 import { ReactComponent as PocketIcon } from './pocket.svg';
 import { ReactComponent as LockwiseIcon } from './lockwise.svg';
+import { Localized } from '@fluent/react';
 
 export function Service({
   name,
@@ -107,13 +108,15 @@ export function Service({
         </div>
 
         <div className="flex flex-grow w-full mobileLandscape:justify-end mobileLandscape:flex-1">
-          <button
-            className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
-            data-testid="connected-service-sign-out"
-            onClick={handleSignOut}
-          >
-            Sign out
-          </button>
+          <Localized id="cs-sign-out-button">
+            <button
+              className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
+              data-testid="connected-service-sign-out"
+              onClick={handleSignOut}
+            >
+              Sign out
+            </button>
+          </Localized>
         </div>
       </div>
     </div>

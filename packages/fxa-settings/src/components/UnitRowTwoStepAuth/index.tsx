@@ -14,6 +14,7 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useAccount, useLazyTotpStatus } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { HomePath } from '../../constants';
+import { Localized, useLocalization } from '@fluent/react';
 
 const route = `${HomePath}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
@@ -37,11 +38,16 @@ export const UnitRowTwoStepAuth = () => {
     revealSecondaryModal,
     hideSecondaryModal,
   ] = useBooleanState();
+  const { l10n } = useLocalization();
 
   const [getTotpStatus, { totpStatusLoading }] = useLazyTotpStatus(() => {
     hideModal();
     alertBar.success(
-      'Sorry, there was a problem refreshing two-step authentication.'
+      l10n.getString(
+        'tfa-row-cannot-refresh',
+        null,
+        'Sorry, there was a problem refreshing two-step authentication.'
+      )
     );
   });
 
@@ -49,11 +55,23 @@ export const UnitRowTwoStepAuth = () => {
     variables: { input: {} },
     onCompleted: () => {
       hideModal();
-      alertBar.success('Two-step authentication disabled.');
+      alertBar.success(
+        l10n.getString(
+          'tfa-row-disabled',
+          null,
+          'Two-step authentication disabled.'
+        )
+      );
     },
     onError: () => {
       hideModal();
-      alertBar.error('Two-step authentication could not be disabled.');
+      alertBar.error(
+        l10n.getString(
+          'tfa-row-cannot-disable',
+          null,
+          'Two-step authentication could not be disabled.'
+        )
+      );
     },
     ignoreResults: true,
     update: (cache) => {
@@ -72,8 +90,12 @@ export const UnitRowTwoStepAuth = () => {
     exists && verified
       ? {
           headerValueClassName: 'text-green-800',
-          headerValue: 'Enabled',
-          secondaryCtaText: 'Disable',
+          headerValue: l10n.getString('tfa-row-enabled', null, 'Enabled'),
+          secondaryCtaText: l10n.getString(
+            'tfa-row-action-disable',
+            null,
+            'Disable'
+          ),
           secondaryButtonClassName: 'cta-caution',
           // The naming of this is a bit confusing, since they are swapped in this
           // case, we should come up with a better name here. Filed FXA-2539
@@ -83,8 +105,8 @@ export const UnitRowTwoStepAuth = () => {
         }
       : {
           headerValue: null,
-          noHeaderValueText: 'Not Set',
-          ctaText: 'Add',
+          noHeaderValueText: l10n.getString('tfa-row-not-set', null, 'Not Set'),
+          ctaText: l10n.getString('tfa-row-action-add', null, 'Add'),
           secondaryCtaText: undefined,
           revealSecondaryModal: undefined,
         };
@@ -96,33 +118,39 @@ export const UnitRowTwoStepAuth = () => {
       route={route}
       {...conditionalUnitRowProps}
       headerContent={
-        <ButtonIconReload
-          title="Refresh two-step authentication"
-          classNames="ltr:ml-1 rtl:mr-1 mobileLandscape:hidden"
-          disabled={totpStatusLoading}
-          onClick={getTotpStatus}
-        />
+        <Localized id="tfa-row-button-refresh" attrs={{ title: true }}>
+          <ButtonIconReload
+            title="Refresh two-step authentication"
+            classNames="ltr:ml-1 rtl:mr-1 mobileLandscape:hidden"
+            disabled={totpStatusLoading}
+            onClick={getTotpStatus}
+          />
+        </Localized>
       }
       actionContent={
-        <ButtonIconReload
-          title="Refresh two-step authentication"
-          classNames="hidden ltr:ml-1 rtl:mr-1 mobileLandscape:inline-block"
-          testId="two-step-refresh"
-          disabled={totpStatusLoading}
-          onClick={getTotpStatus}
-        />
+        <Localized id="tfa-row-button-refresh" attrs={{ title: true }}>
+          <ButtonIconReload
+            title="Refresh two-step authentication"
+            classNames="hidden ltr:ml-1 rtl:mr-1 mobileLandscape:inline-block"
+            testId="two-step-refresh"
+            disabled={totpStatusLoading}
+            onClick={getTotpStatus}
+          />
+        </Localized>
       }
     >
-      <p className="text-sm mt-3">
-        Prevent someone else from logging in by requiring a unique code only you
-        have access to.
-      </p>
+      <Localized id="tfa-row-content-explain">
+        <p className="text-sm mt-3">
+          Prevent someone else from logging in by requiring a unique code only
+          you have access to.
+        </p>
+      </Localized>
       {modalRevealed && (
         <VerifiedSessionGuard
           onDismiss={hideModal}
           onError={(error) => {
             hideModal();
-            alertBar.error(error.message);
+            alertBar.error(error.message, error);
           }}
         >
           <Modal
@@ -130,27 +158,48 @@ export const UnitRowTwoStepAuth = () => {
             onConfirm={disableTwoStepAuth}
             headerId="two-step-auth-disable-header"
             descId="two-step-auth-disable-description"
-            confirmText="Disable"
+            confirmText={l10n.getString(
+              'tfa-row-disable-modal-confirm',
+              null,
+              'Disable'
+            )}
             confirmBtnClassName="cta-caution"
           >
-            <h2
-              className="font-bold text-xl text-center mb-2"
-              data-testid="disable-totp-modal-header"
-            >
-              Disable two-step authentication?
-            </h2>
+            <Localized id="tfa-row-disable-modal-heading">
+              <h2
+                className="font-bold text-xl text-center mb-2"
+                data-testid="disable-totp-modal-header"
+              >
+                Disable two-step authentication?
+              </h2>
+            </Localized>
             {/* "replacing recovery codes" link below will actually drop you into
             recovery codes flow in the future. */}
-            <p className="text-center">
-              You won't be able to undo this action. You also have the option of{' '}
-              <LinkExternal
-                className="link-blue"
-                href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
-              >
-                replacing your recovery codes
-              </LinkExternal>
-              .
-            </p>
+            <Localized
+              id="tfa-row-disable-modal-explain"
+              elems={{
+                linkExternal: (
+                  <LinkExternal
+                    className="link-blue"
+                    href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
+                  >
+                    {' '}
+                  </LinkExternal>
+                ),
+              }}
+            >
+              <p className="text-center">
+                You won't be able to undo this action. You also have the option
+                of{' '}
+                <LinkExternal
+                  className="link-blue"
+                  href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
+                >
+                  replacing your recovery codes
+                </LinkExternal>
+                .
+              </p>
+            </Localized>
           </Modal>
         </VerifiedSessionGuard>
       )}
@@ -160,7 +209,11 @@ export const UnitRowTwoStepAuth = () => {
           onError={(error) => {
             hideModal();
             alertBar.error(
-              'Sorry, there was a problem verifying your session',
+              l10n.getString(
+                'tfa-row-cannot-verify-session',
+                null,
+                'Sorry, there was a problem verifying your session'
+              ),
               error
             );
           }}
@@ -169,19 +222,27 @@ export const UnitRowTwoStepAuth = () => {
             onDismiss={hideSecondaryModal}
             headerId="two-step-auth-change-codes-header"
             descId="two-step-auth-change-codes-description"
-            confirmText="Change"
+            confirmText={l10n.getString(
+              'tfa-row-change-modal-confirm',
+              null,
+              'Change'
+            )}
             confirmBtnClassName="cta-primary"
             route={replaceCodesRoute}
           >
-            <h2
-              className="font-bold text-xl text-center mb-2"
-              data-testid="change-codes-modal-header"
-            >
-              Change recovery codes?
-            </h2>
-            <p className="text-center">
-              You won't be able to undo this action.
-            </p>
+            <Localized id="tfa-row-change-modal-heading">
+              <h2
+                className="font-bold text-xl text-center mb-2"
+                data-testid="change-codes-modal-header"
+              >
+                Change recovery codes?
+              </h2>
+            </Localized>
+            <Localized id="tfa-row-change-modal-explain">
+              <p className="text-center">
+                You won't be able to undo this action.
+              </p>
+            </Localized>
           </Modal>
         </VerifiedSessionGuard>
       )}
