@@ -392,8 +392,8 @@ function testInvalidMetricsData(body) {
         'Content-Type': 'text/plain;charset=UTF-8',
       },
     })
-    .then(assert.fail, (res) => {
-      assert.equal(res.statusCode, 400);
+    .then(assert.fail, (err) => {
+      assert.equal(err.response.statusCode, 400);
     });
 }
 

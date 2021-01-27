@@ -101,6 +101,7 @@ module.exports = function (config) {
       BLOB,
       CDN_URL,
       DATA,
+      GQL_SERVER,
       GRAVATAR,
       NONE,
       OAUTH_SERVER,

@@ -32,7 +32,7 @@ import { batchAccountUpdate } from 'fxa-shared/db/models/auth';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 
 const config = Config.getProperties();
-const logger = mozlog(config.logging)('must-change-password');
+const logger = mozlog(config.log)('must-change-password');
 const requiredOptions = ['input'];
 
 program

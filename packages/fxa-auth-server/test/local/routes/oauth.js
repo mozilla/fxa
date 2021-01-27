@@ -570,7 +570,7 @@ describe('/oauth/ routes', () => {
       mockConfig.oauth.oldSyncClientIds = [MOCK_CLIENT_ID];
       mockOAuthDB = mocks.mockOAuthDB({
         grantTokensFromSessionToken: sinon.spy(async () => {
-          return MOCK_TOKEN_RESPONSE;
+          return { ...MOCK_TOKEN_RESPONSE, scope: OAUTH_SCOPE_OLD_SYNC };
         }),
       });
       mockDB = mocks.mockDB({
@@ -583,13 +583,12 @@ describe('/oauth/ routes', () => {
         credentials: sessionToken,
         payload: {
           client_id: MOCK_CLIENT_ID,
-          scope: MOCK_SCOPES,
+          scope: OAUTH_SCOPE_OLD_SYNC,
           grant_type: 'fxa-credentials',
         },
       });
       const mockEmitMetricsEvent = sinon.stub(mockRequest, 'emitMetricsEvent');
       await loadAndCallRoute('/oauth/token', mockRequest);
-      console.log(mockEmitMetricsEvent.args);
       assert.calledWithMatch(
         mockEmitMetricsEvent.secondCall,
         'account.signed',
@@ -624,78 +623,178 @@ describe('/oauth/ routes', () => {
         mockLog = mocks.mockLog();
       });
 
-      it('emits the event when OLD_SYNC is in the scopes and client is an old one', async () => {
-        mockConfig.oauth.oldSyncClientIds = [MOCK_CLIENT_ID];
-        mockOAuthDB = mocks.mockOAuthDB({
-          grantTokensFromSessionToken: sinon.spy(async () => {
-            return MOCK_TOKEN_RESPONSE;
-          }),
+      describe('desktop sync using "fxa-credentials" grant', async () => {
+        it('emits the event when the OLD_SYNC scope alone is requested', async () => {
+          const mockTokenResponseOldSyncScope = {
+            ...MOCK_TOKEN_RESPONSE,
+            scope: OAUTH_SCOPE_OLD_SYNC,
+          };
+          mockConfig.oauth.oldSyncClientIds = [MOCK_CLIENT_ID];
+          mockOAuthDB = mocks.mockOAuthDB({
+            grantTokensFromSessionToken: sinon.spy(async () => {
+              return mockTokenResponseOldSyncScope;
+            }),
+          });
+          const mockRequest = mocks.mockRequest({
+            log: mockLog,
+            credentials: sessionToken,
+            payload: {
+              client_id: MOCK_CLIENT_ID,
+              scope: OAUTH_SCOPE_OLD_SYNC,
+            },
+            metricsContext,
+          });
+          const resp = await loadAndCallRoute('/oauth/token', mockRequest);
+          assert.isTrue(
+            mockLog.flowEvent.args.some(
+              (args) => args[0].event && args[0].event === 'flow.complete'
+            )
+          );
+          assert.deepEqual(resp, mockTokenResponseOldSyncScope);
         });
-        const mockRequest = mocks.mockRequest({
-          log: mockLog,
-          credentials: sessionToken,
-          payload: {
-            client_id: MOCK_CLIENT_ID,
-            scope: MOCK_SCOPES,
-          },
-          metricsContext,
-        });
-        const resp = await loadAndCallRoute('/oauth/token', mockRequest);
 
-        assert.calledWithMatch(mockLog.flowEvent.thirdCall, {
-          event: 'flow.complete',
-          device_id: 'foo',
-          flow_id: 'bar',
-          flowBeginTime: 123,
-          flowCompleteSignal: 'account.signed',
+        it('does not emit the event when OLD_SYNC is not in the requested scopes', async () => {
+          mockOAuthDB = mocks.mockOAuthDB({
+            grantTokensFromSessionToken: sinon.spy(async () => {
+              return { ...MOCK_TOKEN_RESPONSE, scope: 'somethingelse' };
+            }),
+          });
+          const mockRequest = mocks.mockRequest({
+            log: mockLog,
+            credentials: sessionToken,
+            payload: {
+              client_id: MOCK_CLIENT_ID,
+              scope: MOCK_SCOPES,
+            },
+            metricsContext,
+          });
+          await loadAndCallRoute('/oauth/token', mockRequest);
+          assert.isFalse(
+            mockLog.flowEvent.args.some(
+              (args) => args[0].event && args[0].event === 'flow.complete'
+            )
+          );
         });
-        assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
+
+        it('does not emit the event when the both OLD_SYNC and `profile` scopes are requested', async () => {
+          mockOAuthDB = mocks.mockOAuthDB({
+            grantTokensFromSessionToken: sinon.spy(async () => {
+              return MOCK_TOKEN_RESPONSE;
+            }),
+          });
+          const mockRequest = mocks.mockRequest({
+            log: mockLog,
+            credentials: sessionToken,
+            payload: {
+              client_id: MOCK_CLIENT_ID,
+              scope: MOCK_SCOPES,
+            },
+            metricsContext,
+          });
+          await loadAndCallRoute('/oauth/token', mockRequest);
+          assert.isFalse(
+            mockLog.flowEvent.args.some(
+              (args) => args[0].event && args[0].event === 'flow.complete'
+            )
+          );
+        });
       });
 
-      it('does not emit the event when OLD_SYNC is not in the scopes', async () => {
-        mockOAuthDB = mocks.mockOAuthDB({
-          grantTokensFromSessionToken: sinon.spy(async () => {
-            return { ...MOCK_TOKEN_RESPONSE, scope: 'somethingelse' };
-          }),
+      describe('mobile sync', async () => {
+        it('does not emit the event for the authorization code grant', async () => {
+          mockOAuthDB = mocks.mockOAuthDB({
+            grantTokensFromAuthorizationCode: sinon.spy(async () => {
+              return MOCK_TOKEN_RESPONSE;
+            }),
+          });
+          mockDB = mocks.mockDB({
+            ecosystemAnonId: MOCK_ANON_ID,
+            email: 'foo@example.com',
+            uid: MOCK_USER_ID,
+          });
+          const mockRequest = mocks.mockRequest({
+            log: mockLog,
+            metricsContext,
+            credentials: sessionToken,
+            payload: {
+              client_id: MOCK_CLIENT_ID,
+              code: MOCK_AUTHORIZATION_CODE,
+              code_verifier:
+                'LTvYq_2MBc2XAX_unyHRMST4x7XWSALLbeXS8JUNzPrEoXYsD1oyyDjErw',
+              grant_type: 'authorization_code',
+            },
+          });
+          await loadAndCallRoute('/oauth/token', mockRequest);
+          assert.isFalse(
+            mockLog.flowEvent.args.some(
+              (args) => args[0].event && args[0].event === 'flow.complete'
+            )
+          );
         });
-        const mockRequest = mocks.mockRequest({
-          log: mockLog,
-          credentials: sessionToken,
-          payload: {
-            client_id: MOCK_CLIENT_ID,
-            scope: MOCK_SCOPES,
-          },
-          metricsContext,
-        });
-        await loadAndCallRoute('/oauth/token', mockRequest);
-        assert.isFalse(
-          mockLog.flowEvent.args.some(
-            (args) => args[0].event && args[0].event === 'flow.complete'
-          )
-        );
-      });
 
-      it('does not emit the event when the client is not an old one', async () => {
-        mockOAuthDB = mocks.mockOAuthDB({
-          grantTokensFromSessionToken: sinon.spy(async () => {
-            return MOCK_TOKEN_RESPONSE;
-          }),
+        it('does not emit the event for the refresh_token grant requesting profile scope', async () => {
+          mockOAuthDB = mocks.mockOAuthDB({
+            grantTokensFromRefreshToken: sinon.spy(async () => {
+              return { ...MOCK_TOKEN_RESPONSE, scope: 'profile' };
+            }),
+          });
+          mockDB = mocks.mockDB({
+            ecosystemAnonId: MOCK_ANON_ID,
+            email: 'foo@example.com',
+            uid: MOCK_USER_ID,
+          });
+          const mockRequest = mocks.mockRequest({
+            log: mockLog,
+            metricsContext,
+            credentials: sessionToken,
+            payload: {
+              client_id: MOCK_CLIENT_ID,
+              refresh_token: MOCK_AUTHORIZATION_CODE,
+              grant_type: 'refresh_token',
+              scope: 'profile',
+            },
+          });
+          await loadAndCallRoute('/oauth/token', mockRequest);
+          assert.isFalse(
+            mockLog.flowEvent.args.some(
+              (args) => args[0].event && args[0].event === 'flow.complete'
+            )
+          );
         });
-        const mockRequest = mocks.mockRequest({
-          log: mockLog,
-          credentials: sessionToken,
-          payload: {
-            client_id: MOCK_CLIENT_ID,
-            scope: MOCK_SCOPES,
-          },
-          metricsContext,
+
+        it('emits the event for the refresh_token grant requesting OLD_SYNC scope', async () => {
+          mockConfig.oauth.oldSyncClientIds = [MOCK_CLIENT_ID];
+          mockOAuthDB = mocks.mockOAuthDB({
+            grantTokensFromRefreshToken: sinon.spy(async () => {
+              return { ...MOCK_TOKEN_RESPONSE, scope: OAUTH_SCOPE_OLD_SYNC };
+            }),
+          });
+          const mockRequest = mocks.mockRequest({
+            metricsContext,
+            credentials: sessionToken,
+            payload: {
+              client_id: MOCK_CLIENT_ID,
+              refresh_token: MOCK_AUTHORIZATION_CODE,
+              grant_type: 'refresh_token',
+              scope: OAUTH_SCOPE_OLD_SYNC,
+            },
+          });
+          const mockEmitMetricsEvent = sinon.stub(
+            mockRequest,
+            'emitMetricsEvent'
+          );
+          await loadAndCallRoute('/oauth/token', mockRequest);
+          assert.calledTwice(mockEmitMetricsEvent);
+          assert.calledWithMatch(
+            mockEmitMetricsEvent.secondCall,
+            'account.signed',
+            {
+              uid: MOCK_USER_ID,
+              device_id: undefined,
+              service: 'sync',
+            }
+          );
         });
-        await loadAndCallRoute('/oauth/token', mockRequest);
-        assert.isFalse(
-          mockLog.flowEvent.args.some(
-            (args) => args[0].event && args[0].event === 'flow.complete'
-          )
-        );
       });
     });
   });
