@@ -26,6 +26,8 @@ import checkEmailDomain from '../lib/email-domain-validator';
 
 const EMAIL_SELECTOR = 'input[type=email]';
 
+const t = (msg) => msg;
+
 class IndexView extends FormView {
   template = Template;
 
@@ -99,6 +101,12 @@ class IndexView extends FormView {
     // so a user can only be enrolled in one of them at a time. This
     // select the experiment the user will belong to.
     this.getAndReportExperimentGroup('newsletterCadChooser');
+
+    // This is so we can show the delete success message after redirect
+    // from the settings beta.
+    if (this.getSearchParam('delete_account_success')) {
+      this.displaySuccess(t('Account deleted successfully'));
+    }
   }
 
   chooseEmailActionPage() {

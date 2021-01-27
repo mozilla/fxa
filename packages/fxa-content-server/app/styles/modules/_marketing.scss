@@ -127,27 +127,6 @@
 
 .sign-up {
   display: flex;
-
-  > .firefox-family-services {
-    background: none;
-    margin: 90px 0 0 36px;
-    padding: 0;
-    width: 185px;
-
-    @media screen and (max-width: 720px) {
-      display: none;
-    }
-
-    html[dir='rtl'] & {
-      margin: 90px 36px 0 0;
-    }
-
-    > ul {
-      @include respond-to('big') {
-        display: block;
-      }
-    }
-  }
 }
 
 .links + .firefox-family-services {

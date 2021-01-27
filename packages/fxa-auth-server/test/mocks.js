@@ -13,7 +13,6 @@ const config = require('../config').getProperties();
 const crypto = require('crypto');
 const error = require('../lib/error');
 const knownIpLocation = require('./known-ip-location');
-const P = require('../lib/promise');
 const sinon = require('sinon');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 
@@ -95,22 +94,6 @@ const DB_METHOD_NAMES = [
   'cancelAccountSubscription',
   'reactivateAccountSubscription',
   'fetchAccountSubscriptions',
-];
-
-const OAUTHDB_METHOD_NAMES = [
-  'checkAccessToken',
-  'checkRefreshToken',
-  'revokeAccessToken',
-  'revokeRefreshToken',
-  'revokeRefreshTokenById',
-  'getClientInfo',
-  'getScopedKeyData',
-  'createAuthorizationCode',
-  'grantTokensFromAuthorizationCode',
-  'grantTokensFromRefreshToken',
-  'grantTokensFromSessionToken',
-  'listAuthorizedClients',
-  'revokeAuthorizedClient',
 ];
 
 const LOG_METHOD_NAMES = [
@@ -206,7 +189,6 @@ module.exports = {
   mockBounces: mockObject(['check']),
   mockCustoms,
   mockDB,
-  mockOAuthDB,
   mockDevices,
   mockLog: mockObject(LOG_METHOD_NAMES),
   mockMailer: mockObject(MAILER_METHOD_NAMES),
@@ -233,9 +215,9 @@ function mockCustoms(errors) {
 function optionallyThrow(errors, methodName) {
   return sinon.spy(() => {
     if (errors[methodName]) {
-      return P.reject(errors[methodName]);
+      return Promise.reject(errors[methodName]);
     }
-    return P.resolve();
+    return Promise.resolve();
   });
 }
 
@@ -246,7 +228,7 @@ function mockDB(data, errors) {
   return mockObject(DB_METHOD_NAMES)({
     account: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
-      return P.resolve({
+      return Promise.resolve({
         createdAt: data.createdAt,
         email: data.email,
         emailCode: data.emailCode,
@@ -275,7 +257,7 @@ function mockDB(data, errors) {
     }),
     accountEmails: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
-      return P.resolve([
+      return Promise.resolve([
         {
           email: data.email || 'primary@email.com',
           normalizedEmail: normalizeEmail(data.email || 'primary@email.com'),
@@ -297,9 +279,9 @@ function mockDB(data, errors) {
     }),
     accountRecord: sinon.spy(() => {
       if (errors.emailRecord) {
-        return P.reject(errors.emailRecord);
+        return Promise.reject(errors.emailRecord);
       }
-      return P.resolve({
+      return Promise.resolve({
         authSalt: crypto.randomBytes(32),
         createdAt: data.createdAt || Date.now(),
         data: crypto.randomBytes(32),
@@ -329,15 +311,15 @@ function mockDB(data, errors) {
     }),
     consumeSigninCode: sinon.spy(() => {
       if (errors.consumeSigninCode) {
-        return P.reject(errors.consumeSigninCode);
+        return Promise.reject(errors.consumeSigninCode);
       }
-      return P.resolve({
+      return Promise.resolve({
         email: data.email,
         flowId: data.flowId,
       });
     }),
     createAccount: sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         uid: data.uid,
         email: data.email,
         emailCode: data.emailCode,
@@ -348,7 +330,7 @@ function mockDB(data, errors) {
     }),
     createDevice: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
-      return P.resolve(
+      return Promise.resolve(
         Object.keys(data.device).reduce(
           (result, key) => {
             result[key] = data.device[key];
@@ -362,14 +344,14 @@ function mockDB(data, errors) {
       );
     }),
     createKeyFetchToken: sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         data: crypto.randomBytes(32).toString('hex'),
         id: data.keyFetchTokenId,
         uid: data.uid,
       });
     }),
     createPasswordForgotToken: sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         data: crypto.randomBytes(32).toString('hex'),
         passCode: data.passCode,
         id: data.passwordForgotTokenId,
@@ -380,7 +362,7 @@ function mockDB(data, errors) {
       });
     }),
     createSessionToken: sinon.spy((opts) => {
-      return P.resolve({
+      return Promise.resolve({
         createdAt: opts.createdAt || Date.now(),
         data: crypto.randomBytes(32).toString('hex'),
         email: opts.email || data.email,
@@ -411,31 +393,31 @@ function mockDB(data, errors) {
     createSigninCode: sinon.spy((uid, flowId) => {
       assert.ok(typeof uid === 'string');
       assert.ok(typeof flowId === 'string');
-      return P.resolve(data.signinCode || []);
+      return Promise.resolve(data.signinCode || []);
     }),
     devices: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
-      return P.resolve(data.devices || []);
+      return Promise.resolve(data.devices || []);
     }),
     device: sinon.spy((uid, deviceId) => {
       assert.ok(typeof uid === 'string');
       assert.ok(typeof deviceId === 'string');
       const device = data.devices.find((d) => d.id === deviceId);
       assert.ok(device);
-      return P.resolve(device);
+      return Promise.resolve(device);
     }),
     deleteSecurityEvents: sinon.spy(() => {
-      return P.resolve({});
+      return Promise.resolve({});
     }),
     deleteSessionToken: sinon.spy(() => {
-      return P.resolve();
+      return Promise.resolve();
     }),
     deleteAccountSubscription: sinon.spy(async (uid, subscriptionId) => true),
     emailRecord: sinon.spy(() => {
       if (errors.emailRecord) {
-        return P.reject(errors.emailRecord);
+        return Promise.reject(errors.emailRecord);
       }
-      return P.resolve({
+      return Promise.resolve({
         authSalt: crypto.randomBytes(32).toString('hex'),
         createdAt: data.createdAt || Date.now(),
         data: crypto.randomBytes(32).toString('hex'),
@@ -464,30 +446,30 @@ function mockDB(data, errors) {
       });
     }),
     forgotPasswordVerified: sinon.spy(() => {
-      return P.resolve(data.accountResetToken);
+      return Promise.resolve(data.accountResetToken);
     }),
     getSecondaryEmail: sinon.spy(() => {
-      return P.reject(error.unknownSecondaryEmail());
+      return Promise.reject(error.unknownSecondaryEmail());
     }),
     getRecoveryKey: sinon.spy(() => {
       if (data.recoveryKeyIdInvalid) {
-        return P.reject(error.recoveryKeyInvalid());
+        return Promise.reject(error.recoveryKeyInvalid());
       }
 
-      return P.resolve({
+      return Promise.resolve({
         recoveryData: data.recoveryData,
       });
     }),
     recoveryKeyExists: sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         exists: !!data.recoveryData,
       });
     }),
     securityEvents: sinon.spy(() => {
-      return P.resolve([]);
+      return Promise.resolve([]);
     }),
     securityEventsByUid: sinon.spy(() => {
-      return P.resolve([
+      return Promise.resolve([
         {
           name: 'account.create',
           verified: 1,
@@ -507,16 +489,16 @@ function mockDB(data, errors) {
     }),
     sessions: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
-      return P.resolve(data.sessions || []);
+      return Promise.resolve(data.sessions || []);
     }),
     updateDevice: sinon.spy((uid, device) => {
       assert.ok(typeof uid === 'string');
-      return P.resolve(device);
+      return Promise.resolve(device);
     }),
     updateEcosystemAnonId: sinon.spy((uid, ecosystemAnonId) => {
       assert.ok(typeof uid === 'string');
       assert.ok(typeof ecosystemAnonId === 'string');
-      return P.resolve({});
+      return Promise.resolve({});
     }),
     sessionToken: sinon.spy(() => {
       const res = {
@@ -540,39 +522,26 @@ function mockDB(data, errors) {
           res[keyOnSession] = data.devices[0][key];
         });
       }
-      return P.resolve(res);
+      return Promise.resolve(res);
     }),
     verifyTokens: optionallyThrow(errors, 'verifyTokens'),
     verifyTokenCode: sinon.spy(() => {
       if (errors.verifyTokenCode) {
-        return P.reject(errors.verifyTokenCode);
+        return Promise.reject(errors.verifyTokenCode);
       }
-      return P.resolve({});
+      return Promise.resolve({});
     }),
     replaceRecoveryCodes: sinon.spy(() => {
-      return P.resolve(['12312312', '12312312']);
+      return Promise.resolve(['12312312', '12312312']);
     }),
   });
-}
-
-function mockOAuthDB(methods = {}) {
-  // For OAuthDB, the mock object needs to expose a `.api` property
-  // with route validation info, so we load the module directly.
-  const log = methods.log || module.exports.mockLog();
-  const config = methods.config || {
-    oauth: { url: 'http://mocked-oauth-url.net' },
-  };
-  return mockObject(
-    OAUTHDB_METHOD_NAMES,
-    require('../lib/oauthdb')(log, config)
-  )(methods);
 }
 
 function mockObject(methodNames, baseObj) {
   return (methods) => {
     methods = methods || {};
     return methodNames.reduce((object, name) => {
-      object[name] = methods[name] || sinon.spy(() => P.resolve());
+      object[name] = methods[name] || sinon.spy(() => Promise.resolve());
       return object;
     }, baseObj || {});
   };
@@ -582,7 +551,7 @@ function mockPush(methods) {
   const push = Object.assign({}, methods);
   PUSH_METHOD_NAMES.forEach((name) => {
     if (!push[name]) {
-      push[name] = sinon.spy(() => P.resolve());
+      push[name] = sinon.spy(() => Promise.resolve());
     }
   });
   return push;
@@ -593,7 +562,7 @@ function mockPushbox(methods) {
   if (!pushbox.retrieve) {
     // Route code expects the `retrieve` method to return a properly-structured object.
     pushbox.retrieve = sinon.spy(() =>
-      P.resolve({
+      Promise.resolve({
         last: true,
         index: 0,
         messages: [],
@@ -602,7 +571,7 @@ function mockPushbox(methods) {
   }
   PUSHBOX_METHOD_NAMES.forEach((name) => {
     if (!pushbox[name]) {
-      pushbox[name] = sinon.spy(() => P.resolve());
+      pushbox[name] = sinon.spy(() => Promise.resolve());
     }
   });
   return pushbox;
@@ -612,7 +581,7 @@ function mockSubHub(methods) {
   const subscriptionsBackend = Object.assign({}, methods);
   SUBHUB_METHOD_NAMES.forEach((name) => {
     if (!subscriptionsBackend[name]) {
-      subscriptionsBackend[name] = sinon.spy(() => P.resolve());
+      subscriptionsBackend[name] = sinon.spy(() => Promise.resolve());
     }
   });
   return subscriptionsBackend;
@@ -622,7 +591,7 @@ function mockProfile(methods) {
   const profileBackend = Object.assign({}, methods);
   PROFILE_METHOD_NAMES.forEach((name) => {
     if (!profileBackend[name]) {
-      profileBackend[name] = sinon.spy(() => P.resolve());
+      profileBackend[name] = sinon.spy(() => Promise.resolve());
     }
   });
   return profileBackend;
@@ -636,9 +605,9 @@ function mockDevices(data, errors) {
     isSpuriousUpdate: sinon.spy(() => data.spurious || false),
     upsert: sinon.spy(() => {
       if (errors.upsert) {
-        return P.reject(errors.upsert);
+        return Promise.reject(errors.upsert);
       }
-      return P.resolve({
+      return Promise.resolve({
         id: data.deviceId || crypto.randomBytes(16).toString('hex'),
         name: data.deviceName || 'mock device name',
         type: data.deviceType || 'desktop',
@@ -660,7 +629,7 @@ function mockMetricsContext(methods) {
       methods.gather ||
       sinon.spy(function (data) {
         const time = Date.now();
-        return P.resolve().then(() => {
+        return Promise.resolve().then(() => {
           if (this.payload && this.payload.metricsContext) {
             return Object.assign(
               data,
@@ -748,9 +717,9 @@ function mockRequest(data, errors) {
 
   let devices;
   if (errors && errors.devices) {
-    devices = P.reject(errors.devices);
+    devices = Promise.reject(errors.devices);
   } else {
-    devices = P.resolve(data.devices || []);
+    devices = Promise.resolve(data.devices || []);
   }
 
   let metricsContextData = data.payload && data.payload.metricsContext;
@@ -766,7 +735,7 @@ function mockRequest(data, errors) {
       features: new Set(data.features),
       geo,
       locale: data.locale || 'en-US',
-      metricsContext: P.resolve(metricsContextData),
+      metricsContext: Promise.resolve(metricsContextData),
       ua: {
         browser: data.uaBrowser || 'Firefox',
         browserVersion: data.uaBrowserVersion || '57.0',

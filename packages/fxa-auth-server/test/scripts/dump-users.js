@@ -6,14 +6,14 @@
 
 const ROOT_DIR = '../..';
 
+const { promisify } = require('util');
 const cp = require('child_process');
 const { assert } = require('chai');
 const path = require('path');
-const P = require('bluebird');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
-cp.execAsync = P.promisify(cp.exec);
+cp.execAsync = promisify(cp.exec);
 
 const log = mocks.mockLog();
 const config = require('../../config').getProperties();
@@ -71,7 +71,7 @@ describe('scripts/dump-users', function () {
       })
       .then((_db) => {
         db = _db;
-        return P.all([
+        return Promise.all([
           db.createAccount(account1Mock),
           db.createAccount(account2Mock),
         ]);
@@ -79,7 +79,7 @@ describe('scripts/dump-users', function () {
   });
 
   after(() => {
-    return P.all([
+    return Promise.all([
       db.deleteAccount(account1Mock),
       db.deleteAccount(account2Mock),
     ]).then(() => TestServer.stop(server));

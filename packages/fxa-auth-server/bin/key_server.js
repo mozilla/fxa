@@ -27,7 +27,6 @@ async function run(config) {
   Container.set(StatsD, statsd);
 
   const log = require('../lib/log')({ ...config.log, statsd });
-  require('../lib/oauth/logging')(log);
 
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth);
@@ -37,6 +36,17 @@ async function run(config) {
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
     const createStripeHelper = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
+
+    if (config.subscriptions.paypalNvpSigCredentials.enabled) {
+      const { PayPalClient } = require('../lib/payments/paypal-client');
+      const { PayPalHelper } = require('../lib/payments/paypal');
+      const paypalClient = new PayPalClient(
+        config.subscriptions.paypalNvpSigCredentials
+      );
+      Container.set(PayPalClient, paypalClient);
+      const paypalHelper = new PayPalHelper({ log });
+      Container.set(PayPalHelper, paypalHelper);
+    }
   }
 
   const redis = require('../lib/redis')(
@@ -62,14 +72,12 @@ async function run(config) {
     config.i18n.supportedLanguages,
     config.i18n.defaultLanguage
   );
-  const oauthdb = require('../lib/oauthdb')(log, config, statsd);
   const profile = require('../lib/profile/client')(log, config, statsd);
   const senders = await require('../lib/senders')(
     log,
     config,
     error,
     translator,
-    oauthdb,
     statsd
   );
 
@@ -97,7 +105,6 @@ async function run(config) {
     serverPublicKeys,
     signer,
     database,
-    oauthdb,
     senders.email,
     senders.sms,
     Password,
@@ -117,7 +124,6 @@ async function run(config) {
     config,
     routes,
     database,
-    oauthdb,
     translator,
     statsd
   );
@@ -141,8 +147,8 @@ async function run(config) {
       log.info('shutdown', 'gracefully');
       await server.stop();
       await customs.close();
-      oauthdb.close();
       statsd.close();
+      senders.sms.close();
       try {
         senders.email.stop();
       } catch (e) {

@@ -7,7 +7,6 @@ const proxyquire = require('proxyquire');
 
 module.exports = {
   require: requireDependencies,
-  log: mockLog,
 };
 
 // `mocks.require`
@@ -54,20 +53,4 @@ function requireDependency(dependency, modulePath, basePath) {
     paths: [path.dirname(moduleUnderTest)],
   });
   return proxyquire(dependencyPath, {});
-}
-
-function mockLog(logger, cb) {
-  var root = require('../../lib/oauth/logging')();
-  var log = require('../../lib/oauth/logging')(logger);
-  var filter = {
-    filter: function (record) {
-      if (cb(record)) {
-        log.removeFilter(filter);
-        log.setLevel(root.getEffectiveLevel());
-        return false;
-      }
-      return true;
-    },
-  };
-  log.addFilter(filter);
 }

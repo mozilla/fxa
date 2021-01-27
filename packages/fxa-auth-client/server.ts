@@ -24,3 +24,4 @@ global.btoa = btoa;
 
 export default AuthClient;
 export * from './lib/client';
+export * from './lib/hawk';

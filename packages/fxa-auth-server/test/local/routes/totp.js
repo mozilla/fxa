@@ -8,7 +8,6 @@ const { assert } = require('chai');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const otplib = require('otplib');
-const P = require('../../../lib/promise');
 const sinon = require('sinon');
 
 let log, db, customs, routes, route, request, requestOptions, mailer;
@@ -123,6 +122,19 @@ describe('totp', () => {
           args[2].uid,
           'uid',
           'third argument was event data with a uid'
+        );
+
+        assert.equal(
+          db.verifyTokensWithMethod.callCount,
+          1,
+          'called db.verifyTokensWithMethod'
+        );
+        const dbArgs = db.verifyTokensWithMethod.args[0];
+        assert.equal(dbArgs[0], sessionId, 'first argument was sessionId');
+        assert.equal(
+          dbArgs[1],
+          'email-2fa',
+          `second argument was reduced verification level`
         );
       });
     });
@@ -420,13 +432,16 @@ function setup(results, errors, routePath, requestOptions) {
   mailer = mocks.mockMailer();
   db = mocks.mockDB(results.db, errors.db);
   db.createTotpToken = sinon.spy(() => {
-    return P.resolve({
+    return Promise.resolve({
       qrCodeUrl: 'some base64 encoded png',
       sharedSecret: secret,
     });
   });
+  db.verifyTokensWithMethod = sinon.spy(() => {
+    return Promise.resolve();
+  });
   db.totpToken = sinon.spy(() => {
-    return P.resolve({
+    return Promise.resolve({
       verified:
         typeof results.totpTokenVerified === 'undefined'
           ? true
@@ -441,7 +456,7 @@ function setup(results, errors, routePath, requestOptions) {
   routes = makeRoutes({ log, db, customs, mailer });
   route = getRoute(routes, routePath);
   request = mocks.mockRequest(requestOptions);
-  request.emitMetricsEvent = sinon.spy(() => P.resolve({}));
+  request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
   return runTest(route, request);
 }
 

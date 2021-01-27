@@ -232,8 +232,6 @@ describe('validateRequestedGrant', () => {
 
 describe('generateTokens', () => {
   let mockAccessToken;
-  let mockAmplitude;
-  let mockLog;
   let mockConfig;
   let mockDB;
   let mockJWTAccessToken;
@@ -263,13 +261,6 @@ describe('generateTokens', () => {
       scope,
       userId: Buffer.from('ABCDEF123456', 'hex'),
     };
-
-    mockLog = {
-      info: sinon.spy(),
-      debug: sinon.spy(),
-    };
-
-    mockAmplitude = sinon.spy();
 
     mockDB = {
       generateAccessToken: sinon.spy(async () => mockAccessToken),
@@ -306,8 +297,6 @@ describe('generateTokens', () => {
       '../../config': mockConfig,
       './db': mockDB,
       './jwt_access_token': mockJWTAccessToken,
-      './logging': () => mockLog,
-      './metrics/amplitude': () => mockAmplitude,
     });
 
     grantModule.setStripeHelper(undefined);
@@ -422,17 +411,5 @@ describe('generateTokens', () => {
       '0123456789',
       'https://resource.server1.com',
     ]);
-  });
-
-  it('should log an amplitude event', async () => {
-    await generateTokens(requestedGrant);
-
-    assert.equal(mockAmplitude.callCount, 1);
-    const args = mockAmplitude.args[0];
-    assert.strictEqual(args[0], 'token.created');
-    assert.deepEqual(args[1], {
-      service: '0123456789',
-      uid: 'abcdef123456',
-    });
   });
 });

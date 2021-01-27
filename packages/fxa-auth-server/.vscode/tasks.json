@@ -33,12 +33,12 @@
     {
       "label": "Stop PM2 Auth Server",
       "type": "shell",
-      "command": "pm2 stop auth"
+      "command": "pm2 stop auth inbox profile"
     },
     {
       "label": "Start PM2 Auth Server",
       "type": "shell",
-      "command": "pm2 start auth"
+      "command": "pm2 start auth inbox profile"
     }
   ]
 }

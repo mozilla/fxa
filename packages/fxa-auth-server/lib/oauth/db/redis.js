@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const config = require('../../../config');
-const logger = require('../logging')('db');
 const redis = require('../../redis');
 
 // These are used only in type declarations.
@@ -23,15 +22,12 @@ const RefreshTokenMetadata = require('./refreshTokenMetadata');
 
 class OauthRedis {
   constructor() {
-    this.redisAccessTokens = redis(
-      {
-        ...config.get('redis.accessTokens'),
-        enabled: true,
-        maxttl: config.get('oauthServer.expiration.accessToken'),
-      },
-      logger
-    );
-    this.redisRefreshTokens = redis(config.get('redis.refreshTokens'), logger);
+    this.redisAccessTokens = redis({
+      ...config.get('redis.accessTokens'),
+      enabled: true,
+      maxttl: config.get('oauthServer.expiration.accessToken'),
+    });
+    this.redisRefreshTokens = redis(config.get('redis.refreshTokens'));
   }
 
   async close() {

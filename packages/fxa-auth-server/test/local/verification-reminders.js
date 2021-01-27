@@ -196,7 +196,7 @@ describe('lib/verification-reminders:', () => {
         } else {
           it('left the third reminders in redis', async () => {
             const reminders = await redis.zrange(reminder, 0, -1);
-            assert.deepEqual(reminders, ['wibble', 'blee']);
+            assert.deepEqual(new Set(reminders), new Set(['wibble', 'blee']));
           });
         }
       });
@@ -235,7 +235,7 @@ describe('lib/verification-reminders:', () => {
 
         it('left the third reminders in redis', async () => {
           const reminders = await redis.zrange('third', 0, -1);
-          assert.deepEqual(reminders, ['wibble', 'blee']);
+          assert.deepEqual(new Set(reminders), new Set(['wibble', 'blee']));
         });
       });
     });

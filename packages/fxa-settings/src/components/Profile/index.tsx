@@ -16,8 +16,10 @@ export const Profile = () => {
   }).format(new Date(passwordCreated));
 
   return (
-    <section className="mt-11" id="profile" data-testid="settings-profile">
-      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4">Profile</h2>
+    <section className="mt-11" data-testid="settings-profile">
+      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4 relative">
+        <span id="profile" className="nav-anchor"></span>Profile
+      </h2>
 
       <div className="bg-white tablet:rounded-xl shadow">
         <UnitRowWithAvatar />

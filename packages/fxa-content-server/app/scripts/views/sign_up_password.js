@@ -8,7 +8,6 @@ import CWTSOnSignupPasswordMixin from './mixins/cwts-on-signup-password';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import EmailOptInMixin from './mixins/email-opt-in-mixin';
-import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
@@ -29,9 +28,6 @@ const DELAY_BEFORE_PASSWORD_CHECK_MS = 1500;
 const proto = FormView.prototype;
 const SignUpPasswordView = FormView.extend({
   template: Template,
-  partialTemplates: {
-    unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate,
-  },
   className: 'sign-up',
 
   events: assign({}, FormView.prototype.events, {

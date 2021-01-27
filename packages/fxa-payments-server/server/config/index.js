@@ -20,6 +20,13 @@ const conf = convict({
       env: 'FEATURE_USE_SCA_PAYMENT_UI_BY_DEFAULT',
       format: Boolean,
     },
+    usePaypalUIByDefault: {
+      default: false,
+      doc:
+        'Whether to use PayPal payment UI by default rather than Stripe payment UI alone',
+      env: 'FEATURE_USE_PAYPAL_UI_BY_DEFAULT',
+      format: Boolean,
+    },
   },
   amplitude: {
     enabled: {
@@ -316,6 +323,26 @@ const conf = convict({
       format: String,
       default: 'fxa-payments.',
       env: 'STATSD_PREFIX',
+    },
+  },
+  paypal: {
+    clientId: {
+      default: 'sb',
+      doc: 'The PayPal client ID',
+      env: 'PAYPAL_CLIENT_ID',
+      format: String,
+    },
+    apiUrl: {
+      default: 'https://www.sandbox.paypal.com',
+      doc: 'The PAYPAL API url',
+      env: 'PAYPAL_API_URL',
+      format: 'url',
+    },
+    scriptUrl: {
+      default: 'https://www.paypal.com',
+      doc: 'The PayPal script url',
+      env: 'PAYPAL_SCRIPT_URL',
+      format: 'url',
     },
   },
   stripe: {

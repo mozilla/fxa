@@ -40,7 +40,7 @@ const FLOW_ID_KEY = config.get('flow_id_key');
 const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
 const FLOW_METRICS_DISABLED = config.get('flow_metrics_disabled');
 
-const ENTRYPOINT_PATTERN = /^[\w.-]+$/;
+const ENTRYPOINT_PATTERN = /^[\w.:-]+$/;
 const VALID_FLOW_EVENT_PROPERTIES = [
   { key: 'client_id', pattern: VALIDATION_PATTERNS.SERVICE },
   { key: 'context', pattern: VALIDATION_PATTERNS.CONTEXT },

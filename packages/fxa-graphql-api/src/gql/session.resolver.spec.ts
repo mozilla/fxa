@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { AuthClientService } from '../backend/auth-client.service';
@@ -24,6 +25,7 @@ describe('AccountResolver', () => {
       providers: [
         SessionResolver,
         MockMozLogger,
+        { provide: CustomsService, useValue: {} },
         { provide: AuthClientService, useValue: authClient },
       ],
     }).compile();

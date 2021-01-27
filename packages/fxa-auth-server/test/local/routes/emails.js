@@ -13,13 +13,12 @@ const getRoute = require('../../routes_helpers').getRoute;
 const knownIpLocation = require('../../known-ip-location');
 const mocks = require('../../mocks');
 const nock = require('nock');
-const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 
-const CUSTOMER_1 = require('../payments/fixtures/customer1.json');
-const CUSTOMER_1_UPDATED = require('../payments/fixtures/customer1_new_email.json');
+const CUSTOMER_1 = require('../payments/fixtures/stripe/customer1.json');
+const CUSTOMER_1_UPDATED = require('../payments/fixtures/stripe/customer1_new_email.json');
 const TEST_EMAIL = 'foo@gmail.com';
 const TEST_EMAIL_ADDITIONAL = 'foo2@gmail.com';
 const TEST_EMAIL_INVALID = 'example@dotless-domain';
@@ -167,7 +166,7 @@ const makeRoutes = function (options = {}, requireMocks) {
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: function () {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
   };
   const push = options.push || require('../../../lib/push')(log, db, {});
@@ -351,7 +350,7 @@ describe('/recovery_email/status', () => {
 
   const mockRequest = mocks.mockRequest({
     credentials: {
-      uid: uuid.v4('binary').toString('hex'),
+      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
       email: TEST_EMAIL,
     },
   });
@@ -441,7 +440,9 @@ describe('/recovery_email/status', () => {
     });
 
     it('verified account', () => {
-      mockRequest.auth.credentials.uid = uuid.v4('binary').toString('hex');
+      mockRequest.auth.credentials.uid = uuid
+        .v4({}, Buffer.alloc(16))
+        .toString('hex');
       mockRequest.auth.credentials.emailVerified = true;
       mockRequest.auth.credentials.tokenVerified = true;
 
@@ -461,7 +462,7 @@ describe('/recovery_email/status', () => {
     pushCalled = false;
     const mockRequest = mocks.mockRequest({
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: true,
@@ -534,7 +535,7 @@ describe('/recovery_email/resend_code', () => {
   const mockDB = mocks.mockDB({ secondEmailCode: secondEmailCode });
   const mockLog = mocks.mockLog();
   mockLog.flowEvent = sinon.spy(() => {
-    return P.resolve();
+    return Promise.resolve();
   });
   const mockMailer = mocks.mockMailer();
   const mockMetricsContext = mocks.mockMetricsContext();
@@ -551,7 +552,7 @@ describe('/recovery_email/resend_code', () => {
       log: mockLog,
       metricsContext: mockMetricsContext,
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         deviceId: 'wibble',
         email: TEST_EMAIL,
         emailVerified: false,
@@ -611,8 +612,8 @@ describe('/recovery_email/resend_code', () => {
       log: mockLog,
       metricsContext: mockMetricsContext,
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
-        deviceId: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: false,
@@ -668,8 +669,8 @@ describe('/recovery_email/resend_code', () => {
       log: mockLog,
       metricsContext: mockMetricsContext,
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
-        deviceId: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         tokenVerified: false,
@@ -718,7 +719,7 @@ describe('/recovery_email/resend_code', () => {
 });
 
 describe('/recovery_email/verify_code', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
   const mockRequest = mocks.mockRequest({
     log: mockLog,
@@ -760,7 +761,7 @@ describe('/recovery_email/verify_code', () => {
   const verificationReminders = mocks.mockVerificationReminders();
   const accountRoutes = makeRoutes({
     checkPassword: function () {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
     config: {},
     customs: mockCustoms,
@@ -1010,7 +1011,7 @@ describe('/recovery_email/verify_code', () => {
         uid,
         tokenVerificationId
       ) {
-        return P.resolve({
+        return Promise.resolve({
           name: 'my device',
           id: '123456789',
           type: 'desktop',
@@ -1168,7 +1169,7 @@ describe('/recovery_email/verify_code', () => {
 });
 
 describe('/recovery_email', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
   let dbData, accountRoutes, mockDB, mockRequest, route, otpUtils, stripeHelper;
   const mockMailer = mocks.mockMailer();
@@ -1178,8 +1179,8 @@ describe('/recovery_email', () => {
   beforeEach(() => {
     mockRequest = mocks.mockRequest({
       credentials: {
-        uid: uuid.v4('binary').toString('hex'),
-        deviceId: uuid.v4('binary').toString('hex'),
+        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         normalizedEmail: normalizeEmail(TEST_EMAIL),
@@ -1199,7 +1200,7 @@ describe('/recovery_email', () => {
     stripeHelper = mocks.mockStripeHelper();
     accountRoutes = makeRoutes({
       checkPassword: function () {
-        return P.resolve(true);
+        return Promise.resolve(true);
       },
       config: {
         secondaryEmail: {
@@ -1224,7 +1225,7 @@ describe('/recovery_email', () => {
   describe('/recovery_email', () => {
     beforeEach(() => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.reject(error.unknownSecondaryEmail());
+        return Promise.reject(error.unknownSecondaryEmail());
       });
 
       mockDB.createEmail.resetHistory();
@@ -1291,7 +1292,7 @@ describe('/recovery_email', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       mockRequest.payload.email = TEST_EMAIL_ADDITIONAL;
       mockDB.account = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           emails: [
             {
               isPrimary: true,
@@ -1317,7 +1318,7 @@ describe('/recovery_email', () => {
     it('should fail when adding secondary email when the account is at its max', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       mockDB.account = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           emails: Array(3).fill({
             isPrimary: false,
           }),
@@ -1340,7 +1341,7 @@ describe('/recovery_email', () => {
 
     it('creates secondary email if another user unverified primary more than day old, deletes unverified account', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           isVerified: false,
           isPrimary: true,
           normalizedEmail: TEST_EMAIL,
@@ -1374,7 +1375,7 @@ describe('/recovery_email', () => {
 
     it('fails create email if another user unverified primary less than day old', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           isVerified: false,
           isPrimary: true,
           normalizedEmail: TEST_EMAIL,
@@ -1399,7 +1400,7 @@ describe('/recovery_email', () => {
     it('deletes secondary email if there was an error sending verification email', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       mockMailer.sendVerifySecondaryEmail = sinon.spy(() => {
-        return P.reject(new Error('failed to send'));
+        return Promise.reject(new Error('failed to send'));
       });
 
       return runTest(route, mockRequest, () => {
@@ -1478,7 +1479,7 @@ describe('/recovery_email', () => {
         email: tempEmail,
       };
       mockDB.account = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           uid: mockRequest.auth.credentials.uid,
           isVerified: true,
           isPrimary: false,
@@ -1516,7 +1517,7 @@ describe('/recovery_email', () => {
         email: tempEmail,
       };
       mockDB.account = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           uid: mockRequest.auth.credentials.uid,
           isVerified: true,
           isPrimary: false,
@@ -1563,7 +1564,7 @@ describe('/recovery_email', () => {
       };
 
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           uid: mockRequest.auth.credentials.uid,
           isVerified: true,
           isPrimary: false,
@@ -1628,8 +1629,8 @@ describe('/recovery_email', () => {
 
     it('should fail when setting email to email user does not own', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
-          uid: uuid.v4('binary').toString('hex'),
+        return Promise.resolve({
+          uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
           isVerified: true,
           isPrimary: false,
         });
@@ -1649,7 +1650,7 @@ describe('/recovery_email', () => {
 
     it('should fail when setting email is unverified', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           uid: mockRequest.auth.credentials.uid,
           isVerified: false,
           isPrimary: false,
@@ -1749,12 +1750,12 @@ describe('/emails/reminders/cad', () => {
   let accountRoutes, mockRequest, route, uid;
 
   beforeEach(() => {
-    uid = uuid.v4('binary').toString('hex');
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
     mockRequest = mocks.mockRequest({
       credentials: {
         uid,
-        deviceId: uuid.v4('binary').toString('hex'),
+        deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
         normalizedEmail: normalizeEmail(TEST_EMAIL),

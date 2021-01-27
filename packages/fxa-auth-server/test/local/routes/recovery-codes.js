@@ -9,7 +9,6 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
-const P = require('../../../lib/promise');
 
 let log, db, customs, routes, route, request, requestOptions, mailer;
 const TEST_EMAIL = 'test@email.com';
@@ -31,7 +30,7 @@ function runTest(routePath, requestOptions) {
   );
   route = getRoute(routes, routePath);
   request = mocks.mockRequest(requestOptions);
-  request.emitMetricsEvent = sinon.spy(() => P.resolve({}));
+  request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
 
   return route.handler(request);
 }
@@ -89,7 +88,7 @@ describe('recovery codes', () => {
   describe('/session/verify/recoveryCode', () => {
     it('sends email if recovery codes are low', async () => {
       db.consumeRecoveryCode = sinon.spy((code) => {
-        return P.resolve({ remaining: 1 });
+        return Promise.resolve({ remaining: 1 });
       });
       await runTest('/session/verify/recoveryCode', requestOptions);
       assert.equal(mailer.sendLowRecoveryCodesEmail.callCount, 1);

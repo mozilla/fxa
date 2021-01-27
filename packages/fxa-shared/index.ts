@@ -5,19 +5,21 @@ import popularDomains from './email/popularDomains.json';
 import BaseGroupingRule from './experiments/base';
 import { localizeTimestamp } from './l10n/localizeTimestamp';
 import supportedLanguages from './l10n/supportedLanguages.json';
-import amplitude from './metrics/amplitude';
 import scopes from './oauth/scopes';
 import promise from './promise';
 import redis from './redis';
-import emailHelpers from './email/helpers';
-import userAgent from './metrics/user-agent';
-import flowPerformance from './metrics/flow-performance';
+import * as emailHelpers from './email/helpers';
 import featureFlags from './feature-flags';
 import {
   metadataFromPlan,
   productDetailsFromPlan,
 } from './subscriptions/metadata';
 import * as stripe from './subscriptions/stripe';
+
+import amplitude from './metrics/amplitude';
+import flowPerformance from './metrics/flow-performance';
+import navigationTimingSchema from './metrics/navigation-timing-validation';
+import userAgent from './metrics/user-agent';
 
 module.exports = {
   email: {
@@ -35,6 +37,7 @@ module.exports = {
   metrics: {
     amplitude,
     flowPerformance,
+    navigationTimingSchema,
     userAgent,
   },
   oauth: {

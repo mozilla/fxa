@@ -637,7 +637,7 @@ const conf = (module.exports = convict({
       env: 'METRIC_PORT',
     },
     prefix: {
-      doc: 'StatsD metrics name prefix',
+      doc: 'StatsD metrics name prefix for content server',
       format: String,
       default: 'fxa-content.',
       env: 'METRIC_PREFIX',

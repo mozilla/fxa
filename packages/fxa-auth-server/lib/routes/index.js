@@ -11,7 +11,6 @@ module.exports = function (
   serverPublicKeys,
   signer,
   db,
-  oauthdb,
   mailer,
   smsImpl,
   Password,
@@ -26,7 +25,7 @@ module.exports = function (
   // Various extra helpers.
   const push = require('../push')(log, db, config, statsd);
   const pushbox = require('../pushbox')(log, config, statsd);
-  const devicesImpl = require('../devices')(log, db, oauthdb, push);
+  const devicesImpl = require('../devices')(log, db, push);
   const cadReminders = require('../cad-reminders')(config, log);
   const signinUtils = require('./utils/signin')(
     log,
@@ -49,9 +48,8 @@ module.exports = function (
     verificationReminders
   );
   // The routing modules themselves.
-  const defaults = require('./defaults')(log, db);
+  const defaults = require('./defaults')(log, config, db);
   const idp = require('./idp')(log, serverPublicKeys);
-  const oauthServer = require('../oauth/routes');
   const grant = require('../oauth/grant');
   const oauthRawDB = require('../oauth/db');
   grant.setStripeHelper(stripeHelper);
@@ -68,14 +66,7 @@ module.exports = function (
     oauthRawDB,
     stripeHelper
   );
-  const oauth = require('./oauth')(
-    log,
-    config,
-    oauthdb,
-    db,
-    mailer,
-    devicesImpl
-  );
+  const oauth = require('./oauth')(log, config, db, mailer, devicesImpl);
   const devicesSessions = require('./devices-and-sessions')(
     log,
     db,
@@ -91,7 +82,6 @@ module.exports = function (
   const attachedClients = require('./attached-clients')(
     log,
     db,
-    oauthdb,
     devicesImpl,
     clientUtils
   );
@@ -205,14 +195,7 @@ module.exports = function (
   defaults.forEach((r) => {
     r.path = basePath + r.path;
   });
-  oauthServer.routes.forEach((r) => {
-    r.path = basePath + r.path;
-  });
-  const allRoutes = defaults.concat(
-    idp,
-    v1Routes,
-    oauthServer.routes.filter((r) => !v1Routes.some((x) => x.path === r.path))
-  );
+  const allRoutes = defaults.concat(idp, v1Routes);
 
   allRoutes.forEach((r) => {
     // Default auth.payload to 'optional' for all authenticated routes.

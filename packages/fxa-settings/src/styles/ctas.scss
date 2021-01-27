@@ -24,7 +24,7 @@
   }
 
   &:disabled {
-    @apply bg-white text-grey-300 border-grey-200;
+    @apply bg-white text-grey-300 border-grey-200 cursor-not-allowed;
   }
 }
 
@@ -44,7 +44,7 @@
   }
 
   &:disabled {
-    @apply bg-blue-500 border-transparent bg-opacity-40 text-opacity-50;
+    @apply bg-blue-500 border-transparent bg-opacity-40 text-opacity-50 cursor-not-allowed;
   }
 }
 
@@ -61,6 +61,10 @@
 
   &:focus {
     @apply border-0;
+  }
+
+  &:disabled {
+    @apply bg-red-500 border-transparent bg-opacity-40 text-opacity-50 cursor-not-allowed;
   }
 }
 

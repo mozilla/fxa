@@ -4,8 +4,10 @@
 import { NestApplicationOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
 import helmet from 'helmet';
+import { Request, Response } from 'express';
 
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
@@ -15,7 +17,10 @@ async function bootstrap() {
   if (Config.getProperties().env !== 'development') {
     nestConfig.logger = false;
   }
-  const app = await NestFactory.create(AppModule, nestConfig);
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    nestConfig
+  );
   const config: ConfigService<AppConfig> = app.get(ConfigService);
   const port = config.get('port') as number;
 
@@ -24,11 +29,41 @@ async function bootstrap() {
     app.use(helmet.hsts({ includeSubDomains: true, maxAge }));
   }
 
+  app.use(
+    helmet.frameguard({
+      action: 'deny',
+    })
+  );
+
+  app.use((req: Request, res: Response, next: any) => {
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    next();
+  });
+  app.use(helmet.noSniff());
+  const NONE = "'none'";
+  app.use(
+    helmet.contentSecurityPolicy({
+      directives: {
+        baseUri: [NONE],
+        defaultSrc: [NONE],
+        frameSrc: [NONE],
+        objectSrc: [NONE],
+      },
+    })
+  );
+
+  // We run behind a proxy when deployed, include the express middleware
+  // to extract the X-Forwarded-For header.
+  if (Config.getProperties().env !== 'development') {
+    app.set('trust proxy', true);
+  }
+
   app.enableCors({
     origin:
       Config.getProperties().env === 'development'
         ? '*'
         : config.get<string[]>('corsOrigin'),
+    methods: ['OPTIONS', 'POST'],
   });
 
   // Add sentry as error reporter

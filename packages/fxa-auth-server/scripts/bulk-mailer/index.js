@@ -7,7 +7,6 @@
 const chunk = require('lodash.chunk');
 const config = require('../../config').getProperties();
 const error = require('../../lib/error');
-const P = require('../../lib/promise');
 const readUserRecords = require('./read-user-records');
 const sendEmailBatches = require('./send-email-batches');
 const Senders = require('../../lib/senders');
@@ -15,10 +14,6 @@ const Translator = require('../../lib/senders/translator');
 const UserRecordNormalizer = require('./normalize-user-records');
 const WriteToStreamSenderMock = require('./nodemailer-mocks/stream-output-mock');
 const WriteToDiskSenderMock = require('./nodemailer-mocks/write-to-disk-mock');
-
-const oauthdbMock = {
-  getClientInfo: () => P.reject('should not get called'),
-};
 
 /**
  * Send an email to users listed in the file `userRecordFilename` using `mailerMethodName`
@@ -125,9 +120,7 @@ async function createMailer(
 ) {
   const sender = shouldSend ? null : createSenderMock(emailOutputDirname);
 
-  return (
-    await Senders(log, config, error, translator, oauthdbMock, null, sender)
-  ).email;
+  return (await Senders(log, config, error, translator, null, sender)).email;
 }
 
 function createSenderMock(emailOutputDirname) {

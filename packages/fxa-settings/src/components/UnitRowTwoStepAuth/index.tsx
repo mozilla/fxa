@@ -11,7 +11,7 @@ import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { useAccount, useLazyAccount } from '../../models';
+import { useAccount, useLazyTotpStatus } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { HomePath } from '../../constants';
 
@@ -38,7 +38,7 @@ export const UnitRowTwoStepAuth = () => {
     hideSecondaryModal,
   ] = useBooleanState();
 
-  const [getAccount, { accountLoading }] = useLazyAccount(() => {
+  const [getTotpStatus, { totpStatusLoading }] = useLazyTotpStatus(() => {
     hideModal();
     alertBar.success(
       'Sorry, there was a problem refreshing two-step authentication.'
@@ -58,9 +58,10 @@ export const UnitRowTwoStepAuth = () => {
     ignoreResults: true,
     update: (cache) => {
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing) => {
-            return { ...existing, totp: { exists: false, verified: false } };
+          totp() {
+            return { exists: false, verified: false };
           },
         },
       });
@@ -98,8 +99,8 @@ export const UnitRowTwoStepAuth = () => {
         <ButtonIconReload
           title="Refresh two-step authentication"
           classNames="ltr:ml-1 rtl:mr-1 mobileLandscape:hidden"
-          disabled={accountLoading}
-          onClick={getAccount}
+          disabled={totpStatusLoading}
+          onClick={getTotpStatus}
         />
       }
       actionContent={
@@ -107,8 +108,8 @@ export const UnitRowTwoStepAuth = () => {
           title="Refresh two-step authentication"
           classNames="hidden ltr:ml-1 rtl:mr-1 mobileLandscape:inline-block"
           testId="two-step-refresh"
-          disabled={accountLoading}
-          onClick={getAccount}
+          disabled={totpStatusLoading}
+          onClick={getTotpStatus}
         />
       }
     >

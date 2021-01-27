@@ -189,6 +189,8 @@ Start.prototype = {
       context: relier.get('context'),
       devicePixelRatio: screenInfo.devicePixelRatio,
       entrypoint: relier.get('entrypoint'),
+      entrypointExperiment: relier.get('entrypointExperiment'),
+      entrypointVariation: relier.get('entrypointVariation'),
       isSampledUser: isSampledUser,
       lang: this._config.lang,
       notifier: this._notifier,

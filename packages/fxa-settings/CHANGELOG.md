@@ -1,3 +1,106 @@
+## 1.198.2
+
+No changes.
+
+## 1.198.1
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### Bug fixes
+
+- settings: fix email communications link ([6c09d7ecf](https://github.com/mozilla/fxa/commit/6c09d7ecf))
+
+### Refactorings
+
+- settings: limit queried data for reloads ([3ae316198](https://github.com/mozilla/fxa/commit/3ae316198))
+
+### Other changes
+
+- deps-dev: bump @testing-library/user-event from 12.1.7 to 12.6.0 ([19422c122](https://github.com/mozilla/fxa/commit/19422c122))
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+- deps: bump graphql from 14.6.0 to 15.4.0 ([d28e79655](https://github.com/mozilla/fxa/commit/d28e79655))
+
+## 1.197.3
+
+No changes.
+
+## 1.197.2
+
+No changes.
+
+## 1.197.1
+
+### New features
+
+- head: Add react-helmet to change page title ([4af241087](https://github.com/mozilla/fxa/commit/4af241087))
+
+### Other changes
+
+- settings: s/Newsletters/Email Communications/ ([5d7752cb7](https://github.com/mozilla/fxa/commit/5d7752cb7))
+
+## 1.197.0
+
+### New features
+
+- metrics: add nav timing metrics for new settings ([b1f2650a4](https://github.com/mozilla/fxa/commit/b1f2650a4))
+
+### Bug fixes
+
+- settings: account for header height on anchor jump ([db6e88f3b](https://github.com/mozilla/fxa/commit/db6e88f3b))
+
+### Other changes
+
+- deps-dev: bump @storybook/preset-create-react-app ([3560cca17](https://github.com/mozilla/fxa/commit/3560cca17))
+- deps-dev: bump @rescripts/cli from 0.0.14 to 0.0.15 ([49312d918](https://github.com/mozilla/fxa/commit/49312d918))
+
+## 1.196.0
+
+### Bug fixes
+
+- settings: Moved client email validation to fxa-shared ([db96a7c50](https://github.com/mozilla/fxa/commit/db96a7c50))
+- fxa-settings: dynamic loading svg fix ([cb0508069](https://github.com/mozilla/fxa/commit/cb0508069))
+- settings: use Sentry dsn after config's loaded ([76ac89fa7](https://github.com/mozilla/fxa/commit/76ac89fa7))
+- settings: scroll to element id in url hash ([24f4d45f2](https://github.com/mozilla/fxa/commit/24f4d45f2))
+
+### Other changes
+
+- Settings_v2: add tests to enable and disable 2fa ([8df19593f](https://github.com/mozilla/fxa/commit/8df19593f))
+- dep: update tailwindcss to version 2 ([ec97cb07c](https://github.com/mozilla/fxa/commit/ec97cb07c))
+- deps-dev: bump @types/babel\_\_core from 7.1.7 to 7.1.12 ([a834dab3a](https://github.com/mozilla/fxa/commit/a834dab3a))
+
+## 1.195.4
+
+### Bug fixes
+
+- settings: use Sentry dsn after config's loaded ([70d88f818](https://github.com/mozilla/fxa/commit/70d88f818))
+- settings: scroll to element id in url hash ([aa64a2d6c](https://github.com/mozilla/fxa/commit/aa64a2d6c))
+
+## 1.195.3
+
+No changes.
+
+## 1.195.2
+
+No changes.
+
+## 1.195.1
+
+No changes.
+
+## 1.195.0
+
+### New features
+
+- graphql-api: convert to NestJS ([139029248](https://github.com/mozilla/fxa/commit/139029248))
+
+### Other changes
+
+- deps: bump @sentry/browser from 5.27.1 to 5.27.6 ([461dee802](https://github.com/mozilla/fxa/commit/461dee802))
+
 ## 1.194.0
 
 ### New features

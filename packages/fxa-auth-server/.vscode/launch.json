@@ -49,7 +49,32 @@
       "preLaunchTask": "Stop PM2 Auth Server",
       "postDebugTask": "Start PM2 Auth Server"
     },
-        {
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Mocha All (remote)",
+      "program": "${workspaceFolder}/../../node_modules/mocha/bin/_mocha",
+      "args": [
+        "--require",
+        "ts-node/register",
+        "--timeout",
+        "999999",
+        "--colors",
+        "${workspaceFolder}/test/remote"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "dev",
+        "VERIFIER_VERSION": "0",
+        "NO_COVERAGE": "1",
+        "CORS_ORIGIN": "http://foo,http://bar"
+      },
+      "preLaunchTask": "Stop PM2 Auth Server",
+      "postDebugTask": "Start PM2 Auth Server"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Mocha Current File",

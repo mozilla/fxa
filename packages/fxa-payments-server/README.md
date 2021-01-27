@@ -8,11 +8,11 @@ This project uses [Storybook](https://storybook.js.org/) to show each screen wit
 
 You can view the Storybook built from the most recent main at http://mozilla.github.io/fxa/fxa-payments-server/
 
-In local development, `npm run storybook` should start a Storybook server at <http://localhost:6006> with hot module replacement to reflect live changes.
+In local development, `yarn storybook` should start a Storybook server at <http://localhost:6006> with hot module replacement to reflect live changes.
 
 ## Installation notes
 
-On Mac OS, `npm run test` may trigger an `EMFILE` error. In this case, to get tests running, you may need to `brew install watchman`. (If the watchman postinstall step fails, follow the instructions [here](https://stackoverflow.com/a/41320226) to change `/usr/local` ownership from root to your user account.)
+On Mac OS, `yarn test` may trigger an `EMFILE` error. In this case, to get tests running, you may need to `brew install watchman`. (If the watchman postinstall step fails, follow the instructions [here](https://stackoverflow.com/a/41320226) to change `/usr/local` ownership from root to your user account.)
 
 ## Secrets
 
@@ -32,28 +32,28 @@ Use the following as a template, and fill in your own values:
 
 ## Testing
 
-This package uses [Jest](https://jestjs.io/) to test both the frontend and server. By default `npm test` will run all NPM test scripts:
+This package uses [Jest](https://jestjs.io/) to test both the frontend and server. By default `yarn test` will run all yarn test scripts:
 
-- `npm run test:frontend` will test the React App frontend under `src/`
-- `npm run test:server` will test the Express server under `server/`
+- `yarn test:frontend` will test the React App frontend under `src/`
+- `yarn test:server` will test the Express server under `server/`
 
 Test specific tests with the following commands:
 
 ```bash
 # Test frontend tests for the component AlertBar
-npm run test:frontend -- AlertBar
+yarn test:frontend AlertBar
 
 # Grep frontend tests for "renders as expected"
-npm run test:frontend -- -t "renders as expected"
+yarn test:frontend -t "renders as expected"
 
 # Test server tests for the file server/lib/csp
-npm run test:server -- server/lib/csp
+yarn test:server server/lib/csp
 
 # Grep server tests for "logs raw events"
-npm run test:server -- -t "logs raw events"
+yarn test:server -t "logs raw events"
 ```
 
-Note that prior to testing you may need to create a build of the React App. You can do this by running `npm run build`.
+Note that prior to testing you may need to create a build of the React App. You can do this by running `yarn build`.
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
 

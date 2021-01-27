@@ -4,11 +4,13 @@
 
 'use strict';
 
-const encrypt = require('../../../lib/oauth/encrypt');
+const encrypt = require('../../oauth/encrypt');
+const client = require('../../oauth/client');
 const {
   OAUTH_SCOPE_OLD_SYNC,
   MAX_NEW_ACCOUNT_AGE,
 } = require('../../constants');
+const token = require('../../oauth/token');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // right now we only care about notifications for the following scopes
@@ -18,7 +20,6 @@ const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 module.exports = {
   newTokenNotification: async function newTokenNotification(
     db,
-    oauthdb,
     mailer,
     devices,
     request,
@@ -36,7 +37,7 @@ module.exports = {
 
     if (!credentials.uid) {
       // this can be removed once issue #3000 has been resolved
-      const tokenVerify = await oauthdb.checkAccessToken(grant.access_token);
+      const tokenVerify = await token.verify(grant.access_token);
       // some grant flows won't have the uid in `credentials`
       credentials.uid = tokenVerify.user;
     }
@@ -58,7 +59,7 @@ module.exports = {
 
     // we set tokenVerified because the granted scope is part of NOTIFICATION_SCOPES
     credentials.tokenVerified = true;
-    credentials.client = await oauthdb.getClientInfo(clientId);
+    credentials.client = await client.getClientById(clientId);
 
     // Connect the new refreshToken to the existing device record, or create a new placeholder if there isn't one.
     await devices.upsert(request, credentials, {

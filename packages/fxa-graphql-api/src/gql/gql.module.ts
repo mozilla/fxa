@@ -1,10 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  HttpException,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GqlModuleOptions } from '@nestjs/graphql';
+import { CustomsModule } from 'fxa-shared/nestjs/customs/customs.module';
+import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { SentryPlugin } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
 import { graphqlUploadExpress } from 'graphql-upload';
 import path, { join } from 'path';
@@ -13,6 +21,7 @@ import { BackendModule } from '../backend/backend.module';
 import Config, { AppConfig } from '../config';
 import { AccountResolver } from './account.resolver';
 import { SessionResolver } from './session.resolver';
+import { Request, Response } from 'express';
 
 const config = Config.getProperties();
 
@@ -35,6 +44,7 @@ export const GraphQLConfigFactory = async (
   // Disabling cors here allows the cors middleware from NestJS to be applied
   cors: false,
   uploads: false,
+  plugins: [SentryPlugin],
   validationRules: [
     queryComplexity({
       estimators: [simpleEstimator({ defaultComplexity: 1 })],
@@ -50,12 +60,21 @@ export const GraphQLConfigFactory = async (
 });
 
 @Module({
-  imports: [BackendModule],
-  providers: [AccountResolver, SessionResolver],
+  imports: [BackendModule, CustomsModule],
+  providers: [AccountResolver, CustomsService, SessionResolver],
 })
 export class GqlModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
+      .apply((req: Request, res: Response, next: Function) => {
+        if (!req.is('application/json') && !req.is('multipart/form-data')) {
+          return next(
+            new HttpException('Request content type is not supported.', 415)
+          );
+        }
+        next();
+      })
+      .forRoutes('graphql')
       .apply(graphqlUploadExpress({ maxFileSize: config.image.maxSize }))
       .forRoutes('graphql');
   }

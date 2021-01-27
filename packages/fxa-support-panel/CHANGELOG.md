@@ -1,5 +1,78 @@
 # Change history
 
+## 1.198.2
+
+No changes.
+
+## 1.198.1
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### Other changes
+
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+
+## 1.197.3
+
+No changes.
+
+## 1.197.2
+
+No changes.
+
+## 1.197.1
+
+No changes.
+
+## 1.197.0
+
+### Bug fixes
+
+- use proper Sentry arguments ([16fc6592f](https://github.com/mozilla/fxa/commit/16fc6592f))
+
+### Refactorings
+
+- support-panel: address PR feedback ([4db578626](https://github.com/mozilla/fxa/commit/4db578626))
+
+### Other changes
+
+- deps: bump @nestjs/common from 7.5.5 to 7.6.4 ([afc29280a](https://github.com/mozilla/fxa/commit/afc29280a))
+
+## 1.196.0
+
+### New features
+
+- support: convert to NestJS framework ([d43952f81](https://github.com/mozilla/fxa/commit/d43952f81))
+
+### Other changes
+
+- deps: updated @sentry/integrations ([9efc0c5bf](https://github.com/mozilla/fxa/commit/9efc0c5bf))
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+
+## 1.195.4
+
+No changes.
+
+## 1.195.3
+
+No changes.
+
+## 1.195.2
+
+No changes.
+
+## 1.195.1
+
+No changes.
+
+## 1.195.0
+
+No changes.
+
 ## 1.194.0
 
 No changes.

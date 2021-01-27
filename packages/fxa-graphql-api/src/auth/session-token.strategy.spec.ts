@@ -1,17 +1,26 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { SessionTokenStrategy } from './session-token.strategy';
 import { UnauthorizedException } from '@nestjs/common';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
 
+let mockSession = {
+  sessionTokenData: jest.fn(),
+};
+let mockAuthClient = {
+  deriveHawkCredentials: jest.fn(),
+};
+jest.mock('fxa-auth-client', () => mockAuthClient);
+jest.mock('fxa-shared/db/models/auth', () => mockSession);
+
+import { SessionTokenStrategy } from './session-token.strategy';
+
 describe('SessionTokenStrategy', () => {
   let strategy: SessionTokenStrategy;
-  let authClient: any;
 
   beforeEach(async () => {
-    authClient = {};
-    strategy = new SessionTokenStrategy(authClient);
+    jest.clearAllMocks();
+    strategy = new SessionTokenStrategy();
   });
 
   it('should be defined', () => {
@@ -19,24 +28,26 @@ describe('SessionTokenStrategy', () => {
   });
 
   it('returns the session status', async () => {
-    authClient.sessionStatus = jest.fn().mockResolvedValue('sessiondata');
+    mockSession.sessionTokenData.mockResolvedValue({ tokenVerified: true });
+    mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
     const result = await strategy.validate('token');
-    expect(result).toStrictEqual({ token: 'token', session: 'sessiondata' });
+    expect(result).toStrictEqual({
+      token: 'token',
+      session: { tokenVerified: true },
+    });
   });
 
   it('throws unauthorized', async () => {
-    authClient.sessionStatus = jest
-      .fn()
-      .mockRejectedValue({ code: 400, message: 'unauthorized' });
+    mockSession.sessionTokenData.mockResolvedValue(undefined);
+    mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
     await expect(strategy.validate('token')).rejects.toThrowError(
-      new UnauthorizedException('unauthorized')
+      new UnauthorizedException('Invalid token')
     );
   });
 
   it('throws unexpected', async () => {
-    authClient.sessionStatus = jest
-      .fn()
-      .mockRejectedValue({ message: 'unauthorized' });
+    mockSession.sessionTokenData.mockResolvedValue({ tokenVerified: false });
+    mockAuthClient.deriveHawkCredentials.mockRejectedValue('unauthorized');
     await expect(strategy.validate('token')).rejects.toThrowError(
       ExtendedError.withCause(
         'Unexpected error during authentication.',

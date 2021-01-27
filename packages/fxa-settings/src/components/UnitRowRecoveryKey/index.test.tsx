@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act, wait } from '@testing-library/react';
 import UnitRowRecoveryKey from '.';
 import {
   renderWithRouter,
   MockedCache,
-  mockAccountQuery,
+  mockRecoveryKeyExistsQuery,
 } from '../../models/_mocks';
 
 describe('UnitRowRecoveryKey', () => {
@@ -47,20 +47,24 @@ describe('UnitRowRecoveryKey', () => {
   });
 
   it('can be refreshed', async () => {
-    renderWithRouter(
-      <MockedCache
-        account={{ recoveryKey: false }}
-        mocks={[mockAccountQuery({ recoveryKey: true })]}
-      >
-        <UnitRowRecoveryKey />
-      </MockedCache>
-    );
+    await act(async () => {
+      renderWithRouter(
+        <MockedCache
+          account={{ recoveryKey: false }}
+          mocks={[mockRecoveryKeyExistsQuery({ recoveryKey: true })]}
+        >
+          <UnitRowRecoveryKey />
+        </MockedCache>
+      );
+    });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value')
     ).toHaveTextContent('Not Set');
     await act(async () => {
       fireEvent.click(screen.getByTestId('recovery-key-refresh'));
     });
+    // wait a tick to get past the 'loading' state of the query
+    await wait();
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value')
     ).toHaveTextContent('Enabled');

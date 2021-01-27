@@ -1,5 +1,79 @@
 # Change history
 
+## 1.198.2
+
+No changes.
+
+## 1.198.1
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### Other changes
+
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+
+## 1.197.3
+
+No changes.
+
+## 1.197.2
+
+No changes.
+
+## 1.197.1
+
+No changes.
+
+## 1.197.0
+
+### New features
+
+- metrics: add nav timing metrics for new settings ([b1f2650a4](https://github.com/mozilla/fxa/commit/b1f2650a4))
+
+### Other changes
+
+- deps-dev: bump @babel/register from 7.9.0 to 7.12.10 ([03075cb28](https://github.com/mozilla/fxa/commit/03075cb28))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([eae68b7b7](https://github.com/mozilla/fxa/commit/eae68b7b7))
+- deps-dev: bump @rescripts/cli from 0.0.14 to 0.0.15 ([49312d918](https://github.com/mozilla/fxa/commit/49312d918))
+
+## 1.196.0
+
+### Bug fixes
+
+- deps: add superagent types ([0b56cc50f](https://github.com/mozilla/fxa/commit/0b56cc50f))
+
+### Other changes
+
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+- deps-dev: bump supertest from 4.0.2 to 6.0.1 ([1a7f42dd0](https://github.com/mozilla/fxa/commit/1a7f42dd0))
+
+## 1.195.4
+
+No changes.
+
+## 1.195.3
+
+No changes.
+
+## 1.195.2
+
+No changes.
+
+## 1.195.1
+
+No changes.
+
+## 1.195.0
+
+### Other changes
+
+- deps-dev: bump wait-for-expect from 1.3.0 to 3.0.2 ([5358e7f0e](https://github.com/mozilla/fxa/commit/5358e7f0e))
+- deps: bump @sentry/browser from 5.27.1 to 5.27.6 ([461dee802](https://github.com/mozilla/fxa/commit/461dee802))
+
 ## 1.194.0
 
 ### Other changes

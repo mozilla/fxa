@@ -26,6 +26,8 @@ import waitForExpect from 'wait-for-expect';
 
 import SubscriptionCreate, { SubscriptionCreateProps } from './index';
 
+import { updateConfig } from '../../../lib/config';
+
 // TODO: Move to some shared lib?
 const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
 
@@ -146,6 +148,33 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
       queryAllByText('30-day money-back guarantee')[0]
     ).toBeInTheDocument();
     expect(queryByText('Billing Information')).toBeInTheDocument();
+    expect(queryByTestId('paypal-button')).not.toBeInTheDocument();
+  });
+
+  it('renders as expected with PayPal UI enabled', () => {
+    const { queryByTestId } = screen;
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+    render(<Subject />);
+    waitForExpect(() =>
+      expect(queryByTestId('paypal-button')).toBeInTheDocument()
+    );
+  });
+
+  it('renders as expected with PayPal UI enabled and an existing customer', () => {
+    const { queryByTestId } = screen;
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+    render(<Subject customer={CUSTOMER} />);
+    waitForExpect(() =>
+      expect(queryByTestId('paypal-button')).not.toBeInTheDocument()
+    );
   });
 
   it('renders as expected for mobile', async () => {

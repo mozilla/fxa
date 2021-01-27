@@ -20,7 +20,6 @@
 // HACK: Prevent config falling over due to missing secrets
 process.env.NODE_ENV = 'dev';
 
-const P = require('bluebird');
 const config = require('../config').getProperties();
 const error = require('../lib/error');
 const createSenders = require('../lib/senders');
@@ -54,7 +53,7 @@ require('../lib/senders/translator')(
   config.i18n.defaultLanguage
 )
   .then((translator) => {
-    return createSenders(log, config, error, translator, {}, {}, mailSender);
+    return createSenders(log, config, error, translator, {}, mailSender);
   })
   .then((senders) => {
     const mailer = senders.email._ungatedMailer;
@@ -79,7 +78,7 @@ function getEmailOutputPath(subject, extension) {
 }
 
 function sendMails(mailer, messagesToSend) {
-  return P.all(messagesToSend.map(sendMail.bind(null, mailer)));
+  return Promise.all(messagesToSend.map(sendMail.bind(null, mailer)));
 }
 
 function sendMail(mailer, messageToSend) {

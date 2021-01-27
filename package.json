@@ -102,10 +102,10 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^6.8.0",
+    "eslint": "^7.17.0",
     "eslint-plugin-fxa": "^2.0.2",
-    "eslint-plugin-jest": "^23.13.2",
-    "eslint-plugin-react": "7.19.0",
+    "eslint-plugin-jest": "^24.1.3",
+    "eslint-plugin-react": "^7.22.0",
     "json": "^9.0.6",
     "stylelint": "^13.6.1",
     "stylelint-config-prettier": "^8.0.2"
@@ -118,6 +118,7 @@
     "tap/typescript": "3.9.7",
     "@types/node": "^14.14.5",
     "http-proxy": "^1.18.1",
-    "browserid-crypto": "git://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d"
+    "browserid-crypto": "git://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
+    "fbjs/isomorphic-fetch": "^3.0.0"
   }
 }

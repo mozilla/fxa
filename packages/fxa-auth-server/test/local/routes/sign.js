@@ -35,7 +35,7 @@ describe('/certificate/sign', () => {
       }
     );
     return SessionToken.create({
-      uid: uuid.v4('binary').toString('hex'),
+      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
       email: 'foo@example.com',
       emailVerified: true,
       locale: 'en',

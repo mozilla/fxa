@@ -8,6 +8,7 @@ import _ from 'underscore';
 import Constants from './constants';
 import Newsletters from './newsletters';
 import OAuthPrompt from './oauth-prompt';
+import { isEmailValid } from 'fxa-shared/email/helpers';
 
 const UNBLOCK_CODE_LENGTH = Constants.UNBLOCK_CODE_LENGTH;
 
@@ -29,21 +30,6 @@ const uuidRegEx = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 const unblockCodeRegExpStr = `^[a-z0-9]{${UNBLOCK_CODE_LENGTH}}$`;
 const unblockCodeRegExp = new RegExp(unblockCodeRegExpStr, 'i');
 
-// Email regex, accepts punycoded addresses. See:
-//   * http://blog.gerv.net/2011/05/html5_email_address_regexp/
-// Modifications:
-//   * Use case-insensitive regex, delete explicit `A-Z` ranges
-//   * Replace `0-9` ranges with `\d`
-//   * Replace `a-z` range and `_` in local part with `\w`
-//   * Replace `+` in local part with {1,64}
-//   * Replace final domain part `*` with `+`, to enforce at least one period
-//     in the domain (https://github.com/mozilla/fxa-content-server/issues/2199)
-// IETF spec:
-//   * http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
-// '/' in the character class is (redundantly) backslash-escaped to produce
-// the same minimized form in node 4.x and node 0.10.
-const emailRegex = /^[\w.!#$%&'*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
-
 // TOTP codes are 6 digits
 const TOTP_CODE = /^[0-9]{6}$/;
 // Recovery codes can be 8-10 alpha numeric characters
@@ -57,22 +43,7 @@ var Validate = {
    * @param {String} email
    * @return {Boolean} true if email is valid, false otw.
    */
-  isEmailValid(email) {
-    if (typeof email !== 'string' || email.length > 256) {
-      return false;
-    }
-
-    // At this point, we could punycode the email and pass it to
-    // the regex, thus validating unicode addresses. However, doing
-    // that would break Firefox versions 45 and lower, because of
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1243594. So, in
-    // order to support unicode email addresses in the future, we'll
-    // have to pass the punycoded address in all our dealings with
-    // the browser and the non-punycoded address in our dealings with
-    // the auth server. :-/
-
-    return emailRegex.test(email);
-  },
+  isEmailValid,
 
   /**
    * Check if an email verification code is valid

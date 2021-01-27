@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const P = require('../../../lib/promise');
 const sinon = require('sinon');
 const errors = require('../../../lib/error');
 
@@ -428,7 +427,7 @@ function setup(results, errors, path, requestOptions) {
   routes = makeRoutes({ log, db, customs, mailer });
   route = getRoute(routes, path, requestOptions.method);
   request = mocks.mockRequest(requestOptions);
-  request.emitMetricsEvent = sinon.spy(() => P.resolve({}));
+  request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
   return runTest(route, request);
 }
 

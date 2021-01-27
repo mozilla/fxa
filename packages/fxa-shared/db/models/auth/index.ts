@@ -1,15 +1,41 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
+import { uuidTransformer } from '../../transformers';
 import { Account } from './account';
 import { AccountCustomers } from './account-customers';
 import { AuthBaseModel } from './auth-base';
-import { uuidTransformer } from '../../transformers';
+import { SessionToken } from './session-token';
+import { PayPalBillingAgreements } from './paypal-ba';
 
 export type AccountOptions = {
   include?: 'emails'[];
 };
+
+export type PayPalBillingAgreementStatusType =
+  | 'Pending'
+  | 'Active'
+  | 'Suspended'
+  | 'Cancelled'
+  | 'Expired';
+
+export async function sessionTokenData(
+  tokenId: string
+): Promise<SessionToken | undefined> {
+  let tokenBuffer: Buffer;
+  try {
+    tokenBuffer = uuidTransformer.to(tokenId);
+  } catch (err) {
+    return;
+  }
+  const knex = Account.knex();
+  const [result] = await knex.raw('Call sessionWithDevice_18(?)', tokenBuffer);
+  const rowPacket = result.shift();
+  if (result.length === 0) {
+    return;
+  }
+  return SessionToken.fromDatabaseRow(rowPacket[0]);
+}
 
 export async function accountExists(uid: string) {
   let uidBuffer;
@@ -110,6 +136,72 @@ export async function deleteAccountCustomer(uid: string) {
   return AccountCustomers.query().delete().where({ uid: uidBuffer });
 }
 
+/**
+ * Get all the PayPal Billing Agreements by uid
+ *
+ * @param uid
+ */
+export async function getAllPayPalBAByUid(
+  uid: string
+): Promise<PayPalBillingAgreements[]> {
+  const uidBuffer = uuidTransformer.to(uid);
+  return PayPalBillingAgreements.query()
+    .where({ uid: uidBuffer })
+    .orderBy('createdAt', 'DESC');
+}
+
+/**
+ * Create a PayPal Billing Agreement record for a user by uid.
+ * @param uid
+ * @param billingAgreementId
+ * @param status
+ */
+export async function createPayPalBA(
+  uid: string,
+  billingAgreementId: string,
+  status: string
+): Promise<PayPalBillingAgreements> {
+  return PayPalBillingAgreements.query().insertAndFetch({
+    uid,
+    billingAgreementId,
+    status,
+  });
+}
+
+/**
+ * Update a PayPal Billing Agreement for a user by uid/billingAgreementId.
+ *
+ * @param uid
+ * @param billingAgreementId
+ * @param status
+ * @param endedAt
+ */
+export async function updatePayPalBA(
+  uid: string,
+  billingAgreementId: string,
+  status: PayPalBillingAgreementStatusType,
+  endedAt?: number
+): Promise<number> {
+  const uidBuffer = uuidTransformer.to(uid);
+  return PayPalBillingAgreements.query()
+    .patch({
+      status,
+      endedAt,
+    })
+    .where({ uid: uidBuffer, billingAgreementId });
+}
+
+/**
+ * Deletes all billing agreements for a user by uid.
+ *
+ * @param uid
+ * @param billingAgreementId
+ */
+export async function deleteAllPayPalBAs(uid: string) {
+  const uidBuffer = uuidTransformer.to(uid);
+  return PayPalBillingAgreements.query().delete().where({ uid: uidBuffer });
+}
+
 // TODO: Find a better home for this.
 /**
  * Type machinery to filter an Objection model class down to its direct
@@ -131,4 +223,4 @@ export function batchAccountUpdate(uids: Buffer[], updateFields: Accountish) {
   return Account.query().whereIn('uid', uids).update(updateFields);
 }
 
-export { Account, AccountCustomers, AuthBaseModel };
+export { Account, AccountCustomers, AuthBaseModel, PayPalBillingAgreements };

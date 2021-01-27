@@ -11,7 +11,6 @@ const config = require('../../config').getProperties();
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../lib/constants');
 const error = require('../../lib/error');
 const testUtils = require('../lib/util');
-const introspect = require('../../lib/oauth/routes/introspect').handler;
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
@@ -23,15 +22,6 @@ const JWT_ACCESS_TOKEN_SECRET =
   'a084f4c36501ea1eb2de33258421af97b2e67ffbe107d2812f4a14f3579900ef';
 
 const { decodeJWT } = testUtils;
-
-async function introspectToken(token) {
-  const res = await introspect({
-    payload: {
-      token,
-    },
-  });
-  return res;
-}
 
 describe('/oauth/ routes', function () {
   this.timeout(15000);
@@ -323,7 +313,7 @@ describe('/oauth/ routes', function () {
     assert.ok(res.access_token);
     assert.ok(res.refresh_token);
 
-    let tokenStatus = await introspectToken(res.access_token);
+    let tokenStatus = await client.api.introspect(res.access_token);
     assert.equal(tokenStatus.active, true);
 
     await client.revokeOAuthToken({
@@ -331,7 +321,7 @@ describe('/oauth/ routes', function () {
       token: res.access_token,
     });
 
-    tokenStatus = await introspectToken(res.access_token);
+    tokenStatus = await client.api.introspect(res.access_token);
     assert.equal(tokenStatus.active, false);
 
     const res2 = await client.grantOAuthTokens({
@@ -340,9 +330,10 @@ describe('/oauth/ routes', function () {
       refresh_token: res.refresh_token,
     });
     assert.ok(res2.access_token);
+    assert.notExists(res2.refresh_token);
 
-    tokenStatus = await introspectToken(res2.refresh_token);
-    assert.equal(tokenStatus.active, false);
+    tokenStatus = await client.api.introspect(res.refresh_token);
+    assert.equal(tokenStatus.active, true);
 
     await client.revokeOAuthToken({
       client_id: PUBLIC_CLIENT_ID,

@@ -109,7 +109,6 @@ describe('views/sign_up_password', () => {
       assert.lengthOf(view.$(Selectors.PRIVACY_POLICY), 1);
       assert.lengthOf(view.$(Selectors.LINK_USE_DIFFERENT), 1);
       assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
-      assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
       assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));

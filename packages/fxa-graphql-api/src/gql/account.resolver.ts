@@ -27,6 +27,7 @@ import {
 } from 'graphql-parse-resolve-info';
 
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
+import { GqlCustomsGuard } from '../auth/gql-customs.guard';
 import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
 import { GqlSessionToken, GqlUserId } from '../decorators';
@@ -52,6 +53,7 @@ import {
   UpdateDisplayNamePayload,
   VerifyTotpPayload,
 } from './dto/payload';
+import { CatchGatewayError } from './lib/error';
 import { Account as AccountType } from './model/account';
 
 function snakeToCamel(str: string) {
@@ -92,7 +94,7 @@ export class AccountResolver {
     description:
       'Create a new randomly generated TOTP token for a user if they do not currently have one.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   public async createTotp(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => CreateTotpInput })
@@ -111,7 +113,8 @@ export class AccountResolver {
     description:
       'Verifies the current session if the passed TOTP code is valid.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async verifyTotp(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => VerifyTotpInput })
@@ -131,7 +134,8 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Deletes the current TOTP token for the user.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async deleteTotp(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DeleteTotpInput })
@@ -146,7 +150,8 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Deletes the current TOTP token for the user.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async deleteRecoveryKey(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DeleteRecoveryKeyInput })
@@ -161,7 +166,8 @@ export class AccountResolver {
   @Mutation((returns) => ChangeRecoveryCodesPayload, {
     description: 'Return new recovery codes while removing old ones.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async changeRecoveryCodes(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => ChangeRecoveryCodesInput })
@@ -177,7 +183,8 @@ export class AccountResolver {
   @Mutation((returns) => UpdateDisplayNamePayload, {
     description: 'Update the display name.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async updateDisplayName(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => UpdateDisplayNameInput })
@@ -196,7 +203,8 @@ export class AccountResolver {
   @Mutation((returns) => UpdateAvatarPayload, {
     description: 'Update the avatar in use.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async updateAvatar(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => UpdateAvatarInput }) input: UpdateAvatarInput
@@ -214,7 +222,8 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Create a secondary email for the signed in account.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async createSecondaryEmail(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
@@ -228,7 +237,8 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Reset the verification code to a secondary email.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async resendSecondaryEmailCode(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
@@ -240,7 +250,8 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Verify the email address with a code.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async verifySecondaryEmail(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => VerifyEmailInput }) input: VerifyEmailInput
@@ -256,7 +267,8 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Remove the secondary email for the signed in account.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async deleteSecondaryEmail(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
@@ -269,7 +281,8 @@ export class AccountResolver {
     description:
       'Change users primary email address, this email address must belong to the user and be verified.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async updatePrimaryEmail(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
@@ -282,7 +295,8 @@ export class AccountResolver {
     description:
       "Destroy all tokens held by a connected client, disconnecting it from the user's account.",
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async attachedClientDisconnect(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => AttachedClientDisconnectInput })
@@ -295,7 +309,8 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Send a session verification email.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async sendSessionVerificationCode(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => SendSessionVerificationInput })
@@ -308,7 +323,8 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Verify the session via an email code.',
   })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
   public async verifySession(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => VerifySessionInput }) input: VerifySessionInput
@@ -318,7 +334,7 @@ export class AccountResolver {
   }
 
   @Query((returns) => AccountType, { nullable: true })
-  @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   public account(@GqlUserId() uid: string, @Info() info: GraphQLResolveInfo) {
     this.log.info('account', { uid });
 

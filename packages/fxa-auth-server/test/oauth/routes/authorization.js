@@ -7,8 +7,6 @@
 const { assert } = require('chai');
 const Joi = require('@hapi/joi');
 
-const routeModulePath = '../../../lib/oauth/routes/authorization';
-
 const CLIENT_ID = '98e6508e88680e1b';
 // jscs:disable
 const BASE64URL_STRING =
@@ -18,10 +16,19 @@ const PKCE_CODE_CHALLENGE = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
 const PKCE_CODE_CHALLENGE_METHOD = 'S256';
 const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 
+const _ = () => {};
+const route = require('../../../lib/routes/oauth/authorization')({
+  log: {
+    info: _,
+    debug: _,
+    warn: _,
+  },
+  oauthDB: {},
+})[1];
+
 describe('/authorization POST', function () {
   describe('input validation', () => {
-    const route = require(routeModulePath);
-    const validation = route.validate.payload;
+    const validation = route.config.validate.payload;
 
     function joiAssertFail(req, param, messagePostfix) {
       messagePostfix = messagePostfix || 'is required';
@@ -186,8 +193,6 @@ describe('/authorization POST', function () {
   });
 
   describe('config handling', () => {
-    const route = require(routeModulePath);
-
     const request = {
       headers: {},
       payload: {
@@ -197,7 +202,7 @@ describe('/authorization POST', function () {
 
     it('allows clients that have not been disabled via config', async () => {
       try {
-        await route.handler(request);
+        await route.config.handler(request);
         assert.fail('should have errored');
       } catch (err) {
         assert.equal(err.errno, 104); // Invalid assertion.
@@ -207,7 +212,7 @@ describe('/authorization POST', function () {
     it('returns an error for clients that have been disabled via config', async () => {
       request.payload.client_id = DISABLED_CLIENT_ID;
       try {
-        await route.handler(request);
+        await route.config.handler(request);
         assert.fail('should have errored');
       } catch (err) {
         assert.equal(err.output.statusCode, 503);

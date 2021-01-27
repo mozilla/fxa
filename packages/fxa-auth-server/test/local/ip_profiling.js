@@ -8,13 +8,12 @@ const { assert } = require('chai');
 const crypto = require('crypto');
 const getRoute = require('../routes_helpers').getRoute;
 const mocks = require('../mocks');
-const P = require('../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 
 const TEST_EMAIL = 'foo@gmail.com';
 const MS_ONE_DAY = 1000 * 60 * 60 * 24;
-const UID = uuid.v4('binary').toString('hex');
+const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
 function makeRoutes(options = {}, requireMocks) {
   const { db, mailer } = options;
@@ -32,7 +31,7 @@ function makeRoutes(options = {}, requireMocks) {
   const cadReminders = mocks.mockCadReminders();
   const customs = {
     check() {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
     flag() {},
   };
@@ -44,7 +43,7 @@ function makeRoutes(options = {}, requireMocks) {
     mailer,
     cadReminders
   );
-  signinUtils.checkPassword = () => P.resolve(true);
+  signinUtils.checkPassword = () => Promise.resolve(true);
   return proxyquire('../../lib/routes/account', requireMocks || {})(
     log,
     db,
@@ -59,7 +58,7 @@ function makeRoutes(options = {}, requireMocks) {
 }
 
 function runTest(route, request, assertions) {
-  return new P((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
       return route.handler(request).then(resolve, reject);
     } catch (err) {
@@ -103,7 +102,7 @@ describe('IP Profiling', () => {
 
   it('no previously verified session', () => {
     mockDB.securityEvents = function () {
-      return P.resolve([
+      return Promise.resolve([
         {
           name: 'account.login',
           createdAt: Date.now(),
@@ -125,7 +124,7 @@ describe('IP Profiling', () => {
 
   it('previously verified session', () => {
     mockDB.securityEvents = function () {
-      return P.resolve([
+      return Promise.resolve([
         {
           name: 'account.login',
           createdAt: Date.now(),
@@ -147,7 +146,7 @@ describe('IP Profiling', () => {
 
   it('previously verified session more than a day', () => {
     mockDB.securityEvents = function () {
-      return P.resolve([
+      return Promise.resolve([
         {
           name: 'account.login',
           createdAt: Date.now() - MS_ONE_DAY * 2, // Created two days ago
@@ -172,7 +171,7 @@ describe('IP Profiling', () => {
     mockRequest.payload.email = forceSigninEmail;
 
     mockDB.accountRecord = function () {
-      return P.resolve({
+      return Promise.resolve({
         authSalt: crypto.randomBytes(32),
         data: crypto.randomBytes(32),
         email: forceSigninEmail,

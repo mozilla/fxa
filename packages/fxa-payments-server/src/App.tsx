@@ -6,7 +6,7 @@ import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import { Localized } from '@fluent/react';
 import DocumentTitle from 'react-document-title';
 
-import AppLocalizationProvider from './lib/AppLocalizationProvider';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import sentryMetrics from './lib/sentry';
 import { QueryParams } from './lib/types';
 import { Config, config } from './lib/config';
@@ -19,7 +19,7 @@ import { SignInLayout, SettingsLayout } from './components/AppLayout';
 import ScreenInfo from './lib/screen-info';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import * as FlowEvents from './lib/flow-event';
-import { observeNavigationTiming } from './lib/navigation-timing';
+import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));

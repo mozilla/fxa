@@ -31,6 +31,10 @@ export const accountCustomersTable = fs.readFileSync(
   path.join(thisDir, './account-customers.sql'),
   'utf8'
 );
+export const paypalBATable = fs.readFileSync(
+  path.join(thisDir, './paypal-ba.sql'),
+  'utf8'
+);
 
 export function randomAccount() {
   const email = chance.email();
@@ -90,6 +94,7 @@ export async function testDatabaseSetup(): Promise<Knex> {
   await knex.raw(accountTable);
   await knex.raw(emailsTable);
   await knex.raw(accountCustomersTable);
+  await knex.raw(paypalBATable);
 
   /* Debugging Assistance
   knex.on('query', (data) => {

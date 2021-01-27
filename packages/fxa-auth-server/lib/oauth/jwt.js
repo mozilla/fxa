@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const jsonwebtoken = require('jsonwebtoken');
-const P = require('../promise');
 const { publicPEM, SIGNING_PEM, SIGNING_KID, SIGNING_ALG } = require('./keys');
 
 const config = require('../../config');
 const ISSUER = config.get('oauthServer.openid.issuer');
 
-const jwtverify = P.promisify(jsonwebtoken.verify);
+const jwtverify = require('util').promisify(jsonwebtoken.verify);
 
 /**
  * Sign `claims` using SIGNING_PEM from keys.js, returning a JWT.

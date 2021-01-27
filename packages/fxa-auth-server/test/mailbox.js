@@ -4,7 +4,6 @@
 
 'use strict';
 
-const P = require('../lib/promise');
 const request = require('request');
 const EventEmitter = require('events').EventEmitter;
 
@@ -68,16 +67,16 @@ module.exports = function (host, port, printLogs) {
   }
 
   function waitForEmail(email) {
-    const d = P.defer();
-    loop(email.split('@')[0], 20, (err, json) => {
-      if (err) {
-        eventEmitter.emit('email:error', email, err);
-        return d.reject(err);
-      }
-      eventEmitter.emit('email:message', email, json);
-      return d.resolve(json);
+    return new Promise((resolve, reject) => {
+      loop(email.split('@')[0], 20, (err, json) => {
+        if (err) {
+          eventEmitter.emit('email:error', email, err);
+          return reject(err);
+        }
+        eventEmitter.emit('email:message', email, json);
+        return resolve(json);
+      });
     });
-    return d.promise;
   }
 
   function waitForSms(phoneNumber) {

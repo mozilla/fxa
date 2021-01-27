@@ -6,7 +6,6 @@ const { assert } = require('chai');
 const proxyquire = require('proxyquire');
 const AppError = require('../../../../lib/error');
 const OauthAppError = require('../../../../lib/oauth/error');
-const P = require('../../../../lib/promise');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const authOauthPath = '../../../../lib/routes/auth-schemes/auth-oauth';
@@ -60,7 +59,7 @@ describe('lib/routes/auth-schemes/auth-oauth', () => {
     describe('when the Bearer token is invalid', () => {
       before(() => {
         tokenStub.verify = (token) => {
-          return P.reject(OauthAppError.invalidToken());
+          return Promise.reject(OauthAppError.invalidToken());
         };
       });
 
@@ -88,7 +87,7 @@ describe('lib/routes/auth-schemes/auth-oauth', () => {
         };
 
         tokenStub.verify = (token) => {
-          return P.resolve(mockTokenInfo);
+          return Promise.resolve(mockTokenInfo);
         };
       });
 

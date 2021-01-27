@@ -2270,6 +2270,17 @@ const testHrefEquals = thenify(function (selector, expected) {
 });
 
 /**
+ * Check whether an anchor has a href that contains some text
+ *
+ * @param {string} selector
+ * @param {string} expected
+ * @returns {promise} rejects if test fails.
+ */
+const testHrefIncludes = thenify(function (selector, expected) {
+  return this.parent.then(testAttributeIncludes(selector, 'href', expected));
+});
+
+/**
  * Check whether the current URL matches the expected value
  *
  * @param {string} expected
@@ -2927,6 +2938,7 @@ module.exports = {
   testErrorWasShown,
   testErrorWasNotShown,
   testHrefEquals,
+  testHrefIncludes,
   testIsBrowserNotified,
   testSmsFormat,
   testSuccessWasShown,

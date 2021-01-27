@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = function (config, i18n) {
+module.exports = function (config, i18n, statsd) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
 
   const routes = [
@@ -27,11 +27,12 @@ module.exports = function (config, i18n) {
     require('./routes/get-version.json'),
     require('./routes/get-metrics-flow')(config),
     require('./routes/get-well-known-change-password')(),
+    require('./routes/navigation-timing')(config, statsd),
     require('./routes/post-metrics')(),
     require('./routes/redirect-download-firefox')(config),
     require('./routes/redirect-m-to-adjust')(config),
     require('./routes/get-500')(config),
-    require('./routes/validate-email-domain')(),
+    require('./routes/validate-email-domain')(config),
   ];
 
   if (config.get('csp.enabled')) {

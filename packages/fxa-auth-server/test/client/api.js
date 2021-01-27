@@ -43,7 +43,8 @@ module.exports = (config) => {
     url,
     token,
     payload,
-    headers
+    headers,
+    ignoreCors
   ) {
     const d = P.defer();
     if (typeof headers === 'undefined') {
@@ -83,13 +84,16 @@ module.exports = (config) => {
       }
 
       const allowedOrigin = res.headers['access-control-allow-origin'];
-      if (allowedOrigin) {
+      if (!ignoreCors && allowedOrigin) {
         // Requiring config outside this condition causes the local tests to fail
         // because tokenLifetimes.passwordChangeToken is -1
         const config = require('../../config');
-        if (config.get('corsOrigin').indexOf(allowedOrigin) < 0) {
+        const corsOrigin = config.get('corsOrigin');
+        if (corsOrigin.indexOf(allowedOrigin) < 0) {
           return d.reject(
-            new Error(`Unexpected allowed origin: ${allowedOrigin}`)
+            new Error(
+              `Unexpected allowed origin: ${allowedOrigin} not in ${corsOrigin}`
+            )
           );
         }
       }
@@ -1102,6 +1106,17 @@ module.exports = (config) => {
     return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('DELETE', `${this.baseURL}/recoveryKey`, token);
     });
+  };
+
+  ClientApi.prototype.introspect = function (token = '') {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/introspect`,
+      null,
+      { token },
+      null,
+      true // We ignore CORS here because this is an oauth route that accepts "*"
+    );
   };
 
   ClientApi.prototype.createAuthorizationCode = function (

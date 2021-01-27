@@ -1,6 +1,6 @@
 {
   "name": "fxa-profile-server",
-  "version": "1.194.0",
+  "version": "1.198.2",
   "private": true,
   "description": "Firefox Accounts Profile service.",
   "scripts": {
@@ -20,8 +20,8 @@
     "@hapi/hapi": "^20.0.1",
     "@hapi/inert": "6.0.3",
     "@hapi/joi": "^17.1.1",
-    "@sentry/node": "^5.17.0",
-    "aws-sdk": "^2.698.0",
+    "@sentry/node": "^6.0.1",
+    "aws-sdk": "^2.822.0",
     "bluebird": "^3.7.2",
     "buf": "0.1.1",
     "checksum": "0.1.1",
@@ -29,7 +29,6 @@
     "convict": "^6.0.0",
     "convict-format-with-moment": "^6.0.0",
     "convict-format-with-validator": "^6.0.0",
-    "fxa-notifier-aws": "1.0.0",
     "fxa-shared": "workspace:*",
     "lodash": "^4.17.19",
     "mozlog": "^3.0.1",
@@ -37,14 +36,14 @@
     "mysql-patcher": "0.7.0",
     "poolee": "^1.0.1",
     "request": "^2.88.2",
-    "sharp": "^0.26.0",
+    "sharp": "^0.26.3",
     "stream-to-array": "2.3.0"
   },
   "devDependencies": {
     "@types/sharp": "^0",
     "audit-filter": "^0.5.0",
     "commander": "2.9.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.17.0",
     "eslint-plugin-fxa": "^2.0.2",
     "insist": "1.0.1",
     "mkdirp": "0.5.1",

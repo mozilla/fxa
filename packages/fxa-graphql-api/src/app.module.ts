@@ -30,7 +30,7 @@ const version = getVersionInfo(__dirname);
     DatabaseModule,
     GqlModule,
     GraphQLModule.forRootAsync({
-      imports: [ConfigModule, LoggerModule],
+      imports: [ConfigModule, LoggerModule, SentryModule],
       inject: [ConfigService, MozLoggerService],
       useFactory: GraphQLConfigFactory,
     }),
@@ -49,7 +49,7 @@ const version = getVersionInfo(__dirname);
       useFactory: (configService: ConfigService<AppConfig>) => ({
         dsn: configService.get('sentryDsn'),
         environment: configService.get('env'),
-        version: version.version,
+        release: version.version,
       }),
     }),
   ],

@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const AppError = require('./error');
+const OauthError = require('./error');
 const jwt = require('./jwt');
-const logger = require('./logging')('jwt_id_token');
 
 /**
  * Verify the Expiration Time ('exp') claim value from an ID Token.
@@ -66,8 +65,7 @@ exports.verify = async function verify(
   try {
     claims = await jwt.verify(idToken, { ignoreExpiration: true });
   } catch (err) {
-    logger.debug('verify.error.jwtverify', err);
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   }
 
   // For Step 3, we just need to verify the audience claim matches the
@@ -81,11 +79,9 @@ exports.verify = async function verify(
   //    Token does not list the Client as a valid audience, or if it contains
   //    additional audiences not trusted by the Client.
   if (typeof claims.aud === 'string' && claims.aud !== clientId) {
-    logger.debug('verify.error.aud', { aud: claims.aud, clientId });
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   } else if (!claims.aud.includes(clientId)) {
-    logger.debug('verify.error.aud', { aud: claims.aud, clientId });
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   }
 
   // Steps 4 and 5 are skipped, because FxA doesn't support the Authorized
@@ -130,8 +126,7 @@ exports.verify = async function verify(
   //
   // Note also that this time is specified to be in seconds, not milliseconds.
   if (!exports._isValidExp(claims.exp)) {
-    logger.debug('verify.error.exp', { exp: claims.exp });
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   }
 
   const currentTime = Math.round(Date.now() / 1000);
@@ -140,12 +135,7 @@ exports.verify = async function verify(
     claims.exp > fiveMinutesAhead ||
     claims.exp + expiryGracePeriod < currentTime
   ) {
-    logger.debug('verify.error.exp', {
-      exp: claims.exp,
-      expiryGracePeriod,
-      currentTime,
-    });
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   }
 
   // The remaining steps don't apply to our use case, so they are skipped.

@@ -29,6 +29,11 @@ body {
   }
 }
 
+.nav-anchor {
+  position: absolute;
+  top: -5em;
+}
+
 .transition-standard {
   @apply transition duration-150;
 

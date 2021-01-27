@@ -6,9 +6,13 @@
 
 const AppError = require('../../error');
 const joi = require('@hapi/joi');
+const hex = require('buf').to.hex;
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');
+const encrypt = require('../../oauth/encrypt');
+const oauthDB = require('../../oauth/db');
+const client = require('../../oauth/client');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // the refresh token scheme is currently used by things connected to sync,
@@ -18,7 +22,7 @@ const ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES = ScopeSet.fromArray([
   OAUTH_SCOPE_OLD_SYNC,
 ]);
 
-module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
+module.exports = function schemeRefreshTokenScheme(config, db) {
   return function schemeRefreshToken(server, options) {
     return {
       async authenticate(request, h) {
@@ -32,38 +36,37 @@ module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
         const bearerMatchErr = new AppError.invalidRequestParameter(
           'authorization'
         );
-        const refreshToken = bearerMatch && bearerMatch[1];
-        if (refreshToken) {
+        const bearerToken = bearerMatch && bearerMatch[1];
+        if (bearerToken) {
           joi.attempt(bearerMatch[1], validators.refreshToken, bearerMatchErr);
         } else {
           throw bearerMatchErr;
         }
 
-        const refreshTokenInfo = await oauthdb.checkRefreshToken(refreshToken);
-        if (!refreshTokenInfo || !refreshTokenInfo.active) {
+        const tokenId = encrypt.hash(bearerToken);
+        const refreshToken = await oauthDB.getRefreshToken(tokenId);
+        if (!refreshToken) {
           return h.unauthenticated(new AppError.invalidToken());
+        }
+        if (
+          !refreshToken.scope.intersects(ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES)
+        ) {
+          // unauthenticated if refreshToken is missing the required scope
+          return h.unauthenticated(AppError.invalidScopes(refreshToken.scope));
         }
 
         const credentials = {
-          uid: refreshTokenInfo.sub,
+          uid: hex(refreshToken.userId),
           emailVerified: true,
           tokenVerified: true,
-          refreshTokenId: refreshTokenInfo.jti,
+          refreshTokenId: hex(tokenId),
         };
 
-        const scopeSet = ScopeSet.fromString(refreshTokenInfo.scope);
-
-        if (!scopeSet.intersects(ALLOWED_REFRESH_TOKEN_SCHEME_SCOPES)) {
-          // unauthenticated if refreshToken is missing the required scope
-          return h.unauthenticated(
-            AppError.invalidScopes(refreshTokenInfo.scope)
-          );
+        credentials.client = await client.getClientById(refreshToken.clientId);
+        if (!credentials.client || !credentials.client.publicClient) {
+          return h.unauthenticated(new AppError.notPublicClient());
         }
-
-        credentials.client = await oauthdb.getClientInfo(
-          refreshTokenInfo.client_id
-        );
-        const devices = await db.devices(refreshTokenInfo.sub);
+        const devices = await db.devices(credentials.uid);
 
         // use the hashed refreshToken id to find devices
         const device = devices.filter(

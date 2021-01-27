@@ -84,7 +84,7 @@ export function filterSentryEvent(event: Sentry.Event, hint: unknown) {
     }
   }
   if (event.tags && event.tags.url) {
-    event.tags.url = event.tags.url.replace(TOKENREGEX, FILTERED);
+    event.tags.url = (event.tags.url as string).replace(TOKENREGEX, FILTERED);
   }
   return event;
 }
@@ -104,7 +104,7 @@ export function captureSqsError(err: Error, message?: SQS.Message): void {
           FILTERED
         );
       }
-      scope.setContext('SQS Message', message);
+      scope.setContext('SQS Message', message as Record<string, unknown>);
     }
     Sentry.captureException(err);
   });
@@ -118,10 +118,20 @@ export function captureSqsError(err: Error, message?: SQS.Message): void {
  * @param request A request object if available.
  */
 export function reportRequestException(
-  exception: Error,
+  exception: Error & { reported?: boolean; status?: number; response?: any },
   excContexts: ExtraContext[] = [],
   request?: Request
 ) {
+  // Don't report HttpExceptions, we test for its two attributes as its more reliable
+  // than instance checks of HttpException
+  if (exception.status && exception.response) {
+    return;
+  }
+
+  // Don't report already reported exceptions
+  if (exception.reported) {
+    return;
+  }
   Sentry.withScope((scope: Sentry.Scope) => {
     scope.addEventProcessor((event: Sentry.Event) => {
       if (request) {
@@ -135,6 +145,7 @@ export function reportRequestException(
       scope.setContext(ctx.name, ctx.fieldData);
     }
     Sentry.captureException(exception);
+    exception.reported = true;
   });
 }
 

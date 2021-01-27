@@ -4,11 +4,8 @@
 
 const hex = require('buf').to.hex;
 
-const P = require('../../promise');
-
 const config = require('../../../config');
 const encrypt = require('../encrypt');
-const logger = require('../logging')('db');
 const mysql = require('./mysql');
 const redis = require('./redis');
 const AccessToken = require('./accessToken');
@@ -208,11 +205,6 @@ function clientEquals(configClient, dbClient) {
     var configProp = hex(configClient[prop]);
     var dbProp = hex(dbClient[prop]);
     if (configProp !== dbProp) {
-      logger.debug('clients.differ', {
-        prop: prop,
-        configProp: configProp,
-        dbProp: dbProp,
-      });
       return false;
     }
   }
@@ -237,8 +229,7 @@ function convertClientToConfigFormat(client) {
 function preClients() {
   var clients = config.get('oauthServer.clients');
   if (clients && clients.length) {
-    logger.debug('predefined.loading', { clients: clients });
-    return P.all(
+    return Promise.all(
       clients.map(function (c) {
         if (c.secret) {
           // eslint-disable-next-line no-console
@@ -250,7 +241,7 @@ function preClients() {
             c.id,
             hex(encrypt.hash(c.secret))
           );
-          return P.reject(
+          return Promise.reject(
             new Error('Do not keep client secrets in the config file.')
           );
         }
@@ -268,13 +259,11 @@ function preClients() {
         ];
         REQUIRED_CLIENTS_KEYS.forEach(function (key) {
           if (!(key in c)) {
-            var data = { key: key, name: c.name || 'unknown' };
-            logger.error('client.missing.keys', data);
             err = new Error('Client config has missing keys');
           }
         });
         if (err) {
-          return P.reject(err);
+          return Promise.reject(err);
         }
 
         // ensure booleans are boolean and not undefined
@@ -285,21 +274,13 @@ function preClients() {
         // Modification of the database at startup in production and stage is
         // not preferred. This option will be set to false on those stacks.
         if (!config.get('oauthServer.db.autoUpdateClients')) {
-          return P.resolve();
+          return Promise.resolve();
         }
 
         return module.exports.getClient(c.id).then(function (client) {
           if (client) {
             client = convertClientToConfigFormat(client);
-            logger.info('client.compare', { id: c.id });
-            if (clientEquals(client, c)) {
-              logger.info('client.compare.equal', { id: c.id });
-            } else {
-              logger.warn('client.compare.differs', {
-                id: c.id,
-                before: client,
-                after: c,
-              });
+            if (!clientEquals(client, c)) {
               return module.exports.updateClient(c);
             }
           } else {
@@ -309,7 +290,7 @@ function preClients() {
       })
     );
   } else {
-    return P.resolve();
+    return Promise.resolve();
   }
 }
 
@@ -319,13 +300,10 @@ function preClients() {
 function scopes() {
   var scopes = config.get('oauthServer.scopes');
   if (scopes && scopes.length) {
-    logger.debug('scopes.loading', JSON.stringify(scopes));
-
-    return P.all(
+    return Promise.all(
       scopes.map(function (s) {
         return module.exports.getScope(s.scope).then(function (existing) {
           if (existing) {
-            logger.verbose('scopes.existing', s);
             return;
           }
 

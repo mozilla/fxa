@@ -85,7 +85,12 @@ registerSuite('OAuth signin token code', {
 
           // Displays invalid code errors
           .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, '000000'))
-          .then(click(selectors.SIGNIN_TOKEN_CODE.SUBMIT))
+          .then(
+            click(
+              selectors.SIGNIN_TOKEN_CODE.SUBMIT,
+              selectors.SIGNIN_TOKEN_CODE.TOOLTIP
+            )
+          )
           .then(
             testElementTextInclude(
               selectors.SIGNIN_TOKEN_CODE.TOOLTIP,

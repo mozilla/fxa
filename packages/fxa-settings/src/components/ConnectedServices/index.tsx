@@ -11,7 +11,11 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { Modal } from '../Modal';
 import { isMobileDevice } from '../../lib/utilities';
-import { AttachedClient, useAccount, useLazyAccount } from '../../models';
+import {
+  AttachedClient,
+  useAccount,
+  useLazyConnectedClients,
+} from '../../models';
 import { AlertBar } from '../AlertBar';
 import { ButtonIconReload } from '../ButtonIcon';
 import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
@@ -74,7 +78,10 @@ export const ConnectedServices = () => {
   const sortedAndUniqueClients = sortAndFilterConnectedClients([
     ...attachedClients,
   ]);
-  const [getAccount, { accountLoading }] = useLazyAccount((error) => {
+  const [
+    getConnectedClients,
+    { connectedClientsLoading },
+  ] = useLazyConnectedClients((error) => {
     alertBar.error(
       'Sorry, there was a problem refreshing the list of connected services.'
     );
@@ -179,34 +186,29 @@ export const ConnectedServices = () => {
       onError: (error: ApolloError) =>
         clearDisconnectingState(undefined, error),
       ignoreResults: true,
-      update: (cache) => {
+      update: (cache) =>
         cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
           fields: {
-            account: (existing: Account) => {
-              return {
-                ...existing,
-                attachedClients: attachedClients.filter(
-                  // TODO: should this also go into the AttachedClient model?
-                  (client) =>
-                    client.lastAccessTime !== DS.client!.lastAccessTime &&
-                    client.name !== DS.client!.name
-                ),
-              };
+            attachedClients(existingClients: AttachedClient[]) {
+              const updatedList = [...existingClients];
+              return updatedList.filter(
+                // TODO: should this also go into the AttachedClient model?
+                (client) =>
+                  client.lastAccessTime !== DS.client!.lastAccessTime &&
+                  client.name !== DS.client!.name
+              );
             },
           },
-        });
-      },
+        }),
     }
   );
 
   return (
-    <section
-      className="mt-11"
-      id="connected-services"
-      data-testid="settings-connected-services"
-    >
-      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4">
-        Connected Services
+    <section className="mt-11" data-testid="settings-connected-services">
+      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4 relative">
+        <span id="connected-services" className="nav-anchor"></span>Connected
+        Services
       </h2>
       <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
         <div className="flex justify-between mb-4">
@@ -215,8 +217,8 @@ export const ConnectedServices = () => {
             title="Refresh connected services"
             classNames="hidden mobileLandscape:inline-block"
             testId="connected-services-refresh"
-            disabled={accountLoading}
-            onClick={getAccount}
+            disabled={connectedClientsLoading}
+            onClick={getConnectedClients}
           />
         </div>
 

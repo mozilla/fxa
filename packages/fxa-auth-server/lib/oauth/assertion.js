@@ -21,14 +21,11 @@
  *
  */
 
-const P = require('../promise');
-
 const Joi = require('@hapi/joi');
 const validators = require('./validators');
 
-const AppError = require('./error');
+const OauthError = require('./error');
 const config = require('../../config');
-const logger = require('./logging')('assertion');
 const { verifyJWT } = require('../../lib/serverJWT');
 
 const HEX_STRING = /^[0-9a-f]+$/;
@@ -48,45 +45,43 @@ const CLAIMS_SCHEMA = Joi.object({
   'fxa-profileChangedAt': Joi.number().integer().min(0).optional(),
   'fxa-keysChangedAt': Joi.number().integer().min(0).optional(),
 }).options({ stripUnknown: true });
-const validateClaims = P.promisify(CLAIMS_SCHEMA.validate, {
-  context: CLAIMS_SCHEMA,
-});
 
 const AUDIENCE = config.get('oauthServer.audience');
 const ALLOWED_ISSUER = config.get('oauthServer.browserid.issuer');
 
-const request = P.promisify(
-  require('request').defaults({
-    url: config.get('oauthServer.browserid.verificationUrl'),
-    pool: {
-      maxSockets: config.get('oauthServer.browserid.maxSockets'),
-    },
-  }),
-  { multiArgs: true }
-);
+const request = require('request').defaults({
+  url: config.get('oauthServer.browserid.verificationUrl'),
+  pool: {
+    maxSockets: config.get('oauthServer.browserid.maxSockets'),
+  },
+});
 
 function error(assertion, msg, val) {
-  logger.info('invalidAssertion', { assertion, msg, val });
-  throw AppError.invalidAssertion();
+  throw OauthError.invalidAssertion();
 }
 
 // Verify a BrowserID assertion,
 // by posting to an external verifier service.
 
 async function verifyBrowserID(assertion) {
-  let res, body;
-  try {
-    [res, body] = await request({
-      method: 'POST',
-      json: {
-        assertion: assertion,
-        audience: AUDIENCE,
+  const [res, body] = await new Promise((resolve, reject) => {
+    request(
+      {
+        method: 'POST',
+        json: {
+          assertion: assertion,
+          audience: AUDIENCE,
+        },
       },
-    });
-  } catch (err) {
-    logger.error('verify.error', err);
-    throw err;
-  }
+      (err, res, body) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve([res, body]);
+      }
+    );
+  });
+
   if (!res || !body || body.status !== 'okay') {
     return error(assertion, 'non-okay response', body);
   }
@@ -127,7 +122,7 @@ module.exports = async function verifyAssertion(assertion) {
     }
   }
   try {
-    return await validateClaims(claims);
+    return await CLAIMS_SCHEMA.validate(claims);
   } catch (err) {
     return error(assertion, err, claims);
   }

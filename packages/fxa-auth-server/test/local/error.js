@@ -8,7 +8,7 @@ const { assert } = require('chai');
 const verror = require('verror');
 const messages = require('@hapi/joi/lib/language');
 const AppError = require('../../lib/error');
-const P = require('../../lib/promise');
+const OauthError = require('../../lib/oauth/error');
 
 describe('AppErrors', () => {
   it('tightly-coupled joi message hack is okay', () => {
@@ -25,6 +25,28 @@ describe('AppErrors', () => {
     assert.equal(AppError.invalidRequestParameter.length, 1);
     assert.equal(typeof AppError.missingRequestParameter, 'function');
     assert.equal(AppError.missingRequestParameter.length, 1);
+  });
+
+  it('converts an OauthError into AppError when not an oauth route', () => {
+    const oauthError = OauthError.invalidAssertion();
+    assert.equal(oauthError.errno, 104);
+    const result = AppError.translate(
+      { route: { path: '/v1/oauth/token' } },
+      oauthError
+    );
+    assert.ok(result instanceof AppError, 'instanceof AppError');
+    assert.equal(result.errno, 110);
+  });
+
+  it('keeps an OauthError with an oauth route', () => {
+    const oauthError = OauthError.invalidAssertion();
+    assert.equal(oauthError.errno, 104);
+    const result = AppError.translate(
+      { route: { path: '/v1/token' } },
+      oauthError
+    );
+    assert.ok(result instanceof OauthError, 'instanceof OauthError');
+    assert.equal(result.errno, 104);
   });
 
   it('should translate with missing required parameters', () => {
@@ -130,8 +152,8 @@ describe('AppErrors', () => {
           os: 'Android',
           osVersion: '9',
         },
-        devices: P.resolve([{ id: 1 }]),
-        metricsContext: P.resolve({
+        devices: Promise.resolve([{ id: 1 }]),
+        metricsContext: Promise.resolve({
           service: 'sync',
         }),
       },

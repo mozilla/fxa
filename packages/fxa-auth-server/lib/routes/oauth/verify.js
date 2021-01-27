@@ -7,10 +7,11 @@ const Joi = require('@hapi/joi');
 const token = require('../../oauth/token');
 const validators = require('../../oauth/validators');
 
-module.exports = (log) => ({
+module.exports = ({ log }) => ({
   method: 'POST',
   path: '/verify',
   config: {
+    cors: { origin: 'ignore' },
     validate: {
       payload: {
         token: validators.accessToken.required(),
@@ -28,7 +29,7 @@ module.exports = (log) => ({
     handler: async function verify(req) {
       const info = await token.verify(req.payload.token);
       info.scope = info.scope.getScopeValues();
-      log.trace('verify.success', {
+      log.debug('verify.success', {
         client_id: info.client_id,
         scope: info.scope,
       });

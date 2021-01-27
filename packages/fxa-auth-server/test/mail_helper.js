@@ -7,7 +7,6 @@
 'use strict';
 const MailParser = require('mailparser').MailParser;
 const simplesmtp = require('simplesmtp');
-const P = require('../lib/promise');
 
 const config = require('../config').getProperties();
 
@@ -30,7 +29,7 @@ module.exports = (printLogs) => {
         log() {},
         error() {},
       };
-  return new P((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const smtp = simplesmtp.createSimpleServer(
       {
         SMTPBanner: 'FXATEST',
@@ -130,7 +129,7 @@ module.exports = (printLogs) => {
         path: '/mail/{email}',
         handler: async function (request) {
           const emailLoop = function () {
-            return new P((resolve) => {
+            return new Promise((resolve) => {
               loop(decodeURIComponent(request.params.email), (emailData) => {
                 resolve(emailData);
               });
@@ -157,7 +156,7 @@ module.exports = (printLogs) => {
 
       return resolve({
         close() {
-          return new P((resolve, reject) => {
+          return new Promise((resolve, reject) => {
             let smtpClosed = false;
             let apiClosed = false;
             smtp.server.end(() => {

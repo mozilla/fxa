@@ -58,20 +58,7 @@ export interface Account {
   alertTextExternal: string | null;
 }
 
-export const ACCOUNT_FIELDS = `
-    account {
-      uid
-      displayName
-      avatarUrl
-      accountCreated
-      passwordCreated
-      recoveryKey
-      primaryEmail @client
-      emails {
-        email
-        isPrimary
-        verified
-      }
+const ATTACHED_CLIENTS_FIELDS = `
       attachedClients {
         clientId
         isCurrentSession
@@ -93,6 +80,23 @@ export const ACCOUNT_FIELDS = `
         sessionTokenId
         refreshTokenId
       }
+`;
+
+export const ACCOUNT_FIELDS = `
+    account {
+      uid
+      displayName
+      avatarUrl
+      accountCreated
+      passwordCreated
+      recoveryKey
+      primaryEmail @client
+      emails {
+        email
+        isPrimary
+        verified
+      }
+      ${ATTACHED_CLIENTS_FIELDS}
       totp {
         exists
         verified
@@ -108,6 +112,33 @@ export const ACCOUNT_FIELDS = `
 export const GET_ACCOUNT = gql`
   query GetAccount {
     ${ACCOUNT_FIELDS}
+  }
+`;
+
+export const GET_CONNECTED_CLIENTS = gql`
+  query GetConnectedClients {
+    account {
+      ${ATTACHED_CLIENTS_FIELDS}
+    }
+  }
+`;
+
+export const GET_RECOVERY_KEY_EXISTS = gql`
+  query GetRecoveryKeyExists {
+    account {
+      recoveryKey
+    }
+  }
+`;
+
+export const GET_TOTP_STATUS = gql`
+  query GetRecoveryKeyExists {
+    account {
+      totp {
+        exists
+        verified
+      }
+    }
   }
 `;
 
@@ -136,6 +167,60 @@ export function useLazyAccount(
   });
 
   return [getAccount, { accountLoading }];
+}
+
+export function useLazyConnectedClients(
+  onError: (error: ApolloError) => void
+): [
+  (options?: QueryLazyOptions<Record<string, any>> | undefined) => void,
+  { connectedClientsLoading: boolean }
+] {
+  const [
+    getConnectedClients,
+    { loading: connectedClientsLoading },
+  ] = useLazyQuery<{
+    attachedClients: Pick<Account, 'attachedClients'>;
+  }>(GET_CONNECTED_CLIENTS, {
+    fetchPolicy: 'network-only',
+    onError,
+  });
+
+  return [getConnectedClients, { connectedClientsLoading }];
+}
+
+export function useLazyRecoveryKeyExists(
+  onError: (error: ApolloError) => void
+): [
+  (options?: QueryLazyOptions<Record<string, any>> | undefined) => void,
+  { recoveryKeyExistsLoading: boolean }
+] {
+  const [
+    getRecoveryKeyExists,
+    { loading: recoveryKeyExistsLoading },
+  ] = useLazyQuery<{
+    recoveryKeyExists: Pick<Account, 'recoveryKey'>;
+  }>(GET_RECOVERY_KEY_EXISTS, {
+    fetchPolicy: 'network-only',
+    onError,
+  });
+
+  return [getRecoveryKeyExists, { recoveryKeyExistsLoading }];
+}
+
+export function useLazyTotpStatus(
+  onError: (error: ApolloError) => void
+): [
+  (options?: QueryLazyOptions<Record<string, any>> | undefined) => void,
+  { totpStatusLoading: boolean }
+] {
+  const [getTotpStatus, { loading: totpStatusLoading }] = useLazyQuery<{
+    totpStatus: Pick<Account, 'totp'>;
+  }>(GET_TOTP_STATUS, {
+    fetchPolicy: 'network-only',
+    onError,
+  });
+
+  return [getTotpStatus, { totpStatusLoading }];
 }
 
 export function hasSecondaryEmail(account: Account) {

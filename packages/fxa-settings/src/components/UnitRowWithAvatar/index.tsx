@@ -4,13 +4,13 @@
 
 import React from 'react';
 import Avatar from '../Avatar';
-// import { useAccount } from '../../models';
-// import { Link, useLocation } from '@reach/router';
+import { useAccount } from '../../models';
+import { Link, useLocation } from '@reach/router';
 
 export const UnitRowWithAvatar = () => {
-  // const { avatarUrl } = useAccount();
-  // const ctaText = avatarUrl ? 'Change' : 'Add';
-  // const location = useLocation();
+  const { avatarUrl } = useAccount();
+  const ctaText = avatarUrl ? 'Change' : 'Add';
+  const location = useLocation();
   return (
     <div className="unit-row">
       <div className="unit-row-header">
@@ -21,14 +21,15 @@ export const UnitRowWithAvatar = () => {
       </div>
       <div className="unit-row-actions">
         <div>
-          {/* Setting avatar will be implemented it v2, FXA-1678
           <Link
             className="cta-neutral cta-base"
             data-testid="unit-row-with-avatar-route"
-            to={`/beta/settings/avatar/change${location.search}`}
+            to={`/beta/settings/avatar/${ctaText.toLowerCase()}${
+              location.search
+            }`}
           >
             {ctaText}
-          </Link> */}
+          </Link>
         </div>
       </div>
     </div>

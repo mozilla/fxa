@@ -9,17 +9,17 @@ import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import App from './components/App';
 import { AuthContext, createAuthClient } from './lib/auth';
 import sentryMetrics from 'fxa-shared/lib/sentry';
-import config, { readConfigMeta } from './lib/config';
+import config, { readConfigMeta, ConfigContext } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { createApolloClient } from './lib/gql';
 import './index.scss';
 
 try {
-  sentryMetrics.configure(config.sentry.dsn, config.version);
   readConfigMeta((name: string) => {
     return document.head.querySelector(name);
   });
 
+  sentryMetrics.configure(config.sentry.dsn, config.version);
   const authClient = createAuthClient(config.servers.auth.url);
   const apolloClient = createApolloClient(config.servers.gql.url);
   const flowQueryParams = searchParams(
@@ -30,9 +30,11 @@ try {
     <React.StrictMode>
       <ApolloProvider client={apolloClient}>
         <AuthContext.Provider value={{ auth: authClient }}>
-          <AppErrorBoundary>
-            <App {...{ flowQueryParams }} />
-          </AppErrorBoundary>
+          <ConfigContext.Provider value={config}>
+            <AppErrorBoundary>
+              <App {...{ flowQueryParams }} />
+            </AppErrorBoundary>
+          </ConfigContext.Provider>
         </AuthContext.Provider>
       </ApolloProvider>
     </React.StrictMode>,

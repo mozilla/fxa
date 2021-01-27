@@ -2,13 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import React, { useContext } from 'react';
 import { deepMerge } from './utilities';
 
 export const META_CONFIG = 'fxa-config';
 
 export interface Config {
   env: string;
-  version: string;
+  marketingEmailPreferencesUrl: string;
+  metrics: {
+    navTiming: {
+      enabled: boolean;
+      endpoint: string;
+    };
+  };
   sentry: {
     dsn: string;
   };
@@ -20,11 +27,16 @@ export interface Config {
       url: string;
     };
   };
+  version: string;
 }
 
 export function getDefault() {
   return {
     env: 'development',
+    marketingEmailPreferencesUrl: 'https://basket.mozilla.org/fxa/',
+    metrics: {
+      navTiming: { enabled: false, endpoint: '/check-your-metrics-config' },
+    },
     sentry: {
       dsn: '',
     },
@@ -95,6 +107,17 @@ export function reset() {
 
 export function update(newData: { [key: string]: any }) {
   deepMerge(config, newData);
+}
+
+export const ConfigContext = React.createContext<Config>(getDefault());
+
+export function useConfig() {
+  const c = useContext(ConfigContext);
+  if (!c) {
+    return getDefault();
+  }
+
+  return c;
 }
 
 const config: Config = getDefault();

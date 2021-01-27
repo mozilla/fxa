@@ -17,6 +17,7 @@ const { navigateToSettingsV2 } = FunctionalSettingsHelpers;
 describe('external links', () => {
   let primaryEmail,
     testHrefEquals,
+    testHrefIncludes,
     testElementExists,
     clearBrowserState,
     openPage,
@@ -26,6 +27,7 @@ describe('external links', () => {
     ({
       clearBrowserState,
       testHrefEquals,
+      testHrefIncludes,
       testElementExists,
       openPage,
       subscribeAndSigninToRp,
@@ -36,9 +38,9 @@ describe('external links', () => {
 
   it('renders external links correctly', async () => {
     await testElementExists(selectors.SETTINGS_V2.NAVIGATION.NEWSLETTERS_LINK);
-    await testHrefEquals(
+    await testHrefIncludes(
       selectors.SETTINGS_V2.NAVIGATION.NEWSLETTERS_LINK,
-      `https://basket.mozilla.org/fxa/?email=${primaryEmail}`
+      encodeURIComponent(primaryEmail)
     );
 
     await testElementExists(selectors.SETTINGS_V2.FOOTER.PRIVACY_LINK);
@@ -54,7 +56,7 @@ describe('external links', () => {
     );
   });
 
-  it('renders Subscriptions link in navigation when we are subscribed to a product', async () => {
+  it('renders Subscriptions link in navigation when we are subscribed to a product', async function () {
     if (process.env.CIRCLECI === 'true' && !process.env.SUBHUB_STRIPE_APIKEY) {
       this.skip('missing Stripe API key in CircleCI run');
     }

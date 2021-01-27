@@ -11,7 +11,6 @@ const mocks = require('../../mocks');
 const getRoute = require('../../routes_helpers').getRoute;
 const proxyquire = require('proxyquire');
 
-const P = require('../../../lib/promise');
 const uuid = require('uuid');
 const crypto = require('crypto');
 const error = require('../../../lib/error');
@@ -50,7 +49,7 @@ const makeRoutes = function (options = {}, requireMocks) {
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: () => {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
   };
   const signinUtils =
@@ -88,7 +87,7 @@ const makeRoutes = function (options = {}, requireMocks) {
 };
 
 function runTest(route, request, assertions) {
-  return new P((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
       return route.handler(request).then(resolve, reject);
     } catch (err) {
@@ -113,7 +112,7 @@ describe('/account/reset', () => {
     mailer;
 
   beforeEach(() => {
-    uid = uuid.v4('binary').toString('hex');
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     mockLog = mocks.mockLog();
     mockMetricsContext = mocks.mockMetricsContext();
     mockRequest = mocks.mockRequest({
@@ -321,7 +320,7 @@ describe('/account/reset', () => {
     let res;
     beforeEach(() => {
       mockDB.totpToken = sinon.spy(() => {
-        return P.resolve({
+        return Promise.resolve({
           verified: true,
           enabled: true,
         });
@@ -489,10 +488,10 @@ describe('/account/create', () => {
     };
     const mockLog = log('ERROR', 'test');
     mockLog.activityEvent = sinon.spy(() => {
-      return P.resolve();
+      return Promise.resolve();
     });
     mockLog.flowEvent = sinon.spy(() => {
-      return P.resolve();
+      return Promise.resolve();
     });
     mockLog.error = sinon.spy();
     mockLog.notifier.send = sinon.spy();
@@ -535,7 +534,7 @@ describe('/account/create', () => {
     const emailCode = hexString(16);
     const keyFetchTokenId = hexString(16);
     const sessionTokenId = hexString(16);
-    const uid = uuid.v4('binary').toString('hex');
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const mockDB = mocks.mockDB(
       {
         email: TEST_EMAIL,
@@ -566,10 +565,10 @@ describe('/account/create', () => {
       Password: function () {
         return {
           unwrap: function () {
-            return P.resolve('wibble');
+            return Promise.resolve('wibble');
           },
           verifyHash: function () {
-            return P.resolve('wibble');
+            return Promise.resolve('wibble');
           },
         };
       },
@@ -988,7 +987,7 @@ describe('/account/create', () => {
   it('should return an error if email fails to send', () => {
     const { mockMailer, mockRequest, route, verificationReminders } = setup();
 
-    mockMailer.sendVerifyEmail = sinon.spy(() => P.reject());
+    mockMailer.sendVerifyEmail = sinon.spy(() => Promise.reject());
 
     return runTest(route, mockRequest).then(assert.fail, (err) => {
       assert.equal(err.message, 'Failed to send email');
@@ -1004,7 +1003,7 @@ describe('/account/create', () => {
     const { mockMailer, mockRequest, route, verificationReminders } = setup();
 
     mockMailer.sendVerifyEmail = sinon.spy(() =>
-      P.reject(error.emailBouncedHard(42))
+      Promise.reject(error.emailBouncedHard(42))
     );
 
     return runTest(route, mockRequest).then(assert.fail, (err) => {
@@ -1052,10 +1051,10 @@ describe('/account/login', () => {
   };
   const mockLog = log('ERROR', 'test');
   mockLog.activityEvent = sinon.spy(() => {
-    return P.resolve();
+    return Promise.resolve();
   });
   mockLog.flowEvent = sinon.spy(() => {
-    return P.resolve();
+    return Promise.resolve();
   });
   mockLog.notifier.send = sinon.spy();
   const mockMetricsContext = mocks.mockMetricsContext();
@@ -1153,7 +1152,7 @@ describe('/account/login', () => {
   });
   const keyFetchTokenId = hexString(16);
   const sessionTokenId = hexString(16);
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockDB = mocks.mockDB({
     email: TEST_EMAIL,
     emailVerified: true,
@@ -1169,13 +1168,13 @@ describe('/account/login', () => {
   const mockMailer = mocks.mockMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = {
-    check: () => P.resolve(),
-    flag: () => P.resolve(),
+    check: () => Promise.resolve(),
+    flag: () => Promise.resolve(),
   };
   const mockCadReminders = mocks.mockCadReminders();
   const accountRoutes = makeRoutes({
     checkPassword: function () {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
     config: config,
     customs: mockCustoms,
@@ -1193,9 +1192,9 @@ describe('/account/login', () => {
   afterEach(() => {
     mockLog.activityEvent.resetHistory();
     mockLog.flowEvent.resetHistory();
-    mockMailer.sendNewDeviceLoginEmail = sinon.spy(() => P.resolve([]));
-    mockMailer.sendVerifyLoginEmail = sinon.spy(() => P.resolve());
-    mockMailer.sendVerifyLoginCodeEmail = sinon.spy(() => P.resolve());
+    mockMailer.sendNewDeviceLoginEmail = sinon.spy(() => Promise.resolve([]));
+    mockMailer.sendVerifyLoginEmail = sinon.spy(() => Promise.resolve());
+    mockMailer.sendVerifyLoginCodeEmail = sinon.spy(() => Promise.resolve());
     mockMailer.sendVerifyEmail.resetHistory();
     mockDB.createSessionToken.resetHistory();
     mockDB.sessions.resetHistory();
@@ -1207,7 +1206,7 @@ describe('/account/login', () => {
     mockDB.accountRecord = defaultEmailAccountRecord;
     mockDB.accountRecord.resetHistory();
     mockDB.getSecondaryEmail = sinon.spy(() =>
-      P.reject(error.unknownSecondaryEmail())
+      Promise.reject(error.unknownSecondaryEmail())
     );
     mockDB.getSecondaryEmail.resetHistory();
     mockRequest.payload.email = TEST_EMAIL;
@@ -1502,7 +1501,7 @@ describe('/account/login', () => {
     it('sends email code', () => {
       const emailCode = hexString(16);
       mockDB.accountRecord = function () {
-        return P.resolve({
+        return Promise.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: TEST_EMAIL,
@@ -1582,7 +1581,7 @@ describe('/account/login', () => {
       config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/;
 
       mockDB.accountRecord = function () {
-        return P.resolve({
+        return Promise.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: TEST_EMAIL,
@@ -1663,7 +1662,7 @@ describe('/account/login', () => {
     it('requires verification when the request is suspicious, even with no keys', () => {
       const email = TEST_EMAIL;
       mockDB.accountRecord = function () {
-        return P.resolve({
+        return Promise.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: email,
@@ -1733,7 +1732,7 @@ describe('/account/login', () => {
     it('does not require verification when keys are not requested', () => {
       const email = 'test@mozilla.com';
       mockDB.accountRecord = function () {
-        return P.resolve({
+        return Promise.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: 'test@mozilla.com',
@@ -1803,7 +1802,7 @@ describe('/account/login', () => {
     it('requires change password verification when the lockedAt field is set', () => {
       const email = 'test@mozilla.com';
       mockDB.accountRecord = function () {
-        return P.resolve({
+        return Promise.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: email,
@@ -1878,7 +1877,7 @@ describe('/account/login', () => {
       };
       const email = 'u5osi@forcepwdchange.com';
       mockDB.accountRecord = function () {
-        return P.resolve({
+        return Promise.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: email,
@@ -1923,7 +1922,7 @@ describe('/account/login', () => {
       const email = 'test@mozilla.com';
       mockRequest.payload.email = email;
       mockDB.accountRecord = function () {
-        return P.resolve({
+        return Promise.resolve({
           authSalt: hexString(32),
           data: hexString(32),
           email: mockRequest.payload.email,
@@ -1987,7 +1986,7 @@ describe('/account/login', () => {
     });
 
     it('should return an error if email fails to send', () => {
-      mockMailer.sendVerifyLoginEmail = sinon.spy(() => P.reject());
+      mockMailer.sendVerifyLoginEmail = sinon.spy(() => Promise.reject());
 
       return runTest(route, mockRequest).then(assert.fail, (err) => {
         assert.equal(err.message, 'Failed to send email');
@@ -2007,7 +2006,7 @@ describe('/account/login', () => {
         const email = mockRequest.payload.email;
 
         mockDB.accountRecord = function () {
-          return P.resolve({
+          return Promise.resolve({
             authSalt: hexString(32),
             createdAt: Date.now() - accountCreatedSince,
             data: hexString(32),
@@ -2030,7 +2029,7 @@ describe('/account/login', () => {
 
         const accountRoutes = makeRoutes({
           checkPassword: function () {
-            return P.resolve(true);
+            return Promise.resolve(true);
           },
           config: config,
           customs: mockCustoms,
@@ -2137,7 +2136,7 @@ describe('/account/login', () => {
         setup(true, 0);
 
         mockMailer.sendNewDeviceLoginEmail = sinon.spy(() =>
-          P.reject(error.emailBouncedHard())
+          Promise.reject(error.emailBouncedHard())
         );
 
         return runTest(route, mockRequest, (response) => {
@@ -2222,7 +2221,7 @@ describe('/account/login', () => {
         mockRequest.payload.email = email;
 
         mockDB.accountRecord = () => {
-          return P.resolve({
+          return Promise.resolve({
             authSalt: hexString(32),
             data: hexString(32),
             email,
@@ -2241,7 +2240,7 @@ describe('/account/login', () => {
         };
 
         const accountRoutes = makeRoutes({
-          checkPassword: () => P.resolve(true),
+          checkPassword: () => Promise.resolve(true),
           config,
           customs: mockCustoms,
           db: mockDB,
@@ -2312,7 +2311,7 @@ describe('/account/login', () => {
   it('creating too many sessions causes an error to be logged', () => {
     const oldSessions = mockDB.sessions;
     mockDB.sessions = sinon.spy(() => {
-      return P.resolve(new Array(200));
+      return Promise.resolve(new Array(200));
     });
     mockLog.error = sinon.spy();
     mockRequest.app.clientAddress = '63.245.221.32';
@@ -2320,7 +2319,7 @@ describe('/account/login', () => {
       assert.equal(mockLog.error.callCount, 0, 'log.error was not called');
     }).then(() => {
       mockDB.sessions = sinon.spy(() => {
-        return P.resolve(new Array(201));
+        return Promise.resolve(new Array(201));
       });
       mockLog.error.resetHistory();
       return runTest(route, mockRequest, () => {
@@ -2348,7 +2347,7 @@ describe('/account/login', () => {
       let securityQuery;
       mockDB.securityEvents = sinon.spy((arg) => {
         securityQuery = arg;
-        return P.resolve([
+        return Promise.resolve([
           {
             name: 'account.login',
             createdAt: Date.now(),
@@ -2378,7 +2377,7 @@ describe('/account/login', () => {
       let securityQuery;
       mockDB.securityEvents = sinon.spy((arg) => {
         securityQuery = arg;
-        return P.resolve([
+        return Promise.resolve([
           {
             name: 'account.login',
             createdAt: Date.now(),
@@ -2408,7 +2407,7 @@ describe('/account/login', () => {
       let securityQuery;
       mockDB.securityEvents = sinon.spy((arg) => {
         securityQuery = arg;
-        return P.resolve([]);
+        return Promise.resolve([]);
       });
       return runTest(route, mockRequest, (response) => {
         assert.equal(
@@ -2433,7 +2432,7 @@ describe('/account/login', () => {
     let securityQuery;
     mockDB.securityEvent = sinon.spy((arg) => {
       securityQuery = arg;
-      return P.resolve();
+      return Promise.resolve();
     });
     return runTest(route, mockRequest, (response) => {
       assert.equal(
@@ -2452,7 +2451,7 @@ describe('/account/login', () => {
       const oldCheck = mockCustoms.check;
 
       before(() => {
-        mockCustoms.check = () => P.reject(error.requestBlocked(true));
+        mockCustoms.check = () => Promise.reject(error.requestBlocked(true));
       });
 
       beforeEach(() => {
@@ -2506,7 +2505,7 @@ describe('/account/login', () => {
         describe('with unblock code', () => {
           it('invalid code', () => {
             mockDB.consumeUnblockCode = () =>
-              P.reject(error.invalidUnblockCode());
+              Promise.reject(error.invalidUnblockCode());
             return runTest(route, mockRequestWithUnblockCode).then(
               () => assert.ok(false),
               (err) => {
@@ -2539,7 +2538,7 @@ describe('/account/login', () => {
           it('expired code', () => {
             // test 5 seconds old, to reduce flakiness of test
             mockDB.consumeUnblockCode = () =>
-              P.resolve({
+              Promise.resolve({
                 createdAt:
                   Date.now() - (config.signinUnblock.codeLifetime + 5000),
               });
@@ -2575,8 +2574,10 @@ describe('/account/login', () => {
           });
 
           it('unknown account', () => {
-            mockDB.accountRecord = () => P.reject(new error.unknownAccount());
-            mockDB.emailRecord = () => P.reject(new error.unknownAccount());
+            mockDB.accountRecord = () =>
+              Promise.reject(new error.unknownAccount());
+            mockDB.emailRecord = () =>
+              Promise.reject(new error.unknownAccount());
             return runTest(route, mockRequestWithUnblockCode).then(
               () => assert(false),
               (err) => {
@@ -2588,7 +2589,7 @@ describe('/account/login', () => {
 
           it('valid code', () => {
             mockDB.consumeUnblockCode = () =>
-              P.resolve({ createdAt: Date.now() });
+              Promise.resolve({ createdAt: Date.now() });
             return runTest(route, mockRequestWithUnblockCode, (res) => {
               assert.equal(mockLog.flowEvent.callCount, 4);
               assert.equal(
@@ -2620,7 +2621,7 @@ describe('/account/login', () => {
     describe('cannot unblock', () => {
       const oldCheck = mockCustoms.check;
       before(() => {
-        mockCustoms.check = () => P.reject(error.requestBlocked(false));
+        mockCustoms.check = () => Promise.reject(error.requestBlocked(false));
       });
 
       after(() => {
@@ -2688,7 +2689,7 @@ describe('/account/login', () => {
   it('fails login with non primary email', () => {
     const email = 'foo@mail.com';
     mockDB.accountRecord = sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         primaryEmail: {
           normalizedEmail: normalizeEmail(email),
           email: email,
@@ -2712,7 +2713,7 @@ describe('/account/login', () => {
 
   it('fails login when requesting TOTP verificationMethod and TOTP not setup', () => {
     mockDB.totpToken = sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         verified: true,
         enabled: false,
       });
@@ -2757,7 +2758,7 @@ describe('/account/login', () => {
 
 describe('/account/keys', () => {
   const keyFetchTokenId = hexString(16);
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const mockLog = mocks.mockLog();
   const mockRequest = mocks.mockRequest({
     credentials: {
@@ -2854,7 +2855,7 @@ describe('/account/keys', () => {
 
 describe('/account/destroy', () => {
   const email = 'foo@example.com';
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const expectedSubscriptions = [
     { uid, subscriptionId: '123' },
     { uid, subscriptionId: '456' },
@@ -2888,7 +2889,7 @@ describe('/account/destroy', () => {
   function buildRoute(subscriptionsEnabled = true) {
     const accountRoutes = makeRoutes({
       checkPassword: function () {
-        return P.resolve(true);
+        return Promise.resolve(true);
       },
       config: {
         subscriptions: {
@@ -2995,7 +2996,7 @@ describe('/account/destroy', () => {
 
 describe('/account', () => {
   const email = 'foo@example.com';
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
   const subscription = {
     current_period_end: Date.now() + 60000,
@@ -3103,7 +3104,7 @@ describe('/account', () => {
 });
 
 describe('/account/ecosystemAnonId', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const ecosystemAnonId = 'bowl of oranges';
   const oldAnonId = 'old id';
   let mockLog, mockDB, mockRequest, route;
@@ -3150,7 +3151,7 @@ describe('/account/ecosystemAnonId', () => {
     mockRequest.headers['if-none-match'] = '*';
     mockDB.account = function (providedUid) {
       assert.equal(providedUid, uid);
-      return P.resolve({
+      return Promise.resolve({
         ecosystemAnonId: null,
       });
     };
@@ -3167,7 +3168,7 @@ describe('/account/ecosystemAnonId', () => {
 
   it('throws anonIdNoCondition when neither if-none-match nor if-match are present', async () => {
     mockDB.account = function () {
-      return P.resolve({
+      return Promise.resolve({
         ecosystemAnonId: 'heheheheheh',
       });
     };
@@ -3200,7 +3201,7 @@ describe('/account/ecosystemAnonId', () => {
   it('throws: if-none-match: *, anon id exists', async () => {
     mockRequest.headers['if-none-match'] = '*';
     mockDB.account = function () {
-      return P.resolve({
+      return Promise.resolve({
         ecosystemAnonId: 'such a simple fool',
       });
     };
@@ -3219,7 +3220,7 @@ describe('/account/ecosystemAnonId', () => {
   it('doesnt throw: if-none-match: *, anon id doesnt exist', async () => {
     mockRequest.headers['if-none-match'] = '*';
     mockDB.account = function () {
-      return P.resolve({
+      return Promise.resolve({
         ecosystemAnonId: null,
       });
     };
@@ -3237,7 +3238,7 @@ describe('/account/ecosystemAnonId', () => {
   it('throws: if-none-match: y (hashed), anon id is y', async () => {
     mockRequest.headers['if-none-match'] = hashAnonId('y');
     mockDB.account = function () {
-      return P.resolve({
+      return Promise.resolve({
         ecosystemAnonId: 'y',
       });
     };
@@ -3256,7 +3257,7 @@ describe('/account/ecosystemAnonId', () => {
   it('doesnt throw: if-none-match: x (hashed), anon id is z', async () => {
     mockRequest.headers['if-none-match'] = hashAnonId('x');
     mockDB.account = function () {
-      return P.resolve({
+      return Promise.resolve({
         ecosystemAnonId: 'z',
       });
     };
@@ -3274,7 +3275,7 @@ describe('/account/ecosystemAnonId', () => {
   it('throws: if-match: x (hashed), anon id is z', async () => {
     mockRequest.headers['if-match'] = hashAnonId('x');
     mockDB.account = function () {
-      return P.resolve({
+      return Promise.resolve({
         ecosystemAnonId: 'z',
       });
     };
@@ -3293,7 +3294,7 @@ describe('/account/ecosystemAnonId', () => {
   it('doesnt throw: if-match: x (hashed), anon id is x', async () => {
     mockRequest.headers['if-match'] = hashAnonId('x');
     mockDB.account = function () {
-      return P.resolve({
+      return Promise.resolve({
         ecosystemAnonId: 'x',
       });
     };
@@ -3311,7 +3312,7 @@ describe('/account/ecosystemAnonId', () => {
   it('logs old and new anon_ids on successful update', async () => {
     mockRequest.headers['if-match'] = hashAnonId(oldAnonId);
     mockDB.account = sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         ecosystemAnonId: oldAnonId,
       });
     });

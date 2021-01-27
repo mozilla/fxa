@@ -11,8 +11,6 @@ const path = require('path');
 const url = require('url');
 const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
-const schemeServerJWT = require('./routes/auth-schemes/serverJWT');
-const authBearer = require('./routes/auth-schemes/auth-bearer');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
 const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
@@ -53,16 +51,7 @@ function logEndpointErrors(response, log) {
   }
 }
 
-async function create(
-  log,
-  error,
-  config,
-  routes,
-  db,
-  oauthdb,
-  translator,
-  statsd
-) {
+async function create(log, error, config, routes, db, translator, statsd) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config);
@@ -357,10 +346,7 @@ async function create(
   server.auth.scheme(authOauth.AUTH_SCHEME, authOauth.strategy);
   server.auth.strategy('oauthToken', authOauth.AUTH_SCHEME, config.oauth);
 
-  server.auth.scheme(
-    'fxa-oauth-refreshToken',
-    schemeRefreshToken(config, db, oauthdb)
-  );
+  server.auth.scheme('fxa-oauth-refreshToken', schemeRefreshToken(config, db));
 
   server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken');
 
@@ -369,20 +355,6 @@ async function create(
     sharedSecretAuth.strategy(SUBSCRIPTIONS_SECRET)
   );
   server.auth.strategy('subscriptionsSecret', 'subscriptionsSecret');
-
-  server.auth.scheme(
-    'fxa-oauthServerJWT',
-    schemeServerJWT(
-      config.publicUrl,
-      config.oauth.url,
-      config.oauth.jwtSecretKeys,
-      error
-    )
-  );
-  server.auth.strategy('oauthServerJWT', 'fxa-oauthServerJWT');
-
-  server.auth.scheme(authBearer.AUTH_SCHEME, authBearer.strategy);
-  server.auth.strategy(authBearer.AUTH_STRATEGY, authBearer.AUTH_SCHEME);
 
   server.auth.scheme(
     'supportPanelSecret',

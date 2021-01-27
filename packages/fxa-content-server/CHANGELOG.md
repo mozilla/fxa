@@ -1,3 +1,106 @@
+## 1.198.2
+
+No changes.
+
+## 1.198.1
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### Bug fixes
+
+- settings: fix email communications link ([6c09d7ecf](https://github.com/mozilla/fxa/commit/6c09d7ecf))
+
+### Other changes
+
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+
+## 1.197.3
+
+No changes.
+
+## 1.197.2
+
+No changes.
+
+## 1.197.1
+
+### Bug fixes
+
+- fxa-content-server: pass params to amplitude ([d13bd8661](https://github.com/mozilla/fxa/commit/d13bd8661))
+
+### Other changes
+
+- fxa-content-server: show settings survey for all ([b624bd4bd](https://github.com/mozilla/fxa/commit/b624bd4bd))
+- fxa-content-server: add log to track down entrypoint sentry error ([07afebb93](https://github.com/mozilla/fxa/commit/07afebb93))
+
+## 1.197.0
+
+### New features
+
+- metrics: add nav timing metrics for new settings ([b1f2650a4](https://github.com/mozilla/fxa/commit/b1f2650a4))
+
+### Bug fixes
+
+- settings: account for header height on anchor jump ([db6e88f3b](https://github.com/mozilla/fxa/commit/db6e88f3b))
+- test: Fix settings v2 external link test ([cc770e30c](https://github.com/mozilla/fxa/commit/cc770e30c))
+
+### Other changes
+
+- deps: updated webpack config for new expose-loader ([c0dbb6398](https://github.com/mozilla/fxa/commit/c0dbb6398))
+- deps: bump expose-loader from 0.7.5 to 1.0.3 ([3787e4f0e](https://github.com/mozilla/fxa/commit/3787e4f0e))
+- fxa-content-server: apply the MX record validation feature flag to the validate-email-domain endpoint ([8552a02a1](https://github.com/mozilla/fxa/commit/8552a02a1))
+
+## 1.196.0
+
+### Bug fixes
+
+- test: Fix flaky oauth signin test ([8852aac34](https://github.com/mozilla/fxa/commit/8852aac34))
+- settings: Moved client email validation to fxa-shared ([db96a7c50](https://github.com/mozilla/fxa/commit/db96a7c50))
+- 2fa: Fixed cached creds and 2fa redirecting to verify account page ([926727ec9](https://github.com/mozilla/fxa/commit/926727ec9))
+
+### Other changes
+
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+- css: Remove 1ups from signup page ([ced1157c3](https://github.com/mozilla/fxa/commit/ced1157c3))
+- deps-dev: bump ts-loader from 8.0.9 to 8.0.12 ([5f342dbca](https://github.com/mozilla/fxa/commit/5f342dbca))
+- fxa-content-server: pass env variable to render beta link ([7b37b5208](https://github.com/mozilla/fxa/commit/7b37b5208))
+- Settings_v2: add tests to enable and disable 2fa ([8df19593f](https://github.com/mozilla/fxa/commit/8df19593f))
+- fxa-content-server: edit entrypoint regexp for consistency ([2b60709aa](https://github.com/mozilla/fxa/commit/2b60709aa))
+
+## 1.195.4
+
+No changes.
+
+## 1.195.3
+
+### Other changes
+
+- fxa-content-server: pass env variable to render beta link ([d3ea3afe1](https://github.com/mozilla/fxa/commit/d3ea3afe1))
+
+## 1.195.2
+
+No changes.
+
+## 1.195.1
+
+No changes.
+
+## 1.195.0
+
+### Bug fixes
+
+- content-server: fix test-ci script and server tests ([2b2c8f5a8](https://github.com/mozilla/fxa/commit/2b2c8f5a8))
+- content: fix test that relied on a css selector from mozilla.org ([dc486e2df](https://github.com/mozilla/fxa/commit/dc486e2df))
+
+### Other changes
+
+- deps: bump grunt-babel from 6.0.0 to 8.0.0 ([509963f8b](https://github.com/mozilla/fxa/commit/509963f8b))
+- deps: bump @sentry/browser from 5.27.1 to 5.27.6 ([461dee802](https://github.com/mozilla/fxa/commit/461dee802))
+
 ## 1.194.0
 
 ### New features

@@ -22,5 +22,5 @@
 {{{t "Update billing information:"}}}
 {{{updateBillingUrl}}}
 
-Mozilla
-331 E Evelyn Ave, Mountain View, CA 94041
+Mozilla Corporation
+2 Harrison St, #175, San Francisco, CA 94105

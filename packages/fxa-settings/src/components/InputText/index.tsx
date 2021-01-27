@@ -19,7 +19,6 @@ export type InputTextProps = {
   label: string;
   placeholder?: string;
   errorText?: string;
-  errorTooltipClass?: string;
   className?: string;
   inputRef?: Ref<HTMLInputElement>;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -28,6 +27,7 @@ export type InputTextProps = {
   prefixDataTestId?: string;
   autoFocus?: boolean;
   maxLength?: number;
+  pattern?: string;
 };
 
 export const InputText = ({
@@ -38,7 +38,6 @@ export const InputText = ({
   placeholder,
   onChange,
   errorText,
-  errorTooltipClass,
   className = '',
   inputRef,
   type = 'text',
@@ -46,6 +45,7 @@ export const InputText = ({
   prefixDataTestId = '',
   autoFocus,
   maxLength,
+  pattern,
 }: InputTextProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
@@ -111,6 +111,7 @@ export const InputText = ({
             type,
             autoFocus,
             maxLength,
+            pattern,
           }}
         />
       </span>

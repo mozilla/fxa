@@ -82,3 +82,10 @@ exports.accessToken = Joi.alternatives().try([exports.token, exports.jwt]);
 exports.ppidSeed = authServerValidators.ppidSeed.default(0);
 
 exports.resourceUrl = authServerValidators.resourceUrl;
+exports.pkceCodeChallengeMethod = authServerValidators.pkceCodeChallengeMethod;
+exports.pkceCodeChallenge = authServerValidators.pkceCodeChallenge;
+exports.pkceCodeVerifier = authServerValidators.pkceCodeVerifier;
+exports.refreshToken = authServerValidators.refreshToken;
+exports.authorizationCode = authServerValidators.authorizationCode;
+exports.url = authServerValidators.url;
+exports.hexString = authServerValidators.hexString;

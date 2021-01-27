@@ -5,7 +5,6 @@
 'use strict';
 
 const error = require('../error');
-const P = require('../promise');
 
 const ACTIVITY_EVENTS = new Set([
   'account.changedPassword',
@@ -35,6 +34,8 @@ const NOT_FLOW_EVENTS = new Set([
   'device.deleted',
   'device.updated',
   'sync.sentTabToDevice',
+  'token.created',
+  'verify.success',
 ]);
 
 // It's an error if a flow event doesn't have a flow_id
@@ -143,7 +144,7 @@ module.exports = (log, config) => {
         IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS.has(path) ||
         IGNORE_ROUTE_FLOW_EVENTS_REGEX.test(path)
       ) {
-        return P.resolve();
+        return Promise.resolve();
       }
 
       if (status >= 400) {
@@ -154,7 +155,7 @@ module.exports = (log, config) => {
           !request.validateMetricsContext()
         ) {
           // Don't emit flow events if the metrics context failed validation
-          return P.resolve();
+          return Promise.resolve();
         }
 
         status = `${status}.${errno || 999}`;
@@ -190,7 +191,7 @@ module.exports = (log, config) => {
   function emitFlowEvent(event, request, optionalData) {
     if (!request || !request.headers) {
       log.trace('metricsEvents.emitFlowEvent', { event, badRequest: true });
-      return P.resolve();
+      return Promise.resolve();
     }
 
     const { location } = request.app.geo;

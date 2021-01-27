@@ -434,31 +434,47 @@ describe('remote password change', function () {
   it('should change password on account with TOTP with verified TOTP sessionToken', () => {
     const email = server.uniqueEmail();
     const password = 'ok';
-    let client, firstAuthPW;
-    return Client.createAndVerifyAndTOTP(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      { keys: true }
-    )
-      .then((res) => {
-        client = res;
-        firstAuthPW = client.authPW.toString('hex');
-        return getSessionTokenId(client.sessionToken);
-      })
-      .then((sessionTokenId) => {
-        return client.changePassword('foobar', undefined, sessionTokenId);
-      })
-      .then((response) => {
-        assert(response.sessionToken, 'session token returned');
-        assert(response.keyFetchToken, 'key fetch token returned');
-        assert.notEqual(
-          client.authPW.toString('hex'),
-          firstAuthPW,
-          'password has changed'
-        );
-      });
+    let client, firstAuthPW, secondAuthPW;
+    return (
+      Client.createAndVerifyAndTOTP(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        { keys: true }
+      )
+        .then((res) => {
+          client = res;
+          firstAuthPW = client.authPW.toString('hex');
+          return getSessionTokenId(client.sessionToken);
+        })
+        .then((sessionTokenId) => {
+          return client.changePassword('foobar', undefined, sessionTokenId);
+        })
+        .then((response) => {
+          secondAuthPW = client.authPW.toString('hex');
+          assert(response.sessionToken, 'session token returned');
+          assert(response.keyFetchToken, 'key fetch token returned');
+          assert.notEqual(secondAuthPW, firstAuthPW, 'password has changed');
+          return response.sessionToken;
+        })
+        // Do it again to see if the new session is also verified
+        .then((sessionToken) => {
+          return getSessionTokenId(sessionToken);
+        })
+        .then((sessionTokenId) => {
+          return client.changePassword('fizzbuzz', undefined, sessionTokenId);
+        })
+        .then((response) => {
+          assert.notEqual(
+            client.authPW.toString('hex'),
+            secondAuthPW,
+            'password has changed'
+          );
+          assert(response.sessionToken, 'session token returned');
+          assert(response.keyFetchToken, 'key fetch token returned');
+        })
+    );
   });
 
   it("shouldn't change password on account with TOTP with unverified sessionToken", () => {

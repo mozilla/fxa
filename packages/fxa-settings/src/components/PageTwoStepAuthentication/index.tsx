@@ -6,7 +6,6 @@ import { gql } from '@apollo/client';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { useAlertBar, useMutation } from '../../lib/hooks';
-import { Account } from '../../models/Account';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -18,9 +17,9 @@ import GetDataTrio from '../GetDataTrio';
 import { useSession } from '../../models';
 import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
-import { cloneDeep } from '@apollo/client/utilities';
 import { alertTextExternal } from '../../lib/cache';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
+import { Localized, useLocalization } from '@fluent/react';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 
@@ -52,6 +51,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const goBack = () => window.history.back();
   const goHome = () => navigate(HomePath, { replace: true });
 
+  const { l10n } = useLocalization();
+
   const totpForm = useForm<TotpForm>({
     mode: 'onTouched',
   });
@@ -73,8 +74,9 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     );
   };
 
+  const localizedStep1 = l10n.getString('tfa-step-1-3', null, 'Step 1 of 3');
   const alertBar = useAlertBar();
-  const [subtitle, setSubtitle] = useState<string>('Step 1 of 3');
+  const [subtitle, setSubtitle] = useState<string>(localizedStep1);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>();
   const [showQrCode, setShowQrCode] = useState(true);
   const [secret, setSecret] = useState<string>();
@@ -92,7 +94,13 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     if (isValidCode) {
       showRecoveryCodes();
     } else {
-      setInvalidCodeError('Incorrect two-step authentication code');
+      setInvalidCodeError(
+        l10n.getString(
+          'tfa-incorrect-totp',
+          null,
+          'Incorrect two-step authentication code'
+        )
+      );
     }
     logTotpSubmitEvent(metricsPreInPostFix, 'submit');
   };
@@ -100,22 +108,28 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   // Handles the "Continue" on step two, which doesn't submits any values.
   const onRecoveryCodesAcknowledged = () => {
     setRecoveryCodesAcknowledged(true);
-    setSubtitle('Step 3 of 3');
+    setSubtitle(l10n.getString('tfa-step-3-3', null, 'Step 3 of 3'));
   };
 
   const showQrCodeStep = () => {
     setTotpVerified(false);
-    setSubtitle('Step 1 of 3');
+    setSubtitle(localizedStep1);
   };
 
   const showRecoveryCodes = () => {
     setRecoveryCodesAcknowledged(false);
-    setSubtitle('Step 2 of 3');
+    setSubtitle(l10n.getString('tfa-step-2-3', null, 'Step 2 of 3'));
   };
 
   const onRecoveryCodeSubmit = async ({ recoveryCode }: RecoveryCodeForm) => {
     if (!recoveryCodes.includes(recoveryCode)) {
-      setRecoveryCodeError('Incorrect recovery code');
+      setRecoveryCodeError(
+        l10n.getString(
+          'tfa-incorrect-recovery-code',
+          null,
+          'Incorrect recovery code'
+        )
+      );
       return;
     }
     const code = await getCode(secret!);
@@ -129,15 +143,20 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       setRecoveryCodes(x.createTotp.recoveryCodes);
     },
     onError: () => {
-      alertBar.error('There was a problem retrieving your code.');
+      alertBar.error(
+        l10n.getString(
+          'tfa-cannont-retrieve-code',
+          null,
+          'There was a problem retrieving your code.'
+        )
+      );
     },
     update: (cache) => {
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.totp.exists = true;
-            return account;
+          totp(currentTotp) {
+            return { ...currentTotp, exists: true };
           },
         },
       });
@@ -146,23 +165,38 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   const [verifyTotp] = useMutation(VERIFY_TOTP_MUTATION, {
     onCompleted: () => {
-      alertTextExternal('Two-step authentication enabled');
+      alertTextExternal(
+        l10n.getString('tfa-enabled', null, 'Two-step authentication enabled')
+      );
       goHome();
     },
     onError: (err) => {
       if (err.graphQLErrors?.length) {
-        setRecoveryCodeError(err.message);
+        if (err.graphQLErrors[0].extensions?.errno) {
+          setRecoveryCodeError(
+            l10n.getString(
+              `auth-error-${err.graphQLErrors[0].extensions.errno}`
+            )
+          );
+        } else {
+          setRecoveryCodeError(err.message);
+        }
       } else {
-        alertBar.error('There was a problem verifiying your recovery code.');
+        alertBar.error(
+          l10n.getString(
+            'tfa-cannot-verify-code',
+            null,
+            'There was a problem verifiying your recovery code.'
+          )
+        );
       }
     },
     update: (cache) => {
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.totp.verified = true;
-            return account;
+          totp(currentTotp) {
+            return { ...currentTotp, verified: true };
           },
         },
       });
@@ -200,7 +234,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   return (
     <FlowContainer
-      title="Two Step Authentication"
+      title={l10n.getString('tfa-title')}
       {...{ subtitle, onBackButtonClick: moveBack }}
     >
       {alertBar.visible && (
@@ -214,16 +248,30 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
           <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
           {qrCodeUrl && showQrCode && (
             <>
-              <p className="my-4">
-                Scan this QR code using one of{' '}
-                <LinkExternal
-                  className="link-blue"
-                  href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
-                >
-                  these authentication apps
-                </LinkExternal>
-                .
-              </p>
+              <Localized
+                id="tfa-scan-this-code"
+                elems={{
+                  linkExternal: (
+                    <LinkExternal
+                      className="link-blue"
+                      href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+                    >
+                      {' '}
+                    </LinkExternal>
+                  ),
+                }}
+              >
+                <p className="my-4">
+                  Scan this QR code using one of{' '}
+                  <LinkExternal
+                    className="link-blue"
+                    href="https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication"
+                  >
+                    these authentication apps
+                  </LinkExternal>
+                  .
+                </p>
+              </Localized>
               <div className="flex flex-col mb-4">
                 <img
                   className="mx-auto w-48 h-48 qr-code-border"
@@ -231,71 +279,86 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                   src={qrCodeUrl}
                   alt={`Use the code ${secret} to set up two-step authentication in supported applications.`}
                 />
-                <button
-                  type="button"
-                  className="mx-auto link-blue text-sm"
-                  onClick={() => setShowQrCode(false)}
-                >
-                  Can't scan code?
-                </button>
+                <Localized id="tfa-button-cant-scan-qr">
+                  <button
+                    type="button"
+                    className="mx-auto link-blue text-sm"
+                    data-testid="cant-scan-code"
+                    onClick={() => setShowQrCode(false)}
+                  >
+                    Can't scan code?
+                  </button>
+                </Localized>
               </div>
             </>
           )}
           {secret && !showQrCode && (
             <div className="mt-4 flex flex-col">
-              <p>Enter this secret key into your authenticator app:</p>
-              <p className="my-8 mx-auto font-bold">
+              <Localized id="tfa-enter-secret-key">
+                <p>Enter this secret key into your authenticator app:</p>
+              </Localized>
+              <p className="my-8 mx-auto font-bold" data-testid="manual-code">
                 {secret.toUpperCase().match(/.{4}/g)!.join(' ')}
               </p>
             </div>
           )}
 
-          <p>Now enter the security code from the authentication app.</p>
+          <Localized id="tfa-enter-totp">
+            <p>Now enter the security code from the authentication app.</p>
+          </Localized>
 
           <div className="mt-4 mb-6" data-testid="recovery-key-input">
-            <InputText
-              name="totp"
-              label="Enter security code"
-              prefixDataTestId="totp"
-              maxLength={6}
-              autoFocus
-              onChange={() => {
-                setInvalidCodeError('');
-                totpForm.trigger('totp');
-              }}
-              inputRef={totpForm.register({
-                validate: isValidTotpFormat,
-              })}
-              {...{ errorText: invalidCodeError }}
-            />
+            <Localized id="tfa-input-enter-totp">
+              <InputText
+                name="totp"
+                label="Enter security code"
+                prefixDataTestId="totp"
+                maxLength={6}
+                autoFocus
+                onChange={() => {
+                  setInvalidCodeError('');
+                  totpForm.trigger('totp');
+                }}
+                inputRef={totpForm.register({
+                  validate: isValidTotpFormat,
+                })}
+                {...{ errorText: invalidCodeError }}
+              />
+            </Localized>
           </div>
 
           <div className="flex justify-center mb-4 mx-auto max-w-64">
-            <button
-              type="button"
-              className="cta-neutral mx-2 flex-1"
-              onClick={goBack}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              data-testid="submit-totp"
-              className="cta-primary mx-2 flex-1"
-              disabled={
-                !totpForm.formState.isDirty || !totpForm.formState.isValid
-              }
-            >
-              Continue
-            </button>
+            <Localized id="tfa-button-cancel">
+              <button
+                type="button"
+                className="cta-neutral mx-2 flex-1"
+                onClick={goBack}
+              >
+                Cancel
+              </button>
+            </Localized>
+            <Localized id="tfa-button-continue">
+              <button
+                type="submit"
+                data-testid="submit-totp"
+                className="cta-primary mx-2 flex-1"
+                disabled={
+                  !totpForm.formState.isDirty || !totpForm.formState.isValid
+                }
+              >
+                Continue
+              </button>
+            </Localized>
           </div>
         </form>
       )}
       {totpVerified && !recoveryCodesAcknowledged && (
         <>
           <div className="my-2" data-testid="2fa-recovery-codes">
-            Save these one-time use codes in a safe place for when you don’t
-            have your mobile device.
+            <Localized id="tfa-save-these-codes">
+              Save these one-time use codes in a safe place for when you don’t
+              have your mobile device.
+            </Localized>
             <div className="mt-6 flex flex-col items-center h-40 justify-between">
               <DataBlock value={recoveryCodes}></DataBlock>
               <GetDataTrio
@@ -305,66 +368,78 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             </div>
           </div>
           <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">
-            <button
-              type="button"
-              className="cta-neutral mx-2 flex-1"
-              onClick={goHome}
-            >
-              Cancel
-            </button>
-            <button
-              data-testid="ack-recovery-code"
-              type="submit"
-              className="cta-primary mx-2 flex-1"
-              onClick={onRecoveryCodesAcknowledged}
-            >
-              Continue
-            </button>
+            <Localized id="tfa-button-cancel">
+              <button
+                type="button"
+                className="cta-neutral mx-2 flex-1"
+                onClick={goHome}
+              >
+                Cancel
+              </button>
+            </Localized>
+            <Localized id="tfa-button-continue">
+              <button
+                data-testid="ack-recovery-code"
+                type="submit"
+                className="cta-primary mx-2 flex-1"
+                onClick={onRecoveryCodesAcknowledged}
+              >
+                Continue
+              </button>
+            </Localized>
           </div>
         </>
       )}
       {totpVerified && recoveryCodesAcknowledged && (
         <form onSubmit={recoveryCodeForm.handleSubmit(onRecoveryCodeSubmit)}>
-          <p className="mt-4 mb-4">
-            Please enter one of your recovery codes now to confirm you've saved
-            it. You'll need a code if you lose your device and want to access
-            your account.
-          </p>
+          <Localized id="tfa-enter-code-to-confirm">
+            <p className="mt-4 mb-4">
+              Please enter one of your recovery codes now to confirm you've
+              saved it. You'll need a code if you lose your device and want to
+              access your account.
+            </p>
+          </Localized>
           <div className="mt-4 mb-6" data-testid="recovery-code-input">
-            <InputText
-              name="recoveryCode"
-              label="Enter a recovery code"
-              prefixDataTestId="recovery-code"
-              autoFocus
-              onChange={() => {
-                setRecoveryCodeError('');
-                recoveryCodeForm.trigger('recoveryCode');
-              }}
-              inputRef={recoveryCodeForm.register({
-                validate: isValidRecoveryCodeFormat,
-              })}
-              {...{ errorText: recoveryCodeError }}
-            />
+            <Localized id="tfa-enter-recovery-code">
+              <InputText
+                name="recoveryCode"
+                label="Enter a recovery code"
+                prefixDataTestId="recovery-code"
+                autoFocus
+                onChange={() => {
+                  setRecoveryCodeError('');
+                  recoveryCodeForm.trigger('recoveryCode');
+                }}
+                inputRef={recoveryCodeForm.register({
+                  validate: isValidRecoveryCodeFormat,
+                })}
+                {...{ errorText: recoveryCodeError }}
+              />
+            </Localized>
           </div>
           <div className="flex justify-center mb-4 mx-auto max-w-64">
-            <button
-              type="button"
-              className="cta-neutral mx-2 flex-1"
-              onClick={goHome}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              data-testid="submit-recovery-code"
-              className="cta-primary mx-2 flex-1"
-              disabled={
-                !recoveryCodeForm.formState.isDirty ||
-                !recoveryCodeForm.formState.isValid
-              }
-            >
-              Finish
-            </button>
+            <Localized id="tfa-button-cancel">
+              <button
+                type="button"
+                className="cta-neutral mx-2 flex-1"
+                onClick={goHome}
+              >
+                Cancel
+              </button>
+            </Localized>
+            <Localized id="tfa-button-finish">
+              <button
+                type="submit"
+                data-testid="submit-recovery-code"
+                className="cta-primary mx-2 flex-1"
+                disabled={
+                  !recoveryCodeForm.formState.isDirty ||
+                  !recoveryCodeForm.formState.isValid
+                }
+              >
+                Finish
+              </button>
+            </Localized>
           </div>
         </form>
       )}

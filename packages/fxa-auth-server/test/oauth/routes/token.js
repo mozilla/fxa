@@ -5,8 +5,6 @@
 const { assert } = require('chai');
 const Joi = require('@hapi/joi');
 
-const routeModulePath = '../../../lib/oauth/routes/token';
-
 const CLIENT_SECRET =
   'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
 const CLIENT_ID = '98e6508e88680e1b';
@@ -16,7 +14,20 @@ const PKCE_CODE_VERIFIER = 'au3dqDz2dOB0_vSikXCUf4S8Gc-37dL-F7sGxtxpR3R';
 const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
 
-const route = require(routeModulePath);
+const route = require('../../../lib/routes/oauth/token')({
+  log: {
+    debug: () => {},
+    warn: () => {},
+  },
+  oauthDB: {
+    async getRefreshToken() {
+      return null;
+    },
+    async getCode() {
+      return null;
+    },
+  },
+})[0];
 
 function joiRequired(err, param) {
   assert.ok(err.isJoi);
@@ -38,7 +49,7 @@ describe('/token POST', function () {
         cb = ctx;
         ctx = undefined;
       }
-      Joi.validate(req, route.validate.payload, { context: ctx }, cb);
+      Joi.validate(req, route.config.validate.payload, { context: ctx }, cb);
     }
 
     it('fails with no client_id', (done) => {
@@ -212,7 +223,7 @@ describe('/token POST', function () {
       request.payload.grant_type = 'refresh_token';
       request.payload.refresh_token = REFRESH_TOKEN;
       try {
-        await route.handler(request);
+        await route.config.handler(request);
         assert.fail('should have errored');
       } catch (err) {
         // The request still fails, but it fails at the point where we check the token,
@@ -226,7 +237,7 @@ describe('/token POST', function () {
       request.payload.grant_type = 'authorization_code';
       request.payload.code = CODE;
       try {
-        await route.handler(request);
+        await route.config.handler(request);
         assert.fail('should have errored');
       } catch (err) {
         // The request still fails, but it fails at the point where we check the code,
@@ -240,7 +251,7 @@ describe('/token POST', function () {
       request.payload.grant_type = 'refresh_token';
       request.payload.refresh_token = REFRESH_TOKEN;
       try {
-        await route.handler(request);
+        await route.config.handler(request);
         assert.fail('should have errored');
       } catch (err) {
         assert.equal(err.output.statusCode, 503);
@@ -252,7 +263,7 @@ describe('/token POST', function () {
       request.payload.client_id = DISABLED_CLIENT_ID;
       request.payload.grant_type = 'fxa-credentials';
       try {
-        await route.handler(request);
+        await route.config.handler(request);
         assert.fail('should have errored');
       } catch (err) {
         assert.equal(err.output.statusCode, 503);

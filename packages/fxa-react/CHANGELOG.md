@@ -1,3 +1,64 @@
+## 1.198.2
+
+No changes.
+
+## 1.198.1
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### Other changes
+
+- deps-dev: bump @testing-library/user-event from 12.1.7 to 12.6.0 ([19422c122](https://github.com/mozilla/fxa/commit/19422c122))
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+
+## 1.197.3
+
+No changes.
+
+## 1.197.2
+
+No changes.
+
+## 1.197.1
+
+### New features
+
+- head: Add react-helmet to change page title ([4af241087](https://github.com/mozilla/fxa/commit/4af241087))
+
+## 1.197.0
+
+No changes.
+
+## 1.196.0
+
+### Other changes
+
+- dep: update tailwindcss to version 2 ([ec97cb07c](https://github.com/mozilla/fxa/commit/ec97cb07c))
+
+## 1.195.4
+
+No changes.
+
+## 1.195.3
+
+No changes.
+
+## 1.195.2
+
+No changes.
+
+## 1.195.1
+
+No changes.
+
+## 1.195.0
+
+No changes.
+
 ## 1.194.0
 
 No changes.

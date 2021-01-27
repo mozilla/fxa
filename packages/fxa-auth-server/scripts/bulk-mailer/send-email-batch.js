@@ -4,13 +4,11 @@
 
 'use strict';
 
-const P = require('../../lib/promise');
-
 module.exports = function sendBatch(batch, sendEmail, log) {
   let successCount = 0;
   let errorCount = 0;
 
-  return P.all(
+  return Promise.all(
     batch.map((userRecord) => {
       return sendEmail(userRecord).then(
         () => {

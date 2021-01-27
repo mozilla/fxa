@@ -1,3 +1,136 @@
+## 1.198.2
+
+### Bug fixes
+
+- metrics: fixed 'fxa - activity' metric ([bdd645c48](https://github.com/mozilla/fxa/commit/bdd645c48))
+
+## 1.198.1
+
+### Bug fixes
+
+- metrics: fixed broken "fxa_reg - compete" metric ([b60af1620](https://github.com/mozilla/fxa/commit/b60af1620))
+
+### Other changes
+
+- 4e70b3f04 merge main->train-198 ([4e70b3f04](https://github.com/mozilla/fxa/commit/4e70b3f04))
+
+## 1.198.0
+
+### New features
+
+- auth-server: add paypal helper ([109f5f486](https://github.com/mozilla/fxa/commit/109f5f486))
+- auth-server: add paypal API base client ([322f4dcd5](https://github.com/mozilla/fxa/commit/322f4dcd5))
+
+### Bug fixes
+
+- oauth: fixed oauth -> auth error conversion after refactoring ([0be070bed](https://github.com/mozilla/fxa/commit/0be070bed))
+
+### Other changes
+
+- deps: update eslint to v7 ([7cf502be2](https://github.com/mozilla/fxa/commit/7cf502be2))
+- docs: removed old endpoints from oauth api.md ([341d7f5ac](https://github.com/mozilla/fxa/commit/341d7f5ac))
+- deps: removed fxa-notifier-aws dep ([71c8bc171](https://github.com/mozilla/fxa/commit/71c8bc171))
+
+## 1.197.3
+
+### Bug fixes
+
+- metrics: fixed broken "fxa_reg - compete" metric ([b60af1620](https://github.com/mozilla/fxa/commit/b60af1620))
+
+## 1.197.2
+
+### Bug fixes
+
+- oauth: fixed oauth -> auth error conversion after refactoring ([fff9a7460](https://github.com/mozilla/fxa/commit/fff9a7460))
+
+## 1.197.1
+
+No changes.
+
+## 1.197.0
+
+### Refactorings
+
+- oauth: add /config route back ([5a80fd60b](https://github.com/mozilla/fxa/commit/5a80fd60b))
+- auth: use native promises in all production / non-test code ([ea2ab78c1](https://github.com/mozilla/fxa/commit/ea2ab78c1))
+- auth: use native promises more ([ee5b147cd](https://github.com/mozilla/fxa/commit/ee5b147cd))
+
+### Other changes
+
+- deps: bump cldr-localenames-full from 36.0.0 to 38.0.0 ([668adb77b](https://github.com/mozilla/fxa/commit/668adb77b))
+- deps: bump moment from 2.25.3 to 2.29.1 ([76acfdd63](https://github.com/mozilla/fxa/commit/76acfdd63))
+- deps: bump @google-cloud/firestore from 4.7.1 to 4.8.1 ([51efd64c1](https://github.com/mozilla/fxa/commit/51efd64c1))
+
+## 1.196.0
+
+### Bug fixes
+
+- totp: downgrade session to email-based verification after TOTP is removed ([95568bf16](https://github.com/mozilla/fxa/commit/95568bf16))
+
+### Refactorings
+
+- oauth: remove old oauth-server logger ([f0ded6a63](https://github.com/mozilla/fxa/commit/f0ded6a63))
+- oauth: remove final oauthdb functions ([35239ef36](https://github.com/mozilla/fxa/commit/35239ef36))
+- oauth: remove oauthdb token functions ([e41a30edb](https://github.com/mozilla/fxa/commit/e41a30edb))
+- oauth: remove oauthdb.revokeRefreshTokenById ([1b87b776a](https://github.com/mozilla/fxa/commit/1b87b776a))
+- oauth: remove oauthdb.revokeAccessToken ([65778e050](https://github.com/mozilla/fxa/commit/65778e050))
+- oauth: remove oauthdb.createAuthorizationCode ([385a103a8](https://github.com/mozilla/fxa/commit/385a103a8))
+- oauth: rearranging oauth routes ([9f286e41c](https://github.com/mozilla/fxa/commit/9f286e41c))
+- oauth: remove oauthdb.listAuthorizedClients ([66fbbdb4c](https://github.com/mozilla/fxa/commit/66fbbdb4c))
+- oauth: remove oauthdb.revokeAuthorizedClients ([0df72abb9](https://github.com/mozilla/fxa/commit/0df72abb9))
+- oauth: remove unused auth-scheme ([d749bd8b7](https://github.com/mozilla/fxa/commit/d749bd8b7))
+- oauth: moved /oauth/id-token-verify ([f9a87b9d1](https://github.com/mozilla/fxa/commit/f9a87b9d1))
+- oauth: remove unused dep injection ([2da3f170f](https://github.com/mozilla/fxa/commit/2da3f170f))
+- oauth: remove oauthdb.checkRefreshToken ([d4d7df945](https://github.com/mozilla/fxa/commit/d4d7df945))
+- oauth: remove oauthdb.getClientInfo ([76cf78c09](https://github.com/mozilla/fxa/commit/76cf78c09))
+- oauth: remove unused "authBearer" scheme ([7e3af41ff](https://github.com/mozilla/fxa/commit/7e3af41ff))
+- oauth: rewire auth-server to use new oauth route dir and remove previous ([90caa3de4](https://github.com/mozilla/fxa/commit/90caa3de4))
+- oauth: moved /jwks and /authorized-clients implementations ([44fe0353c](https://github.com/mozilla/fxa/commit/44fe0353c))
+- oauth: moved /introspect implementation ([c060d1041](https://github.com/mozilla/fxa/commit/c060d1041))
+- oauth: move GET and POST /authorization routes ([7d1707e79](https://github.com/mozilla/fxa/commit/7d1707e79))
+- oauth: moved /token implementation ([13c798c29](https://github.com/mozilla/fxa/commit/13c798c29))
+- oauth: move /key-data route ([60b7355a4](https://github.com/mozilla/fxa/commit/60b7355a4))
+- oauth: move /client/{client_id} route ([845f131cb](https://github.com/mozilla/fxa/commit/845f131cb))
+
+### Other changes
+
+- deps: bump @sentry/node from 5.23.0 to 5.29.1 ([0bc414ad2](https://github.com/mozilla/fxa/commit/0bc414ad2))
+- f0f25d0be [fxa-auth-server] Upgrade uuid dependency ([f0f25d0be](https://github.com/mozilla/fxa/commit/f0f25d0be))
+- legal: Update Mozilla Corporation address ([d263160cc](https://github.com/mozilla/fxa/commit/d263160cc))
+- oauth: move oauth destroy route under auth server ([737a67887](https://github.com/mozilla/fxa/commit/737a67887))
+
+## 1.195.4
+
+No changes.
+
+## 1.195.3
+
+No changes.
+
+## 1.195.2
+
+No changes.
+
+## 1.195.1
+
+No changes.
+
+## 1.195.0
+
+### Bug fixes
+
+- metrics: fire the account.signed event for mobile sync as well as desktop ([bac29fc30](https://github.com/mozilla/fxa/commit/bac29fc30))
+- metrics: only fire 'account.signed' event for oldsync scope requests ([ebdfed857](https://github.com/mozilla/fxa/commit/ebdfed857))
+
+### Refactorings
+
+- oauth: move /verify route ([67fde4359](https://github.com/mozilla/fxa/commit/67fde4359))
+
+### Other changes
+
+- deps-dev: bump nock from 12.0.3 to 13.0.5 ([543f5bc54](https://github.com/mozilla/fxa/commit/543f5bc54))
+- deps: bump moment-timezone from 0.5.31 to 0.5.32 ([e65f68c01](https://github.com/mozilla/fxa/commit/e65f68c01))
+
 ## 1.194.0
 
 ### Other changes

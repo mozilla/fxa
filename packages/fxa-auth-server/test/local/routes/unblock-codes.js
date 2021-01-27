@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 
@@ -17,7 +16,7 @@ function makeRoutes(options = {}, requireMocks) {
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
     check: function () {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
   };
 
@@ -35,7 +34,7 @@ function runTest(route, request, assertions) {
 }
 
 describe('/account/login/send_unblock_code', () => {
-  const uid = uuid.v4('binary').toString('hex');
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
   const email = 'unblock@example.com';
   const mockLog = mocks.mockLog();
   const mockRequest = mocks.mockRequest({
@@ -135,7 +134,7 @@ describe('/account/login/send_unblock_code', () => {
 
 describe('/account/login/reject_unblock_code', () => {
   it('should consume the unblock code', () => {
-    const uid = uuid.v4('binary').toString('hex');
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     const unblockCode = 'A1B2C3D4';
     const mockRequest = mocks.mockRequest({
       payload: {

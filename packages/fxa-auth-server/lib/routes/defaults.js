@@ -8,7 +8,7 @@ const error = require('../error');
 
 const getVersion = require('../version').getVersion;
 
-module.exports = (log, db) => {
+module.exports = (log, config, db) => {
   async function versionHandler(request, h) {
     log.begin('Defaults.root', request);
     const versionData = await getVersion();
@@ -46,6 +46,22 @@ module.exports = (log, db) => {
       handler: async function heartbeat(request) {
         log.begin('Defaults.lbheartbeat', request);
         return {};
+      },
+    },
+    {
+      method: 'GET',
+      path: '/config',
+      handler: async function (request) {
+        // This is a legacy oauth route used by tokenserver.
+        // We should consider it deprecated but removing it isn't a high priority.
+        log.begin('Defaults.config', request);
+        return {
+          browserid: {
+            issuer: config.oauthServer.browserid.issuer,
+            verificationUrl: config.oauthServer.browserid.verificationUrl,
+          },
+          contentUrl: config.oauthServer.contentUrl,
+        };
       },
     },
     {

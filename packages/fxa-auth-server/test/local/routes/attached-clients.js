@@ -15,7 +15,12 @@ const uuid = require('uuid');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
-function makeRoutes(options = {}, requireMocks) {
+const mockAuthorizedClients = {
+  destroy: sinon.spy(() => Promise.resolve()),
+  list: sinon.spy(() => Promise.resolve()),
+};
+
+function makeRoutes(options = {}) {
   const config = options.config || {};
   config.smtp = config.smtp || {};
   config.memcached = config.memcached || {
@@ -37,20 +42,15 @@ function makeRoutes(options = {}, requireMocks) {
 
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
-  const oauthdb = options.oauthdb || mocks.mockOAuthDB(log, config);
   const push = options.push || require('../../../lib/push')(log, db, {});
   const devices =
-    options.devices || require('../../../lib/devices')(log, db, oauthdb, push);
+    options.devices || require('../../../lib/devices')(log, db, push);
   const clientUtils =
     options.clientUtils ||
     require('../../../lib/routes/utils/clients')(log, config);
-  return proxyquire('../../../lib/routes/attached-clients', requireMocks || {})(
-    log,
-    db,
-    oauthdb,
-    devices,
-    clientUtils
-  );
+  return proxyquire('../../../lib/routes/attached-clients', {
+    '../oauth/authorized_clients': mockAuthorizedClients,
+  })(log, db, devices, clientUtils);
 }
 
 function newId(size = 32) {
@@ -71,14 +71,13 @@ function locFields(obj) {
 }
 
 describe('/account/attached_clients', () => {
-  let config, uid, log, db, oauthdb, request, route;
+  let config, uid, log, db, request, route;
 
   beforeEach(() => {
     config = {};
-    uid = uuid.v4('binary').toString('hex');
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     log = mocks.mockLog();
     db = mocks.mockDB();
-    oauthdb = mocks.mockOAuthDB(log, config);
     request = mocks.mockRequest({
       credentials: {
         id: crypto.randomBytes(16).toString('hex'),
@@ -89,7 +88,6 @@ describe('/account/attached_clients', () => {
       config,
       log,
       db,
-      oauthdb,
     });
     route = getRoute(accountRoutes, '/account/attached_clients').handler;
   });
@@ -188,7 +186,7 @@ describe('/account/attached_clients', () => {
     request.app.devices = (async () => {
       return DEVICES;
     })();
-    oauthdb.listAuthorizedClients = sinon.spy(async () => {
+    mockAuthorizedClients.list = sinon.spy(async () => {
       return OAUTH_CLIENTS;
     });
     db.sessions = sinon.spy(async () => {
@@ -335,7 +333,7 @@ describe('/account/attached_clients', () => {
     request.app.devices = (async () => {
       return DEVICES;
     })();
-    oauthdb.listAuthorizedClients = sinon.spy(async () => {
+    mockAuthorizedClients.list = sinon.spy(async () => {
       return OAUTH_CLIENTS;
     });
     db.sessions = sinon.spy(async () => {
@@ -369,14 +367,13 @@ describe('/account/attached_clients', () => {
 });
 
 describe('/account/attached_client/destroy', () => {
-  let config, uid, log, db, oauthdb, devices, request, route;
+  let config, uid, log, db, devices, request, route;
 
   beforeEach(() => {
     config = {};
-    uid = uuid.v4('binary').toString('hex');
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
     log = mocks.mockLog();
     db = mocks.mockDB();
-    oauthdb = mocks.mockOAuthDB(log, config);
     devices = mocks.mockDevices({});
     request = mocks.mockRequest({
       credentials: {
@@ -389,7 +386,6 @@ describe('/account/attached_client/destroy', () => {
       config,
       log,
       db,
-      oauthdb,
       devices,
     });
     route = getRoute(accountRoutes, '/account/attached_client/destroy').handler;
@@ -407,7 +403,6 @@ describe('/account/attached_client/destroy', () => {
     assert.equal(devices.destroy.callCount, 1);
     assert.ok(devices.destroy.calledOnceWith(request, deviceId));
     assert.equal(db.deleteSessionToken.callCount, 0);
-    assert.equal(oauthdb.revokeAuthorizedClient.callCount, 0);
   });
 
   it('checks that sessionTokenId matches device record, if given', async () => {
@@ -432,7 +427,6 @@ describe('/account/attached_client/destroy', () => {
 
     assert.ok(devices.destroy.calledOnceWith(request, deviceId));
     assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(oauthdb.revokeAuthorizedClient.notCalled);
   });
 
   it('checks that refreshTokenId matches device record, if given', async () => {
@@ -458,7 +452,6 @@ describe('/account/attached_client/destroy', () => {
 
     assert.ok(devices.destroy.calledOnceWith(request, deviceId));
     assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(oauthdb.revokeAuthorizedClient.notCalled);
   });
 
   it('can destroy by refreshTokenId', async () => {
@@ -474,32 +467,6 @@ describe('/account/attached_client/destroy', () => {
 
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(
-      oauthdb.revokeAuthorizedClient.calledOnceWith(request.auth.credentials, {
-        client_id: clientId,
-        refresh_token_id: refreshTokenId,
-      })
-    );
-  });
-
-  it('silently succeeds if given an invalid refreshTokenId', async () => {
-    const clientId = newId(16);
-    const refreshTokenId = newId();
-    request.payload = {
-      clientId,
-      refreshTokenId,
-    };
-
-    db.revokeAuthorizedClient = sinon.spy(async () => {
-      throw error.unknownRefreshToken();
-    });
-
-    const res = await route(request);
-    assert.deepEqual(res, {});
-
-    assert.ok(devices.destroy.notCalled);
-    assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(oauthdb.revokeAuthorizedClient.calledOnce);
   });
 
   it('wont accept refreshTokenId and sessionTokenId without deviceId', async () => {
@@ -520,7 +487,6 @@ describe('/account/attached_client/destroy', () => {
 
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(oauthdb.revokeAuthorizedClient.notCalled);
   });
 
   it('can destroy by just clientId', async () => {
@@ -534,11 +500,6 @@ describe('/account/attached_client/destroy', () => {
 
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(
-      oauthdb.revokeAuthorizedClient.calledOnceWith(request.auth.credentials, {
-        client_id: clientId,
-      })
-    );
   });
 
   it('wont accept clientId and sessionTokenId without deviceId', async () => {
@@ -557,7 +518,6 @@ describe('/account/attached_client/destroy', () => {
 
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(oauthdb.revokeAuthorizedClient.notCalled);
   });
 
   it('can destroy by sessionTokenId when given the current session', async () => {
@@ -573,7 +533,6 @@ describe('/account/attached_client/destroy', () => {
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.sessionToken.notCalled);
     assert.ok(db.deleteSessionToken.calledOnceWith(request.auth.credentials));
-    assert.ok(oauthdb.revokeAuthorizedClient.notCalled);
   });
 
   it('can destroy by sessionTokenId when given a different session', async () => {
@@ -593,7 +552,6 @@ describe('/account/attached_client/destroy', () => {
     assert.ok(
       db.deleteSessionToken.calledOnceWith({ id: sessionTokenId, uid })
     );
-    assert.ok(oauthdb.revokeAuthorizedClient.notCalled);
   });
 
   it('errors if the sessionToken does not belong to the current user', async () => {
@@ -615,6 +573,5 @@ describe('/account/attached_client/destroy', () => {
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.sessionToken.calledOnceWith(sessionTokenId));
     assert.ok(db.deleteSessionToken.notCalled);
-    assert.ok(oauthdb.revokeAuthorizedClient.notCalled);
   });
 });

@@ -4,16 +4,13 @@
 
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
-const AppError = require('./error');
+const OauthError = require('./error');
 const config = require('../../config');
 const db = require('./db');
 const encrypt = require('./encrypt');
-const logger = require('./logging')('token');
 const JWTAccessToken = require('./jwt_access_token');
 const validators = require('./validators');
 const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('../constants');
-
-const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
 /**
  * Get the tokenId stored in the DB for `accessToken`
@@ -55,7 +52,7 @@ exports.verify = async function verify(accessToken) {
   // until we fully migrate to JWTs.
   const token = await db.getAccessToken(await exports.getTokenId(accessToken));
   if (!token) {
-    throw AppError.invalidToken();
+    throw OauthError.invalidToken();
   } else if (+token.expiresAt < Date.now()) {
     // We dug ourselves a bit of a hole with token expiry,
     // and this logic is here to help us climb back out.
@@ -70,26 +67,8 @@ exports.verify = async function verify(accessToken) {
       +token.expiresAt >=
       config.get('oauthServer.expiration.accessTokenExpiryEpoch')
     ) {
-      throw AppError.expiredToken(token.expiresAt);
+      throw OauthError.expiredToken(token.expiresAt);
     }
-    logger.warn('token.verify.expired', {
-      user: token.userId.toString('hex'),
-      client_id: token.clientId.toString('hex'),
-      scope: token.scope.toString(),
-      created_at: token.createdAt,
-      expires_at: token.expiresAt,
-    });
-  } else if (+token.createdAt + TWENTY_FOUR_HOURS < Date.now()) {
-    // Log a warning if reliers are using access tokens that are more
-    // than 24 hours old.  Eventually we will shorten the expiry time
-    // on access tokens and such old tokens won't be allowed.
-    logger.verbose('token.verify.expiring_soon', {
-      user: token.userId.toString('hex'),
-      client_id: token.clientId.toString('hex'),
-      scope: token.scope,
-      created_at: token.createdAt,
-      expires_at: token.expiresAt,
-    });
   }
   var tokenInfo = {
     user: token.userId.toString('hex'),

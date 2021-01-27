@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { MouseEvent, useState, useCallback, ChangeEvent } from 'react';
+import React, { ChangeEvent, useState, useCallback } from 'react';
 import { ReactComponent as Checkmark } from './checkmark.svg';
 
 export type CheckboxProps = {
   defaultChecked?: boolean;
   disabled?: boolean;
   label?: string;
-  onClick?: (event: MouseEvent<HTMLInputElement>) => void;
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   prefixDataTestId?: string;
 };
 
@@ -17,6 +17,7 @@ export const Checkbox = ({
   defaultChecked,
   disabled,
   label,
+  onChange,
   prefixDataTestId,
 }: CheckboxProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
@@ -34,8 +35,9 @@ export const Checkbox = ({
   const checkboxChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setChecked(event.target.checked);
+      if (onChange) onChange(event);
     },
-    [setChecked]
+    [setChecked, onChange]
   );
   function formatDataTestId(id: string) {
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;

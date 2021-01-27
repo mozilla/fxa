@@ -92,6 +92,7 @@ export const cache = new InMemoryCache({
           },
         },
       },
+      keyFields: [],
     },
     Session: {
       fields: {

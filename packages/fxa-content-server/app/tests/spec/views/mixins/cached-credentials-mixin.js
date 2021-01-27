@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
+import Account from 'models/account';
 import AuthErrors from 'lib/auth-errors';
 import BaseView from 'views/base';
 import CachedCredentialsMixin from 'views/mixins/cached-credentials-mixin';
@@ -11,6 +12,7 @@ import { Model } from 'backbone';
 import Relier from 'models/reliers/base';
 import User from 'models/user';
 import sinon from 'sinon';
+import VerificationMethods from 'lib/verification-methods';
 
 describe('views/mixins/cached-credentials-mixin', () => {
   let account;
@@ -21,10 +23,12 @@ describe('views/mixins/cached-credentials-mixin', () => {
   let view;
 
   beforeEach(() => {
-    account = new Model({
+    account = new Account({
       email: 'testuser@testuser.com',
       sessionToken: 'session-token',
     });
+
+    sinon.stub(account, 'accountProfile').callsFake(() => Promise.resolve({}));
 
     class View extends BaseView {
       signIn() {}
@@ -177,6 +181,9 @@ describe('views/mixins/cached-credentials-mixin', () => {
         email: 'a@a.com',
         sessionToken: 'abc123',
       });
+      sinon
+        .stub(account, 'accountProfile')
+        .callsFake(() => Promise.resolve({}));
     });
 
     it('delegates to signIn, logs cached.signin.success event', () => {
@@ -214,6 +221,31 @@ describe('views/mixins/cached-credentials-mixin', () => {
       return view.useLoggedInAccount(account).then(() => {
         const err = view.model.get('error');
         assert.isTrue(AuthErrors.is(err, 'SESSION_EXPIRED'));
+      });
+    });
+
+    describe('with TOTP enabled', () => {
+      beforeEach(() => {
+        account = user.initAccount({
+          email: 'a@a.com',
+          sessionToken: 'abc123',
+        });
+        sinon.stub(account, 'accountProfile').callsFake(() =>
+          Promise.resolve({
+            authenticationMethods: ['pwd', 'email', 'otp'],
+          })
+        );
+        sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
+      });
+
+      it('should set verificationMethod', () => {
+        return view.useLoggedInAccount(account).then(() => {
+          assert.equal(
+            account.get('verificationMethod'),
+            VerificationMethods.TOTP_2FA
+          );
+          assert.equal(view.signIn.callCount, 1);
+        });
       });
     });
   });

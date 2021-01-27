@@ -24,13 +24,13 @@
     "express": "^4.17.1",
     "fxa-jwtool": "0.7.x",
     "morgan": "^1.10.0",
-    "node-rsa": "1.0.5",
-    "redis": "^2.8.0",
+    "node-rsa": "1.1.1",
+    "redis": "^3.0.2",
     "request": "^2.88.2"
   },
   "devDependencies": {
     "audit-filter": "0.5.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.17.0",
     "eslint-plugin-fxa": "^2.0.2",
     "fxa-shared": "workspace:*",
     "pm2": "^4.4.1",

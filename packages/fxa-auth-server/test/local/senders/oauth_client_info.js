@@ -4,25 +4,29 @@
 
 'use strict';
 
-const ROOT_DIR = '../../..';
-
 const { assert } = require('chai');
+const proxyquire = require('proxyquire');
 const sinon = require('sinon');
-const P = require('../../../lib/promise');
-
-const FIREFOX_CLIENT = {
-  name: 'Firefox',
-};
-const OAUTH_CLIENT = {
-  name: 'FxA OAuth Console',
-};
+const ClientInfo = proxyquire('../../../lib/senders/oauth_client_info', {
+  '../oauth/client': {
+    getClientById: async function (id) {
+      switch (id) {
+        case '24bdbfa45cd300c5':
+          return { name: 'FxA OAuth Console' };
+        case '0000000000000000':
+          throw new Error();
+        default:
+          return { name: 'Firefox' };
+      }
+    },
+  },
+});
 
 describe('lib/senders/oauth_client_info:', () => {
   describe('fetch:', () => {
     let clientInfo;
     let fetch;
     let mockLog;
-    let mockOAuthDB;
     const mockConfig = {
       oauth: {
         url: 'http://localhost:9000',
@@ -36,12 +40,7 @@ describe('lib/senders/oauth_client_info:', () => {
         trace: sinon.spy(),
         warn: sinon.spy(),
       };
-      mockOAuthDB = {};
-      clientInfo = require(`${ROOT_DIR}/lib/senders/oauth_client_info`)(
-        mockLog,
-        mockConfig,
-        mockOAuthDB
-      );
+      clientInfo = ClientInfo(mockLog, mockConfig);
       fetch = clientInfo.fetch;
     });
 
@@ -51,52 +50,30 @@ describe('lib/senders/oauth_client_info:', () => {
 
     it('returns Firefox if no client id', () => {
       return fetch().then((res) => {
-        assert.deepEqual(res, FIREFOX_CLIENT);
+        assert.equal(res.name, 'Firefox');
       });
     });
 
     it('returns Firefox if service=sync', () => {
       return fetch('sync').then((res) => {
-        assert.deepEqual(res, FIREFOX_CLIENT);
+        assert.equal(res.name, 'Firefox');
       });
     });
 
     it('falls back to Firefox if error', () => {
-      mockOAuthDB.getClientInfo = sinon.spy(async () => {
-        throw new Error('Request failed');
-      });
-      return fetch('24bdbfa45cd300c5').then((res) => {
-        assert.deepEqual(res, FIREFOX_CLIENT);
+      return fetch('0000000000000000').then((res) => {
+        assert.equal(res.name, 'Firefox');
         assert.ok(mockLog.fatal.calledOnce, 'called fatal log');
       });
     });
 
-    it('falls back to Firefox if non-200 response', () => {
-      mockOAuthDB.getClientInfo = sinon.spy(async () => {
-        throw Object.assign(new Error(), {
-          statusCode: 400,
-          code: 400,
-          errno: 109,
-        });
-      });
-      return fetch('f00bdbfa45cd300c5').then((res) => {
-        assert.deepEqual(res, FIREFOX_CLIENT);
-        assert.ok(mockLog.warn.calledOnce, 'called warn log');
-      });
-    });
-
     it('fetches and memory caches client information', () => {
-      mockOAuthDB.getClientInfo = sinon.spy(async (clientId) => {
-        assert.equal(clientId, '24bdbfa45cd300c5');
-        return OAUTH_CLIENT;
-      });
       return fetch('24bdbfa45cd300c5')
         .then((res) => {
-          assert.deepEqual(res, OAUTH_CLIENT);
+          assert.equal(res.name, 'FxA OAuth Console');
           assert.equal(mockLog.trace.getCall(0).args[0], 'fetch.start');
           assert.equal(mockLog.trace.getCall(1).args[0], 'fetch.usedServer');
           assert.equal(mockLog.trace.getCall(2), null);
-          assert.ok(mockOAuthDB.getClientInfo.calledOnce);
 
           // second call is cached
           return fetch('24bdbfa45cd300c5');
@@ -104,28 +81,7 @@ describe('lib/senders/oauth_client_info:', () => {
         .then((res) => {
           assert.equal(mockLog.trace.getCall(2).args[0], 'fetch.start');
           assert.equal(mockLog.trace.getCall(3).args[0], 'fetch.usedCache');
-          assert.ok(mockOAuthDB.getClientInfo.calledOnce);
-          assert.deepEqual(res, OAUTH_CLIENT);
-        });
-    });
-
-    it('memory cache expires', () => {
-      mockOAuthDB.getClientInfo = sinon.spy(async (clientId) => {
-        return OAUTH_CLIENT;
-      });
-      return P.delay(15, fetch('24bdbfa45cd300c5'))
-        .then((res) => {
-          assert.deepEqual(res, OAUTH_CLIENT);
-          assert.equal(mockLog.trace.getCall(1).args[0], 'fetch.usedServer');
-          assert.ok(mockOAuthDB.getClientInfo.calledOnce);
-
-          // second call uses server, cache expired
-          return fetch('24bdbfa45cd300c5');
-        })
-        .then((res) => {
-          assert.equal(mockLog.trace.getCall(3).args[0], 'fetch.usedServer');
-          assert.ok(mockOAuthDB.getClientInfo.calledTwice);
-          assert.deepEqual(res, OAUTH_CLIENT);
+          assert.deepEqual(res.name, 'FxA OAuth Console');
         });
     });
   });

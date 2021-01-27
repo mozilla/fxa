@@ -6,14 +6,13 @@ import { navigate, RouteComponentProps } from '@reach/router';
 import { useAccount } from '../../models';
 import { useForm } from 'react-hook-form';
 import React, { useState } from 'react';
-import { Account } from '../../models/Account';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { gql } from '@apollo/client';
 import AlertBar from '../AlertBar';
-import { cloneDeep } from '@apollo/client/utilities';
 import { HomePath } from '../../constants';
+import { Localized } from '@fluent/react';
 
 const validateDisplayName = (currentDisplayName: string) => (
   newDisplayName: string
@@ -56,11 +55,10 @@ export const PageDisplayName = (_: RouteComponentProps) => {
     },
     update: (cache) => {
       cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
         fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.displayName = displayName!;
-            return account;
+          displayName() {
+            return displayName;
           },
         },
       });
@@ -82,36 +80,42 @@ export const PageDisplayName = (_: RouteComponentProps) => {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="my-6">
-          <InputText
-            name="displayName"
-            label="Enter display name"
-            className="mb-2"
-            data-testid="display-name-input"
-            autoFocus
-            onChange={() => trigger('displayName')}
-            inputRef={register({
-              validate: isValidDisplayName,
-            })}
-            {...{ errorText }}
-          />
+          <Localized id="display-name-input" attrs={{ label: true }}>
+            <InputText
+              name="displayName"
+              label="Enter display name"
+              className="mb-2"
+              data-testid="display-name-input"
+              autoFocus
+              onChange={() => trigger('displayName')}
+              inputRef={register({
+                validate: isValidDisplayName,
+              })}
+              {...{ errorText }}
+            />
+          </Localized>
         </div>
         <div className="flex justify-center mb-4 mx-auto max-w-64">
-          <button
-            type="button"
-            data-testid="cancel-display-name"
-            className="cta-neutral mx-2 flex-1"
-            onClick={() => window.history.back()}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            data-testid="submit-display-name"
-            className="cta-primary mx-2 flex-1"
-            disabled={!formState.isDirty || !formState.isValid}
-          >
-            Save
-          </button>
+          <Localized id="cancel-display-name">
+            <button
+              type="button"
+              data-testid="cancel-display-name"
+              className="cta-neutral mx-2 flex-1"
+              onClick={() => window.history.back()}
+            >
+              Cancel
+            </button>
+          </Localized>
+          <Localized id="submit-display-name">
+            <button
+              type="submit"
+              data-testid="submit-display-name"
+              className="cta-primary mx-2 flex-1"
+              disabled={!formState.isDirty || !formState.isValid}
+            >
+              Save
+            </button>
+          </Localized>
         </div>
       </form>
     </FlowContainer>

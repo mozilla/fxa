@@ -29,6 +29,7 @@ const serveStatic = require('serve-static');
 
 const config = require('../lib/configuration');
 const sentry = require('../lib/sentry');
+const statsd = require('../lib/statsd');
 const { cors, routing } = require('fxa-shared/express')();
 const {
   useSettingsProxy,
@@ -173,7 +174,7 @@ function makeApp() {
 
   app.use(noindex);
 
-  const routes = require('../lib/routes')(config, i18n);
+  const routes = require('../lib/routes')(config, i18n, statsd);
   const routeLogger = loggerFactory('server.routes');
   const routeHelpers = routing(app, routeLogger);
   routes.forEach(routeHelpers.addRoute);
@@ -216,6 +217,14 @@ function makeApp() {
 
   // log and capture any errors
   app.use((err, req, res, next) => {
+    // in order to track down the culprit of sentry issue, https://sentry.prod.mozaws.net/operations/fxa-content-server-prod/issues/6602579/events/latest/
+    if (err.joi && err.joi.isJoi)
+      console.error(
+        'GLOBAL SENTRY JOI ERROR: ',
+        req.path,
+        req.query,
+        req.originalUrl
+      );
     sentry.sentryModule.captureException(err);
     routeHelpers.validationErrorHandler(err, req, res, next);
   });

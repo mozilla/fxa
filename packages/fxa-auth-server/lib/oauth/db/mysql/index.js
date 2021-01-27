@@ -5,12 +5,10 @@
 const path = require('path');
 
 const buf = require('buf').hex;
-const hex = require('buf').to.hex;
 const mysql = require('mysql');
 const MysqlPatcher = require('mysql-patcher');
 
 const encrypt = require('../../encrypt');
-const P = require('../../../promise');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const unique = require('../../unique');
 const AccessToken = require('../accessToken');
@@ -19,12 +17,8 @@ const patch = require('./patch');
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
 
-// logger is not const to support mocking in the unit tests
-var logger = require('../../logging')('db.mysql');
-
 function MysqlStore(options) {
   if (options.charset && options.charset !== REQUIRED_CHARSET) {
-    logger.warn('createDatabase.invalidCharset', { charset: options.charset });
     throw new Error('You cannot use any charset besides ' + REQUIRED_CHARSET);
   } else {
     options.charset = REQUIRED_CHARSET;
@@ -35,64 +29,47 @@ function MysqlStore(options) {
     }
     return next();
   };
-  logger.info('pool.create', { options: options });
-  var pool = (this._pool = mysql.createPool(options));
-  pool.on('enqueue', function () {
-    logger.info('pool.enqueue', {
-      queueLength: pool._connectionQueue && pool._connectionQueue.length,
-    });
-  });
+  this._pool = mysql.createPool(options);
 }
 
 // Apply patches up to the current patch level.
 // This will also create the DB if it is missing.
 
 function updateDbSchema(patcher) {
-  logger.verbose('updateDbSchema', patcher.options);
-
-  var d = P.defer();
-  patcher.patch(function (err) {
-    if (err) {
-      logger.error('updateDbSchema', err);
-      return d.reject(err);
-    }
-    d.resolve();
+  return new Promise((resolve, reject) => {
+    patcher.patch(function (err) {
+      if (err) {
+        return reject(err);
+      }
+      resolve();
+    });
   });
-
-  return d.promise;
 }
 
 // Sanity-check that we're working with a compatible patch level.
 
 function checkDbPatchLevel(patcher) {
-  logger.verbose('checkDbPatchLevel', patcher.options);
+  return new Promise((resolve, reject) => {
+    patcher.readDbPatchLevel(function (err) {
+      if (err) {
+        return reject(err);
+      }
 
-  var d = P.defer();
+      // We can run if we're at or above some patch level.  Should be
+      // equal at initial deployment, and may be one or more higher
+      // later on, due to database changes in preparation for the next
+      // release.
+      if (patcher.currentPatchLevel >= patch.level) {
+        return resolve();
+      }
 
-  patcher.readDbPatchLevel(function (err) {
-    if (err) {
-      return d.reject(err);
-    }
-
-    // We can run if we're at or above some patch level.  Should be
-    // equal at initial deployment, and may be one or more higher
-    // later on, due to database changes in preparation for the next
-    // release.
-    if (patcher.currentPatchLevel >= patch.level) {
-      return d.resolve();
-    }
-
-    err = 'unexpected db patch level: ' + patcher.currentPatchLevel;
-    return d.reject(new Error(err));
+      err = 'unexpected db patch level: ' + patcher.currentPatchLevel;
+      return reject(new Error(err));
+    });
   });
-
-  return d.promise;
 }
 
-MysqlStore.connect = function mysqlConnect(options) {
-  if (options.logger) {
-    logger = options.logger;
-  }
+MysqlStore.connect = async function mysqlConnect(options) {
   if (options.createSchema) {
     options.createDatabase = options.createSchema;
     options.dir = path.join(__dirname, 'patches');
@@ -101,27 +78,24 @@ MysqlStore.connect = function mysqlConnect(options) {
     options.patchLevel = patch.level;
     options.mysql = mysql;
     const patcher = new MysqlPatcher(options);
-    return P.promisify(patcher.connect, { context: patcher })()
-      .then(function () {
-        if (options.createSchema) {
-          return updateDbSchema(patcher);
+    await new Promise((resolve, reject) => {
+      patcher.connect((err) => {
+        if (err) {
+          return reject(err);
         }
-      })
-      .then(function () {
-        return checkDbPatchLevel(patcher);
-      })
-      .catch(function (error) {
-        logger.error('checkDbPatchLevel', error);
-        throw error;
-      })
-      .finally(function () {
-        return P.promisify(patcher.end, { context: patcher })();
-      })
-      .then(function () {
-        return new MysqlStore(options);
+        resolve();
       });
+    });
+    if (options.createSchema) {
+      await updateDbSchema(patcher);
+    }
+    try {
+      await checkDbPatchLevel(patcher);
+    } finally {
+      patcher.end(() => {});
+    }
   }
-  return Promise.resolve(new MysqlStore(options));
+  return new MysqlStore(options);
 };
 
 const QUERY_GET_LOCK = 'SELECT GET_LOCK(?, ?) AS acquired';
@@ -267,32 +241,25 @@ function firstRow(rows) {
   return rows[0];
 }
 
-function releaseConn(connection) {
-  connection.release();
-}
-
 MysqlStore.prototype = {
-  ping: function ping() {
-    logger.debug('ping');
-    // see bluebird.using():
-    // https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management
-    return P.using(this._getConnection(), function (conn) {
-      return new P(function (resolve, reject) {
+  ping: async function ping() {
+    const conn = await this._getConnection();
+    try {
+      return await new Promise(function (resolve, reject) {
         conn.ping(function (err) {
           if (err) {
-            logger.error('ping:', err);
-            reject(err);
-          } else {
-            resolve({});
+            return reject(err);
           }
+          resolve({});
         });
       });
-    });
+    } finally {
+      conn.release();
+    }
   },
 
   getLock: function getLock(lockName, timeout = 3) {
     // returns `acquired: 1` on success
-    logger.debug('getLock');
     return this._readOne(QUERY_GET_LOCK, [lockName, timeout]);
   },
 
@@ -304,7 +271,6 @@ MysqlStore.prototype = {
     } else {
       id = unique.id();
     }
-    logger.debug('registerClient', { name: client.name, id: hex(id) });
     return this._write(QUERY_CLIENT_REGISTER, [
       id,
       client.name,
@@ -317,7 +283,6 @@ MysqlStore.prototype = {
       !!client.canGrant,
       !!client.publicClient,
     ]).then(function () {
-      logger.debug('registerClient.success', { id: hex(id) });
       client.id = id;
       return client;
     });
@@ -325,16 +290,10 @@ MysqlStore.prototype = {
   registerClientDeveloper: function regClientDeveloper(developerId, clientId) {
     if (!developerId || !clientId) {
       var err = new Error('Owner registration requires user and developer id');
-      return P.reject(err);
+      return Promise.reject(err);
     }
 
     var rowId = unique.id();
-
-    logger.debug('registerClientDeveloper', {
-      rowId: rowId,
-      developerId: developerId,
-      clientId: clientId,
-    });
 
     return this._write(QUERY_CLIENT_DEVELOPER_INSERT, [
       buf(rowId),
@@ -344,7 +303,7 @@ MysqlStore.prototype = {
   },
   getClientDevelopers: function getClientDevelopers(clientId) {
     if (!clientId) {
-      return P.reject(new Error('Client id is required'));
+      return Promise.reject(new Error('Client id is required'));
     }
     return this._read(QUERY_CLIENT_DEVELOPER_LIST_BY_CLIENT_ID, [
       buf(clientId),
@@ -352,11 +311,10 @@ MysqlStore.prototype = {
   },
   activateDeveloper: function activateDeveloper(email) {
     if (!email) {
-      return P.reject(new Error('Email is required'));
+      return Promise.reject(new Error('Email is required'));
     }
 
     var developerId = unique.developerId();
-    logger.debug('activateDeveloper', { developerId: developerId });
     return this._write(QUERY_DEVELOPER_INSERT, [developerId, email]).then(
       function () {
         return this.getDeveloper(email);
@@ -365,14 +323,14 @@ MysqlStore.prototype = {
   },
   getDeveloper: function (email) {
     if (!email) {
-      return P.reject(new Error('Email is required'));
+      return Promise.reject(new Error('Email is required'));
     }
 
     return this._readOne(QUERY_DEVELOPER, [email]);
   },
   removeDeveloper: function (email) {
     if (!email) {
-      return P.reject(new Error('Email is required'));
+      return Promise.reject(new Error('Email is required'));
     }
 
     return this._write(QUERY_DEVELOPER_DELETE, [email]);
@@ -383,15 +341,15 @@ MysqlStore.prototype = {
       buf(clientId),
     ]).then(function (result) {
       if (result) {
-        return P.resolve(true);
+        return Promise.resolve(true);
       } else {
-        return P.reject(false);
+        return Promise.reject(false);
       }
     });
   },
   updateClient: function updateClient(client) {
     if (!client.id) {
-      return P.reject(new Error('Update client needs an id'));
+      return Promise.reject(new Error('Update client needs an id'));
     }
     var secret = client.hashedSecret;
     if (secret) {
@@ -567,7 +525,7 @@ MysqlStore.prototype = {
       [buf(clientId), buf(uid)]
     );
 
-    return P.all([deleteCodes, deleteTokens, deleteRefreshTokens]);
+    return Promise.all([deleteCodes, deleteTokens, deleteRefreshTokens]);
   },
 
   /**
@@ -727,15 +685,9 @@ MysqlStore.prototype = {
     return this._read(sql, params).then(firstRow);
   },
 
-  _getConnection: function _getConnection() {
-    // see bluebird.using()/disposer():
-    // https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management
-    //
-    // tl;dr: using() and disposer() ensures that the dispose method will
-    // ALWAYS be called at the end of the promise stack, regardless of
-    // various errors thrown. So this should ALWAYS release the connection.
+  _getConnection: async function _getConnection() {
     var pool = this._pool;
-    return new P(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       pool.getConnection(function (err, conn) {
         if (err) {
           return reject(err);
@@ -748,7 +700,15 @@ MysqlStore.prototype = {
         // Enforce sane defaults on every new connection.
         // These *should* be set by the database by default, but it's nice
         // to have an additional layer of protection here.
-        const query = P.promisify(conn.query, { context: conn });
+        const query = (sql) =>
+          new Promise((resolve, reject) => {
+            conn.query(sql, (err, result) => {
+              if (err) {
+                return reject(err);
+              }
+              resolve(result);
+            });
+          });
         return resolve(
           (async () => {
             // Always communicate timestamps in UTC.
@@ -778,21 +738,23 @@ MysqlStore.prototype = {
           })()
         );
       });
-    }).disposer(releaseConn);
+    });
   },
 
-  _query: function _query(sql, params) {
-    return P.using(this._getConnection(), function (conn) {
-      return new P(function (resolve, reject) {
+  _query: async function _query(sql, params) {
+    const conn = await this._getConnection();
+    try {
+      return await new Promise(function (resolve, reject) {
         conn.query(sql, params || [], function (err, results) {
           if (err) {
-            reject(err);
-          } else {
-            resolve(results);
+            return reject(err);
           }
+          resolve(results);
         });
       });
-    });
+    } finally {
+      conn.release();
+    }
   },
 };
 
