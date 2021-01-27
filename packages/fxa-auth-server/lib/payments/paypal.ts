@@ -6,9 +6,10 @@ import { Logger } from 'mozlog';
 import { Container } from 'typedi';
 
 import {
-  PayPalClient,
-  NVPDoReferenceTransactionResponse,
   DoReferenceTransactionOptions,
+  IpnMessage,
+  NVPDoReferenceTransactionResponse,
+  PayPalClient,
 } from './paypal-client';
 
 type PaypalHelperOptions = {
@@ -48,5 +49,24 @@ export class PayPalHelper {
     options: DoReferenceTransactionOptions
   ): Promise<NVPDoReferenceTransactionResponse> {
     return await this.client.doReferenceTransaction(options);
+  }
+
+  /**
+   * Verify whether an IPN message is valid.
+   *
+   * @param message
+   */
+  public async verifyIpnMessage(message: string): Promise<boolean> {
+    return (await this.client.ipnVerify(message)) === 'VERIFIED';
+  }
+
+  /**
+   * Extract an IPN message from a payload.
+   *
+
+   * @param payload
+   */
+  public extractIpnMessage(payload: string): IpnMessage {
+    return this.client.nvpToObject(payload) as IpnMessage;
   }
 }

@@ -12,7 +12,9 @@ const {
   PayPalClient,
   PayPalClientError,
   PAYPAL_SANDBOX_BASE,
+  PAYPAL_SANDBOX_IPN_BASE,
   PAYPAL_NVP_ROUTE,
+  PAYPAL_IPN_ROUTE,
   PAYPAL_SANDBOX_API,
   PAYPAL_LIVE_API,
   PLACEHOLDER_URL,
@@ -24,8 +26,11 @@ const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_expr
 const unSuccessfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_failure.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
 const unSuccessfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
+const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json')
+  .message;
 
 describe('PayPalClient', () => {
+  /** @type {PayPalClient} */
   let client;
 
   beforeEach(() => {
@@ -323,6 +328,17 @@ describe('PayPalClient', () => {
         assert.include(err.raw, 'ACK=Failure');
         assert.equal(err.data.ACK, 'Failure');
       }
+    });
+  });
+
+  describe('ipnVerify', () => {
+    it('calls API with valid message', async () => {
+      const verifyPayload = 'cmd=_notify-validate&' + sampleIpnMessage;
+      nock(PAYPAL_SANDBOX_IPN_BASE)
+        .post(PAYPAL_IPN_ROUTE, verifyPayload)
+        .reply(200, 'VERIFIED');
+      const result = await client.ipnVerify(sampleIpnMessage);
+      assert.equal(result, 'VERIFIED');
     });
   });
 });

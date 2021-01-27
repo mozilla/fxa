@@ -78,6 +78,69 @@ function filterSentryEvent(event, hint) {
   return event;
 }
 
+function reportSentryError(err, request) {
+  let exception = '';
+  if (err && err.stack) {
+    try {
+      exception = err.stack.split('\n')[0];
+    } catch (e) {
+      // ignore bad stack frames
+    }
+  }
+
+  Sentry.withScope((scope) => {
+    scope.addEventProcessor((_sentryEvent) => {
+      const sentryEvent = Sentry.Handlers.parseRequest(
+        _sentryEvent,
+        request.raw.req
+      );
+      sentryEvent.level = Sentry.Severity.Error;
+      return sentryEvent;
+    });
+    scope.setExtra('exception', exception);
+    // If additional data was added to the error, extract it.
+    if (err.output && typeof err.output.payload === 'object') {
+      const payload = err.output.payload;
+      if (typeof payload.data === 'object') {
+        scope.setContext('payload.data', payload.data);
+        delete payload.data;
+      }
+      scope.setContext('payload', payload);
+    }
+    const cause = verror.cause(err);
+    if (cause && cause.message) {
+      const causeContext = {
+        errorName: cause.name,
+        reason: cause.reason,
+        errorMessage: cause.message,
+      };
+
+      // Poolee EndpointError's have a few other things and oddly don't include
+      // a stack at all. We try and extract a bit more to reflect what actually
+      // happened as 'socket hang up' is somewhat inaccurate when the remote server
+      // throws a 500.
+      const output = cause.output;
+      if (output && output.payload) {
+        for (const key of ['error', 'message', 'statusCode']) {
+          causeContext[key] = output.payload[key];
+        }
+      }
+      const attempt = cause.attempt;
+      if (attempt) {
+        causeContext.method = attempt.method;
+        causeContext.path = attempt.path
+          ? attempt.path.replace(TOKENREGEX, FILTERED)
+          : null;
+      }
+      scope.setContext('cause', causeContext);
+    }
+
+    // Merge the request scope into the temp scope
+    Hoek.merge(scope, request.sentryScope);
+    Sentry.captureException(err);
+  });
+}
+
 async function configureSentry(server, config) {
   const sentryDsn = config.sentryDsn;
   const versionData = await getVersion();
@@ -110,69 +173,10 @@ async function configureSentry(server, config) {
       { name: 'request', channels: 'error' },
       (request, event) => {
         const err = (event && event.error) || null;
-        let exception = '';
-        if (err && err.stack) {
-          try {
-            exception = err.stack.split('\n')[0];
-          } catch (e) {
-            // ignore bad stack frames
-          }
-        }
-
-        Sentry.withScope((scope) => {
-          scope.addEventProcessor((_sentryEvent) => {
-            const sentryEvent = Sentry.Handlers.parseRequest(
-              _sentryEvent,
-              request.raw.req
-            );
-            sentryEvent.level = Sentry.Severity.Error;
-            return sentryEvent;
-          });
-          scope.setExtra('exception', exception);
-          // If additional data was added to the error, extract it.
-          if (err.output && typeof err.output.payload === 'object') {
-            const payload = err.output.payload;
-            if (typeof payload.data === 'object') {
-              scope.setContext('payload.data', payload.data);
-              delete payload.data;
-            }
-            scope.setContext('payload', payload);
-          }
-          const cause = verror.cause(err);
-          if (cause && cause.message) {
-            const causeContext = {
-              errorName: cause.name,
-              reason: cause.reason,
-              errorMessage: cause.message,
-            };
-
-            // Poolee EndpointError's have a few other things and oddly don't include
-            // a stack at all. We try and extract a bit more to reflect what actually
-            // happened as 'socket hang up' is somewhat inaccurate when the remote server
-            // throws a 500.
-            const output = cause.output;
-            if (output && output.payload) {
-              for (const key of ['error', 'message', 'statusCode']) {
-                causeContext[key] = output.payload[key];
-              }
-            }
-            const attempt = cause.attempt;
-            if (attempt) {
-              causeContext.method = attempt.method;
-              causeContext.path = attempt.path
-                ? attempt.path.replace(TOKENREGEX, FILTERED)
-                : null;
-            }
-            scope.setContext('cause', causeContext);
-          }
-
-          // Merge the request scope into the temp scope
-          Hoek.merge(scope, request.sentryScope);
-          Sentry.captureException(err);
-        });
+        reportSentryError(err, request);
       }
     );
   }
 }
 
-module.exports = { configureSentry };
+module.exports = { configureSentry, reportSentryError };

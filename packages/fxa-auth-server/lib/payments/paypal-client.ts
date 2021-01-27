@@ -6,10 +6,15 @@ import querystring from 'querystring';
 import superagent from 'superagent';
 
 export const PAYPAL_SANDBOX_BASE = 'https://api-3t.sandbox.paypal.com';
+export const PAYPAL_SANDBOX_IPN_BASE = 'https://ipnpb.sandbox.paypal.com';
 export const PAYPAL_LIVE_BASE = 'https://api-3t.paypal.com';
+export const PAYPAL_LIVE_IPN_BASE = 'https://ipnpb.paypal.com';
 export const PAYPAL_NVP_ROUTE = '/nvp';
+export const PAYPAL_IPN_ROUTE = '/cgi-bin/webscr';
 export const PAYPAL_SANDBOX_API = PAYPAL_SANDBOX_BASE + PAYPAL_NVP_ROUTE;
 export const PAYPAL_LIVE_API = PAYPAL_LIVE_BASE + PAYPAL_NVP_ROUTE;
+export const PAYPAL_SANDBOX_IPN = PAYPAL_SANDBOX_IPN_BASE + PAYPAL_IPN_ROUTE;
+export const PAYPAL_LIVE_IPN = PAYPAL_LIVE_IPN_BASE + PAYPAL_IPN_ROUTE;
 // See https://developer.paypal.com/docs/checkout/reference/upgrade-integration/#nvp-integrations
 // for information on when to use PLACEHOLDER_URL
 export const PLACEHOLDER_URL = 'https://www.paypal.com/checkoutnow/error';
@@ -88,6 +93,37 @@ export type DoReferenceTransactionOptions = {
   billingAgreementId: string;
 };
 
+export type IpnMessage = {
+  txn_type: string;
+  [key: string]: any;
+};
+
+export type IpnMerchPmtType = IpnMessage & {
+  invoice: string;
+  // The billing agreement ID
+  mp_id: string;
+  mc_gross: string;
+  mp_notification?: any;
+  mp_pay_type: 'INSTANT' | 'ANY' | 'ECHECK';
+  // Agreement status, A for Active, I for inactive
+  // I is equivalent to cancelled.
+  mp_status: 'A' | 'I';
+  txn_id: string;
+  txn_type: 'merch_pmt' | 'mp_cancel';
+};
+
+/**
+ * Type Guard to indicate whether the given IPN Message is a Merchant Payment
+ * message.
+ *
+ * @param ipnMessage
+ */
+export function isIpnMerchPmt(
+  ipnMessage: IpnMessage
+): ipnMessage is IpnMerchPmtType {
+  return ['merch_pmt', 'mp_cancel'].includes(ipnMessage.txn_type);
+}
+
 export class PayPalClientError extends Error {
   public raw: string;
   public data: NVPResponse;
@@ -105,6 +141,7 @@ export class PayPalClientError extends Error {
 }
 export class PayPalClient {
   private url: string;
+  private ipnUrl: string;
   private user: string;
   private pwd: string;
   private signature: string;
@@ -116,6 +153,7 @@ export class PayPalClient {
 
   constructor(options: PaypalOptions) {
     this.url = options.sandbox ? PAYPAL_SANDBOX_API : PAYPAL_LIVE_API;
+    this.ipnUrl = options.sandbox ? PAYPAL_SANDBOX_IPN : PAYPAL_LIVE_IPN;
     this.user = options.user;
     this.pwd = options.pwd;
     this.signature = options.signature;
@@ -131,7 +169,7 @@ export class PayPalClient {
     return querystring.stringify(object);
   }
 
-  private nvpToObject(payload: string): Record<string, any> {
+  public nvpToObject(payload: string): Record<string, any> {
     const object = querystring.parse(payload, undefined, undefined, {
       maxKeys: 0,
     });
@@ -229,5 +267,22 @@ export class PayPalClient {
       'DoReferenceTransaction',
       data
     );
+  }
+
+  /**
+   * Call the PayPal IPN/PDT message verification endpoint.
+   *
+   * Verifies a PayPal IPN/PDT message body by posting it back to PayPal per
+   * the IPN listener request-response flow
+   * (https://developer.paypal.com/docs/api-basics/notifications/ipn/IPNImplementation/#ipn-listener-request-response-flow).
+   *
+   * @param message
+   */
+  public async ipnVerify(message: string): Promise<string> {
+    const verifyBody = 'cmd=_notify-validate&' + message;
+    const result = await pRetry(() =>
+      superagent.post(this.ipnUrl).send(verifyBody)
+    );
+    return result.text;
   }
 }

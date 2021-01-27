@@ -14,6 +14,7 @@ import {
   filterSubscription,
 } from 'fxa-shared/subscriptions/stripe';
 import omitBy from 'lodash/omitBy';
+import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
@@ -64,7 +65,9 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 
 export class StripeHandler {
   constructor(
-    protected log: AuthLogger,
+    // FIXME: For some reason Logger methods were not being detected in
+    //        inheriting classes thus this interface join.
+    protected log: AuthLogger & Logger,
     protected db: any,
     protected config: ConfigType,
     protected customs: any,
