@@ -4,6 +4,7 @@
 
 import { useAlertBar } from '../../lib/hooks';
 import React from 'react';
+import { Localized } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 
 import AlertBar from '../AlertBar';
@@ -30,53 +31,77 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   };
 
   return (
-    <FlowContainer title="Avatar">
-      {alertBar.visible && (
-        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-          <p data-testid="update-avatar-error">{alertBar.content}</p>
-        </AlertBar>
-      )}
+    <Localized id="avatar-page-title" attrs={{ title: true }}>
+      <FlowContainer title="Avatar">
+        {/* TODO - localize the error message once errors are implemented */}
+        {alertBar.visible && (
+          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+            <p data-testid="update-avatar-error">{alertBar.content}</p>
+          </AlertBar>
+        )}
 
-      <form onSubmit={handleSubmit}>
-        <Avatar className="mx-auto w-32" />
+        <form onSubmit={handleSubmit}>
+          <Avatar className="mx-auto w-32" />
 
-        <div className="flex text-center justify-around max-w-xs my-4 mx-24">
-          <div className="cursor-pointer">
-            <ButtonIcon
-              title="Add photo"
-              icon={[AddIcon, 22, 22]}
-              classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
-            />
-            <p>Add Photo</p>
+          <div className="flex text-center justify-around max-w-xs my-4 mx-24">
+            <div className="cursor-pointer">
+              <Localized
+                id="avatar-page-add-photo-button"
+                attrs={{ title: true }}
+              >
+                <ButtonIcon
+                  title="Add photo"
+                  icon={[AddIcon, 22, 22]}
+                  classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
+                />
+              </Localized>
+              <Localized id="avatar-page-add-photo">
+                <p>Add Photo</p>
+              </Localized>
+            </div>
+            <div
+              onClick={() => navigate(CapturePath)}
+              className="cursor-pointer"
+            >
+              <Localized
+                id="avatar-page-take-photo-button"
+                attrs={{ title: true }}
+              >
+                <ButtonIcon
+                  title="Take photo"
+                  icon={[CameraIcon, 24, 22]}
+                  classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
+                />
+              </Localized>
+              <Localized id="avatar-page-take-photo">
+                <p>Take Photo</p>
+              </Localized>
+            </div>
           </div>
-          <div onClick={() => navigate(CapturePath)} className="cursor-pointer">
-            <ButtonIcon
-              title="Take photo"
-              icon={[CameraIcon, 24, 22]}
-              classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
-            />
-            <p>Take Photo</p>
+          <div className="mt-4 flex items-center justify-center">
+            <Localized id="avatar-page-close-button">
+              <button
+                className="cta-neutral mx-2 px-10"
+                onClick={() => navigate(HomePath, { replace: true })}
+                data-testid="close-button"
+              >
+                Close
+              </button>
+            </Localized>
+            <Localized id="avatar-page-save-button">
+              <button
+                className="cta-primary mx-2 px-10"
+                onClick={() => save()}
+                disabled={true}
+                data-testid="save-button"
+              >
+                Save
+              </button>
+            </Localized>
           </div>
-        </div>
-        <div className="mt-4 flex items-center justify-center">
-          <button
-            className="cta-neutral mx-2 px-10"
-            onClick={() => navigate(HomePath, { replace: true })}
-            data-testid="close-button"
-          >
-            Close
-          </button>
-          <button
-            className="cta-primary mx-2 px-10"
-            onClick={() => save()}
-            disabled={true}
-            data-testid="save-button"
-          >
-            Save
-          </button>
-        </div>
-      </form>
-    </FlowContainer>
+        </form>
+      </FlowContainer>
+    </Localized>
   );
 };
 

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 import { useAccount } from '../../models';
 import defaultAvatar from './avatar-default.svg';
@@ -16,15 +17,17 @@ export const Avatar = ({ className }: AvatarProps) => {
 
   if (avatarUrl) {
     return (
-      <img
-        data-testid="avatar-nondefault"
-        src={avatarUrl}
-        alt="Your avatar"
-        className={classNames(
-          'rounded-full bg-grey-200 text-grey-200',
-          className
-        )}
-      />
+      <Localized id="avatar-your-avatar" attrs={{ alt: true }}>
+        <img
+          data-testid="avatar-nondefault"
+          src={avatarUrl}
+          alt="Your avatar"
+          className={classNames(
+            'rounded-full bg-grey-200 text-grey-200',
+            className
+          )}
+        />
+      </Localized>
     );
   }
 
@@ -33,12 +36,14 @@ export const Avatar = ({ className }: AvatarProps) => {
     // has a bug that makes the image disappear in some case
     // with inline svgs. img elements don't have this problem.
     // see: https://github.com/mozilla/fxa/issues/6359
-    <img
-      data-testid="avatar-default"
-      src={defaultAvatar}
-      alt="Default avatar"
-      className={classNames('rounded-full', className)}
-    />
+    <Localized id="avatar-default-avatar" attrs={{ alt: true }}>
+      <img
+        data-testid="avatar-default"
+        src={defaultAvatar}
+        alt="Default avatar"
+        className={classNames('rounded-full', className)}
+      />
+    </Localized>
   );
 };
 

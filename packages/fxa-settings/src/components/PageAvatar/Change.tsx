@@ -5,6 +5,7 @@
 //import { useAccount } from '../../models';
 import { useAlertBar } from '../../lib/hooks';
 import React /*, { useState } */ from 'react';
+import { Localized } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
 
 import AlertBar from '../AlertBar';
@@ -38,26 +39,37 @@ export const PageChangeAvatar = (_: RouteComponentProps) => {
         <AvatarCropper />
 
         <div className="flex justify-center max-w-xs mx-auto my-4">
-          <ButtonIcon
-            title="Add photo"
-            icon={[AddIcon, 22, 22]}
-            classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
-          />
-          <ButtonIcon
-            title="Take photo"
-            icon={[CameraIcon, 24, 22]}
-            classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
-          />
-          <ButtonIcon
-            title="Remove photo"
-            icon={[RemoveIcon, 22, 22]}
-            classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
-          />
-          <ButtonIcon
-            title="Take photo"
-            icon={[CameraIcon, 22, 22]}
-            classNames="mx-2 bg-red-500 text-white rounded-full border border-red-600 hover:bg-red-600 hover:border-red-600 active:border-red-700 focus:border-red-800"
-          />
+          <Localized id="avatar-page-add-photo-button" attrs={{ title: true }}>
+            <ButtonIcon
+              title="Add photo"
+              icon={[AddIcon, 22, 22]}
+              classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
+            />
+          </Localized>
+          <Localized id="avatar-page-take-photo-button" attrs={{ title: true }}>
+            <ButtonIcon
+              title="Take photo"
+              icon={[CameraIcon, 24, 22]}
+              classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
+            />
+          </Localized>
+          <Localized
+            id="avatar-page-remove-photo-button"
+            attrs={{ title: true }}
+          >
+            <ButtonIcon
+              title="Remove photo"
+              icon={[RemoveIcon, 22, 22]}
+              classNames="mx-2 text-grey-500 hover:text-grey-600 hover:text-grey-600 focus:text-grey-400"
+            />
+          </Localized>
+          <Localized id="avatar-page-take-photo-button" attrs={{ title: true }}>
+            <ButtonIcon
+              title="Take photo"
+              icon={[CameraIcon, 22, 22]}
+              classNames="mx-2 bg-red-500 text-white rounded-full border border-red-600 hover:bg-red-600 hover:border-red-600 active:border-red-700 focus:border-red-800"
+            />
+          </Localized>
         </div>
       </form>
     </FlowContainer>
