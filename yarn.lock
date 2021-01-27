@@ -5007,16 +5007,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stripe/react-stripe-js@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@stripe/react-stripe-js@npm:1.1.2"
+"@stripe/react-stripe-js@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@stripe/react-stripe-js@npm:1.2.0"
   dependencies:
     prop-types: ^15.7.2
   peerDependencies:
     "@stripe/stripe-js": ^1.2.0
-    react: ^16.8.0
-    react-dom: ^16.8.0
-  checksum: 40c46a0e58e141f63266404ee4518d9be394ad21cca12623169075e49e65f94eb158f08f01eeb223ed2847ecbc282013c2d1834af0a2d51a2cf22b3e3884e2be
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  checksum: 36834fa6644d1eb5acbf6b961422bcfb5735585ab13d2045b62ec2eaa1463a2931c2178cf5b4bb27886a73ac7f049b479a6c5258ff529d0181b25bc8edf185e3
   languageName: node
   linkType: hard
 
@@ -18737,7 +18737,7 @@ fsevents@^1.2.7:
     "@storybook/addon-links": ^6.0.28
     "@storybook/addons": ^5.3.19
     "@storybook/react": ^5.3.19
-    "@stripe/react-stripe-js": ^1.1.2
+    "@stripe/react-stripe-js": ^1.2.0
     "@stripe/stripe-js": ^1.11.0
     "@svgr/webpack": ^5.4.0
     "@testing-library/jest-dom": ^5.11.9
