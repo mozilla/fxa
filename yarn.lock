@@ -18110,7 +18110,7 @@ fsevents@^1.2.7:
     proxyquire: ^2.1.3
     request: ^2.88.2
     restify: ^8.4.0
-    restify-clients: ^2.6.9
+    restify-clients: ^3.1.0
     sinon: ^9.0.3
   bin:
     fxa-auth-db-mysql: bin/db_patcher.js
@@ -18446,7 +18446,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     proxyquire: ^2.1.3
     request: ^2.88.2
-    restify-clients: ^2.6.9
+    restify-clients: ^3.1.0
     sinon: ^9.0.3
     tap: ^14.11.0
     walk: 2.3.x
@@ -32753,9 +32753,9 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"restify-clients@npm:^2.6.9":
-  version: 2.6.9
-  resolution: "restify-clients@npm:2.6.9"
+"restify-clients@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "restify-clients@npm:3.1.0"
   dependencies:
     assert-plus: ^1.0.0
     backoff: ^2.5.0
@@ -32775,7 +32775,7 @@ resolve@~1.11.1:
   dependenciesMeta:
     dtrace-provider:
       optional: true
-  checksum: e57f247eca7dac1aba4d4a7c677c915bafebe6017ac84327e713cd91de2721a45c91f080c68326c4578a7a07d13d276680ceeecc22e4ebea0c5b7fa7fe116534
+  checksum: 5cced34f92f3aaf05e03da285ee44852fcf6b46cc15b56f883569080d7231a7dac4afc7b5f865f53140516d69c523c9a74b0bbd83518cfa32e45470a410e721d
   languageName: node
   linkType: hard
 
