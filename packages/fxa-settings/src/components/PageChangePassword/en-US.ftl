@@ -2,12 +2,12 @@
 pw-change-header =
  .title = Change Password
 
-pw-change-stay-safe = Stay safe — don't reuse passwords. Your password:
+pw-change-stay-safe = Stay safe — don’t reuse passwords. Your password:
 pw-change-least-8-chars = Must be at least 8 characters
 pw-change-not-contain-email = Must not be your email address
 pw-change-must-match = New password matches confirmation
-pw-change-cancel-button = Cancel
-pw-change-save-button = Save
+pw-change-cancel-button = { fxa-cancel-button }
+pw-change-save-button = { fxa-save-button }
 pw-change-forgot-password-link = Forgot password?
 
 pw-change-current-password =
