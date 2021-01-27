@@ -74,20 +74,23 @@ export const GET_ACCOUNT_BY_UID = gql`
 export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
-  const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
-    inputValue.search('@') == -1 ? GET_ACCOUNT_BY_UID : GET_ACCOUNT_BY_EMAIL // check if searching email or uid
-  );
+  const [getAccountbyEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
+  const [getAccountbyUID, UIDResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
+  const [isEmail, setIsEmail] = useState<Boolean>(false);
+  const queryResults = isEmail && showResult ? emailResults : UIDResults;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     // choose correct query if email or uid
     if (inputValue.search('@') == -1 && inputValue != '') {
       // uid and non-empty
-      getAccount({ variables: { uid: inputValue } });
+      getAccountbyUID({ variables: { uid: inputValue } });
+      setIsEmail(false);
       setShowResult(true);
     } else if (inputValue.search('@') != -1 && inputValue != '') {
       // email and non-empty
-      getAccount({ variables: { email: inputValue } });
+      getAccountbyEmail({ variables: { email: inputValue } });
+      setIsEmail(true);
       setShowResult(true);
     }
     // Don't hide after the first result is shown
@@ -128,15 +131,15 @@ export const AccountSearch = () => {
         ></button>
       </form>
 
-      {showResult && refetch ? (
+      {showResult && queryResults.refetch ? (
         <>
           <hr />
           <AccountSearchResult
-            onCleared={refetch}
+            onCleared={queryResults.refetch}
             {...{
-              loading,
-              error,
-              data,
+              loading: queryResults.loading,
+              error: queryResults.error,
+              data: queryResults.data,
               query: inputValue,
             }}
           />
