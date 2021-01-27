@@ -14356,6 +14356,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"debug@npm:4.3.1":
+  version: 4.3.1
+  resolution: "debug@npm:4.3.1"
+  dependencies:
+    ms: 2.1.2
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 0d41ba5177510e8b388dfd7df143ab0f9312e4abdaba312595461511dac88e9ef8101939d33b4e6d37e10341af6a5301082e4d7d6f3deb4d57bc05fc7d296fad
+  languageName: node
+  linkType: hard
+
 "decamelize-keys@npm:^1.1.0":
   version: 1.1.0
   resolution: "decamelize-keys@npm:1.1.0"
@@ -18040,7 +18052,7 @@ fsevents@^1.2.7:
     graphql-tools: ^7.0.1
     helmet: ^4.4.1
     jest: 26.6.3
-    knex: ^0.21.12
+    knex: ^0.21.16
     mozlog: ^3.0.1
     mysql: ^2.18.1
     objection: ^2.2.7
@@ -18637,7 +18649,7 @@ fsevents@^1.2.7:
     helmet: ^4.4.1
     ioredis: ^4.17.3
     jest: 26.6.3
-    knex: ^0.21.12
+    knex: ^0.21.16
     mozlog: ^3.0.1
     mysql: ^2.18.1
     nock: ^13.0.4
@@ -19059,7 +19071,7 @@ fsevents@^1.2.7:
     js-md5: ^0.7.3
     jsdom: 16.4.0
     jsdom-global: 3.0.2
-    knex: ^0.21.12
+    knex: ^0.21.16
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^7.1.2
@@ -24524,19 +24536,19 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"knex@npm:^0.21.12":
-  version: 0.21.12
-  resolution: "knex@npm:0.21.12"
+"knex@npm:^0.21.16":
+  version: 0.21.16
+  resolution: "knex@npm:0.21.16"
   dependencies:
     colorette: 1.2.1
-    commander: ^5.1.0
-    debug: 4.1.1
+    commander: ^6.2.0
+    debug: 4.3.1
     esm: ^3.2.25
     getopts: 2.2.5
     interpret: ^2.2.0
     liftoff: 3.1.0
     lodash: ^4.17.20
-    pg-connection-string: 2.3.0
+    pg-connection-string: 2.4.0
     tarn: ^3.0.1
     tildify: 2.0.0
     v8flags: ^3.2.0
@@ -24559,7 +24571,7 @@ fsevents@^1.2.7:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: 2fdc620d88da7c335412df4a02aa50b25f9082383cdd6f0cf6b57a08b8dd6394561fab7dcecad1f01ce1a4a18a7e3058ae8ec33981be5071d15d103a556e373e
+  checksum: 6ef4dd4934caf23f8a563d063c6f051f3087c019faa01ad5d3ad843c9744d2520d181a21984ce67bd5b4f5f38bf43d757390512aaa76c12dc58bf6fdec9b5234
   languageName: node
   linkType: hard
 
@@ -26568,7 +26580,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"ms@npm:^2.0.0, ms@npm:^2.1.1, ms@npm:^2.1.2":
+"ms@npm:2.1.2, ms@npm:^2.0.0, ms@npm:^2.1.1, ms@npm:^2.1.2":
   version: 2.1.2
   resolution: "ms@npm:2.1.2"
   checksum: 9b65fb709bc30c0c07289dcbdb61ca032acbb9ea5698b55fa62e2cebb04c5953f1876a1f3f7f4bc2e91d4bf4d86003f3e207c3bc6ee2f716f99827e62389cd0e
@@ -28826,10 +28838,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"pg-connection-string@npm:2.3.0":
-  version: 2.3.0
-  resolution: "pg-connection-string@npm:2.3.0"
-  checksum: 610d03707d0544af81900facd4b7ef2d7527ea9c016c091c292966d77b53ca56327a3e1fc9a527b94094df356cba1be3bc8de72903ef9c1cd9622d4469d91196
+"pg-connection-string@npm:2.4.0":
+  version: 2.4.0
+  resolution: "pg-connection-string@npm:2.4.0"
+  checksum: fdb3ec1c3daa8356381b1de3ed5fe03269e69d88644c4eb83a30aec1d1e320e0a8450d7ff8c04666dd06a4798c996c9dd006497f038d338790667965ec940d1d
   languageName: node
   linkType: hard
 
