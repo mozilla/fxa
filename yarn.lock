@@ -13662,7 +13662,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cropperjs@npm:^1.5.8":
+"cropperjs@npm:^1.5.9":
   version: 1.5.9
   resolution: "cropperjs@npm:1.5.9"
   checksum: fdde8efe80866aa034859dddbce019a4c18b64548c5044e16b07234d78a074df48005fcec9c33f447b2f8158361e7cb388861973cd61f1a751c1b343cf665dc2
@@ -19006,7 +19006,7 @@ fsevents@^1.2.7:
     postcss-import: ^12.0.1
     react: ^16.13.1
     react-async-hook: ^3.6.1
-    react-cropper: ^2.1.3
+    react-cropper: ^2.1.4
     react-dom: ^16.13.1
     react-hook-form: ^6.14.2
     react-scripts: ^3.4.1
@@ -31080,14 +31080,14 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-cropper@npm:^2.1.3":
-  version: 2.1.3
-  resolution: "react-cropper@npm:2.1.3"
+"react-cropper@npm:^2.1.4":
+  version: 2.1.4
+  resolution: "react-cropper@npm:2.1.4"
   dependencies:
-    cropperjs: ^1.5.8
+    cropperjs: ^1.5.9
   peerDependencies:
     react: ^16.0.0-0
-  checksum: 1e3fe83392ef5f47d2fdf28a3f0678dc01b7eb27521bb848fdca1acd222f3ef93ebce635d3057647ece0cf1740931b9d047d0ff9adab0e0068a9146f75cc6a16
+  checksum: 058e4500b62d45132bd9ab8a7006ccc6f0ff3a37bce710fedd98722c232b9d79e6ba8d5381e68562811bb2a1c794e871642bb1cedbf9d1e5e471872a42b5d625
   languageName: node
   linkType: hard
 
