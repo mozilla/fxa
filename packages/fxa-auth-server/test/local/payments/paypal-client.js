@@ -29,6 +29,8 @@ const unSuccessfulDoReferenceTransactionResponse = require('./fixtures/paypal/do
 const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json')
   .message;
 
+const sandbox = sinon.createSandbox();
+
 describe('PayPalClient', () => {
   /** @type {PayPalClient} */
   let client;
@@ -40,6 +42,10 @@ describe('PayPalClient', () => {
       pwd: 'pwd',
       signature: 'sig',
     });
+  });
+
+  afterEach(() => {
+    sandbox.restore();
   });
 
   describe('constructor', () => {
@@ -181,21 +187,12 @@ describe('PayPalClient', () => {
   });
 
   describe('setExpressCheckout', () => {
-    let sandbox;
     const defaultData = {
       PAYMENTREQUEST_0_AMT: '0',
       RETURNURL: PLACEHOLDER_URL,
       CANCELURL: PLACEHOLDER_URL,
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
     };
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(function () {
-      sandbox.restore();
-    });
 
     it('calls api with correct method and data', () => {
       client.doRequest = sandbox.fake.resolves(
@@ -234,22 +231,33 @@ describe('PayPalClient', () => {
     });
   });
 
-  describe('doReferenceTransaction', () => {
-    let sandbox;
+  describe('createBillingAgreement', () => {
+    const defaultData = {
+      token: 'insert_token_value_here',
+    };
 
+    const expectedResponse = {
+      BILLINGAGREEMENTID: 'B-7FB31251F28061234',
+      ACK: 'Success',
+    };
+
+    it('calls API with valid token', async () => {
+      client.doRequest = sandbox.fake.resolves(expectedResponse);
+      await client.createBillingAgreement(defaultData);
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'CreateBillingAgreement',
+        defaultData
+      );
+    });
+  });
+
+  describe('doReferenceTransaction', () => {
     const defaultData = {
       AMT: '5.99',
       REFERENCEID: 'B-BILLINGAGREEMENTID',
       PAYMENTACTION: 'Sale',
     };
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(function () {
-      sandbox.restore();
-    });
 
     it('calls api with correct method and data', async () => {
       client.doRequest = sandbox.fake.resolves(

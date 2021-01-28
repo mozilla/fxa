@@ -64,6 +64,10 @@ type SetExpressCheckoutData = {
   TOKEN: string;
 };
 
+type CreateBillingAgreementData = {
+  BILLINGAGREEMENTID: string;
+};
+
 type DoReferenceTransactionData = {
   BILLINGAGREEMENTID: string;
   TRANSACTIONID: string;
@@ -85,8 +89,15 @@ type DoReferenceTransactionData = {
 export type NVPSetExpressCheckoutResponse = NVPResponse &
   SetExpressCheckoutData;
 
+export type NVPCreateBillingAgreementResponse = NVPResponse &
+  CreateBillingAgreementData;
+
 export type NVPDoReferenceTransactionResponse = NVPResponse &
   DoReferenceTransactionData;
+
+export type CreateBillingAgreementOptions = {
+  token: string;
+};
 
 export type DoReferenceTransactionOptions = {
   amount: string;
@@ -241,6 +252,21 @@ export class PayPalClient {
     return await this.doRequest<NVPSetExpressCheckoutResponse>(
       'SetExpressCheckout',
       data
+    );
+  }
+
+  /**
+   * Call the Paypal CreateBillingAgreement NVP API
+   *
+   * Using the Paypal CreateBillingAgreement API (https://developer.paypal.com/docs/nvp-soap-api/create-billing-agreement-nvp/)
+   * creates a billing agreement using the time-stamped token returned in the SetExpressCheckout response.
+   */
+  public async createBillingAgreement(
+    options: CreateBillingAgreementOptions
+  ): Promise<NVPCreateBillingAgreementResponse> {
+    return await this.doRequest<NVPCreateBillingAgreementResponse>(
+      'CreateBillingAgreement',
+      options
     );
   }
 

@@ -83,6 +83,29 @@ describe('PayPalHelper', () => {
     });
   });
 
+  describe('createBillingAgreement', () => {
+    const validOptions = {
+      token: 'insert_token_value_here',
+    };
+
+    const expectedResponse = {
+      BILLINGAGREEMENTID: 'B-7FB31251F28061234',
+      ACK: 'Success',
+    };
+
+    it('calls createBillingAgreement with passed options', async () => {
+      paypalHelper.client.createBillingAgreement = sinon.fake.resolves(
+        expectedResponse
+      );
+      const response = await paypalHelper.createBillingAgreement(validOptions);
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.client.createBillingAgreement,
+        validOptions
+      );
+      assert.equal(response, 'B-7FB31251F28061234');
+    });
+  });
+
   describe('chargeCustomer', () => {
     const validOptions = {
       amount: '10.99',
