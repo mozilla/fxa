@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.2.0
+
 executors:
   content-server-executor:
     resource_class: medium+
@@ -257,6 +260,10 @@ jobs:
           destination: screenshots
       - store_test_results:
           path: artifacts/tests
+      - slack/notify:
+          channel: fxa
+          event: always
+          mentions: '@Ankita @ckolos @jbuck @rbillings'
 
   build-and-deploy-storybooks:
     resource_class: small
