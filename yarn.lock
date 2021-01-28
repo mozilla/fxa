@@ -6266,12 +6266,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jws@npm:^3.2.0":
-  version: 3.2.2
-  resolution: "@types/jws@npm:3.2.2"
+"@types/jws@npm:^3.2.3":
+  version: 3.2.3
+  resolution: "@types/jws@npm:3.2.3"
   dependencies:
     "@types/node": "*"
-  checksum: e93739e74fe8e4d75fe45bd7c06a285d24a5fee6a2fc7a66e670b069143701e9336a595c6fe61e86ea387fab727f86ed30a18916db8f92c83545d3b6326ed351
+  checksum: 434879c2543e77513403a61154ddc890fec2b913ae9747adf4dff0f42e06983cd96c523d36b0be74cdc2ce88bd187ad7b5623b4229ad9eb64f83b4be15a51a62
   languageName: node
   linkType: hard
 
@@ -18149,7 +18149,7 @@ fsevents@^1.2.7:
     "@types/joi": ^14.3.3
     "@types/jsonwebtoken": ^8.5.0
     "@types/jsrsasign": 8.0.8
-    "@types/jws": ^3.2.0
+    "@types/jws": ^3.2.3
     "@types/lodash": ^4
     "@types/memcached": ^2.2.6
     "@types/mocha": ^7.0.2
