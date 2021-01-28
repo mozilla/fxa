@@ -99,7 +99,7 @@ describe('usePasswordChanger', () => {
       'email',
       'oldPassword',
       'newPassword',
-      { sessionToken: 'sessionToken' }
+      { keys: true, sessionToken: 'sessionToken' }
     );
     // expect.anything() is the PromiseCallbackOptions of react-async-hook
     expect(onSuccess).toBeCalledWith(response, expect.anything());

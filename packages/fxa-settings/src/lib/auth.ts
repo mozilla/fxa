@@ -76,6 +76,7 @@ export function usePasswordChanger({
         oldPassword,
         newPassword,
         {
+          keys: true,
           sessionToken,
         }
       );

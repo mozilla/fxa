@@ -4,14 +4,16 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import { ApolloProvider } from '@apollo/client';
+import { ApolloProvider, gql } from '@apollo/client';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 import App from './components/App';
 import { AuthContext, createAuthClient } from './lib/auth';
-import sentryMetrics from 'fxa-shared/lib/sentry';
 import config, { readConfigMeta, ConfigContext } from './lib/config';
-import { searchParams } from './lib/utilities';
+import firefox, { FirefoxCommand } from './lib/firefox';
 import { createApolloClient } from './lib/gql';
+import { searchParams } from './lib/utilities';
+import { GET_PROFILE_INFO } from './models';
 import './index.scss';
 
 try {
@@ -25,6 +27,53 @@ try {
   const flowQueryParams = searchParams(
     window.location.search
   ) as FlowQueryParams;
+  const isForCurrentUser = (event: Event) => {
+    const { account } = apolloClient.cache.readQuery<any>({
+      query: gql`
+        query GetUid {
+          account {
+            uid
+          }
+        }
+      `,
+    })!;
+    return account.uid === (event as CustomEvent).detail.uid;
+  };
+  firefox.addEventListener(FirefoxCommand.ProfileChanged, (event) => {
+    if (isForCurrentUser(event)) {
+      apolloClient.query({
+        query: GET_PROFILE_INFO,
+        fetchPolicy: 'network-only',
+      });
+    }
+  });
+  firefox.addEventListener(FirefoxCommand.PasswordChanged, (event) => {
+    if (isForCurrentUser(event)) {
+      apolloClient.writeQuery({
+        query: gql`
+          query UpdatePasswordCreated {
+            account {
+              passwordCreated
+            }
+          }
+        `,
+        data: {
+          account: {
+            passwordCreated: Date.now(),
+            __typename: 'Account',
+          },
+        },
+      });
+    }
+  });
+  firefox.addEventListener(FirefoxCommand.AccountDeleted, (event) => {
+    if (isForCurrentUser(event)) {
+      window.location.assign('/');
+    }
+  });
+  firefox.addEventListener(FirefoxCommand.Error, (event) => {
+    console.error(event);
+  });
 
   render(
     <React.StrictMode>

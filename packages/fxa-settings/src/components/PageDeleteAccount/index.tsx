@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useAccountDestroyer } from '../../lib/auth';
 import { sessionToken } from '../../lib/cache';
+import firefox from '../../lib/firefox';
 import { useAlertBar } from '../../lib/hooks';
 import { useAccount } from '../../models';
 import InputPassword from '../InputPassword';
@@ -62,7 +63,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const goBack = useCallback(() => window.history.back(), []);
 
-  const { primaryEmail } = useAccount();
+  const { primaryEmail, uid } = useAccount();
 
   const advanceStep = () => {
     setSubtitleText(l10n.getString('delete-account-step-2-2'));
@@ -73,6 +74,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
 
   const deleteAccount = useAccountDestroyer({
     onSuccess: () => {
+      firefox.accountDeleted(uid);
       // must use location.href over navigate() since this is an external link
       window.location.href = `${ROOTPATH}?delete_account_success=true`;
       logViewEvent('flow.settings.account-delete', 'confirm-password.success');

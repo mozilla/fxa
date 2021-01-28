@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import React, { useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
+import firefox from '../../lib/firefox';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { gql } from '@apollo/client';
 import AlertBar from '../AlertBar';
@@ -44,6 +45,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
 
   const [updateDisplayName] = useMutation(UPDATE_DISPLAY_NAME_MUTATION, {
     onCompleted: () => {
+      firefox.profileChanged(account.uid);
       navigate(HomePath, { replace: true });
     },
     onError(err) {
