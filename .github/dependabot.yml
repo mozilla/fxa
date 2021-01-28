@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "daily"
     open-pull-requests-limit: 6
-    default_labels:
+    labels:
       - "code_quality"
       - "dependencies"
     reviewers:
