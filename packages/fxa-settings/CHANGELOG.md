@@ -1,3 +1,32 @@
+## 1.199.0
+
+### New features
+
+- settings: Localize the Avatar page ([1ca29b242](https://github.com/mozilla/fxa/commit/1ca29b242))
+- settings: extract reused strings into the App ftl file ([0e7f50dbd](https://github.com/mozilla/fxa/commit/0e7f50dbd))
+- settings: Localize the Recovery Key page ([714caaa38](https://github.com/mozilla/fxa/commit/714caaa38))
+- settings: localize footer ([cd88cca73](https://github.com/mozilla/fxa/commit/cd88cca73))
+- settings: localize header ([842beb254](https://github.com/mozilla/fxa/commit/842beb254))
+- fxa-settings: add ## 1.198.2 capture avatar page ([02e1b27a0](https://github.com/mozilla/fxa/commit/02e1b27a0))
+- settings: Localize the Verify Secondary Email page ([f769d94bc](https://github.com/mozilla/fxa/commit/f769d94bc))
+- settings: Localize the Add Secondary Email page ([344ce0169](https://github.com/mozilla/fxa/commit/344ce0169))
+- l10n: setup localization for delete account page ([0ddb09e8b](https://github.com/mozilla/fxa/commit/0ddb09e8b))
+- settings: localize page title ([480c70203](https://github.com/mozilla/fxa/commit/480c70203))
+- settings: add avatar editing page component ([228169fd6](https://github.com/mozilla/fxa/commit/228169fd6))
+- l10n: setup localization for auth errors ([a84b0a27a](https://github.com/mozilla/fxa/commit/a84b0a27a))
+- fxa-settings: add delete account page ([16ee46a34](https://github.com/mozilla/fxa/commit/16ee46a34))
+- settings: add avatar editing page component ([691173c37](https://github.com/mozilla/fxa/commit/691173c37))
+- l10n: Add initial fluent l10n for settings v2 ([c95ee6f8a](https://github.com/mozilla/fxa/commit/c95ee6f8a))
+
+### Other changes
+
+- settings: localize main settings page ([72d39f99d](https://github.com/mozilla/fxa/commit/72d39f99d))
+- deps-dev: bump @testing-library/jest-dom from 5.11.0 to 5.11.9 ([d0f1f6301](https://github.com/mozilla/fxa/commit/d0f1f6301))
+- deps: bump react-hook-form from 6.11.0 to 6.14.2 ([43255fb24](https://github.com/mozilla/fxa/commit/43255fb24))
+- settings: add l10n to two step auth ([f84c2747c](https://github.com/mozilla/fxa/commit/f84c2747c))
+- eslint: count jsx var usage ([97fc3aaf3](https://github.com/mozilla/fxa/commit/97fc3aaf3))
+- settings: use small .ftl files ([2cc276ea4](https://github.com/mozilla/fxa/commit/2cc276ea4))
+
 ## 1.198.2
 
 No changes.
