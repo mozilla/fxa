@@ -8165,7 +8165,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^7.0.2":
+"ajv@npm:^7.0.2, ajv@npm:^7.0.3":
   version: 7.0.3
   resolution: "ajv@npm:7.0.3"
   dependencies:
@@ -18159,7 +18159,7 @@ fsevents@^1.2.7:
     "@types/safe-regex": 1.1.2
     "@types/verror": ^1.10.3
     acorn: ^8.0.1
-    ajv: ^6.12.2
+    ajv: ^7.0.3
     audit-filter: ^0.5.0
     aws-sdk: ^2.822.0
     base64url: 3.0.1
@@ -18693,7 +18693,7 @@ fsevents@^1.2.7:
     "@types/mocha": ^7.0.2
     "@types/node": ^14.14.5
     "@types/sinon": 9.0.8
-    ajv: ^6.12.2
+    ajv: ^7.0.3
     audit-filter: ^0.5.0
     chai: ^4.2.0
     convict: ^6.0.0
@@ -19049,7 +19049,7 @@ fsevents@^1.2.7:
     "@types/sinon": 9.0.8
     "@types/superagent": ^4.1.10
     accept-language: ^2.0.17
-    ajv: ^6.12.2
+    ajv: ^7.0.3
     apollo-server: ^2.19.2
     audit-filter: ^0.5.0
     aws-sdk: ^2.822.0
