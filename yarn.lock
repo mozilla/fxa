@@ -6453,10 +6453,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsrsasign@npm:8.0.8":
-  version: 8.0.8
-  resolution: "@types/jsrsasign@npm:8.0.8"
-  checksum: 824afb01ae18ea6448684e16ada7d54098b72bb0d438b99f70c63dcd13876a03f2121b5d811fd6f01f55f909562aa60757533e1e1e951d08f21cf0258ca8c029
+"@types/jsrsasign@npm:8.0.9":
+  version: 8.0.9
+  resolution: "@types/jsrsasign@npm:8.0.9"
+  checksum: 33c9e1e85a04af908c0ae7d72a0c7f114805e3496c0c96c8550d09b9eb47207d82f8d2ae0b057ab8cb8dd0d806d19d14aebfced17332772cfbc8d7e97c57309e
   languageName: node
   linkType: hard
 
@@ -18360,7 +18360,7 @@ fsevents@^1.2.7:
     "@types/ioredis": ^4.16.7
     "@types/joi": ^14.3.3
     "@types/jsonwebtoken": ^8.5.0
-    "@types/jsrsasign": 8.0.8
+    "@types/jsrsasign": 8.0.9
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
     "@types/memcached": ^2.2.6

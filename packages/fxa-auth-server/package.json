@@ -108,7 +108,7 @@
     "@types/ioredis": "^4.16.7",
     "@types/joi": "^14.3.3",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/jsrsasign": "8.0.8",
+    "@types/jsrsasign": "8.0.9",
     "@types/jws": "^3.2.3",
     "@types/lodash": "^4",
     "@types/memcached": "^2.2.6",
