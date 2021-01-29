@@ -212,6 +212,7 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
   productId: string;
   paymentMethodId?: string;
   idempotencyKey: string;
+  paymentProvider: Amplitude.PaymentProvider;
 }): Promise<{
   id: string;
   latest_invoice: {
@@ -224,10 +225,17 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
     };
   };
 }> {
-  const { priceId, paymentMethodId, idempotencyKey } = params;
+  const {
+    priceId,
+    productId,
+    paymentMethodId,
+    idempotencyKey,
+    paymentProvider,
+  } = params;
   const metricsOptions = {
-    planId: params.priceId,
-    productId: params.productId,
+    planId: priceId,
+    productId,
+    paymentProvider,
   };
   try {
     Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);

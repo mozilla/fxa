@@ -32,12 +32,15 @@ type GlobalEventProperties = {
   uid?: string;
 };
 
+export type PaymentProvider = 'PayPal' | 'Stripe';
+
 type EventProperties = GlobalEventProperties & {
   planId?: string;
   plan_id?: string;
   productId?: string;
   product_id?: string;
   error?: Error;
+  paymentProvider?: PaymentProvider;
 };
 
 type SuccessfulSubscriptionEventProperties = EventProperties & {
