@@ -12,7 +12,7 @@ module.exports = [
   'tests/functional/fx_firstrun_v2.js',
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
-  'tests/functional/oauth_reset_password.js',
+  //'tests/functional/oauth_reset_password.js',
   // 'tests/functional/oauth_sign_in_token_code.js',
   'tests/functional/oauth_sign_up.js',
   'tests/functional/oauth_sync_sign_in.js',
