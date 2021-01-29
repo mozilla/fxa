@@ -41,10 +41,8 @@ mkdir -p artifacts/tests
 
 cd packages/fxa-content-server
 mozinstall /firefox.tar.bz2
-test_suite functional_smoke
+test_suite functional_smoke && test_suite functional
 # TODO - restore these
 #test_suite server
 #mozinstall /7f10c7614e9fa46-target.tar.bz2
 #test_suite pairing
-
-
