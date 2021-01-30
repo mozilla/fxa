@@ -4,7 +4,6 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
-import ScopeSet from 'fxa-shared/oauth/scopes';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   DeepPartial,
@@ -23,28 +22,7 @@ import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { splitCapabilities } from '../utils/subscriptions';
 import validators from '../validators';
-
-const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
-  'https://identity.mozilla.com/account/subscriptions';
-
-/**
- * Authentication handler for subscription routes.
- */
-export async function handleAuth(db: any, auth: any, fetchEmail = false) {
-  const scope = ScopeSet.fromArray(auth.credentials.scope);
-  if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
-    throw error.invalidScopes();
-  }
-  const { user: uid } = auth.credentials;
-  let email;
-  if (!fetchEmail) {
-    ({ email } = auth.credentials);
-  } else {
-    const account = await db.account(uid);
-    ({ email } = account.primaryEmail);
-  }
-  return { uid, email };
-}
+import { handleAuth } from './utils';
 
 /**
  * Delete any metadata keys prefixed by `capabilities:` before
