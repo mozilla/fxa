@@ -1851,7 +1851,7 @@ describe('email translations', () => {
       );
       assert.include(
         emailConfig.subject,
-        'Добавлена альтернативная электронная почта'
+        'Добавлена дополнительная электронная почта'
       );
       // assert.include(emailConfig.html, 'Подсоединить другое устройство');
     });
