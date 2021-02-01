@@ -323,6 +323,7 @@ export class StripeHelper {
         items: [{ price: priceId }],
         expand: ['latest_invoice'],
         collection_method: 'send_invoice',
+        days_until_due: 1,
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
@@ -402,7 +403,7 @@ export class StripeHelper {
       return customer;
     }
     return this.stripe.customers.update(customer.id, {
-      metadata: { PAYPAL_AGREEMENT_METADATA_KEY: agreementId },
+      metadata: { [PAYPAL_AGREEMENT_METADATA_KEY]: agreementId },
     });
   }
 

@@ -88,7 +88,7 @@ export const SubscriptionCreate = ({
       return;
     }
     const script = document.createElement('script');
-    script.src = `${config.paypal.scriptUrl}/sdk/js?client-id=${config.paypal.clientId}&debug=true&vault=true&commit=false&intent=capture&disable-funding=credit,card`;
+    script.src = `${config.paypal.scriptUrl}/sdk/js?client-id=${config.paypal.clientId}&vault=true&commit=false&intent=capture&disable-funding=credit,card`;
     script.onload = () => {
       setPaypalScriptLoaded(true);
     };
@@ -160,11 +160,23 @@ export const SubscriptionCreate = ({
         idempotencyKey: submitNonce,
       });
     }
-    console.log('CANARY', 'onCreateOrder', 1);
     const { token } = await apiClient.apiGetPaypalCheckoutToken();
-    console.log('CANARY', 'onCreateOrder', 2);
     return token;
   }, [customer, apiClient.apiCreateCustomer, submitNonce]);
+
+  const onApprove = useCallback(
+    async (token) => {
+      // TODO: Find out from Ben what a successful response and failed response look like;
+      // Probably to include a subscription ID or object
+      const response = await apiClient.apiCapturePaypalPayment({
+        idempotencyKey: submitNonce,
+        priceId: selectedPlan.plan_id,
+        token,
+      });
+      refreshSubscriptions();
+    },
+    [selectedPlan.plan_id, apiClient.apiCapturePaypalPayment, submitNonce]
+  );
 
   return (
     <>
@@ -185,7 +197,10 @@ export const SubscriptionCreate = ({
 
           {!hasExistingCard(customer) && paypalScriptLoaded && (
             <Suspense fallback={<div>Loading...</div>}>
-              <PaypalButton onCreateOrder={onCreateOrder} />
+              <PaypalButton
+                onCreateOrder={onCreateOrder}
+                _onApprove={onApprove}
+              />
             </Suspense>
           )}
 

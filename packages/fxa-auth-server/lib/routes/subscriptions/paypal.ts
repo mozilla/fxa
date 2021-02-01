@@ -171,10 +171,11 @@ export const paypalRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: isA.object({
+          schema: isA.object().keys({
             subscription: validators.subscriptionsStripeSubscriptionValidator,
             sourceCountry: validators.subscriptionPaymentCountryCode.required(),
           }),
+          failAction: 'log',
         },
         validate: {
           payload: {

@@ -215,7 +215,6 @@ const customerIsSubscribedToProduct = (
   customerSubscriptions.some((customerSubscription) =>
     productPlans.some((plan) => plan.plan_id === customerSubscription.plan_id)
   );
-
 // If the customer has any subscribed plan that matches the productSet
 // for the selected plan, then that is the plan from which to upgrade.
 const findUpgradeFromPlan = (

@@ -216,6 +216,21 @@ export async function apiGetPaypalCheckoutToken(): Promise<{
   );
 }
 
+export async function apiCapturePaypalPayment(params: {
+  idempotencyKey: string;
+  priceId: string;
+  token: string;
+}): Promise<{
+  sourceCountry: string;
+  subscription: Subscription;
+}> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/active/new-paypal`,
+    { body: JSON.stringify(params) }
+  );
+}
+
 export async function apiCreateSubscriptionWithPaymentMethod(params: {
   priceId: string;
   productId: string;
