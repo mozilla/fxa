@@ -114,6 +114,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@apollo/client@npm:^3.1.3, @apollo/client@npm:^3.2.5":
+  version: 3.3.8
+  resolution: "@apollo/client@npm:3.3.8"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.0.0
+    "@types/zen-observable": ^0.8.0
+    "@wry/context": ^0.5.2
+    "@wry/equality": ^0.3.0
+    fast-json-stable-stringify: ^2.0.0
+    graphql-tag: ^2.11.0
+    hoist-non-react-statics: ^3.3.2
+    optimism: ^0.14.0
+    prop-types: ^15.7.2
+    symbol-observable: ^2.0.0
+    ts-invariant: ^0.6.0
+    tslib: ^1.10.0
+    zen-observable: ^0.8.14
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0
+    react: ^16.8.0 || ^17.0.0
+    subscriptions-transport-ws: ^0.9.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    subscriptions-transport-ws:
+      optional: true
+  checksum: 316c325d042909440c5afe1354e9fc27ae69bd130e3290feea16929e9664219243736b09a092720df5a86c616f9518c2d28ed0304bb0fbbf694929757c0835d7
+  languageName: node
+  linkType: hard
+
 "@apollo/client@npm:^3.1.5":
   version: 3.3.6
   resolution: "@apollo/client@npm:3.3.6"
@@ -171,6 +201,36 @@ __metadata:
     subscriptions-transport-ws:
       optional: true
   checksum: eb06152f3e92cb2d6ebe400f9f3392fa106816bc9bd60fdb57cc160ac077c3e0cc5a00978e53cd4796fb87617eb05c836c82e3e16e828e1deee3a79940f951f1
+  languageName: node
+  linkType: hard
+
+"@apollo/client@npm:^3.3.9":
+  version: 3.3.9
+  resolution: "@apollo/client@npm:3.3.9"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.0.0
+    "@types/zen-observable": ^0.8.0
+    "@wry/context": ^0.5.2
+    "@wry/equality": ^0.3.0
+    fast-json-stable-stringify: ^2.0.0
+    graphql-tag: ^2.12.0
+    hoist-non-react-statics: ^3.3.2
+    optimism: ^0.14.0
+    prop-types: ^15.7.2
+    symbol-observable: ^2.0.0
+    ts-invariant: ^0.6.0
+    tslib: ^1.10.0
+    zen-observable: ^0.8.14
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0
+    react: ^16.8.0 || ^17.0.0
+    subscriptions-transport-ws: ^0.9.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    subscriptions-transport-ws:
+      optional: true
+  checksum: 8b0662d70e6ef203d7e3df6e013205c891967f42f3b639cafb56d87e7cdf56c1c150358e6fd69cdc5fb9e894ed352785cdf26d7d15b76921ed028f8247fdb6a2
   languageName: node
   linkType: hard
 
@@ -5978,6 +6038,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/apollo-upload-client@npm:^14.1.0":
+  version: 14.1.0
+  resolution: "@types/apollo-upload-client@npm:14.1.0"
+  dependencies:
+    "@apollo/client": ^3.1.3
+    "@types/extract-files": "*"
+    graphql: ^15.3.0
+  checksum: efaddda8bd60980514754e2ef9d58a2864b85d9b93c98ebfe944304772b7850d3911254b99f2f73374a40381577bb9dc8eb0e46a17040dabe6707c899268b9ae
+  languageName: node
+  linkType: hard
+
 "@types/aria-query@npm:^4.2.0":
   version: 4.2.0
   resolution: "@types/aria-query@npm:4.2.0"
@@ -6339,6 +6410,13 @@ __metadata:
     "@types/qs": "*"
     "@types/serve-static": "*"
   checksum: 99b795c60e7368b575794574c35d0ffd0d119c52bc681af6beda2fee70aada78e8aef07fc0db3b88f594d5d935847de4187561d2456760eeb4fde5d10dbb3780
+  languageName: node
+  linkType: hard
+
+"@types/extract-files@npm:*":
+  version: 8.1.0
+  resolution: "@types/extract-files@npm:8.1.0"
+  checksum: 378a28b22002bd5fe1c2d8fb6014c8a281422a6d1d64806ae6c2ab3ebd59485fa16fd9a38bd3ed6ca6aee15ca13d9ff9850f6bff201558ac482c708809ebcd87
   languageName: node
   linkType: hard
 
@@ -6803,6 +6881,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/material-ui@npm:^0.21.8":
+  version: 0.21.8
+  resolution: "@types/material-ui@npm:0.21.8"
+  dependencies:
+    "@types/react": "*"
+    "@types/react-addons-linked-state-mixin": "*"
+  checksum: 0791f61ad87837a0499a38e44c78a140c6c13c524adbfb6da1065c90ac384196e9601806bc000a39af3073e6d16574eaeec9972c7400501bb6d3b6bc4c981aef
+  languageName: node
+  linkType: hard
+
 "@types/memcached@npm:^2.2.6":
   version: 2.2.6
   resolution: "@types/memcached@npm:2.2.6"
@@ -7030,6 +7118,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-addons-linked-state-mixin@npm:*":
+  version: 0.14.21
+  resolution: "@types/react-addons-linked-state-mixin@npm:0.14.21"
+  dependencies:
+    "@types/react": "*"
+  checksum: b912bf9c4813776f34d048ac41c2b344998d1657ed4057e05664ad856a5a4f21036af6d20e4f84cb92204232a226a7886354af7c6ac3b9180e4f4de45d4b831a
+  languageName: node
+  linkType: hard
+
 "@types/react-document-title@npm:^2.0.3":
   version: 2.0.4
   resolution: "@types/react-document-title@npm:2.0.4"
@@ -7169,6 +7266,15 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: 6aedc6e16ad0eba99e76b9a93420fa0059d65f17433693cadcb10958262e1c7a524d270b180ecbbcc46b73a4eac62fc212abaf547b293ca7ba58be4ef9cb3e65
+  languageName: node
+  linkType: hard
+
+"@types/react-webcam@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@types/react-webcam@npm:3.0.0"
+  dependencies:
+    react-webcam: "*"
+  checksum: d73893244a1f041920424ab9e5746c87206945ef6a795e4de7bbe63d33205ec6c722ed2e2fa6e65b8766ee22deb23419b8ba355271db21045d391c61d02ffacf
   languageName: node
   linkType: hard
 
@@ -9385,6 +9491,19 @@ __metadata:
     graphql: 14 - 15
     subscriptions-transport-ws: ^0.9.0
   checksum: 835653cf389f3f994b692ae7b596983e06101edfa3479af24a5b2b6eb5762a676dd95486ab986370680f2ea7ede4780ada0b746d154047b3e9002cfead85d45e
+  languageName: node
+  linkType: hard
+
+"apollo-upload-client@npm:^14.1.3":
+  version: 14.1.3
+  resolution: "apollo-upload-client@npm:14.1.3"
+  dependencies:
+    "@apollo/client": ^3.2.5
+    "@babel/runtime": ^7.12.5
+    extract-files: ^9.0.0
+  peerDependencies:
+    graphql: 14 - 15
+  checksum: c533319b29a724bc7a5468213878fe4f2b9594503827e9247757c6bf1fa774505a3717ad2da65457da7e14de11744b85a3e3d204db434d94499f3e22bda5f0e5
   languageName: node
   linkType: hard
 
@@ -14196,13 +14315,6 @@ __metadata:
   dependencies:
     moment-timezone: ^0.5.x
   checksum: 58189a955b6f504eb7a6d17a47f3b01806331477ac8f905278c44c18e9dcf76abd754177c5c82c87d5a846acd9cdaec5dc458a97213314172350bbdc08b7391e
-  languageName: node
-  linkType: hard
-
-"cropperjs@npm:^1.5.9":
-  version: 1.5.9
-  resolution: "cropperjs@npm:1.5.9"
-  checksum: fdde8efe80866aa034859dddbce019a4c18b64548c5044e16b07234d78a074df48005fcec9c33f447b2f8158361e7cb388861973cd61f1a751c1b343cf665dc2
   languageName: node
   linkType: hard
 
@@ -19543,7 +19655,7 @@ fsevents@~2.3.1:
   version: 0.0.0-use.local
   resolution: "fxa-settings@workspace:packages/fxa-settings"
   dependencies:
-    "@apollo/client": ^3.3.7
+    "@apollo/client": ^3.3.9
     "@babel/core": ^7.10.3
     "@emotion/react": ^11.1.4
     "@fluent/react": ^0.13.0
@@ -19562,16 +19674,20 @@ fsevents@~2.3.1:
     "@testing-library/react": ^9.5.0
     "@testing-library/react-hooks": ^5.0.3
     "@testing-library/user-event": ^12.6.0
+    "@types/apollo-upload-client": ^14.1.0
     "@types/babel__core": 7.1.12
     "@types/classnames": ^2.2.10
     "@types/jest": ^26.0.20
     "@types/lodash.groupby": ^4
+    "@types/material-ui": ^0.21.8
     "@types/node": ^14.14.5
     "@types/react": ^16.9.53
     "@types/react-dom": ^16.9.6
     "@types/react-test-renderer": ^16
+    "@types/react-webcam": ^3.0.0
     "@types/testing-library__react-hooks": ^3
     "@types/webpack": 4.41.16
+    apollo-upload-client: ^14.1.3
     babel-loader: ^8.0.0
     base32-decode: ^1.0.0
     base32-encode: ^1.1.1
@@ -19595,7 +19711,6 @@ fsevents@~2.3.1:
     postcss-import: ^12.0.1
     react: ^16.13.1
     react-async-hook: ^3.6.1
-    react-cropper: ^2.1.4
     react-dom: ^16.13.1
     react-easy-crop: ^3.3.1
     react-hook-form: ^6.14.2
@@ -20472,6 +20587,17 @@ fsevents@~2.3.1:
   peerDependencies:
     graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 400355590180cce2f39df5c599cad20ee982bb7e4a63ad70857aa0fe2e82e3ef6233a4db2b80a03e6dfa84bf3ecb13dc2947936eaf31753c94876e22be45ea78
+  languageName: node
+  linkType: hard
+
+"graphql-tag@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "graphql-tag@npm:2.12.0"
+  dependencies:
+    tslib: ^1.14.1
+  peerDependencies:
+    graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
+  checksum: 5589000ba86013023076842192bd569f579a647fbc3bfd86831e6ddc6c275cf430b532476717adba45c514ca90650fc5cb3329bc45e38a9b849f6fcb047444c9
   languageName: node
   linkType: hard
 
@@ -31831,17 +31957,6 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"react-cropper@npm:^2.1.4":
-  version: 2.1.4
-  resolution: "react-cropper@npm:2.1.4"
-  dependencies:
-    cropperjs: ^1.5.9
-  peerDependencies:
-    react: ^16.0.0-0
-  checksum: 058e4500b62d45132bd9ab8a7006ccc6f0ff3a37bce710fedd98722c232b9d79e6ba8d5381e68562811bb2a1c794e871642bb1cedbf9d1e5e471872a42b5d625
-  languageName: node
-  linkType: hard
-
 "react-dev-utils@npm:^10.2.1":
   version: 10.2.1
   resolution: "react-dev-utils@npm:10.2.1"
@@ -32448,7 +32563,7 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"react-webcam@npm:^5.2.2":
+"react-webcam@npm:*, react-webcam@npm:^5.2.2":
   version: 5.2.2
   resolution: "react-webcam@npm:5.2.2"
   peerDependencies:

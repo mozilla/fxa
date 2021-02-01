@@ -9,10 +9,11 @@ const ORIENTATION_TO_ANGLE = {
   '8': -90,
 };
 
-function readFile(file: Blob, onError: Function) {
+function readFile(file: Blob, onError: Function): Promise<string | ArrayBuffer | null> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => resolve(reader.result), false);
+    reader.addEventListener('error', (err) => onError(err));
     reader.readAsDataURL(file);
   });
 }

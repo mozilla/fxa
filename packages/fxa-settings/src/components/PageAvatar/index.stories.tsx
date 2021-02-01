@@ -9,25 +9,14 @@ import { LocationProvider } from '@reach/router';
 import { MockedCache } from '../../models/_mocks';
 import AppLayout from '../AppLayout';
 
-import PageAddAvatar from './Add';
-import { PageCaptureAvatar } from './Capture';
+import PageAvatar from './';
 
-storiesOf('Pages|PageAddAvatar', module)
+storiesOf('Pages|PageAvatar', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <MockedCache>
       <AppLayout>
-        <PageAddAvatar />
-      </AppLayout>
-    </MockedCache>
-  ));
-
-storiesOf('Pages|PageCaptureAvatar', module)
-  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => (
-    <MockedCache>
-      <AppLayout>
-        <PageCaptureAvatar />
+        <PageAvatar />
       </AppLayout>
     </MockedCache>
   ));
