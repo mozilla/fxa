@@ -199,6 +199,9 @@ describe('subscriptions stripeRoutes', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
+        paypalNvpSigCredentials: {
+          enabled: true,
+        },
       },
     };
 
