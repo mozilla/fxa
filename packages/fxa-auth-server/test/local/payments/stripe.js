@@ -35,6 +35,7 @@ const product2 = require('./fixtures/stripe/product2.json');
 const product3 = require('./fixtures/stripe/product3.json');
 const subscription1 = require('./fixtures/stripe/subscription1.json');
 const subscription2 = require('./fixtures/stripe/subscription2.json');
+const multiPlanSubscription = require('./fixtures/stripe/subscription_multiplan.json');
 const subscriptionPMIExpanded = require('./fixtures/stripe/subscription_pmi_expanded.json');
 const cancelledSubscription = require('./fixtures/stripe/subscription_cancelled.json');
 const pastDueSubscription = require('./fixtures/stripe/subscription_past_due.json');
@@ -526,6 +527,299 @@ describe('StripeHelper', () => {
             assert.equal(err, apiError);
           }
         );
+    });
+  });
+
+  describe('createSubscriptionWithPaypal', () => {
+    it('creates a subscription successfully', async () => {
+      sandbox
+        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .returns(undefined);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(subscriptionPMIExpanded);
+      const actual = await stripeHelper.createSubscriptionWithPaypal({
+        customer: customer1,
+        priceId: 'priceId',
+        subIdempotencyKey: uuidv4(),
+      });
+
+      assert.deepEqual(actual, subscriptionPMIExpanded);
+    });
+
+    it('returns a usable sub if one is active/past_due', async () => {
+      const collectionSubscription = deepCopy(subscription1);
+      collectionSubscription.collection_method = 'send_invoice';
+      sandbox
+        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .returns(collectionSubscription);
+      sandbox.stub(stripeHelper, 'expandResource').returns({});
+      const actual = await stripeHelper.createSubscriptionWithPaypal({
+        customer: customer1,
+        priceId: 'priceId',
+        subIdempotencyKey: uuidv4(),
+      });
+
+      assert.deepEqual(actual, collectionSubscription);
+    });
+
+    it('throws an error for an existing charge subscription', async () => {
+      sandbox
+        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .returns(subscription1);
+      sandbox.stub(stripeHelper, 'expandResource').returns({});
+      try {
+        await stripeHelper.createSubscriptionWithPaypal({
+          customer: customer1,
+          priceId: 'priceId',
+          subIdempotencyKey: uuidv4(),
+        });
+        assert.fail('Error should throw with active charge subscription');
+      } catch (err) {
+        assert.deepEqual(err, error.subscriptionAlreadyExists());
+      }
+    });
+
+    it('deletes an incomplete subscription when creating', async () => {
+      const collectionSubscription = deepCopy(subscription1);
+      collectionSubscription.status = 'incomplete';
+      sandbox
+        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .returns(collectionSubscription);
+      sandbox.stub(stripeHelper.stripe.subscriptions, 'del').resolves({});
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(subscription1);
+      const actual = await stripeHelper.createSubscriptionWithPaypal({
+        customer: customer1,
+        priceId: 'priceId',
+        subIdempotencyKey: uuidv4(),
+      });
+
+      assert.deepEqual(actual, subscription1);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.del,
+        collectionSubscription.id
+      );
+    });
+  });
+
+  describe('finalizeInvoice', () => {
+    it('works successfully', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'finalizeInvoice')
+        .resolves({});
+      const actual = await stripeHelper.finalizeInvoice(unpaidInvoice);
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.finalizeInvoice,
+        unpaidInvoice.id,
+        {
+          auto_advance: false,
+        }
+      );
+    });
+  });
+
+  describe('updateInvoiceWithPaypalTransactionId', () => {
+    it('works successfully', async () => {
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      const actual = await stripeHelper.updateInvoiceWithPaypalTransactionId(
+        unpaidInvoice,
+        'tid'
+      );
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        unpaidInvoice.id,
+        {
+          metadata: { paypalTransactionId: 'tid' },
+        }
+      );
+    });
+  });
+
+  describe('getPaymentAttempts', () => {
+    it('returns 0 with no attempts', () => {
+      const actual = stripeHelper.getPaymentAttempts(unpaidInvoice);
+      assert.equal(actual, 0);
+    });
+
+    it('returns 1 when the attempt is 1', () => {
+      const attemptedInvoice = deepCopy(unpaidInvoice);
+      attemptedInvoice.metadata['paymentAttempts'] = '1';
+      const actual = stripeHelper.getPaymentAttempts(attemptedInvoice);
+      assert.equal(actual, 1);
+    });
+  });
+
+  describe('updatePaymentAttempts', () => {
+    it('returns 1 updating from 0', async () => {
+      const attemptedInvoice = deepCopy(unpaidInvoice);
+      const actual = stripeHelper.getPaymentAttempts(attemptedInvoice);
+      assert.equal(actual, 0);
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      await stripeHelper.updatePaymentAttempts(attemptedInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        attemptedInvoice.id,
+        {
+          metadata: { paymentAttempts: '1' },
+        }
+      );
+    });
+
+    it('returns 2 updating from 1', async () => {
+      const attemptedInvoice = deepCopy(unpaidInvoice);
+      attemptedInvoice.metadata.paymentAttempts = '1';
+      const actual = stripeHelper.getPaymentAttempts(attemptedInvoice);
+      assert.equal(actual, 1);
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      await stripeHelper.updatePaymentAttempts(attemptedInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        attemptedInvoice.id,
+        {
+          metadata: { paymentAttempts: '2' },
+        }
+      );
+    });
+  });
+
+  describe('payInvoiceOutOfBand', () => {
+    it('pays the invoice', async () => {
+      sandbox.stub(stripeHelper.stripe.invoices, 'pay').resolves({});
+      await stripeHelper.payInvoiceOutOfBand(unpaidInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.pay,
+        unpaidInvoice.id,
+        { paid_out_of_band: true }
+      );
+    });
+  });
+
+  describe('updateCustomerPaypalAgreement', () => {
+    it('skips if the agreement id is already set', async () => {
+      const paypalCustomer = deepCopy(customer1);
+      paypalCustomer.metadata.paypalAgreementId = 'test-1234';
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+      await stripeHelper.updateCustomerPaypalAgreement(
+        paypalCustomer,
+        'test-1234'
+      );
+      sinon.assert.callCount(stripeHelper.stripe.customers.update, 0);
+    });
+
+    it('updates for a billing agreement id', async () => {
+      const paypalCustomer = deepCopy(customer1);
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+      await stripeHelper.updateCustomerPaypalAgreement(
+        paypalCustomer,
+        'test-1234'
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.update,
+        paypalCustomer.id,
+        { metadata: { paypalAgreementId: 'test-1234' } }
+      );
+    });
+  });
+
+  describe('getCustomerPaypalAgreement', () => {
+    it('returns undefined with no paypal agreement', () => {
+      const actual = stripeHelper.getCustomerPaypalAgreement(customer1);
+      assert.isUndefined(actual);
+    });
+
+    it('returns an agreement when set', () => {
+      const paypalCustomer = deepCopy(customer1);
+      paypalCustomer.metadata.paypalAgreementId = 'test-1234';
+      const actual = stripeHelper.getCustomerPaypalAgreement(paypalCustomer);
+      assert.equal(actual, 'test-1234');
+    });
+  });
+
+  describe('findCustomerSubscriptionByPlanId', () => {
+    describe('Customer has Single One-Plan Subscription', () => {
+      const customer = deepCopy(customer1);
+      customer.subscriptions.data = [subscription2];
+      it('returns the Subscription when the plan id is found', () => {
+        const expected = customer.subscriptions.data[0];
+        const actual = stripeHelper.findCustomerSubscriptionByPlanId(
+          customer,
+          customer.subscriptions.data[0].items.data[0].plan.id
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns `undefined` when the plan id is not found', () => {
+        assert.isUndefined(
+          stripeHelper.findCustomerSubscriptionByPlanId(customer, 'plan_test2')
+        );
+      });
+    });
+
+    describe('Customer has Single Multi-Plan Subscription', () => {
+      const customer = deepCopy(customer1);
+      customer.subscriptions.data = [multiPlanSubscription];
+
+      it('returns the Subscription when the plan id is found - first in array', () => {
+        const expected = customer.subscriptions.data[0];
+        const actual = stripeHelper.findCustomerSubscriptionByPlanId(
+          customer,
+          'plan_1'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns the Subscription when the plan id is found - not first in array', () => {
+        const expected = customer.subscriptions.data[0];
+        const actual = stripeHelper.findCustomerSubscriptionByPlanId(
+          customer,
+          'plan_2'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns `undefined` when the plan id is not found', () => {
+        assert.isUndefined(
+          stripeHelper.findCustomerSubscriptionByPlanId(customer, 'plan_3')
+        );
+      });
+    });
+
+    describe('Customer has Multiple Subscriptions', () => {
+      const customer = deepCopy(customer1);
+      customer.subscriptions.data = [multiPlanSubscription, subscription2];
+
+      it('returns the Subscription when the plan id is found in the first subscription', () => {
+        const expected = customer.subscriptions.data[0];
+        const actual = stripeHelper.findCustomerSubscriptionByPlanId(
+          customer,
+          'plan_2'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns the Subscription when the plan id is found in not the first subscription', () => {
+        const expected = customer.subscriptions.data[1];
+        const actual = stripeHelper.findCustomerSubscriptionByPlanId(
+          customer,
+          'plan_G93mMKnIFCjZek'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns `undefined` when the plan id is not found', () => {
+        assert.isUndefined(
+          stripeHelper.findCustomerSubscriptionByPlanId(customer, 'plan_test2')
+        );
+      });
     });
   });
 

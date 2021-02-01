@@ -110,24 +110,7 @@ export class StripeHandler {
     );
   }
 
-  findCustomerSubscriptionByPlanId(
-    customer: Stripe.Customer,
-    planId: string
-  ): Stripe.Subscription | undefined {
-    if (!customer.subscriptions) {
-      throw error.internalValidationError(
-        'findCustomerSubscriptionByPlanId',
-        {
-          customerId: customer.id,
-        },
-        'Expected subscriptions to be loaded.'
-      );
-    }
-    return customer.subscriptions.data.find(
-      (sub) => sub.items.data.find((item) => item.plan.id === planId) != null
-    );
-  }
-
+  // TODO: This can be removed, its a ghost function, no callers.
   findCustomerSubscriptionByProductId(
     customer: Stripe.Customer,
     productId: string
