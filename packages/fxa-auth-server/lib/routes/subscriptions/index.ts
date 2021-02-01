@@ -21,8 +21,7 @@ const createRoutes = (
   push: any,
   mailer: any,
   profile: any,
-  stripeHelper: StripeHelper,
-  payPalHelper: PayPalHelper
+  stripeHelper: StripeHelper
 ) => {
   const routes: ServerRoute[] = [];
 
@@ -57,7 +56,7 @@ const createRoutes = (
       )
     );
   }
-  if (stripeHelper && payPalHelper) {
+  if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {
     routes.push(
       ...paypalRoutes(
         log,

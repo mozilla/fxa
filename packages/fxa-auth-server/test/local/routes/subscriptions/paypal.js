@@ -20,10 +20,13 @@ const MOCK_SCOPES = ['profile:email', SUBSCRIPTIONS_MANAGEMENT_SCOPE];
 
 let log, customs, request, payPalHelper;
 
-function runTest(routePath, requestOptions, ppHelper = null) {
+function runTest(routePath, requestOptions) {
   const config = {
     subscriptions: {
       enabled: true,
+      paypalNvpSigCredentials: {
+        enabled: true,
+      },
     },
   };
   const db = mocks.mockDB({
@@ -38,8 +41,7 @@ function runTest(routePath, requestOptions, ppHelper = null) {
     {}, // push
     {}, // mailer
     {}, // profile
-    {}, // stripeHelper
-    ppHelper
+    {} // stripeHelper
   );
   const route = getRoute(routes, routePath, requestOptions.method || 'GET');
   request = mocks.mockRequest(requestOptions);
