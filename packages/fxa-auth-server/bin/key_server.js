@@ -9,6 +9,7 @@ const jwtool = require('fxa-jwtool');
 const { setupAuthDatabase } = require('fxa-shared/db');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
+const { StripeHelper } = require('../lib/payments/stripe');
 
 async function run(config) {
   const statsd = config.statsd.enabled
@@ -36,6 +37,7 @@ async function run(config) {
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
     const createStripeHelper = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
+    Container.set(StripeHelper, stripeHelper);
 
     if (config.subscriptions.paypalNvpSigCredentials.enabled) {
       const { PayPalClient } = require('../lib/payments/paypal-client');

@@ -54,10 +54,10 @@ export type PAYPAL_NVP_ACK_OPTIONS =
 
 type NVPResponse = {
   ACK: PAYPAL_NVP_ACK_OPTIONS;
+  BUILD: string;
   CORRELATIONID: string;
   TIMESTAMP: string;
   VERSION: string;
-  BUILD: string;
 };
 
 type SetExpressCheckoutData = {
@@ -69,21 +69,31 @@ type CreateBillingAgreementData = {
 };
 
 type DoReferenceTransactionData = {
-  BILLINGAGREEMENTID: string;
-  TRANSACTIONID: string;
-  PARENTTRANSACTIONID: string;
-  TRANSACTIONTYPE: string;
-  PAYMENTTYPE: string;
-  ORDERTIME: string;
   AMT: string;
-  FEEAMT: string;
-  TAXAMT: string;
+  AVSCODE: string;
+  BILLINGAGREEMENTID: string;
   CURRENCYCODE: string;
+  CVV2MATCH: string;
+  FEEAMT: string;
+  ORDERTIME: string;
+  PARENTTRANSACTIONID: string;
   PAYMENTSTATUS: string;
+  PAYMENTTYPE: string;
   PENDINGREASON: string;
-  REASONCODE: string;
   PROTECTIONELIGIBILITY: string;
   PROTECTIONELIGIBILITYTYPE: string;
+  REASONCODE: string;
+  TAXAMT: string;
+  TRANSACTIONID: string;
+  TRANSACTIONTYPE: string;
+};
+
+type BAUpdateData = {
+  BILLINGAGREEMENTID: string;
+  BILLINGAGREEMENTSTATUS: string;
+  COUNTRYCODE: string;
+  EMAIL: string;
+  PAYERSTATUS: string;
 };
 
 export type NVPSetExpressCheckoutResponse = NVPResponse &
@@ -95,12 +105,20 @@ export type NVPCreateBillingAgreementResponse = NVPResponse &
 export type NVPDoReferenceTransactionResponse = NVPResponse &
   DoReferenceTransactionData;
 
+export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData;
+
 export type CreateBillingAgreementOptions = {
   token: string;
 };
 
 export type DoReferenceTransactionOptions = {
   amount: string;
+  billingAgreementId: string;
+  invoiceNumber: string;
+  idempotencyKey: string;
+};
+
+export type BAUpdateOptions = {
   billingAgreementId: string;
 };
 
@@ -244,10 +262,14 @@ export class PayPalClient {
    */
   public async setExpressCheckout(): Promise<NVPSetExpressCheckoutResponse> {
     const data = {
-      PAYMENTREQUEST_0_AMT: '0',
-      RETURNURL: PLACEHOLDER_URL,
       CANCELURL: PLACEHOLDER_URL,
+      L_BILLINGAGREEMENTDESCRIPTION0: 'Mozilla',
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
+      NOSHIPPING: 1,
+      PAYMENTREQUEST_0_AMT: '0',
+      PAYMENTREQUEST_0_CURRENCYCODE: 'USD',
+      PAYMENTREQUEST_0_PAYMENTACTION: 'AUTHORIZATION',
+      RETURNURL: PLACEHOLDER_URL,
     };
     return await this.doRequest<NVPSetExpressCheckoutResponse>(
       'SetExpressCheckout',
@@ -286,11 +308,32 @@ export class PayPalClient {
   ): Promise<NVPDoReferenceTransactionResponse> {
     const data = {
       AMT: options.amount,
-      REFERENCEID: options.billingAgreementId,
+      INVNUM: options.invoiceNumber,
+      MSGSUBID: options.idempotencyKey,
       PAYMENTACTION: 'Sale',
+      PAYMENTTYPE: 'instant',
+      REFERENCEID: options.billingAgreementId,
     };
     return await this.doRequest<NVPDoReferenceTransactionResponse>(
       'DoReferenceTransaction',
+      data
+    );
+  }
+
+  /**
+   * Call the PayPal BillAgreementUpdate NVP API
+   *
+   * Using the PayPal BillAgreementUpdate API (https://developer.paypal.com/docs/nvp-soap-api/ba-update-nvp/)
+   * we get the information on the PayPal user such as the country code.
+   */
+  public async baUpdate(
+    options: BAUpdateOptions
+  ): Promise<NVPBAUpdateTransactionResponse> {
+    const data = {
+      REFERENCEID: options.billingAgreementId,
+    };
+    return await this.doRequest<NVPBAUpdateTransactionResponse>(
+      'BillAgreementUpdate',
       data
     );
   }

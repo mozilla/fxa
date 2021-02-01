@@ -188,10 +188,14 @@ describe('PayPalClient', () => {
 
   describe('setExpressCheckout', () => {
     const defaultData = {
-      PAYMENTREQUEST_0_AMT: '0',
-      RETURNURL: PLACEHOLDER_URL,
       CANCELURL: PLACEHOLDER_URL,
+      L_BILLINGAGREEMENTDESCRIPTION0: 'Mozilla',
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
+      NOSHIPPING: 1,
+      PAYMENTREQUEST_0_AMT: '0',
+      PAYMENTREQUEST_0_CURRENCYCODE: 'USD',
+      PAYMENTREQUEST_0_PAYMENTACTION: 'AUTHORIZATION',
+      RETURNURL: PLACEHOLDER_URL,
     };
 
     it('calls api with correct method and data', () => {
@@ -199,11 +203,10 @@ describe('PayPalClient', () => {
         successfulSetExpressCheckoutResponse
       );
       client.setExpressCheckout();
-      assert.ok(
-        client.doRequest.calledOnceWithExactly(
-          'SetExpressCheckout',
-          defaultData
-        )
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'SetExpressCheckout',
+        defaultData
       );
     });
 
@@ -255,8 +258,11 @@ describe('PayPalClient', () => {
   describe('doReferenceTransaction', () => {
     const defaultData = {
       AMT: '5.99',
-      REFERENCEID: 'B-BILLINGAGREEMENTID',
+      INVNUM: 'in_asdf',
+      MSGSUBID: 'in_asdf-12',
       PAYMENTACTION: 'Sale',
+      PAYMENTTYPE: 'instant',
+      REFERENCEID: 'B-BILLINGAGREEMENTID',
     };
 
     it('calls api with correct method and data', async () => {
@@ -266,12 +272,13 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: defaultData.REFERENCEID,
+        invoiceNumber: defaultData.INVNUM,
+        idempotencyKey: defaultData.MSGSUBID,
       });
-      assert.ok(
-        client.doRequest.calledOnceWithExactly(
-          'DoReferenceTransaction',
-          defaultData
-        )
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'DoReferenceTransaction',
+        defaultData
       );
     });
 
@@ -283,12 +290,16 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: amt,
         billingAgreementId: defaultData.REFERENCEID,
+        invoiceNumber: defaultData.INVNUM,
+        idempotencyKey: defaultData.MSGSUBID,
       });
-      assert.ok(
-        client.doRequest.calledOnceWithExactly('DoReferenceTransaction', {
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'DoReferenceTransaction',
+        {
           ...defaultData,
           AMT: amt,
-        })
+        }
       );
     });
 
@@ -300,12 +311,16 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: ref,
+        invoiceNumber: defaultData.INVNUM,
+        idempotencyKey: defaultData.MSGSUBID,
       });
-      assert.ok(
-        client.doRequest.calledOnceWithExactly('DoReferenceTransaction', {
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'DoReferenceTransaction',
+        {
           ...defaultData,
           REFERENCEID: ref,
-        })
+        }
       );
     });
 
@@ -328,6 +343,8 @@ describe('PayPalClient', () => {
         await client.doReferenceTransaction({
           amount: defaultData.AMT,
           billingAgreementId: defaultData.REFERENCEID,
+          invoiceNumber: defaultData.INVNUM,
+          idempotencyKey: defaultData.MSGSUBID,
         });
         assert.fail('Request should have thrown an error.');
       } catch (err) {
