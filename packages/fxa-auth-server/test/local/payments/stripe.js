@@ -35,6 +35,7 @@ const product2 = require('./fixtures/stripe/product2.json');
 const product3 = require('./fixtures/stripe/product3.json');
 const subscription1 = require('./fixtures/stripe/subscription1.json');
 const subscription2 = require('./fixtures/stripe/subscription2.json');
+const multiPlanSubscription = require('./fixtures/stripe/subscription_multiplan.json');
 const subscriptionPMIExpanded = require('./fixtures/stripe/subscription_pmi_expanded.json');
 const cancelledSubscription = require('./fixtures/stripe/subscription_cancelled.json');
 const pastDueSubscription = require('./fixtures/stripe/subscription_past_due.json');
@@ -528,6 +529,40 @@ describe('StripeHelper', () => {
         );
     });
   });
+
+  describe('createSubscriptionWithPaypal', () => {
+    it('creates a subscription successfully', async () => {
+      sandbox
+        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .returns(undefined);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(subscriptionPMIExpanded);
+      const actual = await stripeHelper.createSubscriptionWithPaypal({
+        customer: customer1,
+        priceId: 'priceId',
+        subIdempotencyKey: uuidv4(),
+      });
+
+      assert.deepEqual(actual, subscriptionPMIExpanded);
+    });
+  });
+
+  describe('finalizeInvoice', () => {});
+
+  describe('updateInvoiceWithPaypalTransactionId', () => {});
+
+  describe('getPaymentAttempts', () => {});
+
+  describe('updatePaymentAttempts', () => {});
+
+  describe('payInvoiceOutOfBand', () => {});
+
+  describe('updateCustomerPaypalAgreement', () => {});
+
+  describe('getCustomerPaypalAgreement', () => {});
+
+  describe('findCustomerSubscriptionByPlanId', () => {});
 
   describe('extractSourceCountryFromSubscription', () => {
     it('extracts the country if its present', () => {
