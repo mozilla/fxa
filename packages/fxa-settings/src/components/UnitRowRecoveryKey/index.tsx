@@ -46,7 +46,9 @@ export const UnitRowRecoveryKey = () => {
     variables: { input: {} },
     onCompleted: () => {
       hideModal();
-      alertBar.success('Account recovery key removed.');
+      alertBar.success(
+        l10n.getString('rk-key-removed', null, 'Account recovery key removed.')
+      );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     },
     onError: (error) => {

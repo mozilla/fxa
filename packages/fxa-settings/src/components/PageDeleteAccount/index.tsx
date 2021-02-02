@@ -25,6 +25,7 @@ import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 type FormData = {
   password: string;
@@ -80,8 +81,12 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
       logViewEvent('flow.settings.account-delete', 'confirm-password.success');
     },
     onError: (error) => {
-      const localizedError = l10n.getString(`auth-error-${error.errno}`);
-      if (error.errno === 103) {
+      const localizedError = l10n.getString(
+        `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
+        null,
+        AuthUiErrors.INCORRECT_PASSWORD.message
+      );
+      if (error.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
         setErrorText(localizedError);
         setValue('password', '');
       } else {

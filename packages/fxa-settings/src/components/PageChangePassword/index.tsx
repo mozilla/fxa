@@ -110,8 +110,12 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       navigate(HomePath);
     },
     onError: (e) => {
-      const localizedError = l10n.getString(`auth-error-${e.errno}`);
-      if (e.errno === 103) {
+      const localizedError = l10n.getString(
+        `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
+        null,
+        AuthUiErrors.INCORRECT_PASSWORD.message
+      );
+      if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
         // incorrect password
         setCurrentPasswordErrorText(localizedError);
         setValue('oldPassword', '');
@@ -125,7 +129,9 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const onFormSubmit = ({ oldPassword, newPassword }: FormData) => {
     if (oldPassword === newPassword) {
       const localizedError = l10n.getString(
-        `auth-error-${AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.errno}`
+        `auth-error-${AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.errno}`,
+        null,
+        AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.message
       );
       setNewPasswordErrorText(localizedError);
       return;

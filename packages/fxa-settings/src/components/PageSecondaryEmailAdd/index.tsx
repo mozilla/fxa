@@ -34,7 +34,13 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
       if (error.graphQLErrors?.length) {
         setErrorText(error.message);
       } else {
-        alertBar.error(l10n.getString('add-secondary-email-error'));
+        alertBar.error(
+          l10n.getString(
+            'add-secondary-email-error',
+            null,
+            'There was a problem creating this email.'
+          )
+        );
         // TODO: old settings has no equivalent metrics event here
       }
     },
