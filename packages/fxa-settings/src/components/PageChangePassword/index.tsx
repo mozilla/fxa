@@ -174,14 +174,31 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
                 isSet={formState.dirtyFields.newPassword}
                 hasError={errors.newPassword?.types?.uncommon}
               />
-              Must not match this{' '}
-              <LinkExternal
-                className="link-blue"
-                data-testid="nav-link-common-passwords"
-                href="https://support.mozilla.org/en-US/kb/password-strength"
+              <Localized
+                id="pw-change-common-passwords"
+                elems={{
+                  linkExternal: (
+                    <LinkExternal
+                      className="link-blue"
+                      data-testid="nav-link-common-passwords"
+                      href="https://support.mozilla.org/en-US/kb/password-strength"
+                    >
+                      {' '}
+                    </LinkExternal>
+                  ),
+                }}
               >
-                list of common passwords
-              </LinkExternal>
+                <span>
+                  Must not match this{' '}
+                  <LinkExternal
+                    className="link-blue"
+                    data-testid="nav-link-common-passwords"
+                    href="https://support.mozilla.org/en-US/kb/password-strength"
+                  >
+                    list of common passwords
+                  </LinkExternal>
+                </span>
+              </Localized>
             </li>
             <li data-testid="change-password-match">
               <ValidationIcon
