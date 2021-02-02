@@ -1,0 +1,26 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+.AvatarCropper .MuiSlider-track,
+.AvatarCropper .MuiSlider-rail {
+  background: #0060df24;
+  height: 5px;
+  border-radius: 4px;
+  opacity: 1;
+}
+
+.AvatarCropper .MuiSlider-thumb {
+    -webkit-appearance: none;
+    border: 1px solid #0060DF;
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background: #0060DF;
+    cursor: pointer;
+    margin-top: -10px;
+  }
+
+  .AvatarCropper .MuiSlider-thumb.Mui-focusVisible, .MuiSlider-thumb:hover {
+    box-shadow: none !important;
+  }

@@ -5,7 +5,8 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import AvatarCropper from '.';
+import picture from './child.jpg';
 
 storiesOf('Components|AvatarCropper', module).add('default', () => (
-  <AvatarCropper />
+  <AvatarCropper src={picture}/>
 ));

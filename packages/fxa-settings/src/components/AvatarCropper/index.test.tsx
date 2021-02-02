@@ -3,11 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import picture from './child.jpg';
 import AvatarCropper from '.';
 
 describe('AvatarCropper', () => {
   it('renders default avatar with expected attributes', () => {
-    render(<AvatarCropper />);
+    render(<AvatarCropper src={picture}/>);
+
+    const zoomOutButton = screen.getByTestId('zoom-out-btn');
+    expect(zoomOutButton).toBeInTheDocument();
+
+    const zoomInButton = screen.getByTestId('zoom-in-btn');
+    expect(zoomInButton).toBeInTheDocument();
+
+    const rotateButton = screen.getByTestId('rotate-btn');
+    expect(rotateButton).toBeInTheDocument();
   });
 });
