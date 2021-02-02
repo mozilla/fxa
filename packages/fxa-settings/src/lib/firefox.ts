@@ -93,9 +93,12 @@ export class Firefox extends EventTarget {
     };
 
     // Firefox Desktop and Fennec >= 50 expect the detail to be
-    // sent as a string.
+    // sent as a string and fxios as an object.
     // See https://bugzilla.mozilla.org/show_bug.cgi?id=1275616 and
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1238128
+    if (navigator.userAgent.toLowerCase().includes('fxios')) {
+      return detail;
+    }
     return JSON.stringify(detail);
   }
 
