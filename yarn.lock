@@ -6387,12 +6387,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^24.9.1":
-  version: 24.9.1
-  resolution: "@types/jest@npm:24.9.1"
+"@types/jest@npm:^26.0.20":
+  version: 26.0.20
+  resolution: "@types/jest@npm:26.0.20"
   dependencies:
-    jest-diff: ^24.3.0
-  checksum: 2a950309a2d848c292b0c324aa124e4833f6446ddfcdb1f854c454000738ab918ac45f57ddbd667491381ad55b138a21d7aa049d7fe642b6ea87095990aa054b
+    jest-diff: ^26.0.0
+    pretty-format: ^26.0.0
+  checksum: 221e39c7c9ce8d71ae4b2ba6abeef1a5b04f1cd96419b9fbbb65534bef4c4215b650561183073dcf47584ff1888d1f4fa7d2af2a38492b7feb9a3bfdcd24c44f
   languageName: node
   linkType: hard
 
@@ -18180,7 +18181,7 @@ fsevents@^1.2.7:
     "@types/eslint": 6.8.1
     "@types/express": ^4.17.2
     "@types/helmet": 4.0.0
-    "@types/jest": ^24.9.1
+    "@types/jest": ^26.0.20
     "@types/jsdom": ^12.2.4
     "@types/on-headers": ^1.0.0
     "@types/react": ^16.9.53
@@ -18967,7 +18968,7 @@ fsevents@^1.2.7:
     "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
     "@types/classnames": ^2.2.9
-    "@types/jest": ^24.9.1
+    "@types/jest": ^26.0.20
     "@types/jsdom": ^12.2.4
     "@types/nock": ^11.1.0
     "@types/node": ^14.14.5
@@ -19125,7 +19126,7 @@ fsevents@^1.2.7:
     "@types/camelcase": 5.2.0
     "@types/classnames": ^2.2.9
     "@types/file-loader": ^4.2.0
-    "@types/jest": ^24.9.1
+    "@types/jest": ^26.0.20
     "@types/node": ^14.14.5
     "@types/prettier": 2.1.5
     "@types/react": ^16.9.53
@@ -19188,7 +19189,7 @@ fsevents@^1.2.7:
     "@testing-library/user-event": ^12.6.0
     "@types/babel__core": 7.1.12
     "@types/classnames": ^2.2.10
-    "@types/jest": ^24.9.1
+    "@types/jest": ^26.0.20
     "@types/lodash.groupby": ^4
     "@types/node": ^14.14.5
     "@types/react": ^16.9.53
@@ -23214,7 +23215,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jest-diff@npm:^24.3.0, jest-diff@npm:^24.9.0":
+"jest-diff@npm:^24.9.0":
   version: 24.9.0
   resolution: "jest-diff@npm:24.9.0"
   dependencies:
@@ -23238,7 +23239,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jest-diff@npm:^26.6.2":
+"jest-diff@npm:^26.0.0, jest-diff@npm:^26.6.2":
   version: 26.6.2
   resolution: "jest-diff@npm:26.6.2"
   dependencies:
