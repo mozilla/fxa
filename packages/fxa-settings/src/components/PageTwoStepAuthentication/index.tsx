@@ -252,7 +252,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       {!totpVerified && (
         <form onSubmit={totpForm.handleSubmit(onTotpSubmit)}>
           <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
-          {qrCodeUrl && showQrCode && (
+          {showQrCode && (
             <>
               <Localized
                 id="tfa-scan-this-code"
@@ -279,12 +279,17 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 </p>
               </Localized>
               <div className="flex flex-col mb-4">
-                <img
-                  className="mx-auto w-48 h-48 qr-code-border"
-                  data-testid="2fa-qr-code"
-                  src={qrCodeUrl}
-                  alt={`Use the code ${secret} to set up two-step authentication in supported applications.`}
-                />
+                {qrCodeUrl && (
+                  <img
+                    className="mx-auto w-48 h-48 qr-code-border"
+                    data-testid="2fa-qr-code"
+                    src={qrCodeUrl}
+                    alt={`Use the code ${secret} to set up two-step authentication in supported applications.`}
+                  />
+                )}
+                {!qrCodeUrl && (
+                  <div className="h-48">{/* vertical space placeholder */}</div>
+                )}
                 <Localized id="tfa-button-cant-scan-qr">
                   <button
                     type="button"
@@ -308,7 +313,6 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               </p>
             </div>
           )}
-
           <Localized id="tfa-enter-totp">
             <p>Now enter the security code from the authentication app.</p>
           </Localized>
