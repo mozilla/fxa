@@ -12,6 +12,7 @@ import GetDataTrio from '../GetDataTrio';
 import { useSession } from '../../models';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { AlertBar } from '../AlertBar';
+import { useLocalization, Localized } from '@fluent/react';
 
 export const CHANGE_RECOVERY_CODES_MUTATION = gql`
   mutation changeRecoveryCodes($input: ChangeRecoveryCodesInput!) {
@@ -23,7 +24,10 @@ export const CHANGE_RECOVERY_CODES_MUTATION = gql`
 `;
 
 export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
+  const alertBar = useAlertBar();
+  const session = useSession();
   const goBack = () => window.history.back();
+  const { l10n } = useLocalization();
 
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [changeRecoveryCodes] = useMutation(CHANGE_RECOVERY_CODES_MUTATION, {
@@ -31,12 +35,15 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
       setRecoveryCodes(x.changeRecoveryCodes.recoveryCodes);
     },
     onError: () => {
-      alertBar.error('There was a problem replacing your recovery codes.');
+      alertBar.error(
+        l10n.getString(
+          'tfa-replace-code-error',
+          null,
+          'There was a problem replacing your recovery codes.'
+        )
+      );
     },
   });
-
-  const alertBar = useAlertBar();
-  const session = useSession();
 
   useEffect(() => {
     session.verified && changeRecoveryCodes({ variables: { input: {} } });
@@ -53,9 +60,11 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
       )}
 
       <div className="my-2" data-testid="2fa-recovery-codes">
-        New codes have been created. Save these one-time use codes in a safe
-        place—you’ll need them to access your account if you don’t have your
-        mobile device.
+        <Localized id="tfa-replace-code-success">
+          New codes have been created. Save these one-time use codes in a safe
+          place—you’ll need them to access your account if you don’t have your
+          mobile device.
+        </Localized>
         <div className="mt-6 flex flex-col items-center h-40 justify-between">
           <DataBlock value={recoveryCodes}></DataBlock>
           <GetDataTrio value={recoveryCodes}></GetDataTrio>

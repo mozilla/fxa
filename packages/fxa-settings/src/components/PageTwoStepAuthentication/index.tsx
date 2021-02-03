@@ -20,6 +20,7 @@ import { HomePath } from '../../constants';
 import { alertTextExternal } from '../../lib/cache';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 
@@ -172,10 +173,15 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     },
     onError: (err) => {
       if (err.graphQLErrors?.length) {
-        if (err.graphQLErrors[0].extensions?.errno) {
+        if (
+          err.graphQLErrors[0].extensions?.errno ===
+          AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno
+        ) {
           setRecoveryCodeError(
             l10n.getString(
-              `auth-error-${err.graphQLErrors[0].extensions.errno}`
+              `auth-error-${AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno}`,
+              null,
+              AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
             )
           );
         } else {
