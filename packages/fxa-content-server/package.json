@@ -4,7 +4,7 @@
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build": "tsc --build ../fxa-react && NODE_ENV=production grunt build",
-    "postinstall": "cp server/config/local.json-dist server/config/local.json && scripts/download_l10n.sh",
+    "postinstall": "cp server/config/local.json-dist server/config/local.json && ../../_scripts/clone-l10n.sh fxa-content-server",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint app server tests --cache",
     "start": "node scripts/check-local-config && grunt l10n-create-json l10n-generate-tos-pp:app && pm2 start pm2.config.js",

@@ -13,7 +13,7 @@
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
-    "postinstall": "scripts/download_l10n.sh",
+    "postinstall": "../../_scripts/clone-l10n.sh fxa-auth-server",
     "start": "scripts/start-local.sh",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
