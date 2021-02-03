@@ -26,10 +26,12 @@ const subscriptionCreatedIncomplete = require('../../payments/fixtures/stripe/su
 const subscriptionDeleted = require('../../payments/fixtures/stripe/subscription_deleted.json');
 const subscriptionUpdated = require('../../payments/fixtures/stripe/subscription_updated.json');
 const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/stripe/subscription_updated_from_incomplete.json');
+const eventInvoiceCreated = require('../../payments/fixtures/stripe/event_invoice_created.json');
 const eventInvoicePaymentSucceeded = require('../../payments/fixtures/stripe/event_invoice_payment_succeeded.json');
 const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
 const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
 const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/event_customer_source_expiring.json');
+const { default: Container } = require('typedi');
 
 let config, log, db, customs, push, mailer, profile;
 
@@ -116,6 +118,9 @@ describe('subscriptions', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
+        paypalNvpSigCredentials: {
+          enabled: false,
+        },
       },
     };
 
@@ -171,6 +176,9 @@ describe('StripeWebhookHandler', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
+        paypalNvpSigCredentials: {
+          enabled: true,
+        },
       },
     };
 
@@ -187,6 +195,7 @@ describe('StripeWebhookHandler', () => {
       locale: ACCOUNT_LOCALE,
     });
     const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
+    Container.set(StripeHelper, stripeHelperMock);
 
     StripeWebhookHandlerInstance = new StripeWebhookHandler(
       log,
@@ -232,6 +241,7 @@ describe('StripeWebhookHandler', () => {
         'handleCustomerSourceExpiringEvent',
         'handleInvoicePaymentSucceededEvent',
         'handleInvoicePaymentFailedEvent',
+        'handleInvoiceCreatedEvent',
       ];
       const handlerStubs = {};
 
@@ -358,6 +368,13 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
+      describe('when the event.type is invoice.created', () => {
+        itOnlyCallsThisHandler(
+          'handleInvoiceCreatedEvent',
+          eventInvoiceCreated
+        );
+      });
+
       describe('when the event.type is something else', () => {
         it('only calls sentry', async () => {
           const event = deepCopy(subscriptionCreated);
@@ -469,6 +486,95 @@ describe('StripeWebhookHandler', () => {
         );
         assert.calledWith(profile.deleteCache, UID);
         assertSendSubscriptionStatusToSqsCalledWith(deletedEvent, false);
+      });
+    });
+
+    describe('handleInvoiceCreatedEvent', () => {
+      it('doesnt run if paypalHelper is not present', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        // Set billing reason so this would force eval to expandResource if we
+        // fail to exit early
+        invoiceCreatedEvent.data.object.billing_reason = 'subscription_cycle';
+        StripeWebhookHandlerInstance.paypalHelper = undefined;
+        const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.isUndefined(result);
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        );
+      });
+
+      it('stops if the subscription is being created', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        invoiceCreatedEvent.data.object.billing_reason = 'subscription_create';
+        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
+        const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.isUndefined(result);
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice
+        );
+      });
+
+      it('stops if the subscription isnt send_invoice', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        const mockSubscription = {
+          id: 'test1',
+          plan: { product: 'test2' },
+          collection_method: 'charge_automatically',
+        };
+        invoiceCreatedEvent.data.object.billing_reason = 'subscription_cycle';
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          mockSubscription
+        );
+        const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.isUndefined(result);
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoiceCreatedEvent.data.object.subscription,
+          'subscriptions'
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice
+        );
+      });
+
+      it('finalizes invoices for invoice subscriptions', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        const mockSubscription = {
+          id: 'test1',
+          plan: { product: 'test2' },
+          collection_method: 'send_invoice',
+        };
+        invoiceCreatedEvent.data.object.billing_reason = 'subscription_cycle';
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          mockSubscription
+        );
+        StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
+        const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.deepEqual(result, {});
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoiceCreatedEvent.data.object.subscription,
+          'subscriptions'
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice,
+          invoiceCreatedEvent.data.object
+        );
       });
     });
 
