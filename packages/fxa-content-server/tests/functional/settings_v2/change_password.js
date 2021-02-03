@@ -5,6 +5,7 @@
 'use strict';
 
 const intern = require('intern').default;
+const assert = intern.getPlugin('chai').assert;
 const { describe, it, beforeEach } = intern.getPlugin('interface.bdd');
 const selectors = require('../lib/selectors');
 const FunctionalHelpers = require('../lib/helpers');
@@ -14,6 +15,7 @@ const EMAIL_FIRST = config.fxaContentRoot;
 const SETTINGS_V2_URL = config.fxaSettingsV2Root;
 const password = 'passwordzxcv';
 const newPassword = 'passwordzxcvb';
+const CHANGE_PASSWORD_COMMAND = 'fxaccounts:change_password';
 
 const { createEmail } = FunctionalHelpers;
 
@@ -23,6 +25,8 @@ const {
   createUser,
   openPage,
   fillOutEmailFirstSignIn,
+  getWebChannelMessageData,
+  storeWebChannelMessageData,
   testElementExists,
   type,
 } = FunctionalHelpers.helpersRemoteWrapped;
@@ -40,6 +44,8 @@ describe('change password', () => {
     await fillOutEmailFirstSignIn(email, password, remote);
     await testElementExists(selectors.SETTINGS.HEADER, remote);
     await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote);
+    await storeWebChannelMessageData(CHANGE_PASSWORD_COMMAND, remote);
+
     await click(
       selectors.SETTINGS_V2.CHANGE_PASSWORD.OPEN_BUTTON,
       selectors.SETTINGS_V2.CHANGE_PASSWORD.CURRENT_PASSWORD_LABEL,
@@ -84,6 +90,10 @@ describe('change password', () => {
       selectors.SETTINGS_V2.HEADER,
       remote
     );
+
+    const msg = await getWebChannelMessageData(CHANGE_PASSWORD_COMMAND, remote);
+    assert.equal(msg.command, CHANGE_PASSWORD_COMMAND);
+    assert.isString(msg.data.sessionToken);
 
     await clearBrowserState(remote);
 
