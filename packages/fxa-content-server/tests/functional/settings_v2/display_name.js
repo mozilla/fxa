@@ -5,6 +5,7 @@
 'use strict';
 
 const intern = require('intern').default;
+const assert = intern.getPlugin('chai').assert;
 const { describe, it, beforeEach } = intern.getPlugin('interface.bdd');
 const selectors = require('../lib/selectors');
 const FunctionalHelpers = require('../lib/helpers');
@@ -13,9 +14,12 @@ const FunctionalSettingsHelpers = require('./lib/helpers');
 const { navigateToSettingsV2 } = FunctionalSettingsHelpers;
 const {
   click,
+  getWebChannelMessageData,
+  storeWebChannelMessageData,
   testElementTextEquals,
   type,
 } = FunctionalHelpers.helpersRemoteWrapped;
+const CHANGE_PROFILE_COMMAND = 'profile:change';
 
 describe('display name', () => {
   let email;
@@ -84,6 +88,7 @@ describe('display name', () => {
   });
 
   it('can change a display name', async ({ remote }) => {
+    await storeWebChannelMessageData(CHANGE_PROFILE_COMMAND, remote);
     await click(selectors.SETTINGS_V2.DISPLAY_NAME.SUBMIT_BUTTON, remote);
 
     // Click change and change the display name
@@ -95,6 +100,9 @@ describe('display name', () => {
       remote
     );
     await click(selectors.SETTINGS_V2.DISPLAY_NAME.SUBMIT_BUTTON, remote);
+    const msg = await getWebChannelMessageData(CHANGE_PROFILE_COMMAND, remote);
+    assert.equal(msg.command, CHANGE_PROFILE_COMMAND);
+    assert.isString(msg.data.uid);
     // Verify the saved name is displayed
     await testElementTextEquals(
       selectors.SETTINGS_V2.DISPLAY_NAME.SAVED_DISPLAY_NAME,
