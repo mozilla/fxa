@@ -9,6 +9,7 @@
       "args": [
         "--require",
         "ts-node/register",
+        "--recursive",
         "--timeout",
         "999999",
         "--colors",
@@ -33,6 +34,7 @@
       "args": [
         "--require",
         "ts-node/register",
+        "--recursive",
         "--timeout",
         "999999",
         "--colors",
@@ -58,6 +60,7 @@
       "args": [
         "--require",
         "ts-node/register",
+        "--recursive",
         "--timeout",
         "999999",
         "--colors",
@@ -109,6 +112,7 @@
         "${workspaceFolder}/node_modules/mocha/bin/_mocha",
         "--require",
         "ts-node/register",
+        "--recursive",
         "--timeout",
         "999999",
         "--colors",
@@ -132,6 +136,7 @@
         "${workspaceFolder}/node_modules/mocha/bin/_mocha",
         "--require",
         "ts-node/register",
+        "--recursive",
         "--timeout",
         "999999",
         "--colors",
@@ -158,6 +163,7 @@
         "${workspaceFolder}/node_modules/mocha/bin/_mocha",
         "--require",
         "ts-node/register",
+        "--recursive",
         "--timeout",
         "999999",
         "--colors",
