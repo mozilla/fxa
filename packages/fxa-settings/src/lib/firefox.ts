@@ -148,4 +148,28 @@ export class Firefox extends EventTarget {
   }
 }
 
-export default new Firefox();
+// Some non-firefox legacy browsers can't extend EventTarget.
+// For those we can safely return a mock instance that
+// implements the interface but does nothing because
+// this functionality is only meant for firefox.
+let canUseEventTarget = true;
+try {
+  new EventTarget();
+} catch (e) {
+  canUseEventTarget = false;
+}
+function noop() {}
+const firefox = canUseEventTarget
+  ? new Firefox()
+  : // otherwise a mock
+    ((Object.fromEntries(
+      Object.getOwnPropertyNames(Firefox.prototype)
+        .map((name) => [name, noop])
+        .concat([
+          ['addEventListener', noop],
+          ['removeEventListener', noop],
+          ['dispatchEvent', noop],
+        ])
+    ) as unknown) as Firefox);
+
+export default firefox;
