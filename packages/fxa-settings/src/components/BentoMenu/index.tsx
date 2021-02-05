@@ -12,7 +12,7 @@ import monitorIcon from './monitor.svg';
 import pocketIcon from './pocket.svg';
 import desktopIcon from './desktop.svg';
 import mobileIcon from './mobile.svg';
-import lockwiseIcon from './lockwise.svg';
+import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 
@@ -109,14 +109,14 @@ export const BentoMenu = () => {
                   </li>
                   <li>
                     <LinkExternal
-                      data-testid="lockwise-link"
-                      href="https://bhqf.adj.st/?adjust_t=6tteyjo&adj_deeplink=lockwise%3A%2F%2F&adj_fallback=https%3A%2F%2Fwww.mozilla.org%2Fen-US%2Ffirefox%2Flockwise"
+                      data-testid="vpn-link"
+                      href="https://vpn.mozilla.org/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-settings&utm_content=bento-promo"
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
                       <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
-                        <img src={lockwiseIcon} alt="" />
+                        <img src={vpnIcon} alt="" />
                       </div>
-                      Firefox Lockwise
+                      Mozilla VPN
                     </LinkExternal>
                   </li>
                 </ul>
