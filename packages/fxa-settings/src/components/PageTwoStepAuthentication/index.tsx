@@ -191,7 +191,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
           l10n.getString(
             'tfa-cannot-verify-code',
             null,
-            'There was a problem verifiying your recovery code.'
+            'There was a problem verifying your recovery code.'
           )
         );
       }
@@ -239,7 +239,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   return (
     <FlowContainer
-      title={l10n.getString('tfa-title')}
+      title={l10n.getString('tfa-title', null, 'Two-Step Authentication')}
       {...{ subtitle, onBackButtonClick: moveBack }}
     >
       {alertBar.visible && (

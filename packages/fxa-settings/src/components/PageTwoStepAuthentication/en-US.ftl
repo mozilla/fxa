@@ -1,6 +1,6 @@
 ## Two Step Authentication
 
-tfa-title = Two Step Authentication
+tfa-title = Two-Step Authentication
 
 tfa-step-1-3 = Step 1 of 3
 tfa-step-2-3 = Step 2 of 3
@@ -12,7 +12,7 @@ tfa-button-finish = Finish
 
 tfa-incorrect-totp = Incorrect two-step authentication code
 tfa-cannot-retrieve-code = There was a problem retrieving your code.
-tfa-cannot-verify-code = There was a problem verifiying your recovery code.
+tfa-cannot-verify-code = There was a problem verifying your recovery code.
 tfa-incorrect-recovery-code = Incorrect recovery code
 tfa-enabled = Two-step authentication enabled
 

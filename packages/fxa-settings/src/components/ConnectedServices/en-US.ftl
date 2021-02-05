@@ -5,6 +5,10 @@ cs-description = Everything you are using and signed into.
 cs-cannot-refresh = Sorry, there was a problem refreshing the list of connected
   services.
 cs-cannot-disconnect = Client not found, unable to disconnect
+# This string is used in a notification message near the top of the page.
+# Variables:
+#   $service (String) - the name of a device or service that uses Firefox Accounts
+#                       (for example: "Firefox Lockwise")
 cs-logged-out = Logged out of { $service }.
 
 cs-refresh-button =
@@ -32,13 +36,13 @@ cs-disconnect-sync-opt-not-say = Rather not say
 cs-disconnect-advice-confirm = Okay, got it
 cs-disconnect-lost-advice-heading = Lost or stolen device disconnected
 cs-disconnect-lost-advice-content = Since your device was lost or stolen, to
-  keep your information safe, you should change your Firefox account password
+  keep your information safe, you should change your { -firefox-account } password
   in your account settings. You should also look for information from your
   device manufacturer about erasing your data remotely.
 cs-disconnect-suspicious-advice-heading = Suspicious device disconnected
 cs-disconnect-suspicious-advice-content = If the disconnected device is indeed
-  suspicious, to keep your information safe, you should change your Firefox
+  suspicious, to keep your information safe, you should change your { -firefox }
   account password in your account settings. You should also change any other
-  passwords you saved in Firefox by typing about:logins into the address bar.
+  passwords you saved in { -firefox } by typing about:logins into the address bar.
 
 cs-sign-out-button = Sign out
