@@ -2557,7 +2557,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphql-tools/merge@npm:6.2.5, @graphql-tools/merge@npm:^6.2.5":
+"@graphql-tools/merge@npm:6.2.7":
+  version: 6.2.7
+  resolution: "@graphql-tools/merge@npm:6.2.7"
+  dependencies:
+    "@graphql-tools/schema": ^7.0.0
+    "@graphql-tools/utils": ^7.0.0
+    tslib: ~2.1.0
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0
+  checksum: d0b73546c6b48d288e9bcb1749609e196d32b56066bfd051b440342f9a3a8a5e5bbf26b53bcaee5008717bea1e5c05b5fdb7726ddb15cbd14370e5080a33562d
+  languageName: node
+  linkType: hard
+
+"@graphql-tools/merge@npm:^6.2.5":
   version: 6.2.5
   resolution: "@graphql-tools/merge@npm:6.2.5"
   dependencies:
@@ -3882,26 +3895,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/graphql@npm:^7.9.1":
-  version: 7.9.1
-  resolution: "@nestjs/graphql@npm:7.9.1"
+"@nestjs/graphql@npm:^7.9.8":
+  version: 7.9.8
+  resolution: "@nestjs/graphql@npm:7.9.8"
   dependencies:
     "@apollo/gateway": ^0.17.0
-    "@graphql-tools/merge": 6.2.5
+    "@graphql-tools/merge": 6.2.7
     "@graphql-tools/schema": 6.2.4
     "@graphql-tools/utils": 6.2.4
-    "@nestjs/mapped-types": 0.1.1
+    "@nestjs/mapped-types": 0.3.0
     apollo-env: 0.6.5
     apollo-server-core: 2.16.1
     apollo-server-testing: ^2.16.1
-    chokidar: 3.4.3
-    fast-glob: 3.2.4
+    chokidar: 3.5.1
+    fast-glob: 3.2.5
     iterall: 1.2.2
     lodash: 4.17.20
     normalize-path: 3.0.0
     ts-morph: ^9.0.0
-    tslib: 2.0.3
-    uuid: 8.3.1
+    tslib: 2.1.0
+    uuid: 8.3.2
   peerDependencies:
     "@nestjs/common": ^7.0.0
     "@nestjs/core": ^7.0.0
@@ -3914,23 +3927,11 @@ __metadata:
       optional: true
     ts-morph:
       optional: true
-  checksum: 38aa60c4e1d4025e7d96d6d9f74ddabb5ff310afa95182005c02863ab990f03ce68348117afad58b8682842de8c486c6cf6261df3ce6284560dfefac589ccf63
+  checksum: 659e56d5ddba0b56af9dbb0b6ae343fffb8af5bc3c0ed3a36e1ccbe93f64200def49dd948bd6bef2cc56c292f35ee7108d7d891a97e9842f9a1ebc0b1b4c5da5
   languageName: node
   linkType: hard
 
-"@nestjs/mapped-types@npm:0.1.1":
-  version: 0.1.1
-  resolution: "@nestjs/mapped-types@npm:0.1.1"
-  peerDependencies:
-    "@nestjs/common": ^7.0.8
-    class-transformer: ^0.3.0
-    class-validator: ^0.11.1 || ^0.12.0
-    reflect-metadata: ^0.1.12
-  checksum: c44a7298980eab84b591683dbbc38f57f1b7c2c7b6117d6256e92c5da9ce0434ef38352b6383a9a6ef9d13c8250312ed327d999c0d01a74ae80b229fc53dec61
-  languageName: node
-  linkType: hard
-
-"@nestjs/mapped-types@npm:^0.3.0":
+"@nestjs/mapped-types@npm:0.3.0, @nestjs/mapped-types@npm:^0.3.0":
   version: 0.3.0
   resolution: "@nestjs/mapped-types@npm:0.3.0"
   peerDependencies:
@@ -12934,6 +12935,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chokidar@npm:3.5.1":
+  version: 3.5.1
+  resolution: "chokidar@npm:3.5.1"
+  dependencies:
+    anymatch: ~3.1.1
+    braces: ~3.0.2
+    fsevents: ~2.3.1
+    glob-parent: ~5.1.0
+    is-binary-path: ~2.1.0
+    is-glob: ~4.0.1
+    normalize-path: ~3.0.0
+    readdirp: ~3.5.0
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  checksum: 61b3f710f9e7dc69d76f638d8b0d37bad586497444165125ca8062f7192695f35403b5f622cbd7dfdd06805201ceaba40ff90e53ea2974df9a8087861192a99b
+  languageName: node
+  linkType: hard
+
 "chokidar@npm:^2.0.4, chokidar@npm:^2.1.8":
   version: 2.1.8
   resolution: "chokidar@npm:2.1.8"
@@ -17207,9 +17227,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:3.2.4, fast-glob@npm:^3.1.1, fast-glob@npm:^3.2.4":
-  version: 3.2.4
-  resolution: "fast-glob@npm:3.2.4"
+"fast-glob@npm:3.2.5":
+  version: 3.2.5
+  resolution: "fast-glob@npm:3.2.5"
   dependencies:
     "@nodelib/fs.stat": ^2.0.2
     "@nodelib/fs.walk": ^1.2.3
@@ -17217,7 +17237,7 @@ __metadata:
     merge2: ^1.3.0
     micromatch: ^4.0.2
     picomatch: ^2.2.1
-  checksum: 18f9eca898bc3be71b717cb59cb424e937bb9f5629449ba4e93e498dca9db921a9fd3cbdc3389d3f94aec3074bbe2ff6a74f779627a93e81ba0262b795ec44e4
+  checksum: 1a33c4a68d14cb2314c07a451689bc311bde87b09c525dd2064321165127a38a553457d121e2d3ecdd022374e3d53afb82cbb57f5694414d3406ce14ed6c0a1f
   languageName: node
   linkType: hard
 
@@ -17232,6 +17252,20 @@ __metadata:
     merge2: ^1.2.3
     micromatch: ^3.1.10
   checksum: 9dc5c93807e43257b39fc53aa8ed10ffa253e997dd1d473377a7e9daa4b6c675c730b72f1aa132b80f068c4ece012ff9236a88085fc0229b180fe7c85afcae84
+  languageName: node
+  linkType: hard
+
+"fast-glob@npm:^3.1.1, fast-glob@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "fast-glob@npm:3.2.4"
+  dependencies:
+    "@nodelib/fs.stat": ^2.0.2
+    "@nodelib/fs.walk": ^1.2.3
+    glob-parent: ^5.1.0
+    merge2: ^1.3.0
+    micromatch: ^4.0.2
+    picomatch: ^2.2.1
+  checksum: 18f9eca898bc3be71b717cb59cb424e937bb9f5629449ba4e93e498dca9db921a9fd3cbdc3389d3f94aec3074bbe2ff6a74f779627a93e81ba0262b795ec44e4
   languageName: node
   linkType: hard
 
@@ -18364,6 +18398,24 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"fsevents@patch:fsevents@~2.3.1#builtin<compat/fsevents>":
+  version: 2.3.1
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.1#builtin<compat/fsevents>::version=2.3.1&hash=11e9ea"
+  dependencies:
+    node-gyp: latest
+  checksum: 66b24358e15cdd0f705b456346e58b4613f2bf54206b47874decda4152614fb0632d2d662c92b0ea54810109f646e5233e4cdd64dbb2a1949070ee5dc14dab87
+  languageName: node
+  linkType: hard
+
+fsevents@~2.3.1:
+  version: 2.3.1
+  resolution: "fsevents@npm:2.3.1"
+  dependencies:
+    node-gyp: latest
+  checksum: 32619a121e7f9ac8a5ce4954f5fdf06be68b7b1c16e4ac8fa6e5e13cbf97d83c86cdcdf872ab7b188ebb07b34d2271b7818aebfc305b4a7d5b35f4bc2117f8be
+  languageName: node
+  linkType: hard
+
 "fstream@npm:^1.0.0, fstream@npm:^1.0.12":
   version: 1.0.12
   resolution: "fstream@npm:1.0.12"
@@ -18512,7 +18564,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
-    "@nestjs/graphql": ^7.9.1
+    "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/platform-express": ^7.5.5
     "@sentry/integrations": ^5.29.1
@@ -18999,7 +19051,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
-    "@nestjs/graphql": ^7.9.1
+    "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
     "@nestjs/platform-express": ^7.5.5
@@ -19096,7 +19148,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
-    "@nestjs/graphql": ^7.9.1
+    "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
     "@nestjs/platform-express": ^7.5.5
@@ -19520,7 +19572,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
-    "@nestjs/graphql": ^7.9.1
+    "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/testing": ^7.6.5
     "@sentry/browser": ^5.27.6
@@ -37255,6 +37307,13 @@ resolve@~1.11.1:
   version: 2.0.3
   resolution: "tslib@npm:2.0.3"
   checksum: 447bfca5deaa157806c3f77eaba74d05dd0b38b014e47ce79d98b5c77ce7d91b00a687ba13ca1b5a74d35ca1098ac7a072c0a97fad06f0266612f2a03a6c8e8f
+  languageName: node
+  linkType: hard
+
+"tslib@npm:2.1.0, tslib@npm:~2.1.0":
+  version: 2.1.0
+  resolution: "tslib@npm:2.1.0"
+  checksum: d8f5bdd067611651c6b846c2388f4dc8ba1f5af124e66105f5263d1ad56da17f4b8c6566887ca2f205c5a9758451871ceca87d5d06087af2dca1699c5e33db69
   languageName: node
   linkType: hard
 
