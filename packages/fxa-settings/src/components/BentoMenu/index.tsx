@@ -25,7 +25,7 @@ export const BentoMenu = () => {
   const dropDownId = 'drop-down-bento-menu';
 
   return (
-    <div className="relative self-center" ref={bentoMenuInsideRef}>
+    <div className="relative self-center flex" ref={bentoMenuInsideRef}>
       <button
         onClick={toggleRevealed}
         data-testid="drop-down-bento-menu-toggle"
