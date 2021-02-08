@@ -183,22 +183,37 @@ export class StripeWebhookHandler extends StripeHandler {
     if (!this.paypalHelper) {
       return;
     }
-
     const invoice = event.data.object as Stripe.Invoice;
-    if (invoice.billing_reason === 'subscription_create') {
-      // We only work with non-creation invoices, initial invoices are resolved by
-      // checkout code.
-      return;
-    }
-    const subscription = await this.stripeHelper.expandResource(
-      invoice.subscription,
-      'subscriptions'
-    );
-    if (subscription?.collection_method !== 'send_invoice') {
-      // Not a PayPal funded subscription.
+    if (!(await this.stripeHelper.invoicePayableWithPaypal(invoice))) {
       return;
     }
     return this.stripeHelper.finalizeInvoice(invoice);
+  }
+
+  /**
+   * Handle `invoice.open` events, if the subscription invoice is for a PayPal
+   * customer, charge them if needed.
+   */
+  async handleInvoiceOpenEvent(request: AuthRequest, event: Stripe.Event) {
+    // Type-guard to require paypalHelper.
+    if (!this.paypalHelper) {
+      return;
+    }
+    const invoice = event.data.object as Stripe.Invoice;
+    if (!(await this.stripeHelper.invoicePayableWithPaypal(invoice))) {
+      return;
+    }
+    if (invoice.amount_due === 0) {
+      return this.paypalHelper.processZeroInvoice(invoice);
+    }
+    const customer = await this.stripeHelper.expandResource(
+      invoice.customer,
+      'customers'
+    );
+    if (customer.deleted) {
+      return;
+    }
+    return this.paypalHelper.processInvoice({ customer, invoice });
   }
 
   /**
