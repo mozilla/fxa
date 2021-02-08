@@ -31,7 +31,7 @@ export async function sessionTokenData(
   const knex = Account.knex();
   const [result] = await knex.raw('Call sessionWithDevice_18(?)', tokenBuffer);
   const rowPacket = result.shift();
-  if (result.length === 0) {
+  if (rowPacket.length === 0) {
     return;
   }
   return SessionToken.fromDatabaseRow(rowPacket[0]);

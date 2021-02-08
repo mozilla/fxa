@@ -7,7 +7,7 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
   let reauth = false;
   if (graphQLErrors) {
     for (const error of graphQLErrors) {
-      if (error.extensions?.code === 'UNAUTHENTICATED') {
+      if (error.message === 'Invalid token') {
         reauth = true;
       }
     }
@@ -22,7 +22,7 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
       `/get_flow?redirect_to=${encodeURIComponent(window.location.pathname)}`
     );
   } else {
-    console.error(graphQLErrors, networkError);
+    console.error('graphql errors', graphQLErrors, networkError);
   }
 };
 
