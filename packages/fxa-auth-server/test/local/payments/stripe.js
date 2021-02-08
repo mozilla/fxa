@@ -604,6 +604,57 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('invoicePayableWithPaypal', () => {
+    it('returns true if its payable via paypal', async () => {
+      const mockInvoice = {
+        billing_reason: 'subscription_cycle',
+        subscription: 'sub-1234',
+      };
+      const mockSub = {
+        collection_method: 'send_invoice',
+      };
+      sandbox.stub(stripeHelper, 'expandResource').resolves(mockSub);
+      const actual = await stripeHelper.invoicePayableWithPaypal(mockInvoice);
+      assert.isTrue(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.expandResource,
+        'sub-1234',
+        'subscriptions'
+      );
+    });
+
+    it('returns false if invoice is sub create', async () => {
+      const mockInvoice = {
+        billing_reason: 'subscription_create',
+      };
+      const mockSub = {
+        collection_method: 'send_invoice',
+      };
+      sandbox.stub(stripeHelper, 'expandResource').resolves(mockSub);
+      const actual = await stripeHelper.invoicePayableWithPaypal(mockInvoice);
+      assert.isFalse(actual);
+      sinon.assert.notCalled(stripeHelper.expandResource);
+    });
+
+    it('returns false if subscription collection_method isnt invoice', async () => {
+      const mockInvoice = {
+        billing_reason: 'subscription_cycle',
+        subscription: 'sub-1234',
+      };
+      const mockSub = {
+        collection_method: 'charge_automatically',
+      };
+      sandbox.stub(stripeHelper, 'expandResource').resolves(mockSub);
+      const actual = await stripeHelper.invoicePayableWithPaypal(mockInvoice);
+      assert.isFalse(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.expandResource,
+        'sub-1234',
+        'subscriptions'
+      );
+    });
+  });
+
   describe('finalizeInvoice', () => {
     it('works successfully', async () => {
       sandbox
