@@ -60,8 +60,8 @@ export const GET_EMAILS = gql`
 export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
-  const [suggestions, setSuggestion] = useState<Array<String>>([]);
-  const [text, setText] = useState<String>('');
+  const [suggestions, setSuggestion] = useState<Array<string>>([]);
+  const [text, setText] = useState<string>('');
   const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
     GET_ACCOUNT_BY_EMAIL
   );
