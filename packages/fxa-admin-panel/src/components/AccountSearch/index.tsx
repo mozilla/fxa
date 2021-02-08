@@ -120,7 +120,7 @@ export const AccountSearch = () => {
     );
   };
 
-  const suggestionSelected = (value) => {
+  const suggestionSelected = (value: string) => {
     setText(value);
     setSuggestion([]);
   };
