@@ -21,7 +21,7 @@ module.exports = function (grunt) {
           // such as `    [`, this creates a <code> block when parsed by remarkable
           // to avoid that we remove the indent spaces
 
-          // ref: https://github.com/mozilla/legal-docs/blob/master/firefox_privacy_notice/en-US.md
+          // ref: https://github.com/mozilla/legal-docs/blob/master/en/firefox_privacy_notice.md
           from: /^ {4}/gm,
           to: '',
         },
