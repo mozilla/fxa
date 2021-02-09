@@ -27,9 +27,7 @@ import {
 import { typeDefs } from '../lib/cache';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import waitUntil from 'async-wait-until';
-import sinon from 'sinon';
 import path from 'path';
-import fs from 'fs';
 import fetchMock from 'fetch-mock';
 
 export const MOCK_ACCOUNT: Account = {
@@ -169,48 +167,6 @@ export function renderWithRouter(
     ...render(<LocationProvider {...{ history }}>{ui}</LocationProvider>),
     history,
   };
-}
-
-const settingsFtlPath = path.resolve(
-  __dirname,
-  '..',
-  '../public/locales/en-US/settings.ftl'
-);
-fetchMock.get(
-  '/locales/en-US/settings.ftl',
-  fs.readFileSync(settingsFtlPath, 'utf-8')
-);
-fetchMock.get(
-  '/locales/en-GB/settings.ftl',
-  fs.readFileSync(settingsFtlPath, 'utf-8')
-);
-fetchMock.get(
-  '/locales/en/settings.ftl',
-  fs.readFileSync(settingsFtlPath, 'utf-8')
-);
-export async function renderWithRouterAndLocalization(
-  ui: any,
-  { route = '/', history = createHistory(createMemorySource(route)) } = {}
-) {
-  sinon.spy(AppLocalizationProvider.prototype, 'render');
-  const renderResult = {
-    ...render(
-      <AppLocalizationProvider bundles={['settings']} userLocales={['en-US']}>
-        <LocationProvider {...{ history }}>{ui}</LocationProvider>
-      </AppLocalizationProvider>
-    ),
-    history,
-  };
-  await waitUntil(() => {
-    return (
-      (AppLocalizationProvider.prototype.render as sinon.SinonSpy).callCount ===
-      2
-    );
-  });
-  // @ts-ignore
-  AppLocalizationProvider.prototype.render.restore();
-
-  return renderResult;
 }
 
 export const mockEmail = (
