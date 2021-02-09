@@ -17875,7 +17875,7 @@ fsevents@^1.2.7:
     js-md5: 0.6.0
     jsqr: 1.2.0
     jsxgettext-recursive-next: 1.1.0
-    legal-docs: "git://github.com/mozilla/legal-docs.git"
+    legal-docs: "git://github.com/mozilla/legal-docs.git#9769a9f31cd5c32945b37509fb94c01b63e5f5d2"
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.19
     mkdirp: 0.5.1
@@ -24201,7 +24201,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"legal-docs@git://github.com/mozilla/legal-docs.git":
+"legal-docs@git://github.com/mozilla/legal-docs.git#9769a9f31cd5c32945b37509fb94c01b63e5f5d2":
   version: 1.0.0
   resolution: "legal-docs@git://github.com/mozilla/legal-docs.git#commit=9769a9f31cd5c32945b37509fb94c01b63e5f5d2"
   checksum: 0f2ab3408302a04757592c6fa41f0ec23e3bad8eac25446ef26204eff19ea9183ec658259c59e16925c6b0d76b0c774b80ada8fbc3be594144c45da90123e612
