@@ -823,7 +823,7 @@ export const stripeRoutes = (
         },
         validate: {
           payload: {
-            displayName: isA.string().required(),
+            displayName: isA.string().optional(),
             idempotencyKey: isA.string().required(),
           },
         },

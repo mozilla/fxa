@@ -197,13 +197,22 @@ export async function apiReactivateSubscription({
 }
 
 export async function apiCreateCustomer(params: {
-  displayName: string;
+  displayName?: string;
   idempotencyKey: string;
 }): Promise<Customer> {
   return apiFetch(
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/customer`,
     { body: JSON.stringify(params) }
+  );
+}
+
+export async function apiGetPaypalCheckoutToken(): Promise<{
+  token: string;
+}> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/paypal-checkout`
   );
 }
 

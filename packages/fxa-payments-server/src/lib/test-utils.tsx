@@ -307,6 +307,10 @@ export const MOCK_TOKEN: Token = {
   jti: '',
 };
 
+export const MOCK_CHECKOUT_TOKEN = {
+  token: 'EC-8NC18566WJ1581100',
+};
+
 export const STRIPE_FIELDS = [
   'cardNumberElement',
   'cardCVCElement',
