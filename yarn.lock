@@ -2925,9 +2925,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/hapi@npm:^20.0.1":
-  version: 20.0.1
-  resolution: "@hapi/hapi@npm:20.0.1"
+"@hapi/hapi@npm:^20.1.0":
+  version: 20.1.0
+  resolution: "@hapi/hapi@npm:20.1.0"
   dependencies:
     "@hapi/accept": ^5.0.1
     "@hapi/ammo": ^5.0.1
@@ -2947,7 +2947,7 @@ __metadata:
     "@hapi/teamwork": 5.x.x
     "@hapi/topo": 5.x.x
     "@hapi/validate": ^1.1.0
-  checksum: 4cdbe751f03331cee72d1834e9caa2fcc92d2ab590cb537893e0bcdac967cbc92f4534e04d108ebbcb2781694c217c18befa54c86d0749001601215baca499cf
+  checksum: 9258c20f547afbfb144a32b2de6b9e427205adf7f7c540690b9be02b87ecca5f3598321026473dfc44cbaf3789e8a5298b65e73384a927f34a5c0f4fb0adb5e8
   languageName: node
   linkType: hard
 
@@ -18675,7 +18675,7 @@ fsevents@~2.3.1:
   resolution: "fxa-auth-server@workspace:packages/fxa-auth-server"
   dependencies:
     "@google-cloud/firestore": ^4.8.1
-    "@hapi/hapi": ^20.0.1
+    "@hapi/hapi": ^20.1.0
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.1.0
     "@hapi/joi": ^15.1.1
@@ -18970,7 +18970,7 @@ fsevents@~2.3.1:
   resolution: "fxa-customs-server@workspace:packages/fxa-customs-server"
   dependencies:
     "@google-cloud/pubsub": ^2.8.0
-    "@hapi/hapi": ^20.0.1
+    "@hapi/hapi": ^20.1.0
     "@hapi/hoek": ^9.0.4
     "@sentry/node": ^6.0.1
     audit-filter: ^0.5.0
@@ -19393,7 +19393,7 @@ fsevents@~2.3.1:
     "@hapi/boom": ~9.1.0
     "@hapi/catbox-memory": ~5.0.0
     "@hapi/catbox-redis": ~5.0.5
-    "@hapi/hapi": ^20.0.1
+    "@hapi/hapi": ^20.1.0
     "@hapi/inert": 6.0.3
     "@hapi/joi": ^17.1.1
     "@sentry/node": ^6.0.1
