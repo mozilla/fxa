@@ -16,6 +16,9 @@ const crypto = require('crypto');
 const error = require('../../../lib/error');
 const log = require('../../../lib/log');
 const otplib = require('otplib');
+const { default: Container } = require('typedi');
+const { StripeHelper } = require('../../../lib/payments/stripe');
+const { PayPalHelper } = require('../../../lib/payments/paypal');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 
 const TEST_EMAIL = 'foo@gmail.com';
@@ -2862,7 +2865,13 @@ describe('/account/destroy', () => {
     { uid, subscriptionId: '789' },
   ];
 
-  let mockDB, mockLog, mockRequest, mockPush, mockStripeHelper;
+  let mockDB,
+    mockLog,
+    mockRequest,
+    mockPush,
+    mockStripeHelper,
+    mockPaypalHelper,
+    mockAuthModels;
 
   beforeEach(async () => {
     mockDB = {
@@ -2884,24 +2893,43 @@ describe('/account/destroy', () => {
     mockStripeHelper.removeCustomer = sinon.spy(async (uid, email) => {
       return;
     });
+    mockPaypalHelper = mocks.mockPayPalHelper(['cancelBillingAgreement']);
+    mockPaypalHelper.cancelBillingAgreement = sinon.spy(async (ba) => {
+      return;
+    });
+    mockAuthModels = {};
+    mockAuthModels.getAllPayPalBAByUid = sinon.spy(async (uid) => {
+      return [{ status: 'Active', billingAgreementId: 'B-test' }];
+    });
+    mockAuthModels.deleteAllPayPalBAs = sinon.spy(async (uid) => {
+      return;
+    });
   });
 
   function buildRoute(subscriptionsEnabled = true) {
-    const accountRoutes = makeRoutes({
-      checkPassword: function () {
-        return Promise.resolve(true);
-      },
-      config: {
-        subscriptions: {
-          enabled: subscriptionsEnabled,
+    Container.set(StripeHelper, mockStripeHelper);
+    Container.set(PayPalHelper, mockPaypalHelper);
+    const accountRoutes = makeRoutes(
+      {
+        checkPassword: function () {
+          return Promise.resolve(true);
         },
-        domain: 'wibble',
+        config: {
+          subscriptions: {
+            enabled: subscriptionsEnabled,
+            paypalNvpSigCredentials: {
+              enabled: true,
+            },
+          },
+          domain: 'wibble',
+        },
+        db: mockDB,
+        log: mockLog,
+        push: mockPush,
+        stripeHelper: mockStripeHelper,
       },
-      db: mockDB,
-      log: mockLog,
-      push: mockPush,
-      stripeHelper: mockStripeHelper,
-    });
+      { 'fxa-shared/db/models/auth': mockAuthModels }
+    );
     return getRoute(accountRoutes, '/account/destroy');
   }
 
@@ -2909,80 +2937,58 @@ describe('/account/destroy', () => {
     const route = buildRoute();
 
     return runTest(route, mockRequest, () => {
-      assert.equal(
-        mockDB.accountRecord.callCount,
-        1,
-        'db.emailRecord was called once'
-      );
-      let args = mockDB.accountRecord.args[0];
-      assert.equal(args.length, 1);
-      assert.equal(args[0], email);
-
-      assert.equal(
-        mockDB.deleteAccount.callCount,
-        1,
-        'db.deleteAccount was called once'
-      );
-      args = mockDB.deleteAccount.args[0];
-      assert.equal(args.length, 1, 'db.deleteAccount was passed one argument');
-      assert.equal(
-        args[0].email,
-        email,
-        'db.deleteAccount was passed email record'
-      );
-      assert.deepEqual(args[0].uid, uid, 'email record had correct uid');
-
-      assert.equal(mockStripeHelper.removeCustomer.callCount, 1);
-      args = mockStripeHelper.removeCustomer.args[0];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], uid);
-
-      assert.equal(mockPush.notifyAccountDestroyed.callCount, 1);
-      assert.equal(mockPush.notifyAccountDestroyed.firstCall.args[0], uid);
-
-      assert.equal(
-        mockLog.notifyAttachedServices.callCount,
-        1,
-        'log.notifyAttachedServices was called once'
-      );
-      args = mockLog.notifyAttachedServices.args[0];
-      assert.equal(
-        args.length,
-        3,
-        'log.notifyAttachedServices was passed three arguments'
-      );
-      assert.equal(args[0], 'delete', 'first argument was event name');
-      assert.equal(args[1], mockRequest, 'second argument was request object');
-      assert.equal(
-        args[2].uid,
+      sinon.assert.calledOnceWithExactly(mockDB.accountRecord, email);
+      sinon.assert.calledWithMatch(mockDB.deleteAccount, {
         uid,
-        'third argument was event data with a uid'
+        email,
+      });
+      sinon.assert.callCount(mockStripeHelper.removeCustomer, 1);
+      sinon.assert.calledWithMatch(mockStripeHelper.removeCustomer, uid);
+      sinon.assert.calledWithMatch(mockPush.notifyAccountDestroyed, uid);
+      sinon.assert.callCount(mockLog.notifyAttachedServices, 1);
+      sinon.assert.calledOnceWithExactly(
+        mockLog.notifyAttachedServices,
+        'delete',
+        mockRequest,
+        { uid }
       );
-
-      assert.equal(
-        mockLog.activityEvent.callCount,
-        1,
-        'log.activityEvent was called once'
+      sinon.assert.calledOnceWithExactly(mockLog.activityEvent, {
+        country: 'United States',
+        event: 'account.deleted',
+        region: 'California',
+        service: undefined,
+        userAgent: 'test user-agent',
+        uid: uid,
+      });
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAllPayPalBAByUid,
+        uid
       );
-      args = mockLog.activityEvent.args[0];
-      assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
-      assert.deepEqual(
-        args[0],
-        {
-          country: 'United States',
-          event: 'account.deleted',
-          region: 'California',
-          service: undefined,
-          userAgent: 'test user-agent',
-          uid: uid,
-        },
-        'event data was correct'
+      sinon.assert.calledOnceWithExactly(
+        mockPaypalHelper.cancelBillingAgreement,
+        'B-test'
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.deleteAllPayPalBAs,
+        uid
       );
     });
   });
 
   it('should fail if stripeHelper update customer fails', async () => {
     mockStripeHelper.removeCustomer(async (uid, email) => {
+      throw new Error('wibble');
+    });
+    try {
+      await runTest(buildRoute(), mockRequest);
+      assert.fail('method should throw an error');
+    } catch (err) {
+      assert.isObject(err);
+    }
+  });
+
+  it('should fail if paypalHelper cancel billing agreement fails', async () => {
+    mockPaypalHelper.cancelBillingAgreement(async (uid, email) => {
       throw new Error('wibble');
     });
     try {

@@ -18,6 +18,7 @@ const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
+const successfulBAUpdateResponse = require('./fixtures/paypal/ba_update_success.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json');
 const { StripeHelper } = require('../../../lib/payments/stripe');
@@ -186,6 +187,24 @@ describe('PayPalHelper', () => {
         assert.instanceOf(err, PayPalClientError);
         assert.equal(err.name, 'PayPalClientError');
       }
+    });
+  });
+
+  describe('cancelBillingAgreement', () => {
+    it('cancels an agreement', async () => {
+      paypalHelper.client.doRequest = sinon.fake.resolves(
+        successfulBAUpdateResponse
+      );
+      const response = await paypalHelper.cancelBillingAgreement('test');
+      assert.isNull(response);
+    });
+
+    it('ignores paypal client errors', async () => {
+      paypalHelper.client.doRequest = sinon.fake.throws(
+        new PayPalClientError('Fake', {})
+      );
+      const response = await paypalHelper.cancelBillingAgreement('test');
+      assert.isNull(response);
     });
   });
 

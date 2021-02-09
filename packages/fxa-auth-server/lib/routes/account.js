@@ -15,8 +15,14 @@ const validators = require('./validators');
 const authMethods = require('../authMethods');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const crypto = require('crypto');
+const { Container } = require('typedi');
 
 const { determineSubscriptionCapabilities } = require('./utils/subscriptions');
+const { PayPalHelper } = require('../payments/paypal');
+const {
+  getAllPayPalBAByUid,
+  deleteAllPayPalBAs,
+} = require('fxa-shared/db/models/auth');
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -53,6 +59,18 @@ module.exports = (
   );
 
   const otpOptions = config.otp;
+
+  /** @type {PayPalHelper | undefined} */
+  let paypalHelper;
+
+  if (
+    stripeHelper &&
+    config.subscriptions &&
+    config.subscriptions.paypalNvpSigCredentials &&
+    config.subscriptions.paypalNvpSigCredentials.enabled
+  ) {
+    paypalHelper = Container.get(PayPalHelper);
+  }
 
   const routes = [
     {
@@ -1409,6 +1427,22 @@ module.exports = (
             } else {
               throw err;
             }
+          }
+          if (paypalHelper) {
+            const agreementIds = await getAllPayPalBAByUid(uid);
+            // Only cancelled and expired are terminal states, any others
+            // should be canceled to ensure they can't be used again.
+            const activeIds = agreementIds.filter((ba) =>
+              ['active', 'pending', 'suspended'].includes(
+                ba.status.toLowerCase()
+              )
+            );
+            await Promise.all(
+              activeIds.map((ba) =>
+                paypalHelper.cancelBillingAgreement(ba.billingAgreementId)
+              )
+            );
+            await deleteAllPayPalBAs(uid);
           }
         }
 
