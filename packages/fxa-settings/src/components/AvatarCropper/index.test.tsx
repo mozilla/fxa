@@ -4,12 +4,12 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import picture from './child.jpg';
+import picture from '../Avatar/avatar-default.svg';
 import AvatarCropper from '.';
 
 describe('AvatarCropper', () => {
   it('renders default avatar with expected attributes', () => {
-    render(<AvatarCropper src={picture}/>);
+    render(<AvatarCropper src={picture} />);
 
     const zoomOutButton = screen.getByTestId('zoom-out-btn');
     expect(zoomOutButton).toBeInTheDocument();
