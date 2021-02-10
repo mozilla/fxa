@@ -85,6 +85,15 @@ cs-disconnect-suspicious-advice-content = If the disconnected device is indeed
 
 cs-sign-out-button = Sign out
 
+## Tooltip notifications for actions performed on recovery keys or one-time use codes
+
+datablock-download =
+  .message = Downloaded
+datablock-copy =
+  .message = Copied
+datablock-print =
+  .message = Printed
+
 # GetDataTrio component, part of Recovery Key flow
 
 get-data-trio-title = Recovery Codes

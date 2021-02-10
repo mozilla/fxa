@@ -8,7 +8,6 @@ import React, { useEffect, useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../DataBlock';
-import GetDataTrio from '../GetDataTrio';
 import { useSession } from '../../models';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { AlertBar } from '../AlertBar';
@@ -67,7 +66,6 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
         </Localized>
         <div className="mt-6 flex flex-col items-center h-40 justify-between">
           <DataBlock value={recoveryCodes}></DataBlock>
-          <GetDataTrio value={recoveryCodes}></GetDataTrio>
         </div>
       </div>
       <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">

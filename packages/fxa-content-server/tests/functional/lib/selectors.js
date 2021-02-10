@@ -713,8 +713,8 @@ module.exports = {
         SECRET_CODE_TEXT: '[data-testid=manual-code]',
         QR_CODE: '[data-testid=2fa-qr-code]',
         INCORRECT_TOTP_TOOLTIP: '[data-testid=tooltip]',
-        RECOVERY_CODE_BLOCK: '[data-testid=datablock-button]',
-        FIRST_RECOVERY_CODE: '[data-testid=datablock-button] span:nth-child(1)',
+        RECOVERY_CODE_BLOCK: '[data-testid=datablock]',
+        FIRST_RECOVERY_CODE: '[data-testid=datablock] span:nth-child(1)',
         SECOND_RECOVERY_CODE:
           '[data-testid=datablock-button] span:nth-child(2)',
         CLOSE_RECOVERY_KEY_BLOCK: '[data-testid=close-modal]',

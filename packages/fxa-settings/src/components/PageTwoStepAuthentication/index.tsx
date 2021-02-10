@@ -13,7 +13,6 @@ import React, { useEffect, useState } from 'react';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import AlertBar from '../AlertBar';
 import DataBlock from '../DataBlock';
-import GetDataTrio from '../GetDataTrio';
 import { useSession } from '../../models';
 import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
@@ -370,11 +369,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               have your mobile device.
             </Localized>
             <div className="mt-6 flex flex-col items-center h-40 justify-between">
-              <DataBlock value={recoveryCodes}></DataBlock>
-              <GetDataTrio
+              <DataBlock
                 value={recoveryCodes}
                 onAction={logDataTrioActionEvent}
-              ></GetDataTrio>
+              ></DataBlock>
             </div>
           </div>
           <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">
