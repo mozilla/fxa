@@ -38,7 +38,7 @@ export const SentryPlugin = {
           excContexts.push({
             name: 'graphql',
             fieldData: {
-              path: err.path.join(' > '),
+              path: err.path!.join(' > '),
             },
           });
           reportRequestException(
