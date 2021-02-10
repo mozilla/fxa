@@ -29,6 +29,7 @@ module.exports = () => {
   const cspRulesBlocking = require('../lib/csp/blocking')(config);
   const cspRulesReportOnly = require('../lib/csp/report-only')(config);
   const { cors, routing } = require('fxa-shared/express')();
+  const { v4: uuid } = require('uuid');
 
   const NOOP = () => {};
   const StatsD = require('hot-shots');
@@ -153,6 +154,17 @@ module.exports = () => {
   );
 
   if (config.get('csp.enabled')) {
+    app.use(function (req, res, next) {
+      // Generate nonce for CSP to allow paypal inline script.
+      res.paypalCspNonce = uuid();
+      next();
+    });
+
+    // Add nonce for paypal's inline script.
+    cspRulesBlocking.directives.scriptSrc.push((req, res) => {
+      return `'nonce-${res.paypalCspNonce}'`;
+    });
+
     app.use(csp({ rules: cspRulesBlocking }));
   }
   if (config.get('csp.reportOnlyEnabled')) {
@@ -197,10 +209,11 @@ module.exports = () => {
     return result;
   }
 
-  function injectHtmlConfig(html, config, featureFlags) {
+  function injectHtmlConfig(html, config, featureFlags, paypalCspNonce) {
     return injectMetaContent(html, {
       __SERVER_CONFIG__: config,
       __FEATURE_FLAGS__: featureFlags,
+      __PAYPAL_CSP_NONCE__: paypalCspNonce,
     });
   }
 
@@ -215,11 +228,7 @@ module.exports = () => {
     app.use(
       '/',
       proxy(proxyUrl, {
-        userResDecorator: function (
-          proxyRes,
-          proxyResData,
-          userReq /*, userRes*/
-        ) {
+        userResDecorator: function (proxyRes, proxyResData, userReq, userRes) {
           const contentType = proxyRes.headers['content-type'];
           if (!contentType || !contentType.startsWith('text/html')) {
             return proxyResData;
@@ -229,7 +238,12 @@ module.exports = () => {
             return proxyResData;
           }
           const body = proxyResData.toString('utf8');
-          return injectHtmlConfig(body, CLIENT_CONFIG, FEATURE_FLAGS);
+          return injectHtmlConfig(
+            body,
+            CLIENT_CONFIG,
+            FEATURE_FLAGS,
+            userRes.paypalCspNonce
+          );
         },
       })
     );
@@ -252,7 +266,12 @@ module.exports = () => {
       // FIXME: should set ETag, Not-Modified:
       app.get(route, (req, res) => {
         res.send(
-          injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG, FEATURE_FLAGS)
+          injectHtmlConfig(
+            STATIC_INDEX_HTML,
+            CLIENT_CONFIG,
+            FEATURE_FLAGS,
+            res.paypalCspNonce
+          )
         );
       });
     });
