@@ -13,7 +13,6 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import AlertBar from '../AlertBar';
 import DataBlock from '../DataBlock';
 import { HomePath } from '../../constants';
-import GetDataTrio from '../GetDataTrio';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
@@ -105,8 +104,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               </p>
             </Localized>
             <div className="mt-6 flex flex-col items-center h-48 justify-between">
-              <DataBlock value={formattedRecoveryKey}></DataBlock>
-              <GetDataTrio
+              <DataBlock
                 value={formattedRecoveryKey}
                 onAction={(type) => {
                   logViewEvent(
@@ -114,7 +112,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
                     `recovery-key.${type}-option`
                   );
                 }}
-              ></GetDataTrio>
+              ></DataBlock>
               <Localized id="recovery-key-close-button">
                 <button
                   className="cta-primary mx-2 px-10"

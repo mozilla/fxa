@@ -97,7 +97,7 @@ describe('PageRecoveryKeyAdd', () => {
     });
 
     expect(screen.getByTestId('recover-key-confirm')).toBeVisible();
-    expect(screen.getByTestId('datablock-button')).toHaveTextContent(
+    expect(screen.getByTestId('datablock')).toHaveTextContent(
       '0000 0000 0000 0000 0000 0000 0000 0000'
     );
     expect(screen.getByTestId('databutton-copy')).toBeEnabled();

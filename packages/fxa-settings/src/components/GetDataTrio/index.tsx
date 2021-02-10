@@ -11,7 +11,7 @@ import { ReactComponent as PrintIcon } from './print.svg';
 
 export type GetDataTrioProps = {
   value: string | string[];
-  onAction?: (type: string) => void;
+  onAction?: (type: 'download' | 'copy' | 'print') => void;
 };
 
 const recoveryCodesPrintTemplate = (

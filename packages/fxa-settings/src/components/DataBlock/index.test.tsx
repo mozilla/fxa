@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import DataBlock from './index';
+import { act } from 'react-dom/test-utils';
 
 const singleValue = 'ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F';
 
@@ -22,6 +23,7 @@ const multiValue = [
 Object.defineProperty(window.navigator, 'clipboard', {
   value: { writeText: jest.fn() },
 });
+window.URL.createObjectURL = jest.fn();
 
 it('can render single values', () => {
   render(<DataBlock value={singleValue} />);
@@ -35,18 +37,12 @@ it('can render multiple values', () => {
   });
 });
 
-it('can copy a single value to the clipboard', () => {
-  render(<DataBlock value={singleValue} />);
-  fireEvent.click(screen.getByTestId('datablock-button'));
-  expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(
-    singleValue
-  );
-});
-
-it('can copy multiple values to the clipboard', () => {
+it('displays a tooltip on action', async () => {
   render(<DataBlock value={multiValue} />);
-  fireEvent.click(screen.getByTestId('datablock-button'));
-  expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(
-    multiValue.join(', ')
-  );
+  await act(async () => {
+    fireEvent.click(await screen.findByTestId('databutton-copy'));
+  });
+  expect(
+    await screen.findByTestId('datablock-copy-tooltip')
+  ).toBeInTheDocument();
 });
