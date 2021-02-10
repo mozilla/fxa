@@ -3953,19 +3953,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^7.5.5":
-  version: 7.5.5
-  resolution: "@nestjs/platform-express@npm:7.5.5"
+"@nestjs/platform-express@npm:^7.6.11":
+  version: 7.6.11
+  resolution: "@nestjs/platform-express@npm:7.6.11"
   dependencies:
     body-parser: 1.19.0
     cors: 2.8.5
     express: 4.17.1
     multer: 1.4.2
-    tslib: 2.0.3
+    tslib: 2.1.0
   peerDependencies:
     "@nestjs/common": ^7.0.0
     "@nestjs/core": ^7.0.0
-  checksum: 8af8bba8dcddc3f23a8056f1fbc5eec936473e75ca8447027ae95fe93d668e8b203b4025198dc68a3bfc0623613f852e8da2fb112dc866f27803c3d2cee2c20c
+  checksum: 2dadc955533e1284b566a8c8035066f21d3ef7e3a597b1d85724a131bdfb959a4ed6559e61091fd49593be7d145bc4c51a83bf8ffacbd5cf2d2dffa02a625805
   languageName: node
   linkType: hard
 
@@ -18611,7 +18611,7 @@ fsevents@~2.3.1:
     "@nestjs/core": ^7.5.5
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
-    "@nestjs/platform-express": ^7.5.5
+    "@nestjs/platform-express": ^7.6.11
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.1
@@ -19099,7 +19099,7 @@ fsevents@~2.3.1:
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
-    "@nestjs/platform-express": ^7.5.5
+    "@nestjs/platform-express": ^7.6.11
     "@nestjs/schedule": ^0.4.1
     "@nestjs/schematics": ^7.2.6
     "@nestjs/testing": ^7.6.5
@@ -19196,7 +19196,7 @@ fsevents@~2.3.1:
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
-    "@nestjs/platform-express": ^7.5.5
+    "@nestjs/platform-express": ^7.6.11
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.1
@@ -19699,7 +19699,7 @@ fsevents@~2.3.1:
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.5.5
     "@nestjs/mapped-types": ^0.3.0
-    "@nestjs/platform-express": ^7.5.5
+    "@nestjs/platform-express": ^7.6.11
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/convict": ^5.2.1
