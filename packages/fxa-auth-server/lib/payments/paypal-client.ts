@@ -120,6 +120,7 @@ export type DoReferenceTransactionOptions = {
 
 export type BAUpdateOptions = {
   billingAgreementId: string;
+  cancel?: boolean;
 };
 
 export type IpnMessage = {
@@ -329,9 +330,12 @@ export class PayPalClient {
   public async baUpdate(
     options: BAUpdateOptions
   ): Promise<NVPBAUpdateTransactionResponse> {
-    const data = {
+    const data: Record<string, any> = {
       REFERENCEID: options.billingAgreementId,
     };
+    if (options.cancel) {
+      data.BILLINGAGREEMENTSTATUS = 'Canceled';
+    }
     return await this.doRequest<NVPBAUpdateTransactionResponse>(
       'BillAgreementUpdate',
       data

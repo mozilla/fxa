@@ -13,6 +13,7 @@ import {
   DoReferenceTransactionOptions,
   IpnMessage,
   PayPalClient,
+  PayPalClientError,
 } from './paypal-client';
 import { StripeHelper } from './stripe';
 
@@ -142,9 +143,31 @@ export class PayPalHelper {
   ): Promise<AgreementDetails> {
     const response = await this.client.baUpdate(options);
     return {
-      status: response.BILLINGAGREEMENTSTATUS as AgreementDetails['status'],
+      status: response.BILLINGAGREEMENTSTATUS.toLowerCase() as AgreementDetails['status'],
       countryCode: response.COUNTRYCODE,
     };
+  }
+
+  /**
+   * Cancel a billing agreement.
+   *
+   * Errors from PayPal canceling the agreement are ignored as they only occur
+   * if the agreement is no longer valid, isn't present anymore, etc. Other errors
+   * processing the request are not ignored.
+   *
+   * @param billingAgreementId
+   */
+  public async cancelBillingAgreement(
+    billingAgreementId: string
+  ): Promise<null> {
+    try {
+      await this.client.baUpdate({ billingAgreementId, cancel: true });
+    } catch (err) {
+      if (!(err instanceof PayPalClientError)) {
+        throw err;
+      }
+    }
+    return null;
   }
 
   /**
