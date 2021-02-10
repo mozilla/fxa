@@ -13,15 +13,18 @@ declare var paypal: {
 
 export type PaypalButtonProps = {
   apiClientOverrides?: Partial<SubscriptionCreateAuthServerAPIs>;
-  customer: Customer | null;
-  setPaymentError: Function;
-  idempotencyKey: string;
-  ButtonBase?: React.ElementType;
   currencyCode: string;
+  customer: Customer | null;
+  idempotencyKey: string;
+  priceId: string;
+  refreshSubscriptions: () => void;
+  setPaymentError: Function;
+  ButtonBase?: React.ElementType;
 };
 
 export type ButtonBaseProps = {
   createOrder?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onApprove?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onError?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
@@ -35,11 +38,13 @@ export const PaypalButtonBase =
 
 export const PaypalButton = ({
   apiClientOverrides,
-  customer,
-  setPaymentError,
-  idempotencyKey,
-  ButtonBase = PaypalButtonBase,
   currencyCode,
+  customer,
+  idempotencyKey,
+  priceId,
+  refreshSubscriptions,
+  setPaymentError,
+  ButtonBase = PaypalButtonBase,
 }: PaypalButtonProps) => {
   const createOrder = useCallback(async () => {
     try {
@@ -62,9 +67,38 @@ export const PaypalButton = ({
     apiClient.apiCreateCustomer,
     apiClient.apiGetPaypalCheckoutToken,
     customer,
-    setPaymentError,
     idempotencyKey,
+    setPaymentError,
   ]);
+
+  const onApprove = useCallback(
+    async (data: { orderID: string }) => {
+      try {
+        const { apiCapturePaypalPayment } = {
+          ...apiClient,
+          ...apiClientOverrides,
+        };
+        // This is the same token as obtained in createOrder
+        const token = data.orderID;
+        await apiCapturePaypalPayment({
+          idempotencyKey,
+          priceId,
+          token,
+        });
+        refreshSubscriptions();
+      } catch (error) {
+        setPaymentError(error);
+      }
+      return null;
+    },
+    [
+      apiClient.apiCreateCustomer,
+      apiClient.apiGetPaypalCheckoutToken,
+      customer,
+      idempotencyKey,
+      setPaymentError,
+    ]
+  );
 
   const onError = useCallback(
     (error) => {
@@ -79,6 +113,7 @@ export const PaypalButton = ({
         <ButtonBase
           data-testid="paypal-button"
           createOrder={createOrder}
+          onApprove={onApprove}
           onError={onError}
         />
       )}

@@ -184,11 +184,13 @@ export const SubscriptionCreate = ({
             <Suspense fallback={<div>Loading...</div>}>
               <PaypalButton
                 apiClientOverrides={apiClientOverrides}
-                customer={customer}
-                setPaymentError={setPaymentError}
-                idempotencyKey={submitNonce}
-                ButtonBase={paypalButtonBase}
                 currencyCode={selectedPlan.currency}
+                customer={customer}
+                idempotencyKey={submitNonce}
+                priceId={selectedPlan.plan_id}
+                refreshSubscriptions={refreshSubscriptions}
+                setPaymentError={setPaymentError}
+                ButtonBase={paypalButtonBase}
               />
             </Suspense>
           )}
