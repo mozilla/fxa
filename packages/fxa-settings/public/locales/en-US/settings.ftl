@@ -6,9 +6,20 @@
 
 # Note: the company name, Mozilla, is not translated.
 -mozilla = Mozilla
-# Note: the product name, Firefox Accounts, is not translated.
+# Note: "Firefox" is not translated.
+-firefox = Firefox
 -firefox-accounts = Firefox Accounts
 -firefox-account = Firefox account
+
+# Note: don't translate this product name.
+mozilla-vpn = Mozilla VPN
+# Note: don't translate this product name.
+firefox-lockwise = Firefox Lockwise
+# Note: don't translate this product name.
+firefox-monitor = Firefox Monitor
+
+-google-play = Google Play
+-app-store = App Store
 
 # Frequently reused button text. The translations should be short enough to fit in a small button.
 fxa-save-button = Save
@@ -36,8 +47,8 @@ avatar-default-avatar =
 
 ## Connect another device promo
 
-connect-another-fx-mobile = Get Firefox on mobile or tablet
-connect-another-find-fx-mobile = Find Firefox in the Google Play and App Store
+connect-another-fx-mobile = Get { -firefox } on mobile or tablet
+connect-another-find-fx-mobile = Find { -firefox } in the { -google-play } and { -app-store }
   or <br /><linkExternal>send a download link to your device.</linkExternal>
 
 ## Connected services section
@@ -47,6 +58,10 @@ cs-description = Everything you are using and signed into.
 cs-cannot-refresh = Sorry, there was a problem refreshing the list of connected
   services.
 cs-cannot-disconnect = Client not found, unable to disconnect
+# This string is used in a notification message near the top of the page.
+# Variables:
+#   $service (String) - the name of a device or service that uses Firefox Accounts
+#                       (for example: "Firefox Lockwise")
 cs-logged-out = Logged out of { $service }.
 
 cs-refresh-button =
@@ -74,14 +89,14 @@ cs-disconnect-sync-opt-not-say = Rather not say
 cs-disconnect-advice-confirm = Okay, got it
 cs-disconnect-lost-advice-heading = Lost or stolen device disconnected
 cs-disconnect-lost-advice-content = Since your device was lost or stolen, to
-  keep your information safe, you should change your Firefox account password
+  keep your information safe, you should change your { -firefox-account } password
   in your account settings. You should also look for information from your
   device manufacturer about erasing your data remotely.
 cs-disconnect-suspicious-advice-heading = Suspicious device disconnected
 cs-disconnect-suspicious-advice-content = If the disconnected device is indeed
-  suspicious, to keep your information safe, you should change your Firefox
+  suspicious, to keep your information safe, you should change your { -firefox }
   account password in your account settings. You should also change any other
-  passwords you saved in Firefox by typing about:logins into the address bar.
+  passwords you saved in { -firefox } by typing about:logins into the address bar.
 
 cs-sign-out-button = Sign out
 
@@ -128,7 +143,7 @@ nav-email-comm = Email Communications
 
 tfa-replace-code-error = There was a problem replacing your recovery codes.
 tfa-replace-code-success = New codes have been created. Save these one-time use
-  codes in a safe place—you’ll need them to access your account if you don’t
+  codes in a safe place — you’ll need them to access your account if you don’t
   have your mobile device.
 
 # Avatar change page
@@ -186,19 +201,12 @@ delete-account-step-2-2 = Step 2 of 2
 
 delete-account-confirm-title = You've connected your { -firefox-account } to { -mozilla } products that keep you secure and productive on the web:
 
-# Note: don't translate this product name.
-mozilla-vpn = Mozilla VPN
-# Note: don't translate this product name.
-firefox-lockwise = Firefox Lockwise
-# Note: don't translate this product name.
-firefox-monitor = Firefox Monitor
-
 delete-account-acknowledge = Please acknowledge that by deleting your account:
 
 delete-account-chk-box-1 =
  .label = Any paid subscriptions you have will be cancelled
 delete-account-chk-box-2 =
- .label = Any may lose saved information and features within { -mozilla } products
+ .label = You may lose saved information and features within { -mozilla } products
 delete-account-chk-box-3 =
  .label = Reactivating with this email may not restore your saved information
 delete-account-chk-box-4 =
@@ -254,15 +262,15 @@ verify-secondary-email-verification-code =
   .label = Enter your verification code
 verify-secondary-email-cancel-button = { fxa-cancel-button }
 verify-secondary-email-verify-button = Verify
-# Note: include the placeholder '{email}' without translation. It will be replaced with the user's email address.
-verify-secondary-email-please-enter-code = Please enter the verification code that was sent to {email} within 5 minutes.
+# Note: include the placeholder '{ $email }' without translation. It will be replaced with the user's email address.
+verify-secondary-email-please-enter-code = Please enter the verification code that was sent to { $email } within 5 minutes.
 
 # Link to delete account on main Settings page
 delete-account-link = Delete Account
 
 ## Two Step Authentication
 
-tfa-title = Two Step Authentication
+tfa-title = Two-Step Authentication
 
 tfa-step-1-3 = Step 1 of 3
 tfa-step-2-3 = Step 2 of 3
@@ -274,7 +282,7 @@ tfa-button-finish = Finish
 
 tfa-incorrect-totp = Incorrect two-step authentication code
 tfa-cannot-retrieve-code = There was a problem retrieving your code.
-tfa-cannot-verify-code = There was a problem verifiying your recovery code.
+tfa-cannot-verify-code = There was a problem verifying your recovery code.
 tfa-incorrect-recovery-code = Incorrect recovery code
 tfa-enabled = Two-step authentication enabled
 
@@ -333,7 +341,7 @@ rk-cannot-refresh = Sorry, there was a problem refreshing the recovery key.
 rk-key-removed = Account recovery key removed.
 rk-cannot-remove-key = Your account recovery key could not be removed.
 rk-refresh-key = Refresh recovery key
-rk-content-explain = Restores your information when you forget your password.
+rk-content-explain = Restore your information when you forget your password.
 rk-content-reset-data = Why does resetting my password reset my data?
 rk-cannot-verify-session = Sorry, there was a problem verifying your session
 rk-remove-modal-heading = Remove recovery key?
@@ -348,7 +356,7 @@ se-cannot-refresh-email = Sorry, there was a problem refreshing that email.
 se-cannot-resend-code = Sorry, there was a problem re-sending the verification code.
 se-set-primary-successful = { $email } is now your primary email.
 se-set-primary-error = Sorry, there was a problem changing your primary email.
-se-delete-email-successful = { $email } email successfully deleted.
+se-delete-email-successful = { $email } successfully deleted.
 se-delete-email-error = Sorry, there was a problem deleting this email.
 se-verify-session = You'll need to verify your current session to perform this action.
 se-verify-session-error = Sorry, there was a problem verifying your session.
@@ -360,11 +368,11 @@ se-refresh-email =
   .title = Refresh email
 se-unverified = unverified
 se-resend-code = Verification needed. <button>Resend verification code</button>
-  if it's not in your email or spam.
+  if it's not in your inbox or spam folder.
 # Button to make secondary email the primary
 se-make-primary = Make primary
 se-default-content = Access your account if you can't log in to your primary email.
-se-content-note = Note: a secondary email won't restore your information—you'll
+se-content-note = Note: a secondary email won't restore your information — you'll
   need a <a>recovery key</a> for that.
 
 ## Two Step Auth sub-section on Settings main page

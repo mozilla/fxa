@@ -61,7 +61,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
       <div className="my-2" data-testid="2fa-recovery-codes">
         <Localized id="tfa-replace-code-success">
           New codes have been created. Save these one-time use codes in a safe
-          place—you’ll need them to access your account if you don’t have your
+          place — you’ll need them to access your account if you don’t have your
           mobile device.
         </Localized>
         <div className="mt-6 flex flex-col items-center h-40 justify-between">

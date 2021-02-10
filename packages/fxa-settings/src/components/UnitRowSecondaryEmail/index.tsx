@@ -134,7 +134,7 @@ export const UnitRowSecondaryEmail = () => {
           l10n.getString(
             'se-delete-email-successful',
             { email },
-            `${email} email successfully deleted.`
+            `${email} successfully deleted.`
           )
         );
       },
@@ -318,7 +318,7 @@ export const UnitRowSecondaryEmail = () => {
                   >
                     Resend verification code
                   </button>
-                  if it's not in your email or spam.
+                  if it's not in your inbox or spam folder.
                 </p>
               </Localized>
             )}
@@ -433,7 +433,7 @@ const SecondaryEmailDefaultContent = () => (
       }}
     >
       <p className="text-grey-400 text-xs my-2">
-        Note: a secondary email won't restore your information—you'll need a{' '}
+        Note: a secondary email won't restore your information — you'll need a{' '}
         <a
           className="link-blue"
           href="#recovery-key"
