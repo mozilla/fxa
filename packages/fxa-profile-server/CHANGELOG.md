@@ -1,3 +1,9 @@
+## 1.200.0
+
+### Other changes
+
+- deps: bump @hapi/hapi from 20.0.1 to 20.1.0 ([d3423d960f](https://github.com/mozilla/fxa/commit/d3423d960f))
+
 ## 1.199.0
 
 ### Other changes

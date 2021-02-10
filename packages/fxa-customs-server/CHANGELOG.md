@@ -1,3 +1,10 @@
+## 1.200.0
+
+### Other changes
+
+- deps: bump @hapi/hapi from 20.0.1 to 20.1.0 ([d3423d960f](https://github.com/mozilla/fxa/commit/d3423d960f))
+- deps-dev: bump restify-clients from 2.6.9 to 3.1.0 ([961ab2f2bd](https://github.com/mozilla/fxa/commit/961ab2f2bd))
+
 ## 1.199.0
 
 ### Other changes

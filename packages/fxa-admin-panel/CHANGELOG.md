@@ -1,3 +1,12 @@
+## 1.200.0
+
+### Other changes
+
+- deps: bump graphql from 15.4.0 to 15.5.0 ([eae1a35dd0](https://github.com/mozilla/fxa/commit/eae1a35dd0))
+- deps-dev: bump @types/jest from 24.9.1 to 26.0.20 ([78e246d9a3](https://github.com/mozilla/fxa/commit/78e246d9a3))
+- deps-dev: bump @storybook/addon-links from 6.0.28 to 6.1.15 ([03fa0a58db](https://github.com/mozilla/fxa/commit/03fa0a58db))
+- deps: bump @apollo/client from 3.3.6 to 3.3.7 ([d34d6c68cb](https://github.com/mozilla/fxa/commit/d34d6c68cb))
+
 ## 1.199.0
 
 ### Other changes
