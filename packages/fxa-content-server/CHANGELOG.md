@@ -1,3 +1,21 @@
+## 1.200.0
+
+### New features
+
+- fxa-settings: avatar uploads ([edaf607ead](https://github.com/mozilla/fxa/commit/edaf607ead))
+- settings: display success tooltip on datablock action ([225746107a](https://github.com/mozilla/fxa/commit/225746107a))
+
+### Bug fixes
+
+- tests: create a new regression suite to run after smoke test suite ([5474f508a1](https://github.com/mozilla/fxa/commit/5474f508a1))
+
+### Other changes
+
+- fxa-content-server: account for legal-docs new format ([f4597eaa0a](https://github.com/mozilla/fxa/commit/f4597eaa0a))
+- l10n: combine the download l10n scripts ([37887cf115](https://github.com/mozilla/fxa/commit/37887cf115))
+- tests: add browser comm assertions to new settings functional tests ([20bdfddd56](https://github.com/mozilla/fxa/commit/20bdfddd56))
+- deps: bump postcss-loader from 4.1.0 to 4.2.0 ([e81d76040b](https://github.com/mozilla/fxa/commit/e81d76040b))
+
 ## 1.199.0
 
 ### New features

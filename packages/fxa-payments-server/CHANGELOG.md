@@ -1,5 +1,22 @@
 # Change history
 
+## 1.200.0
+
+### New features
+
+- payments: Add createOrder handler to PayPal button ([d66166178c](https://github.com/mozilla/fxa/commit/d66166178c))
+
+### Bug fixes
+
+- tests: fix a couple jest.requireActual calls ([e06b8667e3](https://github.com/mozilla/fxa/commit/e06b8667e3))
+
+### Other changes
+
+- deps-dev: bump @types/react-redux from 7.1.8 to 7.1.16 ([252aba9afd](https://github.com/mozilla/fxa/commit/252aba9afd))
+- l10n: combine the download l10n scripts ([37887cf115](https://github.com/mozilla/fxa/commit/37887cf115))
+- deps-dev: bump @types/jest from 24.9.1 to 26.0.20 ([78e246d9a3](https://github.com/mozilla/fxa/commit/78e246d9a3))
+- deps-dev: bump @storybook/addon-links from 6.0.28 to 6.1.15 ([03fa0a58db](https://github.com/mozilla/fxa/commit/03fa0a58db))
+
 ## 1.199.0
 
 ### New features

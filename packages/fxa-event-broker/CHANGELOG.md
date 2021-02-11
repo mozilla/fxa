@@ -1,5 +1,14 @@
 # Change history
 
+## 1.200.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 7.5.5 to 7.6.11 ([ae4c586569](https://github.com/mozilla/fxa/commit/ae4c586569))
+- deps: bump @nestjs/graphql from 7.9.1 to 7.9.8 ([2e1c276997](https://github.com/mozilla/fxa/commit/2e1c276997))
+- deps: bump @nestjs/mapped-types from 0.1.1 to 0.3.0 ([50b07cab0a](https://github.com/mozilla/fxa/commit/50b07cab0a))
+- deps: bump graphql from 15.4.0 to 15.5.0 ([eae1a35dd0](https://github.com/mozilla/fxa/commit/eae1a35dd0))
+
 ## 1.199.0
 
 ### Other changes
