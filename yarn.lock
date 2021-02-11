@@ -10251,7 +10251,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.443.0, aws-sdk@npm:^2.822.0":
+"aws-sdk@npm:^2.443.0":
   version: 2.822.0
   resolution: "aws-sdk@npm:2.822.0"
   dependencies:
@@ -10265,6 +10265,23 @@ __metadata:
     uuid: 3.3.2
     xml2js: 0.4.19
   checksum: cd32f5564f7d5b05be2c5160bc6189e0d69a6b37bbd7fa1c7f4d546bc0eeeb7c8a047d48d41bcc2c2d89f88b2e5f0da759c440cd572a557dc0487636d1aa4863
+  languageName: node
+  linkType: hard
+
+"aws-sdk@npm:^2.841.0":
+  version: 2.841.0
+  resolution: "aws-sdk@npm:2.841.0"
+  dependencies:
+    buffer: 4.9.2
+    events: 1.1.1
+    ieee754: 1.1.13
+    jmespath: 0.15.0
+    querystring: 0.2.0
+    sax: 1.2.1
+    url: 0.10.3
+    uuid: 3.3.2
+    xml2js: 0.4.19
+  checksum: 6952b83b2889e1232703664126591ff9b8882ef346466fa3b423e0431f0f61d4878358c2e64c7cd2fa336fc421e14e763b891fbe1f3014d8198e4c371776df10
   languageName: node
   linkType: hard
 
@@ -18888,7 +18905,7 @@ fsevents@~2.3.1:
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.822.0
+    aws-sdk: ^2.841.0
     base64url: 3.0.1
     binary-split: 1.0.5
     bluebird: ^3.7.2
@@ -19209,7 +19226,7 @@ fsevents@~2.3.1:
   resolution: "fxa-email-event-proxy@workspace:packages/fxa-email-event-proxy"
   dependencies:
     audit-filter: ^0.5.0
-    aws-sdk: ^2.822.0
+    aws-sdk: ^2.841.0
     bluebird: ^3.7.2
     chai: ^4.2.0
     chai-as-promised: ^7.1.1
@@ -19260,7 +19277,7 @@ fsevents@~2.3.1:
     "@typescript-eslint/eslint-plugin": 4.10.0
     "@typescript-eslint/parser": 3.0.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.822.0
+    aws-sdk: ^2.841.0
     axios: ^0.21.0
     chance: ^1.1.6
     class-transformer: ^0.3.1
@@ -19585,7 +19602,7 @@ fsevents@~2.3.1:
     "@sentry/node": ^6.0.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.822.0
+    aws-sdk: ^2.841.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 0.1.1
@@ -19786,7 +19803,7 @@ fsevents@~2.3.1:
     ajv: ^6.12.2
     apollo-server: ^2.19.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.822.0
+    aws-sdk: ^2.841.0
     bluebird: ^3.7.2
     celebrate: ^10.0.1
     chai: ^4.2.0
