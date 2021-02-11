@@ -26,6 +26,7 @@ const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_expr
 const unSuccessfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_failure.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
 const unSuccessfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
+const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
 const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json')
   .message;
 
@@ -364,6 +365,17 @@ describe('PayPalClient', () => {
         .reply(200, 'VERIFIED');
       const result = await client.ipnVerify(sampleIpnMessage);
       assert.equal(result, 'VERIFIED');
+    });
+  });
+
+  describe('transactionSearch', () => {
+    it('calls API with valid message', async () => {
+      client.doRequest = sandbox.fake.resolves(searchTransactionResponse);
+      const response = await client.transactionSearch({
+        startDate: new Date('2010-09-02'),
+        invoice: 'inv-000',
+      });
+      assert.equal(response, searchTransactionResponse);
     });
   });
 });
