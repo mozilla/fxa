@@ -294,10 +294,8 @@ export const ConnectedServices = () => {
         )}
         {confirmDisconnectModalRevealed && (
           <VerifiedSessionGuard
-            onDismiss={clearDisconnectingState}
-            onError={(error: ApolloError) =>
-              clearDisconnectingState(undefined, error)
-            }
+            onDismiss={hideConfirmDisconnectModal}
+            onError={(error) => clearDisconnectingState(undefined, error)}
           >
             <Modal
               onDismiss={hideConfirmDisconnectModal}
