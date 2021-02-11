@@ -188,6 +188,7 @@ export const SubscriptionCreate = ({
                 setPaymentError={setPaymentError}
                 idempotencyKey={submitNonce}
                 ButtonBase={paypalButtonBase}
+                currencyCode={selectedPlan.currency}
               />
             </Suspense>
           )}

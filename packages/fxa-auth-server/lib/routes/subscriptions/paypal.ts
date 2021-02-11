@@ -41,7 +41,9 @@ export class PayPalHandler extends StripeHandler {
     this.log.begin('subscriptions.getCheckoutToken', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'getCheckoutToken');
-    const token = await this.paypalHelper.getCheckoutToken();
+
+    const { currencyCode } = request.payload as Record<string, string>;
+    const token = await this.paypalHelper.getCheckoutToken({ currencyCode });
     const responseObject = { token };
     this.log.info('subscriptions.getCheckoutToken.success', responseObject);
     return responseObject;
@@ -157,6 +159,11 @@ export const paypalRoutes = (
           schema: isA.object({
             token: isA.string().required(),
           }),
+        },
+        validate: {
+          payload: {
+            currencyCode: isA.string().required(),
+          },
         },
       },
       handler: (request: AuthRequest) =>

@@ -17,6 +17,7 @@ export type PaypalButtonProps = {
   setPaymentError: Function;
   idempotencyKey: string;
   ButtonBase?: React.ElementType;
+  currencyCode: string;
 };
 
 export type ButtonBaseProps = {
@@ -38,6 +39,7 @@ export const PaypalButton = ({
   setPaymentError,
   idempotencyKey,
   ButtonBase = PaypalButtonBase,
+  currencyCode,
 }: PaypalButtonProps) => {
   const createOrder = useCallback(async () => {
     try {
@@ -50,7 +52,7 @@ export const PaypalButton = ({
           idempotencyKey,
         });
       }
-      const { token } = await apiGetPaypalCheckoutToken();
+      const { token } = await apiGetPaypalCheckoutToken({ currencyCode });
       return token;
     } catch (error) {
       setPaymentError(error);

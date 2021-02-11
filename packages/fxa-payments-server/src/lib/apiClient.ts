@@ -207,12 +207,16 @@ export async function apiCreateCustomer(params: {
   );
 }
 
-export async function apiGetPaypalCheckoutToken(): Promise<{
+export async function apiGetPaypalCheckoutToken(params: {
+  currencyCode: string;
+}): Promise<{
   token: string;
 }> {
+  const { currencyCode } = params;
   return apiFetch(
     'POST',
-    `${config.servers.auth.url}/v1/oauth/subscriptions/paypal-checkout`
+    `${config.servers.auth.url}/v1/oauth/subscriptions/paypal-checkout`,
+    { body: JSON.stringify({ currencyCode }) }
   );
 }
 

@@ -199,11 +199,15 @@ describe('PayPalClient', () => {
       RETURNURL: PLACEHOLDER_URL,
     };
 
+    const defaultOptions = {
+      currencyCode: 'USD',
+    };
+
     it('calls api with correct method and data', () => {
       client.doRequest = sandbox.fake.resolves(
         successfulSetExpressCheckoutResponse
       );
-      client.setExpressCheckout();
+      client.setExpressCheckout(defaultOptions);
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
         'SetExpressCheckout',
@@ -224,7 +228,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, client.objectToNVP(expectedPayload))
         .reply(200, client.objectToNVP(unSuccessfulSetExpressCheckoutResponse));
       try {
-        await client.setExpressCheckout();
+        await client.setExpressCheckout(defaultOptions);
         assert.fail('Request should have thrown an error.');
       } catch (err) {
         assert.instanceOf(err, PayPalClientError);
@@ -232,6 +236,24 @@ describe('PayPalClient', () => {
         assert.include(err.raw, 'ACK=Failure');
         assert.equal(err.data.ACK, 'Failure');
       }
+    });
+
+    it('calls api with requested currency', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulSetExpressCheckoutResponse
+      );
+      const currency = 'EUR';
+      await client.setExpressCheckout({
+        currencyCode: currency,
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'SetExpressCheckout',
+        {
+          ...defaultData,
+          PAYMENTREQUEST_0_CURRENCYCODE: currency,
+        }
+      );
     });
   });
 

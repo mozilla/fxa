@@ -9,6 +9,7 @@ import { Container } from 'typedi';
 import error from '../error';
 import {
   BAUpdateOptions,
+  SetExpressCheckoutOptions,
   CreateBillingAgreementOptions,
   DoReferenceTransactionOptions,
   IpnMessage,
@@ -105,8 +106,10 @@ export class PayPalHelper {
    * If the call to PayPal fails, a PayPalClientError will be thrown.
    *
    */
-  public async getCheckoutToken(): Promise<string> {
-    const response = await this.client.setExpressCheckout();
+  public async getCheckoutToken(
+    options: SetExpressCheckoutOptions
+  ): Promise<string> {
+    const response = await this.client.setExpressCheckout(options);
     return response.TOKEN;
   }
 

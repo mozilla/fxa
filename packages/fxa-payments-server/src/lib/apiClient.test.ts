@@ -460,7 +460,10 @@ describe('API requests', () => {
       const requestMock = nock(AUTH_BASE_URL)
         .post('/v1/oauth/subscriptions/paypal-checkout')
         .reply(200, MOCK_CHECKOUT_TOKEN);
-      expect(await apiGetPaypalCheckoutToken()).toEqual(MOCK_CHECKOUT_TOKEN);
+      const currencyCode = 'USD';
+      expect(await apiGetPaypalCheckoutToken({ currencyCode })).toEqual(
+        MOCK_CHECKOUT_TOKEN
+      );
       requestMock.done();
     });
   });

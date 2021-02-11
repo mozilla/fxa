@@ -8,6 +8,7 @@ const Subject = ({
   customer = null,
   setPaymentError = () => {},
   idempotencyKey = '',
+  currencyCode = 'USD',
   ...props
 }: PickPartial<
   PaypalButtonProps,
@@ -16,6 +17,7 @@ const Subject = ({
   | 'setPaymentError'
   | 'idempotencyKey'
   | 'ButtonBase'
+  | 'currencyCode'
 >) => {
   return (
     <PaypalButton
@@ -23,6 +25,7 @@ const Subject = ({
         customer,
         setPaymentError,
         idempotencyKey,
+        currencyCode,
         ...props,
       }}
     />
