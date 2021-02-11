@@ -24,6 +24,9 @@ export class Account {
   @Field({ nullable: true, description: 'Display name the user has set.' })
   public displayName!: string;
 
+  @Field({ nullable: true, description: "ID for the user's avatar." })
+  public avatarId!: string;
+
   @Field({ nullable: true, description: "URL for the user's avatar." })
   public avatarUrl!: string;
 

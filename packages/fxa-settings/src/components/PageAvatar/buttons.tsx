@@ -11,12 +11,11 @@ import ButtonIcon from '../ButtonIcon';
 
 import { ReactComponent as AddIcon } from './add.svg';
 import { ReactComponent as CameraIcon } from './camera.svg';
-import { ReactComponent as RemoveIcon } from './remove.svg';
 import { ReactComponent as ZoomOutIcon } from './zoom-out.svg';
 import { ReactComponent as ZoomInIcon } from './zoom-in.svg';
 import { ReactComponent as RotateIcon } from './rotate.svg';
 
-const buttonClass = `mx-2 text-grey-500
+export const buttonClass = `mx-2 text-grey-500
 hover:text-grey-600 hover:text-grey-600
 focus:text-grey-400`;
 const captureClass = `mx-2 bg-red-500 w-12 h-12 text-white rounded-full border
@@ -25,28 +24,6 @@ focus:border-red-800`;
 
 const editButtonClass = `mx-1 text-white rounded-full hover:bg-grey-100`;
 const buttonSize = 32;
-
-function remove() {
-  console.log('remove avatar');
-}
-
-export const RemovePhotoBtn = () => {
-  return (
-    <div onClick={remove} className="cursor-pointer flex-1">
-      <Localized id="avatar-page-remove-photo-button" attrs={{ title: true }}>
-        <ButtonIcon
-          testId="remove-photo-btn"
-          title="Remove photo"
-          icon={[RemoveIcon, 24, 22]}
-          classNames={buttonClass}
-        />
-      </Localized>
-      <Localized id="avatar-page-remove-photo">
-        <p>Remove photo</p>
-      </Localized>
-    </div>
-  );
-};
 
 export const TakePhotoBtn = ({
   onClick,

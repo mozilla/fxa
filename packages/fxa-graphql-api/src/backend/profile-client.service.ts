@@ -69,4 +69,11 @@ export class ProfileClientService {
       .send(file);
     return result.body.url;
   }
+
+  public async avatarDelete(token: string, id?: string) {
+    const result = await this.profilePostRequest(token, '/avatar/delete', {
+      id,
+    });
+    return result.text === '{}';
+  }
 }

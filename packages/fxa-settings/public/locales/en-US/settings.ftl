@@ -187,7 +187,8 @@ avatar-page-rotate-button = Rotate
 avatar-page-camera-error = Could not initialize camera
 avatar-page-new-avatar =
   .alt = new profile picture
-avatar-page-file-upload-error = There was an issue uploading your profile picture
+avatar-page-file-upload-error = There was a problem uploading your profile picture
+avatar-page-delete-error = There was a problem deleting your avatar
 
 ##
 

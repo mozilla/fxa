@@ -45,6 +45,7 @@ import {
   VerifySessionInput,
   VerifyTotpInput,
 } from './dto/input';
+import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import {
   BasicPayload,
   ChangeRecoveryCodesPayload,
@@ -219,6 +220,19 @@ export class AccountResolver {
     return { clientMutationId: input.clientMutationId, avatarUrl };
   }
 
+  @Mutation((returns) => UpdateAvatarPayload, {
+    description: 'Delete the avatar.',
+  })
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
+  public async deleteAvatar(
+    @GqlSessionToken() token: string,
+    @Args('input', { type: () => DeleteAvatarInput }) input: DeleteAvatarInput
+  ): Promise<UpdateAvatarPayload> {
+    await this.profileAPI.avatarDelete(token, input.id);
+    return { clientMutationId: input.clientMutationId };
+  }
+
   @Mutation((returns) => BasicPayload, {
     description: 'Create a secondary email for the signed in account.',
   })
@@ -358,6 +372,12 @@ export class AccountResolver {
   public async displayName(@Parent() account: Account) {
     const profile = await profileByUid(account.uid);
     return profile ? profile.displayName : null;
+  }
+
+  @ResolveField()
+  public async avatarId(@Parent() account: Account) {
+    const avatar = await selectedAvatar(account.uid);
+    return avatar ? avatar.id : null;
   }
 
   @ResolveField()

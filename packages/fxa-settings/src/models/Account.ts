@@ -40,6 +40,7 @@ export interface AttachedClient {
 export interface Account {
   uid: hexstring;
   displayName: string | null;
+  avatarId: string | null;
   avatarUrl: string | null;
   accountCreated: number;
   passwordCreated: number;
@@ -86,6 +87,7 @@ export const ACCOUNT_FIELDS = `
     account {
       uid
       displayName
+      avatarId
       avatarUrl
       accountCreated
       passwordCreated
@@ -114,6 +116,7 @@ export const GET_PROFILE_INFO = gql`
     account {
       uid
       displayName
+      avatarId
       avatarUrl
       primaryEmail @client
       emails {
