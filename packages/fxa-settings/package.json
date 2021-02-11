@@ -85,7 +85,7 @@
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.6",
     "@types/react-test-renderer": "^16",
-    "@types/testing-library__react-hooks": "^3",
+    "@types/testing-library__react-hooks": "^4",
     "@types/webpack": "4.41.16",
     "babel-loader": "^8.0.0",
     "eslint": "^7.17.0",
