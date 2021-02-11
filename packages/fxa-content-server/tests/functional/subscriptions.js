@@ -87,5 +87,37 @@ registerSuite('subscriptions', {
 
         .then(testElementTextInclude('.error-message-container', 'expired'));
     },
+    'sign up, failed to subscribe with mismatching currency': function () {
+      if (
+        process.env.CIRCLECI === 'true' &&
+        !process.env.SUBHUB_STRIPE_APIKEY
+      ) {
+        this.skip('missing Stripe API key in CircleCI run');
+      }
+      const email = createEmail();
+      return (
+        this.remote
+          .then(
+            clearBrowserState({
+              '123done': true,
+              force: true,
+            })
+          )
+          .then(createUserAndLoadSettings(email))
+          .then(
+            subscribeToTestProductWithCardNumber(
+              '4000000000000069',
+              getTestProductSubscriptionUrl('myr')
+            )
+          )
+          // TODO - This will change to a more helpful error message when https://github.com/mozilla/fxa/issues/7467 lands.
+          .then(
+            testElementTextInclude(
+              '.error-message-container',
+              'something went wrong. please try again later.'
+            )
+          )
+      );
+    },
   },
 });
