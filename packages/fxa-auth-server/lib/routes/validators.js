@@ -416,6 +416,7 @@ module.exports.subscriptionsCustomerValidator = isA.object({
   exp_month: isA.number().optional(),
   exp_year: isA.number().optional(),
   last4: isA.string().optional(),
+  payment_provider: isA.string().optional(),
   payment_type: isA.string().optional(),
   brand: isA.string().optional(),
   subscriptions: isA
