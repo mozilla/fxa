@@ -3,25 +3,36 @@ import { Localized } from '@fluent/react';
 
 import './index.scss';
 
+function getPrivacyLinkText(): string {
+  return 'View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> and <paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>.';
+}
+
 export const PaymentLegalBlurb = () => (
   <div className="payment-legal-blurb">
-    <Localized id="payment-legal-copy">
-      <p>Mozilla uses Stripe for secure payment processing.</p>
+    <Localized id="payment-legal-copy-stripe-paypal">
+      <p>Mozilla uses Stripe and Paypal for secure payment processing.</p>
     </Localized>
 
     <Localized
-      id="payment-legal-link"
+      id="payment-legal-link-stripe-paypal"
       elems={{
-        a: <a
-          href="https://stripe.com/privacy"
-          target="_blank"
-          rel="noopener noreferrer"
-        ></a>
+        stripePrivacyLink: (
+          <a
+            href="https://stripe.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+          ></a>
+        ),
+        paypalPrivacyLink: (
+          <a
+            href="https://paypal.com/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+          ></a>
+        ),
       }}
     >
-      <p>
-        View the <a>Stripe privacy policy</a>.
-      </p>
+      <p>{getPrivacyLinkText()}</p>
     </Localized>
   </div>
 );

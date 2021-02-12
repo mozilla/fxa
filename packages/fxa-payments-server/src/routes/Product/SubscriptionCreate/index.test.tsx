@@ -159,6 +159,13 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     ).toBeInTheDocument();
     expect(queryByText('Billing Information')).toBeInTheDocument();
     expect(queryByTestId('paypal-button')).not.toBeInTheDocument();
+    expect(queryByText('Terms of Service')).toBeInTheDocument();
+    expect(queryByText('Privacy Notice')).toBeInTheDocument();
+    expect(
+      queryByText(
+        'Mozilla uses Stripe and Paypal for secure payment processing.'
+      )
+    ).toBeInTheDocument();
   });
 
   it('renders as expected with PayPal UI enabled', async () => {

@@ -17,6 +17,8 @@ import Header from '../../../components/Header';
 import PaymentForm, { PaymentFormProps } from '../../../components/PaymentForm';
 import ErrorMessage from '../../../components/ErrorMessage';
 import AcceptedCards from '../../Product/AcceptedCards';
+import PaymentLegalBlurb from '../../../components/PaymentLegalBlurb';
+import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
 
 import * as Amplitude from '../../../lib/amplitude';
 import { Localized } from '@fluent/react';
@@ -180,53 +182,82 @@ export const SubscriptionCreate = ({
             </Localized>
           </div>
 
-          {!hasExistingCard(customer) && paypalScriptLoaded && (
-            <Suspense fallback={<div>Loading...</div>}>
-              <PaypalButton
-                apiClientOverrides={apiClientOverrides}
-                currencyCode={selectedPlan.currency}
-                customer={customer}
-                idempotencyKey={submitNonce}
-                priceId={selectedPlan.plan_id}
-                refreshSubscriptions={refreshSubscriptions}
-                setPaymentError={setPaymentError}
-                ButtonBase={paypalButtonBase}
-              />
-            </Suspense>
-          )}
-
-          <h3 className="billing-title">
-            <Localized id="sub-update-title">
-              <span className="title">Billing Information</span>
-            </Localized>
-          </h3>
-
-          {!hasExistingCard(customer) && <AcceptedCards />}
-
-          <ErrorMessage isVisible={!!paymentError}>
-            {paymentError && (
-              <Localized id={getErrorMessage(paymentError.code || 'UNKNOWN')}>
-                <p data-testid="error-payment-submission">
-                  {getErrorMessage(paymentError.code || 'UNKNOWN')}
-                </p>
-              </Localized>
+          <div className="subscription-create-pay-with-other">
+            {!hasExistingCard(customer) && paypalScriptLoaded && (
+              <Suspense fallback={<div>Loading...</div>}>
+                <Localized id="pay-with-heading-other">
+                  <p className="pay-with-heading">Select payment option</p>
+                </Localized>
+                <div className="paypal-button">
+                  <PaypalButton
+                    apiClientOverrides={apiClientOverrides}
+                    currencyCode={selectedPlan.currency}
+                    customer={customer}
+                    idempotencyKey={submitNonce}
+                    priceId={selectedPlan.plan_id}
+                    refreshSubscriptions={refreshSubscriptions}
+                    setPaymentError={setPaymentError}
+                    ButtonBase={paypalButtonBase}
+                  />
+                </div>
+              </Suspense>
             )}
-          </ErrorMessage>
+          </div>
 
-          <PaymentForm
-            {...{
-              customer,
-              submitNonce,
-              onSubmit,
-              onChange,
-              inProgress,
-              validatorInitialState,
-              confirm: true,
-              plan: selectedPlan,
-              onMounted: onFormMounted,
-              onEngaged: onFormEngaged,
-            }}
-          />
+          <div className="subscription-create-pay-with-card">
+            {!hasExistingCard(customer) && !paypalScriptLoaded && (
+              <div>
+                <Localized id="pay-with-heading-card-only">
+                  <p className="pay-with-heading">Pay with card</p>
+                </Localized>
+                <AcceptedCards />
+              </div>
+            )}
+
+            {!hasExistingCard(customer) && paypalScriptLoaded && (
+              <div>
+                <Localized id="pay-with-heading-card-or">
+                  <p className="pay-with-heading">Or pay with card</p>
+                </Localized>
+                <AcceptedCards />
+              </div>
+            )}
+
+            <h3 className="billing-title">
+              <Localized id="sub-update-title">
+                <span className="title">Billing Information</span>
+              </Localized>
+            </h3>
+
+            <ErrorMessage isVisible={!!paymentError}>
+              {paymentError && (
+                <Localized id={getErrorMessage(paymentError.code || 'UNKNOWN')}>
+                  <p data-testid="error-payment-submission">
+                    {getErrorMessage(paymentError.code || 'UNKNOWN')}
+                  </p>
+                </Localized>
+              )}
+            </ErrorMessage>
+
+            <PaymentForm
+              {...{
+                customer,
+                submitNonce,
+                onSubmit,
+                onChange,
+                inProgress,
+                validatorInitialState,
+                confirm: true,
+                plan: selectedPlan,
+                onMounted: onFormMounted,
+                onEngaged: onFormEngaged,
+              }}
+            />
+          </div>
+          <div className="subscription-create-footer">
+            <PaymentLegalBlurb />
+            {selectedPlan && <TermsAndPrivacy plan={selectedPlan} />}
+          </div>
         </div>
         <PlanDetails
           {...{
