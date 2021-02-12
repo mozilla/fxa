@@ -42,6 +42,30 @@ const customer: Customer = {
       product_name: '123 Done Pro',
       status: 'active',
       cancel_at_period_end: false,
+      current_period_end: Date.now() / 10 + 86400 * 31,
+      current_period_start: Date.now() / 1000 - 86400 * 31,
+      end_at: null,
+    },
+  ],
+};
+
+const paypalCustomer: Customer = {
+  billing_name: 'Calamity Jane <3s PayPal',
+  payment_type: 'credit',
+  payment_provider: 'paypal',
+  last4: '',
+  exp_month: '',
+  exp_year: '',
+  brand: '',
+  subscriptions: [
+    {
+      latest_invoice: '628031D-0002',
+      subscription_id: 'sub0.28964929339372136',
+      plan_id: '123doneProMonthly',
+      product_id: 'prod_123',
+      product_name: '123 Done Pro',
+      status: 'active',
+      cancel_at_period_end: false,
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
@@ -55,6 +79,18 @@ storiesOf('components/PaymentConfirmation', module).add('default', () => (
   <MockApp>
     <PaymentConfirmation
       {...{ profile: userProfile, selectedPlan, customer, productUrl }}
+    />
+  </MockApp>
+));
+storiesOf('components/PaymentConfirmation', module).add('paypal', () => (
+  <MockApp>
+    <PaymentConfirmation
+      {...{
+        profile: userProfile,
+        selectedPlan,
+        customer: paypalCustomer,
+        productUrl,
+      }}
     />
   </MockApp>
 ));

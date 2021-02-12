@@ -10,6 +10,11 @@
   padding: 20px 16px 0;
   width: 100%;
 
+
+  .circled-check {
+    max-height: 48px;
+  }
+
   @include min-width('tablet') {
     border-top: 0;
   }

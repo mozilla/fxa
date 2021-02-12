@@ -25,7 +25,10 @@ export const PaymentConfirmation = ({
 }: PaymentConfirmationProps) => {
   const { amount, currency, interval, interval_count } = selectedPlan;
   const { displayName, email } = profile;
-  const { brand, last4, subscriptions } = customer;
+
+  const { brand, last4, payment_provider, subscriptions } = customer;
+  const isPaypalPayment = payment_provider === 'paypal';
+
   const invoiceNumber = subscriptions[0].latest_invoice;
   const date = new Date().toLocaleDateString(navigator.language, {
     year: 'numeric',
@@ -56,7 +59,11 @@ export const PaymentConfirmation = ({
       data-testid="payment-confirmation"
     >
       <header>
-        <img src={circledCheckbox} alt="circled checkbox" />
+        <img
+          className="circled-check"
+          src={circledCheckbox}
+          alt="circled checkbox"
+        />
         {heading}
         <Localized id="payment-confirmation-subheading">
           <p></p>
@@ -79,15 +86,17 @@ export const PaymentConfirmation = ({
         </div>
       </div>
 
-      <div className="billing-info">
-        <Localized id="payment-confirmation-billing-heading">
-          <h3></h3>
-        </Localized>
-        <div className="bottom-row">
-          {displayName ? <p>{displayName}</p> : null}
-          <p>{email}</p>
+      {!isPaypalPayment && (
+        <div className="billing-info" data-testid="billing-info">
+          <Localized id="payment-confirmation-billing-heading">
+            <h3></h3>
+          </Localized>
+          <div className="bottom-row">
+            {displayName ? <p>{displayName}</p> : null}
+            <p>{email}</p>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="payment-details">
         <Localized id="payment-confirmation-details-heading">
@@ -103,10 +112,18 @@ export const PaymentConfirmation = ({
           >
             <p>{planPrice}</p>
           </Localized>
-          {last4 && brand && (
+          {last4 && brand && !isPaypalPayment && (
             <Localized id="payment-confirmation-cc-preview" vars={{ last4 }}>
               <p className={`c-card ${brand.toLowerCase()}`}></p>
             </Localized>
+          )}
+          {isPaypalPayment && (
+            <div
+              className={`payment-logo ${payment_provider}`}
+              data-testid="paypal-logo"
+            >
+              {payment_provider}
+            </div>
           )}
         </div>
       </div>
