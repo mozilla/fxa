@@ -14,6 +14,8 @@ import {
   IpnMessage,
   PayPalClient,
   PayPalClientError,
+  TransactionSearchOptions,
+  TransactionStatus,
 } from './paypal-client';
 import { StripeHelper } from './stripe';
 
@@ -69,6 +71,19 @@ export type ChargeResponse = {
     | 'buyer-complaint'
     | 'refund'
     | 'other';
+};
+
+export type TransactionSearchResult = {
+  amount: string;
+  currencyCode: string;
+  email: string;
+  feeAmount: string;
+  name: string;
+  netAmount: string;
+  status: TransactionStatus;
+  timestamp: string;
+  transactionId: string;
+  type: string;
 };
 
 export class PayPalHelper {
@@ -187,6 +202,24 @@ export class PayPalHelper {
    */
   public extractIpnMessage(payload: string): IpnMessage {
     return this.client.nvpToObject(payload) as IpnMessage;
+  }
+
+  public async searchTransactions(
+    options: TransactionSearchOptions
+  ): Promise<TransactionSearchResult[]> {
+    const results = await this.client.transactionSearch(options);
+    return results.L.map((r) => ({
+      amount: r.AMT,
+      currencyCode: r.CURRENCYCODE,
+      email: r.EMAIL,
+      feeAmount: r.FEEAMT,
+      name: r.NAME,
+      netAmount: r.NETAMT,
+      status: r.STATUS,
+      timestamp: r.TIMESTAMP,
+      transactionId: r.TRANSACTIONID,
+      type: r.TYPE,
+    }));
   }
 
   /**

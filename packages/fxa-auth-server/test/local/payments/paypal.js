@@ -19,6 +19,7 @@ const error = require('../../../lib/error');
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
 const successfulBAUpdateResponse = require('./fixtures/paypal/ba_update_success.json');
+const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json');
 const { StripeHelper } = require('../../../lib/payments/stripe');
@@ -205,6 +206,57 @@ describe('PayPalHelper', () => {
       );
       const response = await paypalHelper.cancelBillingAgreement('test');
       assert.isNull(response);
+    });
+  });
+
+  describe('searchTransactions', () => {
+    it('returns the data from doRequest', async () => {
+      paypalHelper.client.doRequest = sinon.fake.resolves(
+        searchTransactionResponse
+      );
+      const expectedResponse = [
+        {
+          amount: '5.99',
+          currencyCode: 'USD',
+          email: 'sb-ufoot5037790@personal.example.com',
+          feeAmount: '-0.47',
+          name: 'John Doe',
+          netAmount: '5.52',
+          status: 'Under Review',
+          timestamp: '2021-02-11T17:38:28Z',
+          transactionId: '2TA09271XC591854A',
+          type: 'Payment',
+        },
+        {
+          amount: '5.99',
+          currencyCode: 'USD',
+          email: 'sb-ufoot5037790@personal.example.com',
+          feeAmount: '-0.47',
+          name: 'John Doe',
+          netAmount: '5.52',
+          status: 'Under Review',
+          timestamp: '2021-02-11T17:38:23Z',
+          transactionId: '7WW53923D67853628',
+          type: 'Payment',
+        },
+        {
+          amount: '5.99',
+          currencyCode: 'USD',
+          email: 'sb-ufoot5037790@personal.example.com',
+          feeAmount: '-0.47',
+          name: 'John Doe',
+          netAmount: '5.52',
+          status: 'Under Review',
+          timestamp: '2021-02-11T17:31:05Z',
+          transactionId: '22N88933SF2815829',
+          type: 'Payment',
+        },
+      ];
+      const response = await paypalHelper.searchTransactions({
+        startDate: new Date(),
+        invoice: 'inv-001',
+      });
+      assert.deepEqual(response, expectedResponse);
     });
   });
 
