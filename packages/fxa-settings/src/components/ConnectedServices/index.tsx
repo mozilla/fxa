@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { gql, ApolloError } from '@apollo/client';
 import groupBy from 'lodash.groupby';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
@@ -28,16 +28,6 @@ const UTM_PARAMS =
   '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
 const DEVICES_SUPPORT_URL =
   'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
-
-interface DisconnectingState {
-  reason: string | null;
-  client: AttachedClient | null;
-}
-
-let DS: DisconnectingState = {
-  reason: null,
-  client: null,
-};
 
 export const ATTACHED_CLIENT_DISCONNECT_MUTATION = gql`
   mutation attachedClientDisconnect($input: AttachedClientDisconnectInput!) {
@@ -112,31 +102,26 @@ export const ConnectedServices = () => {
     hideAdviceModal,
   ] = useBooleanState();
 
+  // You'd think that we could have client be from useState but due to how useMutation works
+  // the value of the state inside the update function is unpredictable. A ref is more
+  // manual but totally predictable.
+  const client = useRef<AttachedClient | null>(null);
+  const [reason, setReason] = useState<string>('');
+
   const clearDisconnectingState = (
     errorMessage?: string,
     error?: ApolloError
   ) => {
     hideConfirmDisconnectModal();
-    DS.client = null;
-    DS.reason = null;
+    client.current = null;
+    setReason('');
     if (errorMessage) {
       alertBar.error(errorMessage, error);
     }
   };
 
-  const onConfirmDisconnect = (evt?: MouseEvent) => {
-    if (evt) {
-      const t = evt.target as Element;
-      const modalEl = t.closest('#modal');
-      const selected = modalEl!.querySelector(
-        'input[type="radio"]:checked'
-      ) as HTMLInputElement;
-      if (selected) {
-        DS.reason = selected.value;
-      }
-    }
-
-    if (!DS.client) {
+  const onConfirmDisconnect = () => {
+    if (!client.current) {
       return clearDisconnectingState(
         l10n.getString(
           'cs-cannot-disconnect',
@@ -145,29 +130,32 @@ export const ConnectedServices = () => {
         )
       );
     }
+    disconnectClient(client.current);
+  };
 
-    logViewEvent('settings.clients.disconnect', `submit.${DS.reason!}`);
+  const disconnectClient = (client: AttachedClient) => {
+    logViewEvent('settings.clients.disconnect', `submit.${reason}`);
 
     deleteConnectedService({
       variables: {
         input: {
-          clientId: DS.client.clientId,
-          deviceId: DS.client.deviceId,
-          sessionTokenId: DS.client.sessionTokenId,
-          refreshTokenId: DS.client.refreshTokenId,
+          clientId: client.clientId,
+          deviceId: client.deviceId,
+          sessionTokenId: client.sessionTokenId,
+          refreshTokenId: client.refreshTokenId,
         },
       },
     });
   };
 
-  const onSignOutClick = (client: AttachedClient) => {
-    DS.client = client;
+  const onSignOutClick = (c: AttachedClient) => {
+    client.current = c;
     // If it's a sync client, we show the disconnect survey modal.
     // Only sync clients have a deviceId.
-    if (client.deviceId) {
+    if (c.deviceId) {
       revealConfirmDisconnectModal();
     } else {
-      onConfirmDisconnect();
+      disconnectClient(c);
     }
   };
 
@@ -182,15 +170,15 @@ export const ConnectedServices = () => {
       onCompleted: () => {
         // TODO: Add `timing.clients.disconnect` flow timing event as seen in
         // old-settings? #6903
-        if (DS.client!.isCurrentSession) {
+        if (client.current?.isCurrentSession) {
           clearSignedInAccountUid();
           window.location.assign(`${window.location.origin}/signin`);
-        } else if (DS.reason === 'suspicious' || DS.reason === 'lost') {
+        } else if (reason === 'suspicious' || reason === 'lost') {
           // Wait to clear disconnecting state till the advice modal has been shown
           hideConfirmDisconnectModal();
           revealAdviceModal();
         } else {
-          const name = DS.client!.name;
+          const name = client.current!.name;
           alertBar.success(
             l10n.getString(
               'cs-logged-out',
@@ -204,7 +192,7 @@ export const ConnectedServices = () => {
       onError: (error: ApolloError) =>
         clearDisconnectingState(undefined, error),
       ignoreResults: true,
-      update: (cache) =>
+      update: (cache) => {
         cache.modify({
           id: cache.identify({ __typename: 'Account' }),
           fields: {
@@ -212,13 +200,14 @@ export const ConnectedServices = () => {
               const updatedList = [...existingClients];
               return updatedList.filter(
                 // TODO: should this also go into the AttachedClient model?
-                (client) =>
-                  client.lastAccessTime !== DS.client!.lastAccessTime &&
-                  client.name !== DS.client!.name
+                (c) =>
+                  c.lastAccessTime !== client.current?.lastAccessTime &&
+                  c.name !== client.current?.name
               );
             },
           },
-        }),
+        });
+      },
     }
   );
 
@@ -294,7 +283,7 @@ export const ConnectedServices = () => {
         )}
         {confirmDisconnectModalRevealed && (
           <VerifiedSessionGuard
-            onDismiss={hideConfirmDisconnectModal}
+            onDismiss={() => clearDisconnectingState()}
             onError={(error) => clearDisconnectingState(undefined, error)}
           >
             <Modal
@@ -317,14 +306,14 @@ export const ConnectedServices = () => {
 
               <Localized
                 id="cs-disconnect-sync-content"
-                vars={{ device: DS.client!.name }}
+                vars={{ device: client.current!.name }}
               >
                 <p
                   id="connected-devices-sign-out-description"
                   className="my-4 text-center"
                 >
                   Your browsing data will remain on your device (
-                  {DS.client!.name}
+                  {client.current!.name}
                   ), but it will no longer sync with your account.
                 </p>
               </Localized>
@@ -334,77 +323,82 @@ export const ConnectedServices = () => {
                   What's the main reason for disconnecting this device?
                 </p>
               </Localized>
-
-              <ul className="my-4 ltr:text-left rtl:text-right">
-                <Localized id="cs-disconnect-sync-opt-prefix">
-                  The device is:
-                </Localized>
-                <li>
-                  <label>
-                    <input
-                      type="radio"
-                      className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
-                      value="suspicious"
-                      name="reason"
-                    />
-                    <Localized id="cs-disconnect-sync-opt-suspicious">
-                      Suspicious
-                    </Localized>
-                  </label>
-                </li>
-                <li>
-                  <label>
-                    <input
-                      type="radio"
-                      className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
-                      value="lost"
-                      name="reason"
-                    />
-                    <Localized id="cs-disconnect-sync-opt-lost">
-                      Lost or Stolen
-                    </Localized>
-                  </label>
-                </li>
-                <li>
-                  <label>
-                    <input
-                      type="radio"
-                      className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
-                      value="old"
-                      name="reason"
-                    />
-                    <Localized id="cs-disconnect-sync-opt-old">
-                      Old or Replaced
-                    </Localized>
-                  </label>
-                </li>
-                <li>
-                  <label>
-                    <input
-                      type="radio"
-                      className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
-                      value="duplicate"
-                      name="reason"
-                    />
-                    <Localized id="cs-disconnect-sync-opt-duplicate">
-                      Duplicate
-                    </Localized>
-                  </label>
-                </li>
-                <li>
-                  <label>
-                    <input
-                      type="radio"
-                      className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
-                      value="no"
-                      name="reason"
-                    />
-                    <Localized id="cs-disconnect-sync-opt-not-say">
-                      Rather not say
-                    </Localized>
-                  </label>
-                </li>
-              </ul>
+              <form
+                onChange={(event) => {
+                  setReason((event.target as HTMLInputElement).value);
+                }}
+              >
+                <ul className="my-4 ltr:text-left rtl:text-right">
+                  <Localized id="cs-disconnect-sync-opt-prefix">
+                    The device is:
+                  </Localized>
+                  <li>
+                    <label>
+                      <input
+                        type="radio"
+                        className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
+                        value="suspicious"
+                        name="reason"
+                      />
+                      <Localized id="cs-disconnect-sync-opt-suspicious">
+                        Suspicious
+                      </Localized>
+                    </label>
+                  </li>
+                  <li>
+                    <label>
+                      <input
+                        type="radio"
+                        className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
+                        value="lost"
+                        name="reason"
+                      />
+                      <Localized id="cs-disconnect-sync-opt-lost">
+                        Lost or Stolen
+                      </Localized>
+                    </label>
+                  </li>
+                  <li>
+                    <label>
+                      <input
+                        type="radio"
+                        className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
+                        value="old"
+                        name="reason"
+                      />
+                      <Localized id="cs-disconnect-sync-opt-old">
+                        Old or Replaced
+                      </Localized>
+                    </label>
+                  </li>
+                  <li>
+                    <label>
+                      <input
+                        type="radio"
+                        className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
+                        value="duplicate"
+                        name="reason"
+                      />
+                      <Localized id="cs-disconnect-sync-opt-duplicate">
+                        Duplicate
+                      </Localized>
+                    </label>
+                  </li>
+                  <li>
+                    <label>
+                      <input
+                        type="radio"
+                        className="ltr:mr-2 rtl:ml-2 -mt-1 align-middle"
+                        value="no"
+                        name="reason"
+                      />
+                      <Localized id="cs-disconnect-sync-opt-not-say">
+                        Rather not say
+                      </Localized>
+                    </label>
+                  </li>
+                </ul>
+              </form>
             </Modal>
           </VerifiedSessionGuard>
         )}
@@ -423,7 +417,7 @@ export const ConnectedServices = () => {
             headerId="connected-services-advice-modal-header"
             descId="connected-services-advice-modal-description"
           >
-            {DS.reason === 'lost' ? (
+            {reason === 'lost' ? (
               <>
                 <Localized id="cs-disconnect-lost-advice-heading">
                   <h2
