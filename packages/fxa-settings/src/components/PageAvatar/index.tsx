@@ -11,6 +11,8 @@ import Cropper from 'react-easy-crop';
 import { Slider } from '@material-ui/core';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
+import 'react-easy-crop/react-easy-crop.css';
+
 import { useAccount } from '../../models';
 import { HomePath } from '../../constants';
 import firefox from '../../lib/firefox';
@@ -199,6 +201,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
           onCropChange={setCrop}
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}
+          disableAutomaticStylesInjection={true}
           cropSize={{ width: 160, height: 160 }}
           style={{ containerStyle: { borderRadius: '8px' } }}
         />
