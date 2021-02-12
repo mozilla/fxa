@@ -39,6 +39,7 @@ const selectedPlan = {
 
 const customer: Customer = {
   billing_name: 'Jane Doe',
+  payment_provider: 'stripe',
   payment_type: 'credit',
   last4: '5309',
   exp_month: '02',
@@ -113,7 +114,9 @@ describe('PaymentConfirmation', () => {
         });
         const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-        expect(planPriceComponent.props.vars.amount).toStrictEqual(expectedAmount);
+        expect(planPriceComponent.props.vars.amount).toStrictEqual(
+          expectedAmount
+        );
         expect(planPriceComponent.props.vars.intervalCount).toBe(
           plan.interval_count
         );

@@ -5,7 +5,7 @@
 'use strict';
 
 const sinon = require('sinon');
-const assert = { ...sinon.assert, ...require('chai').assert };
+const assert = require('chai').assert;
 const uuid = require('uuid');
 const { getRoute } = require('../../../routes_helpers');
 const mocks = require('../../../mocks');
@@ -504,12 +504,11 @@ describe('DirectStripeRoutes', () => {
         UID,
         TEST_EMAIL
       );
-      assert.isTrue(
-        directStripeRoutesInstance.stripeHelper.refreshCachedCustomer.calledOnceWith(
-          UID,
-          TEST_EMAIL
-        ),
-        'Expected stripeHelper.refreshCachedCustomer to be called once'
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.refreshCachedCustomer,
+        UID,
+        TEST_EMAIL
       );
 
       assert.isTrue(
@@ -1249,6 +1248,7 @@ describe('DirectStripeRoutes', () => {
               subscriptions: [],
               billing_name: defaultInvoice.billing_details.name,
               brand: defaultInvoice.card.brand,
+              payment_provider: 'not_chosen',
               payment_type: defaultInvoice.card.funding,
               last4: defaultInvoice.card.last4,
               exp_month: defaultInvoice.card.exp_month,
@@ -1295,6 +1295,7 @@ describe('DirectStripeRoutes', () => {
               subscriptions: [],
               billing_name: customer.sources.data[0].name,
               brand: customer.sources.data[0].brand,
+              payment_provider: 'not_chosen',
               payment_type: customer.sources.data[0].funding,
               last4: customer.sources.data[0].last4,
               exp_month: customer.sources.data[0].exp_month,
@@ -1315,7 +1316,10 @@ describe('DirectStripeRoutes', () => {
               customer
             );
 
-            const expected = { subscriptions: [] };
+            const expected = {
+              subscriptions: [],
+              payment_provider: 'not_chosen',
+            };
             const actual = await directStripeRoutesInstance.getCustomer(
               VALID_REQUEST
             );
@@ -1332,7 +1336,10 @@ describe('DirectStripeRoutes', () => {
             customer
           );
 
-          const expected = { subscriptions: [] };
+          const expected = {
+            subscriptions: [],
+            payment_provider: 'not_chosen',
+          };
           const actual = await directStripeRoutesInstance.getCustomer(
             VALID_REQUEST
           );
@@ -1358,6 +1365,75 @@ describe('DirectStripeRoutes', () => {
           assert.strictEqual(err.message, 'Unknown customer');
           assert.strictEqual(err.output.payload['uid'], UID);
         }
+      });
+    });
+    describe('has payment_provider property', () => {
+      describe('payment_provider property has correct value', () => {
+        let customerExpanded;
+        beforeEach(() => {
+          customerExpanded = deepCopy(customerPMIExpanded);
+        });
+        describe('when collection_method is "instant"', () => {
+          it('payment_provider is "stripe"', async () => {
+            directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
+              [subscription2]
+            );
+            customerExpanded.subscriptions.data[0] = subscription2;
+            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+              customerExpanded
+            );
+            const customerActual = await directStripeRoutesInstance.getCustomer(
+              VALID_REQUEST
+            );
+            assert(customerActual.payment_provider === 'stripe');
+          });
+        });
+        describe('when collection_method is "send_invoice"', () => {
+          it('payment_provider is "paypal"', async () => {
+            subscription2.collection_method = 'send_invoice';
+            directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
+              [subscription2]
+            );
+            customerExpanded.subscriptions.data[0] = subscription2;
+            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+              customerExpanded
+            );
+            const actual = await directStripeRoutesInstance.getCustomer(
+              VALID_REQUEST
+            );
+            assert(actual.payment_provider === 'paypal');
+          });
+        });
+        describe('when the customer has a canceled subscription', () => {
+          it('payment_provider is "not_chosen"', async () => {
+            directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
+              [cancelledSubscription]
+            );
+            customerExpanded.subscriptions.data[0] = cancelledSubscription;
+            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+              customerExpanded
+            );
+            const actual = await directStripeRoutesInstance.getCustomer(
+              VALID_REQUEST
+            );
+            assert(actual.payment_provider === 'not_chosen');
+          });
+        });
+        describe('when the customer has no subscriptions', () => {
+          it('payment_provider is "not_chosen"', async () => {
+            directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
+              []
+            );
+            customerExpanded.subscriptions.data = [];
+            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+              customerExpanded
+            );
+            const actual = await directStripeRoutesInstance.getCustomer(
+              VALID_REQUEST
+            );
+            assert(actual.payment_provider === 'not_chosen');
+          });
+        });
       });
     });
   });
@@ -1428,11 +1504,11 @@ describe('DirectStripeRoutes', () => {
           true
         );
 
-        assert.calledOnce(
+        sinon.assert.calledOnce(
           directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
         );
-        assert.calledOnce(profile.deleteCache);
-        assert.calledOnce(
+        sinon.assert.calledOnce(profile.deleteCache);
+        sinon.assert.calledOnce(
           directStripeRoutesInstance.sendSubscriptionStatusToSqs
         );
       });
@@ -1451,11 +1527,11 @@ describe('DirectStripeRoutes', () => {
           true
         );
 
-        assert.notCalled(
+        sinon.assert.notCalled(
           directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
         );
-        assert.notCalled(profile.deleteCache);
-        assert.notCalled(
+        sinon.assert.notCalled(profile.deleteCache);
+        sinon.assert.notCalled(
           directStripeRoutesInstance.sendSubscriptionStatusToSqs
         );
       });

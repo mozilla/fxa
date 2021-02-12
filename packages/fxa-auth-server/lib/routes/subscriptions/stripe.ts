@@ -289,10 +289,21 @@ export class StripeHandler {
     return activeSubscriptions;
   }
 
+  getPaymentProvider(customer: Stripe.Customer) {
+    const subscription = customer.subscriptions?.data.find(
+      (sub: { status: string }) => ['active', 'past_due'].includes(sub.status)
+    );
+    if (subscription) {
+      return subscription.collection_method === 'send_invoice'
+        ? 'paypal'
+        : 'stripe';
+    }
+    return 'not_chosen';
+  }
   /**
-   * Extracts card details if a customer has a source on file.
+   * Extracts billing details if a customer has a source on file.
    */
-  extractCardDetails(customer: Stripe.Customer) {
+  extractBillingDetails(customer: Stripe.Customer) {
     const defaultPayment = customer.invoice_settings.default_payment_method;
     if (defaultPayment) {
       if (typeof defaultPayment === 'string') {
@@ -303,6 +314,7 @@ export class StripeHandler {
       if (defaultPayment.card) {
         return {
           billing_name: defaultPayment.billing_details.name,
+          payment_provider: this.getPaymentProvider(customer),
           payment_type: defaultPayment.card.funding,
           last4: defaultPayment.card.last4,
           exp_month: defaultPayment.card.exp_month,
@@ -318,6 +330,7 @@ export class StripeHandler {
       if (src.object === 'card') {
         return {
           billing_name: src.name,
+          payment_provider: this.getPaymentProvider(customer),
           payment_type: src.funding,
           last4: src.last4,
           exp_month: src.exp_month,
@@ -326,7 +339,10 @@ export class StripeHandler {
         };
       }
     }
-    return {};
+
+    return {
+      payment_provider: this.getPaymentProvider(customer),
+    };
   }
 
   async getCustomer(request: AuthRequest) {
@@ -340,12 +356,12 @@ export class StripeHandler {
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
-    const cardDetails = this.extractCardDetails(customer);
+    const billingDetails = this.extractBillingDetails(customer);
     const response = {
       // Less than ideal to type as any, but using the ReturnType of below
       // didn't work any better. 🤷‍♀️
       subscriptions: [] as any[],
-      ...cardDetails,
+      ...billingDetails,
     };
 
     if (!customer.subscriptions) {
