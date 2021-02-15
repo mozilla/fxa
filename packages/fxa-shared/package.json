@@ -39,7 +39,7 @@
     "@types/chance": "^1",
     "@types/generic-pool": "^3.1.9",
     "@types/jest": "^26.0.13",
-    "@types/joi": "^14.3.4",
+    "@types/joi": "^17.2.3",
     "@types/lodash.omitby": "^4",
     "@types/lodash.pick": "^4",
     "@types/mocha": "^7.0.2",
