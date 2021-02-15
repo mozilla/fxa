@@ -93,11 +93,13 @@ describe('PayPalHelper', () => {
   });
 
   describe('getCheckoutToken', () => {
+    const validOptions = { currencyCode: 'USD' };
+
     it('it returns the token from doRequest', async () => {
       paypalHelper.client.doRequest = sinon.fake.resolves(
         successfulSetExpressCheckoutResponse
       );
-      const token = await paypalHelper.getCheckoutToken();
+      const token = await paypalHelper.getCheckoutToken(validOptions);
       assert.equal(token, successfulSetExpressCheckoutResponse.TOKEN);
     });
 
@@ -106,12 +108,24 @@ describe('PayPalHelper', () => {
         new PayPalClientError('Fake', {})
       );
       try {
-        await paypalHelper.getCheckoutToken();
+        await paypalHelper.getCheckoutToken(validOptions);
         assert.fail('Request should have thrown an error.');
       } catch (err) {
         assert.instanceOf(err, PayPalClientError);
         assert.equal(err.name, 'PayPalClientError');
       }
+    });
+
+    it('calls setExpressCheckout with passed options', async () => {
+      paypalHelper.client.setExpressCheckout = sinon.fake.resolves(
+        successfulSetExpressCheckoutResponse
+      );
+      const currencyCode = 'EUR';
+      await paypalHelper.getCheckoutToken({ currencyCode });
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.client.setExpressCheckout,
+        { currencyCode }
+      );
     });
   });
 
