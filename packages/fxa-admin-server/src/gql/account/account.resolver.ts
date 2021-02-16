@@ -67,7 +67,7 @@ export class AccountResolver {
     return this.db.emails
       .query()
       .select(EMAIL_COLUMNS)
-      .where('email', 'like', `%${search}%`)
+      .where('email', 'like', `${search}%`)
       .limit(10);
   }
 
