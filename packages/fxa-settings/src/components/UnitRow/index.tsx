@@ -151,10 +151,7 @@ export const UnitRow = ({
           )}
 
           {revealModal && (
-            <ModalButton
-              leftSpaced={multiButton}
-              {...{ revealModal, ctaText, alertBarRevealed }}
-            />
+            <ModalButton {...{ revealModal, ctaText, alertBarRevealed }} />
           )}
 
           {secondaryCtaRoute && (
