@@ -66,20 +66,21 @@ export const HeaderLockup = () => {
   );
   const right = (
     <>
-      <LinkExternal
-        href="https://support.mozilla.org"
-        title={l10n.getString('header-help')}
-        className="self-center"
-        data-testid="header-sumo-link"
-      >
-        <Help
-          aria-label={l10n.getString('header-help')}
+      <div className="rounded border-transparent hover:bg-grey-200 p-1">
+        <LinkExternal
+          href="https://support.mozilla.org"
           title={l10n.getString('header-help')}
-          role="img"
-          className="w-6"
-          data-testid="header-help"
-        />
-      </LinkExternal>
+          data-testid="header-sumo-link"
+        >
+          <Help
+            aria-label={l10n.getString('header-help')}
+            title={l10n.getString('header-help')}
+            role="img"
+            className="w-5"
+            data-testid="header-help"
+          />
+        </LinkExternal>
+      </div>
       <BentoMenu />
       <DropDownAvatarMenu />
     </>

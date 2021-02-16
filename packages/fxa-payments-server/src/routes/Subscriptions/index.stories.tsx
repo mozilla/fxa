@@ -273,6 +273,7 @@ const subscribedProps: SubscriptionsProps = {
     error: null,
     result: {
       billing_name: 'Jane Doe',
+      payment_provider: 'not_chosen',
       payment_type: 'card',
       last4: '8675',
       exp_month: '12',

@@ -1,5 +1,24 @@
 # Change history
 
+## 1.200.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 7.5.5 to 7.6.11 ([ae4c586569](https://github.com/mozilla/fxa/commit/ae4c586569))
+- deps: bump @nestjs/graphql from 7.9.1 to 7.9.8 ([2e1c276997](https://github.com/mozilla/fxa/commit/2e1c276997))
+- deps: bump @nestjs/mapped-types from 0.1.1 to 0.3.0 ([50b07cab0a](https://github.com/mozilla/fxa/commit/50b07cab0a))
+- deps: bump graphql from 15.4.0 to 15.5.0 ([eae1a35dd0](https://github.com/mozilla/fxa/commit/eae1a35dd0))
+
+## 1.199.0
+
+### Other changes
+
+- deps: bump @sentry/node from 6.0.0 to 6.0.1 ([3b6838b18](https://github.com/mozilla/fxa/commit/3b6838b18))
+- deps-dev: bump @nestjs/schematics from 7.2.2 to 7.2.6 ([dd0c7aaba](https://github.com/mozilla/fxa/commit/dd0c7aaba))
+- deps-dev: bump @nestjs/testing from 7.5.5 to 7.6.5 ([ed20e1585](https://github.com/mozilla/fxa/commit/ed20e1585))
+- deps: bump @sentry/node from 5.29.1 to 6.0.0 ([147825a5b](https://github.com/mozilla/fxa/commit/147825a5b))
+- deps-dev: bump eslint-config-prettier from 6.15.0 to 7.1.0 ([2c85737cb](https://github.com/mozilla/fxa/commit/2c85737cb))
+
 ## 1.198.2
 
 No changes.

@@ -119,6 +119,9 @@ packages/fxa-email-service/fxa-auth-db-mysql
 packages/fxa-email-service/target
 packages/fxa-email-service/.sourcehash
 
+# fxa-payments-server
+packages/fxa-payments-server/fxa-content-server-l10n/
+
 # fxa-profile-server
 packages/fxa-profile-server/var
 packages/fxa-profile-server/BUCKET_NAME
@@ -127,3 +130,6 @@ packages/fxa-profile-server/BUCKET_NAME
 packages/fxa-react/**/*.js
 packages/fxa-react/**/*.d.ts
 !packages/fxa-react/pm2.config.js
+
+# fxa-settings
+packages/fxa-settings/fxa-content-server-l10n/

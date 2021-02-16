@@ -201,6 +201,7 @@ module.exports = {
   mockVerificationReminders,
   mockCadReminders,
   mockStripeHelper,
+  mockPayPalHelper,
 };
 
 function mockCustoms(errors) {
@@ -800,4 +801,8 @@ function mockCadReminders(data = {}) {
 
 function mockStripeHelper(methods) {
   return mockObject(methods, require('../lib/payments/stripe').StripeHelper);
+}
+
+function mockPayPalHelper(methods) {
+  return mockObject(methods, require('../lib/payments/paypal').PayPalHelper);
 }

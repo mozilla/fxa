@@ -22,6 +22,7 @@ import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
 import { Service } from './Service';
 import { VerifiedSessionGuard } from '../VerifiedSessionGuard';
 import { clearSignedInAccountUid } from '../../lib/cache';
+import { Localized, useLocalization } from '@fluent/react';
 
 const UTM_PARAMS =
   '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -83,10 +84,15 @@ export const ConnectedServices = () => {
     { connectedClientsLoading },
   ] = useLazyConnectedClients((error) => {
     alertBar.error(
-      'Sorry, there was a problem refreshing the list of connected services.'
+      l10n.getString(
+        'cs-cannot-refresh',
+        null,
+        'Sorry, there was a problem refreshing the list of connected services.'
+      )
     );
   });
   const showMobilePromo = !sortedAndUniqueClients.filter(isMobileDevice).length;
+  const { l10n } = useLocalization();
 
   // The Confirm Disconnect modal is shown when a user clicks 'Sign Out' on a sync service.
   // It asks the user to confirm they want to disconnect, and answer a survey question explaining
@@ -131,7 +137,13 @@ export const ConnectedServices = () => {
     }
 
     if (!DS.client) {
-      return clearDisconnectingState('Client not found, unable to disconnect');
+      return clearDisconnectingState(
+        l10n.getString(
+          'cs-cannot-disconnect',
+          null,
+          'Client not found, unable to disconnect'
+        )
+      );
     }
 
     logViewEvent('settings.clients.disconnect', `submit.${DS.reason!}`);
@@ -179,7 +191,13 @@ export const ConnectedServices = () => {
           revealAdviceModal();
         } else {
           const name = DS.client!.name;
-          alertBar.success(`Logged out of ${name}.`);
+          alertBar.success(
+            l10n.getString(
+              'cs-logged-out',
+              { service: name },
+              `Logged out of ${name}.`
+            )
+          );
           clearDisconnectingState();
         }
       },
@@ -207,19 +225,23 @@ export const ConnectedServices = () => {
   return (
     <section className="mt-11" data-testid="settings-connected-services">
       <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4 relative">
-        <span id="connected-services" className="nav-anchor"></span>Connected
-        Services
+        <span id="connected-services" className="nav-anchor"></span>
+        <Localized id="cs-heading">Connected Services</Localized>
       </h2>
       <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-8">
         <div className="flex justify-between mb-4">
-          <p>Everything you are using and signed into.</p>
-          <ButtonIconReload
-            title="Refresh connected services"
-            classNames="hidden mobileLandscape:inline-block"
-            testId="connected-services-refresh"
-            disabled={connectedClientsLoading}
-            onClick={getConnectedClients}
-          />
+          <Localized id="cs-description">
+            <p>Everything you are using and signed into.</p>
+          </Localized>
+          <Localized id="cs-refresh-button" attrs={{ title: true }}>
+            <ButtonIconReload
+              title="Refresh connected services"
+              classNames="hidden mobileLandscape:inline-block"
+              testId="connected-services-refresh"
+              disabled={connectedClientsLoading}
+              onClick={getConnectedClients}
+            />
+          </Localized>
         </div>
 
         {!!sortedAndUniqueClients.length &&
@@ -241,13 +263,15 @@ export const ConnectedServices = () => {
           ))}
 
         <div className="mt-5 text-center mobileLandscape:text-left mobileLandscape:rtl:text-right">
-          <LinkExternal
-            href={DEVICES_SUPPORT_URL}
-            className="link-blue text-sm"
-            data-testid="missing-items-link"
-          >
-            Missing or duplicate items?
-          </LinkExternal>
+          <Localized id="cs-missing-device-help">
+            <LinkExternal
+              href={DEVICES_SUPPORT_URL}
+              className="link-blue text-sm"
+              data-testid="missing-items-link"
+            >
+              Missing or duplicate items?
+            </LinkExternal>
+          </Localized>
         </div>
 
         {showMobilePromo && (
@@ -283,28 +307,40 @@ export const ConnectedServices = () => {
               headerId="connected-services-sign-out-header"
               descId="connected-services-sign-out-description"
             >
-              <h2
-                id="connected-services-sign-out-header"
-                className="font-bold text-xl text-center mb-2"
-                data-testid="connected-services-modal-header"
-              >
-                Disconnect from Sync
-              </h2>
+              <Localized id="cs-disconnect-sync-heading">
+                <h2
+                  id="connected-services-sign-out-header"
+                  className="font-bold text-xl text-center mb-2"
+                  data-testid="connected-services-modal-header"
+                >
+                  Disconnect from Sync
+                </h2>
+              </Localized>
 
-              <p
-                id="connected-devices-sign-out-description"
-                className="my-4 text-center"
+              <Localized
+                id="cs-disconnect-sync-content"
+                vars={{ device: DS.client!.name }}
               >
-                Your browsing data will remain on your device ({DS.client!.name}
-                ), but it will no longer sync with your account.
-              </p>
+                <p
+                  id="connected-devices-sign-out-description"
+                  className="my-4 text-center"
+                >
+                  Your browsing data will remain on your device (
+                  {DS.client!.name}
+                  ), but it will no longer sync with your account.
+                </p>
+              </Localized>
 
-              <p className="my-4 text-center">
-                What's the main reason for disconnecting this device?
-              </p>
+              <Localized id="cs-disconnect-sync-reason">
+                <p className="my-4 text-center">
+                  What's the main reason for disconnecting this device?
+                </p>
+              </Localized>
 
               <ul className="my-4 ltr:text-left rtl:text-right">
-                The device is:
+                <Localized id="cs-disconnect-sync-opt-prefix">
+                  The device is:
+                </Localized>
                 <li>
                   <label>
                     <input
@@ -313,7 +349,9 @@ export const ConnectedServices = () => {
                       value="suspicious"
                       name="reason"
                     />
-                    Suspicious
+                    <Localized id="cs-disconnect-sync-opt-suspicious">
+                      Suspicious
+                    </Localized>
                   </label>
                 </li>
                 <li>
@@ -324,7 +362,9 @@ export const ConnectedServices = () => {
                       value="lost"
                       name="reason"
                     />
-                    Lost or Stolen
+                    <Localized id="cs-disconnect-sync-opt-lost">
+                      Lost or Stolen
+                    </Localized>
                   </label>
                 </li>
                 <li>
@@ -335,7 +375,9 @@ export const ConnectedServices = () => {
                       value="old"
                       name="reason"
                     />
-                    Old or Replaced
+                    <Localized id="cs-disconnect-sync-opt-old">
+                      Old or Replaced
+                    </Localized>
                   </label>
                 </li>
                 <li>
@@ -346,7 +388,9 @@ export const ConnectedServices = () => {
                       value="duplicate"
                       name="reason"
                     />
-                    Duplicate
+                    <Localized id="cs-disconnect-sync-opt-duplicate">
+                      Duplicate
+                    </Localized>
                   </label>
                 </li>
                 <li>
@@ -357,7 +401,9 @@ export const ConnectedServices = () => {
                       value="no"
                       name="reason"
                     />
-                    Rather not say
+                    <Localized id="cs-disconnect-sync-opt-not-say">
+                      Rather not say
+                    </Localized>
                   </label>
                 </li>
               </ul>
@@ -371,50 +417,63 @@ export const ConnectedServices = () => {
             onConfirm={onCloseAdviceModal}
             confirmBtnClassName="cta-primary"
             hasCancelButton={false}
-            confirmText="Okay, got it"
+            confirmText={l10n.getString(
+              'cs-disconnect-sync-advice-confirm',
+              null,
+              'Okay, got it'
+            )}
             headerId="connected-services-advice-modal-header"
             descId="connected-services-advice-modal-description"
           >
             {DS.reason === 'lost' ? (
               <>
-                <h2
-                  id="connected-services-advice-modal-header"
-                  className="font-bold text-xl text-center mb-2"
-                  data-testid="connected-services-lost-device-modal-header"
-                >
-                  Lost or stolen device disconnected
-                </h2>
-                <p
-                  id="connected-services-advice-modal-description"
-                  data-testid="lost-device-desc"
-                  className="my-4 text-center"
-                >
-                  Since your device was lost or stolen, to keep your information
-                  safe, you should change your Firefox account password in your
-                  account settings. You should also look for information from
-                  your device manufacturer about erasing your data remotely.
-                </p>
+                <Localized id="cs-disconnect-lost-advice-heading">
+                  <h2
+                    id="connected-services-advice-modal-header"
+                    className="font-bold text-xl text-center mb-2"
+                    data-testid="connected-services-lost-device-modal-header"
+                  >
+                    Lost or stolen device disconnected
+                  </h2>
+                </Localized>
+                <Localized id="cs-disconnect-lost-advice-content">
+                  <p
+                    id="connected-services-advice-modal-description"
+                    data-testid="lost-device-desc"
+                    className="my-4 text-center"
+                  >
+                    Since your device was lost or stolen, to keep your
+                    information safe, you should change your Firefox account
+                    password in your account settings. You should also look for
+                    information from your device manufacturer about erasing your
+                    data remotely.
+                  </p>
+                </Localized>
               </>
             ) : (
               <>
-                <h2
-                  id="connected-services-advice-modal-header"
-                  className="font-bold text-xl text-center mb-2"
-                  data-testid="connected-services-suspicious-device-modal-header"
-                >
-                  Suspicious device disconnected
-                </h2>
-                <p
-                  id="connected-services-advice-modal-description"
-                  data-testid="suspicious-device-desc"
-                  className="my-4 text-center"
-                >
-                  If the disconnected device is indeed suspicious, to keep your
-                  information safe, you should change your Firefox account
-                  password in your account settings. You should also change any
-                  other passwords you saved in Firefox by typing about:logins
-                  into the address bar.
-                </p>
+                <Localized id="cs-disconnect-suspicious-advice-heading">
+                  <h2
+                    id="connected-services-advice-modal-header"
+                    className="font-bold text-xl text-center mb-2"
+                    data-testid="connected-services-suspicious-device-modal-header"
+                  >
+                    Suspicious device disconnected
+                  </h2>
+                </Localized>
+                <Localized id="cs-disconnect-suspicious-advice-content">
+                  <p
+                    id="connected-services-advice-modal-description"
+                    data-testid="suspicious-device-desc"
+                    className="my-4 text-center"
+                  >
+                    If the disconnected device is indeed suspicious, to keep
+                    your information safe, you should change your Firefox
+                    account password in your account settings. You should also
+                    change any other passwords you saved in Firefox by typing
+                    about:logins into the address bar.
+                  </p>
+                </Localized>
               </>
             )}
           </Modal>

@@ -10,6 +10,7 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { HomePath } from '../../constants';
 import { usePasswordChanger } from '../../lib/auth';
 import { cache, sessionToken } from '../../lib/cache';
+import firefox from '../../lib/firefox';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { useAccount } from '../../models';
 import AlertBar from '../AlertBar';
@@ -78,6 +79,14 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     onSuccess: (response) => {
       logViewEvent(settingsViewName, 'change-password.success');
       changePassword.reset();
+      firefox.passwordChanged(
+        primaryEmail.email,
+        response.uid,
+        response.sessionToken,
+        response.verified,
+        response.keyFetchToken,
+        response.unwrapBKey
+      );
       sessionToken(response.sessionToken);
       cache.writeQuery({
         query: gql`
@@ -101,8 +110,12 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       navigate(HomePath);
     },
     onError: (e) => {
-      const localizedError = l10n.getString(`auth-error-${e.errno}`);
-      if (e.errno === 103) {
+      const localizedError = l10n.getString(
+        `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
+        null,
+        AuthUiErrors.INCORRECT_PASSWORD.message
+      );
+      if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
         // incorrect password
         setCurrentPasswordErrorText(localizedError);
         setValue('oldPassword', '');
@@ -116,7 +129,9 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const onFormSubmit = ({ oldPassword, newPassword }: FormData) => {
     if (oldPassword === newPassword) {
       const localizedError = l10n.getString(
-        `auth-error-${AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.errno}`
+        `auth-error-${AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.errno}`,
+        null,
+        AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.message
       );
       setNewPasswordErrorText(localizedError);
       return;
@@ -165,14 +180,31 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
                 isSet={formState.dirtyFields.newPassword}
                 hasError={errors.newPassword?.types?.uncommon}
               />
-              Must not match this{' '}
-              <LinkExternal
-                className="link-blue"
-                data-testid="nav-link-common-passwords"
-                href="https://support.mozilla.org/en-US/kb/password-strength"
+              <Localized
+                id="pw-change-common-passwords"
+                elems={{
+                  linkExternal: (
+                    <LinkExternal
+                      className="link-blue"
+                      data-testid="nav-link-common-passwords"
+                      href="https://support.mozilla.org/en-US/kb/password-strength"
+                    >
+                      {' '}
+                    </LinkExternal>
+                  ),
+                }}
               >
-                list of common passwords
-              </LinkExternal>
+                <span>
+                  Must not match this{' '}
+                  <LinkExternal
+                    className="link-blue"
+                    data-testid="nav-link-common-passwords"
+                    href="https://support.mozilla.org/en-US/kb/password-strength"
+                  >
+                    list of common passwords
+                  </LinkExternal>
+                </span>
+              </Localized>
             </li>
             <li data-testid="change-password-match">
               <ValidationIcon

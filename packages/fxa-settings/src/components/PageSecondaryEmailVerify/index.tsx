@@ -44,7 +44,13 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         if (error.graphQLErrors?.length) {
           setErrorText(error.message);
         } else {
-          alertBar.error(l10n.getString('verify-secondary-email-error'));
+          alertBar.error(
+            l10n.getString(
+              'verify-secondary-email-error',
+              null,
+              'There was a problem sending the verification code.'
+            )
+          );
           logViewEvent('verify-secondary-email.verification', 'fail');
         }
       },

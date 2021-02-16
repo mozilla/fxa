@@ -1,3 +1,69 @@
+## 1.200.0
+
+### New features
+
+- fxa-settings: avatar uploads ([edaf607ead](https://github.com/mozilla/fxa/commit/edaf607ead))
+- fxa-settings: upload and edit avatar ([6b05e2abcf](https://github.com/mozilla/fxa/commit/6b05e2abcf))
+- settings: display success tooltip on datablock action ([225746107a](https://github.com/mozilla/fxa/commit/225746107a))
+- fxa-settings: upload and edit avatar ([3940cb7fe1](https://github.com/mozilla/fxa/commit/3940cb7fe1))
+- settings: support firefox-ios in new settings browser comms ([a6a63a251d](https://github.com/mozilla/fxa/commit/a6a63a251d))
+- fxa-settings: add ## 1.199.0 capture avatar page ([7dc80f67d7](https://github.com/mozilla/fxa/commit/7dc80f67d7))
+- settings: Implemented browser comms for new settings on desktop ([a2beaac231](https://github.com/mozilla/fxa/commit/a2beaac231))
+
+### Bug fixes
+
+- settings: Replace AvatarCropper placeholder jpg with svg to fix storybook ([5eec03f301](https://github.com/mozilla/fxa/commit/5eec03f301))
+- settings: Fix storybook builds by removing l10n from PageChangePassword render test ([6e54331d0c](https://github.com/mozilla/fxa/commit/6e54331d0c))
+- settings: only set hover css when supported ([818af9298f](https://github.com/mozilla/fxa/commit/818af9298f))
+- settings: when gql-api switched to nestjs the auth error changed ([7817de9390](https://github.com/mozilla/fxa/commit/7817de9390))
+- settings: fix size of avatar in dropdown ([a193aabbee](https://github.com/mozilla/fxa/commit/a193aabbee))
+- settings: fix startup error on some legacy browsers ([e220d692ad](https://github.com/mozilla/fxa/commit/e220d692ad))
+- settings: added hover style to help icon and fixed 1px alignment issue ([419286a6ff](https://github.com/mozilla/fxa/commit/419286a6ff))
+- settings: reserve vertical space for QR code ([78e47cc9e9](https://github.com/mozilla/fxa/commit/78e47cc9e9))
+
+### Other changes
+
+- l10n: fix various new settings l10n issues ([6e60719edb](https://github.com/mozilla/fxa/commit/6e60719edb))
+- deps-dev: bump @testing-library/react-hooks from 3.4.2 to 5.0.3 ([0b4b9f0157](https://github.com/mozilla/fxa/commit/0b4b9f0157))
+- l10n: combine the download l10n scripts ([37887cf115](https://github.com/mozilla/fxa/commit/37887cf115))
+- settings: replace lockwise with vpn in bento menu ([5fc1b6c818](https://github.com/mozilla/fxa/commit/5fc1b6c818))
+- deps: bump graphql from 15.4.0 to 15.5.0 ([eae1a35dd0](https://github.com/mozilla/fxa/commit/eae1a35dd0))
+- settings: localize the common password hint ([4e7af6bdd3](https://github.com/mozilla/fxa/commit/4e7af6bdd3))
+- deps-dev: bump @types/jest from 24.9.1 to 26.0.20 ([78e246d9a3](https://github.com/mozilla/fxa/commit/78e246d9a3))
+- settings: trim auth-error-\* l10n strings ([40bbe6adb6](https://github.com/mozilla/fxa/commit/40bbe6adb6))
+- deps-dev: bump @storybook/addon-links from 6.0.28 to 6.1.15 ([03fa0a58db](https://github.com/mozilla/fxa/commit/03fa0a58db))
+- deps: bump @apollo/client from 3.3.6 to 3.3.7 ([d34d6c68cb](https://github.com/mozilla/fxa/commit/d34d6c68cb))
+- deps: bump react-cropper from 2.1.3 to 2.1.4 ([2a25963715](https://github.com/mozilla/fxa/commit/2a25963715))
+
+## 1.199.0
+
+### New features
+
+- settings: Localize the Avatar page ([1ca29b242](https://github.com/mozilla/fxa/commit/1ca29b242))
+- settings: extract reused strings into the App ftl file ([0e7f50dbd](https://github.com/mozilla/fxa/commit/0e7f50dbd))
+- settings: Localize the Recovery Key page ([714caaa38](https://github.com/mozilla/fxa/commit/714caaa38))
+- settings: localize footer ([cd88cca73](https://github.com/mozilla/fxa/commit/cd88cca73))
+- settings: localize header ([842beb254](https://github.com/mozilla/fxa/commit/842beb254))
+- fxa-settings: add ## 1.198.2 capture avatar page ([02e1b27a0](https://github.com/mozilla/fxa/commit/02e1b27a0))
+- settings: Localize the Verify Secondary Email page ([f769d94bc](https://github.com/mozilla/fxa/commit/f769d94bc))
+- settings: Localize the Add Secondary Email page ([344ce0169](https://github.com/mozilla/fxa/commit/344ce0169))
+- l10n: setup localization for delete account page ([0ddb09e8b](https://github.com/mozilla/fxa/commit/0ddb09e8b))
+- settings: localize page title ([480c70203](https://github.com/mozilla/fxa/commit/480c70203))
+- settings: add avatar editing page component ([228169fd6](https://github.com/mozilla/fxa/commit/228169fd6))
+- l10n: setup localization for auth errors ([a84b0a27a](https://github.com/mozilla/fxa/commit/a84b0a27a))
+- fxa-settings: add delete account page ([16ee46a34](https://github.com/mozilla/fxa/commit/16ee46a34))
+- settings: add avatar editing page component ([691173c37](https://github.com/mozilla/fxa/commit/691173c37))
+- l10n: Add initial fluent l10n for settings v2 ([c95ee6f8a](https://github.com/mozilla/fxa/commit/c95ee6f8a))
+
+### Other changes
+
+- settings: localize main settings page ([72d39f99d](https://github.com/mozilla/fxa/commit/72d39f99d))
+- deps-dev: bump @testing-library/jest-dom from 5.11.0 to 5.11.9 ([d0f1f6301](https://github.com/mozilla/fxa/commit/d0f1f6301))
+- deps: bump react-hook-form from 6.11.0 to 6.14.2 ([43255fb24](https://github.com/mozilla/fxa/commit/43255fb24))
+- settings: add l10n to two step auth ([f84c2747c](https://github.com/mozilla/fxa/commit/f84c2747c))
+- eslint: count jsx var usage ([97fc3aaf3](https://github.com/mozilla/fxa/commit/97fc3aaf3))
+- settings: use small .ftl files ([2cc276ea4](https://github.com/mozilla/fxa/commit/2cc276ea4))
+
 ## 1.198.2
 
 No changes.

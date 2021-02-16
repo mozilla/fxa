@@ -1,3 +1,23 @@
+## 1.200.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 7.5.5 to 7.6.11 ([ae4c586569](https://github.com/mozilla/fxa/commit/ae4c586569))
+- deps: bump @nestjs/graphql from 7.9.1 to 7.9.8 ([2e1c276997](https://github.com/mozilla/fxa/commit/2e1c276997))
+- deps: bump @nestjs/mapped-types from 0.1.1 to 0.3.0 ([50b07cab0a](https://github.com/mozilla/fxa/commit/50b07cab0a))
+- deps: bump graphql from 15.4.0 to 15.5.0 ([eae1a35dd0](https://github.com/mozilla/fxa/commit/eae1a35dd0))
+
+## 1.199.0
+
+### Other changes
+
+- deps: bump knex from 0.21.12 to 0.21.16 ([8ff4bb2b5](https://github.com/mozilla/fxa/commit/8ff4bb2b5))
+- deps: bump helmet from 4.1.1 to 4.4.1 ([81cc8d6fb](https://github.com/mozilla/fxa/commit/81cc8d6fb))
+- deps: bump @sentry/node from 6.0.0 to 6.0.1 ([3b6838b18](https://github.com/mozilla/fxa/commit/3b6838b18))
+- deps: bump objection from 2.2.3 to 2.2.7 ([875a1ffbb](https://github.com/mozilla/fxa/commit/875a1ffbb))
+- deps: bump @sentry/node from 5.29.1 to 6.0.0 ([147825a5b](https://github.com/mozilla/fxa/commit/147825a5b))
+- deps: bump apollo-server from 2.19.0 to 2.19.2 ([48896ad58](https://github.com/mozilla/fxa/commit/48896ad58))
+
 ## 1.198.2
 
 No changes.

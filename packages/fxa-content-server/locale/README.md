@@ -4,20 +4,20 @@ This directory contains translated strings for all supported locales. Strings ar
 
 ## How to use
 
-This folder can be used locally, but the default behavior is to update through `npm install` (see the postinstall `download_l10n.sh` step). If you do not follow those steps you might lose your work without understanding.
+This folder can be used locally, but the default behavior is to update through `npm install` (see the postinstall `clone-l10n.sh` step). If you do not follow those steps you might lose your work without understanding.
 
 Here are a few things to know:
 
--   Do `git add` the file you are working on as often as possible. Otherwise you might just run `grunt` and it’ll overwrite all your work.
--   The files that the default behavior uses to generate the content is from `fxa-content-server-l10n`, that is handled by npm install via git.
--   To work locally use those two commands:
+- Do `git add` the file you are working on as often as possible. Otherwise you might just run `grunt` and it’ll overwrite all your work.
+- The files that the default behavior uses to generate the content is from `fxa-content-server-l10n`, that is handled by npm install via git.
+- To work locally use those two commands:
 
-          grunt po2json
-          grunt serverproc:test
+        grunt po2json
+        grunt serverproc:test
 
--   Once you are done with the content you worked on, you can copy the files over to a separate repository (i.e. [fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n)) and make a pull-request from your own fork. See **Updating the l10n repo** below.
+- Once you are done with the content you worked on, you can copy the files over to a separate repository (i.e. [fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n)) and make a pull-request from your own fork. See **Updating the l10n repo** below.
 
-          cp -r locale/templates/ ../fxa-content-server-l10n/locale/templates/
+        cp -r locale/templates/ ../fxa-content-server-l10n/locale/templates/
 
 ## Required tools
 
@@ -66,7 +66,7 @@ Commit the merged .po files to master and enjoy.
 
 ## Updating translations
 
-Translators will update the `.po` files in the l10n repo, which are downloaded via the `scripts/download_l10n.sh` script. To convert the new translations into JSON for the app to use, run:
+Translators will update the `.po` files in the l10n repo, which are downloaded via the `{FXA_MONOREPO_ROOT}/_scripts/clone-l10n.sh` script. To convert the new translations into JSON for the app to use, run:
 
     grunt l10n-create-json
 

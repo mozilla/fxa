@@ -6,10 +6,15 @@ import querystring from 'querystring';
 import superagent from 'superagent';
 
 export const PAYPAL_SANDBOX_BASE = 'https://api-3t.sandbox.paypal.com';
+export const PAYPAL_SANDBOX_IPN_BASE = 'https://ipnpb.sandbox.paypal.com';
 export const PAYPAL_LIVE_BASE = 'https://api-3t.paypal.com';
+export const PAYPAL_LIVE_IPN_BASE = 'https://ipnpb.paypal.com';
 export const PAYPAL_NVP_ROUTE = '/nvp';
+export const PAYPAL_IPN_ROUTE = '/cgi-bin/webscr';
 export const PAYPAL_SANDBOX_API = PAYPAL_SANDBOX_BASE + PAYPAL_NVP_ROUTE;
 export const PAYPAL_LIVE_API = PAYPAL_LIVE_BASE + PAYPAL_NVP_ROUTE;
+export const PAYPAL_SANDBOX_IPN = PAYPAL_SANDBOX_IPN_BASE + PAYPAL_IPN_ROUTE;
+export const PAYPAL_LIVE_IPN = PAYPAL_LIVE_IPN_BASE + PAYPAL_IPN_ROUTE;
 // See https://developer.paypal.com/docs/checkout/reference/upgrade-integration/#nvp-integrations
 // for information on when to use PLACEHOLDER_URL
 export const PLACEHOLDER_URL = 'https://www.paypal.com/checkoutnow/error';
@@ -49,44 +54,152 @@ export type PAYPAL_NVP_ACK_OPTIONS =
 
 type NVPResponse = {
   ACK: PAYPAL_NVP_ACK_OPTIONS;
+  BUILD: string;
   CORRELATIONID: string;
   TIMESTAMP: string;
   VERSION: string;
-  BUILD: string;
 };
 
 type SetExpressCheckoutData = {
   TOKEN: string;
 };
 
-type DoReferenceTransactionData = {
+type CreateBillingAgreementData = {
   BILLINGAGREEMENTID: string;
-  TRANSACTIONID: string;
-  PARENTTRANSACTIONID: string;
-  TRANSACTIONTYPE: string;
-  PAYMENTTYPE: string;
-  ORDERTIME: string;
+};
+
+type DoReferenceTransactionData = {
   AMT: string;
-  FEEAMT: string;
-  TAXAMT: string;
+  AVSCODE: string;
+  BILLINGAGREEMENTID: string;
   CURRENCYCODE: string;
+  CVV2MATCH: string;
+  FEEAMT: string;
+  ORDERTIME: string;
+  PARENTTRANSACTIONID: string;
   PAYMENTSTATUS: string;
+  PAYMENTTYPE: string;
   PENDINGREASON: string;
-  REASONCODE: string;
   PROTECTIONELIGIBILITY: string;
   PROTECTIONELIGIBILITYTYPE: string;
+  REASONCODE: string;
+  TAXAMT: string;
+  TRANSACTIONID: string;
+  TRANSACTIONTYPE: string;
+};
+
+type BAUpdateData = {
+  BILLINGAGREEMENTID: string;
+  BILLINGAGREEMENTSTATUS: string;
+  COUNTRYCODE: string;
+  EMAIL: string;
+  PAYERSTATUS: string;
+};
+
+export type TransactionStatus =
+  | 'Pending'
+  | 'Processing'
+  | 'Completed'
+  | 'Denied'
+  | 'Reversed';
+
+type TransactionSearchResult = {
+  AMT: string;
+  CURRENCYCODE: string;
+  EMAIL: string;
+  FEEAMT: string;
+  NAME: string;
+  NETAMT: string;
+  STATUS: TransactionStatus;
+  TIMESTAMP: string;
+  TRANSACTIONID: string;
+  TYPE: string;
+};
+
+type TransactionSearchData = {
+  L: TransactionSearchResult[];
 };
 
 export type NVPSetExpressCheckoutResponse = NVPResponse &
   SetExpressCheckoutData;
 
+export type NVPCreateBillingAgreementResponse = NVPResponse &
+  CreateBillingAgreementData;
+
 export type NVPDoReferenceTransactionResponse = NVPResponse &
   DoReferenceTransactionData;
+
+export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData;
+
+export type NVPTransactionSearchResponse = NVPResponse & TransactionSearchData;
+
+export type SetExpressCheckoutOptions = {
+  currencyCode: string;
+};
+
+export type CreateBillingAgreementOptions = {
+  token: string;
+};
 
 export type DoReferenceTransactionOptions = {
   amount: string;
   billingAgreementId: string;
+  invoiceNumber: string;
+  idempotencyKey: string;
 };
+
+export type BAUpdateOptions = {
+  billingAgreementId: string;
+  cancel?: boolean;
+};
+
+export type TransactionSearchOptions = {
+  invoice?: string;
+  startDate: Date;
+  endDate?: Date;
+  email?: string;
+  transactionId?: string;
+};
+
+export type IpnMessage = {
+  txn_type: string;
+  [key: string]: any;
+};
+
+export type IpnMerchPmtType = IpnMessage & {
+  invoice: string;
+  // The billing agreement ID
+  mp_id: string;
+  mc_gross: string;
+  mp_notification?: any;
+  mp_pay_type: 'INSTANT' | 'ANY' | 'ECHECK';
+  // Agreement status, A for Active, I for inactive
+  // I is equivalent to cancelled.
+  mp_status: 'A' | 'I';
+  txn_id: string;
+  txn_type: 'merch_pmt' | 'mp_cancel';
+};
+
+/**
+ * Returns an ISO string without milliseconds appropriate for PayPal dates.
+ *
+ * @param d
+ */
+function toIsoString(d: Date): string {
+  return d.toISOString().slice(0, -5) + 'Z';
+}
+
+/**
+ * Type Guard to indicate whether the given IPN Message is a Merchant Payment
+ * message.
+ *
+ * @param ipnMessage
+ */
+export function isIpnMerchPmt(
+  ipnMessage: IpnMessage
+): ipnMessage is IpnMerchPmtType {
+  return ['merch_pmt', 'mp_cancel'].includes(ipnMessage.txn_type);
+}
 
 export class PayPalClientError extends Error {
   public raw: string;
@@ -105,6 +218,7 @@ export class PayPalClientError extends Error {
 }
 export class PayPalClient {
   private url: string;
+  private ipnUrl: string;
   private user: string;
   private pwd: string;
   private signature: string;
@@ -116,6 +230,7 @@ export class PayPalClient {
 
   constructor(options: PaypalOptions) {
     this.url = options.sandbox ? PAYPAL_SANDBOX_API : PAYPAL_LIVE_API;
+    this.ipnUrl = options.sandbox ? PAYPAL_SANDBOX_IPN : PAYPAL_LIVE_IPN;
     this.user = options.user;
     this.pwd = options.pwd;
     this.signature = options.signature;
@@ -131,7 +246,7 @@ export class PayPalClient {
     return querystring.stringify(object);
   }
 
-  private nvpToObject(payload: string): Record<string, any> {
+  public nvpToObject(payload: string): Record<string, any> {
     const object = querystring.parse(payload, undefined, undefined, {
       maxKeys: 0,
     });
@@ -193,16 +308,37 @@ export class PayPalClient {
    * The API is extensive. Currently this method only supports the situation where you're getting an authorizing
    * token that allows us to perform billing in the future.
    */
-  public async setExpressCheckout(): Promise<NVPSetExpressCheckoutResponse> {
+  public async setExpressCheckout(
+    options: SetExpressCheckoutOptions
+  ): Promise<NVPSetExpressCheckoutResponse> {
     const data = {
-      PAYMENTREQUEST_0_AMT: '0',
-      RETURNURL: PLACEHOLDER_URL,
       CANCELURL: PLACEHOLDER_URL,
+      L_BILLINGAGREEMENTDESCRIPTION0: 'Mozilla',
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
+      NOSHIPPING: 1,
+      PAYMENTREQUEST_0_AMT: '0',
+      PAYMENTREQUEST_0_CURRENCYCODE: options.currencyCode,
+      PAYMENTREQUEST_0_PAYMENTACTION: 'AUTHORIZATION',
+      RETURNURL: PLACEHOLDER_URL,
     };
-    return await this.doRequest<NVPSetExpressCheckoutResponse>(
+    return this.doRequest<NVPSetExpressCheckoutResponse>(
       'SetExpressCheckout',
       data
+    );
+  }
+
+  /**
+   * Call the Paypal CreateBillingAgreement NVP API
+   *
+   * Using the Paypal CreateBillingAgreement API (https://developer.paypal.com/docs/nvp-soap-api/create-billing-agreement-nvp/)
+   * creates a billing agreement using the time-stamped token returned in the SetExpressCheckout response.
+   */
+  public async createBillingAgreement(
+    options: CreateBillingAgreementOptions
+  ): Promise<NVPCreateBillingAgreementResponse> {
+    return this.doRequest<NVPCreateBillingAgreementResponse>(
+      'CreateBillingAgreement',
+      options
     );
   }
 
@@ -222,11 +358,68 @@ export class PayPalClient {
   ): Promise<NVPDoReferenceTransactionResponse> {
     const data = {
       AMT: options.amount,
-      REFERENCEID: options.billingAgreementId,
+      INVNUM: options.invoiceNumber,
+      MSGSUBID: options.idempotencyKey,
       PAYMENTACTION: 'Sale',
+      PAYMENTTYPE: 'instant',
+      REFERENCEID: options.billingAgreementId,
     };
-    return await this.doRequest<NVPDoReferenceTransactionResponse>(
+    return this.doRequest<NVPDoReferenceTransactionResponse>(
       'DoReferenceTransaction',
+      data
+    );
+  }
+
+  /**
+   * Call the PayPal BillAgreementUpdate NVP API
+   *
+   * Using the PayPal BillAgreementUpdate API (https://developer.paypal.com/docs/nvp-soap-api/ba-update-nvp/)
+   * we get the information on the PayPal user such as the country code.
+   */
+  public async baUpdate(
+    options: BAUpdateOptions
+  ): Promise<NVPBAUpdateTransactionResponse> {
+    const data: Record<string, any> = {
+      REFERENCEID: options.billingAgreementId,
+    };
+    if (options.cancel) {
+      data.BILLINGAGREEMENTSTATUS = 'Canceled';
+    }
+    return this.doRequest<NVPBAUpdateTransactionResponse>(
+      'BillAgreementUpdate',
+      data
+    );
+  }
+
+  /**
+   * Call the PayPal IPN/PDT message verification endpoint.
+   *
+   * Verifies a PayPal IPN/PDT message body by posting it back to PayPal per
+   * the IPN listener request-response flow
+   * (https://developer.paypal.com/docs/api-basics/notifications/ipn/IPNImplementation/#ipn-listener-request-response-flow).
+   *
+   * @param message
+   */
+  public async ipnVerify(message: string): Promise<string> {
+    const verifyBody = 'cmd=_notify-validate&' + message;
+    const result = await pRetry(() =>
+      superagent.post(this.ipnUrl).send(verifyBody)
+    );
+    return result.text;
+  }
+
+  public async transactionSearch(
+    options: TransactionSearchOptions
+  ): Promise<NVPTransactionSearchResponse> {
+    const data = {
+      STARTDATE: toIsoString(options.startDate),
+      ENDDATE: options.endDate ? toIsoString(options.endDate) : undefined,
+      EMAIL: options.email,
+      INVNUM: options.invoice,
+      TRANSACTIONID: options.transactionId,
+    };
+    return this.doRequest<NVPTransactionSearchResponse>(
+      'TransactionSearch',
       data
     );
   }

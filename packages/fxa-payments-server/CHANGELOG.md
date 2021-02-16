@@ -1,5 +1,40 @@
 # Change history
 
+## 1.200.0
+
+### New features
+
+- payments: Add createOrder handler to PayPal button ([d66166178c](https://github.com/mozilla/fxa/commit/d66166178c))
+
+### Bug fixes
+
+- tests: fix a couple jest.requireActual calls ([e06b8667e3](https://github.com/mozilla/fxa/commit/e06b8667e3))
+
+### Other changes
+
+- deps-dev: bump @types/react-redux from 7.1.8 to 7.1.16 ([252aba9afd](https://github.com/mozilla/fxa/commit/252aba9afd))
+- l10n: combine the download l10n scripts ([37887cf115](https://github.com/mozilla/fxa/commit/37887cf115))
+- deps-dev: bump @types/jest from 24.9.1 to 26.0.20 ([78e246d9a3](https://github.com/mozilla/fxa/commit/78e246d9a3))
+- deps-dev: bump @storybook/addon-links from 6.0.28 to 6.1.15 ([03fa0a58db](https://github.com/mozilla/fxa/commit/03fa0a58db))
+
+## 1.199.0
+
+### New features
+
+- payments: Add PayPal button to Subscribe page ([de83db0e3](https://github.com/mozilla/fxa/commit/de83db0e3))
+- payments: Add feature flag for PayPal UI ([104154dfc](https://github.com/mozilla/fxa/commit/104154dfc))
+- l10n: Add initial fluent l10n for settings v2 ([c95ee6f8a](https://github.com/mozilla/fxa/commit/c95ee6f8a))
+
+### Other changes
+
+- deps: bump @stripe/react-stripe-js from 1.1.2 to 1.2.0 ([93b33b630](https://github.com/mozilla/fxa/commit/93b33b630))
+- deps-dev: bump @testing-library/jest-dom from 5.11.0 to 5.11.9 ([d0f1f6301](https://github.com/mozilla/fxa/commit/d0f1f6301))
+- deps: bump helmet from 4.1.1 to 4.4.1 ([81cc8d6fb](https://github.com/mozilla/fxa/commit/81cc8d6fb))
+- deps: bump @sentry/node from 6.0.0 to 6.0.1 ([3b6838b18](https://github.com/mozilla/fxa/commit/3b6838b18))
+- eslint: count jsx var usage ([97fc3aaf3](https://github.com/mozilla/fxa/commit/97fc3aaf3))
+- deps: bump @sentry/node from 5.29.1 to 6.0.0 ([147825a5b](https://github.com/mozilla/fxa/commit/147825a5b))
+- docs: Replace npm with yarn commands in payments README ([524ae6203](https://github.com/mozilla/fxa/commit/524ae6203))
+
 ## 1.198.2
 
 No changes.

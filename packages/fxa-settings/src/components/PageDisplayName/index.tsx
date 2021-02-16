@@ -8,11 +8,12 @@ import { useForm } from 'react-hook-form';
 import React, { useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
+import firefox from '../../lib/firefox';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { gql } from '@apollo/client';
 import AlertBar from '../AlertBar';
 import { HomePath } from '../../constants';
-import { Localized } from '@fluent/react';
+import { Localized, useLocalization } from '@fluent/react';
 
 const validateDisplayName = (currentDisplayName: string) => (
   newDisplayName: string
@@ -29,6 +30,7 @@ export const UPDATE_DISPLAY_NAME_MUTATION = gql`
 export const PageDisplayName = (_: RouteComponentProps) => {
   const account = useAccount();
   const alertBar = useAlertBar();
+  const { l10n } = useLocalization();
   const [errorText, setErrorText] = useState<string>();
   const [displayName, setDisplayName] = useState<string>();
   const initialValue = account.displayName || '';
@@ -44,13 +46,20 @@ export const PageDisplayName = (_: RouteComponentProps) => {
 
   const [updateDisplayName] = useMutation(UPDATE_DISPLAY_NAME_MUTATION, {
     onCompleted: () => {
+      firefox.profileChanged(account.uid);
       navigate(HomePath, { replace: true });
     },
     onError(err) {
       if (err.graphQLErrors?.length) {
         setErrorText(err.message);
       } else {
-        alertBar.error('There was a problem updating your display name.');
+        alertBar.error(
+          l10n.getString(
+            'display-name-update-error',
+            null,
+            'There was a problem updating your display name.'
+          )
+        );
       }
     },
     update: (cache) => {

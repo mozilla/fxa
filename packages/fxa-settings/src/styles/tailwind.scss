@@ -7,6 +7,8 @@
 @import './ctas.scss';
 @import './unit-row.scss';
 @import './drop-down-menu.scss';
+@import './cropper.scss';
+@import './slider.scss';
 
 @tailwind base;
 @tailwind components;
@@ -19,10 +21,6 @@ body {
 
 .link-blue {
   @apply underline text-blue-500;
-
-  &:hover {
-    @apply text-blue-600;
-  }
 
   &:active {
     @apply text-blue-800;
@@ -37,11 +35,17 @@ body {
 .transition-standard {
   @apply transition duration-150;
 
-  &:hover {
+  &:active {
     @apply transition duration-150;
   }
+}
 
-  &:active {
+@media (hover: hover) {
+  .link-blue:hover {
+    @apply text-blue-600;
+  }
+
+  .transition-standard:hover {
     @apply transition duration-150;
   }
 }

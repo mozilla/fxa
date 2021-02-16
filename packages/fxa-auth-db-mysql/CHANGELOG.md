@@ -1,3 +1,16 @@
+## 1.200.0
+
+### Other changes
+
+- deps-dev: bump restify-clients from 2.6.9 to 3.1.0 ([961ab2f2bd](https://github.com/mozilla/fxa/commit/961ab2f2bd))
+
+## 1.199.0
+
+### Other changes
+
+- deps: bump @sentry/node from 6.0.0 to 6.0.1 ([3b6838b18](https://github.com/mozilla/fxa/commit/3b6838b18))
+- deps: bump @sentry/node from 5.29.1 to 6.0.0 ([147825a5b](https://github.com/mozilla/fxa/commit/147825a5b))
+
 ## 1.198.2
 
 No changes.

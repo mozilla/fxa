@@ -13,8 +13,8 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import AlertBar from '../AlertBar';
 import DataBlock from '../DataBlock';
 import { HomePath } from '../../constants';
-import GetDataTrio from '../GetDataTrio';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 type FormData = {
   password: string;
@@ -63,13 +63,17 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
       );
     },
     onError: (error) => {
-      // 103 is the incorrect password error
-      if (error.errno === 103) {
-        setErrorText(l10n.getString('auth-error-103'));
+      const localizedError = l10n.getString(
+        `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
+        null,
+        AuthUiErrors.INCORRECT_PASSWORD.message
+      );
+      if (error.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+        setErrorText(localizedError);
         setValue('password', '');
       } else {
         alertBar.setType('error');
-        alertBar.setContent(l10n.getString('auth-error-' + error.errno));
+        alertBar.setContent(localizedError);
         alertBar.show();
         logViewEvent('flow.settings.account-recovery', 'confirm-password.fail');
       }
@@ -100,8 +104,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               </p>
             </Localized>
             <div className="mt-6 flex flex-col items-center h-48 justify-between">
-              <DataBlock value={formattedRecoveryKey}></DataBlock>
-              <GetDataTrio
+              <DataBlock
                 value={formattedRecoveryKey}
                 onAction={(type) => {
                   logViewEvent(
@@ -109,7 +112,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
                     `recovery-key.${type}-option`
                   );
                 }}
-              ></GetDataTrio>
+              ></DataBlock>
               <Localized id="recovery-key-close-button">
                 <button
                   className="cta-primary mx-2 px-10"

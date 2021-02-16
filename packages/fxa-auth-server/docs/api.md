@@ -101,6 +101,7 @@ see [`fxa-auth-client`](https://github.com/mozilla/fxa/tree/main/packages/fxa-au
     - [DELETE /oauth/subscriptions/active/{subscriptionId} (:lock: oauthToken)](#delete-subscriptionsactivesubscriptionid)
     - [POST /oauth/subscriptions/updatePayment (:lock: oauthToken)](#post-subscriptionsupdatepayment)
     - [GET /oauth/subscriptions/customer (:lock: oauthToken)](#get-subscriptionscustomer)
+    - [GET /oauth/subscriptions/paypal-checkout (:lock: oauthToken)](#get-paypalcheckout)
   - [Totp](#totp)
     - [POST /totp/create (:lock: sessionToken)](#post-totpcreate)
     - [POST /totp/destroy (:lock: sessionToken)](#post-totpdestroy)

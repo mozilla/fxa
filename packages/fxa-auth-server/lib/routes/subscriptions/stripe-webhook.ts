@@ -1,16 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import * as Sentry from '@sentry/node';
 import { Stripe } from 'stripe';
+import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
+import { PayPalHelper } from '../../payments/paypal';
 import { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { StripeHandler } from './stripe';
-import { ServerRoute } from '@hapi/hapi';
 
 const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
   error.ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE,
@@ -18,6 +20,24 @@ const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
 ];
 
 export class StripeWebhookHandler extends StripeHandler {
+  protected paypalHelper?: PayPalHelper;
+
+  constructor(
+    log: AuthLogger,
+    db: any,
+    config: ConfigType,
+    customs: any,
+    push: any,
+    mailer: any,
+    profile: any,
+    stripeHelper: StripeHelper
+  ) {
+    super(log, db, config, customs, push, mailer, profile, stripeHelper);
+    if (config.subscriptions.paypalNvpSigCredentials.enabled) {
+      this.paypalHelper = Container.get(PayPalHelper);
+    }
+  }
+
   /**
    * Handle webhook events from Stripe by pre-processing the incoming
    * event and dispatching to the appropriate sub-handler. Log an info
@@ -30,7 +50,7 @@ export class StripeWebhookHandler extends StripeHandler {
         request.headers['stripe-signature']
       );
 
-      switch (event.type) {
+      switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
         case 'customer.created':
           await this.handleCustomerCreatedEvent(request, event);
           break;
@@ -45,6 +65,11 @@ export class StripeWebhookHandler extends StripeHandler {
           break;
         case 'customer.source.expiring':
           await this.handleCustomerSourceExpiringEvent(request, event);
+          break;
+        case 'invoice.created':
+          if (this.paypalHelper) {
+            await this.handleInvoiceCreatedEvent(request, event);
+          }
           break;
         case 'invoice.payment_succeeded':
           await this.handleInvoicePaymentSucceededEvent(request, event);
@@ -147,6 +172,48 @@ export class StripeWebhookHandler extends StripeHandler {
       uid,
       email
     );
+  }
+
+  /**
+   * Handle `invoice.created` events, if the subscription is for an invoice
+   * customer (PayPal), set auto_advance false and finalize.
+   */
+  async handleInvoiceCreatedEvent(request: AuthRequest, event: Stripe.Event) {
+    // Type-guard to require paypalHelper.
+    if (!this.paypalHelper) {
+      return;
+    }
+    const invoice = event.data.object as Stripe.Invoice;
+    if (!(await this.stripeHelper.invoicePayableWithPaypal(invoice))) {
+      return;
+    }
+    return this.stripeHelper.finalizeInvoice(invoice);
+  }
+
+  /**
+   * Handle `invoice.open` events, if the subscription invoice is for a PayPal
+   * customer, charge them if needed.
+   */
+  async handleInvoiceOpenEvent(request: AuthRequest, event: Stripe.Event) {
+    // Type-guard to require paypalHelper.
+    if (!this.paypalHelper) {
+      return;
+    }
+    const invoice = event.data.object as Stripe.Invoice;
+    if (!(await this.stripeHelper.invoicePayableWithPaypal(invoice))) {
+      return;
+    }
+    if (invoice.amount_due === 0) {
+      return this.paypalHelper.processZeroInvoice(invoice);
+    }
+    const customer = await this.stripeHelper.expandResource(
+      invoice.customer,
+      'customers'
+    );
+    if (customer.deleted) {
+      return;
+    }
+    return this.paypalHelper.processInvoice({ customer, invoice });
   }
 
   /**

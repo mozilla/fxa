@@ -15,6 +15,7 @@ const testsCircleCi = require('./functional_circle')(
   args.groupNum
 );
 const testsFunctionalSmoke = require('./functional_smoke');
+const testsFunctionalRegression = require('./functional_regression');
 const testsPairing = require('./functional_pairing');
 const testsServer = require('./tests_server');
 const testsServerResources = require('./tests_server_resources');
@@ -115,6 +116,9 @@ if (args.suites) {
       break;
     case 'functional_smoke':
       config.functionalSuites = testsFunctionalSmoke;
+      break;
+    case 'functional_regression':
+      config.functionalSuites = testsFunctionalRegression;
       break;
     case 'settings_v2':
       config.functionalSuites = testsSettingsV2;

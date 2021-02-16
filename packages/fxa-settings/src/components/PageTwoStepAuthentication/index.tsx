@@ -13,13 +13,13 @@ import React, { useEffect, useState } from 'react';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import AlertBar from '../AlertBar';
 import DataBlock from '../DataBlock';
-import GetDataTrio from '../GetDataTrio';
 import { useSession } from '../../models';
 import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
 import { alertTextExternal } from '../../lib/cache';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 
@@ -172,10 +172,15 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     },
     onError: (err) => {
       if (err.graphQLErrors?.length) {
-        if (err.graphQLErrors[0].extensions?.errno) {
+        if (
+          err.graphQLErrors[0].extensions?.errno ===
+          AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno
+        ) {
           setRecoveryCodeError(
             l10n.getString(
-              `auth-error-${err.graphQLErrors[0].extensions.errno}`
+              `auth-error-${AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno}`,
+              null,
+              AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
             )
           );
         } else {
@@ -186,7 +191,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
           l10n.getString(
             'tfa-cannot-verify-code',
             null,
-            'There was a problem verifiying your recovery code.'
+            'There was a problem verifying your recovery code.'
           )
         );
       }
@@ -234,7 +239,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   return (
     <FlowContainer
-      title={l10n.getString('tfa-title')}
+      title={l10n.getString('tfa-title', null, 'Two-Step Authentication')}
       {...{ subtitle, onBackButtonClick: moveBack }}
     >
       {alertBar.visible && (
@@ -246,7 +251,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       {!totpVerified && (
         <form onSubmit={totpForm.handleSubmit(onTotpSubmit)}>
           <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
-          {qrCodeUrl && showQrCode && (
+          {showQrCode && (
             <>
               <Localized
                 id="tfa-scan-this-code"
@@ -273,12 +278,17 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 </p>
               </Localized>
               <div className="flex flex-col mb-4">
-                <img
-                  className="mx-auto w-48 h-48 qr-code-border"
-                  data-testid="2fa-qr-code"
-                  src={qrCodeUrl}
-                  alt={`Use the code ${secret} to set up two-step authentication in supported applications.`}
-                />
+                {qrCodeUrl && (
+                  <img
+                    className="mx-auto w-48 h-48 qr-code-border"
+                    data-testid="2fa-qr-code"
+                    src={qrCodeUrl}
+                    alt={`Use the code ${secret} to set up two-step authentication in supported applications.`}
+                  />
+                )}
+                {!qrCodeUrl && (
+                  <div className="h-48">{/* vertical space placeholder */}</div>
+                )}
                 <Localized id="tfa-button-cant-scan-qr">
                   <button
                     type="button"
@@ -302,7 +312,6 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               </p>
             </div>
           )}
-
           <Localized id="tfa-enter-totp">
             <p>Now enter the security code from the authentication app.</p>
           </Localized>
@@ -360,11 +369,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               have your mobile device.
             </Localized>
             <div className="mt-6 flex flex-col items-center h-40 justify-between">
-              <DataBlock value={recoveryCodes}></DataBlock>
-              <GetDataTrio
+              <DataBlock
                 value={recoveryCodes}
                 onAction={logDataTrioActionEvent}
-              ></GetDataTrio>
+              ></DataBlock>
             </div>
           </div>
           <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">

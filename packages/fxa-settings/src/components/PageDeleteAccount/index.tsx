@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useAccountDestroyer } from '../../lib/auth';
 import { sessionToken } from '../../lib/cache';
+import firefox from '../../lib/firefox';
 import { useAlertBar } from '../../lib/hooks';
 import { useAccount } from '../../models';
 import InputPassword from '../InputPassword';
@@ -24,6 +25,7 @@ import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 type FormData = {
   password: string;
@@ -62,7 +64,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const goBack = useCallback(() => window.history.back(), []);
 
-  const { primaryEmail } = useAccount();
+  const { primaryEmail, uid } = useAccount();
 
   const advanceStep = () => {
     setSubtitleText(l10n.getString('delete-account-step-2-2'));
@@ -73,13 +75,18 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
 
   const deleteAccount = useAccountDestroyer({
     onSuccess: () => {
+      firefox.accountDeleted(uid);
       // must use location.href over navigate() since this is an external link
       window.location.href = `${ROOTPATH}?delete_account_success=true`;
       logViewEvent('flow.settings.account-delete', 'confirm-password.success');
     },
     onError: (error) => {
-      const localizedError = l10n.getString(`auth-error-${error.errno}`);
-      if (error.errno === 103) {
+      const localizedError = l10n.getString(
+        `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
+        null,
+        AuthUiErrors.INCORRECT_PASSWORD.message
+      );
+      if (error.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
         setErrorText(localizedError);
         setValue('password', '');
       } else {

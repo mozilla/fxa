@@ -79,6 +79,8 @@ function getL10nVersion() {
   try {
     const gitShaPath = path.join(
       __dirname,
+      '..',
+      '..',
       'fxa-content-server-l10n',
       'git-head.txt'
     );

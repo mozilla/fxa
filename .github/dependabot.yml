@@ -4,6 +4,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 4
+    open-pull-requests-limit: 6
+    labels:
+      - "code_quality"
+      - "dependencies"
     reviewers:
       - "@mozilla/fxa-devs"

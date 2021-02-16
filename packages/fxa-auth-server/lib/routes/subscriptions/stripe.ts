@@ -4,7 +4,6 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
-import ScopeSet from 'fxa-shared/oauth/scopes';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   DeepPartial,
@@ -14,6 +13,7 @@ import {
   filterSubscription,
 } from 'fxa-shared/subscriptions/stripe';
 import omitBy from 'lodash/omitBy';
+import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
@@ -22,28 +22,7 @@ import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { splitCapabilities } from '../utils/subscriptions';
 import validators from '../validators';
-
-const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
-  'https://identity.mozilla.com/account/subscriptions';
-
-/**
- * Authentication handler for subscription routes.
- */
-export async function handleAuth(db: any, auth: any, fetchEmail = false) {
-  const scope = ScopeSet.fromArray(auth.credentials.scope);
-  if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
-    throw error.invalidScopes();
-  }
-  const { user: uid } = auth.credentials;
-  let email;
-  if (!fetchEmail) {
-    ({ email } = auth.credentials);
-  } else {
-    const account = await db.account(uid);
-    ({ email } = account.primaryEmail);
-  }
-  return { uid, email };
-}
+import { handleAuth } from './utils';
 
 /**
  * Delete any metadata keys prefixed by `capabilities:` before
@@ -64,7 +43,9 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 
 export class StripeHandler {
   constructor(
-    protected log: AuthLogger,
+    // FIXME: For some reason Logger methods were not being detected in
+    //        inheriting classes thus this interface join.
+    protected log: AuthLogger & Logger,
     protected db: any,
     protected config: ConfigType,
     protected customs: any,
@@ -129,24 +110,7 @@ export class StripeHandler {
     );
   }
 
-  findCustomerSubscriptionByPlanId(
-    customer: Stripe.Customer,
-    planId: string
-  ): Stripe.Subscription | undefined {
-    if (!customer.subscriptions) {
-      throw error.internalValidationError(
-        'findCustomerSubscriptionByPlanId',
-        {
-          customerId: customer.id,
-        },
-        'Expected subscriptions to be loaded.'
-      );
-    }
-    return customer.subscriptions.data.find(
-      (sub) => sub.items.data.find((item) => item.plan.id === planId) != null
-    );
-  }
-
+  // TODO: This can be removed, its a ghost function, no callers.
   findCustomerSubscriptionByProductId(
     customer: Stripe.Customer,
     productId: string
@@ -325,10 +289,21 @@ export class StripeHandler {
     return activeSubscriptions;
   }
 
+  getPaymentProvider(customer: Stripe.Customer) {
+    const subscription = customer.subscriptions?.data.find(
+      (sub: { status: string }) => ['active', 'past_due'].includes(sub.status)
+    );
+    if (subscription) {
+      return subscription.collection_method === 'send_invoice'
+        ? 'paypal'
+        : 'stripe';
+    }
+    return 'not_chosen';
+  }
   /**
-   * Extracts card details if a customer has a source on file.
+   * Extracts billing details if a customer has a source on file.
    */
-  extractCardDetails(customer: Stripe.Customer) {
+  extractBillingDetails(customer: Stripe.Customer) {
     const defaultPayment = customer.invoice_settings.default_payment_method;
     if (defaultPayment) {
       if (typeof defaultPayment === 'string') {
@@ -339,6 +314,7 @@ export class StripeHandler {
       if (defaultPayment.card) {
         return {
           billing_name: defaultPayment.billing_details.name,
+          payment_provider: this.getPaymentProvider(customer),
           payment_type: defaultPayment.card.funding,
           last4: defaultPayment.card.last4,
           exp_month: defaultPayment.card.exp_month,
@@ -354,6 +330,7 @@ export class StripeHandler {
       if (src.object === 'card') {
         return {
           billing_name: src.name,
+          payment_provider: this.getPaymentProvider(customer),
           payment_type: src.funding,
           last4: src.last4,
           exp_month: src.exp_month,
@@ -362,7 +339,10 @@ export class StripeHandler {
         };
       }
     }
-    return {};
+
+    return {
+      payment_provider: this.getPaymentProvider(customer),
+    };
   }
 
   async getCustomer(request: AuthRequest) {
@@ -376,12 +356,12 @@ export class StripeHandler {
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
-    const cardDetails = this.extractCardDetails(customer);
+    const billingDetails = this.extractBillingDetails(customer);
     const response = {
       // Less than ideal to type as any, but using the ReturnType of below
       // didn't work any better. 🤷‍♀️
       subscriptions: [] as any[],
-      ...cardDetails,
+      ...billingDetails,
     };
 
     if (!customer.subscriptions) {
@@ -859,7 +839,7 @@ export const stripeRoutes = (
         },
         validate: {
           payload: {
-            displayName: isA.string().required(),
+            displayName: isA.string().optional(),
             idempotencyKey: isA.string().required(),
           },
         },

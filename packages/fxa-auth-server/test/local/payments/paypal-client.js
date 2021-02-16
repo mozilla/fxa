@@ -12,7 +12,9 @@ const {
   PayPalClient,
   PayPalClientError,
   PAYPAL_SANDBOX_BASE,
+  PAYPAL_SANDBOX_IPN_BASE,
   PAYPAL_NVP_ROUTE,
+  PAYPAL_IPN_ROUTE,
   PAYPAL_SANDBOX_API,
   PAYPAL_LIVE_API,
   PLACEHOLDER_URL,
@@ -24,8 +26,14 @@ const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_expr
 const unSuccessfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_failure.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
 const unSuccessfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
+const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
+const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json')
+  .message;
+
+const sandbox = sinon.createSandbox();
 
 describe('PayPalClient', () => {
+  /** @type {PayPalClient} */
   let client;
 
   beforeEach(() => {
@@ -35,6 +43,10 @@ describe('PayPalClient', () => {
       pwd: 'pwd',
       signature: 'sig',
     });
+  });
+
+  afterEach(() => {
+    sandbox.restore();
   });
 
   describe('constructor', () => {
@@ -176,32 +188,30 @@ describe('PayPalClient', () => {
   });
 
   describe('setExpressCheckout', () => {
-    let sandbox;
     const defaultData = {
-      PAYMENTREQUEST_0_AMT: '0',
-      RETURNURL: PLACEHOLDER_URL,
       CANCELURL: PLACEHOLDER_URL,
+      L_BILLINGAGREEMENTDESCRIPTION0: 'Mozilla',
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
+      NOSHIPPING: 1,
+      PAYMENTREQUEST_0_AMT: '0',
+      PAYMENTREQUEST_0_CURRENCYCODE: 'USD',
+      PAYMENTREQUEST_0_PAYMENTACTION: 'AUTHORIZATION',
+      RETURNURL: PLACEHOLDER_URL,
     };
 
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(function () {
-      sandbox.restore();
-    });
+    const defaultOptions = {
+      currencyCode: 'USD',
+    };
 
     it('calls api with correct method and data', () => {
       client.doRequest = sandbox.fake.resolves(
         successfulSetExpressCheckoutResponse
       );
-      client.setExpressCheckout();
-      assert.ok(
-        client.doRequest.calledOnceWithExactly(
-          'SetExpressCheckout',
-          defaultData
-        )
+      client.setExpressCheckout(defaultOptions);
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'SetExpressCheckout',
+        defaultData
       );
     });
 
@@ -218,7 +228,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, client.objectToNVP(expectedPayload))
         .reply(200, client.objectToNVP(unSuccessfulSetExpressCheckoutResponse));
       try {
-        await client.setExpressCheckout();
+        await client.setExpressCheckout(defaultOptions);
         assert.fail('Request should have thrown an error.');
       } catch (err) {
         assert.instanceOf(err, PayPalClientError);
@@ -227,24 +237,56 @@ describe('PayPalClient', () => {
         assert.equal(err.data.ACK, 'Failure');
       }
     });
+
+    it('calls api with requested currency', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulSetExpressCheckoutResponse
+      );
+      const currency = 'EUR';
+      await client.setExpressCheckout({
+        currencyCode: currency,
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'SetExpressCheckout',
+        {
+          ...defaultData,
+          PAYMENTREQUEST_0_CURRENCYCODE: currency,
+        }
+      );
+    });
+  });
+
+  describe('createBillingAgreement', () => {
+    const defaultData = {
+      token: 'insert_token_value_here',
+    };
+
+    const expectedResponse = {
+      BILLINGAGREEMENTID: 'B-7FB31251F28061234',
+      ACK: 'Success',
+    };
+
+    it('calls API with valid token', async () => {
+      client.doRequest = sandbox.fake.resolves(expectedResponse);
+      await client.createBillingAgreement(defaultData);
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'CreateBillingAgreement',
+        defaultData
+      );
+    });
   });
 
   describe('doReferenceTransaction', () => {
-    let sandbox;
-
     const defaultData = {
       AMT: '5.99',
-      REFERENCEID: 'B-BILLINGAGREEMENTID',
+      INVNUM: 'in_asdf',
+      MSGSUBID: 'in_asdf-12',
       PAYMENTACTION: 'Sale',
+      PAYMENTTYPE: 'instant',
+      REFERENCEID: 'B-BILLINGAGREEMENTID',
     };
-
-    beforeEach(() => {
-      sandbox = sinon.createSandbox();
-    });
-
-    afterEach(function () {
-      sandbox.restore();
-    });
 
     it('calls api with correct method and data', async () => {
       client.doRequest = sandbox.fake.resolves(
@@ -253,12 +295,13 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: defaultData.REFERENCEID,
+        invoiceNumber: defaultData.INVNUM,
+        idempotencyKey: defaultData.MSGSUBID,
       });
-      assert.ok(
-        client.doRequest.calledOnceWithExactly(
-          'DoReferenceTransaction',
-          defaultData
-        )
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'DoReferenceTransaction',
+        defaultData
       );
     });
 
@@ -270,12 +313,16 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: amt,
         billingAgreementId: defaultData.REFERENCEID,
+        invoiceNumber: defaultData.INVNUM,
+        idempotencyKey: defaultData.MSGSUBID,
       });
-      assert.ok(
-        client.doRequest.calledOnceWithExactly('DoReferenceTransaction', {
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'DoReferenceTransaction',
+        {
           ...defaultData,
           AMT: amt,
-        })
+        }
       );
     });
 
@@ -287,12 +334,16 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: ref,
+        invoiceNumber: defaultData.INVNUM,
+        idempotencyKey: defaultData.MSGSUBID,
       });
-      assert.ok(
-        client.doRequest.calledOnceWithExactly('DoReferenceTransaction', {
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'DoReferenceTransaction',
+        {
           ...defaultData,
           REFERENCEID: ref,
-        })
+        }
       );
     });
 
@@ -315,6 +366,8 @@ describe('PayPalClient', () => {
         await client.doReferenceTransaction({
           amount: defaultData.AMT,
           billingAgreementId: defaultData.REFERENCEID,
+          invoiceNumber: defaultData.INVNUM,
+          idempotencyKey: defaultData.MSGSUBID,
         });
         assert.fail('Request should have thrown an error.');
       } catch (err) {
@@ -323,6 +376,28 @@ describe('PayPalClient', () => {
         assert.include(err.raw, 'ACK=Failure');
         assert.equal(err.data.ACK, 'Failure');
       }
+    });
+  });
+
+  describe('ipnVerify', () => {
+    it('calls API with valid message', async () => {
+      const verifyPayload = 'cmd=_notify-validate&' + sampleIpnMessage;
+      nock(PAYPAL_SANDBOX_IPN_BASE)
+        .post(PAYPAL_IPN_ROUTE, verifyPayload)
+        .reply(200, 'VERIFIED');
+      const result = await client.ipnVerify(sampleIpnMessage);
+      assert.equal(result, 'VERIFIED');
+    });
+  });
+
+  describe('transactionSearch', () => {
+    it('calls API with valid message', async () => {
+      client.doRequest = sandbox.fake.resolves(searchTransactionResponse);
+      const response = await client.transactionSearch({
+        startDate: new Date('2010-09-02'),
+        invoice: 'inv-000',
+      });
+      assert.equal(response, searchTransactionResponse);
     });
   });
 });

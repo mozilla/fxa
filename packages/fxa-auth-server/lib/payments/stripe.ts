@@ -28,6 +28,8 @@ const CHARGES_RESOURCE = 'charges';
 const INVOICES_RESOURCE = 'invoices';
 const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
 
+const PAYPAL_AGREEMENT_METADATA_KEY = 'paypalAgreementId';
+
 const VALID_RESOURCE_TYPES = [
   CUSTOMER_RESOURCE,
   SUBSCRIPTIONS_RESOURCE,
@@ -281,6 +283,152 @@ export class StripeHelper {
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
+  }
+
+  /**
+   * Create a subscription for the provided customer using PayPal.
+   *
+   * A subscription will be created for out-of-band payment with the
+   * collection_method set to send_invoice.
+   *
+   * If an active/past_due subscription exists in this state for this
+   * priceId, then it will be returned instead of creating a new one.
+   *
+   */
+  async createSubscriptionWithPaypal(opts: {
+    customer: Stripe.Customer;
+    priceId: string;
+    subIdempotencyKey: string;
+  }) {
+    const { customer, priceId, subIdempotencyKey } = opts;
+
+    const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
+    if (sub && ['active', 'past_due'].includes(sub.status)) {
+      if (sub.collection_method === 'send_invoice') {
+        sub.latest_invoice = await this.expandResource(
+          sub.latest_invoice,
+          'invoices'
+        );
+        return sub;
+      }
+      throw error.subscriptionAlreadyExists();
+    } else if (sub && sub.status === 'incomplete') {
+      // Sub has never been active or charged, delete it.
+      this.stripe.subscriptions.del(sub.id);
+    }
+
+    return this.stripe.subscriptions.create(
+      {
+        customer: customer.id,
+        items: [{ price: priceId }],
+        expand: ['latest_invoice'],
+        collection_method: 'send_invoice',
+        days_until_due: 1,
+      },
+      { idempotencyKey: `ssc-${subIdempotencyKey}` }
+    );
+  }
+
+  async invoicePayableWithPaypal(invoice: Stripe.Invoice): Promise<boolean> {
+    if (invoice.billing_reason === 'subscription_create') {
+      // We only work with non-creation invoices, initial invoices are resolved by
+      // checkout code.
+      return false;
+    }
+    const subscription = await this.expandResource(
+      invoice.subscription,
+      'subscriptions'
+    );
+    if (subscription?.collection_method !== 'send_invoice') {
+      // Not a PayPal funded subscription.
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Finalizes an invoice and marks auto_advance as false.
+   *
+   * @param invoice
+   */
+  async finalizeInvoice(invoice: Stripe.Invoice) {
+    return this.stripe.invoices.finalizeInvoice(invoice.id, {
+      auto_advance: false,
+    });
+  }
+
+  /**
+   * Updates invoice metadata with the PayPal Transaction ID.
+   *
+   * @param invoice
+   * @param transactionId
+   */
+  async updateInvoiceWithPaypalTransactionId(
+    invoice: Stripe.Invoice,
+    transactionId: string
+  ) {
+    return this.stripe.invoices.update(invoice.id, {
+      metadata: { paypalTransactionId: transactionId },
+    });
+  }
+
+  /**
+   * Retrieve the payment attempts that have been made on this invoice via PayPal.
+   *
+   * @param invoice
+   */
+  getPaymentAttempts(invoice: Stripe.Invoice): number {
+    return parseInt(invoice?.metadata?.paymentAttempts ?? '0');
+  }
+
+  /**
+   * Update the payment attempts on an invoice after attempting via PayPal.
+   *
+   * @param invoice
+   */
+  async updatePaymentAttempts(invoice: Stripe.Invoice) {
+    const currentAttempts = this.getPaymentAttempts(invoice);
+    return this.stripe.invoices.update(invoice.id, {
+      metadata: { paymentAttempts: (currentAttempts + 1).toString() },
+    });
+  }
+
+  /**
+   * Pays an invoice out of band.
+   *
+   * @param invoice
+   */
+  async payInvoiceOutOfBand(invoice: Stripe.Invoice) {
+    return this.stripe.invoices.pay(invoice.id, { paid_out_of_band: true });
+  }
+
+  /**
+   * Update the customer object to add a PayPal Billing Agreement ID.
+   *
+   * This is a no-op if the billing agreement is already attached to the customer.
+   *
+   * @param customer
+   * @param agreementId
+   */
+  async updateCustomerPaypalAgreement(
+    customer: Stripe.Customer,
+    agreementId: string
+  ): Promise<Stripe.Customer> {
+    if (customer.metadata[PAYPAL_AGREEMENT_METADATA_KEY] === agreementId) {
+      return customer;
+    }
+    return this.stripe.customers.update(customer.id, {
+      metadata: { [PAYPAL_AGREEMENT_METADATA_KEY]: agreementId },
+    });
+  }
+
+  /**
+   * Get the PayPal billing agreement id to use for this customer if available.
+   *
+   * @param customer
+   */
+  getCustomerPaypalAgreement(customer: Stripe.Customer): string | undefined {
+    return customer.metadata[PAYPAL_AGREEMENT_METADATA_KEY];
   }
 
   /**
@@ -555,6 +703,30 @@ export class StripeHelper {
     }
 
     return subscriptions;
+  }
+
+  /**
+   * Find and return a subscription for a customer of the given plan id.
+   *
+   * @param customer
+   * @param planId
+   */
+  findCustomerSubscriptionByPlanId(
+    customer: Stripe.Customer,
+    planId: string
+  ): Stripe.Subscription | undefined {
+    if (!customer.subscriptions) {
+      throw error.internalValidationError(
+        'findCustomerSubscriptionByPlanId',
+        {
+          customerId: customer.id,
+        },
+        'Expected subscriptions to be loaded.'
+      );
+    }
+    return customer.subscriptions.data.find(
+      (sub) => sub.items.data.find((item) => item.plan.id === planId) != null
+    );
   }
 
   /**

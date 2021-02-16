@@ -1,14 +1,19 @@
-import { ApolloClient, createHttpLink, from } from '@apollo/client';
+import { ApolloClient, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { ErrorHandler, onError } from '@apollo/client/link/error';
+import { createUploadLink } from 'apollo-upload-client';
 import { cache, sessionToken, typeDefs } from './cache';
 
 export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
   let reauth = false;
   if (graphQLErrors) {
     for (const error of graphQLErrors) {
-      if (error.extensions?.code === 'UNAUTHENTICATED') {
+      if (error.message === 'Invalid token') {
         reauth = true;
+      } else if (error.message === 'Must verify') {
+        return window.location.replace(
+          `/signin_token_code?action=email&service=sync`
+        );
       }
     }
   }
@@ -22,16 +27,11 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
       `/get_flow?redirect_to=${encodeURIComponent(window.location.pathname)}`
     );
   } else {
-    console.error(graphQLErrors, networkError);
+    console.error('graphql errors', graphQLErrors, networkError);
   }
 };
 
 export function createApolloClient(gqlServerUri: string) {
-  // httpLink makes the actual requests to the server
-  const httpLink = createHttpLink({
-    uri: `${gqlServerUri}/graphql`,
-  });
-
   // authLink sets the Authentication header on outgoing requests
   const authLink = setContext((_, { headers }) => {
     return {
@@ -45,9 +45,15 @@ export function createApolloClient(gqlServerUri: string) {
   // errorLink handles error responses from the server
   const errorLink = onError(errorHandler);
 
+  // uploadLink makes the actual requests to the server(httpLink with uploads)
+  const uploadLink = createUploadLink({ uri: `${gqlServerUri}/graphql` });
+
   const apolloClient = new ApolloClient({
     cache,
-    link: from([errorLink, authLink, httpLink]),
+    // uploadLink needs to be imported with `as any` because 'apollo-upload-client'
+    // dependency is out of sync with Apollo Client, once 'apollo-upload-client'
+    // updates itself, we should be able to remove the `as any` here.
+    link: from([errorLink, authLink, uploadLink as any]),
     typeDefs,
   });
 

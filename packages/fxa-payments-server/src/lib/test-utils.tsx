@@ -182,7 +182,7 @@ function injectStripe<P extends Object>(
 // Mock out the Stripe elements we use in PaymentForm
 jest.setMock(
   'react-stripe-elements',
-  Object.assign(require.requireActual('react-stripe-elements'), {
+  Object.assign(jest.requireActual('react-stripe-elements'), {
     injectStripe,
     StripeProvider: ({ children }: { children: ReactNode }) => (
       <section data-testid="StripeProvider">{children}</section>
@@ -197,7 +197,7 @@ jest.setMock(
 
 jest.setMock(
   '@stripe/react-stripe-js',
-  Object.assign(require.requireActual('@stripe/react-stripe-js'), {
+  Object.assign(jest.requireActual('@stripe/react-stripe-js'), {
     Elements: ({ children }: { children: ReactNode }) => children,
     // Minimal implementation of "mocks" here, since the PaymentForm code
     // only checks that these things are truthy
@@ -305,6 +305,10 @@ export const MOCK_TOKEN: Token = {
   iat: 0,
   sub: 'foo@bar.com',
   jti: '',
+};
+
+export const MOCK_CHECKOUT_TOKEN = {
+  token: 'EC-8NC18566WJ1581100',
 };
 
 export const STRIPE_FIELDS = [

@@ -5,9 +5,9 @@
 import 'mutationobserver-shim';
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import {act, fireEvent, screen, wait} from '@testing-library/react';
+import { act, fireEvent, screen, wait } from '@testing-library/react';
 import { AuthContext, createAuthClient } from '../../lib/auth';
-import { MockedCache, renderWithRouterAndLocalization } from '../../models/_mocks';
+import { MockedCache, renderWithRouter } from '../../models/_mocks';
 import PageChangePassword from '.';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { typeByTestIdFn } from '../../lib/test-utils';
@@ -29,7 +29,7 @@ jest.mock('fxa-settings/src/lib/metrics', () => ({
 const client = createAuthClient('none');
 
 const render = async () => {
-  await renderWithRouterAndLocalization(
+  await renderWithRouter(
     <AuthContext.Provider value={{ auth: client }}>
       <MockedCache>
         <PageChangePassword />

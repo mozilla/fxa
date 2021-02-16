@@ -1,10 +1,10 @@
 {
   "name": "fxa-content-server",
-  "version": "1.198.2",
+  "version": "1.200.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build": "tsc --build ../fxa-react && NODE_ENV=production grunt build",
-    "postinstall": "cp server/config/local.json-dist server/config/local.json && scripts/download_l10n.sh",
+    "postinstall": "cp server/config/local.json-dist server/config/local.json && ../../_scripts/clone-l10n.sh fxa-content-server",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint app server tests --cache",
     "start": "node scripts/check-local-config && grunt l10n-create-json l10n-generate-tos-pp:app && pm2 start pm2.config.js",
@@ -100,7 +100,7 @@
     "jquery-ui-touch-punch-amd": "1.0.1",
     "js-md5": "0.6.0",
     "jsxgettext-recursive-next": "1.1.0",
-    "legal-docs": "git://github.com/mozilla/legal-docs.git#192bc493988026c4ebd065132a0796548fb3431e",
+    "legal-docs": "git://github.com/mozilla/legal-docs.git#9769a9f31cd5c32945b37509fb94c01b63e5f5d2",
     "load-grunt-tasks": "^5.1.0",
     "lodash": "^4.17.19",
     "mkdirp": "0.5.1",
@@ -115,7 +115,7 @@
     "on-headers": "1.0.2",
     "photon-colors": "1.0.3",
     "postcss-cli": "7.1.1",
-    "postcss-loader": "4.1.0",
+    "postcss-loader": "4.2.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "sass-loader": "^10.0.3",
@@ -131,7 +131,7 @@
     "verror": "1.10.0",
     "webcrypto-liner": "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb",
     "webpack": "^4.41.2",
-    "webpack-cli": "^4.2.0"
+    "webpack-cli": "^4.5.0"
   },
   "devDependencies": {
     "@babel/cli": "7.7.4",

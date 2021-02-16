@@ -1,3 +1,24 @@
+## 1.200.0
+
+### Other changes
+
+- deps-dev: bump @types/jest from 24.9.1 to 26.0.20 ([78e246d9a3](https://github.com/mozilla/fxa/commit/78e246d9a3))
+- deps-dev: bump @storybook/addon-links from 6.0.28 to 6.1.15 ([03fa0a58db](https://github.com/mozilla/fxa/commit/03fa0a58db))
+
+## 1.199.0
+
+### New features
+
+- settings: localize footer ([cd88cca73](https://github.com/mozilla/fxa/commit/cd88cca73))
+- settings: localize page title ([480c70203](https://github.com/mozilla/fxa/commit/480c70203))
+- l10n: Add initial fluent l10n for settings v2 ([c95ee6f8a](https://github.com/mozilla/fxa/commit/c95ee6f8a))
+
+### Other changes
+
+- deps-dev: bump @testing-library/jest-dom from 5.11.0 to 5.11.9 ([d0f1f6301](https://github.com/mozilla/fxa/commit/d0f1f6301))
+- eslint: count jsx var usage ([97fc3aaf3](https://github.com/mozilla/fxa/commit/97fc3aaf3))
+- deps-dev: bump sass from 1.26.10 to 1.32.5 ([f5faade0e](https://github.com/mozilla/fxa/commit/f5faade0e))
+
 ## 1.198.2
 
 No changes.

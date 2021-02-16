@@ -18,6 +18,7 @@ import { PickPartial } from '../../../lib/types';
 import {
   defaultAppContextValue,
   MockApp,
+  MOCK_CHECKOUT_TOKEN,
   mockStripeElementOnChangeFns,
   elementChangeResponse,
 } from '../../../lib/test-utils';
@@ -28,12 +29,19 @@ import SubscriptionCreate, { SubscriptionCreateProps } from './index';
 
 import { updateConfig } from '../../../lib/config';
 
+import { ButtonBaseProps } from '../PayPalButton';
+
 // TODO: Move to some shared lib?
 const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
 
 type SubjectProps = PickPartial<
   SubscriptionCreateProps,
-  'isMobile' | 'profile' | 'customer' | 'selectedPlan' | 'refreshSubscriptions'
+  | 'isMobile'
+  | 'profile'
+  | 'customer'
+  | 'selectedPlan'
+  | 'refreshSubscriptions'
+  | 'paypalButtonBase'
 >;
 
 const Subject = ({
@@ -105,6 +113,7 @@ const defaultApiClientOverrides = () => ({
   apiDetachFailedPaymentMethod: jest
     .fn()
     .mockResolvedValue(DETACH_PAYMENT_METHOD_RESULT),
+  apiGetPaypalCheckoutToken: jest.fn().mockResolvedValue(MOCK_CHECKOUT_TOKEN),
 });
 
 const PAYMENT_METHOD_RESULT = {
@@ -151,27 +160,45 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     expect(queryByTestId('paypal-button')).not.toBeInTheDocument();
   });
 
-  it('renders as expected with PayPal UI enabled', () => {
+  it('renders as expected with PayPal UI enabled', async () => {
     const { queryByTestId } = screen;
     updateConfig({
       featureFlags: {
         usePaypalUIByDefault: true,
       },
     });
-    render(<Subject />);
+    const MockedButtonBase = ({}: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" />;
+    };
+    await act(async () => {
+      render(
+        <Subject
+          {...{
+            paypalButtonBase: MockedButtonBase,
+          }}
+        />
+      );
+    });
     waitForExpect(() =>
       expect(queryByTestId('paypal-button')).toBeInTheDocument()
     );
   });
 
-  it('renders as expected with PayPal UI enabled and an existing customer', () => {
+  it('renders as expected with PayPal UI enabled and an existing customer', async () => {
     const { queryByTestId } = screen;
     updateConfig({
       featureFlags: {
         usePaypalUIByDefault: true,
       },
     });
-    render(<Subject customer={CUSTOMER} />);
+    const MockedButtonBase = ({}: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" />;
+    };
+    await act(async () => {
+      render(
+        <Subject customer={CUSTOMER} paypalButtonBase={MockedButtonBase} />
+      );
+    });
     waitForExpect(() =>
       expect(queryByTestId('paypal-button')).not.toBeInTheDocument()
     );
@@ -656,6 +683,68 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
       expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
       expect(stripeOverride.confirmCardPayment).not.toHaveBeenCalled();
     });
+
+    it('displays apiGetPaypalCheckoutToken failure', async () => {
+      const MockedButtonBase = ({ createOrder }: ButtonBaseProps) => {
+        return <button data-testid="paypal-button" onClick={createOrder} />;
+      };
+      const apiClientOverrides = {
+        ...defaultApiClientOverrides(),
+        apiGetPaypalCheckoutToken: jest
+          .fn()
+          .mockRejectedValue('barf apiGetPaypalCheckoutToken'),
+      };
+      updateConfig({
+        featureFlags: {
+          usePaypalUIByDefault: true,
+        },
+      });
+      // We lazy load the PaypalButton, so wait for it to render first
+      await act(async () => {
+        render(
+          <Subject
+            {...{
+              apiClientOverrides,
+              paypalButtonBase: MockedButtonBase,
+            }}
+          />
+        );
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('paypal-button'));
+      });
+      expect(apiClientOverrides.apiGetPaypalCheckoutToken).toHaveBeenCalled();
+      expect(
+        screen.queryByTestId('error-payment-submission')
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('displays PaypalButton onError failure', async () => {
+    const MockedButtonBase = ({ onError }: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" onClick={onError} />;
+    };
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+    // We lazy load the PaypalButton, so wait for it to render first
+    await act(async () => {
+      render(
+        <Subject
+          {...{
+            paypalButtonBase: MockedButtonBase,
+          }}
+        />
+      );
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('paypal-button'));
+    });
+    expect(
+      screen.queryByTestId('error-payment-submission')
+    ).toBeInTheDocument();
   });
 
   describe('errors', () => {

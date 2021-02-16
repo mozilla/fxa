@@ -5,12 +5,15 @@
 import React, { ReactNode, useState } from 'react';
 import { gql } from '@apollo/client';
 import { useNavigate } from '@reach/router';
+import firefox from '../../lib/firefox';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { useAccount, useLazyAccount, Email } from '../../models';
 import UnitRow from '../UnitRow';
 import AlertBar from '../AlertBar';
 import ModalVerifySession from '../ModalVerifySession';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
+import { Localized, useLocalization } from '@fluent/react';
+import { HomePath } from 'fxa-settings/src/constants';
 
 export const RESEND_EMAIL_CODE_MUTATION = gql`
   mutation resendSecondaryEmailCode($input: EmailInput!) {
@@ -46,7 +49,8 @@ export const UnitRowSecondaryEmail = () => {
   const navigate = useNavigate();
   const alertBar = useAlertBar();
   const [queuedAction, setQueuedAction] = useState<() => void>();
-  const [email, setEmail] = useState<string>();
+  const [email, setEmail] = useState<string>('');
+  const { l10n } = useLocalization();
 
   const secondaryEmails = account.emails.filter((email) => !email.isPrimary);
   const hasAtLeastOneSecondaryEmail = !!secondaryEmails.length;
@@ -55,16 +59,26 @@ export const UnitRowSecondaryEmail = () => {
     .lastIndexOf(true);
 
   const [getAccount, { accountLoading }] = useLazyAccount(() => {
-    alertBar.error(`Sorry, there was a problem refreshing that email.`);
+    alertBar.error(
+      l10n.getString(
+        'se-cannot-refresh-email',
+        null,
+        'Sorry, there was a problem refreshing that email.'
+      )
+    );
   });
 
   const [resendEmailCode] = useMutation(RESEND_EMAIL_CODE_MUTATION, {
     onCompleted() {
-      navigate('/beta/settings/emails/verify', { state: { email } });
+      navigate(`${HomePath}/emails/verify`, { state: { email } });
     },
     onError(error) {
       alertBar.error(
-        `Sorry, there was a problem re-sending the verification code.`
+        l10n.getString(
+          'se-cannot-resend-code',
+          null,
+          'Sorry, there was a problem re-sending the verification code.'
+        )
       );
     },
   });
@@ -73,11 +87,22 @@ export const UnitRowSecondaryEmail = () => {
     MAKE_EMAIL_PRIMARY_MUTATION,
     {
       onCompleted() {
-        alertBar.success(`${email} is now your primary email.`);
+        firefox.profileChanged(account.uid);
+        alertBar.success(
+          l10n.getString(
+            'se-set-primary-successful',
+            { email },
+            `${email} is now your primary email.`
+          )
+        );
       },
       onError(error) {
         alertBar.error(
-          `Sorry, there was a problem changing your primary email.`
+          l10n.getString(
+            'se-set-primary-error',
+            null,
+            'Sorry, there was a problem changing your primary email.'
+          )
         );
       },
       update: (cache) => {
@@ -92,7 +117,6 @@ export const UnitRowSecondaryEmail = () => {
                 } else if (e.isPrimary) {
                   e.isPrimary = false;
                 }
-
                 return e;
               });
             },
@@ -106,10 +130,22 @@ export const UnitRowSecondaryEmail = () => {
     DELETE_EMAIL_MUTATION,
     {
       onCompleted() {
-        alertBar.success(`${email} email successfully deleted.`);
+        alertBar.success(
+          l10n.getString(
+            'se-delete-email-successful',
+            { email },
+            `${email} successfully deleted.`
+          )
+        );
       },
       onError(error) {
-        alertBar.error(`Sorry, there was a problem deleting this email.`);
+        alertBar.error(
+          l10n.getString(
+            'se-delete-email-error',
+            null,
+            `Sorry, there was a problem deleting this email.`
+          )
+        );
       },
       update: (cache) => {
         cache.modify({
@@ -136,13 +172,21 @@ export const UnitRowSecondaryEmail = () => {
           onDismiss={() => {
             setQueuedAction(undefined);
             alertBar.info(
-              `You'll need to verify your current session to perform this action.`
+              l10n.getString(
+                'se-verify-session',
+                null,
+                "You'll need to verify your current session to perform this action."
+              )
             );
           }}
           onError={(error) => {
             setQueuedAction(undefined);
             alertBar.error(
-              'Sorry, there was a problem verifying your session',
+              l10n.getString(
+                'se-verify-session-error',
+                null,
+                'Sorry, there was a problem verifying your session.'
+              ),
               error
             );
           }}
@@ -163,17 +207,19 @@ export const UnitRowSecondaryEmail = () => {
   const UnitRowSecondaryEmailNotSet = () => {
     // user doesn't have a secondary email (verified or unverified) set
     return (
-      <UnitRow
-        header="Secondary email"
-        prefixDataTestId="secondary-email"
-        headerValue={null}
-        route="/beta/settings/emails"
-        {...{
-          alertBarRevealed: alertBar.visible,
-        }}
-      >
-        <SecondaryEmailDefaultContent />
-      </UnitRow>
+      <Localized id="se-heading" attrs={{ header: true }}>
+        <UnitRow
+          header="Secondary email"
+          prefixDataTestId="secondary-email"
+          headerValue={null}
+          route={`${HomePath}/emails`}
+          {...{
+            alertBarRevealed: alertBar.visible,
+          }}
+        >
+          <SecondaryEmailDefaultContent />
+        </UnitRow>
+      </Localized>
     );
   };
 
@@ -207,50 +253,74 @@ export const UnitRowSecondaryEmail = () => {
               <span className="flex justify-between items-center">
                 {email}
                 <span>
-                  <ButtonIconTrash
-                    title="Remove email"
-                    classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
-                    disabled={deleteEmailLoading}
-                    onClick={() => {
-                      queueEmailAction(deleteEmail);
-                    }}
-                  />
-                  {!verified && (
-                    <ButtonIconReload
-                      title="Refresh email"
+                  <Localized id="se-remove-email" attrs={{ title: true }}>
+                    <ButtonIconTrash
+                      title="Remove email"
                       classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
-                      disabled={accountLoading}
-                      onClick={getAccount}
+                      disabled={deleteEmailLoading}
+                      onClick={() => {
+                        queueEmailAction(deleteEmail);
+                      }}
                     />
+                  </Localized>
+                  {!verified && (
+                    <Localized id="se-refresh-email" attrs={{ title: true }}>
+                      <ButtonIconReload
+                        title="Refresh email"
+                        classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
+                        disabled={accountLoading}
+                        onClick={getAccount}
+                      />
+                    </Localized>
                   )}
                 </span>
               </span>
               {!verified && (
-                <span
-                  data-testid="secondary-email-unverified-text"
-                  className="uppercase block text-orange-600 font-bold text-xs"
-                >
-                  unverified
-                </span>
+                <Localized id="se-unverified">
+                  <span
+                    data-testid="secondary-email-unverified-text"
+                    className="uppercase block text-orange-600 font-bold text-xs"
+                  >
+                    unverified
+                  </span>
+                </Localized>
               )}
             </p>
             {!verified && (
-              <p className="text-xs mt-3 text-grey-400">
-                Verification needed.
-                <button
-                  className="link-blue mx-1"
-                  data-testid="secondary-email-resend-code-button"
-                  onClick={() => {
-                    setEmail(email);
-                    resendEmailCode({
-                      variables: { input: { email } },
-                    });
-                  }}
-                >
-                  Resend verification code
-                </button>
-                if it's not in your email or spam.
-              </p>
+              <Localized
+                id="se-resend-code"
+                elems={{
+                  button: (
+                    <button
+                      className="link-blue mx-1"
+                      data-testid="secondary-email-resend-code-button"
+                      onClick={() => {
+                        setEmail(email);
+                        resendEmailCode({
+                          variables: { input: { email } },
+                        });
+                      }}
+                    />
+                  ),
+                }}
+              >
+                <p className="text-xs mt-3 text-grey-400">
+                  Verification needed.
+                  <button
+                    className="link-blue mx-1"
+                    data-testid="secondary-email-resend-code-button"
+                    onClick={() => {
+                      setEmail(email);
+                      resendEmailCode({
+                        variables: { input: { email } },
+                      });
+                    }}
+                  >
+                    Resend verification code
+                  </button>
+                  if it's not in your inbox or spam folder.
+                </p>
+              </Localized>
             )}
           </div>
           <div
@@ -259,34 +329,40 @@ export const UnitRowSecondaryEmail = () => {
           >
             <div className="flex items-center -mt-1">
               {verified && (
-                <button
-                  disabled={makeEmailPrimaryLoading}
-                  className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
-                  onClick={() => {
-                    queueEmailAction(makeEmailPrimary);
-                  }}
-                  data-testid="secondary-email-make-primary"
-                >
-                  Make primary
-                </button>
+                <Localized id="se-make-primary">
+                  <button
+                    disabled={makeEmailPrimaryLoading}
+                    className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
+                    onClick={() => {
+                      queueEmailAction(makeEmailPrimary);
+                    }}
+                    data-testid="secondary-email-make-primary"
+                  >
+                    Make primary
+                  </button>
+                </Localized>
               )}
-              <ButtonIconTrash
-                title="Remove email"
-                classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
-                disabled={deleteEmailLoading}
-                testId="secondary-email-delete"
-                onClick={() => {
-                  queueEmailAction(deleteEmail);
-                }}
-              />
-              {!verified && (
-                <ButtonIconReload
-                  title="Refresh email"
+              <Localized id="se-remove-email" attrs={{ title: true }}>
+                <ButtonIconTrash
+                  title="Remove email"
                   classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
-                  testId="secondary-email-refresh"
-                  disabled={accountLoading}
-                  onClick={getAccount}
+                  disabled={deleteEmailLoading}
+                  testId="secondary-email-delete"
+                  onClick={() => {
+                    queueEmailAction(deleteEmail);
+                  }}
                 />
+              </Localized>
+              {!verified && (
+                <Localized id="se-refresh-email" attrs={{ title: true }}>
+                  <ButtonIconReload
+                    title="Refresh email"
+                    classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
+                    testId="secondary-email-refresh"
+                    disabled={accountLoading}
+                    onClick={getAccount}
+                  />
+                </Localized>
               )}
             </div>
           </div>
@@ -311,7 +387,11 @@ export const UnitRowSecondaryEmail = () => {
     <SecondaryEmailUtilities>
       <div className="unit-row">
         <div className="unit-row-header">
-          <h3 data-testid="secondary-email-unit-row-header">Secondary email</h3>
+          <Localized id="se-heading">
+            <h3 data-testid="secondary-email-unit-row-header">
+              Secondary email
+            </h3>
+          </Localized>
         </div>
         <div className="mobileLandscape:flex-3 desktop:flex-5">
           {secondaryEmails.map((secondary, index) => (
@@ -333,20 +413,37 @@ export const UnitRowSecondaryEmail = () => {
 
 const SecondaryEmailDefaultContent = () => (
   <div data-testid="secondary-email-default-content">
-    <p className="text-sm mt-3">
-      Access your account if you can't log in to your primary email.
-    </p>
-    <p className="text-grey-400 text-xs my-2">
-      Note: a secondary email won't restore your information—you'll need a{' '}
-      <a
-        className="link-blue"
-        href="#recovery-key"
-        data-testid="secondary-email-link-recovery-key"
-      >
-        recovery key
-      </a>{' '}
-      for that.
-    </p>
+    <Localized id="se-default-content">
+      <p className="text-sm mt-3">
+        Access your account if you can't log in to your primary email.
+      </p>
+    </Localized>
+    <Localized
+      id="se-content-note"
+      elems={{
+        a: (
+          <a
+            className="link-blue"
+            href="#recovery-key"
+            data-testid="secondary-email-link-recovery-key"
+          >
+            recovery key
+          </a>
+        ),
+      }}
+    >
+      <p className="text-grey-400 text-xs my-2">
+        Note: a secondary email won't restore your information — you'll need a{' '}
+        <a
+          className="link-blue"
+          href="#recovery-key"
+          data-testid="secondary-email-link-recovery-key"
+        >
+          recovery key
+        </a>{' '}
+        for that.
+      </p>
+    </Localized>
   </div>
 );
 

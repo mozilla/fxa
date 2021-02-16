@@ -1186,11 +1186,12 @@ const storeWebChannelMessageData = thenify(function (expectedCommand) {
   return this.parent.executeAsync(
     function (expectedCommand, callback) {
       function listener(e) {
-        var command = e.detail.message.command;
+        const detail = JSON.parse(e.detail);
+        const command = detail.message.command;
         if (command === expectedCommand) {
           const storedEvents =
             JSON.parse(sessionStorage.getItem('webChannelEventData')) || {};
-          storedEvents[command] = e.detail.message;
+          storedEvents[command] = detail.message;
           sessionStorage.setItem(
             'webChannelEventData',
             JSON.stringify(storedEvents)

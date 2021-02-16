@@ -4,6 +4,7 @@
 
 import { useAlertBar } from '../../lib/hooks';
 import React, { useRef, useState, useCallback } from 'react';
+import { Localized } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import Webcam from 'react-webcam';
 
@@ -33,7 +34,8 @@ export const PageCaptureAvatar = (_: RouteComponentProps) => {
   const [showMediaError, setShowMediaError] = useState(false);
 
   const capture = useCallback(() => {
-    const imageSrc = webcamRef.current!.getScreenshot();
+    const webcam: any = webcamRef?.current;
+    const imageSrc = webcam.getScreenshot();
     setImgSrc(imageSrc);
   }, [webcamRef, setImgSrc]);
 
@@ -61,11 +63,13 @@ export const PageCaptureAvatar = (_: RouteComponentProps) => {
         <div className="p-2">
           {showMediaError && <Avatar className="mx-auto w-32" />}
           {imgSrc ? (
-            <img
-              src={imgSrc}
-              className={`${frameClass} h-32`}
-              alt="new avatar"
-            />
+            <Localized id="avatar-page-new-avatar" attrs={{ alt: true }}>
+              <img
+                src={imgSrc}
+                className={`${frameClass} h-32`}
+                alt="new avatar"
+              />
+            </Localized>
           ) : (
             <>
               <LoadingSpinner
@@ -90,43 +94,64 @@ export const PageCaptureAvatar = (_: RouteComponentProps) => {
           )}
         </div>
         {showMediaError && (
-          <div className="text-white bg-red-500 rounded font-bold text-sm text-center px-8 py-2 mt-8">
-            Could not initialize camera
-          </div>
+          <Localized id="avatar-page-camera-error">
+            <div className="text-white bg-red-500 rounded font-bold text-sm text-center px-8 py-2 mt-8">
+              Could not initialize camera
+            </div>
+          </Localized>
         )}
         <div className="flex text-center justify-center max-w-xs my-4 mx-24">
-          {!showMediaError && <div className="cursor-pointer">
-            <ButtonIcon
-              testId="shutter"
-              title="Take photo"
-              onClick={() => {
-                if (imgSrc) {
-                  setImgSrc(null);
-                  setCamLoaded(false);
-                } else capture();
-              }}
-              icon={[CameraIcon, 24, 22]}
-              classNames={imgSrc ? retakeClass : captureClass}
-            />
-            {imgSrc ? <p>Retake Photo</p> : <p>Take Photo</p>}
-          </div>}
+          {!showMediaError && (
+            <div className="cursor-pointer">
+              <Localized
+                id="avatar-page-take-photo-button"
+                attrs={{ title: true }}
+              >
+                <ButtonIcon
+                  testId="shutter"
+                  title="Take photo"
+                  onClick={() => {
+                    if (imgSrc) {
+                      setImgSrc(null);
+                      setCamLoaded(false);
+                    } else capture();
+                  }}
+                  icon={[CameraIcon, 24, 22]}
+                  classNames={imgSrc ? retakeClass : captureClass}
+                />
+              </Localized>
+              {imgSrc ? (
+                <Localized id="avatar-page-retake-photo">
+                  <p>Retake Photo</p>
+                </Localized>
+              ) : (
+                <Localized id="avatar-page-take-photo">
+                  <p>Take Photo</p>
+                </Localized>
+              )}
+            </div>
+          )}
         </div>
         <div className="mt-4 flex items-center justify-center">
-          <button
-            className="cta-neutral mx-2 px-10"
-            onClick={() => navigate(HomePath, { replace: true })}
-            data-testid="close-button"
-          >
-            Close
-          </button>
-          <button
-            className="cta-primary mx-2 px-10"
-            disabled={!imgSrc}
-            onClick={() => save()}
-            data-testid="save-button"
-          >
-            Save
-          </button>
+          <Localized id="avatar-page-close-button">
+            <button
+              className="cta-neutral mx-2 px-10"
+              onClick={() => navigate(HomePath, { replace: true })}
+              data-testid="close-button"
+            >
+              Close
+            </button>
+          </Localized>
+          <Localized id="avatar-page-save-button">
+            <button
+              className="cta-primary mx-2 px-10"
+              disabled={!imgSrc}
+              onClick={() => save()}
+              data-testid="save-button"
+            >
+              Save
+            </button>
+          </Localized>
         </div>
       </form>
     </FlowContainer>

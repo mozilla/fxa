@@ -14,6 +14,8 @@ import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { ButtonIconReload } from '../ButtonIcon';
+import { HomePath } from 'fxa-settings/src/constants';
+import { Localized, useLocalization } from '@fluent/react';
 
 export const DELETE_RECOVERY_KEY_MUTATION = gql`
   mutation deleteRecoveryKey($input: DeleteRecoveryKeyInput!) {
@@ -27,6 +29,7 @@ export const UnitRowRecoveryKey = () => {
   const { recoveryKey } = useAccount();
   const alertBar = useAlertBar();
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
+  const { l10n } = useLocalization();
 
   const [
     getRecoveryKeyExists,
@@ -43,7 +46,9 @@ export const UnitRowRecoveryKey = () => {
     variables: { input: {} },
     onCompleted: () => {
       hideModal();
-      alertBar.success('Account recovery key removed.');
+      alertBar.success(
+        l10n.getString('rk-key-removed', null, 'Account recovery key removed.')
+      );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     },
     onError: (error) => {
@@ -71,7 +76,7 @@ export const UnitRowRecoveryKey = () => {
       prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
       headerValue={recoveryKey ? 'Enabled' : 'Not Set'}
-      route={recoveryKey ? undefined : '/beta/settings/account_recovery'}
+      route={recoveryKey ? undefined : `${HomePath}/account_recovery`}
       revealModal={recoveryKey ? revealModal : undefined}
       ctaText={recoveryKey ? 'Remove' : 'Create'}
       alertBarRevealed
@@ -93,22 +98,30 @@ export const UnitRowRecoveryKey = () => {
         />
       }
     >
-      <p className="text-sm mt-3">
-        Restores your information when you forget your password.
-      </p>
-      <LinkExternal
-        className="link-blue text-xs mt-2"
-        href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
-      >
-        Why does resetting my password reset my data?
-      </LinkExternal>
+      <Localized id="rk-content-explain">
+        <p className="text-sm mt-3">
+          Restores your information when you forget your password.
+        </p>
+      </Localized>
+      <Localized id="rk-content-reset-data">
+        <LinkExternal
+          className="link-blue text-xs mt-2"
+          href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
+        >
+          Why does resetting my password reset my data?
+        </LinkExternal>
+      </Localized>
       {modalRevealed && (
         <VerifiedSessionGuard
           onDismiss={hideModal}
           onError={(error) => {
             hideModal();
             alertBar.error(
-              'Sorry, there was a problem verifying your session',
+              l10n.getString(
+                'rk-cannot-verify-session',
+                null,
+                'Sorry, there was a problem verifying your session'
+              ),
               error
             );
           }}
@@ -127,16 +140,21 @@ export const UnitRowRecoveryKey = () => {
             headerId="recovery-key-header"
             descId="recovery-key-desc"
           >
-            <h2
-              id="recovery-key-header"
-              className="font-bold text-xl text-center mb-2"
-            >
-              Remove recovery key?
-            </h2>
-            <p id="recovery-key-desc" className="my-6 text-center">
-              In the event you reset your password, you won't be able to use
-              your recovery key to access your data. You can't undo this action.
-            </p>
+            <Localized id="rk-remove-modal-heading">
+              <h2
+                id="recovery-key-header"
+                className="font-bold text-xl text-center mb-2"
+              >
+                Remove recovery key?
+              </h2>
+            </Localized>
+            <Localized id="rk-remove-modal-content">
+              <p id="recovery-key-desc" className="my-6 text-center">
+                In the event you reset your password, you won't be able to use
+                your recovery key to access your data. You can't undo this
+                action.
+              </p>
+            </Localized>
           </Modal>
         </VerifiedSessionGuard>
       )}

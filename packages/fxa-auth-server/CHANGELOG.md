@@ -1,3 +1,53 @@
+## 1.200.0
+
+### New features
+
+- auth-server: cleanup paypal data on delete ([65ccc1341c](https://github.com/mozilla/fxa/commit/65ccc1341c))
+- payments: Add createOrder handler to PayPal button ([d66166178c](https://github.com/mozilla/fxa/commit/d66166178c))
+- auth-server: handle stripe invoice open events ([fa3d895902](https://github.com/mozilla/fxa/commit/fa3d895902))
+- auth-server: handle invoice creation events ([0664b63e4a](https://github.com/mozilla/fxa/commit/0664b63e4a))
+- auth-server: add paypal subscription create route ([6ffe4b5166](https://github.com/mozilla/fxa/commit/6ffe4b5166))
+- auth-server: add route for getCheckout Token ([f6bc0268a9](https://github.com/mozilla/fxa/commit/f6bc0268a9))
+- auth-server: adds createBillingAgreement method to PayPalHelper ([2f7c5a8dea](https://github.com/mozilla/fxa/commit/2f7c5a8dea))
+
+### Bug fixes
+
+- auth-server: Correct checks in createRoutes ([e51876cd77](https://github.com/mozilla/fxa/commit/e51876cd77))
+
+### Other changes
+
+- deps: bump @hapi/hapi from 20.0.1 to 20.1.0 ([d3423d960f](https://github.com/mozilla/fxa/commit/d3423d960f))
+- l10n: combine the download l10n scripts ([37887cf115](https://github.com/mozilla/fxa/commit/37887cf115))
+- deps: bump ioredis from 4.18.0 to 4.19.4 ([2401b869eb](https://github.com/mozilla/fxa/commit/2401b869eb))
+- auth-server: Make mocha launch commands recursive ([baf1cf0849](https://github.com/mozilla/fxa/commit/baf1cf0849))
+- deps-dev: bump @types/jsrsasign from 8.0.8 to 8.0.9 ([5f61da1e93](https://github.com/mozilla/fxa/commit/5f61da1e93))
+- deps-dev: bump @types/jws from 3.2.2 to 3.2.3 ([7fcb687cdc](https://github.com/mozilla/fxa/commit/7fcb687cdc))
+
+## 1.199.0
+
+### New features
+
+- auth-server: add paypal IPN handler ([8d5c253fe](https://github.com/mozilla/fxa/commit/8d5c253fe))
+- auth-server: add chargeCustomer to Paypalhelper ([6617f203b](https://github.com/mozilla/fxa/commit/6617f203b))
+- auth-server: add getCheckoutToken to PayPalHelper ([45206fc07](https://github.com/mozilla/fxa/commit/45206fc07))
+- auth-server: add paypal enabled option ([9ccbb7a61](https://github.com/mozilla/fxa/commit/9ccbb7a61))
+
+### Bug fixes
+
+- metrics: fixed 'fxa - activity' metric ([a28ceeb74](https://github.com/mozilla/fxa/commit/a28ceeb74))
+- auth: copy session verification method on password change ([e9d0cde89](https://github.com/mozilla/fxa/commit/e9d0cde89))
+
+### Refactorings
+
+- auth-server: split out stripe webhook routes ([b8f69f726](https://github.com/mozilla/fxa/commit/b8f69f726))
+
+### Other changes
+
+- auth-server: small clean-ups in paypal-client and paypal ([d5652f73d](https://github.com/mozilla/fxa/commit/d5652f73d))
+- deps: bump @sentry/node from 6.0.0 to 6.0.1 ([3b6838b18](https://github.com/mozilla/fxa/commit/3b6838b18))
+- auth-server: add ability to run remote tests with mocha vscode ([885c76c0e](https://github.com/mozilla/fxa/commit/885c76c0e))
+- deps: bump @sentry/node from 5.29.1 to 6.0.0 ([147825a5b](https://github.com/mozilla/fxa/commit/147825a5b))
+
 ## 1.198.2
 
 ### Bug fixes

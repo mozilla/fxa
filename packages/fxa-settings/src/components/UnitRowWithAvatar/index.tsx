@@ -6,30 +6,35 @@ import React from 'react';
 import Avatar from '../Avatar';
 import { useAccount } from '../../models';
 import { Link, useLocation } from '@reach/router';
+import { HomePath } from 'fxa-settings/src/constants';
+import { Localized } from '@fluent/react';
 
 export const UnitRowWithAvatar = () => {
   const { avatarUrl } = useAccount();
-  const ctaText = avatarUrl ? 'Change' : 'Add';
+  const ctaTextFallback = avatarUrl ? 'Change' : 'Add';
+  const ctaL10nId = avatarUrl ? 'avatar-change-link' : 'avatar-add-link';
   const location = useLocation();
   return (
     <div className="unit-row">
       <div className="unit-row-header">
-        <h3 data-testid="unit-row-with-avatar-header">Picture</h3>
+        <Localized id="avatar-heading">
+          <h3 data-testid="unit-row-with-avatar-header">Picture</h3>
+        </Localized>
       </div>
       <div className="unit-row-content">
         <Avatar className="mx-auto mobileLandscape:mx-0 w-32 mobileLandscape:w-16" />
       </div>
       <div className="unit-row-actions">
         <div>
-          <Link
-            className="cta-neutral cta-base"
-            data-testid="unit-row-with-avatar-route"
-            to={`/beta/settings/avatar/${ctaText.toLowerCase()}${
-              location.search
-            }`}
-          >
-            {ctaText}
-          </Link>
+          <Localized id={ctaL10nId}>
+            <Link
+              className="cta-neutral cta-base ltr:ml-1 rtl:mr-1"
+              data-testid="unit-row-with-avatar-route"
+              to={`${HomePath}/avatar${location.search}`}
+            >
+              {ctaTextFallback}
+            </Link>
+          </Localized>
         </div>
       </div>
     </div>

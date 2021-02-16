@@ -26,6 +26,9 @@ import { AppContext } from '../../../lib/AppContext';
 
 import '../../Product/SubscriptionCreate/index.scss';
 
+import { ButtonBaseProps } from '../../Product/PayPalButton';
+const PaypalButton = React.lazy(() => import('../../Product/PayPalButton'));
+
 type PaymentError = undefined | StripeError;
 type RetryStatus = undefined | { invoiceId: string };
 
@@ -52,9 +55,8 @@ export type SubscriptionCreateProps = {
   paymentErrorInitialState?: PaymentError;
   stripeOverride?: SubscriptionCreateStripeAPIs;
   apiClientOverrides?: Partial<SubscriptionCreateAuthServerAPIs>;
+  paypalButtonBase?: React.FC<ButtonBaseProps>;
 };
-
-const PaypalButton = React.lazy(() => import('../../Product/PayPalButton'));
 
 export const SubscriptionCreate = ({
   isMobile,
@@ -66,6 +68,7 @@ export const SubscriptionCreate = ({
   paymentErrorInitialState,
   stripeOverride,
   apiClientOverrides = {},
+  paypalButtonBase,
 }: SubscriptionCreateProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
 
@@ -87,8 +90,14 @@ export const SubscriptionCreate = ({
     if (!config.featureFlags.usePaypalUIByDefault) {
       return;
     }
+
+    if (paypalButtonBase) {
+      setPaypalScriptLoaded(true);
+      return;
+    }
+
     const script = document.createElement('script');
-    script.src = `${config.paypal.scriptUrl}/sdk/js?client-id=${config.paypal.clientId}&vault=true&commit=false&intent=authorize&disable-funding=credit,card`;
+    script.src = `${config.paypal.scriptUrl}/sdk/js?client-id=${config.paypal.clientId}&vault=true&commit=false&intent=capture&disable-funding=credit,card`;
     script.onload = () => {
       setPaypalScriptLoaded(true);
     };
@@ -173,7 +182,14 @@ export const SubscriptionCreate = ({
 
           {!hasExistingCard(customer) && paypalScriptLoaded && (
             <Suspense fallback={<div>Loading...</div>}>
-              <PaypalButton />
+              <PaypalButton
+                apiClientOverrides={apiClientOverrides}
+                customer={customer}
+                setPaymentError={setPaymentError}
+                idempotencyKey={submitNonce}
+                ButtonBase={paypalButtonBase}
+                currencyCode={selectedPlan.currency}
+              />
             </Suspense>
           )}
 

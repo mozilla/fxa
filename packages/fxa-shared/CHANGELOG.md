@@ -1,5 +1,41 @@
 # Change history
 
+## 1.200.0
+
+### New features
+
+- fxa-settings: avatar uploads ([edaf607ead](https://github.com/mozilla/fxa/commit/edaf607ead))
+
+### Bug fixes
+
+- settings: when gql-api switched to nestjs the auth error changed ([7817de9390](https://github.com/mozilla/fxa/commit/7817de9390))
+
+### Other changes
+
+- deps: bump @nestjs/graphql from 7.9.1 to 7.9.8 ([2e1c276997](https://github.com/mozilla/fxa/commit/2e1c276997))
+- deps: bump @nestjs/mapped-types from 0.1.1 to 0.3.0 ([50b07cab0a](https://github.com/mozilla/fxa/commit/50b07cab0a))
+- deps: bump graphql from 15.4.0 to 15.5.0 ([eae1a35dd0](https://github.com/mozilla/fxa/commit/eae1a35dd0))
+
+## 1.199.0
+
+### New features
+
+- auth-server: add paypal IPN handler ([8d5c253fe](https://github.com/mozilla/fxa/commit/8d5c253fe))
+- shared: add paypal BA model commands ([3aae010a7](https://github.com/mozilla/fxa/commit/3aae010a7))
+
+### Bug fixes
+
+- metrics: fixed 'fxa - activity' metric ([a28ceeb74](https://github.com/mozilla/fxa/commit/a28ceeb74))
+
+### Other changes
+
+- deps: bump knex from 0.21.12 to 0.21.16 ([8ff4bb2b5](https://github.com/mozilla/fxa/commit/8ff4bb2b5))
+- deps: bump @sentry/node from 6.0.0 to 6.0.1 ([3b6838b18](https://github.com/mozilla/fxa/commit/3b6838b18))
+- deps: bump objection from 2.2.3 to 2.2.7 ([875a1ffbb](https://github.com/mozilla/fxa/commit/875a1ffbb))
+- deps-dev: bump @nestjs/testing from 7.5.5 to 7.6.5 ([ed20e1585](https://github.com/mozilla/fxa/commit/ed20e1585))
+- deps: bump @sentry/node from 5.29.1 to 6.0.0 ([147825a5b](https://github.com/mozilla/fxa/commit/147825a5b))
+- deps: bump apollo-server from 2.19.0 to 2.19.2 ([48896ad58](https://github.com/mozilla/fxa/commit/48896ad58))
+
 ## 1.198.2
 
 ### Bug fixes

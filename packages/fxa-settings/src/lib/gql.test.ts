@@ -38,17 +38,7 @@ describe('errorHandler', () => {
 
   it('redirects to /get_flow if called with a GQL authentication error', () => {
     errorResponse = {
-      graphQLErrors: [
-        new GraphQLError(
-          'Incorrect password',
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          { code: 'UNAUTHENTICATED' }
-        ),
-      ],
+      graphQLErrors: [new GraphQLError('Invalid token')],
       operation: (null as any) as Operation,
       forward: (null as any) as NextLink,
     };
