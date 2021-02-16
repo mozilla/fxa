@@ -15,7 +15,7 @@ export const ScrollToTop = (
 
   const updateState = useCallback(async () => {
     await navigate(href, {
-      state: { ...state, scrolled: true },
+      state: { ...(state as any), scrolled: true },
       replace: true,
     });
     window.scrollTo(0, 0);
