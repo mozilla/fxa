@@ -96,6 +96,30 @@ type BAUpdateData = {
   PAYERSTATUS: string;
 };
 
+export type TransactionStatus =
+  | 'Pending'
+  | 'Processing'
+  | 'Completed'
+  | 'Denied'
+  | 'Reversed';
+
+type TransactionSearchResult = {
+  AMT: string;
+  CURRENCYCODE: string;
+  EMAIL: string;
+  FEEAMT: string;
+  NAME: string;
+  NETAMT: string;
+  STATUS: TransactionStatus;
+  TIMESTAMP: string;
+  TRANSACTIONID: string;
+  TYPE: string;
+};
+
+type TransactionSearchData = {
+  L: TransactionSearchResult[];
+};
+
 export type NVPSetExpressCheckoutResponse = NVPResponse &
   SetExpressCheckoutData;
 
@@ -106,6 +130,12 @@ export type NVPDoReferenceTransactionResponse = NVPResponse &
   DoReferenceTransactionData;
 
 export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData;
+
+export type NVPTransactionSearchResponse = NVPResponse & TransactionSearchData;
+
+export type SetExpressCheckoutOptions = {
+  currencyCode: string;
+};
 
 export type CreateBillingAgreementOptions = {
   token: string;
@@ -120,6 +150,15 @@ export type DoReferenceTransactionOptions = {
 
 export type BAUpdateOptions = {
   billingAgreementId: string;
+  cancel?: boolean;
+};
+
+export type TransactionSearchOptions = {
+  invoice?: string;
+  startDate: Date;
+  endDate?: Date;
+  email?: string;
+  transactionId?: string;
 };
 
 export type IpnMessage = {
@@ -140,6 +179,15 @@ export type IpnMerchPmtType = IpnMessage & {
   txn_id: string;
   txn_type: 'merch_pmt' | 'mp_cancel';
 };
+
+/**
+ * Returns an ISO string without milliseconds appropriate for PayPal dates.
+ *
+ * @param d
+ */
+function toIsoString(d: Date): string {
+  return d.toISOString().slice(0, -5) + 'Z';
+}
 
 /**
  * Type Guard to indicate whether the given IPN Message is a Merchant Payment
@@ -260,18 +308,20 @@ export class PayPalClient {
    * The API is extensive. Currently this method only supports the situation where you're getting an authorizing
    * token that allows us to perform billing in the future.
    */
-  public async setExpressCheckout(): Promise<NVPSetExpressCheckoutResponse> {
+  public async setExpressCheckout(
+    options: SetExpressCheckoutOptions
+  ): Promise<NVPSetExpressCheckoutResponse> {
     const data = {
       CANCELURL: PLACEHOLDER_URL,
       L_BILLINGAGREEMENTDESCRIPTION0: 'Mozilla',
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
       NOSHIPPING: 1,
       PAYMENTREQUEST_0_AMT: '0',
-      PAYMENTREQUEST_0_CURRENCYCODE: 'USD',
+      PAYMENTREQUEST_0_CURRENCYCODE: options.currencyCode,
       PAYMENTREQUEST_0_PAYMENTACTION: 'AUTHORIZATION',
       RETURNURL: PLACEHOLDER_URL,
     };
-    return await this.doRequest<NVPSetExpressCheckoutResponse>(
+    return this.doRequest<NVPSetExpressCheckoutResponse>(
       'SetExpressCheckout',
       data
     );
@@ -286,7 +336,7 @@ export class PayPalClient {
   public async createBillingAgreement(
     options: CreateBillingAgreementOptions
   ): Promise<NVPCreateBillingAgreementResponse> {
-    return await this.doRequest<NVPCreateBillingAgreementResponse>(
+    return this.doRequest<NVPCreateBillingAgreementResponse>(
       'CreateBillingAgreement',
       options
     );
@@ -314,7 +364,7 @@ export class PayPalClient {
       PAYMENTTYPE: 'instant',
       REFERENCEID: options.billingAgreementId,
     };
-    return await this.doRequest<NVPDoReferenceTransactionResponse>(
+    return this.doRequest<NVPDoReferenceTransactionResponse>(
       'DoReferenceTransaction',
       data
     );
@@ -329,10 +379,13 @@ export class PayPalClient {
   public async baUpdate(
     options: BAUpdateOptions
   ): Promise<NVPBAUpdateTransactionResponse> {
-    const data = {
+    const data: Record<string, any> = {
       REFERENCEID: options.billingAgreementId,
     };
-    return await this.doRequest<NVPBAUpdateTransactionResponse>(
+    if (options.cancel) {
+      data.BILLINGAGREEMENTSTATUS = 'Canceled';
+    }
+    return this.doRequest<NVPBAUpdateTransactionResponse>(
       'BillAgreementUpdate',
       data
     );
@@ -353,5 +406,21 @@ export class PayPalClient {
       superagent.post(this.ipnUrl).send(verifyBody)
     );
     return result.text;
+  }
+
+  public async transactionSearch(
+    options: TransactionSearchOptions
+  ): Promise<NVPTransactionSearchResponse> {
+    const data = {
+      STARTDATE: toIsoString(options.startDate),
+      ENDDATE: options.endDate ? toIsoString(options.endDate) : undefined,
+      EMAIL: options.email,
+      INVNUM: options.invoice,
+      TRANSACTIONID: options.transactionId,
+    };
+    return this.doRequest<NVPTransactionSearchResponse>(
+      'TransactionSearch',
+      data
+    );
   }
 }

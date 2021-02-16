@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var path = require('path');
-var i18n = require('i18n-abide');
+const path = require('path');
+const i18n = require('i18n-abide');
 
 module.exports = function (grunt) {
   // convert localized TOS/PP agreements from markdown to html partials.
@@ -12,7 +12,15 @@ module.exports = function (grunt) {
     // Normalize the filenames to use the locale name.
     // add the extension here, instead of using grunt-remarkable's
     // extension generator, to get locale names in uppercase
-    return path.join(destPath, i18n.localeFrom(destFile) + '.html');
+    const lang = i18n.localeFrom(destFile.split('/')[0]);
+
+    if (destFile.includes('privacy')) {
+      return path.join(destPath, lang, 'privacy.html');
+    } else if (destFile.includes('tos')) {
+      return path.join(destPath, lang, 'terms.html');
+    } else {
+      return path.join(destPath, i18n.localeFrom(destFile) + '.html');
+    }
   }
 
   grunt.config('remarkable', {
@@ -27,19 +35,19 @@ module.exports = function (grunt) {
       files: [
         {
           cwd: '<%= yeoman.pp_md_src %>',
-          dest: '<%= yeoman.pp_html_dest %>',
+          dest: '<%= yeoman.page_template_dist %>',
           expand: true,
-          ext: '',
+          ext: '.html',
+          src: ['**/firefox_privacy_notice.md'],
           rename: rename,
-          src: ['**/*.md'],
         },
         {
           cwd: '<%= yeoman.tos_md_src %>',
-          dest: '<%= yeoman.tos_html_dest %>',
+          dest: '<%= yeoman.page_template_dist %>',
           expand: true,
-          ext: '',
+          ext: '.html',
+          src: ['**/firefox_cloud_services_tos.md'],
           rename: rename,
-          src: ['**/*.md'],
         },
       ],
     },

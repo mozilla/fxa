@@ -329,6 +329,23 @@ export class StripeHelper {
     );
   }
 
+  async invoicePayableWithPaypal(invoice: Stripe.Invoice): Promise<boolean> {
+    if (invoice.billing_reason === 'subscription_create') {
+      // We only work with non-creation invoices, initial invoices are resolved by
+      // checkout code.
+      return false;
+    }
+    const subscription = await this.expandResource(
+      invoice.subscription,
+      'subscriptions'
+    );
+    if (subscription?.collection_method !== 'send_invoice') {
+      // Not a PayPal funded subscription.
+      return false;
+    }
+    return true;
+  }
+
   /**
    * Finalizes an invoice and marks auto_advance as false.
    *

@@ -9,10 +9,14 @@ import { Container } from 'typedi';
 import error from '../error';
 import {
   BAUpdateOptions,
+  SetExpressCheckoutOptions,
   CreateBillingAgreementOptions,
   DoReferenceTransactionOptions,
   IpnMessage,
   PayPalClient,
+  PayPalClientError,
+  TransactionSearchOptions,
+  TransactionStatus,
 } from './paypal-client';
 import { StripeHelper } from './stripe';
 
@@ -70,6 +74,19 @@ export type ChargeResponse = {
     | 'other';
 };
 
+export type TransactionSearchResult = {
+  amount: string;
+  currencyCode: string;
+  email: string;
+  feeAmount: string;
+  name: string;
+  netAmount: string;
+  status: TransactionStatus;
+  timestamp: string;
+  transactionId: string;
+  type: string;
+};
+
 export class PayPalHelper {
   private log: Logger;
   private client: PayPalClient;
@@ -89,8 +106,10 @@ export class PayPalHelper {
    * If the call to PayPal fails, a PayPalClientError will be thrown.
    *
    */
-  public async getCheckoutToken(): Promise<string> {
-    const response = await this.client.setExpressCheckout();
+  public async getCheckoutToken(
+    options: SetExpressCheckoutOptions
+  ): Promise<string> {
+    const response = await this.client.setExpressCheckout(options);
     return response.TOKEN;
   }
 
@@ -142,9 +161,31 @@ export class PayPalHelper {
   ): Promise<AgreementDetails> {
     const response = await this.client.baUpdate(options);
     return {
-      status: response.BILLINGAGREEMENTSTATUS as AgreementDetails['status'],
+      status: response.BILLINGAGREEMENTSTATUS.toLowerCase() as AgreementDetails['status'],
       countryCode: response.COUNTRYCODE,
     };
+  }
+
+  /**
+   * Cancel a billing agreement.
+   *
+   * Errors from PayPal canceling the agreement are ignored as they only occur
+   * if the agreement is no longer valid, isn't present anymore, etc. Other errors
+   * processing the request are not ignored.
+   *
+   * @param billingAgreementId
+   */
+  public async cancelBillingAgreement(
+    billingAgreementId: string
+  ): Promise<null> {
+    try {
+      await this.client.baUpdate({ billingAgreementId, cancel: true });
+    } catch (err) {
+      if (!(err instanceof PayPalClientError)) {
+        throw err;
+      }
+    }
+    return null;
   }
 
   /**
@@ -164,6 +205,24 @@ export class PayPalHelper {
    */
   public extractIpnMessage(payload: string): IpnMessage {
     return this.client.nvpToObject(payload) as IpnMessage;
+  }
+
+  public async searchTransactions(
+    options: TransactionSearchOptions
+  ): Promise<TransactionSearchResult[]> {
+    const results = await this.client.transactionSearch(options);
+    return results.L.map((r) => ({
+      amount: r.AMT,
+      currencyCode: r.CURRENCYCODE,
+      email: r.EMAIL,
+      feeAmount: r.FEEAMT,
+      name: r.NAME,
+      netAmount: r.NETAMT,
+      status: r.STATUS,
+      timestamp: r.TIMESTAMP,
+      transactionId: r.TRANSACTIONID,
+      type: r.TYPE,
+    }));
   }
 
   /**

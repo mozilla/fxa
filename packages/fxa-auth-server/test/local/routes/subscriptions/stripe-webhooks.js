@@ -506,9 +506,11 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
-      it('stops if the subscription is being created', async () => {
+      it('stops if the invoice is not paypal payable', async () => {
         const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
-        invoiceCreatedEvent.data.object.billing_reason = 'subscription_create';
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+          false
+        );
         StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
         const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
           {},
@@ -523,42 +525,10 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
-      it('stops if the subscription isnt send_invoice', async () => {
-        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
-        const mockSubscription = {
-          id: 'test1',
-          plan: { product: 'test2' },
-          collection_method: 'charge_automatically',
-        };
-        invoiceCreatedEvent.data.object.billing_reason = 'subscription_cycle';
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
-          mockSubscription
-        );
-        const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
-          {},
-          invoiceCreatedEvent
-        );
-        assert.isUndefined(result);
-        assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          invoiceCreatedEvent.data.object.subscription,
-          'subscriptions'
-        );
-        assert.notCalled(
-          StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice
-        );
-      });
-
       it('finalizes invoices for invoice subscriptions', async () => {
         const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
-        const mockSubscription = {
-          id: 'test1',
-          plan: { product: 'test2' },
-          collection_method: 'send_invoice',
-        };
-        invoiceCreatedEvent.data.object.billing_reason = 'subscription_cycle';
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
-          mockSubscription
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+          true
         );
         StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
         const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
@@ -567,13 +537,147 @@ describe('StripeWebhookHandler', () => {
         );
         assert.deepEqual(result, {});
         assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          invoiceCreatedEvent.data.object.subscription,
-          'subscriptions'
+          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
+          invoiceCreatedEvent.data.object
         );
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice,
           invoiceCreatedEvent.data.object
+        );
+      });
+    });
+
+    describe('handleInvoiceOpenEvent', () => {
+      it('doesnt run if paypalHelper is not present', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        StripeWebhookHandlerInstance.paypalHelper = undefined;
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+          true
+        );
+        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.isUndefined(result);
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal
+        );
+      });
+
+      it('processes invoices for paypal customers for non-zero amounts', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        invoiceCreatedEvent.data.object.amount_due = 4.99;
+        const customer = { id: 'cust_1234' };
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        StripeWebhookHandlerInstance.paypalHelper.processInvoice = sinon.fake.resolves(
+          true
+        );
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+          true
+        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customer
+        );
+        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.isTrue(result);
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
+          invoiceCreatedEvent.data.object
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.paypalHelper.processInvoice,
+          { customer, invoice: invoiceCreatedEvent.data.object }
+        );
+      });
+
+      it('processes invoices for paypal customers for zero amounts', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        invoiceCreatedEvent.data.object.amount_due = 0;
+        const customer = { id: 'cust_1234' };
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        StripeWebhookHandlerInstance.paypalHelper.processZeroInvoice = sinon.fake.resolves(
+          true
+        );
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+          true
+        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customer
+        );
+        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.isTrue(result);
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
+          invoiceCreatedEvent.data.object
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.paypalHelper.processZeroInvoice,
+          invoiceCreatedEvent.data.object
+        );
+        sinon.assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        );
+      });
+
+      it('stops if the invoice is not for a paypal customer', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        invoiceCreatedEvent.data.object.amount_due = 0;
+        const customer = { id: 'cust_1234' };
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        StripeWebhookHandlerInstance.paypalHelper.processZeroInvoice = sinon.fake.resolves(
+          true
+        );
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+          false
+        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customer
+        );
+        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.isUndefined(result);
+        assert.notCalled(
+          StripeWebhookHandlerInstance.paypalHelper.processZeroInvoice
+        );
+        sinon.assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        );
+      });
+
+      it('stops if the customer was deleted', async () => {
+        const invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
+        invoiceCreatedEvent.data.object.amount_due = 4.99;
+        const customer = { id: 'cust_1234', deleted: true };
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        StripeWebhookHandlerInstance.paypalHelper.processInvoice = sinon.fake.resolves(
+          true
+        );
+        StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
+          true
+        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customer
+        );
+        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.isUndefined(result);
+        assert.notCalled(
+          StripeWebhookHandlerInstance.paypalHelper.processInvoice
+        );
+        sinon.assert.calledWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoiceCreatedEvent.data.object.customer,
+          'customers'
         );
       });
     });

@@ -51,6 +51,7 @@ export const GraphQLConfigFactory = async (
       maximumComplexity: 100,
       variables: {
         input: 'ignoreme',
+        file: 'ignoreme',
       },
       onComplete: (complexity: number) => {
         log.debug('complexity', { complexity });

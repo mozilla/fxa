@@ -12,11 +12,11 @@
 # The resulting output will be stored within `assets/legal`.
 #
 # Examples:
-# file provided to convert: `/Users/test/github/mozilla/legal-docs/firefox_cloud_services_ToS/en-US.md`
-# resulting file: `assets/legal/firefox_cloud_services_ToS/en-US.pdf`
+# file provided to convert: `/Users/test/github/mozilla/legal-docs/en/firefox_cloud_services_tos.md`
+# resulting file: `assets/legal/en/firefox_cloud_services_tos/en-US.pdf`
 #
-# directory provided to convert: `/Users/test/github/mozilla/legal-docs/firefox_cloud_services_ToS`
-# resulting files: `assets/legal/firefox_cloud_services_ToS/*.pdf`
+# directory provided to convert: `/Users/test/github/mozilla/legal-docs/en`
+# resulting files: `assets/legal/en/*.pdf`
 
 
 legalpath=

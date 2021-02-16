@@ -58,6 +58,7 @@ const PLAN = {
 };
 const CUSTOMER = {
   billing_name: 'Foo Barson',
+  payment_provider: 'stripe',
   payment_type: 'credit',
   last4: '5309',
   exp_month: '02',

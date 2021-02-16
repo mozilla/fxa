@@ -448,5 +448,5 @@ _Pre-requisites_: The script requires that you have pandoc and LaTeX installed o
 The script will check that pandoc is installed before asking you for the file or directory on your machine that you would like to be converted. If a directory is provided, then all markdown files within that folder will be convered. If a single file is provided, only that file will be converted.
 The resulting output will be stored within `assets/legal`.
 Example:
-file provided to convert: `/Users/test/github/mozilla/legal-docs/firefox_cloud_services_ToS/en-US.md`
-resulting file: `assets/legal/firefox_cloud_services_ToS/en-US.pdf`
+file provided to convert: `/Users/test/github/mozilla/legal-docs/en/firefox_cloud_services_tos.md`
+resulting file: `assets/legal/en/firefox_cloud_services_tos.pdf`

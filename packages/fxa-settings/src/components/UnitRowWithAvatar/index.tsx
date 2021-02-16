@@ -12,7 +12,6 @@ import { Localized } from '@fluent/react';
 export const UnitRowWithAvatar = () => {
   const { avatarUrl } = useAccount();
   const ctaTextFallback = avatarUrl ? 'Change' : 'Add';
-  const ctaPath = ctaTextFallback.toLocaleLowerCase();
   const ctaL10nId = avatarUrl ? 'avatar-change-link' : 'avatar-add-link';
   const location = useLocation();
   return (
@@ -29,9 +28,9 @@ export const UnitRowWithAvatar = () => {
         <div>
           <Localized id={ctaL10nId}>
             <Link
-              className="cta-neutral cta-base"
+              className="cta-neutral cta-base ltr:ml-1 rtl:mr-1"
               data-testid="unit-row-with-avatar-route"
-              to={`${HomePath}/avatar/${ctaPath}${location.search}`}
+              to={`${HomePath}/avatar${location.search}`}
             >
               {ctaTextFallback}
             </Link>

@@ -8,20 +8,13 @@ const path = require('path');
 const logger = require('./logging/log')('legal-templates');
 
 module.exports = function (i18n, root) {
-  const TOS_ROOT_PATH = path.join(root, 'terms');
-  const PP_ROOT_PATH = path.join(root, 'privacy');
-
-  function getRoot(type) {
-    return type === 'terms' ? TOS_ROOT_PATH : PP_ROOT_PATH;
-  }
-
   const templateCache = {};
   function getTemplate(type, lang, defaultLang, defaultLegalLang) {
     const DEFAULT_LOCALE = i18n.localeFrom(defaultLegalLang);
 
     // Filenames are normalized to locale, not language.
     const locale = i18n.localeFrom(lang);
-    const templatePath = path.join(getRoot(type), locale + '.html');
+    const templatePath = path.join(root, locale, type + '.html');
 
     return new Promise(function (resolve, reject) {
       // cache the promises to avoid multiple concurrent checks for
@@ -30,8 +23,8 @@ module.exports = function (i18n, root) {
         return resolve(templateCache[templatePath]);
       }
 
-      fs.exists(templatePath, function (exists) {
-        if (!exists) {
+      fs.stat(templatePath, function (err) {
+        if (err) {
           let bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
           // If bestLang resolves to the default lang, replace it with
           // the default legal lang since they may differ. E.g. en-US
