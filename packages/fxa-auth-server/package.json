@@ -71,7 +71,7 @@
     "ioredis": "^4.19.4",
     "jed": "0.5.4",
     "jsonwebtoken": "^8.4.0",
-    "jsrsasign": "^8.0.20",
+    "jsrsasign": "^10.1.10",
     "keyv": "4.0.3",
     "lodash": "^4.17.19",
     "memcached": "^2.2.2",
