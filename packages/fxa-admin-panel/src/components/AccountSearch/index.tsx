@@ -83,10 +83,10 @@ export const AccountSearch = () => {
     onTextChanged(event);
   };
 
-  let filtered_list: string[] = [];
+  let filteredList: string[] = [];
   if (returnedEmails != null && showSuggestion) {
     for (let i = 0; i < returnedEmails.getEmailsLike.length; i++) {
-      filtered_list[i] = returnedEmails.getEmailsLike[i].email;
+      filteredList[i] = returnedEmails.getEmailsLike[i].email;
     }
   }
 
@@ -105,12 +105,12 @@ export const AccountSearch = () => {
   };
 
   const renderSuggestions = () => {
-    if (filtered_list.length === 0 || searchInput.length < 5) {
+    if (filteredList.length === 0 || searchInput.length < 5) {
       return null;
     }
     return (
       <ul>
-        {filtered_list.map((item) => (
+        {filteredList.map((item) => (
           <li onClick={() => suggestionSelected(item)}>{item}</li>
         ))}
       </ul>
