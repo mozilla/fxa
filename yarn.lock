@@ -12683,6 +12683,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"call-bind@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "call-bind@npm:1.0.2"
+  dependencies:
+    function-bind: ^1.1.1
+    get-intrinsic: ^1.0.2
+  checksum: 18cc6107a1f028247f2b505dae73ad1c63b737addfcd43ff75159f072c5c827300c1fb66f26ee0ec70fc2fdd005ce68d65c05a2a34b74bab08c3b1921954ada9
+  languageName: node
+  linkType: hard
+
 "call-me-maybe@npm:^1.0.1":
   version: 1.0.1
   resolution: "call-me-maybe@npm:1.0.1"
@@ -15186,25 +15196,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"deep-equal@npm:2.0.4":
-  version: 2.0.4
-  resolution: "deep-equal@npm:2.0.4"
+"deep-equal@npm:2.0.5":
+  version: 2.0.5
+  resolution: "deep-equal@npm:2.0.5"
   dependencies:
-    es-abstract: ^1.18.0-next.1
-    es-get-iterator: ^1.1.0
+    call-bind: ^1.0.0
+    es-get-iterator: ^1.1.1
+    get-intrinsic: ^1.0.1
     is-arguments: ^1.0.4
     is-date-object: ^1.0.2
     is-regex: ^1.1.1
     isarray: ^2.0.5
-    object-is: ^1.1.3
+    object-is: ^1.1.4
     object-keys: ^1.1.1
-    object.assign: ^4.1.1
+    object.assign: ^4.1.2
     regexp.prototype.flags: ^1.3.0
     side-channel: ^1.0.3
     which-boxed-primitive: ^1.0.1
     which-collection: ^1.0.1
     which-typed-array: ^1.1.2
-  checksum: 377b0a3d4b944dfc9c8af7ba948cb5fed86767efda0d82b41ce7764a736426ed60df6af396833f64413585c483dcce1a145169c6dc868147d0071cdbc0fb0276
+  checksum: bf99bc27fa34dc229829126b9d18d509fd54e8ac92941c7c9d2be5dddff66fdbce35e9b39026ab12b4d2235491cdcc56cb50317da41230ab558d3b57f48ec454
   languageName: node
   linkType: hard
 
@@ -16295,7 +16306,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"es-get-iterator@npm:^1.0.2, es-get-iterator@npm:^1.1.0":
+"es-get-iterator@npm:^1.0.2":
   version: 1.1.1
   resolution: "es-get-iterator@npm:1.1.1"
   dependencies:
@@ -16308,6 +16319,22 @@ __metadata:
     is-string: ^1.0.5
     isarray: ^2.0.5
   checksum: b02a6eeae04c1f0414f14463cda3871f9d65ed7ffb2938ffa76cee14296951062446187bbfbd183de369098d7bb2775130d8057f30b3c8399bdf6926888d538e
+  languageName: node
+  linkType: hard
+
+"es-get-iterator@npm:^1.1.1":
+  version: 1.1.2
+  resolution: "es-get-iterator@npm:1.1.2"
+  dependencies:
+    call-bind: ^1.0.2
+    get-intrinsic: ^1.1.0
+    has-symbols: ^1.0.1
+    is-arguments: ^1.1.0
+    is-map: ^2.0.2
+    is-set: ^2.0.2
+    is-string: ^1.0.5
+    isarray: ^2.0.5
+  checksum: 0654383ebe98719c9fafe29c3e73d75fe12fedde2a96000b05406d358ec66c3635306c002a6eb7c768fc78dcc1cc79e4f938110bb12edc75b5e072e3ad940193
   languageName: node
   linkType: hard
 
@@ -19193,7 +19220,7 @@ fsevents@~2.3.1:
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
     convict-format-with-validator: ^6.0.0
-    deep-equal: 2.0.4
+    deep-equal: 2.0.5
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
@@ -20042,6 +20069,17 @@ fsevents@~2.3.1:
     has: ^1.0.3
     has-symbols: ^1.0.1
   checksum: c38bc558f1eca73bde2d9e22c7798b06c4b93650f39b2053a875a23a6c00fbafb0919ad20fe0d3a3e16916a8a59450502f91e75a918d264456c8ded070fe93c4
+  languageName: node
+  linkType: hard
+
+"get-intrinsic@npm:^1.0.2, get-intrinsic@npm:^1.1.0":
+  version: 1.1.1
+  resolution: "get-intrinsic@npm:1.1.1"
+  dependencies:
+    function-bind: ^1.1.1
+    has: ^1.0.3
+    has-symbols: ^1.0.1
+  checksum: acf1506f25a32a194cfc5c19d33835756080d970eb6e29a8a3852380106df981acef7bb9ac2002689437235221f24bcbdc1e3532b9bcacd7ff3621091fafe607
   languageName: node
   linkType: hard
 
@@ -22740,6 +22778,15 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
+"is-arguments@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "is-arguments@npm:1.1.0"
+  dependencies:
+    call-bind: ^1.0.0
+  checksum: 967bf47b472eba6c07685a0a2c59724c5a2f3ecc9183ebbf3d33989906e2353d0d669ca7e06b0482f31cc8e6f1785b4a2775cb9506acb48cadd0e1d5c5cf12ad
+  languageName: node
+  linkType: hard
+
 "is-arrayish@npm:^0.2.1":
   version: 0.2.1
   resolution: "is-arrayish@npm:0.2.1"
@@ -23065,6 +23112,13 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
+"is-map@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "is-map@npm:2.0.2"
+  checksum: 2d9b1a0b0dc19ba4486278297586200ec9f166b068bddf1e05f0c0ab9eac197fb6efac32efc2a970d1036b96fa08806337a9dd6808365a5cef6a392a88a2ca2a
+  languageName: node
+  linkType: hard
+
 "is-natural-number@npm:^4.0.1":
   version: 4.0.1
   resolution: "is-natural-number@npm:4.0.1"
@@ -23258,6 +23312,13 @@ fsevents@~2.3.1:
   version: 2.0.1
   resolution: "is-set@npm:2.0.1"
   checksum: 97a9f4dd73405d9edf5c18b0a5935961f34ae34c81220d3cd9621ad390114b7f881f3c12e4abe4effae066dccf447ae7109d8e29b67c0c0e5fae4333179bfda7
+  languageName: node
+  linkType: hard
+
+"is-set@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "is-set@npm:2.0.2"
+  checksum: 5fb8f3c67d7a836f992d893e8de578a16f36507941e68197a7aced7cfb33231e99bfd5dc008803c02b6f5aabe226d3e7df94172895f119e6a02b946e254adc87
   languageName: node
   linkType: hard
 
@@ -28578,13 +28639,23 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"object-is@npm:^1.0.1, object-is@npm:^1.1.3":
+"object-is@npm:^1.0.1":
   version: 1.1.3
   resolution: "object-is@npm:1.1.3"
   dependencies:
     define-properties: ^1.1.3
     es-abstract: ^1.18.0-next.1
   checksum: f16b6ae28ca9a46154dc549c1660d1db411bbe57643a0479292814cb1842c9ecacb13aac9a18df6ce7af0991c5b034113bdb5a4a9feb282d6deaa136d2ea14e2
+  languageName: node
+  linkType: hard
+
+"object-is@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "object-is@npm:1.1.4"
+  dependencies:
+    call-bind: ^1.0.0
+    define-properties: ^1.1.3
+  checksum: 1bf64805ad38ca9c4cee8397c8a1cfc1fc032fff943cab6774dc1c750e04a8799ab21456c25d9064a6a1eb6ebec7b35903f4c1a4cd4620d5eb1b7360dd10c5ca
   languageName: node
   linkType: hard
 
