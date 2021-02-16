@@ -148,7 +148,7 @@ export const ModalVerifySession = ({
             type="button"
             className="cta-neutral mx-2 flex-1"
             data-testid="modal-verify-session-cancel"
-            onClick={onDismiss}
+            onClick={(event) => onDismiss()}
           >
             Cancel
           </button>
