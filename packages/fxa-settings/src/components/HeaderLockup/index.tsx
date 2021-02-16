@@ -27,6 +27,11 @@ export const HeaderLockup = () => {
             ? l10n.getString('header-menu-open')
             : l10n.getString('header-menu-closed')
         }
+        title={
+          navRevealedState
+            ? l10n.getString('header-menu-open')
+            : l10n.getString('header-menu-closed')
+        }
         aria-haspopup={true}
         aria-expanded={navRevealedState}
         onClick={() => setNavState(!navRevealedState)}

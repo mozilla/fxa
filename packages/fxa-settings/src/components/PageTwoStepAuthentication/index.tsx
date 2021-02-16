@@ -232,6 +232,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       return showQrCodeStep();
     }
     if (recoveryCodesAcknowledged) {
+      setRecoveryCodeError('');
       return showRecoveryCodes();
     }
     goBack();
