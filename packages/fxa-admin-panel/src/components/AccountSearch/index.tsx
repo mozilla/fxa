@@ -98,7 +98,6 @@ export const AccountSearch = () => {
     if (value.length < 5) {
       setShowSuggestion(false);
     } else if (value.length >= 5) {
-      console.log('value: ', value);
       getEmailLike({ variables: { search: value } });
       setShowSuggestion(true);
     }
