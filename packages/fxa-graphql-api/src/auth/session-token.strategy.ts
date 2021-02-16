@@ -23,6 +23,12 @@ export class SessionTokenStrategy extends PassportStrategy(Strategy) {
       if (!session) {
         throw new UnauthorizedException('Invalid token');
       }
+      if (
+        session.mustVerify &&
+        (!session.tokenVerified || !session.emailVerified)
+      ) {
+        throw new UnauthorizedException('Must verify');
+      }
       return { token, session };
     } catch (err) {
       if (err.status) {

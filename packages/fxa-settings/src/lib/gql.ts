@@ -10,6 +10,10 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
     for (const error of graphQLErrors) {
       if (error.message === 'Invalid token') {
         reauth = true;
+      } else if (error.message === 'Must verify') {
+        return window.location.replace(
+          `/signin_token_code?action=email&service=sync`
+        );
       }
     }
   }

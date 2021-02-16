@@ -37,11 +37,23 @@ describe('SessionTokenStrategy', () => {
     });
   });
 
-  it('throws unauthorized', async () => {
+  it('throws unauthorized for an invalid token', async () => {
     mockSession.sessionTokenData.mockResolvedValue(undefined);
     mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
     await expect(strategy.validate('token')).rejects.toThrowError(
       new UnauthorizedException('Invalid token')
+    );
+  });
+
+  it('throws unauthorized when mustVerify is not met', async () => {
+    mockSession.sessionTokenData.mockResolvedValue({
+      mustVerify: true,
+      tokenVerified: false,
+      emailVerified: true,
+    });
+    mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
+    await expect(strategy.validate('token')).rejects.toThrowError(
+      new UnauthorizedException('Must verify')
     );
   });
 
