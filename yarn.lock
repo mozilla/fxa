@@ -3952,22 +3952,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:^7.5.5":
-  version: 7.5.5
-  resolution: "@nestjs/core@npm:7.5.5"
+"@nestjs/core@npm:^7.6.12":
+  version: 7.6.12
+  resolution: "@nestjs/core@npm:7.6.12"
   dependencies:
     "@nuxtjs/opencollective": 0.3.2
     fast-safe-stringify: 2.0.7
     iterare: 1.2.1
-    object-hash: 2.0.3
+    object-hash: 2.1.1
     path-to-regexp: 3.2.0
-    tslib: 2.0.3
-    uuid: 8.3.1
+    tslib: 2.1.0
+    uuid: 8.3.2
   peerDependencies:
     "@nestjs/common": ^7.0.0
+    "@nestjs/microservices": ^7.0.0
+    "@nestjs/platform-express": ^7.0.0
+    "@nestjs/websockets": ^7.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0
-  checksum: d49ca21c3fa1839e83182a007ab46cf2a9ec4be6a762376394340912c11177c467978d1bdf4e0eed827169317666311940dc73d4b4066cd664def86971877d67
+  peerDependenciesMeta:
+    "@nestjs/microservices":
+      optional: true
+    "@nestjs/platform-express":
+      optional: true
+    "@nestjs/websockets":
+      optional: true
+  checksum: 9f56987fc5600158822643035a53c7c377f92d6925c029f0b5d5b9d4ffd3270e3f8ae6ca7b4da017663c7d4df796707d4155502d16d223c40b31ab0f62cb619e
   languageName: node
   linkType: hard
 
@@ -18802,7 +18812,7 @@ fsevents@~2.3.1:
   dependencies:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
-    "@nestjs/core": ^7.5.5
+    "@nestjs/core": ^7.6.12
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/platform-express": ^7.6.11
@@ -19289,7 +19299,7 @@ fsevents@~2.3.1:
     "@nestjs/cli": ^7.5.4
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
-    "@nestjs/core": ^7.5.5
+    "@nestjs/core": ^7.6.12
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
@@ -19386,7 +19396,7 @@ fsevents@~2.3.1:
     "@nestjs/cli": ^7.5.4
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
-    "@nestjs/core": ^7.5.5
+    "@nestjs/core": ^7.6.12
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
@@ -19813,7 +19823,7 @@ fsevents@~2.3.1:
   dependencies:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
-    "@nestjs/core": ^7.5.5
+    "@nestjs/core": ^7.6.12
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/testing": ^7.6.5
@@ -19894,7 +19904,7 @@ fsevents@~2.3.1:
     "@nestjs/cli": ^7.5.4
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
-    "@nestjs/core": ^7.5.5
+    "@nestjs/core": ^7.6.12
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/platform-express": ^7.6.11
     "@sentry/integrations": ^5.29.1
@@ -28625,7 +28635,14 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"object-hash@npm:2.0.3, object-hash@npm:^2.0.1, object-hash@npm:^2.0.3":
+"object-hash@npm:2.1.1":
+  version: 2.1.1
+  resolution: "object-hash@npm:2.1.1"
+  checksum: fe49a0864cba7ac4055c604295692ae75f5f4d22ba929aaaa987469809d17ab030d1111e8f0d425a070fa4a78b8021b55260e26e98b66b59e0f7be2bd9069fb8
+  languageName: node
+  linkType: hard
+
+"object-hash@npm:^2.0.1, object-hash@npm:^2.0.3":
   version: 2.0.3
   resolution: "object-hash@npm:2.0.3"
   checksum: e633ae67cd6c5f3cd52af5bef0fe7f25d597b415a6d92a601be0b97a47642908cf333cedfc9e848d25b6c51fd6cf6e64ff6eb3af710eae249a42f6a69ad6b12d
