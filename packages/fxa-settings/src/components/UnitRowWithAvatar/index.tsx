@@ -28,7 +28,7 @@ export const UnitRowWithAvatar = () => {
         <div>
           <Localized id={ctaL10nId}>
             <Link
-              className="cta-neutral cta-base"
+              className="cta-neutral cta-base ltr:ml-1 rtl:mr-1"
               data-testid="unit-row-with-avatar-route"
               to={`${HomePath}/avatar${location.search}`}
             >
