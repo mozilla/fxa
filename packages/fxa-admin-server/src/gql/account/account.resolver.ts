@@ -62,7 +62,6 @@ export class AccountResolver {
       .first();
   }
 
-  //query to return all emails that are in the database
   @Query((returns) => [EmailType], { nullable: true })
   public getEmailsLike(@Args('search', { nullable: false }) search: string) {
     return this.db.emails

@@ -49,8 +49,8 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
   }
 `;
 
-export const GET_EMAILS = gql`
-  query fetchAll($search: String!) {
+export const GET_EMAILS_LIKE = gql`
+  query getEmails($search: String!) {
     getEmailsLike(search: $search) {
       email
     }
@@ -59,61 +59,58 @@ export const GET_EMAILS = gql`
 
 export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
-  const [showResult, setShowResult] = useState<Boolean>(false);
-  const [suggestions, setSuggestion] = useState<Array<string>>([]);
-  const [text, setText] = useState<string>('');
+  const [showResult, setShowResult] = useState<boolean>(false);
+  const [showSuggestion, setShowSuggestion] = useState<boolean>(false);
+  const [searchInput, setSearchInput] = useState<string>('');
   const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
     GET_ACCOUNT_BY_EMAIL
   );
-  const [getEmailLike, { data: data1, refetch: refetch1 }] = useLazyQuery(
-    GET_EMAILS
+  const [getEmailLike, { data: returnedEmails }] = useLazyQuery(
+    GET_EMAILS_LIKE
   );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    getAccount({ variables: { email: text } });
+    setShowSuggestion(false);
+    getAccount({ variables: { email: searchInput } });
     // Don't hide after the first result is shown
     setShowResult(true);
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
-    setSuggestion([]);
+    setShowSuggestion(true);
     onTextChanged(event);
-    getEmailLike({ variables: { search: event.target.value } });
-    //getEmails();
   };
+
+  let filtered_list: string[] = [];
+  if (returnedEmails != null && showSuggestion) {
+    for (let i = 0; i < returnedEmails.getEmailsLike.length; i++) {
+      filtered_list[i] = returnedEmails.getEmailsLike[i].email;
+    }
+  }
 
   const onTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
 
-    let filtered_list = [];
-    if (value.length > 0) {
-      console.log('value:', value);
+    setSearchInput(value);
+
+    if (value.length < 5) {
+      setShowSuggestion(false);
+    } else if (value.length >= 5) {
+      console.log('value: ', value);
       getEmailLike({ variables: { search: value } });
-
-      if (data1 != null) {
-        console.log(data1);
-        for (let i = 0; i < data1.getEmailsLike.length; i++) {
-          filtered_list[i] = data1.getEmailsLike[i].email;
-        }
-      }
+      setShowSuggestion(true);
     }
-    const regex = new RegExp(`^${value}`, 'i');
-    filtered_list = filtered_list.sort().filter((v) => regex.test(v));
-
-    console.log('suggestions:', filtered_list);
-    setSuggestion(filtered_list);
-    setText(event.target.value);
   };
 
   const renderSuggestions = () => {
-    if (suggestions.length === 0) {
+    if (filtered_list.length === 0 || searchInput.length < 5) {
       return null;
     }
     return (
       <ul>
-        {suggestions.map((item) => (
+        {filtered_list.map((item) => (
           <li onClick={() => suggestionSelected(item)}>{item}</li>
         ))}
       </ul>
@@ -121,8 +118,8 @@ export const AccountSearch = () => {
   };
 
   const suggestionSelected = (value: string) => {
-    setText(value);
-    setSuggestion([]);
+    setSearchInput(value);
+    setShowSuggestion(false);
   };
 
   return (
@@ -144,7 +141,7 @@ export const AccountSearch = () => {
         <br />
         <input
           autoComplete="off"
-          value={text}
+          value={searchInput}
           autoFocus
           name="email"
           type="email"
