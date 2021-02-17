@@ -35,11 +35,11 @@ export const SentryPlugin = {
             continue;
           }
           const excContexts: ExtraContext[] = [];
-          if (err.path.join) {
+          if (err.path?.join) {
             excContexts.push({
               name: 'graphql',
               fieldData: {
-                path: err.path!.join(' > '),
+                path: err.path.join(' > '),
               },
             });
           }

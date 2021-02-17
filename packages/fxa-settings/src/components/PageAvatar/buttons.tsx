@@ -3,19 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useRef } from 'react';
+
+import { gql, useMutation } from '@apollo/client';
 import { useNavigate } from '@reach/router';
-import { Localized } from '@fluent/react';
+import { Localized, useLocalization } from '@fluent/react';
+import { useAlertBar } from '../../lib/hooks';
+import firefox from '../../lib/firefox';
+import { useAccount } from '../../models';
 
 import { HomePath } from '../../constants';
 import ButtonIcon from '../ButtonIcon';
 
 import { ReactComponent as AddIcon } from './add.svg';
 import { ReactComponent as CameraIcon } from './camera.svg';
+import { ReactComponent as RemoveIcon } from './remove.svg';
 import { ReactComponent as ZoomOutIcon } from './zoom-out.svg';
 import { ReactComponent as ZoomInIcon } from './zoom-in.svg';
 import { ReactComponent as RotateIcon } from './rotate.svg';
 
-export const buttonClass = `mx-2 text-grey-500
+const buttonClass = `mx-2 text-grey-500
 hover:text-grey-600 hover:text-grey-600
 focus:text-grey-400`;
 const captureClass = `mx-2 bg-red-500 w-12 h-12 text-white rounded-full border
@@ -24,6 +30,63 @@ focus:border-red-800`;
 
 const editButtonClass = `mx-1 text-white rounded-full hover:bg-grey-100`;
 const buttonSize = 32;
+
+export const DELETE_AVATAR_MUTATION = gql`
+  mutation deleteAvatar($input: DeleteAvatarInput!) {
+    deleteAvatar(input: $input) {
+      clientMutationId
+    }
+  }
+`;
+
+export const RemovePhotoBtn = () => {
+  const navigate = useNavigate();
+  const alertBar = useAlertBar();
+  const { uid, avatar } = useAccount();
+  const { l10n } = useLocalization();
+
+  const [deleteAvatar] = useMutation(DELETE_AVATAR_MUTATION, {
+    onCompleted: () => {
+      firefox.profileChanged(uid);
+      navigate(HomePath, { replace: true });
+    },
+    onError: () => {
+      alertBar.error(l10n.getString('avatar-page-delete-error'));
+    },
+    ignoreResults: true,
+    update: (cache) => {
+      cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
+        fields: {
+          avatar() {
+            return { id: null, url: null };
+          },
+        },
+      });
+    },
+  });
+
+  return (
+    <div
+      onClick={() => {
+        deleteAvatar({ variables: { input: { id: avatar.id } } });
+      }}
+      className="cursor-pointer flex-1"
+    >
+      <Localized id="avatar-page-remove-photo-button" attrs={{ title: true }}>
+        <ButtonIcon
+          testId="remove-photo-btn"
+          title="Remove photo"
+          icon={[RemoveIcon, 24, 22]}
+          classNames={buttonClass}
+        />
+      </Localized>
+      <Localized id="avatar-page-remove-photo">
+        <p>Remove photo</p>
+      </Localized>
+    </div>
+  );
+};
 
 export const TakePhotoBtn = ({
   onClick,

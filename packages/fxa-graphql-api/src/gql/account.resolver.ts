@@ -212,15 +212,15 @@ export class AccountResolver {
   ): Promise<UpdateAvatarPayload> {
     const file = await input.file;
     const fileData = await getStream.buffer(file.createReadStream());
-    const avatarUrl = await this.profileAPI.avatarUpload(
+    const avatar = await this.profileAPI.avatarUpload(
       token,
       file.mimetype,
       fileData
     );
-    return { clientMutationId: input.clientMutationId, avatarUrl };
+    return { clientMutationId: input.clientMutationId, avatar };
   }
 
-  @Mutation((returns) => UpdateAvatarPayload, {
+  @Mutation((returns) => BasicPayload, {
     description: 'Delete the avatar.',
   })
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
@@ -228,7 +228,7 @@ export class AccountResolver {
   public async deleteAvatar(
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DeleteAvatarInput }) input: DeleteAvatarInput
-  ): Promise<UpdateAvatarPayload> {
+  ): Promise<BasicPayload> {
     await this.profileAPI.avatarDelete(token, input.id);
     return { clientMutationId: input.clientMutationId };
   }
@@ -375,15 +375,9 @@ export class AccountResolver {
   }
 
   @ResolveField()
-  public async avatarId(@Parent() account: Account) {
+  public async avatar(@Parent() account: Account) {
     const avatar = await selectedAvatar(account.uid);
-    return avatar ? avatar.id : null;
-  }
-
-  @ResolveField()
-  public async avatarUrl(@Parent() account: Account) {
-    const avatar = await selectedAvatar(account.uid);
-    return avatar ? avatar.url : null;
+    return avatar || {};
   }
 
   @ResolveField()

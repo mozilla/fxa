@@ -10,9 +10,9 @@ import { HomePath } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 
 export const UnitRowWithAvatar = () => {
-  const { avatarUrl } = useAccount();
-  const ctaTextFallback = avatarUrl ? 'Change' : 'Add';
-  const ctaL10nId = avatarUrl ? 'avatar-change-link' : 'avatar-add-link';
+  const { avatar } = useAccount();
+  const ctaTextFallback = avatar.url ? 'Change' : 'Add';
+  const ctaL10nId = avatar.url ? 'avatar-change-link' : 'avatar-add-link';
   const location = useLocation();
   return (
     <div className="unit-row">

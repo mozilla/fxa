@@ -26,19 +26,21 @@ import FlowContainer from '../FlowContainer';
 import {
   AddPhotoBtn,
   ConfirmBtns,
+  RemovePhotoBtn,
   RotateBtn,
   TakePhotoBtn,
   ZoomInBtn,
   ZoomOutBtn,
 } from './buttons';
 
-import { RemovePhotoBtn } from './removeBtn';
-
 export const UPDATE_AVATAR_MUTATION = gql`
   mutation updateAvatar($file: Upload!) {
     updateAvatar(input: { file: $file }) {
       clientMutationId
-      avatarUrl
+      avatar {
+        id
+        url
+      }
     }
   }
 `;
@@ -49,7 +51,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const navigate = useNavigate();
   const account = useAccount();
   const { l10n } = useLocalization();
-  const { avatarUrl } = useAccount();
+  const { avatar } = useAccount();
   const alertBar = useAlertBar();
   const [saveEnabled, setSaveEnabled] = useState(false);
 
@@ -95,8 +97,8 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
       cache.modify({
         id: cache.identify({ __typename: 'Account' }),
         fields: {
-          avatarUrl() {
-            return updateAvatar.avatarUrl;
+          avatar() {
+            return updateAvatar.avatar;
           },
         },
       });
@@ -322,7 +324,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
                     }}
                   />
                 )}
-                {avatarUrl && !capturing && <RemovePhotoBtn />}
+                {avatar.url && !capturing && <RemovePhotoBtn />}
               </div>
               {confirmBtns}
             </>

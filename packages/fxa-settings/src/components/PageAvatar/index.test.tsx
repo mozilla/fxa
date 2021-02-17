@@ -48,7 +48,9 @@ it('PageAddAvatar | render add, take buttons on initial load', async () => {
 it('PageAddAvatar | render remove button if avatar is set', async () => {
   renderWithRouter(
     <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache account={{ avatarUrl: 'https://example.com/avatar.jpg' }}>
+      <MockedCache
+        account={{ avatar: { url: 'https://example.com/avatar.jpg' } }}
+      >
         <PageAvatar />
       </MockedCache>
     </AuthContext.Provider>

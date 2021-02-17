@@ -7,6 +7,7 @@ import AuthClient from 'fxa-auth-client';
 import superagent from 'superagent';
 
 import { AppConfig } from '../config';
+import { Avatar } from '../gql/model/avatar';
 import { AuthClientService } from './auth-client.service';
 
 @Injectable()
@@ -60,20 +61,22 @@ export class ProfileClientService {
     token: string,
     contentType: string,
     file: any
-  ): Promise<string> {
+  ): Promise<Avatar> {
     const accessToken = await this.fetchToken(token);
     const result = await superagent
       .post(this.profileServerUrl + '/avatar/upload')
       .set('Content-Type', contentType)
       .set('Authorization', 'Bearer ' + accessToken)
       .send(file);
-    return result.body.url;
+    return result.body;
   }
 
   public async avatarDelete(token: string, id?: string) {
-    const result = await this.profilePostRequest(token, '/avatar/delete', {
-      id,
-    });
+    const accessToken = await this.fetchToken(token);
+    const result = await superagent
+      .delete(this.profileServerUrl + '/avatar/' + id)
+      .set('Authorization', 'Bearer ' + accessToken);
+
     return result.text === '{}';
   }
 }
