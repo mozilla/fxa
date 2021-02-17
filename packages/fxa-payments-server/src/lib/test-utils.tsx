@@ -311,6 +311,11 @@ export const MOCK_CHECKOUT_TOKEN = {
   token: 'EC-8NC18566WJ1581100',
 };
 
+export const MOCK_PAYPAL_SUBSCRIPTION_RESULT = {
+  sourceCountry: 'FR',
+  subscription: { what: 'ever' },
+};
+
 export const STRIPE_FIELDS = [
   'cardNumberElement',
   'cardCVCElement',
