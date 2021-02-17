@@ -116,13 +116,13 @@ describe('PaymentConfirmation', () => {
       );
     };
 
-    it('the paypal logo is visible', () => {
+    it('renders the paypal logo', () => {
       const { queryByTestId } = subject();
       const paypalLogo = queryByTestId('paypal-logo');
       expect(paypalLogo).toBeVisible();
     });
 
-    it('the billing info row is null', () => {
+    it('omits the billing info row', () => {
       const { queryByTestId } = subject();
       const billingDetailsRow = queryByTestId('billing-info');
       expect(billingDetailsRow).toBeNull();
@@ -138,13 +138,13 @@ describe('PaymentConfirmation', () => {
       );
     };
 
-    it('the paypal logo is null', () => {
+    it('omits the paypal logo', () => {
       const { queryByTestId } = subject();
       const paypalLogo = queryByTestId('paypal-logo');
       expect(paypalLogo).toBeNull();
     });
 
-    it('the billing info row is visible', () => {
+    it('renders the billing info row', () => {
       const { queryByTestId } = subject();
       const billingDetailsRow = queryByTestId('billing-info');
       expect(billingDetailsRow).toBeVisible();
