@@ -1203,26 +1203,6 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.createSubscription = function (
-    refreshToken,
-    planId,
-    paymentToken,
-    displayName,
-    idempotencyKey
-  ) {
-    return this.doRequestWithBearerToken(
-      'POST',
-      `${this.baseURL}/oauth/subscriptions/active`,
-      refreshToken,
-      {
-        planId,
-        paymentToken,
-        displayName,
-        idempotencyKey,
-      }
-    );
-  };
-
   ClientApi.prototype.updatePayment = function (refreshToken, paymentToken) {
     return this.doRequestWithBearerToken(
       'POST',
