@@ -208,6 +208,7 @@ hr {
   }
 }
 
+.payment-logo,
 .c-card {
   position: relative;
 
@@ -225,6 +226,31 @@ hr {
   position: absolute;
   top: 0;
   width: 40px;
+}
+
+.payment-logo {
+  font-size: 1px;
+  color: rgba(0, 0, 0, 0);
+  width: 120px;
+  height: 24px;
+}
+
+.payment-logo::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: top right;
+  background-repeat: no-repeat;
+}
+
+.paypal::before {
+  background-image: url('./images/paypal.svg');
 }
 
 .unbranded::before {

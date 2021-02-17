@@ -61,6 +61,30 @@ const customer: Customer = {
   ],
 };
 
+const paypalCustomer: Customer = {
+  billing_name: 'Pay Pal Doe',
+  payment_provider: 'paypal',
+  payment_type: 'credit',
+  last4: '7777',
+  exp_month: '03',
+  exp_year: '3000',
+  brand: 'Visa',
+  subscriptions: [
+    {
+      latest_invoice: '628031D-0002',
+      subscription_id: 'sub0.28964929339372136',
+      plan_id: 'plan_123',
+      product_id: 'prod_123',
+      product_name: '123 Done Pro',
+      status: 'active',
+      cancel_at_period_end: false,
+      current_period_end: Date.now() / 1000 + 86400 * 31,
+      current_period_start: Date.now() / 1000 - 86400 * 31,
+      end_at: null,
+    },
+  ],
+};
+
 afterEach(cleanup);
 
 describe('PaymentConfirmation', () => {
@@ -76,6 +100,55 @@ describe('PaymentConfirmation', () => {
     const { queryByTestId } = subject();
     const footer = queryByTestId('footer');
     expect(footer).toBeVisible();
+  });
+
+  describe('When payment_provider is "paypal"', () => {
+    const subject = () => {
+      return render(
+        <PaymentConfirmation
+          {...{
+            profile: userProfile,
+            selectedPlan,
+            customer: paypalCustomer,
+            productUrl,
+          }}
+        />
+      );
+    };
+
+    it('renders the paypal logo', () => {
+      const { queryByTestId } = subject();
+      const paypalLogo = queryByTestId('paypal-logo');
+      expect(paypalLogo).toBeVisible();
+    });
+
+    it('omits the billing info row', () => {
+      const { queryByTestId } = subject();
+      const billingDetailsRow = queryByTestId('billing-info');
+      expect(billingDetailsRow).toBeNull();
+    });
+  });
+
+  describe('When payment_provider is "stripe"', () => {
+    const subject = () => {
+      return render(
+        <PaymentConfirmation
+          {...{ profile: userProfile, selectedPlan, customer, productUrl }}
+        />
+      );
+    };
+
+    it('omits the paypal logo', () => {
+      const { queryByTestId } = subject();
+      const paypalLogo = queryByTestId('paypal-logo');
+      expect(paypalLogo).toBeNull();
+    });
+
+    it('renders the billing info row', () => {
+      const { queryByTestId } = subject();
+      const billingDetailsRow = queryByTestId('billing-info');
+      expect(billingDetailsRow).toBeVisible();
+    });
   });
 
   describe('Payment Details', () => {
