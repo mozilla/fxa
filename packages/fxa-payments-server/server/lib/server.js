@@ -21,6 +21,7 @@ module.exports = () => {
 
   const express = require('express');
   const helmet = require('helmet');
+  const noCache = require('nocache');
   const sentry = require('@sentry/node');
   const serveStatic = require('serve-static');
 
@@ -227,6 +228,7 @@ module.exports = () => {
     const proxy = require('express-http-proxy');
     app.use(
       '/',
+      noCache(),
       proxy(proxyUrl, {
         userResDecorator: function (proxyRes, proxyResData, userReq, userRes) {
           const contentType = proxyRes.headers['content-type'];
@@ -264,7 +266,7 @@ module.exports = () => {
 
     INDEX_ROUTES.forEach((route) => {
       // FIXME: should set ETag, Not-Modified:
-      app.get(route, (req, res) => {
+      app.get(route, noCache(), (req, res) => {
         res.send(
           injectHtmlConfig(
             STATIC_INDEX_HTML,
