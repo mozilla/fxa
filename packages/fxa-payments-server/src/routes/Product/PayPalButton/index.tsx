@@ -107,10 +107,21 @@ export const PaypalButton = ({
     [setPaymentError]
   );
 
+  // Style docs: https://developer.paypal.com/docs/business/checkout/reference/style-guide/
+  const styleOptions = {
+    layout: 'horizontal',
+    color: 'gold',
+    shape: 'pill',
+    label: 'paypal',
+    height: 48,
+    tagline: 'false',
+  };
+
   return (
     <>
       {ButtonBase && (
         <ButtonBase
+          style={styleOptions}
           data-testid="paypal-button"
           createOrder={createOrder}
           onApprove={onApprove}
