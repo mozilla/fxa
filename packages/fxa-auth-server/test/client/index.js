@@ -842,22 +842,6 @@ module.exports = (config) => {
     return this.api.getActiveSubscriptions(refreshToken);
   };
 
-  Client.prototype.createSubscription = function (
-    refreshToken,
-    planId,
-    paymentToken,
-    displayName,
-    idempotencyKey
-  ) {
-    return this.api.createSubscription(
-      refreshToken,
-      planId,
-      paymentToken,
-      displayName,
-      idempotencyKey
-    );
-  };
-
   Client.prototype.updatePayment = function (refreshToken, paymentToken) {
     return this.api.updatePayment(refreshToken, paymentToken);
   };

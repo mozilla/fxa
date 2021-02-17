@@ -996,47 +996,6 @@ export class StripeHelper {
   }
 
   /**
-   * Wraps all of the necessary checks to ensure successful subscription creation
-   *
-   * 1. Calls Stripe Helper to Subscribe a Customer to a selected Plan
-   * 2. Checks the status of the Invoice returned from the Subscription creation
-   *  2a. If Invoice is marked as Paid: return newly created Subscription
-   *  2b. If Invoice is NOT marked as Paid: throw error
-   *
-   * @throws {error.paymentFailed}
-   */
-  async createSubscription(
-    customer: Stripe.Customer,
-    selectedPlan: AbbrevPlan,
-    idempotencyKey: string
-  ): Promise<Stripe.Subscription> {
-    let subscription;
-
-    try {
-      subscription = await this.stripe.subscriptions.create(
-        {
-          customer: customer.id,
-          items: [{ plan: selectedPlan.plan_id }],
-          expand: ['latest_invoice.payment_intent'],
-        },
-        {
-          idempotency_key: idempotencyKey,
-        }
-      );
-    } catch (err) {
-      if (err.type === 'StripeCardError') {
-        throw error.rejectedSubscriptionPaymentToken(err.message, err);
-      }
-      throw err;
-    }
-
-    if (!this.paidInvoice(subscription.latest_invoice)) {
-      throw error.paymentFailed();
-    }
-    return subscription;
-  }
-
-  /**
    * Verify that the invoice was paid successfully.
    *
    * Note that the invoice *must have the `payment_intent` expanded*
