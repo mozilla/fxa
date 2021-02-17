@@ -100,6 +100,15 @@ export class PayPalHelper {
     this.stripeHelper = Container.get(StripeHelper);
   }
 
+  public generateIdempotencyKey(invoiceId: string, paymentAttempt: number): string {
+    return invoiceId + '-' + paymentAttempt
+  }
+
+  public parseIdempotencyKey(idempotencyKey: string): {invoiceId: string, paymentAttempt: number} {
+    const parsedValue = idempotencyKey.split('-')
+    return {invoiceId: parsedValue[0], paymentAttempt: parseInt(parsedValue[1])}
+  }
+
   /**
    * Get a token authorizing transaction to move to the next stage.
    *
@@ -266,7 +275,7 @@ export class PayPalHelper {
     // charges. This key is restricted to the invoice and payment
     // attempt in combination, so that retries can be made if
     // the prior attempt failed and a retry is desired.
-    const idempotencyKey = invoice.id + paymentAttempt;
+    const idempotencyKey = this.generateIdempotencyKey(invoice.id, paymentAttempt);
 
     const promises: Promise<any>[] = [
       this.chargeCustomer({

@@ -298,6 +298,7 @@ describe('PayPalClient', () => {
   describe('doReferenceTransaction', () => {
     const defaultData = {
       AMT: '5.99',
+      CUSTOM: 'in_asdf-12',
       INVNUM: 'in_asdf',
       MSGSUBID: 'in_asdf-12',
       PAYMENTACTION: 'Sale',
