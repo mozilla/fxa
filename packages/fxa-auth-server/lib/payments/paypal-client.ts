@@ -317,7 +317,7 @@ export class PayPalClient {
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
       NOSHIPPING: 1,
       PAYMENTREQUEST_0_AMT: '0',
-      PAYMENTREQUEST_0_CURRENCYCODE: options.currencyCode,
+      PAYMENTREQUEST_0_CURRENCYCODE: options.currencyCode.toUpperCase(),
       PAYMENTREQUEST_0_PAYMENTACTION: 'AUTHORIZATION',
       RETURNURL: PLACEHOLDER_URL,
     };

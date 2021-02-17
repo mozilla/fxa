@@ -255,6 +255,23 @@ describe('PayPalClient', () => {
         }
       );
     });
+
+    it('calls upper cases requested currency', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulSetExpressCheckoutResponse
+      );
+      await client.setExpressCheckout({
+        currencyCode: 'eur',
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'SetExpressCheckout',
+        {
+          ...defaultData,
+          PAYMENTREQUEST_0_CURRENCYCODE: 'EUR',
+        }
+      );
+    });
   });
 
   describe('createBillingAgreement', () => {

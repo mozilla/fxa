@@ -162,7 +162,7 @@ export const paypalRoutes = (
         },
         validate: {
           payload: {
-            currencyCode: isA.string().required(),
+            currencyCode: isA.string().uppercase().required(),
           },
         },
       },
