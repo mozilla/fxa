@@ -3887,9 +3887,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^7.6.11":
-  version: 7.6.11
-  resolution: "@nestjs/platform-express@npm:7.6.11"
+"@nestjs/platform-express@npm:^7.6.12":
+  version: 7.6.12
+  resolution: "@nestjs/platform-express@npm:7.6.12"
   dependencies:
     body-parser: 1.19.0
     cors: 2.8.5
@@ -3899,7 +3899,7 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^7.0.0
     "@nestjs/core": ^7.0.0
-  checksum: 2dadc955533e1284b566a8c8035066f21d3ef7e3a597b1d85724a131bdfb959a4ed6559e61091fd49593be7d145bc4c51a83bf8ffacbd5cf2d2dffa02a625805
+  checksum: a0969ff99cce25de38362da6b5f51825fe30313fe46dfc3b7ecc2250a15eba21275f3d0f13975740c05df864c9fc450a78acfd9a30f1b9c9b9b77a83668e2c4e
   languageName: node
   linkType: hard
 
@@ -18187,7 +18187,7 @@ fsevents@^1.2.7:
     "@nestjs/core": ^7.6.12
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
-    "@nestjs/platform-express": ^7.6.11
+    "@nestjs/platform-express": ^7.6.12
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.1
@@ -18675,7 +18675,7 @@ fsevents@^1.2.7:
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
-    "@nestjs/platform-express": ^7.6.11
+    "@nestjs/platform-express": ^7.6.12
     "@nestjs/schedule": ^0.4.1
     "@nestjs/schematics": ^7.2.6
     "@nestjs/testing": ^7.6.5
@@ -18772,7 +18772,7 @@ fsevents@^1.2.7:
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
-    "@nestjs/platform-express": ^7.6.11
+    "@nestjs/platform-express": ^7.6.12
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.1
@@ -19278,7 +19278,7 @@ fsevents@^1.2.7:
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.6.12
     "@nestjs/mapped-types": ^0.3.0
-    "@nestjs/platform-express": ^7.6.11
+    "@nestjs/platform-express": ^7.6.12
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/convict": ^5.2.1
