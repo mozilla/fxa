@@ -95,7 +95,6 @@
     }
   }
   .card-details {
-    .last-four,
     .expiry {
       align-items: center;
       display: flex;
@@ -112,9 +111,10 @@
   .with-settings-button {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
 
     p {
-      margin: 0 1em 1em 0;
+      margin: auto 1em auto 0;
 
       &:last-child {
         margin: 0;
@@ -181,9 +181,5 @@
 
   .subscription-management .payment-update .payment {
     padding: 0;
-  }
-
-  .subscription-management .card-details {
-    flex-direction: column;
   }
 }

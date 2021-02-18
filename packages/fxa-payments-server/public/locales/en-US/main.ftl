@@ -139,7 +139,6 @@ input-error-is-required = { $label } is required
 product-plan-upgrade-heading = Review your upgrade
 sub-update-failed = Plan update failed
 sub-update-title = Billing information
-sub-update-card-ending = Card Ending { $last }
 sub-update-card-exp = Expires { $cardExpMonth }/{ $cardExpYear }
 sub-update-copy =
     Your plan will change immediately, and you’ll be charged an adjusted
