@@ -98,8 +98,18 @@ export const SubscriptionCreate = ({
       return;
     }
 
+    // Read nonce from the fxa-paypal-csp-nonce meta tag
+    const cspNonceMetaTag = document?.querySelector(
+      'meta[name="fxa-paypal-csp-nonce"]'
+    );
+    const cspNonce = JSON.parse(
+      decodeURIComponent(cspNonceMetaTag?.getAttribute('content') || '""')
+    );
+
     const script = document.createElement('script');
     script.src = `${config.paypal.scriptUrl}/sdk/js?client-id=${config.paypal.clientId}&vault=true&commit=false&intent=capture&disable-funding=credit,card`;
+    // Pass the csp nonce to paypal
+    script.setAttribute('data-csp-nonce', cspNonce);
     script.onload = () => {
       setPaypalScriptLoaded(true);
     };
