@@ -136,7 +136,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               <ul className="list-inside mb-4">
                 <li className="list-disc">
                   <a className="link-blue" href={VPNLink}>
-                    <Localized id="mozilla-vpn">Mozilla VPN</Localized>
+                    <Localized id="product-mozilla-vpn">Mozilla VPN</Localized>
                   </a>
                 </li>
                 <li className="list-disc">
@@ -148,7 +148,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                 </li>
                 <li className="list-disc">
                   <a className="link-blue" href={MonitorLink}>
-                    <Localized id="firefox-monitor">Firefox Monitor</Localized>
+                    <Localized id="product-firefox-monitor">
+                      Firefox Monitor
+                    </Localized>
                   </a>
                 </li>
               </ul>

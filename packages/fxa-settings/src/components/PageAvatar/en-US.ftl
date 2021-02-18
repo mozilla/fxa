@@ -1,4 +1,4 @@
-# Avatar change page
+## Avatar change page
 
 avatar-page-title =
   .title = Profile Picture
@@ -10,7 +10,7 @@ avatar-page-take-photo-button =
   .title = { avatar-page-take-photo }
 avatar-page-remove-photo = Remove Photo
 avatar-page-remove-photo-button =
-  .title = Remove photo
+  .title = { avatar-page-remove-photo }
 avatar-page-retake-photo = Retake Photo
 avatar-page-close-button = Close
 avatar-page-save-button = Save
@@ -21,3 +21,5 @@ avatar-page-camera-error = Could not initialize camera
 avatar-page-new-avatar =
   .alt = new profile picture
 avatar-page-file-upload-error = There was an issue uploading your profile picture
+
+##

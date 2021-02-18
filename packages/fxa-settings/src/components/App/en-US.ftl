@@ -1,35 +1,41 @@
-# Globally reused strings
+## Firefox and Mozilla Brand
+##
+## Firefox and Mozilla must be treated as a brand.
+##
+## They cannot be:
+## - Transliterated.
+## - Translated.
+##
+## Declension should be avoided where possible, leaving the original
+## brand unaltered in prominent UI positions.
+##
+## For further details, consult:
+## https://mozilla-l10n.github.io/styleguides/mozilla_general/#brands-copyright-and-trademark
 
-# Note: the company name, Mozilla, is not translated.
--mozilla = Mozilla
-# Note: "Firefox" is not translated.
--firefox = Firefox
--firefox-accounts = Firefox Accounts
+-brand-mozilla = Mozilla
+-brand-firefox = Firefox
+-product-firefox-accounts = Firefox Accounts
+# “Account” can be localized, “Firefox” must be treated as a brand.
+# This is used to refer to a user's account, e.g. "update your Firefox account ..."
 -firefox-account = Firefox account
+product-mozilla-vpn = Mozilla VPN
+product-firefox-monitor = Firefox Monitor
 
-# Note: don't translate this product name.
-mozilla-vpn = Mozilla VPN
-# Note: don't translate this product name.
-firefox-lockwise = Firefox Lockwise
-# Note: don't translate this product name.
-firefox-monitor = Firefox Monitor
+##
 
 -google-play = Google Play
 -app-store = App Store
 
-# Frequently reused button text. The translations should be short enough to fit in a small button.
-fxa-save-button = Save
-fxa-close-button = Close
-fxa-cancel-button = Cancel
-fxa-continue-button = Continue
+##  Application page title and footer
 
-# Application
-
-app-default-title = { -firefox-accounts }
-app-page-title = { $title } | { -firefox-account }
-
-# Application-wide footer
-
-app-footer-mozilla-logo-label = { -mozilla } logo
+app-default-title = { -product-firefox-accounts }
+# This string is used as the title of the page.
+# Variables:
+#   $title (String) - the name of the current page
+#                      (for example: "Two-Step Authentication")
+app-page-title = { $title } | { -product-firefox-accounts }
+app-footer-mozilla-logo-label = { -brand-mozilla } logo
 app-footer-privacy-notice = Website Privacy Notice
 app-footer-terms-of-service = Terms of Service
+
+##

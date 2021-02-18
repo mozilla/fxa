@@ -18,14 +18,19 @@ cs-refresh-button =
 cs-missing-device-help = Missing or duplicate items?
 
 cs-disconnect-sync-heading = Disconnect from Sync
-# $device is the name of the device being disconnected
+# This string is used in a modal dialog when the user starts the disconnect from
+# Sync process.
+# Variables:
+#   $device (String) - the name of a device using Firefox Accounts
+#                      (for example: "Firefox Nightly on Google Pixel 4a")
 cs-disconnect-sync-content = Your browsing data will remain on your
   device ({ $device }), but it will no longer sync with your account.
-cs-disconnect-sync-reason = What's the main reason for disconnecting this
+cs-disconnect-sync-reason = What’s the main reason for disconnecting this
   device?
 
 ## The following are the options for selecting a reason for disconnecting the
 ## device
+
 cs-disconnect-sync-opt-prefix = The device is:
 cs-disconnect-sync-opt-suspicious = Suspicious
 cs-disconnect-sync-opt-lost = Lost or Stolen
@@ -33,16 +38,20 @@ cs-disconnect-sync-opt-old = Old or Replaced
 cs-disconnect-sync-opt-duplicate = Duplicate
 cs-disconnect-sync-opt-not-say = Rather not say
 
+##
+
 cs-disconnect-advice-confirm = Okay, got it
 cs-disconnect-lost-advice-heading = Lost or stolen device disconnected
 cs-disconnect-lost-advice-content = Since your device was lost or stolen, to
-  keep your information safe, you should change your { -firefox-account } password
+  keep your information safe, you should change your { -product-firefox-account } password
   in your account settings. You should also look for information from your
   device manufacturer about erasing your data remotely.
 cs-disconnect-suspicious-advice-heading = Suspicious device disconnected
 cs-disconnect-suspicious-advice-content = If the disconnected device is indeed
-  suspicious, to keep your information safe, you should change your { -firefox }
-  account password in your account settings. You should also change any other
-  passwords you saved in { -firefox } by typing about:logins into the address bar.
+  suspicious, to keep your information safe, you should change your { -firefox-account }
+  password in your account settings. You should also change any other
+  passwords you saved in { -brand-firefox } by typing about:logins into the address bar.
 
 cs-sign-out-button = Sign out
+
+##

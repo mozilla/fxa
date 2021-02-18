@@ -6,8 +6,8 @@ tfa-step-1-3 = Step 1 of 3
 tfa-step-2-3 = Step 2 of 3
 tfa-step-3-3 = Step 3 of 3
 
-tfa-button-continue = { fxa-continue-button }
-tfa-button-cancel = { fxa-cancel-button }
+tfa-button-continue = Continue
+tfa-button-cancel = Cancel
 tfa-button-finish = Finish
 
 tfa-incorrect-totp = Incorrect two-step authentication code
@@ -19,7 +19,9 @@ tfa-enabled = Two-step authentication enabled
 tfa-scan-this-code = Scan this QR code using one of <linkExternal>these
   authentication apps</linkExternal>.
 
-# Image alt text on QR code. $secret is a long alphanumeric string.
+# This is the image alt text for a QR code.
+# Variables:
+#   $secret (String) - a long alphanumeric string that does not require translation
 tfa-qa-code-alt = Use the code { $secret } to set up two-step authentication in
   supported applications.
 tfa-button-cant-scan-qr = Can’t scan code?
@@ -38,3 +40,5 @@ tfa-enter-code-to-confirm = Please enter one of your recovery codes now to
   to access your account.
 tfa-enter-recovery-code =
  .label = Enter a recovery code
+
+##
