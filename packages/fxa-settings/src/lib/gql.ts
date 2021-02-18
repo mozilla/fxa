@@ -1,7 +1,6 @@
-import { ApolloClient, from } from '@apollo/client';
+import { ApolloClient, createHttpLink, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { ErrorHandler, onError } from '@apollo/client/link/error';
-import { createUploadLink } from 'apollo-upload-client';
 import { cache, sessionToken, typeDefs } from './cache';
 
 export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
@@ -32,6 +31,11 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
 };
 
 export function createApolloClient(gqlServerUri: string) {
+  // httpLink makes the actual requests to the server
+  const httpLink = createHttpLink({
+    uri: `${gqlServerUri}/graphql`,
+  });
+
   // authLink sets the Authentication header on outgoing requests
   const authLink = setContext((_, { headers }) => {
     return {
@@ -45,15 +49,9 @@ export function createApolloClient(gqlServerUri: string) {
   // errorLink handles error responses from the server
   const errorLink = onError(errorHandler);
 
-  // uploadLink makes the actual requests to the server(httpLink with uploads)
-  const uploadLink = createUploadLink({ uri: `${gqlServerUri}/graphql` });
-
   const apolloClient = new ApolloClient({
     cache,
-    // uploadLink needs to be imported with `as any` because 'apollo-upload-client'
-    // dependency is out of sync with Apollo Client, once 'apollo-upload-client'
-    // updates itself, we should be able to remove the `as any` here.
-    link: from([errorLink, authLink, uploadLink as any]),
+    link: from([errorLink, authLink, httpLink]),
     typeDefs,
   });
 

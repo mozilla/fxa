@@ -9,7 +9,9 @@ import DropDownAvatarMenu from '.';
 
 storiesOf('Components|DropDownAvatarMenu', module)
   .add('default - no avatar or display name', () => (
-    <MockedCache account={{ avatarUrl: null, displayName: null }}>
+    <MockedCache
+      account={{ avatar: { id: null, url: null }, displayName: null }}
+    >
       <div className="w-full flex justify-end">
         <div className="flex pr-10 pt-4">
           <DropDownAvatarMenu />

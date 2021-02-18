@@ -526,7 +526,11 @@ Example:
 
 ```jsx
 const mocks = [];
-<MockedCache account={{ avatarUrl: null }} verified={false} {...{ mocks }}>
+<MockedCache
+  account={{ avatar: { id: null, url: null } }}
+  verified={false}
+  {...{ mocks }}
+>
   <HeaderLockup />
 </MockedCache>;
 ```

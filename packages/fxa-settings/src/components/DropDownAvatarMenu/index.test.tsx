@@ -45,7 +45,9 @@ afterAll(() => {
 describe('DropDownAvatarMenu', () => {
   it('renders and toggles as expected with default values', () => {
     render(
-      <MockedCache account={{ avatarUrl: null, displayName: null }}>
+      <MockedCache
+        account={{ avatar: { id: null, url: null }, displayName: null }}
+      >
         <DropDownAvatarMenu />
       </MockedCache>
     );
@@ -71,7 +73,7 @@ describe('DropDownAvatarMenu', () => {
     expect(dropDown).not.toBeInTheDocument;
   });
 
-  it('renders as expected with avatarUrl and displayName set', () => {
+  it('renders as expected with avatar url and displayName set', () => {
     render(
       <MockedCache>
         <DropDownAvatarMenu />
