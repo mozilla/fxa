@@ -4,6 +4,7 @@
 import pRetry from 'p-retry';
 import querystring from 'querystring';
 import superagent from 'superagent';
+import { EventEmitter } from 'events';
 
 export const PAYPAL_SANDBOX_BASE = 'https://api-3t.sandbox.paypal.com';
 export const PAYPAL_SANDBOX_IPN_BASE = 'https://ipnpb.sandbox.paypal.com';
@@ -201,6 +202,15 @@ export function isIpnMerchPmt(
   return ['merch_pmt', 'mp_cancel'].includes(ipnMessage.txn_type);
 }
 
+type ResponseEventType = {
+  error?: Error;
+  request_end_time: number;
+  version: string;
+  elapsed: number;
+  method: string;
+  request_start_time: number;
+};
+
 export class PayPalClientError extends Error {
   public raw: string;
   public data: NVPResponse;
@@ -227,6 +237,11 @@ export class PayPalClient {
     minTimeout: number;
     factor: number;
   };
+  private emitter: EventEmitter;
+  public on: (
+    event: 'response',
+    listener: (response: ResponseEventType) => void
+  ) => EventEmitter;
 
   constructor(options: PaypalOptions) {
     this.url = options.sandbox ? PAYPAL_SANDBOX_API : PAYPAL_LIVE_API;
@@ -240,6 +255,8 @@ export class PayPalClient {
       factor: 1.66,
       ...options.retryOptions,
     };
+    this.emitter = new EventEmitter();
+    this.on = this.emitter.on.bind(this.emitter);
   }
 
   private objectToNVP(object: Record<string, any>): string {
@@ -284,15 +301,38 @@ export class PayPalClient {
       SIGNATURE: this.signature,
       VERSION: PAYPAL_VERSION,
     });
-    const result = await pRetry(
-      () =>
-        superagent
-          .post(this.url)
-          .set('content-type', 'application/x-www-form-urlencoded')
-          .send(payload),
-      this.retryOptions
-    );
+    const response = {
+      request_start_time: Date.now(),
+      method,
+      version: PAYPAL_VERSION,
+    };
+    let result;
+    try {
+      result = await pRetry(
+        () =>
+          superagent
+            .post(this.url)
+            .set('content-type', 'application/x-www-form-urlencoded')
+            .send(payload),
+        this.retryOptions
+      );
+    } catch (err) {
+      const request_end_time = Date.now();
+      this.emitter.emit('response', {
+        ...response,
+        elapsed: request_end_time - response.request_start_time,
+        error: err,
+        request_end_time,
+      });
+      throw err;
+    }
+    const request_end_time = Date.now();
     const resultObj = this.nvpToObject(result.text) as T;
+    this.emitter.emit('response', {
+      ...response,
+      elapsed: request_end_time - response.request_start_time,
+      request_end_time,
+    });
     if (resultObj.ACK === 'Success' || resultObj.ACK === 'SuccessWithWarning') {
       return resultObj;
     } else {

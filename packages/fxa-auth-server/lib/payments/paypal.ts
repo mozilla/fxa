@@ -98,6 +98,14 @@ export class PayPalHelper {
     this.client = Container.get(PayPalClient);
     this.metrics = Container.get(StatsD);
     this.stripeHelper = Container.get(StripeHelper);
+    if (this.metrics) {
+      this.client.on('response', (response) => {
+        this.metrics.timing('paypal_request', response.elapsed, undefined, {
+          method: response.method,
+          error: response.error ? 'false' : 'true',
+        });
+      });
+    }
   }
 
   /**
