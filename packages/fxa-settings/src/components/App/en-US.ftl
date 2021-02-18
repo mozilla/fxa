@@ -14,10 +14,11 @@
 
 -brand-mozilla = Mozilla
 -brand-firefox = Firefox
+# “Accounts” can be localized, “Firefox” must be treated as a brand.
 -product-firefox-accounts = Firefox Accounts
 # “Account” can be localized, “Firefox” must be treated as a brand.
 # This is used to refer to a user's account, e.g. "update your Firefox account ..."
--firefox-account = Firefox account
+-product-firefox-account = Firefox account
 product-mozilla-vpn = Mozilla VPN
 product-firefox-monitor = Firefox Monitor
 

@@ -43,12 +43,12 @@ cs-disconnect-sync-opt-not-say = Rather not say
 cs-disconnect-advice-confirm = Okay, got it
 cs-disconnect-lost-advice-heading = Lost or stolen device disconnected
 cs-disconnect-lost-advice-content = Since your device was lost or stolen, to
-  keep your information safe, you should change your { -product-firefox-account } password
+  keep your information safe, you should change your { -product-firefox-accounts } password
   in your account settings. You should also look for information from your
   device manufacturer about erasing your data remotely.
 cs-disconnect-suspicious-advice-heading = Suspicious device disconnected
 cs-disconnect-suspicious-advice-content = If the disconnected device is indeed
-  suspicious, to keep your information safe, you should change your { -firefox-account }
+  suspicious, to keep your information safe, you should change your { -product-firefox-account }
   password in your account settings. You should also change any other
   passwords you saved in { -brand-firefox } by typing about:logins into the address bar.
 
