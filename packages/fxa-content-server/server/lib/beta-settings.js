@@ -44,6 +44,12 @@ const settingsConfig = {
     auth: {
       url: config.get('fxaccount_url'),
     },
+    profile: {
+      url: config.get('profile_url'),
+    },
+  },
+  oauth: {
+    clientId: config.get('oauth_client_id'),
   },
 };
 

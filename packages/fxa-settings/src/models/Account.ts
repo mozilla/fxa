@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import {
   gql,
   useApolloClient,
@@ -171,11 +172,13 @@ export function useAccount() {
   // work around for https://github.com/apollographql/apollo-client/issues/6209
   // see git history for previous version
   const client = useApolloClient();
+  // without the ref direct cache updates sometimes don't trigger a render :/
+  const accountRef = useRef<Account>();
   const { account } = client.cache.readQuery<{ account: Account }>({
     query: GET_ACCOUNT,
   })!;
-
-  return account;
+  accountRef.current = account;
+  return accountRef.current;
 }
 
 export function useLazyAccount(

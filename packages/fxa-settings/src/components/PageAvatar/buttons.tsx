@@ -127,6 +127,7 @@ export const AddPhotoBtn = ({
   const hiddenFileInput = (
     <input
       type="file"
+      accept="image/png, image/jpeg"
       onChange={onChange}
       ref={fileInputRef}
       className="sr-only"
