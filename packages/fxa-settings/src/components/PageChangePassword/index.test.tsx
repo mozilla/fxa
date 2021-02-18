@@ -9,7 +9,11 @@ import { act, fireEvent, screen, wait } from '@testing-library/react';
 import { AuthContext, createAuthClient } from '../../lib/auth';
 import { MockedCache, renderWithRouter } from '../../models/_mocks';
 import PageChangePassword from '.';
-import { logViewEvent, settingsViewName } from '../../lib/metrics';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
 import { typeByTestIdFn } from '../../lib/test-utils';
 
 jest.mock('../../lib/auth', () => ({
@@ -22,6 +26,7 @@ jest.mock('../../lib/auth', () => ({
     })),
 }));
 jest.mock('fxa-settings/src/lib/metrics', () => ({
+  usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
 }));
@@ -48,6 +53,11 @@ it('renders', async () => {
   expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
   expect(screen.getByTestId('nav-link-common-passwords')).toBeInTheDocument();
   expect(screen.getByTestId('nav-link-reset-password')).toBeInTheDocument();
+});
+
+it('emits a metrics event on render', async () => {
+  await render();
+  expect(usePageViewEvent).toHaveBeenCalledWith('settings.change-password');
 });
 
 it('emits an Amplitude event on success', async () => {
