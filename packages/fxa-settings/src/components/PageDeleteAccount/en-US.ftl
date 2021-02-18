@@ -26,6 +26,6 @@ delete-account-password-input =
  .label = Enter password
 
 delete-account-cancel-button = Cancel
-delete-account-delete-button = Delete Account
+delete-account-delete-button = Delete
 
 ##
