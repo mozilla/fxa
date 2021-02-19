@@ -11,6 +11,7 @@ import { AuthLogger } from '../../types';
 import { stripeRoutes, StripeHandler, sanitizePlans } from './stripe';
 import { handleAuth } from './utils';
 import { paypalRoutes } from './paypal';
+import { paypalNotificationRoutes } from './paypal-notifications';
 import { stripeWebhookRoutes } from './stripe-webhook';
 
 const createRoutes = (
@@ -59,6 +60,18 @@ const createRoutes = (
   if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {
     routes.push(
       ...paypalRoutes(
+        log,
+        db,
+        config,
+        customs,
+        push,
+        mailer,
+        profile,
+        stripeHelper
+      )
+    );
+    routes.push(
+      ...paypalNotificationRoutes(
         log,
         db,
         config,

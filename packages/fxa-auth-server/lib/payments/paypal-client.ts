@@ -398,6 +398,7 @@ export class PayPalClient {
   ): Promise<NVPDoReferenceTransactionResponse> {
     const data = {
       AMT: options.amount,
+      CUSTOM: options.idempotencyKey,
       INVNUM: options.invoiceNumber,
       MSGSUBID: options.idempotencyKey,
       PAYMENTACTION: 'Sale',

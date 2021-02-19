@@ -655,6 +655,21 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('getInvoice', () => {
+    it('works successfully',
+      async () => {
+        sandbox
+          .stub(stripeHelper.stripe.invoices, 'retrieve')
+          .resolves(unpaidInvoice);
+        const actual = await stripeHelper.getInvoice(unpaidInvoice.id);
+        assert.deepEqual(actual, unpaidInvoice);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripe.invoices.retrieve,
+          unpaidInvoice.id
+        );
+      });
+  });
+
   describe('finalizeInvoice', () => {
     it('works successfully', async () => {
       sandbox

@@ -11,6 +11,9 @@ const { Container } = require('typedi');
 
 const mocks = require('../../../mocks');
 
+const error = require('../../../../lib/error');
+const completedMerchantPaymentNotification = require('../fixtures/merch_pmt_completed.json');
+const pendingMerchantPaymentNotification = require('../fixtures/merch_pmt_pending.json');
 const {
   PayPalNotificationHandler,
 } = require('../../../../lib/routes/subscriptions/paypal-notifications');
@@ -153,6 +156,186 @@ describe('PayPalNotificationHandler', () => {
       assert.deepEqual(result, false);
       sinon.assert.calledOnce(paypalHelper.verifyIpnMessage);
       sinon.assert.calledOnce(log.error);
+    });
+  });
+
+  describe('handleMerchPayment', () => {
+    const message = {
+      txn_type: 'merch_pmt',
+      invoice: 'inv_000',
+    };
+    it('receives IPN message with successful payment status', async () => {
+      const invoice = { status: 'open' };
+      const paidInvoice = { status: 'paid' };
+      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      stripeHelper.payInvoiceOutOfBand = sinon.fake.resolves(paidInvoice);
+      const result = await handler.handleMerchPayment(
+        completedMerchantPaymentNotification
+      );
+      assert.deepEqual(result, paidInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        completedMerchantPaymentNotification.invoice
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.payInvoiceOutOfBand,
+        invoice
+      );
+    });
+
+    it('receives IPN message with pending payment status', async () => {
+      const invoice = { status: 'open' };
+      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      const result = await handler.handleMerchPayment(
+        pendingMerchantPaymentNotification
+      );
+      assert.deepEqual(result, undefined);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        pendingMerchantPaymentNotification.invoice
+      );
+    });
+
+    it('receives IPN message with unsuccessful payment status and it increments payment attempts', async () => {
+      const invoice = { status: 'open' };
+      const deniedMessage = {
+        ...message,
+        payment_status: 'Denied',
+        custom: 'inv_000-0',
+      };
+      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      paypalHelper.parseIdempotencyKey = sinon.fake.returns({
+        invoiceId: 'inv_000',
+        paymentAttempt: 0,
+      });
+      stripeHelper.getPaymentAttempts = sinon.fake.returns(0);
+      stripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
+      const result = await handler.handleMerchPayment(deniedMessage);
+      assert.deepEqual(result, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        message.invoice
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentAttempts,
+        invoice
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updatePaymentAttempts,
+        invoice
+      );
+    });
+
+    it('receives IPN message with unsuccessful payment status and it does not increments payment attempts', async () => {
+      const invoice = { status: 'open' };
+      const deniedMessage = {
+        ...message,
+        payment_status: 'Denied',
+        custom: 'inv_000-0',
+      };
+      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      paypalHelper.parseIdempotencyKey = sinon.fake.returns({
+        invoiceId: 'inv_000',
+        paymentAttempt: 0,
+      });
+      stripeHelper.getPaymentAttempts = sinon.fake.returns(1);
+      const result = await handler.handleMerchPayment(deniedMessage);
+      assert.deepEqual(result, undefined);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        message.invoice
+      );
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.parseIdempotencyKey,
+        deniedMessage.custom
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentAttempts,
+        invoice
+      );
+    });
+
+    it('receives IPN message with unsuccessful payment status and no idempotency key', async () => {
+      const invoice = { status: 'open' };
+      const deniedMessage = {
+        ...message,
+        payment_status: 'Denied',
+        custom: '',
+      };
+      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      try {
+        await handler.handleMerchPayment(deniedMessage);
+        assert.fail('Error should throw no idempotency key response.');
+      } catch (err) {
+        assert.deepEqual(
+          err,
+          error.internalValidationError('handleMerchPayment', {
+            message: 'No idempotency key on PayPal transaction',
+          })
+        );
+      }
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        message.invoice
+      );
+      sinon.assert.calledOnce(log.error);
+    });
+
+    it('receives IPN message with unexpected payment status', async () => {
+      const invoice = { status: 'open' };
+      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      try {
+        await handler.handleMerchPayment({
+          ...message,
+        });
+        assert.fail(
+          'Error should throw invoice not in correct status response.'
+        );
+      } catch (err) {
+        assert.deepEqual(
+          err,
+          error.internalValidationError('handleMerchPayment', {
+            message: 'Unexpected PayPal payment status',
+            transactionResponse: message.payment_status,
+          })
+        );
+      }
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        message.invoice
+      );
+      sinon.assert.calledOnce(log.error);
+    });
+
+    it('receives IPN message with invoice not found', async () => {
+      stripeHelper.getInvoice = sinon.fake.resolves(undefined);
+      try {
+        await handler.handleMerchPayment(message);
+        assert.fail('Error should throw invoice not found response.');
+      } catch (err) {
+        assert.deepEqual(
+          err,
+          error.internalValidationError('handleMerchPayment', {
+            message: 'Invoice not found',
+          })
+        );
+      }
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        message.invoice
+      );
+      sinon.assert.calledOnce(log.error);
+    });
+
+    it('receives IPN message with invoice not in draft or open status', async () => {
+      const invoice = { status: null };
+      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      const result = await handler.handleMerchPayment(message);
+      assert.deepEqual(result, undefined);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        message.invoice
+      );
     });
   });
 });
