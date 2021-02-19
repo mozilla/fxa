@@ -11,7 +11,11 @@ import { HomePath } from '../../constants';
 import { usePasswordChanger } from '../../lib/auth';
 import { cache, sessionToken } from '../../lib/cache';
 import firefox from '../../lib/firefox';
-import { logViewEvent, settingsViewName } from '../../lib/metrics';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
 import { useAccount } from '../../models';
 import AlertBar from '../AlertBar';
 import FlowContainer from '../FlowContainer';
@@ -49,6 +53,7 @@ const ValidationIcon = ({
 
 // eslint-disable-next-line no-empty-pattern
 export const PageChangePassword = ({}: RouteComponentProps) => {
+  usePageViewEvent('settings.change-password');
   const {
     handleSubmit,
     register,
