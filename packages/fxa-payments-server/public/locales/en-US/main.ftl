@@ -6,6 +6,7 @@
 project-brand = Firefox Accounts
 -brand-name-mozilla = Mozilla
 -brand-name-firefox = Firefox
+-brand-name-paypal = PayPal
 
 document =
   .title = Firefox Accounts
@@ -76,8 +77,8 @@ product-plan-not-found = Plan not found
 product-no-such-plan = No such plan for this product.
 
 ## payment legal blurb
-payment-legal-copy-stripe-paypal = { -brand-name-mozilla } uses Stripe and Paypal for secure payment processing.
-payment-legal-link-stripe-paypal = View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> and <paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>.
+payment-legal-copy-stripe-paypal = { -brand-name-mozilla } uses Stripe and { -brand-name-paypal } for secure payment processing.
+payment-legal-link-stripe-paypal = View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> and <paypalPrivacyLink>{ -brand-name-paypal } privacy policy</paypalPrivacyLink>.
 
 ## payment form
 payment-name =
