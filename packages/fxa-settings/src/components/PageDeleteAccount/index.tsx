@@ -240,7 +240,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   data-testid="delete-account-button"
                   disabled={disabled}
                 >
-                  Delete Account
+                  Delete
                 </button>
               </Localized>
             </div>
