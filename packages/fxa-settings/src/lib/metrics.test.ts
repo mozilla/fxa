@@ -13,8 +13,6 @@ import {
   addExperiment,
   setUserPreference,
   setNewsletters,
-  addMarketingImpression,
-  setMarketingClick,
   useUserPreferences,
   useViewEvent,
   usePageViewEvent,
@@ -139,36 +137,10 @@ describe('init', () => {
     window.console.error = jest.fn();
   });
 
-  it('remains uninitialized when any flow param is empty', () => {
-    init({});
-    logEvents([eventSlug]);
-
-    init({ deviceId, flowBeginTime });
-    logEvents([eventSlug]);
-
-    init({ deviceId, flowId });
-    logEvents([eventSlug]);
-
-    init({ flowBeginTime, flowId });
-    logEvents([eventSlug]);
-
-    expect(window.navigator.sendBeacon).not.toHaveBeenCalled();
-    // 4 attempts to initialize; each failing and should
-    // result in be redirected to the get_flow route
-    expect(window.location.replace).toHaveBeenCalledTimes(4);
-  });
-
   it('initializes when given all flow params', () => {
     initAndLog();
 
     expect(window.navigator.sendBeacon).toHaveBeenCalled();
-  });
-
-  it('passes through query params to content server', () => {
-    init({});
-    expect(window.location.replace).toHaveBeenCalledWith(
-      `${window.location.origin}/get_flow?x=y&a=b&redirect_to=%2F%3Fx%3Dy%26a%3Db`
-    );
   });
 });
 

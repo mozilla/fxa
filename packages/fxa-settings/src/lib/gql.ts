@@ -23,7 +23,7 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
   }
   if (reauth) {
     window.location.replace(
-      `/get_flow?redirect_to=${encodeURIComponent(window.location.pathname)}`
+      `/signin?redirect_to=${encodeURIComponent(window.location.pathname)}`
     );
   } else {
     console.error('graphql errors', graphQLErrors, networkError);
