@@ -9,7 +9,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { HomePath } from '../../constants';
 import { usePasswordChanger } from '../../lib/auth';
-import { cache, sessionToken } from '../../lib/cache';
+import { alertTextExternal, cache, sessionToken } from '../../lib/cache';
 import firefox from '../../lib/firefox';
 import {
   logViewEvent,
@@ -79,6 +79,12 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
   const { primaryEmail } = useAccount();
   const navigate = useNavigate();
+  const goHome = () => {
+    alertTextExternal(
+      l10n.getString('pw-change-success-alert', null, 'Password updated.')
+    );
+    navigate(HomePath, { replace: true });
+  };
   const { l10n } = useLocalization();
   const changePassword = usePasswordChanger({
     onSuccess: (response) => {
@@ -112,7 +118,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
           session: { verified: response.verified, __typename: 'Session' },
         },
       });
-      navigate(HomePath);
+      goHome();
     },
     onError: (e) => {
       const localizedError = l10n.getString(

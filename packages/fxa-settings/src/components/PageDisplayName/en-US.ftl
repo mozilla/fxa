@@ -7,4 +7,6 @@ cancel-display-name = Cancel
 
 display-name-update-error = There was a problem updating your display name.
 
+display-name-success-alert = Display name updated.
+
 ##

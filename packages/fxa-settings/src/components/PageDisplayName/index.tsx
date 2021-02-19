@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import firefox from '../../lib/firefox';
+import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { gql } from '@apollo/client';
 import AlertBar from '../AlertBar';
@@ -31,6 +32,16 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const { l10n } = useLocalization();
+  const goHome = () => {
+    alertTextExternal(
+      l10n.getString(
+        'display-name-success-alert',
+        null,
+        'Display name updated.'
+      )
+    );
+    navigate(HomePath, { replace: true });
+  };
   const [errorText, setErrorText] = useState<string>();
   const [displayName, setDisplayName] = useState<string>();
   const initialValue = account.displayName || '';
@@ -47,7 +58,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   const [updateDisplayName] = useMutation(UPDATE_DISPLAY_NAME_MUTATION, {
     onCompleted: () => {
       firefox.profileChanged(account.uid);
-      navigate(HomePath, { replace: true });
+      goHome();
     },
     onError(err) {
       if (err.graphQLErrors?.length) {
