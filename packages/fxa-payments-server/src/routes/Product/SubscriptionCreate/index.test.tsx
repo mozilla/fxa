@@ -146,17 +146,16 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
 
   it('renders as expected', async () => {
     render(<Subject />);
-    const {
-      findAllByText,
-      queryByTestId,
-      queryByText,
-      queryAllByText,
-    } = screen;
+    const { queryByTestId, queryByText } = screen;
+    const subscriptionCreateTitle = queryByTestId('subscription-create-title');
+    expect(subscriptionCreateTitle).toBeInTheDocument();
+    expect(subscriptionCreateTitle).not.toHaveClass('hidden');
+    const subscriptionProcessingTitle = queryByTestId(
+      'subscription-processing-title'
+    );
+    expect(subscriptionProcessingTitle).toBeInTheDocument();
+    expect(subscriptionProcessingTitle).toHaveClass('hidden');
     expect(queryByTestId('subscription-create')).toBeInTheDocument();
-    await findAllByText('Set up your subscription');
-    expect(
-      queryAllByText('30-day money-back guarantee')[0]
-    ).toBeInTheDocument();
     expect(queryByText('Payment information')).toBeInTheDocument();
     expect(queryByTestId('paypal-button')).not.toBeInTheDocument();
     expect(queryByText('Terms of Service')).toBeInTheDocument();
@@ -214,10 +213,17 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
 
   it('renders as expected for mobile', async () => {
     render(<Subject isMobile={true} />);
+    const { queryByTestId } = screen;
+    const subscriptionCreateTitle = queryByTestId('subscription-create-title');
+    expect(subscriptionCreateTitle).toBeInTheDocument();
+    expect(subscriptionCreateTitle).not.toHaveClass('hidden');
+    const subscriptionProcessingTitle = queryByTestId(
+      'subscription-processing-title'
+    );
+    expect(subscriptionProcessingTitle).toBeInTheDocument();
+    expect(subscriptionProcessingTitle).toHaveClass('hidden');
     expect(screen.queryByTestId('subscription-create')).toBeInTheDocument();
-    expect(
-      screen.queryByTestId('mobile-subscription-create-heading')
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId('plan-details-component')).toBeInTheDocument();
   });
 
   async function commonSubmitSetup({

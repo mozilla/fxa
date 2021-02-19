@@ -39,8 +39,10 @@ settings-subscriptions-title = Subscriptions
 terms = Terms of Service
 privacy = Privacy Notice
 
-## plan details
-product-plan-details-heading = Set up your subscription
+## Subscription titles
+subscription-create-title = Set up your subscription
+subscription-success-title = Subscription confirmation
+subscription-processing-title = Confirming subscription...
 
 ##  $productName (String) - The name of the subscribed product.
 ##  $amount (Number) - The amount billed. It will be formatted as currency.
@@ -306,9 +308,8 @@ payment-processing-message = Please wait while we process your payment...
 ## payment confirmation
 payment-confirmation-alert = Click here to download
 payment-confirmation-mobile-alert = Didn't open app? <a>Click Here</a>
-payment-confirmation-heading = Thank You { $displayName }!
-payment-confirmation-heading-bak = Thank You!
-payment-confirmation-subheading = A confirmation email has been sent to
+payment-confirmation-thanks-heading = Thank you!
+payment-confirmation-thanks-subheading = A confirmation email has been sent to { $email } with details on how to get started with { $product_name }.
 payment-confirmation-order-heading = Order details
 payment-confirmation-invoice-number = Invoice #{ $invoiceNumber }
 payment-confirmation-billing-heading = Billed to

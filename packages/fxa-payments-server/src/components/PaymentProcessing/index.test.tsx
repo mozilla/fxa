@@ -14,6 +14,11 @@ describe('Fluent Localized Text', () => {
 
   it('renders as expected', () => {
     const { queryByTestId } = render(<PaymentProcessing />);
+
+    const subscriptionTitle = queryByTestId('subscription-processing-title');
+    expect(subscriptionTitle).toBeInTheDocument();
+    expect(subscriptionTitle).not.toHaveClass('hidden');
+
     const spinner = queryByTestId('loading-spinner');
     expect(spinner).toBeInTheDocument();
 
