@@ -18,10 +18,11 @@
 
 -brand-mozilla = Mozilla
 -brand-firefox = Firefox
+# “Accounts” can be localized, “Firefox” must be treated as a brand.
 -product-firefox-accounts = Firefox Accounts
 # “Account” can be localized, “Firefox” must be treated as a brand.
 # This is used to refer to a user's account, e.g. "update your Firefox account ..."
--firefox-account = Firefox account
+-product-firefox-account = Firefox account
 product-mozilla-vpn = Mozilla VPN
 product-firefox-monitor = Firefox Monitor
 
@@ -106,12 +107,12 @@ cs-disconnect-sync-opt-not-say = Rather not say
 cs-disconnect-advice-confirm = Okay, got it
 cs-disconnect-lost-advice-heading = Lost or stolen device disconnected
 cs-disconnect-lost-advice-content = Since your device was lost or stolen, to
-  keep your information safe, you should change your { -product-firefox-account } password
+  keep your information safe, you should change your { -product-firefox-accounts } password
   in your account settings. You should also look for information from your
   device manufacturer about erasing your data remotely.
 cs-disconnect-suspicious-advice-heading = Suspicious device disconnected
 cs-disconnect-suspicious-advice-content = If the disconnected device is indeed
-  suspicious, to keep your information safe, you should change your { -firefox-account }
+  suspicious, to keep your information safe, you should change your { -product-firefox-account }
   password in your account settings. You should also change any other
   passwords you saved in { -brand-firefox } by typing about:logins into the address bar.
 
@@ -226,7 +227,7 @@ delete-account-header =
 delete-account-step-1-2 = Step 1 of 2
 delete-account-step-2-2 = Step 2 of 2
 
-delete-account-confirm-title = You’ve connected your { -product-firefox-account } to { -brand-mozilla } products that keep you secure and productive on the web:
+delete-account-confirm-title = You’ve connected your { -product-firefox-accounts } to { -brand-mozilla } products that keep you secure and productive on the web:
 
 delete-account-acknowledge = Please acknowledge that by deleting your account:
 
@@ -295,10 +296,10 @@ verify-secondary-email-verification-code =
   .label = Enter your verification code
 verify-secondary-email-cancel-button = Cancel
 verify-secondary-email-verify-button = Verify
-# This string is instruction in a form.
+# This string is an instruction in a form.
 # Variables:
 #   $email (String) - the user's email address, which does not need translation.
-verify-secondary-email-please-enter-code = Please enter the verification code that was sent to <strong>{$email}</strong> within 5 minutes.
+verify-secondary-email-please-enter-code = Please enter the verification code that was sent to <strong>{ $email }</strong> within 5 minutes.
 
 ##
 
