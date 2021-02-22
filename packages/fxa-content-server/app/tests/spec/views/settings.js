@@ -45,6 +45,7 @@ describe('views/settings', function () {
   var subscriptionsManagementEnabled;
   var subscriptionsManagementLanguages;
   var metrics;
+  var sentryMetrics;
   var notifier;
   var profileClient;
   var relier;
@@ -95,7 +96,10 @@ describe('views/settings', function () {
     formPrefill = new FormPrefill();
     notifier = new Notifier();
     marketingEmailEnabled = true;
-    metrics = new Metrics({ notifier });
+    sentryMetrics = {
+      captureException: sinon.spy(),
+    };
+    metrics = new Metrics({ notifier, sentryMetrics });
     // prevents metrics from being flushed
     // so we can check if they were emit
     sinon.stub(metrics, 'flush');

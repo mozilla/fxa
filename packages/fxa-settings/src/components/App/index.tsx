@@ -50,7 +50,9 @@ export const App = ({ flowQueryParams }: AppProps) => {
   });
 
   const { loading, error } = useQuery<{ account: Account }>(GET_INITIAL_STATE);
-  Metrics.init(flowQueryParams);
+  useEffect(() => {
+    Metrics.init(flowQueryParams);
+  }, [flowQueryParams]);
 
   if (loading) {
     return (

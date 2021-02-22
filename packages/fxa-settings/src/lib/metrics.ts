@@ -11,6 +11,7 @@ import {
   useAccount,
 } from '../models';
 import { window } from './window';
+import { v4 as uuid } from 'uuid';
 
 export const settingsViewName = 'settings';
 
@@ -158,9 +159,9 @@ export function reset() {
  *
  * @param flowQueryParams - Flow data sent via query params from the content-server
  */
-export function init(flowQueryParams: FlowQueryParams) {
+export async function init(flowQueryParams: FlowQueryParams) {
   if (!initialized) {
-    // Only initialize if we have the critical flow pieces
+    // Initialize from the qs if we have the critical flow pieces
     if (
       flowQueryParams.deviceId &&
       flowQueryParams.flowBeginTime &&
@@ -169,20 +170,31 @@ export function init(flowQueryParams: FlowQueryParams) {
       flowEventData = flowQueryParams;
       initialized = true;
     } else {
-      let redirectPath = window.location.pathname;
-      if (window.location.search) {
-        redirectPath += window.location.search;
+      // Or initialize as a fresh flow
+      const flowResponse = await fetch('/metrics-flow');
+      flowEventData = await flowResponse.json();
+      try {
+        flowEventData.uniqueUserId = JSON.parse(
+          localStorage.getItem('__fxa_storage.uniqueUserId')!
+        );
+      } catch (e) {}
+      if (!flowEventData.uniqueUserId) {
+        flowEventData.uniqueUserId = uuid();
+        try {
+          localStorage.setItem(
+            '__fxa_storage.uniqueUserId',
+            JSON.stringify(flowEventData.uniqueUserId)
+          );
+        } catch (e) {}
       }
+      // arriving directly to /beta/settings means all the following are fixed
+      flowEventData.broker = 'web';
+      flowEventData.context = 'web';
+      flowEventData.service = 'none';
+      flowEventData.isSampledUser = false;
+      flowEventData.deviceId = uuid().replace(/-/g, '');
 
-      const search = window.location.search
-        ? `${window.location.search}&redirect_to=${encodeURIComponent(
-            redirectPath
-          )}`
-        : `?redirect_to=${encodeURIComponent(redirectPath)}`;
-
-      return window.location.replace(
-        `${window.location.origin}/get_flow${search}`
-      );
+      initialized = true;
     }
   }
 }

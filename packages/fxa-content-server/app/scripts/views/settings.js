@@ -33,6 +33,7 @@ import SignedOutNotificationMixin from './mixins/signed-out-notification-mixin';
 import SubPanels from './sub_panels';
 import SubscriptionView from './settings/subscription';
 import Template from 'templates/settings.mustache';
+import Url from '../lib/url';
 import UserAgentMixin from '../lib/user-agent-mixin';
 
 import TwoStepAuthenticationView from './settings/two_step_authentication';
@@ -90,11 +91,38 @@ const View = BaseView.extend({
   setInitialContext(context) {
     const account = this.getSignedInAccount();
 
+    this.metrics._initializeFlowModel();
+    const {
+      deviceId,
+      flowBeginTime,
+      flowId,
+    } = this.metrics.getFlowEventMetadata();
+
+    const {
+      broker,
+      context: ctx,
+      isSampledUser,
+      service,
+      uniqueUserId,
+    } = this.metrics.getFilteredData();
+
+    const betaSettingsLink = `/beta/settings${Url.objToSearchString({
+      deviceId,
+      flowBeginTime,
+      flowId,
+      broker,
+      context: ctx,
+      isSampledUser,
+      service,
+      uniqueUserId,
+    })}`;
+
     context.set({
       ccExpired: !!this._ccExpired,
       showBetaSettingsLink:
         this._enableBeta &&
         (navigator.language === 'en' || navigator.language === 'en-US'),
+      betaSettingsLink,
       escapedCcExpiredLinkAttrs: 'href="/subscriptions" class="alert-link"',
       securityEventsVisible: this.displaySecurityEvents(),
       showSignOut:

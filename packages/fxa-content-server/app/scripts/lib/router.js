@@ -30,7 +30,6 @@ import DeleteAccountView from '../views/settings/delete_account';
 import DisplayNameView from '../views/settings/display_name';
 import EmailsView from '../views/settings/emails';
 import ForceAuthView from '../views/force_auth';
-import GetFlowView from '../views/get_flow';
 import IndexView from '../views/index';
 import InlineTotpSetupView from '../views/inline_totp_setup';
 import InlineRecoverySetupView from '../views/inline_recovery_setup';
@@ -130,7 +129,6 @@ const Router = Backbone.Router.extend({
     ),
     'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
     'force_auth(/)': createViewHandler(ForceAuthView),
-    'get_flow(/)': createViewHandler(GetFlowView),
     'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),
     'inline_recovery_setup(/)': createViewHandler(InlineRecoverySetupView),
     'legal(/)': createViewHandler('legal'),
@@ -338,8 +336,8 @@ const Router = Backbone.Router.extend({
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
     'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
-    'beta/settings(/)': function () {
-      this.navigateAway('/beta/settings');
+    'beta/settings(/)': function (qs) {
+      this.navigateAway('/beta/settings?' + qs);
     },
   },
 

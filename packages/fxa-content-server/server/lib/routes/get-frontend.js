@@ -22,7 +22,6 @@ module.exports = function () {
     'connect_another_device/why',
     'cookies_disabled',
     'force_auth',
-    'get_flow',
     'inline_totp_setup',
     'inline_recovery_setup',
     'legal',

@@ -36,7 +36,7 @@ describe('errorHandler', () => {
     window.location.replace.mockClear();
   });
 
-  it('redirects to /get_flow if called with a GQL authentication error', () => {
+  it('redirects to /signin if called with a GQL authentication error', () => {
     errorResponse = {
       graphQLErrors: [new GraphQLError('Invalid token')],
       operation: (null as any) as Operation,
@@ -46,11 +46,11 @@ describe('errorHandler', () => {
     errorHandler(errorResponse);
 
     expect(window.location.replace).toHaveBeenCalledWith(
-      '/get_flow?redirect_to=foo'
+      '/signin?redirect_to=foo'
     );
   });
 
-  it('redirects to get_flow if called with a 401 NetworkError', () => {
+  it('redirects to /signin if called with a 401 NetworkError', () => {
     let networkError: any;
     networkError = new Error('Network error') as ServerError;
     networkError.statusCode = 401;
@@ -63,7 +63,7 @@ describe('errorHandler', () => {
     errorHandler(errorResponse);
 
     expect(window.location.replace).toHaveBeenCalledWith(
-      '/get_flow?redirect_to=foo'
+      '/signin?redirect_to=foo'
     );
   });
 
