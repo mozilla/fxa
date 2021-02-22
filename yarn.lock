@@ -2276,9 +2276,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/pubsub@npm:^2.8.0":
-  version: 2.8.0
-  resolution: "@google-cloud/pubsub@npm:2.8.0"
+"@google-cloud/pubsub@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@google-cloud/pubsub@npm:2.9.0"
   dependencies:
     "@google-cloud/paginator": ^3.0.0
     "@google-cloud/precise-date": ^2.0.0
@@ -2290,12 +2290,12 @@ __metadata:
     "@types/long": ^4.0.0
     arrify: ^2.0.0
     extend: ^3.0.2
-    google-auth-library: ^6.1.2
+    google-auth-library: ^7.0.0
     google-gax: ^2.9.2
     is-stream-ended: ^0.1.4
     lodash.snakecase: ^4.1.1
     p-defer: ^3.0.0
-  checksum: 07482e0227f6d6793df2e21b513dafe072e969fb2339139f61e020c94ab227aef6341fceb3165658c43b38035dd103836a92188d312fbea46130e46658674359
+  checksum: 5311ccb08ef6ac80e8f952a5a96f04c857462b28f30155ff9b6a930ab11bca021b7b8de9e9b81beedaec325f5d1693b43d71f6707461b23ba29b7fd9142146c2
   languageName: node
   linkType: hard
 
@@ -18559,7 +18559,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-customs-server@workspace:packages/fxa-customs-server"
   dependencies:
-    "@google-cloud/pubsub": ^2.8.0
+    "@google-cloud/pubsub": ^2.9.0
     "@hapi/hapi": ^20.1.0
     "@hapi/hoek": ^9.0.4
     "@sentry/node": ^6.0.1
@@ -18633,7 +18633,7 @@ fsevents@^1.2.7:
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
     "@google-cloud/firestore": ^4.8.1
-    "@google-cloud/pubsub": ^2.8.0
+    "@google-cloud/pubsub": ^2.9.0
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.0.4
     "@hapi/joi": ^15.1.1
@@ -18816,7 +18816,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-metrics-processor@workspace:packages/fxa-metrics-processor"
   dependencies:
-    "@google-cloud/pubsub": ^2.8.0
+    "@google-cloud/pubsub": ^2.9.0
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chai": ^4.2.11
@@ -19865,7 +19865,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^6.1.2, google-auth-library@npm:^6.1.3":
+"google-auth-library@npm:^6.1.3":
   version: 6.1.3
   resolution: "google-auth-library@npm:6.1.3"
   dependencies:
@@ -19882,7 +19882,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^7.0.2":
+"google-auth-library@npm:^7.0.0, google-auth-library@npm:^7.0.2":
   version: 7.0.2
   resolution: "google-auth-library@npm:7.0.2"
   dependencies:
