@@ -13,6 +13,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import 'react-easy-crop/react-easy-crop.css';
 
 import { cache, sessionToken } from '../../lib/cache';
+import { isMobileDevice } from '../../lib/utilities';
 import { useAccount } from '../../models';
 import { HomePath } from '../../constants';
 import firefox from '../../lib/firefox';
@@ -297,7 +298,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
                     }}
                   />
                 )}
-                {!mediaError && (
+                {!mediaError && !isMobileDevice() && (
                   <TakePhotoBtn
                     capturing={capturing}
                     onClick={() => {

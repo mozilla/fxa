@@ -19146,7 +19146,7 @@ fsevents@^1.2.7:
     react-async-hook: ^3.6.1
     react-dom: ^16.13.1
     react-easy-crop: ^3.3.1
-    react-hook-form: ^6.14.2
+    react-hook-form: ^6.15.3
     react-scripts: ^3.4.1
     react-test-renderer: ^17.0.1
     react-webcam: ^5.2.2
@@ -27141,19 +27141,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"nock@npm:*":
-  version: 13.0.5
-  resolution: "nock@npm:13.0.5"
-  dependencies:
-    debug: ^4.1.0
-    json-stringify-safe: ^5.0.1
-    lodash.set: ^4.3.2
-    propagate: ^2.0.0
-  checksum: 2000952241d9f78491bd2770a5186b530eddef8710d219917b078e8c1b329abbdb88bcfb3dfd6bf093e860287ad8da7dd4136fbd2a8c1f42a7b56e3b071807f2
-  languageName: node
-  linkType: hard
-
-"nock@npm:^13.0.7":
+"nock@npm:*, nock@npm:^13.0.7":
   version: 13.0.7
   resolution: "nock@npm:13.0.7"
   dependencies:
@@ -31619,12 +31607,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^6.14.2":
-  version: 6.14.2
-  resolution: "react-hook-form@npm:6.14.2"
+"react-hook-form@npm:^6.15.3":
+  version: 6.15.3
+  resolution: "react-hook-form@npm:6.15.3"
   peerDependencies:
     react: ^16.8.0 || ^17
-  checksum: 1260e22f0e0b1ea9d2f4431fba37a52d1792481d14d59d2b844d1a82d03a9ff6dd77e548258fc568e78010b955539dbddc572a94ee17ed9acfc95b1a7060e6e8
+  checksum: 9da373e30d259b27ff72c28fc88b88c665fee5b01de294c5c5d89baaa15354db481714fc20c7b819544e81a64caee7e467c7b2e1bdb5764370bcd3325a1f53d9
   languageName: node
   linkType: hard
 
