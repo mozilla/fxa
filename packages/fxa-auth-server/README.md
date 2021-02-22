@@ -56,12 +56,24 @@ Use the following as a template, and fill in your own values:
 ```json
 {
   "subscriptions": {
-    "stripeApiKey": "sk_test_123"
+    "stripeApiKey": "sk_test_123",
+    "paypalNvpSigCredentials": {
+      "enabled": true,
+      "sandbox": true,
+      "user": "business_account_email_ID",
+      "pwd": "business_account_password",
+      "signature": "business_account_signature"
+    }
   }
 }
 ```
 
 - `stripeApiKey` should be a test Stripe Secret Key
+- `user` should be a sandbox PayPal business account username
+- `pwd` should be a sandbox PayPal business account password
+- `signature` should be a sandbox PayPal business account signature
+
+The sandbox PayPal business account API credentials above can be found in the PayPal developer dashboard under "Sandbox" > "Accounts". You may need to create a business account if one doesn't exist.
 
 ## Testing
 
