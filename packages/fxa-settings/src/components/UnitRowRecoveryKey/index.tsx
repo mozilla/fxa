@@ -118,9 +118,9 @@ export const UnitRowRecoveryKey = () => {
             hideModal();
             alertBar.error(
               l10n.getString(
-                'rk-cannot-verify-session',
+                'rk-cannot-verify-session-2',
                 null,
-                'Sorry, there was a problem verifying your session'
+                'Sorry, there was a problem verifying your session.'
               ),
               error
             );

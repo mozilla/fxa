@@ -51,7 +51,7 @@ export const RemovePhotoBtn = () => {
       navigate(HomePath, { replace: true });
     },
     onError: () => {
-      alertBar.error(l10n.getString('avatar-page-delete-error'));
+      alertBar.error(l10n.getString('avatar-page-delete-error-2'));
     },
     ignoreResults: true,
     update: (cache) => {
