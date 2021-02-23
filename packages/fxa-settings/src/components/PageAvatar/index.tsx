@@ -21,6 +21,11 @@ import { useAvatarUploader } from '../../lib/auth';
 import { onFileChange } from '../../lib/file-utils';
 import { getCroppedImg } from '../../lib/canvas-utils';
 import { useAlertBar } from '../../lib/hooks';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
 
 import AlertBar from '../AlertBar';
 import Avatar from '../Avatar';
@@ -39,6 +44,7 @@ const PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE = 2 * 1024 * 1024;
 const frameClass = `rounded-full m-auto w-40 object-cover`;
 
 export const PageAddAvatar = (_: RouteComponentProps) => {
+  usePageViewEvent('settings.avatar.change');
   const navigate = useNavigate();
   const account = useAccount();
   const { l10n } = useLocalization();
@@ -48,6 +54,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
 
   const uploadAvatar = useAvatarUploader({
     onSuccess: (newAvatar) => {
+      logViewEvent(settingsViewName, 'avatar.crop.submit.change');
       firefox.profileChanged(account.uid);
       cache.modify({
         id: cache.identify({ __typename: 'Account' }),
