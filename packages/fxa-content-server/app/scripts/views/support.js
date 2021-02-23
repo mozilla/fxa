@@ -55,8 +55,6 @@ const SupportView = BaseView.extend({
     const account = this.getSignedInAccount();
     context.set({
       unsafeHeaderHTML: this._getHeaderHTML(account),
-      optionPlaceholder: t('Please Select One'),
-      topicOptions: this.supportForm.topicOptions,
     });
   },
 
