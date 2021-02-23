@@ -206,6 +206,7 @@ module.exports = (log, db, devices, clientUtils) => {
           if (client.deviceId && !client.deviceType) {
             client.deviceType = 'desktop';
           }
+          client.name = client.name.replace('Mac OS X', 'macOS');
         }
 
         return attachedClients;
