@@ -18,7 +18,7 @@ describe('Security', () => {
     expect(await screen.findByText('Recovery key')).toBeTruthy;
     expect(await screen.findByText('Two-step authentication')).toBeTruthy;
 
-    const result = await screen.findAllByText('Not Set');
+    const result = await screen.findAllByText('Not set');
     expect(result).toHaveLength(2);
   });
 

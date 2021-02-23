@@ -75,7 +75,7 @@ describe('UnitRowTwoStepAuth', () => {
     ).toContain('Two-step authentication');
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
-    ).toContain('Not Set');
+    ).toContain('Not set');
     expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
       'Add'
     );
@@ -99,7 +99,7 @@ describe('UnitRowTwoStepAuth', () => {
     );
     expect(
       screen.getByTestId('two-step-unit-row-header-value')
-    ).toHaveTextContent('Not Set');
+    ).toHaveTextContent('Not set');
     await act(async () => {
       fireEvent.click(screen.getByTestId('two-step-refresh'));
     });

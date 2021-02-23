@@ -117,7 +117,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
 
   return (
     <Localized id="delete-account-header" attrs={{ title: true }}>
-      <FlowContainer title="Delete Account" subtitle={subtitleText}>
+      <FlowContainer title="Delete account" subtitle={subtitleText}>
         {alertBar.visible && (
           <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
             <p data-testid="delete-account-error">{alertBar.content}</p>

@@ -274,7 +274,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
 
   return (
     <Localized id="avatar-page-title" attrs={{ title: true }}>
-      <FlowContainer title="Profile Picture">
+      <FlowContainer title="Profile picture">
         {alertBar.visible && (
           <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
             <p data-testid="update-avatar-error">{alertBar.content}</p>

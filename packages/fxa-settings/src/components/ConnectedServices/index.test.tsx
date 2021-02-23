@@ -232,7 +232,7 @@ describe('Connected Services', () => {
     );
     await clickFirstSignOutButton();
     await expectDisconnectModalHeader();
-    await chooseRadioByLabel('Lost or Stolen');
+    await chooseRadioByLabel('Lost or stolen');
     await clickConfirmDisconnectButton();
     expect(await screen.queryByTestId('lost-device-desc')).toBeInTheDocument();
   });

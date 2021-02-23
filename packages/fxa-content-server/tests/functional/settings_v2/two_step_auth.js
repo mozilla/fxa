@@ -148,7 +148,7 @@ describe('two step auth', () => {
     // Verify the status is 'Not set' after disabling the 2FA
     await testElementTextEquals(
       selectors.SETTINGS_V2.SECURITY.TFA.TFA_STATUS,
-      'Not Set',
+      'Not set',
       remote
     );
   });

@@ -290,7 +290,11 @@ export const ConnectedServices = () => {
               onDismiss={hideConfirmDisconnectModal}
               onConfirm={onConfirmDisconnect}
               confirmBtnClassName="cta-primary"
-              confirmText="Sign Out"
+              confirmText={l10n.getString(
+                'cs-sign-out-button',
+                null,
+                'Sign out'
+              )}
               headerId="connected-services-sign-out-header"
               descId="connected-services-sign-out-description"
             >
@@ -354,7 +358,7 @@ export const ConnectedServices = () => {
                         name="reason"
                       />
                       <Localized id="cs-disconnect-sync-opt-lost">
-                        Lost or Stolen
+                        Lost or stolen
                       </Localized>
                     </label>
                   </li>
@@ -367,7 +371,7 @@ export const ConnectedServices = () => {
                         name="reason"
                       />
                       <Localized id="cs-disconnect-sync-opt-old">
-                        Old or Replaced
+                        Old or replaced
                       </Localized>
                     </label>
                   </li>

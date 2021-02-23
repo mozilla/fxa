@@ -240,7 +240,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   return (
     <FlowContainer
-      title={l10n.getString('tfa-title', null, 'Two-Step Authentication')}
+      title={l10n.getString('tfa-title', null, 'Two-step authentication')}
       {...{ subtitle, onBackButtonClick: moveBack }}
     >
       {alertBar.visible && (

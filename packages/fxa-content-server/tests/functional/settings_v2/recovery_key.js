@@ -125,7 +125,7 @@ describe('recovery key', () => {
     //Also verify that the recovery key status is 'Not set'
     await testElementTextEquals(
       selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.RECOVERY_KEY_ENABLED,
-      'Not Set',
+      'Not set',
       remote
     );
   });
