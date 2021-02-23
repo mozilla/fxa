@@ -18955,7 +18955,7 @@ fsevents@^1.2.7:
     react-redux: ^7.2.2
     react-router-dom: ^5.1.2
     react-scripts: ^3.4.1
-    react-stripe-elements: ^5.1.0
+    react-stripe-elements: ^6.1.2
     react-test-renderer: ^17.0.1
     react-transition-group: ^4.3.0
     redux: ^4.0.4
@@ -31881,15 +31881,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-stripe-elements@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "react-stripe-elements@npm:5.1.0"
+"react-stripe-elements@npm:^6.1.2":
+  version: 6.1.2
+  resolution: "react-stripe-elements@npm:6.1.2"
   dependencies:
     prop-types: 15.7.2
   peerDependencies:
     react: ^15.5.4 || ^16.0.0-0
     react-dom: ^15.5.4 || ^16.0.0-0
-  checksum: 71742030c2a9c8d5e65f53e98ebef32866b43e3dd645b9e15eeae8411c1f0e6defa9b32a3105e33d477bc0c7363f5500359592b922035cc5c09d7e099c98b412
+  checksum: a7b680146e2015350c4444b9d69aa052f1d1ac4982432b1e1109341be011f3b4db03421494be1a3d35130a6e739ccb49e7c6994d79db78413845084e7c803aa6
   languageName: node
   linkType: hard
 
