@@ -228,11 +228,30 @@ export async function apiCapturePaypalPayment(params: {
   sourceCountry: string;
   subscription: Subscription;
 }> {
-  return apiFetch(
-    'POST',
-    `${config.servers.auth.url}/v1/oauth/subscriptions/active/new-paypal`,
-    { body: JSON.stringify(params) }
-  );
+  const metricsOptions: Amplitude.EventProperties = {
+    planId: params.priceId,
+    paymentProvider: 'PayPal',
+  };
+  Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
+  try {
+    const response = await apiFetch(
+      'POST',
+      `${config.servers.auth.url}/v1/oauth/subscriptions/active/new-paypal`,
+      { body: JSON.stringify(params) }
+    );
+    Amplitude.createSubscriptionWithPaymentMethod_FULFILLED({
+      ...metricsOptions,
+      sourceCountry: response.sourceCountry,
+    });
+
+    return response;
+  } catch (error) {
+    Amplitude.createSubscriptionWithPaymentMethod_REJECTED({
+      ...metricsOptions,
+      error,
+    });
+    throw error;
+  }
 }
 
 export async function apiCreateSubscriptionWithPaymentMethod(params: {
@@ -253,9 +272,10 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
   };
 }> {
   const { priceId, paymentMethodId, idempotencyKey } = params;
-  const metricsOptions = {
+  const metricsOptions: Amplitude.EventProperties = {
     planId: params.priceId,
     productId: params.productId,
+    paymentProvider: 'Stripe',
   };
   try {
     Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);

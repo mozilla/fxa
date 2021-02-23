@@ -32,11 +32,12 @@ type GlobalEventProperties = {
   uid?: string;
 };
 
-type EventProperties = GlobalEventProperties & {
+export type EventProperties = GlobalEventProperties & {
   planId?: string;
   plan_id?: string;
   productId?: string;
   product_id?: string;
+  paymentProvider?: 'Stripe' | 'PayPal';
   error?: Error;
 };
 
@@ -93,12 +94,14 @@ const normalizeEventProperties = (eventProperties: EventProperties) => {
     plan_id = undefined,
     productId = undefined,
     product_id = undefined,
+    paymentProvider = undefined,
     ...otherEventProperties
   } = eventProperties;
 
   return {
     planId: planId || plan_id,
     productId: productId || product_id,
+    paymentProvider,
     reason: error && error.message ? error.message : undefined,
     ...otherEventProperties,
   };
