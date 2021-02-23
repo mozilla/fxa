@@ -428,7 +428,7 @@ export const ConnectedServices = () => {
                     Lost or stolen device disconnected
                   </h2>
                 </Localized>
-                <Localized id="cs-disconnect-lost-advice-content">
+                <Localized id="cs-disconnect-lost-advice-content-2">
                   <p
                     id="connected-services-advice-modal-description"
                     data-testid="lost-device-desc"
