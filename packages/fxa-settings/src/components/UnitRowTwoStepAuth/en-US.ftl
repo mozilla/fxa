@@ -14,7 +14,7 @@ tfa-row-cannot-refresh = Sorry, there was a problem refreshing two-step
   authentication.
 tfa-row-content-explain = Prevent someone else from logging in by requiring a
   unique code only you have access to.
-tfa-row-cannot-verify-session = Sorry, there was a problem verifying your session
+tfa-row-cannot-verify-session-2 = Sorry, there was a problem verifying your session.
 
 tfa-row-disable-modal-heading = Disable two-step authentication?
 tfa-row-disable-modal-confirm = Disable

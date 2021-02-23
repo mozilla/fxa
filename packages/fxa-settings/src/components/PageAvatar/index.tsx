@@ -168,7 +168,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   }
 
   function onFileError() {
-    alertBar.error(l10n.getString('avatar-page-file-upload-error'));
+    alertBar.error(l10n.getString('avatar-page-file-upload-error-2'));
   }
 
   function onMediaError() {

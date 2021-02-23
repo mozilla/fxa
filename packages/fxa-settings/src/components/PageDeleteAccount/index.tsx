@@ -126,7 +126,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
         {!confirmed && (
           <div className="my-4 text-sm" data-testid="delete-account-confirm">
-            <Localized id="delete-account-confirm-title">
+            <Localized id="delete-account-confirm-title-2">
               <p className="mb-4">
                 You've connected your Firefox account to Mozilla products that
                 keep you secure and productive on the web:

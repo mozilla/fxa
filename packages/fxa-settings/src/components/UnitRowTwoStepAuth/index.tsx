@@ -210,9 +210,9 @@ export const UnitRowTwoStepAuth = () => {
             hideModal();
             alertBar.error(
               l10n.getString(
-                'tfa-row-cannot-verify-session',
+                'tfa-row-cannot-verify-session-2',
                 null,
-                'Sorry, there was a problem verifying your session'
+                'Sorry, there was a problem verifying your session.'
               ),
               error
             );
