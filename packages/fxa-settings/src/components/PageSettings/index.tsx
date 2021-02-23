@@ -41,7 +41,7 @@ export const PageSettings = (_: RouteComponentProps) => {
               className="cta-caution cta-base text-sm transition-standard mt-12"
               to={DeleteAccountPath}
             >
-              Delete Account
+              Delete account
             </Link>
           </Localized>
         </div>

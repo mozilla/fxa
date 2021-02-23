@@ -91,54 +91,56 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   };
 
   return (
-    <FlowContainer title="Display Name">
-      {alertBar.visible && (
-        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-          <p data-testid="update-display-name-error">{alertBar.content}</p>
-        </AlertBar>
-      )}
+    <Localized id="display-name-page-title" attrs={{ title: true }}>
+      <FlowContainer title="Display name">
+        {alertBar.visible && (
+          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+            <p data-testid="update-display-name-error">{alertBar.content}</p>
+          </AlertBar>
+        )}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="my-6">
-          <Localized id="display-name-input" attrs={{ label: true }}>
-            <InputText
-              name="displayName"
-              label="Enter display name"
-              className="mb-2"
-              data-testid="display-name-input"
-              autoFocus
-              onChange={() => trigger('displayName')}
-              inputRef={register({
-                validate: isValidDisplayName,
-              })}
-              {...{ errorText }}
-            />
-          </Localized>
-        </div>
-        <div className="flex justify-center mb-4 mx-auto max-w-64">
-          <Localized id="cancel-display-name">
-            <button
-              type="button"
-              data-testid="cancel-display-name"
-              className="cta-neutral mx-2 flex-1"
-              onClick={() => window.history.back()}
-            >
-              Cancel
-            </button>
-          </Localized>
-          <Localized id="submit-display-name">
-            <button
-              type="submit"
-              data-testid="submit-display-name"
-              className="cta-primary mx-2 flex-1"
-              disabled={!formState.isDirty || !formState.isValid}
-            >
-              Save
-            </button>
-          </Localized>
-        </div>
-      </form>
-    </FlowContainer>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="my-6">
+            <Localized id="display-name-input" attrs={{ label: true }}>
+              <InputText
+                name="displayName"
+                label="Enter display name"
+                className="mb-2"
+                data-testid="display-name-input"
+                autoFocus
+                onChange={() => trigger('displayName')}
+                inputRef={register({
+                  validate: isValidDisplayName,
+                })}
+                {...{ errorText }}
+              />
+            </Localized>
+          </div>
+          <div className="flex justify-center mb-4 mx-auto max-w-64">
+            <Localized id="cancel-display-name">
+              <button
+                type="button"
+                data-testid="cancel-display-name"
+                className="cta-neutral mx-2 flex-1"
+                onClick={() => window.history.back()}
+              >
+                Cancel
+              </button>
+            </Localized>
+            <Localized id="submit-display-name">
+              <button
+                type="submit"
+                data-testid="submit-display-name"
+                className="cta-primary mx-2 flex-1"
+                disabled={!formState.isDirty || !formState.isValid}
+              >
+                Save
+              </button>
+            </Localized>
+          </div>
+        </form>
+      </FlowContainer>
+    </Localized>
   );
 };
 

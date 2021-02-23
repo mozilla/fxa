@@ -1,6 +1,6 @@
 ## Two Step Authentication
 
-tfa-title = Two-Step Authentication
+tfa-title = Two-step authentication
 
 tfa-step-1-3 = Step 1 of 3
 tfa-step-2-3 = Step 2 of 3

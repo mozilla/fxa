@@ -157,7 +157,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
 
   return (
     <Localized id="pw-change-header" attrs={{ title: true }}>
-      <FlowContainer title="Change Password">
+      <FlowContainer title="Change password">
         {alertBarRevealed && alertText && (
           <AlertBar onDismiss={hideAlertBar} type="error">
             <p data-testid="sign-out-error">Error text TBD. {alertText}</p>

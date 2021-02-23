@@ -1,7 +1,7 @@
 ## Recovery key sub-section on main Settings page
 
 rk-enabld = Enabled
-rk-not-set = Not Set
+rk-not-set = Not set
 rk-action-create = Create
 rk-action-remove = Remove
 rk-cannot-refresh = Sorry, there was a problem refreshing the recovery key.

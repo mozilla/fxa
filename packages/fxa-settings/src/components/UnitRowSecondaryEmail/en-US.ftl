@@ -1,7 +1,7 @@
 ## Secondary email sub-section on main Settings page
 
 se-heading = Secondary email
-  .header = Secondary Email
+  .header = Secondary email
 se-cannot-refresh-email = Sorry, there was a problem refreshing that email.
 se-cannot-resend-code = Sorry, there was a problem re-sending the verification code.
 # This string is used in a notification message near the top of the page.

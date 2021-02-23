@@ -33,8 +33,8 @@ cs-disconnect-sync-reason = What’s the main reason for disconnecting this
 
 cs-disconnect-sync-opt-prefix = The device is:
 cs-disconnect-sync-opt-suspicious = Suspicious
-cs-disconnect-sync-opt-lost = Lost or Stolen
-cs-disconnect-sync-opt-old = Old or Replaced
+cs-disconnect-sync-opt-lost = Lost or stolen
+cs-disconnect-sync-opt-old = Old or replaced
 cs-disconnect-sync-opt-duplicate = Duplicate
 cs-disconnect-sync-opt-not-say = Rather not say
 

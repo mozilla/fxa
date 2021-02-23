@@ -1,7 +1,7 @@
 ## Password change page
 
 pw-change-header =
-  .title = Change Password
+  .title = Change password
 
 pw-change-stay-safe = Stay safe — don’t reuse passwords. Your password:
 pw-change-least-8-chars = Must be at least 8 characters

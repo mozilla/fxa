@@ -148,7 +148,7 @@ export const AddPhotoBtn = ({
         />
       </Localized>
       <Localized id="avatar-page-add-photo">
-        <p>Add Photo</p>
+        <p>Add photo</p>
       </Localized>
     </div>
   );
