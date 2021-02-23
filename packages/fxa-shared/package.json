@@ -79,7 +79,7 @@
     "@nestjs/graphql": "^7.9.8",
     "@nestjs/mapped-types": "^0.3.0",
     "@sentry/browser": "^5.27.6",
-    "@sentry/integrations": "^5.29.1",
+    "@sentry/integrations": "^6.2.0",
     "@sentry/node": "^6.0.1",
     "@types/js-md5": "^0.4.2",
     "accept-language": "^2.0.17",
