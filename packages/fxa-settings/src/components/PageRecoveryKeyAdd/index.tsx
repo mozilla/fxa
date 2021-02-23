@@ -4,7 +4,7 @@ import base32encode from 'base32-encode';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useRecoveryKeyMaker } from '../../lib/auth';
-import { cache, sessionToken } from '../../lib/cache';
+import { alertTextExternal, cache, sessionToken } from '../../lib/cache';
 import { useAlertBar } from '../../lib/hooks';
 import { useAccount } from '../../models';
 import InputPassword from '../InputPassword';
@@ -41,7 +41,16 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
   const navigate = useNavigate();
   const alertBar = useAlertBar();
   const goBack = useCallback(() => window.history.back(), []);
-
+  const goHome = () => {
+    alertTextExternal(
+      l10n.getString(
+        'recovery-key-success-alert',
+        null,
+        'Recovery key created.'
+      )
+    );
+    navigate(HomePath, { replace: true });
+  };
   const account = useAccount();
   const createRecoveryKey = useRecoveryKeyMaker({
     onSuccess: (recoveryKey) => {
@@ -116,7 +125,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               <Localized id="recovery-key-close-button">
                 <button
                   className="cta-primary mx-2 px-10"
-                  onClick={() => navigate(HomePath, { replace: true })}
+                  onClick={goHome}
                   data-testid="close-button"
                 >
                   Close

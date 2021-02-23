@@ -7,9 +7,14 @@ import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { alertTextExternal } from '../../lib/cache';
 import { PageSecondaryEmailVerify, VERIFY_SECONDARY_EMAIL_MUTATION } from '.';
 import { GraphQLError } from 'graphql';
 import { WindowLocation } from '@reach/router';
+
+jest.mock('../../lib/cache', () => ({
+  alertTextExternal: jest.fn(),
+}));
 
 const mocks = [
   {
@@ -79,7 +84,7 @@ describe('PageSecondaryEmailVerify', () => {
     expect(screen.getByTestId('tooltip').textContent).toContain('invalid code');
   });
 
-  it('navigates to settings on success', async () => {
+  it('navigates to settings and shows a message on success', async () => {
     const { history } = renderWithRouter(
       <MockedCache mocks={mocks}>
         <PageSecondaryEmailVerify location={mockLocation} />
@@ -97,5 +102,9 @@ describe('PageSecondaryEmailVerify', () => {
     );
 
     expect(history.location.pathname).toEqual('/beta/settings');
+    expect(alertTextExternal).toHaveBeenCalledTimes(1);
+    expect(alertTextExternal).toHaveBeenCalledWith(
+      'johndope@example.com successfully added.'
+    );
   });
 });

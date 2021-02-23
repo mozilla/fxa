@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { HomePath } from '../../constants';
+import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { logViewEvent } from '../../lib/metrics';
 import { Email } from '../../models';
@@ -31,9 +32,19 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       verificationCode: '',
     },
   });
-  const goBack = useCallback(() => window.history.back(), []);
-  const { l10n } = useLocalization();
   const navigate = useNavigate();
+  const goBack = useCallback(() => window.history.back(), []);
+  const goHome = (email: string) => {
+    alertTextExternal(
+      l10n.getString(
+        'verify-secondary-email-success-alert',
+        { email },
+        `${email} successfully added.`
+      )
+    );
+    navigate(HomePath, { replace: true });
+  };
+  const { l10n } = useLocalization();
   const alertBar = useAlertBar();
   // Using 'any' here, instead of FluentVariable, to avoid having to import @fluent/bundle.
   const email = (location?.state as any)?.email as string | undefined | any;
@@ -68,7 +79,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         });
       },
       onCompleted: () => {
-        navigate(HomePath, { replace: true });
+        goHome(email);
         logViewEvent('verify-secondary-email.verification', 'success');
       },
     }

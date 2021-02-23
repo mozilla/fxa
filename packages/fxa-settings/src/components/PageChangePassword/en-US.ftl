@@ -21,4 +21,6 @@ pw-change-new-password =
 pw-change-confirm-password =
   .label = Confirm new password
 
+pw-change-success-alert = Password updated.
+
 ##

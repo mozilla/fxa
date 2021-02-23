@@ -11,5 +11,9 @@ verify-secondary-email-verify-button = Verify
 # Variables:
 #   $email (String) - the user's email address, which does not need translation.
 verify-secondary-email-please-enter-code = Please enter the verification code that was sent to <strong>{ $email }</strong> within 5 minutes.
+# This string is a confirmation message shown after verifying an email.
+# Variables:
+#   $email (String) - the user's email address, which does not need translation.
+verify-secondary-email-success-alert = { $email } successfully added.
 
 ##
