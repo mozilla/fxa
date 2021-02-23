@@ -41,7 +41,6 @@ privacy = Privacy Notice
 
 ## plan details
 product-plan-details-heading = Set up your subscription
-product-plan-details-heading = Let's set up your subscription
 
 ##  $productName (String) - The name of the subscribed product.
 ##  $amount (Number) - The amount billed. It will be formatted as currency.
@@ -300,6 +299,9 @@ plan-details-header = Product details
 plan-details-show-button = Show details
 plan-details-hide-button = Hide details
 plan-details-total-label = Total
+
+## payment-processing
+payment-processing-message = Please wait while we process your payment...
 
 ## payment confirmation
 payment-confirmation-alert = Click here to download

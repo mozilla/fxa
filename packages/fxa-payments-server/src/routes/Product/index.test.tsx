@@ -160,7 +160,8 @@ describe('routes/Product', () => {
         .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
     ];
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-loading-profile');
+    const errorEl = await findByTestId('error-loading-profile');
+    expect(errorEl).toBeInTheDocument();
   });
 
   it('displays an error on failure to load plans', async () => {
@@ -174,7 +175,8 @@ describe('routes/Product', () => {
         .reply(200, MOCK_CUSTOMER),
     ];
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-loading-plans');
+    const errorEl = await findByTestId('error-loading-plans');
+    expect(errorEl).toBeInTheDocument();
   });
 
   it('displays an error on failure to load customer', async () => {
@@ -190,7 +192,8 @@ describe('routes/Product', () => {
         .reply(400, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
     ];
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-loading-customer');
+    const errorEl = await findByTestId('error-loading-customer');
+    expect(errorEl).toBeInTheDocument();
   });
 
   it('does not display an error on missing / new customer', async () => {
@@ -210,7 +213,8 @@ describe('routes/Product', () => {
         ),
     ];
     const { findAllByText } = render(<Subject />);
-    await findAllByText('Set up your subscription');
+    const headingEls = await findAllByText('Set up your subscription');
+    expect(headingEls.length).toBeGreaterThan(0);
   });
 
   it('does not display an error on customer with no subscriptions', async () => {
@@ -230,12 +234,13 @@ describe('routes/Product', () => {
         ),
     ];
     const { findAllByText } = render(<Subject />);
-    await findAllByText('Set up your subscription');
+    const headingEls = await findAllByText('Set up your subscription');
+    expect(headingEls.length).toBeGreaterThan(0);
   });
 
   it('offers upgrade if user is already subscribed to another plan in the same product set', async () => {
     const apiMocks = initSubscribedApiMocks();
-    const { findByTestId } = render(
+    const { findByTestId, queryByTestId } = render(
       <Subject
         {...{
           planId: 'plan_upgrade',
@@ -243,14 +248,16 @@ describe('routes/Product', () => {
         }}
       />
     );
-    await findByTestId('subscription-upgrade');
+    const upgradeEl = await findByTestId('subscription-upgrade');
+    expect(upgradeEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
 
   it('displays payment confirmation if user is already subscribed the product', async () => {
     const apiMocks = initSubscribedApiMocks();
     const { findByTestId } = render(<Subject />);
-    await findByTestId('payment-confirmation');
+    const confirmEl = await findByTestId('payment-confirmation');
+    expect(confirmEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
 });
