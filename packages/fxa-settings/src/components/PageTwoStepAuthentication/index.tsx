@@ -48,8 +48,14 @@ type RecoveryCodeForm = { recoveryCode: string };
 
 export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const navigate = useNavigate();
-  const goBack = () => window.history.back();
-  const goHome = () => navigate(HomePath, { replace: true });
+  const goBack = () =>
+    navigate(HomePath + '#two-step-authentication', { replace: true });
+  const goHome = () => {
+    alertTextExternal(
+      l10n.getString('tfa-enabled', null, 'Two-step authentication enabled')
+    );
+    navigate(HomePath + '#two-step-authentication', { replace: true });
+  };
 
   const { l10n } = useLocalization();
 
@@ -164,12 +170,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   });
 
   const [verifyTotp] = useMutation(VERIFY_TOTP_MUTATION, {
-    onCompleted: () => {
-      alertTextExternal(
-        l10n.getString('tfa-enabled', null, 'Two-step authentication enabled')
-      );
-      goHome();
-    },
+    onCompleted: goHome,
     onError: (err) => {
       if (err.graphQLErrors?.length) {
         if (
@@ -226,7 +227,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   const moveBack = () => {
     if (!totpVerified) {
-      return goHome();
+      return goBack();
     }
     if (totpVerified && !recoveryCodesAcknowledged) {
       return showQrCodeStep();
@@ -381,7 +382,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               <button
                 type="button"
                 className="cta-neutral mx-2 flex-1"
-                onClick={goHome}
+                onClick={goBack}
               >
                 Cancel
               </button>
@@ -431,7 +432,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               <button
                 type="button"
                 className="cta-neutral mx-2 flex-1"
-                onClick={goHome}
+                onClick={goBack}
               >
                 Cancel
               </button>

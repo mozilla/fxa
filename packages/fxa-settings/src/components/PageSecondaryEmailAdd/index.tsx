@@ -4,6 +4,7 @@ import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { HomePath } from 'fxa-settings/src/constants';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
@@ -27,7 +28,8 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const goBack = useCallback(() => window.history.back(), []);
+  const goBack = () =>
+    navigate(HomePath + '#secondary-email', { replace: true });
 
   const [createSecondaryEmail] = useMutation(CREATE_SECONDARY_EMAIL_MUTATION, {
     onError: (error) => {

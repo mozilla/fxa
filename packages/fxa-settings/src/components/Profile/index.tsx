@@ -31,6 +31,7 @@ export const Profile = () => {
         <Localized id="profile-display-name" attrs={{ header: true }}>
           <UnitRow
             header="Display name"
+            headerId="display-name"
             headerValue={displayName}
             headerValueClassName="break-all"
             route="/beta/settings/display_name"
@@ -43,6 +44,7 @@ export const Profile = () => {
         <Localized id="profile-password" attrs={{ header: true }}>
           <UnitRow
             header="Password"
+            headerId="password"
             headerValueClassName="tracking-wider"
             headerValue="••••••••••••••••••"
             route="/beta/settings/change_password"
@@ -64,6 +66,7 @@ export const Profile = () => {
         <Localized id="profile-primary-email" attrs={{ header: true }}>
           <UnitRow
             header="Primary email"
+            headerId="primary-email"
             headerValue={primaryEmail.email}
             headerValueClassName="break-all"
             prefixDataTestId="primary-email"

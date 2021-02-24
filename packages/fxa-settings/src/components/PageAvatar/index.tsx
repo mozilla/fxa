@@ -64,7 +64,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
           },
         },
       });
-      navigate(HomePath, { replace: true });
+      navigate(HomePath + '#profile-picture', { replace: true });
     },
     onError: onFileError,
   });

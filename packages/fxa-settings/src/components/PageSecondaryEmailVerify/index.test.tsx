@@ -101,7 +101,7 @@ describe('PageSecondaryEmailVerify', () => {
       screen.getByTestId('secondary-email-verify-submit').click()
     );
 
-    expect(history.location.pathname).toEqual('/beta/settings');
+    expect(history.location.pathname).toEqual('/beta/settings#secondary-email');
     expect(alertTextExternal).toHaveBeenCalledTimes(1);
     expect(alertTextExternal).toHaveBeenCalledWith(
       'johndope@example.com successfully added.'
