@@ -194,8 +194,8 @@ export const SubscriptionCreate = ({
           )}
 
           <h3 className="billing-title">
-            <Localized id="sub-update-title">
-              <span className="title">Billing Information</span>
+            <Localized id="sub-update-payment-title">
+              <span className="title">Payment information</span>
             </Localized>
           </h3>
 

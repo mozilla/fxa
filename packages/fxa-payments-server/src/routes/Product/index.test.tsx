@@ -133,7 +133,7 @@ describe('routes/Product', () => {
     expect(
       queryAllByText('30-day money-back guarantee')[0]
     ).toBeInTheDocument();
-    expect(queryByText('Billing Information')).toBeInTheDocument();
+    expect(queryByText('Payment information')).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
 

@@ -6,7 +6,14 @@
 .c-card::before {
   height: 27px;
   width: 40px;
-  margin-right: 8px;
+
+  html[dir='ltr'] & {
+    margin-right: 8px;
+  }
+
+  html[dir='rtl'] & {
+    margin-left: 8px;
+  }
 }
 
 .c-card::before,
@@ -19,12 +26,13 @@
 
 .card-details {
   flex-direction: column;
+  justify-content: center;
 }
 
 .paypal-logo {
   font-size: 1px;
   color: rgba(0, 0, 0, 0);
-  width: 120px;
+  width: 90px;
   height: 24px;
   position: relative;
 }
@@ -35,13 +43,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-position: top right;
   background-image: url('../../images/paypal.svg');
-}
-
-.payment .paypal-logo::before,
-.payment-update .paypal-logo::before {
-  background-position: center left;
 }
 
 .unbranded::before {
@@ -62,4 +64,16 @@
 
 .discover::before {
   background-image: url('../../images/discover.svg');
+}
+
+.stack-card-details > p.c-card {
+  flex-direction: column;
+  align-items: flex-start;
+  
+}
+
+.stack-card-details > p.c-card,
+.stack-card-details > .c-card::before {
+  margin-bottom: .55em;
+  margin-block-end: .55em;
 }

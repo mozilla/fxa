@@ -156,7 +156,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     expect(
       queryAllByText('30-day money-back guarantee')[0]
     ).toBeInTheDocument();
-    expect(queryByText('Billing Information')).toBeInTheDocument();
+    expect(queryByText('Payment information')).toBeInTheDocument();
     expect(queryByTestId('paypal-button')).not.toBeInTheDocument();
   });
 

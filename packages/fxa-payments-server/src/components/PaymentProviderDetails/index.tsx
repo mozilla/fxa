@@ -17,7 +17,7 @@ export const PaymentProviderDetails = ({
   return (
     <>
       {Provider.isStripe(payment_provider) && brand && last4 && (
-        <Localized id="payment-confirmation-cc-preview" vars={{ last4 }}>
+        <Localized id="payment-confirmation-cc-card-ending-in" vars={{ last4 }}>
           <p
             data-testid="card-logo-and-last-four"
             className={`c-card ${brand.toLowerCase()}`}

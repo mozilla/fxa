@@ -138,7 +138,7 @@ input-error-is-required = { $label } is required
 ## subscription upgrade
 product-plan-upgrade-heading = Review your upgrade
 sub-update-failed = Plan update failed
-sub-update-title = Billing information
+sub-update-payment-title = Payment information
 sub-update-card-exp = Expires { $cardExpMonth }/{ $cardExpYear }
 sub-update-copy =
     Your plan will change immediately, and you’ll be charged an adjusted
@@ -330,5 +330,5 @@ payment-confirmation-amount-year = { $intervalCount ->
   *[other] { $amount } every { $intervalCount } years
 }
 
-payment-confirmation-cc-preview = ending in { $last4 }
 payment-confirmation-download-button = Continue to download
+payment-confirmation-cc-card-ending-in = Card ending in { $last4 }
