@@ -3829,9 +3829,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/graphql@npm:^7.9.8":
-  version: 7.9.8
-  resolution: "@nestjs/graphql@npm:7.9.8"
+"@nestjs/graphql@npm:^7.9.9":
+  version: 7.9.9
+  resolution: "@nestjs/graphql@npm:7.9.9"
   dependencies:
     "@apollo/gateway": ^0.17.0
     "@graphql-tools/merge": 6.2.7
@@ -3861,7 +3861,7 @@ __metadata:
       optional: true
     ts-morph:
       optional: true
-  checksum: 659e56d5ddba0b56af9dbb0b6ae343fffb8af5bc3c0ed3a36e1ccbe93f64200def49dd948bd6bef2cc56c292f35ee7108d7d891a97e9842f9a1ebc0b1b4c5da5
+  checksum: 214ed66598a3352addf75baee4ff293d6dabf3de6d848051fa7782e51d23bcc3f5ee1c20958b77843bf885c26e162fe6222215e38ccacc3735b22ed4c07c4af0
   languageName: node
   linkType: hard
 
@@ -18154,7 +18154,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.6.12
-    "@nestjs/graphql": ^7.9.8
+    "@nestjs/graphql": ^7.9.9
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/platform-express": ^7.6.12
     "@sentry/integrations": ^5.29.1
@@ -18641,7 +18641,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.6.12
-    "@nestjs/graphql": ^7.9.8
+    "@nestjs/graphql": ^7.9.9
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
     "@nestjs/platform-express": ^7.6.12
@@ -18738,7 +18738,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.6.12
-    "@nestjs/graphql": ^7.9.8
+    "@nestjs/graphql": ^7.9.9
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
     "@nestjs/platform-express": ^7.6.12
@@ -19166,7 +19166,7 @@ fsevents@^1.2.7:
     "@nestjs/common": ^7.6.4
     "@nestjs/config": ^0.6.1
     "@nestjs/core": ^7.6.12
-    "@nestjs/graphql": ^7.9.8
+    "@nestjs/graphql": ^7.9.9
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/testing": ^7.6.5
     "@sentry/browser": ^5.27.6
