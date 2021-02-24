@@ -233,7 +233,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   Cancel
                 </button>
               </Localized>
-              <Localized id="delete-account-delete-button">
+              <Localized id="delete-account-delete-button-2">
                 <button
                   type="submit"
                   className="cta-primary mx-2 px-4"
