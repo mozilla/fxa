@@ -179,6 +179,13 @@ function makeApp() {
   const routeHelpers = routing(app, routeLogger);
   routes.forEach(routeHelpers.addRoute);
 
+  app.get(betaSettingsPath, modifySettingsStatic);
+  app.use(
+    serveStatic(STATIC_DIRECTORY, {
+      maxAge: config.get('static_max_age'),
+    })
+  );
+
   if (!config.get('settings.enableBeta')) {
     app.use('/beta/*', function (req, res) {
       res.status(403);
@@ -187,14 +194,8 @@ function makeApp() {
   } else if (config.get('env') === 'development') {
     app.use(betaSettingsPath, useSettingsProxy);
   } else {
-    app.get(betaSettingsPath, modifySettingsStatic);
+    app.get(betaSettingsPath + '/*', modifySettingsStatic);
   }
-
-  app.use(
-    serveStatic(STATIC_DIRECTORY, {
-      maxAge: config.get('static_max_age'),
-    })
-  );
 
   // it's a four-oh-four not found.
   app.use(fourOhFour);
