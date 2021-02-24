@@ -11210,14 +11210,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bl@npm:4.0.3, bl@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "bl@npm:4.0.3"
+"bl@npm:4.1.0":
+  version: 4.1.0
+  resolution: "bl@npm:4.1.0"
   dependencies:
     buffer: ^5.5.0
     inherits: ^2.0.4
     readable-stream: ^3.4.0
-  checksum: 1f33c5a3da08a87260a7f11acadf088ef331ebb4b86db1160ec332be9326afdf9f73dca1fd5cc431dba7cc9d5574b508192f9fd7c37a9a11c9e4a50025917690
+  checksum: 15d009339c2eeaedb9dab39c48f910a2fd6a9ba11400e61990917ebf3b25fa32cd9b80c7531a95467078258f6a59bd3f5d93323565423a7843855a16a1794261
   languageName: node
   linkType: hard
 
@@ -11227,6 +11227,17 @@ __metadata:
   dependencies:
     readable-stream: ~2.0.5
   checksum: 0c3fe9f99c2a449baa62e6a4df58c73d36e138e3d9ad7ac57082b31093c8725111d782c1cb677c9754163a293688f94c61e85051fd5d24d10cefcd5749f8caef
+  languageName: node
+  linkType: hard
+
+"bl@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "bl@npm:4.0.3"
+  dependencies:
+    buffer: ^5.5.0
+    inherits: ^2.0.4
+    readable-stream: ^3.4.0
+  checksum: 1f33c5a3da08a87260a7f11acadf088ef331ebb4b86db1160ec332be9326afdf9f73dca1fd5cc431dba7cc9d5574b508192f9fd7c37a9a11c9e4a50025917690
   languageName: node
   linkType: hard
 
@@ -18564,7 +18575,7 @@ fsevents@^1.2.7:
     "@hapi/hoek": ^9.0.4
     "@sentry/node": ^6.0.1
     audit-filter: ^0.5.0
-    bl: 4.0.3
+    bl: 4.1.0
     bluebird: ^3.7.2
     bunyan: ^1.8.12
     chai: ^4.2.0
