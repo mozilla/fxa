@@ -4,12 +4,8 @@
   "ACK": "Failure",
   "VERSION": "204",
   "BUILD": "55251101",
-  "L": [
-    {
-      "ERRORCODE": "11455",
-      "SHORTMESSAGE": "Buyer did not accept billing agreement",
-      "LONGMESSAGE": "Buyer did not accept billing agreement",
-      "SEVERITYCODE": "Error"
-    }
-  ]
+  "L_ERRORCODE0": "11455",
+  "L_SHORTMESSAGE0": "Buyer did not accept billing agreement",
+  "L_LONGMESSAGE0": "Buyer did not accept billing agreement",
+  "L_SEVERITYCODE0": "Error"
 }

@@ -89,14 +89,16 @@ function reportSentryError(err, request) {
   }
 
   Sentry.withScope((scope) => {
-    scope.addEventProcessor((_sentryEvent) => {
-      const sentryEvent = Sentry.Handlers.parseRequest(
-        _sentryEvent,
-        request.raw.req
-      );
-      sentryEvent.level = Sentry.Severity.Error;
-      return sentryEvent;
-    });
+    if (request) {
+      scope.addEventProcessor((_sentryEvent) => {
+        const sentryEvent = Sentry.Handlers.parseRequest(
+          _sentryEvent,
+          request.raw.req
+        );
+        sentryEvent.level = Sentry.Severity.Error;
+        return sentryEvent;
+      });
+    }
     scope.setExtra('exception', exception);
     // If additional data was added to the error, extract it.
     if (err.output && typeof err.output.payload === 'object') {
@@ -135,8 +137,10 @@ function reportSentryError(err, request) {
       scope.setContext('cause', causeContext);
     }
 
-    // Merge the request scope into the temp scope
-    Hoek.merge(scope, request.sentryScope);
+    if (request) {
+      // Merge the request scope into the temp scope
+      Hoek.merge(scope, request.sentryScope);
+    }
     Sentry.captureException(err);
   });
 }
@@ -158,6 +162,10 @@ async function configureSentry(server, config) {
     Sentry.configureScope((scope) => {
       scope.setTag('process', 'key_server');
     });
+
+    if (!server) {
+      return;
+    }
 
     // Attach a new Sentry scope to the request for breadcrumbs/tags/extras
     server.ext({

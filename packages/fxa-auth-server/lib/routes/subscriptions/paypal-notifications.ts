@@ -31,6 +31,9 @@ export class PayPalNotificationHandler extends PayPalHandler {
       });
     }
 
+    // TODO: If the invoice is void/uncollectible and this is Completed/Processed, issue
+    // a refunded.
+
     if (invoice.status == null || !['draft', 'open'].includes(invoice.status)) {
       // nothing to do since the invoice is already at its final status
       return;
@@ -56,15 +59,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
             message: 'No idempotency key on PayPal transaction',
           });
         }
-        const { paymentAttempt } = this.paypalHelper.parseIdempotencyKey(
-          message.custom
-        );
-        if (paymentAttempt < this.stripeHelper.getPaymentAttempts(invoice)) {
-          // the attempts were already recorded during the transaction and do not need
-          // to be updated here
-          return;
-        }
-        return this.stripeHelper.updatePaymentAttempts(invoice);
+        return;
       default:
         // Unexpected response here, log details and throw validation error.
         this.log.error('handleMerchPayment', {

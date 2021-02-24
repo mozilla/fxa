@@ -196,65 +196,6 @@ describe('PayPalNotificationHandler', () => {
       );
     });
 
-    it('receives IPN message with unsuccessful payment status and it increments payment attempts', async () => {
-      const invoice = { status: 'open' };
-      const deniedMessage = {
-        ...message,
-        payment_status: 'Denied',
-        custom: 'inv_000-0',
-      };
-      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
-      paypalHelper.parseIdempotencyKey = sinon.fake.returns({
-        invoiceId: 'inv_000',
-        paymentAttempt: 0,
-      });
-      stripeHelper.getPaymentAttempts = sinon.fake.returns(0);
-      stripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
-      const result = await handler.handleMerchPayment(deniedMessage);
-      assert.deepEqual(result, {});
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
-        message.invoice
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentAttempts,
-        invoice
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.updatePaymentAttempts,
-        invoice
-      );
-    });
-
-    it('receives IPN message with unsuccessful payment status and it does not increments payment attempts', async () => {
-      const invoice = { status: 'open' };
-      const deniedMessage = {
-        ...message,
-        payment_status: 'Denied',
-        custom: 'inv_000-0',
-      };
-      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
-      paypalHelper.parseIdempotencyKey = sinon.fake.returns({
-        invoiceId: 'inv_000',
-        paymentAttempt: 0,
-      });
-      stripeHelper.getPaymentAttempts = sinon.fake.returns(1);
-      const result = await handler.handleMerchPayment(deniedMessage);
-      assert.deepEqual(result, undefined);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getInvoice,
-        message.invoice
-      );
-      sinon.assert.calledOnceWithExactly(
-        paypalHelper.parseIdempotencyKey,
-        deniedMessage.custom
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentAttempts,
-        invoice
-      );
-    });
-
     it('receives IPN message with unsuccessful payment status and no idempotency key', async () => {
       const invoice = { status: 'open' };
       const deniedMessage = {
