@@ -3782,21 +3782,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@nestjs/config@npm:0.6.1"
+"@nestjs/config@npm:^0.6.3":
+  version: 0.6.3
+  resolution: "@nestjs/config@npm:0.6.3"
   dependencies:
     dotenv: 8.2.0
     dotenv-expand: 5.1.0
     lodash.get: 4.4.2
     lodash.has: 4.5.2
     lodash.set: 4.3.2
-    uuid: 8.3.1
+    uuid: 8.3.2
   peerDependencies:
     "@nestjs/common": ^6.10.0 || ^7.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0
-  checksum: 2c1d89a4c72984f14cb05e0536e8e9640b5d2321534b2762ddb5fa5a83e6abd91db567cf3f540fc95b2f4b44917dcd1c7856bc2c338f892995769adf14ec2890
+  checksum: 2ec8f65044a532abf18a18cc026f32343785bafbfda26498ee235a19d90f1e5d923f41521116e709a0ee35a67f82f6b83c555fe130ab6571df87daaa27d17fb2
   languageName: node
   linkType: hard
 
@@ -18152,7 +18152,7 @@ fsevents@^1.2.7:
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
@@ -18639,7 +18639,7 @@ fsevents@^1.2.7:
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^7.5.4
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
@@ -18736,7 +18736,7 @@ fsevents@^1.2.7:
   dependencies:
     "@nestjs/cli": ^7.5.4
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
@@ -19164,7 +19164,7 @@ fsevents@^1.2.7:
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
     "@nestjs/graphql": ^7.9.8
     "@nestjs/mapped-types": ^0.3.0
@@ -19245,7 +19245,7 @@ fsevents@^1.2.7:
   dependencies:
     "@nestjs/cli": ^7.5.4
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/platform-express": ^7.6.12
@@ -37688,15 +37688,6 @@ typescript@~4.1.2:
   bin:
     uuid: dist/bin/uuid
   checksum: a2bdb8a3eb80a53506e9657e7e1f70d7600562bf43fa010a645fd1deb7de1686df61c496c6f9826bac4be8db4d1ac1b976dd6fdf3bd083207eec1674507936fb
-  languageName: node
-  linkType: hard
-
-"uuid@npm:8.3.1":
-  version: 8.3.1
-  resolution: "uuid@npm:8.3.1"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: 6a5d07c5564614271237d8bbc5c1c72abf056343e91af8f67a8e6d29957a1a061f347b8425a1e499af32f5a8f0039c44d200dff663b9a8090c51a7f7b5031534
   languageName: node
   linkType: hard
 
