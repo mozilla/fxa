@@ -35,7 +35,6 @@ const SIGNIN_URL = config.fxaContentRoot + 'signin';
 const SIGNUP_URL = config.fxaContentRoot + 'signup';
 const ENABLE_TOTP_URL = `${SETTINGS_URL}/two_step_authentication`;
 const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
-const TEST_PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}`;
 const SUBSCRIPTION_MGMT_URL = `${config.fxaContentRoot}subscriptions`;
 
 /**
@@ -2709,14 +2708,35 @@ const typeIntoStripeElement = thenify(function (fieldName, subFieldName, text) {
 });
 
 /**
+ * Get URL for test product subscription link.
+ *
+ * @param {string} currency - Currency test product is required in.
+ */
+function getTestProductSubscriptionUrl(currency = 'usd') {
+  const planIdsByCurrency = {
+    myr: 'price_1H8NpGBVqmGyQTMaA6Znyu7U',
+    cad: 'price_1H8NoEBVqmGyQTMa5MtpqAUM',
+    eur: 'price_1H8NnnBVqmGyQTMaLwLRKbF3',
+    usd: 'plan_GqM9N6qyhvxaVk',
+  };
+  return `${config.fxaContentRoot}subscriptions/products/${config.testProductId}?plan=${planIdsByCurrency[currency]}`;
+}
+
+/**
  * Subscribe to the test product with a given CC number.
  *
  * @returns {promise} resolves when complete
  */
-const subscribeToTestProductWithCardNumber = thenify(function (cardNumber) {
+const subscribeToTestProductWithCardNumber = thenify(function (
+  cardNumber,
+  productUrl
+) {
+  if (!productUrl) {
+    productUrl = getTestProductSubscriptionUrl();
+  }
   const nextYear = (new Date().getFullYear() + 1).toString().substr(2);
   return this.parent
-    .then(openPage(TEST_PRODUCT_URL, 'div.product-payment'))
+    .then(openPage(productUrl, 'div.product-payment'))
     .then(getQueryParamValue('device_id'))
     .then((deviceId) => assert.ok(deviceId))
     .then(getQueryParamValue('flow_begin_time'))
@@ -2737,9 +2757,11 @@ const subscribeToTestProductWithCardNumber = thenify(function (cardNumber) {
  *
  * @returns {promise} resolves when complete
  */
-const subscribeToTestProduct = thenify(function () {
+const subscribeToTestProduct = thenify(function (productUrl) {
   return this.parent
-    .then(subscribeToTestProductWithCardNumber('4242 4242 4242 4242'))
+    .then(
+      subscribeToTestProductWithCardNumber('4242 4242 4242 4242', productUrl)
+    )
     .then(testElementExists('.download-link'))
     .then(openPage(SUBSCRIPTION_MGMT_URL, '.subscription-management'))
     .then(testElementExists('div[data-testid="subscription-item"]'));
@@ -2880,6 +2902,7 @@ module.exports = {
   getSms,
   getSmsSigninCode,
   getStoredAccountByEmail,
+  getTestProductSubscriptionUrl,
   getUnblockInfo,
   getVerificationLink,
   getWebChannelMessageData,

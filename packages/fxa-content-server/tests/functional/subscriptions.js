@@ -8,13 +8,12 @@ const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
-const config = intern._config;
-
 const {
   clearBrowserState,
   click,
   createEmail,
   createUserAndLoadSettings,
+  getTestProductSubscriptionUrl,
   openPage,
   signInToTestProduct,
   subscribeAndSigninToRp,
@@ -22,8 +21,6 @@ const {
   testElementTextInclude,
   visibleByQSA,
 } = FunctionalHelpers;
-
-const TEST_PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}`;
 
 registerSuite('subscriptions', {
   tests: {
@@ -41,7 +38,12 @@ registerSuite('subscriptions', {
             force: true,
           })
         )
-        .then(openPage(TEST_PRODUCT_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(
+          openPage(
+            getTestProductSubscriptionUrl(),
+            selectors.ENTER_EMAIL.HEADER
+          )
+        )
         .then(
           testElementTextInclude(
             selectors.ENTER_EMAIL.SUB_HEADER,
