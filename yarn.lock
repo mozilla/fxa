@@ -18483,7 +18483,7 @@ fsevents@^1.2.7:
     http-proxy-middleware: ^1.0.3
     i18n-abide: 0.0.26
     install: 0.13.0
-    intern: ^4.8.7
+    intern: ^4.9.0
     joi: ^14.3.1
     jquery: 3.5.1
     jquery-modal: "git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
@@ -21832,9 +21832,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"intern@npm:^4.8.7":
-  version: 4.8.7
-  resolution: "intern@npm:4.8.7"
+"intern@npm:^4.9.0":
+  version: 4.9.0
+  resolution: "intern@npm:4.9.0"
   dependencies:
     "@theintern/common": ~0.2.3
     "@theintern/digdug": ~2.5.0
@@ -21877,7 +21877,7 @@ fsevents@^1.2.7:
     ws: ~7.0.0
   bin:
     intern: bin/intern.js
-  checksum: de44b9063222f9bc258b6a1a4a4c1c5e8ddd513d505a0de0c70ba9c1fa1b6f66e604fce8aee85353f6e5bc086d41bfc8f597baaf271fe0bbc74802ee148e31aa
+  checksum: 468d27f34d2521fda51693b7699711248261532383c1aa2c5f43f5348b2e03c5530327bdc37d8b4366770e3e047c8f99efc0b692f40054bae9fae62c7e1bb2c6
   languageName: node
   linkType: hard
 
