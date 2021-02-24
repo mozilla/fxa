@@ -79,11 +79,12 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
   const { primaryEmail } = useAccount();
   const navigate = useNavigate();
+  const goBack = () => navigate(HomePath + '#password', { replace: true });
   const goHome = () => {
     alertTextExternal(
       l10n.getString('pw-change-success-alert', null, 'Password updated.')
     );
-    navigate(HomePath, { replace: true });
+    navigate(HomePath + '#password', { replace: true });
   };
   const { l10n } = useLocalization();
   const changePassword = usePasswordChanger({
@@ -300,7 +301,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
               <button
                 type="button"
                 className="cta-neutral mx-2 flex-1"
-                onClick={() => window.history.back()}
+                onClick={goBack}
                 data-testid="cancel-password-button"
               >
                 Cancel

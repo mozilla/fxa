@@ -18,7 +18,9 @@ export const UnitRowWithAvatar = () => {
     <div className="unit-row">
       <div className="unit-row-header">
         <Localized id="avatar-heading">
-          <h3 data-testid="unit-row-with-avatar-header">Picture</h3>
+          <h3 id="profile-picture" data-testid="unit-row-with-avatar-header">
+            Picture
+          </h3>
         </Localized>
       </div>
       <div className="unit-row-content">

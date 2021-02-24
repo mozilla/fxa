@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// See https://github.com/reach/router/issues/242 for a dicussion
+// See https://github.com/reach/router/issues/242 for a discussion
 
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import React, { useCallback, useLayoutEffect } from 'react';
@@ -26,7 +26,13 @@ export const ScrollToTop = (
     const url = new URL(href);
     const hasHash = !!url.hash;
 
-    if (
+    // Hack alert: if the URL contains a hash, we have to manually navigate
+    // to it, because reach router can't handle hashes (see reach router
+    // issue 32) 🙄
+    if (hasHash) {
+      const el = document.querySelector(url.hash);
+      if (el) el.scrollIntoView();
+    } else if (
       !hasHash &&
       !(state as typeof state & { scrolled?: boolean })?.scrolled
     ) {

@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { gql } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
@@ -33,7 +33,8 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     },
   });
   const navigate = useNavigate();
-  const goBack = useCallback(() => window.history.back(), []);
+  const goBack = () =>
+    navigate(HomePath + '#secondary-email', { replace: true });
   const goHome = (email: string) => {
     alertTextExternal(
       l10n.getString(
@@ -42,7 +43,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         `${email} successfully added.`
       )
     );
-    navigate(HomePath, { replace: true });
+    navigate(HomePath + '#secondary-email', { replace: true });
   };
   const { l10n } = useLocalization();
   const alertBar = useAlertBar();

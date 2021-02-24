@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import base32encode from 'base32-encode';
 import { useForm } from 'react-hook-form';
@@ -40,7 +40,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>();
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const goBack = useCallback(() => window.history.back(), []);
+  const goBack = () => navigate(HomePath + '#recovery-key', { replace: true });
   const goHome = () => {
     alertTextExternal(
       l10n.getString(
@@ -49,7 +49,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
         'Recovery key created.'
       )
     );
-    navigate(HomePath, { replace: true });
+    navigate(HomePath + '#recovery-key', { replace: true });
   };
   const account = useAccount();
   const createRecoveryKey = useRecoveryKeyMaker({

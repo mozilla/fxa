@@ -28,7 +28,8 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const navigate = useNavigate();
   const session = useSession();
-  const goBack = () => window.history.back();
+  const goBack = () =>
+    navigate(HomePath + '#two-step-authentication', { replace: true });
   const goHome = () => {
     alertTextExternal(
       l10n.getString(
@@ -37,7 +38,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
         'Account recovery codes updated.'
       )
     );
-    navigate(HomePath, { replace: true });
+    navigate(HomePath + '#two-step-authentication', { replace: true });
   };
   const { l10n } = useLocalization();
 

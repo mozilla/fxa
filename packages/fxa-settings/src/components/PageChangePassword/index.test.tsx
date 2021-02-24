@@ -86,7 +86,9 @@ it('emits an Amplitude event on success', async () => {
 
 it('redirects on success', async () => {
   await changePassword();
-  expect(mockNavigate).toHaveBeenCalledWith(HomePath, { replace: true });
+  expect(mockNavigate).toHaveBeenCalledWith(HomePath + '#password', {
+    replace: true,
+  });
 });
 
 it('disables save until the form is valid', async () => {

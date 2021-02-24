@@ -114,6 +114,7 @@ export const UnitRowTwoStepAuth = () => {
   return (
     <UnitRow
       header="Two-step authentication"
+      headerId="two-step-authentication"
       prefixDataTestId="two-step"
       route={route}
       {...conditionalUnitRowProps}

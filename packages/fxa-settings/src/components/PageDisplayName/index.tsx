@@ -32,6 +32,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const { l10n } = useLocalization();
+  const goBack = () => navigate(HomePath + '#display-name', { replace: true });
   const goHome = () => {
     alertTextExternal(
       l10n.getString(
@@ -40,7 +41,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
         'Display name updated.'
       )
     );
-    navigate(HomePath, { replace: true });
+    navigate(HomePath + '#display-name', { replace: true });
   };
   const [errorText, setErrorText] = useState<string>();
   const [displayName, setDisplayName] = useState<string>();
@@ -122,7 +123,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
                 type="button"
                 data-testid="cancel-display-name"
                 className="cta-neutral mx-2 flex-1"
-                onClick={() => window.history.back()}
+                onClick={goBack}
               >
                 Cancel
               </button>
