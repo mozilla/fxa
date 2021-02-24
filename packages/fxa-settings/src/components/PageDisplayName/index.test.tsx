@@ -14,6 +14,7 @@ import {
   renderWithRouter,
 } from '../../models/_mocks';
 import { AuthContext, createAuthClient } from '../../lib/auth';
+import { alertTextExternal } from '../../lib/cache';
 import { HomePath } from '../../constants';
 import { GraphQLError } from 'graphql';
 import { MockedProvider } from '@apollo/client/testing';
@@ -48,6 +49,10 @@ const mocks = [
     },
   },
 ];
+
+jest.mock('../../lib/cache', () => ({
+  alertTextExternal: jest.fn(),
+}));
 
 const inputDisplayName = async (newName: string) => {
   await act(async () => {
@@ -102,7 +107,7 @@ it('updates the disabled state of the save button', async () => {
   expect(screen.getByTestId('submit-display-name')).toBeDisabled();
 });
 
-it('navigates back to settings home on a successful update', async () => {
+it('navigates back to settings home and shows a success message on a successful update', async () => {
   renderWithRouter(
     <AuthContext.Provider value={{ auth: client }}>
       <MockedCache mocks={mocks}>
@@ -112,6 +117,8 @@ it('navigates back to settings home on a successful update', async () => {
   );
   await submitDisplayName('John Hope');
   expect(window.location.pathname).toBe(HomePath);
+  expect(alertTextExternal).toHaveBeenCalledTimes(1);
+  expect(alertTextExternal).toHaveBeenCalledWith('Display name updated.');
 });
 
 it('updates the cache', async () => {

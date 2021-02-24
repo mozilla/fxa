@@ -117,7 +117,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
 
   return (
     <Localized id="delete-account-header" attrs={{ title: true }}>
-      <FlowContainer title="Delete Account" subtitle={subtitleText}>
+      <FlowContainer title="Delete account" subtitle={subtitleText}>
         {alertBar.visible && (
           <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
             <p data-testid="delete-account-error">{alertBar.content}</p>
@@ -126,7 +126,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
         {!confirmed && (
           <div className="my-4 text-sm" data-testid="delete-account-confirm">
-            <Localized id="delete-account-confirm-title">
+            <Localized id="delete-account-confirm-title-2">
               <p className="mb-4">
                 You've connected your Firefox account to Mozilla products that
                 keep you secure and productive on the web:
@@ -136,7 +136,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               <ul className="list-inside mb-4">
                 <li className="list-disc">
                   <a className="link-blue" href={VPNLink}>
-                    <Localized id="mozilla-vpn">Mozilla VPN</Localized>
+                    <Localized id="product-mozilla-vpn">Mozilla VPN</Localized>
                   </a>
                 </li>
                 <li className="list-disc">
@@ -148,7 +148,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                 </li>
                 <li className="list-disc">
                   <a className="link-blue" href={MonitorLink}>
-                    <Localized id="firefox-monitor">Firefox Monitor</Localized>
+                    <Localized id="product-firefox-monitor">
+                      Firefox Monitor
+                    </Localized>
                   </a>
                 </li>
               </ul>
@@ -231,14 +233,14 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   Cancel
                 </button>
               </Localized>
-              <Localized id="delete-account-delete-button">
+              <Localized id="delete-account-delete-button-2">
                 <button
                   type="submit"
                   className="cta-primary mx-2 px-4"
                   data-testid="delete-account-button"
                   disabled={disabled}
                 >
-                  Delete Account
+                  Delete
                 </button>
               </Localized>
             </div>

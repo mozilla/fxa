@@ -218,6 +218,17 @@ describe('AccountResolver', () => {
       });
     });
 
+    describe('deleteAvatar', () => {
+      it('succeeds', async () => {
+        profileClient.avatarDelete = jest.fn().mockResolvedValue(true);
+        const result = await resolver.deleteAvatar('token', {
+          clientMutationId: 'testid',
+          id: 'blah',
+        });
+        expect(profileClient.avatarDelete).toBeCalledTimes(1);
+      });
+    });
+
     describe('updateAvatar', () => {
       // Due to the interactions required between express middleware and
       // the apollo server, no unit testing of the update avatar is feasible.

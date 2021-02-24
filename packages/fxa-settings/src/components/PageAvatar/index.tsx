@@ -5,7 +5,6 @@
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { Localized, useLocalization } from '@fluent/react';
-import { gql } from '@apollo/client';
 import Webcam from 'react-webcam';
 import Cropper from 'react-easy-crop';
 import { Slider } from '@material-ui/core';
@@ -13,12 +12,20 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import 'react-easy-crop/react-easy-crop.css';
 
+import { cache, sessionToken } from '../../lib/cache';
+import { isMobileDevice } from '../../lib/utilities';
 import { useAccount } from '../../models';
 import { HomePath } from '../../constants';
 import firefox from '../../lib/firefox';
+import { useAvatarUploader } from '../../lib/auth';
 import { onFileChange } from '../../lib/file-utils';
 import { getCroppedImg } from '../../lib/canvas-utils';
-import { useAlertBar, useMutation } from '../../lib/hooks';
+import { useAlertBar } from '../../lib/hooks';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
 
 import AlertBar from '../AlertBar';
 import Avatar from '../Avatar';
@@ -33,24 +40,34 @@ import {
   ZoomOutBtn,
 } from './buttons';
 
-export const UPDATE_AVATAR_MUTATION = gql`
-  mutation updateAvatar($file: Upload!) {
-    updateAvatar(input: { file: $file }) {
-      clientMutationId
-      avatarUrl
-    }
-  }
-`;
-
+const PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE = 2 * 1024 * 1024;
 const frameClass = `rounded-full m-auto w-40 object-cover`;
 
 export const PageAddAvatar = (_: RouteComponentProps) => {
+  usePageViewEvent('settings.avatar.change');
   const navigate = useNavigate();
   const account = useAccount();
   const { l10n } = useLocalization();
-  const { avatarUrl } = useAccount();
+  const { avatar } = useAccount();
   const alertBar = useAlertBar();
   const [saveEnabled, setSaveEnabled] = useState(false);
+
+  const uploadAvatar = useAvatarUploader({
+    onSuccess: (newAvatar) => {
+      logViewEvent(settingsViewName, 'avatar.crop.submit.change');
+      firefox.profileChanged(account.uid);
+      cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
+        fields: {
+          avatar() {
+            return newAvatar;
+          },
+        },
+      });
+      navigate(HomePath, { replace: true });
+    },
+    onError: onFileError,
+  });
 
   /* Capture State */
 
@@ -84,24 +101,6 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     setSaveEnabled(false);
   };
 
-  const [updateAvatar] = useMutation(UPDATE_AVATAR_MUTATION, {
-    onCompleted: () => {
-      firefox.profileChanged(account.uid);
-      navigate(HomePath, { replace: true });
-    },
-    onError: onFileError,
-    update: (cache, { data: { updateAvatar } }) => {
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          avatarUrl() {
-            return updateAvatar.avatarUrl;
-          },
-        },
-      });
-    },
-  });
-
   /* Edit Handlers */
 
   const onCropComplete = useCallback(
@@ -115,19 +114,13 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const saveCroppedImage = useCallback(async () => {
     try {
       if (capturedImgSrc && croppedAreaPixels) {
-        const croppedImage = await getCroppedImg(
-          capturedImgSrc,
-          croppedAreaPixels,
-          rotation
-        );
-        updateAvatar({
-          variables: { file: croppedImage },
-        });
-      } else throw new Error('no image data');
+        return await getCroppedImg(capturedImgSrc, croppedAreaPixels, rotation);
+      }
     } catch (e) {
       console.error(e);
     }
-  }, [croppedAreaPixels, rotation, capturedImgSrc, updateAvatar]);
+    return null;
+  }, [croppedAreaPixels, rotation, capturedImgSrc]);
 
   const handleSliderChange = (
     event: React.SyntheticEvent<Element, Event>,
@@ -166,17 +159,16 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   /* General Handlers */
 
   async function save() {
-    if (croppedImgSrc) {
-      updateAvatar({
-        variables: { file: croppedImgSrc },
-      });
-    } else {
-      saveCroppedImage();
+    const img = croppedImgSrc || (await saveCroppedImage());
+    if (img && img.size > PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE) {
+      alertBar.error(l10n.getString('avatar-page-image-too-large-error'));
+    } else if (img) {
+      uploadAvatar.execute(sessionToken()!, img);
     }
   }
 
   function onFileError() {
-    alertBar.error(l10n.getString('avatar-page-file-upload-error'));
+    alertBar.error(l10n.getString('avatar-page-file-upload-error-2'));
   }
 
   function onMediaError() {
@@ -289,7 +281,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
 
   return (
     <Localized id="avatar-page-title" attrs={{ title: true }}>
-      <FlowContainer title="Profile Picture">
+      <FlowContainer title="Profile picture">
         {alertBar.visible && (
           <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
             <p data-testid="update-avatar-error">{alertBar.content}</p>
@@ -313,7 +305,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
                     }}
                   />
                 )}
-                {!mediaError && (
+                {!mediaError && !isMobileDevice() && (
                   <TakePhotoBtn
                     capturing={capturing}
                     onClick={() => {
@@ -321,7 +313,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
                     }}
                   />
                 )}
-                {avatarUrl && !capturing && <RemovePhotoBtn />}
+                {avatar.url && !capturing && <RemovePhotoBtn />}
               </div>
               {confirmBtns}
             </>

@@ -40,7 +40,7 @@ describe('UnitRowRecoveryKey', () => {
     ).toContain('Recovery key');
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
-    ).toContain('Not Set');
+    ).toContain('Not set');
     expect(
       screen.getByTestId('recovery-key-unit-row-route').textContent
     ).toContain('Create');
@@ -59,7 +59,7 @@ describe('UnitRowRecoveryKey', () => {
     });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value')
-    ).toHaveTextContent('Not Set');
+    ).toHaveTextContent('Not set');
     await act(async () => {
       fireEvent.click(screen.getByTestId('recovery-key-refresh'));
     });

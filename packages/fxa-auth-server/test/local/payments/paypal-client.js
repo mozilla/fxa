@@ -133,6 +133,52 @@ describe('PayPalClient', () => {
       assert.deepEqual(result, userNameSuccessResponseData);
     });
 
+    it('emits an event on success', async () => {
+      const event = {};
+      client.on('response', (response) => Object.assign(event, response));
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(200, client.objectToNVP(userNameSuccessResponseData));
+      const result = await client.doRequest(
+        'BillAgreementUpdate',
+        userNameRequestData
+      );
+      assert.deepEqual(result, userNameSuccessResponseData);
+      assert.deepNestedInclude(event, {
+        method: 'BillAgreementUpdate',
+        version: '204',
+      });
+    });
+
+    it('emits an event on error', async () => {
+      const event = {};
+      client.on('response', (response) => Object.assign(event, response));
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(500, 'ERROR');
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(500, 'ERROR');
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(500, 'ERROR');
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(500, 'ERROR');
+      try {
+        await client.doRequest('BillAgreementUpdate', userNameRequestData);
+        assert.fail('Request should have thrown an error.');
+      } catch (err) {
+        assert.instanceOf(err, Error);
+        assert.equal(err.message, 'Internal Server Error');
+        assert.deepNestedInclude(event, {
+          method: 'BillAgreementUpdate',
+          version: '204',
+        });
+        assert.deepNestedInclude(event.error, { status: 500 });
+      }
+    });
+
     it('retries after a failure', async () => {
       nock(PAYPAL_SANDBOX_BASE)
         .post(PAYPAL_NVP_ROUTE, expectedPayload)
@@ -298,6 +344,7 @@ describe('PayPalClient', () => {
   describe('doReferenceTransaction', () => {
     const defaultData = {
       AMT: '5.99',
+      CUSTOM: 'in_asdf-12',
       INVNUM: 'in_asdf',
       MSGSUBID: 'in_asdf-12',
       PAYMENTACTION: 'Sale',

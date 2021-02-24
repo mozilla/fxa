@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { HomePath } from '../../constants';
+import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { logViewEvent } from '../../lib/metrics';
 import { Email } from '../../models';
@@ -31,11 +32,22 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       verificationCode: '',
     },
   });
-  const goBack = useCallback(() => window.history.back(), []);
-  const { l10n } = useLocalization();
   const navigate = useNavigate();
+  const goBack = useCallback(() => window.history.back(), []);
+  const goHome = (email: string) => {
+    alertTextExternal(
+      l10n.getString(
+        'verify-secondary-email-success-alert',
+        { email },
+        `${email} successfully added.`
+      )
+    );
+    navigate(HomePath, { replace: true });
+  };
+  const { l10n } = useLocalization();
   const alertBar = useAlertBar();
-  const email = (location?.state as any)?.email as string | undefined;
+  // Using 'any' here, instead of FluentVariable, to avoid having to import @fluent/bundle.
+  const email = (location?.state as any)?.email as string | undefined | any;
 
   const [verifySecondaryEmail, { loading }] = useMutation(
     VERIFY_SECONDARY_EMAIL_MUTATION,
@@ -67,7 +79,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         });
       },
       onCompleted: () => {
-        navigate(HomePath, { replace: true });
+        goHome(email);
         logViewEvent('verify-secondary-email.verification', 'success');
       },
     }
@@ -99,12 +111,13 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           })}
         >
           <Localized
-            id="verify-secondary-email-please-enter"
-            elems={{ email: <span className="font-bold">{email}</span> }}
+            id="verify-secondary-email-please-enter-code"
+            vars={{ email: email }}
+            elems={{ strong: <span className="font-bold"> </span> }}
           >
             <p>
-              Please enter the verification code that was sent to {email} within
-              5 minutes.
+              Please enter the verification code that was sent to{' '}
+              <strong>{email}</strong> within 5 minutes.
             </p>
           </Localized>
 

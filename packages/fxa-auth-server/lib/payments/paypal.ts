@@ -98,6 +98,23 @@ export class PayPalHelper {
     this.client = Container.get(PayPalClient);
     this.metrics = Container.get(StatsD);
     this.stripeHelper = Container.get(StripeHelper);
+    if (this.metrics) {
+      this.client.on('response', (response) => {
+        this.metrics.timing('paypal_request', response.elapsed, undefined, {
+          method: response.method,
+          error: response.error ? 'false' : 'true',
+        });
+      });
+    }
+  }
+
+  public generateIdempotencyKey(invoiceId: string, paymentAttempt: number): string {
+    return invoiceId + '-' + paymentAttempt
+  }
+
+  public parseIdempotencyKey(idempotencyKey: string): {invoiceId: string, paymentAttempt: number} {
+    const parsedValue = idempotencyKey.split('-')
+    return {invoiceId: parsedValue[0], paymentAttempt: parseInt(parsedValue[1])}
   }
 
   /**
@@ -266,7 +283,7 @@ export class PayPalHelper {
     // charges. This key is restricted to the invoice and payment
     // attempt in combination, so that retries can be made if
     // the prior attempt failed and a retry is desired.
-    const idempotencyKey = invoice.id + paymentAttempt;
+    const idempotencyKey = this.generateIdempotencyKey(invoice.id, paymentAttempt);
 
     const promises: Promise<any>[] = [
       this.chargeCustomer({

@@ -45,7 +45,10 @@ module.exports = function (config) {
   const CORS_OPTIONS = {
     methods: 'GET',
     origin: function corsOrigin(origin, callback) {
-      if (ALLOWED_CORS_ORIGINS.includes(origin)) {
+      if (origin === undefined) {
+        // origin is this host
+        callback(null, true);
+      } else if (ALLOWED_CORS_ORIGINS.includes(origin)) {
         callback(null, true);
       } else {
         logger.info('request.metrics-flow.bad-origin', origin);

@@ -1,9 +1,11 @@
-# Add secondary email page
+## Add secondary email page
 
 add-secondary-email-error = There was a problem creating this email.
 add-secondary-email-page-title =
   .title = Secondary email
 add-secondary-email-enter-address =
   .label = Enter email address
-add-secondary-email-cancel-button = { fxa-cancel-button }
-add-secondary-email-save-button = { fxa-save-button }
+add-secondary-email-cancel-button = Cancel
+add-secondary-email-save-button = Save
+
+##

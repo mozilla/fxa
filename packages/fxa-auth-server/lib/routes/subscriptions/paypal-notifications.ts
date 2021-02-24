@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 
+import error from '../../error';
+
 import { ConfigType } from '../../../config';
 import { IpnMerchPmtType, isIpnMerchPmt } from '../../payments/paypal-client';
 import { StripeHelper } from '../../payments/stripe';
@@ -11,7 +13,70 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { PayPalHandler } from './paypal';
 
 export class PayPalNotificationHandler extends PayPalHandler {
-  private async handleMerchPayment(message: IpnMerchPmtType) {}
+  /**
+   * Handle merchant payment notification from PayPal
+   * and update Stripe invoice according to the payment_status
+   *
+   * @param message
+   */
+  private async handleMerchPayment(message: IpnMerchPmtType) {
+    const invoice = await this.stripeHelper.getInvoice(message.invoice);
+    if (!invoice) {
+      this.log.error('handleMerchPayment', {
+        message: 'Invoice not found',
+        ipnMessage: message,
+      });
+      throw error.internalValidationError('handleMerchPayment', {
+        message: 'Invoice not found',
+      });
+    }
+
+    if (invoice.status == null || !['draft', 'open'].includes(invoice.status)) {
+      // nothing to do since the invoice is already at its final status
+      return;
+    }
+
+    switch (message.payment_status) {
+      case 'Completed':
+      case 'Processed':
+        return this.stripeHelper.payInvoiceOutOfBand(invoice);
+      case 'Pending':
+      case 'In-Progress':
+        return;
+      case 'Denied':
+      case 'Failed':
+      case 'Voided':
+      case 'Expired':
+        if (message.custom.length == 0) {
+          this.log.error('handleMerchPayment', {
+            message: 'No idempotency key on PayPal transaction',
+            ipnMessage: message,
+          });
+          throw error.internalValidationError('handleMerchPayment', {
+            message: 'No idempotency key on PayPal transaction',
+          });
+        }
+        const { paymentAttempt } = this.paypalHelper.parseIdempotencyKey(
+          message.custom
+        );
+        if (paymentAttempt < this.stripeHelper.getPaymentAttempts(invoice)) {
+          // the attempts were already recorded during the transaction and do not need
+          // to be updated here
+          return;
+        }
+        return this.stripeHelper.updatePaymentAttempts(invoice);
+      default:
+        // Unexpected response here, log details and throw validation error.
+        this.log.error('handleMerchPayment', {
+          message: 'Unexpected PayPal payment status',
+          ipnMessage: message,
+        });
+        throw error.internalValidationError('handleMerchPayment', {
+          message: 'Unexpected PayPal payment status',
+          transactionResponse: message.payment_status,
+        });
+    }
+  }
 
   private async handleMpCancel(message: IpnMerchPmtType) {}
 
@@ -26,13 +91,13 @@ export class PayPalNotificationHandler extends PayPalHandler {
   private async verifyAndDispatchEvent(request: AuthRequest) {
     try {
       const verified = await this.paypalHelper.verifyIpnMessage(
-        request.payload as string
+        request.payload.toString()
       );
       if (!verified) {
         throw new Error('Invalid payload on PayPal IPN Handler.');
       }
       const payload = this.paypalHelper.extractIpnMessage(
-        request.payload as string
+        request.payload.toString()
       );
       if (isIpnMerchPmt(payload)) {
         this.log.debug('Handling Ipn message', { payload });
@@ -67,7 +132,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
   }
 }
 
-export const paypalRoutes = (
+export const paypalNotificationRoutes = (
   log: AuthLogger,
   db: any,
   config: ConfigType,

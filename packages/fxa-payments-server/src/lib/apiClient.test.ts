@@ -33,6 +33,7 @@ import {
   MOCK_ACTIVE_SUBSCRIPTIONS,
   MOCK_CHECKOUT_TOKEN,
   MOCK_TOKEN,
+  MOCK_PAYPAL_SUBSCRIPTION_RESULT,
   MOCK_PLANS,
 } from './test-utils';
 
@@ -56,6 +57,7 @@ import {
   apiRetryInvoice,
   apiDetachFailedPaymentMethod,
   apiGetPaypalCheckoutToken,
+  apiCapturePaypalPayment,
 } from './apiClient';
 
 describe('APIError', () => {
@@ -463,6 +465,25 @@ describe('API requests', () => {
       const currencyCode = 'USD';
       expect(await apiGetPaypalCheckoutToken({ currencyCode })).toEqual(
         MOCK_CHECKOUT_TOKEN
+      );
+      requestMock.done();
+    });
+  });
+
+  describe('apiCapturePaypalPayment', () => {
+    const path = '/v1/oauth/subscriptions/active/new-paypal';
+    const params = {
+      idempotencyKey: 'idk-8675309',
+      priceId: 'price_12345',
+      ...MOCK_CHECKOUT_TOKEN,
+    };
+
+    it('POST {auth-server}/v1/oauth/subscriptions/active/new-paypal', async () => {
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path, params)
+        .reply(200, MOCK_PAYPAL_SUBSCRIPTION_RESULT);
+      expect(await apiCapturePaypalPayment(params)).toEqual(
+        MOCK_PAYPAL_SUBSCRIPTION_RESULT
       );
       requestMock.done();
     });

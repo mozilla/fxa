@@ -347,6 +347,15 @@ export class StripeHelper {
   }
 
   /**
+   * Get Invoice object based on invoice Id
+   * 
+   * @param id 
+   */
+  async getInvoice(id: string) : Promise<Stripe.Invoice> {
+    return this.stripe.invoices.retrieve(id);
+  }
+
+  /**
    * Finalizes an invoice and marks auto_advance as false.
    *
    * @param invoice

@@ -17,24 +17,19 @@ const TOPICS = [
   'Not listed',
 ];
 
-// Translated strings for the drop down options.
-const TRANSLATED_TOPICS = [
-  t('Payment & billing'),
-  t('Account issues'),
-  t('Technical issues'),
-  t('Provide feedback / request features'),
-  t('Not listed'),
+// Lowercase translated strings used in the successful submission modal.
+const LOWERED_TOPICS = [
+  t('payment & billing'),
+  t('account issues'),
+  t('technical issues'),
+  t('provide feedback / request features'),
+  t('not listed'),
 ];
 
-// Lowercase translated strings used in the successful submission modal.
-const LOWERED_TOPICS = TRANSLATED_TOPICS.map((x) => x.toLocaleLowerCase());
-
-const topicOptions = _.zipWith(
-  TOPICS,
-  TRANSLATED_TOPICS,
-  LOWERED_TOPICS,
-  (topic, translated, lowered) => ({ topic, translated, lowered })
-);
+const topicOptions = _.zipWith(TOPICS, LOWERED_TOPICS, (topic, lowered) => ({
+  topic,
+  lowered,
+}));
 
 const SupportForm = Backbone.Model.extend({
   validate: function (attrs) {
@@ -48,11 +43,6 @@ const SupportForm = Backbone.Model.extend({
   },
 
   topicOptions,
-
-  getTranslatedTopic: function (topic) {
-    const selected = topicOptions.find((t) => t.topic === topic);
-    return selected ? selected.translated : topic;
-  },
 
   getLoweredTopic: function (topic) {
     const selected = topicOptions.find((t) => t.topic === topic);

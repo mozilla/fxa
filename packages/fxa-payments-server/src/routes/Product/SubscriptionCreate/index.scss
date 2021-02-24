@@ -20,16 +20,38 @@
   @include min-width('desktop') {
     padding: 28px 48px 48px;
   }
+  .pay-with-heading {
+    color: rgb(115, 115, 115);
+    margin: 0 0 24px 0;
+    display: grid;
+    width: 100%;
+    align-items: center;
+    text-align: center;
+    grid-template-columns: minmax(20px, 1fr) auto minmax(20px, 1fr);
+    grid-gap: 20px;
+    &:before,
+    &:after {
+      content: '';
+      border-top: 1px solid #e0e0e6;
+    }
+  }
+
+
+  .subscription-create-pay-with-other .paypal-button {
+    width: 240px;
+    height: 48px + 48;
+    margin: auto; 
+  }
+
+
+  .subscription-create-pay-with-card .accepted-cards {
+    justify-content: center;
+  }
 
   .billing-title {
     font-size: 15px;
     font-weight: 600;
     margin-bottom: 20px;
-
-    @include min-width('tablet') {
-      border-top: 1px solid #e0e0e6;
-      padding-top: 16px;
-    }
   }
 
   .subscription-create-heading {

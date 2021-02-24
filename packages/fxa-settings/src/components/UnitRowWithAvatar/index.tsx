@@ -10,9 +10,9 @@ import { HomePath } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 
 export const UnitRowWithAvatar = () => {
-  const { avatarUrl } = useAccount();
-  const ctaTextFallback = avatarUrl ? 'Change' : 'Add';
-  const ctaL10nId = avatarUrl ? 'avatar-change-link' : 'avatar-add-link';
+  const { avatar } = useAccount();
+  const ctaTextFallback = avatar.url ? 'Change' : 'Add';
+  const ctaL10nId = avatar.url ? 'avatar-change-link' : 'avatar-add-link';
   const location = useLocation();
   return (
     <div className="unit-row">
@@ -25,10 +25,10 @@ export const UnitRowWithAvatar = () => {
         <Avatar className="mx-auto mobileLandscape:mx-0 w-32 mobileLandscape:w-16" />
       </div>
       <div className="unit-row-actions">
-        <div>
+        <div className="flex items-center">
           <Localized id={ctaL10nId}>
             <Link
-              className="cta-neutral cta-base ltr:ml-1 rtl:mr-1"
+              className="cta-neutral cta-base ltr:mr-1 rtl:ml-1"
               data-testid="unit-row-with-avatar-route"
               to={`${HomePath}/avatar${location.search}`}
             >

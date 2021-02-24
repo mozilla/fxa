@@ -18,6 +18,9 @@ export interface SessionTokenResult {
 export class SessionTokenStrategy extends PassportStrategy(Strategy) {
   async validate(token: string): Promise<SessionTokenResult> {
     try {
+      if (!/^(?:[a-fA-F0-9]{2})+$/.test(token)) {
+        throw new UnauthorizedException('Invalid token');
+      }
       const { id } = await deriveHawkCredentials(token, 'sessionToken');
       const session = await sessionTokenData(id);
       if (!session) {

@@ -90,9 +90,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client@npm:^3.1.3, @apollo/client@npm:^3.1.5, @apollo/client@npm:^3.2.5, @apollo/client@npm:^3.3.7, @apollo/client@npm:^3.3.9":
-  version: 3.3.9
-  resolution: "@apollo/client@npm:3.3.9"
+"@apollo/client@npm:^3.1.5, @apollo/client@npm:^3.3.11":
+  version: 3.3.11
+  resolution: "@apollo/client@npm:3.3.11"
   dependencies:
     "@graphql-typed-document-node/core": ^3.0.0
     "@types/zen-observable": ^0.8.0
@@ -116,7 +116,7 @@ __metadata:
       optional: true
     subscriptions-transport-ws:
       optional: true
-  checksum: 8b0662d70e6ef203d7e3df6e013205c891967f42f3b639cafb56d87e7cdf56c1c150358e6fd69cdc5fb9e894ed352785cdf26d7d15b76921ed028f8247fdb6a2
+  checksum: 512f62f956c1d51ad1a32d51cca56295e41f685cbcf2b623366b22a85b0bc6487338f8d90dbff6eae311eff9eb342c67a6adf577633851a9cbd85618c229e66b
   languageName: node
   linkType: hard
 
@@ -2276,9 +2276,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/pubsub@npm:^2.8.0":
-  version: 2.8.0
-  resolution: "@google-cloud/pubsub@npm:2.8.0"
+"@google-cloud/pubsub@npm:^2.9.0":
+  version: 2.9.0
+  resolution: "@google-cloud/pubsub@npm:2.9.0"
   dependencies:
     "@google-cloud/paginator": ^3.0.0
     "@google-cloud/precise-date": ^2.0.0
@@ -2290,12 +2290,12 @@ __metadata:
     "@types/long": ^4.0.0
     arrify: ^2.0.0
     extend: ^3.0.2
-    google-auth-library: ^6.1.2
+    google-auth-library: ^7.0.0
     google-gax: ^2.9.2
     is-stream-ended: ^0.1.4
     lodash.snakecase: ^4.1.1
     p-defer: ^3.0.0
-  checksum: 07482e0227f6d6793df2e21b513dafe072e969fb2339139f61e020c94ab227aef6341fceb3165658c43b38035dd103836a92188d312fbea46130e46658674359
+  checksum: 5311ccb08ef6ac80e8f952a5a96f04c857462b28f30155ff9b6a930ab11bca021b7b8de9e9b81beedaec325f5d1693b43d71f6707461b23ba29b7fd9142146c2
   languageName: node
   linkType: hard
 
@@ -3782,21 +3782,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@nestjs/config@npm:0.6.1"
+"@nestjs/config@npm:^0.6.3":
+  version: 0.6.3
+  resolution: "@nestjs/config@npm:0.6.3"
   dependencies:
     dotenv: 8.2.0
     dotenv-expand: 5.1.0
     lodash.get: 4.4.2
     lodash.has: 4.5.2
     lodash.set: 4.3.2
-    uuid: 8.3.1
+    uuid: 8.3.2
   peerDependencies:
     "@nestjs/common": ^6.10.0 || ^7.0.0
     reflect-metadata: ^0.1.12
     rxjs: ^6.0.0
-  checksum: 2c1d89a4c72984f14cb05e0536e8e9640b5d2321534b2762ddb5fa5a83e6abd91db567cf3f540fc95b2f4b44917dcd1c7856bc2c338f892995769adf14ec2890
+  checksum: 2ec8f65044a532abf18a18cc026f32343785bafbfda26498ee235a19d90f1e5d923f41521116e709a0ee35a67f82f6b83c555fe130ab6571df87daaa27d17fb2
   languageName: node
   linkType: hard
 
@@ -3829,9 +3829,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/graphql@npm:^7.9.8":
-  version: 7.9.8
-  resolution: "@nestjs/graphql@npm:7.9.8"
+"@nestjs/graphql@npm:^7.9.9":
+  version: 7.9.9
+  resolution: "@nestjs/graphql@npm:7.9.9"
   dependencies:
     "@apollo/gateway": ^0.17.0
     "@graphql-tools/merge": 6.2.7
@@ -3861,7 +3861,7 @@ __metadata:
       optional: true
     ts-morph:
       optional: true
-  checksum: 659e56d5ddba0b56af9dbb0b6ae343fffb8af5bc3c0ed3a36e1ccbe93f64200def49dd948bd6bef2cc56c292f35ee7108d7d891a97e9842f9a1ebc0b1b4c5da5
+  checksum: 214ed66598a3352addf75baee4ff293d6dabf3de6d848051fa7782e51d23bcc3f5ee1c20958b77843bf885c26e162fe6222215e38ccacc3735b22ed4c07c4af0
   languageName: node
   linkType: hard
 
@@ -3887,9 +3887,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^7.6.11":
-  version: 7.6.11
-  resolution: "@nestjs/platform-express@npm:7.6.11"
+"@nestjs/platform-express@npm:^7.6.12":
+  version: 7.6.12
+  resolution: "@nestjs/platform-express@npm:7.6.12"
   dependencies:
     body-parser: 1.19.0
     cors: 2.8.5
@@ -3899,7 +3899,7 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^7.0.0
     "@nestjs/core": ^7.0.0
-  checksum: 2dadc955533e1284b566a8c8035066f21d3ef7e3a597b1d85724a131bdfb959a4ed6559e61091fd49593be7d145bc4c51a83bf8ffacbd5cf2d2dffa02a625805
+  checksum: a0969ff99cce25de38362da6b5f51825fe30313fe46dfc3b7ecc2250a15eba21275f3d0f13975740c05df864c9fc450a78acfd9a30f1b9c9b9b77a83668e2c4e
   languageName: node
   linkType: hard
 
@@ -5622,14 +5622,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^12.6.0":
-  version: 12.6.0
-  resolution: "@testing-library/user-event@npm:12.6.0"
+"@testing-library/user-event@npm:^12.7.1":
+  version: 12.7.1
+  resolution: "@testing-library/user-event@npm:12.7.1"
   dependencies:
     "@babel/runtime": ^7.12.5
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: d6ad1876131b934137794a2b910f3f875ade748c3f6bd6e210089f740937d6ab8aa7d80201dcdaacdc7e208a69a807fbbe64cbd2c849449c23afa34dd5742f54
+  checksum: 8dd17c7e50e7f5276619140313eec31fc4d10cad553c921a01c8ff0f974cc4882fcf7a9c8e8ca1306084632e083203226932364f6a8b12d4a963a13c4657748a
   languageName: node
   linkType: hard
 
@@ -5722,17 +5722,6 @@ __metadata:
   version: 1.3.1
   resolution: "@types/anymatch@npm:1.3.1"
   checksum: 1647865e528a168f66f57a077e9651c10a4c172b656cc3686fddf176555d42ca0a1647bfc626ea2fceb68fc7701426ab708224be1762b4a5216fe8368ffdba3c
-  languageName: node
-  linkType: hard
-
-"@types/apollo-upload-client@npm:^14.1.0":
-  version: 14.1.0
-  resolution: "@types/apollo-upload-client@npm:14.1.0"
-  dependencies:
-    "@apollo/client": ^3.1.3
-    "@types/extract-files": "*"
-    graphql: ^15.3.0
-  checksum: efaddda8bd60980514754e2ef9d58a2864b85d9b93c98ebfe944304772b7850d3911254b99f2f73374a40381577bb9dc8eb0e46a17040dabe6707c899268b9ae
   languageName: node
   linkType: hard
 
@@ -6086,13 +6075,6 @@ __metadata:
     "@types/qs": "*"
     "@types/serve-static": "*"
   checksum: 99b795c60e7368b575794574c35d0ffd0d119c52bc681af6beda2fee70aada78e8aef07fc0db3b88f594d5d935847de4187561d2456760eeb4fde5d10dbb3780
-  languageName: node
-  linkType: hard
-
-"@types/extract-files@npm:*":
-  version: 8.1.0
-  resolution: "@types/extract-files@npm:8.1.0"
-  checksum: 378a28b22002bd5fe1c2d8fb6014c8a281422a6d1d64806ae6c2ab3ebd59485fa16fd9a38bd3ed6ca6aee15ca13d9ff9850f6bff201558ac482c708809ebcd87
   languageName: node
   linkType: hard
 
@@ -7240,7 +7222,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^8.3.0":
+"@types/uuid@npm:^8, @types/uuid@npm:^8.3.0":
   version: 8.3.0
   resolution: "@types/uuid@npm:8.3.0"
   checksum: 620985aed8fdb4aed153daca5235f4303457a67a4d181efac0021712eabd9edd7e88895f79730c0e651effde7633b1b61e49a81519ac8d4e75019d2ac9b6412f
@@ -9012,19 +8994,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-upload-client@npm:^14.1.3":
-  version: 14.1.3
-  resolution: "apollo-upload-client@npm:14.1.3"
-  dependencies:
-    "@apollo/client": ^3.2.5
-    "@babel/runtime": ^7.12.5
-    extract-files: ^9.0.0
-  peerDependencies:
-    graphql: 14 - 15
-  checksum: c533319b29a724bc7a5468213878fe4f2b9594503827e9247757c6bf1fa774505a3717ad2da65457da7e14de11744b85a3e3d204db434d94499f3e22bda5f0e5
-  languageName: node
-  linkType: hard
-
 "apollo-utilities@npm:^1.0.1, apollo-utilities@npm:^1.3.0":
   version: 1.3.4
   resolution: "apollo-utilities@npm:1.3.4"
@@ -9735,9 +9704,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.443.0, aws-sdk@npm:^2.841.0":
-  version: 2.841.0
-  resolution: "aws-sdk@npm:2.841.0"
+"aws-sdk@npm:^2.849.0":
+  version: 2.849.0
+  resolution: "aws-sdk@npm:2.849.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -9748,7 +9717,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: 6952b83b2889e1232703664126591ff9b8882ef346466fa3b423e0431f0f61d4878358c2e64c7cd2fa336fc421e14e763b891fbe1f3014d8198e4c371776df10
+  checksum: 1032e6d68d9dcc35d36c5d447c55a70cee5a39ce0e28641bf2799bd2551cbacaca3de43af29b56365b175175dbf6c18078e8dc714b0d6e411780b4ce2f03b395
   languageName: node
   linkType: hard
 
@@ -18109,7 +18078,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-admin-panel@workspace:packages/fxa-admin-panel"
   dependencies:
-    "@apollo/client": ^3.3.7
+    "@apollo/client": ^3.3.11
     "@apollo/react-testing": 3.0.0
     "@babel/core": ^7.10.3
     "@rescripts/cli": 0.0.15
@@ -18122,7 +18091,7 @@ fsevents@^1.2.7:
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
-    "@testing-library/user-event": ^12.6.0
+    "@testing-library/user-event": ^12.7.1
     "@types/babel__core": 7.1.12
     "@types/chance": ^1.1.1
     "@types/convict": ^5.2.1
@@ -18170,7 +18139,7 @@ fsevents@^1.2.7:
     react-router-dom: ^5.1.2
     react-scripts: ^3.4.1
     serve-static: ^1.14.1
-    supertest: ^6.0.1
+    supertest: ^6.1.3
     ts-jest: ^26.3.0
     ts-node: ^8.10.2
     typescript: 3.9.7
@@ -18183,11 +18152,11 @@ fsevents@^1.2.7:
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
-    "@nestjs/graphql": ^7.9.8
+    "@nestjs/graphql": ^7.9.9
     "@nestjs/mapped-types": ^0.3.0
-    "@nestjs/platform-express": ^7.6.11
+    "@nestjs/platform-express": ^7.6.12
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.1
@@ -18224,7 +18193,7 @@ fsevents@^1.2.7:
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^6.5.5
-    supertest: ^6.0.1
+    supertest: ^6.1.3
     ts-jest: 26.4.3
     ts-node: ^8.6.2
     tsconfig-paths: ^3.9.0
@@ -18277,7 +18246,7 @@ fsevents@^1.2.7:
     mozlog: ^3.0.1
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
-    nock: ^13.0.4
+    nock: ^13.0.7
     nyc: ^15.0.1
     pm2: ^4.4.1
     prettier: ^2.0.5
@@ -18323,7 +18292,7 @@ fsevents@^1.2.7:
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.841.0
+    aws-sdk: ^2.849.0
     base64url: 3.0.1
     binary-split: 1.0.5
     bluebird: ^3.7.2
@@ -18379,7 +18348,7 @@ fsevents@^1.2.7:
     mozlog: ^3.0.1
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
-    nock: ^13.0.5
+    nock: ^13.0.7
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     node-zendesk: ^2.0.3
     nodemailer: 2.7.2
@@ -18514,7 +18483,7 @@ fsevents@^1.2.7:
     http-proxy-middleware: ^1.0.3
     i18n-abide: 0.0.26
     install: 0.13.0
-    intern: ^4.8.7
+    intern: ^4.9.0
     joi: ^14.3.1
     jquery: 3.5.1
     jquery-modal: "git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
@@ -18590,7 +18559,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-customs-server@workspace:packages/fxa-customs-server"
   dependencies:
-    "@google-cloud/pubsub": ^2.8.0
+    "@google-cloud/pubsub": ^2.9.0
     "@hapi/hapi": ^20.1.0
     "@hapi/hoek": ^9.0.4
     "@sentry/node": ^6.0.1
@@ -18644,7 +18613,7 @@ fsevents@^1.2.7:
   resolution: "fxa-email-event-proxy@workspace:packages/fxa-email-event-proxy"
   dependencies:
     audit-filter: ^0.5.0
-    aws-sdk: ^2.841.0
+    aws-sdk: ^2.849.0
     bluebird: ^3.7.2
     chai: ^4.2.0
     chai-as-promised: ^7.1.1
@@ -18664,18 +18633,18 @@ fsevents@^1.2.7:
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
     "@google-cloud/firestore": ^4.8.1
-    "@google-cloud/pubsub": ^2.8.0
+    "@google-cloud/pubsub": ^2.9.0
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.0.4
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^7.5.4
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
-    "@nestjs/graphql": ^7.9.8
+    "@nestjs/graphql": ^7.9.9
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
-    "@nestjs/platform-express": ^7.6.11
+    "@nestjs/platform-express": ^7.6.12
     "@nestjs/schedule": ^0.4.1
     "@nestjs/schematics": ^7.2.6
     "@nestjs/testing": ^7.6.5
@@ -18695,7 +18664,7 @@ fsevents@^1.2.7:
     "@typescript-eslint/eslint-plugin": 4.10.0
     "@typescript-eslint/parser": 3.0.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.841.0
+    aws-sdk: ^2.849.0
     axios: ^0.21.0
     chance: ^1.1.6
     class-transformer: ^0.3.1
@@ -18710,13 +18679,13 @@ fsevents@^1.2.7:
     factory-bot-ts: ^0.1.5
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
-    google-auth-library: ^6.1.3
+    google-auth-library: ^7.0.2
     graphql: ^15.5.0
     hot-shots: ^8.2.0
     jest: 26.6.3
     jwks-rsa: ^1.11.0
     mozlog: ^3.0.1
-    nock: ^13.0.4
+    nock: ^13.0.7
     p-event: ^4.2.0
     passport: ^0.4.1
     passport-jwt: ^4.0.0
@@ -18725,8 +18694,8 @@ fsevents@^1.2.7:
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^6.5.5
-    sqs-consumer: ^5.4.0
-    supertest: ^6.0.1
+    sqs-consumer: ^5.5.0
+    supertest: ^6.1.3
     ts-jest: 26.4.3
     ts-loader: ^8.0.12
     ts-node: ^8.6.2
@@ -18767,12 +18736,12 @@ fsevents@^1.2.7:
   dependencies:
     "@nestjs/cli": ^7.5.4
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
-    "@nestjs/graphql": ^7.9.8
+    "@nestjs/graphql": ^7.9.9
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/passport": ^7.1.5
-    "@nestjs/platform-express": ^7.6.11
+    "@nestjs/platform-express": ^7.6.12
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.1
@@ -18814,7 +18783,7 @@ fsevents@^1.2.7:
     knex: ^0.21.16
     mozlog: ^3.0.1
     mysql: ^2.18.1
-    nock: ^13.0.4
+    nock: ^13.0.7
     objection: ^2.2.7
     passport: ^0.4.1
     passport-http-bearer: ^1.0.1
@@ -18824,7 +18793,7 @@ fsevents@^1.2.7:
     rimraf: ^3.0.2
     rxjs: ^6.5.5
     superagent: ^6.0.0
-    supertest: ^6.0.1
+    supertest: ^6.1.3
     ts-jest: 26.4.3
     ts-node: ^8.6.2
     tslib: 2.0.1
@@ -18847,7 +18816,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-metrics-processor@workspace:packages/fxa-metrics-processor"
   dependencies:
-    "@google-cloud/pubsub": ^2.8.0
+    "@google-cloud/pubsub": ^2.9.0
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chai": ^4.2.11
@@ -18972,7 +18941,8 @@ fsevents@^1.2.7:
     joi: ^14.3.1
     morgan: ^1.10.0
     mozlog: ^3.0.1
-    nock: ^13.0.4
+    nocache: ^2.1.0
+    nock: ^13.0.7
     node-sass: ^4.13.1
     npm-run-all: ^4.1.5
     nyc: ^15.0.1
@@ -18985,7 +18955,7 @@ fsevents@^1.2.7:
     react-redux: ^7.2.2
     react-router-dom: ^5.1.2
     react-scripts: ^3.4.1
-    react-stripe-elements: ^5.1.0
+    react-stripe-elements: ^6.1.2
     react-test-renderer: ^17.0.1
     react-transition-group: ^4.3.0
     redux: ^4.0.4
@@ -18995,7 +18965,7 @@ fsevents@^1.2.7:
     redux-thunk: ^2.3.0
     serve-static: ^1.13.2
     sinon: ^9.0.3
-    supertest: ^6.0.1
+    supertest: ^6.1.3
     ts-jest: ^26.3.0
     ts-node: ^8.10.2
     type-to-reducer: ^1.2.0
@@ -19020,7 +18990,7 @@ fsevents@^1.2.7:
     "@sentry/node": ^6.0.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.841.0
+    aws-sdk: ^2.849.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 0.1.1
@@ -19040,7 +19010,7 @@ fsevents@^1.2.7:
     mozlog: ^3.0.1
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
-    nock: ^13.0.4
+    nock: ^13.0.7
     nyc: ^15.0.1
     pm2: ^4.4.1
     pngparse: 2.0.1
@@ -19071,7 +19041,7 @@ fsevents@^1.2.7:
     "@testing-library/dom": ^7.24.5
     "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
-    "@testing-library/user-event": ^12.6.0
+    "@testing-library/user-event": ^12.7.1
     "@types/camelcase": 5.2.0
     "@types/classnames": ^2.2.9
     "@types/file-loader": ^4.2.0
@@ -19119,7 +19089,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-settings@workspace:packages/fxa-settings"
   dependencies:
-    "@apollo/client": ^3.3.9
+    "@apollo/client": ^3.3.11
     "@babel/core": ^7.10.3
     "@emotion/react": ^11.1.4
     "@fluent/react": ^0.13.0
@@ -19137,8 +19107,7 @@ fsevents@^1.2.7:
     "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
     "@testing-library/react-hooks": ^5.0.3
-    "@testing-library/user-event": ^12.6.0
-    "@types/apollo-upload-client": ^14.1.0
+    "@testing-library/user-event": ^12.7.1
     "@types/babel__core": 7.1.12
     "@types/classnames": ^2.2.10
     "@types/jest": ^26.0.20
@@ -19150,8 +19119,8 @@ fsevents@^1.2.7:
     "@types/react-test-renderer": ^16
     "@types/react-webcam": ^3.0.0
     "@types/testing-library__react-hooks": ^4
+    "@types/uuid": ^8
     "@types/webpack": 4.41.16
-    apollo-upload-client: ^14.1.3
     babel-loader: ^8.0.0
     base32-decode: ^1.0.0
     base32-encode: ^1.1.1
@@ -19177,12 +19146,13 @@ fsevents@^1.2.7:
     react-async-hook: ^3.6.1
     react-dom: ^16.13.1
     react-easy-crop: ^3.3.1
-    react-hook-form: ^6.14.2
+    react-hook-form: ^6.15.3
     react-scripts: ^3.4.1
     react-test-renderer: ^17.0.1
     react-webcam: ^5.2.2
     subscriptions-transport-ws: ^0.9.18
     typescript: 3.9.7
+    uuid: ^8.3.2
     webpack: ^4.43.0
     webpack-merge-and-include-globally: ^2.2.3
     webpack-watch-files-plugin: ^1.1.0
@@ -19194,9 +19164,9 @@ fsevents@^1.2.7:
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
-    "@nestjs/graphql": ^7.9.8
+    "@nestjs/graphql": ^7.9.9
     "@nestjs/mapped-types": ^0.3.0
     "@nestjs/testing": ^7.6.5
     "@sentry/browser": ^5.27.6
@@ -19221,7 +19191,7 @@ fsevents@^1.2.7:
     ajv: ^6.12.2
     apollo-server: ^2.19.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.841.0
+    aws-sdk: ^2.849.0
     bluebird: ^3.7.2
     celebrate: ^10.0.1
     chai: ^4.2.0
@@ -19275,10 +19245,10 @@ fsevents@^1.2.7:
   dependencies:
     "@nestjs/cli": ^7.5.4
     "@nestjs/common": ^7.6.4
-    "@nestjs/config": ^0.6.1
+    "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.12
     "@nestjs/mapped-types": ^0.3.0
-    "@nestjs/platform-express": ^7.6.11
+    "@nestjs/platform-express": ^7.6.12
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/convict": ^5.2.1
@@ -19308,7 +19278,7 @@ fsevents@^1.2.7:
     rxjs: ^6.5.5
     semver: ^7.3.2
     superagent: ^6.0.0
-    supertest: ^6.0.1
+    supertest: ^6.1.3
     ts-jest: 26.4.3
     ts-node: ^8.6.2
     tslib: 2.0.1
@@ -19897,7 +19867,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^6.1.2, google-auth-library@npm:^6.1.3":
+"google-auth-library@npm:^6.1.3":
   version: 6.1.3
   resolution: "google-auth-library@npm:6.1.3"
   dependencies:
@@ -19911,6 +19881,23 @@ fsevents@^1.2.7:
     jws: ^4.0.0
     lru-cache: ^6.0.0
   checksum: ddf028986085c15f705cfe45b49c298c168243f4c3d3af4ad725be35105b4c0e5d6e66c3277bb82e296f608f8034621a8c30e791846e68b699ddc011f8a66016
+  languageName: node
+  linkType: hard
+
+"google-auth-library@npm:^7.0.0, google-auth-library@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "google-auth-library@npm:7.0.2"
+  dependencies:
+    arrify: ^2.0.0
+    base64-js: ^1.3.0
+    ecdsa-sig-formatter: ^1.0.11
+    fast-text-encoding: ^1.0.0
+    gaxios: ^4.0.0
+    gcp-metadata: ^4.2.0
+    gtoken: ^5.0.4
+    jws: ^4.0.0
+    lru-cache: ^6.0.0
+  checksum: f001ab5aebc3522d6aa3c0130bd340e332e8eb23071da13c65332467d520014a264a35846e0bd7fc2d9a52ee3579ec61ad4a511969d02e572c763258b50e1f1a
   languageName: node
   linkType: hard
 
@@ -21845,9 +21832,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"intern@npm:^4.8.7":
-  version: 4.8.7
-  resolution: "intern@npm:4.8.7"
+"intern@npm:^4.9.0":
+  version: 4.9.0
+  resolution: "intern@npm:4.9.0"
   dependencies:
     "@theintern/common": ~0.2.3
     "@theintern/digdug": ~2.5.0
@@ -21890,7 +21877,7 @@ fsevents@^1.2.7:
     ws: ~7.0.0
   bin:
     intern: bin/intern.js
-  checksum: de44b9063222f9bc258b6a1a4a4c1c5e8ddd513d505a0de0c70ba9c1fa1b6f66e604fce8aee85353f6e5bc086d41bfc8f597baaf271fe0bbc74802ee148e31aa
+  checksum: 468d27f34d2521fda51693b7699711248261532383c1aa2c5f43f5348b2e03c5530327bdc37d8b4366770e3e047c8f99efc0b692f40054bae9fae62c7e1bb2c6
   languageName: node
   linkType: hard
 
@@ -26243,7 +26230,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"methods@npm:1.1.2, methods@npm:^1.1.2, methods@npm:~1.1.2":
+"methods@npm:^1.1.2, methods@npm:~1.1.2":
   version: 1.1.2
   resolution: "methods@npm:1.1.2"
   checksum: 450e4ea0fd4a0f3de8c0593d753c7d6c8f2ee49766f5ef35c68cc2ac41699d5e295b7d6330fc2b7271b8569a07857e3eb0b5df0599a353c5808265b4b5066168
@@ -27147,15 +27134,22 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"nock@npm:*, nock@npm:^13.0.4, nock@npm:^13.0.5":
-  version: 13.0.5
-  resolution: "nock@npm:13.0.5"
+"nocache@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "nocache@npm:2.1.0"
+  checksum: 002c9237df3f79d92784d15bf89e1d0a3112a6cbb5e4bb8ff91791bbd1f288c33f3d07a429bc3942499dc49caf5c7f0f578825daa9f3e5ffba3dd3c32080acb9
+  languageName: node
+  linkType: hard
+
+"nock@npm:*, nock@npm:^13.0.7":
+  version: 13.0.7
+  resolution: "nock@npm:13.0.7"
   dependencies:
     debug: ^4.1.0
     json-stringify-safe: ^5.0.1
     lodash.set: ^4.3.2
     propagate: ^2.0.0
-  checksum: 2000952241d9f78491bd2770a5186b530eddef8710d219917b078e8c1b329abbdb88bcfb3dfd6bf093e860287ad8da7dd4136fbd2a8c1f42a7b56e3b071807f2
+  checksum: db77afdd757bb9f5496783a9f7cc30eb0664195c469d0b01e2e956545e6c08b24482a4a3fcdf4eef1713da30baa880bde244bac6c546733d5b3a59c6838d24b1
   languageName: node
   linkType: hard
 
@@ -31613,12 +31607,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^6.14.2":
-  version: 6.14.2
-  resolution: "react-hook-form@npm:6.14.2"
+"react-hook-form@npm:^6.15.3":
+  version: 6.15.3
+  resolution: "react-hook-form@npm:6.15.3"
   peerDependencies:
     react: ^16.8.0 || ^17
-  checksum: 1260e22f0e0b1ea9d2f4431fba37a52d1792481d14d59d2b844d1a82d03a9ff6dd77e548258fc568e78010b955539dbddc572a94ee17ed9acfc95b1a7060e6e8
+  checksum: 9da373e30d259b27ff72c28fc88b88c665fee5b01de294c5c5d89baaa15354db481714fc20c7b819544e81a64caee7e467c7b2e1bdb5764370bcd3325a1f53d9
   languageName: node
   linkType: hard
 
@@ -31887,15 +31881,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-stripe-elements@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "react-stripe-elements@npm:5.1.0"
+"react-stripe-elements@npm:^6.1.2":
+  version: 6.1.2
+  resolution: "react-stripe-elements@npm:6.1.2"
   dependencies:
     prop-types: 15.7.2
   peerDependencies:
     react: ^15.5.4 || ^16.0.0-0
     react-dom: ^15.5.4 || ^16.0.0-0
-  checksum: 71742030c2a9c8d5e65f53e98ebef32866b43e3dd645b9e15eeae8411c1f0e6defa9b32a3105e33d477bc0c7363f5500359592b922035cc5c09d7e099c98b412
+  checksum: a7b680146e2015350c4444b9d69aa052f1d1ac4982432b1e1109341be011f3b4db03421494be1a3d35130a6e739ccb49e7c6994d79db78413845084e7c803aa6
   languageName: node
   linkType: hard
 
@@ -34804,13 +34798,14 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sqs-consumer@npm:^5.4.0":
-  version: 5.4.0
-  resolution: "sqs-consumer@npm:5.4.0"
+"sqs-consumer@npm:^5.5.0":
+  version: 5.5.0
+  resolution: "sqs-consumer@npm:5.5.0"
   dependencies:
-    aws-sdk: ^2.443.0
     debug: ^4.1.1
-  checksum: 4923030dcb1269aa584ad911ace3d433489adb8dd75d46db5d6f748e39f92b82ac26df7ca05c72a3f87f9284dde24100e92f1f2f5e0ae715c44ea4c75acb408a
+  peerDependencies:
+    aws-sdk: ^2.699.0
+  checksum: b968090c811e5c038bf51eaf47be693e64489ad5fe1c0f440fab21623dfda186ba7d7133641121b4c28a5e86e38ad01de7a44a7ef84cb8bdf2287c318a7952e5
   languageName: node
   linkType: hard
 
@@ -35596,7 +35591,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"superagent@npm:6.1.0, superagent@npm:^6.0.0":
+"superagent@npm:^6.0.0, superagent@npm:^6.1.0":
   version: 6.1.0
   resolution: "superagent@npm:6.1.0"
   dependencies:
@@ -35615,13 +35610,13 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"supertest@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "supertest@npm:6.0.1"
+"supertest@npm:^6.1.3":
+  version: 6.1.3
+  resolution: "supertest@npm:6.1.3"
   dependencies:
-    methods: 1.1.2
-    superagent: 6.1.0
-  checksum: 6083017645fe078eb81ec5c99d72dfcc53e9d73815514e47c7b3a5feb6a7d46b1cae781293c816d68cf181a7f3e842b06de796f3da79cfe76ce9160891618d7b
+    methods: ^1.1.2
+    superagent: ^6.1.0
+  checksum: 4a3e07881952e54ada2b67be59a91d5222b0b36410b1f23fb363fc45a956aa5a82b7a1a9a33c90a63e3cac4222b3313d41398c85fe04d9f8a7f7757bd15b370b
   languageName: node
   linkType: hard
 
@@ -37696,16 +37691,7 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"uuid@npm:8.3.1":
-  version: 8.3.1
-  resolution: "uuid@npm:8.3.1"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: 6a5d07c5564614271237d8bbc5c1c72abf056343e91af8f67a8e6d29957a1a061f347b8425a1e499af32f5a8f0039c44d200dff663b9a8090c51a7f7b5031534
-  languageName: node
-  linkType: hard
-
-"uuid@npm:8.3.2, uuid@npm:^8.0.0, uuid@npm:^8.3.0":
+"uuid@npm:8.3.2, uuid@npm:^8.0.0, uuid@npm:^8.3.0, uuid@npm:^8.3.2":
   version: 8.3.2
   resolution: "uuid@npm:8.3.2"
   bin:

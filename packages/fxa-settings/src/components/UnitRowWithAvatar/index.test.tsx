@@ -11,7 +11,7 @@ import { renderWithRouter } from '../../models/_mocks';
 describe('UnitRowWithAvatar', () => {
   it('renders as expected with the default avatar', () => {
     renderWithRouter(
-      <MockedCache account={{ avatarUrl: null }}>
+      <MockedCache account={{ avatar: { id: null, url: null } }}>
         <UnitRowWithAvatar />
       </MockedCache>
     );

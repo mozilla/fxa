@@ -6,6 +6,7 @@
 project-brand = Firefox Accounts
 -brand-name-mozilla = Mozilla
 -brand-name-firefox = Firefox
+-brand-name-paypal = PayPal
 
 document =
   .title = Firefox Accounts
@@ -76,8 +77,8 @@ product-plan-not-found = Plan not found
 product-no-such-plan = No such plan for this product.
 
 ## payment legal blurb
-payment-legal-copy = { -brand-name-mozilla } uses Stripe for secure payment processing.
-payment-legal-link = View the <a>Stripe privacy policy</a>.
+payment-legal-copy-stripe-paypal = { -brand-name-mozilla } uses Stripe and { -brand-name-paypal } for secure payment processing.
+payment-legal-link-stripe-paypal = View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> and <paypalPrivacyLink>{ -brand-name-paypal } privacy policy</paypalPrivacyLink>.
 
 ## payment form
 payment-name =
@@ -290,6 +291,9 @@ sub-billing-update-success = Your billing information has been updated successfu
 
 ## subscription create
 sub-guarantee = 30-day money-back guarantee
+pay-with-heading-other = Select payment option
+pay-with-heading-card-or = Or pay with card
+pay-with-heading-card-only = Pay with card
 
 ## plan-details
 plan-details-header = Product details

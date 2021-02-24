@@ -24,7 +24,6 @@ import {
   Checkbox,
   OnValidateFunction,
 } from '../fields';
-import PaymentLegalBlurb from '../PaymentLegalBlurb';
 import {
   State as ValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
@@ -40,7 +39,6 @@ import { Plan, Customer } from '../../store/types';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import './index.scss';
-import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
 export type PaymentSubmitResult = {
   stripe: Stripe;
@@ -295,9 +293,6 @@ export const PaymentForm = ({
           </Localized>
         </div>
       )}
-
-      <PaymentLegalBlurb />
-      {plan && <TermsAndPrivacy plan={plan} />}
     </Form>
   );
 };

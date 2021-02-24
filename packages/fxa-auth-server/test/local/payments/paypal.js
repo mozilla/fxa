@@ -92,6 +92,31 @@ describe('PayPalHelper', () => {
     });
   });
 
+  describe('generateIdempotencyKey', () => {
+    const invoiceId = 'inv_000';
+    const paymentAttempt = 0;
+
+    it('successfully creates an idempotency key', async () => {
+      const result = paypalHelper.generateIdempotencyKey(
+        invoiceId,
+        paymentAttempt
+      );
+      assert.equal(result, invoiceId + '-' + paymentAttempt);
+    });
+  });
+
+  describe('generateIdempotencyKey', () => {
+    const invoiceId = 'inv_000';
+    const paymentAttempt = 0;
+
+    it('successfully parses an idempotency key', async () => {
+      const result = paypalHelper.parseIdempotencyKey(
+        invoiceId + '-' + paymentAttempt
+      );
+      assert.deepEqual(result, { invoiceId, paymentAttempt });
+    });
+  });
+
   describe('getCheckoutToken', () => {
     const validOptions = { currencyCode: 'USD' };
 
@@ -157,7 +182,7 @@ describe('PayPalHelper', () => {
       amount: '10.99',
       billingAgreementId: 'B-12345',
       invoiceNumber: 'in_asdf',
-      idempotencyKey: ' id1234',
+      idempotencyKey: ' in_asdf-0',
     };
 
     it('calls doReferenceTransaction with passed options', async () => {
@@ -402,7 +427,10 @@ describe('PayPalHelper', () => {
         amount: validInvoice.amount_due.toString(),
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
-        idempotencyKey: validInvoice.id + paymentAttempts,
+        idempotencyKey: paypalHelper.generateIdempotencyKey(
+          validInvoice.id,
+          paymentAttempts
+        ),
       });
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.updateInvoiceWithPaypalTransactionId,
@@ -452,7 +480,10 @@ describe('PayPalHelper', () => {
         amount: validInvoice.amount_due.toString(),
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
-        idempotencyKey: validInvoice.id + paymentAttempts,
+        idempotencyKey: paypalHelper.generateIdempotencyKey(
+          validInvoice.id,
+          paymentAttempts
+        ),
       });
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.finalizeInvoice,
@@ -501,7 +532,10 @@ describe('PayPalHelper', () => {
         amount: validInvoice.amount_due.toString(),
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
-        idempotencyKey: validInvoice.id + paymentAttempts,
+        idempotencyKey: paypalHelper.generateIdempotencyKey(
+          validInvoice.id,
+          paymentAttempts
+        ),
       });
       assert.equal(response, undefined);
     });
@@ -545,7 +579,10 @@ describe('PayPalHelper', () => {
         amount: validInvoice.amount_due.toString(),
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
-        idempotencyKey: validInvoice.id + paymentAttempts,
+        idempotencyKey: paypalHelper.generateIdempotencyKey(
+          validInvoice.id,
+          paymentAttempts
+        ),
       });
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.updatePaymentAttempts,
@@ -599,7 +636,10 @@ describe('PayPalHelper', () => {
         amount: validInvoice.amount_due.toString(),
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
-        idempotencyKey: validInvoice.id + paymentAttempts,
+        idempotencyKey: paypalHelper.generateIdempotencyKey(
+          validInvoice.id,
+          paymentAttempts
+        ),
       });
     });
 

@@ -9,7 +9,7 @@ import Avatar from '.';
 
 storiesOf('Components|Avatar', module)
   .add('default avatar', () => (
-    <MockedCache account={{ avatarUrl: null }}>
+    <MockedCache account={{ avatar: { id: null, url: null } }}>
       <Avatar className="w-32 h-32" />
     </MockedCache>
   ))

@@ -105,7 +105,7 @@ export const UnitRowTwoStepAuth = () => {
         }
       : {
           headerValue: null,
-          noHeaderValueText: l10n.getString('tfa-row-not-set', null, 'Not Set'),
+          noHeaderValueText: l10n.getString('tfa-row-not-set', null, 'Not set'),
           ctaText: l10n.getString('tfa-row-action-add', null, 'Add'),
           secondaryCtaText: undefined,
           revealSecondaryModal: undefined,
@@ -210,9 +210,9 @@ export const UnitRowTwoStepAuth = () => {
             hideModal();
             alertBar.error(
               l10n.getString(
-                'tfa-row-cannot-verify-session',
+                'tfa-row-cannot-verify-session-2',
                 null,
-                'Sorry, there was a problem verifying your session'
+                'Sorry, there was a problem verifying your session.'
               ),
               error
             );

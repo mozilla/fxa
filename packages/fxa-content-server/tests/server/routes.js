@@ -44,7 +44,6 @@ var routes = {
   '/connect_another_device/why': { statusCode: 200 },
   '/cookies_disabled': { statusCode: 200 },
   '/force_auth': { statusCode: 200 },
-  '/get_flow': { statusCode: 200 },
   '/inline_totp_setup': { statusCode: 200 },
   '/inline_recovery_setup': { statusCode: 200 },
   '/legal': { statusCode: 200 },

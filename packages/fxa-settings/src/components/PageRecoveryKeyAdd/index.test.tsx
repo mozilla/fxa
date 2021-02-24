@@ -89,11 +89,8 @@ describe('PageRecoveryKeyAdd', () => {
 
     await act(async () => {
       const input = screen.getByTestId('input-field');
-      fireEvent.input(input, { target: { value: 'myFavPassword' } });
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('continue-button'));
+      await fireEvent.input(input, { target: { value: 'myFavPassword' } });
+      await fireEvent.click(screen.getByTestId('continue-button'));
     });
 
     expect(screen.getByTestId('recover-key-confirm')).toBeVisible();
