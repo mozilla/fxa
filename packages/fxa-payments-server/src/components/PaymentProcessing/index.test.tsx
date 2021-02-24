@@ -9,11 +9,11 @@ import {
 import { PaymentProcessing } from './index';
 
 afterEach(cleanup);
-describe('Fluent Localized Text', () => {
+describe('PaymentProcessing tests', () => {
   const bundle = setupFluentLocalizationTest('en-US');
 
   it('renders as expected', () => {
-    const { queryByTestId } = render(<PaymentProcessing />);
+    const { queryByTestId } = render(<PaymentProcessing provider="paypal" />);
 
     const subscriptionTitle = queryByTestId('subscription-processing-title');
     expect(subscriptionTitle).toBeInTheDocument();
@@ -24,6 +24,9 @@ describe('Fluent Localized Text', () => {
 
     const mainBlock = queryByTestId('payment-processing');
     expect(mainBlock).toBeInTheDocument();
+
+    const footer = queryByTestId('footer');
+    expect(footer).toBeInTheDocument();
 
     const expected = 'Please wait while we process your payment...';
     const actual = getLocalizedMessage(

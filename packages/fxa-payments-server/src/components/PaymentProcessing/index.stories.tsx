@@ -3,5 +3,5 @@ import { storiesOf } from '@storybook/react';
 import { PaymentProcessing } from './index';
 
 storiesOf('components/PaymentProcessing', module).add('default', () => (
-  <PaymentProcessing />
+  <PaymentProcessing provider="paypal" />
 ));
