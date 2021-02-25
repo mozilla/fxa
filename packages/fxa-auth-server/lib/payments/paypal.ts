@@ -19,6 +19,7 @@ import {
   TransactionStatus,
 } from './paypal-client';
 import { StripeHelper } from './stripe';
+import { CurrencyHelper } from './currencies';
 
 type PaypalHelperOptions = {
   log: Logger;
@@ -92,12 +93,14 @@ export class PayPalHelper {
   private client: PayPalClient;
   private metrics: StatsD;
   private stripeHelper: StripeHelper;
+  public currencyHelper: CurrencyHelper;
 
   constructor(options: PaypalHelperOptions) {
     this.log = options.log;
     this.client = Container.get(PayPalClient);
     this.metrics = Container.get(StatsD);
     this.stripeHelper = Container.get(StripeHelper);
+    this.currencyHelper = Container.get(CurrencyHelper);
     if (this.metrics) {
       this.client.on('response', (response) => {
         this.metrics.timing('paypal_request', response.elapsed, undefined, {

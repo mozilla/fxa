@@ -656,6 +656,36 @@ AppError.invalidRegion = (region) => {
   );
 };
 
+AppError.currencyCountryMismatch = (currency, country) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_REGION,
+      message: 'Funding source country does not match plan currency.',
+    },
+    {
+      currency,
+      country,
+    }
+  );
+};
+
+AppError.currencyCurrencyMismatch = (currencyA, currencyB) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_REGION,
+      message: `Change from ${currencyA} to ${currencyB} is not permitted.`,
+    },
+    {
+      currencyA,
+      currencyB,
+    }
+  );
+};
+
 AppError.invalidMessageId = () => {
   return new AppError({
     code: 400,

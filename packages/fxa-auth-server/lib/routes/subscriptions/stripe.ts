@@ -221,6 +221,16 @@ export class StripeHandler {
       planId
     );
 
+    // Verify the new plan currency and customer currency are compatible.
+    // Stripe does not allow customers to change currency after a currency is set, which
+    // occurs on initial subscription. (https://stripe.com/docs/billing/customer#payment)
+    const customer = await this.stripeHelper.customer({ uid, email });
+    const planCurrency = (await this.stripeHelper.findPlanById(planId))
+      .currency;
+    if (customer && customer.currency != planCurrency) {
+      throw error.currencyCurrencyMismatch(customer.currency, planCurrency);
+    }
+
     // Update the plan
     await this.stripeHelper.changeSubscriptionPlan(subscriptionId, planId);
 
@@ -468,6 +478,20 @@ export class StripeHandler {
       idempotencyKey,
     } = request.payload as Record<string, string>;
 
+    const planCurrency = (await this.stripeHelper.findPlanById(priceId))
+      .currency;
+    const paymentMethodCountry = (
+      await this.stripeHelper.getPaymentMethod(paymentMethodId)
+    ).card?.country;
+    if (
+      !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
+        planCurrency,
+        paymentMethodCountry
+      )
+    ) {
+      throw error.currencyCountryMismatch(planCurrency, paymentMethodCountry);
+    }
+
     const subIdempotencyKey = `${idempotencyKey}-createSub`;
     const subscription = await this.stripeHelper.createSubscriptionWithPMI({
       customerId: customer.id,
@@ -525,6 +549,21 @@ export class StripeHandler {
     }
 
     const { paymentMethodId } = request.payload as Record<string, string>;
+
+    const paymentMethodCountry = (
+      await this.stripeHelper.getPaymentMethod(paymentMethodId)
+    ).card?.country;
+    if (
+      !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
+        customer.currency,
+        paymentMethodCountry
+      )
+    ) {
+      throw error.currencyCountryMismatch(
+        customer.currency,
+        paymentMethodCountry
+      );
+    }
 
     await this.stripeHelper.updateDefaultPaymentMethod(
       customer.id,

@@ -15,10 +15,12 @@ import ioredis from 'ioredis';
 import moment from 'moment';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
+import { Container } from 'typedi';
 
 import { ConfigType } from '../../config';
 import error from '../error';
 import Redis from '../redis';
+import { CurrencyHelper } from './currencies';
 
 const CUSTOMER_RESOURCE = 'customers';
 const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -89,6 +91,7 @@ export class StripeHelper {
   private webhookSecret: string;
   private stripe: Stripe;
   private redis: ioredis.Redis | undefined;
+  public currencyHelper: CurrencyHelper;
 
   /**
    * Create a Stripe Helper with built-in caching.
@@ -98,6 +101,7 @@ export class StripeHelper {
     this.customerCacheTtlSeconds = config.subhub.customerCacheTtlSeconds;
     this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
+    this.currencyHelper = Container.get(CurrencyHelper);
     // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
     // both TTL and whether caching should be enabled at all. We should
     // introduce a second setting for cache enable / disable.
@@ -545,6 +549,12 @@ export class StripeHelper {
       }
       throw err;
     }
+  }
+
+  async getPaymentMethod(
+    paymentMethodId: string
+  ): Promise<Stripe.PaymentMethod> {
+    return await this.stripe.paymentMethods.retrieve(paymentMethodId);
   }
 
   async detachPaymentMethod(

@@ -23,6 +23,7 @@ const searchTransactionResponse = require('./fixtures/paypal/transaction_search_
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json');
 const { StripeHelper } = require('../../../lib/payments/stripe');
+const { CurrencyHelper } = require('../../../lib/payments/currencies');
 
 describe('PayPalHelper', () => {
   /** @type PayPalHelper */
@@ -54,10 +55,14 @@ describe('PayPalHelper', () => {
     },
   };
 
+  const mockConfig = {
+    currenciesToCountries: { ZAR: ['AS', 'CA'] },
+  };
+
   beforeEach(() => {
+    // Make StripeHelper
     mockStripeHelper = {};
     Container.set(StripeHelper, mockStripeHelper);
-
     // Make PayPalClient
     const paypalClient = new PayPalClient({
       user: 'user',
@@ -69,12 +74,15 @@ describe('PayPalHelper', () => {
     // Make StatsD
     const statsd = { increment: sinon.spy() };
     Container.set(StatsD, statsd);
+    // Make currencyHelper
+    const currencyHelper = new CurrencyHelper(mockConfig);
+    Container.set(CurrencyHelper, currencyHelper);
     // Make PayPalHelper
-    paypalHelper = new PayPalHelper({ mockLog });
+    paypalHelper = new PayPalHelper({ log: mockLog });
   });
 
   describe('constructor', () => {
-    it('sets client, statsd, and logger', () => {
+    it('sets client, statsd, logger, and currencyHelper', () => {
       const paypalClient = new PayPalClient({
         user: 'user',
         sandbox: true,
@@ -85,10 +93,13 @@ describe('PayPalHelper', () => {
       Container.set(PayPalClient, paypalClient);
       Container.set(StatsD, statsd);
 
-      const pph = new PayPalHelper({ log: mockLog });
+      const pph = new PayPalHelper({ log: mockLog, config: mockConfig });
       assert.equal(pph.client, paypalClient);
       assert.equal(pph.log, mockLog);
       assert.equal(pph.metrics, statsd);
+
+      const expectedCurrencyHelper = new CurrencyHelper(mockConfig);
+      assert.deepEqual(pph.currencyHelper, expectedCurrencyHelper);
     });
   });
 

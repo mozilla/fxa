@@ -6,11 +6,13 @@
 
 const sinon = require('sinon');
 const assert = require('chai').assert;
+const { Container } = require('typedi');
 const uuid = require('uuid');
 const { getRoute } = require('../../../routes_helpers');
 const mocks = require('../../../mocks');
 const error = require('../../../../lib/error');
 const { StripeHelper } = require('../../../../lib/payments/stripe');
+const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
 
@@ -39,6 +41,12 @@ const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/strip
 const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
 const newSetupIntent = require('../../payments/fixtures/stripe/setup_intent_new.json');
 const stripePlan = require('../../payments/fixtures/stripe/plan1.json');
+const paymentMethodFixture = require('../../payments/fixtures/stripe/payment_method.json');
+
+const currencyHelper = new CurrencyHelper({
+  currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
+});
+Container.set(CurrencyHelper, currencyHelper);
 
 let config,
   log,
@@ -203,7 +211,11 @@ describe('subscriptions stripeRoutes', () => {
           enabled: true,
         },
       },
+      currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
     };
+
+    const currencyHelper = new CurrencyHelper(config);
+    Container.set(CurrencyHelper, currencyHelper);
 
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
@@ -480,6 +492,7 @@ describe('DirectStripeRoutes', () => {
       locale: ACCOUNT_LOCALE,
     });
     const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
+    stripeHelperMock.currencyHelper = currencyHelper;
 
     directStripeRoutesInstance = new DirectStripeRoutes(
       log,
@@ -582,11 +595,19 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('createSubscriptionWithPMI', () => {
-    const plan = PLANS[2];
+    let plan, paymentMethod;
 
     beforeEach(() => {
+      plan = deepCopy(PLANS[2]);
+      plan.currency = 'USD';
       directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
       sandbox.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+      paymentMethod = deepCopy(paymentMethodFixture);
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+        paymentMethod
+      );
+      const customer = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
     });
 
     it('creates a subscription with a payment method', async () => {
@@ -594,8 +615,6 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
         sourceCountry
       );
-      const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
       const expected = deepCopy(subscription2);
       directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
         expected
@@ -640,6 +659,44 @@ describe('DirectStripeRoutes', () => {
       } catch (err) {
         assert.instanceOf(err, WError);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+
+    it('errors if the planCurrency does not match the paymentMethod country', async () => {
+      plan.currency = 'EUR';
+      directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
+        assert.fail('Create subscription with wrong planCurrency should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_REGION);
+        assert.equal(
+          err.message,
+          'Funding source country does not match plan currency.'
+        );
+      }
+    });
+
+    it('errors if the paymentMethod country does not match the planCurrency', async () => {
+      paymentMethod.card.country = 'FR';
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+        paymentMethod
+      );
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
+        assert.fail('Create subscription with wrong planCurrency should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_REGION);
+        assert.equal(
+          err.message,
+          'Funding source country does not match plan currency.'
+        );
       }
     });
 
@@ -765,8 +822,16 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('updateDefaultPaymentMethod', () => {
+    beforeEach(() => {
+      const paymentMethod = deepCopy(paymentMethodFixture);
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+        paymentMethod
+      );
+    });
+
     it('updates the default payment method', async () => {
       const customer = deepCopy(emptyCustomer);
+      customer.currency = 'USD';
       const paymentMethodId = 'card_1G9Vy3Kb9q6OnNsLYw9Zw0Du';
 
       const expected = deepCopy(emptyCustomer);
@@ -799,6 +864,29 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnce(
         directStripeRoutesInstance.stripeHelper.removeSources
       );
+    });
+
+    it('errors when a customer currency does not match new paymentMethod country', async () => {
+      // Payment method country already set to US in beforeEach;
+      const customer = deepCopy(emptyCustomer);
+      customer.currency = 'EUR';
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+
+      try {
+        await directStripeRoutesInstance.updateDefaultPaymentMethod(
+          VALID_REQUEST
+        );
+        assert.fail(
+          'Update default payment method with new payment method country that does not match customer currency should fail.'
+        );
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_REGION);
+        assert.equal(
+          err.message,
+          'Funding source country does not match plan currency.'
+        );
+      }
     });
 
     it('errors when a customer has not been created', async () => {
@@ -1027,47 +1115,67 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('updateSubscription', () => {
-    describe('when the plan is a valid upgrade', () => {
-      it('returns the subscription id', async () => {
-        const subscriptionId = 'sub_123';
-        const expected = { subscriptionId: subscriptionId };
+    let plan;
 
-        directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves(
-          subscription2
-        );
-        directStripeRoutesInstance.stripeHelper.verifyPlanUpdateForSubscription.resolves();
-        directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
+    beforeEach(() => {
+      directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves(
+        subscription2
+      );
+      VALID_REQUEST.params = { subscriptionId: subscription2.subscriptionId };
 
-        sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+      const customer = deepCopy(customerFixture);
+      customer.currency = 'USD';
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
 
-        VALID_REQUEST.params = { subscriptionId: subscriptionId };
-        VALID_REQUEST.payload = { planId: 'plan_123' };
-
-        const actual = await directStripeRoutesInstance.updateSubscription(
-          VALID_REQUEST
-        );
-
-        assert.deepEqual(actual, expected);
-      });
+      plan = deepCopy(PLANS[0]);
+      plan.currency = 'USD';
+      directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
+      VALID_REQUEST.payload = { planId: plan.planId };
     });
 
-    describe('when the orginal subscription is not found', () => {
-      it('throws an exception', async () => {
-        directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves();
-        VALID_REQUEST.params = { subscriptionId: 'sub_123' };
-        VALID_REQUEST.payload = { planId: 'plan_123' };
+    it('returns the subscription id when the plan is a valid upgrade', async () => {
+      const subscriptionId = 'sub_123';
+      const expected = { subscriptionId: subscriptionId };
+      VALID_REQUEST.params = { subscriptionId: subscriptionId };
 
-        return directStripeRoutesInstance
-          .updateSubscription(VALID_REQUEST)
-          .then(
-            () => Promise.reject(new Error('Method expected to reject')),
-            (err) => {
-              assert.instanceOf(err, WError);
-              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
-              assert.equal(err.message, 'Unknown subscription');
-            }
-          );
-      });
+      directStripeRoutesInstance.stripeHelper.verifyPlanUpdateForSubscription.resolves();
+      directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
+
+      sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+
+      const actual = await directStripeRoutesInstance.updateSubscription(
+        VALID_REQUEST
+      );
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it("throws an error when the new plan currency doesn't match the customer's currency.", async () => {
+      plan.currency = 'EUR';
+      directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
+
+      try {
+        await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
+        assert.fail(
+          'Update subscription with wrong plan currency should fail.'
+        );
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_REGION);
+        assert.equal(err.message, 'Change from USD to EUR is not permitted.');
+      }
+    });
+
+    it('throws an exception when the orginal subscription is not found', async () => {
+      directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves();
+      try {
+        await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
+        assert.fail('Method expected to reject');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+        assert.equal(err.message, 'Unknown subscription');
+      }
     });
   });
 

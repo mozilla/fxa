@@ -856,6 +856,15 @@ const conf = convict({
       },
     },
   },
+  currenciesToCountries: {
+    doc:
+      'Mapping from ISO 4217 three-letter currency codes to list of ISO 3166-1 alpha-2 two-letter country codes: {"EUR": ["DE", "FR"], "USD": ["CA", "GB", "US" ]}  Requirement for only one currency per country. Tested at runtime. Must be uppercased.',
+    format: Object,
+    default: {
+      USD: ['US', 'GB', 'NZ', 'MY', 'SG', 'CA', 'AS', 'GU', 'MP', 'PR', 'VI'],
+    },
+    env: 'CURRENCIES',
+  },
   oauth: {
     url: {
       format: 'url',

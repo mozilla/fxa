@@ -15,6 +15,7 @@ const error = require('../../../lib/error');
 const stripeError = require('stripe').Stripe.errors;
 const uuidv4 = require('uuid').v4;
 const moment = require('moment');
+const { Container } = require('typedi');
 
 const chance = new Chance();
 let mockRedis;
@@ -22,6 +23,7 @@ const proxyquire = require('proxyquire').noPreserveCache();
 const StripeHelper = proxyquire('../../../lib/payments/stripe', {
   '../redis': (config, log) => mockRedis.init(config, log),
 });
+const { CurrencyHelper } = require('../../../lib/payments/currencies');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
 const newCustomer = require('./fixtures/stripe/customer_new.json');
@@ -70,6 +72,7 @@ const mockConfig = {
     customerCacheTtlSeconds: 90,
     plansCacheTtlSeconds: 60,
   },
+  currenciesToCountries: { ZAR: ['AS', 'CA'] },
 };
 
 const mockRedisConfig = {
@@ -205,6 +208,9 @@ describe('StripeHelper', () => {
     sandbox = sinon.createSandbox();
     mockRedis = createMockRedis();
     log = mockLog();
+    // Make currencyHelper
+    const currencyHelper = new CurrencyHelper(mockConfig);
+    Container.set(CurrencyHelper, currencyHelper);
     stripeHelper = new StripeHelper(log, mockConfig);
     stripeHelper.redis = mockRedis;
     listStripePlans = sandbox
@@ -217,6 +223,13 @@ describe('StripeHelper', () => {
 
   afterEach(() => {
     sandbox.restore();
+  });
+
+  describe('constructur', () => {
+    it('sets currencyHelper', () => {
+      const expectedCurrencyHelper = new CurrencyHelper(mockConfig);
+      assert.deepEqual(stripeHelper.currencyHelper, expectedCurrencyHelper);
+    });
   });
 
   describe('createPlainCustomer', () => {
@@ -326,6 +339,18 @@ describe('StripeHelper', () => {
             assert.equal(err, apiError);
           }
         );
+    });
+  });
+
+  describe('getPaymentMethod', () => {
+    it('calls the Strip api', async () => {
+      const paymentMethodId = 'pm_9001';
+      sandbox.stub(stripeHelper.stripe.paymentMethods, 'retrieve');
+      await stripeHelper.getPaymentMethod(paymentMethodId);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.paymentMethods.retrieve,
+        paymentMethodId
+      );
     });
   });
 

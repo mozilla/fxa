@@ -83,6 +83,18 @@ export class PayPalHandler extends StripeHandler {
       billingAgreementId: agreementId,
     });
 
+    // Verify sourceCountry and plan currency are a valid combination.
+    const currency = (await this.stripeHelper.findPlanById(priceId)).currency;
+    const country = agreementDetails.countryCode;
+    if (
+      !this.paypalHelper.currencyHelper.isCurrencyCompatibleWithCountry(
+        currency,
+        country
+      )
+    ) {
+      throw error.currencyCountryMismatch(currency, country);
+    }
+
     // Track the billing agreement id in database
     try {
       await createPayPalBA(uid, agreementId, 'active');
