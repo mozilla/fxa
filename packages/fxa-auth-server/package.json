@@ -104,7 +104,7 @@
     "@types/cbor": "5.0.1",
     "@types/chai": "^4.2.4",
     "@types/convict": "^5.2.1",
-    "@types/hapi__hapi": "^19.0.3",
+    "@types/hapi__hapi": "^20.0.5",
     "@types/ioredis": "^4.16.7",
     "@types/joi": "^14.3.3",
     "@types/jsonwebtoken": "^8.5.0",
