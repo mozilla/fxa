@@ -205,7 +205,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
             return setZoom(zoom - 0.1);
           }}
         />
-        <div className="w-32 mx-2">
+        <div className="w-32 ml-2 mr-4">
           <Slider
             min={1}
             max={3}
