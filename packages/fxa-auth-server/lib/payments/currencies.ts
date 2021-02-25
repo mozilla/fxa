@@ -5,14 +5,23 @@ import { ConfigType } from '../../config';
 
 export class CurrencyHelper {
   currencyToCountryMap: Map<string, string[]>;
+  payPalEnabled: boolean;
 
   constructor(config: ConfigType) {
-    // Vaildate currencyMap
+    // Is payPalEnabled?
+    this.payPalEnabled = config.subscriptions?.paypalNvpSigCredentials?.enabled;
+    // Validate currencyMap
     const currencyMap = new Map(Object.entries(config.currenciesToCountries));
     let allListedCountries: string[] = [];
     for (let [currency, countries] of currencyMap) {
       // Is currency acceptable
       if (!CurrencyHelper.validCurrencyCodes.includes(currency)) {
+        throw new Error(`Currency code ${currency} is invalid.`);
+      }
+      if (
+        this.payPalEnabled &&
+        !CurrencyHelper.supportedPayPalCurrencies.includes(currency)
+      ) {
         throw new Error(`Currency code ${currency} is invalid.`);
       }
       // Are countries acceptable
@@ -30,7 +39,7 @@ export class CurrencyHelper {
     this.currencyToCountryMap = currencyMap;
   }
 
-  /**
+  /*
    * Verify that a given source country and plan currency are compatible given configured
    * currency to country map.
    */
@@ -48,6 +57,39 @@ export class CurrencyHelper {
     }
     return false;
   }
+
+  /*
+   * Convert amount in cents to paypal AMT string.
+   * We use Stripe to manage everything and plans are recorded in an AmountInCents
+   * But PayPal AMT field requires a string, as documented here: https://developer.paypal.com/docs/nvp-soap-api/do-reference-transaction-nvp/#payment-details-fields
+   */
+  getPayPalAmountStringFromAmountInCents(amountInCents: number): string {
+    // Must be less than 9 digits
+    if (amountInCents > 999999999) {
+      throw new Error('Amount must be less than 9 digits.');
+    }
+    // Left pad with zeros if necessary, so we always get a minimum of 0.01.
+    const amountAsString = String(amountInCents).padStart(3, '0');
+    const dollars = amountAsString.slice(0, -2);
+    const cents = amountAsString.slice(-2);
+    return `${dollars}.${cents}`;
+  }
+
+  /*
+   * PayPal has specific restrictions on how currencies are handled.
+   * The general documentation for the AMT field is here: https://developer.paypal.com/docs/nvp-soap-api/do-reference-transaction-nvp/#payment-details-fields
+   * The documentation for currency codes and the various restrictions is here: https://developer.paypal.com/docs/nvp-soap-api/currency-codes/
+   *
+   * Restrictions include
+   * - whether decimal point is or isn't allowed.
+   * - whether there's a transaction limit for the country
+   *
+   * As a result, we hard code the supported PayPal currencies and additional currencies
+   * can be added here as necessary, once the PayPal docs have been reviewed to ensure we've
+   * handled any restrictions.
+   *
+   */
+  static supportedPayPalCurrencies = ['USD', 'EUR'];
 
   /*
    * List of valid country codes taken from https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
