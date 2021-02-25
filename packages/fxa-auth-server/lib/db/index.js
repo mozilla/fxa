@@ -4,14 +4,29 @@
 
 'use strict';
 
-const error = require('./error');
-const Pool = require('./pool');
-const random = require('./crypto/random');
+const crypto = require('crypto');
+const error = require('../error');
+const Pool = require('../pool');
+const random = require('../crypto/random');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
+const { setupAuthDatabase } = require('fxa-shared/db');
+const {
+  Account,
+  AccountResetToken: RawAccountResetToken,
+  Device,
+  Email,
+  EmailBounce,
+  KeyFetchToken: RawKeyFetchToken,
+  PasswordChangeToken: RawPasswordChangeToken,
+  PasswordForgotToken: RawPasswordForgotToken,
+  SessionToken: RawSessionToken,
+  RecoveryKey,
+  TotpToken,
+} = require('fxa-shared/db/models/auth');
 
 module.exports = (config, log, Token, UnblockCode = null) => {
-  const features = require('./features')(config);
-  const SafeUrl = require('./safe-url')(log);
+  const features = require('../features')(config);
+  const SafeUrl = require('../safe-url')(log);
   const {
     SessionToken,
     KeyFetchToken,
@@ -28,22 +43,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
   const SAFE_URLS = {};
 
-  async function setAccountEmails(account) {
-    account.emails = await this.accountEmails(account.uid);
-
-    // Set primary email on account object
-    account.emails.forEach((item) => {
-      item.isVerified = !!item.isVerified;
-      item.isPrimary = !!item.isPrimary;
-
-      if (item.isPrimary) {
-        account.primaryEmail = item;
-      }
-    });
-
-    return account;
-  }
-
   function DB(options) {
     let pooleeOptions = {};
     if (config && config.db && config.db.poolee) {
@@ -53,14 +52,22 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     this.pool = new Pool(options.url, pooleeOptions);
     this.redis =
       options.redis ||
-      require('./redis')(
+      require('../redis')(
         { ...config.redis, ...config.redis.sessionTokens },
         log
       );
   }
 
-  DB.connect = async function (options) {
-    return new DB(options);
+  DB.connect = async function (config, redis) {
+    // Establish database connection and bind instance to Model using Knex
+    const knex = setupAuthDatabase(config.database?.mysql?.auth);
+    if (['debug', 'verbose', 'trace'].includes(config.log?.level)) {
+      knex.on('query', (data) => {
+        console.dir(data);
+      });
+    }
+    const options = config.db?.backend ? config[config.db.backend] : {};
+    return new DB({ ...options, redis });
   };
 
   DB.prototype.close = async function () {
@@ -200,47 +207,22 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
   // READ
 
-  SAFE_URLS.checkPassword = new SafeUrl(
-    '/account/:uid/checkPassword',
-    'db.checkPassword'
-  );
   DB.prototype.checkPassword = async function (uid, verifyHash) {
     log.trace('DB.checkPassword', { uid, verifyHash });
-    try {
-      await this.pool.post(
-        SAFE_URLS.checkPassword,
-        { uid },
-        {
-          verifyHash: verifyHash,
-        }
-      );
-      return true;
-    } catch (err) {
-      if (isIncorrectPasswordError(err)) {
-        return false;
-      }
-      throw err;
-    }
+    return Account.checkPassword(uid, verifyHash);
   };
 
   DB.prototype.accountExists = async function (email) {
     log.trace('DB.accountExists', { email: email });
-    try {
-      await this.accountRecord(email);
-      return true;
-    } catch (err) {
-      if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-        return false;
-      }
-      throw err;
-    }
+    // TODO this could be optimized with a new query
+    const account = await Account.findByPrimaryEmail(email);
+    return !!account;
   };
 
-  SAFE_URLS.sessions = new SafeUrl('/account/:uid/sessions', 'db.sessions');
   DB.prototype.sessions = async function (uid) {
     log.trace('DB.sessions', { uid });
     const getMysqlSessionTokens = async () => {
-      let sessionTokens = await this.pool.get(SAFE_URLS.sessions, { uid });
+      let sessionTokens = await RawSessionToken.findByUid(uid);
       if (!MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE) {
         return sessionTokens;
       }
@@ -312,163 +294,72 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return sessions;
   };
 
-  SAFE_URLS.keyFetchToken = new SafeUrl(
-    '/keyFetchToken/:id',
-    'db.keyFetchToken'
-  );
   DB.prototype.keyFetchToken = async function (id) {
     log.trace('DB.keyFetchToken', { id });
-    let data;
-    try {
-      data = await this.pool.get(SAFE_URLS.keyFetchToken, { id });
-    } catch (err) {
-      throw wrapTokenNotFoundError(err);
+    const data = await RawKeyFetchToken.findByTokenId(id);
+    if (!data) {
+      throw error.invalidToken('The authentication token could not be found');
     }
     return KeyFetchToken.fromId(id, data);
   };
 
-  SAFE_URLS.keyFetchTokenWithVerificationStatus = new SafeUrl(
-    '/keyFetchToken/:id/verified',
-    'db.keyFetchTokenWithVerificationStatus'
-  );
   DB.prototype.keyFetchTokenWithVerificationStatus = async function (id) {
     log.trace('DB.keyFetchTokenWithVerificationStatus', { id });
-    let data;
-    try {
-      data = await this.pool.get(
-        SAFE_URLS.keyFetchTokenWithVerificationStatus,
-        { id }
-      );
-    } catch (err) {
-      throw wrapTokenNotFoundError(err);
+    const data = await RawKeyFetchToken.findByTokenId(id, true);
+    if (!data) {
+      throw error.invalidToken('The authentication token could not be found');
     }
     return KeyFetchToken.fromId(id, data);
   };
 
-  SAFE_URLS.accountResetToken = new SafeUrl(
-    '/accountResetToken/:id',
-    'db.accountResetToken'
-  );
   DB.prototype.accountResetToken = async function (id) {
     log.trace('DB.accountResetToken', { id });
-    let data;
-    try {
-      data = await this.pool.get(SAFE_URLS.accountResetToken, { id });
-    } catch (err) {
-      throw wrapTokenNotFoundError(err);
+    const data = await RawAccountResetToken.findByTokenId(id);
+    if (!data) {
+      throw error.invalidToken('The authentication token could not be found');
     }
     return AccountResetToken.fromHex(data.tokenData, data);
   };
 
-  SAFE_URLS.passwordForgotToken = new SafeUrl(
-    '/passwordForgotToken/:id',
-    'db.passwordForgotToken'
-  );
   DB.prototype.passwordForgotToken = async function (id) {
-    let data;
     log.trace('DB.passwordForgotToken', { id });
-    try {
-      data = await this.pool.get(SAFE_URLS.passwordForgotToken, { id });
-    } catch (err) {
-      throw wrapTokenNotFoundError(err);
+    const data = await RawPasswordForgotToken.findByTokenId(id);
+    if (!data) {
+      throw error.invalidToken('The authentication token could not be found');
     }
     return PasswordForgotToken.fromHex(data.tokenData, data);
   };
 
-  SAFE_URLS.passwordChangeToken = new SafeUrl(
-    '/passwordChangeToken/:id',
-    'db.passwordChangeToken'
-  );
   DB.prototype.passwordChangeToken = async function (id) {
     log.trace('DB.passwordChangeToken', { id });
-    let data;
-    try {
-      data = await this.pool.get(SAFE_URLS.passwordChangeToken, { id });
-    } catch (err) {
-      throw wrapTokenNotFoundError(err);
+    const data = await RawPasswordChangeToken.findByTokenId(id);
+    if (!data) {
+      throw error.invalidToken('The authentication token could not be found');
     }
     return PasswordChangeToken.fromHex(data.tokenData, data);
   };
 
-  /**
-   * This route intended for internal use only. Please use `accountRecord`
-   * for all other uses.
-   */
-  SAFE_URLS.emailRecord = new SafeUrl('/emailRecord/:email', 'db.emailRecord');
-  DB.prototype.emailRecord = async function (email) {
-    log.trace('DB.emailRecord', { email });
-    let body;
-    try {
-      body = await this.pool.get(SAFE_URLS.emailRecord, {
-        email: hexEncode(email),
-      });
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        throw error.unknownAccount(email);
-      }
-      throw err;
-    }
-    return setAccountEmails.call(this, body);
-  };
-
-  SAFE_URLS.accountRecord = new SafeUrl(
-    '/email/:email/account',
-    'db.accountRecord'
-  );
   DB.prototype.accountRecord = async function (email) {
     log.trace('DB.accountRecord', { email });
-    let body;
-    try {
-      body = await this.pool.get(SAFE_URLS.accountRecord, {
-        email: hexEncode(email),
-      });
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        // There is a possibility that this email exists on the account table (ex. deleted from emails table)
-        // Lets check before throwing account not found.
-        return this.emailRecord(email);
-      }
-      throw err;
+    const account = await Account.findByPrimaryEmail(email);
+    if (!account) {
+      throw error.unknownAccount(email);
     }
-    return setAccountEmails.call(this, body);
+    return account;
   };
+  // Legacy alias
+  // TODO delete me
+  DB.prototype.emailRecord = DB.prototype.accountRecord;
 
-  SAFE_URLS.setPrimaryEmail = new SafeUrl(
-    '/email/:email/account/:uid',
-    'db.setPrimaryEmail'
-  );
-  DB.prototype.setPrimaryEmail = async function (uid, email) {
-    log.trace('DB.setPrimaryEmail', { email });
-    try {
-      return await this.pool.post(SAFE_URLS.setPrimaryEmail, {
-        email: hexEncode(email),
-        uid,
-      });
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        throw error.unknownAccount(email);
-      }
-      throw err;
-    }
-  };
-
-  SAFE_URLS.account = new SafeUrl('/account/:uid', 'db.account');
   DB.prototype.account = async function (uid) {
     log.trace('DB.account', { uid });
-    let body;
-    try {
-      body = await this.pool.get(SAFE_URLS.account, { uid });
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        throw error.unknownAccount();
-      }
-      throw err;
+    const account = await Account.findByUid(uid, { include: ['emails'] });
+    if (!account) {
+      throw error.unknownAccount();
     }
-    body.emailVerified = !!body.emailVerified;
-    return setAccountEmails.call(this, body);
+    return account;
   };
 
-  SAFE_URLS.devices = new SafeUrl('/account/:uid/devices', 'db.devices');
   DB.prototype.devices = async function (uid) {
     log.trace('DB.devices', { uid });
 
@@ -476,7 +367,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       throw error.unknownAccount();
     }
 
-    const promises = [this.pool.get(SAFE_URLS.devices, { uid })];
+    const promises = [Device.findByUid(uid)];
 
     if (this.redis) {
       promises.push(this.redis.getSessionTokens(uid));
@@ -502,19 +393,126 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
-  SAFE_URLS.sessionToken = new SafeUrl('/sessionToken/:id', 'db.sessionToken');
   DB.prototype.sessionToken = async function (id) {
     log.trace('DB.sessionToken', { id });
-    let data;
-    try {
-      data = await this.pool.get(SAFE_URLS.sessionToken, { id });
-    } catch (err) {
-      throw wrapTokenNotFoundError(err);
+    const data = await RawSessionToken.findByTokenId(id);
+    if (!data) {
+      throw error.invalidToken('The authentication token could not be found');
     }
     return SessionToken.fromHex(data.tokenData, data);
   };
 
+  DB.prototype.accountEmails = async function (uid) {
+    log.trace('DB.accountEmails', { uid });
+    return Email.findByUid(uid);
+  };
+
+  DB.prototype.device = async function (uid, deviceId) {
+    log.trace('DB.device', { uid: uid, id: deviceId });
+
+    const promises = [Device.findByPrimaryKey(uid, deviceId)];
+
+    if (this.redis) {
+      promises.push(this.redis.getSessionTokens(uid));
+    }
+    const [device, redisSessionTokens = {}] = await Promise.all(promises);
+    if (!device) {
+      throw error.unknownDevice();
+    }
+    const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(uid);
+    return mergeDeviceInfoFromRedis(
+      device,
+      redisSessionTokens,
+      lastAccessTimeEnabled
+    );
+  };
+
+  DB.prototype.getSecondaryEmail = async function (email) {
+    log.trace('DB.getSecondaryEmail', { email });
+    const emailRecord = await Email.findByEmail(email);
+    if (!emailRecord) {
+      throw error.unknownSecondaryEmail();
+    }
+    return emailRecord;
+  };
+
+  DB.prototype.totpToken = async function (uid) {
+    log.trace('DB.totpToken', { uid });
+    const totp = await TotpToken.findByUid(uid);
+    if (!totp) {
+      throw error.totpTokenNotFound();
+    }
+    return totp;
+  };
+
+  DB.prototype.getRecoveryKey = async function (uid, recoveryKeyId) {
+    log.trace('DB.getRecoveryKey', { uid });
+    const data = await RecoveryKey.findByUid(uid);
+    if (!data) {
+      throw error.recoveryKeyNotFound();
+    }
+    const idHash = crypto
+      .createHash('sha256')
+      .update(Buffer.from(recoveryKeyId, 'hex'))
+      .digest();
+    if (
+      !crypto.timingSafeEqual(
+        idHash,
+        Buffer.from(data.recoveryKeyIdHash, 'hex')
+      )
+    ) {
+      throw error.recoveryKeyInvalid();
+    }
+    return data;
+  };
+
+  DB.prototype.recoveryKeyExists = async function (uid) {
+    log.trace('DB.recoveryKeyExists', { uid });
+    return {
+      exists: await RecoveryKey.exists(uid),
+    };
+  };
+
+  DB.prototype.emailBounces = async function (email) {
+    log.trace('DB.emailBounces', { email });
+    return EmailBounce.findByEmail(email);
+  };
+
+  DB.prototype.deviceFromTokenVerificationId = async function (
+    uid,
+    tokenVerificationId
+  ) {
+    log.trace('DB.deviceFromTokenVerificationId', { uid, tokenVerificationId });
+    const device = await Device.findByUidAndTokenVerificationId(
+      uid,
+      tokenVerificationId
+    );
+    if (!device) {
+      throw error.unknownDevice();
+    }
+    return device;
+  };
+
   // UPDATE
+
+  SAFE_URLS.setPrimaryEmail = new SafeUrl(
+    '/email/:email/account/:uid',
+    'db.setPrimaryEmail'
+  );
+  DB.prototype.setPrimaryEmail = async function (uid, email) {
+    log.trace('DB.setPrimaryEmail', { email });
+    try {
+      return await this.pool.post(SAFE_URLS.setPrimaryEmail, {
+        email: hexEncode(email),
+        uid,
+      });
+    } catch (err) {
+      if (isNotFoundError(err)) {
+        throw error.unknownAccount(email);
+      }
+      throw err;
+    }
+  };
 
   SAFE_URLS.updatePasswordForgotToken = new SafeUrl(
     '/passwordForgotToken/:id/update',
@@ -635,33 +633,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
 
     return this.redis.pruneSessionTokens(uid, tokenIds);
-  };
-
-  SAFE_URLS.device = new SafeUrl('/account/:uid/device/:deviceId', 'db.device');
-  DB.prototype.device = async function (uid, deviceId) {
-    log.trace('DB.device', { uid: uid, id: deviceId });
-
-    const promises = [this.pool.get(SAFE_URLS.device, { uid, deviceId })];
-
-    if (this.redis) {
-      promises.push(this.redis.getSessionTokens(uid));
-    }
-    try {
-      const [device, redisSessionTokens = {}] = await Promise.all(promises);
-      const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(
-        uid
-      );
-      return mergeDeviceInfoFromRedis(
-        device,
-        redisSessionTokens,
-        lastAccessTimeEnabled
-      );
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        throw error.unknownDevice();
-      }
-      throw err;
-    }
   };
 
   SAFE_URLS.createDevice = new SafeUrl(
@@ -861,28 +832,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       });
       await this.deleteSessionTokenFromRedis(uid, result.sessionTokenId);
       return result;
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        throw error.unknownDevice();
-      }
-      throw err;
-    }
-  };
-
-  SAFE_URLS.deviceFromTokenVerificationId = new SafeUrl(
-    '/account/:uid/tokens/:tokenVerificationId/device',
-    'db.deviceFromTokenVerificationId'
-  );
-  DB.prototype.deviceFromTokenVerificationId = async function (
-    uid,
-    tokenVerificationId
-  ) {
-    log.trace('DB.deviceFromTokenVerificationId', { uid, tokenVerificationId });
-    try {
-      return await this.pool.get(SAFE_URLS.deviceFromTokenVerificationId, {
-        uid,
-        tokenVerificationId,
-      });
     } catch (err) {
       if (isNotFoundError(err)) {
         throw error.unknownDevice();
@@ -1109,47 +1058,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return this.pool.post(SAFE_URLS.createEmailBounce, undefined, bounceData);
   };
 
-  SAFE_URLS.emailBounces = new SafeUrl(
-    '/emailBounces/:email',
-    'db.emailBounces'
-  );
-  DB.prototype.emailBounces = async function (email) {
-    log.trace('DB.emailBounces', { email });
-
-    return this.pool.get(SAFE_URLS.emailBounces, {
-      email: hexEncode(email),
-    });
-  };
-
-  SAFE_URLS.accountEmails = new SafeUrl(
-    '/account/:uid/emails',
-    'db.accountEmails'
-  );
-  DB.prototype.accountEmails = async function (uid) {
-    log.trace('DB.accountEmails', { uid });
-
-    return this.pool.get(SAFE_URLS.accountEmails, { uid });
-  };
-
-  SAFE_URLS.getSecondaryEmail = new SafeUrl(
-    '/email/:email',
-    'db.getSecondaryEmail'
-  );
-  DB.prototype.getSecondaryEmail = async function (email) {
-    log.trace('DB.getSecondaryEmail', { email });
-
-    try {
-      return await this.pool.get(SAFE_URLS.getSecondaryEmail, {
-        email: hexEncode(email),
-      });
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        throw error.unknownSecondaryEmail();
-      }
-      throw err;
-    }
-  };
-
   SAFE_URLS.createEmail = new SafeUrl('/account/:uid/emails', 'db.createEmail');
   DB.prototype.createEmail = async function (uid, emailData) {
     log.trace('DB.createEmail', {
@@ -1257,20 +1165,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
-  SAFE_URLS.totpToken = new SafeUrl('/totp/:uid', 'db.totpToken');
-  DB.prototype.totpToken = async function (uid) {
-    log.trace('DB.totpToken', { uid });
-
-    try {
-      return await this.pool.get(SAFE_URLS.totpToken, { uid });
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        throw error.totpTokenNotFound();
-      }
-      throw err;
-    }
-  };
-
   SAFE_URLS.deleteTotpToken = new SafeUrl('/totp/:uid', 'db.deleteTotpToken');
   DB.prototype.deleteTotpToken = async function (uid) {
     log.trace('DB.deleteTotpToken', { uid });
@@ -1362,40 +1256,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
-  SAFE_URLS.getRecoveryKey = new SafeUrl(
-    '/account/:uid/recoveryKey/:recoveryKeyId',
-    'db.getRecoveryKey'
-  );
-  DB.prototype.getRecoveryKey = async function (uid, recoveryKeyId) {
-    log.trace('DB.getRecoveryKey', { uid });
-
-    try {
-      return await this.pool.get(SAFE_URLS.getRecoveryKey, {
-        uid,
-        recoveryKeyId,
-      });
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        throw error.recoveryKeyNotFound();
-      }
-
-      if (isInvalidRecoveryError(err)) {
-        throw error.recoveryKeyInvalid();
-      }
-      throw err;
-    }
-  };
-
-  SAFE_URLS.recoveryKeyExists = new SafeUrl(
-    '/account/:uid/recoveryKey',
-    'db.recoveryKeyExists'
-  );
-  DB.prototype.recoveryKeyExists = async function (uid) {
-    log.trace('DB.recoveryKeyExists', { uid });
-
-    return this.pool.get(SAFE_URLS.recoveryKeyExists, { uid });
-  };
-
   SAFE_URLS.deleteRecoveryKey = new SafeUrl(
     '/account/:uid/recoveryKey',
     'db.deleteRecoveryKey'
@@ -1480,13 +1340,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     };
   }
 
-  function wrapTokenNotFoundError(err) {
-    if (isNotFoundError(err)) {
-      err = error.invalidToken('The authentication token could not be found');
-    }
-    return err;
-  }
-
   function hexEncode(str) {
     return Buffer.from(str, 'utf8').toString('hex');
   }
@@ -1499,10 +1352,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
 function isRecordAlreadyExistsError(err) {
   return err.statusCode === 409 && err.errno === 101;
-}
-
-function isIncorrectPasswordError(err) {
-  return err.statusCode === 400 && err.errno === 103;
 }
 
 function isNotFoundError(err) {
@@ -1519,8 +1368,4 @@ function isEmailDeletePrimaryError(err) {
 
 function isExpiredTokenVerificationCodeError(err) {
   return err.statusCode === 400 && err.errno === 137;
-}
-
-function isInvalidRecoveryError(err) {
-  return err.statusCode === 400 && err.errno === 159;
 }

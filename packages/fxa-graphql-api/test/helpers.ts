@@ -28,18 +28,18 @@ export const emailsTable = fs.readFileSync(
 export function randomAccount() {
   const email = chance.email();
   return {
-    authSalt: Buffer.from('0', 'hex'),
+    authSalt: '00',
     createdAt: chance.timestamp(),
     email,
-    emailCode: Buffer.from('0', 'hex'),
+    emailCode: '00',
     emailVerified: true,
-    kA: Buffer.from('0', 'hex'),
+    kA: '00',
     normalizedEmail: email,
     uid: chance.guid({ version: 4 }).replace(/-/g, ''),
     verifierSetAt: chance.timestamp(),
     verifierVersion: 0,
-    verifyHash: Buffer.from('0', 'hex'),
-    wrapWrapKb: Buffer.from('0', 'hex'),
+    verifyHash: '00',
+    wrapWrapKb: '00',
   };
 }
 

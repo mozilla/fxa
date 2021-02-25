@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-import { accountByUid, getPayPalBAByBAId } from 'fxa-shared/db/models/auth';
+import { Account, getPayPalBAByBAId } from 'fxa-shared/db/models/auth';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
@@ -99,7 +99,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
     if (billingAgreement.status === 'Cancelled') {
       return;
     }
-    const account = await accountByUid(billingAgreement.uid, {
+    const account = await Account.findByUid(billingAgreement.uid, {
       include: ['emails'],
     });
     if (!account) {

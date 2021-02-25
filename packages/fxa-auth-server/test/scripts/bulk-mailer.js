@@ -79,7 +79,7 @@ describe('scripts/bulk-mailer', function () {
     return TestServer.start(config)
       .then((s) => {
         server = s;
-        return DB.connect(config[config.db.backend]);
+        return DB.connect(config);
       })
       .then((_db) => {
         db = _db;

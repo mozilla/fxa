@@ -24,7 +24,7 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
 
   let db;
 
-  DB.connect(config[config.db.backend])
+  DB.connect(config)
     .then((_db) => {
       db = _db;
       return P.mapSeries(keys, (item) =>

@@ -6,7 +6,6 @@
 
 const error = require('../lib/error');
 const jwtool = require('fxa-jwtool');
-const { setupAuthDatabase } = require('fxa-shared/db');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
@@ -30,8 +29,24 @@ async function run(config) {
 
   const log = require('../lib/log')({ ...config.log, statsd });
 
-  // Establish database connection and bind instance to Model using Knex
-  setupAuthDatabase(config.database.mysql.auth);
+  const redis = require('../lib/redis')(
+    { ...config.redis, ...config.redis.sessionTokens },
+    log
+  );
+
+  const DB = require('../lib/db')(
+    config,
+    log,
+    require('../lib/tokens')(log, config),
+    require('../lib/crypto/random').base32(config.signinUnblock.codeLength)
+  );
+  let database = null;
+  try {
+    database = await DB.connect(config, redis);
+  } catch (err) {
+    log.error('DB.connect', { err: { message: err.message } });
+    process.exit(1);
+  }
 
   // Set currencyHelper before stripe and paypal helpers, so they can use it.
   try {
@@ -62,25 +77,6 @@ async function run(config) {
       const paypalHelper = new PayPalHelper({ log });
       Container.set(PayPalHelper, paypalHelper);
     }
-  }
-
-  const redis = require('../lib/redis')(
-    { ...config.redis, ...config.redis.sessionTokens },
-    log
-  );
-
-  const DB = require('../lib/db')(
-    config,
-    log,
-    require('../lib/tokens')(log, config),
-    require('../lib/crypto/random').base32(config.signinUnblock.codeLength)
-  );
-  let database = null;
-  try {
-    database = await DB.connect({ ...config[config.db.backend], redis });
-  } catch (err) {
-    log.error('DB.connect', { err: { message: err.message } });
-    process.exit(1);
   }
 
   const translator = await require('../lib/senders/translator')(

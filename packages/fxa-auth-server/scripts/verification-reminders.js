@@ -52,9 +52,7 @@ async function run() {
   ] = await Promise.all([
     verificationReminders.process(),
     cadReminders.process(),
-    require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(
-      config[config.db.backend]
-    ),
+    require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config),
     require(`${LIB_DIR}/senders/templates`)(log),
     require(`${LIB_DIR}/senders/translator`)(
       config.i18n.supportedLanguages,
