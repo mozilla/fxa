@@ -1,3 +1,12 @@
+## 1.201.0
+
+### Other changes
+
+- deps: bump aws-sdk from 2.841.0 to 2.849.0 ([1e3e08e4b](https://github.com/mozilla/fxa/commit/1e3e08e4b))
+- deps-dev: bump nock from 13.0.5 to 13.0.7 ([411638723](https://github.com/mozilla/fxa/commit/411638723))
+- deps: bump @hapi/boom from 9.1.0 to 9.1.1 ([45e104b29](https://github.com/mozilla/fxa/commit/45e104b29))
+- deps: bump aws-sdk from 2.822.0 to 2.841.0 ([69f41b166](https://github.com/mozilla/fxa/commit/69f41b166))
+
 ## 1.200.0
 
 ### Other changes

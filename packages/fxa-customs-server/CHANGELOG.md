@@ -1,3 +1,11 @@
+## 1.201.0
+
+### Other changes
+
+- deps: bump bl from 4.0.3 to 4.1.0 ([db3a3acd5](https://github.com/mozilla/fxa/commit/db3a3acd5))
+- deps: bump @google-cloud/pubsub from 2.8.0 to 2.9.0 ([fa9bd267d](https://github.com/mozilla/fxa/commit/fa9bd267d))
+- deps: bump deep-equal from 2.0.4 to 2.0.5 ([b0b665e6b](https://github.com/mozilla/fxa/commit/b0b665e6b))
+
 ## 1.200.0
 
 ### Other changes

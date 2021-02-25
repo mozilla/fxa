@@ -1,3 +1,21 @@
+## 1.201.0
+
+### Bug fixes
+
+- settings: fixed casing for new settings strings ([b180b7ffd](https://github.com/mozilla/fxa/commit/b180b7ffd))
+- l10n: fix support form l10n ([bf780472b](https://github.com/mozilla/fxa/commit/bf780472b))
+
+### Refactorings
+
+- settings: refactor flow parameters to avoid /get_flow ([95c54416a](https://github.com/mozilla/fxa/commit/95c54416a))
+
+### Other changes
+
+- settings: serve beta settings subroutes the index.html page in production ([aef8af91a](https://github.com/mozilla/fxa/commit/aef8af91a))
+- deps-dev: bump intern from 4.8.7 to 4.9.0 ([a3770ac1b](https://github.com/mozilla/fxa/commit/a3770ac1b))
+- settings: upload avatar directly to profile server ([fa32870cc](https://github.com/mozilla/fxa/commit/fa32870cc))
+- deps: bump webpack-cli from 4.2.0 to 4.5.0 ([65be72b93](https://github.com/mozilla/fxa/commit/65be72b93))
+
 ## 1.200.0
 
 ### New features

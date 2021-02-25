@@ -1,3 +1,23 @@
+## 1.201.0
+
+### Other changes
+
+- deps-dev: bump @testing-library/user-event from 12.6.0 to 12.7.1 ([7f04d1be9](https://github.com/mozilla/fxa/commit/7f04d1be9))
+- settings: upload avatar directly to profile server ([fa32870cc](https://github.com/mozilla/fxa/commit/fa32870cc))
+- deps-dev: bump supertest from 6.0.1 to 6.1.3 ([e7b4af55c](https://github.com/mozilla/fxa/commit/e7b4af55c))
+- 14b1ac68b cleared the last console log statement ([14b1ac68b](https://github.com/mozilla/fxa/commit/14b1ac68b))
+- bf2f5ea2b changed variable name to be consistent ([bf2f5ea2b](https://github.com/mozilla/fxa/commit/bf2f5ea2b))
+- c82019882 final changes to autocomplete ([c82019882](https://github.com/mozilla/fxa/commit/c82019882))
+- 9023649b6 fixed string type for state hook ([9023649b6](https://github.com/mozilla/fxa/commit/9023649b6))
+- 39290d507 added type for value to resolve circle ci test ([39290d507](https://github.com/mozilla/fxa/commit/39290d507))
+- aa71fee2b done autocomplete ([aa71fee2b](https://github.com/mozilla/fxa/commit/aa71fee2b))
+- d117ff436 updated implementation of autocomplete to be completely based on info in backend ([d117ff436](https://github.com/mozilla/fxa/commit/d117ff436))
+- 23ca9dca4 added query to return all emails in accountresolver.ts, added the gql commands to run query on account index: 23ca9dca4 added query to return all emails in accountresolver.ts, added the gql commands to run query on account index ([23ca9dca4](https://github.com/mozilla/fxa/commit/23ca9dca4))
+- 26153e435 test ([26153e435](https://github.com/mozilla/fxa/commit/26153e435))
+- 5e4a72e03 test to push to new branch ([5e4a72e03](https://github.com/mozilla/fxa/commit/5e4a72e03))
+- 93e2decfe updated back-end server to add a query to fetch all emails ([93e2decfe](https://github.com/mozilla/fxa/commit/93e2decfe))
+- bd38d41c5 added a drop-down that provides suggestions as users type emails currently based on a hardcoded dataset ([bd38d41c5](https://github.com/mozilla/fxa/commit/bd38d41c5))
+
 ## 1.200.0
 
 ### Other changes

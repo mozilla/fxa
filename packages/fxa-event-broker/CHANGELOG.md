@@ -1,5 +1,22 @@
 # Change history
 
+## 1.201.0
+
+### Other changes
+
+- deps: bump @nestjs/graphql from 7.9.8 to 7.9.9 ([e6b62e0e0](https://github.com/mozilla/fxa/commit/e6b62e0e0))
+- deps: bump @nestjs/config from 0.6.1 to 0.6.3 ([41b3ea4af](https://github.com/mozilla/fxa/commit/41b3ea4af))
+- deps: bump aws-sdk from 2.841.0 to 2.849.0 ([1e3e08e4b](https://github.com/mozilla/fxa/commit/1e3e08e4b))
+- deps: bump @google-cloud/pubsub from 2.8.0 to 2.9.0 ([fa9bd267d](https://github.com/mozilla/fxa/commit/fa9bd267d))
+- deps: bump google-auth-library from 6.1.3 to 7.0.2 ([31af0901d](https://github.com/mozilla/fxa/commit/31af0901d))
+- deps-dev: bump nock from 13.0.5 to 13.0.7 ([411638723](https://github.com/mozilla/fxa/commit/411638723))
+- deps: bump sqs-consumer from 5.4.0 to 5.5.0 ([6b70021d0](https://github.com/mozilla/fxa/commit/6b70021d0))
+- deps: bump @nestjs/platform-express from 7.6.11 to 7.6.12 ([1a216a0d8](https://github.com/mozilla/fxa/commit/1a216a0d8))
+- deps-dev: bump supertest from 6.0.1 to 6.1.3 ([e7b4af55c](https://github.com/mozilla/fxa/commit/e7b4af55c))
+- deps: bump @nestjs/core from 7.5.5 to 7.6.12 ([11b786463](https://github.com/mozilla/fxa/commit/11b786463))
+- deps: bump aws-sdk from 2.822.0 to 2.841.0 ([69f41b166](https://github.com/mozilla/fxa/commit/69f41b166))
+- deps-dev: bump @nestjs/cli from 7.5.3 to 7.5.4 ([7ed2326f7](https://github.com/mozilla/fxa/commit/7ed2326f7))
+
 ## 1.200.0
 
 ### Other changes

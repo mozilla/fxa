@@ -1,3 +1,9 @@
+## 1.201.0
+
+### Other changes
+
+- deps-dev: bump @testing-library/user-event from 12.6.0 to 12.7.1 ([7f04d1be9](https://github.com/mozilla/fxa/commit/7f04d1be9))
+
 ## 1.200.0
 
 ### Other changes
