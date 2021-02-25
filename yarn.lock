@@ -6284,12 +6284,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ioredis@npm:^4.16.7, @types/ioredis@npm:^4.17.3":
-  version: 4.17.3
-  resolution: "@types/ioredis@npm:4.17.3"
+"@types/ioredis@npm:^4.22.0":
+  version: 4.22.0
+  resolution: "@types/ioredis@npm:4.22.0"
   dependencies:
     "@types/node": "*"
-  checksum: c8529b275a337019086bf863e6a9c84730b9dc3fbe52f400f4e26e78291e7e12bbfb25c2588af015a0e5fe01d02c96f7203e12d12bb5d8e45c8830e285d43bb9
+  checksum: 367ddb76f1f96bfb3f3978bb0fef07de688452bc370b2af1f5036daf16f0b11a74864f3d7f9ceefc19ce5b5496a0b533428e9034ab91c40642db6d75e5ebdee1
   languageName: node
   linkType: hard
 
@@ -18287,7 +18287,7 @@ fsevents@^1.2.7:
     "@types/chai": ^4.2.4
     "@types/convict": ^5.2.1
     "@types/hapi__hapi": ^19.0.3
-    "@types/ioredis": ^4.16.7
+    "@types/ioredis": ^4.22.0
     "@types/joi": ^14.3.3
     "@types/jsonwebtoken": ^8.5.0
     "@types/jsrsasign": 8.0.9
@@ -18760,7 +18760,7 @@ fsevents@^1.2.7:
     "@types/get-stream": 3.0.2
     "@types/graphql": ^14.5.0
     "@types/graphql-upload": ^8.0.4
-    "@types/ioredis": ^4.17.3
+    "@types/ioredis": ^4.22.0
     "@types/node": ^14.14.5
     "@types/passport": ^1
     "@types/passport-http-bearer": ^1
