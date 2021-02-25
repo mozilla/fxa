@@ -2234,14 +2234,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/firestore@npm:^4.8.1":
-  version: 4.8.1
-  resolution: "@google-cloud/firestore@npm:4.8.1"
+"@google-cloud/firestore@npm:^4.9.4":
+  version: 4.9.4
+  resolution: "@google-cloud/firestore@npm:4.9.4"
   dependencies:
     fast-deep-equal: ^3.1.1
     functional-red-black-tree: ^1.0.1
     google-gax: ^2.9.2
-  checksum: d576a2d2846d6c7d218ff134b46974af943d1369757e0c51d4503718156479cc76094ee9dba16dacfbe2453e35dde96bb8bc6e0d31e86910d47cccb99688ad2b
+    protobufjs: ^6.8.6
+  checksum: debe996941d139a411627b6df0442668981a0f799446d7006e96b382fcb78820909ce954ad946763e9101d06faaaef3724fa16a68910453ce726353284363d25
   languageName: node
   linkType: hard
 
@@ -18275,7 +18276,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-auth-server@workspace:packages/fxa-auth-server"
   dependencies:
-    "@google-cloud/firestore": ^4.8.1
+    "@google-cloud/firestore": ^4.9.4
     "@hapi/hapi": ^20.1.0
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.1.0
@@ -18643,7 +18644,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
-    "@google-cloud/firestore": ^4.8.1
+    "@google-cloud/firestore": ^4.9.4
     "@google-cloud/pubsub": ^2.9.0
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.0.4
