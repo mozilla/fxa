@@ -1,5 +1,15 @@
 # Change history
 
+## 1.201.0
+
+### Other changes
+
+- deps: bump @nestjs/config from 0.6.1 to 0.6.3 ([41b3ea4af](https://github.com/mozilla/fxa/commit/41b3ea4af))
+- deps: bump @nestjs/platform-express from 7.6.11 to 7.6.12 ([1a216a0d8](https://github.com/mozilla/fxa/commit/1a216a0d8))
+- deps-dev: bump supertest from 6.0.1 to 6.1.3 ([e7b4af55c](https://github.com/mozilla/fxa/commit/e7b4af55c))
+- deps: bump @nestjs/core from 7.5.5 to 7.6.12 ([11b786463](https://github.com/mozilla/fxa/commit/11b786463))
+- deps-dev: bump @nestjs/cli from 7.5.3 to 7.5.4 ([7ed2326f7](https://github.com/mozilla/fxa/commit/7ed2326f7))
+
 ## 1.200.0
 
 ### Other changes

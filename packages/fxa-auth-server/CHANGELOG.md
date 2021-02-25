@@ -1,3 +1,26 @@
+## 1.201.0
+
+### New features
+
+- settings: replace connected service display name for Mac OS X with macOS on retrieval ([e9cbb4792](https://github.com/mozilla/fxa/commit/e9cbb4792))
+- auth-server: adds logic to handleMerchPayment method to PayPalNotificationHandler Because: ([dfb8e5a2b](https://github.com/mozilla/fxa/commit/dfb8e5a2b))
+- auth-server: add metrics for paypal client ([4dd6e8750](https://github.com/mozilla/fxa/commit/4dd6e8750))
+- auth-server: add 'payment_provider' property to Customer object ([8c68113aa](https://github.com/mozilla/fxa/commit/8c68113aa))
+- auth-server: add transaction search to paypal ([36d1351de](https://github.com/mozilla/fxa/commit/36d1351de))
+
+### Bug fixes
+
+- auth-server: Paypal requires uppercased currencyCode ([ab4119d6a](https://github.com/mozilla/fxa/commit/ab4119d6a))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.841.0 to 2.849.0 ([1e3e08e4b](https://github.com/mozilla/fxa/commit/1e3e08e4b))
+- auth/payments: Update README for PayPal secrets and feature flags. ([c496033ca](https://github.com/mozilla/fxa/commit/c496033ca))
+- deps-dev: bump nock from 13.0.5 to 13.0.7 ([411638723](https://github.com/mozilla/fxa/commit/411638723))
+- auth-server: Remove unused createSubscription method ([ef60f3961](https://github.com/mozilla/fxa/commit/ef60f3961))
+- deps: bump jsrsasign from 8.0.20 to 10.1.10 ([8a7fd4cc9](https://github.com/mozilla/fxa/commit/8a7fd4cc9))
+- deps: bump aws-sdk from 2.822.0 to 2.841.0 ([69f41b166](https://github.com/mozilla/fxa/commit/69f41b166))
+
 ## 1.200.0
 
 ### New features

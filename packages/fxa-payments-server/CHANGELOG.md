@@ -1,5 +1,26 @@
 # Change history
 
+## 1.201.0
+
+### New features
+
+- payments: Add onApprove handler to PayPal button ([2c0aed05d](https://github.com/mozilla/fxa/commit/2c0aed05d))
+- payments: Modify PaymentConfirmation UI according to payment_provider ([7978db0eb](https://github.com/mozilla/fxa/commit/7978db0eb))
+- auth-server: add 'payment_provider' property to Customer object ([8c68113aa](https://github.com/mozilla/fxa/commit/8c68113aa))
+
+### Bug fixes
+
+- payments: Use brand name PayPal in localized strings. ([1e10aee5a](https://github.com/mozilla/fxa/commit/1e10aee5a))
+
+### Other changes
+
+- deps: bump react-stripe-elements from 5.1.0 to 6.1.2 ([ebe0fbe49](https://github.com/mozilla/fxa/commit/ebe0fbe49))
+- auth/payments: Update README for PayPal secrets and feature flags. ([c496033ca](https://github.com/mozilla/fxa/commit/c496033ca))
+- deps-dev: bump nock from 13.0.5 to 13.0.7 ([411638723](https://github.com/mozilla/fxa/commit/411638723))
+- d6cc1b510 Turn off caching of index.html ([d6cc1b510](https://github.com/mozilla/fxa/commit/d6cc1b510))
+- deps-dev: bump supertest from 6.0.1 to 6.1.3 ([e7b4af55c](https://github.com/mozilla/fxa/commit/e7b4af55c))
+- payments: Add a nonce to load PayPal inline script elements ([91cd57ed6](https://github.com/mozilla/fxa/commit/91cd57ed6))
+
 ## 1.200.0
 
 ### New features

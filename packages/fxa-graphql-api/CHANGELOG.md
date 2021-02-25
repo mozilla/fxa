@@ -1,3 +1,27 @@
+## 1.201.0
+
+### New features
+
+- settings: finish implementing delete avatar ([77aa4fd8d](https://github.com/mozilla/fxa/commit/77aa4fd8d))
+
+### Bug fixes
+
+- gql-api: validate token before deriving hawk credentials ([f77d695eb](https://github.com/mozilla/fxa/commit/f77d695eb))
+- settings: account for sessionToken.mustVerify in new settings ([042ab46d5](https://github.com/mozilla/fxa/commit/042ab46d5))
+
+### Other changes
+
+- deps: bump @nestjs/graphql from 7.9.8 to 7.9.9 ([e6b62e0e0](https://github.com/mozilla/fxa/commit/e6b62e0e0))
+- deps: bump @nestjs/config from 0.6.1 to 0.6.3 ([41b3ea4af](https://github.com/mozilla/fxa/commit/41b3ea4af))
+- settings: "disable" updateAvatar mutation for now ([961c3ae43](https://github.com/mozilla/fxa/commit/961c3ae43))
+- deps-dev: bump nock from 13.0.5 to 13.0.7 ([411638723](https://github.com/mozilla/fxa/commit/411638723))
+- fxa-settings: add avatar delete mutation ([510c2faef](https://github.com/mozilla/fxa/commit/510c2faef))
+- deps: bump @nestjs/platform-express from 7.6.11 to 7.6.12 ([1a216a0d8](https://github.com/mozilla/fxa/commit/1a216a0d8))
+- deps-dev: bump supertest from 6.0.1 to 6.1.3 ([e7b4af55c](https://github.com/mozilla/fxa/commit/e7b4af55c))
+- deps: bump @nestjs/core from 7.5.5 to 7.6.12 ([11b786463](https://github.com/mozilla/fxa/commit/11b786463))
+- deps: bump graphql-parse-resolve-info from 4.9.0 to 4.11.0 ([5ba15f25d](https://github.com/mozilla/fxa/commit/5ba15f25d))
+- deps-dev: bump @nestjs/cli from 7.5.3 to 7.5.4 ([7ed2326f7](https://github.com/mozilla/fxa/commit/7ed2326f7))
+
 ## 1.200.0
 
 ### New features
