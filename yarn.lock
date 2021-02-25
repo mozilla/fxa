@@ -4542,6 +4542,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sideway/address@npm:^4.1.0":
+  version: 4.1.1
+  resolution: "@sideway/address@npm:4.1.1"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: ba8678372e821590a58ea5edf62370473c8458255168d28d20e9fe6c90c65f5218377012cc5b61a4b544dcd3f2e65a768bca2ae266310e16045dcd85ea17079c
+  languageName: node
+  linkType: hard
+
+"@sideway/formula@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@sideway/formula@npm:3.0.0"
+  checksum: b83ecd35fea33e7b826ddcdc9f0735a79bd374927efea36885203200c418ad0f9975c329eaf9e990a7c61cf96f560ed2020227a35e699324ddd3c94dd3f4045f
+  languageName: node
+  linkType: hard
+
+"@sideway/pinpoint@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@sideway/pinpoint@npm:2.0.0"
+  checksum: e5528639aef1d266c23050897a6571c1e2aeccb59b6a22006a153fbd73aee78ae995bf19c022d70de5a00589a7f51372e78ef9aacd34a3dd9b13720c866aca7e
+  languageName: node
+  linkType: hard
+
 "@sindresorhus/is@npm:^4.0.0":
   version: 4.0.0
   resolution: "@sindresorhus/is@npm:4.0.0"
@@ -6169,19 +6192,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hapi__hapi@npm:^19.0.3":
-  version: 19.0.4
-  resolution: "@types/hapi__hapi@npm:19.0.4"
+"@types/hapi__hapi@npm:^20.0.5":
+  version: 20.0.5
+  resolution: "@types/hapi__hapi@npm:20.0.5"
   dependencies:
     "@hapi/boom": ^9.0.0
     "@hapi/iron": ^6.0.0
     "@types/hapi__catbox": "*"
-    "@types/hapi__joi": "*"
     "@types/hapi__mimos": "*"
     "@types/hapi__podium": "*"
     "@types/hapi__shot": "*"
     "@types/node": "*"
-  checksum: a9d0abec7b0b1ec37298c92dda406caecf4c6ce16248323b691c635c7d50d843315d7ce2253ee51614fb85b3a4dd2950d917421ba19f442c74bc25f8563b1efc
+    joi: ^17.3.0
+  checksum: 064add7f99d78919260bfd87059c455fa50ce9758a636aae7cd0b3c8d99523355ff85223ff198a151f369e99cbfdc936bb287334ad0949e1edbbabd6624adfec
   languageName: node
   linkType: hard
 
@@ -18286,7 +18309,7 @@ fsevents@^1.2.7:
     "@types/cbor": 5.0.1
     "@types/chai": ^4.2.4
     "@types/convict": ^5.2.1
-    "@types/hapi__hapi": ^19.0.3
+    "@types/hapi__hapi": ^20.0.5
     "@types/ioredis": ^4.16.7
     "@types/joi": ^14.3.3
     "@types/jsonwebtoken": ^8.5.0
@@ -23999,6 +24022,19 @@ fsevents@^1.2.7:
     isemail: 3.x.x
     topo: 3.x.x
   checksum: 09ed65022cebf4cb9847551f7f9c8842e18cab06448c1a325d7a994e794e9c77eb8c4177e3f0c7f67e862f731cee8bd6465687d3734e0e023444537ad38af7c6
+  languageName: node
+  linkType: hard
+
+"joi@npm:^17.3.0":
+  version: 17.4.0
+  resolution: "joi@npm:17.4.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+    "@hapi/topo": ^5.0.0
+    "@sideway/address": ^4.1.0
+    "@sideway/formula": ^3.0.0
+    "@sideway/pinpoint": ^2.0.0
+  checksum: 2f6203d4513c063d457a935dab5e8060413479880d55af2c4fada987c7fe1bedff46d46eec36b14cf433ecc4df3b580fe1c0a0fed5b73a265b78011f97ff5c2d
   languageName: node
   linkType: hard
 
