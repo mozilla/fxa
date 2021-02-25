@@ -51,6 +51,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const { avatar } = useAccount();
   const alertBar = useAlertBar();
   const [saveEnabled, setSaveEnabled] = useState(false);
+  const [saveStringId, setSaveStringId] = useState('avatar-page-save-button');
 
   const uploadAvatar = useAvatarUploader({
     onSuccess: (newAvatar) => {
@@ -92,14 +93,21 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     y: 0,
   });
 
-  const resetAllState = () => {
+  const resetAllState = useCallback(() => {
     setZoom(1);
     setRotation(0);
     setCrop({ x: 0, y: 0 });
     setCroppedImgSrc(null);
     setCapturedImgSrc(undefined);
     setSaveEnabled(false);
-  };
+  }, [
+    setZoom,
+    setRotation,
+    setCrop,
+    setCroppedImgSrc,
+    setCapturedImgSrc,
+    setSaveEnabled,
+  ]);
 
   /* Edit Handlers */
 
@@ -158,14 +166,26 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
 
   /* General Handlers */
 
-  async function save() {
+  const save = useCallback(async () => {
+    setSaveEnabled(false);
     const img = croppedImgSrc || (await saveCroppedImage());
     if (img && img.size > PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE) {
       alertBar.error(l10n.getString('avatar-page-image-too-large-error'));
+      resetAllState();
     } else if (img) {
+      setSaveStringId('avatar-page-saving-button');
       uploadAvatar.execute(sessionToken()!, img);
     }
-  }
+  }, [
+    alertBar,
+    croppedImgSrc,
+    l10n,
+    saveCroppedImage,
+    setSaveEnabled,
+    setSaveStringId,
+    uploadAvatar,
+    resetAllState,
+  ]);
 
   function onFileError() {
     alertBar.error(l10n.getString('avatar-page-file-upload-error-2'));
@@ -177,7 +197,11 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
 
   /* Elements */
   const confirmBtns = (
-    <ConfirmBtns onSave={save} saveEnabled={!capturing && saveEnabled} />
+    <ConfirmBtns
+      onSave={save}
+      saveEnabled={!capturing && saveEnabled}
+      saveStringId={saveStringId}
+    />
   );
 
   const editView = (

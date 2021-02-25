@@ -157,9 +157,14 @@ export const AddPhotoBtn = ({
 type ConfirmBtnsProps = {
   onSave: VoidFunction;
   saveEnabled: boolean;
+  saveStringId?: string;
 };
 
-export const ConfirmBtns = ({ onSave, saveEnabled }: ConfirmBtnsProps) => {
+export const ConfirmBtns = ({
+  onSave,
+  saveEnabled,
+  saveStringId = 'avatar-page-save-button',
+}: ConfirmBtnsProps) => {
   const navigate = useNavigate();
 
   return (
@@ -173,15 +178,13 @@ export const ConfirmBtns = ({ onSave, saveEnabled }: ConfirmBtnsProps) => {
           Close
         </button>
       </Localized>
-      <Localized id="avatar-page-save-button">
+      <Localized id={saveStringId}>
         <button
           className="cta-primary mx-2 px-10"
           onClick={onSave}
           disabled={!saveEnabled}
           data-testid="save-button"
-        >
-          Save
-        </button>
+        ></button>
       </Localized>
     </div>
   );
