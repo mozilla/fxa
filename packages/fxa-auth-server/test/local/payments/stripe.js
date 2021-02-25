@@ -354,6 +354,50 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('getPaymentProvider', () => {
+    let customerExpanded;
+    beforeEach(() => {
+      customerExpanded = deepCopy(customer1);
+    });
+    describe('returns correct value based on collection_method', () => {
+      describe('when collection_method is "send_invoice"', () => {
+        it('payment_provider is "paypal"', async () => {
+          subscription2.collection_method = 'send_invoice';
+          customerExpanded.subscriptions.data[0] = subscription2;
+          assert(
+            stripeHelper.getPaymentProvider(customerExpanded) === 'paypal'
+          );
+        });
+      });
+      describe('when the customer has a canceled subscription', () => {
+        it('payment_provider is "not_chosen"', async () => {
+          customerExpanded.subscriptions.data[0] = cancelledSubscription;
+          assert(
+            stripeHelper.getPaymentProvider(customerExpanded) === 'not_chosen'
+          );
+        });
+      });
+      describe('when the customer has no subscriptions', () => {
+        it('payment_provider is "not_chosen"', async () => {
+          customerExpanded.subscriptions.data = [];
+          assert(
+            stripeHelper.getPaymentProvider(customerExpanded) === 'not_chosen'
+          );
+        });
+      });
+      describe('when collection_method is "instant"', () => {
+        it('payment_provider is "stripe"', async () => {
+          subscription2.collection_method = 'instant';
+          customerExpanded.subscriptions.data[0] = subscription2;
+          assert.equal(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'stripe'
+          );
+        });
+      });
+    });
+  });
+
   describe('detachPaymentMethod', () => {
     it('calls the Stripe api', async () => {
       const paymentMethodId = 'pm_9001';
@@ -681,18 +725,17 @@ describe('StripeHelper', () => {
   });
 
   describe('getInvoice', () => {
-    it('works successfully',
-      async () => {
-        sandbox
-          .stub(stripeHelper.stripe.invoices, 'retrieve')
-          .resolves(unpaidInvoice);
-        const actual = await stripeHelper.getInvoice(unpaidInvoice.id);
-        assert.deepEqual(actual, unpaidInvoice);
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripe.invoices.retrieve,
-          unpaidInvoice.id
-        );
-      });
+    it('works successfully', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieve')
+        .resolves(unpaidInvoice);
+      const actual = await stripeHelper.getInvoice(unpaidInvoice.id);
+      assert.deepEqual(actual, unpaidInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.retrieve,
+        unpaidInvoice.id
+      );
+    });
   });
 
   describe('finalizeInvoice', () => {
@@ -2535,6 +2578,7 @@ describe('StripeHelper', () => {
         invoiceTotalInCents: 500,
         invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
         nextInvoiceDate: new Date('2020-04-24T22:23:40.000Z'),
+        payment_provider: 'stripe',
         productId,
         productName,
         planId,

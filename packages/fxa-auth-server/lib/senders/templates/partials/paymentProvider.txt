@@ -1,0 +1,9 @@
+{{#ifEquals payment_provider "paypal"}}
+  {{t "PayPal" }}
+{{/ifEquals}}
+
+{{#ifEquals payment_provider "stripe"}}
+  {{#if lastFour}}
+    {{t "%(cardType)s card ending in %(lastFour)s" }}
+  {{/if}}
+{{/ifEquals}}
