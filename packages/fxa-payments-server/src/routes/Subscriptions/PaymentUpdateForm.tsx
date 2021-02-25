@@ -12,9 +12,11 @@ import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
 import { Customer } from '../../store/types';
 import AlertBar from '../../components/AlertBar';
 import PaymentForm from '../../components/PaymentForm';
+import PaymentProviderDetails from '../../components/PaymentProviderDetails';
 import ErrorMessage from '../../components/ErrorMessage';
 import * as Amplitude from '../../lib/amplitude';
 import * as apiClient from 'fxa-payments-server/src/lib/apiClient';
+import * as Provider from '../../lib/PaymentProvider';
 
 type PaymentUpdateError = undefined | StripeError;
 
@@ -103,7 +105,7 @@ export const PaymentUpdateForm = ({
 
   const onFormEngaged = useCallback(() => Amplitude.updatePaymentEngaged(), []);
 
-  const { last4, exp_month, exp_year } = customer;
+  const { last4, exp_month, exp_year, payment_provider } = customer;
 
   // https://github.com/iamkun/dayjs/issues/639
   const expirationDate = dayjs()
@@ -124,26 +126,21 @@ export const PaymentUpdateForm = ({
 
         <header>
           <h2 className="billing-title">
-            <Localized id="sub-update-title">
-              <span className="title">Billing Information</span>
+            <Localized id="sub-update-payment-title">
+              <span className="title">Payment information</span>
             </Localized>
           </h2>
         </header>
         {!updateRevealed ? (
           <div className="with-settings-button">
-            <div className="card-details">
-              {last4 && expirationDate && (
-                <>
-                  {/* TODO: Need to find a way to display a card icon here? */}
-                  <Localized id="sub-update-card-ending" vars={{ last: last4 }}>
-                    <div className="last-four">Card ending {last4}</div>
-                  </Localized>
-                  <Localized id="pay-update-card-exp" vars={{ expirationDate }}>
-                    <div data-testid="card-expiration-date" className="expiry">
-                      Expires {expirationDate}
-                    </div>
-                  </Localized>
-                </>
+            <div className="card-details stack-card-details">
+              <PaymentProviderDetails customer={customer} />
+              {expirationDate && Provider.isStripe(payment_provider) && (
+                <Localized id="pay-update-card-exp" vars={{ expirationDate }}>
+                  <div data-testid="card-expiration-date" className="expiry">
+                    Expires {expirationDate}
+                  </div>
+                </Localized>
               )}
             </div>
             <div className="action">

@@ -36,7 +36,7 @@
     }
 
     header {
-      margin: 0 0 23px 0;
+      margin: 0 0 24px 0;
       padding: 0;
 
       h2 {
@@ -90,12 +90,16 @@
     display: flex;
     flex: 4;
 
-    > div {
+    html[dir='ltr'] & {
       padding-right: 32px;
     }
+
+    html[dir='rtl'] & {
+      padding-left: 32px;
+    }
   }
+
   .card-details {
-    .last-four,
     .expiry {
       align-items: center;
       display: flex;
@@ -106,16 +110,17 @@
 
     .plan-pricing {
       font-weight: 600;
+      margin-bottom: .5em;
     }
   }
 
   .with-settings-button {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
 
     p {
-      margin: 0 1em 1em 0;
-
+      margin-top: 0;
       &:last-child {
         margin: 0;
       }
@@ -181,9 +186,5 @@
 
   .subscription-management .payment-update .payment {
     padding: 0;
-  }
-
-  .subscription-management .card-details {
-    flex-direction: column;
   }
 }

@@ -1,7 +1,9 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
+import * as Provider from '../../lib/PaymentProvider';
 import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
 import { Plan, Profile, Customer } from '../../store/types';
+import { PaymentProviderDetails } from '../PaymentProviderDetails';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
 import circledCheckbox from './images/circled-confirm.svg';
@@ -26,8 +28,7 @@ export const PaymentConfirmation = ({
   const { amount, currency, interval, interval_count } = selectedPlan;
   const { displayName, email } = profile;
 
-  const { brand, last4, payment_provider, subscriptions } = customer;
-  const isPaypalPayment = payment_provider === 'paypal';
+  const { payment_provider, subscriptions } = customer;
 
   const invoiceNumber = subscriptions[0].latest_invoice;
   const date = new Date().toLocaleDateString(navigator.language, {
@@ -86,7 +87,7 @@ export const PaymentConfirmation = ({
         </div>
       </div>
 
-      {!isPaypalPayment && (
+      {Provider.isStripe(payment_provider) && (
         <div className="billing-info" data-testid="billing-info">
           <Localized id="payment-confirmation-billing-heading">
             <h3></h3>
@@ -112,19 +113,8 @@ export const PaymentConfirmation = ({
           >
             <p>{planPrice}</p>
           </Localized>
-          {last4 && brand && !isPaypalPayment && (
-            <Localized id="payment-confirmation-cc-preview" vars={{ last4 }}>
-              <p className={`c-card ${brand.toLowerCase()}`}></p>
-            </Localized>
-          )}
-          {isPaypalPayment && (
-            <div
-              className={`payment-logo ${payment_provider}`}
-              data-testid="paypal-logo"
-            >
-              {payment_provider}
-            </div>
-          )}
+
+          <PaymentProviderDetails customer={customer} />
         </div>
       </div>
 

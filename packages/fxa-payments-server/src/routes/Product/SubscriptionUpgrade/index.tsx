@@ -140,21 +140,21 @@ export const SubscriptionUpgrade = ({
 
           <div className="payment-details">
             <h3 className="billing-title">
-              <Localized id="sub-update-title">
-                <span className="title">Billing information</span>
+              <Localized id="sub-update-payment-title">
+                <span className="title">Payment information</span>
               </Localized>
             </h3>
 
             <div>
               <Localized
-                id="payment-confirmation-cc-preview"
+                id="payment-confirmation-cc-card-ending-in"
                 vars={{
                   last4: cardLast4 as string,
                 }}
               >
                 <p className={`c-card ${cardBrandLc}`}>
                   {' '}
-                  ending in {cardLast4}
+                  Card ending in {cardLast4}
                 </p>
               </Localized>
             </div>
