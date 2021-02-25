@@ -179,7 +179,9 @@ function makeApp() {
   const routeHelpers = routing(app, routeLogger);
   routes.forEach(routeHelpers.addRoute);
 
-  app.get(betaSettingsPath, modifySettingsStatic);
+  if (config.get('env') === 'production') {
+    app.get(betaSettingsPath, modifySettingsStatic);
+  }
   app.use(
     serveStatic(STATIC_DIRECTORY, {
       maxAge: config.get('static_max_age'),
