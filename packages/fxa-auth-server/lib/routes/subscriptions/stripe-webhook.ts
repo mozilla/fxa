@@ -71,6 +71,11 @@ export class StripeWebhookHandler extends StripeHandler {
             await this.handleInvoiceCreatedEvent(request, event);
           }
           break;
+        case 'invoice.finalized':
+          if (this.paypalHelper) {
+            await this.handleInvoiceOpenEvent(request, event);
+          }
+          break;
         case 'invoice.payment_succeeded':
           await this.handleInvoicePaymentSucceededEvent(request, event);
           break;
