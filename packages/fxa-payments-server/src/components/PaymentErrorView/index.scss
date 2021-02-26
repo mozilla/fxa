@@ -1,0 +1,31 @@
+@import '../../styles/mixins';
+@import '../../../../fxa-content-server/app/styles/variables';
+@import '../../../../fxa-content-server/app/styles/breakpoints';
+
+.subscription-title + .payment-error {
+  @include checkout-title();
+}
+
+.payment-error {
+  @include checkout-view();
+
+  .wrapper {
+    margin-bottom: 60px;
+
+    p {
+      line-height: 22px;
+
+      @include max-width('tablet') {
+        padding: 0 30px;
+      }
+
+      @include min-width('desktop') {
+        padding: 0 100px;
+      }
+    }
+  }
+
+  #error-icon {
+    margin: 60px auto 40px;
+  }
+}

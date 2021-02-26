@@ -43,6 +43,7 @@ privacy = Privacy Notice
 subscription-create-title = Set up your subscription
 subscription-success-title = Subscription confirmation
 subscription-processing-title = Confirming subscription...
+subscription-error-title = Error confirming subscription...
 
 ##  $productName (String) - The name of the subscribed product.
 ##  $amount (Number) - The amount billed. It will be formatted as currency.
@@ -310,6 +311,9 @@ plan-details-total-label = Total
 
 ## payment-processing
 payment-processing-message = Please wait while we process your payment...
+
+## payment-error
+payment-error-message = An unexpected error has occured while processing your payment, please try again.
 
 ## payment confirmation
 payment-confirmation-alert = Click here to download
