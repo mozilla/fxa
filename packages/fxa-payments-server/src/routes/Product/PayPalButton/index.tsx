@@ -19,6 +19,7 @@ export type PaypalButtonProps = {
   priceId: string;
   refreshSubscriptions: () => void;
   setPaymentError: Function;
+  setOnClick: Function;
   ButtonBase?: React.ElementType;
 };
 
@@ -26,6 +27,7 @@ export type ButtonBaseProps = {
   createOrder?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onApprove?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onError?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 export const PaypalButtonBase =
@@ -44,6 +46,7 @@ export const PaypalButton = ({
   priceId,
   refreshSubscriptions,
   setPaymentError,
+  setOnClick,
   ButtonBase = PaypalButtonBase,
 }: PaypalButtonProps) => {
   const createOrder = useCallback(async () => {
@@ -107,6 +110,13 @@ export const PaypalButton = ({
     [setPaymentError]
   );
 
+  const onClick = useCallback(
+    (event) => {
+      setOnClick(event);
+    },
+    [setOnClick]
+  );
+
   // Style docs: https://developer.paypal.com/docs/business/checkout/reference/style-guide/
   const styleOptions = {
     layout: 'horizontal',
@@ -126,6 +136,7 @@ export const PaypalButton = ({
           createOrder={createOrder}
           onApprove={onApprove}
           onError={onError}
+          onClick={onClick}
         />
       )}
     </>
