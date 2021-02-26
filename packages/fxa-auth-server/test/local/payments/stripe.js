@@ -883,6 +883,7 @@ describe('StripeHelper', () => {
       const actual = await stripeHelper.fetchOpenInvoices(0);
       assert.deepEqual(actual, {});
       sinon.assert.calledOnceWithExactly(stripeHelper.stripe.invoices.list, {
+        customer: undefined,
         limit: 100,
         collection_method: 'send_invoice',
         status: 'open',

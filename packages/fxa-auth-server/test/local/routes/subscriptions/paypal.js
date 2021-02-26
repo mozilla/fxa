@@ -7,12 +7,13 @@
 const sinon = require('sinon');
 const { Container } = require('typedi');
 const assert = { ...sinon.assert, ...require('chai').assert };
+const { filterCustomer } = require('fxa-shared/subscriptions/stripe');
+
 const { getRoute } = require('../../../routes_helpers');
 const mocks = require('../../../mocks');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
 const uuid = require('uuid');
 const { StripeHelper } = require('../../../../lib/payments/stripe');
-
 const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
 const planFixture = require('../../payments/fixtures/stripe/plan1.json');
 const subscription2 = require('../../payments/fixtures/stripe/subscription2.json');
@@ -233,6 +234,113 @@ describe('subscriptions payPalRoutes', () => {
         assert.equal(
           err.message,
           'Funding source country does not match plan currency.'
+        );
+      }
+    });
+  });
+
+  describe('POST /oauth/subscriptions/paymentmethod/billing-agreement', () => {
+    let plan, customer, subscription;
+
+    beforeEach(() => {
+      stripeHelper.refreshCachedCustomer = sinon.fake.resolves({});
+      stripeHelper.fetchOpenInvoices.returns({
+        autoPagingToArray: sinon.fake.resolves([]),
+      });
+      stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
+      profile.deleteCache = sinon.fake.resolves({});
+      push.notifyProfileUpdated = sinon.fake.resolves({});
+      plan = deepCopy(planFixture);
+      customer = deepCopy(customerFixture);
+      subscription = deepCopy(subscription2);
+      subscription.collection_method = 'send_invoice';
+      subscription.latest_invoice = deepCopy(openInvoice);
+      customer.subscriptions.data = [subscription];
+      stripeHelper.customer = sinon.fake.resolves(customer);
+      stripeHelper.findPlanById = sinon.fake.resolves(plan);
+      payPalHelper.createBillingAgreement = sinon.fake.resolves('B-test');
+      payPalHelper.agreementDetails = sinon.fake.resolves({
+        countryCode: 'CA',
+      });
+      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves(
+        customer
+      );
+    });
+
+    it('should update the billing agreement and process invoice', async () => {
+      stripeHelper.fetchOpenInvoices.returns({
+        autoPagingToArray: sinon.fake.resolves([subscription.latest_invoice]),
+      });
+      const actual = await runTest(
+        '/oauth/subscriptions/paymentmethod/billing-agreement'
+      );
+      assert.deepEqual(actual, filterCustomer(customer));
+      sinon.assert.calledOnce(stripeHelper.customer);
+      sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
+      sinon.assert.calledOnce(payPalHelper.agreementDetails);
+      sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
+      sinon.assert.calledOnce(stripeHelper.fetchOpenInvoices);
+      sinon.assert.calledOnce(stripeHelper.getCustomerPaypalAgreement);
+      sinon.assert.calledOnce(payPalHelper.processInvoice);
+    });
+
+    it('should update the billing agreement and process zero invoice', async () => {
+      subscription.latest_invoice.amount_due = 0;
+      stripeHelper.fetchOpenInvoices.returns({
+        autoPagingToArray: sinon.fake.resolves([subscription.latest_invoice]),
+      });
+      payPalHelper.processZeroInvoice = sinon.fake.resolves({});
+      const actual = await runTest(
+        '/oauth/subscriptions/paymentmethod/billing-agreement'
+      );
+      assert.deepEqual(actual, filterCustomer(customer));
+      sinon.assert.calledOnce(stripeHelper.customer);
+      sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
+      sinon.assert.calledOnce(payPalHelper.agreementDetails);
+      sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
+      sinon.assert.calledOnce(stripeHelper.fetchOpenInvoices);
+      sinon.assert.calledOnce(stripeHelper.getCustomerPaypalAgreement);
+      sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
+      sinon.assert.notCalled(payPalHelper.processInvoice);
+    });
+
+    it('should update the billing agreement', async () => {
+      const actual = await runTest(
+        '/oauth/subscriptions/paymentmethod/billing-agreement'
+      );
+      assert.deepEqual(actual, filterCustomer(customer));
+      sinon.assert.calledOnce(stripeHelper.customer);
+      sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
+      sinon.assert.calledOnce(payPalHelper.agreementDetails);
+      sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
+      sinon.assert.calledOnce(stripeHelper.fetchOpenInvoices);
+      sinon.assert.calledOnce(stripeHelper.getCustomerPaypalAgreement);
+      sinon.assert.notCalled(payPalHelper.processInvoice);
+    });
+
+    it('should throw an error if billingAgreement country does not match planCurrency', async () => {
+      customer.currency = 'eur';
+      stripeHelper.findPlanById = sinon.fake.resolves(plan);
+      try {
+        await runTest('/oauth/subscriptions/paymentmethod/billing-agreement');
+        assert.fail('Should have thrown an error');
+      } catch (err) {
+        assert.equal(
+          err.message,
+          'Funding source country does not match plan currency.'
+        );
+      }
+    });
+
+    it('should throw an error if theres no paypal subscription', async () => {
+      customer.subscriptions.data = [];
+      try {
+        await runTest('/oauth/subscriptions/paymentmethod/billing-agreement');
+        assert.fail('Should have thrown an error');
+      } catch (err) {
+        assert.equal(
+          err.output.payload.data.message,
+          'User is missing paypal subscriptions or currency value.'
         );
       }
     });
