@@ -11,13 +11,12 @@ import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
 
 import { useNonce } from '../../../lib/hooks';
-import { getErrorMessage } from '../../../lib/errors';
 
 import PlanDetails from '../../../components/PlanDetails';
 import Header from '../../../components/Header';
 import PaymentForm, { PaymentFormProps } from '../../../components/PaymentForm';
-import ErrorMessage from '../../../components/ErrorMessage';
 import AcceptedCards from '../../Product/AcceptedCards';
+import PaymentErrorView from '../../../components/PaymentErrorView';
 import PaymentLegalBlurb from '../../../components/PaymentLegalBlurb';
 import { SubscriptionTitle } from '../../../components/SubscriptionTitle';
 import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
@@ -190,21 +189,31 @@ export const SubscriptionCreate = ({
     <>
       <Header {...{ profile }} />
       <div className="main-content">
+        <PaymentErrorView
+          error={paymentError}
+          onRetry={() => {
+            setPaymentError(undefined);
+            setTransactionInProgress(false);
+          }}
+          className={classNames({
+            hidden: !paymentError,
+          })}
+        />
         <PaymentProcessing
           provider="paypal"
           className={classNames({
-            hidden: !transactionInProgress,
+            hidden: !transactionInProgress || paymentError,
           })}
         />
         <SubscriptionTitle
           screenType="create"
           className={classNames({
-            hidden: transactionInProgress,
+            hidden: transactionInProgress || paymentError,
           })}
         />
         <div
           className={classNames('product-payment', {
-            hidden: transactionInProgress,
+            hidden: transactionInProgress || paymentError,
           })}
           data-testid="subscription-create"
         >
@@ -260,18 +269,6 @@ export const SubscriptionCreate = ({
                     <span className="title">Payment information</span>
                   </Localized>
                 </h3>
-
-                <ErrorMessage isVisible={!!paymentError}>
-                  {paymentError && (
-                    <Localized
-                      id={getErrorMessage(paymentError.code || 'UNKNOWN')}
-                    >
-                      <p data-testid="error-payment-submission">
-                        {getErrorMessage(paymentError.code || 'UNKNOWN')}
-                      </p>
-                    </Localized>
-                  )}
-                </ErrorMessage>
 
                 <PaymentForm
                   {...{

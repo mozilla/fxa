@@ -4,7 +4,7 @@ import { Localized } from '@fluent/react';
 import './index.scss';
 
 type SubscriptionTitleProps = {
-  screenType: 'create' | 'success' | 'processing';
+  screenType: 'create' | 'success' | 'processing' | 'error';
   className?: string;
 };
 
@@ -18,6 +18,7 @@ export const SubscriptionTitle = ({
     create: 'Set up your subscription',
     success: 'Subscription confirmation',
     processing: 'Confirming subscription...',
+    error: 'Error confirming subscription...',
   };
   return (
     <div

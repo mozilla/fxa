@@ -85,7 +85,7 @@ registerSuite('subscriptions', {
 
         .then(subscribeToTestProductWithCardNumber('4000000000000069'))
 
-        .then(testElementTextInclude('.error-message-container', 'expired'));
+        .then(testElementTextInclude('.payment-error', 'expired'));
     },
     'sign up, failed to subscribe with mismatching currency': function () {
       if (
@@ -113,7 +113,7 @@ registerSuite('subscriptions', {
           // TODO - This will change to a more helpful error message when https://github.com/mozilla/fxa/issues/7467 lands.
           .then(
             testElementTextInclude(
-              '.error-message-container',
+              '.payment-error',
               'something went wrong. please try again later.'
             )
           )

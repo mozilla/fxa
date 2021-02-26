@@ -19,6 +19,7 @@ const CARD_ERROR = 'card-error';
 const BASIC_ERROR = 'basic-error-message';
 const PAYMENT_ERROR_1 = 'payment-error-1';
 const PAYMENT_ERROR_2 = 'payment-error-2';
+const PAYMENT_ERROR_3 = 'payment-error-3';
 
 let errorMessageIndex: { [key: string]: string } = {
   expired_card: 'expired-card-error',
@@ -108,10 +109,13 @@ const paymentErrors2 = [
   'transaction_not_allowed',
 ];
 
+const paymentErrors3 = ['general-paypal-error'];
+
 cardErrors.forEach((k) => (errorMessageIndex[k] = CARD_ERROR));
 basicErrors.forEach((k) => (errorMessageIndex[k] = BASIC_ERROR));
 paymentErrors1.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_1));
 paymentErrors2.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_2));
+paymentErrors3.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_3));
 
 function getErrorMessage(type: string) {
   return errorMessageIndex[type] ? errorMessageIndex[type] : BASIC_ERROR;
@@ -124,4 +128,5 @@ export {
   BASIC_ERROR,
   PAYMENT_ERROR_1,
   PAYMENT_ERROR_2,
+  PAYMENT_ERROR_3,
 };

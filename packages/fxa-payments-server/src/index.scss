@@ -1,4 +1,5 @@
 @import '../../fxa-content-server/app/styles/main';
+@import './styles/mixins';
 @import './styles/variables';
 
 // HACK: We render into <div id="root"> rather than <body>, so try to minimize
