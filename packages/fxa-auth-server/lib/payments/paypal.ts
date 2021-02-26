@@ -30,6 +30,13 @@ type AgreementDetails = {
   countryCode: string;
 };
 
+export type ChargeCustomerOptions = {
+  amountInCents: number;
+  billingAgreementId: string;
+  invoiceNumber: string;
+  idempotencyKey: string;
+};
+
 export type ChargeResponse = {
   avsCode: string;
   cvv2Match: string;
@@ -111,13 +118,21 @@ export class PayPalHelper {
     }
   }
 
-  public generateIdempotencyKey(invoiceId: string, paymentAttempt: number): string {
-    return invoiceId + '-' + paymentAttempt
+  public generateIdempotencyKey(
+    invoiceId: string,
+    paymentAttempt: number
+  ): string {
+    return invoiceId + '-' + paymentAttempt;
   }
 
-  public parseIdempotencyKey(idempotencyKey: string): {invoiceId: string, paymentAttempt: number} {
-    const parsedValue = idempotencyKey.split('-')
-    return {invoiceId: parsedValue[0], paymentAttempt: parseInt(parsedValue[1])}
+  public parseIdempotencyKey(
+    idempotencyKey: string
+  ): { invoiceId: string; paymentAttempt: number } {
+    const parsedValue = idempotencyKey.split('-');
+    return {
+      invoiceId: parsedValue[0],
+      paymentAttempt: parseInt(parsedValue[1]),
+    };
   }
 
   /**
@@ -154,9 +169,19 @@ export class PayPalHelper {
    *
    */
   public async chargeCustomer(
-    options: DoReferenceTransactionOptions
+    options: ChargeCustomerOptions
   ): Promise<ChargeResponse> {
-    const response = await this.client.doReferenceTransaction(options);
+    const doReferenceTransactionOptions = {
+      amount: this.currencyHelper.getPayPalAmountStringFromAmountInCents(
+        options.amountInCents
+      ),
+      billingAgreementId: options.billingAgreementId,
+      invoiceNumber: options.invoiceNumber,
+      idempotencyKey: options.idempotencyKey,
+    };
+    const response = await this.client.doReferenceTransaction(
+      doReferenceTransactionOptions
+    );
     return {
       amount: response.AMT,
       avsCode: response.AVSCODE,
@@ -286,11 +311,14 @@ export class PayPalHelper {
     // charges. This key is restricted to the invoice and payment
     // attempt in combination, so that retries can be made if
     // the prior attempt failed and a retry is desired.
-    const idempotencyKey = this.generateIdempotencyKey(invoice.id, paymentAttempt);
+    const idempotencyKey = this.generateIdempotencyKey(
+      invoice.id,
+      paymentAttempt
+    );
 
     const promises: Promise<any>[] = [
       this.chargeCustomer({
-        amount: invoice.amount_due.toString(),
+        amountInCents: invoice.amount_due,
         billingAgreementId: agreementId,
         invoiceNumber: invoice.id,
         idempotencyKey,

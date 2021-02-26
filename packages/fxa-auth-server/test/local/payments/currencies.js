@@ -8,6 +8,12 @@ const { assert } = require('chai');
 
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 
+const payPalEnabledSubscriptionsConfig = {
+  paypalNvpSigCredentials: {
+    enabled: true,
+  },
+};
+
 describe('currencyMapValidation in constructor', () => {
   it('assigns map to property if object is valid', () => {
     const currenciesToCountries = {
@@ -20,6 +26,22 @@ describe('currencyMapValidation in constructor', () => {
     ]);
     const ch = new CurrencyHelper({ currenciesToCountries });
     assert.deepEqual(ch.currencyToCountryMap, expected);
+  });
+  it('assigns payPalEnabled to value in config', () => {
+    let ch = new CurrencyHelper({
+      currenciesToCountries: {},
+      subscriptions: {
+        paypalNvpSigCredentials: {
+          enabled: false,
+        },
+      },
+    });
+    assert.equal(ch.payPalEnabled, false);
+    ch = new CurrencyHelper({
+      currenciesToCountries: {},
+      subscriptions: payPalEnabledSubscriptionsConfig,
+    });
+    assert.equal(ch.payPalEnabled, true);
   });
   it('throws an error if invalid currencyCode', () => {
     const invalidCurrency = {
@@ -52,6 +74,17 @@ describe('currencyMapValidation in constructor', () => {
       CurrencyHelper({ currenciesToCountries: duplicateCountriesB });
     });
   });
+  it('throws an error if currency not in paypal supported, if paypalEnabled', () => {
+    const currenciesToCountries = {
+      USD: ['US', 'CA'],
+    };
+    assert.throws(() => {
+      CurrencyHelper({
+        currenciesToCountries,
+        subscriptions: payPalEnabledSubscriptionsConfig,
+      });
+    });
+  });
 });
 
 describe('isCurrencyCompatibleWithCountry', () => {
@@ -77,5 +110,33 @@ describe('isCurrencyCompatibleWithCountry', () => {
     assert(
       ch.isCurrencyCompatibleWithCountry('Not a currency', 'FR') === false
     );
+  });
+});
+
+describe('getPayPalAmountStringFromAmountInCents', () => {
+  const currenciesToCountries = { USD: ['US'], EUR: ['FR', 'DE'] };
+  const ch = new CurrencyHelper({
+    currenciesToCountries,
+    subscriptions: payPalEnabledSubscriptionsConfig,
+  });
+
+  it('converts amount in cents to amount string', () => {
+    assert.equal(ch.getPayPalAmountStringFromAmountInCents(1099), '10.99');
+    assert.equal(ch.getPayPalAmountStringFromAmountInCents(9), '0.09');
+    assert.equal(ch.getPayPalAmountStringFromAmountInCents(900000), '9000.00');
+  });
+
+  it('throws an error if value exceeds 9 digits', () => {
+    /*
+     * https://developer.paypal.com/docs/nvp-soap-api/do-reference-transaction-nvp/#payment-details-fields
+     * AMT: ....Value is typically a positive number that cannot exceed nine (9) digits in SOAP request/response...
+     */
+    assert.equal(
+      ch.getPayPalAmountStringFromAmountInCents(999999999),
+      '9999999.99'
+    );
+    assert.throws(() => {
+      ch.getPayPalAmountStringFromAmountInCents(1000000000);
+    });
   });
 });

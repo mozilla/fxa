@@ -190,19 +190,29 @@ describe('PayPalHelper', () => {
 
   describe('chargeCustomer', () => {
     const validOptions = {
-      amount: '10.99',
+      amountInCents: 1099,
       billingAgreementId: 'B-12345',
       invoiceNumber: 'in_asdf',
       idempotencyKey: ' in_asdf-0',
     };
 
-    it('calls doReferenceTransaction with passed options', async () => {
+    it('calls doReferenceTransaction with options and amount converted to string', async () => {
       paypalHelper.client.doReferenceTransaction = sinon.fake.resolves(
         successfulDoReferenceTransactionResponse
       );
       await paypalHelper.chargeCustomer(validOptions);
+      const expectedOptions = {
+        amount: paypalHelper.currencyHelper.getPayPalAmountStringFromAmountInCents(
+          validOptions.amountInCents
+        ),
+        billingAgreementId: validOptions.billingAgreementId,
+        invoiceNumber: validOptions.invoiceNumber,
+        idempotencyKey: validOptions.idempotencyKey,
+      };
       assert.ok(
-        paypalHelper.client.doReferenceTransaction.calledOnceWith(validOptions)
+        paypalHelper.client.doReferenceTransaction.calledOnceWith(
+          expectedOptions
+        )
       );
     });
 
@@ -407,7 +417,7 @@ describe('PayPalHelper', () => {
       const validInvoice = {
         ...mockInvoice,
         status: 'open',
-        amount_due: 4.99,
+        amount_due: 499,
       };
       mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
         agreementId
@@ -435,7 +445,7 @@ describe('PayPalHelper', () => {
         validInvoice
       );
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
-        amount: validInvoice.amount_due.toString(),
+        amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
@@ -488,7 +498,7 @@ describe('PayPalHelper', () => {
         validInvoice
       );
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
-        amount: validInvoice.amount_due.toString(),
+        amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
@@ -540,7 +550,7 @@ describe('PayPalHelper', () => {
         validInvoice
       );
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
-        amount: validInvoice.amount_due.toString(),
+        amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
@@ -587,7 +597,7 @@ describe('PayPalHelper', () => {
         validInvoice
       );
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
-        amount: validInvoice.amount_due.toString(),
+        amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
@@ -644,7 +654,7 @@ describe('PayPalHelper', () => {
         validInvoice
       );
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
-        amount: validInvoice.amount_due.toString(),
+        amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
