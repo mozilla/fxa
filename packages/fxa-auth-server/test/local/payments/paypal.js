@@ -18,12 +18,18 @@ const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
+const failedDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
 const successfulBAUpdateResponse = require('./fixtures/paypal/ba_update_success.json');
 const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
+const {
+  PAYPAL_BILLING_AGREEMENT_INVALID,
+  PAYPAL_APP_ERRORS,
+  PAYPAL_RETRY_ERRORS,
+} = require('../../../lib/payments/paypal-error-codes');
 
 describe('PayPalHelper', () => {
   /** @type PayPalHelper */
@@ -58,6 +64,16 @@ describe('PayPalHelper', () => {
   const mockConfig = {
     currenciesToCountries: { ZAR: ['AS', 'CA'] },
   };
+
+  /**
+   * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
+   * a deep copy of the object can be created which uses the test object as a template
+   *
+   * @param {Object} object
+   */
+  function deepCopy(object) {
+    return JSON.parse(JSON.stringify(object));
+  }
 
   beforeEach(() => {
     // Make StripeHelper
@@ -124,7 +140,10 @@ describe('PayPalHelper', () => {
       const result = paypalHelper.parseIdempotencyKey(
         invoiceId + '-' + paymentAttempt
       );
-      assert.deepEqual(result, { invoiceId, paymentAttempt });
+      assert.deepEqual(result, {
+        invoiceId,
+        paymentAttempt: paymentAttempt + 1,
+      });
     });
   });
 
@@ -431,6 +450,7 @@ describe('PayPalHelper', () => {
         { transactionId }
       );
       mockStripeHelper.payInvoiceOutOfBand = sinon.fake.resolves({});
+      mockStripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
 
       const response = await paypalHelper.processInvoice({
         customer: mockCustomer,
@@ -484,6 +504,7 @@ describe('PayPalHelper', () => {
         { transactionId }
       );
       mockStripeHelper.payInvoiceOutOfBand = sinon.fake.resolves({});
+      mockStripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
 
       const response = await paypalHelper.processInvoice({
         customer: mockCustomer,
@@ -536,6 +557,7 @@ describe('PayPalHelper', () => {
         paymentStatus: 'Pending',
         transactionId,
       });
+      mockStripeHelper.updatePaymentAttempts = sinon.fake.resolves({});
 
       const response = await paypalHelper.processInvoice({
         customer: mockCustomer,
@@ -622,6 +644,7 @@ describe('PayPalHelper', () => {
         agreementId
       );
       mockStripeHelper.getPaymentAttempts = sinon.fake.returns(paymentAttempts);
+      mockStripeHelper.updatePaymentAttempts = sinon.fake.returns({});
       paypalHelper.log = { error: sinon.fake.returns({}) };
       paypalHelper.chargeCustomer = sinon.fake.resolves({
         paymentStatus,
@@ -717,6 +740,168 @@ describe('PayPalHelper', () => {
         mockStripeHelper.getCustomerPaypalAgreement,
         mockCustomer
       );
+    });
+
+    describe('throw auth-server error', () => {
+      let validInvoice;
+
+      function makeFailedErr(errCode) {
+        const failedResponse = deepCopy(failedDoReferenceTransactionResponse);
+        failedResponse.L_ERRORCODE0 = errCode;
+        const rawString = paypalHelper.client.objectToNVP(failedResponse);
+        const parsedNvpObject = paypalHelper.client.nvpToObject(rawString);
+        const throwErr = new PayPalClientError(rawString, parsedNvpObject);
+        paypalHelper.chargeCustomer = sinon.fake.rejects(throwErr);
+        return throwErr;
+      }
+
+      beforeEach(() => {
+        validInvoice = {
+          ...mockInvoice,
+          status: 'open',
+          amount_due: 4.99,
+        };
+        mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
+          agreementId
+        );
+        mockStripeHelper.getPaymentAttempts = sinon.fake.returns(
+          paymentAttempts
+        );
+        mockStripeHelper.updatePaymentAttempts = sinon.fake.returns({});
+        paypalHelper.log = { error: sinon.fake.returns({}) };
+      });
+
+      it('payment failed error on invalid billing agreement', async () => {
+        const throwErr = makeFailedErr(PAYPAL_BILLING_AGREEMENT_INVALID);
+        try {
+          await paypalHelper.processInvoice({
+            customer: mockCustomer,
+            invoice: validInvoice,
+          });
+          assert.fail('Error should throw invoice in invalid state.');
+        } catch (err) {
+          const failErr = error.paymentFailed();
+          failErr.jse_cause = throwErr;
+          assert.deepEqual(err, failErr);
+        }
+        sinon.assert.calledOnceWithExactly(
+          mockStripeHelper.getCustomerPaypalAgreement,
+          mockCustomer
+        );
+      });
+
+      it('backend service failure on paypal app error', async () => {
+        const throwErr = makeFailedErr(PAYPAL_APP_ERRORS[1]);
+        try {
+          await paypalHelper.processInvoice({
+            customer: mockCustomer,
+            invoice: validInvoice,
+          });
+          assert.fail('Error should throw invoice in invalid state.');
+        } catch (err) {
+          const failErr = error.backendServiceFailure(
+            'paypal',
+            'transaction',
+            {
+              errData: throwErr.data,
+              code: throwErr.errorCode,
+            },
+            throwErr
+          );
+          assert.deepEqual(err, failErr);
+        }
+        sinon.assert.calledOnceWithExactly(
+          mockStripeHelper.getCustomerPaypalAgreement,
+          mockCustomer
+        );
+      });
+
+      it('retry error on paypal retryable error', async () => {
+        makeFailedErr(PAYPAL_RETRY_ERRORS[1]);
+        try {
+          await paypalHelper.processInvoice({
+            customer: mockCustomer,
+            invoice: validInvoice,
+          });
+          assert.fail('Error should throw invoice in invalid state.');
+        } catch (err) {
+          const failErr = error.serviceUnavailable();
+          assert.deepEqual(err, failErr);
+        }
+        sinon.assert.calledOnceWithExactly(
+          mockStripeHelper.getCustomerPaypalAgreement,
+          mockCustomer
+        );
+      });
+
+      it('backend error on no paypal error code', async () => {
+        const throwErr = makeFailedErr();
+        try {
+          await paypalHelper.processInvoice({
+            customer: mockCustomer,
+            invoice: validInvoice,
+          });
+          assert.fail('Error should throw invoice in invalid state.');
+        } catch (err) {
+          const failErr = error.backendServiceFailure(
+            'paypal',
+            'transaction',
+            {
+              errData: throwErr.data,
+              message: 'Error with no errorCode is not expected',
+            },
+            throwErr
+          );
+          assert.deepEqual(err, failErr);
+        }
+        sinon.assert.calledOnceWithExactly(
+          mockStripeHelper.getCustomerPaypalAgreement,
+          mockCustomer
+        );
+      });
+
+      it('internal validation error on unexpected paypal error code', async () => {
+        const throwErr = makeFailedErr(992929291992392);
+        try {
+          await paypalHelper.processInvoice({
+            customer: mockCustomer,
+            invoice: validInvoice,
+          });
+          assert.fail('Error should throw invoice in invalid state.');
+        } catch (err) {
+          const failErr = error.internalValidationError(
+            'paypalCodeHandler',
+            {
+              code: 992929291992392,
+              errData: throwErr.data,
+            },
+            throwErr
+          );
+          assert.deepEqual(err, failErr);
+        }
+        sinon.assert.calledOnceWithExactly(
+          mockStripeHelper.getCustomerPaypalAgreement,
+          mockCustomer
+        );
+      });
+
+      it('skips auth-server error on batchProcessing service failure on paypal app error', async () => {
+        const throwErr = makeFailedErr(PAYPAL_APP_ERRORS[1]);
+        try {
+          await paypalHelper.processInvoice({
+            customer: mockCustomer,
+            invoice: validInvoice,
+            batchProcessing: true,
+          });
+          assert.fail('Error should throw invoice in invalid state.');
+        } catch (err) {
+          assert.deepEqual(err, throwErr);
+        }
+        sinon.assert.calledOnceWithExactly(
+          mockStripeHelper.getCustomerPaypalAgreement,
+          mockCustomer
+        );
+      });
     });
   });
 });

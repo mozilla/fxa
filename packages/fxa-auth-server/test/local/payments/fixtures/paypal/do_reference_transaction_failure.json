@@ -4,12 +4,8 @@
   "ACK": "Failure",
   "VERSION": "204",
   "BUILD": "55251101",
-  "L": [
-    {
-      "ERRORCODE": "11451",
-      "SHORTMESSAGE": "Billing Agreement Id or transaction Id is not valid",
-      "LONGMESSAGE": "Billing Agreement Id or transaction Id is not valid",
-      "SEVERITYCODE": "Error"
-    }
-  ]
+  "L_ERRORCODE0": "11451",
+  "L_SHORTMESSAGE0": "Billing Agreement Id or transaction Id is not valid",
+  "L_LONGMESSAGE0": "Billing Agreement Id or transaction Id is not valid",
+  "L_SEVERITYCODE0": "Error"
 }

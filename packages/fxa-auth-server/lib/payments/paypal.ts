@@ -9,15 +9,21 @@ import { Container } from 'typedi';
 import error from '../error';
 import {
   BAUpdateOptions,
-  SetExpressCheckoutOptions,
   CreateBillingAgreementOptions,
   DoReferenceTransactionOptions,
   IpnMessage,
   PayPalClient,
   PayPalClientError,
+  SetExpressCheckoutOptions,
   TransactionSearchOptions,
   TransactionStatus,
 } from './paypal-client';
+import {
+  PAYPAL_APP_ERRORS,
+  PAYPAL_BILLING_AGREEMENT_INVALID,
+  PAYPAL_RETRY_ERRORS,
+  PAYPAL_SOURCE_ERRORS,
+} from './paypal-error-codes';
 import { StripeHelper } from './stripe';
 import { CurrencyHelper } from './currencies';
 
@@ -95,6 +101,58 @@ export type TransactionSearchResult = {
   type: string;
 };
 
+/**
+ * Translates paypal client errors into fxa-auth-server errors.
+ *
+ * Re-throws the provided error as an auth-server error.
+ *
+ * @param err
+ */
+function throwPaypalCodeError(err: PayPalClientError) {
+  const code = err.errorCode;
+  if (!code) {
+    throw error.backendServiceFailure(
+      'paypal',
+      'transaction',
+      {
+        errData: err.data,
+        message: 'Error with no errorCode is not expected',
+      },
+      err
+    );
+  }
+  if (
+    PAYPAL_SOURCE_ERRORS.includes(code) ||
+    code === PAYPAL_BILLING_AGREEMENT_INVALID
+  ) {
+    const rethrowErr = error.paymentFailed();
+    rethrowErr.jse_cause = err;
+    throw rethrowErr;
+  }
+  if (PAYPAL_APP_ERRORS.includes(code)) {
+    throw error.backendServiceFailure(
+      'paypal',
+      'transaction',
+      {
+        errData: err.data,
+        code,
+      },
+      err
+    );
+  }
+  if (PAYPAL_RETRY_ERRORS.includes(code)) {
+    throw error.serviceUnavailable();
+  }
+  throw error.internalValidationError(
+    'paypalCodeHandler',
+    {
+      code,
+      errData: err.data,
+    },
+    err
+  );
+}
+
 export class PayPalHelper {
   private log: Logger;
   private client: PayPalClient;
@@ -118,20 +176,36 @@ export class PayPalHelper {
     }
   }
 
+  /**
+   * Generate a PayPal idempotency key, used as the MSGSUBID on PayPal NVP
+   * API calls.
+   *
+   * @param invoiceId
+   * @param paymentAttempt
+   */
   public generateIdempotencyKey(
     invoiceId: string,
     paymentAttempt: number
   ): string {
-    return invoiceId + '-' + paymentAttempt;
+    return `${invoiceId}-${paymentAttempt}`;
   }
 
+  /**
+   * Parse the invoice Id and payment attempt out of the idempotency key
+   *
+   * Returns the paymentAttempt with 1 added to reflect the actual payment
+   * attempts made as the original attempt number is incremented *after* the
+   * attempt is made successfully.
+   *
+   * @param idempotencyKey
+   */
   public parseIdempotencyKey(
     idempotencyKey: string
   ): { invoiceId: string; paymentAttempt: number } {
     const parsedValue = idempotencyKey.split('-');
     return {
       invoiceId: parsedValue[0],
-      paymentAttempt: parseInt(parsedValue[1]),
+      paymentAttempt: parseInt(parsedValue[1]) + 1,
     };
   }
 
@@ -291,8 +365,9 @@ export class PayPalHelper {
   public async processInvoice(opts: {
     customer: Stripe.Customer;
     invoice: Stripe.Invoice;
+    batchProcessing?: boolean;
   }) {
-    const { customer, invoice } = opts;
+    const { customer, invoice, batchProcessing = false } = opts;
     const agreementId = this.stripeHelper.getCustomerPaypalAgreement(customer);
     if (!agreementId) {
       throw error.internalValidationError('processInvoice', {
@@ -328,10 +403,19 @@ export class PayPalHelper {
       promises.push(this.stripeHelper.finalizeInvoice(invoice));
     }
 
-    const [transactionResponse] = (await Promise.all(promises)) as [
-      ChargeResponse,
-      any
-    ];
+    let transactionResponse;
+    try {
+      [transactionResponse] = (await Promise.all(promises)) as [
+        ChargeResponse,
+        any
+      ];
+    } catch (err) {
+      if (err instanceof PayPalClientError && !batchProcessing) {
+        throwPaypalCodeError(err);
+      }
+      throw err;
+    }
+    await this.stripeHelper.updatePaymentAttempts(invoice);
 
     switch (transactionResponse.paymentStatus) {
       case 'Completed':
@@ -350,8 +434,6 @@ export class PayPalHelper {
       case 'Failed':
       case 'Voided':
       case 'Expired':
-        // Retries can be made as this payment is in a terminal state.
-        await this.stripeHelper.updatePaymentAttempts(invoice);
         throw error.paymentFailed();
       default:
         // Unexpected response here, log details and throw validation error.
