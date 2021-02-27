@@ -169,7 +169,7 @@ export class StripeWebhookHandler extends StripeHandler {
   ) {
     const sub = event.data.object as Stripe.Subscription;
     const { uid, email } = await this.sendSubscriptionDeletedEmail(sub);
-    return this.updateCustomerAndSendStatus(
+    await this.updateCustomerAndSendStatus(
       request,
       event,
       sub,
@@ -177,6 +177,14 @@ export class StripeWebhookHandler extends StripeHandler {
       uid,
       email
     );
+    if (this.paypalHelper) {
+      const customer = await this.stripeHelper.customer({ uid, email });
+      if (!customer || customer.deleted) {
+        return;
+      }
+      return this.paypalHelper.conditionallyRemoveBillingAgreement(customer);
+    }
+    return;
   }
 
   /**

@@ -59,6 +59,9 @@ describe('PayPalHelper', () => {
     invoice_settings: {
       default_payment_method: {},
     },
+    metadata: {
+      userid: 'test1234',
+    },
   };
 
   const mockConfig = {
@@ -409,6 +412,58 @@ describe('PayPalHelper', () => {
         txn_type: 'express_checkout',
         verify_sign: 'AtkOfCXbDm2hu0ZELryHFjY-Vb7PAUvS6nMXgysbElEn9v-1XcmSoGtf',
       });
+    });
+  });
+
+  describe('conditionallyRemoveBillingAgreement', () => {
+    it('returns false with no billing agreement found', async () => {
+      mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
+        undefined
+      );
+      const result = await paypalHelper.conditionallyRemoveBillingAgreement(
+        mockCustomer
+      );
+      assert.isFalse(result);
+    });
+
+    it('returns false with no paypal subscriptions', async () => {
+      mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
+        'ba-test'
+      );
+      mockCustomer.subscriptions = {
+        data: [{ status: 'active', collection_method: 'send_invoice' }],
+      };
+      const result = await paypalHelper.conditionallyRemoveBillingAgreement(
+        mockCustomer
+      );
+      assert.isFalse(result);
+    });
+
+    it('returns true if it cancelled and removed the billing agreement', async () => {
+      mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
+        'ba-test'
+      );
+      mockCustomer.subscriptions = { data: [] };
+      paypalHelper.cancelBillingAgreement = sinon.fake.resolves({});
+      mockStripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
+      const result = await paypalHelper.conditionallyRemoveBillingAgreement(
+        mockCustomer
+      );
+      assert.isTrue(result);
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.getCustomerPaypalAgreement,
+        mockCustomer
+      );
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.cancelBillingAgreement,
+        'ba-test'
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.removeCustomerPaypalAgreement,
+        mockCustomer.metadata.userid,
+        mockCustomer,
+        'ba-test'
+      );
     });
   });
 
