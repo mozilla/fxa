@@ -458,6 +458,7 @@ describe('PayPalHelper', () => {
       const response = await paypalHelper.processInvoice({
         customer: mockCustomer,
         invoice: validInvoice,
+        ipaddress: '127.0.0.1',
       });
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.getCustomerPaypalAgreement,
@@ -476,6 +477,7 @@ describe('PayPalHelper', () => {
           validInvoice.id,
           paymentAttempts
         ),
+        ipaddress: '127.0.0.1',
       });
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.updateInvoiceWithPaypalTransactionId,

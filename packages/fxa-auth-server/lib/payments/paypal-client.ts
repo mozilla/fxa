@@ -154,6 +154,7 @@ export type DoReferenceTransactionOptions = {
   invoiceNumber: string;
   idempotencyKey: string;
   currencyCode: string;
+  ipaddress?: string;
 };
 
 export type BAUpdateOptions = {
@@ -411,6 +412,7 @@ export class PayPalClient {
       CURRENCYCODE: options.currencyCode.toUpperCase(),
       CUSTOM: options.idempotencyKey,
       INVNUM: options.invoiceNumber,
+      ...(options.ipaddress && { IPADDRESS: options.ipaddress }),
       MSGSUBID: options.idempotencyKey,
       PAYMENTACTION: 'Sale',
       PAYMENTTYPE: 'instant',
