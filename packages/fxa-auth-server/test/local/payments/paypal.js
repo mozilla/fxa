@@ -211,6 +211,7 @@ describe('PayPalHelper', () => {
     const validOptions = {
       amountInCents: 1099,
       billingAgreementId: 'B-12345',
+      currencyCode: 'usd',
       invoiceNumber: 'in_asdf',
       idempotencyKey: ' in_asdf-0',
     };
@@ -227,6 +228,7 @@ describe('PayPalHelper', () => {
         billingAgreementId: validOptions.billingAgreementId,
         invoiceNumber: validOptions.invoiceNumber,
         idempotencyKey: validOptions.idempotencyKey,
+        currencyCode: validOptions.currencyCode,
       };
       assert.ok(
         paypalHelper.client.doReferenceTransaction.calledOnceWith(
@@ -437,6 +439,7 @@ describe('PayPalHelper', () => {
         ...mockInvoice,
         status: 'open',
         amount_due: 499,
+        currency: 'eur',
       };
       mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
         agreementId
@@ -467,6 +470,7 @@ describe('PayPalHelper', () => {
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
+        currencyCode: validInvoice.currency,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -489,7 +493,7 @@ describe('PayPalHelper', () => {
       const validInvoice = {
         ...mockInvoice,
         status: 'draft',
-        amount_due: 4.99,
+        amount_due: 499,
       };
       mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
         agreementId
@@ -521,6 +525,7 @@ describe('PayPalHelper', () => {
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
+        currencyCode: validInvoice.currency,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -547,7 +552,7 @@ describe('PayPalHelper', () => {
       const validInvoice = {
         ...mockInvoice,
         status: 'open',
-        amount_due: 4.99,
+        amount_due: 499,
       };
       mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
         agreementId
@@ -574,6 +579,7 @@ describe('PayPalHelper', () => {
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
+        currencyCode: validInvoice.currency,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -587,7 +593,7 @@ describe('PayPalHelper', () => {
       const validInvoice = {
         ...mockInvoice,
         status: 'open',
-        amount_due: 4.99,
+        amount_due: 499,
       };
       mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
         agreementId
@@ -621,6 +627,7 @@ describe('PayPalHelper', () => {
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
+        currencyCode: validInvoice.currency,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -638,7 +645,7 @@ describe('PayPalHelper', () => {
       const validInvoice = {
         ...mockInvoice,
         status: 'open',
-        amount_due: 4.99,
+        amount_due: 499,
       };
       mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
         agreementId
@@ -679,6 +686,7 @@ describe('PayPalHelper', () => {
       sinon.assert.calledOnceWithExactly(paypalHelper.chargeCustomer, {
         amountInCents: validInvoice.amount_due,
         billingAgreementId: agreementId,
+        currencyCode: validInvoice.currency,
         invoiceNumber: validInvoice.id,
         idempotencyKey: paypalHelper.generateIdempotencyKey(
           validInvoice.id,
@@ -759,7 +767,7 @@ describe('PayPalHelper', () => {
         validInvoice = {
           ...mockInvoice,
           status: 'open',
-          amount_due: 4.99,
+          amount_due: 499,
         };
         mockStripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
           agreementId
