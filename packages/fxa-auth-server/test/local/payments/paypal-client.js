@@ -345,6 +345,7 @@ describe('PayPalClient', () => {
   describe('doReferenceTransaction', () => {
     const defaultData = {
       AMT: '5.99',
+      CURRENCYCODE: 'USD',
       CUSTOM: 'in_asdf-12',
       INVNUM: 'in_asdf',
       MSGSUBID: 'in_asdf-12',
@@ -362,6 +363,7 @@ describe('PayPalClient', () => {
         billingAgreementId: defaultData.REFERENCEID,
         invoiceNumber: defaultData.INVNUM,
         idempotencyKey: defaultData.MSGSUBID,
+        currencyCode: defaultData.CURRENCYCODE,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -380,6 +382,7 @@ describe('PayPalClient', () => {
         billingAgreementId: defaultData.REFERENCEID,
         invoiceNumber: defaultData.INVNUM,
         idempotencyKey: defaultData.MSGSUBID,
+        currencyCode: defaultData.CURRENCYCODE,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -401,6 +404,7 @@ describe('PayPalClient', () => {
         billingAgreementId: ref,
         invoiceNumber: defaultData.INVNUM,
         idempotencyKey: defaultData.MSGSUBID,
+        currencyCode: defaultData.CURRENCYCODE,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -408,6 +412,28 @@ describe('PayPalClient', () => {
         {
           ...defaultData,
           REFERENCEID: ref,
+        }
+      );
+    });
+
+    it('calls api with requested currency', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      const currency = 'EUR';
+      await client.doReferenceTransaction({
+        amount: defaultData.AMT,
+        billingAgreementId: defaultData.REFERENCEID,
+        invoiceNumber: defaultData.INVNUM,
+        idempotencyKey: defaultData.MSGSUBID,
+        currencyCode: currency,
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'DoReferenceTransaction',
+        {
+          ...defaultData,
+          CURRENCYCODE: currency,
         }
       );
     });
@@ -433,6 +459,7 @@ describe('PayPalClient', () => {
           billingAgreementId: defaultData.REFERENCEID,
           invoiceNumber: defaultData.INVNUM,
           idempotencyKey: defaultData.MSGSUBID,
+          currencyCode: defaultData.CURRENCYCODE,
         });
         assert.fail('Request should have thrown an error.');
       } catch (err) {

@@ -41,6 +41,7 @@ export type ChargeCustomerOptions = {
   billingAgreementId: string;
   invoiceNumber: string;
   idempotencyKey: string;
+  currencyCode: string;
 };
 
 export type ChargeResponse = {
@@ -252,6 +253,7 @@ export class PayPalHelper {
       billingAgreementId: options.billingAgreementId,
       invoiceNumber: options.invoiceNumber,
       idempotencyKey: options.idempotencyKey,
+      currencyCode: options.currencyCode,
     };
     const response = await this.client.doReferenceTransaction(
       doReferenceTransactionOptions
@@ -396,6 +398,7 @@ export class PayPalHelper {
         amountInCents: invoice.amount_due,
         billingAgreementId: agreementId,
         invoiceNumber: invoice.id,
+        currencyCode: invoice.currency,
         idempotencyKey,
       }),
     ];

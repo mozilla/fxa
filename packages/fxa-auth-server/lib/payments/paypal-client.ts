@@ -153,6 +153,7 @@ export type DoReferenceTransactionOptions = {
   billingAgreementId: string;
   invoiceNumber: string;
   idempotencyKey: string;
+  currencyCode: string;
 };
 
 export type BAUpdateOptions = {
@@ -407,6 +408,7 @@ export class PayPalClient {
   ): Promise<NVPDoReferenceTransactionResponse> {
     const data = {
       AMT: options.amount,
+      CURRENCYCODE: options.currencyCode.toUpperCase(),
       CUSTOM: options.idempotencyKey,
       INVNUM: options.invoiceNumber,
       MSGSUBID: options.idempotencyKey,
