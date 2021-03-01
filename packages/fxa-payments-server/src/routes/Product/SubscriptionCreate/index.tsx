@@ -19,6 +19,7 @@ import PaymentForm, { PaymentFormProps } from '../../../components/PaymentForm';
 import ErrorMessage from '../../../components/ErrorMessage';
 import AcceptedCards from '../../Product/AcceptedCards';
 import PaymentLegalBlurb from '../../../components/PaymentLegalBlurb';
+import { SubscriptionTitle } from '../../../components/SubscriptionTitle';
 import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
 import { PaymentProcessing } from '../../../components/PaymentProcessing';
 
@@ -189,24 +190,18 @@ export const SubscriptionCreate = ({
             hidden: !transactionInProgress,
           })}
         />
+        <SubscriptionTitle
+          screenType="create"
+          className={classNames({
+            hidden: transactionInProgress,
+          })}
+        />
         <div
           className={classNames('product-payment', {
             hidden: transactionInProgress,
           })}
           data-testid="subscription-create"
         >
-          <div
-            className="subscription-create-heading"
-            data-testid="subscription-create-heading"
-          >
-            <Localized id="product-plan-details-heading">
-              <h2>Set up your subscription</h2>
-            </Localized>
-            <Localized id="sub-guarantee">
-              <p className="subheading">30-day money-back guarantee</p>
-            </Localized>
-          </div>
-
           <div className="subscription-create-pay-with-other">
             {!hasExistingCard(customer) && paypalScriptLoaded && (
               <Suspense fallback={<div>Loading...</div>}>
@@ -289,34 +284,19 @@ export const SubscriptionCreate = ({
         </div>
         <PlanDetails
           {...{
+            className: classNames('default', {
+              hidden: transactionInProgress && isMobile,
+            }),
             profile,
             selectedPlan,
             isMobile,
             showExpandButton: isMobile,
           }}
         />
-        <MobileCreateHeading {...{ isMobile }} />
       </div>
     </>
   );
 };
-
-const MobileCreateHeading = ({ isMobile }: { isMobile: boolean }) =>
-  isMobile ? (
-    <div
-      className="mobile-subscription-create-heading"
-      data-testid="mobile-subscription-create-heading"
-    >
-      <div className="subscription-create-heading">
-        <Localized id="product-plan-details-heading">
-          <h2>Set up your subscription</h2>
-        </Localized>
-        <Localized id="sub-guarantee">
-          <p className="subheading">30-day money-back guarantee</p>
-        </Localized>
-      </div>
-    </div>
-  ) : null;
 
 async function handleSubscriptionPayment({
   stripe,

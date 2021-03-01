@@ -44,15 +44,13 @@ export const SubscriptionSuccess = ({
             productUrl,
           }}
         />
-        {!isMobile && (
-          <PlanDetails
-            {...{
-              selectedPlan: plan,
-              isMobile,
-              showExpandButton: isMobile,
-            }}
-          />
-        )}
+        <PlanDetails
+          {...{
+            selectedPlan: plan,
+            isMobile,
+            showExpandButton: isMobile,
+          }}
+        />
       </div>
     </>
   );
