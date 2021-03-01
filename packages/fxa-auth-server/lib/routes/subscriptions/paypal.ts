@@ -99,6 +99,7 @@ export class PayPalHandler extends StripeHandler {
       await this.paypalHelper.processInvoice({
         customer,
         invoice: latestInvoice,
+        ipaddress: request.info.remoteAddress,
       });
     }
 
@@ -198,7 +199,11 @@ export class PayPalHandler extends StripeHandler {
       if (invoice.amount_due === 0) {
         await this.paypalHelper.processZeroInvoice(invoice);
       } else {
-        await this.paypalHelper.processInvoice({ customer, invoice });
+        await this.paypalHelper.processInvoice({
+          customer,
+          invoice,
+          ipaddress: request.info.remoteAddress,
+        });
       }
     } catch (err) {
       reportSentryError(err, request);

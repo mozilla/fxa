@@ -348,6 +348,7 @@ describe('PayPalClient', () => {
       CURRENCYCODE: 'USD',
       CUSTOM: 'in_asdf-12',
       INVNUM: 'in_asdf',
+      IPADDRESS: '127.0.0.1',
       MSGSUBID: 'in_asdf-12',
       PAYMENTACTION: 'Sale',
       PAYMENTTYPE: 'instant',
@@ -361,9 +362,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: defaultData.REFERENCEID,
-        invoiceNumber: defaultData.INVNUM,
-        idempotencyKey: defaultData.MSGSUBID,
         currencyCode: defaultData.CURRENCYCODE,
+        idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -380,9 +382,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: amt,
         billingAgreementId: defaultData.REFERENCEID,
-        invoiceNumber: defaultData.INVNUM,
-        idempotencyKey: defaultData.MSGSUBID,
         currencyCode: defaultData.CURRENCYCODE,
+        idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -402,9 +405,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: ref,
-        invoiceNumber: defaultData.INVNUM,
-        idempotencyKey: defaultData.MSGSUBID,
         currencyCode: defaultData.CURRENCYCODE,
+        idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -424,9 +428,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: defaultData.REFERENCEID,
-        invoiceNumber: defaultData.INVNUM,
-        idempotencyKey: defaultData.MSGSUBID,
         currencyCode: currency,
+        idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -457,9 +462,10 @@ describe('PayPalClient', () => {
         await client.doReferenceTransaction({
           amount: defaultData.AMT,
           billingAgreementId: defaultData.REFERENCEID,
-          invoiceNumber: defaultData.INVNUM,
-          idempotencyKey: defaultData.MSGSUBID,
           currencyCode: defaultData.CURRENCYCODE,
+          idempotencyKey: defaultData.MSGSUBID,
+          invoiceNumber: defaultData.INVNUM,
+          ipaddress: defaultData.IPADDRESS,
         });
         assert.fail('Request should have thrown an error.');
       } catch (err) {

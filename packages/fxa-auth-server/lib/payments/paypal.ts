@@ -39,9 +39,10 @@ type AgreementDetails = {
 export type ChargeCustomerOptions = {
   amountInCents: number;
   billingAgreementId: string;
-  invoiceNumber: string;
-  idempotencyKey: string;
   currencyCode: string;
+  idempotencyKey: string;
+  invoiceNumber: string;
+  ipaddress?: string;
 };
 
 export type ChargeResponse = {
@@ -246,14 +247,15 @@ export class PayPalHelper {
   public async chargeCustomer(
     options: ChargeCustomerOptions
   ): Promise<ChargeResponse> {
-    const doReferenceTransactionOptions = {
+    const doReferenceTransactionOptions: DoReferenceTransactionOptions = {
       amount: this.currencyHelper.getPayPalAmountStringFromAmountInCents(
         options.amountInCents
       ),
       billingAgreementId: options.billingAgreementId,
-      invoiceNumber: options.invoiceNumber,
-      idempotencyKey: options.idempotencyKey,
       currencyCode: options.currencyCode,
+      idempotencyKey: options.idempotencyKey,
+      invoiceNumber: options.invoiceNumber,
+      ...(options.ipaddress && { ipaddress: options.ipaddress }),
     };
     const response = await this.client.doReferenceTransaction(
       doReferenceTransactionOptions
@@ -368,8 +370,9 @@ export class PayPalHelper {
     customer: Stripe.Customer;
     invoice: Stripe.Invoice;
     batchProcessing?: boolean;
+    ipaddress?: string;
   }) {
-    const { customer, invoice, batchProcessing = false } = opts;
+    const { customer, invoice, batchProcessing = false, ipaddress } = opts;
     const agreementId = this.stripeHelper.getCustomerPaypalAgreement(customer);
     if (!agreementId) {
       throw error.internalValidationError('processInvoice', {
@@ -400,6 +403,7 @@ export class PayPalHelper {
         invoiceNumber: invoice.id,
         currencyCode: invoice.currency,
         idempotencyKey,
+        ...(ipaddress && { ipaddress }),
       }),
     ];
     if (invoice.status === 'draft') {
