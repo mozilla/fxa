@@ -19174,7 +19174,7 @@ fsevents@^1.2.7:
     react-async-hook: ^3.6.1
     react-dom: ^16.13.1
     react-easy-crop: ^3.3.1
-    react-hook-form: ^6.15.3
+    react-hook-form: ^6.15.4
     react-scripts: ^3.4.1
     react-test-renderer: ^17.0.1
     react-webcam: ^5.2.2
@@ -31635,12 +31635,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^6.15.3":
-  version: 6.15.3
-  resolution: "react-hook-form@npm:6.15.3"
+"react-hook-form@npm:^6.15.4":
+  version: 6.15.4
+  resolution: "react-hook-form@npm:6.15.4"
   peerDependencies:
     react: ^16.8.0 || ^17
-  checksum: 9da373e30d259b27ff72c28fc88b88c665fee5b01de294c5c5d89baaa15354db481714fc20c7b819544e81a64caee7e467c7b2e1bdb5764370bcd3325a1f53d9
+  checksum: 4f866330ddf30e0607e0c5c2ecdb7838e70872fad5b4d39240ecbf2e5f81e37357edf8b667bd939ce019976d6872a52dda94d4991862cb2010636050a779c4f0
   languageName: node
   linkType: hard
 
