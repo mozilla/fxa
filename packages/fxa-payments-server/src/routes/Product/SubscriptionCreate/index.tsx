@@ -202,8 +202,11 @@ export const SubscriptionCreate = ({
           })}
           data-testid="subscription-create"
         >
-          <div className="subscription-create-pay-with-other">
-            {!hasExistingCard(customer) && paypalScriptLoaded && (
+          {!hasExistingCard(customer) && paypalScriptLoaded && (
+            <div
+              className="subscription-create-pay-with-other"
+              data-testid="pay-with-other"
+            >
               <Suspense fallback={<div>Loading...</div>}>
                 <Localized id="pay-with-heading-other">
                   <p className="pay-with-heading">Select payment option</p>
@@ -218,14 +221,12 @@ export const SubscriptionCreate = ({
                     refreshSubscriptions={refreshSubscriptions}
                     setPaymentError={setPaymentError}
                     ButtonBase={paypalButtonBase}
-                    setOnClick={() => {
-                      setTransactionInProgress(true);
-                    }}
+                    setTransactionInProgress={setTransactionInProgress}
                   />
                 </div>
               </Suspense>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="subscription-create-pay-with-card">
             {!hasExistingCard(customer) && !paypalScriptLoaded && (

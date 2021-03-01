@@ -19,7 +19,7 @@ export type PaypalButtonProps = {
   priceId: string;
   refreshSubscriptions: () => void;
   setPaymentError: Function;
-  setOnClick: Function;
+  setTransactionInProgress: Function;
   ButtonBase?: React.ElementType;
 };
 
@@ -46,7 +46,7 @@ export const PaypalButton = ({
   priceId,
   refreshSubscriptions,
   setPaymentError,
-  setOnClick,
+  setTransactionInProgress,
   ButtonBase = PaypalButtonBase,
 }: PaypalButtonProps) => {
   const createOrder = useCallback(async () => {
@@ -77,6 +77,7 @@ export const PaypalButton = ({
   const onApprove = useCallback(
     async (data: { orderID: string }) => {
       try {
+        setTransactionInProgress(true);
         const { apiCapturePaypalPayment } = {
           ...apiClient,
           ...apiClientOverrides,
@@ -110,13 +111,6 @@ export const PaypalButton = ({
     [setPaymentError]
   );
 
-  const onClick = useCallback(
-    (event) => {
-      setOnClick(event);
-    },
-    [setOnClick]
-  );
-
   // Style docs: https://developer.paypal.com/docs/business/checkout/reference/style-guide/
   const styleOptions = {
     layout: 'horizontal',
@@ -136,7 +130,6 @@ export const PaypalButton = ({
           createOrder={createOrder}
           onApprove={onApprove}
           onError={onError}
-          onClick={onClick}
         />
       )}
     </>
