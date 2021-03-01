@@ -359,7 +359,7 @@ export class PayPalHelper {
   }
 
   /**
-   * Process an invoice with a billing agreement that is in draft with
+   * Process an invoice with a billing agreement that is in draft/open with
    * the provided billing agreement.
    *
    * @param opts

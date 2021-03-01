@@ -477,10 +477,16 @@ export class StripeHelper {
   /**
    * Fetch all open invoices for manually invoiced subscriptions.
    *
+   * Note that created times for Stripe are in seconds since epoch.
+   *
    * @param created
    */
-  fetchOpenInvoices(created: Stripe.InvoiceListParams['created']) {
+  fetchOpenInvoices(
+    created: Stripe.InvoiceListParams['created'],
+    customerId?: string
+  ) {
     return this.stripe.invoices.list({
+      customer: customerId,
       limit: 100,
       collection_method: 'send_invoice',
       status: 'open',
