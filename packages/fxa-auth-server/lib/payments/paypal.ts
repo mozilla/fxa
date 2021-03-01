@@ -349,6 +349,36 @@ export class PayPalHelper {
   }
 
   /**
+   * Removes Paypal billing agreements on a customer if they paid with
+   * Paypal but no longer have an active/past_due subscription.
+   */
+  async conditionallyRemoveBillingAgreement(
+    customer: Stripe.Customer
+  ): Promise<boolean> {
+    const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
+      customer
+    );
+    if (!billingAgreementId) {
+      return false;
+    }
+    const paypalSubscription = customer.subscriptions?.data.find(
+      (sub) =>
+        ['active', 'past_due'].includes(sub.status) &&
+        sub.collection_method === 'send_invoice'
+    );
+    if (paypalSubscription) {
+      return false;
+    }
+    await this.cancelBillingAgreement(billingAgreementId);
+    await this.stripeHelper.removeCustomerPaypalAgreement(
+      customer.metadata.userid,
+      customer,
+      billingAgreementId
+    );
+    return true;
+  }
+
+  /**
    * Finalize and process a draft invoice that has no amounted owed.
    *
    * @param invoice
