@@ -2,24 +2,56 @@
 @import '../../../../../fxa-content-server/app/styles/breakpoints';
 @import '../../../styles/variables';
 
+.subscription-title + .product-payment {
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgba(12, 12, 13, 0.1), 2px 2px 2px -2px rgba(12, 12, 13, 0.1);
+
+  @include max-width('tablet') {
+    box-shadow: 0px 1px 4px 0px rgba(12, 12, 13, 0.1);
+    border-radius: 8px;
+  }
+}
+
 .product-payment {
+  grid-row: 2/3;
   background: $color-white;
-  border: 1px solid #e7e7e7;
-  border-bottom: 0;
+  box-shadow: 0px 1px 4px 0px rgba(12, 12, 13, 0.1);
+  border-radius: 8px;
   color: rgba(12, 12, 13, 0.8);
-  min-height: 100%;
   padding: 16px 16px 60px;
-  width: 100%;
+
+  @include max-width('tablet') {
+    grid-row: 3/4;
+    margin: 24px 16px;
+  }
 
   @include min-width('tablet') {
-    border-radius: 0;
-    border-top: 0;
     min-height: 100%;
   }
 
   @include min-width('desktop') {
-    padding: 28px 48px 48px;
+    padding: 16px 48px 48px;
   }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: initial;
+    margin-top: 20px;
+    padding-bottom: 32px;
+    text-align: center;
+
+    @include min-width('desktop') {
+      margin-top: 32px;
+    }
+
+    p {
+      color: #6d6d6e;
+    }
+  }
+
   .pay-with-heading {
     color: rgb(115, 115, 115);
     margin: 0 0 24px 0;
@@ -34,13 +66,17 @@
       content: '';
       border-top: 1px solid #e0e0e6;
     }
+
+    @include max-width('tablet') {
+      margin-top: 16px;
+    }
   }
 
 
   .subscription-create-pay-with-other .paypal-button {
     width: 240px;
     height: 48px + 48;
-    margin: auto; 
+    margin: auto;
   }
 
 
@@ -52,38 +88,5 @@
     font-size: 15px;
     font-weight: 600;
     margin-bottom: 20px;
-  }
-
-  .subscription-create-heading {
-    display: none;
-
-    @include min-width('tablet') {
-      display: block;
-      text-align: center;
-
-      h2 {
-        font-weight: normal;
-        margin-top: 20px;
-      }
-    }
-  }
-
-  .subheading {
-    color: #008787;
-    display: flex;
-    font-size: 15px;
-    justify-content: center;
-    margin-bottom: 32px;
-  }
-
-  &:not(.product-upgrade) .subheading::before {
-      background-image: url('./check.svg');
-      background-position: center 2px;
-      background-repeat: no-repeat;
-      content: '';
-      display: inline-block;
-      height: 24px;
-      margin-right: 2px;
-      width: 24px;
   }
 }

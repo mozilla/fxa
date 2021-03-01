@@ -3,6 +3,7 @@ import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
 import PaymentConfirmation from './index';
 import { Customer, Profile, Plan } from '../../store/types';
+import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 
 const userProfile: Profile = {
   avatar: 'http://placekitten.com/256/256',
@@ -49,30 +50,6 @@ const customer: Customer = {
   ],
 };
 
-const paypalCustomer: Customer = {
-  billing_name: 'Calamity Jane <3s PayPal',
-  payment_type: 'credit',
-  payment_provider: 'paypal',
-  last4: '',
-  exp_month: '',
-  exp_year: '',
-  brand: '',
-  subscriptions: [
-    {
-      latest_invoice: '628031D-0002',
-      subscription_id: 'sub0.28964929339372136',
-      plan_id: '123doneProMonthly',
-      product_id: 'prod_123',
-      product_name: '123 Done Pro',
-      status: 'active',
-      cancel_at_period_end: false,
-      current_period_end: Date.now() / 1000 + 86400 * 31,
-      current_period_start: Date.now() / 1000 - 86400 * 31,
-      end_at: null,
-    },
-  ],
-};
-
 const productUrl = 'https://mozilla.org';
 
 storiesOf('components/PaymentConfirmation', module).add('default', () => (
@@ -88,7 +65,7 @@ storiesOf('components/PaymentConfirmation', module).add('paypal', () => (
       {...{
         profile: userProfile,
         selectedPlan,
-        customer: paypalCustomer,
+        customer: PAYPAL_CUSTOMER,
         productUrl,
       }}
     />

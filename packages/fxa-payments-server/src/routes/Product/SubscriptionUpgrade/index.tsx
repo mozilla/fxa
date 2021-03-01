@@ -100,7 +100,7 @@ export const SubscriptionUpgrade = ({
   const cardBrandLc = ('' + cardBrand).toLowerCase();
 
   const mobileUpdateHeading = isMobile ? (
-    <div className="mobile-subscription-update-heading">
+    <div className="mobile-subscription-title">
       <div className="subscription-update-heading">
         <Localized id="product-plan-upgrade-heading">
           <h2>Review your upgrade</h2>

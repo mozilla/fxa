@@ -40,30 +40,6 @@ export const CUSTOMER: Customer = {
   ],
 };
 
-export const PAYPAL_CUSTOMER: Customer = {
-  billing_name: 'Foo Barson - Pays with PayPal',
-  payment_provider: 'paypal',
-  payment_type: '',
-  last4: '',
-  exp_month: '',
-  exp_year: '',
-  brand: '',
-  subscriptions: [
-    {
-      subscription_id: 'sub0.28964929339372136',
-      plan_id: '123doneProMonthly',
-      product_id: 'prod_123',
-      product_name: '123done Pro',
-      latest_invoice: '628031D-0002',
-      status: 'active',
-      cancel_at_period_end: false,
-      current_period_end: Date.now() / 1000 + 86400 * 31,
-      current_period_start: Date.now() / 1000 - 86400 * 31,
-      end_at: null,
-    },
-  ],
-};
-
 export const PRODUCT_ID = 'product_8675309';
 
 export const SELECTED_PLAN: Plan = {
@@ -123,6 +99,30 @@ export const UPGRADE_FROM_PLAN: Plan = {
     'product:details:2:xx-pirate': 'Servers is 30+ countries matey',
     'product:details:3:xx-pirate': "Connects 5 devices wit' one subscription",
   },
+};
+
+export const PAYPAL_CUSTOMER: Customer = {
+  billing_name: 'Foo Barson - Pays with PayPal',
+  payment_provider: 'paypal',
+  payment_type: '',
+  last4: '',
+  exp_month: '',
+  exp_year: '',
+  brand: '',
+  subscriptions: [
+    {
+      subscription_id: 'sub0.28964929339372136',
+      plan_id: 'plan_123',
+      product_id: 'prod_123',
+      product_name: '123done Pro',
+      latest_invoice: '628031D-0002',
+      status: 'active',
+      cancel_at_period_end: false,
+      current_period_end: Date.now() / 1000 + 86400 * 31,
+      current_period_start: Date.now() / 1000 - 86400 * 31,
+      end_at: null,
+    },
+  ],
 };
 
 export const PLAN = {

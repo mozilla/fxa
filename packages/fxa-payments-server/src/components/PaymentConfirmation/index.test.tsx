@@ -24,6 +24,11 @@ const userProfile = {
   uid: 'UIDSTRINGHERE',
 };
 
+const userProfileNoDisplayName = {
+  ...userProfile,
+  displayName: null,
+};
+
 const productUrl = 'https://www.example.com';
 
 const selectedPlan = {
@@ -98,6 +103,31 @@ describe('PaymentConfirmation', () => {
     };
 
     const { queryByTestId } = subject();
+    const subscriptionTitle = queryByTestId('subscription-success-title');
+    expect(subscriptionTitle).toBeInTheDocument();
+    const footer = queryByTestId('footer');
+    expect(footer).toBeVisible();
+  });
+
+  it('renders as expected with no display name', () => {
+    const subject = () => {
+      return render(
+        <PaymentConfirmation
+          {...{
+            profile: userProfileNoDisplayName,
+            selectedPlan,
+            customer,
+            productUrl,
+          }}
+        />
+      );
+    };
+
+    const { queryByTestId, queryByDisplayValue } = subject();
+    const subscriptionTitle = queryByTestId('subscription-success-title');
+    expect(subscriptionTitle).toBeInTheDocument();
+    const displayName = queryByDisplayValue(userProfile.displayName);
+    expect(displayName).toBeNull();
     const footer = queryByTestId('footer');
     expect(footer).toBeVisible();
   });
