@@ -40,8 +40,8 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>();
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const goBack = () => navigate(HomePath + '#recovery-key', { replace: true });
-  const goHome = () => {
+  const goHome = () => navigate(HomePath + '#recovery-key', { replace: true });
+  const alertSuccessAndGoHome = () => {
     alertTextExternal(
       l10n.getString(
         'recovery-key-success-alert',
@@ -102,7 +102,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
             <p data-testid="add-recovery-key-error">{alertBar.content}</p>
           </AlertBar>
         )}
-        <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {formattedRecoveryKey && (
           <div className="my-2" data-testid="recover-key-confirm">
             <Localized id="recovery-key-created">
@@ -125,7 +125,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               <Localized id="recovery-key-close-button">
                 <button
                   className="cta-primary mx-2 px-10"
-                  onClick={goHome}
+                  onClick={alertSuccessAndGoHome}
                   data-testid="close-button"
                 >
                   Close
@@ -177,7 +177,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
                   type="button"
                   className="cta-neutral mx-2 flex-1"
                   data-testid="cancel-button"
-                  onClick={goBack}
+                  onClick={goHome}
                 >
                   Cancel
                 </button>

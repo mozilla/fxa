@@ -33,9 +33,9 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     },
   });
   const navigate = useNavigate();
-  const goBack = () =>
+  const goHome = () =>
     navigate(HomePath + '#secondary-email', { replace: true });
-  const goHome = (email: string) => {
+  const alertSuccessAndGoHome = (email: string) => {
     alertTextExternal(
       l10n.getString(
         'verify-secondary-email-success-alert',
@@ -80,7 +80,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         });
       },
       onCompleted: () => {
-        goHome(email);
+        alertSuccessAndGoHome(email);
         logViewEvent('verify-secondary-email.verification', 'success');
       },
     }
@@ -96,7 +96,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   return (
     <Localized id="verify-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email">
-        <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           data-testid="secondary-email-verify-form"
           onSubmit={handleSubmit(({ verificationCode }) => {
@@ -151,7 +151,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
                 type="button"
                 className="cta-neutral mx-2 flex-1"
                 data-testid="secondary-email-verify-cancel"
-                onClick={goBack}
+                onClick={goHome}
               >
                 Cancel
               </button>

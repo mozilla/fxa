@@ -48,9 +48,9 @@ type RecoveryCodeForm = { recoveryCode: string };
 
 export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const navigate = useNavigate();
-  const goBack = () =>
+  const goHome = () =>
     navigate(HomePath + '#two-step-authentication', { replace: true });
-  const goHome = () => {
+  const alertSuccessAndGoHome = () => {
     alertTextExternal(
       l10n.getString('tfa-enabled', null, 'Two-step authentication enabled')
     );
@@ -170,7 +170,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   });
 
   const [verifyTotp] = useMutation(VERIFY_TOTP_MUTATION, {
-    onCompleted: goHome,
+    onCompleted: alertSuccessAndGoHome,
     onError: (err) => {
       if (err.graphQLErrors?.length) {
         if (
@@ -227,7 +227,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   const moveBack = () => {
     if (!totpVerified) {
-      return goBack();
+      return goHome();
     }
     if (totpVerified && !recoveryCodesAcknowledged) {
       return showQrCodeStep();
@@ -236,7 +236,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       setRecoveryCodeError('');
       return showRecoveryCodes();
     }
-    goBack();
+    goHome();
   };
 
   return (
@@ -252,7 +252,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
       {!totpVerified && (
         <form onSubmit={totpForm.handleSubmit(onTotpSubmit)}>
-          <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+          <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
           {showQrCode && (
             <>
               <Localized
@@ -343,7 +343,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               <button
                 type="button"
                 className="cta-neutral mx-2 flex-1"
-                onClick={goBack}
+                onClick={goHome}
               >
                 Cancel
               </button>
@@ -382,7 +382,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               <button
                 type="button"
                 className="cta-neutral mx-2 flex-1"
-                onClick={goBack}
+                onClick={goHome}
               >
                 Cancel
               </button>
@@ -432,7 +432,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               <button
                 type="button"
                 className="cta-neutral mx-2 flex-1"
-                onClick={goBack}
+                onClick={goHome}
               >
                 Cancel
               </button>

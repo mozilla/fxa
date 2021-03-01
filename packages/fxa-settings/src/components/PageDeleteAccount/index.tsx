@@ -62,7 +62,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   );
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const goBack = useCallback(() => window.history.back(), []);
+  const goHome = useCallback(() => window.history.back(), []);
 
   const { primaryEmail, uid } = useAccount();
 
@@ -123,7 +123,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
             <p data-testid="delete-account-error">{alertBar.content}</p>
           </AlertBar>
         )}
-        <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {!confirmed && (
           <div className="my-4 text-sm" data-testid="delete-account-confirm">
             <Localized id="delete-account-confirm-title-2">
@@ -228,7 +228,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   type="button"
                   className="cta-neutral mx-2 px-4 tablet:px-10"
                   data-testid="cancel-button"
-                  onClick={goBack}
+                  onClick={goHome}
                 >
                   Cancel
                 </button>
