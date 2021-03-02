@@ -1343,11 +1343,40 @@ describe('DirectStripeRoutes', () => {
         );
       });
 
+      describe('customer has payment_provider property', () => {
+        it('calls getPaymentProvider once to determine payment_provider', async () => {
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+            customer
+          );
+          await directStripeRoutesInstance.getCustomer(VALID_REQUEST);
+          sinon.assert.calledOnceWithExactly(
+            directStripeRoutesInstance.stripeHelper.getPaymentProvider,
+            customer
+          );
+        });
+        it('payment_provider === value returned by getPaymentProvider', async () => {
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+            customer
+          );
+          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
+            'not_chosen'
+          );
+
+          const actual = await directStripeRoutesInstance.getCustomer(
+            VALID_REQUEST
+          );
+          assert(actual.payment_provider === 'not_chosen');
+        });
+      });
+
       describe('customer has payment sources', () => {
         describe('default invoice payment method is a card object', () => {
           it('adds payment method data to the response', async () => {
             directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
               customerPMIExpanded
+            );
+            directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
+              'not_chosen'
             );
 
             const defaultInvoice =
@@ -1398,6 +1427,9 @@ describe('DirectStripeRoutes', () => {
             directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
               customer
             );
+            directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
+              'not_chosen'
+            );
 
             const expected = {
               subscriptions: [],
@@ -1423,6 +1455,9 @@ describe('DirectStripeRoutes', () => {
             directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
               customer
             );
+            directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
+              'not_chosen'
+            );
 
             const expected = {
               subscriptions: [],
@@ -1442,6 +1477,9 @@ describe('DirectStripeRoutes', () => {
           customer.subscriptions.data = [];
           directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
             customer
+          );
+          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
+            'not_chosen'
           );
 
           const expected = {
@@ -1473,75 +1511,6 @@ describe('DirectStripeRoutes', () => {
           assert.strictEqual(err.message, 'Unknown customer');
           assert.strictEqual(err.output.payload['uid'], UID);
         }
-      });
-    });
-    describe('has payment_provider property', () => {
-      describe('payment_provider property has correct value', () => {
-        let customerExpanded;
-        beforeEach(() => {
-          customerExpanded = deepCopy(customerPMIExpanded);
-        });
-        describe('when collection_method is "instant"', () => {
-          it('payment_provider is "stripe"', async () => {
-            directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
-              [subscription2]
-            );
-            customerExpanded.subscriptions.data[0] = subscription2;
-            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-              customerExpanded
-            );
-            const customerActual = await directStripeRoutesInstance.getCustomer(
-              VALID_REQUEST
-            );
-            assert(customerActual.payment_provider === 'stripe');
-          });
-        });
-        describe('when collection_method is "send_invoice"', () => {
-          it('payment_provider is "paypal"', async () => {
-            subscription2.collection_method = 'send_invoice';
-            directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
-              [subscription2]
-            );
-            customerExpanded.subscriptions.data[0] = subscription2;
-            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-              customerExpanded
-            );
-            const actual = await directStripeRoutesInstance.getCustomer(
-              VALID_REQUEST
-            );
-            assert(actual.payment_provider === 'paypal');
-          });
-        });
-        describe('when the customer has a canceled subscription', () => {
-          it('payment_provider is "not_chosen"', async () => {
-            directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
-              [cancelledSubscription]
-            );
-            customerExpanded.subscriptions.data[0] = cancelledSubscription;
-            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-              customerExpanded
-            );
-            const actual = await directStripeRoutesInstance.getCustomer(
-              VALID_REQUEST
-            );
-            assert(actual.payment_provider === 'not_chosen');
-          });
-        });
-        describe('when the customer has no subscriptions', () => {
-          it('payment_provider is "not_chosen"', async () => {
-            directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
-              []
-            );
-            customerExpanded.subscriptions.data = [];
-            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-              customerExpanded
-            );
-            const actual = await directStripeRoutesInstance.getCustomer(
-              VALID_REQUEST
-            );
-            assert(actual.payment_provider === 'not_chosen');
-          });
-        });
       });
     });
   });

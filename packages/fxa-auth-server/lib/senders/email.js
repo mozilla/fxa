@@ -2197,6 +2197,7 @@ module.exports = function (log, config) {
       cardType,
       lastFour,
       nextInvoiceDate,
+      payment_provider,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2245,6 +2246,7 @@ module.exports = function (log, config) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
@@ -2269,6 +2271,7 @@ module.exports = function (log, config) {
       cardType,
       lastFour,
       nextInvoiceDate,
+      payment_provider,
       paymentProratedInCents,
       paymentProratedCurrency,
     } = message;
@@ -2335,6 +2338,7 @@ module.exports = function (log, config) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
@@ -2356,6 +2360,7 @@ module.exports = function (log, config) {
       invoiceDate,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      payment_provider,
       cardType,
       lastFour,
       nextInvoiceDate,
@@ -2412,6 +2417,7 @@ module.exports = function (log, config) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,

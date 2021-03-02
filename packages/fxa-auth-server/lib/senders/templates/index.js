@@ -34,6 +34,8 @@ async function init(log) {
   handlebars.txt.registerHelper('t', translate);
   handlebars.html.registerHelper('or', orHelper);
   handlebars.txt.registerHelper('or', orHelper);
+  handlebars.html.registerHelper('equal', equalHelper);
+  handlebars.txt.registerHelper('equal', equalHelper);
 
   // helpers from https://gist.github.com/servel333/21e1eedbd70db5a7cfff327526c72bc5
   const reduceOp = function (args, reducer) {
@@ -45,6 +47,10 @@ async function init(log) {
 
   function orHelper() {
     return reduceOp(arguments, (a, b) => a || b);
+  }
+
+  function equalHelper(a, b, options) {
+    return reduceOp(arguments, (a, b) => a === b);
   }
 
   await forEachTemplate(PARTIALS_DIR, (template, name, type) => {

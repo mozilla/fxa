@@ -643,6 +643,18 @@ export class StripeHelper {
     return await this.stripe.paymentMethods.retrieve(paymentMethodId);
   }
 
+  getPaymentProvider(customer: Stripe.Customer) {
+    const subscription = customer.subscriptions?.data.find(
+      (sub: { status: string }) => ['active', 'past_due'].includes(sub.status)
+    );
+    if (subscription) {
+      return subscription.collection_method === 'send_invoice'
+        ? 'paypal'
+        : 'stripe';
+    }
+    return 'not_chosen';
+  }
+
   async detachPaymentMethod(
     paymentMethodId: string
   ): Promise<Stripe.PaymentMethod> {
@@ -1412,11 +1424,14 @@ export class StripeHelper {
       charge,
     });
 
+    const payment_provider = this.getPaymentProvider(customer);
+
     return {
       uid,
       email,
       cardType,
       lastFour,
+      payment_provider,
       invoiceNumber,
       invoiceTotalInCents,
       invoiceTotalCurrency,

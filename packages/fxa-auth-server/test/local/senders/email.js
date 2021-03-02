@@ -61,6 +61,7 @@ const MESSAGE = {
   invoiceNumber: '8675309',
   cardType: 'mastercard',
   lastFour: '5309',
+  payment_provider: 'stripe',
   invoiceDate: new Date(1584747098816),
   nextInvoiceDate: new Date(1587339098816),
   serviceLastActiveDate: new Date(1587339098816),
@@ -228,6 +229,7 @@ const TESTS = new Map([
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
     ]],
     ['text', [
       { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
@@ -237,6 +239,7 @@ const TESTS = new Map([
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
     ]]
   ])],
   ['subscriptionSubsequentInvoiceEmail', new Map([
@@ -258,6 +261,7 @@ const TESTS = new Map([
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
     ]],
     ['text', [
       { test: 'include', expected: `${MESSAGE.productName} payment received` },
@@ -268,6 +272,7 @@ const TESTS = new Map([
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
     ]]
   ])],
   ['subscriptionCancellationEmail', new Map([
@@ -306,12 +311,10 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms') },
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `be ${MESSAGE_FORMATTED.invoiceTotal} to the MasterCard card ending in ${MESSAGE.lastFour} on 04/19/2020.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `be ${MESSAGE_FORMATTED.invoiceTotal} to the MasterCard card ending in ${MESSAGE.lastFour} on 04/19/2020.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
@@ -1195,6 +1198,113 @@ const TESTS = new Map([
   ])],
 ]);
 
+const PAYPAL_MESSAGE = Object.assign({}, MESSAGE);
+
+PAYPAL_MESSAGE.payment_provider = 'paypal';
+
+const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER = new Map([
+  [
+    'subscriptionFirstInvoiceEmail',
+    new Map([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice'),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionFirstInvoice' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
+        ],
+      ],
+    ]),
+  ],
+  [
+    'subscriptionSubsequentInvoiceEmail',
+    new Map([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment received`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue(
+                'subscriptionSubsequentInvoice'
+              ),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionSubsequentInvoice' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+    ]),
+  ],
+]);
+
 describe('lib/senders/email:', () => {
   let mockLog, mailer, localize, selectEmailServices, sendMail;
 
@@ -1267,6 +1377,19 @@ describe('lib/senders/email:', () => {
       await mailer[type](tmplVals);
     });
   }
+
+  describe('payment info is correctly rendered when payment_provider === "paypal"', () => {
+    for (const [type, test] of TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER) {
+      it(`"Paypal" is rendered instead of credit card and last four digits - ${type}`, async () => {
+        mailer.mailer.sendMail = stubSendMail((message) => {
+          test.forEach((assertions, property) => {
+            applyAssertions(type, message, property, assertions);
+          });
+        });
+        await mailer[type](PAYPAL_MESSAGE);
+      });
+    }
+  });
 
   it('formats currency strings sanely', () => {
     const result = mailer._getLocalizedCurrencyString(

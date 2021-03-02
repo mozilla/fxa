@@ -27,7 +27,7 @@ const subscriptionDeleted = require('../../payments/fixtures/stripe/subscription
 const subscriptionUpdated = require('../../payments/fixtures/stripe/subscription_updated.json');
 const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/stripe/subscription_updated_from_incomplete.json');
 const eventInvoiceCreated = require('../../payments/fixtures/stripe/event_invoice_created.json');
-const eventInvoicePaymentSucceeded = require('../../payments/fixtures/stripe/event_invoice_payment_succeeded.json');
+const eventInvoicePaid = require('../../payments/fixtures/stripe/event_invoice_paid.json');
 const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
 const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
 const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/event_customer_source_expiring.json');
@@ -244,7 +244,7 @@ describe('StripeWebhookHandler', () => {
         'handleSubscriptionUpdatedEvent',
         'handleSubscriptionDeletedEvent',
         'handleCustomerSourceExpiringEvent',
-        'handleInvoicePaymentSucceededEvent',
+        'handleInvoicePaidEvent',
         'handleInvoicePaymentFailedEvent',
         'handleInvoiceCreatedEvent',
       ];
@@ -359,11 +359,8 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
-      describe('when the event.type is invoice.payment_succeeded', () => {
-        itOnlyCallsThisHandler(
-          'handleInvoicePaymentSucceededEvent',
-          eventInvoicePaymentSucceeded
-        );
+      describe('when the event.type is invoice.paid', () => {
+        itOnlyCallsThisHandler('handleInvoicePaidEvent', eventInvoicePaid);
       });
 
       describe('when the event.type is invoice.payment_failed', () => {
@@ -722,9 +719,9 @@ describe('StripeWebhookHandler', () => {
       });
     });
 
-    describe('handleInvoicePaymentSucceededEvent', () => {
+    describe('handleInvoicePaidEvent', () => {
       it('sends email and emits a notification when an invoice payment succeeds', async () => {
-        const paymentSucceededEvent = deepCopy(eventInvoicePaymentSucceeded);
+        const PaidEvent = deepCopy(eventInvoicePaid);
         const sendSubscriptionInvoiceEmailStub = sandbox
           .stub(StripeWebhookHandlerInstance, 'sendSubscriptionInvoiceEmail')
           .resolves(true);
@@ -735,13 +732,13 @@ describe('StripeWebhookHandler', () => {
         StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
           mockSubscription
         );
-        await StripeWebhookHandlerInstance.handleInvoicePaymentSucceededEvent(
+        await StripeWebhookHandlerInstance.handleInvoicePaidEvent(
           {},
-          paymentSucceededEvent
+          PaidEvent
         );
         assert.calledWith(
           sendSubscriptionInvoiceEmailStub,
-          paymentSucceededEvent.data.object
+          PaidEvent.data.object
         );
         assert.notCalled(stubSendSubscriptionStatusToSqs);
       });
@@ -907,7 +904,7 @@ describe('StripeWebhookHandler', () => {
       expectedMethodName,
       billingReason
     ) => async () => {
-      const invoice = deepCopy(eventInvoicePaymentSucceeded.data.object);
+      const invoice = deepCopy(eventInvoicePaid.data.object);
       invoice.billing_reason = billingReason;
 
       const mockInvoiceDetails = { uid: '1234', test: 'fake' };
