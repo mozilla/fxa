@@ -4,21 +4,11 @@
 
 import _ from 'underscore';
 import AccountRecoveryConfirmKey from '../views/account_recovery_confirm_key';
-import AccountRecoveryView from '../views/settings/account_recovery/account_recovery';
-import AccountRecoveryConfirmPasswordView from '../views/settings/account_recovery/confirm_password';
-import AccountRecoveryConfirmRevokeView from '../views/settings/account_recovery/confirm_revoke';
-import AccountRecoveryKeyView from '../views/settings/account_recovery/recovery_key';
-import AvatarCameraView from '../views/settings/avatar_camera';
-import AvatarChangeView from '../views/settings/avatar_change';
-import AvatarCropView from '../views/settings/avatar_crop';
+
 import Backbone from 'backbone';
 import CannotCreateAccountView from '../views/cannot_create_account';
-import ChangePasswordView from '../views/settings/change_password';
 import ChooseWhatToSyncView from '../views/choose_what_to_sync';
 import ClearStorageView from '../views/clear_storage';
-import ClientDisconnectView from '../views/settings/client_disconnect';
-import ClientsView from '../views/settings/clients';
-import CommunicationPreferencesView from '../views/settings/communication_preferences';
 import CompleteResetPasswordView from '../views/complete_reset_password';
 import CompleteSignUpView from '../views/complete_sign_up';
 import ConfirmResetPasswordView from '../views/confirm_reset_password';
@@ -26,9 +16,6 @@ import ConfirmView from '../views/confirm';
 import ConfirmSignupCodeView from '../views/confirm_signup_code';
 import ConnectAnotherDeviceView from '../views/connect_another_device';
 import CookiesDisabledView from '../views/cookies_disabled';
-import DeleteAccountView from '../views/settings/delete_account';
-import DisplayNameView from '../views/settings/display_name';
-import EmailsView from '../views/settings/emails';
 import ForceAuthView from '../views/force_auth';
 import IndexView from '../views/index';
 import InlineTotpSetupView from '../views/inline_totp_setup';
@@ -36,12 +23,10 @@ import InlineRecoverySetupView from '../views/inline_recovery_setup';
 import PermissionsView from '../views/permissions';
 import SupportView from '../views/support';
 import ReadyView from '../views/ready';
-import RecoveryCodesView from '../views/settings/recovery_codes';
 import RedirectAuthView from '../views/authorization';
 import ReportSignInView from '../views/report_sign_in';
 import ResetPasswordView from '../views/reset_password';
 import SecurityEvents from '../views/security_events';
-import SettingsView from '../views/settings';
 import SignInBouncedView from '../views/sign_in_bounced';
 import SignInPasswordView from '../views/sign_in_password';
 import SignInRecoveryCodeView from '../views/sign_in_recovery_code';
@@ -55,8 +40,6 @@ import SmsSentView from '../views/sms_sent';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
-import TotpSecretView from '../views/settings/totp_secret';
-import TwoStepAuthenticationView from '../views/settings/two_step_authentication';
 import Url from './url';
 import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
@@ -214,76 +197,41 @@ const Router = Backbone.Router.extend({
     }),
     'reset_password_with_recovery_key_verified(/)': createViewHandler(
       ReadyView,
-      { type: VerificationReasons.PASSWORD_RESET_WITH_RECOVERY_KEY }
+      {
+        type: VerificationReasons.PASSWORD_RESET_WITH_RECOVERY_KEY,
+      }
     ),
     'secondary_email_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
     'security_events(/)': createViewHandler(SecurityEvents),
-    'settings(/)': createViewHandler(SettingsView),
-    'settings/beta_optout(/)': createViewHandler(SettingsView),
-    'settings/account_recovery(/)': createChildViewHandler(
-      AccountRecoveryView,
-      SettingsView
-    ),
-    'settings/account_recovery/confirm_password(/)': createChildViewHandler(
-      AccountRecoveryConfirmPasswordView,
-      SettingsView
-    ),
-    'settings/account_recovery/confirm_revoke(/)': createChildViewHandler(
-      AccountRecoveryConfirmRevokeView,
-      SettingsView
-    ),
-    'settings/account_recovery/recovery_key(/)': createChildViewHandler(
-      AccountRecoveryKeyView,
-      SettingsView
-    ),
-    'settings/avatar/camera(/)': createChildViewHandler(
-      AvatarCameraView,
-      SettingsView
-    ),
-    'settings/avatar/change(/)': createChildViewHandler(
-      AvatarChangeView,
-      SettingsView
-    ),
-    'settings/avatar/crop(/)': createChildViewHandler(
-      AvatarCropView,
-      SettingsView
-    ),
-    'settings/change_password(/)': createChildViewHandler(
-      ChangePasswordView,
-      SettingsView
-    ),
-    'settings/clients(/)': createChildViewHandler(ClientsView, SettingsView),
-    'settings/clients/disconnect(/)': createChildViewHandler(
-      ClientDisconnectView,
-      SettingsView
-    ),
-    'settings/communication_preferences(/)': createChildViewHandler(
-      CommunicationPreferencesView,
-      SettingsView
-    ),
-    'settings/delete_account(/)': createChildViewHandler(
-      DeleteAccountView,
-      SettingsView
-    ),
-    'settings/display_name(/)': createChildViewHandler(
-      DisplayNameView,
-      SettingsView
-    ),
-    'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
-    'settings/two_step_authentication(/)': createChildViewHandler(
-      TwoStepAuthenticationView,
-      SettingsView
-    ),
-    'settings/two_step_authentication/recovery_codes(/)': createChildViewHandler(
-      RecoveryCodesView,
-      SettingsView
-    ),
-    'settings/two_step_authentication/secret(/)': createChildViewHandler(
-      TotpSecretView,
-      SettingsView
-    ),
+    'settings(/)': function () {
+      const {
+        deviceId,
+        flowBeginTime,
+        flowId,
+      } = this.metrics.getFlowEventMetadata();
+
+      const {
+        broker,
+        context: ctx,
+        isSampledUser,
+        service,
+        uniqueUserId,
+      } = this.metrics.getFilteredData();
+
+      const settingsLink = `/settings${Url.objToSearchString({
+        deviceId,
+        flowBeginTime,
+        flowId,
+        broker,
+        context: ctx,
+        isSampledUser,
+        service,
+        uniqueUserId,
+      })}`;
+      this.navigateAway(settingsLink);
+    },
     'signin(/)': createViewHandler(SignInPasswordView),
     'signin_bounced(/)': createViewHandler(SignInBouncedView),
     'signin_confirmed(/)': createViewHandler(ReadyView, {
@@ -337,33 +285,6 @@ const Router = Backbone.Router.extend({
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
     'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
-    'beta/settings(/)': function () {
-      const {
-        deviceId,
-        flowBeginTime,
-        flowId,
-      } = this.metrics.getFlowEventMetadata();
-
-      const {
-        broker,
-        context: ctx,
-        isSampledUser,
-        service,
-        uniqueUserId,
-      } = this.metrics.getFilteredData();
-
-      const settingsLink = `/beta/settings${Url.objToSearchString({
-        deviceId,
-        flowBeginTime,
-        flowId,
-        broker,
-        context: ctx,
-        isSampledUser,
-        service,
-        uniqueUserId,
-      })}`;
-      this.navigateAway(settingsLink);
-    },
   },
 
   initialize(options = {}) {

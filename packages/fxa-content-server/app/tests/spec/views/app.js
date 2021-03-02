@@ -8,7 +8,6 @@ import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import chai from 'chai';
 import Environment from 'lib/environment';
-import KeyCodes from 'lib/key-codes';
 import Notifier from 'lib/channels/notifier';
 import SurveyTargeter from 'lib/survey-targeter';
 import sinon from 'sinon';
@@ -562,22 +561,6 @@ describe('views/app', function () {
 
     it('sets the title', function () {
       assert.isTrue(view.setTitle.calledWith('the title, the second title'));
-    });
-  });
-
-  describe('onKeyUp', function () {
-    before(function () {
-      createDeps();
-      sinon.spy(view, 'navigate');
-    });
-
-    it('press escape from settings view', function () {
-      view.onKeyUp({
-        currentTarget: { className: 'settings' },
-        which: KeyCodes.ESCAPE,
-      });
-      assert.isTrue(view.navigate.calledOnce);
-      assert.isTrue(view.navigate.calledWith('settings'));
     });
   });
 });

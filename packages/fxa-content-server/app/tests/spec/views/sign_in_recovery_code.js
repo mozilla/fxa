@@ -207,7 +207,7 @@ describe('views/sign_in_recovery_code', () => {
         const args = view.navigate.args[0];
         assert.equal(
           args[0],
-          '/settings/two_step_authentication/recovery_codes',
+          '/settings/two_step_authentication',
           'correct viewname'
         );
         assert.equal(

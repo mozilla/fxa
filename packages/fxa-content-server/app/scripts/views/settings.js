@@ -119,9 +119,6 @@ const View = BaseView.extend({
 
     context.set({
       ccExpired: !!this._ccExpired,
-      showBetaSettingsLink:
-        this._enableBeta &&
-        (navigator.language === 'en' || navigator.language === 'en-US'),
       betaSettingsLink,
       escapedCcExpiredLinkAttrs: 'href="/subscriptions" class="alert-link"',
       securityEventsVisible: this.displaySecurityEvents(),

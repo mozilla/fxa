@@ -882,33 +882,6 @@ section.modal-panel {
   align-items: center;
 }
 
-a.nu-settings-button {
-  background: #FAFAFB;
-  border: 1px solid #C2C2C2;
-  border-radius: .25rem;
-  color: black;
-  height: 100%;
-  margin: 0 1.25rem;
-  padding: .5rem;
-  text-decoration: none;
-
-  &:hover {
-    background: #E7E7E7;
-    color: #6D6D6E;
-  }
-
-  &:active {
-    background: #E7E7E7;
-    border: 1px solid #6D6D6E;
-    color: #6D6D6E;
-    text-decoration: none;
-  }
-
-  &:focus {
-    background: white;
-  }
-}
-
 .open-email-preferences {
   background-image: image-url('icon-open-in.svg');
   background-repeat: no-repeat;
