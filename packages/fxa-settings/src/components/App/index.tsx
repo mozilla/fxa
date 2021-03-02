@@ -65,10 +65,7 @@ export const App = ({ flowQueryParams }: AppProps) => {
   }
 
   return (
-    <AppLocalizationProvider
-      baseDir="/beta/settings/locales"
-      bundles={['settings']}
-    >
+    <AppLocalizationProvider baseDir="/settings/locales" bundles={['settings']}>
       <AppLayout>
         <Head />
         <Router basepath={HomePath}>

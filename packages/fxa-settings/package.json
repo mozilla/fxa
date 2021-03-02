@@ -1,7 +1,7 @@
 {
   "name": "fxa-settings",
   "version": "1.201.1",
-  "homepage": "https://accounts.firefox.com/beta/settings",
+  "homepage": "https://accounts.firefox.com/settings",
   "private": true,
   "scripts": {
     "postinstall": "../../_scripts/clone-l10n.sh fxa-settings",

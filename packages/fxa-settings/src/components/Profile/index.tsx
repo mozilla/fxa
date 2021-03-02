@@ -34,7 +34,7 @@ export const Profile = () => {
             headerId="display-name"
             headerValue={displayName}
             headerValueClassName="break-all"
-            route="/beta/settings/display_name"
+            route="/settings/display_name"
             prefixDataTestId="display-name"
           />
         </Localized>
@@ -47,7 +47,7 @@ export const Profile = () => {
             headerId="password"
             headerValueClassName="tracking-wider"
             headerValue="••••••••••••••••••"
-            route="/beta/settings/change_password"
+            route="/settings/change_password"
             prefixDataTestId="password"
           >
             <Localized
