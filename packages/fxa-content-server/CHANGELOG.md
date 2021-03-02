@@ -1,3 +1,10 @@
+## 1.201.1
+
+### Bug fixes
+
+- l10n: restore invisible terms / privacy pages ([d8628f1d2](https://github.com/mozilla/fxa/commit/d8628f1d2))
+- settings: #7632 broke dev ([b039f2eda](https://github.com/mozilla/fxa/commit/b039f2eda))
+
 ## 1.201.0
 
 ### Bug fixes

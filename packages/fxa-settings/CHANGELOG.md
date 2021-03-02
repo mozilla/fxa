@@ -1,3 +1,10 @@
+## 1.201.1
+
+### Bug fixes
+
+- settings: added "Saving" button state to avatar upload ([bf6dff739](https://github.com/mozilla/fxa/commit/bf6dff739))
+- settings: fixed slider style when csp blocks inline styles ([ae69c6e0a](https://github.com/mozilla/fxa/commit/ae69c6e0a))
+
 ## 1.201.0
 
 ### New features
