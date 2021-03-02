@@ -85,6 +85,7 @@
   }
 
   .card-details,
+  .subscription-cancelled-details,
   .price-details {
     color: $faint-text-color;
     display: flex;
@@ -122,7 +123,7 @@
     p {
       margin-top: 0;
       &:last-child {
-        margin: 0;
+        margin: auto 0;
       }
     }
 
@@ -138,10 +139,6 @@
         font-weight: 600;
         padding: 0 16px;
       }
-    }
-
-    .subscription-cancelled-details {
-      flex: 4;
     }
   }
 
