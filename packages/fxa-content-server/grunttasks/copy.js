@@ -86,10 +86,26 @@ module.exports = function (grunt) {
       //eslint-disable-line camelcase
       // The legal repo use es-ES but we (in accordance with Verbatim) use es,
       // so copy es-ES templates to es
-      expand: true,
-      cwd: '<%= yeoman.page_template_dist %>/es_ES/',
-      dest: '<%= yeoman.page_template_dist %>/es/',
-      src: ['*', '**'],
+      files: [
+        {
+          expand: true,
+          cwd: '<%= yeoman.tos_html_dest %>',
+          dest: '<%= yeoman.tos_html_dest %>',
+          src: 'es_ES.html',
+          rename: function (dest) {
+            return dest + '/es.html';
+          },
+        },
+        {
+          expand: true,
+          cwd: '<%= yeoman.pp_html_dest %>',
+          dest: '<%= yeoman.pp_html_dest %>',
+          src: 'es_ES.html',
+          rename: function (dest) {
+            return dest + '/es.html';
+          },
+        },
+      ],
     },
   });
 };

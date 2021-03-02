@@ -37,10 +37,7 @@ module.exports = function (grunt) {
       files: [
         {
           dot: true,
-          src: [
-            '<%= yeoman.page_template_dist %>/**/privacy.html',
-            '<%= yeoman.page_template_dist %>/**/terms.html',
-          ],
+          src: ['<%= yeoman.pp_html_dest %>', '<%= yeoman.tos_html_dest %>'],
         },
       ],
     },
