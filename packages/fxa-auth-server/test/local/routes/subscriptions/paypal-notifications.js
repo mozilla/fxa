@@ -17,6 +17,7 @@ const pendingMerchantPaymentNotification = require('../fixtures/merch_pmt_pendin
 const {
   PayPalNotificationHandler,
 } = require('../../../../lib/routes/subscriptions/paypal-notifications');
+const successfulRefundTransactionResponse = require('../../payments/fixtures/paypal/refund_transaction_success.json');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
 
 const ACCOUNT_LOCALE = 'en-US';
@@ -276,6 +277,52 @@ describe('PayPalNotificationHandler', () => {
       sinon.assert.calledOnceWithExactly(
         stripeHelper.getInvoice,
         message.invoice
+      );
+    });
+
+    it('successfully refunds completed transaction with invoice in uncollectible status', async () => {
+      const invoice = { status: 'uncollectible' };
+      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      paypalHelper.issueRefund = sinon.fake.resolves(undefined);
+
+      const result = await handler.handleMerchPayment(
+        completedMerchantPaymentNotification
+      );
+      assert.deepEqual(result, undefined);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        message.invoice
+      );
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.issueRefund,
+        invoice,
+        completedMerchantPaymentNotification.txn_id
+      );
+    });
+
+    it('unsuccessfully refunds completed transaction with invoice in uncollectible status', async () => {
+      const invoice = { status: 'uncollectible' };
+      stripeHelper.getInvoice = sinon.fake.resolves(invoice);
+      paypalHelper.issueRefund = sinon.fake.throws(
+        error.internalValidationError('Fake', {})
+      );
+      try {
+        await handler.handleMerchPayment(completedMerchantPaymentNotification);
+        assert.fail(
+          'Error should throw PayPal refund transaction unsuccessful.'
+        );
+      } catch (err) {
+        assert.instanceOf(err, error);
+        assert.equal(err.message, 'An internal validation check failed.');
+      }
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getInvoice,
+        message.invoice
+      );
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.issueRefund,
+        invoice,
+        completedMerchantPaymentNotification.txn_id
       );
     });
   });

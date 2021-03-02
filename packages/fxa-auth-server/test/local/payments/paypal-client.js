@@ -26,6 +26,7 @@ const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_expr
 const unSuccessfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_failure.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
 const unSuccessfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
+const successfulRefundTransactionResponse = require('./fixtures/paypal/refund_transaction_success.json');
 const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
 const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json')
   .message;
@@ -442,6 +443,28 @@ describe('PayPalClient', () => {
         assert.equal(err.data.ACK, 'Failure');
         assert.equal(err.errorCode, 11451);
       }
+    });
+  });
+
+  describe('refundTransaction', () => {
+    const defaultData = {
+      MSGSUBID: 'in_asdf',
+      TRANSACTIONID: '9EG80664Y1384290G',
+    };
+
+    it('calls api with correct method and data', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulRefundTransactionResponse
+      );
+      await client.refundTransaction({
+        idempotencyKey: defaultData.MSGSUBID,
+        transactionId: defaultData.TRANSACTIONID,
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'RefundTransaction',
+        defaultData
+      );
     });
   });
 

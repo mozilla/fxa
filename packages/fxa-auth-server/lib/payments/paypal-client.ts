@@ -39,6 +39,7 @@ export type PAYPAL_METHODS =
   | 'CreateBillingAgreement'
   | 'DoReferenceTransaction'
   | 'GetTransactionDetails'
+  | 'RefundTransaction'
   | 'SetExpressCheckout'
   | 'TransactionSearch';
 
@@ -95,6 +96,18 @@ type DoReferenceTransactionData = {
   TRANSACTIONTYPE: string;
 };
 
+type RefundTransactionData = {
+  REFUNDTRANSACTIONID: string;
+  FEEREFUNDAMT: string;
+  GROSSREFUNDAMT: string;
+  NETREFUNDAMT: string;
+  CURRENCYCODE: string;
+  TOTALREFUNDEDAMOUNT: string;
+  MSGSUBID: string;
+  REFUNDSTATUS: string;
+  PENDINGREASON: string;
+};
+
 type BAUpdateData = {
   BILLINGAGREEMENTID: string;
   BILLINGAGREEMENTSTATUS: string;
@@ -136,6 +149,8 @@ export type NVPCreateBillingAgreementResponse = NVPResponse &
 export type NVPDoReferenceTransactionResponse = NVPResponse &
   DoReferenceTransactionData;
 
+export type NVPRefundTransactionResponse = NVPResponse & RefundTransactionData;
+
 export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData;
 
 export type NVPTransactionSearchResponse = TransactionSearchData & NVPResponse;
@@ -153,6 +168,11 @@ export type DoReferenceTransactionOptions = {
   billingAgreementId: string;
   invoiceNumber: string;
   idempotencyKey: string;
+};
+
+export type RefundTransactionOptions = {
+  idempotencyKey: string;
+  transactionId: string;
 };
 
 export type BAUpdateOptions = {
@@ -416,6 +436,27 @@ export class PayPalClient {
     };
     return this.doRequest<NVPDoReferenceTransactionResponse>(
       'DoReferenceTransaction',
+      data
+    );
+  }
+
+  /**
+   * Call the PayPal RefundTransaction NVP API
+   *
+   * Using the PayPal RefundTransaction API (https://developer.paypal.com/docs/nvp-soap-api/refund-transaction-nvp/)
+   * we fund the entire transaction to the user.
+   *
+   * @param options
+   */
+  public async refundTransaction(
+    options: RefundTransactionOptions
+  ): Promise<NVPRefundTransactionResponse> {
+    const data = {
+      TRANSACTIONID: options.transactionId,
+      MSGSUBID: options.idempotencyKey,
+    };
+    return this.doRequest<NVPRefundTransactionResponse>(
+      'RefundTransaction',
       data
     );
   }

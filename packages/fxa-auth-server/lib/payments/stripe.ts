@@ -387,6 +387,21 @@ export class StripeHelper {
   }
 
   /**
+   * Updates invoice metadata with the PayPal Refund Transaction ID.
+   *
+   * @param invoice
+   * @param transactionId
+   */
+  async updateInvoiceWithPaypalRefundTransactionId(
+    invoice: Stripe.Invoice,
+    transactionId: string
+  ) {
+    return this.stripe.invoices.update(invoice.id, {
+      metadata: { paypalRefundTransactionId: transactionId },
+    });
+  }
+
+  /**
    * Retrieve the payment attempts that have been made on this invoice via PayPal.
    *
    * This variable reflects the amount of payment attempts that have been made. It is
