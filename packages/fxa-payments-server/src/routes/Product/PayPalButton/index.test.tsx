@@ -1,22 +1,17 @@
 import React from 'react';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
 import { PaypalButton, PaypalButtonProps } from './index';
 
-import { storiesOf } from '@storybook/react';
-import { linkTo } from '@storybook/addon-links';
-import { CUSTOMER, PLAN } from '../../../lib/mock-data';
 import { PickPartial } from '../../../lib/types';
-
-const defaultApiClientOverrides = {
-  apiCreateCustomer: async () => CUSTOMER,
-};
+import { CUSTOMER, PLAN } from '../../../lib/mock-data';
 
 const Subject = ({
-  apiClientOverrides = defaultApiClientOverrides,
   currencyCode = 'USD',
   customer = CUSTOMER,
   idempotencyKey = '',
   priceId = PLAN.plan_id,
-  refreshSubscriptions = linkTo('routes/Product', 'success'),
+  refreshSubscriptions = () => {},
   setPaymentError = () => {},
   setTransactionInProgress = () => {},
   ...props
@@ -33,7 +28,6 @@ const Subject = ({
   return (
     <PaypalButton
       {...{
-        apiClientOverrides,
         currencyCode,
         customer,
         idempotencyKey,
@@ -47,6 +41,11 @@ const Subject = ({
   );
 };
 
-storiesOf('routes/Product/PaypalButton', module).add('default', () => (
-  <Subject />
-));
+describe('PaypalButton', () => {
+  it("Doesn't render the PayPal button if the PayPal script fails to load", async () => {
+    // The script is loaded in this button's consumer (e.g. SubscriptionCreate), so we
+    // can guarantee that it won't be loaded for the button in isolation
+    render(<Subject />);
+    expect(screen.queryByTestId('paypal-button')).not.toBeInTheDocument();
+  });
+});

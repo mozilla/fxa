@@ -182,7 +182,6 @@ export const PaymentForm = ({
           data-testid="name"
           placeholder="Full Name"
           required
-          autoFocus
           spellCheck={false}
           onValidate={(value, focused, props) =>
             validateName(value, focused, props, getString)
