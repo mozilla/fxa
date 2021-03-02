@@ -18,6 +18,7 @@ const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
 const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_success.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
+const successfulRefundTransactionResponse = require('./fixtures/paypal/refund_transaction_success.json');
 const failedDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
 const successfulBAUpdateResponse = require('./fixtures/paypal/ba_update_success.json');
 const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
@@ -272,6 +273,94 @@ describe('PayPalHelper', () => {
         assert.instanceOf(err, PayPalClientError);
         assert.equal(err.name, 'PayPalClientError');
       }
+    });
+  });
+
+  describe('refundTransaction', () => {
+    const defaultData = {
+      MSGSUBID: 'in_asdf',
+      TRANSACTIONID: '9EG80664Y1384290G',
+    };
+
+    it('refunds entire transaction', async () => {
+      paypalHelper.client.doRequest = sinon.fake.resolves(
+        successfulRefundTransactionResponse
+      );
+      const response = await paypalHelper.refundTransaction({
+        idempotencyKey: defaultData.MSGSUBID,
+        transactionId: defaultData.TRANSACTIONID,
+      });
+      assert.deepEqual(response, {
+        pendingReason: successfulRefundTransactionResponse.PENDINGREASON,
+        refundStatus: successfulRefundTransactionResponse.REFUNDSTATUS,
+        refundTransactionId:
+          successfulRefundTransactionResponse.REFUNDTRANSACTIONID,
+      });
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.client.doRequest,
+        'RefundTransaction',
+        defaultData
+      );
+    });
+  });
+
+  describe('issueRefund', () => {
+    const invoice = { id: 'inv_025-abc-3' };
+    const transactionId = '9EG80664Y1384290G';
+
+    it('successfully refunds completed transaction', async () => {
+      mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId = sinon.fake.resolves(
+        {}
+      );
+      paypalHelper.refundTransaction = sinon.fake.resolves({
+        pendingReason: successfulRefundTransactionResponse.PENDINGREASON,
+        refundStatus: successfulRefundTransactionResponse.REFUNDSTATUS,
+        refundTransactionId:
+          successfulRefundTransactionResponse.REFUNDTRANSACTIONID,
+      });
+      const result = await paypalHelper.issueRefund(invoice, transactionId);
+
+      assert.deepEqual(result, undefined);
+      sinon.assert.calledOnceWithExactly(paypalHelper.refundTransaction, {
+        idempotencyKey: invoice.id,
+        transactionId: transactionId,
+      });
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId,
+        invoice,
+        successfulRefundTransactionResponse.REFUNDTRANSACTIONID
+      );
+    });
+
+    it('unsuccessfully refunds completed transaction', async () => {
+      mockStripeHelper.updateInvoiceWithPaypalRefundTransactionId = sinon.fake.resolves(
+        {}
+      );
+      paypalHelper.refundTransaction = sinon.fake.resolves({
+        pendingReason: successfulRefundTransactionResponse.PENDINGREASON,
+        refundStatus: 'None',
+        refundTransactionId:
+          successfulRefundTransactionResponse.REFUNDTRANSACTIONID,
+      });
+      paypalHelper.log = { error: sinon.fake.returns({}) };
+
+      try {
+        await paypalHelper.issueRefund(invoice, transactionId);
+        assert.fail(
+          'Error should throw PayPal refund transaction unsuccessful.'
+        );
+      } catch (err) {
+        assert.deepEqual(
+          err,
+          error.internalValidationError('issueRefund', {
+            message: 'PayPal refund transaction unsuccessful',
+          })
+        );
+      }
+      sinon.assert.calledOnceWithExactly(paypalHelper.refundTransaction, {
+        idempotencyKey: invoice.id,
+        transactionId: transactionId,
+      });
     });
   });
 

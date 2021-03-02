@@ -729,6 +729,24 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('updateInvoiceWithPaypalRefundTransactionId', () => {
+    it('works successfully', async () => {
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      const actual = await stripeHelper.updateInvoiceWithPaypalRefundTransactionId(
+        unpaidInvoice,
+        'tid'
+      );
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        unpaidInvoice.id,
+        {
+          metadata: { paypalRefundTransactionId: 'tid' },
+        }
+      );
+    });
+  });
+
   describe('getPaymentAttempts', () => {
     it('returns 0 with no attempts', () => {
       const actual = stripeHelper.getPaymentAttempts(unpaidInvoice);

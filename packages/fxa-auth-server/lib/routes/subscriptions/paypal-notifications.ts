@@ -31,10 +31,15 @@ export class PayPalNotificationHandler extends PayPalHandler {
       });
     }
 
-    // TODO: If the invoice is void/uncollectible and this is Completed/Processed, issue
-    // a refunded.
-
     if (invoice.status == null || !['draft', 'open'].includes(invoice.status)) {
+      if (
+        invoice.status == 'uncollectible' &&
+        ['Completed', 'Processed'].includes(message.payment_status)
+      ) {
+        // we need to refund the user since the invoice was cancelled
+        // but payment was processed
+        this.paypalHelper.issueRefund(invoice, message.txn_id);
+      }
       // nothing to do since the invoice is already at its final status
       return;
     }

@@ -14,6 +14,7 @@ import {
   IpnMessage,
   PayPalClient,
   PayPalClientError,
+  RefundTransactionOptions,
   SetExpressCheckoutOptions,
   TransactionSearchOptions,
   TransactionStatus,
@@ -483,5 +484,45 @@ export class PayPalHelper {
           transactionResponse: transactionResponse.paymentStatus,
         });
     }
+  }
+
+  /**
+   * Given the transaction ID, refund the transaction in full.
+   * Use the Stripe Invoice ID as the idempotency key since we
+   * expect one refund per invoice.
+   *
+   * @param options
+   */
+  public async refundTransaction(options: RefundTransactionOptions) {
+    const response = await this.client.refundTransaction(options);
+    return {
+      pendingReason: response.PENDINGREASON,
+      refundStatus: response.REFUNDSTATUS,
+      refundTransactionId: response.REFUNDTRANSACTIONID,
+    };
+  }
+
+  public async issueRefund(invoice: Stripe.Invoice, transactionId: string) {
+    const refundResponse = await this.refundTransaction({
+      idempotencyKey: invoice.id,
+      transactionId: transactionId,
+    });
+    const success = ['instant', 'delayed'];
+    if (success.includes(refundResponse.refundStatus.toLowerCase())) {
+      this.stripeHelper.updateInvoiceWithPaypalRefundTransactionId(
+        invoice,
+        refundResponse.refundTransactionId
+      );
+      return;
+    }
+    this.log.error('issueRefund', {
+      message: 'PayPal refund transaction unsuccessful',
+      invoiceId: invoice.id,
+      transactionId,
+      refundResponse,
+    });
+    throw error.internalValidationError('issueRefund', {
+      message: 'PayPal refund transaction unsuccessful',
+    });
   }
 }
