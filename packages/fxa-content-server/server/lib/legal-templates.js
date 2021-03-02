@@ -14,7 +14,7 @@ module.exports = function (i18n, root) {
 
     // Filenames are normalized to locale, not language.
     const locale = i18n.localeFrom(lang);
-    const templatePath = path.join(root, locale, type + '.html');
+    const templatePath = path.join(root, type, locale + '.html');
 
     return new Promise(function (resolve, reject) {
       // cache the promises to avoid multiple concurrent checks for
