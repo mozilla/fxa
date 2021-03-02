@@ -126,5 +126,5 @@
     "id": "req_k0H9kTbrxkqtfB",
     "idempotency_key": "a9482497-dde5-4ac6-90c2-1d3f5cada747"
   },
-  "type": "invoice.payment_succeeded"
+  "type": "invoice.paid"
 }

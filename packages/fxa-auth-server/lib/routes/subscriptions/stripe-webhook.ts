@@ -71,8 +71,8 @@ export class StripeWebhookHandler extends StripeHandler {
             await this.handleInvoiceCreatedEvent(request, event);
           }
           break;
-        case 'invoice.payment_succeeded':
-          await this.handleInvoicePaymentSucceededEvent(request, event);
+        case 'invoice.paid':
+          await this.handleInvoicePaidEvent(request, event);
           break;
         case 'invoice.payment_failed':
           await this.handleInvoicePaymentFailedEvent(request, event);
@@ -217,19 +217,16 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
-   * Handle `invoice.payment_succeeded` Stripe wehbook events.
+   * Handle `invoice.paid` Stripe wehbook events.
    */
-  async handleInvoicePaymentSucceededEvent(
-    request: AuthRequest,
-    event: Stripe.Event
-  ) {
+  async handleInvoicePaidEvent(request: AuthRequest, event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
     const { uid, email } = await this.sendSubscriptionInvoiceEmail(invoice);
     await this.updateCustomer(uid, email);
   }
 
   /**
-   * Handle `invoice.payment_succeeded` Stripe wehbook events.
+   * Handle `invoice.paid` Stripe wehbook events.
    */
   async handleInvoicePaymentFailedEvent(
     request: AuthRequest,

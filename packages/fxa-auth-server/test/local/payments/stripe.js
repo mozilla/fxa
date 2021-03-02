@@ -48,10 +48,10 @@ const successfulPaymentIntent = require('./fixtures/stripe/paymentIntent_succeed
 const unsuccessfulPaymentIntent = require('./fixtures/stripe/paymentIntent_requires_payment_method.json');
 const paymentMethodAttach = require('./fixtures/stripe/payment_method_attach.json');
 const failedCharge = require('./fixtures/stripe/charge_failed.json');
-const invoicePaymentSucceededSubscriptionCreate = require('./fixtures/stripe/invoice_payment_succeeded_subscription_create.json');
+const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
-const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_payment_succeeded_subscription_create.json');
+const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const closedPaymementIntent = require('./fixtures/stripe/paymentIntent_succeeded.json');
 const newSetupIntent = require('./fixtures/stripe/setup_intent_new.json');
 const {
@@ -2557,7 +2557,7 @@ describe('StripeHelper', () => {
     });
 
     describe('extractInvoiceDetailsForEmail', () => {
-      const fixture = { ...invoicePaymentSucceededSubscriptionCreate };
+      const fixture = { ...invoicePaidSubscriptionCreate };
       fixture.lines.data[0] = {
         ...fixture.lines.data[0],
         plan: {
@@ -2621,7 +2621,7 @@ describe('StripeHelper', () => {
       });
 
       it('extracts expected details from an expanded invoice', async () => {
-        const fixture = deepCopy(invoicePaymentSucceededSubscriptionCreate);
+        const fixture = deepCopy(invoicePaidSubscriptionCreate);
         fixture.lines.data[0].plan = {
           id: planId,
           nickname: planName,
@@ -2641,7 +2641,7 @@ describe('StripeHelper', () => {
       });
 
       it('does not throw an exception when details on a payment method are missing', async () => {
-        const fixture = deepCopy(invoicePaymentSucceededSubscriptionCreate);
+        const fixture = deepCopy(invoicePaidSubscriptionCreate);
         fixture.lines.data[0].plan = {
           id: planId,
           nickname: planName,
@@ -2712,7 +2712,7 @@ describe('StripeHelper', () => {
 
       it('throws an exception with unexpected data', async () => {
         const fixture = {
-          ...invoicePaymentSucceededSubscriptionCreate,
+          ...invoicePaidSubscriptionCreate,
           lines: null,
         };
         let thrownError = null;
