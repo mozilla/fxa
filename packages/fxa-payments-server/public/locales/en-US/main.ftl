@@ -81,6 +81,12 @@ product-no-such-plan = No such plan for this product.
 payment-legal-copy-stripe-paypal = { -brand-name-mozilla } uses Stripe and { -brand-name-paypal } for secure payment processing.
 payment-legal-link-stripe-paypal = View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> and <paypalPrivacyLink>{ -brand-name-paypal } privacy policy</paypalPrivacyLink>.
 
+payment-legal-copy-paypal = { -brand-name-mozilla } uses { -brand-name-paypal } for secure payment processing.
+payment-legal-link-paypal = View the <paypalPrivacyLink>{ -brand-name-paypal } privacy policy</paypalPrivacyLink>.
+
+payment-legal-copy-stripe = { -brand-name-mozilla } uses Stripe for secure payment processing.
+payment-legal-link-stripe = View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink>.
+
 ## payment form
 payment-name =
   .placeholder = Full Name
