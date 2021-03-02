@@ -818,6 +818,22 @@ describe('StripeHelper', () => {
         }
       );
     });
+
+    it('returns 3 updating from 1', async () => {
+      const attemptedInvoice = deepCopy(unpaidInvoice);
+      attemptedInvoice.metadata.paymentAttempts = '1';
+      const actual = stripeHelper.getPaymentAttempts(attemptedInvoice);
+      assert.equal(actual, 1);
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      await stripeHelper.updatePaymentAttempts(attemptedInvoice, 3);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        attemptedInvoice.id,
+        {
+          metadata: { paymentAttempts: '3' },
+        }
+      );
+    });
   });
 
   describe('payInvoiceOutOfBand', () => {
@@ -859,6 +875,38 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('removeCustomerPaypalAgreement', () => {
+    it('removes billing agreement id', async () => {
+      const paypalCustomer = deepCopy(customer1);
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+      const now = new Date();
+      const clock = sinon.useFakeTimers(now.getTime());
+
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox.stub(authDbModule, 'updatePayPalBA').returns(0);
+
+      await stripeHelper.removeCustomerPaypalAgreement(
+        'uid',
+        paypalCustomer,
+        'billingAgreementId'
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.update,
+        paypalCustomer.id,
+        { metadata: { paypalAgreementId: null } }
+      );
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.updatePayPalBA,
+        'uid',
+        'billingAgreementId',
+        'Cancelled',
+        clock.now
+      );
+      clock.restore();
+    });
+  });
+
   describe('getCustomerPaypalAgreement', () => {
     it('returns undefined with no paypal agreement', () => {
       const actual = stripeHelper.getCustomerPaypalAgreement(customer1);
@@ -870,6 +918,48 @@ describe('StripeHelper', () => {
       paypalCustomer.metadata.paypalAgreementId = 'test-1234';
       const actual = stripeHelper.getCustomerPaypalAgreement(paypalCustomer);
       assert.equal(actual, 'test-1234');
+    });
+  });
+
+  describe('fetchOpenInvoices', () => {
+    it('returns customer paypal agreement id', async () => {
+      sandbox.stub(stripeHelper.stripe.invoices, 'list').resolves({});
+      const actual = await stripeHelper.fetchOpenInvoices(0);
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(stripeHelper.stripe.invoices.list, {
+        customer: undefined,
+        limit: 100,
+        collection_method: 'send_invoice',
+        status: 'open',
+        created: 0,
+        expand: ['data.customer'],
+      });
+    });
+  });
+
+  describe('markUncollectible', () => {
+    it('returns an invoice marked uncollectible', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'markUncollectible')
+        .resolves({});
+      sandbox.stub(stripeHelper.stripe.invoices, 'list').resolves({});
+      const actual = await stripeHelper.markUncollectible(unpaidInvoice);
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.markUncollectible,
+        unpaidInvoice.id
+      );
+    });
+  });
+
+  describe('cancelSubscription', () => {
+    it('sets subscription to cancelled', async () => {
+      sandbox.stub(stripeHelper.stripe.subscriptions, 'del').resolves({});
+      await stripeHelper.cancelSubscription('subscriptionId');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.del,
+        'subscriptionId'
+      );
     });
   });
 

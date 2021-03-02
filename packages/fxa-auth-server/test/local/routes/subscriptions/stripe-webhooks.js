@@ -32,6 +32,8 @@ const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_
 const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
 const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/event_customer_source_expiring.json');
 const { default: Container } = require('typedi');
+const { PayPalHelper } = require('../../../../lib/payments/paypal');
+const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 
 let config, log, db, customs, push, mailer, profile;
 
@@ -195,6 +197,9 @@ describe('StripeWebhookHandler', () => {
       locale: ACCOUNT_LOCALE,
     });
     const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
+    const paypalHelperMock = sandbox.createStubInstance(PayPalHelper);
+    Container.set(CurrencyHelper, {});
+    Container.set(PayPalHelper, paypalHelperMock);
     Container.set(StripeHelper, stripeHelperMock);
 
     StripeWebhookHandlerInstance = new StripeWebhookHandler(
@@ -460,6 +465,9 @@ describe('StripeWebhookHandler', () => {
 
     describe('handleSubscriptionDeletedEvent', () => {
       it('sends email and emits a notification when a subscription is deleted', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.customer.resolves(
+          customerFixture
+        );
         const deletedEvent = deepCopy(subscriptionDeleted);
         const sendSubscriptionDeletedEmailStub = sandbox
           .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
@@ -481,8 +489,40 @@ describe('StripeWebhookHandler', () => {
           UID,
           TEST_EMAIL
         );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.customer,
+          { uid: UID, email: TEST_EMAIL }
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.paypalHelper
+            .conditionallyRemoveBillingAgreement,
+          customerFixture
+        );
         assert.calledWith(profile.deleteCache, UID);
         assertSendSubscriptionStatusToSqsCalledWith(deletedEvent, false);
+      });
+
+      it('does not conditionally delete without customer record', async () => {
+        const deletedEvent = deepCopy(subscriptionDeleted);
+        const sendSubscriptionDeletedEmailStub = sandbox
+          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .resolves({ uid: UID, email: TEST_EMAIL });
+        await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
+          {},
+          deletedEvent
+        );
+        assert.calledWith(
+          sendSubscriptionDeletedEmailStub,
+          deletedEvent.data.object
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.customer,
+          { uid: UID, email: TEST_EMAIL }
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.paypalHelper
+            .conditionallyRemoveBillingAgreement
+        );
       });
     });
 

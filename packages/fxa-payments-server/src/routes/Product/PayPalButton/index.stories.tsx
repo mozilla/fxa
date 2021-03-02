@@ -18,6 +18,7 @@ const Subject = ({
   priceId = PLAN.plan_id,
   refreshSubscriptions = linkTo('routes/Product', 'success'),
   setPaymentError = () => {},
+  setOnClick = () => {},
   ...props
 }: PickPartial<
   PaypalButtonProps,
@@ -27,6 +28,7 @@ const Subject = ({
   | 'priceId'
   | 'refreshSubscriptions'
   | 'setPaymentError'
+  | 'setOnClick'
 >) => {
   return (
     <PaypalButton
@@ -38,6 +40,7 @@ const Subject = ({
         priceId,
         refreshSubscriptions,
         setPaymentError,
+        setOnClick,
         ...props,
       }}
     />

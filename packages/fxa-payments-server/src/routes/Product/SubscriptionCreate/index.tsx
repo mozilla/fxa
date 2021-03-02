@@ -6,6 +6,7 @@ import React, {
   Suspense,
 } from 'react';
 import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
+import classNames from 'classnames';
 import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
 
@@ -18,7 +19,9 @@ import PaymentForm, { PaymentFormProps } from '../../../components/PaymentForm';
 import ErrorMessage from '../../../components/ErrorMessage';
 import AcceptedCards from '../../Product/AcceptedCards';
 import PaymentLegalBlurb from '../../../components/PaymentLegalBlurb';
+import { SubscriptionTitle } from '../../../components/SubscriptionTitle';
 import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
+import { PaymentProcessing } from '../../../components/PaymentProcessing';
 
 import * as Amplitude from '../../../lib/amplitude';
 import { Localized } from '@fluent/react';
@@ -73,6 +76,7 @@ export const SubscriptionCreate = ({
   paypalButtonBase,
 }: SubscriptionCreateProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
+  const [transactionInProgress, setTransactionInProgress] = useState(false);
 
   const onFormMounted = useCallback(
     () => Amplitude.createSubscriptionMounted(selectedPlan),
@@ -110,9 +114,11 @@ export const SubscriptionCreate = ({
     script.src = `${config.paypal.scriptUrl}/sdk/js?client-id=${config.paypal.clientId}&vault=true&commit=false&intent=capture&disable-funding=credit,card`;
     // Pass the csp nonce to paypal
     script.setAttribute('data-csp-nonce', cspNonce);
+    /* istanbul ignore next */
     script.onload = () => {
       setPaypalScriptLoaded(true);
     };
+    /* istanbul ignore next */
     script.onerror = () => {
       throw new Error('Paypal SDK could not be loaded.');
     };
@@ -179,19 +185,23 @@ export const SubscriptionCreate = ({
     <>
       <Header {...{ profile }} />
       <div className="main-content">
-        <div className="product-payment" data-testid="subscription-create">
-          <div
-            className="subscription-create-heading"
-            data-testid="subscription-create-heading"
-          >
-            <Localized id="product-plan-details-heading">
-              <h2>Set up your subscription</h2>
-            </Localized>
-            <Localized id="sub-guarantee">
-              <p className="subheading">30-day money-back guarantee</p>
-            </Localized>
-          </div>
-
+        <PaymentProcessing
+          className={classNames({
+            hidden: !transactionInProgress,
+          })}
+        />
+        <SubscriptionTitle
+          screenType="create"
+          className={classNames({
+            hidden: transactionInProgress,
+          })}
+        />
+        <div
+          className={classNames('product-payment', {
+            hidden: transactionInProgress,
+          })}
+          data-testid="subscription-create"
+        >
           <div className="subscription-create-pay-with-other">
             {!hasExistingCard(customer) && paypalScriptLoaded && (
               <Suspense fallback={<div>Loading...</div>}>
@@ -208,6 +218,9 @@ export const SubscriptionCreate = ({
                     refreshSubscriptions={refreshSubscriptions}
                     setPaymentError={setPaymentError}
                     ButtonBase={paypalButtonBase}
+                    setOnClick={() => {
+                      setTransactionInProgress(true);
+                    }}
                   />
                 </div>
               </Suspense>
@@ -271,34 +284,19 @@ export const SubscriptionCreate = ({
         </div>
         <PlanDetails
           {...{
+            className: classNames('default', {
+              hidden: transactionInProgress && isMobile,
+            }),
             profile,
             selectedPlan,
             isMobile,
             showExpandButton: isMobile,
           }}
         />
-        <MobileCreateHeading {...{ isMobile }} />
       </div>
     </>
   );
 };
-
-const MobileCreateHeading = ({ isMobile }: { isMobile: boolean }) =>
-  isMobile ? (
-    <div
-      className="mobile-subscription-create-heading"
-      data-testid="mobile-subscription-create-heading"
-    >
-      <div className="subscription-create-heading">
-        <Localized id="product-plan-details-heading">
-          <h2>Set up your subscription</h2>
-        </Localized>
-        <Localized id="sub-guarantee">
-          <p className="subheading">30-day money-back guarantee</p>
-        </Localized>
-      </div>
-    </div>
-  ) : null;
 
 async function handleSubscriptionPayment({
   stripe,

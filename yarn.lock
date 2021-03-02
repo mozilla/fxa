@@ -234,6 +234,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@apollographql/graphql-upload-8-fork@npm:^8.1.3":
+  version: 8.1.3
+  resolution: "@apollographql/graphql-upload-8-fork@npm:8.1.3"
+  dependencies:
+    "@types/express": "*"
+    "@types/fs-capacitor": "*"
+    "@types/koa": "*"
+    busboy: ^0.3.1
+    fs-capacitor: ^2.0.4
+    http-errors: ^1.7.3
+    object-path: ^0.11.4
+  peerDependencies:
+    graphql: 0.13.1 - 15
+  checksum: ca7c557586307e5446414ef19ff39a1c0bdb25d9ed830fcd4ca959c9da76bf498fefc175e6767394700e7165c20b4551eea1a4ec66e99fae81907d6e4910bbc9
+  languageName: node
+  linkType: hard
+
 "@ardatan/aggregate-error@npm:0.0.6":
   version: 0.0.6
   resolution: "@ardatan/aggregate-error@npm:0.0.6"
@@ -6046,6 +6063,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/express-serve-static-core@npm:4.17.18":
+  version: 4.17.18
+  resolution: "@types/express-serve-static-core@npm:4.17.18"
+  dependencies:
+    "@types/node": "*"
+    "@types/qs": "*"
+    "@types/range-parser": "*"
+  checksum: 329d5ded5c6b77c40bbed136ddf34f6fbae1ec3c43dadb5309fa60cedc3de9508a78fcba756c54e0d6362127d29b114afe4fcc75dc42a44909d48a7114315dc4
+  languageName: node
+  linkType: hard
+
 "@types/express-unless@npm:*":
   version: 0.5.1
   resolution: "@types/express-unless@npm:0.5.1"
@@ -8827,6 +8855,41 @@ __metadata:
   languageName: node
   linkType: hard
 
+"apollo-server-core@npm:^2.21.0":
+  version: 2.21.0
+  resolution: "apollo-server-core@npm:2.21.0"
+  dependencies:
+    "@apollographql/apollo-tools": ^0.4.3
+    "@apollographql/graphql-playground-html": 1.6.26
+    "@apollographql/graphql-upload-8-fork": ^8.1.3
+    "@types/ws": ^7.0.0
+    apollo-cache-control: ^0.11.6
+    apollo-datasource: ^0.7.3
+    apollo-graphql: ^0.6.0
+    apollo-reporting-protobuf: ^0.6.2
+    apollo-server-caching: ^0.5.3
+    apollo-server-env: ^3.0.0
+    apollo-server-errors: ^2.4.2
+    apollo-server-plugin-base: ^0.10.4
+    apollo-server-types: ^0.6.3
+    apollo-tracing: ^0.12.2
+    async-retry: ^1.2.1
+    fast-json-stable-stringify: ^2.0.0
+    graphql-extensions: ^0.12.8
+    graphql-tag: ^2.11.0
+    graphql-tools: ^4.0.8
+    loglevel: ^1.6.7
+    lru-cache: ^6.0.0
+    sha.js: ^2.4.11
+    subscriptions-transport-ws: ^0.9.11
+    uuid: ^8.0.0
+    ws: ^6.0.0
+  peerDependencies:
+    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
+  checksum: b89917c2b1fc6327189ccf0c6e9700ba562505fb95bbdb23d18ff5048cddbba8cf308f8bd88ddf0c09a85f45f69ab9fd659b410ab3af3d174c6a9fa242c349ff
+  languageName: node
+  linkType: hard
+
 "apollo-server-env@npm:^2.4.5":
   version: 2.4.5
   resolution: "apollo-server-env@npm:2.4.5"
@@ -8856,7 +8919,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-express@npm:^2.16.1, apollo-server-express@npm:^2.19.2":
+"apollo-server-express@npm:^2.19.2":
   version: 2.19.2
   resolution: "apollo-server-express@npm:2.19.2"
   dependencies:
@@ -8880,6 +8943,33 @@ __metadata:
   peerDependencies:
     graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: b5f84ebb4b0a9472c055f994a2aa8c8b0c554c0d6f8f8765663b48d690ccc3614fea2629f36c38dd68b3646a67d45ac1d1596acaf333850927f6a089ecb6e3c5
+  languageName: node
+  linkType: hard
+
+"apollo-server-express@npm:^2.21.0":
+  version: 2.21.0
+  resolution: "apollo-server-express@npm:2.21.0"
+  dependencies:
+    "@apollographql/graphql-playground-html": 1.6.26
+    "@types/accepts": ^1.3.5
+    "@types/body-parser": 1.19.0
+    "@types/cors": 2.8.8
+    "@types/express": 4.17.7
+    "@types/express-serve-static-core": 4.17.18
+    accepts: ^1.3.5
+    apollo-server-core: ^2.21.0
+    apollo-server-types: ^0.6.3
+    body-parser: ^1.18.3
+    cors: ^2.8.4
+    express: ^4.17.1
+    graphql-subscriptions: ^1.0.0
+    graphql-tools: ^4.0.8
+    parseurl: ^1.3.2
+    subscriptions-transport-ws: ^0.9.16
+    type-is: ^1.6.16
+  peerDependencies:
+    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
+  checksum: 0aa592c9a50e2df5b0800253a2eb08f8306a2f688ca6563a1dcd0630e4e8ecc5e48be1026059f0a1246024872163a6c081f46193ad173cc63eb1984f860d7397
   languageName: node
   linkType: hard
 
@@ -12272,10 +12362,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30000989, caniuse-lite@npm:^1.0.30001035, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001157, caniuse-lite@npm:^1.0.30001158":
+"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30000989, caniuse-lite@npm:^1.0.30001035, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001157":
   version: 1.0.30001158
   resolution: "caniuse-lite@npm:1.0.30001158"
   checksum: 5e8e370bd6bf104dcec4761f88721ed8140ae45bf7cf69e9a82ff4f31d3cc1da6bf339c0231e3c67aa227108ce0fc18e990b4a251c73216f8c473837fe9f361b
+  languageName: node
+  linkType: hard
+
+"caniuse-lite@npm:^1.0.30001192":
+  version: 1.0.30001192
+  resolution: "caniuse-lite@npm:1.0.30001192"
+  checksum: d2e3bc901b0cde3cd4522fa7f813565a4559284648b5c54f1049e6f991fc55d7d93b907e739270516e0207dd09b7c2ed8b8ca4469dceeb515eb1ec09798dff16
   languageName: node
   linkType: hard
 
@@ -18188,7 +18285,7 @@ fsevents@^1.2.7:
     "@types/supertest": ^2.0.10
     "@types/yargs": ^15.0.5
     apollo-server: ^2.19.2
-    apollo-server-express: ^2.16.1
+    apollo-server-express: ^2.21.0
     audit-filter: ^0.5.0
     chai: ^4.2.0
     chance: ^1.1.6
@@ -18213,7 +18310,7 @@ fsevents@^1.2.7:
     proxyquire: ^2.1.3
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^6.5.5
+    rxjs: ^6.6.6
     supertest: ^6.1.3
     ts-jest: 26.4.3
     ts-node: ^8.6.2
@@ -18349,7 +18446,7 @@ fsevents@^1.2.7:
     ioredis: ^4.19.4
     jed: 0.5.4
     jsonwebtoken: ^8.4.0
-    jsrsasign: ^10.1.10
+    jsrsasign: ^10.1.12
     jsxgettext-recursive-next: 1.1.0
     jws: 4.0.0
     keypair: 1.0.1
@@ -18554,7 +18651,7 @@ fsevents@^1.2.7:
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
     underscore: ^1.10.2
     upng-js: 2.1.0
-    url-loader: 4.1.0
+    url-loader: 4.1.1
     verror: 1.10.0
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
     webpack: ^4.41.2
@@ -18714,7 +18811,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^6.5.5
+    rxjs: ^6.6.6
     sqs-consumer: ^5.5.0
     supertest: ^6.1.3
     ts-jest: 26.4.3
@@ -18779,7 +18876,7 @@ fsevents@^1.2.7:
     "@types/yargs": ^15.0.5
     apollo-datasource: ^0.7.2
     apollo-server: ^2.19.2
-    apollo-server-express: ^2.16.1
+    apollo-server-express: ^2.21.0
     audit-filter: ^0.5.0
     chance: ^1.1.6
     class-transformer: ^0.3.1
@@ -18812,7 +18909,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^6.5.5
+    rxjs: ^6.6.6
     superagent: ^6.0.0
     supertest: ^6.1.3
     ts-jest: 26.4.3
@@ -18934,7 +19031,7 @@ fsevents@^1.2.7:
     babel-eslint: ^10.1.0
     babel-loader: ^8.0.6
     browserslist: ^4.7.2
-    caniuse-lite: ^1.0.30001158
+    caniuse-lite: ^1.0.30001192
     celebrate: ^10.1.0
     classnames: ^2.2.6
     convict: ^6.0.0
@@ -19167,7 +19264,7 @@ fsevents@^1.2.7:
     react-async-hook: ^3.6.1
     react-dom: ^16.13.1
     react-easy-crop: ^3.3.1
-    react-hook-form: ^6.15.3
+    react-hook-form: ^6.15.4
     react-scripts: ^3.4.1
     react-test-renderer: ^17.0.1
     react-webcam: ^5.2.2
@@ -19246,7 +19343,7 @@ fsevents@^1.2.7:
     proxyquire: ^2.1.3
     redis: ^3.0.2
     reflect-metadata: ^0.1.13
-    rxjs: ^6.5.5
+    rxjs: ^6.6.6
     sinon: ^9.0.3
     stripe: ^8.69.0
     superagent: ^6.0.0
@@ -19296,7 +19393,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
-    rxjs: ^6.5.5
+    rxjs: ^6.6.6
     semver: ^7.3.2
     superagent: ^6.0.0
     supertest: ^6.1.3
@@ -20051,7 +20148,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"graphql-tools@npm:^4.0.0":
+"graphql-tools@npm:^4.0.0, graphql-tools@npm:^4.0.8":
   version: 4.0.8
   resolution: "graphql-tools@npm:4.0.8"
   dependencies:
@@ -24474,10 +24571,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jsrsasign@npm:^10.1.10":
-  version: 10.1.10
-  resolution: "jsrsasign@npm:10.1.10"
-  checksum: 7a726e5d842d35069c5a14191e29d6178e33baf9952ff9f1c8583b04483b979c6b357253511cc47e5fd2d802fc45c1f9b52749a55c301b1c94590dfd5102dff3
+"jsrsasign@npm:^10.1.12":
+  version: 10.1.12
+  resolution: "jsrsasign@npm:10.1.12"
+  checksum: 2873413e3f971f9a5c9bbea4e1192b7997e29941dd39f886e1c9a7889d0616f3523bac472b6ca733bd032e7ea951a7b449acfb7429ebc316005a0d86cc021016
   languageName: node
   linkType: hard
 
@@ -26315,7 +26412,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mime-types@npm:^2.1.12, mime-types@npm:^2.1.26, mime-types@npm:^2.1.27, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24":
+"mime-types@npm:^2.1.12, mime-types@npm:^2.1.27, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24":
   version: 2.1.27
   resolution: "mime-types@npm:2.1.27"
   dependencies:
@@ -31628,12 +31725,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^6.15.3":
-  version: 6.15.3
-  resolution: "react-hook-form@npm:6.15.3"
+"react-hook-form@npm:^6.15.4":
+  version: 6.15.4
+  resolution: "react-hook-form@npm:6.15.4"
   peerDependencies:
     react: ^16.8.0 || ^17
-  checksum: 9da373e30d259b27ff72c28fc88b88c665fee5b01de294c5c5d89baaa15354db481714fc20c7b819544e81a64caee7e467c7b2e1bdb5764370bcd3325a1f53d9
+  checksum: 4f866330ddf30e0607e0c5c2ecdb7838e70872fad5b4d39240ecbf2e5f81e37357edf8b667bd939ce019976d6872a52dda94d4991862cb2010636050a779c4f0
   languageName: node
   linkType: hard
 
@@ -33341,12 +33438,21 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"rxjs@npm:6.6.3, rxjs@npm:^6.1.0, rxjs@npm:^6.4.0, rxjs@npm:^6.5.3, rxjs@npm:^6.5.5, rxjs@npm:^6.6.0, rxjs@npm:^6.6.2":
+"rxjs@npm:6.6.3, rxjs@npm:^6.1.0, rxjs@npm:^6.4.0, rxjs@npm:^6.5.3, rxjs@npm:^6.6.0, rxjs@npm:^6.6.2":
   version: 6.6.3
   resolution: "rxjs@npm:6.6.3"
   dependencies:
     tslib: ^1.9.0
   checksum: 61a3da6db947f69b7d805df3a619d8f60678b7372c4d571dd63e45ef3532be984a88307ea0aa2cd8d2578b62c3c022186e8da9dca47c9c1b8c9ecba6f5581deb
+  languageName: node
+  linkType: hard
+
+"rxjs@npm:^6.6.6":
+  version: 6.6.6
+  resolution: "rxjs@npm:6.6.6"
+  dependencies:
+    tslib: ^1.9.0
+  checksum: c97b410e791b3259439be48cd37119b63eedc3809a5895d884a7ac27a6934ae4ec246be3d76f1b2f3b47c72a96500ad30977545dc8b0f4a0f98c52f5f773a8ea
   languageName: node
   linkType: hard
 
@@ -37516,20 +37622,20 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"url-loader@npm:4.1.0":
-  version: 4.1.0
-  resolution: "url-loader@npm:4.1.0"
+"url-loader@npm:4.1.1":
+  version: 4.1.1
+  resolution: "url-loader@npm:4.1.1"
   dependencies:
     loader-utils: ^2.0.0
-    mime-types: ^2.1.26
-    schema-utils: ^2.6.5
+    mime-types: ^2.1.27
+    schema-utils: ^3.0.0
   peerDependencies:
     file-loader: "*"
     webpack: ^4.0.0 || ^5.0.0
   peerDependenciesMeta:
     file-loader:
       optional: true
-  checksum: 5870b969687458608c7cb7fc4e7f46a15478f506724828af3ddbe957318485b428f0fd9f08f01c413e8b556b08d7eb9520d5863e871b0bc279762a47d300a0b5
+  checksum: 871e8c8df26a985bbc8c1fb345f26565ee920a36bd7f48bece74aa541675b1ff3583e1ca5e9338d0525fbf5e5f6de96d84d9f6e6aa76657a68a5fc13832b009f
   languageName: node
   linkType: hard
 

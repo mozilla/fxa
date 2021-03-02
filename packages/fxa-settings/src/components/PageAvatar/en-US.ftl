@@ -14,6 +14,7 @@ avatar-page-remove-photo-button =
 avatar-page-retake-photo = Retake photo
 avatar-page-close-button = Close
 avatar-page-save-button = Save
+avatar-page-saving-button = Saving…
 avatar-page-zoom-out-button = Zoom out
 avatar-page-zoom-in-button = Zoom in
 avatar-page-rotate-button = Rotate

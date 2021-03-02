@@ -281,6 +281,7 @@ describe('PayPalClient', () => {
         assert.equal(err.name, 'PayPalClientError');
         assert.include(err.raw, 'ACK=Failure');
         assert.equal(err.data.ACK, 'Failure');
+        assert.equal(err.errorCode, 81100);
       }
     });
 
@@ -344,8 +345,10 @@ describe('PayPalClient', () => {
   describe('doReferenceTransaction', () => {
     const defaultData = {
       AMT: '5.99',
+      CURRENCYCODE: 'USD',
       CUSTOM: 'in_asdf-12',
       INVNUM: 'in_asdf',
+      IPADDRESS: '127.0.0.1',
       MSGSUBID: 'in_asdf-12',
       PAYMENTACTION: 'Sale',
       PAYMENTTYPE: 'instant',
@@ -359,8 +362,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: defaultData.REFERENCEID,
-        invoiceNumber: defaultData.INVNUM,
+        currencyCode: defaultData.CURRENCYCODE,
         idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -377,8 +382,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: amt,
         billingAgreementId: defaultData.REFERENCEID,
-        invoiceNumber: defaultData.INVNUM,
+        currencyCode: defaultData.CURRENCYCODE,
         idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -398,8 +405,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: ref,
-        invoiceNumber: defaultData.INVNUM,
+        currencyCode: defaultData.CURRENCYCODE,
         idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -407,6 +416,29 @@ describe('PayPalClient', () => {
         {
           ...defaultData,
           REFERENCEID: ref,
+        }
+      );
+    });
+
+    it('calls api with requested currency', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      const currency = 'EUR';
+      await client.doReferenceTransaction({
+        amount: defaultData.AMT,
+        billingAgreementId: defaultData.REFERENCEID,
+        currencyCode: currency,
+        idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'DoReferenceTransaction',
+        {
+          ...defaultData,
+          CURRENCYCODE: currency,
         }
       );
     });
@@ -430,8 +462,10 @@ describe('PayPalClient', () => {
         await client.doReferenceTransaction({
           amount: defaultData.AMT,
           billingAgreementId: defaultData.REFERENCEID,
-          invoiceNumber: defaultData.INVNUM,
+          currencyCode: defaultData.CURRENCYCODE,
           idempotencyKey: defaultData.MSGSUBID,
+          invoiceNumber: defaultData.INVNUM,
+          ipaddress: defaultData.IPADDRESS,
         });
         assert.fail('Request should have thrown an error.');
       } catch (err) {
@@ -439,6 +473,7 @@ describe('PayPalClient', () => {
         assert.equal(err.name, 'PayPalClientError');
         assert.include(err.raw, 'ACK=Failure');
         assert.equal(err.data.ACK, 'Failure');
+        assert.equal(err.errorCode, 11451);
       }
     });
   });

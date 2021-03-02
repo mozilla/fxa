@@ -9,15 +9,21 @@ import { Container } from 'typedi';
 import error from '../error';
 import {
   BAUpdateOptions,
-  SetExpressCheckoutOptions,
   CreateBillingAgreementOptions,
   DoReferenceTransactionOptions,
   IpnMessage,
   PayPalClient,
   PayPalClientError,
+  SetExpressCheckoutOptions,
   TransactionSearchOptions,
   TransactionStatus,
 } from './paypal-client';
+import {
+  PAYPAL_APP_ERRORS,
+  PAYPAL_BILLING_AGREEMENT_INVALID,
+  PAYPAL_RETRY_ERRORS,
+  PAYPAL_SOURCE_ERRORS,
+} from './paypal-error-codes';
 import { StripeHelper } from './stripe';
 import { CurrencyHelper } from './currencies';
 
@@ -28,6 +34,15 @@ type PaypalHelperOptions = {
 type AgreementDetails = {
   status: 'active' | 'cancelled';
   countryCode: string;
+};
+
+export type ChargeCustomerOptions = {
+  amountInCents: number;
+  billingAgreementId: string;
+  currencyCode: string;
+  idempotencyKey: string;
+  invoiceNumber: string;
+  ipaddress?: string;
 };
 
 export type ChargeResponse = {
@@ -88,6 +103,58 @@ export type TransactionSearchResult = {
   type: string;
 };
 
+/**
+ * Translates paypal client errors into fxa-auth-server errors.
+ *
+ * Re-throws the provided error as an auth-server error.
+ *
+ * @param err
+ */
+function throwPaypalCodeError(err: PayPalClientError) {
+  const code = err.errorCode;
+  if (!code) {
+    throw error.backendServiceFailure(
+      'paypal',
+      'transaction',
+      {
+        errData: err.data,
+        message: 'Error with no errorCode is not expected',
+      },
+      err
+    );
+  }
+  if (
+    PAYPAL_SOURCE_ERRORS.includes(code) ||
+    code === PAYPAL_BILLING_AGREEMENT_INVALID
+  ) {
+    const rethrowErr = error.paymentFailed();
+    rethrowErr.jse_cause = err;
+    throw rethrowErr;
+  }
+  if (PAYPAL_APP_ERRORS.includes(code)) {
+    throw error.backendServiceFailure(
+      'paypal',
+      'transaction',
+      {
+        errData: err.data,
+        code,
+      },
+      err
+    );
+  }
+  if (PAYPAL_RETRY_ERRORS.includes(code)) {
+    throw error.serviceUnavailable();
+  }
+  throw error.internalValidationError(
+    'paypalCodeHandler',
+    {
+      code,
+      errData: err.data,
+    },
+    err
+  );
+}
+
 export class PayPalHelper {
   private log: Logger;
   private client: PayPalClient;
@@ -111,13 +178,37 @@ export class PayPalHelper {
     }
   }
 
-  public generateIdempotencyKey(invoiceId: string, paymentAttempt: number): string {
-    return invoiceId + '-' + paymentAttempt
+  /**
+   * Generate a PayPal idempotency key, used as the MSGSUBID on PayPal NVP
+   * API calls.
+   *
+   * @param invoiceId
+   * @param paymentAttempt
+   */
+  public generateIdempotencyKey(
+    invoiceId: string,
+    paymentAttempt: number
+  ): string {
+    return `${invoiceId}-${paymentAttempt}`;
   }
 
-  public parseIdempotencyKey(idempotencyKey: string): {invoiceId: string, paymentAttempt: number} {
-    const parsedValue = idempotencyKey.split('-')
-    return {invoiceId: parsedValue[0], paymentAttempt: parseInt(parsedValue[1])}
+  /**
+   * Parse the invoice Id and payment attempt out of the idempotency key
+   *
+   * Returns the paymentAttempt with 1 added to reflect the actual payment
+   * attempts made as the original attempt number is incremented *after* the
+   * attempt is made successfully.
+   *
+   * @param idempotencyKey
+   */
+  public parseIdempotencyKey(
+    idempotencyKey: string
+  ): { invoiceId: string; paymentAttempt: number } {
+    const parsedValue = idempotencyKey.split('-');
+    return {
+      invoiceId: parsedValue[0],
+      paymentAttempt: parseInt(parsedValue[1]) + 1,
+    };
   }
 
   /**
@@ -154,9 +245,21 @@ export class PayPalHelper {
    *
    */
   public async chargeCustomer(
-    options: DoReferenceTransactionOptions
+    options: ChargeCustomerOptions
   ): Promise<ChargeResponse> {
-    const response = await this.client.doReferenceTransaction(options);
+    const doReferenceTransactionOptions: DoReferenceTransactionOptions = {
+      amount: this.currencyHelper.getPayPalAmountStringFromAmountInCents(
+        options.amountInCents
+      ),
+      billingAgreementId: options.billingAgreementId,
+      currencyCode: options.currencyCode,
+      idempotencyKey: options.idempotencyKey,
+      invoiceNumber: options.invoiceNumber,
+      ...(options.ipaddress && { ipaddress: options.ipaddress }),
+    };
+    const response = await this.client.doReferenceTransaction(
+      doReferenceTransactionOptions
+    );
     return {
       amount: response.AMT,
       avsCode: response.AVSCODE,
@@ -246,6 +349,36 @@ export class PayPalHelper {
   }
 
   /**
+   * Removes Paypal billing agreements on a customer if they paid with
+   * Paypal but no longer have an active/past_due subscription.
+   */
+  async conditionallyRemoveBillingAgreement(
+    customer: Stripe.Customer
+  ): Promise<boolean> {
+    const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
+      customer
+    );
+    if (!billingAgreementId) {
+      return false;
+    }
+    const paypalSubscription = customer.subscriptions?.data.find(
+      (sub) =>
+        ['active', 'past_due'].includes(sub.status) &&
+        sub.collection_method === 'send_invoice'
+    );
+    if (paypalSubscription) {
+      return false;
+    }
+    await this.cancelBillingAgreement(billingAgreementId);
+    await this.stripeHelper.removeCustomerPaypalAgreement(
+      customer.metadata.userid,
+      customer,
+      billingAgreementId
+    );
+    return true;
+  }
+
+  /**
    * Finalize and process a draft invoice that has no amounted owed.
    *
    * @param invoice
@@ -258,7 +391,7 @@ export class PayPalHelper {
   }
 
   /**
-   * Process an invoice with a billing agreement that is in draft with
+   * Process an invoice with a billing agreement that is in draft/open with
    * the provided billing agreement.
    *
    * @param opts
@@ -266,8 +399,10 @@ export class PayPalHelper {
   public async processInvoice(opts: {
     customer: Stripe.Customer;
     invoice: Stripe.Invoice;
+    batchProcessing?: boolean;
+    ipaddress?: string;
   }) {
-    const { customer, invoice } = opts;
+    const { customer, invoice, batchProcessing = false, ipaddress } = opts;
     const agreementId = this.stripeHelper.getCustomerPaypalAgreement(customer);
     if (!agreementId) {
       throw error.internalValidationError('processInvoice', {
@@ -286,24 +421,38 @@ export class PayPalHelper {
     // charges. This key is restricted to the invoice and payment
     // attempt in combination, so that retries can be made if
     // the prior attempt failed and a retry is desired.
-    const idempotencyKey = this.generateIdempotencyKey(invoice.id, paymentAttempt);
+    const idempotencyKey = this.generateIdempotencyKey(
+      invoice.id,
+      paymentAttempt
+    );
 
     const promises: Promise<any>[] = [
       this.chargeCustomer({
-        amount: invoice.amount_due.toString(),
+        amountInCents: invoice.amount_due,
         billingAgreementId: agreementId,
         invoiceNumber: invoice.id,
+        currencyCode: invoice.currency,
         idempotencyKey,
+        ...(ipaddress && { ipaddress }),
       }),
     ];
     if (invoice.status === 'draft') {
       promises.push(this.stripeHelper.finalizeInvoice(invoice));
     }
 
-    const [transactionResponse] = (await Promise.all(promises)) as [
-      ChargeResponse,
-      any
-    ];
+    let transactionResponse;
+    try {
+      [transactionResponse] = (await Promise.all(promises)) as [
+        ChargeResponse,
+        any
+      ];
+    } catch (err) {
+      if (err instanceof PayPalClientError && !batchProcessing) {
+        throwPaypalCodeError(err);
+      }
+      throw err;
+    }
+    await this.stripeHelper.updatePaymentAttempts(invoice);
 
     switch (transactionResponse.paymentStatus) {
       case 'Completed':
@@ -322,8 +471,6 @@ export class PayPalHelper {
       case 'Failed':
       case 'Voided':
       case 'Expired':
-        // Retries can be made as this payment is in a terminal state.
-        await this.stripeHelper.updatePaymentAttempts(invoice);
         throw error.paymentFailed();
       default:
         // Unexpected response here, log details and throw validation error.

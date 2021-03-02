@@ -8,6 +8,7 @@ import {
   createAccountCustomer,
   deleteAccountCustomer,
   getAccountCustomerByUid,
+  updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
 import { StatsD } from 'hot-shots';
@@ -388,6 +389,13 @@ export class StripeHelper {
   /**
    * Retrieve the payment attempts that have been made on this invoice via PayPal.
    *
+   * This variable reflects the amount of payment attempts that have been made. It is
+   * incremented *after* a payment attempt is made by any code that runs a reference
+   * transaction. As such, this number could be incremented multiple times at checkout
+   * or during a payment update on the subscription management page.
+   *
+   * The PayPal idempotencyKey has this number affixed to it in the pre-increment state.
+   *
    * @param invoice
    */
   getPaymentAttempts(invoice: Stripe.Invoice): number {
@@ -397,12 +405,15 @@ export class StripeHelper {
   /**
    * Update the payment attempts on an invoice after attempting via PayPal.
    *
+   * Increments by 1, or sets to the attempts passed in.
+   *
    * @param invoice
+   * @param attempts
    */
-  async updatePaymentAttempts(invoice: Stripe.Invoice) {
-    const currentAttempts = this.getPaymentAttempts(invoice);
+  async updatePaymentAttempts(invoice: Stripe.Invoice, attempts?: number) {
+    const setAttempt = attempts ?? this.getPaymentAttempts(invoice) + 1;
     return this.stripe.invoices.update(invoice.id, {
-      metadata: { paymentAttempts: (currentAttempts + 1).toString() },
+      metadata: { paymentAttempts: setAttempt.toString() },
     });
   }
 
@@ -436,12 +447,72 @@ export class StripeHelper {
   }
 
   /**
+   * Remove the PayPal Billing Agreement ID from a customer.
+   *
+   * @param customer
+   * @param agreementId
+   */
+  async removeCustomerPaypalAgreement(
+    uid: string,
+    customer: Stripe.Customer,
+    billingAgreementId: string
+  ) {
+    return [
+      this.stripe.customers.update(customer.id, {
+        metadata: { [PAYPAL_AGREEMENT_METADATA_KEY]: null },
+      }),
+      updatePayPalBA(uid, billingAgreementId, 'Cancelled', Date.now()),
+    ];
+  }
+
+  /**
    * Get the PayPal billing agreement id to use for this customer if available.
    *
    * @param customer
    */
   getCustomerPaypalAgreement(customer: Stripe.Customer): string | undefined {
     return customer.metadata[PAYPAL_AGREEMENT_METADATA_KEY];
+  }
+
+  /**
+   * Fetch all open invoices for manually invoiced subscriptions.
+   *
+   * Note that created times for Stripe are in seconds since epoch.
+   *
+   * @param created
+   */
+  fetchOpenInvoices(
+    created: Stripe.InvoiceListParams['created'],
+    customerId?: string
+  ) {
+    return this.stripe.invoices.list({
+      customer: customerId,
+      limit: 100,
+      collection_method: 'send_invoice',
+      status: 'open',
+      created,
+      expand: ['data.customer'],
+    });
+  }
+
+  /**
+   * Updates the invoice to uncollectible
+   *
+   * @param invoice
+   */
+  markUncollectible(invoice: Stripe.Invoice) {
+    return this.stripe.invoices.markUncollectible(invoice.id);
+  }
+
+  /**
+   * Updates subscription to cancelled status
+   *
+   * @param subscriptionId
+   */
+  async cancelSubscription(
+    subscriptionId: string
+  ): Promise<Stripe.Subscription> {
+    return this.stripe.subscriptions.del(subscriptionId);
   }
 
   /**

@@ -59,6 +59,12 @@ type NVPResponse = {
   CORRELATIONID: string;
   TIMESTAMP: string;
   VERSION: string;
+  L?: {
+    ERRORCODE: string;
+    SHORTMESSAGE: string;
+    LONGMESSAGE: string;
+    SEVERITYCODE: string;
+  }[];
 };
 
 type SetExpressCheckoutData = {
@@ -132,7 +138,7 @@ export type NVPDoReferenceTransactionResponse = NVPResponse &
 
 export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData;
 
-export type NVPTransactionSearchResponse = NVPResponse & TransactionSearchData;
+export type NVPTransactionSearchResponse = TransactionSearchData & NVPResponse;
 
 export type SetExpressCheckoutOptions = {
   currencyCode: string;
@@ -147,6 +153,8 @@ export type DoReferenceTransactionOptions = {
   billingAgreementId: string;
   invoiceNumber: string;
   idempotencyKey: string;
+  currencyCode: string;
+  ipaddress?: string;
 };
 
 export type BAUpdateOptions = {
@@ -214,6 +222,7 @@ type ResponseEventType = {
 export class PayPalClientError extends Error {
   public raw: string;
   public data: NVPResponse;
+  public errorCode: number | undefined;
 
   constructor(raw: string, data: NVPResponse, ...params: any) {
     super(...params);
@@ -224,8 +233,10 @@ export class PayPalClientError extends Error {
     }
     this.raw = raw;
     this.data = data;
+    this.errorCode = data.L?.length ? parseInt(data.L[0].ERRORCODE) : undefined;
   }
 }
+
 export class PayPalClient {
   private url: string;
   private ipnUrl: string;
@@ -398,8 +409,10 @@ export class PayPalClient {
   ): Promise<NVPDoReferenceTransactionResponse> {
     const data = {
       AMT: options.amount,
+      CURRENCYCODE: options.currencyCode.toUpperCase(),
       CUSTOM: options.idempotencyKey,
       INVNUM: options.invoiceNumber,
+      ...(options.ipaddress && { IPADDRESS: options.ipaddress }),
       MSGSUBID: options.idempotencyKey,
       PAYMENTACTION: 'Sale',
       PAYMENTTYPE: 'instant',

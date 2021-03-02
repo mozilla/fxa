@@ -39,7 +39,7 @@
     "@sentry/integrations": "^5.29.1",
     "@sentry/node": "^6.0.1",
     "apollo-server": "^2.19.2",
-    "apollo-server-express": "^2.16.1",
+    "apollo-server-express": "^2.21.0",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "convict": "^6.0.0",
@@ -56,7 +56,7 @@
     "objection": "^2.2.7",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^6.5.5",
+    "rxjs": "^6.6.6",
     "tslib": "^2.0.1"
   },
   "devDependencies": {
