@@ -158,14 +158,7 @@
   },
   "subscriptions": {
     "enabled": true,
-    "sharedSecret": "devsecret",
-    "paypalNvpSigCredentials": {
-      "enabled": true,
-      "sandbox": true,
-      "user": "sb-i11ty5077364_api1.business.example.com",
-      "pwd": "Q43EHXXYVFTF8KPH",
-      "signature": "ATq0Lw3ury0wjGtXkF30nozpLja-ASxng61sj1bMjEhIJJj3HAF02QB2"
-    }
+    "sharedSecret": "devsecret"
   },
   "totp": {
     "recoveryCodes": {
