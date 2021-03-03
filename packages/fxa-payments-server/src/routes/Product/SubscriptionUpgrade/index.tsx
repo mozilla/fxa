@@ -26,6 +26,7 @@ import { useValidatorState } from '../../../lib/validator';
 import DialogMessage from '../../../components/DialogMessage';
 import PaymentLegalBlurb from '../../../components/PaymentLegalBlurb';
 import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
+import { ProviderType } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 import PlanUpgradeDetails from './PlanUpgradeDetails';
 import Header from '../../../components/Header';
@@ -68,6 +69,8 @@ export const SubscriptionUpgrade = ({
   const validator = useValidatorState();
 
   const inProgress = updateSubscriptionPlanStatus.loading;
+
+  const paymentProvider: ProviderType | undefined = customer?.payment_provider;
 
   useEffect(() => {
     Amplitude.updateSubscriptionPlanMounted(selectedPlan);
@@ -236,7 +239,7 @@ export const SubscriptionUpgrade = ({
               </SubmitButton>
             </div>
 
-            <PaymentLegalBlurb />
+            <PaymentLegalBlurb provider={paymentProvider} />
             <TermsAndPrivacy plan={selectedPlan} />
           </Form>
         </div>

@@ -503,6 +503,7 @@ describe('routes/Subscriptions', () => {
             product_metadata: {
               ...MOCK_PLANS[1].product_metadata,
               webIconURL: null,
+              webIconBackground: null,
             },
           },
           ...MOCK_PLANS.slice(2),

@@ -11,7 +11,7 @@ import { linkTo } from '@storybook/addon-links';
 import MockApp, {
   defaultAppContextValue,
 } from '../../../../.storybook/components/MockApp';
-import { CUSTOMER, PROFILE, PLAN } from '../../../lib/mock-data';
+import { CUSTOMER, PROFILE, PLAN, NEW_CUSTOMER } from '../../../lib/mock-data';
 import { APIError } from '../../../lib/apiClient';
 import { PickPartial } from '../../../lib/types';
 import { SignInLayout } from '../../../components/AppLayout';
@@ -178,7 +178,7 @@ function init() {
 
 const Subject = ({
   isMobile = false,
-  customer = CUSTOMER,
+  customer = NEW_CUSTOMER,
   profile = PROFILE,
   selectedPlan = PLAN,
   apiClientOverrides = defaultApiClientOverrides,

@@ -1,18 +1,15 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
 
-import * as Provider from '../../lib/PaymentProvider';
 import { LoadingSpinner } from '../LoadingSpinner';
 import SubscriptionTitle from '../SubscriptionTitle';
-import {
-  PaypalPaymentLegalBlurb,
-  StripePaymentLegalBlurb,
-} from '../PaymentLegalBlurb';
+import PaymentLegalBlurb from '../PaymentLegalBlurb';
+import { ProviderType } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 import './index.scss';
 
 export type PaymentProcessingProps = {
-  provider: 'stripe' | 'paypal';
+  provider?: ProviderType;
   className?: string;
 };
 
@@ -35,8 +32,7 @@ export const PaymentProcessing = ({
         </div>
 
         <div className="footer" data-testid="footer">
-          {Provider.isPaypal(provider) && <PaypalPaymentLegalBlurb />}
-          {Provider.isStripe(provider) && <StripePaymentLegalBlurb />}
+          <PaymentLegalBlurb provider={provider} />
         </div>
       </section>
     </>

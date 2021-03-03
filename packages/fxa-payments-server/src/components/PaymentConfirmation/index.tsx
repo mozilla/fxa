@@ -6,10 +6,7 @@ import { Plan, Profile, Customer } from '../../store/types';
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
 import SubscriptionTitle from '../SubscriptionTitle';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
-import {
-  PaypalPaymentLegalBlurb,
-  StripePaymentLegalBlurb,
-} from '../PaymentLegalBlurb';
+import PaymentLegalBlurb from '../PaymentLegalBlurb';
 
 import circledCheckbox from './images/circled-confirm.svg';
 
@@ -135,8 +132,7 @@ export const PaymentConfirmation = ({
               Continue to download
             </a>
           </Localized>
-          {Provider.isPaypal(payment_provider) && <PaypalPaymentLegalBlurb />}
-          {Provider.isStripe(payment_provider) && <StripePaymentLegalBlurb />}
+          <PaymentLegalBlurb provider={payment_provider} />
           <TermsAndPrivacy plan={selectedPlan} />
         </div>
       </section>

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
 
+import * as PaymentProvider from '../../lib/PaymentProvider';
+
 import './index.scss';
 
 function getPrivacyLinkText(): string {
@@ -15,7 +17,7 @@ function getStripePrivacyLinkText(): string {
   return 'View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink>.';
 }
 
-export const PaypalPaymentLegalBlurb = () => (
+const PaypalPaymentLegalBlurb = () => (
   <div className="payment-legal-blurb">
     <Localized id="payment-legal-copy-paypal">
       <p>Mozilla uses Paypal for secure payment processing.</p>
@@ -38,7 +40,7 @@ export const PaypalPaymentLegalBlurb = () => (
   </div>
 );
 
-export const StripePaymentLegalBlurb = () => (
+const StripePaymentLegalBlurb = () => (
   <div className="payment-legal-blurb">
     <Localized id="payment-legal-copy-stripe">
       <p>Mozilla uses Stripe for secure payment processing.</p>
@@ -61,7 +63,7 @@ export const StripePaymentLegalBlurb = () => (
   </div>
 );
 
-export const PaymentLegalBlurb = () => (
+const DefaultPaymentLegalBlurb = () => (
   <div className="payment-legal-blurb">
     <Localized id="payment-legal-copy-stripe-paypal">
       <p>Mozilla uses Stripe and Paypal for secure payment processing.</p>
@@ -90,5 +92,18 @@ export const PaymentLegalBlurb = () => (
     </Localized>
   </div>
 );
+
+export type PaymentLegalBlurbProps = {
+  provider: PaymentProvider.ProviderType | undefined;
+};
+
+export const PaymentLegalBlurb = ({ provider }: PaymentLegalBlurbProps) => {
+  return (
+    (PaymentProvider.isPaypal(provider) && <PaypalPaymentLegalBlurb />) ||
+    (PaymentProvider.isStripe(provider) && <StripePaymentLegalBlurb />) || (
+      <DefaultPaymentLegalBlurb />
+    )
+  );
+};
 
 export default PaymentLegalBlurb;
