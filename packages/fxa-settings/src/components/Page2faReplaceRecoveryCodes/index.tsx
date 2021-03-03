@@ -28,9 +28,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const navigate = useNavigate();
   const session = useSession();
-  const goBack = () =>
+  const goHome = () =>
     navigate(HomePath + '#two-step-authentication', { replace: true });
-  const goHome = () => {
+  const alertSuccessAndGoHome = () => {
     alertTextExternal(
       l10n.getString(
         'tfa-replace-code-success-alert',
@@ -64,7 +64,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
 
   return (
     <FlowContainer title="Two Step Authentication">
-      <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+      <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
 
       {alertBar.visible && (
         <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
@@ -87,7 +87,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
           type="button"
           className="cta-neutral mx-2 px-10"
           data-testid="close-modal"
-          onClick={goHome}
+          onClick={alertSuccessAndGoHome}
         >
           Close
         </button>

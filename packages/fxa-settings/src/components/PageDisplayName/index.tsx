@@ -32,8 +32,8 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const { l10n } = useLocalization();
-  const goBack = () => navigate(HomePath + '#display-name', { replace: true });
-  const goHome = () => {
+  const goHome = () => navigate(HomePath + '#display-name', { replace: true });
+  const alertSuccessAndGoHome = () => {
     alertTextExternal(
       l10n.getString(
         'display-name-success-alert',
@@ -59,7 +59,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   const [updateDisplayName] = useMutation(UPDATE_DISPLAY_NAME_MUTATION, {
     onCompleted: () => {
       firefox.profileChanged(account.uid);
-      goHome();
+      alertSuccessAndGoHome();
     },
     onError(err) {
       if (err.graphQLErrors?.length) {
@@ -123,7 +123,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
                 type="button"
                 data-testid="cancel-display-name"
                 className="cta-neutral mx-2 flex-1"
-                onClick={goBack}
+                onClick={goHome}
               >
                 Cancel
               </button>

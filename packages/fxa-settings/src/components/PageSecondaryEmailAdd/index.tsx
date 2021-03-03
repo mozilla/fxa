@@ -28,7 +28,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const goBack = () =>
+  const goHome = () =>
     navigate(HomePath + '#secondary-email', { replace: true });
 
   const [createSecondaryEmail] = useMutation(CREATE_SECONDARY_EMAIL_MUTATION, {
@@ -88,7 +88,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
             <p data-testid="add-email-error">{alertBar.content}</p>
           </AlertBar>
         )}
-        <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           onSubmit={(ev) => {
             ev.preventDefault();
@@ -120,7 +120,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
                 type="button"
                 className="cta-neutral mx-2 flex-1"
                 data-testid="cancel-button"
-                onClick={goBack}
+                onClick={goHome}
               >
                 Cancel
               </button>
