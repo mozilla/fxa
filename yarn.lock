@@ -8323,10 +8323,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"adm-zip@npm:~0.4.x":
-  version: 0.4.14
-  resolution: "adm-zip@npm:0.4.14"
-  checksum: 18fcc9abbc423cad528605d1a91ee1dad22ccb1dd40e6c848a5a28477c4dfb62b2b5e6e9b5cebf5cd9461fb3cafce9966c1092dc3bcd25464ebd012868dad6cc
+"adm-zip@npm:~0.5.x":
+  version: 0.5.3
+  resolution: "adm-zip@npm:0.5.3"
+  checksum: f9e47fd89f570becc49975fed8420012c4efe15cae3b4a112883e03ba967388031092fd9c3b01a3662181f6a57be5717e91e95e2e8933c426451c5b6408b76c2
   languageName: node
   linkType: hard
 
@@ -9163,9 +9163,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"archiver@npm:~5.0.2":
-  version: 5.0.2
-  resolution: "archiver@npm:5.0.2"
+"archiver@npm:~5.2.0":
+  version: 5.2.0
+  resolution: "archiver@npm:5.2.0"
   dependencies:
     archiver-utils: ^2.1.0
     async: ^3.2.0
@@ -9173,8 +9173,8 @@ __metadata:
     readable-stream: ^3.6.0
     readdir-glob: ^1.0.0
     tar-stream: ^2.1.4
-    zip-stream: ^4.0.0
-  checksum: 648dc644b33d464e75ff2c9b0f07b438402048a3feb22711ed77c16b14b84d3cefc806b0b3206db6ac94b9b407945ab47de023a007caaef572bed97d9811d2e2
+    zip-stream: ^4.0.4
+  checksum: 4de8f6dd90dfbab163b4895f8d1e41b00c65d84eb618d3b0c3156ec5270fa044cd17ae9ad0713739a47f3e6663704541b9ccb689d70b368a8fe6b8ae65ef89ce
   languageName: node
   linkType: hard
 
@@ -9714,15 +9714,6 @@ __metadata:
   version: 0.2.10
   resolution: "async@npm:0.2.10"
   checksum: 8fd2b938bbdbcd48188e7025f2202cb5fc5fce704347337e664971b439da9e2ee7c441b344568647d0c426e5bdc9100c8d4ec3c497a888e2b9878c367aa68979
-  languageName: node
-  linkType: hard
-
-"async@npm:~2.5.0":
-  version: 2.5.0
-  resolution: "async@npm:2.5.0"
-  dependencies:
-    lodash: ^4.14.0
-  checksum: 8c0bfdf4bf578d9672ab004ceecaca60929eeb8c902bcb351d835e5e33faa4bba414843649c8e91c0f4a981af49425b47cb4cfffeac0e96f582e4e8a5a0abb6d
   languageName: node
   linkType: hard
 
@@ -11944,7 +11935,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.1.0, buffer@npm:^5.2.1, buffer@npm:^5.4.3, buffer@npm:^5.5.0, buffer@npm:^5.7.0":
+"buffer@npm:^5.2.1, buffer@npm:^5.4.3, buffer@npm:^5.5.0, buffer@npm:^5.7.0":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -13352,15 +13343,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compress-commons@npm:^4.0.0":
-  version: 4.0.1
-  resolution: "compress-commons@npm:4.0.1"
+"compress-commons@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "compress-commons@npm:4.1.0"
   dependencies:
     buffer-crc32: ^0.2.13
-    crc32-stream: ^4.0.0
+    crc32-stream: ^4.0.1
     normalize-path: ^3.0.0
     readable-stream: ^3.6.0
-  checksum: e393278a2e29dee244c6f839dd687cee981d862604059d4a5848dc79d454e1663c8a5b840c4d39ac513e04d68a75a8a1fea32d79671e129a5766a78232bb6ffe
+  checksum: 5f7ed51d563bda1db61e1978cd449b908f008fdccfc5cd8bcafe76e894406001459b444696637757a47e80a274058b94653c976648012b5dfb61799f95e38f79
   languageName: node
   linkType: hard
 
@@ -13818,22 +13809,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"crc32-stream@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "crc32-stream@npm:4.0.0"
+"crc-32@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "crc-32@npm:1.2.0"
   dependencies:
-    crc: ^3.4.4
-    readable-stream: ^3.4.0
-  checksum: 1e823682dc2d3a629ccce890d051afad8dd0178c4e439faa0254ef545eb3d3491c7208f1b7c8772c1357d353f06675bab98d86cdcba4059bd604666147928e08
+    exit-on-epipe: ~1.0.1
+    printj: ~1.1.0
+  bin:
+    crc32: ./bin/crc32.njs
+  checksum: 5a283cacfce357fec1f4fefce7c2293887b49acad3034c2a35928522e6c8a85504ed51f211681400faf390081b619dfa8e1878458517921cdcf736c48d0555d9
   languageName: node
   linkType: hard
 
-"crc@npm:^3.4.4":
-  version: 3.8.0
-  resolution: "crc@npm:3.8.0"
+"crc32-stream@npm:^4.0.1":
+  version: 4.0.2
+  resolution: "crc32-stream@npm:4.0.2"
   dependencies:
-    buffer: ^5.1.0
-  checksum: 37e8ca36f1636553987e9fe5ceb6accd05078f7f1c14c37f51b978bb0a5559d46c9d8b68f1e1140d08635dbd60115a3b8e65ea3d60f2e316956fa392c8910293
+    crc-32: ^1.2.0
+    readable-stream: ^3.4.0
+  checksum: a92944dd68a5f16426143f3998c972cb5a73d74816e6fc50d29981a7697584ec6f832520bf616055fa2f5aca591beff73368813ab53031f45d8dbdab05bd0236
   languageName: node
   linkType: hard
 
@@ -16706,6 +16700,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"exit-on-epipe@npm:~1.0.1":
+  version: 1.0.1
+  resolution: "exit-on-epipe@npm:1.0.1"
+  checksum: 24b604747458c0c9b719934d2af91bc78dc381e9296b8ee3887dd68e8f35500090b453335e9f0b392c0295562da1873c05dcbc77d29e6eea75a32bbef19adf53
+  languageName: node
+  linkType: hard
+
 "exit@npm:^0.1.2, exit@npm:~0.1.1, exit@npm:~0.1.2":
   version: 0.1.2
   resolution: "exit@npm:0.1.2"
@@ -17551,24 +17552,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firefox-profile@npm:4.0.0":
-  version: 4.0.0
-  resolution: "firefox-profile@npm:4.0.0"
+"firefox-profile@npm:4.1.0":
+  version: 4.1.0
+  resolution: "firefox-profile@npm:4.1.0"
   dependencies:
-    adm-zip: ~0.4.x
-    archiver: ~5.0.2
-    async: ~2.5.0
-    fs-extra: ~4.0.2
-    ini: ~1.3.3
-    jetpack-id: 1.0.0
+    adm-zip: ~0.5.x
+    archiver: ~5.2.0
+    fs-extra: ~9.0.1
+    ini: ~2.0.0
     lazystream: ~1.0.0
-    lodash: ~4.17.2
-    minimist: ^1.1.1
-    uuid: ^3.0.0
-    xml2js: ~0.4.4
+    minimist: ^1.2.5
+    uuid: ^8.3.2
+    xml2js: ~0.4.23
   bin:
     firefox-profile: lib/cli.js
-  checksum: 76fe69cb0dfe2525bea2e7c663603809e301027a0b056aac9e97c84ac2b35e7726edd899195a068b25b464eeefe53a74cd7dfc649978d65a601625f32db2cd43
+  checksum: 42022d9a16ba9dd231a73ccfec47d2341b4081f1e41be963b437c02bc8767d43c78b3281c4a59aebebe1724ec3d0f3329439498e78a60368ecbc3e247d5fc921
   languageName: node
   linkType: hard
 
@@ -17977,7 +17975,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:9.0.1, fs-extra@npm:^9.0.0, fs-extra@npm:^9.0.1":
+"fs-extra@npm:9.0.1, fs-extra@npm:^9.0.0, fs-extra@npm:^9.0.1, fs-extra@npm:~9.0.1":
   version: 9.0.1
   resolution: "fs-extra@npm:9.0.1"
   dependencies:
@@ -18002,7 +18000,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:^4.0.2, fs-extra@npm:~4.0.2":
+"fs-extra@npm:^4.0.2":
   version: 4.0.3
   resolution: "fs-extra@npm:4.0.3"
   dependencies:
@@ -18580,7 +18578,7 @@ fsevents@^1.2.7:
     extract-loader: 5.1.0
     fast-text-encoding: ^1.0.3
     file-loader: ^6.1.0
-    firefox-profile: 4.0.0
+    firefox-profile: 4.1.0
     fxa-auth-client: "workspace:*"
     fxa-common-password-list: 0.0.4
     fxa-crypto-relier: 2.7.0
@@ -21785,10 +21783,17 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"ini@npm:^1.3.0, ini@npm:^1.3.4, ini@npm:^1.3.5, ini@npm:~1.3.0, ini@npm:~1.3.3":
+"ini@npm:^1.3.0, ini@npm:^1.3.4, ini@npm:^1.3.5, ini@npm:~1.3.0":
   version: 1.3.5
   resolution: "ini@npm:1.3.5"
   checksum: 304a78d1e0ec49c6dc316b6a21bee5340ba85159c6581235b26a4cf27e2bac5f66f2c8f0e074ceaf3c48085f89fb974691cbf812df2128d2d74c5ef726d1b19a
+  languageName: node
+  linkType: hard
+
+"ini@npm:~2.0.0":
+  version: 2.0.0
+  resolution: "ini@npm:2.0.0"
+  checksum: 4ad34607409491b6ebe8e7b1e6b06ad1c147851cae5838186e27a906bf33abc1511fb539df7b96bdf8993fc0f81fd3f1e5995812fb616a965d8d4d4ad738bcf5
   languageName: node
   linkType: hard
 
@@ -24091,13 +24096,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jetpack-id@npm:1.0.0":
-  version: 1.0.0
-  resolution: "jetpack-id@npm:1.0.0"
-  checksum: 3f387473825a7c6aa91834dcb8e16b4b8755fe33d72ff397b191238291aa4afdf05bde5359e7b3896b30933f839631641570bbe0f6195e8f121c14b3b73102be
-  languageName: node
-  linkType: hard
-
 "jmespath@npm:0.15.0":
   version: 0.15.0
   resolution: "jmespath@npm:0.15.0"
@@ -25692,7 +25690,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.20, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.19, lodash@npm:~4.17.2, lodash@npm:~4.17.20":
+"lodash@npm:4.17.20, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.19, lodash@npm:~4.17.20":
   version: 4.17.20
   resolution: "lodash@npm:4.17.20"
   checksum: c62101d2500c383b5f174a7e9e6fe8098149ddd6e9ccfa85f36d4789446195f5c4afd3cfba433026bcaf3da271256566b04a2bf2618e5a39f6e67f8c12030cb6
@@ -30797,6 +30795,15 @@ fsevents@^1.2.7:
     parse-ms: ^1.0.0
     plur: ^1.0.0
   checksum: 4cd2a47acdc940589895853216eb23b5b35dfddec264731f828eade515effb54baf72f67918205f9e9b68b6f00fdcffe3a48505d41aa75073f381e1abb7755b5
+  languageName: node
+  linkType: hard
+
+"printj@npm:~1.1.0":
+  version: 1.1.2
+  resolution: "printj@npm:1.1.2"
+  bin:
+    printj: ./bin/printj.njs
+  checksum: ee774aa5957a57474f078fca1e9a41a10aac35e9b1ce9b2e2ecdb832f58fd21b1601075441dca633f582c881cca6c60308bf8505e6ab06305181be241bd47241
   languageName: node
   linkType: hard
 
@@ -37845,7 +37852,7 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"uuid@npm:^3.0.0, uuid@npm:^3.0.1, uuid@npm:^3.1.0, uuid@npm:^3.2.1, uuid@npm:^3.3.2, uuid@npm:^3.3.3":
+"uuid@npm:^3.0.1, uuid@npm:^3.1.0, uuid@npm:^3.2.1, uuid@npm:^3.3.2, uuid@npm:^3.3.3":
   version: 3.4.0
   resolution: "uuid@npm:3.4.0"
   bin:
@@ -39167,7 +39174,7 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"xml2js@npm:~0.4.4":
+"xml2js@npm:~0.4.23":
   version: 0.4.23
   resolution: "xml2js@npm:0.4.23"
   dependencies:
@@ -39580,13 +39587,13 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"zip-stream@npm:^4.0.0":
-  version: 4.0.2
-  resolution: "zip-stream@npm:4.0.2"
+"zip-stream@npm:^4.0.4":
+  version: 4.1.0
+  resolution: "zip-stream@npm:4.1.0"
   dependencies:
     archiver-utils: ^2.1.0
-    compress-commons: ^4.0.0
+    compress-commons: ^4.1.0
     readable-stream: ^3.6.0
-  checksum: eb6ed1e5a056516e03aed9b114d9ffd58a292f846e5230010f02c86408934ba6b851a120aa141a1d1f8ff073c6ad443c686f1840b882730945fa55fac7e4f61e
+  checksum: a2338731e721d05f37989d2284d7850a3923072c5836cfc71bdedb168afa0ecd020b45b4ca09b48ae8bc489a20e5ca46cd9e0928235a8a6fda181d5ed2876919
   languageName: node
   linkType: hard
