@@ -324,7 +324,7 @@ describe('PaypalProcessor', () => {
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.removeCustomerPaypalAgreement,
         'testuser',
-        testCustomer,
+        testCustomer.id,
         'testba'
       );
     });

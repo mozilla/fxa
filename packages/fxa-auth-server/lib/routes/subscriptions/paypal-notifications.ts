@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-
-import error from '../../error';
+import { accountByUid, getPayPalBAByBAId } from 'fxa-shared/db/models/auth';
 
 import { ConfigType } from '../../../config';
+import error from '../../error';
 import { IpnMerchPmtType, isIpnMerchPmt } from '../../payments/paypal-client';
 import { StripeHelper } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
@@ -78,7 +78,64 @@ export class PayPalNotificationHandler extends PayPalHandler {
     }
   }
 
-  private async handleMpCancel(message: IpnMerchPmtType) {}
+  /**
+   * Handle merchant payment cancelled notification from PayPal
+   * and update PayPalBillingAgreements to "Cancelled" status
+   * and removes the billing agreement from Stripe Customer
+   *
+   * @param message
+   */
+  private async handleMpCancel(message: IpnMerchPmtType) {
+    const billingAgreement = await getPayPalBAByBAId(message.mp_id);
+    if (!billingAgreement) {
+      this.log.error('handleMpCancel', {
+        message: 'Billing agreement not found',
+        ipnMessage: message,
+      });
+      return;
+    }
+    if (billingAgreement.status === 'Cancelled') {
+      return;
+    }
+    const account = await accountByUid(billingAgreement.uid);
+    if (!account) {
+      this.log.error('handleMpCancel', {
+        message: 'User account not found',
+        ipnMessage: message,
+        customerUid: billingAgreement.uid,
+      });
+      return;
+    }
+    const customer = await this.stripeHelper.customer({
+      uid: account.uid,
+      email: account.email,
+    });
+    if (!customer) {
+      this.log.error('handleMpCancel', {
+        message: 'Stripe customer not found',
+        ipnMessage: message,
+        customerUid: billingAgreement.uid,
+      });
+      return;
+    }
+    this.stripeHelper.removeCustomerPaypalAgreement(
+      account.uid,
+      customer.id,
+      billingAgreement.billingAgreementId
+    );
+
+    const nextPeriodValidSubscription = customer.subscriptions?.data.find(
+      (sub) =>
+        !sub.cancel_at_period_end && ['active', 'past_due'].includes(sub.status)
+    );
+    if (
+      this.stripeHelper.getPaymentProvider(customer) == 'paypal' &&
+      nextPeriodValidSubscription
+    ) {
+      // TODO: Send email to user that they must go to sub management and re-auth PayPal
+      // via StripeWebhookHandler.sendSubscriptionPaymentExpiredEmail
+    }
+  }
 
   /**
    * Verify and dispatch IPN events from PayPal

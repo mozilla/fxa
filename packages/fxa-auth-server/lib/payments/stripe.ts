@@ -469,11 +469,11 @@ export class StripeHelper {
    */
   async removeCustomerPaypalAgreement(
     uid: string,
-    customer: Stripe.Customer,
+    customerId: string,
     billingAgreementId: string
   ) {
     return [
-      this.stripe.customers.update(customer.id, {
+      this.stripe.customers.update(customerId, {
         metadata: { [PAYPAL_AGREEMENT_METADATA_KEY]: null },
       }),
       updatePayPalBA(uid, billingAgreementId, 'Cancelled', Date.now()),

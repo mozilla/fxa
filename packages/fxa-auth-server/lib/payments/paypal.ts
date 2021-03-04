@@ -373,7 +373,7 @@ export class PayPalHelper {
     await this.cancelBillingAgreement(billingAgreementId);
     await this.stripeHelper.removeCustomerPaypalAgreement(
       customer.metadata.userid,
-      customer,
+      customer.id,
       billingAgreementId
     );
     return true;

@@ -151,6 +151,17 @@ export async function getAllPayPalBAByUid(
 }
 
 /**
+ * Get the PayPal Billing Agreements by billing agreement id
+ *
+ * @param billingAgreementId
+ */
+export async function getPayPalBAByBAId(
+  billingAgreementId: string
+): Promise<PayPalBillingAgreements> {
+  return PayPalBillingAgreements.query().findOne({ billingAgreementId });
+}
+
+/**
  * Create a PayPal Billing Agreement record for a user by uid.
  * @param uid
  * @param billingAgreementId

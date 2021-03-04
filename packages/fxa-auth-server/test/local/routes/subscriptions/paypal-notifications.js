@@ -14,10 +14,10 @@ const mocks = require('../../../mocks');
 const error = require('../../../../lib/error');
 const completedMerchantPaymentNotification = require('../fixtures/merch_pmt_completed.json');
 const pendingMerchantPaymentNotification = require('../fixtures/merch_pmt_pending.json');
+const billingAgreementCancelNotification = require('../fixtures/mp_cancel_successful.json');
 const {
   PayPalNotificationHandler,
 } = require('../../../../lib/routes/subscriptions/paypal-notifications');
-const successfulRefundTransactionResponse = require('../../payments/fixtures/paypal/refund_transaction_success.json');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
 
 const ACCOUNT_LOCALE = 'en-US';
@@ -36,6 +36,8 @@ describe('PayPalNotificationHandler', () => {
   let profile;
   let push;
   let stripeHelper;
+  /** @type sinon.SinonSandbox */
+  let sandbox;
 
   beforeEach(() => {
     config = {
@@ -324,6 +326,215 @@ describe('PayPalNotificationHandler', () => {
         invoice,
         completedMerchantPaymentNotification.txn_id
       );
+    });
+  });
+
+  describe('handleMpCancel', () => {
+    const billingAgreement = {
+      billingAgreementId: 'abc',
+      status: 'Active',
+      uid: '123',
+    };
+    const account = {
+      stripeCustomerId: '321',
+      uid: '123',
+      email: '123@test.com',
+    };
+    const customer = { id: '321' };
+    const subscriptions = {
+      data: [{ cancel_at_period_end: false, status: 'active' }],
+    };
+
+    it('receives IPN message with successful billing agreement cancelled and email sent', async () => {
+      sandbox = sinon.createSandbox();
+
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getPayPalBAByBAId')
+        .resolves(billingAgreement);
+      sandbox.stub(authDbModule, 'accountByUid').resolves(account);
+      stripeHelper.customer = sinon.fake.resolves({
+        ...customer,
+        subscriptions,
+      });
+      stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
+      stripeHelper.getPaymentProvider = sinon.fake.resolves('paypal');
+
+      const result = await handler.handleMpCancel(
+        billingAgreementCancelNotification
+      );
+
+      assert.isUndefined(result);
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getPayPalBAByBAId,
+        billingAgreementCancelNotification.mp_id
+      );
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.accountByUid,
+        billingAgreement.uid
+      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
+        uid: account.uid,
+        email: account.email,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.removeCustomerPaypalAgreement,
+        account.uid,
+        customer.id,
+        billingAgreement.billingAgreementId
+      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.getPaymentProvider, {
+        ...customer,
+        subscriptions,
+      });
+
+      sandbox.restore();
+    });
+
+    it('receives IPN message with billing agreement not found', async () => {
+      sandbox = sinon.createSandbox();
+
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox.stub(authDbModule, 'getPayPalBAByBAId').resolves(undefined);
+
+      const result = await handler.handleMpCancel(
+        billingAgreementCancelNotification
+      );
+
+      assert.isUndefined(result);
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getPayPalBAByBAId,
+        billingAgreementCancelNotification.mp_id
+      );
+      sinon.assert.calledOnce(log.error);
+
+      sandbox.restore();
+    });
+
+    it('receives IPN message for billing agreement already cancelled', async () => {
+      sandbox = sinon.createSandbox();
+
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getPayPalBAByBAId')
+        .returns({ ...billingAgreement, status: 'Cancelled' });
+
+      const result = await handler.handleMpCancel(
+        billingAgreementCancelNotification
+      );
+
+      assert.isUndefined(result);
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getPayPalBAByBAId,
+        billingAgreementCancelNotification.mp_id
+      );
+
+      sandbox.restore();
+    });
+
+    it('receives IPN message for billing agreement with no FXA account', async () => {
+      sandbox = sinon.createSandbox();
+
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getPayPalBAByBAId')
+        .resolves(billingAgreement);
+      sandbox.stub(authDbModule, 'accountByUid').resolves(undefined);
+
+      const result = await handler.handleMpCancel(
+        billingAgreementCancelNotification
+      );
+
+      assert.isUndefined(result);
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getPayPalBAByBAId,
+        billingAgreementCancelNotification.mp_id
+      );
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.accountByUid,
+        billingAgreement.uid
+      );
+      sinon.assert.calledOnce(log.error);
+
+      sandbox.restore();
+    });
+
+    it('receives IPN message for billing agreement with no Stripe customer', async () => {
+      sandbox = sinon.createSandbox();
+
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getPayPalBAByBAId')
+        .resolves(billingAgreement);
+      sandbox.stub(authDbModule, 'accountByUid').resolves(account);
+      stripeHelper.customer = sinon.fake.resolves(undefined);
+
+      const result = await handler.handleMpCancel(
+        billingAgreementCancelNotification
+      );
+
+      assert.isUndefined(result);
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getPayPalBAByBAId,
+        billingAgreementCancelNotification.mp_id
+      );
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.accountByUid,
+        billingAgreement.uid
+      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
+        uid: account.uid,
+        email: account.email,
+      });
+      sinon.assert.calledOnce(log.error);
+
+      sandbox.restore();
+    });
+
+    it('receives IPN message for inactive subscription and email not sent', async () => {
+      sandbox = sinon.createSandbox();
+
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getPayPalBAByBAId')
+        .resolves(billingAgreement);
+      sandbox.stub(authDbModule, 'accountByUid').resolves(account);
+      stripeHelper.customer = sinon.fake.resolves({
+        ...customer,
+        subscriptions: undefined,
+      });
+      stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
+      stripeHelper.getPaymentProvider = sinon.fake.resolves('paypal');
+
+      const result = await handler.handleMpCancel(
+        billingAgreementCancelNotification
+      );
+
+      assert.isUndefined(result);
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getPayPalBAByBAId,
+        billingAgreementCancelNotification.mp_id
+      );
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.accountByUid,
+        billingAgreement.uid
+      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
+        uid: account.uid,
+        email: account.email,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.removeCustomerPaypalAgreement,
+        account.uid,
+        customer.id,
+        billingAgreement.billingAgreementId
+      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.getPaymentProvider, {
+        ...customer,
+        subscriptions: undefined,
+      });
+
+      sandbox.restore();
     });
   });
 });

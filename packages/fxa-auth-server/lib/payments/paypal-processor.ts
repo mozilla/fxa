@@ -212,7 +212,7 @@ export class PaypalProcessor {
           ) as string;
           await this.stripeHelper.removeCustomerPaypalAgreement(
             uid,
-            customer,
+            customer.id,
             billingAgreementId
           );
           // TODO: Send email to user that they must go to sub management and re-auth PayPal
