@@ -173,7 +173,7 @@
     "ts-node": "^8.10.2",
     "upng-js": "2.1.0",
     "url-loader": "4.1.1",
-    "webpack-dev-middleware": "^3.7.2",
+    "webpack-dev-middleware": "^4.1.0",
     "xmlhttprequest": "git://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror",
     "yargs": "^16.2.0"
   },
