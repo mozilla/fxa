@@ -97,249 +97,260 @@ function createViewModel(data) {
   return new Backbone.Model(data || {});
 }
 
-const Router = Backbone.Router.extend({
-  routes: {
-    '(/)': createViewHandler(IndexView),
-    'account_recovery_confirm_key(/)': createViewHandler(
-      AccountRecoveryConfirmKey
-    ),
-    'account_recovery_reset_password(/)': createViewHandler(
-      CompleteResetPasswordView
-    ),
-    'authorization(/)': createViewHandler(RedirectAuthView),
-    'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
-    'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
-    'clear(/)': createViewHandler(ClearStorageView),
-    'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
-    'complete_signin(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
-    'confirm(/)': createViewHandler(ConfirmView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
-    'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
-    'confirm_signin(/)': createViewHandler(ConfirmView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
-    'confirm_signup_code(/)': createViewHandler(ConfirmSignupCodeView),
-    'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
-    'connect_another_device/why(/)': createChildViewHandler(
-      WhyConnectAnotherDeviceView,
-      ConnectAnotherDeviceView
-    ),
-    'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
-    'force_auth(/)': createViewHandler(ForceAuthView),
-    'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),
-    'inline_recovery_setup(/)': createViewHandler(InlineRecoverySetupView),
-    'legal(/)': createViewHandler('legal'),
-    'legal/privacy(/)': createViewHandler('pp'),
-    'legal/terms(/)': createViewHandler('tos'),
-    'oauth(/)': createViewHandler(IndexView),
-    'oauth/force_auth(/)': createViewHandler(ForceAuthView),
-    'oauth/signin(/)': createViewHandler(SignInPasswordView),
-    'oauth/signup(/)': createViewHandler(SignUpPasswordView),
-    'oauth/success/:client_id(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SUCCESSFUL_OAUTH,
-    }),
-    'pair(/)': createViewHandler('pair/index'),
-    'pair/auth/allow(/)': createViewHandler('pair/auth_allow'),
-    'pair/auth/complete(/)': createViewHandler('pair/auth_complete'),
-    'pair/auth/totp(/)': createViewHandler('pair/auth_totp'),
-    'pair/auth/wait_for_supp(/)': createViewHandler('pair/auth_wait_for_supp'),
-    'pair/failure(/)': createViewHandler('pair/failure'),
-    'pair/success(/)': createViewHandler('pair/success'),
-    'pair/supp(/)': createViewHandler('pair/supp', { force: true }),
-    'pair/supp/allow(/)': createViewHandler('pair/supp_allow'),
-    'pair/supp/wait_for_auth(/)': createViewHandler('pair/supp_wait_for_auth'),
-    'pair/unsupported(/)': createViewHandler('pair/unsupported'),
-    'post_verify/account_recovery/add_recovery_key': createViewHandler(
-      'post_verify/account_recovery/add_recovery_key'
-    ),
-    'post_verify/account_recovery/confirm_password': createViewHandler(
-      'post_verify/account_recovery/confirm_password'
-    ),
-    'post_verify/account_recovery/confirm_recovery_key': createViewHandler(
-      'post_verify/account_recovery/confirm_recovery_key'
-    ),
-    'post_verify/account_recovery/save_recovery_key': createViewHandler(
-      'post_verify/account_recovery/save_recovery_key'
-    ),
-    'post_verify/account_recovery/verified_recovery_key': createViewHandler(
-      'post_verify/verified',
-      {
-        type: VerificationReasons.RECOVERY_KEY,
-      }
-    ),
-    'post_verify/cad_qr/get_started': createViewHandler(
-      'post_verify/cad_qr/get_started'
-    ),
-    'post_verify/cad_qr/ready_to_scan': createViewHandler(
-      'post_verify/cad_qr/ready_to_scan'
-    ),
-    'post_verify/cad_qr/scan_code': createViewHandler(
-      'post_verify/cad_qr/scan_code'
-    ),
-    'post_verify/cad_qr/connected': createViewHandler(
-      'post_verify/cad_qr/connected'
-    ),
-    'post_verify/newsletters/add_newsletters': createViewHandler(
-      'post_verify/newsletters/add_newsletters'
-    ),
-    'post_verify/password/force_password_change': createViewHandler(
-      'post_verify/password/force_password_change'
-    ),
-    'post_verify/secondary_email/add_secondary_email': createViewHandler(
-      'post_verify/secondary_email/add_secondary_email'
-    ),
-    'post_verify/secondary_email/confirm_secondary_email': createViewHandler(
-      'post_verify/secondary_email/confirm_secondary_email'
-    ),
-    'post_verify/secondary_email/verified_secondary_email': createViewHandler(
-      'post_verify/verified',
-      {
-        type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-      }
-    ),
-    'primary_email_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
-    }),
-    'report_signin(/)': createViewHandler(ReportSignInView),
-    'reset_password(/)': createViewHandler(ResetPasswordView),
-    'reset_password_confirmed(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.PASSWORD_RESET,
-    }),
-    'reset_password_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.PASSWORD_RESET,
-    }),
-    'reset_password_with_recovery_key_verified(/)': createViewHandler(
-      ReadyView,
-      { type: VerificationReasons.PASSWORD_RESET_WITH_RECOVERY_KEY }
-    ),
-    'secondary_email_verified(/)': createViewHandler(ReadyView, {
+const baseRoutes = {
+  '(/)': createViewHandler(IndexView),
+  'account_recovery_confirm_key(/)': createViewHandler(
+    AccountRecoveryConfirmKey
+  ),
+  'account_recovery_reset_password(/)': createViewHandler(
+    CompleteResetPasswordView
+  ),
+  'authorization(/)': createViewHandler(RedirectAuthView),
+  'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
+  'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
+  'clear(/)': createViewHandler(ClearStorageView),
+  'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
+  'complete_signin(/)': createViewHandler(CompleteSignUpView, {
+    type: VerificationReasons.SIGN_IN,
+  }),
+  'confirm(/)': createViewHandler(ConfirmView, {
+    type: VerificationReasons.SIGN_UP,
+  }),
+  'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
+  'confirm_signin(/)': createViewHandler(ConfirmView, {
+    type: VerificationReasons.SIGN_IN,
+  }),
+  'confirm_signup_code(/)': createViewHandler(ConfirmSignupCodeView),
+  'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
+  'connect_another_device/why(/)': createChildViewHandler(
+    WhyConnectAnotherDeviceView,
+    ConnectAnotherDeviceView
+  ),
+  'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
+  'force_auth(/)': createViewHandler(ForceAuthView),
+  'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),
+  'inline_recovery_setup(/)': createViewHandler(InlineRecoverySetupView),
+  'legal(/)': createViewHandler('legal'),
+  'legal/privacy(/)': createViewHandler('pp'),
+  'legal/terms(/)': createViewHandler('tos'),
+  'oauth(/)': createViewHandler(IndexView),
+  'oauth/force_auth(/)': createViewHandler(ForceAuthView),
+  'oauth/signin(/)': createViewHandler(SignInPasswordView),
+  'oauth/signup(/)': createViewHandler(SignUpPasswordView),
+  'oauth/success/:client_id(/)': createViewHandler(ReadyView, {
+    type: VerificationReasons.SUCCESSFUL_OAUTH,
+  }),
+  'pair(/)': createViewHandler('pair/index'),
+  'pair/auth/allow(/)': createViewHandler('pair/auth_allow'),
+  'pair/auth/complete(/)': createViewHandler('pair/auth_complete'),
+  'pair/auth/totp(/)': createViewHandler('pair/auth_totp'),
+  'pair/auth/wait_for_supp(/)': createViewHandler('pair/auth_wait_for_supp'),
+  'pair/failure(/)': createViewHandler('pair/failure'),
+  'pair/success(/)': createViewHandler('pair/success'),
+  'pair/supp(/)': createViewHandler('pair/supp', { force: true }),
+  'pair/supp/allow(/)': createViewHandler('pair/supp_allow'),
+  'pair/supp/wait_for_auth(/)': createViewHandler('pair/supp_wait_for_auth'),
+  'pair/unsupported(/)': createViewHandler('pair/unsupported'),
+  'post_verify/account_recovery/add_recovery_key': createViewHandler(
+    'post_verify/account_recovery/add_recovery_key'
+  ),
+  'post_verify/account_recovery/confirm_password': createViewHandler(
+    'post_verify/account_recovery/confirm_password'
+  ),
+  'post_verify/account_recovery/confirm_recovery_key': createViewHandler(
+    'post_verify/account_recovery/confirm_recovery_key'
+  ),
+  'post_verify/account_recovery/save_recovery_key': createViewHandler(
+    'post_verify/account_recovery/save_recovery_key'
+  ),
+  'post_verify/account_recovery/verified_recovery_key': createViewHandler(
+    'post_verify/verified',
+    {
+      type: VerificationReasons.RECOVERY_KEY,
+    }
+  ),
+  'post_verify/cad_qr/get_started': createViewHandler(
+    'post_verify/cad_qr/get_started'
+  ),
+  'post_verify/cad_qr/ready_to_scan': createViewHandler(
+    'post_verify/cad_qr/ready_to_scan'
+  ),
+  'post_verify/cad_qr/scan_code': createViewHandler(
+    'post_verify/cad_qr/scan_code'
+  ),
+  'post_verify/cad_qr/connected': createViewHandler(
+    'post_verify/cad_qr/connected'
+  ),
+  'post_verify/newsletters/add_newsletters': createViewHandler(
+    'post_verify/newsletters/add_newsletters'
+  ),
+  'post_verify/password/force_password_change': createViewHandler(
+    'post_verify/password/force_password_change'
+  ),
+  'post_verify/secondary_email/add_secondary_email': createViewHandler(
+    'post_verify/secondary_email/add_secondary_email'
+  ),
+  'post_verify/secondary_email/confirm_secondary_email': createViewHandler(
+    'post_verify/secondary_email/confirm_secondary_email'
+  ),
+  'post_verify/secondary_email/verified_secondary_email': createViewHandler(
+    'post_verify/verified',
+    {
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-    }),
-    'security_events(/)': createViewHandler(SecurityEvents),
-    'settings(/)': createViewHandler(SettingsView),
-    'settings/beta_optout(/)': createViewHandler(SettingsView),
-    'settings/account_recovery(/)': createChildViewHandler(
-      AccountRecoveryView,
-      SettingsView
-    ),
-    'settings/account_recovery/confirm_password(/)': createChildViewHandler(
-      AccountRecoveryConfirmPasswordView,
-      SettingsView
-    ),
-    'settings/account_recovery/confirm_revoke(/)': createChildViewHandler(
-      AccountRecoveryConfirmRevokeView,
-      SettingsView
-    ),
-    'settings/account_recovery/recovery_key(/)': createChildViewHandler(
-      AccountRecoveryKeyView,
-      SettingsView
-    ),
-    'settings/avatar/camera(/)': createChildViewHandler(
-      AvatarCameraView,
-      SettingsView
-    ),
-    'settings/avatar/change(/)': createChildViewHandler(
-      AvatarChangeView,
-      SettingsView
-    ),
-    'settings/avatar/crop(/)': createChildViewHandler(
-      AvatarCropView,
-      SettingsView
-    ),
-    'settings/change_password(/)': createChildViewHandler(
-      ChangePasswordView,
-      SettingsView
-    ),
-    'settings/clients(/)': createChildViewHandler(ClientsView, SettingsView),
-    'settings/clients/disconnect(/)': createChildViewHandler(
-      ClientDisconnectView,
-      SettingsView
-    ),
-    'settings/communication_preferences(/)': createChildViewHandler(
-      CommunicationPreferencesView,
-      SettingsView
-    ),
-    'settings/delete_account(/)': createChildViewHandler(
-      DeleteAccountView,
-      SettingsView
-    ),
-    'settings/display_name(/)': createChildViewHandler(
-      DisplayNameView,
-      SettingsView
-    ),
-    'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
-    'settings/two_step_authentication(/)': createChildViewHandler(
-      TwoStepAuthenticationView,
-      SettingsView
-    ),
-    'settings/two_step_authentication/recovery_codes(/)': createChildViewHandler(
-      RecoveryCodesView,
-      SettingsView
-    ),
-    'settings/two_step_authentication/secret(/)': createChildViewHandler(
-      TotpSecretView,
-      SettingsView
-    ),
-    'signin(/)': createViewHandler(SignInPasswordView),
-    'signin_bounced(/)': createViewHandler(SignInBouncedView),
-    'signin_confirmed(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
-    'signin_permissions(/)': createViewHandler(PermissionsView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
-    'signin_recovery_code(/)': createViewHandler(SignInRecoveryCodeView),
-    'signin_reported(/)': createViewHandler(SignInReportedView),
-    'signin_token_code(/)': createViewHandler(SignInTokenCodeView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
-    'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
-    'signin_unblock(/)': createViewHandler(SignInUnblockView),
-    'signin_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
-    'signup(/)': createViewHandler(SignUpPasswordView),
-    'signup_confirmed(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
-    'signup_permissions(/)': createViewHandler(PermissionsView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
-    'signup_verified(/)': createViewHandler(ReadyView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
-    'sms(/)': createViewHandler(SmsSendView),
-    'sms/sent(/)': createViewHandler(SmsSentView),
-    'sms/sent/why(/)': createChildViewHandler(
-      WhyConnectAnotherDeviceView,
-      SmsSentView
-    ),
-    'sms/why(/)': createChildViewHandler(
-      WhyConnectAnotherDeviceView,
-      SmsSendView
-    ),
-    'subscriptions/products/:productId': createViewHandler(
-      SubscriptionsProductRedirectView
-    ),
-    'subscriptions(/)': createViewHandler(SubscriptionsManagementRedirectView),
-    'support(/)': createViewHandler(SupportView),
-    'verify_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SIGN_UP,
-    }),
-    'verify_primary_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
-    }),
-    'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
-    }),
-    'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
-    'beta/settings(/)': function (qs) {
-      this.navigateAway('/beta/settings?' + qs);
-    },
+    }
+  ),
+  'primary_email_verified(/)': createViewHandler(ReadyView, {
+    type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
+  }),
+  'report_signin(/)': createViewHandler(ReportSignInView),
+  'reset_password(/)': createViewHandler(ResetPasswordView),
+  'reset_password_confirmed(/)': createViewHandler(ReadyView, {
+    type: VerificationReasons.PASSWORD_RESET,
+  }),
+  'reset_password_verified(/)': createViewHandler(ReadyView, {
+    type: VerificationReasons.PASSWORD_RESET,
+  }),
+  'reset_password_with_recovery_key_verified(/)': createViewHandler(
+    ReadyView,
+    { type: VerificationReasons.PASSWORD_RESET_WITH_RECOVERY_KEY }
+  ),
+  'secondary_email_verified(/)': createViewHandler(ReadyView, {
+    type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
+  }),
+  'security_events(/)': createViewHandler(SecurityEvents),
+  'signin(/)': createViewHandler(SignInPasswordView),
+  'signin_bounced(/)': createViewHandler(SignInBouncedView),
+  'signin_confirmed(/)': createViewHandler(ReadyView, {
+    type: VerificationReasons.SIGN_IN,
+  }),
+  'signin_permissions(/)': createViewHandler(PermissionsView, {
+    type: VerificationReasons.SIGN_IN,
+  }),
+  'signin_recovery_code(/)': createViewHandler(SignInRecoveryCodeView),
+  'signin_reported(/)': createViewHandler(SignInReportedView),
+  'signin_token_code(/)': createViewHandler(SignInTokenCodeView, {
+    type: VerificationReasons.SIGN_IN,
+  }),
+  'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
+  'signin_unblock(/)': createViewHandler(SignInUnblockView),
+  'signin_verified(/)': createViewHandler(ReadyView, {
+    type: VerificationReasons.SIGN_IN,
+  }),
+  'signup(/)': createViewHandler(SignUpPasswordView),
+  'signup_confirmed(/)': createViewHandler(ReadyView, {
+    type: VerificationReasons.SIGN_UP,
+  }),
+  'signup_permissions(/)': createViewHandler(PermissionsView, {
+    type: VerificationReasons.SIGN_UP,
+  }),
+  'signup_verified(/)': createViewHandler(ReadyView, {
+    type: VerificationReasons.SIGN_UP,
+  }),
+  'sms(/)': createViewHandler(SmsSendView),
+  'sms/sent(/)': createViewHandler(SmsSentView),
+  'sms/sent/why(/)': createChildViewHandler(
+    WhyConnectAnotherDeviceView,
+    SmsSentView
+  ),
+  'sms/why(/)': createChildViewHandler(
+    WhyConnectAnotherDeviceView,
+    SmsSendView
+  ),
+  'subscriptions/products/:productId': createViewHandler(
+    SubscriptionsProductRedirectView
+  ),
+  'subscriptions(/)': createViewHandler(SubscriptionsManagementRedirectView),
+  'support(/)': createViewHandler(SupportView),
+  'verify_email(/)': createViewHandler(CompleteSignUpView, {
+    type: VerificationReasons.SIGN_UP,
+  }),
+  'verify_primary_email(/)': createViewHandler(CompleteSignUpView, {
+    type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
+  }),
+  'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, {
+    type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
+  }),
+  'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
+};
+
+const newSettingsRoutes = {
+  'settings(/)': function (qs) {
+    this.navigateAway('/settings?' + qs);
   },
+};
+
+const oldSettingsRoutes = {
+  'settings(/)': createViewHandler(SettingsView),
+  // TODO: should I redirect beta/settings and beta-optout to just /settings?
+  // or orphan them and move on?
+  'settings/beta_optout(/)': createViewHandler(SettingsView),
+  'settings/account_recovery(/)': createChildViewHandler(
+    AccountRecoveryView,
+    SettingsView
+  ),
+  'settings/account_recovery/confirm_password(/)': createChildViewHandler(
+    AccountRecoveryConfirmPasswordView,
+    SettingsView
+  ),
+  'settings/account_recovery/confirm_revoke(/)': createChildViewHandler(
+    AccountRecoveryConfirmRevokeView,
+    SettingsView
+  ),
+  'settings/account_recovery/recovery_key(/)': createChildViewHandler(
+    AccountRecoveryKeyView,
+    SettingsView
+  ),
+  'settings/avatar/camera(/)': createChildViewHandler(
+    AvatarCameraView,
+    SettingsView
+  ),
+  'settings/avatar/change(/)': createChildViewHandler(
+    AvatarChangeView,
+    SettingsView
+  ),
+  'settings/avatar/crop(/)': createChildViewHandler(
+    AvatarCropView,
+    SettingsView
+  ),
+  'settings/change_password(/)': createChildViewHandler(
+    ChangePasswordView,
+    SettingsView
+  ),
+  'settings/clients(/)': createChildViewHandler(ClientsView, SettingsView),
+  'settings/clients/disconnect(/)': createChildViewHandler(
+    ClientDisconnectView,
+    SettingsView
+  ),
+  'settings/communication_preferences(/)': createChildViewHandler(
+    CommunicationPreferencesView,
+    SettingsView
+  ),
+  'settings/delete_account(/)': createChildViewHandler(
+    DeleteAccountView,
+    SettingsView
+  ),
+  'settings/display_name(/)': createChildViewHandler(
+    DisplayNameView,
+    SettingsView
+  ),
+  'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
+  'settings/two_step_authentication(/)': createChildViewHandler(
+    TwoStepAuthenticationView,
+    SettingsView
+  ),
+  'settings/two_step_authentication/recovery_codes(/)': createChildViewHandler(
+    RecoveryCodesView,
+    SettingsView
+  ),
+  'settings/two_step_authentication/secret(/)': createChildViewHandler(
+    TotpSecretView,
+    SettingsView
+  ),
+};
+
+// TODO: how do we get config in here? require it, I guess?
+const Router = Backbone.Router.extend({
+  routes: config.enableBeta ? Object.assign({}, baseRoutes, newSettingsRoutes) : Object.assign({}, baseRoutes, oldSettingsRoutes),
 
   initialize(options = {}) {
     this.broker = options.broker;

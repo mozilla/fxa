@@ -553,7 +553,8 @@ const conf = (module.exports = convict({
   },
   settings: {
     enableBeta: {
-      default: false,
+      default: true,
+      doc: 'If true, then /settings will show the new react app. If false, /settings will show the old backbone app.',
       env: 'NEW_SETTINGS',
       format: Boolean,
     },
