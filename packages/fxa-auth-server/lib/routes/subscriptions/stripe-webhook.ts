@@ -51,6 +51,11 @@ export class StripeWebhookHandler extends StripeHandler {
       );
 
       switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
+        case 'credit_note.created':
+          if (this.paypalHelper) {
+            await this.handleCreditNoteEvent(request, event);
+          }
+          break;
         case 'customer.created':
           await this.handleCustomerCreatedEvent(request, event);
           break;
@@ -103,6 +108,63 @@ export class StripeWebhookHandler extends StripeHandler {
       this.log.error('subscriptions.handleWebhookEvent.failure', { error });
     }
     return {};
+  }
+
+  /**
+   * Handle `credit_note.created` Stripe webhook events.
+   */
+  async handleCreditNoteEvent(request: AuthRequest, event: Stripe.Event) {
+    // Type-guard to require paypalHelper.
+    if (!this.paypalHelper) {
+      return;
+    }
+    const creditNote = event.data.object as Stripe.CreditNote;
+    const invoice = await this.stripeHelper.expandResource(
+      creditNote.invoice,
+      'invoices'
+    );
+
+    // This invoice must be for a paypal subscription for us to issue a
+    // paypal refund and be marked for out_of_band refund.
+    if (
+      invoice.collection_method !== 'send_invoice' ||
+      !creditNote.out_of_band_amount ||
+      creditNote.out_of_band_amount === 0
+    ) {
+      return;
+    }
+
+    // We can't issue a refund if there's no paypal transaction to refund.
+    const transactionId = this.stripeHelper.getInvoicePaypalTransactionId(
+      invoice
+    );
+    if (!transactionId) {
+      this.log.error('handleCreditNoteEvent', {
+        invoiceId: invoice.id,
+        message:
+          'Credit note issued on invoice without a PayPal transaction id.',
+      });
+      return;
+    }
+
+    const customer = await this.stripeHelper.expandResource(
+      invoice.customer,
+      'customers'
+    );
+    if (customer.deleted) {
+      return;
+    }
+
+    // If the amount doesn't match the invoice we can't reverse it.
+    if (creditNote.out_of_band_amount !== invoice.amount_due) {
+      this.log.error('handleCreditNoteEvent', {
+        invoiceId: invoice.id,
+        message: 'Credit note does not match invoice amount.',
+      });
+      return;
+    }
+    await this.paypalHelper.issueRefund(invoice, transactionId);
+    return;
   }
 
   /**

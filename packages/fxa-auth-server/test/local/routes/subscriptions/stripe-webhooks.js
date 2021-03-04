@@ -31,6 +31,7 @@ const eventInvoicePaid = require('../../payments/fixtures/stripe/event_invoice_p
 const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
 const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
 const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/event_customer_source_expiring.json');
+const eventCreditNoteCreated = require('../../payments/fixtures/stripe/event_credit_note_created.json');
 const { default: Container } = require('typedi');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
@@ -244,6 +245,7 @@ describe('StripeWebhookHandler', () => {
         'handleSubscriptionUpdatedEvent',
         'handleSubscriptionDeletedEvent',
         'handleCustomerSourceExpiringEvent',
+        'handleCreditNoteEvent',
         'handleInvoicePaidEvent',
         'handleInvoicePaymentFailedEvent',
         'handleInvoiceCreatedEvent',
@@ -357,6 +359,10 @@ describe('StripeWebhookHandler', () => {
           'handleCustomerSourceExpiringEvent',
           eventCustomerSourceExpiring
         );
+      });
+
+      describe('when the event.type is credit_note.created', () => {
+        itOnlyCallsThisHandler('handleCreditNoteEvent', eventCreditNoteCreated);
       });
 
       describe('when the event.type is invoice.paid', () => {
@@ -580,6 +586,189 @@ describe('StripeWebhookHandler', () => {
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice,
           invoiceCreatedEvent.data.object
+        );
+      });
+    });
+
+    describe('handleCreditNoteEvent', () => {
+      let invoiceCreditNoteEvent;
+      let invoice;
+
+      beforeEach(() => {
+        invoiceCreditNoteEvent = deepCopy(eventCreditNoteCreated);
+        invoice = deepCopy(eventInvoicePaid).data.object;
+      });
+
+      it('doesnt run if paypalHelper is not present', async () => {
+        StripeWebhookHandlerInstance.paypalHelper = undefined;
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
+          {}
+        );
+        const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
+          {},
+          invoiceCreditNoteEvent
+        );
+        assert.isUndefined(result);
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource
+        );
+      });
+
+      it('doesnt run if its not manual invoice or out of band credit note', async () => {
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        invoice.collection_method = 'charge_automatically';
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
+          invoice
+        );
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId = sinon.fake.resolves(
+          {}
+        );
+        const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
+          {},
+          invoiceCreditNoteEvent
+        );
+        assert.isUndefined(result);
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoiceCreditNoteEvent.data.object.invoice,
+          'invoices'
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId
+        );
+      });
+
+      it('doesnt issue refund without a paypal transaction to refund', async () => {
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        invoice.collection_method = 'send_invoice';
+        invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
+          invoice
+        );
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(
+          null
+        );
+        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+        const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
+          {},
+          invoiceCreditNoteEvent
+        );
+        assert.isUndefined(result);
+        assert.calledWithMatch(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoiceCreditNoteEvent.data.object.invoice,
+          'invoices'
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          1
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.log.error,
+          'handleCreditNoteEvent',
+          {
+            invoiceId: invoice.id,
+            message:
+              'Credit note issued on invoice without a PayPal transaction id.',
+          }
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId,
+          invoice
+        );
+      });
+
+      it('logs an error if the amount doesnt match the invoice amount', async () => {
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        invoice.collection_method = 'send_invoice';
+        invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
+        invoice.amount_due = 900;
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
+          invoice
+        );
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(
+          'tx-1234'
+        );
+        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+        const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
+          {},
+          invoiceCreditNoteEvent
+        );
+        assert.isUndefined(result);
+        assert.calledWithMatch(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoiceCreditNoteEvent.data.object.invoice,
+          'invoices'
+        );
+        assert.calledWithMatch(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoice.customer,
+          'customers'
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          2
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.log.error,
+          'handleCreditNoteEvent',
+          {
+            invoiceId: invoice.id,
+            message: 'Credit note does not match invoice amount.',
+          }
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId,
+          invoice
+        );
+      });
+
+      it('issues refund when all checks are successful', async () => {
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        invoice.collection_method = 'send_invoice';
+        invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
+        invoice.amount_due = 500;
+        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
+          invoice
+        );
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(
+          'tx-1234'
+        );
+        StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
+        StripeWebhookHandlerInstance.paypalHelper.issueRefund = sinon.fake.resolves(
+          {}
+        );
+        const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
+          {},
+          invoiceCreditNoteEvent
+        );
+        assert.isUndefined(result);
+        assert.calledWithMatch(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoiceCreditNoteEvent.data.object.invoice,
+          'invoices'
+        );
+        assert.calledWithMatch(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoice.customer,
+          'customers'
+        );
+        assert.callCount(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          2
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId,
+          invoice
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.paypalHelper.issueRefund,
+          invoice,
+          'tx-1234'
         );
       });
     });
