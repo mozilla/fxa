@@ -18660,7 +18660,7 @@ fsevents@^1.2.7:
     source-map-loader: ^1.1.1
     speed-trap: 0.0.10
     thread-loader: ^3.0.1
-    time-grunt: 1.4.0
+    time-grunt: 2.0.0
     ts-loader: ^8.0.12
     ts-node: ^8.10.2
     typescript: 3.9.7
@@ -36454,9 +36454,9 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"time-grunt@npm:1.4.0":
-  version: 1.4.0
-  resolution: "time-grunt@npm:1.4.0"
+"time-grunt@npm:2.0.0":
+  version: 2.0.0
+  resolution: "time-grunt@npm:2.0.0"
   dependencies:
     chalk: ^1.0.0
     date-time: ^1.1.0
@@ -36465,7 +36465,7 @@ resolve@~1.11.1:
     number-is-nan: ^1.0.0
     pretty-ms: ^2.1.0
     text-table: ^0.2.0
-  checksum: 20fc0f67d1678d67d3770a75707d3d7026a0e30f12539dbdda66e3ff2cda4dba7671b48a6f5b3424749816bb3b5ed7fa61b4b217b3d3132a0f365da89b228a75
+  checksum: 9540823db1d122535f9dbe3cf39d5e3aa94c7c383b402d6a468b8dfe76d10bc255ed00808f5ec2faf05d24d184b74fc2fcc22de48f6acafe3bc86e7fe92349c5
   languageName: node
   linkType: hard
 
