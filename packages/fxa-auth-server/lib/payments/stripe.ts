@@ -402,6 +402,15 @@ export class StripeHelper {
   }
 
   /**
+   * Returns the Paypal transaction id for the invoice if one exists.
+   *
+   * @param invoice
+   */
+  getInvoicePaypalTransactionId(invoice: Stripe.Invoice) {
+    return invoice.metadata?.paypalTransactionId;
+  }
+
+  /**
    * Retrieve the payment attempts that have been made on this invoice via PayPal.
    *
    * This variable reflects the amount of payment attempts that have been made. It is
