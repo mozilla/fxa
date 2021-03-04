@@ -23,6 +23,9 @@ payment-error-1 = Hmm. There was a problem authorizing your payment. Try again o
 payment-error-2 = Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.
 payment-error-3 = An unexpected error has occured while processing your payment, please try again.
 
+country-currency-mismatch = The currency of this subscription is not valid for the country associated with your payment.
+currency-currency-mismatch = Sorry. You can't switch between currencies.
+
 expired-card-error = It looks like your credit card has expired. Try another card.
 insufficient-funds-error = It looks like your card has insufficient funds. Try another card.
 withdrawal-count-limit-exceeded-error = It looks like this transaction will put you over your credit limit. Try another card.

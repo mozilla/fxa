@@ -114,7 +114,7 @@ registerSuite('subscriptions', {
           .then(
             testElementTextInclude(
               '.payment-error',
-              'something went wrong. please try again later.'
+              'The currency of this subscription is not valid for the country associated with your payment.'
             )
           )
       );

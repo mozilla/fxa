@@ -678,7 +678,7 @@ AppError.currencyCurrencyMismatch = (currencyA, currencyB) => {
       code: 400,
       error: 'Bad Request',
       errno: ERRNO.INVALID_REGION,
-      message: `Change from ${currencyA} to ${currencyB} is not permitted.`,
+      message: `Changing currencies is not permitted.`,
     },
     {
       currencyA,

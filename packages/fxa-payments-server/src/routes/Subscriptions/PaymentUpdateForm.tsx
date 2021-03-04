@@ -161,9 +161,9 @@ export const PaymentUpdateForm = ({
           <>
             <ErrorMessage isVisible={!!paymentError}>
               {paymentError && (
-                <Localized id={getErrorMessage(paymentError.code || 'UNKNOWN')}>
+                <Localized id={getErrorMessage(paymentError)}>
                   <p data-testid="error-payment-submission">
-                    {getErrorMessage(paymentError.code || 'UNKNOWN')}
+                    {getErrorMessage(paymentError)}
                   </p>
                 </Localized>
               )}

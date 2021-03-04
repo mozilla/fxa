@@ -1,3 +1,11 @@
+import { StripeError } from '@stripe/stripe-js';
+
+export type GeneralError = {
+  code: string;
+  errno?: number;
+  message?: string;
+};
+
 // ref: fxa-auth-server/lib/error.js
 const AuthServerErrno = {
   UNKNOWN_SUBSCRIPTION_CUSTOMER: 176,
@@ -21,7 +29,12 @@ const PAYMENT_ERROR_1 = 'payment-error-1';
 const PAYMENT_ERROR_2 = 'payment-error-2';
 const PAYMENT_ERROR_3 = 'payment-error-3';
 
-let errorMessageIndex: { [key: string]: string } = {
+/*
+ * errorToErrorMessageMap - the keys are lookups, that
+ * are assembled in getErrorMessage. The values are strings
+ * that correspond to ftl strings.
+ */
+const errorToErrorMessageMap: { [key: string]: string } = {
   expired_card: 'expired-card-error',
   insufficient_funds: 'insufficient-funds-error',
   withdrawal_count_limit_exceeded: 'withdrawal-count-limit-error',
@@ -31,6 +44,10 @@ let errorMessageIndex: { [key: string]: string } = {
   coupon_expired: 'coupon-expired-error',
   card_error: 'card-error',
   // todo: handle "parameters_exclusive": "Your already subscribed to _product_"
+  // Currency errors
+  'Funding source country does not match plan currency.':
+    'country-currency-mismatch',
+  'Changing currencies is not permitted.': 'currency-currency-mismatch',
 };
 
 const cardErrors = ['card_declined', 'incorrect_cvc'];
@@ -111,14 +128,24 @@ const paymentErrors2 = [
 
 const paymentErrors3 = ['general-paypal-error'];
 
-cardErrors.forEach((k) => (errorMessageIndex[k] = CARD_ERROR));
-basicErrors.forEach((k) => (errorMessageIndex[k] = BASIC_ERROR));
-paymentErrors1.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_1));
-paymentErrors2.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_2));
-paymentErrors3.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_3));
+cardErrors.forEach((k) => (errorToErrorMessageMap[k] = CARD_ERROR));
+basicErrors.forEach((k) => (errorToErrorMessageMap[k] = BASIC_ERROR));
+paymentErrors1.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_1));
+paymentErrors2.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_2));
+paymentErrors3.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_3));
 
-function getErrorMessage(type: string) {
-  return errorMessageIndex[type] ? errorMessageIndex[type] : BASIC_ERROR;
+function getErrorMessage(error: undefined | StripeError | GeneralError) {
+  if (!error) {
+    return BASIC_ERROR;
+  }
+  let lookup = 'UNKNOWN';
+  // Handle case where we need to lookup by message (e.g. currency error)
+  if (error.message && errorToErrorMessageMap[error.message]) {
+    lookup = error.message;
+  } else if (error.code && errorToErrorMessageMap[error.code]) {
+    lookup = error.code;
+  }
+  return errorToErrorMessageMap[lookup];
 }
 
 // BASIC_ERROR and PAYMENT_ERROR_1 are exported for errors.test.tsx
