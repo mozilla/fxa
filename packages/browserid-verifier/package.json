@@ -32,7 +32,7 @@
     "eslint": "^7.17.0",
     "eslint-plugin-fxa": "^2.0.2",
     "fxa-shared": "workspace:*",
-    "mocha": "^7.1.2",
+    "mocha": "^8.3.0",
     "pm2": "^4.4.1",
     "prettier": "^2.0.5",
     "request": "^2.88.2",
