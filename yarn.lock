@@ -7311,9 +7311,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack@npm:4.41.16":
-  version: 4.41.16
-  resolution: "@types/webpack@npm:4.41.16"
+"@types/webpack@npm:4.41.26":
+  version: 4.41.26
+  resolution: "@types/webpack@npm:4.41.26"
   dependencies:
     "@types/anymatch": "*"
     "@types/node": "*"
@@ -7321,7 +7321,7 @@ __metadata:
     "@types/uglify-js": "*"
     "@types/webpack-sources": "*"
     source-map: ^0.6.0
-  checksum: 5af9564c7d6beb47ff0f2b7a1a039b27d4a809ae99173014431eb4e0f1705b413dff9003982f0639ff286345643a1cc5ba635eeacf0cbe0eda40c941c3c3b6a1
+  checksum: c84012af1d0159e6c17b065139d8c15ffe18042445db4f9c61e2fe3aff1d4ebeb8a65af6824e991eb161334c2842c6d2b55f9d700bd7e64bf492f3dcbf1a92d1
   languageName: node
   linkType: hard
 
@@ -18240,7 +18240,7 @@ fsevents@^1.2.7:
     "@types/react-router-dom": ^5.1.5
     "@types/serve-static": 1.13.5
     "@types/supertest": ^2.0.8
-    "@types/webpack": 4.41.16
+    "@types/webpack": 4.41.26
     "@typescript-eslint/eslint-plugin": 4.10.0
     "@typescript-eslint/parser": 2.33.0
     babel-loader: ^8.1.0
@@ -19039,7 +19039,7 @@ fsevents@^1.2.7:
     "@types/storybook__react": ^5.2.1
     "@types/superagent": ^4.1.10
     "@types/uuid": ^7.0.2
-    "@types/webpack": 4.41.16
+    "@types/webpack": 4.41.26
     "@typescript-eslint/eslint-plugin": 4.10.0
     "@typescript-eslint/parser": 2.33.0
     async-wait-until: ^1.2.6
@@ -19254,7 +19254,7 @@ fsevents@^1.2.7:
     "@types/react-webcam": ^3.0.0
     "@types/testing-library__react-hooks": ^4
     "@types/uuid": ^8
-    "@types/webpack": 4.41.16
+    "@types/webpack": 4.41.26
     babel-loader: ^8.0.0
     base32-decode: ^1.0.0
     base32-encode: ^1.1.1
