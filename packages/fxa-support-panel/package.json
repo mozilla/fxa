@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^7.5.4",
-    "@types/convict": "^5.2.1",
+    "@types/convict": "^5.2.2",
     "@types/eslint": "7.2.0",
     "@types/hbs": "^4",
     "@types/node": "^14.14.5",
