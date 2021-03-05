@@ -12,7 +12,13 @@ import {
 import '@testing-library/jest-dom/extend-expect';
 import { PaymentMethod, PaymentIntent } from '@stripe/stripe-js';
 import { SignInLayout } from '../../../components/AppLayout';
-import { CUSTOMER, PROFILE, PLAN, NEW_CUSTOMER } from '../../../lib/mock-data';
+import {
+  CUSTOMER,
+  PROFILE,
+  PLAN,
+  NEW_CUSTOMER,
+  PAYPAL_CUSTOMER,
+} from '../../../lib/mock-data';
 import { PickPartial } from '../../../lib/types';
 
 import {
@@ -191,7 +197,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     );
   });
 
-  it('renders as expected with PayPal UI enabled and an existing customer', async () => {
+  it('renders as expected with PayPal UI enabled and an existing Stripe customer', async () => {
     const { queryByTestId } = screen;
     updateConfig({
       featureFlags: {
@@ -208,6 +214,35 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     });
     waitForExpect(() =>
       expect(queryByTestId('paypal-button')).not.toBeInTheDocument()
+    );
+    waitForExpect(() =>
+      expect(queryByTestId('paymentForm')).toBeInTheDocument()
+    );
+  });
+
+  it('renders as expected with PayPal UI enabled and an existing PayPal customer', async () => {
+    const { queryByTestId } = screen;
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+    const MockedButtonBase = ({}: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" />;
+    };
+    await act(async () => {
+      render(
+        <Subject
+          customer={PAYPAL_CUSTOMER}
+          paypalButtonBase={MockedButtonBase}
+        />
+      );
+    });
+    waitForExpect(() =>
+      expect(queryByTestId('paypal-button')).not.toBeInTheDocument()
+    );
+    waitForExpect(() =>
+      expect(queryByTestId('paymentForm')).not.toBeInTheDocument()
     );
   });
 

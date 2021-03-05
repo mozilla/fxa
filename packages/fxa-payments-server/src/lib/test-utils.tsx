@@ -513,6 +513,7 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
 export const MOCK_CUSTOMER = {
   billing_name: 'Jane Doe',
   payment_type: 'card',
+  payment_provider: 'stripe',
   brand: 'Visa',
   last4: '8675',
   exp_month: '8',

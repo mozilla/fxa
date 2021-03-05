@@ -39,6 +39,7 @@ import { Plan, Customer } from '../../store/types';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import './index.scss';
+import * as PaymentProvider from '../../lib/PaymentProvider';
 
 export type PaymentSubmitResult = {
   stripe: Stripe;
@@ -82,8 +83,10 @@ export const PaymentForm = ({
   onChange: onChangeProp,
   submitNonce,
 }: BasePaymentFormProps) => {
-  const hasExistingCard =
-    customer && customer.last4 && customer.subscriptions.length > 0;
+  const isExistingStripeCustomer =
+    customer &&
+    PaymentProvider.isStripe(customer?.payment_provider) &&
+    customer.subscriptions.length > 0;
 
   const stripe = useStripe();
   const elements = useElements();
@@ -121,7 +124,7 @@ export const PaymentForm = ({
       const { name } = validator.getValues();
       const card = elements.getElement(CardElement);
       /* istanbul ignore next - card should exist unless there was an external stripe loading error, handled above */
-      if (hasExistingCard || card) {
+      if (isExistingStripeCustomer || card) {
         onSubmitForParent({
           stripe,
           elements,
@@ -157,7 +160,7 @@ export const PaymentForm = ({
       navigatorLanguages
     ));
   }
-  const paymentSource = hasExistingCard ? (
+  const paymentSource = isExistingStripeCustomer ? (
     <div className="card-details" data-testid="card-details">
       <Localized
         id="sub-update-card-ending"
