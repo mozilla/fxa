@@ -92,7 +92,7 @@
     "hot-shots": "^8.2.0",
     "http-proxy-middleware": "^1.0.3",
     "i18n-abide": "0.0.26",
-    "joi": "^14.3.1",
+    "joi": "^17.4.0",
     "jquery": "3.5.1",
     "jquery-modal": "git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
     "jquery-simulate": "1.0.2",

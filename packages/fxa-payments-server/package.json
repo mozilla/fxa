@@ -122,7 +122,7 @@
     "helmet": "^4.4.1",
     "hot-shots": "^8.2.0",
     "intl-pluralrules": "^1.2.2",
-    "joi": "^14.3.1",
+    "joi": "^17.4.0",
     "morgan": "^1.10.0",
     "mozlog": "^3.0.1",
     "nocache": "^2.1.0",
