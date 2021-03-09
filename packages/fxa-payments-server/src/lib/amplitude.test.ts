@@ -68,23 +68,31 @@ it('should capture error during logAmplitudeEvent', () => {
 });
 
 it('should call logAmplitudeEvent with subscription plan info', () => {
-  const plan = { plan_id: '123xyz_hourly', product_id: '123xyz' };
-  Amplitude.createSubscription_PENDING(plan);
+  const metricsData: Amplitude.EventProperties = {
+    plan_id: '123xyz_hourly',
+    product_id: '123xyz',
+    paymentProvider: 'Stripe',
+  };
+  Amplitude.createSubscription_PENDING(metricsData);
   const eventProps = (<jest.Mock>(
     FlowEvent.logAmplitudeEvent
   )).mock.calls[0].pop();
 
   expect(eventProps).toMatchObject({
-    planId: plan.plan_id,
-    productId: plan.product_id,
+    planId: metricsData.plan_id,
+    productId: metricsData.product_id,
+    paymentProvider: metricsData.paymentProvider,
   });
 });
 
 it('should call logAmplitudeEvent with reason for failure on fail event', () => {
-  const plan = { plan_id: '123xyz_hourly', product_id: '123xyz' };
+  const metricsData: Amplitude.EventProperties = {
+    plan_id: '123xyz_hourly',
+    product_id: '123xyz',
+  };
   const payload = { message: 'oopsie daisies' };
   Amplitude.createSubscription_REJECTED({
-    ...plan,
+    ...metricsData,
     error: payload,
   });
   const eventProps = (<jest.Mock>(
@@ -92,8 +100,8 @@ it('should call logAmplitudeEvent with reason for failure on fail event', () => 
   )).mock.calls[0].pop();
 
   expect(eventProps).toMatchObject({
-    planId: plan.plan_id,
-    productId: plan.product_id,
+    planId: metricsData.plan_id,
+    productId: metricsData.product_id,
     reason: payload.message,
   });
 });

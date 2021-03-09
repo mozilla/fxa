@@ -316,6 +316,7 @@ describe('API requests', () => {
     const metricsOptions = {
       planId: params.priceId,
       productId: params.productId,
+      paymentProvider: 'Stripe',
     };
 
     it(`POST {auth-server}${path}`, async () => {
@@ -477,6 +478,10 @@ describe('API requests', () => {
       priceId: 'price_12345',
       ...MOCK_CHECKOUT_TOKEN,
     };
+    const metricsOptions = {
+      planId: params.priceId,
+      paymentProvider: 'PayPal',
+    };
 
     it('POST {auth-server}/v1/oauth/subscriptions/active/new-paypal', async () => {
       const requestMock = nock(AUTH_BASE_URL)
@@ -485,6 +490,40 @@ describe('API requests', () => {
       expect(await apiCapturePaypalPayment(params)).toEqual(
         MOCK_PAYPAL_SUBSCRIPTION_RESULT
       );
+
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+      ).toBeCalledWith(metricsOptions);
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
+      ).toBeCalledWith({
+        ...metricsOptions,
+        sourceCountry: 'FR',
+      });
+
+      requestMock.done();
+    });
+
+    it('sends amplitude ping on error', async () => {
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path, params)
+        .reply(400, { message: 'oops' });
+      let error = null;
+      try {
+        await apiCapturePaypalPayment(params);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).not.toBeNull();
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+      ).toBeCalledWith(metricsOptions);
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_REJECTED
+      ).toBeCalledWith({
+        ...metricsOptions,
+        error,
+      });
       requestMock.done();
     });
   });
