@@ -127,6 +127,19 @@ const conf = convict({
       env: 'PAYMENT_TERMS_OF_SERVCIE',
       format: 'url',
     },
+    cdnFqdn: {
+      default: 'accounts-static.cdn.mozilla.net',
+      doc: 'The domain name where the legal doc downloads are hosted.',
+      env: 'PAYMENT_LEGAL_DOWNLOAD_FQDN',
+      format: String,
+    },
+    httpResCacheLimit: {
+      default: 65536,
+      doc:
+        'The max number of entries in the redirect endpoint HTTP results cache.  0 means unlimited and the memory usage on the cache could reach the max of Map (1GB on V8)',
+      env: 'PAYMENT_LEGAL_DOWNLOAD_CACHE_LIMIT',
+      format: Number,
+    },
   },
   listen: {
     host: {
