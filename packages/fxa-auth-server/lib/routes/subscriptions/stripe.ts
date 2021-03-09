@@ -18,11 +18,14 @@ import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { StripeHelper } from '../../payments/stripe';
+import {
+  StripeHelper,
+  ACTIVE_SUBSCRIPTION_STATUSES,
+} from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { splitCapabilities } from '../utils/subscriptions';
 import validators from '../validators';
-import { handleAuth } from './utils';
+import { handleAuth, ThenArg } from './utils';
 
 /**
  * Delete any metadata keys prefixed by `capabilities:` before
@@ -40,6 +43,12 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
     return plan;
   });
 }
+
+export type PaypalPaymentError = 'missing_agreement' | 'funding_source';
+
+type PaymentBillingDetails = ReturnType<
+  StripeHandler['extractBillingDetails']
+> & { paypal_payment_error?: PaypalPaymentError };
 
 export class StripeHandler {
   constructor(
@@ -285,7 +294,7 @@ export class StripeHandler {
           canceled_at,
           plan: { product: productId },
         } = subscription;
-        if (['trialing', 'active', 'past_due'].includes(subscription.status)) {
+        if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
           activeSubscriptions.push({
             uid,
             subscriptionId,
@@ -350,6 +359,8 @@ export class StripeHandler {
     this.log.begin('subscriptions.getCustomer', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'getCustomer');
+
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions.data.latest_invoice',
       'invoice_settings.default_payment_method',
@@ -357,11 +368,25 @@ export class StripeHandler {
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
-    const billingDetails = this.extractBillingDetails(customer);
+    const billingDetails = this.extractBillingDetails(
+      customer
+    ) as PaymentBillingDetails;
+
+    if (
+      billingDetails.payment_provider === 'paypal' &&
+      this.stripeHelper.hasSubscriptionRequiringPaymentMethod(customer)
+    ) {
+      if (!this.stripeHelper.getCustomerPaypalAgreement(customer)) {
+        billingDetails.paypal_payment_error = 'missing_agreement';
+      } else if (this.stripeHelper.hasOpenInvoice(customer)) {
+        billingDetails.paypal_payment_error = 'funding_source';
+      }
+    }
+
     const response = {
-      // Less than ideal to type as any, but using the ReturnType of below
-      // didn't work any better. 🤷‍♀️
-      subscriptions: [] as any[],
+      subscriptions: [] as ThenArg<
+        ReturnType<StripeHelper['subscriptionsToResponse']>
+      >,
       ...billingDetails,
     };
 

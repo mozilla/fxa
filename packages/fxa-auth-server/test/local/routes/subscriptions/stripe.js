@@ -1341,6 +1341,9 @@ describe('DirectStripeRoutes', () => {
         directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
           []
         );
+        directStripeRoutesInstance.stripeHelper.hasSubscriptionRequiringPaymentMethod.returns(
+          false
+        );
       });
 
       describe('customer has payment_provider property', () => {
@@ -1354,6 +1357,7 @@ describe('DirectStripeRoutes', () => {
             customer
           );
         });
+
         it('payment_provider === value returned by getPaymentProvider', async () => {
           directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
             customer
@@ -1365,7 +1369,113 @@ describe('DirectStripeRoutes', () => {
           const actual = await directStripeRoutesInstance.getCustomer(
             VALID_REQUEST
           );
-          assert(actual.payment_provider === 'not_chosen');
+          assert.strictEqual(actual.payment_provider, 'not_chosen');
+        });
+      });
+
+      describe('customer has paypal_payment_error', () => {
+        it('shows missing agreement when none is present', async () => {
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+            customer
+          );
+          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
+            'paypal'
+          );
+          directStripeRoutesInstance.stripeHelper.hasSubscriptionRequiringPaymentMethod.returns(
+            true
+          );
+          directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement.returns(
+            false
+          );
+          directStripeRoutesInstance.stripeHelper.hasOpenInvoice.returns(false);
+
+          const actual = await directStripeRoutesInstance.getCustomer(
+            VALID_REQUEST
+          );
+          assert.strictEqual(actual.payment_provider, 'paypal');
+          assert.strictEqual(actual.paypal_payment_error, 'missing_agreement');
+          sinon.assert.calledOnceWithExactly(
+            directStripeRoutesInstance.stripeHelper
+              .hasSubscriptionRequiringPaymentMethod,
+            customer
+          );
+          sinon.assert.calledOnceWithExactly(
+            directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
+            customer
+          );
+          sinon.assert.notCalled(
+            directStripeRoutesInstance.stripeHelper.hasOpenInvoice
+          );
+        });
+
+        it('shows funding_source when agreement is present', async () => {
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+            customer
+          );
+          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
+            'paypal'
+          );
+          directStripeRoutesInstance.stripeHelper.hasSubscriptionRequiringPaymentMethod.returns(
+            true
+          );
+          directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement.returns(
+            true
+          );
+          directStripeRoutesInstance.stripeHelper.hasOpenInvoice.returns(true);
+
+          const actual = await directStripeRoutesInstance.getCustomer(
+            VALID_REQUEST
+          );
+          assert.strictEqual(actual.payment_provider, 'paypal');
+          assert.strictEqual(actual.paypal_payment_error, 'funding_source');
+          sinon.assert.calledOnceWithExactly(
+            directStripeRoutesInstance.stripeHelper
+              .hasSubscriptionRequiringPaymentMethod,
+            customer
+          );
+          sinon.assert.calledOnceWithExactly(
+            directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
+            customer
+          );
+          sinon.assert.calledOnceWithExactly(
+            directStripeRoutesInstance.stripeHelper.hasOpenInvoice,
+            customer
+          );
+        });
+
+        it('shows no error when no open invoice and agreement on file', async () => {
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+            customer
+          );
+          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
+            'paypal'
+          );
+          directStripeRoutesInstance.stripeHelper.hasSubscriptionRequiringPaymentMethod.returns(
+            true
+          );
+          directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement.returns(
+            true
+          );
+          directStripeRoutesInstance.stripeHelper.hasOpenInvoice.returns(false);
+
+          const actual = await directStripeRoutesInstance.getCustomer(
+            VALID_REQUEST
+          );
+          assert.strictEqual(actual.payment_provider, 'paypal');
+          assert.isUndefined(actual.paypal_payment_error);
+          sinon.assert.calledOnceWithExactly(
+            directStripeRoutesInstance.stripeHelper
+              .hasSubscriptionRequiringPaymentMethod,
+            customer
+          );
+          sinon.assert.calledOnceWithExactly(
+            directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
+            customer
+          );
+          sinon.assert.calledOnceWithExactly(
+            directStripeRoutesInstance.stripeHelper.hasOpenInvoice,
+            customer
+          );
         });
       });
 

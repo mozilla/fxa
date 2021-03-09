@@ -78,7 +78,7 @@ async function init() {
   const currencyHelper = new CurrencyHelper(config);
   Container.set(CurrencyHelper, currencyHelper);
 
-  const createStripeHelper = require('../lib/payments/stripe');
+  const { createStripeHelper } = require('../lib/payments/stripe');
   const stripeHelper = createStripeHelper(log, config, null);
   const stripe = stripeHelper.stripe;
 

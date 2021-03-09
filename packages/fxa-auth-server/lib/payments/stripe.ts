@@ -33,6 +33,13 @@ const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
 
 const PAYPAL_AGREEMENT_METADATA_KEY = 'paypalAgreementId';
 
+/** Represents all subscription statuses that are considered active for a customer */
+export const ACTIVE_SUBSCRIPTION_STATUSES: Stripe.Subscription['status'][] = [
+  'active',
+  'past_due',
+  'trialing',
+];
+
 const VALID_RESOURCE_TYPES = [
   CUSTOMER_RESOURCE,
   SUBSCRIPTIONS_RESOURCE,
@@ -308,7 +315,7 @@ export class StripeHelper {
     const { customer, priceId, subIdempotencyKey } = opts;
 
     const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
-    if (sub && ['active', 'past_due'].includes(sub.status)) {
+    if (sub && ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)) {
       if (sub.collection_method === 'send_invoice') {
         sub.latest_invoice = await this.expandResource(
           sub.latest_invoice,
@@ -653,8 +660,8 @@ export class StripeHelper {
   }
 
   getPaymentProvider(customer: Stripe.Customer) {
-    const subscription = customer.subscriptions?.data.find(
-      (sub: { status: string }) => ['active', 'past_due'].includes(sub.status)
+    const subscription = customer.subscriptions?.data.find((sub) =>
+      ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
     );
     if (subscription) {
       return subscription.collection_method === 'send_invoice'
@@ -662,6 +669,36 @@ export class StripeHelper {
         : 'stripe';
     }
     return 'not_chosen';
+  }
+
+  /**
+   * Returns whether or not the customer has any active subscriptions that
+   * are require a payment method on file (not marked to be cancelled).
+   *
+   * @param customer
+   */
+  hasSubscriptionRequiringPaymentMethod(customer: Stripe.Customer) {
+    const subscription = customer.subscriptions?.data.find(
+      (sub) =>
+        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
+        !sub.cancel_at_period_end
+    );
+    return !!subscription;
+  }
+
+  /**
+   * Returns whether or not the customer has any active subscriptions that
+   * have an open invoice (payment has not been processed).
+   *
+   * @param customer
+   */
+  hasOpenInvoice(customer: Stripe.Customer) {
+    const subscription = customer.subscriptions?.data.find(
+      (sub) =>
+        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
+        (sub.latest_invoice as Stripe.Invoice).status === 'open'
+    );
+    return !!subscription;
   }
 
   async detachPaymentMethod(
@@ -1075,7 +1112,7 @@ export class StripeHelper {
       throw error.unknownSubscription();
     }
 
-    if (!['active', 'trialing'].includes(subscription.status)) {
+    if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
       const err = new Error(
         `Reactivated subscription (${subscriptionId}) is not active/trialing`
       );
@@ -1508,7 +1545,7 @@ export class StripeHelper {
     let subscriptions = [];
 
     for (const subscription of customer.subscriptions.data) {
-      if (['active', 'trialing'].includes(subscription.status)) {
+      if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
         if (!subscription.plan) {
           throw error.internalValidationError(
             'extractSourceDetailsForEmail',
@@ -1981,15 +2018,6 @@ export class StripeHelper {
 /**
  * Create a Stripe Helper with built-in caching.
  */
-function createStripeHelper(log: any, config: any, statsd?: StatsD) {
+export function createStripeHelper(log: any, config: any, statsd?: StatsD) {
   return new StripeHelper(log, config, statsd);
 }
-// HACK: Hang some references off the factory function so we can use it as
-// a type in bin/key_server.js and routes/subscriptions.js while keeping
-// the exports simple.
-// NOTE: These must be assigned individually instead of Object.assign as
-// dynamic assignments are not seen by type checking.
-createStripeHelper.StripeHelper = StripeHelper;
-createStripeHelper.SUBSCRIPTION_UPDATE_TYPES = SUBSCRIPTION_UPDATE_TYPES;
-
-module.exports = createStripeHelper;

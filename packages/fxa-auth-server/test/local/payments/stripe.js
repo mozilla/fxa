@@ -20,9 +20,12 @@ const { Container } = require('typedi');
 const chance = new Chance();
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
-const StripeHelper = proxyquire('../../../lib/payments/stripe', {
-  '../redis': (config, log) => mockRedis.init(config, log),
-});
+const { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } = proxyquire(
+  '../../../lib/payments/stripe',
+  {
+    '../redis': (config, log) => mockRedis.init(config, log),
+  }
+);
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
@@ -359,42 +362,95 @@ describe('StripeHelper', () => {
     beforeEach(() => {
       customerExpanded = deepCopy(customer1);
     });
+
     describe('returns correct value based on collection_method', () => {
       describe('when collection_method is "send_invoice"', () => {
         it('payment_provider is "paypal"', async () => {
           subscription2.collection_method = 'send_invoice';
           customerExpanded.subscriptions.data[0] = subscription2;
-          assert(
-            stripeHelper.getPaymentProvider(customerExpanded) === 'paypal'
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'paypal'
           );
         });
       });
+
       describe('when the customer has a canceled subscription', () => {
         it('payment_provider is "not_chosen"', async () => {
           customerExpanded.subscriptions.data[0] = cancelledSubscription;
-          assert(
-            stripeHelper.getPaymentProvider(customerExpanded) === 'not_chosen'
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'not_chosen'
           );
         });
       });
+
       describe('when the customer has no subscriptions', () => {
         it('payment_provider is "not_chosen"', async () => {
           customerExpanded.subscriptions.data = [];
-          assert(
-            stripeHelper.getPaymentProvider(customerExpanded) === 'not_chosen'
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'not_chosen'
           );
         });
       });
+
       describe('when collection_method is "instant"', () => {
         it('payment_provider is "stripe"', async () => {
           subscription2.collection_method = 'instant';
           customerExpanded.subscriptions.data[0] = subscription2;
-          assert.equal(
+          assert.strictEqual(
             stripeHelper.getPaymentProvider(customerExpanded),
             'stripe'
           );
         });
       });
+    });
+  });
+
+  describe('hasSubscriptionRequiringPaymentMethod', () => {
+    let customerExpanded;
+    beforeEach(() => {
+      customerExpanded = deepCopy(customer1);
+    });
+
+    it('returns true for a non-cancelled active subscription', () => {
+      subscription2.status = 'active';
+      subscription2.cancel_at_period_end = false;
+      customerExpanded.subscriptions.data[0] = subscription2;
+      assert.isTrue(
+        stripeHelper.hasSubscriptionRequiringPaymentMethod(customerExpanded)
+      );
+    });
+
+    it('returns false for a cancelled active subscription', () => {
+      subscription2.status = 'active';
+      subscription2.cancel_at_period_end = true;
+      customerExpanded.subscriptions.data[0] = subscription2;
+      assert.isFalse(
+        stripeHelper.hasSubscriptionRequiringPaymentMethod(customerExpanded)
+      );
+    });
+  });
+
+  describe('hasOpenInvoice', () => {
+    let customerExpanded;
+    let invoice;
+
+    beforeEach(() => {
+      customerExpanded = deepCopy(customer1);
+      invoice = deepCopy(paidInvoice);
+      customerExpanded.subscriptions.data[0] = subscription2;
+      subscription2.latest_invoice = invoice;
+    });
+
+    it('returns true for an open invoice', () => {
+      invoice.status = 'open';
+      assert.isTrue(stripeHelper.hasOpenInvoice(customerExpanded));
+    });
+
+    it('returns false for no open invoices', () => {
+      assert.isFalse(stripeHelper.hasOpenInvoice(customerExpanded));
     });
   });
 
@@ -1796,10 +1852,7 @@ describe('StripeHelper', () => {
         assert(mockRedis.set.calledOnce);
         assert(stripeHelper.stripe.customers.retrieve.calledOnce);
 
-        const customerKey = StripeHelper.StripeHelper.customerCacheKey([
-          existingUid,
-          email,
-        ]);
+        const customerKey = StripeHelper.customerCacheKey([existingUid, email]);
         assert.deepEqual(
           await stripeHelper.customer({ uid: existingUid, email }),
           JSON.parse(await mockRedis.get(customerKey))
@@ -1898,10 +1951,7 @@ describe('StripeHelper', () => {
       let customerKey;
 
       beforeEach(async () => {
-        customerKey = StripeHelper.StripeHelper.customerCacheKey([
-          existingUid,
-          email,
-        ]);
+        customerKey = StripeHelper.customerCacheKey([existingUid, email]);
         assert.deepEqual(
           await stripeHelper.customer({ uid: existingUid, email }),
           JSON.parse(await mockRedis.get(customerKey))
@@ -1937,10 +1987,7 @@ describe('StripeHelper', () => {
         });
 
         it('does not fail if key does not exist', async () => {
-          const key = StripeHelper.StripeHelper.customerCacheKey([
-            'test-test-test',
-            email,
-          ]);
+          const key = StripeHelper.customerCacheKey(['test-test-test', email]);
           assert.isUndefined(await mockRedis.get(key));
 
           await stripeHelper.removeCustomerFromCache('test-test-test', email);
@@ -3146,9 +3193,7 @@ describe('StripeHelper', () => {
           ...baseDetails,
           productIdNew,
           updateType:
-            StripeHelper.SUBSCRIPTION_UPDATE_TYPES[
-              isUpgrade ? 'UPGRADE' : 'DOWNGRADE'
-            ],
+            SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
           productIdOld,
           productNameOld,
           productIconURLOld,
@@ -3176,7 +3221,7 @@ describe('StripeHelper', () => {
     describe('extractSubscriptionUpdateReactivationDetailsForEmail', () => {
       const { card } = mockCharge.payment_method_details;
       const defaultExpected = {
-        updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
+        updateType: SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
         email,
         uid,
         productId,
@@ -3329,7 +3374,7 @@ describe('StripeHelper', () => {
         );
         const subscription = event.data.object;
         assert.deepEqual(result, {
-          updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
+          updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
           email,
           uid,
           productId,
