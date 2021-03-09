@@ -57,6 +57,7 @@ import SubscriptionsProductRedirectView from '../views/subscriptions_product_red
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
 import TotpSecretView from '../views/settings/totp_secret';
 import TwoStepAuthenticationView from '../views/settings/two_step_authentication';
+import Url from './url';
 import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
@@ -336,8 +337,32 @@ const Router = Backbone.Router.extend({
       type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
     }),
     'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
-    'beta/settings(/)': function (qs) {
-      this.navigateAway('/beta/settings?' + qs);
+    'beta/settings(/)': function () {
+      const {
+        deviceId,
+        flowBeginTime,
+        flowId,
+      } = this.metrics.getFlowEventMetadata();
+
+      const {
+        broker,
+        context: ctx,
+        isSampledUser,
+        service,
+        uniqueUserId,
+      } = this.metrics.getFilteredData();
+
+      const settingsLink = `/beta/settings${Url.objToSearchString({
+        deviceId,
+        flowBeginTime,
+        flowId,
+        broker,
+        context: ctx,
+        isSampledUser,
+        service,
+        uniqueUserId,
+      })}`;
+      this.navigateAway(settingsLink);
     },
   },
 
