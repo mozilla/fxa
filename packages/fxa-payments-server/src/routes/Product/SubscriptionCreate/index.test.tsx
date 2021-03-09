@@ -610,7 +610,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
   });
 
   const commonCreateSubscriptionFailureTest = (
-    error = 'barf apiCreateSubscriptionWithPaymentMethod' as any
+    error = { code: 'barf apiCreateSubscriptionWithPaymentMethod' } as any
   ) => async () => {
     const apiClientOverrides = {
       ...defaultApiClientOverrides(),
@@ -811,7 +811,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
         ...defaultApiClientOverrides(),
         apiGetPaypalCheckoutToken: jest
           .fn()
-          .mockRejectedValue('barf apiGetPaypalCheckoutToken'),
+          .mockRejectedValue({ code: 'barf apiGetPaypalCheckoutToken' }),
       };
       updateConfig({
         featureFlags: {
@@ -872,7 +872,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
       ...defaultApiClientOverrides(),
       apiCapturePaypalPayment: jest
         .fn()
-        .mockRejectedValue('barf apiCapturePaypalPayment'),
+        .mockRejectedValue({ code: 'barf apiCapturePaypalPayment' }),
     };
     updateConfig({
       featureFlags: {

@@ -21,6 +21,7 @@ general-error-heading = General application error
 basic-error-message = Something went wrong. Please try again later.
 payment-error-1 = Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.
 payment-error-2 = Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.
+payment-error-3 = An unexpected error has occured while processing your payment, please try again.
 
 expired-card-error = It looks like your credit card has expired. Try another card.
 insufficient-funds-error = It looks like your card has insufficient funds. Try another card.
@@ -43,6 +44,7 @@ privacy = Privacy Notice
 subscription-create-title = Set up your subscription
 subscription-success-title = Subscription confirmation
 subscription-processing-title = Confirming subscription...
+subscription-error-title = Error confirming subscription...
 
 ##  $productName (String) - The name of the subscribed product.
 ##  $amount (Number) - The amount billed. It will be formatted as currency.

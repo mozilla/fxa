@@ -24,9 +24,6 @@
   @include max-width('tablet') {
     grid-row: 3/4;
     margin: 24px 16px;
-  }
-
-  @include min-width('tablet') {
     min-height: 100%;
   }
 
