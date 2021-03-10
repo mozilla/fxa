@@ -133,10 +133,7 @@ const View = FormView.extend({
   },
 
   createRecoveryKey() {
-    const path = this.config.enableBeta
-      ? 'settings/account_recovery'
-      : 'settings/account_recovery/confirm_password';
-    this.navigate(path);
+    this.navigate('settings/account_recovery');
   },
 
   gotoProductPage() {
