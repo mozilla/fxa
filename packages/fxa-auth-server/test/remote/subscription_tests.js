@@ -81,7 +81,10 @@ describe('remote subscriptions:', function () {
       mockStripeHelper.customer = async (uid, email) => ({});
       server = await testServerFactory.start(config, false, {
         authServerMockDependencies: {
-          '../lib/payments/stripe': () => mockStripeHelper,
+          '../lib/payments/stripe': {
+            StripeHelper: mockStripeHelper,
+            createStripeHelper: () => mockStripeHelper,
+          },
         },
       });
     });

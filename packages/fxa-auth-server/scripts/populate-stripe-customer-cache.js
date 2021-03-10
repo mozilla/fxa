@@ -38,7 +38,7 @@ async function init() {
   const config = require('../config').getProperties();
   const log = require('../lib/log')(config.log.level);
 
-  const createStripeHelper = require('../lib/payments/stripe');
+  const { createStripeHelper } = require('../lib/payments/stripe');
   const stripeHelper = createStripeHelper(log, config);
   const stripe = stripeHelper.stripe;
 

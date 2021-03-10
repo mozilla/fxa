@@ -48,7 +48,7 @@ async function run(config) {
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
-    const createStripeHelper = require('../lib/payments/stripe');
+    const { createStripeHelper } = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
     Container.set(StripeHelper, stripeHelper);
 

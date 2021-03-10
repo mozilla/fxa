@@ -44,7 +44,7 @@ async function init() {
 
   const db = await DB.connect(config[config.db.backend]);
 
-  const createStripeHelper = require('../lib/payments/stripe');
+  const { createStripeHelper } = require('../lib/payments/stripe');
   const stripeHelper = createStripeHelper(log, config);
   const stripe = stripeHelper.stripe;
 
