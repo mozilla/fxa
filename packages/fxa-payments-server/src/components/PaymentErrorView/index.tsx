@@ -2,15 +2,11 @@ import React from 'react';
 import { Localized } from '@fluent/react';
 import { StripeError } from '@stripe/stripe-js';
 
-import { getErrorMessage } from '../../lib/errors';
+import { getErrorMessage, GeneralError } from '../../lib/errors';
 import errorIcon from './error.svg';
 import SubscriptionTitle from '../SubscriptionTitle';
 
 import './index.scss';
-
-type GeneralError = {
-  code: string;
-};
 
 export type PaymentErrorViewProps = {
   onRetry: Function;
@@ -33,9 +29,9 @@ export const PaymentErrorView = ({
         <div className="wrapper">
           <img id="error-icon" src={errorIcon} alt="error icon" />
           <div>
-            <Localized id={getErrorMessage(error.code || 'UNKNOWN')}>
+            <Localized id={getErrorMessage(error)}>
               <p data-testid="error-payment-submission">
-                {getErrorMessage(error.code || 'UNKNOWN')}
+                {getErrorMessage(error)}
               </p>
             </Localized>
           </div>
