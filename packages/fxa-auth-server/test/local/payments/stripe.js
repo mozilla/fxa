@@ -905,7 +905,7 @@ describe('StripeHelper', () => {
 
       await stripeHelper.removeCustomerPaypalAgreement(
         'uid',
-        paypalCustomer,
+        paypalCustomer.id,
         'billingAgreementId'
       );
 

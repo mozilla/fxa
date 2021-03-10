@@ -550,7 +550,7 @@ describe('PayPalHelper', () => {
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.removeCustomerPaypalAgreement,
         mockCustomer.metadata.userid,
-        mockCustomer,
+        mockCustomer.id,
         'ba-test'
       );
     });
