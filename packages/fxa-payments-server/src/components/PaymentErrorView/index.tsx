@@ -13,7 +13,7 @@ type GeneralError = {
 };
 
 export type PaymentErrorViewProps = {
-  onRetry: Function;
+  onRetry: () => void;
   error?: StripeError | GeneralError;
   className?: string;
 };
@@ -46,7 +46,7 @@ export const PaymentErrorView = ({
             <button
               data-testid="retry-link"
               className="button retry-link"
-              onClick={() => onRetry()}
+              onClick={onRetry}
             >
               Try Again
             </button>
