@@ -2,115 +2,120 @@
 
 #5718
 # Purpose
-# This bash script allows for the conversion of markdown files to pdfs. The purpose is to create a way for legal documents to be easily converted and made available for end-users.
+# This bash script converts markdown documents into pdfs.
+# The purpose is to provide an efficient way for Mozilla VPN legal documents to be easily converted and made available to end-users.
 #
 # Usage
-# The script requires that you have pandoc and LaTeX installed on your machine.
+# The script requires the following:
+#    Local copy of Mozilla legal-docs repo: https://github.com/mozilla/legal-docs
 #    pandoc: https://github.com/jgm/pandoc/blob/master/INSTALL.md
 #    LaTeX: https://www.latex-project.org/get/
-# The script will check that pandoc is installed before asking you for the file or directory on your machine that you would like to be converted. If a directory is provided, then all markdown files within that folder will be convered. If a single file is provided, only that file will be converted.
-# The resulting output will be stored within `assets/legal`.
+#
+# The script traverses the legal-docs directory looking for Mozilla VPN legal documents in each locale.
+# When found, the script converts the document from .md to .pdf and writes it to assets/legal/<locale>/<document_name.pdf>.
 #
 # Examples:
-# file provided to convert: `/Users/test/github/mozilla/legal-docs/en/firefox_cloud_services_tos.md`
-# resulting file: `assets/legal/en/firefox_cloud_services_tos/en-US.pdf`
-#
-# directory provided to convert: `/Users/test/github/mozilla/legal-docs/en`
-# resulting files: `assets/legal/en/*.pdf`
+# directory provided: `/Users/username/Documents/GitHub/legal-docs/`
+# resulting file: `assets/legal/<locale>/<document-name>.pdf`
 
+set -o errexit
 
-legalpath=
-legaldoc=
-fxapath=
-tries=0
-checkpandoc() {
-  echo "Checking to see if 'pandoc' is installed..."
-  if command -v pandoc >/dev/null; then
-    echo "'pandoc' is installed.  Continuing."
-  else
-    echo "This script requires that pandoc be installed."
-    echo "Please run 'brew install pandoc' or follow instructions here: https://github.com/jgm/pandoc/blob/master/INSTALL.md."
-    echo "Exiting."
-    exit 1
-  fi
-}
+documents_to_convert=(
+  mozilla_vpn_privacy_notice.md
+  mozilla_vpn_tos.md
+)
 
-getlegalpath() {
-  echo "Provide the absolute path to the legal directory containing the files to convert or the specific file to be converted."
-  read -r path
-  echo "You provided: '$path'"
+legal_docs_path=""
+invalid_paths=0
 
-  if [ -d "$path" ] || [ -f "$path" ]; then
-    echo "'$path' is valid."
-    legalpath=$path
-  elif [ $tries -lt 3 ]; then
-    echo "'$path' does not exist. Please try again."
-    (( ++tries ))
-  else
-    echo "Too many tries. Exiting."
-    exit 1
-  fi
-}
-
-getfxapath() {
-  path=$(pwd)
-  fullpath="${path}/../assets/legal"
-
-
-  if [ ! -d "$fullpath" ]; then
-    echo "Unable to locate relative output base directory: ../assets/legal";
-    echo "Exiting."
-    exit
-  fi
-
-  if [ -f "$legalpath" ]; then
-    legaldir=$(dirname "${legalpath}")
-  else
-    legaldir=$legalpath
-  fi
-  echo "legaldir: $legaldir"
-  directoryname=${legaldir##*/}
-  echo "directoryname: $directoryname"
-
-  fxapath="${fullpath}/${directoryname}"
-
-  if [ ! -d "$fxapath" ]; then
-    mkdir $fxapath
-  fi
-
-  echo "Resulting pdfs will be created in the following directory: '$fxapath'"
-}
-
-convertfile(){
-  filename=`basename $legaldoc .md`
-  destination="${fxapath}/${filename}.pdf"
-  echo "executing: pandoc $legaldoc -o $destination --pdf-engine=xelatex"
-  pandoc $legaldoc -o $destination --pdf-engine=xelatex
-}
-
-
-echo "------------------"
-echo " STARTING PROGRAM "
-echo "------------------"
-echo ""
-checkpandoc
-while [ -z "${legalpath}" ]; do
+exit_converter() {
   echo ""
-  getlegalpath
-done
-echo ""
-getfxapath
-echo ""
-echo "---------------------------"
-echo " BEGINNING FILE CONVERSION "
-echo "---------------------------"
-echo
+  echo "Exiting"
+  echo ""
+  exit 1
+}
 
-if [ -f "$legalpath" ]; then
-  legaldoc=$legalpath
-  convertfile
-else
-  for legaldoc in $legalpath/*.md; do
-      convertfile
-  done
+warn_invalid() {
+  (( ++invalid_paths ))
+  path=${1}
+  message=${2}
+  echo ""
+  echo ""
+  echo ">> ${message}"
+  echo ">> '${path}' is invalid"
+}
+
+# Verify pandoc availability
+if !  command -v pandoc >/dev/null; then
+  echo ""
+  echo ""
+  echo "This script requires that pandoc be installed."
+  echo "Please run 'brew install pandoc' or follow instructions here: https://github.com/jgm/pandoc/blob/master/INSTALL.md."
+  exit_converter
 fi
+
+# Exit converter if path to legal-docs isn't provided
+if [ $# -eq 0 ]; then
+  echo ""
+  echo "Please provide absolute path to Mozilla legal-docs directory"
+  echo "Usage: _scripts/legal-md-to-pdf.sh 'absolute/path/to/legal-docs/'"
+  echo ""
+  echo "Mozilla legal-docs repo: https://github.com/mozilla/legal-docs"
+  exit_converter
+fi
+
+# Append "/" to legal_docs_path if necessary
+legal_docs_path=${1}
+if [ ${legal_docs_path: -1} != "/" ]; then
+  legal_docs_path=${legal_docs_path}/
+fi
+
+# Confirm legal-docs directory exists
+if ! [ -d "$legal_docs_path" ]; then
+  warn_invalid $legal_docs_path "Please provide a valid absolute path to the Mozilla legal-docs directory"
+fi
+
+# Confirm output directory exists
+fxa_legal_assets="$(pwd)/assets/legal"
+if [ ! -d "${fxa_legal_assets}" ]; then
+  warn_invalid $fxa_legal_assets "Unable to locate relative output base directory: ../assets/legal"
+fi
+
+# Exit converter if both paths are not valid
+if [ ${invalid_paths} -ne 0 ]; then
+  exit_converter
+fi
+
+echo ""
+echo ""
+printf "$(tput bold)Starting: Mozilla VPN legal docs converter...$(tput sgr0) \n"
+echo "This script converts Mozilla VPN legal documents from .md to .pdf"
+echo "Resulting pdfs will be created in the following directory: '${fxa_legal_assets}'"
+echo ""
+echo ""
+
+num_files_converted=0
+
+for locale_dir in ${legal_docs_path}*; do
+  for document in ${documents_to_convert[@]}; do
+    if [ -f "${locale_dir}/${document}" ]; then
+      locale=${locale_dir##*/}
+      mkdir -p ${fxa_legal_assets}/${locale}
+
+      document_name="$(basename ${document} .md)"
+      doc_to_convert="${locale_dir}/${document_name}.md"
+
+      pdf="${fxa_legal_assets}/${locale}/${document_name}.pdf"
+      echo ""
+      echo "Converting ${locale}/${document_name}.md to ${locale}/${document_name}.pdf..."
+      pandoc ${doc_to_convert} -o ${pdf} --pdf-engine xelatex
+      (( ++num_files_converted ))
+    fi
+  done
+done
+
+echo ""
+echo ""
+printf "Done! ${num_files_converted} files converted to PDF! \n"
+echo ""
+echo ""
