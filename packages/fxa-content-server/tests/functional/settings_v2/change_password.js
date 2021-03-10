@@ -12,7 +12,6 @@ const FunctionalHelpers = require('../lib/helpers');
 
 const config = intern._config;
 const EMAIL_FIRST = config.fxaContentRoot;
-const SETTINGS_V2_URL = config.fxaSettingsV2Root;
 const password = 'passwordzxcv';
 const newPassword = 'passwordzxcvb';
 const CHANGE_PASSWORD_COMMAND = 'fxaccounts:change_password';
@@ -27,7 +26,6 @@ const {
   fillOutEmailFirstSignIn,
   getWebChannelMessageData,
   storeWebChannelMessageData,
-  testElementExists,
   type,
 } = FunctionalHelpers.helpersRemoteWrapped;
 
@@ -42,15 +40,14 @@ describe('change password', () => {
   it('change password and login', async ({ remote }) => {
     await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
     await fillOutEmailFirstSignIn(email, password, remote);
-    await testElementExists(selectors.SETTINGS.HEADER, remote);
-    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote);
-    await storeWebChannelMessageData(CHANGE_PASSWORD_COMMAND, remote);
 
     await click(
       selectors.SETTINGS_V2.CHANGE_PASSWORD.OPEN_BUTTON,
       selectors.SETTINGS_V2.CHANGE_PASSWORD.CURRENT_PASSWORD_LABEL,
       remote
     );
+
+    await storeWebChannelMessageData(CHANGE_PASSWORD_COMMAND, remote);
 
     await click(
       selectors.SETTINGS_V2.CHANGE_PASSWORD.CURRENT_PASSWORD_LABEL,
@@ -99,15 +96,11 @@ describe('change password', () => {
 
     await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
     await fillOutEmailFirstSignIn(email, newPassword, remote);
-
-    await testElementExists(selectors.SETTINGS.HEADER, remote);
   });
 
   it('click forgot password link', async ({ remote }) => {
     await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
     await fillOutEmailFirstSignIn(email, password, remote);
-    await testElementExists(selectors.SETTINGS.HEADER, remote);
-    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote);
     await click(
       selectors.SETTINGS_V2.CHANGE_PASSWORD.OPEN_BUTTON,
       selectors.SETTINGS_V2.CHANGE_PASSWORD.CURRENT_PASSWORD_LABEL,

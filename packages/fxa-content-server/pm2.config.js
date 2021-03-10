@@ -15,7 +15,7 @@ module.exports = {
       env: {
         NODE_ENV: 'development',
         CONFIG_FILES: 'server/config/local.json',
-        NEW_SETTINGS: true,
+        NEW_SETTINGS: process.env.NEW_SETTINGS || true,
         PORT: 3030,
         PATH,
       },

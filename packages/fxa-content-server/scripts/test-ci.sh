@@ -24,6 +24,7 @@ yarn lint
 cd ../../
 mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
+export NEW_SETTINGS=false
 yarn workspaces foreach \
     --verbose \
     --topological-dev \

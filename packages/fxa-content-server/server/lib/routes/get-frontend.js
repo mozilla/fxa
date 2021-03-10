@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-module.exports = function () {
+module.exports = function (config) {
   // The array is converted into a RegExp
   const FRONTEND_ROUTES = [
     'account_recovery_confirm_key',
@@ -106,6 +106,13 @@ module.exports = function () {
     method: 'get',
     path: new RegExp('^/(' + FRONTEND_ROUTES + ')/?$'),
     process: function (req, res, next) {
+      if (
+        config.get('settings.enableBeta') &&
+        req.url.includes('settings') &&
+        !req.url.includes('beta/')
+      ) {
+        return res.redirect(302, req.url.replace('settings', 'beta/settings'));
+      }
       // setting the url to / will use the correct
       // index.html for either dev or prod mode.
       req.url = '/';

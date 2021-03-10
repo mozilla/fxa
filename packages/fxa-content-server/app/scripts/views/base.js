@@ -174,6 +174,7 @@ var BaseView = Backbone.View.extend({
     this.lang = options.lang;
     this.window = options.window || window;
     this.logger = new Logger(this.window);
+    this.config = options.config || {};
 
     this.navigator = options.navigator || this.window.navigator || navigator;
     this.translator = options.translator || new Translator();
