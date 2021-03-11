@@ -39,9 +39,10 @@ export const GET_INITIAL_STATE = gql`
 
 type AppProps = {
   flowQueryParams: FlowQueryParams;
+  navigatorLanguages: readonly string[];
 };
 
-export const App = ({ flowQueryParams }: AppProps) => {
+export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
   const config = useConfig();
 
   useEffect(() => {
@@ -68,6 +69,7 @@ export const App = ({ flowQueryParams }: AppProps) => {
     <AppLocalizationProvider
       baseDir="/beta/settings/locales"
       bundles={['settings']}
+      userLocales={navigatorLanguages}
     >
       <AppLayout>
         <Head />
