@@ -81,7 +81,12 @@ try {
         <AuthContext.Provider value={{ auth: authClient }}>
           <ConfigContext.Provider value={config}>
             <AppErrorBoundary>
-              <App {...{ flowQueryParams }} />
+              <App
+                {...{
+                  flowQueryParams,
+                  navigatorLanguages: navigator.languages,
+                }}
+              />
             </AppErrorBoundary>
           </ConfigContext.Provider>
         </AuthContext.Provider>
