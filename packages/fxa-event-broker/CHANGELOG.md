@@ -1,5 +1,21 @@
 # Change history
 
+## 1.202.0
+
+### Other changes
+
+- deps-dev: bump nock from 13.0.7 to 13.0.11 ([f38836bf8](https://github.com/mozilla/fxa/commit/f38836bf8))
+- deps: bump @google-cloud/firestore from 4.9.4 to 4.9.6 ([697c38299](https://github.com/mozilla/fxa/commit/697c38299))
+- deps-dev: bump @types/passport-jwt from 3.0.3 to 3.0.5 ([351399381](https://github.com/mozilla/fxa/commit/351399381))
+- deps: bump @google-cloud/pubsub from 2.9.0 to 2.10.0 ([0a9c85b0e](https://github.com/mozilla/fxa/commit/0a9c85b0e))
+- deps: bump @types/convict from 5.2.1 to 5.2.2 ([afdfd3993](https://github.com/mozilla/fxa/commit/afdfd3993))
+- deps: bump @nestjs/core from 7.6.12 to 7.6.13 ([e0611af3b](https://github.com/mozilla/fxa/commit/e0611af3b))
+- deps: bump rxjs from 6.6.3 to 6.6.6 ([62c3c2447](https://github.com/mozilla/fxa/commit/62c3c2447))
+- deps: bump @nestjs/graphql from 7.9.9 to 7.9.10 ([a6b3030cc](https://github.com/mozilla/fxa/commit/a6b3030cc))
+- deps: bump aws-sdk from 2.849.0 to 2.851.0 ([ba6f4b37e](https://github.com/mozilla/fxa/commit/ba6f4b37e))
+- deps: bump @nestjs/common from 7.6.4 to 7.6.13 ([386ccc471](https://github.com/mozilla/fxa/commit/386ccc471))
+- deps: bump @google-cloud/firestore from 4.8.1 to 4.9.4 ([dff4263e3](https://github.com/mozilla/fxa/commit/dff4263e3))
+
 ## 1.201.1
 
 No changes.

@@ -1,3 +1,10 @@
+## 1.202.0
+
+### Other changes
+
+- deps: bump @types/convict from 5.2.1 to 5.2.2 ([afdfd3993](https://github.com/mozilla/fxa/commit/afdfd3993))
+- deps-dev: bump @types/webpack from 4.41.16 to 4.41.26 ([2cb798d6c](https://github.com/mozilla/fxa/commit/2cb798d6c))
+
 ## 1.201.1
 
 No changes.

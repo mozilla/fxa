@@ -1,3 +1,28 @@
+## 1.202.0
+
+### New features
+
+- settings: default to beta/settings ([02cb62636](https://github.com/mozilla/fxa/commit/02cb62636))
+- payments-server: Display currency restrictions errors on front-end. ([abdde80c4](https://github.com/mozilla/fxa/commit/abdde80c4))
+- auth-server: add isCurrencyCompatibleWithCountry function ([fa61dc5ae](https://github.com/mozilla/fxa/commit/fa61dc5ae))
+
+### Bug fixes
+
+- l10n: restore invisible terms / privacy pages ([585a888a8](https://github.com/mozilla/fxa/commit/585a888a8))
+- settings: #7632 broke dev ([070fef963](https://github.com/mozilla/fxa/commit/070fef963))
+
+### Other changes
+
+- metrics: ensure flow params are passed to settings ([2fb8e5fbc](https://github.com/mozilla/fxa/commit/2fb8e5fbc))
+- fxa-payments-server: add error page to checkout ([28fc71e13](https://github.com/mozilla/fxa/commit/28fc71e13))
+- deps: bump mustache from 4.0.1 to 4.1.0 ([a9d43f147](https://github.com/mozilla/fxa/commit/a9d43f147))
+- deps-dev: bump firefox-profile from 4.0.0 to 4.1.0 ([e63d1c752](https://github.com/mozilla/fxa/commit/e63d1c752))
+- deps-dev: bump jsqr from 1.2.0 to 1.3.1 ([712fc6285](https://github.com/mozilla/fxa/commit/712fc6285))
+- deps: bump time-grunt from 1.4.0 to 2.0.0 ([925e421a1](https://github.com/mozilla/fxa/commit/925e421a1))
+- deps-dev: bump url-loader from 4.1.0 to 4.1.1 ([7d4c09096](https://github.com/mozilla/fxa/commit/7d4c09096))
+- deps-dev: bump yargs from 15.4.1 to 16.2.0 ([dc93e441a](https://github.com/mozilla/fxa/commit/dc93e441a))
+- functional: pass in plan id for subscription test ([bf63cf6e6](https://github.com/mozilla/fxa/commit/bf63cf6e6))
+
 ## 1.201.1
 
 ### Bug fixes

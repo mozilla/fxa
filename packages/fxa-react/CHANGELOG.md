@@ -1,3 +1,9 @@
+## 1.202.0
+
+### Other changes
+
+- deps-dev: bump @types/prettier from 2.1.5 to 2.2.1 ([b7c487fa8](https://github.com/mozilla/fxa/commit/b7c487fa8))
+
 ## 1.201.1
 
 No changes.
