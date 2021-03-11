@@ -453,8 +453,8 @@ _Pre-requisites_: The script requires the following:
 _scripts/legal-md-to-pdf.sh '/absolute/path/to/legal-docs/'
 ```
 
-The script traverses the legal-docs directory looking for localized copies of the Mozilla VPN legal documents. When found, the script converts the document from .md to .pdf and writes it to `assets/legal/<locale>/<document_name.pdf>`.
+The script traverses the legal-docs directory looking for localized copies of the Mozilla VPN legal documents. When found, the script converts the document from .md to .pdf and writes it to `assets/legal/<document_name>.<locale>.pdf`.
 
 Example:
 directory provided: `/Users/test/github/mozilla/legal-docs/`
-resulting file: `assets/legal/<locale>/<document_name.pdf>`
+resulting file: `assets/legal/<document_name>.<locale>.pdf`

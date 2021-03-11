@@ -12,11 +12,11 @@
 #    LaTeX: https://www.latex-project.org/get/
 #
 # The script traverses the legal-docs directory looking for Mozilla VPN legal documents in each locale.
-# When found, the script converts the document from .md to .pdf and writes it to assets/legal/<locale>/<document_name.pdf>.
+# When found, the script converts the document from .md to .pdf and writes it to assets/legal/<document_name>.<locale>.
 #
 # Examples:
 # directory provided: `/Users/username/Documents/GitHub/legal-docs/`
-# resulting file: `assets/legal/<locale>/<document-name>.pdf`
+# resulting file: `assets/legal/<document-name>.<locale>.pdf`
 
 set -o errexit
 
@@ -100,14 +100,13 @@ for locale_dir in ${legal_docs_path}*; do
   for document in ${documents_to_convert[@]}; do
     if [ -f "${locale_dir}/${document}" ]; then
       locale=${locale_dir##*/}
-      mkdir -p ${fxa_legal_assets}/${locale}
 
       document_name="$(basename ${document} .md)"
       doc_to_convert="${locale_dir}/${document_name}.md"
 
-      pdf="${fxa_legal_assets}/${locale}/${document_name}.pdf"
+      pdf="${fxa_legal_assets}/${document_name}.${locale}.pdf"
       echo ""
-      echo "Converting ${locale}/${document_name}.md to ${locale}/${document_name}.pdf..."
+      echo "Converting ${locale}/${document_name}.md to legal/${document_name}.${locale}.pdf..."
       pandoc ${doc_to_convert} -o ${pdf} --pdf-engine xelatex
       (( ++num_files_converted ))
     fi
