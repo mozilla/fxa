@@ -1,5 +1,27 @@
 # Change history
 
+## 1.202.0
+
+### New features
+
+- auth-server: handle IPN for billing agreement cancelled Because: ([381b00471](https://github.com/mozilla/fxa/commit/381b00471))
+- l10n: Add support for new locales ([23f26e217](https://github.com/mozilla/fxa/commit/23f26e217))
+
+### Bug fixes
+
+- l10n: Add 'hi' locale support ([213ac944a](https://github.com/mozilla/fxa/commit/213ac944a))
+
+### Other changes
+
+- Add a new event property to Checkout related Amplitude events ([045a6544d](https://github.com/mozilla/fxa/commit/045a6544d))
+- deps: bump @nestjs/core from 7.6.12 to 7.6.13 ([e0611af3b](https://github.com/mozilla/fxa/commit/e0611af3b))
+- deps: bump generic-pool from 3.7.1 to 3.7.2 ([52648911e](https://github.com/mozilla/fxa/commit/52648911e))
+- deps-dev: bump @types/mocha from 7.0.2 to 8.2.1 ([1ccd661a1](https://github.com/mozilla/fxa/commit/1ccd661a1))
+- deps: bump rxjs from 6.6.3 to 6.6.6 ([62c3c2447](https://github.com/mozilla/fxa/commit/62c3c2447))
+- deps: bump @nestjs/graphql from 7.9.9 to 7.9.10 ([a6b3030cc](https://github.com/mozilla/fxa/commit/a6b3030cc))
+- deps: bump aws-sdk from 2.849.0 to 2.851.0 ([ba6f4b37e](https://github.com/mozilla/fxa/commit/ba6f4b37e))
+- deps: bump @nestjs/common from 7.6.4 to 7.6.13 ([386ccc471](https://github.com/mozilla/fxa/commit/386ccc471))
+
 ## 1.201.1
 
 No changes.

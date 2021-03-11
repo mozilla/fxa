@@ -1,3 +1,23 @@
+## 1.202.0
+
+### New features
+
+- settings: default to beta/settings ([02cb62636](https://github.com/mozilla/fxa/commit/02cb62636))
+- settings: hide email communications link if set to empty url ([5e17a4d09](https://github.com/mozilla/fxa/commit/5e17a4d09))
+
+### Bug fixes
+
+- l10n: Pass navigator.languages into the new settings page ([b13e88e3e](https://github.com/mozilla/fxa/commit/b13e88e3e))
+- settings: rename goHome and goBack functions ([f62f1b099](https://github.com/mozilla/fxa/commit/f62f1b099))
+- settings: added "Saving" button state to avatar upload ([50cf58bcc](https://github.com/mozilla/fxa/commit/50cf58bcc))
+- settings: fixed slider style when csp blocks inline styles ([982c7b6c0](https://github.com/mozilla/fxa/commit/982c7b6c0))
+
+### Other changes
+
+- deps-dev: bump webpack-merge-and-include-globally ([f5b5386fc](https://github.com/mozilla/fxa/commit/f5b5386fc))
+- deps-dev: bump @types/webpack from 4.41.16 to 4.41.26 ([2cb798d6c](https://github.com/mozilla/fxa/commit/2cb798d6c))
+- deps: bump react-hook-form from 6.15.3 to 6.15.4 ([ce0e79a51](https://github.com/mozilla/fxa/commit/ce0e79a51))
+
 ## 1.201.1
 
 ### Bug fixes
@@ -44,7 +64,7 @@
 - fxa-settings: add avatar delete mutation ([510c2faef](https://github.com/mozilla/fxa/commit/510c2faef))
 - deps: yarn dedupe ([50f8a74fd](https://github.com/mozilla/fxa/commit/50f8a74fd))
 - fxa-settings: load styles for react-easy-crop ([c5de3e531](https://github.com/mozilla/fxa/commit/c5de3e531))
-- deps-dev: bump @types/testing-library__react-hooks ([a1fe53895](https://github.com/mozilla/fxa/commit/a1fe53895))
+- deps-dev: bump @types/testing-library\_\_react-hooks ([a1fe53895](https://github.com/mozilla/fxa/commit/a1fe53895))
 
 ## 1.200.0
 

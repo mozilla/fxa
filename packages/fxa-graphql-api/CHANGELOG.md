@@ -1,3 +1,17 @@
+## 1.202.0
+
+### Other changes
+
+- deps-dev: bump nock from 13.0.7 to 13.0.11 ([f38836bf8](https://github.com/mozilla/fxa/commit/f38836bf8))
+- deps: bump ioredis from 4.19.4 to 4.23.0 ([9d8fcbdba](https://github.com/mozilla/fxa/commit/9d8fcbdba))
+- deps: bump @types/convict from 5.2.1 to 5.2.2 ([afdfd3993](https://github.com/mozilla/fxa/commit/afdfd3993))
+- deps: bump @nestjs/core from 7.6.12 to 7.6.13 ([e0611af3b](https://github.com/mozilla/fxa/commit/e0611af3b))
+- deps: bump apollo-server-express from 2.19.2 to 2.21.0 ([9ec043299](https://github.com/mozilla/fxa/commit/9ec043299))
+- deps: bump rxjs from 6.6.3 to 6.6.6 ([62c3c2447](https://github.com/mozilla/fxa/commit/62c3c2447))
+- deps-dev: bump @types/ioredis from 4.17.3 to 4.22.0 ([b41bc223a](https://github.com/mozilla/fxa/commit/b41bc223a))
+- deps: bump @nestjs/graphql from 7.9.9 to 7.9.10 ([a6b3030cc](https://github.com/mozilla/fxa/commit/a6b3030cc))
+- deps: bump @nestjs/common from 7.6.4 to 7.6.13 ([386ccc471](https://github.com/mozilla/fxa/commit/386ccc471))
+
 ## 1.201.1
 
 No changes.

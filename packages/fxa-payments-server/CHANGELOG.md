@@ -1,5 +1,30 @@
 # Change history
 
+## 1.202.0
+
+### New features
+
+- payments-server: Display currency restrictions errors on front-end. ([abdde80c4](https://github.com/mozilla/fxa/commit/abdde80c4))
+- payments: Gate SubscriptionCreate screen based on new/returning PayPal customers. ([2c03f3342](https://github.com/mozilla/fxa/commit/2c03f3342))
+- payments: Fix alignment of resubscribe <p> in sub. management ([b1bd2f474](https://github.com/mozilla/fxa/commit/b1bd2f474))
+- payments: Show processing screen onApprove for PayPalButton ([e5f785779](https://github.com/mozilla/fxa/commit/e5f785779))
+- payments: Update PayPal checkout success screen to match latest UX spec ([35f1b76a1](https://github.com/mozilla/fxa/commit/35f1b76a1))
+- auth-server: Prevent PayPal button from appearing on top of header ([ca32d3a50](https://github.com/mozilla/fxa/commit/ca32d3a50))
+- fxa-payments-server: add processing view to checkout ([8c40ddcc2](https://github.com/mozilla/fxa/commit/8c40ddcc2))
+- payments: Show PayPal logo on subscription page and consolidate code ([fa6af684e](https://github.com/mozilla/fxa/commit/fa6af684e))
+- payments: Show PayPal logo on subscription page and consolidate code ([90de1e841](https://github.com/mozilla/fxa/commit/90de1e841))
+
+### Other changes
+
+- payments: Replace localization ids for 'payment-legal-copy-stripe-paypal' and 'payment-legal-link-stripe-paypal' ([825ab8b28](https://github.com/mozilla/fxa/commit/825ab8b28))
+- deps-dev: bump nock from 13.0.7 to 13.0.11 ([f38836bf8](https://github.com/mozilla/fxa/commit/f38836bf8))
+- deps: bump @stripe/stripe-js from 1.11.0 to 1.13.1 ([d66990fc3](https://github.com/mozilla/fxa/commit/d66990fc3))
+- fxa-payments-server: add error page to checkout ([28fc71e13](https://github.com/mozilla/fxa/commit/28fc71e13))
+- Add a new event property to Checkout related Amplitude events ([045a6544d](https://github.com/mozilla/fxa/commit/045a6544d))
+- deps-dev: bump @types/webpack from 4.41.16 to 4.41.26 ([2cb798d6c](https://github.com/mozilla/fxa/commit/2cb798d6c))
+- fxa-payments-server: add legal to checkout flow ([9c13fb57f](https://github.com/mozilla/fxa/commit/9c13fb57f))
+- deps-dev: bump caniuse-lite from 1.0.30001158 to 1.0.30001192 ([1075ae119](https://github.com/mozilla/fxa/commit/1075ae119))
+
 ## 1.201.1
 
 No changes.

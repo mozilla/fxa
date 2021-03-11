@@ -1,3 +1,41 @@
+## 1.202.0
+
+### New features
+
+- auth-server: handle IPN for billing agreement cancelled Because: ([381b00471](https://github.com/mozilla/fxa/commit/381b00471))
+- payments-server: Display currency restrictions errors on front-end. ([abdde80c4](https://github.com/mozilla/fxa/commit/abdde80c4))
+- auth-server: add error response for paypal ([acab246c2](https://github.com/mozilla/fxa/commit/acab246c2))
+- auth-server: add credit note listener ([43bb1d6aa](https://github.com/mozilla/fxa/commit/43bb1d6aa))
+- l10n: Add support for new locales ([23f26e217](https://github.com/mozilla/fxa/commit/23f26e217))
+- auth-server: Refactor isEqualHelper ([d6ad53243](https://github.com/mozilla/fxa/commit/d6ad53243))
+- auth-server: refund paypal transaction Because: ([697c6b3a5](https://github.com/mozilla/fxa/commit/697c6b3a5))
+- auth: Change invoice.payment_succeeded to invoice.paid ([4f12f620d](https://github.com/mozilla/fxa/commit/4f12f620d))
+- auth-server: pass ip through to paypal ([12173fccd](https://github.com/mozilla/fxa/commit/12173fccd))
+- auth-server: add paypal BA update handler ([07c98c17c](https://github.com/mozilla/fxa/commit/07c98c17c))
+- auth-server: remove paypal BA and cancel at end ([f0c48a4d6](https://github.com/mozilla/fxa/commit/f0c48a4d6))
+- auth-server: Paypal chargeCustomer must be called with currencyCode ([0a487b4c1](https://github.com/mozilla/fxa/commit/0a487b4c1))
+- auth-server: add paypal invoice processor ([e00be15ce](https://github.com/mozilla/fxa/commit/e00be15ce))
+- auth-server: add isCurrencyCompatibleWithCountry function ([fa61dc5ae](https://github.com/mozilla/fxa/commit/fa61dc5ae))
+
+### Bug fixes
+
+- remove sandbox credentials ([55fd12b6f](https://github.com/mozilla/fxa/commit/55fd12b6f))
+- auth-server: link invoice handler to webhook ([0b4914ea8](https://github.com/mozilla/fxa/commit/0b4914ea8))
+- auth-server: Correctly format paypal AMT string ([e47882d3e](https://github.com/mozilla/fxa/commit/e47882d3e))
+
+### Other changes
+
+- deps-dev: bump nock from 13.0.7 to 13.0.11 ([f38836bf8](https://github.com/mozilla/fxa/commit/f38836bf8))
+- deps: bump ioredis from 4.19.4 to 4.23.0 ([9d8fcbdba](https://github.com/mozilla/fxa/commit/9d8fcbdba))
+- deps: bump @google-cloud/firestore from 4.9.4 to 4.9.6 ([697c38299](https://github.com/mozilla/fxa/commit/697c38299))
+- deps: bump @types/convict from 5.2.1 to 5.2.2 ([afdfd3993](https://github.com/mozilla/fxa/commit/afdfd3993))
+- deps-dev: bump @types/mocha from 7.0.2 to 8.2.1 ([1ccd661a1](https://github.com/mozilla/fxa/commit/1ccd661a1))
+- Modify transactional emails ([fe383495d](https://github.com/mozilla/fxa/commit/fe383495d))
+- deps: bump jsrsasign from 10.1.10 to 10.1.12 ([d6361102a](https://github.com/mozilla/fxa/commit/d6361102a))
+- deps-dev: bump @types/ioredis from 4.17.3 to 4.22.0 ([b41bc223a](https://github.com/mozilla/fxa/commit/b41bc223a))
+- deps: bump aws-sdk from 2.849.0 to 2.851.0 ([ba6f4b37e](https://github.com/mozilla/fxa/commit/ba6f4b37e))
+- deps: bump @google-cloud/firestore from 4.8.1 to 4.9.4 ([dff4263e3](https://github.com/mozilla/fxa/commit/dff4263e3))
+
 ## 1.201.1
 
 No changes.
