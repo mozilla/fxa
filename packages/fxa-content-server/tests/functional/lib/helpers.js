@@ -2824,7 +2824,7 @@ const createUserAndLoadSettings = thenify(function (email) {
     .then(createUser(email, PASSWORD, { preVerified: true }))
     .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
     .then(fillOutEmailFirstSignIn(email, PASSWORD))
-    .then(testElementExists(selectors.SETTINGS.HEADER));
+    .then(testElementExists(selectors.SETTINGS.APP));
 });
 
 const subscribeAndSigninToRp = thenify(function (email) {

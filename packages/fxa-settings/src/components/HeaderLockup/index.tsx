@@ -54,15 +54,6 @@ export const HeaderLockup = () => {
                   Firefox accounts
                 </span>
               </Localized>
-              <Localized id="header-switch-title" attrs={{ title: true }}>
-                <a
-                  href="/settings/beta_optout"
-                  title="classic design link"
-                  className="cta-base cta-neutral transition-standard text-sm ltr:ml-4 rtl:mr-4 p-2"
-                >
-                  Switch to classic design
-                </a>
-              </Localized>
             </>
           </LogoLockup>
         </a>

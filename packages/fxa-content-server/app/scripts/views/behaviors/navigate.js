@@ -14,6 +14,9 @@ const NavigationBehavior = function (endpoint, options = {}) {
       account.set('alertText', options.success);
     }
     const navigateOptions = _.assign({}, options, { account });
+    if (view.config.enableBeta) {
+      endpoint = endpoint.replace('settings', 'beta/settings');
+    }
     view.navigate(endpoint, navigateOptions);
 
     // halt the flow after navigating.

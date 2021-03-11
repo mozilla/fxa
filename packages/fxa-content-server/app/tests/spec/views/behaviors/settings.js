@@ -24,6 +24,7 @@ describe('views/behaviors/settings', () => {
   describe('user is signed in', () => {
     it('returns a NavigateBehavior', () => {
       const view = {
+        config: {},
         invokeBehavior: sinon.spy(),
         relier: {
           get: sinon.spy(),
@@ -42,6 +43,7 @@ describe('views/behaviors/settings', () => {
   describe('user is not signed in', () => {
     it('returns the defaultBehavior', () => {
       const view = {
+        config: {},
         invokeBehavior: sinon.spy(),
       };
       const account = new Account();

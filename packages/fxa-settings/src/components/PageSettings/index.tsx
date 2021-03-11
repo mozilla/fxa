@@ -25,7 +25,7 @@ export const PageSettings = (_: RouteComponentProps) => {
   Metrics.usePageViewEvent(Metrics.settingsViewName);
 
   return (
-    <div className="flex">
+    <div id="fxa-settings" className="flex">
       <AlertExternal />
       <div className="hidden desktop:block desktop:flex-2">
         <Nav />

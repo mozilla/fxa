@@ -16,6 +16,7 @@ describe('views/behaviors/navigate', function () {
     const navigateBehavior = new NavigateBehavior('settings', options);
     const viewMock = {
       navigate: sinon.spy(),
+      config: {},
     };
 
     const accountMock = { set: sinon.spy() };

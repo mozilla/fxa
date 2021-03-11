@@ -386,6 +386,7 @@ module.exports = {
     SECURITY_EVENTS_HEADER: '#security-events',
   },
   SETTINGS: {
+    APP: '#fxa-settings',
     CONTENT: '#fxa-settings-content',
     HEADER: '#fxa-settings-header',
     PROFILE_HEADER: '#fxa-settings-profile-header .card-header',
@@ -624,6 +625,7 @@ module.exports = {
     DO_NOT_SYNC: '#do-not-sync-device',
   },
   SETTINGS_V2: {
+    APP: '#fxa-settings',
     HEADER: '#profile',
     TOOLTIP: '[data-testid=tooltip]',
     BACK_BUTTON: '[data-testid=flow-container-back-btn]',
