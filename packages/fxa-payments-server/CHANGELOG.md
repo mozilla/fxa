@@ -1,5 +1,11 @@
 # Change history
 
+## 1.202.1
+
+### Other changes
+
+- payments: Fix copy/paste error in main.ftl. ([623036278](https://github.com/mozilla/fxa/commit/623036278))
+
 ## 1.202.0
 
 ### New features

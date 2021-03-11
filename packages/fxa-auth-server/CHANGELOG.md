@@ -1,3 +1,9 @@
+## 1.202.1
+
+### Bug fixes
+
+- auth-server: use proper relative import ([239bd37cf](https://github.com/mozilla/fxa/commit/239bd37cf))
+
 ## 1.202.0
 
 ### New features
