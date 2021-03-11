@@ -70,7 +70,7 @@ const DefaultPaymentLegalBlurb = () => (
     </Localized>
 
     <Localized
-      id="payment-legal-copy-stripe-and-paypal"
+      id="payment-legal-link-stripe-and-paypal"
       elems={{
         stripePrivacyLink: (
           <a
