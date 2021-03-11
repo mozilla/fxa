@@ -36,6 +36,35 @@ export async function init() {
 
   const log = require('../lib/log')({ ...config.log, statsd });
 
+  const translator = await require('../lib/senders/translator')(
+    config.i18n.supportedLanguages,
+    config.i18n.defaultLanguage
+  );
+  const senders = await require('../lib/senders')(
+    log,
+    config,
+    error,
+    translator,
+    statsd
+  );
+  const redis = require('../lib/redis')(
+    { ...config.redis, ...config.redis.sessionTokens },
+    log
+  );
+  const DB = require('../lib/db')(
+    config,
+    log,
+    require('../lib/tokens')(log, config),
+    require('../lib/crypto/random').base32(config.signinUnblock.codeLength)
+  );
+  let database = null;
+  try {
+    database = await DB.connect({ ...config[config.db.backend], redis });
+  } catch (err) {
+    log.error('DB.connect', { err: { message: err.message } });
+    process.exit(1);
+  }
+
   program
     .version(pckg.version)
     .option('-g, --grace [days]', 'Grace days to allow. Defaults to 1.', '1')
@@ -61,7 +90,9 @@ export async function init() {
     config,
     parseInt(program.grace),
     parseInt(program.retries),
-    parseInt(program.invoice_age)
+    parseInt(program.invoice_age),
+    database,
+    senders.email
   );
   await processor.processInvoices();
   return 0;

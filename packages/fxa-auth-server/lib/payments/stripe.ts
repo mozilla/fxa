@@ -31,7 +31,16 @@ const CHARGES_RESOURCE = 'charges';
 const INVOICES_RESOURCE = 'invoices';
 const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
 
-const PAYPAL_AGREEMENT_METADATA_KEY = 'paypalAgreementId';
+enum STRIPE_CUSTOMER_METADATA {
+  PAYPAL_AGREEMENT = 'paypalAgreementId',
+}
+
+export enum STRIPE_INVOICE_METADATA {
+  PAYPAL_TRANSACTION_ID = 'paypalTransactionId',
+  PAYPAL_REFUND_TRANSACTION_ID = 'paypalRefundTransactionId',
+  EMAIL_SENT = 'emailSent',
+  RETRY_ATTEMPTS = 'paymentAttempts',
+}
 
 /** Represents all subscription statuses that are considered active for a customer */
 export const ACTIVE_SUBSCRIPTION_STATUSES: Stripe.Subscription['status'][] = [
@@ -389,7 +398,9 @@ export class StripeHelper {
     transactionId: string
   ) {
     return this.stripe.invoices.update(invoice.id, {
-      metadata: { paypalTransactionId: transactionId },
+      metadata: {
+        [STRIPE_INVOICE_METADATA.PAYPAL_TRANSACTION_ID]: transactionId,
+      },
     });
   }
 
@@ -404,7 +415,9 @@ export class StripeHelper {
     transactionId: string
   ) {
     return this.stripe.invoices.update(invoice.id, {
-      metadata: { paypalRefundTransactionId: transactionId },
+      metadata: {
+        [STRIPE_INVOICE_METADATA.PAYPAL_REFUND_TRANSACTION_ID]: transactionId,
+      },
     });
   }
 
@@ -430,7 +443,9 @@ export class StripeHelper {
    * @param invoice
    */
   getPaymentAttempts(invoice: Stripe.Invoice): number {
-    return parseInt(invoice?.metadata?.paymentAttempts ?? '0');
+    return parseInt(
+      invoice?.metadata?.[STRIPE_INVOICE_METADATA.RETRY_ATTEMPTS] ?? '0'
+    );
   }
 
   /**
@@ -444,7 +459,42 @@ export class StripeHelper {
   async updatePaymentAttempts(invoice: Stripe.Invoice, attempts?: number) {
     const setAttempt = attempts ?? this.getPaymentAttempts(invoice) + 1;
     return this.stripe.invoices.update(invoice.id, {
-      metadata: { paymentAttempts: setAttempt.toString() },
+      metadata: {
+        [STRIPE_INVOICE_METADATA.RETRY_ATTEMPTS]: setAttempt.toString(),
+      },
+    });
+  }
+
+  /**
+   * Get the email types that have been sent for this invoice.
+   *
+   * @param invoice
+   */
+  getEmailTypes(invoice: Stripe.Invoice) {
+    return (invoice.metadata?.[STRIPE_INVOICE_METADATA.EMAIL_SENT] ?? '')
+      .split(':')
+      .filter((a) => a);
+  }
+
+  /**
+   * Updates the email types sent for this invoice. These types are concatentated
+   * on the value of a single invoice metadata key and are thus limited to 500
+   * characters.
+   *
+   * @param invoice
+   * @param emailType
+   */
+  async updateEmailSent(invoice: Stripe.Invoice, emailType: string) {
+    const emailTypes = this.getEmailTypes(invoice);
+    if (emailTypes.includes(emailType)) {
+      return;
+    }
+    return this.stripe.invoices.update(invoice.id, {
+      metadata: {
+        [STRIPE_INVOICE_METADATA.EMAIL_SENT]: [...emailTypes, emailType].join(
+          ':'
+        ),
+      },
     });
   }
 
@@ -469,11 +519,14 @@ export class StripeHelper {
     customer: Stripe.Customer,
     agreementId: string
   ): Promise<Stripe.Customer> {
-    if (customer.metadata[PAYPAL_AGREEMENT_METADATA_KEY] === agreementId) {
+    if (
+      customer.metadata[STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT] ===
+      agreementId
+    ) {
       return customer;
     }
     return this.stripe.customers.update(customer.id, {
-      metadata: { [PAYPAL_AGREEMENT_METADATA_KEY]: agreementId },
+      metadata: { [STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT]: agreementId },
     });
   }
 
@@ -490,7 +543,7 @@ export class StripeHelper {
   ) {
     return [
       this.stripe.customers.update(customerId, {
-        metadata: { [PAYPAL_AGREEMENT_METADATA_KEY]: null },
+        metadata: { [STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT]: null },
       }),
       updatePayPalBA(uid, billingAgreementId, 'Cancelled', Date.now()),
     ];
@@ -502,7 +555,7 @@ export class StripeHelper {
    * @param customer
    */
   getCustomerPaypalAgreement(customer: Stripe.Customer): string | undefined {
-    return customer.metadata[PAYPAL_AGREEMENT_METADATA_KEY];
+    return customer.metadata[STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT];
   }
 
   /**
