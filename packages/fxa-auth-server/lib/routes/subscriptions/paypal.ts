@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
-import { reportSentryError } from 'fxa-auth-server/lib/sentry';
-import { msToSec } from 'fxa-auth-server/lib/time';
 import { createPayPalBA } from 'fxa-shared/db/models/auth';
 import {
   filterCustomer,
@@ -17,6 +15,8 @@ import { ConfigType } from '../../../config';
 import error from '../../error';
 import { PayPalHelper } from '../../payments/paypal';
 import { StripeHelper } from '../../payments/stripe';
+import { reportSentryError } from '../../sentry';
+import { msToSec } from '../../time';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { StripeHandler } from './stripe';
