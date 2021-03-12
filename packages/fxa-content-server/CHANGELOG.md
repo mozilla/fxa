@@ -1,3 +1,9 @@
+## 1.202.1
+
+### Other changes
+
+- support form: update placeholder text to sentence case ([9431c0292](https://github.com/mozilla/fxa/commit/9431c0292))
+
 ## 1.202.0
 
 ### New features
