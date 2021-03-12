@@ -2072,7 +2072,8 @@ const testElementWasShown = thenify(function (selector, message) {
         // remove the attribute so subsequent checks can be made
         // against the same element. displaySuccess and displayError
         // will re-add the 'data-shown' attribute.
-        $(selector).removeAttr('data-shown');
+        // TODO experimentally disabling this.
+        //$(selector).removeAttr('data-shown');
         done();
       },
       [selector]
@@ -2086,7 +2087,7 @@ const testElementWasShown = thenify(function (selector, message) {
  * @returns {promise} rejects if error element was not shown.
  */
 function testSuccessWasShown(message, selector) {
-  selector = selector || '.success[data-shown]';
+  selector = selector || selectors.SETTINGS.SUCCESS;
   return testElementWasShown(selector, message);
 }
 
@@ -2097,7 +2098,7 @@ function testSuccessWasShown(message, selector) {
  * @returns {promise} rejects if error element was shown.
  */
 function testSuccessWasNotShown(selector) {
-  selector = selector || '.success[data-shown]';
+  selector = selector || selectors.SETTINGS.SUCCESS;
   return noSuchElement(selector);
 }
 
@@ -2108,7 +2109,7 @@ function testSuccessWasNotShown(selector) {
  * @returns {promise} rejects if error element was not shown.
  */
 function testErrorWasShown(message, selector) {
-  selector = selector || '.error[data-shown]';
+  selector = selector || selectors.SETTINGS.ERROR;
   return testElementWasShown(selector);
 }
 
@@ -2119,7 +2120,7 @@ function testErrorWasShown(message, selector) {
  * @returns {promise} rejects if error element was shown.
  */
 function testErrorWasNotShown(selector) {
-  selector = selector || '.error[data-shown]';
+  selector = selector || selectors.SETTINGS.ERROR;
   return noSuchElement(selector);
 }
 
@@ -2565,9 +2566,9 @@ const confirmRecoveryCode = thenify(function () {
 
 const confirmTotpCode = thenify(function (secret) {
   return this.parent
+    .then(focus(selectors.TOTP.CONFIRM_CODE_INPUT))
     .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateTotpCode(secret)))
-    .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
-    .then(testElementExists(selectors.SIGNIN_RECOVERY_CODE.MODAL))
+    .then(() => this.parent.then(click(selectors.TOTP.KEY_OK_BUTTON)))
     .then(confirmRecoveryCode());
 });
 
@@ -2576,8 +2577,7 @@ const enableTotp = thenify(function () {
 
   return (
     this.parent
-      .then(openPage(ENABLE_TOTP_URL, selectors.TOTP.ENABLE_BUTTON))
-      .then(click(selectors.TOTP.ENABLE_BUTTON, selectors.TOTP.QR_CODE))
+      .then(openPage(ENABLE_TOTP_URL, '[data-testid=recovery-key-input]'))
       .then(click(selectors.TOTP.SHOW_CODE_LINK))
       .then(testElementExists(selectors.TOTP.MANUAL_CODE))
 
@@ -2587,7 +2587,6 @@ const enableTotp = thenify(function () {
       .then((secretKey) => {
         secret = secretKey;
       })
-      .then(() => this.parent.then(click(selectors.TOTP.KEY_OK_BUTTON)))
       .then(() => this.parent.then(confirmTotpCode(secret)))
       .then(() => secret)
   );

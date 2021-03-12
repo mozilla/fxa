@@ -47,13 +47,12 @@ registerSuite('delete_account', {
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           // Go to delete account screen
-          .then(
-            click(
-              selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON,
-              selectors.SETTINGS_DELETE_ACCOUNT.DETAILS
-            )
-          )
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON))
+          .then(testElementExists(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
           .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          // TODO: intern considers these not clickable because the SVG is overlaid on top.
+          // firing a 'SPACE' key on the checkboxes doesn't work.
+          // intern doesn't have an API to set properties (e.g. setting high z-index on checkbox).
           .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
           .end()
 
@@ -99,6 +98,9 @@ registerSuite('delete_account', {
           )
 
           .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          // TODO: intern considers these not clickable because the SVG is overlaid on top.
+          // firing a 'SPACE' key on the checkboxes doesn't work.
+          // intern doesn't have an API to set properties (e.g. setting high z-index on checkbox).
           .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
           .end()
           .then(
