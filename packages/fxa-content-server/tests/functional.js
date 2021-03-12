@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = [
-  /*
   'tests/functional/fx_browser_relier.js',
   'tests/functional/oauth_webchannel.js',
   'tests/functional/reset_password.js',
@@ -58,16 +57,12 @@ module.exports = [
   'tests/functional/robots_txt.js',
   'tests/functional/security_events.js',
   'tests/functional/send_sms.js',
-  */
   'tests/functional/settings.js',
-  /*
   'tests/functional/settings_change_email.js',
   'tests/functional/settings_clients.js',
   'tests/functional/settings_common.js',
   'tests/functional/settings_secondary_emails.js',
-  */
   'tests/functional/sign_in.js',
-  /*
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',
   'tests/functional/sign_in_recovery_code.js',
@@ -85,7 +80,6 @@ module.exports = [
   'tests/functional/sync_v3_settings.js',
   'tests/functional/tos.js',
   'tests/functional/verification_reminders.js',
-  */
 ];
 
 // Mocha tests are only exposed during local dev, not on prod-like
