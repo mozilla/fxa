@@ -7,7 +7,9 @@ import { Container } from 'typedi';
 
 import { ConfigType } from '../../config';
 import error from '../../lib/error';
+import { StripeWebhookHandler } from '../routes/subscriptions/stripe-webhook';
 import { reportSentryError } from '../sentry';
+import { AuthLogger } from '../types';
 import { PayPalHelper, TransactionSearchResult } from './paypal';
 import { PayPalClientError } from './paypal-client';
 import {
@@ -45,16 +47,31 @@ function sameDay(d1: Date, d2: Date) {
 export class PaypalProcessor {
   private stripeHelper: StripeHelper;
   private paypalHelper: PayPalHelper;
+  private webhookHandler: StripeWebhookHandler;
 
   constructor(
     private log: Logger,
     config: ConfigType,
     private graceDays: number,
     private maxRetryAttempts: number,
-    private invoiceAge = 6
+    private invoiceAge = 6,
+    db: any,
+    mailer: any
   ) {
     this.stripeHelper = Container.get(StripeHelper);
     this.paypalHelper = Container.get(PayPalHelper);
+
+    // Instantiate a webhook handler so we can use its subscription sending methods
+    this.webhookHandler = new StripeWebhookHandler(
+      log as AuthLogger,
+      db,
+      config,
+      undefined,
+      undefined,
+      mailer,
+      undefined,
+      this.stripeHelper
+    );
   }
 
   /**
@@ -72,8 +89,7 @@ export class PaypalProcessor {
     return Date.now() / 1000 < invoice.created + graceDaysInSeconds;
   }
 
-  private cancelInvoiceSubscription(invoice: Stripe.Invoice) {
-    // TODO: should send an email about subscription cancelled as overdue
+  private async cancelInvoiceSubscription(invoice: Stripe.Invoice) {
     return Promise.all([
       this.stripeHelper.markUncollectible(invoice),
       this.stripeHelper.cancelSubscription(invoice.subscription as string),
@@ -215,11 +231,11 @@ export class PaypalProcessor {
             customer.id,
             billingAgreementId
           );
-          // TODO: Send email to user that they must go to sub management and re-auth PayPal
+          await this.webhookHandler.sendSubscriptionPaymentFailedEmail(invoice);
           return false;
         }
         if (PAYPAL_SOURCE_ERRORS.includes(err.errorCode ?? 0)) {
-          // TODO: Send email to user that they must go to PayPal and fix their billing agreement funding source
+          await this.webhookHandler.sendSubscriptionPaymentFailedEmail(invoice);
           return false;
         }
       }
@@ -302,8 +318,11 @@ export class PaypalProcessor {
       customer
     );
     if (!billingAgreementId) {
-      // TODO: Send email to user that they must go to sub management and re-auth PayPal
-      //       Don't send email if payment attempts today > 1.
+      const emailTypes = this.stripeHelper.getEmailTypes(invoice);
+      if (!emailTypes.includes('paymentFailed')) {
+        return;
+      }
+      await this.webhookHandler.sendSubscriptionPaymentFailedEmail(invoice);
       return;
     }
 

@@ -371,6 +371,7 @@ export class StripeWebhookHandler extends StripeHandler {
         ...invoiceDetails,
       }
     );
+    await this.stripeHelper.updateEmailSent(invoice, 'paymentFailed');
     return invoiceDetails;
   }
 

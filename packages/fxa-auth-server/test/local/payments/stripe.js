@@ -20,12 +20,13 @@ const { Container } = require('typedi');
 const chance = new Chance();
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
-const { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } = proxyquire(
-  '../../../lib/payments/stripe',
-  {
-    '../redis': (config, log) => mockRedis.init(config, log),
-  }
-);
+const {
+  StripeHelper,
+  STRIPE_INVOICE_METADATA,
+  SUBSCRIPTION_UPDATE_TYPES,
+} = proxyquire('../../../lib/payments/stripe', {
+  '../redis': (config, log) => mockRedis.init(config, log),
+});
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
@@ -905,6 +906,82 @@ describe('StripeHelper', () => {
         attemptedInvoice.id,
         {
           metadata: { paymentAttempts: '3' },
+        }
+      );
+    });
+  });
+
+  describe('getEmailTypes', () => {
+    it('returns empty array when no email was sent', () => {
+      const actual = stripeHelper.getEmailTypes(unpaidInvoice);
+      assert.deepEqual(actual, []);
+    });
+
+    it('returns the only email sent', () => {
+      const emailSentInvoice = {
+        ...unpaidInvoice,
+        metadata: { [STRIPE_INVOICE_METADATA.EMAIL_SENT]: 'paymentFailed' },
+      };
+      const actual = stripeHelper.getEmailTypes(emailSentInvoice);
+      assert.deepEqual(actual, ['paymentFailed']);
+    });
+
+    it('returns all types of emails sent', () => {
+      const emailSentInvoice = {
+        ...unpaidInvoice,
+        metadata: { [STRIPE_INVOICE_METADATA.EMAIL_SENT]: 'paymentFailed:foo' },
+      };
+      const actual = stripeHelper.getEmailTypes(emailSentInvoice);
+      assert.deepEqual(actual, ['paymentFailed', 'foo']);
+    });
+  });
+
+  describe('updateEmailSent', () => {
+    const emailSentInvoice = {
+      ...unpaidInvoice,
+      metadata: { [STRIPE_INVOICE_METADATA.EMAIL_SENT]: 'paymentFailed' },
+    };
+
+    it('returns undefined if email type already sent', async () => {
+      const actual = await stripeHelper.updateEmailSent(
+        emailSentInvoice,
+        'paymentFailed'
+      );
+      assert.equal(actual, undefined);
+    });
+
+    it('returns invoice updated with new email type', async () => {
+      const emailSendInvoice = deepCopy(unpaidInvoice);
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      const actual = await stripeHelper.updateEmailSent(
+        emailSendInvoice,
+        'paymentFailed'
+      );
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        emailSendInvoice.id,
+        {
+          metadata: emailSentInvoice.metadata,
+        }
+      );
+    });
+
+    it('returns invoice updated with another email type', async () => {
+      const emailSendInvoice = deepCopy(emailSentInvoice);
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      const actual = await stripeHelper.updateEmailSent(
+        emailSendInvoice,
+        'foo'
+      );
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        emailSendInvoice.id,
+        {
+          metadata: {
+            [STRIPE_INVOICE_METADATA.EMAIL_SENT]: 'paymentFailed:foo',
+          },
         }
       );
     });

@@ -42,19 +42,23 @@ describe('PaypalProcessor', () => {
   let mockStripeHelper;
   let processor;
   let mockConfig;
+  let mockHandler;
 
   beforeEach(() => {
     mockConfig = {
       currenciesToCountries: { ZAR: ['AS', 'CA'] },
+      subscriptions: { paypalNvpSigCredentials: { enabled: false } },
     };
     mockStripeHelper = {};
     mockPaypalHelper = {};
+    mockHandler = {};
     // Make currencyHelper
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(PayPalHelper, mockPaypalHelper);
-    processor = new PaypalProcessor(mockLog, mockConfig, 1, 1);
+    processor = new PaypalProcessor(mockLog, mockConfig, 1, 1, {}, {});
+    processor.webhookHandler = mockHandler;
   });
 
   afterEach(() => {
@@ -289,9 +293,16 @@ describe('PaypalProcessor', () => {
       mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
         'testba'
       );
+      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
+        {}
+      );
 
       const result = await processor.makePaymentAttempt(invoice);
       assert.isFalse(result);
+      sinon.assert.calledOnceWithExactly(
+        mockHandler.sendSubscriptionPaymentFailedEmail,
+        invoice
+      );
       sinon.assert.notCalled(mockStripeHelper.getCustomerPaypalAgreement);
       sinon.assert.notCalled(mockStripeHelper.removeCustomerPaypalAgreement);
     });
@@ -314,6 +325,9 @@ describe('PaypalProcessor', () => {
       mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
         'testba'
       );
+      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
+        {}
+      );
 
       const result = await processor.makePaymentAttempt(invoice);
       assert.isFalse(result);
@@ -326,6 +340,10 @@ describe('PaypalProcessor', () => {
         'testuser',
         testCustomer.id,
         'testba'
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockHandler.sendSubscriptionPaymentFailedEmail,
+        invoice
       );
     });
 
@@ -480,7 +498,10 @@ describe('PaypalProcessor', () => {
         undefined
       );
       processor.attemptsToday = sandbox.fake.returns(0);
-
+      mockStripeHelper.getEmailTypes = sandbox.fake.returns(['paymentFailed']);
+      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
+        {}
+      );
       const result = await processor.attemptInvoiceProcessing(invoice);
       assert.isUndefined(result);
       sinon.assert.callCount(mockPaypalHelper.searchTransactions, 1);
@@ -496,6 +517,10 @@ describe('PaypalProcessor', () => {
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.getCustomerPaypalAgreement,
         invoice.customer
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockHandler.sendSubscriptionPaymentFailedEmail,
+        invoice
       );
       sinon.assert.notCalled(processor.attemptsToday);
     });

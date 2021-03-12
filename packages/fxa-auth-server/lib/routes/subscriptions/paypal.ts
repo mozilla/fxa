@@ -20,9 +20,10 @@ import { msToSec } from '../../time';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { StripeHandler } from './stripe';
+import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
 
-export class PayPalHandler extends StripeHandler {
+export class PayPalHandler extends StripeWebhookHandler {
   protected paypalHelper: PayPalHelper;
 
   constructor(
