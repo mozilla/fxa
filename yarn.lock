@@ -4128,37 +4128,37 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@peculiar/asn1-schema@npm:^2.0.1, @peculiar/asn1-schema@npm:^2.0.8":
-  version: 2.0.8
-  resolution: "@peculiar/asn1-schema@npm:2.0.8"
+"@peculiar/asn1-schema@npm:^2.0.27":
+  version: 2.0.27
+  resolution: "@peculiar/asn1-schema@npm:2.0.27"
   dependencies:
-    "@types/asn1js": ^0.0.1
+    "@types/asn1js": ^2.0.0
     asn1js: ^2.0.26
-    pvtsutils: ^1.0.10
-    tslib: ^1.11.1
-  checksum: 2a49030fb9d31ae83292fae43c9a3bc05e6ab86201ca4360a0a156e194976466f8c7808d12d8c4861630b6c6991eb89cfbec7adb2d3251f56cc86601d2ed0df8
+    pvtsutils: ^1.1.1
+    tslib: ^2.0.3
+  checksum: ffb01002799abf01117b56436aacf95902dd094778ba4ca2333d64f8e3ce1ca091d4e988cff2c8b87562bc9282c9e62f4b523f116b962a6ff44b02990a697e0f
   languageName: node
   linkType: hard
 
-"@peculiar/json-schema@npm:^1.1.10":
-  version: 1.1.10
-  resolution: "@peculiar/json-schema@npm:1.1.10"
+"@peculiar/json-schema@npm:^1.1.12":
+  version: 1.1.12
+  resolution: "@peculiar/json-schema@npm:1.1.12"
   dependencies:
-    tslib: ^1.11.1
-  checksum: c2ed4599865f2acf877cffccb37845405a185ce1ae96efe47763ad2595d011dc5f9da83fd2689418a7e2691c06105ec43008dff7f32603583812876d8685508e
-  languageName: node
-  linkType: hard
-
-"@peculiar/webcrypto@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@peculiar/webcrypto@npm:1.1.2"
-  dependencies:
-    "@peculiar/asn1-schema": ^2.0.8
-    "@peculiar/json-schema": ^1.1.10
-    pvtsutils: ^1.0.10
     tslib: ^2.0.0
-    webcrypto-core: ^1.1.2
-  checksum: 98d898d9d97201795878b716aa6017a7e87c3b0a59830a1f691280fd6564923ac93d69bffde633e0cd04e70a368071690bbda16c417a7bf8be1e09675ce6d8d4
+  checksum: 04ee9a5470307bf022ca27e1470a004493814b31180389b49e265eb1f2bf92737f0e26fb50f21e0c00afc39f09ffe0d6884c203db1dec0769dffd70bd83d64e6
+  languageName: node
+  linkType: hard
+
+"@peculiar/webcrypto@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "@peculiar/webcrypto@npm:1.1.6"
+  dependencies:
+    "@peculiar/asn1-schema": ^2.0.27
+    "@peculiar/json-schema": ^1.1.12
+    pvtsutils: ^1.1.2
+    tslib: ^2.1.0
+    webcrypto-core: ^1.2.0
+  checksum: 2153aa54e56a5620d12b3af34ccb21ac457ea5156ebefdc3a8218c72d8e0a6fc8bad453f18101960054cf660264662d1bedf0804b9cb0b911ad59e12f00dd8be
   languageName: node
   linkType: hard
 
@@ -5750,12 +5750,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/asn1js@npm:^0.0.1":
-  version: 0.0.1
-  resolution: "@types/asn1js@npm:0.0.1"
-  dependencies:
-    "@types/pvutils": "*"
-  checksum: 8ab342eec3dc1b3fa0e97f0ee339726eec2ec0328f2d314dba5955e3ee9db590e5e251a89822c5215c286c664caa165968c547d666edbbc3e18caeb30061c749
+"@types/asn1js@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@types/asn1js@npm:2.0.0"
+  checksum: b0a698a29fef5c4267dea606d50d3b46f4ee58ab64e09df194950b88a47e3f29f8256e7c8ee5702117dc93d5ce5e1f6e5697fa48079cd48d3568d675119380d6
   languageName: node
   linkType: hard
 
@@ -6752,13 +6750,6 @@ __metadata:
   version: 1.3.28
   resolution: "@types/proxyquire@npm:1.3.28"
   checksum: 9b945ed2de610ec4e3f3d1e696fe753da070f328a87810f3cbb6cdf1b7e4df255eb084fb18df8df98f6dcfafb577ebb215342406df7fd14413fdc4c585a2c6b5
-  languageName: node
-  linkType: hard
-
-"@types/pvutils@npm:*":
-  version: 0.0.2
-  resolution: "@types/pvutils@npm:0.0.2"
-  checksum: 513310de90160dc827bc3e34394fa84750525540b458bf073c7586ddc7fb36674f4d8928da1fcf865099e92ba34e61c35fcef786e5369760ea70bdaf061d3dda
   languageName: node
   linkType: hard
 
@@ -18341,7 +18332,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-auth-client@workspace:packages/fxa-auth-client"
   dependencies:
-    "@peculiar/webcrypto": ^1.1.2
+    "@peculiar/webcrypto": ^1.1.6
     "@types/assert": ^1.5.4
     "@types/fast-text-encoding": ^1
     "@types/mocha": ^8
@@ -31246,12 +31237,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"pvtsutils@npm:^1.0.10":
-  version: 1.0.10
-  resolution: "pvtsutils@npm:1.0.10"
+"pvtsutils@npm:^1.1.1, pvtsutils@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "pvtsutils@npm:1.1.2"
   dependencies:
-    tslib: ^1.10.0
-  checksum: 4409c65452d3a4e8c4111315a1b562c62ea0aa66fe47434691ff72834208cb79c0421a3aa137c2bc1e04633aab8141a072f19251cc1a5dd7006c24bff603977a
+    tslib: ^2.1.0
+  checksum: 69081fa28f4a45913cfabd2dce90d4529b7be16090a38bcfe97b87924095f3f7b1c827c6fe109979877183b28c13b947289f0c38b21df2c5d4b1161aee0a89f0
   languageName: node
   linkType: hard
 
@@ -37007,14 +36998,14 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.1.0, tslib@npm:>=1.9.0, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:~2.1.0":
+"tslib@npm:2.1.0, tslib@npm:>=1.9.0, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:~2.1.0":
   version: 2.1.0
   resolution: "tslib@npm:2.1.0"
   checksum: d8f5bdd067611651c6b846c2388f4dc8ba1f5af124e66105f5263d1ad56da17f4b8c6566887ca2f205c5a9758451871ceca87d5d06087af2dca1699c5e33db69
   languageName: node
   linkType: hard
 
-"tslib@npm:^1.10.0, tslib@npm:^1.11.1, tslib@npm:^1.11.2, tslib@npm:^1.14.1, tslib@npm:^1.7.1, tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
+"tslib@npm:^1.10.0, tslib@npm:^1.14.1, tslib@npm:^1.7.1, tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: f44fe7f216946b17d3e3074df3746372703cf24e9127b4c045511456e8e4bf25515fb0a1bb3937676cc305651c5d4fcb6377b0588a4c6a957e748c4c28905d17
@@ -38244,16 +38235,16 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"webcrypto-core@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "webcrypto-core@npm:1.1.2"
+"webcrypto-core@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "webcrypto-core@npm:1.2.0"
   dependencies:
-    "@peculiar/asn1-schema": ^2.0.1
-    "@peculiar/json-schema": ^1.1.10
+    "@peculiar/asn1-schema": ^2.0.27
+    "@peculiar/json-schema": ^1.1.12
     asn1js: ^2.0.26
-    pvtsutils: ^1.0.10
-    tslib: ^1.11.2
-  checksum: 535d2f473ae4ecc8e816b6d0d7018328779f91cc477efe00aa1a47322ce40b42aa9f62280e90147b134aac441cabd33f13aa1fa9a2fb2c4faf41b6619c338f20
+    pvtsutils: ^1.1.2
+    tslib: ^2.1.0
+  checksum: 7d44e3400fedf35a4dea5a1c29b5a88dd7476614bcb3a5e56457f0fde6aad31121238611a60fd91b5c06abbfe6b2e449c66f200297b797d32a9719f830c2227d
   languageName: node
   linkType: hard
 
