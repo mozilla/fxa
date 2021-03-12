@@ -24,9 +24,9 @@ describe('UnitRowRecoveryKey', () => {
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
     ).toContain('Enabled');
-    expect(screen.getByTestId('unit-row-modal').textContent).toContain(
-      'Remove'
-    );
+    expect(
+      screen.getByTestId('recovery-key-unit-row-modal').textContent
+    ).toContain('Remove');
   });
 
   it('renders when recovery key is not set', () => {

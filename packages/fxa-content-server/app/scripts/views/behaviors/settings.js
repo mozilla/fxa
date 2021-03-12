@@ -50,9 +50,6 @@ export default function (defaultBehavior, options = {}) {
             }
           }
         }
-        if (view.config.enableBeta) {
-          endpoint = endpoint.replace('settings', 'beta/settings');
-        }
 
         return new NavigateBehavior(endpoint, { success });
       }

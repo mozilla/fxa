@@ -206,6 +206,8 @@ const Router = Backbone.Router.extend({
     }),
     'security_events(/)': createViewHandler(SecurityEvents),
     'settings(/)': function () {
+      // Because settings is a separate js app, we need to ensure navigating
+      // from the content-server app passes along flow parameters.
       const {
         deviceId,
         flowBeginTime,

@@ -81,7 +81,7 @@ logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
 function makeApp() {
   const app = express();
-  const newSettingsPath = '/settings';
+  const settingsPath = '/settings';
 
   if (config.get('env') === 'development') {
     const webpack = require('webpack');
@@ -180,7 +180,7 @@ function makeApp() {
   routes.forEach(routeHelpers.addRoute);
 
   if (config.get('env') === 'production') {
-    app.get(newSettingsPath, modifySettingsStatic);
+    app.get(settingsPath, modifySettingsStatic);
   }
   app.use(
     serveStatic(STATIC_DIRECTORY, {
@@ -189,9 +189,9 @@ function makeApp() {
   );
 
   if (config.get('env') === 'development') {
-    app.use(newSettingsPath, useSettingsProxy);
+    app.use(settingsPath, useSettingsProxy);
   } else {
-    app.get(newSettingsPath + '/*', modifySettingsStatic);
+    app.get(settingsPath + '/*', modifySettingsStatic);
   }
 
   // it's a four-oh-four not found.

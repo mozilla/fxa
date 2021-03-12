@@ -33,6 +33,7 @@ yarn workspaces foreach \
     --include fxa-auth-db-mysql \
     --include fxa-auth-server \
     --include fxa-content-server \
+    --include fxa-graphql-api \
     --include fxa-payments-server \
     --include fxa-profile-server \
     --include fxa-react \
