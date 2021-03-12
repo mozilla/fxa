@@ -34,7 +34,10 @@ import '../../Product/SubscriptionCreate/index.scss';
 import { ButtonBaseProps } from '../../Product/PayPalButton';
 const PaypalButton = React.lazy(() => import('../../Product/PayPalButton'));
 
-type PaymentError = undefined | StripeError;
+type PaymentError =
+  | undefined
+  | StripeError
+  | { code: string; message?: string };
 type RetryStatus = undefined | { invoiceId: string };
 
 export type SubscriptionCreateStripeAPIs = Pick<
@@ -135,6 +138,16 @@ export const SubscriptionCreate = ({
     paymentErrorInitialState
   );
   const [retryStatus, setRetryStatus] = useState<RetryStatus>();
+
+  useEffect(() => {
+    // Avoid infinite loop by ignoring changes to paymentError from this hook
+    if (
+      isExistingPaypalCustomer(customer) &&
+      paymentError?.code !== 'returning_paypal_customer_error'
+    ) {
+      setPaymentError({ code: 'returning_paypal_customer_error' });
+    }
+  }, [paymentError]);
 
   // clear any error rendered with `ErrorMessage` on form change
   const onChange = useCallback(() => {
