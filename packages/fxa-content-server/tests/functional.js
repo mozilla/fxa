@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const testsSettingsV2 = require('./functional_settings_v2');
+// TODO: temporarily just run the smoke tests
+module.exports = require('./functional_smoke');
 
+/*
+const testsSettingsV2 = require('./functional_settings_v2');
 // Run the new settings tests first
 module.exports = testsSettingsV2.concat([
   'tests/functional/fx_browser_relier.js',
@@ -87,3 +90,4 @@ module.exports = testsSettingsV2.concat([
 if (!process.env.SKIP_MOCHA) {
   module.exports.unshift('tests/functional/mocha.js');
 }
+*/
