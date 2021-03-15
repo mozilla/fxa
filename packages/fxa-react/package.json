@@ -41,7 +41,7 @@
     "@storybook/addon-actions": "^5.3.19",
     "@storybook/addon-links": "^6.1.15",
     "@storybook/addons": "^5.3.19",
-    "@storybook/react": "^5.3.19",
+    "@storybook/react": "^6.1.21",
     "@tailwindcss/postcss7-compat": "^2.0.1",
     "@testing-library/dom": "^7.24.5",
     "@testing-library/jest-dom": "^5.11.9",
