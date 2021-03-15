@@ -44,7 +44,7 @@
     "@hapi/hoek": "^9.1.0",
     "@hapi/joi": "^15.1.1",
     "@sentry/node": "^6.0.1",
-    "@type-cacheable/core": "^5.2.0",
+    "@type-cacheable/core": "^9.1.0",
     "@type-cacheable/ioredis-adapter": "^5.2.0",
     "ajv": "^6.12.2",
     "aws-sdk": "^2.851.0",
