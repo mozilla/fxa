@@ -16007,14 +16007,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "eslint-config-prettier@npm:7.1.0"
+"eslint-config-prettier@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "eslint-config-prettier@npm:8.1.0"
   peerDependencies:
     eslint: ">=7.0.0"
   bin:
     eslint-config-prettier: bin/cli.js
-  checksum: 968a1166c3c14ac769b5bd30192dfc81f02319e565a907f1299ae1322eccf836ebaab5a7ebdb5ceefc35b65f5c9d781e5bb92a72bf299d2dde4353b5a828a0f3
+  checksum: 409d3a071f8228d4c958a6a9be9d5ec2b357ce21b7b6cbb137096cade2c31f008a0a3c3533dee8979c0cd944f220a959710b30fd86f8b96f0ef1f4f557d740b3
   languageName: node
   linkType: hard
 
@@ -18798,7 +18798,7 @@ fsevents@^1.2.7:
     convict-format-with-moment: ^6.0.0
     convict-format-with-validator: ^6.0.0
     eslint: ^7.17.0
-    eslint-config-prettier: ^7.1.0
+    eslint-config-prettier: ^8.1.0
     eslint-plugin-import: ^2.22.1
     express: ^4.17.1
     factory-bot-ts: ^0.1.5
