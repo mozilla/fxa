@@ -1861,13 +1861,23 @@ const fillOutDeleteAccount = thenify(function (password) {
   return (
     this.parent
       .setFindTimeout(intern._config.pageLoadTimeout)
-      // check all required checkboxes
+      // Intern won't click on checkboxes with SVGs on top. So click the
+      // checkbox labels instead :-\
       .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
-      .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
+      .then((labels) => labels.map((label) => label.click()))
       .end()
+      .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.SUBMIT_BUTTON))
+      // Enter password to proceed, but click on label first to get it out of
+      // the way
+      .then(
+        testElementExists(
+          selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
+        )
+      )
+      .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL))
       .then(type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, password))
       // delete account
-      .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
+      .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CONFIRM))
   );
 });
 

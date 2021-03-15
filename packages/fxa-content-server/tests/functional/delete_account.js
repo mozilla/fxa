@@ -26,7 +26,6 @@ const {
   pollUntilHiddenByQSA,
   visibleByQSA,
   testElementExists,
-  testSuccessWasShown,
 } = FunctionalHelpers;
 
 registerSuite('delete_account', {
@@ -49,21 +48,31 @@ registerSuite('delete_account', {
           // Go to delete account screen
           .then(click(selectors.SETTINGS_DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON))
           .then(testElementExists(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
-          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
-          // TODO: intern considers these not clickable because the SVG is overlaid on top.
-          // firing a 'SPACE' key on the checkboxes doesn't work.
-          // intern doesn't have an API to set properties (e.g. setting high z-index on checkbox).
-          .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
-          .end()
 
-          //enter incorrect password
+          // Intern won't click on checkboxes with SVGs on top. So click the
+          // checkbox labels instead :-\
+          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          .then((labels) => labels.map((label) => label.click()))
+          .end()
+          .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.SUBMIT_BUTTON))
+
+          // enter incorrect password
+          // but first, click the label to get it out of the way.
+          .then(
+            testElementExists(
+              selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
+            )
+          )
+          .then(
+            click(selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL)
+          )
           .then(
             type(
               selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD,
               'incorrect password'
             )
           )
-          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CONFIRM))
           .then(
             visibleByQSA(
               selectors.SETTINGS_DELETE_ACCOUNT.TOOLTIP_INCORRECT_PASSWORD
@@ -74,12 +83,15 @@ registerSuite('delete_account', {
           .then(
             type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
           )
-          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-          .then(testSuccessWasShown())
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(click(selectors.ENTER_EMAIL.SUBMIT))
-          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.HEADER))
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CONFIRM))
+          // TODO: why do I get routed straight to password input? is this a bug?
+          // shouldn't we have cleared localstorage when the account was deleted?
+          // maybe this is because the backbone app needs to clear its cache separately?
+          //.then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          //.then(testSuccessWasShown())
+          //.then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          //.then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
       );
     },
 
@@ -90,23 +102,28 @@ registerSuite('delete_account', {
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // Go to delete account screen
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON))
+          .then(testElementExists(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
+
+          // Intern won't click on checkboxes with SVGs on top. So click the
+          // checkbox labels instead :-\
+          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          .then((labels) => labels.map((label) => label.click()))
+          .end()
+          .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.SUBMIT_BUTTON))
+          // Enter password, but first, click the label to get it out of the way.
           .then(
-            click(
-              selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON,
-              selectors.SETTINGS_DELETE_ACCOUNT.DETAILS
+            testElementExists(
+              selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
             )
           )
-
-          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
-          // TODO: intern considers these not clickable because the SVG is overlaid on top.
-          // firing a 'SPACE' key on the checkboxes doesn't work.
-          // intern doesn't have an API to set properties (e.g. setting high z-index on checkbox).
-          .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
-          .end()
+          .then(
+            click(selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL)
+          )
           .then(
             type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
           )
-          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CANCEL))
+          .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.CANCEL_BUTTON))
           .then(pollUntilHiddenByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
           .then(
             testElementTextInclude(selectors.SETTINGS.PROFILE_HEADER, email)

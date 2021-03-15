@@ -41,13 +41,18 @@ const SETTINGS_V2 = {
   DELETE_ACCOUNT: {
     DELETE_ACCOUNT_BUTTON: '[data-testid=settings-delete-account]',
     DETAILS: '[data-testid=delete-account-confirm]',
-    CHECKBOXES: '[data-testid=delete-account-confirm] input[type=checkbox]',
-    INPUT_PASSWORD:
-      '[data-testid=delete-account-input] [data-testid=delete-account-confirm-input-field]',
+    // NOTE: intern doesn't like to send clicks to our checkboxes, because they
+    // are overlaid by SVGs. Instead, we send clicks to the checkbox labels.
+    CHECKBOXES:
+      '[data-testid=delete-account-confirm] [data-testid=checkbox-container]',
+    INPUT_PASSWORD: '[data-testid=delete-account-confirm-input-field]',
+    INPUT_PASSWORD_LABEL: '[data-testid=delete-account-confirm-input-label]',
     SUBMIT_BUTTON:
       '[data-testid=delete-account-confirm] [data-testid=continue-button]',
-    CANCEL_BUTTON:
+    CLOSE_BUTTON:
       '[data-testid=delete-account-confirm] [data-testid=close-button]',
+    CANCEL_BUTTON: '[data-testid=cancel-button]',
+    CONFIRM_BUTTON: '[data-testid=delete-account-button]',
     TOOLTIP_INCORRECT_PASSWORD:
       '[data-testid=tooltip][title="Incorrect password"]',
   },
@@ -571,12 +576,13 @@ module.exports = {
     BUTTON_MANAGE: '.open-email-preferences',
   },
   SETTINGS_DELETE_ACCOUNT: {
-    CANCEL: SETTINGS_V2.DELETE_ACCOUNT.CANCEL_BUTTON, //  '#delete-account .cancel',
+    CANCEL: SETTINGS_V2.DELETE_ACCOUNT.CLOSE_BUTTON, //  '#delete-account .cancel',
     DETAILS: SETTINGS_V2.DELETE_ACCOUNT.DETAILS, // '#delete-account .settings-unit-details',
     DELETE_ACCOUNT_BUTTON: SETTINGS_V2.DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON, //  '#delete-account .settings-unit-toggle',
     CHECKBOXES: SETTINGS_V2.DELETE_ACCOUNT.CHECKBOXES, // '#delete-account .delete-account-checkbox',
     INPUT_PASSWORD: SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD, // '#delete-account form input.password',
-    SUBMIT: SETTINGS_V2.DELETE_ACCOUNT.SUBMIT_BUTTON, // '#delete-account button[type="submit"]',
+    SUBMIT: SETTINGS_V2.DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON, // '#delete-account button[type="submit"]',
+    CONFIRM: SETTINGS_V2.DELETE_ACCOUNT.CONFIRM_BUTTON, // '#delete-account button[type="submit"]',
     TOOLTIP_INCORRECT_PASSWORD:
       SETTINGS_V2.DELETE_ACCOUNT.TOOLTIP_INCORRECT_PASSWORD, // 'input[type=password] ~ .tooltip',
   },
