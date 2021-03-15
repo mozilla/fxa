@@ -179,7 +179,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               <Localized id="delete-account-close-button">
                 <button
                   className="cta-neutral mx-2 px-10"
-                  onClick={() => navigate(HomePath, { replace: true })}
+                  onClick={() =>
+                    navigate(HomePath + '#delete-account', { replace: true })
+                  }
                   data-testid="close-button"
                 >
                   Close
