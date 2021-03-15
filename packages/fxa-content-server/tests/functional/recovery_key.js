@@ -284,6 +284,8 @@ registerSuite('Recovery key - unverified session', {
         this.remote
           // send and open verification in same tab
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
+          // if the session is unverified, then the modal will be shown.
+          .then(testElementExists(selectors.SESSION_VERIFICATION.MODAL))
           .then(openVerificationLinkInSameTab(email, 0))
 
           // panel becomes verified and can be opened
@@ -298,6 +300,8 @@ registerSuite('Recovery key - unverified session', {
         this.remote
           // send and open verification in new tab
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
+          // if the session is unverified, then the modal will be shown
+          .then(testElementExists(selectors.SESSION_VERIFICATION.MODAL))
           .then(openVerificationLinkInNewTab(email, 0))
           .then(switchToWindow(1))
 
@@ -319,6 +323,8 @@ registerSuite('Recovery key - unverified session', {
         this.remote
           // send and open verification in different browser
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
+          // if the session is unverified, then the modal will be shown
+          .then(testElementExists(selectors.SESSION_VERIFICATION.MODAL))
           .then(openVerificationLinkInDifferentBrowser(email, 0))
           .then(click(selectors.RECOVERY_KEY.UNLOCK_REFRESH_BUTTON))
           .then(

@@ -104,6 +104,11 @@ const SETTINGS_V2 = {
     SAVE_BUTTON: '[data-testid=save-password-button]',
     FORGOT_PW_BUTTON: '[data-testid=nav-link-reset-password]',
   },
+  SESSION_VERIFICATION: {
+    MODAL: '[data-testid=modal-verify-session]',
+    CANCEL: '[data-testid=modal-verify-session-cancel]',
+    SUBMIT: '[data-testid=modal-verify-session-submit]',
+  },
   SECURITY: {
     MENU: '[data-testid=nav-link-security]',
     HEADER: '[data-testid=settings-security]',
