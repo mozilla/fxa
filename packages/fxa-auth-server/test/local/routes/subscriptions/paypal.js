@@ -39,6 +39,8 @@ let log,
   requestOptions,
   profile,
   push;
+/** @type sinon.SinonSandbox */
+let sandbox;
 
 function runTest(routePath) {
   const db = mocks.mockDB({
@@ -154,6 +156,7 @@ describe('subscriptions payPalRoutes', () => {
 
   describe('POST /oauth/subscriptions/active/new-paypal', () => {
     let plan, customer, subscription;
+    const accountCustomer = { stripeCustomerId: 'accountCustomer' };
 
     beforeEach(() => {
       stripeHelper.refreshCachedCustomer = sinon.fake.resolves({});
@@ -179,6 +182,12 @@ describe('subscriptions payPalRoutes', () => {
 
     it('should run a charge successfully', async () => {
       payPalHelper.processInvoice = sinon.fake.resolves({});
+      sandbox = sinon.createSandbox();
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getAccountCustomerByUid')
+        .resolves(accountCustomer);
+      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
       const actual = await runTest('/oauth/subscriptions/active/new-paypal');
       assert.deepEqual(actual, {
         sourceCountry: 'CA',
@@ -190,10 +199,34 @@ describe('subscriptions payPalRoutes', () => {
       sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
       sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
       sinon.assert.calledOnce(payPalHelper.processInvoice);
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getAccountCustomerByUid,
+        UID
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updateCustomerBillingAddress,
+        accountCustomer.stripeCustomerId,
+        {
+          city: undefined,
+          country: 'CA',
+          line1: undefined,
+          line2: undefined,
+          postalCode: undefined,
+          state: undefined,
+        }
+      );
+
+      sandbox.restore();
     });
 
     it('should skip a zero charge successfully', async () => {
       subscription.latest_invoice.amount_due = 0;
+      sandbox = sinon.createSandbox();
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getAccountCustomerByUid')
+        .resolves(accountCustomer);
+      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
       payPalHelper.processZeroInvoice = sinon.fake.resolves({});
       const actual = await runTest('/oauth/subscriptions/active/new-paypal');
       assert.deepEqual(actual, {
@@ -206,9 +239,33 @@ describe('subscriptions payPalRoutes', () => {
       sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
       sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
       sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getAccountCustomerByUid,
+        UID
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updateCustomerBillingAddress,
+        accountCustomer.stripeCustomerId,
+        {
+          city: undefined,
+          country: 'CA',
+          line1: undefined,
+          line2: undefined,
+          postalCode: undefined,
+          state: undefined,
+        }
+      );
+
+      sandbox.restore();
     });
 
     it('should throw an error if planCurrency does not match billingAgreement country', async () => {
+      sandbox = sinon.createSandbox();
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getAccountCustomerByUid')
+        .resolves(accountCustomer);
+      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
       payPalHelper.processInvoice = sinon.fake.resolves({});
       payPalHelper.agreementDetails = sinon.fake.resolves({
         countryCode: 'AS',
@@ -222,8 +279,33 @@ describe('subscriptions payPalRoutes', () => {
           'Funding source country does not match plan currency.'
         );
       }
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getAccountCustomerByUid,
+        UID
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updateCustomerBillingAddress,
+        accountCustomer.stripeCustomerId,
+        {
+          city: undefined,
+          country: 'AS',
+          line1: undefined,
+          line2: undefined,
+          postalCode: undefined,
+          state: undefined,
+        }
+      );
+
+      sandbox.restore();
     });
+
     it('should throw an error if billingAgreement country does not match planCurrency', async () => {
+      sandbox = sinon.createSandbox();
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getAccountCustomerByUid')
+        .resolves(accountCustomer);
+      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
       payPalHelper.processInvoice = sinon.fake.resolves({});
       plan.currency = 'eur';
       stripeHelper.findPlanById = sinon.fake.resolves(plan);
@@ -236,6 +318,22 @@ describe('subscriptions payPalRoutes', () => {
           'Funding source country does not match plan currency.'
         );
       }
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.getAccountCustomerByUid,
+        UID
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updateCustomerBillingAddress,
+        accountCustomer.stripeCustomerId,
+        {
+          city: undefined,
+          country: 'CA',
+          line1: undefined,
+          line2: undefined,
+          postalCode: undefined,
+          state: undefined,
+        }
+      );
     });
   });
 

@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
-import { createPayPalBA } from 'fxa-shared/db/models/auth';
+import {
+  createPayPalBA,
+  getAccountCustomerByUid,
+} from 'fxa-shared/db/models/auth';
 import {
   filterCustomer,
   filterSubscription,
@@ -229,6 +232,22 @@ export class PayPalHandler extends StripeWebhookHandler {
     const agreementDetails = await this.paypalHelper.agreementDetails({
       billingAgreementId: agreementId,
     });
+
+    // copy bill to address information to Customer
+    const accountCustomer = await getAccountCustomerByUid(uid);
+    if (accountCustomer.stripeCustomerId) {
+      this.stripeHelper.updateCustomerBillingAddress(
+        accountCustomer.stripeCustomerId,
+        {
+          city: agreementDetails.city,
+          country: agreementDetails.countryCode,
+          line1: agreementDetails.street,
+          line2: agreementDetails.street2,
+          postalCode: agreementDetails.zip,
+          state: agreementDetails.state,
+        }
+      );
+    }
 
     // Verify sourceCountry and plan currency are a valid combination.
     const country = agreementDetails.countryCode;
