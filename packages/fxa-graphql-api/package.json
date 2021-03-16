@@ -42,7 +42,7 @@
     "apollo-datasource": "^0.7.2",
     "apollo-server": "^2.19.2",
     "apollo-server-express": "^2.21.0",
-    "class-transformer": "^0.3.1",
+    "class-transformer": "^0.4.0",
     "class-validator": "^0.12.2",
     "commander": "^6.0.0",
     "convict": "^6.0.0",
