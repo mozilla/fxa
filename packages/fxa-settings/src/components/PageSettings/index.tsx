@@ -34,7 +34,7 @@ export const PageSettings = (_: RouteComponentProps) => {
         <Profile />
         <Security />
         <ConnectedServices />
-        <div className="flex mx-4 tablet:mx-0">
+        <div className="flex mx-4 tablet:mx-0" id="delete-account">
           <Localized id="delete-account-link">
             <Link
               data-testid="settings-delete-account"
