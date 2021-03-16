@@ -21191,7 +21191,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     request: ^2.88.2
     rimraf: ^3.0.2
-    sharp: ^0.26.3
+    sharp: ^0.27.2
     sinon: ^9.0.3
     stream-to-array: 2.3.0
     through: 2.3.8
@@ -29534,12 +29534,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"node-addon-api@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "node-addon-api@npm:3.0.2"
+"node-addon-api@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "node-addon-api@npm:3.1.0"
   dependencies:
     node-gyp: latest
-  checksum: 7f401e4ad9ed75cea9ba8590da8048b37e99531e8d8b46b941e6c951ca1cf8e0db29f31ddf25d3e87c13cb6653c06e0db72c05ef50eff9db3529cd929ae69747
+  checksum: 9b5c1f5f24acb9255fd47914b0f0b80c76d735b7b91611366cd30217f8ead5fafcd1cfeb65e467612b40420b6ad3faf1e7fa3666bd4e15a2bdf1762748f3fa8a
   languageName: node
   linkType: hard
 
@@ -32926,9 +32926,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"prebuild-install@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "prebuild-install@npm:6.0.0"
+"prebuild-install@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "prebuild-install@npm:6.0.1"
   dependencies:
     detect-libc: ^1.0.3
     expand-template: ^2.0.3
@@ -32946,8 +32946,8 @@ fsevents@^1.2.7:
     tunnel-agent: ^0.6.0
     which-pm-runs: ^1.0.0
   bin:
-    prebuild-install: ./bin.js
-  checksum: 02db5ebaf2c45996a5005928996ffcd2cf13ed5daf10386b3b4fc0ea51d27c4d045fa21acaf4359c07474773bed1d4e4f55f8a33b2efb24339566497cbe7d223
+    prebuild-install: bin.js
+  checksum: b23d88a27e4a672f5c59ca69733b27ce3ad133fd58d61e352bc1ccf61b5211b55b793ea8b21a81e63260bb10837c74c3f3cb5cfee47815aeaa729b0991e13751
   languageName: node
   linkType: hard
 
@@ -36593,22 +36593,22 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.26.3":
-  version: 0.26.3
-  resolution: "sharp@npm:0.26.3"
+"sharp@npm:^0.27.2":
+  version: 0.27.2
+  resolution: "sharp@npm:0.27.2"
   dependencies:
     array-flatten: ^3.0.0
     color: ^3.1.3
     detect-libc: ^1.0.3
-    node-addon-api: ^3.0.2
+    node-addon-api: ^3.1.0
     node-gyp: latest
     npmlog: ^4.1.2
-    prebuild-install: ^6.0.0
-    semver: ^7.3.2
+    prebuild-install: ^6.0.1
+    semver: ^7.3.4
     simple-get: ^4.0.0
     tar-fs: ^2.1.1
     tunnel-agent: ^0.6.0
-  checksum: bda9f3d228007bafd6d0cc8dbd766a9de6d1fb0ecfb662e40daf2a5ee4d71ff4eee662f707bdba324f25bfa7f6a306e93ec622a6e4ba9f0314eed038825838e9
+  checksum: 9b8a7649c684053b07737cdb896581fe8d7e961408572dadbf37fea658e985a01e635a3b07de069727fafa0372f1bf7ad60206da4ea0a059418652ca8823fa73
   languageName: node
   linkType: hard
 
