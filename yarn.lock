@@ -20501,7 +20501,7 @@ fsevents@^1.2.7:
     ioredis: ^4.23.0
     jed: 0.5.4
     jsonwebtoken: ^8.4.0
-    jsrsasign: ^10.1.12
+    jsrsasign: ^10.1.13
     jsxgettext-recursive-next: 1.1.0
     jws: 4.0.0
     keypair: 1.0.1
@@ -26733,10 +26733,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jsrsasign@npm:^10.1.12":
-  version: 10.1.12
-  resolution: "jsrsasign@npm:10.1.12"
-  checksum: 2873413e3f971f9a5c9bbea4e1192b7997e29941dd39f886e1c9a7889d0616f3523bac472b6ca733bd032e7ea951a7b449acfb7429ebc316005a0d86cc021016
+"jsrsasign@npm:^10.1.13":
+  version: 10.1.13
+  resolution: "jsrsasign@npm:10.1.13"
+  checksum: 1878472477f458dfc432f231d22a78403095e3e4031a48f829da10a168dd8084b6cc46584eb1fa6f0e8193c46fd5f59bd9a999f571f2aaea02f19d04b7bb2703
   languageName: node
   linkType: hard
 
