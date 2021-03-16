@@ -144,6 +144,7 @@ const expectedMergedConfig = {
     },
   },
   paypal: {
+    apiUrl: '',
     clientId: '',
     scriptUrl: '',
   },

@@ -7,6 +7,7 @@
   text-align: center;
 }
 
+#top-bar .alertError,
 #top-bar .alertSuccess {
   background: #1d1133;
   color: #fff;
@@ -21,6 +22,10 @@
       fill: #fff;
     }
   }
+}
+
+#top-bar .alertError {
+  background: #FF4F5E;
 }
 
 .alert span.checked::before {

@@ -36,7 +36,7 @@ import SubscriptionCreate, { SubscriptionCreateProps } from './index';
 
 import { updateConfig } from '../../../lib/config';
 
-import { ButtonBaseProps } from '../PayPalButton';
+import { ButtonBaseProps } from '../../../components/PayPalButton';
 
 // TODO: Move to some shared lib?
 const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
