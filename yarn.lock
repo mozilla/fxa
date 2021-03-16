@@ -14695,12 +14695,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clean-css@npm:^4.2.1, clean-css@npm:^4.2.3, clean-css@npm:~4.2.1":
+"clean-css@npm:^4.2.1, clean-css@npm:^4.2.3":
   version: 4.2.3
   resolution: "clean-css@npm:4.2.3"
   dependencies:
     source-map: ~0.6.0
   checksum: a60f7800828ea7a6b8315c3c855d700c59cf9e45e88a88e73c7fff12ee316a4afcbca1041b14453c8020f57de72ebf3d0ed6250f306faea83f5e05ee90a4c67a
+  languageName: node
+  linkType: hard
+
+"clean-css@npm:^5.0.1":
+  version: 5.1.1
+  resolution: "clean-css@npm:5.1.1"
+  dependencies:
+    source-map: ~0.6.0
+  checksum: fe3d3cff20b6675df648b64a921258365e14dee62e72ce2a3ea13983f465943414a2c42d4a79a8b62470b459aa76be82902299a0964555821166e815b44bbdd7
   languageName: node
   linkType: hard
 
@@ -19181,7 +19190,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"figures@npm:^1.0.0, figures@npm:^1.0.1":
+"figures@npm:^1.0.0":
   version: 1.7.0
   resolution: "figures@npm:1.7.0"
   dependencies:
@@ -20635,7 +20644,7 @@ fsevents@^1.2.7:
     grunt-contrib-clean: ^2.0.0
     grunt-contrib-concat: 1.0.1
     grunt-contrib-copy: 1.0.0
-    grunt-contrib-cssmin: 3.0.0
+    grunt-contrib-cssmin: 4.0.0
     grunt-contrib-htmlmin: 3.1.0
     grunt-copyright: 0.3.0
     grunt-file-rev: 1.0.2
@@ -22409,14 +22418,14 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt-contrib-cssmin@npm:3.0.0":
-  version: 3.0.0
-  resolution: "grunt-contrib-cssmin@npm:3.0.0"
+"grunt-contrib-cssmin@npm:4.0.0":
+  version: 4.0.0
+  resolution: "grunt-contrib-cssmin@npm:4.0.0"
   dependencies:
-    chalk: ^2.4.1
-    clean-css: ~4.2.1
-    maxmin: ^2.1.0
-  checksum: 1b55c9f69adcb08be1b02d8f41f0d7dd17f3c9b619cacc5cdaeb95b162766620a3e56d1305bee16cd69fbc2719945eff73f7e3ec48c905bc8ff157f225f49af7
+    chalk: ^4.1.0
+    clean-css: ^5.0.1
+    maxmin: ^3.0.0
+  checksum: 4cb3a0cd373e20f9e42a013821bb5b5344415ee79f9620037e61fed32e00010d72c9a4cd0cc5532de74566886f0e1f4c7671305343b98fd9b1637ec2d349a275
   languageName: node
   linkType: hard
 
@@ -22675,22 +22684,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"gzip-size@npm:5.1.1":
+"gzip-size@npm:5.1.1, gzip-size@npm:^5.1.1":
   version: 5.1.1
   resolution: "gzip-size@npm:5.1.1"
   dependencies:
     duplexer: ^0.1.1
     pify: ^4.0.1
   checksum: 26729da888e89dd4f7b2d244aca6766d872f2e67b339971ca1cd26f32b4ca95167420b3e79d033f437ab689e25db47cfc228924cfab8baff185ec536b63c5fec
-  languageName: node
-  linkType: hard
-
-"gzip-size@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "gzip-size@npm:3.0.0"
-  dependencies:
-    duplexer: ^0.1.1
-  checksum: f3f12838b29dba067999fc61bcae52bab1d6687312c6e3d74a41069b8d8b8197fa56287ce13320b29fda8cd48521678e39745236e31841ecd5469e65d7f8b73d
   languageName: node
   linkType: hard
 
@@ -28321,15 +28321,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"maxmin@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "maxmin@npm:2.1.0"
+"maxmin@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "maxmin@npm:3.0.0"
   dependencies:
-    chalk: ^1.0.0
-    figures: ^1.0.1
-    gzip-size: ^3.0.0
-    pretty-bytes: ^3.0.0
-  checksum: 8e4dc6b7cce7c4c06a4cdef8fff6d41c0c4bc1397258325bfe2a6c07832b556969f82292a1156dcabd08f6559b880afe436bca4204b3fd7a0b74a0e3ec6878e3
+    chalk: ^4.1.0
+    figures: ^3.2.0
+    gzip-size: ^5.1.1
+    pretty-bytes: ^5.3.0
+  checksum: c9d10ecf3dbbf343ffa00146d69304085402bf4e8644568337bd48a11d67308cf6a5bee0a55b50a6b2e21dc860089f71e87b858a5a39a6c9eb1b24a551ce8131
   languageName: node
   linkType: hard
 
@@ -32998,19 +32998,17 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"pretty-bytes@npm:^3.0.0":
-  version: 3.0.1
-  resolution: "pretty-bytes@npm:3.0.1"
-  dependencies:
-    number-is-nan: ^1.0.0
-  checksum: b2dd0a014cb3726d50ef0526bdfe9ad0c606f20ad0e531159394549697930bf9f92e909e83402dde4f5531a7607592bb177fdaca1d451e6b648b5b11688a3877
-  languageName: node
-  linkType: hard
-
 "pretty-bytes@npm:^5.1.0":
   version: 5.3.0
   resolution: "pretty-bytes@npm:5.3.0"
   checksum: ecc6b1670f7ebcf6c78b91edad97ffdc0be58283ff5fa6c95c99c6bda48d2aa1858367fae8eccce35bc36eb90ec3cbcc24b9d7e29fd6ad98cc52d53d2e307789
+  languageName: node
+  linkType: hard
+
+"pretty-bytes@npm:^5.3.0":
+  version: 5.6.0
+  resolution: "pretty-bytes@npm:5.6.0"
+  checksum: 2a2db3daaee5c7271dbc68cc875118f4e2b6697e9e4e73b4ea5d5639f50cff2c1f1f7db4775119974eff86fdbd1fac2a5d9f16bc41d90626821a9f6a0e6e26cf
   languageName: node
   linkType: hard
 
