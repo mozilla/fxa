@@ -15178,7 +15178,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^6.0.0, commander@npm:^6.2.0":
+"commander@npm:^6.0.0":
   version: 6.2.0
   resolution: "commander@npm:6.2.0"
   checksum: c78501cd98e6ad66839004adc27940f5fc1a0102b306fbbc177965101d586cf6dd2e01bdffd64f99f2d4862101f24e602e3e4baa641b6f6a11c01ec5c900e412
@@ -15189,6 +15189,13 @@ __metadata:
   version: 7.0.0
   resolution: "commander@npm:7.0.0"
   checksum: 46e60cb1e1ccc3e8d4bac5672d4be08cb60d0a0c22d0c352ba9f9713a11996e79a67216ace4dc32a04ee621c86c9a327f0c35126e4aaf3ede3004f78a009cb19
+  languageName: node
+  linkType: hard
+
+"commander@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "commander@npm:7.1.0"
+  checksum: 2b6dacb11f17cd9b702ae18b586b060327590dd57e2702edefbff701ec7c63b55338e70544210893bad280fc9579ffb839dd8ae0a6bc652fceffe3f9ad1c2c44
   languageName: node
   linkType: hard
 
@@ -19519,18 +19526,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"findup-sync@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "findup-sync@npm:3.0.0"
-  dependencies:
-    detect-file: ^1.0.0
-    is-glob: ^4.0.0
-    micromatch: ^3.0.4
-    resolve-dir: ^1.0.1
-  checksum: be03bd98fc3f6666933b958e690b3913ac932496d55db13379de93657d86073c18ec53e7438ffe3adf98b606830c3d4645fae985e857645dd8a56983188abade
-  languageName: node
-  linkType: hard
-
 "findup-sync@npm:~0.3.0":
   version: 0.3.0
   resolution: "findup-sync@npm:0.3.0"
@@ -20356,7 +20351,7 @@ fsevents@^1.2.7:
     graphql-tools: ^7.0.1
     helmet: ^4.4.1
     jest: 26.6.3
-    knex: ^0.21.16
+    knex: ^0.95.2
     mozlog: ^3.0.1
     mysql: ^2.18.1
     objection: ^2.2.7
@@ -20953,7 +20948,7 @@ fsevents@^1.2.7:
     helmet: ^4.4.1
     ioredis: ^4.23.0
     jest: 26.6.3
-    knex: ^0.21.16
+    knex: ^0.95.2
     mozlog: ^3.0.1
     mysql: ^2.18.1
     nock: ^13.0.11
@@ -21383,7 +21378,7 @@ fsevents@^1.2.7:
     js-md5: ^0.7.3
     jsdom: 16.4.0
     jsdom-global: 3.0.2
-    knex: ^0.21.16
+    knex: ^0.95.2
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^7.1.2
@@ -27071,31 +27066,30 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"knex@npm:^0.21.16":
-  version: 0.21.16
-  resolution: "knex@npm:0.21.16"
+"knex@npm:^0.95.2":
+  version: 0.95.2
+  resolution: "knex@npm:0.95.2"
   dependencies:
     colorette: 1.2.1
-    commander: ^6.2.0
+    commander: ^7.1.0
     debug: 4.3.1
+    escalade: ^3.1.1
     esm: ^3.2.25
     getopts: 2.2.5
     interpret: ^2.2.0
-    liftoff: 3.1.0
-    lodash: ^4.17.20
+    lodash: ^4.17.21
     pg-connection-string: 2.4.0
+    rechoir: ^0.7.0
+    resolve-from: ^5.0.0
     tarn: ^3.0.1
     tildify: 2.0.0
-    v8flags: ^3.2.0
   peerDependencies:
-    mssql: ^6.2.1
     mysql: ^2.18.1
-    mysql2: ^2.1.0
-    pg: ^8.3.0
+    mysql2: ^2.2.5
+    pg: ^8.5.1
     sqlite3: ^5.0.0
+    tedious: ^11.0.5
   peerDependenciesMeta:
-    mssql:
-      optional: true
     mysql:
       optional: true
     mysql2:
@@ -27104,9 +27098,11 @@ fsevents@^1.2.7:
       optional: true
     sqlite3:
       optional: true
+    tedious:
+      optional: true
   bin:
     knex: bin/cli.js
-  checksum: 6ef4dd4934caf23f8a563d063c6f051f3087c019faa01ad5d3ad843c9744d2520d181a21984ce67bd5b4f5f38bf43d757390512aaa76c12dc58bf6fdec9b5234
+  checksum: d7713a1f76889c26e8757828a8b410778780fef428d4b341fb4d516066e642c3211a2721cf6bde16a07503fe596b7f70fd4d1fe74b985fb12271c3df23a8bb32
   languageName: node
   linkType: hard
 
@@ -27304,22 +27300,6 @@ fsevents@^1.2.7:
   dependencies:
     immediate: ~3.0.5
   checksum: 6c758fbea382ca251d8f6f32b4066b4c57b4c5d574babc7c6abf7bd20e522a54bcd364dd95d6695103b189a005fcaf9e55d7c58a6c243d4ebdd0cc803898c8bd
-  languageName: node
-  linkType: hard
-
-"liftoff@npm:3.1.0":
-  version: 3.1.0
-  resolution: "liftoff@npm:3.1.0"
-  dependencies:
-    extend: ^3.0.0
-    findup-sync: ^3.0.0
-    fined: ^1.0.1
-    flagged-respawn: ^1.0.0
-    is-plain-object: ^2.0.4
-    object.map: ^1.0.0
-    rechoir: ^0.6.2
-    resolve: ^1.1.7
-  checksum: 1e9aa30c6bda4c4ecf7157595d81eca8ac74a367363799a3279fe50ebbb6dddcc4ce861af4d3237936a9f3e02ec3831b59c6991e01fd666c229b0ed50366f399
   languageName: node
   linkType: hard
 
@@ -27864,7 +27844,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.0.1":
+"lodash@npm:^4.0.1, lodash@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 4983720b9abca930a4a46f18db163d7dad8dd00dbed6db0cc7b499b33b717cce69f80928b27bbb1ff2cbd3b19d251ee90669a8b5ea466072ca81c2ebe91e7468
@@ -40460,15 +40440,6 @@ typescript@~4.1.2:
     convert-source-map: ^1.6.0
     source-map: ^0.7.3
   checksum: 9c9edb5c0a4d6feab236e8fab1c378704021794d1addde4713771056b0d75e096bc81d6ff2828448dd7d0b29b6b38812e8b97a8063401e8b1f91a051230236dc
-  languageName: node
-  linkType: hard
-
-"v8flags@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "v8flags@npm:3.2.0"
-  dependencies:
-    homedir-polyfill: ^1.0.1
-  checksum: d68937c42667f91cef97886fab0268d06d37c0de1659f9b3ad57a75aaaed1c21342659bfc80f4558fec21126ef25e486e7717017738b02be4840f465efd6379a
   languageName: node
   linkType: hard
 
