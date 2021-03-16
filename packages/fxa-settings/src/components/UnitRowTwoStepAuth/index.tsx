@@ -97,6 +97,7 @@ export const UnitRowTwoStepAuth = () => {
             'Disable'
           ),
           secondaryButtonClassName: 'cta-caution',
+          secondaryButtonTestId: 'two-step-disable-button',
           // The naming of this is a bit confusing, since they are swapped in this
           // case, we should come up with a better name here. Filed FXA-2539
           revealModal: revealSecondaryModal,
