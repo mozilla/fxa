@@ -470,6 +470,19 @@ export const MOCK_PLANS: Plan[] = [
       productSet: 'fpn',
     },
   },
+  {
+    plan_id: 'nextlevel',
+    product_id: PRODUCT_ID,
+    product_name: PRODUCT_NAME,
+    interval: 'year' as const,
+    interval_count: 1,
+    amount: 999,
+    currency: 'usd',
+    product_metadata: {
+      webIconURL: 'http://example.com/product.jpg',
+      webIconBackground: 'purple',
+    },
+  },
 ];
 
 export const MOCK_PROFILE = {
@@ -541,6 +554,7 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
     {
       subscription_id: 'sub0.21234123424',
       plan_id: PLAN_ID,
+      product_id: PRODUCT_ID,
       latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,

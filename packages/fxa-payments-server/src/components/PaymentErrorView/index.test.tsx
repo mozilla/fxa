@@ -7,6 +7,7 @@ import {
 } from '../../lib/test-utils';
 
 import { PaymentErrorView } from './index';
+import SubscriptionTitle, { titles } from '../SubscriptionTitle';
 
 const mockHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -101,6 +102,26 @@ describe('PaymentErrorView test with l10n', () => {
       fireEvent.click(getByTestId('manage-subscription-link'));
     });
 
+    expect(mockHistoryPush).toHaveBeenCalledWith('/subscriptions');
+  });
+
+  it('uses the given SubscriptionTitle', async () => {
+    const { getByTestId } = render(
+      <PaymentErrorView
+        subscriptionTitle={<SubscriptionTitle screenType={'noupgrade'} />}
+        onRetry={() => {}}
+        error={{ code: 'no_subscription_upgrades' }}
+      />
+    );
+
+    const expectedTitle = titles.noupgrade;
+    expect(getByTestId('subscription-noupgrade-title')).toHaveTextContent(
+      expectedTitle
+    );
+
+    await act(async () => {
+      fireEvent.click(getByTestId('manage-subscription-link'));
+    });
     expect(mockHistoryPush).toHaveBeenCalledWith('/subscriptions');
   });
 });

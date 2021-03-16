@@ -49,6 +49,7 @@ const errorToErrorMessageMap: { [key: string]: string } = {
     'country-currency-mismatch',
   'Changing currencies is not permitted.': 'currency-currency-mismatch',
   returning_paypal_customer_error: 'returning-paypal-customer-error',
+  no_subscription_upgrades: 'no-subscription-upgrades',
 };
 
 const cardErrors = ['card_declined', 'incorrect_cvc'];

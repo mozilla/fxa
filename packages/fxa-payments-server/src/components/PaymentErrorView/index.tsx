@@ -14,44 +14,62 @@ export type PaymentErrorViewProps = {
   onRetry: Function;
   error?: StripeError | GeneralError;
   className?: string;
+  subscriptionTitle?: React.ReactElement<SubscriptionTitle>;
+};
+
+const retryButtonFn = (onRetry: PaymentErrorViewProps['onRetry']) => (
+  <Localized id="payment-error-retry-button">
+    <button
+      data-testid="retry-link"
+      className="button retry-link"
+      onClick={() => onRetry()}
+    >
+      Try again
+    </button>
+  </Localized>
+);
+
+const manageSubButtonFn = (onClick: VoidFunction) => {
+  return (
+    <Localized id="payment-error-manage-subscription-button">
+      <button
+        data-testid="manage-subscription-link"
+        className="button"
+        onClick={onClick}
+      >
+        Manage my subscription
+      </button>
+    </Localized>
+  );
 };
 
 export const PaymentErrorView = ({
   onRetry,
   error,
   className = '',
+  subscriptionTitle,
 }: PaymentErrorViewProps) => {
   const history = useHistory();
 
   // We want the button label and onClick handler to be different depending
   // on the type of error
   const ActionButton = () => {
-    return error?.code === 'returning_paypal_customer_error' ? (
-      <Localized id="payment-error-manage-subscription-button">
-        <button
-          data-testid="manage-subscription-link"
-          className="button"
-          onClick={() => history.push('/subscriptions')}
-        >
-          Manage my subscription
-        </button>
-      </Localized>
-    ) : (
-      <Localized id="payment-error-retry-button">
-        <button
-          data-testid="retry-link"
-          className="button retry-link"
-          onClick={() => onRetry()}
-        >
-          Try again
-        </button>
-      </Localized>
-    );
+    switch (error?.code) {
+      case 'returning_paypal_customer_error':
+      case 'no_subscription_upgrades':
+        return manageSubButtonFn(() => history.push('/subscriptions'));
+      default:
+        return retryButtonFn(onRetry);
+    }
   };
+
+  const title = subscriptionTitle ?? (
+    <SubscriptionTitle screenType="error" className={className} />
+  );
 
   return error ? (
     <>
-      <SubscriptionTitle screenType="error" className={className} />
+      {title}
       <section
         className={`container card payment-error ${className}`}
         data-testid="payment-error"

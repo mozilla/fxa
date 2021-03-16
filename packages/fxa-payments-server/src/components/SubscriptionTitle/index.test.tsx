@@ -2,14 +2,14 @@ import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import SubscriptionTitle from './index';
+import SubscriptionTitle, { SubscriptionTitleProps, titles } from './index';
 
 import {
   setupFluentLocalizationTest,
   getLocalizedMessage,
 } from '../../lib/test-utils';
 
-const defaultProps = {
+const defaultProps: SubscriptionTitleProps = {
   screenType: 'create',
 };
 
@@ -81,5 +81,30 @@ describe('SubscriptionTitle', () => {
     expect(component).toHaveTextContent(expectedSubtitle);
     const actualSubtitle = getLocalizedMessage(bundle, 'sub-guarantee', {});
     expect(actualSubtitle).toEqual(expectedSubtitle);
+  });
+
+  it('renders the subtitle as expected', async () => {
+    const subject = () => {
+      return render(
+        <SubscriptionTitle
+          {...{ screenType: 'noupgrade', subtitle: <p>quuz</p> }}
+        />
+      );
+    };
+    const { findByTestId } = subject();
+    const component = await findByTestId('subscription-noupgrade-title');
+
+    const expectedTitle = titles.noupgrade;
+    expect(component).toHaveTextContent(expectedTitle);
+    const actualTitle = getLocalizedMessage(
+      bundle,
+      'subscription-noupgrade-title',
+      {}
+    );
+    expect(actualTitle).toEqual(expectedTitle);
+
+    const defaultSubtitle = '30-day money-back guarantee';
+    expect(component).not.toHaveTextContent(defaultSubtitle);
+    expect(component).toHaveTextContent('quuz');
   });
 });

@@ -27,6 +27,13 @@ const conf = convict({
       env: 'FEATURE_USE_PAYPAL_UI_BY_DEFAULT',
       format: Boolean,
     },
+    allowSubscriptionUpgrades: {
+      default: false,
+      doc:
+        'Whether to allow subsciption upgrades and downgrades between pricing plans',
+      env: 'FEATURE_ALLOW_SUBSCRIPTION_UPGRADES',
+      format: Boolean,
+    },
   },
   amplitude: {
     enabled: {
