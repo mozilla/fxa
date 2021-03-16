@@ -131,7 +131,7 @@ const SETTINGS_V2 = {
       RECOVERY_KEY_TEXT: '[data-testid=datablock]',
       CLOSE_BUTTON: '[data-testid=close-button]',
       RECOVERY_KEY_ENABLED: '[data-testid=recovery-key-unit-row-header-value]',
-      REMOVE_RECOVERY_KEY: '[data-testid=unit-row-modal]',
+      REMOVE_RECOVERY_KEY: '[data-testid=recovery-key-unit-row-modal]',
       REMOVE_KEY_DESCRIPTION: '[data-testid=modal-content-container]',
       CANCEL_REMOVE_KEY: '[data-testid=modal-cancel]',
       CONFIRM_REMOVE_KEY: '[data-testid=modal-confirm]',
@@ -498,9 +498,10 @@ module.exports = {
     CANCEL_BUTTON: '.cancel',
     CONFIRM_PASSWORD_CONTINUE:
       SETTINGS_V2.SECURITY.RECOVERY_KEY.CONTINUE_BUTTON, // '.generate-key-link',
-    CONFIRM_REVOKE: '.confirm-revoke',
-    CONFIRM_REVOKE_DESCRIPTION: '.revoke-description',
-    CONFIRM_REVOKE_OK: '#account-recovery-confirm-revoke .revoke',
+    CONFIRM_REVOKE: SETTINGS_V2.SECURITY.RECOVERY_KEY.CONFIRM, // '.confirm-revoke',
+    CONFIRM_REVOKE_DESCRIPTION:
+      SETTINGS_V2.SECURITY.RECOVERY_KEY.REMOVE_KEY_DESCRIPTION, // '.revoke-description',
+    CONFIRM_REVOKE_OK: SETTINGS_V2.SECURITY.RECOVERY_KEY.CONFIRM_REMOVE_KEY, // '#account-recovery-confirm-revoke .revoke',
     GENERATE_KEY_BUTTON: SETTINGS_V2.SECURITY.RECOVERY_KEY.CREATE, // '.confirm-password',
     PASSWORD_INPUT: SETTINGS_V2.SECURITY.RECOVERY_KEY.PASSWORD_TEXTBOX_INPUT, // '#account-recovery-confirm-password #password',
     PASSWORD_INPUT_LABEL:

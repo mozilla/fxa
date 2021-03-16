@@ -57,11 +57,15 @@ registerSuite('Recovery key', {
         .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
         .then(testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Not set'))
 
+        .sleep(1000)
+
         // Complete the steps to add an account recovery key
-        .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
+        .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON)) // recovery-key-unit-row-rouote
+        // Once again, click the label first to get it out of the way
+        .then(click(selectors.RECOVERY_KEY.PASSWORD_INPUT_LABEL))
         .then(click(selectors.RECOVERY_KEY.PASSWORD_INPUT))
         .then(type(selectors.RECOVERY_KEY.PASSWORD_INPUT, PASSWORD))
-        .then(click(selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE))
+        .then(click(selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE)) // continue-button
         .then(testElementExists(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT))
 
         // Store the key to be used later
@@ -84,7 +88,11 @@ registerSuite('Recovery key', {
       let secondKey;
       return (
         this.remote
-          .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE))
+          .then(
+            click(
+              selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.REMOVE_RECOVERY_KEY
+            )
+          )
           .then(
             testElementExists(selectors.RECOVERY_KEY.CONFIRM_REVOKE_DESCRIPTION)
           )
@@ -95,6 +103,7 @@ registerSuite('Recovery key', {
 
           // create a new recovery key
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
+          .then(click(selectors.RECOVERY_KEY.PASSWORD_INPUT_LABEL))
           .then(type(selectors.RECOVERY_KEY.PASSWORD_INPUT, PASSWORD))
           .then(click(selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE))
           .then(testElementExists(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT))
@@ -285,8 +294,11 @@ registerSuite('Recovery key - unverified session', {
           // send and open verification in same tab
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
           // if the session is unverified, then the modal will be shown.
-          .then(testElementExists(selectors.SESSION_VERIFICATION.MODAL))
+          .then(
+            testElementExists(selectors.SETTINGS_V2.SESSION_VERIFICATION.MODAL)
+          )
           .then(openVerificationLinkInSameTab(email, 0))
+          // TODO: stopping point for the night. Error: Email does not contain verification link: verifyLoginCode
 
           // panel becomes verified and can be opened
           .then(
@@ -301,7 +313,9 @@ registerSuite('Recovery key - unverified session', {
           // send and open verification in new tab
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
           // if the session is unverified, then the modal will be shown
-          .then(testElementExists(selectors.SESSION_VERIFICATION.MODAL))
+          .then(
+            testElementExists(selectors.SETTINGS_V2.SESSION_VERIFICATION.MODAL)
+          )
           .then(openVerificationLinkInNewTab(email, 0))
           .then(switchToWindow(1))
 
@@ -324,7 +338,9 @@ registerSuite('Recovery key - unverified session', {
           // send and open verification in different browser
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
           // if the session is unverified, then the modal will be shown
-          .then(testElementExists(selectors.SESSION_VERIFICATION.MODAL))
+          .then(
+            testElementExists(selectors.SETTINGS_V2.SESSION_VERIFICATION.MODAL)
+          )
           .then(openVerificationLinkInDifferentBrowser(email, 0))
           .then(click(selectors.RECOVERY_KEY.UNLOCK_REFRESH_BUTTON))
           .then(
