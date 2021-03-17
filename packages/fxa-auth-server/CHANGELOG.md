@@ -1,3 +1,9 @@
+## 1.202.2
+
+### Bug fixes
+
+- auth-server: skip currency check without pmi ([788154c32](https://github.com/mozilla/fxa/commit/788154c32))
+
 ## 1.202.1
 
 ### Bug fixes
