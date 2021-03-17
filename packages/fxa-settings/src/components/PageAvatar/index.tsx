@@ -143,16 +143,10 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const capture = useCallback(async () => {
     const webcam: any = webcamRef?.current;
     const screenshot = await webcam.getScreenshot();
-    const cropped = await getCroppedImg(screenshot, {
-      width: 720,
-      height: 720,
-      x: 290,
-      y: 0,
-    });
-    setCroppedImgSrc(cropped);
+    setCapturedImgSrc(screenshot);
     setCapturing(false);
-    setSaveEnabled(true);
-  }, [webcamRef, setCroppedImgSrc, setCapturing]);
+    setSaveEnabled(false);
+  }, [webcamRef, setCapturing]);
 
   const onMediaLoad = useCallback(() => {
     setTimeout(() => {
