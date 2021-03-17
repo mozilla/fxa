@@ -5,4 +5,5 @@
 module.exports = (statsd) => [
   require('./post-metrics'),
   require('./navigation-timing')(statsd),
+  require('./legal-docs'),
 ];
