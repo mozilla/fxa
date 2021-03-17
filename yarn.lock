@@ -19660,7 +19660,7 @@ fsevents@^1.2.7:
     react-helmet: ^6.1.0
     react-transition-group: ^4.3.0
     rimraf: ^3.0.2
-    sass: 1.32.5
+    sass: 1.32.8
     sass-loader: ^10.0.3
     sinon: ^9.2.3
     tailwindcss-dir: ^4.0.0
@@ -34324,14 +34324,14 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sass@npm:1.32.5":
-  version: 1.32.5
-  resolution: "sass@npm:1.32.5"
+"sass@npm:1.32.8":
+  version: 1.32.8
+  resolution: "sass@npm:1.32.8"
   dependencies:
     chokidar: ">=2.0.0 <4.0.0"
   bin:
     sass: sass.js
-  checksum: 3aa568e58b9a7ca320a6a1ae217879eddeb6a1122b67157110a9c260e3ad7beeaab1ab64c81eff08aaae521b6a381a1146d0069e110ef7c4931ffbc9084298a9
+  checksum: d319b3d7459451b6532b492984e3cbb37381e6c6379622f668900b196c0d545f5a2c32819cf02b5405fb2ef79720fe1f8f16b7614a2fef3fb7af8dfec83a6597
   languageName: node
   linkType: hard
 
