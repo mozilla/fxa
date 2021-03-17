@@ -28,7 +28,7 @@ describe('PaymentProcessing tests', () => {
     const footer = queryByTestId('footer');
     expect(footer).toBeInTheDocument();
 
-    const expected = 'Please wait while we process your payment...';
+    const expected = 'Please wait while we process your payment…';
     const actual = getLocalizedMessage(
       bundle,
       'payment-processing-message',

@@ -42,12 +42,12 @@ const PaypalPaymentLegalBlurb = () => (
 
 const StripePaymentLegalBlurb = () => (
   <div className="payment-legal-blurb">
-    <Localized id="payment-legal-copy-stripe">
+    <Localized id="payment-legal-copy-stripe-2">
       <p>Mozilla uses Stripe for secure payment processing.</p>
     </Localized>
 
     <Localized
-      id="payment-legal-link-stripe"
+      id="payment-legal-link-stripe-2"
       elems={{
         stripePrivacyLink: (
           <a
@@ -65,12 +65,12 @@ const StripePaymentLegalBlurb = () => (
 
 const DefaultPaymentLegalBlurb = () => (
   <div className="payment-legal-blurb">
-    <Localized id="payment-legal-copy-stripe-and-paypal">
+    <Localized id="payment-legal-copy-stripe-and-paypal-2">
       <p>Mozilla uses Stripe and Paypal for secure payment processing.</p>
     </Localized>
 
     <Localized
-      id="payment-legal-link-stripe-and-paypal"
+      id="payment-legal-link-stripe-and-paypal-2"
       elems={{
         stripePrivacyLink: (
           <a

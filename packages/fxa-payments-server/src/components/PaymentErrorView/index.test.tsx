@@ -33,8 +33,8 @@ describe('PaymentErrorView test with l10n', () => {
     expect(mainBlock).toBeInTheDocument();
 
     const expected =
-      'An unexpected error has occured while processing your payment, please try again.';
-    const actual = getLocalizedMessage(bundle, 'payment-error-3', {});
+      'An unexpected error has occurred while processing your payment, please try again.';
+    const actual = getLocalizedMessage(bundle, 'payment-error-3b', {});
     expect(actual).toEqual(expected);
 
     const retryButton = queryByTestId('retry-link');
