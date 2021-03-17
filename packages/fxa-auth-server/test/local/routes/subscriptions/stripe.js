@@ -665,6 +665,11 @@ describe('DirectStripeRoutes', () => {
     it('errors if the planCurrency does not match the paymentMethod country', async () => {
       plan.currency = 'EUR';
       directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
@@ -685,6 +690,11 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
         paymentMethod
       );
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
