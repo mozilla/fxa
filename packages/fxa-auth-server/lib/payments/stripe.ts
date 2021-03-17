@@ -66,6 +66,14 @@ export const SUBSCRIPTION_UPDATE_TYPES = {
   CANCELLATION: 'cancellation',
 };
 
+type BillingAddressOptions = {
+  city: string,
+  country: string,
+  line1: string,
+  line2: string,
+  postalCode: string,
+  state: string,
+}
 /**
  * Determine for two product metadata object's whether the new one
  * is a valid upgrade for the old one.
@@ -505,6 +513,32 @@ export class StripeHelper {
    */
   async payInvoiceOutOfBand(invoice: Stripe.Invoice) {
     return this.stripe.invoices.pay(invoice.id, { paid_out_of_band: true });
+  }
+
+  /**
+   * Update the customer object to add customer's PayPal billing address.
+   * 
+   * @param customer_id 
+   * @param city 
+   * @param country 
+   * @param line1 
+   * @param line2 
+   * @param postal_code 
+   * @param state 
+   */
+  async updateCustomerBillingAddress(
+    customer_id: string,
+    options: BillingAddressOptions
+  ): Promise<Stripe.Customer> {
+    const address = {
+      city: options.city,
+      country: options.country,
+      line1: options.line1,
+      line2: options.line2,
+      postal_code: options.postalCode,
+      state: options.state
+    }
+    return this.stripe.customers.update(customer_id, {address});
   }
 
   /**

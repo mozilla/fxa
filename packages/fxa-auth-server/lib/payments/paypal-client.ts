@@ -111,10 +111,18 @@ type RefundTransactionData = {
 type BAUpdateData = {
   BILLINGAGREEMENTID: string;
   BILLINGAGREEMENTSTATUS: string;
-  COUNTRYCODE: string;
   EMAIL: string;
   PAYERSTATUS: string;
 };
+
+type BillToAddressData = {
+  CITY: string;
+  COUNTRYCODE: string;
+  STATE: string;
+  STREET: string;
+  STREET2: string;
+  ZIP: string;
+}
 
 export type TransactionStatus =
   | 'Pending'
@@ -151,7 +159,7 @@ export type NVPDoReferenceTransactionResponse = NVPResponse &
 
 export type NVPRefundTransactionResponse = NVPResponse & RefundTransactionData;
 
-export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData;
+export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData & BillToAddressData;
 
 export type NVPTransactionSearchResponse = TransactionSearchData & NVPResponse;
 

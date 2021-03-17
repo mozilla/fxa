@@ -34,7 +34,12 @@ type PaypalHelperOptions = {
 
 type AgreementDetails = {
   status: 'active' | 'cancelled';
+  city: string;
   countryCode: string;
+  state: string;
+  street: string;
+  street2: string;
+  zip: string;
 };
 
 export type ChargeCustomerOptions = {
@@ -286,7 +291,12 @@ export class PayPalHelper {
     const response = await this.client.baUpdate(options);
     return {
       status: response.BILLINGAGREEMENTSTATUS.toLowerCase() as AgreementDetails['status'],
+      city: response.CITY,
       countryCode: response.COUNTRYCODE,
+      state: response.STATE,
+      street: response.STREET,
+      street2: response.STREET2,
+      zip: response.ZIP
     };
   }
 

@@ -999,6 +999,38 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('updateCustomerBillingAddress', () => {
+    it('updates Customer with empty PayPal billing address', async () => {
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+      const result = await stripeHelper.updateCustomerBillingAddress(
+        customer1.id,
+        {
+          city: 'city',
+          country: 'US',
+          line1: 'street address',
+          line2: undefined,
+          postalCode: '12345',
+          state: 'CA',
+        }
+      );
+      assert.deepEqual(result, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.update,
+        customer1.id,
+        {
+          address: {
+            city: 'city',
+            country: 'US',
+            line1: 'street address',
+            line2: undefined,
+            postal_code: '12345',
+            state: 'CA',
+          },
+        }
+      );
+    });
+  });
+
   describe('updateCustomerPaypalAgreement', () => {
     it('skips if the agreement id is already set', async () => {
       const paypalCustomer = deepCopy(customer1);
