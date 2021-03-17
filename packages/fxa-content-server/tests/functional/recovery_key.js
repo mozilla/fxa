@@ -23,18 +23,15 @@ const {
   createUser,
   clearBrowserState,
   click,
-  closeCurrentWindow,
   fillOutCompleteResetPassword,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutRecoveryKey,
   fillOutResetPassword,
   fillOutSignUpCode,
+  fillOutVerificationCode,
   openPage,
-  openVerificationLinkInDifferentBrowser,
-  openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  switchToWindow,
   testIsBrowserNotified,
   testElementExists,
   testElementTextInclude,
@@ -297,54 +294,11 @@ registerSuite('Recovery key - unverified session', {
           .then(
             testElementExists(selectors.SETTINGS_V2.SESSION_VERIFICATION.MODAL)
           )
-          .then(openVerificationLinkInSameTab(email, 0))
-          // TODO: stopping point for the night. Error: Email does not contain verification link: verifyLoginCode
-
-          // panel becomes verified and can be opened
+          .then(fillOutVerificationCode(email, 0))
           .then(
-            testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Enabled')
-          )
-      );
-    },
-
-    'gated in unverified session open verification new tab': function () {
-      return (
-        this.remote
-          // send and open verification in new tab
-          .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
-          // if the session is unverified, then the modal will be shown
-          .then(
-            testElementExists(selectors.SETTINGS_V2.SESSION_VERIFICATION.MODAL)
-          )
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-
-          // panel becomes verified and can be opened
-          .then(
-            testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Enabled')
-          )
-          .then(closeCurrentWindow())
-          .then(switchToWindow(0))
-          .then(click(selectors.RECOVERY_KEY.UNLOCK_REFRESH_BUTTON))
-          .then(
-            testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Not set')
-          )
-      );
-    },
-
-    'gated in unverified session open verification different browser': function () {
-      return (
-        this.remote
-          // send and open verification in different browser
-          .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
-          // if the session is unverified, then the modal will be shown
-          .then(
-            testElementExists(selectors.SETTINGS_V2.SESSION_VERIFICATION.MODAL)
-          )
-          .then(openVerificationLinkInDifferentBrowser(email, 0))
-          .then(click(selectors.RECOVERY_KEY.UNLOCK_REFRESH_BUTTON))
-          .then(
-            testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Not set')
+            testElementExists(
+              selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.PASSWORD_TEXTBOX_LABEL
+            )
           )
       );
     },

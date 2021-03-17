@@ -24,7 +24,6 @@ const {
   confirmTotpCode,
   clearBrowserState,
   click,
-  closeCurrentWindow,
   createEmail,
   createUser,
   fillOutCompleteResetPassword,
@@ -33,11 +32,11 @@ const {
   fillOutEmailFirstSignUp,
   fillOutResetPassword,
   fillOutSignUpCode,
+  fillOutVerificationCode,
   generateTotpCode,
   openPage,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  openVerificationLinkInDifferentBrowser,
   switchToWindow,
   testElementExists,
   testElementTextInclude,
@@ -361,69 +360,14 @@ registerSuite('TOTP - unverified session', {
           // send and open verification in same tab
           // TODO new modal doesn't allow the click. it just auto-sends.
           //.then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
-          .then(openVerificationLinkInSameTab(email, 0))
+          .then(fillOutVerificationCode(email, 0))
 
           // panel becomes verified and can be opened
-          .then(testElementExists(selectors.TOTP.STATUS_ENABLED))
-      );
-    },
-
-    'gated in unverified session open verification new tab': function () {
-      return (
-        this.remote
-          // when an account is created, the original session is verified
-          // re-login to destroy original session and created an unverified one
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
-
-          // unlock panel
-          .then(click(selectors.TOTP.UNLOCK_BUTTON))
-          .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
-
-          // send and open verification in same tab
-          .then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-
-          // panel becomes verified and can be opened
-          .then(testElementExists(selectors.TOTP.STATUS_ENABLED))
-          .then(closeCurrentWindow())
-
-          .then(switchToWindow(0))
-
-          .then(testElementExists(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-          .then(click(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-
-          // when refreshing the panel, it doesn't not automatically create token
-          .then(testElementExists(selectors.TOTP.STATUS_DISABLED))
-          .then(visibleByQSA(selectors.TOTP.STATUS_DISABLED))
-      );
-    },
-
-    'gated in unverified session open verification different browser': function () {
-      return (
-        this.remote
-          // when an account is created, the original session is verified
-          // re-login to destroy original session and created an unverified one
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
-
-          // unlock panel
-          .then(click(selectors.TOTP.UNLOCK_BUTTON))
-          .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
-
-          // send and open verification in same tab
-          .then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
-          .then(openVerificationLinkInDifferentBrowser(email, 0))
-          .then(click(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-
-          .then(testElementExists(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-          .then(click(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-
-          .then(testElementExists(selectors.TOTP.STATUS_DISABLED))
-          .then(visibleByQSA(selectors.TOTP.STATUS_DISABLED))
+          .then(
+            testElementExists(
+              selectors.SETTINGS_V2.SECURITY.TFA.SECURITY_CODE_TEXTBOX_LABEL
+            )
+          )
       );
     },
   },

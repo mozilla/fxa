@@ -113,6 +113,8 @@ const SETTINGS_V2 = {
     MODAL: '[data-testid=modal-verify-session]',
     CANCEL: '[data-testid=modal-verify-session-cancel]',
     SUBMIT: '[data-testid=modal-verify-session-submit]',
+    LABEL: '[data-testid=verification-code-input-container]',
+    INPUT: '[data-testid=verification-code-input-field]',
   },
   SECURITY: {
     MENU: '[data-testid=nav-link-security]',

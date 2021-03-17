@@ -1632,6 +1632,18 @@ const fillOutSignInTokenCode = thenify(function (email, number) {
     .then(click('button[type=submit]'));
 });
 
+const fillOutVerificationCode = thenify(function (email, number) {
+  return this.parent
+    .then(click(selectors.SETTINGS_V2.SESSION_VERIFICATION.LABEL))
+    .then(getTokenCode(email, number))
+    .then((tokenCode) => {
+      return this.parent.then(
+        type(selectors.SETTINGS_V2.SESSION_VERIFICATION.INPUT, tokenCode)
+      );
+    })
+    .then(click(selectors.SETTINGS_V2.SESSION_VERIFICATION.SUBMIT));
+});
+
 const fillOutSignUpCode = thenify(function (email, number) {
   return this.parent
     .then(getSignupCode(email, number))
@@ -2897,6 +2909,7 @@ module.exports = {
   fillOutResetPassword,
   fillOutSignIn,
   fillOutSignInTokenCode,
+  fillOutVerificationCode,
   fillOutSignInUnblock,
   fillOutSignUp,
   fillOutSignUpCode,
