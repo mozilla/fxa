@@ -494,18 +494,21 @@ export class StripeHandler {
       idempotencyKey,
     } = request.payload as Record<string, string>;
 
-    const planCurrency = (await this.stripeHelper.findPlanById(priceId))
-      .currency;
-    const paymentMethodCountry = (
-      await this.stripeHelper.getPaymentMethod(paymentMethodId)
-    ).card?.country;
-    if (
-      !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
-        planCurrency,
-        paymentMethodCountry
-      )
-    ) {
-      throw error.currencyCountryMismatch(planCurrency, paymentMethodCountry);
+    // Skip the payment source check if there's no payment method id.
+    if (paymentMethodId) {
+      const planCurrency = (await this.stripeHelper.findPlanById(priceId))
+        .currency;
+      const paymentMethodCountry = (
+        await this.stripeHelper.getPaymentMethod(paymentMethodId)
+      ).card?.country;
+      if (
+        !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
+          planCurrency,
+          paymentMethodCountry
+        )
+      ) {
+        throw error.currencyCountryMismatch(planCurrency, paymentMethodCountry);
+      }
     }
 
     const subIdempotencyKey = `${idempotencyKey}-createSub`;
