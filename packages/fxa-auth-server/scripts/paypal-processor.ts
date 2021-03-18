@@ -6,6 +6,7 @@ import { setupAuthDatabase } from 'fxa-shared/db';
 import { StatsD } from 'hot-shots';
 import Container from 'typedi';
 
+import error from '../lib/error';
 import { PayPalHelper } from '../lib/payments/paypal';
 import { PaypalProcessor } from '../lib/payments/paypal-processor';
 import { StripeHelper } from '../lib/payments/stripe';

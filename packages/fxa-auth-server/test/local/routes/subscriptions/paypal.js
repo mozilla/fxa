@@ -9,6 +9,7 @@ const { Container } = require('typedi');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { filterCustomer } = require('fxa-shared/subscriptions/stripe');
 
+const error = require('../../../../lib/error');
 const { getRoute } = require('../../../routes_helpers');
 const mocks = require('../../../mocks');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
@@ -160,6 +161,8 @@ describe('subscriptions payPalRoutes', () => {
 
     beforeEach(() => {
       stripeHelper.refreshCachedCustomer = sinon.fake.resolves({});
+      stripeHelper.cancelSubscription = sinon.fake.resolves({});
+      payPalHelper.cancelBillingAgreement = sinon.fake.resolves({});
       profile.deleteCache = sinon.fake.resolves({});
       push.notifyProfileUpdated = sinon.fake.resolves({});
       plan = deepCopy(planFixture);
@@ -334,6 +337,18 @@ describe('subscriptions payPalRoutes', () => {
           state: undefined,
         }
       );
+    });
+
+    it('should throw an error if the invoice processing fails', async () => {
+      payPalHelper.processInvoice = sinon.fake.rejects(error.paymentFailed());
+      try {
+        await runTest('/oauth/subscriptions/active/new-paypal');
+        assert.fail('Should have thrown an error');
+      } catch (err) {
+        assert.deepEqual(err, error.paymentFailed());
+        sinon.assert.calledOnce(stripeHelper.cancelSubscription);
+        sinon.assert.calledOnce(payPalHelper.cancelBillingAgreement);
+      }
     });
   });
 
