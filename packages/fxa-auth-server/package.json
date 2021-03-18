@@ -52,7 +52,7 @@
     "bluebird": "^3.7.2",
     "buf": "0.1.1",
     "buffer-equal-constant-time": "1.0.1",
-    "cbor": "^5.1.0",
+    "cbor": "^7.0.4",
     "cldr-core": "^37.0.0",
     "cldr-localenames-full": "38.0.0",
     "commander": "2.18.0",
