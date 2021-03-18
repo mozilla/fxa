@@ -68,7 +68,7 @@ describe('SubscriptionTitle', () => {
     const { findByTestId } = subject();
     const component = await findByTestId('subscription-processing-title');
 
-    const expectedTitle = 'Confirming subscription...';
+    const expectedTitle = 'Confirming subscription…';
     expect(component).toHaveTextContent(expectedTitle);
     const actualTitle = getLocalizedMessage(
       bundle,

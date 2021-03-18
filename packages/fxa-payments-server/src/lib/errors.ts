@@ -27,7 +27,7 @@ const CARD_ERROR = 'card-error';
 const BASIC_ERROR = 'basic-error-message';
 const PAYMENT_ERROR_1 = 'payment-error-1';
 const PAYMENT_ERROR_2 = 'payment-error-2';
-const PAYMENT_ERROR_3 = 'payment-error-3';
+const PAYMENT_ERROR_3 = 'payment-error-3b';
 
 /*
  * errorToErrorMessageMap - the keys are lookups, that

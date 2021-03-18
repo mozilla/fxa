@@ -17,8 +17,8 @@ export const SubscriptionTitle = ({
   } = {
     create: 'Set up your subscription',
     success: 'Subscription confirmation',
-    processing: 'Confirming subscription...',
-    error: 'Error confirming subscription...',
+    processing: 'Confirming subscription…',
+    error: 'Error confirming subscription…',
   };
   return (
     <div

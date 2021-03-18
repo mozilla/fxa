@@ -7,6 +7,7 @@ project-brand = Firefox Accounts
 -brand-name-mozilla = Mozilla
 -brand-name-firefox = Firefox
 -brand-name-paypal = PayPal
+-brand-name-stripe = Stripe
 
 document =
   .title = Firefox Accounts
@@ -21,7 +22,7 @@ general-error-heading = General application error
 basic-error-message = Something went wrong. Please try again later.
 payment-error-1 = Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.
 payment-error-2 = Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.
-payment-error-3 = An unexpected error has occured while processing your payment, please try again.
+payment-error-3b = An unexpected error has occurred while processing your payment, please try again.
 payment-error-retry-button = Try again
 payment-error-manage-subscription-button = Manage my subscription
 
@@ -50,8 +51,8 @@ privacy = Privacy Notice
 ## Subscription titles
 subscription-create-title = Set up your subscription
 subscription-success-title = Subscription confirmation
-subscription-processing-title = Confirming subscription...
-subscription-error-title = Error confirming subscription...
+subscription-processing-title = Confirming subscription…
+subscription-error-title = Error confirming subscription…
 
 ##  $productName (String) - The name of the subscribed product.
 ##  $amount (Number) - The amount billed. It will be formatted as currency.
@@ -87,14 +88,14 @@ product-plan-not-found = Plan not found
 product-no-such-plan = No such plan for this product.
 
 ## payment legal blurb
-payment-legal-copy-stripe-and-paypal = { -brand-name-mozilla } uses Stripe and { -brand-name-paypal } for secure payment processing.
-payment-legal-link-stripe-and-paypal = View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> and <paypalPrivacyLink>{ -brand-name-paypal } privacy policy</paypalPrivacyLink>.
+payment-legal-copy-stripe-and-paypal-2 = { -brand-name-mozilla } uses { -brand-name-stripe } and { -brand-name-paypal } for secure payment processing.
+payment-legal-link-stripe-and-paypal-2 = View the <stripePrivacyLink>{ -brand-name-stripe } privacy policy</stripePrivacyLink> and <paypalPrivacyLink>{ -brand-name-paypal } privacy policy</paypalPrivacyLink>.
 
 payment-legal-copy-paypal = { -brand-name-mozilla } uses { -brand-name-paypal } for secure payment processing.
 payment-legal-link-paypal = View the <paypalPrivacyLink>{ -brand-name-paypal } privacy policy</paypalPrivacyLink>.
 
-payment-legal-copy-stripe = { -brand-name-mozilla } uses Stripe for secure payment processing.
-payment-legal-link-stripe = View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink>.
+payment-legal-copy-stripe-2 = { -brand-name-mozilla } uses { -brand-name-stripe } for secure payment processing.
+payment-legal-link-stripe-2 = View the <stripePrivacyLink>{ -brand-name-stripe } privacy policy</stripePrivacyLink>.
 
 ## payment form
 payment-name =
@@ -286,7 +287,7 @@ sub-item-cancel-confirm =
 account-activated = Your account is activated, <userEl/>
 
 ## subscription route index
-sub-route-idx-updating = Updating billing information...
+sub-route-idx-updating = Updating billing information…
 sub-route-idx-reactivating = Reactivating subscription failed
 sub-route-idx-cancel-failed = Cancelling subscription failed
 sub-route-idx-contact = Contact Support
@@ -318,7 +319,7 @@ plan-details-hide-button = Hide details
 plan-details-total-label = Total
 
 ## payment-processing
-payment-processing-message = Please wait while we process your payment...
+payment-processing-message = Please wait while we process your payment…
 
 ## payment confirmation
 payment-confirmation-alert = Click here to download
