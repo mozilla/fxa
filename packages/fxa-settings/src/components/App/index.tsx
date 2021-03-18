@@ -55,7 +55,10 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
     Metrics.init(flowQueryParams);
   }, [flowQueryParams]);
 
-  if (loading) {
+  // In case of an invalid token the page will redirect,
+  // but to prevent a flash of the error message we show
+  // the spinner.
+  if (loading || error?.message.includes('Invalid token')) {
     return (
       <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
     );
