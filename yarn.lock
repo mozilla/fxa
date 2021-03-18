@@ -2023,6 +2023,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cto.af/textdecoder@npm:^0.0.0":
+  version: 0.0.0
+  resolution: "@cto.af/textdecoder@npm:0.0.0"
+  checksum: 142ee0a5ecd41dba1405973bbdcb4e1e18cb21051364e7ac56d66b50597057b7bf00ec25d7da908ace73902b1d39cf3221f5f6b76d85b0aebbbb229f32af1f8b
+  languageName: node
+  linkType: hard
+
 "@dannycoates/elliptic@npm:^6.4.2":
   version: 6.4.2
   resolution: "@dannycoates/elliptic@npm:6.4.2"
@@ -12789,13 +12796,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cbor@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "cbor@npm:5.1.0"
+"cbor@npm:^7.0.4":
+  version: 7.0.4
+  resolution: "cbor@npm:7.0.4"
   dependencies:
-    bignumber.js: ^9.0.0
-    nofilter: ^1.0.4
-  checksum: b8257e15ba263440af093d5e4577bf7bdc6e65e952426d42161983866687cbd92ac5a36246cc95c48605b4d199d3343a8802994cc862ff4a2c609bb885796219
+    "@cto.af/textdecoder": ^0.0.0
+    nofilter: ^2.0.3
+  peerDependencies:
+    bignumber.js: ^9.0.1
+  peerDependenciesMeta:
+    bignumber.js:
+      optional: true
+  checksum: 49c9fb70c3327a749725ac83b8fd179a17f086e63e8133df674fc2d4fbf50805fe104ad62a643e59c323d9fad0b049238c85de87d71d0548bd614bdd03542a9e
   languageName: node
   linkType: hard
 
@@ -18944,7 +18956,7 @@ fsevents@^1.2.7:
     bluebird: ^3.7.2
     buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
-    cbor: ^5.1.0
+    cbor: ^7.0.4
     chai: ^4.2.0
     cldr-core: ^37.0.0
     cldr-localenames-full: 38.0.0
@@ -28295,10 +28307,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"nofilter@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "nofilter@npm:1.0.4"
-  checksum: af46b9255190250595702f75623d3de4bc5e07822d16d2b3b2e47dc892825273efedc326710e884689e4a74bfc9863c61ca8d6b4115c7bcac40a4e787ae5a8c9
+"nofilter@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "nofilter@npm:2.0.3"
+  dependencies:
+    "@cto.af/textdecoder": ^0.0.0
+  checksum: a39b197bd827dff349f50ed51232bda4689abb4ea8321e9a7ff152a304b633ee70422d018aa65a53a95632176e5177cb2fa0b32b69a0910782699f7f0076bdb7
   languageName: node
   linkType: hard
 
