@@ -7,12 +7,10 @@ import AuthBroker from 'models/auth_brokers/base';
 import Backbone from 'backbone';
 import BaseView from 'views/base';
 import Constants from 'lib/constants';
-import DisplayNameView from 'views/settings/display_name';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import Router from 'lib/router';
-import SettingsView from 'views/settings';
 import SignInPasswordView from 'views/sign_in_password';
 import sinon from 'sinon';
 import User from 'models/user';
@@ -366,23 +364,6 @@ describe('lib/router', () => {
 
       router.showView(BaseView, options);
       assert.isTrue(notifier.trigger.calledWith('show-view', BaseView));
-    });
-  });
-
-  describe('showChildView', () => {
-    it('triggers a `show-child-view` notification', () => {
-      sinon.spy(notifier, 'trigger');
-
-      var options = { key: 'value' };
-
-      router.showChildView(DisplayNameView, SettingsView, options);
-      assert.isTrue(
-        notifier.trigger.calledWith(
-          'show-child-view',
-          DisplayNameView,
-          SettingsView
-        )
-      );
     });
   });
 

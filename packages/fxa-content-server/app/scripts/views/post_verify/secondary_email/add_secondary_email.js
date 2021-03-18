@@ -31,7 +31,7 @@ class AddSecondaryEmail extends FormView {
     // settings page.
     return account.recoveryEmails().then((emails) => {
       if (emails && emails.length > 1) {
-        return this.navigate('/settings');
+        return this.navigateAway('/settings');
       }
     });
   }

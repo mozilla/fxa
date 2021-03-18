@@ -42,11 +42,6 @@ var AppView = BaseView.extend({
       // Pressing ESC when any modal is visible should close the modal.
       if ($.modal.isActive()) {
         $.modal.close();
-      } else if (event.currentTarget.className.indexOf('settings') >= 0) {
-        // If event came from any settings view, close all panels and
-        // goto base settings view.
-        $('.settings-unit').removeClass('open');
-        this.navigate('settings');
       }
     }
   },

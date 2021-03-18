@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-module.exports = function (config) {
+module.exports = function () {
   // The array is converted into a RegExp
   const FRONTEND_ROUTES = [
     'account_recovery_confirm_key',
@@ -55,25 +55,6 @@ module.exports = function (config) {
     'reset_password_verified',
     'reset_password_with_recovery_key_verified',
     'security_events',
-    'settings',
-    'settings/account_recovery',
-    'settings/account_recovery/confirm_password',
-    'settings/account_recovery/confirm_revoke',
-    'settings/account_recovery/recovery_key',
-    'settings/avatar/camera',
-    'settings/avatar/change',
-    'settings/avatar/crop',
-    'settings/beta_optout',
-    'settings/change_password',
-    'settings/clients',
-    'settings/clients/disconnect',
-    'settings/communication_preferences',
-    'settings/delete_account',
-    'settings/display_name',
-    'settings/emails',
-    'settings/two_step_authentication',
-    'settings/two_step_authentication/recovery_codes',
-    'settings/two_step_authentication/secret',
     'signin',
     'signin_bounced',
     'signin_token_code',
@@ -106,13 +87,6 @@ module.exports = function (config) {
     method: 'get',
     path: new RegExp('^/(' + FRONTEND_ROUTES + ')/?$'),
     process: function (req, res, next) {
-      if (
-        config.get('settings.enableBeta') &&
-        req.url.includes('settings') &&
-        !req.url.includes('beta/')
-      ) {
-        return res.redirect(302, req.url.replace('settings', 'beta/settings'));
-      }
       // setting the url to / will use the correct
       // index.html for either dev or prod mode.
       req.url = '/';

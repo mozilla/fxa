@@ -36,7 +36,7 @@ class ConfirmSecondaryEmail extends FormView {
     // but just to be safe we'll make sure you're not maxed out.
     return account.recoveryEmails().then((emails) => {
       if (emails && emails.length >= MAX_SECONDARY_EMAILS) {
-        return this.navigate('/settings');
+        return this.navigateAway('/settings');
       }
     });
   }

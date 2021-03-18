@@ -54,6 +54,9 @@ const settingsConfig = {
 };
 
 // Inject Beta Settings meta content
+// This is only used to replace __SERVER_CONFIG__ with a stringified,
+// sanitized config object in the html page, before returning the page to
+// the client.
 function swapBetaMeta(html, metaContent = {}) {
   let result = html;
 
@@ -109,6 +112,7 @@ const useSettingsProxy = createProxyMiddleware({
   onProxyRes: modifyProxyRes,
 });
 
+// Modify the static settings page by replacing __SERVER_CONFIG__ with the config object
 const modifySettingsStatic = function (req, res) {
   return res.send(
     swapBetaMeta(settingsIndexFile, {

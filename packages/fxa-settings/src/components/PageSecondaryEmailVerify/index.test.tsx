@@ -8,6 +8,7 @@ import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { MockedCache, renderWithRouter } from '../../models/_mocks';
 import { alertTextExternal } from '../../lib/cache';
+import { HomePath } from '../../constants';
 import { PageSecondaryEmailVerify, VERIFY_SECONDARY_EMAIL_MUTATION } from '.';
 import { GraphQLError } from 'graphql';
 import { WindowLocation } from '@reach/router';
@@ -101,7 +102,7 @@ describe('PageSecondaryEmailVerify', () => {
       screen.getByTestId('secondary-email-verify-submit').click()
     );
 
-    expect(history.location.pathname).toEqual('/beta/settings#secondary-email');
+    expect(history.location.pathname).toEqual('/settings#secondary-email');
     expect(alertTextExternal).toHaveBeenCalledTimes(1);
     expect(alertTextExternal).toHaveBeenCalledWith(
       'johndope@example.com successfully added.'

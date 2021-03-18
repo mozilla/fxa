@@ -70,7 +70,7 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
 
   return (
     <AppLocalizationProvider
-      baseDir="/beta/settings/locales"
+      baseDir="/settings/locales"
       bundles={['settings']}
       userLocales={navigatorLanguages}
     >

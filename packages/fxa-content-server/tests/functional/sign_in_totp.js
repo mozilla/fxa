@@ -14,7 +14,7 @@ const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const PASSWORD = 'passwordzxcv';
 const SYNC_ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync`;
 const ENTER_EMAIL_URL = `${config.fxaContentRoot}?action=email`;
-const RECOVERY_CODES_URL = `${config.fxaContentRoot}settings/two_step_authentication/recovery_codes`;
+const RECOVERY_CODES_URL = `${config.fxaContentRoot}settings/two_step_authentication/replace_codes`;
 const RESET_PASSWORD_URL = `${config.fxaContentRoot}reset_password?context=fx_desktop_v3&service=sync`;
 
 let email;
@@ -24,7 +24,6 @@ const {
   confirmTotpCode,
   clearBrowserState,
   click,
-  closeCurrentWindow,
   createEmail,
   createUser,
   fillOutCompleteResetPassword,
@@ -33,11 +32,11 @@ const {
   fillOutEmailFirstSignUp,
   fillOutResetPassword,
   fillOutSignUpCode,
+  fillOutVerificationCode,
   generateTotpCode,
   openPage,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  openVerificationLinkInDifferentBrowser,
   switchToWindow,
   testElementExists,
   testElementTextInclude,
@@ -86,23 +85,40 @@ registerSuite('TOTP', {
     'can add TOTP to account and confirm web signin': function () {
       return (
         this.remote
-          // Show's tool tip for invalid codes on setup
+          // Shows tool tip for invalid codes on setup
+          // Note: as usual we have to click the label first, to get it out
+          // of the way, then we can click into the input.
+          .then(click(selectors.TOTP.CONFIRM_CODE_INPUT_LABEL))
+          .then(click(selectors.TOTP.CONFIRM_CODE_INPUT))
           .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, '123432'))
           .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
           .then(visibleByQSA(selectors.TOTP.TOOLTIP))
-          .then(testElementTextInclude(selectors.TOTP.TOOLTIP, 'invalid'))
+          .then(testElementTextInclude(selectors.TOTP.TOOLTIP, 'Incorrect'))
 
           .then(confirmTotpCode(secret))
 
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+            )
+          )
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
           // Show tool tip for invalid codes on sign-in
           .then(type(selectors.TOTP_SIGNIN.INPUT, '123432'))
           .then(click(selectors.TOTP_SIGNIN.SUBMIT))
-          .then(visibleByQSA(selectors.TOTP.TOOLTIP))
-          .then(testElementTextInclude(selectors.TOTP.TOOLTIP, 'invalid'))
+          .then(visibleByQSA(selectors.TOTP.LOGIN_FLOW_TOOLTIP))
+          .then(
+            testElementTextInclude(selectors.TOTP.LOGIN_FLOW_TOOLTIP, 'Invalid')
+          )
 
           // Redirect to /settings when successful
           .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
@@ -115,7 +131,18 @@ registerSuite('TOTP', {
       return this.remote
         .then(confirmTotpCode(secret))
 
-        .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+        .then(
+          click(
+            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+          )
+        )
+        .then(
+          click(
+            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+            selectors.ENTER_EMAIL.HEADER
+          )
+        )
         .then(
           openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {},
@@ -137,30 +164,45 @@ registerSuite('TOTP', {
         this.remote
           .then(confirmTotpCode(secret))
 
-          // Remove token
-          .then(click(selectors.TOTP.DELETE_BUTTON))
+          // Remove token, first in unit row then in confirmation modal
+          .then(
+            click(selectors.TOTP.DELETE_BUTTON, selectors.TOTP.CONFIRM_DELETE)
+          )
+          .then(click(selectors.TOTP.CONFIRM_DELETE))
           .then(testSuccessWasShown)
           .then(testElementExists(selectors.TOTP.MENU_BUTTON))
           .refresh()
 
           // Does not prompt for code
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+            )
+          )
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 
     'can add TOTP to account and then delete it': function () {
-      return this.remote
-        .then(confirmTotpCode(secret))
+      return (
+        this.remote
+          .then(confirmTotpCode(secret))
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON))
+          .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
 
-        .then(click(selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON))
-        .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
-
-        .then(fillOutDeleteAccount(PASSWORD))
-        .then(testIsBrowserNotified('fxaccounts:delete'))
-
-        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
+          .then(fillOutDeleteAccount(PASSWORD))
+          // TODO: do we have browser notifications fully working for settings v2?
+          //  .then(testIsBrowserNotified('fxaccounts:delete'))
+          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+      );
     },
 
     'can navigate directly to recovery codes': function () {
@@ -172,7 +214,9 @@ registerSuite('TOTP', {
             selectors.TOTP.RECOVERY_CODES_DESCRIPTION
           )
         )
-        .then(click(selectors.TOTP.RECOVERY_CODES_DONE));
+        .then(
+          click(selectors.SETTINGS_V2.SECURITY.TFA.CLOSE_RECOVERY_KEY_BLOCK)
+        );
     },
 
     'can reset password, prompt for TOTP and login - same browser same tab': function () {
@@ -180,7 +224,18 @@ registerSuite('TOTP', {
         this.remote
           .then(confirmTotpCode(secret))
 
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+            )
+          )
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
           //.then(clearBrowserState())
 
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
@@ -208,8 +263,18 @@ registerSuite('TOTP', {
     'can reset password, prompt for TOTP and login - same browser different tab': function () {
       return this.remote
         .then(confirmTotpCode(secret))
-
-        .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+        .then(
+          click(
+            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+          )
+        )
+        .then(
+          click(
+            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+            selectors.ENTER_EMAIL.HEADER
+          )
+        )
 
         .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
         .then(fillOutResetPassword(email))
@@ -237,8 +302,18 @@ registerSuite('TOTP', {
       return (
         this.remote
           .then(confirmTotpCode(secret))
-
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+            )
+          )
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
 
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
@@ -283,70 +358,16 @@ registerSuite('TOTP - unverified session', {
           .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
 
           // send and open verification in same tab
-          .then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
-          .then(openVerificationLinkInSameTab(email, 0))
+          // TODO new modal doesn't allow the click. it just auto-sends.
+          //.then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
+          .then(fillOutVerificationCode(email, 0))
 
           // panel becomes verified and can be opened
-          .then(testElementExists(selectors.TOTP.STATUS_ENABLED))
-      );
-    },
-
-    'gated in unverified session open verification new tab': function () {
-      return (
-        this.remote
-          // when an account is created, the original session is verified
-          // re-login to destroy original session and created an unverified one
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
-
-          // unlock panel
-          .then(click(selectors.TOTP.UNLOCK_BUTTON))
-          .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
-
-          // send and open verification in same tab
-          .then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-
-          // panel becomes verified and can be opened
-          .then(testElementExists(selectors.TOTP.STATUS_ENABLED))
-          .then(closeCurrentWindow())
-
-          .then(switchToWindow(0))
-
-          .then(testElementExists(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-          .then(click(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-
-          // when refreshing the panel, it doesn't not automatically create token
-          .then(testElementExists(selectors.TOTP.STATUS_DISABLED))
-          .then(visibleByQSA(selectors.TOTP.STATUS_DISABLED))
-      );
-    },
-
-    'gated in unverified session open verification different browser': function () {
-      return (
-        this.remote
-          // when an account is created, the original session is verified
-          // re-login to destroy original session and created an unverified one
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.TOTP.UNLOCK_BUTTON))
-
-          // unlock panel
-          .then(click(selectors.TOTP.UNLOCK_BUTTON))
-          .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
-
-          // send and open verification in same tab
-          .then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
-          .then(openVerificationLinkInDifferentBrowser(email, 0))
-          .then(click(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-
-          .then(testElementExists(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-          .then(click(selectors.TOTP.UNLOCK_REFRESH_BUTTON))
-
-          .then(testElementExists(selectors.TOTP.STATUS_DISABLED))
-          .then(visibleByQSA(selectors.TOTP.STATUS_DISABLED))
+          .then(
+            testElementExists(
+              selectors.SETTINGS_V2.SECURITY.TFA.SECURITY_CODE_TEXTBOX_LABEL
+            )
+          )
       );
     },
   },

@@ -1632,6 +1632,18 @@ const fillOutSignInTokenCode = thenify(function (email, number) {
     .then(click('button[type=submit]'));
 });
 
+const fillOutVerificationCode = thenify(function (email, number) {
+  return this.parent
+    .then(click(selectors.SETTINGS_V2.SESSION_VERIFICATION.LABEL))
+    .then(getTokenCode(email, number))
+    .then((tokenCode) => {
+      return this.parent.then(
+        type(selectors.SETTINGS_V2.SESSION_VERIFICATION.INPUT, tokenCode)
+      );
+    })
+    .then(click(selectors.SETTINGS_V2.SESSION_VERIFICATION.SUBMIT));
+});
+
 const fillOutSignUpCode = thenify(function (email, number) {
   return this.parent
     .then(getSignupCode(email, number))
@@ -1829,11 +1841,16 @@ const fillOutChangePassword = thenify(function (
   newPassword,
   options = {}
 ) {
+  const CHANGE_PASSWORD_COMMAND = 'fxaccounts:change_password';
   return this.parent
     .setFindTimeout(intern._config.pageLoadTimeout)
 
+    .then(storeWebChannelMessageData(CHANGE_PASSWORD_COMMAND))
+    .then(click(selectors.CHANGE_PASSWORD.OLD_PASSWORD_LABEL))
     .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, oldPassword))
+    .then(click(selectors.CHANGE_PASSWORD.NEW_PASSWORD_LABEL))
     .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, newPassword))
+    .then(click(selectors.CHANGE_PASSWORD.NEW_VPASSWORD_LABEL))
     .then(
       type(
         selectors.CHANGE_PASSWORD.NEW_VPASSWORD,
@@ -1843,10 +1860,17 @@ const fillOutChangePassword = thenify(function (
     .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
     .then(function () {
       if (options.expectSuccess !== false) {
-        return this.parent
-          .then(pollUntilHiddenByQSA(selectors.CHANGE_PASSWORD.DETAILS))
-          .then(testSuccessWasShown())
-          .then(testIsBrowserNotified('fxaccounts:change_password')); //eslint-disable-line no-use-before-define
+        return (
+          this.parent
+            .then(pollUntilHiddenByQSA(selectors.CHANGE_PASSWORD.DETAILS))
+            .then(testSuccessWasShown())
+            .then(getWebChannelMessageData(CHANGE_PASSWORD_COMMAND))
+            // Replacement for testIsBrowserNotified
+            .then((msg) => {
+              assert.equal(msg.command, CHANGE_PASSWORD_COMMAND);
+              assert.isString(msg.data.sessionToken);
+            })
+        );
       }
     });
 });
@@ -1861,13 +1885,23 @@ const fillOutDeleteAccount = thenify(function (password) {
   return (
     this.parent
       .setFindTimeout(intern._config.pageLoadTimeout)
-      // check all required checkboxes
+      // Intern won't click on checkboxes with SVGs on top. So click the
+      // checkbox labels instead :-\
       .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
-      .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
+      .then((labels) => labels.map((label) => label.click()))
       .end()
+      .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.SUBMIT_BUTTON))
+      // Enter password to proceed, but click on label first to get it out of
+      // the way
+      .then(
+        testElementExists(
+          selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
+        )
+      )
+      .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL))
       .then(type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, password))
       // delete account
-      .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
+      .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CONFIRM))
   );
 });
 
@@ -2072,7 +2106,8 @@ const testElementWasShown = thenify(function (selector, message) {
         // remove the attribute so subsequent checks can be made
         // against the same element. displaySuccess and displayError
         // will re-add the 'data-shown' attribute.
-        $(selector).removeAttr('data-shown');
+        // TODO experimentally disabling this.
+        //$(selector).removeAttr('data-shown');
         done();
       },
       [selector]
@@ -2082,44 +2117,44 @@ const testElementWasShown = thenify(function (selector, message) {
 /**
  * Test whether the success message was shown.
  *
- * @param {string} [selector] defaults to `.success[data-shown]`
+ * @param {string} [selector] defaults to `.success [data-testid=alert-external-text]`
  * @returns {promise} rejects if error element was not shown.
  */
 function testSuccessWasShown(message, selector) {
-  selector = selector || '.success[data-shown]';
+  selector = selector || selectors.SETTINGS.SUCCESS;
   return testElementWasShown(selector, message);
 }
 
 /**
  * Test whether the success message was not shown.
  *
- * @param {string} [selector] defaults to `.success[data-shown]`
+ * @param {string} [selector] defaults to `.success [data-testid=alert-external-text]`
  * @returns {promise} rejects if error element was shown.
  */
 function testSuccessWasNotShown(selector) {
-  selector = selector || '.success[data-shown]';
+  selector = selector || selectors.SETTINGS.SUCCESS;
   return noSuchElement(selector);
 }
 
 /**
  * Test whether the error message was shown.
  *
- * @param {string} [selector] defaults to `.error[data-shown]`
+ * @param {string} [selector] defaults to `.error [data-testid=alert-external-text]`
  * @returns {promise} rejects if error element was not shown.
  */
 function testErrorWasShown(message, selector) {
-  selector = selector || '.error[data-shown]';
+  selector = selector || selectors.SETTINGS.ERROR;
   return testElementWasShown(selector);
 }
 
 /**
  * Test whether the error message was not shown.
  *
- * @param {string} [selector] defaults to `.error[data-shown]`
+ * @param {string} [selector] defaults to `.error [data-testid=alert-external-text]`
  * @returns {promise} rejects if error element was shown.
  */
 function testErrorWasNotShown(selector) {
-  selector = selector || '.error[data-shown]';
+  selector = selector || selectors.SETTINGS.ERROR;
   return noSuchElement(selector);
 }
 
@@ -2565,9 +2600,9 @@ const confirmRecoveryCode = thenify(function () {
 
 const confirmTotpCode = thenify(function (secret) {
   return this.parent
+    .then(focus(selectors.TOTP.CONFIRM_CODE_INPUT))
     .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateTotpCode(secret)))
-    .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
-    .then(testElementExists(selectors.SIGNIN_RECOVERY_CODE.MODAL))
+    .then(() => this.parent.then(click(selectors.TOTP.KEY_OK_BUTTON)))
     .then(confirmRecoveryCode());
 });
 
@@ -2576,8 +2611,7 @@ const enableTotp = thenify(function () {
 
   return (
     this.parent
-      .then(openPage(ENABLE_TOTP_URL, selectors.TOTP.ENABLE_BUTTON))
-      .then(click(selectors.TOTP.ENABLE_BUTTON, selectors.TOTP.QR_CODE))
+      .then(openPage(ENABLE_TOTP_URL, '[data-testid=recovery-key-input]'))
       .then(click(selectors.TOTP.SHOW_CODE_LINK))
       .then(testElementExists(selectors.TOTP.MANUAL_CODE))
 
@@ -2587,7 +2621,6 @@ const enableTotp = thenify(function () {
       .then((secretKey) => {
         secret = secretKey;
       })
-      .then(() => this.parent.then(click(selectors.TOTP.KEY_OK_BUTTON)))
       .then(() => this.parent.then(confirmTotpCode(secret)))
       .then(() => secret)
   );
@@ -2888,6 +2921,7 @@ module.exports = {
   fillOutResetPassword,
   fillOutSignIn,
   fillOutSignInTokenCode,
+  fillOutVerificationCode,
   fillOutSignInUnblock,
   fillOutSignUp,
   fillOutSignUpCode,
