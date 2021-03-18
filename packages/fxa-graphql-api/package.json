@@ -41,7 +41,7 @@
     "@sentry/node": "^6.0.1",
     "apollo-datasource": "^0.7.2",
     "apollo-server": "^2.19.2",
-    "apollo-server-express": "^2.21.0",
+    "apollo-server-express": "^2.21.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.12.2",
     "commander": "^6.0.0",
