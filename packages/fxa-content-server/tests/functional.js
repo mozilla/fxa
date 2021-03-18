@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // TODO: temporarily just run the smoke tests. See #7879.
-module.exports = require('./functional_smoke');
+//module.exports = require('./functional_smoke');
 
-/*
+// As an experiment, try a full test run. With many (not all) selectors
+// updated to use new-settings, maybe more of the non-smoke tests will pass.
+
 const testsSettingsV2 = require('./functional_settings_v2');
 // Run the new settings tests first
 module.exports = testsSettingsV2.concat([
@@ -90,4 +92,3 @@ module.exports = testsSettingsV2.concat([
 if (!process.env.SKIP_MOCHA) {
   module.exports.unshift('tests/functional/mocha.js');
 }
-*/

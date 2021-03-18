@@ -13,7 +13,7 @@
     "start-production": "NODE_ENV=production grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
     "test": "node tests/intern.js --unit=true",
-    "test-circle": "node tests/intern.js --suites=circle --fxaAuthRoot=https://fxaci.dev.lcip.org/auth --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://oauth-fxaci.dev.lcip.org --fxaUntrustedOauthApp=https://321done-fxaci.dev.lcip.org --fxaProduction=true --bailAfterFirstFailure=true",
+    "test-circle": "node tests/intern.js --suites=circle --fxaAuthRoot=https://fxaci.dev.lcip.org/auth --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://oauth-fxaci.dev.lcip.org --fxaUntrustedOauthApp=https://321done-fxaci.dev.lcip.org --fxaProduction=true --bailAfterFirstFailure=false",
     "test-functional": "node tests/intern.js",
     "test-functional-oauth": "node tests/intern.js --grep='oauth'",
     "test-functional-settings": "node tests/intern.js --suites=settings_v2",
