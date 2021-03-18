@@ -30,6 +30,8 @@ jest.mock('../../lib/flow-event');
 
 import { SignInLayout } from '../../components/AppLayout';
 import Product from './index';
+import { AppContextType } from '../../lib/AppContext';
+import { defaultConfig } from 'fxa-payments-server/src/lib/config';
 
 describe('routes/Product', () => {
   let authServer = '';
@@ -57,12 +59,14 @@ describe('routes/Product', () => {
     accountActivated,
     matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
+    appContext = defaultAppContextValue(),
   }: {
     productId?: string;
     planId?: string;
     matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     accountActivated?: string;
+    appContext?: Partial<AppContextType>;
   }) => {
     const props = {
       match: {
@@ -75,6 +79,7 @@ describe('routes/Product', () => {
     };
     const appContextValue = {
       ...defaultAppContextValue(),
+      ...appContext,
       matchMedia,
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams: {
@@ -240,16 +245,67 @@ describe('routes/Product', () => {
 
   it('offers upgrade if user is already subscribed to another plan in the same product set', async () => {
     const apiMocks = initSubscribedApiMocks();
-    const { findByTestId, queryByTestId } = render(
+    const { findByTestId } = render(
       <Subject
         {...{
           planId: 'plan_upgrade',
           productId: 'prod_upgrade',
+          appContext: {
+            config: {
+              ...defaultConfig(),
+              featureFlags: { allowSubscriptionUpgrades: true },
+            },
+          },
         }}
       />
     );
     const upgradeEl = await findByTestId('subscription-upgrade');
     expect(upgradeEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
+  });
+
+  it('blocks upgrade when the feature flag disallows it', async () => {
+    initSubscribedApiMocks();
+    const { findByTestId } = render(
+      <Subject
+        {...{
+          planId: 'plan_upgrade',
+          productId: 'prod_upgrade',
+          appContext: {
+            config: {
+              ...defaultConfig(),
+              featureFlags: { allowSubscriptionUpgrades: false },
+            },
+          },
+        }}
+      />
+    );
+    const errorEl = await findByTestId('payment-error');
+    expect(errorEl).toBeInTheDocument();
+  });
+
+  it('blocks upgrade if already subscribed to a different plan of the same product', async () => {
+    // This is temporary until we get the upgrade feature figured out.
+    // The test above checks to see if a plan is upgradeable by looking at
+    // metadata, but we are also explicity checking the plan and product ids
+    // even if the plans are not in the same product set.
+    const apiMocks = initSubscribedApiMocks();
+    const { findByTestId } = render(
+      <Subject
+        {...{
+          planId: 'nextlevel',
+          productId: PRODUCT_ID,
+          appContext: {
+            config: {
+              ...defaultConfig(),
+              featureFlags: { allowSubscriptionUpgrades: false },
+            },
+          },
+        }}
+      />
+    );
+    const errorEl = await findByTestId('payment-error');
+    expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
 
