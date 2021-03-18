@@ -18977,7 +18977,7 @@ fsevents@^1.2.7:
     jsrsasign: ^10.1.13
     jsxgettext-recursive-next: 1.1.0
     jws: 4.0.0
-    keypair: 1.0.1
+    keypair: 1.0.2
     keyv: 4.0.3
     leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
@@ -25401,10 +25401,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"keypair@npm:1.0.1":
-  version: 1.0.1
-  resolution: "keypair@npm:1.0.1"
-  checksum: 54857f2dc9728296521335cbbfbd712415fffeadac7774e85fa6c6ae0af09a272e57c8ee3b51c3128d8dfb1e94fe8287cb23bcd1c4be20ab84196c29c08aa7b9
+"keypair@npm:1.0.2":
+  version: 1.0.2
+  resolution: "keypair@npm:1.0.2"
+  checksum: 3c38ab6aa82f87a3ff0459e61653d365fc3fed0cba77ed7081b5f9eb2d41946e5e2731343c6a7752dabd99797c262dfc4bffe0716ec666d3299fade8012d4dde
   languageName: node
   linkType: hard
 
