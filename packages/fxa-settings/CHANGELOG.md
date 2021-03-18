@@ -1,3 +1,9 @@
+## 1.202.3
+
+### Bug fixes
+
+- settings: hide flash of GAE on invalid token before redirect ([011bacbf6](https://github.com/mozilla/fxa/commit/011bacbf6))
+
 ## 1.202.2
 
 No changes.
