@@ -1,5 +1,11 @@
 # Change history
 
+## 1.202.3
+
+### Bug fixes
+
+- settings: fix session ttl in settings ([b9abd02da](https://github.com/mozilla/fxa/commit/b9abd02da))
+
 ## 1.202.2
 
 No changes.
