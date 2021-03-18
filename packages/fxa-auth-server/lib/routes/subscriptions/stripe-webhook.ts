@@ -4,6 +4,11 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import * as Sentry from '@sentry/node';
+import { PayPalClientError } from 'fxa-auth-server/lib/payments/paypal-client';
+import {
+  PAYPAL_BILLING_AGREEMENT_INVALID,
+  PAYPAL_SOURCE_ERRORS,
+} from 'fxa-auth-server/lib/payments/paypal-error-codes';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
 
@@ -288,7 +293,36 @@ export class StripeWebhookHandler extends StripeHandler {
     if (customer.deleted) {
       return;
     }
-    return this.paypalHelper.processInvoice({ customer, invoice });
+    try {
+      await this.paypalHelper.processInvoice({
+        customer,
+        invoice,
+        batchProcessing: true,
+      });
+      return true;
+    } catch (err) {
+      if (err instanceof PayPalClientError) {
+        if (err.errorCode === PAYPAL_BILLING_AGREEMENT_INVALID) {
+          const uid = customer.metadata.userid;
+          const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
+            customer
+          ) as string;
+          await this.stripeHelper.removeCustomerPaypalAgreement(
+            uid,
+            customer.id,
+            billingAgreementId
+          );
+          await this.sendSubscriptionPaymentFailedEmail(invoice);
+          return false;
+        }
+        if (PAYPAL_SOURCE_ERRORS.includes(err.errorCode ?? 0)) {
+          await this.sendSubscriptionPaymentFailedEmail(invoice);
+          return false;
+        }
+      }
+      this.log.error('processInvoice', { err, invoiceId: invoice.id });
+      throw err;
+    }
   }
 
   /**

@@ -100,11 +100,22 @@ export class PayPalHandler extends StripeWebhookHandler {
     if (latestInvoice.amount_due === 0) {
       await this.paypalHelper.processZeroInvoice(latestInvoice);
     } else {
-      await this.paypalHelper.processInvoice({
-        customer,
-        invoice: latestInvoice,
-        ipaddress: request.info.remoteAddress,
-      });
+      try {
+        await this.paypalHelper.processInvoice({
+          customer,
+          invoice: latestInvoice,
+          ipaddress: request.info.remoteAddress,
+        });
+      } catch (err) {
+        // We must delete the subscription and billing agreement if the transaction
+        // errors since we are unable to have 'incomplete' subscriptions for manual
+        // collection subscriptions.
+        await Promise.all([
+          this.stripeHelper.cancelSubscription(subscription.id),
+          this.paypalHelper.cancelBillingAgreement(agreementId),
+        ]);
+        throw err;
+      }
     }
 
     await this.customerChanged(request, uid, email);
