@@ -7712,10 +7712,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/verror@npm:^1.10.3":
-  version: 1.10.3
-  resolution: "@types/verror@npm:1.10.3"
-  checksum: f2c4a1e550a619d067a2a40f74814a0d4576bc056bb43478542e2ef57e9b9a7bcaf81d889b31220b5f086876b45d67b81478ad923b758bcff446bdcd55132073
+"@types/verror@npm:^1.10.4":
+  version: 1.10.4
+  resolution: "@types/verror@npm:1.10.4"
+  checksum: e74d6e9598974f7a051a4a9029a932387b603a30d341c33159bb5b7c9fb4e2b23359a54ac126b39699ecd9c819ee07bcd75123a3801cbc8abacf82bbd80f2f12
   languageName: node
   linkType: hard
 
@@ -19024,7 +19024,7 @@ fsevents@^1.2.7:
     "@types/node": ^14.14.5
     "@types/request": 2.48.5
     "@types/safe-regex": 1.1.2
-    "@types/verror": ^1.10.3
+    "@types/verror": ^1.10.4
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
