@@ -25,7 +25,7 @@
     "@fluent/bundle": "^0.16.0",
     "@fluent/langneg": "^0.5.0",
     "@fluent/react": "^0.13.0",
-    "async-wait-until": "^1.2.6",
+    "async-wait-until": "^2.0.3",
     "classnames": "^2.2.6",
     "fetch-mock": "^9.11.0",
     "fxa-shared": "workspace:*",
