@@ -150,7 +150,7 @@ export const UnitRow = ({
         <div className="flex items-center">
           {!hideCtaText && route && (
             <Link
-              className="cta-neutral cta-base transition-standard ltr:mr-1 rtl:ml-1"
+              className="cta-neutral cta-base transition-standard rtl:ml-1"
               data-testid={formatDataTestId('unit-row-route')}
               to={`${route}${location.search}`}
             >
