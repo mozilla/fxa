@@ -59,6 +59,7 @@ import {
   apiGetPaypalCheckoutToken,
   apiCapturePaypalPayment,
 } from './apiClient';
+import { ProviderType } from './PaymentProvider';
 
 describe('APIError', () => {
   it('can be created without params', () => {
@@ -176,10 +177,12 @@ describe('API requests', () => {
       subscriptionId: 'sub_987675',
       planId: 'plan_2345',
       productId: 'prod_4567',
+      paymentProvider: 'paypal' as ProviderType,
     };
     const metricsOptions = {
       planId: params.planId,
       productId: params.productId,
+      paymentProvider: params.paymentProvider,
     };
 
     it('PUT {auth-server}/v1/oauth/subscriptions/active', async () => {
@@ -226,10 +229,12 @@ describe('API requests', () => {
       subscriptionId: 'sub_987675',
       planId: 'plan_2345',
       productId: 'prod_4567',
+      paymentProvider: 'paypal' as ProviderType,
     };
     const metricsOptions = {
       planId: params.planId,
       productId: params.productId,
+      paymentProvider: params.paymentProvider,
     };
 
     it('DELETE {auth-server}/v1/oauth/subscriptions/active/', async () => {
@@ -316,7 +321,7 @@ describe('API requests', () => {
     const metricsOptions = {
       planId: params.priceId,
       productId: params.productId,
-      paymentProvider: 'Stripe',
+      paymentProvider: 'stripe',
     };
 
     it(`POST {auth-server}${path}`, async () => {
@@ -408,7 +413,9 @@ describe('API requests', () => {
     const params = {
       paymentMethodId: 'pm_test',
     };
-    const metricsOptions = {};
+    const metricsOptions = {
+      paymentProvider: 'stripe',
+    };
 
     it(`POST {auth-server}${path}`, async () => {
       const requestMock = nock(AUTH_BASE_URL)
@@ -419,8 +426,12 @@ describe('API requests', () => {
         MOCK_CUSTOMER
       );
 
-      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith();
-      expect(<jest.Mock>updateDefaultPaymentMethod_FULFILLED).toBeCalledWith();
+      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
+        metricsOptions
+      );
+      expect(<jest.Mock>updateDefaultPaymentMethod_FULFILLED).toBeCalledWith(
+        metricsOptions
+      );
       requestMock.done();
     });
 
@@ -436,8 +447,11 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith();
+      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
+        metricsOptions
+      );
       expect(<jest.Mock>updateDefaultPaymentMethod_REJECTED).toBeCalledWith({
+        ...metricsOptions,
         error,
       });
       requestMock.done();
@@ -480,7 +494,7 @@ describe('API requests', () => {
     };
     const metricsOptions = {
       planId: params.priceId,
-      paymentProvider: 'PayPal',
+      paymentProvider: 'paypal',
     };
 
     it('POST {auth-server}/v1/oauth/subscriptions/active/new-paypal', async () => {

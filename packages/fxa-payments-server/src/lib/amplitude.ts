@@ -1,6 +1,6 @@
 import sentryMetrics from './sentry';
 import { logAmplitudeEvent } from './flow-event';
-import { config } from './config';
+import { ProviderType } from '../lib/PaymentProvider';
 import { selectors } from '../store/selectors';
 import { Store } from '../store';
 
@@ -37,7 +37,7 @@ export type EventProperties = GlobalEventProperties & {
   plan_id?: string;
   productId?: string;
   product_id?: string;
-  paymentProvider?: 'Stripe' | 'PayPal';
+  paymentProvider?: ProviderType;
   error?: Error;
 };
 
@@ -246,24 +246,28 @@ export function createSubscriptionWithPaymentMethod_REJECTED(
   );
 }
 
-export function updateDefaultPaymentMethod_PENDING() {
+export function updateDefaultPaymentMethod_PENDING(
+  eventProperties: EventProperties
+) {
   safeLogAmplitudeEvent(
     eventGroupNames.updateDefaultPaymentMethod,
     eventTypeNames.submit3DS,
-    {}
+    eventProperties
   );
 }
 
-export function updateDefaultPaymentMethod_FULFILLED() {
+export function updateDefaultPaymentMethod_FULFILLED(
+  eventProperties: EventProperties
+) {
   safeLogAmplitudeEvent(
     eventGroupNames.updateDefaultPaymentMethod,
     eventTypeNames.success3DS,
-    {}
+    eventProperties
   );
   safeLogAmplitudeEvent(
     eventGroupNames.updateDefaultPaymentMethod,
     eventTypeNames.complete3DS,
-    {}
+    eventProperties
   );
 }
 
