@@ -7300,13 +7300,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-router@npm:*, @types/react-router@npm:^5.1.8":
+"@types/react-router@npm:*":
   version: 5.1.8
   resolution: "@types/react-router@npm:5.1.8"
   dependencies:
     "@types/history": "*"
     "@types/react": "*"
   checksum: 8b4c8fefdba877971aeaa642d81074d0fda0db9d8891709071c8586c32c75afca1baf478c3b26bcbd404503304599d8ea3243beb4e01080ee77f48f56815ee73
+  languageName: node
+  linkType: hard
+
+"@types/react-router@npm:^5.1.12":
+  version: 5.1.12
+  resolution: "@types/react-router@npm:5.1.12"
+  dependencies:
+    "@types/history": "*"
+    "@types/react": "*"
+  checksum: a94fbbd2b29b3eb3542de8fdfc2ccd42d9ac88434529234bde2a1b604a7b38158b277180bf94cb4e73150d3d69b1ffc1e53ed0bbc90514489fddeeb378e28b16
   languageName: node
   linkType: hard
 
@@ -19631,7 +19641,7 @@ fsevents@^1.2.7:
     "@types/react-document-title": ^2.0.3
     "@types/react-dom": ^16.9.4
     "@types/react-redux": ^7.1.16
-    "@types/react-router": ^5.1.8
+    "@types/react-router": ^5.1.12
     "@types/react-router-dom": ^5.1.5
     "@types/react-stripe-elements": ^1.3.5
     "@types/react-transition-group": ^4.2.3
