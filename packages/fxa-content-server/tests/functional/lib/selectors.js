@@ -624,6 +624,7 @@ module.exports = {
     DO_NOT_SYNC: '#do-not-sync-device',
   },
   SETTINGS_V2: {
+    PROFILE: '[data-testid=settings-profile]',
     HEADER: '#profile',
     TOOLTIP: '[data-testid=tooltip]',
     BACK_BUTTON: '[data-testid=flow-container-back-btn]',
@@ -746,6 +747,18 @@ module.exports = {
     FOOTER: {
       PRIVACY_LINK: '[data-testid=link-privacy]',
       TERMS_LINK: '[data-testid=link-terms]',
+    },
+    DELETE_ACCOUNT: {
+      DELETE_ACCOUNT_BUTTON: '[data-testid=settings-delete-account]',
+      DELETE_ACCOUNT_MODAL: '[data-testid=flow-container]',
+      CHECKBOXES: '[data-testid=delete-account-confirm] [data-testid=checkbox-container]',
+      CONTINUE_BUTTON: '[data-testid=continue-button]',
+      CONFIRMATION_STEP: '[data-testid=delete-account-confirm-input-container]',
+      PASSWORD_LABEL: '[data-testid=delete-account-confirm-input-label]',
+      PASSWORD_INPUT: '[data-testid=delete-account-confirm-input-field]',
+      TOOLTIP_INCORRECT_PASSWORD: '[data-testid=tooltip]',
+      DELETE_CONFIRM_BUTTON: '[data-testid=delete-account-button]',
+      DELETE_CANCEL_BUTTON: '[data-testid=cancel-button]',
     },
   },
 };
