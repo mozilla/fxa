@@ -26,6 +26,7 @@ const fs = require('fs');
 const cp = require('child_process');
 const assert = require('assert');
 const crypto = require('crypto');
+const { pem2jwk } = require('pem-jwk');
 
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'dev';
@@ -65,26 +66,18 @@ function addKeyProperties(key) {
 
 console.log('Generating keypair');
 
-cp.exec(
-  `openssl genrsa 2048 | ${require
-    .resolve('pem-jwk')
-    .replace('index.js', 'bin/pem-jwk.js')}`,
-  {
-    cwd: __dirname,
-  },
-  (err, stdout, stderr) => {
-    const s = JSON.parse(stdout);
-    addKeyProperties(s);
-    fs.writeFileSync(secretKeyFile, JSON.stringify(s));
-    console.error('Secret Key saved:', secretKeyFile);
-    const pub = {
-      kid: s.kid,
-      kty: s.kty,
-      'fxa-createdAt': s['fxa-createdAt'],
-      n: s.n,
-      e: s.e,
-    };
-    fs.writeFileSync(pubKeyFile, JSON.stringify(pub));
-    console.error('Public Key saved:', pubKeyFile);
-  }
-);
+cp.exec(`openssl genrsa 2048`, (err, stdout, stderr) => {
+  const s = pem2jwk(stdout);
+  addKeyProperties(s);
+  fs.writeFileSync(secretKeyFile, JSON.stringify(s));
+  console.error('Secret Key saved:', secretKeyFile);
+  const pub = {
+    kid: s.kid,
+    kty: s.kty,
+    'fxa-createdAt': s['fxa-createdAt'],
+    n: s.n,
+    e: s.e,
+  };
+  fs.writeFileSync(pubKeyFile, JSON.stringify(pub));
+  console.error('Public Key saved:', pubKeyFile);
+});
