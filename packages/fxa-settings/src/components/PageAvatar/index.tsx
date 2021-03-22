@@ -206,13 +206,13 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
           crop={crop}
           zoom={zoom}
           rotation={rotation}
+          aspect={1}
           showGrid={false}
           cropShape="round"
           onCropChange={setCrop}
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}
           disableAutomaticStylesInjection={true}
-          cropSize={{ width: 160, height: 160 }}
           style={{ containerStyle: { borderRadius: '8px' } }}
         />
       </div>

@@ -29,11 +29,11 @@ export async function getCroppedImg(
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
 
+  // Calculate a safe area to store image so that it isn't clipped during rotation by
+  // canvas context. The 1.5 multiplier was found during manual testing of various
+  // photos on default iOS.
   const maxSize = Math.max(image.width, image.height);
-  const safeArea = 2 * ((maxSize / 2) * Math.sqrt(2));
-
-  // set each dimensions to double largest dimension to allow for a safe area for the
-  // image to rotate in without being clipped by canvas context
+  const safeArea = 1.5 * ((maxSize / 2) * Math.sqrt(2));
   canvas.width = safeArea;
   canvas.height = safeArea;
 
