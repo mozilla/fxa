@@ -7155,17 +7155,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prettier@npm:2.2.3":
+"@types/prettier@npm:2.2.3, @types/prettier@npm:^2.0.0":
   version: 2.2.3
   resolution: "@types/prettier@npm:2.2.3"
   checksum: b7e80288f9f776caca84391a7a217b8baac6b4fce00bb9701af69299d465cb8faf17466f0af0803970c74d2c191767ca729a6d21a2f7e2ce552d1ef6cc0d653a
-  languageName: node
-  linkType: hard
-
-"@types/prettier@npm:^2.0.0":
-  version: 2.2.1
-  resolution: "@types/prettier@npm:2.2.1"
-  checksum: 9dc257dfc51eab6bc1e9ce58df94b309a206b2cdc6768709de3d20f70ae545c616bbc46add6d66f66cfa6cfbb0613dd09e6b6028ff6ff8ba9d3625f38d85cc66
   languageName: node
   linkType: hard
 
@@ -9273,42 +9266,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-core@npm:^2.15.1, apollo-server-core@npm:^2.19.0, apollo-server-core@npm:^2.19.2, apollo-server-core@npm:^2.21.0":
-  version: 2.21.0
-  resolution: "apollo-server-core@npm:2.21.0"
-  dependencies:
-    "@apollographql/apollo-tools": ^0.4.3
-    "@apollographql/graphql-playground-html": 1.6.26
-    "@apollographql/graphql-upload-8-fork": ^8.1.3
-    "@types/ws": ^7.0.0
-    apollo-cache-control: ^0.11.6
-    apollo-datasource: ^0.7.3
-    apollo-graphql: ^0.6.0
-    apollo-reporting-protobuf: ^0.6.2
-    apollo-server-caching: ^0.5.3
-    apollo-server-env: ^3.0.0
-    apollo-server-errors: ^2.4.2
-    apollo-server-plugin-base: ^0.10.4
-    apollo-server-types: ^0.6.3
-    apollo-tracing: ^0.12.2
-    async-retry: ^1.2.1
-    fast-json-stable-stringify: ^2.0.0
-    graphql-extensions: ^0.12.8
-    graphql-tag: ^2.11.0
-    graphql-tools: ^4.0.8
-    loglevel: ^1.6.7
-    lru-cache: ^6.0.0
-    sha.js: ^2.4.11
-    subscriptions-transport-ws: ^0.9.11
-    uuid: ^8.0.0
-    ws: ^6.0.0
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: b89917c2b1fc6327189ccf0c6e9700ba562505fb95bbdb23d18ff5048cddbba8cf308f8bd88ddf0c09a85f45f69ab9fd659b410ab3af3d174c6a9fa242c349ff
-  languageName: node
-  linkType: hard
-
-"apollo-server-core@npm:^2.21.1":
+"apollo-server-core@npm:^2.15.1, apollo-server-core@npm:^2.19.0, apollo-server-core@npm:^2.19.2, apollo-server-core@npm:^2.21.1":
   version: 2.21.1
   resolution: "apollo-server-core@npm:2.21.1"
   dependencies:
@@ -9372,34 +9330,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-express@npm:^2.19.2":
-  version: 2.21.0
-  resolution: "apollo-server-express@npm:2.21.0"
-  dependencies:
-    "@apollographql/graphql-playground-html": 1.6.26
-    "@types/accepts": ^1.3.5
-    "@types/body-parser": 1.19.0
-    "@types/cors": 2.8.8
-    "@types/express": 4.17.7
-    "@types/express-serve-static-core": 4.17.18
-    accepts: ^1.3.5
-    apollo-server-core: ^2.21.0
-    apollo-server-types: ^0.6.3
-    body-parser: ^1.18.3
-    cors: ^2.8.4
-    express: ^4.17.1
-    graphql-subscriptions: ^1.0.0
-    graphql-tools: ^4.0.8
-    parseurl: ^1.3.2
-    subscriptions-transport-ws: ^0.9.16
-    type-is: ^1.6.16
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: 0aa592c9a50e2df5b0800253a2eb08f8306a2f688ca6563a1dcd0630e4e8ecc5e48be1026059f0a1246024872163a6c081f46193ad173cc63eb1984f860d7397
-  languageName: node
-  linkType: hard
-
-"apollo-server-express@npm:^2.21.1":
+"apollo-server-express@npm:^2.19.2, apollo-server-express@npm:^2.21.1":
   version: 2.21.1
   resolution: "apollo-server-express@npm:2.21.1"
   dependencies:
@@ -12068,9 +11999,9 @@ __metadata:
     body-parser: ^1.19.0
     browserid-local-verify: 0.5.2
     compute-cluster: 0.0.9
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     express: ^4.17.1
@@ -12832,14 +12763,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30001035, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001181":
-  version: 1.0.30001200
-  resolution: "caniuse-lite@npm:1.0.30001200"
-  checksum: 58539f5702e969cb1d9c15134e59f82972e1174f948197011e3f2441c44bdffda60d7d48df98cec00471777c0d414571026540bec12d922e4e1e2e99a8f1aee1
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001202":
+"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30001035, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001181, caniuse-lite@npm:^1.0.30001202":
   version: 1.0.30001203
   resolution: "caniuse-lite@npm:1.0.30001203"
   checksum: 3e17a1acd8d30c4db0c084fb0c9736d912849b3f4ee12daa61fa4c48d889fa7d26955a51f8fafaf0f212ed7ed906edb5520a4259c0ea9fa355f8cb41673dcfc4
@@ -14064,31 +13988,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"convict-format-with-moment@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "convict-format-with-moment@npm:6.0.0"
+"convict-format-with-moment@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "convict-format-with-moment@npm:6.0.1"
   dependencies:
     moment: ^2.24.0
-  checksum: b6907ded81cc09d10f470f55bef1e6ed6326895d5345f97dca72a0f0d3ae247deb1f2ba34424974da1e3033b5426b257860d9310a38cea642894eca6b2e95d42
+  checksum: 0a5be8851c4f4701895ca22d7acb2fb022e8d015929a742f4dc8df660af649ec76e6e64b8e34afd2d4f32b5c378557b4bb4c983110367cf7e0de9d885b5c5b23
   languageName: node
   linkType: hard
 
-"convict-format-with-validator@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "convict-format-with-validator@npm:6.0.0"
+"convict-format-with-validator@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "convict-format-with-validator@npm:6.0.1"
   dependencies:
     validator: ^11.1.0
-  checksum: d3d36a59bb29f9e17273923d676800caa77a7d73c6a41f4916dd9916df9d3b3feabf749049a734df0d574b9dab95bfe3da5f067fd9099e79ad98cb96eae054c2
+  checksum: ea7633457e453cd68330d592adf34d1f5213fdac85ea106c368e4ba343458815229805f71965380181a5321911c806c9e079848cec60145c6468ebec4d85e7b7
   languageName: node
   linkType: hard
 
-"convict@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "convict@npm:6.0.0"
+"convict@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "convict@npm:6.0.1"
   dependencies:
     lodash.clonedeep: ^4.5.0
     yargs-parser: ^18.1.3
-  checksum: 6fc69e10585fa47241fc8e1581611cb00857e56eeb22a6fa64056f70e32341bee7debe1cfe34a1984dd8e2f8d8d9c82a8500ca886ebcd42bb602ada551984953
+  checksum: 156257d35a8116a14054c1afbb9d0a3fcaddcd7ecd2aa66dca7eb166c9a705f52f8f79c336086be9e84fabf1f429f810bbd2a86a0d8ed7df2fd1a915cbc9cbc4
   languageName: node
   linkType: hard
 
@@ -15910,14 +15834,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"domelementtype@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "domelementtype@npm:2.0.1"
-  checksum: 9ddda35625a244de9a4832b1cf861f80e146faf6f0e70efe5a88c2c54c34e29e745f7048992dadc3af91c031abe035782f4dc16e6e7862eff6e80bd7c79327df
-  languageName: node
-  linkType: hard
-
-"domelementtype@npm:^2.1.0":
+"domelementtype@npm:^2.0.1, domelementtype@npm:^2.1.0":
   version: 2.1.0
   resolution: "domelementtype@npm:2.1.0"
   checksum: c3e63b6c94bf74d6375e12370f612d1cd61c0d3bc21b46684d93c797b3924de2e84278b0b5cdf3dce21f64ee94c34a005994f373c0e420759ae1856f075f0f57
@@ -18855,9 +18772,9 @@ fsevents@^1.2.7:
     babel-loader: ^8.1.0
     body-parser: ^1.19.0
     chance: ^1.1.4
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     dateformat: ^4.3.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -18916,9 +18833,9 @@ fsevents@^1.2.7:
     chance: ^1.1.6
     class-transformer: ^0.4.0
     class-validator: ^0.12.2
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
@@ -18977,9 +18894,9 @@ fsevents@^1.2.7:
     base64url: 3.0.1
     bluebird: ^3.7.2
     chai: ^4.2.0
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     fxa-jwtool: 0.7.2
@@ -19046,9 +18963,9 @@ fsevents@^1.2.7:
     cldr-core: ^37.0.0
     cldr-localenames-full: 38.0.0
     commander: 2.18.0
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     email-addresses: 3.1.0
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -19171,9 +19088,9 @@ fsevents@^1.2.7:
     chosen-js: "git://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     connect-cachify: 0.0.17
     consolidate: 0.16.0
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     cookie-parser: 1.4.5
     copy-webpack-plugin: ^5.1.1
     core-js: ^3.6.5
@@ -19311,9 +19228,9 @@ fsevents@^1.2.7:
     bluebird: ^3.7.2
     bunyan: ^1.8.12
     chai: ^4.2.0
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     deep-equal: 2.0.5
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -19412,9 +19329,9 @@ fsevents@^1.2.7:
     chance: ^1.1.6
     class-transformer: ^0.4.0
     class-validator: ^0.12.2
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     eslint-config-prettier: ^8.1.0
     eslint-plugin-import: ^2.22.1
@@ -19507,9 +19424,9 @@ fsevents@^1.2.7:
     class-transformer: ^0.4.0
     class-validator: ^0.12.2
     commander: ^6.0.0
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     express: ^4.17.1
     fxa-auth-client: "workspace:*"
@@ -19570,9 +19487,9 @@ fsevents@^1.2.7:
     ajv: ^6.12.2
     audit-filter: ^0.5.0
     chai: ^4.2.0
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     fxa-shared: "workspace:*"
     mocha: ^7.1.2
@@ -19661,9 +19578,9 @@ fsevents@^1.2.7:
     caniuse-lite: ^1.0.30001202
     celebrate: ^10.1.0
     classnames: ^2.2.6
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     dayjs: ^1.9.4
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -19742,9 +19659,9 @@ fsevents@^1.2.7:
     checksum: 0.1.1
     commander: 2.9.0
     compute-cluster: 0.0.9
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
@@ -20006,9 +19923,9 @@ fsevents@^1.2.7:
     audit-filter: ^0.5.0
     class-transformer: ^0.4.0
     class-validator: ^0.12.2
-    convict: ^6.0.0
-    convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict: ^6.0.1
+    convict-format-with-moment: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
@@ -31440,14 +31357,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"pretty-bytes@npm:^5.1.0":
-  version: 5.3.0
-  resolution: "pretty-bytes@npm:5.3.0"
-  checksum: ecc6b1670f7ebcf6c78b91edad97ffdc0be58283ff5fa6c95c99c6bda48d2aa1858367fae8eccce35bc36eb90ec3cbcc24b9d7e29fd6ad98cc52d53d2e307789
-  languageName: node
-  linkType: hard
-
-"pretty-bytes@npm:^5.3.0":
+"pretty-bytes@npm:^5.1.0, pretty-bytes@npm:^5.3.0":
   version: 5.6.0
   resolution: "pretty-bytes@npm:5.6.0"
   checksum: 2a2db3daaee5c7271dbc68cc875118f4e2b6697e9e4e73b4ea5d5639f50cff2c1f1f7db4775119974eff86fdbd1fac2a5d9f16bc41d90626821a9f6a0e6e26cf
