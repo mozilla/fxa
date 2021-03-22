@@ -134,7 +134,7 @@ describe('PayPalNotificationHandler', () => {
       sinon.assert.calledOnceWithExactly(handler.handleMpCancel, ipnMessage);
     });
 
-    it('handles an unknown request successfully', async () => {
+    it('handles an unknown IPN request successfully', async () => {
       const request = {
         payload: 'samplepayload',
       };
@@ -151,6 +151,22 @@ describe('PayPalNotificationHandler', () => {
       sinon.assert.calledWithExactly(log.debug, 'Unhandled Ipn message', {
         payload: ipnMessage,
       });
+    });
+
+    it('handles an excluded IPN request successfully', async () => {
+      const request = {
+        payload: 'samplepayload',
+      };
+      const ipnMessage = {
+        txn_type: 'mp_signup',
+      };
+      paypalHelper.verifyIpnMessage = sinon.fake.resolves(true);
+      paypalHelper.extractIpnMessage = sinon.fake.returns(ipnMessage);
+      handler.handleMerchPayment = sinon.fake.resolves({});
+      const result = await handler.verifyAndDispatchEvent(request);
+      assert.deepEqual(result, false);
+      sinon.assert.calledOnce(paypalHelper.verifyIpnMessage);
+      sinon.assert.calledOnce(paypalHelper.extractIpnMessage);
     });
 
     it('handles an invalid request successfully', async () => {
