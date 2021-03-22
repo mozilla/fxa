@@ -32,9 +32,11 @@ export const DropDownAvatarMenu = () => {
   const alertBar = useAlertBar();
   const dropDownId = 'drop-down-avatar-menu';
 
-  const [destroySession, { data }] = useMutation(DESTROY_SESSION_MUTATION, {
+  const [destroySession] = useMutation(DESTROY_SESSION_MUTATION, {
     onCompleted: () => {
       // cannot use a hook here since this callback is not called in a hook
+      clearSignedInAccountUid();
+      window.location.assign(`${window.location.origin}/signin`);
       logViewEvent(settingsViewName, 'signout.success');
     },
     onError: (error) => {
@@ -47,12 +49,6 @@ export const DropDownAvatarMenu = () => {
       variables: { input: {} },
     });
   };
-
-  if (data) {
-    clearSignedInAccountUid();
-    window.location.assign(`${window.location.origin}/signin`);
-    return null;
-  }
 
   return (
     <>
