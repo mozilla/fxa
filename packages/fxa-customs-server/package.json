@@ -31,7 +31,7 @@
     "bunyan": "^1.8.12",
     "convict": "^6.0.0",
     "convict-format-with-moment": "^6.0.0",
-    "convict-format-with-validator": "^6.0.0",
+    "convict-format-with-validator": "^6.0.1",
     "deep-equal": "2.0.5",
     "ip": "^1.1.5",
     "ip-reputation-js-client": "6.0.1",

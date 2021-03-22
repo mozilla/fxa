@@ -42,7 +42,7 @@
     "class-validator": "^0.12.2",
     "convict": "^6.0.0",
     "convict-format-with-moment": "^6.0.0",
-    "convict-format-with-validator": "^6.0.0",
+    "convict-format-with-validator": "^6.0.1",
     "express": "^4.17.1",
     "fxa-shared": "workspace:*",
     "handlebars": "^4.7.6",
