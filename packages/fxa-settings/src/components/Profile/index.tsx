@@ -12,8 +12,6 @@ export const Profile = () => {
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
   }).format(new Date(passwordCreated));
 
   return (
