@@ -12412,6 +12412,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bunyan@npm:^1.8.15":
+  version: 1.8.15
+  resolution: "bunyan@npm:1.8.15"
+  dependencies:
+    dtrace-provider: ~0.8
+    moment: ^2.19.3
+    mv: ~2
+    safe-json-stringify: ~1
+  dependenciesMeta:
+    dtrace-provider:
+      optional: true
+    moment:
+      optional: true
+    mv:
+      optional: true
+    safe-json-stringify:
+      optional: true
+  bin:
+    bunyan: bin/bunyan
+  checksum: 73c30ffb8c1a6b8dfe9dc3bca325bba85cb706442aa78cc44fdc93cf16b929b0b7c1884b92110fac9f287342a94f2ae8ebe8c83664b09c7f6743ffe1621c204c
+  languageName: node
+  linkType: hard
+
 "busboy@npm:^0.2.11":
   version: 0.2.14
   resolution: "busboy@npm:0.2.14"
@@ -19226,7 +19249,7 @@ fsevents@^1.2.7:
     audit-filter: ^0.5.0
     bl: 4.1.0
     bluebird: ^3.7.2
-    bunyan: ^1.8.12
+    bunyan: ^1.8.15
     chai: ^4.2.0
     convict: ^6.0.1
     convict-format-with-moment: ^6.0.1
@@ -27525,7 +27548,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"moment@npm:>= 2.9.0, moment@npm:^2.10.6, moment@npm:^2.24.0, moment@npm:^2.29.1":
+"moment@npm:>= 2.9.0, moment@npm:^2.10.6, moment@npm:^2.19.3, moment@npm:^2.24.0, moment@npm:^2.29.1":
   version: 2.29.1
   resolution: "moment@npm:2.29.1"
   checksum: 86729013febf7160de5b93da69273dd304d674b0224f9544b3abd09a87671ddd2cdd57598261ce57588910d63747ffd5590965e83c790d8bf327083c0e0a06e0
