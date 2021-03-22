@@ -12070,7 +12070,7 @@ __metadata:
     compute-cluster: 0.0.9
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     express: ^4.17.1
@@ -14073,12 +14073,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"convict-format-with-validator@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "convict-format-with-validator@npm:6.0.0"
+"convict-format-with-validator@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "convict-format-with-validator@npm:6.0.1"
   dependencies:
     validator: ^11.1.0
-  checksum: d3d36a59bb29f9e17273923d676800caa77a7d73c6a41f4916dd9916df9d3b3feabf749049a734df0d574b9dab95bfe3da5f067fd9099e79ad98cb96eae054c2
+  checksum: ea7633457e453cd68330d592adf34d1f5213fdac85ea106c368e4ba343458815229805f71965380181a5321911c806c9e079848cec60145c6468ebec4d85e7b7
   languageName: node
   linkType: hard
 
@@ -18857,7 +18857,7 @@ fsevents@^1.2.7:
     chance: ^1.1.4
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     dateformat: ^4.3.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -18918,7 +18918,7 @@ fsevents@^1.2.7:
     class-validator: ^0.12.2
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
@@ -18979,7 +18979,7 @@ fsevents@^1.2.7:
     chai: ^4.2.0
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     fxa-jwtool: 0.7.2
@@ -19048,7 +19048,7 @@ fsevents@^1.2.7:
     commander: 2.18.0
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     email-addresses: 3.1.0
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -19173,7 +19173,7 @@ fsevents@^1.2.7:
     consolidate: 0.16.0
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     cookie-parser: 1.4.5
     copy-webpack-plugin: ^5.1.1
     core-js: ^3.6.5
@@ -19313,7 +19313,7 @@ fsevents@^1.2.7:
     chai: ^4.2.0
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     deep-equal: 2.0.5
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -19414,7 +19414,7 @@ fsevents@^1.2.7:
     class-validator: ^0.12.2
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     eslint-config-prettier: ^8.1.0
     eslint-plugin-import: ^2.22.1
@@ -19509,7 +19509,7 @@ fsevents@^1.2.7:
     commander: ^6.0.0
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     express: ^4.17.1
     fxa-auth-client: "workspace:*"
@@ -19572,7 +19572,7 @@ fsevents@^1.2.7:
     chai: ^4.2.0
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     fxa-shared: "workspace:*"
     mocha: ^7.1.2
@@ -19663,7 +19663,7 @@ fsevents@^1.2.7:
     classnames: ^2.2.6
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     dayjs: ^1.9.4
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -19744,7 +19744,7 @@ fsevents@^1.2.7:
     compute-cluster: 0.0.9
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
@@ -20008,7 +20008,7 @@ fsevents@^1.2.7:
     class-validator: ^0.12.2
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
-    convict-format-with-validator: ^6.0.0
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
