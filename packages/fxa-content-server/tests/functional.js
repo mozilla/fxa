@@ -82,6 +82,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/tos.js',
   'tests/functional/verification_reminders.js',
 ]);
+*/
 
 // Mocha tests are only exposed during local dev, not on prod-like
 // instances such as latest, stable, stage, and prod. To avoid
@@ -90,4 +91,3 @@ module.exports = testsSettingsV2.concat([
 if (!process.env.SKIP_MOCHA) {
   module.exports.unshift('tests/functional/mocha.js');
 }
-*/
