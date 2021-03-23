@@ -2153,9 +2153,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/react@npm:^11.1.4":
-  version: 11.1.4
-  resolution: "@emotion/react@npm:11.1.4"
+"@emotion/react@npm:^11.1.5":
+  version: 11.1.5
+  resolution: "@emotion/react@npm:11.1.5"
   dependencies:
     "@babel/runtime": ^7.7.2
     "@emotion/cache": ^11.1.3
@@ -2172,7 +2172,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: a75d76ba0ba9479241ddfcfc58d98ef1403897e1f8f949d67c408701fb1d39c52585b882808857c09ff9cdb622c5edf1924ed74f74bbb26896e0afb7f01c848e
+  checksum: 4e78f694dfffb83e9c2b14458b4a963c5befa0e7533b2d56b549b53a793adf0c617efcea2161079046b023b73cd8769e836906b1e2e0af33d4d5e6ce7af3d565
   languageName: node
   linkType: hard
 
@@ -19777,7 +19777,7 @@ fsevents@^1.2.7:
   dependencies:
     "@apollo/client": ^3.3.11
     "@babel/core": ^7.10.3
-    "@emotion/react": ^11.1.4
+    "@emotion/react": ^11.1.5
     "@fluent/react": ^0.13.0
     "@material-ui/core": v5.0.0-alpha.24
     "@reach/router": ^1.3.4
