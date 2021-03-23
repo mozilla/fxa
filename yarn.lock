@@ -2854,12 +2854,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/boom@npm:9.x.x, @hapi/boom@npm:^9.0.0, @hapi/boom@npm:~9.1.1":
+"@hapi/boom@npm:9.x.x, @hapi/boom@npm:^9.0.0":
   version: 9.1.1
   resolution: "@hapi/boom@npm:9.1.1"
   dependencies:
     "@hapi/hoek": 9.x.x
   checksum: 8c5fd50f41e72df55f576cc41df4738e507893a6f8c573034e5c90d183a1475485742338615170802fb5e8c4d44ccbba1f59b150450250be032ff9b689365f35
+  languageName: node
+  linkType: hard
+
+"@hapi/boom@npm:~9.1.2":
+  version: 9.1.2
+  resolution: "@hapi/boom@npm:9.1.2"
+  dependencies:
+    "@hapi/hoek": 9.x.x
+  checksum: abf911cc05dcef8611166803ed2d9c193e958793fe3281a5b00f3fe47eb741b0cffa17a98741773a7bf5b73e9c5c112f04a6a71bb8bf76f3382fa62261279e32
   languageName: node
   linkType: hard
 
@@ -19667,7 +19676,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-profile-server@workspace:packages/fxa-profile-server"
   dependencies:
-    "@hapi/boom": ~9.1.1
+    "@hapi/boom": ~9.1.2
     "@hapi/catbox-memory": ~5.0.0
     "@hapi/catbox-redis": ~5.0.5
     "@hapi/hapi": ^20.1.0
