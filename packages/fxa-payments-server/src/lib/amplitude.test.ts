@@ -71,7 +71,7 @@ it('should call logAmplitudeEvent with subscription plan info', () => {
   const metricsData: Amplitude.EventProperties = {
     plan_id: '123xyz_hourly',
     product_id: '123xyz',
-    paymentProvider: 'Stripe',
+    paymentProvider: 'stripe',
   };
   Amplitude.createSubscription_PENDING(metricsData);
   const eventProps = (<jest.Mock>(

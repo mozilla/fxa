@@ -10,6 +10,7 @@ import {
 } from '../../lib/apiClient';
 
 import { Plan } from '../types';
+import { ProviderType } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 export default {
   fetchProfile: () =>
@@ -24,7 +25,11 @@ export default {
   },
   fetchCustomer: () =>
     ({ type: 'fetchCustomer', payload: apiFetchCustomer() } as const),
-  updateSubscriptionPlan: (subscriptionId: string, plan: Plan) =>
+  updateSubscriptionPlan: (
+    subscriptionId: string,
+    plan: Plan,
+    paymentProvider: ProviderType | undefined
+  ) =>
     ({
       type: 'updateSubscriptionPlan',
       meta: { subscriptionId, plan },
@@ -32,9 +37,14 @@ export default {
         subscriptionId,
         planId: plan.plan_id,
         productId: plan.product_id,
+        paymentProvider,
       }),
     } as const),
-  cancelSubscription: (subscriptionId: string, plan: Plan) =>
+  cancelSubscription: (
+    subscriptionId: string,
+    plan: Plan,
+    paymentProvider: ProviderType | undefined
+  ) =>
     ({
       type: 'cancelSubscription',
       meta: { plan },
@@ -43,6 +53,7 @@ export default {
           subscriptionId,
           planId: plan.plan_id,
           productId: plan.product_id,
+          paymentProvider,
         });
         // Cancellation response does not include subscriptionId, but we want it.
         return { ...result, subscriptionId };
