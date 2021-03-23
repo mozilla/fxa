@@ -25,44 +25,62 @@ export async function getCroppedImg(
   pixelCrop: { width: number; height: number; x: number; y: number },
   rotation = 0
 ): Promise<Blob | null> {
-  const image: any = await createImage(imageSrc);
+  const image = await createImage(imageSrc);
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-
-  const maxSize = Math.max(image.width, image.height);
-  const safeArea = 2 * ((maxSize / 2) * Math.sqrt(2));
-
-  // set each dimensions to double largest dimension to allow for a safe area for the
-  // image to rotate in without being clipped by canvas context
-  canvas.width = safeArea;
-  canvas.height = safeArea;
-
-  if (ctx !== null) {
-    // translate canvas context to a central location on image to allow rotating around the center.
-    ctx.translate(safeArea / 2, safeArea / 2);
-    ctx.rotate(getRadianAngle(rotation));
-    ctx.translate(-safeArea / 2, -safeArea / 2);
-
-    // draw rotated image and store data.
-    ctx.drawImage(
-      image,
-      safeArea / 2 - image.width * 0.5,
-      safeArea / 2 - image.height * 0.5
-    );
-    const data = ctx?.getImageData(0, 0, safeArea, safeArea);
-
-    // set canvas width to final desired crop size - this will clear existing context
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
-
-    // paste generated rotate image with correct offsets for x,y crop values.
-    if (data)
-      ctx.putImageData(
-        data,
-        Math.round(0 - safeArea / 2 + image.width * 0.5 - pixelCrop.x),
-        Math.round(0 - safeArea / 2 + image.height * 0.5 - pixelCrop.y)
-      );
+  if (!ctx) {
+    return null;
   }
+
+  canvas.width = 160;
+  canvas.height = 160;
+  const xCenterCanvas = Math.floor(canvas.width / 2);
+  const yCenterCanvas = Math.floor(canvas.height / 2);
+
+  const radians = getRadianAngle(rotation);
+
+  ctx.translate(xCenterCanvas, yCenterCanvas);
+  ctx.rotate(radians);
+  ctx.translate(-xCenterCanvas, -yCenterCanvas);
+
+  // pixelCrop x,y are post-rotation coordinates
+  // rotate pixelCrop x,y back to the 0 rotation of the source image
+  const xCenterImage = Math.floor(image.width / 2);
+  const yCenterImage = Math.floor(image.height / 2);
+  const rx =
+    (pixelCrop.x - xCenterImage) * Math.trunc(Math.cos(-radians)) -
+    (pixelCrop.y - yCenterImage) * Math.trunc(Math.sin(-radians)) +
+    xCenterImage;
+  const ry =
+    (pixelCrop.x - xCenterImage) * Math.trunc(Math.sin(-radians)) +
+    (pixelCrop.y - yCenterImage) * Math.trunc(Math.cos(-radians)) +
+    yCenterImage;
+
+  // find the top-left corner of the crop area
+  let left = pixelCrop.x;
+  let top = pixelCrop.y;
+  if (rotation === 90) {
+    left = rx;
+    top = ry - pixelCrop.height;
+  } else if (rotation === 180) {
+    left = rx - pixelCrop.width;
+    top = ry - pixelCrop.height;
+  } else if (rotation === 270) {
+    left = rx - pixelCrop.width;
+    top = ry;
+  }
+
+  ctx.drawImage(
+    image,
+    left,
+    top,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
 
   return new Promise((resolve) => {
     canvas.toBlob(
@@ -70,7 +88,7 @@ export async function getCroppedImg(
         resolve(blob);
       },
       'image/jpeg',
-      1
+      0.8
     );
   });
 }
