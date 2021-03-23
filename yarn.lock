@@ -6299,10 +6299,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/classnames@npm:^2.2.10, @types/classnames@npm:^2.2.9":
-  version: 2.2.10
-  resolution: "@types/classnames@npm:2.2.10"
-  checksum: 31b6380183c2123c69f5e50b9e40c7da2862ddfe634361d906a6e300dacd716656ce95e508541d0ec300f71aeed57d30a7ea46f36e881c01eb2334843700fadc
+"@types/classnames@npm:^2.2.11":
+  version: 2.2.11
+  resolution: "@types/classnames@npm:2.2.11"
+  checksum: 5bbd4fd0f803a46424152ecc89cfb88464af4d655634de8a98ec54977b0b6d9da107e799c24a2b66f0133438e84bac51b2275134cf028edea749fb018f731e89
   languageName: node
   linkType: hard
 
@@ -19569,7 +19569,7 @@ fsevents@^1.2.7:
     "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
     "@types/accept-language-parser": ^1.5.1
-    "@types/classnames": ^2.2.9
+    "@types/classnames": ^2.2.11
     "@types/jest": ^26.0.20
     "@types/jsdom": ^12.2.4
     "@types/nock": ^11.1.0
@@ -19729,7 +19729,7 @@ fsevents@^1.2.7:
     "@testing-library/react": ^9.5.0
     "@testing-library/user-event": ^12.7.1
     "@types/camelcase": 5.2.0
-    "@types/classnames": ^2.2.9
+    "@types/classnames": ^2.2.11
     "@types/file-loader": ^4.2.0
     "@types/jest": ^26.0.20
     "@types/node": ^14.14.5
@@ -19795,7 +19795,7 @@ fsevents@^1.2.7:
     "@testing-library/react-hooks": ^5.0.3
     "@testing-library/user-event": ^12.7.1
     "@types/babel__core": 7.1.12
-    "@types/classnames": ^2.2.10
+    "@types/classnames": ^2.2.11
     "@types/jest": ^26.0.20
     "@types/lodash.groupby": ^4
     "@types/material-ui": ^0.21.8
