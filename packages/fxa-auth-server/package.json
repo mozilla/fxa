@@ -104,7 +104,7 @@
   "devDependencies": {
     "@types/cbor": "5.0.1",
     "@types/chai": "^4.2.4",
-    "@types/convict": "^5.2.2",
+    "@types/convict": "^6.0.1",
     "@types/hapi__hapi": "^19.0.3",
     "@types/ioredis": "^4.22.1",
     "@types/joi": "^14.3.3",
