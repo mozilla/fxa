@@ -12,6 +12,8 @@ import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
 import { PayPalHandler } from './paypal';
 
+const IPN_EXCLUDED = ['mp_signup'];
+
 export class PayPalNotificationHandler extends PayPalHandler {
   /**
    * Handle merchant payment notification from PayPal
@@ -164,7 +166,13 @@ export class PayPalNotificationHandler extends PayPalHandler {
           return this.handleMpCancel(payload);
         }
       }
-      this.log.debug('Unhandled Ipn message', { payload });
+      if (!IPN_EXCLUDED.includes(payload.txn_type)) {
+        reportSentryError(
+          new Error('Unhandled Ipn message: ' + payload.txn_type),
+          request
+        );
+        this.log.debug('Unhandled Ipn message', { payload });
+      }
     } catch (err) {
       reportSentryError(err, request);
       this.log.error('verifyAndDispatchEvent', {
