@@ -242,8 +242,8 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
         />
         <RotateBtn
           onClick={() => {
-            if (rotation < 315) {
-              return setRotation(rotation + 45);
+            if (rotation < 270) {
+              return setRotation(rotation + 90);
             } else {
               return setRotation(0);
             }
