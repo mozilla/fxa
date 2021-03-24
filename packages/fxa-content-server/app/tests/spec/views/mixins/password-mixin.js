@@ -150,7 +150,7 @@ describe('views/mixins/password-mixin', function () {
         view.showPassword('#password');
 
         assert.equal($passwordEl.attr('type'), 'text');
-        assert.equal($passwordEl.attr('autocapitalize'), 'off');
+        assert.equal($passwordEl.attr('autocapitalize'), 'none');
         assert.equal($passwordEl.attr('autocorrect'), 'off');
 
         // Ensure the show password state stays in sync
