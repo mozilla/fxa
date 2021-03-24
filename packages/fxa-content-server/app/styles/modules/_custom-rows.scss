@@ -213,27 +213,14 @@ input[type='checkbox'] {
 .show-password-label {
   background-color: $show-password-background-color;
   color: $show-password-label-color;
+  background-image: image-url('icon-show-password.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-.show-password:focus + .show-password-label {
-  background-color: #d9d9d9;
-}
-
-input[type='text'] ~ .show-password:focus + .show-password-label {
-  background-color: #bdbdbe;
-}
-
-.password:focus ~ .show-password-label {
-  color: $input-border-color-focus;
-}
-
-.password[type='text']:focus ~ .show-password-label {
-  background-color: $input-border-color-focus;
+.password[type='text'] ~ .show-password-label {
   color: $show-password-focus-label-color;
-
-  svg {
-    fill: #fff;
-  }
+  background-image: image-url('icon-show-password-closed.svg');
 }
 
 .modal {

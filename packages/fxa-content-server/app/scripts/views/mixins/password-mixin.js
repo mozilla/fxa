@@ -133,7 +133,7 @@ export default {
         .attr('type', 'text')
         .attr('autocomplete', 'off')
         .attr('autocorrect', 'off')
-        .attr('autocapitalize', 'off');
+        .attr('autocapitalize', 'none');
     } catch (e) {
       this._logErrorConvertingPasswordType($passwordEl);
     }
