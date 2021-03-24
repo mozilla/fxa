@@ -6166,7 +6166,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:7.1.12, @types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.0, @types/babel__core@npm:^7.1.7":
+"@types/babel__core@npm:7.1.14":
+  version: 7.1.14
+  resolution: "@types/babel__core@npm:7.1.14"
+  dependencies:
+    "@babel/parser": ^7.1.0
+    "@babel/types": ^7.0.0
+    "@types/babel__generator": "*"
+    "@types/babel__template": "*"
+    "@types/babel__traverse": "*"
+  checksum: e0212770e1cd520b8ad241642e9f99ef20b5c609c157ffe154c42e136c85f3c3f598ad7bfd452fda8abb304c483d6bce92de0b8ed0612f9f1c57b6c4a18da7b3
+  languageName: node
+  linkType: hard
+
+"@types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.0, @types/babel__core@npm:^7.1.7":
   version: 7.1.12
   resolution: "@types/babel__core@npm:7.1.12"
   dependencies:
@@ -18784,7 +18797,7 @@ fsevents@^1.2.7:
     "@testing-library/jest-dom": ^5.11.9
     "@testing-library/react": ^9.5.0
     "@testing-library/user-event": ^12.7.1
-    "@types/babel__core": 7.1.12
+    "@types/babel__core": 7.1.14
     "@types/chance": ^1.1.1
     "@types/convict": ^5.2.2
     "@types/dateformat": ^3.0.1
@@ -19803,7 +19816,7 @@ fsevents@^1.2.7:
     "@testing-library/react": ^9.5.0
     "@testing-library/react-hooks": ^5.0.3
     "@testing-library/user-event": ^12.7.1
-    "@types/babel__core": 7.1.12
+    "@types/babel__core": 7.1.14
     "@types/classnames": ^2.2.11
     "@types/jest": ^26.0.20
     "@types/lodash.groupby": ^4
