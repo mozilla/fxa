@@ -88,6 +88,8 @@ module.exports = function (config) {
         // their profile image.
         GRAVATAR,
         PROFILE_IMAGES_SERVER,
+        // default monogram avatars
+        PROFILE_SERVER,
       ]),
       mediaSrc: [BLOB],
       objectSrc: [NONE],

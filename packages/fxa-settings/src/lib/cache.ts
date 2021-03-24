@@ -1,6 +1,7 @@
 import { InMemoryCache, gql, makeVar } from '@apollo/client';
 import Storage from './storage';
 import { Email } from '../models';
+import config from './config';
 
 const storage = Storage.factory('localStorage');
 
@@ -93,6 +94,20 @@ export const cache = new InMemoryCache({
         },
       },
       keyFields: [],
+    },
+    Avatar: {
+      fields: {
+        isDefault: {
+          read(_, o) {
+            const url = o.readField<string>('url');
+            const id = o.readField<string>('id');
+            return !!(
+              url?.startsWith(config.servers.profile.url) ||
+              id?.startsWith('default')
+            );
+          },
+        },
+      },
     },
     Session: {
       fields: {

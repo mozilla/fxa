@@ -71,4 +71,15 @@ describe('ProfileClientService', () => {
     const result = await service.avatarUpload('token', 'app/json', 'somefile');
     expect(result.url).toBe('testurl');
   });
+
+  it('fetches the profile', async () => {
+    authClient.createOAuthToken = jest
+      .fn()
+      .mockResolvedValue({ access_token: 'test' });
+    (jest.spyOn(superagent, 'get') as jest.Mock).mockReturnValueOnce({
+      set: jest.fn().mockResolvedValue({ text: '{"avatar":"x"}' }),
+    });
+    const result = await service.getProfile('token');
+    expect(result).toStrictEqual({ avatar: 'x' });
+  });
 });

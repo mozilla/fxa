@@ -22,10 +22,7 @@ export const Avatar = ({ className }: AvatarProps) => {
           data-testid="avatar-nondefault"
           src={avatar.url}
           alt="Your avatar"
-          className={classNames(
-            'rounded-full bg-grey-200 text-grey-200',
-            className
-          )}
+          className={classNames('rounded-full bg-white', className)}
         />
       </Localized>
     );
