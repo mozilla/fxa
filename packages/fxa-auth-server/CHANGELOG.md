@@ -1,3 +1,28 @@
+## 1.203.0
+
+### New features
+
+- auth-server: send uncaught IPN type to Sentry Because: ([5f053726e](https://github.com/mozilla/fxa/commit/5f053726e))
+- auth-server: copy billing address info to Stripe customer Because: ([5d5efb1c9](https://github.com/mozilla/fxa/commit/5d5efb1c9))
+- auth-server: send emails for invoicing ([ff396226d](https://github.com/mozilla/fxa/commit/ff396226d))
+
+### Bug fixes
+
+- use created date on reactivate ([6ac5cf720](https://github.com/mozilla/fxa/commit/6ac5cf720))
+- auth-server: restrict invoices to currenct subs ([e7a1bf3b2](https://github.com/mozilla/fxa/commit/e7a1bf3b2))
+- auth: make gen_keys script path indepedent ([6cfc878ff](https://github.com/mozilla/fxa/commit/6cfc878ff))
+- auth-server: handle failed checkout payments ([448188b40](https://github.com/mozilla/fxa/commit/448188b40))
+- auth-server: allow payment error out ([c4acd33ef](https://github.com/mozilla/fxa/commit/c4acd33ef))
+
+### Other changes
+
+- deps: bump cldr-core from 37.0.0 to 38.1.0 ([4b8d4da99](https://github.com/mozilla/fxa/commit/4b8d4da99))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- deps-dev: bump @types/ioredis from 4.22.0 to 4.22.1 ([6a5575dcc](https://github.com/mozilla/fxa/commit/6a5575dcc))
+- deps-dev: bump @types/verror from 1.10.3 to 1.10.4 ([fc67a2d21](https://github.com/mozilla/fxa/commit/fc67a2d21))
+- deps: bump cbor from 5.1.0 to 7.0.4 ([916b9ec68](https://github.com/mozilla/fxa/commit/916b9ec68))
+- deps: bump jsrsasign from 10.1.12 to 10.1.13 ([8f397ea8f](https://github.com/mozilla/fxa/commit/8f397ea8f))
+
 ## 1.202.3
 
 No changes.

@@ -1,3 +1,10 @@
+## 1.203.0
+
+### Other changes
+
+- deps: bump bunyan from 1.8.12 to 1.8.15 ([ff168c66a](https://github.com/mozilla/fxa/commit/ff168c66a))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+
 ## 1.202.3
 
 No changes.

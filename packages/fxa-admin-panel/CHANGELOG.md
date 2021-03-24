@@ -1,3 +1,13 @@
+## 1.203.0
+
+### Other changes
+
+- deps-dev: bump @types/babel__core from 7.1.12 to 7.1.14 ([23df842af](https://github.com/mozilla/fxa/commit/23df842af))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- deps-dev: bump @rescripts/cli from 0.0.15 to 0.0.16 ([c54667d92](https://github.com/mozilla/fxa/commit/c54667d92))
+- deps-dev: bump @storybook/react from 5.3.19 to 6.1.21 ([37522c5a6](https://github.com/mozilla/fxa/commit/37522c5a6))
+- deps-dev: bump @types/eslint from 6.8.1 to 7.2.7 ([a94c89e25](https://github.com/mozilla/fxa/commit/a94c89e25))
+
 ## 1.202.3
 
 No changes.

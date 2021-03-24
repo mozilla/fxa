@@ -1,3 +1,14 @@
+## 1.203.0
+
+### Other changes
+
+- deps: bump async-wait-until from 2.0.3 to 2.0.4 ([d745597d5](https://github.com/mozilla/fxa/commit/d745597d5))
+- deps-dev: bump @types/classnames from 2.2.10 to 2.2.11 ([2e2ca4d1f](https://github.com/mozilla/fxa/commit/2e2ca4d1f))
+- deps: bump async-wait-until from 1.2.6 to 2.0.3 ([c12544352](https://github.com/mozilla/fxa/commit/c12544352))
+- deps-dev: bump @types/prettier from 2.2.1 to 2.2.3 ([1b96d1524](https://github.com/mozilla/fxa/commit/1b96d1524))
+- deps-dev: bump sass from 1.32.5 to 1.32.8 ([13cb226c9](https://github.com/mozilla/fxa/commit/13cb226c9))
+- deps-dev: bump @storybook/react from 5.3.19 to 6.1.21 ([37522c5a6](https://github.com/mozilla/fxa/commit/37522c5a6))
+
 ## 1.202.3
 
 No changes.

@@ -1,3 +1,32 @@
+## 1.203.0
+
+### New features
+
+- settings: move new settings from beta/settings to /settings ([e1fcec815](https://github.com/mozilla/fxa/commit/e1fcec815))
+
+### Bug fixes
+
+- settings: useMetrics needs to useRef ([242061f23](https://github.com/mozilla/fxa/commit/242061f23))
+- avatar: refactor getCroppedImg to use a small canvas ([1e73748e4](https://github.com/mozilla/fxa/commit/1e73748e4))
+- settings: Fix avatar black image ([5e239466f](https://github.com/mozilla/fxa/commit/5e239466f))
+- signout: Fix missing avatar when signing out ([1e07d81e7](https://github.com/mozilla/fxa/commit/1e07d81e7))
+- l10n: Fix profile-heading l10n label ([561a814cd](https://github.com/mozilla/fxa/commit/561a814cd))
+- settings: Remove time from password change ([7cedeb117](https://github.com/mozilla/fxa/commit/7cedeb117))
+- tests: get functional smoke tests working with new settings as default ([d947048fe](https://github.com/mozilla/fxa/commit/d947048fe))
+- avatar: Avatar upload tweaks for new settings ([54b88d5de](https://github.com/mozilla/fxa/commit/54b88d5de))
+- settings: scroll position ([013ff5a8f](https://github.com/mozilla/fxa/commit/013ff5a8f))
+- settings: buttons are correctly aligned to right ([ff9fc3cbc](https://github.com/mozilla/fxa/commit/ff9fc3cbc))
+
+### Other changes
+
+- deps-dev: bump @types/babel__core from 7.1.12 to 7.1.14 ([23df842af](https://github.com/mozilla/fxa/commit/23df842af))
+- deps-dev: bump @types/react-test-renderer from 16.9.5 to 17.0.1 ([b1d01d545](https://github.com/mozilla/fxa/commit/b1d01d545))
+- deps: bump @emotion/react from 11.1.4 to 11.1.5 ([32bb00ca6](https://github.com/mozilla/fxa/commit/32bb00ca6))
+- deps-dev: bump @types/classnames from 2.2.10 to 2.2.11 ([2e2ca4d1f](https://github.com/mozilla/fxa/commit/2e2ca4d1f))
+- deps-dev: bump @rescripts/cli from 0.0.15 to 0.0.16 ([c54667d92](https://github.com/mozilla/fxa/commit/c54667d92))
+- fxa-settings: remove unused file ([72560e06f](https://github.com/mozilla/fxa/commit/72560e06f))
+- deps-dev: bump @storybook/react from 5.3.19 to 6.1.21 ([37522c5a6](https://github.com/mozilla/fxa/commit/37522c5a6))
+
 ## 1.202.3
 
 ### Bug fixes
