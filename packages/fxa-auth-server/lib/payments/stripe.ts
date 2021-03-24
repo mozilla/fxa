@@ -67,13 +67,14 @@ export const SUBSCRIPTION_UPDATE_TYPES = {
 };
 
 type BillingAddressOptions = {
-  city: string,
-  country: string,
-  line1: string,
-  line2: string,
-  postalCode: string,
-  state: string,
-}
+  city: string;
+  country: string;
+  line1: string;
+  line2: string;
+  postalCode: string;
+  state: string;
+};
+
 /**
  * Determine for two product metadata object's whether the new one
  * is a valid upgrade for the old one.
@@ -517,14 +518,14 @@ export class StripeHelper {
 
   /**
    * Update the customer object to add customer's PayPal billing address.
-   * 
-   * @param customer_id 
-   * @param city 
-   * @param country 
-   * @param line1 
-   * @param line2 
-   * @param postal_code 
-   * @param state 
+   *
+   * @param customer_id
+   * @param city
+   * @param country
+   * @param line1
+   * @param line2
+   * @param postal_code
+   * @param state
    */
   async updateCustomerBillingAddress(
     customer_id: string,
@@ -536,9 +537,9 @@ export class StripeHelper {
       line1: options.line1,
       line2: options.line2,
       postal_code: options.postalCode,
-      state: options.state
-    }
-    return this.stripe.customers.update(customer_id, {address});
+      state: options.state,
+    };
+    return this.stripe.customers.update(customer_id, { address });
   }
 
   /**
@@ -593,24 +594,31 @@ export class StripeHelper {
   }
 
   /**
-   * Fetch all open invoices for manually invoiced subscriptions.
+   * Fetch all open invoices for manually invoiced subscriptions that are active.
    *
-   * Note that created times for Stripe are in seconds since epoch.
+   * Note that created times for Stripe are in seconds since epoch and that
+   * invoices can be open for subscriptions that are cancelled, thus the extra
+   * subscription check before returning an invoice.
    *
    * @param created
    */
-  fetchOpenInvoices(
+  async *fetchOpenInvoices(
     created: Stripe.InvoiceListParams['created'],
     customerId?: string
   ) {
-    return this.stripe.invoices.list({
+    for await (const invoice of this.stripe.invoices.list({
       customer: customerId,
       limit: 100,
       collection_method: 'send_invoice',
       status: 'open',
       created,
-      expand: ['data.customer'],
-    });
+      expand: ['data.customer', 'data.subscription'],
+    })) {
+      const subscription = invoice.subscription as Stripe.Subscription;
+      if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+        yield invoice;
+      }
+    }
   }
 
   /**
