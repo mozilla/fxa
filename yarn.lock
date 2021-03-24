@@ -13244,10 +13244,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cldr-core@npm:^37.0.0":
-  version: 37.0.0
-  resolution: "cldr-core@npm:37.0.0"
-  checksum: 55a6e78bd86c9a1aec3f9ecdcb1ccd832103626fb8c75d35a23da0d3bd5c668df2ccdfe0c8db64d3f8eb00b9bad1a861a9ceed7cd1ff5690f1b2604d0046c25c
+"cldr-core@npm:^38.1.0":
+  version: 38.1.0
+  resolution: "cldr-core@npm:38.1.0"
+  checksum: 1210ed72ae104aee8b1b82ebbc37a0901eb3315ee5831e69eb6f1402369cb261984e875bf314deb628843aa0146f2b6ee336f6f3f2399190661fa478f39affe4
   languageName: node
   linkType: hard
 
@@ -19005,7 +19005,7 @@ fsevents@^1.2.7:
     buffer-equal-constant-time: 1.0.1
     cbor: ^7.0.4
     chai: ^4.2.0
-    cldr-core: ^37.0.0
+    cldr-core: ^38.1.0
     cldr-localenames-full: 38.0.0
     commander: 2.18.0
     convict: ^6.0.1
