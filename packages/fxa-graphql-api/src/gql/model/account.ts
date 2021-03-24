@@ -4,6 +4,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 import { AttachedClient } from './attachedClient';
+import { Avatar } from './avatar';
 import { Email } from './emails';
 import { Subscription } from './subscription';
 import { Totp } from './totp';
@@ -24,8 +25,8 @@ export class Account {
   @Field({ nullable: true, description: 'Display name the user has set.' })
   public displayName!: string;
 
-  @Field({ nullable: true, description: "URL for the user's avatar." })
-  public avatarUrl!: string;
+  @Field((type) => Avatar)
+  public avatar!: Avatar;
 
   @Field({ nullable: true, description: 'User locale.' })
   public locale!: string;

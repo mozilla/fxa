@@ -63,7 +63,7 @@ describe('external links', () => {
 
     const email = createEmail();
     await subscribeAndSigninToRp(email);
-    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER);
+    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.APP);
 
     // test
     await testElementExists(

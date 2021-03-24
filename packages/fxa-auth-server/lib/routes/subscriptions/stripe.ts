@@ -18,11 +18,14 @@ import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { StripeHelper } from '../../payments/stripe';
+import {
+  StripeHelper,
+  ACTIVE_SUBSCRIPTION_STATUSES,
+} from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { splitCapabilities } from '../utils/subscriptions';
 import validators from '../validators';
-import { handleAuth } from './utils';
+import { handleAuth, ThenArg } from './utils';
 
 /**
  * Delete any metadata keys prefixed by `capabilities:` before
@@ -40,6 +43,12 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
     return plan;
   });
 }
+
+export type PaypalPaymentError = 'missing_agreement' | 'funding_source';
+
+type PaymentBillingDetails = ReturnType<
+  StripeHandler['extractBillingDetails']
+> & { paypal_payment_error?: PaypalPaymentError };
 
 export class StripeHandler {
   constructor(
@@ -221,6 +230,16 @@ export class StripeHandler {
       planId
     );
 
+    // Verify the new plan currency and customer currency are compatible.
+    // Stripe does not allow customers to change currency after a currency is set, which
+    // occurs on initial subscription. (https://stripe.com/docs/billing/customer#payment)
+    const customer = await this.stripeHelper.customer({ uid, email });
+    const planCurrency = (await this.stripeHelper.findPlanById(planId))
+      .currency;
+    if (customer && customer.currency != planCurrency) {
+      throw error.currencyCurrencyMismatch(customer.currency, planCurrency);
+    }
+
     // Update the plan
     await this.stripeHelper.changeSubscriptionPlan(subscriptionId, planId);
 
@@ -275,7 +294,7 @@ export class StripeHandler {
           canceled_at,
           plan: { product: productId },
         } = subscription;
-        if (['trialing', 'active', 'past_due'].includes(subscription.status)) {
+        if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
           activeSubscriptions.push({
             uid,
             subscriptionId,
@@ -289,22 +308,13 @@ export class StripeHandler {
     return activeSubscriptions;
   }
 
-  getPaymentProvider(customer: Stripe.Customer) {
-    const subscription = customer.subscriptions?.data.find(
-      (sub: { status: string }) => ['active', 'past_due'].includes(sub.status)
-    );
-    if (subscription) {
-      return subscription.collection_method === 'send_invoice'
-        ? 'paypal'
-        : 'stripe';
-    }
-    return 'not_chosen';
-  }
   /**
    * Extracts billing details if a customer has a source on file.
    */
   extractBillingDetails(customer: Stripe.Customer) {
     const defaultPayment = customer.invoice_settings.default_payment_method;
+    const paymentProvider = this.stripeHelper.getPaymentProvider(customer);
+
     if (defaultPayment) {
       if (typeof defaultPayment === 'string') {
         // This should always be expanded here.
@@ -314,7 +324,7 @@ export class StripeHandler {
       if (defaultPayment.card) {
         return {
           billing_name: defaultPayment.billing_details.name,
-          payment_provider: this.getPaymentProvider(customer),
+          payment_provider: paymentProvider,
           payment_type: defaultPayment.card.funding,
           last4: defaultPayment.card.last4,
           exp_month: defaultPayment.card.exp_month,
@@ -330,7 +340,7 @@ export class StripeHandler {
       if (src.object === 'card') {
         return {
           billing_name: src.name,
-          payment_provider: this.getPaymentProvider(customer),
+          payment_provider: paymentProvider,
           payment_type: src.funding,
           last4: src.last4,
           exp_month: src.exp_month,
@@ -341,7 +351,7 @@ export class StripeHandler {
     }
 
     return {
-      payment_provider: this.getPaymentProvider(customer),
+      payment_provider: paymentProvider,
     };
   }
 
@@ -349,6 +359,8 @@ export class StripeHandler {
     this.log.begin('subscriptions.getCustomer', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'getCustomer');
+
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions.data.latest_invoice',
       'invoice_settings.default_payment_method',
@@ -356,11 +368,25 @@ export class StripeHandler {
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
-    const billingDetails = this.extractBillingDetails(customer);
+    const billingDetails = this.extractBillingDetails(
+      customer
+    ) as PaymentBillingDetails;
+
+    if (
+      billingDetails.payment_provider === 'paypal' &&
+      this.stripeHelper.hasSubscriptionRequiringPaymentMethod(customer)
+    ) {
+      if (!this.stripeHelper.getCustomerPaypalAgreement(customer)) {
+        billingDetails.paypal_payment_error = 'missing_agreement';
+      } else if (this.stripeHelper.hasOpenInvoice(customer)) {
+        billingDetails.paypal_payment_error = 'funding_source';
+      }
+    }
+
     const response = {
-      // Less than ideal to type as any, but using the ReturnType of below
-      // didn't work any better. 🤷‍♀️
-      subscriptions: [] as any[],
+      subscriptions: [] as ThenArg<
+        ReturnType<StripeHelper['subscriptionsToResponse']>
+      >,
       ...billingDetails,
     };
 
@@ -468,6 +494,23 @@ export class StripeHandler {
       idempotencyKey,
     } = request.payload as Record<string, string>;
 
+    // Skip the payment source check if there's no payment method id.
+    if (paymentMethodId) {
+      const planCurrency = (await this.stripeHelper.findPlanById(priceId))
+        .currency;
+      const paymentMethodCountry = (
+        await this.stripeHelper.getPaymentMethod(paymentMethodId)
+      ).card?.country;
+      if (
+        !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
+          planCurrency,
+          paymentMethodCountry
+        )
+      ) {
+        throw error.currencyCountryMismatch(planCurrency, paymentMethodCountry);
+      }
+    }
+
     const subIdempotencyKey = `${idempotencyKey}-createSub`;
     const subscription = await this.stripeHelper.createSubscriptionWithPMI({
       customerId: customer.id,
@@ -525,6 +568,21 @@ export class StripeHandler {
     }
 
     const { paymentMethodId } = request.payload as Record<string, string>;
+
+    const paymentMethodCountry = (
+      await this.stripeHelper.getPaymentMethod(paymentMethodId)
+    ).card?.country;
+    if (
+      !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
+        customer.currency,
+        paymentMethodCountry
+      )
+    ) {
+      throw error.currencyCountryMismatch(
+        customer.currency,
+        paymentMethodCountry
+      );
+    }
 
     await this.stripeHelper.updateDefaultPaymentMethod(
       customer.id,

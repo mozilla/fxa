@@ -436,17 +436,25 @@ In addition to the ecosystem docs, each package has it's own README.md and some 
 
 ##### Purpose
 
-This bash script allows for the conversion of markdown files to pdfs. The purpose is to create a way for legal documents to be easily converted and made available for end-users.
+This bash script converts markdown documents into pdfs. The purpose is to provide an efficient way for Mozilla VPN legal documents to be converted and made available to end-users.
 
 ##### Usage
 
-_Pre-requisites_: The script requires that you have pandoc and LaTeX installed on your machine.
+_Pre-requisites_: The script requires the following:
 
+- Local copy of Mozilla legal-docs repo: https://github.com/mozilla/legal-docs
 - pandoc: https://github.com/jgm/pandoc/blob/master/INSTALL.md
 - LaTeX: https://www.latex-project.org/get/
 
-The script will check that pandoc is installed before asking you for the file or directory on your machine that you would like to be converted. If a directory is provided, then all markdown files within that folder will be convered. If a single file is provided, only that file will be converted.
-The resulting output will be stored within `assets/legal`.
+##### To Run:
+
+```bash
+# from root fxa directory
+_scripts/legal-md-to-pdf.sh '/absolute/path/to/legal-docs/'
+```
+
+The script traverses the legal-docs directory looking for localized copies of the Mozilla VPN legal documents. When found, the script converts the document from .md to .pdf and writes it to `assets/legal/<document_name>.<locale>.pdf`.
+
 Example:
-file provided to convert: `/Users/test/github/mozilla/legal-docs/en/firefox_cloud_services_tos.md`
-resulting file: `assets/legal/en/firefox_cloud_services_tos.pdf`
+directory provided: `/Users/test/github/mozilla/legal-docs/`
+resulting file: `assets/legal/<document_name>.<locale>.pdf`

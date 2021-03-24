@@ -5,7 +5,9 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { MockedCache } from '../../models/_mocks';
+import { getDefault } from '../../lib/config';
 import { Nav } from '.';
+import { ConfigContext } from 'fxa-settings/src/lib/config';
 
 storiesOf('Components|Nav', module)
   .add('basic', () => (
@@ -19,4 +21,17 @@ storiesOf('Components|Nav', module)
     >
       <Nav />
     </MockedCache>
-  ));
+  ))
+  .add('without link to Newsletters', () => {
+    const config = Object.assign({}, getDefault(), {
+      marketingEmailPreferencesUrl: '',
+    });
+
+    return (
+      <MockedCache>
+        <ConfigContext.Provider value={config}>
+          <Nav />
+        </ConfigContext.Provider>
+      </MockedCache>
+    );
+  });

@@ -4,9 +4,7 @@
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const routeModule = require('../../../server/lib/routes/get-well-known-change-password');
-const got = require('got');
 const sinon = require('sinon');
-const serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 const suite = {
   tests: {},
@@ -33,23 +31,10 @@ suite.tests['get-well-known-change-password route function'] = {
 
     const statusCode = response.redirect.args[0][0];
     assert.equal(statusCode, 301);
+
+    const redirectUrl = response.redirect.args[0][1];
+    assert.equal(redirectUrl, '/settings/change_password');
   },
-};
-
-suite.tests[
-  '#get /.well-known/change-password - returns a redirected page'
-] = function () {
-  const dfd = this.async(intern._config.asyncTimeout);
-
-  got(serverUrl + '/.well-known/change-password', {})
-    .then(function (res) {
-      assert.equal(res.statusCode, 200);
-      assert.equal(res.url, `${serverUrl}/settings/change_password`);
-      assert.isTrue(res.body.includes('<title>Firefox Accounts</title>'));
-    })
-    .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
-
-  return dfd;
 };
 
 registerSuite('well-known-change-password', suite);

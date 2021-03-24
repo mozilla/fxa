@@ -39,9 +39,10 @@ export const GET_INITIAL_STATE = gql`
 
 type AppProps = {
   flowQueryParams: FlowQueryParams;
+  navigatorLanguages: readonly string[];
 };
 
-export const App = ({ flowQueryParams }: AppProps) => {
+export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
   const config = useConfig();
 
   useEffect(() => {
@@ -50,9 +51,14 @@ export const App = ({ flowQueryParams }: AppProps) => {
   });
 
   const { loading, error } = useQuery<{ account: Account }>(GET_INITIAL_STATE);
-  Metrics.init(flowQueryParams);
+  useEffect(() => {
+    Metrics.init(flowQueryParams);
+  }, [flowQueryParams]);
 
-  if (loading) {
+  // In case of an invalid token the page will redirect,
+  // but to prevent a flash of the error message we show
+  // the spinner.
+  if (loading || error?.message.includes('Invalid token')) {
     return (
       <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
     );
@@ -64,8 +70,9 @@ export const App = ({ flowQueryParams }: AppProps) => {
 
   return (
     <AppLocalizationProvider
-      baseDir="/beta/settings/locales"
+      baseDir="/settings/locales"
       bundles={['settings']}
+      userLocales={navigatorLanguages}
     >
       <AppLayout>
         <Head />

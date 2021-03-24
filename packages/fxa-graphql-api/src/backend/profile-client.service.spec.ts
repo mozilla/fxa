@@ -69,6 +69,6 @@ describe('ProfileClientService', () => {
       }),
     });
     const result = await service.avatarUpload('token', 'app/json', 'somefile');
-    expect(result).toBe('testurl');
+    expect(result.url).toBe('testurl');
   });
 });

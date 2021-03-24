@@ -67,7 +67,7 @@ export const Modal = ({
           <div className="flex justify-end pr-2 pt-2">
             <button
               data-testid="modal-dismiss"
-              onClick={onDismiss}
+              onClick={(event) => onDismiss()}
               title="Close modal"
             >
               <CloseIcon className="w-2 h-2 m-3" role="img" />
@@ -82,7 +82,7 @@ export const Modal = ({
                   <button
                     className="cta-neutral mx-2 flex-1"
                     data-testid="modal-cancel"
-                    onClick={onDismiss}
+                    onClick={(event) => onDismiss()}
                   >
                     Cancel
                   </button>
@@ -102,7 +102,7 @@ export const Modal = ({
                   <button
                     className={classNames('mx-2 flex-1', confirmBtnClassName)}
                     data-testid="modal-confirm"
-                    onClick={onConfirm}
+                    onClick={(event) => onConfirm()}
                   >
                     {confirmText}
                   </button>

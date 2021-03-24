@@ -73,7 +73,12 @@ async function init() {
     process.exit(1);
   }
 
-  const createStripeHelper = require('../lib/payments/stripe');
+  const { Container } = require('typedi');
+  const { CurrencyHelper } = require('../lib/payments/currencies');
+  const currencyHelper = new CurrencyHelper(config);
+  Container.set(CurrencyHelper, currencyHelper);
+
+  const { createStripeHelper } = require('../lib/payments/stripe');
   const stripeHelper = createStripeHelper(log, config, null);
   const stripe = stripeHelper.stripe;
 
@@ -97,6 +102,8 @@ async function init() {
 
   if (dryRun) {
     console.log('Dry run, no customers will be deleted!');
+  } else {
+    console.log('Running customer clean up.');
   }
 
   for await (const customer of stripe.customers.list(listOpts)) {

@@ -8,6 +8,7 @@ import {
 import { Plan } from '../../store/types';
 
 import './index.scss';
+import { legalDocsRedirectUrl } from 'fxa-payments-server/src/lib/formats';
 
 export type TermsAndPrivacyProps = {
   plan?: Plan;
@@ -26,6 +27,10 @@ export const TermsAndPrivacy = ({ plan }: TermsAndPrivacyProps) => {
   } = plan
     ? productDetailsFromPlan(plan, navigatorLanguages)
     : DEFAULT_PRODUCT_DETAILS;
+
+  const tosUrl = termsOfServiceDownloadURL
+    ? legalDocsRedirectUrl(termsOfServiceDownloadURL)
+    : termsOfServiceDownloadURL;
 
   return (
     <div>
@@ -46,7 +51,7 @@ export const TermsAndPrivacy = ({ plan }: TermsAndPrivacyProps) => {
             rel="noopener noreferrer"
             target="_blank"
             data-testid="terms-download"
-            href={termsOfServiceDownloadURL}
+            href={tosUrl}
           >
             Download Terms
           </a>

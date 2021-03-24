@@ -242,7 +242,7 @@ const webpackConfig = {
       {
         context: path.resolve(__dirname, '../fxa-settings/build'),
         from: '**',
-        to: '../beta/settings',
+        to: '../settings',
       },
     ]),
   ],

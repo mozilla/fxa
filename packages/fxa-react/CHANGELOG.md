@@ -1,3 +1,31 @@
+## 1.202.3
+
+No changes.
+
+## 1.202.2
+
+No changes.
+
+## 1.202.1
+
+No changes.
+
+## 1.202.0
+
+### Other changes
+
+- deps-dev: bump @types/prettier from 2.1.5 to 2.2.1 ([b7c487fa8](https://github.com/mozilla/fxa/commit/b7c487fa8))
+
+## 1.201.1
+
+No changes.
+
+## 1.201.0
+
+### Other changes
+
+- deps-dev: bump @testing-library/user-event from 12.6.0 to 12.7.1 ([7f04d1be9](https://github.com/mozilla/fxa/commit/7f04d1be9))
+
 ## 1.200.0
 
 ### Other changes

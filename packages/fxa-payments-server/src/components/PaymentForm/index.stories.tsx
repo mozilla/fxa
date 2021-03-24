@@ -56,7 +56,7 @@ const PLAN = {
       'https://www.mozilla.org/fr/privacy/websites/',
   },
 };
-const CUSTOMER = {
+const CUSTOMER: Customer = {
   billing_name: 'Foo Barson',
   payment_provider: 'stripe',
   payment_type: 'credit',

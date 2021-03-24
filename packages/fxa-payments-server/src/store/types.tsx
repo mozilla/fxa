@@ -1,3 +1,5 @@
+import { ProviderType } from '../lib/PaymentProvider';
+
 export type {
   PlanInterval,
   RawMetadata,
@@ -73,7 +75,7 @@ export type Customer = {
   exp_month?: string;
   exp_year?: string;
   last4?: string;
-  payment_provider?: string;
+  payment_provider?: ProviderType;
   payment_type?: string;
   subscriptions: Array<CustomerSubscription>;
 };

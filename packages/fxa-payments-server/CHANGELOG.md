@@ -1,5 +1,69 @@
 # Change history
 
+## 1.202.3
+
+No changes.
+
+## 1.202.2
+
+No changes.
+
+## 1.202.1
+
+### Other changes
+
+- payments: Fix copy/paste error in main.ftl. ([623036278](https://github.com/mozilla/fxa/commit/623036278))
+
+## 1.202.0
+
+### New features
+
+- payments-server: Display currency restrictions errors on front-end. ([abdde80c4](https://github.com/mozilla/fxa/commit/abdde80c4))
+- payments: Gate SubscriptionCreate screen based on new/returning PayPal customers. ([2c03f3342](https://github.com/mozilla/fxa/commit/2c03f3342))
+- payments: Fix alignment of resubscribe <p> in sub. management ([b1bd2f474](https://github.com/mozilla/fxa/commit/b1bd2f474))
+- payments: Show processing screen onApprove for PayPalButton ([e5f785779](https://github.com/mozilla/fxa/commit/e5f785779))
+- payments: Update PayPal checkout success screen to match latest UX spec ([35f1b76a1](https://github.com/mozilla/fxa/commit/35f1b76a1))
+- auth-server: Prevent PayPal button from appearing on top of header ([ca32d3a50](https://github.com/mozilla/fxa/commit/ca32d3a50))
+- fxa-payments-server: add processing view to checkout ([8c40ddcc2](https://github.com/mozilla/fxa/commit/8c40ddcc2))
+- payments: Show PayPal logo on subscription page and consolidate code ([fa6af684e](https://github.com/mozilla/fxa/commit/fa6af684e))
+- payments: Show PayPal logo on subscription page and consolidate code ([90de1e841](https://github.com/mozilla/fxa/commit/90de1e841))
+
+### Other changes
+
+- payments: Replace localization ids for 'payment-legal-copy-stripe-paypal' and 'payment-legal-link-stripe-paypal' ([825ab8b28](https://github.com/mozilla/fxa/commit/825ab8b28))
+- deps-dev: bump nock from 13.0.7 to 13.0.11 ([f38836bf8](https://github.com/mozilla/fxa/commit/f38836bf8))
+- deps: bump @stripe/stripe-js from 1.11.0 to 1.13.1 ([d66990fc3](https://github.com/mozilla/fxa/commit/d66990fc3))
+- fxa-payments-server: add error page to checkout ([28fc71e13](https://github.com/mozilla/fxa/commit/28fc71e13))
+- Add a new event property to Checkout related Amplitude events ([045a6544d](https://github.com/mozilla/fxa/commit/045a6544d))
+- deps-dev: bump @types/webpack from 4.41.16 to 4.41.26 ([2cb798d6c](https://github.com/mozilla/fxa/commit/2cb798d6c))
+- fxa-payments-server: add legal to checkout flow ([9c13fb57f](https://github.com/mozilla/fxa/commit/9c13fb57f))
+- deps-dev: bump caniuse-lite from 1.0.30001158 to 1.0.30001192 ([1075ae119](https://github.com/mozilla/fxa/commit/1075ae119))
+
+## 1.201.1
+
+No changes.
+
+## 1.201.0
+
+### New features
+
+- payments: Add onApprove handler to PayPal button ([2c0aed05d](https://github.com/mozilla/fxa/commit/2c0aed05d))
+- payments: Modify PaymentConfirmation UI according to payment_provider ([7978db0eb](https://github.com/mozilla/fxa/commit/7978db0eb))
+- auth-server: add 'payment_provider' property to Customer object ([8c68113aa](https://github.com/mozilla/fxa/commit/8c68113aa))
+
+### Bug fixes
+
+- payments: Use brand name PayPal in localized strings. ([1e10aee5a](https://github.com/mozilla/fxa/commit/1e10aee5a))
+
+### Other changes
+
+- deps: bump react-stripe-elements from 5.1.0 to 6.1.2 ([ebe0fbe49](https://github.com/mozilla/fxa/commit/ebe0fbe49))
+- auth/payments: Update README for PayPal secrets and feature flags. ([c496033ca](https://github.com/mozilla/fxa/commit/c496033ca))
+- deps-dev: bump nock from 13.0.5 to 13.0.7 ([411638723](https://github.com/mozilla/fxa/commit/411638723))
+- d6cc1b510 Turn off caching of index.html ([d6cc1b510](https://github.com/mozilla/fxa/commit/d6cc1b510))
+- deps-dev: bump supertest from 6.0.1 to 6.1.3 ([e7b4af55c](https://github.com/mozilla/fxa/commit/e7b4af55c))
+- payments: Add a nonce to load PayPal inline script elements ([91cd57ed6](https://github.com/mozilla/fxa/commit/91cd57ed6))
+
 ## 1.200.0
 
 ### New features

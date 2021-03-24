@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export const ROOTPATH = '/';
-export const HomePath = '/beta/settings';
-export const DeleteAccountPath = '/beta/settings/delete_account';
+export const HomePath = '/settings';
+export const DeleteAccountPath = '/settings/delete_account';
 export const VPNLink = 'https://vpn.mozilla.org/';
 export const LockwiseLink = 'https://lockwise.firefox.com/';
 export const MonitorLink = 'https://monitor.firefox.com/';

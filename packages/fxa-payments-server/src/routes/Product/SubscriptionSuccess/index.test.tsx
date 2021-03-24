@@ -14,18 +14,6 @@ import { SubscriptionSuccess } from './index';
 
 afterEach(cleanup);
 
-it('performs a redirect to the expected URL for local product', () => {
-  assertRedirectForProduct(
-    '123doneProProduct',
-    'local',
-    'http://localhost:8080/'
-  );
-});
-
-it('performs a redirect to the default URL for unknown product', () => {
-  assertRedirectForProduct('beepBoop', 'bazquux', 'https://mozilla.org');
-});
-
 function assertRedirectForProduct(
   product_id: string,
   product_name: string,
@@ -57,3 +45,35 @@ function assertRedirectForProduct(
     expectedUrl
   );
 }
+
+describe('SubscriptionSuccess', () => {
+  it('performs a redirect to the expected URL for local product', () => {
+    assertRedirectForProduct(
+      '123doneProProduct',
+      'local',
+      'http://localhost:8080/'
+    );
+  });
+
+  it('performs a redirect to the default URL for unknown product', () => {
+    assertRedirectForProduct('beepBoop', 'bazquux', 'https://mozilla.org');
+  });
+
+  it('renders the PlanDetails component on mobile', () => {
+    const { queryByTestId } = render(
+      <AppContext.Provider value={defaultAppContext}>
+        <SubscriptionSuccess
+          {...{
+            plan: MOCK_PLANS[0],
+            profile: MOCK_PROFILE,
+            customer: MOCK_CUSTOMER,
+            isMobile: true,
+          }}
+        />
+      </AppContext.Provider>
+    );
+
+    const planDetails = queryByTestId('plan-details-component');
+    expect(planDetails).toBeVisible();
+  });
+});

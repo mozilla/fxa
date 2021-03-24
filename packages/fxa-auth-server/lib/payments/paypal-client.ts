@@ -4,6 +4,7 @@
 import pRetry from 'p-retry';
 import querystring from 'querystring';
 import superagent from 'superagent';
+import { EventEmitter } from 'events';
 
 export const PAYPAL_SANDBOX_BASE = 'https://api-3t.sandbox.paypal.com';
 export const PAYPAL_SANDBOX_IPN_BASE = 'https://ipnpb.sandbox.paypal.com';
@@ -38,6 +39,7 @@ export type PAYPAL_METHODS =
   | 'CreateBillingAgreement'
   | 'DoReferenceTransaction'
   | 'GetTransactionDetails'
+  | 'RefundTransaction'
   | 'SetExpressCheckout'
   | 'TransactionSearch';
 
@@ -58,6 +60,12 @@ type NVPResponse = {
   CORRELATIONID: string;
   TIMESTAMP: string;
   VERSION: string;
+  L?: {
+    ERRORCODE: string;
+    SHORTMESSAGE: string;
+    LONGMESSAGE: string;
+    SEVERITYCODE: string;
+  }[];
 };
 
 type SetExpressCheckoutData = {
@@ -88,12 +96,32 @@ type DoReferenceTransactionData = {
   TRANSACTIONTYPE: string;
 };
 
+type RefundTransactionData = {
+  REFUNDTRANSACTIONID: string;
+  FEEREFUNDAMT: string;
+  GROSSREFUNDAMT: string;
+  NETREFUNDAMT: string;
+  CURRENCYCODE: string;
+  TOTALREFUNDEDAMOUNT: string;
+  MSGSUBID: string;
+  REFUNDSTATUS: string;
+  PENDINGREASON: string;
+};
+
 type BAUpdateData = {
   BILLINGAGREEMENTID: string;
   BILLINGAGREEMENTSTATUS: string;
-  COUNTRYCODE: string;
   EMAIL: string;
   PAYERSTATUS: string;
+};
+
+type BillToAddressData = {
+  CITY: string;
+  COUNTRYCODE: string;
+  STATE: string;
+  STREET: string;
+  STREET2: string;
+  ZIP: string;
 };
 
 export type TransactionStatus =
@@ -129,9 +157,13 @@ export type NVPCreateBillingAgreementResponse = NVPResponse &
 export type NVPDoReferenceTransactionResponse = NVPResponse &
   DoReferenceTransactionData;
 
-export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData;
+export type NVPRefundTransactionResponse = NVPResponse & RefundTransactionData;
 
-export type NVPTransactionSearchResponse = NVPResponse & TransactionSearchData;
+export type NVPBAUpdateTransactionResponse = NVPResponse &
+  BAUpdateData &
+  BillToAddressData;
+
+export type NVPTransactionSearchResponse = TransactionSearchData & NVPResponse;
 
 export type SetExpressCheckoutOptions = {
   currencyCode: string;
@@ -146,6 +178,13 @@ export type DoReferenceTransactionOptions = {
   billingAgreementId: string;
   invoiceNumber: string;
   idempotencyKey: string;
+  currencyCode: string;
+  ipaddress?: string;
+};
+
+export type RefundTransactionOptions = {
+  idempotencyKey: string;
+  transactionId: string;
 };
 
 export type BAUpdateOptions = {
@@ -201,9 +240,19 @@ export function isIpnMerchPmt(
   return ['merch_pmt', 'mp_cancel'].includes(ipnMessage.txn_type);
 }
 
+type ResponseEventType = {
+  error?: Error;
+  request_end_time: number;
+  version: string;
+  elapsed: number;
+  method: string;
+  request_start_time: number;
+};
+
 export class PayPalClientError extends Error {
   public raw: string;
   public data: NVPResponse;
+  public errorCode: number | undefined;
 
   constructor(raw: string, data: NVPResponse, ...params: any) {
     super(...params);
@@ -214,8 +263,10 @@ export class PayPalClientError extends Error {
     }
     this.raw = raw;
     this.data = data;
+    this.errorCode = data.L?.length ? parseInt(data.L[0].ERRORCODE) : undefined;
   }
 }
+
 export class PayPalClient {
   private url: string;
   private ipnUrl: string;
@@ -227,6 +278,11 @@ export class PayPalClient {
     minTimeout: number;
     factor: number;
   };
+  private emitter: EventEmitter;
+  public on: (
+    event: 'response',
+    listener: (response: ResponseEventType) => void
+  ) => EventEmitter;
 
   constructor(options: PaypalOptions) {
     this.url = options.sandbox ? PAYPAL_SANDBOX_API : PAYPAL_LIVE_API;
@@ -240,6 +296,8 @@ export class PayPalClient {
       factor: 1.66,
       ...options.retryOptions,
     };
+    this.emitter = new EventEmitter();
+    this.on = this.emitter.on.bind(this.emitter);
   }
 
   private objectToNVP(object: Record<string, any>): string {
@@ -284,15 +342,38 @@ export class PayPalClient {
       SIGNATURE: this.signature,
       VERSION: PAYPAL_VERSION,
     });
-    const result = await pRetry(
-      () =>
-        superagent
-          .post(this.url)
-          .set('content-type', 'application/x-www-form-urlencoded')
-          .send(payload),
-      this.retryOptions
-    );
+    const response = {
+      request_start_time: Date.now(),
+      method,
+      version: PAYPAL_VERSION,
+    };
+    let result;
+    try {
+      result = await pRetry(
+        () =>
+          superagent
+            .post(this.url)
+            .set('content-type', 'application/x-www-form-urlencoded')
+            .send(payload),
+        this.retryOptions
+      );
+    } catch (err) {
+      const request_end_time = Date.now();
+      this.emitter.emit('response', {
+        ...response,
+        elapsed: request_end_time - response.request_start_time,
+        error: err,
+        request_end_time,
+      });
+      throw err;
+    }
+    const request_end_time = Date.now();
     const resultObj = this.nvpToObject(result.text) as T;
+    this.emitter.emit('response', {
+      ...response,
+      elapsed: request_end_time - response.request_start_time,
+      request_end_time,
+    });
     if (resultObj.ACK === 'Success' || resultObj.ACK === 'SuccessWithWarning') {
       return resultObj;
     } else {
@@ -317,7 +398,7 @@ export class PayPalClient {
       L_BILLINGTYPE0: 'MerchantInitiatedBilling',
       NOSHIPPING: 1,
       PAYMENTREQUEST_0_AMT: '0',
-      PAYMENTREQUEST_0_CURRENCYCODE: options.currencyCode,
+      PAYMENTREQUEST_0_CURRENCYCODE: options.currencyCode.toUpperCase(),
       PAYMENTREQUEST_0_PAYMENTACTION: 'AUTHORIZATION',
       RETURNURL: PLACEHOLDER_URL,
     };
@@ -358,7 +439,10 @@ export class PayPalClient {
   ): Promise<NVPDoReferenceTransactionResponse> {
     const data = {
       AMT: options.amount,
+      CURRENCYCODE: options.currencyCode.toUpperCase(),
+      CUSTOM: options.idempotencyKey,
       INVNUM: options.invoiceNumber,
+      ...(options.ipaddress && { IPADDRESS: options.ipaddress }),
       MSGSUBID: options.idempotencyKey,
       PAYMENTACTION: 'Sale',
       PAYMENTTYPE: 'instant',
@@ -366,6 +450,27 @@ export class PayPalClient {
     };
     return this.doRequest<NVPDoReferenceTransactionResponse>(
       'DoReferenceTransaction',
+      data
+    );
+  }
+
+  /**
+   * Call the PayPal RefundTransaction NVP API
+   *
+   * Using the PayPal RefundTransaction API (https://developer.paypal.com/docs/nvp-soap-api/refund-transaction-nvp/)
+   * we fund the entire transaction to the user.
+   *
+   * @param options
+   */
+  public async refundTransaction(
+    options: RefundTransactionOptions
+  ): Promise<NVPRefundTransactionResponse> {
+    const data = {
+      TRANSACTIONID: options.transactionId,
+      MSGSUBID: options.idempotencyKey,
+    };
+    return this.doRequest<NVPRefundTransactionResponse>(
+      'RefundTransaction',
       data
     );
   }

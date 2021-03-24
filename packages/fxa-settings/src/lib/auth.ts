@@ -4,6 +4,7 @@ import AuthClient, {
   AuthServerError,
   generateRecoveryKey,
 } from 'fxa-auth-client/browser';
+import { useConfig } from './config';
 
 export interface AuthContextValue {
   auth?: AuthClient;
@@ -124,6 +125,48 @@ export function useRecoveryKeyMaker({
         true
       );
       return recoveryKey;
+    },
+    {
+      onSuccess,
+      onError,
+    }
+  );
+}
+
+export function useAvatarUploader({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (avatar: { id: string; url: string }) => void;
+  onError?: (err: Error) => void;
+}) {
+  const config = useConfig();
+  const auth = useAuth();
+  return useAsyncCallback(
+    async (sessionToken: hexstring, file: Blob) => {
+      const { access_token } = await auth.createOAuthToken(
+        sessionToken,
+        config.oauth.clientId,
+        {
+          scope: 'profile:write clients:write',
+          ttl: 300,
+        }
+      );
+      const response = await fetch(
+        `${config.servers.profile.url}/v1/avatar/upload`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            'Content-Type': file.type,
+          },
+          body: file,
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`${response.status}`);
+      }
+      return await response.json();
     },
     {
       onSuccess,

@@ -1,4 +1,5 @@
 @import '../../fxa-content-server/app/styles/main';
+@import './styles/mixins';
 @import './styles/variables';
 
 // HACK: We render into <div id="root"> rather than <body>, so try to minimize
@@ -43,21 +44,20 @@ h3.billing-title {
 .main-content {
   display: grid;
   grid-template-columns: 100vw;
-  grid-template-rows: auto auto auto;
+  grid-template-rows: min-content;
   grid-column-gap: 16px;
   margin-top: $header-height;
   min-height: calc(100vh - #{$header-height});
 
   @include min-width('tablet') {
     grid-template-columns: minmax(375px, 500px) 343px;
-    grid-template-rows: auto;
+    grid-column-gap: 32px;
     margin: $header-height-tablet 12px auto;
     min-height: calc(100vh - #{$header-height-tablet});
   }
 
   @include min-width('desktop') {
     grid-template-columns: 600px 343px;
-    grid-column-gap: 48px;
   }
 }
 
@@ -209,40 +209,11 @@ hr {
 }
 
 .c-card {
-  position: relative;
-
   &.new-sub {
     font-weight: bold;
-    margin-left: 45px;
   }
 }
 
-.c-card::before {
-  content: '';
-  display: block;
-  height: 27px;
-  left: -45px;
-  position: absolute;
-  top: 0;
-  width: 40px;
-}
-
-.unbranded::before {
-  background: url('./images/unbranded.svg') no-repeat;
-}
-
-.visa::before {
-  background: url('./images/visa.svg') no-repeat;
-}
-
-.mastercard::before {
-  background: url('./images/mastercard.svg') no-repeat;
-}
-
-.american::before {
-  background: url('./images/amex.svg') no-repeat;
-}
-
-.discover::before {
-  background: url('./images/discover.svg') no-repeat;
+.hidden {
+  display: none !important;
 }

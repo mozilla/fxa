@@ -78,7 +78,7 @@ describe('UnitRowSecondaryEmail', () => {
       ).toContain('None');
       expect(
         screen.getByTestId('secondary-email-unit-row-route')
-      ).toHaveAttribute('href', '/beta/settings/emails');
+      ).toHaveAttribute('href', '/settings/emails');
       expect(
         screen.getByTestId('secondary-email-default-content')
       ).toBeInTheDocument();
@@ -261,7 +261,7 @@ describe('UnitRowSecondaryEmail', () => {
       });
       await wait();
 
-      expect(history.location.pathname).toEqual('/beta/settings/emails/verify');
+      expect(history.location.pathname).toEqual('/settings/emails/verify');
     });
 
     it('displays an error message in the AlertBar', async () => {

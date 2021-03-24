@@ -94,12 +94,12 @@ describe('views/post_verify/secondary_email/confirm_secondary_email', () => {
         sinon
           .stub(account, 'recoveryEmails')
           .callsFake(() => Promise.resolve(new Array(3)));
-        sinon.spy(view, 'navigate');
+        sinon.spy(view, 'navigateAway');
         return view.render();
       });
 
       it('redirects to the settings page', () => {
-        assert.isTrue(view.navigate.calledWith('/settings'));
+        assert.isTrue(view.navigateAway.calledWith('/settings'));
       });
     });
 

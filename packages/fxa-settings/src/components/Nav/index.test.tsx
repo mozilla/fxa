@@ -71,4 +71,20 @@ describe('Nav', () => {
       '/subscriptions'
     );
   });
+
+  it('renders as expected without newsletters link', () => {
+    const config = Object.assign({}, getDefault(), {
+      marketingEmailPreferencesUrl: '',
+    });
+
+    render(
+      <MockedCache>
+        <ConfigContext.Provider value={config}>
+          <Nav />
+        </ConfigContext.Provider>
+      </MockedCache>
+    );
+
+    expect(screen.queryByTestId('nav-link-newsletters')).toBeNull();
+  });
 });

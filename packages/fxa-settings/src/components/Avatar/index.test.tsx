@@ -10,7 +10,7 @@ import Avatar from '.';
 describe('Avatar', () => {
   it('renders default avatar with expected attributes', () => {
     render(
-      <MockedCache account={{ avatarUrl: null }}>
+      <MockedCache account={{ avatar: { id: null, url: null } }}>
         <Avatar />
       </MockedCache>
     );
@@ -24,7 +24,7 @@ describe('Avatar', () => {
 
   it('renders default avatar with a custom className', () => {
     render(
-      <MockedCache account={{ avatarUrl: null }}>
+      <MockedCache account={{ avatar: { id: null, url: null } }}>
         <Avatar className="my-class" />
       </MockedCache>
     );

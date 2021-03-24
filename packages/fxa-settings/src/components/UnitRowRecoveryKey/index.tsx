@@ -75,7 +75,7 @@ export const UnitRowRecoveryKey = () => {
       headerId="recovery-key"
       prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
-      headerValue={recoveryKey ? 'Enabled' : 'Not Set'}
+      headerValue={recoveryKey ? 'Enabled' : 'Not set'}
       route={recoveryKey ? undefined : `${HomePath}/account_recovery`}
       revealModal={recoveryKey ? revealModal : undefined}
       ctaText={recoveryKey ? 'Remove' : 'Create'}
@@ -118,9 +118,9 @@ export const UnitRowRecoveryKey = () => {
             hideModal();
             alertBar.error(
               l10n.getString(
-                'rk-cannot-verify-session',
+                'rk-cannot-verify-session-2',
                 null,
-                'Sorry, there was a problem verifying your session'
+                'Sorry, there was a problem verifying your session.'
               ),
               error
             );

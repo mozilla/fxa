@@ -104,6 +104,7 @@ const ERRNO = {
   UNKNOWN_SUBSCRIPTION_FOR_SOURCE: 188,
   ECOSYSTEM_ANON_ID_UPDATE_CONFLICT: 190,
   ECOSYSTEM_ANON_ID_NO_CONDITION: 191,
+  BILLING_AGREEMENT_EXISTS: 192,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -652,6 +653,50 @@ AppError.invalidRegion = (region) => {
     },
     {
       region,
+    }
+  );
+};
+
+AppError.currencyCountryMismatch = (currency, country) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_REGION,
+      message: 'Funding source country does not match plan currency.',
+    },
+    {
+      currency,
+      country,
+    }
+  );
+};
+
+AppError.currencyCurrencyMismatch = (currencyA, currencyB) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_REGION,
+      message: `Changing currencies is not permitted.`,
+    },
+    {
+      currencyA,
+      currencyB,
+    }
+  );
+};
+
+AppError.billingAgreementExists = (customerId) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.BILLING_AGREEMENT_EXISTS,
+      message: `Billing agreement already on file for this customer.`,
+    },
+    {
+      customerId,
     }
   );
 };

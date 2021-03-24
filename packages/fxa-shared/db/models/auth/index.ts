@@ -21,20 +21,26 @@ export type PayPalBillingAgreementStatusType =
 
 export async function sessionTokenData(
   tokenId: string
-): Promise<SessionToken | undefined> {
+): Promise<SessionToken | null> {
   let tokenBuffer: Buffer;
   try {
     tokenBuffer = uuidTransformer.to(tokenId);
   } catch (err) {
-    return;
+    return null;
   }
   const knex = Account.knex();
   const [result] = await knex.raw('Call sessionWithDevice_18(?)', tokenBuffer);
   const rowPacket = result.shift();
   if (rowPacket.length === 0) {
-    return;
+    return null;
   }
-  return SessionToken.fromDatabaseRow(rowPacket[0]);
+  const token = SessionToken.fromDatabaseRow(rowPacket[0]);
+  //TODO FIXME unhardcode the 28 day expiry
+  if (token.deviceId || token.createdAt > Date.now() - 2419200000) {
+    return token;
+  }
+  // expired
+  return null;
 }
 
 export async function accountExists(uid: string) {
@@ -148,6 +154,17 @@ export async function getAllPayPalBAByUid(
   return PayPalBillingAgreements.query()
     .where({ uid: uidBuffer })
     .orderBy('createdAt', 'DESC');
+}
+
+/**
+ * Get the PayPal Billing Agreements by billing agreement id
+ *
+ * @param billingAgreementId
+ */
+export async function getPayPalBAByBAId(
+  billingAgreementId: string
+): Promise<PayPalBillingAgreements> {
+  return PayPalBillingAgreements.query().findOne({ billingAgreementId });
 }
 
 /**

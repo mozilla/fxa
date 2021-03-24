@@ -133,7 +133,7 @@ const View = FormView.extend({
   },
 
   createRecoveryKey() {
-    this.navigate('settings/account_recovery/confirm_password');
+    this.navigateAway('settings/account_recovery');
   },
 
   gotoProductPage() {
@@ -141,7 +141,7 @@ const View = FormView.extend({
   },
 
   gotoSettings() {
-    this.navigate('settings');
+    this.navigateAway('settings');
   },
 
   isPasswordReset() {

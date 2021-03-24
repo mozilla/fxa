@@ -1,6 +1,7 @@
 import { actions } from './actions';
 import { Plan } from './types';
 import { FunctionWithIgnoredReturn } from '../lib/types';
+import { ProviderType } from '../lib/PaymentProvider';
 
 const {
   fetchProfile,
@@ -52,10 +53,13 @@ export const fetchCustomerAndSubscriptions = () => async (
 
 export const updateSubscriptionPlanAndRefresh = (
   subscriptionId: string,
-  plan: Plan
+  plan: Plan,
+  paymentProvider: ProviderType | undefined
 ) => async (dispatch: Function) => {
   try {
-    await dispatch(updateSubscriptionPlan(subscriptionId, plan));
+    await dispatch(
+      updateSubscriptionPlan(subscriptionId, plan, paymentProvider)
+    );
     await dispatch(fetchCustomerAndSubscriptions());
   } catch (err) {
     handleThunkError(err);
@@ -64,10 +68,11 @@ export const updateSubscriptionPlanAndRefresh = (
 
 export const cancelSubscriptionAndRefresh = (
   subscriptionId: string,
-  plan: Plan
+  plan: Plan,
+  paymentProvider: ProviderType | undefined
 ) => async (dispatch: Function, getState: Function) => {
   try {
-    await dispatch(cancelSubscription(subscriptionId, plan));
+    await dispatch(cancelSubscription(subscriptionId, plan, paymentProvider));
     await dispatch(fetchCustomerAndSubscriptions());
   } catch (err) {
     handleThunkError(err);

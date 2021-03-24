@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { gql } from '@apollo/client';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useEffect, useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../DataBlock';
+import { HomePath } from '../../constants';
 import { useSession } from '../../models';
+import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { AlertBar } from '../AlertBar';
 import { useLocalization, Localized } from '@fluent/react';
@@ -24,8 +26,20 @@ export const CHANGE_RECOVERY_CODES_MUTATION = gql`
 
 export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
+  const navigate = useNavigate();
   const session = useSession();
-  const goBack = () => window.history.back();
+  const goHome = () =>
+    navigate(HomePath + '#two-step-authentication', { replace: true });
+  const alertSuccessAndGoHome = () => {
+    alertTextExternal(
+      l10n.getString(
+        'tfa-replace-code-success-alert',
+        null,
+        'Account recovery codes updated.'
+      )
+    );
+    navigate(HomePath + '#two-step-authentication', { replace: true });
+  };
   const { l10n } = useLocalization();
 
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
@@ -50,7 +64,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
 
   return (
     <FlowContainer title="Two Step Authentication">
-      <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+      <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
 
       {alertBar.visible && (
         <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
@@ -73,7 +87,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
           type="button"
           className="cta-neutral mx-2 px-10"
           data-testid="close-modal"
-          onClick={goBack}
+          onClick={alertSuccessAndGoHome}
         >
           Close
         </button>

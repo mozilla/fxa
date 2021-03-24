@@ -24,6 +24,7 @@ yarn lint
 cd ../../
 mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
+export NEW_SETTINGS=false
 yarn workspaces foreach \
     --verbose \
     --topological-dev \
@@ -32,6 +33,7 @@ yarn workspaces foreach \
     --include fxa-auth-db-mysql \
     --include fxa-auth-server \
     --include fxa-content-server \
+    --include fxa-graphql-api \
     --include fxa-payments-server \
     --include fxa-profile-server \
     --include fxa-react \

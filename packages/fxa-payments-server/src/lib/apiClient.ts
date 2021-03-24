@@ -2,6 +2,7 @@ import { Config, defaultConfig } from './config';
 import { Plan, Profile, Customer, Subscription, Token } from '../store/types';
 import * as Amplitude from './amplitude';
 import { PaymentMethod } from '@stripe/stripe-js';
+import { ProviderType } from './PaymentProvider';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
@@ -126,11 +127,13 @@ export async function apiUpdateSubscriptionPlan(params: {
   subscriptionId: string;
   planId: string;
   productId: string;
+  paymentProvider: ProviderType | undefined;
 }) {
-  const { subscriptionId, planId, productId } = params;
-  const metricsOptions = {
+  const { subscriptionId, planId, productId, paymentProvider } = params;
+  const metricsOptions: Amplitude.EventProperties = {
     planId,
     productId,
+    paymentProvider,
   };
   try {
     Amplitude.updateSubscriptionPlan_PENDING(metricsOptions);
@@ -154,11 +157,13 @@ export async function apiCancelSubscription(params: {
   subscriptionId: string;
   planId: string;
   productId: string;
+  paymentProvider: ProviderType | undefined;
 }) {
-  const { subscriptionId } = params;
+  const { subscriptionId, planId, productId, paymentProvider } = params;
   const metricsOptions = {
-    planId: params.planId,
-    productId: params.productId,
+    planId,
+    productId,
+    paymentProvider,
   };
   try {
     Amplitude.cancelSubscription_PENDING(metricsOptions);
@@ -220,6 +225,40 @@ export async function apiGetPaypalCheckoutToken(params: {
   );
 }
 
+export async function apiCapturePaypalPayment(params: {
+  idempotencyKey: string;
+  priceId: string;
+  token: string;
+}): Promise<{
+  sourceCountry: string;
+  subscription: Subscription;
+}> {
+  const metricsOptions: Amplitude.EventProperties = {
+    planId: params.priceId,
+    paymentProvider: 'paypal',
+  };
+  Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
+  try {
+    const response = await apiFetch(
+      'POST',
+      `${config.servers.auth.url}/v1/oauth/subscriptions/active/new-paypal`,
+      { body: JSON.stringify(params) }
+    );
+    Amplitude.createSubscriptionWithPaymentMethod_FULFILLED({
+      ...metricsOptions,
+      sourceCountry: response.sourceCountry,
+    });
+
+    return response;
+  } catch (error) {
+    Amplitude.createSubscriptionWithPaymentMethod_REJECTED({
+      ...metricsOptions,
+      error,
+    });
+    throw error;
+  }
+}
+
 export async function apiCreateSubscriptionWithPaymentMethod(params: {
   priceId: string;
   productId: string;
@@ -238,9 +277,10 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
   };
 }> {
   const { priceId, paymentMethodId, idempotencyKey } = params;
-  const metricsOptions = {
+  const metricsOptions: Amplitude.EventProperties = {
     planId: params.priceId,
     productId: params.productId,
+    paymentProvider: 'stripe',
   };
   try {
     Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
@@ -302,17 +342,21 @@ export async function apiUpdateDefaultPaymentMethod(params: {
   paymentMethodId: string;
 }): Promise<Customer> {
   const { paymentMethodId } = params;
+  const metricsOptions: Amplitude.EventProperties = {
+    paymentProvider: 'stripe', // see issue #7883
+  };
   try {
-    Amplitude.updateDefaultPaymentMethod_PENDING();
+    Amplitude.updateDefaultPaymentMethod_PENDING(metricsOptions);
     const result = await apiFetch(
       'POST',
       `${config.servers.auth.url}/v1/oauth/subscriptions/paymentmethod/default`,
       { body: JSON.stringify({ paymentMethodId }) }
     );
-    Amplitude.updateDefaultPaymentMethod_FULFILLED();
+    Amplitude.updateDefaultPaymentMethod_FULFILLED(metricsOptions);
     return result;
   } catch (error) {
     Amplitude.updateDefaultPaymentMethod_REJECTED({
+      ...metricsOptions,
       error,
     });
     throw error;

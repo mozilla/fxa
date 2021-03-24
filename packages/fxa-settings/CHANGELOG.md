@@ -1,3 +1,85 @@
+## 1.202.3
+
+### Bug fixes
+
+- settings: hide flash of GAE on invalid token before redirect ([011bacbf6](https://github.com/mozilla/fxa/commit/011bacbf6))
+
+## 1.202.2
+
+No changes.
+
+## 1.202.1
+
+No changes.
+
+## 1.202.0
+
+### New features
+
+- settings: default to beta/settings ([02cb62636](https://github.com/mozilla/fxa/commit/02cb62636))
+- settings: hide email communications link if set to empty url ([5e17a4d09](https://github.com/mozilla/fxa/commit/5e17a4d09))
+
+### Bug fixes
+
+- l10n: Pass navigator.languages into the new settings page ([b13e88e3e](https://github.com/mozilla/fxa/commit/b13e88e3e))
+- settings: rename goHome and goBack functions ([f62f1b099](https://github.com/mozilla/fxa/commit/f62f1b099))
+- settings: added "Saving" button state to avatar upload ([50cf58bcc](https://github.com/mozilla/fxa/commit/50cf58bcc))
+- settings: fixed slider style when csp blocks inline styles ([982c7b6c0](https://github.com/mozilla/fxa/commit/982c7b6c0))
+
+### Other changes
+
+- deps-dev: bump webpack-merge-and-include-globally ([f5b5386fc](https://github.com/mozilla/fxa/commit/f5b5386fc))
+- deps-dev: bump @types/webpack from 4.41.16 to 4.41.26 ([2cb798d6c](https://github.com/mozilla/fxa/commit/2cb798d6c))
+- deps: bump react-hook-form from 6.15.3 to 6.15.4 ([ce0e79a51](https://github.com/mozilla/fxa/commit/ce0e79a51))
+
+## 1.201.1
+
+### Bug fixes
+
+- settings: added "Saving" button state to avatar upload ([bf6dff739](https://github.com/mozilla/fxa/commit/bf6dff739))
+- settings: fixed slider style when csp blocks inline styles ([ae69c6e0a](https://github.com/mozilla/fxa/commit/ae69c6e0a))
+
+## 1.201.0
+
+### New features
+
+- settings: finish implementing delete avatar ([77aa4fd8d](https://github.com/mozilla/fxa/commit/77aa4fd8d))
+
+### Bug fixes
+
+- settings: use URL hashes to navigate back/home ([c5b06a9c5](https://github.com/mozilla/fxa/commit/c5b06a9c5))
+- l10n: Update a stray l10n ID ([88daf1a0b](https://github.com/mozilla/fxa/commit/88daf1a0b))
+- setting: small margin misalignment ([e1a64d5b5](https://github.com/mozilla/fxa/commit/e1a64d5b5))
+- l10n: Use singular "Firefox account" in context ([b48953c7b](https://github.com/mozilla/fxa/commit/b48953c7b))
+- l10n: Consistently use periods at the ends of error sentences ([9a7e68754](https://github.com/mozilla/fxa/commit/9a7e68754))
+- settings: fixed casing for new settings strings ([b180b7ffd](https://github.com/mozilla/fxa/commit/b180b7ffd))
+- settings: show notification on task completion ([11eec6c3c](https://github.com/mozilla/fxa/commit/11eec6c3c))
+- settings: Another round of settings l10n fixes ([eb0ebcb9d](https://github.com/mozilla/fxa/commit/eb0ebcb9d))
+- settings: Shorten 'delete account' button string to fit ([3cf966a08](https://github.com/mozilla/fxa/commit/3cf966a08))
+- settings: Add page view event for PageChangePassword metrics parity ([33f5b812e](https://github.com/mozilla/fxa/commit/33f5b812e))
+- settings: set disconnect reason on form change instead of confirm since onConfirm does not pass arguments ([fb802c6e8](https://github.com/mozilla/fxa/commit/fb802c6e8))
+- settings: ensure modal callbacks adhere to the defined type ([06a2de0fb](https://github.com/mozilla/fxa/commit/06a2de0fb))
+- settings: Update l10n strings based on l10n PR feedback ([0c628196a](https://github.com/mozilla/fxa/commit/0c628196a))
+- settings: mobile style fixes ([6edc13405](https://github.com/mozilla/fxa/commit/6edc13405))
+- fxa-settings: add/change avatar button alignment ([ab7a6d5db](https://github.com/mozilla/fxa/commit/ab7a6d5db))
+- settings: account for sessionToken.mustVerify in new settings ([042ab46d5](https://github.com/mozilla/fxa/commit/042ab46d5))
+
+### Refactorings
+
+- settings: refactor flow parameters to avoid /get_flow ([95c54416a](https://github.com/mozilla/fxa/commit/95c54416a))
+
+### Other changes
+
+- settings: add metrics to new avatar page ([98041b5b4](https://github.com/mozilla/fxa/commit/98041b5b4))
+- settings: ignore settings.ftl ([a1414bfe6](https://github.com/mozilla/fxa/commit/a1414bfe6))
+- settings: do not show "take a photo" option on mobile ([000924882](https://github.com/mozilla/fxa/commit/000924882))
+- deps-dev: bump @testing-library/user-event from 12.6.0 to 12.7.1 ([7f04d1be9](https://github.com/mozilla/fxa/commit/7f04d1be9))
+- settings: upload avatar directly to profile server ([fa32870cc](https://github.com/mozilla/fxa/commit/fa32870cc))
+- fxa-settings: add avatar delete mutation ([510c2faef](https://github.com/mozilla/fxa/commit/510c2faef))
+- deps: yarn dedupe ([50f8a74fd](https://github.com/mozilla/fxa/commit/50f8a74fd))
+- fxa-settings: load styles for react-easy-crop ([c5de3e531](https://github.com/mozilla/fxa/commit/c5de3e531))
+- deps-dev: bump @types/testing-library\_\_react-hooks ([a1fe53895](https://github.com/mozilla/fxa/commit/a1fe53895))
+
 ## 1.200.0
 
 ### New features

@@ -62,7 +62,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   );
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const goBack = useCallback(() => window.history.back(), []);
+  const goHome = useCallback(() => window.history.back(), []);
 
   const { primaryEmail, uid } = useAccount();
 
@@ -117,16 +117,16 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
 
   return (
     <Localized id="delete-account-header" attrs={{ title: true }}>
-      <FlowContainer title="Delete Account" subtitle={subtitleText}>
+      <FlowContainer title="Delete account" subtitle={subtitleText}>
         {alertBar.visible && (
           <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
             <p data-testid="delete-account-error">{alertBar.content}</p>
           </AlertBar>
         )}
-        <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {!confirmed && (
           <div className="my-4 text-sm" data-testid="delete-account-confirm">
-            <Localized id="delete-account-confirm-title">
+            <Localized id="delete-account-confirm-title-2">
               <p className="mb-4">
                 You've connected your Firefox account to Mozilla products that
                 keep you secure and productive on the web:
@@ -136,7 +136,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               <ul className="list-inside mb-4">
                 <li className="list-disc">
                   <a className="link-blue" href={VPNLink}>
-                    <Localized id="mozilla-vpn">Mozilla VPN</Localized>
+                    <Localized id="product-mozilla-vpn">Mozilla VPN</Localized>
                   </a>
                 </li>
                 <li className="list-disc">
@@ -148,7 +148,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                 </li>
                 <li className="list-disc">
                   <a className="link-blue" href={MonitorLink}>
-                    <Localized id="firefox-monitor">Firefox Monitor</Localized>
+                    <Localized id="product-firefox-monitor">
+                      Firefox Monitor
+                    </Localized>
                   </a>
                 </li>
               </ul>
@@ -177,7 +179,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               <Localized id="delete-account-close-button">
                 <button
                   className="cta-neutral mx-2 px-10"
-                  onClick={() => navigate(HomePath, { replace: true })}
+                  onClick={() =>
+                    navigate(HomePath + '#delete-account', { replace: true })
+                  }
                   data-testid="close-button"
                 >
                   Close
@@ -226,19 +230,19 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   type="button"
                   className="cta-neutral mx-2 px-4 tablet:px-10"
                   data-testid="cancel-button"
-                  onClick={goBack}
+                  onClick={goHome}
                 >
                   Cancel
                 </button>
               </Localized>
-              <Localized id="delete-account-delete-button">
+              <Localized id="delete-account-delete-button-2">
                 <button
                   type="submit"
                   className="cta-primary mx-2 px-4"
                   data-testid="delete-account-button"
                   disabled={disabled}
                 >
-                  Delete Account
+                  Delete
                 </button>
               </Localized>
             </div>

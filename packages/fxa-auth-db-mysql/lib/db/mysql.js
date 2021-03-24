@@ -1481,16 +1481,16 @@ module.exports = function (log, error) {
 
   const UPDATE_TOTP_TOKEN = 'CALL updateTotpToken_4(?, ?, ?)';
   MySql.prototype.updateTotpToken = function (uid, token) {
-    return this.read(UPDATE_TOTP_TOKEN, [
-      uid,
-      token.verified,
-      token.enabled,
-    ]).then((result) => {
-      if (result.affectedRows === 0) {
-        throw error.notFound();
+    return this.write(
+      UPDATE_TOTP_TOKEN,
+      [uid, token.verified, token.enabled],
+      (result) => {
+        if (result.affectedRows === 0) {
+          throw error.notFound();
+        }
+        return {};
       }
-      return P.resolve({});
-    });
+    );
   };
 
   const VERIFY_SESSION_WITH_METHOD = 'CALL verifyTokensWithMethod_3(?, ?, ?)';
@@ -1504,13 +1504,11 @@ module.exports = function (log, error) {
         throw error.invalidVerificationMethod();
       }
 
-      return this.read(VERIFY_SESSION_WITH_METHOD, [
-        tokenId,
-        verificationMethod,
-        Date.now(),
-      ])
-        .then((results) => {
-          if (results.affectedRows === 0) {
+      return this.write(
+        VERIFY_SESSION_WITH_METHOD,
+        [tokenId, verificationMethod, Date.now()],
+        (result) => {
+          if (result.affectedRows === 0) {
             throw error.notFound();
           }
 
@@ -1527,8 +1525,8 @@ module.exports = function (log, error) {
               throw err;
             });
           });
-        })
-        .then(() => P.resolve({}));
+        }
+      ).then(() => P.resolve({}));
     });
   };
 
@@ -1542,7 +1540,7 @@ module.exports = function (log, error) {
     return dbUtil
       .generateRecoveryCodes(count, RECOVERY_CODE_LENGTH)
       .then((codes) => {
-        return this.read(DELETE_RECOVERY_CODES, [uid])
+        return this.write(DELETE_RECOVERY_CODES, [uid])
           .then(() => codes.map((code) => dbUtil.createHashScrypt(code)))
           .all()
           .then((items) => {

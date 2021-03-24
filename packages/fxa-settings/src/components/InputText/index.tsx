@@ -97,7 +97,7 @@ export const InputText = ({
           {label}
         </span>
         <input
-          className="pb-1 pt-5 px-3 w-full font-body text-sm rounded focus:outline-none disabled:bg-grey-10 placeholder-transparent focus:placeholder-grey-500 text-grey-600 disabled:text-grey-300 disabled:cursor-default"
+          className="pb-1 pt-5 px-3 w-full font-body rounded focus:outline-none disabled:bg-grey-10 placeholder-transparent focus:placeholder-grey-500 text-grey-600 disabled:text-grey-300 disabled:cursor-default"
           data-testid={formatDataTestId('input-field')}
           onChange={textFieldChange}
           ref={inputRef}

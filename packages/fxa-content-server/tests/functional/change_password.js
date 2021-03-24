@@ -25,7 +25,6 @@ const {
   denormalizeStoredEmail,
   fillOutChangePassword,
   fillOutEmailFirstSignIn,
-  noSuchElementDisplayed,
   noSuchElement,
   openPage,
   pollUntilHiddenByQSA,
@@ -73,19 +72,9 @@ registerSuite('change_password', {
           // the validation tooltip should be visible
           .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
 
-          // click the show button, the error should not be hidden.
-          .then(click(selectors.CHANGE_PASSWORD.OLD_PASSWORD_SHOW))
-          .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
-
           // Change form so that it is valid, error should be hidden.
           .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
-
-          // Since the test is to see if the error is hidden,
-          // .findByClass cannot be used. We want the opposite of
-          // .findByClass.
-          .sleep(ANIMATION_DELAY_MS)
-
-          .then(noSuchElementDisplayed(selectors.CHANGE_PASSWORD.ERROR))
+          .then(noSuchElement(selectors.CHANGE_PASSWORD.TOOLTIP))
       );
     },
 
@@ -113,7 +102,7 @@ registerSuite('change_password', {
       );
     },
 
-    'new_password validation, balloon': function () {
+    'new_password validation': function () {
       return (
         this.remote
           .then(setupTest())
@@ -121,71 +110,68 @@ registerSuite('change_password', {
           .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
 
           // new_password empty
+          .then(click(selectors.CHANGE_PASSWORD.OLD_PASSWORD_LABEL))
           .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
-          // submit the form using the "enter" key, the SUBMIT button
-          // is obscured on teamcity and cannot be clicked.
-          .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, '\n'))
           .then(
             testElementExists(
-              selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL
+              selectors.SETTINGS_V2.CHANGE_PASSWORD.UNSET_LENGTH
             )
           )
 
           // new_password too short
+          .then(click(selectors.CHANGE_PASSWORD.NEW_PASSWORD_LABEL))
           .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'pass'))
           .then(
             testElementExists(
-              selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.MIN_LENGTH_FAIL
+              selectors.SETTINGS_V2.CHANGE_PASSWORD.INVALID_LENGTH
             )
           )
 
           // new_password too close to the email address
+          .then(click(selectors.CHANGE_PASSWORD.NEW_PASSWORD_LABEL))
           .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, email))
           .then(
             testElementExists(
-              selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_EMAIL_FAIL
+              selectors.SETTINGS_V2.CHANGE_PASSWORD.INVALID_SIMILAR_TO_EMAIL
             )
           )
 
           // new_password too common
+          .then(click(selectors.CHANGE_PASSWORD.NEW_PASSWORD_LABEL))
           .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'password'))
           .then(
             testElementExists(
-              selectors.CHANGE_PASSWORD.PASSWORD_BALLOON.NOT_COMMON_FAIL
+              selectors.SETTINGS_V2.CHANGE_PASSWORD.INVALID_TOO_COMMON
             )
           )
 
           // all good
+          .then(click(selectors.CHANGE_PASSWORD.NEW_PASSWORD_LABEL))
           .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, SECOND_PASSWORD))
+          .then(click(selectors.CHANGE_PASSWORD.NEW_VPASSWORD_LABEL))
           .then(type(selectors.CHANGE_PASSWORD.NEW_VPASSWORD, SECOND_PASSWORD))
+          .then(
+            testElementExists(
+              selectors.SETTINGS_V2.CHANGE_PASSWORD.VALID_LENGTH
+            )
+          )
+          .then(
+            testElementExists(
+              selectors.SETTINGS_V2.CHANGE_PASSWORD.VALID_SIMILAR_TO_EMAIL
+            )
+          )
+          .then(
+            testElementExists(
+              selectors.SETTINGS_V2.CHANGE_PASSWORD.VALID_TOO_COMMON
+            )
+          )
+          .then(
+            testElementExists(
+              selectors.SETTINGS_V2.CHANGE_PASSWORD.VALID_PASSWORD_MATCH
+            )
+          )
           .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
           .then(pollUntilHiddenByQSA(selectors.CHANGE_PASSWORD.DETAILS))
-      );
-    },
-
-    'new_vpassword validation, tooltip shows': function () {
-      return (
-        this.remote
-          .then(setupTest())
-
-          // Go to change password screen
-          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-          .then(
-            fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD, {
-              expectSuccess: false,
-              vpassword: '',
-            })
-          )
-          // the validation tooltip should be visible
-          .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
-          .then(
-            fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD, {
-              expectSuccess: false,
-              vpassword: 'different',
-            })
-          )
-          // the validation tooltip should be visible
-          .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
       );
     },
 

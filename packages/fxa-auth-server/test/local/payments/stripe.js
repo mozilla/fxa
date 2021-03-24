@@ -15,13 +15,19 @@ const error = require('../../../lib/error');
 const stripeError = require('stripe').Stripe.errors;
 const uuidv4 = require('uuid').v4;
 const moment = require('moment');
+const { Container } = require('typedi');
 
 const chance = new Chance();
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
-const StripeHelper = proxyquire('../../../lib/payments/stripe', {
+const {
+  StripeHelper,
+  STRIPE_INVOICE_METADATA,
+  SUBSCRIPTION_UPDATE_TYPES,
+} = proxyquire('../../../lib/payments/stripe', {
   '../redis': (config, log) => mockRedis.init(config, log),
 });
+const { CurrencyHelper } = require('../../../lib/payments/currencies');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
 const newCustomer = require('./fixtures/stripe/customer_new.json');
@@ -46,10 +52,10 @@ const successfulPaymentIntent = require('./fixtures/stripe/paymentIntent_succeed
 const unsuccessfulPaymentIntent = require('./fixtures/stripe/paymentIntent_requires_payment_method.json');
 const paymentMethodAttach = require('./fixtures/stripe/payment_method_attach.json');
 const failedCharge = require('./fixtures/stripe/charge_failed.json');
-const invoicePaymentSucceededSubscriptionCreate = require('./fixtures/stripe/invoice_payment_succeeded_subscription_create.json');
+const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
-const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_payment_succeeded_subscription_create.json');
+const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const closedPaymementIntent = require('./fixtures/stripe/paymentIntent_succeeded.json');
 const newSetupIntent = require('./fixtures/stripe/setup_intent_new.json');
 const {
@@ -70,6 +76,7 @@ const mockConfig = {
     customerCacheTtlSeconds: 90,
     plansCacheTtlSeconds: 60,
   },
+  currenciesToCountries: { ZAR: ['AS', 'CA'] },
 };
 
 const mockRedisConfig = {
@@ -205,6 +212,9 @@ describe('StripeHelper', () => {
     sandbox = sinon.createSandbox();
     mockRedis = createMockRedis();
     log = mockLog();
+    // Make currencyHelper
+    const currencyHelper = new CurrencyHelper(mockConfig);
+    Container.set(CurrencyHelper, currencyHelper);
     stripeHelper = new StripeHelper(log, mockConfig);
     stripeHelper.redis = mockRedis;
     listStripePlans = sandbox
@@ -217,6 +227,13 @@ describe('StripeHelper', () => {
 
   afterEach(() => {
     sandbox.restore();
+  });
+
+  describe('constructur', () => {
+    it('sets currencyHelper', () => {
+      const expectedCurrencyHelper = new CurrencyHelper(mockConfig);
+      assert.deepEqual(stripeHelper.currencyHelper, expectedCurrencyHelper);
+    });
   });
 
   describe('createPlainCustomer', () => {
@@ -326,6 +343,115 @@ describe('StripeHelper', () => {
             assert.equal(err, apiError);
           }
         );
+    });
+  });
+
+  describe('getPaymentMethod', () => {
+    it('calls the Strip api', async () => {
+      const paymentMethodId = 'pm_9001';
+      sandbox.stub(stripeHelper.stripe.paymentMethods, 'retrieve');
+      await stripeHelper.getPaymentMethod(paymentMethodId);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.paymentMethods.retrieve,
+        paymentMethodId
+      );
+    });
+  });
+
+  describe('getPaymentProvider', () => {
+    let customerExpanded;
+    beforeEach(() => {
+      customerExpanded = deepCopy(customer1);
+    });
+
+    describe('returns correct value based on collection_method', () => {
+      describe('when collection_method is "send_invoice"', () => {
+        it('payment_provider is "paypal"', async () => {
+          subscription2.collection_method = 'send_invoice';
+          customerExpanded.subscriptions.data[0] = subscription2;
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'paypal'
+          );
+        });
+      });
+
+      describe('when the customer has a canceled subscription', () => {
+        it('payment_provider is "not_chosen"', async () => {
+          customerExpanded.subscriptions.data[0] = cancelledSubscription;
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'not_chosen'
+          );
+        });
+      });
+
+      describe('when the customer has no subscriptions', () => {
+        it('payment_provider is "not_chosen"', async () => {
+          customerExpanded.subscriptions.data = [];
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'not_chosen'
+          );
+        });
+      });
+
+      describe('when collection_method is "instant"', () => {
+        it('payment_provider is "stripe"', async () => {
+          subscription2.collection_method = 'instant';
+          customerExpanded.subscriptions.data[0] = subscription2;
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'stripe'
+          );
+        });
+      });
+    });
+  });
+
+  describe('hasSubscriptionRequiringPaymentMethod', () => {
+    let customerExpanded;
+    beforeEach(() => {
+      customerExpanded = deepCopy(customer1);
+    });
+
+    it('returns true for a non-cancelled active subscription', () => {
+      subscription2.status = 'active';
+      subscription2.cancel_at_period_end = false;
+      customerExpanded.subscriptions.data[0] = subscription2;
+      assert.isTrue(
+        stripeHelper.hasSubscriptionRequiringPaymentMethod(customerExpanded)
+      );
+    });
+
+    it('returns false for a cancelled active subscription', () => {
+      subscription2.status = 'active';
+      subscription2.cancel_at_period_end = true;
+      customerExpanded.subscriptions.data[0] = subscription2;
+      assert.isFalse(
+        stripeHelper.hasSubscriptionRequiringPaymentMethod(customerExpanded)
+      );
+    });
+  });
+
+  describe('hasOpenInvoice', () => {
+    let customerExpanded;
+    let invoice;
+
+    beforeEach(() => {
+      customerExpanded = deepCopy(customer1);
+      invoice = deepCopy(paidInvoice);
+      customerExpanded.subscriptions.data[0] = subscription2;
+      subscription2.latest_invoice = invoice;
+    });
+
+    it('returns true for an open invoice', () => {
+      invoice.status = 'open';
+      assert.isTrue(stripeHelper.hasOpenInvoice(customerExpanded));
+    });
+
+    it('returns false for no open invoices', () => {
+      assert.isFalse(stripeHelper.hasOpenInvoice(customerExpanded));
     });
   });
 
@@ -655,6 +781,20 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('getInvoice', () => {
+    it('works successfully', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieve')
+        .resolves(unpaidInvoice);
+      const actual = await stripeHelper.getInvoice(unpaidInvoice.id);
+      assert.deepEqual(actual, unpaidInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.retrieve,
+        unpaidInvoice.id
+      );
+    });
+  });
+
   describe('finalizeInvoice', () => {
     it('works successfully', async () => {
       sandbox
@@ -685,6 +825,24 @@ describe('StripeHelper', () => {
         unpaidInvoice.id,
         {
           metadata: { paypalTransactionId: 'tid' },
+        }
+      );
+    });
+  });
+
+  describe('updateInvoiceWithPaypalRefundTransactionId', () => {
+    it('works successfully', async () => {
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      const actual = await stripeHelper.updateInvoiceWithPaypalRefundTransactionId(
+        unpaidInvoice,
+        'tid'
+      );
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        unpaidInvoice.id,
+        {
+          metadata: { paypalRefundTransactionId: 'tid' },
         }
       );
     });
@@ -735,6 +893,98 @@ describe('StripeHelper', () => {
         }
       );
     });
+
+    it('returns 3 updating from 1', async () => {
+      const attemptedInvoice = deepCopy(unpaidInvoice);
+      attemptedInvoice.metadata.paymentAttempts = '1';
+      const actual = stripeHelper.getPaymentAttempts(attemptedInvoice);
+      assert.equal(actual, 1);
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      await stripeHelper.updatePaymentAttempts(attemptedInvoice, 3);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        attemptedInvoice.id,
+        {
+          metadata: { paymentAttempts: '3' },
+        }
+      );
+    });
+  });
+
+  describe('getEmailTypes', () => {
+    it('returns empty array when no email was sent', () => {
+      const actual = stripeHelper.getEmailTypes(unpaidInvoice);
+      assert.deepEqual(actual, []);
+    });
+
+    it('returns the only email sent', () => {
+      const emailSentInvoice = {
+        ...unpaidInvoice,
+        metadata: { [STRIPE_INVOICE_METADATA.EMAIL_SENT]: 'paymentFailed' },
+      };
+      const actual = stripeHelper.getEmailTypes(emailSentInvoice);
+      assert.deepEqual(actual, ['paymentFailed']);
+    });
+
+    it('returns all types of emails sent', () => {
+      const emailSentInvoice = {
+        ...unpaidInvoice,
+        metadata: { [STRIPE_INVOICE_METADATA.EMAIL_SENT]: 'paymentFailed:foo' },
+      };
+      const actual = stripeHelper.getEmailTypes(emailSentInvoice);
+      assert.deepEqual(actual, ['paymentFailed', 'foo']);
+    });
+  });
+
+  describe('updateEmailSent', () => {
+    const emailSentInvoice = {
+      ...unpaidInvoice,
+      metadata: { [STRIPE_INVOICE_METADATA.EMAIL_SENT]: 'paymentFailed' },
+    };
+
+    it('returns undefined if email type already sent', async () => {
+      const actual = await stripeHelper.updateEmailSent(
+        emailSentInvoice,
+        'paymentFailed'
+      );
+      assert.equal(actual, undefined);
+    });
+
+    it('returns invoice updated with new email type', async () => {
+      const emailSendInvoice = deepCopy(unpaidInvoice);
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      const actual = await stripeHelper.updateEmailSent(
+        emailSendInvoice,
+        'paymentFailed'
+      );
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        emailSendInvoice.id,
+        {
+          metadata: emailSentInvoice.metadata,
+        }
+      );
+    });
+
+    it('returns invoice updated with another email type', async () => {
+      const emailSendInvoice = deepCopy(emailSentInvoice);
+      sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
+      const actual = await stripeHelper.updateEmailSent(
+        emailSendInvoice,
+        'foo'
+      );
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.update,
+        emailSendInvoice.id,
+        {
+          metadata: {
+            [STRIPE_INVOICE_METADATA.EMAIL_SENT]: 'paymentFailed:foo',
+          },
+        }
+      );
+    });
   });
 
   describe('payInvoiceOutOfBand', () => {
@@ -745,6 +995,38 @@ describe('StripeHelper', () => {
         stripeHelper.stripe.invoices.pay,
         unpaidInvoice.id,
         { paid_out_of_band: true }
+      );
+    });
+  });
+
+  describe('updateCustomerBillingAddress', () => {
+    it('updates Customer with empty PayPal billing address', async () => {
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+      const result = await stripeHelper.updateCustomerBillingAddress(
+        customer1.id,
+        {
+          city: 'city',
+          country: 'US',
+          line1: 'street address',
+          line2: undefined,
+          postalCode: '12345',
+          state: 'CA',
+        }
+      );
+      assert.deepEqual(result, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.update,
+        customer1.id,
+        {
+          address: {
+            city: 'city',
+            country: 'US',
+            line1: 'street address',
+            line2: undefined,
+            postal_code: '12345',
+            state: 'CA',
+          },
+        }
       );
     });
   });
@@ -776,6 +1058,38 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('removeCustomerPaypalAgreement', () => {
+    it('removes billing agreement id', async () => {
+      const paypalCustomer = deepCopy(customer1);
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+      const now = new Date();
+      const clock = sinon.useFakeTimers(now.getTime());
+
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox.stub(authDbModule, 'updatePayPalBA').returns(0);
+
+      await stripeHelper.removeCustomerPaypalAgreement(
+        'uid',
+        paypalCustomer.id,
+        'billingAgreementId'
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.update,
+        paypalCustomer.id,
+        { metadata: { paypalAgreementId: null } }
+      );
+      sinon.assert.calledOnceWithExactly(
+        authDbModule.updatePayPalBA,
+        'uid',
+        'billingAgreementId',
+        'Cancelled',
+        clock.now
+      );
+      clock.restore();
+    });
+  });
+
   describe('getCustomerPaypalAgreement', () => {
     it('returns undefined with no paypal agreement', () => {
       const actual = stripeHelper.getCustomerPaypalAgreement(customer1);
@@ -787,6 +1101,48 @@ describe('StripeHelper', () => {
       paypalCustomer.metadata.paypalAgreementId = 'test-1234';
       const actual = stripeHelper.getCustomerPaypalAgreement(paypalCustomer);
       assert.equal(actual, 'test-1234');
+    });
+  });
+
+  describe('fetchOpenInvoices', () => {
+    it('returns customer paypal agreement id', async () => {
+      sandbox.stub(stripeHelper.stripe.invoices, 'list').resolves({});
+      const actual = await stripeHelper.fetchOpenInvoices(0);
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(stripeHelper.stripe.invoices.list, {
+        customer: undefined,
+        limit: 100,
+        collection_method: 'send_invoice',
+        status: 'open',
+        created: 0,
+        expand: ['data.customer'],
+      });
+    });
+  });
+
+  describe('markUncollectible', () => {
+    it('returns an invoice marked uncollectible', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'markUncollectible')
+        .resolves({});
+      sandbox.stub(stripeHelper.stripe.invoices, 'list').resolves({});
+      const actual = await stripeHelper.markUncollectible(unpaidInvoice);
+      assert.deepEqual(actual, {});
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.invoices.markUncollectible,
+        unpaidInvoice.id
+      );
+    });
+  });
+
+  describe('cancelSubscription', () => {
+    it('sets subscription to cancelled', async () => {
+      sandbox.stub(stripeHelper.stripe.subscriptions, 'del').resolves({});
+      await stripeHelper.cancelSubscription('subscriptionId');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.del,
+        'subscriptionId'
+      );
     });
   });
 
@@ -1605,10 +1961,7 @@ describe('StripeHelper', () => {
         assert(mockRedis.set.calledOnce);
         assert(stripeHelper.stripe.customers.retrieve.calledOnce);
 
-        const customerKey = StripeHelper.StripeHelper.customerCacheKey([
-          existingUid,
-          email,
-        ]);
+        const customerKey = StripeHelper.customerCacheKey([existingUid, email]);
         assert.deepEqual(
           await stripeHelper.customer({ uid: existingUid, email }),
           JSON.parse(await mockRedis.get(customerKey))
@@ -1707,10 +2060,7 @@ describe('StripeHelper', () => {
       let customerKey;
 
       beforeEach(async () => {
-        customerKey = StripeHelper.StripeHelper.customerCacheKey([
-          existingUid,
-          email,
-        ]);
+        customerKey = StripeHelper.customerCacheKey([existingUid, email]);
         assert.deepEqual(
           await stripeHelper.customer({ uid: existingUid, email }),
           JSON.parse(await mockRedis.get(customerKey))
@@ -1746,10 +2096,7 @@ describe('StripeHelper', () => {
         });
 
         it('does not fail if key does not exist', async () => {
-          const key = StripeHelper.StripeHelper.customerCacheKey([
-            'test-test-test',
-            email,
-          ]);
+          const key = StripeHelper.customerCacheKey(['test-test-test', email]);
           assert.isUndefined(await mockRedis.get(key));
 
           await stripeHelper.removeCustomerFromCache('test-test-test', email);
@@ -1842,90 +2189,6 @@ describe('StripeHelper', () => {
       assert(stripeHelper.stripe.plans.list.calledOnce);
       assert.isObject(thrown);
       assert.equal(thrown.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
-    });
-  });
-
-  describe('createSubscription', () => {
-    describe('failed to create subscription', () => {
-      it('surfaces payment token errors', async () => {
-        const apiError = new stripeError.StripeCardError();
-        sandbox
-          .stub(stripeHelper.stripe.subscriptions, 'create')
-          .rejects(apiError);
-
-        return stripeHelper.createSubscription(customer1, plan1, uuidv4()).then(
-          () => Promise.reject(new Error('Method expected to reject')),
-          (err) => {
-            assert.equal(
-              err.errno,
-              error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
-            );
-          }
-        );
-      });
-
-      it('surfaces stripe errors', async () => {
-        const apiError = new stripeError.StripeAPIError();
-        sandbox
-          .stub(stripeHelper.stripe.subscriptions, 'create')
-          .rejects(apiError);
-
-        return stripeHelper.createSubscription(customer1, plan1, uuidv4()).then(
-          () => Promise.reject(new Error('Method expected to reject')),
-          (err) => {
-            assert.equal(err, apiError);
-          }
-        );
-      });
-    });
-
-    describe('subscription created', () => {
-      describe('invoice paid', () => {
-        const subscription = deepCopy(subscription1);
-        subscription.latest_invoice = deepCopy(paidInvoice);
-        subscription.latest_invoice.payment_intent = successfulPaymentIntent;
-
-        it('returns the subscription', async () => {
-          const expected = subscription;
-          sandbox
-            .stub(stripeHelper.stripe.subscriptions, 'create')
-            .resolves(subscription);
-
-          const actual = await stripeHelper.createSubscription(
-            customer1,
-            plan1,
-            uuidv4()
-          );
-
-          assert.deepEqual(actual, expected);
-        });
-      });
-
-      describe('invoice not paid', () => {
-        const subscription = deepCopy(subscription1);
-        subscription.latest_invoice = deepCopy(unpaidInvoice);
-        subscription.latest_invoice.payment_intent = unsuccessfulPaymentIntent;
-
-        it('throws a payment failed error', async () => {
-          let failed = false;
-          sandbox
-            .stub(stripeHelper.stripe.subscriptions, 'create')
-            .resolves(subscription);
-
-          await stripeHelper
-            .createSubscription(customer1, plan1, uuidv4())
-            .then(
-              () => Promise.reject(new Error('Method expected to reject')),
-              (err) => {
-                failed = true;
-                assert.equal(err.errno, error.ERRNO.PAYMENT_FAILED);
-                assert.equal(err.message, 'Payment method failed');
-              }
-            );
-
-          assert.isTrue(failed);
-        });
-      });
     });
   });
 
@@ -2558,7 +2821,7 @@ describe('StripeHelper', () => {
     });
 
     describe('extractInvoiceDetailsForEmail', () => {
-      const fixture = { ...invoicePaymentSucceededSubscriptionCreate };
+      const fixture = { ...invoicePaidSubscriptionCreate };
       fixture.lines.data[0] = {
         ...fixture.lines.data[0],
         plan: {
@@ -2579,6 +2842,7 @@ describe('StripeHelper', () => {
         invoiceTotalInCents: 500,
         invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
         nextInvoiceDate: new Date('2020-04-24T22:23:40.000Z'),
+        payment_provider: 'stripe',
         productId,
         productName,
         planId,
@@ -2621,7 +2885,7 @@ describe('StripeHelper', () => {
       });
 
       it('extracts expected details from an expanded invoice', async () => {
-        const fixture = deepCopy(invoicePaymentSucceededSubscriptionCreate);
+        const fixture = deepCopy(invoicePaidSubscriptionCreate);
         fixture.lines.data[0].plan = {
           id: planId,
           nickname: planName,
@@ -2641,7 +2905,7 @@ describe('StripeHelper', () => {
       });
 
       it('does not throw an exception when details on a payment method are missing', async () => {
-        const fixture = deepCopy(invoicePaymentSucceededSubscriptionCreate);
+        const fixture = deepCopy(invoicePaidSubscriptionCreate);
         fixture.lines.data[0].plan = {
           id: planId,
           nickname: planName,
@@ -2712,7 +2976,7 @@ describe('StripeHelper', () => {
 
       it('throws an exception with unexpected data', async () => {
         const fixture = {
-          ...invoicePaymentSucceededSubscriptionCreate,
+          ...invoicePaidSubscriptionCreate,
           lines: null,
         };
         let thrownError = null;
@@ -3038,9 +3302,7 @@ describe('StripeHelper', () => {
           ...baseDetails,
           productIdNew,
           updateType:
-            StripeHelper.SUBSCRIPTION_UPDATE_TYPES[
-              isUpgrade ? 'UPGRADE' : 'DOWNGRADE'
-            ],
+            SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
           productIdOld,
           productNameOld,
           productIconURLOld,
@@ -3068,7 +3330,7 @@ describe('StripeHelper', () => {
     describe('extractSubscriptionUpdateReactivationDetailsForEmail', () => {
       const { card } = mockCharge.payment_method_details;
       const defaultExpected = {
-        updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
+        updateType: SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
         email,
         uid,
         productId,
@@ -3221,7 +3483,7 @@ describe('StripeHelper', () => {
         );
         const subscription = event.data.object;
         assert.deepEqual(result, {
-          updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
+          updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
           email,
           uid,
           productId,

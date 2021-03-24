@@ -7,7 +7,6 @@ module.exports = [
   'tests/functional/settings_v2/display_name.js',
   'tests/functional/settings_v2/two_step_auth.js',
   'tests/functional/settings_v2/navigation.js',
-  'tests/functional/settings_v2/settings.js',
   'tests/functional/settings_v2/change_password.js',
   'tests/functional/settings_v2/secondary_email.js',
   'tests/functional/settings_v2/external_links.js',

@@ -72,7 +72,7 @@ DB.connect(config[config.db.backend]).then((db) => {
     // Establish database connection and bind instance to Model using Knex
     const { setupAuthDatabase } = require('fxa-shared/db');
     setupAuthDatabase(config.database.mysql.auth);
-    const createStripeHelper = require('../lib/payments/stripe');
+    const { createStripeHelper } = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
   }
 

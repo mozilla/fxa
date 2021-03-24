@@ -15,9 +15,11 @@ export const Nav = () => {
   const config = useConfig();
   const primaryEmail = account.primaryEmail.email;
   const hasSubscription = account.subscriptions.length > 0;
-  const marketingCommPrefLink = `${
-    config.marketingEmailPreferencesUrl
-  }?email=${encodeURIComponent(primaryEmail)}`;
+  const marketingCommPrefLink =
+    config.marketingEmailPreferencesUrl &&
+    `${config.marketingEmailPreferencesUrl}?email=${encodeURIComponent(
+      primaryEmail
+    )}`;
 
   const activeClasses = 'font-bold text-blue-500 rounded-sm';
   return (
@@ -86,19 +88,21 @@ export const Nav = () => {
           </li>
         )}
 
-        <li>
-          <LinkExternal
-            className="font-bold"
-            data-testid="nav-link-newsletters"
-            href={marketingCommPrefLink}
-          >
-            <Localized id="nav-email-comm">Email Communications</Localized>
-            <OpenExternal
-              className="inline-block w-3 h-3 ltr:ml-1 rtl:mr-1 transform rtl:-scale-x-1"
-              aria-hidden="true"
-            />
-          </LinkExternal>
-        </li>
+        {marketingCommPrefLink && (
+          <li>
+            <LinkExternal
+              className="font-bold"
+              data-testid="nav-link-newsletters"
+              href={marketingCommPrefLink}
+            >
+              <Localized id="nav-email-comm">Email Communications</Localized>
+              <OpenExternal
+                className="inline-block w-3 h-3 ltr:ml-1 rtl:mr-1 transform rtl:-scale-x-1"
+                aria-hidden="true"
+              />
+            </LinkExternal>
+          </li>
+        )}
       </ul>
     </nav>
   );

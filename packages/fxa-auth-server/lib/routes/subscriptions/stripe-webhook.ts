@@ -4,6 +4,11 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import * as Sentry from '@sentry/node';
+import { PayPalClientError } from 'fxa-auth-server/lib/payments/paypal-client';
+import {
+  PAYPAL_BILLING_AGREEMENT_INVALID,
+  PAYPAL_SOURCE_ERRORS,
+} from 'fxa-auth-server/lib/payments/paypal-error-codes';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
 
@@ -51,6 +56,11 @@ export class StripeWebhookHandler extends StripeHandler {
       );
 
       switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
+        case 'credit_note.created':
+          if (this.paypalHelper) {
+            await this.handleCreditNoteEvent(request, event);
+          }
+          break;
         case 'customer.created':
           await this.handleCustomerCreatedEvent(request, event);
           break;
@@ -71,8 +81,13 @@ export class StripeWebhookHandler extends StripeHandler {
             await this.handleInvoiceCreatedEvent(request, event);
           }
           break;
-        case 'invoice.payment_succeeded':
-          await this.handleInvoicePaymentSucceededEvent(request, event);
+        case 'invoice.finalized':
+          if (this.paypalHelper) {
+            await this.handleInvoiceOpenEvent(request, event);
+          }
+          break;
+        case 'invoice.paid':
+          await this.handleInvoicePaidEvent(request, event);
           break;
         case 'invoice.payment_failed':
           await this.handleInvoicePaymentFailedEvent(request, event);
@@ -98,6 +113,63 @@ export class StripeWebhookHandler extends StripeHandler {
       this.log.error('subscriptions.handleWebhookEvent.failure', { error });
     }
     return {};
+  }
+
+  /**
+   * Handle `credit_note.created` Stripe webhook events.
+   */
+  async handleCreditNoteEvent(request: AuthRequest, event: Stripe.Event) {
+    // Type-guard to require paypalHelper.
+    if (!this.paypalHelper) {
+      return;
+    }
+    const creditNote = event.data.object as Stripe.CreditNote;
+    const invoice = await this.stripeHelper.expandResource(
+      creditNote.invoice,
+      'invoices'
+    );
+
+    // This invoice must be for a paypal subscription for us to issue a
+    // paypal refund and be marked for out_of_band refund.
+    if (
+      invoice.collection_method !== 'send_invoice' ||
+      !creditNote.out_of_band_amount ||
+      creditNote.out_of_band_amount === 0
+    ) {
+      return;
+    }
+
+    // We can't issue a refund if there's no paypal transaction to refund.
+    const transactionId = this.stripeHelper.getInvoicePaypalTransactionId(
+      invoice
+    );
+    if (!transactionId) {
+      this.log.error('handleCreditNoteEvent', {
+        invoiceId: invoice.id,
+        message:
+          'Credit note issued on invoice without a PayPal transaction id.',
+      });
+      return;
+    }
+
+    const customer = await this.stripeHelper.expandResource(
+      invoice.customer,
+      'customers'
+    );
+    if (customer.deleted) {
+      return;
+    }
+
+    // If the amount doesn't match the invoice we can't reverse it.
+    if (creditNote.out_of_band_amount !== invoice.amount_due) {
+      this.log.error('handleCreditNoteEvent', {
+        invoiceId: invoice.id,
+        message: 'Credit note does not match invoice amount.',
+      });
+      return;
+    }
+    await this.paypalHelper.issueRefund(invoice, transactionId);
+    return;
   }
 
   /**
@@ -164,7 +236,7 @@ export class StripeWebhookHandler extends StripeHandler {
   ) {
     const sub = event.data.object as Stripe.Subscription;
     const { uid, email } = await this.sendSubscriptionDeletedEmail(sub);
-    return this.updateCustomerAndSendStatus(
+    await this.updateCustomerAndSendStatus(
       request,
       event,
       sub,
@@ -172,6 +244,14 @@ export class StripeWebhookHandler extends StripeHandler {
       uid,
       email
     );
+    if (this.paypalHelper) {
+      const customer = await this.stripeHelper.customer({ uid, email });
+      if (!customer || customer.deleted) {
+        return;
+      }
+      return this.paypalHelper.conditionallyRemoveBillingAgreement(customer);
+    }
+    return;
   }
 
   /**
@@ -213,23 +293,49 @@ export class StripeWebhookHandler extends StripeHandler {
     if (customer.deleted) {
       return;
     }
-    return this.paypalHelper.processInvoice({ customer, invoice });
+    try {
+      await this.paypalHelper.processInvoice({
+        customer,
+        invoice,
+        batchProcessing: true,
+      });
+      return true;
+    } catch (err) {
+      if (err instanceof PayPalClientError) {
+        if (err.errorCode === PAYPAL_BILLING_AGREEMENT_INVALID) {
+          const uid = customer.metadata.userid;
+          const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
+            customer
+          ) as string;
+          await this.stripeHelper.removeCustomerPaypalAgreement(
+            uid,
+            customer.id,
+            billingAgreementId
+          );
+          await this.sendSubscriptionPaymentFailedEmail(invoice);
+          return false;
+        }
+        if (PAYPAL_SOURCE_ERRORS.includes(err.errorCode ?? 0)) {
+          await this.sendSubscriptionPaymentFailedEmail(invoice);
+          return false;
+        }
+      }
+      this.log.error('processInvoice', { err, invoiceId: invoice.id });
+      throw err;
+    }
   }
 
   /**
-   * Handle `invoice.payment_succeeded` Stripe wehbook events.
+   * Handle `invoice.paid` Stripe wehbook events.
    */
-  async handleInvoicePaymentSucceededEvent(
-    request: AuthRequest,
-    event: Stripe.Event
-  ) {
+  async handleInvoicePaidEvent(request: AuthRequest, event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
     const { uid, email } = await this.sendSubscriptionInvoiceEmail(invoice);
     await this.updateCustomer(uid, email);
   }
 
   /**
-   * Handle `invoice.payment_succeeded` Stripe wehbook events.
+   * Handle `invoice.paid` Stripe wehbook events.
    */
   async handleInvoicePaymentFailedEvent(
     request: AuthRequest,
@@ -299,6 +405,7 @@ export class StripeWebhookHandler extends StripeHandler {
         ...invoiceDetails,
       }
     );
+    await this.stripeHelper.updateEmailSent(invoice, 'paymentFailed');
     return invoiceDetails;
   }
 

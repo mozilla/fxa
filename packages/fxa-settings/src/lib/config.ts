@@ -26,6 +26,12 @@ export interface Config {
     auth: {
       url: string;
     };
+    profile: {
+      url: string;
+    };
+  };
+  oauth: {
+    clientId: string;
   };
   version: string;
 }
@@ -47,6 +53,12 @@ export function getDefault() {
       auth: {
         url: '',
       },
+      profile: {
+        url: '',
+      },
+    },
+    oauth: {
+      clientId: '',
     },
   } as Config;
 }

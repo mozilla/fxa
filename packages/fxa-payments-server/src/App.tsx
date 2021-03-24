@@ -153,7 +153,7 @@ export const AppErrorDialog = ({ error: { message } }: { error: Error }) => {
         <Localized id="general-error-heading">
           <h4 data-testid="error-loading-app">General application error</h4>
         </Localized>
-        <Localized id={getErrorMessage('api_connection_error')}>
+        <Localized id={getErrorMessage({ code: 'api_connection_error' })}>
           <p>Something went wrong. Please try again later.</p>
         </Localized>
       </DialogMessage>

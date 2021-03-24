@@ -112,8 +112,8 @@ describe('UnitRow', () => {
     expect(screen.getByTestId('unit-row-route').textContent).toContain(
       'Change'
     );
-    expect(screen.getByTestId('unit-row-modal').textContent).toContain(
-      'Disable'
-    );
+    expect(
+      screen.getByTestId('secondary-button-unit-row-modal').textContent
+    ).toContain('Disable');
   });
 });

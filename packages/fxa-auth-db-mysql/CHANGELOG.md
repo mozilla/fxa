@@ -1,3 +1,32 @@
+## 1.202.3
+
+No changes.
+
+## 1.202.2
+
+No changes.
+
+## 1.202.1
+
+No changes.
+
+## 1.202.0
+
+### Other changes
+
+- deps-dev: bump nock from 13.0.7 to 13.0.11 ([f38836bf8](https://github.com/mozilla/fxa/commit/f38836bf8))
+- d426b981e Fix use of MySQL cluster read-only nodes ([d426b981e](https://github.com/mozilla/fxa/commit/d426b981e))
+
+## 1.201.1
+
+No changes.
+
+## 1.201.0
+
+### Other changes
+
+- deps-dev: bump nock from 13.0.5 to 13.0.7 ([411638723](https://github.com/mozilla/fxa/commit/411638723))
+
 ## 1.200.0
 
 ### Other changes

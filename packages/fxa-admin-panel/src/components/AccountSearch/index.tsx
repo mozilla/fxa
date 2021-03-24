@@ -80,28 +80,41 @@ function validateUID(uid: string) {
   return false;
 }
 
+export const GET_EMAILS_LIKE = gql`
+  query getEmails($search: String!) {
+    getEmailsLike(search: $search) {
+      email
+    }
+  }
+`;
+
 export const AccountSearch = () => {
   const [inputValue, setInputValue] = useState<string>('');
-  const [showResult, setShowResult] = useState<Boolean>(false);
+  const [showResult, setShowResult] = useState<boolean>(false);
+  const [showSuggestion, setShowSuggestion] = useState<boolean>(false);
+  const [searchInput, setSearchInput] = useState<string>('');
   // define two queries to search by either email or uid.
   const [getAccountbyEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
   const [getAccountbyUID, UIDResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
   // choose which query result to show based on type of query made
   const [isEmail, setIsEmail] = useState<Boolean>(false);
   const queryResults = isEmail && showResult ? emailResults : UIDResults;
+  const [getEmailLike, { data: returnedEmails }] = useLazyQuery(
+    GET_EMAILS_LIKE
+  );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const isUID = validateUID(inputValue);
+    const isUID = validateUID(searchInput);
     // choose correct query if email or uid
-    if (isUID && inputValue.search('@') == -1 && inputValue != '') {
+    if (isUID && searchInput.search('@') == -1 && searchInput != '') {
       // uid and non-empty
-      getAccountbyUID({ variables: { uid: inputValue } });
+      getAccountbyUID({ variables: { uid: searchInput } });
       setIsEmail(false);
       setShowResult(true);
-    } else if (!isUID && inputValue.search('@') != -1 && inputValue != '') {
+    } else if (!isUID && searchInput.search('@') != -1 && searchInput != '') {
       // assume email if not uid and non-empty; must at least have '@'
-      getAccountbyEmail({ variables: { email: inputValue } });
+      getAccountbyEmail({ variables: { email: searchInput } });
       setIsEmail(true);
       setShowResult(true);
     }
@@ -110,6 +123,50 @@ export const AccountSearch = () => {
       window.alert('Invalid email or UID format');
       setShowResult(true);
     }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+    setShowSuggestion(true);
+    onTextChanged(event);
+  };
+
+  let filteredList: string[] = [];
+  if (returnedEmails != null && showSuggestion) {
+    for (let i = 0; i < returnedEmails.getEmailsLike.length; i++) {
+      filteredList[i] = returnedEmails.getEmailsLike[i].email;
+    }
+  }
+
+  const onTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+
+    setSearchInput(value);
+
+    if (value.length < 5) {
+      setShowSuggestion(false);
+    } else if (value.length >= 5) {
+      getEmailLike({ variables: { search: value } });
+      setShowSuggestion(true);
+    }
+  };
+
+  const renderSuggestions = () => {
+    if (filteredList.length === 0 || searchInput.length < 5) {
+      return null;
+    }
+    return (
+      <ul>
+        {filteredList.map((item) => (
+          <li onClick={() => suggestionSelected(item)}>{item}</li>
+        ))}
+      </ul>
+    );
+  };
+
+  const suggestionSelected = (value: string) => {
+    setSearchInput(value);
+    setShowSuggestion(false);
   };
 
   return (
@@ -130,15 +187,16 @@ export const AccountSearch = () => {
         <label htmlFor="email">Email or UID to search for:</label>
         <br />
         <input
+          autoComplete="off"
+          value={searchInput}
           autoFocus
           name="email"
           type="search"
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setInputValue(event.target.value)
-          }
+          onChange={handleChange}
           placeholder="hello@world.com or uid"
           data-testid="email-input"
         />
+        <div className="suggestions-list">{renderSuggestions()}</div>
         <button
           className="account-search-search-button"
           title="search"

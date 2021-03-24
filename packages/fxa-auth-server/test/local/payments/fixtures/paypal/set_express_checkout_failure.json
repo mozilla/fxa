@@ -4,12 +4,8 @@
   "ACK": "Failure",
   "VERSION": "204",
   "BUILD": "55251101",
-  "L": [
-    {
-      "ERRORCODE": "81100",
-      "SHORTMESSAGE": "Missing Parameter",
-      "LONGMESSAGE": "OrderTotal (Amt) : Required parameter missing",
-      "SEVERITYCODE": "Error"
-    }
-  ]
+  "L_ERRORCODE0": "81100",
+  "L_SHORTMESSAGE0": "Missing Parameter",
+  "L_LONGMESSAGE0": "OrderTotal (Amt) : Required parameter missing",
+  "L_SEVERITYCODE0": "Error"
 }

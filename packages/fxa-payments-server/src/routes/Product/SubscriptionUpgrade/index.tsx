@@ -26,6 +26,7 @@ import { useValidatorState } from '../../../lib/validator';
 import DialogMessage from '../../../components/DialogMessage';
 import PaymentLegalBlurb from '../../../components/PaymentLegalBlurb';
 import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
+import { ProviderType } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 import PlanUpgradeDetails from './PlanUpgradeDetails';
 import Header from '../../../components/Header';
@@ -69,6 +70,8 @@ export const SubscriptionUpgrade = ({
 
   const inProgress = updateSubscriptionPlanStatus.loading;
 
+  const paymentProvider: ProviderType | undefined = customer?.payment_provider;
+
   useEffect(() => {
     Amplitude.updateSubscriptionPlanMounted(selectedPlan);
   }, [selectedPlan]);
@@ -83,7 +86,8 @@ export const SubscriptionUpgrade = ({
       if (validator.allValid()) {
         updateSubscriptionPlanAndRefresh(
           upgradeFromSubscription.subscription_id,
-          selectedPlan
+          selectedPlan,
+          paymentProvider
         );
       }
     },
@@ -92,6 +96,7 @@ export const SubscriptionUpgrade = ({
       updateSubscriptionPlanAndRefresh,
       upgradeFromSubscription,
       selectedPlan,
+      paymentProvider,
     ]
   );
 
@@ -100,7 +105,7 @@ export const SubscriptionUpgrade = ({
   const cardBrandLc = ('' + cardBrand).toLowerCase();
 
   const mobileUpdateHeading = isMobile ? (
-    <div className="mobile-subscription-update-heading">
+    <div className="mobile-subscription-title">
       <div className="subscription-update-heading">
         <Localized id="product-plan-upgrade-heading">
           <h2>Review your upgrade</h2>
@@ -140,21 +145,21 @@ export const SubscriptionUpgrade = ({
 
           <div className="payment-details">
             <h3 className="billing-title">
-              <Localized id="sub-update-title">
-                <span className="title">Billing information</span>
+              <Localized id="sub-update-payment-title">
+                <span className="title">Payment information</span>
               </Localized>
             </h3>
 
             <div>
               <Localized
-                id="payment-confirmation-cc-preview"
+                id="payment-confirmation-cc-card-ending-in"
                 vars={{
                   last4: cardLast4 as string,
                 }}
               >
                 <p className={`c-card ${cardBrandLc}`}>
                   {' '}
-                  ending in {cardLast4}
+                  Card ending in {cardLast4}
                 </p>
               </Localized>
             </div>
@@ -236,7 +241,7 @@ export const SubscriptionUpgrade = ({
               </SubmitButton>
             </div>
 
-            <PaymentLegalBlurb />
+            <PaymentLegalBlurb provider={paymentProvider} />
             <TermsAndPrivacy plan={selectedPlan} />
           </Form>
         </div>

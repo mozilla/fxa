@@ -30,6 +30,8 @@ jest.mock('../../lib/flow-event');
 
 import { SignInLayout } from '../../components/AppLayout';
 import Product from './index';
+import { AppContextType } from '../../lib/AppContext';
+import { defaultConfig } from 'fxa-payments-server/src/lib/config';
 
 describe('routes/Product', () => {
   let authServer = '';
@@ -57,12 +59,14 @@ describe('routes/Product', () => {
     accountActivated,
     matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
+    appContext = defaultAppContextValue(),
   }: {
     productId?: string;
     planId?: string;
     matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     accountActivated?: string;
+    appContext?: Partial<AppContextType>;
   }) => {
     const props = {
       match: {
@@ -75,6 +79,7 @@ describe('routes/Product', () => {
     };
     const appContextValue = {
       ...defaultAppContextValue(),
+      ...appContext,
       matchMedia,
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams: {
@@ -133,7 +138,7 @@ describe('routes/Product', () => {
     expect(
       queryAllByText('30-day money-back guarantee')[0]
     ).toBeInTheDocument();
-    expect(queryByText('Billing Information')).toBeInTheDocument();
+    expect(queryByText('Payment information')).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
 
@@ -160,7 +165,8 @@ describe('routes/Product', () => {
         .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
     ];
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-loading-profile');
+    const errorEl = await findByTestId('error-loading-profile');
+    expect(errorEl).toBeInTheDocument();
   });
 
   it('displays an error on failure to load plans', async () => {
@@ -174,7 +180,8 @@ describe('routes/Product', () => {
         .reply(200, MOCK_CUSTOMER),
     ];
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-loading-plans');
+    const errorEl = await findByTestId('error-loading-plans');
+    expect(errorEl).toBeInTheDocument();
   });
 
   it('displays an error on failure to load customer', async () => {
@@ -190,7 +197,8 @@ describe('routes/Product', () => {
         .reply(400, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
     ];
     const { findByTestId } = render(<Subject />);
-    await findByTestId('error-loading-customer');
+    const errorEl = await findByTestId('error-loading-customer');
+    expect(errorEl).toBeInTheDocument();
   });
 
   it('does not display an error on missing / new customer', async () => {
@@ -210,7 +218,8 @@ describe('routes/Product', () => {
         ),
     ];
     const { findAllByText } = render(<Subject />);
-    await findAllByText('Set up your subscription');
+    const headingEls = await findAllByText('Set up your subscription');
+    expect(headingEls.length).toBeGreaterThan(0);
   });
 
   it('does not display an error on customer with no subscriptions', async () => {
@@ -230,7 +239,8 @@ describe('routes/Product', () => {
         ),
     ];
     const { findAllByText } = render(<Subject />);
-    await findAllByText('Set up your subscription');
+    const headingEls = await findAllByText('Set up your subscription');
+    expect(headingEls.length).toBeGreaterThan(0);
   });
 
   it('offers upgrade if user is already subscribed to another plan in the same product set', async () => {
@@ -240,17 +250,70 @@ describe('routes/Product', () => {
         {...{
           planId: 'plan_upgrade',
           productId: 'prod_upgrade',
+          appContext: {
+            config: {
+              ...defaultConfig(),
+              featureFlags: { allowSubscriptionUpgrades: true },
+            },
+          },
         }}
       />
     );
-    await findByTestId('subscription-upgrade');
+    const upgradeEl = await findByTestId('subscription-upgrade');
+    expect(upgradeEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
+  });
+
+  it('blocks upgrade when the feature flag disallows it', async () => {
+    initSubscribedApiMocks();
+    const { findByTestId } = render(
+      <Subject
+        {...{
+          planId: 'plan_upgrade',
+          productId: 'prod_upgrade',
+          appContext: {
+            config: {
+              ...defaultConfig(),
+              featureFlags: { allowSubscriptionUpgrades: false },
+            },
+          },
+        }}
+      />
+    );
+    const errorEl = await findByTestId('payment-error');
+    expect(errorEl).toBeInTheDocument();
+  });
+
+  it('blocks upgrade if already subscribed to a different plan of the same product', async () => {
+    // This is temporary until we get the upgrade feature figured out.
+    // The test above checks to see if a plan is upgradeable by looking at
+    // metadata, but we are also explicity checking the plan and product ids
+    // even if the plans are not in the same product set.
+    const apiMocks = initSubscribedApiMocks();
+    const { findByTestId } = render(
+      <Subject
+        {...{
+          planId: 'nextlevel',
+          productId: PRODUCT_ID,
+          appContext: {
+            config: {
+              ...defaultConfig(),
+              featureFlags: { allowSubscriptionUpgrades: false },
+            },
+          },
+        }}
+      />
+    );
+    const errorEl = await findByTestId('payment-error');
+    expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
 
   it('displays payment confirmation if user is already subscribed the product', async () => {
     const apiMocks = initSubscribedApiMocks();
     const { findByTestId } = render(<Subject />);
-    await findByTestId('payment-confirmation');
+    const confirmEl = await findByTestId('payment-confirmation');
+    expect(confirmEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
 });

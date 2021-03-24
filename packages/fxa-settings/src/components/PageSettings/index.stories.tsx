@@ -11,7 +11,7 @@ import { isMobileDevice } from '../../lib/utilities';
 import { MockedCache, mockEmail } from '../../models/_mocks';
 import { MOCK_SERVICES } from '../ConnectedServices/MOCK_SERVICES';
 
-const SERVICES_NON_MOBILE = MOCK_SERVICES.filter(d => !isMobileDevice(d));
+const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
 storiesOf('Pages|Settings', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
@@ -19,10 +19,10 @@ storiesOf('Pages|Settings', module)
     <MockedCache
       account={{
         displayName: null,
-        avatarUrl: null,
+        avatar: { id: null, url: null },
         recoveryKey: false,
         totp: { exists: false, verified: false },
-        attachedClients: SERVICES_NON_MOBILE
+        attachedClients: SERVICES_NON_MOBILE,
       }}
     >
       <AppLayout>
@@ -32,8 +32,11 @@ storiesOf('Pages|Settings', module)
   ))
   .add('partially filled out', () => (
     <MockedCache
-      account={{ displayName: null, totp: { exists: true, verified: false, },
-      attachedClients: SERVICES_NON_MOBILE }}
+      account={{
+        displayName: null,
+        totp: { exists: true, verified: false },
+        attachedClients: SERVICES_NON_MOBILE,
+      }}
     >
       <AppLayout>
         <PageSettings />
@@ -49,7 +52,7 @@ storiesOf('Pages|Settings', module)
           mockEmail('johndope@example.com'),
           mockEmail('johndope2@gmail.com', false),
         ],
-        attachedClients: SERVICES_NON_MOBILE
+        attachedClients: SERVICES_NON_MOBILE,
       }}
     >
       <AppLayout>

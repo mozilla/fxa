@@ -102,6 +102,59 @@ params are extracted from the redirect url.
 - Fetch user profile data, and check that it matches the data provided by Desktop in step (3).
 - Use the access token and key material to access Firefox Sync.
 
+## Intended Security Properties
+
+The security-related design goals of this system are as follows:
+
+- The result of the flow is the same as if the Mobile device had done an ordinary
+  web-content-based OAuth flow. It obtains its own OAuth tokens for the user's Firefox
+  account, with appropriate scopes and a copy of the relevant key material.
+- The messages relayed between Desktop and Mobile cannot be read or forged by any
+  other party.
+- On the signed-in Desktop device:
+  - The flow cannot be used to surreptitiously extract FxA key material (such as the
+    user's sync keys) from the browser, not even by Mozilla's servers or by web
+    content running on https://accounts.firefox.com.
+  - There is no way for third-party web content to initiate a pairing flow, which might
+    be used for phishing purposes.
+- On the connecting Mobile device:
+  - Handling of FxA key material is as or more secure than the existing web-based
+    scoped-keys flow.
+  - There is no way for third-party apps or web content to trigger the pairing flow,
+    which might be used for phishing purposes.
+  - If the user scans the QRcode with a third-party app rather than a Mobile Firefox
+    browser, then that app can only gain access to the user's account by actively
+    phishing the user into completing the flow; it cannot silently insert itself as
+    a meddler-in-the-middle of a legitimate flow with the user's actual Firefox browser.
+
+These properties are enforced by the following features/mitigations:
+
+- The communication channel between the two devices is secured by:
+  - Communication between Desktop and Mobile is encrypted and authenticated using a
+    TLS1.3 PSK handshake, with the key obtained by scanning the QR code. This guards
+    against eavesdropping or MitM by anyone who does not have the channel key
+    (including the channelserver that is proxying the messages, since it has no way to
+    obtain the key).
+  - Communications are routed through the Mozilla-hosted channelserver, authenticated
+    with standard TLS PKI. The channelserver enforces that only two connections are
+    made on a channel, providing additional protection against eavesdropping or MitM
+    by third-party software _even if_ such software somehow obtains the channel key.
+  - The mobile device must directly scan the QR code in order to initiate the flow.
+    This prevents a third-party scanner that happens to intercept the channel key
+    from inserting itself as a MitM, with one channel open to the Desktop device and
+    a second channel open to the Mobile device.
+- Inside the communication channel, the devices execute a largely unmodified variant of
+  the existing FxA scoped-keys OAuth flow, so the exchange inherits the existing
+  security boundaries/properties of that flow.
+- When authorizing the OAuth request, Firefox Desktop is directly responsible for
+  encrypting the scoped-keys bundle using the OAuth request parameters it received over
+  the pairing channel. There is thus no opportunity for web content running on the
+  desktop device to see the raw scoped-keys key material.
+  - Web content cannot, for example, inject its own `keys_jwk` parameter into
+    the OAuth flow in order to MitM the scoped-keys exchange. This is an improvement
+    over the current state of the web-based OAuth flow, in which web content can
+    directly handle the account key material.
+
 ## Exchanged messages specification
 
 The pairing flow is made possible by messages that are forwarded between the Desktop native code and the web content page opened on the supplicant device.

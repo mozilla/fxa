@@ -16,15 +16,15 @@
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
-    "@peculiar/webcrypto": "^1.1.2",
+    "@peculiar/webcrypto": "^1.1.6",
     "abab": "^2.0.5",
     "abort-controller": "^3.0.0",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
-    "@types/assert": "^1.5.2",
+    "@types/assert": "^1.5.4",
     "@types/fast-text-encoding": "^1",
-    "@types/mocha": "^7",
+    "@types/mocha": "^8",
     "@types/node": "^14.14.5",
     "@types/node-fetch": "^2.5.7",
     "asmcrypto.js": "^0.22.0",

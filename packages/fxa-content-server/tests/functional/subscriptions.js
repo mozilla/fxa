@@ -8,13 +8,12 @@ const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
-const config = intern._config;
-
 const {
   clearBrowserState,
   click,
   createEmail,
   createUserAndLoadSettings,
+  getTestProductSubscriptionUrl,
   openPage,
   signInToTestProduct,
   subscribeAndSigninToRp,
@@ -22,8 +21,6 @@ const {
   testElementTextInclude,
   visibleByQSA,
 } = FunctionalHelpers;
-
-const TEST_PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}`;
 
 registerSuite('subscriptions', {
   tests: {
@@ -41,7 +38,12 @@ registerSuite('subscriptions', {
             force: true,
           })
         )
-        .then(openPage(TEST_PRODUCT_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(
+          openPage(
+            getTestProductSubscriptionUrl(),
+            selectors.ENTER_EMAIL.HEADER
+          )
+        )
         .then(
           testElementTextInclude(
             selectors.ENTER_EMAIL.SUB_HEADER,
@@ -83,7 +85,39 @@ registerSuite('subscriptions', {
 
         .then(subscribeToTestProductWithCardNumber('4000000000000069'))
 
-        .then(testElementTextInclude('.error-message-container', 'expired'));
+        .then(testElementTextInclude('.payment-error', 'expired'));
+    },
+    'sign up, failed to subscribe with mismatching currency': function () {
+      if (
+        process.env.CIRCLECI === 'true' &&
+        !process.env.SUBHUB_STRIPE_APIKEY
+      ) {
+        this.skip('missing Stripe API key in CircleCI run');
+      }
+      const email = createEmail();
+      return (
+        this.remote
+          .then(
+            clearBrowserState({
+              '123done': true,
+              force: true,
+            })
+          )
+          .then(createUserAndLoadSettings(email))
+          .then(
+            subscribeToTestProductWithCardNumber(
+              '4000000000000069',
+              getTestProductSubscriptionUrl('myr')
+            )
+          )
+          // TODO - This will change to a more helpful error message when https://github.com/mozilla/fxa/issues/7467 lands.
+          .then(
+            testElementTextInclude(
+              '.payment-error',
+              'The currency of this subscription is not valid for the country associated with your payment.'
+            )
+          )
+      );
     },
   },
 });
