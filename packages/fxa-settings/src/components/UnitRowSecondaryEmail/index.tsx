@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode, useState } from 'react';
-import { gql } from '@apollo/client';
+import { gql, Reference } from '@apollo/client';
 import { useNavigate } from '@reach/router';
 import firefox from '../../lib/firefox';
 import { useAlertBar } from '../../lib/hooks';
-import { useAccount, useLazyAccount, Email } from '../../models';
+import { useAccount, useLazyAccount, Email, getNextAvatar } from '../../models';
 import UnitRow from '../UnitRow';
 import AlertBar from '../AlertBar';
 import ModalVerifySession from '../ModalVerifySession';
@@ -110,6 +110,11 @@ export const UnitRowSecondaryEmail = () => {
                 }
                 return e;
               });
+            },
+            avatar(existing: Reference, { readField }) {
+              const id = readField<string>('id', existing);
+              const oldUrl = readField<string>('url', existing);
+              return getNextAvatar(id, oldUrl, email, account.displayName);
             },
           },
         });

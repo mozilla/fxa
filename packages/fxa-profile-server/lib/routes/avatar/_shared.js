@@ -12,4 +12,9 @@ function fxaUrl(id) {
 
 module.exports = {
   fxaUrl: fxaUrl,
+  DEFAULT_AVATAR: {
+    avatar: fxaUrl(config.get('img.defaultAvatarId')),
+    avatarDefault: true,
+    id: config.get('img.defaultAvatarId'),
+  },
 };

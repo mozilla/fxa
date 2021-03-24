@@ -9,7 +9,7 @@ import { useNavigate } from '@reach/router';
 import { Localized, useLocalization } from '@fluent/react';
 import { useAlertBar } from '../../lib/hooks';
 import firefox from '../../lib/firefox';
-import { useAccount } from '../../models';
+import { useAccount, getNextAvatar } from '../../models';
 
 import { HomePath } from '../../constants';
 import ButtonIcon from '../ButtonIcon';
@@ -42,7 +42,7 @@ export const DELETE_AVATAR_MUTATION = gql`
 export const RemovePhotoBtn = () => {
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const { uid, avatar } = useAccount();
+  const { uid, avatar, primaryEmail, displayName } = useAccount();
   const { l10n } = useLocalization();
 
   const [deleteAvatar] = useMutation(DELETE_AVATAR_MUTATION, {
@@ -59,7 +59,12 @@ export const RemovePhotoBtn = () => {
         id: cache.identify({ __typename: 'Account' }),
         fields: {
           avatar() {
-            return { id: null, url: null };
+            return getNextAvatar(
+              undefined,
+              undefined,
+              primaryEmail.email,
+              displayName
+            );
           },
         },
       });

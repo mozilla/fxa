@@ -13,10 +13,7 @@ const sinon = require('sinon');
 const assert = require('insist');
 const P = require('../lib/promise');
 const config = require('../lib/config');
-const avatarShared = require('../lib/routes/avatar/_shared');
 const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
-
-const DEFAULT_AVATAR_ID = config.get('img.defaultAvatarId');
 
 function randomHex(bytes) {
   return crypto.randomBytes(bytes).toString('hex');
@@ -149,13 +146,13 @@ describe('api', function () {
           assert.equal(res.result.email, 'user@example.domain');
           assert.equal(
             res.result.avatar,
-            avatarShared.fxaUrl(DEFAULT_AVATAR_ID),
-            'return default avatar'
+            'http://localhost:1111/v1/avatar/u',
+            'returns monogram avatar for the mock email address'
           );
           assert.equal(
             res.result.avatarDefault,
-            true,
-            'has the default avatar flag'
+            false,
+            'uses a monogram avatar'
           );
           assertSecurityHeaders(res);
         });
