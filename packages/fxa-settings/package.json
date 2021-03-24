@@ -75,7 +75,7 @@
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^9.5.0",
     "@testing-library/react-hooks": "^5.0.3",
-    "@testing-library/user-event": "^12.7.1",
+    "@testing-library/user-event": "^13.0.10",
     "@types/babel__core": "7.1.14",
     "@types/classnames": "^2.2.11",
     "@types/jest": "^26.0.20",
