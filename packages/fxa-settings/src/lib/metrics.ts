@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import sentryMetrics from 'fxa-shared/lib/sentry';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   hasAccountRecovery,
   hasSecondaryVerifiedEmail,
@@ -209,8 +209,7 @@ export function useMetrics(): {
   logPageViewEventOnce: typeof logPageViewEvent;
 } {
   useUserPreferences();
-
-  const makeLogOnceFn = (f: Function) => {
+  const makeLogOnceFn = useRef((f: Function) => {
     let hasLogged = false;
 
     return (
@@ -223,17 +222,20 @@ export function useMetrics(): {
         f(...args);
       }
     };
+  });
+
+  const logViewEventOnce = useRef<
+    (...args: Parameters<typeof logViewEvent>) => void
+  >(makeLogOnceFn.current(logViewEvent));
+
+  const logPageViewEventOnce = useRef<
+    (...args: Parameters<typeof logPageViewEvent>) => void
+  >(makeLogOnceFn.current(logPageViewEvent));
+
+  return {
+    logViewEventOnce: logViewEventOnce.current,
+    logPageViewEventOnce: logPageViewEventOnce.current,
   };
-
-  const logViewEventOnce: (
-    ...args: Parameters<typeof logViewEvent>
-  ) => void = makeLogOnceFn(logViewEvent);
-
-  const logPageViewEventOnce: (
-    ...args: Parameters<typeof logPageViewEvent>
-  ) => void = makeLogOnceFn(logPageViewEvent);
-
-  return { logViewEventOnce, logPageViewEventOnce };
 }
 
 /**
