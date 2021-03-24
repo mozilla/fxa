@@ -53,7 +53,7 @@
     "knex": "^0.21.16",
     "mozlog": "^3.0.1",
     "mysql": "^2.18.1",
-    "objection": "^2.2.7",
+    "objection": "^2.2.15",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6",
