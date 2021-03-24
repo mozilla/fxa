@@ -53,7 +53,7 @@
     "buf": "0.1.1",
     "buffer-equal-constant-time": "1.0.1",
     "cbor": "^7.0.4",
-    "cldr-core": "^37.0.0",
+    "cldr-core": "^38.1.0",
     "cldr-localenames-full": "38.0.0",
     "commander": "2.18.0",
     "convict": "^6.0.1",
