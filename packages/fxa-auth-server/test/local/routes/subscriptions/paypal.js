@@ -353,13 +353,19 @@ describe('subscriptions payPalRoutes', () => {
   });
 
   describe('POST /oauth/subscriptions/paymentmethod/billing-agreement', () => {
-    let plan, customer, subscription;
+    let plan, customer, subscription, invoices;
 
     beforeEach(() => {
       stripeHelper.refreshCachedCustomer = sinon.fake.resolves({});
-      stripeHelper.fetchOpenInvoices.returns({
-        autoPagingToArray: sinon.fake.resolves([]),
-      });
+      invoices = [];
+
+      async function* genInvoice() {
+        for (const invoice of invoices) {
+          yield invoice;
+        }
+      }
+
+      stripeHelper.fetchOpenInvoices.returns(genInvoice());
       stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
       profile.deleteCache = sinon.fake.resolves({});
       push.notifyProfileUpdated = sinon.fake.resolves({});
@@ -381,9 +387,8 @@ describe('subscriptions payPalRoutes', () => {
     });
 
     it('should update the billing agreement and process invoice', async () => {
-      stripeHelper.fetchOpenInvoices.returns({
-        autoPagingToArray: sinon.fake.resolves([subscription.latest_invoice]),
-      });
+      invoices.push(subscription.latest_invoice);
+      subscription.latest_invoice.subscription = subscription;
       const actual = await runTest(
         '/oauth/subscriptions/paymentmethod/billing-agreement'
       );
@@ -399,9 +404,8 @@ describe('subscriptions payPalRoutes', () => {
 
     it('should update the billing agreement and process zero invoice', async () => {
       subscription.latest_invoice.amount_due = 0;
-      stripeHelper.fetchOpenInvoices.returns({
-        autoPagingToArray: sinon.fake.resolves([subscription.latest_invoice]),
-      });
+      invoices.push(subscription.latest_invoice);
+      subscription.latest_invoice.subscription = subscription;
       payPalHelper.processZeroInvoice = sinon.fake.resolves({});
       const actual = await runTest(
         '/oauth/subscriptions/paymentmethod/billing-agreement'
