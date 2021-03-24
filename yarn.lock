@@ -7340,12 +7340,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-test-renderer@npm:^16":
-  version: 16.9.3
-  resolution: "@types/react-test-renderer@npm:16.9.3"
+"@types/react-test-renderer@npm:^17":
+  version: 17.0.1
+  resolution: "@types/react-test-renderer@npm:17.0.1"
   dependencies:
     "@types/react": "*"
-  checksum: 43465f5866e2636170ce8baa519aaccc3fee65bb6a312ce7099a29f88b65d10b0b2db0062e81c9aa26f6cfe17ed879a6963ef84442e57496f588c995b5c713aa
+  checksum: bd3f8c6c2ae23f270b465106ae81c7e72dc97b64f83b980239bd45a69dcc9f41aada4183f16634320e8d02cede942e46258366a596dbefaae558abad236f4ab6
   languageName: node
   linkType: hard
 
@@ -19811,7 +19811,7 @@ fsevents@^1.2.7:
     "@types/node": ^14.14.5
     "@types/react": ^16.9.53
     "@types/react-dom": ^16.9.6
-    "@types/react-test-renderer": ^16
+    "@types/react-test-renderer": ^17
     "@types/react-webcam": ^3.0.0
     "@types/testing-library__react-hooks": ^4
     "@types/uuid": ^8
