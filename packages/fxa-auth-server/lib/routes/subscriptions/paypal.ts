@@ -185,9 +185,13 @@ export class PayPalHandler extends StripeWebhookHandler {
     );
 
     const nowSeconds = msToSec(Date.now());
-    const invoices = await this.stripeHelper
-      .fetchOpenInvoices(nowSeconds, customer.id)
-      .autoPagingToArray({ limit: 10 });
+    const invoices = [];
+    for await (const invoice of this.stripeHelper.fetchOpenInvoices(
+      nowSeconds,
+      customer.id
+    )) {
+      invoices.push(invoice);
+    }
     if (invoices.length) {
       for (const invoice of invoices) {
         this.processInvoiceInBackground(request, customer, invoice);
