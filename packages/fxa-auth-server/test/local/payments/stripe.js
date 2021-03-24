@@ -2758,7 +2758,7 @@ describe('StripeHelper', () => {
       ...mockInvoice,
       id: 'inv_upcoming',
       amount_due: 299000,
-      next_payment_attempt: 1590018018,
+      created: 1590018018,
     };
 
     const mockCharge = {

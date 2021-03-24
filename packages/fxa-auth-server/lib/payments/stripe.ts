@@ -1907,7 +1907,7 @@ export class StripeHelper {
     const {
       total: invoiceTotalInCents,
       currency: invoiceTotalCurrency,
-      next_payment_attempt: nextInvoiceDate,
+      created: nextInvoiceDate,
     } = upcomingInvoice;
 
     return {
@@ -1922,9 +1922,6 @@ export class StripeHelper {
       invoiceTotalCurrency,
       cardType,
       lastFour,
-      // TODO: According to Stripe, this value will be null for invoices where collection_method=send_invoice
-      // Our subscriptions use collection_method=charge_automatically - so this shouldn't happen?
-      // Do trial subscriptions run into this?
       nextInvoiceDate: nextInvoiceDate
         ? new Date(nextInvoiceDate * 1000)
         : null,
