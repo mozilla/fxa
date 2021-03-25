@@ -90,5 +90,5 @@ module.exports = testsSettingsV2.concat([
 // Teamcity failing trying to run mocha tests, expose an environment
 // variable it can use to skip the mocha tests.
 if (!process.env.SKIP_MOCHA) {
-  module.exports.unshift('tests/functional/mocha.js');
+  //module.exports.unshift('tests/functional/mocha.js');
 }
