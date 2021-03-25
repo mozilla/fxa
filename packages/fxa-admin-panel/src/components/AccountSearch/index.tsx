@@ -117,7 +117,6 @@ export const AccountSearch = () => {
     // invalid input, neither email nor uid
     else {
       window.alert('Invalid email or UID format');
-      setShowResult(true);
     }
   };
 
