@@ -30,6 +30,11 @@ type EmailProps = {
   createdAt: number;
 };
 
+type DangerZoneProps = {
+  emails: EmailProps;
+  onCleared: Function;
+};
+
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
 
 export const CLEAR_BOUNCES_BY_EMAIL = gql`
@@ -66,10 +71,16 @@ export const ClearButton = ({
   );
 };
 
-export const DangerZone = () => {
+export const DangerZone = ({ emails, onCleared }: DangerZoneProps) => {
   const alertWindow = () => {
     window.alert('Implementation coming soon.');
     return;
+  };
+
+  const handleUnverify = () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
   };
 
   return (
@@ -111,7 +122,7 @@ export const DangerZone = () => {
       <p className="danger-zone-info">
         Reset email verification. User needs to re-verify on next login.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
+        <button className="danger-zone-button" onClick={handleUnverify}>
           Unverify Email
         </button>
       </p>
