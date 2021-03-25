@@ -1,5 +1,24 @@
 # Change history
 
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+No changes.
+
+## 1.203.0
+
+### Other changes
+
+- deps: bump @nestjs/core from 7.6.14 to 7.6.15 ([adfbdd3b3](https://github.com/mozilla/fxa/commit/adfbdd3b3))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- deps: bump @nestjs/core from 7.6.13 to 7.6.14 ([a335f90c7](https://github.com/mozilla/fxa/commit/a335f90c7))
+- deps: bump class-transformer from 0.3.1 to 0.4.0 ([66bec644c](https://github.com/mozilla/fxa/commit/66bec644c))
+- deps: bump @nestjs/mapped-types from 0.3.0 to 0.4.0 ([aedb056a1](https://github.com/mozilla/fxa/commit/aedb056a1))
+- deps-dev: bump eslint-config-prettier from 7.2.0 to 8.1.0 ([e39d86519](https://github.com/mozilla/fxa/commit/e39d86519))
+
 ## 1.202.3
 
 No changes.

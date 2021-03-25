@@ -1,5 +1,35 @@
 # Change history
 
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+No changes.
+
+## 1.203.0
+
+### New features
+
+- subscriptions: add upgrade roadblock ([e9f9dcecc](https://github.com/mozilla/fxa/commit/e9f9dcecc))
+- subscriptions: redirect to localized legal doc pdf ([1a4f6ea73](https://github.com/mozilla/fxa/commit/1a4f6ea73))
+- payments: Add Checkout error screen for returning PayPal customers. ([6bf154689](https://github.com/mozilla/fxa/commit/6bf154689))
+
+### Other changes
+
+- subscriptions: use the same shade of grey in checkout ([2209e8e02](https://github.com/mozilla/fxa/commit/2209e8e02))
+- payments: Add paymentProvider property to Subscription Management Amplitude events. ([233e50876](https://github.com/mozilla/fxa/commit/233e50876))
+- deps: bump async-wait-until from 2.0.3 to 2.0.4 ([d745597d5](https://github.com/mozilla/fxa/commit/d745597d5))
+- deps-dev: bump @types/classnames from 2.2.10 to 2.2.11 ([2e2ca4d1f](https://github.com/mozilla/fxa/commit/2e2ca4d1f))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- deps-dev: bump caniuse-lite from 1.0.30001200 to 1.0.30001202 ([dbbbb585d](https://github.com/mozilla/fxa/commit/dbbbb585d))
+- deps: bump async-wait-until from 1.2.6 to 2.0.3 ([c12544352](https://github.com/mozilla/fxa/commit/c12544352))
+- deps-dev: bump @rescripts/cli from 0.0.15 to 0.0.16 ([c54667d92](https://github.com/mozilla/fxa/commit/c54667d92))
+- l10n: Minor fixes to payments l10n ([83912279f](https://github.com/mozilla/fxa/commit/83912279f))
+- subscriptions: update ToS link to use redirect URL ([4b0c2d081](https://github.com/mozilla/fxa/commit/4b0c2d081))
+- deps-dev: bump @storybook/react from 5.3.19 to 6.1.21 ([37522c5a6](https://github.com/mozilla/fxa/commit/37522c5a6))
+
 ## 1.202.3
 
 No changes.

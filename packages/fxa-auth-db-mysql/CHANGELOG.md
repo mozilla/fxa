@@ -1,3 +1,17 @@
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+No changes.
+
+## 1.203.0
+
+### Other changes
+
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+
 ## 1.202.3
 
 No changes.

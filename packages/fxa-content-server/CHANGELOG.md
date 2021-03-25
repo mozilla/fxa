@@ -1,3 +1,37 @@
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+### Bug fixes
+
+- path: Update location of settings page on disk ([e6d7a2c49](https://github.com/mozilla/fxa/commit/e6d7a2c49))
+
+## 1.203.0
+
+### New features
+
+- content-server: delete old settings files ([26b5d4b66](https://github.com/mozilla/fxa/commit/26b5d4b66))
+- settings: move new settings from beta/settings to /settings ([e1fcec815](https://github.com/mozilla/fxa/commit/e1fcec815))
+
+### Bug fixes
+
+- password: Use the same show password icon everywhere ([3f1ece891](https://github.com/mozilla/fxa/commit/3f1ece891))
+- pair: update pairing complete link to point to new settings ([1e5999d05](https://github.com/mozilla/fxa/commit/1e5999d05))
+- content-server: Navigate to settings as an external app ([594a01d91](https://github.com/mozilla/fxa/commit/594a01d91))
+- tests: get functional smoke tests working with new settings as default ([d947048fe](https://github.com/mozilla/fxa/commit/d947048fe))
+
+### Other changes
+
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- be282ccb3 Add a section on security properties to the pairing architecture doc. ([be282ccb3](https://github.com/mozilla/fxa/commit/be282ccb3))
+- deps-dev: bump htmlparser2 from 3.9.0 to 6.0.1 ([6d5d8cfad](https://github.com/mozilla/fxa/commit/6d5d8cfad))
+- deps: bump grunt-contrib-cssmin from 3.0.0 to 4.0.0 ([68071bc58](https://github.com/mozilla/fxa/commit/68071bc58))
+- deps: bump jquery from 3.5.1 to 3.6.0 ([f0de3aa69](https://github.com/mozilla/fxa/commit/f0de3aa69))
+- deps-dev: bump @types/sinon-express-mock from 1.3.8 to 1.3.9 ([535a8906e](https://github.com/mozilla/fxa/commit/535a8906e))
+- deps-dev: bump webpack-dev-middleware from 3.7.2 to 4.1.0 ([011a2a44f](https://github.com/mozilla/fxa/commit/011a2a44f))
+
 ## 1.202.3
 
 No changes.

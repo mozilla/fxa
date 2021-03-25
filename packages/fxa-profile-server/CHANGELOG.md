@@ -1,3 +1,19 @@
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+No changes.
+
+## 1.203.0
+
+### Other changes
+
+- deps: bump @hapi/boom from 9.1.1 to 9.1.2 ([29004dd99](https://github.com/mozilla/fxa/commit/29004dd99))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- deps: bump sharp from 0.26.3 to 0.27.2 ([836921ebe](https://github.com/mozilla/fxa/commit/836921ebe))
+
 ## 1.202.3
 
 No changes.
