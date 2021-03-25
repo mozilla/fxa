@@ -107,6 +107,14 @@ export const DangerZone = () => {
           Force Change
         </button>
       </p>
+      <h2>Toggle Email Verification</h2>
+      <p className="danger-zone-info">
+        Reset email verification. User needs to re-verify on next login.
+        <br />
+        <button className="danger-zone-button" onClick={alertWindow}>
+          Unverify Email
+        </button>
+      </p>
     </li>
   );
 };
