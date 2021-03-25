@@ -1,3 +1,7 @@
+## 1.203.1
+
+No changes.
+
 ## 1.203.0
 
 ### New features
@@ -19,7 +23,7 @@
 
 ### Other changes
 
-- deps-dev: bump @types/babel__core from 7.1.12 to 7.1.14 ([23df842af](https://github.com/mozilla/fxa/commit/23df842af))
+- deps-dev: bump @types/babel\_\_core from 7.1.12 to 7.1.14 ([23df842af](https://github.com/mozilla/fxa/commit/23df842af))
 - deps-dev: bump @types/react-test-renderer from 16.9.5 to 17.0.1 ([b1d01d545](https://github.com/mozilla/fxa/commit/b1d01d545))
 - deps: bump @emotion/react from 11.1.4 to 11.1.5 ([32bb00ca6](https://github.com/mozilla/fxa/commit/32bb00ca6))
 - deps-dev: bump @types/classnames from 2.2.10 to 2.2.11 ([2e2ca4d1f](https://github.com/mozilla/fxa/commit/2e2ca4d1f))

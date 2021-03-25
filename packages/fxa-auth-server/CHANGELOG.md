@@ -1,3 +1,9 @@
+## 1.203.1
+
+### Bug fixes
+
+- import: Use relative import for production ([98778d0a4](https://github.com/mozilla/fxa/commit/98778d0a4))
+
 ## 1.203.0
 
 ### New features

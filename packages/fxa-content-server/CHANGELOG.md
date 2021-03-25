@@ -1,3 +1,9 @@
+## 1.203.1
+
+### Bug fixes
+
+- path: Update location of settings page on disk ([e6d7a2c49](https://github.com/mozilla/fxa/commit/e6d7a2c49))
+
 ## 1.203.0
 
 ### New features
