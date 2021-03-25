@@ -31,7 +31,7 @@ type EmailProps = {
 };
 
 type DangerZoneProps = {
-  emails: EmailProps;
+  email: EmailProps;
   onCleared: Function;
 };
 
@@ -71,7 +71,7 @@ export const ClearButton = ({
   );
 };
 
-export const DangerZone = ({ emails, onCleared }: DangerZoneProps) => {
+export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
   const alertWindow = () => {
     window.alert('Implementation coming soon.');
     return;
@@ -81,6 +81,7 @@ export const DangerZone = ({ emails, onCleared }: DangerZoneProps) => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
+    window.alert(`Attempting to unverify: ${email.email}`);
   };
 
   return (
@@ -225,7 +226,12 @@ export const Account = ({
           </li>
         )}
         <hr />
-        <DangerZone />
+        <DangerZone
+          {...{
+            email: primaryEmail,
+            onCleared: onCleared,
+          }}
+        />
       </ul>
     </section>
   );
