@@ -71,6 +71,7 @@ export const ClearButton = ({
   );
 };
 
+// gql mutation to update emails table and unverify user's email
 export const UNVERIFY_EMAIL = gql`
   mutation unverify($email: String!) {
     unverifyEmail(email: $email)
@@ -89,8 +90,7 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
-    //window.alert(`Attempting to unverify: ${email.email}`);
-    //unverify( {variables : { email : email.email} } );
+    unverify({ variables: { email: email.email } });
     onCleared();
   };
 

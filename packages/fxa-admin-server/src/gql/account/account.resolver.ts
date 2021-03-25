@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { UseGuards } from '@nestjs/common';
-import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Query,
+  ResolveField,
+  Resolver,
+  Root,
+} from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { CurrentUser } from '../../auth/auth-header.decorator';
@@ -69,6 +76,22 @@ export class AccountResolver {
       .select(EMAIL_COLUMNS)
       .where('email', 'like', `${search}%`)
       .limit(10);
+  }
+
+  // unverifies the user's email. will have to verify again on next login
+  @Mutation((returns) => Boolean)
+  public async unverifyEmail(
+    @Args('email') email: string,
+    @CurrentUser() user: string
+  ) {
+    const result = await this.db.emails
+      .query()
+      .where('email', email)
+      .update({
+        isVerified: false,
+        verifiedAt: null as any, // same as null
+      });
+    return !!result;
   }
 
   @ResolveField()
