@@ -7024,6 +7024,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/mime@npm:^1":
+  version: 1.3.2
+  resolution: "@types/mime@npm:1.3.2"
+  checksum: c354bc135628c2f4ab64801ca3867c3acbd4050611579c4c9f5bdfecfb70db71bb8540bf8611b4319f5ef44139c5f7c5af81254369add5ed59e7e02ce929b96f
+  languageName: node
+  linkType: hard
+
 "@types/minimatch@npm:*, @types/minimatch@npm:^3.0.3":
   version: 3.0.3
   resolution: "@types/minimatch@npm:3.0.3"
@@ -7479,13 +7486,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/serve-static@npm:*, @types/serve-static@npm:1.13.5":
+"@types/serve-static@npm:*":
   version: 1.13.5
   resolution: "@types/serve-static@npm:1.13.5"
   dependencies:
     "@types/express-serve-static-core": "*"
     "@types/mime": "*"
   checksum: 1d4e222e240ff6ed0aa41cd3997fefb53b4f2fbe8f16d20055174662dda1361c7409dfb40ad8e2f355316f80edcd701e0f3ff6298abe35e0b88d9b62903acd18
+  languageName: node
+  linkType: hard
+
+"@types/serve-static@npm:1.13.9":
+  version: 1.13.9
+  resolution: "@types/serve-static@npm:1.13.9"
+  dependencies:
+    "@types/mime": ^1
+    "@types/node": "*"
+  checksum: f261127514057b5c038d76259128d7b765dd92bfeaf769d05b8ddf5f254d066ce6142a935e2fc707bb3009d6544a979591852f0d135d0ed4d0c56db08738df6b
   languageName: node
   linkType: hard
 
@@ -18809,7 +18826,7 @@ fsevents@^1.2.7:
     "@types/on-headers": ^1.0.0
     "@types/react": ^16.9.53
     "@types/react-router-dom": ^5.1.5
-    "@types/serve-static": 1.13.5
+    "@types/serve-static": 1.13.9
     "@types/supertest": ^2.0.8
     "@types/webpack": 4.41.26
     "@typescript-eslint/eslint-plugin": 4.10.0
