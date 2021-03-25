@@ -158,7 +158,10 @@
   },
   "subscriptions": {
     "enabled": true,
-    "sharedSecret": "devsecret"
+    "sharedSecret": "devsecret",
+    "paymentsServer": {
+      "url": "http://localhost:3031/"
+    }
   },
   "totp": {
     "recoveryCodes": {
