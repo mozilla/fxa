@@ -234,7 +234,7 @@ const AccountSearchResult = ({
   query: string;
 }) => {
   if (loading) return <p data-testid="loading-message">Loading...</p>;
-  if (error) return <p data-testid="error-message">An error occured.</p>;
+  if (error) return <p data-testid="error-message">An error occurred.</p>;
 
   if (data?.accountByEmail) {
     return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
