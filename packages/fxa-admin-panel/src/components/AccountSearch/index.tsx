@@ -74,7 +74,7 @@ export const GET_ACCOUNT_BY_UID = gql`
 function validateUID(uid: string) {
   // checks if input string is in uid format
   if (/^[0-9a-fA-F]{32}/.test(uid)) {
-    // alphanumeric, 32 digit
+    // hex, 32 digit
     return true;
   }
   return false;
