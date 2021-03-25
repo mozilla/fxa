@@ -71,17 +71,27 @@ export const ClearButton = ({
   );
 };
 
+export const UNVERIFY_EMAIL = gql`
+  mutation unverify($email: String!) {
+    unverifyEmail(email: $email)
+  }
+`;
+
 export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
   const alertWindow = () => {
     window.alert('Implementation coming soon.');
     return;
   };
 
+  const [unverify] = useMutation(UNVERIFY_EMAIL);
+
   const handleUnverify = () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
-    window.alert(`Attempting to unverify: ${email.email}`);
+    //window.alert(`Attempting to unverify: ${email.email}`);
+    //unverify( {variables : { email : email.email} } );
+    onCleared();
   };
 
   return (
