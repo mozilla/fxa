@@ -8,7 +8,7 @@ import { PayPalClientError } from '../../payments/paypal-client';
 import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
-} from 'fxa-auth-server/lib/payments/paypal-error-codes';
+} from '../../payments/paypal-error-codes';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
 
