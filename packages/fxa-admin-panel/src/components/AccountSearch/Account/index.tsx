@@ -91,7 +91,7 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
       return;
     }
     unverify({ variables: { email: email.email } });
-    onCleared();
+    onCleared(); // refresh the page
   };
 
   return (
@@ -238,7 +238,7 @@ export const Account = ({
         <hr />
         <DangerZone
           {...{
-            email: primaryEmail,
+            email: primaryEmail, // only the primary for now
             onCleared: onCleared,
           }}
         />
