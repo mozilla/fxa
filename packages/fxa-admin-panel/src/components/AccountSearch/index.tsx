@@ -103,7 +103,7 @@ export const AccountSearch = () => {
     event.preventDefault();
     const isUID = validateUID(searchInput);
     // choose correct query if email or uid
-    if (isUID && searchInput.search('@') == -1 && searchInput != '') {
+    if (isUID) {
       // uid and non-empty
       getAccountbyUID({ variables: { uid: searchInput } });
       setIsEmail(false);
