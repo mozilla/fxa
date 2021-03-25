@@ -91,10 +91,10 @@ export const AccountSearch = () => {
   const [searchInput, setSearchInput] = useState<string>('');
   // define two queries to search by either email or uid.
   const [getAccountbyEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
-  const [getAccountbyUID, UIDResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
+  const [getAccountbyUID, uidResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
   // choose which query result to show based on type of query made
   const [isEmail, setIsEmail] = useState<Boolean>(false);
-  const queryResults = isEmail && showResult ? emailResults : UIDResults;
+  const queryResults = isEmail && showResult ? emailResults : uidResults;
   const [getEmailLike, { data: returnedEmails }] = useLazyQuery(
     GET_EMAILS_LIKE
   );
