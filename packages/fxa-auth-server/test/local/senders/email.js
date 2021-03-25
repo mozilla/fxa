@@ -2026,7 +2026,13 @@ function configUrl(key, campaign, content, ...params) {
     ['utm_content', `fx-${content}`],
   ].forEach(([key, value]) => out.searchParams.append(key, value));
 
-  return out.toString();
+  const url = out.toString();
+  if (['subscriptionTermsUrl', 'subscriptionPrivacyUrl'].includes(key)) {
+    const parsedUrl = new URL(config.subscriptions.paymentsServer.url);
+    return `${parsedUrl.origin}/legal-docs?url=${encodeURI(url)}`;
+  }
+
+  return url;
 }
 
 async function setup(log, config, mocks, locale = 'en', sender = null) {

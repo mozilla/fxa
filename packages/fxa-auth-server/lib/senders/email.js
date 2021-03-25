@@ -30,6 +30,8 @@ module.exports = function (log, config) {
   );
   const cadReminders = require('../cad-reminders')(config, log);
 
+  const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
+
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
@@ -2540,6 +2542,10 @@ module.exports = function (log, config) {
     };
   });
 
+  Mailer.prototype._legalDocsRedirectUrl = function (url) {
+    return `${paymentsServerURL.origin}/legal-docs?url=${encodeURI(url)}`;
+  };
+
   Mailer.prototype._generateUTMLink = function (
     link,
     query,
@@ -2715,17 +2721,21 @@ module.exports = function (log, config) {
 
     links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
 
-    links.subscriptionTermsUrl = this._generateUTMLink(
-      termsOfServiceDownloadURL,
-      {},
-      templateName,
-      'subscription-terms'
+    links.subscriptionTermsUrl = this._legalDocsRedirectUrl(
+      this._generateUTMLink(
+        termsOfServiceDownloadURL,
+        {},
+        templateName,
+        'subscription-terms'
+      )
     );
-    links.subscriptionPrivacyUrl = this._generateUTMLink(
-      privacyNoticeDownloadURL,
-      {},
-      templateName,
-      'subscription-privacy'
+    links.subscriptionPrivacyUrl = this._legalDocsRedirectUrl(
+      this._generateUTMLink(
+        privacyNoticeDownloadURL,
+        {},
+        templateName,
+        'subscription-privacy'
+      )
     );
     links.cancelSubscriptionUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,

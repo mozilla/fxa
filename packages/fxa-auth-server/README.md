@@ -81,26 +81,33 @@ Run tests with:
 
     npm test
 
-To select a specific glob of tests to run:
-
-    npm test -- test/local/account_routes.js test/local/password_*
-
-- Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
-- You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
-
-## Testing
-
-This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will run a series of NPM test scripts and then lint the code:
-
 Run specific tests with the following commands:
 
 ```bash
 # Test only test/local/account_routes.js
+# Note: This command does not work for remote tests.
 npm test -- test/local/account_routes.js
 
 # Grep for "SQSReceiver"
 NODE_ENV=dev npx mocha -r ts-node/register test/*/** -g "SQSReceiver"
 ```
+
+To select a specific glob of tests to run:
+
+```
+npm test -- test/local/account_routes.js test/local/password_*
+```
+
+To run a certain suite of tests (e.g. all remote tests):
+
+```
+npm test -- test/remote
+```
+
+- Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
+- You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
+
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will run a series of NPM test scripts and then lint the code:
 
 Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
 
