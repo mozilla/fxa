@@ -14,7 +14,6 @@ const settingsIndexPath = join(
   '..',
   '..',
   config.get('static_directory'),
-  'beta',
   'settings',
   'index.html'
 );
