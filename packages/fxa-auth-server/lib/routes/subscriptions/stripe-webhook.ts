@@ -4,7 +4,7 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import * as Sentry from '@sentry/node';
-import { PayPalClientError } from 'fxa-auth-server/lib/payments/paypal-client';
+import { PayPalClientError } from '../../payments/paypal-client';
 import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
