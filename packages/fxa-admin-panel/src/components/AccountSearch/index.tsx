@@ -72,12 +72,8 @@ export const GET_ACCOUNT_BY_UID = gql`
 `;
 
 function validateUID(uid: string) {
-  // checks if input string is in uid format
-  if (/^[0-9a-fA-F]{32}/.test(uid)) {
-    // hex, 32 digit
-    return true;
-  }
-  return false;
+  // checks if input string is in uid format (hex, 32 digit)
+  return /^[0-9a-fA-F]{32}/.test(uid);
 }
 
 export const GET_EMAILS_LIKE = gql`
