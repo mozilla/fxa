@@ -76,7 +76,7 @@
     "keyv": "4.0.3",
     "lodash": "^4.17.19",
     "memcached": "^2.2.2",
-    "moment-timezone": "0.5.32",
+    "moment-timezone": "0.5.33",
     "mozlog": "^3.0.1",
     "mysql": "^2.18.1",
     "mysql-patcher": "0.7.0",
