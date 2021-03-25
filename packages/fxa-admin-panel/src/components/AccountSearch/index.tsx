@@ -108,7 +108,7 @@ export const AccountSearch = () => {
       getAccountbyUID({ variables: { uid: searchInput } });
       setIsEmail(false);
       setShowResult(true);
-    } else if (!isUID && searchInput.search('@') != -1 && searchInput != '') {
+    } else if (!isUID && searchInput.search('@') !== -1 && searchInput !== '') {
       // assume email if not uid and non-empty; must at least have '@'
       getAccountbyEmail({ variables: { email: searchInput } });
       setIsEmail(true);
