@@ -35,7 +35,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.3.11",
+    "@apollo/client": "^3.3.13",
     "body-parser": "^1.19.0",
     "convict": "^6.0.1",
     "convict-format-with-moment": "^6.0.1",
