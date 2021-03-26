@@ -51,6 +51,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@angular-devkit/core@npm:11.2.3":
+  version: 11.2.3
+  resolution: "@angular-devkit/core@npm:11.2.3"
+  dependencies:
+    ajv: 6.12.6
+    fast-json-stable-stringify: 2.1.0
+    magic-string: 0.25.7
+    rxjs: 6.6.3
+    source-map: 0.7.3
+  checksum: 4e421c0ad31f1fe48cf2f6a85ccccb4a9be5f8ff6f68127cd3f01c3552645f0257279120b0b4a6a47073cfa4bb388894dc5888d3173adbb75e7eb54d483ce6a5
+  languageName: node
+  linkType: hard
+
 "@angular-devkit/schematics-cli@npm:0.1100.3":
   version: 0.1100.3
   resolution: "@angular-devkit/schematics-cli@npm:0.1100.3"
@@ -87,6 +100,17 @@ __metadata:
     ora: 5.1.0
     rxjs: 6.6.3
   checksum: 7a1f531cf6ca9225ced7d609e90ea3d61f74bd373671fa66dac50870a0f18276828cf107709773c1de0f8119d5bf8608334d7d83e89a894960c087c809b26fb5
+  languageName: node
+  linkType: hard
+
+"@angular-devkit/schematics@npm:11.2.3":
+  version: 11.2.3
+  resolution: "@angular-devkit/schematics@npm:11.2.3"
+  dependencies:
+    "@angular-devkit/core": 11.2.3
+    ora: 5.3.0
+    rxjs: 6.6.3
+  checksum: be20e28f23b3b19be8f99a16a78dc2fc4757f345e5f74f710ccf85ef67793feec4cdd6dbbfba52adb598e705b1b97e9c1033c97562fe37c3fa4fd165ce860ae2
   languageName: node
   linkType: hard
 
@@ -4067,7 +4091,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schematics@npm:^7.1.0, @nestjs/schematics@npm:^7.2.6":
+"@nestjs/schematics@npm:^7.1.0":
   version: 7.2.6
   resolution: "@nestjs/schematics@npm:7.2.6"
   dependencies:
@@ -4078,6 +4102,21 @@ __metadata:
   peerDependencies:
     typescript: ^3.4.5 || ^4.0.0
   checksum: 32f9acd88f4c068ed441a7c2556cbd66ed6586627d6676322da88455604c7c0cc278522b59bf4be4c681b96733a1e3aefe45c7eb47d709e6c34dd5c09accf589
+  languageName: node
+  linkType: hard
+
+"@nestjs/schematics@npm:^7.3.0":
+  version: 7.3.0
+  resolution: "@nestjs/schematics@npm:7.3.0"
+  dependencies:
+    "@angular-devkit/core": 11.2.3
+    "@angular-devkit/schematics": 11.2.3
+    fs-extra: 9.1.0
+    jsonc-parser: 3.0.0
+    pluralize: 8.0.0
+  peerDependencies:
+    typescript: ^3.4.5 || ^4.0.0
+  checksum: ebd6eced32b40bdad26598ab9b0538c38733dd84f8a85ab70f76ef4bbbfb8bbc5f80dcdeecdd2391dcacdc8b56ca1b902f61028d4e8e116597bf21bbb68dea68
   languageName: node
   linkType: hard
 
@@ -13334,6 +13373,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cli-spinners@npm:^2.5.0":
+  version: 2.6.0
+  resolution: "cli-spinners@npm:2.6.0"
+  checksum: 653ba6818e0091d4ad7aa052022f6c6a0df0d4674ff6069f6ae366e6130c1eb91a6c332ddfdd2029d234411632ff6428950aa3311872daf515ce54da498c1357
+  languageName: node
+  linkType: hard
+
 "cli-table3@npm:0.5.1":
   version: 0.5.1
   resolution: "cli-table3@npm:0.5.1"
@@ -18575,6 +18621,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-extra@npm:9.1.0":
+  version: 9.1.0
+  resolution: "fs-extra@npm:9.1.0"
+  dependencies:
+    at-least-node: ^1.0.0
+    graceful-fs: ^4.2.0
+    jsonfile: ^6.0.1
+    universalify: ^2.0.0
+  checksum: e667d8df54113b527bf5830dd9db8f142618db488894b329fe07724c7020dfacf8a372b144a74e683ae44e66f56117adca9cac165950dda7d83537c46c10dc4b
+  languageName: node
+  linkType: hard
+
 "fs-extra@npm:^0.30.0":
   version: 0.30.0
   resolution: "fs-extra@npm:0.30.0"
@@ -19368,7 +19426,7 @@ fsevents@^1.2.7:
     "@nestjs/passport": ^7.1.5
     "@nestjs/platform-express": ^7.6.12
     "@nestjs/schedule": ^0.4.1
-    "@nestjs/schematics": ^7.2.6
+    "@nestjs/schematics": ^7.3.0
     "@nestjs/testing": ^7.6.5
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
@@ -25141,6 +25199,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"jsonc-parser@npm:3.0.0":
+  version: 3.0.0
+  resolution: "jsonc-parser@npm:3.0.0"
+  checksum: 36b9080a7e25f5052c7d551109c4ead564f3102d7ca0c5ee4a2f7debc18b2cd31896e0e369cfd1442d9d2d71fc1defaf094ba885bc9b43a6a3f2b3a9083fd2cb
+  languageName: node
+  linkType: hard
+
 "jsonfile@npm:^2.1.0":
   version: 2.4.0
   resolution: "jsonfile@npm:2.4.0"
@@ -29077,6 +29142,22 @@ fsevents@^1.2.7:
     strip-ansi: ^6.0.0
     wcwidth: ^1.0.1
   checksum: 53aad8d2996056eebb8f68ae874d101d079c05a8251ab281734b37c0252955c82f758d649b5757e54f867bbc98549545dd88b061033487af0b598d4da92d1a82
+  languageName: node
+  linkType: hard
+
+"ora@npm:5.3.0":
+  version: 5.3.0
+  resolution: "ora@npm:5.3.0"
+  dependencies:
+    bl: ^4.0.3
+    chalk: ^4.1.0
+    cli-cursor: ^3.1.0
+    cli-spinners: ^2.5.0
+    is-interactive: ^1.0.0
+    log-symbols: ^4.0.0
+    strip-ansi: ^6.0.0
+    wcwidth: ^1.0.1
+  checksum: 892cfd7a893bce2ba1203369abb8f197fc8e54c780a9a7398c021cfa202f18d15d64b1f1eca1d330eec52396ee7cdd9f7e97a7e6a004d6f943c4de646f80fd73
   languageName: node
   linkType: hard
 
@@ -38383,6 +38464,13 @@ typescript@~4.1.2:
   version: 1.0.0
   resolution: "universalify@npm:1.0.0"
   checksum: d74303a8d9ff18598804f3e9f261c9376cad55b81a92346f086e59261803ae75bef347044dd6a25549eb3b1490c0dd106dc07154cd7ccad8f037fdae947c125d
+  languageName: node
+  linkType: hard
+
+"universalify@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "universalify@npm:2.0.0"
+  checksum: 36bfbdc97bd4b483596e66ea65e20663f5ab9ec3650157d99b075b7f97afcdefe46bbb23f89171dd75595d398cea3769a5b6d7130f5c66cae2a0f00904780f62
   languageName: node
   linkType: hard
 
