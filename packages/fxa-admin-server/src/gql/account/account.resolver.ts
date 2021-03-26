@@ -12,6 +12,7 @@ import { Account } from '../../database/model';
 import { uuidTransformer } from '../../database/transformers';
 import { Account as AccountType } from '../../gql/model/account.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
+import { SecurityEvents as SecurityEventsType } from '../../gql/model/security-events.model';
 
 const ACCOUNT_COLUMNS = ['uid', 'email', 'emailVerified', 'createdAt'];
 const EMAIL_COLUMNS = [
@@ -22,7 +23,16 @@ const EMAIL_COLUMNS = [
   'isVerified',
   'normalizedEmail',
   'uid',
-  'verifiedAt',
+  'verified',
+];
+
+const SECURITY_EVENTS_COLUMNS = [
+  'uid',
+  'nameId',
+  'verified',
+  'ipAddrHmac',
+  'createdAt',
+  'tokenVerificationId',
 ];
 
 @UseGuards(GqlAuthHeaderGuard)
@@ -93,6 +103,15 @@ export class AccountResolver {
     return await this.db.emails
       .query()
       .select(EMAIL_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @ResolveField()
+  public async securityEvents(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.securityEvents
+      .query()
+      .select(SECURITY_EVENTS_COLUMNS)
       .where('uid', uidBuffer);
   }
 }

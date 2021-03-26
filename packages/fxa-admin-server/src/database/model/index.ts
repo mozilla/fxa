@@ -4,5 +4,6 @@
 import { Account } from './account.model';
 import { EmailBounces } from './email-bounces.model';
 import { Emails } from './emails.model';
+import { SecurityEvents } from './security-events.model';
 
-export { Account, Emails, EmailBounces };
+export { Account, Emails, EmailBounces, SecurityEvents };

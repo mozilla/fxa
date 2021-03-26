@@ -5,6 +5,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 import { EmailBounce } from './email-bounces.model';
 import { Email } from './emails.model';
+import { SecurityEvents } from './security-events.model';
 
 @ObjectType()
 export class Account {
@@ -25,4 +26,7 @@ export class Account {
 
   @Field((type) => [EmailBounce], { nullable: true })
   public emailBounces!: EmailBounce[];
+
+  @Field((type) => [SecurityEvents], { nullable: true })
+  public securityEvents!: SecurityEvents[];
 }

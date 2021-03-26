@@ -104,9 +104,17 @@
   }
 
   .danger-zone-button:hover {
-    border: 2px solid rgb(245, 245, 245); 
+    border: 2px solid rgb(245, 245, 245);
     background-color: rgb(240, 240, 240);
     color: #da3845;
+  }
+
+  .accountHistory-info {
+      padding-left: 15px;
+      padding-top: 5px;
+      border-image: linear-gradient(to bottom, var(--ff-brand-gradient)) 0 100%;
+      border-left: 1px solid;
+      padding-bottom: 5px;
   }
 
 }

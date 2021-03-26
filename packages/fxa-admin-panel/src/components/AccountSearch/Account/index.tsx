@@ -6,6 +6,7 @@ import React from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
+import AccountHistory from './AccountHistory';
 
 type AccountProps = {
   uid: string;
@@ -111,6 +112,19 @@ export const DangerZone = () => {
   );
 };
 
+export const AccountHistoryInfo = () => {
+  return (
+    <li>
+      <h1>Account History</h1>
+      <p className="accountHistory-info">
+        {' '}
+        This is where all previous acount history will be displayed
+      </p>
+      <AccountHistory />
+    </li>
+  );
+};
+
 export const Account = ({
   uid,
   emails,
@@ -185,7 +199,7 @@ export const Account = ({
         )}
         <li></li>
         <li>
-          <h4>Email bounces</h4>
+          <h4>Email Bounces</h4>
         </li>
 
         {emailBounces.length > 0 ? (
@@ -205,6 +219,8 @@ export const Account = ({
             This account doesn't have any bounced emails.
           </li>
         )}
+        <hr />
+        <AccountHistoryInfo />
         <hr />
         <DangerZone />
       </ul>
