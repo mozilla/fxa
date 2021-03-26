@@ -13725,22 +13725,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:2.18.0":
-  version: 2.18.0
-  resolution: "commander@npm:2.18.0"
-  checksum: 7864082c1b11498d763bbf217c9dab6b5829a759e04cf8fe60719e07ba779aec44509784b1a1fad19979b821e2767ed88013b258faf85ccd86e68fe5d52877d7
-  languageName: node
-  linkType: hard
-
-"commander@npm:2.9.0":
-  version: 2.9.0
-  resolution: "commander@npm:2.9.0"
-  dependencies:
-    graceful-readlink: ">= 1.0.0"
-  checksum: 9b1fe7000d68e718b0b97b9f09626645cf833a5d8e5f29d409e731892170db201b71af6e7ff307d4dc327cd3cf26eb335cecf867ef91a9df91e61923511d8ebd
-  languageName: node
-  linkType: hard
-
 "commander@npm:4.0.1":
   version: 4.0.1
   resolution: "commander@npm:4.0.1"
@@ -13752,6 +13736,13 @@ __metadata:
   version: 4.1.1
   resolution: "commander@npm:4.1.1"
   checksum: 448585071bf8fb4c0bf9dd52abaee43dea086f801334caec2c8e8c9f456f8abc224c1614ccbbdbf7da5ac2524d230f13cf1fc86c233cf8a041ebecea7df106e9
+  languageName: node
+  linkType: hard
+
+"commander@npm:7.2.0, commander@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "commander@npm:7.2.0"
+  checksum: bdc0eca5e25cd24af8440163d3c9a996785bbac4b49a590365699cdc1ed08cefbac8f268153208ab2bc5dc3cb1d3fb573fd1590c681e36e371342186bd331a4c
   languageName: node
   linkType: hard
 
@@ -19024,7 +19015,7 @@ fsevents@^1.2.7:
     chai: ^4.2.0
     cldr-core: ^38.1.0
     cldr-localenames-full: 38.0.0
-    commander: 2.18.0
+    commander: 7.2.0
     convict: ^6.0.1
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
@@ -19485,7 +19476,7 @@ fsevents@^1.2.7:
     chance: ^1.1.6
     class-transformer: ^0.4.0
     class-validator: ^0.12.2
-    commander: ^6.0.0
+    commander: ^7.2.0
     convict: ^6.0.1
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
@@ -19719,7 +19710,7 @@ fsevents@^1.2.7:
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 0.1.1
-    commander: 2.9.0
+    commander: 7.2.0
     compute-cluster: 0.0.9
     convict: ^6.0.1
     convict-format-with-moment: ^6.0.1
