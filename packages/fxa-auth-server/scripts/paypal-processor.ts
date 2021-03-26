@@ -7,7 +7,9 @@ import { StatsD } from 'hot-shots';
 import Container from 'typedi';
 
 import error from '../lib/error';
+import { CurrencyHelper } from '../lib/payments/currencies';
 import { PayPalHelper } from '../lib/payments/paypal';
+import { PayPalClient } from '../lib/payments/paypal-client';
 import { PaypalProcessor } from '../lib/payments/paypal-processor';
 import { StripeHelper } from '../lib/payments/stripe';
 import { configureSentry } from '../lib/sentry';
@@ -16,6 +18,22 @@ const pckg = require('../package.json');
 const config = require('../config').getProperties();
 
 export async function init() {
+  // Load program options
+  program
+    .version(pckg.version)
+    .option('-g, --grace [days]', 'Grace days to allow. Defaults to 1.', '1')
+    .option(
+      '-r, --retries [times]',
+      'Retry attempts to per day. Defaults to 1.',
+      '1'
+    )
+    .option(
+      '-i, --invoice-age [hours]',
+      'How old in hours the invoice must be to get processed. Defaults to 6.',
+      '6'
+    )
+    .parse(process.argv);
+
   configureSentry(undefined, config);
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth);
@@ -66,23 +84,14 @@ export async function init() {
     process.exit(1);
   }
 
-  program
-    .version(pckg.version)
-    .option('-g, --grace [days]', 'Grace days to allow. Defaults to 1.', '1')
-    .option(
-      '-r, --retries [times]',
-      'Retry attempts to per day. Defaults to 1.',
-      '1'
-    )
-    .option(
-      '-i, --invoice-age [hours]',
-      'How old the invoice must be to get processed. Defaults to 6.',
-      '6'
-    )
-    .parse(process.argv);
-
+  const currencyHelper = new CurrencyHelper(config);
+  Container.set(CurrencyHelper, currencyHelper);
   const stripeHelper = new StripeHelper(log, config);
   Container.set(StripeHelper, stripeHelper);
+  const paypalClient = new PayPalClient(
+    config.subscriptions.paypalNvpSigCredentials
+  );
+  Container.set(PayPalClient, paypalClient);
   const paypalHelper = new PayPalHelper({ log });
   Container.set(PayPalHelper, paypalHelper);
 
@@ -91,7 +100,7 @@ export async function init() {
     config,
     parseInt(program.grace),
     parseInt(program.retries),
-    parseInt(program.invoice_age),
+    parseInt(program.invoiceAge),
     database,
     senders.email
   );
@@ -102,7 +111,7 @@ export async function init() {
 if (require.main === module) {
   init()
     .catch((err) => {
-      console.error(err.message);
+      console.error(err);
       process.exit(1);
     })
     .then((result) => process.exit(result));
