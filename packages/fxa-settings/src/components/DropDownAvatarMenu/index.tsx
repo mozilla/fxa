@@ -82,17 +82,29 @@ export const DropDownAvatarMenu = () => {
                 <div className="ltr:mr-3 rtl:ml-3 flex-none">
                   <Avatar className="w-10" />
                 </div>
-                <p className="leading-5 max-w-full truncate">
-                  <Localized id="drop-down-menu-signed-in-as">
+                <Localized
+                  id="drop-down-menu-signed-in-as"
+                  vars={{ user: displayName || primaryEmail.email }}
+                  elems={{
+                    user: (
+                      <span
+                        className="font-bold block truncate"
+                        data-testid="drop-down-name-or-email"
+                      ></span>
+                    ),
+                    signin: <span className="text-grey-400 text-xs"></span>,
+                  }}
+                >
+                  <p className="leading-5 max-w-full truncate">
                     <span className="text-grey-400 text-xs">Signed in as</span>
-                  </Localized>
-                  <span
-                    className="font-bold block truncate"
-                    data-testid="drop-down-name-or-email"
-                  >
-                    {displayName || primaryEmail.email}
-                  </span>
-                </p>
+                    <span
+                      className="font-bold block truncate"
+                      data-testid="drop-down-name-or-email"
+                    >
+                      {displayName || primaryEmail.email}
+                    </span>
+                  </p>
+                </Localized>
               </div>
               <div className="w-full">
                 <div className="bg-gradient-to-r from-blue-500 via-pink-700 to-yellow-500 h-px" />
