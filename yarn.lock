@@ -7378,12 +7378,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-transition-group@npm:^4.2.0, @types/react-transition-group@npm:^4.2.3, @types/react-transition-group@npm:^4.2.4":
+"@types/react-transition-group@npm:^4.2.0":
   version: 4.4.0
   resolution: "@types/react-transition-group@npm:4.4.0"
   dependencies:
     "@types/react": "*"
   checksum: b761f70623ca2a386a310536886e7ceed15087e59a3b6c68478c9965d38edd819c5b29e3fb79a5d911ee4b1db5ab397ae0ebb5a5ddf98f08708a6d592cb7c256
+  languageName: node
+  linkType: hard
+
+"@types/react-transition-group@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "@types/react-transition-group@npm:4.4.1"
+  dependencies:
+    "@types/react": "*"
+  checksum: 7d9d9ecf8187902c129c4bf99ee911658f5cf97ffe56f31703be06df70b5209d49515386e26be540508436c8383d2cb1cdc287777103c5eb5106a1027281e8ec
   languageName: node
   linkType: hard
 
@@ -19620,7 +19629,7 @@ fsevents@^1.2.7:
     "@types/react-router": ^5.1.8
     "@types/react-router-dom": ^5.1.5
     "@types/react-stripe-elements": ^1.3.5
-    "@types/react-transition-group": ^4.2.3
+    "@types/react-transition-group": ^4.4.1
     "@types/redux-actions": ^2.6.0
     "@types/sinon": 9.0.8
     "@types/storybook__addon-actions": ^5.2.1
@@ -19776,7 +19785,7 @@ fsevents@^1.2.7:
     "@types/react": ^16.9.53
     "@types/react-dom": ^16.9.6
     "@types/react-helmet": ^6
-    "@types/react-transition-group": ^4.2.4
+    "@types/react-transition-group": ^4.4.1
     "@types/rimraf": 3.0.0
     "@types/sinon": ^9
     async-wait-until: ^2.0.4
