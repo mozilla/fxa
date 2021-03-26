@@ -12,6 +12,7 @@ import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useEscKeydownEffect, useMutation, useAlertBar } from '../../lib/hooks';
 import { ReactComponent as SignOut } from './sign-out.svg';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
+import { Localized, useLocalization } from '@fluent/react';
 
 export const DESTROY_SESSION_MUTATION = gql`
   mutation destroySession($input: DestroySessionInput!) {
@@ -31,6 +32,7 @@ export const DropDownAvatarMenu = () => {
   useEscKeydownEffect(setRevealed);
   const alertBar = useAlertBar();
   const dropDownId = 'drop-down-avatar-menu';
+  const { l10n } = useLocalization();
 
   const [destroySession] = useMutation(DESTROY_SESSION_MUTATION, {
     onCompleted: () => {
@@ -40,7 +42,7 @@ export const DropDownAvatarMenu = () => {
       logViewEvent(settingsViewName, 'signout.success');
     },
     onError: (error) => {
-      alertBar.error('Sorry, there was a problem signing you out.', error);
+      alertBar.error(l10n.getString('drop-down-menu-sign-out-error'));
     },
   });
 
@@ -62,7 +64,7 @@ export const DropDownAvatarMenu = () => {
           type="button"
           onClick={toggleRevealed}
           data-testid="drop-down-avatar-menu-toggle"
-          title="Firefox Account Menu"
+          title={l10n.getString('drop-down-menu-title')}
           aria-expanded={isRevealed}
           aria-controls={dropDownId}
           className="rounded-full border-2 border-transparent hover:border-purple-500 focus:border-purple-500 focus:outline-none active:border-purple-700 transition-standard"
@@ -81,7 +83,9 @@ export const DropDownAvatarMenu = () => {
                   <Avatar className="w-10" />
                 </div>
                 <p className="leading-5 max-w-full truncate">
-                  <span className="text-grey-400 text-xs">Signed in as</span>
+                  <Localized id="drop-down-menu-signed-in-as">
+                    <span className="text-grey-400 text-xs">Signed in as</span>
+                  </Localized>
                   <span
                     className="font-bold block truncate"
                     data-testid="drop-down-name-or-email"
@@ -103,7 +107,9 @@ export const DropDownAvatarMenu = () => {
                       width="18"
                       className="ltr:mr-3 rtl:ml-3 inline-block stroke-current align-middle transform rtl:-scale-x-1"
                     />
-                    <span className="group-hover:underline">Sign out</span>
+                    <Localized id="drop-down-menu-sign-out">
+                      <span className="group-hover:underline">Sign out</span>
+                    </Localized>
                   </button>
                 </div>
               </div>
