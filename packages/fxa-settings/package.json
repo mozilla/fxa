@@ -33,7 +33,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.3.11",
+    "@apollo/client": "^3.3.13",
     "@emotion/react": "^11.1.5",
     "@fluent/react": "^0.13.0",
     "@material-ui/core": "v5.0.0-alpha.24",
