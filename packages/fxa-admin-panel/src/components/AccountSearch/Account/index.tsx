@@ -94,6 +94,10 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
     onCleared(); // refresh the page
   };
 
+  const handlePassChange = () => {
+    // todo
+  };
+
   return (
     <li>
       <h3 className="danger-zone-title">Danger Zone</h3>
@@ -125,7 +129,7 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
       <p className="danger-zone-info">
         Force a password change the next time this account logs in.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
+        <button className="danger-zone-button" onClick={handlePassChange}>
           Force Change
         </button>
       </p>
