@@ -95,7 +95,8 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     fireEvent.click(getByTestId('submit'));
     expect(updateSubscriptionPlanAndRefresh).toBeCalledWith(
       CUSTOMER.subscriptions[0].subscription_id,
-      SELECTED_PLAN
+      SELECTED_PLAN,
+      CUSTOMER.payment_provider
     );
   });
 
@@ -180,7 +181,9 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
         expect(legalCheckbox.props.vars.amount).toStrictEqual(expectedAmount);
-        expect(legalCheckbox.props.vars.intervalCount).toBe(plan.interval_count);
+        expect(legalCheckbox.props.vars.intervalCount).toBe(
+          plan.interval_count
+        );
         expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
       }
 
@@ -403,11 +406,13 @@ describe('PlanDetailsCard', () => {
       });
       const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-      expect(planPriceComponent.props.vars.amount).toStrictEqual(expectedAmount);
-      expect(planPriceComponent.props.vars.intervalCount).toBe(plan.interval_count);
-      expect(planPriceComponent.props.children).toBe(
-        expectedMsg
+      expect(planPriceComponent.props.vars.amount).toStrictEqual(
+        expectedAmount
       );
+      expect(planPriceComponent.props.vars.intervalCount).toBe(
+        plan.interval_count
+      );
+      expect(planPriceComponent.props.children).toBe(expectedMsg);
     }
 
     describe('When plan has day interval', () => {

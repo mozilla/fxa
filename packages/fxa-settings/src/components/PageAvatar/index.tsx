@@ -5,7 +5,6 @@
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { Localized, useLocalization } from '@fluent/react';
-import { gql } from '@apollo/client';
 import Webcam from 'react-webcam';
 import Cropper from 'react-easy-crop';
 import { Slider } from '@material-ui/core';
@@ -13,12 +12,20 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import 'react-easy-crop/react-easy-crop.css';
 
+import { cache, sessionToken } from '../../lib/cache';
+import { isMobileDevice } from '../../lib/utilities';
 import { useAccount } from '../../models';
 import { HomePath } from '../../constants';
 import firefox from '../../lib/firefox';
+import { useAvatarUploader } from '../../lib/auth';
 import { onFileChange } from '../../lib/file-utils';
 import { getCroppedImg } from '../../lib/canvas-utils';
-import { useAlertBar, useMutation } from '../../lib/hooks';
+import { useAlertBar } from '../../lib/hooks';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
 
 import AlertBar from '../AlertBar';
 import Avatar from '../Avatar';
@@ -33,24 +40,35 @@ import {
   ZoomOutBtn,
 } from './buttons';
 
-export const UPDATE_AVATAR_MUTATION = gql`
-  mutation updateAvatar($file: Upload!) {
-    updateAvatar(input: { file: $file }) {
-      clientMutationId
-      avatarUrl
-    }
-  }
-`;
-
+const PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE = 2 * 1024 * 1024;
 const frameClass = `rounded-full m-auto w-40 object-cover`;
 
 export const PageAddAvatar = (_: RouteComponentProps) => {
+  usePageViewEvent('settings.avatar.change');
   const navigate = useNavigate();
   const account = useAccount();
   const { l10n } = useLocalization();
-  const { avatarUrl } = useAccount();
+  const { avatar } = useAccount();
   const alertBar = useAlertBar();
   const [saveEnabled, setSaveEnabled] = useState(false);
+  const [saveStringId, setSaveStringId] = useState('avatar-page-save-button');
+
+  const uploadAvatar = useAvatarUploader({
+    onSuccess: (newAvatar) => {
+      logViewEvent(settingsViewName, 'avatar.crop.submit.change');
+      firefox.profileChanged(account.uid);
+      cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
+        fields: {
+          avatar() {
+            return newAvatar;
+          },
+        },
+      });
+      navigate(HomePath + '#profile-picture', { replace: true });
+    },
+    onError: onFileError,
+  });
 
   /* Capture State */
 
@@ -75,32 +93,21 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     y: 0,
   });
 
-  const resetAllState = () => {
+  const resetAllState = useCallback(() => {
     setZoom(1);
     setRotation(0);
     setCrop({ x: 0, y: 0 });
     setCroppedImgSrc(null);
     setCapturedImgSrc(undefined);
     setSaveEnabled(false);
-  };
-
-  const [updateAvatar] = useMutation(UPDATE_AVATAR_MUTATION, {
-    onCompleted: () => {
-      firefox.profileChanged(account.uid);
-      navigate(HomePath, { replace: true });
-    },
-    onError: onFileError,
-    update: (cache, { data: { updateAvatar } }) => {
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          avatarUrl() {
-            return updateAvatar.avatarUrl;
-          },
-        },
-      });
-    },
-  });
+  }, [
+    setZoom,
+    setRotation,
+    setCrop,
+    setCroppedImgSrc,
+    setCapturedImgSrc,
+    setSaveEnabled,
+  ]);
 
   /* Edit Handlers */
 
@@ -115,19 +122,13 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const saveCroppedImage = useCallback(async () => {
     try {
       if (capturedImgSrc && croppedAreaPixels) {
-        const croppedImage = await getCroppedImg(
-          capturedImgSrc,
-          croppedAreaPixels,
-          rotation
-        );
-        updateAvatar({
-          variables: { file: croppedImage },
-        });
-      } else throw new Error('no image data');
+        return await getCroppedImg(capturedImgSrc, croppedAreaPixels, rotation);
+      }
     } catch (e) {
       console.error(e);
     }
-  }, [croppedAreaPixels, rotation, capturedImgSrc, updateAvatar]);
+    return null;
+  }, [croppedAreaPixels, rotation, capturedImgSrc]);
 
   const handleSliderChange = (
     event: React.SyntheticEvent<Element, Event>,
@@ -142,16 +143,10 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const capture = useCallback(async () => {
     const webcam: any = webcamRef?.current;
     const screenshot = await webcam.getScreenshot();
-    const cropped = await getCroppedImg(screenshot, {
-      width: 720,
-      height: 720,
-      x: 290,
-      y: 0,
-    });
-    setCroppedImgSrc(cropped);
+    setCapturedImgSrc(screenshot);
     setCapturing(false);
-    setSaveEnabled(true);
-  }, [webcamRef, setCroppedImgSrc, setCapturing]);
+    setSaveEnabled(false);
+  }, [webcamRef, setCapturing]);
 
   const onMediaLoad = useCallback(() => {
     setTimeout(() => {
@@ -165,18 +160,29 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
 
   /* General Handlers */
 
-  async function save() {
-    if (croppedImgSrc) {
-      updateAvatar({
-        variables: { file: croppedImgSrc },
-      });
-    } else {
-      saveCroppedImage();
+  const save = useCallback(async () => {
+    setSaveEnabled(false);
+    const img = croppedImgSrc || (await saveCroppedImage());
+    if (img && img.size > PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE) {
+      alertBar.error(l10n.getString('avatar-page-image-too-large-error'));
+      resetAllState();
+    } else if (img) {
+      setSaveStringId('avatar-page-saving-button');
+      uploadAvatar.execute(sessionToken()!, img);
     }
-  }
+  }, [
+    alertBar,
+    croppedImgSrc,
+    l10n,
+    saveCroppedImage,
+    setSaveEnabled,
+    setSaveStringId,
+    uploadAvatar,
+    resetAllState,
+  ]);
 
   function onFileError() {
-    alertBar.error(l10n.getString('avatar-page-file-upload-error'));
+    alertBar.error(l10n.getString('avatar-page-file-upload-error-2'));
   }
 
   function onMediaError() {
@@ -185,7 +191,11 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
 
   /* Elements */
   const confirmBtns = (
-    <ConfirmBtns onSave={save} saveEnabled={!capturing && saveEnabled} />
+    <ConfirmBtns
+      onSave={save}
+      saveEnabled={!capturing && saveEnabled}
+      saveStringId={saveStringId}
+    />
   );
 
   const editView = (
@@ -196,13 +206,13 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
           crop={crop}
           zoom={zoom}
           rotation={rotation}
+          aspect={1}
           showGrid={false}
           cropShape="round"
           onCropChange={setCrop}
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}
           disableAutomaticStylesInjection={true}
-          cropSize={{ width: 160, height: 160 }}
           style={{ containerStyle: { borderRadius: '8px' } }}
         />
       </div>
@@ -213,7 +223,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
             return setZoom(zoom - 0.1);
           }}
         />
-        <div className="w-32 mx-2">
+        <div className="w-32 ml-2 mr-4">
           <Slider
             min={1}
             max={3}
@@ -232,8 +242,8 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
         />
         <RotateBtn
           onClick={() => {
-            if (rotation < 315) {
-              return setRotation(rotation + 45);
+            if (rotation < 270) {
+              return setRotation(rotation + 90);
             } else {
               return setRotation(0);
             }
@@ -289,7 +299,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
 
   return (
     <Localized id="avatar-page-title" attrs={{ title: true }}>
-      <FlowContainer title="Profile Picture">
+      <FlowContainer title="Profile picture">
         {alertBar.visible && (
           <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
             <p data-testid="update-avatar-error">{alertBar.content}</p>
@@ -313,7 +323,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
                     }}
                   />
                 )}
-                {!mediaError && (
+                {!mediaError && !isMobileDevice() && (
                   <TakePhotoBtn
                     capturing={capturing}
                     onClick={() => {
@@ -321,7 +331,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
                     }}
                   />
                 )}
-                {avatarUrl && !capturing && <RemovePhotoBtn />}
+                {avatar.url && !capturing && <RemovePhotoBtn />}
               </div>
               {confirmBtns}
             </>

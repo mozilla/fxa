@@ -56,12 +56,24 @@ Use the following as a template, and fill in your own values:
 ```json
 {
   "subscriptions": {
-    "stripeApiKey": "sk_test_123"
+    "stripeApiKey": "sk_test_123",
+    "paypalNvpSigCredentials": {
+      "enabled": true,
+      "sandbox": true,
+      "user": "business_account_email_ID",
+      "pwd": "business_account_password",
+      "signature": "business_account_signature"
+    }
   }
 }
 ```
 
 - `stripeApiKey` should be a test Stripe Secret Key
+- `user` should be a sandbox PayPal business account username
+- `pwd` should be a sandbox PayPal business account password
+- `signature` should be a sandbox PayPal business account signature
+
+The sandbox PayPal business account API credentials above can be found in the PayPal developer dashboard under "Sandbox" > "Accounts". You may need to create a business account if one doesn't exist.
 
 ## Testing
 
@@ -69,26 +81,33 @@ Run tests with:
 
     npm test
 
-To select a specific glob of tests to run:
-
-    npm test -- test/local/account_routes.js test/local/password_*
-
-- Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
-- You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
-
-## Testing
-
-This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will run a series of NPM test scripts and then lint the code:
-
 Run specific tests with the following commands:
 
 ```bash
 # Test only test/local/account_routes.js
+# Note: This command does not work for remote tests.
 npm test -- test/local/account_routes.js
 
 # Grep for "SQSReceiver"
 NODE_ENV=dev npx mocha -r ts-node/register test/*/** -g "SQSReceiver"
 ```
+
+To select a specific glob of tests to run:
+
+```
+npm test -- test/local/account_routes.js test/local/password_*
+```
+
+To run a certain suite of tests (e.g. all remote tests):
+
+```
+npm test -- test/remote
+```
+
+- Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
+- You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
+
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will run a series of NPM test scripts and then lint the code:
 
 Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
 

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Field, ObjectType } from '@nestjs/graphql';
+import { Avatar } from '../../model/avatar';
 
 @ObjectType()
 export class UpdateAvatarPayload {
@@ -11,6 +12,6 @@ export class UpdateAvatarPayload {
   })
   public clientMutationId?: string;
 
-  @Field({ description: 'URL of the updated avatar.', nullable: true })
-  public avatarUrl?: string;
+  @Field({ description: 'URL of the updated avatar.' })
+  public avatar!: Avatar;
 }

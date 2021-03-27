@@ -52,7 +52,7 @@ describe('mailer locales', () => {
       ['', 'en'],
       ['en-CA', 'en'],
       ['db-LB', 'en'],
-      ['el-GR', 'en'],
+      ['el-GR', 'el'],
       ['es-BO', 'es'],
       ['fr-FR', 'fr'],
       ['fr-CA', 'fr'],

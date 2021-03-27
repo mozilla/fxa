@@ -21,6 +21,7 @@ import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import SubscriptionSuccess from '../Product/SubscriptionSuccess';
 import SubscriptionUpgrade from '../Product/SubscriptionUpgrade';
 import SubscriptionCreate from '../Product/SubscriptionCreate';
+import SubscriptionUpgradeRoadblock from './SubscriptionUpgradeRoadblock';
 
 export type ProductProps = {
   match: {
@@ -55,7 +56,7 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
-  const { locationReload, queryParams, matchMediaDefault } = useContext(
+  const { locationReload, queryParams, matchMediaDefault, config } = useContext(
     AppContext
   );
 
@@ -139,12 +140,30 @@ export const Product = ({
 
   // Only check for upgrade or existing subscription if we have a customer.
   if (customer.result) {
-    // Can we upgrade from an existing subscription with selected plan?
+    const alreadySubscribedToSelectedPlan = customerIsSubscribedToPlan(
+      customerSubscriptions,
+      selectedPlan
+    );
     const upgradeFrom = findUpgradeFromPlan(
       customerSubscriptions,
       selectedPlan,
       plansById
     );
+
+    if (
+      !config.featureFlags.allowSubscriptionUpgrades &&
+      (upgradeFrom ||
+        (!alreadySubscribedToSelectedPlan &&
+          customerIsSubscribedToProduct(customerSubscriptions, productId)))
+    ) {
+      return (
+        <SubscriptionUpgradeRoadblock
+          {...{ profile: profile.result, isMobile, selectedPlan }}
+        />
+      );
+    }
+
+    // Can we upgrade from an existing subscription with selected plan?
     if (upgradeFrom) {
       return (
         <SubscriptionUpgrade
@@ -164,7 +183,7 @@ export const Product = ({
     }
 
     // Do we already have a subscription to the product in the selected plan?
-    if (customerIsSubscribedToProduct(customerSubscriptions, productPlans)) {
+    if (alreadySubscribedToSelectedPlan) {
       return (
         <SubscriptionSuccess
           {...{
@@ -205,15 +224,26 @@ const indexPlansById = (plans: State['plans']): PlansByIdType =>
     {}
   );
 
-// If the customer has any subscription plan that matches a plan for the
-// selected product, then they are already subscribed.
+// Check if the customer is subscribed to a product.
 const customerIsSubscribedToProduct = (
   customerSubscriptions: ProductProps['customerSubscriptions'],
-  productPlans: Plan[]
+  productId: string
 ) =>
   customerSubscriptions &&
-  customerSubscriptions.some((customerSubscription) =>
-    productPlans.some((plan) => plan.plan_id === customerSubscription.plan_id)
+  customerSubscriptions.some(
+    (customerSubscription) => customerSubscription.product_id === productId
+  );
+
+// If the customer has any subscription plan that matches a plan for the
+// selected product, then they are already subscribed.
+const customerIsSubscribedToPlan = (
+  customerSubscriptions: ProductProps['customerSubscriptions'],
+  selectedPlan: Plan
+) =>
+  customerSubscriptions &&
+  customerSubscriptions.some(
+    (customerSubscription) =>
+      selectedPlan.plan_id === customerSubscription.plan_id
   );
 
 // If the customer has any subscribed plan that matches the productSet

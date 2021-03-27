@@ -311,6 +311,11 @@ export const MOCK_CHECKOUT_TOKEN = {
   token: 'EC-8NC18566WJ1581100',
 };
 
+export const MOCK_PAYPAL_SUBSCRIPTION_RESULT = {
+  sourceCountry: 'FR',
+  subscription: { what: 'ever' },
+};
+
 export const STRIPE_FIELDS = [
   'cardNumberElement',
   'cardCVCElement',
@@ -465,6 +470,19 @@ export const MOCK_PLANS: Plan[] = [
       productSet: 'fpn',
     },
   },
+  {
+    plan_id: 'nextlevel',
+    product_id: PRODUCT_ID,
+    product_name: PRODUCT_NAME,
+    interval: 'year' as const,
+    interval_count: 1,
+    amount: 999,
+    currency: 'usd',
+    product_metadata: {
+      webIconURL: 'http://example.com/product.jpg',
+      webIconBackground: 'purple',
+    },
+  },
 ];
 
 export const MOCK_PROFILE = {
@@ -475,6 +493,7 @@ export const MOCK_PROFILE = {
   uid: 'a90fef48240b49b2b6a33d333aee9b13',
   avatar: 'http://localhost:1112/a/00000000000000000000000000000000',
   avatarDefault: true,
+  displayName: 'Foxy77',
 };
 
 export const MOCK_ACTIVE_SUBSCRIPTIONS = [
@@ -507,6 +526,7 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
 export const MOCK_CUSTOMER = {
   billing_name: 'Jane Doe',
   payment_type: 'card',
+  payment_provider: 'stripe',
   brand: 'Visa',
   last4: '8675',
   exp_month: '8',
@@ -534,6 +554,7 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
     {
       subscription_id: 'sub0.21234123424',
       plan_id: PLAN_ID,
+      product_id: PRODUCT_ID,
       latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,

@@ -9,9 +9,13 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { HomePath } from '../../constants';
 import { usePasswordChanger } from '../../lib/auth';
-import { cache, sessionToken } from '../../lib/cache';
+import { alertTextExternal, cache, sessionToken } from '../../lib/cache';
 import firefox from '../../lib/firefox';
-import { logViewEvent, settingsViewName } from '../../lib/metrics';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
 import { useAccount } from '../../models';
 import AlertBar from '../AlertBar';
 import FlowContainer from '../FlowContainer';
@@ -49,6 +53,7 @@ const ValidationIcon = ({
 
 // eslint-disable-next-line no-empty-pattern
 export const PageChangePassword = ({}: RouteComponentProps) => {
+  usePageViewEvent('settings.change-password');
   const {
     handleSubmit,
     register,
@@ -74,6 +79,13 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
   const { primaryEmail } = useAccount();
   const navigate = useNavigate();
+  const goHome= () => navigate(HomePath + '#password', { replace: true });
+  const alertSuccessAndGoHome = () => {
+    alertTextExternal(
+      l10n.getString('pw-change-success-alert', null, 'Password updated.')
+    );
+    navigate(HomePath + '#password', { replace: true });
+  };
   const { l10n } = useLocalization();
   const changePassword = usePasswordChanger({
     onSuccess: (response) => {
@@ -107,7 +119,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
           session: { verified: response.verified, __typename: 'Session' },
         },
       });
-      navigate(HomePath);
+      alertSuccessAndGoHome();
     },
     onError: (e) => {
       const localizedError = l10n.getString(
@@ -146,7 +158,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
 
   return (
     <Localized id="pw-change-header" attrs={{ title: true }}>
-      <FlowContainer title="Change Password">
+      <FlowContainer title="Change password">
         {alertBarRevealed && alertText && (
           <AlertBar onDismiss={hideAlertBar} type="error">
             <p data-testid="sign-out-error">Error text TBD. {alertText}</p>
@@ -289,7 +301,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
               <button
                 type="button"
                 className="cta-neutral mx-2 flex-1"
-                onClick={() => window.history.back()}
+                onClick={goHome}
                 data-testid="cancel-password-button"
               >
                 Cancel

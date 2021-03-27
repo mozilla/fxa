@@ -12,13 +12,20 @@ import {
 import '@testing-library/jest-dom/extend-expect';
 import { PaymentMethod, PaymentIntent } from '@stripe/stripe-js';
 import { SignInLayout } from '../../../components/AppLayout';
-import { CUSTOMER, PROFILE, PLAN, NEW_CUSTOMER } from '../../../lib/mock-data';
+import {
+  CUSTOMER,
+  PROFILE,
+  PLAN,
+  NEW_CUSTOMER,
+  PAYPAL_CUSTOMER,
+} from '../../../lib/mock-data';
 import { PickPartial } from '../../../lib/types';
 
 import {
   defaultAppContextValue,
   MockApp,
   MOCK_CHECKOUT_TOKEN,
+  MOCK_PAYPAL_SUBSCRIPTION_RESULT,
   mockStripeElementOnChangeFns,
   elementChangeResponse,
 } from '../../../lib/test-utils';
@@ -145,19 +152,25 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
 
   it('renders as expected', async () => {
     render(<Subject />);
-    const {
-      findAllByText,
-      queryByTestId,
-      queryByText,
-      queryAllByText,
-    } = screen;
+    const { queryByTestId, queryByText } = screen;
+    const subscriptionCreateTitle = queryByTestId('subscription-create-title');
+    expect(subscriptionCreateTitle).toBeInTheDocument();
+    expect(subscriptionCreateTitle).not.toHaveClass('hidden');
+    const subscriptionProcessingTitle = queryByTestId(
+      'subscription-processing-title'
+    );
+    expect(subscriptionProcessingTitle).toBeInTheDocument();
+    expect(subscriptionProcessingTitle).toHaveClass('hidden');
     expect(queryByTestId('subscription-create')).toBeInTheDocument();
-    await findAllByText('Set up your subscription');
-    expect(
-      queryAllByText('30-day money-back guarantee')[0]
-    ).toBeInTheDocument();
-    expect(queryByText('Billing Information')).toBeInTheDocument();
+    expect(queryByText('Payment information')).toBeInTheDocument();
     expect(queryByTestId('paypal-button')).not.toBeInTheDocument();
+    expect(queryByText('Terms of Service')).toBeInTheDocument();
+    expect(queryByText('Privacy Notice')).toBeInTheDocument();
+    expect(
+      queryByText(
+        'Mozilla uses Stripe and Paypal for secure payment processing.'
+      )
+    ).toBeInTheDocument();
   });
 
   it('renders as expected with PayPal UI enabled', async () => {
@@ -184,7 +197,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     );
   });
 
-  it('renders as expected with PayPal UI enabled and an existing customer', async () => {
+  it('renders as expected with PayPal UI enabled and an existing Stripe customer', async () => {
     const { queryByTestId } = screen;
     updateConfig({
       featureFlags: {
@@ -202,14 +215,50 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     waitForExpect(() =>
       expect(queryByTestId('paypal-button')).not.toBeInTheDocument()
     );
+    waitForExpect(() =>
+      expect(queryByTestId('paymentForm')).toBeInTheDocument()
+    );
+  });
+
+  it('renders as expected with PayPal UI enabled and an existing PayPal customer', async () => {
+    const { queryByTestId } = screen;
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+    const MockedButtonBase = ({}: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" />;
+    };
+    await act(async () => {
+      render(
+        <Subject
+          customer={PAYPAL_CUSTOMER}
+          paypalButtonBase={MockedButtonBase}
+        />
+      );
+    });
+    waitForExpect(() =>
+      expect(queryByTestId('paypal-button')).not.toBeInTheDocument()
+    );
+    waitForExpect(() =>
+      expect(queryByTestId('paymentForm')).not.toBeInTheDocument()
+    );
   });
 
   it('renders as expected for mobile', async () => {
     render(<Subject isMobile={true} />);
+    const { queryByTestId } = screen;
+    const subscriptionCreateTitle = queryByTestId('subscription-create-title');
+    expect(subscriptionCreateTitle).toBeInTheDocument();
+    expect(subscriptionCreateTitle).not.toHaveClass('hidden');
+    const subscriptionProcessingTitle = queryByTestId(
+      'subscription-processing-title'
+    );
+    expect(subscriptionProcessingTitle).toBeInTheDocument();
+    expect(subscriptionProcessingTitle).toHaveClass('hidden');
     expect(screen.queryByTestId('subscription-create')).toBeInTheDocument();
-    expect(
-      screen.queryByTestId('mobile-subscription-create-heading')
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId('plan-details-component')).toBeInTheDocument();
   });
 
   async function commonSubmitSetup({
@@ -490,8 +539,78 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     })
   );
 
+  it('handles a successful PayPal payment submission as new customer', async () => {
+    const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" onClick={onApprove} />;
+    };
+    const apiClientOverrides = {
+      ...defaultApiClientOverrides(),
+      apiCapturePaypalPayment: jest
+        .fn()
+        .mockResolvedValue(MOCK_PAYPAL_SUBSCRIPTION_RESULT),
+    };
+    const refreshSubscriptions = jest.fn();
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+    await act(async () => {
+      render(
+        <Subject
+          {...{
+            apiClientOverrides,
+            refreshSubscriptions,
+            paypalButtonBase: MockedButtonBase,
+          }}
+        />
+      );
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('paypal-button'));
+    });
+    const paymentProcessing = screen.queryByTestId('payment-processing');
+    expect(paymentProcessing).toBeInTheDocument();
+    expect(apiClientOverrides.apiCapturePaypalPayment).toHaveBeenCalledTimes(1);
+    expect(refreshSubscriptions).toHaveBeenCalledTimes(1);
+    expect(
+      screen.queryByTestId('error-payment-submission')
+    ).not.toBeInTheDocument();
+  });
+
+  it('creates a new customer if needed for PayPal', async () => {
+    const MockedButtonBase = ({ createOrder }: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" onClick={createOrder} />;
+    };
+    const apiClientOverrides = {
+      ...defaultApiClientOverrides(),
+      apiCreateCustomer: jest.fn(),
+      apiGetPaypalCheckoutToken: jest.fn(),
+    };
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+    await act(async () => {
+      render(
+        <Subject
+          {...{
+            customer: null,
+            apiClientOverrides,
+            paypalButtonBase: MockedButtonBase,
+          }}
+        />
+      );
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('paypal-button'));
+    });
+    expect(apiClientOverrides.apiCreateCustomer).toHaveBeenCalled();
+  });
+
   const commonCreateSubscriptionFailureTest = (
-    error = 'barf apiCreateSubscriptionWithPaymentMethod' as any
+    error = { code: 'barf apiCreateSubscriptionWithPaymentMethod' } as any
   ) => async () => {
     const apiClientOverrides = {
       ...defaultApiClientOverrides(),
@@ -692,14 +811,13 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
         ...defaultApiClientOverrides(),
         apiGetPaypalCheckoutToken: jest
           .fn()
-          .mockRejectedValue('barf apiGetPaypalCheckoutToken'),
+          .mockRejectedValue({ code: 'barf apiGetPaypalCheckoutToken' }),
       };
       updateConfig({
         featureFlags: {
           usePaypalUIByDefault: true,
         },
       });
-      // We lazy load the PaypalButton, so wait for it to render first
       await act(async () => {
         render(
           <Subject
@@ -729,7 +847,6 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
         usePaypalUIByDefault: true,
       },
     });
-    // We lazy load the PaypalButton, so wait for it to render first
     await act(async () => {
       render(
         <Subject
@@ -742,6 +859,40 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('paypal-button'));
     });
+    expect(
+      screen.queryByTestId('error-payment-submission')
+    ).toBeInTheDocument();
+  });
+
+  it('displays apiCapturePaypalPayment failure', async () => {
+    const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" onClick={onApprove} />;
+    };
+    const apiClientOverrides = {
+      ...defaultApiClientOverrides(),
+      apiCapturePaypalPayment: jest
+        .fn()
+        .mockRejectedValue({ code: 'barf apiCapturePaypalPayment' }),
+    };
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+    await act(async () => {
+      render(
+        <Subject
+          {...{
+            apiClientOverrides,
+            paypalButtonBase: MockedButtonBase,
+          }}
+        />
+      );
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('paypal-button'));
+    });
+    expect(apiClientOverrides.apiCapturePaypalPayment).toHaveBeenCalledTimes(1);
     expect(
       screen.queryByTestId('error-payment-submission')
     ).toBeInTheDocument();

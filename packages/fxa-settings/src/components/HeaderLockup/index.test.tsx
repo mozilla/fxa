@@ -13,7 +13,7 @@ import HeaderLockup from '.';
 describe('HeaderLockup', () => {
   it('renders as expected', () => {
     render(
-      <MockedCache account={{ avatarUrl: null }}>
+      <MockedCache account={{ avatar: { id: null, url: null } }}>
         <HeaderLockup />
       </MockedCache>
     );

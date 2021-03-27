@@ -30,6 +30,8 @@ module.exports = function (log, config) {
   );
   const cadReminders = require('../cad-reminders')(config, log);
 
+  const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
+
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
@@ -38,6 +40,10 @@ module.exports = function (log, config) {
     subscriptionDowngrade: 'subscription-downgrade',
     subscriptionPaymentExpired: 'subscription-payment-expired',
     subscriptionsPaymentExpired: 'subscriptions-payment-expired',
+    subscriptionPaymentProviderCancelled:
+      'subscription-payment-provider-cancelled',
+    subscriptionsPaymentProviderCancelled:
+      'subscriptions-payment-provider-cancelled',
     subscriptionPaymentFailed: 'subscription-payment-failed',
     subscriptionAccountDeletion: 'subscription-account-deletion',
     subscriptionCancellation: 'subscription-cancellation',
@@ -80,6 +86,8 @@ module.exports = function (log, config) {
     subscriptionDowngrade: 'subscriptions',
     subscriptionPaymentExpired: 'subscriptions',
     subscriptionsPaymentExpired: 'subscriptions',
+    subscriptionPaymentProviderCancelled: 'subscriptions',
+    subscriptionsPaymentProviderCancelled: 'subscriptions',
     subscriptionPaymentFailed: 'subscriptions',
     subscriptionAccountDeletion: 'subscriptions',
     subscriptionCancellation: 'subscriptions',
@@ -2002,6 +2010,69 @@ module.exports = function (log, config) {
     });
   };
 
+  Mailer.prototype.subscriptionPaymentProviderCancelledEmail = async function (
+    message
+  ) {
+    const { email, uid, subscriptions } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionPaymentProviderCancelled', {
+      enabled,
+      email,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const headers = {};
+    const translator = this.translator(message.acceptLanguage);
+
+    let subject;
+    let productName;
+    let template = 'subscriptionPaymentProviderCancelled';
+    let links = {};
+
+    if (subscriptions.length === 1) {
+      productName = subscriptions[0].productName;
+      subject = translator.gettext(
+        'Payment information update required for %(productName)s'
+      );
+      links = this._generateLinks(
+        null,
+        message,
+        {
+          plan_id: subscriptions[0].planId,
+          product_id: subscriptions[0].productId,
+          uid,
+        },
+        template
+      );
+    } else {
+      subject = translator.gettext(
+        'Payment information update required for Mozilla subscriptions'
+      );
+      template = 'subscriptionsPaymentProviderCancelled';
+      links = this._generateLinks(null, message, {}, template);
+    }
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        uid,
+        email,
+        subject,
+        subscriptions,
+        productName,
+      },
+    });
+  };
+
   Mailer.prototype.subscriptionPaymentFailedEmail = async function (message) {
     const {
       email,
@@ -2197,6 +2268,7 @@ module.exports = function (log, config) {
       cardType,
       lastFour,
       nextInvoiceDate,
+      payment_provider,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2245,6 +2317,7 @@ module.exports = function (log, config) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
@@ -2269,6 +2342,7 @@ module.exports = function (log, config) {
       cardType,
       lastFour,
       nextInvoiceDate,
+      payment_provider,
       paymentProratedInCents,
       paymentProratedCurrency,
     } = message;
@@ -2335,6 +2409,7 @@ module.exports = function (log, config) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
@@ -2356,6 +2431,7 @@ module.exports = function (log, config) {
       invoiceDate,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      payment_provider,
       cardType,
       lastFour,
       nextInvoiceDate,
@@ -2412,6 +2488,7 @@ module.exports = function (log, config) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
@@ -2533,6 +2610,10 @@ module.exports = function (log, config) {
       });
     };
   });
+
+  Mailer.prototype._legalDocsRedirectUrl = function (url) {
+    return `${paymentsServerURL.origin}/legal-docs?url=${encodeURI(url)}`;
+  };
 
   Mailer.prototype._generateUTMLink = function (
     link,
@@ -2709,17 +2790,21 @@ module.exports = function (log, config) {
 
     links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
 
-    links.subscriptionTermsUrl = this._generateUTMLink(
-      termsOfServiceDownloadURL,
-      {},
-      templateName,
-      'subscription-terms'
+    links.subscriptionTermsUrl = this._legalDocsRedirectUrl(
+      this._generateUTMLink(
+        termsOfServiceDownloadURL,
+        {},
+        templateName,
+        'subscription-terms'
+      )
     );
-    links.subscriptionPrivacyUrl = this._generateUTMLink(
-      privacyNoticeDownloadURL,
-      {},
-      templateName,
-      'subscription-privacy'
+    links.subscriptionPrivacyUrl = this._legalDocsRedirectUrl(
+      this._generateUTMLink(
+        privacyNoticeDownloadURL,
+        {},
+        templateName,
+        'subscription-privacy'
+      )
     );
     links.cancelSubscriptionUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,

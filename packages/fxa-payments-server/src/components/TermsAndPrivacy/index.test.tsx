@@ -46,7 +46,7 @@ it('renders as expected with no plan', () => {
   expect(termsDownloadLink).toBeInTheDocument();
   expect(termsDownloadLink).toHaveAttribute(
     'href',
-    DEFAULT_PRODUCT_DETAILS.termsOfServiceDownloadURL
+    `/legal-docs?url=${DEFAULT_PRODUCT_DETAILS.termsOfServiceDownloadURL}`
   );
 
   const privacyLink = queryByTestId('privacy');

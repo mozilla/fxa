@@ -1,3 +1,66 @@
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+No changes.
+
+## 1.203.0
+
+### Other changes
+
+- deps: bump @nestjs/core from 7.6.14 to 7.6.15 ([adfbdd3b3](https://github.com/mozilla/fxa/commit/adfbdd3b3))
+- deps: bump objection from 2.2.7 to 2.2.15 ([626f62e58](https://github.com/mozilla/fxa/commit/626f62e58))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- deps: bump apollo-server-express from 2.21.0 to 2.21.1 ([11bcc7d77](https://github.com/mozilla/fxa/commit/11bcc7d77))
+- deps: bump @nestjs/core from 7.6.13 to 7.6.14 ([a335f90c7](https://github.com/mozilla/fxa/commit/a335f90c7))
+- deps: bump class-transformer from 0.3.1 to 0.4.0 ([66bec644c](https://github.com/mozilla/fxa/commit/66bec644c))
+- deps: bump @nestjs/mapped-types from 0.3.0 to 0.4.0 ([aedb056a1](https://github.com/mozilla/fxa/commit/aedb056a1))
+
+## 1.202.3
+
+No changes.
+
+## 1.202.2
+
+No changes.
+
+## 1.202.1
+
+No changes.
+
+## 1.202.0
+
+### Other changes
+
+- deps: bump @types/convict from 5.2.1 to 5.2.2 ([afdfd3993](https://github.com/mozilla/fxa/commit/afdfd3993))
+- deps: bump @nestjs/core from 7.6.12 to 7.6.13 ([e0611af3b](https://github.com/mozilla/fxa/commit/e0611af3b))
+- deps: bump apollo-server-express from 2.19.2 to 2.21.0 ([9ec043299](https://github.com/mozilla/fxa/commit/9ec043299))
+- deps-dev: bump yargs from 15.4.1 to 16.2.0 ([dc93e441a](https://github.com/mozilla/fxa/commit/dc93e441a))
+- deps: bump rxjs from 6.6.3 to 6.6.6 ([62c3c2447](https://github.com/mozilla/fxa/commit/62c3c2447))
+- deps: bump @nestjs/graphql from 7.9.9 to 7.9.10 ([a6b3030cc](https://github.com/mozilla/fxa/commit/a6b3030cc))
+- deps: bump @nestjs/common from 7.6.4 to 7.6.13 ([386ccc471](https://github.com/mozilla/fxa/commit/386ccc471))
+
+## 1.201.1
+
+No changes.
+
+## 1.201.0
+
+### Other changes
+
+- deps: bump @nestjs/graphql from 7.9.8 to 7.9.9 ([e6b62e0e0](https://github.com/mozilla/fxa/commit/e6b62e0e0))
+- deps: bump @nestjs/config from 0.6.1 to 0.6.3 ([41b3ea4af](https://github.com/mozilla/fxa/commit/41b3ea4af))
+- deps: bump @nestjs/platform-express from 7.6.11 to 7.6.12 ([1a216a0d8](https://github.com/mozilla/fxa/commit/1a216a0d8))
+- deps-dev: bump supertest from 6.0.1 to 6.1.3 ([e7b4af55c](https://github.com/mozilla/fxa/commit/e7b4af55c))
+- c02670eb5 fixed query to do a prefix search instead of subtext ([c02670eb5](https://github.com/mozilla/fxa/commit/c02670eb5))
+- c82019882 final changes to autocomplete ([c82019882](https://github.com/mozilla/fxa/commit/c82019882))
+- deps: bump @nestjs/core from 7.5.5 to 7.6.12 ([11b786463](https://github.com/mozilla/fxa/commit/11b786463))
+- aa71fee2b done autocomplete ([aa71fee2b](https://github.com/mozilla/fxa/commit/aa71fee2b))
+- 23ca9dca4 added query to return all emails in accountresolver.ts, added the gql commands to run query on account index: 23ca9dca4 added query to return all emails in accountresolver.ts, added the gql commands to run query on account index ([23ca9dca4](https://github.com/mozilla/fxa/commit/23ca9dca4))
+- 93e2decfe updated back-end server to add a query to fetch all emails ([93e2decfe](https://github.com/mozilla/fxa/commit/93e2decfe))
+
 ## 1.200.0
 
 ### Other changes

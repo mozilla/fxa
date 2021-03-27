@@ -210,6 +210,7 @@ export const UnitRowSecondaryEmail = () => {
       <Localized id="se-heading" attrs={{ header: true }}>
         <UnitRow
           header="Secondary email"
+          headerId="secondary-email"
           prefixDataTestId="secondary-email"
           headerValue={null}
           route={`${HomePath}/emails`}

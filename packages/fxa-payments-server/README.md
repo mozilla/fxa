@@ -2,6 +2,8 @@
 
 This is the server that handles payments.
 
+To enable PayPal, restart the server with its feature flag enabled: `FEATURE_USE_PAYPAL_UI_BY_DEFAULT=true pm2 restart payments --update-env`
+
 ## Storybook
 
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
@@ -24,11 +26,15 @@ Use the following as a template, and fill in your own values:
 {
   "stripe": {
     "apiKey": "pk_test_123"
+  },
+  "paypal": {
+    "clientId": "sandbox_client_id"
   }
 }
 ```
 
 - `apiKey` should be a test Stripe Publishable Key
+- `clientId` should be a sandbox PayPal client ID. For local testing, the default value of "sb" should be sufficient.
 
 ## Testing
 

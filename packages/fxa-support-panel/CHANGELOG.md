@@ -1,5 +1,60 @@
 # Change history
 
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+No changes.
+
+## 1.203.0
+
+### Other changes
+
+- deps: bump @nestjs/core from 7.6.14 to 7.6.15 ([adfbdd3b3](https://github.com/mozilla/fxa/commit/adfbdd3b3))
+- deps: bump tslib from 2.0.1 to 2.1.0 ([db25da98e](https://github.com/mozilla/fxa/commit/db25da98e))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- deps: bump @nestjs/core from 7.6.13 to 7.6.14 ([a335f90c7](https://github.com/mozilla/fxa/commit/a335f90c7))
+- deps: bump class-transformer from 0.3.1 to 0.4.0 ([66bec644c](https://github.com/mozilla/fxa/commit/66bec644c))
+- deps: bump @nestjs/mapped-types from 0.3.0 to 0.4.0 ([aedb056a1](https://github.com/mozilla/fxa/commit/aedb056a1))
+- deps-dev: bump @types/eslint from 6.8.1 to 7.2.7 ([a94c89e25](https://github.com/mozilla/fxa/commit/a94c89e25))
+
+## 1.202.3
+
+No changes.
+
+## 1.202.2
+
+No changes.
+
+## 1.202.1
+
+No changes.
+
+## 1.202.0
+
+### Other changes
+
+- deps: bump @types/convict from 5.2.1 to 5.2.2 ([afdfd3993](https://github.com/mozilla/fxa/commit/afdfd3993))
+- deps: bump @nestjs/core from 7.6.12 to 7.6.13 ([e0611af3b](https://github.com/mozilla/fxa/commit/e0611af3b))
+- deps: bump rxjs from 6.6.3 to 6.6.6 ([62c3c2447](https://github.com/mozilla/fxa/commit/62c3c2447))
+- deps: bump @nestjs/common from 7.6.4 to 7.6.13 ([386ccc471](https://github.com/mozilla/fxa/commit/386ccc471))
+
+## 1.201.1
+
+No changes.
+
+## 1.201.0
+
+### Other changes
+
+- deps: bump @nestjs/config from 0.6.1 to 0.6.3 ([41b3ea4af](https://github.com/mozilla/fxa/commit/41b3ea4af))
+- deps: bump @nestjs/platform-express from 7.6.11 to 7.6.12 ([1a216a0d8](https://github.com/mozilla/fxa/commit/1a216a0d8))
+- deps-dev: bump supertest from 6.0.1 to 6.1.3 ([e7b4af55c](https://github.com/mozilla/fxa/commit/e7b4af55c))
+- deps: bump @nestjs/core from 7.5.5 to 7.6.12 ([11b786463](https://github.com/mozilla/fxa/commit/11b786463))
+- deps-dev: bump @nestjs/cli from 7.5.3 to 7.5.4 ([7ed2326f7](https://github.com/mozilla/fxa/commit/7ed2326f7))
+
 ## 1.200.0
 
 ### Other changes

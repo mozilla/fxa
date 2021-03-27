@@ -15,7 +15,11 @@ mockLink.setOnError((error) => {
 });
 
 const appProps = {
-  flowQueryParams: {},
+  flowQueryParams: {
+    deviceId: 'x',
+    flowBeginTime: 1,
+    flowId: 'x',
+  },
   config: { metrics: { navTiming: { enabled: false, endpoint: '' } } },
 };
 
@@ -33,23 +37,7 @@ it('renders', async () => {
   });
 });
 
-it('redirects to /get_flow when flow data is not present', async () => {
-  await act(async () => {
-    render(
-      <MockedProvider mocks={[]} addTypename={false} link={mockLink}>
-        <App {...appProps} />
-      </MockedProvider>
-    );
-  });
-
-  expect(window.location.replace).toHaveBeenCalledWith(
-    `${window.location.origin}/get_flow?redirect_to=${encodeURIComponent(
-      window.location.pathname
-    )}`
-  );
-});
-
-it("doesn't redirect to /get_flow when flow data is present", async () => {
+it('Initializes metrics flow data when present', async () => {
   const DEVICE_ID = 'yoyo';
   const BEGIN_TIME = 123456;
   const FLOW_ID = 'abc123';

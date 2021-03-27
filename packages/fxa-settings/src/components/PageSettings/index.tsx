@@ -25,7 +25,7 @@ export const PageSettings = (_: RouteComponentProps) => {
   Metrics.usePageViewEvent(Metrics.settingsViewName);
 
   return (
-    <div className="flex">
+    <div id="fxa-settings" className="flex">
       <AlertExternal />
       <div className="hidden desktop:block desktop:flex-2">
         <Nav />
@@ -34,14 +34,14 @@ export const PageSettings = (_: RouteComponentProps) => {
         <Profile />
         <Security />
         <ConnectedServices />
-        <div className="flex mx-4 tablet:mx-0">
+        <div className="flex mx-4 tablet:mx-0" id="delete-account">
           <Localized id="delete-account-link">
             <Link
               data-testid="settings-delete-account"
               className="cta-caution cta-base text-sm transition-standard mt-12"
               to={DeleteAccountPath}
             >
-              Delete Account
+              Delete account
             </Link>
           </Localized>
         </div>

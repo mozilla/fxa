@@ -26,3 +26,5 @@ export async function handleAuth(db: any, auth: any, fetchEmail = false) {
   }
   return { uid, email };
 }
+
+export type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;

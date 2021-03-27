@@ -33,6 +33,7 @@ const dispatchError = jest.fn().mockImplementation(() => {
 describe('updateSubscriptionPlanAndRefresh', () => {
   const plan = MOCK_PLANS[0];
   const subscriptionId = 'sub-8675309';
+  const paymentProvider = 'paypal';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -41,11 +42,16 @@ describe('updateSubscriptionPlanAndRefresh', () => {
   it('handles action exceptions as expected', async () => {
     await sequences.updateSubscriptionPlanAndRefresh(
       subscriptionId,
-      plan
+      plan,
+      paymentProvider
     )(dispatchError);
 
     expect(dispatchError).toHaveBeenCalledTimes(1);
-    expect(actions.updateSubscriptionPlan).toBeCalledWith(subscriptionId, plan);
+    expect(actions.updateSubscriptionPlan).toBeCalledWith(
+      subscriptionId,
+      plan,
+      paymentProvider
+    );
     expect(actions.fetchCustomer).not.toBeCalled();
     expect(actions.fetchSubscriptions).not.toBeCalled();
   });
@@ -53,11 +59,16 @@ describe('updateSubscriptionPlanAndRefresh', () => {
   it('calls actions as expected', async () => {
     await sequences.updateSubscriptionPlanAndRefresh(
       subscriptionId,
-      plan
+      plan,
+      paymentProvider
     )(dispatch);
 
     expect(dispatch).toHaveBeenCalledTimes(3);
-    expect(actions.updateSubscriptionPlan).toBeCalledWith(subscriptionId, plan);
+    expect(actions.updateSubscriptionPlan).toBeCalledWith(
+      subscriptionId,
+      plan,
+      paymentProvider
+    );
     expect(actions.fetchCustomer).toBeCalled();
   });
 });

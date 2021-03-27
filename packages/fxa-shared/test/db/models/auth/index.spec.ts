@@ -22,6 +22,7 @@ import {
   getAllPayPalBAByUid,
   updatePayPalBA,
   deleteAllPayPalBAs,
+  getPayPalBAByBAId,
 } from '../../../../db/models/auth';
 import {
   chance,
@@ -356,6 +357,28 @@ describe('auth', () => {
         } catch (err) {
           assert.isTrue(err.message.includes('Invalid hex data'));
         }
+      });
+    });
+
+    describe('getPayPalBAByBAId', () => {
+      const uid = '10000927384d147aade1656425200000';
+      const billingAgreementId = 'B-1234XXXXX';
+      const status = 'Active';
+
+      before(async () => {
+        await createPayPalBA(uid, billingAgreementId, status);
+      });
+
+      it('finds an existing PayPalBillingAgreements', async () => {
+        const result = await getPayPalBAByBAId(billingAgreementId);
+        assert.isDefined(result);
+        assert.equal(result.uid, uid);
+        assert.equal(result.billingAgreementId, billingAgreementId);
+      });
+
+      it('does not find a non-existent PayPalBillingAgreements', async () => {
+        const result = await getPayPalBAByBAId('B-1234');
+        assert.isUndefined(result, 'no result defined');
       });
     });
 

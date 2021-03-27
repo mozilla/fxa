@@ -794,6 +794,14 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_ENABLED',
       default: false,
     },
+    paymentsServer: {
+      url: {
+        doc: 'The url of the corresponding fxa-payments-server instance',
+        env: 'PAYMENTS_SERVER_URL',
+        format: 'url',
+        default: 'https://subscriptions.firefox.com',
+      },
+    },
     paypalNvpSigCredentials: {
       enabled: {
         doc: 'Indicates whether PayPal APIs are enabled',
@@ -855,6 +863,15 @@ const conf = convict({
         default: false,
       },
     },
+  },
+  currenciesToCountries: {
+    doc:
+      'Mapping from ISO 4217 three-letter currency codes to list of ISO 3166-1 alpha-2 two-letter country codes: {"EUR": ["DE", "FR"], "USD": ["CA", "GB", "US" ]}  Requirement for only one currency per country. Tested at runtime. Must be uppercased.',
+    format: Object,
+    default: {
+      USD: ['US', 'GB', 'NZ', 'MY', 'SG', 'CA', 'AS', 'GU', 'MP', 'PR', 'VI'],
+    },
+    env: 'CURRENCIES',
   },
   oauth: {
     url: {

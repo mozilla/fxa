@@ -25,11 +25,6 @@ const mockMutationSuccess = {
   },
 };
 
-const getModalButtonByIndex = async (idx: number) => {
-  const modalButtons = await screen.findAllByTestId('unit-row-modal');
-  return modalButtons[idx];
-};
-
 describe('UnitRowTwoStepAuth', () => {
   it('renders when Two-step authentication is enabled', async () => {
     renderWithRouter(
@@ -43,8 +38,9 @@ describe('UnitRowTwoStepAuth', () => {
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
     ).toContain('Enabled');
-    const disableButton = await getModalButtonByIndex(1);
-    expect(disableButton.textContent).toContain('Disable');
+    expect(
+      screen.getByTestId('two-step-disable-button-unit-row-modal').textContent
+    ).toContain('Disable');
   });
 
   it('renders proper modal when Two-step authentication is enabled and "change" is clicked', async () => {
@@ -55,7 +51,7 @@ describe('UnitRowTwoStepAuth', () => {
     );
 
     await act(async () => {
-      fireEvent.click(await getModalButtonByIndex(0));
+      fireEvent.click(await screen.getByTestId('two-step-unit-row-modal'));
     });
     await wait();
 
@@ -75,7 +71,7 @@ describe('UnitRowTwoStepAuth', () => {
     ).toContain('Two-step authentication');
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
-    ).toContain('Not Set');
+    ).toContain('Not set');
     expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
       'Add'
     );
@@ -99,7 +95,7 @@ describe('UnitRowTwoStepAuth', () => {
     );
     expect(
       screen.getByTestId('two-step-unit-row-header-value')
-    ).toHaveTextContent('Not Set');
+    ).toHaveTextContent('Not set');
     await act(async () => {
       fireEvent.click(screen.getByTestId('two-step-refresh'));
     });
@@ -118,7 +114,9 @@ describe('UnitRowTwoStepAuth', () => {
     );
 
     await act(async () => {
-      fireEvent.click(await getModalButtonByIndex(1));
+      fireEvent.click(
+        screen.getByTestId('two-step-disable-button-unit-row-modal')
+      );
     });
     await wait();
 

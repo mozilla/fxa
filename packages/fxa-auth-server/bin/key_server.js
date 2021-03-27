@@ -10,6 +10,7 @@ const { setupAuthDatabase } = require('fxa-shared/db');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
+const { CurrencyHelper } = require('../lib/payments/currencies');
 
 async function run(config) {
   const statsd = config.statsd.enabled
@@ -32,10 +33,22 @@ async function run(config) {
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth);
 
+  // Set currencyHelper before stripe and paypal helpers, so they can use it.
+  try {
+    // eslint-disable-next-line
+    const currencyHelper = new CurrencyHelper(config);
+    Container.set(CurrencyHelper, currencyHelper);
+  } catch (err) {
+    log.error('Invalid currency configuration', {
+      err: { message: err.message },
+    });
+    process.exit(1);
+  }
+
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
-    const createStripeHelper = require('../lib/payments/stripe');
+    const { createStripeHelper } = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
     Container.set(StripeHelper, stripeHelper);
 

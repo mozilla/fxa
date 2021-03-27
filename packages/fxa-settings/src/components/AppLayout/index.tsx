@@ -26,6 +26,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <div
             id="alert-bar-root"
             data-testid="alert-bar-root"
+            className="fixed z-10"
             ref={alertBarRootRef}
           />
           <AlertBarContext.Provider value={{ alertBarRootRef }}>

@@ -290,7 +290,10 @@ describe('step 3', () => {
       query: GET_ACCOUNT,
     })!;
     expect(account.totp.verified).toEqual(true);
-    expect(mockNavigate).toHaveBeenCalledWith(HomePath, { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith(
+      HomePath + '#two-step-authentication',
+      { replace: true }
+    );
     expect(alertTextExternal).toHaveBeenCalledTimes(1);
     expect(alertTextExternal).toHaveBeenCalledWith(
       'Two-step authentication enabled'

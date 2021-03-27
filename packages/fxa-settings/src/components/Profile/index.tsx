@@ -12,8 +12,6 @@ export const Profile = () => {
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
   }).format(new Date(passwordCreated));
 
   return (
@@ -31,9 +29,10 @@ export const Profile = () => {
         <Localized id="profile-display-name" attrs={{ header: true }}>
           <UnitRow
             header="Display name"
+            headerId="display-name"
             headerValue={displayName}
             headerValueClassName="break-all"
-            route="/beta/settings/display_name"
+            route="/settings/display_name"
             prefixDataTestId="display-name"
           />
         </Localized>
@@ -43,9 +42,10 @@ export const Profile = () => {
         <Localized id="profile-password" attrs={{ header: true }}>
           <UnitRow
             header="Password"
+            headerId="password"
             headerValueClassName="tracking-wider"
             headerValue="••••••••••••••••••"
-            route="/beta/settings/change_password"
+            route="/settings/change_password"
             prefixDataTestId="password"
           >
             <Localized
@@ -64,6 +64,7 @@ export const Profile = () => {
         <Localized id="profile-primary-email" attrs={{ header: true }}>
           <UnitRow
             header="Primary email"
+            headerId="primary-email"
             headerValue={primaryEmail.email}
             headerValueClassName="break-all"
             prefixDataTestId="primary-email"

@@ -1,8 +1,9 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { gql } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { HomePath } from '../../constants';
+import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { logViewEvent } from '../../lib/metrics';
 import { Email } from '../../models';
@@ -31,11 +32,23 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       verificationCode: '',
     },
   });
-  const goBack = useCallback(() => window.history.back(), []);
-  const { l10n } = useLocalization();
   const navigate = useNavigate();
+  const goHome = () =>
+    navigate(HomePath + '#secondary-email', { replace: true });
+  const alertSuccessAndGoHome = (email: string) => {
+    alertTextExternal(
+      l10n.getString(
+        'verify-secondary-email-success-alert',
+        { email },
+        `${email} successfully added.`
+      )
+    );
+    navigate(HomePath + '#secondary-email', { replace: true });
+  };
+  const { l10n } = useLocalization();
   const alertBar = useAlertBar();
-  const email = (location?.state as any)?.email as string | undefined;
+  // Using 'any' here, instead of FluentVariable, to avoid having to import @fluent/bundle.
+  const email = (location?.state as any)?.email as string | undefined | any;
 
   const [verifySecondaryEmail, { loading }] = useMutation(
     VERIFY_SECONDARY_EMAIL_MUTATION,
@@ -67,7 +80,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         });
       },
       onCompleted: () => {
-        navigate(HomePath, { replace: true });
+        alertSuccessAndGoHome(email);
         logViewEvent('verify-secondary-email.verification', 'success');
       },
     }
@@ -83,7 +96,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   return (
     <Localized id="verify-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email">
-        <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           data-testid="secondary-email-verify-form"
           onSubmit={handleSubmit(({ verificationCode }) => {
@@ -99,12 +112,13 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           })}
         >
           <Localized
-            id="verify-secondary-email-please-enter"
-            elems={{ email: <span className="font-bold">{email}</span> }}
+            id="verify-secondary-email-please-enter-code"
+            vars={{ email: email }}
+            elems={{ strong: <span className="font-bold"> </span> }}
           >
             <p>
-              Please enter the verification code that was sent to {email} within
-              5 minutes.
+              Please enter the verification code that was sent to{' '}
+              <strong>{email}</strong> within 5 minutes.
             </p>
           </Localized>
 
@@ -137,7 +151,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
                 type="button"
                 className="cta-neutral mx-2 flex-1"
                 data-testid="secondary-email-verify-cancel"
-                onClick={goBack}
+                onClick={goHome}
               >
                 Cancel
               </button>

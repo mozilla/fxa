@@ -11,7 +11,7 @@ import { UnitRowWithAvatar } from '.';
 storiesOf('Components|UnitRowWithAvatar', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('with default avatar', () => (
-    <MockedCache account={{ avatarUrl: null }}>
+    <MockedCache account={{ avatar: { id: null, url: null } }}>
       <UnitRowWithAvatar />
     </MockedCache>
   ))
@@ -19,4 +19,4 @@ storiesOf('Components|UnitRowWithAvatar', module)
     <MockedCache>
       <UnitRowWithAvatar />
     </MockedCache>
-  ))
+  ));

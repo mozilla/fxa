@@ -33,7 +33,10 @@ import fetchMock from 'fetch-mock';
 export const MOCK_ACCOUNT: Account = {
   uid: 'abc123',
   displayName: 'John Dope',
-  avatarUrl: 'http://placekitten.com/512/512',
+  avatar: {
+    id: 'abc1234',
+    url: 'http://placekitten.com/512/512',
+  },
   accountCreated: 123456789,
   passwordCreated: 123456789,
   recoveryKey: true,

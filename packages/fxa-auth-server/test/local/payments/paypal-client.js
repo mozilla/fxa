@@ -26,6 +26,7 @@ const successfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_expr
 const unSuccessfulSetExpressCheckoutResponse = require('./fixtures/paypal/set_express_checkout_failure.json');
 const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_success.json');
 const unSuccessfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
+const successfulRefundTransactionResponse = require('./fixtures/paypal/refund_transaction_success.json');
 const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
 const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json')
   .message;
@@ -133,6 +134,52 @@ describe('PayPalClient', () => {
       assert.deepEqual(result, userNameSuccessResponseData);
     });
 
+    it('emits an event on success', async () => {
+      const event = {};
+      client.on('response', (response) => Object.assign(event, response));
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(200, client.objectToNVP(userNameSuccessResponseData));
+      const result = await client.doRequest(
+        'BillAgreementUpdate',
+        userNameRequestData
+      );
+      assert.deepEqual(result, userNameSuccessResponseData);
+      assert.deepNestedInclude(event, {
+        method: 'BillAgreementUpdate',
+        version: '204',
+      });
+    });
+
+    it('emits an event on error', async () => {
+      const event = {};
+      client.on('response', (response) => Object.assign(event, response));
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(500, 'ERROR');
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(500, 'ERROR');
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(500, 'ERROR');
+      nock(PAYPAL_SANDBOX_BASE)
+        .post(PAYPAL_NVP_ROUTE, expectedPayload)
+        .reply(500, 'ERROR');
+      try {
+        await client.doRequest('BillAgreementUpdate', userNameRequestData);
+        assert.fail('Request should have thrown an error.');
+      } catch (err) {
+        assert.instanceOf(err, Error);
+        assert.equal(err.message, 'Internal Server Error');
+        assert.deepNestedInclude(event, {
+          method: 'BillAgreementUpdate',
+          version: '204',
+        });
+        assert.deepNestedInclude(event.error, { status: 500 });
+      }
+    });
+
     it('retries after a failure', async () => {
       nock(PAYPAL_SANDBOX_BASE)
         .post(PAYPAL_NVP_ROUTE, expectedPayload)
@@ -235,6 +282,7 @@ describe('PayPalClient', () => {
         assert.equal(err.name, 'PayPalClientError');
         assert.include(err.raw, 'ACK=Failure');
         assert.equal(err.data.ACK, 'Failure');
+        assert.equal(err.errorCode, 81100);
       }
     });
 
@@ -252,6 +300,23 @@ describe('PayPalClient', () => {
         {
           ...defaultData,
           PAYMENTREQUEST_0_CURRENCYCODE: currency,
+        }
+      );
+    });
+
+    it('calls upper cases requested currency', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulSetExpressCheckoutResponse
+      );
+      await client.setExpressCheckout({
+        currencyCode: 'eur',
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'SetExpressCheckout',
+        {
+          ...defaultData,
+          PAYMENTREQUEST_0_CURRENCYCODE: 'EUR',
         }
       );
     });
@@ -281,7 +346,10 @@ describe('PayPalClient', () => {
   describe('doReferenceTransaction', () => {
     const defaultData = {
       AMT: '5.99',
+      CURRENCYCODE: 'USD',
+      CUSTOM: 'in_asdf-12',
       INVNUM: 'in_asdf',
+      IPADDRESS: '127.0.0.1',
       MSGSUBID: 'in_asdf-12',
       PAYMENTACTION: 'Sale',
       PAYMENTTYPE: 'instant',
@@ -295,8 +363,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: defaultData.REFERENCEID,
-        invoiceNumber: defaultData.INVNUM,
+        currencyCode: defaultData.CURRENCYCODE,
         idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -313,8 +383,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: amt,
         billingAgreementId: defaultData.REFERENCEID,
-        invoiceNumber: defaultData.INVNUM,
+        currencyCode: defaultData.CURRENCYCODE,
         idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -334,8 +406,10 @@ describe('PayPalClient', () => {
       await client.doReferenceTransaction({
         amount: defaultData.AMT,
         billingAgreementId: ref,
-        invoiceNumber: defaultData.INVNUM,
+        currencyCode: defaultData.CURRENCYCODE,
         idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
       });
       sinon.assert.calledOnceWithExactly(
         client.doRequest,
@@ -343,6 +417,29 @@ describe('PayPalClient', () => {
         {
           ...defaultData,
           REFERENCEID: ref,
+        }
+      );
+    });
+
+    it('calls api with requested currency', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulDoReferenceTransactionResponse
+      );
+      const currency = 'EUR';
+      await client.doReferenceTransaction({
+        amount: defaultData.AMT,
+        billingAgreementId: defaultData.REFERENCEID,
+        currencyCode: currency,
+        idempotencyKey: defaultData.MSGSUBID,
+        invoiceNumber: defaultData.INVNUM,
+        ipaddress: defaultData.IPADDRESS,
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'DoReferenceTransaction',
+        {
+          ...defaultData,
+          CURRENCYCODE: currency,
         }
       );
     });
@@ -366,8 +463,10 @@ describe('PayPalClient', () => {
         await client.doReferenceTransaction({
           amount: defaultData.AMT,
           billingAgreementId: defaultData.REFERENCEID,
-          invoiceNumber: defaultData.INVNUM,
+          currencyCode: defaultData.CURRENCYCODE,
           idempotencyKey: defaultData.MSGSUBID,
+          invoiceNumber: defaultData.INVNUM,
+          ipaddress: defaultData.IPADDRESS,
         });
         assert.fail('Request should have thrown an error.');
       } catch (err) {
@@ -375,7 +474,30 @@ describe('PayPalClient', () => {
         assert.equal(err.name, 'PayPalClientError');
         assert.include(err.raw, 'ACK=Failure');
         assert.equal(err.data.ACK, 'Failure');
+        assert.equal(err.errorCode, 11451);
       }
+    });
+  });
+
+  describe('refundTransaction', () => {
+    const defaultData = {
+      MSGSUBID: 'in_asdf',
+      TRANSACTIONID: '9EG80664Y1384290G',
+    };
+
+    it('calls api with correct method and data', async () => {
+      client.doRequest = sandbox.fake.resolves(
+        successfulRefundTransactionResponse
+      );
+      await client.refundTransaction({
+        idempotencyKey: defaultData.MSGSUBID,
+        transactionId: defaultData.TRANSACTIONID,
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.doRequest,
+        'RefundTransaction',
+        defaultData
+      );
     });
   });
 

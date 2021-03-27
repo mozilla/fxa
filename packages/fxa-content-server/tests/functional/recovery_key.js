@@ -23,18 +23,15 @@ const {
   createUser,
   clearBrowserState,
   click,
-  closeCurrentWindow,
   fillOutCompleteResetPassword,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutRecoveryKey,
   fillOutResetPassword,
   fillOutSignUpCode,
+  fillOutVerificationCode,
   openPage,
-  openVerificationLinkInDifferentBrowser,
-  openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  switchToWindow,
   testIsBrowserNotified,
   testElementExists,
   testElementTextInclude,
@@ -55,14 +52,17 @@ registerSuite('Recovery key', {
         .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+        .then(testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Not set'))
 
-        .then(click(selectors.RECOVERY_KEY.MENU_BUTTON))
-        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
+        .sleep(1000)
 
         // Complete the steps to add an account recovery key
-        .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
+        .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON)) // recovery-key-unit-row-rouote
+        // Once again, click the label first to get it out of the way
+        .then(click(selectors.RECOVERY_KEY.PASSWORD_INPUT_LABEL))
+        .then(click(selectors.RECOVERY_KEY.PASSWORD_INPUT))
         .then(type(selectors.RECOVERY_KEY.PASSWORD_INPUT, PASSWORD))
-        .then(click(selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE))
+        .then(click(selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE)) // continue-button
         .then(testElementExists(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT))
 
         // Store the key to be used later
@@ -75,7 +75,7 @@ registerSuite('Recovery key', {
           );
         })
         .end()
-        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED))
+        .then(testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Enabled'))
     );
   },
 
@@ -85,15 +85,22 @@ registerSuite('Recovery key', {
       let secondKey;
       return (
         this.remote
-          .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE))
+          .then(
+            click(
+              selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.REMOVE_RECOVERY_KEY
+            )
+          )
           .then(
             testElementExists(selectors.RECOVERY_KEY.CONFIRM_REVOKE_DESCRIPTION)
           )
           .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE_OK))
-          .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
+          .then(
+            testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Not set')
+          )
 
           // create a new recovery key
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
+          .then(click(selectors.RECOVERY_KEY.PASSWORD_INPUT_LABEL))
           .then(type(selectors.RECOVERY_KEY.PASSWORD_INPUT, PASSWORD))
           .then(click(selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE))
           .then(testElementExists(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT))
@@ -106,7 +113,9 @@ registerSuite('Recovery key', {
             );
           })
           .end()
-          .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED))
+          .then(
+            testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Enabled')
+          )
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
@@ -272,9 +281,6 @@ registerSuite('Recovery key - unverified session', {
         // re-login to destroy original session and created an unverified one
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-        // unlock panel
-        .then(click(selectors.RECOVERY_KEY.UNLOCK_BUTTON))
     );
   },
 
@@ -283,39 +289,17 @@ registerSuite('Recovery key - unverified session', {
       return (
         this.remote
           // send and open verification in same tab
-          .then(click(selectors.RECOVERY_KEY.UNLOCK_SEND_VERIFY))
-          .then(openVerificationLinkInSameTab(email, 0))
-
-          // panel becomes verified and can be opened
-          .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED))
-      );
-    },
-
-    'gated in unverified session open verification new tab': function () {
-      return (
-        this.remote
-          // send and open verification in new tab
-          .then(click(selectors.RECOVERY_KEY.UNLOCK_SEND_VERIFY))
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-
-          // panel becomes verified and can be opened
-          .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED))
-          .then(closeCurrentWindow())
-          .then(switchToWindow(0))
-          .then(click(selectors.RECOVERY_KEY.UNLOCK_REFRESH_BUTTON))
-          .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
-      );
-    },
-
-    'gated in unverified session open verification different browser': function () {
-      return (
-        this.remote
-          // send and open verification in different browser
-          .then(click(selectors.RECOVERY_KEY.UNLOCK_SEND_VERIFY))
-          .then(openVerificationLinkInDifferentBrowser(email, 0))
-          .then(click(selectors.RECOVERY_KEY.UNLOCK_REFRESH_BUTTON))
-          .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
+          .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
+          // if the session is unverified, then the modal will be shown.
+          .then(
+            testElementExists('[data-testid=modal-verify-session]')
+          )
+          .then(fillOutVerificationCode(email, 0))
+          .then(
+            testElementExists(
+              selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.PASSWORD_TEXTBOX_LABEL
+            )
+          )
       );
     },
   },

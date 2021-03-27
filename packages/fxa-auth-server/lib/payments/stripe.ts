@@ -8,6 +8,7 @@ import {
   createAccountCustomer,
   deleteAccountCustomer,
   getAccountCustomerByUid,
+  updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
 import { StatsD } from 'hot-shots';
@@ -15,10 +16,12 @@ import ioredis from 'ioredis';
 import moment from 'moment';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
+import { Container } from 'typedi';
 
 import { ConfigType } from '../../config';
 import error from '../error';
 import Redis from '../redis';
+import { CurrencyHelper } from './currencies';
 
 const CUSTOMER_RESOURCE = 'customers';
 const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -28,7 +31,23 @@ const CHARGES_RESOURCE = 'charges';
 const INVOICES_RESOURCE = 'invoices';
 const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
 
-const PAYPAL_AGREEMENT_METADATA_KEY = 'paypalAgreementId';
+enum STRIPE_CUSTOMER_METADATA {
+  PAYPAL_AGREEMENT = 'paypalAgreementId',
+}
+
+export enum STRIPE_INVOICE_METADATA {
+  PAYPAL_TRANSACTION_ID = 'paypalTransactionId',
+  PAYPAL_REFUND_TRANSACTION_ID = 'paypalRefundTransactionId',
+  EMAIL_SENT = 'emailSent',
+  RETRY_ATTEMPTS = 'paymentAttempts',
+}
+
+/** Represents all subscription statuses that are considered active for a customer */
+export const ACTIVE_SUBSCRIPTION_STATUSES: Stripe.Subscription['status'][] = [
+  'active',
+  'past_due',
+  'trialing',
+];
 
 const VALID_RESOURCE_TYPES = [
   CUSTOMER_RESOURCE,
@@ -45,6 +64,15 @@ export const SUBSCRIPTION_UPDATE_TYPES = {
   DOWNGRADE: 'downgrade',
   REACTIVATION: 'reactivation',
   CANCELLATION: 'cancellation',
+};
+
+type BillingAddressOptions = {
+  city: string;
+  country: string;
+  line1: string;
+  line2: string;
+  postalCode: string;
+  state: string;
 };
 
 /**
@@ -89,6 +117,7 @@ export class StripeHelper {
   private webhookSecret: string;
   private stripe: Stripe;
   private redis: ioredis.Redis | undefined;
+  public currencyHelper: CurrencyHelper;
 
   /**
    * Create a Stripe Helper with built-in caching.
@@ -98,6 +127,7 @@ export class StripeHelper {
     this.customerCacheTtlSeconds = config.subhub.customerCacheTtlSeconds;
     this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
+    this.currencyHelper = Container.get(CurrencyHelper);
     // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
     // both TTL and whether caching should be enabled at all. We should
     // introduce a second setting for cache enable / disable.
@@ -303,7 +333,7 @@ export class StripeHelper {
     const { customer, priceId, subIdempotencyKey } = opts;
 
     const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
-    if (sub && ['active', 'past_due'].includes(sub.status)) {
+    if (sub && ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)) {
       if (sub.collection_method === 'send_invoice') {
         sub.latest_invoice = await this.expandResource(
           sub.latest_invoice,
@@ -347,6 +377,15 @@ export class StripeHelper {
   }
 
   /**
+   * Get Invoice object based on invoice Id
+   *
+   * @param id
+   */
+  async getInvoice(id: string): Promise<Stripe.Invoice> {
+    return this.stripe.invoices.retrieve(id);
+  }
+
+  /**
    * Finalizes an invoice and marks auto_advance as false.
    *
    * @param invoice
@@ -368,28 +407,103 @@ export class StripeHelper {
     transactionId: string
   ) {
     return this.stripe.invoices.update(invoice.id, {
-      metadata: { paypalTransactionId: transactionId },
+      metadata: {
+        [STRIPE_INVOICE_METADATA.PAYPAL_TRANSACTION_ID]: transactionId,
+      },
     });
+  }
+
+  /**
+   * Updates invoice metadata with the PayPal Refund Transaction ID.
+   *
+   * @param invoice
+   * @param transactionId
+   */
+  async updateInvoiceWithPaypalRefundTransactionId(
+    invoice: Stripe.Invoice,
+    transactionId: string
+  ) {
+    return this.stripe.invoices.update(invoice.id, {
+      metadata: {
+        [STRIPE_INVOICE_METADATA.PAYPAL_REFUND_TRANSACTION_ID]: transactionId,
+      },
+    });
+  }
+
+  /**
+   * Returns the Paypal transaction id for the invoice if one exists.
+   *
+   * @param invoice
+   */
+  getInvoicePaypalTransactionId(invoice: Stripe.Invoice) {
+    return invoice.metadata?.paypalTransactionId;
   }
 
   /**
    * Retrieve the payment attempts that have been made on this invoice via PayPal.
    *
+   * This variable reflects the amount of payment attempts that have been made. It is
+   * incremented *after* a payment attempt is made by any code that runs a reference
+   * transaction. As such, this number could be incremented multiple times at checkout
+   * or during a payment update on the subscription management page.
+   *
+   * The PayPal idempotencyKey has this number affixed to it in the pre-increment state.
+   *
    * @param invoice
    */
   getPaymentAttempts(invoice: Stripe.Invoice): number {
-    return parseInt(invoice?.metadata?.paymentAttempts ?? '0');
+    return parseInt(
+      invoice?.metadata?.[STRIPE_INVOICE_METADATA.RETRY_ATTEMPTS] ?? '0'
+    );
   }
 
   /**
    * Update the payment attempts on an invoice after attempting via PayPal.
    *
+   * Increments by 1, or sets to the attempts passed in.
+   *
+   * @param invoice
+   * @param attempts
+   */
+  async updatePaymentAttempts(invoice: Stripe.Invoice, attempts?: number) {
+    const setAttempt = attempts ?? this.getPaymentAttempts(invoice) + 1;
+    return this.stripe.invoices.update(invoice.id, {
+      metadata: {
+        [STRIPE_INVOICE_METADATA.RETRY_ATTEMPTS]: setAttempt.toString(),
+      },
+    });
+  }
+
+  /**
+   * Get the email types that have been sent for this invoice.
+   *
    * @param invoice
    */
-  async updatePaymentAttempts(invoice: Stripe.Invoice) {
-    const currentAttempts = this.getPaymentAttempts(invoice);
+  getEmailTypes(invoice: Stripe.Invoice) {
+    return (invoice.metadata?.[STRIPE_INVOICE_METADATA.EMAIL_SENT] ?? '')
+      .split(':')
+      .filter((a) => a);
+  }
+
+  /**
+   * Updates the email types sent for this invoice. These types are concatentated
+   * on the value of a single invoice metadata key and are thus limited to 500
+   * characters.
+   *
+   * @param invoice
+   * @param emailType
+   */
+  async updateEmailSent(invoice: Stripe.Invoice, emailType: string) {
+    const emailTypes = this.getEmailTypes(invoice);
+    if (emailTypes.includes(emailType)) {
+      return;
+    }
     return this.stripe.invoices.update(invoice.id, {
-      metadata: { paymentAttempts: (currentAttempts + 1).toString() },
+      metadata: {
+        [STRIPE_INVOICE_METADATA.EMAIL_SENT]: [...emailTypes, emailType].join(
+          ':'
+        ),
+      },
     });
   }
 
@@ -400,6 +514,32 @@ export class StripeHelper {
    */
   async payInvoiceOutOfBand(invoice: Stripe.Invoice) {
     return this.stripe.invoices.pay(invoice.id, { paid_out_of_band: true });
+  }
+
+  /**
+   * Update the customer object to add customer's PayPal billing address.
+   *
+   * @param customer_id
+   * @param city
+   * @param country
+   * @param line1
+   * @param line2
+   * @param postal_code
+   * @param state
+   */
+  async updateCustomerBillingAddress(
+    customer_id: string,
+    options: BillingAddressOptions
+  ): Promise<Stripe.Customer> {
+    const address = {
+      city: options.city,
+      country: options.country,
+      line1: options.line1,
+      line2: options.line2,
+      postal_code: options.postalCode,
+      state: options.state,
+    };
+    return this.stripe.customers.update(customer_id, { address });
   }
 
   /**
@@ -414,12 +554,34 @@ export class StripeHelper {
     customer: Stripe.Customer,
     agreementId: string
   ): Promise<Stripe.Customer> {
-    if (customer.metadata[PAYPAL_AGREEMENT_METADATA_KEY] === agreementId) {
+    if (
+      customer.metadata[STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT] ===
+      agreementId
+    ) {
       return customer;
     }
     return this.stripe.customers.update(customer.id, {
-      metadata: { [PAYPAL_AGREEMENT_METADATA_KEY]: agreementId },
+      metadata: { [STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT]: agreementId },
     });
+  }
+
+  /**
+   * Remove the PayPal Billing Agreement ID from a customer.
+   *
+   * @param customer
+   * @param agreementId
+   */
+  async removeCustomerPaypalAgreement(
+    uid: string,
+    customerId: string,
+    billingAgreementId: string
+  ) {
+    return [
+      this.stripe.customers.update(customerId, {
+        metadata: { [STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT]: null },
+      }),
+      updatePayPalBA(uid, billingAgreementId, 'Cancelled', Date.now()),
+    ];
   }
 
   /**
@@ -428,7 +590,55 @@ export class StripeHelper {
    * @param customer
    */
   getCustomerPaypalAgreement(customer: Stripe.Customer): string | undefined {
-    return customer.metadata[PAYPAL_AGREEMENT_METADATA_KEY];
+    return customer.metadata[STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT];
+  }
+
+  /**
+   * Fetch all open invoices for manually invoiced subscriptions that are active.
+   *
+   * Note that created times for Stripe are in seconds since epoch and that
+   * invoices can be open for subscriptions that are cancelled, thus the extra
+   * subscription check before returning an invoice.
+   *
+   * @param created
+   */
+  async *fetchOpenInvoices(
+    created: Stripe.InvoiceListParams['created'],
+    customerId?: string
+  ) {
+    for await (const invoice of this.stripe.invoices.list({
+      customer: customerId,
+      limit: 100,
+      collection_method: 'send_invoice',
+      status: 'open',
+      created,
+      expand: ['data.customer', 'data.subscription'],
+    })) {
+      const subscription = invoice.subscription as Stripe.Subscription;
+      if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+        yield invoice;
+      }
+    }
+  }
+
+  /**
+   * Updates the invoice to uncollectible
+   *
+   * @param invoice
+   */
+  markUncollectible(invoice: Stripe.Invoice) {
+    return this.stripe.invoices.markUncollectible(invoice.id);
+  }
+
+  /**
+   * Updates subscription to cancelled status
+   *
+   * @param subscriptionId
+   */
+  async cancelSubscription(
+    subscriptionId: string
+  ): Promise<Stripe.Subscription> {
+    return this.stripe.subscriptions.del(subscriptionId);
   }
 
   /**
@@ -536,6 +746,54 @@ export class StripeHelper {
       }
       throw err;
     }
+  }
+
+  async getPaymentMethod(
+    paymentMethodId: string
+  ): Promise<Stripe.PaymentMethod> {
+    return await this.stripe.paymentMethods.retrieve(paymentMethodId);
+  }
+
+  getPaymentProvider(customer: Stripe.Customer) {
+    const subscription = customer.subscriptions?.data.find((sub) =>
+      ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
+    );
+    if (subscription) {
+      return subscription.collection_method === 'send_invoice'
+        ? 'paypal'
+        : 'stripe';
+    }
+    return 'not_chosen';
+  }
+
+  /**
+   * Returns whether or not the customer has any active subscriptions that
+   * are require a payment method on file (not marked to be cancelled).
+   *
+   * @param customer
+   */
+  hasSubscriptionRequiringPaymentMethod(customer: Stripe.Customer) {
+    const subscription = customer.subscriptions?.data.find(
+      (sub) =>
+        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
+        !sub.cancel_at_period_end
+    );
+    return !!subscription;
+  }
+
+  /**
+   * Returns whether or not the customer has any active subscriptions that
+   * have an open invoice (payment has not been processed).
+   *
+   * @param customer
+   */
+  hasOpenInvoice(customer: Stripe.Customer) {
+    const subscription = customer.subscriptions?.data.find(
+      (sub) =>
+        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
+        (sub.latest_invoice as Stripe.Invoice).status === 'open'
+    );
+    return !!subscription;
   }
 
   async detachPaymentMethod(
@@ -949,7 +1207,7 @@ export class StripeHelper {
       throw error.unknownSubscription();
     }
 
-    if (!['active', 'trialing'].includes(subscription.status)) {
+    if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
       const err = new Error(
         `Reactivated subscription (${subscriptionId}) is not active/trialing`
       );
@@ -993,47 +1251,6 @@ export class StripeHelper {
     }
 
     return invoice;
-  }
-
-  /**
-   * Wraps all of the necessary checks to ensure successful subscription creation
-   *
-   * 1. Calls Stripe Helper to Subscribe a Customer to a selected Plan
-   * 2. Checks the status of the Invoice returned from the Subscription creation
-   *  2a. If Invoice is marked as Paid: return newly created Subscription
-   *  2b. If Invoice is NOT marked as Paid: throw error
-   *
-   * @throws {error.paymentFailed}
-   */
-  async createSubscription(
-    customer: Stripe.Customer,
-    selectedPlan: AbbrevPlan,
-    idempotencyKey: string
-  ): Promise<Stripe.Subscription> {
-    let subscription;
-
-    try {
-      subscription = await this.stripe.subscriptions.create(
-        {
-          customer: customer.id,
-          items: [{ plan: selectedPlan.plan_id }],
-          expand: ['latest_invoice.payment_intent'],
-        },
-        {
-          idempotency_key: idempotencyKey,
-        }
-      );
-    } catch (err) {
-      if (err.type === 'StripeCardError') {
-        throw error.rejectedSubscriptionPaymentToken(err.message, err);
-      }
-      throw err;
-    }
-
-    if (!this.paidInvoice(subscription.latest_invoice)) {
-      throw error.paymentFailed();
-    }
-    return subscription;
   }
 
   /**
@@ -1348,11 +1565,14 @@ export class StripeHelper {
       charge,
     });
 
+    const payment_provider = this.getPaymentProvider(customer);
+
     return {
       uid,
       email,
       cardType,
       lastFour,
+      payment_provider,
       invoiceNumber,
       invoiceTotalInCents,
       invoiceTotalCurrency,
@@ -1366,6 +1586,57 @@ export class StripeHelper {
       planDownloadURL,
       productMetadata,
     };
+  }
+
+  async formatSubscriptionsForEmails(customer: Readonly<Stripe.Customer>) {
+    if (!customer.subscriptions) {
+      return [];
+    }
+
+    let formattedSubscptions = [];
+
+    for (const subscription of customer.subscriptions.data) {
+      if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+        if (!subscription.plan) {
+          throw error.internalValidationError(
+            'extractSourceDetailsForEmail',
+            customer,
+            new Error(
+              `Multiple plans for a subscription not supported: ${subscription.id}`
+            )
+          );
+        }
+
+        const plan = await this.expandResource(
+          subscription.plan,
+          PLAN_RESOURCE
+        );
+        const abbrevProduct = await this.expandAbbrevProductForPlan(plan);
+
+        const {
+          product_id: productId,
+          product_name: productName,
+        } = abbrevProduct;
+        const { id: planId, nickname: planName } = plan;
+        const productMetadata = this.mergeMetadata(plan, abbrevProduct);
+        const {
+          emailIconURL: planEmailIconURL = '',
+          downloadURL: planDownloadURL = '',
+        } = productMetadata;
+
+        formattedSubscptions.push({
+          productId,
+          productName,
+          planId,
+          planName,
+          planEmailIconURL,
+          planDownloadURL,
+          productMetadata,
+        });
+      }
+    }
+
+    return formattedSubscptions;
   }
 
   async extractCardDetails({ charge }: { charge: Stripe.Charge | null }) {
@@ -1417,48 +1688,7 @@ export class StripeHelper {
       );
     }
 
-    let subscriptions = [];
-
-    for (const subscription of customer.subscriptions.data) {
-      if (['active', 'trialing'].includes(subscription.status)) {
-        if (!subscription.plan) {
-          throw error.internalValidationError(
-            'extractSourceDetailsForEmail',
-            customer,
-            new Error(
-              `Multiple plans for a subscription not supported: ${subscription.id}`
-            )
-          );
-        }
-
-        const plan = await this.expandResource(
-          subscription.plan,
-          PLAN_RESOURCE
-        );
-        const abbrevProduct = await this.expandAbbrevProductForPlan(plan);
-
-        const {
-          product_id: productId,
-          product_name: productName,
-        } = abbrevProduct;
-        const { id: planId, nickname: planName } = plan;
-        const productMetadata = this.mergeMetadata(plan, abbrevProduct);
-        const {
-          emailIconURL: planEmailIconURL = '',
-          downloadURL: planDownloadURL = '',
-        } = productMetadata;
-
-        subscriptions.push({
-          productId,
-          productName,
-          planId,
-          planName,
-          planEmailIconURL,
-          planDownloadURL,
-          productMetadata,
-        });
-      }
-    }
+    const subscriptions = await this.formatSubscriptionsForEmails(customer);
 
     if (subscriptions.length === 0) {
       throw error.missingSubscriptionForSourceError(
@@ -1687,7 +1917,7 @@ export class StripeHelper {
     const {
       total: invoiceTotalInCents,
       currency: invoiceTotalCurrency,
-      next_payment_attempt: nextInvoiceDate,
+      created: nextInvoiceDate,
     } = upcomingInvoice;
 
     return {
@@ -1702,9 +1932,6 @@ export class StripeHelper {
       invoiceTotalCurrency,
       cardType,
       lastFour,
-      // TODO: According to Stripe, this value will be null for invoices where collection_method=send_invoice
-      // Our subscriptions use collection_method=charge_automatically - so this shouldn't happen?
-      // Do trial subscriptions run into this?
       nextInvoiceDate: nextInvoiceDate
         ? new Date(nextInvoiceDate * 1000)
         : null,
@@ -1893,15 +2120,6 @@ export class StripeHelper {
 /**
  * Create a Stripe Helper with built-in caching.
  */
-function createStripeHelper(log: any, config: any, statsd?: StatsD) {
+export function createStripeHelper(log: any, config: any, statsd?: StatsD) {
   return new StripeHelper(log, config, statsd);
 }
-// HACK: Hang some references off the factory function so we can use it as
-// a type in bin/key_server.js and routes/subscriptions.js while keeping
-// the exports simple.
-// NOTE: These must be assigned individually instead of Object.assign as
-// dynamic assignments are not seen by type checking.
-createStripeHelper.StripeHelper = StripeHelper;
-createStripeHelper.SUBSCRIPTION_UPDATE_TYPES = SUBSCRIPTION_UPDATE_TYPES;
-
-module.exports = createStripeHelper;

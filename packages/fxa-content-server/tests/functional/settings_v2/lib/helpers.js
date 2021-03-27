@@ -8,7 +8,6 @@ const FunctionalHelpers = require('../../lib/helpers');
 const { createEmail } = FunctionalHelpers;
 const config = intern._config;
 const EMAIL_FIRST = config.fxaContentRoot;
-const SETTINGS_V2_URL = config.fxaSettingsV2Root;
 const password = 'passwordzxcv';
 
 const {
@@ -16,7 +15,6 @@ const {
   createUser,
   openPage,
   fillOutEmailFirstSignIn,
-  testElementExists,
 } = FunctionalHelpers.helpersRemoteWrapped;
 
 async function navigateToSettingsV2(remote) {
@@ -26,10 +24,7 @@ async function navigateToSettingsV2(remote) {
 
   await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
   await fillOutEmailFirstSignIn(email, password, remote);
-  await testElementExists(selectors.SETTINGS.HEADER, remote);
 
-  // Open new settings
-  await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote);
   return email;
 }
 

@@ -40,12 +40,9 @@ const View = FormView.extend({
       .consumeRecoveryCode(code)
       .then((result) => {
         if (result.remaining < MIN_REPLACE_RECOVERY_CODE) {
-          return this.navigate(
-            '/settings/two_step_authentication/recovery_codes',
-            {
-              previousViewName: this.viewName,
-            }
-          );
+          return this.navigate('/settings/two_step_authentication', {
+            previousViewName: this.viewName,
+          });
         }
 
         this.logViewEvent('success');

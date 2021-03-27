@@ -1,3 +1,101 @@
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+### Bug fixes
+
+- path: Update location of settings page on disk ([e6d7a2c49](https://github.com/mozilla/fxa/commit/e6d7a2c49))
+
+## 1.203.0
+
+### New features
+
+- content-server: delete old settings files ([26b5d4b66](https://github.com/mozilla/fxa/commit/26b5d4b66))
+- settings: move new settings from beta/settings to /settings ([e1fcec815](https://github.com/mozilla/fxa/commit/e1fcec815))
+
+### Bug fixes
+
+- password: Use the same show password icon everywhere ([3f1ece891](https://github.com/mozilla/fxa/commit/3f1ece891))
+- pair: update pairing complete link to point to new settings ([1e5999d05](https://github.com/mozilla/fxa/commit/1e5999d05))
+- content-server: Navigate to settings as an external app ([594a01d91](https://github.com/mozilla/fxa/commit/594a01d91))
+- tests: get functional smoke tests working with new settings as default ([d947048fe](https://github.com/mozilla/fxa/commit/d947048fe))
+
+### Other changes
+
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- be282ccb3 Add a section on security properties to the pairing architecture doc. ([be282ccb3](https://github.com/mozilla/fxa/commit/be282ccb3))
+- deps-dev: bump htmlparser2 from 3.9.0 to 6.0.1 ([6d5d8cfad](https://github.com/mozilla/fxa/commit/6d5d8cfad))
+- deps: bump grunt-contrib-cssmin from 3.0.0 to 4.0.0 ([68071bc58](https://github.com/mozilla/fxa/commit/68071bc58))
+- deps: bump jquery from 3.5.1 to 3.6.0 ([f0de3aa69](https://github.com/mozilla/fxa/commit/f0de3aa69))
+- deps-dev: bump @types/sinon-express-mock from 1.3.8 to 1.3.9 ([535a8906e](https://github.com/mozilla/fxa/commit/535a8906e))
+- deps-dev: bump webpack-dev-middleware from 3.7.2 to 4.1.0 ([011a2a44f](https://github.com/mozilla/fxa/commit/011a2a44f))
+
+## 1.202.3
+
+No changes.
+
+## 1.202.2
+
+No changes.
+
+## 1.202.1
+
+### Other changes
+
+- support form: update placeholder text to sentence case ([9431c0292](https://github.com/mozilla/fxa/commit/9431c0292))
+
+## 1.202.0
+
+### New features
+
+- settings: default to beta/settings ([02cb62636](https://github.com/mozilla/fxa/commit/02cb62636))
+- payments-server: Display currency restrictions errors on front-end. ([abdde80c4](https://github.com/mozilla/fxa/commit/abdde80c4))
+- auth-server: add isCurrencyCompatibleWithCountry function ([fa61dc5ae](https://github.com/mozilla/fxa/commit/fa61dc5ae))
+
+### Bug fixes
+
+- l10n: restore invisible terms / privacy pages ([585a888a8](https://github.com/mozilla/fxa/commit/585a888a8))
+- settings: #7632 broke dev ([070fef963](https://github.com/mozilla/fxa/commit/070fef963))
+
+### Other changes
+
+- metrics: ensure flow params are passed to settings ([2fb8e5fbc](https://github.com/mozilla/fxa/commit/2fb8e5fbc))
+- fxa-payments-server: add error page to checkout ([28fc71e13](https://github.com/mozilla/fxa/commit/28fc71e13))
+- deps: bump mustache from 4.0.1 to 4.1.0 ([a9d43f147](https://github.com/mozilla/fxa/commit/a9d43f147))
+- deps-dev: bump firefox-profile from 4.0.0 to 4.1.0 ([e63d1c752](https://github.com/mozilla/fxa/commit/e63d1c752))
+- deps-dev: bump jsqr from 1.2.0 to 1.3.1 ([712fc6285](https://github.com/mozilla/fxa/commit/712fc6285))
+- deps: bump time-grunt from 1.4.0 to 2.0.0 ([925e421a1](https://github.com/mozilla/fxa/commit/925e421a1))
+- deps-dev: bump url-loader from 4.1.0 to 4.1.1 ([7d4c09096](https://github.com/mozilla/fxa/commit/7d4c09096))
+- deps-dev: bump yargs from 15.4.1 to 16.2.0 ([dc93e441a](https://github.com/mozilla/fxa/commit/dc93e441a))
+- functional: pass in plan id for subscription test ([bf63cf6e6](https://github.com/mozilla/fxa/commit/bf63cf6e6))
+
+## 1.201.1
+
+### Bug fixes
+
+- l10n: restore invisible terms / privacy pages ([d8628f1d2](https://github.com/mozilla/fxa/commit/d8628f1d2))
+- settings: #7632 broke dev ([b039f2eda](https://github.com/mozilla/fxa/commit/b039f2eda))
+
+## 1.201.0
+
+### Bug fixes
+
+- settings: fixed casing for new settings strings ([b180b7ffd](https://github.com/mozilla/fxa/commit/b180b7ffd))
+- l10n: fix support form l10n ([bf780472b](https://github.com/mozilla/fxa/commit/bf780472b))
+
+### Refactorings
+
+- settings: refactor flow parameters to avoid /get_flow ([95c54416a](https://github.com/mozilla/fxa/commit/95c54416a))
+
+### Other changes
+
+- settings: serve beta settings subroutes the index.html page in production ([aef8af91a](https://github.com/mozilla/fxa/commit/aef8af91a))
+- deps-dev: bump intern from 4.8.7 to 4.9.0 ([a3770ac1b](https://github.com/mozilla/fxa/commit/a3770ac1b))
+- settings: upload avatar directly to profile server ([fa32870cc](https://github.com/mozilla/fxa/commit/fa32870cc))
+- deps: bump webpack-cli from 4.2.0 to 4.5.0 ([65be72b93](https://github.com/mozilla/fxa/commit/65be72b93))
+
 ## 1.200.0
 
 ### New features

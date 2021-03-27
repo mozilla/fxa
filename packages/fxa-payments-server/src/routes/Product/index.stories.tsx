@@ -11,14 +11,38 @@ import { SignInLayout } from '../../components/AppLayout';
 import { State as ValidatorState } from '../../lib/validator';
 import { Product, ProductProps } from './index';
 import { Customer, Plan, Profile } from '../../store/types';
+import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 
 function init() {
   storiesOf('routes/Product', module)
-    .add('subscribing with existing account', () => <ProductRoute />)
     .add('subscribing with new account', () => (
       <ProductRoute queryParams={{ activated: '1' }} />
     ))
-    .add('success', () => (
+    .add('subscribing with existing Stripe account', () => (
+      <ProductRoute
+        routeProps={{
+          ...MOCK_PROPS,
+          customer: {
+            loading: false,
+            error: null,
+            result: CUSTOMER,
+          },
+        }}
+      />
+    ))
+    .add('subscribing with existing PayPal account', () => (
+      <ProductRoute
+        routeProps={{
+          ...MOCK_PROPS,
+          customer: {
+            loading: false,
+            error: null,
+            result: PAYPAL_CUSTOMER,
+          },
+        }}
+      />
+    ))
+    .add('success with Stripe', () => (
       <ProductRoute
         routeProps={{
           ...MOCK_PROPS,
@@ -41,6 +65,19 @@ function init() {
               subscription_id: 'sk_78987',
             },
           ],
+        }}
+      />
+    ))
+    .add('success with PayPal', () => (
+      <ProductRoute
+        routeProps={{
+          ...MOCK_PROPS,
+          customer: {
+            loading: false,
+            error: null,
+            result: PAYPAL_CUSTOMER,
+          },
+          customerSubscriptions: PAYPAL_CUSTOMER.subscriptions,
         }}
       />
     ));

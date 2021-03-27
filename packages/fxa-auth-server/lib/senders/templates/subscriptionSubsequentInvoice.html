@@ -12,10 +12,7 @@
     <br>
   {{/showProratedAmount}}
   {{t "Charged %(invoiceTotal)s on %(invoiceDateOnly)s" }}
-  {{#if lastFour}}
-    <br>
-    {{t "%(cardType)s card ending in %(lastFour)s" }}
-  {{/if}}
+  {{> paymentProvider }}
   <br><br>
   {{t "Next Invoice: %(nextInvoiceDateOnly)s" }}
   <br><br>

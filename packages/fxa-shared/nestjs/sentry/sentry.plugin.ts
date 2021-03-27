@@ -27,7 +27,10 @@ export const SentryPlugin = {
         for (const err of ctx.errors) {
           // Only report internal server errors,
           // all errors extending ApolloError should be user-facing
-          if (err instanceof ApolloError) {
+          if (
+            err instanceof ApolloError ||
+            err.originalError instanceof ApolloError
+          ) {
             continue;
           }
           // Skip errors with a status already set or already reported
@@ -35,12 +38,14 @@ export const SentryPlugin = {
             continue;
           }
           const excContexts: ExtraContext[] = [];
-          excContexts.push({
-            name: 'graphql',
-            fieldData: {
-              path: err.path!.join(' > '),
-            },
-          });
+          if (err.path?.join) {
+            excContexts.push({
+              name: 'graphql',
+              fieldData: {
+                path: err.path.join(' > '),
+              },
+            });
+          }
           reportRequestException(
             err.originalError ?? err,
             excContexts,

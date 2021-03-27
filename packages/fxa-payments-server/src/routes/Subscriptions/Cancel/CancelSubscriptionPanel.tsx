@@ -17,12 +17,14 @@ import { SelectorReturns } from '../../../store/selectors';
 import { SubscriptionsProps } from '../index';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import * as Amplitude from '../../../lib/amplitude';
+import { ProviderType } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 export type CancelSubscriptionPanelProps = {
   plan: Plan;
   cancelSubscription: SubscriptionsProps['cancelSubscription'];
   customerSubscription: CustomerSubscription;
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
+  paymentProvider: ProviderType | undefined;
 };
 
 const CancelSubscriptionPanel = ({
@@ -30,6 +32,7 @@ const CancelSubscriptionPanel = ({
   cancelSubscription,
   customerSubscription: { subscription_id, current_period_end },
   cancelSubscriptionStatus,
+  paymentProvider,
 }: CancelSubscriptionPanelProps) => {
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
   const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
@@ -42,12 +45,12 @@ const CancelSubscriptionPanel = ({
   const confirmCancellation = useCallback(async () => {
     setIsLocalCancellation();
     try {
-      await cancelSubscription(subscription_id, plan);
+      await cancelSubscription(subscription_id, plan, paymentProvider);
     } catch (err) {
       // no-op, error is displayed in the Subscriptions route parent
     }
     resetIsLocalCancellation();
-  }, [cancelSubscription, subscription_id, plan]);
+  }, [cancelSubscription, subscription_id, plan, paymentProvider]);
 
   const viewed = useRef(false);
   const engaged = useRef(false);

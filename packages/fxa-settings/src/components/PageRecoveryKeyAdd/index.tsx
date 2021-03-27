@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import base32encode from 'base32-encode';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useRecoveryKeyMaker } from '../../lib/auth';
-import { cache, sessionToken } from '../../lib/cache';
+import { alertTextExternal, cache, sessionToken } from '../../lib/cache';
 import { useAlertBar } from '../../lib/hooks';
 import { useAccount } from '../../models';
 import InputPassword from '../InputPassword';
@@ -40,8 +40,17 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>();
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const goBack = useCallback(() => window.history.back(), []);
-
+  const goHome = () => navigate(HomePath + '#recovery-key', { replace: true });
+  const alertSuccessAndGoHome = () => {
+    alertTextExternal(
+      l10n.getString(
+        'recovery-key-success-alert',
+        null,
+        'Recovery key created.'
+      )
+    );
+    navigate(HomePath + '#recovery-key', { replace: true });
+  };
   const account = useAccount();
   const createRecoveryKey = useRecoveryKeyMaker({
     onSuccess: (recoveryKey) => {
@@ -93,7 +102,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
             <p data-testid="add-recovery-key-error">{alertBar.content}</p>
           </AlertBar>
         )}
-        <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
+        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {formattedRecoveryKey && (
           <div className="my-2" data-testid="recover-key-confirm">
             <Localized id="recovery-key-created">
@@ -116,7 +125,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               <Localized id="recovery-key-close-button">
                 <button
                   className="cta-primary mx-2 px-10"
-                  onClick={() => navigate(HomePath, { replace: true })}
+                  onClick={alertSuccessAndGoHome}
                   data-testid="close-button"
                 >
                   Close
@@ -168,7 +177,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
                   type="button"
                   className="cta-neutral mx-2 flex-1"
                   data-testid="cancel-button"
-                  onClick={goBack}
+                  onClick={goHome}
                 >
                   Cancel
                 </button>

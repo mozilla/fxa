@@ -13,14 +13,14 @@ type AvatarProps = {
 };
 
 export const Avatar = ({ className }: AvatarProps) => {
-  const { avatarUrl } = useAccount();
+  const { avatar } = useAccount();
 
-  if (avatarUrl) {
+  if (avatar.url) {
     return (
       <Localized id="avatar-your-avatar" attrs={{ alt: true }}>
         <img
           data-testid="avatar-nondefault"
-          src={avatarUrl}
+          src={avatar.url}
           alt="Your avatar"
           className={classNames(
             'rounded-full bg-grey-200 text-grey-200',

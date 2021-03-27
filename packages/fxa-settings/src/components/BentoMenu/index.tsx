@@ -23,6 +23,7 @@ export const BentoMenu = () => {
   const bentoMenuInsideRef = useClickOutsideEffect<HTMLDivElement>(setRevealed);
   useEscKeydownEffect(setRevealed);
   const dropDownId = 'drop-down-bento-menu';
+  const iconClassNames = 'inline-block w-5 -mb-1 ltr:pr-1 rtl:pl-1';
 
   return (
     <div className="relative self-center flex" ref={bentoMenuInsideRef}>
@@ -65,7 +66,7 @@ export const BentoMenu = () => {
                       href="https://monitor.firefox.com"
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
+                      <div className={iconClassNames}>
                         <img src={monitorIcon} alt="" />
                       </div>
                       Firefox Monitor
@@ -77,7 +78,7 @@ export const BentoMenu = () => {
                       href="https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447"
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
+                      <div className={iconClassNames}>
                         <img src={pocketIcon} alt="" />
                       </div>
                       Pocket
@@ -89,7 +90,7 @@ export const BentoMenu = () => {
                       href="https://www.mozilla.org/firefox/new/?utm_source=firefox-accounts&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
+                      <div className={iconClassNames}>
                         <img src={desktopIcon} alt="" />
                       </div>
                       Firefox Browser for Desktop
@@ -101,7 +102,7 @@ export const BentoMenu = () => {
                       href="http://mozilla.org/firefox/mobile?utm_source=firefox-accounts&utm_medium=referral&utm_campaign=bento&utm_content=desktop"
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
+                      <div className={iconClassNames}>
                         <img src={mobileIcon} alt="" />
                       </div>
                       Firefox Browser for Mobile
@@ -113,7 +114,7 @@ export const BentoMenu = () => {
                       href="https://vpn.mozilla.org/?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-settings&utm_content=bento-promo"
                       className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
                     >
-                      <div className="inline-block -mb-1 ltr:pr-1 rtl:pl-1">
+                      <div className={iconClassNames}>
                         <img src={vpnIcon} alt="" />
                       </div>
                       Mozilla VPN

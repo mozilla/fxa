@@ -3,6 +3,7 @@ import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
 import PaymentConfirmation from './index';
 import { Customer, Profile, Plan } from '../../store/types';
+import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 
 const userProfile: Profile = {
   avatar: 'http://placekitten.com/256/256',
@@ -42,7 +43,7 @@ const customer: Customer = {
       product_name: '123 Done Pro',
       status: 'active',
       cancel_at_period_end: false,
-      current_period_end: Date.now() / 1000 + 86400 * 31,
+      current_period_end: Date.now() / 10 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
     },
@@ -55,6 +56,18 @@ storiesOf('components/PaymentConfirmation', module).add('default', () => (
   <MockApp>
     <PaymentConfirmation
       {...{ profile: userProfile, selectedPlan, customer, productUrl }}
+    />
+  </MockApp>
+));
+storiesOf('components/PaymentConfirmation', module).add('paypal', () => (
+  <MockApp>
+    <PaymentConfirmation
+      {...{
+        profile: userProfile,
+        selectedPlan,
+        customer: PAYPAL_CUSTOMER,
+        productUrl,
+      }}
     />
   </MockApp>
 ));

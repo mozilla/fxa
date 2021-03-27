@@ -18,6 +18,17 @@ import {
   ZoomInBtn,
   ZoomOutBtn,
 } from './buttons';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
+
+jest.mock('fxa-settings/src/lib/metrics', () => ({
+  usePageViewEvent: jest.fn(),
+  logViewEvent: jest.fn(),
+  settingsViewName: 'quuz',
+}));
 
 const client = createAuthClient('none');
 
@@ -31,6 +42,17 @@ it('PageAvatar | renders', async () => {
   );
   expect(screen.getByTestId('flow-container')).toBeInTheDocument();
   expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
+});
+
+it('PageAvatar | emits a metrics event on render', async () => {
+  renderWithRouter(
+    <AuthContext.Provider value={{ auth: client }}>
+      <MockedCache>
+        <PageAvatar />
+      </MockedCache>
+    </AuthContext.Provider>
+  );
+  expect(usePageViewEvent).toHaveBeenCalledWith('settings.avatar.change');
 });
 
 it('PageAddAvatar | render add, take buttons on initial load', async () => {
@@ -48,7 +70,9 @@ it('PageAddAvatar | render add, take buttons on initial load', async () => {
 it('PageAddAvatar | render remove button if avatar is set', async () => {
   renderWithRouter(
     <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache account={{ avatarUrl: 'https://example.com/avatar.jpg' }}>
+      <MockedCache
+        account={{ avatar: { url: 'https://example.com/avatar.jpg' } }}
+      >
         <PageAvatar />
       </MockedCache>
     </AuthContext.Provider>

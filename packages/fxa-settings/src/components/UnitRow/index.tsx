@@ -15,6 +15,7 @@ type ModalButtonProps = {
   modalRevealed?: boolean;
   alertBarRevealed?: boolean;
   leftSpaced?: boolean;
+  prefixDataTestId?: string;
 };
 
 export const ModalButton = ({
@@ -24,6 +25,7 @@ export const ModalButton = ({
   modalRevealed,
   alertBarRevealed,
   leftSpaced,
+  prefixDataTestId = '',
 }: ModalButtonProps) => {
   const modalTriggerElement = useRef<HTMLButtonElement>(null);
   // If the UnitRow children contains an AlertBar that is revealed,
@@ -35,6 +37,10 @@ export const ModalButton = ({
     alertBarRevealed
   );
 
+  function formatDataTestId(id: string) {
+    return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
+  }
+
   return (
     <button
       className={classNames(
@@ -42,7 +48,7 @@ export const ModalButton = ({
         leftSpaced && 'ml-2',
         className || 'cta-neutral'
       )}
-      data-testid="unit-row-modal"
+      data-testid={formatDataTestId('unit-row-modal')}
       ref={modalTriggerElement}
       onClick={revealModal}
     >
@@ -60,6 +66,7 @@ type UnitRowProps = {
   secondaryCtaText?: string;
   secondaryCtaRoute?: string;
   secondaryButtonClassName?: string;
+  secondaryButtonTestId?: string;
   children?: React.ReactNode;
   headerContent?: React.ReactNode;
   actionContent?: React.ReactNode;
@@ -86,6 +93,7 @@ export const UnitRow = ({
   secondaryCtaText,
   secondaryCtaRoute,
   secondaryButtonClassName,
+  secondaryButtonTestId = 'secondary-button',
   revealModal,
   revealSecondaryModal,
   alertBarRevealed,
@@ -142,7 +150,7 @@ export const UnitRow = ({
         <div className="flex items-center">
           {!hideCtaText && route && (
             <Link
-              className="cta-neutral cta-base transition-standard mr-1"
+              className="cta-neutral cta-base transition-standard rtl:ml-1"
               data-testid={formatDataTestId('unit-row-route')}
               to={`${route}${location.search}`}
             >
@@ -152,14 +160,13 @@ export const UnitRow = ({
 
           {revealModal && (
             <ModalButton
-              leftSpaced={multiButton}
-              {...{ revealModal, ctaText, alertBarRevealed }}
+              {...{ revealModal, ctaText, alertBarRevealed, prefixDataTestId }}
             />
           )}
 
           {secondaryCtaRoute && (
             <Link
-              className="cta-neutral cta-base transition-standard mr-1"
+              className="cta-neutral cta-base transition-standard ltr:mr-1 rtl:ml-1"
               data-testid={formatDataTestId('unit-row-route')}
               to={`${secondaryCtaRoute}${location.search}`}
             >
@@ -174,6 +181,7 @@ export const UnitRow = ({
               ctaText={secondaryCtaText}
               className={secondaryButtonClassName}
               alertBarRevealed={alertBarRevealed}
+              prefixDataTestId={secondaryButtonTestId}
             />
           )}
 

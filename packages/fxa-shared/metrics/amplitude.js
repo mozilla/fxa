@@ -314,6 +314,7 @@ module.exports = {
           //       equivalents have been in place for at least one train.
           plan_id: data.planId || data.plan_id,
           product_id: data.productId || data.product_id,
+          payment_provider: data.paymentProvider,
         }),
         EVENT_PROPERTIES[eventGroup](
           eventType,

@@ -12,15 +12,9 @@ module.exports = function (grunt) {
     // Normalize the filenames to use the locale name.
     // add the extension here, instead of using grunt-remarkable's
     // extension generator, to get locale names in uppercase
-    const lang = i18n.localeFrom(destFile.split('/')[0]);
 
-    if (destFile.includes('privacy')) {
-      return path.join(destPath, lang, 'privacy.html');
-    } else if (destFile.includes('tos')) {
-      return path.join(destPath, lang, 'terms.html');
-    } else {
-      return path.join(destPath, i18n.localeFrom(destFile) + '.html');
-    }
+    const lang = i18n.localeFrom(destFile.split('/')[0]);
+    return path.join(destPath, lang + '.html');
   }
 
   grunt.config('remarkable', {
@@ -35,17 +29,17 @@ module.exports = function (grunt) {
       files: [
         {
           cwd: '<%= yeoman.pp_md_src %>',
-          dest: '<%= yeoman.page_template_dist %>',
+          dest: '<%= yeoman.pp_html_dest %>',
           expand: true,
-          ext: '.html',
+          ext: '',
           src: ['**/firefox_privacy_notice.md'],
           rename: rename,
         },
         {
           cwd: '<%= yeoman.tos_md_src %>',
-          dest: '<%= yeoman.page_template_dist %>',
+          dest: '<%= yeoman.tos_html_dest %>',
           expand: true,
-          ext: '.html',
+          ext: '',
           src: ['**/firefox_cloud_services_tos.md'],
           rename: rename,
         },

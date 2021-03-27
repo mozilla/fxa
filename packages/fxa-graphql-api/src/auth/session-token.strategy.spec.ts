@@ -30,17 +30,25 @@ describe('SessionTokenStrategy', () => {
   it('returns the session status', async () => {
     mockSession.sessionTokenData.mockResolvedValue({ tokenVerified: true });
     mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
-    const result = await strategy.validate('token');
+    const result = await strategy.validate('DEADC0DE');
     expect(result).toStrictEqual({
-      token: 'token',
+      token: 'DEADC0DE',
       session: { tokenVerified: true },
     });
+  });
+
+  it('throws unauthorized for a malformed token', async () => {
+    mockSession.sessionTokenData.mockResolvedValue(undefined);
+    mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
+    await expect(strategy.validate('token')).rejects.toThrowError(
+      new UnauthorizedException('Invalid token')
+    );
   });
 
   it('throws unauthorized for an invalid token', async () => {
     mockSession.sessionTokenData.mockResolvedValue(undefined);
     mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
-    await expect(strategy.validate('token')).rejects.toThrowError(
+    await expect(strategy.validate('DEADC0DE')).rejects.toThrowError(
       new UnauthorizedException('Invalid token')
     );
   });
@@ -52,7 +60,7 @@ describe('SessionTokenStrategy', () => {
       emailVerified: true,
     });
     mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
-    await expect(strategy.validate('token')).rejects.toThrowError(
+    await expect(strategy.validate('DEADC0DE')).rejects.toThrowError(
       new UnauthorizedException('Must verify')
     );
   });
@@ -60,7 +68,7 @@ describe('SessionTokenStrategy', () => {
   it('throws unexpected', async () => {
     mockSession.sessionTokenData.mockResolvedValue({ tokenVerified: false });
     mockAuthClient.deriveHawkCredentials.mockRejectedValue('unauthorized');
-    await expect(strategy.validate('token')).rejects.toThrowError(
+    await expect(strategy.validate('DEADC0DE')).rejects.toThrowError(
       ExtendedError.withCause(
         'Unexpected error during authentication.',
         new Error('unauthorized')

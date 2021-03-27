@@ -27,6 +27,11 @@ export const HeaderLockup = () => {
             ? l10n.getString('header-menu-open')
             : l10n.getString('header-menu-closed')
         }
+        title={
+          navRevealedState
+            ? l10n.getString('header-menu-open')
+            : l10n.getString('header-menu-closed')
+        }
         aria-haspopup={true}
         aria-expanded={navRevealedState}
         onClick={() => setNavState(!navRevealedState)}
@@ -48,15 +53,6 @@ export const HeaderLockup = () => {
                 <span className="font-bold ltr:mr-2 rtl:ml-2">
                   Firefox accounts
                 </span>
-              </Localized>
-              <Localized id="header-switch-title" attrs={{ title: true }}>
-                <a
-                  href="/settings/beta_optout"
-                  title="classic design link"
-                  className="cta-base cta-neutral transition-standard text-sm ltr:ml-4 rtl:mr-4 p-2"
-                >
-                  Switch to classic design
-                </a>
               </Localized>
             </>
           </LogoLockup>

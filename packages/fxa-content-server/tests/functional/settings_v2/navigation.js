@@ -11,7 +11,6 @@ const FunctionalHelpers = require('../lib/helpers');
 
 const config = intern._config;
 const EMAIL_FIRST = config.fxaContentRoot;
-const SETTINGS_V2_URL = config.fxaSettingsV2Root;
 const password = 'passwordzxcv';
 
 const { createEmail } = FunctionalHelpers;
@@ -34,10 +33,6 @@ describe('navigation', () => {
 
     await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
     await fillOutEmailFirstSignIn(email, password, remote);
-    await testElementExists(selectors.SETTINGS.HEADER, remote);
-
-    // Open new settings
-    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.HEADER, remote);
   });
 
   // it('can click avatar menu add button and back', async ({ remote }) => {

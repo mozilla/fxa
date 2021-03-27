@@ -1,3 +1,48 @@
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+No changes.
+
+## 1.203.0
+
+### Other changes
+
+- deps: bump bunyan from 1.8.12 to 1.8.15 ([ff168c66a](https://github.com/mozilla/fxa/commit/ff168c66a))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+
+## 1.202.3
+
+No changes.
+
+## 1.202.2
+
+No changes.
+
+## 1.202.1
+
+No changes.
+
+## 1.202.0
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.9.0 to 2.10.0 ([0a9c85b0e](https://github.com/mozilla/fxa/commit/0a9c85b0e))
+
+## 1.201.1
+
+No changes.
+
+## 1.201.0
+
+### Other changes
+
+- deps: bump bl from 4.0.3 to 4.1.0 ([db3a3acd5](https://github.com/mozilla/fxa/commit/db3a3acd5))
+- deps: bump @google-cloud/pubsub from 2.8.0 to 2.9.0 ([fa9bd267d](https://github.com/mozilla/fxa/commit/fa9bd267d))
+- deps: bump deep-equal from 2.0.4 to 2.0.5 ([b0b665e6b](https://github.com/mozilla/fxa/commit/b0b665e6b))
+
 ## 1.200.0
 
 ### Other changes
