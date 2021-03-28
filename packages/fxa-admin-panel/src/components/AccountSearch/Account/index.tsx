@@ -230,12 +230,34 @@ export const Account = ({
           <p className="account-history-info">
             {securityEvents.length > 0 ? (
               <>
-                {securityEvents.map((securityEvents: SecurityEventsProps) => (
-                  <SecurityEvents
-                    key={securityEvents.createdAt}
-                    {...securityEvents}
-                  />
-                ))}
+                <TableContainer component={Paper}>
+                  <Table
+                    className="account-history-table"
+                    aria-label="simple table"
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Event Type</TableCell>
+                        <TableCell>Time of Occurence</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {securityEvents.map(
+                        (securityEvents: SecurityEventsProps) => (
+                          <TableRow>
+                            <TableCell>{securityEvents.nameId}</TableCell>
+                            <TableCell>
+                              {dateFormat(
+                                new Date(securityEvents.createdAt),
+                                DATE_FORMAT
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </>
             ) : (
               <li
@@ -251,22 +273,6 @@ export const Account = ({
         <DangerZone />
       </ul>
     </section>
-  );
-};
-
-const SecurityEvents = ({ nameId, createdAt }: SecurityEventsProps) => {
-  const date = dateFormat(new Date(createdAt), DATE_FORMAT);
-  return (
-    <li data-testid="acccount-security-events">
-      <ul className="security-events">
-        <li>
-          Event: <span className="result">{nameId}</span>
-        </li>
-        <li>
-          Occurence: <span className="result">{createdAt}</span> ({date})
-        </li>
-      </ul>
-    </li>
   );
 };
 
@@ -296,41 +302,5 @@ const EmailBounce = ({
     </li>
   );
 };
-
-// function createData(
-//   name: string,
-//   calories: number,
-//   fat: number,
-//   carbs: number,
-//   protein: number
-// ) {
-//   return { name, calories, fat, carbs, protein };
-// }
-
-// const rows = [
-//   createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-//   createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-// ];
-
-/* <TableContainer component={Paper}>
-<Table className="account-history-table" aria-label="simple table">
-  <TableHead>
-    <TableRow>
-      <TableCell>Event Type</TableCell>
-      <TableCell>Time of Occurence</TableCell>
-    </TableRow>
-  </TableHead>
-  <TableBody>
-    {rows.map((row) => (
-      <TableRow key={row.name}>
-        <TableCell component="th" scope="row">
-          {row.name}
-        </TableCell>
-        <TableCell>{row.calories}</TableCell>
-      </TableRow>
-    ))}
-  </TableBody>
-</Table>
-</TableContainer> */
 
 export default Account;
