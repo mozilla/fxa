@@ -95,7 +95,15 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
   };
 
   const handlePassChange = () => {
-    // todo
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    const main = require('../../../../../fxa-auth-server/scripts/must-reset/index');
+    const key = [email.email];
+    const dbFunction = 'accountRecord';
+
+    main(key, dbFunction);
+    onCleared();
   };
 
   return (
@@ -129,7 +137,11 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
       <p className="danger-zone-info">
         Force a password change the next time this account logs in.
         <br />
-        <button className="danger-zone-button" onClick={handlePassChange}>
+        <button
+          id="pass-change"
+          className="danger-zone-button"
+          onClick={handlePassChange}
+        >
           Force Change
         </button>
       </p>
