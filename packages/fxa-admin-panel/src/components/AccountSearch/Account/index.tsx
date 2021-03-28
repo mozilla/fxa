@@ -269,6 +269,7 @@ export const Account = ({
             )}
           </p>
         </li>
+        <p>trial</p>
         <hr />
         <DangerZone />
       </ul>
