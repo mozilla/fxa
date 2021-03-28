@@ -109,12 +109,17 @@
     color: #da3845;
   }
 
-  .accountHistory-info {
-      padding-left: 15px;
+  .account-history-info {
+      padding-left: 20px;
       padding-top: 5px;
+      padding-bottom: 15px;
       border-image: linear-gradient(to bottom, var(--ff-brand-gradient)) 0 100%;
       border-left: 1px solid;
       padding-bottom: 5px;
+  }
+
+  .account-history-table {
+    padding-top: 5px;
   }
 
 }

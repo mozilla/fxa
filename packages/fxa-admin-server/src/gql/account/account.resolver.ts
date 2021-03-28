@@ -23,7 +23,6 @@ const EMAIL_COLUMNS = [
   'isVerified',
   'normalizedEmail',
   'uid',
-  'verified',
 ];
 
 const SECURITY_EVENTS_COLUMNS = [

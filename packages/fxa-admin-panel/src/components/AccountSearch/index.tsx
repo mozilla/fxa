@@ -26,6 +26,16 @@ interface AccountType {
       bounceSubType: string;
     }
   ];
+  securityEvents: [
+    {
+      uid: string;
+      nameId: number;
+      verified: boolean;
+      ipAddrHmac: string;
+      createdAt: number;
+      tokenVerificationId: string;
+    }
+  ];
 }
 
 export const GET_ACCOUNT_BY_EMAIL = gql`
@@ -44,6 +54,14 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         createdAt
         bounceType
         bounceSubType
+      }
+      securityEvents {
+        uid
+        nameId
+        verified
+        ipAddrHmac
+        createdAt
+        tokenVerificationId
       }
     }
   }
@@ -191,7 +209,6 @@ const AccountSearchResult = ({
 }) => {
   if (loading) return <p data-testid="loading-message">Loading...</p>;
   if (error) return <p data-testid="error-message">An error occured.</p>;
-
   if (data?.accountByEmail) {
     return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
   }

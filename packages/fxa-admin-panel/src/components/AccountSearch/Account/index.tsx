@@ -6,7 +6,14 @@ import React from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
-import AccountHistory from './AccountHistory';
+
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 
 type AccountProps = {
   uid: string;
@@ -15,6 +22,7 @@ type AccountProps = {
   emailBounces: EmailBounceProps[];
   onCleared: Function;
   query: string;
+  securityEvents: SecurityEventsProps[];
 };
 
 type EmailBounceProps = {
@@ -29,6 +37,15 @@ type EmailProps = {
   isVerified: boolean;
   isPrimary: boolean;
   createdAt: number;
+};
+
+type SecurityEventsProps = {
+  uid: string;
+  nameId: number;
+  verified: boolean;
+  ipAddrHmac: string;
+  createdAt: number;
+  tokenVerificationId: string;
 };
 
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
@@ -112,19 +129,6 @@ export const DangerZone = () => {
   );
 };
 
-export const AccountHistoryInfo = () => {
-  return (
-    <li>
-      <h1>Account History</h1>
-      <p className="accountHistory-info">
-        {' '}
-        This is where all previous acount history will be displayed
-      </p>
-      <AccountHistory />
-    </li>
-  );
-};
-
 export const Account = ({
   uid,
   emails,
@@ -132,6 +136,7 @@ export const Account = ({
   emailBounces,
   onCleared,
   query,
+  securityEvents,
 }: AccountProps) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   const primaryEmail = emails.find((email) => email.isPrimary)!;
@@ -220,11 +225,48 @@ export const Account = ({
           </li>
         )}
         <hr />
-        <AccountHistoryInfo />
+        <li>
+          <h4>Account History</h4>
+          <p className="account-history-info">
+            {securityEvents.length > 0 ? (
+              <>
+                {securityEvents.map((securityEvents: SecurityEventsProps) => (
+                  <SecurityEvents
+                    key={securityEvents.createdAt}
+                    {...securityEvents}
+                  />
+                ))}
+              </>
+            ) : (
+              <li
+                data-testid="acccount-security-events"
+                className="security-events"
+              >
+                No account history to display.
+              </li>
+            )}
+          </p>
+        </li>
         <hr />
         <DangerZone />
       </ul>
     </section>
+  );
+};
+
+const SecurityEvents = ({ nameId, createdAt }: SecurityEventsProps) => {
+  const date = dateFormat(new Date(createdAt), DATE_FORMAT);
+  return (
+    <li data-testid="acccount-security-events">
+      <ul className="security-events">
+        <li>
+          Event: <span className="result">{nameId}</span>
+        </li>
+        <li>
+          Occurence: <span className="result">{createdAt}</span> ({date})
+        </li>
+      </ul>
+    </li>
   );
 };
 
@@ -254,5 +296,41 @@ const EmailBounce = ({
     </li>
   );
 };
+
+// function createData(
+//   name: string,
+//   calories: number,
+//   fat: number,
+//   carbs: number,
+//   protein: number
+// ) {
+//   return { name, calories, fat, carbs, protein };
+// }
+
+// const rows = [
+//   createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+//   createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
+// ];
+
+/* <TableContainer component={Paper}>
+<Table className="account-history-table" aria-label="simple table">
+  <TableHead>
+    <TableRow>
+      <TableCell>Event Type</TableCell>
+      <TableCell>Time of Occurence</TableCell>
+    </TableRow>
+  </TableHead>
+  <TableBody>
+    {rows.map((row) => (
+      <TableRow key={row.name}>
+        <TableCell component="th" scope="row">
+          {row.name}
+        </TableCell>
+        <TableCell>{row.calories}</TableCell>
+      </TableRow>
+    ))}
+  </TableBody>
+</Table>
+</TableContainer> */
 
 export default Account;

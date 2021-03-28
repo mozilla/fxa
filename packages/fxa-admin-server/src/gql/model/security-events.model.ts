@@ -6,7 +6,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 @ObjectType()
 export class SecurityEvents {
   @Field({ nullable: true })
-  public uid!: number;
+  public uid!: string;
 
   @Field({ nullable: true })
   public nameId!: number;
@@ -15,11 +15,11 @@ export class SecurityEvents {
   public verified!: boolean;
 
   @Field({ nullable: true })
-  public ipAddrHmac!: number;
+  public ipAddrHmac!: string;
 
   @Field({ nullable: true })
   public createdAt!: number;
 
   @Field({ nullable: true })
-  public tokenVerificationId!: number;
+  public tokenVerificationId!: string;
 }

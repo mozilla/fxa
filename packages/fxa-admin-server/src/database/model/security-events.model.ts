@@ -11,12 +11,12 @@ const booleanFields = ['verified'];
 export class SecurityEvents extends Model {
   public static tableName = 'securityEvents';
 
-  public uid!: number;
+  public uid!: string;
   public nameId!: number;
   public verified!: boolean;
-  public ipAddrHmac!: number;
+  public ipAddrHmac!: string;
   public createdAt!: number;
-  public tokenVerificationId!: number;
+  public tokenVerificationId!: string;
 
   public $parseDatabaseJson(json: any) {
     json = super.$parseDatabaseJson(json);
