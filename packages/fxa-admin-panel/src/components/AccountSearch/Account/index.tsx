@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useState } from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
@@ -46,6 +46,7 @@ type SecurityEventsProps = {
   ipAddrHmac: string;
   createdAt: number;
   tokenVerificationId: string;
+  name: string;
 };
 
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
@@ -237,15 +238,15 @@ export const Account = ({
                   >
                     <TableHead>
                       <TableRow>
-                        <TableCell>Event Type</TableCell>
-                        <TableCell>Time of Occurence</TableCell>
+                        <TableCell>Event</TableCell>
+                        <TableCell>Timestamp</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {securityEvents.map(
                         (securityEvents: SecurityEventsProps) => (
                           <TableRow>
-                            <TableCell>{securityEvents.nameId}</TableCell>
+                            <TableCell>{securityEvents.name}</TableCell>
                             <TableCell>
                               {dateFormat(
                                 new Date(securityEvents.createdAt),
@@ -269,7 +270,6 @@ export const Account = ({
             )}
           </p>
         </li>
-        <p>trial</p>
         <hr />
         <DangerZone />
       </ul>

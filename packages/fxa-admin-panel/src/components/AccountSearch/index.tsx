@@ -34,6 +34,7 @@ interface AccountType {
       ipAddrHmac: string;
       createdAt: number;
       tokenVerificationId: string;
+      name: string;
     }
   ];
 }
@@ -62,6 +63,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         ipAddrHmac
         createdAt
         tokenVerificationId
+        name
       }
     }
   }

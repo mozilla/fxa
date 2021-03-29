@@ -22,4 +22,7 @@ export class SecurityEvents {
 
   @Field({ nullable: true })
   public tokenVerificationId!: string;
+
+  @Field({ nullable: true })
+  public name!: string;
 }

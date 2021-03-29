@@ -110,7 +110,12 @@ export class AccountResolver {
     const uidBuffer = uuidTransformer.to(account.uid);
     return await this.db.securityEvents
       .query()
-      .select(SECURITY_EVENTS_COLUMNS)
+      .select(...SECURITY_EVENTS_COLUMNS, 'securityEventNames.name as name')
+      .join(
+        'securityEventNames',
+        'securityEvents.nameId',
+        'securityEventNames.id'
+      )
       .where('uid', uidBuffer);
   }
 }
