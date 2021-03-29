@@ -100,8 +100,18 @@ registerSuite('force_auth', {
         .then(fillOutForceAuth(PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
-
+        .then(
+          click(
+            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+          )
+        )
+        .then(
+          click(
+            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+            selectors.ENTER_EMAIL.HEADER
+          )
+        )
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
         .then(
           click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER)
