@@ -1,7 +1,6 @@
 ## Two Step Auth sub-section on Settings main page
 
-tfa-row-heading =
-  .header = Two-step authentication
+tfa-row-header = Two-step authentication
 tfa-row-disabled = Two-step authentication disabled.
 tfa-row-enabled = Enabled
 tfa-row-not-set = Not set
