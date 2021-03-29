@@ -47,7 +47,6 @@ const {
   testElementTextEquals,
   testElementTextInclude,
   testElementValueEquals,
-  testSuccessWasShown,
   testUrlInclude,
   testUrlPathnameEquals,
   type,
@@ -608,11 +607,23 @@ registerSuite('oauth signin - TOTP', {
 
           // Remove token
           .then(click(selectors.TOTP.DELETE_BUTTON))
-          .then(testSuccessWasShown)
+          .then(click(selectors.TOTP.CONFIRM_DELETE))
+          .then(testElementExists(selectors.TOTP.DISABLE_SUCCESS))
           .then(testElementExists(selectors.TOTP.MENU_BUTTON))
 
           // Does not prompt for code
-          .then(click(selectors.SETTINGS.SIGNOUT))
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+            )
+          )
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
 
           .then(
             clearBrowserState({

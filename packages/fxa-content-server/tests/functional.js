@@ -50,7 +50,9 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/oauth_query_param_validation.js',
   'tests/functional/oauth_reset_password.js',
   'tests/functional/oauth_settings_clients.js',
+  */
   'tests/functional/oauth_sign_in.js',
+  /*
   'tests/functional/oauth_sign_in_token_code.js',
   'tests/functional/oauth_sign_up.js',
   'tests/functional/oauth_sync_sign_in.js',
