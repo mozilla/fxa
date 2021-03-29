@@ -2,7 +2,7 @@
 
 {{> location}}
 
-{{t "If yes, use this verification code:" }}
+{{t "If yes, use this verification code in your registration form:" }}
 {{ code }}
 
 {{t "It expires in 5 minutes." }}
