@@ -14920,6 +14920,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"create-require@npm:^1.1.0":
+  version: 1.1.1
+  resolution: "create-require@npm:1.1.1"
+  checksum: babd307893abfb26d77ae11cb9d6b6cfa6d18c9cee435cf70b5a3fb44aa8d90c9ec26ea89cbb16e0a94b8d34f5fcaee164b90ed526cdd3158955673ab9652d01
+  languageName: node
+  linkType: hard
+
 "cron@npm:1.7.2":
   version: 1.7.2
   resolution: "cron@npm:1.7.2"
@@ -19432,7 +19439,7 @@ fsevents@^1.2.7:
     serve-static: ^1.14.1
     supertest: ^6.1.3
     ts-jest: ^26.3.0
-    ts-node: ^8.10.2
+    ts-node: ^9.1.1
     typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
@@ -19486,7 +19493,7 @@ fsevents@^1.2.7:
     rxjs: ^6.6.6
     supertest: ^6.1.3
     ts-jest: 26.4.3
-    ts-node: ^8.6.2
+    ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
     tslib: ^2.0.1
     typescript: 3.9.7
@@ -19510,7 +19517,7 @@ fsevents@^1.2.7:
     fast-text-encoding: ^1.0.3
     mocha: ^7.1.2
     node-fetch: ^2.6.1
-    ts-node: ^8.10.2
+    ts-node: ^9.1.1
     typescript: 3.9.7
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
   languageName: unknown
@@ -19665,7 +19672,7 @@ fsevents@^1.2.7:
     stripe: ^8.64.0
     superagent: ^6.0.0
     through: 2.3.8
-    ts-node: ^8.10.2
+    ts-node: ^9.1.1
     typedi: ^0.8.0
     typescript: 3.9.7
     uuid: ^8.3.0
@@ -19819,7 +19826,7 @@ fsevents@^1.2.7:
     thread-loader: ^3.0.1
     time-grunt: 2.0.0
     ts-loader: ^8.0.12
-    ts-node: ^8.10.2
+    ts-node: ^9.1.1
     typescript: 3.9.7
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
     underscore: ^1.10.2
@@ -19989,7 +19996,7 @@ fsevents@^1.2.7:
     supertest: ^6.1.3
     ts-jest: 26.4.3
     ts-loader: ^8.0.12
-    ts-node: ^8.6.2
+    ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
     typesafe-joi: ^2.1.0
     typesafe-node-firestore: ^1.4.0
@@ -20086,7 +20093,7 @@ fsevents@^1.2.7:
     superagent: ^6.0.0
     supertest: ^6.1.3
     ts-jest: 26.4.3
-    ts-node: ^8.6.2
+    ts-node: ^9.1.1
     tslib: 2.1.0
     typescript: 3.9.7
   languageName: unknown
@@ -20128,7 +20135,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     reflect-metadata: ^0.1.13
     sinon: ^9.0.3
-    ts-node: ^8.10.2
+    ts-node: ^9.1.1
     typedi: ^0.8.0
     typescript: 3.9.7
     uuid: ^8.3.0
@@ -20261,7 +20268,7 @@ fsevents@^1.2.7:
     sinon: ^9.0.3
     supertest: ^6.1.3
     ts-jest: ^26.3.0
-    ts-node: ^8.10.2
+    ts-node: ^9.1.1
     type-to-reducer: ^1.2.0
     typedi: ^0.8.0
     typescript: 3.9.7
@@ -20525,7 +20532,7 @@ fsevents@^1.2.7:
     superagent: ^6.0.0
     ts-jest: 26.4.3
     ts-loader: ^8.0.12
-    ts-node: ^8.10.2
+    ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
     typescript: 3.9.7
     underscore: ^1.10.2
@@ -20574,7 +20581,7 @@ fsevents@^1.2.7:
     superagent: ^6.0.0
     supertest: ^6.1.3
     ts-jest: 26.4.3
-    ts-node: ^8.6.2
+    ts-node: ^9.1.1
     tslib: 2.1.0
     typesafe-joi: ^2.1.0
     typescript: 3.9.7
@@ -38495,7 +38502,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^8.10.2, ts-node@npm:^8.2.0, ts-node@npm:^8.5.2, ts-node@npm:^8.6.2":
+"ts-node@npm:^8.2.0, ts-node@npm:^8.5.2":
   version: 8.10.2
   resolution: "ts-node@npm:8.10.2"
   dependencies:
@@ -38512,6 +38519,27 @@ resolve@~1.11.1:
     ts-node-transpile-only: dist/bin-transpile.js
     ts-script: dist/bin-script-deprecated.js
   checksum: cd6e023e073d65ea346cf4a5b70bfd1e7c7f342c967a23a83038fd3462067558a4dda4fc8b238e6709db69aca3847590a93b4c52ae001e23ed9fef3b4fecbc71
+  languageName: node
+  linkType: hard
+
+"ts-node@npm:^9.1.1":
+  version: 9.1.1
+  resolution: "ts-node@npm:9.1.1"
+  dependencies:
+    arg: ^4.1.0
+    create-require: ^1.1.0
+    diff: ^4.0.1
+    make-error: ^1.1.1
+    source-map-support: ^0.5.17
+    yn: 3.1.1
+  peerDependencies:
+    typescript: ">=2.7"
+  bin:
+    ts-node: dist/bin.js
+    ts-node-script: dist/bin-script.js
+    ts-node-transpile-only: dist/bin-transpile.js
+    ts-script: dist/bin-script-deprecated.js
+  checksum: a90db4a342872cd0e7a80babdfcb15d2f7c06e700d735003098f7cc79db575c3380580c58a19ae0d0eaab553af083651d4237060c92170e6f8ac4e64693113ea
   languageName: node
   linkType: hard
 
