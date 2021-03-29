@@ -14,6 +14,7 @@ import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar, useMutation } from '../../lib/hooks';
 import { AlertBar } from '../AlertBar';
 import { useLocalization, Localized } from '@fluent/react';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 export const CHANGE_RECOVERY_CODES_MUTATION = gql`
   mutation changeRecoveryCodes($input: ChangeRecoveryCodesInput!) {
@@ -43,9 +44,11 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
 
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const [changeRecoveryCodes] = useMutation(CHANGE_RECOVERY_CODES_MUTATION, {
     onCompleted: (x) => {
       setRecoveryCodes(x.changeRecoveryCodes.recoveryCodes);
+      setLoading(true);
     },
     onError: () => {
       alertBar.error(
@@ -62,6 +65,11 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
     session.verified && changeRecoveryCodes({ variables: { input: {} } });
   }, [session, changeRecoveryCodes]);
 
+  if (!loading) {
+    return (
+      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+    );
+  }
   return (
     <FlowContainer title="Two Step Authentication">
       <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
@@ -78,7 +86,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
           place — you’ll need them to access your account if you don’t have your
           mobile device.
         </Localized>
-        <div className="mt-6 flex flex-col items-center h-40 justify-between">
+        <div className="mt-6 flex flex-col items-center h-auto justify-between">
           <DataBlock value={recoveryCodes}></DataBlock>
         </div>
       </div>
