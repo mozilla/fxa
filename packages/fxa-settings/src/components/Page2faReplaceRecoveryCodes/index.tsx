@@ -65,11 +65,6 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
     session.verified && changeRecoveryCodes({ variables: { input: {} } });
   }, [session, changeRecoveryCodes]);
 
-  if (!loading) {
-    return (
-      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
-    );
-  }
   return (
     <FlowContainer title="Two Step Authentication">
       <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
@@ -87,7 +82,8 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
           mobile device.
         </Localized>
         <div className="mt-6 flex flex-col items-center h-auto justify-between">
-          <DataBlock value={recoveryCodes}></DataBlock>
+          {!loading && <LoadingSpinner />}
+          {loading && <DataBlock value={recoveryCodes}></DataBlock>}
         </div>
       </div>
       <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">
