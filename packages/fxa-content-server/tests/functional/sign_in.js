@@ -160,9 +160,19 @@ registerSuite('signin', {
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // success is seeing the header
-          .then(visibleByQSA(selectors.SETTINGS.HEADER))
           .then(testElementExists(selectors.SETTINGS.HEADER))
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+            )
+          )
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
 
           // login as existing user
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
@@ -176,7 +186,7 @@ registerSuite('signin', {
           .then(click(selectors.SIGNIN.SUBMIT))
 
           // success is seeing the existing user logged in
-          .then(visibleByQSA(selectors.SETTINGS.HEADER))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 
