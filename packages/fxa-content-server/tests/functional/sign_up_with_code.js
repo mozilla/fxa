@@ -71,7 +71,7 @@ registerSuite('signup with code', {
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
         .goBack()
-        .then(testAtConfirmScreen(email));
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'invalid code': function () {

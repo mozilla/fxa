@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // TODO: temporarily just run the smoke tests. See #7879.
-module.exports = require('./functional_smoke');
-
-/*
+module.exports = require('./functional_smoke').concat([
+  /*
 const testsSettingsV2 = require('./functional_settings_v2');
 // Run the new settings tests first
 module.exports = testsSettingsV2.concat([
@@ -13,7 +12,9 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/oauth_webchannel.js',
   'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',
+*/
   'tests/functional/sign_up_with_code.js',
+  /*
   // new and flaky tests above here',
   'tests/functional/404.js',
   'tests/functional/500.js',
@@ -81,6 +82,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/sync_v3_settings.js',
   'tests/functional/tos.js',
   'tests/functional/verification_reminders.js',
+*/
 ]);
 
 // Mocha tests are only exposed during local dev, not on prod-like
@@ -90,4 +92,3 @@ module.exports = testsSettingsV2.concat([
 if (!process.env.SKIP_MOCHA) {
   module.exports.unshift('tests/functional/mocha.js');
 }
-*/
