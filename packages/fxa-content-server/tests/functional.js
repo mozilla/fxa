@@ -24,7 +24,9 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/change_password.js',
   'tests/functional/confirm.js',
   'tests/functional/connect_another_device.js',
+  */
   'tests/functional/cookies_disabled.js',
+  /*
   'tests/functional/delete_account.js',
   'tests/functional/email_domain_mx_validation.js',
   'tests/functional/email_opt_in.js',

@@ -2144,7 +2144,7 @@ function testSuccessWasNotShown(selector) {
  */
 function testErrorWasShown(message, selector) {
   selector = selector || selectors.SETTINGS.ERROR;
-  return testElementWasShown(selector);
+  return testElementWasShown(selector, message);
 }
 
 /**
