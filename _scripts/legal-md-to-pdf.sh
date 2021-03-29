@@ -12,7 +12,7 @@
 #    LaTeX: https://www.latex-project.org/get/
 #
 # The script traverses the legal-docs directory looking for Mozilla VPN legal documents in each locale.
-# When found, the script converts the document from .md to .pdf and writes it to assets/legal/<document_name>.<locale>.
+# When found, the script converts the document from .md to .pdf and writes it to assets/legal/<document_name>.<locale>.pdf
 #
 # Examples:
 # directory provided: `/Users/username/Documents/GitHub/legal-docs/`
