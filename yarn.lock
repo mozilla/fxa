@@ -13431,7 +13431,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai@npm:^4.2.0, chai@npm:~4.2.0":
+"chai@npm:^4.3.4":
+  version: 4.3.4
+  resolution: "chai@npm:4.3.4"
+  dependencies:
+    assertion-error: ^1.1.0
+    check-error: ^1.0.2
+    deep-eql: ^3.0.1
+    get-func-name: ^2.0.0
+    pathval: ^1.1.1
+    type-detect: ^4.0.5
+  checksum: ea3e6547b9a8d367f203e83b71632ec6a801f6380393594907968479aea15e411e4317211f46e03eda092a97f6812118b69b05bbded51b01224d193cc3f4b9b3
+  languageName: node
+  linkType: hard
+
+"chai@npm:~4.2.0":
   version: 4.2.0
   resolution: "chai@npm:4.2.0"
   dependencies:
@@ -19460,7 +19474,7 @@ fsevents@^1.2.7:
     apollo-server: ^2.19.2
     apollo-server-express: ^2.21.1
     audit-filter: ^0.5.0
-    chai: ^4.2.0
+    chai: ^4.3.4
     chance: ^1.1.6
     class-transformer: ^0.4.0
     class-validator: ^0.12.2
@@ -19524,7 +19538,7 @@ fsevents@^1.2.7:
     audit-filter: 0.5.0
     base64url: 3.0.1
     bluebird: ^3.7.2
-    chai: ^4.2.0
+    chai: ^4.3.4
     convict: ^6.0.1
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
@@ -19590,7 +19604,7 @@ fsevents@^1.2.7:
     buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
     cbor: ^7.0.4
-    chai: ^4.2.0
+    chai: ^4.3.4
     cldr-core: ^38.1.0
     cldr-localenames-full: 38.0.0
     commander: 2.18.0
@@ -19715,7 +19729,7 @@ fsevents@^1.2.7:
     base64url: 3.0.1
     body-parser: ^1.19.0
     cache-loader: ^4.1.0
-    chai: ^4.2.0
+    chai: ^4.3.4
     chosen-js: "git://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     connect-cachify: 0.0.17
     consolidate: 0.16.0
@@ -19858,7 +19872,7 @@ fsevents@^1.2.7:
     bl: 4.1.0
     bluebird: ^3.7.2
     bunyan: ^1.8.15
-    chai: ^4.2.0
+    chai: ^4.3.4
     convict: ^6.0.1
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
@@ -19906,7 +19920,7 @@ fsevents@^1.2.7:
     audit-filter: ^0.5.0
     aws-sdk: ^2.851.0
     bluebird: ^3.7.2
-    chai: ^4.2.0
+    chai: ^4.3.4
     chai-as-promised: ^7.1.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -20004,7 +20018,7 @@ fsevents@^1.2.7:
   dependencies:
     audit-filter: ^0.5.0
     bluebird: ^3.7.2
-    chai: ^4.2.0
+    chai: ^4.3.4
     cron: 1.8.2
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -20117,7 +20131,7 @@ fsevents@^1.2.7:
     "@types/sinon": 9.0.8
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    chai: ^4.2.0
+    chai: ^4.3.4
     convict: ^6.0.1
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
@@ -20488,7 +20502,7 @@ fsevents@^1.2.7:
     aws-sdk: ^2.851.0
     bluebird: ^3.7.2
     celebrate: ^10.0.1
-    chai: ^4.2.0
+    chai: ^4.3.4
     chance: ^1.1.7
     class-transformer: ^0.4.0
     class-validator: ^0.12.2
@@ -30530,6 +30544,13 @@ fsevents@^1.2.7:
   version: 1.1.0
   resolution: "pathval@npm:1.1.0"
   checksum: 31c3fb2b0763f357e2cf4bfd398b7423f2875184b2feebadf85854e860a06fb057a485add5450f6661c2282063e62e1eb22abb4e1241a461a3795dae18667fda
+  languageName: node
+  linkType: hard
+
+"pathval@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "pathval@npm:1.1.1"
+  checksum: 81cd01d46cd0cd90fb7a8e0d576f8cb4cbbd0832ed00da14362be32ad79e855cf8ecf7e92fc0c267fdfc2766bd1d8fb3de43a51081e142ffb1fc814958fb8d8f
   languageName: node
   linkType: hard
 
