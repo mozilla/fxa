@@ -122,7 +122,7 @@
     "acorn": "^8.0.1",
     "audit-filter": "^0.5.0",
     "binary-split": "1.0.5",
-    "chai": "^4.2.0",
+    "chai": "^4.3.4",
     "eslint": "^7.17.0",
     "eslint-plugin-fxa": "^2.0.2",
     "fxa-auth-db-mysql": "workspace:*",
