@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { Link, useLocation } from '@reach/router';
+import { Localized, useLocalization } from '@fluent/react';
 
 type ModalProps = {
   className?: string;
@@ -42,6 +43,7 @@ export const Modal = ({
   const modalInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
   const tabFenceRef = useChangeFocusEffect();
   const location = useLocation();
+  const { l10n } = useLocalization();
   useEscKeydownEffect(onDismiss);
 
   return (
@@ -68,7 +70,7 @@ export const Modal = ({
             <button
               data-testid="modal-dismiss"
               onClick={(event) => onDismiss()}
-              title="Close modal"
+              title={l10n.getString('modal-close-title', null, 'Close')}
             >
               <CloseIcon className="w-2 h-2 m-3" role="img" />
             </button>
@@ -79,13 +81,15 @@ export const Modal = ({
             {hasButtons && (
               <div className="flex justify-center mx-auto mt-6 max-w-64">
                 {hasCancelButton && (
-                  <button
-                    className="cta-neutral mx-2 flex-1"
-                    data-testid="modal-cancel"
-                    onClick={(event) => onDismiss()}
-                  >
-                    Cancel
-                  </button>
+                  <Localized id="modal-cancel-button">
+                    <button
+                      className="cta-neutral mx-2 flex-1"
+                      data-testid="modal-cancel"
+                      onClick={(event) => onDismiss()}
+                    >
+                      Cancel
+                    </button>
+                  </Localized>
                 )}
 
                 {route && (
