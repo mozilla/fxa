@@ -6,7 +6,7 @@ import React from 'react';
 import { gql } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAlertBar, useMutation } from '../../lib/hooks';
+import { useAlertBar } from '../../lib/hooks';
 import { useAccount, useLazyRecoveryKeyExists } from '../../models';
 import { logViewEvent } from '../../lib/metrics';
 import AlertBar from '../AlertBar';
@@ -14,8 +14,10 @@ import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { ButtonIconReload } from '../ButtonIcon';
-import { HomePath } from 'fxa-settings/src/constants';
+import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
+import { useAuthClient } from '../../lib/auth';
+import { cache } from '../../lib/cache';
 
 export const DELETE_RECOVERY_KEY_MUTATION = gql`
   mutation deleteRecoveryKey($input: DeleteRecoveryKeyInput!) {
@@ -42,32 +44,38 @@ export const UnitRowRecoveryKey = () => {
     );
   });
 
-  const [deleteRecoveryKey] = useMutation(DELETE_RECOVERY_KEY_MUTATION, {
-    variables: { input: {} },
-    onCompleted: () => {
-      hideModal();
-      alertBar.success(
-        l10n.getString('rk-key-removed', null, 'Account recovery key removed.')
-      );
-      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
-    },
-    onError: (error) => {
-      hideModal();
-      alertBar.error('Your account recovery key could not be removed.', error);
-      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
-    },
-    ignoreResults: true,
-    update: (cache) => {
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          recoveryKey() {
-            return false;
+  const deleteRecoveryKey = useAuthClient(
+    (auth, sessionToken) => () => auth.deleteRecoveryKey(sessionToken),
+    {
+      onSuccess: () => {
+        cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
+          fields: {
+            recoveryKey() {
+              return false;
+            },
           },
-        },
-      });
-    },
-  });
+        });
+        hideModal();
+        alertBar.success(
+          l10n.getString(
+            'rk-key-removed',
+            null,
+            'Account recovery key removed.'
+          )
+        );
+        logViewEvent(
+          'flow.settings.account-recovery',
+          'confirm-revoke.success'
+        );
+      },
+      onError: () => {
+        hideModal();
+        alertBar.error(l10n.getString('rk-remove-error'));
+        logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
+      },
+    }
+  );
 
   return (
     <UnitRow
@@ -129,7 +137,7 @@ export const UnitRowRecoveryKey = () => {
           <Modal
             onDismiss={hideModal}
             onConfirm={() => {
-              deleteRecoveryKey();
+              deleteRecoveryKey.execute();
               logViewEvent(
                 'flow.settings.account-recovery',
                 'confirm-revoke.submit'

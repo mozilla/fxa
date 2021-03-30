@@ -6,7 +6,7 @@ import React from 'react';
 import { gql } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAlertBar, useMutation } from '../../lib/hooks';
+import { useAlertBar } from '../../lib/hooks';
 import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
@@ -15,6 +15,8 @@ import { useAccount, useLazyTotpStatus } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
+import { useAuthClient } from '../../lib/auth';
+import { cache } from '../../lib/cache';
 
 const route = `${HomePath}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
@@ -51,40 +53,39 @@ export const UnitRowTwoStepAuth = () => {
     );
   });
 
-  const [disableTwoStepAuth] = useMutation(DELETE_TOTP_MUTATION, {
-    variables: { input: {} },
-    onCompleted: () => {
-      hideModal();
-      alertBar.success(
-        l10n.getString(
-          'tfa-row-disabled',
-          null,
-          'Two-step authentication disabled.'
-        )
-      );
-    },
-    onError: () => {
-      hideModal();
-      alertBar.error(
-        l10n.getString(
-          'tfa-row-cannot-disable',
-          null,
-          'Two-step authentication could not be disabled.'
-        )
-      );
-    },
-    ignoreResults: true,
-    update: (cache) => {
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          totp() {
-            return { exists: false, verified: false };
+  const disableTwoStepAuth = useAuthClient(
+    (auth, sessionToken) => () => auth.deleteTotpToken(sessionToken),
+    {
+      onSuccess: () => {
+        cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
+          fields: {
+            totp() {
+              return { exists: false, verified: false };
+            },
           },
-        },
-      });
-    },
-  });
+        });
+        hideModal();
+        alertBar.success(
+          l10n.getString(
+            'tfa-row-disabled',
+            null,
+            'Two-step authentication disabled.'
+          )
+        );
+      },
+      onError: () => {
+        hideModal();
+        alertBar.error(
+          l10n.getString(
+            'tfa-row-cannot-disable',
+            null,
+            'Two-step authentication could not be disabled.'
+          )
+        );
+      },
+    }
+  );
 
   const conditionalUnitRowProps =
     exists && verified
@@ -157,7 +158,7 @@ export const UnitRowTwoStepAuth = () => {
         >
           <Modal
             onDismiss={hideModal}
-            onConfirm={disableTwoStepAuth}
+            onConfirm={() => disableTwoStepAuth.execute()}
             headerId="two-step-auth-disable-header"
             descId="two-step-auth-disable-description"
             confirmText={l10n.getString(

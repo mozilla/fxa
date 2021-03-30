@@ -2,14 +2,16 @@ import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { gql } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { useAlertBar, useMutation } from '../../lib/hooks';
+import { useAlertBar } from '../../lib/hooks';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { HomePath } from 'fxa-settings/src/constants';
+import { HomePath } from '../../constants';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import AlertBar from '../AlertBar';
 import { isEmailValid } from 'fxa-shared/email/helpers';
+import { useAuthClient } from '../../lib/auth';
+import { cache } from '../../lib/cache';
 
 export const CREATE_SECONDARY_EMAIL_MUTATION = gql`
   mutation createSecondaryEmail($input: EmailInput!) {
@@ -31,43 +33,47 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const goHome = () =>
     navigate(HomePath + '#secondary-email', { replace: true });
 
-  const [createSecondaryEmail] = useMutation(CREATE_SECONDARY_EMAIL_MUTATION, {
-    onError: (error) => {
-      if (error.graphQLErrors?.length) {
-        setErrorText(error.message);
-      } else {
-        alertBar.error(
-          l10n.getString(
-            'add-secondary-email-error',
-            null,
-            'There was a problem creating this email.'
-          )
-        );
-        // TODO: old settings has no equivalent metrics event here
-      }
-    },
-    update: (cache) => {
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          emails(existingEmails) {
-            return [
-              ...existingEmails,
-              {
-                email: email!,
-                isPrimary: false,
-                verified: false,
-              },
-            ];
-          },
-        },
+  const createSecondaryEmail = useAuthClient(
+    (auth, sessionToken) => async (email: string) => {
+      await auth.recoveryEmailCreate(sessionToken, email, {
+        verificationMethod: 'email-otp',
       });
+      return email;
     },
-    onCompleted: () => {
-      navigate('emails/verify', { state: { email }, replace: true });
-      // TODO: old settings has no equivalent metrics event here
-    },
-  });
+    {
+      onSuccess: (email) => {
+        cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
+          fields: {
+            emails(existingEmails) {
+              return [
+                ...existingEmails,
+                {
+                  email: email!,
+                  isPrimary: false,
+                  verified: false,
+                },
+              ];
+            },
+          },
+        });
+        navigate('emails/verify', { state: { email }, replace: true });
+      },
+      onError: (error) => {
+        if (error.errno) {
+          setErrorText(error.message);
+        } else {
+          alertBar.error(
+            l10n.getString(
+              'add-secondary-email-error',
+              null,
+              'There was a problem creating this email.'
+            )
+          );
+        }
+      },
+    }
+  );
 
   const checkEmail = useCallback(
     (ev: ChangeEvent<HTMLInputElement>) => {
@@ -93,9 +99,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
           onSubmit={(ev) => {
             ev.preventDefault();
             if (inputRef.current) {
-              createSecondaryEmail({
-                variables: { input: { email } },
-              });
+              createSecondaryEmail.execute(email);
               logViewEvent('settings.emails', 'submit');
             }
           }}

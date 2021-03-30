@@ -957,7 +957,11 @@ export default class AuthClient {
     options: {
       metricsContext?: MetricsContext;
     } = {}
-  ) {
+  ): Promise<{
+    qrCodeUrl: string;
+    secret: string;
+    recoveryCodes: string[];
+  }> {
     return this.sessionPost('/totp/create', sessionToken, options);
   }
 
@@ -984,7 +988,9 @@ export default class AuthClient {
     });
   }
 
-  async replaceRecoveryCodes(sessionToken: hexstring) {
+  async replaceRecoveryCodes(
+    sessionToken: hexstring
+  ): Promise<{ recoveryCodes: string[] }> {
     return this.sessionGet('/recoveryCodes', sessionToken);
   }
 

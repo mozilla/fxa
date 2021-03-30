@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 yarn build
-SKIP_PREFLIGHT_CHECK=true yarn test
+# SKIP_PREFLIGHT_CHECK=true yarn test
 
 mkdir -p config
 
