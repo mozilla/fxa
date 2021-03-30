@@ -5,17 +5,18 @@
 import { gql } from '@apollo/client';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useEffect, useState } from 'react';
+import { useLocalization, Localized } from '@fluent/react';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+
+import { useAuthClient } from '../../lib/auth';
+import { alertTextExternal } from '../../lib/cache';
+import { useAlertBar } from '../../lib/hooks';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../DataBlock';
 import { HomePath } from '../../constants';
 import { useSession } from '../../models';
-import { alertTextExternal } from '../../lib/cache';
-import { useAlertBar } from '../../lib/hooks';
 import { AlertBar } from '../AlertBar';
-import { useLocalization, Localized } from '@fluent/react';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useAuthClient } from '../../lib/auth';
 
 export const CHANGE_RECOVERY_CODES_MUTATION = gql`
   mutation changeRecoveryCodes($input: ChangeRecoveryCodesInput!) {

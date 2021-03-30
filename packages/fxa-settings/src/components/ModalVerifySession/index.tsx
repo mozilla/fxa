@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
+import { Localized, useLocalization } from '@fluent/react';
 import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
 import InputText from '../InputText';
@@ -10,7 +11,7 @@ import { ApolloError, gql } from '@apollo/client';
 import { useAccount, useSession } from '../../models';
 import { useAuthClient } from '../../lib/auth';
 import { cache } from '../../lib/cache';
-import { Localized, useLocalization } from '@fluent/react';
+
 
 type ModalProps = {
   onDismiss: () => void;
