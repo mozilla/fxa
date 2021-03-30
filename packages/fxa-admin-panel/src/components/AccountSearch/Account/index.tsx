@@ -107,12 +107,8 @@ export const DangerZone = () => {
         Locking this account will disable the user from logging in. Unlocking
         will toggle this state.
         <br />
-        <button className="danger-zone-button" onClick={handleDelete}>
-          Lock Account
-        </button>
-        <button className="danger-zone-button" onClick={handleDelete}>
-          Unlock Account
-        </button>
+        <button className="danger-zone-button">Lock Account</button>
+        <button className="danger-zone-button">Unlock Account</button>
       </p>
       <h2>Force Password Change</h2>
       <p className="danger-zone-info">
