@@ -72,17 +72,24 @@ export const ClearButton = ({
   );
 };
 
-export const DangerZone = () => {
-  const [deleteAccount] = useMutation(DELETE_ACCOUNT_BY_EMAIL);
+export const DangerZone = ({ primaryEmail }: { primaryEmail: string }) => {
+  const [deleteAccount] = useMutation(DELETE_ACCOUNT_BY_EMAIL, {
+    onCompleted: () => {
+      window.alert('The account ' + primaryEmail + ' has now been deleted.');
+    },
+    onError: () => {
+      window.alert(
+        'There was an error in deleting account: ' + primaryEmail + '.'
+      );
+    },
+  });
 
   const handleDelete = () => {
-    var now = new Date();
     window.confirm('Are you sure? This cannot be undone.');
     let email = window.prompt(
       'Enter the email of the user account to be deleted.'
     );
-    deleteAccount({ variables: { email } });
-    window.alert('The account ' + email + ' has now been deleted.');
+    deleteAccount({ variables: { email: primaryEmail } });
 
     return;
   };
@@ -215,7 +222,7 @@ export const Account = ({
           </li>
         )}
         <hr />
-        <DangerZone />
+        <DangerZone primaryEmail={primaryEmail.email} />
       </ul>
     </section>
   );
