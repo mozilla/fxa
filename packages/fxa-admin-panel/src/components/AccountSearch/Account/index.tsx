@@ -38,6 +38,12 @@ export const CLEAR_BOUNCES_BY_EMAIL = gql`
   }
 `;
 
+export const DELETE_ACCOUNT_BY_EMAIL = gql`
+  mutation deleteAccountByEmail($email: String!) {
+    deleteAccount(email: $email)
+  }
+`;
+
 export const ClearButton = ({
   emails,
   onCleared,
@@ -67,8 +73,17 @@ export const ClearButton = ({
 };
 
 export const DangerZone = () => {
-  const alertWindow = () => {
-    window.alert('Implementation coming soon.');
+  const [deleteAccount] = useMutation(DELETE_ACCOUNT_BY_EMAIL);
+
+  const handleDelete = () => {
+    var now = new Date();
+    window.confirm('Are you sure? This cannot be undone.');
+    let email = window.prompt(
+      'Enter the email of the user account to be deleted.'
+    );
+    deleteAccount({ variables: { email } });
+    window.alert('The account ' + email + ' has now been deleted.');
+
     return;
   };
 
@@ -83,7 +98,7 @@ export const DangerZone = () => {
       <p className="danger-zone-info">
         Once you delete an account, there is no going back. Please be certain.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
+        <button className="danger-zone-button" onClick={handleDelete}>
           Delete Account
         </button>
       </p>
@@ -92,10 +107,10 @@ export const DangerZone = () => {
         Locking this account will disable the user from logging in. Unlocking
         will toggle this state.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
+        <button className="danger-zone-button" onClick={handleDelete}>
           Lock Account
         </button>
-        <button className="danger-zone-button" onClick={alertWindow}>
+        <button className="danger-zone-button" onClick={handleDelete}>
           Unlock Account
         </button>
       </p>
@@ -103,9 +118,7 @@ export const DangerZone = () => {
       <p className="danger-zone-info">
         Force a password change the next time this account logs in.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
-          Force Change
-        </button>
+        <button className="danger-zone-button">Force Change</button>
       </p>
     </li>
   );

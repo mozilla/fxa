@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { UseGuards } from '@nestjs/common';
-import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Query,
+  ResolveField,
+  Resolver,
+  Root,
+} from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { CurrentUser } from '../../auth/auth-header.decorator';
@@ -94,5 +101,15 @@ export class AccountResolver {
       .query()
       .select(EMAIL_COLUMNS)
       .where('uid', uidBuffer);
+  }
+
+  @Mutation((returns) => Boolean)
+  public async deleteAccount(
+    @Args('email') email: string,
+    @CurrentUser() user: string
+  ) {
+    const result = await this.db.account.query().delete().where('email', email);
+    this.log.info('deleteAccount', { user, email, success: result });
+    return !!result;
   }
 }
