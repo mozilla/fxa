@@ -27,7 +27,7 @@ import { StripeHelper } from './stripe';
 function hoursBeforeInSeconds(hours: number): number {
   const date = new Date();
   date.setHours(date.getHours() - hours);
-  return date.getTime() / 1000;
+  return Math.round(date.getTime() / 1000);
 }
 
 /**
@@ -92,7 +92,9 @@ export class PaypalProcessor {
   private async cancelInvoiceSubscription(invoice: Stripe.Invoice) {
     return Promise.all([
       this.stripeHelper.markUncollectible(invoice),
-      this.stripeHelper.cancelSubscription(invoice.subscription as string),
+      this.stripeHelper.cancelSubscription(
+        (invoice.subscription as Stripe.Subscription).id
+      ),
     ]);
   }
 
@@ -310,6 +312,12 @@ export class PaypalProcessor {
     // 4
     const inGracePeriod = this.inGracePeriod(invoice);
     if (!inGracePeriod) {
+      this.log.info('processInvoice', {
+        message: 'Cancelling invoice due to grace period.',
+        invoiceId: invoice.id,
+        created: invoice.created,
+        due: invoice.due_date,
+      });
       return this.cancelInvoiceSubscription(invoice);
     }
 
@@ -341,11 +349,15 @@ export class PaypalProcessor {
       lte: invoiceAgeInSeconds,
     });
     for await (const invoice of invoices) {
-      this.log.info('processInvoice', { invoiceId: invoice.id });
+      this.log.info('processInvoice.processing', { invoiceId: invoice.id });
       try {
         await this.attemptInvoiceProcessing(invoice);
       } catch (err) {
-        this.log.error('processInvoice', { err, invoiceId: invoice.id });
+        this.log.error('processInvoice', {
+          err,
+          nvpData: err.data,
+          invoiceId: invoice.id,
+        });
         reportSentryError(err);
       }
     }
