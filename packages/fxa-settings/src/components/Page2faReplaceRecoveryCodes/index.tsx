@@ -44,11 +44,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
 
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
   const [changeRecoveryCodes] = useMutation(CHANGE_RECOVERY_CODES_MUTATION, {
     onCompleted: (x) => {
       setRecoveryCodes(x.changeRecoveryCodes.recoveryCodes);
-      setLoading(true);
     },
     onError: () => {
       alertBar.error(
@@ -82,8 +80,11 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
           mobile device.
         </Localized>
         <div className="mt-6 flex flex-col items-center h-auto justify-between">
-          {!loading && <LoadingSpinner />}
-          {loading && <DataBlock value={recoveryCodes}></DataBlock>}
+          {recoveryCodes.length > 0 ? (
+            <DataBlock value={recoveryCodes} />
+          ) : (
+            <LoadingSpinner />
+          )}
         </div>
       </div>
       <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">
