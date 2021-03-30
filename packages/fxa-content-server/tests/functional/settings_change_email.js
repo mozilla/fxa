@@ -19,6 +19,7 @@ let secondaryEmail;
 let newPrimaryEmail;
 
 const {
+  addAndVerifySecondaryEmail,
   clearBrowserState,
   click,
   createEmail,
@@ -27,8 +28,8 @@ const {
   fillOutEmailFirstSignIn,
   fillOutSignInUnblock,
   fillOutSignUpCode,
-  getEmailCode,
   openPage,
+  signOut,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -52,31 +53,7 @@ registerSuite('settings change email', {
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(click(selectors.EMAIL.MENU_BUTTON))
 
-        // add secondary email, verify
-        .then(click(selectors.EMAIL.INPUT_LABEL))
-        .then(type(selectors.EMAIL.INPUT, secondaryEmail))
-        .then(click(selectors.EMAIL.ADD_BUTTON))
-        .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.BACK_BUTTON))
-        .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-        // Awkwardly, to get back to the secondary email code input, we need to click
-        // the 'resend email' link.
-        .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.RESEND_EMAIL))
-        .then(getEmailCode(secondaryEmail, 0))
-        .then((code) => {
-          return this.remote
-            .then(
-              click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL)
-            )
-            .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD))
-            .then(
-              type(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD, code)
-            )
-            .then(
-              click(
-                selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_SUBMIT_BUTTON
-              )
-            );
-        })
+        .then(addAndVerifySecondaryEmail(secondaryEmail))
         .then(testSuccessWasShown())
 
         // set new primary email
@@ -92,20 +69,7 @@ registerSuite('settings change email', {
     'can change primary email and login': function () {
       return (
         this.remote
-          // sign out
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-            )
-          )
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(signOut())
 
           // sign in with old primary email fails
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -141,19 +105,7 @@ registerSuite('settings change email', {
           .then(fillOutChangePassword(PASSWORD, NEW_PASSWORD))
 
           // sign out and fails login with old password
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-            )
-          )
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(signOut())
           .then(fillOutEmailFirstSignIn(secondaryEmail, PASSWORD))
           .then(visibleByQSA(selectors.SIGNIN_PASSWORD.TOOLTIP))
 
@@ -177,19 +129,7 @@ registerSuite('settings change email', {
           .then(fillOutChangePassword(PASSWORD, NEW_PASSWORD))
 
           // sign out and fails login with old password
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-            )
-          )
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(signOut())
           .then(fillOutEmailFirstSignIn(secondaryEmail, PASSWORD))
           .then(visibleByQSA(selectors.SIGNIN_PASSWORD.TOOLTIP))
 
@@ -214,19 +154,7 @@ registerSuite('settings change email', {
           .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
 
           // sign out and login with new password
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-            )
-          )
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(signOut())
           .then(fillOutEmailFirstSignIn(email, NEW_PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
@@ -257,32 +185,7 @@ registerSuite('settings change email', {
 
           // Verify that user can add the same primary email as secondary as used in the previous account
           .then(click(selectors.EMAIL.MENU_BUTTON))
-          // add secondary email, verify
-          .then(click(selectors.EMAIL.INPUT_LABEL))
-          .then(type(selectors.EMAIL.INPUT, email))
-          .then(click(selectors.EMAIL.ADD_BUTTON))
-          .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.BACK_BUTTON))
-          .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-          // Awkwardly, to get back to the secondary email code input, we need to click
-          // the 'resend email' link.
-          .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.RESEND_EMAIL))
-          .then(getEmailCode(email, 4)) // TODO: is 1 the right email index?
-          .then((code) => {
-            return this.remote
-              .then(
-                click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL)
-              )
-              .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD))
-              .then(
-                type(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD, code)
-              )
-              .then(
-                click(
-                  selectors.SETTINGS_V2.SECONDARY_EMAIL
-                    .VERIFY_FORM_SUBMIT_BUTTON
-                )
-              );
-          })
+          .then(addAndVerifySecondaryEmail(email))
           .then(testSuccessWasShown())
       );
     },
@@ -306,34 +209,7 @@ registerSuite('settings change email - unblock', {
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(click(selectors.EMAIL.MENU_BUTTON))
 
-        // add secondary email, verify
-        .then(click(selectors.EMAIL.INPUT_LABEL))
-        .then(type(selectors.EMAIL.INPUT, newPrimaryEmail))
-        .then(click(selectors.EMAIL.ADD_BUTTON))
-        .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.BACK_BUTTON))
-        .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-
-        // this may not work from the front page, so go back.
-        // Awkwardly, to get back to the secondary email code input, we need to click
-        // the 'resend email' link.
-        .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.RESEND_EMAIL))
-        // TODO: this might be worth moving into lib/helpers. idk.
-        .then(getEmailCode(newPrimaryEmail, 0))
-        .then((code) => {
-          return this.remote
-            .then(
-              click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL)
-            )
-            .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD))
-            .then(
-              type(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD, code)
-            )
-            .then(
-              click(
-                selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_SUBMIT_BUTTON
-              )
-            );
-        })
+        .then(addAndVerifySecondaryEmail(newPrimaryEmail))
         .then(testSuccessWasShown())
 
         // set new primary email
@@ -344,19 +220,7 @@ registerSuite('settings change email - unblock', {
         .then(visibleByQSA(selectors.EMAIL.SUCCESS))
 
         // sign out
-        .then(
-          click(
-            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-          )
-        )
-        .then(
-          click(
-            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-            selectors.ENTER_EMAIL.HEADER
-          )
-        )
-        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+        .then(signOut())
     );
   },
 
