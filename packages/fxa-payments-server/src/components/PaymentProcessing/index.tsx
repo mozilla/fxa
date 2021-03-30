@@ -4,12 +4,12 @@ import { Localized } from '@fluent/react';
 import { LoadingSpinner } from '../LoadingSpinner';
 import SubscriptionTitle from '../SubscriptionTitle';
 import PaymentLegalBlurb from '../PaymentLegalBlurb';
-import { ProviderType } from 'fxa-payments-server/src/lib/PaymentProvider';
+import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 import './index.scss';
 
 export type PaymentProcessingProps = {
-  provider?: ProviderType;
+  provider?: PaymentProvider;
   className?: string;
 };
 

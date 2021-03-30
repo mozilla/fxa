@@ -1,5 +1,5 @@
 import { PaypalPaymentError } from 'fxa-shared/subscriptions/types';
-import { ProviderType } from '../lib/PaymentProvider';
+import { PaymentProvider } from '../lib/PaymentProvider';
 
 export type {
   PlanInterval,
@@ -77,7 +77,7 @@ export type Customer = {
   exp_month?: string;
   exp_year?: string;
   last4?: string;
-  payment_provider?: ProviderType;
+  payment_provider?: PaymentProvider;
   payment_type?: string;
   paypal_payment_error?: PaypalPaymentError;
   subscriptions: Array<CustomerSubscription>;

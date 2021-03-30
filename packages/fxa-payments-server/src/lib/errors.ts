@@ -48,7 +48,6 @@ const errorToErrorMessageMap: { [key: string]: string } = {
   'Funding source country does not match plan currency.':
     'country-currency-mismatch',
   'Changing currencies is not permitted.': 'currency-currency-mismatch',
-  returning_paypal_customer_error: 'returning-paypal-customer-error',
   no_subscription_upgrades: 'no-subscription-upgrades',
 };
 

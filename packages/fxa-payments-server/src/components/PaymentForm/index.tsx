@@ -4,12 +4,7 @@ import {
   withLocalization,
   WithLocalizationProps,
 } from '@fluent/react';
-import {
-  Stripe,
-  StripeElements,
-  StripeCardElement,
-  StripeElementsOptions,
-} from '@stripe/stripe-js';
+import { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
 import {
   CardElement,
   Elements,
@@ -39,18 +34,41 @@ import { Plan, Customer } from '../../store/types';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import './index.scss';
-import * as PaymentProvider from '../../lib/PaymentProvider';
+import { localeToStripeLocale, STRIPE_ELEMENT_STYLES } from '../../lib/stripe';
+import {
+  hasPaymentProvider,
+  isExistingCustomer,
+  isExistingStripeCustomer,
+} from '../../lib/customer';
+import {
+  getPaymentProviderMappedVal,
+  isPaypal,
+  PaymentProviders,
+} from '../../lib/PaymentProvider';
+import { PaymentProviderDetails } from '../PaymentProviderDetails';
 
-export type PaymentSubmitResult = {
+export type StripePaymentSubmitResult = {
   stripe: Stripe;
   elements: StripeElements;
   name: string;
   card: StripeCardElement | null;
   idempotencyKey: string;
 };
-export type PaymentUpdateResult = PaymentSubmitResult & {
+export type StripePaymentUpdateResult = StripePaymentSubmitResult & {
   card: StripeCardElement;
 };
+export type PaypalPaymentSubmitResult = {
+  priceId: string;
+  idempotencyKey: string;
+};
+
+export type StripeSubmitHandler = (x: StripePaymentSubmitResult) => void;
+export type StripeUpdateHandler = (x: StripePaymentUpdateResult) => void;
+/**
+ * Note that this handler is for creating additional subscriptions.  It is
+ * _not_ the handler for creating a Billing Agreement & subscription.
+ */
+export type PaypalSubmitHandler = (x: PaypalPaymentSubmitResult) => void;
 
 export type BasePaymentFormProps = {
   inProgress?: boolean;
@@ -59,7 +77,7 @@ export type BasePaymentFormProps = {
   customer?: Customer | null;
   getString?: Function;
   onCancel?: () => void;
-  onSubmit: (submitResult: PaymentSubmitResult | PaymentUpdateResult) => void;
+  onSubmit: StripeSubmitHandler | StripeUpdateHandler | PaypalSubmitHandler;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
   onMounted: Function;
@@ -83,10 +101,7 @@ export const PaymentForm = ({
   onChange: onChangeProp,
   submitNonce,
 }: BasePaymentFormProps) => {
-  const isExistingStripeCustomer =
-    customer &&
-    PaymentProvider.isStripe(customer?.payment_provider) &&
-    customer.subscriptions.length > 0;
+  const isStripeCustomer = isExistingStripeCustomer(customer);
 
   const stripe = useStripe();
   const elements = useElements();
@@ -114,8 +129,25 @@ export const PaymentForm = ({
   const shouldAllowSubmit = !nonceMatch && !inProgress && validator.allValid();
   const showProgressSpinner = nonceMatch || inProgress;
 
-  const onSubmit = useCallback(
-    async (ev) => {
+  const payButtonL10nId = (c: Customer) =>
+    hasPaymentProvider(c) && isPaypal(c.payment_provider)
+      ? 'payment-pay-with-paypal-btn'
+      : 'payment-pay-btn';
+
+  const onPaypalFormSubmit = useCallback(
+    async (ev: React.FormEvent<HTMLFormElement>) => {
+      ev.preventDefault();
+      setLastSubmitNonce(submitNonce);
+      (onSubmitForParent as PaypalSubmitHandler)({
+        priceId: plan!.plan_id,
+        idempotencyKey: submitNonce,
+      });
+    },
+    [onSubmitForParent, submitNonce]
+  );
+
+  const onStripeFormSubmit = useCallback(
+    async (ev: React.FormEvent<HTMLFormElement>) => {
       ev.preventDefault();
       if (!stripe || !elements || !shouldAllowSubmit) {
         return;
@@ -124,8 +156,8 @@ export const PaymentForm = ({
       const { name } = validator.getValues();
       const card = elements.getElement(CardElement);
       /* istanbul ignore next - card should exist unless there was an external stripe loading error, handled above */
-      if (isExistingStripeCustomer || card) {
-        onSubmitForParent({
+      if (isStripeCustomer || card) {
+        (onSubmitForParent as StripeSubmitHandler & StripeUpdateHandler)({
           stripe,
           elements,
           name,
@@ -137,74 +169,64 @@ export const PaymentForm = ({
     [validator, onSubmitForParent, stripe, submitNonce, shouldAllowSubmit]
   );
 
+  const onSubmit = getPaymentProviderMappedVal(customer, {
+    [PaymentProviders.stripe]: onStripeFormSubmit,
+    [PaymentProviders.paypal]: onPaypalFormSubmit,
+  });
+
   const { navigatorLanguages } = useContext(AppContext);
 
-  const STRIPE_ELEMENT_STYLES = {
-    style: {
-      base: {
-        fontFamily:
-          'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-        fontSize: '16px',
-        fontWeight: '500',
-      },
-      invalid: {
-        color: '#0c0c0d',
-      },
-    },
-  };
-
   let termsOfServiceURL, privacyNoticeURL;
-  if (confirm && plan) {
+  if (plan && confirm) {
     ({ termsOfServiceURL, privacyNoticeURL } = productDetailsFromPlan(
       plan,
       navigatorLanguages
     ));
   }
-  const paymentSource = isExistingStripeCustomer ? (
-    <div className="card-details" data-testid="card-details">
-      <Localized
-        id="sub-update-card-ending"
-        vars={{
-          last: (customer as Customer).last4!,
-        }}
-      >
-        <div
-          className={`new-sub c-card unbranded ${customer?.brand?.toLowerCase()}`}
+  const paymentSource =
+    plan && isExistingCustomer(customer) ? (
+      <div className="pricing-and-saved-payment">
+        <Localized
+          id={`plan-price-${plan.interval}`}
+          vars={{
+            amount: getLocalizedCurrency(plan.amount, plan.currency),
+            intervalCount: plan.interval_count!,
+          }}
         >
-          Card ending {customer?.last4}
-        </div>
-      </Localized>
-    </div>
-  ) : (
-    <>
-      <Localized id="payment-name" attrs={{ placeholder: true, label: true }}>
-        <Input
-          type="text"
-          name="name"
-          label="Name as it appears on your card"
-          data-testid="name"
-          placeholder="Full Name"
-          required
-          spellCheck={false}
-          onValidate={(value, focused, props) =>
-            validateName(value, focused, props, getString)
-          }
-        />
-      </Localized>
+          <div className="pricing"></div>
+        </Localized>
+        <PaymentProviderDetails customer={customer!} />
+      </div>
+    ) : (
+      <>
+        <Localized id="payment-name" attrs={{ placeholder: true, label: true }}>
+          <Input
+            type="text"
+            name="name"
+            label="Name as it appears on your card"
+            data-testid="name"
+            placeholder="Full Name"
+            required
+            spellCheck={false}
+            onValidate={(value, focused, props) =>
+              validateName(value, focused, props, getString)
+            }
+          />
+        </Localized>
 
-      <Localized id="payment-cc" attrs={{ label: true }}>
-        <StripeElement
-          component={CardElement}
-          name="creditCard"
-          label="Your card"
-          className="input-row input-row--xl"
-          options={STRIPE_ELEMENT_STYLES}
-          getString={getString}
-          required
-        />
-      </Localized>
-    </>
-  );
+        <Localized id="payment-cc" attrs={{ label: true }}>
+          <StripeElement
+            component={CardElement}
+            name="creditCard"
+            label="Your card"
+            className="input-row input-row--xl"
+            options={STRIPE_ELEMENT_STYLES}
+            getString={getString}
+            required
+          />
+        </Localized>
+      </>
+    );
 
   return (
     <Form
@@ -287,7 +309,7 @@ export const PaymentForm = ({
                   &nbsp;
                 </span>
               ) : (
-                <Localized id="payment-pay-btn">
+                <Localized id={payButtonL10nId(customer!)}>
                   <span className="lock">Pay now</span>
                 </Localized>
               )}
@@ -340,60 +362,5 @@ const validateName: OnValidateFunction = (
     error: !valid && !focused ? errorMsg : null,
   };
 };
-
-/**
- * Stripe locales do not exactly match FxA locales. Mostly language tags
- * without subtags. This function should convert / normalize as necessary.
- */
-type StripeLocale = StripeElementsOptions['locale'];
-export const localeToStripeLocale = (locale?: string): StripeLocale => {
-  if (locale) {
-    if (locale in stripeLocales) {
-      return locale as StripeLocale;
-    }
-    const lang = locale.split('-').shift();
-    if (lang && lang in stripeLocales) {
-      return lang as StripeLocale;
-    }
-  }
-  return 'auto';
-};
-
-// TODO: Move to fxa-shared/l10n?
-// see also: https://stripe.com/docs/js/appendix/supported_locales
-enum stripeLocales {
-  'ar',
-  'bg',
-  'cs',
-  'da',
-  'de',
-  'el',
-  'et',
-  'en',
-  'es',
-  'fi',
-  'fr',
-  'he',
-  'hu',
-  'id',
-  'it',
-  'ja',
-  'lt',
-  'lv',
-  'ms',
-  'mt',
-  'nb',
-  'nl',
-  'pl',
-  'pt-BR',
-  'pt',
-  'ro',
-  'ru',
-  'sk',
-  'sl',
-  'sv',
-  'tk',
-  'zh',
-}
 
 export default withLocalization(WrappedPaymentForm);

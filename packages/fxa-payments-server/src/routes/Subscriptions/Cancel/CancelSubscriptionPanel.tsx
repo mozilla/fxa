@@ -17,14 +17,14 @@ import { SelectorReturns } from '../../../store/selectors';
 import { SubscriptionsProps } from '../index';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import * as Amplitude from '../../../lib/amplitude';
-import { ProviderType } from 'fxa-payments-server/src/lib/PaymentProvider';
+import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 export type CancelSubscriptionPanelProps = {
   plan: Plan;
   cancelSubscription: SubscriptionsProps['cancelSubscription'];
   customerSubscription: CustomerSubscription;
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
-  paymentProvider: ProviderType | undefined;
+  paymentProvider: PaymentProvider | undefined;
 };
 
 const CancelSubscriptionPanel = ({

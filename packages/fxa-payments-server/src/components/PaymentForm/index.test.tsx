@@ -19,7 +19,7 @@ import {
   MOCK_CUSTOMER,
 } from '../../lib/test-utils';
 
-import PaymentForm, { PaymentFormProps, localeToStripeLocale } from './index';
+import PaymentForm, { PaymentFormProps } from './index';
 import { getLocalizedCurrency } from '../../lib/formats';
 
 const findMockPlan = (planId: string): Plan => {
@@ -76,21 +76,6 @@ const Subject = ({
     />
   );
 };
-
-describe('localeToStripeLocale', () => {
-  it('handles known Stripe locales as expected', () => {
-    expect(localeToStripeLocale('ar')).toEqual('ar');
-  });
-  it('handles locales with subtags as expected', () => {
-    expect(localeToStripeLocale('en-GB')).toEqual('en');
-  });
-  it('handles empty locales as "auto"', () => {
-    expect(localeToStripeLocale()).toEqual('auto');
-  });
-  it('handles unknown Stripe locales as "auto"', () => {
-    expect(localeToStripeLocale('xx-pirate')).toEqual('auto');
-  });
-});
 
 it('renders all expected default fields and elements', () => {
   const { container, queryAllByTestId, getByTestId } = render(<Subject />);
@@ -499,12 +484,12 @@ it('does not call onSubmit if somehow submitted while in progress', async () => 
 describe('with existing card', () => {
   it('renders correctly', () => {
     const { queryByTestId, queryByText } = render(
-      <Subject customer={MOCK_CUSTOMER} />
+      <Subject customer={MOCK_CUSTOMER} plan={MOCK_PLAN} />
     );
-    expect(queryByTestId('card-details')).toBeInTheDocument();
+    expect(queryByTestId('card-logo-and-last-four')).toBeInTheDocument();
     expect(queryByTestId('name')).not.toBeInTheDocument();
     expect(
-      queryByText(`Card ending ${MOCK_CUSTOMER.last4}`)
+      queryByText(`Card ending in ${MOCK_CUSTOMER.last4}`)
     ).toBeInTheDocument();
   });
 
@@ -518,9 +503,41 @@ describe('with existing card', () => {
   it('calls the submit handler', async () => {
     const onSubmit = jest.fn();
     const { getByTestId } = render(
-      <Subject customer={MOCK_CUSTOMER} onSubmit={onSubmit} />
+      <Subject
+        customer={MOCK_CUSTOMER}
+        plan={MOCK_PLAN}
+        confirm={false}
+        onSubmit={onSubmit}
+      />
     );
 
+    fireEvent.click(getByTestId('submit'));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('with existing PayPal billing agreement', () => {
+  it('renders correctly', () => {
+    const { queryByTestId } = render(
+      <Subject
+        customer={{ ...MOCK_CUSTOMER, payment_provider: 'paypal' }}
+        plan={MOCK_PLAN}
+      />
+    );
+    expect(queryByTestId('card-logo-and-last-four')).not.toBeInTheDocument();
+    expect(queryByTestId('paypal-logo')).toBeInTheDocument();
+  });
+
+  it('calls the submit handler', async () => {
+    const onSubmit = jest.fn();
+    const { getByTestId } = render(
+      <Subject
+        customer={{ ...MOCK_CUSTOMER, payment_provider: 'paypal' }}
+        plan={MOCK_PLAN}
+        confirm={false}
+        onSubmit={onSubmit}
+      />
+    );
     fireEvent.click(getByTestId('submit'));
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });

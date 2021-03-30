@@ -21,7 +21,7 @@ export const PaymentProviderDetails = ({
           <p
             data-testid="card-logo-and-last-four"
             className={`c-card ${brand.toLowerCase()}`}
-          ></p>
+          >{`Card ending in ${last4}`}</p>
         </Localized>
       )}
       {Provider.isPaypal(payment_provider) && (
