@@ -20469,7 +20469,7 @@ fsevents@^1.2.7:
     typescript: 3.9.7
     uuid: ^8.3.2
     webpack: ^4.43.0
-    webpack-merge-and-include-globally: ^2.3.3
+    webpack-merge-and-include-globally: ^2.3.4
     webpack-watch-files-plugin: ^1.1.0
   languageName: unknown
   linkType: soft
@@ -40118,16 +40118,16 @@ typescript@~4.1.2:
   languageName: node
   linkType: hard
 
-"webpack-merge-and-include-globally@npm:^2.3.3":
-  version: 2.3.3
-  resolution: "webpack-merge-and-include-globally@npm:2.3.3"
+"webpack-merge-and-include-globally@npm:^2.3.4":
+  version: 2.3.4
+  resolution: "webpack-merge-and-include-globally@npm:2.3.4"
   dependencies:
     es6-promisify: ^6.1.1
     glob: ^7.1.6
     rev-hash: ^3.0.0
   peerDependencies:
     webpack: ">=1.0.0"
-  checksum: f4a4e83e5ca82c63e2bc78fcd2b70cddf529eff39bafd87924403ee56ee4f53324a2e392412a7ec3b7f7f87bac9c5c4ee95d8fe87f7252289042d02d2c734f74
+  checksum: 925afa90d3088e2a5bf21d0b8fbf68419e236b2b0be091737faa1731ec3905cf85a777f62ed0a8d254b9a09cb8ceb9cb1b5933963e46af249d998d93548e7123
   languageName: node
   linkType: hard
 
