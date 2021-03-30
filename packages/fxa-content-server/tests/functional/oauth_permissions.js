@@ -23,7 +23,6 @@ let email;
 
 const {
   click,
-  closeCurrentWindow,
   createEmail,
   createUser,
   fillOutForceAuth,
@@ -35,8 +34,6 @@ const {
   openFxaFromRp: openFxaFromTrustedRp,
   openFxaFromUntrustedRp,
   openPage,
-  openSettingsInNewTab,
-  switchToWindow,
   testElementExists,
   testUrlEquals,
   type,
@@ -181,66 +178,6 @@ registerSuite('oauth permissions for untrusted reliers', {
       );
     },
 
-    'signin with new permission available b/c of new account information': function () {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openFxaFromUntrustedRp('enter-email'))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-          .then(testElementExists(selectors.OAUTH_PERMISSIONS.HEADER))
-          // display name is not available because user has not set their name
-          .then(
-            noSuchElement(selectors.OAUTH_PERMISSIONS.CHECKBOX_DISPLAY_NAME)
-          )
-          .then(
-            click(
-              selectors.OAUTH_PERMISSIONS.SUBMIT,
-              selectors['123DONE'].AUTHENTICATED
-            )
-          )
-
-          .then(testUrlEquals(UNTRUSTED_OAUTH_APP))
-
-          .then(click(selectors['123DONE'].LINK_LOGOUT))
-
-          .then(openSettingsInNewTab())
-          .then(switchToWindow(1))
-
-          .then(
-            click(
-              selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON,
-              selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME
-            )
-          )
-          .then(
-            type(
-              selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME,
-              'test user'
-            )
-          )
-          .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
-          .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
-
-          .then(closeCurrentWindow())
-
-          // user is already signed in, does not need to enter their password.
-          .then(click(selectors['123DONE'].BUTTON_SIGNIN))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
-
-          // display name is now available
-          .then(
-            testElementExists(selectors.OAUTH_PERMISSIONS.CHECKBOX_DISPLAY_NAME)
-          )
-          .then(
-            click(
-              selectors.OAUTH_PERMISSIONS.SUBMIT,
-              selectors['123DONE'].AUTHENTICATED
-            )
-          )
-      );
-    },
-
     'signin with additional requested permission': function () {
       return (
         this.remote
@@ -250,6 +187,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 
           // make display_name available from the start
           .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.INPUT_LABEL_DISPLAY_NAME))
           .then(
             type(
               selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME,
@@ -315,6 +253,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 
           // make display_name available from the start
           .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.INPUT_LABEL_DISPLAY_NAME))
           .then(
             type(
               selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME,
