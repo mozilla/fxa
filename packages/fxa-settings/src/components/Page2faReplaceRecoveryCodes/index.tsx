@@ -14,6 +14,7 @@ import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar } from '../../lib/hooks';
 import { AlertBar } from '../AlertBar';
 import { useLocalization, Localized } from '@fluent/react';
+
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useAuthClient } from '../../lib/auth';
 
