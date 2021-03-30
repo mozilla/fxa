@@ -11,10 +11,11 @@ import DataBlock from '../DataBlock';
 import { HomePath } from '../../constants';
 import { useSession } from '../../models';
 import { alertTextExternal } from '../../lib/cache';
-import { useAlertBar, useMutation } from '../../lib/hooks';
+import { useAlertBar } from '../../lib/hooks';
 import { AlertBar } from '../AlertBar';
 import { useLocalization, Localized } from '@fluent/react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useAuthClient } from '../../lib/auth';
 
 export const CHANGE_RECOVERY_CODES_MUTATION = gql`
   mutation changeRecoveryCodes($input: ChangeRecoveryCodesInput!) {
@@ -44,23 +45,27 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
 
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
-  const [changeRecoveryCodes] = useMutation(CHANGE_RECOVERY_CODES_MUTATION, {
-    onCompleted: (x) => {
-      setRecoveryCodes(x.changeRecoveryCodes.recoveryCodes);
-    },
-    onError: () => {
-      alertBar.error(
-        l10n.getString(
-          'tfa-replace-code-error',
-          null,
-          'There was a problem replacing your recovery codes.'
-        )
-      );
-    },
-  });
+
+  const changeRecoveryCodes = useAuthClient(
+    (auth, sessionToken) => () => auth.replaceRecoveryCodes(sessionToken),
+    {
+      onSuccess: ({ recoveryCodes }) => {
+        setRecoveryCodes(recoveryCodes);
+      },
+      onError: () => {
+        alertBar.error(
+          l10n.getString(
+            'tfa-replace-code-error',
+            null,
+            'There was a problem replacing your recovery codes.'
+          )
+        );
+      },
+    }
+  );
 
   useEffect(() => {
-    session.verified && changeRecoveryCodes({ variables: { input: {} } });
+    session.verified && changeRecoveryCodes.execute();
   }, [session, changeRecoveryCodes]);
 
   return (

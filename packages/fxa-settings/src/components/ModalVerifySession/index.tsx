@@ -8,7 +8,8 @@ import Modal from '../Modal';
 import InputText from '../InputText';
 import { ApolloError, gql } from '@apollo/client';
 import { useAccount, useSession } from '../../models';
-import { useMutation } from '../../lib/hooks';
+import { useAuthClient } from '../../lib/auth';
+import { cache } from '../../lib/cache';
 
 type ModalProps = {
   onDismiss: () => void;
@@ -51,45 +52,47 @@ export const ModalVerifySession = ({
     },
   });
 
-  const [sendCode] = useMutation(SEND_SESSION_VERIFICATION_CODE_MUTATION, {
-    variables: { input: {} },
-    ignoreResults: true,
-    onError,
-  });
-
-  const [verifySession, { loading }] = useMutation(VERIFY_SESSION_MUTATION, {
-    ignoreResults: true,
-    onError: (error) => {
-      if (error.graphQLErrors?.length) {
+  const sendCode = useAuthClient(
+    (auth, sessionToken) => () => auth.sessionResendVerifyCode(sessionToken),
+    {
+      onError: (error) => {
         setErrorText(error.message);
-      } else {
-        // Bubble up network errors, etc.
-        onError(error);
-      }
-    },
-    update: (cache) => {
-      cache.modify({
-        fields: {
-          session: () => {
-            return { verified: true };
+      },
+    }
+  );
+
+  const verifySession = useAuthClient(
+    (auth, sessionToken) => (code: string) =>
+      auth.sessionVerifyCode(sessionToken, code),
+    {
+      onSuccess: () => {
+        cache.modify({
+          fields: {
+            session: () => {
+              return { verified: true };
+            },
           },
-        },
-      });
-    },
-  });
+        });
+      },
+      onError: (error) => {
+        setErrorText(error.message);
+      },
+    }
+  );
 
   useEffect(() => {
     if (onCompleted && session.verified) {
       onCompleted();
     } else {
-      sendCode();
+      sendCode.execute();
     }
   }, [session, sendCode, onCompleted]);
 
   if (session.verified) {
     return null;
   }
-  const buttonDisabled = !formState.isDirty || !formState.isValid || loading;
+  const buttonDisabled =
+    !formState.isDirty || !formState.isValid || verifySession.loading;
   return (
     <Modal
       data-testid="modal-verify-session"
@@ -100,13 +103,7 @@ export const ModalVerifySession = ({
     >
       <form
         onSubmit={handleSubmit(({ verificationCode }) => {
-          verifySession({
-            variables: {
-              input: {
-                code: verificationCode.trim(),
-              },
-            },
-          });
+          verifySession.execute(verificationCode.trim());
         })}
       >
         <h2
