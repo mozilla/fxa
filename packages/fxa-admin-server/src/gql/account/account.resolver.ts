@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { UseGuards } from '@nestjs/common';
-import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
+import {
+  Args,
+  Query,
+  ResolveField,
+  Resolver,
+  Root,
+  Mutation,
+} from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { CurrentUser } from '../../auth/auth-header.decorator';
@@ -14,7 +21,13 @@ import { Account as AccountType } from '../../gql/model/account.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
 import { SecurityEvents as SecurityEventsType } from '../../gql/model/security-events.model';
 
-const ACCOUNT_COLUMNS = ['uid', 'email', 'emailVerified', 'createdAt'];
+const ACCOUNT_COLUMNS = [
+  'uid',
+  'email',
+  'emailVerified',
+  'createdAt',
+  'disabledAt',
+];
 const EMAIL_COLUMNS = [
   'createdAt',
   'email',
@@ -117,5 +130,18 @@ export class AccountResolver {
         'securityEventNames.id'
       )
       .where('uid', uidBuffer);
+  }
+
+  @Mutation((returns) => Boolean)
+  public async disableAccount(
+    @Args('uid') uid: string,
+    @CurrentUser() user: string
+  ) {
+    const uidBuffer = uuidTransformer.to(uid);
+    const result = await this.db.account
+      .query()
+      .update({ disabledAt: Date.now() })
+      .where('uid', uidBuffer);
+    return !!result;
   }
 }

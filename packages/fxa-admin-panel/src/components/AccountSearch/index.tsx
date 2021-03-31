@@ -10,6 +10,7 @@ import './index.scss';
 interface AccountType {
   uid: any;
   createdAt: number;
+  disabledAt: number | null;
   emails: [
     {
       email: string;
@@ -44,6 +45,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
     accountByEmail(email: $email) {
       uid
       createdAt
+      disabledAt
       emails {
         email
         isVerified
@@ -115,9 +117,9 @@ export const AccountSearch = () => {
 
     setSearchInput(value);
 
-    if (value.length < 5) {
+    if (value.length < 3) {
       setShowSuggestion(false);
-    } else if (value.length >= 5) {
+    } else if (value.length >= 3) {
       getEmailLike({ variables: { search: value } });
       setShowSuggestion(true);
     }
@@ -154,7 +156,6 @@ export const AccountSearch = () => {
         email bounces attached to the account. Delete the block on the email by
         deleting the bounced email data.
       </p>
-
       <form onSubmit={handleSubmit} data-testid="search-form" className="flex">
         <label htmlFor="email">Email to search for:</label>
         <br />

@@ -18,6 +18,7 @@ import Paper from '@material-ui/core/Paper';
 type AccountProps = {
   uid: string;
   createdAt: number;
+  disabledAt: number | null;
   emails: EmailProps[];
   emailBounces: EmailBounceProps[];
   onCleared: Function;
@@ -57,6 +58,12 @@ export const CLEAR_BOUNCES_BY_EMAIL = gql`
   }
 `;
 
+export const DISABLE_ACCOUNT = gql`
+  mutation disableAccount($uid: String!) {
+    disableAccount(uid: $uid)
+  }
+`;
+
 export const ClearButton = ({
   emails,
   onCleared,
@@ -85,10 +92,23 @@ export const ClearButton = ({
   );
 };
 
-export const DangerZone = () => {
+export const DangerZone = ({
+  uid,
+  disabledAt,
+}: {
+  uid: string;
+  disabledAt: number | null;
+}) => {
   const alertWindow = () => {
     window.alert('Implementation coming soon.');
     return;
+  };
+  const [disableAccount] = useMutation(DISABLE_ACCOUNT, {
+    onCompleted: () => console.log('true'),
+  });
+
+  const executeDisableAccount = () => {
+    disableAccount({ variables: { uid } });
   };
 
   return (
@@ -111,11 +131,8 @@ export const DangerZone = () => {
         Locking this account will disable the user from logging in. Unlocking
         will toggle this state.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
-          Lock Account
-        </button>
-        <button className="danger-zone-button" onClick={alertWindow}>
-          Unlock Account
+        <button className="danger-zone-button" onClick={executeDisableAccount}>
+          Lock/Unlock Account
         </button>
       </p>
       <h2>Force Password Change</h2>
@@ -134,6 +151,7 @@ export const Account = ({
   uid,
   emails,
   createdAt,
+  disabledAt,
   emailBounces,
   onCleared,
   query,
@@ -271,7 +289,7 @@ export const Account = ({
           </p>
         </li>
         <hr />
-        <DangerZone />
+        <DangerZone uid={uid} disabledAt={disabledAt} />
       </ul>
     </section>
   );
