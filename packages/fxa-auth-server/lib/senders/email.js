@@ -1299,7 +1299,7 @@ module.exports = function (log, config) {
     );
     const query = {};
 
-    const action = gettext('Setup next device');
+    const action = gettext('Set up next device'); //changed "Setup" to "Set up" since "Set up" is a verb
 
     const links = this._generateLinks(
       this.syncUrl,
