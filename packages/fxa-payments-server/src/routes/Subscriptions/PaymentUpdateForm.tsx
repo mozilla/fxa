@@ -28,6 +28,11 @@ import { ButtonBaseProps } from '../../components/PayPalButton';
 import PaymentProviderDetails from '../../components/PaymentProviderDetails';
 
 import { ActionButton } from './ActionButton';
+import { LoadingOverlay } from '../../components/LoadingOverlay';
+import {
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+} from 'fxa-shared/subscriptions/types';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -65,13 +70,19 @@ export const PaymentUpdateForm = ({
 }: PaymentUpdateFormProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [updateRevealed, revealUpdate, hideUpdate] = useBooleanState();
-  const [inProgress, setInProgress, resetInProgress] = useBooleanState(false);
+  const [
+    stripeSubmitInProgress,
+    stripeSubmitSetInProgress,
+    stripeSubmitResetInProgress,
+  ] = useBooleanState(false);
+  const [transactionInProgress, setTransactionInProgress] = useState(false);
 
   const [
     fixPaymentModalRevealed,
     revealFixPaymentModal,
     hideFixPaymentModal,
   ] = useBooleanState(false);
+
   const [paymentError, setPaymentError] = useState<PaymentUpdateError>(
     paymentErrorInitialState
   );
@@ -79,12 +90,12 @@ export const PaymentUpdateForm = ({
   const onRevealUpdateClick = useCallback(() => {
     refreshSubmitNonce();
     revealUpdate();
-    resetInProgress();
+    stripeSubmitResetInProgress();
     resetUpdatePaymentIsSuccess();
   }, [
     refreshSubmitNonce,
     revealUpdate,
-    resetInProgress,
+    stripeSubmitResetInProgress,
     resetUpdatePaymentIsSuccess,
   ]);
 
@@ -101,17 +112,44 @@ export const PaymentUpdateForm = ({
     />
   );
 
-  const errorAlertBarContent = (
+  const billingAgreementErrorAlertBarContent = () => (
     <Localized
-      id="sub-route-invalid-payment-alert"
+      id="sub-route-missing-billing-agreement-payment-alert"
       elems={{ div: actionButton }}
     >
       <span>
-        Invalid payment information, there is an error with your account.{' '}
+        Invalid payment information; there is an error with your account.{' '}
         {actionButton}
       </span>
     </Localized>
   );
+
+  const fundingSourceErrorAlertBarContent = () => (
+    <Localized
+      id="sub-route-funding-source-payment-alert"
+      elems={{ div: actionButton }}
+    >
+      <span>
+        Invalid payment information; there is an error with your account. This
+        alert may take some time to clear after you successfully update your
+        information. {actionButton}
+      </span>
+    </Localized>
+  );
+
+  const getPaypalErrorAlertBarContent = () => {
+    switch (paypal_payment_error) {
+      case PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT: {
+        return billingAgreementErrorAlertBarContent();
+      }
+      case PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE: {
+        return fundingSourceErrorAlertBarContent();
+      }
+      default: {
+        return null;
+      }
+    }
+  };
 
   const { config } = useContext(AppContext);
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
@@ -120,7 +158,7 @@ export const PaymentUpdateForm = ({
 
   const onSubmit = useCallback(
     async ({ stripe: stripeFromParams, ...params }) => {
-      setInProgress();
+      stripeSubmitSetInProgress();
       resetUpdatePaymentIsSuccess();
       try {
         await handlePaymentUpdate({
@@ -141,7 +179,7 @@ export const PaymentUpdateForm = ({
         console.error('handleSubscriptionPayment failed', error);
         setPaymentError(error);
       }
-      resetInProgress();
+      stripeSubmitResetInProgress();
       refreshSubmitNonce();
     },
     []
@@ -169,7 +207,7 @@ export const PaymentUpdateForm = ({
   return (
     <div className="settings-unit">
       <div className="payment-update" data-testid="payment-update">
-        {inProgress && (
+        {stripeSubmitInProgress && (
           <AlertBar className="alert alertPending">
             <Localized id="sub-route-idx-updating">
               <span>Updating billing information...</span>
@@ -177,13 +215,17 @@ export const PaymentUpdateForm = ({
           </AlertBar>
         )}
 
-        {paypal_payment_error && (
+        {!transactionInProgress && paypal_payment_error && (
           <AlertBar className="alert alertError">
-            {errorAlertBarContent}
+            {getPaypalErrorAlertBarContent()}
           </AlertBar>
         )}
 
-        {fixPaymentModalRevealed && (
+        {transactionInProgress && (
+          <LoadingOverlay isLoading={transactionInProgress} />
+        )}
+
+        {!transactionInProgress && fixPaymentModalRevealed && (
           <DialogMessage
             data-testid="billing-info-modal"
             onDismiss={hideFixPaymentModal}
@@ -193,13 +235,12 @@ export const PaymentUpdateForm = ({
             <Localized id="sub-route-payment-modal-heading">
               <h2>Invalid billing information</h2>
             </Localized>
-            <Localized id="sub-route-payment-modal-copy">
+            <Localized id="sub-route-payment-modal-message">
               <p>
                 There seems to be an error with your Paypal account, we need you
                 to take the necessary steps to resolve this payment issue.
               </p>
             </Localized>
-
             {paypalScriptLoaded && (
               <Suspense fallback={<div>Loading...</div>}>
                 <div className="paypal-button">
@@ -211,6 +252,8 @@ export const PaymentUpdateForm = ({
                     newPaypalAgreement={false}
                     refreshSubscriptions={refreshSubscriptions}
                     setPaymentError={setPaymentError}
+                    apiClientOverrides={apiClientOverrides}
+                    setTransactionInProgress={setTransactionInProgress}
                     ButtonBase={paypalButtonBase}
                   />
                 </div>
@@ -255,7 +298,7 @@ export const PaymentUpdateForm = ({
               {...{
                 submitNonce,
                 onSubmit,
-                inProgress,
+                inProgress: stripeSubmitInProgress,
                 confirm: false,
                 onCancel: hideUpdate,
                 onChange,

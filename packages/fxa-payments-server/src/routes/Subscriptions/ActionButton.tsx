@@ -10,6 +10,10 @@ import AppContext from '../../lib/AppContext';
 
 import * as PaymentProvider from '../../lib/PaymentProvider';
 import { lastEventId } from '@sentry/browser';
+import {
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+} from 'fxa-shared/subscriptions/types';
 
 export type ActionButtonProps = {
   customer: Customer;
@@ -93,10 +97,10 @@ export const ActionButton = ({
       return stripeActionButton();
     }
     switch (paypal_payment_error) {
-      case 'missing_agreement': {
+      case PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT: {
         return paypalMissingAgreementActionButton();
       }
-      case 'funding_source': {
+      case PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE: {
         return paypalFundingSourceActionButton();
       }
       default: {

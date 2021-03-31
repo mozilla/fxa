@@ -26,6 +26,11 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { splitCapabilities } from '../utils/subscriptions';
 import validators from '../validators';
 import { handleAuth, ThenArg } from './utils';
+import { PaypalPaymentError } from 'fxa-shared/subscriptions/types';
+import {
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+} from 'fxa-shared/subscriptions/types';
 
 /**
  * Delete any metadata keys prefixed by `capabilities:` before
@@ -43,8 +48,6 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
     return plan;
   });
 }
-
-export type PaypalPaymentError = 'missing_agreement' | 'funding_source';
 
 type PaymentBillingDetails = ReturnType<
   StripeHandler['extractBillingDetails']
@@ -386,9 +389,9 @@ export class StripeHandler {
       this.stripeHelper.hasSubscriptionRequiringPaymentMethod(customer)
     ) {
       if (!this.stripeHelper.getCustomerPaypalAgreement(customer)) {
-        billingDetails.paypal_payment_error = 'missing_agreement';
+        billingDetails.paypal_payment_error = PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
       } else if (this.stripeHelper.hasOpenInvoice(customer)) {
-        billingDetails.paypal_payment_error = 'funding_source';
+        billingDetails.paypal_payment_error = PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
       }
     }
 

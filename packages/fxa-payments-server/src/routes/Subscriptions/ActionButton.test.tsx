@@ -6,6 +6,10 @@ import ActionButton, { ActionButtonProps } from './ActionButton';
 import { CUSTOMER } from '../../lib/mock-data';
 import { PickPartial } from '../../lib/types';
 import { defaultConfig } from '../../lib/config';
+import {
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+} from 'fxa-shared/subscriptions/types';
 
 const { apiUrl } = defaultConfig().paypal;
 
@@ -65,7 +69,7 @@ describe('routes/Subscriptions/ActionButton', () => {
         customer={{
           ...CUSTOMER,
           payment_provider: 'paypal',
-          paypal_payment_error: 'funding_source',
+          paypal_payment_error: PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
         }}
       />
     );
@@ -84,7 +88,7 @@ describe('routes/Subscriptions/ActionButton', () => {
         customer={{
           ...CUSTOMER,
           payment_provider: 'paypal',
-          paypal_payment_error: 'missing_agreement',
+          paypal_payment_error: PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
           billing_agreement_id: '',
         }}
       />

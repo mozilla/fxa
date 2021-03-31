@@ -1,3 +1,4 @@
+import { PaypalPaymentError } from 'fxa-shared/subscriptions/types';
 import { ProviderType } from '../lib/PaymentProvider';
 
 export type {
@@ -78,7 +79,7 @@ export type Customer = {
   last4?: string;
   payment_provider?: ProviderType;
   payment_type?: string;
-  paypal_payment_error?: string;
+  paypal_payment_error?: PaypalPaymentError;
   subscriptions: Array<CustomerSubscription>;
 };
 
