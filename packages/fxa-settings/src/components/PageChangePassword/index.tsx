@@ -79,7 +79,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
   const { primaryEmail } = useAccount();
   const navigate = useNavigate();
-  const goHome= () => navigate(HomePath + '#password', { replace: true });
+  const goHome = () => navigate(HomePath + '#password', { replace: true });
   const alertSuccessAndGoHome = () => {
     alertTextExternal(
       l10n.getString('pw-change-success-alert', null, 'Password updated.')
