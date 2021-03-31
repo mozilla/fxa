@@ -420,6 +420,9 @@ module.exports.subscriptionsCustomerValidator = isA.object({
   payment_type: isA.string().optional(),
   paypal_payment_error: isA.string().optional(),
   brand: isA.string().optional(),
+  billing_agreement_id: isA
+    .alternatives(isA.string(), isA.any().allow(null))
+    .optional(),
   subscriptions: isA
     .array()
     .items(module.exports.subscriptionsSubscriptionValidator)

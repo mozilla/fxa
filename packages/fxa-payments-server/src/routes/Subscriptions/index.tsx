@@ -284,6 +284,10 @@ export const Subscriptions = ({
           {customer.result && showPaymentUpdateForm && (
             <PaymentUpdateForm
               {...{
+                plan: planForId(
+                  customer.result.subscriptions[0].plan_id,
+                  plans.result
+                ),
                 customer: customer.result,
                 refreshSubscriptions: fetchSubscriptionsRouteResources,
                 setUpdatePaymentIsSuccess,

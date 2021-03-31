@@ -1409,7 +1409,7 @@ describe('DirectStripeRoutes', () => {
               .hasSubscriptionRequiringPaymentMethod,
             customer
           );
-          sinon.assert.calledOnceWithExactly(
+          sinon.assert.calledWithExactly(
             directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
             customer
           );
@@ -1443,7 +1443,7 @@ describe('DirectStripeRoutes', () => {
               .hasSubscriptionRequiringPaymentMethod,
             customer
           );
-          sinon.assert.calledOnceWithExactly(
+          sinon.assert.calledWithExactly(
             directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
             customer
           );
@@ -1478,7 +1478,7 @@ describe('DirectStripeRoutes', () => {
               .hasSubscriptionRequiringPaymentMethod,
             customer
           );
-          sinon.assert.calledOnceWithExactly(
+          sinon.assert.calledWithExactly(
             directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
             customer
           );

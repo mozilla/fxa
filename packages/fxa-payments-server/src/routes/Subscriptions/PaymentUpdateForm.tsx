@@ -2,21 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { Suspense, useCallback, useContext, useState } from 'react';
 import { Localized } from '@fluent/react';
 import dayjs from 'dayjs';
-import { useNonce } from '../../lib/hooks';
-import { useBooleanState } from 'fxa-react/lib/hooks';
-import { getErrorMessage } from '../../lib/errors';
 import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
-import { Customer } from '../../store/types';
+
+import { useBooleanState } from 'fxa-react/lib/hooks';
+
+import { useNonce, usePaypalButtonSetup } from '../../lib/hooks';
+import { getErrorMessage } from '../../lib/errors';
+import { AppContext } from '../../lib/AppContext';
+import { Customer, Plan } from '../../store/types';
+
+import * as Amplitude from '../../lib/amplitude';
+import * as apiClient from '../../lib/apiClient';
+import * as Provider from '../../lib/PaymentProvider';
+
+import errorIcon from '../../images/error.svg';
+
 import AlertBar from '../../components/AlertBar';
 import PaymentForm from '../../components/PaymentForm';
-import PaymentProviderDetails from '../../components/PaymentProviderDetails';
 import ErrorMessage from '../../components/ErrorMessage';
-import * as Amplitude from '../../lib/amplitude';
-import * as apiClient from 'fxa-payments-server/src/lib/apiClient';
-import * as Provider from '../../lib/PaymentProvider';
+import { DialogMessage } from '../../components/DialogMessage';
+import { ButtonBaseProps } from '../../components/PayPalButton';
+import PaymentProviderDetails from '../../components/PaymentProviderDetails';
+
+import { ActionButton } from './ActionButton';
+
+const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
 type PaymentUpdateError = undefined | StripeError;
 
@@ -28,6 +41,7 @@ export type PaymentUpdateAuthServerAPIs = Pick<
 >;
 
 export type PaymentUpdateFormProps = {
+  plan: Plan | null;
   customer: Customer;
   refreshSubscriptions: () => void;
   setUpdatePaymentIsSuccess: () => void;
@@ -35,9 +49,11 @@ export type PaymentUpdateFormProps = {
   paymentErrorInitialState?: PaymentUpdateError;
   stripeOverride?: PaymentUpdateStripeAPIs;
   apiClientOverrides?: Partial<PaymentUpdateAuthServerAPIs>;
+  paypalButtonBase?: React.FC<ButtonBaseProps>;
 };
 
 export const PaymentUpdateForm = ({
+  plan,
   customer,
   refreshSubscriptions,
   setUpdatePaymentIsSuccess,
@@ -45,10 +61,17 @@ export const PaymentUpdateForm = ({
   paymentErrorInitialState,
   stripeOverride,
   apiClientOverrides,
+  paypalButtonBase,
 }: PaymentUpdateFormProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [updateRevealed, revealUpdate, hideUpdate] = useBooleanState();
   const [inProgress, setInProgress, resetInProgress] = useBooleanState(false);
+
+  const [
+    fixPaymentModalRevealed,
+    revealFixPaymentModal,
+    hideFixPaymentModal,
+  ] = useBooleanState(false);
   const [paymentError, setPaymentError] = useState<PaymentUpdateError>(
     paymentErrorInitialState
   );
@@ -64,6 +87,36 @@ export const PaymentUpdateForm = ({
     resetInProgress,
     resetUpdatePaymentIsSuccess,
   ]);
+
+  const {
+    exp_month,
+    exp_year,
+    payment_provider,
+    paypal_payment_error,
+  } = customer;
+
+  const actionButton = (
+    <ActionButton
+      {...{ customer, onRevealUpdateClick, revealFixPaymentModal }}
+    />
+  );
+
+  const errorAlertBarContent = (
+    <Localized
+      id="sub-route-invalid-payment-alert"
+      elems={{ div: actionButton }}
+    >
+      <span>
+        Invalid payment information, there is an error with your account.{' '}
+        {actionButton}
+      </span>
+    </Localized>
+  );
+
+  const { config } = useContext(AppContext);
+  const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
+
+  usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
 
   const onSubmit = useCallback(
     async ({ stripe: stripeFromParams, ...params }) => {
@@ -102,16 +155,16 @@ export const PaymentUpdateForm = ({
   }, [paymentError, setPaymentError]);
 
   const onFormMounted = useCallback(() => Amplitude.updatePaymentMounted(), []);
-
   const onFormEngaged = useCallback(() => Amplitude.updatePaymentEngaged(), []);
-
-  const { last4, exp_month, exp_year, payment_provider } = customer;
 
   // https://github.com/iamkun/dayjs/issues/639
   const expirationDate = dayjs()
     .set('month', Number(exp_month) - 1)
     .set('year', Number(exp_year))
     .format('MMMM YYYY');
+
+  const currencyCode = plan!.currency;
+  const planId = plan!.plan_id;
 
   return (
     <div className="settings-unit">
@@ -122,6 +175,48 @@ export const PaymentUpdateForm = ({
               <span>Updating billing information...</span>
             </Localized>
           </AlertBar>
+        )}
+
+        {paypal_payment_error && (
+          <AlertBar className="alert alertError">
+            {errorAlertBarContent}
+          </AlertBar>
+        )}
+
+        {fixPaymentModalRevealed && (
+          <DialogMessage
+            data-testid="billing-info-modal"
+            onDismiss={hideFixPaymentModal}
+            className="billing-info-modal"
+          >
+            <img id="error-icon" src={errorIcon} alt="error icon" />
+            <Localized id="sub-route-payment-modal-heading">
+              <h2>Invalid billing information</h2>
+            </Localized>
+            <Localized id="sub-route-payment-modal-copy">
+              <p>
+                There seems to be an error with your Paypal account, we need you
+                to take the necessary steps to resolve this payment issue.
+              </p>
+            </Localized>
+
+            {paypalScriptLoaded && (
+              <Suspense fallback={<div>Loading...</div>}>
+                <div className="paypal-button">
+                  <PaypalButton
+                    currencyCode={currencyCode}
+                    customer={customer}
+                    idempotencyKey={submitNonce}
+                    priceId={planId}
+                    newPaypalAgreement={false}
+                    refreshSubscriptions={refreshSubscriptions}
+                    setPaymentError={setPaymentError}
+                    ButtonBase={paypalButtonBase}
+                  />
+                </div>
+              </Suspense>
+            )}
+          </DialogMessage>
         )}
 
         <header>
@@ -143,19 +238,7 @@ export const PaymentUpdateForm = ({
                 </Localized>
               )}
             </div>
-            <div className="action">
-              <button
-                data-testid="reveal-payment-update-button"
-                className="settings-button"
-                onClick={onRevealUpdateClick}
-              >
-                <Localized id="pay-update-change-btn">
-                  <span className="change-button" data-testid="change-button">
-                    Change
-                  </span>
-                </Localized>
-              </button>
-            </div>
+            {actionButton}
           </div>
         ) : (
           <>
