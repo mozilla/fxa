@@ -10,7 +10,6 @@ import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/sign_in_recovery_code.mustache';
 
 const CODE_INPUT_SELECTOR = 'input.recovery-code';
-const MIN_REPLACE_RECOVERY_CODE = 2;
 const LOCKED_OUT_SUPPORT_URL =
   'https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication';
 
@@ -38,13 +37,7 @@ const View = FormView.extend({
 
     return account
       .consumeRecoveryCode(code)
-      .then((result) => {
-        if (result.remaining < MIN_REPLACE_RECOVERY_CODE) {
-          return this.navigate('/settings/two_step_authentication', {
-            previousViewName: this.viewName,
-          });
-        }
-
+      .then(() => {
         this.logViewEvent('success');
         return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
       })

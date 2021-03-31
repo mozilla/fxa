@@ -27,7 +27,7 @@ const {
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
   generateTotpCode,
-  noSuchBrowserNotification,
+  getEmail,
   openPage,
   testElementExists,
   testElementTextInclude,
@@ -68,7 +68,11 @@ registerSuite('recovery code', {
           secret = secretKey;
           return (
             self.remote
-              .then(click(selectors.TOTP.KEY_OK_BUTTON))
+              .then(
+                click(
+                  selectors.SETTINGS_V2.SECURITY.TFA.SECURITY_CODE_TEXTBOX_LABEL
+                )
+              )
               .then(
                 type(
                   selectors.TOTP.CONFIRM_CODE_INPUT,
@@ -76,21 +80,30 @@ registerSuite('recovery code', {
                 )
               )
               .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
-              .then(testElementExists(selectors.SIGNIN_RECOVERY_CODE.MODAL))
 
               // Store a recovery code
-              .findByCssSelector(selectors.SIGNIN_RECOVERY_CODE.FIRST_CODE)
+              .findByCssSelector(
+                selectors.SETTINGS_V2.SECURITY.TFA.FIRST_RECOVERY_CODE
+              )
               .getVisibleText()
               .then((code) => {
                 recoveryCode = code;
                 return self.remote
-                  .findByCssSelector(selectors.SIGNIN_RECOVERY_CODE.SECOND_CODE)
+                  .findByCssSelector(
+                    selectors.SETTINGS_V2.SECURITY.TFA.SECOND_RECOVERY_CODE
+                  )
                   .getVisibleText()
-                  .then((code) => (recoveryCode2 = code));
+                  .then((code) => {
+                    recoveryCode2 = code;
+                  });
               })
               .then(() => {
                 return self.remote
-                  .then(click(selectors.TOTP.RECOVERY_CODES_DONE))
+                  .then(
+                    click(
+                      selectors.SETTINGS_V2.SECURITY.TFA.CONTINUE_RECOVERY_KEY
+                    )
+                  )
                   .then(
                     type(selectors.TOTP.CONFIRM_RECOVERY_INPUT, recoveryCode)
                   )
@@ -106,7 +119,18 @@ registerSuite('recovery code', {
     'can sign-in with recovery code - sync': function () {
       return (
         this.remote
-          .then(click(selectors.SETTINGS.SIGNOUT))
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+            )
+          )
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
           .then(
             openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
@@ -134,7 +158,18 @@ registerSuite('recovery code', {
     'can regenerate recovery code when low': function () {
       return (
         this.remote
-          .then(click(selectors.SETTINGS.SIGNOUT))
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+            )
+          )
+          .then(
+            click(
+              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.ENTER_EMAIL.HEADER
+            )
+          )
           .then(
             openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
@@ -167,15 +202,18 @@ registerSuite('recovery code', {
           .then(type(selectors.SIGNIN_RECOVERY_CODE.INPUT, recoveryCode2))
           .then(click(selectors.SIGNIN_RECOVERY_CODE.SUBMIT))
 
-          .then(noSuchBrowserNotification('fxaccounts:login'))
-
-          .then(testElementExists(selectors.TOTP.RECOVERY_CODES_DESCRIPTION))
-          .then(click(selectors.TOTP.RECOVERY_CODES_REPLACE))
-          .then(testElementExists(selectors.SIGNIN_RECOVERY_CODE.FIRST_CODE))
-
-          // After dismissing modal, the login message is sent
-          .then(click(selectors.TOTP.RECOVERY_CODES_DONE))
           .then(testIsBrowserNotified('fxaccounts:login'))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+
+          // User gets an email notifying them to generate new recovery codes.
+          // Clicking the link in email opens the security page
+          .then(getEmail(email, 3))
+          .then((emailData) => {
+            return openPage(
+              emailData.headers['x-link'],
+              selectors.SETTINGS_V2.SECURITY.TFA.CHANGE_TFA
+            );
+          })
       );
     },
   },
