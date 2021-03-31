@@ -600,9 +600,9 @@ module.exports = {
     UPLOAD_FILENAME_INPUT: '#imageLoader',
   },
   SETTINGS_CLIENTS: {
-    BUTTON_REFRESH: '.clients-refresh',
+    BUTTON_REFRESH: SETTINGS_V2.CONNECTED_SERVICES.REFRESH_BUTTON, // '.clients-refresh',
     BUTTON_REFRESH_LOADING: '.clients-refresh .spinner',
-    CLIENT_LIST: '.client-list',
+    CLIENT_LIST: SETTINGS_V2.CONNECTED_SERVICES.HEADER, // '.client-list',
     MENU_BUTTON: '#clients .settings-unit-toggle',
     OAUTH_CLIENT: 'li.client-oAuthApp',
     REFRESHING: '.clients-refresh.disabled',

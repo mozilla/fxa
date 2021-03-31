@@ -69,7 +69,12 @@ export function Service({
   }
 
   return (
-    <div className="my-1" id="service" data-testid="settings-connected-service">
+    <div
+      className="my-1"
+      id="service"
+      data-testid="settings-connected-service"
+      data-name={name}
+    >
       <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
         <div className="flex flex-grow w-full mobileLandscape:flex-2">
           <span className="flex px-2 w-10 justify-center items-center flex-0">

@@ -9,7 +9,7 @@ const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 var config = intern._config;
 var CONTENT_SERVER = config.fxaContentRoot;
-var APPS_SETTINGS_URL = CONTENT_SERVER + 'settings/clients?forceDeviceList=1';
+var APPS_SETTINGS_URL = CONTENT_SERVER + 'settings#connected-services';
 var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 const selectors = require('./lib/selectors');
 
@@ -58,7 +58,7 @@ registerSuite('oauth settings clients', {
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
 
           // lists the first client
-          .then(openPage(APPS_SETTINGS_URL, '.client-disconnect'))
+          .then(openPage(APPS_SETTINGS_URL, selectors.SETTINGS_CLIENTS.HEADER))
 
           // sign in into another app
           .then(openTab(UNTRUSTED_OAUTH_APP))
@@ -81,19 +81,31 @@ registerSuite('oauth settings clients', {
           // second app should show up using 'refresh'
           .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
 
-          .then(testElementExists('li.client-oAuthApp[data-name^="321"]'))
+          .then(
+            testElementExists(
+              '[data-testid=settings-connected-service][data-name^="321"]'
+            )
+          )
 
           .then(
-            click('li.client-oAuthApp[data-name^="123"] .client-disconnect')
+            click(
+              '[data-testid=settings-connected-service][data-name^="123"] [data-testid=connected-service-sign-out]'
+            )
           )
           // wait for the element to be gone or else it's possible for the subsequent
           // `click` can fail with a StaleElementReference because click on 123Done's
           // button happens, the XHR request takes a bit of time, the reference to the
           // 321Done button is fetched, the XHR request completes and updates the DOM,
           // making the reference to the 321Done button stale.
-          .then(pollUntilGoneByQSA('li.client-oAuthApp[data-name^="123"]'))
           .then(
-            click('li.client-oAuthApp[data-name^="321"] .client-disconnect')
+            pollUntilGoneByQSA(
+              '[data-testid=settings-connected-service][data-name^="123"]'
+            )
+          )
+          .then(
+            click(
+              '[data-testid=settings-connected-service][data-name^="321"] [data-testid=connected-service-sign-out]'
+            )
           )
           .then(pollUntilGoneByQSA(selectors.SETTINGS_CLIENTS.OAUTH_CLIENT))
 
@@ -102,7 +114,7 @@ registerSuite('oauth settings clients', {
           .then(click(selectors.SETTINGS_CLIENTS.BUTTON_REFRESH))
           .then(
             pollUntilGoneByQSA(
-              selectors.SETTINGS_CLIENTS.BUTTON_REFRESH_LOADING
+              '[data-testid=settings-connected-service][data-name^="321"]'
             )
           )
 
