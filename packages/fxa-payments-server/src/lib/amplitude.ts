@@ -182,24 +182,24 @@ export function updatePaymentEngaged() {
   );
 }
 
-export function updatePayment_PENDING(eventProperties: EventProperties) {
+export function updatePayment_PENDING() {
   safeLogAmplitudeEvent(
     eventGroupNames.updatePayment,
     eventTypeNames.submit,
-    eventProperties
+    {}
   );
 }
 
-export function updatePayment_FULFILLED(eventProperties: EventProperties) {
+export function updatePayment_FULFILLED() {
   safeLogAmplitudeEvent(
     eventGroupNames.updatePayment,
     eventTypeNames.success,
-    eventProperties
+    {}
   );
   safeLogAmplitudeEvent(
     eventGroupNames.updatePayment,
     eventTypeNames.complete,
-    eventProperties
+    {}
   );
 }
 

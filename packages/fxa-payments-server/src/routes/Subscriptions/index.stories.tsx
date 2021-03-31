@@ -266,21 +266,6 @@ const baseProps: SubscriptionsProps = {
   },
 };
 
-const customerSubscriptions = [
-  {
-    current_period_end: (Date.now() + 86400) / 1000,
-    current_period_start: (Date.now() - 86400) / 1000,
-    cancel_at_period_end: false,
-    end_at: null,
-    latest_invoice: '628031D-0002',
-    plan_id: PLAN_ID,
-    product_id: 'product_123',
-    product_name: 'Example Product',
-    status: 'active',
-    subscription_id: 'sub_5551212',
-  },
-];
-
 const subscribedProps: SubscriptionsProps = {
   ...baseProps,
   customer: {
@@ -294,10 +279,23 @@ const subscribedProps: SubscriptionsProps = {
       exp_month: '12',
       exp_year: '2028',
       brand: 'Visa',
-      subscriptions: customerSubscriptions,
+      subscriptions: [],
     },
   },
-  customerSubscriptions: customerSubscriptions,
+  customerSubscriptions: [
+    {
+      current_period_end: (Date.now() + 86400) / 1000,
+      current_period_start: (Date.now() - 86400) / 1000,
+      cancel_at_period_end: false,
+      end_at: null,
+      latest_invoice: '628031D-0002',
+      plan_id: PLAN_ID,
+      product_id: 'product_123',
+      product_name: 'Example Product',
+      status: 'active',
+      subscription_id: 'sub_5551212',
+    },
+  ],
 };
 
 const subscribedWithPayPalProps: SubscriptionsProps = {
@@ -313,10 +311,23 @@ const subscribedWithPayPalProps: SubscriptionsProps = {
       exp_month: '12',
       exp_year: '2028',
       brand: 'Visa',
-      subscriptions: customerSubscriptions,
+      subscriptions: [],
     },
   },
-  customerSubscriptions: customerSubscriptions,
+  customerSubscriptions: [
+    {
+      current_period_end: (Date.now() + 86400) / 1000,
+      current_period_start: (Date.now() - 86400) / 1000,
+      cancel_at_period_end: false,
+      end_at: null,
+      latest_invoice: '628031D-0002',
+      plan_id: PLAN_ID,
+      product_id: 'product_123',
+      product_name: 'Example Product',
+      status: 'active',
+      subscription_id: 'sub_5551212',
+    },
+  ],
 };
 
 const cancelledProps: SubscriptionsProps = {
