@@ -49,7 +49,7 @@
     "aws-sdk": "^2.851.0",
     "axios": "^0.21.0",
     "class-transformer": "^0.4.0",
-    "class-validator": "^0.12.2",
+    "class-validator": "^0.13.1",
     "convict": "^6.0.1",
     "convict-format-with-moment": "^6.0.1",
     "convict-format-with-validator": "^6.0.1",
