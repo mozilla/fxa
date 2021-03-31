@@ -1,5 +1,11 @@
 # Change history
 
+## 1.203.3
+
+### New features
+
+- fxa-payments-server: add paypal to subscription management ([1379ec958](https://github.com/mozilla/fxa/commit/1379ec958))
+
 ## 1.203.2
 
 No changes.

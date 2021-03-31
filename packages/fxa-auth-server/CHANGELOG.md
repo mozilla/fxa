@@ -1,3 +1,14 @@
+## 1.203.3
+
+### New features
+
+- fxa-payments-server: add paypal to subscription management ([1379ec958](https://github.com/mozilla/fxa/commit/1379ec958))
+
+### Bug fixes
+
+- auth-server: address processor running bugs ([335ba82a0](https://github.com/mozilla/fxa/commit/335ba82a0))
+- codes: Fix issue where user could not login if they have low recovery codes ([a3dcbd7ad](https://github.com/mozilla/fxa/commit/a3dcbd7ad))
+
 ## 1.203.2
 
 ### Bug fixes
