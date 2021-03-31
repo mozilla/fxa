@@ -89,7 +89,7 @@
     "bluebird": "^3.7.2",
     "celebrate": "^10.0.1",
     "class-transformer": "^0.4.0",
-    "class-validator": "^0.12.2",
+    "class-validator": "^0.13.1",
     "cors": "^2.8.5",
     "find-up": "^5.0.0",
     "generic-pool": "^3.7.2",
