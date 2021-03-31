@@ -1,3 +1,9 @@
+## 1.203.3
+
+### Bug fixes
+
+- settings: call direct to auth-server for changes that send email ([df2ee530b](https://github.com/mozilla/fxa/commit/df2ee530b))
+
 ## 1.203.2
 
 No changes.
