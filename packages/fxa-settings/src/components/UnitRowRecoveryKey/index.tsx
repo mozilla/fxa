@@ -149,7 +149,7 @@ export const UnitRowRecoveryKey = () => {
               );
             }}
             confirmBtnClassName="cta-caution"
-            confirmText="Remove"
+            confirmText={l10n.getString('rk-action-remove', null, 'Remove')}
             headerId="recovery-key-header"
             descId="recovery-key-desc"
           >

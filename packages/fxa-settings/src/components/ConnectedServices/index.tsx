@@ -414,7 +414,7 @@ export const ConnectedServices = () => {
             confirmBtnClassName="cta-primary"
             hasCancelButton={false}
             confirmText={l10n.getString(
-              'cs-disconnect-sync-advice-confirm',
+              'cs-disconnect-advice-confirm',
               null,
               'Okay, got it'
             )}

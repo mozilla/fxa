@@ -17,7 +17,7 @@ it('renders as expected', () => {
   expect(screen.queryByTestId('children')).toBeInTheDocument();
   expect(screen.queryByTestId('modal-dismiss')).toHaveAttribute(
     'title',
-    'Close modal'
+    'Close'
   );
 });
 
