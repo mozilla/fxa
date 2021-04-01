@@ -15,13 +15,17 @@ import {
   mockStripeElementOnChangeFns,
   elementChangeResponse,
 } from '../../lib/test-utils';
-import { CUSTOMER, FILTERED_SETUP_INTENT } from '../../lib/mock-data';
+import { CUSTOMER, FILTERED_SETUP_INTENT, PLAN } from '../../lib/mock-data';
 
 import { PickPartial } from '../../lib/types';
+import { defaultConfig } from '../../lib/config';
+
+const { apiUrl } = defaultConfig().paypal;
 
 describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   type SubjectProps = PickPartial<
     PaymentUpdateFormProps,
+    | 'plan'
     | 'customer'
     | 'refreshSubscriptions'
     | 'setUpdatePaymentIsSuccess'
@@ -29,6 +33,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   >;
 
   const Subject = ({
+    plan = PLAN,
     customer = CUSTOMER,
     paymentErrorInitialState,
     apiClientOverrides = defaultApiClientOverrides(),
@@ -40,6 +45,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     return (
       <PaymentUpdateForm
         {...{
+          plan,
           customer,
           refreshSubscriptions,
           setUpdatePaymentIsSuccess,
@@ -92,6 +98,55 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     expect(screen.queryByTestId('payment-update')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('change-button'));
     expect(screen.queryByTestId('paymentForm')).toBeInTheDocument();
+  });
+
+  it('renders correctly for paypal', async () => {
+    render(<Subject customer={{ ...CUSTOMER, payment_provider: 'paypal' }} />);
+    expect(
+      screen.getByTestId('change-payment-update-button')?.getAttribute('href')
+    ).toEqual(`${apiUrl}/myaccount/autopay/connect/ba-131243`);
+  });
+
+  it('renders correctly for missing billing agreement for paypal', async () => {
+    render(
+      <Subject
+        customer={{
+          ...CUSTOMER,
+          payment_provider: 'paypal',
+          paypal_payment_error: 'missing_agreement',
+        }}
+      />
+    );
+    expect(
+      screen.queryAllByTestId('reveal-payment-modal-button').length
+    ).toEqual(2);
+
+    await act(async () => {
+      fireEvent.click(
+        screen.queryAllByTestId('reveal-payment-modal-button')[0]
+      );
+    });
+
+    await waitForExpect(() =>
+      expect(screen.queryByTestId('billing-info-modal')).toBeInTheDocument()
+    );
+  });
+
+  it('renders correctly for incorrect funding source for paypal', async () => {
+    render(
+      <Subject
+        customer={{
+          ...CUSTOMER,
+          payment_provider: 'paypal',
+          paypal_payment_error: 'funding_source',
+        }}
+      />
+    );
+    expect(
+      screen
+        .queryAllByTestId('manage-payment-update-button')[0]
+        ?.getAttribute('href')
+    ).toEqual(`${apiUrl}/myaccount/autopay/connect/ba-131243`);
   });
 
   async function commonSubmitSetup({

@@ -2,9 +2,14 @@
 @import '../../../../fxa-content-server/app/styles/breakpoints';
 
 .subscription-management {
-  button.settings-button {
+  .settings-button {
     font-weight: 600;
     padding: 0 16px;
+  }
+
+  .error-button {
+    background: #ff4f5e;
+    color: white;
   }
 
   > section {
@@ -53,7 +58,6 @@
       }
     }
   }
-
 
   .cancel-subscription {
     p {
@@ -111,7 +115,7 @@
 
     .plan-pricing {
       font-weight: 600;
-      margin-bottom: .5em;
+      margin-bottom: 0.5em;
     }
   }
 
@@ -119,6 +123,10 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+
+    .manage-button {
+      color: white;
+    }
 
     p {
       margin-top: 0;
@@ -139,6 +147,16 @@
         font-weight: 600;
         padding: 0 16px;
       }
+
+      a {
+        color: inherit;
+        font-size: inherit;
+        text-decoration: inherit;
+      }
+
+      .sr-only {
+        display: none;
+      }
     }
   }
 
@@ -151,6 +169,78 @@
 
     .payment {
       margin: 12px 0;
+    }
+  }
+}
+
+#dialogs .billing-info-modal {
+  width: 420px;
+  font-size: 15px;
+
+  @include respond-to('simpleSmall') {
+    width: unset;
+  }
+
+  #error-icon {
+    width: 32px;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin: 8px auto;
+  }
+
+  p {
+    font-size: 15px;
+    margin-bottom: 28px;
+  }
+}
+
+// Wipe out button/link styles so that we can reuse the behavior from the
+// manage/change button inside of the alert bar
+
+// Alerts are going to be refactored
+#top-bar .alert {
+  margin: 0;
+}
+
+.alert {
+  margin: 0;
+
+  .action {
+    display: inline;
+  }
+
+  button {
+    background: inherit;
+    color: white;
+    display: inline;
+    font-size: 14px;
+    height: inherit;
+    margin: 0;
+    padding: 0;
+    text-decoration: underline;
+    width: inherit;
+
+    &:hover {
+      background: none;
+    }
+  }
+  .sr-only {
+    display: none;
+  }
+
+  a {
+    background: inherit;
+    color: white;
+    display: inline;
+    font-size: 13px;
+    height: inherit;
+    padding: 0;
+    text-decoration: underline;
+
+    &:hover {
+      background: inherit;
     }
   }
 }
