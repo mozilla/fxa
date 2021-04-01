@@ -60,7 +60,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/security_events.js',
   'tests/functional/send_sms.js',
   'tests/functional/sign_in.js',
-  // #7982 'tests/functional/sign_in_blocked.js',
+  'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',
   'tests/functional/sign_in_recovery_code.js',
   'tests/functional/sign_in_totp.js',

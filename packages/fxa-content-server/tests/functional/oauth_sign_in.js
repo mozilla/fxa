@@ -43,6 +43,7 @@ const {
   generateTotpCode,
   openFxaFromRp,
   openPage,
+  signOut,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -612,19 +613,7 @@ registerSuite('oauth signin - TOTP', {
           .then(testElementExists(selectors.TOTP.MENU_BUTTON))
 
           // Does not prompt for code
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-            )
-          )
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
-
+          .then(signOut())
           .then(
             clearBrowserState({
               '123done': true,
