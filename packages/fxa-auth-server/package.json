@@ -63,7 +63,7 @@
     "fxa-geodb": "workspace:*",
     "fxa-jwtool": "0.7.2",
     "fxa-shared": "workspace:*",
-    "google-libphonenumber": "^3.2.18",
+    "google-libphonenumber": "^3.2.19",
     "handlebars": "^4.5.3",
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",
