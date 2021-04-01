@@ -10390,13 +10390,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"array-flatten@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "array-flatten@npm:3.0.0"
-  checksum: babaee814eb77dac4c402b4bb7584118f50d73caa808c67f5ae4ef3fc34385dcbbf8ed66e0e00b083d2a27c087f826557de76d39108da5c6dab3eaae353b3399
-  languageName: node
-  linkType: hard
-
 "array-from@npm:^2.1.1":
   version: 2.1.1
   resolution: "array-from@npm:2.1.1"
@@ -20501,7 +20494,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     request: ^2.88.2
     rimraf: ^3.0.2
-    sharp: ^0.27.2
+    sharp: ^0.28.0
     sinon: ^9.0.3
     stream-to-array: 2.3.0
     through: 2.3.8
@@ -35633,6 +35626,17 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
+"semver@npm:^7.3.5":
+  version: 7.3.5
+  resolution: "semver@npm:7.3.5"
+  dependencies:
+    lru-cache: ^6.0.0
+  bin:
+    semver: bin/semver.js
+  checksum: c53624ddf4b9779bcbf55a1eb8b37074cc44bfeca416f3cc263429408202a8a3c59b00eef8c647d697303bc39b95c022a5c61959221d3814bfb1270ff7c14986
+  languageName: node
+  linkType: hard
+
 "semver@npm:~5.3.0":
   version: 5.3.0
   resolution: "semver@npm:5.3.0"
@@ -35868,22 +35872,20 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.27.2":
-  version: 0.27.2
-  resolution: "sharp@npm:0.27.2"
+"sharp@npm:^0.28.0":
+  version: 0.28.0
+  resolution: "sharp@npm:0.28.0"
   dependencies:
-    array-flatten: ^3.0.0
     color: ^3.1.3
     detect-libc: ^1.0.3
     node-addon-api: ^3.1.0
     node-gyp: latest
-    npmlog: ^4.1.2
     prebuild-install: ^6.0.1
-    semver: ^7.3.4
-    simple-get: ^4.0.0
+    semver: ^7.3.5
+    simple-get: ^3.1.0
     tar-fs: ^2.1.1
     tunnel-agent: ^0.6.0
-  checksum: 9b8a7649c684053b07737cdb896581fe8d7e961408572dadbf37fea658e985a01e635a3b07de069727fafa0372f1bf7ad60206da4ea0a059418652ca8823fa73
+  checksum: c38ad0db70cb402ba110aef2f75ccea8f629a3c3fa85534f32698db21834aafd7b0d30977455e037cdcd78fbf9085b1b8ef7e9f701b77e6338eb55eea37552c8
   languageName: node
   linkType: hard
 
@@ -36078,7 +36080,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"simple-get@npm:^3.0.3":
+"simple-get@npm:^3.0.3, simple-get@npm:^3.1.0":
   version: 3.1.0
   resolution: "simple-get@npm:3.1.0"
   dependencies:
@@ -36086,17 +36088,6 @@ resolve@~1.11.1:
     once: ^1.3.1
     simple-concat: ^1.0.0
   checksum: f56f08765eafde034b379d38d3dd1eb9b9ffb41d090d8216e71dce6ea3936499ee34b20942773a2605b08e8abce940691bd06e110ac12d08f83917493078831e
-  languageName: node
-  linkType: hard
-
-"simple-get@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "simple-get@npm:4.0.0"
-  dependencies:
-    decompress-response: ^6.0.0
-    once: ^1.3.1
-    simple-concat: ^1.0.0
-  checksum: 91c007260dd92480b8dcd78b4310561967532e1ef9b4ec332a1aac6990c9a71d7477a8d05c84bb0165e4eb0e205fa620e37f42652dceea46c713084ae935e873
   languageName: node
   linkType: hard
 
