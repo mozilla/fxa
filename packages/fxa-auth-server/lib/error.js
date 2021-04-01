@@ -111,6 +111,8 @@ const ERRNO = {
   BACKEND_SERVICE_FAILURE: 203,
   DISABLED_CLIENT_ID: 204,
 
+  ACCOUNT_DISABLED: 403,
+
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };
@@ -520,6 +522,15 @@ AppError.tooManyRequests = function (
       'retry-after': retryAfter,
     }
   );
+};
+
+AppError.disabledAccount = function () {
+  return new AppError({
+    code: 403,
+    error: 'Account disabled',
+    errno: ERRNO.ACCOUNT_DISABLED,
+    message: 'This account has been administratively disabled',
+  });
 };
 
 AppError.requestBlocked = function (canUnblock) {

@@ -980,10 +980,11 @@ module.exports = function (log, error) {
 
   // Select : accounts
   // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt,
-  //          verifierSetAt, createdAt, lockedAt, primaryEmail, profileChangedAt, keysChangedAt, ecosystemAnonId
+  //          verifierSetAt, createdAt, lockedAt, disabledAt, primaryEmail, profileChangedAt, keysChangedAt,
+  //          ecosystemAnonId
   // Where  : emails.normalizedEmail = LOWER($1)
   //
-  var GET_ACCOUNT_RECORD = 'CALL accountRecord_7(?)';
+  var GET_ACCOUNT_RECORD = 'CALL accountRecord_8(?)';
   MySql.prototype.accountRecord = function (email) {
     return this.readFirstResult(GET_ACCOUNT_RECORD, [email]);
   };
