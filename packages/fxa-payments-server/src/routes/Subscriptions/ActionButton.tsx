@@ -22,14 +22,11 @@ export const ActionButton = ({
   onRevealUpdateClick,
   revealFixPaymentModal,
 }: ActionButtonProps) => {
-  let {
+  const {
     billing_agreement_id,
     payment_provider,
     paypal_payment_error,
   } = customer;
-
-  // billing_agreement_id = null;
-  paypal_payment_error = 'funding_source';
 
   const { config } = useContext(AppContext);
 
