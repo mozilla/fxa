@@ -71,12 +71,14 @@ export interface CustomerSubscription {
 
 export type Customer = {
   billing_name?: string | null;
+  billing_agreement_id?: string | null;
   brand?: string;
   exp_month?: string;
   exp_year?: string;
   last4?: string;
   payment_provider?: ProviderType;
   payment_type?: string;
+  paypal_payment_error?: string;
   subscriptions: Array<CustomerSubscription>;
 };
 
