@@ -19927,7 +19927,7 @@ fsevents@^1.2.7:
     fxa-react: "workspace:*"
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
-    got: 11.8.0
+    got: 11.8.2
     grunt: ^1.3.0
     grunt-babel: 8.0.0
     grunt-ban-word: 0.1.1
@@ -21442,9 +21442,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"got@npm:11.8.0":
-  version: 11.8.0
-  resolution: "got@npm:11.8.0"
+"got@npm:11.8.2":
+  version: 11.8.2
+  resolution: "got@npm:11.8.2"
   dependencies:
     "@sindresorhus/is": ^4.0.0
     "@szmarczak/http-timer": ^4.0.5
@@ -21457,7 +21457,7 @@ fsevents@^1.2.7:
     lowercase-keys: ^2.0.0
     p-cancelable: ^2.0.0
     responselike: ^2.0.0
-  checksum: 9ad3dddd7292e34484b314eabfcb140074e70b14e0d501fce6afd341715c2300838d5382392562ce7764c1ac46506d1b835db4f5988053211d5506d5b9a4b849
+  checksum: 6415f98ec249e932ca8223396e58ec18017ade64e21efc40db62f994f3551eaf7eca945671d40b2486f0650b1f17b5a2a0f11655ea501712566ef60be010f07f
   languageName: node
   linkType: hard
 
