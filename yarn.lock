@@ -20619,7 +20619,7 @@ fsevents@^1.2.7:
     postcss-cli: ^7.1.1
     postcss-import: ^12.0.1
     react: ^16.13.1
-    react-async-hook: ^3.6.1
+    react-async-hook: ^3.6.2
     react-dom: ^16.13.1
     react-easy-crop: ^3.3.1
     react-hook-form: ^6.15.5
@@ -33049,12 +33049,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-async-hook@npm:^3.6.1":
-  version: 3.6.1
-  resolution: "react-async-hook@npm:3.6.1"
+"react-async-hook@npm:^3.6.2":
+  version: 3.6.2
+  resolution: "react-async-hook@npm:3.6.2"
   peerDependencies:
     react: ">=16.8"
-  checksum: d9cf6569df5e3614d504e9176188d5ed26d4ecf3e6f040fbb0b45c4d94fd9d549472c25c54631593230b4531590e311294bf124c76904960ee79e1a758e41712
+  checksum: 539d93b40f1c43a6766d4346f5225cffc636764534a22750aa0fc66ab30c17e5db947317769212de60fc694114fd5e3f1f4b9ae31b677cdec9116b3b7a7cef3c
   languageName: node
   linkType: hard
 
