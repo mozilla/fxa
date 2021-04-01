@@ -10,6 +10,7 @@ import {
 import {
   filterCustomer,
   filterSubscription,
+  hasPaypalSubscription,
 } from 'fxa-shared/subscriptions/stripe';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
@@ -22,7 +23,6 @@ import { reportSentryError } from '../../sentry';
 import { msToSec } from '../../time';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
-import { StripeHandler } from './stripe';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
 
@@ -59,7 +59,13 @@ export class PayPalHandler extends StripeWebhookHandler {
   }
 
   /**
-   * Create a subscription for a user with an authorized PayPal Token.
+   * Create a subscription for a user with PayPal as the payment provider.
+   * This branches into two scenarios:
+   *  - a new customer (an FxA user with no active subscriptions) that is
+   *    subscribing to their first product
+   *  - a returning customer with PayPal paid subscriptions
+   *
+   * A PayPal payment token is required for the new customer.
    */
   async createSubscriptionWithPaypal(request: AuthRequest) {
     this.log.begin('subscriptions.createSubscriptionWithPaypal', request);
@@ -75,11 +81,62 @@ export class PayPalHandler extends StripeWebhookHandler {
       throw error.unknownCustomer(uid);
     }
 
+    const isPaypalCustomer = hasPaypalSubscription(customer);
+    const { token } = request.payload as Record<string, string>;
+    const currentBillingAgreement = this.stripeHelper.getCustomerPaypalAgreement(
+      customer
+    );
+
+    // In theory the frontend should handle this state upon the customer
+    // response.  The customer should fix their payment method before we can
+    // allow any additional subscriptions.
+    if (isPaypalCustomer && !currentBillingAgreement) {
+      throw error.missingPaypalBillingAgreement(customer.id);
+    }
+    if (!isPaypalCustomer && !token) {
+      throw error.missingPaypalPaymentToken(customer.id);
+    }
+    if (isPaypalCustomer && token) {
+      // This seems unfriendly to users since we could just proceed with the BA
+      // on record.  But it's a bug with the frontend if it happens and we
+      // shouldn't allow it.
+      throw error.billingAgreementExists(customer.id);
+    }
+
+    const { sourceCountry, subscription } = !!token
+      ? await this._createPaypalBillingAgreementAndSubscription({
+          request,
+          uid,
+          customer,
+        })
+      : await this._createPaypalSubscription({ request, customer });
+
+    await this.customerChanged(request, uid, email);
+
+    this.log.info('subscriptions.createSubscriptionWithPaypal.success', {
+      uid,
+      subscriptionId: subscription.id,
+    });
+
+    return {
+      sourceCountry,
+      subscription: filterSubscription(subscription),
+    };
+  }
+
+  async _createPaypalBillingAgreementAndSubscription({
+    request,
+    uid,
+    customer,
+  }: {
+    request: AuthRequest;
+    uid: string;
+    customer: Stripe.Customer;
+  }) {
     const { priceId, token, idempotencyKey } = request.payload as Record<
       string,
       string
     >;
-
     const currency = (await this.stripeHelper.findPlanById(priceId)).currency;
     const {
       agreementId,
@@ -118,16 +175,49 @@ export class PayPalHandler extends StripeWebhookHandler {
       }
     }
 
-    await this.customerChanged(request, uid, email);
-
-    this.log.info('subscriptions.createSubscriptionWithPaypal.success', {
-      uid,
-      subscriptionId: subscription.id,
-    });
-
     return {
       sourceCountry: agreementDetails.countryCode,
-      subscription: filterSubscription(subscription),
+      subscription: subscription,
+    };
+  }
+
+  async _createPaypalSubscription({
+    request,
+    customer,
+  }: {
+    request: AuthRequest;
+    customer: Stripe.Customer;
+  }) {
+    const { priceId, idempotencyKey } = request.payload as Record<
+      string,
+      string
+    >;
+    const subscription = await this.stripeHelper.createSubscriptionWithPaypal({
+      customer,
+      priceId,
+      subIdempotencyKey: idempotencyKey,
+    });
+    const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
+    if (latestInvoice.amount_due === 0) {
+      await this.paypalHelper.processZeroInvoice(latestInvoice);
+    } else {
+      try {
+        await this.paypalHelper.processInvoice({
+          customer,
+          invoice: latestInvoice,
+          ipaddress: request.info.remoteAddress,
+        });
+      } catch (err) {
+        // We must delete the subscription since we cannot have 'incomplete'
+        // subscriptions for manual collection subscriptions.
+        await this.stripeHelper.cancelSubscription(subscription.id);
+        throw err;
+      }
+    }
+
+    return {
+      sourceCountry: customer.address?.country,
+      subscription: subscription,
     };
   }
 
@@ -159,11 +249,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       throw error.billingAgreementExists(customer.id);
     }
 
-    const paypalSubscription = customer.subscriptions?.data.find(
-      (sub) =>
-        ['active', 'past_due'].includes(sub.status) &&
-        sub.collection_method === 'send_invoice'
-    );
+    const paypalSubscription = hasPaypalSubscription(customer);
     if (!paypalSubscription || !customer.currency) {
       throw error.internalValidationError('updatePaypalBillingAgreement', {
         customerId: customer.id,
@@ -348,7 +434,7 @@ export const paypalRoutes = (
         validate: {
           payload: {
             priceId: isA.string().required(),
-            token: validators.paypalPaymentToken.required(),
+            token: validators.paypalPaymentToken.allow(null).optional(),
             idempotencyKey: isA.string().required(),
           },
         },

@@ -11,6 +11,7 @@ import {
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import moment from 'moment';
@@ -41,13 +42,6 @@ export enum STRIPE_INVOICE_METADATA {
   EMAIL_SENT = 'emailSent',
   RETRY_ATTEMPTS = 'paymentAttempts',
 }
-
-/** Represents all subscription statuses that are considered active for a customer */
-export const ACTIVE_SUBSCRIPTION_STATUSES: Stripe.Subscription['status'][] = [
-  'active',
-  'past_due',
-  'trialing',
-];
 
 const VALID_RESOURCE_TYPES = [
   CUSTOMER_RESOURCE,

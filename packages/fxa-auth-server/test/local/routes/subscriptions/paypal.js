@@ -37,13 +37,10 @@ let log,
   payPalHelper,
   token,
   stripeHelper,
-  requestOptions,
   profile,
   push;
-/** @type sinon.SinonSandbox */
-let sandbox;
 
-function runTest(routePath) {
+function runTest(routePath, requestOptions) {
   const db = mocks.mockDB({
     uid: UID,
     email: TEST_EMAIL,
@@ -78,7 +75,7 @@ function deepCopy(object) {
  * Paypal integration tests
  */
 describe('subscriptions payPalRoutes', () => {
-  requestOptions = {
+  const defaultRequestOptions = {
     method: 'POST',
     auth: {
       credentials: {
@@ -88,6 +85,9 @@ describe('subscriptions payPalRoutes', () => {
       },
     },
   };
+  const authDbModule = require('fxa-shared/db/models/auth');
+  const accountCustomer = { stripeCustomerId: 'accountCustomer' };
+  const paypalAgreementId = 'testo';
 
   beforeEach(() => {
     config = {
@@ -102,7 +102,6 @@ describe('subscriptions payPalRoutes', () => {
       },
     };
     currencyHelper = new CurrencyHelper(config);
-    sinon.createSandbox();
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
     token = uuid.v4();
@@ -115,23 +114,25 @@ describe('subscriptions payPalRoutes', () => {
     push = {};
   });
 
-  afterEach(() => {
-    sinon.restore();
-  });
-
   describe('POST /oauth/subscriptions/paypal-checkout', () => {
     beforeEach(() => {
       payPalHelper.getCheckoutToken = sinon.fake.resolves(token);
     });
 
     it('should call PayPalHelper.getCheckoutToken and return token in an object', async () => {
-      const response = await runTest('/oauth/subscriptions/paypal-checkout');
+      const response = await runTest(
+        '/oauth/subscriptions/paypal-checkout',
+        defaultRequestOptions
+      );
       sinon.assert.calledOnce(payPalHelper.getCheckoutToken);
       assert.deepEqual(response, { token });
     });
 
     it('should log the call', async () => {
-      await runTest('/oauth/subscriptions/paypal-checkout');
+      await runTest(
+        '/oauth/subscriptions/paypal-checkout',
+        defaultRequestOptions
+      );
       sinon.assert.calledOnceWithExactly(
         log.begin,
         'subscriptions.getCheckoutToken',
@@ -145,7 +146,10 @@ describe('subscriptions payPalRoutes', () => {
     });
 
     it('should do a customs check', async () => {
-      await runTest('/oauth/subscriptions/paypal-checkout');
+      await runTest(
+        '/oauth/subscriptions/paypal-checkout',
+        defaultRequestOptions
+      );
       sinon.assert.calledOnceWithExactly(
         customs.check,
         request,
@@ -157,7 +161,6 @@ describe('subscriptions payPalRoutes', () => {
 
   describe('POST /oauth/subscriptions/active/new-paypal', () => {
     let plan, customer, subscription;
-    const accountCustomer = { stripeCustomerId: 'accountCustomer' };
 
     beforeEach(() => {
       stripeHelper.refreshCachedCustomer = sinon.fake.resolves({});
@@ -183,172 +186,297 @@ describe('subscriptions payPalRoutes', () => {
       );
     });
 
-    it('should run a charge successfully', async () => {
-      payPalHelper.processInvoice = sinon.fake.resolves({});
-      sandbox = sinon.createSandbox();
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getAccountCustomerByUid')
-        .resolves(accountCustomer);
-      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
-      const actual = await runTest('/oauth/subscriptions/active/new-paypal');
-      assert.deepEqual(actual, {
-        sourceCountry: 'CA',
-        subscription: filterSubscription(subscription),
-      });
-      sinon.assert.calledOnce(stripeHelper.customer);
-      sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
-      sinon.assert.calledOnce(payPalHelper.agreementDetails);
-      sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
-      sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
-      sinon.assert.calledOnce(payPalHelper.processInvoice);
-      sinon.assert.calledOnceWithExactly(
-        authDbModule.getAccountCustomerByUid,
-        UID
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.updateCustomerBillingAddress,
-        accountCustomer.stripeCustomerId,
-        {
-          city: undefined,
-          country: 'CA',
-          line1: undefined,
-          line2: undefined,
-          postalCode: undefined,
-          state: undefined,
-        }
-      );
+    describe('existing PayPal subscriber with no billing agreement on record', () => {
+      it('throws a missing PayPal billing agreement error', async () => {
+        const c = deepCopy(customer);
+        c.subscriptions.data[0].collection_method = 'send_invoice';
+        stripeHelper.customer = sinon.fake.resolves(c);
+        stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
 
-      sandbox.restore();
+        try {
+          await runTest(
+            '/oauth/subscriptions/active/new-paypal',
+            defaultRequestOptions
+          );
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.deepEqual(err, error.missingPaypalBillingAgreement(c.id));
+        }
+      });
     });
 
-    it('should skip a zero charge successfully', async () => {
-      subscription.latest_invoice.amount_due = 0;
-      sandbox = sinon.createSandbox();
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getAccountCustomerByUid')
-        .resolves(accountCustomer);
-      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
-      payPalHelper.processZeroInvoice = sinon.fake.resolves({});
-      const actual = await runTest('/oauth/subscriptions/active/new-paypal');
-      assert.deepEqual(actual, {
-        sourceCountry: 'CA',
-        subscription: filterSubscription(subscription),
-      });
-      sinon.assert.calledOnce(stripeHelper.customer);
-      sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
-      sinon.assert.calledOnce(payPalHelper.agreementDetails);
-      sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
-      sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
-      sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
-      sinon.assert.calledOnceWithExactly(
-        authDbModule.getAccountCustomerByUid,
-        UID
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.updateCustomerBillingAddress,
-        accountCustomer.stripeCustomerId,
-        {
-          city: undefined,
-          country: 'CA',
-          line1: undefined,
-          line2: undefined,
-          postalCode: undefined,
-          state: undefined,
-        }
-      );
-
-      sandbox.restore();
-    });
-
-    it('should throw an error if planCurrency does not match billingAgreement country', async () => {
-      sandbox = sinon.createSandbox();
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getAccountCustomerByUid')
-        .resolves(accountCustomer);
-      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
-      payPalHelper.processInvoice = sinon.fake.resolves({});
-      payPalHelper.agreementDetails = sinon.fake.resolves({
-        countryCode: 'AS',
-      });
-      try {
-        await runTest('/oauth/subscriptions/active/new-paypal');
-        assert.fail('Should have thrown an error');
-      } catch (err) {
-        assert.equal(
-          err.message,
-          'Funding source country does not match plan currency.'
+    describe('new customer with no PayPal token', () => {
+      it('throws a missing PayPal payment token error', async () => {
+        authDbModule.getAccountCustomerByUid = sinon.fake.resolves(
+          accountCustomer
         );
-      }
-      sinon.assert.calledOnceWithExactly(
-        authDbModule.getAccountCustomerByUid,
-        UID
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.updateCustomerBillingAddress,
-        accountCustomer.stripeCustomerId,
-        {
-          city: undefined,
-          country: 'AS',
-          line1: undefined,
-          line2: undefined,
-          postalCode: undefined,
-          state: undefined,
-        }
-      );
+        stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
 
-      sandbox.restore();
+        try {
+          await runTest(
+            '/oauth/subscriptions/active/new-paypal',
+            defaultRequestOptions
+          );
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.deepEqual(err, error.missingPaypalPaymentToken(customer.id));
+        }
+      });
     });
 
-    it('should throw an error if billingAgreement country does not match planCurrency', async () => {
-      sandbox = sinon.createSandbox();
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getAccountCustomerByUid')
-        .resolves(accountCustomer);
-      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
-      payPalHelper.processInvoice = sinon.fake.resolves({});
-      plan.currency = 'eur';
-      stripeHelper.findPlanById = sinon.fake.resolves(plan);
-      try {
-        await runTest('/oauth/subscriptions/active/new-paypal');
-        assert.fail('Should have thrown an error');
-      } catch (err) {
-        assert.equal(
-          err.message,
-          'Funding source country does not match plan currency.'
+    describe('existing PayPal customer with a PayPal token', () => {
+      it('throws a billing agreement already exists error', async () => {
+        const c = deepCopy(customer);
+        c.subscriptions.data[0].collection_method = 'send_invoice';
+        stripeHelper.customer = sinon.fake.resolves(c);
+        authDbModule.getAccountCustomerByUid = sinon.fake.resolves(
+          accountCustomer
         );
-      }
-      sinon.assert.calledOnceWithExactly(
-        authDbModule.getAccountCustomerByUid,
-        UID
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.updateCustomerBillingAddress,
-        accountCustomer.stripeCustomerId,
-        {
-          city: undefined,
-          country: 'CA',
-          line1: undefined,
-          line2: undefined,
-          postalCode: undefined,
-          state: undefined,
+        stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
+          paypalAgreementId
+        );
+
+        try {
+          await runTest('/oauth/subscriptions/active/new-paypal', {
+            ...defaultRequestOptions,
+            payload: { token },
+          });
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.deepEqual(err, error.billingAgreementExists(customer.id));
         }
-      );
+      });
     });
 
-    it('should throw an error if the invoice processing fails', async () => {
-      payPalHelper.processInvoice = sinon.fake.rejects(error.paymentFailed());
-      try {
-        await runTest('/oauth/subscriptions/active/new-paypal');
-        assert.fail('Should have thrown an error');
-      } catch (err) {
-        assert.deepEqual(err, error.paymentFailed());
-        sinon.assert.calledOnce(stripeHelper.cancelSubscription);
-        sinon.assert.calledOnce(payPalHelper.cancelBillingAgreement);
-      }
+    describe('new subscription with a PayPal payment token', () => {
+      beforeEach(() => {
+        authDbModule.getAccountCustomerByUid = sinon.fake.resolves(
+          accountCustomer
+        );
+        stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
+        payPalHelper.processInvoice = sinon.fake.resolves({});
+        payPalHelper.processZeroInvoice = sinon.fake.resolves({});
+      });
+
+      it('should run a charge successfully', async () => {
+        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
+          ...defaultRequestOptions,
+          payload: { token },
+        });
+        assert.deepEqual(actual, {
+          sourceCountry: 'CA',
+          subscription: filterSubscription(subscription),
+        });
+        sinon.assert.calledOnce(stripeHelper.customer);
+        sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
+        sinon.assert.calledOnce(payPalHelper.agreementDetails);
+        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
+        sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
+        sinon.assert.calledOnce(payPalHelper.processInvoice);
+        sinon.assert.calledOnceWithExactly(
+          authDbModule.getAccountCustomerByUid,
+          UID
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.updateCustomerBillingAddress,
+          accountCustomer.stripeCustomerId,
+          {
+            city: undefined,
+            country: 'CA',
+            line1: undefined,
+            line2: undefined,
+            postalCode: undefined,
+            state: undefined,
+          }
+        );
+      });
+
+      it('should skip a zero charge successfully', async () => {
+        subscription.latest_invoice.amount_due = 0;
+        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
+          ...defaultRequestOptions,
+          payload: { token },
+        });
+        assert.deepEqual(actual, {
+          sourceCountry: 'CA',
+          subscription: filterSubscription(subscription),
+        });
+        sinon.assert.calledOnce(stripeHelper.customer);
+        sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
+        sinon.assert.calledOnce(payPalHelper.agreementDetails);
+        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
+        sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
+        sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
+        sinon.assert.calledOnceWithExactly(
+          authDbModule.getAccountCustomerByUid,
+          UID
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.updateCustomerBillingAddress,
+          accountCustomer.stripeCustomerId,
+          {
+            city: undefined,
+            country: 'CA',
+            line1: undefined,
+            line2: undefined,
+            postalCode: undefined,
+            state: undefined,
+          }
+        );
+      });
+
+      it('should throw an error if planCurrency does not match billingAgreement country', async () => {
+        payPalHelper.agreementDetails = sinon.fake.resolves({
+          countryCode: 'AS',
+        });
+        try {
+          await runTest('/oauth/subscriptions/active/new-paypal', {
+            ...defaultRequestOptions,
+            payload: { token },
+          });
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.equal(
+            err.message,
+            'Funding source country does not match plan currency.'
+          );
+        }
+        sinon.assert.calledOnceWithExactly(
+          authDbModule.getAccountCustomerByUid,
+          UID
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.updateCustomerBillingAddress,
+          accountCustomer.stripeCustomerId,
+          {
+            city: undefined,
+            country: 'AS',
+            line1: undefined,
+            line2: undefined,
+            postalCode: undefined,
+            state: undefined,
+          }
+        );
+      });
+
+      it('should throw an error if billingAgreement country does not match planCurrency', async () => {
+        plan.currency = 'eur';
+        stripeHelper.findPlanById = sinon.fake.resolves(plan);
+        try {
+          await runTest('/oauth/subscriptions/active/new-paypal', {
+            ...defaultRequestOptions,
+            payload: { token },
+          });
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.equal(
+            err.message,
+            'Funding source country does not match plan currency.'
+          );
+        }
+        sinon.assert.calledOnceWithExactly(
+          authDbModule.getAccountCustomerByUid,
+          UID
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.updateCustomerBillingAddress,
+          accountCustomer.stripeCustomerId,
+          {
+            city: undefined,
+            country: 'CA',
+            line1: undefined,
+            line2: undefined,
+            postalCode: undefined,
+            state: undefined,
+          }
+        );
+      });
+
+      it('should throw an error if the invoice processing fails', async () => {
+        payPalHelper.processInvoice = sinon.fake.rejects(error.paymentFailed());
+        try {
+          await runTest('/oauth/subscriptions/active/new-paypal', {
+            ...defaultRequestOptions,
+            payload: { token },
+          });
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.deepEqual(err, error.paymentFailed());
+          sinon.assert.calledOnce(stripeHelper.cancelSubscription);
+          sinon.assert.calledOnce(payPalHelper.cancelBillingAgreement);
+        }
+      });
+    });
+
+    describe('new subscription with an existing billing agreement', () => {
+      beforeEach(() => {
+        const c = {
+          ...customer,
+          address: {
+            country: 'GD',
+          },
+          metadata: {
+            ...customer.metadata,
+            paypalAgreementId,
+          },
+        };
+        c.subscriptions.data[0].collection_method = 'send_invoice';
+        stripeHelper.customer = sinon.fake.resolves(c);
+        stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
+          paypalAgreementId
+        );
+        payPalHelper.processInvoice = sinon.fake.resolves({});
+        stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
+      });
+
+      it('should run a charge successfully', async () => {
+        const actual = await runTest(
+          '/oauth/subscriptions/active/new-paypal',
+          defaultRequestOptions
+        );
+
+        sinon.assert.notCalled(payPalHelper.createBillingAgreement);
+        sinon.assert.notCalled(payPalHelper.agreementDetails);
+        sinon.assert.notCalled(stripeHelper.updateCustomerPaypalAgreement);
+        sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
+
+        assert.deepEqual(actual, {
+          sourceCountry: 'GD',
+          subscription: filterSubscription(subscription),
+        });
+        sinon.assert.calledOnce(stripeHelper.customer);
+        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
+        sinon.assert.calledOnce(payPalHelper.processInvoice);
+      });
+
+      it('should skip a zero charge successfully', async () => {
+        subscription.latest_invoice.amount_due = 0;
+        payPalHelper.processZeroInvoice = sinon.fake.resolves({});
+        const actual = await runTest(
+          '/oauth/subscriptions/active/new-paypal',
+          defaultRequestOptions
+        );
+        assert.deepEqual(actual, {
+          sourceCountry: 'GD',
+          subscription: filterSubscription(subscription),
+        });
+        sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
+      });
+
+      it('should throw an error if the invoice processing fails', async () => {
+        payPalHelper.processInvoice = sinon.fake.rejects(error.paymentFailed());
+        try {
+          await runTest(
+            '/oauth/subscriptions/active/new-paypal',
+            defaultRequestOptions
+          );
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.deepEqual(err, error.paymentFailed());
+          sinon.assert.calledOnce(stripeHelper.cancelSubscription);
+          sinon.assert.notCalled(payPalHelper.cancelBillingAgreement);
+        }
+      });
     });
   });
 
@@ -365,8 +493,11 @@ describe('subscriptions payPalRoutes', () => {
         }
       }
 
-      stripeHelper.fetchOpenInvoices.returns(genInvoice());
+      authDbModule.getAccountCustomerByUid = sinon.fake.resolves(
+        accountCustomer
+      );
       stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
+      stripeHelper.fetchOpenInvoices.returns(genInvoice());
       profile.deleteCache = sinon.fake.resolves({});
       push.notifyProfileUpdated = sinon.fake.resolves({});
       plan = deepCopy(planFixture);
@@ -390,7 +521,8 @@ describe('subscriptions payPalRoutes', () => {
       invoices.push(subscription.latest_invoice);
       subscription.latest_invoice.subscription = subscription;
       const actual = await runTest(
-        '/oauth/subscriptions/paymentmethod/billing-agreement'
+        '/oauth/subscriptions/paymentmethod/billing-agreement',
+        defaultRequestOptions
       );
       assert.deepEqual(actual, filterCustomer(customer));
       sinon.assert.calledOnce(stripeHelper.customer);
@@ -408,7 +540,8 @@ describe('subscriptions payPalRoutes', () => {
       subscription.latest_invoice.subscription = subscription;
       payPalHelper.processZeroInvoice = sinon.fake.resolves({});
       const actual = await runTest(
-        '/oauth/subscriptions/paymentmethod/billing-agreement'
+        '/oauth/subscriptions/paymentmethod/billing-agreement',
+        defaultRequestOptions
       );
       assert.deepEqual(actual, filterCustomer(customer));
       sinon.assert.calledOnce(stripeHelper.customer);
@@ -423,7 +556,8 @@ describe('subscriptions payPalRoutes', () => {
 
     it('should update the billing agreement', async () => {
       const actual = await runTest(
-        '/oauth/subscriptions/paymentmethod/billing-agreement'
+        '/oauth/subscriptions/paymentmethod/billing-agreement',
+        defaultRequestOptions
       );
       assert.deepEqual(actual, filterCustomer(customer));
       sinon.assert.calledOnce(stripeHelper.customer);
@@ -439,7 +573,10 @@ describe('subscriptions payPalRoutes', () => {
       customer.currency = 'eur';
       stripeHelper.findPlanById = sinon.fake.resolves(plan);
       try {
-        await runTest('/oauth/subscriptions/paymentmethod/billing-agreement');
+        await runTest(
+          '/oauth/subscriptions/paymentmethod/billing-agreement',
+          defaultRequestOptions
+        );
         assert.fail('Should have thrown an error');
       } catch (err) {
         assert.equal(
@@ -452,7 +589,10 @@ describe('subscriptions payPalRoutes', () => {
     it('should throw an error if theres no paypal subscription', async () => {
       customer.subscriptions.data = [];
       try {
-        await runTest('/oauth/subscriptions/paymentmethod/billing-agreement');
+        await runTest(
+          '/oauth/subscriptions/paymentmethod/billing-agreement',
+          defaultRequestOptions
+        );
         assert.fail('Should have thrown an error');
       } catch (err) {
         assert.equal(

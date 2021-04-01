@@ -105,6 +105,8 @@ const ERRNO = {
   ECOSYSTEM_ANON_ID_UPDATE_CONFLICT: 190,
   ECOSYSTEM_ANON_ID_NO_CONDITION: 191,
   BILLING_AGREEMENT_EXISTS: 192,
+  MISSING_PAYPAL_PAYMENT_TOKEN: 193,
+  MISSING_PAYPAL_BILLING_AGREEMENT: 194,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -694,6 +696,34 @@ AppError.billingAgreementExists = (customerId) => {
       error: 'Bad Request',
       errno: ERRNO.BILLING_AGREEMENT_EXISTS,
       message: `Billing agreement already on file for this customer.`,
+    },
+    {
+      customerId,
+    }
+  );
+};
+
+AppError.missingPaypalPaymentToken = (customerId) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.MISSING_PAYPAL_PAYMENT_TOKEN,
+      message: `PayPal payment token is missing.`,
+    },
+    {
+      customerId,
+    }
+  );
+};
+
+AppError.missingPaypalBillingAgreement = (customerId) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.MISSING_PAYPAL_BILLING_AGREEMENT,
+      message: `PayPal billing agreement is missing for the existing subscriber.`,
     },
     {
       customerId,

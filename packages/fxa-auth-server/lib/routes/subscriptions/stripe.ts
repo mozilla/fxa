@@ -6,6 +6,7 @@ import isA from '@hapi/joi';
 import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
+  ACTIVE_SUBSCRIPTION_STATUSES,
   DeepPartial,
   filterCustomer,
   filterIntent,
@@ -18,10 +19,7 @@ import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import {
-  StripeHelper,
-  ACTIVE_SUBSCRIPTION_STATUSES,
-} from '../../payments/stripe';
+import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { splitCapabilities } from '../utils/subscriptions';
 import validators from '../validators';
