@@ -6,6 +6,7 @@ import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { ReactComponent as BackArrow } from './back-arrow.svg';
 import Head from 'fxa-react/components/Head';
+import { useLocalization } from '@fluent/react';
 
 type FlowContainerProps = {
   width?: 'sm' | 'md' | 'lg' | 'xl';
@@ -23,6 +24,7 @@ export const FlowContainer = ({
   onBackButtonClick = () => window.history.back(),
   children,
 }: FlowContainerProps & RouteComponentProps) => {
+  const { l10n } = useLocalization();
   return (
     <div
       className={`max-w-lg mx-auto mt-6 p-6 pb-7 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl`}
@@ -34,7 +36,7 @@ export const FlowContainer = ({
         <button
           onClick={onBackButtonClick}
           data-testid="flow-container-back-btn"
-          title="Back"
+          title={l10n.getString('flow-container-back', null, 'Back')}
           className="relative w-8 h-8 ltr:-ml-2 rtl:-mr-2 ltr:mr-2 rtl:ml-2 tablet:ltr:mr-10 tablet:rtl:ml-10 tablet:ltr:-ml-18 tablet:rtl:-mr-18"
         >
           <BackArrow

@@ -8,6 +8,7 @@ import AlertBarContext from '../../lib/AlertBarContext';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../lib/hooks';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import Portal from 'fxa-react/components/Portal';
+import { useLocalization } from '@fluent/react';
 
 export type AlertBarType = 'success' | 'error' | 'info';
 
@@ -29,6 +30,7 @@ export const AlertBar = ({
   type = 'success',
 }: AlertBarProps) => {
   const { alertBarRootRef } = useContext(AlertBarContext);
+  const { l10n } = useLocalization();
 
   // Although `role="alert" is usually sufficient to trigger a screenreader
   // without having to reset focus, if this component is rerendered before
@@ -60,7 +62,11 @@ export const AlertBar = ({
             data-testid="alert-bar-dismiss"
             className={`self-center rounded-r h-full px-1 ${typeClasses[type]} hover:bg-black hover:bg-opacity-20 active:bg-opacity-30`}
             onClick={onDismiss as () => void}
-            title="Close message"
+            title={l10n.getString(
+              'alert-bar-close-message',
+              null,
+              'Close message'
+            )}
           >
             <CloseIcon className="w-3 h-3 m-2 fill-current" />
           </button>
