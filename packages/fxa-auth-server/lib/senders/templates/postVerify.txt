@@ -4,7 +4,7 @@
 
 {{t "Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices." }}
 
-{{t "Setup next device"}}
+{{t "Set up next device"}}
 {{{ link }}}
 
 {{> automatedEmailNoAction}}
