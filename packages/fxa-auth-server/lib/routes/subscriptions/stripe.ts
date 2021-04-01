@@ -48,7 +48,10 @@ export type PaypalPaymentError = 'missing_agreement' | 'funding_source';
 
 type PaymentBillingDetails = ReturnType<
   StripeHandler['extractBillingDetails']
-> & { paypal_payment_error?: PaypalPaymentError };
+> & {
+  paypal_payment_error?: PaypalPaymentError;
+  billing_agreement_id?: string;
+};
 
 export class StripeHandler {
   constructor(
@@ -371,6 +374,12 @@ export class StripeHandler {
     const billingDetails = this.extractBillingDetails(
       customer
     ) as PaymentBillingDetails;
+
+    if (billingDetails.payment_provider === 'paypal') {
+      billingDetails.billing_agreement_id = this.stripeHelper.getCustomerPaypalAgreement(
+        customer
+      );
+    }
 
     if (
       billingDetails.payment_provider === 'paypal' &&

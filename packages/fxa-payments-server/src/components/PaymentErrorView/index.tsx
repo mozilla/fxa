@@ -4,7 +4,7 @@ import { Localized } from '@fluent/react';
 import { StripeError } from '@stripe/stripe-js';
 
 import { getErrorMessage, GeneralError } from '../../lib/errors';
-import errorIcon from './error.svg';
+import errorIcon from '../../images/error.svg';
 import SubscriptionTitle from '../SubscriptionTitle';
 import TermsAndPrivacy from '../TermsAndPrivacy';
 

@@ -1,16 +1,16 @@
 import React, {
   useState,
   useCallback,
-  useContext,
   useEffect,
   Suspense,
+  useContext,
 } from 'react';
 import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
 import classNames from 'classnames';
 import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
 
-import { useNonce } from '../../../lib/hooks';
+import { useNonce, usePaypalButtonSetup } from '../../../lib/hooks';
 
 import PlanDetails from '../../../components/PlanDetails';
 import Header from '../../../components/Header';
@@ -27,12 +27,13 @@ import * as Amplitude from '../../../lib/amplitude';
 import { Localized } from '@fluent/react';
 import * as apiClient from '../../../lib/apiClient';
 
-import { AppContext } from '../../../lib/AppContext';
-
 import '../../Product/SubscriptionCreate/index.scss';
 
-import { ButtonBaseProps } from '../../Product/PayPalButton';
-const PaypalButton = React.lazy(() => import('../../Product/PayPalButton'));
+import { ButtonBaseProps } from '../../../components/PayPalButton';
+import AppContext from 'fxa-payments-server/src/lib/AppContext';
+const PaypalButton = React.lazy(() =>
+  import('../../../components/PayPalButton')
+);
 
 type PaymentError =
   | undefined
@@ -91,46 +92,15 @@ export const SubscriptionCreate = ({
     [selectedPlan]
   );
 
-  const { config } = useContext(AppContext);
-
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
 
   // The Stripe customer isn't created until payment is submitted, so
   // customer can be null and customer.payment_provider can be undefined.
   const paymentProvider: ProviderType | undefined = customer?.payment_provider;
 
-  useEffect(() => {
-    if (!config.featureFlags.usePaypalUIByDefault) {
-      return;
-    }
+  const { config } = useContext(AppContext);
 
-    if (paypalButtonBase) {
-      setPaypalScriptLoaded(true);
-      return;
-    }
-
-    // Read nonce from the fxa-paypal-csp-nonce meta tag
-    const cspNonceMetaTag = document?.querySelector(
-      'meta[name="fxa-paypal-csp-nonce"]'
-    );
-    const cspNonce = JSON.parse(
-      decodeURIComponent(cspNonceMetaTag?.getAttribute('content') || '""')
-    );
-
-    const script = document.createElement('script');
-    script.src = `${config.paypal.scriptUrl}/sdk/js?client-id=${config.paypal.clientId}&vault=true&commit=false&intent=capture&disable-funding=credit,card`;
-    // Pass the csp nonce to paypal
-    script.setAttribute('data-csp-nonce', cspNonce);
-    /* istanbul ignore next */
-    script.onload = () => {
-      setPaypalScriptLoaded(true);
-    };
-    /* istanbul ignore next */
-    script.onerror = () => {
-      throw new Error('Paypal SDK could not be loaded.');
-    };
-    document.body.appendChild(script);
-  }, []);
+  usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
 
   const [inProgress, setInProgress] = useState(false);
 
@@ -246,6 +216,7 @@ export const SubscriptionCreate = ({
                     customer={customer}
                     idempotencyKey={submitNonce}
                     priceId={selectedPlan.plan_id}
+                    newPaypalAgreement={true}
                     refreshSubscriptions={refreshSubscriptions}
                     setPaymentError={setPaymentError}
                     ButtonBase={paypalButtonBase}
