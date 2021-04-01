@@ -19793,7 +19793,7 @@ fsevents@^1.2.7:
     fxa-geodb: "workspace:*"
     fxa-jwtool: 0.7.2
     fxa-shared: "workspace:*"
-    google-libphonenumber: ^3.2.18
+    google-libphonenumber: ^3.2.19
     grunt: ^1.3.0
     grunt-cli: ~1.4.1
     grunt-contrib-copy: 1.0.0
@@ -21431,10 +21431,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"google-libphonenumber@npm:^3.2.18":
-  version: 3.2.18
-  resolution: "google-libphonenumber@npm:3.2.18"
-  checksum: 4da21f0e37c0671de9552a657466b9893aa27d25abc0cc71d077dacec47fe928ad762d3537f24102a7d1b158c9de79b54af9e3476934f0583bd7423af200793e
+"google-libphonenumber@npm:^3.2.19":
+  version: 3.2.19
+  resolution: "google-libphonenumber@npm:3.2.19"
+  checksum: dad2b7ceb561ada326cebeff0edee917a828e608f952bbe686df14deebda90d9e54c89a1f0d1d043d1c766b80c8bce6238b1c55d89b54980dd185cfeec2107de
   languageName: node
   linkType: hard
 
