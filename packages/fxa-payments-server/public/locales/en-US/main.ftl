@@ -307,6 +307,10 @@ sub-subscription-error =
 sub-customer-error =
   .title = Problem loading customer
 sub-billing-update-success = Your billing information has been updated successfully
+sub-route-payment-modal-heading = Invalid billing information
+sub-route-payment-modal-copy = There seems to be an error with your Paypal account, we need you to take the necessary steps to resolve this payment issue.
+sub-route-invalid-payment = Invalid payment information, there is an error with your account. <div>Manage</div>
+pay-update-manage-btn = Manage
 
 ## subscription create
 sub-guarantee = 30-day money-back guarantee
