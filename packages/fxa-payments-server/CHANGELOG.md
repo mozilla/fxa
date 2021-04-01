@@ -1,5 +1,27 @@
 # Change history
 
+## 1.203.5
+
+### Bug fixes
+
+- fxa-payment-server: remove debugging code from ActionButton ([6a6d11377](https://github.com/mozilla/fxa/commit/6a6d11377))
+
+### Other changes
+
+- fxa-payments-server: add paypal to subscription management"" ([d31f14b87](https://github.com/mozilla/fxa/commit/d31f14b87))
+
+## 1.203.4
+
+### Other changes
+
+- fxa-payments-server: add paypal to subscription management" ([097ae6075](https://github.com/mozilla/fxa/commit/097ae6075))
+
+## 1.203.3
+
+### New features
+
+- fxa-payments-server: add paypal to subscription management ([1379ec958](https://github.com/mozilla/fxa/commit/1379ec958))
+
 ## 1.203.2
 
 No changes.

@@ -1,3 +1,17 @@
+## 1.203.5
+
+No changes.
+
+## 1.203.4
+
+No changes.
+
+## 1.203.3
+
+### Bug fixes
+
+- codes: Fix issue where user could not login if they have low recovery codes ([a3dcbd7ad](https://github.com/mozilla/fxa/commit/a3dcbd7ad))
+
 ## 1.203.2
 
 No changes.
