@@ -37,12 +37,12 @@ describe('navigation', () => {
 
   // it('can click avatar menu add button and back', async ({ remote }) => {
   //   await click(
-  //     selectors.SETTINGS_V2.PICTURE_MENU.ADD_BUTTON,
-  //     selectors.SETTINGS_V2.PICTURE_MENU.HEADER,
+  //     selectors.SETTINGS_V2.AVATAR.ADD_BUTTON,
+  //     selectors.SETTINGS_V2.AVATAR.HEADER,
   //     remote
   //   );
   //   await click(
-  //     selectors.SETTINGS_V2.PICTURE_MENU.BACK_BUTTON,
+  //     selectors.SETTINGS_V2.AVATAR.BACK_BUTTON,
   //     selectors.SETTINGS_V2.HEADER,
   //     remote
   //   );

@@ -104,7 +104,7 @@ export const TakePhotoBtn = ({
     <div onClick={onClick} className="cursor-pointer flex-1">
       <Localized id="avatar-page-take-photo-button" attrs={{ title: true }}>
         <ButtonIcon
-          testId="take-photo-btn"
+          testId={capturing ? 'take-photo-btn-capturing' : 'take-photo-btn'}
           title="Take photo"
           icon={[CameraIcon, 24, 22]}
           classNames={capturing ? captureClass : buttonClass}
@@ -132,6 +132,7 @@ export const AddPhotoBtn = ({
   const hiddenFileInput = (
     <input
       type="file"
+      data-testid="avatar-image-upload-input"
       accept="image/png, image/jpeg"
       onChange={onChange}
       ref={fileInputRef}

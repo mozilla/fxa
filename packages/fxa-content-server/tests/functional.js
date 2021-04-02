@@ -13,7 +13,7 @@ module.exports = testsSettingsV2.concat([
   // new and flaky tests above here',
   'tests/functional/404.js',
   'tests/functional/500.js',
-  // #7979 'tests/functional/avatar.js',
+  'tests/functional/avatar.js',
   'tests/functional/back_button_after_start.js',
   'tests/functional/bounced_email.js',
   'tests/functional/change_password.js',
