@@ -183,7 +183,7 @@ export const UnitRowTwoStepAuth = () => {
                 linkExternal: (
                   <LinkExternal
                     className="link-blue"
-                    href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
+                    href="https://support.mozilla.org/en-US/kb/changing-your-two-step-authentication-device-firefox-account"
                   >
                     {' '}
                   </LinkExternal>
