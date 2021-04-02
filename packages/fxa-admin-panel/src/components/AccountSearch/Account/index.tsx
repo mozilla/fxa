@@ -64,6 +64,12 @@ export const DISABLE_ACCOUNT = gql`
   }
 `;
 
+export const ENABLE_ACCOUNT = gql`
+  mutation disableAccount($uid: String!) {
+    enableAccount(uid: $uid)
+  }
+`;
+
 export const ClearButton = ({
   emails,
   onCleared,
@@ -100,15 +106,39 @@ export const DangerZone = ({
   disabledAt: number | null;
 }) => {
   const alertWindow = () => {
-    window.alert('Implementation coming soon.');
+    window.alert('Implementation Coming Soon');
+  };
+
+  const handleLock = () => {
+    if (!disabledAt) {
+      if (window.confirm('Are you sure you want to lock this account?')) {
+        executeDisableAccount();
+      }
+    } else {
+      if (window.confirm('You are about to unlock this account.')) {
+        executeDisableAccount();
+      }
+    }
     return;
   };
+
   const [disableAccount] = useMutation(DISABLE_ACCOUNT, {
-    onCompleted: () => console.log('true'),
+    onCompleted: () => setAccountStatus('Unlock Account'),
   });
 
+  const [enableAccount] = useMutation(ENABLE_ACCOUNT, {
+    onCompleted: () => setAccountStatus('Lock Account'),
+  });
+  const [accountStatus, setAccountStatus] = useState<string>(
+    disabledAt ? 'Unlock Account' : 'Lock Account'
+  );
+
   const executeDisableAccount = () => {
-    disableAccount({ variables: { uid } });
+    if (disabledAt) {
+      enableAccount({ variables: { uid } });
+    } else {
+      disableAccount({ variables: { uid } });
+    }
   };
 
   return (
@@ -131,8 +161,8 @@ export const DangerZone = ({
         Locking this account will disable the user from logging in. Unlocking
         will toggle this state.
         <br />
-        <button className="danger-zone-button" onClick={executeDisableAccount}>
-          Lock/Unlock Account
+        <button className="danger-zone-button" onClick={handleLock}>
+          {accountStatus}
         </button>
       </p>
       <h2>Force Password Change</h2>

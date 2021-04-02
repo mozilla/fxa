@@ -129,7 +129,8 @@ export class AccountResolver {
         'securityEvents.nameId',
         'securityEventNames.id'
       )
-      .where('uid', uidBuffer);
+      .where('uid', uidBuffer)
+      .limit(10);
   }
 
   @Mutation((returns) => Boolean)
@@ -141,6 +142,19 @@ export class AccountResolver {
     const result = await this.db.account
       .query()
       .update({ disabledAt: Date.now() })
+      .where('uid', uidBuffer);
+    return !!result;
+  }
+
+  @Mutation((returns) => Boolean)
+  public async enableAccount(
+    @Args('uid') uid: string,
+    @CurrentUser() user: string
+  ) {
+    const uidBuffer = uuidTransformer.to(uid);
+    const result = await this.db.account
+      .query()
+      .update({ disabledAt: 0 })
       .where('uid', uidBuffer);
     return !!result;
   }
