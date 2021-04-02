@@ -50,7 +50,7 @@
     "@testing-library/react": "^9.5.0",
     "@types/accept-language-parser": "^1.5.1",
     "@types/classnames": "^2.2.11",
-    "@types/jest": "^26.0.20",
+    "@types/jest": "^26.0.22",
     "@types/jsdom": "^12.2.4",
     "@types/nock": "^11.1.0",
     "@types/node": "^14.14.37",

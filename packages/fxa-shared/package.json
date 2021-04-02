@@ -38,7 +38,7 @@
     "@types/chai": "^4.2.11",
     "@types/chance": "^1",
     "@types/generic-pool": "^3.1.9",
-    "@types/jest": "^26.0.13",
+    "@types/jest": "^26.0.22",
     "@types/joi": "^14.3.4",
     "@types/lodash.omitby": "^4",
     "@types/lodash.pick": "^4",
