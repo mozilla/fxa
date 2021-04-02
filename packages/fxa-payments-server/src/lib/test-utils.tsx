@@ -316,6 +316,11 @@ export const MOCK_PAYPAL_SUBSCRIPTION_RESULT = {
   subscription: { what: 'ever' },
 };
 
+export const MOCK_PAYPAL_CUSTOMER_RESULT = {
+  invoice_settings: {},
+  subscriptions: [{ what: 'ever' }],
+};
+
 export const STRIPE_FIELDS = [
   'cardNumberElement',
   'cardCVCElement',
