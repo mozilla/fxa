@@ -19,7 +19,7 @@ import { Account } from '../../database/model';
 import { uuidTransformer } from '../../database/transformers';
 import { Account as AccountType } from '../../gql/model/account.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
-import { deleteAccount } from '../shell/delete-account.tsx';
+import { deleteAccount } from '../../shell/delete-account';
 
 const ACCOUNT_COLUMNS = ['uid', 'email', 'emailVerified', 'createdAt'];
 const EMAIL_COLUMNS = [
