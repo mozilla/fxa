@@ -83,7 +83,7 @@
     "@sentry/node": "^6.0.1",
     "@types/js-md5": "^0.4.2",
     "accept-language": "^2.0.17",
-    "ajv": "^6.12.2",
+    "ajv": "^8.0.3",
     "apollo-server": "^2.19.2",
     "aws-sdk": "^2.851.0",
     "bluebird": "^3.7.2",
