@@ -152,7 +152,9 @@ module.exports = function (log, config) {
       time = time.tz(timeZone);
     }
     // return a locale-specific time
-    return time.format('LTS (z) dddd, ll');
+    const timeNow = time.format('LTS (z)');
+    const dateNow = time.format('dddd, ll');
+    return [timeNow, dateNow];
   }
 
   function constructLocalDateString(timeZone, locale, date) {
@@ -719,6 +721,10 @@ module.exports = function (log, config) {
     const subject = gettext('Account authorization code');
 
     const links = this._generateLinks(null, message, query, templateName);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Unblock-Code': message.unblockCode,
@@ -731,6 +737,7 @@ module.exports = function (log, config) {
       subject,
       template: templateName,
       templateValues: {
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
@@ -739,10 +746,7 @@ module.exports = function (log, config) {
         reportSignInLink: links.reportSignInLink,
         reportSignInLinkAttributes: links.reportSignInLinkAttributes,
         subject,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
         unblockCode: message.unblockCode,
       },
     });
@@ -789,6 +793,10 @@ module.exports = function (log, config) {
         'Confirm new sign-in to %(clientName)s'
       );
       const action = gettext('Confirm sign-in');
+      const [time, date] = this._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
 
       return this.send({
         ...message,
@@ -798,6 +806,7 @@ module.exports = function (log, config) {
         templateValues: {
           action,
           clientName,
+          date,
           device: this._formatUserAgentInfo(message),
           email: message.email,
           ip: message.ip,
@@ -810,10 +819,7 @@ module.exports = function (log, config) {
           subject,
           supportLinkAttributes: links.supportLinkAttributes,
           supportUrl: links.supportUrl,
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
+          time,
         },
       });
     });
@@ -848,6 +854,10 @@ module.exports = function (log, config) {
       query,
       templateName
     );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Signin-Verify-Code': message.code,
@@ -862,6 +872,7 @@ module.exports = function (log, config) {
       template: templateName,
       templateValues: {
         code: message.code,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
@@ -873,10 +884,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
         tokenCode: message.code,
       },
     });
@@ -914,6 +922,10 @@ module.exports = function (log, config) {
       query,
       templateName
     );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -927,6 +939,7 @@ module.exports = function (log, config) {
       template: templateName,
       templateValues: {
         action,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.primaryEmail,
         ip: message.ip,
@@ -939,10 +952,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -979,6 +989,10 @@ module.exports = function (log, config) {
       query,
       templateName
     );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -992,6 +1006,7 @@ module.exports = function (log, config) {
       template: templateName,
       templateValues: {
         action,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
@@ -1007,10 +1022,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1026,6 +1038,10 @@ module.exports = function (log, config) {
     const action = gettext('Verify email');
 
     const links = this._generateLinks(undefined, message, {}, templateName);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Verify-Code': message.code,
@@ -1039,6 +1055,7 @@ module.exports = function (log, config) {
       templateValues: {
         action,
         code: message.code,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
@@ -1050,10 +1067,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1087,6 +1101,10 @@ module.exports = function (log, config) {
       query,
       templateName
     );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -1101,6 +1119,7 @@ module.exports = function (log, config) {
       templateValues: {
         action,
         code: message.code,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
@@ -1110,10 +1129,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1128,6 +1144,10 @@ module.exports = function (log, config) {
       {},
       templateName
     );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.resetLink,
@@ -1139,6 +1159,7 @@ module.exports = function (log, config) {
       subject,
       template: templateName,
       templateValues: {
+        date,
         device: this._formatUserAgentInfo(message),
         ip: message.ip,
         location: this._constructLocationString(message),
@@ -1148,10 +1169,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1259,6 +1277,10 @@ module.exports = function (log, config) {
       const clientName = clientInfo.name;
       const subject = translator.gettext('New sign-in to %(clientName)s');
       const action = gettext('Manage account');
+      const [time, date] = this._constructLocalTimeString(
+        message.timeZone,
+        message.acceptLanguage
+      );
 
       return this.send({
         ...message,
@@ -1268,6 +1290,7 @@ module.exports = function (log, config) {
         templateValues: {
           action,
           clientName,
+          date,
           device: this._formatUserAgentInfo(message),
           ip: message.ip,
           link: links.link,
@@ -1278,10 +1301,7 @@ module.exports = function (log, config) {
           subject,
           supportLinkAttributes: links.supportLinkAttributes,
           supportUrl: links.supportUrl,
-          timestamp: this._constructLocalTimeString(
-            message.timeZone,
-            message.acceptLanguage
-          ),
+          time,
         },
       });
     });
@@ -1452,6 +1472,10 @@ module.exports = function (log, config) {
     const links = this._generateSettingLinks(message, templateName);
     const subject = gettext('Two-step verification enabled');
     const action = gettext('Manage account');
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -1465,6 +1489,7 @@ module.exports = function (log, config) {
       templateValues: {
         action,
         androidLink: links.androidLink,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
@@ -1477,10 +1502,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1495,6 +1517,10 @@ module.exports = function (log, config) {
     const links = this._generateSettingLinks(message, templateName);
     const subject = gettext('Two-step verification is off');
     const action = gettext('Manage account');
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -1508,6 +1534,7 @@ module.exports = function (log, config) {
       templateValues: {
         action,
         androidLink: links.androidLink,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
@@ -1520,10 +1547,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1538,6 +1562,10 @@ module.exports = function (log, config) {
     const links = this._generateSettingLinks(message, templateName);
     const subject = gettext('New recovery codes generated');
     const action = gettext('Manage account');
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -1551,6 +1579,7 @@ module.exports = function (log, config) {
       templateValues: {
         action,
         androidLink: links.androidLink,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
@@ -1563,10 +1592,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1581,6 +1607,10 @@ module.exports = function (log, config) {
     const links = this._generateSettingLinks(message, templateName);
     const subject = gettext('Recovery code used');
     const action = gettext('Manage account');
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -1594,6 +1624,7 @@ module.exports = function (log, config) {
       templateValues: {
         action,
         androidLink: links.androidLink,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
@@ -1606,10 +1637,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1671,6 +1699,10 @@ module.exports = function (log, config) {
     const links = this._generateSettingLinks(message, templateName);
     const subject = gettext('Account recovery key generated');
     const action = gettext('Manage account');
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -1684,6 +1716,7 @@ module.exports = function (log, config) {
       templateValues: {
         action,
         androidLink: links.androidLink,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
@@ -1699,10 +1732,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1717,6 +1747,10 @@ module.exports = function (log, config) {
     const links = this._generateSettingLinks(message, templateName);
     const subject = gettext('Account recovery key removed');
     const action = gettext('Manage account');
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -1730,6 +1764,7 @@ module.exports = function (log, config) {
       templateValues: {
         action,
         androidLink: links.androidLink,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
@@ -1742,10 +1777,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
@@ -1763,6 +1795,10 @@ module.exports = function (log, config) {
     );
     const subject = gettext('Password updated using recovery key');
     const action = gettext('Create new recovery key');
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
 
     const headers = {
       'X-Link': links.link,
@@ -1776,6 +1812,7 @@ module.exports = function (log, config) {
       templateValues: {
         action,
         androidLink: links.androidLink,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
@@ -1788,10 +1825,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-        timestamp: this._constructLocalTimeString(
-          message.timeZone,
-          message.acceptLanguage
-        ),
+        time,
       },
     });
   };
