@@ -323,28 +323,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/cli@npm:7.7.4":
-  version: 7.7.4
-  resolution: "@babel/cli@npm:7.7.4"
+"@babel/cli@npm:7.13.14":
+  version: 7.13.14
+  resolution: "@babel/cli@npm:7.13.14"
   dependencies:
-    chokidar: ^2.1.8
+    "@nicolo-ribaudo/chokidar-2": 2.1.8-no-fsevents
+    chokidar: ^3.4.0
     commander: ^4.0.1
     convert-source-map: ^1.1.0
     fs-readdir-recursive: ^1.1.0
     glob: ^7.0.0
-    lodash: ^4.17.13
+    lodash: ^4.17.19
     make-dir: ^2.1.0
     slash: ^2.0.0
     source-map: ^0.5.0
   peerDependencies:
     "@babel/core": ^7.0.0-0
   dependenciesMeta:
+    "@nicolo-ribaudo/chokidar-2":
+      optional: true
     chokidar:
       optional: true
   bin:
     babel: ./bin/babel.js
     babel-external-helpers: ./bin/babel-external-helpers.js
-  checksum: af17786f837cad1f6cdaf5412c410e2ad8a6a6728bd764876cda3873cccf6676bd1b4d12f9a56c2defb4d4e55842f3f8e52a79ad3aff76e7f7875176741f6007
+  checksum: 6259a752460c92685ce6c4d4a63f2010081add799388bce003b8a2278e9ce94fd6b470ab511fbab509da2034631539d030932059ca343b1a09433ed88032e91f
   languageName: node
   linkType: hard
 
@@ -4205,6 +4208,25 @@ __metadata:
     extsprintf: ^1.4.0
     lodash: ^4.17.15
   checksum: 43a2d082e075d8d944b8804d949fab67af6dcf835a6bb689ac7fd6e7a0be23f59882c29909f3dbf77d4efa629807f934e3cbf17a3d70d53e0ba6bb17f4e49d26
+  languageName: node
+  linkType: hard
+
+"@nicolo-ribaudo/chokidar-2@npm:2.1.8-no-fsevents":
+  version: 2.1.8-no-fsevents
+  resolution: "@nicolo-ribaudo/chokidar-2@npm:2.1.8-no-fsevents"
+  dependencies:
+    anymatch: ^2.0.0
+    async-each: ^1.0.1
+    braces: ^2.3.2
+    glob-parent: ^3.1.0
+    inherits: ^2.0.3
+    is-binary-path: ^1.0.0
+    is-glob: ^4.0.0
+    normalize-path: ^3.0.0
+    path-is-absolute: ^1.0.0
+    readdirp: ^2.2.1
+    upath: ^1.1.1
+  checksum: 0efeea3b7d9e3c07dc3ded371ba65351a7c30314763f6e2d34849bf58809655f0f9bd71fcd505ab72624cd17e80e738a0bd41aac0d7d8606664817f3fe85cfba
   languageName: node
   linkType: hard
 
@@ -13823,7 +13845,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:3.5.1, chokidar@npm:>=2.0.0 <4.0.0, chokidar@npm:^3.3.0, chokidar@npm:^3.4.1, chokidar@npm:^3.4.2":
+"chokidar@npm:3.5.1, chokidar@npm:>=2.0.0 <4.0.0, chokidar@npm:^3.3.0, chokidar@npm:^3.4.0, chokidar@npm:^3.4.1, chokidar@npm:^3.4.2":
   version: 3.5.1
   resolution: "chokidar@npm:3.5.1"
   dependencies:
@@ -19882,7 +19904,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-content-server@workspace:packages/fxa-content-server"
   dependencies:
-    "@babel/cli": 7.7.4
+    "@babel/cli": 7.13.14
     "@babel/core": ^7.10.3
     "@babel/plugin-proposal-class-properties": ^7.10.1
     "@babel/plugin-syntax-dynamic-import": ^7.8.3
