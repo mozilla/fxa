@@ -19639,7 +19639,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     postcss-cli: ^7.1.1
     prettier: ^2.0.5
-    react: ^16.13.0
+    react: ^17.0.2
     react-dom: ^16.13.0
     react-router-dom: ^5.1.2
     react-scripts: ^3.4.1
@@ -20018,7 +20018,7 @@ fsevents@^1.2.7:
     postcss-loader: 4.2.0
     prettier: ^2.0.5
     proxyquire: ^2.1.3
-    react: ^16.8.6
+    react: ^17.0.2
     react-dom: ^16.8.6
     request: ^2.88.2
     request-promise: 4.2.6
@@ -20457,7 +20457,7 @@ fsevents@^1.2.7:
     on-headers: ^1.0.2
     pm2: ^4.4.1
     prettier: ^2.0.5
-    react: ^16.12.0
+    react: ^17.0.2
     react-document-title: ^2.0.3
     react-dom: ^16.12.0
     react-redux: ^7.2.2
@@ -20578,7 +20578,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     postcss-cli: ^7.1.1
     prettier: ^2.0.5
-    react: ^16.13.1
+    react: ^17.0.2
     react-dom: ^16.13.1
     react-helmet: ^6.1.0
     react-transition-group: ^4.3.0
@@ -20650,7 +20650,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     postcss-cli: ^7.1.1
     postcss-import: ^12.0.1
-    react: ^16.13.1
+    react: ^17.0.2
     react-async-hook: ^3.6.2
     react-dom: ^16.13.1
     react-easy-crop: ^3.3.1
@@ -33828,7 +33828,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react@npm:^16.12.0, react@npm:^16.13.0, react@npm:^16.13.1, react@npm:^16.8.3, react@npm:^16.8.6":
+"react@npm:^16.12.0, react@npm:^16.13.1, react@npm:^16.8.3":
   version: 16.13.1
   resolution: "react@npm:16.13.1"
   dependencies:
@@ -33836,6 +33836,16 @@ fsevents@^1.2.7:
     object-assign: ^4.1.1
     prop-types: ^15.6.2
   checksum: 13dcc9ba8a7521ecc3d7e69998dbc5703ae9515308d06a94a474ad34b42f1fc109372265e924a8c9b11d20fa1828407c290b8f61617c36734c4ca907ae7e5f45
+  languageName: node
+  linkType: hard
+
+"react@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "react@npm:17.0.2"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+  checksum: 7d0dfebafe1d297503157abb2e9acdb49852185deb8700c16f4a6faad87642f84903ab18cfc16f40b9a0dfe97540f99834982ee953e6d48b39c41608dc3e4b29
   languageName: node
   linkType: hard
 
