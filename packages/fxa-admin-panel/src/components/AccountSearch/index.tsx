@@ -72,12 +72,8 @@ export const GET_ACCOUNT_BY_UID = gql`
 `;
 
 function validateUID(uid: string) {
-  // checks if input string is in uid format
-  if (/^[0-9a-fA-F]{32}/.test(uid)) {
-    // alphanumeric, 32 digit
-    return true;
-  }
-  return false;
+  // checks if input string is in uid format (hex, 32 digit)
+  return /^[0-9a-fA-F]{32}/.test(uid);
 }
 
 export const GET_EMAILS_LIKE = gql`
@@ -95,10 +91,10 @@ export const AccountSearch = () => {
   const [searchInput, setSearchInput] = useState<string>('');
   // define two queries to search by either email or uid.
   const [getAccountbyEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
-  const [getAccountbyUID, UIDResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
+  const [getAccountbyUID, uidResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
   // choose which query result to show based on type of query made
-  const [isEmail, setIsEmail] = useState<Boolean>(false);
-  const queryResults = isEmail && showResult ? emailResults : UIDResults;
+  const [isEmail, setIsEmail] = useState<boolean>(false);
+  const queryResults = isEmail && showResult ? emailResults : uidResults;
   const [getEmailLike, { data: returnedEmails }] = useLazyQuery(
     GET_EMAILS_LIKE
   );
@@ -107,12 +103,12 @@ export const AccountSearch = () => {
     event.preventDefault();
     const isUID = validateUID(searchInput);
     // choose correct query if email or uid
-    if (isUID && searchInput.search('@') == -1 && searchInput != '') {
+    if (isUID) {
       // uid and non-empty
       getAccountbyUID({ variables: { uid: searchInput } });
       setIsEmail(false);
       setShowResult(true);
-    } else if (!isUID && searchInput.search('@') != -1 && searchInput != '') {
+    } else if (!isUID && searchInput.search('@') !== -1 && searchInput !== '') {
       // assume email if not uid and non-empty; must at least have '@'
       getAccountbyEmail({ variables: { email: searchInput } });
       setIsEmail(true);
@@ -121,7 +117,6 @@ export const AccountSearch = () => {
     // invalid input, neither email nor uid
     else {
       window.alert('Invalid email or UID format');
-      setShowResult(true);
     }
   };
 
@@ -239,7 +234,7 @@ const AccountSearchResult = ({
   query: string;
 }) => {
   if (loading) return <p data-testid="loading-message">Loading...</p>;
-  if (error) return <p data-testid="error-message">An error occured.</p>;
+  if (error) return <p data-testid="error-message">An error occurred.</p>;
 
   if (data?.accountByEmail) {
     return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
