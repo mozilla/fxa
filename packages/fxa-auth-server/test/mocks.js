@@ -114,6 +114,7 @@ const MAILER_METHOD_NAMES = [
   'sendSubscriptionUpgradeEmail',
   'sendSubscriptionDowngradeEmail',
   'sendSubscriptionPaymentExpiredEmail',
+  'sendSubscriptionPaymentProviderCancelledEmail',
   'sendSubscriptionPaymentFailedEmail',
   'sendSubscriptionAccountDeletionEmail',
   'sendSubscriptionCancellationEmail',

@@ -10,11 +10,10 @@
 }
 
 @mixin checkout-view() {
-  grid-row: 2/3;
+  grid-row: 3/4;
   background: $color-white;
   box-shadow: 0px 1px 4px rgba(12, 12, 13, 0.1);
   border-radius: 8px;
-  // margin: 0 16px 32px; processing
   color: rgba(12, 12, 13, 0.8);
   padding: 16px 16px 60px;
 
@@ -26,7 +25,6 @@
   @include min-width("desktop") {
     min-width: 60%;
     padding: 0 48px 48px;
-    // padding: 28px 48px 48px; processing
   }
 
   .wrapper {
@@ -37,7 +35,7 @@
 
   p {
     margin: 0;
-    color: $grey-40;
+    color: $grey-50;
   }
 
   .footer {

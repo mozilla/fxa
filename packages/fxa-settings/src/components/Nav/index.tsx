@@ -21,7 +21,7 @@ export const Nav = () => {
       primaryEmail
     )}`;
 
-  const activeClasses = 'font-bold text-blue-500 rounded-sm';
+  const activeClasses = 'font-bold text-blue-500 rounded-sm bg-grey-50';
   return (
     <nav
       className="font-header fixed bg-white w-full inset-0 mt-18 ltr:mr-24 rtl:ml-24 desktop:mt-11 desktop:static desktop:bg-transparent text-xl desktop:text-base"

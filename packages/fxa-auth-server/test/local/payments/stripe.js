@@ -1106,16 +1106,27 @@ describe('StripeHelper', () => {
 
   describe('fetchOpenInvoices', () => {
     it('returns customer paypal agreement id', async () => {
-      sandbox.stub(stripeHelper.stripe.invoices, 'list').resolves({});
-      const actual = await stripeHelper.fetchOpenInvoices(0);
-      assert.deepEqual(actual, {});
+      const invoice = deepCopy(invoicePaidSubscriptionCreate);
+      invoice.subscription = { status: 'active' };
+      const invoice2 = deepCopy(invoicePaidSubscriptionCreate);
+      invoice2.subscription = { status: 'cancelled' };
+      async function* genInvoice() {
+        yield invoice;
+        yield invoice2;
+      }
+      sandbox.stub(stripeHelper.stripe.invoices, 'list').returns(genInvoice());
+      const actual = [];
+      for await (const item of stripeHelper.fetchOpenInvoices(0)) {
+        actual.push(item);
+      }
+      assert.deepEqual(actual, [invoice]);
       sinon.assert.calledOnceWithExactly(stripeHelper.stripe.invoices.list, {
         customer: undefined,
         limit: 100,
         collection_method: 'send_invoice',
         status: 'open',
         created: 0,
-        expand: ['data.customer'],
+        expand: ['data.customer', 'data.subscription'],
       });
     });
   });
@@ -2747,7 +2758,7 @@ describe('StripeHelper', () => {
       ...mockInvoice,
       id: 'inv_upcoming',
       amount_due: 299000,
-      next_payment_attempt: 1590018018,
+      created: 1590018018,
     };
 
     const mockCharge = {

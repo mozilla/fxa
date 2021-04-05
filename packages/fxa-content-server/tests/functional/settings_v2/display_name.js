@@ -17,6 +17,7 @@ const {
   getWebChannelMessageData,
   storeWebChannelMessageData,
   testElementTextEquals,
+  testElementTextInclude,
   type,
 } = FunctionalHelpers.helpersRemoteWrapped;
 const CHANGE_PROFILE_COMMAND = 'profile:change';
@@ -53,7 +54,7 @@ describe('display name', () => {
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
       remote
     );
-    await testElementTextEquals(
+    await testElementTextInclude(
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.DISPLAY_NAME_LABEL,
       'Test User',
       remote
@@ -80,7 +81,7 @@ describe('display name', () => {
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
       remote
     );
-    await testElementTextEquals(
+    await testElementTextInclude(
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.DISPLAY_NAME_LABEL,
       email,
       remote
@@ -115,7 +116,7 @@ describe('display name', () => {
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
       remote
     );
-    await testElementTextEquals(
+    await testElementTextInclude(
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.DISPLAY_NAME_LABEL,
       'New User',
       remote
@@ -148,7 +149,7 @@ describe('display name', () => {
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
       remote
     );
-    await testElementTextEquals(
+    await testElementTextInclude(
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.DISPLAY_NAME_LABEL,
       'Test User',
       remote
@@ -181,7 +182,7 @@ describe('display name', () => {
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
       remote
     );
-    await testElementTextEquals(
+    await testElementTextInclude(
       selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.DISPLAY_NAME_LABEL,
       email,
       remote

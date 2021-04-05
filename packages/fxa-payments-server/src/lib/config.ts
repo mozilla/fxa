@@ -33,6 +33,7 @@ export interface Config {
     };
   };
   paypal: {
+    apiUrl: string;
     clientId: string;
     scriptUrl: string;
   };
@@ -76,6 +77,7 @@ export function defaultConfig(): Config {
       },
     },
     paypal: {
+      apiUrl: '',
       clientId: '',
       scriptUrl: '',
     },

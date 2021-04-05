@@ -34,7 +34,7 @@ describe('UnitRowTwoStepAuth', () => {
     );
     expect(
       screen.getByTestId('two-step-unit-row-header').textContent
-    ).toContain('Two-step authentication');
+    ).toContain('tfa-row-header');
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
     ).toContain('Enabled');
@@ -68,7 +68,7 @@ describe('UnitRowTwoStepAuth', () => {
     );
     expect(
       screen.getByTestId('two-step-unit-row-header').textContent
-    ).toContain('Two-step authentication');
+    ).toContain('tfa-row-header');
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
     ).toContain('Not set');

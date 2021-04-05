@@ -13,6 +13,10 @@ const mocks = require('../../../mocks');
 const error = require('../../../../lib/error');
 const { StripeHelper } = require('../../../../lib/payments/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
+const {
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+} = require('fxa-shared/subscriptions/types');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
 
@@ -1403,13 +1407,16 @@ describe('DirectStripeRoutes', () => {
             VALID_REQUEST
           );
           assert.strictEqual(actual.payment_provider, 'paypal');
-          assert.strictEqual(actual.paypal_payment_error, 'missing_agreement');
+          assert.strictEqual(
+            actual.paypal_payment_error,
+            PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT
+          );
           sinon.assert.calledOnceWithExactly(
             directStripeRoutesInstance.stripeHelper
               .hasSubscriptionRequiringPaymentMethod,
             customer
           );
-          sinon.assert.calledOnceWithExactly(
+          sinon.assert.calledWithExactly(
             directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
             customer
           );
@@ -1437,13 +1444,16 @@ describe('DirectStripeRoutes', () => {
             VALID_REQUEST
           );
           assert.strictEqual(actual.payment_provider, 'paypal');
-          assert.strictEqual(actual.paypal_payment_error, 'funding_source');
+          assert.strictEqual(
+            actual.paypal_payment_error,
+            PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE
+          );
           sinon.assert.calledOnceWithExactly(
             directStripeRoutesInstance.stripeHelper
               .hasSubscriptionRequiringPaymentMethod,
             customer
           );
-          sinon.assert.calledOnceWithExactly(
+          sinon.assert.calledWithExactly(
             directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
             customer
           );
@@ -1478,7 +1488,7 @@ describe('DirectStripeRoutes', () => {
               .hasSubscriptionRequiringPaymentMethod,
             customer
           );
-          sinon.assert.calledOnceWithExactly(
+          sinon.assert.calledWithExactly(
             directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
             customer
           );

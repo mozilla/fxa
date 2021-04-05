@@ -15,8 +15,8 @@ describe('Security', () => {
       </MockedCache>
     );
 
-    expect(await screen.findByText('Recovery key')).toBeTruthy;
-    expect(await screen.findByText('Two-step authentication')).toBeTruthy;
+    expect(await screen.findByText('rk-header')).toBeTruthy;
+    expect(await screen.findByText('tfa-row-header')).toBeTruthy;
 
     const result = await screen.findAllByText('Not set');
     expect(result).toHaveLength(2);

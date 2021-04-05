@@ -28,6 +28,7 @@ describe('remote subscriptions:', function () {
     config.subscriptions.stripeApiKey = null;
     config.subscriptions = {
       sharedSecret: 'wibble',
+      paymentsServer: config.subscriptions.paymentsServer,
     };
   });
 

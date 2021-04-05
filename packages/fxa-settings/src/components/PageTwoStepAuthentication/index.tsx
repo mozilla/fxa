@@ -5,7 +5,7 @@
 import { gql } from '@apollo/client';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import { useAlertBar, useMutation } from '../../lib/hooks';
+import { useAlertBar } from '../../lib/hooks';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -16,10 +16,11 @@ import DataBlock from '../DataBlock';
 import { useSession } from '../../models';
 import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
-import { alertTextExternal } from '../../lib/cache';
+import { alertTextExternal, cache } from '../../lib/cache';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { useAuthClient } from '../../lib/auth';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 
@@ -127,6 +128,65 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     setSubtitle(l10n.getString('tfa-step-2-3', null, 'Step 2 of 3'));
   };
 
+  const createTotp = useAuthClient(
+    (auth, sessionToken) => () => auth.createTotpToken(sessionToken),
+    {
+      onSuccess: ({ qrCodeUrl, secret, recoveryCodes }) => {
+        setQrCodeUrl(qrCodeUrl);
+        setSecret(secret);
+        setRecoveryCodes(recoveryCodes);
+        cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
+          fields: {
+            totp(currentTotp) {
+              return { ...currentTotp, exists: true };
+            },
+          },
+        });
+      },
+      onError: () => {
+        alertBar.error(
+          l10n.getString(
+            'tfa-cannont-retrieve-code',
+            null,
+            'There was a problem retrieving your code.'
+          )
+        );
+      },
+    }
+  );
+
+  const verifyTotp = useAuthClient(
+    (auth, sessionToken) => (code: string) =>
+      auth.verifyTotpCode(sessionToken, code),
+    {
+      onSuccess: () => {
+        cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
+          fields: {
+            totp(currentTotp) {
+              return { ...currentTotp, verified: true };
+            },
+          },
+        });
+        alertSuccessAndGoHome();
+      },
+      onError: (err) => {
+        if (err.errno === AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno) {
+          setRecoveryCodeError(
+            l10n.getString(
+              `auth-error-${AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno}`,
+              null,
+              AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
+            )
+          );
+        } else {
+          setRecoveryCodeError(err.message);
+        }
+      },
+    }
+  );
+
   const onRecoveryCodeSubmit = async ({ recoveryCode }: RecoveryCodeForm) => {
     if (!recoveryCodes.includes(recoveryCode)) {
       setRecoveryCodeError(
@@ -139,80 +199,13 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       return;
     }
     const code = await getCode(secret!);
-    verifyTotp({ variables: { input: { code } } });
+    verifyTotp.execute(code);
   };
-
-  const [createTotp] = useMutation(CREATE_TOTP_MUTATION, {
-    onCompleted: (x) => {
-      setQrCodeUrl(x.createTotp.qrCodeUrl);
-      setSecret(x.createTotp.secret);
-      setRecoveryCodes(x.createTotp.recoveryCodes);
-    },
-    onError: () => {
-      alertBar.error(
-        l10n.getString(
-          'tfa-cannont-retrieve-code',
-          null,
-          'There was a problem retrieving your code.'
-        )
-      );
-    },
-    update: (cache) => {
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          totp(currentTotp) {
-            return { ...currentTotp, exists: true };
-          },
-        },
-      });
-    },
-  });
-
-  const [verifyTotp] = useMutation(VERIFY_TOTP_MUTATION, {
-    onCompleted: alertSuccessAndGoHome,
-    onError: (err) => {
-      if (err.graphQLErrors?.length) {
-        if (
-          err.graphQLErrors[0].extensions?.errno ===
-          AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno
-        ) {
-          setRecoveryCodeError(
-            l10n.getString(
-              `auth-error-${AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno}`,
-              null,
-              AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
-            )
-          );
-        } else {
-          setRecoveryCodeError(err.message);
-        }
-      } else {
-        alertBar.error(
-          l10n.getString(
-            'tfa-cannot-verify-code',
-            null,
-            'There was a problem verifying your recovery code.'
-          )
-        );
-      }
-    },
-    update: (cache) => {
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          totp(currentTotp) {
-            return { ...currentTotp, verified: true };
-          },
-        },
-      });
-    },
-  });
 
   const session = useSession();
 
   useEffect(() => {
-    session.verified && createTotp({ variables: { input: {} } });
+    session.verified && createTotp.execute();
   }, [session, createTotp]);
 
   useEffect(() => {

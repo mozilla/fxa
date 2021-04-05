@@ -88,6 +88,7 @@ module.exports = () => {
       },
     },
     paypal: {
+      apiUrl: config.get('paypal.apiUrl'),
       clientId: config.get('paypal.clientId'),
       scriptUrl: config.get('paypal.scriptUrl'),
     },

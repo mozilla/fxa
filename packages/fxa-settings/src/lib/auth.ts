@@ -1,10 +1,12 @@
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import { useAsyncCallback } from 'react-async-hook';
 import AuthClient, {
   AuthServerError,
   generateRecoveryKey,
 } from 'fxa-auth-client/browser';
+import sentry from 'fxa-shared/lib/sentry';
 import { useConfig } from './config';
+import { sessionToken } from './cache';
 
 export interface AuthContextValue {
   auth?: AuthClient;
@@ -55,6 +57,45 @@ export function useAccountDestroyer({
       onError,
     }
   );
+}
+
+export function useAuthClient<T>(
+  authFn: (
+    auth: AuthClient,
+    sessionToken: hexstring
+  ) => (...args: any[]) => Promise<T>,
+  {
+    onSuccess,
+    onError,
+  }: {
+    onSuccess?: (r: T) => void;
+    onError?: (e: AuthServerError) => void;
+  } = {}
+) {
+  const auth = useAuth();
+  const fn = useRef(authFn);
+  const callback = useAsyncCallback(fn.current(auth, sessionToken()!), {
+    onSuccess: (r) => {
+      callback.reset();
+      if (onSuccess) {
+        onSuccess(r);
+      }
+    },
+    onError: (error) => {
+      callback.reset();
+      if (onError) {
+        try {
+          onError(error);
+        } catch (e) {
+          sentry.captureException(e);
+        }
+      } else {
+        sentry.captureException(error);
+      }
+    },
+  });
+  const x = useRef(callback);
+  return x.current;
 }
 
 export function usePasswordChanger({

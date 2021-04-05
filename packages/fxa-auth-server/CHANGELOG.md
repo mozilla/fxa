@@ -1,3 +1,63 @@
+## 1.203.5
+
+### Other changes
+
+- fxa-payments-server: add paypal to subscription management"" ([d31f14b87](https://github.com/mozilla/fxa/commit/d31f14b87))
+
+## 1.203.4
+
+### Other changes
+
+- fxa-payments-server: add paypal to subscription management" ([097ae6075](https://github.com/mozilla/fxa/commit/097ae6075))
+
+## 1.203.3
+
+### New features
+
+- fxa-payments-server: add paypal to subscription management ([1379ec958](https://github.com/mozilla/fxa/commit/1379ec958))
+
+### Bug fixes
+
+- auth-server: address processor running bugs ([335ba82a0](https://github.com/mozilla/fxa/commit/335ba82a0))
+- codes: Fix issue where user could not login if they have low recovery codes ([a3dcbd7ad](https://github.com/mozilla/fxa/commit/a3dcbd7ad))
+
+## 1.203.2
+
+### Bug fixes
+
+- import: Use relative import for production ([8240f4f74](https://github.com/mozilla/fxa/commit/8240f4f74))
+
+## 1.203.1
+
+### Bug fixes
+
+- import: Use relative import for production ([98778d0a4](https://github.com/mozilla/fxa/commit/98778d0a4))
+
+## 1.203.0
+
+### New features
+
+- auth-server: send uncaught IPN type to Sentry Because: ([5f053726e](https://github.com/mozilla/fxa/commit/5f053726e))
+- auth-server: copy billing address info to Stripe customer Because: ([5d5efb1c9](https://github.com/mozilla/fxa/commit/5d5efb1c9))
+- auth-server: send emails for invoicing ([ff396226d](https://github.com/mozilla/fxa/commit/ff396226d))
+
+### Bug fixes
+
+- use created date on reactivate ([6ac5cf720](https://github.com/mozilla/fxa/commit/6ac5cf720))
+- auth-server: restrict invoices to currenct subs ([e7a1bf3b2](https://github.com/mozilla/fxa/commit/e7a1bf3b2))
+- auth: make gen_keys script path indepedent ([6cfc878ff](https://github.com/mozilla/fxa/commit/6cfc878ff))
+- auth-server: handle failed checkout payments ([448188b40](https://github.com/mozilla/fxa/commit/448188b40))
+- auth-server: allow payment error out ([c4acd33ef](https://github.com/mozilla/fxa/commit/c4acd33ef))
+
+### Other changes
+
+- deps: bump cldr-core from 37.0.0 to 38.1.0 ([4b8d4da99](https://github.com/mozilla/fxa/commit/4b8d4da99))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- deps-dev: bump @types/ioredis from 4.22.0 to 4.22.1 ([6a5575dcc](https://github.com/mozilla/fxa/commit/6a5575dcc))
+- deps-dev: bump @types/verror from 1.10.3 to 1.10.4 ([fc67a2d21](https://github.com/mozilla/fxa/commit/fc67a2d21))
+- deps: bump cbor from 5.1.0 to 7.0.4 ([916b9ec68](https://github.com/mozilla/fxa/commit/916b9ec68))
+- deps: bump jsrsasign from 10.1.12 to 10.1.13 ([8f397ea8f](https://github.com/mozilla/fxa/commit/8f397ea8f))
+
 ## 1.202.3
 
 No changes.

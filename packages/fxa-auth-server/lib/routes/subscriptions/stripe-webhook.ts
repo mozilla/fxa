@@ -4,17 +4,19 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import * as Sentry from '@sentry/node';
-import { PayPalClientError } from 'fxa-auth-server/lib/payments/paypal-client';
-import {
-  PAYPAL_BILLING_AGREEMENT_INVALID,
-  PAYPAL_SOURCE_ERRORS,
-} from 'fxa-auth-server/lib/payments/paypal-error-codes';
+import { accountByUid } from 'fxa-shared/db/models/auth';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
+import { reportSentryError } from '../../../lib/sentry';
 import error from '../../error';
 import { PayPalHelper } from '../../payments/paypal';
+import { PayPalClientError } from '../../payments/paypal-client';
+import {
+  PAYPAL_BILLING_AGREEMENT_INVALID,
+  PAYPAL_SOURCE_ERRORS,
+} from '../../payments/paypal-error-codes';
 import { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { StripeHandler } from './stripe';
@@ -75,6 +77,9 @@ export class StripeWebhookHandler extends StripeHandler {
           break;
         case 'customer.source.expiring':
           await this.handleCustomerSourceExpiringEvent(request, event);
+          break;
+        case 'customer.updated':
+          await this.handleCustomerUpdatedEvent(request, event);
           break;
         case 'invoice.created':
           if (this.paypalHelper) {
@@ -252,6 +257,24 @@ export class StripeWebhookHandler extends StripeHandler {
       return this.paypalHelper.conditionallyRemoveBillingAgreement(customer);
     }
     return;
+  }
+
+  /**
+   * Handle `customer.updated` events, this ensures metadata changes to the
+   * customer are reflected correctly in our cached copy.
+   */
+  async handleCustomerUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
+    const customer = event.data.object as Stripe.Customer;
+    const uid = customer.metadata.userid;
+    const account = await accountByUid(uid, { include: ['emails'] });
+    if (!account) {
+      reportSentryError(
+        new Error(`Cannot load account for customerId: ${customer.id}`),
+        request
+      );
+      return;
+    }
+    this.stripeHelper.refreshCachedCustomer(uid, account.email);
   }
 
   /**

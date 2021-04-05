@@ -1,3 +1,37 @@
+## 1.203.5
+
+No changes.
+
+## 1.203.4
+
+No changes.
+
+## 1.203.3
+
+No changes.
+
+## 1.203.2
+
+No changes.
+
+## 1.203.1
+
+No changes.
+
+## 1.203.0
+
+### Other changes
+
+- deps: bump @nestjs/core from 7.6.14 to 7.6.15 ([adfbdd3b3](https://github.com/mozilla/fxa/commit/adfbdd3b3))
+- deps: bump objection from 2.2.7 to 2.2.15 ([626f62e58](https://github.com/mozilla/fxa/commit/626f62e58))
+- deps: bump tslib from 2.0.1 to 2.1.0 ([db25da98e](https://github.com/mozilla/fxa/commit/db25da98e))
+- deps: update convict ([52e626866](https://github.com/mozilla/fxa/commit/52e626866))
+- deps-dev: bump @types/ioredis from 4.22.0 to 4.22.1 ([6a5575dcc](https://github.com/mozilla/fxa/commit/6a5575dcc))
+- deps: bump apollo-server-express from 2.21.0 to 2.21.1 ([11bcc7d77](https://github.com/mozilla/fxa/commit/11bcc7d77))
+- deps: bump @nestjs/core from 7.6.13 to 7.6.14 ([a335f90c7](https://github.com/mozilla/fxa/commit/a335f90c7))
+- deps: bump class-transformer from 0.3.1 to 0.4.0 ([66bec644c](https://github.com/mozilla/fxa/commit/66bec644c))
+- deps: bump @nestjs/mapped-types from 0.3.0 to 0.4.0 ([aedb056a1](https://github.com/mozilla/fxa/commit/aedb056a1))
+
 ## 1.202.3
 
 No changes.

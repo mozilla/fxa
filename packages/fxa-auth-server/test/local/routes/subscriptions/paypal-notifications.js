@@ -358,6 +358,7 @@ describe('PayPalNotificationHandler', () => {
       stripeCustomerId: '321',
       uid: '123',
       email: '123@test.com',
+      locale: ACCOUNT_LOCALE,
     };
     const customer = { id: '321' };
     const subscriptions = {
@@ -390,7 +391,8 @@ describe('PayPalNotificationHandler', () => {
       );
       sinon.assert.calledOnceWithExactly(
         authDbModule.accountByUid,
-        billingAgreement.uid
+        billingAgreement.uid,
+        { include: ['emails'] }
       );
       sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
         uid: account.uid,
@@ -471,7 +473,8 @@ describe('PayPalNotificationHandler', () => {
       );
       sinon.assert.calledOnceWithExactly(
         authDbModule.accountByUid,
-        billingAgreement.uid
+        billingAgreement.uid,
+        { include: ['emails'] }
       );
       sinon.assert.calledOnce(log.error);
 
@@ -499,7 +502,8 @@ describe('PayPalNotificationHandler', () => {
       );
       sinon.assert.calledOnceWithExactly(
         authDbModule.accountByUid,
-        billingAgreement.uid
+        billingAgreement.uid,
+        { include: ['emails'] }
       );
       sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
         uid: account.uid,
@@ -536,7 +540,8 @@ describe('PayPalNotificationHandler', () => {
       );
       sinon.assert.calledOnceWithExactly(
         authDbModule.accountByUid,
-        billingAgreement.uid
+        billingAgreement.uid,
+        { include: ['emails'] }
       );
       sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
         uid: account.uid,
@@ -552,6 +557,49 @@ describe('PayPalNotificationHandler', () => {
         ...customer,
         subscriptions: undefined,
       });
+
+      sandbox.restore();
+    });
+
+    it('sends an email', async () => {
+      sandbox = sinon.createSandbox();
+
+      const mockCustomer = {
+        ...customer,
+        subscriptions,
+      };
+      const mockFormattedSubs = { productId: 'quux' };
+      const mockAcct = { ...account, emails: [account.email, 'bar@baz.gd'] };
+      const authDbModule = require('fxa-shared/db/models/auth');
+      sandbox
+        .stub(authDbModule, 'getPayPalBAByBAId')
+        .resolves(billingAgreement);
+      sandbox.stub(authDbModule, 'accountByUid').resolves(mockAcct);
+      stripeHelper.customer = sinon.fake.resolves(mockCustomer);
+      stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
+      stripeHelper.getPaymentProvider = sinon.fake.returns('paypal');
+      stripeHelper.formatSubscriptionsForEmails = sinon.fake.resolves(
+        mockFormattedSubs
+      );
+      mailer.sendSubscriptionPaymentProviderCancelledEmail = sinon.fake.resolves();
+
+      await handler.handleMpCancel(billingAgreementCancelNotification);
+
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.formatSubscriptionsForEmails,
+        mockCustomer
+      );
+      sinon.assert.calledOnceWithExactly(
+        mailer.sendSubscriptionPaymentProviderCancelledEmail,
+        mockAcct.emails,
+        mockAcct,
+        {
+          uid: mockAcct.uid,
+          email: mockAcct.email,
+          acceptLanguage: mockAcct.locale,
+          subscriptions: mockFormattedSubs,
+        }
+      );
 
       sandbox.restore();
     });

@@ -794,6 +794,14 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_ENABLED',
       default: false,
     },
+    paymentsServer: {
+      url: {
+        doc: 'The url of the corresponding fxa-payments-server instance',
+        env: 'PAYMENTS_SERVER_URL',
+        format: 'url',
+        default: 'https://subscriptions.firefox.com',
+      },
+    },
     paypalNvpSigCredentials: {
       enabled: {
         doc: 'Indicates whether PayPal APIs are enabled',
@@ -1887,10 +1895,7 @@ conf.set('domain', url.parse(conf.get('publicUrl')).host);
 // derive fxa-auth-mailer configuration from our content-server url
 const baseUri = conf.get('contentServer.url');
 conf.set('smtp.accountSettingsUrl', `${baseUri}/settings`);
-conf.set(
-  'smtp.accountRecoveryCodesUrl',
-  `${baseUri}/settings/two_step_authentication/recovery_codes`
-);
+conf.set('smtp.accountRecoveryCodesUrl', `${baseUri}/settings#security`);
 conf.set('smtp.verificationUrl', `${baseUri}/verify_email`);
 conf.set('smtp.passwordResetUrl', `${baseUri}/complete_reset_password`);
 conf.set('smtp.initiatePasswordResetUrl', `${baseUri}/reset_password`);

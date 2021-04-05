@@ -25,6 +25,10 @@ const EMAIL_TYPES = {
   subscriptionDowngrade: 'subscription_downgrade',
   subscriptionPaymentExpired: 'subscription_payment_expired',
   subscriptionsPaymentExpired: 'subscriptions_payment_expired',
+  subscriptionPaymentProviderCancelled:
+    'subscription_payment_provider_cancelled',
+  subscriptionsPaymentProviderCancelled:
+    'subscriptions_payment_provider_cancelled',
   subscriptionPaymentFailed: 'subscription_payment_failed',
   subscriptionAccountDeletion: 'subscription_account_deletion',
   subscriptionCancellation: 'subscription_cancellation',

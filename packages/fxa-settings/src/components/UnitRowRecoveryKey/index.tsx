@@ -6,7 +6,7 @@ import React from 'react';
 import { gql } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAlertBar, useMutation } from '../../lib/hooks';
+import { useAlertBar } from '../../lib/hooks';
 import { useAccount, useLazyRecoveryKeyExists } from '../../models';
 import { logViewEvent } from '../../lib/metrics';
 import AlertBar from '../AlertBar';
@@ -14,8 +14,10 @@ import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { ButtonIconReload } from '../ButtonIcon';
-import { HomePath } from 'fxa-settings/src/constants';
+import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
+import { useAuthClient } from '../../lib/auth';
+import { cache } from '../../lib/cache';
 
 export const DELETE_RECOVERY_KEY_MUTATION = gql`
   mutation deleteRecoveryKey($input: DeleteRecoveryKeyInput!) {
@@ -36,53 +38,64 @@ export const UnitRowRecoveryKey = () => {
     { recoveryKeyExistsLoading },
   ] = useLazyRecoveryKeyExists((error) => {
     hideModal();
-    alertBar.error(
-      'Sorry, there was a problem refreshing the recovery key.',
-      error
-    );
+    alertBar.error(l10n.getString('rk-refresh-error'), error);
   });
 
-  const [deleteRecoveryKey] = useMutation(DELETE_RECOVERY_KEY_MUTATION, {
-    variables: { input: {} },
-    onCompleted: () => {
-      hideModal();
-      alertBar.success(
-        l10n.getString('rk-key-removed', null, 'Account recovery key removed.')
-      );
-      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
-    },
-    onError: (error) => {
-      hideModal();
-      alertBar.error('Your account recovery key could not be removed.', error);
-      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
-    },
-    ignoreResults: true,
-    update: (cache) => {
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          recoveryKey() {
-            return false;
+  const deleteRecoveryKey = useAuthClient(
+    (auth, sessionToken) => () => auth.deleteRecoveryKey(sessionToken),
+    {
+      onSuccess: () => {
+        cache.modify({
+          id: cache.identify({ __typename: 'Account' }),
+          fields: {
+            recoveryKey() {
+              return false;
+            },
           },
-        },
-      });
-    },
-  });
+        });
+        hideModal();
+        alertBar.success(
+          l10n.getString(
+            'rk-key-removed',
+            null,
+            'Account recovery key removed.'
+          )
+        );
+        logViewEvent(
+          'flow.settings.account-recovery',
+          'confirm-revoke.success'
+        );
+      },
+      onError: () => {
+        hideModal();
+        alertBar.error(l10n.getString('rk-remove-error'));
+        logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
+      },
+    }
+  );
 
   return (
     <UnitRow
-      header="Recovery key"
+      header={l10n.getString('rk-header')}
       headerId="recovery-key"
       prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
-      headerValue={recoveryKey ? 'Enabled' : 'Not set'}
+      headerValue={
+        recoveryKey
+          ? l10n.getString('rk-enabled', null, 'Enabled')
+          : l10n.getString('rk-not-set', null, 'Not set')
+      }
       route={recoveryKey ? undefined : `${HomePath}/account_recovery`}
       revealModal={recoveryKey ? revealModal : undefined}
-      ctaText={recoveryKey ? 'Remove' : 'Create'}
+      ctaText={
+        recoveryKey
+          ? l10n.getString('rk-action-remove', null, 'Remove')
+          : l10n.getString('rk-action-create', null, 'Create')
+      }
       alertBarRevealed
       headerContent={
         <ButtonIconReload
-          title="Refresh recovery key"
+          title={l10n.getString('rk-refresh-key')}
           classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
           disabled={recoveryKeyExistsLoading}
           onClick={getRecoveryKeyExists}
@@ -90,7 +103,7 @@ export const UnitRowRecoveryKey = () => {
       }
       actionContent={
         <ButtonIconReload
-          title="Refresh recovery key"
+          title={l10n.getString('rk-refresh-key')}
           classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
           testId="recovery-key-refresh"
           disabled={recoveryKeyExistsLoading}
@@ -129,14 +142,14 @@ export const UnitRowRecoveryKey = () => {
           <Modal
             onDismiss={hideModal}
             onConfirm={() => {
-              deleteRecoveryKey();
+              deleteRecoveryKey.execute();
               logViewEvent(
                 'flow.settings.account-recovery',
                 'confirm-revoke.submit'
               );
             }}
             confirmBtnClassName="cta-caution"
-            confirmText="Remove"
+            confirmText={l10n.getString('rk-action-remove', null, 'Remove')}
             headerId="recovery-key-header"
             descId="recovery-key-desc"
           >

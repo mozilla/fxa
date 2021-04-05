@@ -14,6 +14,7 @@ const PASSWORD = 'passwordcxvz';
 let email;
 
 const {
+  addAndVerifySecondaryEmail,
   clearBrowserState,
   click,
   closeCurrentWindow,
@@ -25,7 +26,7 @@ const {
   getUnblockInfo,
   openPage,
   openTab,
-  openVerificationLinkInSameTab,
+  signOut,
   switchToWindow,
   testElementTextEquals,
   testErrorTextInclude,
@@ -371,25 +372,15 @@ registerSuite('signin blocked', {
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(click(selectors.EMAIL.MENU_BUTTON))
-
-          // add secondary email, verify
-          .then(type(selectors.EMAIL.INPUT, secondaryEmail))
-          .then(click(selectors.EMAIL.ADD_BUTTON))
-          .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-          .then(openVerificationLinkInSameTab(secondaryEmail, 0, {}))
+          .then(addAndVerifySecondaryEmail(secondaryEmail))
           .then(testSuccessWasShown())
-
           // set new primary email
-          .then(
-            click(selectors.EMAIL.MENU_BUTTON, selectors.EMAIL.ADDRESS_LABEL)
-          )
+          .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY))
           .then(
             testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail)
           )
-          .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
-          .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
           .then(visibleByQSA(selectors.EMAIL.SUCCESS))
-          .then(click(selectors.SETTINGS.SIGNOUT), selectors.ENTER_EMAIL.HEADER)
+          .then(signOut())
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
 
           // Try login with new primary email but in different email case

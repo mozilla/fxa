@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-db-mysql",
-  "version": "1.202.3",
+  "version": "1.203.5",
   "description": "MySQL backend for Firefox Accounts",
   "main": "index.js",
   "repository": {
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "audit-filter": "0.5.0",
-    "chai": "^4.2.0",
+    "chai": "^4.3.4",
     "eslint": "^7.17.0",
     "eslint-plugin-fxa": "^2.0.2",
     "mocha": "^7.1.2",

@@ -4,6 +4,8 @@
   "subscriptionDowngrade": 1,
   "subscriptionPaymentExpired": 1,
   "subscriptionsPaymentExpired": 1,
+  "subscriptionPaymentProviderCancelled": 1,
+  "subscriptionsPaymentProviderCancelled": 1,
   "subscriptionPaymentFailed": 1,
   "subscriptionAccountDeletion": 1,
   "subscriptionCancellation": 1,

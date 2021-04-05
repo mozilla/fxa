@@ -15,6 +15,7 @@ const {
   createUser,
   fillOutForceAuth,
   openForceAuth,
+  signOut,
   testElementDisabled,
   testElementExists,
   testElementTextInclude,
@@ -100,8 +101,7 @@ registerSuite('force_auth', {
         .then(fillOutForceAuth(PASSWORD))
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
-
+        .then(signOut())
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
         .then(
           click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER)
