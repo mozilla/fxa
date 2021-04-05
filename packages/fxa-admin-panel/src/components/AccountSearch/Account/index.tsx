@@ -6,6 +6,7 @@ import React from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
+import { NoUnusedFragmentsRule } from 'graphql';
 
 type AccountProps = {
   uid: string;
@@ -78,6 +79,13 @@ export const UNVERIFY_EMAIL = gql`
   }
 `;
 
+// gql mutation to update database to force pass reset next login
+export const FORCE_RESET = gql`
+  mutation resetPassByEmail($email: String!) {
+    resetPass(email: $email)
+  }
+`;
+
 export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
   const alertWindow = () => {
     window.alert('Implementation coming soon.');
@@ -85,6 +93,16 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
   };
 
   const [unverify] = useMutation(UNVERIFY_EMAIL);
+
+  const [reset] = useMutation(FORCE_RESET, {
+    onCompleted: () => {
+      window.alert("The user's password has been reset.");
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error in resetting password');
+    },
+  });
 
   const handleUnverify = () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
@@ -94,16 +112,12 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
     onCleared(); // refresh the page
   };
 
-  const handlePassChange = () => {
+  const handlePassReset = () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
-    const main = require('../../../../../fxa-auth-server/scripts/must-reset/index');
-    const key = [email.email];
-    const dbFunction = 'accountRecord';
 
-    main(key, dbFunction);
-    onCleared();
+    reset({ variables: { email: email.email } });
   };
 
   return (
@@ -140,7 +154,7 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
         <button
           id="pass-change"
           className="danger-zone-button"
-          onClick={handlePassChange}
+          onClick={handlePassReset}
         >
           Force Change
         </button>

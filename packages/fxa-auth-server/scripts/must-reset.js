@@ -31,10 +31,7 @@ commandLineOptions
   .option('-i, --input <filename>', 'Input filename from which to read input')
   .parse(process.argv);
 
-if (!commandLineOptions.input) {
-  console.error(`-i, --input required`);
-  process.exit(1);
-} else if (!commandLineOptions.emails && !commandLineOptions.uids) {
+if (!commandLineOptions.emails && !commandLineOptions.uids) {
   console.error('One of `emails` or `uids` must be specified');
   process.exit(1);
 } else if (commandLineOptions.emails && commandLineOptions.uids) {
@@ -58,11 +55,18 @@ if (!emails.length && !uids.length) {
 
 function getItems(type) {
   try {
-    const input = fs
-      .readFileSync(path.resolve(commandLineOptions.input))
-      .toString('utf8');
+    if (commandLineOptions.input) {
+      const input = fs
+        .readFileSync(path.resolve(commandLineOptions.input))
+        .toString('utf8');
 
-    return adjustText(input);
+      return adjustText(input);
+    } else {
+      const input = commandLineOptions.emails
+        ? commandLineOptions.emails
+        : commandLineOptions.uids;
+      return adjustText(input);
+    }
   } catch (err) {
     console.error('No such file or directory');
     process.exit(1);

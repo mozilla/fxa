@@ -19,6 +19,7 @@ import { Account } from '../../database/model';
 import { uuidTransformer } from '../../database/transformers';
 import { Account as AccountType } from '../../gql/model/account.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
+import { resetPass } from '../../shell/reset-pass';
 
 const ACCOUNT_COLUMNS = ['uid', 'email', 'emailVerified', 'createdAt'];
 const EMAIL_COLUMNS = [
@@ -91,6 +92,16 @@ export class AccountResolver {
         isVerified: false,
         verifiedAt: null as any, // same as null
       });
+    return !!result;
+  }
+
+  // forces the user to reset password on next login
+  @Mutation((returns) => Boolean)
+  public async resetPass(
+    @Args('email') email: string,
+    @CurrentUser() user: string
+  ) {
+    const result = await resetPass(email);
     return !!result;
   }
 
