@@ -20464,7 +20464,7 @@ fsevents@^1.2.7:
     react-router-dom: ^5.1.2
     react-scripts: ^3.4.1
     react-stripe-elements: ^6.1.2
-    react-test-renderer: ^17.0.1
+    react-test-renderer: ^17.0.2
     react-transition-group: ^4.3.0
     redux: ^4.0.4
     redux-actions: ^2.6.5
@@ -20656,7 +20656,7 @@ fsevents@^1.2.7:
     react-easy-crop: ^3.3.1
     react-hook-form: ^6.15.5
     react-scripts: ^3.4.1
-    react-test-renderer: ^17.0.1
+    react-test-renderer: ^17.0.2
     react-webcam: ^5.2.2
     subscriptions-transport-ws: ^0.9.18
     typescript: 3.9.7
@@ -33461,6 +33461,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"react-is@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "react-is@npm:17.0.2"
+  checksum: 3eff23f410d40ab9bc5177f147a92c7f42c356a21ecea340e0554566956d67e5e1ba56f26cc7fa22339ac3c7151744177bd6305eaa26d3cbf15f354358c9d9b6
+  languageName: node
+  linkType: hard
+
 "react-lifecycles-compat@npm:^3.0.4":
   version: 3.0.4
   resolution: "react-lifecycles-compat@npm:3.0.4"
@@ -33764,17 +33771,17 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-test-renderer@npm:^17.0.1":
-  version: 17.0.1
-  resolution: "react-test-renderer@npm:17.0.1"
+"react-test-renderer@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "react-test-renderer@npm:17.0.2"
   dependencies:
     object-assign: ^4.1.1
-    react-is: ^17.0.1
+    react-is: ^17.0.2
     react-shallow-renderer: ^16.13.1
-    scheduler: ^0.20.1
+    scheduler: ^0.20.2
   peerDependencies:
-    react: 17.0.1
-  checksum: 6ec269430beea4356180d90868a9959399781a03ae8de6a29f2edc29d6ca41432653d4103991467ebcc47be5bd2d9197789411e913da66369c2aa2f13311105f
+    react: 17.0.2
+  checksum: 9e79031ad20f9c20941aec1eda32d39eb558e9130740013e5a7b53367cf0eb8f7505c8034fec7da47cdcd80b254f20f1311c250bb586323bec7fbf7d97a90a1e
   languageName: node
   linkType: hard
 
@@ -35493,13 +35500,13 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.20.1":
-  version: 0.20.1
-  resolution: "scheduler@npm:0.20.1"
+"scheduler@npm:^0.20.2":
+  version: 0.20.2
+  resolution: "scheduler@npm:0.20.2"
   dependencies:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
-  checksum: 377b4ad0d8313c4548bac7374bc38409e9d142799979ce396787efa04d1bcabf2591540f243f2131e3df8e56e7f5b29c5415248523e88ecb60f13a32db2e076f
+  checksum: 2ba121e53e8a438394598612ec9a8f465b39157042f912d2dd5956af643e0d45ec6937ae4eeb0a807d1945b209515263aed12fc3bca95c7a027ec2a54e76b399
   languageName: node
   linkType: hard
 
