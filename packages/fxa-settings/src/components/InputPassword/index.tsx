@@ -55,8 +55,8 @@ export const InputPassword = ({
       <button
         type="button"
         data-testid={formatDataTestId('visibility-toggle')}
-        className={`w-5 px-3 py-2 text-grey-600 focus:text-blue-500 box-content ${
-          hasContent ? '-ml-3' : 'hidden'
+        className={`px-3 py-2 text-grey-600 box-content ${
+          !hasContent && 'hidden'
         }`}
         tabIndex={-1}
         onClick={() => {
