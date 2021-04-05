@@ -6,8 +6,8 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { wait, screen } from '@testing-library/react';
 import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { Account, AccountContext } from '../../models';
 import { VerifiedSessionGuard } from '.';
-import { SEND_SESSION_VERIFICATION_CODE_MUTATION } from '../ModalVerifySession';
 
 it('renders the content when verified', async () => {
   const onDismiss = jest.fn();
@@ -28,27 +28,20 @@ it('renders the content when verified', async () => {
 it('renders the guard when unverified', async () => {
   const onDismiss = jest.fn();
   const onError = jest.fn();
-  const mocks = [
-    {
-      request: {
-        query: SEND_SESSION_VERIFICATION_CODE_MUTATION,
-        variables: { input: {} },
-      },
-      result: {
-        data: {
-          sendSessionVerificationCode: {
-            clientMutationId: null,
-          },
-        },
-      },
+  const account = ({
+    primaryEmail: {
+      email: 'smcarthur@mozilla.com',
     },
-  ];
+    sendVerificationCode: jest.fn().mockResolvedValue(true),
+  } as unknown) as Account;
   renderWithRouter(
-    <MockedCache verified={false} mocks={mocks}>
-      <VerifiedSessionGuard {...{ onDismiss, onError }}>
-        <div>Content</div>
-      </VerifiedSessionGuard>
-    </MockedCache>
+    <AccountContext.Provider value={{ account }}>
+      <MockedCache verified={false}>
+        <VerifiedSessionGuard {...{ onDismiss, onError }}>
+          <div>Content</div>
+        </VerifiedSessionGuard>
+      </MockedCache>
+    </AccountContext.Provider>
   );
 
   await wait();

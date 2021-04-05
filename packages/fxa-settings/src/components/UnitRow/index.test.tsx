@@ -6,7 +6,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import UnitRow from '.';
 import { renderWithRouter } from '../../models/_mocks';
-import { MockedCache } from '../../models/_mocks';
+import { Account, AccountContext } from '../../models';
 import { HomePath } from '../../constants';
 
 describe('UnitRow', () => {
@@ -124,21 +124,19 @@ describe('UnitRow', () => {
   });
 
   it('renders as expected with the default avatar', () => {
-    const avatar = {
-      id: null,
-      url: null,
-      isDefault: true,
-    };
+    const account = ({
+      avatar: { url: null, id: null, isDefault: true },
+    } as unknown) as Account;
     renderWithRouter(
-      <MockedCache account={{ avatar }}>
+      <AccountContext.Provider value={{ account }}>
         <UnitRow
           header="Picture"
           headerId="profile-picture"
-          headerValue={!avatar.isDefault}
+          headerValue={!account.avatar.isDefault}
           route={`${HomePath}/avatar`}
-          {...{ avatar }}
+          avatar={account.avatar}
         />
-      </MockedCache>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('unit-row-route').textContent).toContain('Add');
@@ -147,21 +145,23 @@ describe('UnitRow', () => {
   });
 
   it('renders as expected with the user avatar', () => {
-    const avatar = {
-      id: null,
-      url: 'http://localhost:1111/v1/avatar/t',
-      isDefault: false,
-    };
+    const account = ({
+      avatar: {
+        id: null,
+        url: 'http://localhost:1111/v1/avatar/t',
+        isDefault: false,
+      },
+    } as unknown) as Account;
     renderWithRouter(
-      <MockedCache account={{ avatar }}>
+      <AccountContext.Provider value={{ account }}>
         <UnitRow
           header="Picture"
           headerId="profile-picture"
-          headerValue={!avatar.isDefault}
+          headerValue={!account.avatar.isDefault}
           route={`${HomePath}/avatar`}
-          {...{ avatar }}
+          avatar={account.avatar}
         />
-      </MockedCache>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('unit-row-route').textContent).toContain(

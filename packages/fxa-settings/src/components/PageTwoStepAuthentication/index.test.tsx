@@ -5,22 +5,15 @@
 import 'mutationobserver-shim';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen, wait } from '@testing-library/react';
-import { AuthContext, createAuthClient } from '../../lib/auth';
-import {
-  renderWithRouter,
-  MockedCache,
-  MockedProps,
-  createCache,
-} from '../../models/_mocks';
+import { renderWithRouter, MockedCache } from '../../models/_mocks';
 import React from 'react';
 import PageTwoStepAuthentication, { metricsPreInPostFix } from '.';
-import { CREATE_TOTP_MOCK, VERIFY_TOTP_MOCK } from './_mocks';
 import { checkCode, getCode } from '../../lib/totp';
-import { MockedProvider } from '@apollo/client/testing';
-import { Account, GET_ACCOUNT } from '../../models/Account';
 import { HomePath } from '../../constants';
 import { alertTextExternal } from '../../lib/cache';
 import * as Metrics from '../../lib/metrics';
+import { Account, AccountContext } from '../../models';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 jest.mock('../../lib/totp', () => ({
   ...jest.requireActual('../../lib/totp'),
@@ -38,20 +31,30 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const totp = {
+  qrCodeUrl: 'qr:url',
+  secret: 'JFXE6ULUGM4U4WDHOFVFIRDPKZITATSK',
+  recoveryCodes: ['3594s0tbsq', '0zrg82sdzm', 'wx88yxenfc'],
+};
+
+const account = ({
+  primaryEmail: {
+    email: 'ibicking@mozilla.com',
+  },
+  createTotp: jest.fn().mockResolvedValue(totp),
+  verifyTotp: jest.fn().mockResolvedValue(true),
+  sendVerificationCode: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
+
 window.URL.createObjectURL = jest.fn();
 
-const client = createAuthClient('none');
-// `any` to disable the error from type inference on the mis-matching shapes of
-// object from each array
-const mocks = CREATE_TOTP_MOCK.concat(VERIFY_TOTP_MOCK as [any]);
-
-const render = (props: MockedProps = { mocks }) =>
+const render = (acct: Account = account, verified: boolean = true) =>
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache {...props}>
+    <AccountContext.Provider value={{ account: acct }}>
+      <MockedCache {...{ verified }}>
         <PageTwoStepAuthentication />
       </MockedCache>
-    </AuthContext.Provider>
+    </AccountContext.Provider>
   );
 
 const inputTotp = async (totp: string) => {
@@ -118,32 +121,9 @@ describe('step 1', () => {
     );
   });
 
-  it('updates the GraphQL cache', async () => {
-    const cache = createCache({
-      account: { totp: { exists: false, verified: false } },
-    });
-    const spy = jest.spyOn(cache, 'modify');
-
-    await act(async () => {
-      renderWithRouter(
-        <AuthContext.Provider value={{ auth: client }}>
-          <MockedProvider cache={cache} mocks={mocks}>
-            <PageTwoStepAuthentication />
-          </MockedProvider>
-        </AuthContext.Provider>
-      );
-    });
-
-    expect(spy).toBeCalledTimes(1);
-    const { account } = cache.readQuery<{ account: Account }>({
-      query: GET_ACCOUNT,
-    })!;
-    expect(account.totp.exists).toEqual(true);
-  });
-
   it('does not display the QR code for the unverified', async () => {
     await act(async () => {
-      render({ verified: false });
+      render(account, false);
     });
     expect(screen.queryByTestId('2fa-qr-code')).toBeNull();
     expect(screen.queryByTestId('alert-bar')).toBeNull();
@@ -163,7 +143,7 @@ describe('step 2', () => {
     expect(checkCode).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('2fa-recovery-codes')).toBeInTheDocument();
     expect(screen.getByTestId('2fa-recovery-codes')).toHaveTextContent(
-      CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0]
+      totp.recoveryCodes[0]
     );
   });
 
@@ -179,9 +159,9 @@ describe('step 2', () => {
 });
 
 describe('step 3', () => {
-  const getRecoveryCodes = async () => {
+  const getRecoveryCodes = async (acct: Account = account) => {
     await act(async () => {
-      render();
+      render(acct);
     });
     await submitTotp('867530');
     await act(async () => {
@@ -217,12 +197,20 @@ describe('step 3', () => {
   });
 
   it('shows an generic error when the code cannot be verified', async () => {
-    await getRecoveryCodes();
+    const error = new Error('unexpected');
+    const account = ({
+      primaryEmail: {
+        email: 'ibicking@mozilla.com',
+      },
+      createTotp: jest.fn().mockResolvedValue(totp),
+      verifyTotp: jest.fn().mockRejectedValue(error),
+    } as unknown) as Account;
+    await getRecoveryCodes(account);
     (getCode as jest.Mock).mockResolvedValue('999911');
     await act(async () => {
       fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });
@@ -234,13 +222,22 @@ describe('step 3', () => {
     );
   });
 
-  it('shows the GraphQL error when the code cannot be verified', async () => {
-    await getRecoveryCodes();
+  it('shows the api error when the code cannot be verified', async () => {
+    const error: any = new Error();
+    error.errno = AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno;
+    const account = ({
+      primaryEmail: {
+        email: 'ibicking@mozilla.com',
+      },
+      createTotp: jest.fn().mockResolvedValue(totp),
+      verifyTotp: jest.fn().mockRejectedValue(error),
+    } as unknown) as Account;
+    await getRecoveryCodes(account);
     (getCode as jest.Mock).mockResolvedValue('009001');
     await act(async () => {
       fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });
@@ -251,18 +248,14 @@ describe('step 3', () => {
   });
 
   it('verifies and enable two step auth', async () => {
-    const cache = createCache({
-      account: { totp: { exists: false, verified: false } },
-    });
-    const modifyCacheSpy = jest.spyOn(cache, 'modify');
-
+    (alertTextExternal as any).mockReset();
     await act(async () => {
       renderWithRouter(
-        <AuthContext.Provider value={{ auth: client }}>
-          <MockedProvider cache={cache} mocks={mocks}>
+        <AccountContext.Provider value={{ account }}>
+          <MockedCache>
             <PageTwoStepAuthentication />
-          </MockedProvider>
-        </AuthContext.Provider>
+          </MockedCache>
+        </AccountContext.Provider>
       );
     });
 
@@ -276,20 +269,15 @@ describe('step 3', () => {
     await act(async () => {
       fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
-    await wait(() => expect(modifyCacheSpy).toBeCalledTimes(2));
     expect(getCode).toBeCalledTimes(1);
 
-    const { account } = cache.readQuery<{ account: Account }>({
-      query: GET_ACCOUNT,
-    })!;
-    expect(account.totp.verified).toEqual(true);
     expect(mockNavigate).toHaveBeenCalledWith(
       HomePath + '#two-step-authentication',
       { replace: true }
@@ -342,7 +330,7 @@ describe('metrics', () => {
     await act(async () => {
       fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });
@@ -390,7 +378,7 @@ describe('back button', () => {
     await act(async () => {
       fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });

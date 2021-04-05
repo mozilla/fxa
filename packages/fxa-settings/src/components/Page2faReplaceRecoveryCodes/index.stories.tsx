@@ -8,12 +8,11 @@ import { MockedCache } from '../../models/_mocks';
 import React from 'react';
 import { Page2faReplaceRecoveryCodes } from '.';
 import AppLayout from '../AppLayout';
-import { CHANGE_RECOVERY_CODE_MOCK } from './_mocks';
 
 storiesOf('Pages|2faReplaceRecoveryCodes', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache mocks={CHANGE_RECOVERY_CODE_MOCK}>
+    <MockedCache>
       <AppLayout>
         <Page2faReplaceRecoveryCodes />
       </AppLayout>

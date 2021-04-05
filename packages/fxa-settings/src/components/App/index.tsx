@@ -8,7 +8,7 @@ import AppLayout from '../AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import * as Metrics from '../../lib/metrics';
-import { Account } from '../../models';
+import { AccountData } from '../../models';
 import { ACCOUNT_FIELDS } from '../../models/Account';
 import { Router } from '@reach/router';
 import Head from 'fxa-react/components/Head';
@@ -51,7 +51,9 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
       observeNavigationTiming(config.metrics.navTiming.endpoint);
   });
 
-  const { loading, error } = useQuery<{ account: Account }>(GET_INITIAL_STATE);
+  const { loading, error } = useQuery<{ account: AccountData }>(
+    GET_INITIAL_STATE
+  );
   useEffect(() => {
     Metrics.init(flowQueryParams);
   }, [flowQueryParams]);

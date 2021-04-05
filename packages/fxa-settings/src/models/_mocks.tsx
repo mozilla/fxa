@@ -10,7 +10,7 @@ import {
   DocumentNode,
 } from '@apollo/client';
 import { MockLink, MockedResponse } from '@apollo/client/testing';
-import { Account } from '.';
+import { AccountData } from '.';
 import { GET_INITIAL_STATE } from '../components/App';
 import { deepMerge } from '../lib/utilities';
 import {
@@ -30,7 +30,7 @@ import waitUntil from 'async-wait-until';
 import path from 'path';
 import fetchMock from 'fetch-mock';
 
-export const MOCK_ACCOUNT: Account = {
+export const MOCK_ACCOUNT: AccountData = {
   uid: 'abc123',
   displayName: 'John Dope',
   avatar: {

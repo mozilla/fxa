@@ -5,17 +5,24 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MockedCache } from '../../models/_mocks';
+import { Account, AccountContext } from '../../models';
 import HeaderLockup from '.';
 
 // TODO: functional test for `data-testid="header-menu"` to be visible in
 // mobile & tablet but hidden at desktop
 
+const account = ({
+  avatar: { url: null, id: null },
+} as unknown) as Account;
+
 describe('HeaderLockup', () => {
   it('renders as expected', () => {
     render(
-      <MockedCache account={{ avatar: { id: null, url: null } }}>
-        <HeaderLockup />
-      </MockedCache>
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache>
+          <HeaderLockup />
+        </MockedCache>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('header-sumo-link')).toHaveAttribute(

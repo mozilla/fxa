@@ -5,79 +5,18 @@
 import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
-import {
-  MockedCache,
-  MOCK_ACCOUNT,
-  renderWithRouter,
-} from '../../models/_mocks';
-import {
-  ModalVerifySession,
-  SEND_SESSION_VERIFICATION_CODE_MUTATION,
-  VERIFY_SESSION_MUTATION,
-} from '.';
-import { GraphQLError } from 'graphql';
+import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { Account, AccountContext } from '../../models';
+import { ModalVerifySession } from '.';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
-const happyMocks = [
-  {
-    request: {
-      query: SEND_SESSION_VERIFICATION_CODE_MUTATION,
-      variables: { input: {} },
-    },
-    result: {
-      data: {
-        sendSessionVerificationCode: {
-          clientMutationId: null,
-        },
-      },
-    },
+const account = ({
+  primaryEmail: {
+    email: 'jgruen@mozilla.com',
   },
-  {
-    request: {
-      query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '445566' } },
-    },
-    result: {
-      data: {
-        verifySession: {
-          clientMutationId: null,
-        },
-      },
-    },
-  },
-];
-
-const networkError = new Error('network error');
-const sadMocks = [
-  {
-    request: {
-      query: SEND_SESSION_VERIFICATION_CODE_MUTATION,
-      variables: { input: {} },
-    },
-    result: {
-      data: {
-        sendSessionVerificationCode: {
-          clientMutationId: null,
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '123456' } },
-    },
-    result: {
-      errors: [new GraphQLError('invalid code')],
-    },
-  },
-  {
-    request: {
-      query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '654321' } },
-    },
-    error: networkError,
-  },
-];
+  sendVerificationCode: jest.fn().mockResolvedValue(true),
+  verifySession: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
 
 window.console.error = jest.fn();
 
@@ -90,9 +29,11 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <MockedCache verified={false} mocks={happyMocks}>
-        <ModalVerifySession {...{ onDismiss, onError }} />
-      </MockedCache>
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache verified={false}>
+          <ModalVerifySession {...{ onDismiss, onError }} />
+        </MockedCache>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('modal-verify-session')).toBeInTheDocument();
@@ -102,42 +43,30 @@ describe('ModalVerifySession', () => {
     expect(
       screen.getByTestId('modal-verify-session-submit')
     ).toBeInTheDocument();
-    expect(screen.getByTestId('modal-desc').textContent).toContain(
-      MOCK_ACCOUNT.primaryEmail.email
-    );
+    expect(
+      screen.getByTestId('modal-verify-session-desc').textContent
+    ).toContain(account.primaryEmail.email);
     expect(screen.getByTestId('modal-verify-session-submit')).toBeDisabled();
   });
 
-  it('calls onCompleted on success', async () => {
-    const onDismiss = jest.fn();
-    const onError = jest.fn();
-    const onCompleted = jest.fn();
-    renderWithRouter(
-      <MockedCache verified={false} mocks={happyMocks}>
-        <ModalVerifySession {...{ onDismiss, onError, onCompleted }} />
-      </MockedCache>
-    );
-
-    await act(async () => {
-      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
-        target: { value: '445566' },
-      });
-    });
-    expect(screen.getByTestId('modal-verify-session-submit')).toBeEnabled();
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('modal-verify-session-submit'));
-    });
-
-    expect(onCompleted).toBeCalled();
-  });
-
   it('renders error messages', async () => {
+    const error: any = new Error('invalid code');
+    error.errno = AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno;
+    const account = ({
+      primaryEmail: {
+        email: 'jgruen@mozilla.com',
+      },
+      sendVerificationCode: jest.fn().mockResolvedValue(true),
+      verifySession: jest.fn().mockRejectedValue(error),
+    } as unknown) as Account;
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <MockedCache verified={false} mocks={sadMocks}>
-        <ModalVerifySession {...{ onDismiss, onError }} />
-      </MockedCache>
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache verified={false}>
+          <ModalVerifySession {...{ onDismiss, onError }} />
+        </MockedCache>
+      </AccountContext.Provider>
     );
 
     await act(async () => {
@@ -150,16 +79,28 @@ describe('ModalVerifySession', () => {
       fireEvent.click(screen.getByTestId('modal-verify-session-submit'));
     });
 
-    expect(screen.getByTestId('tooltip').textContent).toContain('invalid code');
+    expect(screen.getByTestId('tooltip').textContent).toContain(
+      AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.message
+    );
   });
 
   it('bubbles other errors', async () => {
+    const error = new Error('network error');
+    const account = ({
+      primaryEmail: {
+        email: 'jgruen@mozilla.com',
+      },
+      sendVerificationCode: jest.fn().mockResolvedValue(true),
+      verifySession: jest.fn().mockRejectedValue(error),
+    } as unknown) as Account;
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <MockedCache verified={false} mocks={sadMocks}>
-        <ModalVerifySession {...{ onDismiss, onError }} />
-      </MockedCache>
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache verified={false}>
+          <ModalVerifySession {...{ onDismiss, onError }} />
+        </MockedCache>
+      </AccountContext.Provider>
     );
 
     await act(async () => {
@@ -172,6 +113,6 @@ describe('ModalVerifySession', () => {
       fireEvent.click(screen.getByTestId('modal-verify-session-submit'));
     });
 
-    expect(onError).toBeCalledWith(networkError);
+    expect(onError).toBeCalledWith(error);
   });
 });

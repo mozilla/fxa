@@ -5,18 +5,26 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MockedCache } from '../../models/_mocks';
+import { Account, AccountContext } from '../../models';
 import { getDefault } from '../../lib/config';
 import Nav from '.';
 import { ConfigContext } from 'fxa-settings/src/lib/config';
 
+const account = ({
+  primaryEmail: {
+    email: 'stomlinson@mozilla.com',
+  },
+  subscriptions: [],
+} as unknown) as Account;
+
 describe('Nav', () => {
   it('renders as expected', () => {
     render(
-      <MockedCache>
+      <AccountContext.Provider value={{ account }}>
         <ConfigContext.Provider value={getDefault()}>
           <Nav />
         </ConfigContext.Provider>
-      </MockedCache>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('nav-link-profile')).toHaveTextContent('Profile');
@@ -47,7 +55,7 @@ describe('Nav', () => {
     expect(screen.getByTestId('nav-link-newsletters')).toHaveAttribute(
       'href',
       `https://basket.mozilla.org/fxa/?email=${encodeURIComponent(
-        'johndope@example.com'
+        'stomlinson@mozilla.com'
       )}`
     );
 
@@ -55,12 +63,16 @@ describe('Nav', () => {
   });
 
   it('renders as expected with subscriptions link', () => {
+    const account = ({
+      primaryEmail: {
+        email: 'stomlinson@mozilla.com',
+      },
+      subscriptions: [{ created: 1, productName: 'x' }],
+    } as unknown) as Account;
     render(
-      <MockedCache
-        account={{ subscriptions: [{ created: 1, productName: 'x' }] }}
-      >
+      <AccountContext.Provider value={{ account }}>
         <Nav />
-      </MockedCache>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('nav-link-subscriptions')).toHaveTextContent(
@@ -78,11 +90,11 @@ describe('Nav', () => {
     });
 
     render(
-      <MockedCache>
-        <ConfigContext.Provider value={ config }>
+      <AccountContext.Provider value={{ account }}>
+        <ConfigContext.Provider value={config}>
           <Nav />
         </ConfigContext.Provider>
-      </MockedCache>
+      </AccountContext.Provider>
     );
 
     expect(screen.queryByTestId('nav-link-newsletters')).toBeNull();

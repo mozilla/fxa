@@ -6,6 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { MockedCache } from '../../models/_mocks';
 import { HeaderLockup } from '.';
+import { Account, AccountContext } from '../../models';
 
 storiesOf('Components|HeaderLockup', module)
   .add('with default avatar', () => (

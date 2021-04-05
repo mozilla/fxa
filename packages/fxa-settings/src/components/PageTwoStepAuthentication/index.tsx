@@ -2,63 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { gql } from '@apollo/client';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { useAlertBar } from '../../lib/hooks';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import AlertBar from '../AlertBar';
 import DataBlock from '../DataBlock';
-import { useSession } from '../../models';
+import { useAccount, useSession } from '../../models';
 import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
-import { alertTextExternal, cache } from '../../lib/cache';
+import { alertTextExternal } from '../../lib/cache';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { useAuthClient } from '../../lib/auth';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
-
-export const CREATE_TOTP_MUTATION = gql`
-  mutation createTotp($input: CreateTotpInput!) {
-    createTotp(input: $input) {
-      clientMutationId
-      qrCodeUrl
-      secret
-      recoveryCodes
-    }
-  }
-`;
-
-export const VERIFY_TOTP_MUTATION = gql`
-  mutation verifyTotp($input: VerifyTotpInput!) {
-    verifyTotp(input: $input) {
-      clientMutationId
-      success
-    }
-  }
-`;
 
 type TotpForm = { totp: string };
 type RecoveryCodeForm = { recoveryCode: string };
 
 export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
+  const account = useAccount();
   const navigate = useNavigate();
+  const { l10n } = useLocalization();
   const goHome = () =>
     navigate(HomePath + '#two-step-authentication', { replace: true });
-  const alertSuccessAndGoHome = () => {
+  const alertSuccessAndGoHome = useCallback(() => {
     alertTextExternal(
       l10n.getString('tfa-enabled', null, 'Two-step authentication enabled')
     );
     navigate(HomePath + '#two-step-authentication', { replace: true });
-  };
-
-  const { l10n } = useLocalization();
+  }, [l10n, navigate]);
 
   const totpForm = useForm<TotpForm>({
     mode: 'onTouched',
@@ -83,6 +61,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
 
   const localizedStep1 = l10n.getString('tfa-step-1-3', null, 'Step 1 of 3');
   const alertBar = useAlertBar();
+  const alertError = alertBar.error;
   const [subtitle, setSubtitle] = useState<string>(localizedStep1);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>();
   const [showQrCode, setShowQrCode] = useState(true);
@@ -128,51 +107,30 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
     setSubtitle(l10n.getString('tfa-step-2-3', null, 'Step 2 of 3'));
   };
 
-  const createTotp = useAuthClient(
-    (auth, sessionToken) => () => auth.createTotpToken(sessionToken),
-    {
-      onSuccess: ({ qrCodeUrl, secret, recoveryCodes }) => {
-        setQrCodeUrl(qrCodeUrl);
-        setSecret(secret);
-        setRecoveryCodes(recoveryCodes);
-        cache.modify({
-          id: cache.identify({ __typename: 'Account' }),
-          fields: {
-            totp(currentTotp) {
-              return { ...currentTotp, exists: true };
-            },
-          },
-        });
-      },
-      onError: () => {
-        alertBar.error(
-          l10n.getString(
-            'tfa-cannont-retrieve-code',
-            null,
-            'There was a problem retrieving your code.'
-          )
-        );
-      },
+  const createTotp = useCallback(async () => {
+    try {
+      const { qrCodeUrl, secret, recoveryCodes } = await account.createTotp();
+      setQrCodeUrl(qrCodeUrl);
+      setSecret(secret);
+      setRecoveryCodes(recoveryCodes);
+    } catch (e) {
+      alertError(
+        l10n.getString(
+          'tfa-cannont-retrieve-code',
+          null,
+          'There was a problem retrieving your code.'
+        )
+      );
     }
-  );
+  }, [account, setQrCodeUrl, setSecret, setRecoveryCodes, l10n, alertError]);
 
-  const verifyTotp = useAuthClient(
-    (auth, sessionToken) => (code: string) =>
-      auth.verifyTotpCode(sessionToken, code),
-    {
-      onSuccess: () => {
-        cache.modify({
-          id: cache.identify({ __typename: 'Account' }),
-          fields: {
-            totp(currentTotp) {
-              return { ...currentTotp, verified: true };
-            },
-          },
-        });
+  const verifyTotp = useCallback(
+    async (code: string) => {
+      try {
+        await account.verifyTotp(code);
         alertSuccessAndGoHome();
-      },
-      onError: (err) => {
-        if (err.errno === AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno) {
+      } catch (e) {
+        if (e.errno === AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno) {
           setRecoveryCodeError(
             l10n.getString(
               `auth-error-${AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno}`,
@@ -181,10 +139,17 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             )
           );
         } else {
-          setRecoveryCodeError(err.message);
+          alertError(
+            l10n.getString(
+              'tfa-cannot-verify-code',
+              null,
+              'There was a problem verifying your recovery code.'
+            )
+          );
         }
-      },
-    }
+      }
+    },
+    [account, alertSuccessAndGoHome, setRecoveryCodeError, l10n, alertError]
   );
 
   const onRecoveryCodeSubmit = async ({ recoveryCode }: RecoveryCodeForm) => {
@@ -199,14 +164,14 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       return;
     }
     const code = await getCode(secret!);
-    verifyTotp.execute(code);
+    verifyTotp(code);
   };
 
   const session = useSession();
 
   useEffect(() => {
-    session.verified && createTotp.execute();
-  }, [session, createTotp]);
+    session.verified && !qrCodeUrl && createTotp();
+  }, [session, qrCodeUrl, createTotp]);
 
   useEffect(() => {
     session.verified && logStep1PageViewEvent(metricsPreInPostFix);

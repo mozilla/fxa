@@ -4,12 +4,7 @@
 
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import { useEffect, useRef } from 'react';
-import {
-  hasAccountRecovery,
-  hasSecondaryVerifiedEmail,
-  hasTwoStepAuthentication,
-  useAccount,
-} from '../models';
+import { useAccount } from '../models';
 import { window } from './window';
 import { v4 as uuid } from 'uuid';
 
@@ -405,12 +400,9 @@ export function setUserPreference(prefName: string, value: boolean) {
  */
 export function useUserPreferences() {
   const account = useAccount();
-  setUserPreference('account-recovery', hasAccountRecovery(account));
-  setUserPreference('emails', hasSecondaryVerifiedEmail(account));
-  setUserPreference(
-    'two-step-authentication',
-    hasTwoStepAuthentication(account)
-  );
+  setUserPreference('account-recovery', account.recoveryKey);
+  setUserPreference('emails', account.hasSecondaryVerifiedEmail);
+  setUserPreference('two-step-authentication', account.totpActive);
 }
 
 /**

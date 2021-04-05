@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { gql } from '@apollo/client';
+import React, { useCallback } from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAlertBar } from '../../lib/hooks';
-import { useAccount, useLazyRecoveryKeyExists } from '../../models';
+import { useAccount } from '../../models';
 import { logViewEvent } from '../../lib/metrics';
 import AlertBar from '../AlertBar';
 import Modal from '../Modal';
@@ -16,63 +15,28 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { ButtonIconReload } from '../ButtonIcon';
 import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
-import { useAuthClient } from '../../lib/auth';
-import { cache } from '../../lib/cache';
-
-export const DELETE_RECOVERY_KEY_MUTATION = gql`
-  mutation deleteRecoveryKey($input: DeleteRecoveryKeyInput!) {
-    deleteRecoveryKey(input: $input) {
-      clientMutationId
-    }
-  }
-`;
 
 export const UnitRowRecoveryKey = () => {
-  const { recoveryKey } = useAccount();
+  const account = useAccount();
+  const recoveryKey = account.recoveryKey;
   const alertBar = useAlertBar();
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const { l10n } = useLocalization();
 
-  const [
-    getRecoveryKeyExists,
-    { recoveryKeyExistsLoading },
-  ] = useLazyRecoveryKeyExists((error) => {
-    hideModal();
-    alertBar.error(l10n.getString('rk-refresh-error'), error);
-  });
-
-  const deleteRecoveryKey = useAuthClient(
-    (auth, sessionToken) => () => auth.deleteRecoveryKey(sessionToken),
-    {
-      onSuccess: () => {
-        cache.modify({
-          id: cache.identify({ __typename: 'Account' }),
-          fields: {
-            recoveryKey() {
-              return false;
-            },
-          },
-        });
-        hideModal();
-        alertBar.success(
-          l10n.getString(
-            'rk-key-removed',
-            null,
-            'Account recovery key removed.'
-          )
-        );
-        logViewEvent(
-          'flow.settings.account-recovery',
-          'confirm-revoke.success'
-        );
-      },
-      onError: () => {
-        hideModal();
-        alertBar.error(l10n.getString('rk-remove-error'));
-        logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
-      },
+  const deleteRecoveryKey = useCallback(async () => {
+    try {
+      await account.deleteRecoveryKey();
+      hideModal();
+      alertBar.success(
+        l10n.getString('rk-key-removed', null, 'Account recovery key removed.')
+      );
+      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
+    } catch (e) {
+      hideModal();
+      alertBar.error(l10n.getString('rk-remove-error'));
+      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
     }
-  );
+  }, [account, hideModal, alertBar, l10n]);
 
   return (
     <UnitRow
@@ -97,8 +61,8 @@ export const UnitRowRecoveryKey = () => {
         <ButtonIconReload
           title={l10n.getString('rk-refresh-key')}
           classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
-          disabled={recoveryKeyExistsLoading}
-          onClick={getRecoveryKeyExists}
+          disabled={account.loading}
+          onClick={() => account.refresh('recovery')}
         />
       }
       actionContent={
@@ -106,8 +70,8 @@ export const UnitRowRecoveryKey = () => {
           title={l10n.getString('rk-refresh-key')}
           classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
           testId="recovery-key-refresh"
-          disabled={recoveryKeyExistsLoading}
-          onClick={getRecoveryKeyExists}
+          disabled={account.loading}
+          onClick={() => account.refresh('recovery')}
         />
       }
     >
@@ -142,7 +106,7 @@ export const UnitRowRecoveryKey = () => {
           <Modal
             onDismiss={hideModal}
             onConfirm={() => {
-              deleteRecoveryKey.execute();
+              deleteRecoveryKey();
               logViewEvent(
                 'flow.settings.account-recovery',
                 'confirm-revoke.submit'

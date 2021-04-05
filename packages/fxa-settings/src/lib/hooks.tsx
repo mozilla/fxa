@@ -140,6 +140,7 @@ export function useAlertBar({
     [setContent, setType, show]
   );
 
+  // TODO make the result "stable"
   return {
     visible,
     show,

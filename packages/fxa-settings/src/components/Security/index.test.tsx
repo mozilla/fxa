@@ -6,13 +6,20 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import Security from '.';
 import { renderWithRouter, MockedCache } from '../../models/_mocks';
+import { Account, AccountContext } from '../../models';
 
 describe('Security', () => {
   it('renders "fresh load" <Security/> with correct content', async () => {
+    const account = ({
+      recoveryKey: false,
+      totp: { exists: false },
+    } as unknown) as Account;
     renderWithRouter(
-      <MockedCache account={{ recoveryKey: false, totp: { exists: false } }}>
-        <Security />
-      </MockedCache>
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache account={{ recoveryKey: false, totp: { exists: false } }}>
+          <Security />
+        </MockedCache>
+      </AccountContext.Provider>
     );
 
     expect(await screen.findByText('rk-header')).toBeTruthy;
@@ -23,10 +30,16 @@ describe('Security', () => {
   });
 
   it('renders "enabled two factor" and "recovery key present" <Security/> with correct content', async () => {
+    const account = ({
+      recoveryKey: true,
+      totp: { exists: true, verified: true },
+    } as unknown) as Account;
     renderWithRouter(
-      <MockedCache account={{ recoveryKey: true, totp: { exists: true } }}>
-        <Security />
-      </MockedCache>
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache account={{ recoveryKey: true, totp: { exists: true } }}>
+          <Security />
+        </MockedCache>
+      </AccountContext.Provider>
     );
 
     const result = await screen.findAllByText('Enabled');

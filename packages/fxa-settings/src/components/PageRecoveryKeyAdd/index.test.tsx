@@ -7,7 +7,8 @@ import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { AuthContext, createAuthClient } from '../../lib/auth';
-import { MockedCache, renderWithRouter, mockEmail } from '../../models/_mocks';
+import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { Account, AccountContext } from '../../models';
 import { PageRecoveryKeyAdd } from '.';
 
 jest.mock('../../lib/auth', () => ({
@@ -20,17 +21,25 @@ jest.mock('../../lib/auth', () => ({
     })),
 }));
 
+const account = ({
+  primaryEmail: {
+    email: 'johndope@example.com',
+  },
+} as unknown) as Account;
+
 const client = createAuthClient('none');
 window.URL.createObjectURL = jest.fn();
 
 describe('PageRecoveryKeyAdd', () => {
   it('renders as expected', () => {
     renderWithRouter(
-      <AuthContext.Provider value={{ auth: client }}>
-        <MockedCache>
-          <PageRecoveryKeyAdd />
-        </MockedCache>
-      </AuthContext.Provider>
+      <AccountContext.Provider value={{ account }}>
+        <AuthContext.Provider value={{ auth: client }}>
+          <MockedCache>
+            <PageRecoveryKeyAdd />
+          </MockedCache>
+        </AuthContext.Provider>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('recovery-key-input').textContent).toContain(
@@ -44,11 +53,13 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Enables "continue" button once input is valid', async () => {
     renderWithRouter(
-      <AuthContext.Provider value={{ auth: client }}>
-        <MockedCache>
-          <PageRecoveryKeyAdd />
-        </MockedCache>
-      </AuthContext.Provider>
+      <AccountContext.Provider value={{ account }}>
+        <AuthContext.Provider value={{ auth: client }}>
+          <MockedCache>
+            <PageRecoveryKeyAdd />
+          </MockedCache>
+        </AuthContext.Provider>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('continue-button')).toBeDisabled();
@@ -63,11 +74,13 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Does not Enable "continue" button if validation fails', async () => {
     renderWithRouter(
-      <AuthContext.Provider value={{ auth: client }}>
-        <MockedCache>
-          <PageRecoveryKeyAdd />
-        </MockedCache>
-      </AuthContext.Provider>
+      <AccountContext.Provider value={{ account }}>
+        <AuthContext.Provider value={{ auth: client }}>
+          <MockedCache>
+            <PageRecoveryKeyAdd />
+          </MockedCache>
+        </AuthContext.Provider>
+      </AccountContext.Provider>
     );
 
     await act(async () => {
@@ -80,11 +93,13 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Generates a recovery key on submit', async () => {
     renderWithRouter(
-      <AuthContext.Provider value={{ auth: client }}>
-        <MockedCache>
-          <PageRecoveryKeyAdd />
-        </MockedCache>
-      </AuthContext.Provider>
+      <AccountContext.Provider value={{ account }}>
+        <AuthContext.Provider value={{ auth: client }}>
+          <MockedCache>
+            <PageRecoveryKeyAdd />
+          </MockedCache>
+        </AuthContext.Provider>
+      </AccountContext.Provider>
     );
 
     await act(async () => {

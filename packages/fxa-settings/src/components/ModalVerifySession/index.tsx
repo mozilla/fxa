@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
 import InputText from '../InputText';
-import { ApolloError, gql } from '@apollo/client';
+import { ApolloError } from '@apollo/client';
 import { useAccount, useSession } from '../../models';
-import { useAuthClient } from '../../lib/auth';
-import { cache } from '../../lib/cache';
 import { Localized, useLocalization } from '@fluent/react';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 type ModalProps = {
   onDismiss: () => void;
@@ -22,22 +21,6 @@ type FormData = {
   verificationCode: string;
 };
 
-export const SEND_SESSION_VERIFICATION_CODE_MUTATION = gql`
-  mutation sendSessionVerificationCode($input: SendSessionVerificationInput!) {
-    sendSessionVerificationCode(input: $input) {
-      clientMutationId
-    }
-  }
-`;
-
-export const VERIFY_SESSION_MUTATION = gql`
-  mutation verifySession($input: VerifySessionInput!) {
-    verifySession(input: $input) {
-      clientMutationId
-    }
-  }
-`;
-
 export const ModalVerifySession = ({
   onDismiss,
   onError,
@@ -45,7 +28,8 @@ export const ModalVerifySession = ({
 }: ModalProps) => {
   const session = useSession();
   const [errorText, setErrorText] = useState<string>();
-  const { primaryEmail } = useAccount();
+  const account = useAccount();
+  const primaryEmail = account.primaryEmail;
   const { l10n } = useLocalization();
 
   const { handleSubmit, register, formState } = useForm<FormData>({
@@ -55,47 +39,40 @@ export const ModalVerifySession = ({
     },
   });
 
-  const sendCode = useAuthClient(
-    (auth, sessionToken) => () => auth.sessionResendVerifyCode(sessionToken),
-    {
-      onError: (error) => {
-        setErrorText(error.message);
-      },
-    }
-  );
-
-  const verifySession = useAuthClient(
-    (auth, sessionToken) => (code: string) =>
-      auth.sessionVerifyCode(sessionToken, code),
-    {
-      onSuccess: () => {
-        cache.modify({
-          fields: {
-            session: () => {
-              return { verified: true };
-            },
-          },
-        });
-      },
-      onError: (error) => {
-        setErrorText(error.message);
-      },
-    }
+  const verifySession = useCallback(
+    async (code: string) => {
+      try {
+        await account.verifySession(code);
+      } catch (e) {
+        if (e.errno === AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno) {
+          const errorText = l10n.getString(
+            `auth-error-${AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno}`,
+            null,
+            AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.message
+          );
+          setErrorText(errorText);
+        } else {
+          onError(e);
+        }
+        return;
+      }
+    },
+    [account, l10n, setErrorText, onError]
   );
 
   useEffect(() => {
-    if (onCompleted && session.verified) {
+    if (!session.verified) {
+      account.sendVerificationCode();
+    } else if (onCompleted) {
       onCompleted();
-    } else {
-      sendCode.execute();
     }
-  }, [session, sendCode, onCompleted]);
+  }, [session, account, onCompleted]);
 
   if (session.verified) {
     return null;
   }
   const buttonDisabled =
-    !formState.isDirty || !formState.isValid || verifySession.loading;
+    !formState.isDirty || !formState.isValid || account.loading;
   return (
     <Modal
       data-testid="modal-verify-session"
@@ -106,7 +83,7 @@ export const ModalVerifySession = ({
     >
       <form
         onSubmit={handleSubmit(({ verificationCode }) => {
-          verifySession.execute(verificationCode.trim());
+          verifySession(verificationCode.trim());
         })}
       >
         <Localized id="mvs-verify-your-email">
@@ -120,16 +97,16 @@ export const ModalVerifySession = ({
         </Localized>
 
         <Localized
-            id="mvs-enter-verification-code-desc"
-            vars={{ email: primaryEmail.email }}
-            elems={{
-              email: <span className="font-bold"></span>,
-            }}
+          id="mvs-enter-verification-code-desc"
+          vars={{ email: primaryEmail.email }}
+          elems={{
+            email: <span className="font-bold"></span>,
+          }}
         >
           <p
-              id="modal-verify-session-desc"
-              data-testid="modal-verify-session-desc"
-              className="my-6 text-center"
+            id="modal-verify-session-desc"
+            data-testid="modal-verify-session-desc"
+            className="my-6 text-center"
           >
             Please enter the verification code that was sent to{' '}
             <span className="font-bold">{primaryEmail.email}</span> within 5
@@ -137,14 +114,13 @@ export const ModalVerifySession = ({
           </p>
         </Localized>
 
-
         <div className="mt-4 mb-6">
           <InputText
             name="verificationCode"
             label={l10n.getString(
-                'mvs-enter-verification-code',
-                null,
-                'Enter your verification code'
+              'mvs-enter-verification-code',
+              null,
+              'Enter your verification code'
             )}
             onChange={() => {
               if (errorText) {
@@ -163,20 +139,20 @@ export const ModalVerifySession = ({
         <div className="flex justify-center mx-auto max-w-64">
           <Localized id="msv-cancel-button">
             <button
-                type="button"
-                className="cta-neutral mx-2 flex-1"
-                data-testid="modal-verify-session-cancel"
-                onClick={(event) => onDismiss()}
+              type="button"
+              className="cta-neutral mx-2 flex-1"
+              data-testid="modal-verify-session-cancel"
+              onClick={(event) => onDismiss()}
             >
               Cancel
             </button>
           </Localized>
           <Localized id="msv-submit-button">
             <button
-                type="submit"
-                className="cta-primary mx-2 flex-1"
-                data-testid="modal-verify-session-submit"
-                disabled={buttonDisabled}
+              type="submit"
+              className="cta-primary mx-2 flex-1"
+              data-testid="modal-verify-session-submit"
+              disabled={buttonDisabled}
             >
               Verify
             </button>

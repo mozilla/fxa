@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { Account, AccountContext } from '../../models';
 import DataBlock from './index';
 import { act } from 'react-dom/test-utils';
 
@@ -20,25 +21,43 @@ const multiValue = [
   'D4J6KY8FL4',
 ];
 
+const account = ({
+  primaryEmail: {
+    email: 'pbooth@mozilla.com',
+  },
+} as unknown) as Account;
+
 Object.defineProperty(window.navigator, 'clipboard', {
   value: { writeText: jest.fn() },
 });
 window.URL.createObjectURL = jest.fn();
 
 it('can render single values', () => {
-  render(<DataBlock value={singleValue} />);
+  render(
+    <AccountContext.Provider value={{ account }}>
+      <DataBlock value={singleValue} />
+    </AccountContext.Provider>
+  );
   expect(screen.getByText(singleValue)).toBeInTheDocument();
 });
 
 it('can render multiple values', () => {
-  render(<DataBlock value={multiValue} />);
+  render(
+    <AccountContext.Provider value={{ account }}>
+      <DataBlock value={multiValue} />
+    </AccountContext.Provider>
+  );
   multiValue.forEach((value) => {
     expect(screen.getByText(value)).toBeInTheDocument();
   });
 });
 
 it('displays a tooltip on action', async () => {
-  render(<DataBlock value={multiValue} />);
+  render(
+    <AccountContext.Provider value={{ account }}>
+      <DataBlock value={multiValue} />
+    </AccountContext.Provider>
+  );
   await act(async () => {
     fireEvent.click(await screen.findByTestId('databutton-copy'));
   });

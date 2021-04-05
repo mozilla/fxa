@@ -5,56 +5,13 @@
 import React, { useCallback } from 'react';
 import { storiesOf } from '@storybook/react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import {
-  ModalVerifySession,
-  SEND_SESSION_VERIFICATION_CODE_MUTATION,
-  VERIFY_SESSION_MUTATION,
-} from '.';
+import { ModalVerifySession } from '.';
 import { MockedCache } from '../../models/_mocks';
-import { GraphQLError } from 'graphql';
-
-const mocks = [
-  {
-    request: {
-      query: SEND_SESSION_VERIFICATION_CODE_MUTATION,
-      variables: { input: {} },
-    },
-    result: {
-      data: {
-        sendSessionVerificationCode: {
-          clientMutationId: null,
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '1234' } },
-    },
-    result: {
-      data: {
-        verifySession: {
-          clientMutationId: null,
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '4444' } },
-    },
-    result: {
-      errors: [new GraphQLError('invalid code')],
-    },
-  },
-];
 
 storiesOf('Components|ModalVerifySession', module).add(
   'valid code: 1234, invalid code: 4444',
   () => (
-    <MockedCache {...{ mocks }} verified={false}>
+    <MockedCache verified={false}>
       <ModalToggle>
         {({ modalRevealed, hideModal }) =>
           modalRevealed && (

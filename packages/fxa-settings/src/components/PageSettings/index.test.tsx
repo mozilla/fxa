@@ -5,17 +5,26 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import PageSettings from '.';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import {
+  MOCK_ACCOUNT,
+  MockedCache,
+  renderWithRouter,
+} from '../../models/_mocks';
+import { Account, AccountContext } from '../../models';
 import * as Metrics from '../../lib/metrics';
 
 jest.spyOn(Metrics, 'setProperties');
 jest.spyOn(Metrics, 'usePageViewEvent');
 
+const account = (MOCK_ACCOUNT as unknown) as Account;
+
 it('renders without imploding', async () => {
   renderWithRouter(
-    <MockedCache>
-      <PageSettings />
-    </MockedCache>
+    <AccountContext.Provider value={{ account }}>
+      <MockedCache>
+        <PageSettings />
+      </MockedCache>
+    </AccountContext.Provider>
   );
   expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   expect(screen.getByTestId('settings-security')).toBeInTheDocument();

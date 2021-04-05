@@ -5,27 +5,11 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { InMemoryCache } from '@apollo/client';
-import { UnitRowSecondaryEmail, RESEND_EMAIL_CODE_MUTATION } from '.';
+import { UnitRowSecondaryEmail } from '.';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 import { MockedCache, MOCK_ACCOUNT, mockEmail } from '../../models/_mocks';
 import { GET_INITIAL_STATE } from '../App';
 import { LocationProvider } from '@reach/router';
-
-// every unverified email with a functioning "Resend verification"
-// button must have a mock object created per mutation attempt.
-const mockGqlSuccess = (email: string) => ({
-  request: {
-    query: RESEND_EMAIL_CODE_MUTATION,
-    variables: { input: { email } },
-  },
-  result: {
-    data: {
-      resendSecondaryEmailCode: {
-        clientMutationId: null,
-      },
-    },
-  },
-});
 
 storiesOf('Components|UnitRowSecondaryEmail', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
@@ -41,9 +25,8 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope@example.com'),
       mockEmail('johndope2@example.com', false, false),
     ];
-    const mocks = [mockGqlSuccess('johndope2@example.com')];
     return (
-      <MockedCache account={{ emails }} {...{ mocks }}>
+      <MockedCache>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
@@ -93,9 +76,8 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
         session: { verified: true },
       },
     });
-    const mocks = [mockGqlSuccess('johndope3@example.com')];
     return (
-      <MockedCache account={{ emails }} {...{ mocks }}>
+      <MockedCache>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
@@ -109,12 +91,8 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope3@example.com', false, false),
       mockEmail('johndope4@example.com', false, false),
     ];
-    const mocks = [
-      mockGqlSuccess('johndope3@example.com'),
-      mockGqlSuccess('johndope4@example.com'),
-    ];
     return (
-      <MockedCache account={{ emails }} {...{ mocks }}>
+      <MockedCache>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>

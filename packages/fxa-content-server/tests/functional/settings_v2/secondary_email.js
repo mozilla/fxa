@@ -37,7 +37,7 @@ describe('secondary email', () => {
     await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.SUBMIT_BUTTON);
     await testElementTextInclude(
       selectors.SETTINGS_V2.TOOLTIP,
-      'Can not add secondary email that is same as your primary'
+      'secondary email must be different than your account email'
     );
 
     // add secondary email, resend, remove

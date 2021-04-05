@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { gql } from '@apollo/client';
+import React, { useCallback } from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAlertBar } from '../../lib/hooks';
@@ -11,29 +10,20 @@ import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { useAccount, useLazyTotpStatus } from '../../models';
+import { useAccount } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
-import { useAuthClient } from '../../lib/auth';
-import { cache } from '../../lib/cache';
 
 const route = `${HomePath}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
 
-export const DELETE_TOTP_MUTATION = gql`
-  mutation deleteTotp($input: DeleteTotpInput!) {
-    deleteTotp(input: $input) {
-      clientMutationId
-    }
-  }
-`;
-
 export const UnitRowTwoStepAuth = () => {
   const alertBar = useAlertBar();
+  const account = useAccount();
   const {
     totp: { exists, verified },
-  } = useAccount();
+  } = account;
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const [
     secondaryModalRevealed,
@@ -42,50 +32,28 @@ export const UnitRowTwoStepAuth = () => {
   ] = useBooleanState();
   const { l10n } = useLocalization();
 
-  const [getTotpStatus, { totpStatusLoading }] = useLazyTotpStatus(() => {
-    hideModal();
-    alertBar.success(
-      l10n.getString(
-        'tfa-row-cannot-refresh',
-        null,
-        'Sorry, there was a problem refreshing two-step authentication.'
-      )
-    );
-  });
-
-  const disableTwoStepAuth = useAuthClient(
-    (auth, sessionToken) => () => auth.deleteTotpToken(sessionToken),
-    {
-      onSuccess: () => {
-        cache.modify({
-          id: cache.identify({ __typename: 'Account' }),
-          fields: {
-            totp() {
-              return { exists: false, verified: false };
-            },
-          },
-        });
-        hideModal();
-        alertBar.success(
-          l10n.getString(
-            'tfa-row-disabled',
-            null,
-            'Two-step authentication disabled.'
-          )
-        );
-      },
-      onError: () => {
-        hideModal();
-        alertBar.error(
-          l10n.getString(
-            'tfa-row-cannot-disable',
-            null,
-            'Two-step authentication could not be disabled.'
-          )
-        );
-      },
+  const disableTwoStepAuth = useCallback(async () => {
+    try {
+      await account.disableTwoStepAuth();
+      hideModal();
+      alertBar.success(
+        l10n.getString(
+          'tfa-row-disabled',
+          null,
+          'Two-step authentication disabled.'
+        )
+      );
+    } catch (e) {
+      hideModal();
+      alertBar.error(
+        l10n.getString(
+          'tfa-row-cannot-disable',
+          null,
+          'Two-step authentication could not be disabled.'
+        )
+      );
     }
-  );
+  }, [account, hideModal, alertBar, l10n]);
 
   const conditionalUnitRowProps =
     exists && verified
@@ -125,8 +93,8 @@ export const UnitRowTwoStepAuth = () => {
           <ButtonIconReload
             title="Refresh two-step authentication"
             classNames="ltr:ml-1 rtl:mr-1 mobileLandscape:hidden"
-            disabled={totpStatusLoading}
-            onClick={getTotpStatus}
+            disabled={account.loading}
+            onClick={() => account.refresh('totp')}
           />
         </Localized>
       }
@@ -136,8 +104,8 @@ export const UnitRowTwoStepAuth = () => {
             title="Refresh two-step authentication"
             classNames="hidden ltr:ml-1 rtl:mr-1 mobileLandscape:inline-block"
             testId="two-step-refresh"
-            disabled={totpStatusLoading}
-            onClick={getTotpStatus}
+            disabled={account.loading}
+            onClick={() => account.refresh('totp')}
           />
         </Localized>
       }
@@ -158,7 +126,7 @@ export const UnitRowTwoStepAuth = () => {
         >
           <Modal
             onDismiss={hideModal}
-            onConfirm={() => disableTwoStepAuth.execute()}
+            onConfirm={() => disableTwoStepAuth()}
             headerId="two-step-auth-disable-header"
             descId="two-step-auth-disable-description"
             confirmText={l10n.getString(

@@ -8,11 +8,24 @@ import { MockedCache } from '../../models/_mocks';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 import DropDownAvatarMenu, { DESTROY_SESSION_MUTATION } from '.';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
+import { Account, AccountContext } from '../../models';
 
 jest.mock('fxa-settings/src/lib/metrics', () => ({
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
 }));
+
+const account = ({
+  avatar: {
+    id: 'abc1234',
+    url: 'http://placekitten.com/512/512',
+    isDefault: false,
+  },
+  primaryEmail: {
+    email: 'johndope@example.com',
+  },
+  displayName: 'John Dope',
+} as unknown) as Account;
 
 const mockGqlSuccess = () => ({
   request: {
@@ -44,12 +57,19 @@ afterAll(() => {
 
 describe('DropDownAvatarMenu', () => {
   it('renders and toggles as expected with default values', () => {
+    const account = ({
+      avatar: { url: null, id: null },
+      displayName: null,
+      primaryEmail: {
+        email: 'johndope@example.com',
+      },
+    } as unknown) as Account;
     render(
-      <MockedCache
-        account={{ avatar: { id: null, url: null }, displayName: null }}
-      >
-        <DropDownAvatarMenu />
-      </MockedCache>
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache>
+          <DropDownAvatarMenu />
+        </MockedCache>
+      </AccountContext.Provider>
     );
 
     const toggleButton = screen.getByTestId('drop-down-avatar-menu-toggle');
@@ -75,9 +95,11 @@ describe('DropDownAvatarMenu', () => {
 
   it('renders as expected with avatar url and displayName set', () => {
     render(
-      <MockedCache>
-        <DropDownAvatarMenu />
-      </MockedCache>
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache>
+          <DropDownAvatarMenu />
+        </MockedCache>
+      </AccountContext.Provider>
     );
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
     expect(screen.getByTestId('drop-down-name-or-email').textContent).toContain(
@@ -87,9 +109,11 @@ describe('DropDownAvatarMenu', () => {
 
   it('closes on esc keypress', () => {
     render(
-      <MockedCache>
-        <DropDownAvatarMenu />
-      </MockedCache>
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache>
+          <DropDownAvatarMenu />
+        </MockedCache>
+      </AccountContext.Provider>
     );
     const dropDown = screen.queryByTestId('drop-down-avatar-menu');
 
@@ -101,13 +125,15 @@ describe('DropDownAvatarMenu', () => {
 
   it('closes on click outside', () => {
     const { container } = render(
-      <MockedCache>
-        <div className="w-full flex justify-end">
-          <div className="flex pr-10 pt-4">
-            <DropDownAvatarMenu />
+      <AccountContext.Provider value={{ account }}>
+        <MockedCache>
+          <div className="w-full flex justify-end">
+            <div className="flex pr-10 pt-4">
+              <DropDownAvatarMenu />
+            </div>
           </div>
-        </div>
-      </MockedCache>
+        </MockedCache>
+      </AccountContext.Provider>
     );
     const dropDown = screen.queryByTestId('drop-down-avatar-menu');
 
@@ -123,9 +149,11 @@ describe('DropDownAvatarMenu', () => {
       const mocks = [mockGqlSuccess()];
 
       render(
-        <MockedCache {...{ mocks }}>
-          <DropDownAvatarMenu />
-        </MockedCache>
+        <AccountContext.Provider value={{ account }}>
+          <MockedCache {...{ mocks }}>
+            <DropDownAvatarMenu />
+          </MockedCache>
+        </AccountContext.Provider>
       );
 
       fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
@@ -146,11 +174,13 @@ describe('DropDownAvatarMenu', () => {
 
       const { rerender } = render(<AlertBarRootAndContextProvider />);
       rerender(
-        <MockedCache {...{ mocks }}>
-          <AlertBarRootAndContextProvider>
-            <DropDownAvatarMenu />
-          </AlertBarRootAndContextProvider>
-        </MockedCache>
+        <AccountContext.Provider value={{ account }}>
+          <MockedCache {...{ mocks }}>
+            <AlertBarRootAndContextProvider>
+              <DropDownAvatarMenu />
+            </AlertBarRootAndContextProvider>
+          </MockedCache>
+        </AccountContext.Provider>
       );
 
       fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));

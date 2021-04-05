@@ -2,34 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { gql } from '@apollo/client';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../DataBlock';
 import { HomePath } from '../../constants';
-import { useSession } from '../../models';
+import { useAccount, useSession } from '../../models';
 import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar } from '../../lib/hooks';
 import { AlertBar } from '../AlertBar';
 import { useLocalization, Localized } from '@fluent/react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useAuthClient } from '../../lib/auth';
-
-export const CHANGE_RECOVERY_CODES_MUTATION = gql`
-  mutation changeRecoveryCodes($input: ChangeRecoveryCodesInput!) {
-    changeRecoveryCodes(input: $input) {
-      clientMutationId
-      recoveryCodes
-    }
-  }
-`;
 
 export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const navigate = useNavigate();
   const session = useSession();
+  const account = useAccount();
   const goHome = () =>
     navigate(HomePath + '#two-step-authentication', { replace: true });
   const alertSuccessAndGoHome = () => {
@@ -46,27 +36,24 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
 
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
 
-  const changeRecoveryCodes = useAuthClient(
-    (auth, sessionToken) => () => auth.replaceRecoveryCodes(sessionToken),
-    {
-      onSuccess: ({ recoveryCodes }) => {
-        setRecoveryCodes(recoveryCodes);
-      },
-      onError: () => {
-        alertBar.error(
-          l10n.getString(
-            'tfa-replace-code-error',
-            null,
-            'There was a problem replacing your recovery codes.'
-          )
-        );
-      },
+  const replaceRecoveryCodes = useCallback(async () => {
+    try {
+      const { recoveryCodes } = await account.replaceRecoveryCodes();
+      setRecoveryCodes(recoveryCodes);
+    } catch (e) {
+      alertBar.error(
+        l10n.getString(
+          'tfa-replace-code-error',
+          null,
+          'There was a problem replacing your recovery codes.'
+        )
+      );
     }
-  );
+  }, [account, alertBar, l10n]);
 
   useEffect(() => {
-    session.verified && changeRecoveryCodes.execute();
-  }, [session, changeRecoveryCodes]);
+    session.verified && recoveryCodes.length < 1 && replaceRecoveryCodes();
+  }, [session, recoveryCodes, replaceRecoveryCodes]);
 
   return (
     <FlowContainer title="Two Step Authentication">

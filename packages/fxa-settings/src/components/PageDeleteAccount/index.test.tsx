@@ -10,6 +10,7 @@ import { AuthContext, createAuthClient } from '../../lib/auth';
 import { MockedCache, renderWithRouter } from '../../models/_mocks';
 import { PageDeleteAccount } from '.';
 import { typeByTestIdFn } from '../../lib/test-utils';
+import { Account, AccountContext } from '../../models';
 
 jest.mock('../../lib/auth', () => ({
   ...jest.requireActual('../../lib/auth'),
@@ -20,6 +21,13 @@ jest.mock('../../lib/auth', () => ({
       reset: () => {},
     })),
 }));
+
+const account = ({
+  primaryEmail: {
+    email: 'rfeeley@mozilla.com',
+  },
+  uid: '0123456789abcdef',
+} as unknown) as Account;
 
 const client = createAuthClient('none');
 window.URL.createObjectURL = jest.fn();
@@ -36,17 +44,19 @@ const advanceStep = async () => {
 describe('PageDeleteAccount', () => {
   it('renders as expected', () => {
     renderWithRouter(
-      <AuthContext.Provider value={{ auth: client }}>
-        <MockedCache>
-          <PageDeleteAccount />
-        </MockedCache>
-      </AuthContext.Provider>
+      <AccountContext.Provider value={{ account }}>
+        <AuthContext.Provider value={{ auth: client }}>
+          <MockedCache>
+            <PageDeleteAccount />
+          </MockedCache>
+        </AuthContext.Provider>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('delete-account-confirm').textContent).toContain(
       'deleting your account'
     );
-    expect(screen.getByTestId('close-button').textContent).toContain('Close');
+    expect(screen.getByTestId('cancel-button').textContent).toContain('Cancel');
     expect(screen.getByTestId('continue-button').textContent).toContain(
       'Continue'
     );
@@ -54,11 +64,13 @@ describe('PageDeleteAccount', () => {
 
   it('Enables "continue" button once all 4 inputs are valid', async () => {
     renderWithRouter(
-      <AuthContext.Provider value={{ auth: client }}>
-        <MockedCache>
-          <PageDeleteAccount />
-        </MockedCache>
-      </AuthContext.Provider>
+      <AccountContext.Provider value={{ account }}>
+        <AuthContext.Provider value={{ auth: client }}>
+          <MockedCache>
+            <PageDeleteAccount />
+          </MockedCache>
+        </AuthContext.Provider>
+      </AccountContext.Provider>
     );
 
     expect(screen.getByTestId('continue-button')).toBeDisabled();
@@ -73,11 +85,13 @@ describe('PageDeleteAccount', () => {
 
   it('Does not Enable "continue" button if all for checks are not confirmed', async () => {
     renderWithRouter(
-      <AuthContext.Provider value={{ auth: client }}>
-        <MockedCache>
-          <PageDeleteAccount />
-        </MockedCache>
-      </AuthContext.Provider>
+      <AccountContext.Provider value={{ account }}>
+        <AuthContext.Provider value={{ auth: client }}>
+          <MockedCache>
+            <PageDeleteAccount />
+          </MockedCache>
+        </AuthContext.Provider>
+      </AccountContext.Provider>
     );
 
     await act(async () => {
@@ -92,11 +106,13 @@ describe('PageDeleteAccount', () => {
 
   it('Gets valid response on submit', async () => {
     renderWithRouter(
-      <AuthContext.Provider value={{ auth: client }}>
-        <MockedCache>
-          <PageDeleteAccount />
-        </MockedCache>
-      </AuthContext.Provider>
+      <AccountContext.Provider value={{ account }}>
+        <AuthContext.Provider value={{ auth: client }}>
+          <MockedCache>
+            <PageDeleteAccount />
+          </MockedCache>
+        </AuthContext.Provider>
+      </AccountContext.Provider>
     );
 
     await advanceStep();
