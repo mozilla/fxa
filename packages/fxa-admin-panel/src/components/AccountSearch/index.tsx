@@ -186,7 +186,7 @@ export const AccountSearch = () => {
               loading,
               error,
               data,
-              query: inputValue,
+              query: searchInput,
             }}
           />
         </>
