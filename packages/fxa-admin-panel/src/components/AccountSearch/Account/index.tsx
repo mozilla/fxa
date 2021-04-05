@@ -78,8 +78,9 @@ export const DangerZone = ({ primaryEmail }: { primaryEmail: string }) => {
       window.alert(
         'The account ' +
           primaryEmail +
-          ' has now been deleted. Refresh the page to display this result.'
+          ' has now been deleted.\n\nThe page will be refreshed to display this result.'
       );
+      location.reload();
     },
     onError: () => {
       window.alert(
