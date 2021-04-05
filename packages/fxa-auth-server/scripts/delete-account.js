@@ -20,7 +20,6 @@
 
 'use strict';
 
-const readline = require('readline');
 const P = require('../lib/promise');
 const config = require('../config').getProperties();
 const log = require('../lib/log')(config.log.level);
@@ -100,36 +99,25 @@ DB.connect(config[config.db.backend]).then((db) => {
       console.log('Found account record:');
       console.log('    uid:', account.uid);
       console.log('    email:', account.email);
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
       return new P((resolve, reject) => {
-        rl.question('Really delete this account? (y/n) ', (answer) => {
-          rl.close();
-          if (['y', 'yes'].indexOf(answer.toLowerCase()) === -1) {
-            return reject('Cancelled');
-          }
-
-          // Issue a mock request to the /account/destroy route
-          // to action the deletion.
-          const mockRequest = {
-            app: {
-              clientAddress: '0.0.0.0',
-            },
-            emitMetricsEvent: () => {
-              return P.resolve();
-            },
-            gatherMetricsContext: () => {
-              return P.resolve({});
-            },
-            payload: {
-              email: email,
-              authPW: 'mock password',
-            },
-          };
-          accountDestroyRoute.handler(mockRequest).then(resolve, reject);
-        });
+        // Issue a mock request to the /account/destroy route
+        // to action the deletion.
+        const mockRequest = {
+          app: {
+            clientAddress: '0.0.0.0',
+          },
+          emitMetricsEvent: () => {
+            return P.resolve();
+          },
+          gatherMetricsContext: () => {
+            return P.resolve({});
+          },
+          payload: {
+            email: email,
+            authPW: 'mock password',
+          },
+        };
+        accountDestroyRoute.handler(mockRequest).then(resolve, reject);
       });
     });
   })
