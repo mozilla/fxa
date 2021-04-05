@@ -8,12 +8,12 @@ import { ApolloProvider, gql } from '@apollo/client';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import App from './components/App';
-import { AuthContext, createAuthClient } from './lib/auth';
+import { createAuthClient } from './lib/auth';
 import config, { readConfigMeta, ConfigContext } from './lib/config';
 import firefox, { FirefoxCommand } from './lib/firefox';
 import { createApolloClient } from './lib/gql';
 import { searchParams } from './lib/utilities';
-import { GET_PROFILE_INFO } from './models';
+import { Account, AccountContext, GET_PROFILE_INFO } from './models';
 import './index.scss';
 
 try {
@@ -24,6 +24,7 @@ try {
   sentryMetrics.configure(config.sentry.dsn, config.version);
   const authClient = createAuthClient(config.servers.auth.url);
   const apolloClient = createApolloClient(config.servers.gql.url);
+  const account = new Account(authClient, apolloClient);
   const flowQueryParams = searchParams(
     window.location.search
   ) as FlowQueryParams;
@@ -78,7 +79,7 @@ try {
   render(
     <React.StrictMode>
       <ApolloProvider client={apolloClient}>
-        <AuthContext.Provider value={{ auth: authClient }}>
+        <AccountContext.Provider value={{ account }}>
           <ConfigContext.Provider value={config}>
             <AppErrorBoundary>
               <App
@@ -89,7 +90,7 @@ try {
               />
             </AppErrorBoundary>
           </ConfigContext.Provider>
-        </AuthContext.Provider>
+        </AccountContext.Provider>
       </ApolloProvider>
     </React.StrictMode>,
     document.getElementById('root')

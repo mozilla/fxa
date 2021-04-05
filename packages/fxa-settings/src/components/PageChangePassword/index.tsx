@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useForm, ValidateResult } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { HomePath } from '../../constants';
-import { usePasswordChanger } from '../../lib/auth';
-import { alertTextExternal, cache, sessionToken } from '../../lib/cache';
-import firefox from '../../lib/firefox';
+import { alertTextExternal } from '../../lib/cache';
 import {
   logViewEvent,
   settingsViewName,
@@ -25,7 +23,6 @@ import { ReactComponent as ValidIcon } from './valid.svg';
 import { ReactComponent as InvalidIcon } from './invalid.svg';
 import { ReactComponent as UnsetIcon } from './unset.svg';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { gql } from '@apollo/client';
 import { useLocalization, Localized } from '@fluent/react';
 
 type FormData = {
@@ -77,84 +74,62 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     string
   >();
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
-  const { primaryEmail } = useAccount();
+  const account = useAccount();
   const navigate = useNavigate();
-  const goHome = () => navigate(HomePath + '#password', { replace: true });
-  const alertSuccessAndGoHome = () => {
+  const goHome = useCallback(
+    () => navigate(HomePath + '#password', { replace: true }),
+    [navigate]
+  );
+  const { l10n } = useLocalization();
+  const alertSuccessAndGoHome = useCallback(() => {
     alertTextExternal(
       l10n.getString('pw-change-success-alert', null, 'Password updated.')
     );
     navigate(HomePath + '#password', { replace: true });
-  };
-  const { l10n } = useLocalization();
-  const changePassword = usePasswordChanger({
-    onSuccess: (response) => {
-      logViewEvent(settingsViewName, 'change-password.success');
-      changePassword.reset();
-      firefox.passwordChanged(
-        primaryEmail.email,
-        response.uid,
-        response.sessionToken,
-        response.verified,
-        response.keyFetchToken,
-        response.unwrapBKey
-      );
-      sessionToken(response.sessionToken);
-      cache.writeQuery({
-        query: gql`
-          query UpdatePassword {
-            account {
-              passwordCreated
-            }
-            session {
-              verified
-            }
-          }
-        `,
-        data: {
-          account: {
-            passwordCreated: response.authAt * 1000,
-            __typename: 'Account',
-          },
-          session: { verified: response.verified, __typename: 'Session' },
-        },
-      });
-      alertSuccessAndGoHome();
-    },
-    onError: (e) => {
-      const localizedError = l10n.getString(
-        `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
-        null,
-        AuthUiErrors.INCORRECT_PASSWORD.message
-      );
-      if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
-        // incorrect password
-        setCurrentPasswordErrorText(localizedError);
-        setValue('oldPassword', '');
-      } else {
-        setAlertText(localizedError);
-        revealAlertBar();
+  }, [l10n, navigate]);
+  const passwordValidator = new PasswordValidator(account.primaryEmail.email);
+  const onFormSubmit = useCallback(
+    async ({ oldPassword, newPassword }: FormData) => {
+      if (oldPassword === newPassword) {
+        const localizedError = l10n.getString(
+          `auth-error-${AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.errno}`,
+          null,
+          AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.message
+        );
+        setNewPasswordErrorText(localizedError);
+        return;
+      }
+      try {
+        await account.changePassword(oldPassword, newPassword);
+        logViewEvent(settingsViewName, 'change-password.success');
+        alertSuccessAndGoHome();
+      } catch (e) {
+        const localizedError = l10n.getString(
+          `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
+          null,
+          AuthUiErrors.INCORRECT_PASSWORD.message
+        );
+        if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+          // incorrect password
+          setCurrentPasswordErrorText(localizedError);
+          setValue('oldPassword', '');
+        } else {
+          setAlertText(localizedError);
+          revealAlertBar();
+        }
       }
     },
-  });
-  const passwordValidator = new PasswordValidator(primaryEmail.email);
-  const onFormSubmit = ({ oldPassword, newPassword }: FormData) => {
-    if (oldPassword === newPassword) {
-      const localizedError = l10n.getString(
-        `auth-error-${AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.errno}`,
-        null,
-        AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.message
-      );
-      setNewPasswordErrorText(localizedError);
-      return;
-    }
-    changePassword.execute(
-      primaryEmail.email,
-      oldPassword,
-      newPassword,
-      sessionToken()!
-    );
-  };
+    [
+      l10n,
+      setNewPasswordErrorText,
+      account,
+      alertSuccessAndGoHome,
+      setCurrentPasswordErrorText,
+      setValue,
+      setAlertText,
+      revealAlertBar,
+    ]
+  );
 
   return (
     <Localized id="pw-change-header" attrs={{ title: true }}>
@@ -313,9 +288,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
                 type="submit"
                 className="cta-primary mx-2 flex-1"
                 disabled={
-                  !formState.isDirty ||
-                  !formState.isValid ||
-                  changePassword.loading
+                  !formState.isDirty || !formState.isValid || account.loading
                 }
               >
                 Save

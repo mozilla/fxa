@@ -1,11 +1,16 @@
-import { useRef } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   gql,
   useApolloClient,
   useLazyQuery,
   ApolloError,
   QueryLazyOptions,
+  ApolloClient,
 } from '@apollo/client';
+import AuthClient from 'fxa-auth-client/browser';
+import { useAuth } from '../lib/auth';
+import { sessionToken } from '../lib/cache';
+import firefox from '../lib/firefox';
 
 export interface DeviceLocation {
   city: string | null;
@@ -38,7 +43,7 @@ export interface AttachedClient {
   refreshTokenId: string | null;
 }
 
-export interface Account {
+export interface AccountData {
   uid: hexstring;
   displayName: string | null;
   avatar: {
@@ -168,17 +173,18 @@ export const GET_TOTP_STATUS = gql`
   }
 `;
 
+export interface AccountContextValue {
+  account?: Account;
+}
+
+export const AccountContext = React.createContext<AccountContextValue>({});
+
 export function useAccount() {
-  // work around for https://github.com/apollographql/apollo-client/issues/6209
-  // see git history for previous version
-  const client = useApolloClient();
-  // without the ref direct cache updates sometimes don't trigger a render :/
-  const accountRef = useRef<Account>();
-  const { account } = client.cache.readQuery<{ account: Account }>({
-    query: GET_ACCOUNT,
-  })!;
-  accountRef.current = account;
-  return accountRef.current;
+  const { account } = useContext(AccountContext);
+  if (!account) {
+    throw new Error('Are you forgetting an AccountContext.Provider?');
+  }
+  return account;
 }
 
 export function useLazyAccount(
@@ -188,7 +194,7 @@ export function useLazyAccount(
   { accountLoading: boolean }
 ] {
   const [getAccount, { loading: accountLoading }] = useLazyQuery<{
-    account: Account;
+    account: AccountData;
   }>(GET_ACCOUNT, {
     fetchPolicy: 'network-only',
     onError,
@@ -207,7 +213,7 @@ export function useLazyConnectedClients(
     getConnectedClients,
     { loading: connectedClientsLoading },
   ] = useLazyQuery<{
-    attachedClients: Pick<Account, 'attachedClients'>;
+    attachedClients: Pick<AccountData, 'attachedClients'>;
   }>(GET_CONNECTED_CLIENTS, {
     fetchPolicy: 'network-only',
     onError,
@@ -226,7 +232,7 @@ export function useLazyRecoveryKeyExists(
     getRecoveryKeyExists,
     { loading: recoveryKeyExistsLoading },
   ] = useLazyQuery<{
-    recoveryKeyExists: Pick<Account, 'recoveryKey'>;
+    recoveryKeyExists: Pick<AccountData, 'recoveryKey'>;
   }>(GET_RECOVERY_KEY_EXISTS, {
     fetchPolicy: 'network-only',
     onError,
@@ -242,7 +248,7 @@ export function useLazyTotpStatus(
   { totpStatusLoading: boolean }
 ] {
   const [getTotpStatus, { loading: totpStatusLoading }] = useLazyQuery<{
-    totpStatus: Pick<Account, 'totp'>;
+    totpStatus: Pick<AccountData, 'totp'>;
   }>(GET_TOTP_STATUS, {
     fetchPolicy: 'network-only',
     onError,
@@ -251,18 +257,144 @@ export function useLazyTotpStatus(
   return [getTotpStatus, { totpStatusLoading }];
 }
 
-export function hasSecondaryEmail(account: Account) {
+export function hasSecondaryEmail(account: AccountData) {
   return account.emails.length > 1;
 }
 
-export function hasSecondaryVerifiedEmail(account: Account) {
+export function hasSecondaryVerifiedEmail(account: AccountData) {
   return hasSecondaryEmail(account) ? account.emails[1].verified : false;
 }
 
-export function hasAccountRecovery(account: Account) {
+export function hasAccountRecovery(account: AccountData) {
   return account.recoveryKey;
 }
 
-export function hasTwoStepAuthentication(account: Account) {
+export function hasTwoStepAuthentication(account: AccountData) {
   return account.totp.exists && account.totp.verified;
+}
+
+export class Account implements AccountData {
+  private readonly authClient: AuthClient;
+  private readonly apolloClient: ApolloClient<object>;
+  private _loading: boolean;
+
+  constructor(client: AuthClient, apolloClient: ApolloClient<object>) {
+    this.authClient = client;
+    this.apolloClient = apolloClient;
+    this._loading = false;
+  }
+
+  private async withLoading<T>(promise: Promise<T>) {
+    this._loading = true;
+    try {
+      return await promise;
+    } catch (e) {
+      throw e;
+    } finally {
+      this._loading = false;
+    }
+  }
+
+  private get data() {
+    const { account } = this.apolloClient.cache.readQuery<{
+      account: AccountData;
+    }>({
+      query: GET_ACCOUNT,
+    })!;
+    return account;
+  }
+
+  get loading() {
+    return this._loading;
+  }
+
+  get uid() {
+    return this.data.uid;
+  }
+
+  get displayName() {
+    return this.data.displayName;
+  }
+
+  get avatar() {
+    return this.data.avatar;
+  }
+
+  get accountCreated() {
+    return this.data.accountCreated;
+  }
+
+  get passwordCreated() {
+    return this.data.passwordCreated;
+  }
+
+  get recoveryKey() {
+    return this.data.recoveryKey;
+  }
+
+  get emails() {
+    return this.data.emails;
+  }
+
+  get primaryEmail() {
+    return this.data.primaryEmail;
+  }
+
+  get subscriptions() {
+    return this.data.subscriptions;
+  }
+
+  get totp() {
+    return this.data.totp;
+  }
+
+  get attachedClients() {
+    return this.data.attachedClients;
+  }
+
+  get alertTextExternal() {
+    return this.data.alertTextExternal;
+  }
+
+  async changePassword(oldPassword: string, newPassword: string) {
+    const response = await this.withLoading(
+      this.authClient.passwordChange(
+        this.primaryEmail.email,
+        oldPassword,
+        newPassword,
+        {
+          keys: true,
+          sessionToken: sessionToken()!,
+        }
+      )
+    );
+    firefox.passwordChanged(
+      this.primaryEmail.email,
+      response.uid,
+      response.sessionToken,
+      response.verified,
+      response.keyFetchToken,
+      response.unwrapBKey
+    );
+    sessionToken(response.sessionToken);
+    this.apolloClient.cache.writeQuery({
+      query: gql`
+        query UpdatePassword {
+          account {
+            passwordCreated
+          }
+          session {
+            verified
+          }
+        }
+      `,
+      data: {
+        account: {
+          passwordCreated: response.authAt * 1000,
+          __typename: 'Account',
+        },
+        session: { verified: response.verified, __typename: 'Session' },
+      },
+    });
+  }
 }
