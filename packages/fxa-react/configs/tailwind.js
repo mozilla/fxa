@@ -52,6 +52,7 @@ module.exports = {
         tablet: '768px',
         desktop: '1024px',
         desktopXl: '1441px',
+        32: '8rem',
         48: '12rem',
         64: '16rem',
       },
