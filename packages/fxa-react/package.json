@@ -45,7 +45,7 @@
     "@tailwindcss/postcss7-compat": "^2.0.1",
     "@testing-library/dom": "^7.24.5",
     "@testing-library/jest-dom": "^5.11.9",
-    "@testing-library/react": "^9.5.0",
+    "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.7.1",
     "@types/camelcase": "5.2.0",
     "@types/classnames": "^2.2.11",
