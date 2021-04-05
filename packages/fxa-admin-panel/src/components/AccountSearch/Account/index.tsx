@@ -6,7 +6,7 @@ import React from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+// import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 type AccountProps = {
   uid: string;
@@ -76,7 +76,11 @@ export const ClearButton = ({
 export const DangerZone = ({ primaryEmail }: { primaryEmail: string }) => {
   const [deleteAccount, { loading }] = useMutation(DELETE_ACCOUNT_BY_EMAIL, {
     onCompleted: () => {
-      window.alert('The account ' + primaryEmail + ' has now been deleted.');
+      window.alert(
+        'The account ' +
+          primaryEmail +
+          ' has now been deleted. Refresh the page to display this result.'
+      );
     },
     onError: () => {
       window.alert(
@@ -84,7 +88,20 @@ export const DangerZone = ({ primaryEmail }: { primaryEmail: string }) => {
       );
     },
   });
-  if (loading) return <LoadingSpinner />;
+  if (loading)
+    return (
+      <li>
+        <div className="spinner">
+          <span className="spinner-inner-1"></span>
+          <span className="spinner-inner-2"></span>
+          <span className="spinner-inner-3"></span>
+        </div>
+        <br />
+        <br />
+        <br />
+        <p>Attempting to delete this account. This may take a moment.</p>
+      </li>
+    );
 
   const handleDelete = () => {
     window.confirm('Are you sure? This cannot be undone.');
