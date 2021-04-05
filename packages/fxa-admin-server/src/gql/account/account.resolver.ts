@@ -20,6 +20,7 @@ import { uuidTransformer } from '../../database/transformers';
 import { Account as AccountType } from '../../gql/model/account.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
 import { SecurityEvents as SecurityEventsType } from '../../gql/model/security-events.model';
+import { deleteAccount } from '../../shell/delete-account';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -156,6 +157,16 @@ export class AccountResolver {
       .query()
       .update({ disabledAt: 0 })
       .where('uid', uidBuffer);
+    return !!result;
+  }
+
+  @Mutation((returns) => Boolean)
+  public async deleteAccount(
+    @Args('email') email: string,
+    @CurrentUser() user: string
+  ) {
+    const result = await deleteAccount(email);
+    this.log.info('deleteAccount', { user, email, success: result });
     return !!result;
   }
 }

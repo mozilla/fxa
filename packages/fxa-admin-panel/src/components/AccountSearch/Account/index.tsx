@@ -70,6 +70,12 @@ export const ENABLE_ACCOUNT = gql`
   }
 `;
 
+export const DELETE_ACCOUNT_BY_EMAIL = gql`
+  mutation deleteAccountByEmail($email: String!) {
+    deleteAccount(email: $email)
+  }
+`;
+
 export const ClearButton = ({
   emails,
   onCleared,
@@ -101,13 +107,52 @@ export const ClearButton = ({
 export const DangerZone = ({
   uid,
   disabledAt,
+  primaryEmail,
 }: {
   uid: string;
   disabledAt: number | null;
+  primaryEmail: string;
 }) => {
-  const alertWindow = () => {
-    window.alert('Implementation Coming Soon');
+  const [deleteAccount, { loading }] = useMutation(DELETE_ACCOUNT_BY_EMAIL, {
+    onCompleted: () => {
+      window.alert(
+        'The account ' +
+          primaryEmail +
+          ' has now been deleted.\n\nThe page will be refreshed to display this result.'
+      );
+      location.reload();
+    },
+    onError: () => {
+      window.alert(
+        'There was an error in deleting account: ' + primaryEmail + '.'
+      );
+    },
+  });
+
+  const handleDelete = () => {
+    window.confirm('Are you sure? This cannot be undone.');
+    let email = window.prompt(
+      'Enter the email of the user account to be deleted.'
+    );
+    deleteAccount({ variables: { email: primaryEmail } });
+
+    return;
   };
+
+  if (loading)
+    return (
+      <li>
+        <div className="spinner">
+          <span className="spinner-inner-1"></span>
+          <span className="spinner-inner-2"></span>
+          <span className="spinner-inner-3"></span>
+        </div>
+        <br />
+        <br />
+        <br />
+        <p>Attempting to delete this account. This may take a moment.</p>
+      </li>
+    );
 
   const handleLock = () => {
     if (!disabledAt) {
@@ -152,7 +197,7 @@ export const DangerZone = ({
       <p className="danger-zone-info">
         Once you delete an account, there is no going back. Please be certain.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
+        <button className="danger-zone-button" onClick={handleDelete}>
           Delete Account
         </button>
       </p>
@@ -169,9 +214,7 @@ export const DangerZone = ({
       <p className="danger-zone-info">
         Force a password change the next time this account logs in.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
-          Force Change
-        </button>
+        <button className="danger-zone-button">Force Change</button>
       </p>
     </li>
   );
@@ -319,7 +362,11 @@ export const Account = ({
           </p>
         </li>
         <hr />
-        <DangerZone uid={uid} disabledAt={disabledAt} />
+        <DangerZone
+          uid={uid}
+          disabledAt={disabledAt}
+          primaryEmail={primaryEmail.email}
+        />
       </ul>
     </section>
   );

@@ -147,14 +147,18 @@ export const AccountSearch = () => {
     <div className="account-search" data-testid="account-search">
       <h2>Account Search</h2>
       <p>
-        Email addresses are blocked from the FxA email sender when an email sent
-        to the address has bounced.
+        Search for a Firefox user account by email or UID and view its details,
+        including: secondary emails, email bounces, time-based one-time
+        passwords, recovery keys, and current session. You can also delete,
+        lock, and force a password reset on the account.
       </p>
       <p>
-        Remove an email address from the blocked list by first searching for an
-        account by email. Brief account information will be displayed as well as
-        email bounces attached to the account. Delete the block on the email by
-        deleting the bounced email data.
+        Email addresses are blocked from the FxA email sender when an email sent
+        to the address has bounced. Remove an email address from the blocked
+        list by first searching for an account by email. Brief account
+        information will be displayed as well as email bounces attached to the
+        account. Delete the block on the email by deleting the bounced email
+        data.
       </p>
       <form onSubmit={handleSubmit} data-testid="search-form" className="flex">
         <label htmlFor="email">Email to search for:</label>
