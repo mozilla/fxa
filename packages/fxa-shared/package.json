@@ -85,7 +85,7 @@
     "accept-language": "^2.0.17",
     "ajv": "^6.12.2",
     "apollo-server": "^2.19.2",
-    "aws-sdk": "^2.851.0",
+    "aws-sdk": "^2.879.0",
     "bluebird": "^3.7.2",
     "celebrate": "^10.0.1",
     "class-transformer": "^0.4.0",
