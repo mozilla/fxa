@@ -27,6 +27,7 @@ import {
 } from './paypal-error-codes';
 import { StripeHelper } from './stripe';
 import { CurrencyHelper } from './currencies';
+import { hasPaypalSubscription } from 'fxa-shared/subscriptions/stripe';
 
 type PaypalHelperOptions = {
   log: Logger;
@@ -365,7 +366,7 @@ export class PayPalHelper {
 
   /**
    * Removes Paypal billing agreements on a customer if they paid with
-   * Paypal but no longer have an active/past_due subscription.
+   * Paypal but no longer have an active/past_due/trialing subscription.
    */
   async conditionallyRemoveBillingAgreement(
     customer: Stripe.Customer
@@ -376,12 +377,7 @@ export class PayPalHelper {
     if (!billingAgreementId) {
       return false;
     }
-    const paypalSubscription = customer.subscriptions?.data.find(
-      (sub) =>
-        ['active', 'past_due'].includes(sub.status) &&
-        sub.collection_method === 'send_invoice'
-    );
-    if (paypalSubscription) {
+    if (hasPaypalSubscription(customer)) {
       return false;
     }
     await this.cancelBillingAgreement(billingAgreementId);

@@ -9,6 +9,13 @@ export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>;
 };
 
+/** Represents all subscription statuses that are considered active for a customer */
+export const ACTIVE_SUBSCRIPTION_STATUSES: Stripe.Subscription['status'][] = [
+  'active',
+  'past_due',
+  'trialing',
+];
+
 /**
  * Filter a customer for client-safe attributes.
  *
@@ -164,3 +171,10 @@ export function filterIntent<
     'status'
   );
 }
+
+export const hasPaypalSubscription = (customer: Stripe.Customer) =>
+  customer.subscriptions?.data.some(
+    (sub) =>
+      ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
+      sub.collection_method === 'send_invoice'
+  );
