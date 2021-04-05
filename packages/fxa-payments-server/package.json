@@ -131,7 +131,7 @@
     "node-fetch": "^2.6.1",
     "node-sass": "^4.13.1",
     "on-headers": "^1.0.2",
-    "react": "^16.12.0",
+    "react": "^17.0.2",
     "react-document-title": "^2.0.3",
     "react-dom": "^16.12.0",
     "react-redux": "^7.2.2",
