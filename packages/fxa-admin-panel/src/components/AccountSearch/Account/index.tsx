@@ -6,7 +6,6 @@ import React from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
-// import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 type AccountProps = {
   uid: string;
