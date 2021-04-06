@@ -2,4 +2,5 @@
 {{#if device }}{{ device }}{{/if}}
 {{#if location }}{{ location }}{{/if}}
 {{#if ip }}{{t "IP address: %(ip)s" }}{{/if}}
-{{#if timestamp }}{{ timestamp }}{{/if}}
+{{#if date }}{{ date }}{{/if}}
+{{#if time }}{{ time }}{{/if}}
