@@ -53,7 +53,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
           )}
           download
           data-testid="databutton-download"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-none focus:ring-2 focus:ring-gray-600 "
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-none focus:ring-2 focus:ring-gray-600"
           onClick={() => onAction?.('download')}
         >
           <DownloadIcon
@@ -74,7 +74,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
             onAction?.('copy');
           }}
           data-testid="databutton-copy"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-none focus:ring-2 focus:ring-gray-600"
         >
           <CopyIcon
             width="21"
@@ -96,7 +96,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
             onAction?.('print');
           }}
           data-testid="databutton-print"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-none focus:ring-2 focus:ring-gray-600"
         >
           <PrintIcon
             height="24"
