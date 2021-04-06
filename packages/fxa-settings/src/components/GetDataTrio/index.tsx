@@ -47,7 +47,6 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
     <div className="flex justify-between w-4/5 max-w-48">
       <Localized id="get-data-trio-download" attrs={{ title: true }}>
         <a
-          title="Download"
           href={URL.createObjectURL(
             new Blob(Array.isArray(value) ? [value.join('\r\n')] : [value], {
               type: 'text/plain',
