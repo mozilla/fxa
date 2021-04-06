@@ -191,7 +191,8 @@ export class AccountResolver {
         'securityEventNames.id'
       )
       .where('uid', uidBuffer)
-      .limit(10);
+      .limit(10)
+      .orderBy('createdAt', 'DESC');
   }
 
   @Mutation((returns) => Boolean)

@@ -160,21 +160,24 @@ export const DangerZone = ({
   disabledAt,
   onCleared,
 }: DangerZoneProps) => {
-  const [deleteAccount, { loading }] = useMutation(DELETE_ACCOUNT_BY_EMAIL, {
-    onCompleted: () => {
-      window.alert(
-        'The account ' +
-          email.email +
-          ' has now been deleted.\n\nThe page will be refreshed to display this result.'
-      );
-      location.reload();
-    },
-    onError: () => {
-      window.alert(
-        'There was an error in deleting account: ' + email.email + '.'
-      );
-    },
-  });
+  const [deleteAccount, { loading: deleteLoading }] = useMutation(
+    DELETE_ACCOUNT_BY_EMAIL,
+    {
+      onCompleted: () => {
+        window.alert(
+          'The account ' +
+            email.email +
+            ' has now been deleted.\n\nThe page will be refreshed to display this result.'
+        );
+        onCleared();
+      },
+      onError: () => {
+        window.alert(
+          'There was an error in deleting account: ' + email.email + '.'
+        );
+      },
+    }
+  );
 
   const handleDelete = () => {
     window.confirm('Are you sure? This cannot be undone.');
@@ -199,12 +202,30 @@ export const DangerZone = ({
     return;
   };
 
-  const [disableAccount] = useMutation(DISABLE_ACCOUNT, {
-    onCompleted: () => setAccountStatus('Unlock Account'),
-  });
-  const [enableAccount] = useMutation(ENABLE_ACCOUNT, {
-    onCompleted: () => setAccountStatus('Lock Account'),
-  });
+  const [disableAccount, { loading: disableLoading }] = useMutation(
+    DISABLE_ACCOUNT,
+    {
+      onCompleted: () => {
+        setAccountStatus('Unlock Account');
+        onCleared();
+      },
+      onError: () => {
+        window.alert('Error in unverifying email');
+      },
+    }
+  );
+  const [enableAccount, { loading: enableLoading }] = useMutation(
+    ENABLE_ACCOUNT,
+    {
+      onCompleted: () => {
+        setAccountStatus('Lock Account');
+        onCleared();
+      },
+      onError: () => {
+        window.alert('Error in unverifying email');
+      },
+    }
+  );
   const [accountStatus, setAccountStatus] = useState<string>(
     disabledAt ? 'Unlock Account' : 'Lock Account'
   );
@@ -217,9 +238,17 @@ export const DangerZone = ({
     }
   };
 
-  const [unverify] = useMutation(UNVERIFY_EMAIL);
+  const [unverify, { loading: unverifyLoading }] = useMutation(UNVERIFY_EMAIL, {
+    onCompleted: () => {
+      window.alert("The user's email has been unverified.");
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error in unverifying email');
+    },
+  });
 
-  const [reset] = useMutation(FORCE_RESET, {
+  const [reset, { loading: resetLoading }] = useMutation(FORCE_RESET, {
     onCompleted: () => {
       window.alert("The user's password has been reset.");
       onCleared();
@@ -245,6 +274,18 @@ export const DangerZone = ({
     reset({ variables: { email: email.email } });
   };
 
+  // define loading messages
+  const loadingMessage = 'Please wait a moment...';
+  let deleteMessage = '';
+  let lockMessage = '';
+  let resetMessage = '';
+  let unverifyMessage = '';
+
+  if (deleteLoading) deleteMessage = loadingMessage;
+  if (disableLoading || enableLoading) lockMessage = loadingMessage;
+  if (resetLoading) resetMessage = loadingMessage;
+  if (unverifyLoading) unverifyMessage = loadingMessage;
+
   return (
     <li>
       <h3 className="danger-zone-title">Danger Zone</h3>
@@ -259,6 +300,7 @@ export const DangerZone = ({
         <button className="danger-zone-button" onClick={handleDelete}>
           Delete Account
         </button>
+        <p>{deleteMessage}</p>
       </p>
       <h2>Lock or Unlock Account</h2>
       <p className="danger-zone-info">
@@ -268,6 +310,7 @@ export const DangerZone = ({
         <button className="danger-zone-button" onClick={handleLock}>
           {accountStatus}
         </button>
+        <p>{lockMessage}</p>
       </p>
       <h2>Force Password Change</h2>
       <p className="danger-zone-info">
@@ -280,6 +323,7 @@ export const DangerZone = ({
         >
           Force Change
         </button>
+        <p>{resetMessage}</p>
       </p>
       <h2>Toggle Email Verification</h2>
       <p className="danger-zone-info">
@@ -288,6 +332,7 @@ export const DangerZone = ({
         <button className="danger-zone-button" onClick={handleUnverify}>
           Unverify Email
         </button>
+        <p>{unverifyMessage}</p>
       </p>
     </li>
   );

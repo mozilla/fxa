@@ -295,7 +295,7 @@ export const AccountSearch = () => {
           name="email"
           type="search"
           onChange={handleChange}
-          placeholder="hello@world.com or uid"
+          placeholder="hello@world.com or UID"
           data-testid="email-input"
         />
         <div className="suggestions-list">{renderSuggestions()}</div>
@@ -315,7 +315,7 @@ export const AccountSearch = () => {
               loading: queryResults.loading,
               error: queryResults.error,
               data: queryResults.data,
-              query: inputValue,
+              query: searchInput,
             }}
           />
         </>
