@@ -38,6 +38,34 @@ interface AccountType {
       name: string;
     }
   ];
+  totp: [
+    {
+      verified: boolean;
+      createdAt: number;
+      enabled: boolean;
+    }
+  ];
+  recoveryKeys: [
+    {
+      createdAt: number;
+      verifiedAt: number;
+      enabled: boolean;
+    }
+  ];
+  sessionTokens: [
+    {
+      tokenId: string;
+      tokenData: string;
+      uid: string;
+      createdAt: number;
+      uaBrowser: string;
+      uaBrowserVersion: string;
+      uaOS: string;
+      uaOSVersion: string;
+      uaDeviceType: string;
+      lastAccessTime: number;
+    }
+  ];
 }
 
 export const GET_ACCOUNT_BY_EMAIL = gql`
@@ -66,6 +94,28 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         createdAt
         tokenVerificationId
         name
+      }
+      totp {
+        verified
+        createdAt
+        enabled
+      }
+      recoveryKeys {
+        createdAt
+        verifiedAt
+        enabled
+      }
+      sessionTokens {
+        tokenId
+        tokenData
+        uid
+        createdAt
+        uaBrowser
+        uaBrowserVersion
+        uaOS
+        uaOSVersion
+        uaDeviceType
+        lastAccessTime
       }
     }
   }

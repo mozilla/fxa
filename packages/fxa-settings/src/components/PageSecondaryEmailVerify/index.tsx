@@ -3,14 +3,15 @@ import { gql } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { HomePath } from '../../constants';
-import { alertTextExternal } from '../../lib/cache';
-import { useAlertBar, useMutation } from '../../lib/hooks';
+import { alertTextExternal, cache } from '../../lib/cache';
+import { useAlertBar } from '../../lib/hooks';
 import { logViewEvent } from '../../lib/metrics';
 import { Email } from '../../models';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useForm } from 'react-hook-form';
+import { useAuthClient } from '../../lib/auth';
 
 type FormData = {
   verificationCode: string;
@@ -50,24 +51,13 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   // Using 'any' here, instead of FluentVariable, to avoid having to import @fluent/bundle.
   const email = (location?.state as any)?.email as string | undefined | any;
 
-  const [verifySecondaryEmail, { loading }] = useMutation(
-    VERIFY_SECONDARY_EMAIL_MUTATION,
+  const verifySecondaryEmail = useAuthClient(
+    (auth, sessionToken) => async (email: string, code: string) => {
+      await auth.recoveryEmailSecondaryVerifyCode(sessionToken, email, code);
+      return email;
+    },
     {
-      onError: (error) => {
-        if (error.graphQLErrors?.length) {
-          setErrorText(error.message);
-        } else {
-          alertBar.error(
-            l10n.getString(
-              'verify-secondary-email-error',
-              null,
-              'There was a problem sending the verification code.'
-            )
-          );
-          logViewEvent('verify-secondary-email.verification', 'fail');
-        }
-      },
-      update: (cache) => {
+      onSuccess: (email) => {
         cache.modify({
           id: cache.identify({ __typename: 'Account' }),
           fields: {
@@ -78,10 +68,22 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
             },
           },
         });
-      },
-      onCompleted: () => {
-        alertSuccessAndGoHome(email);
         logViewEvent('verify-secondary-email.verification', 'success');
+        alertSuccessAndGoHome(email);
+      },
+      onError: (error) => {
+        if (error.errno) {
+          setErrorText(error.message);
+        } else {
+          alertBar.error(
+            l10n.getString(
+              'verify-secondary-email-error',
+              null,
+              'There was a problem sending the verification code.'
+            )
+          );
+        }
+        logViewEvent('verify-secondary-email.verification', 'fail');
       },
     }
   );
@@ -92,7 +94,8 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     }
   }, [email, navigate]);
 
-  const buttonDisabled = !formState.isDirty || !formState.isValid || loading;
+  const buttonDisabled =
+    !formState.isDirty || !formState.isValid || verifySecondaryEmail.loading;
   return (
     <Localized id="verify-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email">
@@ -100,14 +103,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         <form
           data-testid="secondary-email-verify-form"
           onSubmit={handleSubmit(({ verificationCode }) => {
-            verifySecondaryEmail({
-              variables: {
-                input: {
-                  code: verificationCode,
-                  email,
-                },
-              },
-            });
+            verifySecondaryEmail.execute(email, verificationCode);
             logViewEvent('verify-secondary-email.verification', 'clicked');
           })}
         >

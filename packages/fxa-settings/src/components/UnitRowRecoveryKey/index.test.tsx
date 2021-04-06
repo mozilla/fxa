@@ -20,7 +20,7 @@ describe('UnitRowRecoveryKey', () => {
     );
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
-    ).toContain('Recovery key');
+    ).toContain('rk-header');
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
     ).toContain('Enabled');
@@ -37,7 +37,7 @@ describe('UnitRowRecoveryKey', () => {
     );
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
-    ).toContain('Recovery key');
+    ).toContain('rk-header');
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
     ).toContain('Not set');

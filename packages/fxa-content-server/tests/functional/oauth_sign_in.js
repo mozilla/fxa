@@ -43,11 +43,11 @@ const {
   generateTotpCode,
   openFxaFromRp,
   openPage,
+  signOut,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
   testElementValueEquals,
-  testSuccessWasShown,
   testUrlInclude,
   testUrlPathnameEquals,
   type,
@@ -608,12 +608,12 @@ registerSuite('oauth signin - TOTP', {
 
           // Remove token
           .then(click(selectors.TOTP.DELETE_BUTTON))
-          .then(testSuccessWasShown)
+          .then(click(selectors.TOTP.CONFIRM_DELETE))
+          .then(testElementExists(selectors.TOTP.DISABLE_SUCCESS))
           .then(testElementExists(selectors.TOTP.MENU_BUTTON))
 
           // Does not prompt for code
-          .then(click(selectors.SETTINGS.SIGNOUT))
-
+          .then(signOut())
           .then(
             clearBrowserState({
               '123done': true,

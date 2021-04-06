@@ -7,11 +7,21 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import Knex from 'knex';
 
-import { Account, EmailBounces, Emails } from '../../database/model';
+import {
+  Account,
+  EmailBounces,
+  Emails,
+  Totp,
+  RecoveryKeys,
+  SessionTokens,
+} from '../../database/model';
 import {
   randomAccount,
   randomEmail,
   randomEmailBounce,
+  randomTotp,
+  randomRecoveryKey,
+  randomSessionToken,
   testDatabaseSetup,
 } from '../../database/model/helpers';
 import { AccountResolver } from './account.resolver';
@@ -21,6 +31,9 @@ const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
 const EMAIL_2 = randomEmail(USER_1, true);
 const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email);
+const TOTP_1 = randomTotp(USER_1);
+const RECOVERY_KEY_1 = randomRecoveryKey(USER_1);
+const SESSION_TOKEN_1 = randomSessionToken(USER_1);
 
 const USER_2 = randomAccount();
 
@@ -32,6 +45,9 @@ describe('AccountResolver', () => {
     account: Account,
     emails: Emails,
     emailBounces: EmailBounces,
+    totp: Totp,
+    recoveryKeys: RecoveryKeys,
+    sessionTokens: SessionTokens,
   };
 
   beforeAll(async () => {
@@ -40,11 +56,17 @@ describe('AccountResolver', () => {
     db.account = Account.bindKnex(knex);
     db.emails = Emails.bindKnex(knex);
     db.emailBounces = EmailBounces.bindKnex(knex);
+    db.totp = Totp.bindKnex(knex);
+    db.recoveryKeys = RecoveryKeys.bindKnex(knex);
+    db.sessionTokens = SessionTokens.bindKnex(knex);
     await (db.account as any).query().insertGraph({
       ...USER_1,
       emails: [EMAIL_1, EMAIL_2],
     });
     await db.emailBounces.query().insert(EMAIL_BOUNCE_1);
+    await db.totp.query().insert(TOTP_1);
+    await db.recoveryKeys.query().insert(RECOVERY_KEY_1);
+    await db.sessionTokens.query().insert(SESSION_TOKEN_1);
   });
 
   beforeEach(async () => {
@@ -127,5 +149,38 @@ describe('AccountResolver', () => {
     const result = await resolver.emails(user);
     expect(result).toBeDefined();
     expect(result).toHaveLength(2);
+  });
+
+  it('loads totp', async () => {
+    const user = (await resolver.accountByEmail(
+      USER_1.email,
+      'joe'
+    )) as Account;
+    const result = await resolver.totp(user);
+    expect(result).toBeDefined();
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual(TOTP_1);
+  });
+
+  it('loads recoveryKeys', async () => {
+    const user = (await resolver.accountByEmail(
+      USER_1.email,
+      'joe'
+    )) as Account;
+    const result = await resolver.recoveryKeys(user);
+    expect(result).toBeDefined();
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual(RECOVERY_KEY_1);
+  });
+
+  it('loads sessionTokens', async () => {
+    const user = (await resolver.accountByEmail(
+      USER_1.email,
+      'joe'
+    )) as Account;
+    const result = await resolver.sessionTokens(user);
+    expect(result).toBeDefined();
+    expect(result.length).toBe(1);
+    expect(result[0]).toEqual(SESSION_TOKEN_1);
   });
 });

@@ -47,6 +47,39 @@ const SECURITY_EVENTS_COLUMNS = [
   'createdAt',
   'tokenVerificationId',
 ];
+const TOTP_COLUMNS = [
+  'uid',
+  'sharedSecret',
+  'epoch',
+  'createdAt',
+  'verified',
+  'enabled',
+];
+const RECOVERYKEY_COLUMNS = [
+  'uid',
+  'recoveryData',
+  'recoveryKeyIdHash',
+  'createdAt',
+  'verifiedAt',
+  'enabled',
+];
+const SESSIONTOKEN_COLUMNS = [
+  'tokenId',
+  'tokenData',
+  'uid',
+  'createdAt',
+  'uaBrowser',
+  'uaBrowserVersion',
+  'uaOS',
+  'uaOSVersion',
+  'uaDeviceType',
+  'lastAccessTime',
+  'uaFormFactor',
+  'authAt',
+  'verificationMethod',
+  'verifiedAt',
+  'mustVerify',
+];
 
 @UseGuards(GqlAuthHeaderGuard)
 @Resolver((of: any) => AccountType)
@@ -168,5 +201,31 @@ export class AccountResolver {
     const result = await deleteAccount(email);
     this.log.info('deleteAccount', { user, email, success: result });
     return !!result;
+  }
+
+  public async totp(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.totp
+      .query()
+      .select(TOTP_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @ResolveField()
+  public async recoveryKeys(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.recoveryKeys
+      .query()
+      .select(RECOVERYKEY_COLUMNS)
+      .where('uid', uidBuffer);
+  }
+
+  @ResolveField()
+  public async sessionTokens(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.sessionTokens
+      .query()
+      .select(SESSIONTOKEN_COLUMNS)
+      .where('uid', uidBuffer);
   }
 }

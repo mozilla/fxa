@@ -1,6 +1,7 @@
 import {
   Plan,
   RawMetadata,
+  PaypalPaymentError,
   ProductMetadata,
   ProductDetails,
   ProductDetailsStringProperties,

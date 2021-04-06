@@ -29,6 +29,7 @@ const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/strip
 const eventInvoiceCreated = require('../../payments/fixtures/stripe/event_invoice_created.json');
 const eventInvoicePaid = require('../../payments/fixtures/stripe/event_invoice_paid.json');
 const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
+const eventCustomerUpdated = require('../../payments/fixtures/stripe/event_customer_updated.json');
 const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
 const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/event_customer_source_expiring.json');
 const eventCreditNoteCreated = require('../../payments/fixtures/stripe/event_credit_note_created.json');
@@ -251,6 +252,7 @@ describe('StripeWebhookHandler', () => {
         'handleSubscriptionCreatedEvent',
         'handleSubscriptionUpdatedEvent',
         'handleSubscriptionDeletedEvent',
+        'handleCustomerUpdatedEvent',
         'handleCustomerSourceExpiringEvent',
         'handleCreditNoteEvent',
         'handleInvoicePaidEvent',
@@ -354,6 +356,13 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
+      describe('when the event.type is customer.updated', () => {
+        itOnlyCallsThisHandler(
+          'handleCustomerUpdatedEvent',
+          eventCustomerUpdated
+        );
+      });
+
       describe('when the event.type is customer.subscription.deleted', () => {
         itOnlyCallsThisHandler(
           'handleSubscriptionDeletedEvent',
@@ -393,7 +402,7 @@ describe('StripeWebhookHandler', () => {
       describe('when the event.type is something else', () => {
         it('only calls sentry', async () => {
           const event = deepCopy(subscriptionCreated);
-          event.type = 'customer.updated';
+          event.type = 'application_fee.refunded';
           StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
             event
           );
@@ -433,6 +442,44 @@ describe('StripeWebhookHandler', () => {
           UID,
           customerFixture
         );
+      });
+    });
+
+    describe('handleCustomerUpdatedEvent', () => {
+      it('refreshes the customor if the account exists', async () => {
+        const authDbModule = require('fxa-shared/db/models/auth');
+        const account = { email: customerFixture.email };
+        sandbox.stub(authDbModule, 'accountByUid').resolves(account);
+        await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
+          {},
+          {
+            data: { object: customerFixture },
+            type: 'customer.updated',
+          }
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.refreshCachedCustomer,
+          customerFixture.metadata.userid,
+          customerFixture.email
+        );
+      });
+
+      it('reports sentry error with no customer found', async () => {
+        const authDbModule = require('fxa-shared/db/models/auth');
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        sandbox.stub(authDbModule, 'accountByUid').resolves(undefined);
+        await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
+          {},
+          {
+            data: { object: customerFixture },
+            type: 'customer.updated',
+          }
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper.refreshCachedCustomer
+        );
+        assert.calledOnce(sentryModule.reportSentryError);
       });
     });
 

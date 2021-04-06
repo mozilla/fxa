@@ -46,7 +46,7 @@ registerSuite('cookies_disabled', {
         .then(click(selectors.COOKIES_DISABLED.RETRY))
 
         // show an error message after second try
-        .then(testErrorWasShown())
+        .then(testErrorWasShown(null, '.error'))
     );
   },
 

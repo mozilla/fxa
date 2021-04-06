@@ -1595,6 +1595,32 @@ const openRP = thenify(function (options = {}) {
   );
 });
 
+const addAndVerifySecondaryEmail = thenify(function (email) {
+  return (
+    this.parent
+      .then(click(selectors.EMAIL.INPUT_LABEL))
+      .then(type(selectors.EMAIL.INPUT, email))
+      .then(click(selectors.EMAIL.ADD_BUTTON))
+      .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.BACK_BUTTON))
+      .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
+      // Awkwardly, to get back to the secondary email code input, we need to click
+      // the 'resend email' link.
+      .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.RESEND_EMAIL))
+      .then(getEmailCode(email, 0))
+      .then((code) => {
+        return this.parent
+          .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL))
+          .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD))
+          .then(type(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD, code))
+          .then(
+            click(
+              selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_SUBMIT_BUTTON
+            )
+          );
+      })
+  );
+});
+
 const fillOutSignIn = thenify(function (email, password, alwaysLoad) {
   return this.parent
     .getCurrentUrl()
@@ -2144,7 +2170,7 @@ function testSuccessWasNotShown(selector) {
  */
 function testErrorWasShown(message, selector) {
   selector = selector || selectors.SETTINGS.ERROR;
-  return testElementWasShown(selector);
+  return testElementWasShown(selector, message);
 }
 
 /**
@@ -2849,6 +2875,24 @@ const signInToTestProduct = thenify(function () {
     .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
 });
 
+// Assumes user is already on the settings page, then signs out.
+const signOut = thenify(function () {
+  return this.parent
+    .then(
+      click(
+        selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+        selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+      )
+    )
+    .then(
+      click(
+        selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+        selectors.ENTER_EMAIL.HEADER
+      )
+    )
+    .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
+});
+
 const createUserAndLoadSettings = thenify(function (email) {
   const PASSWORD = 'amazingpassword';
   const ENTER_EMAIL_URL = config.fxaContentRoot;
@@ -2890,6 +2934,7 @@ const subscribeAndSigninToRp = thenify(function (email) {
 
 module.exports = {
   ...TestHelpers,
+  addAndVerifySecondaryEmail,
   cleanMemory,
   clearBrowserNotifications,
   clearBrowserState,
@@ -2972,6 +3017,7 @@ module.exports = {
   respondToWebChannelMessage,
   sendVerificationReminders,
   signInToTestProduct,
+  signOut,
   storeWebChannelMessageData,
   subscribeAndSigninToRp,
   subscribeToTestProduct,

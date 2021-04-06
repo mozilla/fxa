@@ -15,6 +15,7 @@ import mobileIcon from './mobile.svg';
 import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+import { Localized, useLocalization } from '@fluent/react';
 
 export const BentoMenu = () => {
   const [isRevealed, setRevealed] = useState(false);
@@ -24,13 +25,14 @@ export const BentoMenu = () => {
   useEscKeydownEffect(setRevealed);
   const dropDownId = 'drop-down-bento-menu';
   const iconClassNames = 'inline-block w-5 -mb-1 ltr:pr-1 rtl:pl-1';
+  const { l10n } = useLocalization();
 
   return (
     <div className="relative self-center flex" ref={bentoMenuInsideRef}>
       <button
         onClick={toggleRevealed}
         data-testid="drop-down-bento-menu-toggle"
-        title="Firefox Bento Menu"
+        title={l10n.getString('bento-menu-title')}
         aria-expanded={isRevealed}
         aria-controls={dropDownId}
         className="rounded p-1 w-7 mx-2 border-transparent hover:bg-grey-200 focus:outline-none transition-standard desktop:mx-8"
@@ -56,7 +58,9 @@ export const BentoMenu = () => {
               </button>
               <div className="mt-12 text-center p-8 pt-2 pb-2 mobileLandscape:mt-0">
                 <img src={firefoxIcon} alt="" className="my-2 mx-auto w-10" />
-                <h2>Firefox is tech that fights for your online privacy.</h2>
+                <Localized id="bento-menu-firefox-title">
+                  <h2>Firefox is tech that fights for your online privacy.</h2>
+                </Localized>
               </div>
               <div className="w-full text-xs mt-2">
                 <ul className="list-none">
@@ -69,7 +73,9 @@ export const BentoMenu = () => {
                       <div className={iconClassNames}>
                         <img src={monitorIcon} alt="" />
                       </div>
-                      Firefox Monitor
+                      <Localized id="bento-menu-monitor">
+                        Firefox Monitor
+                      </Localized>
                     </LinkExternal>
                   </li>
                   <li>
@@ -81,7 +87,7 @@ export const BentoMenu = () => {
                       <div className={iconClassNames}>
                         <img src={pocketIcon} alt="" />
                       </div>
-                      Pocket
+                      <Localized id="bento-menu-pocket">Pocket</Localized>
                     </LinkExternal>
                   </li>
                   <li>
@@ -93,7 +99,9 @@ export const BentoMenu = () => {
                       <div className={iconClassNames}>
                         <img src={desktopIcon} alt="" />
                       </div>
-                      Firefox Browser for Desktop
+                      <Localized id="bento-menu-firefox-desktop">
+                        Firefox Browser for Desktop
+                      </Localized>
                     </LinkExternal>
                   </li>
                   <li>
@@ -105,7 +113,9 @@ export const BentoMenu = () => {
                       <div className={iconClassNames}>
                         <img src={mobileIcon} alt="" />
                       </div>
-                      Firefox Browser for Mobile
+                      <Localized id="bento-menu-firefox-mobile">
+                        Firefox Browser for Mobile
+                      </Localized>
                     </LinkExternal>
                   </li>
                   <li>
@@ -117,18 +127,20 @@ export const BentoMenu = () => {
                       <div className={iconClassNames}>
                         <img src={vpnIcon} alt="" />
                       </div>
-                      Mozilla VPN
+                      <Localized id="bento-menu-vpn">Mozilla VPN</Localized>
                     </LinkExternal>
                   </li>
                 </ul>
               </div>
-              <LinkExternal
-                data-testid="mozilla-link"
-                className="link-blue text-xs w-full text-center block m-2 p-2 hover:bg-grey-100"
-                href="https://www.mozilla.org/"
-              >
-                Made by Mozilla
-              </LinkExternal>
+              <Localized id="bento-menu-made-by-mozilla">
+                <LinkExternal
+                  data-testid="mozilla-link"
+                  className="link-blue text-xs w-full text-center block m-2 p-2 hover:bg-grey-100"
+                  href="https://www.mozilla.org/"
+                >
+                  Made by Mozilla
+                </LinkExternal>
+              </Localized>
             </div>
           </div>
         </div>

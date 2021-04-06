@@ -296,7 +296,7 @@ export class PayPalHelper {
       state: response.STATE,
       street: response.STREET,
       street2: response.STREET2,
-      zip: response.ZIP
+      zip: response.ZIP,
     };
   }
 
@@ -345,6 +345,10 @@ export class PayPalHelper {
     options: TransactionSearchOptions
   ): Promise<TransactionSearchResult[]> {
     const results = await this.client.transactionSearch(options);
+    if (!(results.L instanceof Array)) {
+      return [];
+    }
+
     return results.L.map((r) => ({
       amount: r.AMT,
       currencyCode: r.CURRENCYCODE,
@@ -461,6 +465,11 @@ export class PayPalHelper {
       if (err instanceof PayPalClientError && !batchProcessing) {
         throwPaypalCodeError(err);
       }
+      this.log.error('processInvoice', {
+        err,
+        nvpData: err.data,
+        invoiceId: invoice.id,
+      });
       throw err;
     }
     await this.stripeHelper.updatePaymentAttempts(invoice);

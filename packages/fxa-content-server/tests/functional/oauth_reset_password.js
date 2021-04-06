@@ -34,6 +34,7 @@ const {
   openPasswordResetLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
+  signOut,
   switchToWindow,
   testElementExists,
   testElementTextInclude,
@@ -222,18 +223,7 @@ registerSuite('oauth reset password with TOTP', {
       .then((_secret) => {
         secret = _secret;
       })
-      .then(
-        click(
-          selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-          selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-        )
-      )
-      .then(
-        click(
-          selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-          selectors.ENTER_EMAIL.HEADER
-        )
-      )
+      .then(signOut())
       .then(
         clearBrowserState({
           '123done': true,
