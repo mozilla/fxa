@@ -79,7 +79,7 @@ describe('Nav', () => {
 
     render(
       <MockedCache>
-        <ConfigContext.Provider value={ config }>
+        <ConfigContext.Provider value={config}>
           <Nav />
         </ConfigContext.Provider>
       </MockedCache>

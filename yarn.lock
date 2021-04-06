@@ -20,7 +20,7 @@ __metadata:
     node-rsa: 1.1.1
     pm2: ^4.4.1
     prettier: ^2.0.5
-    redis: ^3.0.2
+    redis: ^3.1.0
     request: ^2.88.2
   languageName: unknown
   linkType: soft
@@ -10893,9 +10893,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.851.0":
-  version: 2.851.0
-  resolution: "aws-sdk@npm:2.851.0"
+"aws-sdk@npm:^2.879.0":
+  version: 2.879.0
+  resolution: "aws-sdk@npm:2.879.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -10906,7 +10906,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: d440fd81438713ed4c5e2dcd7109ba9a3d80b0b2550e54b11cfbcb7d53aed9ce270fd5f3a2113cf7f2c45ad164f192a575d6aedea253ae235f390cbe933c2ce9
+  checksum: 3ff4002c690074950039db8d951e5490498bf52a3ab8831315007ba6a6fd6042603b58efcd246ade8b2d7ada75e3a10871c39ca93fbcb14f17862d52aeef632a
   languageName: node
   linkType: hard
 
@@ -16212,10 +16212,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"denque@npm:^1.1.0, denque@npm:^1.4.1":
+"denque@npm:^1.1.0":
   version: 1.4.1
   resolution: "denque@npm:1.4.1"
   checksum: 174e81b3c9407b2149216d9e793fb91d901c19b1225dceefdafe32d5abeca243382ffee9bb111a1f60e42d2791b457d029bb57379d48404b2fb351bf700b6a8c
+  languageName: node
+  linkType: hard
+
+"denque@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "denque@npm:1.5.0"
+  checksum: 3564778cda60c7dee3f1d71e397e50e6b39a8c06118aab9843b9396cb621b3191ab56d13de5237b8beee2b87bec485e8239c58ca3133472d2d1eaa3d2d518022
   languageName: node
   linkType: hard
 
@@ -19797,7 +19804,7 @@ fsevents@^1.2.7:
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.851.0
+    aws-sdk: ^2.879.0
     base64url: 3.0.1
     binary-split: 1.0.5
     bluebird: ^3.7.2
@@ -20118,7 +20125,7 @@ fsevents@^1.2.7:
   resolution: "fxa-email-event-proxy@workspace:packages/fxa-email-event-proxy"
   dependencies:
     audit-filter: ^0.5.0
-    aws-sdk: ^2.851.0
+    aws-sdk: ^2.879.0
     bluebird: ^3.7.2
     chai: ^4.3.4
     chai-as-promised: ^7.1.1
@@ -20169,7 +20176,7 @@ fsevents@^1.2.7:
     "@typescript-eslint/eslint-plugin": 4.20.0
     "@typescript-eslint/parser": 3.0.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.851.0
+    aws-sdk: ^2.879.0
     axios: ^0.21.0
     chance: ^1.1.6
     class-transformer: ^0.4.0
@@ -20261,7 +20268,7 @@ fsevents@^1.2.7:
     "@types/superagent": 4.1.10
     "@types/supertest": ^2.0.10
     "@types/yargs": ^15.0.5
-    apollo-datasource: ^0.7.2
+    apollo-datasource: ^0.8.0
     apollo-server: ^2.19.2
     apollo-server-express: ^2.22.2
     audit-filter: ^0.5.0
@@ -20498,7 +20505,7 @@ fsevents@^1.2.7:
     "@sentry/node": ^6.0.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.851.0
+    aws-sdk: ^2.879.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 0.1.1
@@ -20699,7 +20706,7 @@ fsevents@^1.2.7:
     ajv: ^6.12.2
     apollo-server: ^2.19.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.851.0
+    aws-sdk: ^2.879.0
     bluebird: ^3.7.2
     celebrate: ^10.0.1
     chai: ^4.3.4
@@ -20731,7 +20738,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     prettier: ^2.0.5
     proxyquire: ^2.1.3
-    redis: ^3.0.2
+    redis: ^3.1.0
     reflect-metadata: ^0.1.13
     rxjs: ^6.6.6
     sinon: ^9.0.3
@@ -34123,7 +34130,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"redis-commands@npm:1.7.0, redis-commands@npm:^1.5.0":
+"redis-commands@npm:1.7.0, redis-commands@npm:^1.7.0":
   version: 1.7.0
   resolution: "redis-commands@npm:1.7.0"
   checksum: cbf5d33768b1c8e1001e2a7ffdaeb6ef830c538ef812d803a1c5e6038cf03482cf0a22b29eadf1182aa02a522331826e3af0967ae75fa7883da8a139ad2fc77b
@@ -34146,15 +34153,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"redis@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "redis@npm:3.0.2"
+"redis@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "redis@npm:3.1.0"
   dependencies:
-    denque: ^1.4.1
-    redis-commands: ^1.5.0
+    denque: ^1.5.0
+    redis-commands: ^1.7.0
     redis-errors: ^1.2.0
     redis-parser: ^3.0.0
-  checksum: 74858b9f5ae3859ed55435d413315ab3f911aa483a3817c0d1ebe46b966c7061f43ea0d3d5170b540ff4a1f15edd5ea2bc0e107d0e6e516c4d61ea489460f5dc
+  checksum: b3006b7bb86b9481f663255779f0db46d9ee679fec223b70f6921f4efa94b6d31ae4a892da4d97949974f7d58d500cfda46d5c423a6febcf80aa09e344fafbd5
   languageName: node
   linkType: hard
 

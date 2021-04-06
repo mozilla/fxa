@@ -122,7 +122,7 @@ type BillToAddressData = {
   STREET: string;
   STREET2: string;
   ZIP: string;
-}
+};
 
 export type TransactionStatus =
   | 'Pending'
@@ -159,7 +159,9 @@ export type NVPDoReferenceTransactionResponse = NVPResponse &
 
 export type NVPRefundTransactionResponse = NVPResponse & RefundTransactionData;
 
-export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData & BillToAddressData;
+export type NVPBAUpdateTransactionResponse = NVPResponse &
+  BAUpdateData &
+  BillToAddressData;
 
 export type NVPTransactionSearchResponse = TransactionSearchData & NVPResponse;
 

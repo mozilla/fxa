@@ -608,7 +608,7 @@ module.exports = {
     REFRESHING: '.clients-refresh.disabled',
   },
   SETTINGS_COMMUNICATION: {
-    BUTTON_MANAGE: '.open-email-preferences',
+    BUTTON_MANAGE: SETTINGS_V2.NAVIGATION.NEWSLETTERS_LINK, // '.open-email-preferences',
   },
   SETTINGS_DELETE_ACCOUNT: {
     CANCEL: SETTINGS_V2.DELETE_ACCOUNT.CLOSE_BUTTON, //  '#delete-account .cancel',

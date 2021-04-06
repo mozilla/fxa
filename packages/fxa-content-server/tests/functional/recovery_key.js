@@ -291,9 +291,7 @@ registerSuite('Recovery key - unverified session', {
           // send and open verification in same tab
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
           // if the session is unverified, then the modal will be shown.
-          .then(
-            testElementExists('[data-testid=modal-verify-session]')
-          )
+          .then(testElementExists('[data-testid=modal-verify-session]'))
           .then(fillOutVerificationCode(email, 0))
           .then(
             testElementExists(

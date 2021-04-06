@@ -7,7 +7,7 @@ const testsSettingsV2 = require('./functional_settings_v2');
 module.exports = testsSettingsV2.concat([
   'tests/functional/fx_browser_relier.js',
   // #7981 'tests/functional/oauth_webchannel.js',
-  // #7977 'tests/functional/reset_password.js',
+  'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',
   'tests/functional/sign_up_with_code.js',
   // new and flaky tests above here',
@@ -22,7 +22,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/cookies_disabled.js',
   'tests/functional/delete_account.js',
   'tests/functional/email_domain_mx_validation.js',
-  // #7990 'tests/functional/email_opt_in.js',
+  'tests/functional/email_opt_in.js',
   'tests/functional/email_service.js',
   'tests/functional/force_auth.js',
   // #7978 'tests/functional/fx_desktop_handshake.js',

@@ -29,7 +29,7 @@ storiesOf('Components|Nav', module)
 
     return (
       <MockedCache>
-        <ConfigContext.Provider value={ config }>
+        <ConfigContext.Provider value={config}>
           <Nav />
         </ConfigContext.Provider>
       </MockedCache>

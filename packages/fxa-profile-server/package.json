@@ -21,7 +21,7 @@
     "@hapi/inert": "6.0.3",
     "@hapi/joi": "^17.1.1",
     "@sentry/node": "^6.0.1",
-    "aws-sdk": "^2.851.0",
+    "aws-sdk": "^2.879.0",
     "bluebird": "^3.7.2",
     "buf": "0.1.1",
     "checksum": "0.1.1",
