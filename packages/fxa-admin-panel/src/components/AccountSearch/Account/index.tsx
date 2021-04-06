@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
+import { NoUnusedFragmentsRule } from 'graphql';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -78,6 +79,13 @@ type SessionTokensProps = {
   lastAccessTime: number;
 };
 
+type DangerZoneProps = {
+  email: EmailProps;
+  uid: string;
+  disabledAt: number | null;
+  onCleared: Function;
+};
+
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
 
 export const CLEAR_BOUNCES_BY_EMAIL = gql`
@@ -132,37 +140,48 @@ export const ClearButton = ({
   );
 };
 
+// gql mutation to update emails table and unverify user's email
+export const UNVERIFY_EMAIL = gql`
+  mutation unverify($email: String!) {
+    unverifyEmail(email: $email)
+  }
+`;
+
+// gql mutation to update database to force pass reset next login
+export const FORCE_RESET = gql`
+  mutation resetPassByEmail($email: String!) {
+    resetPass(email: $email)
+  }
+`;
+
 export const DangerZone = ({
+  email,
   uid,
   disabledAt,
-  primaryEmail,
-}: {
-  uid: string;
-  disabledAt: number | null;
-  primaryEmail: string;
-}) => {
+  onCleared,
+}: DangerZoneProps) => {
   const [deleteAccount, { loading }] = useMutation(DELETE_ACCOUNT_BY_EMAIL, {
     onCompleted: () => {
       window.alert(
         'The account ' +
-          primaryEmail +
+          email.email +
           ' has now been deleted.\n\nThe page will be refreshed to display this result.'
       );
       location.reload();
     },
     onError: () => {
       window.alert(
-        'There was an error in deleting account: ' + primaryEmail + '.'
+        'There was an error in deleting account: ' + email.email + '.'
       );
     },
   });
 
   const handleDelete = () => {
     window.confirm('Are you sure? This cannot be undone.');
-    let email = window.prompt(
+    let delete_email = window.prompt(
       'Enter the email of the user account to be deleted.'
     );
-    deleteAccount({ variables: { email: primaryEmail } });
+    deleteAccount({ variables: { email: email.email } });
 
     return;
   };
@@ -213,6 +232,34 @@ export const DangerZone = ({
     }
   };
 
+  const [unverify] = useMutation(UNVERIFY_EMAIL);
+
+  const [reset] = useMutation(FORCE_RESET, {
+    onCompleted: () => {
+      window.alert("The user's password has been reset.");
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error in resetting password');
+    },
+  });
+
+  const handleUnverify = () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    unverify({ variables: { email: email.email } });
+    onCleared(); // refresh the page
+  };
+
+  const handlePassReset = () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+
+    reset({ variables: { email: email.email } });
+  };
+
   return (
     <li>
       <h3 className="danger-zone-title">Danger Zone</h3>
@@ -241,7 +288,21 @@ export const DangerZone = ({
       <p className="danger-zone-info">
         Force a password change the next time this account logs in.
         <br />
-        <button className="danger-zone-button">Force Change</button>
+        <button
+          id="pass-change"
+          className="danger-zone-button"
+          onClick={handlePassReset}
+        >
+          Force Change
+        </button>
+      </p>
+      <h2>Toggle Email Verification</h2>
+      <p className="danger-zone-info">
+        Reset email verification. User needs to re-verify on next login.
+        <br />
+        <button className="danger-zone-button" onClick={handleUnverify}>
+          Unverify Email
+        </button>
       </p>
     </li>
   );
@@ -448,9 +509,12 @@ export const Account = ({
         </li>
         <hr />
         <DangerZone
-          uid={uid}
-          disabledAt={disabledAt}
-          primaryEmail={primaryEmail.email}
+          {...{
+            email: primaryEmail, // only the primary for now
+            uid: uid,
+            disabledAt: disabledAt,
+            onCleared: onCleared,
+          }}
         />
       </ul>
     </section>

@@ -4,11 +4,11 @@
 import { UseGuards } from '@nestjs/common';
 import {
   Args,
+  Mutation,
   Query,
   ResolveField,
   Resolver,
   Root,
-  Mutation,
 } from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
@@ -19,8 +19,9 @@ import { Account } from '../../database/model';
 import { uuidTransformer } from '../../database/transformers';
 import { Account as AccountType } from '../../gql/model/account.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
-import { SecurityEvents as SecurityEventsType } from '../../gql/model/security-events.model';
+//import { SecurityEvents as SecurityEventsType } from '../../gql/model/security-events.model';
 import { deleteAccount } from '../../shell/delete-account';
+import { resetPass } from '../../shell/reset-pass';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -125,6 +126,32 @@ export class AccountResolver {
       .select(EMAIL_COLUMNS)
       .where('email', 'like', `${search}%`)
       .limit(10);
+  }
+
+  // unverifies the user's email. will have to verify again on next login
+  @Mutation((returns) => Boolean)
+  public async unverifyEmail(
+    @Args('email') email: string,
+    @CurrentUser() user: string
+  ) {
+    const result = await this.db.emails
+      .query()
+      .where('email', email)
+      .update({
+        isVerified: false,
+        verifiedAt: null as any, // same as null
+      });
+    return !!result;
+  }
+
+  // forces the user to reset password on next login
+  @Mutation((returns) => Boolean)
+  public async resetPass(
+    @Args('email') email: string,
+    @CurrentUser() user: string
+  ) {
+    const result = await resetPass(email);
+    return !!result;
   }
 
   @ResolveField()
