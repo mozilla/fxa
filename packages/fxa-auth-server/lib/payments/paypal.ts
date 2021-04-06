@@ -178,7 +178,7 @@ export class PayPalHelper {
       this.client.on('response', (response) => {
         this.metrics.timing('paypal_request', response.elapsed, undefined, {
           method: response.method,
-          error: response.error ? 'false' : 'true',
+          error: response.error ? 'true' : 'false',
         });
       });
     }
