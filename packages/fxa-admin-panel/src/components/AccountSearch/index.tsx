@@ -127,6 +127,7 @@ export const GET_ACCOUNT_BY_UID = gql`
     accountByUid(uid: $uid) {
       uid
       createdAt
+      disabledAt
       emails {
         email
         isVerified
@@ -138,6 +139,37 @@ export const GET_ACCOUNT_BY_UID = gql`
         createdAt
         bounceType
         bounceSubType
+      }
+      securityEvents {
+        uid
+        nameId
+        verified
+        ipAddrHmac
+        createdAt
+        tokenVerificationId
+        name
+      }
+      totp {
+        verified
+        createdAt
+        enabled
+      }
+      recoveryKeys {
+        createdAt
+        verifiedAt
+        enabled
+      }
+      sessionTokens {
+        tokenId
+        tokenData
+        uid
+        createdAt
+        uaBrowser
+        uaBrowserVersion
+        uaOS
+        uaOSVersion
+        uaDeviceType
+        lastAccessTime
       }
     }
   }
