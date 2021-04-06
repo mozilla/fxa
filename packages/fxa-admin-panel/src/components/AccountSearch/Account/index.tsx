@@ -186,21 +186,6 @@ export const DangerZone = ({
     return;
   };
 
-  if (loading)
-    return (
-      <li>
-        <div className="spinner">
-          <span className="spinner-inner-1"></span>
-          <span className="spinner-inner-2"></span>
-          <span className="spinner-inner-3"></span>
-        </div>
-        <br />
-        <br />
-        <br />
-        <p>Attempting to delete this account. This may take a moment.</p>
-      </li>
-    );
-
   const handleLock = () => {
     if (!disabledAt) {
       if (window.confirm('Are you sure you want to lock this account?')) {
