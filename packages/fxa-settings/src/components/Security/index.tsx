@@ -10,7 +10,7 @@ import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 export const Security = () => {
   return (
     <section className="mt-11" data-testid="settings-security">
-      <h2 className="font-header font-bold ltr:ml-6 rtl:mr-6 mb-4 relative">
+      <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
         <span id="security" className="nav-anchor"></span>
         <Localized id="security-heading">Security</Localized>
       </h2>
