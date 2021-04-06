@@ -35,7 +35,7 @@ export const BentoMenu = () => {
         title={l10n.getString('bento-menu-title')}
         aria-expanded={isRevealed}
         aria-controls={dropDownId}
-        className="rounded p-1 w-7 mx-2 border-transparent hover:bg-grey-200 focus:outline-none transition-standard desktop:mx-8"
+        className="rounded p-1 w-7 mx-2 border-transparent hover:bg-grey-200 transition-standard desktop:mx-8"
       >
         <BentoIcon className="cursor-pointer" />
       </button>
