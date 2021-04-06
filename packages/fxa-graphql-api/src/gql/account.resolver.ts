@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Inject, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   Args,
   Info,
@@ -30,6 +31,7 @@ import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { GqlCustomsGuard } from '../auth/gql-customs.guard';
 import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
+import { AppConfig } from '../config';
 import { GqlSessionToken, GqlUserId } from '../decorators';
 import {
   AttachedClientDisconnectInput,
@@ -75,11 +77,18 @@ export function snakeToCamelObject(obj: { [key: string]: any }) {
 
 @Resolver((of: any) => AccountType)
 export class AccountResolver {
+  private profileServerUrl: string;
+
   constructor(
     @Inject(AuthClientService) private authAPI: AuthClient,
     private profileAPI: ProfileClientService,
-    private log: MozLoggerService
-  ) {}
+    private log: MozLoggerService,
+    private configService: ConfigService<AppConfig>
+  ) {
+    this.profileServerUrl = (configService.get(
+      'profileServer'
+    ) as AppConfig['profileServer']).url;
+  }
 
   private shouldIncludeEmails(info: GraphQLResolveInfo): boolean {
     // Introspect the query to determine if we should load the emails
@@ -379,9 +388,21 @@ export class AccountResolver {
   }
 
   @ResolveField()
-  public async avatar(@Parent() account: Account) {
+  public async avatar(
+    @GqlSessionToken() token: string,
+    @Parent() account: Account
+  ) {
     const avatar = await selectedAvatar(account.uid);
-    return avatar || {};
+    if (avatar) {
+      return avatar;
+    }
+
+    const profile = await this.profileAPI.getProfile(token);
+    const url = profile.avatar;
+    return {
+      id: `default-${url[url.length - 1]}`,
+      url,
+    };
   }
 
   @ResolveField()

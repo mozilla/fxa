@@ -3,18 +3,59 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('@hapi/joi');
+const crypto = require('crypto');
 const checksum = require('checksum');
 const {
   determineClientVisibleSubscriptionCapabilities,
 } = require('../subscriptions');
 
+const config = require('../config');
+const db = require('../db');
 const logger = require('../logging')('routes.profile');
+const avatarShared = require('./avatar/_shared');
+const monogramUrl = config.get('publicUrl');
+const ALPHANUMERIC = /^[a-zA-Z0-9]/;
 
 function computeEtag(profile) {
   if (profile) {
     return checksum(JSON.stringify(profile));
   }
   return false;
+}
+
+function checkAvatar(response, uid) {
+  const result = response.value;
+  if (
+    result.avatar &&
+    (result.avatarDefault || result.avatar.startsWith(monogramUrl))
+  ) {
+    const displayName = result.displayName;
+    let avatarUrl = result.avatar;
+    if (displayName && ALPHANUMERIC.test(displayName)) {
+      avatarUrl = `${monogramUrl}/v1/avatar/${displayName[0]}`;
+      result.avatarDefault = false;
+    } else if (ALPHANUMERIC.test(result.email)) {
+      avatarUrl = `${monogramUrl}/v1/avatar/${result.email[0]}`;
+      result.avatarDefault = false;
+    } else {
+      avatarUrl = avatarShared.DEFAULT_AVATAR.avatar;
+      result.avatarDefault = true;
+    }
+    if (avatarUrl !== result.avatar) {
+      result.avatar = avatarUrl;
+      if (result.avatarDefault) {
+        db.deleteUserAvatars(uid);
+      } else {
+        db.addAvatar(
+          crypto.randomBytes(16).toString('hex'),
+          uid,
+          result.avatar,
+          'fxa'
+        );
+      }
+    }
+  }
+  return response;
 }
 
 module.exports = {
@@ -84,12 +125,7 @@ module.exports = {
     }
 
     return server.methods.profileCache.get(req).then((response) => {
-      let result = response.value;
-      if (response.value.result) {
-        // safety check for several entries that were wrapped in an extra result.
-        // this can be safely removed after train-165 is deployed.
-        result = response.value.result;
-      }
+      const result = response.value;
       // Check to see if the oauth-server is reporting a newer `profileChangedAt`
       // timestamp from validating the token, if so, lets invalidate the cache
       // and set new value.
@@ -97,12 +133,12 @@ module.exports = {
         return server.methods.profileCache.drop(creds.user).then(() => {
           logger.info('profileChangedAt:cacheCleared', { uid: creds.user });
           return server.methods.profileCache.get(req).then((response) => {
-            return createResponse(response);
+            return createResponse(checkAvatar(response, creds.user));
           });
         });
       }
 
-      return createResponse(response);
+      return createResponse(checkAvatar(response, creds.user));
     });
   },
 };

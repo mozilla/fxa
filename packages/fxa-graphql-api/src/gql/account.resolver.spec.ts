@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Provider } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Account, accountByUid } from 'fxa-shared/db/models/auth';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
@@ -43,6 +44,10 @@ describe('AccountResolver', () => {
         { provide: CustomsService, useValue: {} },
         { provide: AuthClientService, useValue: authClient },
         { provide: ProfileClientService, useValue: profileClient },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue({ url: 'test' }) },
+        },
       ],
     }).compile();
 

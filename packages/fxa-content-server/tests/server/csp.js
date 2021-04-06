@@ -73,11 +73,12 @@ suite.tests['blockingRules'] = function () {
   assert.isAbove(frameSrc.length, 1);
 
   const imgSrc = directives.imgSrc;
-  assert.lengthOf(imgSrc, 6);
+  assert.lengthOf(imgSrc, 7);
   assert.include(imgSrc, Sources.SELF);
   assert.include(imgSrc, Sources.DATA);
   assert.include(imgSrc, Sources.GRAVATAR);
   assert.include(imgSrc, Sources.PROFILE_IMAGES_SERVER);
+  assert.include(imgSrc, Sources.PROFILE_SERVER);
   assert.include(imgSrc, CDN_SERVER);
 
   const mediaSrc = directives.mediaSrc;

@@ -5,19 +5,13 @@
 const Joi = require('@hapi/joi');
 
 const db = require('../../db');
-const config = require('../../config');
 const hex = require('buf').to.hex;
 const validate = require('../../validate');
 const logger = require('../../logging')('routes.avatar.get');
 const avatarShared = require('./_shared');
 
-const DEFAULT_AVATAR = {
-  avatar: avatarShared.fxaUrl(config.get('img.defaultAvatarId')),
-  avatarDefault: true,
-  id: config.get('img.defaultAvatarId'),
-};
-
-function avatarOrDefault(avatar) {
+async function avatarOrDefault(uid) {
+  const avatar = await db.getSelectedAvatar(uid);
   if (avatar) {
     return {
       avatar: avatar.url,
@@ -25,7 +19,7 @@ function avatarOrDefault(avatar) {
       id: hex(avatar.id),
     };
   }
-  return DEFAULT_AVATAR;
+  return avatarShared.DEFAULT_AVATAR;
 }
 
 module.exports = {
@@ -42,20 +36,8 @@ module.exports = {
   },
   handler: async function avatar(req, h) {
     var uid = req.auth.credentials.user;
-    return db
-      .getSelectedAvatar(uid)
-      .then(avatarOrDefault)
-      .then(function (result) {
-        var rep = result;
-        if (result.id) {
-          var info = {
-            event: 'avatar.get',
-            uid: uid,
-          };
-          logger.info('activityEvent', info);
-          rep = h.response(result).etag(result.id);
-        }
-        return rep;
-      });
+    const avatar = await avatarOrDefault(uid);
+    logger.info('activityEvent', { event: 'avatar.get', uid });
+    return h.response(avatar).etag(avatar.id);
   },
 };

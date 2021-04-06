@@ -36,6 +36,7 @@ export const MOCK_ACCOUNT: Account = {
   avatar: {
     id: 'abc1234',
     url: 'http://placekitten.com/512/512',
+    isDefault: false,
   },
   accountCreated: 123456789,
   passwordCreated: 123456789,
