@@ -1,6 +1,6 @@
 {
   "name": "fxa-geodb",
-  "version": "1.203.5",
+  "version": "1.203.6",
   "description": "Firefox Accounts GeoDB Repo for Geolocation based services",
   "main": "lib/fxa-geodb.js",
   "directories": {
