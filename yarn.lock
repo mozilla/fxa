@@ -15775,6 +15775,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"debug@npm:^4.3.1":
+  version: 4.3.2
+  resolution: "debug@npm:4.3.2"
+  dependencies:
+    ms: 2.1.2
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 5543570879e2274f6725d4285a034d6e0822d35faefc6f55965933fb440e8c21eb3a0bef934e66f4b6b491f898ee2de37cab980e9d4fd61372136c19d3ce4527
+  languageName: node
+  linkType: hard
+
 "decamelize-keys@npm:^1.1.0":
   version: 1.1.0
   resolution: "decamelize-keys@npm:1.1.0"
@@ -19728,7 +19740,7 @@ fsevents@^1.2.7:
     hkdf: 0.0.2
     hot-shots: ^8.3.1
     i18n-abide: 0.0.26
-    ioredis: ^4.23.0
+    ioredis: ^4.25.0
     jed: 0.5.4
     jsonwebtoken: ^8.4.0
     jsrsasign: ^10.1.13
@@ -20181,7 +20193,7 @@ fsevents@^1.2.7:
     graphql-tools: ^7.0.1
     graphql-upload: ^11.0.0
     helmet: ^4.4.1
-    ioredis: ^4.23.0
+    ioredis: ^4.25.0
     jest: 26.6.3
     knex: ^0.21.16
     mozlog: ^3.0.1
@@ -23459,7 +23471,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"ioredis@npm:4.x.x, ioredis@npm:^4.23.0":
+"ioredis@npm:4.x.x":
   version: 4.23.0
   resolution: "ioredis@npm:4.23.0"
   dependencies:
@@ -23474,6 +23486,24 @@ fsevents@^1.2.7:
     redis-parser: ^3.0.0
     standard-as-callback: ^2.0.1
   checksum: 67bc85c76a3aa7512e5a74d37ead7cb9d9fb1af33cf978ee439d0fa122be7c4951905f35a7465dfcab8c386b9d5238d7f217b1826a56d378ec7cfc6fb137de41
+  languageName: node
+  linkType: hard
+
+"ioredis@npm:^4.25.0":
+  version: 4.25.0
+  resolution: "ioredis@npm:4.25.0"
+  dependencies:
+    cluster-key-slot: ^1.1.0
+    debug: ^4.3.1
+    denque: ^1.1.0
+    lodash.defaults: ^4.2.0
+    lodash.flatten: ^4.4.0
+    p-map: ^2.1.0
+    redis-commands: 1.7.0
+    redis-errors: ^1.2.0
+    redis-parser: ^3.0.0
+    standard-as-callback: ^2.1.0
+  checksum: 5356c31b8a057e69f8384284086359ea955012e67677e1b6a8317b4d5ed92e6669d15d048b1489d561fc5783165a6481f0e45b2bbb5ca95f73d2da23a4ebde3f
   languageName: node
   linkType: hard
 
@@ -36726,6 +36756,13 @@ resolve@~1.11.1:
   version: 2.0.1
   resolution: "standard-as-callback@npm:2.0.1"
   checksum: 58a0ddb90d674f6af7e099c1fedd339276e98a218fd88f1a6134a4910c5ff8d272815cf8cc758b2d61fa3f523853c8fa6ef3cb0692912e7ff35870dedffa8ffc
+  languageName: node
+  linkType: hard
+
+"standard-as-callback@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "standard-as-callback@npm:2.1.0"
+  checksum: 4d02327de69a3d867b8b4a069213b90ee5db4d09364fea694e3f67f8b1ee909be0724a0c8e8ee220365c972363d318242d97d7dd1c79ccf84b8bb52234be525e
   languageName: node
   linkType: hard
 
