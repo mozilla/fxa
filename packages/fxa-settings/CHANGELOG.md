@@ -1,3 +1,9 @@
+## 1.203.6
+
+### New features
+
+- profile: create a monogram default avatar ([00f0d4ae4](https://github.com/mozilla/fxa/commit/00f0d4ae4))
+
 ## 1.203.5
 
 No changes.
