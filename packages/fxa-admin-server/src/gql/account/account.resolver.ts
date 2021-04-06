@@ -230,6 +230,7 @@ export class AccountResolver {
     return !!result;
   }
 
+  @ResolveField()
   public async totp(@Root() account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
     return await this.db.totp

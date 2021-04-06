@@ -409,6 +409,23 @@ export const Account = ({
         <br />
 
         <li>
+          <h3>TOTP (Time-Based One-Time Passwords)</h3>
+        </li>
+        {totp.length > 0 ? (
+          <>
+            {totp.map((totpIndex: TotpProps) => (
+              <TotpEnabled key={totpIndex.createdAt} {...totpIndex} />
+            ))}
+          </>
+        ) : (
+          <li data-testid="" className="gradient-info-display">
+            This account doesn't have TOTP enabled.
+          </li>
+        )}
+        <li></li>
+        <br />
+
+        <li>
           <h3>Recovery Key</h3>
         </li>
         {recoveryKeys.length > 0 ? (
