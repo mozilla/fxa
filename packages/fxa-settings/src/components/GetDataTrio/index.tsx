@@ -45,6 +45,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
     <div className="flex justify-between w-4/5 max-w-48">
       <Localized id="get-data-trio-download" attrs={{ title: true }}>
         <a
+          title="Download"
           href={URL.createObjectURL(
             new Blob(Array.isArray(value) ? [value.join('\r\n')] : [value], {
               type: 'text/plain',
@@ -52,18 +53,14 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
           )}
           download
           data-testid="databutton-download"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-none focus:ring-2 focus:ring-gray-600 "
           onClick={() => onAction?.('download')}
         >
-          <button
-            title="Download"
-            className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500"
-          >
-            <DownloadIcon
+          <DownloadIcon
               height="24"
               width="18"
               className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
             />
-          </button>
         </a>
       </Localized>
 
