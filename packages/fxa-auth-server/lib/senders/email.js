@@ -141,19 +141,20 @@ module.exports = function (log, config) {
     return `href="${url}" style="color: #0a84ff; text-decoration: none; font-family: sans-serif;"`;
   }
 
-  function constructLocalTimeString(timeZone, locale) {
+  function constructLocalTimeString(timeZone, locale, date, time) {
     // if no timeZone is passed, use DEFAULT_TIMEZONE
     moment.tz.setDefault(DEFAULT_TIMEZONE);
     // if no locale is passed, use DEFAULT_LOCALE
     locale = locale || DEFAULT_LOCALE;
     moment.locale(locale);
-    let time = moment();
+    let timeMoment = moment();
     if (timeZone) {
-      time = time.tz(timeZone);
+      timeMoment = timeMoment.tz(timeZone);
     }
     // return a locale-specific time
-    const timeNow = time.format('LTS (z)');
-    const dateNow = time.format('dddd, ll');
+    // if date or time is passed, return it as the current date or time
+    const timeNow = time || timeMoment.format('LTS (z)');
+    const dateNow = date || timeMoment.format('dddd, ll');
     return [timeNow, dateNow];
   }
 
@@ -381,10 +382,12 @@ module.exports = function (log, config) {
 
   Mailer.prototype._constructLocalTimeString = function (
     timeZone,
-    acceptLanguage
+    acceptLanguage,
+    date,
+    time
   ) {
     const translator = this.translator(acceptLanguage);
-    return constructLocalTimeString(timeZone, translator.language);
+    return constructLocalTimeString(timeZone, translator.language, date, time);
   };
 
   Mailer.prototype._constructLocalDateString = function (
@@ -723,7 +726,9 @@ module.exports = function (log, config) {
     const links = this._generateLinks(null, message, query, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -795,7 +800,9 @@ module.exports = function (log, config) {
       const action = gettext('Confirm sign-in');
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
-        message.acceptLanguage
+        message.acceptLanguage,
+        message.date,
+        message.time
       );
 
       return this.send({
@@ -856,7 +863,9 @@ module.exports = function (log, config) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -924,7 +933,9 @@ module.exports = function (log, config) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -991,7 +1002,9 @@ module.exports = function (log, config) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1040,7 +1053,9 @@ module.exports = function (log, config) {
     const links = this._generateLinks(undefined, message, {}, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1103,7 +1118,9 @@ module.exports = function (log, config) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1146,7 +1163,9 @@ module.exports = function (log, config) {
     );
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1279,7 +1298,9 @@ module.exports = function (log, config) {
       const action = gettext('Manage account');
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
-        message.acceptLanguage
+        message.acceptLanguage,
+        message.date,
+        message.time
       );
 
       return this.send({
@@ -1474,7 +1495,9 @@ module.exports = function (log, config) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1519,7 +1542,9 @@ module.exports = function (log, config) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1564,7 +1589,9 @@ module.exports = function (log, config) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1609,7 +1636,9 @@ module.exports = function (log, config) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1701,7 +1730,9 @@ module.exports = function (log, config) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1749,7 +1780,9 @@ module.exports = function (log, config) {
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
@@ -1797,7 +1830,9 @@ module.exports = function (log, config) {
     const action = gettext('Create new recovery key');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
-      message.acceptLanguage
+      message.acceptLanguage,
+      message.date,
+      message.time
     );
 
     const headers = {
