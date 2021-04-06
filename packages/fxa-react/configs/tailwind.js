@@ -84,6 +84,9 @@ module.exports = {
         '30': '0.3',
         '40': '0.4',
       },
+      outline: {
+        'black-dotted': '1px dotted #000',
+      },
     },
     screens: {
       mobileLandscape: '480px',
