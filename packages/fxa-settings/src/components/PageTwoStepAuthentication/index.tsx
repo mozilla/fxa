@@ -312,7 +312,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
           </Localized>
 
           <div className="mt-4 mb-6" data-testid="recovery-key-input">
-            <Localized id="tfa-input-enter-totp">
+            <Localized id="tfa-input-enter-totp" attrs={{ label: true }}>
               <InputText
                 name="totp"
                 label="Enter security code"
@@ -403,7 +403,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             </p>
           </Localized>
           <div className="mt-4 mb-6" data-testid="recovery-code-input">
-            <Localized id="tfa-enter-recovery-code">
+            <Localized id="tfa-enter-recovery-code" attrs={{ label: true }}>
               <InputText
                 name="recoveryCode"
                 label="Enter a recovery code"

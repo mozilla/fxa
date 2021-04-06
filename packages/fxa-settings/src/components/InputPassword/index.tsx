@@ -6,6 +6,7 @@ import React, { useState, useCallback, ChangeEvent } from 'react';
 import InputText, { InputTextProps } from '../InputText';
 import { ReactComponent as OpenEye } from './eye-open.svg';
 import { ReactComponent as ClosedEye } from './eye-closed.svg';
+import { useLocalization } from '@fluent/react';
 
 type InputPasswordProps = Omit<InputTextProps, 'type'>;
 
@@ -23,6 +24,7 @@ export const InputPassword = ({
 }: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
+  const { l10n } = useLocalization();
 
   function formatDataTestId(id: string) {
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
@@ -62,11 +64,23 @@ export const InputPassword = ({
         onClick={() => {
           setVisible(!visible);
         }}
-        title={visible ? 'Hide password' : 'Show password'}
+        title={
+          visible
+            ? l10n.getString('input-password-hide', null, 'Hide password')
+            : l10n.getString('input-password-show', null, 'Show password')
+        }
         aria-label={
           visible
-            ? 'Hide password from screen.'
-            : 'Show password as plain text. Your password will be visible on screen.'
+            ? l10n.getString(
+                'input-password-hide-aria',
+                null,
+                'Hide password from screen.'
+              )
+            : l10n.getString(
+                'input-password-show-aria',
+                null,
+                'Show password as plain text. Your password will be visible on screen.'
+              )
         }
       >
         {visible ? (
