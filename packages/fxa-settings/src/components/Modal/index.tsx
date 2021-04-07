@@ -76,7 +76,7 @@ export const Modal = ({
             </button>
           </div>
 
-          <div className="px-4 tablet:px-10 pb-10">
+          <div className="px-6 tablet:px-10 pb-10">
             <div>{children}</div>
             {hasButtons && (
               <div className="flex justify-center mx-auto mt-6 max-w-64">
