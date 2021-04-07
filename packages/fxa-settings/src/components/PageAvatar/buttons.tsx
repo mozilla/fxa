@@ -169,13 +169,13 @@ export const ConfirmBtns = ({
 
   return (
     <div className="mt-4 flex items-center justify-center">
-      <Localized id="avatar-page-close-button">
+      <Localized id="avatar-page-cancel-button">
         <button
           className="cta-neutral mx-2 px-10"
           onClick={() => navigate(HomePath, { replace: true })}
           data-testid="close-button"
         >
-          Close
+          Cancel
         </button>
       </Localized>
       <Localized id={saveStringId}>
