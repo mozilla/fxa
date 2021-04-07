@@ -12,6 +12,16 @@ const P = require(`${LIB_DIR}/promise`);
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
+const models = {
+  Device: {
+    findByPrimaryKey: sinon.stub().resolves({ id: 'fakeDeviceId' }),
+    findByUid: sinon.stub().resolves([]),
+  },
+  SessionToken: {
+    findByUid: sinon.stub().resolves([]),
+  },
+};
+
 describe('db, session tokens expire:', () => {
   const tokenLifetimes = {
     sessionTokenWithoutDevice: 2419200000,
@@ -29,9 +39,11 @@ describe('db, session tokens expire:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function () {
+      '../pool': function () {
         return pool;
       },
+      'fxa-shared/db': { setupAuthDatabase: () => {} },
+      'fxa-shared/db/models/auth': models,
     })(
       { tokenLifetimes, tokenPruning: {}, redis: { enabled: true } },
       log,
@@ -46,7 +58,7 @@ describe('db, session tokens expire:', () => {
 
     beforeEach(() => {
       const now = Date.now();
-      results.pool = [
+      models.SessionToken.findByUid = sinon.stub().resolves([
         { createdAt: now, tokenId: 'foo' },
         {
           createdAt: now - tokenLifetimes.sessionTokenWithoutDevice - 1,
@@ -61,7 +73,7 @@ describe('db, session tokens expire:', () => {
           tokenId: 'qux',
           deviceId: 'wibble',
         },
-      ];
+      ]);
       return db.sessions().then((result) => (sessions = result));
     });
 
@@ -92,9 +104,11 @@ describe('db, session tokens do not expire:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function () {
+      '../pool': function () {
         return pool;
       },
+      'fxa-shared/db': { setupAuthDatabase: () => {} },
+      'fxa-shared/db/models/auth': models,
     })(
       { tokenLifetimes, tokenPruning: {}, redis: { enabled: true } },
       log,
@@ -109,7 +123,7 @@ describe('db, session tokens do not expire:', () => {
 
     beforeEach(() => {
       const now = Date.now();
-      results.pool = [
+      models.SessionToken.findByUid = sinon.stub().resolves([
         { createdAt: now, tokenId: 'foo' },
         {
           createdAt: now - tokenLifetimes.sessionTokenWithoutDevice - 1,
@@ -124,7 +138,7 @@ describe('db, session tokens do not expire:', () => {
           tokenId: 'qux',
           deviceId: 'wibble',
         },
-      ];
+      ]);
       return db.sessions().then((result) => (sessions = result));
     });
 
@@ -156,49 +170,25 @@ describe('db with redis disabled:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function () {
+      '../pool': function () {
         return pool;
       },
-      './redis': () => {},
+      '../redis': () => {},
+      'fxa-shared/db': { setupAuthDatabase: () => {} },
+      'fxa-shared/db/models/auth': models,
     })({ redis: {}, tokenLifetimes, tokenPruning: {} }, log, tokens, {});
     return DB.connect({}).then((result) => (db = result));
   });
 
   it('db.sessions succeeds without a redis instance', () => {
-    results.pool = [];
+    models.SessionToken.findByUid = sinon.stub().resolves([]);
     return db.sessions('fakeUid').then((result) => {
-      assert.equal(pool.get.callCount, 1);
-      const args = pool.get.args[0];
-      assert.equal(args.length, 2);
-      assert.equal(typeof args[0].render, 'function');
-      assert.equal(args[0].constructor.name, 'SafeUrl');
-      assert.deepEqual(args[1], { uid: 'fakeUid' });
-      assert.deepEqual(result, []);
-    });
-  });
-
-  it('db.devices succeeds without a redis instance', () => {
-    results.pool = [];
-    return db.devices('fakeUid').then((result) => {
-      assert.equal(pool.get.callCount, 1);
-      const args = pool.get.args[0];
-      assert.equal(args.length, 2);
-      assert.equal(typeof args[0].render, 'function');
-      assert.equal(args[0].constructor.name, 'SafeUrl');
-      assert.deepEqual(args[1], { uid: 'fakeUid' });
       assert.deepEqual(result, []);
     });
   });
 
   it('db.device succeeds without a redis instance', () => {
-    results.pool = { id: 'fakeDeviceId' };
     return db.device('fakeUid', 'fakeDeviceId').then((result) => {
-      assert.equal(pool.get.callCount, 1);
-      const args = pool.get.args[0];
-      assert.equal(args.length, 2);
-      assert.equal(typeof args[0].render, 'function');
-      assert.equal(args[0].constructor.name, 'SafeUrl');
-      assert.deepEqual(args[1], { uid: 'fakeUid', deviceId: 'fakeDeviceId' });
       assert.equal(result.id, 'fakeDeviceId');
     });
   });
@@ -312,10 +302,10 @@ describe('redis enabled, token-pruning enabled:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function () {
+      '../pool': function () {
         return pool;
       },
-      './redis': (...args) => {
+      '../redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments');
         assert.equal(args[0].foo, 'bar', 'redisPool was passed config');
         assert.equal(
@@ -336,6 +326,9 @@ describe('redis enabled, token-pruning enabled:', () => {
         assert.equal(args[1], log, 'redisPool was passed log');
         return redis;
       },
+      'fxa-shared': { normalizeEmail: (x) => x },
+      'fxa-shared/db': { setupAuthDatabase: () => {} },
+      'fxa-shared/db/models/auth': models,
     })(
       {
         tokenLifetimes,
@@ -372,8 +365,6 @@ describe('redis enabled, token-pruning enabled:', () => {
           'db.devices should reject with error.unknownAccount'
         ),
       (err) => {
-        assert.equal(pool.get.callCount, 0);
-        assert.equal(redis.get.callCount, 0);
         assert.equal(err.errno, 102);
         assert.equal(err.message, 'Unknown account');
       }
@@ -381,8 +372,9 @@ describe('redis enabled, token-pruning enabled:', () => {
   });
 
   it('should call redis and the db in db.devices if uid is not falsey', () => {
+    models.Device.findByUid = sinon.stub().resolves([]);
     return db.devices('wibble').then(() => {
-      assert.equal(pool.get.callCount, 1);
+      assert.equal(models.Device.findByUid.callCount, 1);
       assert.equal(redis.getSessionTokens.callCount, 1);
       assert.equal(redis.getSessionTokens.args[0].length, 1);
       assert.equal(redis.getSessionTokens.args[0][0], 'wibble');
@@ -390,8 +382,9 @@ describe('redis enabled, token-pruning enabled:', () => {
   });
 
   it('should call redis and the db in db.device if uid is not falsey', () => {
+    models.Device.findByPrimaryKey = sinon.stub().resolves({});
     return db.device('wibble', 'wobble').then(() => {
-      assert.equal(pool.get.callCount, 1);
+      assert.equal(models.Device.findByPrimaryKey.callCount, 1);
       assert.equal(redis.getSessionTokens.callCount, 1);
       assert.equal(redis.getSessionTokens.args[0].length, 1);
       assert.equal(redis.getSessionTokens.args[0][0], 'wibble');
@@ -399,7 +392,9 @@ describe('redis enabled, token-pruning enabled:', () => {
   });
 
   it('should call redis.getSessionTokens in db.sessions', () => {
+    models.SessionToken.findByUid = sinon.stub().resolves([]);
     return db.sessions('wibble').then(() => {
+      assert.equal(models.SessionToken.findByUid.callCount, 1);
       assert.equal(redis.getSessionTokens.callCount, 1);
       assert.equal(redis.getSessionTokens.args[0].length, 1);
       assert.equal(redis.getSessionTokens.args[0][0], 'wibble');
@@ -486,17 +481,15 @@ describe('redis enabled, token-pruning enabled:', () => {
       db.pruneSessionTokens = sinon.spy(() => P.resolve());
     });
 
-    describe('return expired tokens from pool.get:', () => {
+    describe('with expired tokens from SessionToken.findByUid:', () => {
       beforeEach(() => {
         const expiryPoint =
           Date.now() - tokenLifetimes.sessionTokenWithoutDevice;
-        pool.get = sinon.spy(() =>
-          P.resolve([
-            { tokenId: 'unexpired', createdAt: expiryPoint + 1000 },
-            { tokenId: 'expired1', createdAt: expiryPoint - 1 },
-            { tokenId: 'expired2', createdAt: 1 },
-          ])
-        );
+        models.SessionToken.findByUid = sinon.stub().resolves([
+          { tokenId: 'unexpired', createdAt: expiryPoint + 1000 },
+          { tokenId: 'expired1', createdAt: expiryPoint - 1 },
+          { tokenId: 'expired2', createdAt: 1 },
+        ]);
       });
 
       it('should call pruneSessionTokens in db.sessions', () => {
@@ -516,17 +509,15 @@ describe('redis enabled, token-pruning enabled:', () => {
       });
     });
 
-    describe('return unexpired tokens from pool.get:', () => {
+    describe('with unexpired tokens from SessionToken.findByUid:', () => {
       beforeEach(() => {
         const expiryPoint =
           Date.now() - tokenLifetimes.sessionTokenWithoutDevice;
-        pool.get = sinon.spy(() =>
-          P.resolve([
-            { tokenId: 'unexpired1', createdAt: expiryPoint + 1000 },
-            { tokenId: 'unexpired2', createdAt: expiryPoint + 100000 },
-            { tokenId: 'unexpired3', createdAt: expiryPoint + 10000000 },
-          ])
-        );
+        models.SessionToken.findByUid = sinon.stub().resolves([
+          { tokenId: 'unexpired1', createdAt: expiryPoint + 1000 },
+          { tokenId: 'unexpired2', createdAt: expiryPoint + 100000 },
+          { tokenId: 'unexpired3', createdAt: expiryPoint + 10000000 },
+        ]);
       });
 
       it('should not call pruneSessionTokens in db.sessions', () => {
@@ -561,10 +552,10 @@ describe('redis enabled, token-pruning disabled:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function () {
+      '../pool': function () {
         return pool;
       },
-      './redis': (...args) => {
+      '../redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments');
         assert.equal(args[0].foo, 'bar', 'redisPool was passed config');
         assert.equal(
@@ -585,6 +576,7 @@ describe('redis enabled, token-pruning disabled:', () => {
         assert.equal(args[1], log, 'redisPool was passed log');
         return redis;
       },
+      'fxa-shared/db': { setupAuthDatabase: () => {} },
     })(
       {
         tokenLifetimes,

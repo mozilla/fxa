@@ -57,7 +57,7 @@ describe('remote push db', function () {
     return TestServer.start(config)
       .then((s) => {
         dbServer = s;
-        return DB.connect(config[config.db.backend]);
+        return DB.connect(config);
       })
       .then((x) => {
         db = x;

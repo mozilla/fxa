@@ -1,16 +1,21 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { uuidTransformer } from '../../transformers';
-import { Account } from './account';
+import { uuidTransformer, aggregateNameValuePairs } from '../../transformers';
+import { Account, AccountOptions } from './account';
 import { AccountCustomers } from './account-customers';
+import { AccountResetToken } from './account-reset-token';
 import { AuthBaseModel } from './auth-base';
+import { Device } from './device';
+import { Email } from './email';
+import { EmailBounce } from './email-bounce';
+import { KeyFetchToken } from './key-fetch-token';
+import { PasswordChangeToken } from './password-change-token';
+import { PasswordForgotToken } from './password-forgot-token';
+import { RecoveryKey } from './recovery-key';
 import { SessionToken } from './session-token';
+import { TotpToken } from './totp-token';
 import { PayPalBillingAgreements } from './paypal-ba';
-
-export type AccountOptions = {
-  include?: 'emails'[];
-};
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -18,30 +23,6 @@ export type PayPalBillingAgreementStatusType =
   | 'Suspended'
   | 'Cancelled'
   | 'Expired';
-
-export async function sessionTokenData(
-  tokenId: string
-): Promise<SessionToken | null> {
-  let tokenBuffer: Buffer;
-  try {
-    tokenBuffer = uuidTransformer.to(tokenId);
-  } catch (err) {
-    return null;
-  }
-  const knex = Account.knex();
-  const [result] = await knex.raw('Call sessionWithDevice_18(?)', tokenBuffer);
-  const rowPacket = result.shift();
-  if (rowPacket.length === 0) {
-    return null;
-  }
-  const token = SessionToken.fromDatabaseRow(rowPacket[0]);
-  //TODO FIXME unhardcode the 28 day expiry
-  if (token.deviceId || token.createdAt > Date.now() - 2419200000) {
-    return token;
-  }
-  // expired
-  return null;
-}
 
 export async function accountExists(uid: string) {
   let uidBuffer;
@@ -52,25 +33,6 @@ export async function accountExists(uid: string) {
   }
   const account = await Account.query().findOne({ uid: uidBuffer });
   return account ? true : false;
-}
-
-export function accountByUid(uid: string, options?: AccountOptions) {
-  let uidBuffer;
-  try {
-    uidBuffer = uuidTransformer.to(uid);
-  } catch (err) {
-    return;
-  }
-
-  let query = Account.query();
-  if (options?.include?.includes('emails')) {
-    query = query
-      .withGraphJoined('emails')
-      .where({ 'accounts.uid': uidBuffer });
-  } else {
-    query = query.where({ uid: uidBuffer });
-  }
-  return query.first();
 }
 
 export async function createAccountCustomer(
@@ -240,4 +202,20 @@ export function batchAccountUpdate(uids: Buffer[], updateFields: Accountish) {
   return Account.query().whereIn('uid', uids).update(updateFields);
 }
 
-export { Account, AccountCustomers, AuthBaseModel, PayPalBillingAgreements };
+export {
+  Account,
+  AccountOptions,
+  AccountCustomers,
+  AccountResetToken,
+  AuthBaseModel,
+  Device,
+  Email,
+  EmailBounce,
+  KeyFetchToken,
+  PasswordChangeToken,
+  PasswordForgotToken,
+  PayPalBillingAgreements,
+  RecoveryKey,
+  SessionToken,
+  TotpToken,
+};

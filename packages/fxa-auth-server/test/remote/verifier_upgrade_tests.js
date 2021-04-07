@@ -33,7 +33,7 @@ describe('remote verifier upgrade', function () {
     config.securityHistory.ipProfiling.allowedRecency = 0;
 
     server = await TestServer.start(config);
-    db = await DB.connect(config[config.db.backend]);
+    db = await DB.connect(config);
   });
 
   it('upgrading verifierVersion upgrades the account on password change', async () => {

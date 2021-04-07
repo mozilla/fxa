@@ -6,7 +6,7 @@
   "lockoutEnabled": true,
   "log": {
     "fmt": "pretty",
-    "level": "info"
+    "level": "debug"
   },
   "sms": {
     "isStatusGeoEnabled": false,

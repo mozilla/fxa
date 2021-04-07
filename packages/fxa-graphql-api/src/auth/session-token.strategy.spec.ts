@@ -5,13 +5,15 @@ import { UnauthorizedException } from '@nestjs/common';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
 
 let mockSession = {
-  sessionTokenData: jest.fn(),
+  SessionToken: {
+    findByTokenId: jest.fn(),
+  },
 };
 let mockAuthClient = {
   deriveHawkCredentials: jest.fn(),
 };
 jest.mock('fxa-auth-client', () => mockAuthClient);
-jest.mock('fxa-shared/db/models/auth', () => mockSession);
+jest.mock('fxa-shared/db/models/auth/session-token', () => mockSession);
 
 import { SessionTokenStrategy } from './session-token.strategy';
 
@@ -28,7 +30,9 @@ describe('SessionTokenStrategy', () => {
   });
 
   it('returns the session status', async () => {
-    mockSession.sessionTokenData.mockResolvedValue({ tokenVerified: true });
+    mockSession.SessionToken.findByTokenId.mockResolvedValue({
+      tokenVerified: true,
+    });
     mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
     const result = await strategy.validate('DEADC0DE');
     expect(result).toStrictEqual({
@@ -38,7 +42,7 @@ describe('SessionTokenStrategy', () => {
   });
 
   it('throws unauthorized for a malformed token', async () => {
-    mockSession.sessionTokenData.mockResolvedValue(undefined);
+    mockSession.SessionToken.findByTokenId.mockResolvedValue(undefined);
     mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
     await expect(strategy.validate('token')).rejects.toThrowError(
       new UnauthorizedException('Invalid token')
@@ -46,7 +50,7 @@ describe('SessionTokenStrategy', () => {
   });
 
   it('throws unauthorized for an invalid token', async () => {
-    mockSession.sessionTokenData.mockResolvedValue(undefined);
+    mockSession.SessionToken.findByTokenId.mockResolvedValue(undefined);
     mockAuthClient.deriveHawkCredentials.mockResolvedValue({ id: 'testid' });
     await expect(strategy.validate('DEADC0DE')).rejects.toThrowError(
       new UnauthorizedException('Invalid token')
@@ -54,7 +58,7 @@ describe('SessionTokenStrategy', () => {
   });
 
   it('throws unauthorized when mustVerify is not met', async () => {
-    mockSession.sessionTokenData.mockResolvedValue({
+    mockSession.SessionToken.findByTokenId.mockResolvedValue({
       mustVerify: true,
       tokenVerified: false,
       emailVerified: true,
@@ -66,7 +70,9 @@ describe('SessionTokenStrategy', () => {
   });
 
   it('throws unexpected', async () => {
-    mockSession.sessionTokenData.mockResolvedValue({ tokenVerified: false });
+    mockSession.SessionToken.findByTokenId.mockResolvedValue({
+      tokenVerified: false,
+    });
     mockAuthClient.deriveHawkCredentials.mockRejectedValue('unauthorized');
     await expect(strategy.validate('DEADC0DE')).rejects.toThrowError(
       ExtendedError.withCause(
