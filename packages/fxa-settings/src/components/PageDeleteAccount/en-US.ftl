@@ -19,7 +19,7 @@ delete-account-chk-box-3 =
 delete-account-chk-box-4 =
  .label = Any extensions and themes that you published to addons.mozilla.org will be deleted
 
-delete-account-close-button = Close
+
 delete-account-continue-button = Continue
 
 delete-account-password-input =
