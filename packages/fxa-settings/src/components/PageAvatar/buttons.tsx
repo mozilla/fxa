@@ -111,7 +111,7 @@ export const TakePhotoBtn = ({
         />
       </Localized>
       <Localized id="avatar-page-take-photo">
-        <p>Take photo</p>
+        <p className="mt-2">Take photo</p>
       </Localized>
     </div>
   );
@@ -153,7 +153,7 @@ export const AddPhotoBtn = ({
         />
       </Localized>
       <Localized id="avatar-page-add-photo">
-        <p>Add photo</p>
+        <p className="mt-2">Add photo</p>
       </Localized>
     </div>
   );
