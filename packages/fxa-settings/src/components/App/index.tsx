@@ -27,6 +27,7 @@ import { useConfig } from 'fxa-settings/src/lib/config';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import PageAvatar from '../PageAvatar';
+import { Redirect } from '@reach/router';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -88,6 +89,11 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
             <PageTwoStepAuthentication path="/two_step_authentication" />
             <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
             <PageDeleteAccount path="/delete_account" />
+            <Redirect
+              from="/clients"
+              to="/settings#connected-services"
+              noThrow
+            />
           </ScrollToTop>
         </Router>
       </AppLayout>
