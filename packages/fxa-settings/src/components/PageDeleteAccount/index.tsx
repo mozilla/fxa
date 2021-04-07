@@ -176,7 +176,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               </ul>
             </form>
             <div className="flex items-center justify-center">
-            <Localized id="delete-account-cancel-button">
+              <Localized id="delete-account-cancel-button">
                 <button
                   type="button"
                   className="cta-neutral mx-2 px-4 tablet:px-10"
