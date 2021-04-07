@@ -46,7 +46,7 @@ describe('PageDeleteAccount', () => {
     expect(screen.getByTestId('delete-account-confirm').textContent).toContain(
       'deleting your account'
     );
-    expect(screen.getByTestId('close-button').textContent).toContain('Close');
+    expect(screen.getByTestId('cancel-button').textContent).toContain('Cancel');
     expect(screen.getByTestId('continue-button').textContent).toContain(
       'Continue'
     );
