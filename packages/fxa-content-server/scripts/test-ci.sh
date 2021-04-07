@@ -52,6 +52,7 @@ _scripts/check-url.sh localhost:3030/bundle/app.bundle.js
 
 cd packages/fxa-content-server
 mozinstall /firefox.tar.bz2
+./firefox/firefox -v
 test_suite circle 6
 
 # node 5 currently has the least work to do in the above tests
