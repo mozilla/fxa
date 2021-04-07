@@ -5,7 +5,7 @@
 /*
  Usage:
 
- dist/fxa-graphql-api/src/scripts/must-change-password.js -i ./reset.json
+ dist/fxa-graphql-api/src/scripts/must-change-password.js -i ./reset.txt
 
  This script is used to put user accounts into a "must change password" state. It uses the
  same config file as the graphql-api so should be run from a production instance.
@@ -36,21 +36,64 @@ const logger = mozlog(config.log)('must-change-password');
 const requiredOptions = ['input'];
 
 program
-  .option('-i, --input <filename>', 'JSON input file')
+  .option('-e, --emails [emails]', 'Email addresses')
+  .option('-u, --uids [uids]', 'User IDs')
+  .option('-i, --input <filename>', 'Input filename from which to read input')
   .option(
     '-b, --batch-size <count>',
     'How many records to update in a single db UPDATE.'
   )
   .parse(process.argv);
 
-function checkRequiredOption(optionName: string) {
-  if (!program[optionName]) {
-    console.error(`--${optionName} required`);
+if(!program.input) {
+  console.error(`-i, --input required`);
+  process.exit(1);
+} else if(!program.emails && !program.uids) {
+  console.error('One of `emails` or `uids` must be specified');
+  process.exit(1);
+} else if(program.emails && program.uids) {
+  console.error('Only one of `emails` or `uids` can be specified, not both');
+  process.exit(1);
+}
+
+let emails = [];
+let uids = [];
+
+if (program.emails) {
+  emails = getItems();
+} else if (program.uids) {
+  uids = getItems();
+}
+
+if (!emails.length && !uids.length) {
+  console.error('No `emails` or `uids` found inside the specified file');
+  process.exit(1);
+}
+
+function getItems() {
+  try {
+    const input = fs
+      .readFileSync(path.resolve(program.input))
+      .toString('utf8');
+
+    return adjustText(input);
+  } catch (err) {
+    console.error('No such file or directory');
     process.exit(1);
   }
 }
 
-requiredOptions.forEach(checkRequiredOption);
+function adjustText(input = '') {
+  if (!input.length) {
+    return [];
+  }
+
+  return input
+    .split(/[,\s]+/)
+    .map((s) => s.trim())
+    .filter((s) => !!s.length);
+}
+
 
 async function main() {
   const batchSize = program.batchSize ?? 10;
