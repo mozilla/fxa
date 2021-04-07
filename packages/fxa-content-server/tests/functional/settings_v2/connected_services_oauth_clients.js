@@ -12,7 +12,7 @@ const FunctionalHelpers = require('../lib/helpers');
 const { createEmail } = FunctionalHelpers;
 
 describe('connected services: oauth clients', () => {
-  const email = createEmail();
+  let email;
   const password = 'topnotchsupercoolpassworddealwithit';
   let clearBrowserState,
     openFxaFromRp,
@@ -52,6 +52,7 @@ describe('connected services: oauth clients', () => {
   });
 
   it('lists and disconnects RP clients', async () => {
+    email = createEmail();
     await openFxaFromRp('enter-email');
     await fillOutEmailFirstSignUp(email, password);
     await testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER);
@@ -98,6 +99,22 @@ describe('connected services: oauth clients', () => {
     await click(selectors.SETTINGS_V2.CONNECTED_SERVICES.REFRESH_BUTTON);
     await noSuchElement(
       `${selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER} #service:nth-child(4) ${selectors.SETTINGS_V2.CONNECTED_SERVICES.SIGN_OUT}`
+    );
+  });
+
+  it('redirect from /settings/clients', async () => {
+    email = createEmail();
+    await openFxaFromRp('enter-email');
+    await fillOutEmailFirstSignUp(email, password);
+    await testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER);
+    await fillOutSignUpCode(email, 0);
+    await testElementExists(selectors['123DONE'].AUTHENTICATED);
+    const oldUrl = `${config.fxaSettingsV2Root}/clients`;
+    // page is redirected and client list is shown
+    await openPage(oldUrl, selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER);
+    await testElementTextInclude(
+      selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER,
+      '123Done'
     );
   });
 });
