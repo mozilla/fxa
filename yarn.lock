@@ -12972,9 +12972,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cbor@npm:^7.0.4":
-  version: 7.0.4
-  resolution: "cbor@npm:7.0.4"
+"cbor@npm:^7.0.5":
+  version: 7.0.5
+  resolution: "cbor@npm:7.0.5"
   dependencies:
     "@cto.af/textdecoder": ^0.0.0
     nofilter: ^2.0.3
@@ -12983,7 +12983,7 @@ __metadata:
   peerDependenciesMeta:
     bignumber.js:
       optional: true
-  checksum: 49c9fb70c3327a749725ac83b8fd179a17f086e63e8133df674fc2d4fbf50805fe104ad62a643e59c323d9fad0b049238c85de87d71d0548bd614bdd03542a9e
+  checksum: e9c4f36ad912cbf2ad53db39058c7b7a6e34c340f98ef34f7ceea14ec01aacb3c633b1410e332cd4ec1d544f4460aed4c50165e04cddda1b23ccd29eea858e78
   languageName: node
   linkType: hard
 
@@ -19202,7 +19202,7 @@ fsevents@^1.2.7:
     bluebird: ^3.7.2
     buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
-    cbor: ^7.0.4
+    cbor: ^7.0.5
     chai: ^4.3.4
     cldr-core: ^38.1.0
     cldr-localenames-full: 38.1.0
