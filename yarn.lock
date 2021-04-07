@@ -4065,12 +4065,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:^7.6.5":
-  version: 7.6.5
-  resolution: "@nestjs/testing@npm:7.6.5"
+"@nestjs/testing@npm:^7.6.15":
+  version: 7.6.15
+  resolution: "@nestjs/testing@npm:7.6.15"
   dependencies:
     optional: 0.1.4
-    tslib: 2.0.3
+    tslib: 2.1.0
   peerDependencies:
     "@nestjs/common": ^7.0.0
     "@nestjs/core": ^7.0.0
@@ -4081,7 +4081,7 @@ __metadata:
       optional: true
     "@nestjs/platform-express":
       optional: true
-  checksum: 89b0b9bf3c8f3679d97de895d639b9157b6b5c34aedbc1aac3e62fb5a11e47f04923589cdae8cee2b34c2b0e706fa0b8b4dcb0c66f54e30ac4dd0588498c296a
+  checksum: c25a104af68ec78743d9f99087e0058684109251d5c9ac2fb0cc1451a479f9ac9e7e1a199bc70d49778a9d0768f3e536f1aef967b6ce60fb3b980e0d1e3bd2aa
   languageName: node
   linkType: hard
 
@@ -19560,7 +19560,7 @@ fsevents@^1.2.7:
     "@nestjs/platform-express": ^7.6.12
     "@nestjs/schedule": ^0.4.1
     "@nestjs/schematics": ^7.3.0
-    "@nestjs/testing": ^7.6.5
+    "@nestjs/testing": ^7.6.15
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.1
@@ -20084,7 +20084,7 @@ fsevents@^1.2.7:
     "@nestjs/core": ^7.6.15
     "@nestjs/graphql": ^7.10.3
     "@nestjs/mapped-types": ^0.4.0
-    "@nestjs/testing": ^7.6.5
+    "@nestjs/testing": ^7.6.15
     "@sentry/browser": ^5.27.6
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
@@ -38129,13 +38129,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.0.3, tslib@npm:~2.0.1":
-  version: 2.0.3
-  resolution: "tslib@npm:2.0.3"
-  checksum: 447bfca5deaa157806c3f77eaba74d05dd0b38b014e47ce79d98b5c77ce7d91b00a687ba13ca1b5a74d35ca1098ac7a072c0a97fad06f0266612f2a03a6c8e8f
-  languageName: node
-  linkType: hard
-
 "tslib@npm:2.1.0, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:~2.1.0":
   version: 2.1.0
   resolution: "tslib@npm:2.1.0"
@@ -38147,6 +38140,13 @@ resolve@~1.11.1:
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: f44fe7f216946b17d3e3074df3746372703cf24e9127b4c045511456e8e4bf25515fb0a1bb3937676cc305651c5d4fcb6377b0588a4c6a957e748c4c28905d17
+  languageName: node
+  linkType: hard
+
+"tslib@npm:~2.0.1":
+  version: 2.0.3
+  resolution: "tslib@npm:2.0.3"
+  checksum: 447bfca5deaa157806c3f77eaba74d05dd0b38b014e47ce79d98b5c77ce7d91b00a687ba13ca1b5a74d35ca1098ac7a072c0a97fad06f0266612f2a03a6c8e8f
   languageName: node
   linkType: hard
 
