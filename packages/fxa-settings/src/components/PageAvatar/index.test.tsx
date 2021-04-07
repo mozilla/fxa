@@ -154,7 +154,9 @@ it('PageAddAvatar | renders TakePhotoBtn and renders correctly when passed "capt
     </AuthContext.Provider>
   );
 
-  expect(screen.getByTestId('take-photo-btn')).toHaveClass('bg-red-500');
+  expect(screen.getByTestId('take-photo-btn-capturing')).toHaveClass(
+    'bg-red-500'
+  );
 });
 
 it('PageAddAvatar | renders ZoomBtns and calls onclick correctly', async () => {
