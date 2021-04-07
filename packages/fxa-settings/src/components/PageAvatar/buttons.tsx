@@ -176,7 +176,7 @@ export const ConfirmBtns = ({
     <div className="mt-4 flex items-center justify-center">
       <Localized id="avatar-page-close-button">
         <button
-          className="cta-neutral mx-2 px-10"
+          className="cta-neutral mx-2 px-10 w-full max-w-32"
           onClick={() => navigate(HomePath, { replace: true })}
           data-testid="close-button"
         >
@@ -185,7 +185,7 @@ export const ConfirmBtns = ({
       </Localized>
       <Localized id={saveStringId}>
         <button
-          className="cta-primary mx-2 px-10"
+          className="cta-primary mx-2 px-10 w-full max-w-32"
           onClick={onSave}
           disabled={!saveEnabled}
           data-testid="save-button"
