@@ -3891,9 +3891,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:^7.6.13":
-  version: 7.6.13
-  resolution: "@nestjs/common@npm:7.6.13"
+"@nestjs/common@npm:^7.6.15":
+  version: 7.6.15
+  resolution: "@nestjs/common@npm:7.6.15"
   dependencies:
     axios: 0.21.1
     iterare: 1.2.1
@@ -3912,7 +3912,7 @@ __metadata:
       optional: true
     class-validator:
       optional: true
-  checksum: af5a41a41a7ee018635ea2c46284ee4e8f0f2e892ba77dbf996ed5338d95d6d16f1d7ac0dd14f9849741d3234ae1e8a834c8715f56cb569ff5a09b395103de1a
+  checksum: 2146bcf85392f3bff14554af7a5eb63123b34f93017ce8e4602a66f4e04a5968a4c0afa26b55b2a40e182783dcfaafa0583bbb12768fd5b88f9ad833531e7293
   languageName: node
   linkType: hard
 
@@ -19064,7 +19064,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
-    "@nestjs/common": ^7.6.13
+    "@nestjs/common": ^7.6.15
     "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.15
     "@nestjs/graphql": ^7.10.3
@@ -19551,7 +19551,7 @@ fsevents@^1.2.7:
     "@hapi/hoek": ^9.0.4
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^7.5.4
-    "@nestjs/common": ^7.6.13
+    "@nestjs/common": ^7.6.15
     "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.15
     "@nestjs/graphql": ^7.10.3
@@ -19648,7 +19648,7 @@ fsevents@^1.2.7:
   resolution: "fxa-graphql-api@workspace:packages/fxa-graphql-api"
   dependencies:
     "@nestjs/cli": ^7.5.4
-    "@nestjs/common": ^7.6.13
+    "@nestjs/common": ^7.6.15
     "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.15
     "@nestjs/graphql": ^7.10.3
@@ -20079,7 +20079,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
-    "@nestjs/common": ^7.6.13
+    "@nestjs/common": ^7.6.15
     "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.15
     "@nestjs/graphql": ^7.10.3
@@ -20160,7 +20160,7 @@ fsevents@^1.2.7:
   resolution: "fxa-support-panel@workspace:packages/fxa-support-panel"
   dependencies:
     "@nestjs/cli": ^7.5.4
-    "@nestjs/common": ^7.6.13
+    "@nestjs/common": ^7.6.15
     "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.15
     "@nestjs/mapped-types": ^0.4.0
