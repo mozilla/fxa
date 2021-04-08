@@ -2,7 +2,7 @@ module.exports = {
   scripts: {
     default: "nps help",
     start: {
-      default: `pm2 start _dev/pm2/infrastructure.config.js && _scripts/pm2-all.sh start && echo "Use 'npm stop' to stop all the servers"`,
+      default: `pm2 start _dev/pm2/infrastructure.config.js && _scripts/pm2-all.sh start && echo "Use 'yarn stop' to stop all the servers"`,
       infrastructure: `pm2 start _dev/pm2/infrastructure.config.js`,
       services: `_scripts/pm2-all.sh start`,
       firefox: "./packages/fxa-dev-launcher/bin/fxa-dev-launcher &"
