@@ -51,7 +51,7 @@ export const HeaderLockup = () => {
             <>
               <Localized id="header-title">
                 <span className="font-bold ltr:mr-2 rtl:ml-2">
-                  Firefox accounts
+                  Firefox Account
                 </span>
               </Localized>
             </>
