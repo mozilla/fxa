@@ -60,6 +60,11 @@ module.exports = [
     config: require('./routes/avatar/get'),
   },
   {
+    method: 'GET',
+    path: v('/avatar/{id}'),
+    config: require('./routes/avatar/default'),
+  },
+  {
     method: 'POST',
     path: v('/avatar/upload'),
     config: require('./routes/avatar/upload'),

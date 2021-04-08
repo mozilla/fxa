@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { navigate, RouteComponentProps } from '@reach/router';
-import { useAccount } from '../../models';
+import { useAccount, getNextAvatar } from '../../models';
 import { useForm } from 'react-hook-form';
 import React, { useState } from 'react';
 import FlowContainer from '../FlowContainer';
@@ -11,7 +11,7 @@ import InputText from '../InputText';
 import firefox from '../../lib/firefox';
 import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar, useMutation } from '../../lib/hooks';
-import { gql } from '@apollo/client';
+import { gql, Reference } from '@apollo/client';
 import AlertBar from '../AlertBar';
 import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
@@ -80,6 +80,16 @@ export const PageDisplayName = (_: RouteComponentProps) => {
         fields: {
           displayName() {
             return displayName;
+          },
+          avatar(existing: Reference, { readField }) {
+            const id = readField<string>('id', existing);
+            const oldUrl = readField<string>('url', existing);
+            return getNextAvatar(
+              id,
+              oldUrl,
+              account.primaryEmail.email,
+              displayName
+            );
           },
         },
       });
