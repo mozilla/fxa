@@ -7937,12 +7937,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/supertest@npm:^2.0.10, @types/supertest@npm:^2.0.8":
-  version: 2.0.10
-  resolution: "@types/supertest@npm:2.0.10"
+"@types/supertest@npm:^2.0.11":
+  version: 2.0.11
+  resolution: "@types/supertest@npm:2.0.11"
   dependencies:
     "@types/superagent": "*"
-  checksum: 9ceae7e74305bdd892f57922bfa5355dc50f44f3e2243e159609fa0e275e4a3fea55c2c2d637f37bd8193143cdbab50449e5be36380afe29899ad7aecffb7685
+  checksum: a4b001038d8972d9efbfe73590961718f59923ed9c44356a0280e7a042dd1862cc9ea4c8a5c1ef3f7813f25e8b3b0b483bdafec089efe544c12207763c8ea6b1
   languageName: node
   linkType: hard
 
@@ -19028,7 +19028,7 @@ fsevents@^1.2.7:
     "@types/react": ^16.9.53
     "@types/react-router-dom": ^5.1.5
     "@types/serve-static": 1.13.9
-    "@types/supertest": ^2.0.8
+    "@types/supertest": ^2.0.11
     "@types/webpack": 4.41.26
     "@typescript-eslint/eslint-plugin": 4.20.0
     "@typescript-eslint/parser": 4.21.0
@@ -19087,7 +19087,7 @@ fsevents@^1.2.7:
     "@types/graphql": ^14.5.0
     "@types/node": ^14.14.37
     "@types/rimraf": 3.0.0
-    "@types/supertest": ^2.0.10
+    "@types/supertest": ^2.0.11
     "@types/yargs": ^16.0.1
     apollo-server: ^2.19.2
     apollo-server-express: ^2.22.2
@@ -19582,7 +19582,7 @@ fsevents@^1.2.7:
     "@types/passport-jwt": ^3.0.5
     "@types/rimraf": 3.0.0
     "@types/sinon": 9.0.8
-    "@types/supertest": ^2.0.8
+    "@types/supertest": ^2.0.11
     "@types/uuid": ^8.3.0
     "@typescript-eslint/eslint-plugin": 4.20.0
     "@typescript-eslint/parser": 4.21.0
@@ -19677,7 +19677,7 @@ fsevents@^1.2.7:
     "@types/passport": ^1
     "@types/passport-http-bearer": ^1
     "@types/superagent": 4.1.10
-    "@types/supertest": ^2.0.10
+    "@types/supertest": ^2.0.11
     "@types/yargs": ^16.0.1
     apollo-datasource: ^0.8.0
     apollo-server: ^2.19.2
@@ -20182,7 +20182,7 @@ fsevents@^1.2.7:
     "@types/hbs": ^4
     "@types/node": ^14.14.37
     "@types/superagent": 4.1.10
-    "@types/supertest": ^2.0.10
+    "@types/supertest": ^2.0.11
     audit-filter: ^0.5.0
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
