@@ -127,6 +127,33 @@ reference GitHub issues that this commit **Closes**. In order to maintain a refe
 `fixes #<issue_number>` if it closes a related issue or `issue #<issue_number>`
 if it's a partial fix.
 
+## How to keep your fork in sync with the latest changes?
+
+Once your PR is merged, it's recommended to pull new changes from `main` (which will also include the one that you made).
+So for that purpose, specify a new remote `upstream` which will be pointing to the actual [mozilla/fxa](https://github.com/mozilla/fxa) repo.
+
+```sh
+git remote add upstream https://github.com/mozilla/fxa.git
+```
+
+To sync your local copy of the fork with the `upstream` changes, run the following commands:
+
+```sh
+git fetch upstream
+
+git checkout main
+
+git merge upstream/main
+```
+
+Great, now the local copy of the repo is up-to-date. But your fork on Github won’t be updated until you push to it, so go ahead and run:
+
+```sh
+git push origin main
+```
+
+For more info, see [Github Help: Syncing a Fork](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork).
+
 ## Servers
 
 - **latest development** - https://accounts-latest.dev.lcip.org/
