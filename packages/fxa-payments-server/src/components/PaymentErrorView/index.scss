@@ -8,6 +8,7 @@
 
 .payment-error {
   @include checkout-view();
+  margin-top: 0px;
 
   .wrapper {
     margin-bottom: 60px;
@@ -27,5 +28,9 @@
 
   #error-icon {
     margin: 60px auto 40px;
+  }
+
+  @include max-width('tablet') {
+    margin-top: 10px;
   }
 }

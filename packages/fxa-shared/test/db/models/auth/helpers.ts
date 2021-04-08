@@ -23,6 +23,10 @@ export const accountTable = fs.readFileSync(
   path.join(thisDir, './accounts.sql'),
   'utf8'
 );
+export const devicesTable = fs.readFileSync(
+  path.join(thisDir, './devices.sql'),
+  'utf8'
+);
 export const emailsTable = fs.readFileSync(
   path.join(thisDir, './emails.sql'),
   'utf8'
@@ -39,18 +43,18 @@ export const paypalBATable = fs.readFileSync(
 export function randomAccount() {
   const email = chance.email();
   return {
-    authSalt: Buffer.from('0', 'hex'),
+    authSalt: '00',
     createdAt: chance.timestamp(),
     email,
-    emailCode: Buffer.from('0', 'hex'),
+    emailCode: '00',
     emailVerified: true,
-    kA: Buffer.from('0', 'hex'),
+    kA: '00',
     normalizedEmail: email,
     uid: chance.guid({ version: 4 }).replace(/-/g, ''),
     verifierSetAt: chance.timestamp(),
     verifierVersion: 0,
-    verifyHash: Buffer.from('0', 'hex'),
-    wrapWrapKb: Buffer.from('0', 'hex'),
+    verifyHash: '00',
+    wrapWrapKb: '00',
   };
 }
 
@@ -92,14 +96,15 @@ export async function testDatabaseSetup(): Promise<Knex> {
   });
 
   await knex.raw(accountTable);
+  await knex.raw(devicesTable);
   await knex.raw(emailsTable);
   await knex.raw(accountCustomersTable);
   await knex.raw(paypalBATable);
 
-  /* Debugging Assistance
+  /*/ Debugging Assistance
   knex.on('query', (data) => {
     console.dir(data);
   });
-  */
+  //*/
   return knex;
 }

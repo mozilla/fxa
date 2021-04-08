@@ -65,7 +65,7 @@ describe('scripts/must-reset', async function () {
 
   before(async () => {
     server = await TestServer.start(config);
-    db = await DB.connect(config[config.db.backend]);
+    db = await DB.connect(config);
     await db.deleteAccount(account1Mock);
     await db.deleteAccount(account2Mock);
   });

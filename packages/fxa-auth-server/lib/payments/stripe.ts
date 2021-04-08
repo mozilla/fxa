@@ -11,6 +11,7 @@ import {
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import moment from 'moment';
@@ -41,13 +42,6 @@ export enum STRIPE_INVOICE_METADATA {
   EMAIL_SENT = 'emailSent',
   RETRY_ATTEMPTS = 'paymentAttempts',
 }
-
-/** Represents all subscription statuses that are considered active for a customer */
-export const ACTIVE_SUBSCRIPTION_STATUSES: Stripe.Subscription['status'][] = [
-  'active',
-  'past_due',
-  'trialing',
-];
 
 const VALID_RESOURCE_TYPES = [
   CUSTOMER_RESOURCE,
@@ -1588,6 +1582,57 @@ export class StripeHelper {
     };
   }
 
+  async formatSubscriptionsForEmails(customer: Readonly<Stripe.Customer>) {
+    if (!customer.subscriptions) {
+      return [];
+    }
+
+    let formattedSubscptions = [];
+
+    for (const subscription of customer.subscriptions.data) {
+      if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+        if (!subscription.plan) {
+          throw error.internalValidationError(
+            'extractSourceDetailsForEmail',
+            customer,
+            new Error(
+              `Multiple plans for a subscription not supported: ${subscription.id}`
+            )
+          );
+        }
+
+        const plan = await this.expandResource(
+          subscription.plan,
+          PLAN_RESOURCE
+        );
+        const abbrevProduct = await this.expandAbbrevProductForPlan(plan);
+
+        const {
+          product_id: productId,
+          product_name: productName,
+        } = abbrevProduct;
+        const { id: planId, nickname: planName } = plan;
+        const productMetadata = this.mergeMetadata(plan, abbrevProduct);
+        const {
+          emailIconURL: planEmailIconURL = '',
+          downloadURL: planDownloadURL = '',
+        } = productMetadata;
+
+        formattedSubscptions.push({
+          productId,
+          productName,
+          planId,
+          planName,
+          planEmailIconURL,
+          planDownloadURL,
+          productMetadata,
+        });
+      }
+    }
+
+    return formattedSubscptions;
+  }
+
   async extractCardDetails({ charge }: { charge: Stripe.Charge | null }) {
     let lastFour: string | null = null;
     let cardType: string | null = null;
@@ -1637,48 +1682,7 @@ export class StripeHelper {
       );
     }
 
-    let subscriptions = [];
-
-    for (const subscription of customer.subscriptions.data) {
-      if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
-        if (!subscription.plan) {
-          throw error.internalValidationError(
-            'extractSourceDetailsForEmail',
-            customer,
-            new Error(
-              `Multiple plans for a subscription not supported: ${subscription.id}`
-            )
-          );
-        }
-
-        const plan = await this.expandResource(
-          subscription.plan,
-          PLAN_RESOURCE
-        );
-        const abbrevProduct = await this.expandAbbrevProductForPlan(plan);
-
-        const {
-          product_id: productId,
-          product_name: productName,
-        } = abbrevProduct;
-        const { id: planId, nickname: planName } = plan;
-        const productMetadata = this.mergeMetadata(plan, abbrevProduct);
-        const {
-          emailIconURL: planEmailIconURL = '',
-          downloadURL: planDownloadURL = '',
-        } = productMetadata;
-
-        subscriptions.push({
-          productId,
-          productName,
-          planId,
-          planName,
-          planEmailIconURL,
-          planDownloadURL,
-          productMetadata,
-        });
-      }
-    }
+    const subscriptions = await this.formatSubscriptionsForEmails(customer);
 
     if (subscriptions.length === 0) {
       throw error.missingSubscriptionForSourceError(

@@ -11,14 +11,20 @@ import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 
 import PaymentUpdateForm, { PaymentUpdateFormProps } from './PaymentUpdateForm';
+import { ButtonBaseProps } from '../../components/PayPalButton';
 import {
   mockStripeElementOnChangeFns,
   elementChangeResponse,
+  MOCK_PAYPAL_CUSTOMER_RESULT,
 } from '../../lib/test-utils';
 import { CUSTOMER, FILTERED_SETUP_INTENT, PLAN } from '../../lib/mock-data';
 
 import { PickPartial } from '../../lib/types';
-import { defaultConfig } from '../../lib/config';
+import { defaultConfig, updateConfig } from '../../lib/config';
+import {
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+} from 'fxa-shared/subscriptions/types';
 
 const { apiUrl } = defaultConfig().paypal;
 
@@ -41,6 +47,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     refreshSubscriptions = jest.fn(),
     setUpdatePaymentIsSuccess = jest.fn(),
     resetUpdatePaymentIsSuccess = jest.fn(),
+    ...props
   }: SubjectProps) => {
     return (
       <PaymentUpdateForm
@@ -53,6 +60,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
           paymentErrorInitialState,
           stripeOverride,
           apiClientOverrides,
+          ...props,
         }}
       />
     );
@@ -107,16 +115,43 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     ).toEqual(`${apiUrl}/myaccount/autopay/connect/ba-131243`);
   });
 
-  it('renders correctly for missing billing agreement for paypal', async () => {
-    render(
-      <Subject
-        customer={{
-          ...CUSTOMER,
-          payment_provider: 'paypal',
-          paypal_payment_error: 'missing_agreement',
-        }}
-      />
-    );
+  it('renders correctly for missing billing agreement for paypal with successful POST to update the agreement', async () => {
+    const apiClientOverrides = {
+      ...defaultApiClientOverrides(),
+      apiUpdateBillingAgreement: jest
+        .fn()
+        .mockResolvedValue(MOCK_PAYPAL_CUSTOMER_RESULT),
+    };
+
+    const refreshSubscriptions = jest.fn();
+
+    const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" onClick={onApprove} />;
+    };
+
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+
+    await act(async () => {
+      render(
+        <Subject
+          {...{
+            customer: {
+              ...CUSTOMER,
+              payment_provider: 'paypal',
+              paypal_payment_error: PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+            },
+            apiClientOverrides,
+            refreshSubscriptions,
+            paypalButtonBase: MockedButtonBase,
+          }}
+        />
+      );
+    });
+
     expect(
       screen.queryAllByTestId('reveal-payment-modal-button').length
     ).toEqual(2);
@@ -130,6 +165,84 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     await waitForExpect(() =>
       expect(screen.queryByTestId('billing-info-modal')).toBeInTheDocument()
     );
+
+    const paypalButton = screen.getByTestId('paypal-button');
+    await waitForExpect(() => expect(paypalButton).toBeInTheDocument());
+
+    await act(async () => {
+      fireEvent.click(paypalButton);
+    });
+    const loadingOverlay = screen.getByTestId('loading-overlay');
+    expect(loadingOverlay).toBeInTheDocument();
+    expect(apiClientOverrides.apiUpdateBillingAgreement).toHaveBeenCalledTimes(
+      1
+    );
+    expect(refreshSubscriptions).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders correctly for missing billing agreement for paypal with failed POST to update the agreement', async () => {
+    const apiClientOverrides = {
+      ...defaultApiClientOverrides(),
+      apiUpdateBillingAgreement: jest
+        .fn()
+        .mockRejectedValue('barf apiUpdateBillingAgreement'),
+    };
+
+    const refreshSubscriptions = jest.fn();
+
+    const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" onClick={onApprove} />;
+    };
+
+    updateConfig({
+      featureFlags: {
+        usePaypalUIByDefault: true,
+      },
+    });
+
+    await act(async () => {
+      render(
+        <Subject
+          {...{
+            customer: {
+              ...CUSTOMER,
+              payment_provider: 'paypal',
+              paypal_payment_error: PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+            },
+            apiClientOverrides,
+            refreshSubscriptions,
+            paypalButtonBase: MockedButtonBase,
+          }}
+        />
+      );
+    });
+
+    expect(
+      screen.queryAllByTestId('reveal-payment-modal-button').length
+    ).toEqual(2);
+
+    await act(async () => {
+      fireEvent.click(
+        screen.queryAllByTestId('reveal-payment-modal-button')[0]
+      );
+    });
+
+    await waitForExpect(() =>
+      expect(screen.queryByTestId('billing-info-modal')).toBeInTheDocument()
+    );
+
+    const paypalButton = screen.getByTestId('paypal-button');
+    await waitForExpect(() => expect(paypalButton).toBeInTheDocument());
+
+    await act(async () => {
+      fireEvent.click(paypalButton);
+    });
+    const loadingOverlay = screen.getByTestId('loading-overlay');
+    expect(loadingOverlay).toBeInTheDocument();
+    expect(apiClientOverrides.apiUpdateBillingAgreement).toHaveBeenCalledTimes(
+      1
+    );
+    expect(refreshSubscriptions).toHaveBeenCalledTimes(1);
   });
 
   it('renders correctly for incorrect funding source for paypal', async () => {
@@ -138,7 +251,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
         customer={{
           ...CUSTOMER,
           payment_provider: 'paypal',
-          paypal_payment_error: 'funding_source',
+          paypal_payment_error: PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
         }}
       />
     );

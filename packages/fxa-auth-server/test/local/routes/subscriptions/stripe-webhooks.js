@@ -449,7 +449,7 @@ describe('StripeWebhookHandler', () => {
       it('refreshes the customor if the account exists', async () => {
         const authDbModule = require('fxa-shared/db/models/auth');
         const account = { email: customerFixture.email };
-        sandbox.stub(authDbModule, 'accountByUid').resolves(account);
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
         await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
           {},
           {
@@ -468,7 +468,7 @@ describe('StripeWebhookHandler', () => {
         const authDbModule = require('fxa-shared/db/models/auth');
         const sentryModule = require('../../../../lib/sentry');
         sandbox.stub(sentryModule, 'reportSentryError').returns({});
-        sandbox.stub(authDbModule, 'accountByUid').resolves(undefined);
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
         await StripeWebhookHandlerInstance.handleCustomerUpdatedEvent(
           {},
           {

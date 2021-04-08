@@ -50,7 +50,7 @@ describe('remote device with refresh tokens', function () {
     return TestServer.start(config, false)
       .then((s) => {
         server = s;
-        return DB.connect(config[config.db.backend]);
+        return DB.connect(config);
       })
       .then((x) => {
         db = x;

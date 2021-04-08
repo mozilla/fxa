@@ -21,7 +21,7 @@ const {
   createUser,
   openPage,
   fillOutEmailFirstSignIn,
-  testElementExists,
+  signOut,
 } = FunctionalHelpers.helpersRemoteWrapped;
 
 describe('navigation', () => {
@@ -37,12 +37,12 @@ describe('navigation', () => {
 
   // it('can click avatar menu add button and back', async ({ remote }) => {
   //   await click(
-  //     selectors.SETTINGS_V2.PICTURE_MENU.ADD_BUTTON,
-  //     selectors.SETTINGS_V2.PICTURE_MENU.HEADER,
+  //     selectors.SETTINGS_V2.AVATAR.ADD_BUTTON,
+  //     selectors.SETTINGS_V2.AVATAR.HEADER,
   //     remote
   //   );
   //   await click(
-  //     selectors.SETTINGS_V2.PICTURE_MENU.BACK_BUTTON,
+  //     selectors.SETTINGS_V2.AVATAR.BACK_BUTTON,
   //     selectors.SETTINGS_V2.HEADER,
   //     remote
   //   );
@@ -105,16 +105,6 @@ describe('navigation', () => {
   });
 
   it('can sign out', async ({ remote }) => {
-    await click(
-      selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-      selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.DISPLAY_NAME_LABEL,
-      remote
-    );
-    await click(
-      selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-      selectors.ENTER_EMAIL.HEADER,
-      remote
-    );
-    await testElementExists(selectors.ENTER_EMAIL.HEADER, remote);
+    await signOut(remote);
   });
 });

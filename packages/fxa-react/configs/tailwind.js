@@ -52,6 +52,7 @@ module.exports = {
         tablet: '768px',
         desktop: '1024px',
         desktopXl: '1441px',
+        32: '8rem',
         48: '12rem',
         64: '16rem',
       },
@@ -83,6 +84,9 @@ module.exports = {
         '20': '0.2',
         '30': '0.3',
         '40': '0.4',
+      },
+      outline: {
+        'black-dotted': '1px dotted #000',
       },
     },
     screens: {
@@ -149,7 +153,7 @@ module.exports = {
       white: '#fff',
       grey: {
         10: '#FAFAFB',
-        50: '#F9F9FA',
+        50: '#F0F0F4',
         100: '#E7E7E7',
         200: '#C2C2C2',
         300: '#9E9E9E',

@@ -58,7 +58,7 @@
   background-image: url('../../images/mastercard.svg');
 }
 
-.american::before {
+.amex::before {
   background-image: url('../../images/amex.svg');
 }
 
@@ -69,7 +69,6 @@
 .stack-card-details > p.c-card {
   flex-direction: column;
   align-items: flex-start;
-  
 }
 
 .stack-card-details > p.c-card,

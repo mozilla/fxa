@@ -37,6 +37,7 @@ const {
   openPage,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
+  signOut,
   switchToWindow,
   testElementExists,
   testElementTextInclude,
@@ -97,18 +98,7 @@ registerSuite('TOTP', {
 
           .then(confirmTotpCode(secret))
 
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-            )
-          )
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
+          .then(signOut())
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
@@ -131,18 +121,7 @@ registerSuite('TOTP', {
       return this.remote
         .then(confirmTotpCode(secret))
 
-        .then(
-          click(
-            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-          )
-        )
-        .then(
-          click(
-            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-            selectors.ENTER_EMAIL.HEADER
-          )
-        )
+        .then(signOut())
         .then(
           openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {},
@@ -174,18 +153,7 @@ registerSuite('TOTP', {
           .refresh()
 
           // Does not prompt for code
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-            )
-          )
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
+          .then(signOut())
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
@@ -224,18 +192,7 @@ registerSuite('TOTP', {
         this.remote
           .then(confirmTotpCode(secret))
 
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-            )
-          )
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
+          .then(signOut())
           //.then(clearBrowserState())
 
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
@@ -263,18 +220,7 @@ registerSuite('TOTP', {
     'can reset password, prompt for TOTP and login - same browser different tab': function () {
       return this.remote
         .then(confirmTotpCode(secret))
-        .then(
-          click(
-            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-          )
-        )
-        .then(
-          click(
-            selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-            selectors.ENTER_EMAIL.HEADER
-          )
-        )
+        .then(signOut())
 
         .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
         .then(fillOutResetPassword(email))
@@ -302,18 +248,7 @@ registerSuite('TOTP', {
       return (
         this.remote
           .then(confirmTotpCode(secret))
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
-            )
-          )
-          .then(
-            click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
+          .then(signOut())
 
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))

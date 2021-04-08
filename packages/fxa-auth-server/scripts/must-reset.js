@@ -46,9 +46,9 @@ let emails = [];
 let uids = [];
 
 if (commandLineOptions.emails) {
-  emails = getItems('emails');
+  emails = getItems();
 } else if (commandLineOptions.uids) {
-  uids = getItems('uids');
+  uids = getItems();
 }
 
 if (!emails.length && !uids.length) {
@@ -56,7 +56,7 @@ if (!emails.length && !uids.length) {
   process.exit(1);
 }
 
-function getItems(type) {
+function getItems() {
   try {
     const input = fs
       .readFileSync(path.resolve(commandLineOptions.input))

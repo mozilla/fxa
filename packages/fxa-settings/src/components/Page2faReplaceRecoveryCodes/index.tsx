@@ -14,6 +14,7 @@ import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar } from '../../lib/hooks';
 import { AlertBar } from '../AlertBar';
 import { useLocalization, Localized } from '@fluent/react';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useAuthClient } from '../../lib/auth';
 
 export const CHANGE_RECOVERY_CODES_MUTATION = gql`
@@ -83,8 +84,12 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
           place — you’ll need them to access your account if you don’t have your
           mobile device.
         </Localized>
-        <div className="mt-6 flex flex-col items-center h-40 justify-between">
-          <DataBlock value={recoveryCodes}></DataBlock>
+        <div className="mt-6 flex flex-col items-center h-auto justify-between">
+          {recoveryCodes.length > 0 ? (
+            <DataBlock value={recoveryCodes} />
+          ) : (
+            <LoadingSpinner />
+          )}
         </div>
       </div>
       <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">

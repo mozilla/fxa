@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
-import { accountByUid, getPayPalBAByBAId } from 'fxa-shared/db/models/auth';
+import { Account, getPayPalBAByBAId } from 'fxa-shared/db/models/auth';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
@@ -99,7 +99,9 @@ export class PayPalNotificationHandler extends PayPalHandler {
     if (billingAgreement.status === 'Cancelled') {
       return;
     }
-    const account = await accountByUid(billingAgreement.uid);
+    const account = await Account.findByUid(billingAgreement.uid, {
+      include: ['emails'],
+    });
     if (!account) {
       this.log.error('handleMpCancel', {
         message: 'User account not found',
@@ -131,11 +133,23 @@ export class PayPalNotificationHandler extends PayPalHandler {
         !sub.cancel_at_period_end && ['active', 'past_due'].includes(sub.status)
     );
     if (
-      this.stripeHelper.getPaymentProvider(customer) == 'paypal' &&
+      this.stripeHelper.getPaymentProvider(customer) === 'paypal' &&
       nextPeriodValidSubscription
     ) {
-      // TODO: Send email to user that they must go to sub management and re-auth PayPal
-      // via StripeWebhookHandler.sendSubscriptionPaymentExpiredEmail
+      const { uid, email } = account;
+      const subscriptions = await this.stripeHelper.formatSubscriptionsForEmails(
+        customer
+      );
+      await this.mailer.sendSubscriptionPaymentProviderCancelledEmail(
+        account.emails,
+        account,
+        {
+          uid,
+          email,
+          acceptLanguage: account.locale,
+          subscriptions,
+        }
+      );
     }
   }
 

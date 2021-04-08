@@ -6,6 +6,7 @@ import React, { useState, useCallback, ChangeEvent } from 'react';
 import InputText, { InputTextProps } from '../InputText';
 import { ReactComponent as OpenEye } from './eye-open.svg';
 import { ReactComponent as ClosedEye } from './eye-closed.svg';
+import { useLocalization } from '@fluent/react';
 
 type InputPasswordProps = Omit<InputTextProps, 'type'>;
 
@@ -23,6 +24,7 @@ export const InputPassword = ({
 }: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
+  const { l10n } = useLocalization();
 
   function formatDataTestId(id: string) {
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
@@ -55,18 +57,30 @@ export const InputPassword = ({
       <button
         type="button"
         data-testid={formatDataTestId('visibility-toggle')}
-        className={`w-5 px-3 py-2 text-grey-600 focus:text-blue-500 box-content ${
-          hasContent ? '-ml-3' : 'hidden'
+        className={`px-3 py-2 text-grey-600 box-content ${
+          !hasContent && 'hidden'
         }`}
         tabIndex={-1}
         onClick={() => {
           setVisible(!visible);
         }}
-        title={visible ? 'Hide password' : 'Show password'}
+        title={
+          visible
+            ? l10n.getString('input-password-hide', null, 'Hide password')
+            : l10n.getString('input-password-show', null, 'Show password')
+        }
         aria-label={
           visible
-            ? 'Hide password from screen.'
-            : 'Show password as plain text. Your password will be visible on screen.'
+            ? l10n.getString(
+                'input-password-hide-aria',
+                null,
+                'Hide password from screen.'
+              )
+            : l10n.getString(
+                'input-password-show-aria',
+                null,
+                'Show password as plain text. Your password will be visible on screen.'
+              )
         }
       >
         {visible ? (

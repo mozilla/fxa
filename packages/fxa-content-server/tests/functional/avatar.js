@@ -8,21 +8,12 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const path = require('path');
 const FunctionalHelpers = require('./lib/helpers');
-const uaStrings = require('./lib/ua-strings');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const ios10UserAgent = uaStrings['ios_firefox_6_1'];
-
-const AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
-const AVATAR_CHANGE_URL_AUTOMATED =
-  config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
 const PASSWORD = 'passwordzxcv';
 const SETTINGS_URL = config.fxaContentRoot + 'settings';
-const SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(
-  ios10UserAgent
-)}`;
 const ENTER_EMAIL_URL = config.fxaContentRoot + '?action=email';
 const UPLOAD_IMAGE_PATH = path.join(
   process.cwd(),
@@ -38,15 +29,37 @@ const {
   createEmail,
   createUser,
   fillOutEmailFirstSignIn,
-  imageLoadedByQSA,
-  noSuchElement,
+  getWebChannelMessageData,
   openPage,
-  pollUntilHiddenByQSA,
+  storeWebChannelMessageData,
   testElementExists,
-  testIsBrowserNotified,
+  type,
 } = FunctionalHelpers;
 
 registerSuite('settings/avatar', {
+  // In order to test creating an avatar from a webcam on a headless test
+  // machine, we set the 'media.navigator.streams.fake' browser pref, which
+  // instructs the browser to return a fake stream from getUserMedia requests.
+  // It turns out browser profile changes aren't reset between test runs, so
+  // we just need to flip the pref once, and reset it when we're done. There's
+  // probably a clever way to do this in a config file, but here we simply use
+  // browser automation to load about:config and change the values directly.
+  before: function () {
+    return this.remote
+      .then(openPage('about:config'))
+      .then(click('#warningButton'))
+      .then(type('#about-config-search', 'media.navigator.streams.fake'))
+      .then(click('.button-toggle'));
+  },
+
+  after: function () {
+    return this.remote
+      .then(openPage('about:config'))
+      .then(click('#warningButton'))
+      .then(type('#about-config-search', 'media.navigator.streams.fake'))
+      .then(click('.button-reset'));
+  },
+
   beforeEach: function () {
     email = createEmail();
 
@@ -69,140 +82,95 @@ registerSuite('settings/avatar', {
           .then(click(selectors.SETTINGS_AVATAR.MENU_BUTTON))
 
           // success is going to the change avatar page
-          .then(testElementExists(selectors.SETTINGS_AVATAR.CHANGE_HEADER))
-      );
-    },
-
-    'keyboard focus changes to the modal': function () {
-      return this.remote
-        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
-        .getActiveElement()
-        .then(function (element) {
-          element.getAttribute('class').then(function (className) {
-            // active element should be the modal, not the body
-            assert.isTrue(className.includes('modal'));
-          });
-        });
-    },
-
-    'go to settings with an email selected to see change link then click on avatar to change': function () {
-      return (
-        this.remote
-          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
-          // go to change avatar
-          .then(click(selectors.SETTINGS_AVATAR.AVATAR))
-
-          // success is going to the change avatar page
-          .then(testElementExists(selectors.SETTINGS_AVATAR.CHANGE_HEADER))
+          .then(testElementExists(selectors.SETTINGS_AVATAR.BUTTON_ADD_PHOTO))
       );
     },
 
     'attempt to use webcam for avatar': function () {
       return (
         this.remote
-          .then(
-            openPage(
-              AVATAR_CHANGE_URL_AUTOMATED,
-              selectors.SETTINGS_AVATAR.BUTTON_CAMERA
-            )
-          )
+          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+          // go to change avatar
+          .then(click(selectors.SETTINGS_AVATAR.MENU_BUTTON))
+          .then(storeWebChannelMessageData('profile:change'))
+          // click button, look for the loading spinner
           .then(click(selectors.SETTINGS_AVATAR.BUTTON_CAMERA))
-
+          .then(click(selectors.SETTINGS_AVATAR.BUTTON_CAPTURING))
           .then(click(selectors.SETTINGS_AVATAR.SUBMIT))
-
           .then(testElementExists(selectors.SETTINGS.HEADER))
           //success is seeing the image loaded
-          .then(imageLoadedByQSA(selectors.SETTINGS_AVATAR.AVATAR))
-          .then(testIsBrowserNotified('profile:change'))
+          .then(testElementExists(selectors.SETTINGS_AVATAR.NON_DEFAULT_IMAGE))
+          // Replacement for testIsBrowserNotified
+          .then(getWebChannelMessageData('profile:change'))
+          .then((msg) => {
+            assert.equal(msg.command, 'profile:change');
+          })
       );
     },
 
     'attempt to use webcam for avatar, then cancel': function () {
       return (
         this.remote
-          .then(
-            openPage(
-              AVATAR_CHANGE_URL_AUTOMATED,
-              selectors.SETTINGS_AVATAR.BUTTON_CAMERA
-            )
-          )
+          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
 
           // go to change avatar
+          .then(click(selectors.SETTINGS_AVATAR.MENU_BUTTON))
           .then(click(selectors.SETTINGS_AVATAR.BUTTON_CAMERA))
-
-          .then(testElementExists(selectors.SETTINGS_AVATAR.CAMERA_HEADER))
+          // look for the button shown when the webcam capture has begun
+          .then(testElementExists(selectors.SETTINGS_AVATAR.BUTTON_CAPTURING))
           .then(click(selectors.SETTINGS_AVATAR.BACK))
 
-          // success is returning to the avatar change page
-          .then(testElementExists(selectors.SETTINGS_AVATAR.CHANGE_HEADER))
+          // success is returning to the settings page
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 
     'upload a profile image': function () {
       return (
         this.remote
-          .then(
-            openPage(
-              AVATAR_CHANGE_URL,
-              selectors.SETTINGS_AVATAR.UPLOAD_FILENAME_INPUT
-            )
-          )
+          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+          .then(click(selectors.SETTINGS_AVATAR.MENU_BUTTON))
+          .then(storeWebChannelMessageData('profile:change'))
 
           // Selenium's way of interacting with a file picker
           .findByCssSelector(selectors.SETTINGS_AVATAR.UPLOAD_FILENAME_INPUT)
           .type(UPLOAD_IMAGE_PATH)
           .end()
 
-          .then(testElementExists(selectors.SETTINGS_AVATAR.CROPPER_HEADER))
+          .then(testElementExists(selectors.SETTINGS_AVATAR.BUTTON_ROTATE))
 
           .then(click(selectors.SETTINGS_AVATAR.BUTTON_ZOOM_OUT))
           .then(click(selectors.SETTINGS_AVATAR.BUTTON_ZOOM_IN))
           .then(click(selectors.SETTINGS_AVATAR.BUTTON_ROTATE))
           .then(click(selectors.SETTINGS_AVATAR.SUBMIT))
 
-          .then(
-            pollUntilHiddenByQSA(
-              selectors.SETTINGS_AVATAR.UPLOAD_FILENAME_INPUT
-            )
-          )
-
           //success is seeing the image loaded
-          .then(imageLoadedByQSA(selectors.SETTINGS_AVATAR.AVATAR))
-          .then(testIsBrowserNotified('profile:change'))
+          .then(testElementExists(selectors.SETTINGS_AVATAR.NON_DEFAULT_IMAGE))
+          // Replacement for testIsBrowserNotified
+          .then(getWebChannelMessageData('profile:change'))
+          .then((msg) => {
+            assert.equal(msg.command, 'profile:change');
+          })
       );
     },
 
     'cancel uploading a profile image': function () {
       return (
         this.remote
-          .then(
-            openPage(
-              AVATAR_CHANGE_URL,
-              selectors.SETTINGS_AVATAR.UPLOAD_FILENAME_INPUT
-            )
-          )
+          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+          .then(click(selectors.SETTINGS_AVATAR.MENU_BUTTON))
 
           // Selenium's way of interacting with a file picker
           .findByCssSelector(selectors.SETTINGS_AVATAR.UPLOAD_FILENAME_INPUT)
           .type(UPLOAD_IMAGE_PATH)
           .end()
 
-          .then(testElementExists(selectors.SETTINGS_AVATAR.CROPPER_HEADER))
+          .then(testElementExists(selectors.SETTINGS_AVATAR.BUTTON_ROTATE))
 
           .then(click(selectors.SETTINGS_AVATAR.BACK))
 
-          //success is returning to the avatar change page
-          .then(testElementExists(selectors.SETTINGS_AVATAR.CHANGE_HEADER))
-      );
-    },
-
-    'avatar panel removed on iOS 10': function () {
-      return (
-        this.remote
-          .then(openPage(SETTINGS_URL_IOS10, selectors.SETTINGS.HEADER))
-
-          //success is not displaying avatar change panel
-          .then(noSuchElement(selectors.SETTINGS_AVATAR.MENU_BUTTON))
+          // success is returning to the settings page
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
   },

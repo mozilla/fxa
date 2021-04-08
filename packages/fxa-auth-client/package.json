@@ -25,12 +25,12 @@
     "@types/assert": "^1.5.4",
     "@types/fast-text-encoding": "^1",
     "@types/mocha": "^8",
-    "@types/node": "^14.14.5",
+    "@types/node": "^14.14.37",
     "@types/node-fetch": "^2.5.7",
     "asmcrypto.js": "^0.22.0",
     "fast-text-encoding": "^1.0.3",
     "mocha": "^7.1.2",
-    "ts-node": "^8.10.2",
+    "ts-node": "^9.1.1",
     "typescript": "3.9.7",
     "webcrypto-liner": "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
   }

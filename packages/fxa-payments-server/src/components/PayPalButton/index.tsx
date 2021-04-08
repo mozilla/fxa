@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import * as apiClient from '../../lib/apiClient';
 import { Customer } from '../../store/types';
 import { SubscriptionCreateAuthServerAPIs } from '../../routes/Product/SubscriptionCreate';
+import { PaymentUpdateAuthServerAPIs } from '../../routes/Subscriptions/PaymentUpdateForm';
 
 declare var paypal: {
   Buttons: {
@@ -19,7 +20,9 @@ export type PaypalButtonProps = {
   setPaymentError: Function;
   priceId?: string;
   newPaypalAgreement?: boolean;
-  apiClientOverrides?: Partial<SubscriptionCreateAuthServerAPIs>;
+  apiClientOverrides?: Partial<
+    SubscriptionCreateAuthServerAPIs | PaymentUpdateAuthServerAPIs
+  >;
   setTransactionInProgress?: Function;
   ButtonBase?: React.ElementType;
 };
@@ -83,6 +86,7 @@ export const PaypalButton = ({
 
   const onApprove = useCallback(
     async (data: { orderID: string }) => {
+      const isNewSubscription = newPaypalAgreement && priceId;
       /* istanbul ignore next */
       try {
         if (setTransactionInProgress) setTransactionInProgress(true);
@@ -92,9 +96,10 @@ export const PaypalButton = ({
         };
         // This is the same token as obtained in createOrder
         const token = data.orderID;
-        if (newPaypalAgreement && priceId) {
+        if (isNewSubscription) {
           await apiCapturePaypalPayment({
             idempotencyKey,
+            // @ts-ignore Doesn't like that the existence check for priceId is stored in isNewSubscription
             priceId,
             token,
           });
@@ -105,10 +110,14 @@ export const PaypalButton = ({
         }
         refreshSubscriptions();
       } catch (error) {
-        if (!error.code) {
-          error.code = 'general-paypal-error';
+        if (isNewSubscription) {
+          if (!error.code) {
+            error.code = 'general-paypal-error';
+          }
+          setPaymentError(error);
+        } else {
+          refreshSubscriptions();
         }
-        setPaymentError(error);
       }
       return null;
     },

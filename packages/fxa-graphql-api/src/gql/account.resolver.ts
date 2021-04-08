@@ -13,11 +13,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import AuthClient from 'fxa-auth-client';
-import {
-  Account,
-  accountByUid,
-  AccountOptions,
-} from 'fxa-shared/db/models/auth';
+import { Account, AccountOptions } from 'fxa-shared/db/models/auth';
 import { profileByUid, selectedAvatar } from 'fxa-shared/db/models/profile';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import getStream from 'get-stream';
@@ -368,7 +364,7 @@ export class AccountResolver {
     const options: AccountOptions = this.shouldIncludeEmails(info)
       ? { include: ['emails'] }
       : {};
-    return accountByUid(uid, options);
+    return Account.findByUid(uid, options);
   }
 
   @ResolveField()

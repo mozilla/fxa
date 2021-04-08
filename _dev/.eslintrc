@@ -1,6 +1,9 @@
 {
   "extends": ["plugin:fxa/recommended"],
   "plugins": ["fxa"],
+  "parserOptions": {
+    "ecmaVersion": "2020"
+  },
   "rules": {
     "require-atomic-updates": "off",
     "space-unary-ops": "off",

@@ -98,3 +98,9 @@ export type AccountSubscription = Pick<
     >;
     subscription_id: Stripe.Subscription['id'];
   };
+
+export const PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT = 'missing_agreement';
+export const PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE = 'funding_source';
+export type PaypalPaymentError =
+  | typeof PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT
+  | typeof PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;

@@ -48,7 +48,7 @@
   }
 
   &:focus {
-    @apply border-0;
+    @apply border-transparent outline-black-dotted;
   }
 
   &:disabled {

@@ -56,7 +56,7 @@ describe('DropDownAvatarMenu', () => {
     const dropDownId = 'drop-down-avatar-menu';
     const dropDown = screen.queryByTestId(dropDownId);
 
-    expect(toggleButton).toHaveAttribute('title', 'Firefox Account Menu');
+    expect(toggleButton).toHaveAttribute('title', 'drop-down-menu-title');
     expect(toggleButton).toHaveAttribute('aria-controls', dropDownId);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
     expect(dropDown).not.toBeInTheDocument;
@@ -159,7 +159,7 @@ describe('DropDownAvatarMenu', () => {
       });
 
       expect(screen.getByTestId('sign-out-error').textContent).toContain(
-        'Sorry, there was a problem signing you out.'
+        'drop-down-menu-sign-out-error'
       );
     });
   });

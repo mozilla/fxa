@@ -38,10 +38,7 @@ export const UnitRowRecoveryKey = () => {
     { recoveryKeyExistsLoading },
   ] = useLazyRecoveryKeyExists((error) => {
     hideModal();
-    alertBar.error(
-      'Sorry, there was a problem refreshing the recovery key.',
-      error
-    );
+    alertBar.error(l10n.getString('rk-refresh-error'), error);
   });
 
   const deleteRecoveryKey = useAuthClient(
@@ -79,18 +76,26 @@ export const UnitRowRecoveryKey = () => {
 
   return (
     <UnitRow
-      header="Recovery key"
+      header={l10n.getString('rk-header')}
       headerId="recovery-key"
       prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
-      headerValue={recoveryKey ? 'Enabled' : 'Not set'}
+      headerValue={
+        recoveryKey
+          ? l10n.getString('rk-enabled', null, 'Enabled')
+          : l10n.getString('rk-not-set', null, 'Not set')
+      }
       route={recoveryKey ? undefined : `${HomePath}/account_recovery`}
       revealModal={recoveryKey ? revealModal : undefined}
-      ctaText={recoveryKey ? 'Remove' : 'Create'}
+      ctaText={
+        recoveryKey
+          ? l10n.getString('rk-action-remove', null, 'Remove')
+          : l10n.getString('rk-action-create', null, 'Create')
+      }
       alertBarRevealed
       headerContent={
         <ButtonIconReload
-          title="Refresh recovery key"
+          title={l10n.getString('rk-refresh-key')}
           classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
           disabled={recoveryKeyExistsLoading}
           onClick={getRecoveryKeyExists}
@@ -98,7 +103,7 @@ export const UnitRowRecoveryKey = () => {
       }
       actionContent={
         <ButtonIconReload
-          title="Refresh recovery key"
+          title={l10n.getString('rk-refresh-key')}
           classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
           testId="recovery-key-refresh"
           disabled={recoveryKeyExistsLoading}
@@ -144,7 +149,7 @@ export const UnitRowRecoveryKey = () => {
               );
             }}
             confirmBtnClassName="cta-caution"
-            confirmText="Remove"
+            confirmText={l10n.getString('rk-action-remove', null, 'Remove')}
             headerId="recovery-key-header"
             descId="recovery-key-desc"
           >

@@ -4,7 +4,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { deriveHawkCredentials } from 'fxa-auth-client';
-import { sessionTokenData } from 'fxa-shared/db/models/auth';
 import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
 import { Strategy } from 'passport-http-bearer';
@@ -22,7 +21,7 @@ export class SessionTokenStrategy extends PassportStrategy(Strategy) {
         throw new UnauthorizedException('Invalid token');
       }
       const { id } = await deriveHawkCredentials(token, 'sessionToken');
-      const session = await sessionTokenData(id);
+      const session = await SessionToken.findByTokenId(id);
       if (!session) {
         throw new UnauthorizedException('Invalid token');
       }

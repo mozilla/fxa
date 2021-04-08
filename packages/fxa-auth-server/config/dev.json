@@ -6,7 +6,7 @@
   "lockoutEnabled": true,
   "log": {
     "fmt": "pretty",
-    "level": "info"
+    "level": "debug"
   },
   "sms": {
     "isStatusGeoEnabled": false,
@@ -158,7 +158,10 @@
   },
   "subscriptions": {
     "enabled": true,
-    "sharedSecret": "devsecret"
+    "sharedSecret": "devsecret",
+    "paymentsServer": {
+      "url": "http://localhost:3031/"
+    }
   },
   "totp": {
     "recoveryCodes": {

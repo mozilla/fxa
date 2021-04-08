@@ -4,7 +4,7 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import * as Sentry from '@sentry/node';
-import { accountByUid } from 'fxa-shared/db/models/auth';
+import { Account } from 'fxa-shared/db/models/auth';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
 
@@ -266,7 +266,7 @@ export class StripeWebhookHandler extends StripeHandler {
   async handleCustomerUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
     const customer = event.data.object as Stripe.Customer;
     const uid = customer.metadata.userid;
-    const account = await accountByUid(uid, { include: ['emails'] });
+    const account = await Account.findByUid(uid, { include: ['emails'] });
     if (!account) {
       reportSentryError(
         new Error(`Cannot load account for customerId: ${customer.id}`),
