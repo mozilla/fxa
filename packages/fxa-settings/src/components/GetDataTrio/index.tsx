@@ -96,7 +96,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
             onAction?.('print');
           }}
           data-testid="databutton-print"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-outline-black-dotted"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-black-dotted"
         >
           <PrintIcon
             height="24"
