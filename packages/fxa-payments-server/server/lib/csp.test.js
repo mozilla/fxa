@@ -53,10 +53,11 @@ describe('CSP blocking rules', () => {
   it('has correct imgSrc directives', () => {
     const { imgSrc } = directives;
 
-    expect(imgSrc).toHaveLength(6);
+    expect(imgSrc).toHaveLength(7);
     expect(imgSrc).toContain(Sources.SELF);
     expect(imgSrc).toContain(Sources.DATA);
     expect(imgSrc).toContain(Sources.GRAVATAR);
+    expect(imgSrc).toContain(Sources.PROFILE_SERVER);
     expect(imgSrc).toContain(Sources.PROFILE_IMAGES_SERVER);
     expect(imgSrc).toContain(Sources.ACCOUNTS_STATIC_CDN);
     expect(imgSrc).toContain(CDN_SERVER);

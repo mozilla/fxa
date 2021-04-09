@@ -87,6 +87,7 @@ module.exports = function (config) {
         // to break the site for users who already use a Gravatar as
         // their profile image.
         GRAVATAR,
+        PROFILE_SERVER,
         PROFILE_IMAGES_SERVER,
         ACCOUNTS_STATIC_CDN,
         ...EXTRA_IMG_SRC,
