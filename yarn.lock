@@ -2788,7 +2788,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grpc/grpc-js@npm:^1.1.3, @grpc/grpc-js@npm:~1.1.1":
+"@grpc/grpc-js@npm:^1.2.12":
+  version: 1.2.12
+  resolution: "@grpc/grpc-js@npm:1.2.12"
+  dependencies:
+    "@types/node": ">=12.12.47"
+    google-auth-library: ^6.1.1
+    semver: ^6.2.0
+  checksum: a2265c5d9f4dfb0795951a30c7520a71622d407c1fbc9fa21d4fe4ad14e73e86630775136ea8561e6f2902cb2aac2e2b1d7359cf83579db97b95544e1da5dad5
+  languageName: node
+  linkType: hard
+
+"@grpc/grpc-js@npm:~1.1.1":
   version: 1.1.3
   resolution: "@grpc/grpc-js@npm:1.1.3"
   dependencies:
@@ -19569,7 +19580,7 @@ fsevents@^1.2.7:
   dependencies:
     "@google-cloud/firestore": ^4.9.8
     "@google-cloud/pubsub": ^2.10.0
-    "@grpc/grpc-js": ^1.1.3
+    "@grpc/grpc-js": ^1.2.12
     "@hapi/hoek": ^9.0.4
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^7.5.4
@@ -20829,6 +20840,23 @@ fsevents@^1.2.7:
   dependencies:
     delegate: ^3.1.2
   checksum: 640a1627e528ceb3337595a8020f44d09455f284c18c765eaf9ce5dcdf1799810e7b11ca2b61582a5a4db20aad0b7e6b820235864822d84df541d74383bcd01c
+  languageName: node
+  linkType: hard
+
+"google-auth-library@npm:^6.1.1":
+  version: 6.1.6
+  resolution: "google-auth-library@npm:6.1.6"
+  dependencies:
+    arrify: ^2.0.0
+    base64-js: ^1.3.0
+    ecdsa-sig-formatter: ^1.0.11
+    fast-text-encoding: ^1.0.0
+    gaxios: ^4.0.0
+    gcp-metadata: ^4.2.0
+    gtoken: ^5.0.4
+    jws: ^4.0.0
+    lru-cache: ^6.0.0
+  checksum: 2f54874f93b7c3e55da5391a3e1cda852ea75292f998c96704d7baf31c102cd3c3e9d125012983411de62a1b82baf6937dc7d97c3e60a501d3e4f05f9a34bca8
   languageName: node
   linkType: hard
 
