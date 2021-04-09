@@ -652,6 +652,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
+        preHeader: 'Copy/paste this code into your registration form.',
       },
     });
   };
