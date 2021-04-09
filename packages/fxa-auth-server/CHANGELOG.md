@@ -1,3 +1,50 @@
+## 1.203.7
+
+### New features
+
+- graphql-api: enhance must-change-password script to accept a plain text list ([bd7f60bf9](https://github.com/mozilla/fxa/commit/bd7f60bf9))
+- subscriptions: create subscriptions for existing PayPal customer ([7c4058585](https://github.com/mozilla/fxa/commit/7c4058585))
+- fxa-auth-server: move time to a new line ([1a15228bf](https://github.com/mozilla/fxa/commit/1a15228bf))
+- payments: Add processing screen for PayPal invalid billing agreement modal ([056dcba71](https://github.com/mozilla/fxa/commit/056dcba71))
+- fxa-payments-server: add paypal to subscription management ([a0aa9f8b8](https://github.com/mozilla/fxa/commit/a0aa9f8b8))
+- emails: add email for payment method cancellation ([05f1688f7](https://github.com/mozilla/fxa/commit/05f1688f7))
+
+### Bug fixes
+
+- auth: flip true/false value for errors on PayPal request metrics. ([970521926](https://github.com/mozilla/fxa/commit/970521926))
+- codes: Fix issue where user could not login if they have low recovery codes ([35769e8f2](https://github.com/mozilla/fxa/commit/35769e8f2))
+- fxa-auth-server: change email template This commit: * Improves the styling of the email template (passwordChangeRequired) fixes #8011 ([f764a8ec3](https://github.com/mozilla/fxa/commit/f764a8ec3))
+- auth-server: address processor running bugs ([68f39a47c](https://github.com/mozilla/fxa/commit/68f39a47c))
+- import: Use relative import for production ([a4e190806](https://github.com/mozilla/fxa/commit/a4e190806))
+- import: Use relative import for production ([9e06ef6d4](https://github.com/mozilla/fxa/commit/9e06ef6d4))
+
+### Refactorings
+
+- auth: use direct db connection for reads ([f4dc15a81](https://github.com/mozilla/fxa/commit/f4dc15a81))
+- fxa-auth-server: change string in registration email ([1485a1374](https://github.com/mozilla/fxa/commit/1485a1374))
+
+### Other changes
+
+- deps: bump cbor from 7.0.4 to 7.0.5 ([432601567](https://github.com/mozilla/fxa/commit/432601567))
+- fxa-auth-server: add tests for email date and time ([a78566dd5](https://github.com/mozilla/fxa/commit/a78566dd5))
+- deps: bump ioredis from 4.23.0 to 4.25.0 ([06cc94819](https://github.com/mozilla/fxa/commit/06cc94819))
+- deps: bump hot-shots from 8.3.0 to 8.3.1 ([8593d39cd](https://github.com/mozilla/fxa/commit/8593d39cd))
+- deps: bump aws-sdk from 2.851.0 to 2.879.0 ([66e6e3e1f](https://github.com/mozilla/fxa/commit/66e6e3e1f))
+- b29fc53a3 Made changes in setup copy ([b29fc53a3](https://github.com/mozilla/fxa/commit/b29fc53a3))
+- deps: bump google-libphonenumber from 3.2.18 to 3.2.19 ([cd8d91e1a](https://github.com/mozilla/fxa/commit/cd8d91e1a))
+- fxa-payments-server: add paypal to subscription management"" ([d31f14b87](https://github.com/mozilla/fxa/commit/d31f14b87))
+- fxa-payments-server: add paypal to subscription management" ([097ae6075](https://github.com/mozilla/fxa/commit/097ae6075))
+- deps: bump cldr-localenames-full from 38.0.0 to 38.1.0 ([7919b7f86](https://github.com/mozilla/fxa/commit/7919b7f86))
+- deps-dev: bump @types/node from 14.14.5 to 14.14.37 ([2d4131afe](https://github.com/mozilla/fxa/commit/2d4131afe))
+- deps: bump @google-cloud/firestore from 4.9.6 to 4.9.8 ([36a17f048](https://github.com/mozilla/fxa/commit/36a17f048))
+- deps-dev: bump grunt-cli from 1.3.2 to 1.4.1 ([e1a79b550](https://github.com/mozilla/fxa/commit/e1a79b550))
+- deps-dev: bump @types/jsonwebtoken from 8.5.0 to 8.5.1 ([ed8f213e2](https://github.com/mozilla/fxa/commit/ed8f213e2))
+- deps-dev: bump chai from 4.2.0 to 4.3.4 ([65530821d](https://github.com/mozilla/fxa/commit/65530821d))
+- deps: bump hot-shots from 8.2.0 to 8.3.0 ([da62dc16c](https://github.com/mozilla/fxa/commit/da62dc16c))
+- deps-dev: bump ts-node from 8.10.2 to 9.1.1 ([78f6296fc](https://github.com/mozilla/fxa/commit/78f6296fc))
+- auth: Update legal URLs in transactional emails ([849839a9d](https://github.com/mozilla/fxa/commit/849839a9d))
+- deps: bump google-libphonenumber from 3.2.13 to 3.2.18 ([7f29b919b](https://github.com/mozilla/fxa/commit/7f29b919b))
+
 ## 1.203.6
 
 No changes.

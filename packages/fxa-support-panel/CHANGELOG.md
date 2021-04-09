@@ -1,5 +1,16 @@
 # Change history
 
+## 1.203.4
+
+### Other changes
+
+- deps-dev: bump @types/supertest from 2.0.10 to 2.0.11 ([a983465ae](https://github.com/mozilla/fxa/commit/a983465ae))
+- deps: bump @nestjs/mapped-types from 0.4.0 to 0.4.1 ([19f9af5cb](https://github.com/mozilla/fxa/commit/19f9af5cb))
+- deps: bump @nestjs/common from 7.6.13 to 7.6.15 ([95b1532d7](https://github.com/mozilla/fxa/commit/95b1532d7))
+- deps: bump class-validator from 0.12.2 to 0.13.1 ([1f39c4e36](https://github.com/mozilla/fxa/commit/1f39c4e36))
+- deps-dev: bump @types/node from 14.14.5 to 14.14.37 ([2d4131afe](https://github.com/mozilla/fxa/commit/2d4131afe))
+- deps-dev: bump ts-node from 8.10.2 to 9.1.1 ([78f6296fc](https://github.com/mozilla/fxa/commit/78f6296fc))
+
 ## 1.203.6
 
 No changes.

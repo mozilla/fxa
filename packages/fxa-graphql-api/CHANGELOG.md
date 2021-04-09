@@ -1,3 +1,28 @@
+## 1.203.7
+
+### New features
+
+- graphql-api: enhance must-change-password script to accept a plain text list ([bd7f60bf9](https://github.com/mozilla/fxa/commit/bd7f60bf9))
+- profile: create a monogram default avatar ([57d004be9](https://github.com/mozilla/fxa/commit/57d004be9))
+
+### Refactorings
+
+- auth: use direct db connection for reads ([f4dc15a81](https://github.com/mozilla/fxa/commit/f4dc15a81))
+
+### Other changes
+
+- deps-dev: bump @types/supertest from 2.0.10 to 2.0.11 ([a983465ae](https://github.com/mozilla/fxa/commit/a983465ae))
+- deps: bump @nestjs/mapped-types from 0.4.0 to 0.4.1 ([19f9af5cb](https://github.com/mozilla/fxa/commit/19f9af5cb))
+- deps: bump @nestjs/common from 7.6.13 to 7.6.15 ([95b1532d7](https://github.com/mozilla/fxa/commit/95b1532d7))
+- deps-dev: bump @types/yargs from 15.0.13 to 16.0.1 ([4f027af02](https://github.com/mozilla/fxa/commit/4f027af02))
+- deps: bump ioredis from 4.23.0 to 4.25.0 ([06cc94819](https://github.com/mozilla/fxa/commit/06cc94819))
+- deps: bump @nestjs/graphql from 7.9.10 to 7.10.3 ([959a6d324](https://github.com/mozilla/fxa/commit/959a6d324))
+- deps: bump apollo-datasource from 0.7.3 to 0.8.0 ([79eadf741](https://github.com/mozilla/fxa/commit/79eadf741))
+- deps: bump class-validator from 0.12.2 to 0.13.1 ([1f39c4e36](https://github.com/mozilla/fxa/commit/1f39c4e36))
+- deps-dev: bump @types/node from 14.14.5 to 14.14.37 ([2d4131afe](https://github.com/mozilla/fxa/commit/2d4131afe))
+- deps: bump apollo-server-express from 2.21.1 to 2.22.2 ([015021329](https://github.com/mozilla/fxa/commit/015021329))
+- deps-dev: bump ts-node from 8.10.2 to 9.1.1 ([78f6296fc](https://github.com/mozilla/fxa/commit/78f6296fc))
+
 ## 1.203.6
 
 ### New features

@@ -1,5 +1,36 @@
 # Change history
 
+## 1.203.7
+
+### New features
+
+- subscriptions: create subscriptions for existing PayPal customer ([7c4058585](https://github.com/mozilla/fxa/commit/7c4058585))
+- payments: Add processing screen for PayPal invalid billing agreement modal ([056dcba71](https://github.com/mozilla/fxa/commit/056dcba71))
+
+### Bug fixes
+
+- gql: dont report apollo errors ([27ae3ed33](https://github.com/mozilla/fxa/commit/27ae3ed33))
+
+### Refactorings
+
+- auth: use direct db connection for reads ([f4dc15a81](https://github.com/mozilla/fxa/commit/f4dc15a81))
+
+### Other changes
+
+- deps: bump @nestjs/mapped-types from 0.4.0 to 0.4.1 ([19f9af5cb](https://github.com/mozilla/fxa/commit/19f9af5cb))
+- deps: bump @nestjs/common from 7.6.13 to 7.6.15 ([95b1532d7](https://github.com/mozilla/fxa/commit/95b1532d7))
+- deps-dev: bump @nestjs/testing from 7.6.5 to 7.6.15 ([27b2c0358](https://github.com/mozilla/fxa/commit/27b2c0358))
+- deps: bump hot-shots from 8.3.0 to 8.3.1 ([8593d39cd](https://github.com/mozilla/fxa/commit/8593d39cd))
+- deps: bump @nestjs/graphql from 7.9.10 to 7.10.3 ([959a6d324](https://github.com/mozilla/fxa/commit/959a6d324))
+- deps: bump aws-sdk from 2.851.0 to 2.879.0 ([66e6e3e1f](https://github.com/mozilla/fxa/commit/66e6e3e1f))
+- deps: bump redis from 3.0.2 to 3.1.0 ([c5856f6bc](https://github.com/mozilla/fxa/commit/c5856f6bc))
+- deps-dev: bump @types/jest from 26.0.20 to 26.0.22 ([fd9972286](https://github.com/mozilla/fxa/commit/fd9972286))
+- deps: bump class-validator from 0.12.2 to 0.13.1 ([1f39c4e36](https://github.com/mozilla/fxa/commit/1f39c4e36))
+- deps-dev: bump @types/node from 14.14.5 to 14.14.37 ([2d4131afe](https://github.com/mozilla/fxa/commit/2d4131afe))
+- deps-dev: bump chai from 4.2.0 to 4.3.4 ([65530821d](https://github.com/mozilla/fxa/commit/65530821d))
+- deps: bump hot-shots from 8.2.0 to 8.3.0 ([da62dc16c](https://github.com/mozilla/fxa/commit/da62dc16c))
+- deps-dev: bump ts-node from 8.10.2 to 9.1.1 ([78f6296fc](https://github.com/mozilla/fxa/commit/78f6296fc))
+
 ## 1.203.6
 
 No changes.

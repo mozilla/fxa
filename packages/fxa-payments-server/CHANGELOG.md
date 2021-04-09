@@ -1,5 +1,35 @@
 # Change history
 
+## 1.203.7
+
+### New features
+
+- payments: Add processing screen for PayPal invalid billing agreement modal ([056dcba71](https://github.com/mozilla/fxa/commit/056dcba71))
+- fxa-payments-server: add paypal to subscription management ([a0aa9f8b8](https://github.com/mozilla/fxa/commit/a0aa9f8b8))
+
+### Bug fixes
+
+- fxa-payment-server: remove debugging code from ActionButton ([6a6d11377](https://github.com/mozilla/fxa/commit/6a6d11377))
+- fxa-payment-server: remove debugging code from ActionButton ([000c349ec](https://github.com/mozilla/fxa/commit/000c349ec))
+
+### Other changes
+
+- deps-dev: bump @typescript-eslint/parser from 2.33.0 to 4.21.0 ([9ead758c7](https://github.com/mozilla/fxa/commit/9ead758c7))
+- deps: bump hot-shots from 8.3.0 to 8.3.1 ([8593d39cd](https://github.com/mozilla/fxa/commit/8593d39cd))
+- deps-dev: bump @types/jest from 26.0.20 to 26.0.22 ([fd9972286](https://github.com/mozilla/fxa/commit/fd9972286))
+- fxa-payments-server: add paypal to subscription management"" ([d31f14b87](https://github.com/mozilla/fxa/commit/d31f14b87))
+- fxa-payments-server: add paypal to subscription management" ([097ae6075](https://github.com/mozilla/fxa/commit/097ae6075))
+- fxa-payments-server: Checkout error view layout issue ([4b50880ad](https://github.com/mozilla/fxa/commit/4b50880ad))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([ee0205595](https://github.com/mozilla/fxa/commit/ee0205595))
+- deps-dev: bump @types/node from 14.14.5 to 14.14.37 ([2d4131afe](https://github.com/mozilla/fxa/commit/2d4131afe))
+- deps: bump hot-shots from 8.2.0 to 8.3.0 ([da62dc16c](https://github.com/mozilla/fxa/commit/da62dc16c))
+- deps-dev: bump ts-node from 8.10.2 to 9.1.1 ([78f6296fc](https://github.com/mozilla/fxa/commit/78f6296fc))
+- deps-dev: downgrade @storybook/react from 6.1.21 to 5.3.19 ([c670cc984](https://github.com/mozilla/fxa/commit/c670cc984))
+- subscriptions: match alert bar width to content ([53ff63bf2](https://github.com/mozilla/fxa/commit/53ff63bf2))
+- deps-dev: bump @types/react-transition-group from 4.4.0 to 4.4.1 ([671ba5be0](https://github.com/mozilla/fxa/commit/671ba5be0))
+- deps: bump @stripe/react-stripe-js from 1.2.0 to 1.4.0 ([912647092](https://github.com/mozilla/fxa/commit/912647092))
+- payments: Fix missing American Express logo ([735840cee](https://github.com/mozilla/fxa/commit/735840cee))
+
 ## 1.203.6
 
 No changes.

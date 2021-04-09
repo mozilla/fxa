@@ -1,3 +1,50 @@
+## 1.203.7
+
+### New features
+
+- profile: create a monogram default avatar ([57d004be9](https://github.com/mozilla/fxa/commit/57d004be9))
+
+### Bug fixes
+
+- fxa-settings: change Close button to Cancel in delete ([1265a5dc7](https://github.com/mozilla/fxa/commit/1265a5dc7))
+- bug: Set email in text file download from recovery keys/codes ([ed7d314b2](https://github.com/mozilla/fxa/commit/ed7d314b2))
+- bug: Redirect to client/services page from legacy link ([bfe58b92c](https://github.com/mozilla/fxa/commit/bfe58b92c))
+- tests: get avatar functional tests working ([b43be01ef](https://github.com/mozilla/fxa/commit/b43be01ef))
+- fxa-settings: change Close button to Cancel ([accc148fd](https://github.com/mozilla/fxa/commit/accc148fd))
+- fxa-settings: make Add Photo and Take photo buttons consistent with Figma Because: names of the buttons are too close to the icons ([d2ab42d52](https://github.com/mozilla/fxa/commit/d2ab42d52))
+- fxa-settings: make Save button stable Because: Save was not consistent ([eeb0531ec](https://github.com/mozilla/fxa/commit/eeb0531ec))
+- fxa-settings: fixes modal padding for recovery and 2FA ([afaa4cae9](https://github.com/mozilla/fxa/commit/afaa4cae9))
+- l10n: Fix remaining localization issues ([dc85fb4c2](https://github.com/mozilla/fxa/commit/dc85fb4c2))
+- fxa-settings: add focus effect to Bento icon ([7744c2df2](https://github.com/mozilla/fxa/commit/7744c2df2))
+- fxa-settings: make eye behavior for password consistent ([f699152c7](https://github.com/mozilla/fxa/commit/f699152c7))
+- fxa-settings: add background in menu category ([b73040f0b](https://github.com/mozilla/fxa/commit/b73040f0b))
+- settings: picture buttons are correctly aligned to right ([68bc01f98](https://github.com/mozilla/fxa/commit/68bc01f98))
+- Settings: Add correct 'Replacing your recovery codes' 2FA link ([0230056e8](https://github.com/mozilla/fxa/commit/0230056e8))
+- l10n: Localize ModalVerifySession component ([094a40333](https://github.com/mozilla/fxa/commit/094a40333))
+- settings: call direct to auth-server for changes that send email ([05e09e05d](https://github.com/mozilla/fxa/commit/05e09e05d))
+- tests: get oauth_settings_clients test passing ([34ca8ccc2](https://github.com/mozilla/fxa/commit/34ca8ccc2))
+- l10n: Localize BentoMenu component ([56a2dba43](https://github.com/mozilla/fxa/commit/56a2dba43))
+- l10n: Localize DropDownAvatarMenu component ([8abdcfe4f](https://github.com/mozilla/fxa/commit/8abdcfe4f))
+- settings: fulfilling the requested change ([94ce8125f](https://github.com/mozilla/fxa/commit/94ce8125f))
+- settings: resolve ci tests failing problem ([fc9b59686](https://github.com/mozilla/fxa/commit/fc9b59686))
+- l10n: Fix recovery key l10n issues ([5ad103343](https://github.com/mozilla/fxa/commit/5ad103343))
+- settings: resolve two auth new recovery code styling issue ([aa3606d35](https://github.com/mozilla/fxa/commit/aa3606d35))
+
+### Other changes
+
+- fxa-settings: ee8bc507b style (fxa-settings) apply consistency to smaller breakpoints ([ee8bc507b](https://github.com/mozilla/fxa/commit/ee8bc507b))
+- fxa-settings: aremove extra semi-colon in scss ([01793c5ac](https://github.com/mozilla/fxa/commit/01793c5ac))
+- fxa-settings: add outline border for caution btn on focus ([5fe86fb85](https://github.com/mozilla/fxa/commit/5fe86fb85))
+- fxa-settings: a686a0625 style (fxa-settings) align category headers to subcategroies ([a686a0625](https://github.com/mozilla/fxa/commit/a686a0625))
+- fxa-settings: change border of red buttons on focus from none to transparent ([015bab685](https://github.com/mozilla/fxa/commit/015bab685))
+- deps-dev: bump @types/jest from 26.0.20 to 26.0.22 ([fd9972286](https://github.com/mozilla/fxa/commit/fd9972286))
+- deps: bump react-async-hook from 3.6.1 to 3.6.2 ([3b7c41ef7](https://github.com/mozilla/fxa/commit/3b7c41ef7))
+- deps-dev: bump @types/node from 14.14.5 to 14.14.37 ([2d4131afe](https://github.com/mozilla/fxa/commit/2d4131afe))
+- deps-dev: bump webpack-merge-and-include-globally ([85d66ef0e](https://github.com/mozilla/fxa/commit/85d66ef0e))
+- deps-dev: downgrade @storybook/react from 6.1.21 to 5.3.19 ([c670cc984](https://github.com/mozilla/fxa/commit/c670cc984))
+- deps: bump @apollo/client from 3.3.11 to 3.3.13 ([498af659b](https://github.com/mozilla/fxa/commit/498af659b))
+- deps: bump react-hook-form from 6.15.4 to 6.15.5 ([a81f2100a](https://github.com/mozilla/fxa/commit/a81f2100a))
+
 ## 1.203.6
 
 ### New features

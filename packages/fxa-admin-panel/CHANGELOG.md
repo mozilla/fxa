@@ -1,3 +1,16 @@
+## 1.203.7
+
+### Other changes
+
+- deps-dev: bump @types/supertest from 2.0.10 to 2.0.11 ([a983465ae](https://github.com/mozilla/fxa/commit/a983465ae))
+- deps-dev: bump @typescript-eslint/parser from 2.33.0 to 4.21.0 ([9ead758c7](https://github.com/mozilla/fxa/commit/9ead758c7))
+- deps-dev: bump @types/jest from 26.0.20 to 26.0.22 ([fd9972286](https://github.com/mozilla/fxa/commit/fd9972286))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([ee0205595](https://github.com/mozilla/fxa/commit/ee0205595))
+- deps-dev: bump ts-node from 8.10.2 to 9.1.1 ([78f6296fc](https://github.com/mozilla/fxa/commit/78f6296fc))
+- deps-dev: downgrade @storybook/react from 6.1.21 to 5.3.19 ([c670cc984](https://github.com/mozilla/fxa/commit/c670cc984))
+- deps: bump @apollo/client from 3.3.11 to 3.3.13 ([498af659b](https://github.com/mozilla/fxa/commit/498af659b))
+- deps-dev: bump @types/serve-static from 1.13.5 to 1.13.9 ([92ff1a1e1](https://github.com/mozilla/fxa/commit/92ff1a1e1))
+
 ## 1.203.6
 
 No changes.

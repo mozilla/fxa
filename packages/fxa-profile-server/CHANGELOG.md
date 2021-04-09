@@ -1,3 +1,14 @@
+## 1.203.7
+
+### New features
+
+- profile: create a monogram default avatar ([57d004be9](https://github.com/mozilla/fxa/commit/57d004be9))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.851.0 to 2.879.0 ([66e6e3e1f](https://github.com/mozilla/fxa/commit/66e6e3e1f))
+- deps: bump sharp from 0.27.2 to 0.28.0 ([019624fe9](https://github.com/mozilla/fxa/commit/019624fe9))
+
 ## 1.203.6
 
 ### New features

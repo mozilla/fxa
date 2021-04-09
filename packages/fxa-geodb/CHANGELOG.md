@@ -1,5 +1,11 @@
 # Change history
 
+## 1.203.7
+
+### Other changes
+
+- deps-dev: bump chai from 4.2.0 to 4.3.4 ([65530821d](https://github.com/mozilla/fxa/commit/65530821d))
+
 ## 1.203.6
 
 No changes.

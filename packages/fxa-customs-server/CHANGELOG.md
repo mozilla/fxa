@@ -1,3 +1,10 @@
+## 1.203.7
+
+### Other changes
+
+- deps-dev: bump grunt-cli from 1.3.2 to 1.4.1 ([e1a79b550](https://github.com/mozilla/fxa/commit/e1a79b550))
+- deps-dev: bump chai from 4.2.0 to 4.3.4 ([65530821d](https://github.com/mozilla/fxa/commit/65530821d))
+
 ## 1.203.6
 
 No changes.

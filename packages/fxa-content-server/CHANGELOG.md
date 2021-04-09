@@ -1,3 +1,39 @@
+## 1.203.7
+
+### New features
+
+- profile: create a monogram default avatar ([57d004be9](https://github.com/mozilla/fxa/commit/57d004be9))
+
+### Bug fixes
+
+- bug: Redirect to client/services page from legacy link ([bfe58b92c](https://github.com/mozilla/fxa/commit/bfe58b92c))
+- tests: get avatar functional tests working ([b43be01ef](https://github.com/mozilla/fxa/commit/b43be01ef))
+- tests: re-enable reset_password test ([568b39591](https://github.com/mozilla/fxa/commit/568b39591))
+- tests: update selectors to get email_opt_in passing ([ab81ef594](https://github.com/mozilla/fxa/commit/ab81ef594))
+- tests: get sign_in_blocked tests passing ([5d3bcab75](https://github.com/mozilla/fxa/commit/5d3bcab75))
+- codes: Fix issue where user could not login if they have low recovery codes ([35769e8f2](https://github.com/mozilla/fxa/commit/35769e8f2))
+- tests: get oauth_settings_clients test passing ([34ca8ccc2](https://github.com/mozilla/fxa/commit/34ca8ccc2))
+- tests: get sign_in functional tests passing ([e04640969](https://github.com/mozilla/fxa/commit/e04640969))
+- l10n: Localize BentoMenu component ([56a2dba43](https://github.com/mozilla/fxa/commit/56a2dba43))
+- tests: re-enable all but the broken functional tests ([a76a73bd7](https://github.com/mozilla/fxa/commit/a76a73bd7))
+- tests: get oauth_sign_in tests passing ([a5a07f751](https://github.com/mozilla/fxa/commit/a5a07f751))
+- tests: correct error selector in cookies_disabled test ([dd2e1fa7e](https://github.com/mozilla/fxa/commit/dd2e1fa7e))
+- tests: update sign out flow in force_auth test ([6ec6eb8a1](https://github.com/mozilla/fxa/commit/6ec6eb8a1))
+- tests: fix and re-enable mocha tests ([0017686b4](https://github.com/mozilla/fxa/commit/0017686b4))
+- tests: fix and re-enable sign_up_with_code.js ([93c0fdd31](https://github.com/mozilla/fxa/commit/93c0fdd31))
+- path: Update location of settings page on disk ([e023bd1e6](https://github.com/mozilla/fxa/commit/e023bd1e6))
+
+### Other changes
+
+- chore: echo firefox version when running circle ci tests ([f559103a5](https://github.com/mozilla/fxa/commit/f559103a5))
+- deps: bump hot-shots from 8.3.0 to 8.3.1 ([8593d39cd](https://github.com/mozilla/fxa/commit/8593d39cd))
+- deps-dev: bump @babel/cli from 7.7.4 to 7.13.14 ([df09c6e86](https://github.com/mozilla/fxa/commit/df09c6e86))
+- deps-dev: bump got from 11.8.0 to 11.8.2 ([95ed39e98](https://github.com/mozilla/fxa/commit/95ed39e98))
+- deps-dev: bump chai from 4.2.0 to 4.3.4 ([65530821d](https://github.com/mozilla/fxa/commit/65530821d))
+- deps: bump hot-shots from 8.2.0 to 8.3.0 ([da62dc16c](https://github.com/mozilla/fxa/commit/da62dc16c))
+- deps-dev: bump ts-node from 8.10.2 to 9.1.1 ([78f6296fc](https://github.com/mozilla/fxa/commit/78f6296fc))
+- deps-dev: bump sinon-chai from 3.5.0 to 3.6.0 ([f3f1fe814](https://github.com/mozilla/fxa/commit/f3f1fe814))
+
 ## 1.203.6
 
 ### New features

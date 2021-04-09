@@ -1,3 +1,18 @@
+## 1.203.7
+
+### Bug fixes
+
+- fxa-settings: make Save button stable Because: Save was not consistent ([eeb0531ec](https://github.com/mozilla/fxa/commit/eeb0531ec))
+- fxa-settings: add background in menu category ([b73040f0b](https://github.com/mozilla/fxa/commit/b73040f0b))
+
+### Other changes
+
+- fxa-settings: add outline border for caution btn on focus ([5fe86fb85](https://github.com/mozilla/fxa/commit/5fe86fb85))
+- deps-dev: bump @types/jest from 26.0.20 to 26.0.22 ([fd9972286](https://github.com/mozilla/fxa/commit/fd9972286))
+- deps-dev: bump @types/node from 14.14.5 to 14.14.37 ([2d4131afe](https://github.com/mozilla/fxa/commit/2d4131afe))
+- deps-dev: downgrade @storybook/react from 6.1.21 to 5.3.19 ([c670cc984](https://github.com/mozilla/fxa/commit/c670cc984))
+- deps-dev: bump @types/react-transition-group from 4.4.0 to 4.4.1 ([671ba5be0](https://github.com/mozilla/fxa/commit/671ba5be0))
+
 ## 1.203.6
 
 No changes.
