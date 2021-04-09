@@ -101,13 +101,12 @@ registerSuite('Firefox Desktop Sync v3 settings', {
 
     'sign in, delete the account': function () {
       return this.remote
-        .then(click(selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON))
+        .then(click(selectors.SETTINGS_DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON))
         .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
 
         .then(fillOutDeleteAccount(FIRST_PASSWORD))
-        .then(testIsBrowserNotified('fxaccounts:delete'))
 
-        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER));
     },
 
     'sign in, no way to sign out': function () {

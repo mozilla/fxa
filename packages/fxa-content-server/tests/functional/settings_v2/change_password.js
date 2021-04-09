@@ -99,6 +99,7 @@ describe('change password', () => {
   });
 
   it('click forgot password link', async ({ remote }) => {
+    await clearBrowserState(remote);
     await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
     await fillOutEmailFirstSignIn(email, password, remote);
     await click(

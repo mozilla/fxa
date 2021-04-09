@@ -28,6 +28,7 @@ export const Profile = () => {
             headerId="profile-picture"
             headerValue={!avatar.isDefault}
             route={`${HomePath}/avatar`}
+            prefixDataTestId="avatar"
             {...{ avatar }}
           />
         </Localized>
