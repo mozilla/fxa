@@ -83,7 +83,7 @@ export const InputText = ({
       ${disabled ? 'border-grey-100 bg-grey-10' : 'bg-white'} ${className}`}
       data-testid={formatDataTestId('input-container')}
     >
-      <span className="block relative flex-auto">
+      <span className="block flex-auto">
         <span
           className={classNames(
             'px-3 w-full cursor-text absolute text-sm origin-top-left transition-all duration-100 ease-in-out truncate font-body',

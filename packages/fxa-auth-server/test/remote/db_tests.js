@@ -77,7 +77,7 @@ describe('remote db', function () {
     return TestServer.start(config)
       .then((s) => {
         dbServer = s;
-        return DB.connect(config[config.db.backend]);
+        return DB.connect(config);
       })
       .then((x) => {
         db = x;
@@ -194,11 +194,6 @@ describe('remote db', function () {
       .then((sessions) => {
         assert.equal(sessions.length, 1, 'sessions contains one item');
         assert.equal(
-          Object.keys(sessions[0]).length,
-          20,
-          'session has correct number of properties'
-        );
-        assert.equal(
           typeof sessions[0].id,
           'string',
           'id property is not a buffer'
@@ -291,11 +286,6 @@ describe('remote db', function () {
       })
       .then((sessions) => {
         assert.equal(sessions.length, 1, 'sessions contains one item');
-        assert.equal(
-          Object.keys(sessions[0]).length,
-          20,
-          'session has correct number of properties'
-        );
         assert.equal(sessions[0].uid, account.uid, 'uid property is correct');
         assert.equal(
           sessions[0].lastAccessTime,
@@ -1399,7 +1389,7 @@ describe('remote db', function () {
   });
 
   it('signinCodes', () => {
-    let previousCode;
+    let previousCode, stub;
     const flowId = crypto.randomBytes(32).toString('hex');
 
     // Create a signinCode without a flowId
@@ -1420,10 +1410,7 @@ describe('remote db', function () {
         previousCode = code;
 
         // Stub crypto.randomBytes to return a duplicate code
-        sinon.stub(crypto, 'randomBytes').callsFake((size, callback) => {
-          // Reinstate the real crypto.randomBytes after we've returned a duplicate
-          crypto.randomBytes.restore();
-
+        stub = sinon.stub(crypto, 'randomBytes').callsFake((size, callback) => {
           if (!callback) {
             return previousCode;
           }
@@ -1436,6 +1423,7 @@ describe('remote db', function () {
         return db.createSigninCode(account.uid, flowId);
       })
       .then((code) => {
+        stub.restore();
         assert.equal(
           typeof code,
           'string',

@@ -108,7 +108,7 @@ describe('PaypalProcessor', () => {
       );
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.cancelSubscription,
-        paidInvoice.subscription
+        paidInvoice.subscription.id
       );
     });
   });
@@ -611,9 +611,13 @@ describe('PaypalProcessor', () => {
         },
       });
       await processor.processInvoices();
-      sinon.assert.calledOnceWithExactly(mockLog.info, 'processInvoice', {
-        invoiceId: invoice.id,
-      });
+      sinon.assert.calledOnceWithExactly(
+        mockLog.info,
+        'processInvoice.processing',
+        {
+          invoiceId: invoice.id,
+        }
+      );
       sinon.assert.notCalled(mockLog.error);
     });
 
@@ -632,11 +636,16 @@ describe('PaypalProcessor', () => {
         await processor.processInvoices();
         assert.fail('Process invoicce should fail');
       } catch (err) {
-        sinon.assert.calledOnceWithExactly(mockLog.info, 'processInvoice', {
-          invoiceId: invoice.id,
-        });
+        sinon.assert.calledOnceWithExactly(
+          mockLog.info,
+          'processInvoice.processing',
+          {
+            invoiceId: invoice.id,
+          }
+        );
         sinon.assert.calledOnceWithExactly(mockLog.error, 'processInvoice', {
           err: throwErr,
+          nvpData: undefined,
           invoiceId: invoice.id,
         });
       }

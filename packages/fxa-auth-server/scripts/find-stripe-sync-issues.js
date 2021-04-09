@@ -42,7 +42,7 @@ async function init() {
     process.env.SUBHUB_STRIPE_APIKEY = program.stripeKey;
   }
 
-  const db = await DB.connect(config[config.db.backend]);
+  const db = await DB.connect(config);
 
   const { createStripeHelper } = require('../lib/payments/stripe');
   const stripeHelper = createStripeHelper(log, config);

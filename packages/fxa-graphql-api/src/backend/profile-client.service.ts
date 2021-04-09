@@ -79,4 +79,12 @@ export class ProfileClientService {
 
     return result.text === '{}';
   }
+
+  public async getProfile(token: string) {
+    const accessToken = await this.fetchToken(token);
+    const result = await superagent
+      .get(this.profileServerUrl + '/profile')
+      .set('Authorization', 'Bearer ' + accessToken);
+    return JSON.parse(result.text);
+  }
 }

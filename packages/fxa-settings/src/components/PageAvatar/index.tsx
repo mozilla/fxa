@@ -61,7 +61,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
         id: cache.identify({ __typename: 'Account' }),
         fields: {
           avatar() {
-            return newAvatar;
+            return { ...newAvatar, isDefault: false };
           },
         },
       });
@@ -331,7 +331,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
                     }}
                   />
                 )}
-                {avatar.url && !capturing && <RemovePhotoBtn />}
+                {!avatar.isDefault && !capturing && <RemovePhotoBtn />}
               </div>
               {confirmBtns}
             </>

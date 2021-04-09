@@ -115,6 +115,7 @@ const Q_SELECTED_AVATAR =
   'avatar_selected ON (avatars.id = avatar_selected.avatarId) WHERE ' +
   'avatars.userId=? AND avatar_selected.avatarId IS NOT NULL';
 const Q_AVATAR_DELETE = 'DELETE FROM avatars WHERE id=?';
+const Q_USER_AVATARS_DELETE = 'DELETE FROM avatars where userId=?';
 
 const Q_PROVIDER_INSERT = 'INSERT INTO avatar_providers (name) VALUES (?)';
 const Q_PROVIDER_GET_BY_NAME = 'SELECT * FROM avatar_providers WHERE name=?';
@@ -183,6 +184,10 @@ MysqlStore.prototype = {
 
   deleteAvatar: function deleteAvatar(id) {
     return this._write(Q_AVATAR_DELETE, [buf(id)]);
+  },
+
+  deleteUserAvatars: function deleteUserAvatars(uid) {
+    return this._write(Q_USER_AVATARS_DELETE, [buf(uid)]);
   },
 
   addProvider: function addProvider(name) {

@@ -25,6 +25,7 @@ const {
   fillOutSignUpCode,
   openPage,
   openTab,
+  signOut,
   switchToWindow,
   testAttributeMatches,
   testElementExists,
@@ -160,9 +161,8 @@ registerSuite('signin', {
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           // success is seeing the header
-          .then(visibleByQSA(selectors.SETTINGS.HEADER))
           .then(testElementExists(selectors.SETTINGS.HEADER))
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+          .then(signOut())
 
           // login as existing user
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
@@ -176,7 +176,7 @@ registerSuite('signin', {
           .then(click(selectors.SIGNIN.SUBMIT))
 
           // success is seeing the existing user logged in
-          .then(visibleByQSA(selectors.SETTINGS.HEADER))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 

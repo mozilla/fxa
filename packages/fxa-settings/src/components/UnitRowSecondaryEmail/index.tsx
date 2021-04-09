@@ -3,17 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode, useState } from 'react';
-import { gql } from '@apollo/client';
+import { gql, Reference } from '@apollo/client';
 import { useNavigate } from '@reach/router';
 import firefox from '../../lib/firefox';
-import { useAlertBar, useMutation } from '../../lib/hooks';
-import { useAccount, useLazyAccount, Email } from '../../models';
+import { useAlertBar } from '../../lib/hooks';
+import { useAccount, useLazyAccount, Email, getNextAvatar } from '../../models';
 import UnitRow from '../UnitRow';
 import AlertBar from '../AlertBar';
 import ModalVerifySession from '../ModalVerifySession';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
-import { HomePath } from 'fxa-settings/src/constants';
+import { HomePath } from '../../constants';
+import { useAuthClient } from '../../lib/auth';
+import { cache } from '../../lib/cache';
 
 export const RESEND_EMAIL_CODE_MUTATION = gql`
   mutation resendSecondaryEmailCode($input: EmailInput!) {
@@ -49,7 +51,6 @@ export const UnitRowSecondaryEmail = () => {
   const navigate = useNavigate();
   const alertBar = useAlertBar();
   const [queuedAction, setQueuedAction] = useState<() => void>();
-  const [email, setEmail] = useState<string>('');
   const { l10n } = useLocalization();
 
   const secondaryEmails = account.emails.filter((email) => !email.isPrimary);
@@ -68,44 +69,34 @@ export const UnitRowSecondaryEmail = () => {
     );
   });
 
-  const [resendEmailCode] = useMutation(RESEND_EMAIL_CODE_MUTATION, {
-    onCompleted() {
-      navigate(`${HomePath}/emails/verify`, { state: { email } });
+  const resendEmailCode = useAuthClient(
+    (auth, sessionToken) => async (email: string) => {
+      await auth.recoveryEmailSecondaryResendCode(sessionToken, email);
+      return email;
     },
-    onError(error) {
-      alertBar.error(
-        l10n.getString(
-          'se-cannot-resend-code',
-          null,
-          'Sorry, there was a problem re-sending the verification code.'
-        )
-      );
-    },
-  });
-
-  const [makeEmailPrimary, { loading: makeEmailPrimaryLoading }] = useMutation(
-    MAKE_EMAIL_PRIMARY_MUTATION,
     {
-      onCompleted() {
-        firefox.profileChanged(account.uid);
-        alertBar.success(
-          l10n.getString(
-            'se-set-primary-successful',
-            { email },
-            `${email} is now your primary email.`
-          )
-        );
+      onSuccess: (email) => {
+        navigate(`${HomePath}/emails/verify`, { state: { email } });
       },
-      onError(error) {
+      onError: () => {
         alertBar.error(
           l10n.getString(
-            'se-set-primary-error',
+            'se-cannot-resend-code',
             null,
-            'Sorry, there was a problem changing your primary email.'
+            'Sorry, there was a problem re-sending the verification code.'
           )
         );
       },
-      update: (cache) => {
+    }
+  );
+
+  const makeEmailPrimary = useAuthClient(
+    (auth, sessionToken) => async (email: string) => {
+      await auth.recoveryEmailSetPrimaryEmail(sessionToken, email);
+      return email;
+    },
+    {
+      onSuccess: (email) => {
         cache.modify({
           id: cache.identify({ __typename: 'Account' }),
           fields: {
@@ -120,34 +111,41 @@ export const UnitRowSecondaryEmail = () => {
                 return e;
               });
             },
+            avatar(existing: Reference, { readField }) {
+              const id = readField<string>('id', existing);
+              const oldUrl = readField<string>('url', existing);
+              return getNextAvatar(id, oldUrl, email, account.displayName);
+            },
           },
         });
+        firefox.profileChanged(account.uid);
+        alertBar.success(
+          l10n.getString(
+            'se-set-primary-successful',
+            { email },
+            `${email} is now your primary email.`
+          )
+        );
+      },
+      onError: () => {
+        alertBar.error(
+          l10n.getString(
+            'se-set-primary-error',
+            null,
+            'Sorry, there was a problem changing your primary email.'
+          )
+        );
       },
     }
   );
 
-  const [deleteEmail, { loading: deleteEmailLoading }] = useMutation(
-    DELETE_EMAIL_MUTATION,
+  const deleteEmail = useAuthClient(
+    (auth, sessionToken) => async (email: string) => {
+      await auth.recoveryEmailDestroy(sessionToken, email);
+      return email;
+    },
     {
-      onCompleted() {
-        alertBar.success(
-          l10n.getString(
-            'se-delete-email-successful',
-            { email },
-            `${email} successfully deleted.`
-          )
-        );
-      },
-      onError(error) {
-        alertBar.error(
-          l10n.getString(
-            'se-delete-email-error',
-            null,
-            `Sorry, there was a problem deleting this email.`
-          )
-        );
-      },
-      update: (cache) => {
+      onSuccess: (email) => {
         cache.modify({
           id: cache.identify({ __typename: 'Account' }),
           fields: {
@@ -161,6 +159,22 @@ export const UnitRowSecondaryEmail = () => {
             },
           },
         });
+        alertBar.success(
+          l10n.getString(
+            'se-delete-email-successful',
+            { email },
+            `${email} successfully deleted.`
+          )
+        );
+      },
+      onError: () => {
+        alertBar.error(
+          l10n.getString(
+            'se-delete-email-error',
+            null,
+            `Sorry, there was a problem deleting this email.`
+          )
+        );
       },
     }
   );
@@ -228,14 +242,11 @@ export const UnitRowSecondaryEmail = () => {
     secondary: { email, verified },
     isLastVerifiedSecondaryEmail,
   }: UnitRowSecondaryEmailContentAndActionsProps) => {
-    const queueEmailAction = (action: (...args: any[]) => void) => {
-      setEmail(email);
+    const queueEmailAction = (action: () => void) => {
       setQueuedAction(() => {
         return () => {
           setQueuedAction(undefined);
-          action({
-            variables: { input: { email } },
-          });
+          action();
         };
       });
     };
@@ -258,9 +269,9 @@ export const UnitRowSecondaryEmail = () => {
                     <ButtonIconTrash
                       title="Remove email"
                       classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
-                      disabled={deleteEmailLoading}
+                      disabled={deleteEmail.loading}
                       onClick={() => {
-                        queueEmailAction(deleteEmail);
+                        queueEmailAction(() => deleteEmail.execute(email));
                       }}
                     />
                   </Localized>
@@ -296,10 +307,7 @@ export const UnitRowSecondaryEmail = () => {
                       className="link-blue mx-1"
                       data-testid="secondary-email-resend-code-button"
                       onClick={() => {
-                        setEmail(email);
-                        resendEmailCode({
-                          variables: { input: { email } },
-                        });
+                        resendEmailCode.execute(email);
                       }}
                     />
                   ),
@@ -311,10 +319,7 @@ export const UnitRowSecondaryEmail = () => {
                     className="link-blue mx-1"
                     data-testid="secondary-email-resend-code-button"
                     onClick={() => {
-                      setEmail(email);
-                      resendEmailCode({
-                        variables: { input: { email } },
-                      });
+                      resendEmailCode.execute(email);
                     }}
                   >
                     Resend verification code
@@ -332,10 +337,10 @@ export const UnitRowSecondaryEmail = () => {
               {verified && (
                 <Localized id="se-make-primary">
                   <button
-                    disabled={makeEmailPrimaryLoading}
+                    disabled={makeEmailPrimary.loading}
                     className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
                     onClick={() => {
-                      queueEmailAction(makeEmailPrimary);
+                      queueEmailAction(() => makeEmailPrimary.execute(email));
                     }}
                     data-testid="secondary-email-make-primary"
                   >
@@ -347,10 +352,10 @@ export const UnitRowSecondaryEmail = () => {
                 <ButtonIconTrash
                   title="Remove email"
                   classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
-                  disabled={deleteEmailLoading}
+                  disabled={deleteEmail.loading}
                   testId="secondary-email-delete"
                   onClick={() => {
-                    queueEmailAction(deleteEmail);
+                    queueEmailAction(() => deleteEmail.execute(email));
                   }}
                 />
               </Localized>

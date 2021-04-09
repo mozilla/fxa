@@ -372,7 +372,7 @@ describe('PayPalNotificationHandler', () => {
       sandbox
         .stub(authDbModule, 'getPayPalBAByBAId')
         .resolves(billingAgreement);
-      sandbox.stub(authDbModule, 'accountByUid').resolves(account);
+      sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
       stripeHelper.customer = sinon.fake.resolves({
         ...customer,
         subscriptions,
@@ -390,7 +390,7 @@ describe('PayPalNotificationHandler', () => {
         billingAgreementCancelNotification.mp_id
       );
       sinon.assert.calledOnceWithExactly(
-        authDbModule.accountByUid,
+        authDbModule.Account.findByUid,
         billingAgreement.uid,
         { include: ['emails'] }
       );
@@ -460,7 +460,7 @@ describe('PayPalNotificationHandler', () => {
       sandbox
         .stub(authDbModule, 'getPayPalBAByBAId')
         .resolves(billingAgreement);
-      sandbox.stub(authDbModule, 'accountByUid').resolves(undefined);
+      sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
@@ -472,7 +472,7 @@ describe('PayPalNotificationHandler', () => {
         billingAgreementCancelNotification.mp_id
       );
       sinon.assert.calledOnceWithExactly(
-        authDbModule.accountByUid,
+        authDbModule.Account.findByUid,
         billingAgreement.uid,
         { include: ['emails'] }
       );
@@ -488,7 +488,7 @@ describe('PayPalNotificationHandler', () => {
       sandbox
         .stub(authDbModule, 'getPayPalBAByBAId')
         .resolves(billingAgreement);
-      sandbox.stub(authDbModule, 'accountByUid').resolves(account);
+      sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
       stripeHelper.customer = sinon.fake.resolves(undefined);
 
       const result = await handler.handleMpCancel(
@@ -501,7 +501,7 @@ describe('PayPalNotificationHandler', () => {
         billingAgreementCancelNotification.mp_id
       );
       sinon.assert.calledOnceWithExactly(
-        authDbModule.accountByUid,
+        authDbModule.Account.findByUid,
         billingAgreement.uid,
         { include: ['emails'] }
       );
@@ -521,7 +521,7 @@ describe('PayPalNotificationHandler', () => {
       sandbox
         .stub(authDbModule, 'getPayPalBAByBAId')
         .resolves(billingAgreement);
-      sandbox.stub(authDbModule, 'accountByUid').resolves(account);
+      sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
       stripeHelper.customer = sinon.fake.resolves({
         ...customer,
         subscriptions: undefined,
@@ -539,7 +539,7 @@ describe('PayPalNotificationHandler', () => {
         billingAgreementCancelNotification.mp_id
       );
       sinon.assert.calledOnceWithExactly(
-        authDbModule.accountByUid,
+        authDbModule.Account.findByUid,
         billingAgreement.uid,
         { include: ['emails'] }
       );
@@ -574,7 +574,8 @@ describe('PayPalNotificationHandler', () => {
       sandbox
         .stub(authDbModule, 'getPayPalBAByBAId')
         .resolves(billingAgreement);
-      sandbox.stub(authDbModule, 'accountByUid').resolves(mockAcct);
+
+      sandbox.stub(authDbModule.Account, 'findByUid').resolves(mockAcct);
       stripeHelper.customer = sinon.fake.resolves(mockCustomer);
       stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
       stripeHelper.getPaymentProvider = sinon.fake.returns('paypal');

@@ -29,3 +29,41 @@ export const intBoolTransformer = {
   to: (v: any) => (v ? 1 : 0),
   from: (v: any) => !!v,
 };
+
+export function aggregateNameValuePairs(
+  rows: object[],
+  idColumn: string,
+  nameColumn: string,
+  valueColumn: string,
+  resultColumn: string
+): object[] {
+  return (rows as any[]).reduce((items, row) => {
+    let curItem = items[items.length - 1];
+    // Start a new aggregated item if:
+    //   * we're at the start of the list, or
+    //   * the upcoming row has a different id then previous.
+    //   * the upcoming row has a NULL id (because NULLs never equal each other)
+    if (
+      !curItem ||
+      !row[idColumn] ||
+      !curItem[idColumn] ||
+      !row[idColumn].equals(curItem[idColumn])
+    ) {
+      curItem = {};
+      Object.keys(row).forEach((column) => {
+        if (column !== nameColumn && column !== valueColumn) {
+          curItem[column] = row[column];
+        }
+      });
+      // If the id was NULL, this row must have resulted from
+      // an outer join with no match in the joined table.
+      // The correct aggregated result in this case is NULL.
+      curItem[resultColumn] = row[idColumn] ? {} : null;
+      items.push(curItem);
+    }
+    if (row[nameColumn]) {
+      curItem[resultColumn][row[nameColumn]] = row[valueColumn];
+    }
+    return items;
+  }, []);
+}

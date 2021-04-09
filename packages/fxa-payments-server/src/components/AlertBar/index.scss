@@ -1,3 +1,13 @@
+@import '../../../../fxa-content-server/app/styles/breakpoints';
+
+.portal#top-bar {
+  padding: 0 32px;
+
+  @include respond-to('small') {
+    padding: 0;
+  }
+}
+
 #top-bar .alert {
   background: rgba(0, 0, 0, 0.1);
   font-weight: bold;
@@ -7,6 +17,7 @@
   text-align: center;
 }
 
+#top-bar .alertError,
 #top-bar .alertSuccess {
   background: #1d1133;
   color: #fff;
@@ -21,6 +32,10 @@
       fill: #fff;
     }
   }
+}
+
+#top-bar .alertError {
+  background: #FF4F5E;
 }
 
 .alert span.checked::before {
@@ -38,5 +53,9 @@
   border-radius: 6px;
   margin: 0 auto;
   position: relative;
-  width: 80%;
+  width: 100%;
+
+  @include respond-to('big') {
+    max-width: 640px;
+  }
 }

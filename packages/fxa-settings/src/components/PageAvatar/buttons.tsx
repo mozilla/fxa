@@ -9,7 +9,7 @@ import { useNavigate } from '@reach/router';
 import { Localized, useLocalization } from '@fluent/react';
 import { useAlertBar } from '../../lib/hooks';
 import firefox from '../../lib/firefox';
-import { useAccount } from '../../models';
+import { useAccount, getNextAvatar } from '../../models';
 
 import { HomePath } from '../../constants';
 import ButtonIcon from '../ButtonIcon';
@@ -42,7 +42,7 @@ export const DELETE_AVATAR_MUTATION = gql`
 export const RemovePhotoBtn = () => {
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const { uid, avatar } = useAccount();
+  const { uid, avatar, primaryEmail, displayName } = useAccount();
   const { l10n } = useLocalization();
 
   const [deleteAvatar] = useMutation(DELETE_AVATAR_MUTATION, {
@@ -59,7 +59,12 @@ export const RemovePhotoBtn = () => {
         id: cache.identify({ __typename: 'Account' }),
         fields: {
           avatar() {
-            return { id: null, url: null };
+            return getNextAvatar(
+              undefined,
+              undefined,
+              primaryEmail.email,
+              displayName
+            );
           },
         },
       });
@@ -99,14 +104,14 @@ export const TakePhotoBtn = ({
     <div onClick={onClick} className="cursor-pointer flex-1">
       <Localized id="avatar-page-take-photo-button" attrs={{ title: true }}>
         <ButtonIcon
-          testId="take-photo-btn"
+          testId={capturing ? 'take-photo-btn-capturing' : 'take-photo-btn'}
           title="Take photo"
           icon={[CameraIcon, 24, 22]}
           classNames={capturing ? captureClass : buttonClass}
         />
       </Localized>
       <Localized id="avatar-page-take-photo">
-        <p>Take photo</p>
+        <p className="mt-2">Take photo</p>
       </Localized>
     </div>
   );
@@ -127,6 +132,7 @@ export const AddPhotoBtn = ({
   const hiddenFileInput = (
     <input
       type="file"
+      data-testid="avatar-image-upload-input"
       accept="image/png, image/jpeg"
       onChange={onChange}
       ref={fileInputRef}
@@ -148,7 +154,7 @@ export const AddPhotoBtn = ({
         />
       </Localized>
       <Localized id="avatar-page-add-photo">
-        <p>Add photo</p>
+        <p className="mt-2">Add photo</p>
       </Localized>
     </div>
   );
@@ -169,18 +175,18 @@ export const ConfirmBtns = ({
 
   return (
     <div className="mt-4 flex items-center justify-center">
-      <Localized id="avatar-page-close-button">
+      <Localized id="avatar-page-cancel-button">
         <button
-          className="cta-neutral mx-2 px-10"
+          className="cta-neutral mx-2 px-10 w-full max-w-32"
           onClick={() => navigate(HomePath, { replace: true })}
           data-testid="close-button"
         >
-          Close
+          Cancel
         </button>
       </Localized>
       <Localized id={saveStringId}>
         <button
-          className="cta-primary mx-2 px-10"
+          className="cta-primary mx-2 px-10 w-full max-w-32"
           onClick={onSave}
           disabled={!saveEnabled}
           data-testid="save-button"

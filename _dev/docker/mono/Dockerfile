@@ -11,6 +11,7 @@ RUN set -x \
 RUN apt-get update && apt-get install -y \
     netcat \
     openssl \
+    iputils-ping \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=fxa-builder:latest --chown=app:app /fxa /fxa

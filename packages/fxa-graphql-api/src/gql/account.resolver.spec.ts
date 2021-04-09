@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Provider } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Account, accountByUid } from 'fxa-shared/db/models/auth';
+import { Account } from 'fxa-shared/db/models/auth';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import Knex from 'knex';
@@ -43,6 +44,10 @@ describe('AccountResolver', () => {
         { provide: CustomsService, useValue: {} },
         { provide: AuthClientService, useValue: authClient },
         { provide: ProfileClientService, useValue: profileClient },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue({ url: 'test' }) },
+        },
       ],
     }).compile();
 
@@ -66,23 +71,25 @@ describe('AccountResolver', () => {
       });
 
       it('resolves account created', async () => {
-        const user = await accountByUid(USER_1.uid);
+        const user = await Account.findByUid(USER_1.uid);
         expect(resolver.accountCreated(user!)).toBe(USER_1.createdAt);
       });
 
       it('resolves password created', async () => {
-        const user = await accountByUid(USER_1.uid);
+        const user = await Account.findByUid(USER_1.uid);
         expect(resolver.passwordCreated(user!)).toBe(USER_1.verifierSetAt);
       });
 
       it('resolves emails with null', async () => {
-        const user = await accountByUid(USER_1.uid);
+        const user = await Account.findByUid(USER_1.uid);
         const emails = resolver.emails(user!);
         expect(emails).toBeNull();
       });
 
       it('resolves emails when loaded', async () => {
-        const user = await accountByUid(USER_1.uid, { include: ['emails'] });
+        const user = await Account.findByUid(USER_1.uid, {
+          include: ['emails'],
+        });
         (user!.emails as any) = [
           { email: 'fred', isPrimary: true, isVerified: true, extra: true },
         ];

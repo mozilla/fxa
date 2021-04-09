@@ -30,7 +30,8 @@ export const ScrollToTop = (
     // to it, because reach router can't handle hashes (see reach router
     // issue 32) 🙄
     if (hasHash) {
-      const el = document.querySelector(url.hash);
+      const hashTokens = url.hash.split('?');
+      const el = document.querySelector(hashTokens[0]);
       if (el) el.scrollIntoView();
     } else if (
       !hasHash &&

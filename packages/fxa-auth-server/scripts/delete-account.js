@@ -29,7 +29,7 @@ const mailer = null;
 
 const DB = require('../lib/db')(config, log, Token);
 
-DB.connect(config[config.db.backend]).then((db) => {
+DB.connect(config).then((db) => {
   // Bypass customs checks.
   const mockCustoms = {
     check: () => {
@@ -69,9 +69,6 @@ DB.connect(config[config.db.backend]).then((db) => {
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
-    // Establish database connection and bind instance to Model using Knex
-    const { setupAuthDatabase } = require('fxa-shared/db');
-    setupAuthDatabase(config.database.mysql.auth);
     const { createStripeHelper } = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
   }

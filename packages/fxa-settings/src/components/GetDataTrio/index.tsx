@@ -8,6 +8,7 @@ import { copy } from '../../lib/clipboard';
 import { ReactComponent as CopyIcon } from './copy.svg';
 import { ReactComponent as DownloadIcon } from './download.svg';
 import { ReactComponent as PrintIcon } from './print.svg';
+import { useAccount } from '../../models';
 
 export type GetDataTrioProps = {
   value: string | string[];
@@ -40,6 +41,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
     printWindow.print();
     printWindow.close();
   }, [value, pageTitle]);
+  const { primaryEmail } = useAccount();
 
   return (
     <div className="flex justify-between w-4/5 max-w-48">
@@ -51,7 +53,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
               type: 'text/plain',
             })
           )}
-          download
+          download={`${primaryEmail.email} Firefox.txt`}
           data-testid="databutton-download"
           className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500"
           onClick={() => onAction?.('download')}

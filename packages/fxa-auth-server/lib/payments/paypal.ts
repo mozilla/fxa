@@ -27,6 +27,7 @@ import {
 } from './paypal-error-codes';
 import { StripeHelper } from './stripe';
 import { CurrencyHelper } from './currencies';
+import { hasPaypalSubscription } from 'fxa-shared/subscriptions/stripe';
 
 type PaypalHelperOptions = {
   log: Logger;
@@ -178,7 +179,7 @@ export class PayPalHelper {
       this.client.on('response', (response) => {
         this.metrics.timing('paypal_request', response.elapsed, undefined, {
           method: response.method,
-          error: response.error ? 'false' : 'true',
+          error: response.error ? 'true' : 'false',
         });
       });
     }
@@ -296,7 +297,7 @@ export class PayPalHelper {
       state: response.STATE,
       street: response.STREET,
       street2: response.STREET2,
-      zip: response.ZIP
+      zip: response.ZIP,
     };
   }
 
@@ -345,6 +346,10 @@ export class PayPalHelper {
     options: TransactionSearchOptions
   ): Promise<TransactionSearchResult[]> {
     const results = await this.client.transactionSearch(options);
+    if (!(results.L instanceof Array)) {
+      return [];
+    }
+
     return results.L.map((r) => ({
       amount: r.AMT,
       currencyCode: r.CURRENCYCODE,
@@ -361,7 +366,7 @@ export class PayPalHelper {
 
   /**
    * Removes Paypal billing agreements on a customer if they paid with
-   * Paypal but no longer have an active/past_due subscription.
+   * Paypal but no longer have an active/past_due/trialing subscription.
    */
   async conditionallyRemoveBillingAgreement(
     customer: Stripe.Customer
@@ -372,12 +377,7 @@ export class PayPalHelper {
     if (!billingAgreementId) {
       return false;
     }
-    const paypalSubscription = customer.subscriptions?.data.find(
-      (sub) =>
-        ['active', 'past_due'].includes(sub.status) &&
-        sub.collection_method === 'send_invoice'
-    );
-    if (paypalSubscription) {
+    if (hasPaypalSubscription(customer)) {
       return false;
     }
     await this.cancelBillingAgreement(billingAgreementId);
@@ -461,6 +461,11 @@ export class PayPalHelper {
       if (err instanceof PayPalClientError && !batchProcessing) {
         throwPaypalCodeError(err);
       }
+      this.log.error('processInvoice', {
+        err,
+        nvpData: err.data,
+        invoiceId: invoice.id,
+      });
       throw err;
     }
     await this.stripeHelper.updatePaymentAttempts(invoice);

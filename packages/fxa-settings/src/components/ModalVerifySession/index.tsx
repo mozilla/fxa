@@ -8,7 +8,9 @@ import Modal from '../Modal';
 import InputText from '../InputText';
 import { ApolloError, gql } from '@apollo/client';
 import { useAccount, useSession } from '../../models';
-import { useMutation } from '../../lib/hooks';
+import { useAuthClient } from '../../lib/auth';
+import { cache } from '../../lib/cache';
+import { Localized, useLocalization } from '@fluent/react';
 
 type ModalProps = {
   onDismiss: () => void;
@@ -44,6 +46,8 @@ export const ModalVerifySession = ({
   const session = useSession();
   const [errorText, setErrorText] = useState<string>();
   const { primaryEmail } = useAccount();
+  const { l10n } = useLocalization();
+
   const { handleSubmit, register, formState } = useForm<FormData>({
     mode: 'all',
     defaultValues: {
@@ -51,45 +55,47 @@ export const ModalVerifySession = ({
     },
   });
 
-  const [sendCode] = useMutation(SEND_SESSION_VERIFICATION_CODE_MUTATION, {
-    variables: { input: {} },
-    ignoreResults: true,
-    onError,
-  });
-
-  const [verifySession, { loading }] = useMutation(VERIFY_SESSION_MUTATION, {
-    ignoreResults: true,
-    onError: (error) => {
-      if (error.graphQLErrors?.length) {
+  const sendCode = useAuthClient(
+    (auth, sessionToken) => () => auth.sessionResendVerifyCode(sessionToken),
+    {
+      onError: (error) => {
         setErrorText(error.message);
-      } else {
-        // Bubble up network errors, etc.
-        onError(error);
-      }
-    },
-    update: (cache) => {
-      cache.modify({
-        fields: {
-          session: () => {
-            return { verified: true };
+      },
+    }
+  );
+
+  const verifySession = useAuthClient(
+    (auth, sessionToken) => (code: string) =>
+      auth.sessionVerifyCode(sessionToken, code),
+    {
+      onSuccess: () => {
+        cache.modify({
+          fields: {
+            session: () => {
+              return { verified: true };
+            },
           },
-        },
-      });
-    },
-  });
+        });
+      },
+      onError: (error) => {
+        setErrorText(error.message);
+      },
+    }
+  );
 
   useEffect(() => {
     if (onCompleted && session.verified) {
       onCompleted();
     } else {
-      sendCode();
+      sendCode.execute();
     }
   }, [session, sendCode, onCompleted]);
 
   if (session.verified) {
     return null;
   }
-  const buttonDisabled = !formState.isDirty || !formState.isValid || loading;
+  const buttonDisabled =
+    !formState.isDirty || !formState.isValid || verifySession.loading;
   return (
     <Modal
       data-testid="modal-verify-session"
@@ -100,35 +106,46 @@ export const ModalVerifySession = ({
     >
       <form
         onSubmit={handleSubmit(({ verificationCode }) => {
-          verifySession({
-            variables: {
-              input: {
-                code: verificationCode.trim(),
-              },
-            },
-          });
+          verifySession.execute(verificationCode.trim());
         })}
       >
-        <h2
-          id="modal-verify-session-header"
-          className="font-bold text-xl text-center"
+        <Localized id="mvs-verify-your-email">
+          <h2
+            id="modal-verify-session-header"
+            className="font-bold text-xl text-center"
+            data-testid="modal-verify-session-header"
+          >
+            Verify your email
+          </h2>
+        </Localized>
+
+        <Localized
+            id="mvs-enter-verification-code-desc"
+            vars={{ email: primaryEmail.email }}
+            elems={{
+              email: <span className="font-bold"></span>,
+            }}
         >
-          Verify your email
-        </h2>
-        <p
-          id="modal-verify-session-desc"
-          data-testid="modal-desc"
-          className="my-6 text-center"
-        >
-          Please enter the verification code that was sent to{' '}
-          <span className="font-bold">{primaryEmail.email}</span> within 5
-          minutes.
-        </p>
+          <p
+              id="modal-verify-session-desc"
+              data-testid="modal-verify-session-desc"
+              className="my-6 text-center"
+          >
+            Please enter the verification code that was sent to{' '}
+            <span className="font-bold">{primaryEmail.email}</span> within 5
+            minutes.
+          </p>
+        </Localized>
+
 
         <div className="mt-4 mb-6">
           <InputText
             name="verificationCode"
-            label="Enter your verification code"
+            label={l10n.getString(
+                'mvs-enter-verification-code',
+                null,
+                'Enter your verification code'
+            )}
             onChange={() => {
               if (errorText) {
                 setErrorText(undefined);
@@ -144,22 +161,26 @@ export const ModalVerifySession = ({
         </div>
 
         <div className="flex justify-center mx-auto max-w-64">
-          <button
-            type="button"
-            className="cta-neutral mx-2 flex-1"
-            data-testid="modal-verify-session-cancel"
-            onClick={(event) => onDismiss()}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="cta-primary mx-2 flex-1"
-            data-testid="modal-verify-session-submit"
-            disabled={buttonDisabled}
-          >
-            Verify
-          </button>
+          <Localized id="msv-cancel-button">
+            <button
+                type="button"
+                className="cta-neutral mx-2 flex-1"
+                data-testid="modal-verify-session-cancel"
+                onClick={(event) => onDismiss()}
+            >
+              Cancel
+            </button>
+          </Localized>
+          <Localized id="msv-submit-button">
+            <button
+                type="submit"
+                className="cta-primary mx-2 flex-1"
+                data-testid="modal-verify-session-submit"
+                disabled={buttonDisabled}
+            >
+              Verify
+            </button>
+          </Localized>
         </div>
       </form>
     </Modal>

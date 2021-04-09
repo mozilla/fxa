@@ -2,15 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// TODO: temporarily just run the smoke tests. See #7879.
-module.exports = require('./functional_smoke');
-
-/*
 const testsSettingsV2 = require('./functional_settings_v2');
 // Run the new settings tests first
 module.exports = testsSettingsV2.concat([
   'tests/functional/fx_browser_relier.js',
-  'tests/functional/oauth_webchannel.js',
+  // #7981 'tests/functional/oauth_webchannel.js',
   'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',
   'tests/functional/sign_up_with_code.js',
@@ -21,7 +17,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/back_button_after_start.js',
   'tests/functional/bounced_email.js',
   'tests/functional/change_password.js',
-  'tests/functional/confirm.js',
+  // #7987 'tests/functional/confirm.js',
   'tests/functional/connect_another_device.js',
   'tests/functional/cookies_disabled.js',
   'tests/functional/delete_account.js',
@@ -29,9 +25,9 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/email_opt_in.js',
   'tests/functional/email_service.js',
   'tests/functional/force_auth.js',
-  'tests/functional/fx_desktop_handshake.js',
+  // #7978 'tests/functional/fx_desktop_handshake.js',
   'tests/functional/fx_fennec_v1_force_auth.js',
-  'tests/functional/fx_fennec_v1_settings.js',
+  // #8003 'tests/functional/fx_fennec_v1_settings.js',
   'tests/functional/fx_fennec_v1_sign_in.js',
   'tests/functional/fx_fennec_v1_sign_up.js',
   'tests/functional/fx_firstrun_v2.js',
@@ -40,7 +36,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/legal.js',
   'tests/functional/oauth_force_auth.js',
   'tests/functional/oauth_handshake.js',
-  'tests/functional/oauth_permissions.js',
+  // #7983 'tests/functional/oauth_permissions.js',
   'tests/functional/oauth_prompt_none.js',
   'tests/functional/oauth_query_param_validation.js',
   'tests/functional/oauth_reset_password.js',
@@ -68,7 +64,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/sign_in_cached.js',
   'tests/functional/sign_in_recovery_code.js',
   'tests/functional/sign_in_totp.js',
-  'tests/functional/sign_up.js',
+  // #7988 'tests/functional/sign_up.js',
   'tests/functional/subscriptions.js',
   'tests/functional/support.js',
   'tests/functional/sync_v1.js',
@@ -78,7 +74,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/sync_v3_sign_up.js',
   'tests/functional/sync_v3_force_auth.js',
   'tests/functional/sync_v3_reset_password.js',
-  'tests/functional/sync_v3_settings.js',
+  // #7976 'tests/functional/sync_v3_settings.js',
   'tests/functional/tos.js',
   'tests/functional/verification_reminders.js',
 ]);
@@ -90,4 +86,3 @@ module.exports = testsSettingsV2.concat([
 if (!process.env.SKIP_MOCHA) {
   module.exports.unshift('tests/functional/mocha.js');
 }
-*/

@@ -57,7 +57,7 @@ describe('views/mixins/signed-in-notification-mixin', () => {
             return Promise.resolve();
           }),
         };
-        view.navigate = sinon.spy();
+        view.navigateAway = sinon.spy();
         notifier.triggerAll = sinon.spy();
         return notifier.on.args[0][1]({
           uid: 'uid',
@@ -80,13 +80,13 @@ describe('views/mixins/signed-in-notification-mixin', () => {
         assert.isTrue(view.user.setSignedInAccountByUid.calledWith('uid'));
       });
 
-      it('calls navigate correctly', () => {
-        assert.equal(view.navigate.callCount, 1);
-        assert.isTrue(view.navigate.alwaysCalledOn(view));
+      it('calls navigateAway correctly', () => {
+        assert.equal(view.navigateAway.callCount, 1);
+        assert.isTrue(view.navigateAway.alwaysCalledOn(view));
         assert.isTrue(
-          view.navigate.calledAfter(view.user.setSignedInAccountByUid)
+          view.navigateAway.calledAfter(view.user.setSignedInAccountByUid)
         );
-        const args = view.navigate.args[0];
+        const args = view.navigateAway.args[0];
         assert.lengthOf(args, 1);
         assert.equal(args[0], 'settings');
       });
@@ -108,7 +108,7 @@ describe('views/mixins/signed-in-notification-mixin', () => {
             return Promise.resolve();
           }),
         };
-        view.navigate = sinon.spy();
+        view.navigateAway = sinon.spy();
         notifier.on.args[0][1]({
           uid: 'uid',
         });
@@ -122,8 +122,8 @@ describe('views/mixins/signed-in-notification-mixin', () => {
         assert.isFalse(view.user.setSignedInAccountByUid.called);
       });
 
-      it('does not call navigate', () => {
-        assert.equal(view.navigate.callCount, 0);
+      it('does not call navigateAway', () => {
+        assert.equal(view.navigateAway.callCount, 0);
       });
     });
 
@@ -140,6 +140,7 @@ describe('views/mixins/signed-in-notification-mixin', () => {
           }),
         };
         view.navigate = sinon.spy();
+        view.navigateAway = sinon.spy();
       });
 
       describe('without relier.redirectTo', () => {
@@ -158,9 +159,9 @@ describe('views/mixins/signed-in-notification-mixin', () => {
           assert.isTrue(view.user.setSignedInAccountByUid.calledWith('uid'));
         });
 
-        it('calls navigate correctly', () => {
-          assert.equal(view.navigate.callCount, 1);
-          assert.equal(view.navigate.args[0][0], 'settings');
+        it('calls navigateAway correctly', () => {
+          assert.equal(view.navigateAway.callCount, 1);
+          assert.equal(view.navigateAway.args[0][0], 'settings');
         });
       });
 
