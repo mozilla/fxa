@@ -1,12 +1,12 @@
 import React from 'react';
 import { useAccount } from '../../models';
 import { UnitRow } from '../UnitRow';
-import { UnitRowWithAvatar } from '../UnitRowWithAvatar';
 import { UnitRowSecondaryEmail } from '../UnitRowSecondaryEmail';
+import { HomePath } from '../../constants';
 import { Localized } from '@fluent/react';
 
 export const Profile = () => {
-  const { primaryEmail, displayName, passwordCreated } = useAccount();
+  const { avatar, primaryEmail, displayName, passwordCreated } = useAccount();
 
   const pwdDateText = Intl.DateTimeFormat('default', {
     year: 'numeric',
@@ -22,7 +22,15 @@ export const Profile = () => {
       </h2>
 
       <div className="bg-white tablet:rounded-xl shadow">
-        <UnitRowWithAvatar />
+        <Localized id="profile-picture" attrs={{ header: true }}>
+          <UnitRow
+            header="Picture"
+            headerId="profile-picture"
+            headerValue={!avatar.isDefault}
+            route={`${HomePath}/avatar`}
+            {...{ avatar }}
+          />
+        </Localized>
 
         <hr className="unit-row-hr" />
 

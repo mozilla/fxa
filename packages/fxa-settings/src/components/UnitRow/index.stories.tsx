@@ -6,6 +6,8 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { useBooleanState } from 'fxa-react/lib/hooks';
+import { MockedCache } from '../../models/_mocks';
+import { HomePath } from '../../constants';
 import { UnitRow } from '.';
 import { Modal } from '../Modal';
 
@@ -90,5 +92,41 @@ storiesOf('Components|UnitRow', module)
           </Modal>
         )}
       </UnitRow>
+    );
+  })
+  .add('with default avatar', () => {
+    const avatar = {
+      id: null,
+      url: null,
+      isDefault: true,
+    };
+    return (
+      <MockedCache account={{ avatar }}>
+        <UnitRow
+          header="Picture"
+          headerId="profile-picture"
+          headerValue={!avatar.isDefault}
+          route={`${HomePath}/avatar`}
+          {...{ avatar }}
+        />
+      </MockedCache>
+    );
+  })
+  .add('with non-default avatar', () => {
+    const avatar = {
+      id: null,
+      url: 'http://placekitten.com/512/512?image=0',
+      isDefault: false,
+    };
+    return (
+      <MockedCache account={{ avatar }}>
+        <UnitRow
+          header="Picture"
+          headerId="profile-picture"
+          headerValue={!avatar.isDefault}
+          route={`${HomePath}/avatar`}
+          {...{ avatar }}
+        />
+      </MockedCache>
     );
   });
