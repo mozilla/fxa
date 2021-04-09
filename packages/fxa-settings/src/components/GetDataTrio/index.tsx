@@ -55,7 +55,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
           )}
           download={`${primaryEmail.email} Firefox.txt`}
           data-testid="databutton-download"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-black-dotted"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 active:outline-black-dotted focus:outline-black-dotted"
           onClick={() => onAction?.('download')}
         >
           <DownloadIcon
@@ -76,7 +76,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
             onAction?.('copy');
           }}
           data-testid="databutton-copy"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-black-dotted"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 active:outline-black-dotted focus:outline-black-dotted"
         >
           <CopyIcon
             width="21"
@@ -98,7 +98,7 @@ export const GetDataTrio = ({ value, onAction }: GetDataTrioProps) => {
             onAction?.('print');
           }}
           data-testid="databutton-print"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 focus:outline-black-dotted"
+          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-500 active:outline-black-dotted focus:outline-black-dotted"
         >
           <PrintIcon
             height="24"
