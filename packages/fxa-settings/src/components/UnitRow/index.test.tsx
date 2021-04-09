@@ -6,6 +6,8 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import UnitRow from '.';
 import { renderWithRouter } from '../../models/_mocks';
+import { MockedCache } from '../../models/_mocks';
+import { HomePath } from '../../constants';
 
 describe('UnitRow', () => {
   it('renders as expected with minimal required attributes', () => {
@@ -17,6 +19,8 @@ describe('UnitRow', () => {
     );
     expect(screen.queryByTestId('unit-row-route')).toBeNull();
     expect(screen.queryByTestId('unit-row-modal')).toBeNull();
+    expect(screen.queryByTestId('avatar-default')).toBeNull();
+    expect(screen.queryByTestId('avatar-nondefault')).toBeNull();
   });
 
   it('renders the children', () => {
@@ -56,6 +60,8 @@ describe('UnitRow', () => {
     expect(screen.getByTestId('unit-row-route').textContent).toContain(
       'Change'
     );
+    expect(screen.queryByTestId('avatar-default')).toBeNull();
+    expect(screen.queryByTestId('avatar-nondefault')).toBeNull();
   });
 
   it('renders as expected with `revealModal` prop', () => {
@@ -115,5 +121,53 @@ describe('UnitRow', () => {
     expect(
       screen.getByTestId('secondary-button-unit-row-modal').textContent
     ).toContain('Disable');
+  });
+
+  it('renders as expected with the default avatar', () => {
+    const avatar = {
+      id: null,
+      url: null,
+      isDefault: true,
+    };
+    renderWithRouter(
+      <MockedCache account={{ avatar }}>
+        <UnitRow
+          header="Picture"
+          headerId="profile-picture"
+          headerValue={!avatar.isDefault}
+          route={`${HomePath}/avatar`}
+          {...{ avatar }}
+        />
+      </MockedCache>
+    );
+
+    expect(screen.getByTestId('unit-row-route').textContent).toContain('Add');
+    expect(screen.getByTestId('avatar-default')).toBeInTheDocument();
+    expect(screen.queryByTestId('avatar-nondefault')).toBeNull();
+  });
+
+  it('renders as expected with the user avatar', () => {
+    const avatar = {
+      id: null,
+      url: 'http://localhost:1111/v1/avatar/t',
+      isDefault: false,
+    };
+    renderWithRouter(
+      <MockedCache account={{ avatar }}>
+        <UnitRow
+          header="Picture"
+          headerId="profile-picture"
+          headerValue={!avatar.isDefault}
+          route={`${HomePath}/avatar`}
+          {...{ avatar }}
+        />
+      </MockedCache>
+    );
+
+    expect(screen.getByTestId('unit-row-route').textContent).toContain(
+      'Change'
+    );
+    expect(screen.getByTestId('avatar-nondefault')).toBeInTheDocument();
+    expect(screen.queryByTestId('avatar-default')).toBeNull();
   });
 });

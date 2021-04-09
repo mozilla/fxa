@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useRef } from 'react';
+import Avatar from '../Avatar';
+import { Account } from '../../models/Account';
 import classNames from 'classnames';
 import { useFocusOnTriggeringElementOnClose } from '../../lib/hooks';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
@@ -58,9 +60,10 @@ export const ModalButton = ({
 };
 
 type UnitRowProps = {
+  avatar?: Account['avatar'];
   header: string;
   headerId?: string;
-  headerValue: string | null;
+  headerValue: string | null | boolean;
   noHeaderValueText?: string;
   ctaText?: string;
   secondaryCtaText?: string;
@@ -80,6 +83,7 @@ type UnitRowProps = {
 };
 
 export const UnitRow = ({
+  avatar,
   header,
   headerId,
   headerValue,
@@ -137,12 +141,16 @@ export const UnitRow = ({
         </span>
       </div>
       <div className="unit-row-content">
-        <p
-          className={classNames('font-bold', headerValueClassName)}
-          data-testid={formatDataTestId('unit-row-header-value')}
-        >
-          {headerValue || noHeaderValueText}
-        </p>
+        {avatar ? (
+          <Avatar className="mx-auto mobileLandscape:mx-0 w-32 mobileLandscape:w-16" />
+        ) : (
+          <p
+            className={classNames('font-bold', headerValueClassName)}
+            data-testid={formatDataTestId('unit-row-header-value')}
+          >
+            {headerValue || noHeaderValueText}
+          </p>
+        )}
         {children}
       </div>
 
