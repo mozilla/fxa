@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import base32encode from 'base32-encode';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { useRecoveryKeyMaker } from '../../lib/auth';
-import { alertTextExternal, cache, sessionToken } from '../../lib/cache';
+import { alertTextExternal } from '../../lib/cache';
 import { useAlertBar } from '../../lib/hooks';
 import { useAccount } from '../../models';
 import InputPassword from '../InputPassword';
@@ -52,42 +51,51 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
     navigate(HomePath + '#recovery-key', { replace: true });
   };
   const account = useAccount();
-  const createRecoveryKey = useRecoveryKeyMaker({
-    onSuccess: (recoveryKey) => {
-      setFormattedRecoveryKey(
-        base32encode(recoveryKey.buffer, 'Crockford').match(/.{4}/g)!.join(' ')
-      );
-      setSubtitleText(l10n.getString('recovery-key-step-2'));
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          recoveryKey() {
-            return true;
-          },
-        },
-      });
-      logViewEvent(
-        'flow.settings.account-recovery',
-        'confirm-password.success'
-      );
-    },
-    onError: (error) => {
-      const localizedError = l10n.getString(
-        `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
-        null,
-        AuthUiErrors.INCORRECT_PASSWORD.message
-      );
-      if (error.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
-        setErrorText(localizedError);
-        setValue('password', '');
-      } else {
-        alertBar.setType('error');
-        alertBar.setContent(localizedError);
-        alertBar.show();
-        logViewEvent('flow.settings.account-recovery', 'confirm-password.fail');
+
+  const createRecoveryKey = useCallback(
+    async (password: string) => {
+      try {
+        const recoveryKey = await account.createRecoveryKey(password);
+        setFormattedRecoveryKey(
+          base32encode(recoveryKey.buffer, 'Crockford')
+            .match(/.{4}/g)!
+            .join(' ')
+        );
+        setSubtitleText(l10n.getString('recovery-key-step-2'));
+        logViewEvent(
+          'flow.settings.account-recovery',
+          'confirm-password.success'
+        );
+      } catch (e) {
+        const localizedError = l10n.getString(
+          `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
+          null,
+          AuthUiErrors.INCORRECT_PASSWORD.message
+        );
+        if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+          setErrorText(localizedError);
+          setValue('password', '');
+        } else {
+          alertBar.setType('error');
+          alertBar.setContent(localizedError);
+          alertBar.show();
+          logViewEvent(
+            'flow.settings.account-recovery',
+            'confirm-password.fail'
+          );
+        }
       }
     },
-  });
+    [
+      account,
+      setFormattedRecoveryKey,
+      setSubtitleText,
+      l10n,
+      setErrorText,
+      setValue,
+      alertBar,
+    ]
+  );
   useEffect(() => {
     if (account.recoveryKey && !formattedRecoveryKey) {
       navigate(HomePath, { replace: true });
@@ -137,12 +145,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
         {!formattedRecoveryKey && (
           <form
             onSubmit={handleSubmit(({ password }) => {
-              createRecoveryKey.execute(
-                account.primaryEmail.email,
-                password,
-                account.uid,
-                sessionToken()!
-              );
+              createRecoveryKey(password);
               logViewEvent(
                 'flow.settings.account-recovery',
                 'confirm-password.submit'

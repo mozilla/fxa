@@ -12,12 +12,9 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import 'react-easy-crop/react-easy-crop.css';
 
-import { cache, sessionToken } from '../../lib/cache';
 import { isMobileDevice } from '../../lib/utilities';
 import { useAccount } from '../../models';
 import { HomePath } from '../../constants';
-import firefox from '../../lib/firefox';
-import { useAvatarUploader } from '../../lib/auth';
 import { onFileChange } from '../../lib/file-utils';
 import { getCroppedImg } from '../../lib/canvas-utils';
 import { useAlertBar } from '../../lib/hooks';
@@ -50,25 +47,29 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
   const { avatar } = useAccount();
   const alertBar = useAlertBar();
+  const alertError = alertBar.error;
   const [saveEnabled, setSaveEnabled] = useState(false);
   const [saveStringId, setSaveStringId] = useState('avatar-page-save-button');
+  const onFileError = useCallback(() => {
+    alertError(l10n.getString('avatar-page-file-upload-error-2'));
+  }, [alertError, l10n]);
 
-  const uploadAvatar = useAvatarUploader({
-    onSuccess: (newAvatar) => {
-      logViewEvent(settingsViewName, 'avatar.crop.submit.change');
-      firefox.profileChanged(account.uid);
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          avatar() {
-            return { ...newAvatar, isDefault: false };
-          },
-        },
-      });
-      navigate(HomePath + '#profile-picture', { replace: true });
+  const onMediaError = useCallback(() => {
+    alertError(l10n.getString('avatar-page-camera-error'));
+  }, [alertError, l10n]);
+
+  const uploadAvatar = useCallback(
+    async (file: Blob) => {
+      try {
+        await account.uploadAvatar(file);
+        logViewEvent(settingsViewName, 'avatar.crop.submit.change');
+        navigate(HomePath + '#profile-picture', { replace: true });
+      } catch (e) {
+        onFileError();
+      }
     },
-    onError: onFileError,
-  });
+    [account, navigate, onFileError]
+  );
 
   /* Capture State */
 
@@ -164,14 +165,14 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     setSaveEnabled(false);
     const img = croppedImgSrc || (await saveCroppedImage());
     if (img && img.size > PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE) {
-      alertBar.error(l10n.getString('avatar-page-image-too-large-error'));
+      alertError(l10n.getString('avatar-page-image-too-large-error'));
       resetAllState();
     } else if (img) {
       setSaveStringId('avatar-page-saving-button');
-      uploadAvatar.execute(sessionToken()!, img);
+      uploadAvatar(img);
     }
   }, [
-    alertBar,
+    alertError,
     croppedImgSrc,
     l10n,
     saveCroppedImage,
@@ -180,14 +181,6 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     uploadAvatar,
     resetAllState,
   ]);
-
-  function onFileError() {
-    alertBar.error(l10n.getString('avatar-page-file-upload-error-2'));
-  }
-
-  function onMediaError() {
-    alertBar.error(l10n.getString('avatar-page-camera-error'));
-  }
 
   /* Elements */
   const confirmBtns = (

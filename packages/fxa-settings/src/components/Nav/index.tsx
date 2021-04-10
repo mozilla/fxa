@@ -6,8 +6,7 @@ import React from 'react';
 import classNames from 'classnames';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReactComponent as OpenExternal } from './open-external.svg';
-import { useAccount } from '../../models';
-import { useConfig } from 'fxa-settings/src/lib/config';
+import { useAccount, useConfig } from '../../models';
 import { Localized } from '@fluent/react';
 
 export const Nav = () => {

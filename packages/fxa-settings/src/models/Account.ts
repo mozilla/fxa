@@ -1,7 +1,6 @@
-import React, { useContext } from 'react';
 import { gql, ApolloClient, Reference } from '@apollo/client';
 import config from '../lib/config';
-import AuthClient from 'fxa-auth-client/browser';
+import AuthClient, { generateRecoveryKey } from 'fxa-auth-client/browser';
 import { sessionToken } from '../lib/cache';
 import firefox from '../lib/firefox';
 
@@ -167,20 +166,6 @@ export const GET_TOTP_STATUS = gql`
     }
   }
 `;
-
-export interface AccountContextValue {
-  account?: Account;
-}
-
-export const AccountContext = React.createContext<AccountContextValue>({});
-
-export function useAccount() {
-  const { account } = useContext(AccountContext);
-  if (!account) {
-    throw new Error('Are you forgetting an AccountContext.Provider?');
-  }
-  return account;
-}
 
 export function getNextAvatar(
   existingId?: string,
@@ -654,5 +639,90 @@ export class Account implements AccountData {
         },
       },
     });
+  }
+
+  async uploadAvatar(file: Blob) {
+    const { access_token } = await this.withLoadingStatus(
+      this.authClient.createOAuthToken(sessionToken()!, config.oauth.clientId, {
+        scope: 'profile:write clients:write',
+        ttl: 300,
+      })
+    );
+    const response = await this.withLoadingStatus(
+      fetch(`${config.servers.profile.url}/v1/avatar/upload`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          'Content-Type': file.type,
+        },
+        body: file,
+      })
+    );
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
+    const newAvatar = (await response.json()) as Account['avatar'];
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        avatar() {
+          return { ...newAvatar, isDefault: false };
+        },
+      },
+    });
+    firefox.profileChanged(this.uid);
+  }
+
+  async createRecoveryKey(password: string) {
+    const reauth = await this.withLoadingStatus(
+      this.authClient.sessionReauth(
+        sessionToken()!,
+        this.primaryEmail.email,
+        password,
+        {
+          keys: true,
+          reason: 'recovery_key',
+        }
+      )
+    );
+    const keys = await this.withLoadingStatus(
+      this.authClient.accountKeys(reauth.keyFetchToken!, reauth.unwrapBKey!)
+    );
+    const {
+      recoveryKey,
+      recoveryKeyId,
+      recoveryData,
+    } = await generateRecoveryKey(this.uid, keys);
+    await this.withLoadingStatus(
+      this.authClient.createRecoveryKey(
+        sessionToken()!,
+        recoveryKeyId,
+        recoveryData,
+        true
+      )
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        recoveryKey() {
+          return true;
+        },
+      },
+    });
+    return recoveryKey;
+  }
+
+  async destroy(password: string) {
+    await this.withLoadingStatus(
+      this.authClient.accountDestroy(
+        this.primaryEmail.email,
+        password,
+        {},
+        sessionToken()!
+      )
+    );
+    firefox.accountDeleted(this.uid);
   }
 }

@@ -4,8 +4,7 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MockedCache } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 import Avatar from '.';
 
 const account = ({
@@ -15,9 +14,9 @@ const account = ({
 describe('Avatar', () => {
   it('renders default avatar with expected attributes', () => {
     render(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <Avatar />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('avatar-default')).toHaveAttribute(
@@ -29,9 +28,9 @@ describe('Avatar', () => {
 
   it('renders default avatar with a custom className', () => {
     render(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <Avatar className="my-class" />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('avatar-default')).toHaveClass('my-class');
@@ -42,9 +41,9 @@ describe('Avatar', () => {
       avatar: { id: 'abc1234', url: 'http://placekitten.com/512/512' },
     } as unknown) as Account;
     render(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <Avatar />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('avatar-nondefault')).toHaveAttribute(
@@ -63,9 +62,9 @@ describe('Avatar', () => {
       avatar: { id: 'abc1234', url: 'http://placekitten.com/512/512' },
     } as unknown) as Account;
     render(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <Avatar className="my-class" />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('avatar-nondefault')).toHaveClass('my-class');

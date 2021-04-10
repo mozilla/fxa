@@ -13,7 +13,6 @@ import {
   useFocusOnTriggeringElementOnClose,
   useEscKeydownEffect,
   useChangeFocusEffect,
-  useMutation,
   useAlertBar,
 } from './hooks';
 
@@ -89,36 +88,6 @@ describe('useChangeFocusEffect', () => {
   it('changes focus as expected', () => {
     render(<Subject />);
     expect(document.activeElement).toBe(screen.getByTestId('el-to-focus'));
-  });
-});
-
-describe('useHandledMutation', () => {
-  const query = {
-    kind: 'Document',
-    definitions: [],
-  } as apolloClient.DocumentNode;
-
-  beforeEach(() => {
-    Object.defineProperty(apolloClient, 'useMutation', {
-      value: jest.fn(),
-    });
-  });
-
-  it('calls useMutation with the correct default params', () => {
-    useMutation(query);
-
-    expect(apolloClient.useMutation).toHaveBeenCalledWith(query, {
-      onError: expect.any(Function),
-    });
-  });
-
-  it('calls useMutation with additional params', () => {
-    useMutation(query, { fetchPolicy: 'no-cache' });
-
-    expect(apolloClient.useMutation).toHaveBeenCalledWith(query, {
-      onError: expect.any(Function),
-      fetchPolicy: 'no-cache',
-    });
   });
 });
 

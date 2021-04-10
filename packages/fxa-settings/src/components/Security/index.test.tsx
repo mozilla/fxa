@@ -5,8 +5,8 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import Security from '.';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { renderWithRouter } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
 
 describe('Security', () => {
   it('renders "fresh load" <Security/> with correct content', async () => {
@@ -15,11 +15,9 @@ describe('Security', () => {
       totp: { exists: false },
     } as unknown) as Account;
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache account={{ recoveryKey: false, totp: { exists: false } }}>
-          <Security />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account }}>
+        <Security />
+      </AppContext.Provider>
     );
 
     expect(await screen.findByText('rk-header')).toBeTruthy;
@@ -35,11 +33,9 @@ describe('Security', () => {
       totp: { exists: true, verified: true },
     } as unknown) as Account;
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache account={{ recoveryKey: true, totp: { exists: true } }}>
-          <Security />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account }}>
+        <Security />
+      </AppContext.Provider>
     );
 
     const result = await screen.findAllByText('Enabled');

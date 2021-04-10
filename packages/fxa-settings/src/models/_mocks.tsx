@@ -3,15 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import {
-  InMemoryCache,
-  ApolloClient,
-  ApolloProvider,
-  DocumentNode,
-} from '@apollo/client';
+import { InMemoryCache, ApolloClient, ApolloProvider } from '@apollo/client';
 import { MockLink, MockedResponse } from '@apollo/client/testing';
-import { AccountData } from '.';
-import { GET_INITIAL_STATE } from '../components/App';
+import { AccountData, Session } from '.';
+import { GET_INITIAL_STATE } from './App';
 import { deepMerge } from '../lib/utilities';
 import {
   createHistory,
@@ -25,10 +20,6 @@ import {
   GET_TOTP_STATUS,
 } from './Account';
 import { typeDefs } from '../lib/cache';
-import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
-import waitUntil from 'async-wait-until';
-import path from 'path';
-import fetchMock from 'fetch-mock';
 
 export const MOCK_ACCOUNT: AccountData = {
   uid: 'abc123',
@@ -171,6 +162,13 @@ export function renderWithRouter(
     ...render(<LocationProvider {...{ history }}>{ui}</LocationProvider>),
     history,
   };
+}
+
+export function mockSession(verified: boolean = true) {
+  return {
+    verified,
+    token: 'deadc0de',
+  } as Session;
 }
 
 export const mockEmail = (

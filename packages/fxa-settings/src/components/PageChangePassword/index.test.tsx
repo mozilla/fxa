@@ -7,7 +7,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen, wait } from '@testing-library/react';
 import { HomePath } from '../../constants';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { renderWithRouter } from '../../models/_mocks';
 import PageChangePassword from '.';
 import {
   logViewEvent,
@@ -15,7 +15,7 @@ import {
   usePageViewEvent,
 } from '../../lib/metrics';
 import { typeByTestIdFn } from '../../lib/test-utils';
-import { AccountContext, Account } from '../../models';
+import { AppContext, Account } from '../../models';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -37,9 +37,9 @@ const account = ({
 
 const render = async () => {
   await renderWithRouter(
-    <AccountContext.Provider value={{ account }}>
+    <AppContext.Provider value={{ account }}>
       <PageChangePassword />
-    </AccountContext.Provider>
+    </AppContext.Provider>
   );
 };
 

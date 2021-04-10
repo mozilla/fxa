@@ -6,7 +6,6 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { PageSecondaryEmailVerify } from '.';
 import { AppLayout } from '../AppLayout';
-import { MockedCache } from '../../models/_mocks';
 import { WindowLocation, LocationProvider } from '@reach/router';
 
 const mockLocation = ({
@@ -17,10 +16,8 @@ storiesOf('Pages|SecondaryEmailVerify', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('valid: 1234, invalid: 4444', () => {
     return (
-      <MockedCache>
-        <AppLayout>
-          <PageSecondaryEmailVerify location={mockLocation} />
-        </AppLayout>
-      </MockedCache>
+      <AppLayout>
+        <PageSecondaryEmailVerify location={mockLocation} />
+      </AppLayout>
     );
   });

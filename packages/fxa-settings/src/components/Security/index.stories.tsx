@@ -6,17 +6,28 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { Security } from '.';
-import { MockedCache } from '../../models/_mocks';
+import { AppContext } from 'fxa-settings/src/models';
 
 storiesOf('Components|Security', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache account={{ recoveryKey: false, totp: { exists: false } }}>
+    <AppContext.Provider
+      value={{
+        account: { recoveryKey: false, totp: { exists: false } } as any,
+      }}
+    >
       <Security />
-    </MockedCache>
+    </AppContext.Provider>
   ))
   .add('account recovery key set and two factor enabled', () => (
-    <MockedCache account={{ recoveryKey: true, totp: { exists: true } }}>
+    <AppContext.Provider
+      value={{
+        account: {
+          recoveryKey: true,
+          totp: { verified: true, exists: true },
+        } as any,
+      }}
+    >
       <Security />
-    </MockedCache>
+    </AppContext.Provider>
   ));

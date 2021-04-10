@@ -10,10 +10,11 @@ import PageDisplayName from '.';
 import { renderWithRouter } from '../../models/_mocks';
 import { alertTextExternal } from '../../lib/cache';
 import { HomePath } from '../../constants';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 
 jest.mock('../../lib/cache', () => ({
+  ...jest.requireActual('../../lib/cache'),
   alertTextExternal: jest.fn(),
 }));
 
@@ -37,11 +38,7 @@ const account = ({
 } as unknown) as Account;
 
 it('renders', async () => {
-  renderWithRouter(
-    <AccountContext.Provider value={{ account }}>
-      <PageDisplayName />
-    </AccountContext.Provider>
-  );
+  renderWithRouter(<PageDisplayName />);
   expect(screen.getByTestId('flow-container')).toBeInTheDocument();
   expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
   expect(screen.getByTestId('input-field')).toBeInTheDocument();
@@ -50,9 +47,9 @@ it('renders', async () => {
 
 it('updates the disabled state of the save button', async () => {
   renderWithRouter(
-    <AccountContext.Provider value={{ account }}>
+    <AppContext.Provider value={{ account }}>
       <PageDisplayName />
-    </AccountContext.Provider>
+    </AppContext.Provider>
   );
 
   // initial value
@@ -73,9 +70,9 @@ it('updates the disabled state of the save button', async () => {
 
 it('navigates back to settings home and shows a success message on a successful update', async () => {
   renderWithRouter(
-    <AccountContext.Provider value={{ account }}>
+    <AppContext.Provider value={{ account }}>
       <PageDisplayName />
-    </AccountContext.Provider>
+    </AppContext.Provider>
   );
   await submitDisplayName('John Hope');
   expect(window.location.pathname).toBe(HomePath);
@@ -90,11 +87,11 @@ it('displays a general error in the alert bar', async () => {
     setDisplayName: jest.fn().mockRejectedValue(gqlError),
   } as unknown) as Account;
   renderWithRouter(
-    <AccountContext.Provider value={{ account }}>
+    <AppContext.Provider value={{ account }}>
       <AlertBarRootAndContextProvider>
         <PageDisplayName />
       </AlertBarRootAndContextProvider>
-    </AccountContext.Provider>
+    </AppContext.Provider>
   );
   // suppress the console output
   let consoleErrorSpy = jest
@@ -113,9 +110,9 @@ it('displays the GraphQL error', async () => {
     setDisplayName: jest.fn().mockRejectedValue(gqlError),
   } as unknown) as Account;
   renderWithRouter(
-    <AccountContext.Provider value={{ account }}>
+    <AppContext.Provider value={{ account }}>
       <PageDisplayName />
-    </AccountContext.Provider>
+    </AppContext.Provider>
   );
   // suppress the console output
   let consoleErrorSpy = jest

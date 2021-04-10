@@ -4,23 +4,23 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { MockedCache } from '../../models/_mocks';
+import { mockSession } from '../../models/_mocks';
 import { getDefault } from '../../lib/config';
 import { Nav } from '.';
-import { ConfigContext } from 'fxa-settings/src/lib/config';
+import { AppContext } from 'fxa-settings/src/models';
 
+const account = {
+  primaryEmail: {
+    email: 'johndope@example.com',
+  },
+  subscriptions: [{ created: 1, productName: 'x' }],
+} as any;
 storiesOf('Components|Nav', module)
-  .add('basic', () => (
-    <MockedCache>
-      <Nav />
-    </MockedCache>
-  ))
+  .add('basic', () => <Nav />)
   .add('with link to Subscriptions', () => (
-    <MockedCache
-      account={{ subscriptions: [{ created: 1, productName: 'x' }] }}
-    >
+    <AppContext.Provider value={{ account, session: mockSession() }}>
       <Nav />
-    </MockedCache>
+    </AppContext.Provider>
   ))
   .add('without link to Newsletters', () => {
     const config = Object.assign({}, getDefault(), {
@@ -28,10 +28,8 @@ storiesOf('Components|Nav', module)
     });
 
     return (
-      <MockedCache>
-        <ConfigContext.Provider value={ config }>
-          <Nav />
-        </ConfigContext.Provider>
-      </MockedCache>
+      <AppContext.Provider value={{ account, session: mockSession(), config }}>
+        <Nav />
+      </AppContext.Provider>
     );
   });

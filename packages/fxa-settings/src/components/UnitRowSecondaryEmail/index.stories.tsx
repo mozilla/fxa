@@ -4,21 +4,19 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { InMemoryCache } from '@apollo/client';
 import { UnitRowSecondaryEmail } from '.';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
-import { MockedCache, MOCK_ACCOUNT, mockEmail } from '../../models/_mocks';
-import { GET_INITIAL_STATE } from '../App';
+import { mockEmail } from '../../models/_mocks';
 import { LocationProvider } from '@reach/router';
+
+import { AppContext } from 'fxa-settings/src/models';
 
 storiesOf('Components|UnitRowSecondaryEmail', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('No secondary email set', () => (
-    <MockedCache>
-      <AlertBarRootAndContextProvider>
-        <UnitRowSecondaryEmail />
-      </AlertBarRootAndContextProvider>
-    </MockedCache>
+    <AlertBarRootAndContextProvider>
+      <UnitRowSecondaryEmail />
+    </AlertBarRootAndContextProvider>
   ))
   .add('One secondary email set, unverified', () => {
     const emails = [
@@ -26,11 +24,11 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope2@example.com', false, false),
     ];
     return (
-      <MockedCache>
+      <AppContext.Provider value={{ account: { emails } as any }}>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
-      </MockedCache>
+      </AppContext.Provider>
     );
   })
   .add('One secondary email set, verified', () => {
@@ -39,11 +37,11 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope2@example.com', false),
     ];
     return (
-      <MockedCache account={{ emails }}>
+      <AppContext.Provider value={{ account: { emails } as any }}>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
-      </MockedCache>
+      </AppContext.Provider>
     );
   })
   .add('Multiple secondary emails set, all verified', () => {
@@ -54,11 +52,11 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope4@example.com', false),
     ];
     return (
-      <MockedCache account={{ emails }}>
+      <AppContext.Provider value={{ account: { emails } as any }}>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
-      </MockedCache>
+      </AppContext.Provider>
     );
   })
   .add('Multiple secondary emails set, one unverified', () => {
@@ -68,20 +66,12 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope3@example.com', false, false),
       mockEmail('johndope4@example.com', false),
     ];
-    const cache = new InMemoryCache();
-    cache.writeQuery({
-      query: GET_INITIAL_STATE,
-      data: {
-        account: { ...MOCK_ACCOUNT, emails },
-        session: { verified: true },
-      },
-    });
     return (
-      <MockedCache>
+      <AppContext.Provider value={{ account: { emails } as any }}>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
-      </MockedCache>
+      </AppContext.Provider>
     );
   })
   .add('Multiple secondary emails set, multiple unverified', () => {
@@ -92,10 +82,10 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope4@example.com', false, false),
     ];
     return (
-      <MockedCache>
+      <AppContext.Provider value={{ account: { emails } as any }}>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
-      </MockedCache>
+      </AppContext.Provider>
     );
   });

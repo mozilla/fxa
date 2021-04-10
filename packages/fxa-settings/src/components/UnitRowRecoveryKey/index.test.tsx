@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, fireEvent, act, wait } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import UnitRowRecoveryKey from '.';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { renderWithRouter } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
 
 const account = ({
   recoveryKey: true,
@@ -16,11 +16,9 @@ const account = ({
 describe('UnitRowRecoveryKey', () => {
   it('renders when recovery key is set', () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <UnitRowRecoveryKey />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account }}>
+        <UnitRowRecoveryKey />
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
@@ -38,11 +36,9 @@ describe('UnitRowRecoveryKey', () => {
       recoveryKey: false,
     } as unknown) as Account;
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <UnitRowRecoveryKey />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account }}>
+        <UnitRowRecoveryKey />
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
@@ -62,11 +58,9 @@ describe('UnitRowRecoveryKey', () => {
     } as unknown) as Account;
     await act(async () => {
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <UnitRowRecoveryKey />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account }}>
+          <UnitRowRecoveryKey />
+        </AppContext.Provider>
       );
     });
     expect(

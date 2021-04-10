@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 import GetDataTrio from './index';
 
 const value = 'Sun Tea';
@@ -19,9 +19,9 @@ const account = ({
 it('renders as expected', () => {
   window.URL.createObjectURL = jest.fn();
   render(
-    <AccountContext.Provider value={{ account }}>
+    <AppContext.Provider value={{ account }}>
       <GetDataTrio {...{ value, url }} />
-    </AccountContext.Provider>
+    </AppContext.Provider>
   );
   expect(screen.getByTestId('databutton-download')).toBeInTheDocument();
   expect(screen.getByTestId('databutton-copy')).toBeInTheDocument();

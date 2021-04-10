@@ -4,15 +4,13 @@
 
 import React from 'react';
 import { render, act } from '@testing-library/react';
-import { MockedProvider, MockLink } from '@apollo/client/testing';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 
-// workaround for https://github.com/apollographql/apollo-client/issues/6559
-const mockLink = new MockLink([], false);
-mockLink.setOnError((error) => {
-  return;
-});
+jest.mock('../../models', () => ({
+  ...jest.requireActual('../../models'),
+  useInitialState: jest.fn().mockReturnValue({ loading: true }),
+}));
 
 const appProps = {
   flowQueryParams: {
@@ -20,6 +18,7 @@ const appProps = {
     flowBeginTime: 1,
     flowId: 'x',
   },
+  navigatorLanguages: ['en'],
   config: { metrics: { navTiming: { enabled: false, endpoint: '' } } },
 };
 
@@ -29,11 +28,7 @@ beforeEach(() => {
 
 it('renders', async () => {
   await act(async () => {
-    render(
-      <MockedProvider mocks={[]} addTypename={false} link={mockLink}>
-        <App {...appProps} />
-      </MockedProvider>
-    );
+    render(<App {...appProps} />);
   });
 });
 
@@ -51,11 +46,7 @@ it('Initializes metrics flow data when present', async () => {
   });
 
   await act(async () => {
-    render(
-      <MockedProvider mocks={[]} addTypename={false} link={mockLink}>
-        <App {...updatedAppProps} />
-      </MockedProvider>
-    );
+    render(<App {...updatedAppProps} />);
   });
 
   expect(flowInit).toHaveBeenCalledWith({

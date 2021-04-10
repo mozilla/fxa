@@ -6,7 +6,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { Profile } from '.';
 import { renderWithRouter } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 
 const account = ({
   avatar: { url: null, id: null },
@@ -23,9 +23,9 @@ const account = ({
 describe('Profile', () => {
   it('renders "fresh load" <Profile/> with correct content', async () => {
     const { findByText } = renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <Profile />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
 
     expect(await findByText('Vlad')).toBeTruthy;

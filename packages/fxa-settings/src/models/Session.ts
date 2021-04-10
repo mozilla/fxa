@@ -1,8 +1,9 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 export interface Session {
   verified: boolean;
   token: hexstring;
+  destroy?: () => void;
 }
 
 export const GET_SESSION_VERIFIED = gql`
@@ -12,10 +13,3 @@ export const GET_SESSION_VERIFIED = gql`
     }
   }
 `;
-
-export function useSession() {
-  const { data } = useQuery<{ session: Session }>(GET_SESSION_VERIFIED, {
-    fetchPolicy: 'cache-only',
-  });
-  return data!.session;
-}

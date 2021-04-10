@@ -5,8 +5,8 @@
 import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { mockSession, renderWithRouter } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
 import { ModalVerifySession } from '.';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
@@ -17,6 +17,7 @@ const account = ({
   sendVerificationCode: jest.fn().mockResolvedValue(true),
   verifySession: jest.fn().mockResolvedValue(true),
 } as unknown) as Account;
+const session = mockSession(false);
 
 window.console.error = jest.fn();
 
@@ -29,11 +30,9 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache verified={false}>
-          <ModalVerifySession {...{ onDismiss, onError }} />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <ModalVerifySession {...{ onDismiss, onError }} />
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('modal-verify-session')).toBeInTheDocument();
@@ -62,11 +61,9 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache verified={false}>
-          <ModalVerifySession {...{ onDismiss, onError }} />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <ModalVerifySession {...{ onDismiss, onError }} />
+      </AppContext.Provider>
     );
 
     await act(async () => {
@@ -96,11 +93,9 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache verified={false}>
-          <ModalVerifySession {...{ onDismiss, onError }} />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <ModalVerifySession {...{ onDismiss, onError }} />
+      </AppContext.Provider>
     );
 
     await act(async () => {

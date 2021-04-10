@@ -5,9 +5,9 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { mockSession, renderWithRouter } from '../../models/_mocks';
 import { PageSecondaryEmailAdd } from '.';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 window.console.error = jest.fn();
@@ -15,6 +15,7 @@ window.console.error = jest.fn();
 const account = ({
   createSecondaryEmail: jest.fn().mockResolvedValue(true),
 } as unknown) as Account;
+const session = mockSession();
 
 afterAll(() => {
   (window.console.error as jest.Mock).mockReset();
@@ -24,11 +25,9 @@ describe('PageSecondaryEmailAdd', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <PageSecondaryEmailAdd />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <PageSecondaryEmailAdd />
+        </AppContext.Provider>
       );
 
       expect(screen.getByTestId('secondary-email-input').textContent).toContain(
@@ -42,11 +41,9 @@ describe('PageSecondaryEmailAdd', () => {
 
     it('Enables "save" button once valid email is input', () => {
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <PageSecondaryEmailAdd />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <PageSecondaryEmailAdd />
+        </AppContext.Provider>
       );
 
       expect(screen.getByTestId('save-button')).toHaveAttribute('disabled');
@@ -59,11 +56,9 @@ describe('PageSecondaryEmailAdd', () => {
 
     it('Do not Enable "save" button if invalid email is input', () => {
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <PageSecondaryEmailAdd />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <PageSecondaryEmailAdd />
+        </AppContext.Provider>
       );
 
       const input = screen.getByTestId('input-field');
@@ -81,11 +76,9 @@ describe('PageSecondaryEmailAdd', () => {
         createSecondaryEmail: jest.fn().mockRejectedValue(error),
       } as unknown) as Account;
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <PageSecondaryEmailAdd />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <PageSecondaryEmailAdd />
+        </AppContext.Provider>
       );
       const input = screen.getByTestId('input-field');
       fireEvent.change(input, { target: { value: 'johndope2@example.com' } });

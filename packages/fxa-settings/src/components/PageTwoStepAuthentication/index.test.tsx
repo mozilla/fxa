@@ -5,14 +5,14 @@
 import 'mutationobserver-shim';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen, wait } from '@testing-library/react';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
+import { renderWithRouter, mockSession } from '../../models/_mocks';
 import React from 'react';
 import PageTwoStepAuthentication, { metricsPreInPostFix } from '.';
 import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
 import { alertTextExternal } from '../../lib/cache';
 import * as Metrics from '../../lib/metrics';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 jest.mock('../../lib/totp', () => ({
@@ -22,6 +22,7 @@ jest.mock('../../lib/totp', () => ({
 }));
 
 jest.mock('../../lib/cache', () => ({
+  ...jest.requireActual('../../lib/cache'),
   alertTextExternal: jest.fn(),
 }));
 
@@ -45,16 +46,17 @@ const account = ({
   verifyTotp: jest.fn().mockResolvedValue(true),
   sendVerificationCode: jest.fn().mockResolvedValue(true),
 } as unknown) as Account;
+const session = mockSession();
 
 window.URL.createObjectURL = jest.fn();
 
 const render = (acct: Account = account, verified: boolean = true) =>
   renderWithRouter(
-    <AccountContext.Provider value={{ account: acct }}>
-      <MockedCache {...{ verified }}>
-        <PageTwoStepAuthentication />
-      </MockedCache>
-    </AccountContext.Provider>
+    <AppContext.Provider
+      value={{ account: acct, session: mockSession(verified) }}
+    >
+      <PageTwoStepAuthentication />
+    </AppContext.Provider>
   );
 
 const inputTotp = async (totp: string) => {
@@ -251,11 +253,9 @@ describe('step 3', () => {
     (alertTextExternal as any).mockReset();
     await act(async () => {
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <PageTwoStepAuthentication />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <PageTwoStepAuthentication />
+        </AppContext.Provider>
       );
     });
 

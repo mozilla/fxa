@@ -4,11 +4,9 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MockedCache } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 import { getDefault } from '../../lib/config';
 import Nav from '.';
-import { ConfigContext } from 'fxa-settings/src/lib/config';
 
 const account = ({
   primaryEmail: {
@@ -20,11 +18,9 @@ const account = ({
 describe('Nav', () => {
   it('renders as expected', () => {
     render(
-      <AccountContext.Provider value={{ account }}>
-        <ConfigContext.Provider value={getDefault()}>
-          <Nav />
-        </ConfigContext.Provider>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, config: getDefault() }}>
+        <Nav />
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('nav-link-profile')).toHaveTextContent('Profile');
@@ -70,9 +66,9 @@ describe('Nav', () => {
       subscriptions: [{ created: 1, productName: 'x' }],
     } as unknown) as Account;
     render(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <Nav />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('nav-link-subscriptions')).toHaveTextContent(
@@ -90,11 +86,9 @@ describe('Nav', () => {
     });
 
     render(
-      <AccountContext.Provider value={{ account }}>
-        <ConfigContext.Provider value={config}>
-          <Nav />
-        </ConfigContext.Provider>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, config }}>
+        <Nav />
+      </AppContext.Provider>
     );
 
     expect(screen.queryByTestId('nav-link-newsletters')).toBeNull();

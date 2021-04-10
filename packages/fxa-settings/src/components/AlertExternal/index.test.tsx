@@ -6,7 +6,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import AlertExternal from './index';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 
 describe('AlertExternal', () => {
   it('renders as expected', () => {
@@ -14,16 +14,16 @@ describe('AlertExternal', () => {
       alertTextExternal: 'ok',
     } as unknown) as Account;
     const { rerender } = render(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <AlertBarRootAndContextProvider />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
     rerender(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <AlertBarRootAndContextProvider>
           <AlertExternal />
         </AlertBarRootAndContextProvider>
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
     expect(screen.getByTestId('alert-bar-root')).toContainElement(
       screen.getByTestId('alert-bar')
@@ -36,16 +36,16 @@ describe('AlertExternal', () => {
       alertTextExternal: null,
     } as unknown) as Account;
     const { rerender } = render(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <AlertBarRootAndContextProvider />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
     rerender(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <AlertBarRootAndContextProvider>
           <AlertExternal />
         </AlertBarRootAndContextProvider>
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
     expect(screen.queryByTestId('alert-external-text')).not.toBeInTheDocument();
   });

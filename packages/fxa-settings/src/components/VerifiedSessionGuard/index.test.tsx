@@ -4,23 +4,19 @@
 
 import 'mutationobserver-shim';
 import React from 'react';
-import { wait, screen } from '@testing-library/react';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { screen } from '@testing-library/react';
+import { mockSession, renderWithRouter } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
 import { VerifiedSessionGuard } from '.';
 
 it('renders the content when verified', async () => {
   const onDismiss = jest.fn();
   const onError = jest.fn();
   renderWithRouter(
-    <MockedCache>
-      <VerifiedSessionGuard {...{ onDismiss, onError }}>
-        <div data-testid="children">Content</div>
-      </VerifiedSessionGuard>
-    </MockedCache>
+    <VerifiedSessionGuard {...{ onDismiss, onError }}>
+      <div data-testid="children">Content</div>
+    </VerifiedSessionGuard>
   );
-
-  await wait();
 
   expect(screen.getByTestId('children')).toBeInTheDocument();
 });
@@ -35,16 +31,12 @@ it('renders the guard when unverified', async () => {
     sendVerificationCode: jest.fn().mockResolvedValue(true),
   } as unknown) as Account;
   renderWithRouter(
-    <AccountContext.Provider value={{ account }}>
-      <MockedCache verified={false}>
-        <VerifiedSessionGuard {...{ onDismiss, onError }}>
-          <div>Content</div>
-        </VerifiedSessionGuard>
-      </MockedCache>
-    </AccountContext.Provider>
+    <AppContext.Provider value={{ account, session: mockSession(false) }}>
+      <VerifiedSessionGuard {...{ onDismiss, onError }}>
+        <div>Content</div>
+      </VerifiedSessionGuard>
+    </AppContext.Provider>
   );
-
-  await wait();
 
   expect(screen.getByTestId('modal-verify-session')).toBeInTheDocument();
 });

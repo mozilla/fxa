@@ -6,40 +6,26 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { AuthContext, createAuthClient } from '../../lib/auth';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { mockSession, renderWithRouter } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
 import { PageRecoveryKeyAdd } from '.';
-
-jest.mock('../../lib/auth', () => ({
-  ...jest.requireActual('../../lib/auth'),
-  useRecoveryKeyMaker: jest
-    .fn()
-    .mockImplementation(({ onSuccess, onError }) => ({
-      execute: () => onSuccess(new Uint8Array(20)),
-      reset: () => {},
-    })),
-}));
 
 const account = ({
   primaryEmail: {
     email: 'johndope@example.com',
   },
+  createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
 } as unknown) as Account;
+const session = mockSession();
 
-const client = createAuthClient('none');
 window.URL.createObjectURL = jest.fn();
 
 describe('PageRecoveryKeyAdd', () => {
   it('renders as expected', () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <AuthContext.Provider value={{ auth: client }}>
-          <MockedCache>
-            <PageRecoveryKeyAdd />
-          </MockedCache>
-        </AuthContext.Provider>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <PageRecoveryKeyAdd />
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('recovery-key-input').textContent).toContain(
@@ -53,13 +39,9 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Enables "continue" button once input is valid', async () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <AuthContext.Provider value={{ auth: client }}>
-          <MockedCache>
-            <PageRecoveryKeyAdd />
-          </MockedCache>
-        </AuthContext.Provider>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <PageRecoveryKeyAdd />
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('continue-button')).toBeDisabled();
@@ -74,13 +56,9 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Does not Enable "continue" button if validation fails', async () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <AuthContext.Provider value={{ auth: client }}>
-          <MockedCache>
-            <PageRecoveryKeyAdd />
-          </MockedCache>
-        </AuthContext.Provider>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <PageRecoveryKeyAdd />
+      </AppContext.Provider>
     );
 
     await act(async () => {
@@ -93,13 +71,9 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Generates a recovery key on submit', async () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <AuthContext.Provider value={{ auth: client }}>
-          <MockedCache>
-            <PageRecoveryKeyAdd />
-          </MockedCache>
-        </AuthContext.Provider>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <PageRecoveryKeyAdd />
+      </AppContext.Provider>
     );
 
     await act(async () => {

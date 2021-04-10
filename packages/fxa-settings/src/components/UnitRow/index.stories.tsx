@@ -6,10 +6,10 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { MockedCache } from '../../models/_mocks';
 import { HomePath } from '../../constants';
 import { UnitRow } from '.';
 import { Modal } from '../Modal';
+import { AppContext } from 'fxa-settings/src/models';
 
 storiesOf('Components|UnitRow', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
@@ -101,7 +101,7 @@ storiesOf('Components|UnitRow', module)
       isDefault: true,
     };
     return (
-      <MockedCache account={{ avatar }}>
+      <AppContext.Provider value={{ account: { avatar } as any }}>
         <UnitRow
           header="Picture"
           headerId="profile-picture"
@@ -109,7 +109,7 @@ storiesOf('Components|UnitRow', module)
           route={`${HomePath}/avatar`}
           {...{ avatar }}
         />
-      </MockedCache>
+      </AppContext.Provider>
     );
   })
   .add('with non-default avatar', () => {
@@ -119,7 +119,7 @@ storiesOf('Components|UnitRow', module)
       isDefault: false,
     };
     return (
-      <MockedCache account={{ avatar }}>
+      <AppContext.Provider value={{ account: { avatar } as any }}>
         <UnitRow
           header="Picture"
           headerId="profile-picture"
@@ -127,6 +127,6 @@ storiesOf('Components|UnitRow', module)
           route={`${HomePath}/avatar`}
           {...{ avatar }}
         />
-      </MockedCache>
+      </AppContext.Provider>
     );
   });

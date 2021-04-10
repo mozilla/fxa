@@ -3,27 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { gql } from '@apollo/client';
 import Avatar from '../Avatar';
 import AlertBar from '../AlertBar';
-import { useAccount } from '../../models';
-import { clearSignedInAccountUid } from '../../lib/cache';
+import { useAccount, useSession } from '../../models';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
-import { useEscKeydownEffect, useMutation, useAlertBar } from '../../lib/hooks';
+import { useEscKeydownEffect, useAlertBar } from '../../lib/hooks';
 import { ReactComponent as SignOut } from './sign-out.svg';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 
-export const DESTROY_SESSION_MUTATION = gql`
-  mutation destroySession($input: DestroySessionInput!) {
-    destroySession(input: $input) {
-      clientMutationId
-    }
-  }
-`;
-
 export const DropDownAvatarMenu = () => {
   const { displayName, primaryEmail } = useAccount();
+  const session = useSession();
   const [isRevealed, setRevealed] = useState(false);
   const toggleRevealed = () => setRevealed(!isRevealed);
   const avatarMenuInsideRef = useClickOutsideEffect<HTMLDivElement>(
@@ -34,22 +25,16 @@ export const DropDownAvatarMenu = () => {
   const dropDownId = 'drop-down-avatar-menu';
   const { l10n } = useLocalization();
 
-  const [destroySession] = useMutation(DESTROY_SESSION_MUTATION, {
-    onCompleted: () => {
-      // cannot use a hook here since this callback is not called in a hook
-      clearSignedInAccountUid();
-      window.location.assign(`${window.location.origin}/signin`);
-      logViewEvent(settingsViewName, 'signout.success');
-    },
-    onError: (error) => {
-      alertBar.error(l10n.getString('drop-down-menu-sign-out-error'));
-    },
-  });
-
-  const signOut = () => {
-    destroySession({
-      variables: { input: {} },
-    });
+  const signOut = async () => {
+    if (session.destroy) {
+      try {
+        await session.destroy();
+        logViewEvent(settingsViewName, 'signout.success');
+        window.location.assign(`${window.location.origin}/signin`);
+      } catch (e) {
+        alertBar.error(l10n.getString('drop-down-menu-sign-out-error'));
+      }
+    }
   };
 
   return (

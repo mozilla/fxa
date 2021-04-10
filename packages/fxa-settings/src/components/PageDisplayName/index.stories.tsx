@@ -4,7 +4,6 @@
 
 import { LocationProvider } from '@reach/router';
 import { storiesOf } from '@storybook/react';
-import { MockedCache } from 'fxa-settings/src/models/_mocks';
 import React from 'react';
 import { PageDisplayName } from '.';
 import AppLayout from '../AppLayout';
@@ -12,9 +11,7 @@ import AppLayout from '../AppLayout';
 storiesOf('Pages|DisplayNmae', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache>
-      <AppLayout>
-        <PageDisplayName />
-      </AppLayout>
-    </MockedCache>
+    <AppLayout>
+      <PageDisplayName />
+    </AppLayout>
   ));

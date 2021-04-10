@@ -6,14 +6,9 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act, wait } from '@testing-library/react';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
-import {
-  MockedCache,
-  renderWithRouter,
-  mockEmail,
-  mockAccountQuery,
-} from '../../models/_mocks';
+import { renderWithRouter, mockEmail, mockSession } from '../../models/_mocks';
 import { UnitRowSecondaryEmail } from '.';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 
 const account = ({
   emails: [
@@ -25,6 +20,7 @@ const account = ({
   deleteSecondaryEmail: jest.fn().mockResolvedValue(true),
   refresh: jest.fn(),
 } as unknown) as Account;
+const session = mockSession();
 
 window.console.error = jest.fn();
 
@@ -39,11 +35,9 @@ describe('UnitRowSecondaryEmail', () => {
         emails: [mockEmail('johndope@example.com')],
       } as unknown) as Account;
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       expect(
@@ -64,11 +58,9 @@ describe('UnitRowSecondaryEmail', () => {
   describe('one secondary email set', () => {
     it('renders as expected when unverified', () => {
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       expect(
@@ -91,11 +83,9 @@ describe('UnitRowSecondaryEmail', () => {
         ],
       } as unknown) as Account;
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       expect(
@@ -115,11 +105,9 @@ describe('UnitRowSecondaryEmail', () => {
 
     it('can refresh', async () => {
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       expect(
@@ -144,11 +132,9 @@ describe('UnitRowSecondaryEmail', () => {
         emails,
       } as unknown) as Account;
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       const unitRowHeaderValues = screen.getAllByTestId(
@@ -184,11 +170,9 @@ describe('UnitRowSecondaryEmail', () => {
         emails,
       } as unknown) as Account;
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       expect(
@@ -221,13 +205,11 @@ describe('UnitRowSecondaryEmail', () => {
       } as unknown) as Account;
 
       const { history } = renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
-          <MockedCache>
-            <AlertBarRootAndContextProvider>
-              <UnitRowSecondaryEmail />
-            </AlertBarRootAndContextProvider>
-          </MockedCache>
-        </AccountContext.Provider>
+        <AppContext.Provider value={{ account, session }}>
+          <AlertBarRootAndContextProvider>
+            <UnitRowSecondaryEmail />
+          </AlertBarRootAndContextProvider>
+        </AppContext.Provider>
       );
 
       await act(async () => {
@@ -249,13 +231,11 @@ describe('UnitRowSecondaryEmail', () => {
         resendEmailCode: jest.fn().mockRejectedValue(new Error()),
       } as unknown) as Account;
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
+        <AppContext.Provider value={{ account, session }}>
           <AlertBarRootAndContextProvider>
-            <MockedCache>
-              <UnitRowSecondaryEmail />
-            </MockedCache>
+            <UnitRowSecondaryEmail />
           </AlertBarRootAndContextProvider>
-        </AccountContext.Provider>
+        </AppContext.Provider>
       );
 
       await act(async () => {
@@ -283,13 +263,11 @@ describe('UnitRowSecondaryEmail', () => {
         makeEmailPrimary: jest.fn().mockResolvedValue(true),
       } as unknown) as Account;
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
+        <AppContext.Provider value={{ account, session }}>
           <AlertBarRootAndContextProvider>
-            <MockedCache>
-              <UnitRowSecondaryEmail />
-            </MockedCache>
+            <UnitRowSecondaryEmail />
           </AlertBarRootAndContextProvider>
-        </AccountContext.Provider>
+        </AppContext.Provider>
       );
 
       await act(async () => {
@@ -313,13 +291,11 @@ describe('UnitRowSecondaryEmail', () => {
         makeEmailPrimary: jest.fn().mockRejectedValue(new Error()),
       } as unknown) as Account;
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
+        <AppContext.Provider value={{ account, session }}>
           <AlertBarRootAndContextProvider>
-            <MockedCache>
-              <UnitRowSecondaryEmail />
-            </MockedCache>
+            <UnitRowSecondaryEmail />
           </AlertBarRootAndContextProvider>
-        </AccountContext.Provider>
+        </AppContext.Provider>
       );
 
       await act(async () => {
@@ -347,13 +323,11 @@ describe('UnitRowSecondaryEmail', () => {
       } as unknown) as Account;
 
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
+        <AppContext.Provider value={{ account, session }}>
           <AlertBarRootAndContextProvider>
-            <MockedCache>
-              <UnitRowSecondaryEmail />
-            </MockedCache>
+            <UnitRowSecondaryEmail />
           </AlertBarRootAndContextProvider>
-        </AccountContext.Provider>
+        </AppContext.Provider>
       );
 
       await act(async () => {
@@ -377,13 +351,11 @@ describe('UnitRowSecondaryEmail', () => {
         deleteSecondaryEmail: jest.fn().mockRejectedValue(new Error()),
       } as unknown) as Account;
       renderWithRouter(
-        <AccountContext.Provider value={{ account }}>
+        <AppContext.Provider value={{ account, session }}>
           <AlertBarRootAndContextProvider>
-            <MockedCache>
-              <UnitRowSecondaryEmail />
-            </MockedCache>
+            <UnitRowSecondaryEmail />
           </AlertBarRootAndContextProvider>
-        </AccountContext.Provider>
+        </AppContext.Provider>
       );
 
       await act(async () => {

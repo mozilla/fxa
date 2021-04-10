@@ -3,24 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, act, fireEvent, wait } from '@testing-library/react';
+import { screen, act, fireEvent } from '@testing-library/react';
 import { UnitRowTwoStepAuth } from '.';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { renderWithRouter, mockSession } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
 
 const account = ({
   totp: { exists: true, verified: true },
   disableTwoStepAuth: jest.fn().mockResolvedValue(true),
 } as unknown) as Account;
+const session = mockSession();
 
 describe('UnitRowTwoStepAuth', () => {
   it('renders when Two-step authentication is enabled', async () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <UnitRowTwoStepAuth />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <UnitRowTwoStepAuth />
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('two-step-unit-row-header').textContent
@@ -35,17 +34,14 @@ describe('UnitRowTwoStepAuth', () => {
 
   it('renders proper modal when Two-step authentication is enabled and "change" is clicked', async () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <UnitRowTwoStepAuth />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <UnitRowTwoStepAuth />
+      </AppContext.Provider>
     );
 
     await act(async () => {
       fireEvent.click(await screen.getByTestId('two-step-unit-row-modal'));
     });
-    await wait();
 
     expect(
       screen.queryByTestId('change-codes-modal-header')
@@ -57,11 +53,9 @@ describe('UnitRowTwoStepAuth', () => {
       totp: { exists: false, verified: false },
     } as unknown) as Account;
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <UnitRowTwoStepAuth />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <UnitRowTwoStepAuth />
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('two-step-unit-row-header').textContent
@@ -80,11 +74,9 @@ describe('UnitRowTwoStepAuth', () => {
       refresh: jest.fn(),
     } as unknown) as Account;
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <UnitRowTwoStepAuth />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <UnitRowTwoStepAuth />
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('two-step-unit-row-header-value')
@@ -97,11 +89,9 @@ describe('UnitRowTwoStepAuth', () => {
 
   it('renders view as not enabled after disabling TOTP', async () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <UnitRowTwoStepAuth />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <UnitRowTwoStepAuth />
+      </AppContext.Provider>
     );
 
     await act(async () => {
@@ -109,7 +99,6 @@ describe('UnitRowTwoStepAuth', () => {
         screen.getByTestId('two-step-disable-button-unit-row-modal')
       );
     });
-    await wait();
 
     expect(
       screen.queryByTestId('disable-totp-modal-header')
@@ -118,7 +107,6 @@ describe('UnitRowTwoStepAuth', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('modal-confirm'));
     });
-    await wait();
 
     expect(screen.getByTestId('delete-totp-success')).toBeInTheDocument();
   });

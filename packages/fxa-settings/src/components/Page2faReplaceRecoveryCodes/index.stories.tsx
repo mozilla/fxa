@@ -4,7 +4,6 @@
 
 import { LocationProvider } from '@reach/router';
 import { storiesOf } from '@storybook/react';
-import { MockedCache } from '../../models/_mocks';
 import React from 'react';
 import { Page2faReplaceRecoveryCodes } from '.';
 import AppLayout from '../AppLayout';
@@ -12,9 +11,7 @@ import AppLayout from '../AppLayout';
 storiesOf('Pages|2faReplaceRecoveryCodes', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache>
-      <AppLayout>
-        <Page2faReplaceRecoveryCodes />
-      </AppLayout>
-    </MockedCache>
+    <AppLayout>
+      <Page2faReplaceRecoveryCodes />
+    </AppLayout>
   ));

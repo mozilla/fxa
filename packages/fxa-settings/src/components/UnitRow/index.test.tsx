@@ -6,7 +6,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import UnitRow from '.';
 import { renderWithRouter } from '../../models/_mocks';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 import { HomePath } from '../../constants';
 
 describe('UnitRow', () => {
@@ -128,7 +128,7 @@ describe('UnitRow', () => {
       avatar: { url: null, id: null, isDefault: true },
     } as unknown) as Account;
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <UnitRow
           header="Picture"
           headerId="profile-picture"
@@ -136,7 +136,7 @@ describe('UnitRow', () => {
           route={`${HomePath}/avatar`}
           avatar={account.avatar}
         />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('unit-row-route').textContent).toContain('Add');
@@ -153,7 +153,7 @@ describe('UnitRow', () => {
       },
     } as unknown) as Account;
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
+      <AppContext.Provider value={{ account }}>
         <UnitRow
           header="Picture"
           headerId="profile-picture"
@@ -161,7 +161,7 @@ describe('UnitRow', () => {
           route={`${HomePath}/avatar`}
           avatar={account.avatar}
         />
-      </AccountContext.Provider>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('unit-row-route').textContent).toContain(

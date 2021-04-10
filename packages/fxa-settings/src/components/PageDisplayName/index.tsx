@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { navigate, RouteComponentProps } from '@reach/router';
-import { useAccount } from '../../models';
-import { useForm } from 'react-hook-form';
 import React, { useCallback, useState } from 'react';
+import { navigate, RouteComponentProps } from '@reach/router';
+import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import { alertTextExternal } from '../../lib/cache';
@@ -13,6 +12,7 @@ import { useAlertBar } from '../../lib/hooks';
 import AlertBar from '../AlertBar';
 import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
+import { useAccount } from '../../models';
 
 const validateDisplayName = (currentDisplayName: string) => (
   newDisplayName: string

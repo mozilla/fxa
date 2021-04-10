@@ -3,13 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useRef, useState, ReactNode, useCallback } from 'react';
-import {
-  useMutation as useApolloMutation,
-  DocumentNode,
-  MutationHookOptions,
-  ApolloError,
-} from '@apollo/client';
-import sentry from 'fxa-shared/lib/sentry';
+import { ApolloError } from '@apollo/client';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { AlertBarType } from '../components/AlertBar';
 import { useLocalization } from '@fluent/react';
@@ -64,31 +58,6 @@ export function useChangeFocusEffect() {
   }, []);
 
   return elToFocus;
-}
-
-export function useMutation(
-  mutation: DocumentNode,
-  options: MutationHookOptions<any, Record<string, any>> | undefined = {}
-) {
-  const { onError } = options;
-
-  options.onError = (error) => {
-    console.error(error);
-
-    if (error.networkError) {
-      sentry.captureException(error);
-    }
-
-    if (onError) {
-      try {
-        onError(error);
-      } catch (error) {
-        sentry.captureException(error);
-      }
-    }
-  };
-
-  return useApolloMutation(mutation, options);
 }
 
 export function useAlertBar({

@@ -4,9 +4,9 @@
 
 import 'mutationobserver-shim';
 import '@testing-library/jest-dom/extend-expect';
-import { act, screen, wait } from '@testing-library/react';
-import { Account, AccountContext } from '../../models';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
+import { act, screen } from '@testing-library/react';
+import { Account, AppContext } from '../../models';
+import { renderWithRouter, mockSession } from '../../models/_mocks';
 import React from 'react';
 
 import { Page2faReplaceRecoveryCodes } from '.';
@@ -19,26 +19,24 @@ const account = ({
   },
   replaceRecoveryCodes: jest.fn().mockResolvedValue({ recoveryCodes }),
 } as unknown) as Account;
+const session = mockSession();
 
 window.URL.createObjectURL = jest.fn();
 
 it('renders', async () => {
   await act(async () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <Page2faReplaceRecoveryCodes />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <Page2faReplaceRecoveryCodes />
+      </AppContext.Provider>
     );
   });
 
   expect(screen.getByTestId('2fa-recovery-codes')).toBeInTheDocument();
-  await wait(() => {
-    expect(screen.getByTestId('2fa-recovery-codes')).toHaveTextContent(
-      recoveryCodes[0]
-    );
-  });
+
+  expect(screen.getByTestId('2fa-recovery-codes')).toHaveTextContent(
+    recoveryCodes[0]
+  );
 });
 
 it('displays an error when fails to fetch new recovery codes', async () => {
@@ -47,14 +45,12 @@ it('displays an error when fails to fetch new recovery codes', async () => {
   } as unknown) as Account;
   await act(async () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <AlertBarRootAndContextProvider>
-            <Page2faReplaceRecoveryCodes />
-          </AlertBarRootAndContextProvider>
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <AlertBarRootAndContextProvider>
+          <Page2faReplaceRecoveryCodes />
+        </AlertBarRootAndContextProvider>
+      </AppContext.Provider>
     );
   });
-  await wait(() => expect(screen.getByTestId('alert-bar')).toBeInTheDocument());
+  expect(screen.getByTestId('alert-bar')).toBeInTheDocument();
 });

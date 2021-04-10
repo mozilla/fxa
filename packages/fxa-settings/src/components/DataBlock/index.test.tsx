@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 import DataBlock from './index';
 import { act } from 'react-dom/test-utils';
 
@@ -34,18 +34,18 @@ window.URL.createObjectURL = jest.fn();
 
 it('can render single values', () => {
   render(
-    <AccountContext.Provider value={{ account }}>
+    <AppContext.Provider value={{ account }}>
       <DataBlock value={singleValue} />
-    </AccountContext.Provider>
+    </AppContext.Provider>
   );
   expect(screen.getByText(singleValue)).toBeInTheDocument();
 });
 
 it('can render multiple values', () => {
   render(
-    <AccountContext.Provider value={{ account }}>
+    <AppContext.Provider value={{ account }}>
       <DataBlock value={multiValue} />
-    </AccountContext.Provider>
+    </AppContext.Provider>
   );
   multiValue.forEach((value) => {
     expect(screen.getByText(value)).toBeInTheDocument();
@@ -54,9 +54,9 @@ it('can render multiple values', () => {
 
 it('displays a tooltip on action', async () => {
   render(
-    <AccountContext.Provider value={{ account }}>
+    <AppContext.Provider value={{ account }}>
       <DataBlock value={multiValue} />
-    </AccountContext.Provider>
+    </AppContext.Provider>
   );
   await act(async () => {
     fireEvent.click(await screen.findByTestId('databutton-copy'));

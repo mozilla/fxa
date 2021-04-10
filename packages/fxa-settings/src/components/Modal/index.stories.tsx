@@ -6,64 +6,71 @@ import React, { useCallback } from 'react';
 import { storiesOf } from '@storybook/react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Modal } from '.';
+import { LocationProvider } from '@reach/router';
 
 storiesOf('Components|Modal', module)
   .add('basic', () => (
-    <ModalToggle>
-      {({ modalRevealed, hideModal }) =>
-        modalRevealed && (
-          <Modal
-            headerId="some-id"
-            descId="some-description"
-            onDismiss={hideModal}
-          >
-            <h2 id="some-id">Header goes here.</h2>
-            <p id="some-description">
-              This is a basic modal with a cancel button.
-            </p>
-          </Modal>
-        )
-      }
-    </ModalToggle>
+    <LocationProvider>
+      <ModalToggle>
+        {({ modalRevealed, hideModal }) =>
+          modalRevealed && (
+            <Modal
+              headerId="some-id"
+              descId="some-description"
+              onDismiss={hideModal}
+            >
+              <h2 id="some-id">Header goes here.</h2>
+              <p id="some-description">
+                This is a basic modal with a cancel button.
+              </p>
+            </Modal>
+          )
+        }
+      </ModalToggle>
+    </LocationProvider>
   ))
   .add('with confirm button', () => (
-    <ModalToggle>
-      {({ modalRevealed, hideModal }) =>
-        modalRevealed && (
-          <Modal
-            headerId="some-id"
-            descId="some-description"
-            onConfirm={hideModal as () => void}
-            onDismiss={hideModal}
-          >
-            <h2 id="some-id">Header goes here.</h2>
-            <p id="some-description">
-              This is a modal with cancel and confirm buttons.
-            </p>
-          </Modal>
-        )
-      }
-    </ModalToggle>
+    <LocationProvider>
+      <ModalToggle>
+        {({ modalRevealed, hideModal }) =>
+          modalRevealed && (
+            <Modal
+              headerId="some-id"
+              descId="some-description"
+              onConfirm={hideModal as () => void}
+              onDismiss={hideModal}
+            >
+              <h2 id="some-id">Header goes here.</h2>
+              <p id="some-description">
+                This is a modal with cancel and confirm buttons.
+              </p>
+            </Modal>
+          )
+        }
+      </ModalToggle>
+    </LocationProvider>
   ))
   .add('with confirm and no cancel button', () => (
-    <ModalToggle>
-      {({ modalRevealed, hideModal }) =>
-        modalRevealed && (
-          <Modal
-            headerId="some-id"
-            descId="some-description"
-            onConfirm={hideModal as () => void}
-            onDismiss={hideModal}
-            hasCancelButton={false}
-          >
-            <h2 id="some-id">Header goes here.</h2>
-            <p id="some-description">
-              This is a modal with a confirm button, but no cancel button.
-            </p>
-          </Modal>
-        )
-      }
-    </ModalToggle>
+    <LocationProvider>
+      <ModalToggle>
+        {({ modalRevealed, hideModal }) =>
+          modalRevealed && (
+            <Modal
+              headerId="some-id"
+              descId="some-description"
+              onConfirm={hideModal as () => void}
+              onDismiss={hideModal}
+              hasCancelButton={false}
+            >
+              <h2 id="some-id">Header goes here.</h2>
+              <p id="some-description">
+                This is a modal with a confirm button, but no cancel button.
+              </p>
+            </Modal>
+          )
+        }
+      </ModalToggle>
+    </LocationProvider>
   ));
 
 type ModalToggleChildrenProps = {

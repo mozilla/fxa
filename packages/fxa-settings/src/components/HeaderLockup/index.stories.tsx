@@ -4,18 +4,24 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { MockedCache } from '../../models/_mocks';
 import { HeaderLockup } from '.';
-import { Account, AccountContext } from '../../models';
+import { AppContext } from '../../models';
+import { mockSession } from 'fxa-settings/src/models/_mocks';
+
+const account = {
+  avatar: {
+    url: null,
+    id: null,
+  },
+  primaryEmail: {
+    email: 'johndope@example.com',
+  },
+} as any;
 
 storiesOf('Components|HeaderLockup', module)
   .add('with default avatar', () => (
-    <MockedCache account={{ avatar: { id: null, url: null } }}>
+    <AppContext.Provider value={{ account, session: mockSession() }}>
       <HeaderLockup />
-    </MockedCache>
+    </AppContext.Provider>
   ))
-  .add('with non-default avatar', () => (
-    <MockedCache>
-      <HeaderLockup />
-    </MockedCache>
-  ));
+  .add('with non-default avatar', () => <HeaderLockup />);

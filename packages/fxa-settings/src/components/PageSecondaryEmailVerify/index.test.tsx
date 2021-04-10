@@ -6,14 +6,15 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { mockSession, renderWithRouter } from '../../models/_mocks';
 import { alertTextExternal } from '../../lib/cache';
-import { Account, AccountContext } from '../../models';
+import { Account, AppContext } from '../../models';
 import { PageSecondaryEmailVerify } from '.';
 import { WindowLocation } from '@reach/router';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 jest.mock('../../lib/cache', () => ({
+  ...jest.requireActual('../../lib/cache'),
   alertTextExternal: jest.fn(),
 }));
 
@@ -24,6 +25,7 @@ const mockLocation = ({
 const account = ({
   verifySecondaryEmail: jest.fn().mockResolvedValue(true),
 } as unknown) as Account;
+const session = mockSession();
 
 window.console.error = jest.fn();
 
@@ -34,11 +36,9 @@ afterAll(() => {
 describe('PageSecondaryEmailVerify', () => {
   it('renders as expected', () => {
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <PageSecondaryEmailVerify location={mockLocation} />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <PageSecondaryEmailVerify location={mockLocation} />
+      </AppContext.Provider>
     );
 
     expect(
@@ -53,11 +53,9 @@ describe('PageSecondaryEmailVerify', () => {
       verifySecondaryEmail: jest.fn().mockRejectedValue(error),
     } as unknown) as Account;
     renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <PageSecondaryEmailVerify location={mockLocation} />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <PageSecondaryEmailVerify location={mockLocation} />
+      </AppContext.Provider>
     );
 
     await act(async () => {
@@ -77,11 +75,9 @@ describe('PageSecondaryEmailVerify', () => {
 
   it('navigates to settings and shows a message on success', async () => {
     const { history } = renderWithRouter(
-      <AccountContext.Provider value={{ account }}>
-        <MockedCache>
-          <PageSecondaryEmailVerify location={mockLocation} />
-        </MockedCache>
-      </AccountContext.Provider>
+      <AppContext.Provider value={{ account, session }}>
+        <PageSecondaryEmailVerify location={mockLocation} />
+      </AppContext.Provider>
     );
 
     await act(async () => {
