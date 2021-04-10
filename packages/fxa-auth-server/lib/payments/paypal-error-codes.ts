@@ -83,3 +83,11 @@ export const PAYPAL_BILLING_AGREEMENT_INVALID = 10201;
  * Returned with a transaction if the message sub id was seen before.
  */
 export const PAYPAL_REPEAT_MESSAGE_SUB_ID = 11607;
+
+/**
+ * Returned with a transaction where the billing agreement was created
+ * with a different business account.
+ *
+ * Should only occur when using multiple dev apps on the same Stripe account.
+ */
+export const PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT = 11451;

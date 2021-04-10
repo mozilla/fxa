@@ -1486,7 +1486,13 @@ export class StripeHelper {
   }
 
   /**
-   * Extract invoice details for billing emails
+   * Extract invoice details for billing emails.
+   *
+   * Note that this function throws an error in the following cases:
+   *   - Stripe customer is deleted.
+   *   - No plan in the invoice.
+   *   - No product attached to the plan.
+   *   - No email on the customer object.
    */
   async extractInvoiceDetailsForEmail(latestInvoice: Stripe.Invoice | string) {
     const invoice = await this.expandResource(latestInvoice, INVOICES_RESOURCE);
