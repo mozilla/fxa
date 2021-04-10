@@ -15,6 +15,7 @@ import ResendMixin from './mixins/resend-mixin';
 import ResumeTokenMixin from './mixins/resume-token-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_unblock.mustache';
+import Tooltip from './tooltip';
 
 const View = FormView.extend({
   template: Template,
@@ -42,6 +43,71 @@ const View = FormView.extend({
     });
   },
 
+  showValidationError(el, err, shouldFocusEl = true) {
+    this.logError(err);
+
+    const $invalidEl = this.$(el);
+    const message = AuthErrors.toMessage(err);
+
+    const maybeFocus = () => {
+      return new Promise((resolve) => {
+        if (shouldFocusEl) {
+          // wait to focus otherwise
+          // on screen keyboard may cover message
+          setTimeout(
+            () => {
+              try {
+                $invalidEl.get(0).focus();
+              } catch (e) {
+                // IE can blow up if the element is not visible.
+              }
+              resolve();
+            },
+            // Create account page needs a bit more time than next tick
+            // for some unknown reason. Maybe investigate later...
+            200
+          );
+        } else {
+          resolve();
+        }
+      });
+    };
+
+    if (err.describedById) {
+      this.markElementInvalid($invalidEl, err.describedById);
+      maybeFocus();
+    } else {
+      // tooltipId is used to bind the invalid element
+      // with the tooltip using `aria-described-by`
+      const tooltipId = `error-tooltip-${err.errno}`;
+
+      var tooltip = new Tooltip({
+        id: tooltipId,
+        invalidEl: $invalidEl,
+        message,
+        translator: this.translator,
+      });
+
+      maybeFocus().then(() => {
+        tooltip
+          .on('destroyed', () => {
+            this.markElementValid($invalidEl);
+            this.trigger('validation_error_removed', el);
+          })
+          .render()
+          .then(() => {
+            this.markElementInvalid($invalidEl, tooltipId);
+            // used for testing
+            this.trigger('validation_error', el, message);
+          });
+
+        this.trackChildView(tooltip);
+      });
+    }
+
+    return message;
+  },
+
   submit() {
     const account = this.getAccount();
     const password = this.model.get('password');
@@ -60,6 +126,13 @@ const View = FormView.extend({
         email: account.get('email'),
         error,
       });
+    } else {
+      // re-throw, it'll be displayed at a lower level.
+      throw error;
+    }
+
+    if(AuthErrors.is(error, 'INVALID_UNBLOCK_CODE')) {
+      this.showValidationError(this.getElementValue('#unblock_code'),error);
     } else {
       // re-throw, it'll be displayed at a lower level.
       throw error;
