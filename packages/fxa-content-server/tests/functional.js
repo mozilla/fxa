@@ -27,7 +27,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/force_auth.js',
   // #7978 'tests/functional/fx_desktop_handshake.js',
   'tests/functional/fx_fennec_v1_force_auth.js',
-  // #8003 'tests/functional/fx_fennec_v1_settings.js',
+  'tests/functional/fx_fennec_v1_settings.js',
   'tests/functional/fx_fennec_v1_sign_in.js',
   'tests/functional/fx_fennec_v1_sign_up.js',
   'tests/functional/fx_firstrun_v2.js',
@@ -74,7 +74,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/sync_v3_sign_up.js',
   'tests/functional/sync_v3_force_auth.js',
   'tests/functional/sync_v3_reset_password.js',
-  // #7976 'tests/functional/sync_v3_settings.js',
+  'tests/functional/sync_v3_settings.js',
   'tests/functional/tos.js',
   'tests/functional/verification_reminders.js',
 ]);

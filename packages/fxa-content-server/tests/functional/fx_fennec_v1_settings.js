@@ -105,18 +105,13 @@ registerSuite('Fx Fennec Sync v1 settings', {
     },
 
     'sign in, delete the account': function () {
-      return (
-        this.remote
-          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON))
-          .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
+      return this.remote
+        .then(click(selectors.SETTINGS_DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON))
+        .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
 
-          .then(fillOutDeleteAccount(FIRST_PASSWORD))
-          // Fx desktop requires fxaccounts:delete, Fennec requires
-          // fxaccounts:delete_account
-          .then(testIsBrowserNotified('fxaccounts:delete_account'))
+        .then(fillOutDeleteAccount(FIRST_PASSWORD))
 
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-      );
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER));
     },
 
     'sign in, no way to sign out': function () {

@@ -74,7 +74,7 @@ const SETTINGS_V2 = {
     BACK_BUTTON: '[data-testid=flow-container-back-btn]',
   },
   AVATAR_ROW: {
-    ADD_BUTTON: '[data-testid=unit-row-with-avatar-route]', // TODO 'add' and 'change' buttons have same testid
+    ADD_BUTTON: '[data-testid=avatar-unit-row-route]', // TODO 'add' and 'change' buttons have same testid
     HEADER: '#profile-picture',
   },
   AVATAR_ADD_PAGE: {
@@ -153,6 +153,7 @@ const SETTINGS_V2 = {
       '[data-testid=change-password-length] [data-testid=icon-invalid]',
     UNSET_PASSWORD_MATCH:
       '[data-testid=change-password-length] [data-testid=icon-unset]',
+    PASSWORD_REQUIREMENT_LIST: '[data-testid=change-password-requirements',
   },
   SESSION_VERIFICATION: {
     MODAL: '[data-testid=modal-verify-session]',
@@ -257,7 +258,7 @@ module.exports = {
   },
   CHANGE_PASSWORD: {
     CANCEL_BUTTON: SETTINGS_V2.CHANGE_PASSWORD.CANCEL_BUTTON, // '#change-password .cancel',
-    DETAILS: '#change-password .settings-unit-details',
+    DETAILS: SETTINGS_V2.CHANGE_PASSWORD.PASSWORD_REQUIREMENT_LIST,
     ERROR: '#change-password .error',
     LINK_RESET_PASSWORD: SETTINGS_V2.CHANGE_PASSWORD.FORGOT_PW_BUTTON, // '.reset-password', // TODO?
     MENU_BUTTON: SETTINGS_V2.CHANGE_PASSWORD.OPEN_BUTTON, // '#change-password .settings-unit-toggle',

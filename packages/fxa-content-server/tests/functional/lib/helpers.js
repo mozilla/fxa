@@ -1908,6 +1908,7 @@ const fillOutChangePassword = thenify(function (
  * @returns {promise} resolves when complete
  */
 const fillOutDeleteAccount = thenify(function (password) {
+  const DELETE_ACCOUNT_COMMAND = 'fxaccounts:delete';
   return (
     this.parent
       .setFindTimeout(intern._config.pageLoadTimeout)
@@ -1916,6 +1917,8 @@ const fillOutDeleteAccount = thenify(function (password) {
       .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
       .then((labels) => labels.map((label) => label.click()))
       .end()
+      .then(storeWebChannelMessageData(DELETE_ACCOUNT_COMMAND))
+
       .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.SUBMIT_BUTTON))
       // Enter password to proceed, but click on label first to get it out of
       // the way
@@ -1927,7 +1930,17 @@ const fillOutDeleteAccount = thenify(function (password) {
       .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL))
       .then(type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, password))
       // delete account
-      .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CONFIRM))
+      .then(
+        click(
+          selectors.SETTINGS_DELETE_ACCOUNT.CONFIRM,
+          selectors.SIGNIN_PASSWORD.HEADER
+        )
+      )
+      .then(getWebChannelMessageData(DELETE_ACCOUNT_COMMAND))
+      // Replacement for testIsBrowserNotified
+      .then((msg) => {
+        assert.equal(msg.command, DELETE_ACCOUNT_COMMAND);
+      })
   );
 });
 
