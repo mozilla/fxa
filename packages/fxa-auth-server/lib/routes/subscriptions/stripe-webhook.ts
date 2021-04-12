@@ -16,6 +16,7 @@ import { PayPalClientError } from '../../payments/paypal-client';
 import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
+  PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT,
 } from '../../payments/paypal-error-codes';
 import { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
@@ -214,7 +215,15 @@ export class StripeWebhookHandler extends StripeHandler {
     event: Stripe.Event
   ) {
     const sub = event.data.object as Stripe.Subscription;
-    const { uid, email } = await this.sendSubscriptionUpdatedEmail(event);
+
+    let uid, email;
+    try {
+      ({ uid, email } = await this.sendSubscriptionUpdatedEmail(event));
+    } catch (err) {
+      // It's unexpected that we don't know about the customer or an error happens.
+      reportSentryError(err, request);
+      return;
+    }
 
     // if the subscription changed from 'incomplete' to 'active' or 'trialing'
     if (
@@ -240,7 +249,19 @@ export class StripeWebhookHandler extends StripeHandler {
     event: Stripe.Event
   ) {
     const sub = event.data.object as Stripe.Subscription;
-    const { uid, email } = await this.sendSubscriptionDeletedEmail(sub);
+    let uid, email;
+    try {
+      ({ uid, email } = await this.sendSubscriptionDeletedEmail(sub));
+    } catch (err) {
+      // FIXME: If the customer was deleted, we don't send an email that their subscription
+      //        was cancelled. This is because the email requires a bunch of details that
+      //        only exist on non-deleted customer. A more robust solution is needed.
+      if (err.errno === error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
+        return;
+      }
+      reportSentryError(err, request);
+      return;
+    }
     await this.updateCustomerAndSendStatus(
       request,
       event,
@@ -342,6 +363,13 @@ export class StripeWebhookHandler extends StripeHandler {
           await this.sendSubscriptionPaymentFailedEmail(invoice);
           return false;
         }
+        if (err.errorCode === PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT) {
+          // Occurs when multiple different PayPal business credentials are
+          // used with the same Stripe account. Report the error but don't
+          // throw Stripe an error.
+          reportSentryError(err, request);
+          return false;
+        }
       }
       this.log.error('processInvoice', { err, invoiceId: invoice.id });
       throw err;
@@ -353,7 +381,13 @@ export class StripeWebhookHandler extends StripeHandler {
    */
   async handleInvoicePaidEvent(request: AuthRequest, event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
-    const { uid, email } = await this.sendSubscriptionInvoiceEmail(invoice);
+    let uid, email;
+    try {
+      ({ uid, email } = await this.sendSubscriptionInvoiceEmail(invoice));
+    } catch (err) {
+      reportSentryError(err, request);
+      return;
+    }
     await this.updateCustomer(uid, email);
   }
 
@@ -592,6 +626,9 @@ export const stripeWebhookRoutes = (
         payload: {
           output: 'data',
           parse: false,
+          // Stripe event bodies can be pretty large, the server defaults to 16Kb so
+          // we bump it to 56Kb since observed payloads have exceeded 20Kb.
+          maxBytes: 1024 * 56,
         },
         validate: {
           headers: { 'stripe-signature': isA.string().required() },
