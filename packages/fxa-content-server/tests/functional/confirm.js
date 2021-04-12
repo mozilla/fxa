@@ -38,7 +38,7 @@ registerSuite('confirm', {
     },
 
     'sign up, wait for confirmation screen, click resend': function () {
-      const email = 'test_signin' + Math.random() + '@restmail.dev.lcip.org';
+      const email = 'test_signin' + Math.random() + '@restmail.net';
 
       return (
         this.remote
@@ -58,7 +58,7 @@ registerSuite('confirm', {
           // the test below depends on the speed of the email resent XHR
           // we have to wait until the resent request completes and the
           // success notification is visible
-          .then(testSuccessWasShown())
+          .then(testSuccessWasShown(null, '.success'))
       );
     },
   },

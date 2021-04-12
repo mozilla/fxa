@@ -17,7 +17,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/back_button_after_start.js',
   'tests/functional/bounced_email.js',
   'tests/functional/change_password.js',
-  // #7987 'tests/functional/confirm.js',
+  'tests/functional/confirm.js',
   'tests/functional/connect_another_device.js',
   'tests/functional/cookies_disabled.js',
   'tests/functional/delete_account.js',
