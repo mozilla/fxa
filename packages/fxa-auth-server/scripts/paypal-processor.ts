@@ -78,7 +78,7 @@ export async function init() {
   );
   let database = null;
   try {
-    database = await DB.connect({ ...config[config.db.backend], redis });
+    database = await DB.connect(config, redis);
   } catch (err) {
     log.error('DB.connect', { err: { message: err.message } });
     process.exit(1);
