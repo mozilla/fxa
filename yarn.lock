@@ -6868,12 +6868,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/file-loader@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "@types/file-loader@npm:4.2.0"
+"@types/file-loader@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "@types/file-loader@npm:4.2.1"
   dependencies:
-    "@types/webpack": "*"
-  checksum: 2351ac8db376883936db8b8b8ac62766d60db94bb352a56f5972a2b2e748461a56be8281c7729f9ecf766a285c23f7a65e500f1e6fa188a7f6dfb0846f40f8ea
+    "@types/webpack": ^4
+  checksum: b5fb8a5e0dadf1ec527dd741232324903624718ee895490d2234be3dc31e7ce0279be0538d2f5c4a208c9badae940c4920ea94ae72526706e48eae3fa2842643
   languageName: node
   linkType: hard
 
@@ -7975,6 +7975,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/tapable@npm:^1":
+  version: 1.0.7
+  resolution: "@types/tapable@npm:1.0.7"
+  checksum: af30bb7429d590c7df1f3f5b8ef55fcf2c5498cd2d972c40b0ee543a2e7c3df988b5ac29e231b22b09b712ea1df3dbf3eb145dcbbd43544534cbfb0f1cebdfac
+  languageName: node
+  linkType: hard
+
 "@types/testing-library__dom@npm:*, @types/testing-library__dom@npm:^6.12.1":
   version: 6.14.0
   resolution: "@types/testing-library__dom@npm:6.14.0"
@@ -8089,7 +8096,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack@npm:*, @types/webpack@npm:4.41.26, @types/webpack@npm:^4.41.13, @types/webpack@npm:^4.41.8":
+"@types/webpack@npm:4.41.25":
+  version: 4.41.25
+  resolution: "@types/webpack@npm:4.41.25"
+  dependencies:
+    "@types/anymatch": "*"
+    "@types/node": "*"
+    "@types/tapable": "*"
+    "@types/uglify-js": "*"
+    "@types/webpack-sources": "*"
+    source-map: ^0.6.0
+  checksum: 3bf453406c6479efedfee3b847b4274f5e8e1533cda91828c0f90fe32c9e17c12c5bdbbd99b1ad983460c845776554c54c5548d3cdd5bc13d2cf47f5f85fe57a
+  languageName: node
+  linkType: hard
+
+"@types/webpack@npm:4.41.26, @types/webpack@npm:^4.41.13, @types/webpack@npm:^4.41.8":
   version: 4.41.26
   resolution: "@types/webpack@npm:4.41.26"
   dependencies:
@@ -8103,17 +8124,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack@npm:4.41.25":
-  version: 4.41.25
-  resolution: "@types/webpack@npm:4.41.25"
+"@types/webpack@npm:^4":
+  version: 4.41.27
+  resolution: "@types/webpack@npm:4.41.27"
   dependencies:
     "@types/anymatch": "*"
     "@types/node": "*"
-    "@types/tapable": "*"
+    "@types/tapable": ^1
     "@types/uglify-js": "*"
     "@types/webpack-sources": "*"
     source-map: ^0.6.0
-  checksum: 3bf453406c6479efedfee3b847b4274f5e8e1533cda91828c0f90fe32c9e17c12c5bdbbd99b1ad983460c845776554c54c5548d3cdd5bc13d2cf47f5f85fe57a
+  checksum: 5e10ad206accc6a9ec3dbea1b79625d441dc2d93cad61daa8ba77eea0a7b659f7ca605078ec06189e9b7eb48fa244b6cfc617771e8fc579cdd9b26546e8c3120
   languageName: node
   linkType: hard
 
@@ -19999,7 +20020,7 @@ fsevents@^1.2.7:
     "@testing-library/user-event": ^12.7.1
     "@types/camelcase": 5.2.0
     "@types/classnames": ^2.2.11
-    "@types/file-loader": ^4.2.0
+    "@types/file-loader": ^4.2.1
     "@types/jest": ^26.0.22
     "@types/node": ^14.14.37
     "@types/prettier": 2.2.3
