@@ -177,6 +177,7 @@ async function create(log, error, config, routes, db, translator, statsd) {
       xff.push(request.info.remoteAddress);
 
       return xff
+        .filter(Boolean)
         .map((address) => address.trim())
         .filter(
           (address) => !joi.validate(address, IP_ADDRESS.required()).error
