@@ -26,7 +26,6 @@ const SYNC_ENTER_EMAIL_PAGE_URL = `${ENTER_EMAIL_PAGE_URL}&service=sync`;
 const SETTINGS_PAGE_URL = `${
   config.fxaContentRoot
 }settings?forceUA=${encodeURIComponent(userAgent)}`;
-const SYNC_SETTINGS_PAGE_URL = `${SETTINGS_PAGE_URL}&service=sync`;
 
 const SYNC_SMS_PAGE_URL = `${
   config.fxaContentRoot
@@ -325,6 +324,9 @@ registerSuite('Firefox desktop user info handshake', {
         .then(testElementValueEquals(selectors.FORCE_AUTH.EMAIL, otherEmail));
     },
 
+    // TODO: These tests are dependent on the changes in #8244
+    //
+    /*
     'Sync settings page - user signed into browser': function () {
       return this.remote
         .then(
@@ -374,6 +376,7 @@ registerSuite('Firefox desktop user info handshake', {
         openPage(SETTINGS_PAGE_URL, selectors.ENTER_EMAIL.HEADER)
       );
     },
+    */
 
     'Non-Sync settings page - no user signed into browser, user signed in locally': function () {
       return this.remote
