@@ -27,6 +27,7 @@ const {
   openPage,
   openSignUpInNewTab,
   pollUntilHiddenByQSA,
+  signOut,
   switchToWindow,
   testAttributeIncludes,
   testElementExists,
@@ -95,7 +96,7 @@ registerSuite('signup here', {
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
-        .then(click(selectors.SETTINGS.SIGNOUT))
+        .then(signOut())
 
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
 
@@ -105,7 +106,7 @@ registerSuite('signup here', {
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown())
-        .then(click(selectors.SETTINGS.SIGNOUT))
+        .then(signOut())
 
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -215,7 +216,7 @@ registerSuite('signup here', {
           // The original tab should transition to the settings page w/ success
           // message.
           .then(testElementExists(selectors.SETTINGS.HEADER))
-          .then(click(selectors.SETTINGS.SIGNOUT))
+          .then(signOut())
 
           .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           // check the email address was cleared
