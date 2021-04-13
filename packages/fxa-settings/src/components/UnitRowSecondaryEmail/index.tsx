@@ -316,7 +316,7 @@ export const UnitRowSecondaryEmail = () => {
                 <p className="text-xs mt-3 text-grey-400">
                   Verification needed.
                   <button
-                    className="link-blue mx-1"
+                    className="link-blue"
                     data-testid="secondary-email-resend-code-button"
                     onClick={() => {
                       resendEmailCode.execute(email);
