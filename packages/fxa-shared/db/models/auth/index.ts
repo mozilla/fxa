@@ -16,6 +16,8 @@ import { RecoveryKey } from './recovery-key';
 import { SessionToken } from './session-token';
 import { TotpToken } from './totp-token';
 import { PayPalBillingAgreements } from './paypal-ba';
+import { EmailType } from './email-type';
+import { SentEmail } from './sent-email';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -211,11 +213,13 @@ export {
   Device,
   Email,
   EmailBounce,
+  EmailType,
   KeyFetchToken,
   PasswordChangeToken,
   PasswordForgotToken,
   PayPalBillingAgreements,
   RecoveryKey,
+  SentEmail,
   SessionToken,
   TotpToken,
 };

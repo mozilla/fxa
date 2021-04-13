@@ -80,6 +80,8 @@ module.exports = function (log, config) {
 
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
+  // Please create a DB migration to add the new templates into `emailTypes`
+  // when you add new templates.
   const templateNameToContentMap = {
     subscriptionReactivation: 'subscriptions',
     subscriptionUpgrade: 'subscriptions',
