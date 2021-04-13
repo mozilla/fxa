@@ -2,6 +2,8 @@
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": true,
   "files.insertFinalNewline": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "javascript.preferences.importModuleSpecifier": "relative",
   "[javascript]": {
     "editor.detectIndentation": false,
     "editor.tabSize": 2,
