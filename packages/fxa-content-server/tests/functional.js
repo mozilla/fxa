@@ -10,6 +10,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',
   'tests/functional/sign_up_with_code.js',
+  'tests/functional/settings_change_email.js',
   // new and flaky tests above here',
   'tests/functional/404.js',
   'tests/functional/500.js',
