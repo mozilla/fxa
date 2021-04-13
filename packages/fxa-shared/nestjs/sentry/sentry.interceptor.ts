@@ -6,6 +6,7 @@ import {
   ExecutionContext,
   Injectable,
   NestInterceptor,
+  HttpException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -15,10 +16,21 @@ import { processException } from './reporting';
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next
-      .handle()
-      .pipe(
-        tap({ error: (exception) => processException(context, exception) })
-      );
+    return next.handle().pipe(
+      tap({
+        error: (exception) => {
+          // Skip HttpExceptions with status code < 500.
+          if (
+            exception instanceof HttpException ||
+            exception.constructor.name === 'HttpException'
+          ) {
+            if ((exception as HttpException).getStatus() < 500) {
+              return;
+            }
+          }
+          processException(context, exception);
+        },
+      })
+    );
   }
 }
