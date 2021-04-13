@@ -1595,7 +1595,7 @@ const openRP = thenify(function (options = {}) {
   );
 });
 
-const addAndVerifySecondaryEmail = thenify(function (email) {
+const addAndVerifySecondaryEmail = thenify(function (email, number = 0) {
   return (
     this.parent
       .then(click(selectors.EMAIL.INPUT_LABEL))
@@ -1606,7 +1606,7 @@ const addAndVerifySecondaryEmail = thenify(function (email) {
       // Awkwardly, to get back to the secondary email code input, we need to click
       // the 'resend email' link.
       .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.RESEND_EMAIL))
-      .then(getEmailCode(email, 0))
+      .then(getEmailCode(email, number))
       .then((code) => {
         return this.parent
           .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL))

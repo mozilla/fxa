@@ -23,6 +23,7 @@ const {
   clearBrowserState,
   click,
   createEmail,
+  fillOutDeleteAccount,
   fillOutChangePassword,
   fillOutEmailFirstSignUp,
   fillOutEmailFirstSignIn,
@@ -160,7 +161,6 @@ registerSuite('settings change email', {
       );
     },
 
-    /* Disabled - failing on CI but not locally. Followup bug #7863.
     'can change primary email, delete account': function () {
       return (
         this.remote
@@ -185,11 +185,10 @@ registerSuite('settings change email', {
 
           // Verify that user can add the same primary email as secondary as used in the previous account
           .then(click(selectors.EMAIL.MENU_BUTTON))
-          .then(addAndVerifySecondaryEmail(email))
+          .then(addAndVerifySecondaryEmail(email, 3))
           .then(testSuccessWasShown())
       );
     },
-    */
   },
 });
 
