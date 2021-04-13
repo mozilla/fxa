@@ -3403,15 +3403,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jest/create-cache-key-function@npm:^26.5.0":
-  version: 26.6.2
-  resolution: "@jest/create-cache-key-function@npm:26.6.2"
-  dependencies:
-    "@jest/types": ^26.6.2
-  checksum: 0cd38cdd03131b75da97441f4e84021289603292443f23061d09dcdc6687750095efa2bad18ab0599afb9153f4ee67f77d2a0a5ab04124ebf2685994fc849b43
-  languageName: node
-  linkType: hard
-
 "@jest/environment@npm:^24.3.0, @jest/environment@npm:^24.9.0":
   version: 24.9.0
   resolution: "@jest/environment@npm:24.9.0"
@@ -7177,7 +7168,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:*, @types/jest@npm:26.x, @types/jest@npm:^26.0.22":
+"@types/jest@npm:*, @types/jest@npm:^26.0.22":
   version: 26.0.22
   resolution: "@types/jest@npm:26.0.22"
   dependencies:
@@ -19223,7 +19214,7 @@ fsevents@^1.2.7:
     react-scripts: ^3.4.1
     serve-static: ^1.14.1
     supertest: ^6.1.3
-    ts-jest: ^26.3.0
+    ts-jest: ^26.5.4
     ts-node: ^9.1.1
     typescript: 3.9.7
     webpack: ^4.43.0
@@ -19277,7 +19268,7 @@ fsevents@^1.2.7:
     rimraf: ^3.0.2
     rxjs: ^6.6.6
     supertest: ^6.1.3
-    ts-jest: 26.4.3
+    ts-jest: 26.5.4
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
     tslib: ^2.0.1
@@ -19779,7 +19770,7 @@ fsevents@^1.2.7:
     rxjs: ^6.6.6
     sqs-consumer: ^5.5.0
     supertest: ^6.1.3
-    ts-jest: 26.4.3
+    ts-jest: 26.5.4
     ts-loader: ^8.0.12
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
@@ -19877,7 +19868,7 @@ fsevents@^1.2.7:
     rxjs: ^6.6.6
     superagent: ^6.0.0
     supertest: ^6.1.3
-    ts-jest: 26.4.3
+    ts-jest: 26.5.4
     ts-node: ^9.1.1
     tslib: 2.1.0
     typescript: 3.9.7
@@ -20052,7 +20043,7 @@ fsevents@^1.2.7:
     serve-static: ^1.13.2
     sinon: ^9.0.3
     supertest: ^6.1.3
-    ts-jest: ^26.3.0
+    ts-jest: ^26.5.4
     ts-node: ^9.1.1
     type-to-reducer: ^1.2.0
     typedi: ^0.8.0
@@ -20165,7 +20156,7 @@ fsevents@^1.2.7:
     sass-loader: ^10.0.3
     sinon: ^9.2.3
     tailwindcss-dir: ^4.0.0
-    ts-jest: ^26.3.0
+    ts-jest: ^26.5.4
     typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
@@ -20315,7 +20306,7 @@ fsevents@^1.2.7:
     sinon: ^9.0.3
     stripe: ^8.69.0
     superagent: ^6.0.0
-    ts-jest: 26.4.3
+    ts-jest: 26.5.4
     ts-loader: ^8.0.12
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
@@ -20365,7 +20356,7 @@ fsevents@^1.2.7:
     semver: ^7.3.2
     superagent: ^6.0.0
     supertest: ^6.1.3
-    ts-jest: 26.4.3
+    ts-jest: 26.5.4
     ts-node: ^9.1.1
     tslib: 2.1.0
     typesafe-joi: ^2.1.0
@@ -26612,7 +26603,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash.memoize@npm:4.x, lodash.memoize@npm:^4.1.2":
+"lodash.memoize@npm:^4.1.2":
   version: 4.1.2
   resolution: "lodash.memoize@npm:4.1.2"
   checksum: 080c1095b7795b293a06078737550dc0c8138192cadbafb4e4b1303357d367ac589a1a570fad8de154175b008ca7b2b48d6a7f1755a143e13b764e20a7104080
@@ -26750,7 +26741,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.0.1, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.19, lodash@npm:~4.17.20":
+"lodash@npm:4.17.21, lodash@npm:4.x, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.0.1, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.19, lodash@npm:~4.17.20":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 4983720b9abca930a4a46f18db163d7dad8dd00dbed6db0cc7b499b33b717cce69f80928b27bbb1ff2cbd3b19d251ee90669a8b5ea466072ca81c2ebe91e7468
@@ -38189,18 +38180,16 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:26.4.3, ts-jest@npm:^26.3.0":
-  version: 26.4.3
-  resolution: "ts-jest@npm:26.4.3"
+"ts-jest@npm:26.5.4, ts-jest@npm:^26.5.4":
+  version: 26.5.4
+  resolution: "ts-jest@npm:26.5.4"
   dependencies:
-    "@jest/create-cache-key-function": ^26.5.0
-    "@types/jest": 26.x
     bs-logger: 0.x
     buffer-from: 1.x
     fast-json-stable-stringify: 2.x
     jest-util: ^26.1.0
     json5: 2.x
-    lodash.memoize: 4.x
+    lodash: 4.x
     make-error: 1.x
     mkdirp: 1.x
     semver: 7.x
@@ -38210,7 +38199,7 @@ resolve@~1.11.1:
     typescript: ">=3.8 <5.0"
   bin:
     ts-jest: cli.js
-  checksum: d9c2f802ece58a61ddd23acd6d05c6bb6d5b094b03d90465d2efa67ffbbe9afc6525dd29bfea571d4e8f343a566785372c613f63fae7268b39b88c5b9111b153
+  checksum: 8e5856b7cb990ff4cbc9577e4ec2a1135da9747e41dbf128e03ffa631dd0fdce402780a87318d28114174faa80ccdd0875b2c312b86c07a4537531c517f79101
   languageName: node
   linkType: hard
 
