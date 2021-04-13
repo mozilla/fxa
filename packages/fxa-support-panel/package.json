@@ -37,7 +37,7 @@
     "@nestjs/mapped-types": "^0.4.1",
     "@nestjs/platform-express": "^7.6.12",
     "@sentry/integrations": "^5.29.1",
-    "@sentry/node": "^6.0.1",
+    "@sentry/node": "^6.2.5",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "convict": "^6.0.1",
