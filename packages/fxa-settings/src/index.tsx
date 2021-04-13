@@ -9,10 +9,11 @@ import sentryMetrics from 'fxa-shared/lib/sentry';
 import App from './components/App';
 import config from './lib/config';
 import { searchParams } from './lib/utilities';
-import { AppContext, autoContext } from './models';
+import { AppContext, initializeAppContext } from './models';
 import './index.scss';
 
 try {
+  const appContext = initializeAppContext();
   sentryMetrics.configure(config.sentry.dsn, config.version);
   const flowQueryParams = searchParams(
     window.location.search
@@ -20,7 +21,7 @@ try {
 
   render(
     <React.StrictMode>
-      <AppContext.Provider value={autoContext}>
+      <AppContext.Provider value={appContext}>
         <AppErrorBoundary>
           <App
             {...{

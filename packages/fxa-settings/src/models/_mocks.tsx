@@ -6,7 +6,7 @@ import React from 'react';
 import { InMemoryCache, ApolloClient, ApolloProvider } from '@apollo/client';
 import { MockLink, MockedResponse } from '@apollo/client/testing';
 import { AccountData, Session } from '.';
-import { GET_INITIAL_STATE } from './App';
+import { GET_INITIAL_STATE } from './AppContext';
 import { deepMerge } from '../lib/utilities';
 import {
   createHistory,

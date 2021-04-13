@@ -41,8 +41,8 @@ jest.mock('react', () => ({
   useEffect: jest.fn().mockImplementation((f) => f()),
 }));
 
-jest.mock('../models/App', () => ({
-  ...jest.requireActual('../models/App'),
+jest.mock('../models', () => ({
+  ...jest.requireActual('../models'),
   useAccount: jest
     .fn()
     // Keep in mind that jest.mock is hoisted, so importing MOCK_ACCOUNT in a

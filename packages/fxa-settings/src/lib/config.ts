@@ -68,8 +68,7 @@ export function readConfigMeta(
   const metaEl = headQuerySelector(`meta[name="${META_CONFIG}"]`);
 
   if (!metaEl) {
-    return;
-    // throw new Error('<meta name="fxa-config"> is missing');
+    throw new Error('<meta name="fxa-config"> is missing');
   }
 
   update(decode(metaEl.getAttribute('content')));
