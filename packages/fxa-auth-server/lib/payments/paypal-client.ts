@@ -122,7 +122,7 @@ type BillToAddressData = {
   STREET: string;
   STREET2: string;
   ZIP: string;
-}
+};
 
 export type TransactionStatus =
   | 'Pending'
@@ -159,7 +159,9 @@ export type NVPDoReferenceTransactionResponse = NVPResponse &
 
 export type NVPRefundTransactionResponse = NVPResponse & RefundTransactionData;
 
-export type NVPBAUpdateTransactionResponse = NVPResponse & BAUpdateData & BillToAddressData;
+export type NVPBAUpdateTransactionResponse = NVPResponse &
+  BAUpdateData &
+  BillToAddressData;
 
 export type NVPTransactionSearchResponse = TransactionSearchData & NVPResponse;
 
@@ -255,13 +257,12 @@ export class PayPalClientError extends Error {
   constructor(raw: string, data: NVPResponse, ...params: any) {
     super(...params);
     this.name = 'PayPalClientError';
+    this.errorCode = data.L?.length ? parseInt(data.L[0].ERRORCODE) : undefined;
     if (!this.message) {
-      this.message =
-        'PayPal NVP returned a non-success ACK. See "this.raw" or "this.data" for more details.';
+      this.message = `PayPal NVP returned a non-success ACK. See "this.raw" or "this.data" for more details. PayPal error code: ${this.errorCode}`;
     }
     this.raw = raw;
     this.data = data;
-    this.errorCode = data.L?.length ? parseInt(data.L[0].ERRORCODE) : undefined;
   }
 }
 

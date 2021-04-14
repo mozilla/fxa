@@ -230,6 +230,7 @@ describe('PayPalClient', () => {
         assert.equal(err.name, 'PayPalClientError');
         assert.include(err.raw, 'ACK=Failure');
         assert.equal(err.data.ACK, 'Failure');
+        assert.equal(err.errorCode, 15005);
       }
     });
   });
