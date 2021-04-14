@@ -50,7 +50,6 @@ describe('mailer locales', () => {
     const locales = [
       // [ locale, expected result ]
       ['', 'en'],
-      ['en-CA', 'en'],
       ['db-LB', 'en'],
       ['el-GR', 'el'],
       ['es-BO', 'es'],

@@ -9,7 +9,7 @@ import React, { Component } from 'react';
 
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 
-const OTHER_EN_LOCALES = ['en-NZ', 'en-CA', 'en-SG', 'en-MY'];
+const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
 
 async function fetchMessages(baseDir: string, locale: string, bundle: string) {
   try {
