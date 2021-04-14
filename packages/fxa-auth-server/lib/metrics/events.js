@@ -52,12 +52,18 @@ const IGNORE_FLOW_EVENTS_FROM_SERVICES = {
 };
 
 const IGNORE_ROUTE_FLOW_EVENTS_FOR_PATHS = new Set([
+  '/',
+  '/__version__',
+  '/__heartbeat__',
+  '/__lbheartbeat__',
   '/account/devices',
   '/account/profile',
   '/account/sessions',
   '/certificate/sign',
   '/password/forgot/status',
   '/recovery_email/status',
+  '/jwks',
+  '/introspect',
 ]);
 
 const IGNORE_ROUTE_FLOW_EVENTS_REGEX = /^\/recoveryKey\/[0-9A-Fa-f]+$/;
