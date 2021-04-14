@@ -46,7 +46,7 @@
     "@testing-library/dom": "^7.24.5",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^12.7.1",
+    "@testing-library/user-event": "^13.1.2",
     "@types/camelcase": "5.2.0",
     "@types/classnames": "^2.2.11",
     "@types/file-loader": "^4.2.0",
