@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import UnitRowRecoveryKey from '.';
-import { renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import { Account, AppContext } from '../../models';
 
 const account = ({
@@ -16,7 +16,7 @@ const account = ({
 describe('UnitRowRecoveryKey', () => {
   it('renders when recovery key is set', () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowRecoveryKey />
       </AppContext.Provider>
     );
@@ -36,7 +36,7 @@ describe('UnitRowRecoveryKey', () => {
       recoveryKey: false,
     } as unknown) as Account;
     renderWithRouter(
-      <AppContext.Provider value={{ account }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowRecoveryKey />
       </AppContext.Provider>
     );
@@ -58,7 +58,7 @@ describe('UnitRowRecoveryKey', () => {
     } as unknown) as Account;
     await act(async () => {
       renderWithRouter(
-        <AppContext.Provider value={{ account }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowRecoveryKey />
         </AppContext.Provider>
       );

@@ -140,10 +140,7 @@ describe('two step auth', () => {
     await click(selectors.SETTINGS_V2.SECURITY.TFA.DISABLE_TFA_CONFIRM, remote);
 
     // Verify the success message
-    await visibleByQSA(
-      selectors.SETTINGS_V2.SECURITY.TFA.DISABLE_SUCCESS_MESSAGE,
-      remote
-    );
+    await visibleByQSA(selectors.SETTINGS_V2.SUCCESS_MESSAGE, remote);
 
     // Verify the status is 'Not set' after disabling the 2FA
     await testElementTextEquals(

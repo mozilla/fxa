@@ -7,17 +7,11 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen } from '@testing-library/react';
 import PageDisplayName from '.';
-import { renderWithRouter } from '../../models/_mocks';
-import { alertTextExternal } from '../../lib/cache';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import { HomePath } from '../../constants';
 import { Account, AppContext } from '../../models';
-import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 
-jest.mock('../../lib/cache', () => ({
-  ...jest.requireActual('../../lib/cache'),
-  alertTextExternal: jest.fn(),
-}));
-
+jest.mock('../../models/AlertBarInfo');
 const inputDisplayName = async (newName: string) => {
   await act(async () => {
     fireEvent.input(screen.getByTestId('input-field'), {
@@ -47,7 +41,7 @@ it('renders', async () => {
 
 it('updates the disabled state of the save button', async () => {
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <PageDisplayName />
     </AppContext.Provider>
   );
@@ -69,15 +63,18 @@ it('updates the disabled state of the save button', async () => {
 });
 
 it('navigates back to settings home and shows a success message on a successful update', async () => {
+  const alertBarInfo = {
+    success: jest.fn(),
+  } as any;
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
       <PageDisplayName />
     </AppContext.Provider>
   );
   await submitDisplayName('John Hope');
   expect(window.location.pathname).toBe(HomePath);
-  expect(alertTextExternal).toHaveBeenCalledTimes(1);
-  expect(alertTextExternal).toHaveBeenCalledWith('Display name updated.');
+  expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
+  expect(alertBarInfo.success).toHaveBeenCalledWith('Display name updated.');
 });
 
 it('displays a general error in the alert bar', async () => {
@@ -86,20 +83,15 @@ it('displays a general error in the alert bar', async () => {
     displayName: 'jrgm',
     setDisplayName: jest.fn().mockRejectedValue(gqlError),
   } as unknown) as Account;
+  const context = mockAppContext({ account });
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
-      <AlertBarRootAndContextProvider>
-        <PageDisplayName />
-      </AlertBarRootAndContextProvider>
+    <AppContext.Provider value={context}>
+      <PageDisplayName />
     </AppContext.Provider>
   );
-  // suppress the console output
-  let consoleErrorSpy = jest
-    .spyOn(console, 'error')
-    .mockImplementationOnce(() => {});
+
   await submitDisplayName('John Nope');
-  expect(screen.getByTestId('alert-bar')).toBeInTheDocument();
-  consoleErrorSpy.mockRestore();
+  expect(context.alertBarInfo?.error).toBeCalledTimes(1);
 });
 
 it('displays the GraphQL error', async () => {
@@ -110,7 +102,7 @@ it('displays the GraphQL error', async () => {
     setDisplayName: jest.fn().mockRejectedValue(gqlError),
   } as unknown) as Account;
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <PageDisplayName />
     </AppContext.Provider>
   );

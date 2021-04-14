@@ -59,3 +59,11 @@ export function useInitialState() {
   }
   return useQuery(GET_INITIAL_STATE, { client: apolloClient });
 }
+
+export function useAlertBar() {
+  const { alertBarInfo } = useContext(AppContext);
+  if (!alertBarInfo) {
+    throw new Error('Are you forgetting an AppContext.Provider?');
+  }
+  return alertBarInfo;
+}

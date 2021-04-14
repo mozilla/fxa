@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { mockSession, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import { PageSecondaryEmailAdd } from '.';
 import { Account, AppContext } from '../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
@@ -15,7 +15,6 @@ window.console.error = jest.fn();
 const account = ({
   createSecondaryEmail: jest.fn().mockResolvedValue(true),
 } as unknown) as Account;
-const session = mockSession();
 
 afterAll(() => {
   (window.console.error as jest.Mock).mockReset();
@@ -25,7 +24,7 @@ describe('PageSecondaryEmailAdd', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {
       renderWithRouter(
-        <AppContext.Provider value={{ account, session }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <PageSecondaryEmailAdd />
         </AppContext.Provider>
       );
@@ -41,7 +40,7 @@ describe('PageSecondaryEmailAdd', () => {
 
     it('Enables "save" button once valid email is input', () => {
       renderWithRouter(
-        <AppContext.Provider value={{ account, session }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <PageSecondaryEmailAdd />
         </AppContext.Provider>
       );
@@ -56,7 +55,7 @@ describe('PageSecondaryEmailAdd', () => {
 
     it('Do not Enable "save" button if invalid email is input', () => {
       renderWithRouter(
-        <AppContext.Provider value={{ account, session }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <PageSecondaryEmailAdd />
         </AppContext.Provider>
       );
@@ -76,7 +75,7 @@ describe('PageSecondaryEmailAdd', () => {
         createSecondaryEmail: jest.fn().mockRejectedValue(error),
       } as unknown) as Account;
       renderWithRouter(
-        <AppContext.Provider value={{ account, session }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <PageSecondaryEmailAdd />
         </AppContext.Provider>
       );

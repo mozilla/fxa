@@ -7,7 +7,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen } from '@testing-library/react';
 
 import { Account, AppContext } from '../../models';
-import { renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 
 import PageAvatar from '.';
 import {
@@ -32,7 +32,7 @@ const account = ({
 
 it('PageAvatar | renders', async () => {
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <PageAvatar />
     </AppContext.Provider>
   );
@@ -42,7 +42,7 @@ it('PageAvatar | renders', async () => {
 
 it('PageAvatar | emits a metrics event on render', async () => {
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <PageAvatar />
     </AppContext.Provider>
   );
@@ -51,7 +51,7 @@ it('PageAvatar | emits a metrics event on render', async () => {
 
 it('PageAddAvatar | render add, take buttons on initial load', async () => {
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <PageAvatar />
     </AppContext.Provider>
   );
@@ -61,7 +61,7 @@ it('PageAddAvatar | render add, take buttons on initial load', async () => {
 
 it('PageAddAvatar | render remove button if avatar is set', async () => {
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <PageAvatar />
     </AppContext.Provider>
   );
@@ -77,7 +77,7 @@ it('PageAddAvatar | renders AddPhotoBtn and calls onchange correctly', async () 
 it('PageAddAvatar | renders ConfirmBtns and calls onsave correctly', async () => {
   const onSave = jest.fn();
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <ConfirmBtns onSave={onSave} saveEnabled={true} />
     </AppContext.Provider>
   );
@@ -95,7 +95,7 @@ it('PageAddAvatar | renders ConfirmBtns and calls onsave correctly', async () =>
 it('PageAddAvatar | renders ConfirmBtns with save button disabled when "enabled" option is false', async () => {
   const onSave = jest.fn();
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <ConfirmBtns onSave={onSave} saveEnabled={false} />
     </AppContext.Provider>
   );
@@ -106,7 +106,7 @@ it('PageAddAvatar | renders ConfirmBtns with save button disabled when "enabled"
 it('PageAddAvatar | renders TakePhotoBtn and calls onclick correctly', async () => {
   const onClick = jest.fn();
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <TakePhotoBtn onClick={onClick} capturing={false} />
     </AppContext.Provider>
   );
@@ -123,7 +123,7 @@ it('PageAddAvatar | renders TakePhotoBtn and calls onclick correctly', async () 
 it('PageAddAvatar | renders TakePhotoBtn and renders correctly when passed "capturing" option', async () => {
   const onClick = jest.fn();
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <TakePhotoBtn onClick={onClick} capturing={true} />
     </AppContext.Provider>
   );
@@ -137,7 +137,7 @@ it('PageAddAvatar | renders ZoomBtns and calls onclick correctly', async () => {
   const zoomOut = jest.fn();
   const zoomIn = jest.fn();
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <>
         <ZoomOutBtn onClick={zoomOut} />
         <ZoomInBtn onClick={zoomIn} />
@@ -164,7 +164,7 @@ it('PageAddAvatar | renders ZoomBtns and calls onclick correctly', async () => {
 it('PageAddAvatar | renders rotateBtn and calls onclick correctly', async () => {
   const onClick = jest.fn();
   renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <RotateBtn onClick={onClick} />
     </AppContext.Provider>
   );

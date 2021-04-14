@@ -9,12 +9,15 @@ import { ConnectedServices } from '.';
 
 import { MOCK_SERVICES } from './MOCK_SERVICES';
 import { AppContext } from 'fxa-settings/src/models';
+import { mockAppContext } from 'fxa-settings/src/models/_mocks';
 
 storiesOf('Components|ConnectedServices', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppContext.Provider
-      value={{ account: { attachedClients: MOCK_SERVICES } as any }}
+      value={mockAppContext({
+        account: { attachedClients: MOCK_SERVICES } as any,
+      })}
     >
       <ConnectedServices />
     </AppContext.Provider>

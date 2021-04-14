@@ -117,10 +117,7 @@ describe('recovery key', () => {
     );
 
     //Verify the success message is visible
-    await testElementExists(
-      selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.SUCCESS_MSG_REMOVE,
-      remote
-    );
+    await testElementExists(selectors.SETTINGS_V2.SUCCESS_MESSAGE, remote);
 
     //Also verify that the recovery key status is 'Not set'
     await testElementTextEquals(

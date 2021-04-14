@@ -8,10 +8,7 @@ import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../DataBlock';
 import { HomePath } from '../../constants';
-import { useAccount, useSession } from '../../models';
-import { alertTextExternal } from '../../lib/cache';
-import { useAlertBar } from '../../lib/hooks';
-import { AlertBar } from '../AlertBar';
+import { useAccount, useAlertBar, useSession } from '../../models';
 import { useLocalization, Localized } from '@fluent/react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
@@ -23,7 +20,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const goHome = () =>
     navigate(HomePath + '#two-step-authentication', { replace: true });
   const alertSuccessAndGoHome = () => {
-    alertTextExternal(
+    alertBar.success(
       l10n.getString(
         'tfa-replace-code-success-alert',
         null,
@@ -58,13 +55,6 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   return (
     <FlowContainer title="Two Step Authentication">
       <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
-
-      {alertBar.visible && (
-        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-          <p data-testid="update-display-name-error">{alertBar.content}</p>
-        </AlertBar>
-      )}
-
       <div className="my-2" data-testid="2fa-recovery-codes">
         <Localized id="tfa-replace-code-success">
           New codes have been created. Save these one-time use codes in a safe

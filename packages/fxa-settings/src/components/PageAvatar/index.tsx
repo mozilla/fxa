@@ -13,18 +13,16 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import 'react-easy-crop/react-easy-crop.css';
 
 import { isMobileDevice } from '../../lib/utilities';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import { HomePath } from '../../constants';
 import { onFileChange } from '../../lib/file-utils';
 import { getCroppedImg } from '../../lib/canvas-utils';
-import { useAlertBar } from '../../lib/hooks';
 import {
   logViewEvent,
   settingsViewName,
   usePageViewEvent,
 } from '../../lib/metrics';
 
-import AlertBar from '../AlertBar';
 import Avatar from '../Avatar';
 import FlowContainer from '../FlowContainer';
 import {
@@ -47,16 +45,15 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
   const { avatar } = useAccount();
   const alertBar = useAlertBar();
-  const alertError = alertBar.error;
   const [saveEnabled, setSaveEnabled] = useState(false);
   const [saveStringId, setSaveStringId] = useState('avatar-page-save-button');
   const onFileError = useCallback(() => {
-    alertError(l10n.getString('avatar-page-file-upload-error-2'));
-  }, [alertError, l10n]);
+    alertBar.error(l10n.getString('avatar-page-file-upload-error-2'));
+  }, [alertBar, l10n]);
 
   const onMediaError = useCallback(() => {
-    alertError(l10n.getString('avatar-page-camera-error'));
-  }, [alertError, l10n]);
+    alertBar.error(l10n.getString('avatar-page-camera-error'));
+  }, [alertBar, l10n]);
 
   const uploadAvatar = useCallback(
     async (file: Blob) => {
@@ -165,14 +162,14 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     setSaveEnabled(false);
     const img = croppedImgSrc || (await saveCroppedImage());
     if (img && img.size > PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE) {
-      alertError(l10n.getString('avatar-page-image-too-large-error'));
+      alertBar.error(l10n.getString('avatar-page-image-too-large-error'));
       resetAllState();
     } else if (img) {
       setSaveStringId('avatar-page-saving-button');
       uploadAvatar(img);
     }
   }, [
-    alertError,
+    alertBar,
     croppedImgSrc,
     l10n,
     saveCroppedImage,
@@ -293,11 +290,6 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   return (
     <Localized id="avatar-page-title" attrs={{ title: true }}>
       <FlowContainer title="Profile picture">
-        {alertBar.visible && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p data-testid="update-avatar-error">{alertBar.content}</p>
-          </AlertBar>
-        )}
         <form onSubmit={handleSubmit} className="mt-4">
           {capturedImgSrc && !croppedImgSrc ? (
             <>

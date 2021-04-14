@@ -57,7 +57,6 @@ export interface AccountData {
     created: number;
     productName: string;
   }[];
-  alertTextExternal: string | null;
 }
 
 const ATTACHED_CLIENTS_FIELDS = `
@@ -111,7 +110,6 @@ export const ACCOUNT_FIELDS = `
         created
         productName
       }
-      alertTextExternal @client
     }
 `;
 
@@ -275,10 +273,6 @@ export class Account implements AccountData {
 
   get attachedClients() {
     return this.data.attachedClients;
-  }
-
-  get alertTextExternal() {
-    return this.data.alertTextExternal;
   }
 
   get hasSecondaryVerifiedEmail() {

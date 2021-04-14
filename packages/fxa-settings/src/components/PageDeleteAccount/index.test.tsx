@@ -6,7 +6,7 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { mockSession, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import { PageDeleteAccount } from '.';
 import { typeByTestIdFn } from '../../lib/test-utils';
 import { Account, AppContext } from '../../models';
@@ -17,7 +17,6 @@ const account = ({
   },
   uid: '0123456789abcdef',
 } as unknown) as Account;
-const session = mockSession();
 
 window.URL.createObjectURL = jest.fn();
 
@@ -33,7 +32,7 @@ const advanceStep = async () => {
 describe('PageDeleteAccount', () => {
   it('renders as expected', () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageDeleteAccount />
       </AppContext.Provider>
     );
@@ -49,7 +48,7 @@ describe('PageDeleteAccount', () => {
 
   it('Enables "continue" button once all 4 inputs are valid', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageDeleteAccount />
       </AppContext.Provider>
     );
@@ -66,7 +65,7 @@ describe('PageDeleteAccount', () => {
 
   it('Does not Enable "continue" button if all for checks are not confirmed', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageDeleteAccount />
       </AppContext.Provider>
     );
@@ -83,7 +82,7 @@ describe('PageDeleteAccount', () => {
 
   it('Gets valid response on submit', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageDeleteAccount />
       </AppContext.Provider>
     );

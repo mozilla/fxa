@@ -5,7 +5,11 @@
 import 'mutationobserver-shim';
 import React from 'react';
 import { screen } from '@testing-library/react';
-import { mockSession, renderWithRouter } from '../../models/_mocks';
+import {
+  mockAppContext,
+  mockSession,
+  renderWithRouter,
+} from '../../models/_mocks';
 import { Account, AppContext } from '../../models';
 import { VerifiedSessionGuard } from '.';
 
@@ -31,7 +35,9 @@ it('renders the guard when unverified', async () => {
     sendVerificationCode: jest.fn().mockResolvedValue(true),
   } as unknown) as Account;
   renderWithRouter(
-    <AppContext.Provider value={{ account, session: mockSession(false) }}>
+    <AppContext.Provider
+      value={mockAppContext({ account, session: mockSession(false) })}
+    >
       <VerifiedSessionGuard {...{ onDismiss, onError }}>
         <div>Content</div>
       </VerifiedSessionGuard>

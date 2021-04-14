@@ -5,15 +5,10 @@
 import React, { useRef } from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import * as apolloClient from '@apollo/client';
-
-import { AlertBarRootAndContextProvider } from './AlertBarContext';
-import AlertBar, { typeClasses } from '../components/AlertBar';
 import {
   useFocusOnTriggeringElementOnClose,
   useEscKeydownEffect,
   useChangeFocusEffect,
-  useAlertBar,
 } from './hooks';
 
 describe('useFocusOnTriggeringElementOnClose', () => {
@@ -88,79 +83,5 @@ describe('useChangeFocusEffect', () => {
   it('changes focus as expected', () => {
     render(<Subject />);
     expect(document.activeElement).toBe(screen.getByTestId('el-to-focus'));
-  });
-});
-
-describe('useAlertBar', () => {
-  let alertBar: any;
-
-  const TestAlertBar = () => {
-    alertBar = useAlertBar();
-
-    return (
-      <AlertBarRootAndContextProvider>
-        {alertBar.visible && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            {alertBar.content}
-          </AlertBar>
-        )}
-      </AlertBarRootAndContextProvider>
-    );
-  };
-
-  beforeEach(() => {
-    render(<TestAlertBar />);
-  });
-
-  it('defaults to hidden, can show and hide again', () => {
-    expect(screen.queryByTestId('alert-bar')).not.toBeInTheDocument();
-
-    act(alertBar.show);
-    expect(screen.queryByTestId('alert-bar')).toBeInTheDocument();
-
-    act(alertBar.hide);
-    expect(screen.queryByTestId('alert-bar')).not.toBeInTheDocument();
-
-    act(alertBar.show);
-    act(() => {
-      fireEvent.click(screen.getByTestId('alert-bar-dismiss'));
-    });
-    expect(alertBar.visible).toBeFalsy();
-  });
-
-  test('success method works', () => {
-    const phrase = 'You did it, kid';
-    act(() => {
-      alertBar.success(phrase);
-    });
-
-    const alertBarInner = screen.getByTestId('alert-bar-inner');
-    expect(alertBarInner.getAttribute('class')).toContain(typeClasses.success);
-    expect(alertBarInner).toHaveTextContent(phrase);
-    expect(alertBar.type).toEqual('success');
-  });
-
-  test('error method works', () => {
-    const phrase = 'Better luck next time';
-    act(() => {
-      alertBar.error(phrase);
-    });
-
-    const alertBarInner = screen.getByTestId('alert-bar-inner');
-    expect(alertBarInner.getAttribute('class')).toContain(typeClasses.error);
-    expect(alertBarInner).toHaveTextContent(phrase);
-    expect(alertBar.type).toEqual('error');
-  });
-
-  test('info method works', () => {
-    const phrase = 'Howdy, partner';
-    act(() => {
-      alertBar.info(phrase);
-    });
-
-    const alertBarInner = screen.getByTestId('alert-bar-inner');
-    expect(alertBarInner.getAttribute('class')).toContain(typeClasses.info);
-    expect(alertBarInner).toHaveTextContent(phrase);
-    expect(alertBar.type).toEqual('info');
   });
 });

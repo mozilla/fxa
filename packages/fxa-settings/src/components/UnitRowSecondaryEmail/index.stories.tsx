@@ -5,29 +5,24 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { UnitRowSecondaryEmail } from '.';
-import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
-import { mockEmail } from '../../models/_mocks';
+import { mockAppContext, mockEmail } from '../../models/_mocks';
 import { LocationProvider } from '@reach/router';
 
 import { AppContext } from 'fxa-settings/src/models';
 
 storiesOf('Components|UnitRowSecondaryEmail', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('No secondary email set', () => (
-    <AlertBarRootAndContextProvider>
-      <UnitRowSecondaryEmail />
-    </AlertBarRootAndContextProvider>
-  ))
+  .add('No secondary email set', () => <UnitRowSecondaryEmail />)
   .add('One secondary email set, unverified', () => {
     const emails = [
       mockEmail('johndope@example.com'),
       mockEmail('johndope2@example.com', false, false),
     ];
     return (
-      <AppContext.Provider value={{ account: { emails } as any }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
       </AppContext.Provider>
     );
   })
@@ -37,10 +32,10 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope2@example.com', false),
     ];
     return (
-      <AppContext.Provider value={{ account: { emails } as any }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
       </AppContext.Provider>
     );
   })
@@ -52,10 +47,10 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope4@example.com', false),
     ];
     return (
-      <AppContext.Provider value={{ account: { emails } as any }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
       </AppContext.Provider>
     );
   })
@@ -67,10 +62,10 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope4@example.com', false),
     ];
     return (
-      <AppContext.Provider value={{ account: { emails } as any }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
       </AppContext.Provider>
     );
   })
@@ -82,10 +77,10 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope4@example.com', false, false),
     ];
     return (
-      <AppContext.Provider value={{ account: { emails } as any }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
       </AppContext.Provider>
     );
   });

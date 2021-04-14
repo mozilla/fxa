@@ -7,30 +7,28 @@ import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import UnitRowRecoveryKey from '.';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockSession } from 'fxa-settings/src/models/_mocks';
+import { mockAppContext, mockSession } from 'fxa-settings/src/models/_mocks';
 
 storiesOf('Components|UnitRowRecoveryKey', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('with recovery key', () => (
     <AppContext.Provider
-      value={{
+      value={mockAppContext({
         account: {
           recoveryKey: true,
         } as any,
-        session: mockSession(),
-      }}
+      })}
     >
       <UnitRowRecoveryKey />
     </AppContext.Provider>
   ))
   .add('no recovery key', () => (
     <AppContext.Provider
-      value={{
+      value={mockAppContext({
         account: {
           recoveryKey: false,
         } as any,
-        session: mockSession(),
-      }}
+      })}
     >
       <UnitRowRecoveryKey />
     </AppContext.Provider>

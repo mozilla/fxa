@@ -6,16 +6,13 @@ import React, { useCallback, useState } from 'react';
 import { useForm, ValidateResult } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { useBooleanState } from 'fxa-react/lib/hooks';
 import { HomePath } from '../../constants';
-import { alertTextExternal } from '../../lib/cache';
 import {
   logViewEvent,
   settingsViewName,
   usePageViewEvent,
 } from '../../lib/metrics';
-import { useAccount } from '../../models';
-import AlertBar from '../AlertBar';
+import { useAccount, useAlertBar } from '../../models';
 import FlowContainer from '../FlowContainer';
 import InputPassword from '../InputPassword';
 import PasswordValidator from './PasswordValidator';
@@ -68,8 +65,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       confirmPassword: '',
     },
   });
-  const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
-  const [alertText, setAlertText] = useState<string>();
+  const alertBar = useAlertBar();
   const [currentPasswordErrorText, setCurrentPasswordErrorText] = useState<
     string
   >();
@@ -82,11 +78,11 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   );
   const { l10n } = useLocalization();
   const alertSuccessAndGoHome = useCallback(() => {
-    alertTextExternal(
+    alertBar.success(
       l10n.getString('pw-change-success-alert', null, 'Password updated.')
     );
     navigate(HomePath + '#password', { replace: true });
-  }, [l10n, navigate]);
+  }, [alertBar, l10n, navigate]);
   const passwordValidator = new PasswordValidator(account.primaryEmail.email);
   const onFormSubmit = useCallback(
     async ({ oldPassword, newPassword }: FormData) => {
@@ -114,8 +110,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
           setCurrentPasswordErrorText(localizedError);
           setValue('oldPassword', '');
         } else {
-          setAlertText(localizedError);
-          revealAlertBar();
+          alertBar.error(localizedError);
         }
       }
     },
@@ -126,19 +121,13 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       alertSuccessAndGoHome,
       setCurrentPasswordErrorText,
       setValue,
-      setAlertText,
-      revealAlertBar,
+      alertBar,
     ]
   );
 
   return (
     <Localized id="pw-change-header" attrs={{ title: true }}>
       <FlowContainer title="Change password">
-        {alertBarRevealed && alertText && (
-          <AlertBar onDismiss={hideAlertBar} type="error">
-            <p data-testid="sign-out-error">Error text TBD. {alertText}</p>
-          </AlertBar>
-        )}
         <form onSubmit={handleSubmit(onFormSubmit)}>
           <Localized id="pw-change-stay-safe">
             <h1>Stay safe — don’t reuse passwords. Your password:</h1>

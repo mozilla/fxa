@@ -4,10 +4,8 @@
 
 import React, { ReactNode, useCallback, useState } from 'react';
 import { useNavigate } from '@reach/router';
-import { useAlertBar } from '../../lib/hooks';
-import { useAccount, Email } from '../../models';
+import { useAccount, Email, useAlertBar } from '../../models';
 import UnitRow from '../UnitRow';
-import AlertBar from '../AlertBar';
 import ModalVerifySession from '../ModalVerifySession';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
@@ -124,13 +122,6 @@ export const UnitRowSecondaryEmail = () => {
           }}
           onCompleted={queuedAction}
         />
-      )}
-      {alertBar.visible && alertBar.content && (
-        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-          <p data-testid={`alert-bar-message-${alertBar.type}`}>
-            {alertBar.content}
-          </p>
-        </AlertBar>
       )}
       {children}
     </>

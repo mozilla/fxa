@@ -6,7 +6,7 @@ import React from 'react';
 import { act, fireEvent, screen, wait } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
 import { Account, AppContext } from '../../models';
-import { renderWithRouter, mockSession } from '../../models/_mocks';
+import { renderWithRouter, mockAppContext } from '../../models/_mocks';
 import { isMobileDevice } from '../../lib/utilities';
 import { MOCK_SERVICES } from './MOCK_SERVICES';
 
@@ -16,7 +16,6 @@ const account = ({
   attachedClients: MOCK_SERVICES,
   disconnectClient: jest.fn().mockResolvedValue(true),
 } as unknown) as Account;
-const session = mockSession();
 
 const getIconAndServiceLink = async (name: string, testId: string) => {
   const servicesList = MOCK_SERVICES.filter((item) => item.name === name);
@@ -25,7 +24,7 @@ const getIconAndServiceLink = async (name: string, testId: string) => {
     disconnectClient: jest.fn().mockResolvedValue(true),
   } as unknown) as Account;
   renderWithRouter(
-    <AppContext.Provider value={{ account, session }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <ConnectedServices />
     </AppContext.Provider>
   );
@@ -71,7 +70,7 @@ const expectDisconnectModalHeader = async () => {
 describe('Connected Services', () => {
   it('renders "fresh load" <ConnectedServices/> with correct content', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -83,7 +82,7 @@ describe('Connected Services', () => {
 
   it('correctly filters and sorts our passed in services', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -174,7 +173,7 @@ describe('Connected Services', () => {
       disconnectClient: jest.fn().mockResolvedValue(true),
     } as unknown) as Account;
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -185,7 +184,7 @@ describe('Connected Services', () => {
 
   it('does not render <ConnectAnotherDevicePromo/> when mobile devices in list', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -197,7 +196,7 @@ describe('Connected Services', () => {
 
   it('renders the sign out buttons', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -208,7 +207,7 @@ describe('Connected Services', () => {
 
   it('renders proper modal when "sign out" is clicked', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -218,7 +217,7 @@ describe('Connected Services', () => {
 
   it('renders "lost" modal when user has selected "lost" option', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -231,7 +230,7 @@ describe('Connected Services', () => {
 
   it('renders "suspicious" modal when user has selected "suspicious" option in survey modal', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -246,7 +245,7 @@ describe('Connected Services', () => {
 
   it('after a service is disconnected, removes the row from the UI', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
       </AppContext.Provider>
     );

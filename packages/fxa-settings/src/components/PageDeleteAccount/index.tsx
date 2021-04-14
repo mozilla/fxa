@@ -5,12 +5,10 @@
 import React, { useCallback, useState, ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { useAlertBar } from '../../lib/hooks';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import InputPassword from '../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import AlertBar from '../AlertBar';
 import {
   HomePath,
   LockwiseLink,
@@ -90,9 +88,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           setErrorText(localizedError);
           setValue('password', '');
         } else {
-          alertBar.setType('error');
-          alertBar.setContent(localizedError);
-          alertBar.show();
+          alertBar.error(localizedError);
           logViewEvent('flow.settings.account-delete', 'confirm-password.fail');
         }
       }
@@ -120,11 +116,6 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   return (
     <Localized id="delete-account-header" attrs={{ title: true }}>
       <FlowContainer title="Delete account" subtitle={subtitleText}>
-        {alertBar.visible && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p data-testid="delete-account-error">{alertBar.content}</p>
-          </AlertBar>
-        )}
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {!confirmed && (
           <div className="my-4 text-sm" data-testid="delete-account-confirm">

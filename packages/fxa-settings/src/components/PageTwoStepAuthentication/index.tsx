@@ -4,18 +4,15 @@
 
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import { useAlertBar } from '../../lib/hooks';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import React, { useCallback, useEffect, useState } from 'react';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import AlertBar from '../AlertBar';
 import DataBlock from '../DataBlock';
-import { useAccount, useSession } from '../../models';
+import { useAccount, useAlertBar, useSession } from '../../models';
 import { checkCode, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
-import { alertTextExternal } from '../../lib/cache';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -30,14 +27,15 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const account = useAccount();
   const navigate = useNavigate();
   const { l10n } = useLocalization();
+  const alertBar = useAlertBar();
   const goHome = () =>
     navigate(HomePath + '#two-step-authentication', { replace: true });
   const alertSuccessAndGoHome = useCallback(() => {
-    alertTextExternal(
+    alertBar.success(
       l10n.getString('tfa-enabled', null, 'Two-step authentication enabled')
     );
     navigate(HomePath + '#two-step-authentication', { replace: true });
-  }, [l10n, navigate]);
+  }, [alertBar, l10n, navigate]);
 
   const totpForm = useForm<TotpForm>({
     mode: 'onTouched',
@@ -61,8 +59,6 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   };
 
   const localizedStep1 = l10n.getString('tfa-step-1-3', null, 'Step 1 of 3');
-  const alertBar = useAlertBar();
-  const alertError = alertBar.error;
   const [subtitle, setSubtitle] = useState<string>(localizedStep1);
   const [showQrCode, setShowQrCode] = useState(true);
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
@@ -103,7 +99,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             )
           );
         } else {
-          alertError(
+          alertBar.error(
             l10n.getString(
               'tfa-cannot-verify-code',
               null,
@@ -113,7 +109,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
         }
       }
     },
-    [account, alertSuccessAndGoHome, setRecoveryCodeError, l10n, alertError]
+    [account, alertSuccessAndGoHome, setRecoveryCodeError, l10n, alertBar]
   );
 
   const session = useSession();
@@ -189,12 +185,6 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
       title={l10n.getString('tfa-title', null, 'Two-step authentication')}
       {...{ subtitle, onBackButtonClick: moveBack }}
     >
-      {alertBar.visible && (
-        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-          <p data-testid="update-display-name-error">{alertBar.content}</p>
-        </AlertBar>
-      )}
-
       {!totpVerified && (
         <form onSubmit={totpForm.handleSubmit(onTotpSubmit)}>
           <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />

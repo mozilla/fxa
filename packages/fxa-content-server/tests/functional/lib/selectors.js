@@ -37,8 +37,8 @@ const SETTINGS_V2 = {
   TOOLTIP: '[data-testid=tooltip]',
   SUB_PANELS: '[data-testid=settings-profile]',
   BACK_BUTTON: '[data-testid=flow-container-back-btn]',
-  SUCCESS_MESSAGE: '.success [data-testid=alert-external-text]', // TODO remove duplication in TFA section
-  ERROR_MESSAGE: '.error [data-testid=alert-external-text]',
+  SUCCESS_MESSAGE: '.success [data-testid=alert-bar-content]', // TODO remove duplication in TFA section
+  ERROR_MESSAGE: '.error [data-testid=alert-bar-content]',
   DELETE_ACCOUNT: {
     DELETE_ACCOUNT_BUTTON: '[data-testid=settings-delete-account]',
     DETAILS: '[data-testid=delete-account-confirm]',
@@ -183,7 +183,6 @@ const SETTINGS_V2 = {
       REMOVE_KEY_DESCRIPTION: '[data-testid=modal-content-container]',
       CANCEL_REMOVE_KEY: '[data-testid=modal-cancel]',
       CONFIRM_REMOVE_KEY: '[data-testid=modal-confirm]',
-      SUCCESS_MSG_REMOVE: '[data-testid=delete-recovery-key-success]',
     },
     TFA: {
       ADD_BUTTON: '[data-testid=two-step-unit-row-route]',
@@ -205,12 +204,11 @@ const SETTINGS_V2 = {
       RECOVERY_KEY_INPUT_LABEL: '[data-testid=recovery-code-input-label]',
       RECOVERY_KEY_INPUT: '[data-testid=recovery-code-input-field]',
       SUBMIT_RECOVERY_KEY: '[data-testid=submit-recovery-code]',
-      SUCCESS_MESSAGE: '[data-testid=alert-external-text]',
+      SUCCESS_MESSAGE: '[data-testid=alert-bar-content]',
       DISABLE_TFA: '[data-testid=two-step-disable-button-unit-row-modal]',
       DISABLE_MODAL: '[data-testid=disable-totp-modal-header]',
       DISABLE_TFA_CONFIRM: '[data-testid=modal-confirm]',
       CANCEL_DISABLE_TFA: '[data-testid=modal-cancel]',
-      DISABLE_SUCCESS_MESSAGE: '[data-testid=delete-totp-success]',
       DISMISS_ALERT_MESSAGE: '[data-testid=alert-bar-dismiss]',
       CHANGE_TFA: '[data-testid=two-step-unit-row-modal]',
       CANCEL_CHANGE_TFA: '[data-testid=modal-cancel]',
@@ -809,7 +807,7 @@ module.exports = {
     CONFIRM_RECOVERY_INPUT: SETTINGS_V2.SECURITY.TFA.RECOVERY_KEY_INPUT, // '.recovery-code',
     CONFIRM_RECOVERY_BUTTON: SETTINGS_V2.SECURITY.TFA.SUBMIT_RECOVERY_KEY, // '.recovery-confirm-code',
     DELETE_BUTTON: SETTINGS_V2.SECURITY.TFA.DISABLE_TFA, // '.totp-delete',
-    DISABLE_SUCCESS: SETTINGS_V2.SECURITY.TFA.DISABLE_SUCCESS_MESSAGE,
+    DISABLE_SUCCESS: SETTINGS_V2.SUCCESS_MESSAGE,
     CONFIRM_DELETE: SETTINGS_V2.SECURITY.TFA.DISABLE_TFA_CONFIRM,
     ENABLE_BUTTON: SETTINGS_V2.SECURITY.TFA.ADD_BUTTON, // '.secondary-button.totp-create',
     MANUAL_CODE: SETTINGS_V2.SECURITY.TFA.SECRET_CODE_TEXT, // '.code',

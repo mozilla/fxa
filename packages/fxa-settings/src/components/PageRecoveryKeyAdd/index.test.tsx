@@ -6,7 +6,7 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { mockSession, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import { Account, AppContext } from '../../models';
 import { PageRecoveryKeyAdd } from '.';
 
@@ -16,14 +16,13 @@ const account = ({
   },
   createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
 } as unknown) as Account;
-const session = mockSession();
 
 window.URL.createObjectURL = jest.fn();
 
 describe('PageRecoveryKeyAdd', () => {
   it('renders as expected', () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageRecoveryKeyAdd />
       </AppContext.Provider>
     );
@@ -39,7 +38,7 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Enables "continue" button once input is valid', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageRecoveryKeyAdd />
       </AppContext.Provider>
     );
@@ -48,7 +47,7 @@ describe('PageRecoveryKeyAdd', () => {
 
     await act(async () => {
       const input = screen.getByTestId('input-field');
-      fireEvent.input(input, { target: { value: 'myFavPassword' } });
+      await fireEvent.input(input, { target: { value: 'myFavPassword' } });
     });
 
     expect(screen.getByTestId('continue-button')).toBeEnabled();
@@ -56,14 +55,14 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Does not Enable "continue" button if validation fails', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageRecoveryKeyAdd />
       </AppContext.Provider>
     );
 
     await act(async () => {
       const input = screen.getByTestId('input-field');
-      fireEvent.input(input, { target: { value: '2short' } });
+      await fireEvent.input(input, { target: { value: '2short' } });
     });
 
     expect(screen.getByTestId('continue-button')).toBeDisabled();
@@ -71,7 +70,7 @@ describe('PageRecoveryKeyAdd', () => {
 
   it('Generates a recovery key on submit', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageRecoveryKeyAdd />
       </AppContext.Provider>
     );
@@ -79,6 +78,9 @@ describe('PageRecoveryKeyAdd', () => {
     await act(async () => {
       const input = screen.getByTestId('input-field');
       await fireEvent.input(input, { target: { value: 'myFavPassword' } });
+    });
+
+    await act(async () => {
       await fireEvent.click(screen.getByTestId('continue-button'));
     });
 

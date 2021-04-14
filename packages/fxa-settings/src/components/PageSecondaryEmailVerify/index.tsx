@@ -2,10 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { HomePath } from '../../constants';
-import { alertTextExternal } from '../../lib/cache';
-import { useAlertBar } from '../../lib/hooks';
 import { logViewEvent } from '../../lib/metrics';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
@@ -34,7 +32,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   const account = useAccount();
   const alertSuccessAndGoHome = useCallback(
     (email: string) => {
-      alertTextExternal(
+      alertBar.success(
         l10n.getString(
           'verify-secondary-email-success-alert',
           { email },
@@ -43,7 +41,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       );
       navigate(HomePath + '#secondary-email', { replace: true });
     },
-    [l10n, navigate]
+    [alertBar, l10n, navigate]
   );
   // Using 'any' here, instead of FluentVariable, to avoid having to import @fluent/bundle.
   const email = (location?.state as any)?.email as string | undefined | any;

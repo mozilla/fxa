@@ -3,13 +3,10 @@ import { Localized, useLocalization } from '@fluent/react';
 import base32encode from 'base32-encode';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { alertTextExternal } from '../../lib/cache';
-import { useAlertBar } from '../../lib/hooks';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import InputPassword from '../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import AlertBar from '../AlertBar';
 import DataBlock from '../DataBlock';
 import { HomePath } from '../../constants';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
@@ -41,7 +38,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const goHome = () => navigate(HomePath + '#recovery-key', { replace: true });
   const alertSuccessAndGoHome = () => {
-    alertTextExternal(
+    alertBar.success(
       l10n.getString(
         'recovery-key-success-alert',
         null,
@@ -76,9 +73,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
           setErrorText(localizedError);
           setValue('password', '');
         } else {
-          alertBar.setType('error');
-          alertBar.setContent(localizedError);
-          alertBar.show();
+          alertBar.error(localizedError);
           logViewEvent(
             'flow.settings.account-recovery',
             'confirm-password.fail'
@@ -105,11 +100,6 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
   return (
     <Localized id="recovery-key-page-title" attrs={{ title: true }}>
       <FlowContainer title="Recovery key" subtitle={subtitleText}>
-        {alertBar.visible && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p data-testid="add-recovery-key-error">{alertBar.content}</p>
-          </AlertBar>
-        )}
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {formattedRecoveryKey && (
           <div className="my-2" data-testid="recover-key-confirm">

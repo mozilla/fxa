@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import Security from '.';
-import { renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import { Account, AppContext } from '../../models';
 
 describe('Security', () => {
@@ -15,7 +15,7 @@ describe('Security', () => {
       totp: { exists: false },
     } as unknown) as Account;
     renderWithRouter(
-      <AppContext.Provider value={{ account }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <Security />
       </AppContext.Provider>
     );
@@ -33,7 +33,7 @@ describe('Security', () => {
       totp: { exists: true, verified: true },
     } as unknown) as Account;
     renderWithRouter(
-      <AppContext.Provider value={{ account }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <Security />
       </AppContext.Provider>
     );

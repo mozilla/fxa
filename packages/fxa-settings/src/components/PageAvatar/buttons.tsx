@@ -6,8 +6,7 @@ import React, { useCallback, useRef } from 'react';
 
 import { useNavigate } from '@reach/router';
 import { Localized, useLocalization } from '@fluent/react';
-import { useAlertBar } from '../../lib/hooks';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import { HomePath } from '../../constants';
 import ButtonIcon from '../ButtonIcon';
 

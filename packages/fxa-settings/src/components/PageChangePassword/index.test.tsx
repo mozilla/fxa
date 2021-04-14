@@ -7,7 +7,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen, wait } from '@testing-library/react';
 import { HomePath } from '../../constants';
-import { renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import PageChangePassword from '.';
 import {
   logViewEvent,
@@ -37,7 +37,7 @@ const account = ({
 
 const render = async () => {
   await renderWithRouter(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <PageChangePassword />
     </AppContext.Provider>
   );

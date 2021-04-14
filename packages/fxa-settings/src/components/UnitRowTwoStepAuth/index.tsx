@@ -5,12 +5,10 @@
 import React, { useCallback } from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAlertBar } from '../../lib/hooks';
-import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
@@ -216,11 +214,6 @@ export const UnitRowTwoStepAuth = () => {
             </Localized>
           </Modal>
         </VerifiedSessionGuard>
-      )}
-      {alertBar.visible && (
-        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-          <p data-testid={`delete-totp-${alertBar.type}`}>{alertBar.content}</p>
-        </AlertBar>
       )}
     </UnitRow>
   );

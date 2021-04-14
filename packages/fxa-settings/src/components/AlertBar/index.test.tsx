@@ -5,25 +5,24 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import AlertBar from '.';
-import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
+
+jest.mock('@apollo/client', () => ({
+  useReactiveVar: (x: Function) => x(),
+}));
+
+jest.mock('../../models', () => ({
+  alertVisible: () => true,
+  alertContent: () => 'message',
+  alertType: () => 'info',
+}));
 
 describe('AlertBar', () => {
-  const onDismiss = jest.fn();
-  window.console.error = jest.fn();
-
   it('renders as expected', () => {
-    const { rerender } = render(<AlertBarRootAndContextProvider />);
-    rerender(
-      <AlertBarRootAndContextProvider>
-        <AlertBar {...{ onDismiss }}>
-          <div data-testid="children">Message</div>
-        </AlertBar>
-      </AlertBarRootAndContextProvider>
-    );
+    render(<AlertBar />);
     expect(screen.getByTestId('alert-bar-root')).toContainElement(
       screen.getByTestId('alert-bar')
     );
-    expect(screen.queryByTestId('children')).toBeInTheDocument();
+    expect(screen.getByTestId('alert-bar-content')).toBeInTheDocument();
     expect(screen.queryByTestId('alert-bar')).toHaveAttribute('role', 'alert');
     expect(screen.getByTestId('alert-bar-dismiss')).toHaveAttribute(
       'title',
@@ -31,51 +30,8 @@ describe('AlertBar', () => {
     );
   });
 
-  it('uses Portal as a backup if alert-bar-root is not present', () => {
-    render(
-      <AlertBar {...{ onDismiss }}>
-        <div>Message</div>
-      </AlertBar>
-    );
-
-    expect(screen.getByTestId('alert-bar-portal')).toBeInTheDocument;
-  });
-
-  it('calls onDismiss on button click', () => {
-    const { rerender } = render(<AlertBarRootAndContextProvider />);
-    rerender(
-      <AlertBarRootAndContextProvider>
-        <AlertBar {...{ onDismiss }}>
-          <div data-testid="children">Message</div>
-        </AlertBar>
-      </AlertBarRootAndContextProvider>
-    );
-    fireEvent.click(screen.getByTestId('alert-bar-dismiss'));
-    expect(onDismiss).toHaveBeenCalled();
-  });
-
-  it('calls onDismiss on esc key press', () => {
-    const { rerender } = render(<AlertBarRootAndContextProvider />);
-    rerender(
-      <AlertBarRootAndContextProvider>
-        <AlertBar {...{ onDismiss }}>
-          <div data-testid="children">Message</div>
-        </AlertBar>
-      </AlertBarRootAndContextProvider>
-    );
-    fireEvent.keyDown(window, { key: 'Escape' });
-    expect(onDismiss).toHaveBeenCalled();
-  });
-
   it('shifts focus to the tab fence when rendered', () => {
-    const { rerender } = render(<AlertBarRootAndContextProvider />);
-    rerender(
-      <AlertBarRootAndContextProvider>
-        <AlertBar {...{ onDismiss }}>
-          <div data-testid="children">Message</div>
-        </AlertBar>
-      </AlertBarRootAndContextProvider>
-    );
+    render(<AlertBar />);
     expect(document.activeElement).toBe(
       screen.getByTestId('alert-bar-tab-fence')
     );

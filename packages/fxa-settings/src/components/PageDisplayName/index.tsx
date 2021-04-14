@@ -7,12 +7,9 @@ import { navigate, RouteComponentProps } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
 import InputText from '../InputText';
-import { alertTextExternal } from '../../lib/cache';
-import { useAlertBar } from '../../lib/hooks';
-import AlertBar from '../AlertBar';
 import { HomePath } from '../../constants';
 import { Localized, useLocalization } from '@fluent/react';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 
 const validateDisplayName = (currentDisplayName: string) => (
   newDisplayName: string
@@ -24,7 +21,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
   const goHome = () => navigate(HomePath + '#display-name', { replace: true });
   const alertSuccessAndGoHome = useCallback(() => {
-    alertTextExternal(
+    alertBar.success(
       l10n.getString(
         'display-name-success-alert',
         null,
@@ -32,7 +29,7 @@ export const PageDisplayName = (_: RouteComponentProps) => {
       )
     );
     navigate(HomePath + '#display-name', { replace: true });
-  }, [l10n]);
+  }, [alertBar, l10n]);
   const [errorText, setErrorText] = useState<string>();
   const initialValue = account.displayName || '';
   const { register, handleSubmit, formState, trigger } = useForm<{
@@ -70,12 +67,6 @@ export const PageDisplayName = (_: RouteComponentProps) => {
   return (
     <Localized id="display-name-page-title" attrs={{ title: true }}>
       <FlowContainer title="Display name">
-        {alertBar.visible && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p data-testid="update-display-name-error">{alertBar.content}</p>
-          </AlertBar>
-        )}
-
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="my-6">
             <Localized id="display-name-input" attrs={{ label: true }}>

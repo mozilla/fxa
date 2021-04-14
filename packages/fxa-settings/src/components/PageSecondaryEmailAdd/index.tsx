@@ -1,15 +1,13 @@
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { useAlertBar } from '../../lib/hooks';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { HomePath } from '../../constants';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import AlertBar from '../AlertBar';
 import { isEmailValid } from 'fxa-shared/email/helpers';
-import { useAccount } from 'fxa-settings/src/models';
+import { useAccount, useAlertBar } from 'fxa-settings/src/models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
@@ -66,11 +64,6 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   return (
     <Localized id="add-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email">
-        {alertBar.visible && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p data-testid="add-email-error">{alertBar.content}</p>
-          </AlertBar>
-        )}
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           onSubmit={(ev) => {

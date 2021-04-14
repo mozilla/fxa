@@ -8,7 +8,7 @@ import { PageSettings } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 import { isMobileDevice } from '../../lib/utilities';
-import { mockEmail, mockSession, MOCK_ACCOUNT } from '../../models/_mocks';
+import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../models/_mocks';
 import { MOCK_SERVICES } from '../ConnectedServices/MOCK_SERVICES';
 import { AppContext } from 'fxa-settings/src/models';
 
@@ -18,7 +18,7 @@ storiesOf('Pages|Settings', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('cold start', () => (
     <AppContext.Provider
-      value={{
+      value={mockAppContext({
         account: {
           ...MOCK_ACCOUNT,
           displayName: null,
@@ -27,8 +27,7 @@ storiesOf('Pages|Settings', module)
           totp: { exists: false, verified: false },
           attachedClients: SERVICES_NON_MOBILE,
         } as any,
-        session: mockSession(),
-      }}
+      })}
     >
       <AppLayout>
         <PageSettings />
@@ -37,15 +36,14 @@ storiesOf('Pages|Settings', module)
   ))
   .add('partially filled out', () => (
     <AppContext.Provider
-      value={{
+      value={mockAppContext({
         account: {
           ...MOCK_ACCOUNT,
           displayName: null,
           totp: { exists: true, verified: false },
           attachedClients: SERVICES_NON_MOBILE,
         } as any,
-        session: mockSession(),
-      }}
+      })}
     >
       <AppLayout>
         <PageSettings />
@@ -55,7 +53,7 @@ storiesOf('Pages|Settings', module)
 
   .add('completely filled out', () => (
     <AppContext.Provider
-      value={{
+      value={mockAppContext({
         account: {
           ...MOCK_ACCOUNT,
           subscriptions: [{ created: 1, productName: 'x' }],
@@ -65,8 +63,7 @@ storiesOf('Pages|Settings', module)
           ],
           attachedClients: SERVICES_NON_MOBILE,
         } as any,
-        session: mockSession(),
-      }}
+      })}
     >
       <AppLayout>
         <PageSettings />

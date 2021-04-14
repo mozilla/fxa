@@ -8,11 +8,9 @@ import groupBy from 'lodash.groupby';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { logViewEvent } from '../../lib/metrics';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAlertBar } from '../../lib/hooks';
 import { Modal } from '../Modal';
 import { isMobileDevice } from '../../lib/utilities';
-import { AttachedClient, useAccount } from '../../models';
-import { AlertBar } from '../AlertBar';
+import { AttachedClient, useAccount, useAlertBar } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
 import { Service } from './Service';
@@ -229,16 +227,6 @@ export const ConnectedServices = () => {
               <ConnectAnotherDevicePromo />
             </div>
           </>
-        )}
-
-        {alertBar.visible && alertBar.content && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p
-              data-testid={`connected-services-alert-bar-message-${alertBar.type}`}
-            >
-              {alertBar.content}
-            </p>
-          </AlertBar>
         )}
         {confirmDisconnectModalRevealed && (
           <VerifiedSessionGuard

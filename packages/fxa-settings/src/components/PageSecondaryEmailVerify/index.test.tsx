@@ -6,17 +6,15 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { mockSession, renderWithRouter } from '../../models/_mocks';
-import { alertTextExternal } from '../../lib/cache';
+import {
+  mockAppContext,
+  mockSession,
+  renderWithRouter,
+} from '../../models/_mocks';
 import { Account, AppContext } from '../../models';
 import { PageSecondaryEmailVerify } from '.';
 import { WindowLocation } from '@reach/router';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
-
-jest.mock('../../lib/cache', () => ({
-  ...jest.requireActual('../../lib/cache'),
-  alertTextExternal: jest.fn(),
-}));
 
 const mockLocation = ({
   state: { email: 'johndope@example.com' },
@@ -25,7 +23,6 @@ const mockLocation = ({
 const account = ({
   verifySecondaryEmail: jest.fn().mockResolvedValue(true),
 } as unknown) as Account;
-const session = mockSession();
 
 window.console.error = jest.fn();
 
@@ -36,7 +33,7 @@ afterAll(() => {
 describe('PageSecondaryEmailVerify', () => {
   it('renders as expected', () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageSecondaryEmailVerify location={mockLocation} />
       </AppContext.Provider>
     );
@@ -53,7 +50,7 @@ describe('PageSecondaryEmailVerify', () => {
       verifySecondaryEmail: jest.fn().mockRejectedValue(error),
     } as unknown) as Account;
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageSecondaryEmailVerify location={mockLocation} />
       </AppContext.Provider>
     );
@@ -74,8 +71,11 @@ describe('PageSecondaryEmailVerify', () => {
   });
 
   it('navigates to settings and shows a message on success', async () => {
+    const alertBarInfo = {
+      success: jest.fn(),
+    } as any;
     const { history } = renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
         <PageSecondaryEmailVerify location={mockLocation} />
       </AppContext.Provider>
     );
@@ -91,8 +91,8 @@ describe('PageSecondaryEmailVerify', () => {
     );
 
     expect(history.location.pathname).toEqual('/settings#secondary-email');
-    expect(alertTextExternal).toHaveBeenCalledTimes(1);
-    expect(alertTextExternal).toHaveBeenCalledWith(
+    expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
+    expect(alertBarInfo.success).toHaveBeenCalledWith(
       'johndope@example.com successfully added.'
     );
   });

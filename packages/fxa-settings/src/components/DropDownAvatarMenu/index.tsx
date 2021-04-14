@@ -4,10 +4,9 @@
 
 import React, { useState } from 'react';
 import Avatar from '../Avatar';
-import AlertBar from '../AlertBar';
-import { useAccount, useSession } from '../../models';
+import { useAccount, useAlertBar, useSession } from '../../models';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
-import { useEscKeydownEffect, useAlertBar } from '../../lib/hooks';
+import { useEscKeydownEffect } from '../../lib/hooks';
 import { ReactComponent as SignOut } from './sign-out.svg';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
@@ -39,11 +38,6 @@ export const DropDownAvatarMenu = () => {
 
   return (
     <>
-      {alertBar.visible && (
-        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-          <p data-testid="sign-out-error">{alertBar.content}</p>
-        </AlertBar>
-      )}
       <div className="relative" ref={avatarMenuInsideRef}>
         <button
           type="button"

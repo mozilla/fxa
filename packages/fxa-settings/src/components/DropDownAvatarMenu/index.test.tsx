@@ -4,12 +4,12 @@
 
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { mockSession } from '../../models/_mocks';
-import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
+import { mockAppContext, mockSession } from '../../models/_mocks';
 import DropDownAvatarMenu from '.';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 import { Account, AppContext } from '../../models';
 
+jest.mock('../../models/AlertBarInfo');
 jest.mock('fxa-settings/src/lib/metrics', () => ({
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
@@ -45,7 +45,7 @@ describe('DropDownAvatarMenu', () => {
       },
     } as unknown) as Account;
     render(
-      <AppContext.Provider value={{ account, session: makeSession() }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
       </AppContext.Provider>
     );
@@ -73,7 +73,7 @@ describe('DropDownAvatarMenu', () => {
 
   it('renders as expected with avatar url and displayName set', () => {
     render(
-      <AppContext.Provider value={{ account, session: makeSession() }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
       </AppContext.Provider>
     );
@@ -85,7 +85,7 @@ describe('DropDownAvatarMenu', () => {
 
   it('closes on esc keypress', () => {
     render(
-      <AppContext.Provider value={{ account, session: makeSession() }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
       </AppContext.Provider>
     );
@@ -99,7 +99,7 @@ describe('DropDownAvatarMenu', () => {
 
   it('closes on click outside', () => {
     const { container } = render(
-      <AppContext.Provider value={{ account, session: makeSession() }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <div className="w-full flex justify-end">
           <div className="flex pr-10 pt-4">
             <DropDownAvatarMenu />
@@ -120,7 +120,9 @@ describe('DropDownAvatarMenu', () => {
       window.location.assign = jest.fn();
 
       render(
-        <AppContext.Provider value={{ account, session: makeSession() }}>
+        <AppContext.Provider
+          value={mockAppContext({ account, session: makeSession() })}
+        >
           <DropDownAvatarMenu />
         </AppContext.Provider>
       );
@@ -139,12 +141,10 @@ describe('DropDownAvatarMenu', () => {
     });
 
     it('displays an error in the AlertBar', async () => {
-      const { rerender } = render(<AlertBarRootAndContextProvider />);
-      rerender(
-        <AppContext.Provider value={{ account, session: makeSession(true) }}>
-          <AlertBarRootAndContextProvider>
-            <DropDownAvatarMenu />
-          </AlertBarRootAndContextProvider>
+      const context = mockAppContext({ account, session: makeSession(true) });
+      render(
+        <AppContext.Provider value={context}>
+          <DropDownAvatarMenu />
         </AppContext.Provider>
       );
 
@@ -152,10 +152,7 @@ describe('DropDownAvatarMenu', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
-
-      expect(screen.getByTestId('sign-out-error').textContent).toContain(
-        'drop-down-menu-sign-out-error'
-      );
+      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
     });
   });
 });

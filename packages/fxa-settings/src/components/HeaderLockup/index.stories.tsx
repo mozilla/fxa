@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { HeaderLockup } from '.';
 import { AppContext } from '../../models';
-import { mockSession } from 'fxa-settings/src/models/_mocks';
+import { mockAppContext } from 'fxa-settings/src/models/_mocks';
 
 const account = {
   avatar: {
@@ -20,7 +20,7 @@ const account = {
 
 storiesOf('Components|HeaderLockup', module)
   .add('with default avatar', () => (
-    <AppContext.Provider value={{ account, session: mockSession() }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <HeaderLockup />
     </AppContext.Provider>
   ))

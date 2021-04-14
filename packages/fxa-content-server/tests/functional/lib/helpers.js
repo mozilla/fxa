@@ -2156,7 +2156,7 @@ const testElementWasShown = thenify(function (selector, message) {
 /**
  * Test whether the success message was shown.
  *
- * @param {string} [selector] defaults to `.success [data-testid=alert-external-text]`
+ * @param {string} [selector] defaults to `.success [data-testid=alert-bar-content]`
  * @returns {promise} rejects if error element was not shown.
  */
 function testSuccessWasShown(message, selector) {
@@ -2167,7 +2167,7 @@ function testSuccessWasShown(message, selector) {
 /**
  * Test whether the success message was not shown.
  *
- * @param {string} [selector] defaults to `.success [data-testid=alert-external-text]`
+ * @param {string} [selector] defaults to `.success [data-testid=alert-bar-content]`
  * @returns {promise} rejects if error element was shown.
  */
 function testSuccessWasNotShown(selector) {
@@ -2178,7 +2178,7 @@ function testSuccessWasNotShown(selector) {
 /**
  * Test whether the error message was shown.
  *
- * @param {string} [selector] defaults to `.error [data-testid=alert-external-text]`
+ * @param {string} [selector] defaults to `.error [data-testid=alert-bar-content]`
  * @returns {promise} rejects if error element was not shown.
  */
 function testErrorWasShown(message, selector) {
@@ -2189,7 +2189,7 @@ function testErrorWasShown(message, selector) {
 /**
  * Test whether the error message was not shown.
  *
- * @param {string} [selector] defaults to `.error [data-testid=alert-external-text]`
+ * @param {string} [selector] defaults to `.error [data-testid=alert-bar-content]`
  * @returns {promise} rejects if error element was shown.
  */
 function testErrorWasNotShown(selector) {

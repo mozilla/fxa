@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
-import AlertExternal from '../AlertExternal';
 import Nav from '../Nav';
 import Security from '../Security';
 import { Profile } from '../Profile';
@@ -26,7 +25,6 @@ export const PageSettings = (_: RouteComponentProps) => {
 
   return (
     <div id="fxa-settings" className="flex">
-      <AlertExternal />
       <div className="hidden desktop:block desktop:flex-2">
         <Nav />
       </div>

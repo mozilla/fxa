@@ -5,19 +5,19 @@
 import React from 'react';
 import { screen, act, fireEvent } from '@testing-library/react';
 import { UnitRowTwoStepAuth } from '.';
-import { renderWithRouter, mockSession } from '../../models/_mocks';
+import { renderWithRouter, mockAppContext } from '../../models/_mocks';
 import { Account, AppContext } from '../../models';
 
+jest.mock('../../models/AlertBarInfo');
 const account = ({
   totp: { exists: true, verified: true },
   disableTwoStepAuth: jest.fn().mockResolvedValue(true),
 } as unknown) as Account;
-const session = mockSession();
 
 describe('UnitRowTwoStepAuth', () => {
   it('renders when Two-step authentication is enabled', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />
       </AppContext.Provider>
     );
@@ -34,7 +34,7 @@ describe('UnitRowTwoStepAuth', () => {
 
   it('renders proper modal when Two-step authentication is enabled and "change" is clicked', async () => {
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />
       </AppContext.Provider>
     );
@@ -53,7 +53,7 @@ describe('UnitRowTwoStepAuth', () => {
       totp: { exists: false, verified: false },
     } as unknown) as Account;
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />
       </AppContext.Provider>
     );
@@ -74,7 +74,7 @@ describe('UnitRowTwoStepAuth', () => {
       refresh: jest.fn(),
     } as unknown) as Account;
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />
       </AppContext.Provider>
     );
@@ -88,8 +88,9 @@ describe('UnitRowTwoStepAuth', () => {
   });
 
   it('renders view as not enabled after disabling TOTP', async () => {
+    const context = mockAppContext({ account });
     renderWithRouter(
-      <AppContext.Provider value={{ account, session }}>
+      <AppContext.Provider value={context}>
         <UnitRowTwoStepAuth />
       </AppContext.Provider>
     );
@@ -108,6 +109,6 @@ describe('UnitRowTwoStepAuth', () => {
       fireEvent.click(screen.getByTestId('modal-confirm'));
     });
 
-    expect(screen.getByTestId('delete-totp-success')).toBeInTheDocument();
+    expect(context.alertBarInfo?.success).toBeCalledTimes(1);
   });
 });

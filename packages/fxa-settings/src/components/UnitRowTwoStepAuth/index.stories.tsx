@@ -7,12 +7,13 @@ import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import UnitRowTwoStepAuth from '.';
 import { AppContext } from 'fxa-settings/src/models';
+import { mockAppContext } from 'fxa-settings/src/models/_mocks';
 
 storiesOf('Components|UnitRowTwoStepAuth', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default unset', () => (
     <AppContext.Provider
-      value={{ account: { totp: { enabled: false } } as any }}
+      value={mockAppContext({ account: { totp: { enabled: false } } as any })}
     >
       <UnitRowTwoStepAuth />
     </AppContext.Provider>

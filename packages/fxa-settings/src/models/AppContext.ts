@@ -1,12 +1,13 @@
 import React from 'react';
 import { gql, ApolloClient } from '@apollo/client';
-import config, { Config, getDefault, readConfigMeta } from '../lib/config';
+import config, { Config, readConfigMeta } from '../lib/config';
 import AuthClient from 'fxa-auth-client/browser';
 import { createApolloClient } from '../lib/gql';
 import { Account, ACCOUNT_FIELDS, GET_PROFILE_INFO } from './Account';
 import { Session } from './Session';
 import firefox, { FirefoxCommand } from '../lib/firefox';
-import { mockSession, MOCK_ACCOUNT } from './_mocks';
+import { mockAppContext } from './_mocks';
+import { AlertBarInfo } from './AlertBarInfo';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -22,6 +23,7 @@ export interface AppContextValue {
   apolloClient?: ApolloClient<object>;
   config?: Config;
   account?: Account;
+  alertBarInfo?: AlertBarInfo;
   session?: Session; // used exclusively for test mocking
 }
 
@@ -33,6 +35,7 @@ export function initializeAppContext() {
   const authClient = new AuthClient(config.servers.auth.url);
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);
+  const alertBarInfo = new AlertBarInfo();
 
   const isForCurrentUser = (event: Event) => {
     const { account } = apolloClient.cache.readQuery<{ account: Account }>({
@@ -87,11 +90,10 @@ export function initializeAppContext() {
     apolloClient,
     config,
     account,
-  };
+    alertBarInfo,
+  } as AppContextValue;
 }
 
-export const AppContext = React.createContext<AppContextValue>({
-  account: (MOCK_ACCOUNT as unknown) as Account,
-  session: mockSession(),
-  config: getDefault(),
-});
+export const AppContext = React.createContext<AppContextValue>(
+  mockAppContext()
+);

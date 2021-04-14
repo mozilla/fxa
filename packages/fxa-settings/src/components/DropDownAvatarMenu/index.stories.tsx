@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import DropDownAvatarMenu from '.';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockSession } from 'fxa-settings/src/models/_mocks';
+import { mockAppContext } from 'fxa-settings/src/models/_mocks';
 
 const account = {
   avatar: {
@@ -20,7 +20,7 @@ const account = {
 
 storiesOf('Components|DropDownAvatarMenu', module)
   .add('default - no avatar or display name', () => (
-    <AppContext.Provider value={{ account, session: mockSession() }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <div className="w-full flex justify-end">
         <div className="flex pr-10 pt-4">
           <DropDownAvatarMenu />

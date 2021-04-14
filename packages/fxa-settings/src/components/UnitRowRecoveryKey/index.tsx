@@ -5,10 +5,8 @@
 import React, { useCallback } from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAlertBar } from '../../lib/hooks';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import { logViewEvent } from '../../lib/metrics';
-import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
@@ -134,13 +132,6 @@ export const UnitRowRecoveryKey = () => {
             </Localized>
           </Modal>
         </VerifiedSessionGuard>
-      )}
-      {alertBar.visible && (
-        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-          <p data-testid={`delete-recovery-key-${alertBar.type}`}>
-            {alertBar.content}
-          </p>
-        </AlertBar>
       )}
     </UnitRow>
   );
