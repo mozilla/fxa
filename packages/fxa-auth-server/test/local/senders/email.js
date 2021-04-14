@@ -2137,7 +2137,7 @@ function configUrl(key, campaign, content, ...params) {
   const url = out.toString();
   if (['subscriptionTermsUrl', 'subscriptionPrivacyUrl'].includes(key)) {
     const parsedUrl = new URL(config.subscriptions.paymentsServer.url);
-    return `${parsedUrl.origin}/legal-docs?url=${encodeURI(url)}`;
+    return `${parsedUrl.origin}/legal-docs?url=${encodeURIComponent(url)}`;
   }
 
   return url;
