@@ -2682,7 +2682,9 @@ module.exports = function (log, config) {
   });
 
   Mailer.prototype._legalDocsRedirectUrl = function (url) {
-    return `${paymentsServerURL.origin}/legal-docs?url=${encodeURI(url)}`;
+    return `${paymentsServerURL.origin}/legal-docs?url=${encodeURIComponent(
+      url
+    )}`;
   };
 
   Mailer.prototype._generateUTMLink = function (
