@@ -1907,11 +1907,11 @@ conf.set('smtp.verifyLoginUrl', `${baseUri}/complete_signin`);
 conf.set('smtp.reportSignInUrl', `${baseUri}/report_signin`);
 conf.set(
   'smtp.revokeAccountRecoveryUrl',
-  `${baseUri}/settings/account_recovery/confirm_revoke`
+  `${baseUri}/settings/account_recovery`
 );
 conf.set(
   'smtp.createAccountRecoveryUrl',
-  `${baseUri}/settings/account_recovery/confirm_password`
+  `${baseUri}/settings/account_recovery`
 );
 conf.set('smtp.verifyPrimaryEmailUrl', `${baseUri}/verify_primary_email`);
 conf.set('smtp.verifySecondaryEmailUrl', `${baseUri}/verify_secondary_email`);
