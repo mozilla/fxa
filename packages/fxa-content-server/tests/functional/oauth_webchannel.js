@@ -4,7 +4,6 @@
 
 'use strict';
 
-const config = intern._config;
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
@@ -20,7 +19,6 @@ const {
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
-  openPage,
   openFxaFromRp,
   testElementExists,
   testIsBrowserNotified,
@@ -106,6 +104,7 @@ registerSuite('oauth webchannel', {
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:oauth_login'));
     },
+    /* TODO: This test is dependent on the fix in #8244
     settings: function () {
       const SETTINGS_PAGE_URL = `${config.fxaContentRoot}settings?context=oauth_webchannel_v1`;
 
@@ -131,5 +130,6 @@ registerSuite('oauth webchannel', {
           );
         });
     },
+    */
   },
 });
