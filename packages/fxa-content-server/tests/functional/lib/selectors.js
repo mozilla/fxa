@@ -645,9 +645,10 @@ module.exports = {
       SETTINGS_V2.DELETE_ACCOUNT.TOOLTIP_INCORRECT_PASSWORD, // 'input[type=password] ~ .tooltip',
   },
   SETTINGS_DISPLAY_NAME: {
-    INPUT_DISPLAY_NAME: '#display-name input[type=text]',
-    MENU_BUTTON: '#display-name button.settings-unit-toggle',
-    SUBMIT: '#display-name button[type=submit]',
+    INPUT_LABEL_DISPLAY_NAME: SETTINGS_V2.DISPLAY_NAME.TEXTBOX_LABEL,
+    INPUT_DISPLAY_NAME: SETTINGS_V2.DISPLAY_NAME.TEXTBOX_FIELD, // '#display-name input[type=text]',
+    MENU_BUTTON: SETTINGS_V2.DISPLAY_NAME.ADD_BUTTON, // '#display-name button.settings-unit-toggle',
+    SUBMIT: SETTINGS_V2.DISPLAY_NAME.SUBMIT_BUTTON, // '#display-name button[type=submit]',
   },
   SIGNIN: {
     EMAIL: 'input[type=email]',
