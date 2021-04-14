@@ -4,32 +4,25 @@
 
 import 'mutationobserver-shim';
 import '@testing-library/jest-dom/extend-expect';
-import { act, fireEvent, screen, wait } from '@testing-library/react';
-import { AuthContext, createAuthClient } from '../../lib/auth';
+import { act, fireEvent, screen } from '@testing-library/react';
 import {
   renderWithRouter,
-  MockedCache,
-  MockedProps,
-  createCache,
+  mockSession,
+  mockAppContext,
 } from '../../models/_mocks';
 import React from 'react';
 import PageTwoStepAuthentication, { metricsPreInPostFix } from '.';
-import { CREATE_TOTP_MOCK, VERIFY_TOTP_MOCK } from './_mocks';
 import { checkCode, getCode } from '../../lib/totp';
-import { MockedProvider } from '@apollo/client/testing';
-import { Account, GET_ACCOUNT } from '../../models/Account';
 import { HomePath } from '../../constants';
-import { alertTextExternal } from '../../lib/cache';
 import * as Metrics from '../../lib/metrics';
+import { Account, AppContext } from '../../models';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
+jest.mock('../../models/AlertBarInfo');
 jest.mock('../../lib/totp', () => ({
   ...jest.requireActual('../../lib/totp'),
   getCode: jest.fn(),
   checkCode: jest.fn().mockResolvedValue(true),
-}));
-
-jest.mock('../../lib/cache', () => ({
-  alertTextExternal: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
@@ -38,25 +31,36 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const totp = {
+  qrCodeUrl: 'qr:url',
+  secret: 'JFXE6ULUGM4U4WDHOFVFIRDPKZITATSK',
+  recoveryCodes: ['3594s0tbsq', '0zrg82sdzm', 'wx88yxenfc'],
+};
+
+const account = ({
+  primaryEmail: {
+    email: 'ibicking@mozilla.com',
+  },
+  createTotp: jest.fn().mockResolvedValue(totp),
+  verifyTotp: jest.fn().mockResolvedValue(true),
+  sendVerificationCode: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
+const session = mockSession();
+
 window.URL.createObjectURL = jest.fn();
 
-const client = createAuthClient('none');
-// `any` to disable the error from type inference on the mis-matching shapes of
-// object from each array
-const mocks = CREATE_TOTP_MOCK.concat(VERIFY_TOTP_MOCK as [any]);
-
-const render = (props: MockedProps = { mocks }) =>
+const render = (acct: Account = account, verified: boolean = true) =>
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache {...props}>
-        <PageTwoStepAuthentication />
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider
+      value={mockAppContext({ account: acct, session: mockSession(verified) })}
+    >
+      <PageTwoStepAuthentication />
+    </AppContext.Provider>
   );
 
 const inputTotp = async (totp: string) => {
   await act(async () => {
-    fireEvent.input(screen.getByTestId('totp-input-field'), {
+    await fireEvent.input(screen.getByTestId('totp-input-field'), {
       target: { value: totp },
     });
   });
@@ -65,7 +69,7 @@ const inputTotp = async (totp: string) => {
 const submitTotp = async (totp: string) => {
   await inputTotp(totp);
   await act(async () => {
-    fireEvent.click(screen.getByTestId('submit-totp'));
+    await fireEvent.click(screen.getByTestId('submit-totp'));
   });
 };
 
@@ -118,35 +122,11 @@ describe('step 1', () => {
     );
   });
 
-  it('updates the GraphQL cache', async () => {
-    const cache = createCache({
-      account: { totp: { exists: false, verified: false } },
-    });
-    const spy = jest.spyOn(cache, 'modify');
-
-    await act(async () => {
-      renderWithRouter(
-        <AuthContext.Provider value={{ auth: client }}>
-          <MockedProvider cache={cache} mocks={mocks}>
-            <PageTwoStepAuthentication />
-          </MockedProvider>
-        </AuthContext.Provider>
-      );
-    });
-
-    expect(spy).toBeCalledTimes(1);
-    const { account } = cache.readQuery<{ account: Account }>({
-      query: GET_ACCOUNT,
-    })!;
-    expect(account.totp.exists).toEqual(true);
-  });
-
   it('does not display the QR code for the unverified', async () => {
     await act(async () => {
-      render({ verified: false });
+      render(account, false);
     });
     expect(screen.queryByTestId('2fa-qr-code')).toBeNull();
-    expect(screen.queryByTestId('alert-bar')).toBeNull();
   });
 });
 
@@ -163,7 +143,7 @@ describe('step 2', () => {
     expect(checkCode).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('2fa-recovery-codes')).toBeInTheDocument();
     expect(screen.getByTestId('2fa-recovery-codes')).toHaveTextContent(
-      CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0]
+      totp.recoveryCodes[0]
     );
   });
 
@@ -179,13 +159,13 @@ describe('step 2', () => {
 });
 
 describe('step 3', () => {
-  const getRecoveryCodes = async () => {
+  const getRecoveryCodes = async (acct: Account = account) => {
     await act(async () => {
-      render();
+      render(acct);
     });
     await submitTotp('867530');
     await act(async () => {
-      fireEvent.click(screen.getByTestId('ack-recovery-code'));
+      await fireEvent.click(screen.getByTestId('ack-recovery-code'));
     });
   };
 
@@ -203,12 +183,12 @@ describe('step 3', () => {
   it('shows an error when an incorrect recovery code is entered', async () => {
     await getRecoveryCodes();
     await act(async () => {
-      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: { value: 'bogus' },
       });
     });
     await act(async () => {
-      fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
     expect(screen.getByTestId('tooltip')).toBeInTheDocument();
     expect(screen.getByTestId('tooltip')).toHaveTextContent(
@@ -217,85 +197,90 @@ describe('step 3', () => {
   });
 
   it('shows an generic error when the code cannot be verified', async () => {
-    await getRecoveryCodes();
+    const error = new Error('unexpected');
+    const account = ({
+      primaryEmail: {
+        email: 'ibicking@mozilla.com',
+      },
+      createTotp: jest.fn().mockResolvedValue(totp),
+      verifyTotp: jest.fn().mockRejectedValue(error),
+    } as unknown) as Account;
+    await getRecoveryCodes(account);
     (getCode as jest.Mock).mockResolvedValue('999911');
     await act(async () => {
-      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });
     await act(async () => {
-      fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
-    await wait(() =>
-      expect(screen.getByTestId('alert-bar')).toBeInTheDocument()
-    );
   });
 
-  it('shows the GraphQL error when the code cannot be verified', async () => {
-    await getRecoveryCodes();
+  it('shows the api error when the code cannot be verified', async () => {
+    const error: any = new Error();
+    error.errno = AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno;
+    const account = ({
+      primaryEmail: {
+        email: 'ibicking@mozilla.com',
+      },
+      createTotp: jest.fn().mockResolvedValue(totp),
+      verifyTotp: jest.fn().mockRejectedValue(error),
+    } as unknown) as Account;
+    await getRecoveryCodes(account);
     (getCode as jest.Mock).mockResolvedValue('009001');
     await act(async () => {
-      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });
     await act(async () => {
-      fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
-    await wait(() => expect(screen.getByTestId('tooltip')).toBeInTheDocument());
+    expect(screen.getByTestId('tooltip')).toBeInTheDocument();
   });
 
   it('verifies and enable two step auth', async () => {
-    const cache = createCache({
-      account: { totp: { exists: false, verified: false } },
-    });
-    const modifyCacheSpy = jest.spyOn(cache, 'modify');
-
+    const alertBarInfo = {
+      success: jest.fn(),
+    } as any;
     await act(async () => {
       renderWithRouter(
-        <AuthContext.Provider value={{ auth: client }}>
-          <MockedProvider cache={cache} mocks={mocks}>
-            <PageTwoStepAuthentication />
-          </MockedProvider>
-        </AuthContext.Provider>
+        <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
+          <PageTwoStepAuthentication />
+        </AppContext.Provider>
       );
     });
 
     await submitTotp('867530');
     await act(async () => {
-      fireEvent.click(screen.getByTestId('ack-recovery-code'));
+      await fireEvent.click(screen.getByTestId('ack-recovery-code'));
     });
 
     (getCode as jest.Mock).mockClear();
     (getCode as jest.Mock).mockResolvedValue('001980');
     await act(async () => {
-      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });
     await act(async () => {
-      fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
-    await wait(() => expect(modifyCacheSpy).toBeCalledTimes(2));
     expect(getCode).toBeCalledTimes(1);
 
-    const { account } = cache.readQuery<{ account: Account }>({
-      query: GET_ACCOUNT,
-    })!;
-    expect(account.totp.verified).toEqual(true);
     expect(mockNavigate).toHaveBeenCalledWith(
       HomePath + '#two-step-authentication',
       { replace: true }
     );
-    expect(alertTextExternal).toHaveBeenCalledTimes(1);
-    expect(alertTextExternal).toHaveBeenCalledWith(
+    expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
+    expect(alertBarInfo.success).toHaveBeenCalledWith(
       'Two-step authentication enabled'
     );
   });
@@ -325,29 +310,29 @@ describe('metrics', () => {
     await submitTotp('867530');
 
     await act(async () => {
-      fireEvent.click(screen.getByTestId('databutton-copy'));
+      await fireEvent.click(screen.getByTestId('databutton-copy'));
     });
     await act(async () => {
-      fireEvent.click(screen.getByTestId('databutton-print'));
+      await fireEvent.click(screen.getByTestId('databutton-print'));
     });
     await act(async () => {
-      fireEvent.click(screen.getByTestId('databutton-download'));
+      await fireEvent.click(screen.getByTestId('databutton-download'));
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByTestId('ack-recovery-code'));
+      await fireEvent.click(screen.getByTestId('ack-recovery-code'));
     });
 
     (getCode as jest.Mock).mockResolvedValue('001980');
     await act(async () => {
-      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });
     await act(async () => {
-      fireEvent.click(screen.getByTestId('submit-recovery-code'));
+      await fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
 
     expect(mockLogPageViewEvent).toBeCalledTimes(2);
@@ -385,12 +370,12 @@ describe('back button', () => {
     });
     await submitTotp('867530');
     await act(async () => {
-      fireEvent.click(screen.getByTestId('ack-recovery-code'));
+      await fireEvent.click(screen.getByTestId('ack-recovery-code'));
     });
     await act(async () => {
-      fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
+      await fireEvent.input(screen.getByTestId('recovery-code-input-field'), {
         target: {
-          value: CREATE_TOTP_MOCK[0].result.data.createTotp.recoveryCodes[0],
+          value: totp.recoveryCodes[0],
         },
       });
     });
@@ -399,13 +384,13 @@ describe('back button', () => {
 
     // back to step two
     await act(async () => {
-      fireEvent.click(screen.getByTestId('flow-container-back-btn'));
+      await fireEvent.click(screen.getByTestId('flow-container-back-btn'));
     });
     expect(screen.getByTestId('2fa-recovery-codes')).toBeInTheDocument();
 
     // back to step one
     await act(async () => {
-      fireEvent.click(screen.getByTestId('flow-container-back-btn'));
+      await fireEvent.click(screen.getByTestId('flow-container-back-btn'));
     });
     expect(screen.getByTestId('totp-input-field')).toBeInTheDocument();
     expect(screen.getByTestId('submit-totp')).toBeInTheDocument();

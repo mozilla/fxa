@@ -2,17 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useEffect, useRef, useState, ReactNode, useCallback } from 'react';
-import {
-  useMutation as useApolloMutation,
-  DocumentNode,
-  MutationHookOptions,
-  ApolloError,
-} from '@apollo/client';
-import sentry from 'fxa-shared/lib/sentry';
-import { useBooleanState } from 'fxa-react/lib/hooks';
-import { AlertBarType } from '../components/AlertBar';
-import { useLocalization } from '@fluent/react';
+import { useEffect, useRef } from 'react';
 
 // Focus on the element that triggered some action after the first
 // argument changes from `false` to `true` unless a `triggerException`
@@ -64,92 +54,4 @@ export function useChangeFocusEffect() {
   }, []);
 
   return elToFocus;
-}
-
-export function useMutation(
-  mutation: DocumentNode,
-  options: MutationHookOptions<any, Record<string, any>> | undefined = {}
-) {
-  const { onError } = options;
-
-  options.onError = (error) => {
-    console.error(error);
-
-    if (error.networkError) {
-      sentry.captureException(error);
-    }
-
-    if (onError) {
-      try {
-        onError(error);
-      } catch (error) {
-        sentry.captureException(error);
-      }
-    }
-  };
-
-  return useApolloMutation(mutation, options);
-}
-
-export function useAlertBar({
-  defaultVisible = false,
-  defaultType = 'success',
-  defaultContent,
-}: {
-  defaultVisible?: boolean;
-  defaultType?: AlertBarType;
-  defaultContent?: ReactNode;
-} = {}) {
-  const [visible, show, hide] = useBooleanState(defaultVisible);
-  const [type, setType] = useState<AlertBarType>(defaultType);
-  const [content, setContent] = useState<ReactNode | null>(defaultContent);
-
-  const success = useCallback(
-    (message: ReactNode) => {
-      setContent(message);
-      setType('success');
-      show();
-    },
-    [setContent, setType, show]
-  );
-  const { l10n } = useLocalization();
-
-  const error = useCallback(
-    (message: ReactNode, error?: ApolloError) => {
-      const serverErrorMessage = () =>
-        error?.graphQLErrors[0].extensions?.errno
-          ? l10n.getString(
-              `auth-error-${error.graphQLErrors[0].extensions.errno}`,
-              null,
-              error.message
-            )
-          : error?.message;
-      setContent(error?.graphQLErrors?.length ? serverErrorMessage() : message);
-      setType('error');
-      show();
-    },
-    [setContent, setType, show, l10n]
-  );
-
-  const info = useCallback(
-    (message: ReactNode) => {
-      setContent(message);
-      setType('info');
-      show();
-    },
-    [setContent, setType, show]
-  );
-
-  return {
-    visible,
-    show,
-    hide,
-    type,
-    setType,
-    content,
-    setContent,
-    success,
-    error,
-    info,
-  };
 }

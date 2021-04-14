@@ -1,4 +1,4 @@
-import { InMemoryCache, gql, makeVar } from '@apollo/client';
+import { InMemoryCache, gql } from '@apollo/client';
 import Storage from './storage';
 import { Email } from '../models';
 import config from './config';
@@ -54,7 +54,7 @@ export function clearSignedInAccountUid() {
   storage.remove('currentAccountUid');
 }
 
-function consumeAlertTextExternal() {
+export function consumeAlertTextExternal() {
   const account = currentAccount();
   const text = account?.alertText || null;
   if (text) {
@@ -64,13 +64,10 @@ function consumeAlertTextExternal() {
   return text;
 }
 
-export const alertTextExternal = makeVar(consumeAlertTextExternal());
-
 // sessionToken is added as a local field as an example.
 export const typeDefs = gql`
   extend type Account {
     primaryEmail: Email!
-    alertTextExternal: String
   }
   extend type Session {
     token: String!
@@ -85,11 +82,6 @@ export const cache = new InMemoryCache({
           read(_, o) {
             const emails = o.readField<Email[]>('emails');
             return emails?.find((email) => email.isPrimary);
-          },
-        },
-        alertTextExternal: {
-          read() {
-            return alertTextExternal();
           },
         },
       },

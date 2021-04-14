@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { screen } from '@testing-library/react';
-import { MockedCache } from '../../models/_mocks';
 import AppLayout from '.';
 import { renderWithRouter } from '../../models/_mocks';
 import { HomePath } from '../../constants';
@@ -13,11 +12,9 @@ it('renders the app with children', async () => {
   const {
     history: { navigate },
   } = renderWithRouter(
-    <MockedCache>
-      <AppLayout>
-        <p data-testid="test-child">Hello, world!</p>
-      </AppLayout>
-    </MockedCache>
+    <AppLayout>
+      <p data-testid="test-child">Hello, world!</p>
+    </AppLayout>
   );
   await navigate(HomePath);
   expect(screen.getByTestId('app')).toBeInTheDocument();

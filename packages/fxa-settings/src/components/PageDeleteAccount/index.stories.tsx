@@ -7,19 +7,11 @@ import { storiesOf } from '@storybook/react';
 import { PageDeleteAccount } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
-import { AuthContext, createAuthClient } from '../../lib/auth';
-import { MockedCache } from '../../models/_mocks';
-
-const client = createAuthClient('none');
 
 storiesOf('Pages|DeleteAccount', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <AppLayout>
-          <PageDeleteAccount />
-        </AppLayout>
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppLayout>
+      <PageDeleteAccount />
+    </AppLayout>
   ));

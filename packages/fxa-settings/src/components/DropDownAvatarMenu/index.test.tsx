@@ -4,52 +4,50 @@
 
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { MockedCache } from '../../models/_mocks';
-import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
-import DropDownAvatarMenu, { DESTROY_SESSION_MUTATION } from '.';
+import { mockAppContext, mockSession } from '../../models/_mocks';
+import DropDownAvatarMenu from '.';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
+import { Account, AppContext } from '../../models';
 
+jest.mock('../../models/AlertBarInfo');
 jest.mock('fxa-settings/src/lib/metrics', () => ({
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
 }));
 
-const mockGqlSuccess = () => ({
-  request: {
-    query: DESTROY_SESSION_MUTATION,
-    variables: { input: {} },
+const account = ({
+  avatar: {
+    id: 'abc1234',
+    url: 'http://placekitten.com/512/512',
+    isDefault: false,
   },
-  result: {
-    data: {
-      resendSecondaryEmailCode: {
-        clientMutationId: null,
-      },
-    },
+  primaryEmail: {
+    email: 'johndope@example.com',
   },
-});
+  displayName: 'John Dope',
+} as unknown) as Account;
 
-const mockGqlError = () => ({
-  request: {
-    query: DESTROY_SESSION_MUTATION,
-    variables: { input: {} },
-  },
-  error: new Error('Aw shucks'),
-});
-
-window.console.error = jest.fn();
-
-afterAll(() => {
-  (window.console.error as jest.Mock).mockReset();
-});
+const makeSession = (isError: boolean = false) => {
+  const s = mockSession();
+  s.destroy = isError
+    ? jest.fn().mockRejectedValue(new Error())
+    : jest.fn().mockResolvedValue(true);
+  return s;
+};
 
 describe('DropDownAvatarMenu', () => {
   it('renders and toggles as expected with default values', () => {
+    const account = ({
+      avatar: { url: null, id: null },
+      displayName: null,
+      primaryEmail: {
+        email: 'johndope@example.com',
+      },
+    } as unknown) as Account;
     render(
-      <MockedCache
-        account={{ avatar: { id: null, url: null }, displayName: null }}
-      >
+      <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     const toggleButton = screen.getByTestId('drop-down-avatar-menu-toggle');
@@ -75,9 +73,9 @@ describe('DropDownAvatarMenu', () => {
 
   it('renders as expected with avatar url and displayName set', () => {
     render(
-      <MockedCache>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
-      </MockedCache>
+      </AppContext.Provider>
     );
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
     expect(screen.getByTestId('drop-down-name-or-email').textContent).toContain(
@@ -87,9 +85,9 @@ describe('DropDownAvatarMenu', () => {
 
   it('closes on esc keypress', () => {
     render(
-      <MockedCache>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
-      </MockedCache>
+      </AppContext.Provider>
     );
     const dropDown = screen.queryByTestId('drop-down-avatar-menu');
 
@@ -101,13 +99,13 @@ describe('DropDownAvatarMenu', () => {
 
   it('closes on click outside', () => {
     const { container } = render(
-      <MockedCache>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <div className="w-full flex justify-end">
           <div className="flex pr-10 pt-4">
             <DropDownAvatarMenu />
           </div>
         </div>
-      </MockedCache>
+      </AppContext.Provider>
     );
     const dropDown = screen.queryByTestId('drop-down-avatar-menu');
 
@@ -120,47 +118,41 @@ describe('DropDownAvatarMenu', () => {
   describe('destroySession', () => {
     it('redirects the user on success', async () => {
       window.location.assign = jest.fn();
-      const mocks = [mockGqlSuccess()];
 
       render(
-        <MockedCache {...{ mocks }}>
+        <AppContext.Provider
+          value={mockAppContext({ account, session: makeSession() })}
+        >
           <DropDownAvatarMenu />
-        </MockedCache>
+        </AppContext.Provider>
       );
 
       fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
       await act(async () => {
         fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
-      expect(window.location.assign).toHaveBeenCalledWith(
-        `${window.location.origin}/signin`
-      );
       expect(logViewEvent).toHaveBeenCalledWith(
         settingsViewName,
         'signout.success'
       );
+      expect(window.location.assign).toHaveBeenCalledWith(
+        `${window.location.origin}/signin`
+      );
     });
 
     it('displays an error in the AlertBar', async () => {
-      const mocks = [mockGqlError()];
-
-      const { rerender } = render(<AlertBarRootAndContextProvider />);
-      rerender(
-        <MockedCache {...{ mocks }}>
-          <AlertBarRootAndContextProvider>
-            <DropDownAvatarMenu />
-          </AlertBarRootAndContextProvider>
-        </MockedCache>
+      const context = mockAppContext({ account, session: makeSession(true) });
+      render(
+        <AppContext.Provider value={context}>
+          <DropDownAvatarMenu />
+        </AppContext.Provider>
       );
 
       fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
       await act(async () => {
         fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
-
-      expect(screen.getByTestId('sign-out-error').textContent).toContain(
-        'drop-down-menu-sign-out-error'
-      );
+      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
     });
   });
 });

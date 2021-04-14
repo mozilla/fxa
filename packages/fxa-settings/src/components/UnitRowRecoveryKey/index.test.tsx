@@ -3,20 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, fireEvent, act, wait } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import UnitRowRecoveryKey from '.';
-import {
-  renderWithRouter,
-  MockedCache,
-  mockRecoveryKeyExistsQuery,
-} from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
+
+const account = ({
+  recoveryKey: true,
+  deleteRecoveryKey: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
 
 describe('UnitRowRecoveryKey', () => {
   it('renders when recovery key is set', () => {
     renderWithRouter(
-      <MockedCache>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowRecoveryKey />
-      </MockedCache>
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
@@ -30,10 +32,13 @@ describe('UnitRowRecoveryKey', () => {
   });
 
   it('renders when recovery key is not set', () => {
+    const account = ({
+      recoveryKey: false,
+    } as unknown) as Account;
     renderWithRouter(
-      <MockedCache account={{ recoveryKey: false }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowRecoveryKey />
-      </MockedCache>
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
@@ -47,14 +52,15 @@ describe('UnitRowRecoveryKey', () => {
   });
 
   it('can be refreshed', async () => {
+    const account = ({
+      recoveryKey: false,
+      refresh: jest.fn(),
+    } as unknown) as Account;
     await act(async () => {
       renderWithRouter(
-        <MockedCache
-          account={{ recoveryKey: false }}
-          mocks={[mockRecoveryKeyExistsQuery({ recoveryKey: true })]}
-        >
+        <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowRecoveryKey />
-        </MockedCache>
+        </AppContext.Provider>
       );
     });
     expect(
@@ -63,10 +69,6 @@ describe('UnitRowRecoveryKey', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('recovery-key-refresh'));
     });
-    // wait a tick to get past the 'loading' state of the query
-    await wait();
-    expect(
-      screen.getByTestId('recovery-key-unit-row-header-value')
-    ).toHaveTextContent('Enabled');
+    expect(account.refresh).toBeCalledWith('recovery');
   });
 });

@@ -6,9 +6,8 @@ import 'mutationobserver-shim';
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen, wait } from '@testing-library/react';
-import { AuthContext, createAuthClient } from '../../lib/auth';
 import { HomePath } from '../../constants';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import PageChangePassword from '.';
 import {
   logViewEvent,
@@ -16,17 +15,9 @@ import {
   usePageViewEvent,
 } from '../../lib/metrics';
 import { typeByTestIdFn } from '../../lib/test-utils';
+import { AppContext, Account } from '../../models';
 
-jest.mock('../../lib/auth', () => ({
-  ...jest.requireActual('../../lib/auth'),
-  usePasswordChanger: jest
-    .fn()
-    .mockImplementation(({ onSuccess, onError }) => ({
-      execute: () => onSuccess({ sessionToken: 'FFFF' }),
-      reset: () => {},
-    })),
-}));
-jest.mock('fxa-settings/src/lib/metrics', () => ({
+jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
@@ -37,15 +28,18 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const client = createAuthClient('none');
+const account = ({
+  primaryEmail: {
+    email: 'test@example.com',
+  },
+  changePassword: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
 
 const render = async () => {
   await renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <PageChangePassword />
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <PageChangePassword />
+    </AppContext.Provider>
   );
 };
 

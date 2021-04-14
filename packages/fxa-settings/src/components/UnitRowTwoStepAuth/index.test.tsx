@@ -3,34 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, act, fireEvent, wait } from '@testing-library/react';
-import { DELETE_TOTP_MUTATION, UnitRowTwoStepAuth } from '.';
-import {
-  renderWithRouter,
-  MockedCache,
-  mockTotpStatusQuery,
-} from '../../models/_mocks';
+import { screen, act, fireEvent } from '@testing-library/react';
+import { UnitRowTwoStepAuth } from '.';
+import { renderWithRouter, mockAppContext } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
 
-const mockMutationSuccess = {
-  request: {
-    query: DELETE_TOTP_MUTATION,
-    variables: { input: {} },
-  },
-  result: {
-    data: {
-      deleteTotp: {
-        clientMutationId: null,
-      },
-    },
-  },
-};
+jest.mock('../../models/AlertBarInfo');
+const account = ({
+  totp: { exists: true, verified: true },
+  disableTwoStepAuth: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
 
 describe('UnitRowTwoStepAuth', () => {
   it('renders when Two-step authentication is enabled', async () => {
     renderWithRouter(
-      <MockedCache account={{ totp: { exists: true } }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />
-      </MockedCache>
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('two-step-unit-row-header').textContent
@@ -45,15 +34,14 @@ describe('UnitRowTwoStepAuth', () => {
 
   it('renders proper modal when Two-step authentication is enabled and "change" is clicked', async () => {
     renderWithRouter(
-      <MockedCache account={{ totp: { exists: true } }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     await act(async () => {
       fireEvent.click(await screen.getByTestId('two-step-unit-row-modal'));
     });
-    await wait();
 
     expect(
       screen.queryByTestId('change-codes-modal-header')
@@ -61,10 +49,13 @@ describe('UnitRowTwoStepAuth', () => {
   });
 
   it('renders when Two-step authentication is not enabled', () => {
+    const account = ({
+      totp: { exists: false, verified: false },
+    } as unknown) as Account;
     renderWithRouter(
-      <MockedCache account={{ totp: { exists: false } }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />
-      </MockedCache>
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('two-step-unit-row-header').textContent
@@ -78,20 +69,14 @@ describe('UnitRowTwoStepAuth', () => {
   });
 
   it('can be refreshed', async () => {
+    const account = ({
+      totp: { exists: false, verified: false },
+      refresh: jest.fn(),
+    } as unknown) as Account;
     renderWithRouter(
-      <MockedCache
-        account={{ totp: { exists: false } }}
-        mocks={[
-          mockTotpStatusQuery({
-            totp: {
-              exists: true,
-              verified: true,
-            },
-          }),
-        ]}
-      >
+      <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />
-      </MockedCache>
+      </AppContext.Provider>
     );
     expect(
       screen.getByTestId('two-step-unit-row-header-value')
@@ -99,18 +84,15 @@ describe('UnitRowTwoStepAuth', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('two-step-refresh'));
     });
-    expect(
-      screen.getByTestId('two-step-unit-row-header-value')
-    ).toHaveTextContent('Enabled');
+    expect(account.refresh).toBeCalledWith('totp');
   });
 
   it('renders view as not enabled after disabling TOTP', async () => {
-    const mocks = [mockMutationSuccess];
-
+    const context = mockAppContext({ account });
     renderWithRouter(
-      <MockedCache {...{ mocks, account: { totp: { exists: true } } }}>
+      <AppContext.Provider value={context}>
         <UnitRowTwoStepAuth />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     await act(async () => {
@@ -118,7 +100,6 @@ describe('UnitRowTwoStepAuth', () => {
         screen.getByTestId('two-step-disable-button-unit-row-modal')
       );
     });
-    await wait();
 
     expect(
       screen.queryByTestId('disable-totp-modal-header')
@@ -127,8 +108,7 @@ describe('UnitRowTwoStepAuth', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('modal-confirm'));
     });
-    await wait();
 
-    expect(screen.getByTestId('delete-totp-success')).toBeInTheDocument();
+    expect(context.alertBarInfo?.success).toBeCalledTimes(1);
   });
 });

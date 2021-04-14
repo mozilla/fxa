@@ -4,27 +4,34 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { MockedCache } from '../../models/_mocks';
 import DropDownAvatarMenu from '.';
+import { AppContext } from 'fxa-settings/src/models';
+import { mockAppContext } from 'fxa-settings/src/models/_mocks';
+
+const account = {
+  avatar: {
+    url: null,
+    id: null,
+  },
+  primaryEmail: {
+    email: 'johndope@example.com',
+  },
+} as any;
 
 storiesOf('Components|DropDownAvatarMenu', module)
   .add('default - no avatar or display name', () => (
-    <MockedCache
-      account={{ avatar: { id: null, url: null }, displayName: null }}
-    >
+    <AppContext.Provider value={mockAppContext({ account })}>
       <div className="w-full flex justify-end">
         <div className="flex pr-10 pt-4">
           <DropDownAvatarMenu />
         </div>
       </div>
-    </MockedCache>
+    </AppContext.Provider>
   ))
   .add('with avatar and display name', () => (
-    <MockedCache>
-      <div className="w-full flex justify-end">
-        <div className="flex pr-10 pt-4">
-          <DropDownAvatarMenu />
-        </div>
+    <div className="w-full flex justify-end">
+      <div className="flex pr-10 pt-4">
+        <DropDownAvatarMenu />
       </div>
-    </MockedCache>
+    </div>
   ));

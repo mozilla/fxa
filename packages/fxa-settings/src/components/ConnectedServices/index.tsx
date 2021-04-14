@@ -2,21 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef, useState } from 'react';
-import { gql, ApolloError } from '@apollo/client';
+import React, { useCallback, useState } from 'react';
+import { ApolloError } from '@apollo/client';
 import groupBy from 'lodash.groupby';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { logViewEvent } from '../../lib/metrics';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAlertBar, useMutation } from '../../lib/hooks';
 import { Modal } from '../Modal';
 import { isMobileDevice } from '../../lib/utilities';
-import {
-  AttachedClient,
-  useAccount,
-  useLazyConnectedClients,
-} from '../../models';
-import { AlertBar } from '../AlertBar';
+import { AttachedClient, useAccount, useAlertBar } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
 import { Service } from './Service';
@@ -29,14 +23,7 @@ const UTM_PARAMS =
 const DEVICES_SUPPORT_URL =
   'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
 
-export const ATTACHED_CLIENT_DISCONNECT_MUTATION = gql`
-  mutation attachedClientDisconnect($input: AttachedClientDisconnectInput!) {
-    attachedClientDisconnect(input: $input) {
-      clientMutationId
-    }
-  }
-`;
-
+// TODO: move into Account?
 export function sortAndFilterConnectedClients(
   attachedClients: Array<AttachedClient>
 ) {
@@ -65,22 +52,12 @@ export function sortAndFilterConnectedClients(
 
 export const ConnectedServices = () => {
   const alertBar = useAlertBar();
-  const { attachedClients } = useAccount();
+  const account = useAccount();
+  const attachedClients = account.attachedClients;
   const sortedAndUniqueClients = sortAndFilterConnectedClients([
     ...attachedClients,
   ]);
-  const [
-    getConnectedClients,
-    { connectedClientsLoading },
-  ] = useLazyConnectedClients((error) => {
-    alertBar.error(
-      l10n.getString(
-        'cs-cannot-refresh',
-        null,
-        'Sorry, there was a problem refreshing the list of connected services.'
-      )
-    );
-  });
+
   const showMobilePromo = !sortedAndUniqueClients.filter(isMobileDevice).length;
   const { l10n } = useLocalization();
 
@@ -102,75 +79,31 @@ export const ConnectedServices = () => {
     hideAdviceModal,
   ] = useBooleanState();
 
-  // You'd think that we could have client be from useState but due to how useMutation works
-  // the value of the state inside the update function is unpredictable. A ref is more
-  // manual but totally predictable.
-  const client = useRef<AttachedClient | null>(null);
+  const [selectedClient, setSelectedClient] = useState<AttachedClient | null>(
+    null
+  );
   const [reason, setReason] = useState<string>('');
 
-  const clearDisconnectingState = (
-    errorMessage?: string,
-    error?: ApolloError
-  ) => {
-    hideConfirmDisconnectModal();
-    client.current = null;
-    setReason('');
-    if (errorMessage) {
-      alertBar.error(errorMessage, error);
-    }
-  };
+  const clearDisconnectingState = useCallback(
+    (errorMessage?: string, error?: ApolloError) => {
+      hideConfirmDisconnectModal();
+      setSelectedClient(null);
+      setReason('');
+      if (errorMessage) {
+        alertBar.error(errorMessage, error);
+      }
+    },
+    [hideConfirmDisconnectModal, setSelectedClient, setReason, alertBar]
+  );
 
-  const onConfirmDisconnect = () => {
-    if (!client.current) {
-      return clearDisconnectingState(
-        l10n.getString(
-          'cs-cannot-disconnect',
-          null,
-          'Client not found, unable to disconnect'
-        )
-      );
-    }
-    disconnectClient(client.current);
-  };
-
-  const disconnectClient = (client: AttachedClient) => {
-    logViewEvent('settings.clients.disconnect', `submit.${reason}`);
-
-    deleteConnectedService({
-      variables: {
-        input: {
-          clientId: client.clientId,
-          deviceId: client.deviceId,
-          sessionTokenId: client.sessionTokenId,
-          refreshTokenId: client.refreshTokenId,
-        },
-      },
-    });
-  };
-
-  const onSignOutClick = (c: AttachedClient) => {
-    client.current = c;
-    // If it's a sync client, we show the disconnect survey modal.
-    // Only sync clients have a deviceId.
-    if (c.deviceId) {
-      revealConfirmDisconnectModal();
-    } else {
-      disconnectClient(c);
-    }
-  };
-
-  const onCloseAdviceModal = () => {
-    clearDisconnectingState();
-    hideAdviceModal();
-  };
-
-  const [deleteConnectedService] = useMutation(
-    ATTACHED_CLIENT_DISCONNECT_MUTATION,
-    {
-      onCompleted: () => {
+  const disconnectClient = useCallback(
+    async (client: AttachedClient) => {
+      try {
+        logViewEvent('settings.clients.disconnect', `submit.${reason}`);
+        await account.disconnectClient(client);
         // TODO: Add `timing.clients.disconnect` flow timing event as seen in
         // old-settings? #6903
-        if (client.current?.isCurrentSession) {
+        if (client.isCurrentSession) {
           clearSignedInAccountUid();
           window.location.assign(`${window.location.origin}/signin`);
         } else if (reason === 'suspicious' || reason === 'lost') {
@@ -178,7 +111,7 @@ export const ConnectedServices = () => {
           hideConfirmDisconnectModal();
           revealAdviceModal();
         } else {
-          const name = client.current!.name;
+          const name = client.name;
           alertBar.success(
             l10n.getString(
               'cs-logged-out',
@@ -188,28 +121,52 @@ export const ConnectedServices = () => {
           );
           clearDisconnectingState();
         }
-      },
-      onError: (error: ApolloError) =>
-        clearDisconnectingState(undefined, error),
-      ignoreResults: true,
-      update: (cache) => {
-        cache.modify({
-          id: cache.identify({ __typename: 'Account' }),
-          fields: {
-            attachedClients(existingClients: AttachedClient[]) {
-              const updatedList = [...existingClients];
-              return updatedList.filter(
-                // TODO: should this also go into the AttachedClient model?
-                (c) =>
-                  c.lastAccessTime !== client.current?.lastAccessTime &&
-                  c.name !== client.current?.name
-              );
-            },
-          },
-        });
-      },
-    }
+      } catch (error) {
+        clearDisconnectingState(undefined, error);
+      }
+    },
+    [
+      account,
+      hideConfirmDisconnectModal,
+      revealAdviceModal,
+      alertBar,
+      l10n,
+      clearDisconnectingState,
+      reason,
+    ]
   );
+
+  const onConfirmDisconnect = useCallback(() => {
+    if (!selectedClient) {
+      return clearDisconnectingState(
+        l10n.getString(
+          'cs-cannot-disconnect',
+          null,
+          'Client not found, unable to disconnect'
+        )
+      );
+    }
+    disconnectClient(selectedClient);
+  }, [selectedClient, clearDisconnectingState, l10n, disconnectClient]);
+
+  const onSignOutClick = useCallback(
+    (c: AttachedClient) => {
+      setSelectedClient(c);
+      // If it's a sync client, we show the disconnect survey modal.
+      // Only sync clients have a deviceId.
+      if (c.deviceId) {
+        revealConfirmDisconnectModal();
+      } else {
+        disconnectClient(c);
+      }
+    },
+    [setSelectedClient, revealConfirmDisconnectModal, disconnectClient]
+  );
+
+  const onCloseAdviceModal = useCallback(() => {
+    clearDisconnectingState();
+    hideAdviceModal();
+  }, [clearDisconnectingState, hideAdviceModal]);
 
   return (
     <section className="mt-11" data-testid="settings-connected-services">
@@ -227,8 +184,8 @@ export const ConnectedServices = () => {
               title="Refresh connected services"
               classNames="hidden mobileLandscape:inline-block"
               testId="connected-services-refresh"
-              disabled={connectedClientsLoading}
-              onClick={getConnectedClients}
+              disabled={account.loading}
+              onClick={() => account.refresh('clients')}
             />
           </Localized>
         </div>
@@ -271,16 +228,6 @@ export const ConnectedServices = () => {
             </div>
           </>
         )}
-
-        {alertBar.visible && alertBar.content && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p
-              data-testid={`connected-services-alert-bar-message-${alertBar.type}`}
-            >
-              {alertBar.content}
-            </p>
-          </AlertBar>
-        )}
         {confirmDisconnectModalRevealed && (
           <VerifiedSessionGuard
             onDismiss={() => clearDisconnectingState()}
@@ -310,14 +257,14 @@ export const ConnectedServices = () => {
 
               <Localized
                 id="cs-disconnect-sync-content"
-                vars={{ device: client.current!.name }}
+                vars={{ device: selectedClient!.name }}
               >
                 <p
                   id="connected-devices-sign-out-description"
                   className="my-4 text-center"
                 >
                   Your browsing data will remain on your device (
-                  {client.current!.name}
+                  {selectedClient!.name}
                   ), but it will no longer sync with your account.
                 </p>
               </Localized>

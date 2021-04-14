@@ -12,22 +12,17 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import 'react-easy-crop/react-easy-crop.css';
 
-import { cache, sessionToken } from '../../lib/cache';
 import { isMobileDevice } from '../../lib/utilities';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import { HomePath } from '../../constants';
-import firefox from '../../lib/firefox';
-import { useAvatarUploader } from '../../lib/auth';
 import { onFileChange } from '../../lib/file-utils';
 import { getCroppedImg } from '../../lib/canvas-utils';
-import { useAlertBar } from '../../lib/hooks';
 import {
   logViewEvent,
   settingsViewName,
   usePageViewEvent,
 } from '../../lib/metrics';
 
-import AlertBar from '../AlertBar';
 import Avatar from '../Avatar';
 import FlowContainer from '../FlowContainer';
 import {
@@ -52,23 +47,26 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const [saveEnabled, setSaveEnabled] = useState(false);
   const [saveStringId, setSaveStringId] = useState('avatar-page-save-button');
+  const onFileError = useCallback(() => {
+    alertBar.error(l10n.getString('avatar-page-file-upload-error-2'));
+  }, [alertBar, l10n]);
 
-  const uploadAvatar = useAvatarUploader({
-    onSuccess: (newAvatar) => {
-      logViewEvent(settingsViewName, 'avatar.crop.submit.change');
-      firefox.profileChanged(account.uid);
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          avatar() {
-            return { ...newAvatar, isDefault: false };
-          },
-        },
-      });
-      navigate(HomePath + '#profile-picture', { replace: true });
+  const onMediaError = useCallback(() => {
+    alertBar.error(l10n.getString('avatar-page-camera-error'));
+  }, [alertBar, l10n]);
+
+  const uploadAvatar = useCallback(
+    async (file: Blob) => {
+      try {
+        await account.uploadAvatar(file);
+        logViewEvent(settingsViewName, 'avatar.crop.submit.change');
+        navigate(HomePath + '#profile-picture', { replace: true });
+      } catch (e) {
+        onFileError();
+      }
     },
-    onError: onFileError,
-  });
+    [account, navigate, onFileError]
+  );
 
   /* Capture State */
 
@@ -168,7 +166,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
       resetAllState();
     } else if (img) {
       setSaveStringId('avatar-page-saving-button');
-      uploadAvatar.execute(sessionToken()!, img);
+      uploadAvatar(img);
     }
   }, [
     alertBar,
@@ -180,14 +178,6 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     uploadAvatar,
     resetAllState,
   ]);
-
-  function onFileError() {
-    alertBar.error(l10n.getString('avatar-page-file-upload-error-2'));
-  }
-
-  function onMediaError() {
-    alertBar.error(l10n.getString('avatar-page-camera-error'));
-  }
 
   /* Elements */
   const confirmBtns = (
@@ -300,11 +290,6 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   return (
     <Localized id="avatar-page-title" attrs={{ title: true }}>
       <FlowContainer title="Profile picture">
-        {alertBar.visible && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p data-testid="update-avatar-error">{alertBar.content}</p>
-          </AlertBar>
-        )}
         <form onSubmit={handleSubmit} className="mt-4">
           {capturedImgSrc && !croppedImgSrc ? (
             <>

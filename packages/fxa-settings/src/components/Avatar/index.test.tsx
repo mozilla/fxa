@@ -4,15 +4,19 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MockedCache } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
 import Avatar from '.';
+
+const account = ({
+  avatar: { url: null, id: null },
+} as unknown) as Account;
 
 describe('Avatar', () => {
   it('renders default avatar with expected attributes', () => {
     render(
-      <MockedCache account={{ avatar: { id: null, url: null } }}>
+      <AppContext.Provider value={{ account }}>
         <Avatar />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('avatar-default')).toHaveAttribute(
@@ -24,19 +28,22 @@ describe('Avatar', () => {
 
   it('renders default avatar with a custom className', () => {
     render(
-      <MockedCache account={{ avatar: { id: null, url: null } }}>
+      <AppContext.Provider value={{ account }}>
         <Avatar className="my-class" />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('avatar-default')).toHaveClass('my-class');
   });
 
   it('renders the avatar with expected attributes', () => {
+    const account = ({
+      avatar: { id: 'abc1234', url: 'http://placekitten.com/512/512' },
+    } as unknown) as Account;
     render(
-      <MockedCache>
+      <AppContext.Provider value={{ account }}>
         <Avatar />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('avatar-nondefault')).toHaveAttribute(
@@ -51,10 +58,13 @@ describe('Avatar', () => {
   });
 
   it('renders the avatar with a custom className', () => {
+    const account = ({
+      avatar: { id: 'abc1234', url: 'http://placekitten.com/512/512' },
+    } as unknown) as Account;
     render(
-      <MockedCache>
+      <AppContext.Provider value={{ account }}>
         <Avatar className="my-class" />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     expect(screen.getByTestId('avatar-nondefault')).toHaveClass('my-class');

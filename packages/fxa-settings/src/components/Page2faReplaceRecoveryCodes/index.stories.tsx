@@ -4,18 +4,35 @@
 
 import { LocationProvider } from '@reach/router';
 import { storiesOf } from '@storybook/react';
-import { MockedCache } from '../../models/_mocks';
+import { AppContext } from 'fxa-settings/src/models';
+import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/_mocks';
 import React from 'react';
 import { Page2faReplaceRecoveryCodes } from '.';
 import AppLayout from '../AppLayout';
-import { CHANGE_RECOVERY_CODE_MOCK } from './_mocks';
+
+const account = {
+  ...MOCK_ACCOUNT,
+  replaceRecoveryCodes: () =>
+    Promise.resolve({
+      recoveryCodes: [
+        'C1OFZW7R04',
+        'XVKRLKERT4',
+        'CF0V94X204',
+        'C3THX2SGZ4',
+        'UXC6NRQT54',
+        '24RF9WFA44',
+        'ZBULPFN7J4',
+        'D4J6KY8FL4',
+      ],
+    }),
+} as any;
 
 storiesOf('Pages|2faReplaceRecoveryCodes', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache mocks={CHANGE_RECOVERY_CODE_MOCK}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <AppLayout>
         <Page2faReplaceRecoveryCodes />
       </AppLayout>
-    </MockedCache>
+    </AppContext.Provider>
   ));

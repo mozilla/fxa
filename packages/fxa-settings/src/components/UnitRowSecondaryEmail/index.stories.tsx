@@ -4,50 +4,26 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { InMemoryCache } from '@apollo/client';
-import { UnitRowSecondaryEmail, RESEND_EMAIL_CODE_MUTATION } from '.';
-import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
-import { MockedCache, MOCK_ACCOUNT, mockEmail } from '../../models/_mocks';
-import { GET_INITIAL_STATE } from '../App';
+import { UnitRowSecondaryEmail } from '.';
+import { mockAppContext, mockEmail } from '../../models/_mocks';
 import { LocationProvider } from '@reach/router';
 
-// every unverified email with a functioning "Resend verification"
-// button must have a mock object created per mutation attempt.
-const mockGqlSuccess = (email: string) => ({
-  request: {
-    query: RESEND_EMAIL_CODE_MUTATION,
-    variables: { input: { email } },
-  },
-  result: {
-    data: {
-      resendSecondaryEmailCode: {
-        clientMutationId: null,
-      },
-    },
-  },
-});
+import { AppContext } from 'fxa-settings/src/models';
 
 storiesOf('Components|UnitRowSecondaryEmail', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('No secondary email set', () => (
-    <MockedCache>
-      <AlertBarRootAndContextProvider>
-        <UnitRowSecondaryEmail />
-      </AlertBarRootAndContextProvider>
-    </MockedCache>
-  ))
+  .add('No secondary email set', () => <UnitRowSecondaryEmail />)
   .add('One secondary email set, unverified', () => {
     const emails = [
       mockEmail('johndope@example.com'),
       mockEmail('johndope2@example.com', false, false),
     ];
-    const mocks = [mockGqlSuccess('johndope2@example.com')];
     return (
-      <MockedCache account={{ emails }} {...{ mocks }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
-      </MockedCache>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
+      </AppContext.Provider>
     );
   })
   .add('One secondary email set, verified', () => {
@@ -56,11 +32,11 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope2@example.com', false),
     ];
     return (
-      <MockedCache account={{ emails }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
-      </MockedCache>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
+      </AppContext.Provider>
     );
   })
   .add('Multiple secondary emails set, all verified', () => {
@@ -71,11 +47,11 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope4@example.com', false),
     ];
     return (
-      <MockedCache account={{ emails }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
-      </MockedCache>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
+      </AppContext.Provider>
     );
   })
   .add('Multiple secondary emails set, one unverified', () => {
@@ -85,21 +61,12 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope3@example.com', false, false),
       mockEmail('johndope4@example.com', false),
     ];
-    const cache = new InMemoryCache();
-    cache.writeQuery({
-      query: GET_INITIAL_STATE,
-      data: {
-        account: { ...MOCK_ACCOUNT, emails },
-        session: { verified: true },
-      },
-    });
-    const mocks = [mockGqlSuccess('johndope3@example.com')];
     return (
-      <MockedCache account={{ emails }} {...{ mocks }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
-      </MockedCache>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
+      </AppContext.Provider>
     );
   })
   .add('Multiple secondary emails set, multiple unverified', () => {
@@ -109,15 +76,11 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope3@example.com', false, false),
       mockEmail('johndope4@example.com', false, false),
     ];
-    const mocks = [
-      mockGqlSuccess('johndope3@example.com'),
-      mockGqlSuccess('johndope4@example.com'),
-    ];
     return (
-      <MockedCache account={{ emails }} {...{ mocks }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
-      </MockedCache>
+      <AppContext.Provider
+        value={mockAppContext({ account: { emails } as any })}
+      >
+        <UnitRowSecondaryEmail />
+      </AppContext.Provider>
     );
   });

@@ -5,33 +5,17 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
-import { MockedCache, mockAccountQuery } from '../../models/_mocks';
 import UnitRowTwoStepAuth from '.';
+import { AppContext } from 'fxa-settings/src/models';
+import { mockAppContext } from 'fxa-settings/src/models/_mocks';
 
 storiesOf('Components|UnitRowTwoStepAuth', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default unset', () => (
-    <MockedCache
-      account={{ totp: { exists: false, verified: false } }}
-      mocks={[mockAccountQuery({ exists: true, verified: false })]}
+    <AppContext.Provider
+      value={mockAppContext({ account: { totp: { enabled: false } } as any })}
     >
       <UnitRowTwoStepAuth />
-    </MockedCache>
+    </AppContext.Provider>
   ))
-  .add('enabled, not verified', () => (
-    <MockedCache
-      account={{ totp: { exists: true, verified: false } }}
-      mocks={[mockAccountQuery({ exists: true, verified: false })]}
-    >
-      <UnitRowTwoStepAuth />
-    </MockedCache>
-  ))
-  .add('enabled and unverified session', () => (
-    <MockedCache
-      verified={false}
-      account={{ totp: { exists: true, verified: false } }}
-      mocks={[mockAccountQuery({ exists: true, verified: false })]}
-    >
-      <UnitRowTwoStepAuth />
-    </MockedCache>
-  ));
+  .add('enabled', () => <UnitRowTwoStepAuth />);

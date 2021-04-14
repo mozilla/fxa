@@ -6,8 +6,8 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen } from '@testing-library/react';
 
-import { AuthContext, createAuthClient } from '../../lib/auth';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 
 import PageAvatar from '.';
 import {
@@ -18,11 +18,7 @@ import {
   ZoomInBtn,
   ZoomOutBtn,
 } from './buttons';
-import {
-  logViewEvent,
-  settingsViewName,
-  usePageViewEvent,
-} from '../../lib/metrics';
+import { usePageViewEvent } from '../../lib/metrics';
 
 jest.mock('fxa-settings/src/lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -30,15 +26,15 @@ jest.mock('fxa-settings/src/lib/metrics', () => ({
   settingsViewName: 'quuz',
 }));
 
-const client = createAuthClient('none');
+const account = ({
+  avatar: { url: null, id: null },
+} as unknown) as Account;
 
 it('PageAvatar | renders', async () => {
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <PageAvatar />
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <PageAvatar />
+    </AppContext.Provider>
   );
   expect(screen.getByTestId('flow-container')).toBeInTheDocument();
   expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
@@ -46,22 +42,18 @@ it('PageAvatar | renders', async () => {
 
 it('PageAvatar | emits a metrics event on render', async () => {
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <PageAvatar />
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <PageAvatar />
+    </AppContext.Provider>
   );
   expect(usePageViewEvent).toHaveBeenCalledWith('settings.avatar.change');
 });
 
 it('PageAddAvatar | render add, take buttons on initial load', async () => {
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <PageAvatar />
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <PageAvatar />
+    </AppContext.Provider>
   );
   expect(screen.getByTestId('add-photo-btn')).toBeInTheDocument();
   expect(screen.getByTestId('take-photo-btn')).toBeInTheDocument();
@@ -69,25 +61,15 @@ it('PageAddAvatar | render add, take buttons on initial load', async () => {
 
 it('PageAddAvatar | render remove button if avatar is set', async () => {
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache
-        account={{ avatar: { url: 'https://example.com/avatar.jpg' } }}
-      >
-        <PageAvatar />
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <PageAvatar />
+    </AppContext.Provider>
   );
   expect(screen.getByTestId('remove-photo-btn')).toBeInTheDocument();
 });
 
 it('PageAddAvatar | renders AddPhotoBtn and calls onchange correctly', async () => {
-  renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <>
-        <AddPhotoBtn onChange={() => {}} />
-      </>
-    </AuthContext.Provider>
-  );
+  renderWithRouter(<AddPhotoBtn onChange={() => {}} />);
 
   expect(screen.getByTestId('add-photo-btn')).toBeInTheDocument();
 });
@@ -95,11 +77,9 @@ it('PageAddAvatar | renders AddPhotoBtn and calls onchange correctly', async () 
 it('PageAddAvatar | renders ConfirmBtns and calls onsave correctly', async () => {
   const onSave = jest.fn();
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <>
-        <ConfirmBtns onSave={onSave} saveEnabled={true} />
-      </>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <ConfirmBtns onSave={onSave} saveEnabled={true} />
+    </AppContext.Provider>
   );
 
   expect(screen.getByTestId('close-button')).toBeInTheDocument();
@@ -115,11 +95,9 @@ it('PageAddAvatar | renders ConfirmBtns and calls onsave correctly', async () =>
 it('PageAddAvatar | renders ConfirmBtns with save button disabled when "enabled" option is false', async () => {
   const onSave = jest.fn();
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <>
-        <ConfirmBtns onSave={onSave} saveEnabled={false} />
-      </>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <ConfirmBtns onSave={onSave} saveEnabled={false} />
+    </AppContext.Provider>
   );
 
   expect(screen.getByTestId('save-button')).toBeDisabled();
@@ -128,11 +106,9 @@ it('PageAddAvatar | renders ConfirmBtns with save button disabled when "enabled"
 it('PageAddAvatar | renders TakePhotoBtn and calls onclick correctly', async () => {
   const onClick = jest.fn();
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <>
-        <TakePhotoBtn onClick={onClick} capturing={false} />
-      </>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <TakePhotoBtn onClick={onClick} capturing={false} />
+    </AppContext.Provider>
   );
 
   expect(screen.getByTestId('take-photo-btn')).toBeInTheDocument();
@@ -147,11 +123,9 @@ it('PageAddAvatar | renders TakePhotoBtn and calls onclick correctly', async () 
 it('PageAddAvatar | renders TakePhotoBtn and renders correctly when passed "capturing" option', async () => {
   const onClick = jest.fn();
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <>
-        <TakePhotoBtn onClick={onClick} capturing={true} />
-      </>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <TakePhotoBtn onClick={onClick} capturing={true} />
+    </AppContext.Provider>
   );
 
   expect(screen.getByTestId('take-photo-btn-capturing')).toHaveClass(
@@ -163,12 +137,12 @@ it('PageAddAvatar | renders ZoomBtns and calls onclick correctly', async () => {
   const zoomOut = jest.fn();
   const zoomIn = jest.fn();
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <>
         <ZoomOutBtn onClick={zoomOut} />
         <ZoomInBtn onClick={zoomIn} />
       </>
-    </AuthContext.Provider>
+    </AppContext.Provider>
   );
 
   expect(screen.getByTestId('zoom-out-btn')).toBeInTheDocument();
@@ -190,11 +164,9 @@ it('PageAddAvatar | renders ZoomBtns and calls onclick correctly', async () => {
 it('PageAddAvatar | renders rotateBtn and calls onclick correctly', async () => {
   const onClick = jest.fn();
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <>
-        <RotateBtn onClick={onClick} />
-      </>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <RotateBtn onClick={onClick} />
+    </AppContext.Provider>
   );
 
   expect(screen.getByTestId('rotate-btn')).toBeInTheDocument();

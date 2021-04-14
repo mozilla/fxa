@@ -4,18 +4,14 @@
 
 import { LocationProvider } from '@reach/router';
 import { storiesOf } from '@storybook/react';
-import { MockedCache } from '../../models/_mocks';
 import React from 'react';
 import { PageTwoStepAuthentication } from '.';
 import AppLayout from '../AppLayout';
-import { CREATE_TOTP_MOCK } from './_mocks';
 
 storiesOf('Pages|TwoStepAuthentication', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache mocks={CREATE_TOTP_MOCK}>
-      <AppLayout>
-        <PageTwoStepAuthentication />
-      </AppLayout>
-    </MockedCache>
+    <AppLayout>
+      <PageTwoStepAuthentication />
+    </AppLayout>
   ));

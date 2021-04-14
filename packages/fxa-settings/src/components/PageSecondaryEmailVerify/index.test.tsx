@@ -6,45 +6,23 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
-import { alertTextExternal } from '../../lib/cache';
-import { HomePath } from '../../constants';
-import { PageSecondaryEmailVerify, VERIFY_SECONDARY_EMAIL_MUTATION } from '.';
-import { GraphQLError } from 'graphql';
+import {
+  mockAppContext,
+  mockSession,
+  renderWithRouter,
+} from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
+import { PageSecondaryEmailVerify } from '.';
 import { WindowLocation } from '@reach/router';
-
-jest.mock('../../lib/cache', () => ({
-  alertTextExternal: jest.fn(),
-}));
-
-const mocks = [
-  {
-    request: {
-      query: VERIFY_SECONDARY_EMAIL_MUTATION,
-      variables: { input: { email: 'johndope@example.com', code: '123456' } },
-    },
-    result: {
-      data: {
-        sendSessionVerificationCode: {
-          clientMutationId: null,
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: VERIFY_SECONDARY_EMAIL_MUTATION,
-      variables: { input: { email: 'johndope@example.com', code: '666666' } },
-    },
-    result: {
-      errors: [new GraphQLError('invalid code')],
-    },
-  },
-];
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 const mockLocation = ({
   state: { email: 'johndope@example.com' },
 } as unknown) as WindowLocation;
+
+const account = ({
+  verifySecondaryEmail: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
 
 window.console.error = jest.fn();
 
@@ -55,9 +33,9 @@ afterAll(() => {
 describe('PageSecondaryEmailVerify', () => {
   it('renders as expected', () => {
     renderWithRouter(
-      <MockedCache>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageSecondaryEmailVerify location={mockLocation} />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     expect(
@@ -66,10 +44,15 @@ describe('PageSecondaryEmailVerify', () => {
   });
 
   it('renders error messages', async () => {
+    const error: any = new Error();
+    error.errno = AuthUiErrors.INVALID_VERIFICATION_CODE.errno;
+    const account = ({
+      verifySecondaryEmail: jest.fn().mockRejectedValue(error),
+    } as unknown) as Account;
     renderWithRouter(
-      <MockedCache mocks={mocks}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <PageSecondaryEmailVerify location={mockLocation} />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     await act(async () => {
@@ -82,14 +65,19 @@ describe('PageSecondaryEmailVerify', () => {
       screen.getByTestId('secondary-email-verify-submit').click()
     );
 
-    expect(screen.getByTestId('tooltip').textContent).toContain('invalid code');
+    expect(screen.getByTestId('tooltip').textContent).toContain(
+      AuthUiErrors.INVALID_VERIFICATION_CODE.message
+    );
   });
 
   it('navigates to settings and shows a message on success', async () => {
+    const alertBarInfo = {
+      success: jest.fn(),
+    } as any;
     const { history } = renderWithRouter(
-      <MockedCache mocks={mocks}>
+      <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
         <PageSecondaryEmailVerify location={mockLocation} />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     await act(async () => {
@@ -103,8 +91,8 @@ describe('PageSecondaryEmailVerify', () => {
     );
 
     expect(history.location.pathname).toEqual('/settings#secondary-email');
-    expect(alertTextExternal).toHaveBeenCalledTimes(1);
-    expect(alertTextExternal).toHaveBeenCalledWith(
+    expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
+    expect(alertBarInfo.success).toHaveBeenCalledWith(
       'johndope@example.com successfully added.'
     );
   });

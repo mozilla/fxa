@@ -5,68 +5,41 @@
 import React, { useCallback } from 'react';
 import { storiesOf } from '@storybook/react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import {
-  ModalVerifySession,
-  SEND_SESSION_VERIFICATION_CODE_MUTATION,
-  VERIFY_SESSION_MUTATION,
-} from '.';
-import { MockedCache } from '../../models/_mocks';
-import { GraphQLError } from 'graphql';
+import { ModalVerifySession } from '.';
+import { Account, AppContext } from 'fxa-settings/src/models';
+import { mockSession, MOCK_ACCOUNT } from 'fxa-settings/src/models/_mocks';
+import { LocationProvider } from '@reach/router';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
-const mocks = [
-  {
-    request: {
-      query: SEND_SESSION_VERIFICATION_CODE_MUTATION,
-      variables: { input: {} },
-    },
-    result: {
-      data: {
-        sendSessionVerificationCode: {
-          clientMutationId: null,
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '1234' } },
-    },
-    result: {
-      data: {
-        verifySession: {
-          clientMutationId: null,
-        },
-      },
-    },
-  },
-  {
-    request: {
-      query: VERIFY_SESSION_MUTATION,
-      variables: { input: { code: '4444' } },
-    },
-    result: {
-      errors: [new GraphQLError('invalid code')],
-    },
-  },
-];
+const session = mockSession(false);
+const account = MOCK_ACCOUNT as any;
+account.sendVerificationCode = () => Promise.resolve(true);
+account.verifySession = (code: string) => {
+  if (code === '123456') {
+    session.verified = true;
+    return Promise.resolve(true);
+  }
+  return Promise.reject(AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE);
+};
 
 storiesOf('Components|ModalVerifySession', module).add(
-  'valid code: 1234, invalid code: 4444',
+  'valid code: 123456',
   () => (
-    <MockedCache {...{ mocks }} verified={false}>
-      <ModalToggle>
-        {({ modalRevealed, hideModal }) =>
-          modalRevealed && (
-            <ModalVerifySession
-              onCompleted={() => alert('success!')}
-              onDismiss={hideModal}
-              onError={() => {}}
-            />
-          )
-        }
-      </ModalToggle>
-    </MockedCache>
+    <LocationProvider>
+      <AppContext.Provider value={{ account, session }}>
+        <ModalToggle>
+          {({ modalRevealed, hideModal }) =>
+            modalRevealed && (
+              <ModalVerifySession
+                onCompleted={() => alert('success!')}
+                onDismiss={hideModal}
+                onError={() => {}}
+              />
+            )
+          }
+        </ModalToggle>
+      </AppContext.Provider>
+    </LocationProvider>
   )
 );
 

@@ -6,14 +6,19 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { ConnectedServices } from '.';
-import { MockedCache } from '../../models/_mocks';
 
 import { MOCK_SERVICES } from './MOCK_SERVICES';
+import { AppContext } from 'fxa-settings/src/models';
+import { mockAppContext } from 'fxa-settings/src/models/_mocks';
 
 storiesOf('Components|ConnectedServices', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
+    <AppContext.Provider
+      value={mockAppContext({
+        account: { attachedClients: MOCK_SERVICES } as any,
+      })}
+    >
       <ConnectedServices />
-    </MockedCache>
+    </AppContext.Provider>
   ));

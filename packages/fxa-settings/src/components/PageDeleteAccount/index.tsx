@@ -5,15 +5,10 @@
 import React, { useCallback, useState, ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { useAccountDestroyer } from '../../lib/auth';
-import { sessionToken } from '../../lib/cache';
-import firefox from '../../lib/firefox';
-import { useAlertBar } from '../../lib/hooks';
-import { useAccount } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import InputPassword from '../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import AlertBar from '../AlertBar';
 import {
   HomePath,
   LockwiseLink,
@@ -64,7 +59,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const goHome = useCallback(() => window.history.back(), []);
 
-  const { primaryEmail, uid } = useAccount();
+  const account = useAccount();
 
   const advanceStep = () => {
     setSubtitleText(l10n.getString('delete-account-step-2-2'));
@@ -73,30 +68,33 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
     logViewEvent('flow.settings.account-delete', 'terms-checked.success');
   };
 
-  const deleteAccount = useAccountDestroyer({
-    onSuccess: () => {
-      firefox.accountDeleted(uid);
-      // must use location.href over navigate() since this is an external link
-      window.location.href = `${ROOTPATH}?delete_account_success=true`;
-      logViewEvent('flow.settings.account-delete', 'confirm-password.success');
-    },
-    onError: (error) => {
-      const localizedError = l10n.getString(
-        `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
-        null,
-        AuthUiErrors.INCORRECT_PASSWORD.message
-      );
-      if (error.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
-        setErrorText(localizedError);
-        setValue('password', '');
-      } else {
-        alertBar.setType('error');
-        alertBar.setContent(localizedError);
-        alertBar.show();
-        logViewEvent('flow.settings.account-delete', 'confirm-password.fail');
+  const deleteAccount = useCallback(
+    async (password: string) => {
+      try {
+        await account.destroy(password);
+        logViewEvent(
+          'flow.settings.account-delete',
+          'confirm-password.success'
+        );
+        // must use location.href over navigate() since this is an external link
+        window.location.href = `${ROOTPATH}?delete_account_success=true`;
+      } catch (e) {
+        const localizedError = l10n.getString(
+          `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
+          null,
+          AuthUiErrors.INCORRECT_PASSWORD.message
+        );
+        if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+          setErrorText(localizedError);
+          setValue('password', '');
+        } else {
+          alertBar.error(localizedError);
+          logViewEvent('flow.settings.account-delete', 'confirm-password.fail');
+        }
       }
     },
-  });
+    [account, l10n, setErrorText, setValue, alertBar]
+  );
 
   const handleConfirmChange = (labelText: string) => (
     event: ChangeEvent<HTMLInputElement>
@@ -112,17 +110,12 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   };
 
   const onFormSubmit = ({ password }: FormData) => {
-    deleteAccount.execute(primaryEmail.email, password, sessionToken()!);
+    deleteAccount(password);
   };
 
   return (
     <Localized id="delete-account-header" attrs={{ title: true }}>
       <FlowContainer title="Delete account" subtitle={subtitleText}>
-        {alertBar.visible && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p data-testid="delete-account-error">{alertBar.content}</p>
-          </AlertBar>
-        )}
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {!confirmed && (
           <div className="my-4 text-sm" data-testid="delete-account-confirm">

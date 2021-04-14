@@ -1,12 +1,8 @@
-import { useRef } from 'react';
-import {
-  gql,
-  useApolloClient,
-  useLazyQuery,
-  ApolloError,
-  QueryLazyOptions,
-} from '@apollo/client';
+import { gql, ApolloClient, Reference } from '@apollo/client';
 import config from '../lib/config';
+import AuthClient, { generateRecoveryKey } from 'fxa-auth-client/browser';
+import { sessionToken } from '../lib/cache';
+import firefox from '../lib/firefox';
 
 export interface DeviceLocation {
   city: string | null;
@@ -39,7 +35,7 @@ export interface AttachedClient {
   refreshTokenId: string | null;
 }
 
-export interface Account {
+export interface AccountData {
   uid: hexstring;
   displayName: string | null;
   avatar: {
@@ -61,7 +57,6 @@ export interface Account {
     created: number;
     productName: string;
   }[];
-  alertTextExternal: string | null;
 }
 
 const ATTACHED_CLIENTS_FIELDS = `
@@ -115,7 +110,6 @@ export const ACCOUNT_FIELDS = `
         created
         productName
       }
-      alertTextExternal @client
     }
 `;
 
@@ -171,105 +165,6 @@ export const GET_TOTP_STATUS = gql`
   }
 `;
 
-export function useAccount() {
-  // work around for https://github.com/apollographql/apollo-client/issues/6209
-  // see git history for previous version
-  const client = useApolloClient();
-  // without the ref direct cache updates sometimes don't trigger a render :/
-  const accountRef = useRef<Account>();
-  const { account } = client.cache.readQuery<{ account: Account }>({
-    query: GET_ACCOUNT,
-  })!;
-  accountRef.current = account;
-  return accountRef.current;
-}
-
-export function useLazyAccount(
-  onError: (error: ApolloError) => void
-): [
-  (options?: QueryLazyOptions<Record<string, any>> | undefined) => void,
-  { accountLoading: boolean }
-] {
-  const [getAccount, { loading: accountLoading }] = useLazyQuery<{
-    account: Account;
-  }>(GET_ACCOUNT, {
-    fetchPolicy: 'network-only',
-    onError,
-  });
-
-  return [getAccount, { accountLoading }];
-}
-
-export function useLazyConnectedClients(
-  onError: (error: ApolloError) => void
-): [
-  (options?: QueryLazyOptions<Record<string, any>> | undefined) => void,
-  { connectedClientsLoading: boolean }
-] {
-  const [
-    getConnectedClients,
-    { loading: connectedClientsLoading },
-  ] = useLazyQuery<{
-    attachedClients: Pick<Account, 'attachedClients'>;
-  }>(GET_CONNECTED_CLIENTS, {
-    fetchPolicy: 'network-only',
-    onError,
-  });
-
-  return [getConnectedClients, { connectedClientsLoading }];
-}
-
-export function useLazyRecoveryKeyExists(
-  onError: (error: ApolloError) => void
-): [
-  (options?: QueryLazyOptions<Record<string, any>> | undefined) => void,
-  { recoveryKeyExistsLoading: boolean }
-] {
-  const [
-    getRecoveryKeyExists,
-    { loading: recoveryKeyExistsLoading },
-  ] = useLazyQuery<{
-    recoveryKeyExists: Pick<Account, 'recoveryKey'>;
-  }>(GET_RECOVERY_KEY_EXISTS, {
-    fetchPolicy: 'network-only',
-    onError,
-  });
-
-  return [getRecoveryKeyExists, { recoveryKeyExistsLoading }];
-}
-
-export function useLazyTotpStatus(
-  onError: (error: ApolloError) => void
-): [
-  (options?: QueryLazyOptions<Record<string, any>> | undefined) => void,
-  { totpStatusLoading: boolean }
-] {
-  const [getTotpStatus, { loading: totpStatusLoading }] = useLazyQuery<{
-    totpStatus: Pick<Account, 'totp'>;
-  }>(GET_TOTP_STATUS, {
-    fetchPolicy: 'network-only',
-    onError,
-  });
-
-  return [getTotpStatus, { totpStatusLoading }];
-}
-
-export function hasSecondaryEmail(account: Account) {
-  return account.emails.length > 1;
-}
-
-export function hasSecondaryVerifiedEmail(account: Account) {
-  return hasSecondaryEmail(account) ? account.emails[1].verified : false;
-}
-
-export function hasAccountRecovery(account: Account) {
-  return account.recoveryKey;
-}
-
-export function hasTwoStepAuthentication(account: Account) {
-  return account.totp.exists && account.totp.verified;
-}
-
 export function getNextAvatar(
   existingId?: string,
   existingUrl?: string,
@@ -295,4 +190,533 @@ export function getNextAvatar(
   }
 
   return { id: existingId, url: existingUrl, isDefault: false };
+}
+
+export class Account implements AccountData {
+  private readonly authClient: AuthClient;
+  private readonly apolloClient: ApolloClient<object>;
+  private _loading: boolean;
+
+  constructor(client: AuthClient, apolloClient: ApolloClient<object>) {
+    this.authClient = client;
+    this.apolloClient = apolloClient;
+    this._loading = false;
+  }
+
+  private async withLoadingStatus<T>(promise: Promise<T>) {
+    this._loading = true;
+    try {
+      return await promise;
+    } catch (e) {
+      throw e;
+    } finally {
+      this._loading = false;
+    }
+  }
+
+  private get data() {
+    const { account } = this.apolloClient.cache.readQuery<{
+      account: AccountData;
+    }>({
+      query: GET_ACCOUNT,
+    })!;
+    return account;
+  }
+
+  get loading() {
+    return this._loading;
+  }
+
+  get uid() {
+    return this.data.uid;
+  }
+
+  get displayName() {
+    return this.data.displayName;
+  }
+
+  get avatar() {
+    return this.data.avatar;
+  }
+
+  get accountCreated() {
+    return this.data.accountCreated;
+  }
+
+  get passwordCreated() {
+    return this.data.passwordCreated;
+  }
+
+  get recoveryKey() {
+    return this.data.recoveryKey;
+  }
+
+  get emails() {
+    return this.data.emails;
+  }
+
+  get primaryEmail() {
+    return this.data.primaryEmail;
+  }
+
+  get subscriptions() {
+    return this.data.subscriptions;
+  }
+
+  get totp() {
+    return this.data.totp;
+  }
+
+  get totpActive() {
+    return this.totp.exists && this.totp.verified;
+  }
+
+  get attachedClients() {
+    return this.data.attachedClients;
+  }
+
+  get hasSecondaryVerifiedEmail() {
+    return this.emails.length > 1 && this.emails[1].verified;
+  }
+
+  async refresh(field: 'account' | 'clients' | 'totp' | 'recovery') {
+    let query = GET_ACCOUNT;
+    switch (field) {
+      case 'clients':
+        query = GET_CONNECTED_CLIENTS;
+        break;
+      case 'recovery':
+        query = GET_RECOVERY_KEY_EXISTS;
+        break;
+      case 'totp':
+        query = GET_TOTP_STATUS;
+        break;
+    }
+    await this.withLoadingStatus(
+      this.apolloClient.query({
+        fetchPolicy: 'network-only',
+        query,
+      })
+    );
+  }
+
+  async changePassword(oldPassword: string, newPassword: string) {
+    const response = await this.withLoadingStatus(
+      this.authClient.passwordChange(
+        this.primaryEmail.email,
+        oldPassword,
+        newPassword,
+        {
+          keys: true,
+          sessionToken: sessionToken()!,
+        }
+      )
+    );
+    firefox.passwordChanged(
+      this.primaryEmail.email,
+      response.uid,
+      response.sessionToken,
+      response.verified,
+      response.keyFetchToken,
+      response.unwrapBKey
+    );
+    sessionToken(response.sessionToken);
+    this.apolloClient.cache.writeQuery({
+      query: gql`
+        query UpdatePassword {
+          account {
+            passwordCreated
+          }
+          session {
+            verified
+          }
+        }
+      `,
+      data: {
+        account: {
+          passwordCreated: response.authAt * 1000,
+          __typename: 'Account',
+        },
+        session: { verified: response.verified, __typename: 'Session' },
+      },
+    });
+  }
+
+  async setDisplayName(displayName: string) {
+    await this.withLoadingStatus(
+      this.apolloClient.mutate({
+        mutation: gql`
+          mutation updateDisplayName($input: UpdateDisplayNameInput!) {
+            updateDisplayName(input: $input) {
+              clientMutationId
+            }
+          }
+        `,
+        update: (cache) => {
+          cache.modify({
+            id: cache.identify({ __typename: 'Account' }),
+            fields: {
+              displayName() {
+                return displayName;
+              },
+              avatar: (existing: Reference, { readField }) => {
+                const id = readField<string>('id', existing);
+                const oldUrl = readField<string>('url', existing);
+                return getNextAvatar(
+                  id,
+                  oldUrl,
+                  this.primaryEmail.email,
+                  displayName
+                );
+              },
+            },
+          });
+        },
+        variables: { input: { displayName } },
+      })
+    );
+    firefox.profileChanged(this.uid);
+  }
+
+  async deleteAvatar() {
+    await this.withLoadingStatus(
+      this.apolloClient.mutate({
+        mutation: gql`
+          mutation deleteAvatar($input: DeleteAvatarInput!) {
+            deleteAvatar(input: $input) {
+              clientMutationId
+            }
+          }
+        `,
+        update: (cache) => {
+          cache.modify({
+            id: cache.identify({ __typename: 'Account' }),
+            fields: {
+              avatar: () => {
+                return getNextAvatar(
+                  undefined,
+                  undefined,
+                  this.primaryEmail.email,
+                  this.displayName
+                );
+              },
+            },
+          });
+        },
+        variables: { input: { id: this.avatar.id } },
+      })
+    );
+    firefox.profileChanged(this.uid);
+  }
+
+  async disconnectClient(client: AttachedClient) {
+    await this.withLoadingStatus(
+      this.apolloClient.mutate({
+        mutation: gql`
+          mutation attachedClientDisconnect(
+            $input: AttachedClientDisconnectInput!
+          ) {
+            attachedClientDisconnect(input: $input) {
+              clientMutationId
+            }
+          }
+        `,
+        update: (cache) => {
+          cache.modify({
+            id: cache.identify({ __typename: 'Account' }),
+            fields: {
+              attachedClients: (existingClients: AttachedClient[]) => {
+                const updatedList = [...existingClients];
+                return updatedList.filter(
+                  // TODO: should this also go into the AttachedClient model?
+                  (c) =>
+                    c.lastAccessTime !== client.lastAccessTime &&
+                    c.name !== client.name
+                );
+              },
+            },
+          });
+        },
+        variables: {
+          input: {
+            clientId: client.clientId,
+            deviceId: client.deviceId,
+            sessionTokenId: client.sessionTokenId,
+            refreshTokenId: client.refreshTokenId,
+          },
+        },
+      })
+    );
+  }
+
+  async sendVerificationCode() {
+    await this.withLoadingStatus(
+      this.authClient.sessionResendVerifyCode(sessionToken()!)
+    );
+  }
+
+  async verifySession(code: string) {
+    await this.withLoadingStatus(
+      this.authClient.sessionVerifyCode(sessionToken()!, code)
+    );
+    this.apolloClient.cache.modify({
+      fields: {
+        session: () => {
+          return { verified: true };
+        },
+      },
+    });
+  }
+
+  async replaceRecoveryCodes() {
+    return this.withLoadingStatus(
+      this.authClient.replaceRecoveryCodes(sessionToken()!)
+    );
+  }
+
+  async createSecondaryEmail(email: string) {
+    await this.withLoadingStatus(
+      this.authClient.recoveryEmailCreate(sessionToken()!, email, {
+        verificationMethod: 'email-otp',
+      })
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        emails(existingEmails) {
+          return [
+            ...existingEmails,
+            {
+              email,
+              isPrimary: false,
+              verified: false,
+            },
+          ];
+        },
+      },
+    });
+  }
+
+  async verifySecondaryEmail(email: string, code: string) {
+    await this.withLoadingStatus(
+      this.authClient.recoveryEmailSecondaryVerifyCode(
+        sessionToken()!,
+        email,
+        code
+      )
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        emails(existingEmails) {
+          return existingEmails.map((x: Email) =>
+            x.email === email ? { ...x, verified: true } : { ...x }
+          );
+        },
+      },
+    });
+  }
+
+  async disableTwoStepAuth() {
+    await this.withLoadingStatus(
+      this.authClient.deleteTotpToken(sessionToken()!)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        totp() {
+          return { exists: false, verified: false };
+        },
+      },
+    });
+  }
+
+  async deleteRecoveryKey() {
+    await this.withLoadingStatus(
+      this.authClient.deleteRecoveryKey(sessionToken()!)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        recoveryKey() {
+          return false;
+        },
+      },
+    });
+  }
+
+  async deleteSecondaryEmail(email: string) {
+    await this.withLoadingStatus(
+      this.authClient.recoveryEmailDestroy(sessionToken()!, email)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        emails(existingEmails) {
+          const emails = [...existingEmails];
+          emails.splice(
+            emails.findIndex((x) => x.email === email),
+            1
+          );
+          return emails;
+        },
+      },
+    });
+  }
+
+  async makeEmailPrimary(email: string) {
+    await this.withLoadingStatus(
+      this.authClient.recoveryEmailSetPrimaryEmail(sessionToken()!, email)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        emails(existingEmails) {
+          return existingEmails.map((x: Email) => {
+            const e = { ...x };
+            if (e.email === email) {
+              e.isPrimary = true;
+            } else if (e.isPrimary) {
+              e.isPrimary = false;
+            }
+            return e;
+          });
+        },
+        avatar: (existing: Reference, { readField }) => {
+          const id = readField<string>('id', existing);
+          const oldUrl = readField<string>('url', existing);
+          return getNextAvatar(id, oldUrl, email, this.displayName);
+        },
+      },
+    });
+    firefox.profileChanged(this.uid);
+  }
+
+  async resendEmailCode(email: string) {
+    return this.withLoadingStatus(
+      this.authClient.recoveryEmailSecondaryResendCode(sessionToken()!, email)
+    );
+  }
+
+  async createTotp() {
+    const totp = await this.withLoadingStatus(
+      this.authClient.createTotpToken(sessionToken()!)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        totp(currentTotp) {
+          return { ...currentTotp, exists: true };
+        },
+      },
+    });
+    return totp;
+  }
+
+  async verifyTotp(code: string) {
+    await this.withLoadingStatus(
+      this.authClient.verifyTotpCode(sessionToken()!, code)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        totp(currentTotp) {
+          return { ...currentTotp, verified: true };
+        },
+      },
+    });
+  }
+
+  async uploadAvatar(file: Blob) {
+    const { access_token } = await this.withLoadingStatus(
+      this.authClient.createOAuthToken(sessionToken()!, config.oauth.clientId, {
+        scope: 'profile:write clients:write',
+        ttl: 300,
+      })
+    );
+    const response = await this.withLoadingStatus(
+      fetch(`${config.servers.profile.url}/v1/avatar/upload`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          'Content-Type': file.type,
+        },
+        body: file,
+      })
+    );
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
+    const newAvatar = (await response.json()) as Account['avatar'];
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        avatar() {
+          return { ...newAvatar, isDefault: false };
+        },
+      },
+    });
+    firefox.profileChanged(this.uid);
+  }
+
+  async createRecoveryKey(password: string) {
+    const reauth = await this.withLoadingStatus(
+      this.authClient.sessionReauth(
+        sessionToken()!,
+        this.primaryEmail.email,
+        password,
+        {
+          keys: true,
+          reason: 'recovery_key',
+        }
+      )
+    );
+    const keys = await this.withLoadingStatus(
+      this.authClient.accountKeys(reauth.keyFetchToken!, reauth.unwrapBKey!)
+    );
+    const {
+      recoveryKey,
+      recoveryKeyId,
+      recoveryData,
+    } = await generateRecoveryKey(this.uid, keys);
+    await this.withLoadingStatus(
+      this.authClient.createRecoveryKey(
+        sessionToken()!,
+        recoveryKeyId,
+        recoveryData,
+        true
+      )
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        recoveryKey() {
+          return true;
+        },
+      },
+    });
+    return recoveryKey;
+  }
+
+  async destroy(password: string) {
+    await this.withLoadingStatus(
+      this.authClient.accountDestroy(
+        this.primaryEmail.email,
+        password,
+        {},
+        sessionToken()!
+      )
+    );
+    firefox.accountDeleted(this.uid);
+  }
 }

@@ -2,15 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 
-import { gql, useMutation } from '@apollo/client';
 import { useNavigate } from '@reach/router';
 import { Localized, useLocalization } from '@fluent/react';
-import { useAlertBar } from '../../lib/hooks';
-import firefox from '../../lib/firefox';
-import { useAccount, getNextAvatar } from '../../models';
-
+import { useAccount, useAlertBar } from '../../models';
 import { HomePath } from '../../constants';
 import ButtonIcon from '../ButtonIcon';
 
@@ -31,53 +27,22 @@ focus:border-red-800`;
 const editButtonClass = `mx-1 text-white rounded-full hover:bg-grey-100`;
 const buttonSize = 32;
 
-export const DELETE_AVATAR_MUTATION = gql`
-  mutation deleteAvatar($input: DeleteAvatarInput!) {
-    deleteAvatar(input: $input) {
-      clientMutationId
-    }
-  }
-`;
-
 export const RemovePhotoBtn = () => {
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const { uid, avatar, primaryEmail, displayName } = useAccount();
+  const account = useAccount();
   const { l10n } = useLocalization();
-
-  const [deleteAvatar] = useMutation(DELETE_AVATAR_MUTATION, {
-    onCompleted: () => {
-      firefox.profileChanged(uid);
+  const deleteAvatar = useCallback(async () => {
+    try {
+      await account.deleteAvatar();
       navigate(HomePath, { replace: true });
-    },
-    onError: () => {
+    } catch (err) {
       alertBar.error(l10n.getString('avatar-page-delete-error-2'));
-    },
-    ignoreResults: true,
-    update: (cache) => {
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          avatar() {
-            return getNextAvatar(
-              undefined,
-              undefined,
-              primaryEmail.email,
-              displayName
-            );
-          },
-        },
-      });
-    },
-  });
+    }
+  }, [account, navigate, alertBar, l10n]);
 
   return (
-    <div
-      onClick={() => {
-        deleteAvatar({ variables: { input: { id: avatar.id } } });
-      }}
-      className="cursor-pointer flex-1"
-    >
+    <div onClick={deleteAvatar} className="cursor-pointer flex-1">
       <Localized id="avatar-page-remove-photo-button" attrs={{ title: true }}>
         <ButtonIcon
           testId="remove-photo-btn"

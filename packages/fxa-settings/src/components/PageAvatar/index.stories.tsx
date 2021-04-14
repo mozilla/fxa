@@ -6,7 +6,6 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 
-import { MockedCache } from '../../models/_mocks';
 import AppLayout from '../AppLayout';
 
 import PageAvatar from './';
@@ -14,9 +13,7 @@ import PageAvatar from './';
 storiesOf('Pages|PageAvatar', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache>
-      <AppLayout>
-        <PageAvatar />
-      </AppLayout>
-    </MockedCache>
+    <AppLayout>
+      <PageAvatar />
+    </AppLayout>
   ));

@@ -4,60 +4,27 @@
 
 import 'mutationobserver-shim';
 import React from 'react';
-import { screen, fireEvent, act, wait } from '@testing-library/react';
-import { DocumentNode } from '@apollo/client';
-import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
+import { screen, fireEvent, act } from '@testing-library/react';
 import {
-  MockedCache,
   renderWithRouter,
   mockEmail,
-  mockAccountQuery,
+  mockAppContext,
 } from '../../models/_mocks';
-import {
-  UnitRowSecondaryEmail,
-  RESEND_EMAIL_CODE_MUTATION,
-  MAKE_EMAIL_PRIMARY_MUTATION,
-  DELETE_EMAIL_MUTATION,
-} from '.';
+import { UnitRowSecondaryEmail } from '.';
+import { Account, AppContext } from '../../models';
 
-const mockEmailMutations = (mutationName: string, query: DocumentNode) => ({
-  success: (email: string) => ({
-    request: {
-      query,
-      variables: { input: { email } },
-    },
-    result: {
-      data: {
-        [mutationName]: {
-          clientMutationId: null,
-        },
-      },
-    },
-  }),
-  error: (email: string) => ({
-    request: {
-      query,
-      variables: { input: { email } },
-    },
-    error: new Error('Gossamer Thin'),
-  }),
-});
+const account = ({
+  emails: [
+    mockEmail('johndope@example.com'),
+    mockEmail('johndope2@example.com', false, false),
+  ],
+  resendEmailCode: jest.fn().mockResolvedValue(true),
+  makeEmailPrimary: jest.fn().mockResolvedValue(true),
+  deleteSecondaryEmail: jest.fn().mockResolvedValue(true),
+  refresh: jest.fn(),
+} as unknown) as Account;
 
-const mock = {
-  resendEmailCode: mockEmailMutations(
-    'resendSecondaryEmailCode',
-    RESEND_EMAIL_CODE_MUTATION
-  ),
-  makeEmailPrimary: mockEmailMutations(
-    'updatePrimaryEmail',
-    MAKE_EMAIL_PRIMARY_MUTATION
-  ),
-  deleteEmail: mockEmailMutations(
-    'deleteSecondaryEmail',
-    DELETE_EMAIL_MUTATION
-  ),
-};
-
+jest.mock('../../models/AlertBarInfo');
 window.console.error = jest.fn();
 
 afterAll(() => {
@@ -67,10 +34,13 @@ afterAll(() => {
 describe('UnitRowSecondaryEmail', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {
+      const account = ({
+        emails: [mockEmail('johndope@example.com')],
+      } as unknown) as Account;
       renderWithRouter(
-        <MockedCache>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
-        </MockedCache>
+        </AppContext.Provider>
       );
 
       expect(
@@ -90,14 +60,10 @@ describe('UnitRowSecondaryEmail', () => {
 
   describe('one secondary email set', () => {
     it('renders as expected when unverified', () => {
-      const emails = [
-        mockEmail('johndope@example.com'),
-        mockEmail('johndope2@example.com', false, false),
-      ];
       renderWithRouter(
-        <MockedCache account={{ emails }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
-        </MockedCache>
+        </AppContext.Provider>
       );
 
       expect(
@@ -113,14 +79,16 @@ describe('UnitRowSecondaryEmail', () => {
     });
 
     it('renders as expected when verified', () => {
-      const emails = [
-        mockEmail('johndope@example.com'),
-        mockEmail('johndope2@example.com', false),
-      ];
+      const account = ({
+        emails: [
+          mockEmail('johndope@example.com'),
+          mockEmail('johndope2@example.com', false),
+        ],
+      } as unknown) as Account;
       renderWithRouter(
-        <MockedCache account={{ emails }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
-        </MockedCache>
+        </AppContext.Provider>
       );
 
       expect(
@@ -138,23 +106,11 @@ describe('UnitRowSecondaryEmail', () => {
       expect(screen.getByTestId('secondary-email-delete')).toBeInTheDocument();
     });
 
-    it('can refresh from unverified to verified', async () => {
-      const initialEmails = [
-        mockEmail('johndope@example.com'),
-        mockEmail('johndope2@example.com', false, false),
-      ];
-      const expectedEmails = [
-        mockEmail('johndope@example.com'),
-        mockEmail('johndope2@example.com', false, true),
-      ];
-
+    it('can refresh', async () => {
       renderWithRouter(
-        <MockedCache
-          account={{ emails: initialEmails }}
-          mocks={[mockAccountQuery({ emails: expectedEmails })]}
-        >
+        <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
-        </MockedCache>
+        </AppContext.Provider>
       );
 
       expect(
@@ -163,9 +119,7 @@ describe('UnitRowSecondaryEmail', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-refresh'));
       });
-      expect(
-        screen.queryByTestId('secondary-email-unverified-text')
-      ).not.toBeInTheDocument();
+      expect(account.refresh).toBeCalledWith('account');
     });
   });
 
@@ -177,14 +131,15 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope3@example.com', false),
         mockEmail('johndope4@example.com', false),
       ];
+      const account = ({
+        emails,
+      } as unknown) as Account;
       renderWithRouter(
-        <MockedCache account={{ emails }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
-        </MockedCache>
+        </AppContext.Provider>
       );
-      const unitRowContents = screen.getAllByTestId(
-        'secondary-email-unit-row-content'
-      );
+
       const unitRowHeaderValues = screen.getAllByTestId(
         'secondary-email-unit-row-header-value'
       );
@@ -214,10 +169,13 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope3@example.com', false),
         mockEmail('johndope4@example.com', false, false),
       ];
+      const account = ({
+        emails,
+      } as unknown) as Account;
       renderWithRouter(
-        <MockedCache account={{ emails }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
-        </MockedCache>
+        </AppContext.Provider>
       );
 
       expect(
@@ -244,14 +202,15 @@ describe('UnitRowSecondaryEmail', () => {
         { ...primaryEmail },
         mockEmail('johndope2@example.com', false, false),
       ];
-      const mocks = [mock.resendEmailCode.success('johndope2@example.com')];
+      const account = ({
+        emails,
+        resendEmailCode: jest.fn().mockResolvedValue(true),
+      } as unknown) as Account;
 
       const { history } = renderWithRouter(
-        <MockedCache {...{ mocks, account: { emails } }}>
-          <AlertBarRootAndContextProvider>
-            <UnitRowSecondaryEmail />
-          </AlertBarRootAndContextProvider>
-        </MockedCache>
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       await act(async () => {
@@ -259,7 +218,6 @@ describe('UnitRowSecondaryEmail', () => {
           screen.getByTestId('secondary-email-resend-code-button')
         );
       });
-      await wait();
 
       expect(history.location.pathname).toEqual('/settings/emails/verify');
     });
@@ -269,14 +227,15 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false, false),
       ];
-      const mocks = [mock.resendEmailCode.error('johndope2@example.com')];
-
+      const account = ({
+        emails,
+        resendEmailCode: jest.fn().mockRejectedValue(new Error()),
+      } as unknown) as Account;
+      const context = mockAppContext({ account });
       renderWithRouter(
-        <AlertBarRootAndContextProvider>
-          <MockedCache {...{ mocks, account: { emails } }}>
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AlertBarRootAndContextProvider>
+        <AppContext.Provider value={context}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       await act(async () => {
@@ -284,13 +243,7 @@ describe('UnitRowSecondaryEmail', () => {
           screen.getByTestId('secondary-email-resend-code-button')
         );
       });
-      await wait();
-      expect(
-        screen.queryByTestId('alert-bar-message-success')
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByTestId('alert-bar-message-error').textContent
-      ).toContain('Sorry');
+      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
     });
   });
 
@@ -300,27 +253,24 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('somethingdifferent@example.com'),
         mockEmail('johndope2@example.com', false, true),
       ];
-      const mocks = [mock.makeEmailPrimary.success('johndope2@example.com')];
-
+      const account = ({
+        emails,
+        makeEmailPrimary: jest.fn().mockResolvedValue(true),
+      } as unknown) as Account;
+      const context = mockAppContext({ account });
       renderWithRouter(
-        <AlertBarRootAndContextProvider>
-          <MockedCache
-            {...{ mocks, account: { emails }, session: { verified: true } }}
-          >
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AlertBarRootAndContextProvider>
+        <AppContext.Provider value={context}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-make-primary'));
       });
-      expect(
-        screen.queryByTestId('alert-bar-message-error')
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByTestId('alert-bar-message-success').textContent
-      ).toContain('johndope2@example.com');
+      expect(context.alertBarInfo?.success).toBeCalledTimes(1);
+      expect(context.alertBarInfo?.success.mock.calls[0][0]).toContain(
+        'johndope2@example.com'
+      );
     });
 
     it('displays an error message in the AlertBar', async () => {
@@ -328,27 +278,21 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false, true),
       ];
-      const mocks = [mock.makeEmailPrimary.error('johndope2@example.com')];
-
+      const account = ({
+        emails,
+        makeEmailPrimary: jest.fn().mockRejectedValue(new Error()),
+      } as unknown) as Account;
+      const context = mockAppContext({ account });
       renderWithRouter(
-        <AlertBarRootAndContextProvider>
-          <MockedCache
-            {...{ mocks, account: { emails }, session: { verified: true } }}
-          >
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AlertBarRootAndContextProvider>
+        <AppContext.Provider value={context}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-make-primary'));
       });
-      expect(
-        screen.queryByTestId('alert-bar-message-success')
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByTestId('alert-bar-message-error').textContent
-      ).toContain('Sorry');
+      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
     });
   });
 
@@ -359,32 +303,24 @@ describe('UnitRowSecondaryEmail', () => {
         { ...primaryEmail },
         mockEmail('johndope2@example.com', false, false),
       ];
-      const mocks = [mock.deleteEmail.success('johndope2@example.com')];
-
+      const account = ({
+        emails,
+        deleteSecondaryEmail: jest.fn().mockResolvedValue(true),
+      } as unknown) as Account;
+      const context = mockAppContext({ account });
       renderWithRouter(
-        <AlertBarRootAndContextProvider>
-          <MockedCache
-            {...{
-              mocks,
-              account: { primaryEmail, emails },
-              session: { verified: true },
-            }}
-          >
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AlertBarRootAndContextProvider>
+        <AppContext.Provider value={context}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-delete'));
       });
-      await wait();
-      expect(
-        screen.queryByTestId('alert-bar-message-error')
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByTestId('alert-bar-message-success').textContent
-      ).toContain('johndope2@example.com');
+      expect(context.alertBarInfo?.success).toBeCalledTimes(1);
+      expect(context.alertBarInfo?.success.mock.calls[0][0]).toContain(
+        'johndope2@example.com'
+      );
     });
 
     it('displays an error message in the AlertBar', async () => {
@@ -392,27 +328,21 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false, false),
       ];
-      const mocks = [mock.deleteEmail.error('johndope2@example.com')];
-
+      const account = ({
+        emails,
+        deleteSecondaryEmail: jest.fn().mockRejectedValue(new Error()),
+      } as unknown) as Account;
+      const context = mockAppContext({ account });
       renderWithRouter(
-        <AlertBarRootAndContextProvider>
-          <MockedCache
-            {...{ mocks, account: { emails }, session: { verified: true } }}
-          >
-            <UnitRowSecondaryEmail />
-          </MockedCache>
-        </AlertBarRootAndContextProvider>
+        <AppContext.Provider value={context}>
+          <UnitRowSecondaryEmail />
+        </AppContext.Provider>
       );
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-delete'));
       });
-      expect(
-        screen.queryByTestId('alert-bar-message-success')
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByTestId('alert-bar-message-error').textContent
-      ).toContain('Sorry');
+      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
     });
   });
 });

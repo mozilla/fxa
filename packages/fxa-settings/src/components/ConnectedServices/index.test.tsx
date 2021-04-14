@@ -4,22 +4,29 @@
 
 import React from 'react';
 import { act, fireEvent, screen, wait } from '@testing-library/react';
-import ConnectedServices, {
-  sortAndFilterConnectedClients,
-  ATTACHED_CLIENT_DISCONNECT_MUTATION,
-} from '.';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
+import ConnectedServices, { sortAndFilterConnectedClients } from '.';
+import { Account, AppContext } from '../../models';
+import { renderWithRouter, mockAppContext } from '../../models/_mocks';
 import { isMobileDevice } from '../../lib/utilities';
-import { DESKTOP_SYNC_MOCKS, MOCK_SERVICES } from './MOCK_SERVICES';
+import { MOCK_SERVICES } from './MOCK_SERVICES';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
+const account = ({
+  attachedClients: MOCK_SERVICES,
+  disconnectClient: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
+
 const getIconAndServiceLink = async (name: string, testId: string) => {
   const servicesList = MOCK_SERVICES.filter((item) => item.name === name);
+  const account = ({
+    attachedClients: servicesList,
+    disconnectClient: jest.fn().mockResolvedValue(true),
+  } as unknown) as Account;
   renderWithRouter(
-    <MockedCache account={{ attachedClients: servicesList }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <ConnectedServices />
-    </MockedCache>
+    </AppContext.Provider>
   );
 
   return {
@@ -27,26 +34,6 @@ const getIconAndServiceLink = async (name: string, testId: string) => {
     link: screen.getByTestId('service-name'),
   };
 };
-
-const firstSyncMock = DESKTOP_SYNC_MOCKS[0];
-const mocks = [
-  {
-    request: {
-      query: ATTACHED_CLIENT_DISCONNECT_MUTATION,
-      variables: {
-        input: {
-          clientId: firstSyncMock.clientId,
-          deviceId: firstSyncMock.deviceId,
-          refreshTokenId: firstSyncMock.refreshTokenId,
-          sessionTokenId: firstSyncMock.sessionTokenId,
-        },
-      },
-    },
-    result: {
-      data: {},
-    },
-  },
-];
 
 const clickFirstSignOutButton = async () => {
   await act(async () => {
@@ -83,9 +70,9 @@ const expectDisconnectModalHeader = async () => {
 describe('Connected Services', () => {
   it('renders "fresh load" <ConnectedServices/> with correct content', async () => {
     renderWithRouter(
-      <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     expect(await screen.findByText('Connected Services')).toBeTruthy;
@@ -95,9 +82,9 @@ describe('Connected Services', () => {
 
   it('correctly filters and sorts our passed in services', async () => {
     renderWithRouter(
-      <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     // get the first service
@@ -181,10 +168,14 @@ describe('Connected Services', () => {
   });
 
   it('renders <ConnectAnotherDevicePromo/> when no mobile devices in list', async () => {
+    const account = ({
+      attachedClients: SERVICES_NON_MOBILE,
+      disconnectClient: jest.fn().mockResolvedValue(true),
+    } as unknown) as Account;
     renderWithRouter(
-      <MockedCache account={{ attachedClients: SERVICES_NON_MOBILE }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     expect(await screen.findByTestId('connect-another-device-promo'))
@@ -193,9 +184,9 @@ describe('Connected Services', () => {
 
   it('does not render <ConnectAnotherDevicePromo/> when mobile devices in list', async () => {
     renderWithRouter(
-      <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
-      </MockedCache>
+      </AppContext.Provider>
     );
 
     expect(
@@ -205,9 +196,9 @@ describe('Connected Services', () => {
 
   it('renders the sign out buttons', async () => {
     renderWithRouter(
-      <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
-      </MockedCache>
+      </AppContext.Provider>
     );
     expect(
       await screen.findAllByTestId('connected-service-sign-out')
@@ -216,9 +207,9 @@ describe('Connected Services', () => {
 
   it('renders proper modal when "sign out" is clicked', async () => {
     renderWithRouter(
-      <MockedCache account={{ attachedClients: MOCK_SERVICES }}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
-      </MockedCache>
+      </AppContext.Provider>
     );
     await clickFirstSignOutButton();
     await expectDisconnectModalHeader();
@@ -226,9 +217,9 @@ describe('Connected Services', () => {
 
   it('renders "lost" modal when user has selected "lost" option', async () => {
     renderWithRouter(
-      <MockedCache account={{ attachedClients: MOCK_SERVICES }} mocks={mocks}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
-      </MockedCache>
+      </AppContext.Provider>
     );
     await clickFirstSignOutButton();
     await expectDisconnectModalHeader();
@@ -239,9 +230,9 @@ describe('Connected Services', () => {
 
   it('renders "suspicious" modal when user has selected "suspicious" option in survey modal', async () => {
     renderWithRouter(
-      <MockedCache account={{ attachedClients: MOCK_SERVICES }} mocks={mocks}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
-      </MockedCache>
+      </AppContext.Provider>
     );
     await clickFirstSignOutButton();
     await expectDisconnectModalHeader();
@@ -254,9 +245,9 @@ describe('Connected Services', () => {
 
   it('after a service is disconnected, removes the row from the UI', async () => {
     renderWithRouter(
-      <MockedCache account={{ attachedClients: MOCK_SERVICES }} mocks={mocks}>
+      <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
-      </MockedCache>
+      </AppContext.Provider>
     );
     const initialCount = (
       await screen.findAllByTestId('settings-connected-service')

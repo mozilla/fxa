@@ -4,17 +4,19 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { MockedCache } from '../../models/_mocks';
 import Avatar from '.';
+import { AppContext } from 'fxa-settings/src/models';
 
+const account = {
+  avatar: {
+    url: null,
+    id: null,
+  },
+} as any;
 storiesOf('Components|Avatar', module)
   .add('default avatar', () => (
-    <MockedCache account={{ avatar: { id: null, url: null } }}>
+    <AppContext.Provider value={{ account }}>
       <Avatar className="w-32 h-32" />
-    </MockedCache>
+    </AppContext.Provider>
   ))
-  .add('non-default avatar', () => (
-    <MockedCache>
-      <Avatar className="w-32 h-32" />
-    </MockedCache>
-  ));
+  .add('non-default avatar', () => <Avatar className="w-32 h-32" />);

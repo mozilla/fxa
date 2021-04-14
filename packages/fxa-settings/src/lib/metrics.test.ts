@@ -41,13 +41,17 @@ jest.mock('react', () => ({
   useEffect: jest.fn().mockImplementation((f) => f()),
 }));
 
-jest.mock('../models/Account', () => ({
-  ...jest.requireActual('../models/Account'),
+jest.mock('../models', () => ({
+  ...jest.requireActual('../models'),
   useAccount: jest
     .fn()
     // Keep in mind that jest.mock is hoisted, so importing MOCK_ACCOUNT in a
     // regular fashion "before" this will not work.
-    .mockReturnValue(jest.requireActual('../models/_mocks').MOCK_ACCOUNT),
+    .mockReturnValue({
+      recoveryKey: true,
+      hasSecondaryVerifiedEmail: false,
+      totpActive: true,
+    }),
 }));
 
 const deviceId = 'v8v0b6';

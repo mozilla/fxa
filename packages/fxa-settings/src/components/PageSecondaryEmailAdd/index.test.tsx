@@ -5,21 +5,16 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { MockedCache, renderWithRouter, mockEmail } from '../../models/_mocks';
-import { PageSecondaryEmailAdd, CREATE_SECONDARY_EMAIL_MUTATION } from '.';
-import { GraphQLError } from 'graphql';
-
-const mockGqlSuccess = (email: string) => ({
-  request: {
-    query: CREATE_SECONDARY_EMAIL_MUTATION,
-    variables: { input: { email } },
-  },
-  result: {
-    errors: [new GraphQLError('Email Address already added')],
-  },
-});
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { PageSecondaryEmailAdd } from '.';
+import { Account, AppContext } from '../../models';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 window.console.error = jest.fn();
+
+const account = ({
+  createSecondaryEmail: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
 
 afterAll(() => {
   (window.console.error as jest.Mock).mockReset();
@@ -29,9 +24,9 @@ describe('PageSecondaryEmailAdd', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {
       renderWithRouter(
-        <MockedCache>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <PageSecondaryEmailAdd />
-        </MockedCache>
+        </AppContext.Provider>
       );
 
       expect(screen.getByTestId('secondary-email-input').textContent).toContain(
@@ -45,9 +40,9 @@ describe('PageSecondaryEmailAdd', () => {
 
     it('Enables "save" button once valid email is input', () => {
       renderWithRouter(
-        <MockedCache>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <PageSecondaryEmailAdd />
-        </MockedCache>
+        </AppContext.Provider>
       );
 
       expect(screen.getByTestId('save-button')).toHaveAttribute('disabled');
@@ -60,9 +55,9 @@ describe('PageSecondaryEmailAdd', () => {
 
     it('Do not Enable "save" button if invalid email is input', () => {
       renderWithRouter(
-        <MockedCache>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <PageSecondaryEmailAdd />
-        </MockedCache>
+        </AppContext.Provider>
       );
 
       const input = screen.getByTestId('input-field');
@@ -74,15 +69,15 @@ describe('PageSecondaryEmailAdd', () => {
 
   describe('createSecondaryEmailCode', () => {
     it('displays an error message in the tooltip', async () => {
-      const emails = [
-        mockEmail('johndope@example.com'),
-        mockEmail('johndope2@example.com', false, false),
-      ];
-      const mocks = [mockGqlSuccess('johndope2@example.com')];
+      const error: any = new Error('Email Address already added');
+      error.errno = AuthUiErrors.EMAIL_PRIMARY_EXISTS.errno;
+      const account = ({
+        createSecondaryEmail: jest.fn().mockRejectedValue(error),
+      } as unknown) as Account;
       renderWithRouter(
-        <MockedCache account={{ emails }} {...{ mocks }}>
+        <AppContext.Provider value={mockAppContext({ account })}>
           <PageSecondaryEmailAdd />
-        </MockedCache>
+        </AppContext.Provider>
       );
       const input = screen.getByTestId('input-field');
       fireEvent.change(input, { target: { value: 'johndope2@example.com' } });
@@ -94,7 +89,7 @@ describe('PageSecondaryEmailAdd', () => {
       expect(screen.queryByTestId('tooltip')).toBeInTheDocument();
 
       expect(
-        screen.queryByText('Email Address already added')
+        screen.queryByText(AuthUiErrors.EMAIL_PRIMARY_EXISTS.message)
       ).toBeInTheDocument();
     });
   });

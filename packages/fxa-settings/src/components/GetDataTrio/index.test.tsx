@@ -4,14 +4,25 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { Account, AppContext } from '../../models';
 import GetDataTrio from './index';
 
 const value = 'Sun Tea';
 const url = 'https://mozilla.org';
 
+const account = ({
+  primaryEmail: {
+    email: 'pbooth@mozilla.com',
+  },
+} as unknown) as Account;
+
 it('renders as expected', () => {
   window.URL.createObjectURL = jest.fn();
-  render(<GetDataTrio {...{ value, url }} />);
+  render(
+    <AppContext.Provider value={{ account }}>
+      <GetDataTrio {...{ value, url }} />
+    </AppContext.Provider>
+  );
   expect(screen.getByTestId('databutton-download')).toBeInTheDocument();
   expect(screen.getByTestId('databutton-copy')).toBeInTheDocument();
   expect(screen.getByTestId('databutton-print')).toBeInTheDocument();

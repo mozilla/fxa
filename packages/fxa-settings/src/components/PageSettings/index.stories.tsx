@@ -8,55 +8,65 @@ import { PageSettings } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 import { isMobileDevice } from '../../lib/utilities';
-import { MockedCache, mockEmail } from '../../models/_mocks';
+import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../models/_mocks';
 import { MOCK_SERVICES } from '../ConnectedServices/MOCK_SERVICES';
+import { AppContext } from 'fxa-settings/src/models';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
 storiesOf('Pages|Settings', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('cold start', () => (
-    <MockedCache
-      account={{
-        displayName: null,
-        avatar: { id: null, url: null },
-        recoveryKey: false,
-        totp: { exists: false, verified: false },
-        attachedClients: SERVICES_NON_MOBILE,
-      }}
+    <AppContext.Provider
+      value={mockAppContext({
+        account: {
+          ...MOCK_ACCOUNT,
+          displayName: null,
+          avatar: { id: null, url: null },
+          recoveryKey: false,
+          totp: { exists: false, verified: false },
+          attachedClients: SERVICES_NON_MOBILE,
+        } as any,
+      })}
     >
       <AppLayout>
         <PageSettings />
       </AppLayout>
-    </MockedCache>
+    </AppContext.Provider>
   ))
   .add('partially filled out', () => (
-    <MockedCache
-      account={{
-        displayName: null,
-        totp: { exists: true, verified: false },
-        attachedClients: SERVICES_NON_MOBILE,
-      }}
+    <AppContext.Provider
+      value={mockAppContext({
+        account: {
+          ...MOCK_ACCOUNT,
+          displayName: null,
+          totp: { exists: true, verified: false },
+          attachedClients: SERVICES_NON_MOBILE,
+        } as any,
+      })}
     >
       <AppLayout>
         <PageSettings />
       </AppLayout>
-    </MockedCache>
+    </AppContext.Provider>
   ))
 
   .add('completely filled out', () => (
-    <MockedCache
-      account={{
-        subscriptions: [{ created: 1, productName: 'x' }],
-        emails: [
-          mockEmail('johndope@example.com'),
-          mockEmail('johndope2@gmail.com', false),
-        ],
-        attachedClients: SERVICES_NON_MOBILE,
-      }}
+    <AppContext.Provider
+      value={mockAppContext({
+        account: {
+          ...MOCK_ACCOUNT,
+          subscriptions: [{ created: 1, productName: 'x' }],
+          emails: [
+            mockEmail('johndope@example.com'),
+            mockEmail('johndope2@gmail.com', false),
+          ],
+          attachedClients: SERVICES_NON_MOBILE,
+        } as any,
+      })}
     >
       <AppLayout>
         <PageSettings />
       </AppLayout>
-    </MockedCache>
+    </AppContext.Provider>
   ));

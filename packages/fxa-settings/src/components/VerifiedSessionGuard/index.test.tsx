@@ -4,23 +4,23 @@
 
 import 'mutationobserver-shim';
 import React from 'react';
-import { wait, screen } from '@testing-library/react';
-import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { screen } from '@testing-library/react';
+import {
+  mockAppContext,
+  mockSession,
+  renderWithRouter,
+} from '../../models/_mocks';
+import { Account, AppContext } from '../../models';
 import { VerifiedSessionGuard } from '.';
-import { SEND_SESSION_VERIFICATION_CODE_MUTATION } from '../ModalVerifySession';
 
 it('renders the content when verified', async () => {
   const onDismiss = jest.fn();
   const onError = jest.fn();
   renderWithRouter(
-    <MockedCache>
-      <VerifiedSessionGuard {...{ onDismiss, onError }}>
-        <div data-testid="children">Content</div>
-      </VerifiedSessionGuard>
-    </MockedCache>
+    <VerifiedSessionGuard {...{ onDismiss, onError }}>
+      <div data-testid="children">Content</div>
+    </VerifiedSessionGuard>
   );
-
-  await wait();
 
   expect(screen.getByTestId('children')).toBeInTheDocument();
 });
@@ -28,30 +28,21 @@ it('renders the content when verified', async () => {
 it('renders the guard when unverified', async () => {
   const onDismiss = jest.fn();
   const onError = jest.fn();
-  const mocks = [
-    {
-      request: {
-        query: SEND_SESSION_VERIFICATION_CODE_MUTATION,
-        variables: { input: {} },
-      },
-      result: {
-        data: {
-          sendSessionVerificationCode: {
-            clientMutationId: null,
-          },
-        },
-      },
+  const account = ({
+    primaryEmail: {
+      email: 'smcarthur@mozilla.com',
     },
-  ];
+    sendVerificationCode: jest.fn().mockResolvedValue(true),
+  } as unknown) as Account;
   renderWithRouter(
-    <MockedCache verified={false} mocks={mocks}>
+    <AppContext.Provider
+      value={mockAppContext({ account, session: mockSession(false) })}
+    >
       <VerifiedSessionGuard {...{ onDismiss, onError }}>
         <div>Content</div>
       </VerifiedSessionGuard>
-    </MockedCache>
+    </AppContext.Provider>
   );
-
-  await wait();
 
   expect(screen.getByTestId('modal-verify-session')).toBeInTheDocument();
 });

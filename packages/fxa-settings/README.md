@@ -24,7 +24,7 @@
 — [Payload Data](#payload-data)\
 — [Event Logging](#event-logging)\
 [Testing and Mocks for Tests/Storybook](#testing-and-mocks-for-testsstorybook)\
-— [`AlertBar` or `AlertExternal`](#components-that-use-alertbar-or-alertexternal)\
+— [`AlertBar`](#components-that-use-alertbar)\
 — [`useAccount`, `useSession`, or GQL Mocks](#components-that-use-useaccount-usesession-or-need-a-gql-mock)\
 — [Mocking mutation errors](#mocking-mutation-errors)\
 [Storybook](#storybook)\
@@ -106,8 +106,6 @@ See the "Testing" section for mocking mutation errors.
 
 When an external link needs to be opened in a new tab, use the `LinkExternal` component. This ensures `rel="noopener noreferrer"` is present on links containing a `target="_blank"` as a precaution against reverse tabnabbing and also provides visually hidden accessible text to inform screenreaders the link will open in a new window.
 
-### `AlertBar` and `AlertExternal`
-
 #### AlertBar
 
 The `AlertBar` is used to display messages to the user, typically for communicating success or error messages back to the user. `<div id="alert-bar-root"></div>` is located just below the layout header and serves as the parent for where this component renders in the DOM via a React [Portal](https://reactjs.org/docs/portals.html) and an `AlertBarContext` which holds a reference to `alert-bar-root`.
@@ -185,7 +183,7 @@ See the "Testing" section for mocking the `AlertBar`.
 
 Some actions from the `fxa-content-server` need to display an alert message on the settings page, such as when a user has successfully verified their primary email in the login flow. To display the message across the "app boundary" between the content server and `fxa-settings`, a message is stored in `localStorage` and whichever app sees it first will display the message and then remove it from `localStorage`.
 
-If `fxa-settings` checks `localStorage` first, it stores the string in the Apollo client cache local state variable `alertTextExternal`, displays it in the `AlertBar` through the `AlertExternal` component, and clears the text.
+If `fxa-settings` checks `localStorage` first, it stores the string in the reactive variable `alertContent`, displays it in the `AlertBar` and clears the text.
 
 ### Sessions, `VerifiedSessionGuard`, and `ModalVerifySession`
 
@@ -503,7 +501,7 @@ CI=yes yarn test --coverage --verbose
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
 
-### Components that use `AlertBar` or `AlertExternal`
+### Components that use `AlertBar`
 
 Because the `AlertBar` renders children into `<div id="alert-bar-root"></div>` located just below the layout header in the DOM in the real application, this element and the reference to it, located in `AlertBarContext`, must be present when running isolated tests. Wrap the test in `AlertBarRootAndContextProvider` for this purpose.
 

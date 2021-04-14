@@ -1,25 +1,14 @@
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
-import { gql } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { useAlertBar } from '../../lib/hooks';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { HomePath } from '../../constants';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import AlertBar from '../AlertBar';
 import { isEmailValid } from 'fxa-shared/email/helpers';
-import { useAuthClient } from '../../lib/auth';
-import { cache } from '../../lib/cache';
-
-export const CREATE_SECONDARY_EMAIL_MUTATION = gql`
-  mutation createSecondaryEmail($input: EmailInput!) {
-    createSecondaryEmail(input: $input) {
-      clientMutationId
-    }
-  }
-`;
+import { useAccount, useAlertBar } from 'fxa-settings/src/models';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');
@@ -30,38 +19,23 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const { l10n } = useLocalization();
   const navigate = useNavigate();
   const alertBar = useAlertBar();
+  const account = useAccount();
   const goHome = () =>
     navigate(HomePath + '#secondary-email', { replace: true });
 
-  const createSecondaryEmail = useAuthClient(
-    (auth, sessionToken) => async (email: string) => {
-      await auth.recoveryEmailCreate(sessionToken, email, {
-        verificationMethod: 'email-otp',
-      });
-      return email;
-    },
-    {
-      onSuccess: (email) => {
-        cache.modify({
-          id: cache.identify({ __typename: 'Account' }),
-          fields: {
-            emails(existingEmails) {
-              return [
-                ...existingEmails,
-                {
-                  email: email!,
-                  isPrimary: false,
-                  verified: false,
-                },
-              ];
-            },
-          },
-        });
+  const createSecondaryEmail = useCallback(
+    async (email: string) => {
+      try {
+        await account.createSecondaryEmail(email);
         navigate('emails/verify', { state: { email }, replace: true });
-      },
-      onError: (error) => {
-        if (error.errno) {
-          setErrorText(error.message);
+      } catch (e) {
+        if (e.errno) {
+          const errorText = l10n.getString(
+            `auth-error-${e.errno}`,
+            null,
+            AuthUiErrors.EMAIL_PRIMARY_EXISTS.message
+          );
+          setErrorText(errorText);
         } else {
           alertBar.error(
             l10n.getString(
@@ -71,8 +45,9 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
             )
           );
         }
-      },
-    }
+      }
+    },
+    [account, navigate, setErrorText, alertBar, l10n]
   );
 
   const checkEmail = useCallback(
@@ -89,17 +64,12 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   return (
     <Localized id="add-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email">
-        {alertBar.visible && (
-          <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
-            <p data-testid="add-email-error">{alertBar.content}</p>
-          </AlertBar>
-        )}
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           onSubmit={(ev) => {
             ev.preventDefault();
             if (inputRef.current) {
-              createSecondaryEmail.execute(email);
+              createSecondaryEmail(email!);
               logViewEvent('settings.emails', 'submit');
             }
           }}
@@ -134,7 +104,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
                 type="submit"
                 className="cta-primary mx-2 flex-1"
                 data-testid="save-button"
-                disabled={saveBtnDisabled}
+                disabled={saveBtnDisabled || account.loading}
               >
                 Save
               </button>

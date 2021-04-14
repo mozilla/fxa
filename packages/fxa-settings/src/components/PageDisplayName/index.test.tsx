@@ -6,54 +6,12 @@ import 'mutationobserver-shim';
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen } from '@testing-library/react';
-import PageDisplayName, { UPDATE_DISPLAY_NAME_MUTATION } from '.';
-import {
-  createCache,
-  MockedCache,
-  MOCK_ACCOUNT,
-  renderWithRouter,
-} from '../../models/_mocks';
-import { AuthContext, createAuthClient } from '../../lib/auth';
-import { alertTextExternal } from '../../lib/cache';
+import PageDisplayName from '.';
+import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import { HomePath } from '../../constants';
-import { GraphQLError } from 'graphql';
-import { MockedProvider } from '@apollo/client/testing';
-import { Account, GET_ACCOUNT } from '../../models';
-import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
+import { Account, AppContext } from '../../models';
 
-const client = createAuthClient('none');
-const mocks = [
-  {
-    request: {
-      query: UPDATE_DISPLAY_NAME_MUTATION,
-      variables: { input: { displayName: 'John Hope' } },
-    },
-    result: {
-      data: {},
-    },
-  },
-  {
-    request: {
-      query: UPDATE_DISPLAY_NAME_MUTATION,
-      variables: { input: { displayName: 'John Nope' } },
-    },
-    error: new Error('NO CAN DO'),
-  },
-  {
-    request: {
-      query: UPDATE_DISPLAY_NAME_MUTATION,
-      variables: { input: { displayName: 'Jane Nope' } },
-    },
-    result: {
-      errors: [new GraphQLError('STILL NO')],
-    },
-  },
-];
-
-jest.mock('../../lib/cache', () => ({
-  alertTextExternal: jest.fn(),
-}));
-
+jest.mock('../../models/AlertBarInfo');
 const inputDisplayName = async (newName: string) => {
   await act(async () => {
     fireEvent.input(screen.getByTestId('input-field'), {
@@ -68,14 +26,13 @@ const submitDisplayName = async (newName: string) => {
   });
 };
 
+const account = ({
+  displayName: 'jrgm',
+  setDisplayName: jest.fn().mockResolvedValue(true),
+} as unknown) as Account;
+
 it('renders', async () => {
-  renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <PageDisplayName />
-      </MockedCache>
-    </AuthContext.Provider>
-  );
+  renderWithRouter(<PageDisplayName />);
   expect(screen.getByTestId('flow-container')).toBeInTheDocument();
   expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
   expect(screen.getByTestId('input-field')).toBeInTheDocument();
@@ -84,11 +41,9 @@ it('renders', async () => {
 
 it('updates the disabled state of the save button', async () => {
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache>
-        <PageDisplayName />
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <PageDisplayName />
+    </AppContext.Provider>
   );
 
   // initial value
@@ -103,68 +58,53 @@ it('updates the disabled state of the save button', async () => {
   expect(screen.getByTestId('submit-display-name')).not.toBeDisabled();
 
   // original value
-  await inputDisplayName(MOCK_ACCOUNT.displayName!);
+  await inputDisplayName(account.displayName!);
   expect(screen.getByTestId('submit-display-name')).toBeDisabled();
 });
 
 it('navigates back to settings home and shows a success message on a successful update', async () => {
+  const alertBarInfo = {
+    success: jest.fn(),
+  } as any;
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache mocks={mocks}>
-        <PageDisplayName />
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
+      <PageDisplayName />
+    </AppContext.Provider>
   );
   await submitDisplayName('John Hope');
   expect(window.location.pathname).toBe(HomePath);
-  expect(alertTextExternal).toHaveBeenCalledTimes(1);
-  expect(alertTextExternal).toHaveBeenCalledWith('Display name updated.');
-});
-
-it('updates the cache', async () => {
-  const cache = createCache();
-  const spy = jest.spyOn(cache, 'modify');
-  renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedProvider cache={cache} mocks={mocks}>
-        <PageDisplayName />
-      </MockedProvider>
-    </AuthContext.Provider>
-  );
-  await submitDisplayName('John Hope');
-  expect(spy).toBeCalledTimes(1);
-  const { account } = cache.readQuery<{ account: Account }>({
-    query: GET_ACCOUNT,
-  })!;
-  expect(account.displayName).toBe('John Hope');
+  expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
+  expect(alertBarInfo.success).toHaveBeenCalledWith('Display name updated.');
 });
 
 it('displays a general error in the alert bar', async () => {
+  const gqlError: any = new Error('test error');
+  const account = ({
+    displayName: 'jrgm',
+    setDisplayName: jest.fn().mockRejectedValue(gqlError),
+  } as unknown) as Account;
+  const context = mockAppContext({ account });
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache mocks={mocks}>
-        <AlertBarRootAndContextProvider>
-          <PageDisplayName />
-        </AlertBarRootAndContextProvider>
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider value={context}>
+      <PageDisplayName />
+    </AppContext.Provider>
   );
-  // suppress the console output
-  let consoleErrorSpy = jest
-    .spyOn(console, 'error')
-    .mockImplementationOnce(() => {});
+
   await submitDisplayName('John Nope');
-  expect(screen.getByTestId('alert-bar')).toBeInTheDocument();
-  consoleErrorSpy.mockRestore();
+  expect(context.alertBarInfo?.error).toBeCalledTimes(1);
 });
 
 it('displays the GraphQL error', async () => {
+  const gqlError: any = new Error('test error');
+  gqlError.graphQLErrors = ['test'];
+  const account = ({
+    displayName: 'jrgm',
+    setDisplayName: jest.fn().mockRejectedValue(gqlError),
+  } as unknown) as Account;
   renderWithRouter(
-    <AuthContext.Provider value={{ auth: client }}>
-      <MockedCache mocks={mocks}>
-        <PageDisplayName />
-      </MockedCache>
-    </AuthContext.Provider>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <PageDisplayName />
+    </AppContext.Provider>
   );
   // suppress the console output
   let consoleErrorSpy = jest
