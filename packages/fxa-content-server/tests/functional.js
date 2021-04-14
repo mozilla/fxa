@@ -37,7 +37,7 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/legal.js',
   'tests/functional/oauth_force_auth.js',
   'tests/functional/oauth_handshake.js',
-  // #7983 'tests/functional/oauth_permissions.js',
+  'tests/functional/oauth_permissions.js',
   'tests/functional/oauth_prompt_none.js',
   'tests/functional/oauth_query_param_validation.js',
   'tests/functional/oauth_reset_password.js',

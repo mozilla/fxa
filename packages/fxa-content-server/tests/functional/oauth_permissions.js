@@ -23,7 +23,6 @@ let email;
 
 const {
   click,
-  closeCurrentWindow,
   createEmail,
   createUser,
   fillOutForceAuth,
@@ -35,8 +34,6 @@ const {
   openFxaFromRp: openFxaFromTrustedRp,
   openFxaFromUntrustedRp,
   openPage,
-  openSettingsInNewTab,
-  switchToWindow,
   testElementExists,
   testUrlEquals,
   type,
@@ -181,6 +178,7 @@ registerSuite('oauth permissions for untrusted reliers', {
       );
     },
 
+    /* TODO: This test is dependent on the fix in #8281
     'signin with new permission available b/c of new account information': function () {
       return (
         this.remote
@@ -240,6 +238,7 @@ registerSuite('oauth permissions for untrusted reliers', {
           )
       );
     },
+    */
 
     'signin with additional requested permission': function () {
       return (
@@ -250,6 +249,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 
           // make display_name available from the start
           .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.INPUT_LABEL_DISPLAY_NAME))
           .then(
             type(
               selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME,
@@ -315,6 +315,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 
           // make display_name available from the start
           .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.INPUT_LABEL_DISPLAY_NAME))
           .then(
             type(
               selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME,
