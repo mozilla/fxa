@@ -337,6 +337,13 @@ export class StripeWebhookHandler extends StripeHandler {
     if (customer.deleted) {
       return;
     }
+    const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
+      customer
+    );
+    if (!billingAgreementId) {
+      await this.sendSubscriptionPaymentFailedEmail(invoice);
+      return;
+    }
     try {
       await this.paypalHelper.processInvoice({
         customer,
@@ -348,9 +355,6 @@ export class StripeWebhookHandler extends StripeHandler {
       if (err instanceof PayPalClientError) {
         if (err.errorCode === PAYPAL_BILLING_AGREEMENT_INVALID) {
           const uid = customer.metadata.userid;
-          const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
-            customer
-          ) as string;
           await this.stripeHelper.removeCustomerPaypalAgreement(
             uid,
             customer.id,
