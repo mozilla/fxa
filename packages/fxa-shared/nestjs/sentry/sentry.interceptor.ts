@@ -4,10 +4,11 @@
 import {
   CallHandler,
   ExecutionContext,
+  HttpException,
   Injectable,
   NestInterceptor,
-  HttpException,
 } from '@nestjs/common';
+import { ApolloError } from 'apollo-server';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -27,6 +28,10 @@ export class SentryInterceptor implements NestInterceptor {
             if ((exception as HttpException).getStatus() < 500) {
               return;
             }
+          }
+          // Skip ApolloErrors
+          if (exception instanceof ApolloError) {
+            return;
           }
           processException(context, exception);
         },
