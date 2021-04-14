@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const fs = require('fs');
+const path = require('path');
+const font = fs.readFileSync(path.join(__dirname, 'inter-bold-alphanum.woff'), {
+  encoding: 'base64',
+});
+
 module.exports = {
   handler: async function (request, h) {
     const monogram = /^[a-zA-Z0-9]$/.test(request.params.id)
@@ -19,6 +25,12 @@ module.exports = {
       .response(
         `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <defs>
+          <style>
+          @font-face{
+            font-family:"Inter";
+            src:url(data:application/font-woff;charset=utf-8;base64,${font}) format("woff");
+          }
+          </style>
           <mask id="monogram">
             <rect x="0" y="0" width="100%" height="100%" fill="white"/>
             <text
@@ -26,8 +38,7 @@ module.exports = {
               dominant-baseline="central"
               text-anchor="middle"
               fill="black"
-              font-family='-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
-              font-weight="700"
+              font-family="Inter"
               font-size="4rem">${monogram.toUpperCase()}</text>
           </mask>
         </defs>
