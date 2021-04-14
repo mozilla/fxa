@@ -897,7 +897,7 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
-      it('sends failed when processing invoices for paypal customers with no billing agreement', async () => {
+      it('sends failed when processing invoices for paypal customers with invalid billing agreement', async () => {
         // Setup a failed invoice process
         const paypalHelper = new PayPalHelper({ log: mockLog });
         const failedResponse = deepCopy(failedDoReferenceTransactionResponse);
@@ -944,7 +944,7 @@ describe('StripeWebhookHandler', () => {
         );
       });
 
-      it('sends failed when processing invoices for paypal customers with no billing agreement', async () => {
+      it('sends failed when processing invoices for paypal customers with invalid billing agreement', async () => {
         // Setup a failed invoice process
         const paypalHelper = new PayPalHelper({ log: mockLog });
         const failedResponse = deepCopy(failedDoReferenceTransactionResponse);
@@ -974,8 +974,9 @@ describe('StripeWebhookHandler', () => {
             batchProcessing: true,
           }
         );
-        assert.notCalled(
-          StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement,
+          customer
         );
         assert.notCalled(
           StripeWebhookHandlerInstance.stripeHelper
@@ -984,6 +985,33 @@ describe('StripeWebhookHandler', () => {
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.sendSubscriptionPaymentFailedEmail,
           invoiceCreatedEvent.data.object
+        );
+      });
+
+      it('sends failed when processing invoices for paypal customers with no billing agreement', async () => {
+        // Setup a missing billing agreement
+        StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement.returns(
+          undefined
+        );
+        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+          {},
+          invoiceCreatedEvent
+        );
+        assert.isUndefined(result);
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
+          invoiceCreatedEvent.data.object
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement,
+          customer
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.sendSubscriptionPaymentFailedEmail,
+          invoiceCreatedEvent.data.object
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.paypalHelper.processInvoice
         );
       });
 
