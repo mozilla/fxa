@@ -38,7 +38,7 @@ The Firefox Accounts (fxa) monorepo
    ```sh
    cd fxa
    yarn install
-   npm start
+   yarn start
    ```
 
 Note: If `yarn install` fails, ensure your `yarn -v` is at least `1.22.0`.
@@ -51,21 +51,21 @@ Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and sta
 
 To start all servers:
 
-- `npm start`
+- `yarn start`
 
 The most common commands are:
 
-- `npm stop` **- stop all servers.**
+- `yarn stop` **- stop all servers.**
 
-- `./pm2 status` - display running servers.
+- `yarn pm2 status` - display running servers.
 
-- `./pm2 logs` - logs for all servers (note: this must be used to verify accounts).
+- `yarn pm2 logs` - logs for all servers (note: this must be used to verify accounts).
 
-- `./pm2 logs auth` - display logs for service `auth`.
+- `yarn pm2 logs auth` - display logs for service `auth`.
 
-- `./pm2 stop content` - stop `content` service.
+- `yarn pm2 stop content` - stop `content` service.
 
-- `./pm2 restart mysql` - restart `mysql` process.
+- `yarn pm2 restart mysql` - restart `mysql` process.
 
 - More commands in the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
@@ -79,16 +79,16 @@ See the separate [CONTRIBUTING.md](https://github.com/mozilla/fxa/blob/main/CONT
 
 > This is an example workflow for **fxa**.
 
-After installing **fxa** run `npm start`. Use `./pm2 status` command to check the status of the servers:
+After installing **fxa** run `yarn start`. Use `yarn pm2 status` command to check the status of the servers:
 
-![](http://i.imgur.com/eqL8FiZ.png)
+![](https://i.imgur.com/iDMzgYm.png)
 
-To avoid wasting computer resources while not working on FxA make sure to stop the servers using `npm stop`.
-Once you are back working on FxA just use the `npm start` command to bring the servers back up.
+To avoid wasting computer resources while not working on FxA make sure to stop the servers using `yarn stop`.
+Once you are back working on FxA just use the `yarn start` command to bring the servers back up.
 
 #### Verifying email and viewing logs
 
-Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server.
+Use the `yarn pm2 logs` command to get the logs of all servers. You may also use `yarn pm2 logs [id]` to just see the logs for that particular server.
 
 When you signup for an account using the form on `localhost:3030/signup` the "inbox" logs will print out the verification code that you need to copy paste into your browser to verify your account locally:
 
@@ -253,13 +253,13 @@ It is possible to run various test suites (known as Jobs) acting as Circle CI. T
 
 ### Firefox Custom Profile
 
-**Use `npm start firefox` to start Firefox with local server configurations.**
+**Use `yarn start firefox` to start Firefox with local server configurations.**
 Available options:
 
 - `FXA_ENV=local` or `latest` or `stable` or `stage` (NOTE: `local` is default).
 - `FXA_E10S=true` - add this flag to turn on E10S. (NOTE: `false` by default).
 - `FXA_DESKTOP_CONTEXT` - `context=` value. (NOTE: `fx_desktop_v2` is default).
-- `FIREFOX_BIN=/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin npm start`
+- `FIREFOX_BIN=/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin yarn start`
 - `FIREFOX_DEBUGGER=true` - open [Browser Toolbox](https://developer.mozilla.org/en-US/docs/Tools/Browser_Toolbox) on start (NOTE: `false` by default for speed).
 
 ---
@@ -272,9 +272,9 @@ We have also extensively documented working with the [FxA code-base using VS Cod
 
 #### Debugging a server
 
-`npm start` runs some of the services with the debugger enabled by default.
-
-1. Start the whole server as usual (`npm install && npm start` from top-level in the monorepo)
+`yarn start` runs some of the services with the debugger enabled by default.
+(using yarn is preferred in place of npm install)
+1. Start the whole server as usual (`yarn && yarn start` from top-level in the monorepo)
 2. To see which debug port each service is listening on check `.vscode/launch.json` or the `pm2.config.js` file of the package you're interested in.
 3. Connect to the process to debug it:
    - Using Google Chrome, go to `chrome://inspect`, then click the process to connect to devtools.
@@ -283,7 +283,7 @@ We have also extensively documented working with the [FxA code-base using VS Cod
 
 ##### Default Debug Ports
 
-If you're using `npm start`, the following ports are used for `--inspect`:
+If you're using `yarn start`, the following ports are used for `--inspect`:
 
 | Port | Service         |
 | ---- | --------------- |
@@ -338,7 +338,7 @@ adb reverse tcp:1111 tcp:1111 # Profile server
 adb reverse tcp:5000 tcp:5000 # Sync server
 ```
 
-Then run `npm start` and get to work!
+Then run `yarn start` and get to work!
 
 ---
 
@@ -349,7 +349,7 @@ Then run `npm start` and get to work!
 The pm2 scripts run the `latest` docker version of the email service by default. If you want to
 start making changes to the email service then do the following:
 
-1. Stop the email-service using `./pm2 stop <email_service_id>`
+1. Stop the email-service using `yarn pm2 stop <email_service_id>`
 1. Build the service: `cd packages/fxa-email-service; cargo build --bin fxa_email_send`
 1. Run the service: `cd packages/fxa-email-service; ./scripts/run_send.sh`
 
@@ -378,14 +378,14 @@ If you want to inspect emails, you can run fxa with [MailDev](https://www.npmjs.
 #### Install
 
 ```bash
-npm install maildev -g
+yarn global add maildev
 ```
 
 #### Run
 
 ```bash
-npm start
-./pm2 stop inbox
+yarn start
+yarn pm2 stop inbox
 ```
 
 Once services have started, you can start MailDev on port 9999. You might have to start MailDev with sudo permissions.
