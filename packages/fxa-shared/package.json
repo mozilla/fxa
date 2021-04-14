@@ -91,7 +91,7 @@
     "class-validator": "^0.13.1",
     "cors": "^2.8.5",
     "find-up": "^5.0.0",
-    "generic-pool": "^3.7.2",
+    "generic-pool": "^3.7.8",
     "graphql": "^15.5.0",
     "hot-shots": "^8.3.1",
     "joi": "^14.3.1",
