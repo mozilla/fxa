@@ -6,7 +6,7 @@ const testsSettingsV2 = require('./functional_settings_v2');
 // Run the new settings tests first
 module.exports = testsSettingsV2.concat([
   'tests/functional/fx_browser_relier.js',
-  // #7981 'tests/functional/oauth_webchannel.js',
+  'tests/functional/oauth_webchannel.js',
   'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',
   'tests/functional/sign_up_with_code.js',
