@@ -20279,7 +20279,7 @@ fsevents@^1.2.7:
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     find-up: ^5.0.0
-    generic-pool: ^3.7.2
+    generic-pool: ^3.7.8
     graphql: ^15.5.0
     hot-shots: ^8.3.1
     jest: 26.6.3
@@ -20448,10 +20448,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"generic-pool@npm:^3.7.2":
-  version: 3.7.2
-  resolution: "generic-pool@npm:3.7.2"
-  checksum: 6b5704552d18c0a1eb3717f3c8ed5702d2dfa40cbfe1009f281a7d325fc7d2f8d675fd60b00384ef25a9eb506df4d7d979a6daa662c012b7448d17504f73efbe
+"generic-pool@npm:^3.7.8":
+  version: 3.7.8
+  resolution: "generic-pool@npm:3.7.8"
+  checksum: d61696bd9ecdbe2a0fb66e3615d28ef28d619ce8ccc28dc9bc15fa2d7ec0bf6934043261001b372f3b81366626f58b115b0f369d60bfd1388f62eed6571801d8
   languageName: node
   linkType: hard
 
