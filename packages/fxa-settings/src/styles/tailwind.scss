@@ -49,3 +49,9 @@ body {
     @apply transition duration-150;
   }
 }
+
+@layer utilities{
+  .break-word {
+    word-break: break-word;
+  }
+}

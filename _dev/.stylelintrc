@@ -22,7 +22,8 @@
           "each",
           "include",
           "mixin",
-          "screen"
+          "screen",
+          "layer"
         ]
       }
     ]
