@@ -2320,17 +2320,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/react@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "@fluent/react@npm:0.13.0"
+"@fluent/react@npm:^0.13.1":
+  version: 0.13.1
+  resolution: "@fluent/react@npm:0.13.1"
   dependencies:
     "@fluent/sequence": 0.5.0
     cached-iterable: ^0.2.1
-    prop-types: ^15.6.0
+    prop-types: ^15.7.2
   peerDependencies:
     "@fluent/bundle": ">=0.16.0 <0.17.0"
     react: ">=16.8.0"
-  checksum: 0c1e1db21dc943f0b53b95d7834dc38dd53d2892e1c5b10267c493028aeee5c64ce32b99fbecdb7abc15aa8602fe40f694bf616035379ed342fa2d9cfcdb89ba
+  checksum: a95ab7c04d7eb200c92bc4bfc393747a3865ddef0f5672e8112824865a523275bc70227beb95170f42b35e0f6c32a53d5cc82ccdba982dc6177180ddbdd5575d
   languageName: node
   linkType: hard
 
@@ -19922,7 +19922,7 @@ fsevents@^1.2.7:
     "@babel/register": ^7.12.10
     "@fluent/bundle": ^0.16.0
     "@fluent/langneg": ^0.5.1
-    "@fluent/react": ^0.13.0
+    "@fluent/react": ^0.13.1
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^5.27.6
     "@sentry/node": ^6.0.1
@@ -20085,7 +20085,7 @@ fsevents@^1.2.7:
     "@babel/core": ^7.10.3
     "@fluent/bundle": ^0.16.0
     "@fluent/langneg": ^0.5.1
-    "@fluent/react": ^0.13.0
+    "@fluent/react": ^0.13.1
     "@storybook/addon-actions": ^5.3.19
     "@storybook/addon-links": ^6.1.15
     "@storybook/addons": ^5.3.19
@@ -20145,7 +20145,7 @@ fsevents@^1.2.7:
     "@apollo/client": ^3.3.13
     "@babel/core": ^7.10.3
     "@emotion/react": ^11.1.5
-    "@fluent/react": ^0.13.0
+    "@fluent/react": ^0.13.1
     "@material-ui/core": v5.0.0-alpha.24
     "@reach/router": ^1.3.4
     "@rescripts/cli": 0.0.16
