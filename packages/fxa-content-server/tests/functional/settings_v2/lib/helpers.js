@@ -15,6 +15,7 @@ const {
   createUser,
   openPage,
   fillOutEmailFirstSignIn,
+  testElementExists,
 } = FunctionalHelpers.helpersRemoteWrapped;
 
 async function navigateToSettingsV2(remote) {
@@ -24,7 +25,7 @@ async function navigateToSettingsV2(remote) {
 
   await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
   await fillOutEmailFirstSignIn(email, password, remote);
-
+  await testElementExists(selectors.SETTINGS_V2.APP, remote);
   return email;
 }
 
