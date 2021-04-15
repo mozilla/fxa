@@ -86,7 +86,7 @@
     "apollo-server": "^2.19.2",
     "aws-sdk": "^2.883.0",
     "bluebird": "^3.7.2",
-    "celebrate": "^10.0.1",
+    "celebrate": "^14.0.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "cors": "^2.8.5",
