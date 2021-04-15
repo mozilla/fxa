@@ -11,7 +11,7 @@ export const Footer = () => {
   const { l10n } = useLocalization();
   return (
     <footer
-      className="py-4 mt-16 mx-4 flex-wrap mobileLandscape:flex-no-wrap mobileLandscape:mx-8 mobileLandscape:pb-6 flex border-t border-grey-100 text-grey-400"
+      className="py-4 mt-16 mx-4 flex-wrap mobileLandscape:flex-no-wrap mobileLandscape:mx-8 mobileLandscape:pb-6 mobileLandscape:flex-col flex border-t border-grey-100 text-grey-400"
       data-testid="footer"
     >
       <LinkExternal
@@ -28,7 +28,7 @@ export const Footer = () => {
         <LinkExternal
           data-testid="link-privacy"
           href="https://www.mozilla.org/en-US/privacy/websites/"
-          className="transition-standard w-full text-xs my-3 hover:text-grey-500 hover:underline mobileLandscape:my-0 mobileLandscape:w-auto mobileLandscape:mx-10 mobileLandscape:self-end"
+          className="transition-standard w-full text-xs my-3 hover:text-grey-500 hover:underline mobileLandscape:my-0 mobileLandscape:w-max mobileLandscape:mx-10 mobileLandscape:self-end"
         >
           Website Privacy Notice
         </LinkExternal>
@@ -37,7 +37,7 @@ export const Footer = () => {
         <LinkExternal
           data-testid="link-terms"
           href="https://www.mozilla.org/en-US/about/legal/terms/services/"
-          className="transition-standard w-full text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline mobileLandscape:w-auto"
+          className="transition-standard w-full text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline mobileLandscape:w-max"
         >
           Terms of Service
         </LinkExternal>
