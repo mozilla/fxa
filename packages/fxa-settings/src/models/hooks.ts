@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useRef } from 'react';
 import { AppContext, GET_INITIAL_STATE } from './AppContext';
 import { GET_SESSION_VERIFIED, Session } from './Session';
 import { clearSignedInAccountUid } from '../lib/cache';
@@ -14,6 +14,7 @@ export function useAccount() {
 }
 
 export function useSession() {
+  const ref = useRef(({} as unknown) as Session);
   const { apolloClient, session } = useContext(AppContext);
   if (session) {
     return session;
@@ -23,25 +24,31 @@ export function useSession() {
   }
   const data = apolloClient.cache.readQuery<{ session: Session }>({
     query: GET_SESSION_VERIFIED,
-  });
-  const s = Object.assign({}, data!.session);
-  // TODO: this feels like a temporary solution
-  s.destroy = () =>
-    apolloClient
-      .mutate({
-        mutation: gql`
-          mutation destroySession($input: DestroySessionInput!) {
-            destroySession(input: $input) {
-              clientMutationId
+  })!;
+  if (
+    ref.current.token !== data.session.token ||
+    ref.current.verified !== data.session.verified
+  ) {
+    ref.current = Object.assign({}, data.session);
+  }
+  if (!ref.current.destroy) {
+    ref.current.destroy = () =>
+      apolloClient
+        .mutate({
+          mutation: gql`
+            mutation destroySession($input: DestroySessionInput!) {
+              destroySession(input: $input) {
+                clientMutationId
+              }
             }
-          }
-        `,
-        variables: { input: {} },
-      })
-      .then((result) => {
-        clearSignedInAccountUid();
-      });
-  return s as Session;
+          `,
+          variables: { input: {} },
+        })
+        .then((result) => {
+          clearSignedInAccountUid();
+        });
+  }
+  return ref.current;
 }
 
 export function useConfig() {

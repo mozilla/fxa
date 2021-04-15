@@ -44,7 +44,7 @@ const fxaProduction = !!args.fxaProduction;
 const fxaDevBox = !!args.fxaDevBox;
 
 const fxaToken = args.fxaToken || 'http://';
-const asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);
+const asyncTimeout = parseInt(args.asyncTimeout || 10000, 10);
 
 // On Circle, we bail after the first failure.
 // args.bailAfterFirstFailure comes in as a string.
