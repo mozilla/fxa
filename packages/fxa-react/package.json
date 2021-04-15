@@ -24,7 +24,7 @@
   "dependencies": {
     "@fluent/bundle": "^0.16.0",
     "@fluent/langneg": "^0.5.1",
-    "@fluent/react": "^0.13.0",
+    "@fluent/react": "^0.13.1",
     "async-wait-until": "^2.0.4",
     "classnames": "^2.3.1",
     "fetch-mock": "^9.11.0",
