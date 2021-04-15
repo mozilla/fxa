@@ -1,5 +1,13 @@
 # Change history
 
+## 1.204.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 26.4.3 to 26.5.4 ([dc136b213](https://github.com/mozilla/fxa/commit/dc136b213))
+- deps-dev: bump @nestjs/cli from 7.5.4 to 7.6.0 ([063a441b1](https://github.com/mozilla/fxa/commit/063a441b1))
+- deps: bump aws-sdk from 2.879.0 to 2.883.0 ([47ddfc9bb](https://github.com/mozilla/fxa/commit/47ddfc9bb))
+
 ## 1.203.5
 
 No changes.

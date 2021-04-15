@@ -1,3 +1,26 @@
+## 1.204.0
+
+### Bug fixes
+
+- test: fix oauth functional test ([b2d677969](https://github.com/mozilla/fxa/commit/b2d677969))
+- fxa-settings: remove horizontal margin for resend verification code ([20744047d](https://github.com/mozilla/fxa/commit/20744047d))
+- tests: Fix sync v3 and fennec functional setting tests ([1701fdf8f](https://github.com/mozilla/fxa/commit/1701fdf8f))
+- fxa-settings: add 2FA icons state ([0d87eec73](https://github.com/mozilla/fxa/commit/0d87eec73))
+- fxa-settings: add focus border to download button ([8fddf89ea](https://github.com/mozilla/fxa/commit/8fddf89ea))
+- fxa-settings: add focus border to download button ([5cbd15360](https://github.com/mozilla/fxa/commit/5cbd15360))
+
+### Refactorings
+
+- 6c92469f2 refactor AlertBar ([6c92469f2](https://github.com/mozilla/fxa/commit/6c92469f2))
+- settings: Begin moving api logic out of ui components ([31a190c6b](https://github.com/mozilla/fxa/commit/31a190c6b))
+- fxa-settings: replace UnitRowWithAvatar with UnitRow ([a91388dea](https://github.com/mozilla/fxa/commit/a91388dea))
+
+### Other changes
+
+- deps: bump classnames from 2.2.6 to 2.3.1 ([3bee063b1](https://github.com/mozilla/fxa/commit/3bee063b1))
+- 7e722086b reorganize app initialization ([7e722086b](https://github.com/mozilla/fxa/commit/7e722086b))
+- phase 2 ([4f728343d](https://github.com/mozilla/fxa/commit/4f728343d))
+
 ## 1.203.5
 
 No changes.

@@ -1,3 +1,13 @@
+## 1.204.0
+
+### Bug fixes
+
+- profile: use Inter Bold for the monogram font everywhere ([078a121c2](https://github.com/mozilla/fxa/commit/078a121c2))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.879.0 to 2.883.0 ([47ddfc9bb](https://github.com/mozilla/fxa/commit/47ddfc9bb))
+
 ## 1.203.5
 
 No changes.

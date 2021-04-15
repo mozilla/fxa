@@ -1,3 +1,9 @@
+## 1.204.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 26.4.3 to 26.5.4 ([dc136b213](https://github.com/mozilla/fxa/commit/dc136b213))
+
 ## 1.203.5
 
 No changes.

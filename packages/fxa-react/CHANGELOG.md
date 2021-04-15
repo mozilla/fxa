@@ -1,3 +1,15 @@
+## 1.204.0
+
+### Bug fixes
+
+- l10n: use en-CA not en-GB for settings and payments ([ef404738d](https://github.com/mozilla/fxa/commit/ef404738d))
+
+### Other changes
+
+- deps: bump @fluent/langneg from 0.5.0 to 0.5.1 ([f5633574a](https://github.com/mozilla/fxa/commit/f5633574a))
+- deps: bump classnames from 2.2.6 to 2.3.1 ([3bee063b1](https://github.com/mozilla/fxa/commit/3bee063b1))
+- deps-dev: bump ts-jest from 26.4.3 to 26.5.4 ([dc136b213](https://github.com/mozilla/fxa/commit/dc136b213))
+
 ## 1.203.5
 
 No changes.
