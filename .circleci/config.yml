@@ -245,7 +245,9 @@ jobs:
 
   # This job is manually triggered for now. see _dev/docker/circleci/README.md
   test-content-server-remote:
-    executor: content-server-executor
+    resource_class: large
+    docker:
+      - image: mozilla/fxa-circleci
     steps:
       - base-install:
           package: fxa-content-server
