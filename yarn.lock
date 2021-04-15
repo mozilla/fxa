@@ -19575,7 +19575,7 @@ fsevents@^1.2.7:
     source-map: ^0.7.3
     source-map-loader: ^1.1.1
     speed-trap: 0.0.10
-    thread-loader: ^3.0.1
+    thread-loader: ^3.0.3
     time-grunt: 2.0.0
     ts-loader: ^8.0.12
     ts-node: ^9.1.1
@@ -37659,16 +37659,18 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"thread-loader@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "thread-loader@npm:3.0.1"
+"thread-loader@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "thread-loader@npm:3.0.3"
   dependencies:
+    json-parse-better-errors: ^1.0.2
     loader-runner: ^4.1.0
     loader-utils: ^2.0.0
     neo-async: ^2.6.2
+    schema-utils: ^3.0.0
   peerDependencies:
     webpack: ^4.27.0 || ^5.0.0
-  checksum: ad595a661115f29e44ea99661a428e70870e7f868c23f0b38963863a693cabb5fa16946bdbc58fa0dd12030e79d61fe06ab99bf4ccac9c174f9c731adac800b4
+  checksum: eea7ed65c4e191bdf526f69879ce51a6368733bdcfd6901cece07c30b72bcead541f6f89cbb4720227b0176db272326469f2b5c77580b27ea691aa87e9b39924
   languageName: node
   linkType: hard
 
