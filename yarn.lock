@@ -2306,10 +2306,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/bundle@npm:^0.16.0":
-  version: 0.16.0
-  resolution: "@fluent/bundle@npm:0.16.0"
-  checksum: 02a911fdb6708cf5efb63d055b179e13fc9027434eb711eefb70cf8b23b6f81f6dc4444349a0c9cf0eb971aa9e604835740a2a2a7bb3c42cbb4c018f7f57f30b
+"@fluent/bundle@npm:^0.16.1":
+  version: 0.16.1
+  resolution: "@fluent/bundle@npm:0.16.1"
+  checksum: 91d3e60088de7cd8d26d6e2082d5054784d9bc155005c80ae064c2838d64c159c0fab77898ee6a1ad5e9ea2b6726eb0390c4b614787b79f369307020ca4eaf7e
   languageName: node
   linkType: hard
 
@@ -19920,7 +19920,7 @@ fsevents@^1.2.7:
   dependencies:
     "@babel/core": ^7.10.3
     "@babel/register": ^7.12.10
-    "@fluent/bundle": ^0.16.0
+    "@fluent/bundle": ^0.16.1
     "@fluent/langneg": ^0.5.1
     "@fluent/react": ^0.13.1
     "@rescripts/cli": ~0.0.16
@@ -20083,7 +20083,7 @@ fsevents@^1.2.7:
   resolution: "fxa-react@workspace:packages/fxa-react"
   dependencies:
     "@babel/core": ^7.10.3
-    "@fluent/bundle": ^0.16.0
+    "@fluent/bundle": ^0.16.1
     "@fluent/langneg": ^0.5.1
     "@fluent/react": ^0.13.1
     "@storybook/addon-actions": ^5.3.19
