@@ -96,7 +96,9 @@ const config = {
     drivers: [
       {
         name: 'firefox',
-        version: '0.26.0',
+
+        // Pulls from https://github.com/mozilla/geckodriver/releases/
+        version: '0.29.1',
       },
     ],
   },
