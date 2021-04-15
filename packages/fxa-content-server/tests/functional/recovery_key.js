@@ -126,17 +126,11 @@ registerSuite('Recovery key', {
             )
           )
 
-          // enter old key
+          // enter old key and check for error tooltip
           .then(fillOutRecoveryKey(recoveryKey))
           .then(
             testElementExists(
               selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP
-            )
-          )
-          .then(
-            testElementTextInclude(
-              selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP,
-              'invalid'
             )
           )
 
@@ -176,12 +170,6 @@ registerSuite('Recovery key', {
           .then(
             testElementExists(
               selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP
-            )
-          )
-          .then(
-            testElementTextInclude(
-              selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP,
-              'invalid'
             )
           )
 
@@ -291,9 +279,7 @@ registerSuite('Recovery key - unverified session', {
           // send and open verification in same tab
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
           // if the session is unverified, then the modal will be shown.
-          .then(
-            testElementExists('[data-testid=modal-verify-session]')
-          )
+          .then(testElementExists('[data-testid=modal-verify-session]'))
           .then(fillOutVerificationCode(email, 0))
           .then(
             testElementExists(
