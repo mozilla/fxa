@@ -52,7 +52,7 @@ export const RemovePhotoBtn = () => {
         />
       </Localized>
       <Localized id="avatar-page-remove-photo">
-        <p>Remove photo</p>
+        <p className="mt-2">Remove photo</p>
       </Localized>
     </div>
   );
