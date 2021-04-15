@@ -1,7 +1,7 @@
 import { gql, ApolloClient, Reference } from '@apollo/client';
 import config from '../lib/config';
 import AuthClient, { generateRecoveryKey } from 'fxa-auth-client/browser';
-import { sessionToken } from '../lib/cache';
+import { currentAccount, sessionToken } from '../lib/cache';
 import firefox from '../lib/firefox';
 
 export interface DeviceLocation {
@@ -375,6 +375,9 @@ export class Account implements AccountData {
         variables: { input: { displayName } },
       })
     );
+    const legacyLocalStorageAccount = currentAccount()!;
+    legacyLocalStorageAccount.displayName = displayName;
+    currentAccount(legacyLocalStorageAccount);
     firefox.profileChanged(this.uid);
   }
 

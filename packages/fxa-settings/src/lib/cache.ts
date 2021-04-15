@@ -9,6 +9,7 @@ export interface OldSettingsData {
   uid: hexstring;
   sessionToken: hexstring;
   alertText?: string;
+  displayName?: string;
 }
 
 type LocalAccount = OldSettingsData | undefined;
@@ -22,7 +23,7 @@ function accounts(accounts?: LocalAccounts) {
   return storage.get('accounts') as LocalAccounts;
 }
 
-function currentAccount(account?: OldSettingsData) {
+export function currentAccount(account?: OldSettingsData) {
   const all = accounts() || {};
   const uid = storage.get('currentAccountUid') as hexstring;
   if (account) {
