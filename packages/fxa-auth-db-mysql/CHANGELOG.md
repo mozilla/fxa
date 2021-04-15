@@ -1,3 +1,13 @@
+## 1.204.1
+
+### Bug fixes
+
+- release: Add changelog notes and bump version for 204 ([5b8356e11](https://github.com/mozilla/fxa/commit/5b8356e11))
+
+## 1.204.0
+
+No changes.
+
 ## 1.203.5
 
 No changes.

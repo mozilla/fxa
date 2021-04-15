@@ -1,5 +1,25 @@
 # Change history
 
+## 1.204.1
+
+### Bug fixes
+
+- release: Add changelog notes and bump version for 204 ([5b8356e11](https://github.com/mozilla/fxa/commit/5b8356e11))
+
+## 1.204.0
+
+### Bug fixes
+
+- stop reporting apollo errors ([acb735aa9](https://github.com/mozilla/fxa/commit/acb735aa9))
+- l10n: use en-CA not en-GB for settings and payments ([ef404738d](https://github.com/mozilla/fxa/commit/ef404738d))
+- auth-server: handle empty responses ([be6e22c81](https://github.com/mozilla/fxa/commit/be6e22c81))
+
+### Other changes
+
+- deps: bump generic-pool from 3.7.2 to 3.7.8 ([30b800739](https://github.com/mozilla/fxa/commit/30b800739))
+- deps-dev: bump ts-jest from 26.4.3 to 26.5.4 ([dc136b213](https://github.com/mozilla/fxa/commit/dc136b213))
+- deps: bump aws-sdk from 2.879.0 to 2.883.0 ([47ddfc9bb](https://github.com/mozilla/fxa/commit/47ddfc9bb))
+
 ## 1.203.5
 
 No changes.

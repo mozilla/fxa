@@ -1,3 +1,17 @@
+## 1.204.1
+
+### Bug fixes
+
+- release: Add changelog notes and bump version for 204 ([5b8356e11](https://github.com/mozilla/fxa/commit/5b8356e11))
+
+## 1.204.0
+
+### Other changes
+
+- deps-dev: bump @types/eslint from 7.2.8 to 7.2.9 ([3cd72f7f6](https://github.com/mozilla/fxa/commit/3cd72f7f6))
+- deps-dev: bump ts-jest from 26.4.3 to 26.5.4 ([dc136b213](https://github.com/mozilla/fxa/commit/dc136b213))
+- deps-dev: bump @types/eslint from 7.2.7 to 7.2.8 ([41024e607](https://github.com/mozilla/fxa/commit/41024e607))
+
 ## 1.203.5
 
 No changes.

@@ -1,3 +1,18 @@
+## 1.204.1
+
+### Bug fixes
+
+- release: Add changelog notes and bump version for 204 ([5b8356e11](https://github.com/mozilla/fxa/commit/5b8356e11))
+
+## 1.204.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 26.4.3 to 26.5.4 ([dc136b213](https://github.com/mozilla/fxa/commit/dc136b213))
+- deps: bump ioredis from 4.25.0 to 4.26.0 ([5c2832d52](https://github.com/mozilla/fxa/commit/5c2832d52))
+- deps: bump graphql-query-complexity from 0.7.2 to 0.8.0 ([31b326f68](https://github.com/mozilla/fxa/commit/31b326f68))
+- deps-dev: bump @nestjs/cli from 7.5.4 to 7.6.0 ([063a441b1](https://github.com/mozilla/fxa/commit/063a441b1))
+
 ## 1.203.5
 
 No changes.

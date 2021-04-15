@@ -1,3 +1,31 @@
+## 1.204.1
+
+### Bug fixes
+
+- release: Add changelog notes and bump version for 204 ([5b8356e11](https://github.com/mozilla/fxa/commit/5b8356e11))
+
+## 1.204.0
+
+### New features
+
+- email: add a pre-header option to email template ([48a3df842](https://github.com/mozilla/fxa/commit/48a3df842))
+
+### Bug fixes
+
+- l10n: use en-CA not en-GB for settings and payments ([ef404738d](https://github.com/mozilla/fxa/commit/ef404738d))
+- emails: encode the legal docs redirect url query param correctly ([c68ed5441](https://github.com/mozilla/fxa/commit/c68ed5441))
+- auth: Handle missing billing agreement id in handleInvoiceOpenEvent. ([bd02448ea](https://github.com/mozilla/fxa/commit/bd02448ea))
+- fxa-auth-server: avoid logging errors for missing metrics flow ID with internal routes - fixes #8234 ([9dd28b777](https://github.com/mozilla/fxa/commit/9dd28b777))
+- fxa-auth-server: Avoid error in sentry for missing remote address - fixes #7297 ([6cfa99df5](https://github.com/mozilla/fxa/commit/6cfa99df5))
+- auth-server: fix stripe webhook errors ([7284456de](https://github.com/mozilla/fxa/commit/7284456de))
+- auth-server: fix processor startup ([d2e07526c](https://github.com/mozilla/fxa/commit/d2e07526c))
+
+### Other changes
+
+- auth: append PayPalClientError message with PayPal error code ([f22a593a4](https://github.com/mozilla/fxa/commit/f22a593a4))
+- deps: bump ioredis from 4.25.0 to 4.26.0 ([5c2832d52](https://github.com/mozilla/fxa/commit/5c2832d52))
+- deps: bump aws-sdk from 2.879.0 to 2.883.0 ([47ddfc9bb](https://github.com/mozilla/fxa/commit/47ddfc9bb))
+
 ## 1.203.5
 
 ### Other changes

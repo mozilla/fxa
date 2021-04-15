@@ -1,5 +1,25 @@
 # Change history
 
+## 1.204.1
+
+### Bug fixes
+
+- release: Add changelog notes and bump version for 204 ([5b8356e11](https://github.com/mozilla/fxa/commit/5b8356e11))
+
+## 1.204.0
+
+### Bug fixes
+
+- avatar: add profile server to payments img-src CSP ([b43b098d1](https://github.com/mozilla/fxa/commit/b43b098d1))
+
+### Other changes
+
+- deps: bump @fluent/langneg from 0.5.0 to 0.5.1 ([f5633574a](https://github.com/mozilla/fxa/commit/f5633574a))
+- deps: bump classnames from 2.2.6 to 2.3.1 ([3bee063b1](https://github.com/mozilla/fxa/commit/3bee063b1))
+- deps-dev: bump ts-jest from 26.4.3 to 26.5.4 ([dc136b213](https://github.com/mozilla/fxa/commit/dc136b213))
+- deps-dev: bump redux-devtools-extension from 2.13.8 to 2.13.9 ([19aebe7fd](https://github.com/mozilla/fxa/commit/19aebe7fd))
+- deps-dev: bump caniuse-lite from 1.0.30001204 to 1.0.30001207 ([51c4e7f36](https://github.com/mozilla/fxa/commit/51c4e7f36))
+
 ## 1.203.5
 
 ### Bug fixes

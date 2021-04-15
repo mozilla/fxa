@@ -1,3 +1,28 @@
+## 1.204.1
+
+### Bug fixes
+
+- release: Add changelog notes and bump version for 204 ([5b8356e11](https://github.com/mozilla/fxa/commit/5b8356e11))
+
+## 1.204.0
+
+### Bug fixes
+
+- test: fix oauth functional test ([b2d677969](https://github.com/mozilla/fxa/commit/b2d677969))
+- avatar: removed old avatar bg color ([5194cb105](https://github.com/mozilla/fxa/commit/5194cb105))
+- tests: update selectors in oauth_permissions tests ([2a982caf6](https://github.com/mozilla/fxa/commit/2a982caf6))
+- tests: Fix oauth webchannel tests ([dd57f8ba9](https://github.com/mozilla/fxa/commit/dd57f8ba9))
+- tests: Fix change email tests ([4050f08e8](https://github.com/mozilla/fxa/commit/4050f08e8))
+- tests: Fix firefox handshake functional tests ([bdf7ab52f](https://github.com/mozilla/fxa/commit/bdf7ab52f))
+- tests: Fix sync v3 and fennec functional setting tests ([1701fdf8f](https://github.com/mozilla/fxa/commit/1701fdf8f))
+- tests: fix and re-enable sign_up.js functional test ([5578acf97](https://github.com/mozilla/fxa/commit/5578acf97))
+- tests: fix and re-enable confirm.js functional test ([9ec9d7da5](https://github.com/mozilla/fxa/commit/9ec9d7da5))
+
+### Refactorings
+
+- 6c92469f2 refactor AlertBar ([6c92469f2](https://github.com/mozilla/fxa/commit/6c92469f2))
+- settings: Begin moving api logic out of ui components ([31a190c6b](https://github.com/mozilla/fxa/commit/31a190c6b))
+
 ## 1.203.5
 
 No changes.
