@@ -90,7 +90,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client@npm:^3.1.5, @apollo/client@npm:^3.3.13":
+"@apollo/client@npm:^3.1.5":
   version: 3.3.13
   resolution: "@apollo/client@npm:3.3.13"
   dependencies:
@@ -117,6 +117,36 @@ __metadata:
     subscriptions-transport-ws:
       optional: true
   checksum: b53741ce60cbbf5a55f58b590fa76a56af1b1db35ab8dd521a79bfa003033f1134f2ab4917d2b6c86f99e60c0edf317cbf569e9840f0d78bff53285fc48d6697
+  languageName: node
+  linkType: hard
+
+"@apollo/client@npm:^3.3.15":
+  version: 3.3.15
+  resolution: "@apollo/client@npm:3.3.15"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.0.0
+    "@types/zen-observable": ^0.8.0
+    "@wry/context": ^0.6.0
+    "@wry/equality": ^0.4.0
+    fast-json-stable-stringify: ^2.0.0
+    graphql-tag: ^2.12.0
+    hoist-non-react-statics: ^3.3.2
+    optimism: ^0.15.0
+    prop-types: ^15.7.2
+    symbol-observable: ^2.0.0
+    ts-invariant: ^0.7.0
+    tslib: ^1.10.0
+    zen-observable: ^0.8.14
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0
+    react: ^16.8.0 || ^17.0.0
+    subscriptions-transport-ws: ^0.9.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    subscriptions-transport-ws:
+      optional: true
+  checksum: 400329207c58067b428480fcd212d62a0ef17e21c37d9dab69a8b3999e2bf5c093cd446570a9fe42ff7b3eae9ae99316415775a5a234657401c5ae21bc15b038
   languageName: node
   linkType: hard
 
@@ -19051,7 +19081,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-admin-panel@workspace:packages/fxa-admin-panel"
   dependencies:
-    "@apollo/client": ^3.3.13
+    "@apollo/client": ^3.3.15
     "@apollo/react-testing": 3.0.0
     "@babel/core": ^7.10.3
     "@rescripts/cli": 0.0.16
@@ -20065,7 +20095,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-settings@workspace:packages/fxa-settings"
   dependencies:
-    "@apollo/client": ^3.3.13
+    "@apollo/client": ^3.3.15
     "@babel/core": ^7.10.3
     "@emotion/react": ^11.1.5
     "@fluent/react": ^0.13.1
