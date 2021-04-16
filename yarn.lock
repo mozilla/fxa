@@ -4373,7 +4373,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pmmmwh/react-refresh-webpack-plugin@npm:^0.4.2":
+"@pmmmwh/react-refresh-webpack-plugin@npm:^0.4.2, @pmmmwh/react-refresh-webpack-plugin@npm:^0.4.3":
   version: 0.4.3
   resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.4.3"
   dependencies:
@@ -5611,10 +5611,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/preset-create-react-app@npm:^3.1.5":
-  version: 3.1.5
-  resolution: "@storybook/preset-create-react-app@npm:3.1.5"
+"@storybook/preset-create-react-app@npm:^3.1.7":
+  version: 3.1.7
+  resolution: "@storybook/preset-create-react-app@npm:3.1.7"
   dependencies:
+    "@pmmmwh/react-refresh-webpack-plugin": ^0.4.3
     "@types/babel__core": ^7.1.7
     "@types/webpack": ^4.41.13
     babel-plugin-react-docgen: ^4.1.0
@@ -5626,7 +5627,7 @@ __metadata:
     "@storybook/node-logger": "*"
     "@storybook/react": ">=5.2"
     react-scripts: ">=3.0.0"
-  checksum: d029c14831f1f784c18a71ab65cde0a9733f6da4cc9a3d444d2b525763874deb00e657de3af6d33a69c6b5bfe3f8d171335d4db340b4f73aee7703d2c3f41dde
+  checksum: 92089db7de67b4cb724b5074297e7b38cb9011e77cb5a367bbab1f51a9177d298ac74c357ee743d43da280791ff9978bb7196e26ea66a48de574e8908f2607a0
   languageName: node
   linkType: hard
 
@@ -19058,7 +19059,7 @@ fsevents@^1.2.7:
     "@storybook/addon-actions": ^5.3.19
     "@storybook/addon-links": ^6.1.15
     "@storybook/addons": ^5.3.19
-    "@storybook/preset-create-react-app": ^3.1.5
+    "@storybook/preset-create-react-app": ^3.1.7
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
@@ -20076,7 +20077,7 @@ fsevents@^1.2.7:
     "@storybook/addon-actions": ^5.3.19
     "@storybook/addon-links": ^6.1.15
     "@storybook/addons": ^5.3.19
-    "@storybook/preset-create-react-app": ^3.1.5
+    "@storybook/preset-create-react-app": ^3.1.7
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.0.1
     "@testing-library/dom": ^7.24.5
