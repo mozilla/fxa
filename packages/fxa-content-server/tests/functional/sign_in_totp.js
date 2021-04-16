@@ -160,17 +160,13 @@ registerSuite('TOTP', {
     },
 
     'can add TOTP to account and then delete it': function () {
-      return (
-        this.remote
-          .then(confirmTotpCode(secret))
-          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON))
-          .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
+      return this.remote
+        .then(confirmTotpCode(secret))
+        .then(click(selectors.SETTINGS_DELETE_ACCOUNT.DELETE_ACCOUNT_BUTTON))
+        .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
 
-          .then(fillOutDeleteAccount(PASSWORD))
-          // TODO: do we have browser notifications fully working for settings v2?
-          //  .then(testIsBrowserNotified('fxaccounts:delete'))
-          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-      );
+        .then(fillOutDeleteAccount(PASSWORD))
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
     },
 
     'can navigate directly to recovery codes': function () {

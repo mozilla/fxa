@@ -106,7 +106,7 @@ registerSuite('Firefox Desktop Sync v3 settings', {
 
         .then(fillOutDeleteAccount(FIRST_PASSWORD))
 
-        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER));
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
     },
 
     'sign in, no way to sign out': function () {

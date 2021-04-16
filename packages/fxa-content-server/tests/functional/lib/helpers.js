@@ -1933,7 +1933,7 @@ const fillOutDeleteAccount = thenify(function (password) {
       .then(
         click(
           selectors.SETTINGS_DELETE_ACCOUNT.CONFIRM,
-          selectors.SIGNIN_PASSWORD.HEADER
+          selectors.ENTER_EMAIL.HEADER
         )
       )
       .then(getWebChannelMessageData(DELETE_ACCOUNT_COMMAND))
