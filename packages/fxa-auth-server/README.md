@@ -111,6 +111,23 @@ This package uses [Mocha](https://mochajs.org/) to test its code. By default `np
 
 Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
 
+### Testing with non-local databases
+
+Executing tests using remote databases (MySQL, Redis, Memcached) is possible by specifying (and exporting) the following environment variables:
+
+- MySQL:
+  - MYSQL_HOST
+  - MYSQL_SLAVE_HOST
+  - AUTH_MYSQL_HOST
+- Redis:
+  - REDIS_HOST
+  - ACCESS_TOKEN_REDIS_HOST
+  - REFRESH_TOKEN_REDIS_HOST
+- Memcached:
+  - MEMCACHE_METRICS_CONTEXT_ADDRESS
+
+This also allows to use temporary throw-away Docker containers to provide these.
+
 ## Mailer
 
 The mailer library is located in `mailer/` directory.

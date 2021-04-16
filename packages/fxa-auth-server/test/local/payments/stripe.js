@@ -80,8 +80,8 @@ const mockConfig = {
 };
 
 const mockRedisConfig = {
-  host: 'localhost',
-  port: 6379,
+  host: process.env.REDIS_HOST || 'localhost',
+  port: process.env.REDIS_PORT || 6379,
   maxPending: 1000,
   retryCount: 5,
   initialBackoff: '100 milliseconds',
@@ -141,10 +141,10 @@ const testKnexConfig = {
   client: 'mysql',
   connection: {
     charset: 'UTF8MB4_BIN',
-    host: 'localhost',
-    password: '',
-    port: 3306,
-    user: 'root',
+    host: process.env.MYSQL_HOST || 'localhost',
+    password: process.env.MYSQL_PASSWORD || '',
+    port: process.env.MYSQL_PORT || 3306,
+    user: process.env.MYSQL_USERNAME || 'root',
   },
 };
 
@@ -152,10 +152,10 @@ mockConfig.database = {
   mysql: {
     auth: {
       database: 'testStripeHelper',
-      host: 'localhost',
-      password: '',
-      port: 3306,
-      user: 'root',
+      host: process.env.MYSQL_HOST || 'localhost',
+      password: process.env.MYSQL_PASSWORD || '',
+      port: process.env.MYSQL_PORT || 3306,
+      user: process.env.MYSQL_USERNAME || 'root',
     },
   },
 };

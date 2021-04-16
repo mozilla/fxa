@@ -32,6 +32,25 @@ const METADATA_KEY = 'metadata';
  * @returns {VerificationReminders}
  */
 module.exports = (log, config) => {
+  if (!config.redis || !config.redis.host) {
+    return {
+      keys: [],
+      async create(uid, flowId, flowBeginTime) {
+        return {};
+      },
+      async delete(uid) {
+        return {};
+      },
+      async process() {
+        return {};
+      },
+      async reinstate(key, reminders) {
+        return {};
+      },
+      async close() {},
+    };
+  }
+
   const redis = require('./redis')(
     {
       ...config.redis,
