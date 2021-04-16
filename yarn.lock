@@ -19113,7 +19113,7 @@ fsevents@^1.2.7:
     react-scripts: ^3.4.1
     serve-static: ^1.14.1
     supertest: ^6.1.3
-    ts-jest: ^26.5.4
+    ts-jest: ^26.5.5
     ts-node: ^9.1.1
     typescript: 3.9.7
     webpack: ^4.43.0
@@ -19167,7 +19167,7 @@ fsevents@^1.2.7:
     rimraf: ^3.0.2
     rxjs: ^6.6.6
     supertest: ^6.1.3
-    ts-jest: 26.5.4
+    ts-jest: 26.5.5
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
     tslib: ^2.0.1
@@ -19669,7 +19669,7 @@ fsevents@^1.2.7:
     rxjs: ^6.6.6
     sqs-consumer: ^5.5.0
     supertest: ^6.1.3
-    ts-jest: 26.5.4
+    ts-jest: 26.5.5
     ts-loader: ^8.0.12
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
@@ -19767,7 +19767,7 @@ fsevents@^1.2.7:
     rxjs: ^6.6.6
     superagent: ^6.0.0
     supertest: ^6.1.3
-    ts-jest: 26.5.4
+    ts-jest: 26.5.5
     ts-node: ^9.1.1
     tslib: 2.1.0
     typescript: 3.9.7
@@ -19942,7 +19942,7 @@ fsevents@^1.2.7:
     serve-static: ^1.13.2
     sinon: ^9.0.3
     supertest: ^6.1.3
-    ts-jest: ^26.5.4
+    ts-jest: ^26.5.5
     ts-node: ^9.1.1
     type-to-reducer: ^1.2.0
     typedi: ^0.8.0
@@ -20055,7 +20055,7 @@ fsevents@^1.2.7:
     sass-loader: ^10.0.3
     sinon: ^9.2.3
     tailwindcss-dir: ^4.0.0
-    ts-jest: ^26.5.4
+    ts-jest: ^26.5.5
     typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
@@ -20205,7 +20205,7 @@ fsevents@^1.2.7:
     sinon: ^9.0.3
     stripe: ^8.69.0
     superagent: ^6.0.0
-    ts-jest: 26.5.4
+    ts-jest: 26.5.5
     ts-loader: ^8.0.12
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
@@ -20255,7 +20255,7 @@ fsevents@^1.2.7:
     semver: ^7.3.2
     superagent: ^6.0.0
     supertest: ^6.1.3
-    ts-jest: 26.5.4
+    ts-jest: 26.5.5
     ts-node: ^9.1.1
     tslib: 2.1.0
     typesafe-joi: ^2.1.0
@@ -38024,9 +38024,9 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:26.5.4, ts-jest@npm:^26.5.4":
-  version: 26.5.4
-  resolution: "ts-jest@npm:26.5.4"
+"ts-jest@npm:26.5.5, ts-jest@npm:^26.5.5":
+  version: 26.5.5
+  resolution: "ts-jest@npm:26.5.5"
   dependencies:
     bs-logger: 0.x
     buffer-from: 1.x
@@ -38043,7 +38043,7 @@ resolve@~1.11.1:
     typescript: ">=3.8 <5.0"
   bin:
     ts-jest: cli.js
-  checksum: 8e5856b7cb990ff4cbc9577e4ec2a1135da9747e41dbf128e03ffa631dd0fdce402780a87318d28114174faa80ccdd0875b2c312b86c07a4537531c517f79101
+  checksum: a7fe56357bfd7e7cd833ea4a97408910ee67796fb7f3938c7155c69dc7b35f3172b76503e16282715e07a4a2b5026efd4803f0b090b3930e0c79c58d25b740db
   languageName: node
   linkType: hard
 
