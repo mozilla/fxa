@@ -10,7 +10,7 @@ const { assert } = require('chai');
 const Chance = require('chance');
 const { setupAuthDatabase } = require('fxa-shared/db');
 const Knex = require('knex');
-const { mockLog } = require('../../mocks');
+const { mockLog, asyncIterable } = require('../../mocks');
 const error = require('../../../lib/error');
 const stripeError = require('stripe').Stripe.errors;
 const uuidv4 = require('uuid').v4;
@@ -96,21 +96,6 @@ const mockRedisConfig = {
     minConnections: 1,
   },
 };
-
-function asyncIterable(lst) {
-  const asyncIter = {
-    items: lst,
-    next() {
-      const value = this.items.shift();
-      return value
-        ? Promise.resolve({ value, done: false })
-        : Promise.resolve({ done: true });
-    },
-  };
-  return {
-    [Symbol.asyncIterator]: () => asyncIter,
-  };
-}
 
 function createMockRedis() {
   let _data = {};
@@ -1430,8 +1415,50 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('fetchProductById', () => {
+    const productId = 'prod_00000000000000';
+    const productName = 'Example Product';
+    const mockProduct = {
+      id: productId,
+      name: productName,
+      metadata: {
+        'product:termsOfServiceURL':
+          'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+        'product:privacyNoticeURL':
+          'https://www.mozilla.org/privacy/firefox-private-network',
+      },
+    };
+    beforeEach(() => {
+      stripeHelper.stripe.products.retrieve = sinon
+        .stub()
+        .resolves(mockProduct);
+    });
+
+    it('returns null if there is an issue fetching the product', async () => {
+      stripeHelper.stripe.products.retrieve.rejects(
+        new Error('product does not exist')
+      );
+      const expected = null;
+      const actual = await stripeHelper.fetchProductById('invalidId');
+      assert(stripeHelper.log.error.called, 'error not logged');
+      assert.deepEqual(expected, actual);
+    });
+
+    it('returns an abbreviated product if product is fetched', async () => {
+      const expected = {
+        product_id: productId,
+        product_name: productName,
+        product_metadata: mockProduct.metadata,
+      };
+      const actual = await stripeHelper.fetchProductById(productId);
+      assert.deepEqual(expected, actual);
+    });
+  });
+
   describe('fetchAllPlans', () => {
     it('only returns valid plans', async () => {
+      const validProductMetadata = plan1.product.metadata;
+
       const planMissingProduct = {
         id: 'plan_noprod',
         object: 'plan',
@@ -1450,6 +1477,16 @@ describe('StripeHelper', () => {
         product: { deleted: true },
       };
 
+      const planInvalidProductMetadata = {
+        id: 'plan_invalidproductmetadata',
+        object: 'plan',
+        product: {
+          metadata: Object.assign({}, validProductMetadata, {
+            'product:privacyNoticeDownloadURL': 'https://example.com',
+          }),
+        },
+      };
+
       const goodPlan = deepCopy(plan1);
       goodPlan.product = deepCopy(product1);
 
@@ -1457,6 +1494,7 @@ describe('StripeHelper', () => {
         planMissingProduct,
         planUnloadedProduct,
         planDeletedProduct,
+        planInvalidProductMetadata,
         goodPlan,
       ];
 
@@ -1484,7 +1522,7 @@ describe('StripeHelper', () => {
       assert.deepEqual(actual, expected);
 
       /** Verify the error cases were handled properly */
-      assert.equal(stripeHelper.log.error.callCount, 3);
+      assert.equal(stripeHelper.log.error.callCount, 4);
 
       /** Plan.product is null */
       assert.equal(
@@ -1502,6 +1540,12 @@ describe('StripeHelper', () => {
       assert.equal(
         `fetchAllPlans - Plan "${planDeletedProduct.id}" associated with Deleted Product`,
         stripeHelper.log.error.getCall(2).args[0]
+      );
+
+      /** Plan.product has invalid metadata */
+      assert.equal(
+        `fetchAllPlans - Plan "${planInvalidProductMetadata.id}"'s metadata failed validation`,
+        stripeHelper.log.error.getCall(3).args[0]
       );
     });
   });
