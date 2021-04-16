@@ -18,6 +18,7 @@ const {
   type,
   visibleByQSA,
   testElementTextEquals,
+  testElementTextInclude,
 } = FunctionalHelpers.helpersRemoteWrapped;
 
 describe('recovery key', () => {
@@ -120,7 +121,7 @@ describe('recovery key', () => {
     await testElementExists(selectors.SETTINGS_V2.SUCCESS_MESSAGE, remote);
 
     //Also verify that the recovery key status is 'Not set'
-    await testElementTextEquals(
+    await testElementTextInclude(
       selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.RECOVERY_KEY_ENABLED,
       'Not set',
       remote

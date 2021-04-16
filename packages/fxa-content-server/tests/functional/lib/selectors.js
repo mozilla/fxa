@@ -111,7 +111,7 @@ const SETTINGS_V2 = {
     REFRESH_BUTTON: '[data-testid=secondary-email-refresh]',
     MAKE_PRIMARY: '[data-testid=secondary-email-make-primary]',
     FORM: '[data-testid=secondary-email-verify-form]',
-    CANCEL_BUTTON: '[data-testid=cancel-button]',
+    CANCEL_BUTTON: '[data-testid=secondary-email-verify-cancel]',
     SUBMIT_BUTTON: '[data-testid=save-button]',
     EMAIL_FIELD: '[data-testid=input-field]',
     EMAIL_LABEL: '[data-testid=input-label]',
@@ -238,8 +238,7 @@ module.exports = {
     BUTTON_PROMPT_NONE: '.ready .prompt-none',
     BUTTON_SIGNUP: '.sign-in-button.signup',
     LINK_LOGOUT: '#logout',
-    BUTTON_SUBSCRIBE:
-      '.subscription-buttons .btn-subscribe[data-currency="usd"]',
+    BUTTON_SUBSCRIBE: '.btn-subscribe',
     SUBSCRIBED: '.pro-status',
   },
   '400': {

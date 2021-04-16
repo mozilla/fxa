@@ -282,7 +282,7 @@ registerSuite('oauth signin', {
           })
         )
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, invalidEmail))
-        .then(testElementExists(selectors.ENTER_EMAIL.TOOLTIP))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP))
         .then(
           testElementTextEquals(
             selectors.ENTER_EMAIL.TOOLTIP,

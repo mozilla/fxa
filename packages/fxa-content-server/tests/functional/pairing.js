@@ -12,7 +12,7 @@ const config = intern._config;
 
 const QUERY_PARAMS =
   '?context=fx_desktop_v3&service=sync&automatedBrowser=true&action=email';
-const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;
+const SIGNIN_PAGE_URL = `${config.fxaContentRoot}${QUERY_PARAMS}`;
 const REDIRECT_HOST = encodeURIComponent(config.fxaContentRoot);
 const BAD_CLIENT_ID = 'dcdb5ae7add825d2';
 const BAD_OAUTH_REDIRECT = `${config.fxaOAuthApp}api/oauth`;
@@ -26,6 +26,7 @@ let email;
 
 const {
   createUser,
+  clearBrowserState,
   click,
   closeCurrentWindow,
   createEmail,
@@ -69,7 +70,7 @@ function getQrData(buffer) {
 
 const waitForQR = thenify(function () {
   let requestAttempts = 0;
-  const maxAttempts = 3;
+  const maxAttempts = 5;
   const parent = this.parent;
 
   function pollForScreenshot() {
@@ -106,6 +107,9 @@ const waitForQR = thenify(function () {
 });
 
 registerSuite('pairing', {
+  beforeEach: function () {
+    return this.remote.then(clearBrowserState({ force: true }));
+  },
   tests: {
     'it can pair': function () {
       let secret;

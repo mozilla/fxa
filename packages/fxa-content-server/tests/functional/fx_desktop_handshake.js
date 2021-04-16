@@ -92,7 +92,7 @@ const ensureUsers = thenify(function () {
 registerSuite('Firefox desktop user info handshake', {
   beforeEach: function () {
     return this.remote
-      .then(clearBrowserState({ force: true }))
+      .then(clearBrowserState({ forceAll: true }))
       .then(ensureUsers());
   },
 
@@ -214,7 +214,7 @@ registerSuite('Firefox desktop user info handshake', {
             signinUrlWithSigninCode = `${SYNC_ENTER_EMAIL_PAGE_URL}&signin=${signinCode}`;
             return (
               this.parent
-                .then(clearBrowserState())
+                .then(clearBrowserState({ forceAll: true }))
                 // Synthesize opening the SMS message in a browser where another
                 // user is already signed in.
                 .then(
