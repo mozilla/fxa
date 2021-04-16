@@ -8,6 +8,8 @@
 
 .payment-error {
   @include checkout-view();
+  // override grid-row rule from checkout-view FXA-3237
+  grid-row: 3/4;
   margin-top: 0px;
 
   .wrapper {
