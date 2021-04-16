@@ -20,6 +20,7 @@ import {
 } from '../../payments/paypal-error-codes';
 import { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
+import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
 
 const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
@@ -97,6 +98,12 @@ export class StripeWebhookHandler extends StripeHandler {
           break;
         case 'invoice.payment_failed':
           await this.handleInvoicePaymentFailedEvent(request, event);
+          break;
+        case 'product.updated':
+          await this.handleProductUpdatedEvent(request, event);
+          break;
+        case 'plan.updated':
+          await this.handlePlanUpdatedEvent(request, event);
           break;
         default:
           Sentry.withScope((scope) => {
@@ -423,6 +430,65 @@ export class StripeWebhookHandler extends StripeHandler {
       source
     );
     await this.updateCustomer(uid, email);
+  }
+
+  /**
+   * Validate plan metadata on update
+   */
+  async handlePlanUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
+    const plan = event.data.object as Stripe.Plan;
+    const product = await this.stripeHelper.fetchProductById(
+      plan.product as string
+    );
+    if (!product) {
+      this.log.error(
+        `handlePlanUpdatedEvent - Could not locate Product ${plan.product}`,
+        { plan }
+      );
+      return;
+    }
+    const result = subscriptionProductMetadataValidator.validate({
+      ...product.product_metadata,
+      ...plan.metadata,
+    });
+
+    if (result?.error) {
+      const msg = `handlePlanUpdatedEvent - Plan "${plan.id}"'s metadata failed validation`;
+      this.log.error(msg, { plan, error: result.error });
+
+      Sentry.withScope((scope) => {
+        scope.setContext('validationError', {
+          error: result.error,
+        });
+        Sentry.captureMessage(msg, Sentry.Severity.Error);
+      });
+    }
+  }
+
+  /**
+   * Validate product metadata on update
+   */
+  async handleProductUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
+    const product = event.data.object as Stripe.Product;
+    const plans = this.stripeHelper.fetchPlansByProductId(product.id);
+    for await (const item of plans) {
+      const result = subscriptionProductMetadataValidator.validate({
+        ...item.metadata,
+        ...product.metadata,
+      });
+
+      if (result?.error) {
+        const msg = `handleProductUpdatedEvent - Plan "${item.id}"'s metadata failed validation; Product ${product.id} updated.`;
+        this.log.error(msg, { product, error: result.error });
+
+        Sentry.withScope((scope) => {
+          scope.setContext('validationError', {
+            error: result.error,
+          });
+          Sentry.captureMessage(msg, Sentry.Severity.Error);
+        });
+      }
+    }
   }
 
   /**

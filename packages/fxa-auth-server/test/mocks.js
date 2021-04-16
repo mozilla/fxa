@@ -187,6 +187,7 @@ const PROFILE_METHOD_NAMES = ['deleteCache'];
 module.exports = {
   MOCK_PUSH_KEY:
     'BDLugiRzQCANNj5KI1fAqui8ELrE7qboxzfa5K_R0wnUoJ89xY1D_SOXI_QJKNmellykaW_7U2BZ7hnrPW3A3LM',
+  asyncIterable: asyncIterable,
   generateMetricsContext: generateMetricsContext,
   mockBounces: mockObject(['check']),
   mockCustoms,
@@ -785,6 +786,21 @@ function mockVerificationReminders(data = {}) {
     process: sinon.spy(
       () => data.process || { first: [], second: [], third: [] }
     ),
+  };
+}
+
+function asyncIterable(lst) {
+  const asyncIter = {
+    items: lst,
+    next() {
+      const value = this.items.shift();
+      return value
+        ? Promise.resolve({ value, done: false })
+        : Promise.resolve({ done: true });
+    },
+  };
+  return {
+    [Symbol.asyncIterator]: () => asyncIter,
   };
 }
 

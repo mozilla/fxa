@@ -25,6 +25,7 @@ import { Container } from 'typedi';
 import { ConfigType } from '../../config';
 import error from '../error';
 import Redis from '../redis';
+import { subscriptionProductMetadataValidator } from '../routes/validators';
 import { CurrencyHelper } from './currencies';
 
 const CUSTOMER_RESOURCE = 'customers';
@@ -701,10 +702,10 @@ export class StripeHelper {
     return Promise.all(
       sources.data.map(
         (s) =>
-          (this.stripe.customers.deleteSource(
+          this.stripe.customers.deleteSource(
             customerId,
             s.id
-          ) as unknown) as Promise<Stripe.Card>
+          ) as unknown as Promise<Stripe.Card>
       )
     );
   }
@@ -870,10 +871,11 @@ export class StripeHelper {
 
     // We need to get all the subscriptions for a customer
     if (customer.subscriptions && customer.subscriptions.has_more) {
-      const additionalSubscriptions = await this.fetchAllSubscriptionsForCustomer(
-        customer.id,
-        customer.subscriptions.data[customer.subscriptions.data.length - 1].id
-      );
+      const additionalSubscriptions =
+        await this.fetchAllSubscriptionsForCustomer(
+          customer.id,
+          customer.subscriptions.data[customer.subscriptions.data.length - 1].id
+        );
       customer.subscriptions.data.push(...additionalSubscriptions);
       customer.subscriptions.has_more = false;
     }
@@ -1055,6 +1057,33 @@ export class StripeHelper {
   async removeCustomerFromCache(uid: string, email: string) {}
 
   /**
+   * Fetches all plans that are attached to a product
+   */
+  fetchPlansByProductId(productId: string): Stripe.ApiListPromise<Stripe.Plan> {
+    return this.stripe.plans.list({
+      active: true,
+      product: productId,
+      expand: ['data.product'],
+    });
+  }
+
+  /**
+   * Fetches a product by it's ID
+   */
+  async fetchProductById(productId: string): Promise<AbbrevProduct | null> {
+    let product;
+
+    try {
+      product = await this.stripe.products.retrieve(productId);
+    } catch (err) {
+      this.log.error(`Error retrieving product ${productId}: `, err);
+      return null;
+    }
+
+    return this.abbrevProductFromStripeProduct(product);
+  }
+
+  /**
    * Fetches all plans from stripe and returns them.
    *
    * Use `allPlans` below to use the cached-enhanced version.
@@ -1089,6 +1118,25 @@ export class StripeHelper {
         continue;
       }
 
+      const result = subscriptionProductMetadataValidator.validate({
+        ...item.product.metadata,
+        ...item.metadata,
+      });
+
+      if (result?.error) {
+        const msg = `fetchAllPlans - Plan "${item.id}"'s metadata failed validation`;
+        this.log.error(msg, { plan: item, error: result.error });
+
+        Sentry.withScope((scope) => {
+          scope.setContext('validationError', {
+            error: result.error,
+          });
+          Sentry.captureMessage(msg, Sentry.Severity.Error);
+        });
+
+        continue;
+      }
+
       plans.push({
         amount: item.amount,
         currency: item.currency,
@@ -1119,7 +1167,7 @@ export class StripeHelper {
   }
 
   /**
-   * Find a plan by id or error if its not a valid planId.
+   * Find a plan by id or error if it's not a valid planId.
    */
   async findPlanById(planId: string): Promise<AbbrevPlan> {
     const plans = await this.allPlans();
@@ -1695,10 +1743,8 @@ export class StripeHelper {
     let lastFour: string | null = null;
     let cardType: string | null = null;
     if (charge?.payment_method_details?.card) {
-      ({
-        brand: cardType,
-        last4: lastFour,
-      } = charge.payment_method_details.card);
+      ({ brand: cardType, last4: lastFour } =
+        charge.payment_method_details.card);
     }
     return { lastFour, cardType };
   }
@@ -1829,10 +1875,8 @@ export class StripeHelper {
       amount: paymentAmountNewInCents,
       currency: paymentAmountNewCurrency,
     } = planNew;
-    const {
-      product_id: productIdNew,
-      product_name: productNameNew,
-    } = abbrevProductNew;
+    const { product_id: productIdNew, product_name: productNameNew } =
+      abbrevProductNew;
     const productNewMetadata = this.mergeMetadata(planNew, abbrevProductNew);
     const {
       productOrder: productOrderNew,
@@ -1955,13 +1999,11 @@ export class StripeHelper {
       productIconURLNew: planEmailIconURL,
     } = baseDetails;
 
-    const {
-      lastFour,
-      cardType,
-    } = await this.extractCustomerDefaultPaymentDetails({
-      uid,
-      email,
-    });
+    const { lastFour, cardType } =
+      await this.extractCustomerDefaultPaymentDetails({
+        uid,
+        email,
+      });
 
     const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
       subscription: subscription.id,
@@ -2064,10 +2106,8 @@ export class StripeHelper {
       amount: paymentAmountOldInCents,
       currency: paymentAmountOldCurrency,
     } = planOld;
-    const {
-      product_id: productIdOld,
-      product_name: productNameOld,
-    } = abbrevProductOld;
+    const { product_id: productIdOld, product_name: productNameOld } =
+      abbrevProductOld;
     const {
       productOrder: productOrderOld,
       emailIconURL: productIconURLOld = '',

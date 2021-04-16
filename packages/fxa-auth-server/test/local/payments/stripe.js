@@ -10,7 +10,7 @@ const { assert } = require('chai');
 const Chance = require('chance');
 const { setupAuthDatabase } = require('fxa-shared/db');
 const Knex = require('knex');
-const { mockLog } = require('../../mocks');
+const { mockLog, asyncIterable } = require('../../mocks');
 const error = require('../../../lib/error');
 const stripeError = require('stripe').Stripe.errors;
 const uuidv4 = require('uuid').v4;
@@ -20,13 +20,10 @@ const { Container } = require('typedi');
 const chance = new Chance();
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
-const {
-  StripeHelper,
-  STRIPE_INVOICE_METADATA,
-  SUBSCRIPTION_UPDATE_TYPES,
-} = proxyquire('../../../lib/payments/stripe', {
-  '../redis': (config, log) => mockRedis.init(config, log),
-});
+const { StripeHelper, STRIPE_INVOICE_METADATA, SUBSCRIPTION_UPDATE_TYPES } =
+  proxyquire('../../../lib/payments/stripe', {
+    '../redis': (config, log) => mockRedis.init(config, log),
+  });
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
@@ -91,21 +88,6 @@ const mockRedisConfig = {
     minConnections: 1,
   },
 };
-
-function asyncIterable(lst) {
-  const asyncIter = {
-    items: lst,
-    next() {
-      const value = this.items.shift();
-      return value
-        ? Promise.resolve({ value, done: false })
-        : Promise.resolve({ done: true });
-    },
-  };
-  return {
-    [Symbol.asyncIterator]: () => asyncIter,
-  };
-}
 
 function createMockRedis() {
   let _data = {};
@@ -841,10 +823,11 @@ describe('StripeHelper', () => {
   describe('updateInvoiceWithPaypalRefundTransactionId', () => {
     it('works successfully', async () => {
       sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
-      const actual = await stripeHelper.updateInvoiceWithPaypalRefundTransactionId(
-        unpaidInvoice,
-        'tid'
-      );
+      const actual =
+        await stripeHelper.updateInvoiceWithPaypalRefundTransactionId(
+          unpaidInvoice,
+          'tid'
+        );
       assert.deepEqual(actual, {});
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.invoices.update,
@@ -1256,16 +1239,14 @@ describe('StripeHelper', () => {
         payment_intent: { ...closedPaymementIntent },
       };
       const subscription = { ...subscription2, latest_invoice };
-      const result = stripeHelper.extractSourceCountryFromSubscription(
-        subscription
-      );
+      const result =
+        stripeHelper.extractSourceCountryFromSubscription(subscription);
       assert.equal(result, 'US');
     });
 
     it('returns null with no invoice', () => {
-      const result = stripeHelper.extractSourceCountryFromSubscription(
-        subscription2
-      );
+      const result =
+        stripeHelper.extractSourceCountryFromSubscription(subscription2);
       assert.equal(result, null);
     });
 
@@ -1282,9 +1263,8 @@ describe('StripeHelper', () => {
         payment_intent: { charges: { data: [] } },
       };
       const subscription = { ...subscription2, latest_invoice };
-      const result = stripeHelper.extractSourceCountryFromSubscription(
-        subscription
-      );
+      const result =
+        stripeHelper.extractSourceCountryFromSubscription(subscription);
       assert.equal(result, null);
 
       assert.isTrue(
@@ -1322,8 +1302,68 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('fetchProductById', () => {
+    const productId = 'prod_00000000000000';
+    const productName = 'Example Product';
+    const mockProduct = {
+      id: productId,
+      name: productName,
+      metadata: {
+        'product:termsOfServiceURL':
+          'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+        'product:privacyNoticeURL':
+          'https://www.mozilla.org/privacy/firefox-private-network',
+      },
+    };
+    beforeEach(() => {
+      stripeHelper.stripe.products.retrieve = sinon
+        .stub()
+        .resolves(mockProduct);
+    });
+
+    it('returns null if there is an issue fetching the product', async () => {
+      stripeHelper.stripe.products.retrieve.rejects(
+        new Error('product does not exist')
+      );
+      const expected = null;
+      const actual = await stripeHelper.fetchProductById('invalidId');
+      assert(stripeHelper.log.error.called, 'error not logged');
+      assert.deepEqual(expected, actual);
+    });
+
+    it('returns an abbreviated product if product is fetched', async () => {
+      const expected = {
+        product_id: productId,
+        product_name: productName,
+        product_metadata: mockProduct.metadata,
+      };
+      const actual = await stripeHelper.fetchProductById(productId);
+      assert.deepEqual(expected, actual);
+    });
+  });
+
   describe('fetchAllPlans', () => {
     it('only returns valid plans', async () => {
+      const validProductMetadata = {
+        webIconURL: 'https://example.com/static/icon.svg',
+        upgradeCTA: 'hello <a href="http://example.org">world</a>',
+        downloadURL: 'https://example.com/download',
+        appStoreLink: 'https://example.com/appStoreRedirect',
+        playStoreLink: 'https://example.com/playStoreRedirect',
+        'product:privacyNoticeURL':
+          'https://accounts-static.cdn.mozilla.net/legal/privacy',
+        'product:privacyNoticeDownloadURL':
+          'https://accounts-static.cdn.mozilla.net/legal/privacy.pdf',
+        'product:termsOfServiceURL':
+          'https://accounts-static.cdn.mozilla.net/legal/terms',
+        'product:termsOfServiceDownloadURL':
+          'https://accounts-static.cdn.mozilla.net/legal/terms.pdf',
+        productSet: '123done',
+        productOrder: 2,
+        capabilities: 'comma,separated,values',
+        'capabilities:aFakeClientId12345': 'more,comma,separated,values',
+      };
+
       const planMissingProduct = {
         id: 'plan_noprod',
         object: 'plan',
@@ -1342,6 +1382,16 @@ describe('StripeHelper', () => {
         product: { deleted: true },
       };
 
+      const planInvalidProductMetadata = {
+        id: 'plan_invalidproductmetadata',
+        object: 'plan',
+        product: {
+          metadata: Object.assign({}, validProductMetadata, {
+            'product:privacyNoticeDownloadURL': 'https://example.com',
+          }),
+        },
+      };
+
       const goodPlan = deepCopy(plan1);
       goodPlan.product = deepCopy(product1);
 
@@ -1349,6 +1399,7 @@ describe('StripeHelper', () => {
         planMissingProduct,
         planUnloadedProduct,
         planDeletedProduct,
+        planInvalidProductMetadata,
         goodPlan,
       ];
 
@@ -1376,7 +1427,7 @@ describe('StripeHelper', () => {
       assert.deepEqual(actual, expected);
 
       /** Verify the error cases were handled properly */
-      assert.equal(stripeHelper.log.error.callCount, 3);
+      assert.equal(stripeHelper.log.error.callCount, 4);
 
       /** Plan.product is null */
       assert.equal(
@@ -1394,6 +1445,12 @@ describe('StripeHelper', () => {
       assert.equal(
         `fetchAllPlans - Plan "${planDeletedProduct.id}" associated with Deleted Product`,
         stripeHelper.log.error.getCall(2).args[0]
+      );
+
+      /** Plan.product has invalid metadata */
+      assert.equal(
+        `fetchAllPlans - Plan "${planInvalidProductMetadata.id}"'s metadata failed validation`,
+        stripeHelper.log.error.getCall(3).args[0]
       );
     });
   });
@@ -3226,9 +3283,10 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
         event.data.previous_attributes = { cancel_at_period_end: false };
-        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
-          event
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
         assert.equal(result, mockCancellationDetails);
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateCancellationDetailsForEmail',
@@ -3242,9 +3300,10 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = false;
         event.data.previous_attributes = { cancel_at_period_end: true };
-        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
-          event
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
         assert.equal(result, mockReactivationDetails);
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateReactivationDetailsForEmail',
@@ -3258,9 +3317,10 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = false;
         event.data.previous_attributes.cancel_at_period_end = false;
-        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
-          event
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
         assert.equal(result, mockUpgradeDowngradeDetails);
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
@@ -3277,9 +3337,10 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = false;
         event.data.previous_attributes.cancel_at_period_end = true;
-        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
-          event
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
         assert.equal(result, mockUpgradeDowngradeDetails);
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
@@ -3345,14 +3406,15 @@ describe('StripeHelper', () => {
           ? 1
           : 2;
 
-        const result = await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
-          event.data.object,
-          baseDetails,
-          mockInvoice,
-          mockCustomer,
-          event.data.object.plan.metadata.productOrder,
-          event.data.previous_attributes.plan
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
+            event.data.object,
+            baseDetails,
+            mockInvoice,
+            mockCustomer,
+            event.data.object.plan.metadata.productOrder,
+            event.data.previous_attributes.plan
+          );
 
         // issue #5546: ensure we're looking for the upcoming invoice for this specific subscription
         assert.deepEqual(mockStripe.invoices.retrieveUpcoming.args, [
@@ -3425,11 +3487,12 @@ describe('StripeHelper', () => {
       it('extracts expected details for a subscription reactivation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         sandbox.stub(stripeHelper, 'customer').resolves(mockCustomer);
-        const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
-          event.data.object,
-          expectedBaseUpdateDetails,
-          mockInvoice
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
+            event.data.object,
+            expectedBaseUpdateDetails,
+            mockInvoice
+          );
         assert.deepEqual(mockStripe.invoices.retrieveUpcoming.args, [
           [
             {
@@ -3445,11 +3508,12 @@ describe('StripeHelper', () => {
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
         sandbox.stub(stripeHelper, 'customer').resolves(customer);
-        const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
-          event.data.object,
-          expectedBaseUpdateDetails,
-          mockInvoice
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
+            event.data.object,
+            expectedBaseUpdateDetails,
+            mockInvoice
+          );
         assert.deepEqual(result, {
           ...defaultExpected,
           lastFour: null,
@@ -3541,11 +3605,12 @@ describe('StripeHelper', () => {
     describe('extractSubscriptionUpdateCancellationDetailsForEmail', () => {
       it('extracts expected details for a subscription cancellation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
-        const result = await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
-          event.data.object,
-          expectedBaseUpdateDetails,
-          mockInvoice
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
+            event.data.object,
+            expectedBaseUpdateDetails,
+            mockInvoice
+          );
         const subscription = event.data.object;
         assert.deepEqual(result, {
           updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,

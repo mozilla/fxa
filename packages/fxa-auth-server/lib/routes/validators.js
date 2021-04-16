@@ -48,12 +48,15 @@ exports.IP_ADDRESS = isA.string().ip();
 //
 // We might tweak this list in future.
 
-const DISPLAY_SAFE_UNICODE = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;
+const DISPLAY_SAFE_UNICODE =
+  /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;
 module.exports.DISPLAY_SAFE_UNICODE = DISPLAY_SAFE_UNICODE;
 
 // Similar display-safe match but includes non-BMP characters
-const DISPLAY_SAFE_UNICODE_WITH_NON_BMP = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;
-module.exports.DISPLAY_SAFE_UNICODE_WITH_NON_BMP = DISPLAY_SAFE_UNICODE_WITH_NON_BMP;
+const DISPLAY_SAFE_UNICODE_WITH_NON_BMP =
+  /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;
+module.exports.DISPLAY_SAFE_UNICODE_WITH_NON_BMP =
+  DISPLAY_SAFE_UNICODE_WITH_NON_BMP;
 
 // Bearer auth header regex
 const BEARER_AUTH_REGEX = /^Bearer\s+([a-z0-9+\/]+)$/i;
@@ -149,7 +152,8 @@ module.exports.accessToken = isA
 // https://github.com/mozilla/fxa-email-service/blob/6fc6c31043598b246102cd1fdd27fc325f4514fb/src/validate/mod.rs#L28-L30
 
 const EMAIL_USER = /^[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]{1,64}$/i;
-const EMAIL_DOMAIN = /^[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?)+$/i;
+const EMAIL_DOMAIN =
+  /^[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?)+$/i;
 
 module.exports.isValidEmailAddress = function (value) {
   if (!value) {
@@ -384,16 +388,48 @@ module.exports.subscriptionsSubscriptionListValidator = isA.object({
 // - metadata can contain arbitrary keys that we don't expect (e.g. used by other systems)
 // - but we can make a good effort at validating what we expect to see when we see it
 module.exports.subscriptionPlanMetadataValidator = isA.object().unknown(true);
+
+const privacyPattern = /^product:privacyNoticeURL/;
+const privacyDownloadPattern = /^product:privacyNoticeDownloadURL/;
+const tosPattern = /^product:termsOfServiceURL/;
+const tosDownloadPattern = /^product:termsOfServiceDownloadURL/;
+const capabilitiesClientIdPattern = /^capabilities/;
+const legalResourceDomainPattern =
+  /^https:\/\/accounts-static\.cdn\.mozilla\.net\/legal\/(.*)/;
+
 module.exports.subscriptionProductMetadataValidator = isA
   .object({
+    webIconURL: isA.string().uri().required(),
+    upgradeCTA: isA.string().optional(),
+    downloadURL: isA.string().uri().required(),
+    appStoreLink: isA.string().uri().optional(),
+    playStoreLink: isA.string().uri().optional(),
     productSet: isA.string().optional(),
     productOrder: isA.number().optional(),
-    iconURL: isA.string().optional(),
-    upgradeCTA: isA.string().optional(),
-    downloadURL: isA.string().optional(),
-    appStoreLink: isA.string().optional(),
-    playStoreLink: isA.string().optional(),
   })
+  .pattern(capabilitiesClientIdPattern, isA.string().required(), {
+    fallthrough: true,
+  })
+  .pattern(privacyPattern, isA.string().uri().required(), {
+    fallthrough: true,
+  })
+  .pattern(
+    privacyDownloadPattern,
+    isA.string().regex(legalResourceDomainPattern).required(),
+    {
+      fallthrough: true,
+    }
+  )
+  .pattern(tosPattern, isA.string().uri().required(), {
+    fallthrough: true,
+  })
+  .pattern(
+    tosDownloadPattern,
+    isA.string().regex(legalResourceDomainPattern).required(),
+    {
+      fallthrough: true,
+    }
+  )
   .unknown(true);
 
 module.exports.subscriptionsPlanValidator = isA.object({
@@ -402,7 +438,8 @@ module.exports.subscriptionsPlanValidator = isA.object({
   product_id: module.exports.subscriptionsProductId.required(),
   product_name: isA.string().required(),
   plan_name: isA.string().allow('').optional(),
-  product_metadata: module.exports.subscriptionProductMetadataValidator.optional(),
+  product_metadata:
+    module.exports.subscriptionProductMetadataValidator.optional(),
   interval: isA.string().required(),
   interval_count: isA.number().required(),
   amount: isA.number().required(),
