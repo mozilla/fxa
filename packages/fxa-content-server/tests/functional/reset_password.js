@@ -95,8 +95,9 @@ const testAtSettingsWithVerifiedMessage = thenify(function () {
     .setFindTimeout(intern._config.pageLoadTimeout)
     .sleep(1000)
 
-    .then(testElementExists(selectors.SETTINGS.HEADER))
-    .then(testSuccessWasShown());
+    .then(testElementExists(selectors.SETTINGS.HEADER));
+  // TODO: https://github.com/mozilla/fxa/issues/7882
+  // .then(testSuccessWasShown());
 });
 
 const testAtSettings = thenify(function () {
@@ -406,8 +407,6 @@ registerSuite('reset_password', {
 
           .then(closeCurrentWindow())
 
-          // TODO the second screen doesn't show the verified message. should it?
-          //.then(testAtSettingsWithVerifiedMessage())
           .then(testAtSettings())
       );
     },

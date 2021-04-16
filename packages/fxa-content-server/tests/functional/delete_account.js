@@ -84,14 +84,9 @@ registerSuite('delete_account', {
             type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
           )
           .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CONFIRM))
-          // TODO: why do I get routed straight to password input? is this a bug?
-          // shouldn't we have cleared localstorage when the account was deleted?
-          // maybe this is because the backbone app needs to clear its cache separately?
-          //.then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-          //.then(testSuccessWasShown())
-          //.then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          //.then(click(selectors.ENTER_EMAIL.SUBMIT))
-          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
       );
     },
 

@@ -135,7 +135,10 @@ class Storage {
     return Storage._isStorageEnabled('sessionStorage', win);
   }
 
-  static factory(type: string | null, win: Window = window): Storage {
+  static factory(
+    type: 'localStorage' | 'sessionStorage' | null,
+    win: Window = window
+  ): Storage {
     let storage;
     if (type === 'localStorage' && this.isLocalStorageEnabled(win)) {
       storage = new Storage(win.localStorage);
