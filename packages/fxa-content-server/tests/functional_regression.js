@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = [
+const testsSettingsV2 = require('./functional_settings_v2');
+
+module.exports = testsSettingsV2.concat([
   'tests/functional/oauth_webchannel.js',
   'tests/functional/oauth_require_totp.js',
   'tests/functional/sign_up_with_code.js',
@@ -42,7 +44,6 @@ module.exports = [
   'tests/functional/robots_txt.js',
   'tests/functional/security_events.js',
   'tests/functional/send_sms.js',
-  'tests/functional/settings_v2.js',
   'tests/functional/sign_in.js',
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',
@@ -53,4 +54,4 @@ module.exports = [
   'tests/functional/sync_v3_force_auth.js',
   'tests/functional/tos.js',
   'tests/functional/verification_reminders.js',
-];
+]);

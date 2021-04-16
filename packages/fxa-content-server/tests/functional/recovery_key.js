@@ -11,7 +11,6 @@ const selectors = require('./lib/selectors');
 const config = intern._config;
 
 const ENTER_EMAIL_URL = config.fxaContentRoot;
-const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const RESET_PASSWORD_URL =
   config.fxaContentRoot + 'reset_password?context=fx_desktop_v3&service=sync';
 const PASSWORD = 'passwordzxcv';
@@ -45,24 +44,36 @@ registerSuite('Recovery key', {
 
     return (
       this.remote
-        .then(clearBrowserState({ force: true }))
+        .then(clearBrowserState({ forceAll: true }))
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
         .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
         .then(testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Not set'))
 
-        .sleep(1000)
-
         // Complete the steps to add an account recovery key
-        .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON)) // recovery-key-unit-row-rouote
+        .then(
+          click(
+            selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON,
+            selectors.RECOVERY_KEY.PASSWORD_INPUT_LABEL
+          )
+        ) // recovery-key-unit-row-rouote
         // Once again, click the label first to get it out of the way
-        .then(click(selectors.RECOVERY_KEY.PASSWORD_INPUT_LABEL))
+        .then(
+          click(
+            selectors.RECOVERY_KEY.PASSWORD_INPUT_LABEL,
+            selectors.RECOVERY_KEY.PASSWORD_INPUT
+          )
+        )
         .then(click(selectors.RECOVERY_KEY.PASSWORD_INPUT))
         .then(type(selectors.RECOVERY_KEY.PASSWORD_INPUT, PASSWORD))
-        .then(click(selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE)) // continue-button
+        .then(
+          click(
+            selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE,
+            selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT
+          )
+        ) // continue-button
         .then(testElementExists(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT))
 
         // Store the key to be used later
@@ -71,7 +82,10 @@ registerSuite('Recovery key', {
         .then((key) => {
           recoveryKey = key;
           return remote.then(
-            click(selectors.RECOVERY_KEY.RECOVERY_KEY_DONE_BUTTON)
+            click(
+              selectors.RECOVERY_KEY.RECOVERY_KEY_DONE_BUTTON,
+              selectors.RECOVERY_KEY.STATUS
+            )
           );
         })
         .end()
@@ -87,13 +101,23 @@ registerSuite('Recovery key', {
         this.remote
           .then(
             click(
-              selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.REMOVE_RECOVERY_KEY
+              selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.REMOVE_RECOVERY_KEY,
+              selectors.RECOVERY_KEY.CONFIRM_REVOKE_DESCRIPTION
             )
           )
           .then(
             testElementExists(selectors.RECOVERY_KEY.CONFIRM_REVOKE_DESCRIPTION)
           )
-          .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE_OK))
+          .then(
+            click(
+              selectors.RECOVERY_KEY.CONFIRM_REVOKE_OK,
+              selectors.RECOVERY_KEY.STATUS
+            )
+          )
+
+          // Unfortunately need a delay here because no elements are added/removed that we can
+          // wait on to check the text.
+          .sleep(1000)
           .then(
             testElementTextInclude(selectors.RECOVERY_KEY.STATUS, 'Not set')
           )

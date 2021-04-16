@@ -93,6 +93,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
 
         .then(type(selectors.ENTER_EMAIL.EMAIL, 'testuser@firefox.com'))
         .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP))
         .then(
           testElementTextInclude(
             selectors.ENTER_EMAIL.TOOLTIP,
@@ -221,7 +222,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           })
         )
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, invalidEmail))
-        .then(testElementExists(selectors.ENTER_EMAIL.TOOLTIP))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP))
         .then(
           testElementTextEquals(
             selectors.ENTER_EMAIL.TOOLTIP,
@@ -242,7 +243,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           })
         )
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, emptyEmail))
-        .then(testElementExists(selectors.ENTER_EMAIL.TOOLTIP))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP))
         .then(
           testElementTextEquals(
             selectors.ENTER_EMAIL.TOOLTIP,

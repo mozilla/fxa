@@ -94,21 +94,26 @@ function thenify(callback, context) {
  */
 const takeScreenshot = function () {
   return function () {
-    return this.parent.takeScreenshot().then(function (buffer) {
-      if (process.env.CIRCLECI) {
-        const rando = crypto.randomBytes(4).toString('hex');
-        mkdirp.sync('/home/circleci/screenshots');
-        fs.writeFileSync(`/home/circleci/screenshots/${rando}.png`, buffer);
-        // 36831081 is the repo number I think, but it's not available as an env var.
-        console.log(
-          `Screenshot saved to https://${process.env.CIRCLE_BUILD_NUM}-36831081-gh.circle-artifacts.com/${process.env.CIRCLE_NODE_INDEX}/screenshots/${rando}.png`
-        );
-      }
+    return this.parent.takeScreenshot().then(
+      function (buffer) {
+        if (process.env.CIRCLECI) {
+          const rando = crypto.randomBytes(4).toString('hex');
+          mkdirp.sync('/home/circleci/screenshots');
+          fs.writeFileSync(`/home/circleci/screenshots/${rando}.png`, buffer);
+          // 36831081 is the repo number I think, but it's not available as an env var.
+          console.log(
+            `Screenshot saved to https://${process.env.CIRCLE_BUILD_NUM}-36831081-gh.circle-artifacts.com/${process.env.CIRCLE_NODE_INDEX}/screenshots/${rando}.png`
+          );
+        }
 
-      if (process.env.LOG_ERROR_SCREENSHOT) {
-        console.error(`data:image/png;base64,${buffer.toString('base64')}`);
+        if (process.env.LOG_ERROR_SCREENSHOT) {
+          console.error(`data:image/png;base64,${buffer.toString('base64')}`);
+        }
+      },
+      (err) => {
+        console.log(err.message);
       }
-    });
+    );
   };
 };
 
@@ -474,6 +479,13 @@ const clearBrowserState = thenify(function (options = {}) {
 
   if (!('321done' in options)) {
     options['321done'] = false;
+  }
+
+  if (options.forceAll) {
+    options['123done'] = true;
+    options['321done'] = true;
+    options.contentServer = true;
+    options.force = true;
   }
 
   return this.parent
@@ -1600,12 +1612,26 @@ const addAndVerifySecondaryEmail = thenify(function (email, number = 0) {
     this.parent
       .then(click(selectors.EMAIL.INPUT_LABEL))
       .then(type(selectors.EMAIL.INPUT, email))
-      .then(click(selectors.EMAIL.ADD_BUTTON))
-      .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.BACK_BUTTON))
-      .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
+      .then(
+        click(
+          selectors.EMAIL.ADD_BUTTON,
+          selectors.SETTINGS_V2.SECONDARY_EMAIL.CANCEL_BUTTON
+        )
+      )
+      .then(
+        click(
+          selectors.SETTINGS_V2.SECONDARY_EMAIL.CANCEL_BUTTON,
+          selectors.SETTINGS_V2.HEADER
+        )
+      )
       // Awkwardly, to get back to the secondary email code input, we need to click
       // the 'resend email' link.
-      .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.RESEND_EMAIL))
+      .then(
+        click(
+          selectors.SETTINGS_V2.SECONDARY_EMAIL.RESEND_EMAIL,
+          selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL
+        )
+      )
       .then(getEmailCode(email, number))
       .then((code) => {
         return this.parent
@@ -2785,13 +2811,7 @@ const typeIntoStripeElement = thenify(function (fieldName, subFieldName, text) {
  * @param {string} currency - Currency test product is required in.
  */
 function getTestProductSubscriptionUrl(currency = 'usd') {
-  const planIdsByCurrency = {
-    myr: 'price_1H8NpGBVqmGyQTMaA6Znyu7U',
-    cad: 'price_1H8NoEBVqmGyQTMa5MtpqAUM',
-    eur: 'price_1H8NnnBVqmGyQTMaLwLRKbF3',
-    usd: 'plan_GqM9N6qyhvxaVk',
-  };
-  return `${config.fxaContentRoot}subscriptions/products/${config.testProductId}?plan=${planIdsByCurrency[currency]}`;
+  return `${config.fxaContentRoot}subscriptions/products/${config.testProductId}?plan=${config.testPlanId}`;
 }
 
 /**
@@ -2882,10 +2902,18 @@ const fillOutForceChangePassword = thenify(function (oldPassword, newPassword) {
 const signInToTestProduct = thenify(function () {
   return this.parent
     .then(openRP())
-    .then(click(selectors['123DONE'].BUTTON_SIGNIN))
-    .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-    .then(click(selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN))
-    .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
+    .then(
+      click(
+        selectors['123DONE'].BUTTON_SIGNIN,
+        selectors.SIGNIN_PASSWORD.HEADER
+      )
+    )
+    .then(
+      click(
+        selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN,
+        selectors['123DONE'].AUTHENTICATED
+      )
+    );
 });
 
 // Assumes user is already on the settings page, then signs out.
@@ -2931,13 +2959,24 @@ const subscribeAndSigninToRp = thenify(function (email) {
 
       // subscribe
       .then(openRP())
-      .then(click(selectors['123DONE'].BUTTON_SIGNIN))
-      .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-      .then(click(selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN))
-      .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-      .then(visibleByQSA(selectors['123DONE'].BUTTON_SUBSCRIBE))
-      .then(click(selectors['123DONE'].LINK_LOGOUT))
-      .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
+      .then(
+        click(
+          selectors['123DONE'].BUTTON_SIGNIN,
+          selectors.SIGNIN_PASSWORD.HEADER
+        )
+      )
+      .then(
+        click(
+          selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN,
+          selectors['123DONE'].BUTTON_SUBSCRIBE
+        )
+      )
+      .then(
+        click(
+          selectors['123DONE'].LINK_LOGOUT,
+          selectors['123DONE'].BUTTON_SIGNIN
+        )
+      )
       .then(subscribeToTestProduct())
 
       // Signin
