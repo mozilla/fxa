@@ -1,3 +1,7 @@
+## 1.204.2
+
+No changes.
+
 ## 1.204.1
 
 ### Bug fixes

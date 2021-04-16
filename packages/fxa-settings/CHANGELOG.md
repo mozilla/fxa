@@ -1,3 +1,9 @@
+## 1.204.2
+
+### Bug fixes
+
+- settings: ensure the object returned from useSession is stable ([d995f713b](https://github.com/mozilla/fxa/commit/d995f713b))
+
 ## 1.204.1
 
 ### Bug fixes
