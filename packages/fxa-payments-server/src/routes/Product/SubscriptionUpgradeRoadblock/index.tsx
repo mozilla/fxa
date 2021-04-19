@@ -32,6 +32,7 @@ export const SubscriptionUpgradeRoadblock = ({
             subscriptionTitle: title,
             error: { code: 'no_subscription_upgrades' },
             onRetry: () => {}, // PaymentErrorView actually ignores this
+            plan: selectedPlan,
           }}
         />
 

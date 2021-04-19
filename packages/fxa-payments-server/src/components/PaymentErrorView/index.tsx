@@ -9,9 +9,11 @@ import SubscriptionTitle from '../SubscriptionTitle';
 import TermsAndPrivacy from '../TermsAndPrivacy';
 
 import './index.scss';
+import { Plan } from '../../store/types';
 
 export type PaymentErrorViewProps = {
   onRetry: Function;
+  plan: Plan;
   error?: StripeError | GeneralError;
   className?: string;
   subscriptionTitle?: React.ReactElement<SubscriptionTitle>;
@@ -45,6 +47,7 @@ const manageSubButtonFn = (onClick: VoidFunction) => {
 
 export const PaymentErrorView = ({
   onRetry,
+  plan,
   error,
   className = '',
   subscriptionTitle,
@@ -87,7 +90,7 @@ export const PaymentErrorView = ({
 
         <div className="footer" data-testid="footer">
           <ActionButton />
-          <TermsAndPrivacy />
+          <TermsAndPrivacy plan={plan} />
         </div>
       </section>
     </>
