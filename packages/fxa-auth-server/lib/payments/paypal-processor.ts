@@ -203,6 +203,19 @@ export class PaypalProcessor {
   }
 
   /**
+   * Sent a failed payment email for an invoice if that email has not been sent.
+   *
+   * @param invoice
+   */
+  private async sendFailedPaymentEmail(invoice: Stripe.Invoice) {
+    const emailTypes = this.stripeHelper.getEmailTypes(invoice);
+    if (!emailTypes.includes('paymentFailed')) {
+      return this.webhookHandler.sendSubscriptionPaymentFailedEmail(invoice);
+    }
+    return false;
+  }
+
+  /**
    * Make a payment attempt on an invoice.
    *
    * @param invoice
@@ -233,11 +246,11 @@ export class PaypalProcessor {
             customer.id,
             billingAgreementId
           );
-          await this.webhookHandler.sendSubscriptionPaymentFailedEmail(invoice);
+          await this.sendFailedPaymentEmail(invoice);
           return false;
         }
         if (PAYPAL_SOURCE_ERRORS.includes(err.errorCode ?? 0)) {
-          await this.webhookHandler.sendSubscriptionPaymentFailedEmail(invoice);
+          await this.sendFailedPaymentEmail(invoice);
           return false;
         }
       }
@@ -326,11 +339,7 @@ export class PaypalProcessor {
       customer
     );
     if (!billingAgreementId) {
-      const emailTypes = this.stripeHelper.getEmailTypes(invoice);
-      if (!emailTypes.includes('paymentFailed')) {
-        return;
-      }
-      await this.webhookHandler.sendSubscriptionPaymentFailedEmail(invoice);
+      await this.sendFailedPaymentEmail(invoice);
       return;
     }
 
