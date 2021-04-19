@@ -7,10 +7,16 @@ import { AppContext, defaultAppContext } from '../../lib/AppContext';
 import AppLayout, { SignInLayout, SettingsLayout } from './index';
 import TermsAndPrivacy from '../TermsAndPrivacy';
 import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
+import { SELECTED_PLAN } from '../../lib/mock-data';
 
 afterEach(cleanup);
 
-const { termsOfServiceURL, privacyNoticeURL } = DEFAULT_PRODUCT_DETAILS;
+const {
+  product_metadata: {
+    'product:termsOfServiceURL': termsOfServiceURL,
+    'product:privacyNoticeURL': privacyNoticeURL,
+  },
+} = SELECTED_PLAN;
 
 describe('AppLayout', () => {
   const subject = () => {
@@ -18,7 +24,7 @@ describe('AppLayout', () => {
       <AppContext.Provider value={defaultAppContext}>
         <AppLayout>
           <div data-testid="children">
-            <TermsAndPrivacy />
+            <TermsAndPrivacy plan={SELECTED_PLAN} />
           </div>
         </AppLayout>
       </AppContext.Provider>

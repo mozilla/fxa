@@ -8,6 +8,7 @@ import {
 
 import { PaymentErrorView } from './index';
 import SubscriptionTitle, { titles } from '../SubscriptionTitle';
+import { SELECTED_PLAN } from '../../lib/mock-data';
 
 const mockHistoryPush = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -25,6 +26,7 @@ describe('PaymentErrorView test with l10n', () => {
       <PaymentErrorView
         onRetry={() => {}}
         error={{ code: 'general-paypal-error' }}
+        plan={SELECTED_PLAN}
       />
     );
     const spinner = queryByAltText('error icon');
@@ -51,6 +53,7 @@ describe('PaymentErrorView test with l10n', () => {
       <PaymentErrorView
         onRetry={onRetry}
         error={{ code: 'general-paypal-error' }}
+        plan={SELECTED_PLAN}
       />
     );
 
@@ -66,6 +69,7 @@ describe('PaymentErrorView test with l10n', () => {
       <PaymentErrorView
         onRetry={() => {}}
         error={{ code: 'returning_paypal_customer_error' }}
+        plan={SELECTED_PLAN}
       />
     );
     const spinner = queryByAltText('error icon');
@@ -95,6 +99,7 @@ describe('PaymentErrorView test with l10n', () => {
       <PaymentErrorView
         onRetry={() => {}}
         error={{ code: 'returning_paypal_customer_error' }}
+        plan={SELECTED_PLAN}
       />
     );
 
@@ -111,6 +116,7 @@ describe('PaymentErrorView test with l10n', () => {
         subscriptionTitle={<SubscriptionTitle screenType={'noupgrade'} />}
         onRetry={() => {}}
         error={{ code: 'no_subscription_upgrades' }}
+        plan={SELECTED_PLAN}
       />
     );
 

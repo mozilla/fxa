@@ -11,7 +11,7 @@ import './index.scss';
 import { legalDocsRedirectUrl } from 'fxa-payments-server/src/lib/formats';
 
 export type TermsAndPrivacyProps = {
-  plan?: Plan;
+  plan: Plan;
 };
 
 export const TermsAndPrivacy = ({ plan }: TermsAndPrivacyProps) => {
