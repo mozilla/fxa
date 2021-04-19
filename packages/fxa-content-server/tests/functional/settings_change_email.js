@@ -175,9 +175,6 @@ registerSuite('settings change email', {
           .then(fillOutDeleteAccount(PASSWORD))
 
           // Try creating a new account with the same secondary email as previous account and new password
-          // TODO: need to clear storage on the backbone side, #7855
-          .then(clearBrowserState())
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(secondaryEmail, NEW_PASSWORD))
           .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
           .then(fillOutSignUpCode(secondaryEmail, 3))
