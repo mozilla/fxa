@@ -1,3 +1,9 @@
+## 1.204.3
+
+### Bug fixes
+
+- emails: send one payment failed email per invoice ([54e634440](https://github.com/mozilla/fxa/commit/54e634440))
+
 ## 1.204.2
 
 No changes.

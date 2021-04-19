@@ -1,3 +1,9 @@
+## 1.204.3
+
+### Bug fixes
+
+- settings: clear local storage on account delete ([0bad38913](https://github.com/mozilla/fxa/commit/0bad38913))
+
 ## 1.204.2
 
 ### Bug fixes
