@@ -293,6 +293,7 @@ describe('PaypalProcessor', () => {
       mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
         'testba'
       );
+      mockStripeHelper.getEmailTypes = sandbox.fake.returns([]);
       mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
         {}
       );
@@ -325,6 +326,7 @@ describe('PaypalProcessor', () => {
       mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
         'testba'
       );
+      mockStripeHelper.getEmailTypes = sandbox.fake.returns([]);
       mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
         {}
       );
@@ -518,10 +520,9 @@ describe('PaypalProcessor', () => {
         mockStripeHelper.getCustomerPaypalAgreement,
         invoice.customer
       );
-      sinon.assert.calledOnceWithExactly(
-        mockHandler.sendSubscriptionPaymentFailedEmail,
-        invoice
-      );
+      // We do not send an email since `getEmailTypes` is returning a list with
+      // 'paymentFailed'.
+      sinon.assert.notCalled(mockHandler.sendSubscriptionPaymentFailedEmail);
       sinon.assert.notCalled(processor.attemptsToday);
     });
 
@@ -649,6 +650,30 @@ describe('PaypalProcessor', () => {
           invoiceId: invoice.id,
         });
       }
+    });
+  });
+
+  describe('sendFailedPaymentEmail', () => {
+    it('sends an email when paymentFailed is not in the list of sent emails', async () => {
+      mockStripeHelper.getEmailTypes = sandbox.fake.returns([]);
+      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
+        {}
+      );
+      await processor.sendFailedPaymentEmail(unpaidInvoice);
+      sinon.assert.calledOnce(mockHandler.sendSubscriptionPaymentFailedEmail);
+    });
+
+    it('does not send an email when paymentFailed is in the list of sent emails', async () => {
+      mockStripeHelper.getEmailTypes = sandbox.fake.returns([
+        'a',
+        'b',
+        'paymentFailed',
+      ]);
+      mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
+        {}
+      );
+      await processor.sendFailedPaymentEmail(unpaidInvoice);
+      sinon.assert.notCalled(mockHandler.sendSubscriptionPaymentFailedEmail);
     });
   });
 });

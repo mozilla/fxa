@@ -181,6 +181,7 @@ export const SubscriptionCreate = ({
           className={classNames({
             hidden: !paymentError,
           })}
+          plan={selectedPlan}
         />
         <PaymentProcessing
           provider="paypal"

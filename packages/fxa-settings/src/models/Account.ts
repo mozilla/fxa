@@ -3,6 +3,7 @@ import config from '../lib/config';
 import AuthClient, { generateRecoveryKey } from 'fxa-auth-client/browser';
 import { currentAccount, sessionToken } from '../lib/cache';
 import firefox from '../lib/firefox';
+import Storage from '../lib/storage';
 
 export interface DeviceLocation {
   city: string | null;
@@ -721,5 +722,6 @@ export class Account implements AccountData {
       )
     );
     firefox.accountDeleted(this.uid);
+    Storage.factory('localStorage').clear();
   }
 }
