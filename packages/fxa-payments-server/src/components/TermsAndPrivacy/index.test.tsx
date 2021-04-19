@@ -30,10 +30,16 @@ const plan = {
   },
 };
 
+const planWithNoLegalLinks = {
+  ...MOCK_PLANS[0],
+};
+
 afterEach(cleanup);
 
-it('renders as expected with no plan', () => {
-  const { queryByTestId } = render(<TermsAndPrivacy />);
+it('renders as expected with a plan with no legal doc links metadata', () => {
+  const { queryByTestId } = render(
+    <TermsAndPrivacy plan={planWithNoLegalLinks} />
+  );
 
   const termsLink = queryByTestId('terms');
   expect(termsLink).toBeInTheDocument();
