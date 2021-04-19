@@ -10,16 +10,16 @@ The Firefox Accounts (fxa) monorepo
 [Contributing](#contributing)\
 [Dependencies](#dependencies)\
 [Secrets](#secrets)\
+[Testing](#testing)\
+[Storybook in CircleCI](#storybook-in-circleci)\
 [Firefox Custom Profile](#firefox-custom-profile)\
-[Functional Tests](#functional-tests)\
 [Node debugging](#node-debugging)\
 [Android debugging](#android-debugging)\
 [FxA Email Service](#fxa-email-service)\
-[Firefox for Android](#firefox-for-android)\
 [Firefox for iOS](#firefox-for-ios)\
 [Running with MailDev](#running-with-maildev)\
-[Other tasks](#other-tasks)\
 [Documentation](#documentation)
+[Documentation for Scripts](#documentation-for-scripts)
 
 ---
 
@@ -248,6 +248,43 @@ yarn test all
 #### Emulating CI environment
 
 It is possible to run various test suites (known as Jobs) acting as Circle CI. This is useful if you're encountering CI-specific failures. Please refer to [this documentation](https://github.com/mozilla/fxa/tree/main/.circleci#local-testing).
+
+---
+
+### Storybook in CircleCI
+
+Several of the packages in this project use [Storybook][] as a tool for building and demoing user interface components in React. These notably include [fxa-settings][fxa-settings-storybook], [fxa-payments-server][fxa-payments-server-storybook], and [fxa-react][].
+
+For most test runs [in CircleCI][storybook-circleci], a static build of Storybook for the relevant commit is published to [a website on the Google Cloud Platform][storybooks-fxa-site] using [mozilla-fxa/storybook-gcp-publisher][storybook-gcp-publisher]. Refer to that tool's github repository for more details.
+
+You can find the Storybook build associated with a given commit on Github via the "storybooks: status check" details link accessible via clicking the green checkmark next to the commit title.
+
+![Capture](https://user-images.githubusercontent.com/21687/115094324-f888cb00-9ed1-11eb-9d39-bcba3aabf259.PNG)
+
+The Google Cloud Platform project dashboard for the website can be found here, if you've been given access:
+
+* https://console.cloud.google.com/home/dashboard?project=storybook-static-sites
+
+For quick reference, here are [a few CircleCI environment variables][storybook-gcp-publisher-config] used by storybook-gcp-publisher that are relevant to FxA operations in CircleCI. Occasionally they may need maintenance or replacement - e.g. in case of a security incident involving another tool that exposes variables.
+
+* `STORYBOOKS_GITHUB_TOKEN` - personal access token on GitHub for use in posting status check updates
+
+* `STORYBOOKS_GCP_BUCKET` - name of the GCP bucket to which Storybook builds will be uploaded
+
+* `STORYBOOKS_GCP_PROJECT_ID` - the ID of the GCP project to which the bucket belongs
+
+* `STORYBOOKS_GCP_CLIENT_EMAIL` - client email address from GCP credentials with access to the bucket
+
+* `STORYBOOKS_GCP_PRIVATE_KEY_BASE64` - the private key from GCP credentials, encoded with base64 to accomodate linebreaks
+
+[storybooks-fxa-site]: https://storage.googleapis.com/mozilla-storybooks-fxa/index.html
+[storybook-gcp-publisher-config]: https://github.com/mozilla-fxa/storybook-gcp-publisher#basic-1
+[storybook-gcp-publisher]: https://github.com/mozilla-fxa/storybook-gcp-publisher
+[storybook]: https://storybook.js.org/
+[fxa-settings-storybook]: ./packages/fxa-settings#storybook
+[fxa-payments-server-storybook]: packages/fxa-payments-server#storybook
+[fxa-react]: ./packages/fxa-react
+[storybook-circleci]: https://github.com/mozilla/fxa/blob/main/.circleci/config.yml#L270-L272
 
 ---
 
