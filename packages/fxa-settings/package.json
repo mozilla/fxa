@@ -66,7 +66,7 @@
     "@rescripts/cli": "0.0.16",
     "@sentry/browser": "^5.27.6",
     "@storybook/addon-actions": "^5.3.19",
-    "@storybook/addon-links": "^6.1.15",
+    "@storybook/addon-links": "^6.2.8",
     "@storybook/addons": "^5.3.19",
     "@storybook/preset-create-react-app": "^3.1.7",
     "@storybook/react": "^5.3.19",
