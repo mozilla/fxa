@@ -17,6 +17,7 @@ const {
   type,
   visibleByQSA,
   testElementTextEquals,
+  testElementTextInclude,
 } = FunctionalHelpers.helpersRemoteWrapped;
 
 describe('two step auth', () => {
@@ -143,7 +144,7 @@ describe('two step auth', () => {
     await visibleByQSA(selectors.SETTINGS_V2.SUCCESS_MESSAGE, remote);
 
     // Verify the status is 'Not set' after disabling the 2FA
-    await testElementTextEquals(
+    await testElementTextInclude(
       selectors.SETTINGS_V2.SECURITY.TFA.TFA_STATUS,
       'Not set',
       remote

@@ -100,11 +100,16 @@ registerSuite('support form with an active subscription', {
           )
           // test hitting enter and making sure we don't leave the form
           .then(typeNative('input[name="subject"]', 'ENTER'))
-          .then(type('textarea[name=message]', 'please send halp'))
-          .then(click('button[type=submit]'))
+          .then(
+            type(
+              'textarea[name=message]',
+              'please send halp for functional tests'
+            )
+          )
       );
       // Since we don't have proper Zendesk config in CircleCI, the form
       // cannot be successfully submitted.
+      // .then(click('button[type=submit]'))
       // .then(testElementExists('.subscription-management'));
     },
 

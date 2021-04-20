@@ -25,6 +25,5 @@ module.exports = [
   'tests/functional/sync_v3_sign_in.js',
   'tests/functional/sync_v3_sign_up.js',
   'tests/functional/sync_v3_reset_password.js',
-  'tests/functional/pairing.js',
   'tests/functional/change_password.js',
 ];
