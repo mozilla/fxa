@@ -13488,7 +13488,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:2.4.2, chalk@npm:^2.0.0, chalk@npm:^2.0.1, chalk@npm:^2.1.0, chalk@npm:^2.3.0, chalk@npm:^2.4.1, chalk@npm:^2.4.2":
+"chalk@npm:2.4.2, chalk@npm:^2.0.0, chalk@npm:^2.0.1, chalk@npm:^2.1.0, chalk@npm:^2.4.1, chalk@npm:^2.4.2":
   version: 2.4.2
   resolution: "chalk@npm:2.4.2"
   dependencies:
@@ -16826,7 +16826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^4.0.0, enhanced-resolve@npm:^4.1.0, enhanced-resolve@npm:^4.5.0":
+"enhanced-resolve@npm:^4.1.0, enhanced-resolve@npm:^4.5.0":
   version: 4.5.0
   resolution: "enhanced-resolve@npm:4.5.0"
   dependencies:
@@ -16834,6 +16834,16 @@ __metadata:
     memory-fs: ^0.5.0
     tapable: ^1.0.0
   checksum: 72e679343f3ca6f2f84b1259460705fa29d46f0b806fa562db96edeb7826357a97ba9ccb61a07cdb05f51c1b4d2f5b544a2e4a6c257d7395a0c9b6e727f86d08
+  languageName: node
+  linkType: hard
+
+"enhanced-resolve@npm:^5.0.0":
+  version: 5.8.0
+  resolution: "enhanced-resolve@npm:5.8.0"
+  dependencies:
+    graceful-fs: ^4.2.4
+    tapable: ^2.2.0
+  checksum: a3e1131c9ba0dd6f8276f068ddac4e6469d824ee8132f748e2734722b9f25360f4cb5a7fbec1cab8cd56815a6762e0bb1b8d088cbdf2a276d30d573ac5528bbb
   languageName: node
   linkType: hard
 
@@ -19837,7 +19847,7 @@ fsevents@^1.2.7:
     speed-trap: 0.0.10
     thread-loader: ^3.0.3
     time-grunt: 2.0.0
-    ts-loader: ^8.0.12
+    ts-loader: ^9.0.0
     ts-node: ^9.1.1
     typescript: 3.9.7
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
@@ -20007,7 +20017,7 @@ fsevents@^1.2.7:
     sqs-consumer: ^5.5.0
     supertest: ^6.1.3
     ts-jest: 26.5.5
-    ts-loader: ^8.0.12
+    ts-loader: ^9.0.0
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
     typesafe-joi: ^2.1.0
@@ -20543,7 +20553,7 @@ fsevents@^1.2.7:
     stripe: ^8.69.0
     superagent: ^6.0.0
     ts-jest: 26.5.5
-    ts-loader: ^8.0.12
+    ts-loader: ^9.0.0
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
     typescript: 3.9.7
@@ -38516,19 +38526,19 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-loader@npm:^8.0.12":
-  version: 8.0.12
-  resolution: "ts-loader@npm:8.0.12"
+"ts-loader@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "ts-loader@npm:9.0.0"
   dependencies:
-    chalk: ^2.3.0
-    enhanced-resolve: ^4.0.0
-    loader-utils: ^1.0.2
+    chalk: ^4.1.0
+    enhanced-resolve: ^5.0.0
+    loader-utils: ^2.0.0
     micromatch: ^4.0.0
-    semver: ^6.0.0
+    semver: ^7.3.4
   peerDependencies:
     typescript: "*"
     webpack: "*"
-  checksum: 70da090dacb77ff51eb71ddb506a63e4617487855637441f99e8f66553933c410af1a54e71316caa0b05522fb47eaf2c9a6aaa3a0abb8b6a12ebf50b6a80f54e
+  checksum: 07fd708f15808ef3d5c7312263ea0b7aeda71da31bff4b61e3c76a81c6124e7227056a2327f3b76865e578484899adbdffe2a1d20cdad5fe641f5dbe9fac9f1c
   languageName: node
   linkType: hard
 
