@@ -11965,10 +11965,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base32-encode@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "base32-encode@npm:1.1.1"
-  checksum: fd1097036a50506901529c53b1a5e6ec9377582c16b301c0c83401e0d9d48f9b73a0c40be0d22aa897de89675dc3ccd9eaa1866a0bfc4975f19c3bf731ddeb55
+"base32-encode@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "base32-encode@npm:1.2.0"
+  dependencies:
+    to-data-view: ^1.1.0
+  checksum: b4a15c0e2feec576e4c996b544b158cff6f7694a63828ea17a46468590e9e60addc583f263bd287e7557572a5a5dd60e4ce3fd5ab4ccebd2c6b770c51cb20547
   languageName: node
   linkType: hard
 
@@ -20244,7 +20246,7 @@ fsevents@^1.2.7:
     "@types/webpack": 4.41.26
     babel-loader: ^8.0.0
     base32-decode: ^1.0.0
-    base32-encode: ^1.1.1
+    base32-encode: ^1.2.0
     classnames: ^2.3.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
@@ -37943,6 +37945,13 @@ resolve@~1.11.1:
   dependencies:
     to-space-case: ^1.0.0
   checksum: 260aae15d572724dfb9376353e3105909c46fa8273f2c0f89b561a0df73d01f2a44be5f2e415fae2edac892768865e94d100d83a5e566297e38d188cfffe617e
+  languageName: node
+  linkType: hard
+
+"to-data-view@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "to-data-view@npm:1.1.0"
+  checksum: 3c5defcf45d0cb24bbac284e586200924edc1f16706d79ca3ad2d72645c6056ffa74d8dc8978191e7d02d62d534485762348604aa7302cde6b7b99208bb8986c
   languageName: node
   linkType: hard
 
