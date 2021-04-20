@@ -58,7 +58,7 @@
     "@types/react-helmet": "^6",
     "@types/react-transition-group": "^4.4.1",
     "@types/rimraf": "3.0.0",
-    "@types/sinon": "^9",
+    "@types/sinon": "^10",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "babel-preset-react-app": "^9.1.2",
