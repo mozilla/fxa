@@ -1,3 +1,9 @@
+## 1.204.4
+
+### Bug fixes
+
+- tests: some testing updates ([644c62b72](https://github.com/mozilla/fxa/commit/644c62b72))
+
 ## 1.204.3
 
 ### Bug fixes
