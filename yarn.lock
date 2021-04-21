@@ -2358,10 +2358,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/langneg@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "@fluent/langneg@npm:0.5.1"
-  checksum: 3309959982e7dca9830fb7817810fac5f8114e3b69027f656928eacdd14c3911cdb1c923122928a49d5f296bf9fd9194ca87c163d128a389dcc7deda6bbcdda4
+"@fluent/langneg@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@fluent/langneg@npm:0.5.2"
+  checksum: ad9a1de444201c43a417ef44094e03ee0e145293bf3e4926d331c538b6aab5d8629c5efb5fed5082064325beb2f0fc2c968b2a23dd2d65bfa9b0fafb2c9c5885
   languageName: node
   linkType: hard
 
@@ -20209,7 +20209,7 @@ fsevents@^1.2.7:
     "@babel/core": ^7.10.3
     "@babel/register": ^7.13.14
     "@fluent/bundle": ^0.16.1
-    "@fluent/langneg": ^0.5.1
+    "@fluent/langneg": ^0.5.2
     "@fluent/react": ^0.13.1
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^5.27.6
@@ -20372,7 +20372,7 @@ fsevents@^1.2.7:
   dependencies:
     "@babel/core": ^7.10.3
     "@fluent/bundle": ^0.16.1
-    "@fluent/langneg": ^0.5.1
+    "@fluent/langneg": ^0.5.2
     "@fluent/react": ^0.13.1
     "@storybook/addon-actions": ^5.3.19
     "@storybook/addon-links": ^6.2.8
