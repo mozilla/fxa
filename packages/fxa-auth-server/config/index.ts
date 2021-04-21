@@ -1458,11 +1458,9 @@ const conf = convict({
   },
   forcePasswordChange: {
     forcedEmailAddresses: {
-      doc:
-        'Force sign-in confirmation for email addresses matching this regex.',
+      doc: 'Force password change for email addresses matching this regex.',
       format: RegExp,
-      default: '^$', // default is no one
-
+      default: /^$/, // default is no one
       env: 'FORCE_PASSWORD_CHANGE_EMAIL_REGEX',
     },
   },
@@ -1515,7 +1513,7 @@ const conf = convict({
       doc:
         'If feature enabled, force sign-in unblock for email addresses matching this regex.',
       format: RegExp,
-      default: '^$', // default is no one
+      default: /^$/, // default is no one
       env: 'SIGNIN_UNBLOCK_FORCED_EMAILS',
     },
   },
