@@ -7,6 +7,12 @@
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
+/*eslint-disable camelcase */
+const productIdNameMap = {
+  prod_GqM9ToKK62qjkK: '123Done Pro',
+  prod_FiJ42WCzZNRSbS: 'mozilla vpn',
+};
+/*eslint-enable camelcase*/
 
 const {
   clearBrowserState,
@@ -47,12 +53,12 @@ registerSuite('subscriptions', {
         .then(
           testElementTextInclude(
             selectors.ENTER_EMAIL.SUB_HEADER,
-            'Continue to 123Done Pro'
+            `Continue to ${productIdNameMap[intern.config.testProductId]}`
           )
         );
     },
 
-    'sign up, subscribe for 123Done Pro, sign into 123Done to verify subscription': function () {
+    'sign up, subscribe, sign in to verify subscription': function () {
       if (
         process.env.CIRCLECI === 'true' &&
         !process.env.SUBHUB_STRIPE_APIKEY
@@ -95,29 +101,26 @@ registerSuite('subscriptions', {
         this.skip('missing Stripe API key in CircleCI run');
       }
       const email = createEmail();
-      return (
-        this.remote
-          .then(
-            clearBrowserState({
-              '123done': true,
-              force: true,
-            })
+      return this.remote
+        .then(
+          clearBrowserState({
+            '123done': true,
+            force: true,
+          })
+        )
+        .then(createUserAndLoadSettings(email))
+        .then(
+          subscribeToTestProductWithCardNumber(
+            '4000000000000069',
+            getTestProductSubscriptionUrl('myr')
           )
-          .then(createUserAndLoadSettings(email))
-          .then(
-            subscribeToTestProductWithCardNumber(
-              '4000000000000069',
-              getTestProductSubscriptionUrl('myr')
-            )
+        )
+        .then(
+          testElementTextInclude(
+            '.payment-error',
+            'It looks like your credit card has expired.'
           )
-          // TODO - This will change to a more helpful error message when https://github.com/mozilla/fxa/issues/7467 lands.
-          .then(
-            testElementTextInclude(
-              '.payment-error',
-              'The currency of this subscription is not valid for the country associated with your payment.'
-            )
-          )
-      );
+        );
     },
   },
 });

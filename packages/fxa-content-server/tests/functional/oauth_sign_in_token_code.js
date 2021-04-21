@@ -52,12 +52,7 @@ registerSuite('OAuth signin token code', {
     email = createEmail('sync{id}');
 
     return this.remote
-      .then(
-        clearBrowserState({
-          contentServer: true,
-          force: true,
-        })
-      )
+      .then(clearBrowserState({ forceAll: true }))
       .then(createUser(email, PASSWORD, { preVerified: true }));
   },
 
@@ -98,7 +93,12 @@ registerSuite('OAuth signin token code', {
             )
           )
           // Can resend code
-          .then(click(selectors.SIGNIN_TOKEN_CODE.LINK_RESEND))
+          .then(
+            click(
+              selectors.SIGNIN_TOKEN_CODE.LINK_RESEND,
+              selectors.SIGNIN_TOKEN_CODE.SUCCESS
+            )
+          )
           .then(
             testElementTextInclude(
               selectors.SIGNIN_TOKEN_CODE.SUCCESS,
@@ -113,6 +113,7 @@ registerSuite('OAuth signin token code', {
             assert.equal(headers['x-template-name'], 'verifyLoginCode');
           })
           .then(fillOutSignInTokenCode(email, 1))
+          .then(testElementExists(NOTES_REDIRECT_PAGE_SELECTOR))
 
           .then(
             testElementTextInclude(

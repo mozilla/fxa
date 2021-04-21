@@ -51,6 +51,7 @@ const asyncTimeout = parseInt(args.asyncTimeout || 10000, 10);
 const bailAfterFirstFailure = args.bailAfterFirstFailure === 'true';
 
 const testProductId = args.testProductId || 'prod_GqM9ToKK62qjkK';
+const testPlanId = args.testPlanId || 'plan_GqM9N6qyhvxaVk';
 
 // Intern specific options are here: https://theintern.io/docs.html#Intern/4/docs/docs%2Fconfiguration.md/properties
 const config = {
@@ -102,6 +103,7 @@ const config = {
   },
 
   testProductId,
+  testPlanId,
 };
 
 if (args.grep) {

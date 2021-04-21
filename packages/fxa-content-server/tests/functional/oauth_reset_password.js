@@ -51,8 +51,7 @@ registerSuite('oauth reset password', {
     return this.remote
       .then(
         clearBrowserState({
-          '123done': true,
-          contentServer: true,
+          forceAll: true,
         })
       )
       .then(createUser(email, PASSWORD, { preVerified: true }));
@@ -65,12 +64,20 @@ registerSuite('oauth reset password', {
         this.remote
           .then(openFxaFromRp('enter-email'))
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
 
-          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD,
+              selectors.RESET_PASSWORD.HEADER
+            )
+          )
 
-          .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
 
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
@@ -103,9 +110,19 @@ registerSuite('oauth reset password', {
         this.remote
           .then(openFxaFromRp('enter-email'))
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
 
-          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD,
+              selectors.RESET_PASSWORD.HEADER
+            )
+          )
 
           .then(fillOutResetPassword(email))
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
@@ -128,9 +145,16 @@ registerSuite('oauth reset password', {
       return this.remote
         .then(openFxaFromRp('enter-email'))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER)
+        )
 
-        .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
+        .then(
+          click(
+            selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD,
+            selectors.RESET_PASSWORD.HEADER
+          )
+        )
 
         .then(fillOutResetPassword(email))
 
@@ -147,9 +171,19 @@ registerSuite('oauth reset password', {
         this.remote
           .then(openFxaFromRp('enter-email'))
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
 
-          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD,
+              selectors.RESET_PASSWORD.HEADER
+            )
+          )
 
           .then(fillOutResetPassword(email))
 
@@ -161,7 +195,12 @@ registerSuite('oauth reset password', {
           .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
           .then(visibleByQSA(selectors.SIGNIN_PASSWORD.SUCCESS))
           .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT,
+              selectors['123DONE'].AUTHENTICATED
+            )
+          )
 
           // user is redirected to RP
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
@@ -173,9 +212,19 @@ registerSuite('oauth reset password', {
         this.remote
           .then(openFxaFromRp('enter-email'))
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
 
-          .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD,
+              selectors.RESET_PASSWORD.HEADER
+            )
+          )
 
           .then(testElementExists(selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
@@ -185,8 +234,7 @@ registerSuite('oauth reset password', {
           // clear all browser state, simulate opening in a new browser
           .then(
             clearBrowserState({
-              '123done': true,
-              contentServer: true,
+              forceAll: true,
             })
           )
           .then(openVerificationLinkInSameTab(email, 0))
@@ -211,8 +259,7 @@ registerSuite('oauth reset password with TOTP', {
     return this.remote
       .then(
         clearBrowserState({
-          '123done': true,
-          contentServer: true,
+          forceAll: true,
         })
       )
       .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -226,8 +273,7 @@ registerSuite('oauth reset password with TOTP', {
       .then(signOut())
       .then(
         clearBrowserState({
-          '123done': true,
-          contentServer: true,
+          forceAll: true,
         })
       )
       .then(
@@ -238,7 +284,12 @@ registerSuite('oauth reset password with TOTP', {
         click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER)
       )
 
-      .then(click(selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD))
+      .then(
+        click(
+          selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD,
+          selectors.RESET_PASSWORD.HEADER
+        )
+      )
       .then(fillOutResetPassword(email));
   },
 
@@ -250,7 +301,12 @@ registerSuite('oauth reset password with TOTP', {
 
         .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
         .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
-        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+        .then(
+          click(
+            selectors.TOTP_SIGNIN.SUBMIT,
+            selectors['123DONE'].AUTHENTICATED_TOTP
+          )
+        )
 
         .then(testElementExists(selectors['123DONE'].AUTHENTICATED_TOTP));
     },
@@ -285,7 +341,12 @@ registerSuite('oauth reset password with TOTP', {
           .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
 
           .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT,
+              selectors.TOTP_SIGNIN.HEADER
+            )
+          )
 
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
           .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
@@ -302,7 +363,7 @@ registerSuite('oauth reset password with TOTP', {
       return (
         this.remote
           // clear all browser state, simulate opening in a new browser
-          .then(clearBrowserState({ force: true }))
+          .then(clearBrowserState({ forceAll: true }))
           .then(openVerificationLinkInSameTab(email, 1))
           .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 

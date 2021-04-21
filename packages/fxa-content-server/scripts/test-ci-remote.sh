@@ -20,6 +20,8 @@ function test_suite() {
     --fxaProduction=true \
     --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" \
     --firefoxBinary=./firefox/firefox \
+    --testProductId="prod_FiJ42WCzZNRSbS" \
+    --testPlanId="plan_HJyNT4gbuyyZ0G" \
     || \
   node tests/intern.js \
     --suites="${suite}" \
@@ -31,7 +33,9 @@ function test_suite() {
     --fxaProduction=true \
     --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" \
     --firefoxBinary=./firefox/firefox \
-    --grep="$(<rerun.txt)"
+    --grep="$(<rerun.txt)" \
+    --testProductId="prod_FiJ42WCzZNRSbS" \
+    --testPlanId="plan_HJyNT4gbuyyZ0G"
 }
 
 yarn lint
@@ -41,8 +45,7 @@ mkdir -p artifacts/tests
 
 cd packages/fxa-content-server
 mozinstall /firefox.tar.bz2
-test_suite functional_smoke && test_suite functional_regression
-# TODO - restore these
-#test_suite server
-#mozinstall /7f10c7614e9fa46-target.tar.bz2
-#test_suite pairing
+test_suite functional_smoke
+# TODO: Re-enable once configuration in stage is updated
+# test_suite functional_regression
+# test_suite pairing

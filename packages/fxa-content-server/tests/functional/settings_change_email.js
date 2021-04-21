@@ -58,11 +58,17 @@ registerSuite('settings change email', {
         .then(testSuccessWasShown())
 
         // set new primary email
-        .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY))
+        .then(
+          click(
+            selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY,
+            selectors.EMAIL.SUCCESS
+          )
+        )
+        .then(visibleByQSA(selectors.EMAIL.SUCCESS))
+
         .then(
           testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail)
         )
-        .then(visibleByQSA(selectors.EMAIL.SUCCESS))
     );
   },
 
@@ -145,7 +151,6 @@ registerSuite('settings change email', {
           )
 
           // set primary email to original email
-          .sleep(10000)
           .then(
             testElementTextEquals(
               selectors.SETTINGS_V2.SECONDARY_EMAIL.HEADER_VALUE,
@@ -153,6 +158,7 @@ registerSuite('settings change email', {
             )
           )
           .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
+          .then(visibleByQSA(selectors.EMAIL.SUCCESS))
 
           // sign out and login with new password
           .then(signOut())
@@ -209,11 +215,17 @@ registerSuite('settings change email - unblock', {
         .then(testSuccessWasShown())
 
         // set new primary email
-        .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY))
+        .then(
+          click(
+            selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY,
+            selectors.EMAIL.SUCCESS
+          )
+        )
+        .then(visibleByQSA(selectors.EMAIL.SUCCESS))
+
         .then(
           testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, newPrimaryEmail)
         )
-        .then(visibleByQSA(selectors.EMAIL.SUCCESS))
 
         // sign out
         .then(signOut())
