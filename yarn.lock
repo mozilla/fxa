@@ -13349,7 +13349,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"camelcase@npm:^2.0.0, camelcase@npm:^2.0.1":
+"camelcase@npm:^2.0.0":
   version: 2.1.1
   resolution: "camelcase@npm:2.1.1"
   checksum: 311182686b3b87ac07851d6bc8c1327d55ef5fe95403bce97e21696dfe666dec70cf2b008593c00ae69a2b84e0074e4c130157a41db1d237f6fe5686cbf870b3
@@ -13975,17 +13975,6 @@ __metadata:
     right-align: ^0.1.1
     wordwrap: 0.0.2
   checksum: ea93f1e985c99196f460e8b8bc6fb5363f6088f94fc036e418f02bbc7f54cc39aabd7134c255ceefd487e1f2484d80ed39456ba5a7e110ca68412ca062e8bd0a
-  languageName: node
-  linkType: hard
-
-"cliui@npm:^3.0.3":
-  version: 3.2.0
-  resolution: "cliui@npm:3.2.0"
-  dependencies:
-    string-width: ^1.0.1
-    strip-ansi: ^3.0.1
-    wrap-ansi: ^2.0.0
-  checksum: 369a15d48058633e21e024c29ad314e082da6da6c9ed322385ac3171bce305bb3b3d61374cbe5444feca445de06ffaa2239cf8edb8307dad6a4b6ef62200a281
   languageName: node
   linkType: hard
 
@@ -15713,7 +15702,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decamelize@npm:^1.0.0, decamelize@npm:^1.1.0, decamelize@npm:^1.1.1, decamelize@npm:^1.1.2, decamelize@npm:^1.2.0":
+"decamelize@npm:^1.0.0, decamelize@npm:^1.1.0, decamelize@npm:^1.1.2, decamelize@npm:^1.2.0":
   version: 1.2.0
   resolution: "decamelize@npm:1.2.0"
   checksum: 8ca9d03ea8ac07920f4504e219d18edff2491bdd0a3e05a1e5ca2e9a0bf6333564231de3528b01d5e76c40a38c37bbc1e09cb5a0424714f53dd615ed78ced464
@@ -19688,7 +19677,7 @@ fsevents@^1.2.7:
     mysql-patcher: 0.7.0
     nock: ^13.0.11
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
-    node-zendesk: ^2.0.3
+    node-zendesk: ^2.0.6
     nodemailer: 2.7.2
     nyc: ^15.0.1
     otplib: ^11.0.1
@@ -23367,13 +23356,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"invert-kv@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "invert-kv@npm:1.0.0"
-  checksum: fccd6ea4ee18d30b00fc21d6679191690f8447f248cbcdf6f74fe81a4048d51a3858d7af17a0318bd7c6fe6c46abee5a10756109787a3ec0e0a02a2c1b4a635d
-  languageName: node
-  linkType: hard
-
 "invert-kv@npm:^2.0.0":
   version: 2.0.0
   resolution: "invert-kv@npm:2.0.0"
@@ -26322,15 +26304,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lcid@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "lcid@npm:1.0.0"
-  dependencies:
-    invert-kv: ^1.0.0
-  checksum: 36f50f8be935c90e3f9296d3f7057df950ee27c4f1608549b11b3f88d26d68a19a47cf787b1a6e3eb292e820fcc8c96a67be2fca14f713430adb57b24e06fb96
-  languageName: node
-  linkType: hard
-
 "lcid@npm:^2.0.0":
   version: 2.0.0
   resolution: "lcid@npm:2.0.0"
@@ -28496,15 +28469,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"nconf@npm:0.10.x":
-  version: 0.10.0
-  resolution: "nconf@npm:0.10.0"
+"nconf@npm:0.11.0":
+  version: 0.11.0
+  resolution: "nconf@npm:0.11.0"
   dependencies:
     async: ^1.4.0
     ini: ^1.3.0
     secure-keys: ^1.0.0
-    yargs: ^3.19.0
-  checksum: 2b33d443ad1921d290f74f0e3d8511f625beeef7035813afdbc718da24658a9d67c3f5534723c7d353049320a1ea610a830ad47b459f626bc22d4b5328db8164
+    yargs: ^16.1.1
+  checksum: e67f917d87ad442c55a8376d2c71fc836a61ccf1817b74bf77a561e206b7a671874b6b8e5262a66c548e4d824f58fc4a2f47c24e9b4b3b918b4333d7fbe5a805
   languageName: node
   linkType: hard
 
@@ -28946,15 +28919,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"node-zendesk@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "node-zendesk@npm:2.0.3"
+"node-zendesk@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "node-zendesk@npm:2.0.6"
   dependencies:
     async: 3.2.x
-    nconf: 0.10.x
+    nconf: 0.11.0
     querystring: 0.2.x
-    request: 2.88.x
-  checksum: ca9e030c33bc7a3ee790eb803c2ff3b9d25ae27c0def0d33632206d1a17c2e907c439a9ba79c5ce045dfe562d06d1f4b2ba600e037f459294c96913385bc9d5a
+    request: 2.88.2
+  checksum: 6e6fed31dbcd1e57e4f8c115cc3961820d2cdae291026184a790209bdbe48f82349d50e7ce290d5f0d259a0130a42d1dc6a71f0d57d96d0380a9be9ee424f838
   languageName: node
   linkType: hard
 
@@ -29797,15 +29770,6 @@ fsevents@^1.2.7:
   version: 1.0.2
   resolution: "os-homedir@npm:1.0.2"
   checksum: 725256246b2cec353250ec46442e3cfa7bc96ef92285d448a90f12f4bbd78c1bf087051b2cef0382da572e1a9ebc8aa24bd0940a3bdc633c3e3012eef1dc6848
-  languageName: node
-  linkType: hard
-
-"os-locale@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "os-locale@npm:1.4.0"
-  dependencies:
-    lcid: ^1.0.0
-  checksum: 19d876790073758c346c8df2ec40a9c28ee1497b185bfb54d3fd082b9b82e61f2ee3a9bd329cdd6ae878c7fce045c0c3b21c1196061af8360aebf2775fa27b2b
   languageName: node
   linkType: hard
 
@@ -34496,7 +34460,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"request@npm:2.88.x, request@npm:>=2.39.0, request@npm:^2.87.0, request@npm:^2.88.0, request@npm:^2.88.2":
+"request@npm:2.88.2, request@npm:>=2.39.0, request@npm:^2.87.0, request@npm:^2.88.0, request@npm:^2.88.2":
   version: 2.88.2
   resolution: "request@npm:2.88.2"
   dependencies:
@@ -40554,15 +40518,6 @@ typescript@4.2.3:
   languageName: node
   linkType: hard
 
-"window-size@npm:^0.1.4":
-  version: 0.1.4
-  resolution: "window-size@npm:0.1.4"
-  bin:
-    window-size: cli.js
-  checksum: 4d1a580456a54a585fa5725dc85de5d174380a1e481c14d96a25201958087e2169308dca1c521cef7dd51d5b3dd1b7e564993dd06e1d303cab18b12719f74d23
-  languageName: node
-  linkType: hard
-
 "windows-release@npm:^4.0.0":
   version: 4.0.0
   resolution: "windows-release@npm:4.0.0"
@@ -41059,13 +41014,6 @@ typescript@4.2.3:
   languageName: node
   linkType: hard
 
-"y18n@npm:^3.2.0":
-  version: 3.2.1
-  resolution: "y18n@npm:3.2.1"
-  checksum: e0f3db233608c026dd1d06dc5805c99fedbeb21c6a73bdac70d8a6ec1bbcf1cc38952e7b8a79b46c9d1bdee022cc40e529c760f04f9c6cd3123e5ba657d19322
-  languageName: node
-  linkType: hard
-
 "y18n@npm:^3.2.1 || ^4.0.0, y18n@npm:^4.0.0":
   version: 4.0.0
   resolution: "y18n@npm:4.0.0"
@@ -41276,7 +41224,7 @@ typescript@4.2.3:
   languageName: node
   linkType: hard
 
-"yargs@npm:^16.2.0":
+"yargs@npm:^16.1.1, yargs@npm:^16.2.0":
   version: 16.2.0
   resolution: "yargs@npm:16.2.0"
   dependencies:
@@ -41288,21 +41236,6 @@ typescript@4.2.3:
     y18n: ^5.0.5
     yargs-parser: ^20.2.2
   checksum: a79ce1f043021cd645de1ffebb6149541d382ba68f4a6b5eca5d2ad65af51893371bbd78e240dc3b6cf0cbb419511ba5bda715dec992e4266e6863ea49f14feb
-  languageName: node
-  linkType: hard
-
-"yargs@npm:^3.19.0":
-  version: 3.32.0
-  resolution: "yargs@npm:3.32.0"
-  dependencies:
-    camelcase: ^2.0.1
-    cliui: ^3.0.3
-    decamelize: ^1.1.1
-    os-locale: ^1.4.0
-    string-width: ^1.0.1
-    window-size: ^0.1.4
-    y18n: ^3.2.0
-  checksum: 165018a4853701f493f10b1956b8521de506ea751dcdd2ef3a1db95760676d5bcc5cb7db3c8cf26c41907a81d2c6b58c8f102dfec21f623c61e2b24e37682a2b
   languageName: node
   linkType: hard
 
