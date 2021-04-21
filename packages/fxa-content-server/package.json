@@ -38,7 +38,7 @@
     "@babel/preset-env": "^7.10.3",
     "@babel/preset-react": "^7.10.1",
     "@babel/preset-typescript": "^7.10.1",
-    "@sentry/browser": "^5.27.6",
+    "@sentry/browser": "^6.3.0",
     "@sentry/node": "^6.0.1",
     "asmcrypto.js": "^0.22.0",
     "autoprefixer": "9.8.6",
