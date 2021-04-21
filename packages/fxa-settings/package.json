@@ -53,7 +53,7 @@
     "react": "^16.13.1",
     "react-async-hook": "^3.6.2",
     "react-dom": "^16.13.1",
-    "react-easy-crop": "^3.3.1",
+    "react-easy-crop": "^3.3.2",
     "react-hook-form": "^6.15.5",
     "react-scripts": "^3.4.1",
     "react-webcam": "^5.2.2",
