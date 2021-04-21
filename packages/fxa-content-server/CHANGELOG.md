@@ -1,3 +1,21 @@
+## 1.204.4
+
+### Bug fixes
+
+- tests: some testing updates ([644c62b72](https://github.com/mozilla/fxa/commit/644c62b72))
+
+## 1.204.3
+
+### Bug fixes
+
+- settings: clear local storage on account delete ([0bad38913](https://github.com/mozilla/fxa/commit/0bad38913))
+
+## 1.204.2
+
+### Bug fixes
+
+- settings: ensure the object returned from useSession is stable ([d995f713b](https://github.com/mozilla/fxa/commit/d995f713b))
+
 ## 1.204.1
 
 ### Bug fixes

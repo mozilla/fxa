@@ -1,5 +1,20 @@
 # Change history
 
+## 1.204.4
+
+No changes.
+
+## 1.204.3
+
+### Bug fixes
+
+- payments: Set plan as a required prop for the TermsAndPrivacy component ([148d8f01a](https://github.com/mozilla/fxa/commit/148d8f01a))
+- fxa-payments: checkout mobile width ([6e1aa5cc3](https://github.com/mozilla/fxa/commit/6e1aa5cc3))
+
+## 1.204.2
+
+No changes.
+
 ## 1.204.1
 
 ### Bug fixes
