@@ -113,7 +113,7 @@
     "@types/jws": "^3.2.3",
     "@types/lodash": "^4",
     "@types/memcached": "^2.2.6",
-    "@types/mocha": "^8.2.1",
+    "@types/mocha": "^8.2.2",
     "@types/nock": "^11.1.0",
     "@types/node": "^14.14.37",
     "@types/request": "2.48.5",

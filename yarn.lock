@@ -7608,10 +7608,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mocha@npm:^8, @types/mocha@npm:^8.2.1":
+"@types/mocha@npm:^8":
   version: 8.2.1
   resolution: "@types/mocha@npm:8.2.1"
   checksum: 43585ae2a1034e8f868db181439caf49d1f17b524b3dfdb767a69966965046249f6929f807c1c94e87b21c17abdee5298134053e059a9c08aaac04bff93707e0
+  languageName: node
+  linkType: hard
+
+"@types/mocha@npm:^8.2.2":
+  version: 8.2.2
+  resolution: "@types/mocha@npm:8.2.2"
+  checksum: 3455211b134b0cfcfc71fee2d4f22a6ac3e313a93bf6c0cd3519c1e85653ffb8c9bb68dcff083b8e9e15b4ea3cb4f50d9916709946c082f072807aeba747575b
   languageName: node
   linkType: hard
 
@@ -19610,7 +19617,7 @@ fsevents@^1.2.7:
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
     "@types/memcached": ^2.2.6
-    "@types/mocha": ^8.2.1
+    "@types/mocha": ^8.2.2
     "@types/nock": ^11.1.0
     "@types/node": ^14.14.37
     "@types/request": 2.48.5
@@ -20148,7 +20155,7 @@ fsevents@^1.2.7:
     "@sentry/node": ^6.0.1
     "@types/chai": ^4.2.11
     "@types/convict": ^5.2.2
-    "@types/mocha": ^8.2.1
+    "@types/mocha": ^8.2.2
     "@types/node": ^14.14.37
     "@types/sinon": 10.0.0
     ajv: ^6.12.2
@@ -20510,7 +20517,7 @@ fsevents@^1.2.7:
     "@types/js-md5": ^0.4.2
     "@types/lodash.omitby": ^4
     "@types/lodash.pick": ^4
-    "@types/mocha": ^8.2.1
+    "@types/mocha": ^8.2.2
     "@types/mysql": ^2
     "@types/node": ^14.14.37
     "@types/proxyquire": ^1.3.28
