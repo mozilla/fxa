@@ -7013,6 +7013,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/estree@npm:^0.0.47":
+  version: 0.0.47
+  resolution: "@types/estree@npm:0.0.47"
+  checksum: 28cba548c7b61855f4ff0c20146512e71fb578253e3cb24baf1acf660c626a8a271f99848e8a8c4e0e87f177cfce28e8d1fcecb65a4aad4a92ba48fd73179289
+  languageName: node
+  linkType: hard
+
 "@types/events@npm:*":
   version: 3.0.0
   resolution: "@types/events@npm:3.0.0"
@@ -8297,7 +8304,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webpack@npm:*, @types/webpack@npm:4.41.26, @types/webpack@npm:^4.41.13, @types/webpack@npm:^4.41.8":
+"@types/webpack@npm:*, @types/webpack@npm:^4.41.13, @types/webpack@npm:^4.41.8":
   version: 4.41.26
   resolution: "@types/webpack@npm:4.41.26"
   dependencies:
@@ -8308,6 +8315,17 @@ __metadata:
     "@types/webpack-sources": "*"
     source-map: ^0.6.0
   checksum: c84012af1d0159e6c17b065139d8c15ffe18042445db4f9c61e2fe3aff1d4ebeb8a65af6824e991eb161334c2842c6d2b55f9d700bd7e64bf492f3dcbf1a92d1
+  languageName: node
+  linkType: hard
+
+"@types/webpack@npm:5.28.0":
+  version: 5.28.0
+  resolution: "@types/webpack@npm:5.28.0"
+  dependencies:
+    "@types/node": "*"
+    tapable: ^2.2.0
+    webpack: ^5
+  checksum: c09222b73def3ebec8a111f3382499a70370d58fb05de6a0eb81836e0b291b198b8a3cf368dd0b2849db1769c2fac1920155e138ebe058eb687c1f2849be8504
   languageName: node
   linkType: hard
 
@@ -16837,7 +16855,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.0.0":
+"enhanced-resolve@npm:^5.0.0, enhanced-resolve@npm:^5.8.0":
   version: 5.8.0
   resolution: "enhanced-resolve@npm:5.8.0"
   dependencies:
@@ -19426,7 +19444,7 @@ fsevents@^1.2.7:
     "@types/react-router-dom": ^5.1.5
     "@types/serve-static": 1.13.9
     "@types/supertest": ^2.0.11
-    "@types/webpack": 4.41.26
+    "@types/webpack": 5.28.0
     "@typescript-eslint/eslint-plugin": 4.20.0
     "@typescript-eslint/parser": 4.21.0
     babel-loader: ^8.1.0
@@ -20226,7 +20244,7 @@ fsevents@^1.2.7:
     "@types/storybook__react": ^5.2.1
     "@types/superagent": ^4.1.10
     "@types/uuid": ^7.0.2
-    "@types/webpack": 4.41.26
+    "@types/webpack": 5.28.0
     "@typescript-eslint/eslint-plugin": 4.20.0
     "@typescript-eslint/parser": 4.21.0
     accept-language-parser: ^1.5.0
@@ -20443,7 +20461,7 @@ fsevents@^1.2.7:
     "@types/react-webcam": ^3.0.0
     "@types/testing-library__react-hooks": ^4
     "@types/uuid": ^8
-    "@types/webpack": 4.41.26
+    "@types/webpack": 5.28.0
     babel-loader: ^8.0.0
     base32-decode: ^1.0.0
     base32-encode: ^1.2.0
@@ -40302,6 +40320,42 @@ typescript@4.2.3:
   bin:
     webpack: bin/webpack.js
   checksum: 1e3bc97c01c19e96946be044cd9e323a476844b147c270185f7224bc8e0eda91946defbc120cb262f14e517e4c3071c6c90097e1a8b71a6a7afcacf37992763f
+  languageName: node
+  linkType: hard
+
+"webpack@npm:^5":
+  version: 5.34.0
+  resolution: "webpack@npm:5.34.0"
+  dependencies:
+    "@types/eslint-scope": ^3.7.0
+    "@types/estree": ^0.0.47
+    "@webassemblyjs/ast": 1.11.0
+    "@webassemblyjs/wasm-edit": 1.11.0
+    "@webassemblyjs/wasm-parser": 1.11.0
+    acorn: ^8.0.4
+    browserslist: ^4.14.5
+    chrome-trace-event: ^1.0.2
+    enhanced-resolve: ^5.8.0
+    es-module-lexer: ^0.4.0
+    eslint-scope: ^5.1.1
+    events: ^3.2.0
+    glob-to-regexp: ^0.4.1
+    graceful-fs: ^4.2.4
+    json-parse-better-errors: ^1.0.2
+    loader-runner: ^4.2.0
+    mime-types: ^2.1.27
+    neo-async: ^2.6.2
+    schema-utils: ^3.0.0
+    tapable: ^2.1.1
+    terser-webpack-plugin: ^5.1.1
+    watchpack: ^2.0.0
+    webpack-sources: ^2.1.1
+  peerDependenciesMeta:
+    webpack-cli:
+      optional: true
+  bin:
+    webpack: bin/webpack.js
+  checksum: ce93de995d8d348a7a6f97fa2fabfd7d14718bc6163c4b17b758e92aba9fb908fc4e1d7a290c2482a7aa1445d68376bc51c58bc002e5daf4fc122b76dd5d2145
   languageName: node
   linkType: hard
 
