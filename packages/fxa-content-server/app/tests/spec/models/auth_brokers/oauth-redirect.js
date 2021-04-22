@@ -301,6 +301,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
 
     describe('with existing query parameters', () => {
       it('passes through existing parameters unchanged', () => {
+        relier.set({ utmSource: 'web' }); //eslint-disable-line camelcase
         return broker
           .sendOAuthResultToRelier({
             error: 'error',
@@ -311,6 +312,23 @@ describe('models/auth_brokers/oauth-redirect', () => {
             assert.include(windowMock.location.href, 'test=param');
             assert.include(windowMock.location.href, 'error=error');
             assert.include(windowMock.location.href, 'state=state');
+            assert.include(windowMock.location.href, 'utm_source=web');
+          });
+      });
+
+      it('ignores invalid UTM query parameters', () => {
+        relier.set({ utmhoop: 'web' });
+        return broker
+          .sendOAuthResultToRelier({
+            error: 'error',
+            redirect: REDIRECT_TO + '?test=param',
+          })
+          .then(() => {
+            assert.include(windowMock.location.href, REDIRECT_TO);
+            assert.include(windowMock.location.href, 'test=param');
+            assert.include(windowMock.location.href, 'error=error');
+            assert.include(windowMock.location.href, 'state=state');
+            assert.notInclude(windowMock.location.href, 'utmhoop=web');
           });
       });
     });
