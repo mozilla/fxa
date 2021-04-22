@@ -20130,7 +20130,7 @@ fsevents@^1.2.7:
     supertest: ^6.1.3
     ts-jest: 26.5.5
     ts-node: ^9.1.1
-    tslib: 2.1.0
+    tslib: 2.2.0
     typescript: 3.9.7
   languageName: unknown
   linkType: soft
@@ -20618,7 +20618,7 @@ fsevents@^1.2.7:
     supertest: ^6.1.3
     ts-jest: 26.5.5
     ts-node: ^9.1.1
-    tslib: 2.1.0
+    tslib: 2.2.0
     typesafe-joi: ^2.1.0
     typescript: 3.9.7
   languageName: unknown
@@ -38645,6 +38645,13 @@ resolve@~1.11.1:
   version: 2.1.0
   resolution: "tslib@npm:2.1.0"
   checksum: d8f5bdd067611651c6b846c2388f4dc8ba1f5af124e66105f5263d1ad56da17f4b8c6566887ca2f205c5a9758451871ceca87d5d06087af2dca1699c5e33db69
+  languageName: node
+  linkType: hard
+
+"tslib@npm:2.2.0":
+  version: 2.2.0
+  resolution: "tslib@npm:2.2.0"
+  checksum: 2d35468c470410871c5246e43f12dcb6d0fc363b617c176f26443b9530e5c5ee8448966892a42956168d8f495da7865bda33dfe82c26c91991e28999974a618f
   languageName: node
   linkType: hard
 
