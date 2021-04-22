@@ -678,7 +678,7 @@ module.exports = function (log, error) {
   //          passwordForgotTokens, accounts, devices, deviceCommands, unverifiedTokens,
   //          emails, signinCodes, totp
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_18(?)';
+  var DELETE_ACCOUNT = 'CALL deleteAccount_19(?)';
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid]);

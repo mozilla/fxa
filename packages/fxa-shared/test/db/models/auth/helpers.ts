@@ -18,28 +18,6 @@ export type AccountIsh = Pick<
 
 export const chance = new Chance();
 
-const thisDir = path.dirname(__filename);
-export const accountTable = fs.readFileSync(
-  path.join(thisDir, './accounts.sql'),
-  'utf8'
-);
-export const devicesTable = fs.readFileSync(
-  path.join(thisDir, './devices.sql'),
-  'utf8'
-);
-export const emailsTable = fs.readFileSync(
-  path.join(thisDir, './emails.sql'),
-  'utf8'
-);
-export const accountCustomersTable = fs.readFileSync(
-  path.join(thisDir, './account-customers.sql'),
-  'utf8'
-);
-export const paypalBATable = fs.readFileSync(
-  path.join(thisDir, './paypal-ba.sql'),
-  'utf8'
-);
-
 export function randomAccount() {
   const email = chance.email();
   return {
@@ -95,11 +73,24 @@ export async function testDatabaseSetup(): Promise<Knex> {
     user: 'root',
   });
 
-  await knex.raw(accountTable);
-  await knex.raw(devicesTable);
-  await knex.raw(emailsTable);
-  await knex.raw(accountCustomersTable);
-  await knex.raw(paypalBATable);
+  const runSql = async (filePaths: string[]) =>
+    Promise.all(
+      filePaths
+        .map((x) => path.join(__dirname, x))
+        .map((x) => fs.readFileSync(x, 'utf8'))
+        .map((x) => knex.raw.bind(knex)(x))
+    );
+
+  await runSql([
+    './accounts.sql',
+    './devices.sql',
+    './emails.sql',
+    './account-customers.sql',
+    './paypal-ba.sql',
+    './email-types.sql',
+  ]);
+  // The order matters for inserts or foreign key refs
+  await runSql(['./insert-email-types.sql', './sent-emails.sql']);
 
   /*/ Debugging Assistance
   knex.on('query', (data) => {
