@@ -37,8 +37,8 @@ const imagePath = path.join(__dirname, 'lib', 'firefox.png');
 const imageData = fs.readFileSync(imagePath);
 
 const tok = token();
-const NAME = 'Fennec';
-const MOZILLA_EMAIL = 'user@mozilla.com';
+const NAME = '@Fennec';
+const MOZILLA_EMAIL = '!user@mozilla.com';
 const PROFILE_CHANGED_AT = Date.now();
 const PROFILE_CHANGED_AT_LATER_TIME = PROFILE_CHANGED_AT + 1000;
 

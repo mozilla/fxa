@@ -129,6 +129,15 @@ describe('api', function () {
     var tok = token();
     var user = uid();
 
+    before(async () => {
+      await db.addAvatar(
+        avatarId(),
+        USERID,
+        'http://localhost:1111/v1/avatar/u',
+        'fxa'
+      );
+    });
+
     it('should return all of a profile', function () {
       mock.tokenGood();
       mock.email('user@example.domain');
@@ -350,6 +359,27 @@ describe('api', function () {
         .then(function (res) {
           assert.equal(res.statusCode, 503);
           assert.equal(res.result.errno, 104);
+          assertSecurityHeaders(res);
+        });
+    });
+
+    it('should update the avatar when it needs to', async function () {
+      mock.token({
+        user: user,
+        scope: ['profile'],
+      });
+      mock.email('user@example.domain');
+      mock.email('user@example.domain'); // a second time for the refetch
+      return Server.api
+        .get({
+          url: '/profile',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        })
+        .then(function (res) {
+          assert.equal(res.statusCode, 200);
+          assert.equal(res.result.avatar, 'http://localhost:1111/v1/avatar/u');
           assertSecurityHeaders(res);
         });
     });
