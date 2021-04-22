@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('@hapi/joi');
-const crypto = require('crypto');
+// const crypto = require('crypto');
 const checksum = require('checksum');
 const {
   determineClientVisibleSubscriptionCapabilities,
@@ -46,12 +46,12 @@ function checkAvatar(response, uid) {
       if (result.avatarDefault) {
         db.deleteUserAvatars(uid);
       } else {
-        db.addAvatar(
-          crypto.randomBytes(16).toString('hex'),
-          uid,
-          result.avatar,
-          'fxa'
-        );
+        // db.addAvatar(
+        //   crypto.randomBytes(16).toString('hex'),
+        //   uid,
+        //   result.avatar,
+        //   'fxa'
+        // );
       }
     }
   }
