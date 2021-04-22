@@ -1,3 +1,9 @@
+## 1.204.5
+
+### Other changes
+
+- 270f2403b stop writing monogram avatars to the db ([270f2403b](https://github.com/mozilla/fxa/commit/270f2403b))
+
 ## 1.204.4
 
 No changes.
