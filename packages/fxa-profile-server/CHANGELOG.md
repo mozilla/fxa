@@ -1,3 +1,9 @@
+## 1.204.6
+
+### Bug fixes
+
+- profile: drop profileCache if the avatar changes ([3dfade7b2](https://github.com/mozilla/fxa/commit/3dfade7b2))
+
 ## 1.204.5
 
 ### Other changes
