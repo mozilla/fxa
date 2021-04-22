@@ -1,3 +1,15 @@
+## 1.204.6
+
+### Bug fixes
+
+- profile: drop profileCache if the avatar changes ([3dfade7b2](https://github.com/mozilla/fxa/commit/3dfade7b2))
+
+## 1.204.5
+
+### Other changes
+
+- 270f2403b stop writing monogram avatars to the db ([270f2403b](https://github.com/mozilla/fxa/commit/270f2403b))
+
 ## 1.204.4
 
 No changes.
