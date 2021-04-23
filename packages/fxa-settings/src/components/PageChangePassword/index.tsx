@@ -290,7 +290,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
 
           <Localized id="pw-change-forgot-password-link">
             <a
-              className="link-blue text-sm justify-center flex"
+              className="link-blue text-sm justify-center flex w-max my-0 mx-auto"
               data-testid="nav-link-reset-password"
               href="/reset_password"
             >

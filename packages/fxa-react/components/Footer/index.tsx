@@ -24,24 +24,28 @@ export const Footer = () => {
           className="transition-standard w-18 h-auto opacity-75 hover:opacity-100"
         />
       </LinkExternal>
-      <Localized id="app-footer-privacy-notice">
-        <LinkExternal
-          data-testid="link-privacy"
-          href="https://www.mozilla.org/en-US/privacy/websites/"
-          className="transition-standard w-full text-xs my-3 hover:text-grey-500 hover:underline mobileLandscape:my-0 mobileLandscape:w-auto mobileLandscape:mx-10 mobileLandscape:self-end"
-        >
-          Website Privacy Notice
-        </LinkExternal>
-      </Localized>
-      <Localized id="app-footer-terms-of-service">
-        <LinkExternal
-          data-testid="link-terms"
-          href="https://www.mozilla.org/en-US/about/legal/terms/services/"
-          className="transition-standard w-full text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline mobileLandscape:w-auto"
-        >
-          Terms of Service
-        </LinkExternal>
-      </Localized>
+      <div className="w-full mobileLandscape:w-auto flex items-center mt-3 mobileLandscape:mt-0 mobileLandscape:ml-10">
+        <Localized id="app-footer-privacy-notice">
+          <LinkExternal
+            data-testid="link-privacy"
+            href="https://www.mozilla.org/en-US/privacy/websites/"
+            className="transition-standard text-xs hover:text-grey-500 hover:underline mobileLandscape:self-end"
+          >
+            Website Privacy Notice
+          </LinkExternal>
+        </Localized>
+      </div>
+      <div className="w-full mobileLandscape:w-auto flex items-center mt-3 mobileLandscape:mt-0 mobileLandscape:ml-10">
+        <Localized id="app-footer-terms-of-service">
+          <LinkExternal
+            data-testid="link-terms"
+            href="https://www.mozilla.org/en-US/about/legal/terms/services/"
+            className="transition-standard text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline"
+          >
+            Terms of Service
+          </LinkExternal>
+        </Localized>
+      </div>
     </footer>
   );
 };
