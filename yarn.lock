@@ -6559,9 +6559,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^5.11.9":
-  version: 5.11.9
-  resolution: "@testing-library/jest-dom@npm:5.11.9"
+"@testing-library/jest-dom@npm:^5.12.0":
+  version: 5.12.0
+  resolution: "@testing-library/jest-dom@npm:5.12.0"
   dependencies:
     "@babel/runtime": ^7.9.2
     "@types/testing-library__jest-dom": ^5.9.1
@@ -6571,7 +6571,7 @@ __metadata:
     css.escape: ^1.5.1
     lodash: ^4.17.15
     redent: ^3.0.0
-  checksum: c285c044edf42b9c4daffbeddd5489564af1c9d625f0ef3781e2e9864688239ccc2521badec9147fea66685c60b736c922e35ea69011aa577eabc156c0e1f5b6
+  checksum: 8bffa1c4113fbcdeb2aad1be48054ab46ee73da3b9b8a588e7e635e96f06ffe221689dfa494d2ac06520350ab7aa1fa2e2565aa30b02dd34c8d086072ba9ed57
   languageName: node
   linkType: hard
 
@@ -19529,7 +19529,7 @@ fsevents@^1.2.7:
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.1.0
     "@testing-library/dom": ^7.24.5
-    "@testing-library/jest-dom": ^5.11.9
+    "@testing-library/jest-dom": ^5.12.0
     "@testing-library/react": ^9.5.0
     "@testing-library/user-event": ^12.7.1
     "@types/babel__core": 7.1.14
@@ -20323,7 +20323,7 @@ fsevents@^1.2.7:
     "@stripe/react-stripe-js": ^1.4.0
     "@stripe/stripe-js": ^1.13.1
     "@svgr/webpack": ^5.4.0
-    "@testing-library/jest-dom": ^5.11.9
+    "@testing-library/jest-dom": ^5.12.0
     "@testing-library/react": ^9.5.0
     "@types/accept-language-parser": ^1.5.1
     "@types/classnames": ^2.2.11
@@ -20482,7 +20482,7 @@ fsevents@^1.2.7:
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.1.0
     "@testing-library/dom": ^7.24.5
-    "@testing-library/jest-dom": ^5.11.9
+    "@testing-library/jest-dom": ^5.12.0
     "@testing-library/react": ^9.5.0
     "@testing-library/user-event": ^12.7.1
     "@types/camelcase": 5.2.0
@@ -20547,7 +20547,7 @@ fsevents@^1.2.7:
     "@storybook/react": ^5.3.19
     "@tailwindcss/postcss7-compat": ^2.1.0
     "@testing-library/dom": ^7.24.5
-    "@testing-library/jest-dom": ^5.11.9
+    "@testing-library/jest-dom": ^5.12.0
     "@testing-library/react": ^9.5.0
     "@testing-library/react-hooks": ^5.0.3
     "@testing-library/user-event": ^12.7.1
