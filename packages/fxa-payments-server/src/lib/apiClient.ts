@@ -2,7 +2,7 @@ import { Config, defaultConfig } from './config';
 import { Plan, Profile, Customer, Subscription, Token } from '../store/types';
 import * as Amplitude from './amplitude';
 import { PaymentMethod } from '@stripe/stripe-js';
-import { ProviderType } from './PaymentProvider';
+import { PaymentProvider } from './PaymentProvider';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
@@ -127,7 +127,7 @@ export async function apiUpdateSubscriptionPlan(params: {
   subscriptionId: string;
   planId: string;
   productId: string;
-  paymentProvider: ProviderType | undefined;
+  paymentProvider: PaymentProvider | undefined;
 }) {
   const { subscriptionId, planId, productId, paymentProvider } = params;
   const metricsOptions: Amplitude.EventProperties = {
@@ -157,7 +157,7 @@ export async function apiCancelSubscription(params: {
   subscriptionId: string;
   planId: string;
   productId: string;
-  paymentProvider: ProviderType | undefined;
+  paymentProvider: PaymentProvider | undefined;
 }) {
   const { subscriptionId, planId, productId, paymentProvider } = params;
   const metricsOptions = {
@@ -228,7 +228,7 @@ export async function apiGetPaypalCheckoutToken(params: {
 export async function apiCapturePaypalPayment(params: {
   idempotencyKey: string;
   priceId: string;
-  token: string;
+  token?: string;
 }): Promise<{
   sourceCountry: string;
   subscription: Subscription;

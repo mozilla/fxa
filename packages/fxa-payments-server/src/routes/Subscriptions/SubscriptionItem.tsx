@@ -13,7 +13,7 @@ import AppContext from '../../lib/AppContext';
 
 import CancelSubscriptionPanel from './Cancel/CancelSubscriptionPanel';
 import ReactivateSubscriptionPanel from './Reactivate/ManagementPanel';
-import { ProviderType } from 'fxa-payments-server/src/lib/PaymentProvider';
+import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 export type SubscriptionItemProps = {
   customerSubscription: CustomerSubscription;
@@ -34,7 +34,8 @@ export const SubscriptionItem = ({
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
 
-  const paymentProvider: ProviderType | undefined = customer?.payment_provider;
+  const paymentProvider: PaymentProvider | undefined =
+    customer?.payment_provider;
 
   if (!plan) {
     // TODO: This really shouldn't happen, would mean the user has a

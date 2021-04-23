@@ -2,16 +2,62 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export type ProviderType = 'paypal' | 'stripe' | 'not_chosen';
+import { Customer } from '../store/types';
+import { hasPaymentProvider } from './customer';
 
-export function isStripe(provider: ProviderType | undefined): boolean {
+export const PaymentProviders = {
+  stripe: 'stripe',
+  paypal: 'paypal',
+  none: 'not_chosen',
+} as const;
+
+type PaymentProviders = typeof PaymentProviders;
+export type PaymentProvider = PaymentProviders[keyof PaymentProviders];
+export type NoPaymentProvider = 'not_chosen';
+
+type PaymentProviderKey = Exclude<PaymentProvider, NoPaymentProvider>;
+type PaymentProviderKeyedDictionary<T> = {
+  [key in PaymentProviderKey]: T;
+};
+type GetPaymentProviderMappedVal = <T>(
+  c: Customer | null | undefined,
+  dict: PaymentProviderKeyedDictionary<T>
+) => T;
+
+export function isStripe(provider: PaymentProvider | undefined): boolean {
   return provider === 'stripe';
 }
 
-export function isPaypal(provider: ProviderType | undefined): boolean {
+export function isPaypal(provider: PaymentProvider | undefined): boolean {
   return provider === 'paypal';
 }
 
-export function isNotChosen(provider: ProviderType | undefined): boolean {
+export function isNotChosen(provider: PaymentProvider | undefined): boolean {
   return provider === 'not_chosen' || provider === undefined;
 }
+
+export const getPaymentProviderMappedVal: GetPaymentProviderMappedVal = (
+  c,
+  dict
+) => {
+  if (!hasPaymentProvider(c)) {
+    return dict.stripe;
+  }
+
+  const k = Object.keys(PaymentProviders).find(
+    (x) => PaymentProviders[x as keyof PaymentProviders] === c!.payment_provider
+  );
+
+  if (k && PaymentProviders[k as PaymentProviderKey] in dict) {
+    return dict[k as PaymentProviderKey];
+  }
+
+  return dict.stripe;
+};
+
+export default {
+  isStripe,
+  isPaypal,
+  isNotChosen,
+  getPaymentProviderMappedVal,
+};

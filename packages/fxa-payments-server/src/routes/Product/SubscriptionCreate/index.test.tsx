@@ -282,7 +282,9 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     await screen.findAllByText('Set up your subscription');
 
     if (props?.customer?.last4) {
-      expect(screen.queryByTestId('card-details')).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('card-logo-and-last-four')
+      ).toBeInTheDocument();
     } else {
       await act(async () => {
         mockStripeElementOnChangeFns.cardElement(

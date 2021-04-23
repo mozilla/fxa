@@ -29,7 +29,6 @@ payment-error-manage-subscription-button = Manage my subscription
 country-currency-mismatch = The currency of this subscription is not valid for the country associated with your payment.
 currency-currency-mismatch = Sorry. You can't switch between currencies.
 
-returning-paypal-customer-error = Sorry. Currently, you can only sign up for one subscription at a time. Please check back soon.
 no-subscription-upgrades = Sorry. You can't upgrade or downgrade your subscription at this time. Please check back soon.
 
 expired-card-error = It looks like your credit card has expired. Try another card.
@@ -141,6 +140,7 @@ payment-confirm = I authorize Mozilla, maker of Firefox products, to charge my p
 payment-cancel-btn = Cancel
 payment-update-btn = Update
 payment-pay-btn = Pay now
+payment-pay-with-paypal-btn = Pay with {-brand-name-paypal}
 
 payment-validate-name-error = Please enter your name
 payment-validate-zip-required = Zip code is required

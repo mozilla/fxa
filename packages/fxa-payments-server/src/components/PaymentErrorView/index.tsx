@@ -58,7 +58,6 @@ export const PaymentErrorView = ({
   // on the type of error
   const ActionButton = () => {
     switch (error?.code) {
-      case 'returning_paypal_customer_error':
       case 'no_subscription_upgrades':
         return manageSubButtonFn(() => history.push('/subscriptions'));
       default:

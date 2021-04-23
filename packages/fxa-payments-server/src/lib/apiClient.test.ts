@@ -57,7 +57,7 @@ import {
   apiCapturePaypalPayment,
   apiUpdateBillingAgreement,
 } from './apiClient';
-import { ProviderType } from './PaymentProvider';
+import { PaymentProvider } from './PaymentProvider';
 
 describe('APIError', () => {
   it('can be created without params', () => {
@@ -175,7 +175,7 @@ describe('API requests', () => {
       subscriptionId: 'sub_987675',
       planId: 'plan_2345',
       productId: 'prod_4567',
-      paymentProvider: 'paypal' as ProviderType,
+      paymentProvider: 'paypal' as PaymentProvider,
     };
     const metricsOptions = {
       planId: params.planId,
@@ -227,7 +227,7 @@ describe('API requests', () => {
       subscriptionId: 'sub_987675',
       planId: 'plan_2345',
       productId: 'prod_4567',
-      paymentProvider: 'paypal' as ProviderType,
+      paymentProvider: 'paypal' as PaymentProvider,
     };
     const metricsOptions = {
       planId: params.planId,

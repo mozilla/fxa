@@ -94,7 +94,7 @@ const DefaultPaymentLegalBlurb = () => (
 );
 
 export type PaymentLegalBlurbProps = {
-  provider: PaymentProvider.ProviderType | undefined;
+  provider: PaymentProvider.PaymentProvider | undefined;
 };
 
 export const PaymentLegalBlurb = ({ provider }: PaymentLegalBlurbProps) => {

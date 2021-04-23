@@ -10,7 +10,7 @@ import {
 } from '../../lib/apiClient';
 
 import { Plan } from '../types';
-import { ProviderType } from 'fxa-payments-server/src/lib/PaymentProvider';
+import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 export default {
   fetchProfile: () =>
@@ -28,7 +28,7 @@ export default {
   updateSubscriptionPlan: (
     subscriptionId: string,
     plan: Plan,
-    paymentProvider: ProviderType | undefined
+    paymentProvider: PaymentProvider | undefined
   ) =>
     ({
       type: 'updateSubscriptionPlan',
@@ -43,7 +43,7 @@ export default {
   cancelSubscription: (
     subscriptionId: string,
     plan: Plan,
-    paymentProvider: ProviderType | undefined
+    paymentProvider: PaymentProvider | undefined
   ) =>
     ({
       type: 'cancelSubscription',

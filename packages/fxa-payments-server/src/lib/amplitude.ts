@@ -1,6 +1,6 @@
 import sentryMetrics from './sentry';
 import { logAmplitudeEvent } from './flow-event';
-import { ProviderType } from '../lib/PaymentProvider';
+import { PaymentProvider } from '../lib/PaymentProvider';
 import { selectors } from '../store/selectors';
 import { Store } from '../store';
 
@@ -37,7 +37,7 @@ export type EventProperties = GlobalEventProperties & {
   plan_id?: string;
   productId?: string;
   product_id?: string;
-  paymentProvider?: ProviderType;
+  paymentProvider?: PaymentProvider;
   error?: Error;
 };
 
