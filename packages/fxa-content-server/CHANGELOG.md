@@ -1,3 +1,9 @@
+## 1.204.7
+
+### Bug fixes
+
+- content-server: retain utm\_ parameters ([b2f89ecb2](https://github.com/mozilla/fxa/commit/b2f89ecb2))
+
 ## 1.204.6
 
 No changes.
