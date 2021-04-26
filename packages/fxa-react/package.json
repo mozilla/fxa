@@ -40,7 +40,7 @@
     "@babel/core": "^7.10.3",
     "@storybook/addon-actions": "^5.3.19",
     "@storybook/addon-links": "^6.2.8",
-    "@storybook/addons": "^6.2.9",
+    "@storybook/addons": "^5.3.19",
     "@storybook/react": "^5.3.19",
     "@tailwindcss/postcss7-compat": "^2.1.0",
     "@testing-library/dom": "^7.24.5",
