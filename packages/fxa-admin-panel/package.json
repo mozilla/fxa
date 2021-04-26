@@ -67,7 +67,7 @@
     "@storybook/react": "^5.3.19",
     "@tailwindcss/postcss7-compat": "^2.1.0",
     "@testing-library/dom": "^7.24.5",
-    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^12.7.1",
     "@types/babel__core": "7.1.14",
