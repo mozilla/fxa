@@ -127,6 +127,23 @@ export default BaseAuthenticationBroker.extend({
       if (state) {
         extraParams.state = state;
       }
+
+      // Pull in valid UTM parameters if present
+      const utmKeyMap = {
+        utmCampaign: 'utm_campaign',
+        utmContent: 'utm_content',
+        utmMedium: 'utm_medium',
+        utmSource: 'utm_source',
+        utmTerm: 'utm_term',
+      };
+      for (const utmKey of Object.keys(utmKeyMap)) {
+        const utmValue = this.relier.get(utmKey);
+        if (utmValue) {
+          // We have to rename the key, as the relier renames these to camelcase on the way in.
+          extraParams[utmKeyMap[utmKey]] = utmValue;
+        }
+      }
+
       this.window.location.href = Url.updateSearchString(
         result.redirect,
         extraParams
