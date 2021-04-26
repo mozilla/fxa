@@ -67,7 +67,7 @@
     "@sentry/browser": "^5.27.6",
     "@storybook/addon-actions": "^5.3.19",
     "@storybook/addon-links": "^6.2.8",
-    "@storybook/addons": "^5.3.19",
+    "@storybook/addons": "^6.2.9",
     "@storybook/preset-create-react-app": "^3.1.7",
     "@storybook/react": "^5.3.19",
     "@tailwindcss/postcss7-compat": "^2.1.0",
