@@ -235,7 +235,7 @@ describe('StripeHelper', () => {
     sandbox.restore();
   });
 
-  describe('constructur', () => {
+  describe('constructor', () => {
     it('sets currencyHelper', () => {
       const expectedCurrencyHelper = new CurrencyHelper(mockConfig);
       assert.deepEqual(stripeHelper.currencyHelper, expectedCurrencyHelper);
@@ -2186,6 +2186,49 @@ describe('StripeHelper', () => {
           stripeHelper.log.error.getCall(0).args[0]
         );
       });
+    });
+  });
+
+  describe('findActiveSubscriptionsByPlanId', () => {
+    const argsHelper = [
+      'plan_123',
+      {
+        startTimeS: 123,
+        endTimeS: 456,
+      },
+      25,
+    ];
+    const argsStripe = {
+      price: 'plan_123',
+      current_period_end: {
+        gte: 123,
+        lt: 456,
+      },
+      limit: 25,
+      expand: ['data.customer'],
+    };
+    it('calls Stripe with the correct arguments and iteratively returns active subscriptions', async () => {
+      const subscription3 = deepCopy(subscription2);
+      subscription3.status = 'cancelled';
+      async function* genSubscription() {
+        yield subscription1;
+        yield subscription2;
+        yield subscription3;
+      }
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'list')
+        .returns(genSubscription());
+      const actual = [];
+      for await (const item of stripeHelper.findActiveSubscriptionsByPlanId(
+        ...argsHelper
+      )) {
+        actual.push(item);
+      }
+      assert.deepEqual(actual, [subscription1, subscription2]);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.list,
+        argsStripe
+      );
     });
   });
 

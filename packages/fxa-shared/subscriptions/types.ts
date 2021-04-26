@@ -104,3 +104,8 @@ export const PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE = 'funding_source';
 export type PaypalPaymentError =
   | typeof PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT
   | typeof PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
+
+export type SentEmailParams = {
+  subscriptionId: string;
+  planId?: string;
+};
