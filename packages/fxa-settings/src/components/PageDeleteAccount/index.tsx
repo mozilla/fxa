@@ -218,6 +218,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   }}
                   inputRef={register({
                     required: true,
+                    minLength: 8,
                   })}
                   {...{ errorText }}
                 />
