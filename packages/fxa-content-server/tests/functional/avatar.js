@@ -34,6 +34,7 @@ const {
   storeWebChannelMessageData,
   testElementExists,
   type,
+  visibleByQSA,
 } = FunctionalHelpers;
 
 registerSuite('settings/avatar', {
@@ -142,10 +143,16 @@ registerSuite('settings/avatar', {
           .then(click(selectors.SETTINGS_AVATAR.BUTTON_ZOOM_OUT))
           .then(click(selectors.SETTINGS_AVATAR.BUTTON_ZOOM_IN))
           .then(click(selectors.SETTINGS_AVATAR.BUTTON_ROTATE))
-          .then(click(selectors.SETTINGS_AVATAR.SUBMIT))
+          .then(
+            click(
+              selectors.SETTINGS_AVATAR.SUBMIT,
+              selectors.SETTINGS_AVATAR.NON_DEFAULT_IMAGE
+            )
+          )
 
-          //success is seeing the image loaded
+          //success is seeing the image loaded and navigated to settings
           .then(testElementExists(selectors.SETTINGS_AVATAR.NON_DEFAULT_IMAGE))
+          .then(visibleByQSA(selectors.SETTINGS.HEADER))
           // Replacement for testIsBrowserNotified
           .then(getWebChannelMessageData('profile:change'))
           .then((msg) => {

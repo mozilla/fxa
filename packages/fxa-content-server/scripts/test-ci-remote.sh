@@ -45,7 +45,6 @@ mkdir -p artifacts/tests
 
 cd packages/fxa-content-server
 mozinstall /firefox.tar.bz2
-test_suite functional_smoke
+test_suite functional_smoke && test_suite functional_regression
 # TODO: Re-enable once configuration in stage is updated
-# test_suite functional_regression
 # test_suite pairing

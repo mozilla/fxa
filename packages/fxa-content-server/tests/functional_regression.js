@@ -5,9 +5,13 @@
 const testsSettingsV2 = require('./functional_settings_v2');
 
 module.exports = testsSettingsV2.concat([
-  'tests/functional/oauth_webchannel.js',
-  'tests/functional/oauth_require_totp.js',
-  'tests/functional/sign_up_with_code.js',
+  // These oauth tests use untrusted clients which
+  // would fixed when https://github.com/mozilla/fxa/issues/5291 lands
+  // 'tests/functional/oauth_settings_clients.js',
+  // 'tests/functional/oauth_prompt_none.js',
+  // 'tests/functional/oauth_permissions.js',
+  // 'tests/functional/oauth_query_param_validation.js',
+
   // new and flaky tests above here',
   'tests/functional/404.js',
   'tests/functional/500.js',
@@ -16,7 +20,6 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/bounced_email.js',
   'tests/functional/confirm.js',
   'tests/functional/cookies_disabled.js',
-  'tests/functional/email_domain_mx_validation.js',
   'tests/functional/email_opt_in.js',
   'tests/functional/email_service.js',
   'tests/functional/force_auth.js',
@@ -24,12 +27,10 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/fx_fennec_v1_force_auth.js',
   'tests/functional/fx_fennec_v1_settings.js',
   'tests/functional/legal.js',
+  'tests/functional/oauth_webchannel.js',
+  'tests/functional/oauth_require_totp.js',
   'tests/functional/oauth_force_auth.js',
   'tests/functional/oauth_handshake.js',
-  'tests/functional/oauth_permissions.js',
-  'tests/functional/oauth_prompt_none.js',
-  'tests/functional/oauth_query_param_validation.js',
-  'tests/functional/oauth_settings_clients.js',
   'tests/functional/oauth_sign_in.js',
   'tests/functional/pages.js',
   'tests/functional/password_strength.js',
@@ -48,10 +49,10 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',
   'tests/functional/sign_in_recovery_code.js',
+  'tests/functional/sign_up_with_code.js',
   'tests/functional/sign_up.js',
   'tests/functional/sync_v1.js',
   'tests/functional/sync_v2.js',
   'tests/functional/sync_v3_force_auth.js',
   'tests/functional/tos.js',
-  'tests/functional/verification_reminders.js',
 ]);

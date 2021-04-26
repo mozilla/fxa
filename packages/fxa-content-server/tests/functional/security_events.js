@@ -31,7 +31,6 @@ const COMPLETE_PAGE_URL_ROOT =
   config.fxaContentRoot + 'complete_reset_password';
 
 const PASSWORD = 'passwordzxcv';
-const TIMEOUT = 90 * 1000;
 
 let client;
 let code;
@@ -81,9 +80,9 @@ registerSuite('security_events', {
     email = createEmail();
 
     return this.remote
+      .then(clearBrowserState({ forceAll: true }))
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(initiateResetPassword(email, 0))
-      .then(clearBrowserState());
+      .then(initiateResetPassword(email, 0));
   },
 
   tests: {
@@ -125,8 +124,6 @@ registerSuite('security_events', {
     },
 
     'reset event is shown': function () {
-      this.timeout = TIMEOUT;
-
       return this.remote
         .then(
           openCompleteResetPassword(
@@ -149,7 +146,12 @@ registerSuite('security_events', {
           )
         )
 
-        .then(click(selectors.CONFIRM_RESET_PASSWORD.LINK_RESEND))
+        .then(
+          click(
+            selectors.CONFIRM_RESET_PASSWORD.LINK_RESEND,
+            selectors.CONFIRM_RESET_PASSWORD.HEADER
+          )
+        )
 
         .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
 
@@ -161,7 +163,7 @@ registerSuite('security_events', {
         )
         .then(
           testElementTextInclude(
-            selectors.SECURITY_EVENTS.FIRST_EVENT_NAME,
+            selectors.SECURITY_EVENTS.EVENT_TABLE,
             'account.reset'
           )
         );

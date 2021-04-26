@@ -6,27 +6,33 @@
 
 const { registerSuite } = intern.getInterface('object');
 const { assert } = intern.getPlugin('chai');
-const { openPage } = require('./lib/helpers');
+const { openPage, clearBrowserState } = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 var FROM_URL = 'http://example.com/';
 var ENTER_EMAIL_URL = intern._config.fxaContentRoot;
 
 registerSuite('back button after navigating to the root', {
-  'start at github, visit Fxa root, click `back` - should go back to example': function () {
-    return (
-      this.remote
-        .get(FROM_URL)
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+  beforeEach: function () {
+    return this.remote.then(clearBrowserState({ forceAll: true }));
+  },
 
-        // click back.
-        .goBack()
+  tests: {
+    'start at github, visit Fxa root, click `back` - should go back to example': function () {
+      return (
+        this.remote
+          .get(FROM_URL)
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
 
-        .getCurrentUrl()
-        .then(function (resultUrl) {
-          assert.equal(resultUrl, FROM_URL);
-        })
-        .end()
-    );
+          // click back.
+          .goBack()
+
+          .getCurrentUrl()
+          .then(function (resultUrl) {
+            assert.equal(resultUrl, FROM_URL);
+          })
+          .end()
+      );
+    },
   },
 });

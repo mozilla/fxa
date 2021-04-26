@@ -32,8 +32,7 @@ const fxaUntrustedOauthApp =
   args.fxaUntrustedOauthApp || 'http://localhost:10139/';
 const fxaPaymentsRoot = args.fxaPaymentsRoot || 'http://localhost:3031/';
 const output = args.output || 'test-results.xml';
-const fxaSettingsV2Root =
-  args.fxaSettingsV2Root || 'http://localhost:3030/settings';
+const fxaSettingsV2Root = args.fxaSettingsV2Root || `${fxaContentRoot}settings`;
 
 // "fxaProduction" is a little overloaded in how it is used in the tests.
 // Sometimes it means real "stage" or real production configuration, but

@@ -14,19 +14,18 @@ const { createEmail } = FunctionalHelpers;
 describe('connected services: oauth clients', () => {
   let email;
   const password = 'topnotchsupercoolpassworddealwithit';
-  let clearBrowserState,
+  let {
+    clearBrowserState,
     openFxaFromRp,
     fillOutEmailFirstSignUp,
     testElementExists,
     fillOutSignUpCode,
     openPage,
     testElementTextInclude,
-    openTab,
-    switchToWindow,
     click,
-    closeCurrentWindow,
     pollUntilGoneByQSA,
-    noSuchElement;
+    noSuchElement,
+  } = FunctionalHelpers;
 
   beforeEach(async ({ remote }) => {
     ({
@@ -37,21 +36,17 @@ describe('connected services: oauth clients', () => {
       fillOutSignUpCode,
       openPage,
       testElementTextInclude,
-      openTab,
-      switchToWindow,
       click,
-      closeCurrentWindow,
       pollUntilGoneByQSA,
       noSuchElement,
     } = FunctionalHelpers.applyRemote(remote));
 
     await clearBrowserState({
-      '123done': true,
-      contentServer: true,
+      forceAll: true,
     });
   });
 
-  it('lists and disconnects RP clients', async () => {
+  it('lists and disconnects RP clients', async (remote) => {
     email = createEmail();
     await openFxaFromRp('enter-email');
     await fillOutEmailFirstSignUp(email, password);
@@ -69,24 +64,24 @@ describe('connected services: oauth clients', () => {
       '123Done'
     );
 
-    // sign into a second client
-    await openTab(config.fxaUntrustedOauthApp);
-    await switchToWindow(1);
-    await click(selectors['123DONE'].BUTTON_SIGNIN);
-
-    await click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN);
-
-    await testElementExists(selectors.OAUTH_PERMISSIONS.HEADER);
-    await click(selectors.OAUTH_PERMISSIONS.SUBMIT);
-    await testElementExists(selectors['123DONE'].AUTHENTICATED);
-    await closeCurrentWindow();
-
+    // TODO: We can up re-enable this once the fix for
+    // https://github.com/mozilla/fxa/issues/5291 has landed
+    // await openTab(config.fxaUntrustedOauthApp);
+    // await switchToWindow(1);
+    // await click(selectors['123DONE'].BUTTON_SIGNIN);
+    //
+    // await click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN);
+    //
+    // await testElementExists(selectors.OAUTH_PERMISSIONS.HEADER);
+    // await click(selectors.OAUTH_PERMISSIONS.SUBMIT);
+    // await testElementExists(selectors['123DONE'].AUTHENTICATED);
+    // await closeCurrentWindow();
     // refresh the list
-    await click(selectors.SETTINGS_V2.CONNECTED_SERVICES.REFRESH_BUTTON);
-    await testElementTextInclude(
-      selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER,
-      '321Done'
-    );
+    // await click(selectors.SETTINGS_V2.CONNECTED_SERVICES.REFRESH_BUTTON);
+    // await testElementTextInclude(
+    //   selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER,
+    //   '321Done'
+    // );
 
     // disconnect
     await click(

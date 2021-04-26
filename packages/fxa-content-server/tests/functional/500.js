@@ -11,20 +11,22 @@ const url = intern._config.fxaContentRoot + 'boom';
 
 registerSuite('500', {
   beforeEach: function () {
-    return this.remote.then(clearBrowserState());
+    return this.remote.then(clearBrowserState({ forceAll: true }));
   },
 
-  'visit an invalid page': function () {
-    const expected = intern._config.fxaProduction
-      ? selectors['404'].HEADER
-      : selectors['500'].HEADER;
+  tests: {
+    'visit an invalid page': function () {
+      const expected = intern._config.fxaProduction
+        ? selectors['404'].HEADER
+        : selectors['500'].HEADER;
 
-    const button = intern._config.fxaProduction
-      ? selectors['404'].LINK_HOME
-      : selectors['500'].LINK_HOME;
+      const button = intern._config.fxaProduction
+        ? selectors['404'].LINK_HOME
+        : selectors['500'].LINK_HOME;
 
-    return this.remote
-      .then(openPage(url, expected))
-      .then(click(button, selectors.ENTER_EMAIL.HEADER));
+      return this.remote
+        .then(openPage(url, expected))
+        .then(click(button, selectors.ENTER_EMAIL.HEADER));
+    },
   },
 });

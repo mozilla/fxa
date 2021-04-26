@@ -1542,6 +1542,11 @@ const openFxaFromRp = thenify(function (page, options = {}) {
   const expectedHeader =
     options.header || `#fxa-${page.replace('_', '-')}-header`;
   let buttonSelector = `.ready .${page}`;
+
+  // By introducing a small delay (100ms), it gives the Rp some time to setup
+  // their page and helps improve overall test performance.
+  const delay = 100 || options.delay;
+
   if (page === 'enter-email') {
     buttonSelector = '.email-first-button';
   }
@@ -1556,6 +1561,7 @@ const openFxaFromRp = thenify(function (page, options = {}) {
           header: buttonSelector,
         })
       )
+      .sleep(delay)
       .then(click(buttonSelector))
       .then(respondToWebChannelMessages(options.webChannelResponses))
 

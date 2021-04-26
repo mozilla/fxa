@@ -71,17 +71,19 @@ registerSuite('oauth signin', {
 
     return this.remote.then(
       FunctionalHelpers.clearBrowserState({
-        '123done': true,
-        contentServer: true,
-        force: true,
+        forceAll: true,
       })
     );
   },
   tests: {
     verified: function () {
       return this.remote
-        .then(openFxaFromRp('enter-email'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openFxaFromRp('enter-email', {
+            header: selectors.ENTER_EMAIL.HEADER,
+          })
+        )
 
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
@@ -91,21 +93,40 @@ registerSuite('oauth signin', {
     'verified using a cached login': function () {
       return (
         this.remote
-          .then(openFxaFromRp('enter-email'))
           .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.ENTER_EMAIL.HEADER,
+            })
+          )
 
           // sign in with a verified account to cache credentials
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testAtOAuthApp())
-          .then(click(selectors['123DONE'].LINK_LOGOUT))
+          .then(
+            click(
+              selectors['123DONE'].LINK_LOGOUT,
+              selectors['123DONE'].BUTTON_SIGNIN
+            )
+          )
 
           .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
           // round 2 - with the cached credentials
-          .then(click(selectors['123DONE'].BUTTON_SIGNIN))
+          .then(
+            click(
+              selectors['123DONE'].BUTTON_SIGNIN,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
 
           .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN,
+              selectors['123DONE'].AUTHENTICATED
+            )
+          )
 
           .then(testAtOAuthApp())
       );
@@ -114,18 +135,32 @@ registerSuite('oauth signin', {
     'verified using a cached expired login': function () {
       return (
         this.remote
-          .then(openFxaFromRp('enter-email'))
           .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.ENTER_EMAIL.HEADER,
+            })
+          )
 
           // sign in with a verified account to cache credentials
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
           .then(testAtOAuthApp())
-          .then(click(selectors['123DONE'].LINK_LOGOUT))
+          .then(
+            click(
+              selectors['123DONE'].LINK_LOGOUT,
+              selectors['123DONE'].BUTTON_SIGNIN
+            )
+          )
 
           .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
           // round 2 - with the cached credentials
-          .then(click(selectors['123DONE'].BUTTON_SIGNIN))
+          .then(
+            click(
+              selectors['123DONE'].BUTTON_SIGNIN,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
 
           .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
           .then(destroySessionForEmail(email))
@@ -137,13 +172,23 @@ registerSuite('oauth signin', {
           )
           // we only know the sessionToken is expired once the
           // user submits the form.
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
           // we now know the sessionToken is expired. Allow the user to sign in
           // with their password.
           .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
           .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
           .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT,
+              selectors['123DONE'].AUTHENTICATED
+            )
+          )
 
           .then(testAtOAuthApp())
       );
@@ -168,7 +213,12 @@ registerSuite('oauth signin', {
           )
 
           .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT,
+              selectors['123DONE'].AUTHENTICATED
+            )
+          )
           .then(testAtOAuthApp())
           .then(click(selectors['123DONE'].LINK_LOGOUT))
 
@@ -185,13 +235,22 @@ registerSuite('oauth signin', {
             )
           )
           .then(destroySessionForEmail(email))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN,
+              selectors.SIGNIN_PASSWORD.ERROR
+            )
+          )
           // Session expired error should show.
           .then(visibleByQSA(selectors.SIGNIN_PASSWORD.ERROR))
 
-          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.ERROR))
           .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT,
+              selectors['123DONE'].AUTHENTICATED
+            )
+          )
 
           .then(testAtOAuthApp())
       );
@@ -200,8 +259,8 @@ registerSuite('oauth signin', {
     'unverified, acts like signup': function () {
       return (
         this.remote
-          .then(openFxaFromRp('enter-email'))
           .then(createUser(email, PASSWORD, { preVerified: false }))
+          .then(openFxaFromRp('enter-email'))
 
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
@@ -219,7 +278,11 @@ registerSuite('oauth signin', {
     'unverified with a cached login': function () {
       return (
         this.remote
-          .then(openFxaFromRp('enter-email'))
+          .then(
+            openFxaFromRp('enter-email', {
+              header: selectors.ENTER_EMAIL.HEADER,
+            })
+          )
           .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
 
           // first, sign the user up to cache the login
@@ -235,14 +298,19 @@ registerSuite('oauth signin', {
           )
 
           .then(testElementExists(selectors.SIGNIN_PASSWORD.SUB_HEADER))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+          .then(
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN,
+              selectors.CONFIRM_SIGNUP_CODE.HEADER
+            )
+          )
 
           // success is using a cached login and being redirected
           // to a confirmation screen
           .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
           // get the second email, the first was sent via fillOutEmailFirstSignUp above.
           .then(fillOutSignInTokenCode(email, 1))
-          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
+          .then(testAtOAuthApp())
       );
     },
 
@@ -405,7 +473,12 @@ registerSuite('oauth signin', {
           .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
           .then(testAtOAuthApp())
-          .then(click(selectors['123DONE'].LINK_LOGOUT))
+          .then(
+            click(
+              selectors['123DONE'].LINK_LOGOUT,
+              selectors['123DONE'].BUTTON_SIGNIN
+            )
+          )
 
           // login_hint takes precedence over the signed in user
           .then(

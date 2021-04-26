@@ -57,13 +57,7 @@ registerSuite('post_verify_force_password_change', {
     email = createEmail('forcepwdchange{id}');
 
     return this.remote
-      .then(
-        clearBrowserState({
-          '123done': true,
-          contentServer: true,
-          force: true,
-        })
-      )
+      .then(clearBrowserState({ forceAll: true }))
       .then(createUser(email, PASSWORD, { preVerified: true }));
   },
 

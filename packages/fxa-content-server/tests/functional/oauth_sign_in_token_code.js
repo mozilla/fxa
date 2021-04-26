@@ -25,6 +25,7 @@ const {
   testElementTextInclude,
   getEmailHeaders,
   type,
+  visibleByQSA,
 } = FunctionalHelpers;
 
 const NOTES_REDIRECT_PAGE_SELECTOR = '#notes-by-firefox';
@@ -57,7 +58,7 @@ registerSuite('OAuth signin token code', {
   },
 
   tests: {
-    'verified - - bounce': function () {
+    'verified - bounce': function () {
       experimentParams.query.forceExperiment = 'tokenCode';
       experimentParams.query.forceExperimentGroup = 'treatment-code';
 
@@ -86,6 +87,7 @@ registerSuite('OAuth signin token code', {
               selectors.SIGNIN_TOKEN_CODE.TOOLTIP
             )
           )
+          .then(visibleByQSA(selectors.SIGNIN_TOKEN_CODE.TOOLTIP))
           .then(
             testElementTextInclude(
               selectors.SIGNIN_TOKEN_CODE.TOOLTIP,

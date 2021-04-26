@@ -43,7 +43,7 @@ registerSuite('signin blocked', {
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(clearBrowserState({ force: true }));
+      .then(clearBrowserState({ forceAll: true }));
   },
 
   tests: {
@@ -362,8 +362,7 @@ registerSuite('signin blocked', {
 
     'with primary email changed': function () {
       email = createEmail('{id}');
-      const secondaryEmail = createEmail('blocked.dIFfCaSe.{id}');
-      const secondaryEmailNormalized = secondaryEmail.toLowerCase();
+      const secondaryEmail = createEmail('blocked{id}');
 
       return (
         this.remote
@@ -375,20 +374,25 @@ registerSuite('signin blocked', {
           .then(addAndVerifySecondaryEmail(secondaryEmail))
           .then(testSuccessWasShown())
           // set new primary email
-          .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY))
+          .then(
+            click(
+              selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY,
+              selectors.EMAIL.SUCCESS
+            )
+          )
+
           .then(
             testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail)
           )
-          .then(visibleByQSA(selectors.EMAIL.SUCCESS))
           .then(signOut())
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
 
-          // Try login with new primary email but in different email case
-          .then(fillOutEmailFirstSignIn(secondaryEmailNormalized, PASSWORD))
+          // Try login with new primary email
+          .then(fillOutEmailFirstSignIn(secondaryEmail, PASSWORD))
           .then(
             testElementTextInclude(
               selectors.SIGNIN_UNBLOCK.VERIFICATION,
-              secondaryEmailNormalized
+              secondaryEmail
             )
           )
 
