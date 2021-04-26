@@ -20065,7 +20065,7 @@ fsevents@^1.2.7:
     mocha: ^7.1.2
     morgan: ^1.10.0
     mozlog: ^3.0.1
-    mustache: 4.1.0
+    mustache: 4.2.0
     node-sass: ^4.13.1
     node-uuid: 1.4.8
     node-vat: 0.0.9
@@ -28611,12 +28611,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mustache@npm:4.1.0":
-  version: 4.1.0
-  resolution: "mustache@npm:4.1.0"
+"mustache@npm:4.2.0":
+  version: 4.2.0
+  resolution: "mustache@npm:4.2.0"
   bin:
     mustache: bin/mustache
-  checksum: 28485b250d88eba57d607cdf63626654a89ab43b23a959fd0773b1a815ea45e0afa0f1cab4abd6cc26b04ff6f507186ecfbdf30c0ad84606917e4607a0368132
+  checksum: 55540771ed2ca0a72d44c747bd57531ca70fd54c4b420eee580ef5ea021101359e679fbadf40f467e69be2b9086fa6a7be8613e91261fa072d5e321f66eaa748
   languageName: node
   linkType: hard
 
