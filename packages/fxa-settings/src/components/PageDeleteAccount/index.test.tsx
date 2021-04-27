@@ -80,6 +80,20 @@ describe('PageDeleteAccount', () => {
     expect(screen.getByTestId('continue-button')).toBeDisabled();
   });
 
+  it('Enables "Delete" button once the password length is of 8 characters or more', async () => {
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <PageDeleteAccount />
+      </AppContext.Provider>
+    );
+
+    await advanceStep();
+    expect(screen.getByTestId('delete-account-button')).toBeDisabled();
+
+    await typeByTestIdFn('delete-account-confirm-input-field')('password');
+    expect(screen.getByTestId('delete-account-button')).toBeEnabled();
+  });
+
   it('Gets valid response on submit', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
@@ -88,7 +102,7 @@ describe('PageDeleteAccount', () => {
     );
 
     await advanceStep();
-    await typeByTestIdFn('delete-account-confirm-input-field')('hunter6');
+    await typeByTestIdFn('delete-account-confirm-input-field')('hunter67');
 
     const deleteAccountButton = screen.getByTestId('delete-account-button');
     expect(deleteAccountButton).toBeEnabled();
