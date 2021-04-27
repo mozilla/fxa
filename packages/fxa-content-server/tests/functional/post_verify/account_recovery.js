@@ -30,6 +30,7 @@ const {
   testSuccessWasNotShown,
   thenify,
   type,
+  visibleByQSA,
 } = FunctionalHelpers;
 
 const getRecoveryKey = thenify(function () {
@@ -65,11 +66,21 @@ registerSuite('post_verify_account_recovery', {
             selectors.POST_VERIFY_ADD_RECOVERY_KEY.HEADER
           )
         )
-        .then(click(selectors.POST_VERIFY_ADD_RECOVERY_KEY.SUBMIT))
+        .then(
+          click(
+            selectors.POST_VERIFY_ADD_RECOVERY_KEY.SUBMIT,
+            selectors.POST_VERIFY_CONFIRM_PASSWORD.HEADER
+          )
+        )
         .then(testElementExists(selectors.POST_VERIFY_CONFIRM_PASSWORD.HEADER))
 
         .then(type(selectors.POST_VERIFY_CONFIRM_PASSWORD.PASSWORD, PASSWORD))
-        .then(click(selectors.POST_VERIFY_CONFIRM_PASSWORD.SUBMIT))
+        .then(
+          click(
+            selectors.POST_VERIFY_CONFIRM_PASSWORD.SUBMIT,
+            selectors.POST_VERIFY_SAVE_RECOVERY_KEY.HEADER
+          )
+        )
         .then(testElementExists(selectors.POST_VERIFY_SAVE_RECOVERY_KEY.HEADER))
         .then(
           testElementTextNotEmpty(
@@ -79,7 +90,12 @@ registerSuite('post_verify_account_recovery', {
         .then(getRecoveryKey())
         .then(() => {
           return this.remote
-            .then(click(selectors.POST_VERIFY_SAVE_RECOVERY_KEY.DONE))
+            .then(
+              click(
+                selectors.POST_VERIFY_SAVE_RECOVERY_KEY.DONE,
+                selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.HEADER
+              )
+            )
             .then(
               testElementExists(
                 selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.HEADER
@@ -96,6 +112,9 @@ registerSuite('post_verify_account_recovery', {
                 selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.SUBMIT,
                 selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.TOOLTIP
               )
+            )
+            .then(
+              visibleByQSA(selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.TOOLTIP)
             )
             .then(
               testElementTextInclude(

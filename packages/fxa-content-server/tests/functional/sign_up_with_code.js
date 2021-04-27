@@ -92,6 +92,7 @@ registerSuite('signup with code', {
             selectors.SIGNIN_TOKEN_CODE.TOOLTIP
           )
         )
+        .then(visibleByQSA(selectors.SIGNIN_TOKEN_CODE.TOOLTIP))
         .then(
           testElementTextInclude(
             selectors.SIGNIN_TOKEN_CODE.TOOLTIP,

@@ -10,7 +10,7 @@ const selectors = require('./lib/selectors');
 
 const EMAIL_FIRST_FORM_URL = intern._config.fxaContentRoot + '?action=email';
 
-const INVALID_EMAIL = 'nofxauser@asdfafexample.xyz';
+const INVALID_EMAIL = `nofxauser${Math.random()}@asdfafexample.xyz`;
 
 const {
   clearBrowserState,
@@ -18,6 +18,7 @@ const {
   openPage,
   testElementTextInclude,
   type,
+  visibleByQSA,
 } = FunctionalHelpers;
 
 registerSuite('email domain mx record validation', {
@@ -27,7 +28,7 @@ registerSuite('email domain mx record validation', {
 
   tests: {
     'no validation on a popular domain': function () {
-      const email = 'coolfxauser@gmail.com';
+      const email = `coolfxauser${Math.random()}@gmail.com`;
 
       return this.remote
         .then(openPage(EMAIL_FIRST_FORM_URL, selectors.ENTER_EMAIL.HEADER))
@@ -42,8 +43,9 @@ registerSuite('email domain mx record validation', {
         .then(openPage(EMAIL_FIRST_FORM_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, INVALID_EMAIL))
         .then(
-          click(selectors.ENTER_EMAIL.SUBMIT, '.email.tooltip-below.invalid')
+          click(selectors.ENTER_EMAIL.SUBMIT, selectors.ENTER_EMAIL.TOOLTIP)
         )
+        .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP))
         .then(
           testElementTextInclude(
             selectors.ENTER_EMAIL.TOOLTIP,
@@ -53,7 +55,8 @@ registerSuite('email domain mx record validation', {
     },
 
     'show tooltip on domain with an A record': function () {
-      const email = 'coolfxauser@mail.google.com';
+      const email = `coolfxauser${Math.random()}@mail.google.com`;
+
       return this.remote
         .then(openPage(EMAIL_FIRST_FORM_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
@@ -75,7 +78,8 @@ registerSuite('email domain mx record validation', {
     },
 
     'allow submission on domain with an MX record': function () {
-      const email = 'testfxauser@mozilla.com';
+      const email = `coolfxauser${Math.random()}@mozilla.com`;
+
       return this.remote
         .then(openPage(EMAIL_FIRST_FORM_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))

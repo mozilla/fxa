@@ -33,48 +33,52 @@ registerSuite('cookies_disabled', {
     return this.remote.then(clearBrowserState());
   },
 
-  'visit signup page with localStorage disabled': function () {
-    return (
-      this.remote
-        .then(
-          openPage(
-            ENTER_EMAIL_COOKIES_DISABLED_URL,
-            selectors.COOKIES_DISABLED.HEADER
+  tests: {
+    'visit signup page with localStorage disabled': function () {
+      return (
+        this.remote
+          .then(
+            openPage(
+              ENTER_EMAIL_COOKIES_DISABLED_URL,
+              selectors.COOKIES_DISABLED.HEADER
+            )
           )
-        )
-        // try again, cookies are still disabled.
-        .then(click(selectors.COOKIES_DISABLED.RETRY))
+          // try again, cookies are still disabled.
+          .then(click(selectors.COOKIES_DISABLED.RETRY))
 
-        // show an error message after second try
-        .then(testErrorWasShown(null, '.error'))
-    );
-  },
+          // show an error message after second try
+          .then(testErrorWasShown(null, '.error'))
+      );
+    },
 
-  'synthesize enabling cookies by visiting the enter email page, then cookies_disabled, then clicking "try again"': function () {
-    // wd has no way of disabling/enabling cookies, so we have to
-    // manually seed history.
-    return (
-      this.remote
-        .then(
-          openPage(
-            ENTER_EMAIL_COOKIES_ENABLED_URL,
-            selectors.ENTER_EMAIL.HEADER
+    'synthesize enabling cookies by visiting the enter email page, then cookies_disabled, then clicking "try again"': function () {
+      // wd has no way of disabling/enabling cookies, so we have to
+      // manually seed history.
+      return (
+        this.remote
+          .then(
+            openPage(
+              ENTER_EMAIL_COOKIES_ENABLED_URL,
+              selectors.ENTER_EMAIL.HEADER
+            )
           )
-        )
 
-        .then(openPage(COOKIES_DISABLED_URL, selectors.COOKIES_DISABLED.HEADER))
+          .then(
+            openPage(COOKIES_DISABLED_URL, selectors.COOKIES_DISABLED.HEADER)
+          )
 
-        // try again, cookies are enabled.
-        .then(click(selectors.COOKIES_DISABLED.RETRY))
+          // try again, cookies are enabled.
+          .then(click(selectors.COOKIES_DISABLED.RETRY))
 
-        // Should be redirected back to the signup page.
-        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-    );
-  },
+          // Should be redirected back to the signup page.
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+      );
+    },
 
-  'visit verify page with localStorage disabled': function () {
-    return this.remote.then(
-      openPage(VERIFY_COOKIES_DISABLED_URL, selectors.COOKIES_DISABLED.HEADER)
-    );
+    'visit verify page with localStorage disabled': function () {
+      return this.remote.then(
+        openPage(VERIFY_COOKIES_DISABLED_URL, selectors.COOKIES_DISABLED.HEADER)
+      );
+    },
   },
 });

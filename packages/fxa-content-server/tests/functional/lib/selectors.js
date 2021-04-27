@@ -582,6 +582,7 @@ module.exports = {
   SECURITY_EVENTS: {
     DELETE_EVENTS_BUTTON: '#delete-events',
     FIRST_EVENT_NAME: '#security-events-table tr:first-child .event-name',
+    EVENT_TABLE: '#security-events-table',
     RECENT_ACTIVITY_HEADER: '#recent-activity-header',
     SECURITY_EVENT: '.security-event',
     SECURITY_EVENTS_HEADER: '#security-events',

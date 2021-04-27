@@ -15,7 +15,12 @@ const { navigateToSettingsV2 } = FunctionalSettingsHelpers;
 describe('secondary email', () => {
   let primaryEmail;
   const secondaryEmail = createEmail();
-  let click, getEmailCode, testElementExists, testElementTextInclude, type;
+  let click,
+    getEmailCode,
+    testElementExists,
+    testElementTextInclude,
+    type,
+    visibleByQSA;
 
   beforeEach(async ({ remote }) => {
     ({
@@ -24,24 +29,37 @@ describe('secondary email', () => {
       testElementExists,
       testElementTextInclude,
       type,
+      visibleByQSA,
     } = FunctionalHelpers.applyRemote(remote));
     primaryEmail = await navigateToSettingsV2(remote);
   });
 
   it('can add and verify secondary email', async () => {
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.ADD_BUTTON);
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.ADD_BUTTON,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL
+    );
 
     // try adding the primary as the secondary
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL);
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_FIELD
+    );
     await type(selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_FIELD, primaryEmail);
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.SUBMIT_BUTTON);
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.SUBMIT_BUTTON,
+      selectors.SETTINGS_V2.TOOLTIP
+    );
     await testElementTextInclude(
       selectors.SETTINGS_V2.TOOLTIP,
       'secondary email must be different than your account email'
     );
 
     // add secondary email, resend, remove
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL);
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_FIELD
+    );
     await type(
       selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_FIELD,
       secondaryEmail
@@ -51,7 +69,10 @@ describe('secondary email', () => {
       selectors.SETTINGS_V2.SECONDARY_EMAIL.FORM,
       secondaryEmail
     );
-    await click(selectors.SETTINGS_V2.BACK_BUTTON);
+    await click(
+      selectors.SETTINGS_V2.BACK_BUTTON,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.HEADER_VALUE
+    );
     await testElementTextInclude(
       selectors.SETTINGS_V2.SECONDARY_EMAIL.HEADER_VALUE,
       secondaryEmail
@@ -66,21 +87,34 @@ describe('secondary email', () => {
     await testElementExists(
       selectors.SETTINGS_V2.SECONDARY_EMAIL.REFRESH_BUTTON
     );
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.DELETE_BUTTON);
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.DELETE_BUTTON,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.ADD_BUTTON
+    );
 
     // add and verify
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.ADD_BUTTON);
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL);
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.ADD_BUTTON,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL
+    );
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_LABEL,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_FIELD
+    );
     await type(
       selectors.SETTINGS_V2.SECONDARY_EMAIL.EMAIL_FIELD,
       secondaryEmail
     );
     await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.SUBMIT_BUTTON);
     const verifyCode = await getEmailCode(secondaryEmail, 1);
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL);
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD
+    );
     await type(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD, verifyCode);
     await click(
-      selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_SUBMIT_BUTTON
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_SUBMIT_BUTTON,
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.DELETE_BUTTON
     );
     await testElementExists(
       selectors.SETTINGS_V2.SECONDARY_EMAIL.DELETE_BUTTON
@@ -88,7 +122,11 @@ describe('secondary email', () => {
     await testElementExists(selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY);
 
     // swap primary and secondary
-    await click(selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY);
+    await click(
+      selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY,
+      selectors.EMAIL.SUCCESS
+    );
+    await visibleByQSA(selectors.EMAIL.SUCCESS);
     await testElementTextInclude(
       selectors.SETTINGS_V2.PRIMARY_EMAIL.HEADER_VALUE,
       secondaryEmail

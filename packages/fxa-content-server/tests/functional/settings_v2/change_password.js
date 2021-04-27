@@ -33,7 +33,7 @@ describe('change password', () => {
   let email;
   beforeEach(async ({ remote }) => {
     email = createEmail();
-    await clearBrowserState(remote);
+    await clearBrowserState({ forceAll: true }, remote);
     await createUser(email, password, { preVerified: true }, remote);
   });
 
@@ -99,7 +99,6 @@ describe('change password', () => {
   });
 
   it('click forgot password link', async ({ remote }) => {
-    await clearBrowserState(remote);
     await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
     await fillOutEmailFirstSignIn(email, password, remote);
     await click(
