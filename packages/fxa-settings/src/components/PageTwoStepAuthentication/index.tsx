@@ -305,7 +305,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               Save these one-time use codes in a safe place for when you don’t
               have your mobile device.
             </Localized>
-            <div className="mt-6 flex flex-col items-center h-40 justify-between">
+            <div className="mt-6 flex flex-col items-center justify-between">
               <DataBlock
                 value={totpInfo.result.recoveryCodes}
                 onAction={logDataTrioActionEvent}
