@@ -2156,7 +2156,6 @@ const testAreEventsLogged = thenify(function (eventsNames) {
 
 /**
  * Test whether a status element (success or error) was shown.
- * Done by looking for the `data-shown` attribute.
  *
  * @param {string} selector
  * @returns {promise} rejects if fails
@@ -2169,20 +2168,7 @@ const testElementWasShown = thenify(function (selector, message) {
       : Promise.resolve();
   }
 
-  return this.parent
-    .then(testElementExists(selector))
-    .then(messageCheck)
-    .executeAsync(
-      function (selector, done) {
-        // remove the attribute so subsequent checks can be made
-        // against the same element. displaySuccess and displayError
-        // will re-add the 'data-shown' attribute.
-        // TODO experimentally disabling this.
-        //$(selector).removeAttr('data-shown');
-        done();
-      },
-      [selector]
-    );
+  return this.parent.then(testElementExists(selector)).then(messageCheck);
 });
 
 /**
