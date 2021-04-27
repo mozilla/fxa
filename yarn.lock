@@ -7912,14 +7912,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-router-dom@npm:^5.1.5":
-  version: 5.1.5
-  resolution: "@types/react-router-dom@npm:5.1.5"
+"@types/react-router-dom@npm:^5.1.7":
+  version: 5.1.7
+  resolution: "@types/react-router-dom@npm:5.1.7"
   dependencies:
     "@types/history": "*"
     "@types/react": "*"
     "@types/react-router": "*"
-  checksum: d25c11cb718653a01b0e2cd5e4a44b1910fd506b3141c49e4b47ee197ddc06a05f3ee3c6853c60c15d83b96aeea534321ab200d4fbfd4ba047413b2c7176bfcb
+  checksum: c5afe043f99cbe8e05e85db5b95b5fd724e7b00e0314b8bbc081e36c113e22fd102cd0c7a957c7ad55a55d2def91c17b07ffba45c2ac4a00cc56c5c927c93d4c
   languageName: node
   linkType: hard
 
@@ -19566,7 +19566,7 @@ fsevents@^1.2.7:
     "@types/jsdom": ^12.2.4
     "@types/on-headers": ^1.0.0
     "@types/react": ^16.9.53
-    "@types/react-router-dom": ^5.1.5
+    "@types/react-router-dom": ^5.1.7
     "@types/serve-static": 1.13.9
     "@types/supertest": ^2.0.11
     "@types/webpack": 5.28.0
@@ -20359,7 +20359,7 @@ fsevents@^1.2.7:
     "@types/react-dom": ^16.9.4
     "@types/react-redux": ^7.1.16
     "@types/react-router": ^5.1.8
-    "@types/react-router-dom": ^5.1.5
+    "@types/react-router-dom": ^5.1.7
     "@types/react-stripe-elements": ^1.3.5
     "@types/react-transition-group": ^4.4.1
     "@types/redux-actions": ^2.6.0
