@@ -5,6 +5,9 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 import { EmailBounce } from './email-bounces.model';
 import { Email } from './emails.model';
+import { Totp } from './totp.model';
+import { RecoveryKeys } from './recovery-keys.model';
+import { SessionTokens } from './session-tokens.model';
 
 @ObjectType()
 export class Account {
@@ -25,4 +28,13 @@ export class Account {
 
   @Field((type) => [EmailBounce], { nullable: true })
   public emailBounces!: EmailBounce[];
+
+  @Field((type) => [Totp], { nullable: true })
+  public totp!: Totp[];
+
+  @Field((type) => [RecoveryKeys], { nullable: true })
+  public recoveryKeys!: RecoveryKeys[];
+
+  @Field((type) => [SessionTokens], { nullable: true })
+  public sessionTokens!: SessionTokens[];
 }

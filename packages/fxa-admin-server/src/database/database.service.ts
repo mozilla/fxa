@@ -6,7 +6,21 @@ import { ConfigService } from '@nestjs/config';
 import Knex from 'knex';
 
 import { AppConfig } from '../config';
-import { Account, EmailBounces, Emails } from './model';
+import {
+  Account,
+  EmailBounces,
+  Emails,
+  Totp,
+  RecoveryKeys,
+  SessionTokens,
+} from './model';
+
+function typeCasting(field: any, next: any) {
+  if (field.type === 'TINY' && field.length === 1) {
+    return field.string() === '1';
+  }
+  return next();
+}
 
 @Injectable()
 export class DatabaseService {
@@ -14,13 +28,22 @@ export class DatabaseService {
   public account: typeof Account;
   public emails: typeof Emails;
   public emailBounces: typeof EmailBounces;
+  public totp: typeof Totp;
+  public recoveryKeys: typeof RecoveryKeys;
+  public sessionTokens: typeof SessionTokens;
 
   constructor(configService: ConfigService<AppConfig>) {
     const dbConfig = configService.get('database') as AppConfig['database'];
-    this.knex = Knex({ connection: dbConfig, client: 'mysql' });
+    this.knex = Knex({
+      connection: { typeCast: typeCasting, ...dbConfig },
+      client: 'mysql',
+    });
     this.account = Account.bindKnex(this.knex);
     this.emails = Emails.bindKnex(this.knex);
     this.emailBounces = EmailBounces.bindKnex(this.knex);
+    this.totp = Totp.bindKnex(this.knex);
+    this.recoveryKeys = RecoveryKeys.bindKnex(this.knex);
+    this.sessionTokens = SessionTokens.bindKnex(this.knex);
   }
 
   async dbHealthCheck(): Promise<Record<string, any>> {

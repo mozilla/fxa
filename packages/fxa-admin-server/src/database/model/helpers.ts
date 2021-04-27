@@ -33,6 +33,18 @@ export const emailBouncesTable = fs.readFileSync(
   path.join(thisDir, './email-bounces.sql'),
   'utf8'
 );
+export const totpTable = fs.readFileSync(
+  path.join(thisDir, './totp.sql'),
+  'utf8'
+);
+export const recoveryKeysTable = fs.readFileSync(
+  path.join(thisDir, './recovery-keys.sql'),
+  'utf8'
+);
+export const sessionTokensTable = fs.readFileSync(
+  path.join(thisDir, './session-tokens.sql'),
+  'utf8'
+);
 
 export function randomAccount() {
   const email = chance.email();
@@ -77,6 +89,57 @@ export function randomEmail(account: AccountIsh, createSecondaryEmail = false) {
   };
 }
 
+export function randomTotp(account: AccountIsh) {
+  return {
+    uid: account.uid,
+    sharedSecret: 'abcd1234',
+    epoch: 0,
+    createdAt: chance.timestamp(),
+    verified: true,
+    enabled: true,
+  };
+}
+
+export function randomRecoveryKey(account: AccountIsh) {
+  return {
+    uid: account.uid,
+    recoveryData: 'abcd1234',
+    recoveryKeyIdHash:
+      '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    createdAt: chance.timestamp(),
+    verifiedAt: chance.timestamp(),
+    enabled: true,
+  };
+}
+
+export function randomSessionToken(account: AccountIsh) {
+  return {
+    tokenId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    tokenData:
+      '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    uid: account.uid,
+    createdAt: chance.timestamp(),
+    uaBrowser: 'Chrome',
+    uaBrowserVersion: '89.0.4389',
+    uaOS: 'Mac OS X',
+    uaOSVersion: '11.2.1',
+    uaDeviceType: 'Mac',
+    lastAccessTime: chance.timestamp(),
+    uaFormFactor: 'abcd1234',
+    authAt: chance.timestamp(),
+    verificationMethod: 1,
+    verifiedAt: chance.timestamp(),
+    mustVerify: false,
+  };
+}
+
+function typeCasting(field: any, next: any) {
+  if (field.type === 'TINY' && field.length === 1) {
+    return field.string() === '1';
+  }
+  return next();
+}
+
 export async function testDatabaseSetup(dbname: string): Promise<Knex> {
   // Create the db if it doesn't exist
   let knex = Knex({
@@ -95,6 +158,7 @@ export async function testDatabaseSetup(dbname: string): Promise<Knex> {
   await knex.destroy();
   knex = Knex({
     connection: {
+      typeCast: typeCasting,
       database: dbname,
       host: 'localhost',
       password: '',
@@ -107,6 +171,9 @@ export async function testDatabaseSetup(dbname: string): Promise<Knex> {
   await knex.raw(accountTable);
   await knex.raw(emailsTable);
   await knex.raw(emailBouncesTable);
+  await knex.raw(totpTable);
+  await knex.raw(recoveryKeysTable);
+  await knex.raw(sessionTokensTable);
 
   /* Debugging Assistance
   knex.on('query', data => {
