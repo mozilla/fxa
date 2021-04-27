@@ -49,6 +49,33 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
   }
 `;
 
+// new query for getting account by UID
+export const GET_ACCOUNT_BY_UID = gql`
+  query getAccountByUid($uid: String!) {
+    accountByUid(uid: $uid) {
+      uid
+      createdAt
+      emails {
+        email
+        isVerified
+        isPrimary
+        createdAt
+      }
+      emailBounces {
+        email
+        createdAt
+        bounceType
+        bounceSubType
+      }
+    }
+  }
+`;
+
+function validateUID(uid: string) {
+  // checks if input string is in uid format (hex, 32 digit)
+  return /^[0-9a-fA-F]{32}/.test(uid);
+}
+
 export const GET_EMAILS_LIKE = gql`
   query getEmails($search: String!) {
     getEmailsLike(search: $search) {
@@ -62,19 +89,35 @@ export const AccountSearch = () => {
   const [showResult, setShowResult] = useState<boolean>(false);
   const [showSuggestion, setShowSuggestion] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>('');
-  const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
-    GET_ACCOUNT_BY_EMAIL
-  );
+  // define two queries to search by either email or uid.
+  const [getAccountbyEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
+  const [getAccountbyUID, uidResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
+  // choose which query result to show based on type of query made
+  const [isEmail, setIsEmail] = useState<boolean>(false);
+  const queryResults = isEmail && showResult ? emailResults : uidResults;
   const [getEmailLike, { data: returnedEmails }] = useLazyQuery(
     GET_EMAILS_LIKE
   );
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setShowSuggestion(false);
-    getAccount({ variables: { email: searchInput } });
-    // Don't hide after the first result is shown
-    setShowResult(true);
+    const isUID = validateUID(searchInput);
+    // choose correct query if email or uid
+    if (isUID) {
+      // uid and non-empty
+      getAccountbyUID({ variables: { uid: searchInput } });
+      setIsEmail(false);
+      setShowResult(true);
+    } else if (!isUID && searchInput.search('@') !== -1 && searchInput !== '') {
+      // assume email if not uid and non-empty; must at least have '@'
+      getAccountbyEmail({ variables: { email: searchInput } });
+      setIsEmail(true);
+      setShowResult(true);
+    }
+    // invalid input, neither email nor uid
+    else {
+      window.alert('Invalid email or UID format');
+    }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,16 +179,16 @@ export const AccountSearch = () => {
       </p>
 
       <form onSubmit={handleSubmit} data-testid="search-form" className="flex">
-        <label htmlFor="email">Email to search for:</label>
+        <label htmlFor="email">Email or UID to search for:</label>
         <br />
         <input
           autoComplete="off"
           value={searchInput}
           autoFocus
           name="email"
-          type="email"
+          type="search"
           onChange={handleChange}
-          placeholder="hello@world.com"
+          placeholder="hello@world.com or uid"
           data-testid="email-input"
         />
         <div className="suggestions-list">{renderSuggestions()}</div>
@@ -156,15 +199,15 @@ export const AccountSearch = () => {
         ></button>
       </form>
 
-      {showResult && refetch ? (
+      {showResult && queryResults.refetch ? (
         <>
           <hr />
           <AccountSearchResult
-            onCleared={refetch}
+            onCleared={queryResults.refetch}
             {...{
-              loading,
-              error,
-              data,
+              loading: queryResults.loading,
+              error: queryResults.error,
+              data: queryResults.data,
               query: inputValue,
             }}
           />
@@ -186,14 +229,19 @@ const AccountSearchResult = ({
   error?: {};
   data?: {
     accountByEmail: AccountType;
+    accountByUid: AccountType;
   };
   query: string;
 }) => {
   if (loading) return <p data-testid="loading-message">Loading...</p>;
-  if (error) return <p data-testid="error-message">An error occured.</p>;
+  if (error) return <p data-testid="error-message">An error occurred.</p>;
 
   if (data?.accountByEmail) {
     return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
+  }
+
+  if (data?.accountByUid) {
+    return <Account {...{ query, onCleared }} {...data.accountByUid} />;
   }
   return <p data-testid="no-account-message">Account not found.</p>;
 };
