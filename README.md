@@ -311,6 +311,7 @@ We have also extensively documented working with the [FxA code-base using VS Cod
 
 `yarn start` runs some of the services with the debugger enabled by default.
 (using yarn is preferred in place of npm install)
+
 1. Start the whole server as usual (`yarn && yarn start` from top-level in the monorepo)
 2. To see which debug port each service is listening on check `.vscode/launch.json` or the `pm2.config.js` file of the package you're interested in.
 3. Connect to the process to debug it:
