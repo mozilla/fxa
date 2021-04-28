@@ -77,7 +77,7 @@
     "@testing-library/react-hooks": "^5.1.2",
     "@testing-library/user-event": "^13.1.5",
     "@types/babel__core": "7.1.14",
-    "@types/classnames": "^2.2.11",
+    "@types/classnames": "^2.3.1",
     "@types/jest": "^26.0.22",
     "@types/lodash.groupby": "^4",
     "@types/node": "^14.14.37",
