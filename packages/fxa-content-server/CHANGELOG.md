@@ -1,3 +1,29 @@
+## 1.205.0
+
+### Bug fixes
+
+- tests: Removes references to settings_v2 ([224499eb7](https://github.com/mozilla/fxa/commit/224499eb7))
+- tests: Fix regression functional tests ([1dc8e661e](https://github.com/mozilla/fxa/commit/1dc8e661e))
+- content-server: retain utm\_ parameters ([d5ba9ca81](https://github.com/mozilla/fxa/commit/d5ba9ca81))
+- tests: some testing updates ([d13f9fc5e](https://github.com/mozilla/fxa/commit/d13f9fc5e))
+- settings: clear local storage on account delete ([382795556](https://github.com/mozilla/fxa/commit/382795556))
+- settings: ensure the object returned from useSession is stable ([045902b45](https://github.com/mozilla/fxa/commit/045902b45))
+- tests: Fixes recovery key flaky test and updates functional settings test ([37858955f](https://github.com/mozilla/fxa/commit/37858955f))
+- tests: Enabled the disabled smoke tests ([7f948a394](https://github.com/mozilla/fxa/commit/7f948a394))
+
+### Other changes
+
+- deps: bump helmet from 4.4.1 to 4.5.0 ([485850809](https://github.com/mozilla/fxa/commit/485850809))
+- settings: remove unused functional helper code. closes #7882 ([9c7ee6c40](https://github.com/mozilla/fxa/commit/9c7ee6c40))
+- deps-dev: bump htmlparser2 from 6.0.1 to 6.1.0 ([43b58c751](https://github.com/mozilla/fxa/commit/43b58c751))
+- deps: bump mustache from 4.1.0 to 4.2.0 ([7aada8e56](https://github.com/mozilla/fxa/commit/7aada8e56))
+- monorepo: Update legal docs ([ea0ddfd7e](https://github.com/mozilla/fxa/commit/ea0ddfd7e))
+- deps-dev: bump @types/backbone from 1.4.5 to 1.4.10 ([ef24a5b14](https://github.com/mozilla/fxa/commit/ef24a5b14))
+- deps-dev: bump ts-loader from 8.0.12 to 9.0.0 ([5fcc9cffe](https://github.com/mozilla/fxa/commit/5fcc9cffe))
+- deps: Update selenium version to 0.29.1 ([145187b9e](https://github.com/mozilla/fxa/commit/145187b9e))
+- deps-dev: bump firefox-profile from 4.1.0 to 4.2.0 ([bcb374046](https://github.com/mozilla/fxa/commit/bcb374046))
+- deps: bump thread-loader from 3.0.1 to 3.0.3 ([2611711b0](https://github.com/mozilla/fxa/commit/2611711b0))
+
 ## 1.204.7
 
 ### Bug fixes

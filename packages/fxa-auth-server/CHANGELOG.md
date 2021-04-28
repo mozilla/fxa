@@ -1,3 +1,24 @@
+## 1.205.0
+
+### New features
+
+- emails: add tables and models for email history ([16212769d](https://github.com/mozilla/fxa/commit/16212769d))
+
+### Bug fixes
+
+- emails: use site privacy notice url not product privacy notice ([079f7890f](https://github.com/mozilla/fxa/commit/079f7890f))
+- config: actually use a regex for forcePasswordChange ([748c61e52](https://github.com/mozilla/fxa/commit/748c61e52))
+- emails: send one payment failed email per invoice ([d4654c82d](https://github.com/mozilla/fxa/commit/d4654c82d))
+- email: Correct broken account recovery links in emails ([81c682e76](https://github.com/mozilla/fxa/commit/81c682e76))
+
+### Other changes
+
+- deps-dev: bump @types/ioredis from 4.22.1 to 4.26.0 ([e9b653827](https://github.com/mozilla/fxa/commit/e9b653827))
+- deps-dev: bump keypair from 1.0.1 to 1.0.3 ([ad39a767d](https://github.com/mozilla/fxa/commit/ad39a767d))
+- deps: bump node-zendesk from 2.0.3 to 2.0.6 ([09a37d36b](https://github.com/mozilla/fxa/commit/09a37d36b))
+- deps-dev: bump @types/mocha from 8.2.1 to 8.2.2 ([0723fa7f7](https://github.com/mozilla/fxa/commit/0723fa7f7))
+- deps: bump jsrsasign from 10.1.13 to 10.2.0 ([61cd279b2](https://github.com/mozilla/fxa/commit/61cd279b2))
+
 ## 1.204.7
 
 No changes.

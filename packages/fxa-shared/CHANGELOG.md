@@ -1,5 +1,20 @@
 # Change history
 
+## 1.205.0
+
+### New features
+
+- emails: add tables and models for email history ([16212769d](https://github.com/mozilla/fxa/commit/16212769d))
+
+### Other changes
+
+- l10n: add eu to supported languages ([72d77ba2e](https://github.com/mozilla/fxa/commit/72d77ba2e))
+- deps-dev: bump jsdom from 16.4.0 to 16.5.3 ([8f3c2219c](https://github.com/mozilla/fxa/commit/8f3c2219c))
+- deps-dev: bump @types/mocha from 8.2.1 to 8.2.2 ([0723fa7f7](https://github.com/mozilla/fxa/commit/0723fa7f7))
+- deps-dev: bump ts-loader from 8.0.12 to 9.0.0 ([5fcc9cffe](https://github.com/mozilla/fxa/commit/5fcc9cffe))
+- deps: bump @types/sinon from 9.0.8 to 10.0.0 ([26debdc2d](https://github.com/mozilla/fxa/commit/26debdc2d))
+- deps-dev: bump ts-jest from 26.5.4 to 26.5.5 ([66ab577c0](https://github.com/mozilla/fxa/commit/66ab577c0))
+
 ## 1.204.7
 
 No changes.

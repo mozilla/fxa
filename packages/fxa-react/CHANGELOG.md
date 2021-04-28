@@ -1,3 +1,21 @@
+## 1.205.0
+
+### Other changes
+
+- deps-dev: bump @types/classnames from 2.2.11 to 2.3.1 ([26a94a0a7](https://github.com/mozilla/fxa/commit/26a94a0a7))
+- deps-dev: bump @testing-library/user-event from 12.7.1 to 13.1.5 ([4046a9fd2](https://github.com/mozilla/fxa/commit/4046a9fd2))
+- deps-dev: downgrade @storybook/addons from 6.2.9 to 5.3.19 ([a2316b02d](https://github.com/mozilla/fxa/commit/a2316b02d))
+- deps-dev: bump @testing-library/jest-dom from 5.11.9 to 5.12.0 ([3caa873b8](https://github.com/mozilla/fxa/commit/3caa873b8))
+- deps-dev: bump @storybook/addons from 5.3.21 to 6.2.9 ([8a2de2c7f](https://github.com/mozilla/fxa/commit/8a2de2c7f))
+- deps: bump @fluent/langneg from 0.5.1 to 0.5.2 ([ecee03de1](https://github.com/mozilla/fxa/commit/ecee03de1))
+- deps-dev: bump @storybook/addon-links from 6.1.15 to 6.2.8 ([e3f565ca9](https://github.com/mozilla/fxa/commit/e3f565ca9))
+- deps: bump @types/sinon from 9.0.8 to 10.0.0 ([26debdc2d](https://github.com/mozilla/fxa/commit/26debdc2d))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.0.1 to 2.1.0 ([3e0782d89](https://github.com/mozilla/fxa/commit/3e0782d89))
+- deps-dev: bump ts-jest from 26.5.4 to 26.5.5 ([66ab577c0](https://github.com/mozilla/fxa/commit/66ab577c0))
+- deps: bump async-wait-until from 2.0.4 to 2.0.5 ([d77d0c77d](https://github.com/mozilla/fxa/commit/d77d0c77d))
+- deps: bump @fluent/react from 0.13.0 to 0.13.1 ([094bc5f7e](https://github.com/mozilla/fxa/commit/094bc5f7e))
+- deps: bump @fluent/bundle from 0.16.0 to 0.16.1 ([46f58e0d0](https://github.com/mozilla/fxa/commit/46f58e0d0))
+
 ## 1.204.7
 
 No changes.

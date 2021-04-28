@@ -1,5 +1,14 @@
 # Change history
 
+## 1.205.0
+
+### Other changes
+
+- deps: bump helmet from 4.4.1 to 4.5.0 ([485850809](https://github.com/mozilla/fxa/commit/485850809))
+- deps: bump tslib from 2.1.0 to 2.2.0 ([848a164ca](https://github.com/mozilla/fxa/commit/848a164ca))
+- deps-dev: bump @types/eslint from 7.2.9 to 7.2.10 ([3b4fac5b7](https://github.com/mozilla/fxa/commit/3b4fac5b7))
+- deps-dev: bump ts-jest from 26.5.4 to 26.5.5 ([66ab577c0](https://github.com/mozilla/fxa/commit/66ab577c0))
+
 ## 1.204.7
 
 No changes.

@@ -1,3 +1,32 @@
+## 1.205.0
+
+### Bug fixes
+
+- tests: Removes references to settings_v2 ([224499eb7](https://github.com/mozilla/fxa/commit/224499eb7))
+- setting: remove fixed height from 2fa recovery codes. fixes #7126 ([7221a0213](https://github.com/mozilla/fxa/commit/7221a0213))
+- Settings: Enable 'Delete Account' button when the password length is 8 or more ([fe3b80e23](https://github.com/mozilla/fxa/commit/fe3b80e23))
+- settings: clear local storage on account delete ([382795556](https://github.com/mozilla/fxa/commit/382795556))
+- settings: ensure the object returned from useSession is stable ([045902b45](https://github.com/mozilla/fxa/commit/045902b45))
+- settings: fixes #8235 ([b5a6f5c1d](https://github.com/mozilla/fxa/commit/b5a6f5c1d))
+
+### Other changes
+
+- deps: bump react-easy-crop from 3.3.2 to 3.3.3 ([245e1210f](https://github.com/mozilla/fxa/commit/245e1210f))
+- deps-dev: bump @types/classnames from 2.2.11 to 2.3.1 ([26a94a0a7](https://github.com/mozilla/fxa/commit/26a94a0a7))
+- deps-dev: bump @testing-library/user-event from 12.7.1 to 13.1.5 ([4046a9fd2](https://github.com/mozilla/fxa/commit/4046a9fd2))
+- deps-dev: downgrade @storybook/addons from 6.2.9 to 5.3.19 ([a2316b02d](https://github.com/mozilla/fxa/commit/a2316b02d))
+- deps-dev: bump @testing-library/react-hooks from 5.0.3 to 5.1.2 ([b82359d7f](https://github.com/mozilla/fxa/commit/b82359d7f))
+- deps-dev: bump @testing-library/jest-dom from 5.11.9 to 5.12.0 ([3caa873b8](https://github.com/mozilla/fxa/commit/3caa873b8))
+- deps-dev: bump @storybook/addons from 5.3.21 to 6.2.9 ([8a2de2c7f](https://github.com/mozilla/fxa/commit/8a2de2c7f))
+- deps: bump react-easy-crop from 3.3.1 to 3.3.2 ([ad1c2459c](https://github.com/mozilla/fxa/commit/ad1c2459c))
+- deps-dev: bump @types/webpack from 4.41.26 to 5.28.0 ([3de8e4e46](https://github.com/mozilla/fxa/commit/3de8e4e46))
+- deps-dev: bump @storybook/addon-links from 6.1.15 to 6.2.8 ([e3f565ca9](https://github.com/mozilla/fxa/commit/e3f565ca9))
+- deps: bump base32-encode from 1.1.1 to 1.2.0 ([8544107bb](https://github.com/mozilla/fxa/commit/8544107bb))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.0.1 to 2.1.0 ([3e0782d89](https://github.com/mozilla/fxa/commit/3e0782d89))
+- deps: bump @apollo/client from 3.3.13 to 3.3.15 ([b4d6a9b8d](https://github.com/mozilla/fxa/commit/b4d6a9b8d))
+- deps-dev: bump @storybook/preset-create-react-app ([123c6c7da](https://github.com/mozilla/fxa/commit/123c6c7da))
+- deps: bump @fluent/react from 0.13.0 to 0.13.1 ([094bc5f7e](https://github.com/mozilla/fxa/commit/094bc5f7e))
+
 ## 1.204.7
 
 No changes.

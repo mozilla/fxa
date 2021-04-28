@@ -1,3 +1,28 @@
+## 1.205.0
+
+### New features
+
+- admin: implement uid search on the admin panel ([3afcb57f8](https://github.com/mozilla/fxa/commit/3afcb57f8))
+
+### Other changes
+
+- deps: bump helmet from 4.4.1 to 4.5.0 ([485850809](https://github.com/mozilla/fxa/commit/485850809))
+- deps-dev: bump @typescript-eslint/parser from 4.21.0 to 4.22.0 ([cc2e2e567](https://github.com/mozilla/fxa/commit/cc2e2e567))
+- deps-dev: bump @types/react-router-dom from 5.1.5 to 5.1.7 ([4e9ede7f4](https://github.com/mozilla/fxa/commit/4e9ede7f4))
+- deps-dev: bump @testing-library/user-event from 12.7.1 to 13.1.5 ([4046a9fd2](https://github.com/mozilla/fxa/commit/4046a9fd2))
+- deps-dev: downgrade @storybook/addons from 6.2.9 to 5.3.19 ([a2316b02d](https://github.com/mozilla/fxa/commit/a2316b02d))
+- deps-dev: bump @testing-library/jest-dom from 5.11.9 to 5.12.0 ([3caa873b8](https://github.com/mozilla/fxa/commit/3caa873b8))
+- deps-dev: bump @storybook/addons from 5.3.21 to 6.2.9 ([8a2de2c7f](https://github.com/mozilla/fxa/commit/8a2de2c7f))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([486ff11c9](https://github.com/mozilla/fxa/commit/486ff11c9))
+- deps-dev: bump @types/eslint from 7.2.9 to 7.2.10 ([3b4fac5b7](https://github.com/mozilla/fxa/commit/3b4fac5b7))
+- deps-dev: bump @types/webpack from 4.41.26 to 5.28.0 ([3de8e4e46](https://github.com/mozilla/fxa/commit/3de8e4e46))
+- deps-dev: bump @storybook/addon-links from 6.1.15 to 6.2.8 ([e3f565ca9](https://github.com/mozilla/fxa/commit/e3f565ca9))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.0.1 to 2.1.0 ([3e0782d89](https://github.com/mozilla/fxa/commit/3e0782d89))
+- deps: bump @apollo/client from 3.3.13 to 3.3.15 ([b4d6a9b8d](https://github.com/mozilla/fxa/commit/b4d6a9b8d))
+- deps-dev: bump @storybook/preset-create-react-app ([123c6c7da](https://github.com/mozilla/fxa/commit/123c6c7da))
+- deps-dev: bump ts-jest from 26.5.4 to 26.5.5 ([66ab577c0](https://github.com/mozilla/fxa/commit/66ab577c0))
+- 1bb2ad6f6 Created the TOTP model in database/model/totp.model.ts ([1bb2ad6f6](https://github.com/mozilla/fxa/commit/1bb2ad6f6))
+
 ## 1.204.7
 
 No changes.

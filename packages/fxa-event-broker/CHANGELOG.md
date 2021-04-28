@@ -1,5 +1,15 @@
 # Change history
 
+## 1.205.0
+
+### Other changes
+
+- deps-dev: bump @typescript-eslint/parser from 4.21.0 to 4.22.0 ([cc2e2e567](https://github.com/mozilla/fxa/commit/cc2e2e567))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([486ff11c9](https://github.com/mozilla/fxa/commit/486ff11c9))
+- deps-dev: bump ts-loader from 8.0.12 to 9.0.0 ([5fcc9cffe](https://github.com/mozilla/fxa/commit/5fcc9cffe))
+- deps: bump @types/sinon from 9.0.8 to 10.0.0 ([26debdc2d](https://github.com/mozilla/fxa/commit/26debdc2d))
+- deps-dev: bump ts-jest from 26.5.4 to 26.5.5 ([66ab577c0](https://github.com/mozilla/fxa/commit/66ab577c0))
+
 ## 1.204.7
 
 No changes.
