@@ -5,8 +5,8 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('./lib/helpers');
-const selectors = require('./lib/selectors');
+const FunctionalHelpers = require('../lib/helpers');
+const selectors = require('../lib/selectors');
 const config = intern._config;
 
 const ENTER_EMAIL_URL = config.fxaContentRoot;
@@ -54,18 +54,16 @@ registerSuite('delete_account', {
           .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
           .then((labels) => labels.map((label) => label.click()))
           .end()
-          .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.SUBMIT_BUTTON))
+          .then(click(selectors.SETTINGS.DELETE_ACCOUNT.SUBMIT_BUTTON))
 
           // enter incorrect password
           // but first, click the label to get it out of the way.
           .then(
             testElementExists(
-              selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
+              selectors.SETTINGS.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
             )
           )
-          .then(
-            click(selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL)
-          )
+          .then(click(selectors.SETTINGS.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL))
           .then(
             type(
               selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD,
@@ -105,20 +103,18 @@ registerSuite('delete_account', {
           .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
           .then((labels) => labels.map((label) => label.click()))
           .end()
-          .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.SUBMIT_BUTTON))
+          .then(click(selectors.SETTINGS.DELETE_ACCOUNT.SUBMIT_BUTTON))
           // Enter password, but first, click the label to get it out of the way.
           .then(
             testElementExists(
-              selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
+              selectors.SETTINGS.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
             )
           )
-          .then(
-            click(selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL)
-          )
+          .then(click(selectors.SETTINGS.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL))
           .then(
             type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
           )
-          .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.CANCEL_BUTTON))
+          .then(click(selectors.SETTINGS.DELETE_ACCOUNT.CANCEL_BUTTON))
           .then(pollUntilHiddenByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
           .then(
             testElementTextInclude(selectors.SETTINGS.PROFILE_HEADER, email)

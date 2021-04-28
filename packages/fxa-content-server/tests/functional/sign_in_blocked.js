@@ -376,7 +376,7 @@ registerSuite('signin blocked', {
           // set new primary email
           .then(
             click(
-              selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY,
+              selectors.SETTINGS.SECONDARY_EMAIL.MAKE_PRIMARY,
               selectors.EMAIL.SUCCESS
             )
           )

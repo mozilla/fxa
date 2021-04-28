@@ -25,7 +25,7 @@ async function navigateToSettingsV2(remote) {
 
   await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
   await fillOutEmailFirstSignIn(email, password, remote);
-  await testElementExists(selectors.SETTINGS_V2.APP, remote);
+  await testElementExists(selectors.SETTINGS.APP, remote);
   return email;
 }
 

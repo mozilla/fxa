@@ -5,8 +5,8 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('./lib/helpers');
-const selectors = require('./lib/selectors');
+const FunctionalHelpers = require('../lib/helpers');
+const selectors = require('../lib/selectors');
 
 const config = intern._config;
 const ENTER_EMAIL_URL = config.fxaContentRoot;
@@ -51,7 +51,7 @@ const setupTest = thenify(function (options = {}) {
     );
 });
 
-registerSuite('change_password', {
+registerSuite('change password', {
   beforeEach: function () {
     email = createEmail();
   },
@@ -113,18 +113,14 @@ registerSuite('change_password', {
           .then(click(selectors.CHANGE_PASSWORD.OLD_PASSWORD_LABEL))
           .then(type(selectors.CHANGE_PASSWORD.OLD_PASSWORD, FIRST_PASSWORD))
           .then(
-            testElementExists(
-              selectors.SETTINGS_V2.CHANGE_PASSWORD.UNSET_LENGTH
-            )
+            testElementExists(selectors.SETTINGS.CHANGE_PASSWORD.UNSET_LENGTH)
           )
 
           // new_password too short
           .then(click(selectors.CHANGE_PASSWORD.NEW_PASSWORD_LABEL))
           .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'pass'))
           .then(
-            testElementExists(
-              selectors.SETTINGS_V2.CHANGE_PASSWORD.INVALID_LENGTH
-            )
+            testElementExists(selectors.SETTINGS.CHANGE_PASSWORD.INVALID_LENGTH)
           )
 
           // new_password too close to the email address
@@ -132,7 +128,7 @@ registerSuite('change_password', {
           .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, email))
           .then(
             testElementExists(
-              selectors.SETTINGS_V2.CHANGE_PASSWORD.INVALID_SIMILAR_TO_EMAIL
+              selectors.SETTINGS.CHANGE_PASSWORD.INVALID_SIMILAR_TO_EMAIL
             )
           )
 
@@ -141,7 +137,7 @@ registerSuite('change_password', {
           .then(type(selectors.CHANGE_PASSWORD.NEW_PASSWORD, 'password'))
           .then(
             testElementExists(
-              selectors.SETTINGS_V2.CHANGE_PASSWORD.INVALID_TOO_COMMON
+              selectors.SETTINGS.CHANGE_PASSWORD.INVALID_TOO_COMMON
             )
           )
 
@@ -151,23 +147,21 @@ registerSuite('change_password', {
           .then(click(selectors.CHANGE_PASSWORD.NEW_VPASSWORD_LABEL))
           .then(type(selectors.CHANGE_PASSWORD.NEW_VPASSWORD, SECOND_PASSWORD))
           .then(
+            testElementExists(selectors.SETTINGS.CHANGE_PASSWORD.VALID_LENGTH)
+          )
+          .then(
             testElementExists(
-              selectors.SETTINGS_V2.CHANGE_PASSWORD.VALID_LENGTH
+              selectors.SETTINGS.CHANGE_PASSWORD.VALID_SIMILAR_TO_EMAIL
             )
           )
           .then(
             testElementExists(
-              selectors.SETTINGS_V2.CHANGE_PASSWORD.VALID_SIMILAR_TO_EMAIL
+              selectors.SETTINGS.CHANGE_PASSWORD.VALID_TOO_COMMON
             )
           )
           .then(
             testElementExists(
-              selectors.SETTINGS_V2.CHANGE_PASSWORD.VALID_TOO_COMMON
-            )
-          )
-          .then(
-            testElementExists(
-              selectors.SETTINGS_V2.CHANGE_PASSWORD.VALID_PASSWORD_MATCH
+              selectors.SETTINGS.CHANGE_PASSWORD.VALID_PASSWORD_MATCH
             )
           )
           .then(click(selectors.CHANGE_PASSWORD.SUBMIT))

@@ -31,4 +31,4 @@ _scripts/check-url.sh localhost:3030/bundle/app.bundle.js
 
 cd packages/fxa-content-server
 mozinstall /firefox.tar.bz2
-node tests/intern.js --suites="settings_v2" --output="../../artifacts/tests/results.xml" --firefoxBinary=./firefox/firefox
+node tests/intern.js --suites="settings" --output="../../artifacts/tests/results.xml" --firefoxBinary=./firefox/firefox

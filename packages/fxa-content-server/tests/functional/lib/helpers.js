@@ -1621,33 +1621,31 @@ const addAndVerifySecondaryEmail = thenify(function (email, number = 0) {
       .then(
         click(
           selectors.EMAIL.ADD_BUTTON,
-          selectors.SETTINGS_V2.SECONDARY_EMAIL.CANCEL_BUTTON
+          selectors.SETTINGS.SECONDARY_EMAIL.CANCEL_BUTTON
         )
       )
       .then(
         click(
-          selectors.SETTINGS_V2.SECONDARY_EMAIL.CANCEL_BUTTON,
-          selectors.SETTINGS_V2.HEADER
+          selectors.SETTINGS.SECONDARY_EMAIL.CANCEL_BUTTON,
+          selectors.SETTINGS.HEADER
         )
       )
       // Awkwardly, to get back to the secondary email code input, we need to click
       // the 'resend email' link.
       .then(
         click(
-          selectors.SETTINGS_V2.SECONDARY_EMAIL.RESEND_EMAIL,
-          selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL
+          selectors.SETTINGS.SECONDARY_EMAIL.RESEND_EMAIL,
+          selectors.SETTINGS.SECONDARY_EMAIL.VERIFY_FORM_LABEL
         )
       )
       .then(getEmailCode(email, number))
       .then((code) => {
         return this.parent
-          .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_LABEL))
-          .then(click(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD))
-          .then(type(selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FIELD, code))
+          .then(click(selectors.SETTINGS.SECONDARY_EMAIL.VERIFY_FORM_LABEL))
+          .then(click(selectors.SETTINGS.SECONDARY_EMAIL.VERIFY_FIELD))
+          .then(type(selectors.SETTINGS.SECONDARY_EMAIL.VERIFY_FIELD, code))
           .then(
-            click(
-              selectors.SETTINGS_V2.SECONDARY_EMAIL.VERIFY_FORM_SUBMIT_BUTTON
-            )
+            click(selectors.SETTINGS.SECONDARY_EMAIL.VERIFY_FORM_SUBMIT_BUTTON)
           );
       })
   );
@@ -1692,14 +1690,14 @@ const fillOutSignInTokenCode = thenify(function (email, number) {
 
 const fillOutVerificationCode = thenify(function (email, number) {
   return this.parent
-    .then(click(selectors.SETTINGS_V2.SESSION_VERIFICATION.LABEL))
+    .then(click(selectors.SETTINGS.SESSION_VERIFICATION.LABEL))
     .then(getTokenCode(email, number))
     .then((tokenCode) => {
       return this.parent.then(
-        type(selectors.SETTINGS_V2.SESSION_VERIFICATION.INPUT, tokenCode)
+        type(selectors.SETTINGS.SESSION_VERIFICATION.INPUT, tokenCode)
       );
     })
-    .then(click(selectors.SETTINGS_V2.SESSION_VERIFICATION.SUBMIT));
+    .then(click(selectors.SETTINGS.SESSION_VERIFICATION.SUBMIT));
 });
 
 const fillOutSignUpCode = thenify(function (email, number) {
@@ -1951,15 +1949,15 @@ const fillOutDeleteAccount = thenify(function (password) {
       .end()
       .then(storeWebChannelMessageData(DELETE_ACCOUNT_COMMAND))
 
-      .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.SUBMIT_BUTTON))
+      .then(click(selectors.SETTINGS.DELETE_ACCOUNT.SUBMIT_BUTTON))
       // Enter password to proceed, but click on label first to get it out of
       // the way
       .then(
         testElementExists(
-          selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
+          selectors.SETTINGS.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL
         )
       )
-      .then(click(selectors.SETTINGS_V2.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL))
+      .then(click(selectors.SETTINGS.DELETE_ACCOUNT.INPUT_PASSWORD_LABEL))
       .then(type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, password))
       // delete account
       .then(
@@ -2913,13 +2911,13 @@ const signOut = thenify(function () {
   return this.parent
     .then(
       click(
-        selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-        selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+        selectors.SETTINGS.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+        selectors.SETTINGS.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
       )
     )
     .then(
       click(
-        selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+        selectors.SETTINGS.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
         selectors.ENTER_EMAIL.HEADER
       )
     )

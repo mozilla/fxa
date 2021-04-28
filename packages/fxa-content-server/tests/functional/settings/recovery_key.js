@@ -5,8 +5,8 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('./lib/helpers');
-const selectors = require('./lib/selectors');
+const FunctionalHelpers = require('../lib/helpers');
+const selectors = require('../lib/selectors');
 
 const config = intern._config;
 
@@ -101,7 +101,7 @@ registerSuite('Recovery key', {
         this.remote
           .then(
             click(
-              selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.REMOVE_RECOVERY_KEY,
+              selectors.SETTINGS.SECURITY.RECOVERY_KEY.REMOVE_RECOVERY_KEY,
               selectors.RECOVERY_KEY.CONFIRM_REVOKE_DESCRIPTION
             )
           )
@@ -307,7 +307,7 @@ registerSuite('Recovery key - unverified session', {
           .then(fillOutVerificationCode(email, 0))
           .then(
             testElementExists(
-              selectors.SETTINGS_V2.SECURITY.RECOVERY_KEY.PASSWORD_TEXTBOX_LABEL
+              selectors.SETTINGS.SECURITY.RECOVERY_KEY.PASSWORD_TEXTBOX_LABEL
             )
           )
       );
