@@ -5,8 +5,8 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('./lib/helpers');
-const selectors = require('./lib/selectors');
+const FunctionalHelpers = require('../lib/helpers');
+const selectors = require('../lib/selectors');
 
 const config = intern._config;
 
@@ -178,9 +178,7 @@ registerSuite('TOTP', {
             selectors.TOTP.RECOVERY_CODES_DESCRIPTION
           )
         )
-        .then(
-          click(selectors.SETTINGS_V2.SECURITY.TFA.CLOSE_RECOVERY_KEY_BLOCK)
-        );
+        .then(click(selectors.SETTINGS.SECURITY.TFA.CLOSE_RECOVERY_KEY_BLOCK));
     },
 
     'can reset password, prompt for TOTP and login - same browser same tab': function () {
@@ -289,14 +287,12 @@ registerSuite('TOTP - unverified session', {
           .then(testElementExists(selectors.TOTP.UNLOCK_SEND_VERIFY))
 
           // send and open verification in same tab
-          // TODO new modal doesn't allow the click. it just auto-sends.
-          //.then(click(selectors.TOTP.UNLOCK_SEND_VERIFY))
           .then(fillOutVerificationCode(email, 0))
 
           // panel becomes verified and can be opened
           .then(
             testElementExists(
-              selectors.SETTINGS_V2.SECURITY.TFA.SECURITY_CODE_TEXTBOX_LABEL
+              selectors.SETTINGS.SECURITY.TFA.SECURITY_CODE_TEXTBOX_LABEL
             )
           )
       );

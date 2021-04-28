@@ -70,7 +70,7 @@ registerSuite('recovery code', {
             self.remote
               .then(
                 click(
-                  selectors.SETTINGS_V2.SECURITY.TFA.SECURITY_CODE_TEXTBOX_LABEL
+                  selectors.SETTINGS.SECURITY.TFA.SECURITY_CODE_TEXTBOX_LABEL
                 )
               )
               .then(
@@ -83,14 +83,14 @@ registerSuite('recovery code', {
 
               // Store a recovery code
               .findByCssSelector(
-                selectors.SETTINGS_V2.SECURITY.TFA.FIRST_RECOVERY_CODE
+                selectors.SETTINGS.SECURITY.TFA.FIRST_RECOVERY_CODE
               )
               .getVisibleText()
               .then((code) => {
                 recoveryCode = code;
                 return self.remote
                   .findByCssSelector(
-                    selectors.SETTINGS_V2.SECURITY.TFA.SECOND_RECOVERY_CODE
+                    selectors.SETTINGS.SECURITY.TFA.SECOND_RECOVERY_CODE
                   )
                   .getVisibleText()
                   .then((code) => {
@@ -100,9 +100,7 @@ registerSuite('recovery code', {
               .then(() => {
                 return self.remote
                   .then(
-                    click(
-                      selectors.SETTINGS_V2.SECURITY.TFA.CONTINUE_RECOVERY_KEY
-                    )
+                    click(selectors.SETTINGS.SECURITY.TFA.CONTINUE_RECOVERY_KEY)
                   )
                   .then(
                     type(selectors.TOTP.CONFIRM_RECOVERY_INPUT, recoveryCode)
@@ -121,13 +119,13 @@ registerSuite('recovery code', {
         this.remote
           .then(
             click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+              selectors.SETTINGS.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
             )
           )
           .then(
             click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.SETTINGS.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
               selectors.ENTER_EMAIL.HEADER
             )
           )
@@ -160,13 +158,13 @@ registerSuite('recovery code', {
         this.remote
           .then(
             click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
+              selectors.SETTINGS.AVATAR_DROP_DOWN_MENU.MENU_BUTTON,
+              selectors.SETTINGS.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON
             )
           )
           .then(
             click(
-              selectors.SETTINGS_V2.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
+              selectors.SETTINGS.AVATAR_DROP_DOWN_MENU.SIGNOUT_BUTTON,
               selectors.ENTER_EMAIL.HEADER
             )
           )
@@ -211,7 +209,7 @@ registerSuite('recovery code', {
           .then((emailData) => {
             return openPage(
               emailData.headers['x-link'],
-              selectors.SETTINGS_V2.SECURITY.TFA.CHANGE_TFA
+              selectors.SETTINGS.SECURITY.TFA.CHANGE_TFA
             );
           })
       );

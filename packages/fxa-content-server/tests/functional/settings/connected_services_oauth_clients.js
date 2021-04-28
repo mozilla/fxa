@@ -57,10 +57,10 @@ describe('connected services: oauth clients', () => {
     // client is listed
     await openPage(
       config.fxaSettingsV2Root,
-      selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER
+      selectors.SETTINGS.CONNECTED_SERVICES.HEADER
     );
     await testElementTextInclude(
-      selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER,
+      selectors.SETTINGS.CONNECTED_SERVICES.HEADER,
       '123Done'
     );
 
@@ -77,23 +77,23 @@ describe('connected services: oauth clients', () => {
     // await testElementExists(selectors['123DONE'].AUTHENTICATED);
     // await closeCurrentWindow();
     // refresh the list
-    // await click(selectors.SETTINGS_V2.CONNECTED_SERVICES.REFRESH_BUTTON);
+    // await click(selectors.SETTINGS.CONNECTED_SERVICES.REFRESH_BUTTON);
     // await testElementTextInclude(
-    //   selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER,
+    //   selectors.SETTINGS.CONNECTED_SERVICES.HEADER,
     //   '321Done'
     // );
 
     // disconnect
     await click(
       // the current lack of unique ids make the positional selector here necessary
-      `${selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER} #service:nth-child(3) ${selectors.SETTINGS_V2.CONNECTED_SERVICES.SIGN_OUT}`
+      `${selectors.SETTINGS.CONNECTED_SERVICES.HEADER} #service:nth-child(3) ${selectors.SETTINGS.CONNECTED_SERVICES.SIGN_OUT}`
     );
     await pollUntilGoneByQSA(
-      `${selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER} #service:nth-child(4) ${selectors.SETTINGS_V2.CONNECTED_SERVICES.SIGN_OUT}`
+      `${selectors.SETTINGS.CONNECTED_SERVICES.HEADER} #service:nth-child(4) ${selectors.SETTINGS.CONNECTED_SERVICES.SIGN_OUT}`
     );
-    await click(selectors.SETTINGS_V2.CONNECTED_SERVICES.REFRESH_BUTTON);
+    await click(selectors.SETTINGS.CONNECTED_SERVICES.REFRESH_BUTTON);
     await noSuchElement(
-      `${selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER} #service:nth-child(4) ${selectors.SETTINGS_V2.CONNECTED_SERVICES.SIGN_OUT}`
+      `${selectors.SETTINGS.CONNECTED_SERVICES.HEADER} #service:nth-child(4) ${selectors.SETTINGS.CONNECTED_SERVICES.SIGN_OUT}`
     );
   });
 
@@ -106,9 +106,9 @@ describe('connected services: oauth clients', () => {
     await testElementExists(selectors['123DONE'].AUTHENTICATED);
     const oldUrl = `${config.fxaSettingsV2Root}/clients`;
     // page is redirected and client list is shown
-    await openPage(oldUrl, selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER);
+    await openPage(oldUrl, selectors.SETTINGS.CONNECTED_SERVICES.HEADER);
     await testElementTextInclude(
-      selectors.SETTINGS_V2.CONNECTED_SERVICES.HEADER,
+      selectors.SETTINGS.CONNECTED_SERVICES.HEADER,
       '123Done'
     );
   });

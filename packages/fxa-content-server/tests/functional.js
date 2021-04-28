@@ -2,26 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const testsSettingsV2 = require('./functional_settings_v2');
-// Run the new settings tests first
-module.exports = testsSettingsV2.concat([
+const testsSettings = require('./functional_settings');
+module.exports = testsSettings.concat([
   'tests/functional/fx_browser_relier.js',
   'tests/functional/oauth_webchannel.js',
   'tests/functional/reset_password.js',
   'tests/functional/oauth_require_totp.js',
   'tests/functional/sign_up_with_code.js',
-  'tests/functional/settings_change_email.js',
   // new and flaky tests above here',
   'tests/functional/404.js',
   'tests/functional/500.js',
   'tests/functional/avatar.js',
   'tests/functional/back_button_after_start.js',
   'tests/functional/bounced_email.js',
-  'tests/functional/change_password.js',
   'tests/functional/confirm.js',
   'tests/functional/connect_another_device.js',
   'tests/functional/cookies_disabled.js',
-  'tests/functional/delete_account.js',
   'tests/functional/email_domain_mx_validation.js',
   'tests/functional/email_opt_in.js',
   'tests/functional/email_service.js',
@@ -55,7 +51,6 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/post_verify/secondary_email.js',
   'tests/functional/post_verify/cad_qr.js',
   'tests/functional/pp.js',
-  'tests/functional/recovery_key.js',
   'tests/functional/refreshes_metrics.js',
   'tests/functional/robots_txt.js',
   'tests/functional/security_events.js',
@@ -64,7 +59,6 @@ module.exports = testsSettingsV2.concat([
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',
   'tests/functional/sign_in_recovery_code.js',
-  'tests/functional/sign_in_totp.js',
   'tests/functional/sign_up.js',
   'tests/functional/subscriptions.js',
   'tests/functional/support.js',

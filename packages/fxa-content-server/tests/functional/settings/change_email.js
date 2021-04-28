@@ -5,8 +5,8 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('./lib/helpers');
-const selectors = require('./lib/selectors');
+const FunctionalHelpers = require('../lib/helpers');
+const selectors = require('../lib/selectors');
 
 const config = intern._config;
 
@@ -60,7 +60,7 @@ registerSuite('settings change email', {
         // set new primary email
         .then(
           click(
-            selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY,
+            selectors.SETTINGS.SECONDARY_EMAIL.MAKE_PRIMARY,
             selectors.EMAIL.SUCCESS
           )
         )
@@ -153,7 +153,7 @@ registerSuite('settings change email', {
           // set primary email to original email
           .then(
             testElementTextEquals(
-              selectors.SETTINGS_V2.SECONDARY_EMAIL.HEADER_VALUE,
+              selectors.SETTINGS.SECONDARY_EMAIL.HEADER_VALUE,
               email
             )
           )
@@ -217,7 +217,7 @@ registerSuite('settings change email - unblock', {
         // set new primary email
         .then(
           click(
-            selectors.SETTINGS_V2.SECONDARY_EMAIL.MAKE_PRIMARY,
+            selectors.SETTINGS.SECONDARY_EMAIL.MAKE_PRIMARY,
             selectors.EMAIL.SUCCESS
           )
         )

@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const testsSettingsV2 = require('./functional_settings_v2');
+const testsSettings = require('./functional_settings');
 
-module.exports = testsSettingsV2.concat([
+module.exports = testsSettings.concat([
   // These oauth tests use untrusted clients which
   // would fixed when https://github.com/mozilla/fxa/issues/5291 lands
   // 'tests/functional/oauth_settings_clients.js',

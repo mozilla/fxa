@@ -6,7 +6,7 @@
 
 const intern = require('intern').default;
 const config = intern._config;
-const SETTINGS_V2_URL = config.fxaSettingsV2Root;
+const SETTINGS_URL = config.fxaSettingsV2Root;
 const { describe, it, beforeEach } = intern.getPlugin('interface.bdd');
 const selectors = require('../lib/selectors');
 const FunctionalHelpers = require('../lib/helpers');
@@ -37,21 +37,21 @@ describe('external links', () => {
   });
 
   it('renders external links correctly', async () => {
-    await testElementExists(selectors.SETTINGS_V2.NAVIGATION.NEWSLETTERS_LINK);
+    await testElementExists(selectors.SETTINGS.NAVIGATION.NEWSLETTERS_LINK);
     await testHrefIncludes(
-      selectors.SETTINGS_V2.NAVIGATION.NEWSLETTERS_LINK,
+      selectors.SETTINGS.NAVIGATION.NEWSLETTERS_LINK,
       encodeURIComponent(primaryEmail)
     );
 
-    await testElementExists(selectors.SETTINGS_V2.FOOTER.PRIVACY_LINK);
+    await testElementExists(selectors.SETTINGS.FOOTER.PRIVACY_LINK);
     await testHrefEquals(
-      selectors.SETTINGS_V2.FOOTER.PRIVACY_LINK,
+      selectors.SETTINGS.FOOTER.PRIVACY_LINK,
       'https://www.mozilla.org/en-US/privacy/websites/'
     );
 
-    await testElementExists(selectors.SETTINGS_V2.FOOTER.TERMS_LINK);
+    await testElementExists(selectors.SETTINGS.FOOTER.TERMS_LINK);
     await testHrefEquals(
-      selectors.SETTINGS_V2.FOOTER.TERMS_LINK,
+      selectors.SETTINGS.FOOTER.TERMS_LINK,
       'https://www.mozilla.org/en-US/about/legal/terms/services/'
     );
   });
@@ -63,14 +63,12 @@ describe('external links', () => {
 
     const email = createEmail();
     await subscribeAndSigninToRp(email);
-    await openPage(SETTINGS_V2_URL, selectors.SETTINGS_V2.APP);
+    await openPage(SETTINGS_URL, selectors.SETTINGS.APP);
 
     // test
-    await testElementExists(
-      selectors.SETTINGS_V2.NAVIGATION.SUBSCRIPTIONS_LINK
-    );
+    await testElementExists(selectors.SETTINGS.NAVIGATION.SUBSCRIPTIONS_LINK);
     await testHrefEquals(
-      selectors.SETTINGS_V2.NAVIGATION.SUBSCRIPTIONS_LINK,
+      selectors.SETTINGS.NAVIGATION.SUBSCRIPTIONS_LINK,
       `/subscriptions`
     );
   });

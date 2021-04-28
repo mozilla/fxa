@@ -606,21 +606,21 @@ Running and adding new functional test for settings is very similar to adding a 
 
 ```
 cd packages/fxa-content-server
-node tests/intern.js --suites="settings_v2"
+node tests/intern.js --suites="settings"
 ```
 
 #### Single test
 
 ```
 cd packages/fxa-content-server
-node tests/intern.js --suites="settings_v2" --grep="name of test here"
+node tests/intern.js --suites="settings" --grep="name of test here"
 ```
 
 ### Adding a new test
 
-- Create your test file in [packages/fxa-content-server/tests/functional/settings_v2](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/tests/functional/settings_v2)
+- Create your test file in [packages/fxa-content-server/tests/functional/settings](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/tests/functional/settings_v2)
   - Existing tests are a good starting point
-- Add your test to the settings [suite](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/tests/functional_settings_v2.js)
+- Add your test to the settings [suite](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/tests/functional_settings.js)
 
 ## License
 
