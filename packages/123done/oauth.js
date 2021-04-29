@@ -1,6 +1,7 @@
 'use strict';
 
-var config = require('./config');
+var config = require('./config').getProperties();
+
 var crypto = require('crypto');
 var request = require('request');
 var querystring = require('querystring');

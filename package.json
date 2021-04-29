@@ -14,7 +14,8 @@
     "test": "_scripts/test-package.sh",
     "config-fxios": "node _scripts/config-fxios.js",
     "format": "yarn workspaces foreach run format",
-    "ports": "pm2 jlist | json -d'\t' -a -c 'this.pm2_env.env.PORT' pm2_env.env.PORT name"
+    "ports": "pm2 jlist | json -d'\t' -a -c 'this.pm2_env.env.PORT' pm2_env.env.PORT name",
+    "heroku-postbuild": "yarn workspace 123done install"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {

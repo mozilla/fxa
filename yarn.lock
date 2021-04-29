@@ -9,8 +9,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "123done@workspace:packages/123done"
   dependencies:
+    "@types/convict": ^5.2.2
+    "@types/convict-format-with-validator": ^6
     audit-filter: 0.5.0
     client-sessions: 0.8.x
+    convict: ^6.0.1
+    convict-format-with-validator: ^6.0.1
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     express: ^4.17.1
@@ -6726,6 +6730,24 @@ __metadata:
   version: 0.5.3
   resolution: "@types/content-disposition@npm:0.5.3"
   checksum: 1b7d94b19ae8564816233b74df5f662052d393d0fdb317c81d894f5e1e762010c46b1812ce01a1492a72603e182afd18a59673e25ae737efc3e470ba261697d7
+  languageName: node
+  linkType: hard
+
+"@types/convict-format-with-validator@npm:^6":
+  version: 6.0.2
+  resolution: "@types/convict-format-with-validator@npm:6.0.2"
+  dependencies:
+    "@types/convict": "*"
+  checksum: 7092c0263b72d9faf20e7389be438ff6118206bec632f0233ebb44954032b1616f46f37a7f4ce3dd610972dbebd27993ab36732c5b713e4d7a23ea812213a976
+  languageName: node
+  linkType: hard
+
+"@types/convict@npm:*":
+  version: 6.0.1
+  resolution: "@types/convict@npm:6.0.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: 929960b0376e7ab897f008b8250c79d0cf7e4864b3458435c8d8be002cd35f07bb78a27b61a98d7605721990777eb69f7aa036f25922396c6b3a42e1e38450ed
   languageName: node
   linkType: hard
 

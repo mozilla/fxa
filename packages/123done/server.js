@@ -35,8 +35,8 @@ app.use(function (req, res, next) {
     res.setHeader('Cache-Control', 'no-cache, max-age=0');
 
     return sessions({
-      cookieName: config.cookieName || '123done',
-      secret: process.env['COOKIE_SECRET'] || 'define a real secret, please',
+      cookieName: config.get('cookie_name'),
+      secret: config.get('cookie_secret'),
       requestKey: 'session',
       cookie: {
         path: '/api',
@@ -120,6 +120,6 @@ app.get(/^\/iframe(:?\/(?:index.html)?)?$/, function (req, res, next) {
 
 app.use(express.static(path.join(__dirname, 'static')));
 
-const port = process.env['PORT'] || config.port || 8080;
+const port = config.get('port');
 app.listen(port, '0.0.0.0');
 console.log('123done started on port', port); //eslint-disable-line no-console

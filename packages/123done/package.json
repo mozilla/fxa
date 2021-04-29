@@ -2,6 +2,9 @@
   "name": "123done",
   "description": "A simple tasklist app that demonstrates FxA Sign-In",
   "version": "0.0.2",
+  "engines": {
+    "node": "14.x"
+  },
   "author": {
     "name": "Mozilla",
     "url": "https://mozilla.org/"
@@ -21,6 +24,8 @@
   "private": true,
   "dependencies": {
     "client-sessions": "0.8.x",
+    "convict": "^6.0.1",
+    "convict-format-with-validator": "^6.0.1",
     "express": "^4.17.1",
     "fxa-jwtool": "0.7.x",
     "morgan": "^1.10.0",
@@ -29,6 +34,8 @@
     "request": "^2.88.2"
   },
   "devDependencies": {
+    "@types/convict": "^5.2.2",
+    "@types/convict-format-with-validator": "^6",
     "audit-filter": "0.5.0",
     "eslint": "^7.17.0",
     "eslint-plugin-fxa": "^2.0.2",
