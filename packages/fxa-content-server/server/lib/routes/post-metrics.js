@@ -38,7 +38,6 @@ const {
   NEWSLETTERS: NEWSLETTERS,
   OFFSET: OFFSET_TYPE,
   REFERRER: REFERRER_TYPE,
-  SETTINGS_VERSION,
   STRING: STRING_TYPE,
   SYNC_ENGINES: SYNC_ENGINES_TYPE,
   TIME: TIME_TYPE,
@@ -142,7 +141,6 @@ const BODY_SCHEMA = {
     })
     .required(),
   service: STRING_TYPE.regex(SERVICE_PATTERN).required(),
-  settingsVersion: SETTINGS_VERSION.optional(),
   startTime: TIME_TYPE.required(),
   syncEngines: SYNC_ENGINES_TYPE.optional(),
   timers: joi.object().optional(), // this is never consumed.
