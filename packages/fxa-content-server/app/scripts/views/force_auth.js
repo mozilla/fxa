@@ -13,6 +13,7 @@ import FormView from './form';
 import NullBehavior from './behaviors/null';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordResetMixin from './mixins/password-reset-mixin';
+import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
@@ -177,6 +178,12 @@ const View = FormView.extend({
     'click a[href="/reset_password"]': cancelEventThen(
       '_navigateToForceResetPassword'
     ),
+    'click .use-different': preventDefaultThen('useDifferentAccount'),
+  },
+
+  useDifferentAccount() {
+    this.clearInput();
+    this.navigate('/', { account: this.getAccount() });
   },
 
   submit() {
