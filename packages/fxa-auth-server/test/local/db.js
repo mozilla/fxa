@@ -11,6 +11,7 @@ const mocks = require('../mocks');
 const P = require(`${LIB_DIR}/promise`);
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const config = require('../../config').getProperties();
 
 const models = {
   Device: {
@@ -45,7 +46,11 @@ describe('db, session tokens expire:', () => {
       'fxa-shared/db': { setupAuthDatabase: () => {} },
       'fxa-shared/db/models/auth': models,
     })(
-      { tokenLifetimes, tokenPruning: {}, redis: { enabled: true } },
+      {
+        tokenLifetimes,
+        tokenPruning: {},
+        redis: { ...config.redis, enabled: true },
+      },
       log,
       tokens,
       {}
@@ -110,7 +115,11 @@ describe('db, session tokens do not expire:', () => {
       'fxa-shared/db': { setupAuthDatabase: () => {} },
       'fxa-shared/db/models/auth': models,
     })(
-      { tokenLifetimes, tokenPruning: {}, redis: { enabled: true } },
+      {
+        tokenLifetimes,
+        tokenPruning: {},
+        redis: { ...config.redis, enabled: true },
+      },
       log,
       tokens,
       {}
