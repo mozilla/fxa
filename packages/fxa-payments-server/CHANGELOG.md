@@ -1,5 +1,38 @@
 # Change history
 
+## 1.205.0
+
+### New features
+
+- subscriptions: allow n+1 subscriptions for PayPal customers ([c5df8c667](https://github.com/mozilla/fxa/commit/c5df8c667))
+
+### Bug fixes
+
+- payments: Set plan as a required prop for the TermsAndPrivacy component ([040c01f64](https://github.com/mozilla/fxa/commit/040c01f64))
+- fxa-payments: checkout mobile width ([8b17ce07b](https://github.com/mozilla/fxa/commit/8b17ce07b))
+
+### Other changes
+
+- deps: bump @stripe/stripe-js from 1.13.1 to 1.13.2 ([3a6a4188b](https://github.com/mozilla/fxa/commit/3a6a4188b))
+- deps-dev: bump @types/classnames from 2.2.11 to 2.3.1 ([26a94a0a7](https://github.com/mozilla/fxa/commit/26a94a0a7))
+- deps: bump helmet from 4.4.1 to 4.5.0 ([485850809](https://github.com/mozilla/fxa/commit/485850809))
+- deps-dev: bump @typescript-eslint/parser from 4.21.0 to 4.22.0 ([cc2e2e567](https://github.com/mozilla/fxa/commit/cc2e2e567))
+- deps-dev: bump @types/react-router-dom from 5.1.5 to 5.1.7 ([4e9ede7f4](https://github.com/mozilla/fxa/commit/4e9ede7f4))
+- deps-dev: downgrade @storybook/addons from 6.2.9 to 5.3.19 ([a2316b02d](https://github.com/mozilla/fxa/commit/a2316b02d))
+- deps-dev: bump @testing-library/jest-dom from 5.11.9 to 5.12.0 ([3caa873b8](https://github.com/mozilla/fxa/commit/3caa873b8))
+- deps-dev: bump @storybook/addons from 5.3.21 to 6.2.9 ([8a2de2c7f](https://github.com/mozilla/fxa/commit/8a2de2c7f))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([486ff11c9](https://github.com/mozilla/fxa/commit/486ff11c9))
+- deps-dev: bump @types/webpack from 4.41.26 to 5.28.0 ([3de8e4e46](https://github.com/mozilla/fxa/commit/3de8e4e46))
+- deps: bump @fluent/langneg from 0.5.1 to 0.5.2 ([ecee03de1](https://github.com/mozilla/fxa/commit/ecee03de1))
+- deps-dev: bump @storybook/addon-links from 6.1.15 to 6.2.8 ([e3f565ca9](https://github.com/mozilla/fxa/commit/e3f565ca9))
+- deps-dev: bump caniuse-lite from 1.0.30001207 to 1.0.30001211 ([89496d19f](https://github.com/mozilla/fxa/commit/89496d19f))
+- deps: bump @types/sinon from 9.0.8 to 10.0.0 ([26debdc2d](https://github.com/mozilla/fxa/commit/26debdc2d))
+- deps-dev: bump @babel/register from 7.13.8 to 7.13.14 ([7b41514d2](https://github.com/mozilla/fxa/commit/7b41514d2))
+- deps-dev: bump ts-jest from 26.5.4 to 26.5.5 ([66ab577c0](https://github.com/mozilla/fxa/commit/66ab577c0))
+- deps: bump async-wait-until from 2.0.4 to 2.0.5 ([d77d0c77d](https://github.com/mozilla/fxa/commit/d77d0c77d))
+- deps: bump @fluent/react from 0.13.0 to 0.13.1 ([094bc5f7e](https://github.com/mozilla/fxa/commit/094bc5f7e))
+- deps: bump @fluent/bundle from 0.16.0 to 0.16.1 ([46f58e0d0](https://github.com/mozilla/fxa/commit/46f58e0d0))
+
 ## 1.204.7
 
 No changes.

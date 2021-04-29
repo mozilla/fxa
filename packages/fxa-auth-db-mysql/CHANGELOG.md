@@ -1,3 +1,9 @@
+## 1.205.0
+
+### New features
+
+- emails: add tables and models for email history ([16212769d](https://github.com/mozilla/fxa/commit/16212769d))
+
 ## 1.204.7
 
 No changes.

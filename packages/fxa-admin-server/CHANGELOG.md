@@ -1,3 +1,12 @@
+## 1.205.0
+
+### Other changes
+
+- deps: bump helmet from 4.4.1 to 4.5.0 ([485850809](https://github.com/mozilla/fxa/commit/485850809))
+- deps: bump apollo-server-express from 2.22.2 to 2.23.0 ([d08702119](https://github.com/mozilla/fxa/commit/d08702119))
+- deps-dev: bump ts-jest from 26.5.4 to 26.5.5 ([66ab577c0](https://github.com/mozilla/fxa/commit/66ab577c0))
+- 1bb2ad6f6 Created the TOTP model in database/model/totp.model.ts ([1bb2ad6f6](https://github.com/mozilla/fxa/commit/1bb2ad6f6))
+
 ## 1.204.7
 
 No changes.
