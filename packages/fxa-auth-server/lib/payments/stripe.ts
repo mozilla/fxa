@@ -111,12 +111,13 @@ export class StripeHelper {
   private webhookSecret: string;
   private stripe: Stripe;
   private redis: ioredis.Redis | undefined;
+  private statsd: StatsD;
   public currencyHelper: CurrencyHelper;
 
   /**
    * Create a Stripe Helper with built-in caching.
    */
-  constructor(log: Logger, config: ConfigType, statsd?: StatsD) {
+  constructor(log: Logger, config: ConfigType, statsd: StatsD) {
     this.log = log;
     this.customerCacheTtlSeconds = config.subhub.customerCacheTtlSeconds;
     this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
@@ -148,11 +149,16 @@ export class StripeHelper {
       useAdapter(this.redis);
     }
 
-    if (statsd) {
-      this.stripe.on('response', (response) => {
-        statsd.timing('stripe_request', response.elapsed);
+    this.statsd = statsd;
+    this.stripe.on('response', (response) => {
+      statsd.timing('stripe_request', response.elapsed);
+      // Note that we can't record the method/path as a tag
+      // because ids are in the path which results in too great
+      // of cardinality.
+      statsd.increment('stripe_call', {
+        error: (response.status >= 500).toString(),
       });
-    }
+    });
   }
 
   /**
@@ -299,6 +305,10 @@ export class StripeHelper {
       });
     }
 
+    this.statsd.increment('stripe_subscription', {
+      payment_provider: 'stripe',
+    });
+
     return this.stripe.subscriptions.create(
       {
         customer: customerId,
@@ -340,6 +350,10 @@ export class StripeHelper {
       // Sub has never been active or charged, delete it.
       this.stripe.subscriptions.del(sub.id);
     }
+
+    this.statsd.increment('stripe_subscription', {
+      payment_provider: 'paypal',
+    });
 
     return this.stripe.subscriptions.create(
       {
@@ -2120,6 +2134,6 @@ export class StripeHelper {
 /**
  * Create a Stripe Helper with built-in caching.
  */
-export function createStripeHelper(log: any, config: any, statsd?: StatsD) {
+export function createStripeHelper(log: any, config: any, statsd: StatsD) {
   return new StripeHelper(log, config, statsd);
 }
