@@ -106,14 +106,7 @@ function mapEmailType(eventType, eventCategory, eventTarget, data) {
 function mapSettingsEventProperties(...args) {
   return {
     ...mapDisconnectReason(...args),
-    ...mapSettingsVersion(...args),
   };
-}
-
-function mapSettingsVersion(eventType, eventCategory, eventTarget, data) {
-  if (data && data.settingsVersion) {
-    return { settings_version: data.settingsVersion };
-  }
 }
 
 function mapDisconnectReason(eventType, eventCategory) {
