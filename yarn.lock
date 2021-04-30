@@ -19398,7 +19398,7 @@ fsevents@^1.2.7:
     fxa-crypto-relier: 2.7.0
     fxa-geodb: "workspace:*"
     fxa-mustache-loader: 0.0.2
-    fxa-pairing-channel: 1.0.1
+    fxa-pairing-channel: 1.0.2
     fxa-react: "workspace:*"
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
@@ -19801,14 +19801,14 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"fxa-pairing-channel@npm:1.0.1":
-  version: 1.0.1
-  resolution: "fxa-pairing-channel@npm:1.0.1"
+"fxa-pairing-channel@npm:1.0.2":
+  version: 1.0.2
+  resolution: "fxa-pairing-channel@npm:1.0.2"
   dependencies:
     "@babel/runtime": ^7.2.0
     event-target-shim: ^4.0.3
     wrapper-webpack-plugin: ^2.1.0
-  checksum: 8a3c976ce6cadead03d7ec71540c18148fb04be701c4c29fd1aeeb82f21d5385e8b4c9230174ffe76913eb4315a9064d911137fde84047a93ff9b2354c29a0b9
+  checksum: 5de1cd943629af91b32ba8ab5fddf5ee6c656c79cd4854a2079415dc26606e887eb1b907bc5a4f9edcc168ddbce2b78bae9933af96656f3ff08ca1c2fe889620
   languageName: node
   linkType: hard
 
