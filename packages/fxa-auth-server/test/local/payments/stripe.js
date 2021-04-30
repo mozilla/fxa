@@ -197,6 +197,7 @@ describe('StripeHelper', () => {
   let log;
   /** @type AccountCustomers */
   let existingCustomer;
+  let mockStatsd;
   const existingUid = '40cc397def2d487b9b8ba0369079a267';
 
   before(async () => {
@@ -212,10 +213,15 @@ describe('StripeHelper', () => {
     sandbox = sinon.createSandbox();
     mockRedis = createMockRedis();
     log = mockLog();
+    mockStatsd = {
+      increment: sandbox.fake.returns({}),
+      timing: sandbox.fake.returns({}),
+      close: sandbox.fake.returns({}),
+    };
     // Make currencyHelper
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
-    stripeHelper = new StripeHelper(log, mockConfig);
+    stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
     stripeHelper.redis = mockRedis;
     listStripePlans = sandbox
       .stub(stripeHelper.stripe.plans, 'list')
@@ -608,6 +614,7 @@ describe('StripeHelper', () => {
       );
 
       assert.deepEqual(actual, subscriptionPMIExpanded);
+      sinon.assert.callCount(mockStatsd.increment, 1);
     });
 
     it('surfaces payment issues', async () => {
@@ -671,6 +678,7 @@ describe('StripeHelper', () => {
       });
 
       assert.deepEqual(actual, subscriptionPMIExpanded);
+      sinon.assert.callCount(mockStatsd.increment, 1);
     });
 
     it('returns a usable sub if one is active/past_due', async () => {
