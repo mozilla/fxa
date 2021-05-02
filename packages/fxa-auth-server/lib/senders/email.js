@@ -633,6 +633,12 @@ module.exports = function (log, config) {
       {},
       templateName
     );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage,
+      message.date,
+      message.time
+    );
 
     const headers = {
       'X-Verify-Short-Code': code,
@@ -646,6 +652,7 @@ module.exports = function (log, config) {
       template: templateName,
       templateValues: {
         code,
+        date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
         ip: message.ip,
@@ -654,6 +661,7 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
+        time,
         preHeader: 'Copy/paste this code into your registration form.',
       },
     });
