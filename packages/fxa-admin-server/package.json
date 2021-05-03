@@ -36,7 +36,7 @@
     "@nestjs/graphql": "^7.10.6",
     "@nestjs/mapped-types": "^0.4.1",
     "@nestjs/platform-express": "^7.6.15",
-    "@sentry/integrations": "^5.29.1",
+    "@sentry/integrations": "^6.3.5",
     "@sentry/node": "^6.0.1",
     "apollo-server": "^2.23.0",
     "apollo-server-express": "^2.23.0",
