@@ -46,11 +46,11 @@ export async function init() {
           log.error('statsd.error', err);
         },
       })
-    : {
+    : (({
         increment: () => {},
         timing: () => {},
         close: () => {},
-      };
+      } as unknown) as StatsD);
   Container.set(StatsD, statsd);
 
   const log = require('../lib/log')({ ...config.log, statsd });
@@ -86,7 +86,7 @@ export async function init() {
 
   const currencyHelper = new CurrencyHelper(config);
   Container.set(CurrencyHelper, currencyHelper);
-  const stripeHelper = new StripeHelper(log, config);
+  const stripeHelper = new StripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
   const paypalClient = new PayPalClient(
     config.subscriptions.paypalNvpSigCredentials
