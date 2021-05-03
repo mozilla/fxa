@@ -42,7 +42,9 @@ module.exports = (log, config) => {
               stateCode: location.stateCode,
             };
           } else {
-            const territories = require(`cldr-localenames-full/main/${language}/territories.json`);
+            const territoriesLang =
+              language === 'en-US' ? 'en-US-POSIX' : language;
+            const territories = require(`cldr-localenames-full/main/${territoriesLang}/territories.json`);
             client.location = {
               country:
                 territories.main[language].localeDisplayNames.territories[
