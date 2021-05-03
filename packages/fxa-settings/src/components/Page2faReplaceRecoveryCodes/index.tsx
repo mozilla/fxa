@@ -53,7 +53,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   }, [session, recoveryCodes, replaceRecoveryCodes]);
 
   return (
-    <FlowContainer title="Two Step Authentication">
+    <FlowContainer
+      title={l10n.getString('tfa-title', null, 'Two-step authentication')}
+    >
       <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
       <div className="my-2" data-testid="2fa-recovery-codes">
         <Localized id="tfa-replace-code-success">
@@ -70,14 +72,16 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
         </div>
       </div>
       <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">
-        <button
-          type="button"
-          className="cta-neutral mx-2 px-10"
-          data-testid="close-modal"
-          onClick={alertSuccessAndGoHome}
-        >
-          Close
-        </button>
+        <Localized id="recovery-key-close-button">
+          <button
+            type="button"
+            className="cta-neutral mx-2 px-10"
+            data-testid="close-modal"
+            onClick={alertSuccessAndGoHome}
+          >
+            Close
+          </button>
+        </Localized>
       </div>
     </FlowContainer>
   );
