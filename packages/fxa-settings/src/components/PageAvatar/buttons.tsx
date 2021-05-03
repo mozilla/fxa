@@ -162,43 +162,40 @@ export const ConfirmBtns = ({
 };
 
 export const ZoomOutBtn = ({ onClick }: { onClick: VoidFunction }) => {
+  const { l10n } = useLocalization();
   return (
-    <Localized id="avatar-page-zoom-out-button" attrs={{ title: true }}>
-      <ButtonIcon
-        testId="zoom-out-btn"
-        title="Zoom Out"
-        icon={[ZoomOutIcon, buttonSize, buttonSize]}
-        onClick={onClick}
-        classNames={editButtonClass}
-      />
-    </Localized>
+    <ButtonIcon
+      testId="zoom-out-btn"
+      title={l10n.getString('avatar-page-zoom-out-button')}
+      icon={[ZoomOutIcon, buttonSize, buttonSize]}
+      onClick={onClick}
+      classNames={editButtonClass}
+    />
   );
 };
 
 export const ZoomInBtn = ({ onClick }: { onClick: VoidFunction }) => {
+  const { l10n } = useLocalization();
   return (
-    <Localized id="avatar-page-zoom-in-button" attrs={{ title: true }}>
-      <ButtonIcon
-        testId="zoom-in-btn"
-        title="Zoom In"
-        icon={[ZoomInIcon, buttonSize, buttonSize]}
-        onClick={onClick}
-        classNames={editButtonClass}
-      />
-    </Localized>
+    <ButtonIcon
+      testId="zoom-in-btn"
+      title={l10n.getString('avatar-page-zoom-in-button')}
+      icon={[ZoomInIcon, buttonSize, buttonSize]}
+      onClick={onClick}
+      classNames={editButtonClass}
+    />
   );
 };
 
 export const RotateBtn = ({ onClick }: { onClick: VoidFunction }) => {
+  const { l10n } = useLocalization();
   return (
-    <Localized id="avatar-page-rotate-button" attrs={{ title: true }}>
-      <ButtonIcon
-        testId="rotate-btn"
-        title="Rotate"
-        icon={[RotateIcon, buttonSize, buttonSize]}
-        onClick={onClick}
-        classNames={editButtonClass}
-      />
-    </Localized>
+    <ButtonIcon
+      testId="rotate-btn"
+      title={l10n.getString('avatar-page-rotate-button')}
+      icon={[RotateIcon, buttonSize, buttonSize]}
+      onClick={onClick}
+      classNames={editButtonClass}
+    />
   );
 };
