@@ -19091,7 +19091,7 @@ fsevents@^1.2.7:
     supertest: ^6.1.3
     ts-jest: ^26.5.5
     ts-node: ^9.1.1
-    typescript: 3.9.7
+    typescript: 4.2.4
     webpack: ^4.43.0
   languageName: unknown
   linkType: soft
@@ -19147,7 +19147,7 @@ fsevents@^1.2.7:
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
     tslib: ^2.0.1
-    typescript: 3.9.7
+    typescript: 4.2.4
     yargs: ^16.2.0
   languageName: unknown
   linkType: soft
@@ -19169,7 +19169,7 @@ fsevents@^1.2.7:
     mocha: ^7.1.2
     node-fetch: ^2.6.1
     ts-node: ^9.1.1
-    typescript: 3.9.7
+    typescript: 4.2.4
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
   languageName: unknown
   linkType: soft
@@ -19325,7 +19325,7 @@ fsevents@^1.2.7:
     through: 2.3.8
     ts-node: ^9.1.1
     typedi: ^0.8.0
-    typescript: 3.9.7
+    typescript: 4.2.4
     uuid: ^8.3.0
     verror: ^1.10.0
     web-push: 3.4.4
@@ -19478,7 +19478,7 @@ fsevents@^1.2.7:
     time-grunt: 2.0.0
     ts-loader: ^9.0.0
     ts-node: ^9.1.1
-    typescript: 3.9.7
+    typescript: 4.2.4
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
     underscore: ^1.10.2
     upng-js: 2.1.0
@@ -19651,7 +19651,7 @@ fsevents@^1.2.7:
     tsconfig-paths: ^3.9.0
     typesafe-joi: ^2.1.0
     typesafe-node-firestore: ^1.4.0
-    typescript: 3.9.7
+    typescript: 4.2.4
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -19746,7 +19746,7 @@ fsevents@^1.2.7:
     ts-jest: 26.5.5
     ts-node: ^9.1.1
     tslib: 2.2.0
-    typescript: 3.9.7
+    typescript: 4.2.4
   languageName: unknown
   linkType: soft
 
@@ -19788,7 +19788,7 @@ fsevents@^1.2.7:
     sinon: ^9.0.3
     ts-node: ^9.1.1
     typedi: ^0.8.0
-    typescript: 3.9.7
+    typescript: 4.2.4
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -19922,7 +19922,7 @@ fsevents@^1.2.7:
     ts-node: ^9.1.1
     type-to-reducer: ^1.2.0
     typedi: ^0.8.0
-    typescript: 3.9.7
+    typescript: 4.2.4
     uuid: ^8.3.0
     wait-for-expect: ^3.0.2
     webpack: ^4.43.0
@@ -20032,7 +20032,7 @@ fsevents@^1.2.7:
     sinon: ^9.2.3
     tailwindcss-dir: ^4.0.0
     ts-jest: ^26.5.5
-    typescript: 3.9.7
+    typescript: 4.2.4
     webpack: ^4.43.0
   languageName: unknown
   linkType: soft
@@ -20103,7 +20103,7 @@ fsevents@^1.2.7:
     react-test-renderer: ^17.0.1
     react-webcam: ^5.2.2
     subscriptions-transport-ws: ^0.9.18
-    typescript: 3.9.7
+    typescript: 4.2.4
     uuid: ^8.3.2
     webpack: ^4.43.0
     webpack-merge-and-include-globally: ^2.3.4
@@ -20185,7 +20185,7 @@ fsevents@^1.2.7:
     ts-loader: ^9.0.0
     ts-node: ^9.1.1
     tsconfig-paths: ^3.9.0
-    typescript: 3.9.7
+    typescript: 4.2.4
     underscore: ^1.10.2
     uuid: ^8.3.0
   languageName: unknown
@@ -20235,7 +20235,7 @@ fsevents@^1.2.7:
     ts-node: ^9.1.1
     tslib: 2.2.0
     typesafe-joi: ^2.1.0
-    typescript: 3.9.7
+    typescript: 4.2.4
   languageName: unknown
   linkType: soft
 
@@ -38377,6 +38377,16 @@ typescript@4.2.3:
   languageName: node
   linkType: hard
 
+typescript@4.2.4:
+  version: 4.2.4
+  resolution: "typescript@npm:4.2.4"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: edaede2fa77f56b7fba80ee624a2368ab1216e75b0434d968ccb47ab0a5e2f6d94f848b3b111c1237dd71e988cd376af26370dcdad3b94355c76e759f0dd0a1e
+  languageName: node
+  linkType: hard
+
 "typescript@patch:typescript@3.9.7#builtin<compat/typescript>":
   version: 3.9.7
   resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=a45b0e"
@@ -38394,6 +38404,16 @@ typescript@4.2.3:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: a8956044aabf730699bcc3c2475efdd3f35e509329325cf60b4989761d4c2188e2c474183e2cf92b8c201fcf976814a5a16f144508b2a832643c4f972d0ab803
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@4.2.4#builtin<compat/typescript>":
+  version: 4.2.4
+  resolution: "typescript@patch:typescript@npm%3A4.2.4#builtin<compat/typescript>::version=4.2.4&hash=a45b0e"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 3be44317593182e8ce494c114e7ad9b0bb2553a22f3085cc6da4f0a36912c20850daa9be4c898af2ab6fc8b12f430c1c9e46ac715721867cd38643f2350d3ef9
   languageName: node
   linkType: hard
 

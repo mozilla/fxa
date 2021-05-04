@@ -79,7 +79,7 @@
     "ts-jest": "26.5.5",
     "ts-node": "^9.1.1",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "3.9.7",
+    "typescript": "4.2.4",
     "yargs": "^16.2.0"
   },
   "jest": {

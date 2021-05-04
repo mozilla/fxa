@@ -44,7 +44,7 @@ export const observeNavigationTiming = (
   url: string,
   send: ReturnType<typeof sendFn> = defaultSendFn
 ) => {
-  if (performance.getEntriesByType && PerformanceObserver && !!send) {
+  if (PerformanceObserver && !!send) {
     // By the time this is called, the event might've completed.  Use the
     // PerformanceObserver API if it hasn't, otherwise send the data.
     const navTiming = performance.getEntriesByType(
