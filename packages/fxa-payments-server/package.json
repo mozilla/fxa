@@ -43,7 +43,7 @@
     "@rescripts/cli": "~0.0.16",
     "@storybook/addon-actions": "^5.3.19",
     "@storybook/addon-links": "^5.3.19",
-    "@storybook/addons": "^5.3.19",
+    "@storybook/addons": "^6.2.9",
     "@storybook/react": "^5.3.19",
     "@svgr/webpack": "^5.4.0",
     "@testing-library/jest-dom": "^5.12.0",
