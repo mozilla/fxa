@@ -27,8 +27,9 @@
     background-image: url('./images/spinnerwhite.svg');
   }
 
+  .secondary-button &,
   &.spinner-settings-fetch {
-    background-image: url('./images/spinnergrey.png');
+    background-image: url('./images/spinnerlight.svg');
   }
 }
 
