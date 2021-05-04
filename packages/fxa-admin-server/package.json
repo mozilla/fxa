@@ -37,7 +37,7 @@
     "@nestjs/mapped-types": "^0.4.1",
     "@nestjs/platform-express": "^7.6.15",
     "@sentry/integrations": "^5.29.1",
-    "@sentry/node": "^6.0.1",
+    "@sentry/node": "^6.3.5",
     "apollo-server": "^2.23.0",
     "apollo-server-express": "^2.23.0",
     "class-transformer": "^0.4.0",
