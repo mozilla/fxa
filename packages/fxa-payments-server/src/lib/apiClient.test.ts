@@ -1,4 +1,11 @@
-import nock from 'nock';
+import noc from 'nock';
+
+function nock(it: any) {
+  //@ts-ignore
+  return noc(...arguments).defaultReplyHeaders({
+    'Access-Control-Allow-Origin': '*',
+  });
+}
 
 jest.mock('./sentry');
 
@@ -115,7 +122,7 @@ describe('API requests', () => {
   });
 
   afterEach(() => {
-    nock.cleanAll();
+    noc.cleanAll();
   });
 
   describe('apiFetchProfile', () => {

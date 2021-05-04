@@ -7,8 +7,15 @@ import {
   screen,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import nock from 'nock';
+import noc from 'nock';
 import waitForExpect from 'wait-for-expect';
+
+function nock(it: any) {
+  //@ts-ignore
+  return noc(...arguments).defaultReplyHeaders({
+    'Access-Control-Allow-Origin': '*',
+  });
+}
 
 jest.mock('../../lib/sentry');
 
@@ -62,7 +69,8 @@ describe('routes/Subscriptions', () => {
   let authServer = '';
   let profileServer = '';
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await wait(100); // 🤷‍♂️
     setupMockConfig(mockConfig);
     jest.clearAllMocks();
 
@@ -74,7 +82,7 @@ describe('routes/Subscriptions', () => {
   });
 
   afterEach(() => {
-    nock.cleanAll();
+    noc.cleanAll();
     return cleanup();
   });
 
@@ -617,6 +625,8 @@ describe('routes/Subscriptions', () => {
       fireEvent.click(reactivateConfirmButton);
 
       await findByTestId('reactivate-subscription-success-dialog');
+
+      await wait(10); // something flaky here. without waiting it's the loading-overlay
 
       // Product image should appear in the reactivation success dialog.
       expectProductImage({ getByAltText, useDefaultIcon });

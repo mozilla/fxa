@@ -6,8 +6,8 @@ const { resolve } = require('path');
 
 const permitAdditionalJSImports = (config) => {
   // We're just gonna call all of fxa fair game ;)
-  const allFxa = resolve(__dirname, '../../')
-  const importPaths = [allFxa, resolve(__dirname, '../../../node_modules')]
+  const allFxa = resolve(__dirname, '../../');
+  const importPaths = [allFxa, resolve(__dirname, '../../../node_modules')];
   // Update ModuleScopePlugin's appSrcs to allow our new directory
   config.resolve.plugins.forEach((plugin) => {
     if (plugin.constructor && plugin.constructor.name === 'ModuleScopePlugin') {
@@ -42,14 +42,14 @@ const permitAdditionalJSImports = (config) => {
   //   }
   // }
   if (
-    config.module.rules[2] &&
-    config.module.rules[2].oneOf &&
-    config.module.rules[2].oneOf[1].test.toString() ===
+    config.module.rules[1] &&
+    config.module.rules[1].oneOf &&
+    config.module.rules[1].oneOf[2].test.toString() ===
       '/\\.(js|mjs|jsx|ts|tsx)$/'
   ) {
-    config.module.rules[2].oneOf[1].include = [
-      config.module.rules[2].oneOf[1].include,
-      allFxa
+    config.module.rules[1].oneOf[2].include = [
+      config.module.rules[1].oneOf[2].include,
+      allFxa,
     ];
   } else {
     throw new Error(

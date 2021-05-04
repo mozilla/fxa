@@ -129,11 +129,8 @@ function exampleBounceMutationResponse(email: string): MockedResponse {
   };
 }
 
-beforeAll(() => {
-  jest.spyOn(window, 'confirm').mockImplementation(() => true);
-});
-
 beforeEach(() => {
+  jest.spyOn(window, 'confirm').mockImplementation(() => true);
   testEmail = chance.email();
 });
 

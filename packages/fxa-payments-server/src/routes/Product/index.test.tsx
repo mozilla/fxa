@@ -4,7 +4,14 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import nock from 'nock';
+import noc from 'nock';
+
+function nock(it: any) {
+  //@ts-ignore
+  return noc(...arguments).defaultReplyHeaders({
+    'Access-Control-Allow-Origin': '*',
+  });
+}
 
 import { AuthServerErrno } from '../../lib/errors';
 
@@ -49,7 +56,7 @@ describe('routes/Product', () => {
   });
 
   afterEach(() => {
-    nock.cleanAll();
+    noc.cleanAll();
     return cleanup();
   });
 

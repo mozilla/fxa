@@ -117,7 +117,12 @@ describe('DropDownAvatarMenu', () => {
 
   describe('destroySession', () => {
     it('redirects the user on success', async () => {
-      window.location.assign = jest.fn();
+      //@ts-ignore
+      delete window.location;
+      window.location = {
+        ...window.location,
+        assign: jest.fn(),
+      };
 
       render(
         <AppContext.Provider

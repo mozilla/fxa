@@ -23,7 +23,12 @@ const appProps = {
 };
 
 beforeEach(() => {
-  window.location.replace = jest.fn();
+  //@ts-ignore
+  delete window.location;
+  window.location = {
+    ...window.location,
+    replace: jest.fn(),
+  };
 });
 
 it('renders', async () => {

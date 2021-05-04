@@ -67,7 +67,7 @@
     "eslint": "^7.17.0",
     "file-loader": "^4.3.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^26.4.2",
+    "jest": "26.6.0",
     "jest-environment-jsdom-fourteen": "1.0.1",
     "pm2": "^4.5.6",
     "postcss-cli": "^7.1.1",
