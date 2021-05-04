@@ -20219,7 +20219,7 @@ fsevents@^1.2.7:
     express: ^4.17.1
     fxa-shared: "workspace:*"
     handlebars: ^4.7.6
-    hbs: ^4.1.1
+    hbs: ^4.1.2
     helmet: ^4.5.0
     jest: 26.6.3
     mozlog: ^3.0.1
@@ -21479,7 +21479,25 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"handlebars@npm:4.7.6, handlebars@npm:^4.1.0, handlebars@npm:^4.5.2, handlebars@npm:^4.5.3, handlebars@npm:^4.7.6":
+"handlebars@npm:4.7.7":
+  version: 4.7.7
+  resolution: "handlebars@npm:4.7.7"
+  dependencies:
+    minimist: ^1.2.5
+    neo-async: ^2.6.0
+    source-map: ^0.6.1
+    uglify-js: ^3.1.4
+    wordwrap: ^1.0.0
+  dependenciesMeta:
+    uglify-js:
+      optional: true
+  bin:
+    handlebars: bin/handlebars
+  checksum: 2df9a6b422e2ccc0b7ca53f7a1f9915b47d19bf3fd372824a87e2a28b7952fa2cb3348cbe33a87ef49ee04f42d10359aab44819ca8d680ee3a5b53d48bd062a1
+  languageName: node
+  linkType: hard
+
+"handlebars@npm:^4.1.0, handlebars@npm:^4.5.2, handlebars@npm:^4.5.3, handlebars@npm:^4.7.6":
   version: 4.7.6
   resolution: "handlebars@npm:4.7.6"
   dependencies:
@@ -21747,13 +21765,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"hbs@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "hbs@npm:4.1.1"
+"hbs@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "hbs@npm:4.1.2"
   dependencies:
-    handlebars: 4.7.6
+    handlebars: 4.7.7
     walk: 2.3.14
-  checksum: 5f470ce5e17f6065e51af9fe9efad3f7c26c5d41a5535a1b8bddb4ed347909917de3b1f3691f24db42ed4f43a66d83752a971d08bc24d59e29fa2d65755f6dc0
+  checksum: 402d999481c60d2e1e87713c931474769cd14d78522f32a026e80a949661aec77662e7146651f3cfa78e0ddae7155dd380c212d9e3cd8731d9673cfd67949dc5
   languageName: node
   linkType: hard
 

@@ -46,7 +46,7 @@
     "express": "^4.17.1",
     "fxa-shared": "workspace:*",
     "handlebars": "^4.7.6",
-    "hbs": "^4.1.1",
+    "hbs": "^4.1.2",
     "helmet": "^4.5.0",
     "mozlog": "^3.0.1",
     "reflect-metadata": "^0.1.13",
