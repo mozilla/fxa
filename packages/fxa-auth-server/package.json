@@ -106,7 +106,7 @@
     "@types/chai": "^4.2.4",
     "@types/convict": "^5.2.2",
     "@types/hapi__hapi": "^19.0.3",
-    "@types/ioredis": "^4.26.0",
+    "@types/ioredis": "^4.26.1",
     "@types/joi": "^14.3.3",
     "@types/jsonwebtoken": "^8.5.1",
     "@types/jsrsasign": "8.0.9",
