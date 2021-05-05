@@ -25,6 +25,9 @@ describe('connected services: oauth clients', () => {
     click,
     pollUntilGoneByQSA,
     noSuchElement,
+    openTab,
+    switchToWindow,
+    closeCurrentWindow,
   } = FunctionalHelpers;
 
   beforeEach(async ({ remote }) => {
@@ -39,6 +42,9 @@ describe('connected services: oauth clients', () => {
       click,
       pollUntilGoneByQSA,
       noSuchElement,
+      openTab,
+      switchToWindow,
+      closeCurrentWindow,
     } = FunctionalHelpers.applyRemote(remote));
 
     await clearBrowserState({
@@ -64,24 +70,22 @@ describe('connected services: oauth clients', () => {
       '123Done'
     );
 
-    // TODO: We can up re-enable this once the fix for
-    // https://github.com/mozilla/fxa/issues/5291 has landed
-    // await openTab(config.fxaUntrustedOauthApp);
-    // await switchToWindow(1);
-    // await click(selectors['123DONE'].BUTTON_SIGNIN);
-    //
-    // await click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN);
-    //
-    // await testElementExists(selectors.OAUTH_PERMISSIONS.HEADER);
-    // await click(selectors.OAUTH_PERMISSIONS.SUBMIT);
-    // await testElementExists(selectors['123DONE'].AUTHENTICATED);
-    // await closeCurrentWindow();
+    await openTab(config.fxaUntrustedOauthApp);
+    await switchToWindow(1);
+    await click(selectors['123DONE'].BUTTON_SIGNIN);
+
+    await click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN);
+
+    await testElementExists(selectors.OAUTH_PERMISSIONS.HEADER);
+    await click(selectors.OAUTH_PERMISSIONS.SUBMIT);
+    await testElementExists(selectors['123DONE'].AUTHENTICATED);
+    await closeCurrentWindow();
     // refresh the list
-    // await click(selectors.SETTINGS.CONNECTED_SERVICES.REFRESH_BUTTON);
-    // await testElementTextInclude(
-    //   selectors.SETTINGS.CONNECTED_SERVICES.HEADER,
-    //   '321Done'
-    // );
+    await click(selectors.SETTINGS.CONNECTED_SERVICES.REFRESH_BUTTON);
+    await testElementTextInclude(
+      selectors.SETTINGS.CONNECTED_SERVICES.HEADER,
+      '321Done'
+    );
 
     // disconnect
     await click(

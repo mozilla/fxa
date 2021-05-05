@@ -14,8 +14,8 @@ function test_suite() {
     --suites="${suite}" \
     --fxaAuthRoot=https://api-accounts.stage.mozaws.net/v1 \
     --fxaContentRoot=https://accounts.stage.mozaws.net/ \
-    --fxaOAuthApp=https://123done-stage.dev.lcip.org/ \
-    --fxaUntrustedOauthApp=https://321done-stage.dev.lcip.org/ \
+    --fxaOAuthApp=https://stage-123done.herokuapp.com/ \
+    --fxaUntrustedOauthApp=https://stage-123done-untrusted.herokuapp.com/ \
     --fxaEmailRoot=http://restmail.net \
     --fxaProduction=true \
     --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" \
@@ -27,8 +27,8 @@ function test_suite() {
     --suites="${suite}" \
     --fxaAuthRoot=https://api-accounts.stage.mozaws.net/v1 \
     --fxaContentRoot=https://accounts.stage.mozaws.net/ \
-    --fxaOAuthApp=https://123done-stage.dev.lcip.org/ \
-    --fxaUntrustedOauthApp=https://321done-stage.dev.lcip.org/ \
+    --fxaOAuthApp=https://stage-123done.herokuapp.com/ \
+    --fxaUntrustedOauthApp=https://stage-123done-untrusted.herokuapp.com/ \
     --fxaEmailRoot=http://restmail.net \
     --fxaProduction=true \
     --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" \
