@@ -3640,6 +3640,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/podium@npm:^4.1.3":
+  version: 4.1.3
+  resolution: "@hapi/podium@npm:4.1.3"
+  dependencies:
+    "@hapi/hoek": 9.x.x
+    "@hapi/teamwork": 5.x.x
+    "@hapi/validate": 1.x.x
+  checksum: f68cf8d5d937c0203f6304db16674fd6b08ac5727c178a93bd1101d84154ae9c98f5055ea6053537c12b90c63bdd8e66d698576775a3dbc3ae2dc161d61b71fd
+  languageName: node
+  linkType: hard
+
 "@hapi/shot@npm:^5.0.1":
   version: 5.0.1
   resolution: "@hapi/shot@npm:5.0.1"
@@ -5199,6 +5210,29 @@ __metadata:
   version: 0.3.3
   resolution: "@sheerun/mutationobserver-shim@npm:0.3.3"
   checksum: 95f804bb26b7d8fbe685593f1a73df4ee87e756350b7791abb0d4582abf7292842e6059c88eeb235aec41cab8413df3786632752a0383992a461d1783b728815
+  languageName: node
+  linkType: hard
+
+"@sideway/address@npm:^4.1.0":
+  version: 4.1.1
+  resolution: "@sideway/address@npm:4.1.1"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: ba8678372e821590a58ea5edf62370473c8458255168d28d20e9fe6c90c65f5218377012cc5b61a4b544dcd3f2e65a768bca2ae266310e16045dcd85ea17079c
+  languageName: node
+  linkType: hard
+
+"@sideway/formula@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@sideway/formula@npm:3.0.0"
+  checksum: b83ecd35fea33e7b826ddcdc9f0735a79bd374927efea36885203200c418ad0f9975c329eaf9e990a7c61cf96f560ed2020227a35e699324ddd3c94dd3f4045f
+  languageName: node
+  linkType: hard
+
+"@sideway/pinpoint@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@sideway/pinpoint@npm:2.0.0"
+  checksum: e5528639aef1d266c23050897a6571c1e2aeccb59b6a22006a153fbd73aee78ae995bf19c022d70de5a00589a7f51372e78ef9aacd34a3dd9b13720c866aca7e
   languageName: node
   linkType: hard
 
@@ -7770,19 +7804,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hapi__hapi@npm:^19.0.3":
-  version: 19.0.4
-  resolution: "@types/hapi__hapi@npm:19.0.4"
+"@types/hapi__hapi@npm:^20.0.8":
+  version: 20.0.8
+  resolution: "@types/hapi__hapi@npm:20.0.8"
   dependencies:
     "@hapi/boom": ^9.0.0
     "@hapi/iron": ^6.0.0
+    "@hapi/podium": ^4.1.3
     "@types/hapi__catbox": "*"
-    "@types/hapi__joi": "*"
     "@types/hapi__mimos": "*"
-    "@types/hapi__podium": "*"
     "@types/hapi__shot": "*"
     "@types/node": "*"
-  checksum: a9d0abec7b0b1ec37298c92dda406caecf4c6ce16248323b691c635c7d50d843315d7ce2253ee51614fb85b3a4dd2950d917421ba19f442c74bc25f8563b1efc
+    joi: ^17.3.0
+  checksum: f90aab848abb130d35198e1e05d534152a1d6bf4bd267635ba1a1b1d7b5d489f2f3141bfd85de58a7e4c8d0939d4f732ff082ada26ace13683ec2d2fac2a864a
   languageName: node
   linkType: hard
 
@@ -7808,13 +7842,6 @@ __metadata:
   dependencies:
     "@types/mime-db": "*"
   checksum: 607a18d0be2a9cb998d1928f110a08da4353e43abfe73dfeb4b11419339ce585be89edf3ff170828765b06f09edbbf77ae446225e0c28fe6d6623e62e0f481f0
-  languageName: node
-  linkType: hard
-
-"@types/hapi__podium@npm:*":
-  version: 3.4.0
-  resolution: "@types/hapi__podium@npm:3.4.0"
-  checksum: 8063e7229431ee3110ccfed4282a0e25ed56d85e87c9840d64aed22e88919167e7334d9d7723ba44f9995c4b43d3c19364b6efe0bc27f38371ecf0092ae48b09
   languageName: node
   linkType: hard
 
@@ -20179,7 +20206,7 @@ fsevents@^1.2.7:
     "@types/cbor": 5.0.1
     "@types/chai": ^4.2.4
     "@types/convict": ^5.2.2
-    "@types/hapi__hapi": ^19.0.3
+    "@types/hapi__hapi": ^20.0.8
     "@types/ioredis": ^4.26.1
     "@types/joi": ^14.3.3
     "@types/jsonwebtoken": ^8.5.1
@@ -25953,6 +25980,19 @@ fsevents@^1.2.7:
     isemail: 3.x.x
     topo: 3.x.x
   checksum: 09ed65022cebf4cb9847551f7f9c8842e18cab06448c1a325d7a994e794e9c77eb8c4177e3f0c7f67e862f731cee8bd6465687d3734e0e023444537ad38af7c6
+  languageName: node
+  linkType: hard
+
+"joi@npm:^17.3.0":
+  version: 17.4.0
+  resolution: "joi@npm:17.4.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+    "@hapi/topo": ^5.0.0
+    "@sideway/address": ^4.1.0
+    "@sideway/formula": ^3.0.0
+    "@sideway/pinpoint": ^2.0.0
+  checksum: 2f6203d4513c063d457a935dab5e8060413479880d55af2c4fada987c7fe1bedff46d46eec36b14cf433ecc4df3b580fe1c0a0fed5b73a265b78011f97ff5c2d
   languageName: node
   linkType: hard
 
