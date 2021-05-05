@@ -7,6 +7,7 @@
 import KeyCodes from '../../lib/key-codes';
 import AuthErrors from '../../lib/auth-errors';
 import showPasswordTemplate from 'templates/partial/show-password.mustache';
+const t = (msg) => msg;
 
 export default {
   events: {
@@ -140,6 +141,7 @@ export default {
 
     const $showPasswordEl = $passwordEl.siblings('.show-password');
     $showPasswordEl.attr('checked', true);
+    this.$('.show-password-label').attr('title', t('Hide password'));
 
     this.logViewEvent('password.visible');
   },
@@ -163,6 +165,7 @@ export default {
 
     const $showPasswordEl = $passwordEl.siblings('.show-password');
     $showPasswordEl.removeAttr('checked');
+    this.$('.show-password-label').attr('title', t('Show password'));
 
     this.logViewEvent('password.hidden');
     this.focus($passwordEl);
