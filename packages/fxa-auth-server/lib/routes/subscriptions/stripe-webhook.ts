@@ -162,7 +162,7 @@ export class StripeWebhookHandler extends StripeHandler {
       invoice.customer,
       'customers'
     );
-    if (customer.deleted) {
+    if (!customer || customer.deleted) {
       return;
     }
 
@@ -334,7 +334,7 @@ export class StripeWebhookHandler extends StripeHandler {
       invoice.customer,
       'customers'
     );
-    if (customer.deleted) {
+    if (!customer || customer.deleted) {
       return;
     }
     const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(

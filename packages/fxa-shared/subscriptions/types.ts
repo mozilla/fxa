@@ -12,10 +12,10 @@ export interface Plan {
   interval_count: number;
   interval: PlanInterval;
   plan_id: string;
-  plan_metadata?: RawMetadata;
+  plan_metadata: RawMetadata | null;
   plan_name?: string;
   product_id: string;
-  product_metadata?: RawMetadata;
+  product_metadata: RawMetadata | null;
   product_name: string;
 }
 

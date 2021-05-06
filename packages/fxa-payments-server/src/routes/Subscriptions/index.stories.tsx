@@ -56,6 +56,7 @@ function setupVariantStories(
               {
                 ...PLANS[0],
                 product_name: 'Upgradable Product',
+                plan_metadata: null,
                 product_metadata: {
                   upgradeCTA: `
                   Interested in better features?
@@ -219,6 +220,7 @@ const PLANS = [
     amount: 1099,
     interval: 'month' as const,
     interval_count: 1,
+    plan_metadata: null,
     product_metadata: {
       webIconURL: 'http://placekitten.com/512/512',
       'product:subtitle': 'Really keen product',

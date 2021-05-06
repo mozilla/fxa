@@ -2796,6 +2796,9 @@ describe('StripeHelper', () => {
               status: 'active',
               latest_invoice: 'inv_0000000000',
               plan: planId,
+              items: {
+                data: [{ plan: planId }],
+              },
             },
           ],
         },
@@ -3040,7 +3043,7 @@ describe('StripeHelper', () => {
         );
         assert.isTrue(
           mockStripe.plans.retrieve.calledWith(
-            mockCustomer.subscriptions.data[0].plan
+            mockCustomer.subscriptions.data[0].items.data[0].plan
           )
         );
         assert.isTrue(stripeHelper.allProducts.called);

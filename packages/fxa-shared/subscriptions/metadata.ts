@@ -74,8 +74,8 @@ export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
  */
 export const productDetailsFromPlan = (
   plan: {
-    plan_metadata?: RawMetadata;
-    product_metadata?: RawMetadata;
+    plan_metadata: RawMetadata | null;
+    product_metadata: RawMetadata | null;
   },
   userLocales: readonly string[] = [DEFAULT_LOCALE]
 ): ProductDetails => {

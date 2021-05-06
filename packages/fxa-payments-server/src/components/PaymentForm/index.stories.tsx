@@ -45,6 +45,7 @@ const PLAN = {
   amount: 1099,
   interval: 'month' as const,
   interval_count: 1,
+  plan_metadata: null,
   product_metadata: {
     'product:termsOfServiceURL':
       'https://www.mozilla.org/en-US/about/legal/terms/services/',

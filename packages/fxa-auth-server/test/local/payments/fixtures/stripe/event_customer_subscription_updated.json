@@ -50,9 +50,13 @@
               "interval": "month",
               "interval_count": 1,
               "livemode": false,
-              "metadata": {},
+              "metadata": {
+                "productOrder": 0,
+                "emailIconURL": "http://example.com/icon-new",
+                "downloadURL": "http://example.com/download-new"
+              },
               "nickname": "123Done Pro Monthly",
-              "product": "prod_00000000000000",
+              "product": "prod_123donepro",
               "tiers": null,
               "tiers_mode": null,
               "transform_usage": null,

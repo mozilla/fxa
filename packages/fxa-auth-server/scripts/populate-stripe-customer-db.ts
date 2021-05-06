@@ -34,7 +34,7 @@ export async function init() {
     return 1;
   }
   const stripe = new Stripe(process.env.SUBHUB_STRIPE_APIKEY, {
-    apiVersion: '2020-03-02',
+    apiVersion: '2020-08-27',
     maxNetworkRetries: 3,
   });
 

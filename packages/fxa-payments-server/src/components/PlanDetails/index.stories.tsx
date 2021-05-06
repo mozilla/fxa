@@ -25,6 +25,7 @@ const selectedPlan = {
   amount: 935,
   interval: 'month' as const,
   interval_count: 1,
+  product_metadata: null,
   plan_metadata: {
     'product:subtitle': 'Really keen product',
     'product:details:1':

@@ -51,6 +51,7 @@ export const SELECTED_PLAN: Plan = {
   amount: 2999,
   interval: 'month' as const,
   interval_count: 1,
+  plan_metadata: null,
   product_metadata: {
     webIconURL: 'http://placekitten.com/49/49?image=2',
     webIconBackground: 'purple',
@@ -85,6 +86,7 @@ export const UPGRADE_FROM_PLAN: Plan = {
   amount: 999,
   interval: 'month' as const,
   interval_count: 1,
+  plan_metadata: null,
   product_metadata: {
     webIconURL: 'http://placekitten.com/49/49?image=9',
     webIconBackground: 'lime',
@@ -134,6 +136,7 @@ export const PLAN = {
   amount: 1050,
   interval: 'month' as const,
   interval_count: 1,
+  plan_metadata: null,
   product_metadata: {
     webIconURL: 'http://placekitten.com/512/512',
     webIconBackground: '#00ffff',
