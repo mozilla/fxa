@@ -5,7 +5,7 @@
 import 'mutationobserver-shim';
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { act, fireEvent, screen, wait } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { HomePath } from '../../constants';
 import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import PageChangePassword from '.';
@@ -110,13 +110,11 @@ it('shows an error when old and new password are the same', async () => {
   await inputNewPassword('testotesto');
   await inputVerifyPassword('testotesto');
   await act(async () => {
-    fireEvent.click(screen.getByTestId('save-password-button'));
+    await fireEvent.click(screen.getByTestId('save-password-button'));
   });
 
-  await wait(async () => {
-    expect(screen.getByTestId('tooltip')).toBeInTheDocument();
-    expect(screen.getByTestId('tooltip')).toHaveTextContent(
-      'new password must be different'
-    );
-  });
+  expect(screen.getByTestId('tooltip')).toBeInTheDocument();
+  expect(screen.getByTestId('tooltip')).toHaveTextContent(
+    'new password must be different'
+  );
 });

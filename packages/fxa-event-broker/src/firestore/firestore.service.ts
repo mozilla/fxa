@@ -37,6 +37,7 @@ export class FirestoreService {
     // keyFilename takes precedence over credentials
     if (config.keyFilename) {
       /* istanbul ignore next */
+      // @ts-ignore
       delete config.credentials;
     }
 
