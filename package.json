@@ -119,6 +119,8 @@
   "resolutions": {
     "gobbledygook": "git://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
     "tap/typescript": "^4.2.4",
+    "tap/react": "^17.0.2",
+    "tap/@types/react": "^17.0.5",
     "@nestjs/cli/typescript": "^4.2.4",
     "@types/node": "^14.14.5",
     "http-proxy": "^1.18.1",
