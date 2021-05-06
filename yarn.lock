@@ -17347,10 +17347,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"email-addresses@npm:3.1.0":
-  version: 3.1.0
-  resolution: "email-addresses@npm:3.1.0"
-  checksum: 657c0cd22f37c459769cca3ea76f4e8048b1d2af774d7ebdcb7039f88b407a22f8db23293a56144239a2fb1fd97ee2b22ef3191afce8b9ce8ae76e23121f4be7
+"email-addresses@npm:4.0.0":
+  version: 4.0.0
+  resolution: "email-addresses@npm:4.0.0"
+  checksum: 1d390dd47c5d131702753ae29bb7a9141c94dd4aced7a0294815a8e6b4cdd9fc7b6d7b1bece3f778a29669ee3db03f34860da340a5fddea79d69a18e606a5ca4
   languageName: node
   linkType: hard
 
@@ -20232,7 +20232,7 @@ fsevents@^1.2.7:
     convict: ^6.0.1
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
-    email-addresses: 3.1.0
+    email-addresses: 4.0.0
     eslint: ^7.17.0
     eslint-plugin-fxa: ^2.0.2
     fxa-auth-db-mysql: "workspace:*"
