@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { act, fireEvent, screen, wait } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
 import { Account, AppContext } from '../../models';
 import { renderWithRouter, mockAppContext } from '../../models/_mocks';
@@ -40,25 +40,22 @@ const clickFirstSignOutButton = async () => {
     const signOutButtons = await screen.findAllByTestId(
       'connected-service-sign-out'
     );
-    fireEvent.click(signOutButtons[0]);
+    await fireEvent.click(signOutButtons[0]);
   });
-  await wait();
 };
 
 const chooseRadioByLabel = async (label: string) => {
   await act(async () => {
     const radio = await screen.findByLabelText(label);
-    fireEvent.click(radio);
+    await fireEvent.click(radio);
   });
-  await wait();
 };
 
 const clickConfirmDisconnectButton = async () => {
   await act(async () => {
     const confirmButton = await screen.findByTestId('modal-confirm');
-    fireEvent.click(confirmButton);
+    await fireEvent.click(confirmButton);
   });
-  await wait();
 };
 
 const expectDisconnectModalHeader = async () => {

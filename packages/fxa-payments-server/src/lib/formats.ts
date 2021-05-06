@@ -59,7 +59,7 @@ const defaultDateOptions = {
   day: '2-digit',
   month: 'long',
   year: 'numeric',
-};
+} as any;
 
 /**
  * Using numericDateOptions will result in dates with the following properties:

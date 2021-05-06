@@ -44,6 +44,9 @@ export const observeNavigationTiming = (
   url: string,
   send: ReturnType<typeof sendFn> = defaultSendFn
 ) => {
+  // TS4 wants to mark this as a bug saying it's always true
+  // but in the unit tests under jsdom it isn't
+  // @ts-ignore
   if (performance.getEntriesByType && PerformanceObserver && !!send) {
     // By the time this is called, the event might've completed.  Use the
     // PerformanceObserver API if it hasn't, otherwise send the data.

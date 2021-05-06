@@ -31,7 +31,7 @@
     "fast-text-encoding": "^1.0.3",
     "mocha": "^7.1.2",
     "ts-node": "^9.1.1",
-    "typescript": "3.9.7",
+    "typescript": "^4.2.4",
     "webcrypto-liner": "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
   }
 }
