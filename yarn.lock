@@ -20276,7 +20276,7 @@ fsevents@^1.2.7:
     mysql-patcher: 0.7.0
     nock: ^13.0.11
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
-    node-zendesk: ^2.0.6
+    node-zendesk: ^2.1.0
     nodemailer: 2.7.2
     nyc: ^15.0.1
     otplib: ^11.0.1
@@ -29518,15 +29518,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"node-zendesk@npm:^2.0.6":
-  version: 2.0.6
-  resolution: "node-zendesk@npm:2.0.6"
+"node-zendesk@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "node-zendesk@npm:2.1.0"
   dependencies:
     async: 3.2.x
     nconf: 0.11.0
     querystring: 0.2.x
     request: 2.88.2
-  checksum: 6e6fed31dbcd1e57e4f8c115cc3961820d2cdae291026184a790209bdbe48f82349d50e7ce290d5f0d259a0130a42d1dc6a71f0d57d96d0380a9be9ee424f838
+  checksum: d68427e001ceb20526a57bc3aec79f170302040b2ccda17b4ab817a8c9c5ab410be5fa4cd1154c1bc746c698c714070993b68fad978440398ab75d9a39d03d90
   languageName: node
   linkType: hard
 
