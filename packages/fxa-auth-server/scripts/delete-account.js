@@ -20,6 +20,8 @@
 
 'use strict';
 
+const { StatsD } = require('hot-shots');
+const { Container } = require('typedi');
 const readline = require('readline');
 const P = require('../lib/promise');
 const config = require('../config').getProperties();
@@ -62,6 +64,7 @@ DB.connect(config).then((db) => {
     timing: () => {},
     close: () => {},
   };
+  Container.set(StatsD, statsd);
   const verificationReminders = require('../lib/verification-reminders')(
     log,
     config
@@ -69,8 +72,21 @@ DB.connect(config).then((db) => {
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
+    const { CurrencyHelper } = require('../lib/payments/currencies');
+    const { StripeHelper } = require('../lib/payments/stripe');
+    const { PayPalClient } = require('../lib/payments/paypal-client');
+    const { PayPalHelper } = require('../lib/payments/paypal');
+    const currencyHelper = new CurrencyHelper(config);
+    Container.set(CurrencyHelper, currencyHelper);
+    const paypalClient = new PayPalClient(
+      config.subscriptions.paypalNvpSigCredentials
+    );
+    Container.set(PayPalClient, paypalClient);
     const { createStripeHelper } = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
+    Container.set(StripeHelper, stripeHelper);
+    const paypalHelper = new PayPalHelper({ log });
+    Container.set(PayPalHelper, paypalHelper);
   }
 
   // Load the account-deletion route, so we can use its logic directly.
