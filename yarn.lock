@@ -20700,7 +20700,7 @@ fsevents@^1.2.7:
     get-stream: ^6.0.0
     graphql: ^15.5.0
     graphql-parse-resolve-info: ^4.11.0
-    graphql-query-complexity: ^0.8.1
+    graphql-query-complexity: ^0.8.0
     graphql-tools: ^7.0.1
     graphql-upload: ^11.0.0
     helmet: ^4.5.0
@@ -21967,14 +21967,14 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"graphql-query-complexity@npm:^0.8.1":
-  version: 0.8.1
-  resolution: "graphql-query-complexity@npm:0.8.1"
+"graphql-query-complexity@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "graphql-query-complexity@npm:0.8.0"
   dependencies:
     lodash.get: ^4.4.2
   peerDependencies:
     graphql: ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: 7b76e3c8a54b3e1e71b34f66eca287951bdd04d9385085cd982e1a48636e8c98ca92d8f857b5a8de0dff519097d443de21f7fece4d368ea09a88e6d2c0d9dd40
+  checksum: 10f01503bf34dfa25745b3b8b8c5fab377c80c4aae16c399a93884c12b99bd04f3df2c7b0de25bd2a0f0b1cd90d4c056bbc64daeafeb9c7c07297617964a3f1a
   languageName: node
   linkType: hard
 
