@@ -24,7 +24,7 @@ __metadata:
     node-rsa: 1.1.1
     pm2: ^4.5.6
     prettier: ^2.0.5
-    redis: ^3.1.0
+    redis: ^3.1.2
     request: ^2.88.2
   languageName: unknown
   linkType: soft
@@ -21152,7 +21152,7 @@ fsevents@^1.2.7:
     pm2: ^4.5.6
     prettier: ^2.0.5
     proxyquire: ^2.1.3
-    redis: ^3.1.0
+    redis: ^3.1.2
     reflect-metadata: ^0.1.13
     rxjs: ^6.6.6
     sinon: ^9.0.3
@@ -34557,15 +34557,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"redis@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "redis@npm:3.1.0"
+"redis@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "redis@npm:3.1.2"
   dependencies:
     denque: ^1.5.0
     redis-commands: ^1.7.0
     redis-errors: ^1.2.0
     redis-parser: ^3.0.0
-  checksum: b3006b7bb86b9481f663255779f0db46d9ee679fec223b70f6921f4efa94b6d31ae4a892da4d97949974f7d58d500cfda46d5c423a6febcf80aa09e344fafbd5
+  checksum: af9b5162aa98e3894fab9914e622019ba3e557c6e2285db419354b83fad30e971defb84600191c48985657d2c33d0c0549990fa4efdb9352e81c9727a309f691
   languageName: node
   linkType: hard
 
