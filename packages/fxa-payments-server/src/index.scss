@@ -1,4 +1,20 @@
-@import '../../fxa-content-server/app/styles/main';
+@import '~normalize.css';
+@import '~jquery-modal/jquery.modal';
+@import '../../fxa-content-server/app/styles/variables';
+@import '../../fxa-content-server/app/styles/mixins';
+@import '../../fxa-content-server/app/styles/breakpoints';
+@import '../../fxa-content-server/app/styles/base';
+@import '../../fxa-content-server/app/styles/layout';
+@import '../../fxa-content-server/app/styles/modules/tooltip';
+@import '../../fxa-content-server/app/styles/modules/input-row';
+@import '../../fxa-content-server/app/styles/modules/button-row';
+@import '../../fxa-content-server/app/styles/modules/modal';
+@import '../../fxa-content-server/app/styles/modules/settings';
+@import '../../fxa-content-server/app/styles/modules/legal';
+@import '../../fxa-content-server/app/styles/modules/spinner';
+@import '../../fxa-content-server/app/styles/modules/avatar';
+@import '../../fxa-content-server/app/styles/modules/support';
+@import '../../fxa-content-server/app/styles/state';
 @import './styles/mixins';
 @import './styles/variables';
 

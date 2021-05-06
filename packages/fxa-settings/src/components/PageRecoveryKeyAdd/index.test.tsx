@@ -10,6 +10,10 @@ import { mockAppContext, renderWithRouter } from '../../models/_mocks';
 import { Account, AppContext } from '../../models';
 import { PageRecoveryKeyAdd } from '.';
 
+jest.mock('base32-encode', () =>
+  jest.fn().mockReturnValue('00000000000000000000000000000000')
+);
+
 const account = ({
   primaryEmail: {
     email: 'johndope@example.com',

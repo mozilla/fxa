@@ -17,8 +17,14 @@
     "storybook": "npm run build-postcss && start-storybook -p 6008 -s .storybook/design-guide --no-version-updates",
     "test": "SKIP_PREFLIGHT_CHECK=true rescripts test"
   },
+  "jest": {
+    "resetMocks": false
+  },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
     "production": [
@@ -55,7 +61,7 @@
     "react-dom": "^16.13.1",
     "react-easy-crop": "^3.3.3",
     "react-hook-form": "^6.15.5",
-    "react-scripts": "^3.4.1",
+    "react-scripts": "^4.0.3",
     "react-webcam": "^5.2.2",
     "subscriptions-transport-ws": "^0.9.18",
     "typescript": "3.9.7",

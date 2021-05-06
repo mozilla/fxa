@@ -5,10 +5,18 @@ import {
   fireEvent,
   RenderResult,
   screen,
+  act,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import nock from 'nock';
+import noc from 'nock';
 import waitForExpect from 'wait-for-expect';
+
+function nock(it: any) {
+  //@ts-ignore
+  return noc(...arguments).defaultReplyHeaders({
+    'Access-Control-Allow-Origin': '*',
+  });
+}
 
 jest.mock('../../lib/sentry');
 
@@ -74,7 +82,7 @@ describe('routes/Subscriptions', () => {
   });
 
   afterEach(() => {
-    nock.cleanAll();
+    noc.cleanAll();
     return cleanup();
   });
 
@@ -371,7 +379,12 @@ describe('routes/Subscriptions', () => {
         ],
       });
 
-    const { findByTestId, queryAllByTestId, getByTestId } = render(<Subject />);
+    const {
+      findByTestId,
+      queryAllByTestId,
+      queryByTestId,
+      getByTestId,
+    } = render(<Subject />);
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');
@@ -393,9 +406,19 @@ describe('routes/Subscriptions', () => {
 
     expect(cancelSubscriptionEngaged).toBeCalledTimes(1);
 
-    // Click the cancellation button
-    fireEvent.click(cancelButton);
+    await act(() => {
+      fireEvent.click(cancelButton);
+    });
 
+    // The spinner being removed is a side effect of the cancel subscription
+    // callback.  We need to wait for it so we can be somewhat confident that
+    // the callback has finished.  Other, cleanup() in beforeEach will unmount
+    // the component before a state update is performed, and not to mention the
+    // post-cancel customer fetch's effect on the next test's nock setup.
+    // tl;dr 🤷‍♀️
+    await waitForExpect(() =>
+      expect(queryByTestId('spinner-update')).not.toBeInTheDocument()
+    );
     // A farewell dialog should appear
     await findByTestId('cancellation-message-title');
   });
@@ -439,9 +462,12 @@ describe('routes/Subscriptions', () => {
         ],
       });
 
-    const { findByTestId, queryAllByTestId, getAllByTestId } = render(
-      <Subject />
-    );
+    const {
+      findByTestId,
+      queryAllByTestId,
+      queryByTestId,
+      getAllByTestId,
+    } = render(<Subject />);
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');
@@ -473,7 +499,9 @@ describe('routes/Subscriptions', () => {
 
     expect(cancelSubscriptionEngaged).toBeCalledTimes(2);
 
-    fireEvent.click(cancelButtons[0]);
+    await act(() => {
+      fireEvent.click(cancelButtons[0]);
+    });
 
     await waitForExpect(() =>
       expect(getAllByTestId('spinner-update').length).toEqual(1)
@@ -483,6 +511,10 @@ describe('routes/Subscriptions', () => {
     );
     await waitForExpect(() =>
       expect(cancelButtons[1]).toHaveAttribute('disabled')
+    );
+
+    await waitForExpect(() =>
+      expect(queryByTestId('spinner-update')).not.toBeInTheDocument()
     );
 
     // A farewell dialog should appear
@@ -598,9 +630,7 @@ describe('routes/Subscriptions', () => {
         .post('/v1/oauth/subscriptions/reactivate')
         .reply(200, {});
 
-      const { findByTestId, queryByTestId, getByTestId, getByAltText } = render(
-        <Subject />
-      );
+      const { findByTestId, getByTestId, getByAltText } = render(<Subject />);
 
       // Wait for the page to load with one subscription
       await findByTestId('subscription-management-loaded');
@@ -617,6 +647,8 @@ describe('routes/Subscriptions', () => {
       fireEvent.click(reactivateConfirmButton);
 
       await findByTestId('reactivate-subscription-success-dialog');
+
+      await wait(10); // something flaky here. without waiting it's the loading-overlay
 
       // Product image should appear in the reactivation success dialog.
       expectProductImage({ getByAltText, useDefaultIcon });
