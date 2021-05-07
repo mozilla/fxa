@@ -1545,7 +1545,7 @@ const openFxaFromRp = thenify(function (page, options = {}) {
 
   // By introducing a small delay (100ms), it gives the Rp some time to setup
   // their page and helps improve overall test performance.
-  const delay = 100 || options.delay;
+  const delay = 150 || options.delay;
 
   if (page === 'enter-email') {
     buttonSelector = '.email-first-button';

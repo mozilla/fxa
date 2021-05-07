@@ -5,12 +5,10 @@
 const testsSettings = require('./functional_settings');
 
 module.exports = testsSettings.concat([
-  // These oauth tests use untrusted clients which
-  // would fixed when https://github.com/mozilla/fxa/issues/5291 lands
-  // 'tests/functional/oauth_settings_clients.js',
-  // 'tests/functional/oauth_prompt_none.js',
-  // 'tests/functional/oauth_permissions.js',
-  // 'tests/functional/oauth_query_param_validation.js',
+  'tests/functional/oauth_settings_clients.js',
+  'tests/functional/oauth_prompt_none.js',
+  'tests/functional/oauth_permissions.js',
+  'tests/functional/oauth_query_param_validation.js',
 
   // new and flaky tests above here',
   'tests/functional/404.js',

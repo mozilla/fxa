@@ -65,7 +65,7 @@ registerSuite('oauth query parameter validation', {
     return this.remote
       .then(
         clearBrowserState({
-          contentServer: true,
+          forceAll: true,
         })
       )
       .then(openFxaFromRp('enter-email'))
