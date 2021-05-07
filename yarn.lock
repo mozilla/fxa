@@ -18775,7 +18775,7 @@ fsevents@~2.1.1:
     react-stripe-elements: ^6.1.2
     react-test-renderer: ^17.0.1
     react-transition-group: ^4.3.0
-    redux: ^4.0.4
+    redux: ^4.1.0
     redux-actions: ^2.6.5
     redux-devtools-extension: ^2.13.9
     redux-promise-middleware: ^6.1.2
@@ -31684,13 +31684,22 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"redux@npm:^4.0.0, redux@npm:^4.0.4":
+"redux@npm:^4.0.0":
   version: 4.0.5
   resolution: "redux@npm:4.0.5"
   dependencies:
     loose-envify: ^1.4.0
     symbol-observable: ^1.2.0
   checksum: 112739c2fb83ae2e18335d942a883b3ee14ebada31ff3a7924511a1f38a4278a762f5823491f3eb5083492de601ed76cb2687295c7d5db9a6e098c2542cdc05b
+  languageName: node
+  linkType: hard
+
+"redux@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "redux@npm:4.1.0"
+  dependencies:
+    "@babel/runtime": ^7.9.2
+  checksum: d939d0df1e12982c66c0ea767c8ec98276ee981ce0381222239b7f823c6ad02ea3e3c622859bcb4934446b3f86d735db35d7bd8b1697d359070e5fbef1f4ad49
   languageName: node
   linkType: hard
 
