@@ -24,6 +24,8 @@ const selectedPlan: Plan = {
   amount: 935,
   interval: 'month' as const,
   interval_count: 1,
+  plan_metadata: null,
+  product_metadata: null,
 };
 
 const customer: Customer = {

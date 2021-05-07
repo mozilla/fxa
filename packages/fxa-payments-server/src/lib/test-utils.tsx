@@ -346,6 +346,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'example_upgrade',
       webIconURL: 'http://example.com/product.jpg',
@@ -360,6 +361,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 2500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: '123done',
       webIconURL: 'http://example.com/123donepro.jpg',
@@ -375,6 +377,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 5900,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'example_upgrade',
     },
@@ -387,6 +390,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'fpn',
     },
@@ -399,6 +403,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 6,
     amount: 500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'fpn',
     },
@@ -411,6 +416,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'fpn',
     },
@@ -423,6 +429,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 6,
     amount: 500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'fpn',
     },
@@ -435,6 +442,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'fpn',
     },
@@ -447,6 +455,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 6,
     amount: 500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'fpn',
     },
@@ -459,6 +468,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'fpn',
     },
@@ -471,6 +481,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 6,
     amount: 500,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       productSet: 'fpn',
     },
@@ -483,6 +494,7 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 999,
     currency: 'usd',
+    plan_metadata: null,
     product_metadata: {
       webIconURL: 'http://example.com/product.jpg',
       webIconBackground: 'purple',

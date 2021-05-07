@@ -12,6 +12,7 @@ import {
   filterIntent,
   filterInvoice,
   filterSubscription,
+  singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
 import omitBy from 'lodash/omitBy';
 import { Logger } from 'mozlog';
@@ -218,7 +219,8 @@ export class StripeHandler {
       throw error.unknownSubscription();
     }
 
-    if (!subscription.plan) {
+    const plan = singlePlan(subscription);
+    if (!plan) {
       throw error.internalValidationError(
         'updateSubscription',
         { subscription: subscription.id },
@@ -226,7 +228,7 @@ export class StripeHandler {
       );
     }
 
-    const currentPlanId = subscription.plan.id;
+    const currentPlanId = plan.id;
 
     // Verify the plan is a valid update for this subscription.
     await this.stripeHelper.verifyPlanUpdateForSubscription(
@@ -284,7 +286,8 @@ export class StripeHandler {
 
     if (customer && customer.subscriptions) {
       for (const subscription of customer.subscriptions.data) {
-        if (!subscription.plan) {
+        const plan = singlePlan(subscription);
+        if (!plan) {
           throw error.internalValidationError(
             'listActive',
             { subscription: subscription.id },
@@ -292,12 +295,8 @@ export class StripeHandler {
           );
         }
 
-        const {
-          id: subscriptionId,
-          created,
-          canceled_at,
-          plan: { product: productId },
-        } = subscription;
+        const productId = plan.product;
+        const { id: subscriptionId, created, canceled_at } = subscription;
         if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
           activeSubscriptions.push({
             uid,
@@ -722,7 +721,8 @@ export class StripeHandler {
       return;
     }
     await this.updateCustomer(uid, email);
-    if (!sub.plan || typeof sub.plan.product !== 'string') {
+    const plan = singlePlan(sub);
+    if (!plan || typeof plan.product !== 'string') {
       throw error.internalValidationError(
         'updateCustomerAndSendStatus',
         {
@@ -735,7 +735,7 @@ export class StripeHandler {
       request,
       uid,
       event,
-      { id: sub.id, productId: sub.plan.product },
+      { id: sub.id, productId: plan.product },
       isActive
     );
   }

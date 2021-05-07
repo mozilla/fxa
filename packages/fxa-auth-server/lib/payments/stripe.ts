@@ -11,7 +11,10 @@ import {
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
-import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
+import {
+  ACTIVE_SUBSCRIPTION_STATUSES,
+  singlePlan,
+} from 'fxa-shared/subscriptions/stripe';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import moment from 'moment';
@@ -137,7 +140,7 @@ export class StripeHelper {
       : undefined;
 
     this.stripe = new Stripe(config.subscriptions.stripeApiKey, {
-      apiVersion: '2020-03-02',
+      apiVersion: '2020-08-27',
       maxNetworkRetries: 3,
     });
     cacheManager.setOptions({
@@ -1439,17 +1442,15 @@ export class StripeHelper {
   ) {
     const subs = [];
     for (const sub of subscriptions.data) {
-      if (!sub.plan) {
+      const plan = singlePlan(sub);
+      if (!plan) {
         throw error.internalValidationError(
           'formatSubscriptionsForSupport',
           sub,
-          new Error(`Unexpected multiple plans for subscription: ${sub.id}`)
+          new Error(`Unexpected multiple items for subscription: ${sub.id}`)
         );
       }
-      const product = await this.expandResource(
-        sub.plan.product,
-        PRODUCT_RESOURCE
-      );
+      const product = await this.expandResource(plan.product, PRODUCT_RESOURCE);
 
       if (!product || product.deleted) {
         throw error.internalValidationError(
@@ -1514,7 +1515,7 @@ export class StripeHelper {
       invoice.customer,
       CUSTOMER_RESOURCE
     );
-    if (customer.deleted === true) {
+    if (!customer || customer.deleted) {
       throw error.unknownCustomer(invoice.customer);
     }
 
@@ -1611,20 +1612,18 @@ export class StripeHelper {
 
     for (const subscription of customer.subscriptions.data) {
       if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
-        if (!subscription.plan) {
+        const subPlan = singlePlan(subscription);
+        if (!subPlan) {
           throw error.internalValidationError(
             'extractSourceDetailsForEmail',
             customer,
             new Error(
-              `Multiple plans for a subscription not supported: ${subscription.id}`
+              `Multiple items for a subscription not supported: ${subscription.id}`
             )
           );
         }
 
-        const plan = await this.expandResource(
-          subscription.plan,
-          PLAN_RESOURCE
-        );
+        const plan = await this.expandResource(subPlan, PLAN_RESOURCE);
         const abbrevProduct = await this.expandAbbrevProductForPlan(plan);
 
         const {
@@ -1765,19 +1764,19 @@ export class StripeHelper {
       metadata: { userid: uid },
     } = customer;
 
-    if (!subscription.plan) {
+    const planNew = singlePlan(subscription);
+    if (!planNew) {
       throw error.internalValidationError(
         'extractSubscriptionUpdateEventDetailsForEmail',
         event,
         new Error(
-          `Multiple plans for a subscription not supported: ${subscription.id}`
+          `Multiple items for a subscription not supported: ${subscription.id}`
         )
       );
     }
 
     const previousAttributes = eventData.previous_attributes;
-    const planNew = subscription.plan;
-    const planIdNew = subscription.plan.id;
+    const planIdNew = planNew.id;
     // This may be in error, its not obvious what previous attributes must exist
     // @ts-ignore
     const planOld = previousAttributes.plan;
@@ -1987,7 +1986,7 @@ export class StripeHelper {
         source = customer.default_source as Stripe.Card;
       } else {
         // We *do* expand sources, so just do a local lookup by ID.
-        source = customer.sources.data.find(
+        source = customer.sources?.data.find(
           (s) => s.id === customer.default_source
         ) as Stripe.Card;
       }
@@ -2123,7 +2122,10 @@ export class StripeHelper {
    * @param {Plan} plan
    * @param {AbbrevProduct} abbrevProduct
    */
-  mergeMetadata(plan: Stripe.Plan, abbrevProduct: AbbrevProduct) {
+  mergeMetadata(
+    plan: Stripe.Plan,
+    abbrevProduct: AbbrevProduct
+  ): Stripe.Metadata {
     return {
       ...abbrevProduct.product_metadata,
       ...plan.metadata,

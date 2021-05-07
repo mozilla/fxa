@@ -197,6 +197,9 @@ describe('remote subscriptions:', function () {
                 plan: {
                   product: PRODUCT_ID,
                 },
+                items: {
+                  data: [{ plan: { product: PRODUCT_ID } }],
+                },
                 status: 'active',
               },
             ],

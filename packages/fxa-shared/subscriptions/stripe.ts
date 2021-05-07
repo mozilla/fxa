@@ -178,3 +178,14 @@ export const hasPaypalSubscription = (customer: Stripe.Customer) =>
       ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
       sub.collection_method === 'send_invoice'
   );
+
+/**
+ * Returns a single plan from a subscription if there is only one plan
+ * present. If there's multiple items, then no plans will be returned.
+ */
+export function singlePlan(
+  subscription: Stripe.Subscription
+): Stripe.Plan | null {
+  const subItems = subscription.items.data;
+  return subItems.length > 1 ? null : subItems[0].plan;
+}
