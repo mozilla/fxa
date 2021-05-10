@@ -15,15 +15,15 @@ class ScanCode extends FormView {
   template = Template;
   viewName = 'scan-code';
 
-  events = assign(this.events, {
-    'click #use-sms-link': preventDefaultThen('clickUseSms'),
-  });
-
   initialize() {
     // Override the default poll time (6s) in functional tests
     if (this.broker.isAutomatedBrowser()) {
       this.DEVICE_CONNECTED_POLL_IN_MS = 500;
     }
+
+    this.events = assign(this.events, {
+      'click #use-sms-link': preventDefaultThen('clickUseSms'),
+    });
   }
 
   _onConnected(device) {
@@ -37,22 +37,23 @@ class ScanCode extends FormView {
   afterRender() {
     const account = this.getSignedInAccount();
 
-    // We can only poll for new devices if a user is logged into a session.
+    // We can only poll for new devices if a user is logged into a valid session.
     // Users that are not logged can not proceed to the next screen.
     // A "default" QR code image will be shown that doesn't prefill any
     // login form
-    if (account.isDefault()) {
-      return;
-    }
-
-    return account
-      .createSigninCode()
-      .then((resp) => {
-        this.$(QR_IMG_SELECTOR).attr('src', resp.installQrCode);
-      })
-      .then(() => {
-        this.waitForDeviceConnected(account, this._onConnected);
-      });
+    return account.isSignedIn().then((signedIn) => {
+      if (!signedIn) {
+        return;
+      }
+      return account
+        .createSigninCode()
+        .then((resp) => {
+          this.$(QR_IMG_SELECTOR).attr('src', resp.installQrCode);
+        })
+        .then(() => {
+          this.waitForDeviceConnected(account, this._onConnected);
+        });
+    });
   }
 
   clickUseSms() {
