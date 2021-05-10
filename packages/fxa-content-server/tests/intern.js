@@ -174,6 +174,12 @@ if (args.firefoxBinary) {
 
 const failed = [];
 
+intern.on('suiteEnd', (test) => {
+  if (test.error) {
+    failed.push(test);
+  }
+});
+
 intern.on('testEnd', (test) => {
   if (test.error) {
     failed.push(test);
