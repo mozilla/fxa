@@ -12257,6 +12257,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"caniuse-lite@npm:^1.0.30001223":
+  version: 1.0.30001223
+  resolution: "caniuse-lite@npm:1.0.30001223"
+  checksum: 0a19e4c3689048cf7f6a47d348cc6dc849a141ae814634cc2c9b37a91dc5ba019c08d67ddf3549323ae4b13c84cb2a796204128bcd19f0dbbe844dab0058b25e
+  languageName: node
+  linkType: hard
+
 "capture-exit@npm:^2.0.0":
   version: 2.0.0
   resolution: "capture-exit@npm:2.0.0"
@@ -18923,7 +18930,7 @@ fsevents@~2.1.1:
     babel-eslint: ^10.1.0
     babel-loader: ^8.0.6
     browserslist: ^4.7.2
-    caniuse-lite: ^1.0.30001219
+    caniuse-lite: ^1.0.30001223
     celebrate: ^10.1.0
     classnames: ^2.3.1
     convict: ^6.0.1
