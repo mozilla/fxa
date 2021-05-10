@@ -1893,7 +1893,10 @@ conf.set('domain', url.parse(conf.get('publicUrl')).host);
 // derive fxa-auth-mailer configuration from our content-server url
 const baseUri = conf.get('contentServer.url');
 conf.set('smtp.accountSettingsUrl', `${baseUri}/settings`);
-conf.set('smtp.accountRecoveryCodesUrl', `${baseUri}/settings#security`);
+conf.set(
+  'smtp.accountRecoveryCodesUrl',
+  `${baseUri}/settings/two_step_authentication/replace_codes`
+);
 conf.set('smtp.verificationUrl', `${baseUri}/verify_email`);
 conf.set('smtp.passwordResetUrl', `${baseUri}/complete_reset_password`);
 conf.set('smtp.initiatePasswordResetUrl', `${baseUri}/reset_password`);
