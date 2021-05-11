@@ -6615,12 +6615,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/http-proxy@npm:^1.17.3":
-  version: 1.17.4
-  resolution: "@types/http-proxy@npm:1.17.4"
+"@types/http-proxy@npm:^1.17.5":
+  version: 1.17.5
+  resolution: "@types/http-proxy@npm:1.17.5"
   dependencies:
     "@types/node": "*"
-  checksum: 9f5ba01f1031010f686f628d1b7f8b0989cd0562436675eff13f944ae2ffbaa90be0d2a7f89a6caf5763e00822080ae28c58ce0e1cde138322decb636641e568
+  checksum: 21aefcc88273cb99474a7682209c795ee0dad15cc277b027ea504e65faab5cbb799b067662f7ae7c0255651bf9433a41811930c76f7561757f02f2c8262ee592
   languageName: node
   linkType: hard
 
@@ -18240,7 +18240,7 @@ fsevents@~2.1.1:
     helmet: ^4.5.0
     hot-shots: ^8.3.1
     htmlparser2: 6.1.0
-    http-proxy-middleware: ^1.0.3
+    http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
     install: 0.13.0
     intern: ^4.9.0
@@ -20984,16 +20984,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"http-proxy-middleware@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "http-proxy-middleware@npm:1.0.3"
+"http-proxy-middleware@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "http-proxy-middleware@npm:2.0.0"
   dependencies:
-    "@types/http-proxy": ^1.17.3
-    http-proxy: ^1.18.0
+    "@types/http-proxy": ^1.17.5
+    http-proxy: ^1.18.1
     is-glob: ^4.0.1
-    lodash: ^4.17.15
+    is-plain-obj: ^3.0.0
     micromatch: ^4.0.2
-  checksum: ce154ba75270c6535d9b635ca41bf2ba78c2aa41bab80da4cab81a07bbe2c585b247e4b89d6096c8ee17e77387396eb884fbc60d555aded9b4b207744cee00ae
+  checksum: f642b73d747ddfc77183e986cc8141b13456846897f510887db06431eeecec2f4fa300fe84ccb1ffae63d53694a5756296aa72b319b02ca6b3957e5e3829b617
   languageName: node
   linkType: hard
 
@@ -22278,6 +22278,13 @@ fsevents@~2.1.1:
   version: 2.1.0
   resolution: "is-plain-obj@npm:2.1.0"
   checksum: 2314302f9140d1e9607731d523f207d8000281aebbabe0083210342c0758976f75f0f5db405e55910bd4dc9a04baddbeab9d476290642b5a0d31431cc9bda4b3
+  languageName: node
+  linkType: hard
+
+"is-plain-obj@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "is-plain-obj@npm:3.0.0"
+  checksum: 70a50b220133b82adf1302aa7efde74d6a2b734a6687b199c733491a4f724b69d1196a6c440238adcc767cc419e7dc02309af159ab21412f685893d36154eb2e
   languageName: node
   linkType: hard
 
