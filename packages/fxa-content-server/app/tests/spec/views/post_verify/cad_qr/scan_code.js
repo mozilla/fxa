@@ -40,6 +40,7 @@ describe('views/post_verify/cad_qr/scan_code', () => {
     account = new Account({
       email: 'a@a.com',
       uid: 'uid',
+      sessionToken: 'sessionToken',
     });
     model = new Backbone.Model({
       account,
@@ -59,6 +60,9 @@ describe('views/post_verify/cad_qr/scan_code', () => {
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.stub(account, 'fetchDeviceList').callsFake(() => Promise.resolve([]));
+    sinon
+      .stub(account, 'isSignedIn')
+      .callsFake(() => Promise.resolve(account.get('sessionToken')));
     sinon.stub(account, 'createSigninCode').callsFake(() =>
       Promise.resolve({
         code: 'code',
@@ -98,6 +102,7 @@ describe('views/post_verify/cad_qr/scan_code', () => {
     beforeEach(() => {
       account.unset('uid');
       account.unset('email');
+      account.unset('sessionToken');
       view.waitForDeviceConnected.resetHistory();
       account.createSigninCode.resetHistory();
       return view.render();
