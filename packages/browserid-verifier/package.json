@@ -22,7 +22,7 @@
     "express": "^4.17.1",
     "intel": "1.2.0",
     "morgan": "^1.10.0",
-    "mozlog": "^3.0.1",
+    "mozlog": "^3.0.2",
     "optimist": "0.6.1",
     "toobusy-js": "0.5.1",
     "underscore": "^1.10.2"

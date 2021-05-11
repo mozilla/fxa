@@ -11353,7 +11353,7 @@ __metadata:
     intel: 1.2.0
     mocha: ^7.1.2
     morgan: ^1.10.0
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     optimist: 0.6.1
     pm2: ^4.5.6
     prettier: ^2.0.5
@@ -17930,7 +17930,7 @@ fsevents@~2.1.1:
     graphql: ^15.5.0
     helmet: ^4.5.0
     jest: 26.6.0
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     node-sass: ^4.13.1
     npm-run-all: ^4.1.5
     on-headers: ^1.0.2
@@ -17987,7 +17987,7 @@ fsevents@~2.1.1:
     helmet: ^4.5.0
     jest: 26.6.0
     knex: ^0.21.18
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     mysql: ^2.18.1
     objection: ^2.2.15
     pm2: ^4.5.6
@@ -18046,7 +18046,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     ip: ^1.1.5
     mocha: ^7.1.2
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
     nock: ^13.0.11
@@ -18148,7 +18148,7 @@ fsevents@~2.1.1:
     mocha-junit-reporter: ^2.0.0
     moment: ^2.29.1
     moment-timezone: 0.5.32
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
     nock: ^13.0.11
@@ -18302,7 +18302,7 @@ fsevents@~2.1.1:
     mkdirp: 0.5.1
     mocha: ^7.1.2
     morgan: ^1.10.0
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     mustache: 4.2.0
     node-sass: ^4.13.1
     node-uuid: 1.4.8
@@ -18487,7 +18487,7 @@ fsevents@~2.1.1:
     hot-shots: ^8.3.1
     jest: 26.6.0
     jwks-rsa: ^1.11.0
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     nock: ^13.0.11
     p-event: ^4.2.0
     passport: ^0.4.1
@@ -18524,7 +18524,7 @@ fsevents@~2.1.1:
     maxmind: 2.8.0
     mkdirp: 0.5.1
     mocha: ^7.1.2
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     nyc: ^15.0.1
     prettier: ^2.0.5
     request: ^2.88.2
@@ -18584,7 +18584,7 @@ fsevents@~2.1.1:
     ioredis: ^4.26.0
     jest: 26.6.0
     knex: ^0.21.18
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.0.11
     objection: ^2.2.15
@@ -18636,7 +18636,7 @@ fsevents@~2.1.1:
     eslint: ^7.17.0
     fxa-shared: "workspace:*"
     mocha: ^7.1.2
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     prettier: ^2.0.5
     reflect-metadata: ^0.1.13
     sinon: ^9.0.3
@@ -18745,7 +18745,7 @@ fsevents@~2.1.1:
     jest: 26.6.0
     joi: ^14.3.1
     morgan: ^1.10.0
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     nocache: ^2.1.0
     nock: ^13.0.11
     node-fetch: ^2.6.1
@@ -18814,7 +18814,7 @@ fsevents@~2.1.1:
     mkdirp: 0.5.1
     mocha: ^7.1.2
     mocha-text-cov: 0.1.1
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
     nock: ^13.0.11
@@ -19022,7 +19022,7 @@ fsevents@~2.1.1:
     lodash.pick: ^4.4.0
     mocha: ^7.1.2
     moment: ^2.29.1
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     mysql: ^2.18.1
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     nyc: ^15.0.1
@@ -19077,7 +19077,7 @@ fsevents@~2.1.1:
     hbs: ^4.1.2
     helmet: ^4.5.0
     jest: 26.6.0
-    mozlog: ^3.0.1
+    mozlog: ^3.0.2
     pm2: ^4.5.6
     prettier: ^2.0.5
     reflect-metadata: ^0.1.13
@@ -25637,10 +25637,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"merge@npm:^1.2.1":
-  version: 1.2.1
-  resolution: "merge@npm:1.2.1"
-  checksum: f6a054fa9666ab56eaac9628c24fb5710ba4ccd3a2d3f511247fbbc470f27d0dcf3bbbddbc84ad98dc47304830775caffe95ee3bd67b5e0b0f7c280122f24ca8
+"merge@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "merge@npm:2.1.1"
+  checksum: 5b66853a10df1fe86e2ea04b216b7b9a5911643617473d9ef499d6bf9bc5ed856dea27b6a6a1224bc091831c234e8be3bbf4964d11304dce82294558a11c3333
   languageName: node
   linkType: hard
 
@@ -26201,13 +26201,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mozlog@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "mozlog@npm:3.0.1"
+"mozlog@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "mozlog@npm:3.0.2"
   dependencies:
     intel: ^1.2.0
-    merge: ^1.2.1
-  checksum: b9d3b8a5e6710ae9830a6c1feca03836a8b510c126f86a4eb01d06f099f806bcb8599f99746d4a022673c004284de9292470422731ca0ad2a3f767c23fc68378
+    merge: ^2.1.1
+  checksum: f083549c9277ec8b80a7bcb4d222e5b58c3e69842bae01f4141733bddfc4788573b8d9329f13791e82dd85c4927eb07107553462b7f0c8be52d158e37d17dc44
   languageName: node
   linkType: hard
 

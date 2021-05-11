@@ -31,7 +31,7 @@
     "convict-format-with-validator": "^6.0.1",
     "fxa-shared": "workspace:*",
     "lodash": "^4.17.19",
-    "mozlog": "^3.0.1",
+    "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "mysql-patcher": "0.7.0",
     "poolee": "^1.0.1",

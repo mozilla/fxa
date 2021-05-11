@@ -51,7 +51,7 @@
     "graphql-tools": "^7.0.1",
     "helmet": "^4.5.0",
     "knex": "^0.21.18",
-    "mozlog": "^3.0.1",
+    "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "objection": "^2.2.15",
     "reflect-metadata": "^0.1.13",
