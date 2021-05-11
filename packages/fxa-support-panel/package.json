@@ -48,7 +48,7 @@
     "handlebars": "^4.7.6",
     "hbs": "^4.1.2",
     "helmet": "^4.5.0",
-    "mozlog": "^3.0.1",
+    "mozlog": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6",
