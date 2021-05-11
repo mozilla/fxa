@@ -157,7 +157,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/protobufjs@npm:1.2.2":
+"@apollo/protobufjs@npm:1.2.2, @apollo/protobufjs@npm:^1.0.3":
   version: 1.2.2
   resolution: "@apollo/protobufjs@npm:1.2.2"
   dependencies:
@@ -178,30 +178,6 @@ __metadata:
     apollo-pbjs: bin/pbjs
     apollo-pbts: bin/pbts
   checksum: 75940f213d39728f2fdd662732eb6c085fb393bea01ccb58c5084a18559d1d7342bac3ebb44f93c9e86b8237c675ae81a04427866d156f93b16b691d020bfd44
-  languageName: node
-  linkType: hard
-
-"@apollo/protobufjs@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "@apollo/protobufjs@npm:1.0.3"
-  dependencies:
-    "@protobufjs/aspromise": ^1.1.2
-    "@protobufjs/base64": ^1.1.2
-    "@protobufjs/codegen": ^2.0.4
-    "@protobufjs/eventemitter": ^1.1.0
-    "@protobufjs/fetch": ^1.1.0
-    "@protobufjs/float": ^1.0.2
-    "@protobufjs/inquire": ^1.1.0
-    "@protobufjs/path": ^1.1.2
-    "@protobufjs/pool": ^1.1.0
-    "@protobufjs/utf8": ^1.1.0
-    "@types/long": ^4.0.0
-    "@types/node": ^10.1.0
-    long: ^4.0.0
-  bin:
-    apollo-pbjs: bin/pbjs
-    apollo-pbts: bin/pbts
-  checksum: b3a6509483eea0870d93e40322884c195067c82a6e639d8ceb01f40098c97cf40d65e283be91c53ff77f800978d8873770e27d98fc0bb68bb53c90cb83ea013d
   languageName: node
   linkType: hard
 
@@ -248,15 +224,6 @@ __metadata:
     graphql: ^14.3.1
     react: ^16.8.0
   checksum: 572a75f3bbf2504ca96de042f045cc0612a29559cc9329025fc29662c0909bf7d4c9f9d0f25cae374daf6ee0456e03217e6c8c244b8a9456e36b5baead37c52b
-  languageName: node
-  linkType: hard
-
-"@apollographql/apollo-tools@npm:^0.4.3":
-  version: 0.4.8
-  resolution: "@apollographql/apollo-tools@npm:0.4.8"
-  dependencies:
-    apollo-env: ^0.6.5
-  checksum: 324d2a78e4a590e3451fc8883e8a6b2231982cb071a1adba72a83361882a7488aff4a75e50c098d01860c3d9c593a09d47c7bb71d401815001fda783dccd6967
   languageName: node
   linkType: hard
 
@@ -3229,17 +3196,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/catbox-memory@npm:5.x.x":
-  version: 5.0.0
-  resolution: "@hapi/catbox-memory@npm:5.0.0"
-  dependencies:
-    "@hapi/boom": 9.x.x
-    "@hapi/hoek": 9.x.x
-  checksum: c42b6729fae6b8d170184b7a27fb64b8b3aa05294e91b3af866a5383061e28140ec93185af1bdd81e1126adaa82cef3fee720c2bd834ddc8744c9fbcdc93f6e3
-  languageName: node
-  linkType: hard
-
-"@hapi/catbox-memory@npm:~5.0.1":
+"@hapi/catbox-memory@npm:5.x.x, @hapi/catbox-memory@npm:~5.0.1":
   version: 5.0.1
   resolution: "@hapi/catbox-memory@npm:5.0.1"
   dependencies:
@@ -7285,17 +7242,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-router@npm:*":
-  version: 5.1.8
-  resolution: "@types/react-router@npm:5.1.8"
-  dependencies:
-    "@types/history": "*"
-    "@types/react": "*"
-  checksum: 8b4c8fefdba877971aeaa642d81074d0fda0db9d8891709071c8586c32c75afca1baf478c3b26bcbd404503304599d8ea3243beb4e01080ee77f48f56815ee73
-  languageName: node
-  linkType: hard
-
-"@types/react-router@npm:^5.1.14":
+"@types/react-router@npm:*, @types/react-router@npm:^5.1.14":
   version: 5.1.14
   resolution: "@types/react-router@npm:5.1.14"
   dependencies:
@@ -7551,17 +7498,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/superagent@npm:*":
-  version: 4.1.10
-  resolution: "@types/superagent@npm:4.1.10"
-  dependencies:
-    "@types/cookiejar": "*"
-    "@types/node": "*"
-  checksum: 6ef5ebd6e0194ba6197d6ebe96516db751142d8c0c2805c818d02727cef094e2272fab6a9557aed87ef7840984f5c2abdf9af8a7b375417e535d1e3616a31453
-  languageName: node
-  linkType: hard
-
-"@types/superagent@npm:4.1.11, @types/superagent@npm:^4.1.11":
+"@types/superagent@npm:*, @types/superagent@npm:4.1.11, @types/superagent@npm:^4.1.11":
   version: 4.1.11
   resolution: "@types/superagent@npm:4.1.11"
   dependencies:
@@ -8537,13 +8474,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"addressparser@npm:1.0.1":
-  version: 1.0.1
-  resolution: "addressparser@npm:1.0.1"
-  checksum: 47cf44cf97467c55bc1763131971be52f3009a0ff9e0c24f795c50efd31589d26a803658e3f28873a14c40afbae5a8ddc6f87f0168167f4c06e19bb943ef7940
-  languageName: node
-  linkType: hard
-
 "addressparser@npm:~0.3.2":
   version: 0.3.2
   resolution: "addressparser@npm:0.3.2"
@@ -8884,18 +8814,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-cache-control@npm:^0.12.0":
-  version: 0.12.0
-  resolution: "apollo-cache-control@npm:0.12.0"
-  dependencies:
-    apollo-server-env: ^3.0.0
-    apollo-server-plugin-base: ^0.11.0
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: dcf8004de55ec8b0c59298b8363e28a4cd53b5f90d4c3c3b529b3d63482dc6b68f8b5f09c1d3dd5e3d677b7917ae2066c470a587bb4eeb6756cb6cf361e5043d
-  languageName: node
-  linkType: hard
-
 "apollo-cache-control@npm:^0.13.0":
   version: 0.13.0
   resolution: "apollo-cache-control@npm:0.13.0"
@@ -8905,16 +8823,6 @@ __metadata:
   peerDependencies:
     graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 5a4c5c0c72682dbf4946376e1a6c1978dded9b8bb21219a376ead42ed7afe4fe5a587bc2a911c8a78df16afd4a6a71abf092a0825d2135845e64e215f9327742
-  languageName: node
-  linkType: hard
-
-"apollo-datasource@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "apollo-datasource@npm:0.8.0"
-  dependencies:
-    apollo-server-caching: ^0.6.0
-    apollo-server-env: ^3.0.0
-  checksum: ae8c54e1d5662370945d7ca94017ff580d04820f0ba61b0180cabaa016de4a1a6f8911de17e5a402ea5c835f2f1c82adbf5801904d258648c86cf565c81d8701
   languageName: node
   linkType: hard
 
@@ -8928,7 +8836,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-env@npm:0.6.6, apollo-env@npm:^0.6.5":
+"apollo-env@npm:0.6.6":
   version: 0.6.6
   resolution: "apollo-env@npm:0.6.6"
   dependencies:
@@ -8949,18 +8857,6 @@ __metadata:
     node-fetch: ^2.6.1
     sha.js: ^2.4.11
   checksum: 6d078579757eaaa5ab7a9744d1caf62793f327d24817a36a476cb4aeb19f8c638151872c8f082ee086d1e5aa47b80cc9af0fd2560cb8b5557631add2fe604972
-  languageName: node
-  linkType: hard
-
-"apollo-graphql@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "apollo-graphql@npm:0.6.0"
-  dependencies:
-    apollo-env: ^0.6.5
-    lodash.sortby: ^4.7.0
-  peerDependencies:
-    graphql: ^14.2.1 || ^15.0.0
-  checksum: f18999fb95580cf4736387678c462afb02e8778aca075c70618ce4d9ae38fac04a42b193d0c832646dc1ea49e9cb8f294026bba0c14f35e2f9017c69fed4dee8
   languageName: node
   linkType: hard
 
@@ -9027,43 +8923,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-core@npm:^2.22.2, apollo-server-core@npm:^2.23.0":
-  version: 2.23.0
-  resolution: "apollo-server-core@npm:2.23.0"
-  dependencies:
-    "@apollographql/apollo-tools": ^0.4.3
-    "@apollographql/graphql-playground-html": 1.6.27
-    "@apollographql/graphql-upload-8-fork": ^8.1.3
-    "@josephg/resolvable": ^1.0.0
-    "@types/ws": ^7.0.0
-    apollo-cache-control: ^0.12.0
-    apollo-datasource: ^0.8.0
-    apollo-graphql: ^0.6.0
-    apollo-reporting-protobuf: ^0.6.2
-    apollo-server-caching: ^0.6.0
-    apollo-server-env: ^3.0.0
-    apollo-server-errors: ^2.5.0
-    apollo-server-plugin-base: ^0.11.0
-    apollo-server-types: ^0.7.0
-    apollo-tracing: ^0.13.0
-    async-retry: ^1.2.1
-    fast-json-stable-stringify: ^2.0.0
-    graphql-extensions: ^0.13.0
-    graphql-tag: ^2.11.0
-    graphql-tools: ^4.0.8
-    loglevel: ^1.6.7
-    lru-cache: ^6.0.0
-    sha.js: ^2.4.11
-    subscriptions-transport-ws: ^0.9.11
-    uuid: ^8.0.0
-    ws: ^6.0.0
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: 0fdfe024e76572a46cb0e3dde279fe15f75bda138516f23a50de8a0c92280bc52c042da6178b6d930490a51066f9a65e16bda08a87f665bce31b52c57759dcbc
-  languageName: node
-  linkType: hard
-
-"apollo-server-core@npm:^2.24.0":
+"apollo-server-core@npm:^2.22.2, apollo-server-core@npm:^2.23.0, apollo-server-core@npm:^2.24.0":
   version: 2.24.0
   resolution: "apollo-server-core@npm:2.24.0"
   dependencies:
@@ -9118,34 +8978,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-server-express@npm:^2.23.0":
-  version: 2.23.0
-  resolution: "apollo-server-express@npm:2.23.0"
-  dependencies:
-    "@apollographql/graphql-playground-html": 1.6.27
-    "@types/accepts": ^1.3.5
-    "@types/body-parser": 1.19.0
-    "@types/cors": 2.8.10
-    "@types/express": 4.17.11
-    "@types/express-serve-static-core": 4.17.19
-    accepts: ^1.3.5
-    apollo-server-core: ^2.23.0
-    apollo-server-types: ^0.7.0
-    body-parser: ^1.18.3
-    cors: ^2.8.5
-    express: ^4.17.1
-    graphql-subscriptions: ^1.0.0
-    graphql-tools: ^4.0.8
-    parseurl: ^1.3.2
-    subscriptions-transport-ws: ^0.9.16
-    type-is: ^1.6.16
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: b79a561c5724668dcabccb3765eec07ed80be5e8a5860948c557fa845bf04c050a2887d4e5e46b1450ca27c11ac13cf59efe7c13728614550575c6f9065e9e18
-  languageName: node
-  linkType: hard
-
-"apollo-server-express@npm:^2.24.0":
+"apollo-server-express@npm:^2.23.0, apollo-server-express@npm:^2.24.0":
   version: 2.24.0
   resolution: "apollo-server-express@npm:2.24.0"
   dependencies:
@@ -9169,17 +9002,6 @@ __metadata:
   peerDependencies:
     graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 81c984d81bceddc1df984dae620396ba0831e473fa20afb709b3cf40fc202ec7612c945e5c01d5d22789a2157722cbeadd312915c8a945d60662018370d61c1f
-  languageName: node
-  linkType: hard
-
-"apollo-server-plugin-base@npm:^0.11.0":
-  version: 0.11.0
-  resolution: "apollo-server-plugin-base@npm:0.11.0"
-  dependencies:
-    apollo-server-types: ^0.7.0
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: 2859555c80589134aee6fd8f4a785db5440a93c481cfdfed6294f2a42f8532d6c5f849ad7786aa0ac85cdffad8f283ee17e097a549c413bc0763bc9b4d629532
   languageName: node
   linkType: hard
 
@@ -9244,18 +9066,6 @@ __metadata:
   peerDependencies:
     graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 97eb6ec783750e7dad769e3065a83cb36cdac4ba7a314223562458f7242fb44a5f0a9d623d5e4e5f4ce4c2174e4ba4f1b14447b1049e8bc6a48403b18c7d86df
-  languageName: node
-  linkType: hard
-
-"apollo-tracing@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "apollo-tracing@npm:0.13.0"
-  dependencies:
-    apollo-server-env: ^3.0.0
-    apollo-server-plugin-base: ^0.11.0
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: ae50d736a3d8d87dd5c0c2e2d9271ad33d8a5a8b128f42c8e5efb60975daf5a361b76fa2bafd8fd28c4fff04d418010bec9a196279844b1f2078692047b08462
   languageName: node
   linkType: hard
 
@@ -11878,21 +11688,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buildmail@npm:4.0.1":
-  version: 4.0.1
-  resolution: "buildmail@npm:4.0.1"
-  dependencies:
-    addressparser: 1.0.1
-    libbase64: 0.1.0
-    libmime: 3.0.0
-    libqp: 1.1.0
-    nodemailer-fetch: 1.6.0
-    nodemailer-shared: 1.1.0
-    punycode: 1.4.1
-  checksum: 0f1162c3e13514175c489ad12f8f9866c271d3f410c53c478f7da6fa52b6f61817c5c165583eda08ec5dee05d80c6b8fe3a55fb8e8a08d667dbe69eef504e118
-  languageName: node
-  linkType: hard
-
 "builtin-modules@npm:^3.1.0":
   version: 3.2.0
   resolution: "builtin-modules@npm:3.2.0"
@@ -12250,14 +12045,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001219":
-  version: 1.0.30001219
-  resolution: "caniuse-lite@npm:1.0.30001219"
-  checksum: 0a45591af1ffdd86b5c67534adceeb792b088418aa32912249a5609f32d2ded35254d8b300775b43b4d9d9b81d2d40f1e8e1c4aeebe6c69ed549bc52b41f2b30
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001223":
+"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001219, caniuse-lite@npm:^1.0.30001223":
   version: 1.0.30001223
   resolution: "caniuse-lite@npm:1.0.30001223"
   checksum: 0a19e4c3689048cf7f6a47d348cc6dc849a141ae814634cc2c9b37a91dc5ba019c08d67ddf3549323ae4b13c84cb2a796204128bcd19f0dbbe844dab0058b25e
@@ -18366,7 +18154,7 @@ fsevents@~2.1.1:
     nock: ^13.0.11
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     node-zendesk: ^2.1.0
-    nodemailer: 2.7.2
+    nodemailer: ^6.6.0
     nyc: ^15.0.1
     otplib: ^11.0.1
     p-retry: ^4.2.0
@@ -20034,19 +19822,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"graphql-extensions@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "graphql-extensions@npm:0.13.0"
-  dependencies:
-    "@apollographql/apollo-tools": ^0.4.3
-    apollo-server-env: ^3.0.0
-    apollo-server-types: ^0.7.0
-  peerDependencies:
-    graphql: ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
-  checksum: d40fe8769a6a3d5f99af43c3a2b6eecab5cfa2ccb2bcd4f7a613880ce422f96095034e20d34bd900fbe8bc7b269d6d129c2f898c18b04d3085c3aa8f526d4123
-  languageName: node
-  linkType: hard
-
 "graphql-extensions@npm:^0.14.0":
   version: 0.14.0
   resolution: "graphql-extensions@npm:0.14.0"
@@ -21317,23 +21092,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"httpntlm@npm:1.6.1":
-  version: 1.6.1
-  resolution: "httpntlm@npm:1.6.1"
-  dependencies:
-    httpreq: ">=0.4.22"
-    underscore: ~1.7.0
-  checksum: 966b2af954d1db29c1734c06eea61b696e396813ccb5d837124eea15f5ddf327d6ba14cc109e4da609a285eaff557628b4230da2fd9e07100428d16bdd185364
-  languageName: node
-  linkType: hard
-
-"httpreq@npm:>=0.4.22":
-  version: 0.4.24
-  resolution: "httpreq@npm:0.4.24"
-  checksum: 5c127d76bb4594ba3bc529a633b393187f0ce04b87e380654e09386f925266bd9198f5848254eb4cded8225ab36ca24aafc6d7c7415a4bc5039c3d412703d475
-  languageName: node
-  linkType: hard
-
 "https-browserify@npm:^1.0.0":
   version: 1.0.0
   resolution: "https-browserify@npm:1.0.0"
@@ -21428,13 +21186,6 @@ fsevents@~2.1.1:
     merge-po: bin/merge-po.sh
     po2json.js: bin/po2json.js
   checksum: a90695d8d66ff2fc56b60f6f763e49c5d7f72ae93db79bd776f1e4a4e47295d2595ac0d5f68be0c636574f8372c8e0d2ca8d69f602e1efdd8d04c6ee71843335
-  languageName: node
-  linkType: hard
-
-"iconv-lite@npm:0.4.15":
-  version: 0.4.15
-  resolution: "iconv-lite@npm:0.4.15"
-  checksum: 4862522e6e41250cb36170e07ae9138b916bb180b3594c3812e6f9731b9f2b01dc664e73420b65895abe36295b9f0a25bc75d75762649ed9a22398fc86203052
   languageName: node
   linkType: hard
 
@@ -22046,7 +21797,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ip@npm:1.1.5, ip@npm:^1.1.0, ip@npm:^1.1.2, ip@npm:^1.1.5":
+"ip@npm:1.1.5, ip@npm:^1.1.0, ip@npm:^1.1.5":
   version: 1.1.5
   resolution: "ip@npm:1.1.5"
   checksum: 3ad007368cf797ec9b73fbac0a644077198dd85a128d0fe39697a78a9cdd47915577eee5c4eca9933549b575ac4716107896c2d4aa43a1622b3f72104232cad4
@@ -24678,35 +24429,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"libbase64@npm:0.1.0":
-  version: 0.1.0
-  resolution: "libbase64@npm:0.1.0"
-  checksum: 0ab6a631f542f724bbb8b9df797b0d2c0a08995c492cb863c182569ed9aa048fc4242dbf6d5c1d412d8652302ace4cf3721e8d951a653b5f26f260a81b828889
-  languageName: node
-  linkType: hard
-
-"libmime@npm:3.0.0":
-  version: 3.0.0
-  resolution: "libmime@npm:3.0.0"
-  dependencies:
-    iconv-lite: 0.4.15
-    libbase64: 0.1.0
-    libqp: 1.1.0
-  checksum: 2ede4bf17e43fc13d73149e52a9d2ba61f8bd30d441a31ae58c90c232ec1f54d7e0b3a4dd97554346d0e2e25d529d915fda0782292f0af3911d67bd54b70c88c
-  languageName: node
-  linkType: hard
-
 "libphonenumber-js@npm:^1.9.7":
   version: 1.9.15
   resolution: "libphonenumber-js@npm:1.9.15"
   checksum: c45c595224aa84f96743954555053c8aef36c1bb92703a0dece67d88dde39e05bf5def6fa8ddcd3a2631391a16195ca162b2b11df97cd7ad20b34fd021b2c6fd
-  languageName: node
-  linkType: hard
-
-"libqp@npm:1.1.0":
-  version: 1.1.0
-  resolution: "libqp@npm:1.1.0"
-  checksum: 0a466830833dd1d0b51e17798808a10f7c2683d1ca2084acadbf6d1bce3d0c643411f1734167e01a88233cff6606cdc5003ed4dd3f149f22a0a90308e9448b5e
   languageName: node
   linkType: hard
 
@@ -25508,16 +25234,6 @@ fsevents@~2.1.1:
   dependencies:
     sourcemap-codec: ^1.4.4
   checksum: 4b70c13eb21c6f1c54bf7fb029748dc44d6bfcd3c59e5deeda060eecc38df6144b91d10fb7a3cf6156fadab1a68f83d69a189df20ca5f6bd088bf0196ea8f039
-  languageName: node
-  linkType: hard
-
-"mailcomposer@npm:4.0.1":
-  version: 4.0.1
-  resolution: "mailcomposer@npm:4.0.1"
-  dependencies:
-    buildmail: 4.0.1
-    libmime: 3.0.0
-  checksum: 19c40fd135e3c6fa323fd235cfb4125f0528f46efaf89538a9fc7a8ad8ca63fa882a07abad223893d6d1140ef04ba48feea425f4d0d6c307b3ffea20c8f7aae7
   languageName: node
   linkType: hard
 
@@ -27141,73 +26857,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nodemailer-direct-transport@npm:3.3.2":
-  version: 3.3.2
-  resolution: "nodemailer-direct-transport@npm:3.3.2"
-  dependencies:
-    nodemailer-shared: 1.1.0
-    smtp-connection: 2.12.0
-  checksum: eb7cdbbe949bb48ae2ff34f40c7272535901ec58e1030a8f15641a449823923574a51bca6495344597e02da3c4463575b990cfd3562b6c394f1548aa0c611db2
-  languageName: node
-  linkType: hard
-
-"nodemailer-fetch@npm:1.6.0":
-  version: 1.6.0
-  resolution: "nodemailer-fetch@npm:1.6.0"
-  checksum: a6d4f16a5d7fc61328505b9d833e318ff1547518b9d7bd6466147ced4c7d69650628a65524b2e759d153005783495d46825ee5f0cee7bb2e9ba7cc97fd404e76
-  languageName: node
-  linkType: hard
-
-"nodemailer-shared@npm:1.1.0":
-  version: 1.1.0
-  resolution: "nodemailer-shared@npm:1.1.0"
-  dependencies:
-    nodemailer-fetch: 1.6.0
-  checksum: 989f452f1060b13ae9d794035305e36dd94f3dc1e67f9097a33ed2f641ff9c00aa44b7d395e85ec1719be45a03e609f463da6c043fea8fdb3884ca0872bd8467
-  languageName: node
-  linkType: hard
-
-"nodemailer-smtp-pool@npm:2.8.2":
-  version: 2.8.2
-  resolution: "nodemailer-smtp-pool@npm:2.8.2"
-  dependencies:
-    nodemailer-shared: 1.1.0
-    nodemailer-wellknown: 0.1.10
-    smtp-connection: 2.12.0
-  checksum: debf7fb72f362a20d1d74ed39fe516c93f724f91c43e5b3518df6b70b6dba3c84bcfe862810c1a94f9d13b80249cd78646e2fb5d563d24f1653e6656078cbf0e
-  languageName: node
-  linkType: hard
-
-"nodemailer-smtp-transport@npm:2.7.2":
-  version: 2.7.2
-  resolution: "nodemailer-smtp-transport@npm:2.7.2"
-  dependencies:
-    nodemailer-shared: 1.1.0
-    nodemailer-wellknown: 0.1.10
-    smtp-connection: 2.12.0
-  checksum: b6e62f46e5698696c69e10ba60ec30cd46f1c3c5c74dd5006f718b9ec7c59abb547770d3fe371e28b1bdcc5ffe1641b743bb2a05d191a7b1c80f7a4d6c819c8e
-  languageName: node
-  linkType: hard
-
-"nodemailer-wellknown@npm:0.1.10":
-  version: 0.1.10
-  resolution: "nodemailer-wellknown@npm:0.1.10"
-  checksum: 59cb1d75f6b044bc60756205b36cf71fc6d7bdb3af36184e6f956c2df20d2cea69aef53c49b497a9349a8883669eebf69928c7daa1d2329c5f4e2e6932b8b69a
-  languageName: node
-  linkType: hard
-
-"nodemailer@npm:2.7.2":
-  version: 2.7.2
-  resolution: "nodemailer@npm:2.7.2"
-  dependencies:
-    libmime: 3.0.0
-    mailcomposer: 4.0.1
-    nodemailer-direct-transport: 3.3.2
-    nodemailer-shared: 1.1.0
-    nodemailer-smtp-pool: 2.8.2
-    nodemailer-smtp-transport: 2.7.2
-    socks: 1.1.9
-  checksum: ed9374ecad046995bd9092dc82c37b5cbacc0fa6c60427ea6aab3a02624b3908c56dae891ceca5571338ee3d4e8053bb10f4d00585d029d8f705338dc545a71f
+"nodemailer@npm:^6.6.0":
+  version: 6.6.0
+  resolution: "nodemailer@npm:6.6.0"
+  checksum: 2582ed043577ad458f04ad58586eb25d56bae575059049c3c62d25c1db613ffd55195ff0568ee63699c5897a0b20b20609385799eb7b4d1274b8f2a369e478f4
   languageName: node
   linkType: hard
 
@@ -30651,17 +30304,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"punycode@npm:1.4.1, punycode@npm:^1.2.4, punycode@npm:^1.3.2, punycode@npm:^1.4.1":
-  version: 1.4.1
-  resolution: "punycode@npm:1.4.1"
-  checksum: 5ce1e044cee2b12f1c65ccd523d7e71d6578f2c77f5c21c2e7a9d588535559c9508571d42638c131dab93cbe9a7b37bce1a7475d43fc8236c99dfe1efc36cfa5
-  languageName: node
-  linkType: hard
-
 "punycode@npm:2.x.x, punycode@npm:^2.0.0, punycode@npm:^2.1.0, punycode@npm:^2.1.1":
   version: 2.1.1
   resolution: "punycode@npm:2.1.1"
   checksum: 0202dc191cb35bfd88870ac99a1e824b03486d4cee20b543ef337a6dee8d8b11017da32a3e4c40b69b19976e982c030b62bd72bba42884acb691bc5ef91354c8
+  languageName: node
+  linkType: hard
+
+"punycode@npm:^1.2.4, punycode@npm:^1.3.2, punycode@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "punycode@npm:1.4.1"
+  checksum: 5ce1e044cee2b12f1c65ccd523d7e71d6578f2c77f5c21c2e7a9d588535559c9508571d42638c131dab93cbe9a7b37bce1a7475d43fc8236c99dfe1efc36cfa5
   languageName: node
   linkType: hard
 
@@ -31899,17 +31552,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"redux@npm:^4.0.0":
-  version: 4.0.5
-  resolution: "redux@npm:4.0.5"
-  dependencies:
-    loose-envify: ^1.4.0
-    symbol-observable: ^1.2.0
-  checksum: 112739c2fb83ae2e18335d942a883b3ee14ebada31ff3a7924511a1f38a4278a762f5823491f3eb5083492de601ed76cb2687295c7d5db9a6e098c2542cdc05b
-  languageName: node
-  linkType: hard
-
-"redux@npm:^4.1.0":
+"redux@npm:^4.0.0, redux@npm:^4.1.0":
   version: 4.1.0
   resolution: "redux@npm:4.1.0"
   dependencies:
@@ -33928,27 +33571,10 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"smart-buffer@npm:^1.0.4":
-  version: 1.1.15
-  resolution: "smart-buffer@npm:1.1.15"
-  checksum: 6016deb4be4be981f686dc98dea25930ec0effdbcf4ec873cba34992a70d51ad11df9c0e1bea25f7f4b60f693cb99cb1293895422f60c960c836e2b81ed64145
-  languageName: node
-  linkType: hard
-
 "smart-buffer@npm:^4.1.0":
   version: 4.1.0
   resolution: "smart-buffer@npm:4.1.0"
   checksum: 00a23d82a20eced9622cbba18ba781f9f8968ccfa70af7a33336ae55f54651c073aa072084c521f7e78199767e5b3584a0bbf3a47bb60e3e5b79ea4fc1ca61a1
-  languageName: node
-  linkType: hard
-
-"smtp-connection@npm:2.12.0":
-  version: 2.12.0
-  resolution: "smtp-connection@npm:2.12.0"
-  dependencies:
-    httpntlm: 1.6.1
-    nodemailer-shared: 1.1.0
-  checksum: 25278963e890997a4893202693db4ed6f65a3e33e89bc40ab193922e44ea87ad653f3f7701af8af4bb69053cec202ee0e9f31606d51203864800c8a05b9001ba
   languageName: node
   linkType: hard
 
@@ -34035,16 +33661,6 @@ resolve@~1.11.1:
     debug: 4
     socks: ^2.3.3
   checksum: 3d6d5e4425e393847cb0787b688af37e96123a239ffc0269ad65263accdaa9c93df51e0257092ee37651676ec5d6316016bfbb2c2c837933361b728528f35c2a
-  languageName: node
-  linkType: hard
-
-"socks@npm:1.1.9":
-  version: 1.1.9
-  resolution: "socks@npm:1.1.9"
-  dependencies:
-    ip: ^1.1.2
-    smart-buffer: ^1.0.4
-  checksum: d7a54a24d891de17ef90e6e4b9aa48d1e7a48caf9ebafb5c4617a846657c3946d308f189eb69b68023d62b58e61bb5b10f087e3dccc66bf75dbaff529dfdec91
   languageName: node
   linkType: hard
 
@@ -35226,7 +34842,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"symbol-observable@npm:1.2.0, symbol-observable@npm:^1.0.4, symbol-observable@npm:^1.2.0":
+"symbol-observable@npm:1.2.0, symbol-observable@npm:^1.0.4":
   version: 1.2.0
   resolution: "symbol-observable@npm:1.2.0"
   checksum: 268834a1d4cba19d40f367e5c2755f612969c8418e43a3be17408e392802a667f8bb542893440d58a080a8ea8da05ea98e27e472b9f4ff6fbda78a21a1a41c53
@@ -36730,13 +36346,6 @@ typescript@^4.2.4:
   version: 1.6.0
   resolution: "underscore@npm:1.6.0"
   checksum: 0ee8c00c3cc45ef5d3c43d87cec725c66faf21afc5ba0e5dfb732b757d73c05617ae3dfadf80e0e9a43201d97897162240217a1ccabd8680589aa6c9fd9d420c
-  languageName: node
-  linkType: hard
-
-"underscore@npm:~1.7.0":
-  version: 1.7.0
-  resolution: "underscore@npm:1.7.0"
-  checksum: ba1d3ceeb6144bcbb82ec8fc75149755256bdb7c5d5b6bb2adb4fcb00a27c3eb718ee9e5a4a8868f3d5dcf1f821267532863ea44f8488418c8fe0924b05fae77
   languageName: node
   linkType: hard
 
