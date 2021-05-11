@@ -100,7 +100,7 @@
     "jquery-ui-touch-punch-amd": "1.0.1",
     "js-md5": "0.6.0",
     "jsxgettext-recursive-next": "1.1.0",
-    "legal-docs": "git://github.com/mozilla/legal-docs.git#5e0b44afdb5b2dff2a3a4b36b52e0f253f3a4c36",
+    "legal-docs": "git://github.com/mozilla/legal-docs.git#569f5c812ef288c4ebf19b8d521ba90b99e99cfc",
     "load-grunt-tasks": "^5.1.0",
     "lodash": "^4.17.19",
     "mkdirp": "0.5.1",

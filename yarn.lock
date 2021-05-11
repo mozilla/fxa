@@ -18253,7 +18253,7 @@ fsevents@~2.1.1:
     js-md5: 0.6.0
     jsqr: 1.3.1
     jsxgettext-recursive-next: 1.1.0
-    legal-docs: "git://github.com/mozilla/legal-docs.git#5e0b44afdb5b2dff2a3a4b36b52e0f253f3a4c36"
+    legal-docs: "git://github.com/mozilla/legal-docs.git#569f5c812ef288c4ebf19b8d521ba90b99e99cfc"
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.19
     mkdirp: 0.5.1
@@ -24343,10 +24343,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"legal-docs@git://github.com/mozilla/legal-docs.git#5e0b44afdb5b2dff2a3a4b36b52e0f253f3a4c36":
+"legal-docs@git://github.com/mozilla/legal-docs.git#569f5c812ef288c4ebf19b8d521ba90b99e99cfc":
   version: 1.0.0
-  resolution: "legal-docs@git://github.com/mozilla/legal-docs.git#commit=5e0b44afdb5b2dff2a3a4b36b52e0f253f3a4c36"
-  checksum: f429dfcd560f4c5405412a88c7797ec93cf4c51201fe5bfc7dccc3618ea0d6c3a95050d31577d5a97bfdd7db45540ac982adf39c0bd2c150e91965ee43da0eef
+  resolution: "legal-docs@git://github.com/mozilla/legal-docs.git#commit=569f5c812ef288c4ebf19b8d521ba90b99e99cfc"
+  checksum: d3259580e4addcd6a5ea69f62de11bc029a4717607fd9f6fd8adf27eec0a6993db636504f46c24f4250958792bc6a7f979b7f7dd43099faa5bca2db25fddebc0
   languageName: node
   linkType: hard
 
