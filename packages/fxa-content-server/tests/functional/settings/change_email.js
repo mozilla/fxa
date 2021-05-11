@@ -38,7 +38,6 @@ const {
   testSuccessWasShown,
   type,
   visibleByQSA,
-  waitForUrl,
 } = FunctionalHelpers;
 
 registerSuite('settings change email', {
@@ -52,8 +51,8 @@ registerSuite('settings change email', {
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
         .then(fillOutSignUpCode(email, 0))
-        .then(waitForUrl((url) => !url.includes('settings')))
-        .then(testElementExists(selectors.SETTINGS.AVATAR_ROW.HEADER))
+
+        .then(visibleByQSA(selectors.SETTINGS.PROFILE_HEADER))
         .then(click(selectors.EMAIL.MENU_BUTTON))
 
         .then(addAndVerifySecondaryEmail(secondaryEmail))
