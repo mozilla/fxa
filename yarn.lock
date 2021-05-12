@@ -6705,13 +6705,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:*, @types/jest@npm:^26.0.22":
+"@types/jest@npm:*":
   version: 26.0.22
   resolution: "@types/jest@npm:26.0.22"
   dependencies:
     jest-diff: ^26.0.0
     pretty-format: ^26.0.0
   checksum: 4c98ed058522f6cc74bcb47b8b7b104b77b2d4e42e087171f3d2d3ae5338c21f43ec26f2a186bc229c1bd72c3f776ad07faba837f0ec27f22cf94e154516c0b3
+  languageName: node
+  linkType: hard
+
+"@types/jest@npm:^26.0.23":
+  version: 26.0.23
+  resolution: "@types/jest@npm:26.0.23"
+  dependencies:
+    jest-diff: ^26.0.0
+    pretty-format: ^26.0.0
+  checksum: a015676b78bdc51be6f6315acef10d9106ea8064e3e49143bca3c75b834b61285b45c5f5ccfd049a80107f1e2869a9183cdb5be85816c073ea8dd05852fafdc6
   languageName: node
   linkType: hard
 
@@ -17859,7 +17869,7 @@ fsevents@~2.1.1:
     "@types/eslint": 7.2.10
     "@types/express": ^4.17.2
     "@types/helmet": 4.0.0
-    "@types/jest": ^26.0.22
+    "@types/jest": ^26.0.23
     "@types/jsdom": ^12.2.4
     "@types/on-headers": ^1.0.0
     "@types/react": ^16.9.53
@@ -18413,7 +18423,7 @@ fsevents@~2.1.1:
     "@types/chance": ^1.1.1
     "@types/convict": ^5.2.2
     "@types/express": ^4.17.8
-    "@types/jest": ^26.0.22
+    "@types/jest": ^26.0.23
     "@types/node": ^14.14.37
     "@types/passport": ^1
     "@types/passport-jwt": ^3.0.5
@@ -18647,7 +18657,7 @@ fsevents@~2.1.1:
     "@testing-library/react": ^11.2.6
     "@types/accept-language-parser": ^1.5.1
     "@types/classnames": ^2.3.1
-    "@types/jest": ^26.0.22
+    "@types/jest": ^26.0.23
     "@types/jsdom": ^12.2.4
     "@types/nock": ^11.1.0
     "@types/node": ^14.14.37
@@ -18810,7 +18820,7 @@ fsevents@~2.1.1:
     "@types/camelcase": 5.2.0
     "@types/classnames": ^2.3.1
     "@types/file-loader": ^4.2.0
-    "@types/jest": ^26.0.22
+    "@types/jest": ^26.0.23
     "@types/node": ^14.14.37
     "@types/prettier": 2.2.3
     "@types/react": ^16.9.53
@@ -18874,7 +18884,7 @@ fsevents@~2.1.1:
     "@testing-library/user-event": ^13.1.8
     "@types/babel__core": 7.1.14
     "@types/classnames": ^2.3.1
-    "@types/jest": ^26.0.22
+    "@types/jest": ^26.0.23
     "@types/lodash.groupby": ^4
     "@types/material-ui": ^0.21.8
     "@types/node": ^14.14.37
@@ -18939,7 +18949,7 @@ fsevents@~2.1.1:
     "@types/chai": ^4.2.11
     "@types/chance": ^1
     "@types/generic-pool": ^3.1.9
-    "@types/jest": ^26.0.22
+    "@types/jest": ^26.0.23
     "@types/joi": ^14.3.4
     "@types/js-md5": ^0.4.2
     "@types/lodash.omitby": ^4
