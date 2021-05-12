@@ -4414,6 +4414,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@panva/asn1.js@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@panva/asn1.js@npm:1.0.0"
+  checksum: 0563c1372d99051d8e2268541a6ef9ec5d0495e9b943b0b1b738eb40ffd21e8bf7690f313d5ce86cccb32e646f9bb75f1af3cd45bce5d04b85ad9c04f0b596aa
+  languageName: node
+  linkType: hard
+
 "@peculiar/asn1-schema@npm:^2.0.27":
   version: 2.0.27
   resolution: "@peculiar/asn1-schema@npm:2.0.27"
@@ -9741,7 +9748,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.19.2, axios@npm:~0.19.0":
+"axios@npm:~0.19.0":
   version: 0.19.2
   resolution: "axios@npm:0.19.2"
   dependencies:
@@ -18443,7 +18450,7 @@ fsevents@~2.1.1:
     graphql: ^15.5.0
     hot-shots: ^8.3.1
     jest: 26.6.0
-    jwks-rsa: ^1.11.0
+    jwks-rsa: ^2.0.3
     mozlog: ^3.0.2
     nock: ^13.0.11
     p-event: ^4.2.0
@@ -23468,6 +23475,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"jose@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "jose@npm:2.0.5"
+  dependencies:
+    "@panva/asn1.js": ^1.0.0
+  checksum: 7c6eecb0bf26109c1be5a18084276492a957be4876acae2529904c4e54cee50c736a8fe65702bcdd7537313a3a9ff94e44f9987423a59989920018ff144eb936
+  languageName: node
+  linkType: hard
+
 "jquery-modal@git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503":
   version: 0.7.1
   resolution: "jquery-modal@git://github.com/mozilla-fxa/jquery-modal.git#commit=0576775d1b4590314b114386019f4c7421c77503"
@@ -23869,7 +23885,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jsonwebtoken@npm:^8.2.0, jsonwebtoken@npm:^8.4.0, jsonwebtoken@npm:^8.5.1":
+"jsonwebtoken@npm:^8.2.0, jsonwebtoken@npm:^8.4.0":
   version: 8.5.1
   resolution: "jsonwebtoken@npm:8.5.1"
   dependencies:
@@ -24092,21 +24108,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jwks-rsa@npm:^1.11.0":
-  version: 1.11.0
-  resolution: "jwks-rsa@npm:1.11.0"
+"jwks-rsa@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "jwks-rsa@npm:2.0.3"
   dependencies:
     "@types/express-jwt": 0.0.42
-    axios: ^0.19.2
     debug: ^4.1.0
-    http-proxy-agent: ^4.0.1
-    https-proxy-agent: ^5.0.0
-    jsonwebtoken: ^8.5.1
+    jose: ^2.0.5
     limiter: ^1.1.5
     lru-memoizer: ^2.1.2
-    ms: ^2.1.2
-    proxy-from-env: ^1.1.0
-  checksum: 55e2503b300af6342bb1d1d4aa977b1b8a27cac9e1da57501527a553fbc70fdc6cbc8908189b657d2be8699326a6f0ed5222b79660e10b41b1b54c5e4c1da909
+  checksum: e5488d550854fb4a753ebdeecbafccaadcdbf45b1e0df8ff0faadf1bb943bd33a294abe1c09a80d2dca2370937a092120fcf268c392f330f05cda6d7eb7858e6
   languageName: node
   linkType: hard
 
@@ -30124,7 +30135,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"proxy-from-env@npm:^1.0.0, proxy-from-env@npm:^1.1.0":
+"proxy-from-env@npm:^1.0.0":
   version: 1.1.0
   resolution: "proxy-from-env@npm:1.1.0"
   checksum: 6459372a57f3e8ef5211f7847ca2fffabcdd6490005892fcc0dcd62fe2b3551900c8a07fad7df9de3897547b1ab4ac7a7197964cd6fa7e76303caa4936bfaf32
