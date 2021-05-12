@@ -16,7 +16,7 @@ export enum Proc {
   PasswordChangeToken = 'passwordChangeToken_3',
   PasswordForgotToken = 'passwordForgotToken_2',
   RecoveryKey = 'getRecoveryKey_4',
-  SessionWithDevice = 'sessionWithDevice_18',
+  SessionWithDevice = 'sessionWithDevice_19',
   Sessions = 'sessions_11',
   TotpToken = 'totpToken_2',
 }

@@ -90,15 +90,7 @@ export class SessionToken extends AuthBaseModel {
     if (!rows.length) {
       return null;
     }
-    const token = SessionToken.fromDatabaseJson(
-      aggregateNameValuePairs(
-        rows,
-        'deviceId',
-        'deviceCommandName',
-        'deviceCommandData',
-        'deviceAvailableCommands'
-      )[0]
-    );
+    const token = SessionToken.fromDatabaseJson(rows[0]);
     return notExpired(token) ? token : null;
   }
 

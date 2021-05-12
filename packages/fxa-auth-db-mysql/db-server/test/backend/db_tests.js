@@ -1820,7 +1820,7 @@ module.exports = function (config, DB) {
             'callbackIsExpired'
           );
           assert.deepEqual(
-            s.deviceAvailableCommands,
+            JSON.parse(s.deviceAvailableCommands),
             sessionDeviceInfo.availableCommands,
             'availableCommands'
           );

@@ -155,7 +155,7 @@ module.exports = {
   //   +-------+----------------------------------+
   //
   // Unfortunately, we're not on newer versions of MySQL, so this function implements
-  // the same aggregation logic in sofware.  To use it, select all the target rows
+  // the same aggregation logic in software.  To use it, select all the target rows
   // and ensure they're sorted by grouping id:
   //
   //    rows = db.readAllResults("
