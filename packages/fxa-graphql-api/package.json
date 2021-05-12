@@ -58,7 +58,7 @@
     "graphql-tools": "^7.0.1",
     "graphql-upload": "^11.0.0",
     "helmet": "^4.5.0",
-    "ioredis": "^4.26.0",
+    "ioredis": "^4.27.2",
     "knex": "^0.21.18",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
