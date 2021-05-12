@@ -175,7 +175,7 @@
     "url-loader": "4.1.1",
     "webpack-dev-middleware": "^4.1.0",
     "xmlhttprequest": "git://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror",
-    "yargs": "^16.2.0"
+    "yargs": "^17.0.1"
   },
   "engines": {
     "node": ">=10",
