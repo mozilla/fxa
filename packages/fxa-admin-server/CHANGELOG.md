@@ -1,3 +1,17 @@
+## 1.206.0
+
+### Other changes
+
+- deps-dev: bump yargs from 16.2.0 to 17.0.1 ([4de3644a1](https://github.com/mozilla/fxa/commit/4de3644a1))
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps-dev: bump ts-jest from 26.5.5 to 26.5.6 ([2680b5840](https://github.com/mozilla/fxa/commit/2680b5840))
+- deps: bump apollo-server-express from 2.23.0 to 2.24.0 ([7fbe841ad](https://github.com/mozilla/fxa/commit/7fbe841ad))
+- deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
+- deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: update @nestjs/* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
+- deps: bump apollo-server from 2.19.2 to 2.23.0 ([e257f75ac](https://github.com/mozilla/fxa/commit/e257f75ac))
+
 ## 1.205.0
 
 ### Other changes

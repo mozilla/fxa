@@ -1,3 +1,10 @@
+## 1.206.0
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.10.0 to 2.11.0 ([8a73e2218](https://github.com/mozilla/fxa/commit/8a73e2218))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+
 ## 1.205.0
 
 No changes.

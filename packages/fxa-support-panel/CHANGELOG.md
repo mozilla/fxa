@@ -1,5 +1,18 @@
 # Change history
 
+## 1.206.0
+
+### Other changes
+
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps-dev: bump ts-jest from 26.5.5 to 26.5.6 ([2680b5840](https://github.com/mozilla/fxa/commit/2680b5840))
+- deps-dev: bump @types/superagent from 4.1.10 to 4.1.11 ([fce865e63](https://github.com/mozilla/fxa/commit/fce865e63))
+- deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
+- deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
+- deps: bump hbs from 4.1.1 to 4.1.2 ([723e83138](https://github.com/mozilla/fxa/commit/723e83138))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: update @nestjs/* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
+
 ## 1.205.0
 
 ### Other changes

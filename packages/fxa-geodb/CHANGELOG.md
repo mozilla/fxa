@@ -1,5 +1,11 @@
 # Change history
 
+## 1.206.0
+
+### Other changes
+
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+
 ## 1.205.0
 
 No changes.

@@ -1,3 +1,35 @@
+## 1.206.0
+
+### New features
+
+- auth-server: add stripe metric details ([c7202b3a0](https://github.com/mozilla/fxa/commit/c7202b3a0))
+
+### Bug fixes
+
+- auth-server: paypal customer fix script ([42a7a3c9d](https://github.com/mozilla/fxa/commit/42a7a3c9d))
+- scripts: fix dependencies for delete-account ([983d5d68f](https://github.com/mozilla/fxa/commit/983d5d68f))
+- auth: Pass statsd argument of correct type to StripeHelper in paypal-processor ([7aab291eb](https://github.com/mozilla/fxa/commit/7aab291eb))
+- email: update refresh recovery codes link in email ([84da8ae4e](https://github.com/mozilla/fxa/commit/84da8ae4e))
+- fxa-auth-server: address changes in cldr-localenames-full package ([90a665fbb](https://github.com/mozilla/fxa/commit/90a665fbb))
+- emails: Add date and time in verifyShortCodeEmail template ([79b7e5aeb](https://github.com/mozilla/fxa/commit/79b7e5aeb))
+- fxa-auth-server/test: Allow to use non-localhost databases - closes #8316 ([139803eb6](https://github.com/mozilla/fxa/commit/139803eb6))
+
+### Other changes
+
+- deps: bump ioredis from 4.26.0 to 4.27.2 ([3bc7cd999](https://github.com/mozilla/fxa/commit/3bc7cd999))
+- deps: bump stripe from 8.147.0 to 8.148.0 ([af1b4fdfa](https://github.com/mozilla/fxa/commit/af1b4fdfa))
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps: updated nodemailer ([c807e027b](https://github.com/mozilla/fxa/commit/c807e027b))
+- auth-server: update stripe ([b283b768e](https://github.com/mozilla/fxa/commit/b283b768e))
+- deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
+- deps: bump node-zendesk from 2.0.6 to 2.1.0 ([a62245f0e](https://github.com/mozilla/fxa/commit/a62245f0e))
+- deps: bump email-addresses from 3.1.0 to 4.0.0 ([e03122393](https://github.com/mozilla/fxa/commit/e03122393))
+- deps-dev: bump @types/jsrsasign from 8.0.9 to 8.0.11 ([d986f434d](https://github.com/mozilla/fxa/commit/d986f434d))
+- deps-dev: bump @types/ioredis from 4.26.0 to 4.26.1 ([3333766f6](https://github.com/mozilla/fxa/commit/3333766f6))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: bump cldr-localenames-full from 38.1.0 to 39.0.0 ([0aa88a7ec](https://github.com/mozilla/fxa/commit/0aa88a7ec))
+- deps: bump aws-sdk from 2.883.0 to 2.896.0 ([a45963d14](https://github.com/mozilla/fxa/commit/a45963d14))
+
 ## 1.205.0
 
 ### New features
