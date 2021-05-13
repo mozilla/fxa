@@ -109,7 +109,7 @@
     "webpack": "^4.43.0"
   },
   "dependencies": {
-    "@sentry/browser": "^5.27.6",
+    "@sentry/browser": "^6.3.6",
     "@sentry/node": "^6.0.1",
     "@stripe/react-stripe-js": "^1.4.0",
     "@stripe/stripe-js": "^1.14.0",
