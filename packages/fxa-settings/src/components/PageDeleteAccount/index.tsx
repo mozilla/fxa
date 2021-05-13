@@ -232,7 +232,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               <Localized id="delete-account-delete-button-2">
                 <button
                   type="submit"
-                  className="cta-primary mx-2 px-4"
+                  className="cta-caution mx-2 px-4 tablet:px-10"
                   data-testid="delete-account-button"
                   disabled={disabled}
                 >
