@@ -17917,7 +17917,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     graphql: ^15.5.0
     helmet: ^4.5.0
-    jest: 26.6.0
+    jest: 26.6.3
     mozlog: ^3.0.2
     node-sass: ^4.13.1
     npm-run-all: ^4.1.5
@@ -17973,7 +17973,7 @@ fsevents@~2.1.1:
     graphql: ^15.5.0
     graphql-tools: ^7.0.1
     helmet: ^4.5.0
-    jest: 26.6.0
+    jest: 26.6.3
     knex: ^0.21.18
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -18473,7 +18473,7 @@ fsevents@~2.1.1:
     google-auth-library: ^7.0.2
     graphql: ^15.5.0
     hot-shots: ^8.3.1
-    jest: 26.6.0
+    jest: 26.6.3
     jwks-rsa: ^1.11.0
     mozlog: ^3.0.2
     nock: ^13.0.11
@@ -18570,7 +18570,7 @@ fsevents@~2.1.1:
     graphql-upload: ^11.0.0
     helmet: ^4.5.0
     ioredis: ^4.27.2
-    jest: 26.6.0
+    jest: 26.6.3
     knex: ^0.21.18
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -18730,7 +18730,7 @@ fsevents@~2.1.1:
     hot-shots: ^8.3.1
     intl: 1.2.5
     intl-pluralrules: ^1.2.2
-    jest: 26.6.0
+    jest: 26.6.3
     joi: ^14.3.1
     morgan: ^1.10.0
     mozlog: ^3.0.2
@@ -18861,7 +18861,7 @@ fsevents@~2.1.1:
     file-loader: ^4.3.0
     fxa-shared: "workspace:*"
     identity-obj-proxy: ^3.0.0
-    jest: 26.6.0
+    jest: 26.6.3
     jest-environment-jsdom-fourteen: 1.0.1
     pm2: ^4.5.6
     postcss-cli: ^7.1.1
@@ -19000,7 +19000,7 @@ fsevents@~2.1.1:
     generic-pool: ^3.7.8
     graphql: ^15.5.0
     hot-shots: ^8.3.1
-    jest: 26.6.0
+    jest: 26.6.3
     joi: ^14.3.1
     js-md5: ^0.7.3
     jsdom: 16.5.3
@@ -19064,7 +19064,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.6
     hbs: ^4.1.2
     helmet: ^4.5.0
-    jest: 26.6.0
+    jest: 26.6.3
     mozlog: ^3.0.2
     pm2: ^4.5.6
     prettier: ^2.0.5
@@ -22913,7 +22913,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jest-cli@npm:^26.6.0":
+"jest-cli@npm:^26.6.0, jest-cli@npm:^26.6.3":
   version: 26.6.3
   resolution: "jest-cli@npm:26.6.3"
   dependencies:
@@ -23485,6 +23485,19 @@ fsevents@~2.1.1:
   bin:
     jest: bin/jest.js
   checksum: 5db020fa88bc87ff4c8373be02605a3a42256b59151b30b22955dfa92142516150abf0e969fe8847bdf2bf0fbb338a1c93954b808fc8d7b0933f4bb15f1e0500
+  languageName: node
+  linkType: hard
+
+"jest@npm:26.6.3":
+  version: 26.6.3
+  resolution: "jest@npm:26.6.3"
+  dependencies:
+    "@jest/core": ^26.6.3
+    import-local: ^3.0.2
+    jest-cli: ^26.6.3
+  bin:
+    jest: bin/jest.js
+  checksum: 4ffcfefa2b30999a71c205e1aacf2b3d7af10f36c17ba1baf45677684116ad5aa6a5bb162ad2dd418f9ea99d18f24b70d8c83fb317b765a3acac361a50e9db9f
   languageName: node
   linkType: hard
 
