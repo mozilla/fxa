@@ -134,7 +134,7 @@
     "webpack-cli": "^4.7.0"
   },
   "devDependencies": {
-    "@babel/cli": "7.13.14",
+    "@babel/cli": "7.13.16",
     "@testing-library/react": "^11.2.6",
     "@types/backbone": "^1.4.10",
     "@types/sinon-chai": "3.2.5",
