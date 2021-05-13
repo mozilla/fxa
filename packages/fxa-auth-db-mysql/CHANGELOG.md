@@ -1,3 +1,10 @@
+## 1.206.0
+
+### Other changes
+
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+
 ## 1.205.0
 
 ### New features

@@ -1,5 +1,32 @@
 # Change history
 
+## 1.206.0
+
+### Bug fixes
+
+- test: Barry to the rescue ([215b6bacc](https://github.com/mozilla/fxa/commit/215b6bacc))
+
+### Other changes
+
+- deps-dev: bump @types/jest from 26.0.22 to 26.0.23 ([8b9c2f364](https://github.com/mozilla/fxa/commit/8b9c2f364))
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps-dev: bump caniuse-lite from 1.0.30001219 to 1.0.30001223 ([7f704d630](https://github.com/mozilla/fxa/commit/7f704d630))
+- deps-dev: bump ts-jest from 26.5.5 to 26.5.6 ([2680b5840](https://github.com/mozilla/fxa/commit/2680b5840))
+- auth-server: update stripe ([b283b768e](https://github.com/mozilla/fxa/commit/b283b768e))
+- deps: bump redux from 4.0.5 to 4.1.0 ([00a650181](https://github.com/mozilla/fxa/commit/00a650181))
+- deps-dev: bump @types/superagent from 4.1.10 to 4.1.11 ([fce865e63](https://github.com/mozilla/fxa/commit/fce865e63))
+- deps-dev: bump @types/react-router from 5.1.8 to 5.1.14 ([18226d330](https://github.com/mozilla/fxa/commit/18226d330))
+- deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
+- 8999b2510 add missing payments styles ([8999b2510](https://github.com/mozilla/fxa/commit/8999b2510))
+- deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
+- deps: bump @stripe/stripe-js from 1.13.2 to 1.14.0 ([6b817e8b4](https://github.com/mozilla/fxa/commit/6b817e8b4))
+- subscriptions: use different spinner in cancel btn ([8e17e2e88](https://github.com/mozilla/fxa/commit/8e17e2e88))
+- deps: upgrade to Storybook v6 across all packages ([3b1e63318](https://github.com/mozilla/fxa/commit/3b1e63318))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: revert @storybook/addon-links to 5.3.19 ([690e35ca3](https://github.com/mozilla/fxa/commit/690e35ca3))
+- deps-dev: bump @storybook/addon-links from 6.2.8 to 6.2.9 ([ece7c8584](https://github.com/mozilla/fxa/commit/ece7c8584))
+- deps-dev: bump caniuse-lite from 1.0.30001211 to 1.0.30001219 ([52d38c695](https://github.com/mozilla/fxa/commit/52d38c695))
+
 ## 1.205.0
 
 ### New features

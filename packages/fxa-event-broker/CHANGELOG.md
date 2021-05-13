@@ -1,5 +1,19 @@
 # Change history
 
+## 1.206.0
+
+### Other changes
+
+- deps-dev: bump @types/jest from 26.0.22 to 26.0.23 ([8b9c2f364](https://github.com/mozilla/fxa/commit/8b9c2f364))
+- deps: bump @google-cloud/pubsub from 2.10.0 to 2.11.0 ([8a73e2218](https://github.com/mozilla/fxa/commit/8a73e2218))
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps-dev: bump ts-jest from 26.5.5 to 26.5.6 ([2680b5840](https://github.com/mozilla/fxa/commit/2680b5840))
+- deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
+- deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: bump aws-sdk from 2.883.0 to 2.896.0 ([a45963d14](https://github.com/mozilla/fxa/commit/a45963d14))
+- deps: update @nestjs/* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
+
 ## 1.205.0
 
 ### Other changes

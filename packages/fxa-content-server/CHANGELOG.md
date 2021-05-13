@@ -1,3 +1,28 @@
+## 1.206.0
+
+### Bug fixes
+
+- tests: rerun settings functional tests on failure ([6d7a60274](https://github.com/mozilla/fxa/commit/6d7a60274))
+- sms: Fix sms link on QR CAD page ([c9fa96284](https://github.com/mozilla/fxa/commit/c9fa96284))
+- tests: enable disabled oauth regression tests ([9bb54ed78](https://github.com/mozilla/fxa/commit/9bb54ed78))
+- tooltip: Show the correct hide/show tooltips on login pages ([368f2630b](https://github.com/mozilla/fxa/commit/368f2630b))
+- fxios: allow /oauth/force_auth to link to 'use a different account' ([b6b512e3f](https://github.com/mozilla/fxa/commit/b6b512e3f))
+
+### Other changes
+
+- deps-dev: bump @babel/cli from 7.13.14 to 7.13.16 ([3dd9ceb20](https://github.com/mozilla/fxa/commit/3dd9ceb20))
+- deps-dev: bump yargs from 16.2.0 to 17.0.1 ([4de3644a1](https://github.com/mozilla/fxa/commit/4de3644a1))
+- deps: bump http-proxy-middleware from 1.3.1 to 2.0.0 ([fdabba3c4](https://github.com/mozilla/fxa/commit/fdabba3c4))
+- monorepo: update legal pdfs and legal docs dependency ([ff001a152](https://github.com/mozilla/fxa/commit/ff001a152))
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
+- 8999b2510 add missing payments styles ([8999b2510](https://github.com/mozilla/fxa/commit/8999b2510))
+- deps: bump webpack-cli from 4.5.0 to 4.7.0 ([8cd245213](https://github.com/mozilla/fxa/commit/8cd245213))
+- deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: bump fxa-pairing-channel from 1.0.1 to 1.0.2 ([d6e1339a5](https://github.com/mozilla/fxa/commit/d6e1339a5))
+- settings: remove settings_version from metrics ([367b8eea0](https://github.com/mozilla/fxa/commit/367b8eea0))
+
 ## 1.205.0
 
 ### Bug fixes

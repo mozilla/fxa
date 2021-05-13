@@ -1,3 +1,22 @@
+## 1.206.0
+
+### Other changes
+
+- deps: bump ioredis from 4.26.0 to 4.27.2 ([3bc7cd999](https://github.com/mozilla/fxa/commit/3bc7cd999))
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps-dev: bump ts-jest from 26.5.5 to 26.5.6 ([2680b5840](https://github.com/mozilla/fxa/commit/2680b5840))
+- deps: bump apollo-server-express from 2.23.0 to 2.24.0 ([7fbe841ad](https://github.com/mozilla/fxa/commit/7fbe841ad))
+- deps-dev: bump @types/superagent from 4.1.10 to 4.1.11 ([fce865e63](https://github.com/mozilla/fxa/commit/fce865e63))
+- deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
+- deps: bump graphql-query-complexity from 0.8.0 to 0.8.1" ([c555e4967](https://github.com/mozilla/fxa/commit/c555e4967))
+- deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
+- deps: bump graphql-query-complexity from 0.8.0 to 0.8.1 ([17baa5b90](https://github.com/mozilla/fxa/commit/17baa5b90))
+- deps-dev: bump @types/ioredis from 4.26.0 to 4.26.1 ([3333766f6](https://github.com/mozilla/fxa/commit/3333766f6))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: bump apollo-datasource from 0.8.0 to 0.9.0 ([5e5156313](https://github.com/mozilla/fxa/commit/5e5156313))
+- deps: update @nestjs/* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
+- deps: bump apollo-server from 2.19.2 to 2.23.0 ([e257f75ac](https://github.com/mozilla/fxa/commit/e257f75ac))
+
 ## 1.205.0
 
 ### Other changes

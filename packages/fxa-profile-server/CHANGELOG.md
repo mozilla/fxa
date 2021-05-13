@@ -1,3 +1,12 @@
+## 1.206.0
+
+### Other changes
+
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps: bump @hapi/catbox-memory from 5.0.0 to 5.0.1 ([ae4d6d977](https://github.com/mozilla/fxa/commit/ae4d6d977))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: bump aws-sdk from 2.883.0 to 2.896.0 ([a45963d14](https://github.com/mozilla/fxa/commit/a45963d14))
+
 ## 1.205.0
 
 No changes.

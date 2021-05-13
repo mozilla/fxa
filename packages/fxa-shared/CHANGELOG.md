@@ -1,5 +1,24 @@
 # Change history
 
+## 1.206.0
+
+### Other changes
+
+- deps-dev: bump @types/jest from 26.0.22 to 26.0.23 ([8b9c2f364](https://github.com/mozilla/fxa/commit/8b9c2f364))
+- deps: bump stripe from 8.147.0 to 8.148.0 ([af1b4fdfa](https://github.com/mozilla/fxa/commit/af1b4fdfa))
+- deps: bump mozlog from 3.0.1 to 3.0.2 ([f46bd3472](https://github.com/mozilla/fxa/commit/f46bd3472))
+- deps-dev: bump ts-jest from 26.5.5 to 26.5.6 ([2680b5840](https://github.com/mozilla/fxa/commit/2680b5840))
+- auth-server: update stripe ([b283b768e](https://github.com/mozilla/fxa/commit/b283b768e))
+- deps-dev: bump @types/superagent from 4.1.10 to 4.1.11 ([fce865e63](https://github.com/mozilla/fxa/commit/fce865e63))
+- deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
+- deps: bump redis from 3.1.0 to 3.1.1 ([27c0f6c60](https://github.com/mozilla/fxa/commit/27c0f6c60))
+- deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: bump aws-sdk from 2.883.0 to 2.896.0 ([a45963d14](https://github.com/mozilla/fxa/commit/a45963d14))
+- settings: remove settings_version from metrics ([367b8eea0](https://github.com/mozilla/fxa/commit/367b8eea0))
+- deps: update @nestjs/* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
+- deps: bump apollo-server from 2.19.2 to 2.23.0 ([e257f75ac](https://github.com/mozilla/fxa/commit/e257f75ac))
+
 ## 1.205.0
 
 ### New features

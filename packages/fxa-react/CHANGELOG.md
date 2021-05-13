@@ -1,3 +1,21 @@
+## 1.206.0
+
+### Bug fixes
+
+- fxa-settings: change clickable footer link spaces to fit width of text for privacy notice and terms of services and forgot password links ([338d84964](https://github.com/mozilla/fxa/commit/338d84964))
+
+### Other changes
+
+- deps-dev: bump @types/jest from 26.0.22 to 26.0.23 ([8b9c2f364](https://github.com/mozilla/fxa/commit/8b9c2f364))
+- deps-dev: bump ts-jest from 26.5.5 to 26.5.6 ([2680b5840](https://github.com/mozilla/fxa/commit/2680b5840))
+- deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
+- deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
+- deps: upgrade to Storybook v6 across all packages ([3b1e63318](https://github.com/mozilla/fxa/commit/3b1e63318))
+- deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
+- deps: revert @storybook/addon-links to 5.3.19 ([690e35ca3](https://github.com/mozilla/fxa/commit/690e35ca3))
+- deps-dev: bump @storybook/addon-links from 6.2.8 to 6.2.9 ([ece7c8584](https://github.com/mozilla/fxa/commit/ece7c8584))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.1.1 to 2.1.2 ([c1648631a](https://github.com/mozilla/fxa/commit/c1648631a))
+
 ## 1.205.0
 
 ### Other changes
