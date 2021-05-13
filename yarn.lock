@@ -271,9 +271,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/cli@npm:7.13.14":
-  version: 7.13.14
-  resolution: "@babel/cli@npm:7.13.14"
+"@babel/cli@npm:7.13.16":
+  version: 7.13.16
+  resolution: "@babel/cli@npm:7.13.16"
   dependencies:
     "@nicolo-ribaudo/chokidar-2": 2.1.8-no-fsevents
     chokidar: ^3.4.0
@@ -281,7 +281,6 @@ __metadata:
     convert-source-map: ^1.1.0
     fs-readdir-recursive: ^1.1.0
     glob: ^7.0.0
-    lodash: ^4.17.19
     make-dir: ^2.1.0
     slash: ^2.0.0
     source-map: ^0.5.0
@@ -295,7 +294,7 @@ __metadata:
   bin:
     babel: ./bin/babel.js
     babel-external-helpers: ./bin/babel-external-helpers.js
-  checksum: 6259a752460c92685ce6c4d4a63f2010081add799388bce003b8a2278e9ce94fd6b470ab511fbab509da2034631539d030932059ca343b1a09433ed88032e91f
+  checksum: 97324cb2b8469b61452bc189a7de4b4d248a4b5fb9a697a3a2f9388f85f1291ac58fe8f5eeb9d419652d4e9e242d970db845578a31a1a118227625faf955ca7f
   languageName: node
   linkType: hard
 
@@ -18190,7 +18189,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-content-server@workspace:packages/fxa-content-server"
   dependencies:
-    "@babel/cli": 7.13.14
+    "@babel/cli": 7.13.16
     "@babel/core": ^7.10.3
     "@babel/plugin-proposal-class-properties": ^7.10.1
     "@babel/plugin-syntax-dynamic-import": ^7.8.3
