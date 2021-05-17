@@ -72,6 +72,11 @@ type BillingAddressOptions = {
   state: string;
 };
 
+export type TimeSpanInS = {
+  startTimeS: number;
+  endTimeS: number;
+};
+
 /**
  * Determine for two product metadata object's whether the new one
  * is a valid upgrade for the old one.
@@ -972,6 +977,33 @@ export class StripeHelper {
     }
 
     return subscriptions;
+  }
+
+  /**
+   * Find all active subscriptions for the given `planId`.
+   *
+   * It is expected that the `customer` is expanded.
+   */
+  async *findActiveSubscriptionsByPlanId(
+    planId: string,
+    timeSpan: TimeSpanInS,
+    limit: number = 50
+  ) {
+    const params: Stripe.SubscriptionListParams = {
+      price: planId,
+      current_period_end: {
+        gte: timeSpan.startTimeS,
+        lt: timeSpan.endTimeS,
+      },
+      limit,
+      expand: ['data.customer'],
+    };
+    for await (const subscription of this.stripe.subscriptions.list(params)) {
+      if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+        continue;
+      }
+      yield subscription;
+    }
   }
 
   /**

@@ -56,12 +56,12 @@ describe('SentEmail', () => {
     });
   });
 
-  describe('findLatestSentEmaiByType', () => {
+  describe('findLatestSentEmailByType', () => {
     it('finds the correct record without params', async () => {
       const acct = randomAccount();
       await SentEmail.createSentEmail(acct.uid, emailType);
       const expected = await SentEmail.createSentEmail(acct.uid, emailType);
-      const actual = await SentEmail.findLatestSentEmaiByType(
+      const actual = await SentEmail.findLatestSentEmailByType(
         acct.uid,
         emailType
       );
@@ -76,7 +76,7 @@ describe('SentEmail', () => {
         emailType,
         emailParams
       );
-      const actual = await SentEmail.findLatestSentEmaiByType(
+      const actual = await SentEmail.findLatestSentEmailByType(
         acct.uid,
         emailType,
         emailParams
@@ -87,7 +87,7 @@ describe('SentEmail', () => {
     it('returns undefined when no match record is found', async () => {
       const acct = randomAccount();
       await SentEmail.createSentEmail(acct.uid, emailType, emailParams);
-      const actual = await SentEmail.findLatestSentEmaiByType(
+      const actual = await SentEmail.findLatestSentEmailByType(
         acct.uid,
         'subscriptionPaymentExpired',
         emailParams

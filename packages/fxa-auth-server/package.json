@@ -26,7 +26,8 @@
     "gen-keys": "ts-node ./scripts/gen_keys.js; ts-node ./scripts/oauth_gen_keys.js; ts-node ./scripts/gen_vapid_keys.js",
     "write-emails": "node -r ts-node/register ./scripts/write-emails-to-disk.js",
     "clean-up-old-ci-stripe-customers": "ts-node ./scripts/clean-up-old-ci-stripe-customers.js",
-    "paypal-processor": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/paypal-processor.ts"
+    "paypal-processor": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/paypal-processor.ts",
+    "subscription-reminders": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/subscription-reminders.ts"
   },
   "repository": {
     "type": "git",

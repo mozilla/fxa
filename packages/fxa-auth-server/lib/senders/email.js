@@ -36,6 +36,7 @@ module.exports = function (log, config) {
   // map to exactly one email template.
   const templateNameToCampaignMap = {
     subscriptionReactivation: 'subscription-reactivation',
+    subscriptionRenewalReminder: 'subscription-renewal-reminder',
     subscriptionUpgrade: 'subscription-upgrade',
     subscriptionDowngrade: 'subscription-downgrade',
     subscriptionPaymentExpired: 'subscription-payment-expired',
@@ -84,6 +85,7 @@ module.exports = function (log, config) {
   // when you add new templates.
   const templateNameToContentMap = {
     subscriptionReactivation: 'subscriptions',
+    subscriptionRenewalReminder: 'subscriptions',
     subscriptionUpgrade: 'subscriptions',
     subscriptionDowngrade: 'subscriptions',
     subscriptionPaymentExpired: 'subscriptions',
@@ -2403,6 +2405,10 @@ module.exports = function (log, config) {
         nextInvoiceDate,
       },
     });
+  };
+
+  Mailer.prototype.subscriptionRenewalReminderEmail = async function (message) {
+    // TODO: Implementation handled by #8223
   };
 
   Mailer.prototype.subscriptionSubsequentInvoiceEmail = async function (

@@ -80,7 +80,7 @@ export class SentEmail extends AuthBaseModel {
     return SentEmail.query().findOne({ id: result[0] });
   }
 
-  static async findLatestSentEmaiByType(
+  static async findLatestSentEmailByType(
     uid: string,
     emailType: string,
     params?: any
