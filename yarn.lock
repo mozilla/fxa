@@ -17915,7 +17915,7 @@ fsevents@~2.1.1:
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     graphql: ^15.5.0
-    helmet: ^4.5.0
+    helmet: ^4.6.0
     jest: 26.6.0
     mozlog: ^3.0.2
     node-sass: ^4.13.1
@@ -17971,7 +17971,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     graphql: ^15.5.0
     graphql-tools: ^7.0.1
-    helmet: ^4.5.0
+    helmet: ^4.6.0
     jest: 26.6.0
     knex: ^0.21.18
     mozlog: ^3.0.2
@@ -18267,7 +18267,7 @@ fsevents@~2.1.1:
     grunt-usemin: 3.1.1
     grunt-z-schema: 0.1.0
     handlebars: ^4.5.2
-    helmet: ^4.5.0
+    helmet: ^4.6.0
     hot-shots: ^8.3.1
     htmlparser2: 6.1.0
     http-proxy-middleware: ^2.0.0
@@ -18567,7 +18567,7 @@ fsevents@~2.1.1:
     graphql-query-complexity: ^0.8.0
     graphql-tools: ^7.0.1
     graphql-upload: ^11.0.0
-    helmet: ^4.5.0
+    helmet: ^4.6.0
     ioredis: ^4.27.2
     jest: 26.6.0
     knex: ^0.21.18
@@ -18725,7 +18725,7 @@ fsevents@~2.1.1:
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
     handlebars: ^4.5.3
-    helmet: ^4.5.0
+    helmet: ^4.6.0
     hot-shots: ^8.3.1
     intl: 1.2.5
     intl-pluralrules: ^1.2.2
@@ -19062,7 +19062,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     handlebars: ^4.7.6
     hbs: ^4.1.2
-    helmet: ^4.5.0
+    helmet: ^4.6.0
     jest: 26.6.0
     mozlog: ^3.0.2
     pm2: ^4.5.6
@@ -20605,10 +20605,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"helmet@npm:*, helmet@npm:^4.5.0":
+"helmet@npm:*":
   version: 4.5.0
   resolution: "helmet@npm:4.5.0"
   checksum: e7245be78a024bc4536d9f9f81a02ff856a671f300a3865f625942b73a0f9ef161660cd9c7eb7f380de174fdfb1067af05ca5c4af2682d4ac9c068f5bdb6695f
+  languageName: node
+  linkType: hard
+
+"helmet@npm:^4.6.0":
+  version: 4.6.0
+  resolution: "helmet@npm:4.6.0"
+  checksum: 5018633703ac6933b35c581d878f279b3be642c7ce68dcccbaf31be059aefb723a08ed86831df657b82fd2994b4163404b51c76a0dc3ea9cdd67794bf1b0466d
   languageName: node
   linkType: hard
 
