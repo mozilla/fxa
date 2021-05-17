@@ -11,68 +11,22 @@
       "service": "${command:PickProcess}"
     },
     {
-      "name": "Attach to auth",
-      "type": "node",
+      "type": "firefox",
       "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}",
-      "port": 9160
+      "name": "Attach to Firefox"
     },
     {
-      "name": "Attach to content",
+      "name": "Functional Tests",
       "type": "node",
-      "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}",
-      "port": 9130
-    },
-    {
-      "name": "Attach to broker",
-      "type": "node",
-      "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}",
-      "port": 9180
-    },
-    {
-      "name": "Attach to payments",
-      "type": "node",
-      "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}",
-      "port": 9170
-    },
-    {
-      "name": "Attach to support",
-      "type": "node",
-      "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}",
-      "port": 9190
-    },
-    {
-      "name": "Attach to admin",
-      "type": "node",
-      "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}",
-      "port": 9140
-    },
-    {
-      "name": "Attach to admin-server",
-      "type": "node",
-      "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}",
-      "port": 9150
-    },
-    {
-      "name": "Attach to graphql-api server",
-      "type": "node",
-      "request": "attach",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}",
-      "port": 9200
+      "protocol": "inspector",
+      "env": {
+        "DEBUG": "1"
+      },
+      "program": "${workspaceFolder}/node_modules/folio/cli.js",
+      "args": ["--config=${workspaceFolder}/packages/fxa-settings/fnl/config.ts", "--timeout=0"],
+      "autoAttachChildProcesses": true,
+      "cwd":"${workspaceFolder}",
+      "request": "launch",
     }
   ]
 }
