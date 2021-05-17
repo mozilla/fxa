@@ -74,19 +74,6 @@ registerSuite('settings/avatar', {
   },
 
   tests: {
-    'go to settings then avatar change': function () {
-      return (
-        this.remote
-          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
-
-          // go to add avatar
-          .then(click(selectors.SETTINGS_AVATAR.MENU_BUTTON))
-
-          // success is going to the change avatar page
-          .then(testElementExists(selectors.SETTINGS_AVATAR.BUTTON_ADD_PHOTO))
-      );
-    },
-
     'attempt to use webcam for avatar': function () {
       return (
         this.remote
@@ -126,7 +113,7 @@ registerSuite('settings/avatar', {
       );
     },
 
-    'upload a profile image': function () {
+    'upload and then remove profile image': function () {
       return (
         this.remote
           .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
@@ -158,6 +145,14 @@ registerSuite('settings/avatar', {
           .then((msg) => {
             assert.equal(msg.command, 'profile:change');
           })
+
+          // Remove the uploaded image
+          .then(click(selectors.SETTINGS_AVATAR.MENU_BUTTON))
+          .then(click(selectors.SETTINGS_AVATAR.REMOVE_BUTTON))
+
+          // Success is navigating to settings and seeing no image
+          .then(visibleByQSA(selectors.SETTINGS.HEADER))
+          .then(testElementExists(selectors.SETTINGS_AVATAR.NON_DEFAULT_IMAGE))
       );
     },
 
