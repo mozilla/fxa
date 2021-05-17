@@ -74,19 +74,6 @@ registerSuite('settings/avatar', {
   },
 
   tests: {
-    'go to settings then avatar change': function () {
-      return (
-        this.remote
-          .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
-
-          // go to add avatar
-          .then(click(selectors.SETTINGS_AVATAR.MENU_BUTTON))
-
-          // success is going to the change avatar page
-          .then(testElementExists(selectors.SETTINGS_AVATAR.BUTTON_ADD_PHOTO))
-      );
-    },
-
     'attempt to use webcam for avatar': function () {
       return (
         this.remote
