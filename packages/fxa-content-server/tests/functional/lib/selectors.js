@@ -72,6 +72,7 @@ const SETTINGS = {
     CLOSE_BUTTON: '[data-testid=close-button]',
     SAVE_BUTTON: '[data-testid=save-button]',
     BACK_BUTTON: '[data-testid=flow-container-back-btn]',
+
   },
   AVATAR_ROW: {
     ADD_BUTTON: '[data-testid=avatar-unit-row-route]', // TODO 'add' and 'change' buttons have same testid
@@ -612,6 +613,7 @@ module.exports = {
     NON_DEFAULT_IMAGE: SETTINGS.AVATAR.NON_DEFAULT_IMAGE,
     LOADING_SPINNER: SETTINGS.AVATAR_ADD_PAGE.LOADING_SPINNER,
     MENU_BUTTON: SETTINGS.AVATAR_ROW.ADD_BUTTON, // '#change-avatar .settings-unit-toggle',
+    REMOVE_BUTTON: SETTINGS.AVATAR_ADD_PAGE.REMOVE_PHOTO_BUTTON,
     SUBMIT: SETTINGS.AVATAR.SAVE_BUTTON, // '.modal-panel #submit-btn',
     UPLOAD_FILENAME_INPUT: SETTINGS.AVATAR_ADD_PAGE.FILE_INPUT, // '#imageLoader',
   },
