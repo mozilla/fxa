@@ -513,8 +513,6 @@ module.exports = function (log, error) {
     return this.readAllResults(SESSION_DEVICE, [id]).then((results) => {
       if (results.length === 0) {
         throw error.notFound();
-      } else if (!results[0].tokenData) {
-        throw error.notFound();
       }
       return results[0];
     });

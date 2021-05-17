@@ -51,8 +51,8 @@ BEGIN
     d.callbackPublicKey AS deviceCallbackPublicKey,
     d.callbackAuthKey AS deviceCallbackAuthKey,
     d.callbackIsExpired AS deviceCallbackIsExpired,
-    JSON_REMOVE(JSON_OBJECTAGG(IFNULL(ci.commandName, 'null__'), dc.commandData), '$.null__') AS deviceAvailableCommands,
     ut.tokenVerificationId,
+    dac.deviceAvailableCommands,
     COALESCE(t.mustVerify, ut.mustVerify) AS mustVerify
   FROM sessionTokens AS t
   LEFT JOIN accounts AS a
@@ -63,10 +63,13 @@ BEGIN
   LEFT JOIN devices AS d
     ON (t.tokenId = d.sessionTokenId AND t.uid = d.uid)
   LEFT JOIN (
-    deviceCommands AS dc FORCE INDEX (PRIMARY)
-    INNER JOIN deviceCommandIdentifiers AS ci FORCE INDEX (PRIMARY)
-      ON ci.commandId = dc.commandId
-  ) ON (dc.uid = d.uid AND dc.deviceId = d.id)
+    (SELECT dc.uid, dc.deviceId, JSON_OBJECTAGG(ci.commandName, dc.commandData) AS deviceAvailableCommands
+    FROM deviceCommands AS dc FORCE INDEX (PRIMARY)
+		INNER JOIN deviceCommandIdentifiers AS ci FORCE INDEX (PRIMARY)
+		ON ci.commandId = dc.commandId WHERE ci.commandName IS NOT NULL
+        GROUP BY dc.uid
+    ) AS dac )
+    ON (dac.uid = d.uid AND dac.deviceId = d.id)
   LEFT JOIN unverifiedTokens AS ut
     ON t.tokenId = ut.tokenId
   WHERE t.tokenId = tokenIdArg;
