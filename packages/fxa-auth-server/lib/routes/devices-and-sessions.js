@@ -238,7 +238,7 @@ module.exports = (
 
         const response = await pushbox.retrieve(uid, deviceId, limit, index);
 
-        // To measure command delivery, we emit a "retrieved" event for each retreived
+        // To measure command delivery, we emit a "retrieved" event for each retrieved
         // command, which should match to an "invoked" event emitted when it was invoked.
         for (const msg of response.messages) {
           const data = msg.data || {}; // should always be present, but you never know...

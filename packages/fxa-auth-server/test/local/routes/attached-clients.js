@@ -82,6 +82,10 @@ describe('/account/attached_clients', () => {
       credentials: {
         id: crypto.randomBytes(16).toString('hex'),
         uid: uid,
+        setUserAgentInfo: sinon.spy(() => {}),
+      },
+      headers: {
+        'user-agent': 'fake agent',
       },
     });
     const accountRoutes = makeRoutes({
@@ -197,6 +201,12 @@ describe('/account/attached_clients', () => {
     const result = await route(request);
 
     assert.equal(result.length, 6);
+
+    assert.equal(db.touchSessionToken.callCount, 1);
+    const args = db.touchSessionToken.args[0];
+    assert.equal(args.length, 2);
+    const laterDate = Date.now() - 60 * 1000;
+    assert.equal(laterDate < args[0].lastAccessTime, true);
 
     // The device with just a sessionToken.
     assert.deepEqual(result[0], {

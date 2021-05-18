@@ -513,6 +513,7 @@ function mockDB(data, errors) {
         uaOSVersion: data.uaOSVersion,
         uaDeviceType: data.uaDeviceType,
         expired: () => data.expired || false,
+        setUserAgentInfo: sinon.spy(() => {}),
       };
       // SessionToken is a class, and tokenTypeID is a class attribute. Fake that.
       res.constructor.tokenTypeID = 'sessionToken';

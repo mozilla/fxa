@@ -62,7 +62,12 @@ module.exports = (log, db, devices, clientUtils) => {
       handler: async function (request) {
         log.begin('Account.attachedClients', request);
 
-        const uid = request.auth.credentials.uid;
+        const sessionToken = request.auth && request.auth.credentials;
+
+        sessionToken.lastAccessTime = Date.now();
+        await db.touchSessionToken(sessionToken, request.app.geo);
+
+        const { uid } = sessionToken;
 
         const attachedClients = [];
 
@@ -91,10 +96,10 @@ module.exports = (log, db, devices, clientUtils) => {
         // but would need to add a new db-server endpoint because each set can contain items
         // that the other does not.
         const devicesList = await request.app.devices;
-        const oauthClientsP = authorizedClients.list(
+        const oauthClients = await authorizedClients.list(
           request.auth.credentials.uid
         );
-        const sessionsP = db.sessions(uid);
+        const sessions = await db.sessions(uid);
 
         // Let's start with the devices, since each device is annotated with
         // the appropriate `sessionTokenId` and/or `refreshTokenId` to merge
@@ -124,7 +129,7 @@ module.exports = (log, db, devices, clientUtils) => {
         }
 
         // Merge with OAuth clients, which may or may not be linked to a device record.
-        for (const oauthClient of await oauthClientsP) {
+        for (const oauthClient of oauthClients) {
           let client = clientsByRefreshTokenId.get(
             oauthClient.refresh_token_id
           );
@@ -150,7 +155,7 @@ module.exports = (log, db, devices, clientUtils) => {
             oauthClient.last_access_time
           );
           // We fill in a default device name from the OAuth client name,
-          // but indidivual clients can override this in their device record registration.
+          // but individual clients can override this in their device record registration.
           if (!client.name) {
             client.name = oauthClient.client_name;
           }
@@ -162,7 +167,7 @@ module.exports = (log, db, devices, clientUtils) => {
         }
 
         // Merge with sessions, which may or may not be linked to a device record.
-        for (const session of await sessionsP) {
+        for (const session of sessions) {
           let client = clientsBySessionTokenId.get(session.id);
           if (!client) {
             client = {

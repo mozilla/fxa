@@ -581,7 +581,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
    * frequently-called routes.
    *
    * To do a cheaper write of transient metadata that only hits
-   * redis, use touchSessionToken isntead.
+   * redis, use touchSessionToken instead.
    */
   SAFE_URLS.updateSessionToken = new SafeUrl(
     '/sessionToken/:id/update',
