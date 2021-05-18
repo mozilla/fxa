@@ -18305,7 +18305,7 @@ fsevents@~2.1.1:
     jquery-ui: 1.12.1
     jquery-ui-touch-punch-amd: 1.0.1
     js-md5: 0.6.0
-    jsqr: 1.3.1
+    jsqr: 1.4.0
     jsxgettext-recursive-next: 1.1.0
     legal-docs: "git://github.com/mozilla/legal-docs.git#569f5c812ef288c4ebf19b8d521ba90b99e99cfc"
     load-grunt-tasks: ^5.1.0
@@ -24000,10 +24000,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jsqr@npm:1.3.1":
-  version: 1.3.1
-  resolution: "jsqr@npm:1.3.1"
-  checksum: a008e355e955dc41a51a230419083066449962abc5c5fcdc3b2987568de2fc0ca52bf559a413a18e37075c9195e65b3bcf1a688c63eae7891d6cb217744758d1
+"jsqr@npm:1.4.0":
+  version: 1.4.0
+  resolution: "jsqr@npm:1.4.0"
+  checksum: 9751c59bd45a29643cc9586b5d013f35b96cef28b7d2f6d937b74e6cd1747e1afa27a8dcdc63495b4f1ca3efde2e2a3331a0ed71442cf4e734ba54e76aafe631
   languageName: node
   linkType: hard
 
