@@ -101,7 +101,7 @@ module.exports = {
 
     // For backwards compatibility and future single-locale products(?)
     if (docUrl.pathname.endsWith('.pdf')) {
-      return res.redirect(docUrl.href).end();
+      return res.redirect(docUrl.href);
     }
 
     const reqLanguage = req.get('accept-language')
@@ -132,7 +132,7 @@ module.exports = {
 
       if (await isValidDocUrl(downloadUrl.href)) {
         downloadUrl.search = docUrl.search;
-        return res.redirect(downloadUrl.href).end();
+        return res.redirect(downloadUrl.href);
       }
 
       checkedTags.push(l.tag);
@@ -159,7 +159,7 @@ module.exports = {
 
       if (await isValidDocUrl(downloadUrl.href)) {
         downloadUrl.search = docUrl.search;
-        return res.redirect(downloadUrl.href).end();
+        return res.redirect(downloadUrl.href);
       }
     }
 
@@ -170,7 +170,7 @@ module.exports = {
     );
     if (await isValidDocUrl(defaultDocUrl.href)) {
       defaultDocUrl.search = docUrl.search;
-      return res.redirect(defaultDocUrl.href).end();
+      return res.redirect(defaultDocUrl.href);
     }
 
     // :(
