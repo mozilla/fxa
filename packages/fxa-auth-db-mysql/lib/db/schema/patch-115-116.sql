@@ -64,8 +64,8 @@ BEGIN
     ON (t.tokenId = d.sessionTokenId AND t.uid = d.uid)
   LEFT JOIN (
     (SELECT dc.uid, dc.deviceId, JSON_OBJECTAGG(ci.commandName, dc.commandData) AS deviceAvailableCommands
-    FROM deviceCommands AS dc FORCE INDEX (PRIMARY)
-		INNER JOIN deviceCommandIdentifiers AS ci FORCE INDEX (PRIMARY)
+    FROM deviceCommands AS dc FORCE INDEX (PRIMARY, commandId)
+		INNER JOIN deviceCommandIdentifiers AS ci FORCE INDEX (PRIMARY, commandName)
 		ON ci.commandId = dc.commandId WHERE ci.commandName IS NOT NULL
         GROUP BY dc.uid
     ) AS dac )
