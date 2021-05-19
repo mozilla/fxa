@@ -3148,7 +3148,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/address@npm:4.x.x, @hapi/address@npm:^4.0.1":
+"@hapi/address@npm:^4.0.1":
   version: 4.0.1
   resolution: "@hapi/address@npm:4.0.1"
   dependencies:
@@ -3175,7 +3175,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/boom@npm:9.x.x, @hapi/boom@npm:^9.0.0, @hapi/boom@npm:~9.1.2":
+"@hapi/boom@npm:9.x.x, @hapi/boom@npm:^9.0.0, @hapi/boom@npm:^9.1.0, @hapi/boom@npm:~9.1.2":
   version: 9.1.2
   resolution: "@hapi/boom@npm:9.1.2"
   dependencies:
@@ -3184,7 +3184,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/bounce@npm:2.x.x":
+"@hapi/bounce@npm:2.x.x, @hapi/bounce@npm:^2.0.0":
   version: 2.0.0
   resolution: "@hapi/bounce@npm:2.0.0"
   dependencies:
@@ -3208,18 +3208,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/call@npm:8.x.x":
-  version: 8.0.0
-  resolution: "@hapi/call@npm:8.0.0"
+"@hapi/call@npm:^8.0.0":
+  version: 8.0.1
+  resolution: "@hapi/call@npm:8.0.1"
   dependencies:
-    "@hapi/address": 4.x.x
     "@hapi/boom": 9.x.x
     "@hapi/hoek": 9.x.x
-  checksum: c681c14fefbbd67171140839218d30a93f32fd1559337484e0a445e55fa1041ddcc98e1e45308966e888f7bda7bd48c35d565e8f095192e109e1b28f6a415849
+  checksum: f270d445453b2129083cd212c105219d1e982b2ca1da8019fa4bcfe908dfbe665cb730dc629d9eae94795b238c8fc38e0fcc3e48eaebcb660e1f955f5a3c170f
   languageName: node
   linkType: hard
 
-"@hapi/catbox-memory@npm:5.x.x, @hapi/catbox-memory@npm:~5.0.1":
+"@hapi/catbox-memory@npm:^5.0.0, @hapi/catbox-memory@npm:~5.0.1":
   version: 5.0.1
   resolution: "@hapi/catbox-memory@npm:5.0.1"
   dependencies:
@@ -3291,29 +3290,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/hapi@npm:^20.1.0":
-  version: 20.1.0
-  resolution: "@hapi/hapi@npm:20.1.0"
+"@hapi/hapi@npm:^20.1.3":
+  version: 20.1.3
+  resolution: "@hapi/hapi@npm:20.1.3"
   dependencies:
     "@hapi/accept": ^5.0.1
     "@hapi/ammo": ^5.0.1
-    "@hapi/boom": 9.x.x
-    "@hapi/bounce": 2.x.x
-    "@hapi/call": 8.x.x
+    "@hapi/boom": ^9.1.0
+    "@hapi/bounce": ^2.0.0
+    "@hapi/call": ^8.0.0
     "@hapi/catbox": ^11.1.1
-    "@hapi/catbox-memory": 5.x.x
+    "@hapi/catbox-memory": ^5.0.0
     "@hapi/heavy": ^7.0.1
-    "@hapi/hoek": 9.x.x
-    "@hapi/mimos": 5.x.x
+    "@hapi/hoek": ^9.0.4
+    "@hapi/mimos": ^6.0.0
     "@hapi/podium": ^4.1.1
-    "@hapi/shot": ^5.0.1
-    "@hapi/somever": 3.x.x
+    "@hapi/shot": ^5.0.5
+    "@hapi/somever": ^3.0.0
     "@hapi/statehood": ^7.0.3
     "@hapi/subtext": ^7.0.3
-    "@hapi/teamwork": 5.x.x
-    "@hapi/topo": 5.x.x
-    "@hapi/validate": ^1.1.0
-  checksum: 9258c20f547afbfb144a32b2de6b9e427205adf7f7c540690b9be02b87ecca5f3598321026473dfc44cbaf3789e8a5298b65e73384a927f34a5c0f4fb0adb5e8
+    "@hapi/teamwork": ^5.1.0
+    "@hapi/topo": ^5.0.0
+    "@hapi/validate": ^1.1.1
+  checksum: 47d13b343b95803ceb79ca61e4727bb0172ee883e498fa257464d50d0b674fa21ea3bae02c54952e46df4f995f5b3529c298bf0bdce04a27363fde1ddaaa2aae
   languageName: node
   linkType: hard
 
@@ -3420,13 +3419,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/mimos@npm:5.x.x":
-  version: 5.0.0
-  resolution: "@hapi/mimos@npm:5.0.0"
+"@hapi/mimos@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@hapi/mimos@npm:6.0.0"
   dependencies:
     "@hapi/hoek": 9.x.x
     mime-db: 1.x.x
-  checksum: a9c312486310ba86e567759ae1309af2539c826b02fa6b92ea94f35f356ce837930f8c10076a65c13d43f081b74481b125d8e075a11a17980441ceb29cecdcba
+  checksum: 131cb382a5302d574468a9c797e95f0a50b5b4175a55f5a7540dcdabc0d7a10d8624de696101c47549178c3e0feac2fd4ff33a403ca34fd734ad629c4c3977c7
   languageName: node
   linkType: hard
 
@@ -3478,13 +3477,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/shot@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "@hapi/shot@npm:5.0.1"
+"@hapi/shot@npm:^5.0.5":
+  version: 5.0.5
+  resolution: "@hapi/shot@npm:5.0.5"
   dependencies:
     "@hapi/hoek": 9.x.x
     "@hapi/validate": 1.x.x
-  checksum: 4fe2f2bdf4c219f4ba364008498e52911547e2829b6d8928a0952ed33c45a10f9a155a9d406d68abf70adac80bfe19df2cc0a1406849b019932c2c14cb9e26e8
+  checksum: de051bfc05eb588b771811aeecc5616316911f597a5806794417f377ca6aa80ed0d94fa23598142da68197809ff943c2c55bfe86d1ff1a72b063c8488f57f658
   languageName: node
   linkType: hard
 
@@ -3500,13 +3499,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/somever@npm:3.x.x":
-  version: 3.0.0
-  resolution: "@hapi/somever@npm:3.0.0"
+"@hapi/somever@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "@hapi/somever@npm:3.0.1"
   dependencies:
     "@hapi/bounce": 2.x.x
     "@hapi/hoek": 9.x.x
-  checksum: 8fd4a2dfe1f7e49358edab7351b25d74dc6673af42bb590f9886aa4aa0f68ac246f4fbdc3f35908ef2b2ebb08fefa76c1fe44713e8e985c7ca0cfc728bdb6759
+  checksum: dd3ca105b6f662b27482cfb1f73a74e23c5c5548c8b145cc5e50385a1e9451b47bfa155771c5dbf46a0047cef09d1f683666fa63c41ca03fd230b2d9b9d29bab
   languageName: node
   linkType: hard
 
@@ -3547,7 +3546,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/teamwork@npm:5.x.x":
+"@hapi/teamwork@npm:5.x.x, @hapi/teamwork@npm:^5.1.0":
   version: 5.1.0
   resolution: "@hapi/teamwork@npm:5.1.0"
   checksum: be07361a921de103df70c8c81aa62348e9aab40ad3d476cfb17dc307f153a6ba801da84f8fda809bbe79d89c3cea268312d74501229ade2ad45c384ca041bd82
@@ -3563,7 +3562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/topo@npm:5.x.x, @hapi/topo@npm:^5.0.0":
+"@hapi/topo@npm:^5.0.0":
   version: 5.0.0
   resolution: "@hapi/topo@npm:5.0.0"
   dependencies:
@@ -3572,13 +3571,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/validate@npm:1.x.x, @hapi/validate@npm:^1.1.0":
+"@hapi/validate@npm:1.x.x":
   version: 1.1.2
   resolution: "@hapi/validate@npm:1.1.2"
   dependencies:
     "@hapi/hoek": ^9.0.0
     "@hapi/topo": ^5.0.0
   checksum: cc2ba0ae8f1b86fafddfbb2444322851f569e36ab6bddd82bd5c2441ab572b9f18534e6329cb0fc0f2a2c1b97d20710c8d0071833f26842f21a643132e2d8960
+  languageName: node
+  linkType: hard
+
+"@hapi/validate@npm:^1.1.1":
+  version: 1.1.3
+  resolution: "@hapi/validate@npm:1.1.3"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+    "@hapi/topo": ^5.0.0
+  checksum: 35bfbee6e503be2262ede3bf9865a68ef5e03e39d9bea895b1ae38a0fc0c82fc24cc7fcca2661dbabe222030b613770c22aafc01e26453bfcf016cf874c19f3d
   languageName: node
   linkType: hard
 
@@ -18079,7 +18088,7 @@ fsevents@~2.1.1:
   resolution: "fxa-auth-server@workspace:packages/fxa-auth-server"
   dependencies:
     "@google-cloud/firestore": ^4.9.8
-    "@hapi/hapi": ^20.1.0
+    "@hapi/hapi": ^20.1.3
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.1.0
     "@hapi/joi": ^15.1.1
@@ -18374,7 +18383,7 @@ fsevents@~2.1.1:
   resolution: "fxa-customs-server@workspace:packages/fxa-customs-server"
   dependencies:
     "@google-cloud/pubsub": ^2.12.0
-    "@hapi/hapi": ^20.1.0
+    "@hapi/hapi": ^20.1.3
     "@hapi/hoek": ^9.0.4
     "@sentry/node": ^6.0.1
     audit-filter: ^0.5.0
@@ -18802,7 +18811,7 @@ fsevents@~2.1.1:
     "@hapi/boom": ~9.1.2
     "@hapi/catbox-memory": ~5.0.1
     "@hapi/catbox-redis": ~5.0.5
-    "@hapi/hapi": ^20.1.0
+    "@hapi/hapi": ^20.1.3
     "@hapi/inert": 6.0.3
     "@hapi/joi": ^17.1.1
     "@sentry/node": ^6.0.1
