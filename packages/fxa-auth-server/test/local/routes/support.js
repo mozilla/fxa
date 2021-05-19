@@ -10,6 +10,7 @@ const uuid = require('uuid');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const nock = require('nock');
+const { supportRoutes } = require('../../../lib/routes/subscriptions/support');
 
 let config,
   log,
@@ -123,13 +124,7 @@ const MOCK_UPDATE_REPLY = {
 };
 
 function runTest(routePath, requestOptions) {
-  routes = require('../../../lib/routes/support')(
-    log,
-    db,
-    config,
-    customs,
-    zendeskClient
-  );
+  routes = supportRoutes(log, db, config, customs, zendeskClient);
   route = getRoute(routes, routePath, requestOptions.method || 'GET');
   request = mocks.mockRequest(requestOptions);
   request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
@@ -182,13 +177,7 @@ describe('support', () => {
   describe('with config.subscriptions.enabled = false', () => {
     it('should not set up any routes', async () => {
       config.subscriptions.enabled = false;
-      routes = require('../../../lib/routes/support')(
-        log,
-        db,
-        config,
-        customs,
-        zendeskClient
-      );
+      routes = supportRoutes(log, db, config, customs, zendeskClient);
       assert.deepEqual(routes, []);
     });
 
@@ -204,7 +193,7 @@ describe('support', () => {
         nock(`https://${SUBDOMAIN}.zendesk.com`)
           .put(`/api/v2/users/${REQUESTER_ID}.json`)
           .reply(200, MOCK_UPDATE_REPLY);
-        const spy = sinon.spy(zendeskClient, 'createRequest');
+        const spy = sinon.spy(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', requestOptions);
         const zendeskReq = spy.firstCall.args[0].request;
         assert.equal(
@@ -254,7 +243,7 @@ describe('support', () => {
         nock(`https://${SUBDOMAIN}.zendesk.com`)
           .put(`/api/v2/users/${REQUESTER_ID}.json`)
           .reply(200, MOCK_UPDATE_REPLY);
-        const spy = sinon.spy(zendeskClient, 'createRequest');
+        const spy = sinon.spy(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', requestOptions);
         const zendeskReq = spy.firstCall.args[0].request;
         assert.equal(

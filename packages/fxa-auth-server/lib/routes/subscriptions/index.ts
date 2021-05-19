@@ -1,18 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import { ServerRoute } from '@hapi/hapi';
+import zendesk from 'node-zendesk';
 
 import { ConfigType } from '../../../config';
 import { StripeHelper } from '../../payments/stripe';
-import { PayPalHelper } from '../../payments/paypal';
 import { AuthLogger } from '../../types';
-import { stripeRoutes, StripeHandler, sanitizePlans } from './stripe';
-import { handleAuth } from './utils';
 import { paypalRoutes } from './paypal';
 import { paypalNotificationRoutes } from './paypal-notifications';
+import { sanitizePlans, StripeHandler, stripeRoutes } from './stripe';
 import { stripeWebhookRoutes } from './stripe-webhook';
+import { handleAuth } from './utils';
+import { supportRoutes } from './support';
 
 const createRoutes = (
   log: AuthLogger,
@@ -22,7 +22,8 @@ const createRoutes = (
   push: any,
   mailer: any,
   profile: any,
-  stripeHelper: StripeHelper
+  stripeHelper: StripeHelper,
+  zendeskClient: zendesk.Client
 ) => {
   const routes: ServerRoute[] = [];
 
@@ -56,6 +57,7 @@ const createRoutes = (
         stripeHelper
       )
     );
+    routes.push(...supportRoutes(log, db, config, customs, zendeskClient));
   }
   if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {
     routes.push(

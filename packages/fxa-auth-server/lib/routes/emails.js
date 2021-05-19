@@ -22,7 +22,7 @@ async function updateZendeskPrimaryEmail(
   currentPrimaryEmail,
   newPrimaryEmail
 ) {
-  const { result: searchResult } = await zendeskClient.searchQueryAll(
+  const searchResult = await zendeskClient.search.queryAll(
     `type:user user_id:${uid}`
   );
   const zenUser = searchResult.find(
@@ -31,9 +31,7 @@ async function updateZendeskPrimaryEmail(
   if (!zenUser) {
     return;
   }
-  const { result: identityResult } = await zendeskClient.listIdentities(
-    zenUser.id
-  );
+  const identityResult = await zendeskClient.useridentities.list(zenUser.id);
   const primaryIdentity = identityResult.find(
     (identity) =>
       identity.type === 'email' &&

@@ -117,6 +117,7 @@
     "@types/mocha": "^8.2.2",
     "@types/nock": "^11.1.0",
     "@types/node": "^14.14.37",
+    "@types/node-zendesk": "^2.0.2",
     "@types/request": "2.48.5",
     "@types/safe-regex": "1.1.2",
     "@types/verror": "^1.10.4",

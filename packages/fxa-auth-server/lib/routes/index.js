@@ -157,9 +157,9 @@ module.exports = function (
     push,
     mailer,
     profile,
-    stripeHelper
+    stripeHelper,
+    zendeskClient
   );
-  const support = require('./support')(log, db, config, customs, zendeskClient);
   const newsletters = require('./newsletters')(log, db);
   const util = require('./util')(log, config, config.smtp.redirectDomain);
 
@@ -186,7 +186,6 @@ module.exports = function (
     util,
     recoveryKey,
     subscriptions,
-    support,
     newsletters
   );
   v1Routes.forEach((r) => {

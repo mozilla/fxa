@@ -1802,42 +1802,42 @@ const conf = convict({
     },
     productNameFieldId: {
       doc: 'Zendesk support ticket custom field for the product name',
-      default: '360022027772',
+      default: 360022027772,
       env: 'ZENDESK_PRODUCT_NAME_FIELD_ID',
-      format: String,
+      format: Number,
     },
     locationCityFieldId: {
       doc: 'Zendesk support ticket custom field for the city of the location',
-      default: '360026463311',
+      default: 360026463311,
       env: 'ZENDESK_LOCATION_CITY_FIELD_ID',
-      format: String,
+      format: Number,
     },
     locationStateFieldId: {
       doc:
         'Zendesk support ticket custom field for the state/region of the location',
-      default: '360026463491',
+      default: 360026463491,
       env: 'ZENDESK_LOCATION_STATE_FIELD_ID',
-      format: String,
+      format: Number,
     },
     locationCountryFieldId: {
       doc:
         'Zendesk support ticket custom field for the country of the location',
-      default: '360026463511',
+      default: 360026463511,
       env: 'ZENDESK_LOCATION_COUNTRY_FIELD_ID',
-      format: String,
+      format: Number,
     },
     topicFieldId: {
       doc: 'Zendesk support ticket custom field for topic',
-      default: '360028484432',
+      default: 360028484432,
       env: 'ZENDESK_TOPIC_FIELD_ID',
-      format: String,
+      format: Number,
     },
     appFieldId: {
       doc:
         'Zendesk support ticket custom field for product specific app or service',
-      default: '360030780972',
+      default: 360030780972,
       env: 'ZENDESK_APP_FIELD_ID',
-      format: String,
+      format: Number,
     },
   },
   otp: {
