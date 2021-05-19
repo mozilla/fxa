@@ -227,7 +227,8 @@ describe('SubscriptionReminders', () => {
       };
       reminder.alreadySentEmail = sandbox.fake.resolves(true);
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
-        subscription
+        subscription,
+        longPlan1.id
       );
       assert.isFalse(result);
       sinon.assert.calledOnceWithExactly(
@@ -249,22 +250,37 @@ describe('SubscriptionReminders', () => {
         },
       };
       reminder.alreadySentEmail = sandbox.fake.resolves(false);
-      const account = { emails: [], locale: 'NZ' };
+      const account = { emails: [], email: 'testo@test.test', locale: 'NZ' };
       reminder.db.account = sandbox.fake.resolves(account);
       mockLog.info = sandbox.fake.returns({});
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.resolves(
-        {}
-      );
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({});
+      mockStripeHelper.findPlanById = sandbox.fake.resolves({
+        amount: longPlan1.amount,
+        currency: longPlan1.currency,
+        interval_count: longPlan1.interval_count,
+        interval: longPlan1.interval,
+      });
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.resolves({});
       reminder.updateSentEmail = sandbox.fake.resolves({});
       const realDateNow = Date.now.bind(global.Date);
       Date.now = sinon.fake(() => MOCK_DATETIME_MS);
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
-        subscription
+        subscription,
+        longPlan1.id
       );
       assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
         reminder.db.account,
         subscription.customer.metadata.userid
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.formatSubscriptionForEmail,
+        subscription
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.findPlanById,
+        longPlan1.id
       );
       sinon.assert.calledOnceWithExactly(
         mockLog.info,
@@ -283,6 +299,14 @@ describe('SubscriptionReminders', () => {
         account,
         {
           acceptLanguage: account.locale,
+          uid: 'uid',
+          email: 'testo@test.test',
+          subscription: {},
+          reminderLength: 14,
+          planIntervalCount: 1,
+          planInterval: 'month',
+          invoiceTotalInCents: 499,
+          invoiceTotalCurrency: 'usd',
         }
       );
       sinon.assert.calledOnceWithExactly(
@@ -304,20 +328,35 @@ describe('SubscriptionReminders', () => {
       reminder.alreadySentEmail = sandbox.fake.resolves(false);
       reminder.db.account = sandbox.fake.resolves({});
       reminder.updateSentEmail = sandbox.fake.resolves({});
+      mockStripeHelper.formatSubscriptionForEmail = sandbox.fake.resolves({});
+      mockStripeHelper.findPlanById = sandbox.fake.resolves({
+        amount: longPlan1.amount,
+        currency: longPlan1.currency,
+        interval_count: longPlan1.interval_count,
+        interval: longPlan1.interval,
+      });
       mockLog.info = sandbox.fake.returns({});
       mockLog.error = sandbox.fake.returns({});
       const errMessage = 'Something went wrong.';
       const throwErr = new Error(errMessage);
-      reminder.mailer.sendSubscriptionRenewalReminderEmail = sandbox.fake.rejects(
-        throwErr
-      );
+      reminder.mailer.sendSubscriptionRenewalReminderEmail =
+        sandbox.fake.rejects(throwErr);
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
-        subscription
+        subscription,
+        longPlan1.id
       );
       assert.isFalse(result);
       sinon.assert.calledOnceWithExactly(
         reminder.db.account,
         subscription.customer.metadata.userid
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.formatSubscriptionForEmail,
+        subscription
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.findPlanById,
+        longPlan1.id
       );
       sinon.assert.calledOnceWithExactly(
         mockLog.error,

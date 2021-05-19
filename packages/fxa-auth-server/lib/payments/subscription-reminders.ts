@@ -94,7 +94,8 @@ export class SubscriptionReminders {
    * Send out a renewal reminder email if we haven't already sent one.
    */
   async sendSubscriptionRenewalReminderEmail(
-    subscription: Stripe.Subscription
+    subscription: Stripe.Subscription,
+    planId: string
   ): Promise<Boolean> {
     const { customer } = subscription;
     if (typeof customer === 'string' || customer?.deleted) {
@@ -132,11 +133,25 @@ export class SubscriptionReminders {
         currentPeriodEnd: subscription.current_period_end,
         currentDateMs: Date.now(),
       });
+      const { email } = account;
+      const formattedSubscription =
+        await this.stripeHelper.formatSubscriptionForEmail(subscription);
+      const { amount, currency, interval_count, interval } =
+        await this.stripeHelper.findPlanById(planId);
       await this.mailer.sendSubscriptionRenewalReminderEmail(
         account.emails,
         account,
         {
+          uid,
+          email,
           acceptLanguage: account.locale,
+          subscription: formattedSubscription,
+          reminderLength: this.reminderDuration.as('days'),
+          planIntervalCount: interval_count,
+          planInterval: interval,
+          // Using invoice prefix instead of plan to accomodate `yarn write-emails`.
+          invoiceTotalInCents: amount,
+          invoiceTotalCurrency: currency,
         }
       );
       await this.updateSentEmail(uid, emailParams);
@@ -177,7 +192,10 @@ export class SubscriptionReminders {
         }
       )) {
         try {
-          await this.sendSubscriptionRenewalReminderEmail(subscription);
+          await this.sendSubscriptionRenewalReminderEmail(
+            subscription,
+            plan_id
+          );
         } catch (err) {
           this.log.error('sendSubscriptionRenewalReminderEmail', {
             err,
