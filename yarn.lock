@@ -7048,6 +7048,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node-zendesk@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@types/node-zendesk@npm:2.0.2"
+  dependencies:
+    "@types/node": "*"
+  checksum: 483e82034b2c32957252f5816fcfafb3c6e372718fdb3da69bef6929954b0204d46af609fb1f82df693dc55ea5cec596fce8ec502f70773a86a3cc1ee5df196b
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^14.14.5":
   version: 14.14.5
   resolution: "@types/node@npm:14.14.5"
@@ -18249,6 +18258,7 @@ fsevents@~2.1.1:
     "@types/mocha": ^8.2.2
     "@types/nock": ^11.1.0
     "@types/node": ^14.14.37
+    "@types/node-zendesk": ^2.0.2
     "@types/request": 2.48.5
     "@types/safe-regex": 1.1.2
     "@types/verror": ^1.10.4

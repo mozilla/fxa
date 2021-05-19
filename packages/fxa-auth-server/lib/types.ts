@@ -26,6 +26,11 @@ export interface AuthLogger extends Logger {
 
 export interface AuthApp extends RequestApplicationState {
   devices: Promise<any>;
+  locale: String;
+  geo: {
+    location: { city: string; state: string; country: string };
+    [key: string]: any;
+  };
 }
 
 export interface AuthRequest extends Request {

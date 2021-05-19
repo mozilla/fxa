@@ -215,8 +215,8 @@ describe('update zendesk primary email', () => {
       },
     };
     zendeskClient = require('../../../lib/zendesk-client')(config);
-    searchSpy = sinon.spy(zendeskClient, 'searchQueryAll');
-    listSpy = sinon.spy(zendeskClient, 'listIdentities');
+    searchSpy = sinon.spy(zendeskClient.search, 'queryAll');
+    listSpy = sinon.spy(zendeskClient.useridentities, 'list');
     updateSpy = sinon.spy(zendeskClient, 'updateIdentity');
   });
 
