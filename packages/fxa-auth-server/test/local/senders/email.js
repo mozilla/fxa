@@ -351,12 +351,12 @@ const TESTS = [
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-payment-failed', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-failed', 'subscription-terms') },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
-      { test: 'include', expected: `you’ll lose access to ${MESSAGE.productName}.` },
+      { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
-      { test: 'include', expected: `you’ll lose access to ${MESSAGE.productName}.` },
+      { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
