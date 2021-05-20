@@ -1,3 +1,9 @@
+## 1.206.1
+
+### Bug fixes
+
+- auth: fixed email_notifications startup ([a1dcfa7ed](https://github.com/mozilla/fxa/commit/a1dcfa7ed))
+
 ## 1.206.0
 
 ### New features

@@ -1,3 +1,7 @@
+## 1.206.1
+
+No changes.
+
 ## 1.206.0
 
 ### Other changes
@@ -9,7 +13,7 @@
 - deps: update typescript to v4 ([2e9ff2e14](https://github.com/mozilla/fxa/commit/2e9ff2e14))
 - deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
 - deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
-- deps: update @nestjs/* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
+- deps: update @nestjs/\* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
 - deps: bump apollo-server from 2.19.2 to 2.23.0 ([e257f75ac](https://github.com/mozilla/fxa/commit/e257f75ac))
 
 ## 1.205.0

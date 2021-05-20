@@ -1,5 +1,9 @@
 # Change history
 
+## 1.206.1
+
+No changes.
+
 ## 1.206.0
 
 ### Other changes
@@ -11,7 +15,7 @@
 - deps: update react-scripts to v4 ([477eddca4](https://github.com/mozilla/fxa/commit/477eddca4))
 - deps: bump hbs from 4.1.1 to 4.1.2 ([723e83138](https://github.com/mozilla/fxa/commit/723e83138))
 - deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
-- deps: update @nestjs/* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
+- deps: update @nestjs/\* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
 
 ## 1.205.0
 

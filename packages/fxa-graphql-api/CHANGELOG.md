@@ -1,3 +1,7 @@
+## 1.206.1
+
+No changes.
+
 ## 1.206.0
 
 ### Other changes
@@ -14,7 +18,7 @@
 - deps-dev: bump @types/ioredis from 4.26.0 to 4.26.1 ([3333766f6](https://github.com/mozilla/fxa/commit/3333766f6))
 - deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
 - deps: bump apollo-datasource from 0.8.0 to 0.9.0 ([5e5156313](https://github.com/mozilla/fxa/commit/5e5156313))
-- deps: update @nestjs/* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
+- deps: update @nestjs/\* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
 - deps: bump apollo-server from 2.19.2 to 2.23.0 ([e257f75ac](https://github.com/mozilla/fxa/commit/e257f75ac))
 
 ## 1.205.0
