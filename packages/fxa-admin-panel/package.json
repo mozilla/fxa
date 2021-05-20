@@ -15,9 +15,9 @@
     "start": "tsc --build ../fxa-react && npm run build-postcss && pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "storybook": "npm run build-postcss && start-storybook -p 6009",
-    "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=true rescripts test --coverage --verbose",
+    "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose",
     "test:server": "jest --coverage --verbose --config server/jest.config.js",
-    "test": "npm-run-all test:frontend test:server"
+    "test": "CI=true npm-run-all test:frontend test:server"
   },
   "eslintConfig": {
     "extends": [
@@ -39,6 +39,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.16",
+    "@emotion/react": "^11.1.5",
+    "@material-ui/core": "v5.0.0-alpha.24",
     "body-parser": "^1.19.0",
     "convict": "^6.0.1",
     "convict-format-with-moment": "^6.0.1",

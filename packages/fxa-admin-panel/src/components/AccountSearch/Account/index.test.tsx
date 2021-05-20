@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, fireEvent, act } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import { MockedProvider } from '@apollo/client/testing';
 import '@testing-library/jest-dom/extend-expect';
 import { Account } from './index';
 
@@ -49,16 +50,25 @@ let accountResponse = {
       lastAccessTime: 1589467100316,
     },
   ],
+  securityEvents: [],
 };
 
 it('renders without imploding', () => {
-  const { getByTestId } = render(<Account {...accountResponse} />);
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
 
   expect(getByTestId('account-section')).toBeInTheDocument();
 });
 
 it('displays the account', async () => {
-  const { getByTestId } = render(<Account {...accountResponse} />);
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
 
   expect(getByTestId('account-section')).toBeInTheDocument();
   expect(getByTestId('verified-status')).toHaveTextContent('verified');
@@ -73,26 +83,42 @@ it('displays the account', async () => {
 
 it('displays the unverified account', async () => {
   accountResponse.emails[0].isVerified = false;
-  const { getByTestId } = render(<Account {...accountResponse} />);
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
   expect(getByTestId('verified-status')).toHaveTextContent('not verified');
 });
 
 it('displays the totp status', async () => {
-  const { getByTestId } = render(<Account {...accountResponse} />);
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
   expect(getByTestId('totp-created-at')).toBeInTheDocument();
   expect(getByTestId('totp-verified')).toBeInTheDocument();
   expect(getByTestId('totp-enabled')).toBeInTheDocument();
 });
 
 it('displays the recovery key status', async () => {
-  const { getByTestId } = render(<Account {...accountResponse} />);
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
   expect(getByTestId('recovery-keys-created-at')).toBeInTheDocument();
   expect(getByTestId('recovery-keys-verified')).toBeInTheDocument();
   expect(getByTestId('recovery-keys-enabled')).toBeInTheDocument();
 });
 
 it('displays the session token status', async () => {
-  const { getByTestId } = render(<Account {...accountResponse} />);
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
   expect(getByTestId('session-token-accessed-at')).toBeInTheDocument();
   expect(getByTestId('session-token-browser')).toBeInTheDocument();
   expect(getByTestId('session-token-operating-system')).toBeInTheDocument();
@@ -107,7 +133,11 @@ it('displays secondary emails', async () => {
     createdAt: 1589467100316,
   });
 
-  const { getByTestId } = render(<Account {...accountResponse} />);
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...accountResponse} />
+    </MockedProvider>
+  );
 
   expect(getByTestId('secondary-section')).toBeInTheDocument();
   expect(getByTestId('secondary-email')).toHaveTextContent(

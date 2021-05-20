@@ -2,7 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { UseGuards } from '@nestjs/common';
-import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
+import {
+  Args,
+  Mutation,
+  Query,
+  ResolveField,
+  Resolver,
+  Root,
+} from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { CurrentUser } from '../../auth/auth-header.decorator';
@@ -22,7 +29,15 @@ const EMAIL_COLUMNS = [
   'isVerified',
   'normalizedEmail',
   'uid',
-  'verifiedAt',
+];
+
+const SECURITY_EVENTS_COLUMNS = [
+  'uid',
+  'nameId',
+  'verified',
+  'ipAddrHmac',
+  'createdAt',
+  'tokenVerificationId',
 ];
 const TOTP_COLUMNS = [
   'uid',
@@ -104,6 +119,22 @@ export class AccountResolver {
       .limit(10);
   }
 
+  // unverifies the user's email. will have to verify again on next login
+  @Mutation((returns) => Boolean)
+  public async unverifyEmail(
+    @Args('email') email: string,
+    @CurrentUser() user: string
+  ) {
+    const result = await this.db.emails
+      .query()
+      .where('email', email)
+      .update({
+        isVerified: false,
+        verifiedAt: null as any, // same as null
+      });
+    return !!result;
+  }
+
   @ResolveField()
   public async emailBounces(@Root() account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
@@ -127,6 +158,22 @@ export class AccountResolver {
       .query()
       .select(EMAIL_COLUMNS)
       .where('uid', uidBuffer);
+  }
+
+  @ResolveField()
+  public async securityEvents(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await this.db.securityEvents
+      .query()
+      .select(...SECURITY_EVENTS_COLUMNS, 'securityEventNames.name as name')
+      .join(
+        'securityEventNames',
+        'securityEvents.nameId',
+        'securityEventNames.id'
+      )
+      .where('uid', uidBuffer)
+      .limit(10)
+      .orderBy('createdAt', 'DESC');
   }
 
   @ResolveField()

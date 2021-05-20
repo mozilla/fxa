@@ -7,6 +7,14 @@ import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+
 type AccountProps = {
   uid: string;
   createdAt: number;
@@ -17,6 +25,7 @@ type AccountProps = {
   sessionTokens: SessionTokensProps[];
   onCleared: Function;
   query: string;
+  securityEvents: SecurityEventsProps[];
 };
 
 type EmailBounceProps = {
@@ -31,6 +40,16 @@ type EmailProps = {
   isVerified: boolean;
   isPrimary: boolean;
   createdAt: number;
+};
+
+type SecurityEventsProps = {
+  uid: string;
+  nameId: number;
+  verified: boolean;
+  ipAddrHmac: string;
+  createdAt: number;
+  tokenVerificationId: string;
+  name: string;
 };
 
 type TotpProps = {
@@ -56,6 +75,11 @@ type SessionTokensProps = {
   uaOSVersion: string;
   uaDeviceType: string;
   lastAccessTime: number;
+};
+
+type DangerZoneProps = {
+  email: EmailProps;
+  onCleared: Function;
 };
 
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
@@ -94,11 +118,36 @@ export const ClearButton = ({
   );
 };
 
-export const DangerZone = () => {
-  const alertWindow = () => {
-    window.alert('Implementation coming soon.');
-    return;
+// gql mutation to update emails table and unverify user's email
+export const UNVERIFY_EMAIL = gql`
+  mutation unverify($email: String!) {
+    unverifyEmail(email: $email)
+  }
+`;
+
+export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
+  const [unverify, { loading: unverifyLoading }] = useMutation(UNVERIFY_EMAIL, {
+    onCompleted: () => {
+      window.alert("The user's email has been unverified.");
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error in unverifying email');
+    },
+  });
+
+  const handleUnverify = () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    unverify({ variables: { email: email.email } });
   };
+
+  // define loading messages
+  const loadingMessage = 'Please wait a moment...';
+  let unverifyMessage = '';
+
+  if (unverifyLoading) unverifyMessage = loadingMessage;
 
   return (
     <li>
@@ -107,33 +156,15 @@ export const DangerZone = () => {
         Please run these commands with caution — some actions are irreversible.
       </p>
       <br />
-      <h2>Permanently Delete Account</h2>
+      <h2>Toggle Email Verification</h2>
       <p className="danger-zone-info">
-        Once you delete an account, there is no going back. Please be certain.
+        Reset email verification. User needs to re-verify on next login.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
-          Delete Account
+        <button className="danger-zone-button" onClick={handleUnverify}>
+          Unverify Email
         </button>
-      </p>
-      <h2>Lock or Unlock Account</h2>
-      <p className="danger-zone-info">
-        Locking this account will disable the user from logging in. Unlocking
-        will toggle this state.
         <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
-          Lock Account
-        </button>
-        <button className="danger-zone-button" onClick={alertWindow}>
-          Unlock Account
-        </button>
-      </p>
-      <h2>Force Password Change</h2>
-      <p className="danger-zone-info">
-        Force a password change the next time this account logs in.
-        <br />
-        <button className="danger-zone-button" onClick={alertWindow}>
-          Force Change
-        </button>
+        {unverifyMessage}
       </p>
     </li>
   );
@@ -149,6 +180,7 @@ export const Account = ({
   sessionTokens,
   onCleared,
   query,
+  securityEvents,
 }: AccountProps) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   const primaryEmail = emails.find((email) => email.isPrimary)!;
@@ -288,7 +320,7 @@ export const Account = ({
         )}
         <li></li>
         <br />
-        
+
         <li>
           <h3>Current Session</h3>
         </li>
@@ -309,7 +341,57 @@ export const Account = ({
         <li></li>
         <br />
         <hr />
-        <DangerZone />
+        <li>
+          <h4>Account History</h4>
+          <div className="account-history-info">
+            {securityEvents.length > 0 ? (
+              <>
+                <TableContainer component={Paper}>
+                  <Table
+                    className="account-history-table"
+                    aria-label="simple table"
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Event</TableCell>
+                        <TableCell>Timestamp</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {securityEvents.map(
+                        (securityEvents: SecurityEventsProps) => (
+                          <TableRow>
+                            <TableCell>{securityEvents.name}</TableCell>
+                            <TableCell>
+                              {dateFormat(
+                                new Date(securityEvents.createdAt),
+                                DATE_FORMAT
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>
+            ) : (
+              <div
+                data-testid="acccount-security-events"
+                className="security-events"
+              >
+                No account history to display.
+              </div>
+            )}
+          </div>
+        </li>
+        <hr />
+        <DangerZone
+          {...{
+            email: primaryEmail, // only the primary for now
+            onCleared: onCleared,
+          }}
+        />
       </ul>
     </section>
   );
