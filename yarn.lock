@@ -2678,15 +2678,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/firestore@npm:^4.9.8":
-  version: 4.9.8
-  resolution: "@google-cloud/firestore@npm:4.9.8"
+"@google-cloud/firestore@npm:^4.11.1":
+  version: 4.11.1
+  resolution: "@google-cloud/firestore@npm:4.11.1"
   dependencies:
     fast-deep-equal: ^3.1.1
     functional-red-black-tree: ^1.0.1
-    google-gax: ^2.9.2
+    google-gax: ^2.12.0
     protobufjs: ^6.8.6
-  checksum: 871fb8dce6367fbbdbce8e6bed2e3dadac5b1ec14078ebd34aa6409a2bc8d2fbc43a5d13893be68de787ebfb3accb9db47ac0aba66e363bf8d46e33e4aeba7a4
+  checksum: 95480336be47338bfb95c8d2e8ba4596bdd07a2933c6dedd8847488f834ce73432f5936513217aa546b1e4e17bfcadf300be0caba060b1ff02b2b0b61bfaeceb
   languageName: node
   linkType: hard
 
@@ -3103,7 +3103,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grpc/grpc-js@npm:^1.1.3, @grpc/grpc-js@npm:~1.1.1":
+"@grpc/grpc-js@npm:^1.1.3":
   version: 1.1.3
   resolution: "@grpc/grpc-js@npm:1.1.3"
   dependencies:
@@ -3118,16 +3118,6 @@ __metadata:
   dependencies:
     "@types/node": ">=12.12.47"
   checksum: ce34d5ce9f26bfb4fd907a7b0737f7f5051d1a1c89f62bba76df99ca02111bd46d1580f3304c64a4ae548c55b6318791743458bfb9df479173d63b5f71be8516
-  languageName: node
-  linkType: hard
-
-"@grpc/proto-loader@npm:^0.5.1":
-  version: 0.5.4
-  resolution: "@grpc/proto-loader@npm:0.5.4"
-  dependencies:
-    lodash.camelcase: ^4.3.0
-    protobufjs: ^6.8.6
-  checksum: 4ffe06d4039c3d2e0cb23c867b377cb3e85d5a8874b364d2141337ed817b0879169ec6df60e995206523925148c981134d2e06114f0befe3c48da0024fa79fbb
   languageName: node
   linkType: hard
 
@@ -18236,7 +18226,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-auth-server@workspace:packages/fxa-auth-server"
   dependencies:
-    "@google-cloud/firestore": ^4.9.8
+    "@google-cloud/firestore": ^4.11.1
     "@hapi/hapi": ^20.1.3
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.1.0
@@ -18605,7 +18595,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
-    "@google-cloud/firestore": ^4.9.8
+    "@google-cloud/firestore": ^4.11.1
     "@google-cloud/pubsub": ^2.12.0
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.0.4
@@ -19887,23 +19877,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^6.1.3":
-  version: 6.1.3
-  resolution: "google-auth-library@npm:6.1.3"
-  dependencies:
-    arrify: ^2.0.0
-    base64-js: ^1.3.0
-    ecdsa-sig-formatter: ^1.0.11
-    fast-text-encoding: ^1.0.0
-    gaxios: ^4.0.0
-    gcp-metadata: ^4.2.0
-    gtoken: ^5.0.4
-    jws: ^4.0.0
-    lru-cache: ^6.0.0
-  checksum: ddf028986085c15f705cfe45b49c298c168243f4c3d3af4ad725be35105b4c0e5d6e66c3277bb82e296f608f8034621a8c30e791846e68b699ddc011f8a66016
-  languageName: node
-  linkType: hard
-
 "google-auth-library@npm:^7.0.0, google-auth-library@npm:^7.0.2":
   version: 7.0.2
   resolution: "google-auth-library@npm:7.0.2"
@@ -19940,26 +19913,6 @@ fsevents@~2.1.1:
   bin:
     compileProtos: build/tools/compileProtos.js
   checksum: 3ad0c1b5150987ce598f910aec258dffb5b4201c9237b55f41cf910c6ee3d53db9ce9859107b24f778046709dbd57508c047fddb6f3c3796e59bb927b36ca03f
-  languageName: node
-  linkType: hard
-
-"google-gax@npm:^2.9.2":
-  version: 2.9.2
-  resolution: "google-gax@npm:2.9.2"
-  dependencies:
-    "@grpc/grpc-js": ~1.1.1
-    "@grpc/proto-loader": ^0.5.1
-    "@types/long": ^4.0.0
-    abort-controller: ^3.0.0
-    duplexify: ^4.0.0
-    google-auth-library: ^6.1.3
-    is-stream-ended: ^0.1.4
-    node-fetch: ^2.6.1
-    protobufjs: ^6.9.0
-    retry-request: ^4.0.0
-  bin:
-    compileProtos: build/tools/compileProtos.js
-  checksum: a167e9d18f2a4cdd81312ce65380a32ab703b27ee1e4264c9a77e576049aec81c3ea760c5d7bf929e4d87418f6e3587830b0462f70b3e591b5bcfd65964bfee0
   languageName: node
   linkType: hard
 
@@ -30358,7 +30311,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:^6.8.6, protobufjs@npm:^6.9.0":
+"protobufjs@npm:^6.8.6":
   version: 6.9.0
   resolution: "protobufjs@npm:6.9.0"
   dependencies:
