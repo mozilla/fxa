@@ -6807,14 +6807,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsdom@npm:^12.2.4":
-  version: 12.2.4
-  resolution: "@types/jsdom@npm:12.2.4"
+"@types/jsdom@npm:^16.2.10":
+  version: 16.2.10
+  resolution: "@types/jsdom@npm:16.2.10"
   dependencies:
     "@types/node": "*"
+    "@types/parse5": "*"
     "@types/tough-cookie": "*"
-    parse5: ^4.0.0
-  checksum: a58c47244a3087ebb1c60bb5be832e50e6008bbc61b9b652b6f73e0c00b01728ed5aa2ab5f11873bb8a516ee0ed6e116192dc6aeef3b43562d5b72f407eec94d
+  checksum: 9e39f1d2d00e7373222da490a78f11e66a8ea19e3b08ed9b223bcd8da0ce6eb15aabd670d36996a727291d4a917366a8340353a5adef83b4c714fed6e61e786f
   languageName: node
   linkType: hard
 
@@ -7098,6 +7098,13 @@ __metadata:
   version: 4.0.0
   resolution: "@types/parse-json@npm:4.0.0"
   checksum: 4a8f720afac47b474d3f2eece312340e72bc31bc9561cda37b596ce2ed218c0099765d302625bb67d659a8452a1f93d514f4863c11c7ebaf65430428687dc426
+  languageName: node
+  linkType: hard
+
+"@types/parse5@npm:*":
+  version: 6.0.0
+  resolution: "@types/parse5@npm:6.0.0"
+  checksum: 356652dc0b341dcc8f93c4b4b59e163efe9b4ccc993e15aa9d96b7b96776eef629939d6c597d79c0abb8adcee9068f590e4bb1102deb770b993d37a24fdac8b8
   languageName: node
   linkType: hard
 
@@ -18072,7 +18079,7 @@ fsevents@~2.1.1:
     "@types/express": ^4.17.2
     "@types/helmet": 4.0.0
     "@types/jest": ^26.0.23
-    "@types/jsdom": ^12.2.4
+    "@types/jsdom": ^16.2.10
     "@types/on-headers": ^1.0.0
     "@types/react": ^16.9.53
     "@types/react-router-dom": ^5.1.7
@@ -18861,7 +18868,7 @@ fsevents@~2.1.1:
     "@types/accept-language-parser": ^1.5.1
     "@types/classnames": ^2.3.1
     "@types/jest": ^26.0.23
-    "@types/jsdom": ^12.2.4
+    "@types/jsdom": ^16.2.10
     "@types/nock": ^11.1.0
     "@types/node": ^14.14.37
     "@types/react": ^16.9.53
@@ -28332,13 +28339,6 @@ fsevents@~2.1.1:
   version: 6.0.1
   resolution: "parse5@npm:6.0.1"
   checksum: e312014edd76a6dc2eac35248ad53477b2594a7b92b7a00f66169483bb87c3d1d36660daddeb720457418dfe0893eb3ad1043085047fc3699167afa6834cb4c4
-  languageName: node
-  linkType: hard
-
-"parse5@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "parse5@npm:4.0.0"
-  checksum: 05a06f5bb3e67eede77d5bef314229e23f98e607d10e76c1c1f650bc9831e3e8407c2fe297ee66a7b055e46a9a479bbb68bd0e7de89a640e76ef20dced1cd0c9
   languageName: node
   linkType: hard
 
