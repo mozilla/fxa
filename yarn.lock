@@ -2368,13 +2368,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cto.af/textdecoder@npm:^0.0.0":
-  version: 0.0.0
-  resolution: "@cto.af/textdecoder@npm:0.0.0"
-  checksum: 142ee0a5ecd41dba1405973bbdcb4e1e18cb21051364e7ac56d66b50597057b7bf00ec25d7da908ace73902b1d39cf3221f5f6b76d85b0aebbbb229f32af1f8b
-  languageName: node
-  linkType: hard
-
 "@dannycoates/elliptic@npm:^6.4.2":
   version: 6.4.2
   resolution: "@dannycoates/elliptic@npm:6.4.2"
@@ -6233,15 +6226,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/cbor@npm:5.0.1":
-  version: 5.0.1
-  resolution: "@types/cbor@npm:5.0.1"
-  dependencies:
-    "@types/node": "*"
-  checksum: 9ccf1b32db8bdaff445489a95a596584a28c38ef5460595e9b2655c9724e43bf83ec1f6e75904c115530ff00b5e138b1bca516c672e32970eedf8654c00ec9c7
-  languageName: node
-  linkType: hard
-
 "@types/chai@npm:*, @types/chai@npm:^4.2.11, @types/chai@npm:^4.2.4":
   version: 4.2.12
   resolution: "@types/chai@npm:4.2.12"
@@ -6848,13 +6832,6 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: f66ee4a12584a699a6dba5daa79d0f87ae77950a332f918c7f485b6d33501be84547fcac992d7f5a8960d04f77f206b118d9a558d8dd49f1aea99c64a17182b0
-  languageName: node
-  linkType: hard
-
-"@types/jsrsasign@npm:8.0.12":
-  version: 8.0.12
-  resolution: "@types/jsrsasign@npm:8.0.12"
-  checksum: 0a98d4750a712c4c25fedceac9bdf8d7ec79de4efbf45efa955fbd20b7449515c8e933b911a0f6f9d2b29fb05d3377e8ba0beb50aa988da81eb3e76d1ef0aa44
   languageName: node
   linkType: hard
 
@@ -12268,21 +12245,6 @@ __metadata:
   version: 0.12.0
   resolution: "caseless@npm:0.12.0"
   checksum: 147f48bff9bebf029d7050e2335da3f8d295f26d157edf08d8c3282c804dae04a462c4cd6efa8179755686aa3aeaca5c28f3e7f3559698bc0484c65e46c36c5b
-  languageName: node
-  linkType: hard
-
-"cbor@npm:^7.0.5":
-  version: 7.0.5
-  resolution: "cbor@npm:7.0.5"
-  dependencies:
-    "@cto.af/textdecoder": ^0.0.0
-    nofilter: ^2.0.3
-  peerDependencies:
-    bignumber.js: ^9.0.1
-  peerDependenciesMeta:
-    bignumber.js:
-      optional: true
-  checksum: e9c4f36ad912cbf2ad53db39058c7b7a6e34c340f98ef34f7ceea14ec01aacb3c633b1410e332cd4ec1d544f4460aed4c50165e04cddda1b23ccd29eea858e78
   languageName: node
   linkType: hard
 
@@ -18230,14 +18192,12 @@ fsevents@~2.1.1:
     "@sentry/node": ^6.0.1
     "@type-cacheable/core": ^5.2.0
     "@type-cacheable/ioredis-adapter": ^5.2.0
-    "@types/cbor": 5.0.1
     "@types/chai": ^4.2.4
     "@types/convict": ^5.2.2
     "@types/hapi__hapi": ^19.0.3
     "@types/ioredis": ^4.26.4
     "@types/joi": ^14.3.3
     "@types/jsonwebtoken": ^8.5.1
-    "@types/jsrsasign": 8.0.12
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
     "@types/memcached": ^2.2.6
@@ -18257,7 +18217,6 @@ fsevents@~2.1.1:
     bluebird: ^3.7.2
     buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
-    cbor: ^7.0.5
     chai: ^4.3.4
     cldr-core: ^38.1.0
     cldr-localenames-full: 39.0.0
@@ -18287,7 +18246,6 @@ fsevents@~2.1.1:
     ioredis: ^4.27.2
     jed: 0.5.4
     jsonwebtoken: ^8.4.0
-    jsrsasign: ^10.2.0
     jsxgettext-recursive-next: 1.1.0
     jws: 4.0.0
     keypair: 1.0.3
@@ -24147,13 +24105,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jsrsasign@npm:^10.2.0":
-  version: 10.2.0
-  resolution: "jsrsasign@npm:10.2.0"
-  checksum: 6c2979870850e9d79cb5ac74a2fdf96331586edc69e9881d0e00e530e3872eb129a38b6efa1ec88970366b4bc88d067a160a6a62f56bdd91b01d358ef6a3d96a
-  languageName: node
-  linkType: hard
-
 "jss-plugin-camel-case@npm:^10.0.3":
   version: 10.5.1
   resolution: "jss-plugin-camel-case@npm:10.5.1"
@@ -27063,15 +27014,6 @@ fsevents@~2.1.1:
   version: 6.6.0
   resolution: "nodemailer@npm:6.6.0"
   checksum: 2582ed043577ad458f04ad58586eb25d56bae575059049c3c62d25c1db613ffd55195ff0568ee63699c5897a0b20b20609385799eb7b4d1274b8f2a369e478f4
-  languageName: node
-  linkType: hard
-
-"nofilter@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "nofilter@npm:2.0.3"
-  dependencies:
-    "@cto.af/textdecoder": ^0.0.0
-  checksum: a39b197bd827dff349f50ed51232bda4689abb4ea8321e9a7ff152a304b633ee70422d018aa65a53a95632176e5177cb2fa0b32b69a0910782699f7f0076bdb7
   languageName: node
   linkType: hard
 
