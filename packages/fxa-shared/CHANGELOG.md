@@ -1,5 +1,9 @@
 # Change history
 
+## 1.206.1
+
+No changes.
+
 ## 1.206.0
 
 ### Other changes
@@ -16,7 +20,7 @@
 - deps: updated pm2 ([0847e2545](https://github.com/mozilla/fxa/commit/0847e2545))
 - deps: bump aws-sdk from 2.883.0 to 2.896.0 ([a45963d14](https://github.com/mozilla/fxa/commit/a45963d14))
 - settings: remove settings_version from metrics ([367b8eea0](https://github.com/mozilla/fxa/commit/367b8eea0))
-- deps: update @nestjs/* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
+- deps: update @nestjs/\* ([ffa22162f](https://github.com/mozilla/fxa/commit/ffa22162f))
 - deps: bump apollo-server from 2.19.2 to 2.23.0 ([e257f75ac](https://github.com/mozilla/fxa/commit/e257f75ac))
 
 ## 1.205.0
