@@ -18002,6 +18002,8 @@ fsevents@~2.1.1:
     "@apollo/client": ^3.3.16
     "@apollo/react-testing": 3.0.0
     "@babel/core": ^7.10.3
+    "@emotion/react": ^11.1.5
+    "@material-ui/core": v5.0.0-alpha.24
     "@rescripts/cli": 0.0.16
     "@storybook/addon-actions": ^6.2.9
     "@storybook/addon-links": ^6.2.9

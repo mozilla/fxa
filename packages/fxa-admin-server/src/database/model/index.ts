@@ -7,5 +7,14 @@ import { Emails } from './emails.model';
 import { Totp } from './totp.model';
 import { RecoveryKeys } from './recovery-keys.model';
 import { SessionTokens } from './session-tokens.model';
+import { SecurityEvents } from './security-events.model';
 
-export { Account, Emails, EmailBounces, Totp, RecoveryKeys, SessionTokens };
+export {
+  Account,
+  Emails,
+  EmailBounces,
+  Totp,
+  RecoveryKeys,
+  SessionTokens,
+  SecurityEvents,
+};

@@ -13,6 +13,7 @@ import {
   Totp,
   RecoveryKeys,
   SessionTokens,
+  SecurityEvents,
 } from './model';
 
 function typeCasting(field: any, next: any) {
@@ -28,6 +29,7 @@ export class DatabaseService {
   public account: typeof Account;
   public emails: typeof Emails;
   public emailBounces: typeof EmailBounces;
+  public securityEvents: typeof SecurityEvents;
   public totp: typeof Totp;
   public recoveryKeys: typeof RecoveryKeys;
   public sessionTokens: typeof SessionTokens;
@@ -41,6 +43,7 @@ export class DatabaseService {
     this.account = Account.bindKnex(this.knex);
     this.emails = Emails.bindKnex(this.knex);
     this.emailBounces = EmailBounces.bindKnex(this.knex);
+    this.securityEvents = SecurityEvents.bindKnex(this.knex);
     this.totp = Totp.bindKnex(this.knex);
     this.recoveryKeys = RecoveryKeys.bindKnex(this.knex);
     this.sessionTokens = SessionTokens.bindKnex(this.knex);

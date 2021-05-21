@@ -26,6 +26,17 @@ interface AccountType {
       bounceSubType: string;
     }
   ];
+  securityEvents: [
+    {
+      uid: string;
+      nameId: number;
+      verified: boolean;
+      ipAddrHmac: string;
+      createdAt: number;
+      tokenVerificationId: string;
+      name: string;
+    }
+  ];
   totp: [
     {
       verified: boolean;
@@ -73,6 +84,15 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         bounceType
         bounceSubType
       }
+      securityEvents {
+        uid
+        nameId
+        verified
+        ipAddrHmac
+        createdAt
+        tokenVerificationId
+        name
+      }
       totp {
         verified
         createdAt
@@ -117,6 +137,37 @@ export const GET_ACCOUNT_BY_UID = gql`
         bounceType
         bounceSubType
       }
+      securityEvents {
+        uid
+        nameId
+        verified
+        ipAddrHmac
+        createdAt
+        tokenVerificationId
+        name
+      }
+      totp {
+        verified
+        createdAt
+        enabled
+      }
+      recoveryKeys {
+        createdAt
+        verifiedAt
+        enabled
+      }
+      sessionTokens {
+        tokenId
+        tokenData
+        uid
+        createdAt
+        uaBrowser
+        uaBrowserVersion
+        uaOS
+        uaOSVersion
+        uaDeviceType
+        lastAccessTime
+      }
     }
   }
 `;
@@ -135,7 +186,6 @@ export const GET_EMAILS_LIKE = gql`
 `;
 
 export const AccountSearch = () => {
-  const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<boolean>(false);
   const [showSuggestion, setShowSuggestion] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>('');
@@ -171,7 +221,7 @@ export const AccountSearch = () => {
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
+    setSearchInput(event.target.value);
     setShowSuggestion(true);
     onTextChanged(event);
   };
@@ -218,16 +268,18 @@ export const AccountSearch = () => {
     <div className="account-search" data-testid="account-search">
       <h2>Account Search</h2>
       <p>
-        Email addresses are blocked from the FxA email sender when an email sent
-        to the address has bounced.
+        Search for a Firefox user account by email or UID and view its details,
+        including: secondary emails, email bounces, time-based one-time
+        passwords, recovery keys, and current session.
       </p>
       <p>
-        Remove an email address from the blocked list by first searching for an
-        account by email. Brief account information will be displayed as well as
-        email bounces attached to the account. Delete the block on the email by
-        deleting the bounced email data.
+        Email addresses are blocked from the FxA email sender when an email sent
+        to the address has bounced. Remove an email address from the blocked
+        list by first searching for an account by email. Brief account
+        information will be displayed as well as email bounces attached to the
+        account. Delete the block on the email by deleting the bounced email
+        data.
       </p>
-
       <form onSubmit={handleSubmit} data-testid="search-form" className="flex">
         <label htmlFor="email">Email or UID to search for:</label>
         <br />
@@ -238,7 +290,7 @@ export const AccountSearch = () => {
           name="email"
           type="search"
           onChange={handleChange}
-          placeholder="hello@world.com or uid"
+          placeholder="hello@world.com or UID"
           data-testid="email-input"
         />
         <div className="suggestions-list">{renderSuggestions()}</div>
@@ -258,7 +310,7 @@ export const AccountSearch = () => {
               loading: queryResults.loading,
               error: queryResults.error,
               data: queryResults.data,
-              query: inputValue,
+              query: searchInput,
             }}
           />
         </>

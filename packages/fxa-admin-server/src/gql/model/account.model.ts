@@ -5,6 +5,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 import { EmailBounce } from './email-bounces.model';
 import { Email } from './emails.model';
+import { SecurityEvents } from './security-events.model';
 import { Totp } from './totp.model';
 import { RecoveryKeys } from './recovery-keys.model';
 import { SessionTokens } from './session-tokens.model';
@@ -37,4 +38,7 @@ export class Account {
 
   @Field((type) => [SessionTokens], { nullable: true })
   public sessionTokens!: SessionTokens[];
+
+  @Field((type) => [SecurityEvents], { nullable: true })
+  public securityEvents!: SecurityEvents[];
 }
