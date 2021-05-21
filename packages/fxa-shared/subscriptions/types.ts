@@ -107,5 +107,4 @@ export type PaypalPaymentError =
 
 export type SentEmailParams = {
   subscriptionId: string;
-  planId?: string;
 };
