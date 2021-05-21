@@ -6374,13 +6374,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:*, @types/eslint@npm:7.2.10, @types/eslint@npm:^7.2.6":
+"@types/eslint@npm:*, @types/eslint@npm:^7.2.6":
   version: 7.2.10
   resolution: "@types/eslint@npm:7.2.10"
   dependencies:
     "@types/estree": "*"
     "@types/json-schema": "*"
   checksum: d85af4ab456fcf5d243e5a39d192d01ec71e14352b9ec803394ce6ac994fca0b876405dbdc07b97449275aee8285f9570a82117bbfeb132f97e01b8ddc35477a
+  languageName: node
+  linkType: hard
+
+"@types/eslint@npm:7.2.11":
+  version: 7.2.11
+  resolution: "@types/eslint@npm:7.2.11"
+  dependencies:
+    "@types/estree": "*"
+    "@types/json-schema": "*"
+  checksum: d7614357ba6d8d8af9b81d7a23e752482e6e8c88145aeb62b6d871a7b3eee519e47b9e27950bba0ff0f770631a2f985fc5dbc03cad6ac6f798e52a38c75c5e53
   languageName: node
   linkType: hard
 
@@ -18075,7 +18085,7 @@ fsevents@~2.1.1:
     "@types/chance": ^1.1.1
     "@types/convict": ^5.2.2
     "@types/dateformat": ^3.0.1
-    "@types/eslint": 7.2.10
+    "@types/eslint": 7.2.11
     "@types/express": ^4.17.2
     "@types/helmet": 4.0.0
     "@types/jest": ^26.0.23
@@ -19236,7 +19246,7 @@ fsevents@~2.1.1:
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/convict": ^5.2.2
-    "@types/eslint": 7.2.10
+    "@types/eslint": 7.2.11
     "@types/hbs": ^4
     "@types/node": ^14.14.37
     "@types/superagent": 4.1.11
