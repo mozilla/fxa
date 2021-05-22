@@ -6925,6 +6925,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/luxon@npm:^1":
+  version: 1.26.5
+  resolution: "@types/luxon@npm:1.26.5"
+  checksum: d3c6bdac3c7adaa88f91db3699758ad938c7d05ffe12ab2824d0fd1b57d1e9eef6695ca64a7245cc6350c923064280357a27f8581d101201af1b7bbe1e504756
+  languageName: node
+  linkType: hard
+
 "@types/markdown-to-jsx@npm:^6.11.3":
   version: 6.11.3
   resolution: "@types/markdown-to-jsx@npm:6.11.3"
@@ -18202,6 +18209,7 @@ fsevents@~2.1.1:
     "@types/jsonwebtoken": ^8.5.1
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
+    "@types/luxon": ^1
     "@types/memcached": ^2.2.6
     "@types/mocha": ^8.2.2
     "@types/nock": ^11.1.0
@@ -18257,6 +18265,7 @@ fsevents@~2.1.1:
     lodash: ^4.17.19
     lodash.chunk: 4.2.0
     lodash.pick: 4.4.0
+    luxon: ^1.27.0
     mailparser: 0.6.1
     memcached: ^2.2.2
     mkdirp: 0.5.1
@@ -25367,6 +25376,13 @@ fsevents@~2.1.1:
   version: 0.3.3
   resolution: "lru_map@npm:0.3.3"
   checksum: c1d5347da0658d31f9440496c97e87cc67f201f79e46e9f83dd4cf3766cc93f021c6226f900f096d0e357913cad290c7d464ac632e5e124efbdb2af1da08774c
+  languageName: node
+  linkType: hard
+
+"luxon@npm:^1.27.0":
+  version: 1.27.0
+  resolution: "luxon@npm:1.27.0"
+  checksum: c60f73b6b94bdd4e43c731133aa746388b907a26a5a426478c2520b263bec1dae4dc6e269a3410374789551309c65af5d245fae4cef61b72c3ad64a4c3e8b2b9
   languageName: node
   linkType: hard
 

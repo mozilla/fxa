@@ -4,7 +4,6 @@
 import { setupAuthDatabase } from 'fxa-shared/db';
 import { StatsD } from 'hot-shots';
 import Container from 'typedi';
-import { Logger } from 'mozlog';
 
 import error from '../error';
 import { CurrencyHelper } from '../payments/currencies';
@@ -13,9 +12,7 @@ import { configureSentry } from '../sentry';
 
 const config = require('../../config').getProperties();
 
-export type AdditionalSetupFn = ({ log }: { log: Logger }) => void;
-
-export async function initShared(additionalSetupFn?: AdditionalSetupFn) {
+export async function setupProcesingTaskObjects() {
   configureSentry(undefined, config);
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth);
@@ -70,10 +67,6 @@ export async function initShared(additionalSetupFn?: AdditionalSetupFn) {
   Container.set(CurrencyHelper, currencyHelper);
   const stripeHelper = new StripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
-
-  if (additionalSetupFn) {
-    additionalSetupFn({ log });
-  }
 
   return {
     log,

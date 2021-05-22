@@ -4,7 +4,7 @@
 
 import program from 'commander';
 
-import { initShared } from '../lib/payments/processing-tasks-shared';
+import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { SubscriptionReminders } from '../lib/payments/subscription-reminders';
 
 const pckg = require('../package.json');
@@ -28,7 +28,12 @@ async function init() {
     )
     .parse(process.argv);
 
-  const { log, database, senders, stripeHelper } = await initShared();
+  const {
+    log,
+    database,
+    senders,
+    stripeHelper,
+  } = await setupProcesingTaskObjects();
 
   const subscriptionReminders = new SubscriptionReminders(
     log,

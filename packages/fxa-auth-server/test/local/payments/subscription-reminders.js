@@ -7,6 +7,7 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 const { Container } = require('typedi');
+const { DateTime, Duration, Interval } = require('luxon');
 
 const { mockLog } = require('../../mocks');
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
@@ -15,7 +16,6 @@ const { SentEmail } = require('fxa-shared/db/models/auth/sent-email');
 const {
   EMAIL_TYPE,
   SubscriptionReminders,
-  MS_IN_A_DAY,
 } = require('../../../lib/payments/subscription-reminders');
 const longPlan1 = require('./fixtures/stripe/plan1.json');
 const longPlan2 = require('./fixtures/stripe/plan2.json');
@@ -23,9 +23,18 @@ const shortPlan1 = require('./fixtures/stripe/plan3.json');
 const longSubscription1 = require('./fixtures/stripe/subscription1.json'); // sub to plan 1
 const longSubscription2 = require('./fixtures/stripe/subscription2.json'); // sub to plan 2
 const planLength = 30; // days
+const planDuration = Duration.fromObject({ days: planLength });
 const reminderLength = 14; // days
+const reminderDuration = Duration.fromObject({ days: reminderLength });
 
 const sandbox = sinon.createSandbox();
+
+const MOCK_INTERVAL = Interval.fromDateTimes(
+  DateTime.fromMillis(1622073600000),
+  DateTime.fromMillis(1622160000000)
+);
+const MOCK_DATETIME_MS = 1620864742024;
+const S_IN_A_DAY = 24 * 60 * 60;
 
 /**
  * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
@@ -68,10 +77,13 @@ describe('SubscriptionReminders', () => {
   });
 
   describe('constructor', () => {
-    it('sets log, planLength, reminderLength and stripe helper', () => {
+    it('sets log, planDuration, reminderDuration and Stripe helper', () => {
       assert.strictEqual(reminder.log, mockLog);
-      assert.equal(reminder.planLength, planLength);
-      assert.equal(reminder.reminderLength, reminderLength);
+      assert.equal(reminder.planDuration.as('days'), planDuration.as('days'));
+      assert.equal(
+        reminder.reminderDuration.as('days'),
+        reminderDuration.as('days')
+      );
       assert.strictEqual(reminder.stripeHelper, mockStripeHelper);
     });
   });
@@ -118,21 +130,19 @@ describe('SubscriptionReminders', () => {
   });
 
   describe('getStartAndEndTimes', () => {
-    it('returns a startTimeS and endTimeS window of 1 day reminderLength days from "now" in UTC', () => {
-      const realDateNow = Date.now.bind(global.Date);
-      Date.now = sinon.fake(() => 1620864742024);
-      const expected = {
-        startTimeS: 1622073600,
-        endTimeS: 1622160000,
-      };
-      const reminderLengthMs = reminderLength * MS_IN_A_DAY;
-      const actual = reminder.getStartAndEndTimes(reminderLengthMs);
-      assert.deepEqual(actual, expected);
-      assert.equal(
-        (expected.endTimeS - expected.startTimeS) * 1000,
-        MS_IN_A_DAY
+    it('returns a time period of 1 day reminderLength days from "now" in UTC', () => {
+      const realDateTimeUtc = DateTime.utc.bind(DateTime);
+      DateTime.utc = sinon.fake(() =>
+        DateTime.fromMillis(MOCK_DATETIME_MS, { zone: 'utc' })
       );
-      Date.now = realDateNow;
+      const expected = MOCK_INTERVAL;
+      const actual = reminder.getStartAndEndTimes();
+      const actualStartS = actual.start.toSeconds();
+      const actualEndS = actual.end.toSeconds();
+      assert.equal(actualStartS, expected.start.toSeconds());
+      assert.equal(actualEndS, expected.end.toSeconds());
+      assert.equal(actualEndS - actualStartS, S_IN_A_DAY);
+      DateTime.utc = realDateTimeUtc;
     });
   });
 
@@ -185,17 +195,26 @@ describe('SubscriptionReminders', () => {
   });
 
   describe('sendSubscriptionRenewalReminderEmail', () => {
-    it('returns false if customer uid is not provided', async () => {
+    it('logs an error and returns false if customer uid is not provided', async () => {
       const subscription = deepCopy(longSubscription1);
       subscription.customer = {
         metadata: {
           userid: null,
         },
       };
+      mockLog.error = sandbox.fake.returns({});
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription
       );
       assert.isFalse(result);
+      sinon.assert.calledOnceWithExactly(
+        mockLog.error,
+        'sendSubscriptionRenewalReminderEmail',
+        {
+          customer: subscription.customer,
+          subscriptionId: subscription.id,
+        }
+      );
     });
 
     it('returns false if email already sent', async () => {
@@ -238,7 +257,7 @@ describe('SubscriptionReminders', () => {
       );
       reminder.updateSentEmail = sandbox.fake.resolves({});
       const realDateNow = Date.now.bind(global.Date);
-      Date.now = sinon.fake(() => 1620864742024);
+      Date.now = sinon.fake(() => MOCK_DATETIME_MS);
       const result = await reminder.sendSubscriptionRenewalReminderEmail(
         subscription
       );
@@ -315,10 +334,7 @@ describe('SubscriptionReminders', () => {
   describe('sendReminders', () => {
     beforeEach(() => {
       reminder.getEligiblePlans = sandbox.fake.resolves([longPlan1, longPlan2]);
-      reminder.getStartAndEndTimes = sandbox.fake.returns({
-        startTimeS: 1622073600,
-        endTimeS: 1622160000,
-      });
+      reminder.getStartAndEndTimes = sandbox.fake.returns(MOCK_INTERVAL);
       async function* genSubscriptionForPlan1() {
         yield longSubscription1;
       }
@@ -337,10 +353,7 @@ describe('SubscriptionReminders', () => {
       const result = await reminder.sendReminders();
       assert.isTrue(result);
       sinon.assert.calledOnce(reminder.getEligiblePlans);
-      sinon.assert.calledOnceWithExactly(
-        reminder.getStartAndEndTimes,
-        reminderLength * MS_IN_A_DAY
-      );
+      sinon.assert.calledOnceWithExactly(reminder.getStartAndEndTimes);
       // We iterate through each plan, longPlan1 and longPlan2, and there is one
       // subscription, longSubscription1 and longSubscription2 respectively,
       // returned for each plan.

@@ -72,11 +72,6 @@ type BillingAddressOptions = {
   state: string;
 };
 
-export type TimeSpanInS = {
-  startTimeS: number;
-  endTimeS: number;
-};
-
 /**
  * Determine for two product metadata object's whether the new one
  * is a valid upgrade for the old one.
@@ -986,15 +981,12 @@ export class StripeHelper {
    */
   async *findActiveSubscriptionsByPlanId(
     planId: string,
-    timeSpan: TimeSpanInS,
+    currentPeriodEnd: Stripe.RangeQueryParam,
     limit: number = 50
   ) {
     const params: Stripe.SubscriptionListParams = {
       price: planId,
-      current_period_end: {
-        gte: timeSpan.startTimeS,
-        lt: timeSpan.endTimeS,
-      },
+      current_period_end: currentPeriodEnd,
       limit,
       expand: ['data.customer'],
     };

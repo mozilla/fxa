@@ -7,23 +7,11 @@ import Container from 'typedi';
 import { PayPalHelper } from '../lib/payments/paypal';
 import { PayPalClient } from '../lib/payments/paypal-client';
 
-import {
-  AdditionalSetupFn,
-  initShared,
-} from '../lib/payments/processing-tasks-shared';
+import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { PaypalProcessor } from '../lib/payments/paypal-processor';
 
 const pckg = require('../package.json');
 const config = require('../config').getProperties();
-
-const additionalSetup: AdditionalSetupFn = ({ log }) => {
-  const paypalClient = new PayPalClient(
-    config.subscriptions.paypalNvpSigCredentials
-  );
-  Container.set(PayPalClient, paypalClient);
-  const paypalHelper = new PayPalHelper({ log });
-  Container.set(PayPalHelper, paypalHelper);
-};
 
 export async function init() {
   // Load program options
@@ -42,7 +30,14 @@ export async function init() {
     )
     .parse(process.argv);
 
-  const { log, database, senders } = await initShared(additionalSetup);
+  const { log, database, senders } = await setupProcesingTaskObjects();
+
+  const paypalClient = new PayPalClient(
+    config.subscriptions.paypalNvpSigCredentials
+  );
+  Container.set(PayPalClient, paypalClient);
+  const paypalHelper = new PayPalHelper({ log });
+  Container.set(PayPalHelper, paypalHelper);
 
   const processor = new PaypalProcessor(
     log,

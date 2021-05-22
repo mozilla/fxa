@@ -2193,8 +2193,8 @@ describe('StripeHelper', () => {
     const argsHelper = [
       'plan_123',
       {
-        startTimeS: 123,
-        endTimeS: 456,
+        gte: 123,
+        lt: 456,
       },
       25,
     ];
