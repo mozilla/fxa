@@ -24,7 +24,7 @@
   "private": true,
   "dependencies": {
     "client-sessions": "0.8.x",
-    "convict": "^6.0.1",
+    "convict": "^6.1.0",
     "convict-format-with-validator": "^6.0.1",
     "express": "^4.17.1",
     "fxa-jwtool": "^0.7.2",
@@ -35,11 +35,11 @@
   },
   "devDependencies": {
     "audit-filter": "0.5.0",
-    "eslint": "^7.17.0",
+    "eslint": "^7.27.0",
     "eslint-plugin-fxa": "^2.0.2",
     "fxa-shared": "workspace:*",
     "pm2": "^4.5.6",
-    "prettier": "^2.0.5"
+    "prettier": "^2.3.0"
   },
   "scripts": {
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
