@@ -27,7 +27,7 @@
     "@sentry/integrations": "^5.29.1",
     "@sentry/node": "^6.0.1",
     "@types/convict": "^5.2.2",
-    "ajv": "^6.12.2",
+    "ajv": "^8.5.0",
     "convict": "^6.0.1",
     "convict-format-with-moment": "^6.0.1",
     "convict-format-with-validator": "^6.0.1",
