@@ -25,7 +25,7 @@
     "@types/assert": "^1.5.4",
     "@types/fast-text-encoding": "^1",
     "@types/mocha": "^8",
-    "@types/node": "^14.14.37",
+    "@types/node": "^15.6.0",
     "@types/node-fetch": "^2.5.7",
     "asmcrypto.js": "^0.22.0",
     "fast-text-encoding": "^1.0.3",
