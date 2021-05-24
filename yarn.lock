@@ -18950,7 +18950,7 @@ fsevents@~2.1.1:
     prettier: ^2.0.5
     request: ^2.88.2
     rimraf: ^3.0.2
-    sharp: ^0.28.0
+    sharp: ^0.28.2
     sinon: ^9.0.3
     stream-to-array: 2.3.0
     through: 2.3.8
@@ -26729,12 +26729,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-abi@npm:^2.7.0":
-  version: 2.19.1
-  resolution: "node-abi@npm:2.19.1"
+"node-abi@npm:^2.21.0":
+  version: 2.26.0
+  resolution: "node-abi@npm:2.26.0"
   dependencies:
     semver: ^5.4.1
-  checksum: 3dc98098e2fb61068e52f751e6d07d8bba6d042dc1e7986ff182e71c7aba2a86466135e603941ff33525e85a57ee93f44b4ed5498637261ed11000639e2720e7
+  checksum: 29c7ee7486635ab6f49227a74e37cf07560fbc2bed14b8a64a91f831a76da3ed8e7a3b80ebfa07f0e3a3b53287f1b30b736e01809799d71239c47c5249c407bd
   languageName: node
   linkType: hard
 
@@ -29986,9 +29986,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"prebuild-install@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "prebuild-install@npm:6.0.1"
+"prebuild-install@npm:^6.1.2":
+  version: 6.1.2
+  resolution: "prebuild-install@npm:6.1.2"
   dependencies:
     detect-libc: ^1.0.3
     expand-template: ^2.0.3
@@ -29996,7 +29996,7 @@ fsevents@~2.1.1:
     minimist: ^1.2.3
     mkdirp-classic: ^0.5.3
     napi-build-utils: ^1.0.1
-    node-abi: ^2.7.0
+    node-abi: ^2.21.0
     noop-logger: ^0.1.1
     npmlog: ^4.0.1
     pump: ^3.0.0
@@ -30004,10 +30004,9 @@ fsevents@~2.1.1:
     simple-get: ^3.0.3
     tar-fs: ^2.0.0
     tunnel-agent: ^0.6.0
-    which-pm-runs: ^1.0.0
   bin:
-    prebuild-install: bin.js
-  checksum: b23d88a27e4a672f5c59ca69733b27ce3ad133fd58d61e352bc1ccf61b5211b55b793ea8b21a81e63260bb10837c74c3f3cb5cfee47815aeaa729b0991e13751
+    prebuild-install: ./bin.js
+  checksum: 680fe93dc913134022a355da3181dc7e65ea1df16f15d0c956f3fb5327c9ae3d307de9a715bc4c3d9f5fd8044d4b02d368b7ba57e5197baca8f10acf0532f403
   languageName: node
   linkType: hard
 
@@ -33416,20 +33415,20 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.28.0":
-  version: 0.28.0
-  resolution: "sharp@npm:0.28.0"
+"sharp@npm:^0.28.2":
+  version: 0.28.2
+  resolution: "sharp@npm:0.28.2"
   dependencies:
     color: ^3.1.3
     detect-libc: ^1.0.3
     node-addon-api: ^3.1.0
     node-gyp: latest
-    prebuild-install: ^6.0.1
+    prebuild-install: ^6.1.2
     semver: ^7.3.5
     simple-get: ^3.1.0
     tar-fs: ^2.1.1
     tunnel-agent: ^0.6.0
-  checksum: c38ad0db70cb402ba110aef2f75ccea8f629a3c3fa85534f32698db21834aafd7b0d30977455e037cdcd78fbf9085b1b8ef7e9f701b77e6338eb55eea37552c8
+  checksum: 8a89b964c898a2027df51780c46d8a42460e820c9452771fec77c69de4651dd542ffaf093f7d7f1ab32d388a4b8f8e5e9ad76ad687301b997885128006d3e9cf
   languageName: node
   linkType: hard
 
