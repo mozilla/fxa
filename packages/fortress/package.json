@@ -21,7 +21,7 @@
   "private": true,
   "dependencies": {
     "client-sessions": "0.8.x",
-    "ejs": "^3.1.2",
+    "ejs": "^3.1.6",
     "express": "^4.17.1",
     "morgan": "^1.10.0"
   },
