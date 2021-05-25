@@ -7729,12 +7729,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/yargs@npm:^16.0.1":
-  version: 16.0.1
-  resolution: "@types/yargs@npm:16.0.1"
+"@types/yargs@npm:^17.0.0":
+  version: 17.0.0
+  resolution: "@types/yargs@npm:17.0.0"
   dependencies:
     "@types/yargs-parser": "*"
-  checksum: 7b141b6a9efe2da5af054b022f2fbfa3a34d664f1db384babc567b20e9935ac18924c8075780ea22f5e0da4f5714f24dc27b05b6475cd060031648f154183a45
+  checksum: 92ea97fa209768b993d1a06b9f2453161fc7fc3b25211d1235d112bc960e57b180c0b8616eb10c3e89b5d1bc6add255b0b10e550165ee318560bc0531dfe13b3
   languageName: node
   linkType: hard
 
@@ -17959,7 +17959,7 @@ fsevents@~2.1.1:
     "@types/node": ^14.14.37
     "@types/rimraf": 3.0.0
     "@types/supertest": ^2.0.11
-    "@types/yargs": ^16.0.1
+    "@types/yargs": ^17.0.0
     apollo-server: ^2.24.1
     apollo-server-express: ^2.24.1
     audit-filter: ^0.5.0
@@ -18548,7 +18548,7 @@ fsevents@~2.1.1:
     "@types/passport-http-bearer": ^1.0.36
     "@types/superagent": 4.1.11
     "@types/supertest": ^2.0.11
-    "@types/yargs": ^16.0.1
+    "@types/yargs": ^17.0.0
     apollo-datasource: ^0.9.0
     apollo-server: ^2.24.1
     apollo-server-express: ^2.24.1
