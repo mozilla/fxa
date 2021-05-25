@@ -20,7 +20,6 @@ import FormView from './form';
 import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
-import EmailAutocompleteDomainsMixin from './mixins/email-autocomplete-domains-mixin';
 import Template from 'templates/index.mustache';
 import checkEmailDomain from '../lib/email-domain-validator';
 
@@ -262,7 +261,6 @@ Cocktail.mixin(
   IndexView,
   CachedCredentialsMixin,
   CoppaMixin({}),
-  EmailAutocompleteDomainsMixin,
   ExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,
