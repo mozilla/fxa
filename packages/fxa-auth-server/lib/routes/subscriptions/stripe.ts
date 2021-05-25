@@ -256,7 +256,6 @@ export class StripeHandler {
 
   async listPlans(request: AuthRequest) {
     this.log.begin('subscriptions.listPlans', request);
-    await handleAuth(this.db, request.auth);
     const plans = await this.stripeHelper.allPlans();
     return sanitizePlans(plans);
   }
@@ -856,10 +855,6 @@ export const stripeRoutes = (
       method: 'GET',
       path: '/oauth/subscriptions/plans',
       options: {
-        auth: {
-          payload: false,
-          strategy: 'oauthToken',
-        },
         response: {
           schema: isA.array().items(validators.subscriptionsPlanValidator),
         },

@@ -1222,33 +1222,14 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('listPlans', () => {
-    it('returns the available plans when auth headers are valid', async () => {
+    it('returns the available plans without auth headers present', async () => {
       const expected = sanitizePlans(PLANS);
+      const request = {};
 
       directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
-      const actual = await directStripeRoutesInstance.listPlans(VALID_REQUEST);
+      const actual = await directStripeRoutesInstance.listPlans(request);
 
       assert.deepEqual(actual, expected);
-    });
-
-    it('results in an error when auth headers are invalid', async () => {
-      const invalid_request = {
-        auth: {
-          credentials: {
-            scope: ['profile'],
-            user: `${UID}`,
-            email: `${TEST_EMAIL}`,
-          },
-        },
-      };
-
-      return directStripeRoutesInstance.listPlans(invalid_request).then(
-        () => Promise.reject(new Error('Method expected to reject')),
-        (err) => {
-          assert.instanceOf(err, WError);
-          assert.equal(err.message, 'Requested scopes are not allowed');
-        }
-      );
     });
   });
 
