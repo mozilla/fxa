@@ -1,5 +1,26 @@
 # Change history
 
+## 1.207.0
+
+### Bug fixes
+
+- legal-docs: stop calling end on undefined ([80587ba78](https://github.com/mozilla/fxa/commit/80587ba78))
+
+### Other changes
+
+- deps: bump @stripe/stripe-js from 1.14.0 to 1.15.0 ([a2fb4c133](https://github.com/mozilla/fxa/commit/a2fb4c133))
+- deps: bump @types/sinon from 10.0.0 to 10.0.1 ([5381ac95f](https://github.com/mozilla/fxa/commit/5381ac95f))
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps: bump @stripe/react-stripe-js from 1.4.0 to 1.4.1 ([e5847bdfe](https://github.com/mozilla/fxa/commit/e5847bdfe))
+- deps: bump node-sass from 4.14.1 to 6.0.0 ([bfe77574f](https://github.com/mozilla/fxa/commit/bfe77574f))
+- deps-dev: bump @types/jsdom from 12.2.4 to 16.2.10 ([df3847381](https://github.com/mozilla/fxa/commit/df3847381))
+- deps-dev: bump @typescript-eslint/parser from 4.22.1 to 4.24.0 ([2693343d2](https://github.com/mozilla/fxa/commit/2693343d2))
+- deps-dev: bump @babel/register from 7.13.14 to 7.13.16 ([fded58ce9](https://github.com/mozilla/fxa/commit/fded58ce9))
+- deps-dev: bump @testing-library/react from 11.2.6 to 11.2.7 ([29586f6a4](https://github.com/mozilla/fxa/commit/29586f6a4))
+- deps: bump react-redux from 7.2.2 to 7.2.4 ([eb4d9e1c4](https://github.com/mozilla/fxa/commit/eb4d9e1c4))
+- deps: bump helmet from 4.5.0 to 4.6.0 ([e15ce79fd](https://github.com/mozilla/fxa/commit/e15ce79fd))
+
 ## 1.206.1
 
 No changes.

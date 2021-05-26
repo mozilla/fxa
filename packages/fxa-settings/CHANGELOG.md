@@ -1,3 +1,17 @@
+## 1.207.0
+
+### Bug fixes
+
+- fxa-settings: change the color of Delete Button ([3ce94e1e0](https://github.com/mozilla/fxa/commit/3ce94e1e0))
+
+### Other changes
+
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps: bump node-sass from 4.14.1 to 6.0.0 ([bfe77574f](https://github.com/mozilla/fxa/commit/bfe77574f))
+- deps-dev: bump @testing-library/react from 11.2.6 to 11.2.7 ([29586f6a4](https://github.com/mozilla/fxa/commit/29586f6a4))
+- deps: bump react-webcam from 5.2.2 to 5.2.3 ([21246cc98](https://github.com/mozilla/fxa/commit/21246cc98))
+
 ## 1.206.1
 
 No changes.

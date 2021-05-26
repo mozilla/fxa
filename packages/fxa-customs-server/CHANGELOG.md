@@ -1,3 +1,12 @@
+## 1.207.0
+
+### Other changes
+
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps: bump @hapi/hapi from 20.1.0 to 20.1.3 ([a43fc63f4](https://github.com/mozilla/fxa/commit/a43fc63f4))
+- deps: bump @google-cloud/pubsub from 2.11.0 to 2.12.0 ([dd9f7de46](https://github.com/mozilla/fxa/commit/dd9f7de46))
+
 ## 1.206.1
 
 No changes.

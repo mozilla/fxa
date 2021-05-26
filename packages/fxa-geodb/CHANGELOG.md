@@ -1,5 +1,12 @@
 # Change history
 
+## 1.207.0
+
+### Other changes
+
+- deps: bump mocha from 7.2.0 to 8.4.0 ([4b11eab5f](https://github.com/mozilla/fxa/commit/4b11eab5f))
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+
 ## 1.206.1
 
 No changes.

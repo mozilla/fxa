@@ -1,3 +1,11 @@
+## 1.207.0
+
+### Other changes
+
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps-dev: bump @testing-library/react from 11.2.6 to 11.2.7 ([29586f6a4](https://github.com/mozilla/fxa/commit/29586f6a4))
+
 ## 1.206.1
 
 No changes.

@@ -1,3 +1,22 @@
+## 1.207.0
+
+### Bug fixes
+
+- autofill: disable email autocomplete while we figure out why it broke ([e3d39b102](https://github.com/mozilla/fxa/commit/e3d39b102))
+
+### Other changes
+
+- deps: bump mocha from 7.2.0 to 8.4.0 ([4b11eab5f](https://github.com/mozilla/fxa/commit/4b11eab5f))
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps: bump node-sass from 4.14.1 to 6.0.0 ([bfe77574f](https://github.com/mozilla/fxa/commit/bfe77574f))
+- deps-dev: bump @testing-library/react from 11.2.6 to 11.2.7 ([29586f6a4](https://github.com/mozilla/fxa/commit/29586f6a4))
+- deps-dev: bump @babel/cli from 7.13.16 to 7.14.3 ([ce03997b5](https://github.com/mozilla/fxa/commit/ce03997b5))
+- deps-dev: bump jsqr from 1.3.1 to 1.4.0 ([7f18b51e0](https://github.com/mozilla/fxa/commit/7f18b51e0))
+- functional: incorporate review comment ([5d0f51a5c](https://github.com/mozilla/fxa/commit/5d0f51a5c))
+- functional: add test to remove the uploaded avatar ([dfb1bef30](https://github.com/mozilla/fxa/commit/dfb1bef30))
+- deps: bump helmet from 4.5.0 to 4.6.0 ([e15ce79fd](https://github.com/mozilla/fxa/commit/e15ce79fd))
+
 ## 1.206.1
 
 No changes.

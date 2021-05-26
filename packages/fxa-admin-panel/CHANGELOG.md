@@ -1,3 +1,20 @@
+## 1.207.0
+
+### New features
+
+- admin: capstone admin panel enhancements ([1be2c7dca](https://github.com/mozilla/fxa/commit/1be2c7dca))
+
+### Other changes
+
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps-dev: bump @types/eslint from 7.2.10 to 7.2.11 ([816ef7b17](https://github.com/mozilla/fxa/commit/816ef7b17))
+- deps: bump node-sass from 4.14.1 to 6.0.0 ([bfe77574f](https://github.com/mozilla/fxa/commit/bfe77574f))
+- deps-dev: bump @types/jsdom from 12.2.4 to 16.2.10 ([df3847381](https://github.com/mozilla/fxa/commit/df3847381))
+- deps-dev: bump @typescript-eslint/parser from 4.22.1 to 4.24.0 ([2693343d2](https://github.com/mozilla/fxa/commit/2693343d2))
+- deps-dev: bump @testing-library/react from 11.2.6 to 11.2.7 ([29586f6a4](https://github.com/mozilla/fxa/commit/29586f6a4))
+- deps: bump helmet from 4.5.0 to 4.6.0 ([e15ce79fd](https://github.com/mozilla/fxa/commit/e15ce79fd))
+
 ## 1.206.1
 
 No changes.
