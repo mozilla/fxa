@@ -1,5 +1,21 @@
 # Change history
 
+## 1.207.0
+
+### New features
+
+- auth: create script to send subscription renewal reminder emails ([178cec80a](https://github.com/mozilla/fxa/commit/178cec80a))
+
+### Other changes
+
+- deps: bump mocha from 7.2.0 to 8.4.0 ([4b11eab5f](https://github.com/mozilla/fxa/commit/4b11eab5f))
+- deps: bump @types/sinon from 10.0.0 to 10.0.1 ([5381ac95f](https://github.com/mozilla/fxa/commit/5381ac95f))
+- deps: bump stripe from 8.148.0 to 8.149.0 ([07559e710](https://github.com/mozilla/fxa/commit/07559e710))
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- auth: clean up subscription-reminders script ([05229412d](https://github.com/mozilla/fxa/commit/05229412d))
+- deps: bump apollo-server from 2.23.0 to 2.24.1 ([5ee603c3c](https://github.com/mozilla/fxa/commit/5ee603c3c))
+
 ## 1.206.1
 
 No changes.

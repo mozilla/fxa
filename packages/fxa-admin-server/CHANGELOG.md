@@ -1,3 +1,17 @@
+## 1.207.0
+
+### New features
+
+- admin: capstone admin panel enhancements ([1be2c7dca](https://github.com/mozilla/fxa/commit/1be2c7dca))
+
+### Other changes
+
+- deps-dev: bump @types/yargs from 16.0.3 to 17.0.0 ([d9a2dca5a](https://github.com/mozilla/fxa/commit/d9a2dca5a))
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps: bump apollo-server from 2.23.0 to 2.24.1 ([5ee603c3c](https://github.com/mozilla/fxa/commit/5ee603c3c))
+- deps: bump helmet from 4.5.0 to 4.6.0 ([e15ce79fd](https://github.com/mozilla/fxa/commit/e15ce79fd))
+
 ## 1.206.1
 
 No changes.

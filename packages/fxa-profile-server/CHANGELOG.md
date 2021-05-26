@@ -1,3 +1,13 @@
+## 1.207.0
+
+### Other changes
+
+- deps: bump mocha from 7.2.0 to 8.4.0 ([4b11eab5f](https://github.com/mozilla/fxa/commit/4b11eab5f))
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps: bump sharp from 0.28.0 to 0.28.2 ([40fde99da](https://github.com/mozilla/fxa/commit/40fde99da))
+- deps: bump @hapi/hapi from 20.1.0 to 20.1.3 ([a43fc63f4](https://github.com/mozilla/fxa/commit/a43fc63f4))
+
 ## 1.206.1
 
 No changes.

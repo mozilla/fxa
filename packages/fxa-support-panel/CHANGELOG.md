@@ -1,5 +1,14 @@
 # Change history
 
+## 1.207.0
+
+### Other changes
+
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps-dev: bump @types/eslint from 7.2.10 to 7.2.11 ([816ef7b17](https://github.com/mozilla/fxa/commit/816ef7b17))
+- deps: bump helmet from 4.5.0 to 4.6.0 ([e15ce79fd](https://github.com/mozilla/fxa/commit/e15ce79fd))
+
 ## 1.206.1
 
 No changes.

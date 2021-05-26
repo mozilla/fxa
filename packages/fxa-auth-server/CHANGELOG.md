@@ -1,3 +1,30 @@
+## 1.207.0
+
+### New features
+
+- emails: add email for subscription renewal reminder ([f29f73e33](https://github.com/mozilla/fxa/commit/f29f73e33))
+- subscriptions: allow plans list access without auth ([46f1a2032](https://github.com/mozilla/fxa/commit/46f1a2032))
+- auth-server: add locale to zendesk tickets ([22ef92be9](https://github.com/mozilla/fxa/commit/22ef92be9))
+- auth: create script to send subscription renewal reminder emails ([178cec80a](https://github.com/mozilla/fxa/commit/178cec80a))
+
+### Bug fixes
+
+- auth-server: refund deleted users ([dedd02ac4](https://github.com/mozilla/fxa/commit/dedd02ac4))
+- session: Update sessionToken data in redis when used by route ([32c5bd010](https://github.com/mozilla/fxa/commit/32c5bd010))
+
+### Other changes
+
+- deps: bump mocha from 7.2.0 to 8.4.0 ([4b11eab5f](https://github.com/mozilla/fxa/commit/4b11eab5f))
+- deps: bump stripe from 8.148.0 to 8.149.0 ([07559e710](https://github.com/mozilla/fxa/commit/07559e710))
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- auth: clean up subscription-reminders script ([05229412d](https://github.com/mozilla/fxa/commit/05229412d))
+- code: remove unused webauthn/fido code ([1021ecaf6](https://github.com/mozilla/fxa/commit/1021ecaf6))
+- deps-dev: bump @types/jsrsasign from 8.0.11 to 8.0.12 ([11d310258](https://github.com/mozilla/fxa/commit/11d310258))
+- deps-dev: bump @types/ioredis from 4.26.1 to 4.26.4 ([87a47e798](https://github.com/mozilla/fxa/commit/87a47e798))
+- deps: bump @hapi/hapi from 20.1.0 to 20.1.3 ([a43fc63f4](https://github.com/mozilla/fxa/commit/a43fc63f4))
+- emails: update copy for failed payment email ([2f9ab7494](https://github.com/mozilla/fxa/commit/2f9ab7494))
+
 ## 1.206.1
 
 ### Bug fixes

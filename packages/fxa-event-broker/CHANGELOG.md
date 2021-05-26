@@ -1,5 +1,15 @@
 # Change history
 
+## 1.207.0
+
+### Other changes
+
+- deps: bump @types/sinon from 10.0.0 to 10.0.1 ([5381ac95f](https://github.com/mozilla/fxa/commit/5381ac95f))
+- deps: update some deps ([6fce48032](https://github.com/mozilla/fxa/commit/6fce48032))
+- deps: added "yarn outdated" plugin + updated some deps ([952e4f388](https://github.com/mozilla/fxa/commit/952e4f388))
+- deps-dev: bump @typescript-eslint/parser from 4.22.1 to 4.24.0 ([2693343d2](https://github.com/mozilla/fxa/commit/2693343d2))
+- deps: bump @google-cloud/pubsub from 2.11.0 to 2.12.0 ([dd9f7de46](https://github.com/mozilla/fxa/commit/dd9f7de46))
+
 ## 1.206.1
 
 No changes.
