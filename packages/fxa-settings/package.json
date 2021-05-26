@@ -87,7 +87,7 @@
     "@types/lodash.groupby": "^4",
     "@types/node": "^14.14.37",
     "@types/react": "^16.9.53",
-    "@types/react-dom": "^16.9.6",
+    "@types/react-dom": "^17.0.5",
     "@types/react-test-renderer": "^17",
     "@types/testing-library__react-hooks": "^4",
     "@types/uuid": "^8",
