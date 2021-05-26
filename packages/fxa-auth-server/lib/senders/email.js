@@ -2117,8 +2117,12 @@ module.exports = function (log, config) {
 
     if (subscriptions.length === 1) {
       productName = subscriptions[0].productName;
-      subject = translator.gettext(
-        'Payment information update required for %(productName)s'
+      const translatorParams = { productName };
+      subject = translator.format(
+        translator.gettext(
+          'Payment information update required for %(productName)s'
+        ),
+        translatorParams
       );
       links = this._generateLinks(
         null,
@@ -2156,14 +2160,8 @@ module.exports = function (log, config) {
   };
 
   Mailer.prototype.subscriptionPaymentFailedEmail = async function (message) {
-    const {
-      email,
-      uid,
-      productId,
-      planId,
-      planEmailIconURL,
-      productName,
-    } = message;
+    const { email, uid, productId, planId, planEmailIconURL, productName } =
+      message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentFailed', {
@@ -2408,7 +2406,62 @@ module.exports = function (log, config) {
   };
 
   Mailer.prototype.subscriptionRenewalReminderEmail = async function (message) {
-    // TODO: Implementation handled by #8223
+    const { email, uid, subscription } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionRenewalReminderEmail', {
+      enabled,
+      email,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const headers = {};
+    const translator = this.translator(message.acceptLanguage);
+
+    const template = 'subscriptionRenewalReminder';
+
+    const productName = subscription.productName;
+    const translatorParams = { productName };
+    const subject = translator.gettext(
+      '%(productName)s automatic renewal notice'
+    );
+    const links = this._generateLinks(
+      null,
+      message,
+      {
+        plan_id: subscription.planId,
+        product_id: subscription.productId,
+        uid,
+      },
+      template
+    );
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        uid,
+        email,
+        subject: translator.format(subject, translatorParams),
+        subscription,
+        productName,
+        reminderLength: message.reminderLength,
+        planIntervalCount: message.planIntervalCount,
+        planInterval: message.planInterval,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          message.invoiceTotalInCents,
+          message.invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+      },
+    });
   };
 
   Mailer.prototype.subscriptionSubsequentInvoiceEmail = async function (
@@ -2854,16 +2907,13 @@ module.exports = function (log, config) {
       query
     );
 
-    links['revokeAccountRecoveryLink'] = this.createRevokeAccountRecoveryLink(
-      templateName
-    );
-    links[
-      'revokeAccountRecoveryLinkAttributes'
-    ] = this._revokeAccountRecoveryLinkAttributes(templateName);
+    links['revokeAccountRecoveryLink'] =
+      this.createRevokeAccountRecoveryLink(templateName);
+    links['revokeAccountRecoveryLinkAttributes'] =
+      this._revokeAccountRecoveryLinkAttributes(templateName);
 
-    links['createAccountRecoveryLink'] = this.createAccountRecoveryLink(
-      templateName
-    );
+    links['createAccountRecoveryLink'] =
+      this.createAccountRecoveryLink(templateName);
 
     links.accountSettingsUrl = this._generateUTMLink(
       this.accountSettingsUrl,

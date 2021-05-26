@@ -63,6 +63,16 @@ export const SUBSCRIPTION_UPDATE_TYPES = {
   CANCELLATION: 'cancellation',
 };
 
+export type FormattedSubscriptionForEmail = {
+  productId: string;
+  productName: string;
+  planId: string;
+  planName: string | null;
+  planEmailIconURL: string;
+  planDownloadURL: string;
+  productMetadata: Stripe.Metadata;
+};
+
 type BillingAddressOptions = {
   city: string;
   country: string;
@@ -1627,53 +1637,58 @@ export class StripeHelper {
     };
   }
 
-  async formatSubscriptionsForEmails(customer: Readonly<Stripe.Customer>) {
+  async formatSubscriptionForEmail(
+    subscription: Stripe.Subscription
+  ): Promise<FormattedSubscriptionForEmail> {
+    const subPlan = singlePlan(subscription);
+    if (!subPlan) {
+      throw error.internalValidationError(
+        'formatSubscription',
+        subscription,
+        new Error(
+          `Multiple items for a subscription not supported: ${subscription.id}`
+        )
+      );
+    }
+    const plan = await this.expandResource(subPlan, PLAN_RESOURCE);
+    const abbrevProduct = await this.expandAbbrevProductForPlan(plan);
+    const { product_id: productId, product_name: productName } = abbrevProduct;
+    const { id: planId, nickname: planName } = plan;
+    const productMetadata = this.mergeMetadata(plan, abbrevProduct);
+    const {
+      emailIconURL: planEmailIconURL = '',
+      downloadURL: planDownloadURL = '',
+    } = productMetadata;
+    return {
+      productId,
+      productName,
+      planId,
+      planName,
+      planEmailIconURL,
+      planDownloadURL,
+      productMetadata,
+    };
+  }
+
+  async formatSubscriptionsForEmails(
+    customer: Readonly<Stripe.Customer>
+  ): Promise<FormattedSubscriptionForEmail[]> {
     if (!customer.subscriptions) {
       return [];
     }
 
-    let formattedSubscptions = [];
+    let formattedSubscriptions = [];
 
     for (const subscription of customer.subscriptions.data) {
       if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
-        const subPlan = singlePlan(subscription);
-        if (!subPlan) {
-          throw error.internalValidationError(
-            'extractSourceDetailsForEmail',
-            customer,
-            new Error(
-              `Multiple items for a subscription not supported: ${subscription.id}`
-            )
-          );
-        }
-
-        const plan = await this.expandResource(subPlan, PLAN_RESOURCE);
-        const abbrevProduct = await this.expandAbbrevProductForPlan(plan);
-
-        const {
-          product_id: productId,
-          product_name: productName,
-        } = abbrevProduct;
-        const { id: planId, nickname: planName } = plan;
-        const productMetadata = this.mergeMetadata(plan, abbrevProduct);
-        const {
-          emailIconURL: planEmailIconURL = '',
-          downloadURL: planDownloadURL = '',
-        } = productMetadata;
-
-        formattedSubscptions.push({
-          productId,
-          productName,
-          planId,
-          planName,
-          planEmailIconURL,
-          planDownloadURL,
-          productMetadata,
-        });
+        const formattedSubscription = await this.formatSubscriptionForEmail(
+          subscription
+        );
+        formattedSubscriptions.push(formattedSubscription);
       }
     }
 
-    return formattedSubscptions;
+    return formattedSubscriptions;
   }
 
   async extractCardDetails({ charge }: { charge: Stripe.Charge | null }) {

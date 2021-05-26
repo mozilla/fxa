@@ -58,6 +58,8 @@ const MESSAGE = {
   productName: 'Firefox Fortress',
   planEmailIconURL: 'http://example.com/icon.jpg',
   planDownloadURL: 'http://getfirefox.com/',
+  planInterval: 'day',
+  planIntervalCount: 2,
   playStoreLink: 'https://example.com/play-store',
   invoiceNumber: '8675309',
   cardType: 'mastercard',
@@ -80,7 +82,13 @@ const MESSAGE = {
   paymentProratedCurrency: 'usd',
   productPaymentCycle: 'month',
   productMetadata,
+  reminderLength: 14,
   service: 'sync',
+  subscription: {
+    productName: 'Cooking with Foxkeh',
+    planId: 'plan-example',
+    productId: 'wibble',
+  },
   subscriptions: [
     { productName: 'Firefox Fortress' },
     { productName: 'Cooking with Foxkeh' },
@@ -316,6 +324,26 @@ const TESTS = [
     ]],
     ['text', [
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+  ['subscriptionRenewalReminderEmail', new Map([
+    ['subject', { test: 'equal', expected: `${MESSAGE.subscription.productName} automatic renewal notice` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionRenewalReminder') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionRenewalReminder' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionRenewalReminder }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-renewal-reminder', 'subscription-terms') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-renewal-reminder', 'update-billing', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-renewal-reminder', 'subscription-support') },
+      { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days. At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.subscription.productName} automatic renewal notice` },
+      { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days. At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],

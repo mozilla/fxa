@@ -110,6 +110,8 @@ function sendMail(mailer, messageToSend) {
     productName: 'Firefox Fortress',
     planEmailIconURL: 'http://placekitten.com/512/512',
     planDownloadURL: 'http://getfirefox.com/',
+    planInterval: 'week',
+    planIntervalCount: 4,
     playStoreLink: 'https://example.com/play-store',
     invoiceNumber: '8675309',
     cardType: 'mastercard',
@@ -131,6 +133,7 @@ function sendMail(mailer, messageToSend) {
     paymentProratedCurrency: 'usd',
     productPaymentCycle: 'month',
     redirectTo: 'https://redirect.com/',
+    reminderLength: 14,
     resume:
       'eyJjYW1wYWlnbiI6bnVsbCwiZW50cnlwb2ludCI6bnVsbCwiZmxvd0lkIjoiM2Q1ODZiNzY4Mzc2NGJhOWFiNzhkMzMxMTdjZDU4Y2RmYjk3Mzk5MWU5NTk0NjgxODBlMDUyMmY2MThhNmEyMSIsInJlc2V0UGFzc3dvcmRDb25maXJtIjp0cnVlLCJ1bmlxdWVVc2VySWQiOiI1ODNkOGFlYS00NzU3LTRiZTQtYWJlNC0wZWQ2NWZhY2Y2YWQiLCJ1dG1DYW1wYWlnbiI6bnVsbCwidXRtQ29udGVudCI6bnVsbCwidXRtTWVkaXVtIjpudWxsLCJ1dG1Tb3VyY2UiOm51bGwsInV0bVRlcm0iOm51bGx9',
     secondaryEmail: 'secondary@email',
@@ -147,6 +150,14 @@ function sendMail(mailer, messageToSend) {
     tokenCode: 'LIT12345',
     uid: '6510cb04abd742c6b3e4abefc7e39c9f',
     productMetadata,
+    subscription: {
+      planDownloadURL: 'http://getfirefox.com/',
+      planEmailIconURL: 'http://placekitten.com/512/512',
+      planId: 'plan-example',
+      productId: '0123456789abcdef',
+      productMetadata,
+      productName: 'Firefox Fortress',
+    },
     subscriptions: [
       {
         planDownloadURL: 'http://getfirefox.com/',
