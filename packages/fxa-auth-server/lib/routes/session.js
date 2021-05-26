@@ -12,6 +12,11 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const validators = require('./validators');
 const HEX_STRING = validators.HEX_STRING;
 
+// helper used to ensure strings are extracted
+function gettext(txt) {
+  return txt;
+}
+
 module.exports = function (
   log,
   db,
@@ -423,6 +428,59 @@ module.exports = function (
           );
         } else {
           await mailer.sendVerifyShortCodeEmail([], account, options);
+        }
+
+        return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/session/verify/send_push',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+      },
+      handler: async function (request) {
+        log.begin('Session.verify.send_push', request);
+
+        const sessionToken = request.auth.credentials;
+        const { uid, tokenVerificationId } = sessionToken;
+
+        const devices = await db.devices(uid);
+        const geoData = request.app.geo;
+
+        const { ua } = request.app;
+        const uaInfo = {
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uaFormFactor: ua.formFactor,
+        };
+
+        const url = `${
+          config.smtp.verificationUrl
+        }?type=push_login_verification&code=${tokenVerificationId}&ua=${encodeURIComponent(
+          JSON.stringify(uaInfo)
+        )}&location=${encodeURIComponent(
+          JSON.stringify(geoData.location)
+        )}&ip=${encodeURIComponent(request.app.clientAddress)}`;
+
+        const options = {
+          title: gettext('Logging in to Firefox Accounts?'),
+          body: gettext("Click here to verify it's you"),
+          url,
+        };
+
+        try {
+          await push.notifyVerifyLoginRequest(uid, devices, options);
+        } catch (err) {
+          log.error('Session.verify.send_push', {
+            uid: uid,
+            error: err,
+          });
         }
 
         return {};
