@@ -97,9 +97,9 @@ echo "NOTE: These commands will clobber an existing branch and tag, if they've a
 echo "This is probably what you want for a feature branch release, but make sure to verify that this is correct!"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  A_WEEK_AGO=$(date -v -7d +%Y-%m-%d)
+  TWO_WEEKS_AGO=$(date -v -14d +%Y-%m-%d)
 else
-  A_WEEK_AGO=$(date +%Y-%m-%d -d "7 days ago")
+  TWO_WEEKS_AGO=$(date +%Y-%m-%d -d "14 days ago")
 fi
 
 echo "If there's no deploy bug for $TRAIN_BRANCH_WITH_FEATURE yet, you should create one using this URL (you'll need to update the title of the bug in Bugzilla):"
@@ -114,9 +114,13 @@ echo "And copy and paste the rest of this output into the bug:"
 echo
 echo "**This tag should only be deployed to staging. It should not be deployed to production.**"
 echo
-echo "### Marked needs:qa"
+echo "### Marked needs:qa (FxA)"
 echo
-echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+updated%3A%3E$A_WEEK_AGO"
+echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+updated%3A%3E$TWO_WEEKS_AGO"
+echo
+echo "### Marked qa+ (SubPlat)"
+echo
+echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aqa%2B+is%3Aclosed+updated%3A%3E$TWO_WEEKS_AGO"
 echo
 
 echo "### Tags"

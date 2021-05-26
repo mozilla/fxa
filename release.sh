@@ -370,9 +370,9 @@ echo
 if [ "$BUILD_TYPE" = "Train" ]; then
 
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    A_WEEK_AGO=$(date -v -7d +%Y-%m-%d)
+    TWO_WEEKS_AGO=$(date -v -14d +%Y-%m-%d)
   else
-    A_WEEK_AGO=$(date +%Y-%m-%d -d "7 days ago")
+    TWO_WEEKS_AGO=$(date +%Y-%m-%d -d "14 days ago")
   fi
 
   echo "If there's no deploy bug for $TRAIN_BRANCH yet, you should create one using this URL (you'll need to update the title of the bug in Bugzilla):"
@@ -385,9 +385,13 @@ if [ "$BUILD_TYPE" = "Train" ]; then
   echo
   echo "And copy and paste the rest of this output into the bug:"
   echo
-  echo "### Marked needs:qa"
+  echo "### Marked needs:qa (FxA)"
   echo
-  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+updated%3A%3E$A_WEEK_AGO"
+  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+updated%3A%3E$TWO_WEEKS_AGO"
+  echo
+  echo "### Marked qa+ (SubPlat)"
+  echo
+  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aqa%2B+is%3Aclosed+updated%3A%3E$TWO_WEEKS_AGO"
   echo
 else
   echo "Don't forget to leave a comment in the deploy bug."
