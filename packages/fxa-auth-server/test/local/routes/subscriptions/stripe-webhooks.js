@@ -232,7 +232,10 @@ describe('StripeWebhookHandler', () => {
 
     beforeEach(() => {
       StripeWebhookHandlerInstance.stripeHelper.getCustomerUidEmailFromSubscription.resolves(
-        { uid: UID, email: TEST_EMAIL }
+        {
+          uid: UID,
+          email: TEST_EMAIL,
+        }
       );
       stubSendSubscriptionStatusToSqs = sandbox
         .stub(StripeWebhookHandlerInstance, 'sendSubscriptionStatusToSqs')
@@ -551,7 +554,10 @@ describe('StripeWebhookHandler', () => {
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.customer,
-          { uid: UID, email: TEST_EMAIL }
+          {
+            uid: UID,
+            email: TEST_EMAIL,
+          }
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.paypalHelper
@@ -577,7 +583,10 @@ describe('StripeWebhookHandler', () => {
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.customer,
-          { uid: UID, email: TEST_EMAIL }
+          {
+            uid: UID,
+            email: TEST_EMAIL,
+          }
         );
         assert.notCalled(
           StripeWebhookHandlerInstance.paypalHelper
@@ -593,10 +602,11 @@ describe('StripeWebhookHandler', () => {
         // fail to exit early
         invoiceCreatedEvent.data.object.billing_reason = 'subscription_cycle';
         StripeWebhookHandlerInstance.paypalHelper = undefined;
-        const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isUndefined(result);
         assert.notCalled(
           StripeWebhookHandlerInstance.stripeHelper.expandResource
@@ -609,10 +619,11 @@ describe('StripeWebhookHandler', () => {
           false
         );
         StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
-        const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isUndefined(result);
         assert.notCalled(
           StripeWebhookHandlerInstance.stripeHelper.expandResource
@@ -628,10 +639,11 @@ describe('StripeWebhookHandler', () => {
           true
         );
         StripeWebhookHandlerInstance.stripeHelper.finalizeInvoice.resolves({});
-        const result = await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceCreatedEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.deepEqual(result, {});
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
@@ -655,9 +667,8 @@ describe('StripeWebhookHandler', () => {
 
       it('doesnt run if paypalHelper is not present', async () => {
         StripeWebhookHandlerInstance.paypalHelper = undefined;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
-          {}
-        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource =
+          sinon.fake.resolves({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
@@ -669,14 +680,14 @@ describe('StripeWebhookHandler', () => {
       });
 
       it('doesnt run if its not manual invoice or out of band credit note', async () => {
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
         StripeWebhookHandlerInstance.paypalHelper = {};
         invoice.collection_method = 'charge_automatically';
-        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
-          invoice
-        );
-        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId = sinon.fake.resolves(
-          {}
-        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource =
+          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
+          sinon.fake.resolves({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
@@ -691,18 +702,17 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.stripeHelper
             .getInvoicePaypalTransactionId
         );
+        assert.calledOnce(sentryModule.reportSentryError);
       });
 
       it('doesnt issue refund without a paypal transaction to refund', async () => {
         StripeWebhookHandlerInstance.paypalHelper = {};
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
-          invoice
-        );
-        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(
-          null
-        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource =
+          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
+          sinon.fake.returns(null);
         StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
@@ -739,12 +749,10 @@ describe('StripeWebhookHandler', () => {
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
         invoice.amount_due = 900;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
-          invoice
-        );
-        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(
-          'tx-1234'
-        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource =
+          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
+          sinon.fake.returns('tx-1234');
         StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
@@ -756,14 +764,9 @@ describe('StripeWebhookHandler', () => {
           invoiceCreditNoteEvent.data.object.invoice,
           'invoices'
         );
-        assert.calledWithMatch(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          invoice.customer,
-          'customers'
-        );
         assert.callCount(
           StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          2
+          1
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.log.error,
@@ -785,16 +788,13 @@ describe('StripeWebhookHandler', () => {
         invoice.collection_method = 'send_invoice';
         invoiceCreditNoteEvent.data.object.out_of_band_amount = 500;
         invoice.amount_due = 500;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource = sinon.fake.resolves(
-          invoice
-        );
-        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId = sinon.fake.returns(
-          'tx-1234'
-        );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource =
+          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
+          sinon.fake.returns('tx-1234');
         StripeWebhookHandlerInstance.log.error = sinon.fake.returns({});
-        StripeWebhookHandlerInstance.paypalHelper.issueRefund = sinon.fake.resolves(
-          {}
-        );
+        StripeWebhookHandlerInstance.paypalHelper.issueRefund =
+          sinon.fake.resolves({});
         const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
           {},
           invoiceCreditNoteEvent
@@ -805,14 +805,9 @@ describe('StripeWebhookHandler', () => {
           invoiceCreditNoteEvent.data.object.invoice,
           'invoices'
         );
-        assert.calledWithMatch(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          invoice.customer,
-          'customers'
-        );
         assert.callCount(
           StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          2
+          1
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper
@@ -836,18 +831,15 @@ describe('StripeWebhookHandler', () => {
         invoiceCreatedEvent = deepCopy(eventInvoiceCreated);
         invoiceCreatedEvent.data.object.amount_due = 4.99;
         StripeWebhookHandlerInstance.paypalHelper = {};
-        StripeWebhookHandlerInstance.paypalHelper.processZeroInvoice = sinon.fake.resolves(
-          true
-        );
-        StripeWebhookHandlerInstance.paypalHelper.processInvoice = sinon.fake.resolves(
-          true
-        );
+        StripeWebhookHandlerInstance.paypalHelper.processZeroInvoice =
+          sinon.fake.resolves(true);
+        StripeWebhookHandlerInstance.paypalHelper.processInvoice =
+          sinon.fake.resolves(true);
         StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
           true
         );
-        StripeWebhookHandlerInstance.sendSubscriptionPaymentFailedEmail = sinon.fake.resolves(
-          {}
-        );
+        StripeWebhookHandlerInstance.sendSubscriptionPaymentFailedEmail =
+          sinon.fake.resolves({});
         StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
           customer
         );
@@ -864,10 +856,11 @@ describe('StripeWebhookHandler', () => {
         StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
           true
         );
-        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isUndefined(result);
         assert.notCalled(
           StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal
@@ -875,10 +868,11 @@ describe('StripeWebhookHandler', () => {
       });
 
       it('processes invoices for paypal customers for non-zero amounts', async () => {
-        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isTrue(result);
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
@@ -906,14 +900,14 @@ describe('StripeWebhookHandler', () => {
         const parsedNvpObject = paypalHelper.client.nvpToObject(rawString);
         const throwErr = new PayPalClientError(rawString, parsedNvpObject);
 
-        StripeWebhookHandlerInstance.paypalHelper.processInvoice = sinon.fake.rejects(
-          throwErr
-        );
+        StripeWebhookHandlerInstance.paypalHelper.processInvoice =
+          sinon.fake.rejects(throwErr);
 
-        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isFalse(result);
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
@@ -953,14 +947,14 @@ describe('StripeWebhookHandler', () => {
         const parsedNvpObject = paypalHelper.client.nvpToObject(rawString);
         const throwErr = new PayPalClientError(rawString, parsedNvpObject);
 
-        StripeWebhookHandlerInstance.paypalHelper.processInvoice = sinon.fake.rejects(
-          throwErr
-        );
+        StripeWebhookHandlerInstance.paypalHelper.processInvoice =
+          sinon.fake.rejects(throwErr);
 
-        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isFalse(result);
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
@@ -993,10 +987,11 @@ describe('StripeWebhookHandler', () => {
         StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement.returns(
           undefined
         );
-        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isUndefined(result);
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
@@ -1017,10 +1012,11 @@ describe('StripeWebhookHandler', () => {
 
       it('processes invoices for paypal customers for zero amounts', async () => {
         invoiceCreatedEvent.data.object.amount_due = 0;
-        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isTrue(result);
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal,
@@ -1040,10 +1036,11 @@ describe('StripeWebhookHandler', () => {
         StripeWebhookHandlerInstance.stripeHelper.invoicePayableWithPaypal.resolves(
           false
         );
-        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isUndefined(result);
         assert.notCalled(
           StripeWebhookHandlerInstance.paypalHelper.processZeroInvoice
@@ -1056,10 +1053,11 @@ describe('StripeWebhookHandler', () => {
       it('stops if the customer was deleted', async () => {
         invoiceCreatedEvent.data.object.amount_due = 4.99;
         customer.deleted = true;
-        const result = await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
-          {},
-          invoiceCreatedEvent
-        );
+        const result =
+          await StripeWebhookHandlerInstance.handleInvoiceOpenEvent(
+            {},
+            invoiceCreatedEvent
+          );
         assert.isUndefined(result);
         assert.notCalled(
           StripeWebhookHandlerInstance.paypalHelper.processInvoice
@@ -1192,8 +1190,10 @@ describe('StripeWebhookHandler', () => {
       StripeWebhookHandlerInstance.db.account = sandbox
         .stub()
         .resolves(mockAccount);
-      StripeWebhookHandlerInstance.mailer.sendMultiSubscriptionsPaymentExpiredEmail = sandbox.stub();
-      StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail = sandbox.stub();
+      StripeWebhookHandlerInstance.mailer.sendMultiSubscriptionsPaymentExpiredEmail =
+        sandbox.stub();
+      StripeWebhookHandlerInstance.mailer.sendSubscriptionPaymentExpiredEmail =
+        sandbox.stub();
       const mockCustomer = { uid: UID, subscriptions: [{ id: 'sub_testo' }] };
       StripeWebhookHandlerInstance.stripeHelper.extractSourceDetailsForEmail.resolves(
         mockCustomer
@@ -1253,36 +1253,26 @@ describe('StripeWebhookHandler', () => {
   });
 
   describe('sendSubscriptionInvoiceEmail', () => {
-    const commonSendSubscriptionInvoiceEmailTest = (
-      expectedMethodName,
-      billingReason
-    ) => async () => {
-      const invoice = deepCopy(eventInvoicePaid.data.object);
-      invoice.billing_reason = billingReason;
+    const commonSendSubscriptionInvoiceEmailTest =
+      (expectedMethodName, billingReason) => async () => {
+        const invoice = deepCopy(eventInvoicePaid.data.object);
+        invoice.billing_reason = billingReason;
 
-      const mockInvoiceDetails = { uid: '1234', test: 'fake' };
-      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
-        mockInvoiceDetails
-      );
+        const mockInvoiceDetails = { uid: '1234', test: 'fake' };
+        StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
+          mockInvoiceDetails
+        );
 
-      const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
-      StripeWebhookHandlerInstance.db.account = sinon.spy(
-        async (data) => mockAccount
-      );
+        const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
+        StripeWebhookHandlerInstance.db.account = sinon.spy(
+          async (data) => mockAccount
+        );
 
-      await StripeWebhookHandlerInstance.sendSubscriptionInvoiceEmail(invoice);
-      assert.calledWith(
-        StripeWebhookHandlerInstance.mailer[expectedMethodName],
-        mockAccount.emails,
-        mockAccount,
-        {
-          acceptLanguage: mockAccount.locale,
-          ...mockInvoiceDetails,
-        }
-      );
-      if (expectedMethodName === 'sendSubscriptionFirstInvoiceEmail') {
+        await StripeWebhookHandlerInstance.sendSubscriptionInvoiceEmail(
+          invoice
+        );
         assert.calledWith(
-          StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail,
+          StripeWebhookHandlerInstance.mailer[expectedMethodName],
           mockAccount.emails,
           mockAccount,
           {
@@ -1290,8 +1280,18 @@ describe('StripeWebhookHandler', () => {
             ...mockInvoiceDetails,
           }
         );
-      }
-    };
+        if (expectedMethodName === 'sendSubscriptionFirstInvoiceEmail') {
+          assert.calledWith(
+            StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail,
+            mockAccount.emails,
+            mockAccount,
+            {
+              acceptLanguage: mockAccount.locale,
+              ...mockInvoiceDetails,
+            }
+          );
+        }
+      };
 
     it(
       'sends the initial invoice email for a newly created subscription',
@@ -1378,65 +1378,65 @@ describe('StripeWebhookHandler', () => {
   });
 
   describe('sendSubscriptionDeletedEmail', () => {
-    const commonSendSubscriptionDeletedEmailTest = (
-      accountFound = true,
-      subscriptionAlreadyCancelled = false
-    ) => async () => {
-      const deletedEvent = deepCopy(subscriptionDeleted);
-      const subscription = deletedEvent.data.object;
+    const commonSendSubscriptionDeletedEmailTest =
+      (accountFound = true, subscriptionAlreadyCancelled = false) =>
+      async () => {
+        const deletedEvent = deepCopy(subscriptionDeleted);
+        const subscription = deletedEvent.data.object;
 
-      if (subscriptionAlreadyCancelled) {
-        subscription.metadata = {
-          cancelled_for_customer_at: moment().unix(),
-        };
-      }
-
-      const mockInvoiceDetails = {
-        uid: '1234',
-        test: 'fake',
-        email: 'test@example.com',
-      };
-      StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
-        mockInvoiceDetails
-      );
-
-      const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
-      StripeWebhookHandlerInstance.db.account = sinon.spy(async (data) => {
-        if (accountFound) {
-          return mockAccount;
+        if (subscriptionAlreadyCancelled) {
+          subscription.metadata = {
+            cancelled_for_customer_at: moment().unix(),
+          };
         }
-        throw error.unknownAccount();
-      });
 
-      await StripeWebhookHandlerInstance.sendSubscriptionDeletedEmail(
-        subscription
-      );
-
-      assert.calledWith(
-        StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail,
-        subscription.latest_invoice
-      );
-
-      if (accountFound || subscriptionAlreadyCancelled) {
-        assert.notCalled(
-          StripeWebhookHandlerInstance.mailer
-            .sendSubscriptionAccountDeletionEmail
-        );
-      } else {
-        const fakeAccount = {
-          email: mockInvoiceDetails.email,
-          uid: mockInvoiceDetails.uid,
-          emails: [{ email: mockInvoiceDetails.email, isPrimary: true }],
+        const mockInvoiceDetails = {
+          uid: '1234',
+          test: 'fake',
+          email: 'test@example.com',
         };
-        assert.calledWith(
-          StripeWebhookHandlerInstance.mailer
-            .sendSubscriptionAccountDeletionEmail,
-          fakeAccount.emails,
-          fakeAccount,
+        StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
           mockInvoiceDetails
         );
-      }
-    };
+
+        const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
+        StripeWebhookHandlerInstance.db.account = sinon.spy(async (data) => {
+          if (accountFound) {
+            return mockAccount;
+          }
+          throw error.unknownAccount();
+        });
+
+        await StripeWebhookHandlerInstance.sendSubscriptionDeletedEmail(
+          subscription
+        );
+
+        assert.calledWith(
+          StripeWebhookHandlerInstance.stripeHelper
+            .extractInvoiceDetailsForEmail,
+          subscription.latest_invoice
+        );
+
+        if (accountFound || subscriptionAlreadyCancelled) {
+          assert.notCalled(
+            StripeWebhookHandlerInstance.mailer
+              .sendSubscriptionAccountDeletionEmail
+          );
+        } else {
+          const fakeAccount = {
+            email: mockInvoiceDetails.email,
+            uid: mockInvoiceDetails.uid,
+            emails: [{ email: mockInvoiceDetails.email, isPrimary: true }],
+          };
+          assert.calledWith(
+            StripeWebhookHandlerInstance.mailer
+              .sendSubscriptionAccountDeletionEmail,
+            fakeAccount.emails,
+            fakeAccount,
+            mockInvoiceDetails
+          );
+        }
+      };
 
     it(
       'does not send a cancellation email on subscription deletion',
