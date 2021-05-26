@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Knex from 'knex';
+import { knex, Knex } from 'knex';
 
 import { AppConfig } from '../config';
 import {
@@ -36,7 +36,7 @@ export class DatabaseService {
 
   constructor(configService: ConfigService<AppConfig>) {
     const dbConfig = configService.get('database') as AppConfig['database'];
-    this.knex = Knex({
+    this.knex = knex({
       connection: { typeCast: typeCasting, ...dbConfig },
       client: 'mysql',
     });

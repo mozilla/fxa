@@ -5,7 +5,7 @@ import 'mocha';
 import 'reflect-metadata';
 
 import { assert } from 'chai';
-import Knex from 'knex';
+import { Knex } from 'knex';
 
 import { EmailType, SentEmail } from '../../../../db/models/auth';
 import { randomAccount, testDatabaseSetup } from './helpers';

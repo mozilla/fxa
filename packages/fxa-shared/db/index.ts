@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import Knex from 'knex';
+import { knex, Knex } from 'knex';
 import { promisify } from 'util';
 
 import { MySQLConfig } from './config';
@@ -55,7 +55,7 @@ function typeCasting(field: any, next: any) {
 }
 
 export function setupDatabase(opts: MySQLConfig): Knex {
-  return Knex({
+  return knex({
     connection: {
       typeCast: typeCasting,
       charset: 'UTF8MB4_BIN',

@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { setupAuthDatabase, setupProfileDatabase } from 'fxa-shared/db';
 import { Account } from 'fxa-shared/db/models/auth';
-import Knex from 'knex';
+import { Knex } from 'knex';
 
 import { AppConfig } from '../config';
 
