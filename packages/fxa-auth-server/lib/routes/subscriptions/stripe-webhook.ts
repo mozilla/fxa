@@ -15,8 +15,8 @@ import { PayPalHelper } from '../../payments/paypal';
 import { PayPalClientError } from '../../payments/paypal-client';
 import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
-  PAYPAL_SOURCE_ERRORS,
   PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT,
+  PAYPAL_SOURCE_ERRORS,
 } from '../../payments/paypal-error-codes';
 import { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
@@ -142,13 +142,16 @@ export class StripeWebhookHandler extends StripeHandler {
       !creditNote.out_of_band_amount ||
       creditNote.out_of_band_amount === 0
     ) {
+      reportSentryError(
+        new Error(`Credit note issued for account balance: ${creditNote.id}`),
+        request
+      );
       return;
     }
 
     // We can't issue a refund if there's no paypal transaction to refund.
-    const transactionId = this.stripeHelper.getInvoicePaypalTransactionId(
-      invoice
-    );
+    const transactionId =
+      this.stripeHelper.getInvoicePaypalTransactionId(invoice);
     if (!transactionId) {
       this.log.error('handleCreditNoteEvent', {
         invoiceId: invoice.id,
@@ -158,20 +161,16 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
 
-    const customer = await this.stripeHelper.expandResource(
-      invoice.customer,
-      'customers'
-    );
-    if (!customer || customer.deleted) {
-      return;
-    }
-
     // If the amount doesn't match the invoice we can't reverse it.
     if (creditNote.out_of_band_amount !== invoice.amount_due) {
       this.log.error('handleCreditNoteEvent', {
         invoiceId: invoice.id,
         message: 'Credit note does not match invoice amount.',
       });
+      reportSentryError(
+        new Error(`Mismatched credit amount on invoice: ${invoice.id}.`),
+        request
+      );
       return;
     }
     await this.paypalHelper.issueRefund(invoice, transactionId);
@@ -337,9 +336,8 @@ export class StripeWebhookHandler extends StripeHandler {
     if (!customer || customer.deleted) {
       return;
     }
-    const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
-      customer
-    );
+    const billingAgreementId =
+      this.stripeHelper.getCustomerPaypalAgreement(customer);
     if (!billingAgreementId) {
       await this.sendSubscriptionPaymentFailedEmail(invoice);
       return;
@@ -453,9 +451,8 @@ export class StripeWebhookHandler extends StripeHandler {
    * Send out an email on payment failure.
    */
   async sendSubscriptionPaymentFailedEmail(invoice: Stripe.Invoice) {
-    const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
-      invoice
-    );
+    const invoiceDetails =
+      await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
     const { uid } = invoiceDetails;
     const account = await this.db.account(uid);
     await this.mailer.sendSubscriptionPaymentFailedEmail(
@@ -475,9 +472,8 @@ export class StripeWebhookHandler extends StripeHandler {
    * initial or a subsequent invoice.
    */
   async sendSubscriptionInvoiceEmail(invoice: Stripe.Invoice) {
-    const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
-      invoice
-    );
+    const invoiceDetails =
+      await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
     const { uid } = invoiceDetails;
     const account = await this.db.account(uid);
     const mailParams = [
@@ -507,9 +503,10 @@ export class StripeWebhookHandler extends StripeHandler {
    * whether the change was a subscription upgrade or downgrade.
    */
   async sendSubscriptionUpdatedEmail(event: Stripe.Event) {
-    const eventDetails = await this.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
-      event
-    );
+    const eventDetails =
+      await this.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+        event
+      );
     const { uid, email } = eventDetails;
     const account = await this.db.account(uid);
 
@@ -555,13 +552,11 @@ export class StripeWebhookHandler extends StripeHandler {
         'Subscription latest_invoice was not a string.'
       );
     }
-    const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
-      subscription.latest_invoice
-    );
-    if (
-      subscription.metadata &&
-      subscription.metadata.cancelled_for_customer_at
-    ) {
+    const invoiceDetails =
+      await this.stripeHelper.extractInvoiceDetailsForEmail(
+        subscription.latest_invoice
+      );
+    if (subscription.metadata?.cancelled_for_customer_at) {
       // Subscription already cancelled, should have triggered an email earlier
       return invoiceDetails;
     }
