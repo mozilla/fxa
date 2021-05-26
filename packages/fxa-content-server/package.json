@@ -104,7 +104,7 @@
     "load-grunt-tasks": "^5.1.0",
     "lodash": "^4.17.21",
     "mkdirp": "0.5.1",
-    "mocha": "^7.1.2",
+    "mocha": "^8.4.0",
     "morgan": "^1.10.0",
     "mozlog": "^3.0.2",
     "mustache": "4.2.0",
