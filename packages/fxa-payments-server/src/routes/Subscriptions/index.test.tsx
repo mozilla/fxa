@@ -379,12 +379,8 @@ describe('routes/Subscriptions', () => {
         ],
       });
 
-    const {
-      findByTestId,
-      queryAllByTestId,
-      queryByTestId,
-      getByTestId,
-    } = render(<Subject />);
+    const { findByTestId, queryAllByTestId, queryByTestId, getByTestId } =
+      render(<Subject />);
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');
@@ -462,12 +458,8 @@ describe('routes/Subscriptions', () => {
         ],
       });
 
-    const {
-      findByTestId,
-      queryAllByTestId,
-      queryByTestId,
-      getAllByTestId,
-    } = render(<Subject />);
+    const { findByTestId, queryAllByTestId, queryByTestId, getAllByTestId } =
+      render(<Subject />);
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');
@@ -623,68 +615,73 @@ describe('routes/Subscriptions', () => {
     }
   };
 
-  const reactivationTests = (useDefaultIcon = true) => () => {
-    it('supports reactivating a subscription through the confirmation flow', async () => {
-      commonReactivationSetup({ useDefaultIcon });
-      nock(authServer)
-        .post('/v1/oauth/subscriptions/reactivate')
-        .reply(200, {});
+  const reactivationTests =
+    (useDefaultIcon = true) =>
+    () => {
+      it('supports reactivating a subscription through the confirmation flow', async () => {
+        commonReactivationSetup({ useDefaultIcon });
+        nock(authServer)
+          .post('/v1/oauth/subscriptions/reactivate')
+          .reply(200, {});
 
-      const { findByTestId, getByTestId, getByAltText } = render(<Subject />);
+        const { findByTestId, getByTestId, getByAltText, queryByTestId } =
+          render(<Subject />);
 
-      // Wait for the page to load with one subscription
-      await findByTestId('subscription-management-loaded');
+        // Wait for the page to load with one subscription
+        await findByTestId('subscription-management-loaded');
 
-      const reactivateButton = getByTestId('reactivate-subscription-button');
-      fireEvent.click(reactivateButton);
+        const reactivateButton = getByTestId('reactivate-subscription-button');
+        fireEvent.click(reactivateButton);
 
-      // Product image should appear in the reactivation confirm dialog.
-      expectProductImage({ getByAltText, useDefaultIcon });
+        // Product image should appear in the reactivation confirm dialog.
+        expectProductImage({ getByAltText, useDefaultIcon });
 
-      const reactivateConfirmButton = getByTestId(
-        'reactivate-subscription-confirm-button'
-      );
-      fireEvent.click(reactivateConfirmButton);
+        const reactivateConfirmButton = getByTestId(
+          'reactivate-subscription-confirm-button'
+        );
+        fireEvent.click(reactivateConfirmButton);
 
-      await findByTestId('reactivate-subscription-success-dialog');
+        await findByTestId('reactivate-subscription-success-dialog');
 
-      await wait(10); // something flaky here. without waiting it's the loading-overlay
+        await waitForExpect(() =>
+          expect(queryByTestId('loading-overlay')).not.toBeInTheDocument()
+        );
 
-      // Product image should appear in the reactivation success dialog.
-      expectProductImage({ getByAltText, useDefaultIcon });
+        // Product image should appear in the reactivation success dialog.
+        expectProductImage({ getByAltText, useDefaultIcon });
 
-      const successButton = getByTestId(
-        'reactivate-subscription-success-button'
-      );
-      fireEvent.click(successButton);
+        const successButton = getByTestId(
+          'reactivate-subscription-success-button'
+        );
+        fireEvent.click(successButton);
 
-      await findByTestId('reveal-cancel-subscription-button');
-    });
+        await findByTestId('reveal-cancel-subscription-button');
+      });
 
-    it('should display an error message if reactivation fails', async () => {
-      commonReactivationSetup({ useDefaultIcon });
-      nock(authServer)
-        .post('/v1/oauth/subscriptions/reactivate')
-        .reply(500, {});
+      it('should display an error message if reactivation fails', async () => {
+        commonReactivationSetup({ useDefaultIcon });
+        nock(authServer)
+          .post('/v1/oauth/subscriptions/reactivate')
+          .reply(500, {});
 
-      const { debug, findByTestId, getByTestId, getByAltText } = render(
-        <Subject />
-      );
+        const { debug, findByTestId, getByTestId, getByAltText } = render(
+          <Subject />
+        );
 
-      // Wait for the page to load with one subscription
-      await findByTestId('subscription-management-loaded');
+        // Wait for the page to load with one subscription
+        await findByTestId('subscription-management-loaded');
 
-      const reactivateButton = getByTestId('reactivate-subscription-button');
-      fireEvent.click(reactivateButton);
+        const reactivateButton = getByTestId('reactivate-subscription-button');
+        fireEvent.click(reactivateButton);
 
-      const reactivateConfirmButton = getByTestId(
-        'reactivate-subscription-confirm-button'
-      );
-      fireEvent.click(reactivateConfirmButton);
+        const reactivateConfirmButton = getByTestId(
+          'reactivate-subscription-confirm-button'
+        );
+        fireEvent.click(reactivateConfirmButton);
 
-      await findByTestId('error-reactivation');
-    });
-  };
+        await findByTestId('error-reactivation');
+      });
+    };
 
   describe('reactivation with defined webIconURL', reactivationTests(false));
 

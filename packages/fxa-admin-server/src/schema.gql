@@ -2,16 +2,18 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Account {
-  uid: ID!
+type EmailBounce {
   email: String!
-  emailVerified: Boolean!
+  bounceType: BounceType!
+  bounceSubType: BounceSubType!
   createdAt: Float!
-  emails: [Email!]
-  emailBounces: [EmailBounce!]
-  totp: [Totp!]
-  recoveryKeys: [RecoveryKeys!]
-  sessionTokens: [SessionTokens!]
+}
+
+enum BounceType {
+  unmapped
+  Permanent
+  Transient
+  Complaint
 }
 
 enum BounceSubType {
@@ -32,13 +34,6 @@ enum BounceSubType {
   Virus
 }
 
-enum BounceType {
-  unmapped
-  Permanent
-  Transient
-  Complaint
-}
-
 type Email {
   email: String!
   isVerified: Boolean!
@@ -46,20 +41,20 @@ type Email {
   createdAt: Float!
 }
 
-type EmailBounce {
-  email: String!
-  bounceType: BounceType!
-  bounceSubType: BounceSubType!
+type SecurityEvents {
+  uid: String
+  nameId: Float
+  verified: Boolean
+  ipAddrHmac: String
+  createdAt: Float
+  tokenVerificationId: String
+  name: String
+}
+
+type Totp {
+  verified: Boolean!
   createdAt: Float!
-}
-
-type Mutation {
-  clearEmailBounce(email: String!): Boolean!
-}
-
-type Query {
-  accountByUid(uid: String!): Account
-  accountByEmail(email: String!): Account
+  enabled: Boolean!
 }
 
 type RecoveryKeys {
@@ -81,8 +76,26 @@ type SessionTokens {
   lastAccessTime: Float
 }
 
-type Totp {
-  verified: Boolean!
+type Account {
+  uid: ID!
+  email: String!
+  emailVerified: Boolean!
   createdAt: Float!
-  enabled: Boolean!
+  emails: [Email!]
+  emailBounces: [EmailBounce!]
+  totp: [Totp!]
+  recoveryKeys: [RecoveryKeys!]
+  sessionTokens: [SessionTokens!]
+  securityEvents: [SecurityEvents!]
+}
+
+type Query {
+  accountByUid(uid: String!): Account
+  accountByEmail(email: String!): Account
+  getEmailsLike(search: String!): [Email!]
+}
+
+type Mutation {
+  unverifyEmail(email: String!): Boolean!
+  clearEmailBounce(email: String!): Boolean!
 }

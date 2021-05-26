@@ -1,4 +1,4 @@
-import Knex from 'knex';
+import { knex, Knex } from 'knex';
 import { Model } from 'objection';
 import yargs from 'yargs';
 
@@ -20,8 +20,8 @@ const argv = yargs.options({
 }).argv;
 
 async function addBounceToDB() {
-  const knex = Knex({ client: 'mysql', connection: config.database });
-  Model.knex(knex);
+  const instance = knex({ client: 'mysql', connection: config.database });
+  Model.knex(instance);
   const count = argv.count;
 
   let bounce: BounceIsh;
@@ -53,7 +53,7 @@ async function addBounceToDB() {
     );
   }
 
-  await knex.destroy();
+  await instance.destroy();
 }
 
 addBounceToDB();

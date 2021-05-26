@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 
 import Chance from 'chance';
-import Knex from 'knex';
+import { knex, Knex } from 'knex';
 
 import { setupProfileDatabase } from '../../../../db';
 
@@ -54,7 +54,7 @@ export function randomProfile() {
 
 export async function testDatabaseSetup(): Promise<Knex> {
   // Create the db if it doesn't exist
-  let knex = Knex({
+  let instance = knex({
     client: 'mysql',
     connection: {
       charset: 'UTF8MB4_BIN',
@@ -65,11 +65,11 @@ export async function testDatabaseSetup(): Promise<Knex> {
     },
   });
 
-  await knex.raw('DROP DATABASE IF EXISTS testAdmin');
-  await knex.raw('CREATE DATABASE testAdmin');
-  await knex.destroy();
+  await instance.raw('DROP DATABASE IF EXISTS testAdmin');
+  await instance.raw('CREATE DATABASE testAdmin');
+  await instance.destroy();
 
-  knex = setupProfileDatabase({
+  instance = setupProfileDatabase({
     database: 'testAdmin',
     host: 'localhost',
     password: '',
@@ -77,15 +77,15 @@ export async function testDatabaseSetup(): Promise<Knex> {
     user: 'root',
   });
 
-  await knex.raw(avatarProvidersTable);
-  await knex.raw(avatarTable);
-  await knex.raw(avatarSelectedTable);
-  await knex.raw(profileTable);
+  await instance.raw(avatarProvidersTable);
+  await instance.raw(avatarTable);
+  await instance.raw(avatarSelectedTable);
+  await instance.raw(profileTable);
 
   /* Debugging Assistance
   knex.on('query', (data) => {
     console.dir(data);
   });
   */
-  return knex;
+  return instance;
 }

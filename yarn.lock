@@ -193,40 +193,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/react-common@npm:^3.0.0":
-  version: 3.1.4
-  resolution: "@apollo/react-common@npm:3.1.4"
-  dependencies:
-    ts-invariant: ^0.4.4
-    tslib: ^1.10.0
-  peerDependencies:
-    "@types/react": ^16.8.0
-    apollo-client: ^2.6.4
-    apollo-utilities: ^1.3.2
-    graphql: ^14.3.1
-    react: ^16.8.0
-  checksum: 59a676e3e7610fba7299d9a5c293b3ede7cbc84d1a8ab5e499496383b03d0720e7642906d07e1fe0003efe2c51089775a277cc63cd57215ef35585711cee40b5
-  languageName: node
-  linkType: hard
-
-"@apollo/react-testing@npm:3.0.0":
-  version: 3.0.0
-  resolution: "@apollo/react-testing@npm:3.0.0"
-  dependencies:
-    "@apollo/react-common": ^3.0.0
-    fast-json-stable-stringify: ^2.0.0
-    tslib: ^1.10.0
-  peerDependencies:
-    apollo-cache-inmemory: ^1.6.2
-    apollo-client: ^2.6.3
-    apollo-link: ^1.2.12
-    apollo-utilities: ^1.3.2
-    graphql: ^14.3.1
-    react: ^16.8.0
-  checksum: 572a75f3bbf2504ca96de042f045cc0612a29559cc9329025fc29662c0909bf7d4c9f9d0f25cae374daf6ee0456e03217e6c8c244b8a9456e36b5baead37c52b
-  languageName: node
-  linkType: hard
-
 "@apollographql/apollo-tools@npm:^0.5.0":
   version: 0.5.0
   resolution: "@apollographql/apollo-tools@npm:0.5.0"
@@ -4959,15 +4925,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinonjs/fake-timers@npm:^7.0.4":
-  version: 7.0.5
-  resolution: "@sinonjs/fake-timers@npm:7.0.5"
-  dependencies:
-    "@sinonjs/commons": ^1.7.0
-  checksum: 5cc43301d3d46affdace077854ecffd299b80ab3a438bf34f21b6d6d27e0be636ba475397d12fd5b8561bd30679d0597f9d7e8b5e0c82ad57a6c9b49e366e9b4
-  languageName: node
-  linkType: hard
-
 "@sinonjs/fake-timers@npm:^7.1.0":
   version: 7.1.0
   resolution: "@sinonjs/fake-timers@npm:7.1.0"
@@ -7469,16 +7426,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:*, @types/sinon@npm:^10":
-  version: 10.0.0
-  resolution: "@types/sinon@npm:10.0.0"
-  dependencies:
-    "@sinonjs/fake-timers": ^7.0.4
-  checksum: 4263b63f316b549724d0ae77b68e5155d0859a67fc61facfd64954bb183b27d0d5306a31471d4270e417e276537f68259e497e940354f4d5a381e6821673913a
-  languageName: node
-  linkType: hard
-
-"@types/sinon@npm:10.0.1":
+"@types/sinon@npm:*, @types/sinon@npm:10.0.1, @types/sinon@npm:^10":
   version: 10.0.1
   resolution: "@types/sinon@npm:10.0.1"
   dependencies:
@@ -13007,17 +12955,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^6.0.0, commander@npm:^6.2.0, commander@npm:^6.2.1":
+"commander@npm:^6.0.0, commander@npm:^6.2.1":
   version: 6.2.1
   resolution: "commander@npm:6.2.1"
   checksum: 47856aae6f194404122e359d8463e5e1a18f7cbab26722ce69f1379be8514bd49a160ef81a983d3d2091e3240022643354101d1276c797dcdd0b5bfc3c3f04a3
   languageName: node
   linkType: hard
 
-"commander@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "commander@npm:7.0.0"
-  checksum: 46e60cb1e1ccc3e8d4bac5672d4be08cb60d0a0c22d0c352ba9f9713a11996e79a67216ace4dc32a04ee621c86c9a327f0c35126e4aaf3ede3004f78a009cb19
+"commander@npm:^7.0.0, commander@npm:^7.1.0":
+  version: 7.2.0
+  resolution: "commander@npm:7.2.0"
+  checksum: bdc0eca5e25cd24af8440163d3c9a996785bbac4b49a590365699cdc1ed08cefbac8f268153208ab2bc5dc3cb1d3fb573fd1590c681e36e371342186bd331a4c
   languageName: node
   linkType: hard
 
@@ -17211,18 +17159,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"findup-sync@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "findup-sync@npm:3.0.0"
-  dependencies:
-    detect-file: ^1.0.0
-    is-glob: ^4.0.0
-    micromatch: ^3.0.4
-    resolve-dir: ^1.0.1
-  checksum: be03bd98fc3f6666933b958e690b3913ac932496d55db13379de93657d86073c18ec53e7438ffe3adf98b606830c3d4645fae985e857645dd8a56983188abade
-  languageName: node
-  linkType: hard
-
 "findup-sync@npm:^4.0.0":
   version: 4.0.0
   resolution: "findup-sync@npm:4.0.0"
@@ -17244,7 +17180,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fined@npm:^1.0.1, fined@npm:^1.2.0":
+"fined@npm:^1.2.0":
   version: 1.2.0
   resolution: "fined@npm:1.2.0"
   dependencies:
@@ -17302,7 +17238,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"flagged-respawn@npm:^1.0.0, flagged-respawn@npm:^1.0.1":
+"flagged-respawn@npm:^1.0.1":
   version: 1.0.1
   resolution: "flagged-respawn@npm:1.0.1"
   checksum: a91d3ba48c0c17a0d8b99bf65172be8621a0637526e3425406c96deba91cd05a4a79a6b8029c2644f8448d31ad8ff0f8ef6dfc1d86c6f7a2600d79545417194d
@@ -17927,7 +17863,6 @@ fsevents@~2.1.1:
   resolution: "fxa-admin-panel@workspace:packages/fxa-admin-panel"
   dependencies:
     "@apollo/client": ^3.3.19
-    "@apollo/react-testing": 3.0.0
     "@babel/core": ^7.14.3
     "@emotion/react": ^11.1.5
     "@material-ui/core": v5.0.0-alpha.24
@@ -18032,7 +17967,7 @@ fsevents@~2.1.1:
     graphql-tools: ^7.0.5
     helmet: ^4.6.0
     jest: 26.6.0
-    knex: ^0.21.18
+    knex: ^0.95.6
     mozlog: ^3.0.2
     mysql: ^2.18.1
     objection: ^2.2.15
@@ -18628,7 +18563,7 @@ fsevents@~2.1.1:
     helmet: ^4.6.0
     ioredis: ^4.27.3
     jest: 26.6.0
-    knex: ^0.21.18
+    knex: ^0.95.6
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.0.11
@@ -19062,7 +18997,7 @@ fsevents@~2.1.1:
     js-md5: ^0.7.3
     jsdom: 16.5.3
     jsdom-global: 3.0.2
-    knex: ^0.21.18
+    knex: ^0.95.6
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^8.4.0
@@ -24296,31 +24231,24 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"knex@npm:^0.21.18":
-  version: 0.21.18
-  resolution: "knex@npm:0.21.18"
+"knex@npm:^0.95.6":
+  version: 0.95.6
+  resolution: "knex@npm:0.95.6"
   dependencies:
     colorette: 1.2.1
-    commander: ^6.2.0
+    commander: ^7.1.0
     debug: 4.3.1
+    escalade: ^3.1.1
     esm: ^3.2.25
     getopts: 2.2.5
     interpret: ^2.2.0
-    liftoff: 3.1.0
-    lodash: ^4.17.20
+    lodash: ^4.17.21
     pg-connection-string: 2.4.0
+    rechoir: ^0.7.0
+    resolve-from: ^5.0.0
     tarn: ^3.0.1
     tildify: 2.0.0
-    v8flags: ^3.2.0
-  peerDependencies:
-    mssql: ^6.2.1
-    mysql: ^2.18.1
-    mysql2: ^2.1.0
-    pg: ^8.3.0
-    sqlite3: ^5.0.0
   peerDependenciesMeta:
-    mssql:
-      optional: true
     mysql:
       optional: true
     mysql2:
@@ -24329,9 +24257,11 @@ fsevents@~2.1.1:
       optional: true
     sqlite3:
       optional: true
+    tedious:
+      optional: true
   bin:
     knex: bin/cli.js
-  checksum: a23df2ee4a8f123f4efa99ad42bff2ceb46ded0e061b73eb113846bcd3b4d4861dfd328c9b9d1261c0922b93cf43ae478c25be3923583bcb06e9cc23719d5cf0
+  checksum: c4d8cae48acae446fae25f6f7a2af0553bbab5817e747d2e14b67e5dccd6f044fbdafe9a603ebc8844a53300866a9c6ef290440f5a82ae016652c789a21a755c
   languageName: node
   linkType: hard
 
@@ -24486,22 +24416,6 @@ fsevents@~2.1.1:
   dependencies:
     immediate: ~3.0.5
   checksum: 6c758fbea382ca251d8f6f32b4066b4c57b4c5d574babc7c6abf7bd20e522a54bcd364dd95d6695103b189a005fcaf9e55d7c58a6c243d4ebdd0cc803898c8bd
-  languageName: node
-  linkType: hard
-
-"liftoff@npm:3.1.0":
-  version: 3.1.0
-  resolution: "liftoff@npm:3.1.0"
-  dependencies:
-    extend: ^3.0.0
-    findup-sync: ^3.0.0
-    fined: ^1.0.1
-    flagged-respawn: ^1.0.0
-    is-plain-object: ^2.0.4
-    object.map: ^1.0.0
-    rechoir: ^0.6.2
-    resolve: ^1.1.7
-  checksum: 1e9aa30c6bda4c4ecf7157595d81eca8ac74a367363799a3279fe50ebbb6dddcc4ce861af4d3237936a9f3e02ec3831b59c6991e01fd666c229b0ed50366f399
   languageName: node
   linkType: hard
 
@@ -25722,7 +25636,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"micromatch@npm:^3.0.4, micromatch@npm:^3.1.10, micromatch@npm:^3.1.4":
+"micromatch@npm:^3.1.10, micromatch@npm:^3.1.4":
   version: 3.1.10
   resolution: "micromatch@npm:3.1.10"
   dependencies:
@@ -26326,14 +26240,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ms@npm:2.1.2, ms@npm:^2.0.0, ms@npm:^2.1.1, ms@npm:^2.1.2":
+"ms@npm:2.1.2":
   version: 2.1.2
   resolution: "ms@npm:2.1.2"
   checksum: 9b65fb709bc30c0c07289dcbdb61ca032acbb9ea5698b55fa62e2cebb04c5953f1876a1f3f7f4bc2e91d4bf4d86003f3e207c3bc6ee2f716f99827e62389cd0e
   languageName: node
   linkType: hard
 
-"ms@npm:2.1.3":
+"ms@npm:2.1.3, ms@npm:^2.0.0, ms@npm:^2.1.1, ms@npm:^2.1.2":
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
   checksum: 6e721e648a544154d5de4c114b32f573d8027ca8ec505cf6c1105e505986d6ac46934a1256735aa0eece8eb2f5b2a1230503b2dddd3b100f9f016fd8a4f15f33
@@ -27464,7 +27378,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"object.map@npm:^1.0.0, object.map@npm:^1.0.1":
+"object.map@npm:^1.0.1":
   version: 1.0.1
   resolution: "object.map@npm:1.0.1"
   dependencies:
@@ -35851,7 +35765,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-invariant@npm:^0.4.0, ts-invariant@npm:^0.4.4":
+"ts-invariant@npm:^0.4.0":
   version: 0.4.4
   resolution: "ts-invariant@npm:0.4.4"
   dependencies:
@@ -36883,7 +36797,7 @@ typescript@^4.2.4:
   languageName: node
   linkType: hard
 
-"v8flags@npm:^3.2.0, v8flags@npm:~3.2.0":
+"v8flags@npm:~3.2.0":
   version: 3.2.0
   resolution: "v8flags@npm:3.2.0"
   dependencies:

@@ -5,7 +5,7 @@ import Chance from 'chance';
 import fs from 'fs';
 import { setupAuthDatabase } from 'fxa-shared/db';
 import { Account } from 'fxa-shared/db/models/auth/account';
-import Knex from 'knex';
+import { knex, Knex } from 'knex';
 import path from 'path';
 
 export type AccountIsh = Pick<
@@ -57,7 +57,7 @@ export function randomEmail(account: AccountIsh, primary = true) {
 
 export async function testDatabaseSetup(): Promise<Knex> {
   // Create the db if it doesn't exist
-  let knex = Knex({
+  let instance = knex({
     client: 'mysql',
     connection: {
       charset: 'UTF8MB4_BIN',
@@ -68,11 +68,11 @@ export async function testDatabaseSetup(): Promise<Knex> {
     },
   });
 
-  await knex.raw('DROP DATABASE IF EXISTS testAdmin');
-  await knex.raw('CREATE DATABASE testAdmin');
-  await knex.destroy();
+  await instance.raw('DROP DATABASE IF EXISTS testAdmin');
+  await instance.raw('CREATE DATABASE testAdmin');
+  await instance.destroy();
 
-  knex = setupAuthDatabase({
+  instance = setupAuthDatabase({
     database: 'testAdmin',
     host: 'localhost',
     password: '',
@@ -80,13 +80,13 @@ export async function testDatabaseSetup(): Promise<Knex> {
     user: 'root',
   });
 
-  await knex.raw(accountTable);
-  await knex.raw(emailsTable);
+  await instance.raw(accountTable);
+  await instance.raw(emailsTable);
 
   /* Debugging Assistance
    knex.on('query', (data) => {
      console.dir(data);
    });
    */
-  return knex;
+  return instance;
 }

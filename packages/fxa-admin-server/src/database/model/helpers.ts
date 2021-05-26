@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import Chance from 'chance';
 import fs from 'fs';
-import Knex from 'knex';
+import { knex, Knex } from 'knex';
 import path from 'path';
 
 import { Account, EmailBounces } from '.';
-import { Model } from 'objection';
 
 export type AccountIsh = Pick<
   Account,
@@ -142,7 +141,7 @@ function typeCasting(field: any, next: any) {
 
 export async function testDatabaseSetup(dbname: string): Promise<Knex> {
   // Create the db if it doesn't exist
-  let knex = Knex({
+  let instance = knex({
     client: 'mysql',
     connection: {
       charset: 'utf8',
@@ -153,10 +152,10 @@ export async function testDatabaseSetup(dbname: string): Promise<Knex> {
     },
   });
 
-  await knex.raw(`DROP DATABASE IF EXISTS ${dbname}`);
-  await knex.raw(`CREATE DATABASE ${dbname}`);
-  await knex.destroy();
-  knex = Knex({
+  await instance.raw(`DROP DATABASE IF EXISTS ${dbname}`);
+  await instance.raw(`CREATE DATABASE ${dbname}`);
+  await instance.destroy();
+  instance = knex({
     connection: {
       typeCast: typeCasting,
       database: dbname,
@@ -168,12 +167,12 @@ export async function testDatabaseSetup(dbname: string): Promise<Knex> {
     client: 'mysql',
   });
 
-  await knex.raw(accountTable);
-  await knex.raw(emailsTable);
-  await knex.raw(emailBouncesTable);
-  await knex.raw(totpTable);
-  await knex.raw(recoveryKeysTable);
-  await knex.raw(sessionTokensTable);
+  await instance.raw(accountTable);
+  await instance.raw(emailsTable);
+  await instance.raw(emailBouncesTable);
+  await instance.raw(totpTable);
+  await instance.raw(recoveryKeysTable);
+  await instance.raw(sessionTokensTable);
 
   /* Debugging Assistance
   knex.on('query', data => {
@@ -181,5 +180,5 @@ export async function testDatabaseSetup(dbname: string): Promise<Knex> {
   });
   */
 
-  return knex;
+  return instance;
 }

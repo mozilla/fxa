@@ -7,7 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Account } from 'fxa-shared/db/models/auth';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import Knex from 'knex';
+import { Knex } from 'knex';
 
 import { randomAccount, testDatabaseSetup } from '../../test/helpers';
 import { AuthClientService } from '../backend/auth-client.service';

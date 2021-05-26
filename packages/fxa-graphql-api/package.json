@@ -59,7 +59,7 @@
     "graphql-upload": "^11.0.0",
     "helmet": "^4.6.0",
     "ioredis": "^4.27.3",
-    "knex": "^0.21.18",
+    "knex": "^0.95.6",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "objection": "^2.2.15",

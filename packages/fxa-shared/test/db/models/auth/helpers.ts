@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 
 import Chance from 'chance';
-import Knex from 'knex';
+import { knex, Knex } from 'knex';
 
 import { setupAuthDatabase } from '../../../../db';
 import { Account } from '../../../../db/models/auth/account';
@@ -50,7 +50,7 @@ export function randomEmail(account: AccountIsh, primary = true) {
 
 export async function testDatabaseSetup(): Promise<Knex> {
   // Create the db if it doesn't exist
-  let knex = Knex({
+  let instance = knex({
     client: 'mysql',
     connection: {
       charset: 'UTF8MB4_BIN',
@@ -61,11 +61,11 @@ export async function testDatabaseSetup(): Promise<Knex> {
     },
   });
 
-  await knex.raw('DROP DATABASE IF EXISTS testAdmin');
-  await knex.raw('CREATE DATABASE testAdmin');
-  await knex.destroy();
+  await instance.raw('DROP DATABASE IF EXISTS testAdmin');
+  await instance.raw('CREATE DATABASE testAdmin');
+  await instance.destroy();
 
-  knex = setupAuthDatabase({
+  instance = setupAuthDatabase({
     database: 'testAdmin',
     host: 'localhost',
     password: '',
@@ -78,7 +78,7 @@ export async function testDatabaseSetup(): Promise<Knex> {
       filePaths
         .map((x) => path.join(__dirname, x))
         .map((x) => fs.readFileSync(x, 'utf8'))
-        .map((x) => knex.raw.bind(knex)(x))
+        .map((x) => instance.raw.bind(instance)(x))
     );
 
   await runSql([
@@ -97,5 +97,5 @@ export async function testDatabaseSetup(): Promise<Knex> {
     console.dir(data);
   });
   //*/
-  return knex;
+  return instance;
 }
