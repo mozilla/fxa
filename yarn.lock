@@ -4968,6 +4968,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sinonjs/fake-timers@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@sinonjs/fake-timers@npm:7.1.0"
+  dependencies:
+    "@sinonjs/commons": ^1.7.0
+  checksum: a16fdefd9c420cef70b710ac21bb498deeec68d6dfc614aeea590632b89faed274d9e282f8be612386f9c33c7c652c4e5128b43ca484c5477d17a8453d37a580
+  languageName: node
+  linkType: hard
+
 "@sinonjs/formatio@npm:^2.0.0":
   version: 2.0.0
   resolution: "@sinonjs/formatio@npm:2.0.0"
@@ -7460,12 +7469,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:*, @types/sinon@npm:10.0.0, @types/sinon@npm:^10":
+"@types/sinon@npm:*, @types/sinon@npm:^10":
   version: 10.0.0
   resolution: "@types/sinon@npm:10.0.0"
   dependencies:
     "@sinonjs/fake-timers": ^7.0.4
   checksum: 4263b63f316b549724d0ae77b68e5155d0859a67fc61facfd64954bb183b27d0d5306a31471d4270e417e276537f68259e497e940354f4d5a381e6821673913a
+  languageName: node
+  linkType: hard
+
+"@types/sinon@npm:10.0.1":
+  version: 10.0.1
+  resolution: "@types/sinon@npm:10.0.1"
+  dependencies:
+    "@sinonjs/fake-timers": ^7.1.0
+  checksum: 72a4ca9d5cc320be5d5b9212ec7bdad5a7d63dd7ab71284a246cc718bfad68c50ed3adb728a4b7dc9d17d9011773e405f6becfbf2d64496aa45ba9789d7e82c4
   languageName: node
   linkType: hard
 
@@ -18451,7 +18469,7 @@ fsevents@~2.1.1:
     "@types/passport": ^1.0.6
     "@types/passport-jwt": ^3.0.5
     "@types/rimraf": 3.0.0
-    "@types/sinon": 10.0.0
+    "@types/sinon": 10.0.1
     "@types/supertest": ^2.0.11
     "@types/uuid": ^8.3.0
     "@typescript-eslint/eslint-plugin": ^4.25.0
@@ -18616,7 +18634,7 @@ fsevents@~2.1.1:
     "@types/convict": ^5.2.2
     "@types/mocha": ^8.2.2
     "@types/node": ^14.14.37
-    "@types/sinon": 10.0.0
+    "@types/sinon": 10.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
     chai: ^4.3.4
@@ -18693,7 +18711,7 @@ fsevents@~2.1.1:
     "@types/react-stripe-elements": ^1.3.5
     "@types/react-transition-group": ^4.4.1
     "@types/redux-actions": ^2.6.0
-    "@types/sinon": 10.0.0
+    "@types/sinon": 10.0.1
     "@types/storybook__addon-actions": ^5.2.1
     "@types/storybook__addon-links": ^5.2.1
     "@types/storybook__react": ^5.2.1
@@ -18982,7 +19000,7 @@ fsevents@~2.1.1:
     "@types/node": ^14.14.37
     "@types/proxyquire": ^1.3.28
     "@types/redis": ^2.8.28
-    "@types/sinon": 10.0.0
+    "@types/sinon": 10.0.1
     "@types/superagent": ^4.1.11
     accept-language: ^2.0.17
     ajv: ^6.12.2
