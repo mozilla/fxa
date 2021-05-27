@@ -59,7 +59,7 @@
     "@types/jest": "^26.0.23",
     "@types/jsdom": "^16.2.10",
     "@types/nock": "^11.1.0",
-    "@types/node": "^14.14.37",
+    "@types/node": "^15.6.1",
     "@types/react": "^16.9.53",
     "@types/react-document-title": "^2.0.3",
     "@types/react-dom": "^16.9.4",
