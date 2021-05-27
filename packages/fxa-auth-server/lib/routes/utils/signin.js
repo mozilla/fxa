@@ -40,33 +40,24 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
      * customs. Higher level code will take care of
      * returning an error to the user.
      */
-    checkPassword(accountRecord, password, clientAddress) {
+    async checkPassword(accountRecord, password, clientAddress) {
       if (butil.buffersAreEqual(accountRecord.authSalt, butil.ONES)) {
-        return customs
-          .flag(clientAddress, {
-            email: accountRecord.email,
-            errno: error.ERRNO.ACCOUNT_RESET,
-          })
-          .then(() => {
-            throw error.mustResetAccount(accountRecord.email);
-          });
-      }
-      return password
-        .verifyHash()
-        .then((verifyHash) => {
-          return db.checkPassword(accountRecord.uid, verifyHash);
-        })
-        .then((match) => {
-          if (match) {
-            return match;
-          }
-          return customs
-            .flag(clientAddress, {
-              email: accountRecord.email,
-              errno: error.ERRNO.INCORRECT_PASSWORD,
-            })
-            .then(() => match);
+        await customs.flag(clientAddress, {
+          email: accountRecord.email,
+          errno: error.ERRNO.ACCOUNT_RESET,
         });
+        throw error.mustResetAccount(accountRecord.email);
+      }
+      const verifyHash = await password.verifyHash();
+      const match = await db.checkPassword(accountRecord.uid, verifyHash);
+      if (match) {
+        return match;
+      }
+      await customs.flag(clientAddress, {
+        email: accountRecord.email,
+        errno: error.ERRNO.INCORRECT_PASSWORD,
+      });
+      return match;
     },
 
     /**
@@ -105,23 +96,23 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
      *    didSigninUnblock:  whether an unblock code was successfully used
      *  }
      */
-    checkCustomsAndLoadAccount(request, email) {
+    async checkCustomsAndLoadAccount(request, email) {
       let accountRecord, originalError;
       let didSigninUnblock = false;
 
-      return Promise.resolve()
-        .then(() => {
+      try {
+        try {
           // For testing purposes, some email addresses are forced
           // to go through signin unblock on every login attempt.
           const forced =
             config.signinUnblock && config.signinUnblock.forcedEmailAddresses;
           if (forced && forced.test(email)) {
-            return Promise.reject(error.requestBlocked(true));
+            throw error.requestBlocked(true);
           }
-          return customs.check(request, email, 'accountLogin');
-        })
-        .catch((e) => {
+          await customs.check(request, email, 'accountLogin');
+        } catch (e) {
           originalError = e;
+
           // Non-customs-related errors get thrown straight back to the caller.
           if (
             e.errno !== error.ERRNO.REQUEST_BLOCKED &&
@@ -129,93 +120,81 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
           ) {
             throw e;
           }
-          return request.emitMetricsEvent('account.login.blocked').then(() => {
-            // If this customs error cannot be bypassed with email confirmation,
-            // throw it straight back to the caller.
-            const verificationMethod = e.output.payload.verificationMethod;
-            if (
-              verificationMethod !== 'email-captcha' ||
-              !request.payload.unblockCode
-            ) {
+          await request.emitMetricsEvent('account.login.blocked');
+
+          // If this customs error cannot be bypassed with email confirmation,
+          // throw it straight back to the caller.
+          const verificationMethod = e.output.payload.verificationMethod;
+          if (
+            verificationMethod !== 'email-captcha' ||
+            !request.payload.unblockCode
+          ) {
+            throw e;
+          }
+
+          // Check for a valid unblockCode, to allow the request to proceed.
+          // This requires that we load the accountRecord to learn the uid.
+          const unblockCode = request.payload.unblockCode.toUpperCase();
+          accountRecord = await db.accountRecord(email);
+          try {
+            const code = await db.consumeUnblockCode(
+              accountRecord.uid,
+              unblockCode
+            );
+            if (Date.now() - code.createdAt > unblockCodeLifetime) {
+              log.info('Account.login.unblockCode.expired', {
+                uid: accountRecord.uid,
+              });
+              throw error.invalidUnblockCode();
+            }
+            didSigninUnblock = true;
+            await request.emitMetricsEvent(
+              'account.login.confirmedUnblockCode'
+            );
+          } catch (e) {
+            if (e.errno !== error.ERRNO.INVALID_UNBLOCK_CODE) {
               throw e;
             }
-            // Check for a valid unblockCode, to allow the request to proceed.
-            // This requires that we load the accountRecord to learn the uid.
-            const unblockCode = request.payload.unblockCode.toUpperCase();
-            return db.accountRecord(email).then((result) => {
-              accountRecord = result;
-              return db
-                .consumeUnblockCode(accountRecord.uid, unblockCode)
-                .then((code) => {
-                  if (Date.now() - code.createdAt > unblockCodeLifetime) {
-                    log.info('Account.login.unblockCode.expired', {
-                      uid: accountRecord.uid,
-                    });
-                    throw error.invalidUnblockCode();
-                  }
-                })
-                .then(() => {
-                  didSigninUnblock = true;
-                  return request.emitMetricsEvent(
-                    'account.login.confirmedUnblockCode'
-                  );
-                })
-                .catch((e) => {
-                  if (e.errno !== error.ERRNO.INVALID_UNBLOCK_CODE) {
-                    throw e;
-                  }
-                  return request
-                    .emitMetricsEvent('account.login.invalidUnblockCode')
-                    .then(() => {
-                      throw e;
-                    });
-                });
-            });
-          });
-        })
-        .then(() => {
-          // If we didn't load it above while checking unblock codes,
-          // it's now safe to load the account record from the db.
-          if (!accountRecord) {
-            // If `originalLoginEmail` is specified, we need to fetch the account record tied
-            // to that email. In the case where a user has changed their primary email, the `email`
-            // value here is really the value used to hash the password and has no guarantee to
-            // belong to the user.
-            if (request.payload.originalLoginEmail) {
-              return db
-                .accountRecord(request.payload.originalLoginEmail)
-                .then((result) => {
-                  accountRecord = result;
-                });
-            }
+            await request.emitMetricsEvent('account.login.invalidUnblockCode');
+            throw e;
+          }
+        }
 
-            return db.accountRecord(email).then((result) => {
-              accountRecord = result;
-            });
+        // If we didn't load it above while checking unblock codes,
+        // it's now safe to load the account record from the db.
+        if (!accountRecord) {
+          // If `originalLoginEmail` is specified, we need to fetch the account record tied
+          // to that email. In the case where a user has changed their primary email, the `email`
+          // value here is really the value used to hash the password and has no guarantee to
+          // belong to the user.
+          if (request.payload.originalLoginEmail) {
+            accountRecord = await db.accountRecord(
+              request.payload.originalLoginEmail
+            );
+          } else {
+            accountRecord = await db.accountRecord(email);
           }
-        })
-        .then(() => {
-          return { accountRecord, didSigninUnblock };
-        })
-        .catch((e) => {
-          // Some errors need to be flagged with customs.
-          if (
-            e.errno === error.ERRNO.INVALID_UNBLOCK_CODE ||
-            e.errno === error.ERRNO.ACCOUNT_UNKNOWN
-          ) {
-            customs.flag(request.app.clientAddress, {
-              email: email,
-              errno: e.errno,
-            });
-          }
-          // For any error other than INVALID_UNBLOCK_CODE, hide it behind the original customs error.
-          // This prevents us from accidentally leaking additional info to a caller that's been
-          // blocked, including e.g. whether or not the target account exists.
-          if (originalError && e.errno !== error.ERRNO.INVALID_UNBLOCK_CODE) {
-            throw originalError;
-          }
-          throw e;
-        });
+        }
+        return { accountRecord, didSigninUnblock };
+      } catch (e) {
+        // Some errors need to be flagged with customs.
+        if (
+          e.errno === error.ERRNO.INVALID_UNBLOCK_CODE ||
+          e.errno === error.ERRNO.ACCOUNT_UNKNOWN
+        ) {
+          customs.flag(request.app.clientAddress, {
+            email: email,
+            errno: e.errno,
+          });
+        }
+        // For any error other than INVALID_UNBLOCK_CODE, hide it behind the original customs error.
+        // This prevents us from accidentally leaking additional info to a caller that's been
+        // blocked, including e.g. whether or not the target account exists.
+        if (originalError && e.errno !== error.ERRNO.INVALID_UNBLOCK_CODE) {
+          throw originalError;
+        }
+        throw e;
+      }
     },
 
     /**
@@ -258,39 +237,37 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
       }
       request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'login');
 
-      return stashMetricsContext()
-        .then(checkNumberOfActiveSessions)
-        .then(emitLoginEvent)
-        .then(sendEmail)
-        .then(recordSecurityEvent);
+      await stashMetricsContext();
+      await checkNumberOfActiveSessions();
+      await emitLoginEvent();
+      await sendEmail();
+      await recordSecurityEvent();
+      return;
 
-      function stashMetricsContext() {
-        return request.stashMetricsContext(sessionToken).then(() => {
-          if (mustVerifySession) {
-            // There is no session token when we emit account.confirmed
-            // so stash the data against a synthesized "token" instead.
-            return request.stashMetricsContext({
-              uid: accountRecord.uid,
-              id: sessionToken.tokenVerificationId,
-            });
-          }
-        });
+      async function stashMetricsContext() {
+        await request.stashMetricsContext(sessionToken);
+        if (mustVerifySession) {
+          // There is no session token when we emit account.confirmed
+          // so stash the data against a synthesized "token" instead.
+          return request.stashMetricsContext({
+            uid: accountRecord.uid,
+            id: sessionToken.tokenVerificationId,
+          });
+        }
       }
 
-      function checkNumberOfActiveSessions() {
-        return db.sessions(accountRecord.uid).then((s) => {
-          sessions = s;
-          if (sessions.length > MAX_ACTIVE_SESSIONS) {
-            // There's no spec-compliant way to error out
-            // as a result of having too many active sessions.
-            // For now, just log metrics about it.
-            log.error('Account.login', {
-              uid: accountRecord.uid,
-              userAgent: request.headers['user-agent'],
-              numSessions: sessions.length,
-            });
-          }
-        });
+      async function checkNumberOfActiveSessions() {
+        sessions = await db.sessions(accountRecord.uid);
+        if (sessions.length > MAX_ACTIVE_SESSIONS) {
+          // There's no spec-compliant way to error out
+          // as a result of having too many active sessions.
+          // For now, just log metrics about it.
+          log.error('Account.login', {
+            uid: accountRecord.uid,
+            userAgent: request.headers['user-agent'],
+            numSessions: sessions.length,
+          });
+        }
       }
 
       async function emitLoginEvent() {
@@ -382,39 +359,42 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
         }
       }
 
-      function sendVerifyLoginEmail() {
+      async function sendVerifyLoginEmail() {
         log.info('account.signin.confirm.start', {
           uid: accountRecord.uid,
           tokenVerificationId: sessionToken.tokenVerificationId,
         });
 
         const geoData = request.app.geo;
-        return mailer
-          .sendVerifyLoginEmail(accountRecord.emails, accountRecord, {
-            acceptLanguage: request.app.acceptLanguage,
-            code: sessionToken.tokenVerificationId,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            ip,
-            location: geoData.location,
-            redirectTo: redirectTo,
-            resume: resume,
-            service: service,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: sessionToken.uid,
-          })
-          .then(() => request.emitMetricsEvent('email.confirmation.sent'))
-          .catch((err) => {
-            log.error('mailer.confirmation.error', { err });
-
-            throw emailUtils.sendError(err, isUnverifiedAccount);
-          });
+        try {
+          await mailer.sendVerifyLoginEmail(
+            accountRecord.emails,
+            accountRecord,
+            {
+              acceptLanguage: request.app.acceptLanguage,
+              code: sessionToken.tokenVerificationId,
+              deviceId,
+              flowId,
+              flowBeginTime,
+              ip,
+              location: geoData.location,
+              redirectTo: redirectTo,
+              resume: resume,
+              service: service,
+              timeZone: geoData.timeZone,
+              uaBrowser: request.app.ua.browser,
+              uaBrowserVersion: request.app.ua.browserVersion,
+              uaOS: request.app.ua.os,
+              uaOSVersion: request.app.ua.osVersion,
+              uaDeviceType: request.app.ua.deviceType,
+              uid: sessionToken.uid,
+            }
+          );
+          await request.emitMetricsEvent('email.confirmation.sent');
+        } catch (err) {
+          log.error('mailer.confirmation.error', { err });
+          throw emailUtils.sendError(err, isUnverifiedAccount);
+        }
       }
 
       async function sendVerifyLoginCodeEmail() {
@@ -462,23 +442,17 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
       }
     },
 
-    createKeyFetchToken(request, accountRecord, password, sessionToken) {
-      return password
-        .unwrap(accountRecord.wrapWrapKb)
-        .then((wrapKb) => {
-          return db.createKeyFetchToken({
-            uid: accountRecord.uid,
-            kA: accountRecord.kA,
-            wrapKb: wrapKb,
-            emailVerified: accountRecord.primaryEmail.isVerified,
-            tokenVerificationId: sessionToken.tokenVerificationId,
-          });
-        })
-        .then((keyFetchToken) => {
-          return request.stashMetricsContext(keyFetchToken).then(() => {
-            return keyFetchToken;
-          });
-        });
+    async createKeyFetchToken(request, accountRecord, password, sessionToken) {
+      const wrapKb = await password.unwrap(accountRecord.wrapWrapKb);
+      const keyFetchToken = await db.createKeyFetchToken({
+        uid: accountRecord.uid,
+        kA: accountRecord.kA,
+        wrapKb: wrapKb,
+        emailVerified: accountRecord.primaryEmail.isVerified,
+        tokenVerificationId: sessionToken.tokenVerificationId,
+      });
+      await request.stashMetricsContext(keyFetchToken);
+      return keyFetchToken;
     },
 
     getSessionVerificationStatus(sessionToken, verificationMethod) {
