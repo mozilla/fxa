@@ -8,7 +8,7 @@
 
 {{{updateBillingUrl}}}
 
-{{{t "Thank you for subscribing to %(productName)s. If you have any questions about your subscription or need more information about %(productName)s please contact us:" }}}
+{{{t "Thank you for subscribing to %(productName)s. If you have any questions about your subscription or need more information about %(productName)s, please contact us:" }}}
 
 {{{subscriptionSupportUrl}}}
 
