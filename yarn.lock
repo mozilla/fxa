@@ -9737,7 +9737,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autoprefixer@npm:9.8.6, autoprefixer@npm:^9, autoprefixer@npm:^9.4.5, autoprefixer@npm:^9.6.1, autoprefixer@npm:^9.8.6":
+"autoprefixer@npm:10.2.6":
+  version: 10.2.6
+  resolution: "autoprefixer@npm:10.2.6"
+  dependencies:
+    browserslist: ^4.16.6
+    caniuse-lite: ^1.0.30001230
+    colorette: ^1.2.2
+    fraction.js: ^4.1.1
+    normalize-range: ^0.1.2
+    postcss-value-parser: ^4.1.0
+  peerDependencies:
+    postcss: ^8.1.0
+  bin:
+    autoprefixer: bin/autoprefixer
+  checksum: 805414d4efe4f25c6162edc65ad999235ea28cf11b6a1ed838b055ef1f777368dd16c978b44d0b48bb96a3420948d26da27066d5caa4f81bcee1946e9a269532
+  languageName: node
+  linkType: hard
+
+"autoprefixer@npm:^9, autoprefixer@npm:^9.4.5, autoprefixer@npm:^9.6.1, autoprefixer@npm:^9.8.6":
   version: 9.8.6
   resolution: "autoprefixer@npm:9.8.6"
   dependencies:
@@ -11566,7 +11584,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.0.0, browserslist@npm:^4.12.0, browserslist@npm:^4.14.5, browserslist@npm:^4.16.5, browserslist@npm:^4.6.2, browserslist@npm:^4.6.4, browserslist@npm:^4.7.2, browserslist@npm:^4.9.1":
+"browserslist@npm:^4.0.0, browserslist@npm:^4.12.0, browserslist@npm:^4.14.5, browserslist@npm:^4.16.5, browserslist@npm:^4.16.6, browserslist@npm:^4.6.2, browserslist@npm:^4.6.4, browserslist@npm:^4.7.2, browserslist@npm:^4.9.1":
   version: 4.16.6
   resolution: "browserslist@npm:4.16.6"
   dependencies:
@@ -12073,6 +12091,13 @@ __metadata:
   version: 1.0.30001228
   resolution: "caniuse-lite@npm:1.0.30001228"
   checksum: a4eb04288e9b7f7bda158126f37e8dab97a5fc851dab192083f36906d8bf76e0526afa0692a662267ea4b3df0b0ba13f847457ac2be0f1ea209ec3013b7caabe
+  languageName: node
+  linkType: hard
+
+"caniuse-lite@npm:^1.0.30001230":
+  version: 1.0.30001230
+  resolution: "caniuse-lite@npm:1.0.30001230"
+  checksum: bb319bedf33722a2d16e28a7e0d13fabde59be4fccd48d80939254228c7a49059b74bd99b313596f75c997480f9097cc3e7cda7c7687e5a096bb9c75260c145d
   languageName: node
   linkType: hard
 
@@ -17581,6 +17606,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fraction.js@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "fraction.js@npm:4.1.1"
+  checksum: 3667dfc48804ba4623f43e8d284a30f9abcb546f59c44dbcb51722e114d77fb06f0fe9bf051db816db6b2679c55dfccb633c4841c3436b2239c5dffcef0a8ccf
+  languageName: node
+  linkType: hard
+
 "fragment-cache@npm:^0.2.1":
   version: 0.2.1
   resolution: "fragment-cache@npm:0.2.1"
@@ -18210,7 +18242,7 @@ fsevents@~2.1.1:
     "@types/sinon-express-mock": 1.3.9
     asmcrypto.js: ^0.22.0
     audit-filter: ^0.5.0
-    autoprefixer: 9.8.6
+    autoprefixer: 10.2.6
     babel-eslint: ^10.1.0
     babel-loader: ^8.2.2
     babel-plugin-dynamic-import-webpack: 1.1.0
