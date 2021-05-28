@@ -8470,6 +8470,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"acorn@npm:^8.2.4":
+  version: 8.2.4
+  resolution: "acorn@npm:8.2.4"
+  bin:
+    acorn: bin/acorn
+  checksum: 6879266ea9ba4ece99afb4ab4f3ac6eaa3cf866cee40651ca90cde0b1fd5c6954d2006c54877c83287d5d38700327cbd6bda028b6fbb1daa346c7034f18147c2
+  languageName: node
+  linkType: hard
+
 "acorn@npm:~4.0.2":
   version: 4.0.13
   resolution: "acorn@npm:4.0.13"
@@ -19008,7 +19017,7 @@ fsevents@~2.1.1:
     jest: 26.6.0
     joi: ^14.3.1
     js-md5: ^0.7.3
-    jsdom: 16.5.3
+    jsdom: 16.6.0
     jsdom-global: 3.0.2
     knex: ^0.95.6
     lodash.omitby: ^4.6.0
@@ -22350,6 +22359,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"is-potential-custom-element-name@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "is-potential-custom-element-name@npm:1.0.1"
+  checksum: 25520ce8de393b87c8a2ce4d410c424d16baab0d5a43cbf76af148940725e489dbf3541a43371bcc0881fcb186d9a4ed18b774a11ac8743dd064303cea8de50d
+  languageName: node
+  linkType: hard
+
 "is-promise@npm:4.0.0":
   version: 4.0.0
   resolution: "is-promise@npm:4.0.0"
@@ -23633,7 +23649,81 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jsdom@npm:16.5.3, jsdom@npm:^16.4.0":
+"jsdom@npm:16.6.0":
+  version: 16.6.0
+  resolution: "jsdom@npm:16.6.0"
+  dependencies:
+    abab: ^2.0.5
+    acorn: ^8.2.4
+    acorn-globals: ^6.0.0
+    cssom: ^0.4.4
+    cssstyle: ^2.3.0
+    data-urls: ^2.0.0
+    decimal.js: ^10.2.1
+    domexception: ^2.0.1
+    escodegen: ^2.0.0
+    form-data: ^3.0.0
+    html-encoding-sniffer: ^2.0.1
+    http-proxy-agent: ^4.0.1
+    https-proxy-agent: ^5.0.0
+    is-potential-custom-element-name: ^1.0.1
+    nwsapi: ^2.2.0
+    parse5: 6.0.1
+    saxes: ^5.0.1
+    symbol-tree: ^3.2.4
+    tough-cookie: ^4.0.0
+    w3c-hr-time: ^1.0.2
+    w3c-xmlserializer: ^2.0.0
+    webidl-conversions: ^6.1.0
+    whatwg-encoding: ^1.0.5
+    whatwg-mimetype: ^2.3.0
+    whatwg-url: ^8.5.0
+    ws: ^7.4.5
+    xml-name-validator: ^3.0.0
+  peerDependencies:
+    canvas: ^2.5.0
+  peerDependenciesMeta:
+    canvas:
+      optional: true
+  checksum: ee0c9ef2cf499d01d6186622a3788df72fa970a2eb695a237efebace6d99875a3402062842420badddad02cf1e90a0de88c65a266366721a45732144f7616db6
+  languageName: node
+  linkType: hard
+
+"jsdom@npm:^14.1.0":
+  version: 14.1.0
+  resolution: "jsdom@npm:14.1.0"
+  dependencies:
+    abab: ^2.0.0
+    acorn: ^6.0.4
+    acorn-globals: ^4.3.0
+    array-equal: ^1.0.0
+    cssom: ^0.3.4
+    cssstyle: ^1.1.1
+    data-urls: ^1.1.0
+    domexception: ^1.0.1
+    escodegen: ^1.11.0
+    html-encoding-sniffer: ^1.0.2
+    nwsapi: ^2.1.3
+    parse5: 5.1.0
+    pn: ^1.1.0
+    request: ^2.88.0
+    request-promise-native: ^1.0.5
+    saxes: ^3.1.9
+    symbol-tree: ^3.2.2
+    tough-cookie: ^2.5.0
+    w3c-hr-time: ^1.0.1
+    w3c-xmlserializer: ^1.1.2
+    webidl-conversions: ^4.0.2
+    whatwg-encoding: ^1.0.5
+    whatwg-mimetype: ^2.3.0
+    whatwg-url: ^7.0.0
+    ws: ^6.1.2
+    xml-name-validator: ^3.0.0
+  checksum: 1a0948d5302dd079feab5caf9ea7d38f455c6d5238a3f3a0de88f386e2723a089875c0ede155ff284425fba5e9f848d1bf980f7546421efce702283586f84b52
+  languageName: node
+  linkType: hard
+
+"jsdom@npm:^16.4.0":
   version: 16.5.3
   resolution: "jsdom@npm:16.5.3"
   dependencies:
@@ -23669,40 +23759,6 @@ fsevents@~2.1.1:
     canvas:
       optional: true
   checksum: 02f6e3b5bb6c75f70b256f9fb522ce67cdf035c8e073a61f152876570d29453f164a4f1ea38a62e419511f81f6f75ced793e6332b66a647dc8012daacff27b8e
-  languageName: node
-  linkType: hard
-
-"jsdom@npm:^14.1.0":
-  version: 14.1.0
-  resolution: "jsdom@npm:14.1.0"
-  dependencies:
-    abab: ^2.0.0
-    acorn: ^6.0.4
-    acorn-globals: ^4.3.0
-    array-equal: ^1.0.0
-    cssom: ^0.3.4
-    cssstyle: ^1.1.1
-    data-urls: ^1.1.0
-    domexception: ^1.0.1
-    escodegen: ^1.11.0
-    html-encoding-sniffer: ^1.0.2
-    nwsapi: ^2.1.3
-    parse5: 5.1.0
-    pn: ^1.1.0
-    request: ^2.88.0
-    request-promise-native: ^1.0.5
-    saxes: ^3.1.9
-    symbol-tree: ^3.2.2
-    tough-cookie: ^2.5.0
-    w3c-hr-time: ^1.0.1
-    w3c-xmlserializer: ^1.1.2
-    webidl-conversions: ^4.0.2
-    whatwg-encoding: ^1.0.5
-    whatwg-mimetype: ^2.3.0
-    whatwg-url: ^7.0.0
-    ws: ^6.1.2
-    xml-name-validator: ^3.0.0
-  checksum: 1a0948d5302dd079feab5caf9ea7d38f455c6d5238a3f3a0de88f386e2723a089875c0ede155ff284425fba5e9f848d1bf980f7546421efce702283586f84b52
   languageName: node
   linkType: hard
 
