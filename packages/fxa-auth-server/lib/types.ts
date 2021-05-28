@@ -4,6 +4,8 @@
 import { Request, RequestApplicationState } from '@hapi/hapi';
 import { Logger } from 'mozlog';
 
+export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;
+
 /**
  * Auth-Server specific interfaces to use objects.
  *
@@ -27,8 +29,26 @@ export interface AuthLogger extends Logger {
 export interface AuthApp extends RequestApplicationState {
   devices: Promise<any>;
   locale: String;
+  acceptLanguage: String;
+  clientAddress: string;
+  metricsContext: any;
+  accountRecreated: boolean;
+  ua: {
+    browser: string;
+    browserVersion: string;
+    os: string;
+    osVersion: string;
+    deviceType: string;
+    formFactor: string;
+  };
+  isSuspiciousRequest: boolean;
   geo: {
-    location: { city: string; state: string; country: string };
+    location: {
+      city: string;
+      state: string;
+      country: string;
+      countryCode: string;
+    };
     [key: string]: any;
   };
 }
@@ -36,4 +56,9 @@ export interface AuthApp extends RequestApplicationState {
 export interface AuthRequest extends Request {
   log: AuthLogger;
   app: AuthApp;
+  validateMetricsContext: any;
+  setMetricsFlowCompleteSignal: any;
+  emitMetricsEvent: any;
+  stashMetricsContext: any;
+  propagateMetricsContext: any;
 }
