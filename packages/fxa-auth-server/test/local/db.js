@@ -15,11 +15,18 @@ const config = require('../../config').getProperties();
 
 const models = {
   Device: {
+    delete: sinon.stub().resolves({ sessionTokenId: 'fakeSessionTokenId' }),
     findByPrimaryKey: sinon.stub().resolves({ id: 'fakeDeviceId' }),
     findByUid: sinon.stub().resolves([]),
   },
   SessionToken: {
+    create: sinon.stub().resolves(null),
+    delete: sinon.stub().resolves(null),
     findByUid: sinon.stub().resolves([]),
+  },
+  Account: {
+    delete: sinon.stub().resolves(null),
+    reset: sinon.stub().resolves(null),
   },
 };
 
@@ -202,56 +209,6 @@ describe('db with redis disabled:', () => {
     });
   });
 
-  it('db.deleteAccount succeeds without a redis instance', () => {
-    return db.deleteAccount({ uid: 'fakeUid' }).then(() => {
-      assert.equal(pool.del.callCount, 1);
-      const args = pool.del.args[0];
-      assert.equal(args.length, 2);
-      assert.equal(typeof args[0].render, 'function');
-      assert.equal(args[0].constructor.name, 'SafeUrl');
-      assert.deepEqual(args[1], { uid: 'fakeUid' });
-    });
-  });
-
-  it('db.deleteSessionToken succeeds without a redis instance', () => {
-    return db.deleteSessionToken({ id: 'foo', uid: 'bar' }).then(() => {
-      assert.equal(pool.del.callCount, 1);
-      const args = pool.del.args[0];
-      assert.equal(args.length, 2);
-      assert.equal(typeof args[0].render, 'function');
-      assert.equal(args[0].constructor.name, 'SafeUrl');
-      assert.deepEqual(args[1], { id: 'foo' });
-    });
-  });
-
-  it('db.deleteDevice succeeds without a redis instance', () => {
-    pool.del = sinon.spy(() => P.resolve({}));
-    return db.deleteDevice('foo', 'bar').then(() => {
-      assert.equal(pool.del.callCount, 1);
-      const args = pool.del.args[0];
-      assert.equal(args.length, 2);
-      assert.equal(typeof args[0].render, 'function');
-      assert.equal(args[0].constructor.name, 'SafeUrl');
-      assert.deepEqual(args[1], { uid: 'foo', deviceId: 'bar' });
-    });
-  });
-
-  it('db.resetAccount succeeds without a redis instance', () => {
-    const start = Date.now();
-    return db.resetAccount({ uid: 'fakeUid' }, {}).then(() => {
-      const end = Date.now();
-      assert.equal(pool.post.callCount, 1);
-      const args = pool.post.args[0];
-      assert.equal(args.length, 3);
-      assert.equal(typeof args[0].render, 'function');
-      assert.equal(args[0].constructor.name, 'SafeUrl');
-      assert.deepEqual(args[1], { uid: 'fakeUid' });
-      assert.equal(Object.keys(args[2]).length, 1);
-      assert.ok(args[2].verifierSetAt >= start);
-      assert.ok(args[2].verifierSetAt <= end);
-    });
-  });
-
   it('db.touchSessionToken succeeds without a redis instance', () => {
     return db.touchSessionToken({ id: 'foo', uid: 'bar' }).then(() => {
       assert.equal(pool.get.callCount, 0);
@@ -266,19 +223,6 @@ describe('db with redis disabled:', () => {
         assert.equal(pool.get.callCount, 0);
         assert.equal(pool.post.callCount, 0);
       });
-  });
-
-  it('db.createSessionToken succeeds without a redis instance', () => {
-    return db.createSessionToken({ uid: 'foo' }).then(() => {
-      assert.equal(pool.put.callCount, 1);
-      const args = pool.put.args[0];
-      assert.equal(args.length, 3);
-      assert.equal(typeof args[0].render, 'function');
-      assert.equal(args[0].constructor.name, 'SafeUrl');
-      assert.ok(args[1].id);
-      assert.equal(args[2].tokenId, args[1].id);
-      assert.equal(args[2].uid, 'foo');
-    });
   });
 });
 

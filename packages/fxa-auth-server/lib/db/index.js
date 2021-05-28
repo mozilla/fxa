@@ -36,10 +36,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   } = Token;
   const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE =
     config.tokenLifetimes.sessionTokenWithoutDevice;
-  const {
-    enabled: TOKEN_PRUNING_ENABLED,
-    maxAge: TOKEN_PRUNING_MAX_AGE,
-  } = config.tokenPruning;
+  const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
+    config.tokenPruning;
 
   const SAFE_URLS = {};
 
@@ -85,14 +83,13 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
   // CREATE
 
-  SAFE_URLS.createAccount = new SafeUrl('/account/:uid', 'db.createAccount');
   DB.prototype.createAccount = async function (data) {
     const { uid, email } = data;
     log.trace('DB.createAccount', { uid, email });
     data.createdAt = data.verifierSetAt = Date.now();
     data.normalizedEmail = normalizeEmail(data.email);
     try {
-      await this.pool.put(SAFE_URLS.createAccount, { uid }, data);
+      await Account.create(data);
       return data;
     } catch (err) {
       if (isRecordAlreadyExistsError(err)) {
@@ -102,10 +99,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
-  SAFE_URLS.createSessionToken = new SafeUrl(
-    '/sessionToken/:id',
-    'db.createSessionToken'
-  );
   DB.prototype.createSessionToken = async function (authToken) {
     const { uid } = authToken;
 
@@ -121,87 +114,31 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     } catch (unusedErr) {
       // Ignore errors deleting the token.
     }
+    await RawSessionToken.create(sessionToken);
 
-    await this.pool.put(
-      SAFE_URLS.createSessionToken,
-      { id },
-      Object.assign(
-        {
-          // Marshall from this repo's id property to the db's tokenId
-          tokenId: id,
-        },
-        sessionToken
-      )
-    );
     return sessionToken;
   };
 
-  SAFE_URLS.createKeyFetchToken = new SafeUrl(
-    '/keyFetchToken/:id',
-    'db.createKeyFetchToken'
-  );
   DB.prototype.createKeyFetchToken = async function (authToken) {
     log.trace('DB.createKeyFetchToken', { uid: authToken && authToken.uid });
     const keyFetchToken = await KeyFetchToken.create(authToken);
-    const { id } = keyFetchToken;
-    await this.pool.put(
-      SAFE_URLS.createKeyFetchToken,
-      { id },
-      {
-        tokenId: keyFetchToken.id,
-        authKey: keyFetchToken.authKey,
-        uid: keyFetchToken.uid,
-        keyBundle: keyFetchToken.keyBundle,
-        createdAt: keyFetchToken.createdAt,
-        tokenVerificationId: keyFetchToken.tokenVerificationId,
-      }
-    );
+    await RawKeyFetchToken.create(keyFetchToken);
     return keyFetchToken;
   };
 
-  SAFE_URLS.createPasswordForgotToken = new SafeUrl(
-    '/passwordForgotToken/:id',
-    'db.createPasswordForgotToken'
-  );
   DB.prototype.createPasswordForgotToken = async function (emailRecord) {
     log.trace('DB.createPasswordForgotToken', {
       uid: emailRecord && emailRecord.uid,
     });
     const passwordForgotToken = await PasswordForgotToken.create(emailRecord);
-    const { id } = passwordForgotToken;
-    await this.pool.put(
-      SAFE_URLS.createPasswordForgotToken,
-      { id },
-      {
-        tokenId: passwordForgotToken.id,
-        data: passwordForgotToken.data,
-        uid: passwordForgotToken.uid,
-        passCode: passwordForgotToken.passCode,
-        createdAt: passwordForgotToken.createdAt,
-        tries: passwordForgotToken.tries,
-      }
-    );
+    await RawPasswordForgotToken.create(passwordForgotToken);
     return passwordForgotToken;
   };
 
-  SAFE_URLS.createPasswordChangeToken = new SafeUrl(
-    '/passwordChangeToken/:id',
-    'db.createPasswordChangeToken'
-  );
   DB.prototype.createPasswordChangeToken = async function (data) {
     log.trace('DB.createPasswordChangeToken', { uid: data.uid });
     const passwordChangeToken = await PasswordChangeToken.create(data);
-    const { id } = passwordChangeToken;
-    await this.pool.put(
-      SAFE_URLS.createPasswordChangeToken,
-      { id },
-      {
-        tokenId: passwordChangeToken.id,
-        data: passwordChangeToken.data,
-        uid: passwordChangeToken.uid,
-        createdAt: passwordChangeToken.createdAt,
-      }
-    );
+    await RawPasswordChangeToken.create(passwordChangeToken);
     return passwordChangeToken;
   };
 
@@ -375,9 +312,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
     try {
       const [devices, redisSessionTokens = {}] = await Promise.all(promises);
-      const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(
-        uid
-      );
+      const lastAccessTimeEnabled =
+        features.isLastAccessTimeEnabledForUser(uid);
       return devices.map((device) => {
         return mergeDeviceInfoFromRedis(
           device,
@@ -635,10 +571,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return this.redis.pruneSessionTokens(uid, tokenIds);
   };
 
-  SAFE_URLS.createDevice = new SafeUrl(
-    '/account/:uid/device/:id',
-    'db.createDevice'
-  );
   DB.prototype.createDevice = async function (uid, deviceInfo) {
     log.trace('DB.createDevice', { uid: uid, id: deviceInfo.id });
     const sessionTokenId = deviceInfo.sessionTokenId;
@@ -649,21 +581,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     deviceInfo.createdAt = Date.now();
 
     try {
-      await this.pool.put(
-        SAFE_URLS.createDevice,
-        { uid, id },
-        {
-          sessionTokenId,
-          refreshTokenId,
-          createdAt: deviceInfo.createdAt,
-          name: deviceInfo.name,
-          type: deviceInfo.type,
-          callbackURL: deviceInfo.pushCallback,
-          callbackPublicKey: deviceInfo.pushPublicKey,
-          callbackAuthKey: deviceInfo.pushAuthKey,
-          availableCommands: deviceInfo.availableCommands,
-        }
-      );
+      await Device.create({
+        ...deviceInfo,
+        sessionTokenId,
+        refreshTokenId,
+        uid,
+      });
     } catch (err) {
       if (isRecordAlreadyExistsError(err)) {
         const devices = await this.devices(uid);
@@ -750,7 +673,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
   // DELETE
 
-  SAFE_URLS.deleteAccount = new SafeUrl('/account/:uid', 'db.deleteAccount');
   DB.prototype.deleteAccount = async function (authToken) {
     const { uid } = authToken;
 
@@ -758,78 +680,51 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     if (this.redis) {
       await this.redis.del(uid);
     }
-    return this.pool.del(SAFE_URLS.deleteAccount, { uid });
+    return Account.delete(uid);
   };
 
-  SAFE_URLS.deleteSessionToken = new SafeUrl(
-    '/sessionToken/:id',
-    'db.deleteSessionToken'
-  );
   DB.prototype.deleteSessionToken = async function (sessionToken) {
     const { id, uid } = sessionToken;
 
     log.trace('DB.deleteSessionToken', { id, uid });
 
     await this.deleteSessionTokenFromRedis(uid, id);
-    return this.pool.del(SAFE_URLS.deleteSessionToken, { id });
+    return RawSessionToken.delete(id);
   };
 
-  SAFE_URLS.deleteKeyFetchToken = new SafeUrl(
-    '/keyFetchToken/:id',
-    'db.deleteKeyFetchToken'
-  );
   DB.prototype.deleteKeyFetchToken = async function (keyFetchToken) {
     const { id, uid } = keyFetchToken;
     log.trace('DB.deleteKeyFetchToken', { id, uid });
-    return this.pool.del(SAFE_URLS.deleteKeyFetchToken, { id });
+    return RawKeyFetchToken.delete(id);
   };
 
-  SAFE_URLS.deleteAccountResetToken = new SafeUrl(
-    '/accountResetToken/:id',
-    'db.deleteAccountResetToken'
-  );
   DB.prototype.deleteAccountResetToken = async function (accountResetToken) {
     const { id, uid } = accountResetToken;
     log.trace('DB.deleteAccountResetToken', { id, uid });
-    return this.pool.del(SAFE_URLS.deleteAccountResetToken, { id });
+    return RawAccountResetToken.delete(id);
   };
 
-  SAFE_URLS.deletePasswordForgotToken = new SafeUrl(
-    '/passwordForgotToken/:id',
-    'db.deletePasswordForgotToken'
-  );
   DB.prototype.deletePasswordForgotToken = async function (
     passwordForgotToken
   ) {
     const { id, uid } = passwordForgotToken;
     log.trace('DB.deletePasswordForgotToken', { id, uid });
-    return this.pool.del(SAFE_URLS.deletePasswordForgotToken, { id });
+    return RawPasswordForgotToken.delete(id);
   };
 
-  SAFE_URLS.deletePasswordChangeToken = new SafeUrl(
-    '/passwordChangeToken/:id',
-    'db.deletePasswordChangeToken'
-  );
   DB.prototype.deletePasswordChangeToken = async function (
     passwordChangeToken
   ) {
     const { id, uid } = passwordChangeToken;
     log.trace('DB.deletePasswordChangeToken', { id, uid });
-    return this.pool.del(SAFE_URLS.deletePasswordChangeToken, { id });
+    return RawPasswordChangeToken.delete(id);
   };
 
-  SAFE_URLS.deleteDevice = new SafeUrl(
-    '/account/:uid/device/:deviceId',
-    'db.deleteDevice'
-  );
   DB.prototype.deleteDevice = async function (uid, deviceId) {
     log.trace('DB.deleteDevice', { uid, id: deviceId });
 
     try {
-      const result = await this.pool.del(SAFE_URLS.deleteDevice, {
-        uid,
-        deviceId,
-      });
+      const result = await Device.delete(uid, deviceId);
       await this.deleteSessionTokenFromRedis(uid, result.sessionTokenId);
       return result;
     } catch (err) {
@@ -842,10 +737,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
   // BATCH
 
-  SAFE_URLS.resetAccount = new SafeUrl(
-    '/account/:uid/reset',
-    'db.resetAccount'
-  );
   DB.prototype.resetAccount = async function (accountResetToken, data) {
     const { uid } = accountResetToken;
 
@@ -854,7 +745,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       await this.redis.del(uid);
     }
     data.verifierSetAt = Date.now();
-    return this.pool.post(SAFE_URLS.resetAccount, { uid }, data);
+    return Account.reset({ uid, ...data });
   };
 
   SAFE_URLS.verifyEmail = new SafeUrl(
@@ -1144,19 +1035,15 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return this.pool.post(SAFE_URLS.resetAccountTokens, { uid });
   };
 
-  SAFE_URLS.createTotpToken = new SafeUrl('/totp/:uid', 'db.createTotpToken');
   DB.prototype.createTotpToken = async function (uid, sharedSecret, epoch) {
     log.trace('DB.createTotpToken', { uid });
 
     try {
-      return await this.pool.put(
-        SAFE_URLS.createTotpToken,
-        { uid },
-        {
-          sharedSecret: sharedSecret,
-          epoch: epoch,
-        }
-      );
+      await TotpToken.create({
+        uid,
+        sharedSecret,
+        epoch,
+      });
     } catch (err) {
       if (isRecordAlreadyExistsError(err)) {
         throw error.totpTokenAlreadyExists();
@@ -1165,12 +1052,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
-  SAFE_URLS.deleteTotpToken = new SafeUrl('/totp/:uid', 'db.deleteTotpToken');
   DB.prototype.deleteTotpToken = async function (uid) {
     log.trace('DB.deleteTotpToken', { uid });
 
     try {
-      return await this.pool.del(SAFE_URLS.deleteTotpToken, { uid });
+      return await TotpToken.delete(uid);
     } catch (err) {
       if (isNotFoundError(err)) {
         throw error.totpTokenNotFound();
@@ -1230,10 +1116,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
-  SAFE_URLS.createRecoveryKey = new SafeUrl(
-    '/account/:uid/recoveryKey',
-    'db.createRecoveryKey'
-  );
   DB.prototype.createRecoveryKey = async function (
     uid,
     recoveryKeyId,
@@ -1243,11 +1125,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     log.trace('DB.createRecoveryKey', { uid });
 
     try {
-      return await this.pool.post(
-        SAFE_URLS.createRecoveryKey,
-        { uid },
-        { recoveryKeyId, recoveryData, enabled }
-      );
+      await RecoveryKey.create({ uid, recoveryKeyId, recoveryData, enabled });
     } catch (err) {
       if (isRecordAlreadyExistsError(err)) {
         throw error.recoveryKeyExists();
@@ -1256,14 +1134,10 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
-  SAFE_URLS.deleteRecoveryKey = new SafeUrl(
-    '/account/:uid/recoveryKey',
-    'db.deleteRecoveryKey'
-  );
   DB.prototype.deleteRecoveryKey = async function (uid) {
     log.trace('DB.deleteRecoveryKey', { uid });
 
-    return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid });
+    return RecoveryKey.delete(uid);
   };
 
   SAFE_URLS.updateRecoveryKey = new SafeUrl(
@@ -1295,17 +1169,9 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return this.redis.pruneSessionTokens(uid, [id]);
   };
 
-  SAFE_URLS.updateEcosystemAnonId = new SafeUrl(
-    '/account/:uid/ecosystemAnonId',
-    'db.updateEcosystemAnonId'
-  );
   DB.prototype.updateEcosystemAnonId = async function (uid, ecosystemAnonId) {
     log.trace('DB.updateEcosystemAnonId', { uid, ecosystemAnonId });
-    return this.pool.put(
-      SAFE_URLS.updateEcosystemAnonId,
-      { uid },
-      { ecosystemAnonId }
-    );
+    return {};
   };
 
   function mergeDeviceInfoFromRedis(

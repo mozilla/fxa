@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { convertError } from '../../mysql';
 import { aggregateNameValuePairs, uuidTransformer } from '../../transformers';
 import { AuthBaseModel, Proc } from './auth-base';
 
@@ -19,9 +20,9 @@ export class Device extends AuthBaseModel {
   name?: string;
   type?: string;
   createdAt?: number;
-  callbackURL?: string;
-  callbackPublicKey?: string;
-  callbackAuthKey?: string;
+  pushCallback?: string;
+  pushPublicKey?: string;
+  pushAuthKey?: string;
   callbackIsExpired!: boolean;
   refreshTokenId?: string;
 
@@ -38,6 +39,87 @@ export class Device extends AuthBaseModel {
   availableCommands!: {
     [key: string]: string;
   };
+
+  static async create({
+    id,
+    uid,
+    sessionTokenId,
+    refreshTokenId,
+    name,
+    type,
+    createdAt,
+    pushCallback,
+    pushPublicKey,
+    pushAuthKey,
+    availableCommands,
+  }: Pick<
+    Device,
+    | 'id'
+    | 'uid'
+    | 'sessionTokenId'
+    | 'refreshTokenId'
+    | 'name'
+    | 'type'
+    | 'createdAt'
+  > & {
+    pushCallback?: string;
+    pushPublicKey?: string;
+    pushAuthKey?: string;
+    availableCommands?: {
+      [key: string]: string;
+    };
+  }) {
+    try {
+      await Device.transaction(async (txn) => {
+        await Device.callProcedure(
+          Proc.CreateDevice,
+          txn,
+          uuidTransformer.to(uid),
+          uuidTransformer.to(id),
+          sessionTokenId ? uuidTransformer.to(sessionTokenId) : null,
+          refreshTokenId ? uuidTransformer.to(refreshTokenId) : null,
+          name ?? null,
+          type ?? null,
+          createdAt,
+          pushCallback ?? null,
+          pushPublicKey ?? null,
+          pushAuthKey ?? null
+        );
+        if (availableCommands) {
+          for (const [commandName, commandData] of Object.entries(
+            availableCommands
+          )) {
+            await Device.callProcedure(
+              Proc.UpsertAvailableCommands,
+              txn,
+              uuidTransformer.to(uid),
+              uuidTransformer.to(id),
+              commandName,
+              commandData
+            );
+          }
+        }
+      });
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async delete(uid: string, id: string) {
+    const [result] = await Device.callProcedure(
+      Proc.DeleteDevice,
+      uuidTransformer.to(uid),
+      uuidTransformer.to(id)
+    );
+    if (!result) {
+      // Throw an error that looks like the old db-mysql version
+      const error: any = new Error();
+      error.errno = 116;
+      error.statusCode = 404;
+      throw error;
+    }
+    return result;
+  }
 
   static fromRows(rows: object[]): Device[] {
     return aggregateNameValuePairs(
