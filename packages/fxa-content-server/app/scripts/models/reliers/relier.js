@@ -60,6 +60,10 @@ const QUERY_PARAMETER_SCHEMA = {
   utm_medium: Vat.string().renameTo('utmMedium'),
   utm_source: Vat.string().renameTo('utmSource'),
   utm_term: Vat.string().renameTo('utmTerm'),
+  // Flow params
+  flow_id: Vat.string().renameTo('flowId'),
+  flow_begin_time: Vat.string().renameTo('flowBeginTime'),
+  device_id: Vat.string().renameTo('deviceId'),
 };
 
 const EMAIL_FIRST_EMAIL_SCHEMA = {

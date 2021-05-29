@@ -301,7 +301,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
 
     describe('with existing query parameters', () => {
       it('passes through existing parameters unchanged', () => {
-        relier.set({ utmSource: 'web' }); //eslint-disable-line camelcase
+        relier.set({ utmSource: 'web', flowId: 'flowbee' }); //eslint-disable-line camelcase
         return broker
           .sendOAuthResultToRelier({
             error: 'error',
@@ -313,6 +313,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
             assert.include(windowMock.location.href, 'error=error');
             assert.include(windowMock.location.href, 'state=state');
             assert.include(windowMock.location.href, 'utm_source=web');
+            assert.include(windowMock.location.href, 'flow_id=flowbee');
           });
       });
 
