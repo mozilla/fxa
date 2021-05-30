@@ -289,7 +289,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 data-testid="submit-totp"
                 className="cta-primary mx-2 flex-1"
                 disabled={
-                  !totpForm.formState.isDirty || !totpForm.formState.isValid
+                  !totpForm.formState.isValid
                 }
               >
                 Continue
@@ -378,7 +378,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 data-testid="submit-recovery-code"
                 className="cta-primary mx-2 flex-1"
                 disabled={
-                  !recoveryCodeForm.formState.isDirty ||
+                  
                   !recoveryCodeForm.formState.isValid
                 }
               >
