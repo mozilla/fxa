@@ -97,7 +97,7 @@
     "eslint-plugin-jest": "^24.3.6",
     "eslint-plugin-react": "^7.23.2",
     "fxa-shared": "workspace:*",
-    "jest": "26.6.0",
+    "jest": "27.0.3",
     "pm2": "^4.5.6",
     "postcss-cli": "^7.1.1",
     "prettier": "^2.3.0",
