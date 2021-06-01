@@ -18165,7 +18165,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     google-libphonenumber: ^3.2.21
     grunt: ^1.4.1
-    grunt-cli: ^1.4.2
+    grunt-cli: ^1.4.3
     grunt-contrib-copy: 1.0.0
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
@@ -18426,7 +18426,7 @@ fsevents@~2.1.1:
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     grunt: ^1.4.1
-    grunt-cli: ^1.4.2
+    grunt-cli: ^1.4.3
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
     ip: ^1.1.5
@@ -20064,7 +20064,22 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt-cli@npm:^1.4.2, grunt-cli@npm:~1.4.2":
+"grunt-cli@npm:^1.4.3":
+  version: 1.4.3
+  resolution: "grunt-cli@npm:1.4.3"
+  dependencies:
+    grunt-known-options: ~2.0.0
+    interpret: ~1.1.0
+    liftup: ~3.0.1
+    nopt: ~4.0.1
+    v8flags: ~3.2.0
+  bin:
+    grunt: bin/grunt
+  checksum: 89792c5dfd318e08fa1e36e465d4533cd329014f62cdc775fd12c20c7e775a0412cca15c132dddcf04cf2d44f905df720031a507173f3726eae96d5c769f7184
+  languageName: node
+  linkType: hard
+
+"grunt-cli@npm:~1.4.2":
   version: 1.4.2
   resolution: "grunt-cli@npm:1.4.2"
   dependencies:
