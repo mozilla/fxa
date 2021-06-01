@@ -338,12 +338,18 @@ const TESTS = [
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-renewal-reminder', 'subscription-terms') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-renewal-reminder', 'update-billing', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-renewal-reminder', 'subscription-support') },
+      { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
       { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days. At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+      { test: 'include', expected: "Sincerely," },
+      { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `${MESSAGE.subscription.productName} automatic renewal notice` },
+      { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
       { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days. At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+      { test: 'include', expected: "Sincerely," },
+      { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
