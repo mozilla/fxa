@@ -7342,12 +7342,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/redis@npm:^2.8.28":
-  version: 2.8.28
-  resolution: "@types/redis@npm:2.8.28"
+"@types/redis@npm:^2.8.29":
+  version: 2.8.29
+  resolution: "@types/redis@npm:2.8.29"
   dependencies:
     "@types/node": "*"
-  checksum: a6f17271c35e443999189177d44d11531808e52429a6f1aa44b12b46e35e5a29a22080991547d62201a17a01e209db57da515b58121bec3b366a824840f1f3bd
+  checksum: 83b06413bf91a319ceac21645574926eb4ed560a74501a70930bfe7c8df72df54828d380950142c2407bec3392d22a747c9a3443b1c9ccb365898d10658de64f
   languageName: node
   linkType: hard
 
@@ -19158,7 +19158,7 @@ fsevents@~2.1.1:
     "@types/mysql": ^2
     "@types/node": ^14.14.37
     "@types/proxyquire": ^1.3.28
-    "@types/redis": ^2.8.28
+    "@types/redis": ^2.8.29
     "@types/sinon": 10.0.1
     "@types/superagent": ^4.1.11
     accept-language: ^2.0.17
