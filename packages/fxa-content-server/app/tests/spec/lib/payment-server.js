@@ -15,6 +15,9 @@ describe('lib/payment-server-redirect', () => {
 
   beforeEach(function () {
     account = new Account();
+    account._fxaClient = {
+      isSignedIn: sinon.stub().resolves(true),
+    };
     config = {
       subscriptions: {
         managementClientId: 'MOCK_CLIENT_ID',
@@ -32,6 +35,7 @@ describe('lib/payment-server-redirect', () => {
     view = {
       getSignedInAccount: sinon.stub().callsFake(() => account),
       navigateAway: sinon.spy(),
+      navigate: sinon.spy(),
       metrics: {
         getFlowEventMetadata: sinon.spy(() => ({
           deviceId: 'biz',
@@ -83,5 +87,56 @@ describe('lib/payment-server-redirect', () => {
         'should make the correct call to navigateAway'
       );
     });
+  });
+
+  it('redirects to the product route when there is no account', () => {
+    const REDIRECT_PATH = 'product/bleepbloop';
+    view.getSignedInAccount = sinon.stub().returns(null);
+    PaymentServer.navigateToPaymentServer(
+      view,
+      config.subscriptions,
+      REDIRECT_PATH,
+      { foo: 'bar', fizz: '', quuz: '&buzz', buzz: null }
+    );
+    assert.strictEqual(
+      view.navigateAway.args[0][0],
+      `${config.subscriptions.managementUrl}/${REDIRECT_PATH}?device_id=biz&flow_begin_time=4321&flow_id=foo&foo=bar&quuz=%26buzz`,
+      'should make the correct call to navigateAway'
+    );
+  });
+
+  it('redirects to the product route when account is not signed in', () => {
+    const REDIRECT_PATH = 'product/bleepbloop';
+    account._fxaClient = {
+      isSignedIn: sinon.stub().resolves(false),
+    };
+    PaymentServer.navigateToPaymentServer(
+      view,
+      config.subscriptions,
+      REDIRECT_PATH,
+      { foo: 'bar', fizz: '', quuz: '&buzz', buzz: null }
+    ).then(() => {
+      assert.strictEqual(
+        view.navigateAway.args[0][0],
+        `${config.subscriptions.managementUrl}/${REDIRECT_PATH}?device_id=biz&flow_begin_time=4321&flow_id=foo&foo=bar&quuz=%26buzz`,
+        'should make the correct call to navigateAway'
+      );
+    });
+  });
+
+  it('navigates to / when account is not signed in and the route is not allowed', () => {
+    const REDIRECT_PATH = 'dev/null';
+    view.getSignedInAccount = sinon.stub().returns(null);
+    PaymentServer.navigateToPaymentServer(
+      view,
+      config.subscriptions,
+      REDIRECT_PATH,
+      { foo: 'bar', fizz: '', quuz: '&buzz', buzz: null }
+    );
+    assert.strictEqual(
+      view.navigate.args[0][0],
+      '/',
+      'should make the correct call to navigate'
+    );
   });
 });
