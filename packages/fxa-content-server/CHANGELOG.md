@@ -1,3 +1,9 @@
+## 1.207.1
+
+### New features
+
+- content-server: return flow params to relier party ([01c23cade](https://github.com/mozilla/fxa/commit/01c23cade))
+
 ## 1.207.0
 
 ### Bug fixes
