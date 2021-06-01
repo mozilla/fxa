@@ -128,19 +128,24 @@ export default BaseAuthenticationBroker.extend({
         extraParams.state = state;
       }
 
-      // Pull in valid UTM parameters if present
-      const utmKeyMap = {
+      // Pull in valid parameters to return if present
+      const paramKeyMap = {
+        // utm params
         utmCampaign: 'utm_campaign',
         utmContent: 'utm_content',
         utmMedium: 'utm_medium',
         utmSource: 'utm_source',
         utmTerm: 'utm_term',
+        // flow params
+        flowId: 'flow_id',
+        flowBeginTime: 'flow_begin_time',
+        deviceId: 'device_id',
       };
-      for (const utmKey of Object.keys(utmKeyMap)) {
-        const utmValue = this.relier.get(utmKey);
-        if (utmValue) {
+      for (const key of Object.keys(paramKeyMap)) {
+        const value = this.relier.get(key);
+        if (value) {
           // We have to rename the key, as the relier renames these to camelcase on the way in.
-          extraParams[utmKeyMap[utmKey]] = utmValue;
+          extraParams[paramKeyMap[key]] = value;
         }
       }
 
