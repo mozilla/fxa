@@ -264,7 +264,7 @@ export const ConnectedServices = () => {
                   className="my-4 text-center"
                 >
                   Your browsing data will remain on your device (
-                  {selectedClient!.name}
+                  <span className="break-word">{selectedClient!.name}</span>
                   ), but it will no longer sync with your account.
                 </p>
               </Localized>
