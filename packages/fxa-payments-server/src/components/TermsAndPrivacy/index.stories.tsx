@@ -1,15 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { TermsAndPrivacy } from './index';
-import { defaultAppContext, AppContext } from '../../lib/AppContext';
 import { SELECTED_PLAN } from '../../lib/mock-data';
+import MockApp from '../../../.storybook/components/MockApp';
 
 storiesOf('components/TermsAndPrivacy', module)
   .add('default locale', () => <TermsAndPrivacy plan={SELECTED_PLAN} />)
   .add('with fr locale', () => (
-    <AppContext.Provider
-      value={{ ...defaultAppContext, navigatorLanguages: ['fr'] }}
-    >
+    <MockApp languages={['fr']}>
       <TermsAndPrivacy plan={SELECTED_PLAN} />
-    </AppContext.Provider>
+    </MockApp>
   ));

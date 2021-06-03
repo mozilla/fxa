@@ -100,6 +100,7 @@ describe('subscriptions/metadata', () => {
           'https://example.org/en-US/terms/download',
         'product:privacyNoticeDownloadURL':
           'https://example.org/en-US/privacy/download',
+        'product:successActionButtonLabel': 'Do something else',
         'product:subtitle:xx-pirate': 'VPN fer yer full-device',
         'product:foobar:9:xx-pirate': 'what even is this',
         'product:details:4:xx-pirate': "Available fer Windows, iOS an' Android",
@@ -115,6 +116,7 @@ describe('subscriptions/metadata', () => {
           'https://example.org/xx-pirate/terms/download',
         'product:privacyNoticeDownloadURL:xx-pirate':
           'https://example.org/xx-pirate/privacy/download',
+        'product:successActionButtonLabel:xx-pirate': 'Yarr...',
         'product:subtitle:xx-partial': 'Partial localization',
         'product:details:1:xx-partial': true,
         'product:termsOfServiceURL:xx-partial':
@@ -141,6 +143,7 @@ describe('subscriptions/metadata', () => {
         privacyNoticeURL: 'https://example.org/en-US/privacy',
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
+        successActionButtonLabel: 'Do something else',
       });
     });
 
@@ -159,6 +162,7 @@ describe('subscriptions/metadata', () => {
           'https://example.org/xx-pirate/terms/download',
         privacyNoticeDownloadURL:
           'https://example.org/xx-pirate/privacy/download',
+        successActionButtonLabel: 'Yarr...',
       });
     });
 
@@ -175,6 +179,7 @@ describe('subscriptions/metadata', () => {
         privacyNoticeURL: 'https://example.org/en-US/privacy',
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
+        successActionButtonLabel: 'Do something else',
       });
     });
 
@@ -191,6 +196,7 @@ describe('subscriptions/metadata', () => {
         privacyNoticeURL: 'https://example.org/en-US/privacy',
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
+        successActionButtonLabel: 'Do something else',
       });
     });
   });
