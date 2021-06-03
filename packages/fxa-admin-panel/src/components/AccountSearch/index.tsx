@@ -29,11 +29,8 @@ interface AccountType {
   securityEvents: [
     {
       uid: string;
-      nameId: number;
       verified: boolean;
-      ipAddrHmac: string;
       createdAt: number;
-      tokenVerificationId: string;
       name: string;
     }
   ];
@@ -54,7 +51,6 @@ interface AccountType {
   sessionTokens: [
     {
       tokenId: string;
-      tokenData: string;
       uid: string;
       createdAt: number;
       uaBrowser: string;
@@ -88,9 +84,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         uid
         nameId
         verified
-        ipAddrHmac
         createdAt
-        tokenVerificationId
         name
       }
       totp {
@@ -105,7 +99,6 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
       }
       sessionTokens {
         tokenId
-        tokenData
         uid
         createdAt
         uaBrowser
@@ -141,9 +134,7 @@ export const GET_ACCOUNT_BY_UID = gql`
         uid
         nameId
         verified
-        ipAddrHmac
         createdAt
-        tokenVerificationId
         name
       }
       totp {
@@ -158,7 +149,6 @@ export const GET_ACCOUNT_BY_UID = gql`
       }
       sessionTokens {
         tokenId
-        tokenData
         uid
         createdAt
         uaBrowser
@@ -195,9 +185,8 @@ export const AccountSearch = () => {
   // choose which query result to show based on type of query made
   const [isEmail, setIsEmail] = useState<boolean>(false);
   const queryResults = isEmail && showResult ? emailResults : uidResults;
-  const [getEmailLike, { data: returnedEmails }] = useLazyQuery(
-    GET_EMAILS_LIKE
-  );
+  const [getEmailLike, { data: returnedEmails }] =
+    useLazyQuery(GET_EMAILS_LIKE);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
