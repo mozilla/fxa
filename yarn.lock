@@ -7339,13 +7339,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^16.9.16, @types/react@npm:^16.9.53":
+"@types/react@npm:^16.9.16":
   version: 16.9.53
   resolution: "@types/react@npm:16.9.53"
   dependencies:
     "@types/prop-types": "*"
     csstype: ^3.0.2
   checksum: 01c646c8f08306660441a14495e926c0362114da7813c3bc3d4d58b47590ee92274bbbff18f3fafd465a09369daa25982d68ba6628f1080120b62d40ce75ca40
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^17.0.9":
+  version: 17.0.9
+  resolution: "@types/react@npm:17.0.9"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: 12f1962a317cad805bd6fcd1da3ac1a58a782db28e522bdded163f1bdfc8388f8a110d200a6925cccbf3d442e1325199ce5da710f11ee73f0f140c6734fea127
   languageName: node
   linkType: hard
 
@@ -7416,6 +7427,13 @@ __metadata:
   version: 1.1.2
   resolution: "@types/safe-regex@npm:1.1.2"
   checksum: 93bc6baeace1f931907b4623e04d92900b791d40d2ba43854c1e012f5cfacca2b09c37c8901a2a3abf13c22d4ad1a1f21c421eef460373ce4ebca1c15c247584
+  languageName: node
+  linkType: hard
+
+"@types/scheduler@npm:*":
+  version: 0.16.1
+  resolution: "@types/scheduler@npm:0.16.1"
+  checksum: 0124c2e4dee5e9b8c8524fcd6b1b8ea0b807b132e593925db04cdcc92ca2779a0d27c79414e60454b4458361a4d8319fa2b59d20585054f21617d1e9acf46a6f
   languageName: node
   linkType: hard
 
@@ -18198,7 +18216,7 @@ fsevents@~2.1.1:
     "@types/jest": ^26.0.23
     "@types/jsdom": ^16.2.10
     "@types/on-headers": ^1.0.0
-    "@types/react": ^16.9.53
+    "@types/react": ^17.0.9
     "@types/react-router-dom": ^5.1.7
     "@types/serve-static": 1.13.9
     "@types/supertest": ^2.0.11
@@ -18987,7 +19005,7 @@ fsevents@~2.1.1:
     "@types/jsdom": ^16.2.10
     "@types/nock": ^11.1.0
     "@types/node": ^14.14.37
-    "@types/react": ^16.9.53
+    "@types/react": ^17.0.9
     "@types/react-document-title": ^2.0.3
     "@types/react-dom": ^16.9.4
     "@types/react-redux": ^7.1.16
@@ -19149,7 +19167,7 @@ fsevents@~2.1.1:
     "@types/jest": ^26.0.23
     "@types/node": ^14.14.37
     "@types/prettier": 2.2.3
-    "@types/react": ^16.9.53
+    "@types/react": ^17.0.9
     "@types/react-dom": ^16.9.6
     "@types/react-helmet": ^6
     "@types/react-transition-group": ^4.4.1
@@ -19214,7 +19232,7 @@ fsevents@~2.1.1:
     "@types/lodash.groupby": ^4
     "@types/material-ui": ^0.21.8
     "@types/node": ^14.14.37
-    "@types/react": ^16.9.53
+    "@types/react": ^17.0.9
     "@types/react-dom": ^16.9.6
     "@types/react-test-renderer": ^17
     "@types/react-webcam": ^3.0.0
