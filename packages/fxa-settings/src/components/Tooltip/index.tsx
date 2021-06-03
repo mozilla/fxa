@@ -53,7 +53,7 @@ export const Tooltip = ({
          p-3 rounded text-xs left-0 font-header font-bold
           shadow-tooltip-grey-drop
          `,
-        type === 'error' ? 'bg-red-600' : 'bg-grey-700',
+        type === 'error' ? 'bg-red-600' : 'bg-grey-500',
         className,
         {
           'left-1/2 transform -translate-x-1/2': !anchorLeft,
