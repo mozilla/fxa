@@ -18419,7 +18419,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     hapi-error: ^2.3.0
     hkdf: 0.0.2
-    hot-shots: ^8.3.1
+    hot-shots: ^8.3.2
     i18n-abide: 0.0.26
     ioredis: ^4.27.3
     jed: 0.5.4
@@ -18574,7 +18574,7 @@ fsevents@~2.1.1:
     grunt-z-schema: 0.1.0
     handlebars: ^4.7.7
     helmet: ^4.6.0
-    hot-shots: ^8.3.1
+    hot-shots: ^8.3.2
     htmlparser2: 6.1.0
     http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
@@ -18777,7 +18777,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     google-auth-library: ^7.1.0
     graphql: ^15.5.0
-    hot-shots: ^8.3.1
+    hot-shots: ^8.3.2
     jest: 26.6.0
     jwks-rsa: ^1.11.0
     mozlog: ^3.0.2
@@ -19032,7 +19032,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     handlebars: ^4.7.7
     helmet: ^4.6.0
-    hot-shots: ^8.3.1
+    hot-shots: ^8.3.2
     intl: 1.2.5
     intl-pluralrules: ^1.2.2
     jest: 26.6.0
@@ -19304,7 +19304,7 @@ fsevents@~2.1.1:
     find-up: ^5.0.0
     generic-pool: ^3.7.8
     graphql: ^15.5.0
-    hot-shots: ^8.3.1
+    hot-shots: ^8.3.2
     jest: 26.6.0
     joi: ^14.3.1
     js-md5: ^0.7.3
@@ -21084,15 +21084,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hot-shots@npm:^8.3.1":
-  version: 8.3.1
-  resolution: "hot-shots@npm:8.3.1"
+"hot-shots@npm:^8.3.2":
+  version: 8.3.2
+  resolution: "hot-shots@npm:8.3.2"
   dependencies:
     unix-dgram: 2.0.x
   dependenciesMeta:
     unix-dgram:
       optional: true
-  checksum: e9db81f4bc99df278725ab371df5b9215402350602060bd13eec3fb22c9881a680a9645429531eee39541c754cdf4e1e45ee6969d2938cde682bdf97d9037319
+  checksum: be5d9dc319327952a65cc9484a8771fe3f3d09ace63535180e43fac2b387cc72f1793af8cb50ca68f42ec263fad11b00579c37385fb5ea78a14ef36d7c69e336
   languageName: node
   linkType: hard
 
