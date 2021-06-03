@@ -18616,7 +18616,7 @@ fsevents@~2.1.1:
     sass-loader: ^10.0.3
     serve-static: 1.14.1
     sinon: 4.5.0
-    sinon-chai: ^3.6.0
+    sinon-chai: ^3.7.0
     sinon-express-mock: ^2.2.1
     source-map: ^0.7.3
     source-map-loader: ^1.1.1
@@ -33853,13 +33853,13 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sinon-chai@npm:^3.6.0":
-  version: 3.6.0
-  resolution: "sinon-chai@npm:3.6.0"
+"sinon-chai@npm:^3.7.0":
+  version: 3.7.0
+  resolution: "sinon-chai@npm:3.7.0"
   peerDependencies:
     chai: ^4.0.0
-    sinon: ">=4.0.0 <11.0.0"
-  checksum: dec7743324c9ab98bfbf3ff1a924fa474d78f86b1a86a5edf28193fb3e8735b892b2bc397299b6cd7071ed7b3dc06d3f0ffc75ac47bf2f7ce1b1be232b3ca975
+    sinon: ">=4.0.0"
+  checksum: bea04f685f37c1ee68c280aa2ef6a59929b1b8f6dec97bcfb3d4965eca8cf43a40106303d64fae9d2d456d46c9651e9eabada5644ea5b7bc69c769c08b919814
   languageName: node
   linkType: hard
 
