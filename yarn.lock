@@ -6284,12 +6284,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/convict@npm:^5.2.2":
-  version: 5.2.2
-  resolution: "@types/convict@npm:5.2.2"
+"@types/convict@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "@types/convict@npm:6.0.2"
   dependencies:
     "@types/node": "*"
-  checksum: e2773e4054be0a22bf6d49f77a480963f542772e1a275959932e287d7b04b31e47f8e585b438b917f8605aace33ffb69a6a83fc7880f406e3fd3826adbc09da2
+  checksum: e7eac70d12c60bae7e5e1bf581e0864c7228380c454241eb4b234123068991258e75b05bef30acda7b6bd6fab7719118c22cb87f94cf93242a61586471371fe1
   languageName: node
   linkType: hard
 
@@ -18190,7 +18190,7 @@ fsevents@~2.1.1:
     "@testing-library/user-event": ^13.1.9
     "@types/babel__core": 7.1.14
     "@types/chance": ^1.1.2
-    "@types/convict": ^5.2.2
+    "@types/convict": ^6.0.2
     "@types/dateformat": ^3.0.1
     "@types/eslint": 7.2.11
     "@types/express": ^4.17.12
@@ -18256,7 +18256,7 @@ fsevents@~2.1.1:
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.2
-    "@types/convict": ^5.2.2
+    "@types/convict": ^6.0.2
     "@types/graphql": ^14.5.0
     "@types/node": ^14.14.37
     "@types/rimraf": 3.0.0
@@ -18369,7 +18369,7 @@ fsevents@~2.1.1:
     "@type-cacheable/core": ^5.2.0
     "@type-cacheable/ioredis-adapter": ^5.2.0
     "@types/chai": ^4.2.18
-    "@types/convict": ^5.2.2
+    "@types/convict": ^6.0.2
     "@types/hapi__hapi": ^19.0.3
     "@types/ioredis": ^4.26.4
     "@types/joi": ^14.3.3
@@ -18747,7 +18747,7 @@ fsevents@~2.1.1:
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.2
-    "@types/convict": ^5.2.2
+    "@types/convict": ^6.0.2
     "@types/express": ^4.17.12
     "@types/jest": ^26.0.23
     "@types/node": ^14.14.37
@@ -18841,7 +18841,7 @@ fsevents@~2.1.1:
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chance": ^1.1.2
-    "@types/convict": ^5.2.2
+    "@types/convict": ^6.0.2
     "@types/get-stream": 3.0.2
     "@types/graphql": ^14.5.0
     "@types/graphql-upload": ^8.0.4
@@ -18916,7 +18916,7 @@ fsevents@~2.1.1:
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
     "@types/chai": ^4.2.18
-    "@types/convict": ^5.2.2
+    "@types/convict": ^6.0.2
     "@types/mocha": ^8.2.2
     "@types/node": ^14.14.37
     "@types/sinon": 10.0.1
@@ -19351,7 +19351,7 @@ fsevents@~2.1.1:
     "@nestjs/platform-express": ^7.6.17
     "@sentry/integrations": ^5.29.1
     "@sentry/node": ^6.0.1
-    "@types/convict": ^5.2.2
+    "@types/convict": ^6.0.2
     "@types/eslint": 7.2.11
     "@types/hbs": ^4
     "@types/node": ^14.14.37
