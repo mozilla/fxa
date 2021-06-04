@@ -91,7 +91,7 @@ export function Service({
                   {name}
                 </LinkExternal>
               ) : (
-                <p className="text-xs" data-testid="service-name">
+                <p className="text-xs break-word" data-testid="service-name">
                   {name}
                 </p>
               )}

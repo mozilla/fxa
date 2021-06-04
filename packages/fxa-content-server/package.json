@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.207.0",
+  "version": "1.207.1",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build": "tsc --build ../fxa-react && NODE_ENV=production grunt build",
@@ -89,7 +89,7 @@
     "grunt-z-schema": "0.1.0",
     "handlebars": "^4.7.7",
     "helmet": "^4.6.0",
-    "hot-shots": "^8.3.1",
+    "hot-shots": "^8.3.2",
     "http-proxy-middleware": "^2.0.0",
     "i18n-abide": "0.0.26",
     "joi": "^14.3.1",
@@ -167,13 +167,13 @@
     "request": "^2.88.2",
     "request-promise": "4.2.6",
     "sinon": "4.5.0",
-    "sinon-chai": "^3.6.0",
+    "sinon-chai": "^3.7.0",
     "sinon-express-mock": "^2.2.1",
     "ts-loader": "^9.0.0",
     "ts-node": "^10.0.0",
     "upng-js": "2.1.0",
     "url-loader": "4.1.1",
-    "webpack-dev-middleware": "^4.3.0",
+    "webpack-dev-middleware": "^5.0.0",
     "xmlhttprequest": "git://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror",
     "yargs": "^17.0.1"
   },

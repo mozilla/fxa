@@ -687,6 +687,13 @@ const conf = (module.exports = convict({
       env: 'SUBSCRIPTIONS_MANAGEMENT_URL',
       format: String,
     },
+    allowUnauthenticatedRedirects: {
+      default: false,
+      doc:
+        'Whether to allow any redirects to Payments for an unauthenticated user',
+      env: 'SUBSCRIPTIONS_UNAUTHED_REDIRECTS',
+      formlat: Boolean,
+    },
   },
   surveyFeature: {
     enabled: {

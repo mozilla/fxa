@@ -10,7 +10,6 @@ import PaymentServer from '../lib/payment-server';
 import Url from '../lib/url';
 
 class SubscriptionsProductRedirectView extends FormView {
-  mustAuth = true;
   template = Template;
 
   initialize(options) {
@@ -22,6 +21,8 @@ class SubscriptionsProductRedirectView extends FormView {
     if (options && options.config && options.config.subscriptions) {
       this._subscriptionsConfig = options.config.subscriptions;
     }
+
+    this.mustAuth = !this._subscriptionsConfig.allowUnauthenticatedRedirects;
 
     // Flow events need to be initialized before the navigation
     // so the flow_id and flow_begin_time are propagated

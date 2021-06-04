@@ -1,6 +1,6 @@
 {
   "name": "fxa-graphql-api",
-  "version": "1.207.0",
+  "version": "1.207.1",
   "description": "FxA GraphQL API",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -41,7 +41,7 @@
     "@sentry/node": "^6.0.1",
     "apollo-datasource": "^0.9.0",
     "apollo-server": "^2.24.1",
-    "apollo-server-express": "^2.24.1",
+    "apollo-server-express": "^2.25.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "commander": "^6.0.0",
@@ -89,7 +89,7 @@
     "chance": "^1.1.7",
     "eslint": "^7.27.0",
     "jest": "26.6.0",
-    "nock": "^13.0.11",
+    "nock": "^13.1.0",
     "pm2": "^4.5.6",
     "prettier": "^2.3.0",
     "supertest": "^6.1.3",

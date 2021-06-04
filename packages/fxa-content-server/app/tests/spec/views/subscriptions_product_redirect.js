@@ -80,6 +80,30 @@ describe('views/subscriptions_product_redirect', function () {
       });
       assert.equal(PRODUCT_ID, relier.get('subscriptionProductId'));
     });
+
+    it('sets mustAuth to true when allowUnauthenticatedRedirects false', () => {
+      view.initialize({
+        currentPage: `/subscriptions/products/${PRODUCT_ID}`,
+        config: {
+          subscriptions: {
+            allowUnauthenticatedRedirects: false,
+          },
+        },
+      });
+      assert.isTrue(view.mustAuth, 'mustAuth should be true');
+    });
+
+    it('sets mustAuth to false when allowUnauthenticatedRedirects true', () => {
+      view.initialize({
+        currentPage: `/subscriptions/products/${PRODUCT_ID}`,
+        config: {
+          subscriptions: {
+            allowUnauthenticatedRedirects: true,
+          },
+        },
+      });
+      assert.isFalse(view.mustAuth, 'mustAuth should be false');
+    });
   });
 
   describe('render', () => {

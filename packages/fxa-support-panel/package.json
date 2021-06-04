@@ -1,6 +1,6 @@
 {
   "name": "fxa-support-panel",
-  "version": "1.207.0",
+  "version": "1.207.1",
   "description": "Small app to help customer support access FxA details",
   "directories": {
     "test": "test"
@@ -60,7 +60,7 @@
   "devDependencies": {
     "@nestjs/cli": "^7.6.0",
     "@types/convict": "^5.2.2",
-    "@types/eslint": "7.2.11",
+    "@types/eslint": "7.2.13",
     "@types/hbs": "^4",
     "@types/node": "^14.14.37",
     "@types/superagent": "4.1.11",

@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-panel",
-  "version": "1.207.0",
+  "version": "1.207.1",
   "description": "FxA Admin Panel",
   "scripts": {
     "build-postcss": "postcss src/styles/tailwind.css -o src/styles/tailwind.out.css",
@@ -77,7 +77,7 @@
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",
     "@types/dateformat": "^3.0.1",
-    "@types/eslint": "7.2.11",
+    "@types/eslint": "7.2.13",
     "@types/express": "^4.17.12",
     "@types/helmet": "4.0.0",
     "@types/jest": "^26.0.23",
@@ -88,7 +88,7 @@
     "@types/serve-static": "1.13.9",
     "@types/supertest": "^2.0.11",
     "@types/webpack": "5.28.0",
-    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.0",
     "@typescript-eslint/parser": "^4.25.0",
     "babel-loader": "^8.2.2",
     "chance": "^1.1.7",
