@@ -15,23 +15,14 @@ const conf = convict({
   featureFlags: {
     useSCAPaymentUIByDefault: {
       default: false,
-      doc:
-        'Whether to use newer SCA payment UI components by default rather than at the /v2 sub-path',
+      doc: 'Whether to use newer SCA payment UI components by default rather than at the /v2 sub-path',
       env: 'FEATURE_USE_SCA_PAYMENT_UI_BY_DEFAULT',
       format: Boolean,
     },
     usePaypalUIByDefault: {
       default: false,
-      doc:
-        'Whether to use PayPal payment UI by default rather than Stripe payment UI alone',
+      doc: 'Whether to use PayPal payment UI by default rather than Stripe payment UI alone',
       env: 'FEATURE_USE_PAYPAL_UI_BY_DEFAULT',
-      format: Boolean,
-    },
-    allowSubscriptionUpgrades: {
-      default: false,
-      doc:
-        'Whether to allow subsciption upgrades and downgrades between pricing plans',
-      env: 'FEATURE_ALLOW_SUBSCRIPTION_UPGRADES',
       format: Boolean,
     },
   },
@@ -142,8 +133,7 @@ const conf = convict({
     },
     httpResCacheLimit: {
       default: 65536,
-      doc:
-        'The max number of entries in the redirect endpoint HTTP results cache.  0 means unlimited and the memory usage on the cache could reach the max of Map (1GB on V8)',
+      doc: 'The max number of entries in the redirect endpoint HTTP results cache.  0 means unlimited and the memory usage on the cache could reach the max of Map (1GB on V8)',
       env: 'PAYMENT_LEGAL_DOWNLOAD_CACHE_LIMIT',
       format: Number,
     },
@@ -210,8 +200,7 @@ const conf = convict({
   },
   proxyStaticResourcesFrom: {
     default: '',
-    doc:
-      'Instead of loading static resources from disk, get them by proxy from this URL (typically a special reloading dev server)',
+    doc: 'Instead of loading static resources from disk, get them by proxy from this URL (typically a special reloading dev server)',
     env: 'PROXY_STATIC_RESOURCES_FROM',
     format: String,
   },

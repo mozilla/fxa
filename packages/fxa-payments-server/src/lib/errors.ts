@@ -48,7 +48,7 @@ const errorToErrorMessageMap: { [key: string]: string } = {
   'Funding source country does not match plan currency.':
     'country-currency-mismatch',
   'Changing currencies is not permitted.': 'currency-currency-mismatch',
-  no_subscription_upgrades: 'no-subscription-upgrades',
+  no_subscription_change: 'no-subscription-change',
 };
 
 const cardErrors = ['card_declined', 'incorrect_cvc'];

@@ -7,11 +7,11 @@ import { SignInLayout } from '../../../components/AppLayout';
 
 import { SELECTED_PLAN, PROFILE } from '../../../lib/mock-data';
 
-import SubscriptionUpgradeRoadblock, {
-  SubscriptionUpgradeRoadblockProps,
+import SubscriptionChangeRoadblock, {
+  SubscriptionDowngradeRoadblockProps,
 } from './index';
 
-const MOCK_PROPS: SubscriptionUpgradeRoadblockProps = {
+const MOCK_PROPS: SubscriptionDowngradeRoadblockProps = {
   isMobile: false,
   profile: PROFILE,
   selectedPlan: SELECTED_PLAN,
@@ -21,12 +21,12 @@ const SubscriptionUpgradeRoadlbockView = ({
   props = MOCK_PROPS,
   appContextValue = defaultAppContext,
 }: {
-  props?: SubscriptionUpgradeRoadblockProps;
+  props?: SubscriptionDowngradeRoadblockProps;
   appContextValue?: AppContextType;
 }) => (
   <MockApp appContextValue={appContextValue}>
     <SignInLayout>
-      <SubscriptionUpgradeRoadblock {...props} />
+      <SubscriptionChangeRoadblock {...props} />
     </SignInLayout>
   </MockApp>
 );

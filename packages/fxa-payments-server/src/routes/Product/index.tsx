@@ -12,6 +12,7 @@ import { actions, ActionFunctions } from '../../store/actions';
 import { selectors, SelectorReturns } from '../../store/selectors';
 import { CustomerSubscription, Plan, ProductMetadata } from '../../store/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { getSubscriptionUpdateEligibility } from 'fxa-shared/subscriptions/stripe';
 
 import '../Product/index.scss';
 
@@ -21,7 +22,79 @@ import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import SubscriptionSuccess from '../Product/SubscriptionSuccess';
 import SubscriptionUpgrade from '../Product/SubscriptionUpgrade';
 import SubscriptionCreate from '../Product/SubscriptionCreate';
-import SubscriptionUpgradeRoadblock from './SubscriptionUpgradeRoadblock';
+import SubscriptionChangeRoadblock from './SubscriptionChangeRoadblock';
+import { SubscriptionUpdateEligibility } from 'fxa-shared/subscriptions/types';
+
+type PlansByIdType = {
+  [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
+};
+
+const indexPlansById = (plans: State['plans']): PlansByIdType =>
+  (plans.result || []).reduce(
+    (acc, plan) => ({
+      ...acc,
+      [plan.plan_id]: { plan, metadata: metadataFromPlan(plan) },
+    }),
+    {}
+  );
+
+// Check if the customer is subscribed to a product.
+const customerIsSubscribedToProduct = (
+  customerSubscriptions: ProductProps['customerSubscriptions'],
+  productId: string
+) =>
+  customerSubscriptions &&
+  customerSubscriptions.some(
+    (customerSubscription) => customerSubscription.product_id === productId
+  );
+
+// If the customer has any subscription plan that matches a plan for the
+// selected product, then they are already subscribed.
+const customerIsSubscribedToPlan = (
+  customerSubscriptions: ProductProps['customerSubscriptions'],
+  selectedPlan: Plan
+) =>
+  customerSubscriptions &&
+  customerSubscriptions.some(
+    (customerSubscription) =>
+      selectedPlan.plan_id === customerSubscription.plan_id
+  );
+
+// If the customer has any subscribed plan that matches the productSet for the
+// selected plan, determine whether if it's an upgrade or downgrade.
+// Otherwise, it's 'invalid'.
+const subscriptionUpdateEligibilityResult = (
+  customerSubscriptions: ProductProps['customerSubscriptions'],
+  selectedPlan: Plan,
+  plansById: PlansByIdType
+):
+  | {
+      subscriptionUpdateEligibility: SubscriptionUpdateEligibility;
+      plan: Plan;
+      subscription: CustomerSubscription;
+    }
+  | typeof SubscriptionUpdateEligibility.INVALID => {
+  if (customerSubscriptions) {
+    for (const customerSubscription of customerSubscriptions) {
+      const subscriptionPlanInfo = plansById[customerSubscription.plan_id];
+      const subscriptionUpdateEligibility = getSubscriptionUpdateEligibility(
+        subscriptionPlanInfo.plan,
+        selectedPlan
+      );
+      if (
+        subscriptionUpdateEligibility !== SubscriptionUpdateEligibility.INVALID
+      ) {
+        return {
+          subscriptionUpdateEligibility,
+          plan: subscriptionPlanInfo.plan,
+          subscription: customerSubscription,
+        };
+      }
+    }
+  }
+
+  return SubscriptionUpdateEligibility.INVALID;
+};
 
 export type ProductProps = {
   match: {
@@ -56,7 +129,7 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
-  const { locationReload, queryParams, matchMediaDefault, config } =
+  const { locationReload, queryParams, matchMediaDefault } =
     useContext(AppContext);
 
   const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
@@ -143,43 +216,6 @@ export const Product = ({
       customerSubscriptions,
       selectedPlan
     );
-    const upgradeFrom = findUpgradeFromPlan(
-      customerSubscriptions,
-      selectedPlan,
-      plansById
-    );
-
-    if (
-      !config.featureFlags.allowSubscriptionUpgrades &&
-      (upgradeFrom ||
-        (!alreadySubscribedToSelectedPlan &&
-          customerIsSubscribedToProduct(customerSubscriptions, productId)))
-    ) {
-      return (
-        <SubscriptionUpgradeRoadblock
-          {...{ profile: profile.result, isMobile, selectedPlan }}
-        />
-      );
-    }
-
-    // Can we upgrade from an existing subscription with selected plan?
-    if (upgradeFrom) {
-      return (
-        <SubscriptionUpgrade
-          {...{
-            isMobile,
-            profile: profile.result,
-            customer: customer.result,
-            selectedPlan,
-            upgradeFromPlan: upgradeFrom.plan,
-            upgradeFromSubscription: upgradeFrom.subscription,
-            updateSubscriptionPlanAndRefresh,
-            resetUpdateSubscriptionPlan,
-            updateSubscriptionPlanStatus,
-          }}
-        />
-      );
-    }
 
     // Do we already have a subscription to the product in the selected plan?
     if (alreadySubscribedToSelectedPlan) {
@@ -190,6 +226,67 @@ export const Product = ({
             customer: customer.result,
             profile: profile.result,
             isMobile,
+          }}
+        />
+      );
+    }
+
+    const planUpdateEligibilityResult = subscriptionUpdateEligibilityResult(
+      customerSubscriptions,
+      selectedPlan,
+      plansById
+    );
+
+    // Not an upgrade or a downgrade.
+    if (planUpdateEligibilityResult === SubscriptionUpdateEligibility.INVALID) {
+      if (customerIsSubscribedToProduct(customerSubscriptions, productId)) {
+        return (
+          <SubscriptionChangeRoadblock
+            {...{ profile: profile.result, isMobile, selectedPlan }}
+          />
+        );
+      }
+      return (
+        <SubscriptionCreate
+          {...{
+            isMobile,
+            profile: profile.result,
+            customer: customer.result,
+            accountActivated,
+            selectedPlan,
+            refreshSubscriptions: fetchCustomerAndSubscriptions,
+          }}
+        />
+      );
+    }
+
+    if (
+      planUpdateEligibilityResult.subscriptionUpdateEligibility ===
+      SubscriptionUpdateEligibility.DOWNGRADE
+    ) {
+      return (
+        <SubscriptionChangeRoadblock
+          {...{ profile: profile.result, isMobile, selectedPlan }}
+        />
+      );
+    }
+
+    if (
+      planUpdateEligibilityResult.subscriptionUpdateEligibility ===
+      SubscriptionUpdateEligibility.UPGRADE
+    ) {
+      return (
+        <SubscriptionUpgrade
+          {...{
+            isMobile,
+            profile: profile.result,
+            customer: customer.result,
+            selectedPlan,
+            upgradeFromPlan: planUpdateEligibilityResult.plan,
+            upgradeFromSubscription: planUpdateEligibilityResult.subscription,
+            updateSubscriptionPlanAndRefresh,
+            resetUpdateSubscriptionPlan,
+            updateSubscriptionPlanStatus,
           }}
         />
       );
@@ -208,72 +305,6 @@ export const Product = ({
       }}
     />
   );
-};
-
-type PlansByIdType = {
-  [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
-};
-
-const indexPlansById = (plans: State['plans']): PlansByIdType =>
-  (plans.result || []).reduce(
-    (acc, plan) => ({
-      ...acc,
-      [plan.plan_id]: { plan, metadata: metadataFromPlan(plan) },
-    }),
-    {}
-  );
-
-// Check if the customer is subscribed to a product.
-const customerIsSubscribedToProduct = (
-  customerSubscriptions: ProductProps['customerSubscriptions'],
-  productId: string
-) =>
-  customerSubscriptions &&
-  customerSubscriptions.some(
-    (customerSubscription) => customerSubscription.product_id === productId
-  );
-
-// If the customer has any subscription plan that matches a plan for the
-// selected product, then they are already subscribed.
-const customerIsSubscribedToPlan = (
-  customerSubscriptions: ProductProps['customerSubscriptions'],
-  selectedPlan: Plan
-) =>
-  customerSubscriptions &&
-  customerSubscriptions.some(
-    (customerSubscription) =>
-      selectedPlan.plan_id === customerSubscription.plan_id
-  );
-
-// If the customer has any subscribed plan that matches the productSet
-// for the selected plan, then that is the plan from which to upgrade.
-const findUpgradeFromPlan = (
-  customerSubscriptions: ProductProps['customerSubscriptions'],
-  selectedPlan: Plan,
-  plansById: PlansByIdType
-): {
-  plan: Plan;
-  subscription: CustomerSubscription;
-} | null => {
-  if (customerSubscriptions) {
-    const selectedPlanInfo = plansById[selectedPlan.plan_id];
-    for (const customerSubscription of customerSubscriptions) {
-      const subscriptionPlanInfo = plansById[customerSubscription.plan_id];
-      if (
-        selectedPlan.plan_id !== customerSubscription.plan_id &&
-        selectedPlanInfo.metadata.productSet &&
-        subscriptionPlanInfo.metadata.productSet &&
-        selectedPlanInfo.metadata.productSet ===
-          subscriptionPlanInfo.metadata.productSet
-      ) {
-        return {
-          plan: subscriptionPlanInfo.plan,
-          subscription: customerSubscription,
-        };
-      }
-    }
-  }
-  return null;
 };
 
 // TODO replace this with Redux hooks in component function body

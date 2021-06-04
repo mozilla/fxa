@@ -20,13 +20,10 @@ const { Container } = require('typedi');
 const chance = new Chance();
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
-const {
-  StripeHelper,
-  STRIPE_INVOICE_METADATA,
-  SUBSCRIPTION_UPDATE_TYPES,
-} = proxyquire('../../../lib/payments/stripe', {
-  '../redis': (config, log) => mockRedis.init(config, log),
-});
+const { StripeHelper, STRIPE_INVOICE_METADATA, SUBSCRIPTION_UPDATE_TYPES } =
+  proxyquire('../../../lib/payments/stripe', {
+    '../redis': (config, log) => mockRedis.init(config, log),
+  });
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
@@ -841,10 +838,11 @@ describe('StripeHelper', () => {
   describe('updateInvoiceWithPaypalRefundTransactionId', () => {
     it('works successfully', async () => {
       sandbox.stub(stripeHelper.stripe.invoices, 'update').resolves({});
-      const actual = await stripeHelper.updateInvoiceWithPaypalRefundTransactionId(
-        unpaidInvoice,
-        'tid'
-      );
+      const actual =
+        await stripeHelper.updateInvoiceWithPaypalRefundTransactionId(
+          unpaidInvoice,
+          'tid'
+        );
       assert.deepEqual(actual, {});
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.invoices.update,
@@ -1256,16 +1254,14 @@ describe('StripeHelper', () => {
         payment_intent: { ...closedPaymementIntent },
       };
       const subscription = { ...subscription2, latest_invoice };
-      const result = stripeHelper.extractSourceCountryFromSubscription(
-        subscription
-      );
+      const result =
+        stripeHelper.extractSourceCountryFromSubscription(subscription);
       assert.equal(result, 'US');
     });
 
     it('returns null with no invoice', () => {
-      const result = stripeHelper.extractSourceCountryFromSubscription(
-        subscription2
-      );
+      const result =
+        stripeHelper.extractSourceCountryFromSubscription(subscription2);
       assert.equal(result, null);
     });
 
@@ -1282,9 +1278,8 @@ describe('StripeHelper', () => {
         payment_intent: { charges: { data: [] } },
       };
       const subscription = { ...subscription2, latest_invoice };
-      const result = stripeHelper.extractSourceCountryFromSubscription(
-        subscription
-      );
+      const result =
+        stripeHelper.extractSourceCountryFromSubscription(subscription);
       assert.equal(result, null);
 
       assert.isTrue(
@@ -1423,19 +1418,25 @@ describe('StripeHelper', () => {
   });
 
   describe('verifyPlanUpdateForSubscription', () => {
-    it('does nothing for valid upgrade or downgrade', async () => {
+    it('does nothing for a valid upgrade', async () => {
       assert.isUndefined(
         await stripeHelper.verifyPlanUpdateForSubscription(
           'plan_G93lTs8hfK7NNG',
           'plan_G93mMKnIFCjZek'
         )
       );
-      assert.isUndefined(
+    });
+
+    it('throws an invalidPlanUpdate when it is a downgrade', async () => {
+      try {
         await stripeHelper.verifyPlanUpdateForSubscription(
           'plan_G93mMKnIFCjZek',
           'plan_G93lTs8hfK7NNG'
-        )
-      );
+        );
+        assert.fail('An invalidPlanUpdate should have been thrown.');
+      } catch (e) {
+        assert.equal(e.errno, error.ERRNO.INVALID_PLAN_UPDATE);
+      }
     });
 
     describe('when the upgrade is invalid', () => {
@@ -3226,9 +3227,10 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = true;
         event.data.previous_attributes = { cancel_at_period_end: false };
-        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
-          event
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
         assert.equal(result, mockCancellationDetails);
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateCancellationDetailsForEmail',
@@ -3242,9 +3244,10 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = false;
         event.data.previous_attributes = { cancel_at_period_end: true };
-        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
-          event
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
         assert.equal(result, mockReactivationDetails);
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateReactivationDetailsForEmail',
@@ -3258,9 +3261,10 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = false;
         event.data.previous_attributes.cancel_at_period_end = false;
-        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
-          event
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
         assert.equal(result, mockUpgradeDowngradeDetails);
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
@@ -3277,9 +3281,10 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         event.data.object.cancel_at_period_end = false;
         event.data.previous_attributes.cancel_at_period_end = true;
-        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
-          event
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+            event
+          );
         assert.equal(result, mockUpgradeDowngradeDetails);
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
@@ -3345,14 +3350,15 @@ describe('StripeHelper', () => {
           ? 1
           : 2;
 
-        const result = await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
-          event.data.object,
-          baseDetails,
-          mockInvoice,
-          mockCustomer,
-          event.data.object.plan.metadata.productOrder,
-          event.data.previous_attributes.plan
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
+            event.data.object,
+            baseDetails,
+            mockInvoice,
+            mockCustomer,
+            event.data.object.plan.metadata.productOrder,
+            event.data.previous_attributes.plan
+          );
 
         // issue #5546: ensure we're looking for the upcoming invoice for this specific subscription
         assert.deepEqual(mockStripe.invoices.retrieveUpcoming.args, [
@@ -3425,11 +3431,12 @@ describe('StripeHelper', () => {
       it('extracts expected details for a subscription reactivation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         sandbox.stub(stripeHelper, 'customer').resolves(mockCustomer);
-        const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
-          event.data.object,
-          expectedBaseUpdateDetails,
-          mockInvoice
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
+            event.data.object,
+            expectedBaseUpdateDetails,
+            mockInvoice
+          );
         assert.deepEqual(mockStripe.invoices.retrieveUpcoming.args, [
           [
             {
@@ -3445,11 +3452,12 @@ describe('StripeHelper', () => {
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
         sandbox.stub(stripeHelper, 'customer').resolves(customer);
-        const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
-          event.data.object,
-          expectedBaseUpdateDetails,
-          mockInvoice
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
+            event.data.object,
+            expectedBaseUpdateDetails,
+            mockInvoice
+          );
         assert.deepEqual(result, {
           ...defaultExpected,
           lastFour: null,
@@ -3541,11 +3549,12 @@ describe('StripeHelper', () => {
     describe('extractSubscriptionUpdateCancellationDetailsForEmail', () => {
       it('extracts expected details for a subscription cancellation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
-        const result = await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
-          event.data.object,
-          expectedBaseUpdateDetails,
-          mockInvoice
-        );
+        const result =
+          await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
+            event.data.object,
+            expectedBaseUpdateDetails,
+            mockInvoice
+          );
         const subscription = event.data.object;
         assert.deepEqual(result, {
           updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
