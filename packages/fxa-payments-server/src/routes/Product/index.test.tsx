@@ -271,6 +271,48 @@ describe('routes/Product', () => {
     expectNockScopesDone(apiMocks);
   });
 
+  it('does not offer upgrade if another plan in the same product set does not have product order', async () => {
+    const apiMocks = initSubscribedApiMocks();
+    const { findAllByText, queryByTestId } = render(
+      <Subject
+        {...{
+          planId: 'plan_no_upgrade',
+          productId: 'prod_upgrade',
+          appContext: {
+            config: {
+              ...defaultConfig(),
+              featureFlags: { allowSubscriptionUpgrades: true },
+            },
+          },
+        }}
+      />
+    );
+    await findAllByText('Set up your subscription');
+    expect(queryByTestId('subscription-upgrade')).not.toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
+  });
+
+  it('does not allow a downgrade', async () => {
+    const apiMocks = initSubscribedApiMocks();
+    const { findAllByText, queryByTestId } = render(
+      <Subject
+        {...{
+          planId: 'plan_no_downgrade',
+          productId: 'prod_upgrade',
+          appContext: {
+            config: {
+              ...defaultConfig(),
+              featureFlags: { allowSubscriptionUpgrades: true },
+            },
+          },
+        }}
+      />
+    );
+    await findAllByText('Set up your subscription');
+    expect(queryByTestId('subscription-upgrade')).not.toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
+  });
+
   it('blocks upgrade when the feature flag disallows it', async () => {
     initSubscribedApiMocks();
     const { findByTestId } = render(

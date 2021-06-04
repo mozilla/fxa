@@ -12,6 +12,7 @@ import { actions, ActionFunctions } from '../../store/actions';
 import { selectors, SelectorReturns } from '../../store/selectors';
 import { CustomerSubscription, Plan, ProductMetadata } from '../../store/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { isValidSubscriptionPlanUpdate } from 'fxa-shared/subscriptions/stripe';
 
 import '../Product/index.scss';
 
@@ -56,9 +57,8 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
-  const { locationReload, queryParams, matchMediaDefault, config } = useContext(
-    AppContext
-  );
+  const { locationReload, queryParams, matchMediaDefault, config } =
+    useContext(AppContext);
 
   const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const planId = queryParams.plan;
@@ -257,15 +257,10 @@ const findUpgradeFromPlan = (
   subscription: CustomerSubscription;
 } | null => {
   if (customerSubscriptions) {
-    const selectedPlanInfo = plansById[selectedPlan.plan_id];
     for (const customerSubscription of customerSubscriptions) {
       const subscriptionPlanInfo = plansById[customerSubscription.plan_id];
       if (
-        selectedPlan.plan_id !== customerSubscription.plan_id &&
-        selectedPlanInfo.metadata.productSet &&
-        subscriptionPlanInfo.metadata.productSet &&
-        selectedPlanInfo.metadata.productSet ===
-          subscriptionPlanInfo.metadata.productSet
+        isValidSubscriptionPlanUpdate(subscriptionPlanInfo.plan, selectedPlan)
       ) {
         return {
           plan: subscriptionPlanInfo.plan,

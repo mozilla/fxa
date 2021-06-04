@@ -170,7 +170,8 @@ function injectStripe<P extends Object>(
       <WrappedComponent
         {...{
           ...props,
-          stripe: mockStripe as ReactStripeElements.InjectedStripeProps['stripe'],
+          stripe:
+            mockStripe as ReactStripeElements.InjectedStripeProps['stripe'],
         }}
         as
         any
@@ -346,7 +347,9 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 500,
     currency: 'usd',
-    plan_metadata: null,
+    plan_metadata: {
+      productOrder: 3,
+    },
     product_metadata: {
       productSet: 'example_upgrade',
       webIconURL: 'http://example.com/product.jpg',
@@ -377,7 +380,37 @@ export const MOCK_PLANS: Plan[] = [
     interval_count: 1,
     amount: 5900,
     currency: 'usd',
-    plan_metadata: null,
+    plan_metadata: {
+      productOrder: 5,
+    },
+    product_metadata: {
+      productSet: 'example_upgrade',
+    },
+  },
+  {
+    plan_id: 'plan_no_upgrade',
+    product_id: 'prod_upgrade',
+    product_name: 'Upgrade Product',
+    interval: 'month' as const,
+    interval_count: 1,
+    amount: 5900,
+    currency: 'usd',
+    plan_metadata: {},
+    product_metadata: {
+      productSet: 'example_upgrade',
+    },
+  },
+  {
+    plan_id: 'plan_no_downgrade',
+    product_id: 'prod_upgrade',
+    product_name: 'upside down product',
+    interval: 'month' as const,
+    interval_count: 1,
+    amount: 5900,
+    currency: 'usd',
+    plan_metadata: {
+      productOrder: 1,
+    },
     product_metadata: {
       productSet: 'example_upgrade',
     },

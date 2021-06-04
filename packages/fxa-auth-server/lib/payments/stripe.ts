@@ -13,6 +13,7 @@ import {
 import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
+  isValidSubscriptionPlanUpdate,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
 import { StatsD } from 'hot-shots';
@@ -81,39 +82,6 @@ type BillingAddressOptions = {
   postalCode: string;
   state: string;
 };
-
-/**
- * Determine for two product metadata object's whether the new one
- * is a valid upgrade for the old one.
- *
- * Throws errors if necessary metadata is not present to determine
- * if its an upgrade.
- *
- * @param {AbbrevProduct['product_metadata']} oldMetadata Old product metadata
- * @param {AbbrevProduct['product_metadata']} newMetadata New product metadata
- * @returns {boolean} Whether the new product is an upgrade.
- */
-function validateProductUpdate(
-  oldMetadata: AbbrevProduct['product_metadata'],
-  newMetadata: AbbrevProduct['product_metadata']
-): boolean {
-  if (!oldMetadata || !newMetadata) {
-    throw error.unknownSubscriptionPlan();
-  }
-
-  const oldId = oldMetadata.productSet;
-  const newId = newMetadata.productSet;
-  if (!oldId || oldId !== newId) {
-    // Incompatible product sets
-    return false;
-  }
-  const oldOrder = Number.parseInt(oldMetadata.productOrder);
-  const newOrder = Number.parseInt(newMetadata.productOrder);
-  if (isNaN(oldOrder) || isNaN(newOrder)) {
-    throw error.unknownSubscriptionPlan();
-  }
-  return oldOrder !== newOrder;
-}
 
 export class StripeHelper {
   // Note that this isn't quite accurate, as the auth-server logger has some extras
@@ -701,10 +669,10 @@ export class StripeHelper {
     return Promise.all(
       sources.data.map(
         (s) =>
-          (this.stripe.customers.deleteSource(
+          this.stripe.customers.deleteSource(
             customerId,
             s.id
-          ) as unknown) as Promise<Stripe.Card>
+          ) as unknown as Promise<Stripe.Card>
       )
     );
   }
@@ -870,10 +838,11 @@ export class StripeHelper {
 
     // We need to get all the subscriptions for a customer
     if (customer.subscriptions && customer.subscriptions.has_more) {
-      const additionalSubscriptions = await this.fetchAllSubscriptionsForCustomer(
-        customer.id,
-        customer.subscriptions.data[customer.subscriptions.data.length - 1].id
-      );
+      const additionalSubscriptions =
+        await this.fetchAllSubscriptionsForCustomer(
+          customer.id,
+          customer.subscriptions.data[customer.subscriptions.data.length - 1].id
+        );
       customer.subscriptions.data.push(...additionalSubscriptions);
       customer.subscriptions.has_more = false;
     }
@@ -1139,28 +1108,19 @@ export class StripeHelper {
     currentPlanId: string,
     newPlanId: string
   ): Promise<void> {
-    const allPlans = await this.allPlans();
-    const currentPlan = allPlans
-      .filter((plan) => plan.plan_id === currentPlanId)
-      .shift();
-
-    const newPlan = allPlans
-      .filter((plan) => plan.plan_id === newPlanId)
-      .shift();
-    if (!newPlan || !currentPlan) {
-      throw error.unknownSubscriptionPlan();
-    }
-
     if (currentPlanId === newPlanId) {
       throw error.subscriptionAlreadyChanged();
     }
 
-    if (
-      !validateProductUpdate(
-        currentPlan.product_metadata,
-        newPlan.product_metadata
-      )
-    ) {
+    const allPlans = await this.allPlans();
+    const currentPlan = allPlans.find((plan) => plan.plan_id === currentPlanId);
+    const newPlan = allPlans.find((plan) => plan.plan_id === newPlanId);
+
+    if (!newPlan || !currentPlan) {
+      throw error.unknownSubscriptionPlan();
+    }
+
+    if (!isValidSubscriptionPlanUpdate(currentPlan, newPlan)) {
       throw error.invalidPlanUpdate();
     }
   }
@@ -1695,10 +1655,8 @@ export class StripeHelper {
     let lastFour: string | null = null;
     let cardType: string | null = null;
     if (charge?.payment_method_details?.card) {
-      ({
-        brand: cardType,
-        last4: lastFour,
-      } = charge.payment_method_details.card);
+      ({ brand: cardType, last4: lastFour } =
+        charge.payment_method_details.card);
     }
     return { lastFour, cardType };
   }
@@ -1829,10 +1787,8 @@ export class StripeHelper {
       amount: paymentAmountNewInCents,
       currency: paymentAmountNewCurrency,
     } = planNew;
-    const {
-      product_id: productIdNew,
-      product_name: productNameNew,
-    } = abbrevProductNew;
+    const { product_id: productIdNew, product_name: productNameNew } =
+      abbrevProductNew;
     const productNewMetadata = this.mergeMetadata(planNew, abbrevProductNew);
     const {
       productOrder: productOrderNew,
@@ -1955,13 +1911,11 @@ export class StripeHelper {
       productIconURLNew: planEmailIconURL,
     } = baseDetails;
 
-    const {
-      lastFour,
-      cardType,
-    } = await this.extractCustomerDefaultPaymentDetails({
-      uid,
-      email,
-    });
+    const { lastFour, cardType } =
+      await this.extractCustomerDefaultPaymentDetails({
+        uid,
+        email,
+      });
 
     const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
       subscription: subscription.id,
@@ -2064,10 +2018,8 @@ export class StripeHelper {
       amount: paymentAmountOldInCents,
       currency: paymentAmountOldCurrency,
     } = planOld;
-    const {
-      product_id: productIdOld,
-      product_name: productNameOld,
-    } = abbrevProductOld;
+    const { product_id: productIdOld, product_name: productNameOld } =
+      abbrevProductOld;
     const {
       productOrder: productOrderOld,
       emailIconURL: productIconURLOld = '',

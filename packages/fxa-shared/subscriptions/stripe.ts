@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 import pick from 'lodash.pick';
 import omitBy from 'lodash.omitby';
+import { Plan } from './types';
+import { metadataFromPlan } from './metadata';
 
 const isCapabilityKey = (value: string, key: string) =>
   key.startsWith('capabilities');
@@ -189,3 +191,32 @@ export function singlePlan(
   const subItems = subscription.items.data;
   return subItems.length > 1 ? null : subItems[0].plan;
 }
+
+/**
+ * Given two plans, A and B, determine whether B is eligible for a subscription
+ * update (upgrade/downgrade) from A.
+ */
+
+export const isValidSubscriptionPlanUpdate = (
+  currentPlan: Plan,
+  newPlan: Plan
+) => {
+  const currentPlanMetaData = metadataFromPlan(currentPlan);
+  const newPlanMetaData = metadataFromPlan(newPlan);
+  const currentOrder =
+    !!currentPlanMetaData.productOrder &&
+    parseInt(currentPlanMetaData.productOrder);
+  const newOrder =
+    !!newPlanMetaData.productOrder && parseInt(newPlanMetaData.productOrder);
+
+  return (
+    currentPlan.plan_id !== newPlan.plan_id &&
+    !!currentPlanMetaData.productSet &&
+    currentPlanMetaData.productSet === newPlanMetaData.productSet &&
+    !!currentOrder &&
+    !Number.isNaN(currentOrder) &&
+    !!newOrder &&
+    !Number.isNaN(newOrder) &&
+    newOrder > currentOrder
+  );
+};
