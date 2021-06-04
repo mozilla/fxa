@@ -103,7 +103,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.18",
-    "@types/convict": "^5.2.2",
+    "@types/convict": "^6.0.2",
     "@types/hapi__hapi": "^19.0.3",
     "@types/ioredis": "^4.26.4",
     "@types/joi": "^14.3.3",
