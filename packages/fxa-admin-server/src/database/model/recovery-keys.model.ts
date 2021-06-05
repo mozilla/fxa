@@ -12,6 +12,8 @@ export class RecoveryKeys extends Model {
   public static tableName = 'recoveryKeys';
 
   public uid!: string;
+  public recoveryData!: string;
+  public recoveryKeyIdHash!: string;
   public createdAt!: number;
   public verifiedAt!: number;
   public enabled!: boolean;

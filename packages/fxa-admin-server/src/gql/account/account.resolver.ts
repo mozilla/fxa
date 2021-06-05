@@ -31,11 +31,33 @@ const EMAIL_COLUMNS = [
   'uid',
 ];
 
-const SECURITY_EVENTS_COLUMNS = ['uid', 'verified', 'createdAt'];
-const TOTP_COLUMNS = ['uid', 'epoch', 'createdAt', 'verified', 'enabled'];
-const RECOVERYKEY_COLUMNS = ['uid', 'createdAt', 'verifiedAt', 'enabled'];
+const SECURITY_EVENTS_COLUMNS = [
+  'uid',
+  'nameId',
+  'verified',
+  'ipAddrHmac',
+  'createdAt',
+  'tokenVerificationId',
+];
+const TOTP_COLUMNS = [
+  'uid',
+  'sharedSecret',
+  'epoch',
+  'createdAt',
+  'verified',
+  'enabled',
+];
+const RECOVERYKEY_COLUMNS = [
+  'uid',
+  'recoveryData',
+  'recoveryKeyIdHash',
+  'createdAt',
+  'verifiedAt',
+  'enabled',
+];
 const SESSIONTOKEN_COLUMNS = [
   'tokenId',
+  'tokenData',
   'uid',
   'createdAt',
   'uaBrowser',

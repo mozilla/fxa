@@ -44,8 +44,11 @@ type EmailProps = {
 
 type SecurityEventsProps = {
   uid: string;
+  nameId: number;
   verified: boolean;
+  ipAddrHmac: string;
   createdAt: number;
+  tokenVerificationId: string;
   name: string;
 };
 
@@ -63,6 +66,7 @@ type RecoveryKeysProps = {
 
 type SessionTokensProps = {
   tokenId: string;
+  tokenData: string;
   uid: string;
   createdAt: number;
   uaBrowser: string;
@@ -496,6 +500,9 @@ const RecoveryKeys = ({
 };
 
 const SessionTokens = ({
+  tokenId,
+  tokenData,
+  uid,
   createdAt,
   uaBrowser,
   uaBrowserVersion,
@@ -504,19 +511,14 @@ const SessionTokens = ({
   uaDeviceType,
   lastAccessTime,
 }: SessionTokensProps) => {
+  const lastAccessDate = dateFormat(new Date(lastAccessTime), DATE_FORMAT);
   return (
     <li data-testid="">
       <ul className="gradient-info-display">
         <li>
-          Created At:{' '}
-          <span data-testid="session-token-created-at" className="result">
-            {dateFormat(new Date(createdAt), DATE_FORMAT)}
-          </span>
-        </li>
-        <li>
-          Last Used:{' '}
+          Date Accessed:{' '}
           <span data-testid="session-token-accessed-at" className="result">
-            {dateFormat(new Date(lastAccessTime), DATE_FORMAT)}
+            {lastAccessDate}
           </span>
         </li>
         <li>

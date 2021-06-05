@@ -12,6 +12,7 @@ export class SessionTokens extends Model {
   public static tableName = 'sessionTokens';
 
   public tokenId!: string;
+  public tokenData!: string;
   public uid!: string;
   public createdAt!: number;
   public uaBrowser!: string;

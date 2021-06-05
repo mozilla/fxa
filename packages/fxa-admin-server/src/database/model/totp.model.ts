@@ -12,6 +12,7 @@ export class Totp extends Model {
   public static tableName = 'totp';
 
   public uid!: string;
+  public sharedSecret!: string;
   public epoch!: number;
   public createdAt!: number;
   public verified!: boolean;

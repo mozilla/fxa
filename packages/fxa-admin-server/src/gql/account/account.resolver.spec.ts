@@ -159,7 +159,7 @@ describe('AccountResolver', () => {
     const result = await resolver.totp(user);
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
-    expect(result[0].uid).toEqual(TOTP_1.uid);
+    expect(result[0]).toEqual(TOTP_1);
   });
 
   it('loads recoveryKeys', async () => {
@@ -170,7 +170,7 @@ describe('AccountResolver', () => {
     const result = await resolver.recoveryKeys(user);
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
-    expect(result[0].uid).toEqual(RECOVERY_KEY_1.uid);
+    expect(result[0]).toEqual(RECOVERY_KEY_1);
   });
 
   it('loads sessionTokens', async () => {
@@ -181,6 +181,6 @@ describe('AccountResolver', () => {
     const result = await resolver.sessionTokens(user);
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
-    expect(result[0].tokenId).toEqual(SESSION_TOKEN_1.tokenId);
+    expect(result[0]).toEqual(SESSION_TOKEN_1);
   });
 });

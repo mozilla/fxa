@@ -12,9 +12,11 @@ export class SecurityEvents extends Model {
   public static tableName = 'securityEvents';
 
   public uid!: string;
-  public name!: string;
+  public nameId!: number;
   public verified!: boolean;
+  public ipAddrHmac!: string;
   public createdAt!: number;
+  public tokenVerificationId!: string;
 
   public $parseDatabaseJson(json: any) {
     json = super.$parseDatabaseJson(json);
