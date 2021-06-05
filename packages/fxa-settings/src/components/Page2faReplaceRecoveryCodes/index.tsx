@@ -71,11 +71,11 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
           )}
         </div>
       </div>
-      <div className="flex justify-center mt-6 mb-4 mx-auto">
+      <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">
         <Localized id="recovery-key-close-button">
           <button
             type="button"
-            className="cta-primary mx-2 px-10 w-full"
+            className="cta-neutral mx-2 px-10"
             data-testid="close-modal"
             onClick={alertSuccessAndGoHome}
           >
