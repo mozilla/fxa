@@ -5968,6 +5968,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@theintern/common@npm:~0.2.4":
+  version: 0.2.4
+  resolution: "@theintern/common@npm:0.2.4"
+  dependencies:
+    axios: ~0.21.1
+    tslib: ~1.9.3
+  checksum: c1be4a33f7aafe030b897e946100eef1b7f40686c96c9ec267c33725cb6a4fda9efc7c49ab96910ed9755217182db6b2dfbe44090e0dc35aaea4ce0697742edc
+  languageName: node
+  linkType: hard
+
 "@theintern/digdug@npm:~2.5.0":
   version: 2.5.0
   resolution: "@theintern/digdug@npm:2.5.0"
@@ -10060,7 +10070,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:0.21.1, axios@npm:^0.21.0, axios@npm:^0.21.1":
+"axios@npm:0.21.1, axios@npm:^0.21.0, axios@npm:^0.21.1, axios@npm:~0.21.1":
   version: 0.21.1
   resolution: "axios@npm:0.21.1"
   dependencies:
@@ -18589,7 +18599,7 @@ fsevents@~2.1.1:
     http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
     install: 0.13.0
-    intern: ^4.9.0
+    intern: ^4.9.1
     joi: ^14.3.1
     jquery: 3.6.0
     jquery-modal: "git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
@@ -20705,23 +20715,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"handlebars@npm:~4.5.3":
-  version: 4.5.3
-  resolution: "handlebars@npm:4.5.3"
-  dependencies:
-    neo-async: ^2.6.0
-    optimist: ^0.6.1
-    source-map: ^0.6.1
-    uglify-js: ^3.1.4
-  dependenciesMeta:
-    uglify-js:
-      optional: true
-  bin:
-    handlebars: bin/handlebars
-  checksum: 66a20da92fc29997a0c14767d660f353288819e34b59b1721599d352a35354de134d22cc3b2b3bbdf57976d399918e7c6d2f13e2e7b5c7a539eb7e57fcf381fe
-  languageName: node
-  linkType: hard
-
 "hapi-error@npm:^2.3.0":
   version: 2.3.0
   resolution: "hapi-error@npm:2.3.0"
@@ -21995,11 +21988,11 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"intern@npm:^4.9.0":
-  version: 4.9.0
-  resolution: "intern@npm:4.9.0"
+"intern@npm:^4.9.1":
+  version: 4.9.1
+  resolution: "intern@npm:4.9.1"
   dependencies:
-    "@theintern/common": ~0.2.3
+    "@theintern/common": ~0.2.4
     "@theintern/digdug": ~2.5.0
     "@theintern/leadfoot": ~2.3.2
     "@types/benchmark": 1.0.31
@@ -22020,7 +22013,6 @@ fsevents@~2.1.1:
     diff: ~4.0.1
     express: ~4.17.1
     glob: ~7.1.4
-    handlebars: ~4.5.3
     http-errors: ~1.7.2
     istanbul-lib-coverage: ~2.0.5
     istanbul-lib-hook: ~2.0.7
@@ -22040,7 +22032,7 @@ fsevents@~2.1.1:
     ws: ~7.0.0
   bin:
     intern: bin/intern.js
-  checksum: 468d27f34d2521fda51693b7699711248261532383c1aa2c5f43f5348b2e03c5530327bdc37d8b4366770e3e047c8f99efc0b692f40054bae9fae62c7e1bb2c6
+  checksum: bb691510e9a2d275abfe83bd994182a1d94f4f9308c55014ebe72a5271fdd89c51043086a35b25e4d2c71ecf6f3b106b406f307553ff552ae2068ba76e9afe97
   languageName: node
   linkType: hard
 
@@ -27977,7 +27969,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"optimist@npm:0.6.1, optimist@npm:^0.6.1":
+"optimist@npm:0.6.1":
   version: 0.6.1
   resolution: "optimist@npm:0.6.1"
   dependencies:
