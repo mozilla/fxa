@@ -156,8 +156,8 @@ default-input-error = This field is required
 input-error-is-required = { $label } is required
 
 ## subscription upgrade
-product-plan-upgrade-heading = Review your upgrade
-sub-update-failed = Plan update failed
+product-plan-change-heading = Review your change
+sub-change-failed = Plan change failed
 sub-update-payment-title = Payment information
 sub-update-card-exp = Expires { $cardExpMonth }/{ $cardExpYear }
 sub-update-copy =
@@ -187,9 +187,9 @@ sub-update-confirm-with-legal-links-year = { $intervalCount ->
 }
 
 ##
-sub-update-submit = Confirm upgrade
-sub-update-indicator =
-  .aria-label = upgrade indicator
+sub-change-submit = Confirm change
+sub-change-indicator =
+  .aria-label = change indicator
 sub-update-current-plan-label = Current plan
 sub-update-new-plan-label = New plan
 sub-update-total-label = New total
