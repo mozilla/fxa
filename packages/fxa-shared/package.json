@@ -107,7 +107,7 @@
     "redis": "^3.1.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.6.6",
-    "stripe": "^8.149.0",
+    "stripe": "^8.153.0",
     "superagent": "^6.1.0"
   },
   "jest": {
