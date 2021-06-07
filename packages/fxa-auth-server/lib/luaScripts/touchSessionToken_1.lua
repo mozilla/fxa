@@ -17,7 +17,7 @@ local REDIS_SESSION_TOKEN_LOCATION_PROPERTIES = {
   'countryCode'
 }
 
-local function packToken(token)
+local function packToken(token, oldToken)
   local result = {}
   for i, name in ipairs(REDIS_SESSION_TOKEN_PROPERTIES) do
     if name == 'location' and type(token[name]) == 'table' then
@@ -28,7 +28,14 @@ local function packToken(token)
       end
       result[i] = r
     else
-      result[i] = token[name]
+      if token[name] then
+        result[i] = token[name]
+      else
+        -- Note that `token` and `oldToken` are slightly different. `token`
+        -- comes from input and is an json object vs `oldToken` which comes
+        -- from redis and is an array of session values.
+        result[i] = oldToken[i]
+      end
     end
   end
   return result
@@ -45,7 +52,12 @@ local uid = KEYS[1]
 local update = cjson.decode(ARGV[1])
 local tokens = decode(redis.call('get', uid))
 
-tokens[update.id] = packToken(update)
+local oldToken = tokens[update.id]
+if not oldToken then
+    oldToken = {}
+end
+
+tokens[update.id] = packToken(update, oldToken)
 
 local result = cjson.encode(tokens)
 return redis.call('set', uid, result)
