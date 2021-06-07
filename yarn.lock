@@ -11278,13 +11278,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"big-integer@npm:^1.6.31":
-  version: 1.6.48
-  resolution: "big-integer@npm:1.6.48"
-  checksum: 311f86a45e28513ddb12415082c5f437b868d80914bff71689a99e16f597beee5c0f12b0c9e65713b70b0516e6ed27f4006e256ea5393bfcf68bb18dc453f976
-  languageName: node
-  linkType: hard
-
 "big.js@npm:^5.2.2":
   version: 5.2.2
   resolution: "big.js@npm:5.2.2"
@@ -18824,7 +18817,7 @@ fsevents@~2.1.1:
     eslint: ^7.27.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
-    maxmind: 2.8.0
+    maxmind: 4.3.2
     mkdirp: 0.5.1
     mocha: ^8.4.0
     mozlog: ^3.0.2
@@ -25800,13 +25793,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"maxmind@npm:2.8.0":
-  version: 2.8.0
-  resolution: "maxmind@npm:2.8.0"
+"maxmind@npm:4.3.2":
+  version: 4.3.2
+  resolution: "maxmind@npm:4.3.2"
   dependencies:
-    big-integer: ^1.6.31
-    tiny-lru: ^1.6.1
-  checksum: e12c282796fc481ff23d0b3afadd919d13080812c43fe45cd8493419a4bb6e6e2ff9c45cfbc3a69674d404611f37218038aa7ce3a5ab9eff8402e97b64ac3ab8
+    mmdb-lib: 1.3.0
+    tiny-lru: 7.0.6
+  checksum: 873fe3fdbba440da49e80c47e1a595f29eb0d59127cc86442204b482457b4acc908ea6b882d33952750a40cc44aa4f7ff3338ca99e3b6a52f56f8b5115154db6
   languageName: node
   linkType: hard
 
@@ -26462,6 +26455,13 @@ fsevents@~2.1.1:
   bin:
     mkdirp: bin/cmd.js
   checksum: 1aa3a6a2d7514f094a91329ec09994f5d32d2955a4985ecbb3d86f2aaeafc4aa11521f98d606144c1d49cd9835004d9a73342709b8c692c92e59eacf37412468
+  languageName: node
+  linkType: hard
+
+"mmdb-lib@npm:1.3.0":
+  version: 1.3.0
+  resolution: "mmdb-lib@npm:1.3.0"
+  checksum: 1ace153787845f30706eb6bd7c0a66219cbba720da8aa5b5cbf032186be1115739ea0a42cda31b3fdc7481c6affc68b88217866ecd78c7c18d19124b9986cc32
   languageName: node
   linkType: hard
 
@@ -35911,10 +35911,10 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tiny-lru@npm:^1.6.1":
-  version: 1.6.4
-  resolution: "tiny-lru@npm:1.6.4"
-  checksum: 3c937a5d34a8839dc4f21159573d971ba7f5e568baf036fe24d3451db23b36e5d26756b58a4539843b179787c52828ad3dd7ce23e42f2b736f1d62082765dfd5
+"tiny-lru@npm:7.0.6":
+  version: 7.0.6
+  resolution: "tiny-lru@npm:7.0.6"
+  checksum: 9fb221279eee2747e20511ce9d4cc080527b6c44f835b867d5f02e136fe0e34f0c10348af7e22c56420ffb69636ac042eb4ffead90dd8d80a7b6368be30f112a
   languageName: node
   linkType: hard
 
