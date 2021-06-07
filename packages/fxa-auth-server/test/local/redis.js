@@ -90,6 +90,23 @@ describe('Redis', () => {
       const rawData = await redis.get(uid);
       assert.equal(rawData, `{"token1":[1,null,"x"]}`);
     });
+
+    it('only updates changed values', async () => {
+      await redis.touchSessionToken(uid, {
+        id: 'token1',
+        lastAccessTime: 1,
+        uaBrowser: 'x',
+      });
+      let rawData = await redis.get(uid);
+      assert.equal(rawData, `{"token1":[1,null,"x"]}`);
+
+      await redis.touchSessionToken(uid, {
+        id: 'token1',
+        lastAccessTime: 2,
+      });
+      rawData = await redis.get(uid);
+      assert.equal(rawData, `{"token1":[2,null,"x"]}`);
+    });
   });
 
   describe('getSessionTokens', () => {

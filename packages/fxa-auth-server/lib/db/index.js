@@ -36,10 +36,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   } = Token;
   const MAX_AGE_SESSION_TOKEN_WITHOUT_DEVICE =
     config.tokenLifetimes.sessionTokenWithoutDevice;
-  const {
-    enabled: TOKEN_PRUNING_ENABLED,
-    maxAge: TOKEN_PRUNING_MAX_AGE,
-  } = config.tokenPruning;
+  const { enabled: TOKEN_PRUNING_ENABLED, maxAge: TOKEN_PRUNING_MAX_AGE } =
+    config.tokenPruning;
 
   const SAFE_URLS = {};
 
@@ -375,9 +373,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
     try {
       const [devices, redisSessionTokens = {}] = await Promise.all(promises);
-      const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(
-        uid
-      );
+      const lastAccessTimeEnabled =
+        features.isLastAccessTimeEnabledForUser(uid);
       return devices.map((device) => {
         return mergeDeviceInfoFromRedis(
           device,
@@ -539,7 +536,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
    * To do a more expensive write that flushes to the underlying
    * DB, use updateSessionToken instead.
    */
-  DB.prototype.touchSessionToken = async function (token, geo) {
+  DB.prototype.touchSessionToken = async function (
+    token,
+    geo,
+    onlyUpdateLastAccessTime = false
+  ) {
     const { id, uid } = token;
 
     log.trace('DB.touchSessionToken', { id, uid });
@@ -548,28 +549,36 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       return;
     }
 
-    let location;
-    if (geo && geo.location) {
-      location = {
-        city: geo.location.city,
-        country: geo.location.country,
-        countryCode: geo.location.countryCode,
-        state: geo.location.state,
-        stateCode: geo.location.stateCode,
+    let t;
+    if (onlyUpdateLastAccessTime) {
+      t = {
+        lastAccessTime: token.lastAccessTime,
+        id,
+      };
+    } else {
+      let location;
+      if (geo && geo.location) {
+        location = {
+          city: geo.location.city,
+          country: geo.location.country,
+          countryCode: geo.location.countryCode,
+          state: geo.location.state,
+          stateCode: geo.location.stateCode,
+        };
+      }
+
+      t = {
+        lastAccessTime: token.lastAccessTime,
+        location,
+        uaBrowser: token.uaBrowser,
+        uaBrowserVersion: token.uaBrowserVersion,
+        uaDeviceType: token.uaDeviceType,
+        uaFormFactor: token.uaFormFactor,
+        uaOS: token.uaOS,
+        uaOSVersion: token.uaOSVersion,
+        id,
       };
     }
-
-    const t = {
-      lastAccessTime: token.lastAccessTime,
-      location,
-      uaBrowser: token.uaBrowser,
-      uaBrowserVersion: token.uaBrowserVersion,
-      uaDeviceType: token.uaDeviceType,
-      uaFormFactor: token.uaFormFactor,
-      uaOS: token.uaOS,
-      uaOSVersion: token.uaOSVersion,
-      id,
-    };
 
     return this.redis.touchSessionToken(uid, t);
   };
