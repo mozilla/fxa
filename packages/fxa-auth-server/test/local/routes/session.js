@@ -21,6 +21,7 @@ const signupCodeAccount = {
   email: 'foo@example.org',
   emailCode: 'abcdef',
   emailVerified: false,
+  tokenVerificationId: 'sometoken',
 };
 
 function makeRoutes(options = {}) {
@@ -156,8 +157,10 @@ describe('/session/reauth', () => {
       db,
       mailer
     );
-    SessionToken = require('../../../lib/tokens/index')(log, config)
-      .SessionToken;
+    SessionToken = require('../../../lib/tokens/index')(
+      log,
+      config
+    ).SessionToken;
     routes = makeRoutes({ log, config, customs, db, mailer, signinUtils });
     route = getRoute(routes, '/session/reauth');
     request = mocks.mockRequest({
@@ -1313,5 +1316,45 @@ describe('/session/resend_code', () => {
     );
     const args = mailer.sendVerifyLoginCodeEmail.args[0];
     assert.equal(args[2].code, expectedCode);
+  });
+});
+
+describe('/session/verify/send_push', () => {
+  let route, request, log, db, mailer, push;
+
+  beforeEach(() => {
+    db = mocks.mockDB({ ...signupCodeAccount });
+    log = mocks.mockLog();
+    mailer = mocks.mockMailer();
+    push = mocks.mockPush();
+    const config = {};
+    const routes = makeRoutes({ log, config, db, mailer, push });
+    route = getRoute(routes, '/session/verify/send_push');
+
+    request = mocks.mockRequest({
+      credentials: {
+        ...signupCodeAccount,
+        uaBrowser: 'Firefox',
+        id: 'sessionTokenId',
+      },
+      log,
+      uaBrowser: 'Firefox',
+    });
+  });
+
+  it('should send a push notification with verification code', async () => {
+    const response = await runTest(route, request);
+    assert.deepEqual(response, {});
+    assert.calledOnce(db.devices);
+    assert.calledOnce(push.notifyVerifyLoginRequest);
+
+    const args = push.notifyVerifyLoginRequest.args[0];
+    assert.equal(args[0], 'foo');
+    assert.deepEqual(args[1], []);
+    assert.equal(args[2].title, 'Logging in to Firefox Accounts?');
+    assert.equal(args[2].body, "Click here to verify it's you");
+    assert.include(args[2].url, 'sometoken');
+    assert.include(args[2].url, 'California');
+    assert.include(args[2].url, encodeURIComponent('63.245.221.32'));
   });
 });
