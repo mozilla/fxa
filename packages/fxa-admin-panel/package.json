@@ -40,7 +40,7 @@
   "dependencies": {
     "@apollo/client": "^3.3.19",
     "@emotion/react": "^11.4.0",
-    "@material-ui/core": "v5.0.0-alpha.24",
+    "@material-ui/core": "v5.0.0-alpha.35",
     "body-parser": "^1.19.0",
     "convict": "^6.1.0",
     "convict-format-with-moment": "^6.0.1",
