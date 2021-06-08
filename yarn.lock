@@ -19081,7 +19081,7 @@ fsevents@~2.1.1:
     joi: ^14.3.1
     morgan: ^1.10.0
     mozlog: ^3.0.2
-    nocache: ^2.1.0
+    nocache: ^3.0.0
     nock: ^13.1.0
     node-fetch: ^2.6.1
     node-sass: ^6.0.0
@@ -27012,10 +27012,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nocache@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "nocache@npm:2.1.0"
-  checksum: 002c9237df3f79d92784d15bf89e1d0a3112a6cbb5e4bb8ff91791bbd1f288c33f3d07a429bc3942499dc49caf5c7f0f578825daa9f3e5ffba3dd3c32080acb9
+"nocache@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "nocache@npm:3.0.0"
+  checksum: f50d933a52e59b7cf347d445ffbdc7d92abf0dc60d06d6813cb4cc1d2a60768f93cd9beebcc918870c2533c105b2189c38968dc6a81c214da923f0e71ea4e9ab
   languageName: node
   linkType: hard
 
