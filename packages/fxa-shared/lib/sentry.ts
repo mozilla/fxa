@@ -44,7 +44,7 @@ function beforeSend(data: Sentry.Event): Sentry.Event {
       // if this is a known errno, then use grouping with fingerprints
       // Docs: https://docs.sentry.io/hosted/learn/rollups/#fallback-grouping
       if (data.tags.errno) {
-        data.fingerprint = ['errno' + data.tags.errno];
+        data.fingerprint = ['errno' + (data.tags.errno as number)];
         // if it is a known error change the error level to info.
         data.level = Sentry.Severity.Info;
       }
@@ -119,9 +119,9 @@ interface SentryMetrics {
  *
  * @constructor
  */
-const SentryMetrics = (function (this: SentryMetrics) {
+const SentryMetrics = function (this: SentryMetrics) {
   this._logger = new Logger();
-} as any) as new () => SentryMetrics;
+} as any as new () => SentryMetrics;
 
 SentryMetrics.prototype = {
   /**
@@ -160,9 +160,11 @@ SentryMetrics.prototype = {
         if (tagName in err) {
           scope.setTag(
             tagName,
-            (err as {
-              [key: string]: any;
-            })[tagName]
+            (
+              err as {
+                [key: string]: any;
+              }
+            )[tagName]
           );
         }
       });

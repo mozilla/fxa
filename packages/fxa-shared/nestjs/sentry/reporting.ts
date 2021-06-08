@@ -11,7 +11,8 @@ import { Request } from 'express';
 // prefer not to include in Sentry reports.
 const TOKENREGEX = /[a-fA-F0-9]{32,}/gi;
 // RFC 5322 generalized email regex, ~ 99.99% accurate.
-const EMAILREGEX = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gi;
+const EMAILREGEX =
+  /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gi;
 const FILTERED = '[Filtered]';
 const URIENCODEDFILTERED = encodeURIComponent(FILTERED);
 
@@ -70,10 +71,9 @@ export function filterSentryEvent(event: Sentry.Event, hint: unknown) {
       event.request.url = event.request.url.replace(TOKENREGEX, FILTERED);
     }
     if (event.request.query_string) {
-      event.request.query_string = event.request.query_string.replace(
-        TOKENREGEX,
-        URIENCODEDFILTERED
-      );
+      event.request.query_string = (
+        event.request.query_string as string
+      ).replace(TOKENREGEX, URIENCODEDFILTERED);
     }
     if (event.request.headers) {
       (event as any).request.headers = filterObject(event.request.headers);
