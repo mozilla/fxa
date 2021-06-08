@@ -13,7 +13,7 @@ __metadata:
     client-sessions: 0.8.x
     convict: ^6.1.0
     convict-format-with-validator: ^6.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     express: ^4.17.1
     fxa-jwtool: ^0.7.2
@@ -21,7 +21,7 @@ __metadata:
     morgan: ^1.10.0
     node-rsa: 1.1.1
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     redis: ^3.1.2
     request: ^2.88.2
   languageName: unknown
@@ -92,20 +92,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client@npm:^3.2.5, @apollo/client@npm:^3.3.19, @apollo/client@npm:~3.2.5 || ~3.3.0":
-  version: 3.3.19
-  resolution: "@apollo/client@npm:3.3.19"
+"@apollo/client@npm:^3.2.5, @apollo/client@npm:^3.3.20, @apollo/client@npm:~3.2.5 || ~3.3.0":
+  version: 3.3.20
+  resolution: "@apollo/client@npm:3.3.20"
   dependencies:
     "@graphql-typed-document-node/core": ^3.0.0
     "@types/zen-observable": ^0.8.0
     "@wry/context": ^0.6.0
-    "@wry/equality": ^0.4.0
+    "@wry/equality": ^0.5.0
     fast-json-stable-stringify: ^2.0.0
     graphql-tag: ^2.12.0
     hoist-non-react-statics: ^3.3.2
     optimism: ^0.16.0
     prop-types: ^15.7.2
-    symbol-observable: ^2.0.0
+    symbol-observable: ^4.0.0
     ts-invariant: ^0.7.0
     tslib: ^1.10.0
     zen-observable: ^0.8.14
@@ -118,7 +118,7 @@ __metadata:
       optional: true
     subscriptions-transport-ws:
       optional: true
-  checksum: a7266cfdff900ef71adece4d24c853fc6179dfe3d3b89905b468b0a487959a435ef84219fb1266c86e2edb0747ff0e52b6ac49dba72bdac7cdbc55e1d0a2e357
+  checksum: ba1e0d92a96e1278d014ccf5f9d7f0082355d2de12e4d4527ea3f5e1f3da5b7b0b274fdc7d18741c4d287bcb00194456cd8276282602962a7ac52fbe773fea26
   languageName: node
   linkType: hard
 
@@ -2549,20 +2549,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/eslintrc@npm:^0.4.1":
-  version: 0.4.1
-  resolution: "@eslint/eslintrc@npm:0.4.1"
+"@eslint/eslintrc@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "@eslint/eslintrc@npm:0.4.2"
   dependencies:
     ajv: ^6.12.4
     debug: ^4.1.1
     espree: ^7.3.0
-    globals: ^12.1.0
+    globals: ^13.9.0
     ignore: ^4.0.6
     import-fresh: ^3.2.1
     js-yaml: ^3.13.1
     minimatch: ^3.0.4
     strip-json-comments: ^3.1.1
-  checksum: 418f5810c8dd9897d2457ceef098197d0e5f1ad345fbe4cd9256fd4223d7ea83d5e350f9091b3ab3483b6b1c367fa560df3ba1fccc7eb8ca6e1aae5a5b126d60
+  checksum: 60b66ce4257bf5c36a920dea83a056102fef746e7afd7100a6fe245a126ff455f67f4948e75d28ed73090bff8f8556b6a996e74a124911ca703440bc245dbc23
   languageName: node
   linkType: hard
 
@@ -8246,12 +8246,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wry/equality@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@wry/equality@npm:0.4.0"
+"@wry/equality@npm:^0.5.0":
+  version: 0.5.1
+  resolution: "@wry/equality@npm:0.5.1"
   dependencies:
     tslib: ^2.1.0
-  checksum: 87c2b705edf0cc81e8b034367765762f3d2a1a0bfd9163b70389398bc0fc0338e1f8d68b2eaa70b0f5101c455bf5d419ae4a4f03f7f7697803e34adb9ca86b72
+  checksum: 9338248846ff40aa682c75d4bd5c78ccbda39342cea1246f21c018973b88635e19c8cd4180af57d3dd3f2317da8d269ce50b909be865d43d69815ed9a4afd092
   languageName: node
   linkType: hard
 
@@ -11370,17 +11370,17 @@ __metadata:
     convict: ^6.1.0
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     express: ^4.17.1
     fxa-shared: "workspace:*"
     intel: 1.2.0
-    mocha: ^8.4.0
+    mocha: ^9.0.0
     morgan: ^1.10.0
     mozlog: ^3.0.2
     optimist: 0.6.1
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     request: ^2.88.2
     should: 13.2.3
     temp: 0.9.4
@@ -15558,9 +15558,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"es-abstract@npm:^1.17.0-next.0, es-abstract@npm:^1.17.0-next.1, es-abstract@npm:^1.17.4, es-abstract@npm:^1.17.5, es-abstract@npm:^1.18.0-next.1, es-abstract@npm:^1.18.0-next.2, es-abstract@npm:^1.5.0":
-  version: 1.18.0
-  resolution: "es-abstract@npm:1.18.0"
+"es-abstract@npm:^1.17.0-next.0, es-abstract@npm:^1.17.0-next.1, es-abstract@npm:^1.17.4, es-abstract@npm:^1.17.5, es-abstract@npm:^1.18.0-next.1, es-abstract@npm:^1.18.0-next.2, es-abstract@npm:^1.18.2, es-abstract@npm:^1.5.0":
+  version: 1.18.3
+  resolution: "es-abstract@npm:1.18.3"
   dependencies:
     call-bind: ^1.0.2
     es-to-primitive: ^1.2.1
@@ -15570,15 +15570,15 @@ __metadata:
     has-symbols: ^1.0.2
     is-callable: ^1.2.3
     is-negative-zero: ^2.0.1
-    is-regex: ^1.1.2
-    is-string: ^1.0.5
-    object-inspect: ^1.9.0
+    is-regex: ^1.1.3
+    is-string: ^1.0.6
+    object-inspect: ^1.10.3
     object-keys: ^1.1.1
     object.assign: ^4.1.2
     string.prototype.trimend: ^1.0.4
     string.prototype.trimstart: ^1.0.4
-    unbox-primitive: ^1.0.0
-  checksum: 019fa7c51e10532cd07ca3aa9b76e4c6ad6f421e15064205d144da08da54f8fc057edc262f6f95775e0b249ecbb753b497050dd75ab69a3c1c89cb9b734e42ca
+    unbox-primitive: ^1.0.1
+  checksum: 85cd62cabad4714e945e1ed8ed1c5086237daa544448b1562765857dbe33f3415f56e53b03552ea4599f8e836f7e6ecd4ce70560b23a534f78f77780565d6985
   languageName: node
   linkType: hard
 
@@ -15935,9 +15935,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react@npm:^7.21.5, eslint-plugin-react@npm:^7.23.2":
-  version: 7.23.2
-  resolution: "eslint-plugin-react@npm:7.23.2"
+"eslint-plugin-react@npm:^7.21.5, eslint-plugin-react@npm:^7.24.0":
+  version: 7.24.0
+  resolution: "eslint-plugin-react@npm:7.24.0"
   dependencies:
     array-includes: ^3.1.3
     array.prototype.flatmap: ^1.2.4
@@ -15945,15 +15945,15 @@ __metadata:
     has: ^1.0.3
     jsx-ast-utils: ^2.4.1 || ^3.0.0
     minimatch: ^3.0.4
-    object.entries: ^1.1.3
+    object.entries: ^1.1.4
     object.fromentries: ^2.0.4
-    object.values: ^1.1.3
+    object.values: ^1.1.4
     prop-types: ^15.7.2
     resolve: ^2.0.0-next.3
-    string.prototype.matchall: ^4.0.4
+    string.prototype.matchall: ^4.0.5
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7
-  checksum: 0607db70fe5dd8366f046fee0bb8213b72a5f801fced1b82a7c85d5e88eac5cee43c221a0a20b032925210cbd52e2669a10ae03f1bd58e03485e2c18070cbb57
+  checksum: 256e25dc8dde4664361b4a47ee452065444491fb5e694b52f9c5f56b8d8bd25c6e7ac660d722b234c7fdc7d29a1dffebdc30c9b7eee4f840d883da922882460a
   languageName: node
   linkType: hard
 
@@ -16095,12 +16095,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^7.0.0, eslint@npm:^7.11.0, eslint@npm:^7.27.0":
-  version: 7.27.0
-  resolution: "eslint@npm:7.27.0"
+"eslint@npm:^7.0.0, eslint@npm:^7.11.0, eslint@npm:^7.28.0":
+  version: 7.28.0
+  resolution: "eslint@npm:7.28.0"
   dependencies:
     "@babel/code-frame": 7.12.11
-    "@eslint/eslintrc": ^0.4.1
+    "@eslint/eslintrc": ^0.4.2
     ajv: ^6.10.0
     chalk: ^4.0.0
     cross-spawn: ^7.0.2
@@ -16117,7 +16117,7 @@ __metadata:
     fast-deep-equal: ^3.1.3
     file-entry-cache: ^6.0.1
     functional-red-black-tree: ^1.0.1
-    glob-parent: ^5.0.0
+    glob-parent: ^5.1.2
     globals: ^13.6.0
     ignore: ^4.0.6
     import-fresh: ^3.0.0
@@ -16140,7 +16140,7 @@ __metadata:
     v8-compile-cache: ^2.0.3
   bin:
     eslint: bin/eslint.js
-  checksum: c91a9a88091fb2654ec599b452f6d8aff22daa4a21761e762536877ec8b65cd6386c29ea2e0fec2668125a07c62973bc23922f924c999e140c1042b8cffca030
+  checksum: 9d49d53ed56a1f1ccba9c71482722a91f2423432df70a3694d36ea478f0e3bb058034f170219f34f3d6b5cd5d47510b269b75e2b4117f88a3241b1db9cb95828
   languageName: node
   linkType: hard
 
@@ -17564,14 +17564,14 @@ __metadata:
     audit-filter: 0.5.0
     client-sessions: 0.8.x
     ejs: ^3.1.6
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     express: ^4.17.1
     fxa-shared: "workspace:*"
     morgan: ^1.10.0
     npm-run-all: 4.1.5
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     stylelint: ^13.13.1
     stylelint-config-prettier: ^8.0.2
   languageName: unknown
@@ -17902,7 +17902,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-admin-panel@workspace:packages/fxa-admin-panel"
   dependencies:
-    "@apollo/client": ^3.3.19
+    "@apollo/client": ^3.3.20
     "@babel/core": ^7.14.3
     "@emotion/react": ^11.4.0
     "@material-ui/core": v5.0.0-alpha.24
@@ -17940,10 +17940,10 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
     dateformat: ^4.3.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^24.3.6
-    eslint-plugin-react: ^7.23.2
+    eslint-plugin-react: ^7.24.0
     express: ^4.17.1
     express-http-proxy: ^1.6.2
     fxa-react: "workspace:*"
@@ -17957,7 +17957,7 @@ fsevents@~2.1.1:
     on-headers: ^1.0.2
     pm2: ^5.0.4
     postcss-cli: ^7.1.1
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     react: ^16.13.0
     react-dom: ^16.13.0
     react-router-dom: ^5.1.2
@@ -18000,7 +18000,7 @@ fsevents@~2.1.1:
     convict: ^6.1.0
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
     graphql: ^15.5.0
@@ -18012,7 +18012,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     objection: ^2.2.15
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     proxyquire: ^2.1.3
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
@@ -18041,7 +18041,7 @@ fsevents@~2.1.1:
     abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
     fast-text-encoding: ^1.0.3
-    mocha: ^8.4.0
+    mocha: ^9.0.0
     node-fetch: ^2.6.1
     ts-node: ^10.0.0
     typescript: ^4.2.4
@@ -18061,19 +18061,19 @@ fsevents@~2.1.1:
     convict: ^6.1.0
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
     ip: ^1.1.5
-    mocha: ^8.4.0
+    mocha: ^9.0.0
     mozlog: ^3.0.2
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
     nock: ^13.1.0
     nyc: ^15.1.0
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     proxyquire: ^2.1.3
     request: ^2.88.2
     restify: ^8.4.0
@@ -18131,7 +18131,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
     email-addresses: 4.0.0
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     fxa-auth-db-mysql: "workspace:*"
     fxa-geodb: "workspace:*"
@@ -18149,7 +18149,7 @@ fsevents@~2.1.1:
     hkdf: 0.0.2
     hot-shots: ^8.3.2
     i18n-abide: 0.0.26
-    ioredis: ^4.27.3
+    ioredis: ^4.27.5
     jed: 0.5.4
     jsonwebtoken: ^8.4.0
     jsxgettext-recursive-next: 1.1.0
@@ -18165,7 +18165,7 @@ fsevents@~2.1.1:
     mailparser: 0.6.1
     memcached: ^2.2.2
     mkdirp: 0.5.1
-    mocha: ^8.4.0
+    mocha: ^9.0.0
     mocha-junit-reporter: ^2.0.0
     moment: ^2.29.1
     moment-timezone: ^0.5.33
@@ -18183,7 +18183,7 @@ fsevents@~2.1.1:
     pm2: ^5.0.4
     po2json: 0.4.5
     poolee: ^1.0.1
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     proxyquire: ^2.1.3
     punycode.js: 2.1.0
     qrcode: ^1.4.4
@@ -18261,7 +18261,7 @@ fsevents@~2.1.1:
     css: 3.0.0
     css-loader: 1.0.0
     duration-js: 4.0.0
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     expose-loader: 1.0.3
     express: ^4.17.1
@@ -18321,7 +18321,7 @@ fsevents@~2.1.1:
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
     mkdirp: 0.5.1
-    mocha: ^8.4.0
+    mocha: ^9.0.0
     morgan: ^1.10.0
     mozlog: ^3.0.2
     mustache: 4.2.0
@@ -18335,7 +18335,7 @@ fsevents@~2.1.1:
     pm2: ^5.0.4
     postcss-cli: 7.1.1
     postcss-loader: 4.2.0
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     proxyquire: ^2.1.3
     react: ^16.8.6
     react-dom: ^16.8.6
@@ -18396,7 +18396,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
     deep-equal: 2.0.5
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     grunt: ^1.4.1
@@ -18410,7 +18410,7 @@ fsevents@~2.1.1:
     lodash.merge: 4.6.2
     memcached: ^2.2.2
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     proxyquire: ^2.1.3
     request: ^2.88.2
     restify-clients: ^3.1.0
@@ -18441,11 +18441,11 @@ fsevents@~2.1.1:
     bluebird: ^3.7.2
     chai: ^4.3.4
     chai-as-promised: ^7.1.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
-    mocha: ^8.4.0
-    prettier: ^2.3.0
+    mocha: ^9.0.0
+    prettier: ^2.3.1
     proxyquire: ^2.1.3
     qs: ^6.9.3
     sinon: ^9.0.3
@@ -18496,7 +18496,7 @@ fsevents@~2.1.1:
     convict: ^6.1.0
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-config-prettier: ^8.3.0
     eslint-plugin-import: ^2.23.4
     express: ^4.17.1
@@ -18514,7 +18514,7 @@ fsevents@~2.1.1:
     passport: ^0.4.1
     passport-jwt: ^4.0.0
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^6.6.6
@@ -18539,15 +18539,15 @@ fsevents@~2.1.1:
     bluebird: ^3.7.2
     chai: ^4.3.4
     cron: 1.8.2
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     maxmind: 2.8.0
     mkdirp: 0.5.1
-    mocha: ^8.4.0
+    mocha: ^9.0.0
     mozlog: ^3.0.2
     nyc: ^15.1.0
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     request: ^2.88.2
     rimraf: ^3.0.2
     sinon: ^9.0.3
@@ -18591,7 +18591,7 @@ fsevents@~2.1.1:
     convict: ^6.1.0
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     express: ^4.17.1
     fxa-auth-client: "workspace:*"
     fxa-shared: "workspace:*"
@@ -18602,7 +18602,7 @@ fsevents@~2.1.1:
     graphql-tools: ^7.0.5
     graphql-upload: ^11.0.0
     helmet: ^4.6.0
-    ioredis: ^4.27.3
+    ioredis: ^4.27.5
     jest: 26.6.0
     knex: ^0.95.6
     mozlog: ^3.0.2
@@ -18612,7 +18612,7 @@ fsevents@~2.1.1:
     passport: ^0.4.1
     passport-http-bearer: ^1.0.1
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^6.6.6
@@ -18654,11 +18654,11 @@ fsevents@~2.1.1:
     convict: ^6.1.0
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     fxa-shared: "workspace:*"
-    mocha: ^8.4.0
+    mocha: ^9.0.0
     mozlog: ^3.0.2
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     sinon: ^9.0.3
     ts-node: ^10.0.0
@@ -18746,10 +18746,10 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
     dayjs: ^1.9.4
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^24.3.6
-    eslint-plugin-react: ^7.23.2
+    eslint-plugin-react: ^7.24.0
     express: ^4.17.1
     express-http-proxy: ^1.6.2
     fetch-mock: ^9.10.7
@@ -18776,7 +18776,7 @@ fsevents@~2.1.1:
     nyc: ^15.1.0
     on-headers: ^1.0.2
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     react: ^16.12.0
     react-document-title: ^2.0.3
     react-dom: ^16.12.0
@@ -18827,13 +18827,13 @@ fsevents@~2.1.1:
     convict: ^6.1.0
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     insist: 1.0.1
     lodash: ^4.17.21
     mkdirp: 0.5.1
-    mocha: ^8.4.0
+    mocha: ^9.0.0
     mocha-text-cov: 0.1.1
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -18843,7 +18843,7 @@ fsevents@~2.1.1:
     pm2: ^5.0.4
     pngparse: 2.0.1
     poolee: ^1.0.1
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     request: ^2.88.2
     rimraf: ^3.0.2
     sharp: ^0.28.3
@@ -18889,7 +18889,7 @@ fsevents@~2.1.1:
     babel-preset-react-app: ^9.1.2
     camelcase: ^6.0.0
     classnames: ^2.3.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     fetch-mock: ^9.11.0
     file-loader: ^4.3.0
     fxa-shared: "workspace:*"
@@ -18898,7 +18898,7 @@ fsevents@~2.1.1:
     jest-environment-jsdom-fourteen: 1.0.1
     pm2: ^5.0.4
     postcss-cli: ^7.1.1
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     react: ^16.13.1
     react-dom: ^16.13.1
     react-helmet: ^6.1.0
@@ -18918,7 +18918,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-settings@workspace:packages/fxa-settings"
   dependencies:
-    "@apollo/client": ^3.3.19
+    "@apollo/client": ^3.3.20
     "@babel/core": ^7.14.3
     "@emotion/react": ^11.4.0
     "@fluent/react": ^0.13.1
@@ -18953,10 +18953,10 @@ fsevents@~2.1.1:
     base32-decode: ^1.0.0
     base32-encode: ^1.2.0
     classnames: ^2.3.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^24.3.6
-    eslint-plugin-react: ^7.23.2
+    eslint-plugin-react: ^7.24.0
     fxa-auth-client: "workspace:*"
     fxa-common-password-list: ^0.0.4
     fxa-react: "workspace:*"
@@ -19027,7 +19027,7 @@ fsevents@~2.1.1:
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
     cors: ^2.8.5
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     find-up: ^5.0.0
     generic-pool: ^3.7.8
@@ -19041,7 +19041,7 @@ fsevents@~2.1.1:
     knex: ^0.95.6
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
-    mocha: ^8.4.0
+    mocha: ^9.0.0
     moment: ^2.29.1
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -19049,7 +19049,7 @@ fsevents@~2.1.1:
     nyc: ^15.1.0
     objection: ^2.2.15
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     proxyquire: ^2.1.3
     redis: ^3.1.2
     reflect-metadata: ^0.1.13
@@ -19091,7 +19091,7 @@ fsevents@~2.1.1:
     convict: ^6.1.0
     convict-format-with-moment: ^6.0.1
     convict-format-with-validator: ^6.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
     handlebars: ^4.7.7
@@ -19100,7 +19100,7 @@ fsevents@~2.1.1:
     jest: 26.6.0
     mozlog: ^3.0.2
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^6.6.6
@@ -19120,17 +19120,17 @@ fsevents@~2.1.1:
   resolution: "fxa@workspace:."
   dependencies:
     diffparser: ^2.0.1
-    eslint: ^7.27.0
+    eslint: ^7.28.0
     eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^24.3.6
-    eslint-plugin-react: ^7.23.2
+    eslint-plugin-react: ^7.24.0
     husky: ^4.2.5
     json: ^11.0.0
     lint-staged: ^10.2.11
     node-fetch: ^2.6.1
     nps: ^5.10.0
     pm2: ^5.0.4
-    prettier: ^2.3.0
+    prettier: ^2.3.1
     replace-in-file: ^6.1.0
     semver: ^7.3.5
     stylelint: ^13.13.1
@@ -19445,12 +19445,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"glob-parent@npm:^5.0.0, glob-parent@npm:^5.1.0, glob-parent@npm:~5.1.0":
-  version: 5.1.1
-  resolution: "glob-parent@npm:5.1.1"
+"glob-parent@npm:^5.0.0, glob-parent@npm:^5.1.0, glob-parent@npm:^5.1.2, glob-parent@npm:~5.1.0":
+  version: 5.1.2
+  resolution: "glob-parent@npm:5.1.2"
   dependencies:
     is-glob: ^4.0.1
-  checksum: 2af6e196fba4071fb07ba261366e446ba2b320e6db0a2069cf8e12117c5811abc6721f08546148048882d01120df47e56aa5a965517a6e5ba19bfeb792655119
+  checksum: 82fcaa4ce102a0ae01370ed8fd5299ca32184af0418e1c1b613ed851240160558c0cc9712868eb9ca1924f687b07cd9c70c25f303f39f9f376d9a32f94f28e76
   languageName: node
   linkType: hard
 
@@ -19493,9 +19493,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"glob@npm:7.1.6, glob@npm:^7.0.0, glob@npm:^7.0.3, glob@npm:^7.0.5, glob@npm:^7.1.1, glob@npm:^7.1.2, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:~7.1.1, glob@npm:~7.1.4, glob@npm:~7.1.6":
-  version: 7.1.6
-  resolution: "glob@npm:7.1.6"
+"glob@npm:7.1.7, glob@npm:^7.0.0, glob@npm:^7.0.3, glob@npm:^7.0.5, glob@npm:^7.1.1, glob@npm:^7.1.2, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:~7.1.1, glob@npm:~7.1.4, glob@npm:~7.1.6":
+  version: 7.1.7
+  resolution: "glob@npm:7.1.7"
   dependencies:
     fs.realpath: ^1.0.0
     inflight: ^1.0.4
@@ -19503,7 +19503,7 @@ fsevents@~2.1.1:
     minimatch: ^3.0.4
     once: ^1.3.0
     path-is-absolute: ^1.0.0
-  checksum: 789977b52432865bd63846da5c75a6efc2c56abdc0cb5ffcdb8e91eeb67a58fa5594c1195d18b2b4aff99675b0739ed6bd61024b26562e0cca18c8f993efdc82
+  checksum: 352f74f08247db5420161a2f68f2bd84b53228b5fcfc9dcc37cd54d3f19ec0232495d84aeff1286d0727059e9fdc1031400e00b971bdc59e30f8f82b199c9d02
   languageName: node
   linkType: hard
 
@@ -19594,21 +19594,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"globals@npm:^12.1.0":
-  version: 12.4.0
-  resolution: "globals@npm:12.4.0"
-  dependencies:
-    type-fest: ^0.8.1
-  checksum: 0b9764bdeab0bc9762dea8954a0d4c5db029420bd8bf693df9098ce7e045ccaf9b2d259185396fd048b051d42fdc8dc7ab02af62e3dbeb2324a78a05aac8d33c
-  languageName: node
-  linkType: hard
-
-"globals@npm:^13.6.0":
-  version: 13.8.0
-  resolution: "globals@npm:13.8.0"
+"globals@npm:^13.6.0, globals@npm:^13.9.0":
+  version: 13.9.0
+  resolution: "globals@npm:13.9.0"
   dependencies:
     type-fest: ^0.20.2
-  checksum: de85e5dc899ebd77414cc026e806d0bfd2c102ba23d08a2516c960a5e324433d3f1c124465a35b5b1d948448a7008bad85f823a9bcd8d54664d8a0cbcaab0091
+  checksum: 26d71f2c286c80d806faad49c801bfb2ac5144497b5c844c5a718b2c3fad51e0d507d9069474e89f110f16a38bf212ec56e6e40936a4f24b1a645e7f21001d1d
   languageName: node
   linkType: hard
 
@@ -21757,9 +21748,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ioredis@npm:4.x.x, ioredis@npm:^4.27.3":
-  version: 4.27.3
-  resolution: "ioredis@npm:4.27.3"
+"ioredis@npm:4.x.x, ioredis@npm:^4.27.5":
+  version: 4.27.5
+  resolution: "ioredis@npm:4.27.5"
   dependencies:
     cluster-key-slot: ^1.1.0
     debug: ^4.3.1
@@ -21771,7 +21762,7 @@ fsevents@~2.1.1:
     redis-errors: ^1.2.0
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
-  checksum: f7080a5912fed5e4ebec45be37eb7288049d5865f9e02e77bcb135533d88c93766a5eea95ead973cbadcdbaf7e15019fb7f6e3286a5c5a820dcd945cc345dd2f
+  checksum: ee5924ccf4e04643ebc644312d1105a6da70e009badaf845618dd0d408f82690098892d2c648b02b0e3612d548b0fd162af12f3e18aec71edd8c983f59357509
   languageName: node
   linkType: hard
 
@@ -22343,13 +22334,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"is-regex@npm:^1.0.3, is-regex@npm:^1.0.4, is-regex@npm:^1.1.1, is-regex@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "is-regex@npm:1.1.2"
+"is-regex@npm:^1.0.3, is-regex@npm:^1.0.4, is-regex@npm:^1.1.1, is-regex@npm:^1.1.2, is-regex@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "is-regex@npm:1.1.3"
   dependencies:
     call-bind: ^1.0.2
-    has-symbols: ^1.0.1
-  checksum: 5e2f80f495f5297d1295730820a4be31f3848ca92357cfef1b2a61c09fe0fcd3f68c34f3042a5b81885e249cd50eac8efac472ad6da7ecb497bb2d7bad402a9a
+    has-symbols: ^1.0.2
+  checksum: 1beb14b9f8df6e302c6ba0cafdea4a393fd58b93cd66b4ef3017b74f72683c50f7a82d08c86e20e5b555a2a6a5e5b681e62eb4e4b49e62986da01ffd073d19eb
   languageName: node
   linkType: hard
 
@@ -22425,10 +22416,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"is-string@npm:^1.0.4, is-string@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "is-string@npm:1.0.5"
-  checksum: c64c791eb75935db9055291bc598edc22f03d3879b8a050b2955ba8087642d006338a1dedf7ac414c95f985c77c2d6fce655498d33c0df248fa92228a9945720
+"is-string@npm:^1.0.4, is-string@npm:^1.0.5, is-string@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "is-string@npm:1.0.6"
+  checksum: 5eb4860eafb9bfd4d9adf56bd530ca0e0cabade776df1e9394e5ca9376bdd6fa0a99879c2b0c3a517076fa31ac739821c2956be6d30ee1458f50ca24a4962478
   languageName: node
   linkType: hard
 
@@ -23580,14 +23571,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:4.0.0":
-  version: 4.0.0
-  resolution: "js-yaml@npm:4.0.0"
+"js-yaml@npm:4.1.0":
+  version: 4.1.0
+  resolution: "js-yaml@npm:4.1.0"
   dependencies:
     argparse: ^2.0.1
   bin:
     js-yaml: bin/js-yaml.js
-  checksum: ee9b16cdbba690ec70f46d61737b28b35e26e6d51606c466de7fa876d3517de0cfdffd2e1ef21263d5ca3b32659d2e4c65255f50d6e236f022305bce72242d46
+  checksum: 8973cf4296c944cc2551d1e3d3d064e7de0d0a6db3f7bafe40339ee9e5e0329560b52c4b8492b9b22365404c9be0822b62340ab49884e1dedfcc7ff80158abe0
   languageName: node
   linkType: hard
 
@@ -24978,12 +24969,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"log-symbols@npm:4.0.0":
-  version: 4.0.0
-  resolution: "log-symbols@npm:4.0.0"
+"log-symbols@npm:4.1.0, log-symbols@npm:^4.0.0, log-symbols@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "log-symbols@npm:4.1.0"
   dependencies:
-    chalk: ^4.0.0
-  checksum: 2cbdb0427d1853f2bd36645bff42aaca200902284f28aadacb3c0fa4c8c43fe6bfb71b5d61ab08b67063d066d7c55b8bf5fbb43b03e4a150dbcdd643e9cd1dbf
+    chalk: ^4.1.0
+    is-unicode-supported: ^0.1.0
+  checksum: 57be4aeb6a6ecb81d8267600836f81928da1d846ad13384a9a22d179e27590fdb680946edbd15642a31735183adaa3dc6aae2d20e619a19fa0d54e1aee945915
   languageName: node
   linkType: hard
 
@@ -24993,16 +24985,6 @@ fsevents@~2.1.1:
   dependencies:
     chalk: ^2.0.1
   checksum: e2dfd255f3e3080134055597fb67bd67798d65383488683ed90f0376f7264dd21028f30d4c3a0686251dcfc4dc71172e8061cef21e89c6deabb8b375450d5166
-  languageName: node
-  linkType: hard
-
-"log-symbols@npm:^4.0.0, log-symbols@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "log-symbols@npm:4.1.0"
-  dependencies:
-    chalk: ^4.1.0
-    is-unicode-supported: ^0.1.0
-  checksum: 57be4aeb6a6ecb81d8267600836f81928da1d846ad13384a9a22d179e27590fdb680946edbd15642a31735183adaa3dc6aae2d20e619a19fa0d54e1aee945915
   languageName: node
   linkType: hard
 
@@ -26108,9 +26090,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mocha@npm:^8.4.0":
-  version: 8.4.0
-  resolution: "mocha@npm:8.4.0"
+"mocha@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "mocha@npm:9.0.0"
   dependencies:
     "@ungap/promise-all-settled": 1.1.2
     ansi-colors: 4.1.1
@@ -26120,27 +26102,27 @@ fsevents@~2.1.1:
     diff: 5.0.0
     escape-string-regexp: 4.0.0
     find-up: 5.0.0
-    glob: 7.1.6
+    glob: 7.1.7
     growl: 1.10.5
     he: 1.2.0
-    js-yaml: 4.0.0
-    log-symbols: 4.0.0
+    js-yaml: 4.1.0
+    log-symbols: 4.1.0
     minimatch: 3.0.4
     ms: 2.1.3
-    nanoid: 3.1.20
+    nanoid: 3.1.23
     serialize-javascript: 5.0.1
     strip-json-comments: 3.1.1
     supports-color: 8.1.1
     which: 2.0.2
     wide-align: 1.1.3
-    workerpool: 6.1.0
+    workerpool: 6.1.4
     yargs: 16.2.0
     yargs-parser: 20.2.4
     yargs-unparser: 2.0.0
   bin:
     _mocha: bin/_mocha
     mocha: bin/mocha
-  checksum: 51744733d86b4a629846f0cb5f8e2aa3d9c901712f5fb4e3fb5ad49954c3322178abb56854e158456a38828762e0f6192c09ccfc5235650c486493ed2f77a20c
+  checksum: 5429a9ed5da8f10466c7a967b8adc9359d43d57039116f135680fea4aca0f4e4629fc70aa3fe5b12c9a3651c5d4745d078534f31d793af71d95f2f7a13d5da50
   languageName: node
   linkType: hard
 
@@ -26403,21 +26385,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nanoid@npm:3.1.20":
-  version: 3.1.20
-  resolution: "nanoid@npm:3.1.20"
+"nanoid@npm:3.1.23, nanoid@npm:^3.1.22":
+  version: 3.1.23
+  resolution: "nanoid@npm:3.1.23"
   bin:
     nanoid: bin/nanoid.cjs
-  checksum: 4788d36edcfec7bb32ddf33ed8f1f46df2867f70e9b1993bb131f7677e04ead2b621e5d614d2736308be18db1d54208d8ab207b4586bd5b052f71fb9d4c0ebea
-  languageName: node
-  linkType: hard
-
-"nanoid@npm:^3.1.22":
-  version: 3.1.22
-  resolution: "nanoid@npm:3.1.22"
-  bin:
-    nanoid: bin/nanoid.cjs
-  checksum: 6a38c799816de388cd67233a9fad6216e0ad2abda3ce5b34eb126afbef6905924507223dc65797e2bcbc513f9cd7e078ea7e69448d59f434a6206b491278ae24
+  checksum: e6dea1da5a593ffdc8cf2676d1d02f0626f07a54a5947a7a1f5ff1fd07901b2f53044c285e98b87eb367f016fde285fd8785d54a2dceeab9c3721f4e618f8326
   languageName: node
   linkType: hard
 
@@ -27285,10 +27258,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"object-inspect@npm:^1.9.0":
-  version: 1.10.2
-  resolution: "object-inspect@npm:1.10.2"
-  checksum: 2bb89d63fde8e5dc8ee255aa783308477c614204a12b5568e4646a3032fd75600ead57769f3e0557c7fed51ab4fe4f54f6998b77a0832c3e5b61974d67f3f705
+"object-inspect@npm:^1.10.3, object-inspect@npm:^1.9.0":
+  version: 1.10.3
+  resolution: "object-inspect@npm:1.10.3"
+  checksum: f5d21d86dbedf7224f5e2bee8235beb1e94a419443102ae0d6c17603ace26b930de584ece5695ae6c338ec996656477d5ca425b1f8770b4aa3340aa3d188aa9a
   languageName: node
   linkType: hard
 
@@ -27361,15 +27334,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"object.entries@npm:^1.1.0, object.entries@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "object.entries@npm:1.1.3"
+"object.entries@npm:^1.1.0, object.entries@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "object.entries@npm:1.1.4"
   dependencies:
-    call-bind: ^1.0.0
+    call-bind: ^1.0.2
     define-properties: ^1.1.3
-    es-abstract: ^1.18.0-next.1
-    has: ^1.0.3
-  checksum: 89eec6d43bf8440dfd800ad76486d76a900ff7e3e20b560abb4cba8494bdc8524af8cf49a897739da776fe434f8091569b2422333075378f9fd5a50d599601eb
+    es-abstract: ^1.18.2
+  checksum: d9da930f56b8689183cc5d88c8940ec965742423066641c3e9fb62fe98a2bb890880c239aa331f6ced28edf5e084f50491a85c839c8ada0604d45a9c6f9d8f45
   languageName: node
   linkType: hard
 
@@ -27414,15 +27386,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"object.values@npm:^1.1.0, object.values@npm:^1.1.3":
-  version: 1.1.3
-  resolution: "object.values@npm:1.1.3"
+"object.values@npm:^1.1.0, object.values@npm:^1.1.3, object.values@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "object.values@npm:1.1.4"
   dependencies:
     call-bind: ^1.0.2
     define-properties: ^1.1.3
-    es-abstract: ^1.18.0-next.2
-    has: ^1.0.3
-  checksum: 31111fe8b8dfe7c3326ae8729eae542dc32d5705339b9b63d89d4a2f766641bfe8989744bd4771c65a7ca0dff281800e99640262c2e82daa97079143a86b3e0b
+    es-abstract: ^1.18.2
+  checksum: c7d8435611d566616e2dd4b85a71072715b7b049c637b9253313517754baef3d9fd1d0df0a8bd7980f2800efbdcb89832ca4af8aa4b949ca0fe369d0d773d48c
   languageName: node
   linkType: hard
 
@@ -29940,12 +29911,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "prettier@npm:2.3.0"
+"prettier@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "prettier@npm:2.3.1"
   bin:
     prettier: bin-prettier.js
-  checksum: 652640cc8b71bc5277cfb8bf6f161783ca588efcf683c3d630837b39da8d57fef35c9e00ae5855a8e3c75136c42274046c913cc2b2d2968558315f31c6a26981
+  checksum: 9b4a695b87ce5f510fc20feec01cce7371f0fa0b92ffe79d543f6be52e2004c532861629de4d7ab1c577e1f649dce3cfccd62cb2ca6526b1da8d9c63eb84bf36
   languageName: node
   linkType: hard
 
@@ -34320,18 +34291,19 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"string.prototype.matchall@npm:^4.0.0 || ^3.0.1, string.prototype.matchall@npm:^4.0.4":
-  version: 4.0.4
-  resolution: "string.prototype.matchall@npm:4.0.4"
+"string.prototype.matchall@npm:^4.0.0 || ^3.0.1, string.prototype.matchall@npm:^4.0.5":
+  version: 4.0.5
+  resolution: "string.prototype.matchall@npm:4.0.5"
   dependencies:
     call-bind: ^1.0.2
     define-properties: ^1.1.3
-    es-abstract: ^1.18.0-next.2
-    has-symbols: ^1.0.1
+    es-abstract: ^1.18.2
+    get-intrinsic: ^1.1.1
+    has-symbols: ^1.0.2
     internal-slot: ^1.0.3
     regexp.prototype.flags: ^1.3.1
     side-channel: ^1.0.4
-  checksum: e19b26a14adc6f6957248ae0ce3a054ddfb5b783b7528a9dd7ee2635d95a977486805c7b2182dca17fd60e1a40e1be1e02f0a9fee32e19c29d2f1850564d96d1
+  checksum: a23d25427c57ad045a95e37fed0eb4dda1fe493bb2f1638595d0f161b950adb2e7d6429dc1c83ffba5c40ab8a10459d41950b8c7db4dddc6eaed75a012ede6ca
   languageName: node
   linkType: hard
 
@@ -34847,10 +34819,10 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"symbol-observable@npm:^2.0.0":
-  version: 2.0.3
-  resolution: "symbol-observable@npm:2.0.3"
-  checksum: c022177891e0aa3169bbaaed68d928ff7a2b5f5b1b2bf655b99804ecfabe280a6f1042dd3bda609475e637c57141d39b33e692b6f6b5fdb29ce7f61cf77be57f
+"symbol-observable@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "symbol-observable@npm:4.0.0"
+  checksum: 6d184cd370270ab53279d2737c6880d64bbe854dbdf3d759600efbc11bba3d006a9f805070c81c84fae949067c069cd001a1440295ca3b36f705b05293bf8e1e
   languageName: node
   linkType: hard
 
@@ -36280,7 +36252,7 @@ typescript@^4.2.4:
   languageName: node
   linkType: hard
 
-"unbox-primitive@npm:^1.0.0":
+"unbox-primitive@npm:^1.0.1":
   version: 1.0.1
   resolution: "unbox-primitive@npm:1.0.1"
   dependencies:
@@ -38022,10 +37994,10 @@ typescript@^4.2.4:
   languageName: node
   linkType: hard
 
-"workerpool@npm:6.1.0":
-  version: 6.1.0
-  resolution: "workerpool@npm:6.1.0"
-  checksum: c4295cacc2c8e4b19c608499fb61d9f831052b141b2bef5515c4862712a3fdc4110606beeaaacf3c48b00d930a5b396757bda3490694a7683fc3cb5142537d12
+"workerpool@npm:6.1.4":
+  version: 6.1.4
+  resolution: "workerpool@npm:6.1.4"
+  checksum: e5e708d634d7634dadca64a61ce7aa58642b1751f00ee24402d7af471175e699616781f62f556ddb15661e373a2636f5982a8abc50b279c6b65aa98134a5a3e2
   languageName: node
   linkType: hard
 

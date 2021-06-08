@@ -39,7 +39,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.3.19",
+    "@apollo/client": "^3.3.20",
     "@emotion/react": "^11.4.0",
     "@fluent/react": "^0.13.1",
     "@material-ui/core": "v5.0.0-alpha.24",
@@ -93,10 +93,10 @@
     "@types/uuid": "^8",
     "@types/webpack": "5.28.0",
     "babel-loader": "^8.2.2",
-    "eslint": "^7.27.0",
+    "eslint": "^7.28.0",
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^24.3.6",
-    "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react": "^7.24.0",
     "fxa-shared": "workspace:*",
     "mutationobserver-shim": "^0.3.7",
     "node-sass": "^6.0.0",
