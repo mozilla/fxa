@@ -43,6 +43,7 @@ export interface ProductMetadata {
 // make Stripe metadata parsing & validation easier.
 export enum ProductDetailsStringProperties {
   'subtitle',
+  'successActionButtonLabel',
   'termsOfServiceURL',
   'termsOfServiceDownloadURL',
   'privacyNoticeURL',
@@ -51,8 +52,10 @@ export enum ProductDetailsStringProperties {
 export enum ProductDetailsListProperties {
   'details',
 }
-export type ProductDetailsStringProperty = keyof typeof ProductDetailsStringProperties;
-export type ProductDetailsListProperty = keyof typeof ProductDetailsListProperties;
+export type ProductDetailsStringProperty =
+  keyof typeof ProductDetailsStringProperties;
+export type ProductDetailsListProperty =
+  keyof typeof ProductDetailsListProperties;
 export type ProductDetails = {
   [key in ProductDetailsStringProperty]?: string;
 } &

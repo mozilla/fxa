@@ -1,5 +1,5 @@
-import React from 'react';
-import { Localized } from '@fluent/react';
+import React, { useContext } from 'react';
+import { Localized, useLocalization } from '@fluent/react';
 import * as Provider from '../../lib/PaymentProvider';
 import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
 import { Plan, Profile, Customer } from '../../store/types';
@@ -11,6 +11,8 @@ import PaymentLegalBlurb from '../PaymentLegalBlurb';
 import circledCheckbox from './images/circled-confirm.svg';
 
 import './index.scss';
+import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { AppContext } from '../../lib/AppContext';
 
 type PaymentConfirmationProps = {
   customer: Customer;
@@ -27,16 +29,17 @@ export const PaymentConfirmation = ({
   productUrl,
   className = 'default',
 }: PaymentConfirmationProps) => {
-  const {
-    amount,
-    currency,
-    interval,
-    interval_count,
-    product_name,
-  } = selectedPlan;
+  const { navigatorLanguages } = useContext(AppContext);
+  const { amount, currency, interval, interval_count, product_name } =
+    selectedPlan;
   const { displayName, email } = profile;
 
   const { payment_provider, subscriptions } = customer;
+
+  const buttonLabel = productDetailsFromPlan(
+    selectedPlan,
+    navigatorLanguages
+  ).successActionButtonLabel;
 
   const invoiceNumber = subscriptions[0].latest_invoice;
   const date = new Date().toLocaleDateString(navigator.language, {
@@ -51,6 +54,8 @@ export const PaymentConfirmation = ({
     interval,
     interval_count
   );
+
+  const { l10n } = useLocalization();
 
   return (
     <>
@@ -123,15 +128,18 @@ export const PaymentConfirmation = ({
         </div>
 
         <div className="footer" data-testid="footer">
-          <Localized id="payment-confirmation-download-button">
-            <a
-              data-testid="download-link"
-              className="button download-link"
-              href={productUrl}
-            >
-              Continue to download
-            </a>
-          </Localized>
+          <a
+            data-testid="download-link"
+            className="button download-link"
+            href={productUrl}
+          >
+            {buttonLabel ||
+              l10n.getString(
+                'payment-confirmation-download-button',
+                null,
+                'Continue to download'
+              )}
+          </a>
           <PaymentLegalBlurb provider={payment_provider} />
           <TermsAndPrivacy plan={selectedPlan} />
         </div>

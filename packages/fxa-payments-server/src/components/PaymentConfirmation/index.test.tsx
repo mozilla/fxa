@@ -11,7 +11,7 @@ import {
   setupFluentLocalizationTest,
   getLocalizedMessage,
 } from '../../lib/test-utils';
-import { Localized } from '@fluent/react';
+import AppContext, { defaultAppContext } from '../../lib/AppContext';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -30,6 +30,7 @@ const userProfileNoDisplayName = {
 };
 
 const productUrl = 'https://www.example.com';
+const defaultButtonLabel = 'Continue to download';
 
 const selectedPlan = {
   plan_id: 'planId',
@@ -40,6 +41,14 @@ const selectedPlan = {
   amount: 935,
   interval: 'month' as const,
   interval_count: 1,
+};
+
+const selectedPlanWithMetadata = {
+  ...selectedPlan,
+  plan_metadata: {
+    'product:successActionButtonLabel': 'Do something else',
+    'product:successActionButtonLabel:xx-pirate': 'Yarr...',
+  },
 };
 
 const customer: Customer = {
@@ -97,16 +106,22 @@ describe('PaymentConfirmation', () => {
     const subject = () => {
       return render(
         <PaymentConfirmation
-          {...{ profile: userProfile, selectedPlan, customer, productUrl }}
+          {...{
+            profile: userProfile,
+            selectedPlan,
+            customer,
+            productUrl,
+          }}
         />
       );
     };
 
-    const { queryByTestId } = subject();
+    const { queryByTestId, queryByText } = subject();
     const subscriptionTitle = queryByTestId('subscription-success-title');
     expect(subscriptionTitle).toBeInTheDocument();
     const footer = queryByTestId('footer');
     expect(footer).toBeVisible();
+    expect(queryByText(defaultButtonLabel)).toBeInTheDocument();
   });
 
   it('renders as expected with no display name', () => {
@@ -130,6 +145,68 @@ describe('PaymentConfirmation', () => {
     expect(displayName).toBeNull();
     const footer = queryByTestId('footer');
     expect(footer).toBeVisible();
+  });
+
+  it('renders as expected with custom success button label text', () => {
+    const subject = () => {
+      return render(
+        <PaymentConfirmation
+          {...{
+            profile: userProfile,
+            selectedPlan: selectedPlanWithMetadata,
+            customer,
+            productUrl,
+          }}
+        />
+      );
+    };
+
+    const { queryByTestId, queryByText } = subject();
+    const subscriptionTitle = queryByTestId('subscription-success-title');
+    expect(subscriptionTitle).toBeInTheDocument();
+    const footer = queryByTestId('footer');
+    expect(footer).toBeVisible();
+    expect(
+      queryByText(
+        selectedPlanWithMetadata.plan_metadata[
+          'product:successActionButtonLabel'
+        ]
+      )
+    ).toBeInTheDocument();
+    expect(queryByText(defaultButtonLabel)).not.toBeInTheDocument();
+  });
+
+  it('renders as expected with custom success button label text localized to xx-pirate', () => {
+    const subject = () => {
+      return render(
+        <AppContext.Provider
+          value={{ ...defaultAppContext, navigatorLanguages: ['xx-pirate'] }}
+        >
+          <PaymentConfirmation
+            {...{
+              profile: userProfile,
+              selectedPlan: selectedPlanWithMetadata,
+              customer,
+              productUrl,
+            }}
+          />
+        </AppContext.Provider>
+      );
+    };
+
+    const { queryByTestId, queryByText } = subject();
+    const subscriptionTitle = queryByTestId('subscription-success-title');
+    expect(subscriptionTitle).toBeInTheDocument();
+    const footer = queryByTestId('footer');
+    expect(footer).toBeVisible();
+    expect(
+      queryByText(
+        selectedPlanWithMetadata.plan_metadata[
+          'product:successActionButtonLabel:xx-pirate'
+        ]
+      )
+    ).toBeInTheDocument();
+    expect(queryByText(defaultButtonLabel)).not.toBeInTheDocument();
   });
 
   describe('When payment_provider is "paypal"', () => {
@@ -163,7 +240,12 @@ describe('PaymentConfirmation', () => {
     const subject = () => {
       return render(
         <PaymentConfirmation
-          {...{ profile: userProfile, selectedPlan, customer, productUrl }}
+          {...{
+            profile: userProfile,
+            selectedPlan,
+            customer,
+            productUrl,
+          }}
         />
       );
     };
@@ -204,7 +286,12 @@ describe('PaymentConfirmation', () => {
         expectedMsg: string
       ) {
         const props = {
-          ...{ profile: userProfile, selectedPlan: plan, customer, productUrl },
+          ...{
+            profile: userProfile,
+            selectedPlan: plan,
+            customer,
+            productUrl,
+          },
         };
 
         const testRenderer = TestRenderer.create(

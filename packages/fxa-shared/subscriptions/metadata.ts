@@ -36,7 +36,6 @@ export const DEFAULT_PRODUCT_DETAILS: ProductDetails = {
 
 // Support some default null values for product / plan metadata and
 // allow plan metadata to override product metadata
-// TODO: move to fxa-shared?
 export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
   productSet: null,
   productOrder: null,
@@ -143,26 +142,27 @@ export const productDetailsFromPlan = (
  * Parse out the 'support:app:' metadata into a dictionary keyed by the product
  * id.  This is used for the app/service select on the support form.
  */
-export const getProductSupportApps = (subscriptions: AccountSubscription[]) => (
-  plans: AbbrevPlan[]
-) => {
-  const metadataPrefix = 'support:app:';
-  return plans.reduce((acc: { [keys: string]: string[] }, p) => {
-    if (
-      !acc[p.product_id] &&
-      subscriptions.some((s) => p.product_id === s.product_id) &&
-      Object.keys(p.product_metadata).some((k) => k.startsWith(metadataPrefix))
-    ) {
-      acc[p.product_id] = Object.entries(p.product_metadata).reduce(
-        (apps: string[], [k, v]) => {
-          if (k.startsWith(metadataPrefix)) {
-            apps.push(v);
-          }
-          return apps;
-        },
-        []
-      );
-    }
-    return acc;
-  }, {});
-};
+export const getProductSupportApps =
+  (subscriptions: AccountSubscription[]) => (plans: AbbrevPlan[]) => {
+    const metadataPrefix = 'support:app:';
+    return plans.reduce((acc: { [keys: string]: string[] }, p) => {
+      if (
+        !acc[p.product_id] &&
+        subscriptions.some((s) => p.product_id === s.product_id) &&
+        Object.keys(p.product_metadata).some((k) =>
+          k.startsWith(metadataPrefix)
+        )
+      ) {
+        acc[p.product_id] = Object.entries(p.product_metadata).reduce(
+          (apps: string[], [k, v]) => {
+            if (k.startsWith(metadataPrefix)) {
+              apps.push(v);
+            }
+            return apps;
+          },
+          []
+        );
+      }
+      return acc;
+    }, {});
+  };

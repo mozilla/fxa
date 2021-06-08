@@ -28,6 +28,14 @@ const selectedPlan: Plan = {
   product_metadata: null,
 };
 
+const selectedPlanWithMetadata: Plan = {
+  ...selectedPlan,
+  product_metadata: {
+    'product:successActionButtonLabel': 'Do something else',
+    'product:successActionButtonLabel:xx-pirate': 'Yarr...',
+  },
+};
+
 const customer: Customer = {
   billing_name: 'Jane Doe',
   payment_provider: 'stripe',
@@ -54,13 +62,38 @@ const customer: Customer = {
 
 const productUrl = 'https://mozilla.org';
 
-storiesOf('components/PaymentConfirmation', module).add('default', () => (
-  <MockApp>
-    <PaymentConfirmation
-      {...{ profile: userProfile, selectedPlan, customer, productUrl }}
-    />
-  </MockApp>
-));
+storiesOf('components/PaymentConfirmation', module)
+  .add('default', () => (
+    <MockApp>
+      <PaymentConfirmation
+        {...{ profile: userProfile, selectedPlan, customer, productUrl }}
+      />
+    </MockApp>
+  ))
+  .add('custom action button label', () => (
+    <MockApp>
+      <PaymentConfirmation
+        {...{
+          profile: userProfile,
+          selectedPlan: selectedPlanWithMetadata,
+          customer,
+          productUrl,
+        }}
+      />
+    </MockApp>
+  ))
+  .add('custom action button label localized to xx-pirate', () => (
+    <MockApp languages={['xx-pirate']}>
+      <PaymentConfirmation
+        {...{
+          profile: userProfile,
+          selectedPlan: selectedPlanWithMetadata,
+          customer,
+          productUrl,
+        }}
+      />
+    </MockApp>
+  ));
 storiesOf('components/PaymentConfirmation', module).add('paypal', () => (
   <MockApp>
     <PaymentConfirmation

@@ -56,12 +56,7 @@ storiesOf('components/PlanDetail', module)
     </MockApp>
   ))
   .add('localized to xx-pirate', () => (
-    <MockApp
-      appContextValue={{
-        ...defaultAppContext,
-        navigatorLanguages: ['xx-pirate'],
-      }}
-    >
+    <MockApp languages={['xx-pirate']}>
       <PlanDetails
         {...{
           profile: userProfile,
