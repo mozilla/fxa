@@ -7,6 +7,7 @@ import { AuthBaseModel, Proc } from './auth-base';
 import { Email } from './email';
 import { Device } from './device';
 import { uuidTransformer } from '../../transformers';
+import { convertError } from '../../mysql';
 
 export type AccountOptions = {
   include?: 'emails'[];
@@ -83,6 +84,93 @@ export class Account extends AuthBaseModel {
       relation: AuthBaseModel.HasManyRelation,
     },
   };
+
+  static async create({
+    uid,
+    normalizedEmail,
+    email,
+    emailCode,
+    emailVerified,
+    kA,
+    wrapWrapKb,
+    authSalt,
+    verifierVersion,
+    verifyHash,
+    verifierSetAt,
+    createdAt,
+    locale,
+  }: Pick<
+    Account,
+    | 'uid'
+    | 'normalizedEmail'
+    | 'email'
+    | 'emailCode'
+    | 'emailVerified'
+    | 'kA'
+    | 'wrapWrapKb'
+    | 'authSalt'
+    | 'verifierVersion'
+    | 'verifyHash'
+    | 'verifierSetAt'
+    | 'createdAt'
+    | 'locale'
+  >) {
+    try {
+      await Account.callProcedure(
+        Proc.CreateAccount,
+        uuidTransformer.to(uid),
+        normalizedEmail,
+        email,
+        uuidTransformer.to(emailCode),
+        emailVerified,
+        uuidTransformer.to(kA),
+        uuidTransformer.to(wrapWrapKb),
+        uuidTransformer.to(authSalt),
+        verifierVersion,
+        uuidTransformer.to(verifyHash),
+        verifierSetAt,
+        createdAt,
+        locale ?? ''
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async delete(uid: string) {
+    return Account.callProcedure(Proc.DeleteAccount, uuidTransformer.to(uid));
+  }
+
+  static async reset({
+    uid,
+    verifyHash,
+    authSalt,
+    wrapWrapKb,
+    verifierSetAt,
+    verifierVersion,
+    keysHaveChanged,
+  }: Pick<
+    Account,
+    | 'uid'
+    | 'verifyHash'
+    | 'authSalt'
+    | 'wrapWrapKb'
+    | 'verifierSetAt'
+    | 'verifierVersion'
+  > & {
+    keysHaveChanged?: boolean;
+  }) {
+    return Account.callProcedure(
+      Proc.ResetAccount,
+      uuidTransformer.to(uid),
+      uuidTransformer.to(verifyHash),
+      uuidTransformer.to(authSalt),
+      uuidTransformer.to(wrapWrapKb),
+      verifierSetAt || Date.now(),
+      verifierVersion,
+      !!keysHaveChanged
+    );
+  }
 
   static async checkPassword(uid: string, verifyHash: string) {
     const count = await Account.query()

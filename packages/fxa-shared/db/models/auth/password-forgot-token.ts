@@ -21,6 +21,35 @@ export class PasswordForgotToken extends AuthBaseModel {
   email!: string;
   verifierSetAt!: number;
 
+  static async create({
+    id,
+    data,
+    uid,
+    passCode,
+    createdAt,
+    tries,
+  }: Pick<PasswordForgotToken, 'uid' | 'createdAt' | 'passCode' | 'tries'> & {
+    id: string;
+    data: string;
+  }) {
+    return PasswordForgotToken.callProcedure(
+      Proc.CreatePasswordForgotToken,
+      uuidTransformer.to(id),
+      uuidTransformer.to(data),
+      uuidTransformer.to(uid),
+      uuidTransformer.to(passCode),
+      createdAt,
+      tries
+    );
+  }
+
+  static async delete(id: string) {
+    return PasswordForgotToken.callProcedure(
+      Proc.DeletePasswordForgotToken,
+      uuidTransformer.to(id)
+    );
+  }
+
   static async findByTokenId(id: string) {
     const rows = await PasswordForgotToken.callProcedure(
       Proc.PasswordForgotToken,

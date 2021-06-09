@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { AuthBaseModel, Proc } from './auth-base';
 import { uuidTransformer } from '../../transformers';
+import { convertError } from '../../mysql';
 
 export class TotpToken extends AuthBaseModel {
   public static tableName = 'totp';
@@ -18,6 +19,30 @@ export class TotpToken extends AuthBaseModel {
   createdAt!: number;
   verified!: boolean;
   enabled!: boolean;
+
+  static async create({
+    uid,
+    sharedSecret,
+    epoch,
+  }: Pick<TotpToken, 'uid' | 'sharedSecret' | 'epoch'>) {
+    try {
+      await TotpToken.callProcedure(
+        Proc.CreateTotpToken,
+        uuidTransformer.to(uid),
+        sharedSecret,
+        epoch,
+        Date.now()
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+  static async delete(uid: string) {
+    return TotpToken.callProcedure(
+      Proc.DeleteTotpToken,
+      uuidTransformer.to(uid)
+    );
+  }
 
   static async findByUid(uid: string) {
     const rows = await TotpToken.callProcedure(

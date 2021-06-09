@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import crypto from 'crypto';
 import { AuthBaseModel, Proc } from './auth-base';
 import { aggregateNameValuePairs, uuidTransformer } from '../../transformers';
 
@@ -80,6 +81,70 @@ export class SessionToken extends AuthBaseModel {
 
   get state() {
     return this.tokenVerified ? 'verified' : 'unverified';
+  }
+
+  static async create({
+    id,
+    data,
+    uid,
+    createdAt,
+    uaBrowser,
+    uaBrowserVersion,
+    uaOS,
+    uaOSVersion,
+    uaDeviceType,
+    uaFormFactor,
+    tokenVerificationId,
+    mustVerify,
+    tokenVerificationCode,
+    tokenVerificationCodeExpiresAt,
+  }: Pick<
+    SessionToken,
+    | 'uid'
+    | 'createdAt'
+    | 'uaBrowser'
+    | 'uaBrowserVersion'
+    | 'uaOS'
+    | 'uaOSVersion'
+    | 'uaDeviceType'
+    | 'uaFormFactor'
+    | 'tokenVerificationId'
+    | 'mustVerify'
+  > & {
+    id: string;
+    data: string;
+    tokenVerificationCode?: string;
+    tokenVerificationCodeExpiresAt: number;
+  }) {
+    return SessionToken.callProcedure(
+      Proc.CreateSessionToken,
+      uuidTransformer.to(id),
+      uuidTransformer.to(data),
+      uuidTransformer.to(uid),
+      createdAt,
+      uaBrowser ?? null,
+      uaBrowserVersion ?? null,
+      uaOS ?? null,
+      uaOSVersion ?? null,
+      uaDeviceType ?? null,
+      uaFormFactor ?? null,
+      uuidTransformer.to(tokenVerificationId),
+      !!mustVerify,
+      tokenVerificationCode
+        ? crypto
+            .createHash('sha256')
+            .update(Buffer.from(tokenVerificationCode, 'hex'))
+            .digest()
+        : null,
+      tokenVerificationCodeExpiresAt ?? null
+    );
+  }
+
+  static async delete(id: string) {
+    return SessionToken.callProcedure(
+      Proc.DeleteSessionToken,
+      uuidTransformer.to(id)
+    );
   }
 
   static async findByTokenId(id: string) {

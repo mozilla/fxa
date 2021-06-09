@@ -18,6 +18,13 @@ export class AccountResetToken extends AuthBaseModel {
   // joined fields (from accountResetToken_# stored proc)
   verifierSetAt!: number;
 
+  static async delete(id: string) {
+    return AccountResetToken.callProcedure(
+      Proc.DeleteAccountResetToken,
+      uuidTransformer.to(id)
+    );
+  }
+
   static async findByTokenId(id: string) {
     const rows = await AccountResetToken.callProcedure(
       Proc.AccountResetToken,
