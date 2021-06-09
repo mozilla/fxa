@@ -33,7 +33,8 @@ function makeRoutes(options = {}) {
     defaultLanguage: 'en',
   };
   config.push = {
-    allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/,
+    allowedServerRegex:
+      /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/,
   };
   config.lastAccessTimeUpdates = {
     earliestSaneTimestamp: EARLIEST_SANE_TIMESTAMP,
@@ -204,7 +205,7 @@ describe('/account/attached_clients', () => {
 
     assert.equal(db.touchSessionToken.callCount, 1);
     const args = db.touchSessionToken.args[0];
-    assert.equal(args.length, 2);
+    assert.equal(args.length, 3);
     const laterDate = Date.now() - 60 * 1000;
     assert.equal(laterDate < args[0].lastAccessTime, true);
 

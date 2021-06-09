@@ -410,9 +410,9 @@ describe('remote db', function () {
           'uaFormFactor property is correct'
         );
         assert.equal(
-          sessions[0].location,
-          null,
-          'location property is correct'
+          sessions[0].location.country,
+          'United Kingdom',
+          'country is correct'
         );
       })
       .then(() => {
