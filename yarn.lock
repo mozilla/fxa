@@ -18597,7 +18597,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     get-stream: ^6.0.1
     graphql: ^15.5.0
-    graphql-parse-resolve-info: ^4.11.0
+    graphql-parse-resolve-info: ^4.12.0
     graphql-query-complexity: ^0.8.0
     graphql-tools: ^7.0.5
     graphql-upload: ^11.0.0
@@ -19853,15 +19853,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"graphql-parse-resolve-info@npm:^4.11.0":
-  version: 4.11.0
-  resolution: "graphql-parse-resolve-info@npm:4.11.0"
+"graphql-parse-resolve-info@npm:^4.12.0":
+  version: 4.12.0
+  resolution: "graphql-parse-resolve-info@npm:4.12.0"
   dependencies:
     debug: ^4.1.1
     tslib: ^2.0.1
   peerDependencies:
     graphql: ">=0.9 <0.14 || ^14.0.2 || ^15.4.0"
-  checksum: ef41c34e647abbfeb720398012c559c4d3e4d3f78f6e5e994e55940bcfa5c48ad65274609bc22f1e8837c7b1027a897ef9c2334ec2152d3b52f1ba9f22dbc817
+  checksum: 995f76c99ef02116a802ccc02c64da848ef3facd55d894782a5a93097cf3074dc60bdeca932fa0de2b35b6788b93de504a18def5f5a236a6769ad3435eb6fe4e
   languageName: node
   linkType: hard
 
