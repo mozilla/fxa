@@ -65,7 +65,8 @@ module.exports = (log, db, devices, clientUtils) => {
         const sessionToken = request.auth && request.auth.credentials;
 
         sessionToken.lastAccessTime = Date.now();
-        await db.touchSessionToken(sessionToken, request.app.geo);
+
+        await db.touchSessionToken(sessionToken, {}, true);
 
         const { uid } = sessionToken;
 
