@@ -6425,15 +6425,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/graphql-upload@npm:^8.0.4":
-  version: 8.0.4
-  resolution: "@types/graphql-upload@npm:8.0.4"
+"@types/graphql-upload@npm:^8.0.5":
+  version: 8.0.5
+  resolution: "@types/graphql-upload@npm:8.0.5"
   dependencies:
     "@types/express": "*"
     "@types/fs-capacitor": "*"
     "@types/koa": "*"
     graphql: ^15.3.0
-  checksum: d148db8a1b70bb8582cd23186d25294205e25e77d7b4568bd0d874cb94744828ea1f60cb6c1877376f4eaa475a55fc47253df10126ff97783b3c2adf108ceac7
+  checksum: c83ee70b71d399c7444e03266e093642f4756c8323b2e74ebc1185ee29f48d2a8aa0e5266605f11c391f2b63e78a395f41cef671921d9b2a166ca77f903255f8
   languageName: node
   linkType: hard
 
@@ -18572,7 +18572,7 @@ fsevents@~2.1.1:
     "@types/convict": ^5.2.2
     "@types/get-stream": 3.0.2
     "@types/graphql": ^14.5.0
-    "@types/graphql-upload": ^8.0.4
+    "@types/graphql-upload": ^8.0.5
     "@types/ioredis": ^4.26.4
     "@types/node": ^15.12.2
     "@types/passport": ^1.0.6
