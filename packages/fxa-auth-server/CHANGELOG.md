@@ -1,3 +1,9 @@
+## 1.207.2
+
+### Bug fixes
+
+- sessions: Add support for touchSessionToken to only update the lastAccess session property ([788331906](https://github.com/mozilla/fxa/commit/788331906))
+
 ## 1.207.1
 
 No changes.
