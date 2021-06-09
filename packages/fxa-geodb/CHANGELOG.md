@@ -1,5 +1,11 @@
 # Change history
 
+## 1.208.0
+
+### Other changes
+
+- deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
+
 ## 1.207.1
 
 No changes.

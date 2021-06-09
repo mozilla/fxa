@@ -1,5 +1,25 @@
 # Change history
 
+## 1.208.0
+
+### New features
+
+- payments: Use custom action button label if specified in PaymentConfirmation ([617be5182](https://github.com/mozilla/fxa/commit/617be5182))
+
+### Other changes
+
+- deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
+- deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
+- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
+- deps-dev: bump @types/react-router from 5.1.14 to 5.1.15 ([9f0a795f6](https://github.com/mozilla/fxa/commit/9f0a795f6))
+- deps: bump nocache from 2.1.0 to 3.0.0 ([f6ee69767](https://github.com/mozilla/fxa/commit/f6ee69767))
+- deps-dev: bump nock from 13.0.11 to 13.1.0 ([4d52527d8](https://github.com/mozilla/fxa/commit/4d52527d8))
+- deps: bump hot-shots from 8.3.1 to 8.3.2 ([0cb43b6aa](https://github.com/mozilla/fxa/commit/0cb43b6aa))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([e99484693](https://github.com/mozilla/fxa/commit/e99484693))
+- deps-dev: bump caniuse-lite from 1.0.30001228 to 1.0.30001230 ([3b22d03a6](https://github.com/mozilla/fxa/commit/3b22d03a6))
+- deps: updated knex ([e02c6720e](https://github.com/mozilla/fxa/commit/e02c6720e))
+
 ## 1.207.1
 
 No changes.

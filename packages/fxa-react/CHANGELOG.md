@@ -1,3 +1,12 @@
+## 1.208.0
+
+### Other changes
+
+- deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
+- deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
+- deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
+- deps-dev: bump sass from 1.32.8 to 1.34.1 ([ebb076f71](https://github.com/mozilla/fxa/commit/ebb076f71))
+
 ## 1.207.1
 
 No changes.

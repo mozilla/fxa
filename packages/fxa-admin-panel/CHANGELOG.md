@@ -1,3 +1,16 @@
+## 1.208.0
+
+### Other changes
+
+- deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
+- deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
+- deps-dev: bump @types/eslint from 7.2.11 to 7.2.13 ([01c70484e](https://github.com/mozilla/fxa/commit/01c70484e))
+- admin: remove unnecessary columns from admin panel queries ([0c65675bf](https://github.com/mozilla/fxa/commit/0c65675bf))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([e99484693](https://github.com/mozilla/fxa/commit/e99484693))
+- deps-dev: bump @types/express from 4.17.11 to 4.17.12 ([08dc9b8e1](https://github.com/mozilla/fxa/commit/08dc9b8e1))
+- deps: bump @emotion/react from 11.1.5 to 11.4.0 ([986562f22](https://github.com/mozilla/fxa/commit/986562f22))
+- deps: updated knex ([e02c6720e](https://github.com/mozilla/fxa/commit/e02c6720e))
+
 ## 1.207.1
 
 No changes.

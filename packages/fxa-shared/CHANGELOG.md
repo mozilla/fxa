@@ -1,5 +1,32 @@
 # Change history
 
+## 1.208.0
+
+### New features
+
+- payments: Use custom action button label if specified in PaymentConfirmation ([617be5182](https://github.com/mozilla/fxa/commit/617be5182))
+
+### Refactorings
+
+- db: move more auth-db functions into fxa-shared ([d5b587472](https://github.com/mozilla/fxa/commit/d5b587472))
+
+### Other changes
+
+- deps: bump stripe from 8.153.0 to 8.154.0 ([e1292ff7c](https://github.com/mozilla/fxa/commit/e1292ff7c))
+- deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
+- deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
+- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps: bump apollo-server from 2.24.1 to 2.25.0 ([00b502af8](https://github.com/mozilla/fxa/commit/00b502af8))
+- deps: bump aws-sdk from 2.920.0 to 2.923.0 ([3cb5b950c](https://github.com/mozilla/fxa/commit/3cb5b950c))
+- deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
+- deps: bump stripe from 8.149.0 to 8.153.0 ([d80d64d43](https://github.com/mozilla/fxa/commit/d80d64d43))
+- deps: bump hot-shots from 8.3.1 to 8.3.2 ([0cb43b6aa](https://github.com/mozilla/fxa/commit/0cb43b6aa))
+- deps: bump aws-sdk from 2.919.0 to 2.920.0 ([434cb0a53](https://github.com/mozilla/fxa/commit/434cb0a53))
+- deps: bump aws-sdk from 2.913.0 to 2.919.0 ([a616dc89a](https://github.com/mozilla/fxa/commit/a616dc89a))
+- deps-dev: bump @types/redis from 2.8.28 to 2.8.29 ([7a3df7c82](https://github.com/mozilla/fxa/commit/7a3df7c82))
+- deps-dev: bump jsdom from 16.5.3 to 16.6.0 ([15c547814](https://github.com/mozilla/fxa/commit/15c547814))
+- deps: updated knex ([e02c6720e](https://github.com/mozilla/fxa/commit/e02c6720e))
+
 ## 1.207.1
 
 No changes.

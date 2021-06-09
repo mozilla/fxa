@@ -1,3 +1,21 @@
+## 1.208.0
+
+### Bug fixes
+
+- 1e5952aa1 fix long device name layout issue ([1e5952aa1](https://github.com/mozilla/fxa/commit/1e5952aa1))
+
+### Other changes
+
+- deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
+- deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
+- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
+- deps-dev: bump @testing-library/react-hooks from 6.0.0 to 7.0.0 ([68260b929](https://github.com/mozilla/fxa/commit/68260b929))
+- deps: bump react-easy-crop from 3.4.0 to 3.5.1 ([269a5b56f](https://github.com/mozilla/fxa/commit/269a5b56f))
+- deps: bump react-webcam from 5.2.3 to 5.2.4 ([8fec4aef6](https://github.com/mozilla/fxa/commit/8fec4aef6))
+- deps: bump react-easy-crop from 3.3.3 to 3.4.0 ([c8c947b31](https://github.com/mozilla/fxa/commit/c8c947b31))
+- deps: bump @emotion/react from 11.1.5 to 11.4.0 ([986562f22](https://github.com/mozilla/fxa/commit/986562f22))
+
 ## 1.207.1
 
 No changes.
