@@ -1116,30 +1116,28 @@ const Account = Backbone.Model.extend(
      *
      * @method set
      */
-    set: _.wrap(Backbone.Model.prototype.set, function (
-      func,
-      attribute,
-      value,
-      options
-    ) {
-      let attributes;
-      // Handle both `"key", value` and `{key: value}` -style arguments.
-      if (_.isObject(attribute)) {
-        attributes = attribute;
-      } else {
-        attributes = {};
-        attributes[attribute] = value;
-      }
-
-      // eslint-disable-next-line no-unused-vars
-      for (const key in attributes) {
-        if (!_.contains(ALLOWED_KEYS, key)) {
-          throw new Error(key + ' cannot be set on an Account');
+    set: _.wrap(
+      Backbone.Model.prototype.set,
+      function (func, attribute, value, options) {
+        let attributes;
+        // Handle both `"key", value` and `{key: value}` -style arguments.
+        if (_.isObject(attribute)) {
+          attributes = attribute;
+        } else {
+          attributes = {};
+          attributes[attribute] = value;
         }
-      }
 
-      return func.call(this, attribute, value, options);
-    }),
+        // eslint-disable-next-line no-unused-vars
+        for (const key in attributes) {
+          if (!_.contains(ALLOWED_KEYS, key)) {
+            throw new Error(key + ' cannot be set on an Account');
+          }
+        }
+
+        return func.call(this, attribute, value, options);
+      }
+    ),
 
     /**
      * Complete a password reset
@@ -1819,6 +1817,15 @@ const Account = Backbone.Model.extend(
      */
     createCadReminder() {
       return this._fxaClient.createCadReminder(this.get('sessionToken'));
+    },
+
+    /**
+     * Sends a push notification to verify a login request.
+     *
+     * @returns {Promise} resolves with response when complete.
+     */
+    sendPushLoginRequest() {
+      return this._fxaClient.sendPushLoginRequest(this.get('sessionToken'));
     },
   },
   {

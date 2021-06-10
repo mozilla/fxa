@@ -107,13 +107,13 @@ describe('views/sign_in_token_code', () => {
   });
 
   describe('afterVisible', () => {
-    it('starts polling in case the email bounces', () => {
+    it('starts polling in case the email bounces', async () => {
       const account = { uid: 'uid' };
 
       sinon.stub(view, 'waitForSessionVerification');
       sinon.stub(view, 'getAccount').returns(account);
 
-      view.afterVisible();
+      await view.afterVisible();
 
       assert.isTrue(view.waitForSessionVerification.calledOnceWith(account));
     });

@@ -447,25 +447,27 @@ module.exports = function (
         const sessionToken = request.auth.credentials;
         const { uid, tokenVerificationId } = sessionToken;
 
-        const devices = await db.devices(uid);
-        const geoData = request.app.geo;
+        const allDevices = await db.devices(uid);
+        const location = request.app.geo.location || {};
 
         const { ua } = request.app;
         const uaInfo = {
           uaBrowser: ua.browser,
-          uaBrowserVersion: ua.browserVersion,
           uaOS: ua.os,
-          uaOSVersion: ua.osVersion,
           uaDeviceType: ua.deviceType,
-          uaFormFactor: ua.formFactor,
         };
 
+        // Don't send notification to current device
+        const filteredDevices = allDevices.filter((d) => {
+          return d.sessionTokenId !== sessionToken.id;
+        });
+
         const url = `${
-          config.smtp.verificationUrl
+          config.smtp.pushVerificationUrl
         }?type=push_login_verification&code=${tokenVerificationId}&ua=${encodeURIComponent(
           JSON.stringify(uaInfo)
         )}&location=${encodeURIComponent(
-          JSON.stringify(geoData.location)
+          JSON.stringify(location)
         )}&ip=${encodeURIComponent(request.app.clientAddress)}`;
 
         const options = {
@@ -475,7 +477,7 @@ module.exports = function (
         };
 
         try {
-          await push.notifyVerifyLoginRequest(uid, devices, options);
+          await push.notifyVerifyLoginRequest(uid, filteredDevices, options);
         } catch (err) {
           log.error('Session.verify.send_push', {
             uid: uid,

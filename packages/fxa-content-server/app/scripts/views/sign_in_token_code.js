@@ -16,6 +16,8 @@ import SessionVerificationPollMixin from './mixins/session-verification-poll-mix
 
 const CODE_INPUT_SELECTOR = 'input.otp-code';
 
+const proto = FormView.prototype;
+
 const View = FormView.extend({
   className: 'sign-in-token-code',
   template: Template,
@@ -37,9 +39,18 @@ const View = FormView.extend({
     // is deleted. If the account no longer exists, redirects the user to
     // sign up, if the account exists, then notifies them their account
     // has been blocked.
-    this.waitForSessionVerification(this.getAccount(), () => {
-      // don't do anything on verification, that's taken care of in the submit handler.
-    });
+    const account = this.getSignedInAccount();
+    return proto.afterVisible
+      .call(this)
+      .then(() => this.broker.persistVerificationData(account))
+      .then(() =>
+        this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
+      )
+      .then(() => {
+        this.waitForSessionVerification(this.getAccount(), () => {
+          // don't do anything on verification, that's taken care of in the submit handler.
+        });
+      });
   },
 
   setInitialContext(context) {
