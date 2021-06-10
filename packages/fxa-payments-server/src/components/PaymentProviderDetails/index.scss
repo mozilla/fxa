@@ -46,7 +46,7 @@
   background-image: url('../../images/paypal.svg');
 }
 
-.unbranded::before {
+.unknown::before {
   background-image: url('../../images/unbranded.svg');
 }
 
@@ -64,6 +64,18 @@
 
 .discover::before {
   background-image: url('../../images/discover.svg');
+}
+
+.diners::before {
+  background-image: url('../../images/diners.svg');
+}
+
+.unionpay::before {
+  background-image: url('../../images/unionpay.svg');
+}
+
+.jcb::before {
+  background-image: url('../../images/jcb.svg');
 }
 
 .stack-card-details > p.c-card {

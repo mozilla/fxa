@@ -165,19 +165,20 @@ type SubscriptionsRouteProps = {
 };
 
 // Quick & dirty utility to help build variant stories with common route props
-const subscriptionsRouteWithBaseProps = (
-  baseRouteProps?: Partial<SubscriptionsProps>
-) => ({ routeProps = baseProps, ...otherProps }: SubscriptionsRouteProps) => (
-  <SubscriptionsRoute
-    {...{
-      routeProps: {
-        ...routeProps,
-        ...(baseRouteProps || {}),
-      },
-      ...otherProps,
-    }}
-  />
-);
+const subscriptionsRouteWithBaseProps =
+  (baseRouteProps?: Partial<SubscriptionsProps>) =>
+  ({ routeProps = baseProps, ...otherProps }: SubscriptionsRouteProps) =>
+    (
+      <SubscriptionsRoute
+        {...{
+          routeProps: {
+            ...routeProps,
+            ...(baseRouteProps || {}),
+          },
+          ...otherProps,
+        }}
+      />
+    );
 
 const SubscriptionsRoute = ({
   routeProps = baseProps,
@@ -366,8 +367,8 @@ const CONFIRM_CARD_SETUP_RESULT = {
 
 // HACK: Not a complete confirmCardSetup return type, but good enough for stories.
 const defaultPaymentUpdateStripeOverride = () =>
-  (({
+  ({
     confirmCardSetup: async () => CONFIRM_CARD_SETUP_RESULT,
-  } as unknown) as PaymentUpdateStripeAPIs);
+  } as unknown as PaymentUpdateStripeAPIs);
 
 init();
