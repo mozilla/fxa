@@ -20,7 +20,13 @@ import { uuidTransformer } from '../../database/transformers';
 import { Account as AccountType } from '../../gql/model/account.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
 
-const ACCOUNT_COLUMNS = ['uid', 'email', 'emailVerified', 'createdAt'];
+const ACCOUNT_COLUMNS = [
+  'uid',
+  'email',
+  'emailVerified',
+  'createdAt',
+  'disabledAt',
+];
 const EMAIL_COLUMNS = [
   'createdAt',
   'email',
@@ -110,6 +116,19 @@ export class AccountResolver {
         isVerified: false,
         verifiedAt: null as any, // same as null
       });
+    return !!result;
+  }
+
+  @Mutation((returns) => Boolean)
+  public async disableAccount(
+    @Args('uid') uid: string,
+    @CurrentUser() user: string
+  ) {
+    const uidBuffer = uuidTransformer.to(uid);
+    const result = await this.db.account
+      .query()
+      .update({ disabledAt: Date.now() })
+      .where('uid', uidBuffer);
     return !!result;
   }
 

@@ -10,6 +10,7 @@ import './index.scss';
 interface AccountType {
   uid: any;
   createdAt: number;
+  disabledAt: number | null;
   emails: [
     {
       email: string;
@@ -68,6 +69,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
     accountByEmail(email: $email) {
       uid
       createdAt
+      disabledAt
       emails {
         email
         isVerified
@@ -118,6 +120,7 @@ export const GET_ACCOUNT_BY_UID = gql`
     accountByUid(uid: $uid) {
       uid
       createdAt
+      disabledAt
       emails {
         email
         isVerified

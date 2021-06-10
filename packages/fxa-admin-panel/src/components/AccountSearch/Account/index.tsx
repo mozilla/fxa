@@ -18,6 +18,7 @@ import Paper from '@material-ui/core/Paper';
 type AccountProps = {
   uid: string;
   createdAt: number;
+  disabledAt: number | null;
   emails: EmailProps[];
   emailBounces: EmailBounceProps[];
   totp: TotpProps[];
@@ -74,7 +75,9 @@ type SessionTokensProps = {
 };
 
 type DangerZoneProps = {
+  uid: string;
   email: EmailProps;
+  disabledAt: number | null;
   onCleared: Function;
 };
 
@@ -83,6 +86,12 @@ const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
 export const CLEAR_BOUNCES_BY_EMAIL = gql`
   mutation clearBouncesByEmail($email: String!) {
     clearEmailBounce(email: $email)
+  }
+`;
+
+export const DISABLE_ACCOUNT = gql`
+  mutation disableAccount($uid: String!) {
+    disableAccount(uid: $uid)
   }
 `;
 
@@ -121,7 +130,12 @@ export const UNVERIFY_EMAIL = gql`
   }
 `;
 
-export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
+export const DangerZone = ({
+  uid,
+  email,
+  disabledAt,
+  onCleared,
+}: DangerZoneProps) => {
   const [unverify, { loading: unverifyLoading }] = useMutation(UNVERIFY_EMAIL, {
     onCompleted: () => {
       window.alert("The user's email has been unverified.");
@@ -139,6 +153,26 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
     unverify({ variables: { email: email.email } });
   };
 
+  const [disableAccount, { loading: disableLoading }] = useMutation(
+    DISABLE_ACCOUNT,
+    {
+      onCompleted: () => {
+        window.alert('The account has been disabled.');
+        onCleared();
+      },
+      onError: () => {
+        window.alert('Error disabling account');
+      },
+    }
+  );
+
+  const handleDisable = () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    disableAccount({ variables: { uid } });
+  };
+
   // define loading messages
   const loadingMessage = 'Please wait a moment...';
   let unverifyMessage = '';
@@ -152,15 +186,37 @@ export const DangerZone = ({ email, onCleared }: DangerZoneProps) => {
         Please run these commands with caution — some actions are irreversible.
       </p>
       <br />
-      <h2>Toggle Email Verification</h2>
+      <h2>Email Verification</h2>
       <p className="danger-zone-info">
         Reset email verification. User needs to re-verify on next login.
         <br />
-        <button className="danger-zone-button" onClick={handleUnverify}>
+        <button
+          className="danger-zone-button"
+          type="button"
+          onClick={handleUnverify}
+        >
           Unverify Email
         </button>
         <br />
         {unverifyMessage}
+      </p>
+      <h2>Disable Login</h2>
+      <p className="danger-zone-info">
+        Stops this account from logging in.
+        <br />
+        {disabledAt ? (
+          <div>
+            Disabled at: {dateFormat(new Date(disabledAt), DATE_FORMAT)}
+          </div>
+        ) : (
+          <button
+            className="danger-zone-button"
+            type="button"
+            onClick={handleDisable}
+          >
+            Disable
+          </button>
+        )}
       </p>
     </li>
   );
@@ -170,6 +226,7 @@ export const Account = ({
   uid,
   emails,
   createdAt,
+  disabledAt,
   emailBounces,
   totp,
   recoveryKeys,
@@ -384,6 +441,8 @@ export const Account = ({
         <hr />
         <DangerZone
           {...{
+            uid,
+            disabledAt,
             email: primaryEmail, // only the primary for now
             onCleared: onCleared,
           }}

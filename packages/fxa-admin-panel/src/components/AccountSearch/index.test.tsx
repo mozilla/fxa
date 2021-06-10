@@ -4,7 +4,7 @@
 
 import React from 'react';
 import Chance from 'chance';
-import { render, fireEvent, act } from '@testing-library/react';
+import { render, fireEvent, act, screen } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import '@testing-library/jest-dom/extend-expect';
 import { CLEAR_BOUNCES_BY_EMAIL } from './Account/index';
@@ -44,6 +44,7 @@ function exampleAccountResponse(email: string): MockedResponse {
             },
           ],
           createdAt: chance.timestamp(),
+          disabledAt: null,
           emailBounces: [exampleBounce(email), exampleBounce(email)],
           totp: [
             {
@@ -101,6 +102,7 @@ function exampleNoResultsAccountResponse(email: string): MockedResponse {
             },
           ],
           createdAt: chance.timestamp(),
+          disabledAt: null,
           emailBounces: [],
           totp: [],
           recoveryKeys: [],
@@ -177,9 +179,8 @@ it('displays the account email bounces, and can clear them', async () => {
   expect(getByTestId('account-section')).toBeInTheDocument();
   expect(queryAllByTestId('bounce-group').length).toEqual(2);
 
-  await act(async () => {
-    fireEvent.click(getByTestId('clear-button'));
-  });
+  fireEvent.click(getByTestId('clear-button'));
+  await screen.findAllByText(testEmail);
 
   // account should still be visible
   expect(getByTestId('account-section')).toBeInTheDocument();

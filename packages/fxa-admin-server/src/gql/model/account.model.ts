@@ -24,6 +24,9 @@ export class Account {
   @Field()
   public createdAt!: number;
 
+  @Field({ nullable: true })
+  public disabledAt?: number;
+
   @Field((type) => [Email], { nullable: true })
   public emails!: Email[];
 

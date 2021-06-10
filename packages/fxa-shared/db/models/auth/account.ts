@@ -31,6 +31,7 @@ const selectFields = [
   ),
   raw('COALESCE(keysChangedAt, verifierSetAt, createdAt) AS keysChangedAt'),
   'ecosystemAnonId',
+  'disabledAt',
 ];
 
 export class Account extends BaseAuthModel {
@@ -61,6 +62,7 @@ export class Account extends BaseAuthModel {
   authSalt!: string;
   verifierSetAt!: number;
   lockedAt!: number;
+  disabledAt?: number;
   profileChangedAt!: number;
   keysChangedAt!: number;
   ecosystemAnonId!: string;

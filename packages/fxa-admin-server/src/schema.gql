@@ -81,6 +81,7 @@ type Account {
   email: String!
   emailVerified: Boolean!
   createdAt: Float!
+  disabledAt: Float!
   emails: [Email!]
   emailBounces: [EmailBounce!]
   totp: [Totp!]
@@ -97,5 +98,6 @@ type Query {
 
 type Mutation {
   unverifyEmail(email: String!): Boolean!
+  disableAccount(uid: String!): Boolean!
   clearEmailBounce(email: String!): Boolean!
 }
