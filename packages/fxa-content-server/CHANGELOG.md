@@ -1,3 +1,21 @@
+## 1.208.0
+
+### New features
+
+- subscriptions: allow redirects to Payments without token ([7aaec564a](https://github.com/mozilla/fxa/commit/7aaec564a))
+- content-server: return flow params to relier party ([d9b6ff577](https://github.com/mozilla/fxa/commit/d9b6ff577))
+
+### Other changes
+
+- deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
+- deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
+- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps-dev: bump intern from 4.9.0 to 4.9.1 ([db73a46db](https://github.com/mozilla/fxa/commit/db73a46db))
+- deps-dev: bump webpack-dev-middleware from 4.3.0 to 5.0.0 ([461c44486](https://github.com/mozilla/fxa/commit/461c44486))
+- deps: bump hot-shots from 8.3.1 to 8.3.2 ([0cb43b6aa](https://github.com/mozilla/fxa/commit/0cb43b6aa))
+- deps-dev: bump sinon-chai from 3.6.0 to 3.7.0 ([35aa62f09](https://github.com/mozilla/fxa/commit/35aa62f09))
+- deps: bump autoprefixer from 9.8.6 to 10.2.6 ([9facccb2b](https://github.com/mozilla/fxa/commit/9facccb2b))
+
 ## 1.207.1
 
 ### New features

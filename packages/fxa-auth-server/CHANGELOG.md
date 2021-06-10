@@ -1,3 +1,39 @@
+## 1.208.0
+
+### New features
+
+- push: Add basic support for verifying a login via push ([875fa4b26](https://github.com/mozilla/fxa/commit/875fa4b26))
+
+### Bug fixes
+
+- sessions: Add support for touchSessionToken to only update the lastAccess session property ([e67a60330](https://github.com/mozilla/fxa/commit/e67a60330))
+- emails: address the customer in the subscriptionRenewalReminder email ([888b3efeb](https://github.com/mozilla/fxa/commit/888b3efeb))
+- l10n: added missing commas ([d13ad71f0](https://github.com/mozilla/fxa/commit/d13ad71f0))
+
+### Refactorings
+
+- db: move more auth-db functions into fxa-shared ([d5b587472](https://github.com/mozilla/fxa/commit/d5b587472))
+- auth: convert account to TS and class ([ef2d33a38](https://github.com/mozilla/fxa/commit/ef2d33a38))
+
+### Other changes
+
+- deps: bump stripe from 8.153.0 to 8.154.0 ([e1292ff7c](https://github.com/mozilla/fxa/commit/e1292ff7c))
+- deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
+- deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
+- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps: bump aws-sdk from 2.920.0 to 2.923.0 ([3cb5b950c](https://github.com/mozilla/fxa/commit/3cb5b950c))
+- deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
+- deps: bump stripe from 8.149.0 to 8.153.0 ([d80d64d43](https://github.com/mozilla/fxa/commit/d80d64d43))
+- deps-dev: bump nock from 13.0.11 to 13.1.0 ([4d52527d8](https://github.com/mozilla/fxa/commit/4d52527d8))
+- deps: bump hot-shots from 8.3.1 to 8.3.2 ([0cb43b6aa](https://github.com/mozilla/fxa/commit/0cb43b6aa))
+- deps: bump aws-sdk from 2.919.0 to 2.920.0 ([434cb0a53](https://github.com/mozilla/fxa/commit/434cb0a53))
+- deps: bump aws-sdk from 2.913.0 to 2.919.0 ([a616dc89a](https://github.com/mozilla/fxa/commit/a616dc89a))
+- deps-dev: bump grunt-cli from 1.4.2 to 1.4.3 ([957082de2](https://github.com/mozilla/fxa/commit/957082de2))
+- deps: bump cldr-core from 38.1.0 to 39.0.0 ([af815470a](https://github.com/mozilla/fxa/commit/af815470a))
+- deps: bump google-libphonenumber from 3.2.19 to 3.2.21 ([a287f7291](https://github.com/mozilla/fxa/commit/a287f7291))
+- auth-server: asyncify signin ([98c1a09bf](https://github.com/mozilla/fxa/commit/98c1a09bf))
+- deps: updated knex ([e02c6720e](https://github.com/mozilla/fxa/commit/e02c6720e))
+
 ## 1.207.1
 
 No changes.

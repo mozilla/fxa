@@ -1,5 +1,24 @@
 # Change history
 
+## 1.208.0
+
+### Other changes
+
+- deps: bump google-auth-library from 7.1.0 to 7.1.1 ([1bcf8cd58](https://github.com/mozilla/fxa/commit/1bcf8cd58))
+- deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
+- deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
+- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps: bump aws-sdk from 2.920.0 to 2.923.0 ([3cb5b950c](https://github.com/mozilla/fxa/commit/3cb5b950c))
+- deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
+- deps-dev: bump nock from 13.0.11 to 13.1.0 ([4d52527d8](https://github.com/mozilla/fxa/commit/4d52527d8))
+- deps: bump hot-shots from 8.3.1 to 8.3.2 ([0cb43b6aa](https://github.com/mozilla/fxa/commit/0cb43b6aa))
+- deps: bump aws-sdk from 2.919.0 to 2.920.0 ([434cb0a53](https://github.com/mozilla/fxa/commit/434cb0a53))
+- deps-dev: bump eslint-plugin-import from 2.23.3 to 2.23.4 ([9fd13a43d](https://github.com/mozilla/fxa/commit/9fd13a43d))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([e99484693](https://github.com/mozilla/fxa/commit/e99484693))
+- deps: bump aws-sdk from 2.913.0 to 2.919.0 ([a616dc89a](https://github.com/mozilla/fxa/commit/a616dc89a))
+- deps-dev: bump @types/express from 4.17.11 to 4.17.12 ([08dc9b8e1](https://github.com/mozilla/fxa/commit/08dc9b8e1))
+- deps: bump google-auth-library from 7.0.2 to 7.1.0 ([3c0dc8f2c](https://github.com/mozilla/fxa/commit/3c0dc8f2c))
+
 ## 1.207.1
 
 No changes.
