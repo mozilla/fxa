@@ -2622,15 +2622,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/firestore@npm:^4.9.8":
-  version: 4.9.8
-  resolution: "@google-cloud/firestore@npm:4.9.8"
+"@google-cloud/firestore@npm:^4.12.2":
+  version: 4.12.2
+  resolution: "@google-cloud/firestore@npm:4.12.2"
   dependencies:
     fast-deep-equal: ^3.1.1
     functional-red-black-tree: ^1.0.1
-    google-gax: ^2.9.2
+    google-gax: ^2.12.0
     protobufjs: ^6.8.6
-  checksum: 871fb8dce6367fbbdbce8e6bed2e3dadac5b1ec14078ebd34aa6409a2bc8d2fbc43a5d13893be68de787ebfb3accb9db47ac0aba66e363bf8d46e33e4aeba7a4
+  checksum: 2b4b334ec2cd1702a0aba094aae6a126168e1a59672f740353ab1af005b4261cc9fd8ff37396d08c4cbce070321fdbb00a4d3b9e7d40873067b90c7553d76153
   languageName: node
   linkType: hard
 
@@ -18088,7 +18088,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-auth-server@workspace:packages/fxa-auth-server"
   dependencies:
-    "@google-cloud/firestore": ^4.9.8
+    "@google-cloud/firestore": ^4.12.2
     "@hapi/hapi": ^20.1.3
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.1.0
@@ -18456,7 +18456,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
-    "@google-cloud/firestore": ^4.9.8
+    "@google-cloud/firestore": ^4.12.2
     "@google-cloud/pubsub": ^2.12.0
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.0.4
@@ -19767,7 +19767,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-gax@npm:^2.12.0, google-gax@npm:^2.9.2":
+"google-gax@npm:^2.12.0":
   version: 2.13.0
   resolution: "google-gax@npm:2.13.0"
   dependencies:
