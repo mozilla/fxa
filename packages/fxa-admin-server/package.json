@@ -39,7 +39,7 @@
     "@sentry/integrations": "^6.5.1",
     "@sentry/node": "^6.5.1",
     "apollo-server": "^2.25.0",
-    "apollo-server-express": "^2.25.0",
+    "apollo-server-express": "^2.25.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "convict": "^6.1.0",
