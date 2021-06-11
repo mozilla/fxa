@@ -56,9 +56,8 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
-  const { locationReload, queryParams, matchMediaDefault, config } = useContext(
-    AppContext
-  );
+  const { locationReload, queryParams, matchMediaDefault, config } =
+    useContext(AppContext);
 
   const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const planId = queryParams.plan;
