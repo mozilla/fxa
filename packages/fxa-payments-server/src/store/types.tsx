@@ -1,4 +1,5 @@
 import { PaypalPaymentError } from 'fxa-shared/subscriptions/types';
+import { Stripe } from 'stripe';
 import { PaymentProvider } from '../lib/PaymentProvider';
 
 export type {
@@ -73,7 +74,8 @@ export interface CustomerSubscription {
 export type Customer = {
   billing_name?: string | null;
   billing_agreement_id?: string | null;
-  brand?: string;
+  // https://stripe.com/docs/api/charges/object#charge_object-payment_method_details-card-brand
+  brand?: Stripe.Charge.PaymentMethodDetails.Card['brand'];
   exp_month?: string;
   exp_year?: string;
   last4?: string;

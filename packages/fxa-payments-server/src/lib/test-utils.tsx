@@ -170,7 +170,8 @@ function injectStripe<P extends Object>(
       <WrappedComponent
         {...{
           ...props,
-          stripe: mockStripe as ReactStripeElements.InjectedStripeProps['stripe'],
+          stripe:
+            mockStripe as ReactStripeElements.InjectedStripeProps['stripe'],
         }}
         as
         any

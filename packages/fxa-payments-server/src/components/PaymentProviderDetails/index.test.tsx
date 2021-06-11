@@ -17,7 +17,9 @@ describe('PaymentProviderDetails', () => {
 
     it('Renders credit card logo and last 4 digits', () => {
       const { queryByTestId } = subject();
-      expect(queryByTestId('card-logo-and-last-four')).toBeInTheDocument();
+      const element = queryByTestId('card-logo-and-last-four');
+      expect(element).toBeInTheDocument();
+      expect(element).toHaveClass(`${Customers.CUSTOMER.brand?.toLowerCase()}`);
     });
 
     it('Omits paypal logo', () => {
