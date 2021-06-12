@@ -108,8 +108,8 @@ export const SubscriptionUpgrade = ({
   const mobileUpdateHeading = isMobile ? (
     <div className="mobile-subscription-title">
       <div className="subscription-update-heading">
-        <Localized id="product-plan-upgrade-heading">
-          <h2>Review your upgrade</h2>
+        <Localized id="product-plan-change-heading">
+          <h2>Review your change</h2>
         </Localized>
       </div>
     </div>
@@ -122,8 +122,8 @@ export const SubscriptionUpgrade = ({
           className="dialog-error"
           onDismiss={resetUpdateSubscriptionPlan}
         >
-          <Localized id="sub-update-failed">
-            <h4 data-testid="error-plan-update-failed">Plan update failed</h4>
+          <Localized id="sub-change-failed">
+            <h4 data-testid="error-plan-update-failed">Plan change failed</h4>
           </Localized>
           <p>{updateSubscriptionPlanStatus.error.message}</p>
         </DialogMessage>
@@ -138,8 +138,8 @@ export const SubscriptionUpgrade = ({
             className="subscription-update-heading"
             data-testid="subscription-update-heading"
           >
-            <Localized id="product-plan-upgrade-heading">
-              <h2>Review your upgrade</h2>
+            <Localized id="product-plan-change-heading">
+              <h2>Review your change</h2>
             </Localized>
             <p className="subheading"></p>
           </div>
@@ -235,8 +235,8 @@ export const SubscriptionUpgrade = ({
                     &nbsp;
                   </span>
                 ) : (
-                  <Localized id="sub-update-submit">
-                    <span>Confirm upgrade</span>
+                  <Localized id="sub-change-submit">
+                    <span>Confirm change</span>
                   </Localized>
                 )}
               </SubmitButton>
