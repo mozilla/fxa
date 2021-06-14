@@ -6716,14 +6716,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsdom@npm:^16.2.10":
-  version: 16.2.10
-  resolution: "@types/jsdom@npm:16.2.10"
+"@types/jsdom@npm:^16.2.11":
+  version: 16.2.11
+  resolution: "@types/jsdom@npm:16.2.11"
   dependencies:
     "@types/node": "*"
     "@types/parse5": "*"
     "@types/tough-cookie": "*"
-  checksum: 9e39f1d2d00e7373222da490a78f11e66a8ea19e3b08ed9b223bcd8da0ce6eb15aabd670d36996a727291d4a917366a8340353a5adef83b4c714fed6e61e786f
+  checksum: f4049e8844345022133f7c9a3d46e70082302e119aa51000791de9e1f2c8954c64db1b93ced16a352ca9e4f1d75b3c39ef2b4c19f201f6ab388ed52d0dc0fe5d
   languageName: node
   linkType: hard
 
@@ -18067,7 +18067,7 @@ fsevents@~2.1.1:
     "@types/express": ^4.17.12
     "@types/helmet": 4.0.0
     "@types/jest": ^26.0.23
-    "@types/jsdom": ^16.2.10
+    "@types/jsdom": ^16.2.11
     "@types/on-headers": ^1.0.0
     "@types/react": ^16.9.53
     "@types/react-router-dom": ^5.1.7
@@ -18855,7 +18855,7 @@ fsevents@~2.1.1:
     "@types/accept-language-parser": ^1.5.1
     "@types/classnames": ^2.3.1
     "@types/jest": ^26.0.23
-    "@types/jsdom": ^16.2.10
+    "@types/jsdom": ^16.2.11
     "@types/nock": ^11.1.0
     "@types/node": ^15.12.2
     "@types/react": ^16.9.53
