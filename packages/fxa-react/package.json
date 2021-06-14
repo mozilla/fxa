@@ -45,7 +45,7 @@
     "@svgr/webpack": "^5.5.0",
     "@tailwindcss/postcss7-compat": "^2.1.2",
     "@testing-library/dom": "^7.31.0",
-    "@testing-library/jest-dom": "^5.13.0",
+    "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^13.1.9",
     "@types/camelcase": "5.2.0",
