@@ -5831,9 +5831,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^5.13.0":
-  version: 5.13.0
-  resolution: "@testing-library/jest-dom@npm:5.13.0"
+"@testing-library/jest-dom@npm:^5.14.1":
+  version: 5.14.1
+  resolution: "@testing-library/jest-dom@npm:5.14.1"
   dependencies:
     "@babel/runtime": ^7.9.2
     "@types/testing-library__jest-dom": ^5.9.1
@@ -5841,9 +5841,10 @@ __metadata:
     chalk: ^3.0.0
     css: ^3.0.0
     css.escape: ^1.5.1
+    dom-accessibility-api: ^0.5.6
     lodash: ^4.17.15
     redent: ^3.0.0
-  checksum: 6ac64359265d96aa93114d98e651e8a24af0db51f01e858990bb2e90025fcacc00826abd4e8c333a7274b38113447bf13b52453ad692a2f4c731eba4781a8692
+  checksum: b0c4b4ffa1d58bdf22f1682eb973397e8044a3cdd8527de8d1c8169640b3c4585165abcbfc819dee7f4aa40204c6a63afb28dd74ad9bb4e1bfbdc680fd491e30
   languageName: node
   linkType: hard
 
@@ -15168,6 +15169,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dom-accessibility-api@npm:^0.5.6":
+  version: 0.5.6
+  resolution: "dom-accessibility-api@npm:0.5.6"
+  checksum: b579681083e683291df022bdf094dae2c7e39db0ff28f70ed2c8368eda203fe4c45bcf92f1c623ce4b746cb245f9a5dc9d176f1781d600b9218728d3a1d1580f
+  languageName: node
+  linkType: hard
+
 "dom-converter@npm:^0.2":
   version: 0.2.0
   resolution: "dom-converter@npm:0.2.0"
@@ -18075,7 +18083,7 @@ fsevents@~2.1.1:
     "@storybook/react": ^6.2.9
     "@tailwindcss/postcss7-compat": ^2.1.2
     "@testing-library/dom": ^7.31.0
-    "@testing-library/jest-dom": ^5.13.0
+    "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^11.2.7
     "@testing-library/user-event": ^13.1.9
     "@types/babel__core": 7.1.14
@@ -18869,7 +18877,7 @@ fsevents@~2.1.1:
     "@stripe/react-stripe-js": ^1.4.1
     "@stripe/stripe-js": ^1.15.0
     "@svgr/webpack": ^5.4.0
-    "@testing-library/jest-dom": ^5.13.0
+    "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^11.2.7
     "@types/accept-language-parser": ^1.5.1
     "@types/classnames": ^2.3.1
@@ -19030,7 +19038,7 @@ fsevents@~2.1.1:
     "@svgr/webpack": ^5.5.0
     "@tailwindcss/postcss7-compat": ^2.1.2
     "@testing-library/dom": ^7.31.0
-    "@testing-library/jest-dom": ^5.13.0
+    "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^11.2.7
     "@testing-library/user-event": ^13.1.9
     "@types/camelcase": 5.2.0
@@ -19094,7 +19102,7 @@ fsevents@~2.1.1:
     "@storybook/react": ^6.2.9
     "@tailwindcss/postcss7-compat": ^2.1.2
     "@testing-library/dom": ^7.31.0
-    "@testing-library/jest-dom": ^5.13.0
+    "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^11.2.7
     "@testing-library/react-hooks": ^7.0.0
     "@testing-library/user-event": ^13.1.9
