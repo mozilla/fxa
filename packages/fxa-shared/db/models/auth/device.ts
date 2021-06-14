@@ -2,11 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { convertError } from '../../mysql';
-import { aggregateNameValuePairs, uuidTransformer } from '../../transformers';
-import { AuthBaseModel, Proc } from './auth-base';
+import { convertError, MysqlErrors, notFound } from '../../mysql';
+import {
+  aggregateNameValuePairs,
+  intBoolTransformer,
+  uuidTransformer,
+} from '../../transformers';
+import { BaseAuthModel, Proc } from './base-auth';
 
-export class Device extends AuthBaseModel {
+export class Device extends BaseAuthModel {
   static tableName = 'devices';
   static idColumn = ['uid', 'id'];
 
@@ -105,18 +109,90 @@ export class Device extends AuthBaseModel {
     }
   }
 
+  static async update({
+    id,
+    uid,
+    sessionTokenId,
+    refreshTokenId,
+    name,
+    type,
+    pushCallback,
+    pushPublicKey,
+    pushAuthKey,
+    callbackIsExpired,
+    availableCommands,
+  }: Pick<
+    Device,
+    | 'id'
+    | 'uid'
+    | 'sessionTokenId'
+    | 'refreshTokenId'
+    | 'name'
+    | 'type'
+    | 'pushCallback'
+    | 'pushPublicKey'
+    | 'pushAuthKey'
+    | 'callbackIsExpired'
+  > & {
+    availableCommands?: {
+      [key: string]: string;
+    };
+  }) {
+    try {
+      await Device.transaction(async (txn) => {
+        const { status } = await Device.callProcedure(
+          Proc.UpdateDevice,
+          txn,
+          uuidTransformer.to(uid),
+          uuidTransformer.to(id),
+          sessionTokenId ? uuidTransformer.to(sessionTokenId) : null,
+          refreshTokenId ? uuidTransformer.to(refreshTokenId) : null,
+          name ?? null,
+          type ?? null,
+          pushCallback ?? null,
+          pushPublicKey ?? null,
+          pushAuthKey ?? null,
+          intBoolTransformer.to(callbackIsExpired)
+        );
+        if (status.affectedRows < 1) {
+          throw notFound();
+        }
+        if (availableCommands) {
+          await Device.callProcedure(
+            Proc.PurgeAvailableCommands,
+            txn,
+            uuidTransformer.to(uid),
+            uuidTransformer.to(id)
+          );
+          for (const [commandName, commandData] of Object.entries(
+            availableCommands
+          )) {
+            await Device.callProcedure(
+              Proc.UpsertAvailableCommands,
+              txn,
+              uuidTransformer.to(uid),
+              uuidTransformer.to(id),
+              commandName,
+              commandData
+            );
+          }
+        }
+      });
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
   static async delete(uid: string, id: string) {
-    const [result] = await Device.callProcedure(
+    const {
+      rows: [result],
+    } = await Device.callProcedure(
       Proc.DeleteDevice,
       uuidTransformer.to(uid),
       uuidTransformer.to(id)
     );
     if (!result) {
-      // Throw an error that looks like the old db-mysql version
-      const error: any = new Error();
-      error.errno = 116;
-      error.statusCode = 404;
-      throw error;
+      throw notFound();
     }
     return result;
   }
@@ -132,7 +208,7 @@ export class Device extends AuthBaseModel {
   }
 
   static async findByUid(uid: string) {
-    const rows = await Device.callProcedure(
+    const { rows } = await Device.callProcedure(
       Proc.AccountDevices,
       uuidTransformer.to(uid)
     );
@@ -140,7 +216,7 @@ export class Device extends AuthBaseModel {
   }
 
   static async findByPrimaryKey(uid: string, id: string) {
-    const rows = await Device.callProcedure(
+    const { rows } = await Device.callProcedure(
       Proc.Device,
       uuidTransformer.to(uid),
       uuidTransformer.to(id)
@@ -152,7 +228,7 @@ export class Device extends AuthBaseModel {
     uid: string,
     tokenVerificationId: string
   ) {
-    const rows = await Device.callProcedure(
+    const { rows } = await Device.callProcedure(
       Proc.DeviceFromTokenVerificationId,
       uuidTransformer.to(uid),
       uuidTransformer.to(tokenVerificationId)

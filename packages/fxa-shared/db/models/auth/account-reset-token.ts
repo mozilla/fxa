@@ -1,10 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { AuthBaseModel, Proc } from './auth-base';
+import { BaseAuthModel, Proc } from './base-auth';
 import { uuidTransformer } from '../../transformers';
 
-export class AccountResetToken extends AuthBaseModel {
+export class AccountResetToken extends BaseAuthModel {
   public static tableName = 'accountResetTokens';
   public static idColumn = 'tokenId';
 
@@ -26,7 +26,7 @@ export class AccountResetToken extends AuthBaseModel {
   }
 
   static async findByTokenId(id: string) {
-    const rows = await AccountResetToken.callProcedure(
+    const { rows } = await AccountResetToken.callProcedure(
       Proc.AccountResetToken,
       uuidTransformer.to(id)
     );

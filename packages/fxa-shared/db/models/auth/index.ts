@@ -5,7 +5,8 @@ import { uuidTransformer, aggregateNameValuePairs } from '../../transformers';
 import { Account, AccountOptions } from './account';
 import { AccountCustomers } from './account-customers';
 import { AccountResetToken } from './account-reset-token';
-import { AuthBaseModel } from './auth-base';
+import { BaseAuthModel } from './base-auth';
+import { BaseToken } from './base-token';
 import { Device } from './device';
 import { Email } from './email';
 import { EmailBounce } from './email-bounce';
@@ -18,6 +19,7 @@ import { TotpToken } from './totp-token';
 import { PayPalBillingAgreements } from './paypal-ba';
 import { EmailType } from './email-type';
 import { SentEmail } from './sent-email';
+import { SecurityEvent } from './security-event';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -209,7 +211,8 @@ export {
   AccountOptions,
   AccountCustomers,
   AccountResetToken,
-  AuthBaseModel,
+  BaseAuthModel,
+  BaseToken,
   Device,
   Email,
   EmailBounce,
@@ -219,6 +222,7 @@ export {
   PasswordForgotToken,
   PayPalBillingAgreements,
   RecoveryKey,
+  SecurityEvent,
   SentEmail,
   SessionToken,
   TotpToken,

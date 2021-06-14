@@ -1,5 +1,11 @@
 # Firefox Accounts database service
 
+# Deprecated!
+
+**This service is no longer used by auth-server and is in the process of being dismantled. DB migration `.sql` files should be the only new additions here for the time being. New DB API work should be done in `fxa-shared/db`.**
+
+---
+
 Node.js-based database service
 for Firefox Accounts.
 Includes:

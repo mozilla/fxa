@@ -1,12 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { AuthBaseModel } from './auth-base';
+import { BaseAuthModel } from './base-auth';
 
 /**
  * Tracks current and prior PayPal Billing Agreements for a user.
  */
-export class PayPalBillingAgreements extends AuthBaseModel {
+export class PayPalBillingAgreements extends BaseAuthModel {
   public static tableName = 'paypalCustomers';
   public static idColumn = 'uid';
 

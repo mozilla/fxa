@@ -1,10 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { AuthBaseModel, Proc } from './auth-base';
+import { BaseAuthModel, Proc } from './base-auth';
 import { uuidTransformer } from '../../transformers';
 
-export class PasswordForgotToken extends AuthBaseModel {
+export class PasswordForgotToken extends BaseAuthModel {
   public static tableName = 'passwordForgotTokens';
   public static idColumn = 'tokenId';
 
@@ -43,6 +43,31 @@ export class PasswordForgotToken extends AuthBaseModel {
     );
   }
 
+  static async update(id: string, tries: number) {
+    await PasswordForgotToken.query()
+      .update({ tries })
+      .where('tokenId', uuidTransformer.to(id));
+  }
+
+  static async verify(
+    id: string,
+    resetToken: {
+      uid: string;
+      id: string;
+      data: string;
+      createdAt: number;
+    }
+  ) {
+    return PasswordForgotToken.callProcedure(
+      Proc.ForgotPasswordVerified,
+      uuidTransformer.to(id),
+      uuidTransformer.to(resetToken.id),
+      uuidTransformer.to(resetToken.data),
+      uuidTransformer.to(resetToken.uid),
+      resetToken.createdAt
+    );
+  }
+
   static async delete(id: string) {
     return PasswordForgotToken.callProcedure(
       Proc.DeletePasswordForgotToken,
@@ -51,7 +76,7 @@ export class PasswordForgotToken extends AuthBaseModel {
   }
 
   static async findByTokenId(id: string) {
-    const rows = await PasswordForgotToken.callProcedure(
+    const { rows } = await PasswordForgotToken.callProcedure(
       Proc.PasswordForgotToken,
       uuidTransformer.to(id)
     );

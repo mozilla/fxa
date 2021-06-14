@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'crypto';
 import { fn, raw } from 'objection';
-import { AuthBaseModel, Proc } from './auth-base';
+import { BaseAuthModel, Proc } from './base-auth';
 import { Email } from './email';
 import { Device } from './device';
-import { uuidTransformer } from '../../transformers';
-import { convertError } from '../../mysql';
+import { intBoolTransformer, uuidTransformer } from '../../transformers';
+import { convertError, notFound } from '../../mysql';
 
 export type AccountOptions = {
   include?: 'emails'[];
@@ -32,7 +33,7 @@ const selectFields = [
   'ecosystemAnonId',
 ];
 
-export class Account extends AuthBaseModel {
+export class Account extends BaseAuthModel {
   static tableName = 'accounts';
   static idColumn = 'uid';
 
@@ -73,7 +74,7 @@ export class Account extends AuthBaseModel {
         to: 'emails.uid',
       },
       modelClass: Email,
-      relation: AuthBaseModel.HasManyRelation,
+      relation: BaseAuthModel.HasManyRelation,
     },
     devices: {
       join: {
@@ -81,7 +82,7 @@ export class Account extends AuthBaseModel {
         to: 'devices.uid',
       },
       modelClass: Device,
-      relation: AuthBaseModel.HasManyRelation,
+      relation: BaseAuthModel.HasManyRelation,
     },
   };
 
@@ -172,6 +173,210 @@ export class Account extends AuthBaseModel {
     );
   }
 
+  static async updateLocale(uid: string, locale: string) {
+    await Account.query()
+      .update({
+        locale,
+      })
+      .where('uid', uuidTransformer.to(uid));
+  }
+
+  static async setPrimaryEmail(uid: string, email: string) {
+    try {
+      await Account.callProcedure(
+        Proc.SetPrimaryEmail,
+        uuidTransformer.to(uid),
+        email
+      );
+    } catch (e) {
+      e = convertError(e);
+      if (e.errno === 101) {
+        e.errno = 148;
+        e.statusCode = 400;
+      }
+      throw e;
+    }
+  }
+
+  static async createEmail({
+    uid,
+    normalizedEmail,
+    email,
+    emailCode,
+    isVerified,
+    verifiedAt,
+  }: Pick<Account, 'uid' | 'normalizedEmail' | 'email' | 'emailCode'> & {
+    isVerified: boolean;
+    verifiedAt: number;
+  }) {
+    try {
+      await Account.callProcedure(
+        Proc.CreateEmail,
+        normalizedEmail,
+        email,
+        uuidTransformer.to(uid),
+        uuidTransformer.to(emailCode),
+        intBoolTransformer.to(isVerified),
+        verifiedAt ?? null,
+        Date.now()
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async verifyEmail(uid: string, emailCode: string) {
+    try {
+      await Account.callProcedure(
+        Proc.VerifyEmail,
+        uuidTransformer.to(uid),
+        uuidTransformer.to(emailCode)
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async deleteEmail(uid: string, email: string) {
+    try {
+      await Account.callProcedure(
+        Proc.DeleteEmail,
+        uuidTransformer.to(uid),
+        email
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async createUnblockCode(uid: string, code: string) {
+    const id = uuidTransformer.to(uid);
+    try {
+      await Account.callProcedure(
+        Proc.CreateUnblockCode,
+        id,
+        BaseAuthModel.sha256(Buffer.concat([id, Buffer.from(code, 'utf8')])),
+        Date.now()
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async consumeUnblockCode(uid: string, code: string) {
+    const id = uuidTransformer.to(uid);
+    try {
+      const { rows } = await Account.callProcedure(
+        Proc.ConsumeUnblockCode,
+        id,
+        BaseAuthModel.sha256(Buffer.concat([id, Buffer.from(code, 'utf8')]))
+      );
+      if (rows.length < 1 || !(rows[0] as any).createdAt) {
+        throw notFound();
+      }
+      return rows[0];
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async createSigninCode(uid: string, code: string, flowId?: string) {
+    try {
+      await Account.callProcedure(
+        Proc.CreateSigninCode,
+        // hash of the utf8 string, not the decoded hex buffer :(
+        crypto.createHash('sha256').update(code).digest(),
+        uuidTransformer.to(uid),
+        Date.now(),
+        flowId ? uuidTransformer.to(flowId) : null
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async consumeSigninCode(code: string, maxAge: number = 172800000) {
+    const newerThan = Date.now() - maxAge;
+    try {
+      const { rows } = await Account.callProcedure(
+        Proc.ConsumeSigninCode,
+        // hash of the utf8 string, not the decoded hex buffer :(
+        crypto.createHash('sha256').update(code).digest(),
+        newerThan
+      );
+      if (rows.length < 1) {
+        throw notFound();
+      }
+      const row = rows[0] as { flowId: Buffer; email: string };
+      return {
+        flowId: uuidTransformer.from(row.flowId),
+        email: row.email,
+      };
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async resetTokens(uid: string) {
+    try {
+      await Account.callProcedure(
+        Proc.ResetAccountTokens,
+        uuidTransformer.to(uid)
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async replaceRecoveryCodes(
+    uid: string,
+    hashes: { hash: Buffer; salt: Buffer }[]
+  ) {
+    try {
+      const id = uuidTransformer.to(uid);
+      await Account.transaction(async (txn) => {
+        await Account.callProcedure(Proc.DeleteRecoveryCodes, txn, id);
+        for (const { hash, salt } of hashes) {
+          await Account.callProcedure(
+            Proc.CreateRecoveryCode,
+            txn,
+            id,
+            hash,
+            salt
+          );
+        }
+      });
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async consumeRecoveryCode(
+    uid: string,
+    codeChecker: (hash: Buffer, salt: Buffer) => Promise<boolean>
+  ) {
+    try {
+      const id = uuidTransformer.to(uid);
+      const { rows } = await Account.callProcedure(Proc.RecoveryCodes, id);
+      for (const row of rows) {
+        const matches = await codeChecker(row.codeHash, row.salt);
+        if (matches) {
+          const {
+            rows: [result],
+          } = await Account.callProcedure(
+            Proc.ConsumeRecoveryCode,
+            id,
+            row.codeHash
+          );
+          return result.count as number;
+        }
+      }
+      throw notFound();
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
   static async checkPassword(uid: string, verifyHash: string) {
     const count = await Account.query()
       .select('uid')
@@ -183,7 +388,7 @@ export class Account extends AuthBaseModel {
 
   static async findByPrimaryEmail(email: string) {
     let account: Account | null = null;
-    const rows = await Account.callProcedure(Proc.AccountRecord, email);
+    const { rows } = await Account.callProcedure(Proc.AccountRecord, email);
     if (rows.length) {
       account = Account.fromDatabaseJson(rows[0]);
     }

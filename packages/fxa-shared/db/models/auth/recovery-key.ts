@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import crypto from 'crypto';
-import { AuthBaseModel, Proc } from './auth-base';
-import { uuidTransformer } from '../../transformers';
+import { BaseAuthModel, Proc } from './base-auth';
+import { uuidTransformer, intBoolTransformer } from '../../transformers';
 import { convertError } from '../../mysql';
 
-export class RecoveryKey extends AuthBaseModel {
+export class RecoveryKey extends BaseAuthModel {
   public static tableName = 'recoveryKeys';
   public static idColumn = 'uid';
 
@@ -34,13 +33,30 @@ export class RecoveryKey extends AuthBaseModel {
       await RecoveryKey.callProcedure(
         Proc.CreateRecoveryKey,
         uuidTransformer.to(uid),
-        crypto
-          .createHash('sha256')
-          .update(Buffer.from(recoveryKeyId, 'hex'))
-          .digest(),
+        BaseAuthModel.sha256(recoveryKeyId),
         recoveryData,
         Date.now(),
         !!enabled
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async update({
+    uid,
+    recoveryKeyId,
+    enabled,
+  }: Pick<RecoveryKey, 'uid' | 'enabled'> & {
+    recoveryKeyId: string;
+  }) {
+    try {
+      await RecoveryKey.callProcedure(
+        Proc.UpdateRecoveryKey,
+        uuidTransformer.to(uid),
+        BaseAuthModel.sha256(recoveryKeyId),
+        null,
+        intBoolTransformer.to(enabled)
       );
     } catch (e) {
       throw convertError(e);
@@ -55,7 +71,7 @@ export class RecoveryKey extends AuthBaseModel {
   }
 
   static async findByUid(uid: string) {
-    const rows = await RecoveryKey.callProcedure(
+    const { rows } = await RecoveryKey.callProcedure(
       Proc.RecoveryKey,
       uuidTransformer.to(uid)
     );

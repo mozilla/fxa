@@ -12,7 +12,9 @@ export enum MysqlErrors {
   ER_SIGNAL_NOT_FOUND = 1643,
 }
 
-export function convertError(error: Error & { errno: number }) {
+export function convertError(
+  error: Error & { errno: number; statusCode?: number }
+) {
   const e: any = new Error();
   // Return an error that looks like the old db-mysql version (for now)
   switch (error.errno) {
@@ -24,9 +26,23 @@ export function convertError(error: Error & { errno: number }) {
       e.errno = 116;
       e.statusCode = 404;
       break;
+    case MysqlErrors.ER_DELETE_PRIMARY_EMAIL:
+      (e.errno = 136), (e.statusCode = 400);
+      break;
+    case MysqlErrors.ER_EXPIRED_TOKEN_VERIFICATION_CODE:
+      e.errno = 137;
+      e.statusCode = 400;
+      break;
     default:
       e.errno = error.errno;
-      e.statusCode = 500;
+      e.statusCode = error.statusCode || 500;
   }
   return e as Error & { errno: number; statusCode: number };
+}
+
+export function notFound() {
+  const error: any = new Error();
+  error.errno = 116;
+  error.statusCode = 404;
+  return error as Error & { errno: number; statusCode: number };
 }

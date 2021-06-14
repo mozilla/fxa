@@ -1,11 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { AuthBaseModel, Proc } from './auth-base';
-import { uuidTransformer } from '../../transformers';
-import { convertError } from '../../mysql';
+import { BaseAuthModel, Proc } from './base-auth';
+import { intBoolTransformer, uuidTransformer } from '../../transformers';
+import { convertError, notFound } from '../../mysql';
 
-export class TotpToken extends AuthBaseModel {
+export class TotpToken extends BaseAuthModel {
   public static tableName = 'totp';
   public static idColumn = 'uid';
 
@@ -37,6 +37,23 @@ export class TotpToken extends AuthBaseModel {
       throw convertError(e);
     }
   }
+
+  static async update(uid: string, verified: boolean, enabled: boolean) {
+    try {
+      const { status } = await TotpToken.callProcedure(
+        Proc.UpdateTotpToken,
+        uuidTransformer.to(uid),
+        intBoolTransformer.to(verified),
+        intBoolTransformer.to(enabled)
+      );
+      if (status.affectedRows < 1) {
+        throw notFound();
+      }
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
   static async delete(uid: string) {
     return TotpToken.callProcedure(
       Proc.DeleteTotpToken,
@@ -45,7 +62,7 @@ export class TotpToken extends AuthBaseModel {
   }
 
   static async findByUid(uid: string) {
-    const rows = await TotpToken.callProcedure(
+    const { rows } = await TotpToken.callProcedure(
       Proc.TotpToken,
       uuidTransformer.to(uid)
     );
