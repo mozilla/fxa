@@ -625,9 +625,8 @@ export const stripeWebhookRoutes = (
         payload: {
           output: 'data',
           parse: false,
-          // Stripe event bodies can be pretty large, the server defaults to 16Kb so
-          // we bump it to 56Kb since observed payloads have exceeded 20Kb.
-          maxBytes: 1024 * 56,
+          // Stripe event bodies can be pretty large, the server defaults to 1MB.
+          maxBytes: config.subscriptions.stripeWebhookPayloadLimit,
         },
         validate: {
           headers: { 'stripe-signature': isA.string().required() },
