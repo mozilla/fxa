@@ -18166,7 +18166,7 @@ fsevents@~2.1.1:
     hkdf: 0.0.2
     hot-shots: ^8.3.2
     i18n-abide: 0.0.26
-    ioredis: ^4.27.5
+    ioredis: ^4.27.6
     jed: 0.5.4
     jsonwebtoken: ^8.4.0
     jsxgettext-recursive-next: 1.1.0
@@ -18619,7 +18619,7 @@ fsevents@~2.1.1:
     graphql-tools: ^7.0.5
     graphql-upload: ^11.0.0
     helmet: ^4.6.0
-    ioredis: ^4.27.5
+    ioredis: ^4.27.6
     jest: 26.6.0
     knex: ^0.95.6
     mozlog: ^3.0.2
@@ -21765,7 +21765,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ioredis@npm:4.x.x, ioredis@npm:^4.27.5":
+"ioredis@npm:4.x.x":
   version: 4.27.5
   resolution: "ioredis@npm:4.27.5"
   dependencies:
@@ -21780,6 +21780,24 @@ fsevents@~2.1.1:
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
   checksum: ee5924ccf4e04643ebc644312d1105a6da70e009badaf845618dd0d408f82690098892d2c648b02b0e3612d548b0fd162af12f3e18aec71edd8c983f59357509
+  languageName: node
+  linkType: hard
+
+"ioredis@npm:^4.27.6":
+  version: 4.27.6
+  resolution: "ioredis@npm:4.27.6"
+  dependencies:
+    cluster-key-slot: ^1.1.0
+    debug: ^4.3.1
+    denque: ^1.1.0
+    lodash.defaults: ^4.2.0
+    lodash.flatten: ^4.4.0
+    p-map: ^2.1.0
+    redis-commands: 1.7.0
+    redis-errors: ^1.2.0
+    redis-parser: ^3.0.0
+    standard-as-callback: ^2.1.0
+  checksum: 757b8dbd2c1db17d22c54e38be21402f48cf9337fa708a6626581aa104e47ce6d74a76a07e580b515d6ef0f5aa81af199f59d7866f10504235c41a9a29bb779f
   languageName: node
   linkType: hard
 
