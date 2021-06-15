@@ -4751,6 +4751,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/core@npm:6.7.0":
+  version: 6.7.0
+  resolution: "@sentry/core@npm:6.7.0"
+  dependencies:
+    "@sentry/hub": 6.7.0
+    "@sentry/minimal": 6.7.0
+    "@sentry/types": 6.7.0
+    "@sentry/utils": 6.7.0
+    tslib: ^1.9.3
+  checksum: 968e3d908937564cd68efebb1a935dabdd5f62a53362da929ccda85dfa1e16c097ccc14ff023f30cc0d137d5c85ff8ca090a402c311b67c424f6600b5aeb21fb
+  languageName: node
+  linkType: hard
+
 "@sentry/hub@npm:6.5.1":
   version: 6.5.1
   resolution: "@sentry/hub@npm:6.5.1"
@@ -4759,6 +4772,17 @@ __metadata:
     "@sentry/utils": 6.5.1
     tslib: ^1.9.3
   checksum: e5d364c76ccade469f3bd20b74ceebf8c4b0c67b4315ef997bf3c44bc0455117bb512eac34d011ce8104da8feea92e98cb0c39ea232f02a2ff1dfc9be971574d
+  languageName: node
+  linkType: hard
+
+"@sentry/hub@npm:6.7.0":
+  version: 6.7.0
+  resolution: "@sentry/hub@npm:6.7.0"
+  dependencies:
+    "@sentry/types": 6.7.0
+    "@sentry/utils": 6.7.0
+    tslib: ^1.9.3
+  checksum: 12e7e273ab22b72b58b5de691a0e0ee859e3be12bafb477c8bb891a359d0e1abbfd43e2fa30828ff02d445b1439ddd151e992b3d865f270cd8d6226eaacc7387
   languageName: node
   linkType: hard
 
@@ -4785,33 +4809,44 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:^6.5.1":
-  version: 6.5.1
-  resolution: "@sentry/node@npm:6.5.1"
+"@sentry/minimal@npm:6.7.0":
+  version: 6.7.0
+  resolution: "@sentry/minimal@npm:6.7.0"
   dependencies:
-    "@sentry/core": 6.5.1
-    "@sentry/hub": 6.5.1
-    "@sentry/tracing": 6.5.1
-    "@sentry/types": 6.5.1
-    "@sentry/utils": 6.5.1
+    "@sentry/hub": 6.7.0
+    "@sentry/types": 6.7.0
+    tslib: ^1.9.3
+  checksum: e3833ac5229e60e255021ac6c2f53d604e3afa030064231e386ea09e78eeffd49770ce89d2a23d9c11de9b07ca506cfd5520626e3e3c8cb3c03c5283ae4ca4f2
+  languageName: node
+  linkType: hard
+
+"@sentry/node@npm:^6.7.0":
+  version: 6.7.0
+  resolution: "@sentry/node@npm:6.7.0"
+  dependencies:
+    "@sentry/core": 6.7.0
+    "@sentry/hub": 6.7.0
+    "@sentry/tracing": 6.7.0
+    "@sentry/types": 6.7.0
+    "@sentry/utils": 6.7.0
     cookie: ^0.4.1
     https-proxy-agent: ^5.0.0
     lru_map: ^0.3.3
     tslib: ^1.9.3
-  checksum: b8c8dabba9b75af07a3a95c17720f142b9bdf2591d09a8ea806dac917ee5a5f360edd059c8baa4a9db4d4761bf2f83aad9d124fae333bcc7e27566690df2ea85
+  checksum: 206d76a7e99eca9323385b68deef40d57e27fb54da63e6ba5fe020b212fdfbdaf91c656a1e5fb1b5e098b8344dd3b1c3db79088106018e5b8ff0d8a5e939a03c
   languageName: node
   linkType: hard
 
-"@sentry/tracing@npm:6.5.1":
-  version: 6.5.1
-  resolution: "@sentry/tracing@npm:6.5.1"
+"@sentry/tracing@npm:6.7.0":
+  version: 6.7.0
+  resolution: "@sentry/tracing@npm:6.7.0"
   dependencies:
-    "@sentry/hub": 6.5.1
-    "@sentry/minimal": 6.5.1
-    "@sentry/types": 6.5.1
-    "@sentry/utils": 6.5.1
+    "@sentry/hub": 6.7.0
+    "@sentry/minimal": 6.7.0
+    "@sentry/types": 6.7.0
+    "@sentry/utils": 6.7.0
     tslib: ^1.9.3
-  checksum: 63dd807a4ff2ff9a5fc01d921f3452c41a842bb10d0095549c5dc04fe2cfe2872620af9556d3ec0ac293eed83fe44cc2ec0dc62296e18e1d7aeed0f1ab5e1eba
+  checksum: bc556d20165a36b622bc852e498f6c0c0e0d3dc2bc3c3fbbacc1adf18947e47f1e3adb089e3ceb1e3e991a2e28b3441a2a14578cd2022b9e8b2447c7e997b1f2
   languageName: node
   linkType: hard
 
@@ -4826,6 +4861,13 @@ __metadata:
   version: 6.6.0
   resolution: "@sentry/types@npm:6.6.0"
   checksum: d5752dbeb95244e414dc80b948ba6d8461a30c676f0ff797b7180ef273f330dea511b972ac0df1c1ec96c04d8d1cffae02340e0d6985748e0e592f2954d76e55
+  languageName: node
+  linkType: hard
+
+"@sentry/types@npm:6.7.0":
+  version: 6.7.0
+  resolution: "@sentry/types@npm:6.7.0"
+  checksum: 1447219bfc945ce886e9eb89caa4bc2da43930a0023a6a04e6e8bd365e8bcca53a1460bf8903aac99e8fed4dc8a83ea3ab9a78aa2c81a5b99c0c882233fff790
   languageName: node
   linkType: hard
 
@@ -4846,6 +4888,16 @@ __metadata:
     "@sentry/types": 6.6.0
     tslib: ^1.9.3
   checksum: 028b1181509e2476d808df6c2c21eed8be78331af801857f5e5a2478f77ca77b2bff59ecdd9c8b659deb278a74489eb418b0092de12c1a7963d11a6b5d7eb33e
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:6.7.0":
+  version: 6.7.0
+  resolution: "@sentry/utils@npm:6.7.0"
+  dependencies:
+    "@sentry/types": 6.7.0
+    tslib: ^1.9.3
+  checksum: f77dcc9c84dc68a322be45b3acc424b4f8ed0d7ce58e99fe5542595f662658118501ddf87bd8135962a7a55cbfc54d3ce1571ac9384077d9a16d76178e822b38
   languageName: node
   linkType: hard
 
@@ -17999,7 +18051,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^0.4.1
     "@nestjs/platform-express": ^7.6.17
     "@sentry/integrations": ^6.6.0
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/graphql": ^14.5.0
@@ -18070,7 +18122,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-auth-db-mysql@workspace:packages/fxa-auth-db-mysql"
   dependencies:
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     audit-filter: 0.5.0
     base64url: 3.0.1
     bluebird: ^3.7.2
@@ -18110,7 +18162,7 @@ fsevents@~2.1.1:
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.1.0
     "@hapi/joi": ^15.1.1
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@type-cacheable/core": ^5.2.0
     "@type-cacheable/ioredis-adapter": ^5.2.0
     "@types/chai": ^4.2.18
@@ -18248,7 +18300,7 @@ fsevents@~2.1.1:
     "@babel/preset-react": ^7.13.13
     "@babel/preset-typescript": ^7.13.0
     "@sentry/browser": ^6.5.1
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@testing-library/react": ^11.2.7
     "@types/backbone": ^1.4.10
     "@types/sinon-chai": 3.2.5
@@ -18403,7 +18455,7 @@ fsevents@~2.1.1:
     "@google-cloud/pubsub": ^2.12.0
     "@hapi/hapi": ^20.1.3
     "@hapi/hoek": ^9.0.4
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     audit-filter: ^0.5.0
     bl: 4.1.0
     bluebird: ^3.7.2
@@ -18490,7 +18542,7 @@ fsevents@~2.1.1:
     "@nestjs/schematics": ^7.3.1
     "@nestjs/testing": ^7.6.17
     "@sentry/integrations": ^6.6.0
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/express": ^4.17.12
@@ -18584,7 +18636,7 @@ fsevents@~2.1.1:
     "@nestjs/passport": ^7.1.5
     "@nestjs/platform-express": ^7.6.17
     "@sentry/integrations": ^6.6.0
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/get-stream": 3.0.2
@@ -18659,7 +18711,7 @@ fsevents@~2.1.1:
   dependencies:
     "@google-cloud/pubsub": ^2.12.0
     "@sentry/integrations": ^6.6.0
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@types/chai": ^4.2.18
     "@types/convict": ^5.2.2
     "@types/mocha": ^8.2.2
@@ -18716,7 +18768,7 @@ fsevents@~2.1.1:
     "@fluent/react": ^0.13.1
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^6.5.1
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@storybook/addon-actions": ^6.2.9
     "@storybook/addon-links": ^6.2.9
     "@storybook/addons": ^6.2.9
@@ -18832,7 +18884,7 @@ fsevents@~2.1.1:
     "@hapi/hapi": ^20.1.3
     "@hapi/inert": 6.0.3
     "@hapi/joi": ^17.1.1
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@types/sharp": ^0
     audit-filter: ^0.5.0
     aws-sdk: ^2.926.0
@@ -19016,7 +19068,7 @@ fsevents@~2.1.1:
     "@nestjs/testing": ^7.6.17
     "@sentry/browser": ^6.5.1
     "@sentry/integrations": ^6.6.0
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
     "@types/generic-pool": ^3.1.9
@@ -19095,7 +19147,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^0.4.1
     "@nestjs/platform-express": ^7.6.17
     "@sentry/integrations": ^6.6.0
-    "@sentry/node": ^6.5.1
+    "@sentry/node": ^6.7.0
     "@types/convict": ^5.2.2
     "@types/eslint": 7.2.13
     "@types/hbs": ^4
