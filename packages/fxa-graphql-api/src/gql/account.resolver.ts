@@ -81,9 +81,9 @@ export class AccountResolver {
     private log: MozLoggerService,
     private configService: ConfigService<AppConfig>
   ) {
-    this.profileServerUrl = (configService.get(
-      'profileServer'
-    ) as AppConfig['profileServer']).url;
+    this.profileServerUrl = (
+      configService.get('profileServer') as AppConfig['profileServer']
+    ).url;
   }
 
   private shouldIncludeEmails(info: GraphQLResolveInfo): boolean {
@@ -357,7 +357,7 @@ export class AccountResolver {
   }
 
   @Query((returns) => AccountType, { nullable: true })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   public account(@GqlUserId() uid: string, @Info() info: GraphQLResolveInfo) {
     this.log.info('account', { uid });
 

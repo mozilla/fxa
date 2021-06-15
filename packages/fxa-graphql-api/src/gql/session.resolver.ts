@@ -37,7 +37,7 @@ export class SessionResolver {
   }
 
   @Query((returns) => SessionType)
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   session(@GqlUserId() uid: string, @GqlUserState() state: string) {
     this.log.info('session', { uid });
     return {
