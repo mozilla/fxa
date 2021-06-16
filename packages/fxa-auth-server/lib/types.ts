@@ -61,4 +61,15 @@ export interface AuthRequest extends Request {
   emitMetricsEvent: any;
   stashMetricsContext: any;
   propagateMetricsContext: any;
+  payload: Payload;
+}
+
+interface Payload {
+  authPW?: string;
+  email?: string;
+  originalLoginEmail?: string;
+  customSessionToken?: string;
+  verificationMethod?: string;
+  service?: string;
+  code?: string;
 }
