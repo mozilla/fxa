@@ -18916,7 +18916,7 @@ fsevents@~2.1.1:
     react-scripts: ^4.0.3
     react-stripe-elements: ^6.1.2
     react-test-renderer: ^17.0.2
-    react-transition-group: ^4.3.0
+    react-transition-group: ^4.4.2
     redux: ^4.1.0
     redux-actions: ^2.6.5
     redux-devtools-extension: ^2.13.9
@@ -19033,7 +19033,7 @@ fsevents@~2.1.1:
     react: ^16.13.1
     react-dom: ^16.13.1
     react-helmet: ^6.1.0
-    react-transition-group: ^4.3.0
+    react-transition-group: ^4.4.2
     rimraf: ^3.0.2
     sass: 1.34.1
     sass-loader: ^10.0.3
@@ -31330,7 +31330,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-transition-group@npm:^4.3.0, react-transition-group@npm:^4.4.0":
+"react-transition-group@npm:^4.4.0":
   version: 4.4.1
   resolution: "react-transition-group@npm:4.4.1"
   dependencies:
@@ -31342,6 +31342,21 @@ fsevents@~2.1.1:
     react: ">=16.6.0"
     react-dom: ">=16.6.0"
   checksum: e14446123f820e804335c64be5270333c29e8cfaa43dfc33387e132c5d521cf4a0a7c2408058a147b254ae82a6569f373394d83e977ef340d6937bc2f4ff7d6c
+  languageName: node
+  linkType: hard
+
+"react-transition-group@npm:^4.4.2":
+  version: 4.4.2
+  resolution: "react-transition-group@npm:4.4.2"
+  dependencies:
+    "@babel/runtime": ^7.5.5
+    dom-helpers: ^5.0.1
+    loose-envify: ^1.4.0
+    prop-types: ^15.6.2
+  peerDependencies:
+    react: ">=16.6.0"
+    react-dom: ">=16.6.0"
+  checksum: 063c1d6e037bda8d4bc3da3fcb7f0827dca3f4ca1e1be8bb29ce6957ec917eae71853b043de4d720b3302f2ccf9ce99dcd89c88acec4a665888f1e8d492803be
   languageName: node
   linkType: hard
 
