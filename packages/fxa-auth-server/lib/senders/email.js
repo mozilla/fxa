@@ -2160,8 +2160,14 @@ module.exports = function (log, config) {
   };
 
   Mailer.prototype.subscriptionPaymentFailedEmail = async function (message) {
-    const { email, uid, productId, planId, planEmailIconURL, productName } =
-      message;
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+    } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentFailed', {
@@ -2907,13 +2913,16 @@ module.exports = function (log, config) {
       query
     );
 
-    links['revokeAccountRecoveryLink'] =
-      this.createRevokeAccountRecoveryLink(templateName);
-    links['revokeAccountRecoveryLinkAttributes'] =
-      this._revokeAccountRecoveryLinkAttributes(templateName);
+    links['revokeAccountRecoveryLink'] = this.createRevokeAccountRecoveryLink(
+      templateName
+    );
+    links[
+      'revokeAccountRecoveryLinkAttributes'
+    ] = this._revokeAccountRecoveryLinkAttributes(templateName);
 
-    links['createAccountRecoveryLink'] =
-      this.createAccountRecoveryLink(templateName);
+    links['createAccountRecoveryLink'] = this.createAccountRecoveryLink(
+      templateName
+    );
 
     links.accountSettingsUrl = this._generateUTMLink(
       this.accountSettingsUrl,
@@ -2924,7 +2933,7 @@ module.exports = function (log, config) {
     links.accountSettingsLinkAttributes = `href="${links.accountSettingsUrl}" target="_blank" rel="noopener noreferrer" style="color:#ffffff;font-weight:500;"`;
 
     links.cancellationSurveyUrl =
-      'https://qsurvey.mozilla.com/s3/fpn-cancellation';
+      'https://qsurvey.mozilla.com/s3/VPN-Exit-Survey-2021';
 
     links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
 
