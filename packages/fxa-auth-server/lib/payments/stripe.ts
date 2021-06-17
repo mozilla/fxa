@@ -175,21 +175,6 @@ export class StripeHelper {
   }
 
   /**
-   * Fetch all product data and cache it if Redis is enabled.
-   *
-   * Use `allProducts` below to use the cached-enhanced version.
-   *
-   * @returns {Promise<AbbrevProduct[]>} All the products.
-   */
-  async fetchAllProducts() {
-    const products = [];
-    for await (const product of this.stripe.products.list()) {
-      products.push(this.abbrevProductFromStripeProduct(product));
-    }
-    return products;
-  }
-
-  /**
    * Extract an AbbrevProduct from Stripe Product
    */
   abbrevProductFromStripeProduct(product: Stripe.Product): AbbrevProduct {
@@ -201,18 +186,63 @@ export class StripeHelper {
   }
 
   /**
+   * Fetch all product data and cache it if Redis is enabled.
+   *
+   * Use `allProducts` below to use the cached-enhanced version.
+   */
+  async fetchAllProducts(): Promise<AbbrevProduct[]> {
+    const products = [];
+    for await (const product of this.stripe.products.list()) {
+      products.push(this.abbrevProductFromStripeProduct(product));
+    }
+    return products;
+  }
+
+  /**
    * Fetches all products from stripe and returns them.
    *
    * Uses Redis caching if configured.
-   *
-   * @returns {Promise<AbbrevProduct[]>} All the products.
    */
   @Cacheable({
     cacheKey: 'listProducts',
     ttlSeconds: (args, context) => context.plansAndProductsCacheTtlSeconds,
   })
-  async allProducts() {
+  async allProducts(): Promise<AbbrevProduct[]> {
     return this.fetchAllProducts();
+  }
+
+  /**
+   * Fetch all active tax rates.
+   */
+  async fetchAllTaxRates() {
+    const taxRates = [];
+    for await (const taxRate of this.stripe.taxRates.list({ active: true })) {
+      taxRates.push(taxRate);
+    }
+    return taxRates;
+  }
+
+  /**
+   * Fetches all active tax rates from stripe and returns them.
+   *
+   * Uses Redis caching if configured.
+   */
+  @Cacheable({
+    cacheKey: 'listActiveTaxRates',
+    ttlSeconds: (args, context) => context.plansAndProductsCacheTtlSeconds,
+  })
+  async allTaxRates() {
+    return this.fetchAllTaxRates();
+  }
+
+  /**
+   * Locates a tax rate by the country code and returns it.
+   *
+   * @param countryCode Two letter country code.
+   */
+  async taxRateByCountryCode(countryCode: string) {
+    const taxRates = await this.allTaxRates();
+    return taxRates.find((tr) => tr.country === countryCode);
   }
 
   /** BEGIN: NEW FLOW HELPERS FOR PAYMENT METHODS
@@ -701,10 +731,10 @@ export class StripeHelper {
     return Promise.all(
       sources.data.map(
         (s) =>
-          (this.stripe.customers.deleteSource(
+          this.stripe.customers.deleteSource(
             customerId,
             s.id
-          ) as unknown) as Promise<Stripe.Card>
+          ) as unknown as Promise<Stripe.Card>
       )
     );
   }
@@ -870,10 +900,11 @@ export class StripeHelper {
 
     // We need to get all the subscriptions for a customer
     if (customer.subscriptions && customer.subscriptions.has_more) {
-      const additionalSubscriptions = await this.fetchAllSubscriptionsForCustomer(
-        customer.id,
-        customer.subscriptions.data[customer.subscriptions.data.length - 1].id
-      );
+      const additionalSubscriptions =
+        await this.fetchAllSubscriptionsForCustomer(
+          customer.id,
+          customer.subscriptions.data[customer.subscriptions.data.length - 1].id
+        );
       customer.subscriptions.data.push(...additionalSubscriptions);
       customer.subscriptions.has_more = false;
     }
@@ -1695,10 +1726,8 @@ export class StripeHelper {
     let lastFour: string | null = null;
     let cardType: string | null = null;
     if (charge?.payment_method_details?.card) {
-      ({
-        brand: cardType,
-        last4: lastFour,
-      } = charge.payment_method_details.card);
+      ({ brand: cardType, last4: lastFour } =
+        charge.payment_method_details.card);
     }
     return { lastFour, cardType };
   }
@@ -1829,10 +1858,8 @@ export class StripeHelper {
       amount: paymentAmountNewInCents,
       currency: paymentAmountNewCurrency,
     } = planNew;
-    const {
-      product_id: productIdNew,
-      product_name: productNameNew,
-    } = abbrevProductNew;
+    const { product_id: productIdNew, product_name: productNameNew } =
+      abbrevProductNew;
     const productNewMetadata = this.mergeMetadata(planNew, abbrevProductNew);
     const {
       productOrder: productOrderNew,
@@ -1955,13 +1982,11 @@ export class StripeHelper {
       productIconURLNew: planEmailIconURL,
     } = baseDetails;
 
-    const {
-      lastFour,
-      cardType,
-    } = await this.extractCustomerDefaultPaymentDetails({
-      uid,
-      email,
-    });
+    const { lastFour, cardType } =
+      await this.extractCustomerDefaultPaymentDetails({
+        uid,
+        email,
+      });
 
     const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
       subscription: subscription.id,
@@ -2064,10 +2089,8 @@ export class StripeHelper {
       amount: paymentAmountOldInCents,
       currency: paymentAmountOldCurrency,
     } = planOld;
-    const {
-      product_id: productIdOld,
-      product_name: productNameOld,
-    } = abbrevProductOld;
+    const { product_id: productIdOld, product_name: productNameOld } =
+      abbrevProductOld;
     const {
       productOrder: productOrderOld,
       emailIconURL: productIconURLOld = '',
