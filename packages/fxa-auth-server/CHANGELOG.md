@@ -1,3 +1,9 @@
+## 1.208.1
+
+### Bug fixes
+
+- subscriptions: increase webhook payload limit ([a99fb8c0a](https://github.com/mozilla/fxa/commit/a99fb8c0a))
+
 ## 1.208.0
 
 ### New features
