@@ -111,8 +111,7 @@ const conf = convict({
   },
   memcached: {
     address: {
-      doc:
-        'Address:port of the memcached server (or `none` to disable memcached)',
+      doc: 'Address:port of the memcached server (or `none` to disable memcached)',
       default: 'localhost:11211',
       env: 'MEMCACHE_METRICS_CONTEXT_ADDRESS',
     },
@@ -180,8 +179,7 @@ const conf = convict({
     connectionTimeout: {
       default: '5 minutes',
       env: 'DB_CONNECTION_TIMEOUT',
-      doc:
-        'Timeout in milliseconds after which the mailer will stop trying to connect to the database',
+      doc: 'Timeout in milliseconds after which the mailer will stop trying to connect to the database',
       format: 'duration',
     },
     poolee: {
@@ -246,8 +244,7 @@ const conf = convict({
       env: 'EMAIL_SERVICE_PORT',
     },
     forcedEmailAddresses: {
-      doc:
-        'force usage of fxa-email-service when sending emails to addresses that match this pattern',
+      doc: 'force usage of fxa-email-service when sending emails to addresses that match this pattern',
       format: RegExp,
       default: /emailservice\.[A-Za-z0-9._%+-]+@restmail\.net$/,
       env: 'EMAIL_SERVICE_FORCE_EMAIL_REGEX',
@@ -560,8 +557,7 @@ const conf = convict({
       default: '100 milliseconds',
       env: 'REDIS_POOL_TIMEOUT',
       format: 'duration',
-      doc:
-        'Initial backoff for Redis connection retries, increases exponentially with each attempt',
+      doc: 'Initial backoff for Redis connection retries, increases exponentially with each attempt',
     },
   },
   subhubServerMessaging: {
@@ -572,8 +568,7 @@ const conf = convict({
       default: '',
     },
     subhubUpdatesQueueUrl: {
-      doc:
-        'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      doc: 'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
       env: 'SUBHUB_QUEUE_URL',
       default: '',
@@ -596,8 +591,7 @@ const conf = convict({
       default: '15 minutes',
     },
     sessionTokenWithoutDevice: {
-      doc:
-        'Maximum age for session tokens without a device record, specify zero to disable',
+      doc: 'Maximum age for session tokens without a device record, specify zero to disable',
       format: 'duration',
       env: 'SESSION_TOKEN_WITHOUT_DEVICE_TTL',
       default: '4 weeks',
@@ -624,8 +618,7 @@ const conf = convict({
     default: 1,
   },
   snsTopicArn: {
-    doc:
-      'Amazon SNS topic on which to send account event notifications. Set to "disabled" to turn off the notifier',
+    doc: 'Amazon SNS topic on which to send account event notifications. Set to "disabled" to turn off the notifier',
     format: String,
     env: 'SNS_TOPIC_ARN',
     default: '',
@@ -638,36 +631,31 @@ const conf = convict({
   },
   emailNotifications: {
     region: {
-      doc:
-        'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',
+      doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',
       format: String,
       env: 'BOUNCE_REGION',
       default: '',
     },
     bounceQueueUrl: {
-      doc:
-        'The bounce queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      doc: 'The bounce queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
       env: 'BOUNCE_QUEUE_URL',
       default: '',
     },
     complaintQueueUrl: {
-      doc:
-        'The complaint queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      doc: 'The complaint queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
       env: 'COMPLAINT_QUEUE_URL',
       default: '',
     },
     deliveryQueueUrl: {
-      doc:
-        'The email delivery queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      doc: 'The email delivery queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
       env: 'DELIVERY_QUEUE_URL',
       default: '',
     },
     notificationQueueUrl: {
-      doc:
-        'Queue URL for notifications from fxa-email-service (eventually this will be the only email-related queue)',
+      doc: 'Queue URL for notifications from fxa-email-service (eventually this will be the only email-related queue)',
       format: String,
       env: 'NOTIFICATION_QUEUE_URL',
       default: '',
@@ -681,8 +669,7 @@ const conf = convict({
       default: '',
     },
     profileUpdatesQueueUrl: {
-      doc:
-        'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+      doc: 'The queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
       format: String,
       env: 'PROFILE_UPDATES_QUEUE_URL',
       default: '',
@@ -697,8 +684,7 @@ const conf = convict({
     },
     secretBearerToken: {
       default: 'YOU MUST CHANGE ME',
-      doc:
-        'Secret for server-to-server bearer token auth for fxa-profile-server',
+      doc: 'Secret for server-to-server bearer token auth for fxa-profile-server',
       env: 'PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN',
       format: 'String',
     },
@@ -748,8 +734,7 @@ const conf = convict({
       env: 'SUBHUB_ENABLED',
     },
     useStubs: {
-      doc:
-        'Indicates whether to use stub methods for SubHub instead of talking to the server',
+      doc: 'Indicates whether to use stub methods for SubHub instead of talking to the server',
       format: Boolean,
       default: false,
       env: 'SUBHUB_USE_STUBS',
@@ -835,8 +820,7 @@ const conf = convict({
       },
     },
     sharedSecret: {
-      doc:
-        'Shared secret for authentication between backend subscription services',
+      doc: 'Shared secret for authentication between backend subscription services',
       format: String,
       default: 'YOU MUST CHANGE ME',
       env: 'SUBSCRIPTIONS_SHARED_SECRET',
@@ -847,6 +831,12 @@ const conf = convict({
       format: String,
       doc: 'Stripe API key for direct Stripe integration',
     },
+    stripeWebhookPayloadLimit: {
+      default: 1048576,
+      env: 'STRIPE_WEBHOOK_PAYLOAD_LIMIT',
+      format: 'int',
+      doc: 'The maximum payload size in bytes that will be accepted by the Stripe webhook endpoint',
+    },
     stripeWebhookSecret: {
       default: '',
       env: 'STRIPE_WEBHOOK_SECRET',
@@ -856,8 +846,7 @@ const conf = convict({
     transactionalEmails: {
       // See also: https://jira.mozilla.com/browse/FXA-1148
       enabled: {
-        doc:
-          'Indicates whether FxA sends transactional lifecycle emails for subscriptions (i.e. versus Marketing Cloud)',
+        doc: 'Indicates whether FxA sends transactional lifecycle emails for subscriptions (i.e. versus Marketing Cloud)',
         format: Boolean,
         env: 'SUBSCRIPTIONS_TRANSACTIONAL_EMAILS_ENABLED',
         default: false,
@@ -865,8 +854,7 @@ const conf = convict({
     },
   },
   currenciesToCountries: {
-    doc:
-      'Mapping from ISO 4217 three-letter currency codes to list of ISO 3166-1 alpha-2 two-letter country codes: {"EUR": ["DE", "FR"], "USD": ["CA", "GB", "US" ]}  Requirement for only one currency per country. Tested at runtime. Must be uppercased.',
+    doc: 'Mapping from ISO 4217 three-letter currency codes to list of ISO 3166-1 alpha-2 two-letter country codes: {"EUR": ["DE", "FR"], "USD": ["CA", "GB", "US" ]}  Requirement for only one currency per country. Tested at runtime. Must be uppercased.',
     format: Object,
     default: {
       USD: ['US', 'GB', 'NZ', 'MY', 'SG', 'CA', 'AS', 'GU', 'MP', 'PR', 'VI'],
@@ -887,8 +875,7 @@ const conf = convict({
       default: false,
     },
     clientIds: {
-      doc:
-        'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
+      doc: 'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
       format: Object,
       default: {},
       env: 'OAUTH_CLIENT_IDS',
@@ -902,8 +889,7 @@ const conf = convict({
     // A safety switch for disabling new signins/signups from particular clients,
     // as a hedge against unexpected client behaviour.
     disableNewConnectionsForClients: {
-      doc:
-        'Comma-separated list of oauth client ids for which new connections should be temporarily refused',
+      doc: 'Comma-separated list of oauth client ids for which new connections should be temporarily refused',
       env: 'OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS',
       format: Array,
       default: [],
@@ -935,8 +921,7 @@ const conf = convict({
       default: 'megaz0rd',
     },
     jwtSecretKeys: {
-      doc:
-        'Comma-separated list of secret keys for verifying oauth-to-auth server JWTs',
+      doc: 'Comma-separated list of secret keys for verifying oauth-to-auth server JWTs',
       env: 'OAUTH_SERVER_SECRETS',
       format: Array,
       default: ['megaz0rd'],
@@ -1011,8 +996,7 @@ const conf = convict({
       },
     },
     authServerSecrets: {
-      doc:
-        'Comma-separated list of secret keys for verifying server-to-server JWTs',
+      doc: 'Comma-separated list of secret keys for verifying server-to-server JWTs',
       env: 'AUTH_SERVER_SECRETS',
       format: 'Array',
       default: [],
@@ -1043,8 +1027,7 @@ const conf = convict({
     },
     clientManagement: {
       enabled: {
-        doc:
-          'Enable client management in OAuth server routes. Do NOT set this to true in production.',
+        doc: 'Enable client management in OAuth server routes. Do NOT set this to true in production.',
         default: false,
         format: 'Boolean',
         env: 'CLIENT_MANAGEMENT_ENABLED',
@@ -1054,15 +1037,13 @@ const conf = convict({
       // This is used by oauth/db/index.js to identify pocket client ids so that it
       // can store them separately in mysql.
       // It's also used for amplitude stats
-      doc:
-        'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
+      doc: 'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
       default: {},
       format: 'Object',
       env: 'OAUTH_CLIENT_IDS',
     },
     disabledClients: {
-      doc:
-        'Comma-separated list of client ids for which service should be temporarily refused',
+      doc: 'Comma-separated list of client ids for which service should be temporarily refused',
       env: 'OAUTH_CLIENTS_DISABLED',
       format: 'Array',
       default: [],
@@ -1106,8 +1087,7 @@ const conf = convict({
     },
     events: {
       enabled: {
-        doc:
-          'Whether or not config.events has to be properly set in production',
+        doc: 'Whether or not config.events has to be properly set in production',
         default: true,
         format: 'Boolean',
         env: 'EVENTS_ENABLED',
@@ -1203,8 +1183,7 @@ const conf = convict({
       },
       timezone: {
         default: 'Z',
-        doc:
-          'The timezone configured on the MySQL server. This is used to type cast server date/time values to JavaScript `Date` object. Can be `local`, `Z`, or an offset in the form of or an offset in the form +HH:MM or -HH:MM.',
+        doc: 'The timezone configured on the MySQL server. This is used to type cast server date/time values to JavaScript `Date` object. Can be `local`, `Z`, or an offset in the form of or an offset in the form +HH:MM or -HH:MM.',
         env: 'MYSQL_TIMEZONE',
         format: 'String',
       },
@@ -1217,8 +1196,7 @@ const conf = convict({
         env: 'FXA_OPENID_KEYFILE',
       },
       newKeyFile: {
-        doc:
-          'Path to private key JWK that will be used to sign JWTs in the future',
+        doc: 'Path to private key JWK that will be used to sign JWTs in the future',
         default: '',
         format: 'String',
         env: 'FXA_OPENID_NEWKEYFILE',
@@ -1245,8 +1223,7 @@ const conf = convict({
         env: 'FXA_OPENID_OLDKEY',
       },
       unsafelyAllowMissingActiveKey: {
-        doc:
-          'Do not error out if there is no active key; should only be used when initializing keys',
+        doc: 'Do not error out if there is no active key; should only be used when initializing keys',
         default: false,
         format: 'Boolean',
         env: 'FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY',
@@ -1277,8 +1254,7 @@ const conf = convict({
         env: 'PPID_CLIENT_IDS',
       },
       rotatingClientIds: {
-        doc:
-          'client_ids that receive automatically rotating PPIDs based on server time',
+        doc: 'client_ids that receive automatically rotating PPIDs based on server time',
         default: [],
         format: 'Array',
         env: 'PPID_ROTATING_CLIENT_IDS',
@@ -1332,8 +1308,7 @@ const conf = convict({
       developerId: { doc: 'Bytes of generated developer ids', default: 16 },
     },
     cacheControl: {
-      doc:
-        'Hapi: a string with the value of the "Cache-Control" header when caching is disabled',
+      doc: 'Hapi: a string with the value of the "Cache-Control" header when caching is disabled',
       format: 'String',
       default: 'private, no-cache, no-store, must-revalidate',
     },
@@ -1410,15 +1385,13 @@ const conf = convict({
   },
   signinConfirmation: {
     forcedEmailAddresses: {
-      doc:
-        'Force sign-in confirmation for email addresses matching this regex.',
+      doc: 'Force sign-in confirmation for email addresses matching this regex.',
       format: RegExp,
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX',
     },
     skipForEmailAddresses: {
-      doc:
-        'Comma separated list of email addresses that will always skip any non TOTP sign-in confirmation',
+      doc: 'Comma separated list of email addresses that will always skip any non TOTP sign-in confirmation',
       format: Array,
       default: [],
       env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_ADDRESS',
@@ -1467,8 +1440,7 @@ const conf = convict({
   securityHistory: {
     ipProfiling: {
       allowedRecency: {
-        doc:
-          'Length of time since previously verified event to allow skipping confirmation',
+        doc: 'Length of time since previously verified event to allow skipping confirmation',
         default: '72 hours',
         format: 'duration',
         env: 'IP_PROFILING_RECENCY',
@@ -1483,15 +1455,13 @@ const conf = convict({
       env: 'LASTACCESSTIME_UPDATES_ENABLED',
     },
     sampleRate: {
-      doc:
-        'sample rate for updates to the lastAccessTime session token property, in the range 0..1',
+      doc: 'sample rate for updates to the lastAccessTime session token property, in the range 0..1',
       format: Number,
       default: 0.3,
       env: 'LASTACCESSTIME_UPDATES_SAMPLE_RATE',
     },
     earliestSaneTimestamp: {
-      doc:
-        'timestamp used as the basis of the fallback value for lastAccessTimeFormatted, currently pinned to the deployment of 1.96.4 / a0940d7dc51e2ba20fa18aa3a830810e35c9a9d9',
+      doc: 'timestamp used as the basis of the fallback value for lastAccessTimeFormatted, currently pinned to the deployment of 1.96.4 / a0940d7dc51e2ba20fa18aa3a830810e35c9a9d9',
       format: 'timestamp',
       default: 1507081020000,
       env: 'LASTACCESSTIME_EARLIEST_SANE_TIMESTAMP',
@@ -1510,8 +1480,7 @@ const conf = convict({
       env: 'SIGNIN_UNBLOCK_CODE_LIFETIME',
     },
     forcedEmailAddresses: {
-      doc:
-        'If feature enabled, force sign-in unblock for email addresses matching this regex.',
+      doc: 'If feature enabled, force sign-in unblock for email addresses matching this regex.',
       format: RegExp,
       default: /^$/, // default is no one
       env: 'SIGNIN_UNBLOCK_FORCED_EMAILS',
@@ -1522,7 +1491,8 @@ const conf = convict({
       doc: 'RegExp that validates the URI format of the Push Server',
       format: RegExp,
       // eslint-disable-next-line no-useless-escape
-      default: /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(?:\:\d+)?(\/.*)?$/,
+      default:
+        /^https:\/\/[a-zA-Z0-9._-]+(\.services\.mozilla\.com|autopush\.dev\.mozaws\.net|autopush\.stage\.mozaws\.net)(?:\:\d+)?(\/.*)?$/,
     },
   },
   pushbox: {
@@ -1604,22 +1574,19 @@ const conf = convict({
       env: 'SMS_INSTALL_FIREFOX_LINK',
     },
     installFirefoxWithSigninCodeBaseUri: {
-      doc:
-        'Base URI for the SMS template when the signinCodes feature is active',
+      doc: 'Base URI for the SMS template when the signinCodes feature is active',
       default: 'https://accounts.firefox.com/m',
       format: 'url',
       env: 'SMS_SIGNIN_CODES_BASE_URI',
     },
     enableBudgetChecks: {
-      doc:
-        'enable checks of the monthly SMS spend against the available budget',
+      doc: 'enable checks of the monthly SMS spend against the available budget',
       default: true,
       format: Boolean,
       env: 'SMS_ENABLE_BUDGET_CHECKS',
     },
     minimumCreditThresholdUSD: {
-      doc:
-        'The minimum amount of available credit that is necessary to enable SMS, in US dollars',
+      doc: 'The minimum amount of available credit that is necessary to enable SMS, in US dollars',
       default: 200,
       format: 'nat',
       env: 'SMS_MINIMUM_CREDIT_THRESHOLD',
@@ -1631,8 +1598,7 @@ const conf = convict({
       env: 'SMS_POLL_CURRENT_SPEND_INTERVAL',
     },
     smsType: {
-      doc:
-        'AWS.SNS.SMS.SMSType argument value.  "Promotional" or "Transactional".',
+      doc: 'AWS.SNS.SMS.SMSType argument value.  "Promotional" or "Transactional".',
       default: 'Promotional',
       format: 'String',
       env: 'SMS_AWS_SNS_SMSTYPE',
@@ -1640,8 +1606,7 @@ const conf = convict({
   },
   secondaryEmail: {
     minUnverifiedAccountTime: {
-      doc:
-        'The minimum amount of time an account can be unverified before another account can use it for secondary email',
+      doc: 'The minimum amount of time an account can be unverified before another account can use it for secondary email',
       default: '1 day',
       format: 'duration',
       env: 'SECONDARY_EMAIL_MIN_UNVERIFIED_ACCOUNT_TIME',
@@ -1691,8 +1656,7 @@ const conf = convict({
         env: 'RECOVERY_CODE_COUNT',
       },
       notifyLowCount: {
-        doc:
-          'Notify the user when there are less than these many recovery codes',
+        doc: 'Notify the user when there are less than these many recovery codes',
         default: 2,
         env: 'RECOVERY_CODE_NOTIFY_LOW_COUNT',
       },
@@ -1712,8 +1676,7 @@ const conf = convict({
       format: 'duration',
     },
     secondInterval: {
-      doc:
-        'Time since account creation after which the second reminder is sent',
+      doc: 'Time since account creation after which the second reminder is sent',
       default: '5 days',
       env: 'VERIFICATION_REMINDERS_SECOND_INTERVAL',
       format: 'duration',
@@ -1727,15 +1690,13 @@ const conf = convict({
       },
       maxConnections: {
         default: 10,
-        doc:
-          'Maximum connection count for the verification reminders Redis pool',
+        doc: 'Maximum connection count for the verification reminders Redis pool',
         env: 'VERIFICATION_REMINDERS_REDIS_MAX_CONNECTIONS',
         format: 'nat',
       },
       minConnections: {
         default: 1,
-        doc:
-          'Minimum connection count for the verification reminders Redis pool',
+        doc: 'Minimum connection count for the verification reminders Redis pool',
         env: 'VERIFICATION_REMINDERS_REDIS_MIN_CONNECTIONS',
         format: 'nat',
       },
@@ -1813,15 +1774,13 @@ const conf = convict({
       format: Number,
     },
     locationStateFieldId: {
-      doc:
-        'Zendesk support ticket custom field for the state/region of the location',
+      doc: 'Zendesk support ticket custom field for the state/region of the location',
       default: 360026463491,
       env: 'ZENDESK_LOCATION_STATE_FIELD_ID',
       format: Number,
     },
     locationCountryFieldId: {
-      doc:
-        'Zendesk support ticket custom field for the country of the location',
+      doc: 'Zendesk support ticket custom field for the country of the location',
       default: 360026463511,
       env: 'ZENDESK_LOCATION_COUNTRY_FIELD_ID',
       format: Number,
@@ -1833,8 +1792,7 @@ const conf = convict({
       format: Number,
     },
     appFieldId: {
-      doc:
-        'Zendesk support ticket custom field for product specific app or service',
+      doc: 'Zendesk support ticket custom field for product specific app or service',
       default: 360030780972,
       env: 'ZENDESK_APP_FIELD_ID',
       format: Number,
@@ -1863,8 +1821,7 @@ const conf = convict({
   supportPanel: {
     secretBearerToken: {
       default: 'YOU MUST CHANGE ME',
-      doc:
-        'Shared secret to access certain endpoints.  Please only use for GET.  No state mutation allowed!',
+      doc: 'Shared secret to access certain endpoints.  Please only use for GET.  No state mutation allowed!',
       env: 'SUPPORT_PANEL_AUTH_SECRET_BEARER_TOKEN',
       format: 'String',
     },
