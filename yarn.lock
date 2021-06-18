@@ -4227,9 +4227,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^7.6.17":
-  version: 7.6.17
-  resolution: "@nestjs/platform-express@npm:7.6.17"
+"@nestjs/platform-express@npm:^7.6.18":
+  version: 7.6.18
+  resolution: "@nestjs/platform-express@npm:7.6.18"
   dependencies:
     body-parser: 1.19.0
     cors: 2.8.5
@@ -4239,7 +4239,7 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^7.0.0
     "@nestjs/core": ^7.0.0
-  checksum: c85078683a623cdcb328e8ba8a9725d330cfa541ba64fcef7ae80f13d474961c1bb65b9a31100217657b58b54d3328c9adcfbb8d6939bea3d5fefb5cd7240aee
+  checksum: 5612a35f5a6a3259c45efc6195dcf97b35a65f18c31cf6e5579fc8c66a77f04cd6eb0bc20f48126fe77c72320e0723dee70179baca73d09ef1b0f393f94e3fa1
   languageName: node
   linkType: hard
 
@@ -18132,7 +18132,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^7.6.17
     "@nestjs/graphql": ^7.10.6
     "@nestjs/mapped-types": ^0.4.1
-    "@nestjs/platform-express": ^7.6.17
+    "@nestjs/platform-express": ^7.6.18
     "@sentry/integrations": ^6.7.1
     "@sentry/node": ^6.7.1
     "@types/chance": ^1.1.2
@@ -18620,7 +18620,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^7.10.6
     "@nestjs/mapped-types": ^0.4.1
     "@nestjs/passport": ^7.1.5
-    "@nestjs/platform-express": ^7.6.17
+    "@nestjs/platform-express": ^7.6.18
     "@nestjs/schedule": ^0.4.3
     "@nestjs/schematics": ^7.3.1
     "@nestjs/testing": ^7.6.17
@@ -18717,7 +18717,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^7.10.6
     "@nestjs/mapped-types": ^0.4.1
     "@nestjs/passport": ^7.1.5
-    "@nestjs/platform-express": ^7.6.17
+    "@nestjs/platform-express": ^7.6.18
     "@sentry/integrations": ^6.7.1
     "@sentry/node": ^6.7.1
     "@types/chance": ^1.1.2
@@ -19228,7 +19228,7 @@ fsevents@~2.1.1:
     "@nestjs/config": ^0.6.3
     "@nestjs/core": ^7.6.17
     "@nestjs/mapped-types": ^0.4.1
-    "@nestjs/platform-express": ^7.6.17
+    "@nestjs/platform-express": ^7.6.18
     "@sentry/integrations": ^6.7.1
     "@sentry/node": ^6.7.1
     "@types/convict": ^5.2.2
