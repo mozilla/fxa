@@ -4140,9 +4140,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:^7.6.17":
-  version: 7.6.17
-  resolution: "@nestjs/core@npm:7.6.17"
+"@nestjs/core@npm:^7.6.18":
+  version: 7.6.18
+  resolution: "@nestjs/core@npm:7.6.18"
   dependencies:
     "@nuxtjs/opencollective": 0.3.2
     fast-safe-stringify: 2.0.7
@@ -4165,7 +4165,7 @@ __metadata:
       optional: true
     "@nestjs/websockets":
       optional: true
-  checksum: a5be9944898918e7e056e7e827211da600971a31343896861bdb2d4e070613a10b7cade36b276aac16adef62260077cd4eeacd0cfb5a8382ccaa11d66e19452d
+  checksum: 8867f5419f392f3e0851ad910f24ed3e42ff1051a77d98bf04242f6fa1033242b8c11eefa7d7736b7424aba2fd667724bf88b1483bf115f1cc73006fcf699fe7
   languageName: node
   linkType: hard
 
@@ -18136,7 +18136,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/common": ^7.6.17
     "@nestjs/config": ^0.6.3
-    "@nestjs/core": ^7.6.17
+    "@nestjs/core": ^7.6.18
     "@nestjs/graphql": ^7.10.6
     "@nestjs/mapped-types": ^0.4.1
     "@nestjs/platform-express": ^7.6.18
@@ -18623,7 +18623,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^7.6.0
     "@nestjs/common": ^7.6.17
     "@nestjs/config": ^0.6.3
-    "@nestjs/core": ^7.6.17
+    "@nestjs/core": ^7.6.18
     "@nestjs/graphql": ^7.10.6
     "@nestjs/mapped-types": ^0.4.1
     "@nestjs/passport": ^7.1.5
@@ -18720,7 +18720,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^7.6.0
     "@nestjs/common": ^7.6.17
     "@nestjs/config": ^0.6.3
-    "@nestjs/core": ^7.6.17
+    "@nestjs/core": ^7.6.18
     "@nestjs/graphql": ^7.10.6
     "@nestjs/mapped-types": ^0.4.1
     "@nestjs/passport": ^7.1.5
@@ -19152,7 +19152,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/common": ^7.6.17
     "@nestjs/config": ^0.6.3
-    "@nestjs/core": ^7.6.17
+    "@nestjs/core": ^7.6.18
     "@nestjs/graphql": ^7.10.6
     "@nestjs/mapped-types": ^0.4.1
     "@nestjs/testing": ^7.6.17
@@ -19233,7 +19233,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^7.6.0
     "@nestjs/common": ^7.6.17
     "@nestjs/config": ^0.6.3
-    "@nestjs/core": ^7.6.17
+    "@nestjs/core": ^7.6.18
     "@nestjs/mapped-types": ^0.4.1
     "@nestjs/platform-express": ^7.6.18
     "@sentry/integrations": ^6.7.1

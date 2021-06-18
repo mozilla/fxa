@@ -32,7 +32,7 @@
   "dependencies": {
     "@nestjs/common": "^7.6.17",
     "@nestjs/config": "^0.6.3",
-    "@nestjs/core": "^7.6.17",
+    "@nestjs/core": "^7.6.18",
     "@nestjs/graphql": "^7.10.6",
     "@nestjs/mapped-types": "^0.4.1",
     "@nestjs/passport": "^7.1.5",
