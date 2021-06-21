@@ -50,7 +50,7 @@
     "@testing-library/user-event": "^13.1.9",
     "@types/camelcase": "5.2.0",
     "@types/classnames": "^2.3.1",
-    "@types/file-loader": "^4.2.0",
+    "@types/file-loader": "^5.0.0",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.12.2",
     "@types/prettier": "2.3.0",
