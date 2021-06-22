@@ -4899,6 +4899,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sideway/address@npm:^4.1.0":
+  version: 4.1.2
+  resolution: "@sideway/address@npm:4.1.2"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: e5fcccb92024859e0acbb893e84e626298656ea77e3727d80352659474968fae1b2816800145793592e340cff7f137d539490fd202073146cb43bf8370ef2062
+  languageName: node
+  linkType: hard
+
+"@sideway/formula@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@sideway/formula@npm:3.0.0"
+  checksum: b83ecd35fea33e7b826ddcdc9f0735a79bd374927efea36885203200c418ad0f9975c329eaf9e990a7c61cf96f560ed2020227a35e699324ddd3c94dd3f4045f
+  languageName: node
+  linkType: hard
+
+"@sideway/pinpoint@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@sideway/pinpoint@npm:2.0.0"
+  checksum: e5528639aef1d266c23050897a6571c1e2aeccb59b6a22006a153fbd73aee78ae995bf19c022d70de5a00589a7f51372e78ef9aacd34a3dd9b13720c866aca7e
+  languageName: node
+  linkType: hard
+
 "@sindresorhus/is@npm:^4.0.0":
   version: 4.0.0
   resolution: "@sindresorhus/is@npm:4.0.0"
@@ -6759,10 +6782,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/joi@npm:^14.3.3, @types/joi@npm:^14.3.4":
-  version: 14.3.4
-  resolution: "@types/joi@npm:14.3.4"
-  checksum: bea51931b08e8ddc6b7612eb0d4a5d19b02157dea69ac6d7080789848218cb05a8f44a7e0ffb95f75b90f3feeb8314a5eed0f1ddd3369a5e6bbe4d7b4bfad0f1
+"@types/joi@npm:^17.2.3":
+  version: 17.2.3
+  resolution: "@types/joi@npm:17.2.3"
+  dependencies:
+    joi: "*"
+  checksum: 346373b4b5e2e24de8f2d0c7a963ccd2020f0499f17ddbcb2d26e77beef7bd2ab62581bd8e8e6c5f52f4576f20004d58aba8b849392769f1c36b872d4a4732ae
   languageName: node
   linkType: hard
 
@@ -18321,7 +18346,7 @@ fsevents@~2.1.1:
     "@types/convict": ^5.2.2
     "@types/hapi__hapi": ^19.0.3
     "@types/ioredis": ^4.26.4
-    "@types/joi": ^14.3.3
+    "@types/joi": ^17.2.3
     "@types/jsonwebtoken": ^8.5.1
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
@@ -19225,7 +19250,7 @@ fsevents@~2.1.1:
     "@types/chance": ^1.1.2
     "@types/generic-pool": ^3.1.9
     "@types/jest": ^26.0.23
-    "@types/joi": ^14.3.4
+    "@types/joi": ^17.2.3
     "@types/js-md5": ^0.4.2
     "@types/lodash.omitby": ^4
     "@types/lodash.pick": ^4
@@ -23715,6 +23740,19 @@ fsevents@~2.1.1:
   version: 0.15.0
   resolution: "jmespath@npm:0.15.0"
   checksum: b3edb0b9773571d72dc1aa2d5590fa0f82419a0a04d5a0d09aee93219f41d046ea9cf3c36931fc48d9430348ca575530beab5968923544136cc8ddcd49ff7a47
+  languageName: node
+  linkType: hard
+
+"joi@npm:*":
+  version: 17.4.0
+  resolution: "joi@npm:17.4.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+    "@hapi/topo": ^5.0.0
+    "@sideway/address": ^4.1.0
+    "@sideway/formula": ^3.0.0
+    "@sideway/pinpoint": ^2.0.0
+  checksum: 2f6203d4513c063d457a935dab5e8060413479880d55af2c4fada987c7fe1bedff46d46eec36b14cf433ecc4df3b580fe1c0a0fed5b73a265b78011f97ff5c2d
   languageName: node
   linkType: hard
 
