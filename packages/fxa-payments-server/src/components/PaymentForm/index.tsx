@@ -75,7 +75,7 @@ export type BasePaymentFormProps = {
   confirm?: boolean;
   plan?: Plan;
   customer?: Customer | null;
-  getString?: Function;
+  getString?: (id: string) => string;
   onCancel?: () => void;
   onSubmit: StripeSubmitHandler | StripeUpdateHandler | PaypalSubmitHandler;
   validatorInitialState?: ValidatorState;
