@@ -53,7 +53,8 @@ module.exports = function (
   const grant = require('../oauth/grant');
   const oauthRawDB = require('../oauth/db');
   grant.setStripeHelper(stripeHelper);
-  const account = require('./account')(
+  const { accountRoutes } = require('./account');
+  const account = accountRoutes(
     log,
     db,
     mailer,

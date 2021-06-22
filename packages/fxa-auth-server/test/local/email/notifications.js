@@ -11,13 +11,19 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const { mockLog } = require('../../mocks');
 const notifications = require(`${ROOT_DIR}/lib/email/notifications`);
 const sinon = require('sinon');
+const { default: Container } = require('typedi');
+const { StripeHelper } = require('../../../lib/payments/stripe');
 
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
 describe('lib/email/notifications:', () => {
-  let now, del, log, queue, emailRecord, db;
+  let now, del, log, queue, emailRecord, db, mockStripeHelper;
 
   beforeEach(() => {
+    mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(false),
+    };
+    Container.set(StripeHelper, mockStripeHelper);
     now = Date.now();
     sinon.stub(Date, 'now').callsFake(() => now);
     del = sinon.spy();
@@ -315,6 +321,46 @@ describe('lib/email/notifications:', () => {
     it('deleted the account', () => {
       assert.equal(db.accountRecord.callCount, 1);
       assert.equal(db.deleteAccount.callCount, 1);
+    });
+
+    it('called message.del', () => {
+      assert.equal(del.callCount, 1);
+    });
+
+    it('did not log an error', () => {
+      assert.equal(log.error.callCount, 0);
+    });
+  });
+
+  describe('complaint message, new unverified account with active subscription', () => {
+    beforeEach(() => {
+      emailRecord.createdAt += 1;
+      mockStripeHelper.hasActiveSubscription = async () =>
+        Promise.resolve(true);
+      return queue.on.args[0][1]({
+        del,
+        mail: {
+          headers: {
+            'Content-Language': 'fr',
+            'X-Flow-Begin-Time': now - 2,
+            'X-Flow-Id': 'wibble',
+            'X-Template-Name': 'blee',
+          },
+        },
+        complaint: {
+          complainedRecipients: ['foo@example.com'],
+        },
+      });
+    });
+
+    it('logged events', () => {
+      assert.equal(log.flowEvent.callCount, 1);
+      assert.equal(log.info.callCount, 1);
+    });
+
+    it('did not delete the account', () => {
+      assert.equal(db.accountRecord.callCount, 1);
+      assert.equal(db.deleteAccount.callCount, 0);
     });
 
     it('called message.del', () => {

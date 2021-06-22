@@ -107,6 +107,7 @@ const ERRNO = {
   BILLING_AGREEMENT_EXISTS: 192,
   MISSING_PAYPAL_PAYMENT_TOKEN: 193,
   MISSING_PAYPAL_BILLING_AGREEMENT: 194,
+  UNVERIFIED_PRIMARY_EMAIL_HAS_ACTIVE_SUBSCRIPTION: 195,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -122,11 +123,11 @@ const DEFAULTS = {
   error: 'Internal Server Error',
   errno: ERRNO.UNEXPECTED_ERROR,
   message: 'Unspecified error',
-  info:
-    'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
+  info: 'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
 };
 
-const TOO_LARGE = /^Payload (?:content length|size) greater than maximum allowed/;
+const TOO_LARGE =
+  /^Payload (?:content length|size) greater than maximum allowed/;
 
 const BAD_SIGNATURE_ERRORS = [
   'Bad mac',
@@ -860,6 +861,15 @@ AppError.unverifiedPrimaryEmailNewlyCreated = () => {
     error: 'Bad Request',
     errno: ERRNO.UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED,
     message: 'Email already exists',
+  });
+};
+
+AppError.unverifiedPrimaryEmailHasActiveSubscription = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.UNVERIFIED_PRIMARY_EMAIL_HAS_ACTIVE_SUBSCRIPTION,
+    message: 'Account for this email has an active subscription',
   });
 };
 

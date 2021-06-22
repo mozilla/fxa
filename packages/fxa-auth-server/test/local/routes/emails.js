@@ -135,10 +135,10 @@ const otpOptions = {
 let zendeskClient;
 let cadReminders;
 
-const updateZendeskPrimaryEmail = require('../../../lib/routes/emails')
-  ._updateZendeskPrimaryEmail;
-const updateStripeEmail = require('../../../lib/routes/emails')
-  ._updateStripeEmail;
+const updateZendeskPrimaryEmail =
+  require('../../../lib/routes/emails')._updateZendeskPrimaryEmail;
+const updateStripeEmail =
+  require('../../../lib/routes/emails')._updateStripeEmail;
 
 const makeRoutes = function (options = {}, requireMocks) {
   const config = options.config || {};
@@ -158,7 +158,8 @@ const makeRoutes = function (options = {}, requireMocks) {
   config.signinUnblock = config.signinUnblock || {};
   config.secondaryEmail = config.secondaryEmail || {};
   config.push = {
-    allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/,
+    allowedServerRegex:
+      /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/,
   };
   config.otp = otpOptions;
 
@@ -341,13 +342,15 @@ describe('/recovery_email/status', () => {
       }
     }),
   });
+  const stripeHelper = mocks.mockStripeHelper();
+  stripeHelper.hasActiveSubscription = sinon.fake.resolves(false);
   const accountRoutes = makeRoutes({
     config: config,
     db: mockDB,
     log: mockLog,
+    stripeHelper,
   });
   const route = getRoute(accountRoutes, '/recovery_email/status');
-
   const mockRequest = mocks.mockRequest({
     credentials: {
       uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
@@ -363,11 +366,11 @@ describe('/recovery_email/status', () => {
           email: TEST_EMAIL_INVALID,
         },
       });
+      mockLog.info.resetHistory();
     });
 
-    it('unverified account', () => {
+    it('unverified account - no subscription', () => {
       mockRequest.auth.credentials.emailVerified = false;
-
       return runTest(route, mockRequest)
         .then(
           () => assert.ok(false),
@@ -378,9 +381,8 @@ describe('/recovery_email/status', () => {
               TEST_EMAIL_INVALID
             );
             assert.equal(response.errno, error.ERRNO.INVALID_TOKEN);
-
-            assert.equal(mockLog.info.callCount, 2);
-            const args = mockLog.info.args[1];
+            assert.equal(mockLog.info.callCount, 1);
+            const args = mockLog.info.args[0];
             assert.equal(args.length, 2);
             assert.equal(args[0], 'accountDeleted.invalidEmailAddress');
             assert.deepEqual(args[1], {
@@ -388,6 +390,22 @@ describe('/recovery_email/status', () => {
               emailVerified: false,
             });
           }
+        )
+        .then(() => {
+          mockDB.deleteAccount.resetHistory();
+        });
+    });
+
+    it('unverified account - active subscription', () => {
+      stripeHelper.hasActiveSubscription = sinon.fake.resolves(true);
+      mockRequest.auth.credentials.emailVerified = false;
+      return runTest(route, mockRequest)
+        .then(
+          (response) => {
+            assert.equal(mockDB.deleteAccount.callCount, 0);
+            assert.equal(mockLog.info.callCount, 0);
+          },
+          () => assert.ok(false)
         )
         .then(() => {
           mockDB.deleteAccount.resetHistory();
@@ -1198,6 +1216,7 @@ describe('/recovery_email', () => {
     };
     mockDB = mocks.mockDB(dbData);
     stripeHelper = mocks.mockStripeHelper();
+    stripeHelper.hasActiveSubscription = sinon.fake.resolves(false);
     accountRoutes = makeRoutes({
       checkPassword: function () {
         return Promise.resolve(true);
@@ -1339,7 +1358,7 @@ describe('/recovery_email', () => {
       );
     });
 
-    it('creates secondary email if another user unverified primary more than day old, deletes unverified account', () => {
+    it('creates a secondary email by first deleting an unverified account if another user has an unverified primary more than a day old and has no active subscription', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
         return Promise.resolve({
           isVerified: false,
@@ -1393,6 +1412,31 @@ describe('/recovery_email', () => {
             err.errno,
             141,
             'cannot add secondary email, newly created primary account'
+          )
+      );
+    });
+
+    it('fails to create the email if it is primary for an unverified account older than one day that has an active subscription', () => {
+      stripeHelper.hasActiveSubscription = sinon.fake.resolves(true);
+      mockDB.getSecondaryEmail = sinon.spy(() => {
+        return Promise.resolve({
+          isVerified: false,
+          isPrimary: true,
+          normalizedEmail: TEST_EMAIL,
+          createdAt: Date.now() - MS_IN_DAY,
+          uid: crypto.randomBytes(16),
+        });
+      });
+      route = getRoute(accountRoutes, '/recovery_email');
+      mockRequest.payload.email = TEST_EMAIL_ADDITIONAL;
+
+      return runTest(route, mockRequest).then(
+        () => assert.fail('Should have failed when creating email'),
+        (err) =>
+          assert.equal(
+            err.errno,
+            195,
+            'cannot add secondary email, unverified account has active subscription'
           )
       );
     });

@@ -12,6 +12,8 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const { EventEmitter } = require('events');
 const { mockLog } = require('../../mocks');
 const sinon = require('sinon');
+const { default: Container } = require('typedi');
+const { StripeHelper } = require('../../../lib/payments/stripe');
 
 const mockBounceQueue = new EventEmitter();
 mockBounceQueue.start = function start() {};
@@ -27,7 +29,7 @@ function mockedBounces(log, db) {
 }
 
 describe('bounce messages', () => {
-  let log, mockDB;
+  let log, mockDB, mockStripeHelper;
   beforeEach(() => {
     log = mockLog();
     mockDB = {
@@ -42,6 +44,10 @@ describe('bounce messages', () => {
       }),
       deleteAccount: sinon.spy(() => Promise.resolve({})),
     };
+    mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(false),
+    };
+    Container.set(StripeHelper, mockStripeHelper);
   });
 
   afterEach(() => {
@@ -313,6 +319,45 @@ describe('bounce messages', () => {
         assert.equal(log.info.args[4][0], 'handleBounce');
         assert.equal(log.info.args[4][1].email, 'verified@example.com');
         assert.equal(log.info.args[4][1].status, '4.0.0');
+      });
+  });
+
+  it('should not delete an unverified account that bounces, is older than 6 hours but has an active subscription', () => {
+    mockStripeHelper.hasActiveSubscription = async () => Promise.resolve(true);
+    const SEVEN_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 7;
+    mockDB.accountRecord = sinon.spy((email) => {
+      return Promise.resolve({
+        createdAt: SEVEN_HOURS_AGO,
+        uid: '123456',
+        email: email,
+        emailVerified: false,
+      });
+    });
+
+    const bounceType = 'Transient';
+    const mockMsg = mockMessage({
+      bounce: {
+        bounceType: bounceType,
+        bouncedRecipients: [{ emailAddress: 'test@example.com' }],
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyLoginEmail',
+          },
+        ],
+      },
+    });
+    return mockedBounces(log, mockDB)
+      .handleBounce(mockMsg)
+      .then(() => {
+        assert.equal(
+          mockDB.deleteAccount.callCount,
+          0,
+          'does not delete the account'
+        );
+        assert.equal(mockMsg.del.callCount, 1);
       });
   });
 

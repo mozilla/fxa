@@ -442,6 +442,39 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('hasActiveSubscription', () => {
+    let customerExpanded, subscription;
+    beforeEach(() => {
+      customerExpanded = deepCopy(customer1);
+      subscription = deepCopy(subscription2);
+    });
+
+    it('returns true for an active subscription', async () => {
+      subscription.status = 'active';
+      customerExpanded.subscriptions.data[0] = subscription;
+      sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customerExpanded);
+      assert.isTrue(
+        await stripeHelper.hasActiveSubscription(customerExpanded.uid)
+      );
+    });
+
+    it('returns false when there is no Stripe customer', async () => {
+      const uid = '123';
+      customerExpanded = undefined;
+      sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customerExpanded);
+      assert.isFalse(await stripeHelper.hasActiveSubscription(uid));
+    });
+
+    it('returns false when there is no active subscription', async () => {
+      subscription.status = 'canceled';
+      customerExpanded.subscriptions.data[0] = subscription;
+      sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customerExpanded);
+      assert.isFalse(
+        await stripeHelper.hasActiveSubscription(customerExpanded.uid)
+      );
+    });
+  });
+
   describe('hasOpenInvoice', () => {
     let customerExpanded;
     let invoice;

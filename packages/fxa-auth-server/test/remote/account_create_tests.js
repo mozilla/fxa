@@ -15,7 +15,28 @@ describe('remote account create', function () {
   this.timeout(30000);
   let server;
   before(async () => {
-    server = await TestServer.start(config);
+    config.subscriptions = {
+      enabled: true,
+      stripeApiKey: 'fake_key',
+      paypalNvpSigCredentials: {
+        enabled: false,
+      },
+      paymentsServer: {
+        url: 'http://fakeurl.com',
+      },
+    };
+    const mockStripeHelper = {};
+    mockStripeHelper.hasActiveSubscription = async () => Promise.resolve(false);
+    mockStripeHelper.removeCustomer = async () => Promise.resolve();
+
+    server = await TestServer.start(config, false, {
+      authServerMockDependencies: {
+        '../lib/payments/stripe': {
+          StripeHelper: mockStripeHelper,
+          createStripeHelper: () => mockStripeHelper,
+        },
+      },
+    });
     return server;
   });
 
@@ -120,7 +141,7 @@ describe('remote account create', function () {
         return server.mailbox.waitForEmail(email);
       })
       .then((emailData) => {
-        assert.include(emailData.text, 'Confirm email', 'not en-US');
+        assert.include(emailData.text, 'Confirm email', 'en-US');
         // TODO: reinstate after translations catch up
         //assert.notInclude(emailData.text, 'Ativar agora', 'not pt-BR');
         return client.destroyAccount();

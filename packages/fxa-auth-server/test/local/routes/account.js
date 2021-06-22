@@ -21,6 +21,8 @@ const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PayPalHelper } = require('../../../lib/payments/paypal');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 
+const { AccountHandler } = require('../../../lib/routes/account');
+
 const TEST_EMAIL = 'foo@gmail.com';
 
 function hexString(bytes) {
@@ -71,7 +73,11 @@ const makeRoutes = function (options = {}, requireMocks) {
   const push = options.push || require('../../../lib/push')(log, db, {});
   const verificationReminders =
     options.verificationReminders || mocks.mockVerificationReminders();
-  return proxyquire('../../../lib/routes/account', requireMocks || {})(
+  const { accountRoutes } = proxyquire(
+    '../../../lib/routes/account',
+    requireMocks || {}
+  );
+  return accountRoutes(
     log,
     db,
     mailer,
@@ -478,6 +484,95 @@ describe('/account/reset', () => {
         'db.createSessionToken was passed correct form factor'
       );
     });
+  });
+});
+
+describe('deleteAccountIfUnverified', () => {
+  const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+  const mockDB = mocks.mockDB({
+    email: TEST_EMAIL,
+    uid,
+  });
+  const mockLog = {
+    info: () => {},
+  };
+  const mockRequest = mocks.mockRequest({
+    payload: {
+      email: TEST_EMAIL,
+      metricsContext: {},
+    },
+  });
+  const mockMailer = {};
+  const mockPassword = sinon.spy();
+  const mockConfig = {};
+  mockConfig.oauth = {};
+  mockConfig.signinConfirmation = {};
+  mockConfig.signinConfirmation.tokenVerificationCode = {};
+  mockConfig.signinConfirmation.skipForEmailAddresses = [];
+  const mockCustoms = {};
+  const mockSigninUtils = {};
+  const mockPush = {};
+  const mockVerificationReminders = {};
+  const mockOauth = {};
+  const emailRecord = {
+    isPrimary: true,
+    isVerified: false,
+  };
+  mockDB.getSecondaryEmail = sinon.spy(async () =>
+    Promise.resolve(emailRecord)
+  );
+  beforeEach(() => {
+    mockDB.deleteAccount = sinon.spy(async () => Promise.resolve());
+  });
+  afterEach(() => {
+    sinon.restore();
+  });
+  it('should delete an unverified account with no linked Stripe account', async () => {
+    const mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(false),
+    };
+    const accountHandler = new AccountHandler(
+      mockLog,
+      mockDB,
+      mockMailer,
+      mockPassword,
+      mockConfig,
+      mockCustoms,
+      mockSigninUtils,
+      mockPush,
+      mockVerificationReminders,
+      mockOauth,
+      mockStripeHelper
+    );
+    await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
+    sinon.assert.calledWithMatch(mockDB.deleteAccount, emailRecord);
+  });
+  it('should not delete an unverified account with a linked Stripe account and return early', async () => {
+    const mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(true),
+    };
+    const accountHandler = new AccountHandler(
+      mockLog,
+      mockDB,
+      mockMailer,
+      mockPassword,
+      mockConfig,
+      mockCustoms,
+      mockSigninUtils,
+      mockPush,
+      mockVerificationReminders,
+      mockOauth,
+      mockStripeHelper
+    );
+    let failed = false;
+    try {
+      await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
+    } catch (err) {
+      failed = true;
+      assert.equal(err.errno, error.ERRNO.ACCOUNT_EXISTS);
+    }
+    assert.isTrue(failed);
+    sinon.assert.notCalled(mockDB.deleteAccount);
   });
 });
 
