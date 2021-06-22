@@ -78,334 +78,423 @@ export class AccountHandler {
     }
   }
 
+  private async deleteAccountIfUnverified(request: AuthRequest, email: string) {
+    try {
+      const secondaryEmailRecord = await this.db.getSecondaryEmail(email);
+      // Currently, users can not create an account from a verified
+      // secondary email address
+      if (secondaryEmailRecord.isPrimary) {
+        if (secondaryEmailRecord.isVerified) {
+          throw error.accountExists(secondaryEmailRecord.email);
+        }
+        request.app.accountRecreated = true;
+        const deleted = await this.db.deleteAccount(secondaryEmailRecord);
+        this.log.info('accountDeleted.unverifiedSecondaryEmail', {
+          ...secondaryEmailRecord,
+        });
+        return deleted;
+      } else {
+        if (secondaryEmailRecord.isVerified) {
+          throw error.verifiedSecondaryEmailAlreadyExists();
+        }
+
+        return await this.db.deleteEmail(
+          secondaryEmailRecord.uid,
+          secondaryEmailRecord.email
+        );
+      }
+    } catch (err) {
+      if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
+        throw err;
+      }
+    }
+  }
+
+  private async generateRandomValues() {
+    const hex16 = await random.hex(16);
+    const hex32 = await random.hex(32);
+    const tokenCode = await this.TokenCode();
+    return { hex16, hex32, tokenCode };
+  }
+
+  private async createPassword(authPW: any, authSalt: any) {
+    const password = new this.Password(
+      authPW,
+      authSalt,
+      this.config.verifierVersion
+    );
+    const verifyHash = await password.verifyHash();
+    return { password, verifyHash };
+  }
+
+  private async createAccount(options: {
+    authPW: string;
+    authSalt: string;
+    email: string;
+    emailCode: string;
+    preVerified: boolean;
+    request: AuthRequest;
+    service?: string;
+    userAgentString: string;
+  }) {
+    const {
+      authPW,
+      authSalt,
+      email,
+      emailCode,
+      preVerified,
+      request,
+      service,
+      userAgentString,
+    } = options;
+
+    const { password, verifyHash } = await this.createPassword(
+      authPW,
+      authSalt
+    );
+
+    const locale = request.app.acceptLanguage;
+    if (!locale) {
+      // We're seeing a surprising number of accounts created
+      // without a proper locale. Log details to help debug this.
+      this.log.info('account.create.emptyLocale', {
+        email: email,
+        locale: locale,
+        agent: userAgentString,
+      });
+    }
+
+    const hexes = await random.hex(32, 32);
+    const account = await this.db.createAccount({
+      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      createdAt: Date.now(),
+      email: email,
+      emailCode: emailCode,
+      emailVerified: preVerified,
+      kA: hexes[0],
+      wrapWrapKb: hexes[1],
+      accountResetToken: null,
+      passwordForgotToken: null,
+      authSalt: authSalt,
+      verifierVersion: password.version,
+      verifyHash: verifyHash,
+      verifierSetAt: Date.now(),
+      locale,
+    });
+
+    await request.emitMetricsEvent('account.created', {
+      uid: account.uid,
+    });
+
+    const geoData = request.app.geo;
+    const country = geoData.location && geoData.location.country;
+    const countryCode = geoData.location && geoData.location.countryCode;
+    if (account.emailVerified) {
+      await this.log.notifyAttachedServices('verified', request, {
+        email: account.email,
+        locale: account.locale,
+        service,
+        uid: account.uid,
+        userAgent: userAgentString,
+        country,
+        countryCode,
+      });
+    }
+
+    await this.log.notifyAttachedServices('login', request, {
+      deviceCount: 1,
+      country,
+      countryCode,
+      email: account.email,
+      service,
+      uid: account.uid,
+      userAgent: userAgentString,
+    });
+    return { password, account };
+  }
+
+  private setMetricsFlowCompleteSignal(request: AuthRequest, service?: string) {
+    let flowCompleteSignal;
+    if (service === 'sync') {
+      flowCompleteSignal = 'account.signed';
+    } else {
+      flowCompleteSignal = 'account.verified';
+    }
+    request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'registration');
+  }
+
+  private async createSessionToken(options: {
+    account: any;
+    request: AuthRequest;
+    tokenVerificationCode: any;
+    tokenVerificationId: any;
+  }) {
+    const { request, account, tokenVerificationId, tokenVerificationCode } =
+      options;
+    const {
+      browser: uaBrowser,
+      browserVersion: uaBrowserVersion,
+      os: uaOS,
+      osVersion: uaOSVersion,
+      deviceType: uaDeviceType,
+      formFactor: uaFormFactor,
+    } = request.app.ua;
+
+    const sessionToken = await this.db.createSessionToken({
+      uid: account.uid,
+      email: account.email,
+      emailCode: account.emailCode,
+      emailVerified: account.emailVerified,
+      verifierSetAt: account.verifierSetAt,
+      mustVerify: requestHelper.wantsKeys(request),
+      tokenVerificationCode: tokenVerificationCode,
+      tokenVerificationCodeExpiresAt: Date.now() + this.tokenCodeLifetime,
+      tokenVerificationId: tokenVerificationId,
+      uaBrowser,
+      uaBrowserVersion,
+      uaOS,
+      uaOSVersion,
+      uaDeviceType,
+      uaFormFactor,
+    });
+
+    await request.stashMetricsContext(sessionToken);
+    await request.stashMetricsContext({
+      uid: account.uid,
+      id: account.emailCode,
+    });
+    return sessionToken;
+  }
+
+  private async sendVerifyCode(options: {
+    account: any;
+    request: AuthRequest;
+    sessionToken: any;
+    tokenVerificationId: any;
+    verificationMethod: string;
+  }) {
+    const {
+      request,
+      account,
+      sessionToken,
+      tokenVerificationId,
+      verificationMethod,
+    } = options;
+    const { deviceId, flowId, flowBeginTime, productId, planId } = await request
+      .app.metricsContext;
+    const locale = request.app.acceptLanguage;
+    const form = request.payload as any;
+    const query = request.query;
+    const ip = request.app.clientAddress;
+    const style = form.style;
+
+    if (account.emailVerified) {
+      return;
+    }
+
+    try {
+      switch (verificationMethod) {
+        case 'email-otp': {
+          const secret = account.emailCode;
+          const code = this.otpUtils.generateOtpCode(secret, this.otpOptions);
+          await this.mailer.sendVerifyShortCodeEmail([], account, {
+            acceptLanguage: locale,
+            code,
+            deviceId,
+            flowId,
+            flowBeginTime,
+            productId,
+            planId,
+            ip,
+            location: request.app.geo.location,
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+            uaDeviceType: sessionToken.uaDeviceType,
+            uid: sessionToken.uid,
+          });
+          break;
+        }
+        default: {
+          await this.mailer.sendVerifyEmail([], account, {
+            code: account.emailCode,
+            service: form.service || query.service,
+            redirectTo: form.redirectTo,
+            resume: form.resume,
+            acceptLanguage: locale,
+            deviceId,
+            flowId,
+            flowBeginTime,
+            productId,
+            planId,
+            ip,
+            location: request.app.geo.location,
+            style,
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+            uaDeviceType: sessionToken.uaDeviceType,
+            uid: sessionToken.uid,
+          });
+        }
+      }
+
+      if (tokenVerificationId) {
+        // Log server-side metrics for confirming verification rates
+        this.log.info('account.create.confirm.start', {
+          uid: account.uid,
+          tokenVerificationId,
+        });
+      }
+
+      await this.verificationReminders.create(
+        account.uid,
+        flowId,
+        flowBeginTime
+      );
+    } catch (err) {
+      this.log.error('mailer.sendVerifyCode.1', { err });
+
+      if (tokenVerificationId) {
+        // Log possible email bounce, used for confirming verification rates
+        this.log.error('account.create.confirm.error', {
+          uid: account.uid,
+          err,
+          tokenVerificationId,
+        });
+      }
+
+      // show an error to the user, the account is already created.
+      // the user can come back later and try again.
+      throw emailUtils.sendError(err, true);
+    }
+  }
+
+  private async createKeyFetchToken(options: {
+    account: any;
+    password: any;
+    request: AuthRequest;
+    tokenVerificationId: any;
+  }) {
+    const { request, account, password, tokenVerificationId } = options;
+    if (requestHelper.wantsKeys(request)) {
+      const wrapKb = await password.unwrap(account.wrapWrapKb);
+      const keyFetchToken = await this.db.createKeyFetchToken({
+        uid: account.uid,
+        kA: account.kA,
+        wrapKb,
+        emailVerified: account.emailVerified,
+        tokenVerificationId,
+      });
+      await request.stashMetricsContext(keyFetchToken);
+      return keyFetchToken;
+    }
+    return undefined;
+  }
+
+  private accountCreateResponse(options: {
+    account: any;
+    keyFetchToken: any;
+    sessionToken: any;
+    verificationMethod: any;
+  }) {
+    const { account, sessionToken, keyFetchToken, verificationMethod } =
+      options;
+    const response: Record<string, any> = {
+      uid: account.uid,
+      sessionToken: sessionToken.data,
+      authAt: sessionToken.lastAuthAt(),
+    };
+
+    if (keyFetchToken) {
+      response.keyFetchToken = keyFetchToken.data;
+    }
+
+    if (verificationMethod) {
+      response.verificationMethod = verificationMethod;
+    }
+
+    return response;
+  }
+
   async accountCreate(request: AuthRequest) {
     this.log.begin('Account.create', request);
     const form = request.payload as any;
     const query = request.query;
     const email = form.email;
     const authPW = form.authPW;
-    const locale = request.app.acceptLanguage;
     const userAgentString = request.headers['user-agent'];
     const service = form.service || query.service;
     const preVerified = !!form.preVerified;
-    const ip = request.app.clientAddress;
-    const style = form.style;
     const verificationMethod = form.verificationMethod;
-    let password: any,
-      verifyHash: any,
-      account: any,
-      sessionToken: any,
-      keyFetchToken: any,
-      emailCode: any,
-      tokenVerificationId: any,
-      tokenVerificationCode: any,
-      authSalt: any;
 
     request.validateMetricsContext();
     if (this.OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(service)) {
       throw error.disabledClientId(service);
     }
 
-    const { deviceId, flowId, flowBeginTime, productId, planId } = await request
-      .app.metricsContext;
-
-    const deleteAccountIfUnverified = async () => {
-      try {
-        const secondaryEmailRecord = await this.db.getSecondaryEmail(email);
-        // Currently, users can not create an account from a verified
-        // secondary email address
-        if (secondaryEmailRecord.isPrimary) {
-          if (secondaryEmailRecord.isVerified) {
-            throw error.accountExists(secondaryEmailRecord.email);
-          }
-          request.app.accountRecreated = true;
-          const deleted = await this.db.deleteAccount(secondaryEmailRecord);
-          this.log.info('accountDeleted.unverifiedSecondaryEmail', {
-            ...secondaryEmailRecord,
-          });
-          return deleted;
-        } else {
-          if (secondaryEmailRecord.isVerified) {
-            throw error.verifiedSecondaryEmailAlreadyExists();
-          }
-
-          return await this.db.deleteEmail(
-            secondaryEmailRecord.uid,
-            secondaryEmailRecord.email
-          );
-        }
-      } catch (err) {
-        if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
-          throw err;
-        }
-      }
-    };
-
-    const generateRandomValues = async () => {
-      const hex16 = await random.hex(16);
-      const hex32 = await random.hex(32);
-      const tokenCode = await this.TokenCode();
-
-      emailCode = hex16;
-      tokenVerificationId = emailCode;
-      tokenVerificationCode = tokenCode;
-      authSalt = hex32;
-    };
-
-    const createPassword = async () => {
-      password = new this.Password(
-        authPW,
-        authSalt,
-        this.config.verifierVersion
-      );
-      verifyHash = await password.verifyHash();
-    };
-
-    const createAccount = async () => {
-      if (!locale) {
-        // We're seeing a surprising number of accounts created
-        // without a proper locale. Log details to help debug this.
-        this.log.info('account.create.emptyLocale', {
-          email: email,
-          locale: locale,
-          agent: userAgentString,
-        });
-      }
-
-      const hexes = await random.hex(32, 32);
-      account = await this.db.createAccount({
-        uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
-        createdAt: Date.now(),
-        email: email,
-        emailCode: emailCode,
-        emailVerified: preVerified,
-        kA: hexes[0],
-        wrapWrapKb: hexes[1],
-        accountResetToken: null,
-        passwordForgotToken: null,
-        authSalt: authSalt,
-        verifierVersion: password.version,
-        verifyHash: verifyHash,
-        verifierSetAt: Date.now(),
-        locale: locale,
-      });
-
-      await request.emitMetricsEvent('account.created', {
-        uid: account.uid,
-      });
-
-      const geoData = request.app.geo;
-      const country = geoData.location && geoData.location.country;
-      const countryCode = geoData.location && geoData.location.countryCode;
-      if (account.emailVerified) {
-        await this.log.notifyAttachedServices('verified', request, {
-          email: account.email,
-          locale: account.locale,
-          service,
-          uid: account.uid,
-          userAgent: userAgentString,
-          country,
-          countryCode,
-        });
-      }
-
-      await this.log.notifyAttachedServices('login', request, {
-        deviceCount: 1,
-        country,
-        countryCode,
-        email: account.email,
-        service,
-        uid: account.uid,
-        userAgent: userAgentString,
-      });
-    };
-
-    const createSessionToken = async () => {
-      // Verified sessions should only be created for preverified accounts.
-      if (preVerified) {
-        tokenVerificationId = undefined;
-      }
-
-      const {
-        browser: uaBrowser,
-        browserVersion: uaBrowserVersion,
-        os: uaOS,
-        osVersion: uaOSVersion,
-        deviceType: uaDeviceType,
-        formFactor: uaFormFactor,
-      } = request.app.ua;
-
-      sessionToken = await this.db.createSessionToken({
-        uid: account.uid,
-        email: account.email,
-        emailCode: account.emailCode,
-        emailVerified: account.emailVerified,
-        verifierSetAt: account.verifierSetAt,
-        mustVerify: requestHelper.wantsKeys(request),
-        tokenVerificationCode: tokenVerificationCode,
-        tokenVerificationCodeExpiresAt: Date.now() + this.tokenCodeLifetime,
-        tokenVerificationId: tokenVerificationId,
-        uaBrowser,
-        uaBrowserVersion,
-        uaOS,
-        uaOSVersion,
-        uaDeviceType,
-        uaFormFactor,
-      });
-      await request.stashMetricsContext(sessionToken);
-      return await request.stashMetricsContext({
-        uid: account.uid,
-        id: account.emailCode,
-      });
-    };
-
-    const sendVerifyCode = async () => {
-      if (account.emailVerified) {
-        return;
-      }
-
-      try {
-        switch (verificationMethod) {
-          case 'email-otp': {
-            const secret = account.emailCode;
-            const code = this.otpUtils.generateOtpCode(secret, this.otpOptions);
-            await this.mailer.sendVerifyShortCodeEmail([], account, {
-              acceptLanguage: locale,
-              code,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              productId,
-              planId,
-              ip,
-              location: request.app.geo.location,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uaDeviceType: sessionToken.uaDeviceType,
-              uid: sessionToken.uid,
-            });
-            break;
-          }
-          default: {
-            await this.mailer.sendVerifyEmail([], account, {
-              code: account.emailCode,
-              service: form.service || query.service,
-              redirectTo: form.redirectTo,
-              resume: form.resume,
-              acceptLanguage: locale,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              productId,
-              planId,
-              ip,
-              location: request.app.geo.location,
-              style,
-              uaBrowser: sessionToken.uaBrowser,
-              uaBrowserVersion: sessionToken.uaBrowserVersion,
-              uaOS: sessionToken.uaOS,
-              uaOSVersion: sessionToken.uaOSVersion,
-              uaDeviceType: sessionToken.uaDeviceType,
-              uid: sessionToken.uid,
-            });
-          }
-        }
-
-        if (tokenVerificationId) {
-          // Log server-side metrics for confirming verification rates
-          this.log.info('account.create.confirm.start', {
-            uid: account.uid,
-            tokenVerificationId: tokenVerificationId,
-          });
-        }
-
-        await this.verificationReminders.create(
-          account.uid,
-          flowId,
-          flowBeginTime
-        );
-      } catch (err) {
-        this.log.error('mailer.sendVerifyCode.1', { err });
-
-        if (tokenVerificationId) {
-          // Log possible email bounce, used for confirming verification rates
-          this.log.error('account.create.confirm.error', {
-            uid: account.uid,
-            err: err,
-            tokenVerificationId: tokenVerificationId,
-          });
-        }
-
-        // show an error to the user, the account is already created.
-        // the user can come back later and try again.
-        throw emailUtils.sendError(err, true);
-      }
-    };
-
-    const createKeyFetchToken = async () => {
-      if (requestHelper.wantsKeys(request)) {
-        const wrapKb = await password.unwrap(account.wrapWrapKb);
-        keyFetchToken = await this.db.createKeyFetchToken({
-          uid: account.uid,
-          kA: account.kA,
-          wrapKb: wrapKb,
-          emailVerified: account.emailVerified,
-          tokenVerificationId: tokenVerificationId,
-        });
-        return await request.stashMetricsContext(keyFetchToken);
-      }
-    };
-
-    const recordSecurityEvent = () => {
-      this.db.securityEvent({
-        name: 'account.create',
-        uid: account.uid,
-        ipAddr: request.app.clientAddress,
-        tokenId: sessionToken.id,
-      });
-    };
-
-    function setMetricsFlowCompleteSignal() {
-      let flowCompleteSignal;
-      if (service === 'sync') {
-        flowCompleteSignal = 'account.signed';
-      } else {
-        flowCompleteSignal = 'account.verified';
-      }
-      request.setMetricsFlowCompleteSignal(flowCompleteSignal, 'registration');
-    }
-
-    function createResponse() {
-      const response: Record<string, any> = {
-        uid: account.uid,
-        sessionToken: sessionToken.data,
-        authAt: sessionToken.lastAuthAt(),
-      };
-
-      if (keyFetchToken) {
-        response.keyFetchToken = keyFetchToken.data;
-      }
-
-      if (verificationMethod) {
-        response.verificationMethod = verificationMethod;
-      }
-
-      return response;
-    }
-
     await this.customs.check(request, email, 'accountCreate');
-    await deleteAccountIfUnverified();
-    setMetricsFlowCompleteSignal();
-    await generateRandomValues();
-    await createPassword();
-    await createAccount();
-    await createSessionToken();
-    await sendVerifyCode();
-    await createKeyFetchToken();
-    await recordSecurityEvent();
-    return await createResponse();
+    await this.deleteAccountIfUnverified(request, email);
+
+    const {
+      hex16: emailCode,
+      tokenCode: tokenVerificationCode,
+      hex32: authSalt,
+    } = await this.generateRandomValues();
+
+    // Verified sessions should only be created for preverified accounts.
+    const tokenVerificationId = preVerified ? undefined : emailCode;
+
+    this.setMetricsFlowCompleteSignal(request, service);
+
+    let { account, password } = await this.createAccount({
+      authPW,
+      authSalt,
+      email,
+      emailCode,
+      preVerified,
+      request,
+      service,
+      userAgentString,
+    });
+
+    const sessionToken = await this.createSessionToken({
+      account,
+      request,
+      tokenVerificationCode,
+      tokenVerificationId,
+    });
+
+    await this.sendVerifyCode({
+      account,
+      request,
+      sessionToken,
+      tokenVerificationId,
+      verificationMethod,
+    });
+
+    const keyFetchToken = await this.createKeyFetchToken({
+      account,
+      password,
+      request,
+      tokenVerificationId,
+    });
+
+    await this.db.securityEvent({
+      ipAddr: request.app.clientAddress,
+      name: 'account.create',
+      tokenId: sessionToken.id,
+      uid: account.uid,
+    });
+
+    return this.accountCreateResponse({
+      account,
+      keyFetchToken,
+      sessionToken,
+      verificationMethod,
+    });
   }
 
   async login(request: AuthRequest) {
