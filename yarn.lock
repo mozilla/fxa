@@ -7225,12 +7225,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^16.9.4, @types/react-dom@npm:^16.9.6":
-  version: 16.9.8
-  resolution: "@types/react-dom@npm:16.9.8"
+"@types/react-dom@npm:^17.0.8":
+  version: 17.0.8
+  resolution: "@types/react-dom@npm:17.0.8"
   dependencies:
     "@types/react": "*"
-  checksum: 53a223c0266178bca9161301d18ee6199e8f75f88caed5c4601c5aaedaf4c68f03bd72f6aafa979254beb20759f0b68a542ce04295d704eb67ae179769c50813
+  checksum: 3859a6e06ec4545319c159ea71814beb3822801f0d4c41219855258557722cbcec8b5fba84551489169ec228b8817b4c05a8ef0dc87eb2bafb4d1431d1af9608
   languageName: node
   linkType: hard
 
@@ -18938,7 +18938,7 @@ fsevents@~2.1.1:
     "@types/node": ^15.12.2
     "@types/react": ^16.9.53
     "@types/react-document-title": ^2.0.3
-    "@types/react-dom": ^16.9.4
+    "@types/react-dom": ^17.0.8
     "@types/react-redux": ^7.1.16
     "@types/react-router": ^5.1.15
     "@types/react-router-dom": ^5.1.7
@@ -19099,7 +19099,7 @@ fsevents@~2.1.1:
     "@types/node": ^15.12.2
     "@types/prettier": 2.3.0
     "@types/react": ^16.9.53
-    "@types/react-dom": ^16.9.6
+    "@types/react-dom": ^17.0.8
     "@types/react-helmet": ^6
     "@types/react-transition-group": ^4.4.1
     "@types/rimraf": 3.0.0
@@ -19164,7 +19164,7 @@ fsevents@~2.1.1:
     "@types/material-ui": ^0.21.8
     "@types/node": ^15.12.2
     "@types/react": ^16.9.53
-    "@types/react-dom": ^16.9.6
+    "@types/react-dom": ^17.0.8
     "@types/react-test-renderer": ^17
     "@types/react-webcam": ^3.0.0
     "@types/testing-library__react-hooks": ^4
