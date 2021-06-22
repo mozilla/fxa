@@ -49,6 +49,8 @@ module.exports = function (log, config) {
     subscriptionPaymentFailed: 'subscription-payment-failed',
     subscriptionAccountDeletion: 'subscription-account-deletion',
     subscriptionCancellation: 'subscription-cancellation',
+    subscriptionFailedPaymentsCancellation:
+      'subscription-failed-payments-cancellation',
     subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
     subscriptionFirstInvoice: 'subscription-first-invoice',
     downloadSubscription: 'new-subscription',
@@ -96,6 +98,7 @@ module.exports = function (log, config) {
     subscriptionPaymentFailed: 'subscriptions',
     subscriptionAccountDeletion: 'subscriptions',
     subscriptionCancellation: 'subscriptions',
+    subscriptionFailedPaymentsCancellation: 'subscriptions',
     subscriptionSubsequentInvoice: 'subscriptions',
     subscriptionFirstInvoice: 'subscriptions',
     downloadSubscription: 'subscriptions',
@@ -2351,6 +2354,52 @@ module.exports = function (log, config) {
       },
     });
   };
+
+  Mailer.prototype.subscriptionFailedPaymentsCancellationEmail =
+    async function (message) {
+      const { email, uid, productId, planId, planEmailIconURL, productName } =
+        message;
+
+      const enabled = config.subscriptions.transactionalEmails.enabled;
+      log.trace('mailer.subscriptionFailedPaymentsCancellation', {
+        enabled,
+        email,
+        productId,
+        uid,
+      });
+      if (!enabled) {
+        return;
+      }
+
+      const query = { plan_id: planId, product_id: productId, uid };
+      const template = 'subscriptionFailedPaymentsCancellation';
+      const translator = this.translator(message.acceptLanguage);
+
+      const links = this._generateLinks(null, message, query, template);
+      const headers = {};
+      const translatorParams = { productName };
+      const subject = translator.gettext(
+        'Your %(productName)s subscription has been cancelled'
+      );
+
+      return this.send({
+        ...message,
+        headers,
+        layout: 'subscription',
+        subject,
+        template,
+        templateValues: {
+          ...links,
+          ...translatorParams,
+          uid,
+          email,
+          isCancellationEmail: true,
+          icon: planEmailIconURL,
+          product: productName,
+          subject: translator.format(subject, translatorParams),
+        },
+      });
+    };
 
   Mailer.prototype.subscriptionReactivationEmail = async function (message) {
     const {

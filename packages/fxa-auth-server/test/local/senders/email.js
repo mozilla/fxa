@@ -315,6 +315,20 @@ const TESTS = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
+  ['subscriptionFailedPaymentsCancellationEmail', new Map([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFailedPaymentsCancellation') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFailedPaymentsCancellation' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFailedPaymentsCancellation }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed` },
+    ]],
+    ['text', [
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed` },
+    ]]
+  ])],
   ['subscriptionReactivationEmail', new Map([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} subscription reactivated` }],
     ['headers', new Map([
