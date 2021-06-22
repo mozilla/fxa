@@ -16,6 +16,7 @@ const experimentGroupingRules = [
   require('./send-sms-install-link'),
   require('./sentry'),
   require('./newsletter-sync'),
+  require('./push'),
 ].map((ExperimentGroupingRule) => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {
