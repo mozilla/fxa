@@ -18420,7 +18420,7 @@ fsevents@~2.1.1:
     superagent: ^6.1.0
     through: 2.3.8
     ts-node: ^10.0.0
-    typedi: ^0.8.0
+    typedi: ^0.10.0
     typescript: ^4.2.4
     uuid: ^8.3.2
     verror: ^1.10.0
@@ -18883,7 +18883,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     sinon: ^9.0.3
     ts-node: ^10.0.0
-    typedi: ^0.8.0
+    typedi: ^0.10.0
     typescript: ^4.2.4
     uuid: ^8.3.2
   languageName: unknown
@@ -19018,7 +19018,7 @@ fsevents@~2.1.1:
     ts-jest: ^26.5.6
     ts-node: ^10.0.0
     type-to-reducer: ^1.2.0
-    typedi: ^0.8.0
+    typedi: ^0.10.0
     typescript: ^4.2.4
     uuid: ^8.3.2
     wait-for-expect: ^3.0.2
@@ -36432,10 +36432,10 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"typedi@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "typedi@npm:0.8.0"
-  checksum: a53ede48b2e9e1faecc5523a71555f652fd0e92cf2c39b224ef4f77ed353d95ab453467e60757523fbb5bb6e85e1b876aca1428afbd5317143b2d11505c0f73b
+"typedi@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "typedi@npm:0.10.0"
+  checksum: 20c9df495f03def5110ac81d49c93fd5292b0cb55fcaa5151b82a6771977585a5ef7da74348062087e10f3aeea26d73b2e9743e6b1a12043a455724da714049f
   languageName: node
   linkType: hard
 
