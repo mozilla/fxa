@@ -10,7 +10,10 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../DataBlock';
 import { HomePath } from '../../constants';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import {
+  AuthUiErrors,
+  AuthUiErrorNos,
+} from '../../lib/auth-errors/auth-errors';
 
 type FormData = {
   password: string;
@@ -64,14 +67,24 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
           'confirm-password.success'
         );
       } catch (e) {
-        const localizedError = l10n.getString(
-          `auth-error-${AuthUiErrors.INCORRECT_PASSWORD.errno}`,
-          null,
-          AuthUiErrors.INCORRECT_PASSWORD.message
-        );
+        let localizedError;
+
+        if (e.errno === AuthUiErrors.THROTTLED.errno) {
+          localizedError = l10n.getString(
+            `auth-error-${e.errno}`,
+            { retryAfter: e.retryAfterLocalized },
+            AuthUiErrorNos[e.errno].message
+          );
+        } else {
+          localizedError = l10n.getString(
+            `auth-error-${e.errno}`,
+            null,
+            e.message
+          );
+        }
+
         if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
           setErrorText(localizedError);
-          setValue('password', '');
         } else {
           alertBar.error(localizedError);
           logViewEvent(
@@ -79,6 +92,7 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
             'confirm-password.fail'
           );
         }
+        setValue('password', '');
       }
     },
     [
