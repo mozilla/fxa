@@ -1416,6 +1416,14 @@ FxaClientWrapper.prototype = {
       );
     }
   ),
+
+  /**
+   * Sends a push notification to compatible devices that can verify a login
+   * request
+   *
+   * @returns {Promise} resolves with response when complete.
+   */
+  sendPushLoginRequest: createClientDelegate('sendPushLoginRequest'),
 };
 
 export default FxaClientWrapper;

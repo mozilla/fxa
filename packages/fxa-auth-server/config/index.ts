@@ -1855,6 +1855,7 @@ conf.set(
   `${baseUri}/settings/two_step_authentication/replace_codes`
 );
 conf.set('smtp.verificationUrl', `${baseUri}/verify_email`);
+conf.set('smtp.pushVerificationUrl', `${baseUri}/push/confirm_login`);
 conf.set('smtp.passwordResetUrl', `${baseUri}/complete_reset_password`);
 conf.set('smtp.initiatePasswordResetUrl', `${baseUri}/reset_password`);
 conf.set(

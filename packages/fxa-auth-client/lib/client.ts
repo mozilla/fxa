@@ -1238,4 +1238,8 @@ export default class AuthClient {
       new Headers(headers)
     );
   }
+
+  async sendPushLoginRequest(sessionToken: string) {
+    return this.sessionPost('/session/verify/send_push', sessionToken, {});
+  }
 }

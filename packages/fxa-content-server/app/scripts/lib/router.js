@@ -184,6 +184,9 @@ const Router = Backbone.Router.extend({
         type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
       }
     ),
+    'push/confirm_login(/)': createViewHandler('push/confirm_login'),
+    'push/send_login(/)': createViewHandler('push/send_login'),
+    'push/completed(/)': createViewHandler('push/completed'),
     'primary_email_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
     }),
@@ -208,11 +211,8 @@ const Router = Backbone.Router.extend({
     'settings(/)': function () {
       // Because settings is a separate js app, we need to ensure navigating
       // from the content-server app passes along flow parameters.
-      const {
-        deviceId,
-        flowBeginTime,
-        flowId,
-      } = this.metrics.getFlowEventMetadata();
+      const { deviceId, flowBeginTime, flowId } =
+        this.metrics.getFlowEventMetadata();
 
       const {
         broker,
@@ -343,9 +343,8 @@ const Router = Backbone.Router.extend({
     url = this.broker.transformLink(url);
 
     if (options.replace && this._viewModelStack.length) {
-      this._viewModelStack[this._viewModelStack.length - 1] = createViewModel(
-        nextViewData
-      );
+      this._viewModelStack[this._viewModelStack.length - 1] =
+        createViewModel(nextViewData);
     } else {
       this._viewModelStack.push(createViewModel(nextViewData));
     }
