@@ -18568,7 +18568,7 @@ fsevents@~2.1.1:
     sinon-chai: ^3.7.0
     sinon-express-mock: ^2.2.1
     source-map: ^0.7.3
-    source-map-loader: ^1.1.1
+    source-map-loader: ^3.0.0
     speed-trap: 0.0.10
     thread-loader: ^3.0.4
     time-grunt: 2.0.0
@@ -33941,19 +33941,23 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"source-map-loader@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "source-map-loader@npm:1.1.1"
+"source-map-js@npm:^0.6.2":
+  version: 0.6.2
+  resolution: "source-map-js@npm:0.6.2"
+  checksum: 8e2f992cfbedb71286fa6f6e011e2fa756b7f4d944ea4b0f49e9ff6ea34ad0a17dc655f067fdddb32efa7b45000e8c59e47a2e875d91744c86a56329b5f58b32
+  languageName: node
+  linkType: hard
+
+"source-map-loader@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "source-map-loader@npm:3.0.0"
   dependencies:
     abab: ^2.0.5
     iconv-lite: ^0.6.2
-    loader-utils: ^2.0.0
-    schema-utils: ^3.0.0
-    source-map: ^0.6.1
-    whatwg-mimetype: ^2.3.0
+    source-map-js: ^0.6.2
   peerDependencies:
-    webpack: ^4.0.0 || ^5.0.0
-  checksum: 9fdd9653552fb13b2689c6fc5de83227324f842423bbf62125b2688573ea236ad69e2c5ab20addb21e77b2e7b6b2e872711f0dc2bb6888b0dc3ba48d14ec6f9c
+    webpack: ^5.0.0
+  checksum: cad98cd843c304fdc6eeb491612b340b1028040eb9e0329ea6fe2c939360c530e2b6926fdb04a5b78e1edd0c06de801c8e3049ce2f004a3b3e4dec87d1543755
   languageName: node
   linkType: hard
 
