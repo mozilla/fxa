@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AuthBaseModel } from './auth-base';
+import { BaseAuthModel } from './base-auth';
 
-export class AccountCustomers extends AuthBaseModel {
+export class AccountCustomers extends BaseAuthModel {
   public static tableName = 'accountCustomers';
   public static idColumn = 'uid';
 

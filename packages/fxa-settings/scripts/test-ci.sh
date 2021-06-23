@@ -24,10 +24,10 @@ yarn workspaces foreach \
     --include fxa-graphql-api \
     run start > ~/.pm2/logs/startup.log
 npx pm2 ls
-# ensure email-service is ready
-_scripts/check-url.sh localhost:8001/__heartbeat__
 # ensure content-server is ready
 _scripts/check-url.sh localhost:3030/bundle/app.bundle.js
+# ensure settings is ready
+_scripts/check-url.sh localhost:3030/settings/static/js/bundle.js
 
 cd packages/fxa-content-server
 mozinstall /firefox.tar.bz2

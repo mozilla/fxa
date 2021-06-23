@@ -1,21 +1,36 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import crypto from 'crypto';
-import { AuthBaseModel, Proc } from './auth-base';
-import { aggregateNameValuePairs, uuidTransformer } from '../../transformers';
+
+import { BaseAuthModel, Proc } from './base-auth';
+import { BaseToken } from './base-token';
+import {
+  aggregateNameValuePairs,
+  uuidTransformer,
+  intBoolTransformer,
+} from '../../transformers';
+import { convertError, notFound } from '../../mysql';
 
 //TODO FIXME unhardcode the 28 day expiry
 function notExpired(token: SessionToken) {
   return !!(token.deviceId || token.createdAt > Date.now() - 2419200000);
 }
 
+const VERIFICATION_METHOD = {
+  email: 0,
+  'email-2fa': 1,
+  'totp-2fa': 2,
+  'recovery-code': 3,
+} as const;
+
+export type VerificationMethod = keyof typeof VERIFICATION_METHOD;
+
 /** Session Token
  *
  * Note that this class does not currently implement all the functionality of the
  * `session_token.js` version from `fxa-auth-server`.
  */
-export class SessionToken extends AuthBaseModel {
+export class SessionToken extends BaseToken {
   public static tableName = 'sessionTokens';
   public static idColumn = 'tokenId';
 
@@ -131,13 +146,93 @@ export class SessionToken extends AuthBaseModel {
       uuidTransformer.to(tokenVerificationId),
       !!mustVerify,
       tokenVerificationCode
-        ? crypto
-            .createHash('sha256')
-            .update(Buffer.from(tokenVerificationCode, 'hex'))
-            .digest()
+        ? BaseAuthModel.sha256(tokenVerificationCode)
         : null,
       tokenVerificationCodeExpiresAt ?? null
     );
+  }
+
+  static async update({
+    id,
+    uaBrowser,
+    uaBrowserVersion,
+    uaOS,
+    uaOSVersion,
+    uaDeviceType,
+    uaFormFactor,
+    lastAccessTime,
+    authAt,
+    mustVerify,
+  }: Pick<
+    SessionToken,
+    | 'uaBrowser'
+    | 'uaBrowserVersion'
+    | 'uaOS'
+    | 'uaOSVersion'
+    | 'uaDeviceType'
+    | 'uaFormFactor'
+    | 'lastAccessTime'
+    | 'authAt'
+    | 'mustVerify'
+  > & {
+    id: string;
+  }) {
+    try {
+      await SessionToken.callProcedure(
+        Proc.UpdateSessionToken,
+        uuidTransformer.to(id),
+        uaBrowser ?? null,
+        uaBrowserVersion ?? null,
+        uaOS ?? null,
+        uaOSVersion ?? null,
+        uaDeviceType ?? null,
+        uaFormFactor ?? null,
+        lastAccessTime ?? Date.now(),
+        authAt ?? null,
+        intBoolTransformer.to(mustVerify)
+      );
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async verify(id: string, method: VerificationMethod | number) {
+    try {
+      await SessionToken.transaction(async (txn) => {
+        const { status } = await SessionToken.callProcedure(
+          Proc.VerifyTokenWithMethod,
+          txn,
+          uuidTransformer.to(id),
+          typeof method === 'number' ? method : VERIFICATION_METHOD[method],
+          Date.now()
+        );
+        if (status.affectedRows < 1) {
+          throw notFound();
+        }
+        const token = await SessionToken.query(txn)
+          .select(
+            'sessionTokens.uid as uid',
+            'unverifiedTokens.tokenVerificationId as tokenVerificationId'
+          )
+          .join(
+            'unverifiedTokens',
+            'sessionTokens.tokenId',
+            'unverifiedTokens.tokenId'
+          )
+          .where('sessionTokens.tokenId', uuidTransformer.to(id))
+          .first();
+        if (token) {
+          await SessionToken.callProcedure(
+            Proc.VerifyToken,
+            txn,
+            uuidTransformer.to(token.tokenVerificationId),
+            uuidTransformer.to(token.uid)
+          );
+        }
+      });
+    } catch (e) {
+      throw convertError(e);
+    }
   }
 
   static async delete(id: string) {
@@ -148,7 +243,7 @@ export class SessionToken extends AuthBaseModel {
   }
 
   static async findByTokenId(id: string) {
-    const rows = await SessionToken.callProcedure(
+    const { rows } = await SessionToken.callProcedure(
       Proc.SessionWithDevice,
       uuidTransformer.to(id)
     );
@@ -168,7 +263,7 @@ export class SessionToken extends AuthBaseModel {
   }
 
   static async findByUid(uid: string) {
-    const rows = await SessionToken.callProcedure(
+    const { rows } = await SessionToken.callProcedure(
       Proc.Sessions,
       uuidTransformer.to(uid)
     );

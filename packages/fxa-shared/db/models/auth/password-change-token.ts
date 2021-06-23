@@ -1,10 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { AuthBaseModel, Proc } from './auth-base';
+import { BaseAuthModel, Proc } from './base-auth';
 import { uuidTransformer } from '../../transformers';
 
-export class PasswordChangeToken extends AuthBaseModel {
+export class PasswordChangeToken extends BaseAuthModel {
   public static tableName = 'passwordChangeTokens';
   public static idColumn = 'tokenId';
 
@@ -45,7 +45,7 @@ export class PasswordChangeToken extends AuthBaseModel {
   }
 
   static async findByTokenId(id: string) {
-    const rows = await PasswordChangeToken.callProcedure(
+    const { rows } = await PasswordChangeToken.callProcedure(
       Proc.PasswordChangeToken,
       uuidTransformer.to(id)
     );

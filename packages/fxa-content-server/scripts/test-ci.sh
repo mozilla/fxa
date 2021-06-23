@@ -43,8 +43,6 @@ yarn workspaces foreach \
     run start > ~/.pm2/logs/startup.log
 
 npx pm2 ls
-# ensure email-service is ready
-_scripts/check-url.sh localhost:8001/__heartbeat__
 # ensure payments-server is ready
 _scripts/check-url.sh localhost:3031/__lbheartbeat__
 # ensure content-server is ready

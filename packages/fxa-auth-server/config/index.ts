@@ -165,45 +165,6 @@ const conf = convict({
       auth: makeMySQLConfig('AUTH', 'fxa'),
     },
   },
-  db: {
-    backend: {
-      default: 'httpdb',
-      env: 'DB_BACKEND',
-    },
-    connectionRetry: {
-      default: '10 seconds',
-      env: 'DB_CONNECTION_RETRY',
-      doc: 'Time in milliseconds to retry a database connection attempt',
-      format: 'duration',
-    },
-    connectionTimeout: {
-      default: '5 minutes',
-      env: 'DB_CONNECTION_TIMEOUT',
-      doc: 'Timeout in milliseconds after which the mailer will stop trying to connect to the database',
-      format: 'duration',
-    },
-    poolee: {
-      timeout: {
-        default: '5 seconds',
-        format: 'duration',
-        env: 'DB_POOLEE_TIMEOUT',
-        doc: 'Time in milliseconds to wait for db query completion',
-      },
-      maxPending: {
-        default: 1000,
-        format: 'int',
-        env: 'DB_POOLEE_MAX_PENDING',
-        doc: 'Number of pending requests to auth-db-mysql to allow',
-      },
-    },
-  },
-  httpdb: {
-    url: {
-      doc: 'database api url',
-      default: 'http://localhost:8000',
-      env: 'HTTPDB_URL',
-    },
-  },
   listen: {
     host: {
       doc: 'The ip address the server should bind',
@@ -1446,6 +1407,11 @@ const conf = convict({
         env: 'IP_PROFILING_RECENCY',
       },
     },
+    ipHmacKey: {
+      doc: 'A secret to hash IP addresses for security history events',
+      default: 'changeme',
+      env: 'IP_HMAC_KEY',
+    },
   },
   lastAccessTimeUpdates: {
     enabled: {
@@ -1650,6 +1616,12 @@ const conf = convict({
       env: 'TOTP_WINDOW',
     },
     recoveryCodes: {
+      length: {
+        doc: 'The length of a recovery code',
+        default: 10,
+        format: 'nat',
+        env: 'RECOVERY_CODE_LENGTH',
+      },
       count: {
         doc: 'Number of recovery codes to create',
         default: 8,

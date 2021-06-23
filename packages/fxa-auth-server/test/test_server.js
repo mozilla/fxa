@@ -8,12 +8,10 @@ const crypto = require('crypto');
 const EventEmitter = require('events');
 const mailbox = require('./mailbox');
 const proxyquire = require('proxyquire').noPreserveCache();
-const createDBServer = require('../../fxa-auth-db-mysql');
 const createMailHelper = require('./mail_helper');
 const createProfileHelper = require('./profile_helper');
 
 let currentServer;
-let currentDBServer;
 
 /* eslint-disable no-console */
 function TestServer(config, printLogs, options = {}) {
@@ -50,13 +48,8 @@ function TestServer(config, printLogs, options = {}) {
 
 TestServer.start = async function (config, printLogs, options) {
   await TestServer.stop();
-  currentDBServer = await createDBServer();
-  currentDBServer.listen(config.httpdb.url.split(':')[2]);
-  currentDBServer.on('error', () => {});
-  currentDBServer.server.keepAliveTimeout = 5000;
 
   currentServer = new TestServer(config, printLogs, options);
-  currentServer.db = currentDBServer;
 
   return currentServer.start().then(() => currentServer);
 };
@@ -94,23 +87,14 @@ TestServer.stop = async function (maybeServer) {
     currentServer = undefined;
   }
 
-  if (currentDBServer) {
-    await currentDBServer.stop();
-    currentDBServer = undefined;
-  }
-
   return Promise.resolve();
 };
 
 TestServer.prototype.stop = async function () {
   currentServer = undefined;
-  currentDBServer = undefined;
-  try {
-    await this.db.close();
-  } catch (e) {}
 
   if (this.server) {
-    const doomed = [this.server.close(), this.mail.close(), this.db.close()];
+    const doomed = [this.server.close(), this.mail.close()];
     if (this.profileServer) {
       doomed.push(this.profileServer.close());
     }

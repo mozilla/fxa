@@ -1,10 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { AuthBaseModel, Proc } from './auth-base';
+import { BaseAuthModel, Proc } from './base-auth';
 import { uuidTransformer } from '../../transformers';
 
-export class KeyFetchToken extends AuthBaseModel {
+export class KeyFetchToken extends BaseAuthModel {
   public static tableName = 'keyFetchTokens';
   public static idColumn = 'tokenId';
 
@@ -58,7 +58,7 @@ export class KeyFetchToken extends AuthBaseModel {
     const proc = withVerificationStatus
       ? Proc.KeyFetchTokenWithVerificationStatus
       : Proc.KeyFetchToken;
-    const rows = await KeyFetchToken.callProcedure(
+    const { rows } = await KeyFetchToken.callProcedure(
       proc,
       uuidTransformer.to(id)
     );

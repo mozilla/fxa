@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { uuidTransformer } from '../../transformers';
-import { AuthBaseModel } from './auth-base';
+import { BaseAuthModel } from './base-auth';
 
 /**
  * Track subscription related emails sent to FxA users.
  */
 
-export class SentEmail extends AuthBaseModel {
+export class SentEmail extends BaseAuthModel {
   public static tableName = 'sentEmails';
   public static idColumn = 'id';
 

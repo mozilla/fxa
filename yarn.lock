@@ -6733,6 +6733,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/ip@npm:^1":
+  version: 1.1.0
+  resolution: "@types/ip@npm:1.1.0"
+  dependencies:
+    "@types/node": "*"
+  checksum: 81427b093d33de6be13c5e370f85df29a4af52d816537bf051d7d2e349ea04d1c9d075cd5bbfc9bddb0699e31e4fadfe661829f4747d93fadfc63d5f5c9dab1a
+  languageName: node
+  linkType: hard
+
 "@types/is-function@npm:^1.0.0":
   version: 1.0.0
   resolution: "@types/is-function@npm:1.0.0"
@@ -19213,6 +19222,7 @@ fsevents@~2.1.1:
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
     "@types/generic-pool": ^3.1.9
+    "@types/ip": ^1
     "@types/jest": ^26.0.23
     "@types/joi": ^14.3.4
     "@types/js-md5": ^0.4.2
@@ -19243,6 +19253,7 @@ fsevents@~2.1.1:
     generic-pool: ^3.7.8
     graphql: ^15.5.1
     hot-shots: ^8.3.2
+    ip: ^1.1.5
     jest: 26.6.0
     joi: ^14.3.1
     js-md5: ^0.7.3

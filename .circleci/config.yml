@@ -9,7 +9,6 @@ executors:
       - image: memcached
       - image: pafortin/goaws
       - image: circleci/mysql:5.7.27
-      - image: mozilla/fxa-email-service
         environment:
           NODE_ENV: dev
           FXA_EMAIL_ENV: dev

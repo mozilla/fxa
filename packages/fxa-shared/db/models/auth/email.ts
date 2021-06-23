@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { fn } from 'objection';
-import { AuthBaseModel } from './auth-base';
+import { BaseAuthModel } from './base-auth';
 import { uuidTransformer } from '../../transformers';
 
-export class Email extends AuthBaseModel {
+export class Email extends BaseAuthModel {
   static tableName = 'emails';
   static idColumn = 'id';
 

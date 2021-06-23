@@ -6,7 +6,7 @@ import { knex, Knex } from 'knex';
 import { promisify } from 'util';
 
 import { MySQLConfig } from './config';
-import { AuthBaseModel } from './models/auth';
+import { BaseAuthModel } from './models/auth';
 import { ProfileBaseModel } from './models/profile';
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
@@ -70,7 +70,7 @@ export function setupDatabase(opts: MySQLConfig): Knex {
 
 export function setupAuthDatabase(opts: MySQLConfig) {
   const knex = setupDatabase(opts);
-  AuthBaseModel.knex(knex);
+  BaseAuthModel.knex(knex);
   return knex;
 }
 
