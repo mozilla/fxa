@@ -10,3 +10,5 @@ updates:
       - "dependencies"
     reviewers:
       - "@mozilla/fxa-devs"
+    ignore:
+      - dependency-name: "@types/*"
