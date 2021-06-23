@@ -240,15 +240,15 @@ module.exports = {
     BUTTON_SUBSCRIBE: '.btn-subscribe',
     SUBSCRIBED: '.pro-status',
   },
-  '400': {
+  400: {
     ERROR: '.error',
     HEADER: '#fxa-400-header',
   },
-  '404': {
+  404: {
     HEADER: '#fxa-404-header',
     LINK_HOME: '#fxa-404-home',
   },
-  '500': {
+  500: {
     HEADER: '#fxa-500-header',
     LINK_HOME: '#fxa-500-home',
   },
@@ -542,6 +542,11 @@ module.exports = {
     SUBMIT: 'button[type="submit"]',
     USE_SMS: '#use-sms-link',
     DONE: '#done-link',
+  },
+  PUSH_VERIFY_LOGIN: {
+    HEADER: '#fxa-push-send-login-header',
+    RESEND: '#resend',
+    SEND_EMAIL: '#send-email',
   },
   RECOVERY_KEY: {
     CANCEL_BUTTON: '.cancel',

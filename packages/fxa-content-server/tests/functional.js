@@ -49,6 +49,7 @@ module.exports = testsSettings.concat([
   'tests/functional/post_verify/account_recovery.js',
   'tests/functional/post_verify/secondary_email.js',
   'tests/functional/post_verify/cad_qr.js',
+  'tests/functional/push.js',
   'tests/functional/pp.js',
   'tests/functional/refreshes_metrics.js',
   'tests/functional/robots_txt.js',

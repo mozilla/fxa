@@ -10,9 +10,10 @@ import NavigateBehavior from '../behaviors/navigate';
 import ResumeTokenMixin from './resume-token-mixin';
 import VerificationMethods from '../../lib/verification-methods';
 import VerificationReasons from '../../lib/verification-reasons';
+import PushLoginExperiment from './push-login-experiment-mixin';
 
 export default {
-  dependsOn: [ResumeTokenMixin],
+  dependsOn: [ResumeTokenMixin, PushLoginExperiment],
 
   /**
    * Sign in a user
@@ -185,6 +186,10 @@ export default {
         (verificationReason === VerificationReasons.CHANGE_PASSWORD &&
           verificationMethod === VerificationMethods.EMAIL_OTP)
       ) {
+        if (this.isInPushLoginExperiment()) {
+          return this.navigate('/push/send_login');
+        }
+
         return this.navigate('signin_token_code', { account });
       }
 
