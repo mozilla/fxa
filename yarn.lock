@@ -18,11 +18,11 @@ __metadata:
     express: ^4.17.1
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
+    ioredis: ^4.27.6
     morgan: ^1.10.0
     node-rsa: 1.1.1
     pm2: ^5.1.0
     prettier: ^2.3.1
-    redis: ^3.1.2
     request: ^2.88.2
   languageName: unknown
   linkType: soft
@@ -7610,7 +7610,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^4.28.0":
+"@typescript-eslint/parser@npm:^4.28.0, @typescript-eslint/parser@npm:^4.5.0":
   version: 4.28.0
   resolution: "@typescript-eslint/parser@npm:4.28.0"
   dependencies:
@@ -7624,23 +7624,6 @@ __metadata:
     typescript:
       optional: true
   checksum: c7132cc4930cd763acd0a5c751c2e7fef9aedee9c93a4ee0f1d1b40f19439b3567f1b32edca97dcce00a26da6d90ddf4c7b77ad1f9183ad73a2364b48270f5a4
-  languageName: node
-  linkType: hard
-
-"@typescript-eslint/parser@npm:^4.5.0":
-  version: 4.27.0
-  resolution: "@typescript-eslint/parser@npm:4.27.0"
-  dependencies:
-    "@typescript-eslint/scope-manager": 4.27.0
-    "@typescript-eslint/types": 4.27.0
-    "@typescript-eslint/typescript-estree": 4.27.0
-    debug: ^4.3.1
-  peerDependencies:
-    eslint: ^5.0.0 || ^6.0.0 || ^7.0.0
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: cfe1b6b2c195e56396ffe1869af9aa660bc1427c7923cccff5b248aba95def2097eea0df40c748ee43e9796783332e7e6bbf41c2b92bebbcfe8557fa8c69ffdc
   languageName: node
   linkType: hard
 
@@ -8240,13 +8223,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"accept-language@npm:^3.0.18":
-  version: 3.0.18
-  resolution: "accept-language@npm:3.0.18"
+"accept-language@npm:^2.0.17":
+  version: 2.0.17
+  resolution: "accept-language@npm:2.0.17"
   dependencies:
     bcp47: ^1.1.2
-    stable: ^0.1.6
-  checksum: 61c09073e880cc359b0e2dc1acff94e8f119e6527700e0729eb02d91ab01148ebec18d10e3bf379fc55c3f491227867259f3582468eb582b757c95c83e557e4e
+  checksum: a298671675fd78aa967bfefd1046e3bffc64c65e14829a60d53b43f7e5d41652ff00b8a5581ade67f0ec82b34f2ab0d357411a8a6a08efcc6ef453046e36a12c
   languageName: node
   linkType: hard
 
@@ -14645,7 +14627,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"denque@npm:^1.1.0, denque@npm:^1.5.0":
+"denque@npm:^1.1.0":
   version: 1.5.0
   resolution: "denque@npm:1.5.0"
   checksum: 3564778cda60c7dee3f1d71e397e50e6b39a8c06118aab9843b9396cb621b3191ab56d13de5237b8beee2b87bec485e8239c58ca3133472d2d1eaa3d2d518022
@@ -18989,6 +18971,7 @@ fsevents@~2.1.1:
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
     "@types/generic-pool": ^3.1.9
+    "@types/ioredis": ^4.26.4
     "@types/ip": ^1
     "@types/jest": ^26.0.23
     "@types/joi": ^14.3.4
@@ -19001,12 +18984,11 @@ fsevents@~2.1.1:
     "@types/proxyquire": ^1.3.28
     "@types/sinon": 10.0.1
     "@types/superagent": ^4.1.11
-    accept-language: ^3.0.18
+    accept-language: ^2.0.17
     ajv: ^6.12.2
     apollo-server: ^2.25.2
     audit-filter: ^0.5.0
     aws-sdk: ^2.934.0
-    bluebird: ^3.7.2
     celebrate: ^10.0.1
     chai: ^4.3.4
     chance: ^1.1.7
@@ -19019,6 +19001,7 @@ fsevents@~2.1.1:
     generic-pool: ^3.7.8
     graphql: ^15.5.1
     hot-shots: ^8.3.2
+    ioredis: ^4.27.6
     ip: ^1.1.5
     jest: 26.6.0
     joi: ^14.3.1
@@ -19038,7 +19021,6 @@ fsevents@~2.1.1:
     pm2: ^5.1.0
     prettier: ^2.3.1
     proxyquire: ^2.1.3
-    redis: ^3.1.2
     reflect-metadata: ^0.1.13
     rxjs: ^6.6.6
     sinon: ^9.0.3
@@ -21026,7 +21008,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"http-errors@npm:1.7.3, http-errors@npm:^1.7.3, http-errors@npm:~1.7.2":
+"http-errors@npm:1.7.3, http-errors@npm:~1.7.2":
   version: 1.7.3
   resolution: "http-errors@npm:1.7.3"
   dependencies:
@@ -21039,7 +21021,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"http-errors@npm:^1.8.0":
+"http-errors@npm:^1.7.3, http-errors@npm:^1.8.0":
   version: 1.8.0
   resolution: "http-errors@npm:1.8.0"
   dependencies:
@@ -27378,14 +27360,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"object-path@npm:^0.11.4":
-  version: 0.11.4
-  resolution: "object-path@npm:0.11.4"
-  checksum: 5e3d4690d00cd6febeb19f888858ac0da8dc9f83a0a364401259d9dfaad0fd58c638632a78e63f81710d4e9a59b3f1f9e4aadacf61f31ab9cb1602194fd76d81
-  languageName: node
-  linkType: hard
-
-"object-path@npm:^0.11.5":
+"object-path@npm:^0.11.4, object-path@npm:^0.11.5":
   version: 0.11.5
   resolution: "object-path@npm:0.11.5"
   checksum: a2be57f65eb247161763280e857ddbafcfbb41ad7cfcfb0a78aca2e8adb990a7b5afe6b182c20baf0e218e541ec75c1807fd04d50e3049920c2ec65e6eb9c900
@@ -31526,7 +31501,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"redis-commands@npm:1.7.0, redis-commands@npm:^1.7.0":
+"redis-commands@npm:1.7.0":
   version: 1.7.0
   resolution: "redis-commands@npm:1.7.0"
   checksum: cbf5d33768b1c8e1001e2a7ffdaeb6ef830c538ef812d803a1c5e6038cf03482cf0a22b29eadf1182aa02a522331826e3af0967ae75fa7883da8a139ad2fc77b
@@ -31546,18 +31521,6 @@ fsevents@~2.1.1:
   dependencies:
     redis-errors: ^1.0.0
   checksum: 45dbcb05bed2c80a4aac288bbefed2347ecf3508c24d542ab42efa21fd63b5aaca4208b206f05818835a2ac43abe09250c2638c11c3b0b66a5d67e83985e350f
-  languageName: node
-  linkType: hard
-
-"redis@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "redis@npm:3.1.2"
-  dependencies:
-    denque: ^1.5.0
-    redis-commands: ^1.7.0
-    redis-errors: ^1.2.0
-    redis-parser: ^3.0.0
-  checksum: af9b5162aa98e3894fab9914e622019ba3e557c6e2285db419354b83fad30e971defb84600191c48985657d2c33d0c0549990fa4efdb9352e81c9727a309f691
   languageName: node
   linkType: hard
 
@@ -34107,7 +34070,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"stable@npm:^0.1.6, stable@npm:^0.1.8":
+"stable@npm:^0.1.8":
   version: 0.1.8
   resolution: "stable@npm:0.1.8"
   checksum: a430967bb543d4d1a5cbec81b48034006a467464f5d4bdf72bd7279da406956e1f8edaa56aab74ec17cc4e56ee61668dc4f1b380255507cf2f70c6ba589f7c48

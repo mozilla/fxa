@@ -5,6 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
+const initialise = require('fxa-shared/feature-flags').default;
 
 describe('featureFlags integration:', () => {
   let config, log, featureFlags;
@@ -14,11 +15,9 @@ describe('featureFlags integration:', () => {
       interval: 10000,
       host: process.env.REDIS_HOST || 'localhost',
       port: process.env.REDIS_PORT || 6379,
-      maxConnections: process.env.REDIS_POOL_MAX_CONNECTIONS || 1,
-      minConnections: process.env.REDIS_POOL_MIN_CONNECTIONS || 1,
     };
     log = { info() {}, warn() {}, error() {} };
-    featureFlags = require('../../feature-flags')(config, log, {});
+    featureFlags = initialise(config, log, {});
   });
 
   after(() => featureFlags.terminate());

@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
-const redis = require('redis');
+const Redis = require('ioredis');
 const sessions = require('client-sessions');
 
 const oauth = require('./oauth');
@@ -11,7 +11,7 @@ const version = require('./version');
 const logger = morgan('short');
 
 // create a connection to the redis datastore
-let db = redis.createClient();
+let db = new Redis();
 
 db.on('error', function () {
   // eslint-disable-line handle-callback-err
