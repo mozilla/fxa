@@ -29,7 +29,7 @@ payment-error-manage-subscription-button = Manage my subscription
 country-currency-mismatch = The currency of this subscription is not valid for the country associated with your payment.
 currency-currency-mismatch = Sorry. You can't switch between currencies.
 
-no-subscription-upgrades = Sorry. You can't upgrade or downgrade your subscription at this time. Please check back soon.
+no-subscription-change = Sorry. You can't change your subscription plan.
 
 expired-card-error = It looks like your credit card has expired. Try another card.
 insufficient-funds-error = It looks like your card has insufficient funds. Try another card.
@@ -53,7 +53,7 @@ subscription-create-title = Set up your subscription
 subscription-success-title = Subscription confirmation
 subscription-processing-title = Confirming subscription…
 subscription-error-title = Error confirming subscription…
-subscription-noupgrade-title = Subscription tier changes are not supported
+subscription-noplanchange-title = This subscription plan change is not supported
 
 ##  $productName (String) - The name of the subscribed product.
 ##  $amount (Number) - The amount billed. It will be formatted as currency.

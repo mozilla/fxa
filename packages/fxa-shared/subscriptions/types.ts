@@ -111,3 +111,12 @@ export type PaypalPaymentError =
 export type SentEmailParams = {
   subscriptionId: string;
 };
+
+export const SubscriptionUpdateEligibility = {
+  UPGRADE: 'upgrade',
+  DOWNGRADE: 'downgrade',
+  INVALID: 'invalid',
+} as const;
+
+export type SubscriptionUpdateEligibility =
+  typeof SubscriptionUpdateEligibility[keyof typeof SubscriptionUpdateEligibility];

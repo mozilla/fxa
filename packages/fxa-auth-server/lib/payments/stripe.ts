@@ -10,9 +10,14 @@ import {
   getAccountCustomerByUid,
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
-import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
+import {
+  AbbrevPlan,
+  AbbrevProduct,
+  SubscriptionUpdateEligibility,
+} from 'fxa-shared/subscriptions/types';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
+  getSubscriptionUpdateEligibility,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
 import { StatsD } from 'hot-shots';
@@ -81,39 +86,6 @@ type BillingAddressOptions = {
   postalCode: string;
   state: string;
 };
-
-/**
- * Determine for two product metadata object's whether the new one
- * is a valid upgrade for the old one.
- *
- * Throws errors if necessary metadata is not present to determine
- * if its an upgrade.
- *
- * @param {AbbrevProduct['product_metadata']} oldMetadata Old product metadata
- * @param {AbbrevProduct['product_metadata']} newMetadata New product metadata
- * @returns {boolean} Whether the new product is an upgrade.
- */
-function validateProductUpdate(
-  oldMetadata: AbbrevProduct['product_metadata'],
-  newMetadata: AbbrevProduct['product_metadata']
-): boolean {
-  if (!oldMetadata || !newMetadata) {
-    throw error.unknownSubscriptionPlan();
-  }
-
-  const oldId = oldMetadata.productSet;
-  const newId = newMetadata.productSet;
-  if (!oldId || oldId !== newId) {
-    // Incompatible product sets
-    return false;
-  }
-  const oldOrder = Number.parseInt(oldMetadata.productOrder);
-  const newOrder = Number.parseInt(newMetadata.productOrder);
-  if (isNaN(oldOrder) || isNaN(newOrder)) {
-    throw error.unknownSubscriptionPlan();
-  }
-  return oldOrder !== newOrder;
-}
 
 export class StripeHelper {
   // Note that this isn't quite accurate, as the auth-server logger has some extras
@@ -1170,28 +1142,25 @@ export class StripeHelper {
     currentPlanId: string,
     newPlanId: string
   ): Promise<void> {
-    const allPlans = await this.allPlans();
-    const currentPlan = allPlans
-      .filter((plan) => plan.plan_id === currentPlanId)
-      .shift();
-
-    const newPlan = allPlans
-      .filter((plan) => plan.plan_id === newPlanId)
-      .shift();
-    if (!newPlan || !currentPlan) {
-      throw error.unknownSubscriptionPlan();
-    }
-
     if (currentPlanId === newPlanId) {
       throw error.subscriptionAlreadyChanged();
     }
 
-    if (
-      !validateProductUpdate(
-        currentPlan.product_metadata,
-        newPlan.product_metadata
-      )
-    ) {
+    const allPlans = await this.allPlans();
+    const currentPlan = allPlans.find((plan) => plan.plan_id === currentPlanId);
+    const newPlan = allPlans.find((plan) => plan.plan_id === newPlanId);
+
+    if (!newPlan || !currentPlan) {
+      throw error.unknownSubscriptionPlan();
+    }
+
+    const planUpdateEligibility = getSubscriptionUpdateEligibility(
+      currentPlan,
+      newPlan
+    );
+
+    // We only allow upgrades
+    if (planUpdateEligibility !== SubscriptionUpdateEligibility.UPGRADE) {
       throw error.invalidPlanUpdate();
     }
   }

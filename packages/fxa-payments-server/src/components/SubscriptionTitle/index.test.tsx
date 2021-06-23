@@ -87,24 +87,27 @@ describe('SubscriptionTitle', () => {
     const subject = () => {
       return render(
         <SubscriptionTitle
-          {...{ screenType: 'noupgrade', subtitle: <p>quuz</p> }}
+          {...{
+            screenType: 'noplanchange',
+            subtitle: <p>{titles.noplanchange}</p>,
+          }}
         />
       );
     };
     const { findByTestId } = subject();
-    const component = await findByTestId('subscription-noupgrade-title');
+    const component = await findByTestId('subscription-noplanchange-title');
 
-    const expectedTitle = titles.noupgrade;
+    const expectedTitle = titles.noplanchange;
     expect(component).toHaveTextContent(expectedTitle);
     const actualTitle = getLocalizedMessage(
       bundle,
-      'subscription-noupgrade-title',
+      'subscription-noplanchange-title',
       {}
     );
     expect(actualTitle).toEqual(expectedTitle);
 
     const defaultSubtitle = '30-day money-back guarantee';
     expect(component).not.toHaveTextContent(defaultSubtitle);
-    expect(component).toHaveTextContent('quuz');
+    expect(component).toHaveTextContent(titles.noplanchange);
   });
 });

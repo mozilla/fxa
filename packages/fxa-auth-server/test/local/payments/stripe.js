@@ -1460,19 +1460,25 @@ describe('StripeHelper', () => {
   });
 
   describe('verifyPlanUpdateForSubscription', () => {
-    it('does nothing for valid upgrade or downgrade', async () => {
+    it('does nothing for a valid upgrade', async () => {
       assert.isUndefined(
         await stripeHelper.verifyPlanUpdateForSubscription(
           'plan_G93lTs8hfK7NNG',
           'plan_G93mMKnIFCjZek'
         )
       );
-      assert.isUndefined(
+    });
+
+    it('throws an invalidPlanUpdate when it is a downgrade', async () => {
+      try {
         await stripeHelper.verifyPlanUpdateForSubscription(
           'plan_G93mMKnIFCjZek',
           'plan_G93lTs8hfK7NNG'
-        )
-      );
+        );
+        assert.fail('An invalidPlanUpdate should have been thrown.');
+      } catch (e) {
+        assert.equal(e.errno, error.ERRNO.INVALID_PLAN_UPDATE);
+      }
     });
 
     describe('when the upgrade is invalid', () => {

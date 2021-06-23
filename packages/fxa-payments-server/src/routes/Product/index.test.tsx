@@ -260,7 +260,6 @@ describe('routes/Product', () => {
           appContext: {
             config: {
               ...defaultConfig(),
-              featureFlags: { allowSubscriptionUpgrades: true },
             },
           },
         }}
@@ -271,31 +270,47 @@ describe('routes/Product', () => {
     expectNockScopesDone(apiMocks);
   });
 
-  it('blocks upgrade when the feature flag disallows it', async () => {
-    initSubscribedApiMocks();
-    const { findByTestId } = render(
+  it('does not offer upgrade if another plan in the same product set does not have product order', async () => {
+    const apiMocks = initSubscribedApiMocks();
+    const { findAllByText, queryByTestId } = render(
       <Subject
         {...{
-          planId: 'plan_upgrade',
+          planId: 'plan_no_upgrade',
           productId: 'prod_upgrade',
           appContext: {
             config: {
               ...defaultConfig(),
-              featureFlags: { allowSubscriptionUpgrades: false },
             },
           },
         }}
       />
     );
-    const errorEl = await findByTestId('payment-error');
-    expect(errorEl).toBeInTheDocument();
+    await findAllByText('Set up your subscription');
+    expect(queryByTestId('subscription-upgrade')).not.toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
   });
 
-  it('blocks upgrade if already subscribed to a different plan of the same product', async () => {
-    // This is temporary until we get the upgrade feature figured out.
-    // The test above checks to see if a plan is upgradeable by looking at
-    // metadata, but we are also explicity checking the plan and product ids
-    // even if the plans are not in the same product set.
+  it('does not allow a downgrade', async () => {
+    const apiMocks = initSubscribedApiMocks();
+    const { findByTestId } = render(
+      <Subject
+        {...{
+          planId: 'plan_no_downgrade',
+          productId: 'prod_upgrade',
+          appContext: {
+            config: {
+              ...defaultConfig(),
+            },
+          },
+        }}
+      />
+    );
+    const errorEl = await findByTestId('subscription-noplanchange-title');
+    expect(errorEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
+  });
+
+  it('displays roadblock for a different plan of the same product with no upgrade path', async () => {
     const apiMocks = initSubscribedApiMocks();
     const { findByTestId } = render(
       <Subject
@@ -305,18 +320,17 @@ describe('routes/Product', () => {
           appContext: {
             config: {
               ...defaultConfig(),
-              featureFlags: { allowSubscriptionUpgrades: false },
             },
           },
         }}
       />
     );
-    const errorEl = await findByTestId('payment-error');
+    const errorEl = await findByTestId('subscription-noplanchange-title');
     expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
 
-  it('displays payment confirmation if user is already subscribed the product', async () => {
+  it('displays payment confirmation if user is already subscribed to the product', async () => {
     const apiMocks = initSubscribedApiMocks();
     const { findByTestId } = render(<Subject />);
     const confirmEl = await findByTestId('payment-confirmation');

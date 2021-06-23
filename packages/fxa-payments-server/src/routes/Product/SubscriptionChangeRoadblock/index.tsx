@@ -9,18 +9,18 @@ import { SubscriptionUpgradeProps } from '../SubscriptionUpgrade';
 import { SubscriptionTitle } from '../../../components/SubscriptionTitle';
 import PaymentErrorView from 'fxa-payments-server/src/components/PaymentErrorView';
 
-export type SubscriptionUpgradeRoadblockProps = Pick<
+export type SubscriptionDowngradeRoadblockProps = Pick<
   SubscriptionUpgradeProps,
   'profile' | 'isMobile' | 'selectedPlan'
 >;
 
-export const SubscriptionUpgradeRoadblock = ({
+export const SubscriptionChangeRoadblock = ({
   profile,
   isMobile,
   selectedPlan,
-}: SubscriptionUpgradeRoadblockProps) => {
+}: SubscriptionDowngradeRoadblockProps) => {
   const title = (
-    <SubscriptionTitle {...{ screenType: 'noupgrade', subtitle: <p></p> }} />
+    <SubscriptionTitle {...{ screenType: 'noplanchange', subtitle: <p></p> }} />
   );
 
   return (
@@ -30,7 +30,7 @@ export const SubscriptionUpgradeRoadblock = ({
         <PaymentErrorView
           {...{
             subscriptionTitle: title,
-            error: { code: 'no_subscription_upgrades' },
+            error: { code: 'no_subscription_change' },
             onRetry: () => {}, // PaymentErrorView actually ignores this
             plan: selectedPlan,
           }}
@@ -49,4 +49,4 @@ export const SubscriptionUpgradeRoadblock = ({
   );
 };
 
-export default SubscriptionUpgradeRoadblock;
+export default SubscriptionChangeRoadblock;

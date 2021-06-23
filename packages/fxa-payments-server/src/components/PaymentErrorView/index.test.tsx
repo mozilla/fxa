@@ -68,7 +68,7 @@ describe('PaymentErrorView test with l10n', () => {
     const { getByTestId } = render(
       <PaymentErrorView
         onRetry={() => {}}
-        error={{ code: 'no_subscription_upgrades' }}
+        error={{ code: 'no_subscription_change' }}
         plan={SELECTED_PLAN}
       />
     );
@@ -83,15 +83,15 @@ describe('PaymentErrorView test with l10n', () => {
   it('uses the given SubscriptionTitle', async () => {
     const { getByTestId } = render(
       <PaymentErrorView
-        subscriptionTitle={<SubscriptionTitle screenType={'noupgrade'} />}
+        subscriptionTitle={<SubscriptionTitle screenType={'noplanchange'} />}
         onRetry={() => {}}
-        error={{ code: 'no_subscription_upgrades' }}
+        error={{ code: 'no_subscription_change' }}
         plan={SELECTED_PLAN}
       />
     );
 
-    const expectedTitle = titles.noupgrade;
-    expect(getByTestId('subscription-noupgrade-title')).toHaveTextContent(
+    const expectedTitle = titles.noplanchange;
+    expect(getByTestId('subscription-noplanchange-title')).toHaveTextContent(
       expectedTitle
     );
 

@@ -8,7 +8,7 @@ export const titles = {
   success: 'Subscription confirmation',
   processing: 'Confirming subscription…',
   error: 'Error confirming subscription…',
-  noupgrade: 'Subscription tier changes are not supported',
+  noplanchange: 'This subscription plan change is not supported',
 } as const;
 
 export type SubscriptionTitleProps = {

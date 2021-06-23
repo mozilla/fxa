@@ -10,11 +10,14 @@ import {
   filterProduct,
   filterIntent,
   filterInvoice,
+  getSubscriptionUpdateEligibility,
 } from '../../subscriptions/stripe';
+import { Plan, SubscriptionUpdateEligibility } from '../../subscriptions/types';
 
 const customer1WithSubscription = require('../fixtures/stripe/customer1_with_subscription.json');
 const subscriptionExpanded = require('../fixtures/stripe/subscription_expanded.json');
 const price1 = require('../fixtures/stripe/price1_with_product.json');
+const plan = require('../fixtures/stripe/plan1_with_product.json');
 
 function assertSubscription(item?: DeepPartial<Stripe.Subscription>) {
   assert.hasAllKeys(item, [
@@ -144,6 +147,110 @@ describe('stripe', () => {
         subscriptionExpanded.latest_invoice.payment_intent
       );
       assertIntent(result as any);
+    });
+  });
+
+  describe('isValidSubscriptionPlanUpdate', () => {
+    const currentPlan: Plan = {
+      ...plan,
+      plan_id: plan.id,
+      plan_metadata: {
+        ...plan.metadata,
+        productOrder: '3',
+      },
+      plan_name: plan.name,
+      product_id: plan.product.id,
+      product_metadata: plan.product.metadata,
+      product_name: plan.product.name,
+    };
+    const newPlan: Plan = {
+      ...currentPlan,
+      plan_id: 'quux',
+      plan_metadata: {
+        ...plan.metadata,
+        productOrder: '8',
+      },
+      plan_name: 'something with better value!',
+    };
+
+    it('returns invalid when the same plan is passed', () => {
+      const actual = getSubscriptionUpdateEligibility(currentPlan, currentPlan);
+      assert.equal(actual, SubscriptionUpdateEligibility.INVALID);
+    });
+
+    it('returns upgrade when plan "upgrade" is allowed', () => {
+      const actual = getSubscriptionUpdateEligibility(currentPlan, newPlan);
+      assert.equal(actual, SubscriptionUpdateEligibility.UPGRADE);
+    });
+
+    it('returns downgrade for a plan "downgrade"', () => {
+      const actual = getSubscriptionUpdateEligibility(newPlan, currentPlan);
+      assert.equal(actual, SubscriptionUpdateEligibility.DOWNGRADE);
+    });
+
+    it('returns invalid when a plan is not in a product set', () => {
+      const x = {
+        ...newPlan,
+        plan_metadata: { ...newPlan.plan_metadata, productSet: undefined },
+      };
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlan, x),
+        SubscriptionUpdateEligibility.INVALID
+      );
+      assert.equal(
+        getSubscriptionUpdateEligibility(x, currentPlan),
+        SubscriptionUpdateEligibility.INVALID
+      );
+    });
+
+    it('returns invalid when the product sets do not match', () => {
+      const x = {
+        ...newPlan,
+        plan_metadata: { ...newPlan.plan_metadata, productSet: 'testo' },
+      };
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlan, x),
+        SubscriptionUpdateEligibility.INVALID
+      );
+    });
+
+    it('returns invalid when a plan does not have a product order', () => {
+      const x = {
+        ...newPlan,
+        plan_metadata: { ...newPlan.plan_metadata, productOrder: undefined },
+      };
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlan, x),
+        SubscriptionUpdateEligibility.INVALID
+      );
+    });
+
+    it('returns invalid when when a plan has a product order that is not a number', () => {
+      const x = {
+        ...newPlan,
+        plan_metadata: {
+          ...newPlan.plan_metadata,
+          productOrder: 'not a number',
+        },
+      };
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlan, x),
+        SubscriptionUpdateEligibility.INVALID
+      );
+    });
+
+    it('returns invalid when the plans has the same product order', () => {
+      const x = {
+        ...newPlan,
+        plan_metadata: {
+          ...newPlan.plan_metadata,
+          productOrder: currentPlan.plan_metadata!.productOrder,
+        },
+      };
+      assert.equal(
+        getSubscriptionUpdateEligibility(currentPlan, x),
+        SubscriptionUpdateEligibility.INVALID
+      );
     });
   });
 });

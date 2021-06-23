@@ -58,7 +58,7 @@ export const PaymentErrorView = ({
   // on the type of error
   const ActionButton = () => {
     switch (error?.code) {
-      case 'no_subscription_upgrades':
+      case 'no_subscription_change':
         return manageSubButtonFn(() => history.push('/subscriptions'));
       default:
         return retryButtonFn(onRetry);
