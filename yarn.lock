@@ -6050,6 +6050,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@type-cacheable/core@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "@type-cacheable/core@npm:9.2.0"
+  dependencies:
+    serialize-javascript: ^5.0.0
+  checksum: d946a98c877f858a2c06879972153998fd68bc3d6c99fde860737e69548082562b246cbd4a5a0a6665163fbe766aaa4561d113a85c739f3fadda646301608450
+  languageName: node
+  linkType: hard
+
 "@type-cacheable/ioredis-adapter@npm:^5.2.0":
   version: 5.2.0
   resolution: "@type-cacheable/ioredis-adapter@npm:5.2.0"
@@ -18315,7 +18324,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^9.1.0
     "@hapi/joi": ^15.1.1
     "@sentry/node": ^6.7.1
-    "@type-cacheable/core": ^5.2.0
+    "@type-cacheable/core": ^9.2.0
     "@type-cacheable/ioredis-adapter": ^5.2.0
     "@types/chai": ^4.2.18
     "@types/convict": ^5.2.2
@@ -33311,7 +33320,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"serialize-javascript@npm:5.0.1, serialize-javascript@npm:^5.0.1":
+"serialize-javascript@npm:5.0.1, serialize-javascript@npm:^5.0.0, serialize-javascript@npm:^5.0.1":
   version: 5.0.1
   resolution: "serialize-javascript@npm:5.0.1"
   dependencies:
