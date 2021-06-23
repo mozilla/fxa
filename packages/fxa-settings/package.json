@@ -56,7 +56,7 @@
     "graphql": "^15.5.1",
     "lodash.groupby": "^4.6.0",
     "postcss-import": "^12.0.1",
-    "react": "^16.13.1",
+    "react": "^17.0.2",
     "react-async-hook": "^3.6.2",
     "react-dom": "^16.13.1",
     "react-easy-crop": "^3.5.1",
