@@ -6117,14 +6117,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/ioredis-adapter@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "@type-cacheable/ioredis-adapter@npm:5.2.0"
+"@type-cacheable/ioredis-adapter@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "@type-cacheable/ioredis-adapter@npm:9.2.0"
   dependencies:
-    "@type-cacheable/core": ^5.2.0
+    compare-versions: ^3.6.0
   peerDependencies:
+    "@type-cacheable/core": ^9.1.0
     ioredis: ^4.14.1
-  checksum: f23f8f2358a490c9222e029439a0d1c5f8b786d9e4ae2738f5dd6cd33e598a3c4af53e7176bf4b25e7408211564b1f1a46a7b7fb5f1c2be21da772f89b964c16
+  checksum: 2a821b7c20694da73767a75755533b9a01724e346d0528a7204b6ab19d5255a578178c94c19a7e6b6d4abf1c7d6b95924d41c50a2c938ba45d7aa6cdf07d52fe
   languageName: node
   linkType: hard
 
@@ -18309,7 +18310,7 @@ fsevents@~2.1.1:
     "@hapi/joi": ^15.1.1
     "@sentry/node": ^6.7.2
     "@type-cacheable/core": ^5.2.0
-    "@type-cacheable/ioredis-adapter": ^5.2.0
+    "@type-cacheable/ioredis-adapter": ^9.2.0
     "@types/chai": ^4.2.18
     "@types/convict": ^5.2.2
     "@types/hapi__hapi": ^19.0.3
