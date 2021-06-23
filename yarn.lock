@@ -7460,12 +7460,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:*, @types/sinon@npm:10.0.1, @types/sinon@npm:^10":
+"@types/sinon@npm:*, @types/sinon@npm:^10":
   version: 10.0.1
   resolution: "@types/sinon@npm:10.0.1"
   dependencies:
     "@sinonjs/fake-timers": ^7.1.0
   checksum: 72a4ca9d5cc320be5d5b9212ec7bdad5a7d63dd7ab71284a246cc718bfad68c50ed3adb728a4b7dc9d17d9011773e405f6becfbf2d64496aa45ba9789d7e82c4
+  languageName: node
+  linkType: hard
+
+"@types/sinon@npm:10.0.2":
+  version: 10.0.2
+  resolution: "@types/sinon@npm:10.0.2"
+  dependencies:
+    "@sinonjs/fake-timers": ^7.1.0
+  checksum: 44d149b0ba4ebfbadd7452e31edb35aab782d74bb542a808e5b0cc72f40fd2db6b4179bb97a79d5e2dc1b870823a395cd21349037a7af336810c1662ee9f076f
   languageName: node
   linkType: hard
 
@@ -18703,7 +18712,7 @@ fsevents@~2.1.1:
     "@types/passport": ^1.0.6
     "@types/passport-jwt": ^3.0.5
     "@types/rimraf": 3.0.0
-    "@types/sinon": 10.0.1
+    "@types/sinon": 10.0.2
     "@types/supertest": ^2.0.11
     "@types/uuid": ^8.3.0
     "@typescript-eslint/eslint-plugin": ^4.27.0
@@ -18868,7 +18877,7 @@ fsevents@~2.1.1:
     "@types/convict": ^5.2.2
     "@types/mocha": ^8.2.2
     "@types/node": ^15.12.2
-    "@types/sinon": 10.0.1
+    "@types/sinon": 10.0.2
     ajv: ^6.12.2
     audit-filter: ^0.5.0
     chai: ^4.3.4
@@ -18945,7 +18954,7 @@ fsevents@~2.1.1:
     "@types/react-stripe-elements": ^1.3.5
     "@types/react-transition-group": ^4.4.1
     "@types/redux-actions": ^2.6.0
-    "@types/sinon": 10.0.1
+    "@types/sinon": 10.0.2
     "@types/storybook__addon-actions": ^5.2.1
     "@types/storybook__addon-links": ^5.2.1
     "@types/storybook__react": ^5.2.1
@@ -19234,7 +19243,7 @@ fsevents@~2.1.1:
     "@types/node": ^15.12.2
     "@types/proxyquire": ^1.3.28
     "@types/redis": ^2.8.29
-    "@types/sinon": 10.0.1
+    "@types/sinon": 10.0.2
     "@types/superagent": ^4.1.11
     accept-language: ^2.0.17
     ajv: ^6.12.2
