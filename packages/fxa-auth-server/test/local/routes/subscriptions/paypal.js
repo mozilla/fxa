@@ -165,6 +165,9 @@ describe('subscriptions payPalRoutes', () => {
     beforeEach(() => {
       stripeHelper.refreshCachedCustomer = sinon.fake.resolves({});
       stripeHelper.cancelSubscription = sinon.fake.resolves({});
+      stripeHelper.taxRateByCountryCode = sinon.fake.resolves({
+        id: 'tr-1234',
+      });
       payPalHelper.cancelBillingAgreement = sinon.fake.resolves({});
       profile.deleteCache = sinon.fake.resolves({});
       push.notifyProfileUpdated = sinon.fake.resolves({});
@@ -178,12 +181,10 @@ describe('subscriptions payPalRoutes', () => {
       payPalHelper.agreementDetails = sinon.fake.resolves({
         countryCode: 'CA',
       });
-      stripeHelper.createSubscriptionWithPaypal = sinon.fake.resolves(
-        subscription
-      );
-      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves(
-        customer
-      );
+      stripeHelper.createSubscriptionWithPaypal =
+        sinon.fake.resolves(subscription);
+      stripeHelper.updateCustomerPaypalAgreement =
+        sinon.fake.resolves(customer);
     });
 
     describe('existing PayPal subscriber with no billing agreement on record', () => {
@@ -207,9 +208,8 @@ describe('subscriptions payPalRoutes', () => {
 
     describe('new customer with no PayPal token', () => {
       it('throws a missing PayPal payment token error', async () => {
-        authDbModule.getAccountCustomerByUid = sinon.fake.resolves(
-          accountCustomer
-        );
+        authDbModule.getAccountCustomerByUid =
+          sinon.fake.resolves(accountCustomer);
         stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
 
         try {
@@ -229,12 +229,10 @@ describe('subscriptions payPalRoutes', () => {
         const c = deepCopy(customer);
         c.subscriptions.data[0].collection_method = 'send_invoice';
         stripeHelper.customer = sinon.fake.resolves(c);
-        authDbModule.getAccountCustomerByUid = sinon.fake.resolves(
-          accountCustomer
-        );
-        stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
-          paypalAgreementId
-        );
+        authDbModule.getAccountCustomerByUid =
+          sinon.fake.resolves(accountCustomer);
+        stripeHelper.getCustomerPaypalAgreement =
+          sinon.fake.returns(paypalAgreementId);
 
         try {
           await runTest('/oauth/subscriptions/active/new-paypal', {
@@ -250,9 +248,8 @@ describe('subscriptions payPalRoutes', () => {
 
     describe('new subscription with a PayPal payment token', () => {
       beforeEach(() => {
-        authDbModule.getAccountCustomerByUid = sinon.fake.resolves(
-          accountCustomer
-        );
+        authDbModule.getAccountCustomerByUid =
+          sinon.fake.resolves(accountCustomer);
         stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
         payPalHelper.processInvoice = sinon.fake.resolves({});
         payPalHelper.processZeroInvoice = sinon.fake.resolves({});
@@ -273,6 +270,16 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
         sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
         sinon.assert.calledOnce(payPalHelper.processInvoice);
+        sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
+        sinon.assert.calledWithExactly(
+          stripeHelper.createSubscriptionWithPaypal,
+          {
+            customer,
+            priceId: undefined,
+            subIdempotencyKey: undefined,
+            taxRateId: 'tr-1234',
+          }
+        );
         sinon.assert.calledOnceWithExactly(
           authDbModule.getAccountCustomerByUid,
           UID
@@ -422,9 +429,8 @@ describe('subscriptions payPalRoutes', () => {
         };
         c.subscriptions.data[0].collection_method = 'send_invoice';
         stripeHelper.customer = sinon.fake.resolves(c);
-        stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(
-          paypalAgreementId
-        );
+        stripeHelper.getCustomerPaypalAgreement =
+          sinon.fake.returns(paypalAgreementId);
         payPalHelper.processInvoice = sinon.fake.resolves({});
         stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
       });
@@ -439,6 +445,25 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.notCalled(payPalHelper.agreementDetails);
         sinon.assert.notCalled(stripeHelper.updateCustomerPaypalAgreement);
         sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
+        sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
+        sinon.assert.calledWithExactly(
+          stripeHelper.createSubscriptionWithPaypal,
+          {
+            customer: {
+              ...customer,
+              address: {
+                country: 'GD',
+              },
+              metadata: {
+                ...customer.metadata,
+                paypalAgreementId,
+              },
+            },
+            priceId: undefined,
+            subIdempotencyKey: undefined,
+            taxRateId: 'tr-1234',
+          }
+        );
 
         assert.deepEqual(actual, {
           sourceCountry: 'GD',
@@ -493,9 +518,8 @@ describe('subscriptions payPalRoutes', () => {
         }
       }
 
-      authDbModule.getAccountCustomerByUid = sinon.fake.resolves(
-        accountCustomer
-      );
+      authDbModule.getAccountCustomerByUid =
+        sinon.fake.resolves(accountCustomer);
       stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
       stripeHelper.fetchOpenInvoices.returns(genInvoice());
       profile.deleteCache = sinon.fake.resolves({});
@@ -512,9 +536,8 @@ describe('subscriptions payPalRoutes', () => {
       payPalHelper.agreementDetails = sinon.fake.resolves({
         countryCode: 'CA',
       });
-      stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves(
-        customer
-      );
+      stripeHelper.updateCustomerPaypalAgreement =
+        sinon.fake.resolves(customer);
     });
 
     it('should update the billing agreement and process invoice', async () => {

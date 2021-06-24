@@ -26,12 +26,8 @@ const {
   DirectStripeRoutes,
 } = require('../../../../lib/routes/subscriptions');
 
-const {
-  filterCustomer,
-  filterSubscription,
-  filterInvoice,
-  filterIntent,
-} = require('fxa-shared').subscriptions.stripe;
+const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
+  require('fxa-shared').subscriptions.stripe;
 
 const subscription2 = require('../../payments/fixtures/stripe/subscription2.json');
 const cancelledSubscription = require('../../payments/fixtures/stripe/subscription_cancelled.json');
@@ -212,7 +208,7 @@ describe('subscriptions stripeRoutes', () => {
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
         paypalNvpSigCredentials: {
-          enabled: true,
+          enabled: false,
         },
       },
       currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
@@ -639,6 +635,10 @@ describe('DirectStripeRoutes', () => {
         UID,
         TEST_EMAIL
       );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.taxRateByCountryCode,
+        'US'
+      );
 
       assert.deepEqual(
         {
@@ -750,6 +750,7 @@ describe('DirectStripeRoutes', () => {
           priceId: 'quux',
           paymentMethodId: undefined,
           subIdempotencyKey: `${idempotencyKey}-createSub`,
+          taxRateId: undefined,
         }
       );
       sinon.assert.calledWith(
@@ -870,9 +871,10 @@ describe('DirectStripeRoutes', () => {
         paymentMethodId,
       };
 
-      const actual = await directStripeRoutesInstance.updateDefaultPaymentMethod(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.updateDefaultPaymentMethod(
+          VALID_REQUEST
+        );
 
       assert.deepEqual(filterCustomer(expected), actual);
       sinon.assert.calledOnce(
@@ -989,10 +991,11 @@ describe('DirectStripeRoutes', () => {
       customer.subscriptions.data = [subscription2];
       it('returns the Subscription when the plan id is found', () => {
         const expected = customer.subscriptions.data[0];
-        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
-          customer,
-          customer.subscriptions.data[0].items.data[0].plan.product
-        );
+        const actual =
+          directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+            customer,
+            customer.subscriptions.data[0].items.data[0].plan.product
+          );
 
         assert.deepEqual(actual, expected);
       });
@@ -1013,20 +1016,22 @@ describe('DirectStripeRoutes', () => {
 
       it('returns the Subscription when the product id is found - first in array', () => {
         const expected = customer.subscriptions.data[0];
-        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
-          customer,
-          'prod_GgIk7jEVeDK06M'
-        );
+        const actual =
+          directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+            customer,
+            'prod_GgIk7jEVeDK06M'
+          );
 
         assert.deepEqual(actual, expected);
       });
 
       it('returns the Subscription when the product id is found - not first in array', () => {
         const expected = customer.subscriptions.data[0];
-        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
-          customer,
-          'prod_GgIlYvvmpprKAy'
-        );
+        const actual =
+          directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+            customer,
+            'prod_GgIlYvvmpprKAy'
+          );
 
         assert.deepEqual(actual, expected);
       });
@@ -1047,20 +1052,22 @@ describe('DirectStripeRoutes', () => {
 
       it('returns the Subscription when the product id is found in the first subscription', () => {
         const expected = customer.subscriptions.data[0];
-        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
-          customer,
-          'prod_GgIk7jEVeDK06M'
-        );
+        const actual =
+          directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+            customer,
+            'prod_GgIk7jEVeDK06M'
+          );
 
         assert.deepEqual(actual, expected);
       });
 
       it('returns the Subscription when the product id is found in not the first subscription', () => {
         const expected = customer.subscriptions.data[1];
-        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
-          customer,
-          'prod_G93mdk6bGPJ7wy'
-        );
+        const actual =
+          directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+            customer,
+            'prod_G93mdk6bGPJ7wy'
+          );
 
         assert.deepEqual(actual, expected);
       });
@@ -1281,9 +1288,8 @@ describe('DirectStripeRoutes', () => {
 
           directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
 
-          const activeSubscriptions = await directStripeRoutesInstance.listActive(
-            VALID_REQUEST
-          );
+          const activeSubscriptions =
+            await directStripeRoutesInstance.listActive(VALID_REQUEST);
 
           assert.lengthOf(activeSubscriptions, 4);
           assert.isDefined(
