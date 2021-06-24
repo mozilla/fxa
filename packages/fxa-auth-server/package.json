@@ -39,16 +39,16 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@google-cloud/firestore": "^4.12.2",
+    "@google-cloud/firestore": "^4.12.3",
     "@hapi/hapi": "^20.1.4",
     "@hapi/hawk": "^8.0.0",
-    "@hapi/hoek": "^9.1.0",
+    "@hapi/hoek": "^9.2.0",
     "@hapi/joi": "^15.1.1",
     "@sentry/node": "^6.7.2",
     "@type-cacheable/core": "^5.2.0",
     "@type-cacheable/ioredis-adapter": "^5.2.0",
     "ajv": "^6.12.2",
-    "aws-sdk": "^2.932.0",
+    "aws-sdk": "^2.933.0",
     "base64url": "3.0.1",
     "bluebird": "^3.7.2",
     "buf": "0.1.1",
@@ -71,7 +71,7 @@
     "i18n-abide": "0.0.26",
     "ioredis": "^4.27.6",
     "jed": "0.5.4",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^8.5.1",
     "keyv": "4.0.3",
     "lodash": "^4.17.21",
     "luxon": "^1.27.0",
@@ -158,6 +158,6 @@
     "through": "2.3.8",
     "ts-node": "^10.0.0",
     "typescript": "^4.2.4",
-    "ws": "^7.4.6"
+    "ws": "^7.5.0"
   }
 }

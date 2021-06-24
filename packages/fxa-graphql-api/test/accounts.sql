@@ -11,6 +11,7 @@ CREATE TABLE `accounts` (
   `verifierVersion` tinyint(3) unsigned NOT NULL,
   `verifierSetAt` bigint(20) unsigned NOT NULL,
   `createdAt` bigint(20) unsigned NOT NULL,
+  `disabledAt` bigint(20) unsigned DEFAULT NULL,
   `locale` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `lockedAt` bigint(20) unsigned DEFAULT NULL,
   `profileChangedAt` bigint(20) unsigned DEFAULT NULL,
