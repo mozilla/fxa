@@ -89,7 +89,7 @@ export class CurrencyHelper {
    * handled any restrictions.
    *
    */
-  static supportedPayPalCurrencies = ['USD', 'EUR'];
+  static supportedPayPalCurrencies = ['USD', 'EUR', 'CHF'];
 
   /*
    * List of valid country codes taken from https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
