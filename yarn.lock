@@ -2729,16 +2729,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/pubsub@npm:^2.14.0":
-  version: 2.14.0
-  resolution: "@google-cloud/pubsub@npm:2.14.0"
+"@google-cloud/pubsub@npm:^2.15.1":
+  version: 2.15.1
+  resolution: "@google-cloud/pubsub@npm:2.15.1"
   dependencies:
     "@google-cloud/paginator": ^3.0.0
     "@google-cloud/precise-date": ^2.0.0
     "@google-cloud/projectify": ^2.0.0
     "@google-cloud/promisify": ^2.0.0
-    "@opentelemetry/api": ^0.20.0
-    "@opentelemetry/semantic-conventions": ^0.20.0
+    "@opentelemetry/api": ^1.0.0
+    "@opentelemetry/semantic-conventions": ^0.22.0
     "@types/duplexify": ^3.6.0
     "@types/long": ^4.0.0
     arrify: ^2.0.0
@@ -2748,7 +2748,7 @@ __metadata:
     is-stream-ended: ^0.1.4
     lodash.snakecase: ^4.1.1
     p-defer: ^3.0.0
-  checksum: c8243409a480f3d5b16084dd5ef2274045c886ade17cb1e0425483490e63013630086cd8f459aa863edb76ab7e0e83e30f12bc6fb1f8593de71de75fa4075701
+  checksum: fabb4e1f7afe83b4961422122c04213d39dcb5299ac9f4a4e2db804e2417ea3364ca26648ee0631d67395853cf5bd18bfc4a1f88b35e7453636f810b48b6de3e
   languageName: node
   linkType: hard
 
@@ -4445,17 +4445,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/api@npm:^0.20.0":
-  version: 0.20.0
-  resolution: "@opentelemetry/api@npm:0.20.0"
-  checksum: 87bfb745c1a4189cda052b3cf100f7fa7ec4f69116d73d86ec6ec044d76c6917db4394b54ce8fe742fa4ced2d4c1693ffb9ebeb52fdbef5a3a66a3b626f2b6f4
+"@opentelemetry/api@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@opentelemetry/api@npm:1.0.0"
+  checksum: cb1b402501c9d975b3a2ed085d9dd6734acb1b1b63b9bd16b876760b2ae664c88c71f6dcbe1454e0a05ed30e308bf45db3a721a892ad679c0c780f204bfda988
   languageName: node
   linkType: hard
 
-"@opentelemetry/semantic-conventions@npm:^0.20.0":
-  version: 0.20.0
-  resolution: "@opentelemetry/semantic-conventions@npm:0.20.0"
-  checksum: f606fa9b26d9d5c466892f36c133c36dcd7a9983caf6d4021e49fddff36018bdd35644ad0833923c075ebecda3f9f044e56c404b82acd9cffa2d59d935511084
+"@opentelemetry/semantic-conventions@npm:^0.22.0":
+  version: 0.22.0
+  resolution: "@opentelemetry/semantic-conventions@npm:0.22.0"
+  checksum: 9d1580de3f3d9c1d3639c3b3bed8534c9faad4a79fc2197af9e7e00f657d5830870a146f23fdcd02db8001bde81774069cecd549a7dbaf963f547f3596e3d9ee
   languageName: node
   linkType: hard
 
@@ -18602,7 +18602,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-customs-server@workspace:packages/fxa-customs-server"
   dependencies:
-    "@google-cloud/pubsub": ^2.14.0
+    "@google-cloud/pubsub": ^2.15.1
     "@hapi/hapi": ^20.1.4
     "@hapi/hoek": ^9.0.4
     "@sentry/node": ^6.7.2
@@ -18676,7 +18676,7 @@ fsevents@~2.1.1:
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
     "@google-cloud/firestore": ^4.12.2
-    "@google-cloud/pubsub": ^2.14.0
+    "@google-cloud/pubsub": ^2.15.1
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.0.4
     "@hapi/joi": ^15.1.1
@@ -18859,7 +18859,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-metrics-processor@workspace:packages/fxa-metrics-processor"
   dependencies:
-    "@google-cloud/pubsub": ^2.14.0
+    "@google-cloud/pubsub": ^2.15.1
     "@sentry/integrations": ^6.7.2
     "@sentry/node": ^6.7.2
     "@types/chai": ^4.2.18
