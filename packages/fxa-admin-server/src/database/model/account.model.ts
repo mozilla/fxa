@@ -27,6 +27,7 @@ export class Account extends Model {
   public emailVerified!: boolean;
   public normalizedEmail!: string;
   public createdAt!: number;
+  public disabledAt?: number;
 
   public $parseDatabaseJson(json: any) {
     json = super.$parseDatabaseJson(json);

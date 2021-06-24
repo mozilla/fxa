@@ -528,6 +528,9 @@ export class AccountHandler {
         email
       );
       accountRecord = res.accountRecord;
+      if (accountRecord.disabledAt) {
+        throw error.cannotLoginWithEmail();
+      }
       // Remember whether they did a signin-unblock,
       // because we can use it to bypass token verification.
       didSigninUnblock = res.didSigninUnblock;

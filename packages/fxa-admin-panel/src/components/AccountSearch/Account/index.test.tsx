@@ -19,6 +19,7 @@ let accountResponse = {
     },
   ],
   createdAt: 1589467100316,
+  disabledAt: null,
   emailBounces: [],
   onCleared() {},
   query: 'hey@happy.com',
