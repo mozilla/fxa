@@ -1,3 +1,9 @@
+## 1.208.2
+
+### Bug fixes
+
+- stripe: Enable CHF currency in paypal ([192b05ca2](https://github.com/mozilla/fxa/commit/192b05ca2))
+
 ## 1.208.1
 
 ### Bug fixes
@@ -26,7 +32,7 @@
 - deps: bump stripe from 8.153.0 to 8.154.0 ([e1292ff7c](https://github.com/mozilla/fxa/commit/e1292ff7c))
 - deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
 - deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
-- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps: updated sentry/\* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
 - deps: bump aws-sdk from 2.920.0 to 2.923.0 ([3cb5b950c](https://github.com/mozilla/fxa/commit/3cb5b950c))
 - deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
 - deps: bump stripe from 8.149.0 to 8.153.0 ([d80d64d43](https://github.com/mozilla/fxa/commit/d80d64d43))

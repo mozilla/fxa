@@ -1,3 +1,7 @@
+## 1.208.2
+
+No changes.
+
 ## 1.208.1
 
 No changes.
@@ -8,7 +12,7 @@ No changes.
 
 - deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
 - deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
-- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps: updated sentry/\* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
 - deps-dev: bump nock from 13.0.11 to 13.1.0 ([4d52527d8](https://github.com/mozilla/fxa/commit/4d52527d8))
 
 ## 1.207.1
