@@ -1,5 +1,9 @@
 # Change history
 
+## 1.208.2
+
+No changes.
+
 ## 1.208.1
 
 No changes.
@@ -10,7 +14,7 @@ No changes.
 
 - deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
 - deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
-- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps: updated sentry/\* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
 - deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
 - deps-dev: bump @types/eslint from 7.2.11 to 7.2.13 ([01c70484e](https://github.com/mozilla/fxa/commit/01c70484e))
 

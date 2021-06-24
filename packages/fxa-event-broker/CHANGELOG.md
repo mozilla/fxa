@@ -1,5 +1,9 @@
 # Change history
 
+## 1.208.2
+
+No changes.
+
 ## 1.208.1
 
 No changes.
@@ -11,7 +15,7 @@ No changes.
 - deps: bump google-auth-library from 7.1.0 to 7.1.1 ([1bcf8cd58](https://github.com/mozilla/fxa/commit/1bcf8cd58))
 - deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
 - deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
-- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps: updated sentry/\* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
 - deps: bump aws-sdk from 2.920.0 to 2.923.0 ([3cb5b950c](https://github.com/mozilla/fxa/commit/3cb5b950c))
 - deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
 - deps-dev: bump nock from 13.0.11 to 13.1.0 ([4d52527d8](https://github.com/mozilla/fxa/commit/4d52527d8))

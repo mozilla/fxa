@@ -1,3 +1,7 @@
+## 1.208.2
+
+No changes.
+
 ## 1.208.1
 
 No changes.
@@ -8,7 +12,7 @@ No changes.
 
 - deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
 - deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
-- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps: updated sentry/\* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
 - deps: bump apollo-server from 2.24.1 to 2.25.0 ([00b502af8](https://github.com/mozilla/fxa/commit/00b502af8))
 - deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
 - admin: remove unnecessary columns from admin panel queries ([0c65675bf](https://github.com/mozilla/fxa/commit/0c65675bf))

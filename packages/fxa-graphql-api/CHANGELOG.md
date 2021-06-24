@@ -1,3 +1,7 @@
+## 1.208.2
+
+No changes.
+
 ## 1.208.1
 
 No changes.
@@ -10,7 +14,7 @@ No changes.
 - deps: bump graphql-parse-resolve-info from 4.11.0 to 4.12.0 ([6c03d0a14](https://github.com/mozilla/fxa/commit/6c03d0a14))
 - deps: updated some deps ([fa895572c](https://github.com/mozilla/fxa/commit/fa895572c))
 - deps: updated pm2 ([34704ba14](https://github.com/mozilla/fxa/commit/34704ba14))
-- deps: updated sentry/* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
+- deps: updated sentry/\* packages ([9095a1c13](https://github.com/mozilla/fxa/commit/9095a1c13))
 - deps: bump apollo-server from 2.24.1 to 2.25.0 ([00b502af8](https://github.com/mozilla/fxa/commit/00b502af8))
 - deps-dev: bump @types/node from 14.14.5 to 15.12.2 ([1fd38c54d](https://github.com/mozilla/fxa/commit/1fd38c54d))
 - deps-dev: bump nock from 13.0.11 to 13.1.0 ([4d52527d8](https://github.com/mozilla/fxa/commit/4d52527d8))
