@@ -1,3 +1,39 @@
+## 1.209.0
+
+### New features
+
+- admin: disable account ([4c995b603](https://github.com/mozilla/fxa/commit/4c995b603))
+- subscriptions: update sub plan upgrade eligibility logic ([5bb3f9bc4](https://github.com/mozilla/fxa/commit/5bb3f9bc4))
+- auth: convert remaining auth-server db use to direct db access ([a561ae1f3](https://github.com/mozilla/fxa/commit/a561ae1f3))
+- auth: add tax rate retrieval functions ([9621318af](https://github.com/mozilla/fxa/commit/9621318af))
+- push: Add views for confirming a push notification login ([561083825](https://github.com/mozilla/fxa/commit/561083825))
+
+### Bug fixes
+
+- subscriptions: increase webhook payload limit ([4c90c1ca6](https://github.com/mozilla/fxa/commit/4c90c1ca6))
+
+### Refactorings
+
+- auth: split account create functions out ([2632ad210](https://github.com/mozilla/fxa/commit/2632ad210))
+
+### Other changes
+
+- deps: update some deps ([b89dc6079](https://github.com/mozilla/fxa/commit/b89dc6079))
+- deps: update deps and start ignoring @types/\* in dependabot ([694ff5f6a](https://github.com/mozilla/fxa/commit/694ff5f6a))
+- deps: bump aws-sdk from 2.930.0 to 2.932.0 ([af63d7a2b](https://github.com/mozilla/fxa/commit/af63d7a2b))
+- 4fdf66c24 Redirect "JWT access tokens" doc to the product portal. ([4fdf66c24](https://github.com/mozilla/fxa/commit/4fdf66c24))
+- deps: bump nodemailer from 6.6.1 to 6.6.2 ([95693cf42](https://github.com/mozilla/fxa/commit/95693cf42))
+- deps: bump stripe from 8.154.0 to 8.156.0 ([80db58c93](https://github.com/mozilla/fxa/commit/80db58c93))
+- deps: bump @hapi/hapi from 20.1.3 to 20.1.4 ([8ed013055](https://github.com/mozilla/fxa/commit/8ed013055))
+- deps: bump aws-sdk from 2.928.0 to 2.930.0 ([b6ec6ce5b](https://github.com/mozilla/fxa/commit/b6ec6ce5b))
+- deps: bump @sentry/node from 6.7.0 to 6.7.1 ([b78095131](https://github.com/mozilla/fxa/commit/b78095131))
+- deps: bump aws-sdk from 2.926.0 to 2.928.0 ([94684a588](https://github.com/mozilla/fxa/commit/94684a588))
+- deps: bump ioredis from 4.27.5 to 4.27.6 ([258f7a8f4](https://github.com/mozilla/fxa/commit/258f7a8f4))
+- deps: bump @sentry/node from 6.5.1 to 6.7.0 ([b6119a2c7](https://github.com/mozilla/fxa/commit/b6119a2c7))
+- deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
+- deps: bump aws-sdk from 2.923.0 to 2.926.0 ([22c59811a](https://github.com/mozilla/fxa/commit/22c59811a))
+- deps: bump @google-cloud/firestore from 4.9.8 to 4.12.2 ([77f89e395](https://github.com/mozilla/fxa/commit/77f89e395))
+
 ## 1.208.2
 
 ### Bug fixes

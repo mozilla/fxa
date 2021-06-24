@@ -1,3 +1,23 @@
+## 1.209.0
+
+### New features
+
+- auth: convert remaining auth-server db use to direct db access ([a561ae1f3](https://github.com/mozilla/fxa/commit/a561ae1f3))
+
+### Bug fixes
+
+- ratelimit: Show how long user is rate limited for in new settings ([b97bc676c](https://github.com/mozilla/fxa/commit/b97bc676c))
+
+### Other changes
+
+- deps: update some deps ([b89dc6079](https://github.com/mozilla/fxa/commit/b89dc6079))
+- deps: update deps and start ignoring @types/\* in dependabot ([694ff5f6a](https://github.com/mozilla/fxa/commit/694ff5f6a))
+- deps: bump graphql from 15.5.0 to 15.5.1 ([990030034](https://github.com/mozilla/fxa/commit/990030034))
+- deps-dev: bump @testing-library/dom from 7.31.0 to 7.31.2 ([e002ca1de](https://github.com/mozilla/fxa/commit/e002ca1de))
+- deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
+- deps-dev: bump @testing-library/jest-dom from 5.13.0 to 5.14.1 ([45eebfcaa](https://github.com/mozilla/fxa/commit/45eebfcaa))
+- deps-dev: bump @testing-library/jest-dom from 5.12.0 to 5.13.0 ([2ba48b1dc](https://github.com/mozilla/fxa/commit/2ba48b1dc))
+
 ## 1.208.2
 
 No changes.

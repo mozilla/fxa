@@ -1,3 +1,23 @@
+## 1.209.0
+
+### New features
+
+- admin: disable account ([4c995b603](https://github.com/mozilla/fxa/commit/4c995b603))
+
+### Other changes
+
+- deps: update some deps ([b89dc6079](https://github.com/mozilla/fxa/commit/b89dc6079))
+- deps: update deps and start ignoring @types/\* in dependabot ([694ff5f6a](https://github.com/mozilla/fxa/commit/694ff5f6a))
+- deps: bump graphql from 15.5.0 to 15.5.1 ([990030034](https://github.com/mozilla/fxa/commit/990030034))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([f1d7f7c92](https://github.com/mozilla/fxa/commit/f1d7f7c92))
+- deps-dev: bump @testing-library/dom from 7.31.0 to 7.31.2 ([e002ca1de](https://github.com/mozilla/fxa/commit/e002ca1de))
+- deps-dev: bump @typescript-eslint/parser from 4.25.0 to 4.27.0 ([f004893ef](https://github.com/mozilla/fxa/commit/f004893ef))
+- deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
+- deps-dev: bump @types/jsdom from 16.2.10 to 16.2.11 ([2f54deeac](https://github.com/mozilla/fxa/commit/2f54deeac))
+- deps-dev: bump @testing-library/jest-dom from 5.13.0 to 5.14.1 ([45eebfcaa](https://github.com/mozilla/fxa/commit/45eebfcaa))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([07bac17e8](https://github.com/mozilla/fxa/commit/07bac17e8))
+- deps-dev: bump @testing-library/jest-dom from 5.12.0 to 5.13.0 ([2ba48b1dc](https://github.com/mozilla/fxa/commit/2ba48b1dc))
+
 ## 1.208.2
 
 No changes.
