@@ -1,5 +1,31 @@
 # Change history
 
+## 1.209.0
+
+### Other changes
+
+- deps: update some deps ([b89dc6079](https://github.com/mozilla/fxa/commit/b89dc6079))
+- deps: bump @google-cloud/pubsub from 2.14.0 to 2.15.1 ([e9e34f07f](https://github.com/mozilla/fxa/commit/e9e34f07f))
+- deps: update deps and start ignoring @types/\* in dependabot ([694ff5f6a](https://github.com/mozilla/fxa/commit/694ff5f6a))
+- deps: bump aws-sdk from 2.930.0 to 2.932.0 ([af63d7a2b](https://github.com/mozilla/fxa/commit/af63d7a2b))
+- deps: bump graphql from 15.5.0 to 15.5.1 ([990030034](https://github.com/mozilla/fxa/commit/990030034))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([f1d7f7c92](https://github.com/mozilla/fxa/commit/f1d7f7c92))
+- deps: bump @google-cloud/pubsub from 2.12.0 to 2.14.0 ([ed3fa172c](https://github.com/mozilla/fxa/commit/ed3fa172c))
+- deps: bump @nestjs/core from 7.6.17 to 7.6.18 ([135d90fda](https://github.com/mozilla/fxa/commit/135d90fda))
+- deps: bump @nestjs/platform-express from 7.6.17 to 7.6.18 ([4d1c1c766](https://github.com/mozilla/fxa/commit/4d1c1c766))
+- deps: bump google-auth-library from 7.1.1 to 7.1.2 ([965650d65](https://github.com/mozilla/fxa/commit/965650d65))
+- deps: bump aws-sdk from 2.928.0 to 2.930.0 ([b6ec6ce5b](https://github.com/mozilla/fxa/commit/b6ec6ce5b))
+- deps: bump @sentry/node from 6.7.0 to 6.7.1 ([b78095131](https://github.com/mozilla/fxa/commit/b78095131))
+- deps: bump aws-sdk from 2.926.0 to 2.928.0 ([94684a588](https://github.com/mozilla/fxa/commit/94684a588))
+- deps: bump @sentry/integrations from 6.6.0 to 6.7.1 ([68e04e8a1](https://github.com/mozilla/fxa/commit/68e04e8a1))
+- deps-dev: bump @typescript-eslint/parser from 4.25.0 to 4.27.0 ([f004893ef](https://github.com/mozilla/fxa/commit/f004893ef))
+- deps: bump @sentry/node from 6.5.1 to 6.7.0 ([b6119a2c7](https://github.com/mozilla/fxa/commit/b6119a2c7))
+- deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
+- deps: bump aws-sdk from 2.923.0 to 2.926.0 ([22c59811a](https://github.com/mozilla/fxa/commit/22c59811a))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([07bac17e8](https://github.com/mozilla/fxa/commit/07bac17e8))
+- deps: bump @sentry/integrations from 6.5.1 to 6.6.0 ([4a123dddf](https://github.com/mozilla/fxa/commit/4a123dddf))
+- deps: bump @google-cloud/firestore from 4.9.8 to 4.12.2 ([77f89e395](https://github.com/mozilla/fxa/commit/77f89e395))
+
 ## 1.208.2
 
 No changes.

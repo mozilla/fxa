@@ -1,3 +1,20 @@
+## 1.209.0
+
+### Other changes
+
+- deps-dev: bump babel-preset-react-app from 9.1.2 to 10.0.0 ([13e41885d](https://github.com/mozilla/fxa/commit/13e41885d))
+- deps: update deps and start ignoring @types/\* in dependabot ([694ff5f6a](https://github.com/mozilla/fxa/commit/694ff5f6a))
+- deps-dev: bump sass from 1.34.1 to 1.35.1 ([dda0cb8af](https://github.com/mozilla/fxa/commit/dda0cb8af))
+- deps-dev: bump @types/file-loader from 4.2.0 to 5.0.0 ([eb8e3befb](https://github.com/mozilla/fxa/commit/eb8e3befb))
+- deps-dev: bump @testing-library/dom from 7.31.0 to 7.31.2 ([e002ca1de](https://github.com/mozilla/fxa/commit/e002ca1de))
+- deps: bump react-transition-group from 4.4.1 to 4.4.2 ([9870d04a9](https://github.com/mozilla/fxa/commit/9870d04a9))
+- deps-dev: bump @types/prettier from 2.2.3 to 2.3.0 ([6ae6f89af](https://github.com/mozilla/fxa/commit/6ae6f89af))
+- deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
+- deps-dev: bump @testing-library/jest-dom from 5.13.0 to 5.14.1 ([45eebfcaa](https://github.com/mozilla/fxa/commit/45eebfcaa))
+- deps-dev: bump @testing-library/jest-dom from 5.12.0 to 5.13.0 ([2ba48b1dc](https://github.com/mozilla/fxa/commit/2ba48b1dc))
+- 1cc5fb9c8 Update tailwind.js ([1cc5fb9c8](https://github.com/mozilla/fxa/commit/1cc5fb9c8))
+- 9434b9059 Update tailwind.js ([9434b9059](https://github.com/mozilla/fxa/commit/9434b9059))
+
 ## 1.208.2
 
 No changes.

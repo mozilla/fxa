@@ -1,5 +1,35 @@
 # Change history
 
+## 1.209.0
+
+### New features
+
+- subscriptions: update sub plan upgrade eligibility logic ([5bb3f9bc4](https://github.com/mozilla/fxa/commit/5bb3f9bc4))
+
+### Bug fixes
+
+- payments: display card SVG for UnionPay, Diner's Club, JCB and unknown brands ([fc73f84f9](https://github.com/mozilla/fxa/commit/fc73f84f9))
+- fxa-payments-server: fix upgrade view layout ([7a9353ef7](https://github.com/mozilla/fxa/commit/7a9353ef7))
+
+### Other changes
+
+- deps: update some deps ([b89dc6079](https://github.com/mozilla/fxa/commit/b89dc6079))
+- deps: bump nocache from 3.0.0 to 3.0.1 ([bba89bb68](https://github.com/mozilla/fxa/commit/bba89bb68))
+- deps: update deps and start ignoring @types/\* in dependabot ([694ff5f6a](https://github.com/mozilla/fxa/commit/694ff5f6a))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([f1d7f7c92](https://github.com/mozilla/fxa/commit/f1d7f7c92))
+- deps-dev: bump caniuse-lite from 1.0.30001230 to 1.0.30001237 ([a49a2a235](https://github.com/mozilla/fxa/commit/a49a2a235))
+- deps-dev: bump @babel/register from 7.13.16 to 7.14.5 ([43648eeab](https://github.com/mozilla/fxa/commit/43648eeab))
+- deps: bump react-transition-group from 4.4.1 to 4.4.2 ([9870d04a9](https://github.com/mozilla/fxa/commit/9870d04a9))
+- deps: bump @sentry/node from 6.7.0 to 6.7.1 ([b78095131](https://github.com/mozilla/fxa/commit/b78095131))
+- deps-dev: bump @typescript-eslint/parser from 4.25.0 to 4.27.0 ([f004893ef](https://github.com/mozilla/fxa/commit/f004893ef))
+- deps: bump @sentry/node from 6.5.1 to 6.7.0 ([b6119a2c7](https://github.com/mozilla/fxa/commit/b6119a2c7))
+- deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
+- deps-dev: bump @types/jsdom from 16.2.10 to 16.2.11 ([2f54deeac](https://github.com/mozilla/fxa/commit/2f54deeac))
+- deps-dev: bump @testing-library/jest-dom from 5.13.0 to 5.14.1 ([45eebfcaa](https://github.com/mozilla/fxa/commit/45eebfcaa))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([07bac17e8](https://github.com/mozilla/fxa/commit/07bac17e8))
+- deps-dev: bump @testing-library/jest-dom from 5.12.0 to 5.13.0 ([2ba48b1dc](https://github.com/mozilla/fxa/commit/2ba48b1dc))
+- fxa-payments-server: update to change copy ([3390ceb13](https://github.com/mozilla/fxa/commit/3390ceb13))
+
 ## 1.208.2
 
 No changes.

@@ -1,5 +1,31 @@
 # Change history
 
+## 1.209.0
+
+### New features
+
+- admin: disable account ([4c995b603](https://github.com/mozilla/fxa/commit/4c995b603))
+- subscriptions: update sub plan upgrade eligibility logic ([5bb3f9bc4](https://github.com/mozilla/fxa/commit/5bb3f9bc4))
+- auth: convert remaining auth-server db use to direct db access ([a561ae1f3](https://github.com/mozilla/fxa/commit/a561ae1f3))
+
+### Other changes
+
+- deps: update some deps ([b89dc6079](https://github.com/mozilla/fxa/commit/b89dc6079))
+- deps: update deps and start ignoring @types/\* in dependabot ([694ff5f6a](https://github.com/mozilla/fxa/commit/694ff5f6a))
+- deps: bump aws-sdk from 2.930.0 to 2.932.0 ([af63d7a2b](https://github.com/mozilla/fxa/commit/af63d7a2b))
+- deps: bump graphql from 15.5.0 to 15.5.1 ([990030034](https://github.com/mozilla/fxa/commit/990030034))
+- deps: bump stripe from 8.154.0 to 8.156.0 ([80db58c93](https://github.com/mozilla/fxa/commit/80db58c93))
+- deps: bump @nestjs/core from 7.6.17 to 7.6.18 ([135d90fda](https://github.com/mozilla/fxa/commit/135d90fda))
+- deps: bump aws-sdk from 2.928.0 to 2.930.0 ([b6ec6ce5b](https://github.com/mozilla/fxa/commit/b6ec6ce5b))
+- deps: bump @sentry/node from 6.7.0 to 6.7.1 ([b78095131](https://github.com/mozilla/fxa/commit/b78095131))
+- deps: bump aws-sdk from 2.926.0 to 2.928.0 ([94684a588](https://github.com/mozilla/fxa/commit/94684a588))
+- deps: bump @sentry/integrations from 6.6.0 to 6.7.1 ([68e04e8a1](https://github.com/mozilla/fxa/commit/68e04e8a1))
+- deps: bump @sentry/node from 6.5.1 to 6.7.0 ([b6119a2c7](https://github.com/mozilla/fxa/commit/b6119a2c7))
+- deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
+- deps: bump apollo-server from 2.25.0 to 2.25.1 ([7a55f6ab1](https://github.com/mozilla/fxa/commit/7a55f6ab1))
+- deps: bump aws-sdk from 2.923.0 to 2.926.0 ([22c59811a](https://github.com/mozilla/fxa/commit/22c59811a))
+- deps: bump @sentry/integrations from 6.5.1 to 6.6.0 ([4a123dddf](https://github.com/mozilla/fxa/commit/4a123dddf))
+
 ## 1.208.2
 
 No changes.

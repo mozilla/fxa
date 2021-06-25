@@ -1,3 +1,24 @@
+## 1.209.0
+
+### New features
+
+- push: Add feature flag for 2fa via push ([37f41dbc5](https://github.com/mozilla/fxa/commit/37f41dbc5))
+- auth: convert remaining auth-server db use to direct db access ([a561ae1f3](https://github.com/mozilla/fxa/commit/a561ae1f3))
+- push: Add views for confirming a push notification login ([561083825](https://github.com/mozilla/fxa/commit/561083825))
+
+### Bug fixes
+
+- tests: remove email_service functional test ([9310f0822](https://github.com/mozilla/fxa/commit/9310f0822))
+
+### Other changes
+
+- deps: update some deps ([b89dc6079](https://github.com/mozilla/fxa/commit/b89dc6079))
+- deps: update deps and start ignoring @types/\* in dependabot ([694ff5f6a](https://github.com/mozilla/fxa/commit/694ff5f6a))
+- deps: bump @sentry/node from 6.7.0 to 6.7.1 ([b78095131](https://github.com/mozilla/fxa/commit/b78095131))
+- deps: bump @sentry/node from 6.5.1 to 6.7.0 ([b6119a2c7](https://github.com/mozilla/fxa/commit/b6119a2c7))
+- deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
+- deps: bump webpack-cli from 4.7.0 to 4.7.2 ([2e668cbf3](https://github.com/mozilla/fxa/commit/2e668cbf3))
+
 ## 1.208.2
 
 No changes.

@@ -1,3 +1,17 @@
+## 1.209.0
+
+### Other changes
+
+- deps: update some deps ([b89dc6079](https://github.com/mozilla/fxa/commit/b89dc6079))
+- deps: bump @google-cloud/pubsub from 2.14.0 to 2.15.1 ([e9e34f07f](https://github.com/mozilla/fxa/commit/e9e34f07f))
+- deps: bump bl from 4.1.0 to 5.0.0 ([889edebac](https://github.com/mozilla/fxa/commit/889edebac))
+- deps: update deps and start ignoring @types/\* in dependabot ([694ff5f6a](https://github.com/mozilla/fxa/commit/694ff5f6a))
+- deps: bump @google-cloud/pubsub from 2.12.0 to 2.14.0 ([ed3fa172c](https://github.com/mozilla/fxa/commit/ed3fa172c))
+- deps: bump @hapi/hapi from 20.1.3 to 20.1.4 ([8ed013055](https://github.com/mozilla/fxa/commit/8ed013055))
+- deps: bump @sentry/node from 6.7.0 to 6.7.1 ([b78095131](https://github.com/mozilla/fxa/commit/b78095131))
+- deps: bump @sentry/node from 6.5.1 to 6.7.0 ([b6119a2c7](https://github.com/mozilla/fxa/commit/b6119a2c7))
+- deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
+
 ## 1.208.2
 
 No changes.
