@@ -214,7 +214,8 @@ export class StripeHelper {
    */
   async taxRateByCountryCode(countryCode: string) {
     const taxRates = await this.allTaxRates();
-    return taxRates.find((tr) => tr.country === countryCode);
+    const lcCountryCode = countryCode.toLowerCase();
+    return taxRates.find((tr) => tr.country?.toLowerCase() === lcCountryCode);
   }
 
   /** BEGIN: NEW FLOW HELPERS FOR PAYMENT METHODS
@@ -297,8 +298,16 @@ export class StripeHelper {
     priceId: string;
     paymentMethodId?: string;
     subIdempotencyKey: string;
+    taxRateId?: string;
   }) {
-    const { customerId, priceId, paymentMethodId, subIdempotencyKey } = opts;
+    const {
+      customerId,
+      priceId,
+      paymentMethodId,
+      subIdempotencyKey,
+      taxRateId,
+    } = opts;
+    const taxRates = taxRateId ? [taxRateId] : [];
 
     if (paymentMethodId) {
       try {
@@ -327,7 +336,7 @@ export class StripeHelper {
     return this.stripe.subscriptions.create(
       {
         customer: customerId,
-        items: [{ price: priceId }],
+        items: [{ price: priceId, tax_rates: taxRates }],
         expand: ['latest_invoice.payment_intent'],
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
@@ -348,8 +357,10 @@ export class StripeHelper {
     customer: Stripe.Customer;
     priceId: string;
     subIdempotencyKey: string;
+    taxRateId?: string;
   }) {
-    const { customer, priceId, subIdempotencyKey } = opts;
+    const { customer, priceId, subIdempotencyKey, taxRateId } = opts;
+    const taxRates = taxRateId ? [taxRateId] : [];
 
     const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
     if (sub && ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)) {
@@ -373,7 +384,7 @@ export class StripeHelper {
     return this.stripe.subscriptions.create(
       {
         customer: customer.id,
-        items: [{ price: priceId }],
+        items: [{ price: priceId, tax_rates: taxRates }],
         expand: ['latest_invoice'],
         collection_method: 'send_invoice',
         days_until_due: 1,

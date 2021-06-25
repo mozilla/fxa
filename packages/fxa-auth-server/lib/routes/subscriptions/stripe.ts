@@ -375,9 +375,8 @@ export class StripeHandler {
     ) as PaymentBillingDetails;
 
     if (billingDetails.payment_provider === 'paypal') {
-      billingDetails.billing_agreement_id = this.stripeHelper.getCustomerPaypalAgreement(
-        customer
-      );
+      billingDetails.billing_agreement_id =
+        this.stripeHelper.getCustomerPaypalAgreement(customer);
     }
 
     if (
@@ -385,9 +384,11 @@ export class StripeHandler {
       this.stripeHelper.hasSubscriptionRequiringPaymentMethod(customer)
     ) {
       if (!this.stripeHelper.getCustomerPaypalAgreement(customer)) {
-        billingDetails.paypal_payment_error = PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
+        billingDetails.paypal_payment_error =
+          PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
       } else if (this.stripeHelper.hasOpenInvoice(customer)) {
-        billingDetails.paypal_payment_error = PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
+        billingDetails.paypal_payment_error =
+          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
       }
     }
 
@@ -458,11 +459,8 @@ export class StripeHandler {
       throw error.unknownCustomer(uid);
     }
 
-    const {
-      invoiceId,
-      paymentMethodId,
-      idempotencyKey,
-    } = request.payload as Record<string, string>;
+    const { invoiceId, paymentMethodId, idempotencyKey } =
+      request.payload as Record<string, string>;
     const retryIdempotencyKey = `${idempotencyKey}-retryInvoice`;
     const invoice = await this.stripeHelper.retryInvoiceWithPaymentId(
       customer.id,
@@ -481,9 +479,7 @@ export class StripeHandler {
    *
    * New PaymentMethod flow.
    */
-  async createSubscriptionWithPMI(
-    request: AuthRequest
-  ): Promise<{
+  async createSubscriptionWithPMI(request: AuthRequest): Promise<{
     sourceCountry: string | null;
     subscription: DeepPartial<Stripe.Subscription>;
   }> {
@@ -496,12 +492,10 @@ export class StripeHandler {
       throw error.unknownCustomer(uid);
     }
 
-    const {
-      priceId,
-      paymentMethodId,
-      idempotencyKey,
-    } = request.payload as Record<string, string>;
+    const { priceId, paymentMethodId, idempotencyKey } =
+      request.payload as Record<string, string>;
 
+    let taxRateId: string | undefined;
     // Skip the payment source check if there's no payment method id.
     if (paymentMethodId) {
       const planCurrency = (await this.stripeHelper.findPlanById(priceId))
@@ -517,6 +511,11 @@ export class StripeHandler {
       ) {
         throw error.currencyCountryMismatch(planCurrency, paymentMethodCountry);
       }
+      if (paymentMethodCountry) {
+        taxRateId = (
+          await this.stripeHelper.taxRateByCountryCode(paymentMethodCountry)
+        )?.id;
+      }
     }
 
     const subIdempotencyKey = `${idempotencyKey}-createSub`;
@@ -525,11 +524,11 @@ export class StripeHandler {
       priceId,
       paymentMethodId,
       subIdempotencyKey,
+      taxRateId,
     });
 
-    const sourceCountry = this.stripeHelper.extractSourceCountryFromSubscription(
-      subscription
-    );
+    const sourceCountry =
+      this.stripeHelper.extractSourceCountryFromSubscription(subscription);
 
     await this.customerChanged(request, uid, email);
 
@@ -711,10 +710,8 @@ export class StripeHandler {
       email = emailIn;
     } else {
       // Otherwise, we'll need to fetch it based on the subscription.
-      ({
-        uid,
-        email,
-      } = await this.stripeHelper.getCustomerUidEmailFromSubscription(sub));
+      ({ uid, email } =
+        await this.stripeHelper.getCustomerUidEmailFromSubscription(sub));
     }
     if (!uid || !email) {
       return;

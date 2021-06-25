@@ -83,9 +83,8 @@ export class PayPalHandler extends StripeWebhookHandler {
 
     const isPaypalCustomer = hasPaypalSubscription(customer);
     const { token } = request.payload as Record<string, string>;
-    const currentBillingAgreement = this.stripeHelper.getCustomerPaypalAgreement(
-      customer
-    );
+    const currentBillingAgreement =
+      this.stripeHelper.getCustomerPaypalAgreement(customer);
 
     // In theory the frontend should handle this state upon the customer
     // response.  The customer should fix their payment method before we can
@@ -138,17 +137,19 @@ export class PayPalHandler extends StripeWebhookHandler {
       string
     >;
     const currency = (await this.stripeHelper.findPlanById(priceId)).currency;
-    const {
-      agreementId,
-      agreementDetails,
-    } = await this.createAndVerifyBillingAgreement({ uid, token, currency });
+    const { agreementId, agreementDetails } =
+      await this.createAndVerifyBillingAgreement({ uid, token, currency });
 
+    const taxRate = await this.stripeHelper.taxRateByCountryCode(
+      agreementDetails.countryCode
+    );
     let subscription;
     [subscription, customer] = await Promise.all([
       this.stripeHelper.createSubscriptionWithPaypal({
         customer,
         priceId,
         subIdempotencyKey: idempotencyKey,
+        taxRateId: taxRate?.id,
       }),
       this.stripeHelper.updateCustomerPaypalAgreement(customer, agreementId),
     ]);
@@ -192,10 +193,14 @@ export class PayPalHandler extends StripeWebhookHandler {
       string,
       string
     >;
+    const taxRate = customer.address?.country
+      ? await this.stripeHelper.taxRateByCountryCode(customer.address?.country)
+      : undefined;
     const subscription = await this.stripeHelper.createSubscriptionWithPaypal({
       customer,
       priceId,
       subIdempotencyKey: idempotencyKey,
+      taxRateId: taxRate?.id,
     });
     const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
     if (latestInvoice.amount_due === 0) {

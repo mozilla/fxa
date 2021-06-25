@@ -608,14 +608,25 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpanded);
-      const actual = await stripeHelper.createSubscriptionWithPMI(
-        'customerId',
-        'priceId',
-        'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-        uuidv4()
-      );
+      const subIdempotencyKey = uuidv4();
+      const actual = await stripeHelper.createSubscriptionWithPMI({
+        customerId: 'customerId',
+        priceId: 'priceId',
+        paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+        subIdempotencyKey,
+        taxRateId: 'tr_asdf',
+      });
 
       assert.deepEqual(actual, subscriptionPMIExpanded);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.create,
+        {
+          customer: 'customerId',
+          items: [{ price: 'priceId', tax_rates: ['tr_asdf'] }],
+          expand: ['latest_invoice.payment_intent'],
+        },
+        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+      );
       sinon.assert.callCount(mockStatsd.increment, 1);
     });
 
@@ -673,13 +684,26 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpanded);
+      const subIdempotencyKey = uuidv4();
       const actual = await stripeHelper.createSubscriptionWithPaypal({
         customer: customer1,
         priceId: 'priceId',
-        subIdempotencyKey: uuidv4(),
+        subIdempotencyKey,
+        taxRateId: 'tr_asdf',
       });
 
       assert.deepEqual(actual, subscriptionPMIExpanded);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.create,
+        {
+          customer: customer1.id,
+          items: [{ price: 'priceId', tax_rates: ['tr_asdf'] }],
+          expand: ['latest_invoice'],
+          collection_method: 'send_invoice',
+          days_until_due: 1,
+        },
+        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+      );
       sinon.assert.callCount(mockStatsd.increment, 1);
     });
 
@@ -1332,6 +1356,12 @@ describe('StripeHelper', () => {
     it('returns undefined for unknown tax rates', async () => {
       const result = await stripeHelper.taxRateByCountryCode('GA');
       assert.isUndefined(result);
+    });
+
+    it('ignores case on comparison', async () => {
+      const result = await stripeHelper.taxRateByCountryCode('fr');
+      assert.isDefined(result);
+      assert.deepEqual(result, taxRateFr);
     });
   });
 
