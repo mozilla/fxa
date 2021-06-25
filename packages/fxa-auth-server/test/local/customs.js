@@ -10,7 +10,6 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../mocks');
 const error = require(`${ROOT_DIR}/lib/error.js`);
-const P = require(`${ROOT_DIR}/lib/promise.js`);
 const nock = require('nock');
 
 const CUSTOMS_URL_REAL = 'http://localhost:7000';
@@ -362,7 +361,7 @@ describe('Customs', () => {
       'got a customs object with a non-existant service url'
     );
 
-    return P.all([
+    return Promise.all([
       customsInvalidUrl
         .check(request, email, action)
         .then(assert.fail, (err) => {

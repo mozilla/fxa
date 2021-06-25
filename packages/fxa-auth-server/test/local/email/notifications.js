@@ -10,7 +10,6 @@ const { assert } = require('chai');
 const error = require(`${ROOT_DIR}/lib/error`);
 const { mockLog } = require('../../mocks');
 const notifications = require(`${ROOT_DIR}/lib/email/notifications`);
-const P = require(`${ROOT_DIR}/lib/promise`);
 const sinon = require('sinon');
 
 const SIX_HOURS = 1000 * 60 * 60 * 6;
@@ -32,8 +31,8 @@ describe('lib/email/notifications:', () => {
       createdAt: now - SIX_HOURS - 1,
     };
     db = {
-      accountRecord: sinon.spy(() => P.resolve(emailRecord)),
-      deleteAccount: sinon.spy(() => P.resolve()),
+      accountRecord: sinon.spy(() => Promise.resolve(emailRecord)),
+      deleteAccount: sinon.spy(() => Promise.resolve()),
     };
     notifications(log, error)(queue, db);
   });

@@ -4,28 +4,27 @@
 
 'use strict';
 
-module.exports = async function main(keys, dbFunction) {
+module.exports = async function main(items, dbFunction) {
   const butil = require('../../lib/crypto/butil');
   const config = require('../../config').getProperties();
   const crypto = require('crypto');
   const log = require('../../lib/log')({});
-  const P = require('../../lib/promise');
   const Token = require('../../lib/tokens')(log, config);
   const AuthDB = require('../../lib/db')(config, log, Token);
   const oauth = require('../../lib/oauth/db');
   const db = await AuthDB.connect(config[config.db.backend]);
 
-  let users = '';
-  await P.mapSeries(keys, (item) =>
-    db[dbFunction](item).catch((err) => {
-      console.error(`${String(err)} - ${item}`);
-      process.exit(1);
-    })
-  ).then((result) => {
-    users = result;
-  });
+  const users = [];
+  try {
+    for (const item of items) {
+      users.push(await db[dbFunction](item));
+    }
+  } catch (err) {
+    console.error(err);
+    return process.exit(1);
+  }
 
-  await P.all(
+  await Promise.all(
     users.map(async (result) => {
       try {
         // Removes all session tokens,

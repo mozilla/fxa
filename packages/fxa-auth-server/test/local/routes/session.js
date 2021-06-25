@@ -8,7 +8,6 @@ const crypto = require('crypto');
 const getRoute = require('../../routes_helpers').getRoute;
 const knownIpLocation = require('../../known-ip-location');
 const mocks = require('../../mocks');
-const P = require('../../../lib/promise');
 const error = require('../../../lib/error');
 const sinon = require('sinon');
 const otplib = require('otplib');
@@ -36,7 +35,7 @@ function makeRoutes(options = {}) {
     options.Password || require('../../../lib/crypto/password')(log, config);
   const customs = options.customs || {
     check: () => {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
   };
   const signinUtils =
@@ -142,7 +141,7 @@ describe('/session/reauth', () => {
     config = {};
     customs = {
       check: () => {
-        return P.resolve(true);
+        return Promise.resolve(true);
       },
     };
     db = mocks.mockDB({
@@ -201,14 +200,15 @@ describe('/session/reauth', () => {
   });
 
   it('emits the correct series of calls', () => {
-    signinUtils.checkEmailAddress = sinon.spy(() => P.resolve(true));
-    signinUtils.checkPassword = sinon.spy(() => P.resolve(true));
-    signinUtils.checkCustomsAndLoadAccount = sinon.spy(() =>
-      P.props({ accountRecord: db.accountRecord(TEST_EMAIL) })
-    );
-    signinUtils.sendSigninNotifications = sinon.spy(() => P.resolve());
+    signinUtils.checkEmailAddress = sinon.spy(() => Promise.resolve(true));
+    signinUtils.checkPassword = sinon.spy(() => Promise.resolve(true));
+    signinUtils.checkCustomsAndLoadAccount = sinon.spy(async () => {
+      const accountRecord = await db.accountRecord(TEST_EMAIL);
+      return { accountRecord };
+    });
+    signinUtils.sendSigninNotifications = sinon.spy(() => Promise.resolve());
     signinUtils.createKeyFetchToken = sinon.spy(() =>
-      P.resolve({ data: 'KEYFETCHTOKEN' })
+      Promise.resolve({ data: 'KEYFETCHTOKEN' })
     );
     signinUtils.getSessionVerificationStatus = sinon.spy(() => ({
       verified: true,
@@ -436,7 +436,7 @@ describe('/session/reauth', () => {
 
   it('correctly updates sessionToken details', () => {
     signinUtils.checkPassword = sinon.spy(() => {
-      return P.resolve(true);
+      return Promise.resolve(true);
     });
     const testNow = Date.now();
     const testNowSeconds = Math.floor(Date.now() / 1000);
@@ -524,7 +524,7 @@ describe('/session/reauth', () => {
 
   it('correctly updates to mustVerify=true when requesting keys', () => {
     signinUtils.checkPassword = sinon.spy(() => {
-      return P.resolve(true);
+      return Promise.resolve(true);
     });
 
     assert.ok(
@@ -548,7 +548,7 @@ describe('/session/reauth', () => {
 
   it('correctly updates to mustVerify=true when explicit verificationMethod is requested in payload', () => {
     signinUtils.checkPassword = sinon.spy(() => {
-      return P.resolve(true);
+      return Promise.resolve(true);
     });
 
     assert.ok(
@@ -573,7 +573,7 @@ describe('/session/reauth', () => {
 
   it('leaves mustVerify=false when not requesting keys', () => {
     signinUtils.checkPassword = sinon.spy(() => {
-      return P.resolve(true);
+      return Promise.resolve(true);
     });
     request.query.keys = false;
 
@@ -598,7 +598,7 @@ describe('/session/reauth', () => {
 
   it('does not return a keyFetchToken when not requesting keys', () => {
     signinUtils.checkPassword = sinon.spy(() => {
-      return P.resolve(true);
+      return Promise.resolve(true);
     });
     signinUtils.createKeyFetchToken = sinon.spy(() => {
       assert.fail('should not be called');
@@ -620,7 +620,7 @@ describe('/session/reauth', () => {
 
   it('correctly rejects incorrect passwords', () => {
     signinUtils.checkPassword = sinon.spy(() => {
-      return P.resolve(false);
+      return Promise.resolve(false);
     });
 
     return runTest(route, request).then(
@@ -644,7 +644,7 @@ describe('/session/reauth', () => {
 
   it('reflects the requested verificationMethod in the response body', () => {
     signinUtils.checkPassword = sinon.spy(() => {
-      return P.resolve(true);
+      return Promise.resolve(true);
     });
     request.auth.credentials.emailVerified = true;
     request.auth.credentials.tokenVerified = false;
@@ -732,7 +732,7 @@ describe('/session/destroy', () => {
 
   it('responds correctly when custom session is destroyed', () => {
     db.sessionToken = sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         uid: 'foo',
       });
     });
@@ -754,7 +754,7 @@ describe('/session/destroy', () => {
 
   it('throws on invalid session token', () => {
     db.sessionToken = sinon.spy(() => {
-      return P.resolve({
+      return Promise.resolve({
         uid: 'diff-user',
       });
     });
@@ -1148,7 +1148,7 @@ describe('/session/verify_code', () => {
     mailer = mocks.mockMailer();
     push = mocks.mockPush();
     customs = mocks.mockCustoms();
-    customs.check = sinon.spy(() => P.resolve(true));
+    customs.check = sinon.spy(() => Promise.resolve(true));
     cadReminders = mocks.mockCadReminders();
     const config = {};
     const routes = makeRoutes({
@@ -1178,7 +1178,7 @@ describe('/session/verify_code', () => {
       log,
       uaBrowser: 'Firefox',
     });
-    request.emitMetricsEvent = sinon.spy(() => P.resolve({}));
+    request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
   }
 
   beforeEach(() => {

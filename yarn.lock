@@ -18044,7 +18044,6 @@ fsevents@~2.1.1:
     aws-sdk: ^2.933.0
     base64url: 3.0.1
     binary-split: 1.0.5
-    bluebird: ^3.7.2
     buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
     chai: ^4.3.4

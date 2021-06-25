@@ -9,7 +9,6 @@ module.exports = (config) => {
   const util = require('util');
 
   const hawk = require('@hapi/hawk');
-  const P = require('../../lib/promise');
   const request = require('request');
 
   const tokens = require('../../lib/tokens')({ trace: function () {} }, config);
@@ -46,61 +45,61 @@ module.exports = (config) => {
     headers,
     ignoreCors
   ) {
-    const d = P.defer();
-    if (typeof headers === 'undefined') {
-      headers = {};
-    }
-    // We do a shallow clone to avoid tainting the caller's copy of `headers`.
-    headers = Object.assign({}, headers);
-    if (token && !headers.Authorization) {
-      headers.Authorization = hawkHeader(
-        token,
-        method,
-        url,
-        payload,
-        this.timeOffset
-      );
-    }
-    const options = {
-      url: url,
-      method: method,
-      headers: headers,
-      json: payload || true,
-    };
-    if (headers['accept-language'] === undefined) {
-      delete headers['accept-language'];
-    }
-    this.emit('startRequest', options);
-    request(options, (err, res, body) => {
-      if (res && res.headers.timestamp) {
-        // Record time skew
-        this.timeOffset =
-          Date.now() - parseInt(res.headers.timestamp, 10) * 1000;
+    return new Promise((resolve, reject) => {
+      if (typeof headers === 'undefined') {
+        headers = {};
       }
-
-      this.emit('endRequest', options, err, res);
-      if (err || body.error || res.statusCode !== 200) {
-        return d.reject(err || body);
+      // We do a shallow clone to avoid tainting the caller's copy of `headers`.
+      headers = Object.assign({}, headers);
+      if (token && !headers.Authorization) {
+        headers.Authorization = hawkHeader(
+          token,
+          method,
+          url,
+          payload,
+          this.timeOffset
+        );
       }
-
-      const allowedOrigin = res.headers['access-control-allow-origin'];
-      if (!ignoreCors && allowedOrigin) {
-        // Requiring config outside this condition causes the local tests to fail
-        // because tokenLifetimes.passwordChangeToken is -1
-        const config = require('../../config');
-        const corsOrigin = config.get('corsOrigin');
-        if (corsOrigin.indexOf(allowedOrigin) < 0) {
-          return d.reject(
-            new Error(
-              `Unexpected allowed origin: ${allowedOrigin} not in ${corsOrigin}`
-            )
-          );
+      const options = {
+        url: url,
+        method: method,
+        headers: headers,
+        json: payload || true,
+      };
+      if (headers['accept-language'] === undefined) {
+        delete headers['accept-language'];
+      }
+      this.emit('startRequest', options);
+      request(options, (err, res, body) => {
+        if (res && res.headers.timestamp) {
+          // Record time skew
+          this.timeOffset =
+            Date.now() - parseInt(res.headers.timestamp, 10) * 1000;
         }
-      }
 
-      d.resolve(body);
+        this.emit('endRequest', options, err, res);
+        if (err || body.error || res.statusCode !== 200) {
+          return reject(err || body);
+        }
+
+        const allowedOrigin = res.headers['access-control-allow-origin'];
+        if (!ignoreCors && allowedOrigin) {
+          // Requiring config outside this condition causes the local tests to fail
+          // because tokenLifetimes.passwordChangeToken is -1
+          const config = require('../../config');
+          const corsOrigin = config.get('corsOrigin');
+          if (corsOrigin.indexOf(allowedOrigin) < 0) {
+            return reject(
+              new Error(
+                `Unexpected allowed origin: ${allowedOrigin} not in ${corsOrigin}`
+              )
+            );
+          }
+        }
+
+        resolve(body);
+      });
     });
-    return d.promise;
   };
 
   ClientApi.prototype.doRequestWithBearerToken = function (
@@ -856,7 +855,7 @@ module.exports = (config) => {
   ClientApi.prototype.accountProfile = function (sessionTokenHex, headers) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
-      : P.resolve(null);
+      : Promise.resolve(null);
     return o.then((token) => {
       return this.doRequest(
         'GET',
@@ -907,7 +906,7 @@ module.exports = (config) => {
   ClientApi.prototype.accountEmails = function (sessionTokenHex) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
-      : P.resolve(null);
+      : Promise.resolve(null);
     return o.then((token) => {
       return this.doRequest('GET', `${this.baseURL}/recovery_emails`, token);
     });
@@ -920,7 +919,7 @@ module.exports = (config) => {
   ) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
-      : P.resolve(null);
+      : Promise.resolve(null);
     return o.then((token) => {
       return this.doRequest('POST', `${this.baseURL}/recovery_email`, token, {
         email: email,
@@ -932,7 +931,7 @@ module.exports = (config) => {
   ClientApi.prototype.deleteEmail = function (sessionTokenHex, email) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
-      : P.resolve(null);
+      : Promise.resolve(null);
     return o.then((token) => {
       return this.doRequest(
         'POST',
@@ -948,7 +947,7 @@ module.exports = (config) => {
   ClientApi.prototype.setPrimaryEmail = function (sessionTokenHex, email) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
-      : P.resolve(null);
+      : Promise.resolve(null);
     return o.then((token) => {
       return this.doRequest(
         'POST',
@@ -1003,9 +1002,7 @@ module.exports = (config) => {
 
   ClientApi.prototype.checkTotpTokenExists = function (sessionTokenHex) {
     return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
-      return this.doRequest('GET', `${this.baseURL}/totp/exists`, token).bind(
-        this
-      );
+      return this.doRequest('GET', `${this.baseURL}/totp/exists`, token);
     });
   };
 

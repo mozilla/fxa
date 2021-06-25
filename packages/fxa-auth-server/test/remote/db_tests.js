@@ -8,7 +8,6 @@ const { assert } = require('chai');
 const base64url = require('base64url');
 const config = require('../../config').getProperties();
 const crypto = require('crypto');
-const P = require('../../lib/promise');
 const sinon = require('sinon');
 const TestServer = require('../test_server');
 const UnblockCode = require('../../lib/crypto/random').base32(
@@ -65,7 +64,6 @@ const redis = require('ioredis').createClient({
   prefix: config.redis.sessionTokens.prefix,
   enable_offline_queue: false,
 });
-P.promisifyAll(redis);
 
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',
@@ -128,7 +126,7 @@ describe('remote db', function () {
           return db.createEmail(account.uid, emailData);
         })
         // Ensure redis is empty for the uid
-        .then(() => redis.delAsync(account.uid))
+        .then(() => redis.del(account.uid))
     );
   });
 
@@ -588,7 +586,7 @@ describe('remote db', function () {
         // Delete the session token again
         return db.deleteSessionToken(sessions[0]);
       })
-      .then(() => redis.getAsync(account.uid))
+      .then(() => redis.get(account.uid))
       .then((result) => assert.equal(result, null, 'redis was cleared'));
   });
 
@@ -804,7 +802,7 @@ describe('remote db', function () {
           sessionToken.uaOSVersion = '10.10';
           sessionToken.uaFormFactor = null;
           // Update the device and the session token
-          return P.all([
+          return Promise.all([
             db.updateDevice(account.uid, deviceInfo),
             db.touchSessionToken(sessionToken, {
               location: {
@@ -974,7 +972,7 @@ describe('remote db', function () {
         // Deleting these serially ensures there's no Redis WATCH conflict for account.uid
         .then(() => db.deleteDevice(account.uid, conflictingDeviceInfo.id))
         // Deleting the devices should also have cleared the data from Redis
-        .then(() => redis.getAsync(account.uid))
+        .then(() => redis.get(account.uid))
         .then((result) => {
           assert.equal(result, null, 'redis was cleared');
         })
@@ -1234,7 +1232,7 @@ describe('remote db', function () {
         return db.resetAccount(accountResetToken, account);
       })
       .then(() => {
-        return redis.getAsync(account.uid);
+        return redis.get(account.uid);
       })
       .then((result) => {
         assert.equal(result, null, 'redis was cleared');
@@ -1425,7 +1423,7 @@ describe('remote db', function () {
         );
 
         // Consume both signinCodes
-        return P.all([
+        return Promise.all([
           db.consumeSigninCode(previousCode),
           db.consumeSigninCode(code),
         ]);
@@ -1486,7 +1484,7 @@ describe('remote db', function () {
         return db.deleteAccount(emailRecord);
       })
       .then(() => {
-        return redis.getAsync(account.uid);
+        return redis.get(account.uid);
       })
       .then((result) => {
         assert.equal(result, null, 'redis was cleared');
@@ -1500,10 +1498,10 @@ describe('remote db', function () {
 
   describe('account record', () => {
     it('can retrieve account from account email', () => {
-      return P.all([
+      return Promise.all([
         db.emailRecord(account.email),
         db.accountRecord(account.email),
-      ]).spread((emailRecord, accountRecord) => {
+      ]).then(([emailRecord, accountRecord]) => {
         assert.equal(
           emailRecord.email,
           accountRecord.email,
@@ -1523,10 +1521,10 @@ describe('remote db', function () {
     });
 
     it('can retrieve account from secondary email', () => {
-      return P.all([
+      return Promise.all([
         db.accountRecord(account.email),
         db.accountRecord(secondEmail),
-      ]).spread((accountRecord, accountRecordFromSecondEmail) => {
+      ]).then(([accountRecord, accountRecordFromSecondEmail]) => {
         assert.equal(
           accountRecordFromSecondEmail.email,
           accountRecord.email,

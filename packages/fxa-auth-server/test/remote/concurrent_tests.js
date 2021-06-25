@@ -26,21 +26,11 @@ describe('remote concurrect', function () {
     // Two shall enter, only one shall survive!
     const r1 = Client.create(config.publicUrl, email, password, server.mailbox);
     const r2 = Client.create(config.publicUrl, email, password, server.mailbox);
-    return Promise.all([r1, r2])
-      .then(
-        () => assert(false, 'created both accounts'),
-        (err) => {
-          assert.equal(err.errno, 101, 'account exists');
-          // Note that P.all fails fast when one of the requests fails,
-          // but we have to wait for *both* to complete before tearing
-          // down the test infrastructure.  Bleh.
-          if (!r1.isRejected()) {
-            return r1;
-          } else {
-            return r2;
-          }
-        }
-      )
+    return Promise.allSettled([r1, r2])
+      .then((results) => {
+        const rejected = results.filter((p) => p.status === 'rejected');
+        assert(rejected.length === 1, 'one request should have failed');
+      })
       .then(() => {
         return server.mailbox.waitForEmail(email);
       });

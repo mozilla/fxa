@@ -8,19 +8,16 @@ const ROOT_DIR = '../..';
 
 const { assert } = require('chai');
 const cp = require('child_process');
-const Promise = require(`${ROOT_DIR}/lib/promise`);
 const path = require('path');
 const fs = require('fs');
 const templateNames = require('../../lib/senders/templates/_versions');
-const OUTPUT_DIRECTORY = require('../../scripts/write-emails-to-disk')
-  .OUTPUT_DIRECTORY;
-
-cp.execAsync = Promise.promisify(cp.exec);
+const OUTPUT_DIRECTORY =
+  require('../../scripts/write-emails-to-disk').OUTPUT_DIRECTORY;
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
 
 describe('scripts/write-emails-to-disk:', () => {
-  before(async () => {
+  before(() => {
     cp.execSync('node scripts/write-emails-to-disk', { cwd });
   });
 

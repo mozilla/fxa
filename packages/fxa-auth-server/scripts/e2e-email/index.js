@@ -8,7 +8,6 @@
 const crypto = require('crypto');
 const commander = require('commander');
 
-const P = require('../../lib/promise');
 const Client = require('../../test/client')();
 const mailbox = require('../../test/mailbox');
 const validateEmail = require('./validate-email');
@@ -193,7 +192,7 @@ function checkLocale(lang, index) {
   // AWS SES in `stage` has rate-limiting of 5/sec, so start slow.
   const delay = index * 750;
 
-  return P.delay(delay).then(() => {
+  return new Promise((ok) => setTimeout(ok, delay)).then(() => {
     log(log.INFO, 'Starting', lang);
     return signupForSync(lang)
       .then(signinAsSecondDevice)
@@ -214,12 +213,12 @@ function dumpMessages(messages) {
   });
 }
 
-function main() {
+async function main() {
   program = configure();
 
   const checks = program.supportedLanguages.map(checkLocale);
 
-  P.all(checks)
+  await Promise.all(checks)
     .then(() => {
       if (process.env.DEBUG) {
         dumpMessages(emailMessages);

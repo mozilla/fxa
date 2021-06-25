@@ -8,9 +8,8 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const P = require('../../lib/promise');
+const superagent = require('superagent');
 const hawk = require('@hapi/hawk');
-const request = P.promisify(require('request'), { multiArgs: true });
 
 const config = require('../../config').getProperties();
 
@@ -25,8 +24,8 @@ describe('remote misc', function () {
 
   function testVersionRoute(route) {
     return () => {
-      return request(config.publicUrl + route).spread((res, body) => {
-        const json = JSON.parse(body);
+      return superagent.get(config.publicUrl + route).then((res) => {
+        const json = res.body;
         assert.deepEqual(Object.keys(json), ['version', 'commit', 'source']);
         assert.equal(
           json.version,
@@ -53,15 +52,14 @@ describe('remote misc', function () {
     const expectedOrigin = withAllowedOrigin ? randomAllowedOrigin : undefined;
 
     return () => {
-      const options = {
-        url: `${config.publicUrl}/`,
-      };
+      const get = superagent.get(`${config.publicUrl}/`);
       if (withAllowedOrigin !== undefined) {
-        options.headers = {
-          Origin: withAllowedOrigin ? randomAllowedOrigin : 'http://notallowed',
-        };
+        get.set(
+          'Origin',
+          withAllowedOrigin ? randomAllowedOrigin : 'http://notallowed'
+        );
       }
-      return request(options).spread((res, body) => {
+      return get.then((res) => {
         assert.equal(
           res.headers['access-control-allow-origin'],
           expectedOrigin,
@@ -72,19 +70,22 @@ describe('remote misc', function () {
   }
 
   it('unsupported api version', () => {
-    return request(`${config.publicUrl}/v0/account/create`).spread((res) => {
-      assert.equal(res.statusCode, 410, 'http gone');
-    });
+    return superagent
+      .get(`${config.publicUrl}/v0/account/create`)
+      .ok((res) => res.statusCode === 410)
+      .then((res) => {
+        assert.equal(res.statusCode, 410, 'http gone');
+      });
   });
 
   it('/__heartbeat__ returns a 200 OK', () => {
-    return request(`${config.publicUrl}/__heartbeat__`).spread((res) => {
+    return superagent.get(`${config.publicUrl}/__heartbeat__`).then((res) => {
       assert.equal(res.statusCode, 200, 'http ok');
     });
   });
 
   it('/__lbheartbeat__ returns a 200 OK', () => {
-    return request(`${config.publicUrl}/__lbheartbeat__`).spread((res) => {
+    return superagent.get(`${config.publicUrl}/__lbheartbeat__`).then((res) => {
       assert.equal(res.statusCode, 200, 'http ok');
     });
   });
@@ -113,24 +114,26 @@ describe('remote misc', function () {
 
   it('/verify_email redirects', () => {
     const path = '/v1/verify_email?code=0000&uid=0000';
-    return request({
-      url: config.publicUrl + path,
-      followRedirect: false,
-    }).spread((res, body) => {
-      assert.equal(res.statusCode, 302, 'redirected');
-      //assert.equal(res.headers.location, config.contentServer.url + path)
-    });
+    return superagent
+      .get(config.publicUrl + path)
+      .redirects(0)
+      .ok((res) => res.statusCode === 302)
+      .then((res) => {
+        assert.equal(res.statusCode, 302, 'redirected');
+        //assert.equal(res.headers.location, config.contentServer.url + path)
+      });
   });
 
   it('/complete_reset_password redirects', () => {
     const path = '/v1/complete_reset_password?code=0000&email=a@b.c&token=0000';
-    return request({
-      url: config.publicUrl + path,
-      followRedirect: false,
-    }).spread((res, body) => {
-      assert.equal(res.statusCode, 302, 'redirected');
-      //assert.equal(res.headers.location, config.contentServer.url + path)
-    });
+    return superagent
+      .get(config.publicUrl + path)
+      .redirects(0)
+      .ok((res) => res.statusCode === 302)
+      .then((res) => {
+        assert.equal(res.statusCode, 302, 'redirected');
+        //assert.equal(res.headers.location, config.contentServer.url + path)
+      });
   });
 
   it('timestamp header', () => {
@@ -158,26 +161,19 @@ describe('remote misc', function () {
           credentials: token,
           timestamp: Math.floor(Date.now() / 1000),
         };
-        const headers = {
-          Authorization: hawk.client.header(url, method, verify).header,
-        };
-        return request({
-          method: method,
-          url: url,
-          headers: headers,
-          json: true,
-        }).spread((res, body) => {
-          const now = +new Date() / 1000;
-          assert.ok(res.headers.timestamp > now - 60, 'has timestamp header');
-          assert.ok(res.headers.timestamp < now + 60, 'has timestamp header');
-        });
+        return superagent
+          .get(url)
+          .set('Authorization', hawk.client.header(url, method, verify).header)
+          .then((res) => {
+            const now = +new Date() / 1000;
+            assert.ok(res.headers.timestamp > now - 60, 'has timestamp header');
+            assert.ok(res.headers.timestamp < now + 60, 'has timestamp header');
+          });
       });
   });
 
   it('Strict-Transport-Security header', () => {
-    return request({
-      url: `${config.publicUrl}/`,
-    }).spread((res, body) => {
+    return superagent.get(`${config.publicUrl}/`).then((res) => {
       assert.equal(
         res.headers['strict-transport-security'],
         'max-age=31536000; includeSubDomains'
@@ -266,24 +262,21 @@ describe('remote misc', function () {
           payload: JSON.stringify(payload),
           timestamp: Math.floor(Date.now() / 1000),
         };
-        const headers = {
-          Authorization: hawk.client.header(url, method, verify).header,
-        };
         payload.name = 'my stealthily-changed device name';
-        return request({
-          method: method,
-          url: url,
-          headers: headers,
-          body: JSON.stringify(payload),
-        }).spread((res) => {
-          const body = JSON.parse(res.body);
-          assert.equal(res.statusCode, 401, 'the request was rejected');
-          assert.equal(
-            body.errno,
-            109,
-            'the errno indicates an invalid signature'
-          );
-        });
+        return superagent
+          .post(url)
+          .set('Authorization', hawk.client.header(url, method, verify).header)
+          .send(payload)
+          .ok((res) => res.statusCode === 401)
+          .then((res) => {
+            const body = res.body;
+            assert.equal(res.statusCode, 401, 'the request was rejected');
+            assert.equal(
+              body.errno,
+              109,
+              'the errno indicates an invalid signature'
+            );
+          });
       });
   });
 

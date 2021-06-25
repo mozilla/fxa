@@ -11,7 +11,6 @@ const bounces = require(`${ROOT_DIR}/lib/email/bounces`);
 const error = require(`${ROOT_DIR}/lib/error`);
 const { EventEmitter } = require('events');
 const { mockLog } = require('../../mocks');
-const P = require(`${ROOT_DIR}/lib/promise`);
 const sinon = require('sinon');
 
 const mockBounceQueue = new EventEmitter();
@@ -32,16 +31,16 @@ describe('bounce messages', () => {
   beforeEach(() => {
     log = mockLog();
     mockDB = {
-      createEmailBounce: sinon.spy(() => P.resolve({})),
+      createEmailBounce: sinon.spy(() => Promise.resolve({})),
       accountRecord: sinon.spy((email) => {
-        return P.resolve({
+        return Promise.resolve({
           createdAt: Date.now(),
           email: email,
           emailVerified: false,
           uid: '123456',
         });
       }),
-      deleteAccount: sinon.spy(() => P.resolve({})),
+      deleteAccount: sinon.spy(() => Promise.resolve({})),
     };
   });
 
@@ -130,7 +129,7 @@ describe('bounce messages', () => {
   it('should not delete account that bounces and is older than 6 hours', () => {
     const SEVEN_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 7;
     mockDB.accountRecord = sinon.spy((email) => {
-      return P.resolve({
+      return Promise.resolve({
         createdAt: SEVEN_HOURS_AGO,
         uid: '123456',
         email: email,
@@ -168,7 +167,7 @@ describe('bounce messages', () => {
   it('should delete account that bounces and is younger than 6 hours', () => {
     const FOUR_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 5;
     mockDB.accountRecord = sinon.spy((email) => {
-      return P.resolve({
+      return Promise.resolve({
         createdAt: FOUR_HOURS_AGO,
         uid: '123456',
         email: email,
@@ -267,7 +266,7 @@ describe('bounce messages', () => {
 
   it('should not delete verified accounts on bounce', () => {
     mockDB.accountRecord = sinon.spy((email) => {
-      return P.resolve({
+      return Promise.resolve({
         createdAt: Date.now(),
         uid: '123456',
         email: email,
@@ -318,7 +317,7 @@ describe('bounce messages', () => {
   });
 
   it('should log errors when looking up the email record', () => {
-    mockDB.accountRecord = sinon.spy(() => P.reject(new error({})));
+    mockDB.accountRecord = sinon.spy(() => Promise.reject(new error({})));
     const mockMsg = mockMessage({
       bounce: {
         bounceType: 'Permanent',
@@ -342,7 +341,7 @@ describe('bounce messages', () => {
 
   it('should log errors when deleting the email record', () => {
     mockDB.deleteAccount = sinon.spy(() =>
-      P.reject(new error.unknownAccount('test@example.com'))
+      Promise.reject(new error.unknownAccount('test@example.com'))
     );
     const mockMsg = mockMessage({
       bounce: {
@@ -375,9 +374,9 @@ describe('bounce messages', () => {
     mockDB.accountRecord = sinon.spy((email) => {
       // Lookup only succeeds when using original, unquoted email addr.
       if (email !== 'test.@example.com') {
-        return P.reject(new error.unknownAccount(email));
+        return Promise.reject(new error.unknownAccount(email));
       }
-      return P.resolve({
+      return Promise.resolve({
         createdAt: Date.now(),
         uid: '123456',
         email: email,
@@ -417,9 +416,9 @@ describe('bounce messages', () => {
     mockDB.accountRecord = sinon.spy((email) => {
       // Lookup only succeeds when using original, unquoted email addr.
       if (email !== 'test..me@example.com') {
-        return P.reject(new error.unknownAccount(email));
+        return Promise.reject(new error.unknownAccount(email));
       }
-      return P.resolve({
+      return Promise.resolve({
         createdAt: Date.now(),
         uid: '123456',
         email: email,
@@ -458,7 +457,7 @@ describe('bounce messages', () => {
 
   it('should log a warning if it receives an unparseable email address', () => {
     mockDB.accountRecord = sinon.spy(() =>
-      P.reject(new error.unknownAccount())
+      Promise.reject(new error.unknownAccount())
     );
     return mockedBounces(log, mockDB)
       .handleBounce(

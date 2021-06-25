@@ -14,7 +14,6 @@ const { decodeJWT } = require('../lib/util');
 
 const db = require('../../lib/oauth/db');
 const encrypt = require('../../lib/oauth/encrypt');
-const P = require('../../lib/promise');
 const config = testServer.config;
 let Server;
 
@@ -95,7 +94,7 @@ function genAssertion(email) {
     exp: now,
   });
 
-  return P.resolve(cert + '~' + assertion);
+  return Promise.resolve(cert + '~' + assertion);
 }
 
 // this matches the hashed secret in config, an assert sanity checks
@@ -191,7 +190,7 @@ describe('/v1', function () {
   before(async function () {
     this.timeout(20000);
     Server = await testServer.start();
-    return P.all([
+    return Promise.all([
       genAssertion(USERID + config.get('oauthServer.browserid.issuer')).then(
         function (ass) {
           AN_ASSERTION = ass;
@@ -1508,11 +1507,11 @@ describe('/v1', function () {
                   code_challenge: code_challenge,
                 }),
               })
-              .then(function (res) {
+              .then(async function (res) {
                 assert.equal(res.statusCode, 200);
+                await new Promise((ok) => setTimeout(ok, 60));
                 return res.result.code;
               })
-              .delay(60)
               .then(function (code) {
                 return Server.api.post({
                   url: '/token',
@@ -1591,10 +1590,10 @@ describe('/v1', function () {
               url: '/authorization',
               payload: authParams(),
             })
-            .then(function (res) {
+            .then(async function (res) {
+              await new Promise((ok) => setTimeout(ok, 60));
               return res.result.code;
             })
-            .delay(60)
             .then(function (code) {
               return Server.api.post({
                 url: '/token',
@@ -2773,8 +2772,8 @@ describe('/v1', function () {
       return newToken({
         ttl: 1,
       })
-        .delay(1500)
-        .then(function (res) {
+        .then(async function (res) {
+          await new Promise((ok) => setTimeout(ok, 1500));
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(res.result.expires_in, 1);
@@ -3867,7 +3866,7 @@ describe('/v1', function () {
       assert.lengthOf(initialJWT.claims.sub, USERID.length);
 
       // delay long enough to force a rotation if enabled for client
-      await P.delay(200);
+      await new Promise((ok) => setTimeout(ok, 200));
 
       const refreshTokenResult = await Server.api.post({
         url: '/token',
@@ -3907,7 +3906,7 @@ describe('/v1', function () {
       assert.strictEqual(seededJWT.claims.sub, USERID);
 
       // delay long enough to force a rotation if enabled for client
-      await P.delay(200);
+      await new Promise((ok) => setTimeout(ok, 200));
 
       const refreshTokenResult = await Server.api.post({
         url: '/token',
@@ -3960,7 +3959,7 @@ describe('/v1', function () {
       assert.lengthOf(tokenJWT.claims.sub, USERID.length);
 
       // delay long enough to force a server side rotation if enabled for client
-      await P.delay(200);
+      await new Promise((ok) => setTimeout(ok, 200));
 
       const serverRotatedResult = await Server.api.post({
         url: '/token',

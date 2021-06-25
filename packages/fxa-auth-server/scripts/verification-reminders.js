@@ -22,7 +22,6 @@ const config = require(`${ROOT_DIR}/config`).getProperties();
 
 const error = require(`${LIB_DIR}/error`);
 const log = require(`${LIB_DIR}/log`)(config.log);
-const Promise = require(`${LIB_DIR}/promise`);
 const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
   log,
   config
@@ -43,22 +42,18 @@ run()
   });
 
 async function run() {
-  const [
-    vReminders,
-    cReminders,
-    db,
-    templates,
-    translator,
-  ] = await Promise.all([
-    verificationReminders.process(),
-    cadReminders.process(),
-    require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config),
-    require(`${LIB_DIR}/senders/templates`)(log),
-    require(`${LIB_DIR}/senders/translator`)(
-      config.i18n.supportedLanguages,
-      config.i18n.defaultLanguage
-    ),
-  ]);
+  const [vReminders, cReminders, db, templates, translator] = await Promise.all(
+    [
+      verificationReminders.process(),
+      cadReminders.process(),
+      require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config),
+      require(`${LIB_DIR}/senders/templates`)(log),
+      require(`${LIB_DIR}/senders/translator`)(
+        config.i18n.supportedLanguages,
+        config.i18n.defaultLanguage
+      ),
+    ]
+  );
 
   const mailer = new Mailer(translator, templates, config.smtp);
 

@@ -11,7 +11,6 @@ const crypto = require('crypto');
 const uuid = require('uuid');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const P = require(`${ROOT_DIR}/lib/promise`);
 const error = require(`${ROOT_DIR}/lib/error`);
 
 describe('/certificate/sign', () => {
@@ -356,7 +355,7 @@ describe('/certificate/sign', () => {
   });
 
   function runTest(options, request, onSuccess, onError) {
-    return new P((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         const response = getRoute(
           makeRoutes(options),
@@ -382,7 +381,7 @@ describe('/certificate/sign', () => {
       log,
       options.signer || {
         sign: function () {
-          return P.resolve({});
+          return Promise.resolve({});
         },
       },
       options.db || {

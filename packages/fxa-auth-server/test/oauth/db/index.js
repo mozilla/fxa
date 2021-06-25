@@ -11,7 +11,6 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const encrypt = require('../../../lib/oauth/encrypt');
 const db = require('../../../lib/oauth/db');
-const Promise = require('../../../lib/promise');
 
 function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');
@@ -315,7 +314,7 @@ describe('db', function () {
         tokenFirstUsage.lastUsedAt = t.lastUsedAt;
 
         // ensures that creation and subsequent usage are at least 1s apart
-        await Promise.delay(1000);
+        await new Promise((ok) => setTimeout(ok, 1000));
 
         await db.getRefreshToken(tokenId);
       });
