@@ -81,7 +81,7 @@
     "@sentry/integrations": "^6.7.2",
     "@sentry/node": "^6.7.2",
     "@types/js-md5": "^0.4.2",
-    "accept-language": "^2.0.17",
+    "accept-language": "^3.0.18",
     "ajv": "^6.12.2",
     "apollo-server": "^2.25.2",
     "aws-sdk": "^2.933.0",
