@@ -4,10 +4,10 @@
 
 'use strict';
 
+import Redis from 'ioredis';
+
 const FLAGS_PREFIX = 'featureFlags:';
 const FLAGS_KEY = 'current';
-
-module.exports = initialise;
 
 /**
  * Initialise the feature-flag module.
@@ -28,7 +28,7 @@ module.exports = initialise;
  *
  * @returns {FeatureFlags}
  */
-function initialise(config, log, defaults) {
+export default function initialise(config: any, log: any, defaults: any) {
   const { interval, redis: redisConfig } = config;
 
   if (!(interval > 0 && interval < Infinity)) {
@@ -39,16 +39,13 @@ function initialise(config, log, defaults) {
     throw new TypeError('Missing log argument');
   }
 
-  const redis = require('../redis')(
-    {
-      ...redisConfig,
-      enabled: true,
-      prefix: FLAGS_PREFIX,
-    },
-    log
-  );
+  const redis = new Redis({
+    ...redisConfig,
+    keyPrefix: FLAGS_PREFIX,
+  });
 
-  let cache, timeout;
+  let cache: Promise<any> | undefined;
+  let timeout: NodeJS.Timeout | undefined;
 
   refresh();
 
@@ -67,10 +64,12 @@ function initialise(config, log, defaults) {
         // Eliminate any latency during refresh by keeping the old cached result
         // until the refreshed promise has actually resolved.
         const result = await redis.get(FLAGS_KEY);
-        // eslint-disable-next-line require-atomic-updates
-        cache = Promise.resolve(JSON.parse(result));
+        if (result) {
+          // eslint-disable-next-line require-atomic-updates
+          cache = Promise.resolve(JSON.parse(result));
+        }
       } else {
-        cache = redis.get(FLAGS_KEY).then((result) => JSON.parse(result));
+        cache = redis.get(FLAGS_KEY).then((result: any) => JSON.parse(result));
         // The positioning of `await` is deliberate here.
         // The initial value of `cache` must be a promise
         // so that callers can access it uniformly.
@@ -113,9 +112,9 @@ function initialise(config, log, defaults) {
   function terminate() {
     if (timeout) {
       clearTimeout(timeout);
-      timeout = null;
+      timeout = undefined;
     }
 
-    return redis.close();
+    return redis.quit();
   }
 }

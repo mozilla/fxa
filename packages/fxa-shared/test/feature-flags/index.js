@@ -33,13 +33,13 @@ describe('feature-flags/index:', () => {
             reject = rej;
           })
       ),
-      close: sinon.spy(),
+      quit: sinon.spy(),
     };
     redisFactory = sinon.spy(() => redis);
     log = {};
     initialise = proxyquire('../../feature-flags', {
-      '../redis': redisFactory,
-    });
+      ioredis: redisFactory,
+    }).default;
     setImmediate(done);
   });
 
@@ -94,10 +94,9 @@ describe('feature-flags/index:', () => {
         {
           interval: 300000,
           redis: {
-            enabled: false,
             host: 'localhost',
             port: 6379,
-            prefix: 'wibble:',
+            keyPrefix: 'wibble:',
           },
         },
         log
@@ -117,14 +116,12 @@ describe('feature-flags/index:', () => {
     it('initialised redis', () => {
       assert.equal(redisFactory.callCount, 1);
       const args = redisFactory.args[0];
-      assert.lengthOf(args, 2);
+      assert.lengthOf(args, 1);
       assert.deepEqual(args[0], {
-        enabled: true,
         host: 'localhost',
         port: 6379,
-        prefix: 'featureFlags:',
+        keyPrefix: 'featureFlags:',
       });
-      assert.equal(args[1], log);
     });
 
     it('called redis.get', () => {
@@ -166,9 +163,9 @@ describe('feature-flags/index:', () => {
         assert.equal(args[0], 'wibble');
       });
 
-      it('called redis.close', () => {
-        assert.equal(redis.close.callCount, 1);
-        assert.lengthOf(redis.close.args[0], 0);
+      it('called redis.quit', () => {
+        assert.equal(redis.quit.callCount, 1);
+        assert.lengthOf(redis.quit.args[0], 0);
       });
 
       describe('terminate:', () => {
@@ -180,8 +177,8 @@ describe('feature-flags/index:', () => {
           assert.equal(clearTimeout.callCount, 1);
         });
 
-        it('called redis.close', () => {
-          assert.equal(redis.close.callCount, 2);
+        it('called redis.quit', () => {
+          assert.equal(redis.quit.callCount, 2);
         });
       });
     });

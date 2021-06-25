@@ -7,23 +7,12 @@
 'use strict';
 
 const ajv = require('ajv')();
-const Promise = require('../promise');
-const redis = require('../redis')(
-  {
-    enabled: true,
-    host: process.env.REDIS_HOST || 'localhost',
-    port: process.env.REDIS_PORT || 6379,
-    prefix: 'featureFlags:',
-    maxConnections: 2,
-    maxPending: 1,
-    minConnections: 1,
-  },
-  {
-    error() {},
-    info() {},
-    warn() {},
-  }
-);
+const Redis = require('ioredis');
+const redis = new Redis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: process.env.REDIS_PORT || 6379,
+  keyPrefix: 'featureFlags:',
+});
 const schema = require('../feature-flags/schema.json');
 const validate = ajv.compile(schema);
 
@@ -41,7 +30,7 @@ const KEYS = {
 
 const { argv } = process;
 
-main().then(() => redis.close());
+main().then(() => redis.quit());
 
 async function main() {
   try {

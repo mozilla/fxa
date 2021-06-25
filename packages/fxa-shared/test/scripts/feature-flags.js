@@ -10,26 +10,20 @@ const { assert } = require('chai');
 const cp = require('child_process');
 const os = require('os');
 const path = require('path');
-const Promise = require(`${ROOT_DIR}/promise`);
+const util = require('util');
+const Redis = require('ioredis');
 
-cp.execAsync = Promise.promisify(cp.exec);
+const exec = util.promisify(cp.exec);
+cp.execAsync = async function () {
+  const { stdout } = await exec(...arguments);
+  return stdout;
+};
 
-const redis = require(`${ROOT_DIR}/redis`)(
-  {
-    enabled: true,
-    host: process.env.REDIS_HOST || 'localhost',
-    port: process.env.REDIS_PORT || 6379,
-    prefix: 'featureFlags:',
-    maxConnections: 2,
-    maxPending: 1,
-    minConnections: 1,
-  },
-  {
-    error() {},
-    info() {},
-    warn() {},
-  }
-);
+const redis = new Redis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: process.env.REDIS_PORT || 6379,
+  keyPrefix: 'featureFlags:',
+});
 
 const KEYS = {
   current: 'current',
@@ -62,7 +56,7 @@ describe('scripts/feature-flags:', () => {
     }
   });
 
-  after(() => redis.close());
+  after(() => redis.quit());
 
   it('read does not fail', () => {
     return cp.execAsync(`${SCRIPT} read`, { cwd });
