@@ -9,7 +9,6 @@ const LIB_DIR = `${ROOT_DIR}/lib`;
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
 const log = require(`${ROOT_DIR}/test/mocks`).mockLog();
-const Promise = require(`${LIB_DIR}/promise`);
 const redis = require(`${LIB_DIR}/redis`)(
   { ...config.redis, ...config.redis.email },
   log

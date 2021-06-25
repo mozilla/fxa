@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const P = require('../../lib/promise');
 process.env.CONFIG_FILES = require.resolve('./oauth-test.json');
 const config = require('../../config');
 const version = config.get('oauthServer.api.version');
@@ -13,7 +12,7 @@ const createServer = require('../../bin/key_server');
 function wrapServer(server, close) {
   var wrap = {};
   function request(options) {
-    return new P((resolve) => {
+    return new Promise((resolve) => {
       resolve(server.inject(options));
     });
   }

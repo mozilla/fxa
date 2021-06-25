@@ -7,7 +7,6 @@
 module.exports = (config) => {
   const otplib = require('otplib');
   const crypto = require('crypto');
-  const P = require('../../lib/promise');
   const ClientApi = require('./api')(config);
   const butil = require('../../lib/crypto/butil');
   const pbkdf2 = require('../../lib/crypto/pbkdf2');
@@ -34,7 +33,7 @@ module.exports = (config) => {
   Client.Api = ClientApi;
 
   Client.prototype.setupCredentials = function (email, password) {
-    return P.resolve().then(() => {
+    return Promise.resolve().then(() => {
       this.email = email;
       return pbkdf2
         .derive(
@@ -211,7 +210,7 @@ module.exports = (config) => {
   };
 
   Client.prototype.destroySession = function () {
-    let p = P.resolve(null);
+    let p = Promise.resolve(null);
     if (this.sessionToken) {
       p = this.api.sessionDestroy(this.sessionToken).then(() => {
         this.sessionToken = null;
@@ -250,7 +249,7 @@ module.exports = (config) => {
     c.unwrapBKey = this.unwrapBKey;
     c.authPW = this.authPW;
     c.options = this.options;
-    return P.resolve()
+    return Promise.resolve()
       .then(() => {
         if (this.sessionToken) {
           return this.api.sessionDuplicate(this.sessionToken).then((data) => {
@@ -313,21 +312,21 @@ module.exports = (config) => {
   };
 
   Client.prototype.emailStatus = function () {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {
       return this.api.recoveryEmailStatus(this.sessionToken);
     });
   };
 
   Client.prototype.requestVerifyEmail = function () {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {
       return this.api.recoveryEmailResendCode(this.sessionToken, this.options);
     });
   };
 
   Client.prototype.sign = function (publicKey, duration, locale, options) {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o
       .then(() => {
         return this.api.certificateSign(
@@ -387,7 +386,7 @@ module.exports = (config) => {
   };
 
   Client.prototype.keys = function () {
-    const o = this.keyFetchToken ? P.resolve(null) : this.login();
+    const o = this.keyFetchToken ? Promise.resolve(null) : this.login();
     return o
       .then(() => {
         return this.api.accountKeys(this.keyFetchToken);
@@ -419,21 +418,21 @@ module.exports = (config) => {
   };
 
   Client.prototype.attachedClients = function () {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {
       return this.api.attachedClients(this.sessionToken);
     });
   };
 
   Client.prototype.destroyAttachedClient = function (clientData) {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {
       return this.api.attachedClientDestroy(this.sessionToken, clientData);
     });
   };
 
   Client.prototype.devices = function () {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {
       return this.api.accountDevices(this.sessionToken);
     });
@@ -454,7 +453,7 @@ module.exports = (config) => {
   };
 
   Client.prototype.updateDevice = function (info) {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o
       .then(() => {
         return this.api.accountDevice(this.sessionToken, info);
@@ -482,7 +481,7 @@ module.exports = (config) => {
   };
 
   Client.prototype.destroyDevice = function (id) {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o
       .then(() => {
         return this.api.deviceDestroy(this.sessionToken, id);
@@ -528,21 +527,21 @@ module.exports = (config) => {
   };
 
   Client.prototype.sessionStatus = function () {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {
       return this.api.sessionStatus(this.sessionToken);
     });
   };
 
   Client.prototype.securityEvents = function () {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {
       return this.api.securityEvents(this.sessionToken);
     });
   };
 
   Client.prototype.deleteSecurityEvents = function () {
-    const o = this.sessionToken ? P.resolve(null) : this.login();
+    const o = this.sessionToken ? Promise.resolve(null) : this.login();
     return o.then(() => {
       return this.api.deleteSecurityEvents(this.sessionToken);
     });
@@ -554,7 +553,7 @@ module.exports = (config) => {
         Authorization: `Bearer ${oauthToken}`,
       });
     } else {
-      const o = this.sessionToken ? P.resolve(null) : this.login();
+      const o = this.sessionToken ? Promise.resolve(null) : this.login();
       return o.then(() => {
         return this.api.accountProfile(this.sessionToken);
       });

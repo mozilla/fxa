@@ -18,21 +18,24 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
   const UnblockCode = require('../../lib/crypto/random').base32(
     config.signinUnblock.codeLength
   );
-  const P = require('../../lib/promise');
 
   const DB = require('../../lib/db')(config, log, Token, UnblockCode);
 
   let db;
 
   DB.connect(config)
-    .then((_db) => {
+    .then(async (_db) => {
       db = _db;
-      return P.mapSeries(keys, (item) =>
-        db[dbFunc](item).catch((err) => {
-          console.error(`${String(err)} - ${item}`);
-          process.exit(1);
-        })
-      );
+      const userRecords = [];
+      try {
+        for (const item of keys) {
+          userRecords.push(await db[dbFunc](item));
+        }
+      } catch (err) {
+        console.error(err);
+        return process.exit(1);
+      }
+      return userRecords;
     })
     .then(marshallUserRecords)
     .then((records) => {

@@ -13,7 +13,6 @@ const getRoute = require('../../routes_helpers').getRoute;
 const isA = require('@hapi/joi');
 const mocks = require('../../mocks');
 const moment = require('moment'); // Ensure consistency with production code
-const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 
@@ -33,7 +32,8 @@ function makeRoutes(options = {}, requireMocks) {
     defaultLanguage: 'en',
   };
   config.push = {
-    allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/,
+    allowedServerRegex:
+      /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/,
   };
   config.lastAccessTimeUpdates = {
     earliestSaneTimestamp: EARLIEST_SANE_TIMESTAMP,
@@ -47,7 +47,7 @@ function makeRoutes(options = {}, requireMocks) {
   };
   const customs = options.customs || {
     check: function () {
-      return P.resolve(true);
+      return Promise.resolve(true);
     },
   };
   const push = options.push || require('../../../lib/push')(log, db, {});
@@ -410,13 +410,14 @@ describe('/account/devices/notify', () => {
     };
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(() => {
-      sendPushPromise.resolve();
-      return P.resolve();
+    const sendPushPromise = new Promise((resolve) => {
+      mockPush.sendPush = sinon.spy(() => {
+        resolve();
+        return Promise.resolve();
+      });
     });
     return runTest(route, mockRequest, (response) => {
-      return sendPushPromise.promise.then(() => {
+      return sendPushPromise.then(() => {
         assert.equal(
           mockCustoms.checkAuthenticated.callCount,
           1,
@@ -464,9 +465,7 @@ describe('/account/devices/notify', () => {
     };
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    const sendPushPromise = P.defer();
     mockPush.sendPush = sinon.spy(() => {
-      sendPushPromise.resolve();
       return Promise.resolve();
     });
     return runTest(route, mockRequest, () => {
@@ -499,13 +498,14 @@ describe('/account/devices/notify', () => {
     };
     // We don't wait on sendPush in the request handler, that's why
     // we have to wait on it manually by spying.
-    const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(() => {
-      sendPushPromise.resolve();
-      return P.resolve();
+    const sendPushPromise = new Promise((resolve) => {
+      mockPush.sendPush = sinon.spy(() => {
+        resolve();
+        return Promise.resolve();
+      });
     });
     return runTest(route, mockRequest, (response) => {
-      return sendPushPromise.promise.then(() => {
+      return sendPushPromise.then(() => {
         assert.equal(
           mockCustoms.checkAuthenticated.callCount,
           1,
@@ -662,10 +662,10 @@ describe('/account/devices/notify', () => {
 
     const mockLog = mocks.mockLog();
     const mockPush = mocks.mockPush({
-      sendPush: () => P.reject('devices empty'),
+      sendPush: () => Promise.reject('devices empty'),
     });
     const mockCustoms = {
-      checkAuthenticated: () => P.resolve(),
+      checkAuthenticated: () => Promise.resolve(),
     };
 
     route = getRoute(
@@ -692,13 +692,14 @@ describe('/account/devices/notify', () => {
       _endpointAction: 'accountVerify',
       payload: {},
     };
-    const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(() => {
-      sendPushPromise.resolve();
-      return P.resolve();
+    const sendPushPromise = new Promise((resolve) => {
+      mockPush.sendPush = sinon.spy(() => {
+        resolve();
+        return Promise.resolve();
+      });
     });
     const mockCustoms = {
-      checkAuthenticated: () => P.resolve(),
+      checkAuthenticated: () => Promise.resolve(),
     };
     route = getRoute(
       makeRoutes({
@@ -710,7 +711,7 @@ describe('/account/devices/notify', () => {
     );
 
     return runTest(route, mockRequest, () => {
-      return sendPushPromise.promise.then(() => {
+      return sendPushPromise.then(() => {
         assert.equal(
           mockPush.sendPush.callCount,
           1,
@@ -793,7 +794,7 @@ describe('/account/device/commands', () => {
       ],
     };
     const mockPushbox = mocks.mockPushbox();
-    mockPushbox.retrieve = sinon.spy(() => P.resolve(mockResponse));
+    mockPushbox.retrieve = sinon.spy(() => Promise.resolve(mockResponse));
 
     mockRequest.query = {
       index: 2,
@@ -896,7 +897,7 @@ describe('/account/device/commands', () => {
       ],
     };
     const mockPushbox = mocks.mockPushbox();
-    mockPushbox.retrieve = sinon.spy(() => P.resolve(mockResponse));
+    mockPushbox.retrieve = sinon.spy(() => Promise.resolve(mockResponse));
 
     mockRequest.query = {
       index: 2,
@@ -1125,7 +1126,7 @@ describe('/account/devices/invoke_command', () => {
       command,
       payload,
     };
-    mockDB.device = sinon.spy(() => P.reject(error.unknownDevice()));
+    mockDB.device = sinon.spy(() => Promise.reject(error.unknownDevice()));
     const route = getRoute(
       makeRoutes({
         customs: mockCustoms,

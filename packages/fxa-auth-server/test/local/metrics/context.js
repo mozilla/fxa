@@ -11,7 +11,6 @@ const crypto = require('crypto');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const mocks = require('../../mocks');
-const P = require(`${ROOT_DIR}/lib/promise`);
 
 const modulePath = `${ROOT_DIR}/lib/metrics/context`;
 const metricsContextModule = require(modulePath);
@@ -29,9 +28,9 @@ describe('metricsContext', () => {
 
   beforeEach(() => {
     results = {
-      del: P.resolve(),
-      get: P.resolve(),
-      set: P.resolve(),
+      del: Promise.resolve(),
+      get: Promise.resolve(),
+      set: Promise.resolve(),
     };
     cache = {
       add: sinon.spy(() => results.add),
@@ -88,7 +87,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.stash', () => {
-    results.add = P.resolve('wibble');
+    results.add = Promise.resolve('wibble');
     const token = {
       uid: Array(64).fill('c').join(''),
       id: 'foo',
@@ -134,7 +133,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.stash with clashing data', () => {
-    results.add = P.reject('wibble');
+    results.add = Promise.reject('wibble');
     const token = {
       uid: Array(64).fill('c').join(''),
       id: 'foo',
@@ -159,7 +158,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.stash with service query param', () => {
-    results.add = P.resolve('wibble');
+    results.add = Promise.resolve('wibble');
     const token = {
       uid: Array(64).fill('c').join(''),
       id: 'foo',
@@ -229,7 +228,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.get with payload', async () => {
-    results.get = P.resolve({
+    results.get = Promise.resolve({
       flowId: 'not this flow id',
       flowBeginTime: 0,
     });
@@ -252,7 +251,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.get with payload', async () => {
-    results.get = P.resolve({
+    results.get = Promise.resolve({
       flowId: 'not this flow id',
       flowBeginTime: 0,
     });
@@ -275,7 +274,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.get with token', async () => {
-    results.get = P.resolve({
+    results.get = Promise.resolve({
       flowId: 'flowId',
       flowBeginTime: 1977,
     });
@@ -302,7 +301,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.get with fake token', async () => {
-    results.get = P.resolve({
+    results.get = Promise.resolve({
       flowId: 'flowId',
       flowBeginTime: 1977,
     });
@@ -351,7 +350,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.get with token and payload', async () => {
-    results.get = P.resolve({
+    results.get = Promise.resolve({
       flowId: 'foo',
       flowBeginTime: 1977,
     });
@@ -380,7 +379,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.get with cache.get error', async () => {
-    results.get = P.reject('foo');
+    results.get = Promise.reject('foo');
     const result = await metricsContext.get({
       auth: {
         credentials: {
@@ -396,7 +395,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.gather with metadata', () => {
-    results.get = P.resolve({
+    results.get = Promise.resolve({
       flowId: 'not this flow id',
       flowBeginTime: 0,
     });
@@ -405,7 +404,7 @@ describe('metricsContext', () => {
       .call(
         {
           app: {
-            metricsContext: P.resolve({
+            metricsContext: Promise.resolve({
               deviceId: 'mock device id',
               flowId: 'mock flow id',
               flowBeginTime: time,
@@ -469,7 +468,7 @@ describe('metricsContext', () => {
             dnt: '1',
           },
           app: {
-            metricsContext: P.resolve({
+            metricsContext: Promise.resolve({
               deviceId: 'mock device id',
               flowId: 'mock flow id',
               flowBeginTime: Date.now(),
@@ -510,7 +509,7 @@ describe('metricsContext', () => {
       .call(
         {
           app: {
-            metricsContext: P.resolve({
+            metricsContext: Promise.resolve({
               flowBeginTime: Date.now() + 10000,
             }),
           },
@@ -525,8 +524,8 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.propagate', () => {
-    results.get = P.resolve('wibble');
-    results.add = P.resolve();
+    results.get = Promise.resolve('wibble');
+    results.add = Promise.resolve();
     const oldToken = {
       uid: Array(64).fill('c').join(''),
       id: 'foo',
@@ -552,8 +551,8 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.propagate with clashing data', () => {
-    results.get = P.resolve('wibble');
-    results.add = P.reject('blee');
+    results.get = Promise.resolve('wibble');
+    results.add = Promise.reject('blee');
     const oldToken = {
       uid: Array(64).fill('c').join(''),
       id: 'foo',
@@ -570,8 +569,8 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.propagate with get error', () => {
-    results.get = P.reject('wibble');
-    results.add = P.resolve();
+    results.get = Promise.reject('wibble');
+    results.add = Promise.resolve();
     const oldToken = {
       uid: Array(64).fill('c').join(''),
       id: 'foo',
@@ -652,7 +651,7 @@ describe('metricsContext', () => {
       uid: Array(64).fill('7').join(''),
       id: 'wibble',
     };
-    results.del = P.reject(new Error('blee'));
+    results.del = Promise.reject(new Error('blee'));
     return metricsContext.clear
       .call({
         auth: {

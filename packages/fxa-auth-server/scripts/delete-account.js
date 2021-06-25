@@ -23,7 +23,6 @@
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const readline = require('readline');
-const P = require('../lib/promise');
 const config = require('../config').getProperties();
 const log = require('../lib/log')(config.log.level);
 const Token = require('../lib/tokens')(log, config);
@@ -31,11 +30,11 @@ const mailer = null;
 
 const DB = require('../lib/db')(config, log, Token);
 
-DB.connect(config).then((db) => {
+DB.connect(config).then(async (db) => {
   // Bypass customs checks.
   const mockCustoms = {
     check: () => {
-      return P.resolve();
+      return Promise.resolve();
     },
   };
 
@@ -49,12 +48,12 @@ DB.connect(config).then((db) => {
     mailer
   );
   signinUtils.checkPassword = function () {
-    return P.resolve(true);
+    return Promise.resolve(true);
   };
 
   // Bypass TOTP checks.
   db.totpToken = () => {
-    return P.resolve(false);
+    return Promise.resolve(false);
   };
 
   const push = require('../lib/push')(log, db, config);
@@ -106,10 +105,9 @@ DB.connect(config).then((db) => {
 
   let retval = 0;
 
-  P.each(process.argv.slice(2), (email) => {
-    return db.accountRecord(email).then((account) => {
-      // This is a pretty destructive action, ask the operator
-      // to confirm each individual account deletion in turn.
+  try {
+    for (const email of process.argv.slice(2)) {
+      const account = await db.accountRecord(email);
       console.log('Found account record:');
       console.log('    uid:', account.uid);
       console.log('    email:', account.email);
@@ -117,7 +115,7 @@ DB.connect(config).then((db) => {
         input: process.stdin,
         output: process.stdout,
       });
-      return new P((resolve, reject) => {
+      await new Promise((resolve, reject) => {
         rl.question('Really delete this account? (y/n) ', (answer) => {
           rl.close();
           if (['y', 'yes'].indexOf(answer.toLowerCase()) === -1) {
@@ -131,10 +129,10 @@ DB.connect(config).then((db) => {
               clientAddress: '0.0.0.0',
             },
             emitMetricsEvent: () => {
-              return P.resolve();
+              return Promise.resolve();
             },
             gatherMetricsContext: () => {
-              return P.resolve({});
+              return Promise.resolve({});
             },
             payload: {
               email: email,
@@ -144,21 +142,15 @@ DB.connect(config).then((db) => {
           accountDestroyRoute.handler(mockRequest).then(resolve, reject);
         });
       });
-    });
-  })
-    .then(
-      () => {
-        retval = 0;
-        console.log('ok');
-      },
-      (err) => {
-        retval = 1;
-        // we like stack traces
-        console.error(err);
-      }
-    )
-    .finally(() => {
-      db.close();
-      process.exit(retval);
-    });
+    }
+    retval = 0;
+    console.log('ok');
+  } catch (err) {
+    retval = 1;
+    // we like stack traces
+    console.error(err);
+  }
+
+  db.close();
+  process.exit(retval);
 });

@@ -7,15 +7,13 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const P = require('../../lib/promise');
 const jwtool = require('fxa-jwtool');
 const config = require('../../config').getProperties();
 const pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
 const duration = 1000 * 60 * 60 * 24;
 const publicKey = {
   algorithm: 'RS',
-  n:
-    '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
+  n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
   e: '65537',
 };
 
@@ -338,7 +336,7 @@ describe('remote session', function () {
             'cert has correct uid'
           );
           lastAuth1 = payload['fxa-lastAuthAt'];
-          return P.delay(1000);
+          return new Promise((ok) => setTimeout(ok, 1000));
         })
         .then(() => {
           return client.reauth();

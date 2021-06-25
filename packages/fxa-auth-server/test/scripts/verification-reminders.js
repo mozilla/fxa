@@ -7,16 +7,16 @@
 const ROOT_DIR = '../..';
 
 const cp = require('child_process');
-const Promise = require(`${ROOT_DIR}/lib/promise`);
+const util = require('util');
 const path = require('path');
 
-cp.execAsync = Promise.promisify(cp.exec);
+const execAsync = util.promisify(cp.exec);
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
 
 describe('scripts/verification-reminders:', () => {
   it('does not fail', () => {
-    return cp.execAsync(
+    return execAsync(
       'node -r ts-node/register scripts/verification-reminders',
       { cwd }
     );

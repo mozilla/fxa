@@ -4,7 +4,6 @@
 
 'use strict';
 
-const P = require('../../lib/promise');
 const sendEmailBatch = require('./send-email-batch');
 
 /**
@@ -29,28 +28,29 @@ module.exports = async function (
   const totalCount = countEmails(userRecordBatches);
 
   logBegin(log, countEmails(userRecordBatches), isTest);
-
-  await P.each(userRecordBatches, (currentBatch, index) => {
-    return sendEmailBatch(currentBatch, sendEmail, log).then((result) => {
+  try {
+    let index = 0;
+    for (const currentBatch of userRecordBatches) {
+      const result = await sendEmailBatch(currentBatch, sendEmail, log);
       successCount += result.successCount;
       errorCount += result.errorCount;
 
       if (index !== lastBatchIndex) {
         // no delay on the last batch, with the
         // effect that a lone batch has no delay
-        return P.delay(batchDelayMS);
+        await new Promise((ok) => setTimeout(ok, batchDelayMS));
       }
-    });
-  }).finally(() => {
-    // sending errors are swallowed in sendEmailBatch, even so,
-    // that assumption might not always be valid, hence the .finally here
-    logComplete(
-      log,
-      successCount,
-      errorCount,
-      totalCount - successCount - errorCount
-    );
-  });
+      index++;
+    }
+  } catch (err) {
+    // abort run
+  }
+  logComplete(
+    log,
+    successCount,
+    errorCount,
+    totalCount - successCount - errorCount
+  );
 };
 
 function countEmails(emailBatches) {

@@ -8,13 +8,9 @@ const ROOT_DIR = '../../..';
 
 const { assert } = require('chai');
 const config = require(`${ROOT_DIR}/config`).getProperties();
-const cp = require('child_process');
 const mocks = require('../../mocks');
-const Promise = require(`${ROOT_DIR}/lib/promise`);
 const proxyquire = require('proxyquire').noPreserveCache();
 const sinon = require('sinon');
-
-cp.execAsync = Promise.promisify(cp.exec, { multiArgs: true });
 
 describe('selectEmailServices:', () => {
   const emailAddress = 'foo@example.com';

@@ -7,16 +7,12 @@
 const LIB_DIR = '../..';
 
 const error = require(`${LIB_DIR}/error`);
-const fs = require('fs');
+const fs = require('fs/promises');
 const handlebars = {
   html: require('handlebars').create(),
   txt: require('handlebars').create(),
 };
 const path = require('path');
-const Promise = require(`${LIB_DIR}/promise`);
-
-const readDir = Promise.promisify(fs.readdir);
-const readFile = Promise.promisify(fs.readFile);
 
 const TEMPLATE_FILE = /(.+)\.(html|txt)$/;
 const TEMPLATES_DIR = __dirname;
@@ -102,12 +98,12 @@ async function init(log) {
 }
 
 async function forEachTemplate(dir, action) {
-  const files = await readDir(dir);
+  const files = await fs.readdir(dir);
   return Promise.all(
     files.map(async (file) => {
       const parts = TEMPLATE_FILE.exec(file);
       if (parts) {
-        const template = await readFile(path.join(dir, file), {
+        const template = await fs.readFile(path.join(dir, file), {
           encoding: 'utf8',
         });
         return action(template, parts[1], parts[2]);

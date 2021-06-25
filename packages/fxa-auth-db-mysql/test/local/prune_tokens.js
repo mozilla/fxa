@@ -11,7 +11,6 @@ const { assert } = require('chai');
 const crypto = require('crypto');
 const dbServer = require(`${ROOT_DIR}/db-server`);
 const log = require('../lib/log');
-const P = require(`${ROOT_DIR}/lib/promise`);
 const DB = require(`${ROOT_DIR}/lib/db/mysql`)(log, dbServer.errors);
 const fake = require(`${ROOT_DIR}/db-server/test/fake`);
 // shallow copy, but it's all we need
@@ -57,7 +56,7 @@ describe('prune tokens', () => {
           );
         })
         .then(() => {
-          return P.all([
+          return Promise.all([
             db.createKeyFetchToken(
               user.keyFetchTokenId,
               unverifiedKeyFetchToken
@@ -94,7 +93,7 @@ describe('prune tokens', () => {
             unblockCode:
               'UPDATE unblockCodes SET createdAt = createdAt - ? WHERE uid = ?',
           };
-          return P.all([
+          return Promise.all([
             db.write(sql.accountResetToken, [
               TOKEN_PRUNE_AGE,
               user.accountResetTokenId,
@@ -117,7 +116,7 @@ describe('prune tokens', () => {
         })
         // check tokens exist
         .then(() => {
-          return P.all([
+          return Promise.all([
             db.accountResetToken(user.accountResetTokenId),
             db.keyFetchToken(user.keyFetchTokenId),
             db.passwordForgotToken(user.passwordForgotTokenId),

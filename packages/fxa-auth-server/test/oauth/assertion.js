@@ -6,9 +6,10 @@ const url = require('url');
 const { assert } = require('chai');
 const nock = require('nock');
 const cloneDeep = require('lodash.clonedeep');
+const util = require('util');
 
-const P = require('../../lib/promise');
-const jwt = P.promisifyAll(require('jsonwebtoken'));
+const jwt = require('jsonwebtoken');
+const jwtSign = util.promisify(jwt.sign);
 
 const config = require('../../config');
 const unique = require('../../lib/oauth/unique');
@@ -86,7 +87,7 @@ async function makeJWT(claims, key, options = {}) {
     },
     options
   );
-  return await jwt.sign(claims, key, options);
+  return await jwtSign(claims, key, options);
 }
 
 describe('browserid verifyAssertion', function () {

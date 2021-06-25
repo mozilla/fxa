@@ -7,8 +7,7 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const P = require('../../lib/promise');
-const request = P.promisify(require('request'), { multiArgs: true });
+const superagent = require('superagent');
 
 describe('remote base path', function () {
   this.timeout(15000);
@@ -24,9 +23,9 @@ describe('remote base path', function () {
 
   function testVersionRoute(path) {
     return () => {
-      return request(config.publicUrl + path).spread((res, body) => {
+      return superagent.get(config.publicUrl + path).then((res) => {
         assert.equal(res.statusCode, 200);
-        const json = JSON.parse(body);
+        const json = res.body;
         assert.deepEqual(Object.keys(json), ['version', 'commit', 'source']);
         assert.equal(
           json.version,
@@ -55,16 +54,16 @@ describe('remote base path', function () {
   });
 
   it('.well-known did not move', () => {
-    return request('http://localhost:9000/.well-known/browserid').spread(
-      (res, body) => {
+    return superagent
+      .get('http://localhost:9000/.well-known/browserid')
+      .then((res) => {
         assert.equal(res.statusCode, 200);
-        const json = JSON.parse(body);
+        const json = res.body;
         assert.equal(
           json.authentication,
           '/.well-known/browserid/nonexistent.html'
         );
-      }
-    );
+      });
   });
 
   it('"/" returns valid version information', testVersionRoute('/'));

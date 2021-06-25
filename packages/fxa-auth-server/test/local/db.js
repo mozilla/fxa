@@ -8,7 +8,6 @@ const LIB_DIR = '../../lib';
 
 const { assert } = require('chai');
 const mocks = require('../mocks');
-const P = require(`${LIB_DIR}/promise`);
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const config = require('../../config').getProperties();
@@ -40,9 +39,9 @@ describe('db, session tokens expire:', () => {
   beforeEach(() => {
     results = {};
     pool = {
-      get: sinon.spy(() => P.resolve(results.pool)),
-      post: sinon.spy(() => P.resolve()),
-      put: sinon.spy(() => P.resolve()),
+      get: sinon.spy(() => Promise.resolve(results.pool)),
+      post: sinon.spy(() => Promise.resolve()),
+      put: sinon.spy(() => Promise.resolve()),
     };
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
@@ -109,9 +108,9 @@ describe('db, session tokens do not expire:', () => {
   beforeEach(() => {
     results = {};
     pool = {
-      get: sinon.spy(() => P.resolve(results.pool)),
-      post: sinon.spy(() => P.resolve()),
-      put: sinon.spy(() => P.resolve()),
+      get: sinon.spy(() => Promise.resolve(results.pool)),
+      post: sinon.spy(() => Promise.resolve()),
+      put: sinon.spy(() => Promise.resolve()),
     };
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
@@ -178,10 +177,10 @@ describe('db with redis disabled:', () => {
   beforeEach(() => {
     results = {};
     pool = {
-      get: sinon.spy(() => P.resolve(results.pool)),
-      post: sinon.spy(() => P.resolve()),
-      del: sinon.spy(() => P.resolve()),
-      put: sinon.spy(() => P.resolve()),
+      get: sinon.spy(() => Promise.resolve(results.pool)),
+      post: sinon.spy(() => Promise.resolve()),
+      del: sinon.spy(() => Promise.resolve()),
+      put: sinon.spy(() => Promise.resolve()),
     };
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
@@ -239,18 +238,18 @@ describe('redis enabled, token-pruning enabled:', () => {
 
   beforeEach(() => {
     pool = {
-      get: sinon.spy(() => P.resolve([])),
-      post: sinon.spy(() => P.resolve()),
-      del: sinon.spy(() => P.resolve()),
-      put: sinon.spy(() => P.resolve()),
+      get: sinon.spy(() => Promise.resolve([])),
+      post: sinon.spy(() => Promise.resolve()),
+      del: sinon.spy(() => Promise.resolve()),
+      put: sinon.spy(() => Promise.resolve()),
     };
     redis = {
-      get: sinon.spy(() => P.resolve('{}')),
-      set: sinon.spy(() => P.resolve()),
-      del: sinon.spy(() => P.resolve()),
-      getSessionTokens: sinon.spy(() => P.resolve()),
-      pruneSessionTokens: sinon.spy(() => P.resolve()),
-      touchSessionToken: sinon.spy(() => P.resolve()),
+      get: sinon.spy(() => Promise.resolve('{}')),
+      set: sinon.spy(() => Promise.resolve()),
+      del: sinon.spy(() => Promise.resolve()),
+      getSessionTokens: sinon.spy(() => Promise.resolve()),
+      pruneSessionTokens: sinon.spy(() => Promise.resolve()),
+      touchSessionToken: sinon.spy(() => Promise.resolve()),
     };
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
@@ -413,7 +412,7 @@ describe('redis enabled, token-pruning enabled:', () => {
   });
 
   it('should call redis.pruneSessionTokens in db.deleteDevice', () => {
-    pool.del = sinon.spy(() => P.resolve({}));
+    pool.del = sinon.spy(() => Promise.resolve({}));
     return db.deleteDevice('wibble', 'blee').then(() => {
       assert.equal(redis.pruneSessionTokens.callCount, 1);
       assert.equal(redis.pruneSessionTokens.args[0].length, 2);
@@ -431,7 +430,7 @@ describe('redis enabled, token-pruning enabled:', () => {
 
   describe('mock db.pruneSessionTokens:', () => {
     beforeEach(() => {
-      db.pruneSessionTokens = sinon.spy(() => P.resolve());
+      db.pruneSessionTokens = sinon.spy(() => Promise.resolve());
     });
 
     describe('with expired tokens from SessionToken.findByUid:', () => {
@@ -492,15 +491,15 @@ describe('redis enabled, token-pruning disabled:', () => {
 
   beforeEach(() => {
     pool = {
-      get: sinon.spy(() => P.resolve([])),
-      post: sinon.spy(() => P.resolve()),
-      del: sinon.spy(() => P.resolve()),
+      get: sinon.spy(() => Promise.resolve([])),
+      post: sinon.spy(() => Promise.resolve()),
+      del: sinon.spy(() => Promise.resolve()),
     };
     redis = {
-      get: sinon.spy(() => P.resolve('{}')),
-      set: sinon.spy(() => P.resolve()),
-      del: sinon.spy(() => P.resolve()),
-      pruneSessionTokens: sinon.spy(() => P.resolve()),
+      get: sinon.spy(() => Promise.resolve('{}')),
+      set: sinon.spy(() => Promise.resolve()),
+      del: sinon.spy(() => Promise.resolve()),
+      pruneSessionTokens: sinon.spy(() => Promise.resolve()),
     };
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });

@@ -5,9 +5,8 @@
 'use strict';
 
 const { assert } = require('chai');
-const P = require('../../lib/promise');
+const superagent = require('superagent');
 const TestServer = require('../test_server');
-const request = P.promisify(require('request'), { multiArgs: true });
 const path = require('path');
 
 describe('remote sign key', function () {
@@ -25,17 +24,17 @@ describe('remote sign key', function () {
   });
 
   it('.well-known/browserid has keys', () => {
-    return request('http://localhost:9000/.well-known/browserid').spread(
-      (res, body) => {
+    return superagent
+      .get('http://localhost:9000/.well-known/browserid')
+      .then((res) => {
         assert.equal(res.statusCode, 200);
-        const json = JSON.parse(body);
+        const json = res.body;
         assert.equal(
           json.authentication,
           '/.well-known/browserid/nonexistent.html'
         );
         assert.equal(json.keys.length, 2);
-      }
-    );
+      });
   });
 
   after(() => {

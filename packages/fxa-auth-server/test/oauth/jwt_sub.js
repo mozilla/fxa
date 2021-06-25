@@ -5,7 +5,6 @@
 const { assert } = require('chai');
 const proxyquire = require('proxyquire');
 const config = require('../../config');
-const P = require('../../lib/promise');
 
 describe('lib/jwt_sub', () => {
   let mockConfig;
@@ -132,7 +131,7 @@ describe('lib/jwt_sub', () => {
     assert.notEqual(result1, USER_ID_HEX);
     assert.lengthOf(result1, USER_ID_HEX.length);
 
-    await P.delay(10);
+    await new Promise((ok) => setTimeout(ok, 10));
 
     const result2 = await jwtSub(USER_ID_BUF, ENABLED_CLIENT_ID_BUF);
     assert.isString(result2);
@@ -149,7 +148,7 @@ describe('lib/jwt_sub', () => {
     assert.notEqual(result1, USER_ID_HEX);
     assert.lengthOf(result1, USER_ID_HEX.length);
 
-    await P.delay(10);
+    await new Promise((ok) => setTimeout(ok, 10));
 
     const result2 = await jwtSub(USER_ID_BUF, ROTATING_CLIENT_ID_BUF);
     assert.isString(result2);
