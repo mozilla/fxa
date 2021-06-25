@@ -17580,10 +17580,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-capacitor@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "fs-capacitor@npm:6.1.0"
-  checksum: f6f3c3735babfc8e237dfc69e8820c935d0d33bfcc46d5979d8753555514c78b3bea22fa0b9a2806f2879fe2b41f60820c4594ff6ce60d86b2afea11a43a9d5a
+"fs-capacitor@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "fs-capacitor@npm:6.2.0"
+  checksum: 015a34427d7b83eb484d4d7514f0cfc6e6be66abc91f4da11f1171a195250b5ebb22894011b4f074cbad507b5d82486896371186158eb1ecefaa2156e7a6ff50
   languageName: node
   linkType: hard
 
@@ -18525,7 +18525,7 @@ fsevents@~2.1.1:
     graphql-parse-resolve-info: ^4.12.0
     graphql-query-complexity: ^0.8.0
     graphql-tools: ^7.0.5
-    graphql-upload: ^11.0.0
+    graphql-upload: ^12.0.0
     helmet: ^4.6.0
     ioredis: ^4.27.6
     jest: 26.6.0
@@ -19878,18 +19878,18 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"graphql-upload@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "graphql-upload@npm:11.0.0"
+"graphql-upload@npm:^12.0.0":
+  version: 12.0.0
+  resolution: "graphql-upload@npm:12.0.0"
   dependencies:
     busboy: ^0.3.1
-    fs-capacitor: ^6.1.0
-    http-errors: ^1.7.3
+    fs-capacitor: ^6.2.0
+    http-errors: ^1.8.0
     isobject: ^4.0.0
-    object-path: ^0.11.4
+    object-path: ^0.11.5
   peerDependencies:
     graphql: 0.13.1 - 15
-  checksum: 0765222c1ef5b7f36e4c6c1962f274c373724dda0827a30a03475a78a3ce5a0cb5364bf9b0fdeab0d9f770c71042b30bf106cba2b3e0eb599ec198d43759a4f4
+  checksum: cbfaa3276aa4d9e3513b030103c66a99b157976baaf717e54fe587f140218cc6906c21caf784da46ae13341d8d1477c4fbcc2596ca69e81f2a240bb5df6798a6
   languageName: node
   linkType: hard
 
@@ -20975,6 +20975,19 @@ fsevents@~2.1.1:
     statuses: ">= 1.5.0 < 2"
     toidentifier: 1.0.0
   checksum: 563ae4a3f19c89029212922bade6ffcd0e4b7fa52e539f08c8f6941de7eaccb00bf76cb7692662192f2f0d567d4ac1f9d6a3d0ee70b166c8540cf791497f90ea
+  languageName: node
+  linkType: hard
+
+"http-errors@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "http-errors@npm:1.8.0"
+  dependencies:
+    depd: ~1.1.2
+    inherits: 2.0.4
+    setprototypeof: 1.2.0
+    statuses: ">= 1.5.0 < 2"
+    toidentifier: 1.0.0
+  checksum: 95ad78508b2929923dac83edd7ce513db87c4214df83a6664559810566da73d9a6892ffdcd76738d9ab9d33172b4c7e304436a4031d471569a7344396fea0ecb
   languageName: node
   linkType: hard
 
@@ -27311,6 +27324,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"object-path@npm:^0.11.5":
+  version: 0.11.5
+  resolution: "object-path@npm:0.11.5"
+  checksum: a2be57f65eb247161763280e857ddbafcfbb41ad7cfcfb0a78aca2e8adb990a7b5afe6b182c20baf0e218e541ec75c1807fd04d50e3049920c2ec65e6eb9c900
+  languageName: node
+  linkType: hard
+
 "object-visit@npm:^1.0.0":
   version: 1.0.1
   resolution: "object-visit@npm:1.0.1"
@@ -33180,6 +33200,13 @@ resolve@~1.11.1:
   version: 1.1.1
   resolution: "setprototypeof@npm:1.1.1"
   checksum: 0efed4da5aec7535828ac07c3b560f0a54257a4a7d5390ffabe5530a083974aef577651507974215edb92a51efa142f22fb3242e24d630ba6adcbfc9e7f1ff2b
+  languageName: node
+  linkType: hard
+
+"setprototypeof@npm:1.2.0":
+  version: 1.2.0
+  resolution: "setprototypeof@npm:1.2.0"
+  checksum: 72691439857719aa33ec11ebc97960347f0f96e75c2fe65d0f2ca5c9c44fb1aa026e2ae528959624ed3ae3820fe06bfb1aded306402c5c941afd3dfdf47f79d0
   languageName: node
   linkType: hard
 
