@@ -33,7 +33,7 @@ The Firefox Accounts (fxa) monorepo
    git clone https://github.com/mozilla/fxa.git
    ```
 
-3. Run:
+3. Run this code:
 
    ```sh
    cd fxa
@@ -49,7 +49,7 @@ Note this starts up all required services, including Redis, MySQL, and Memcached
 
 Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and start the servers, and read server logs.
 
-To start all servers:
+To start all the servers:
 
 - `yarn start`
 
