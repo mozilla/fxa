@@ -27,7 +27,9 @@
     "write-emails": "node -r ts-node/register ./scripts/write-emails-to-disk.js",
     "clean-up-old-ci-stripe-customers": "ts-node ./scripts/clean-up-old-ci-stripe-customers.js",
     "paypal-processor": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/paypal-processor.ts",
-    "subscription-reminders": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/subscription-reminders.ts"
+    "subscription-reminders": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/subscription-reminders.ts",
+    "write-templates": "ts-node lib/senders/emails/render-to-disk.ts",
+    "maildev-preview": "ts-node lib/senders/emails/preview-in-maidev.ts"
   },
   "repository": {
     "type": "git",
@@ -47,6 +49,8 @@
     "@sentry/node": "^6.7.2",
     "@type-cacheable/core": "^5.2.0",
     "@type-cacheable/ioredis-adapter": "^5.2.0",
+    "@types/ejs": "^3.0.6",
+    "@types/mjml": "^4.7.0",
     "ajv": "^6.12.2",
     "aws-sdk": "^2.934.0",
     "base64url": "3.0.1",
@@ -58,6 +62,7 @@
     "convict": "^6.1.0",
     "convict-format-with-moment": "^6.0.1",
     "convict-format-with-validator": "^6.0.1",
+    "ejs": "^3.1.6",
     "email-addresses": "4.0.0",
     "fxa-geodb": "workspace:*",
     "fxa-jwtool": "^0.7.2",
@@ -75,6 +80,7 @@
     "lodash": "^4.17.21",
     "luxon": "^1.27.0",
     "memcached": "^2.2.2",
+    "mjml": "^4.10.1",
     "moment-timezone": "^0.5.33",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
@@ -115,6 +121,7 @@
     "@types/nock": "^11.1.0",
     "@types/node": "^15.12.2",
     "@types/node-zendesk": "^2.0.2",
+    "@types/nodemailer": "^6.4.2",
     "@types/request": "2.48.5",
     "@types/safe-regex": "1.1.2",
     "@types/uuid": "^8.3.0",
