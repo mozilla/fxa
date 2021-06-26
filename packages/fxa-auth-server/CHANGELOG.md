@@ -1,3 +1,9 @@
+## 1.208.3
+
+### Bug fixes
+
+- auth: don't resend session otp codes when totp is enabled ([c05aba4f9](https://github.com/mozilla/fxa/commit/c05aba4f9))
+
 ## 1.208.2
 
 ### Bug fixes
