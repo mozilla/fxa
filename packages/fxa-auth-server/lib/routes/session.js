@@ -398,6 +398,20 @@ module.exports = function (
 
         request.emitMetricsEvent('session.resend_code');
 
+        // Check to see if this account has a verified TOTP token. If so, then it should
+        // not be allowed to bypass TOTP requirement by sending a sign-in confirmation email.
+        try {
+          const result = await db.totpToken(sessionToken.uid);
+
+          if (result && result.verified && result.enabled) {
+            return {};
+          }
+        } catch (err) {
+          if (err.errno !== error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+            throw err;
+          }
+        }
+
         // Generate the current otp code for the account based on the account's
         // `emailCode` as the secret.
         const account = await db.account(sessionToken.uid);
