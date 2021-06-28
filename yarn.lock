@@ -5727,22 +5727,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^7.28.1":
-  version: 7.31.2
-  resolution: "@testing-library/dom@npm:7.31.2"
-  dependencies:
-    "@babel/code-frame": ^7.10.4
-    "@babel/runtime": ^7.12.5
-    "@types/aria-query": ^4.2.0
-    aria-query: ^4.2.2
-    chalk: ^4.1.0
-    dom-accessibility-api: ^0.5.6
-    lz-string: ^1.4.4
-    pretty-format: ^26.6.2
-  checksum: f930b4797fd41e515e645427027574fb82a46d90edde20523c2269916be88aeb302f2a4eb982d7c41afbe2de4ed3129e6b269424db2a90974ea76bdb9f26e3ed
-  languageName: node
-  linkType: hard
-
 "@testing-library/dom@npm:^8.0.0":
   version: 8.0.0
   resolution: "@testing-library/dom@npm:8.0.0"
@@ -5798,16 +5782,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:^11.2.7":
-  version: 11.2.7
-  resolution: "@testing-library/react@npm:11.2.7"
+"@testing-library/react@npm:^12.0.0":
+  version: 12.0.0
+  resolution: "@testing-library/react@npm:12.0.0"
   dependencies:
     "@babel/runtime": ^7.12.5
-    "@testing-library/dom": ^7.28.1
+    "@testing-library/dom": ^8.0.0
   peerDependencies:
     react: "*"
     react-dom: "*"
-  checksum: 389c9f3e83f59677f5283783788d18f8cd499342a0e5c1f67821c292860afe5f282ff8b5ced795b9c2f7d78132005d8b6b33e1b3e3a9004e240e3569f8e168ef
+  checksum: 2b5da0513f5de02636c1610625ca55222ea5c89ee271a9c9c3bcc1282010b9649b8168b8c84d8dc37a29daf0a8c909280ccaf8648dd09c19f2e2d640ea7f9459
   languageName: node
   linkType: hard
 
@@ -17928,7 +17912,7 @@ fsevents@~2.1.1:
     "@tailwindcss/postcss7-compat": ^2.1.2
     "@testing-library/dom": ^8.0.0
     "@testing-library/jest-dom": ^5.14.1
-    "@testing-library/react": ^11.2.7
+    "@testing-library/react": ^12.0.0
     "@testing-library/user-event": ^13.1.9
     "@types/babel__core": 7.1.14
     "@types/chance": ^1.1.2
@@ -18245,7 +18229,7 @@ fsevents@~2.1.1:
     "@babel/preset-typescript": ^7.14.5
     "@sentry/browser": ^6.7.2
     "@sentry/node": ^6.7.2
-    "@testing-library/react": ^11.2.7
+    "@testing-library/react": ^12.0.0
     "@types/backbone": ^1.4.10
     "@types/sinon-chai": 3.2.5
     "@types/sinon-express-mock": 1.3.9
@@ -18721,7 +18705,7 @@ fsevents@~2.1.1:
     "@stripe/stripe-js": ^1.15.1
     "@svgr/webpack": ^5.4.0
     "@testing-library/jest-dom": ^5.14.1
-    "@testing-library/react": ^11.2.7
+    "@testing-library/react": ^12.0.0
     "@types/accept-language-parser": ^1.5.1
     "@types/classnames": ^2.3.1
     "@types/jest": ^26.0.23
@@ -18882,7 +18866,7 @@ fsevents@~2.1.1:
     "@tailwindcss/postcss7-compat": ^2.1.2
     "@testing-library/dom": ^8.0.0
     "@testing-library/jest-dom": ^5.14.1
-    "@testing-library/react": ^11.2.7
+    "@testing-library/react": ^12.0.0
     "@testing-library/user-event": ^13.1.9
     "@types/camelcase": 5.2.0
     "@types/classnames": ^2.3.1
@@ -18946,7 +18930,7 @@ fsevents@~2.1.1:
     "@tailwindcss/postcss7-compat": ^2.1.2
     "@testing-library/dom": ^8.0.0
     "@testing-library/jest-dom": ^5.14.1
-    "@testing-library/react": ^11.2.7
+    "@testing-library/react": ^12.0.0
     "@testing-library/react-hooks": ^7.0.0
     "@testing-library/user-event": ^13.1.9
     "@types/babel__core": 7.1.14
