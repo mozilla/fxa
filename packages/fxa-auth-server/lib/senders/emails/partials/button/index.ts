@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export const button = `
+  <mj-include path="./lib/senders/emails/css/button/index.css" type="css" css-inline="inline" />
   <mj-section>
     <mj-column>
-      <mj-button>
-        <%= buttonText %>
-      </mj-button>
+      <mj-button css-class="primary-button" href="<%= baseURL %><%= anotherDeviceURL %>"><%= buttonText %></mj-button>
     </mj-column>
   </mj-section>
 `;
