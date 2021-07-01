@@ -1,4 +1,3 @@
-export const style = `
 .header-text div {
   font-family: sans-serif !important;
   font-size: 20px !important;
@@ -6,24 +5,28 @@ export const style = `
   font-weight: normal !important;
   text-align: center !important;
 }
+
 td {
   padding: 4px !important;
 }
+
 span {
   color: #0a84ff;
 }
+
 .primary-text div {
   font-family: sans-serif !important;
   font-size: 12px !important;
   line-height: 20px !important;
   font-weight: normal !important;
 }
+
 .fxa-logo td {
   height: 60px !important;
   width: 60px !important;
 }
+
 .sync-logo td {
   height: 176px !important;
   width: 240px !important;
 }
-`;

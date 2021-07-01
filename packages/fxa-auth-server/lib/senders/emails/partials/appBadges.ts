@@ -1,4 +1,5 @@
 export const appBadges = `
+  <mj-include path="./lib/senders/emails/css/appBadges.css" type="css" css-inline="inline" />
   <mj-section>
     <mj-group>
       <mj-column>

@@ -1,0 +1,26 @@
+.p-button {
+  font-family: sans-serif;
+  color: #fff;
+  background-color: #0a84ff;
+  width: 310px !important;
+  border-radius: 4px !important;
+  height: 50px !important;
+}
+
+.p-button p {
+  font-family: sans-serif;
+  background: #0a84ff !important;
+  padding: 15px !important;
+  font-size: 18px !important;
+  line-height: 26px !important;
+}
+
+.p-button td {
+  border-radius: 40px !important;
+  background: #0a84ff !important;
+}
+
+.p-button a {
+  text-decoration: none !important;
+  color: #fff;
+}

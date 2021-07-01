@@ -6,11 +6,9 @@ export const render = () => {
   return `
     <mjml>
       <mj-head>
-        <mj-style inline="inline">
-          ${style}
-        </mj-style>
       </mj-head>
       <mj-body>
+      <mj-include path="./lib/senders/emails/css/style.css" type="css" css-inline="inline" />
         <mj-section>
           <mj-column>
             <mj-image align="center" css-class="fxa-logo" src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/4/11c1e411-7dfe-4e04-914c-0f098edac96c.png"></mj-image>

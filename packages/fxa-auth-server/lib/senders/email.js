@@ -12,6 +12,7 @@ const url = require('url');
 const i18n = require('i18n-abide');
 const { URL } = url;
 const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
+const LocalizeEmails = require('./emails/localizeEmails');
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json');
 
@@ -21,6 +22,7 @@ const UTM_PREFIX = 'fx-';
 
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
+var isNewEmails = false;
 
 module.exports = function (log, config) {
   const oauthClientInfo = require('./oauth_client_info')(log, config);
@@ -290,6 +292,7 @@ module.exports = function (log, config) {
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
+    this.fluentLocalizer = new LocalizeEmails();
   }
 
   Mailer.prototype.stop = function () {
@@ -416,7 +419,22 @@ module.exports = function (log, config) {
     );
   };
 
-  Mailer.prototype.localize = function (message) {
+  Mailer.prototype.localize = async function (message) {
+    if (isNewEmails === true) {
+      const { localizedHTML, localizedText, localizedSubject } =
+        await this.fluentLocalizer.localizeEmail(
+          message.template,
+          'hello-world'
+        );
+
+      return {
+        html: localizedHTML,
+        language: 'en-US',
+        subject: localizedSubject,
+        text: localizedText,
+      };
+    }
+
     const translator = this.translator(message.acceptLanguage);
 
     const templateValues = {
@@ -446,12 +464,14 @@ module.exports = function (log, config) {
     };
   };
 
-  Mailer.prototype.send = function (message) {
+  Mailer.prototype.send = async function (message) {
     log.trace(`mailer.${message.template}`, {
       email: message.email,
       uid: message.uid,
     });
-    const localized = this.localize(message);
+    isNewEmails = message.template === 'welcome' ? true : false;
+
+    const localized = await this.localize(message);
 
     const template = message.template;
     let templateVersion = TEMPLATE_VERSIONS[template];
@@ -665,6 +685,35 @@ module.exports = function (log, config) {
         supportUrl: links.supportUrl,
         time,
         preHeader: 'Copy/paste this code into your registration form.',
+      },
+    });
+  };
+
+  Mailer.prototype.welcomeEmail = async function (message) {
+    log.trace('mailer.welcomeEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'welcome';
+
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage,
+      message.date,
+      message.time
+    );
+
+    return this.send({
+      ...message,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        time,
       },
     });
   };

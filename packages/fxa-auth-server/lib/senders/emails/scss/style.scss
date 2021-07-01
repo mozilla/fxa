@@ -1,7 +1,9 @@
-export const style = `
+$large-font-size: 20px;
+$small-font-size: 12px;
+
 .header-text div {
   font-family: sans-serif !important;
-  font-size: 20px !important;
+  font-size: $large-font-size !important;
   line-height: 28px !important;
   font-weight: normal !important;
   text-align: center !important;
@@ -14,7 +16,7 @@ span {
 }
 .primary-text div {
   font-family: sans-serif !important;
-  font-size: 12px !important;
+  font-size: $small-font-size !important;
   line-height: 20px !important;
   font-weight: normal !important;
 }
@@ -26,4 +28,3 @@ span {
   height: 176px !important;
   width: 240px !important;
 }
-`;
