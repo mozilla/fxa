@@ -152,7 +152,10 @@ module.exports = (
             // of accounts with invalid email addresses. These
             // can never be verified, so the best we can do is
             // to delete them so the browser will stop polling.
-            if (!validators.isValidEmailAddress(sessionToken.email)) {
+            if (
+              !validators.isValidEmailAddress(sessionToken.email) &&
+              !(await stripeHelper.hasActiveSubscription(sessionToken.uid))
+            ) {
               await db.deleteAccount(sessionToken);
               log.info('accountDeleted.invalidEmailAddress', {
                 ...sessionToken,
@@ -696,14 +699,23 @@ module.exports = (
                 Date.now() - secondaryEmailRecord.createdAt;
               const minUnverifiedAccountTime =
                 config.secondaryEmail.minUnverifiedAccountTime;
-              if (msSinceCreated >= minUnverifiedAccountTime) {
+              const exceedsMinUnverifiedAccountTime =
+                msSinceCreated >= minUnverifiedAccountTime;
+              if (
+                exceedsMinUnverifiedAccountTime &&
+                !(await stripeHelper.hasActiveSubscription(
+                  secondaryEmailRecord.uid
+                ))
+              ) {
                 await db.deleteAccount(secondaryEmailRecord);
                 log.info('accountDeleted.unverifiedSecondaryEmail', {
                   ...secondaryEmailRecord,
                 });
                 return;
-              } else {
+              } else if (!exceedsMinUnverifiedAccountTime) {
                 throw error.unverifiedPrimaryEmailNewlyCreated();
+              } else {
+                throw error.unverifiedPrimaryEmailHasActiveSubscription();
               }
             }
 

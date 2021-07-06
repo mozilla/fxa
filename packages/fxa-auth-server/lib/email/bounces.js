@@ -4,13 +4,18 @@
 
 'use strict';
 
+const { default: Container } = require('typedi');
+const { StripeHelper } = require('../../lib/payments/stripe');
+
 const eaddrs = require('email-addresses');
 const utils = require('./utils/helpers');
-const isValidEmailAddress = require('./../routes/validators')
-  .isValidEmailAddress;
+const isValidEmailAddress =
+  require('./../routes/validators').isValidEmailAddress;
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
 module.exports = function (log, error) {
+  const stripeHelper = Container.get(StripeHelper);
+
   return function start(bounceQueue, db) {
     function accountDeleted(uid, email) {
       log.info('accountDeleted', { uid: uid, email: email });
@@ -33,7 +38,8 @@ module.exports = function (log, error) {
       if (
         !record.emailVerified &&
         record.createdAt &&
-        record.createdAt > Date.now() - SIX_HOURS
+        record.createdAt > Date.now() - SIX_HOURS &&
+        !(await stripeHelper.hasActiveSubscription(record.uid))
       ) {
         try {
           await db.deleteAccount(record);

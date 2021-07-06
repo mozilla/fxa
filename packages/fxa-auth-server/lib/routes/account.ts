@@ -81,10 +81,15 @@ export class AccountHandler {
   private async deleteAccountIfUnverified(request: AuthRequest, email: string) {
     try {
       const secondaryEmailRecord = await this.db.getSecondaryEmail(email);
-      // Currently, users can not create an account from a verified
+      // Currently, users cannot create an account from a verified
       // secondary email address
       if (secondaryEmailRecord.isPrimary) {
-        if (secondaryEmailRecord.isVerified) {
+        if (
+          secondaryEmailRecord.isVerified ||
+          (await this.stripeHelper.hasActiveSubscription(
+            secondaryEmailRecord.uid
+          ))
+        ) {
           throw error.accountExists(secondaryEmailRecord.email);
         }
         request.app.accountRecreated = true;
@@ -1771,4 +1776,7 @@ export const accountRoutes = (
   return routes;
 };
 
-module.exports = accountRoutes;
+module.exports = {
+  accountRoutes,
+  AccountHandler,
+};

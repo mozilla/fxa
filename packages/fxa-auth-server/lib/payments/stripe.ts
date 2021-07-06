@@ -816,6 +816,20 @@ export class StripeHelper {
   }
 
   /**
+   * Returns true if the FxA account with uid has an active subscription.
+   */
+  async hasActiveSubscription(uid: string): Promise<Boolean> {
+    const customer = await this.fetchCustomer(uid, ['subscriptions']);
+    if (!customer) {
+      return false;
+    }
+    const subscription = customer.subscriptions?.data.find((sub) =>
+      ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
+    );
+    return !!subscription;
+  }
+
+  /**
    * Returns whether or not the customer has any active subscriptions that
    * have an open invoice (payment has not been processed).
    *

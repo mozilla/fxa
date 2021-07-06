@@ -44,7 +44,11 @@ function makeRoutes(options = {}, requireMocks) {
     cadReminders
   );
   signinUtils.checkPassword = () => Promise.resolve(true);
-  return proxyquire('../../lib/routes/account', requireMocks || {})(
+  const { accountRoutes } = proxyquire(
+    '../../lib/routes/account',
+    requireMocks || {}
+  );
+  return accountRoutes(
     log,
     db,
     mailer,
@@ -67,8 +71,9 @@ function runTest(route, request, assertions) {
   }).then(assertions);
 }
 
-describe('IP Profiling', () => {
+describe('IP Profiling', function () {
   let route, accountRoutes, mockDB, mockMailer, mockRequest;
+  this.timeout(30000);
 
   beforeEach(() => {
     mockDB = mocks.mockDB({
