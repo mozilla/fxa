@@ -104,6 +104,19 @@ describe('views/subscriptions_product_redirect', function () {
       });
       assert.isFalse(view.mustAuth, 'mustAuth should be false');
     });
+
+    it('sets mustAuth to true when signin query param exists', () => {
+      windowMock.location.search = 'signin=true';
+      view.initialize({
+        currentPage: `/subscriptions/products/${PRODUCT_ID}`,
+        config: {
+          subscriptions: {
+            allowUnauthenticatedRedirects: true,
+          },
+        },
+      });
+      assert.isTrue(view.mustAuth, 'mustAuth should be true');
+    });
   });
 
   describe('render', () => {
@@ -125,6 +138,10 @@ describe('views/subscriptions_product_redirect', function () {
     it('works with a local redirect with no query params', () => {
       windowMock.location.href = `http://localhost:3030/subscriptions/products/${PRODUCT_ID}`;
       windowMock.location.search = '';
+      view.initialize({
+        currentPage: `/subscriptions/products/${PRODUCT_ID}`,
+        config,
+      });
       return render().then(() => {
         assert.isTrue(
           PaymentServer.navigateToPaymentServer.calledOnceWith(

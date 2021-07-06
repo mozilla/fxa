@@ -15,6 +15,7 @@ class SubscriptionsProductRedirectView extends FormView {
   initialize(options) {
     this._currentPage = options.currentPage;
     this._productId = this._currentPage.split('/').pop();
+    this._queryParams = Url.searchParams(this.window.location.search);
     this.relier.set('subscriptionProductId', this._productId);
 
     this._subscriptionsConfig = {};
@@ -22,7 +23,9 @@ class SubscriptionsProductRedirectView extends FormView {
       this._subscriptionsConfig = options.config.subscriptions;
     }
 
-    this.mustAuth = !this._subscriptionsConfig.allowUnauthenticatedRedirects;
+    this.mustAuth =
+      !!this._queryParams.signin ||
+      !this._subscriptionsConfig.allowUnauthenticatedRedirects;
 
     // Flow events need to be initialized before the navigation
     // so the flow_id and flow_begin_time are propagated
@@ -30,13 +33,13 @@ class SubscriptionsProductRedirectView extends FormView {
   }
 
   afterRender() {
-    const queryParams = Url.searchParams(this.window.location.search);
+    delete this._queryParams.signin;
     const redirectPath = `products/${this._productId}`;
     return PaymentServer.navigateToPaymentServer(
       this,
       this._subscriptionsConfig,
       redirectPath,
-      queryParams
+      this._queryParams
     );
   }
 }
