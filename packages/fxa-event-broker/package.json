@@ -43,7 +43,7 @@
     "@nestjs/passport": "^7.1.5",
     "@nestjs/platform-express": "^7.6.18",
     "@nestjs/schedule": "^0.4.3",
-    "@sentry/integrations": "^6.7.2",
+    "@sentry/integrations": "^6.8.0",
     "@sentry/node": "^6.7.2",
     "@types/sinon": "10.0.1",
     "aws-sdk": "^2.935.0",
