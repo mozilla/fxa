@@ -19,6 +19,14 @@
 - deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
 - deps: bump webpack-cli from 4.7.0 to 4.7.2 ([2e668cbf3](https://github.com/mozilla/fxa/commit/2e668cbf3))
 
+## 1.208.4
+
+No changes.
+
+## 1.208.3
+
+No changes.
+
 ## 1.208.2
 
 No changes.

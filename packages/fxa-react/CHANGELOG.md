@@ -15,6 +15,14 @@
 - 1cc5fb9c8 Update tailwind.js ([1cc5fb9c8](https://github.com/mozilla/fxa/commit/1cc5fb9c8))
 - 9434b9059 Update tailwind.js ([9434b9059](https://github.com/mozilla/fxa/commit/9434b9059))
 
+## 1.208.4
+
+No changes.
+
+## 1.208.3
+
+No changes.
+
 ## 1.208.2
 
 No changes.

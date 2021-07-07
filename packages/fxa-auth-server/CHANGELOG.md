@@ -34,6 +34,18 @@
 - deps: bump aws-sdk from 2.923.0 to 2.926.0 ([22c59811a](https://github.com/mozilla/fxa/commit/22c59811a))
 - deps: bump @google-cloud/firestore from 4.9.8 to 4.12.2 ([77f89e395](https://github.com/mozilla/fxa/commit/77f89e395))
 
+## 1.208.4
+
+### Bug fixes
+
+- email: Update email templates to use images from fxa based cdn ([77e4e931a](https://github.com/mozilla/fxa/commit/77e4e931a))
+
+## 1.208.3
+
+### Bug fixes
+
+- auth: don't resend session otp codes when totp is enabled ([c05aba4f9](https://github.com/mozilla/fxa/commit/c05aba4f9))
+
 ## 1.208.2
 
 ### Bug fixes

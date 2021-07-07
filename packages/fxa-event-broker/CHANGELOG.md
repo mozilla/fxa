@@ -26,6 +26,14 @@
 - deps: bump @sentry/integrations from 6.5.1 to 6.6.0 ([4a123dddf](https://github.com/mozilla/fxa/commit/4a123dddf))
 - deps: bump @google-cloud/firestore from 4.9.8 to 4.12.2 ([77f89e395](https://github.com/mozilla/fxa/commit/77f89e395))
 
+## 1.208.4
+
+No changes.
+
+## 1.208.3
+
+No changes.
+
 ## 1.208.2
 
 No changes.
