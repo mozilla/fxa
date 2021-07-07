@@ -1,3 +1,9 @@
+## 1.210.0
+
+### Other changes
+
+- deps: bump @sentry/integrations from 6.7.2 to 6.8.0 ([7dff8d306](https://github.com/mozilla/fxa/commit/7dff8d306))
+
 ## 1.209.1
 
 No changes.

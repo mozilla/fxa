@@ -1,5 +1,16 @@
 # Change history
 
+## 1.210.0
+
+### Other changes
+
+- deps: bump @sentry/integrations from 6.7.2 to 6.8.0 ([7dff8d306](https://github.com/mozilla/fxa/commit/7dff8d306))
+- deps: bump stripe from 8.156.0 to 8.157.0 ([1182ae881](https://github.com/mozilla/fxa/commit/1182ae881))
+- deps: bump aws-sdk from 2.934.0 to 2.935.0 ([76ad1ed67](https://github.com/mozilla/fxa/commit/76ad1ed67))
+- fxa-shared: removed exported redis from fxa-shared ([70d329c44](https://github.com/mozilla/fxa/commit/70d329c44))
+- deps: bump aws-sdk from 2.933.0 to 2.934.0 ([1b083a782](https://github.com/mozilla/fxa/commit/1b083a782))
+- deps: bump accept-language from 2.0.17 to 3.0.18 ([971db14a5](https://github.com/mozilla/fxa/commit/971db14a5))
+
 ## 1.209.1
 
 No changes.
