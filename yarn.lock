@@ -4719,7 +4719,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinonjs/commons@npm:^1, @sinonjs/commons@npm:^1.3.0, @sinonjs/commons@npm:^1.6.0, @sinonjs/commons@npm:^1.7.0, @sinonjs/commons@npm:^1.8.1":
+"@sinonjs/commons@npm:^1.6.0, @sinonjs/commons@npm:^1.7.0":
   version: 1.8.2
   resolution: "@sinonjs/commons@npm:1.8.2"
   dependencies:
@@ -4728,12 +4728,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinonjs/fake-timers@npm:^6.0.0, @sinonjs/fake-timers@npm:^6.0.1":
+"@sinonjs/commons@npm:^1.8.3":
+  version: 1.8.3
+  resolution: "@sinonjs/commons@npm:1.8.3"
+  dependencies:
+    type-detect: 4.0.8
+  checksum: a7f3181512f67bbb9059dc9247febfda6dea58fc2a918360b208c6fde193b0c2cbe628650b0d13b4ba69f144470788eb6c2ef8a84e050dce4808be8511da4316
+  languageName: node
+  linkType: hard
+
+"@sinonjs/fake-timers@npm:^6.0.1":
   version: 6.0.1
   resolution: "@sinonjs/fake-timers@npm:6.0.1"
   dependencies:
     "@sinonjs/commons": ^1.7.0
   checksum: 64458b908773638dda08b555a00e6fbbbc679735348291dc1b7f437ada2f60242537fdc48e4ee82d2573d86984ec87e755b66a96c0ed9ebf0f46b4c6687ccde2
+  languageName: node
+  linkType: hard
+
+"@sinonjs/fake-timers@npm:^7.0.4":
+  version: 7.1.2
+  resolution: "@sinonjs/fake-timers@npm:7.1.2"
+  dependencies:
+    "@sinonjs/commons": ^1.7.0
+  checksum: 5ce48e40db14d7e1419bae287b84559133d580cb56130b51d7479dff318bfafed87531f8b48f618f07e3c9a6113c9e3f00286805d55de64986b9cccb8eb6d5cf
   languageName: node
   linkType: hard
 
@@ -4746,44 +4764,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinonjs/formatio@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@sinonjs/formatio@npm:2.0.0"
-  dependencies:
-    samsam: 1.3.0
-  checksum: bc990e933481fec30fa2576067c1f2dad62832b55fd083c11d0dd26380fc370928f488b53687381966ae0786ee1522c3176f9b0d0845f696ad11038228366e2c
-  languageName: node
-  linkType: hard
-
-"@sinonjs/formatio@npm:^3.2.1":
-  version: 3.2.2
-  resolution: "@sinonjs/formatio@npm:3.2.2"
-  dependencies:
-    "@sinonjs/commons": ^1
-    "@sinonjs/samsam": ^3.1.0
-  checksum: b05551c8d4cf803b3dd7dbefe22198fee40cdaf8984235fe55aeac6f67221ec083019baada89fc9afeec2a81287ad8c64657347cd8bb1a2bfc5da2519c784928
-  languageName: node
-  linkType: hard
-
-"@sinonjs/samsam@npm:^3.1.0":
-  version: 3.3.3
-  resolution: "@sinonjs/samsam@npm:3.3.3"
-  dependencies:
-    "@sinonjs/commons": ^1.3.0
-    array-from: ^2.1.1
-    lodash: ^4.17.15
-  checksum: a28e209ca30f6b6ea220e774531f1ed385b6d3dfc6d65a61d5d4a3bd82a18e54be00b8eebd4054d9892ed4ef1b2d71f2ba57b2d263787bfc8015fa23531b4cb2
-  languageName: node
-  linkType: hard
-
-"@sinonjs/samsam@npm:^5.3.0":
-  version: 5.3.1
-  resolution: "@sinonjs/samsam@npm:5.3.1"
+"@sinonjs/samsam@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "@sinonjs/samsam@npm:6.0.2"
   dependencies:
     "@sinonjs/commons": ^1.6.0
     lodash.get: ^4.4.2
     type-detect: ^4.0.8
-  checksum: 0277cd0b71146efed3d243edddc98362adcc25c13e0067b91500fd990792194be64b0ace6f4ba9f98cdec60ee46749e24aad44b46193cfa73096c5ef309b00a1
+  checksum: 8113510c5b22bf5cdb66e50e519560b6532cfb31bdf87f3876328e3c16797ed9a65a3b5d5e0578e3da307e5124e332c977a09f9af509592ec7d75a7f3faf2018
   languageName: node
   linkType: hard
 
@@ -9310,13 +9298,6 @@ __metadata:
   version: 2.1.2
   resolution: "array-flatten@npm:2.1.2"
   checksum: 46bfb198da424765f26350a8d8b207deade75d493e6d26417bfebb4027857b9fef8f5ae3bacd0b912f9a9fd2c04e2ec140c7183c0408e10950579e9d5c9dea25
-  languageName: node
-  linkType: hard
-
-"array-from@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "array-from@npm:2.1.1"
-  checksum: 05316991d6b7a749e6e3e4f63ea85e4b739ec4975be527bcc3a2eb5ef963540730ff734023963c8cca5f8dcc06a5c559cc566c06ecc879e5ee1ea7fc0206b3fd
   languageName: node
   linkType: hard
 
@@ -14991,21 +14972,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff@npm:3.5.0, diff@npm:^3.1.0":
+"diff@npm:3.5.0":
   version: 3.5.0
   resolution: "diff@npm:3.5.0"
   checksum: b975b73d7e8fa867cc9e68c293c664e14f11391203603e3f4518689c19fe8e391b4d9e4df3df5b3e51adc6cd81bcb414c80c1666e2f6cf66067f60177eec01d1
   languageName: node
   linkType: hard
 
-"diff@npm:5.0.0":
+"diff@npm:5.0.0, diff@npm:^5.0.0":
   version: 5.0.0
   resolution: "diff@npm:5.0.0"
   checksum: ef241d3b20017b8a1a6f20d184035b836de662203638e16eb57267653a56392ea82e1f9c12b28836e6e22aa25c28c59847aaeb35dd65e77e75c822c7e848e7e8
   languageName: node
   linkType: hard
 
-"diff@npm:^4.0.1, diff@npm:^4.0.2, diff@npm:~4.0.1":
+"diff@npm:^4.0.1, diff@npm:~4.0.1":
   version: 4.0.2
   resolution: "diff@npm:4.0.2"
   checksum: 81b5cd7ddde6f0ba2a532d434cfdca365aedd6cc62bb133e851e66e071d40382a30924a07c1034bd3d5a2e332146f64514b73c06fe2ebc0490a67f0c98da79fb
@@ -18260,7 +18241,7 @@ fsevents@~2.1.1:
     request: ^2.88.2
     restify: ^8.4.0
     restify-clients: ^3.1.0
-    sinon: ^9.0.3
+    sinon: ^11.1.1
   bin:
     fxa-auth-db-mysql: bin/db_patcher.js
   languageName: unknown
@@ -18380,7 +18361,7 @@ fsevents@~2.1.1:
     safe-url-assembler: 1.3.5
     sandboxed-regexp: ^0.3.0
     simplesmtp: 0.3.35
-    sinon: ^9.0.3
+    sinon: ^11.1.1
     stripe: ^8.157.0
     superagent: ^6.1.0
     through: 2.3.8
@@ -18529,7 +18510,7 @@ fsevents@~2.1.1:
     request-promise: 4.2.6
     sass-loader: ^10.0.3
     serve-static: ^1.14.1
-    sinon: 4.5.0
+    sinon: 11.1.1
     sinon-chai: ^3.7.0
     sinon-express-mock: ^2.2.1
     source-map: ^0.7.3
@@ -18600,7 +18581,7 @@ fsevents@~2.1.1:
     proxyquire: ^2.1.3
     request: ^2.88.2
     restify-clients: ^3.1.0
-    sinon: ^9.0.3
+    sinon: ^11.1.1
     tap: ^14.11.0
     walk: ^2.3.14
   languageName: unknown
@@ -18634,7 +18615,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     qs: ^6.9.3
-    sinon: ^9.0.3
+    sinon: ^11.1.1
   languageName: unknown
   linkType: soft
 
@@ -18736,7 +18717,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     request: ^2.88.2
     rimraf: ^3.0.2
-    sinon: ^9.0.3
+    sinon: ^11.1.1
   languageName: unknown
   linkType: soft
 
@@ -18846,7 +18827,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     prettier: ^2.3.1
     reflect-metadata: ^0.1.13
-    sinon: ^9.0.3
+    sinon: ^11.1.1
     ts-node: ^10.0.0
     typedi: ^0.8.0
     typescript: ^4.2.4
@@ -18978,7 +18959,7 @@ fsevents@~2.1.1:
     redux-promise-middleware: ^6.1.2
     redux-thunk: ^2.3.0
     serve-static: ^1.14.1
-    sinon: ^9.0.3
+    sinon: ^11.1.1
     supertest: ^6.1.3
     ts-jest: ^26.5.6
     ts-node: ^10.0.0
@@ -19033,7 +19014,7 @@ fsevents@~2.1.1:
     request: ^2.88.2
     rimraf: ^3.0.2
     sharp: ^0.28.3
-    sinon: ^9.0.3
+    sinon: ^11.1.1
     stream-to-array: 2.3.0
     through: 2.3.8
   languageName: unknown
@@ -19092,7 +19073,7 @@ fsevents@~2.1.1:
     rimraf: ^3.0.2
     sass: 1.35.1
     sass-loader: ^10.0.3
-    sinon: ^9.2.3
+    sinon: ^11.1.1
     tailwindcss-dir: ^4.0.0
     ts-jest: ^26.5.6
     typescript: ^4.2.4
@@ -19241,7 +19222,7 @@ fsevents@~2.1.1:
     proxyquire: ^2.1.3
     reflect-metadata: ^0.1.13
     rxjs: ^6.6.6
-    sinon: ^9.0.3
+    sinon: ^11.1.1
     stripe: ^8.157.0
     superagent: ^6.1.0
     ts-jest: 26.5.6
@@ -25338,22 +25319,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lolex@npm:^2.2.0":
-  version: 2.7.5
-  resolution: "lolex@npm:2.7.5"
-  checksum: 0a1b9ac9abebc9fb866b57b771481f844ff6170ba4b47ec36d96706a016ff73064426cf750d81ba04738a941e9d08c2b3a9516b54c2074a58a4035d99c5ccfca
-  languageName: node
-  linkType: hard
-
-"lolex@npm:^5.0.1":
-  version: 5.1.2
-  resolution: "lolex@npm:5.1.2"
-  dependencies:
-    "@sinonjs/commons": ^1.7.0
-  checksum: 129eb19d11bd1557fdee931f064e7ea0f1a23e9b33eaea37179f32074718b496e2b5855461d3364a65ddd113dc92a065957b957281bb5fe9caf3291a9f4db02e
-  languageName: node
-  linkType: hard
-
 "long@npm:^4.0.0":
   version: 4.0.0
   resolution: "long@npm:4.0.0"
@@ -27261,29 +27226,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nise@npm:^1.2.0":
-  version: 1.5.3
-  resolution: "nise@npm:1.5.3"
-  dependencies:
-    "@sinonjs/formatio": ^3.2.1
-    "@sinonjs/text-encoding": ^0.7.1
-    just-extend: ^4.0.2
-    lolex: ^5.0.1
-    path-to-regexp: ^1.7.0
-  checksum: 0bfb02f7dbbf552fe44fc7f37053b943505ac8b587fda44f3eb582222500de245bd8985af6e1a17c2f7a1613cdf0b9123bab12429a180a73b1c134c5a7d24d7d
-  languageName: node
-  linkType: hard
-
-"nise@npm:^4.0.4":
-  version: 4.0.4
-  resolution: "nise@npm:4.0.4"
+"nise@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "nise@npm:5.1.0"
   dependencies:
     "@sinonjs/commons": ^1.7.0
-    "@sinonjs/fake-timers": ^6.0.0
+    "@sinonjs/fake-timers": ^7.0.4
     "@sinonjs/text-encoding": ^0.7.1
     just-extend: ^4.0.2
     path-to-regexp: ^1.7.0
-  checksum: 5ead54f4f35680b121f623099ccaee4bde3208167c11c28ccebcc1810ff6053f4e8093fcbfefbc7fa6d12e0a7a2488901da976127fbda2252a999c623543968e
+  checksum: 09c3ad41650a0eb0594e448f846b164abc75e198fac71b259ccd8145d6c47851a17305808c07a1c9c1f201f319ea2e672940c24526bdbf6caedf7bd7a9b713cd
   languageName: node
   linkType: hard
 
@@ -33458,13 +33410,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"samsam@npm:1.3.0":
-  version: 1.3.0
-  resolution: "samsam@npm:1.3.0"
-  checksum: af45beca51a9d5ce2a8b6e4ec1c64398b63f2cab50e9bfe6ffff74138c93046cb95fb027036521202eef4bae7330cdb3c7dd0e08603fd4d576a9218c500b663f
-  languageName: node
-  linkType: hard
-
 "sandboxed-regexp@npm:^0.3.0":
   version: 0.3.0
   resolution: "sandboxed-regexp@npm:0.3.0"
@@ -34260,32 +34205,17 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sinon@npm:4.5.0":
-  version: 4.5.0
-  resolution: "sinon@npm:4.5.0"
+"sinon@npm:11.1.1, sinon@npm:^11.1.1":
+  version: 11.1.1
+  resolution: "sinon@npm:11.1.1"
   dependencies:
-    "@sinonjs/formatio": ^2.0.0
-    diff: ^3.1.0
-    lodash.get: ^4.4.2
-    lolex: ^2.2.0
-    nise: ^1.2.0
-    supports-color: ^5.1.0
-    type-detect: ^4.0.5
-  checksum: 55cef9bee43a0bffcc6239394c0210fa1af6619d5740db1992c3f14b6809a083fc5bbc297e856f5d94da21f2aefb82ab0748e97078abcf6bef463ab39afda481
-  languageName: node
-  linkType: hard
-
-"sinon@npm:^9.0.3, sinon@npm:^9.2.3":
-  version: 9.2.3
-  resolution: "sinon@npm:9.2.3"
-  dependencies:
-    "@sinonjs/commons": ^1.8.1
-    "@sinonjs/fake-timers": ^6.0.1
-    "@sinonjs/samsam": ^5.3.0
-    diff: ^4.0.2
-    nise: ^4.0.4
-    supports-color: ^7.1.0
-  checksum: 7c818e8e3bd257eec8a6c3d0da310ca7331831fcf1742d3f84196979c3df5967636851fe950f9f9987a4da5090962011445df996e2455f8b837fb0938b7bd276
+    "@sinonjs/commons": ^1.8.3
+    "@sinonjs/fake-timers": ^7.1.0
+    "@sinonjs/samsam": ^6.0.2
+    diff: ^5.0.0
+    nise: ^5.1.0
+    supports-color: ^7.2.0
+  checksum: 0166bfd767370f5f9a19d8a96393c90791af4e00c6a229aa4e8537bb3f9210e6d7c3b06736705a0a4bc8fa7819e4d55e31337587bdd279159835390109f1e4df
   languageName: node
   linkType: hard
 
@@ -35555,7 +35485,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"supports-color@npm:^5.1.0, supports-color@npm:^5.3.0, supports-color@npm:^5.4.0":
+"supports-color@npm:^5.3.0, supports-color@npm:^5.4.0":
   version: 5.5.0
   resolution: "supports-color@npm:5.5.0"
   dependencies:
@@ -35579,6 +35509,15 @@ resolve@~1.11.1:
   dependencies:
     has-flag: ^4.0.0
   checksum: 6130f36b2a71f73014a6ef306bbaa5415d8daa5c0294082762a0505e4fb6800b8a9d037b60ed54f0c69cdfc37860034047d6004481c21f22dd43151b5e9334f0
+  languageName: node
+  linkType: hard
+
+"supports-color@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "supports-color@npm:7.2.0"
+  dependencies:
+    has-flag: ^4.0.0
+  checksum: 8e57067c39216f3c2ffce7cc14ca934d54746192571203aa9c9922d97d2d55cc1bdaa9e41a11f91e620670b5a74ebdec6b548a885d8cc2dea7cab59e21416029
   languageName: node
   linkType: hard
 
