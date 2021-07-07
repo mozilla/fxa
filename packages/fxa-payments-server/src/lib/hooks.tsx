@@ -8,7 +8,9 @@ import React, {
   useEffect,
   useRef,
   ChangeEvent,
+  useContext,
 } from 'react';
+import AppContext from './AppContext';
 import { v4 as uuidv4 } from 'uuid';
 import { ButtonBaseProps } from '../components/PayPalButton';
 
@@ -33,9 +35,10 @@ export function useCheckboxState(
   defaultState: boolean = false
 ): useCheckboxStateResult {
   const [state, setState] = useState(defaultState);
-  const onChanged = useCallback((ev) => setState(ev.target.checked), [
-    setState,
-  ]);
+  const onChanged = useCallback(
+    (ev) => setState(ev.target.checked),
+    [setState]
+  );
   return [state, onChanged];
 }
 

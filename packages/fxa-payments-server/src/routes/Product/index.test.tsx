@@ -6,6 +6,8 @@ import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import noc from 'nock';
 
+const { location } = window;
+
 function nock(it: any) {
   //@ts-ignore
   return noc(...arguments).defaultReplyHeaders({
@@ -37,7 +39,7 @@ jest.mock('../../lib/flow-event');
 
 import { SignInLayout } from '../../components/AppLayout';
 import Product from './index';
-import { AppContextType } from '../../lib/AppContext';
+import { AppContextType, defaultAppContext } from '../../lib/AppContext';
 import { defaultConfig } from 'fxa-payments-server/src/lib/config';
 
 describe('routes/Product', () => {
@@ -333,5 +335,21 @@ describe('routes/Product', () => {
     const confirmEl = await findByTestId('payment-confirmation');
     expect(confirmEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
+  });
+
+  it('redirects to content server when there is no access token', async () => {
+    delete window.location;
+    window.location = {};
+    const setSpy = jest.fn();
+    Object.defineProperty(window.location, 'href', { set: setSpy });
+
+    const appContext = { ...defaultAppContextValue(), accessToken: undefined };
+    render(<Subject productId="fizz" planId="quux" appContext={appContext} />);
+
+    expect(setSpy).toHaveBeenCalledWith(
+      'https://content.example/subscriptions/products/fizz?plan=quux&signin=yes'
+    );
+
+    window.location = location;
   });
 });

@@ -64,6 +64,9 @@ jest.mock('./PaymentUpdateForm', () => ({
 
 import { SettingsLayout } from '../../components/AppLayout';
 import Subscriptions from './index';
+import { AppContextType } from '../../lib/AppContext';
+
+const { location } = window;
 
 describe('routes/Subscriptions', () => {
   let contentServer = '';
@@ -91,12 +94,14 @@ describe('routes/Subscriptions', () => {
     matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
     createToken = jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
+    appContext = undefined,
   }: {
     store?: Store;
     matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     createToken?: jest.Mock<any, any>;
     useSCAPaymentFlow?: boolean;
+    appContext?: Partial<AppContextType>;
   }) => {
     const props = {};
     const mockStripe = {
@@ -111,6 +116,7 @@ describe('routes/Subscriptions', () => {
         flowBeginTime: Date.now(),
         flowId: 'thisisanid',
       },
+      ...(appContext ?? {}),
     };
 
     return (
@@ -698,5 +704,21 @@ describe('routes/Subscriptions', () => {
       .reply(200, MOCK_CUSTOMER);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-subhub-missing-plan');
+  });
+
+  it('redirects to content server when there is no access token', async () => {
+    delete window.location;
+    window.location = {};
+    const setSpy = jest.fn();
+    Object.defineProperty(window.location, 'href', { set: setSpy });
+
+    const appContext = { accessToken: undefined };
+    render(<Subject appContext={appContext} />);
+
+    expect(setSpy).toHaveBeenCalledWith(
+      'https://content.example/subscriptions'
+    );
+
+    window.location = location;
   });
 });
