@@ -1,3 +1,9 @@
+## 1.208.4
+
+### Bug fixes
+
+- email: Update email templates to use images from fxa based cdn ([77e4e931a](https://github.com/mozilla/fxa/commit/77e4e931a))
+
 ## 1.208.3
 
 ### Bug fixes
