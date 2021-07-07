@@ -12,6 +12,14 @@
 - deps: bump @sentry/node from 6.5.1 to 6.7.0 ([b6119a2c7](https://github.com/mozilla/fxa/commit/b6119a2c7))
 - deps: update pm2 / dedupe ([5d7653fa6](https://github.com/mozilla/fxa/commit/5d7653fa6))
 
+## 1.208.4
+
+No changes.
+
+## 1.208.3
+
+No changes.
+
 ## 1.208.2
 
 No changes.

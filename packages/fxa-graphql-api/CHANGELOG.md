@@ -21,6 +21,14 @@
 - deps: bump apollo-server-express from 2.25.0 to 2.25.1 ([20cd65b9c](https://github.com/mozilla/fxa/commit/20cd65b9c))
 - deps: bump @sentry/integrations from 6.5.1 to 6.6.0 ([4a123dddf](https://github.com/mozilla/fxa/commit/4a123dddf))
 
+## 1.208.4
+
+No changes.
+
+## 1.208.3
+
+No changes.
+
 ## 1.208.2
 
 No changes.

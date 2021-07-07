@@ -30,6 +30,14 @@
 - deps-dev: bump @testing-library/jest-dom from 5.12.0 to 5.13.0 ([2ba48b1dc](https://github.com/mozilla/fxa/commit/2ba48b1dc))
 - fxa-payments-server: update to change copy ([3390ceb13](https://github.com/mozilla/fxa/commit/3390ceb13))
 
+## 1.208.4
+
+No changes.
+
+## 1.208.3
+
+No changes.
+
 ## 1.208.2
 
 No changes.
