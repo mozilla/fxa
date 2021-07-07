@@ -1,3 +1,10 @@
+## 1.209.1
+
+### Bug fixes
+
+- email: Update email templates to use images from fxa based cdn ([653b13491](https://github.com/mozilla/fxa/commit/653b13491))
+- auth: don't resend session otp codes when totp is enabled ([8b8ed8acf](https://github.com/mozilla/fxa/commit/8b8ed8acf))
+
 ## 1.209.0
 
 ### New features
