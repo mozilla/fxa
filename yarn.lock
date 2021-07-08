@@ -18504,7 +18504,7 @@ fsevents@~2.1.1:
     photon-colors: 1.0.3
     pm2: ^5.1.0
     postcss-cli: 7.1.1
-    postcss-loader: 4.2.0
+    postcss-loader: 6.1.1
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     react: ^16.8.6
@@ -29917,7 +29917,21 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss-loader@npm:4.2.0, postcss-loader@npm:^4.2.0":
+"postcss-loader@npm:6.1.1":
+  version: 6.1.1
+  resolution: "postcss-loader@npm:6.1.1"
+  dependencies:
+    cosmiconfig: ^7.0.0
+    klona: ^2.0.4
+    semver: ^7.3.5
+  peerDependencies:
+    postcss: ^7.0.0 || ^8.0.1
+    webpack: ^5.0.0
+  checksum: a166ecd835c62e2afc3d5f4fd77962f88e1319a6a5d84bd291167c43659cdfd4414bb332840577b464b8d8f69604b85c4ed26ac8695808c2ca336652706ed505
+  languageName: node
+  linkType: hard
+
+"postcss-loader@npm:^4.2.0":
   version: 4.2.0
   resolution: "postcss-loader@npm:4.2.0"
   dependencies:
