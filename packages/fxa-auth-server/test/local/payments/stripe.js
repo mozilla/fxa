@@ -2975,6 +2975,8 @@ describe('StripeHelper', () => {
         email,
         cardType: 'visa',
         lastFour: '5309',
+        invoiceLink:
+          'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
         invoiceNumber: 'AAF2CECC-0001',
         invoiceTotalCurrency: 'usd',
         invoiceTotalInCents: 500,
