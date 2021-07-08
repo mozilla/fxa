@@ -31,6 +31,7 @@ module.exports = function (log, config) {
   const cadReminders = require('../cad-reminders')(config, log);
 
   const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
+  const featureFlags = require('../features')(config);
 
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
@@ -418,6 +419,7 @@ module.exports = function (log, config) {
 
   Mailer.prototype.localize = function (message) {
     const translator = this.translator(message.acceptLanguage);
+    let localizedEmailHtml, localizedEmailText;
 
     const templateValues = {
       ...message.templateValues,
@@ -428,21 +430,35 @@ module.exports = function (log, config) {
       translator,
     };
 
-    const localized = this.templates.render(
-      message.template,
-      message.layout || 'fxa',
-      templateValues
-    );
+    if (featureFlags.isMjmlEnabledForUser(message.email, message.template)) {
+      // TODO: This code block needs to be replaced with rendering the mjml
+      // templates. In the meantime it will render with old method.
+      const localized = this.templates.render(
+        message.template,
+        message.layout || 'fxa',
+        templateValues
+      );
+      localizedEmailHtml = localized.html;
+      localizedEmailText = localized.text;
+    } else {
+      const localized = this.templates.render(
+        message.template,
+        message.layout || 'fxa',
+        templateValues
+      );
+      localizedEmailHtml = localized.html;
+      localizedEmailText = localized.text;
+    }
 
     return {
-      html: localized.html,
+      html: localizedEmailHtml,
       language: translator.language,
       subject: translator.format(
         translator.gettext(message.subject),
         templateValues,
         true
       ),
-      text: localized.text,
+      text: localizedEmailText,
     };
   };
 
@@ -451,6 +467,7 @@ module.exports = function (log, config) {
       email: message.email,
       uid: message.uid,
     });
+
     const localized = this.localize(message);
 
     const template = message.template;
@@ -2160,14 +2177,8 @@ module.exports = function (log, config) {
   };
 
   Mailer.prototype.subscriptionPaymentFailedEmail = async function (message) {
-    const {
-      email,
-      uid,
-      productId,
-      planId,
-      planEmailIconURL,
-      productName,
-    } = message;
+    const { email, uid, productId, planId, planEmailIconURL, productName } =
+      message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentFailed', {
@@ -2913,16 +2924,13 @@ module.exports = function (log, config) {
       query
     );
 
-    links['revokeAccountRecoveryLink'] = this.createRevokeAccountRecoveryLink(
-      templateName
-    );
-    links[
-      'revokeAccountRecoveryLinkAttributes'
-    ] = this._revokeAccountRecoveryLinkAttributes(templateName);
+    links['revokeAccountRecoveryLink'] =
+      this.createRevokeAccountRecoveryLink(templateName);
+    links['revokeAccountRecoveryLinkAttributes'] =
+      this._revokeAccountRecoveryLinkAttributes(templateName);
 
-    links['createAccountRecoveryLink'] = this.createAccountRecoveryLink(
-      templateName
-    );
+    links['createAccountRecoveryLink'] =
+      this.createAccountRecoveryLink(templateName);
 
     links.accountSettingsUrl = this._generateUTMLink(
       this.accountSettingsUrl,
