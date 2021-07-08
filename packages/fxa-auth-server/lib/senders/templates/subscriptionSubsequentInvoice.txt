@@ -7,6 +7,9 @@
 {{#showProratedAmount}}{{{t "Plan change: %(paymentProrated)s" }}}{{/showProratedAmount}}
 
 {{{t "Charged %(invoiceTotal)s on %(invoiceDateOnly)s" }}}
+
+{{{t "View Invoice: %(invoiceLink)s" }}}
+
 {{> paymentProvider }}
 
 {{{t "Next Invoice: %(nextInvoiceDateOnly)s" }}}

@@ -9,6 +9,9 @@
 {{{t "Invoice Number: %(invoiceNumber)s" }}}
 
 {{{t "Charged %(invoiceTotal)s on %(invoiceDateOnly)s" }}}
+
+{{{t "View Invoice: %(invoiceLink)s" }}}
+
 {{> paymentProvider }}
 
 {{{t "Next Invoice: %(nextInvoiceDateOnly)s" }}}
