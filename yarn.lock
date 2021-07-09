@@ -17380,18 +17380,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"file-loader@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "file-loader@npm:4.3.0"
-  dependencies:
-    loader-utils: ^1.2.3
-    schema-utils: ^2.5.0
-  peerDependencies:
-    webpack: ^4.0.0
-  checksum: 03535f889b56836dc462f20e138ba5ad46893cc079cfb970b3434aa4d4e959a1e52770fa62e87d657f4d7d3dd9207726a464dee19eb82ccdafdc2e5c6a80f92a
-  languageName: node
-  linkType: hard
-
 "file-loader@npm:^6.1.0, file-loader@npm:^6.2.0":
   version: 6.2.0
   resolution: "file-loader@npm:6.2.0"
@@ -19344,7 +19332,7 @@ fsevents@~2.1.1:
     classnames: ^2.3.1
     eslint: ^7.29.0
     fetch-mock: ^9.11.0
-    file-loader: ^4.3.0
+    file-loader: ^6.2.0
     fxa-shared: "workspace:*"
     identity-obj-proxy: ^3.0.0
     jest: 26.6.0
@@ -33958,7 +33946,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"schema-utils@npm:^2.0.0, schema-utils@npm:^2.5.0, schema-utils@npm:^2.6.5, schema-utils@npm:^2.7.0, schema-utils@npm:^2.7.1":
+"schema-utils@npm:^2.0.0, schema-utils@npm:^2.6.5, schema-utils@npm:^2.7.0, schema-utils@npm:^2.7.1":
   version: 2.7.1
   resolution: "schema-utils@npm:2.7.1"
   dependencies:
