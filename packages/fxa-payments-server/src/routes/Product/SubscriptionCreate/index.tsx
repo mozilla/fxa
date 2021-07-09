@@ -43,8 +43,8 @@ import '../../Product/SubscriptionCreate/index.scss';
 import AppContext from '../../../lib/AppContext';
 import { ButtonBaseProps } from '../../../components/PayPalButton';
 import { apiCapturePaypalPayment } from '../../../lib/apiClient';
-const PaypalButton = React.lazy(() =>
-  import('../../../components/PayPalButton')
+const PaypalButton = React.lazy(
+  () => import('../../../components/PayPalButton')
 );
 
 export type SubscriptionCreateStripeAPIs = Pick<
@@ -123,72 +123,70 @@ export const SubscriptionCreate = ({
     }
   }, [paymentError, setPaymentError]);
 
-  const onStripeFormSubmit:
-    | StripeSubmitHandler
-    | StripeUpdateHandler = useCallback(
-    async ({
-      stripe: stripeFromParams,
-      ...params
-    }: StripePaymentSubmitResult | StripePaymentUpdateResult) => {
-      setInProgress(true);
-      try {
-        await handleSubscriptionPayment({
-          ...params,
-          ...apiClient,
-          ...apiClientOverrides,
-          stripe:
-            stripeOverride /* istanbul ignore next - used for testing */ ||
-            stripeFromParams,
-          selectedPlan,
-          customer,
-          retryStatus,
-          onSuccess: refreshSubscriptions,
-          onFailure: setPaymentError,
-          onRetry: (status: RetryStatus) => {
-            setRetryStatus(status);
-            setPaymentError({ type: 'card_error', code: 'card_declined' });
-          },
-        });
-      } catch (error) {
-        console.error('handleSubscriptionPayment failed', error);
-        setPaymentError(error);
-      }
-      setInProgress(false);
-      refreshSubmitNonce();
-    },
-    [
-      selectedPlan,
-      customer,
-      retryStatus,
-      apiClientOverrides,
-      stripeOverride,
-      setInProgress,
-      refreshSubscriptions,
-      refreshSubmitNonce,
-      setPaymentError,
-      setRetryStatus,
-    ]
-  );
+  const onStripeFormSubmit: StripeSubmitHandler | StripeUpdateHandler =
+    useCallback(
+      async ({
+        stripe: stripeFromParams,
+        ...params
+      }: StripePaymentSubmitResult | StripePaymentUpdateResult) => {
+        setInProgress(true);
+        try {
+          await handleSubscriptionPayment({
+            ...params,
+            ...apiClient,
+            ...apiClientOverrides,
+            stripe:
+              stripeOverride /* istanbul ignore next - used for testing */ ||
+              stripeFromParams,
+            selectedPlan,
+            customer,
+            retryStatus,
+            onSuccess: refreshSubscriptions,
+            onFailure: setPaymentError,
+            onRetry: (status: RetryStatus) => {
+              setRetryStatus(status);
+              setPaymentError({ type: 'card_error', code: 'card_declined' });
+            },
+          });
+        } catch (error) {
+          console.error('handleSubscriptionPayment failed', error);
+          setPaymentError(error);
+        }
+        setInProgress(false);
+        refreshSubmitNonce();
+      },
+      [
+        selectedPlan,
+        customer,
+        retryStatus,
+        apiClientOverrides,
+        stripeOverride,
+        setInProgress,
+        refreshSubscriptions,
+        refreshSubmitNonce,
+        setPaymentError,
+        setRetryStatus,
+      ]
+    );
 
-  const onPaypalFormSubmit: (
-    x: PaypalPaymentSubmitResult
-  ) => void = useCallback(
-    async ({ priceId, idempotencyKey }: PaypalPaymentSubmitResult) => {
-      setInProgress(true);
-      try {
-        await apiCapturePaypalPayment({
-          idempotencyKey,
-          priceId,
-        });
-        refreshSubscriptions();
-      } catch (error) {
-        setPaymentError(error);
-      }
-      setInProgress(false);
-      refreshSubmitNonce();
-    },
-    [setInProgress, refreshSubmitNonce, refreshSubscriptions]
-  );
+  const onPaypalFormSubmit: (x: PaypalPaymentSubmitResult) => void =
+    useCallback(
+      async ({ priceId, idempotencyKey }: PaypalPaymentSubmitResult) => {
+        setInProgress(true);
+        try {
+          await apiCapturePaypalPayment({
+            idempotencyKey,
+            priceId,
+          });
+          refreshSubscriptions();
+        } catch (error) {
+          setPaymentError(error);
+        }
+        setInProgress(false);
+        refreshSubmitNonce();
+      },
+      [setInProgress, refreshSubmitNonce, refreshSubscriptions]
+    );
 
   const onSubmit = getPaymentProviderMappedVal<
     BasePaymentFormProps['onSubmit']
@@ -250,6 +248,7 @@ export const SubscriptionCreate = ({
                           currencyCode={selectedPlan.currency}
                           customer={customer}
                           idempotencyKey={submitNonce}
+                          refreshSubmitNonce={refreshSubmitNonce}
                           priceId={selectedPlan.plan_id}
                           newPaypalAgreement={true}
                           refreshSubscriptions={refreshSubscriptions}
