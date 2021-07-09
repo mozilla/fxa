@@ -1620,6 +1620,7 @@ export class StripeHelper {
       created: invoiceDate,
       currency: invoiceTotalCurrency,
       total: invoiceTotalInCents,
+      hosted_invoice_url: invoiceLink,
       lines: {
         data: [
           {
@@ -1647,6 +1648,7 @@ export class StripeHelper {
       cardType,
       lastFour,
       payment_provider,
+      invoiceLink,
       invoiceNumber,
       invoiceTotalInCents,
       invoiceTotalCurrency,

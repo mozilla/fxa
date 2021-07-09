@@ -12,6 +12,8 @@
     <br>
   {{/showProratedAmount}}
   {{t "Charged %(invoiceTotal)s on %(invoiceDateOnly)s" }}
+  <br>
+  {{{t "<a href=\"%(invoiceLink)s\">View your invoice</a>." }}}
   {{> paymentProvider }}
   <br><br>
   {{t "Next Invoice: %(nextInvoiceDateOnly)s" }}

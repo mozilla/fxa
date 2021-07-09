@@ -2480,6 +2480,7 @@ module.exports = function (log, config) {
       planId,
       planEmailIconURL,
       productName,
+      invoiceLink,
       invoiceNumber,
       invoiceDate,
       invoiceTotalInCents,
@@ -2547,6 +2548,7 @@ module.exports = function (log, config) {
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
+        invoiceLink,
         invoiceNumber,
         invoiceDate,
         invoiceTotal: this._getLocalizedCurrencyString(
@@ -2574,6 +2576,7 @@ module.exports = function (log, config) {
       productName,
       invoiceNumber,
       invoiceDate,
+      invoiceLink,
       invoiceTotalInCents,
       invoiceTotalCurrency,
       payment_provider,
@@ -2626,6 +2629,7 @@ module.exports = function (log, config) {
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
+        invoiceLink,
         invoiceNumber,
         invoiceDate,
         invoiceTotal: this._getLocalizedCurrencyString(
