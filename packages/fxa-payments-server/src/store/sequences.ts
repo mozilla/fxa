@@ -27,6 +27,10 @@ const handleThunkError = (err: any) => {
 };
 
 // Convenience functions to produce action sequences via react-thunk functions
+export const fetchCheckoutRouteResources = () => async (dispatch: Function) => {
+  await Promise.all([dispatch(fetchPlans())]).catch(handleThunkError);
+};
+
 export const fetchProductRouteResources = () => async (dispatch: Function) => {
   await Promise.all([
     dispatch(fetchPlans()),
@@ -35,63 +39,65 @@ export const fetchProductRouteResources = () => async (dispatch: Function) => {
   ]).catch(handleThunkError);
 };
 
-export const fetchSubscriptionsRouteResources = () => async (
-  dispatch: Function
-) => {
-  await Promise.all([
-    dispatch(fetchPlans()),
-    dispatch(fetchProfile()),
-    dispatch(fetchCustomer()),
-  ]).catch(handleThunkError);
-};
+export const fetchSubscriptionsRouteResources =
+  () => async (dispatch: Function) => {
+    await Promise.all([
+      dispatch(fetchPlans()),
+      dispatch(fetchProfile()),
+      dispatch(fetchCustomer()),
+    ]).catch(handleThunkError);
+  };
 
-export const fetchCustomerAndSubscriptions = () => async (
-  dispatch: Function
-) => {
-  await Promise.all([dispatch(fetchCustomer())]).catch(handleThunkError);
-};
+export const fetchCustomerAndSubscriptions =
+  () => async (dispatch: Function) => {
+    await Promise.all([dispatch(fetchCustomer())]).catch(handleThunkError);
+  };
 
-export const updateSubscriptionPlanAndRefresh = (
-  subscriptionId: string,
-  plan: Plan,
-  paymentProvider: PaymentProvider | undefined
-) => async (dispatch: Function) => {
-  try {
-    await dispatch(
-      updateSubscriptionPlan(subscriptionId, plan, paymentProvider)
-    );
-    await dispatch(fetchCustomerAndSubscriptions());
-  } catch (err) {
-    handleThunkError(err);
-  }
-};
+export const updateSubscriptionPlanAndRefresh =
+  (
+    subscriptionId: string,
+    plan: Plan,
+    paymentProvider: PaymentProvider | undefined
+  ) =>
+  async (dispatch: Function) => {
+    try {
+      await dispatch(
+        updateSubscriptionPlan(subscriptionId, plan, paymentProvider)
+      );
+      await dispatch(fetchCustomerAndSubscriptions());
+    } catch (err) {
+      handleThunkError(err);
+    }
+  };
 
-export const cancelSubscriptionAndRefresh = (
-  subscriptionId: string,
-  plan: Plan,
-  paymentProvider: PaymentProvider | undefined
-) => async (dispatch: Function, getState: Function) => {
-  try {
-    await dispatch(cancelSubscription(subscriptionId, plan, paymentProvider));
-    await dispatch(fetchCustomerAndSubscriptions());
-  } catch (err) {
-    handleThunkError(err);
-  }
-};
+export const cancelSubscriptionAndRefresh =
+  (
+    subscriptionId: string,
+    plan: Plan,
+    paymentProvider: PaymentProvider | undefined
+  ) =>
+  async (dispatch: Function, getState: Function) => {
+    try {
+      await dispatch(cancelSubscription(subscriptionId, plan, paymentProvider));
+      await dispatch(fetchCustomerAndSubscriptions());
+    } catch (err) {
+      handleThunkError(err);
+    }
+  };
 
-export const reactivateSubscriptionAndRefresh = (
-  subscriptionId: string,
-  plan: Plan
-) => async (dispatch: Function, getState: Function) => {
-  try {
-    await dispatch(reactivateSubscription(subscriptionId, plan));
-    await dispatch(fetchCustomerAndSubscriptions());
-  } catch (err) {
-    handleThunkError(err);
-  }
-};
+export const reactivateSubscriptionAndRefresh =
+  (subscriptionId: string, plan: Plan) =>
+  async (dispatch: Function, getState: Function) => {
+    try {
+      await dispatch(reactivateSubscription(subscriptionId, plan));
+      await dispatch(fetchCustomerAndSubscriptions());
+    } catch (err) {
+      handleThunkError(err);
+    }
+  };
 
 export const sequences = {
+  fetchCheckoutRouteResources,
   fetchProductRouteResources,
   fetchSubscriptionsRouteResources,
   fetchCustomerAndSubscriptions,

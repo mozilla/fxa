@@ -63,7 +63,6 @@ describe('routes/Product', () => {
   const Subject = ({
     productId = PRODUCT_ID,
     planId,
-    accountActivated,
     matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
     appContext = defaultAppContextValue(),
@@ -72,7 +71,6 @@ describe('routes/Product', () => {
     planId?: string;
     matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
-    accountActivated?: string;
     appContext?: Partial<AppContextType>;
   }) => {
     const props = {
@@ -91,7 +89,6 @@ describe('routes/Product', () => {
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams: {
         plan: planId,
-        activated: accountActivated,
       },
     };
     return (

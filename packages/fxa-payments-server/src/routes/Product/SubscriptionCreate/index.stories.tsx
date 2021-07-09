@@ -25,7 +25,7 @@ const wait = (delay: number) =>
   new Promise((resolve) => setTimeout(resolve, delay));
 
 function init() {
-  storiesOf('routes/ProductV2/SubscriptionCreate', module)
+  storiesOf('routes/Product/SubscriptionCreate', module)
     .add('default', () => <Subject />)
     .add('with retry', () => (
       <Subject
@@ -66,7 +66,7 @@ function init() {
       />
     ));
 
-  storiesOf('routes/ProductV2/SubscriptionCreate/failures', module)
+  storiesOf('routes/Product/SubscriptionCreate/failures', module)
     .add('createPaymentMethod', () => (
       <Subject
         stripeOverride={{
@@ -139,7 +139,7 @@ function init() {
       />
     ));
 
-  storiesOf('routes/ProductV2/SubscriptionCreate/errors', module)
+  storiesOf('routes/Product/SubscriptionCreate/errors', module)
     .add('card declined', () => (
       <Subject
         paymentErrorInitialState={{

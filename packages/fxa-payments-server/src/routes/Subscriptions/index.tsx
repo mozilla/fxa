@@ -119,10 +119,10 @@ export const Subscriptions = ({
     fetchSubscriptionsRouteResources();
   }, [fetchSubscriptionsRouteResources]);
 
-  const onSupportClick = useCallback(() => navigateToUrl(SUPPORT_FORM_URL), [
-    navigateToUrl,
-    SUPPORT_FORM_URL,
-  ]);
+  const onSupportClick = useCallback(
+    () => navigateToUrl(SUPPORT_FORM_URL),
+    [navigateToUrl, SUPPORT_FORM_URL]
+  );
 
   if (customer.loading || profile.loading || plans.loading) {
     return <LoadingOverlay isLoading={true} />;
@@ -291,7 +291,8 @@ export const Subscriptions = ({
                 customer: customer.result,
                 refreshSubscriptions: fetchSubscriptionsRouteResources,
                 setUpdatePaymentIsSuccess,
-                resetUpdatePaymentIsSuccess: resetUpdatePaymentIsSuccessAndAlert,
+                resetUpdatePaymentIsSuccess:
+                  resetUpdatePaymentIsSuccessAndAlert,
                 stripeOverride: paymentUpdateStripeOverride,
                 apiClientOverrides: paymentUpdateApiClientOverrides,
               }}
@@ -312,7 +313,8 @@ export const Subscriptions = ({
                   plan: planForId(customerSubscription.plan_id, plans.result),
                   refreshSubscriptions: fetchSubscriptionsRouteResources,
                   setUpdatePaymentIsSuccess,
-                  resetUpdatePaymentIsSuccess: resetUpdatePaymentIsSuccessAndAlert,
+                  resetUpdatePaymentIsSuccess:
+                    resetUpdatePaymentIsSuccessAndAlert,
                   paymentUpdateStripeOverride,
                   paymentUpdateApiClientOverrides,
                 }}
@@ -412,8 +414,6 @@ const ProfileBanner = ({
   </header>
 );
 
-// TODO replace this with Redux hooks in component function body
-// https://github.com/mozilla/fxa/issues/3020
 export default connect(
   (state: State) => ({
     plans: selectors.plans(state),

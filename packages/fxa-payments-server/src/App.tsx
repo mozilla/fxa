@@ -21,6 +21,7 @@ import { LoadingOverlay } from './components/LoadingOverlay';
 import * as FlowEvents from './lib/flow-event';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 
+const Checkout = React.lazy(() => import('./routes/Checkout'));
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
@@ -106,6 +107,14 @@ export const App = ({
                           render={(props) => (
                             <SignInLayout>
                               <Product {...props} />
+                            </SignInLayout>
+                          )}
+                        />
+                        <Route
+                          path="/checkout/:productId"
+                          render={(props) => (
+                            <SignInLayout>
+                              <Checkout {...props} />
                             </SignInLayout>
                           )}
                         />
