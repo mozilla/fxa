@@ -1,0 +1,9 @@
+<%- body %>
+
+Mozilla. 2 Harrison St, #175, San Francisco, CA 94105
+
+fxa-privacy-url = "Mozilla Privacy Policy"
+<%- privacyUrl %>
+
+fxa-support-url = "Firefox Cloud Terms of Service"
+<%- supportUrl %>

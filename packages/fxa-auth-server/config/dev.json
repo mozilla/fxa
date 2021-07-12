@@ -427,7 +427,7 @@
     "secondInterval": "2s"
   },
   "mjml": {
-    "enabledEmailAddress": "@testuser.com$",
-    "templates": ["cadReminderFirst"]
+    "enabledEmailAddress": "b@c.com",
+    "templates":  ["cadReminderFirst"]
   }
 }

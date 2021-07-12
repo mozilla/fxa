@@ -174,11 +174,13 @@ const button = `
   <mj-include path="./lib/senders/emails/css/button/index.css" type="css" css-inline="inline" />
   <mj-section>
     <mj-column>
-      <mj-button css-class="primary-button"><%= buttonText %></mj-button>
+      <mj-button css-class="primary-button"><%- buttonText %></mj-button>
     </mj-column>
   </mj-section>
 `;
 ```
+
+Note: In ejs, `<%=` outputs the value into the template with HTML escaped, whereas `<%-` renders the string as is (unescaped)
 
 The emails for which the MJML feature flag is enabled can be rendered to disk using the `yarn write-emails` command.
 
@@ -218,6 +220,32 @@ Fluent will take care of the rest, populating the element with the message value
 ```
 
 By default emails render from left to right which could hamper the accessibility of emails for some locales so along with localizing the emails, we took care of rendering the emails from right to left for rtl locales and vice versa.
+
+##### Fluent for plaintext files
+
+Fluent is also being used to localize plaintext version of templates. Each and every template has an `index.txt` file which contains the plaintext version of it. A pattern is set which will help identify the text that needs to be localized: `fluent-id = "default value provided"` where value of `fluent-id` is same as `data-l10n-id` attribute of the corresponding markup element. If `fluent-id` is present in fluent bundle, the text will be localized else it will be replaced with the fallback value present. In cases, where we don't want to localize the text, just declare a string and it will be rendered as is. The following snippets will demonstrate how plaintext files are localized and generated:
+
+```
+sync-reminder = "<%- headerText %>"
+
+<%- link %>
+```
+
+EJS will compile the above `.txt` file into something like this:
+
+```
+sync-reminder = "Here's your reminder to sync devices."
+
+http://localhost:3030/connect_another_device?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-connect-device
+```
+
+The compiled text will then be localized with fluent and the final plaintext version will be generated something like this:
+
+```
+Here's your reminder to sync devices.
+
+http://localhost:3030/connect_another_device?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-connect-device
+```
 
 #### Storybook and Documentation
 
