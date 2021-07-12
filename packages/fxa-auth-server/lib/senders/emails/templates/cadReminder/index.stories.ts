@@ -13,20 +13,26 @@ const Template: Story<StorybookEmailArgs> = (args) => storybookEmail(args);
 
 const defaultVariables = {
   buttonText: 'Sync another device',
-  anotherDeviceURL:
+  oneClickLink: true,
+  anotherDeviceUrl:
     '/connect_another_device?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-connect-device',
-  iosURL:
+  iosUrl:
     'https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png',
-  androidURL:
+  androidUrl:
     'https://accounts-static.cdn.mozilla.net/product-icons/google-play.png',
   onDesktopOrTabletDevice: true,
+  subject: 'Reminder to sync your device',
+  preHeader: 'Random headers',
+  privacyUrl: '',
+  supportUrl: '',
 };
 
 const commonPropsWithOverrides = (
   overrides: Partial<typeof defaultVariables> = {}
 ) =>
   Object.assign({
-    template: 'cadReminder',
+    template: 'cadReminderFirst',
+    layout: 'fxa',
     doc: 'The Connect Another Device Reminder is sent when [TODO: documentation].',
     variables: {
       ...defaultVariables,

@@ -71,12 +71,6 @@ tr > td:first-child {
   margin: $s-0 auto !important;
 }
 
-.fxa-logo td {
-  padding: $s-5 $s-0 !important;
-  height: 60px !important;
-  width: 60px !important;
-}
-
 .link-blue {
   @extend .text-blue-400;
   text-decoration: none;

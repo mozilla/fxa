@@ -4,12 +4,14 @@
 
 export interface StorybookEmailArgs {
   template: string;
+  layout: string;
   description?: string;
   variables: Record<string, any>;
 }
 
 export const storybookEmail = ({
   template,
+  layout,
   description,
   variables,
 }: StorybookEmailArgs): HTMLDivElement => {
@@ -22,7 +24,7 @@ export const storybookEmail = ({
         <hr />`;
   }
 
-  renderUsingMJML({ template, variables })
+  renderUsingMJML({ template, layout, variables })
     .then((result) => {
       container.innerHTML = emailDescriptionDiv.innerHTML + result;
     })
@@ -35,10 +37,12 @@ export const storybookEmail = ({
 
 async function renderUsingMJML({
   template,
+  layout,
   apiUrl = 'http://localhost:8192',
   variables,
 }: {
   template: string;
+  layout: string;
   apiUrl?: string;
   variables: Record<string, any>;
 }): Promise<string> {
@@ -46,6 +50,7 @@ async function renderUsingMJML({
     method: 'POST',
     body: JSON.stringify({
       template,
+      layout,
       ...variables,
     }),
   });

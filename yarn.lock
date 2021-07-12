@@ -2322,6 +2322,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fluent/dom@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@fluent/dom@npm:0.7.0"
+  dependencies:
+    cached-iterable: ^0.3
+  checksum: 7f9fbaaef75d435521fbc5d021febd5369b0b423665e1a42e071f8ffcf9ad084253807ae242d2ececb144f1047cfdec9b5ec9d6551149c1c2e2635599e7519d7
+  languageName: node
+  linkType: hard
+
 "@fluent/langneg@npm:^0.5.2":
   version: 0.5.2
   resolution: "@fluent/langneg@npm:0.5.2"
@@ -7665,6 +7674,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/jsdom@npm:^16":
+  version: 16.2.13
+  resolution: "@types/jsdom@npm:16.2.13"
+  dependencies:
+    "@types/node": "*"
+    "@types/parse5": "*"
+    "@types/tough-cookie": "*"
+  checksum: 2575d020e345f556a28208dad4d495e317e7364f1de222322c100841f49a815c73c0aa32d32d7a72a05fd7cd33551f4c0effc108fbaaf194ec42ed0f04d877b9
+  languageName: node
+  linkType: hard
+
 "@types/jsdom@npm:^16.2.11":
   version: 16.2.11
   resolution: "@types/jsdom@npm:16.2.11"
@@ -12864,6 +12884,13 @@ __metadata:
   version: 0.2.1
   resolution: "cached-iterable@npm:0.2.1"
   checksum: 3b9be982710a368ebed79055ed509128802d948d7d1db0fa4b9524c2c323e66922ad561a9a21b6cedd1684e8c8c235de1c5bdd523bc52d0cf07999510de77735
+  languageName: node
+  linkType: hard
+
+"cached-iterable@npm:^0.3":
+  version: 0.3.0
+  resolution: "cached-iterable@npm:0.3.0"
+  checksum: ec486d37c6fd5df38992b785a49de611ccb8e87825e533f91c33e9e02e7061769cd1ac7bb958e828057ff2ecb6b290c9922fb49bfb7c21a04acb0c4f35ca230a
   languageName: node
   linkType: hard
 
@@ -19095,6 +19122,9 @@ fsevents@~2.1.1:
   resolution: "fxa-auth-server@workspace:packages/fxa-auth-server"
   dependencies:
     "@babel/core": ^7.14.6
+    "@fluent/bundle": ^0.16.1
+    "@fluent/dom": ^0.7.0
+    "@fluent/langneg": ^0.5.2
     "@google-cloud/firestore": ^4.13.2
     "@hapi/hapi": ^20.1.5
     "@hapi/hawk": ^8.0.0
@@ -19113,6 +19143,7 @@ fsevents@~2.1.1:
     "@types/hapi__hapi": ^19.0.3
     "@types/ioredis": ^4.26.4
     "@types/joi": ^14.3.3
+    "@types/jsdom": ^16
     "@types/jsonwebtoken": ^8.5.1
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
@@ -19168,6 +19199,7 @@ fsevents@~2.1.1:
     i18n-abide: 0.0.26
     ioredis: ^4.27.6
     jed: 0.5.4
+    jsdom: ^16.6.0
     jsonwebtoken: ^8.5.1
     jsxgettext-recursive-next: 1.1.0
     jws: 4.0.0
@@ -24802,7 +24834,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jsdom@npm:16.6.0, jsdom@npm:^16.4.0":
+"jsdom@npm:16.6.0, jsdom@npm:^16.4.0, jsdom@npm:^16.6.0":
   version: 16.6.0
   resolution: "jsdom@npm:16.6.0"
   dependencies:

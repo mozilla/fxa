@@ -4,3 +4,5 @@
 
 export * from './appBadges';
 export * from './button';
+export * from './metadata';
+export * from './automatedEmailNoAction';

@@ -20,13 +20,18 @@ const getDirectories = (source: string) =>
 // construct arrays of partials and templates based on the directories
 const partials = getDirectories(path.join(__dirname, 'partials'));
 const templates = getDirectories(path.join(__dirname, 'templates'));
+const layouts = getDirectories(path.join(__dirname, 'layouts'));
 
 async function compileSass(dir: string, subdir: string) {
-  const styleResult = renderSync({
-    file: dir,
-    outFile: subdir,
-  });
-
+  let styleResult: Record<any, any> = {};
+  try {
+    styleResult = renderSync({
+      file: dir,
+      outFile: subdir,
+    });
+  } catch (e) {
+    console.log(e);
+  }
   writeFileSync(subdir, styleResult.css, 'utf8');
 }
 
@@ -43,7 +48,9 @@ async function main(directories: Record<any, any>) {
       mkdirSync(path.join(__dirname, 'css', subdir));
       const scssPath = path.join(__dirname, dir, subdir, 'index.scss');
       const cssPath = path.join(__dirname, 'css', subdir, 'index.css');
-      await compileSass(scssPath, cssPath);
+      if (existsSync(scssPath)) {
+        await compileSass(scssPath, cssPath);
+      }
     }
   }
 
@@ -54,4 +61,4 @@ async function main(directories: Record<any, any>) {
   );
 }
 
-main({ partials, templates });
+main({ partials, templates, layouts });

@@ -12,6 +12,7 @@ const url = require('url');
 const i18n = require('i18n-abide');
 const { URL } = url;
 const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
+const FluentLocalizer = require('./emails/fluent-localizer');
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json');
 
@@ -297,6 +298,7 @@ module.exports = function (log, config) {
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
+    this.fluentLocalizer = new FluentLocalizer();
   }
 
   Mailer.prototype.stop = function () {
@@ -423,9 +425,9 @@ module.exports = function (log, config) {
     );
   };
 
-  Mailer.prototype.localize = function (message) {
+  Mailer.prototype.localize = async function (message) {
     const translator = this.translator(message.acceptLanguage);
-    let localizedEmailHtml, localizedEmailText;
+    let localized, localizedEmailHtml;
 
     const templateValues = {
       ...message.templateValues,
@@ -436,24 +438,24 @@ module.exports = function (log, config) {
       translator,
     };
 
+    localized = this.templates.render(
+      message.template,
+      message.layout || 'fxa',
+      templateValues
+    );
+    localizedEmailHtml = localized.html;
+    const localizedEmailText = localized.text;
+
     if (featureFlags.isMjmlEnabledForUser(message.email, message.template)) {
-      // TODO: This code block needs to be replaced with rendering the mjml
-      // templates. In the meantime it will render with old method.
-      const localized = this.templates.render(
-        message.template,
-        message.layout || 'fxa',
-        templateValues
+      const { template, subject, templateValues, layout } = message;
+      localized = await this.fluentLocalizer.localizeEmail(
+        template,
+        layout || 'fxa',
+        subject,
+        templateValues,
+        message.acceptLanguage
       );
       localizedEmailHtml = localized.html;
-      localizedEmailText = localized.text;
-    } else {
-      const localized = this.templates.render(
-        message.template,
-        message.layout || 'fxa',
-        templateValues
-      );
-      localizedEmailHtml = localized.html;
-      localizedEmailText = localized.text;
     }
 
     return {
@@ -468,13 +470,12 @@ module.exports = function (log, config) {
     };
   };
 
-  Mailer.prototype.send = function (message) {
+  Mailer.prototype.send = async function (message) {
     log.trace(`mailer.${message.template}`, {
       email: message.email,
       uid: message.uid,
     });
-
-    const localized = this.localize(message);
+    const localized = await this.localize(message);
 
     const template = message.template;
     let templateVersion = TEMPLATE_VERSIONS[template];
