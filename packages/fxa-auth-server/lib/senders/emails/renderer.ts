@@ -10,8 +10,8 @@ import path = require('path');
 const config = require('../../../config').getProperties();
 
 const mjmlConfig: Record<any, any> = {
-  validationLevel: 'strict',
-  // filePath: path.join(__dirname, 'css', 'global.css'),
+  validationLevel: 'soft',
+  // ignoreIncludes: config.env === 'test' ? true : false,
 };
 
 export const context = {

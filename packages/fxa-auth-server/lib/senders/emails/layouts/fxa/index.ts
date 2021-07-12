@@ -17,7 +17,10 @@ export const render = (body: string) => {
       </mj-title>      
     </mj-head>
     <mj-body css-class="body-80">
-      <mj-raw>
+    <mj-include path="./lib/senders/emails/css/global.css" type="css" css-inline="inline" />
+    <mj-include path="./lib/senders/emails/css/fxa/index.css" type="css" css-inline="inline" />
+    <mj-include path="./lib/senders/emails/css/locale-dir.css" type="css" />
+        <mj-raw>
         <% if (preHeader) { %>
         <div class="hidden">
           <%= preHeader %>

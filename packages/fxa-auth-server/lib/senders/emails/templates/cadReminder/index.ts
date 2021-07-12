@@ -6,6 +6,7 @@ import { appBadges, button, automatedEmailNoAction } from '../../partials';
 
 export const render = () => {
   return `
+  <mj-include path="./lib/senders/emails/css/cadReminder/index.css" type="css" css-inline="inline" />
   <mj-section>
     <mj-column>
       <mj-text css-class="header-text"><span data-l10n-id="sync-reminder">Here's your reminder to sync devices.</span></mj-text>
