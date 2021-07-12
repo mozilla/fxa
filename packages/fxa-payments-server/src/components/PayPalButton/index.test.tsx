@@ -10,6 +10,7 @@ const Subject = ({
   currencyCode = 'USD',
   customer = CUSTOMER,
   idempotencyKey = '',
+  refreshSubmitNonce = () => {},
   priceId = PLAN.plan_id,
   newPaypalAgreement = false,
   refreshSubscriptions = () => {},
@@ -21,6 +22,7 @@ const Subject = ({
   | 'currencyCode'
   | 'customer'
   | 'idempotencyKey'
+  | 'refreshSubmitNonce'
   | 'priceId'
   | 'newPaypalAgreement'
   | 'refreshSubscriptions'
@@ -33,6 +35,7 @@ const Subject = ({
         currencyCode,
         customer,
         idempotencyKey,
+        refreshSubmitNonce,
         priceId,
         newPaypalAgreement,
         refreshSubscriptions,

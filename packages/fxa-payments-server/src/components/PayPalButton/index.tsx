@@ -16,6 +16,7 @@ export type PaypalButtonProps = {
   currencyCode: string;
   customer: Customer | null;
   idempotencyKey: string;
+  refreshSubmitNonce: () => void;
   refreshSubscriptions: () => void;
   setPaymentError: Function;
   priceId?: string;
@@ -47,6 +48,7 @@ export const PaypalButton = ({
   currencyCode,
   customer,
   idempotencyKey,
+  refreshSubmitNonce,
   refreshSubscriptions,
   setPaymentError,
   priceId,
@@ -119,6 +121,7 @@ export const PaypalButton = ({
           refreshSubscriptions();
         }
       }
+      refreshSubmitNonce();
       return null;
     },
     [

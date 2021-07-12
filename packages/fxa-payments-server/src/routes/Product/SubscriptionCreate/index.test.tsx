@@ -38,6 +38,15 @@ import { updateConfig } from '../../../lib/config';
 
 import { ButtonBaseProps } from '../../../components/PayPalButton';
 
+jest.mock('../../../lib/hooks', () => {
+  const refreshNonceMock = jest.fn().mockImplementation(Math.random);
+  return {
+    ...jest.requireActual('../../../lib/hooks'),
+    useNonce: () => [Math.random(), refreshNonceMock],
+  };
+});
+import { useNonce } from '../../../lib/hooks';
+
 // TODO: Move to some shared lib?
 const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
 
@@ -306,195 +315,200 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     };
   }
 
-  const commonPaymentSubmissionTest = ({
-    // "Customer" here is one _without_ any subs or CC info.
-    // It affects the number of calls to apiClientOverrides.apiCreateCustomer.
-    withCustomer,
-    withExistingCard = false,
-  }: {
-    withCustomer: boolean;
-    withExistingCard?: boolean;
-  }) => async () => {
-    const customer = withExistingCard ? CUSTOMER : withCustomer ? {} : null;
-    const expectedCreateCustomerCalls = customer === null ? 1 : 0;
-    const expectedCreatePaymentMethodCalls = !withExistingCard ? 1 : 0;
-    const _expectedCreateSubArgs = {
-      // idempotencyKey (ignored)
-      priceId: PLAN.plan_id,
-      productId: PLAN.product_id,
+  const commonPaymentSubmissionTest =
+    ({
+      // "Customer" here is one _without_ any subs or CC info.
+      // It affects the number of calls to apiClientOverrides.apiCreateCustomer.
+      withCustomer,
+      withExistingCard = false,
+    }: {
+      withCustomer: boolean;
+      withExistingCard?: boolean;
+    }) =>
+    async () => {
+      const customer = withExistingCard ? CUSTOMER : withCustomer ? {} : null;
+      const expectedCreateCustomerCalls = customer === null ? 1 : 0;
+      const expectedCreatePaymentMethodCalls = !withExistingCard ? 1 : 0;
+      const _expectedCreateSubArgs = {
+        // idempotencyKey (ignored)
+        priceId: PLAN.plan_id,
+        productId: PLAN.product_id,
+      };
+      const expectedCreateSubArgs = withExistingCard
+        ? _expectedCreateSubArgs
+        : {
+            ..._expectedCreateSubArgs,
+            paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
+          };
+
+      const { apiClientOverrides, stripeOverride, refreshSubscriptions } =
+        await commonSubmitSetup({
+          customer,
+        });
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('submit'));
+      });
+      await waitForExpect(() =>
+        expect(refreshSubscriptions).toHaveBeenCalledTimes(1)
+      );
+      expect(stripeOverride.createPaymentMethod).toHaveBeenCalledTimes(
+        expectedCreatePaymentMethodCalls
+      );
+      expect(apiClientOverrides.apiCreateCustomer).toHaveBeenCalledTimes(
+        expectedCreateCustomerCalls
+      );
+      expect(
+        apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock
+          .calls[0][0]
+      ).toMatchObject(expectedCreateSubArgs);
     };
-    const expectedCreateSubArgs = withExistingCard
-      ? _expectedCreateSubArgs
-      : {
-          ..._expectedCreateSubArgs,
+
+  const commonRetryPaymentTest =
+    ({
+      shouldSucceed = true as boolean,
+      apiRetryInvoice = defaultApiClientOverrides().apiRetryInvoice,
+    } = {}) =>
+    async () => {
+      const subscriptionResult = deepCopy(SUBSCRIPTION_RESULT);
+      subscriptionResult.latest_invoice.payment_intent.status =
+        'requires_payment_method';
+      const initialPaymentMethod = {
+        paymentMethod: { id: 'pm_initial' } as PaymentMethod,
+        error: undefined,
+      };
+      const retryPaymentMethod = {
+        paymentMethod: { id: 'pm_retry' } as PaymentMethod,
+        error: undefined,
+      };
+
+      const apiClientOverrides = {
+        ...defaultApiClientOverrides(),
+        apiRetryInvoice,
+        apiCreateSubscriptionWithPaymentMethod: jest
+          .fn()
+          .mockResolvedValue(subscriptionResult),
+      };
+
+      const stripeOverride = {
+        ...defaultStripeOverride(),
+        createPaymentMethod: jest
+          .fn()
+          .mockResolvedValueOnce(initialPaymentMethod)
+          .mockResolvedValueOnce(retryPaymentMethod),
+      };
+
+      const { refreshSubscriptions } = await commonSubmitSetup({
+        apiClientOverrides,
+        stripeOverride,
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('submit'));
+      });
+
+      await waitForExpect(() =>
+        expect(
+          apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock
+            .calls[0][0]
+        ).toMatchObject({
+          // idempotencyKey (ignored)
+          priceId: PLAN.plan_id,
+          productId: PLAN.product_id,
+          paymentMethodId: initialPaymentMethod.paymentMethod.id,
+        })
+      );
+      await waitForExpect(() =>
+        expect(
+          apiClientOverrides.apiDetachFailedPaymentMethod.mock.calls[0][0]
+        ).toMatchObject({ paymentMethodId: 'pm_initial' })
+      );
+      expect(
+        screen.queryByTestId('error-payment-submission')
+      ).toBeInTheDocument();
+      expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('submit'));
+      });
+      expect(apiClientOverrides.apiRetryInvoice.mock.calls[0][0]).toMatchObject(
+        {
+          // idempotencyKey (ignored)
+          invoiceId: subscriptionResult.latest_invoice.id,
+          paymentMethodId: retryPaymentMethod.paymentMethod.id,
+        }
+      );
+
+      if (shouldSucceed) {
+        await waitForExpect(() =>
+          expect(refreshSubscriptions).toHaveBeenCalledTimes(1)
+        );
+      } else {
+        expect(
+          screen.queryByTestId('error-payment-submission')
+        ).toBeInTheDocument();
+        expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
+      }
+    };
+
+  const commonConfirmPaymentTest =
+    ({
+      shouldSucceed = true as boolean,
+      confirmCardPayment = defaultStripeOverride().confirmCardPayment,
+    } = {}) =>
+    async () => {
+      const subscriptionResult = deepCopy(SUBSCRIPTION_RESULT);
+      subscriptionResult.latest_invoice.payment_intent.status =
+        'requires_action';
+
+      const apiClientOverrides = {
+        ...defaultApiClientOverrides(),
+        apiCreateSubscriptionWithPaymentMethod: jest
+          .fn()
+          .mockResolvedValue(subscriptionResult),
+      };
+      const stripeOverride = {
+        ...defaultStripeOverride(),
+        confirmCardPayment,
+      };
+      const { refreshSubscriptions } = await commonSubmitSetup({
+        apiClientOverrides,
+        stripeOverride,
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('submit'));
+      });
+
+      await waitForExpect(() =>
+        expect(
+          apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock
+            .calls[0][0]
+        ).toMatchObject({
+          // idempotencyKey (ignored)
+          priceId: PLAN.plan_id,
+          productId: PLAN.product_id,
           paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
-        };
-
-    const {
-      apiClientOverrides,
-      stripeOverride,
-      refreshSubscriptions,
-    } = await commonSubmitSetup({
-      customer,
-    });
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('submit'));
-    });
-    await waitForExpect(() =>
-      expect(refreshSubscriptions).toHaveBeenCalledTimes(1)
-    );
-    expect(stripeOverride.createPaymentMethod).toHaveBeenCalledTimes(
-      expectedCreatePaymentMethodCalls
-    );
-    expect(apiClientOverrides.apiCreateCustomer).toHaveBeenCalledTimes(
-      expectedCreateCustomerCalls
-    );
-    expect(
-      apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock.calls[0][0]
-    ).toMatchObject(expectedCreateSubArgs);
-  };
-
-  const commonRetryPaymentTest = ({
-    shouldSucceed = true as boolean,
-    apiRetryInvoice = defaultApiClientOverrides().apiRetryInvoice,
-  } = {}) => async () => {
-    const subscriptionResult = deepCopy(SUBSCRIPTION_RESULT);
-    subscriptionResult.latest_invoice.payment_intent.status =
-      'requires_payment_method';
-    const initialPaymentMethod = {
-      paymentMethod: { id: 'pm_initial' } as PaymentMethod,
-      error: undefined,
-    };
-    const retryPaymentMethod = {
-      paymentMethod: { id: 'pm_retry' } as PaymentMethod,
-      error: undefined,
-    };
-
-    const apiClientOverrides = {
-      ...defaultApiClientOverrides(),
-      apiRetryInvoice,
-      apiCreateSubscriptionWithPaymentMethod: jest
-        .fn()
-        .mockResolvedValue(subscriptionResult),
-    };
-
-    const stripeOverride = {
-      ...defaultStripeOverride(),
-      createPaymentMethod: jest
-        .fn()
-        .mockResolvedValueOnce(initialPaymentMethod)
-        .mockResolvedValueOnce(retryPaymentMethod),
-    };
-
-    const { refreshSubscriptions } = await commonSubmitSetup({
-      apiClientOverrides,
-      stripeOverride,
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('submit'));
-    });
-
-    await waitForExpect(() =>
-      expect(
-        apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock
-          .calls[0][0]
-      ).toMatchObject({
-        // idempotencyKey (ignored)
-        priceId: PLAN.plan_id,
-        productId: PLAN.product_id,
-        paymentMethodId: initialPaymentMethod.paymentMethod.id,
-      })
-    );
-    await waitForExpect(() =>
-      expect(
-        apiClientOverrides.apiDetachFailedPaymentMethod.mock.calls[0][0]
-      ).toMatchObject({ paymentMethodId: 'pm_initial' })
-    );
-    expect(
-      screen.queryByTestId('error-payment-submission')
-    ).toBeInTheDocument();
-    expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('submit'));
-    });
-    expect(apiClientOverrides.apiRetryInvoice.mock.calls[0][0]).toMatchObject({
-      // idempotencyKey (ignored)
-      invoiceId: subscriptionResult.latest_invoice.id,
-      paymentMethodId: retryPaymentMethod.paymentMethod.id,
-    });
-
-    if (shouldSucceed) {
-      await waitForExpect(() =>
-        expect(refreshSubscriptions).toHaveBeenCalledTimes(1)
+        })
       );
-    } else {
-      expect(
-        screen.queryByTestId('error-payment-submission')
-      ).toBeInTheDocument();
-      expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
-    }
-  };
 
-  const commonConfirmPaymentTest = ({
-    shouldSucceed = true as boolean,
-    confirmCardPayment = defaultStripeOverride().confirmCardPayment,
-  } = {}) => async () => {
-    const subscriptionResult = deepCopy(SUBSCRIPTION_RESULT);
-    subscriptionResult.latest_invoice.payment_intent.status = 'requires_action';
-
-    const apiClientOverrides = {
-      ...defaultApiClientOverrides(),
-      apiCreateSubscriptionWithPaymentMethod: jest
-        .fn()
-        .mockResolvedValue(subscriptionResult),
-    };
-    const stripeOverride = {
-      ...defaultStripeOverride(),
-      confirmCardPayment,
-    };
-    const { refreshSubscriptions } = await commonSubmitSetup({
-      apiClientOverrides,
-      stripeOverride,
-    });
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('submit'));
-    });
-
-    await waitForExpect(() =>
-      expect(
-        apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock
-          .calls[0][0]
-      ).toMatchObject({
-        // idempotencyKey (ignored)
-        priceId: PLAN.plan_id,
-        productId: PLAN.product_id,
-        paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
-      })
-    );
-
-    await waitForExpect(() =>
-      expect(
-        stripeOverride.confirmCardPayment
-      ).toHaveBeenCalledWith(
-        subscriptionResult.latest_invoice.payment_intent.client_secret,
-        { payment_method: PAYMENT_METHOD_RESULT.paymentMethod.id }
-      )
-    );
-
-    if (shouldSucceed) {
       await waitForExpect(() =>
-        expect(refreshSubscriptions).toHaveBeenCalledTimes(1)
+        expect(stripeOverride.confirmCardPayment).toHaveBeenCalledWith(
+          subscriptionResult.latest_invoice.payment_intent.client_secret,
+          { payment_method: PAYMENT_METHOD_RESULT.paymentMethod.id }
+        )
       );
-    } else {
-      expect(
-        screen.queryByTestId('error-payment-submission')
-      ).toBeInTheDocument();
-      expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
-    }
-  };
+
+      if (shouldSucceed) {
+        await waitForExpect(() =>
+          expect(refreshSubscriptions).toHaveBeenCalledTimes(1)
+        );
+      } else {
+        expect(
+          screen.queryByTestId('error-payment-submission')
+        ).toBeInTheDocument();
+        expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
+      }
+    };
 
   it(
     'handles a successful payment submission as new customer',
@@ -611,29 +625,29 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     expect(apiClientOverrides.apiCreateCustomer).toHaveBeenCalled();
   });
 
-  const commonCreateSubscriptionFailureTest = (
-    error = { code: 'barf apiCreateSubscriptionWithPaymentMethod' } as any
-  ) => async () => {
-    const apiClientOverrides = {
-      ...defaultApiClientOverrides(),
-      apiCreateSubscriptionWithPaymentMethod: jest
-        .fn()
-        .mockRejectedValue(error),
+  const commonCreateSubscriptionFailureTest =
+    (error = { code: 'barf apiCreateSubscriptionWithPaymentMethod' } as any) =>
+    async () => {
+      const apiClientOverrides = {
+        ...defaultApiClientOverrides(),
+        apiCreateSubscriptionWithPaymentMethod: jest
+          .fn()
+          .mockRejectedValue(error),
+      };
+      const { stripeOverride, refreshSubscriptions } = await commonSubmitSetup({
+        apiClientOverrides,
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('submit'));
+      });
+      expect(
+        apiClientOverrides.apiCreateSubscriptionWithPaymentMethod
+      ).toHaveBeenCalled();
+      expect(
+        screen.queryByTestId('error-payment-submission')
+      ).toBeInTheDocument();
+      expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
     };
-    const { stripeOverride, refreshSubscriptions } = await commonSubmitSetup({
-      apiClientOverrides,
-    });
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('submit'));
-    });
-    expect(
-      apiClientOverrides.apiCreateSubscriptionWithPaymentMethod
-    ).toHaveBeenCalled();
-    expect(
-      screen.queryByTestId('error-payment-submission')
-    ).toBeInTheDocument();
-    expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
-  };
 
   it('clears the displayed error if the form changes', async () => {
     const commonSetup = commonCreateSubscriptionFailureTest();
@@ -671,30 +685,30 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
       commonCreateSubscriptionFailureTest()
     );
 
-    const commonCreatePaymentMethodFailureTest = ({
-      createPaymentMethod = jest
-        .fn()
-        .mockRejectedValue('barf createPaymentMethod'),
-    } = {}) => async () => {
-      const stripeOverride = {
-        ...defaultStripeOverride(),
-        createPaymentMethod,
+    const commonCreatePaymentMethodFailureTest =
+      ({
+        createPaymentMethod = jest
+          .fn()
+          .mockRejectedValue('barf createPaymentMethod'),
+      } = {}) =>
+      async () => {
+        const stripeOverride = {
+          ...defaultStripeOverride(),
+          createPaymentMethod,
+        };
+        const { apiClientOverrides, refreshSubscriptions } =
+          await commonSubmitSetup({
+            stripeOverride,
+          });
+        await act(async () => {
+          fireEvent.click(screen.getByTestId('submit'));
+        });
+        expect(stripeOverride.createPaymentMethod).toHaveBeenCalled();
+        expect(
+          screen.queryByTestId('error-payment-submission')
+        ).toBeInTheDocument();
+        expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
       };
-      const {
-        apiClientOverrides,
-        refreshSubscriptions,
-      } = await commonSubmitSetup({
-        stripeOverride,
-      });
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('submit'));
-      });
-      expect(stripeOverride.createPaymentMethod).toHaveBeenCalled();
-      expect(
-        screen.queryByTestId('error-payment-submission')
-      ).toBeInTheDocument();
-      expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
-    };
 
     it(
       'displays createPaymentMethod failure (exception)',
@@ -867,6 +881,8 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
   });
 
   it('displays apiCapturePaypalPayment failure', async () => {
+    const [_, refreshSubmitNonce] = useNonce();
+    (refreshSubmitNonce as jest.Mock).mockClear();
     const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
       return <button data-testid="paypal-button" onClick={onApprove} />;
     };
@@ -898,6 +914,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     expect(
       screen.queryByTestId('error-payment-submission')
     ).toBeInTheDocument();
+    expect(refreshSubmitNonce).toHaveBeenCalledTimes(1);
   });
 
   describe('errors', () => {

@@ -31,8 +31,7 @@ export const defaultAppContext = {
   stripePromise: Promise.resolve(null),
 };
 
-export const AppContext = React.createContext<AppContextType>(
-  defaultAppContext
-);
+export const AppContext =
+  React.createContext<AppContextType>(defaultAppContext);
 
 export default AppContext;
