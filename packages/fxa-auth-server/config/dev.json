@@ -424,5 +424,9 @@
   "cadReminders": {
     "firstInterval": "1s",
     "secondInterval": "2s"
+  },
+  "mjml": {
+    "enabledEmailAddress": "@mozilla.com$",
+    "templates":  []
   }
 }

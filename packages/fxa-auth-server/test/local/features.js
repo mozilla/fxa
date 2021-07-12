@@ -19,6 +19,7 @@ const crypto = {
 
 const config = {
   lastAccessTimeUpdates: {},
+  mjml: {},
   signinConfirmation: {},
   signinUnblock: {},
   securityHistory: {},
@@ -46,7 +47,7 @@ describe('features', () => {
     assert.equal(typeof features, 'object', 'object type should be exported');
     assert.equal(
       Object.keys(features).length,
-      2,
+      3,
       'object should have correct number of properties'
     );
     assert.equal(
@@ -58,6 +59,11 @@ describe('features', () => {
       typeof features.isLastAccessTimeEnabledForUser,
       'function',
       'isLastAccessTimeEnabledForUser should be function'
+    );
+    assert.equal(
+      typeof features.isMjmlEnabledForUser,
+      'function',
+      'isMjmlEnabledForUser should be function'
     );
 
     assert.equal(
@@ -358,6 +364,35 @@ describe('features', () => {
       features.isLastAccessTimeEnabledForUser(uid, email),
       false,
       'should return false when feature is disabled'
+    );
+  });
+
+  it('isMjmlEnabledForUser', () => {
+    config.mjml.enabledEmailAddress = /@mozilla.com$/;
+    config.mjml.templates = ['verify'];
+
+    assert.equal(
+      features.isMjmlEnabledForUser('bar@mozilla.com', 'verify'),
+      true,
+      'should return true when using valid email and template'
+    );
+
+    assert.equal(
+      features.isMjmlEnabledForUser('yo@dwag.com', 'verify'),
+      false,
+      'should return false when using invalid email'
+    );
+
+    assert.equal(
+      features.isMjmlEnabledForUser('bar@mozilla.com', 'noValidTemplate'),
+      false,
+      'should return false when using invalid template'
+    );
+
+    assert.equal(
+      features.isMjmlEnabledForUser('yo@dwag.com', 'noValidTemplate'),
+      false,
+      'should return false when using invalid template and email'
     );
   });
 });
