@@ -103,7 +103,7 @@
     "legal-docs": "git://github.com/mozilla/legal-docs.git#569f5c812ef288c4ebf19b8d521ba90b99e99cfc",
     "load-grunt-tasks": "^5.1.0",
     "lodash": "^4.17.21",
-    "mkdirp": "0.5.1",
+    "mkdirp": "1.0.4",
     "mocha": "^9.0.1",
     "morgan": "^1.10.0",
     "mozlog": "^3.0.2",
