@@ -77,11 +77,8 @@ export const PaymentUpdateForm = ({
   ] = useBooleanState(false);
   const [transactionInProgress, setTransactionInProgress] = useState(false);
 
-  const [
-    fixPaymentModalRevealed,
-    revealFixPaymentModal,
-    hideFixPaymentModal,
-  ] = useBooleanState(false);
+  const [fixPaymentModalRevealed, revealFixPaymentModal, hideFixPaymentModal] =
+    useBooleanState(false);
 
   const [paymentError, setPaymentError] = useState<PaymentUpdateError>(
     paymentErrorInitialState
@@ -99,12 +96,8 @@ export const PaymentUpdateForm = ({
     resetUpdatePaymentIsSuccess,
   ]);
 
-  const {
-    exp_month,
-    exp_year,
-    payment_provider,
-    paypal_payment_error,
-  } = customer;
+  const { exp_month, exp_year, payment_provider, paypal_payment_error } =
+    customer;
 
   const actionButton = (
     <ActionButton
@@ -248,6 +241,7 @@ export const PaymentUpdateForm = ({
                     currencyCode={currencyCode}
                     customer={customer}
                     idempotencyKey={submitNonce}
+                    refreshSubmitNonce={refreshSubmitNonce}
                     priceId={planId}
                     newPaypalAgreement={false}
                     refreshSubscriptions={refreshSubscriptions}

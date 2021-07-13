@@ -65,6 +65,8 @@ const MESSAGE = {
   cardType: 'mastercard',
   lastFour: '5309',
   payment_provider: 'stripe',
+  invoiceLink:
+    'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
   invoiceDate: new Date(1584747098816),
   nextInvoiceDate: new Date(1587339098816),
   serviceLastActiveDate: new Date(1587339098816),
@@ -240,6 +242,7 @@ const TESTS = [
       { test: 'include', expected: `MasterCard card ending in 5309` },
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
       { test: 'notInclude', expected: 'utm_source=email' },
       { test: 'notInclude', expected: 'PayPal' },
     ]],
@@ -250,6 +253,7 @@ const TESTS = [
       { test: 'include', expected: `MasterCard card ending in 5309` },
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
       { test: 'notInclude', expected: 'utm_source=email' },
       { test: 'notInclude', expected: 'PayPal' },
     ]]
@@ -271,6 +275,7 @@ const TESTS = [
       { test: 'include', expected: `MasterCard card ending in 5309` },
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
       { test: 'notInclude', expected: 'utm_source=email' },
       { test: 'notInclude', expected: 'PayPal' },
     ]],
@@ -282,6 +287,7 @@ const TESTS = [
       { test: 'include', expected: `MasterCard card ending in 5309` },
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
       { test: 'notInclude', expected: 'utm_source=email' },
       { test: 'notInclude', expected: 'PayPal' },
     ]]

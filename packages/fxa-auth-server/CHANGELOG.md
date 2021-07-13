@@ -1,3 +1,9 @@
+## 1.210.1
+
+### New features
+
+- auth: include invoice link in emails ([dd8a0a37d](https://github.com/mozilla/fxa/commit/dd8a0a37d))
+
 ## 1.210.0
 
 ### New features

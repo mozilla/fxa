@@ -1,5 +1,11 @@
 # Change history
 
+## 1.210.1
+
+### Bug fixes
+
+- subscriptions: update idempotency key on PayPal btn callback ([e3048852c](https://github.com/mozilla/fxa/commit/e3048852c))
+
 ## 1.210.0
 
 ### Other changes
