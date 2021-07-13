@@ -109,6 +109,7 @@ export class AccountHandler {
         );
       }
     } catch (err) {
+      this.log.error('delete.unverified', err);
       if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
         throw err;
       }
