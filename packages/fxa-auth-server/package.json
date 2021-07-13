@@ -78,7 +78,7 @@
     "jsonwebtoken": "^8.5.1",
     "keyv": "4.0.3",
     "lodash": "^4.17.21",
-    "luxon": "^1.27.0",
+    "luxon": "^2.0.1",
     "memcached": "^2.2.2",
     "mjml": "^4.10.1",
     "moment-timezone": "^0.5.33",
