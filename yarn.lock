@@ -18885,7 +18885,7 @@ fsevents@~2.1.1:
     lodash: ^4.17.21
     lodash.chunk: 4.2.0
     lodash.pick: 4.4.0
-    luxon: ^1.27.0
+    luxon: ^2.0.1
     mailparser: 0.6.1
     memcached: ^2.2.2
     mjml: ^4.10.1
@@ -26046,10 +26046,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"luxon@npm:^1.27.0":
-  version: 1.27.0
-  resolution: "luxon@npm:1.27.0"
-  checksum: c60f73b6b94bdd4e43c731133aa746388b907a26a5a426478c2520b263bec1dae4dc6e269a3410374789551309c65af5d245fae4cef61b72c3ad64a4c3e8b2b9
+"luxon@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "luxon@npm:2.0.1"
+  checksum: 60c7bc66d33d38dcc80bfff6be1d33c1c1680da1ad7e3009df619aff482c17d59da465a7f9eb4ecc52e00798a9308312c6a1a12c3a167c9a0d24e302202b59c5
   languageName: node
   linkType: hard
 
