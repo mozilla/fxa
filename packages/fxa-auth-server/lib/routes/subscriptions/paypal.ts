@@ -143,6 +143,11 @@ export class PayPalHandler extends StripeWebhookHandler {
     const taxRate = await this.stripeHelper.taxRateByCountryCode(
       agreementDetails.countryCode
     );
+
+    if (!this.stripeHelper.customerTaxId(customer)) {
+      await this.stripeHelper.addTaxIdToCustomer(customer, currency);
+    }
+
     let subscription;
     [subscription, customer] = await Promise.all([
       this.stripeHelper.createSubscriptionWithPaypal({
@@ -196,6 +201,12 @@ export class PayPalHandler extends StripeWebhookHandler {
     const taxRate = customer.address?.country
       ? await this.stripeHelper.taxRateByCountryCode(customer.address?.country)
       : undefined;
+
+    const currency = (await this.stripeHelper.findPlanById(priceId)).currency;
+    if (!this.stripeHelper.customerTaxId(customer)) {
+      await this.stripeHelper.addTaxIdToCustomer(customer, currency);
+    }
+
     const subscription = await this.stripeHelper.createSubscriptionWithPaypal({
       customer,
       priceId,

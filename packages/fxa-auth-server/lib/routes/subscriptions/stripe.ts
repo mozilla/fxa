@@ -512,6 +512,9 @@ export class StripeHandler {
         throw error.currencyCountryMismatch(planCurrency, paymentMethodCountry);
       }
       if (paymentMethodCountry) {
+        if (!this.stripeHelper.customerTaxId(customer)) {
+          await this.stripeHelper.addTaxIdToCustomer(customer, planCurrency);
+        }
         taxRateId = (
           await this.stripeHelper.taxRateByCountryCode(paymentMethodCountry)
         )?.id;

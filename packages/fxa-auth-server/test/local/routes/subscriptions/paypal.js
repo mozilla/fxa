@@ -181,6 +181,8 @@ describe('subscriptions payPalRoutes', () => {
       payPalHelper.agreementDetails = sinon.fake.resolves({
         countryCode: 'CA',
       });
+      stripeHelper.customerTaxId = sinon.fake.returns(undefined);
+      stripeHelper.addTaxIdToCustomer = sinon.fake.resolves({});
       stripeHelper.createSubscriptionWithPaypal =
         sinon.fake.resolves(subscription);
       stripeHelper.updateCustomerPaypalAgreement =
@@ -271,6 +273,8 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
         sinon.assert.calledOnce(payPalHelper.processInvoice);
         sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
+        sinon.assert.calledOnce(stripeHelper.customerTaxId);
+        sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
         sinon.assert.calledWithExactly(
           stripeHelper.createSubscriptionWithPaypal,
           {
@@ -446,6 +450,8 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.notCalled(stripeHelper.updateCustomerPaypalAgreement);
         sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
         sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
+        sinon.assert.calledOnce(stripeHelper.customerTaxId);
+        sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
         sinon.assert.calledWithExactly(
           stripeHelper.createSubscriptionWithPaypal,
           {
