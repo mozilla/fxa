@@ -619,6 +619,8 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
         expected
       );
+      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
+      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
@@ -638,6 +640,12 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.taxRateByCountryCode,
         'US'
+      );
+      sinon.assert.calledOnce(
+        directStripeRoutesInstance.stripeHelper.customerTaxId
+      );
+      sinon.assert.calledOnce(
+        directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer
       );
 
       assert.deepEqual(

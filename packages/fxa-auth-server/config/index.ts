@@ -804,6 +804,15 @@ const conf = convict({
       format: String,
       doc: 'A shared secret to authenticate Stripe webhook requests',
     },
+    taxIds: {
+      doc: 'Mapping of currency to tax ID to show on invoices.',
+      format: Object,
+      default: {
+        EUR: 'EU1234',
+        CHF: 'CH1234',
+      },
+      env: 'TAXIDS',
+    },
     transactionalEmails: {
       // See also: https://jira.mozilla.com/browse/FXA-1148
       enabled: {

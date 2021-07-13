@@ -40,6 +40,8 @@ const CHARGES_RESOURCE = 'charges';
 const INVOICES_RESOURCE = 'invoices';
 const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
 
+export const MOZILLA_TAX_ID = 'Tax ID';
+
 enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
 }
@@ -97,6 +99,7 @@ export class StripeHelper {
   private stripe: Stripe;
   private redis: ioredis.Redis | undefined;
   private statsd: StatsD;
+  private taxIds: { [key: string]: string };
   public currencyHelper: CurrencyHelper;
 
   /**
@@ -107,6 +110,7 @@ export class StripeHelper {
     this.customerCacheTtlSeconds = config.subhub.customerCacheTtlSeconds;
     this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
+    this.taxIds = config.subscriptions.taxIds;
     this.currencyHelper = Container.get(CurrencyHelper);
     // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
     // both TTL and whether caching should be enabled at all. We should
@@ -336,8 +340,9 @@ export class StripeHelper {
     return this.stripe.subscriptions.create(
       {
         customer: customerId,
-        items: [{ price: priceId, tax_rates: taxRates }],
+        items: [{ price: priceId }],
         expand: ['latest_invoice.payment_intent'],
+        default_tax_rates: taxRates,
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
@@ -384,10 +389,11 @@ export class StripeHelper {
     return this.stripe.subscriptions.create(
       {
         customer: customer.id,
-        items: [{ price: priceId, tax_rates: taxRates }],
+        items: [{ price: priceId }],
         expand: ['latest_invoice'],
         collection_method: 'send_invoice',
         days_until_due: 1,
+        default_tax_rates: taxRates,
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
@@ -842,6 +848,33 @@ export class StripeHelper {
         (sub.latest_invoice as Stripe.Invoice).status === 'open'
     );
     return !!subscription;
+  }
+
+  /**
+   * Adds the appropriate tax id if found to the customer based on passed in
+   * currency or the customers existing currency.
+   **/
+  async addTaxIdToCustomer(customer: Stripe.Customer, currency?: string) {
+    const taxId =
+      this.taxIds[
+        currency?.toUpperCase() ?? customer.currency?.toUpperCase() ?? ''
+      ];
+    if (taxId) {
+      await this.stripe.customers.update(customer.id, {
+        invoice_settings: {
+          custom_fields: [{ name: MOZILLA_TAX_ID, value: taxId }],
+        },
+      });
+    }
+  }
+
+  /**
+   * Returns the customers tax id if they have one.
+   **/
+  customerTaxId(customer: Stripe.Customer) {
+    return customer.invoice_settings.custom_fields?.find(
+      (field) => field.name === MOZILLA_TAX_ID
+    );
   }
 
   async detachPaymentMethod(
