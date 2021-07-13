@@ -15,9 +15,7 @@ import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 
 function init() {
   storiesOf('routes/Product', module)
-    .add('subscribing with new account', () => (
-      <ProductRoute queryParams={{ activated: '1' }} />
-    ))
+    .add('subscribing with new account', () => <ProductRoute />)
     .add('subscribing with existing Stripe account', () => (
       <ProductRoute
         routeProps={{

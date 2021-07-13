@@ -5,6 +5,7 @@ import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { useMatchMedia } from '../../lib/hooks';
+import { getSelectedPlan } from '../../lib/plan';
 
 import { State } from '../../store/state';
 import { sequences, SequenceFunctions } from '../../store/sequences';
@@ -16,8 +17,8 @@ import { getSubscriptionUpdateEligibility } from 'fxa-shared/subscriptions/strip
 
 import '../Product/index.scss';
 
-import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
+import PlanErrorDialog from '../../components/PlanErrorDialog';
 
 import SubscriptionSuccess from '../Product/SubscriptionSuccess';
 import SubscriptionUpgrade from '../Product/SubscriptionUpgrade';
@@ -134,7 +135,6 @@ export const Product = ({
 
   const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const planId = queryParams.plan;
-  const accountActivated = !!queryParams.activated;
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
@@ -143,28 +143,13 @@ export const Product = ({
 
   const plansById = useMemo(() => indexPlansById(plans), [plans]);
 
-  // Figure out a selected plan for product, either from query param or first plan.
-  const productPlans = plansByProductId(productId);
-  let selectedPlan = productPlans.filter((plan) => plan.plan_id === planId)[0];
-  if (!selectedPlan) {
-    selectedPlan = productPlans[0];
-  }
+  const selectedPlan = useMemo(
+    () => getSelectedPlan(productId, planId, plansByProductId),
+    [plans]
+  );
 
   if (customer.loading || plans.loading || profile.loading) {
     return <LoadingOverlay isLoading={true} />;
-  }
-
-  if (!plans.result || plans.error !== null) {
-    return (
-      <Localized id="product-plan-error">
-        <FetchErrorDialogMessage
-          testid="error-loading-plans"
-          title="Problem loading plans"
-          fetchState={plans}
-          onDismiss={locationReload}
-        />
-      </Localized>
-    );
   }
 
   if (!profile.result || profile.error !== null) {
@@ -197,17 +182,8 @@ export const Product = ({
     );
   }
 
-  if (!selectedPlan) {
-    return (
-      <DialogMessage className="dialog-error">
-        <Localized id="product-plan-not-found">
-          <h4>Plan not found</h4>
-        </Localized>
-        <Localized id="product-no-such-plan">
-          <p data-testid="no-such-plan-error">No such plan for this product.</p>
-        </Localized>
-      </DialogMessage>
-    );
+  if (!plans.result || plans.error !== null || !selectedPlan) {
+    return <PlanErrorDialog locationReload={locationReload} plans={plans} />;
   }
 
   // Only check for upgrade or existing subscription if we have a customer.
@@ -252,7 +228,6 @@ export const Product = ({
             isMobile,
             profile: profile.result,
             customer: customer.result,
-            accountActivated,
             selectedPlan,
             refreshSubscriptions: fetchCustomerAndSubscriptions,
           }}
@@ -299,7 +274,6 @@ export const Product = ({
         isMobile,
         profile: profile.result,
         customer: customer.result,
-        accountActivated,
         selectedPlan,
         refreshSubscriptions: fetchCustomerAndSubscriptions,
       }}
@@ -307,8 +281,6 @@ export const Product = ({
   );
 };
 
-// TODO replace this with Redux hooks in component function body
-// https://github.com/mozilla/fxa/issues/3020
 export default connect(
   (state: State) => ({
     customer: selectors.customer(state),
