@@ -4080,13 +4080,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/passport@npm:^7.1.5":
-  version: 7.1.5
-  resolution: "@nestjs/passport@npm:7.1.5"
+"@nestjs/passport@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "@nestjs/passport@npm:8.0.0"
   peerDependencies:
-    "@nestjs/common": ^6.0.0 || ^7.0.0
+    "@nestjs/common": ^6.0.0 || ^7.0.0 || ^8.0.0
     passport: ^0.4.0
-  checksum: 60264d1a859d4e78cdb80353283fb8a953e13b7867545b8c3727de5136a8d19f7d9f6e2e1c3dfc8991d3b92e1a2dd7422fc73ac415e16efa0965574d7255bc98
+  checksum: 3fd15355f5a0ea386b54881831608659a30c534639012ade57c6a963f63ebd487c0c17727cdeb296ceb4527b67881b9505d81a3174576818c225eea000e32417
   languageName: node
   linkType: hard
 
@@ -19857,7 +19857,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^7.6.18
     "@nestjs/graphql": ^7.11.0
     "@nestjs/mapped-types": ^0.4.1
-    "@nestjs/passport": ^7.1.5
+    "@nestjs/passport": ^8.0.0
     "@nestjs/platform-express": ^7.6.18
     "@nestjs/schedule": ^0.4.3
     "@nestjs/schematics": ^8.0.1
@@ -19954,7 +19954,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^7.6.18
     "@nestjs/graphql": ^7.11.0
     "@nestjs/mapped-types": ^0.4.1
-    "@nestjs/passport": ^7.1.5
+    "@nestjs/passport": ^8.0.0
     "@nestjs/platform-express": ^7.6.18
     "@sentry/integrations": ^6.8.0
     "@sentry/node": ^6.7.2
