@@ -20,10 +20,14 @@ const { Container } = require('typedi');
 const chance = new Chance();
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
-const { StripeHelper, STRIPE_INVOICE_METADATA, SUBSCRIPTION_UPDATE_TYPES } =
-  proxyquire('../../../lib/payments/stripe', {
-    '../redis': (config, log) => mockRedis.init(config, log),
-  });
+const {
+  StripeHelper,
+  STRIPE_INVOICE_METADATA,
+  SUBSCRIPTION_UPDATE_TYPES,
+  MOZILLA_TAX_ID,
+} = proxyquire('../../../lib/payments/stripe', {
+  '../redis': (config, log) => mockRedis.init(config, log),
+});
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
@@ -655,8 +659,9 @@ describe('StripeHelper', () => {
         stripeHelper.stripe.subscriptions.create,
         {
           customer: 'customerId',
-          items: [{ price: 'priceId', tax_rates: ['tr_asdf'] }],
+          items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
+          default_tax_rates: ['tr_asdf'],
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
@@ -730,10 +735,11 @@ describe('StripeHelper', () => {
         stripeHelper.stripe.subscriptions.create,
         {
           customer: customer1.id,
-          items: [{ price: 'priceId', tax_rates: ['tr_asdf'] }],
+          items: [{ price: 'priceId' }],
           expand: ['latest_invoice'],
           collection_method: 'send_invoice',
           days_until_due: 1,
+          default_tax_rates: ['tr_asdf'],
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
@@ -1949,6 +1955,73 @@ describe('StripeHelper', () => {
             assert.equal(err, apiError);
           }
         );
+    });
+  });
+
+  describe('addTaxIdToCustomer', () => {
+    it('updates stripe if theres a tax id for the currency', async () => {
+      const customer = deepCopy(customer1);
+      stripeHelper.taxIds = { EUR: 'EU1234' };
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+
+      await stripeHelper.addTaxIdToCustomer(customer, 'eur');
+
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.update,
+        customer.id,
+        {
+          invoice_settings: {
+            custom_fields: [{ name: MOZILLA_TAX_ID, value: 'EU1234' }],
+          },
+        }
+      );
+    });
+
+    it('updates stripe if theres a tax id on the customer', async () => {
+      const customer = deepCopy(customer1);
+      stripeHelper.taxIds = { EUR: 'EU1234' };
+      customer.currency = 'eur';
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+
+      await stripeHelper.addTaxIdToCustomer(customer);
+
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.update,
+        customer.id,
+        {
+          invoice_settings: {
+            custom_fields: [{ name: MOZILLA_TAX_ID, value: 'EU1234' }],
+          },
+        }
+      );
+    });
+
+    it('does not update stripe with no tax id found', async () => {
+      const customer = deepCopy(customer1);
+      stripeHelper.taxIds = { EUR: 'EU1234' };
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
+
+      await stripeHelper.addTaxIdToCustomer(customer, 'usd');
+
+      sinon.assert.notCalled(stripeHelper.stripe.customers.update);
+    });
+  });
+
+  describe('customerTaxId', () => {
+    it('returns a custom field if present with the tax id', () => {
+      const customer = deepCopy(customer1);
+      const field = { name: MOZILLA_TAX_ID, value: 'EU1234' };
+      customer.invoice_settings = {
+        custom_fields: [field],
+      };
+      const result = stripeHelper.customerTaxId(customer);
+      assert.equal(result, field);
+    });
+
+    it('returns nothing if a mozilla tax field is not present', () => {
+      const customer = deepCopy(customer1);
+      const result = stripeHelper.customerTaxId(customer);
+      assert.isUndefined(result);
     });
   });
 
