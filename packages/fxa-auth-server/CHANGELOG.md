@@ -1,3 +1,10 @@
+## 1.210.2
+
+### New features
+
+- auth: add VAT tax population script ([107c7995d](https://github.com/mozilla/fxa/commit/107c7995d))
+- auth: add tax ID to customer invoices ([b2317beca](https://github.com/mozilla/fxa/commit/b2317beca))
+
 ## 1.210.1
 
 ### New features
