@@ -1,6 +1,10 @@
-import { style } from '../styles';
-import { appBadges } from '../partials/appBadges';
-import { button } from '../partials/button';
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { style } from '../../styles';
+import { appBadges } from '../../partials/appBadges';
+import { button } from '../../partials/button';
 
 export const render = () => {
   return `
@@ -13,9 +17,9 @@ export const render = () => {
       <mj-body>
         <mj-section>
           <mj-column>
-            <mj-image align="center" css-class="fxa-logo" src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/4/11c1e411-7dfe-4e04-914c-0f098edac96c.png"></mj-image>
+            <mj-image align="center" css-class="fxa-logo" src="https://accounts-static.cdn.mozilla.net/product-icons/firefox-logo.png"></mj-image>
             <mj-text css-class="header-text">Here's your reminder to sync devices.</mj-text>
-            <mj-image css-class="sync-logo" alt="Devices" src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/5/f9463f08-8831-49fb-bbc4-7b5072cb63be.png"></mj-image>
+            <mj-image css-class="sync-logo" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
           </mj-column>
         </mj-section>
         <mj-section>

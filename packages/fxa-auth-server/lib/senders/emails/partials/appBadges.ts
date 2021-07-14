@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 export const appBadges = `
   <mj-section>
     <mj-group>
@@ -5,7 +9,7 @@ export const appBadges = `
         <mj-image
           css-class="app-badges"
           href="<%= iosURL %>"
-          src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/5/ebdfb903-4e62-4aeb-9eae-26e1ef495049.png"
+          src="https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png"
           alt="iOS badge"
         ></mj-image>
       </mj-column>
@@ -13,7 +17,7 @@ export const appBadges = `
         <mj-image
           css-class="app-badges"
           href="<%= androidURL %>"
-          src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/5/0dda16b4-21bb-4cc1-9042-2ebaaa7a9764.png"
+          src="https://accounts-static.cdn.mozilla.net/product-icons/google-play.png"
           alt="android badge"
         ></mj-image>
       </mj-column>
@@ -24,7 +28,7 @@ export const appBadges = `
       <mj-text css-class="secondary-text">
         <% if(onDesktopOrTabletDevice){ %> Or, install on
         <span
-          href="<%= anotherDeviceURL %>"
+          href="<%= baseURL %><%= anotherDeviceURL %>"
           color="#0a84ff"
           text-decoration="none"
           font-family="sans-serif"
@@ -32,7 +36,7 @@ export const appBadges = `
         >
         <% } else{ %> Or, install on
         <span
-          href="<%= anotherDeviceURL %>"
+          href="<%= baseURL %><%= anotherDeviceURL %>"
           color="#0a84ff"
           text-decoration="none"
           font-family="sans-serif"
