@@ -1379,12 +1379,28 @@ describe('StripeWebhookHandler', () => {
 
   describe('sendSubscriptionDeletedEmail', () => {
     const commonSendSubscriptionDeletedEmailTest =
-      (accountFound = true, subscriptionAlreadyCancelled = false) =>
+      (
+        options = {
+          accountFound: true,
+          subscriptionAlreadyCancelled: false,
+          involuntaryCancellation: false,
+        }
+      ) =>
       async () => {
+        const shouldSendSubscriptionFailedPaymentsCancellationEmail = () =>
+          options.accountFound &&
+          !options.subscriptionAlreadyCancelled &&
+          options.involuntaryCancellation;
+
+        const shouldSendAccountDeletedEmail = () =>
+          !options.accountFound &&
+          !options.subscriptionAlreadyCancelled &&
+          !options.involuntaryCancellation;
+
         const deletedEvent = deepCopy(subscriptionDeleted);
         const subscription = deletedEvent.data.object;
 
-        if (subscriptionAlreadyCancelled) {
+        if (options.subscriptionAlreadyCancelled) {
           subscription.metadata = {
             cancelled_for_customer_at: moment().unix(),
           };
@@ -1401,7 +1417,7 @@ describe('StripeWebhookHandler', () => {
 
         const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
         StripeWebhookHandlerInstance.db.account = sinon.spy(async (data) => {
-          if (accountFound) {
+          if (options.accountFound) {
             return mockAccount;
           }
           throw error.unknownAccount();
@@ -1417,12 +1433,25 @@ describe('StripeWebhookHandler', () => {
           subscription.latest_invoice
         );
 
-        if (accountFound || subscriptionAlreadyCancelled) {
-          assert.notCalled(
+        if (shouldSendSubscriptionFailedPaymentsCancellationEmail()) {
+          assert.calledWith(
             StripeWebhookHandlerInstance.mailer
-              .sendSubscriptionAccountDeletionEmail
+              .sendSubscriptionFailedPaymentsCancellationEmail,
+            mockAccount.emails,
+            mockAccount,
+            {
+              acceptLanguage: mockAccount.locale,
+              ...mockInvoiceDetails,
+            }
           );
         } else {
+          assert.notCalled(
+            StripeWebhookHandlerInstance.mailer
+              .sendSubscriptionFailedPaymentsCancellationEmail
+          );
+        }
+
+        if (shouldSendAccountDeletedEmail()) {
           const fakeAccount = {
             email: mockInvoiceDetails.email,
             uid: mockInvoiceDetails.uid,
@@ -1435,22 +1464,48 @@ describe('StripeWebhookHandler', () => {
             fakeAccount,
             mockInvoiceDetails
           );
+        } else {
+          assert.notCalled(
+            StripeWebhookHandlerInstance.mailer
+              .sendSubscriptionAccountDeletionEmail
+          );
         }
       };
 
     it(
       'does not send a cancellation email on subscription deletion',
-      commonSendSubscriptionDeletedEmailTest(true)
+      commonSendSubscriptionDeletedEmailTest({
+        accountFound: true,
+        subscriptionAlreadyCancelled: true,
+        involuntaryCancellation: false,
+      })
     );
 
     it(
       'sends an account deletion specific email on subscription deletion when account is gone',
-      commonSendSubscriptionDeletedEmailTest(false)
+      commonSendSubscriptionDeletedEmailTest({
+        accountFound: false,
+        subscriptionAlreadyCancelled: false,
+        involuntaryCancellation: false,
+      })
     );
 
     it(
       'does not send a cancellation email on account deletion when the subscription is already cancelled',
-      commonSendSubscriptionDeletedEmailTest(false, true)
+      commonSendSubscriptionDeletedEmailTest({
+        accountFound: false,
+        subscriptionAlreadyCancelled: true,
+        involuntaryCancellation: false,
+      })
+    );
+
+    it(
+      'sends a failed payment cancellation email on subscription deletion',
+      commonSendSubscriptionDeletedEmailTest({
+        accountFound: true,
+        subscriptionAlreadyCancelled: false,
+        involuntaryCancellation: true,
+      })
     );
   });
 });

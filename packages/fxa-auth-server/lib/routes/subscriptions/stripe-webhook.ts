@@ -540,6 +540,16 @@ export class StripeWebhookHandler extends StripeHandler {
   /**
    * Send out the appropriate email on subscription deletion, depending on
    * whether the user still has an account.
+   *
+   * We receive a subscription deleted event for the following:
+   *   1. A user canceled subscripiton.
+   *   2. Subscription canceled after multiple Stripe attempts to pay an invoice.
+   *   3. PayPal processor canceled the subscription after failed attempts.
+   *   4. A user deleted their account.
+   *   5. An admin or support agent cancelled the subscription.
+   *
+   * (1) and (5) are handled at the time of cancelation, so we do not send an additional
+   * email here.
    */
   async sendSubscriptionDeletedEmail(subscription: Stripe.Subscription) {
     if (typeof subscription.latest_invoice !== 'string') {
@@ -565,8 +575,18 @@ export class StripeWebhookHandler extends StripeHandler {
     let account;
     try {
       // If the user's account has not been deleted, we should have already
-      // sent email at subscription update when cancel_at_period_end = true
-      await this.db.account(uid);
+      // sent email at subscription update when cancel_at_period_end = true,
+      // _or_ the cancellation is from Stripe due to failed retries or the
+      // PayPal processor, which we'll handle here.
+      account = await this.db.account(uid);
+      await this.mailer.sendSubscriptionFailedPaymentsCancellationEmail(
+        account.emails,
+        account,
+        {
+          acceptLanguage: account.locale,
+          ...invoiceDetails,
+        }
+      );
     } catch (err) {
       // Has the user's account been deleted?
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -585,6 +605,7 @@ export class StripeWebhookHandler extends StripeHandler {
         );
       }
     }
+
     return invoiceDetails;
   }
 }

@@ -10,6 +10,7 @@
   "subscriptionPaymentFailed": 1,
   "subscriptionAccountDeletion": 1,
   "subscriptionCancellation": 1,
+  "subscriptionFailedPaymentsCancellation": 1,
   "subscriptionSubsequentInvoice": 1,
   "subscriptionFirstInvoice": 1,
   "downloadSubscription": 1,

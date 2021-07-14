@@ -33,6 +33,8 @@ const EMAIL_TYPES = {
   subscriptionPaymentFailed: 'subscription_payment_failed',
   subscriptionAccountDeletion: 'subscription_account_deletion',
   subscriptionCancellation: 'subscription_cancellation',
+  subscriptionFailedPaymentsCancellation:
+    'subscription_failed_payments_cancellation',
   subscriptionSubsequentInvoice: 'subscription_subsequent_invoice',
   subscriptionFirstInvoice: 'subscription_first_invoice',
   downloadSubscription: 'subscription_download',
