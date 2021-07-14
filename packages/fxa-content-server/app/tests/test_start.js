@@ -233,6 +233,7 @@ require('./spec/views/post_verify/cad_qr/get_started');
 require('./spec/views/post_verify/cad_qr/ready_to_scan');
 require('./spec/views/post_verify/cad_qr/scan_code');
 require('./spec/views/post_verify/cad_qr/connected');
+require('./spec/views/post_verify/finish_account_setup/set_password');
 require('./spec/views/post_verify/newsletters/add_newsletters');
 require('./spec/views/post_verify/password/force_password_change');
 require('./spec/views/post_verify/secondary_email/add_secondary_email');
