@@ -15563,7 +15563,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:~4.3.1":
+"debug@npm:4, debug@npm:4.3.2, debug@npm:^4.0.0, debug@npm:^4.0.1, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:~4.3.1":
   version: 4.3.2
   resolution: "debug@npm:4.3.2"
   dependencies:
@@ -19383,7 +19383,7 @@ fsevents@~2.1.1:
     graphql-tools: ^7.0.5
     helmet: ^4.6.0
     jest: 26.6.0
-    knex: ^0.95.6
+    knex: ^0.95.7
     mozlog: ^3.0.2
     mysql: ^2.18.1
     objection: ^2.2.15
@@ -19994,7 +19994,7 @@ fsevents@~2.1.1:
     helmet: ^4.6.0
     ioredis: ^4.27.6
     jest: 26.6.0
-    knex: ^0.95.6
+    knex: ^0.95.7
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.1.1
@@ -20430,7 +20430,7 @@ fsevents@~2.1.1:
     js-md5: ^0.7.3
     jsdom: 16.6.0
     jsdom-global: 3.0.2
-    knex: ^0.95.6
+    knex: ^0.95.7
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^9.0.1
@@ -25865,19 +25865,19 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"knex@npm:^0.95.6":
-  version: 0.95.6
-  resolution: "knex@npm:0.95.6"
+"knex@npm:^0.95.7":
+  version: 0.95.7
+  resolution: "knex@npm:0.95.7"
   dependencies:
     colorette: 1.2.1
     commander: ^7.1.0
-    debug: 4.3.1
+    debug: 4.3.2
     escalade: ^3.1.1
     esm: ^3.2.25
     getopts: 2.2.5
     interpret: ^2.2.0
     lodash: ^4.17.21
-    pg-connection-string: 2.4.0
+    pg-connection-string: 2.5.0
     rechoir: ^0.7.0
     resolve-from: ^5.0.0
     tarn: ^3.0.1
@@ -25895,7 +25895,7 @@ fsevents@~2.1.1:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: c4d8cae48acae446fae25f6f7a2af0553bbab5817e747d2e14b67e5dccd6f044fbdafe9a603ebc8844a53300866a9c6ef290440f5a82ae016652c789a21a755c
+  checksum: 19d811f05bf8eaa57da1ab0a6264a5d926e37a0e35d21b6ddac01ba59b87c9fcc6f922b2fc5716396e11716d6cd008a6b80387fe9ba7757983de0351da51507a
   languageName: node
   linkType: hard
 
@@ -30482,10 +30482,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"pg-connection-string@npm:2.4.0":
-  version: 2.4.0
-  resolution: "pg-connection-string@npm:2.4.0"
-  checksum: fdb3ec1c3daa8356381b1de3ed5fe03269e69d88644c4eb83a30aec1d1e320e0a8450d7ff8c04666dd06a4798c996c9dd006497f038d338790667965ec940d1d
+"pg-connection-string@npm:2.5.0":
+  version: 2.5.0
+  resolution: "pg-connection-string@npm:2.5.0"
+  checksum: 504f288e5e361a903f8b426efe9d00fc289e1d55e16fcca8e4f70f89c29e3429b60291bdec65636ca9c56496319bea878eb32ea60a0d4949ef6df3d748250818
   languageName: node
   linkType: hard
 
