@@ -869,6 +869,13 @@ export class StripeHelper {
   }
 
   /**
+   * Returns the correct tax id for a customer.
+   */
+  getTaxIdForCustomer(customer: Stripe.Customer) {
+    return this.taxIds[customer.currency?.toUpperCase() ?? ''];
+  }
+
+  /**
    * Returns the customers tax id if they have one.
    **/
   customerTaxId(customer: Stripe.Customer) {
