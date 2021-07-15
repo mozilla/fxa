@@ -46,7 +46,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@google-cloud/firestore": "^4.12.3",
-    "@hapi/hapi": "^20.1.4",
+    "@hapi/hapi": "^20.1.5",
     "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^9.2.0",
     "@hapi/joi": "^15.1.1",
