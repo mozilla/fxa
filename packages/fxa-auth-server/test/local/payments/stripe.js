@@ -25,6 +25,8 @@ const {
   STRIPE_INVOICE_METADATA,
   SUBSCRIPTION_UPDATE_TYPES,
   MOZILLA_TAX_ID,
+  CUSTOMER_RESOURCE,
+  SUBSCRIPTIONS_RESOURCE,
 } = proxyquire('../../../lib/payments/stripe', {
   '../redis': (config, log) => mockRedis.init(config, log),
 });
@@ -3752,6 +3754,41 @@ describe('StripeHelper', () => {
           ),
         });
       });
+    });
+  });
+
+  describe('expandResource', () => {
+    it('returns the same resource if it is not an id string', async () => {
+      const actual = await stripeHelper.expandResource(
+        customer1,
+        CUSTOMER_RESOURCE
+      );
+      assert.deepEqual(actual, customer1);
+    });
+
+    it('throws an error if an invalid resource type is passed', async () => {
+      try {
+        await stripeHelper.expandResource('quux', 'NOPE');
+        assert.fail('An error should have been thrown');
+      } catch (e) {
+        assert.equal(
+          e.message,
+          'stripeHelper.expandResource was provided an invalid resource type: NOPE'
+        );
+      }
+    });
+
+    it('expands the subscriptions on a custom resource', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'retrieve')
+        .resolves(customer1);
+      const customerId = 'wibble';
+      await stripeHelper.expandResource(customerId, CUSTOMER_RESOURCE);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.customers.retrieve,
+        customerId,
+        { expand: [SUBSCRIPTIONS_RESOURCE] }
+      );
     });
   });
 });
