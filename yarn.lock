@@ -10927,12 +10927,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autoprefixer@npm:10.2.6":
-  version: 10.2.6
-  resolution: "autoprefixer@npm:10.2.6"
+"autoprefixer@npm:10.3.1":
+  version: 10.3.1
+  resolution: "autoprefixer@npm:10.3.1"
   dependencies:
     browserslist: ^4.16.6
-    caniuse-lite: ^1.0.30001230
+    caniuse-lite: ^1.0.30001243
     colorette: ^1.2.2
     fraction.js: ^4.1.1
     normalize-range: ^0.1.2
@@ -10941,7 +10941,7 @@ __metadata:
     postcss: ^8.1.0
   bin:
     autoprefixer: bin/autoprefixer
-  checksum: 805414d4efe4f25c6162edc65ad999235ea28cf11b6a1ed838b055ef1f777368dd16c978b44d0b48bb96a3420948d26da27066d5caa4f81bcee1946e9a269532
+  checksum: f220c29c98fe740e27308e418f3e45978ceb209ff0d77276ca01e0ef15089e1936bc1746eac9309c92af15de1a4ace21926aad47a5355e2fa84ffdfabc7f7b0f
   languageName: node
   linkType: hard
 
@@ -13286,10 +13286,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001219, caniuse-lite@npm:^1.0.30001230, caniuse-lite@npm:^1.0.30001239":
+"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001219, caniuse-lite@npm:^1.0.30001239":
   version: 1.0.30001239
   resolution: "caniuse-lite@npm:1.0.30001239"
   checksum: 82e3e838dddeed62039d439dc98d070b3fdb989fa20204a27e7005a071ab6d09edd77e48718a5d73da41c862efba842cdb9de892ca3c9e993f7bcb8277786129
+  languageName: node
+  linkType: hard
+
+"caniuse-lite@npm:^1.0.30001243":
+  version: 1.0.30001245
+  resolution: "caniuse-lite@npm:1.0.30001245"
+  checksum: 6b0dbbe1d2542eb6390eae5d2dda2b1762d38d4d50eefb86d959c5e49a009e7213e8f0227f526068fff6d2e4baa5cd64dc741ac77603e16882aa0e806cfe9d58
   languageName: node
   linkType: hard
 
@@ -19644,7 +19651,7 @@ fsevents@~2.1.1:
     "@types/sinon-express-mock": 1.3.9
     asmcrypto.js: ^0.22.0
     audit-filter: ^0.5.0
-    autoprefixer: 10.2.6
+    autoprefixer: 10.3.1
     babel-eslint: ^10.1.0
     babel-loader: ^8.2.2
     babel-plugin-dynamic-import-webpack: 1.1.0
