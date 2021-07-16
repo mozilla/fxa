@@ -1,3 +1,10 @@
+## 1.210.3
+
+### Bug fixes
+
+- auth: update vat populate script to handle change ([c182e1b52](https://github.com/mozilla/fxa/commit/c182e1b52))
+- subscriptions: include subscriptions when retrieving a customer ([43cc9cefa](https://github.com/mozilla/fxa/commit/43cc9cefa))
+
 ## 1.210.2
 
 ### New features
