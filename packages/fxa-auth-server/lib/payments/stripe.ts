@@ -32,13 +32,13 @@ import error from '../error';
 import Redis from '../redis';
 import { CurrencyHelper } from './currencies';
 
-const CUSTOMER_RESOURCE = 'customers';
-const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
-const PRODUCT_RESOURCE = 'products';
-const PLAN_RESOURCE = 'plans';
-const CHARGES_RESOURCE = 'charges';
-const INVOICES_RESOURCE = 'invoices';
-const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
+export const CUSTOMER_RESOURCE = 'customers';
+export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
+export const PRODUCT_RESOURCE = 'products';
+export const PLAN_RESOURCE = 'plans';
+export const CHARGES_RESOURCE = 'charges';
+export const INVOICES_RESOURCE = 'invoices';
+export const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
 
 export const MOZILLA_TAX_ID = 'Tax ID';
 
@@ -866,6 +866,13 @@ export class StripeHelper {
         },
       });
     }
+  }
+
+  /**
+   * Returns the correct tax id for a customer.
+   */
+  getTaxIdForCustomer(customer: Stripe.Customer) {
+    return this.taxIds[customer.currency?.toUpperCase() ?? ''];
   }
 
   /**
@@ -2170,6 +2177,17 @@ export class StripeHelper {
       const error = new Error(errorMsg);
       this.log.error(`stripeHelper.expandResource.failed`, { error });
       throw error;
+    }
+
+    // We make an exception here for customers because we need to get the
+    // subscriptions for the customer.  The Stripe API stopped including
+    // subscriptions for a customer in version 2020-08-27; this ensures
+    // backwards compatibility for our code that's relying on that behavior.
+    if (resourceType === CUSTOMER_RESOURCE) {
+      // @ts-ignore
+      return this.stripe[CUSTOMER_RESOURCE].retrieve(resource, {
+        expand: [SUBSCRIPTIONS_RESOURCE],
+      });
     }
 
     // @ts-ignore

@@ -37,14 +37,12 @@ export async function init() {
           continue;
         }
 
-        // Attach a Tax ID to the customer if they're missing one.
-        if (!stripeHelper.customerTaxId(customer)) {
+        // Attach a Tax ID to the customer if they're missing one or it
+        // needs updating.
+        const existingCustomerTaxId = stripeHelper.customerTaxId(customer);
+        const newCustomerTaxId = stripeHelper.getTaxIdForCustomer(customer);
+        if (existingCustomerTaxId?.value !== newCustomerTaxId) {
           await stripeHelper.addTaxIdToCustomer(customer);
-        }
-
-        // Continue if there's a default tax rate for the sub already.
-        if (sub.default_tax_rates && sub.default_tax_rates.length > 0) {
-          continue;
         }
 
         // Figure out the country code for the customer
@@ -79,6 +77,12 @@ export async function init() {
           ?.id;
         if (!taxRateId) {
           log.info('no-tax-rate', { countryCode, subId: sub.id });
+          continue;
+        }
+
+        // Does the subscription already have the right tax rate attached?
+        const existingTaxRate = sub.default_tax_rates?.shift();
+        if (existingTaxRate?.id === taxRateId) {
           continue;
         }
 
