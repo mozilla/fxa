@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export const appBadges = `
+  <mj-include path="./lib/senders/emails/css/appBadges/index.css" type="css" css-inline="inline" />
   <mj-section>
     <mj-group>
       <mj-column>
@@ -25,23 +26,19 @@ export const appBadges = `
   </mj-section>
   <mj-section>
     <mj-column>
-      <mj-text css-class="secondary-text">
+      <mj-text css-class="secondary-text mb-3">
         <% if(onDesktopOrTabletDevice){ %> Or, install on
-        <span
+        <a
           href="<%= baseURL %><%= anotherDeviceURL %>"
-          color="#0a84ff"
-          text-decoration="none"
-          font-family="sans-serif"
-          >another version</span
-        >
+          class="link-blue"
+          >another version</a
+        >.
         <% } else{ %> Or, install on
-        <span
+        <a
           href="<%= baseURL %><%= anotherDeviceURL %>"
-          color="#0a84ff"
-          text-decoration="none"
-          font-family="sans-serif"
-          >another device</span
-        >
+          class="link-blue"
+          >another device</a
+        >.
         <% } %>
       </mj-text>
     </mj-column>

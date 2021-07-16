@@ -8,7 +8,7 @@ import * as templates from './templates';
 const config = require('../../../config').getProperties();
 
 export const context = {
-  buttonText: 'Sync device',
+  buttonText: 'Sync another device',
   onDesktopOrTabletDevice: true,
   baseURL: config.contentServer.url,
   anotherDeviceURL:

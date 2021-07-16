@@ -1,0 +1,84 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// Fonts
+$font-sans: sans-serif;
+
+// Colors
+$blue-400: #0090ed;
+$white: #fff;
+$grey-400: #6d6d6e;
+
+// Spacing values for margin and padding
+$s-0: 0px;
+$s-3: 12px;
+$s-5: 20px;
+$s-6: 24px;
+$s-10: 40px;
+
+// Font-size and line-height
+.text {
+  &-xs {
+    font-size: 12px !important;
+    line-height: 18px !important;
+  }
+  &-sm {
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+  &-lg {
+    font-size: 18px !important;
+    line-height: 28px !important;
+  }
+  &-xl {
+    font-size: 20px !important;
+    line-height: 28px !important;
+  }
+}
+
+// Utility classes
+.font-sans {
+  font-family: $font-sans !important;
+}
+
+.text-blue-400 {
+  color: $blue-400;
+}
+
+.mt-6 div {
+  margin-top: $s-6 !important;
+}
+
+.mb {
+  &-3 div {
+    margin-bottom: $s-3 !important;
+  }
+
+  &-5 {
+    margin-bottom: $s-5 !important;
+  }
+}
+
+// Global styles
+tbody > td:first-child,
+tr > td:first-child {
+  padding: $s-0 !important;
+}
+
+.body-80 {
+  max-width: 310px !important;
+  margin: $s-0 auto !important;
+}
+
+.fxa-logo td {
+  padding: $s-5 $s-0 !important;
+  height: 60px !important;
+  width: 60px !important;
+}
+
+.link-blue {
+  @extend .text-blue-400;
+  text-decoration: none;
+  font-family: $font-sans;
+}

@@ -71,7 +71,9 @@ module.exports = testsSettings.concat([
   'tests/functional/sync_v3_reset_password.js',
   'tests/functional/sync_v3_settings.js',
   'tests/functional/tos.js',
-  'tests/functional/verification_reminders.js',
+
+  // Disabled because of https://github.com/mozilla/fxa/issues/9863
+  // 'tests/functional/verification_reminders.js',
 ]);
 
 // Mocha tests are only exposed during local dev, not on prod-like

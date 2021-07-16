@@ -22,6 +22,8 @@
           "each",
           "include",
           "mixin",
+          "use",
+          "extend",
           "screen",
           "layer"
         ]

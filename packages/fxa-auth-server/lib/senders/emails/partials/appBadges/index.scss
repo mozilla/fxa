@@ -1,0 +1,21 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@use '../../global.scss';
+
+.app-badges {
+  padding: global.$s-10 global.$s-0 global.$s-3 !important;
+
+  img {
+    width: 152px !important;
+    height: 44px !important;
+  }
+}
+
+.secondary-text div {
+  @extend .font-sans;
+  @extend .text-xs;
+  text-align: center !important;
+  color: global.$grey-400 !important;
+}
