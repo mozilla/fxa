@@ -12,7 +12,7 @@ export default {
 const Template: Story<StorybookEmailArgs> = (args) => storybookEmail(args);
 
 const defaultVariables = {
-  buttonText: 'Sync device',
+  buttonText: 'Sync another device',
   anotherDeviceURL:
     '/connect_another_device?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-connect-device',
   iosURL:
