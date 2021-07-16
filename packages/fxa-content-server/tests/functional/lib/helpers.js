@@ -2801,7 +2801,7 @@ const typeIntoStripeElement = thenify(function (fieldName, subFieldName, text) {
  * @param {string} currency - Currency test product is required in.
  */
 function getTestProductSubscriptionUrl(currency = 'usd') {
-  return `${config.fxaContentRoot}subscriptions/products/${config.testProductId}?plan=${config.testPlanId}`;
+  return `${config.fxaContentRoot}subscriptions/products/${config.testProductId}?plan=${config.testPlanId}&signin=true`;
 }
 
 /**
