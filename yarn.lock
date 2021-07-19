@@ -93,7 +93,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client@npm:^3.2.5, @apollo/client@npm:^3.3.20, @apollo/client@npm:~3.2.5 || ~3.3.0":
+"@apollo/client@npm:^3.2.5, @apollo/client@npm:~3.2.5 || ~3.3.0":
   version: 3.3.20
   resolution: "@apollo/client@npm:3.3.20"
   dependencies:
@@ -120,6 +120,36 @@ __metadata:
     subscriptions-transport-ws:
       optional: true
   checksum: ba1e0d92a96e1278d014ccf5f9d7f0082355d2de12e4d4527ea3f5e1f3da5b7b0b274fdc7d18741c4d287bcb00194456cd8276282602962a7ac52fbe773fea26
+  languageName: node
+  linkType: hard
+
+"@apollo/client@npm:^3.3.21":
+  version: 3.3.21
+  resolution: "@apollo/client@npm:3.3.21"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.0.0
+    "@types/zen-observable": ^0.8.0
+    "@wry/context": ^0.6.0
+    "@wry/equality": ^0.5.0
+    fast-json-stable-stringify: ^2.0.0
+    graphql-tag: ^2.12.0
+    hoist-non-react-statics: ^3.3.2
+    optimism: ^0.16.0
+    prop-types: ^15.7.2
+    symbol-observable: ^4.0.0
+    ts-invariant: ^0.8.0
+    tslib: ^1.10.0
+    zen-observable: ^0.8.14
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0
+    react: ^16.8.0 || ^17.0.0
+    subscriptions-transport-ws: ^0.9.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    subscriptions-transport-ws:
+      optional: true
+  checksum: 23237e379b55d82caf0cf146411b23f2c1b108cf2c4952a2c49fb14a7ac5b045681389d07f3685eb0d205c7507117f3c45e36f86af2e10d180baa9d014866029
   languageName: node
   linkType: hard
 
@@ -19327,7 +19357,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-admin-panel@workspace:packages/fxa-admin-panel"
   dependencies:
-    "@apollo/client": ^3.3.20
+    "@apollo/client": ^3.3.21
     "@babel/core": ^7.14.6
     "@emotion/react": ^11.4.0
     "@material-ui/core": v5.0.0-alpha.24
@@ -20359,7 +20389,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-settings@workspace:packages/fxa-settings"
   dependencies:
-    "@apollo/client": ^3.3.20
+    "@apollo/client": ^3.3.21
     "@babel/core": ^7.14.6
     "@emotion/react": ^11.4.0
     "@fluent/react": ^0.13.1
@@ -38035,6 +38065,15 @@ resolve@~1.11.1:
   dependencies:
     tslib: ^2.1.0
   checksum: 2fef71589aba75dbde8aa82a8add90dbc356e741452181850cef32903374e4ca451e4bc063ea77d564296287659e465f2c2d639c0d44449fd64467348d37dd71
+  languageName: node
+  linkType: hard
+
+"ts-invariant@npm:^0.8.0":
+  version: 0.8.2
+  resolution: "ts-invariant@npm:0.8.2"
+  dependencies:
+    tslib: ^2.1.0
+  checksum: 5b2ba5e5536f20e741dd05fc5055849cd706d0ec67b42d6342dcdf3b1de2611f6629d5c263fe9e9a06302a57dcc29d89f1db539298bf86fbe284a83308b0d504
   languageName: node
   linkType: hard
 
