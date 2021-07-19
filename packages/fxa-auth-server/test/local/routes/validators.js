@@ -7,6 +7,8 @@
 const { assert } = require('chai');
 
 const validators = require('../../../lib/routes/validators');
+const plan1 = require('../payments/fixtures/stripe/plan1.json');
+const validProductMetadata = plan1.product.metadata;
 
 describe('lib/routes/validators:', () => {
   it('isValidEmailAddress returns true for valid email addresses', () => {
@@ -375,9 +377,21 @@ describe('lib/routes/validators:', () => {
   describe('subscriptionProductMetadataValidator', () => {
     const { subscriptionProductMetadataValidator: subject } = validators;
 
-    it('accepts an empty object', () => {
+    const deletePropAndValidate = (prop) => {
+      const copiedProductMetadata = Object.assign({}, validProductMetadata);
+      delete copiedProductMetadata[prop];
+      return subject.validate(copiedProductMetadata);
+    };
+
+    const validateKeyValuePairAndReturn = (key, value) => {
+      const obj = {};
+      obj[key] = value;
+      return subject.validate(Object.assign({}, validProductMetadata, obj));
+    };
+
+    it('rejects an empty object', () => {
       const res = subject.validate({});
-      assert.ok(!res.error);
+      assert.ok(res.error);
     });
 
     it('rejects a non-object', () => {
@@ -386,17 +400,91 @@ describe('lib/routes/validators:', () => {
     });
 
     it('accepts unexpected keys', () => {
-      const res = subject.validate({
-        'capabilities:8675309': '123done,321done',
-        newThing: 'this is unexpected',
-      });
+      const res = subject.validate(
+        Object.assign({}, validProductMetadata, {
+          newThing: 'this is unexpected',
+        })
+      );
       assert.ok(!res.error);
     });
 
     it('rejects expected keys with invalid values', () => {
-      const res = subject.validate({
-        iconURL: true,
-      });
+      let res;
+      res = validateKeyValuePairAndReturn('webIconURL', true);
+      assert.ok(res.error, 'webIconURL');
+
+      res = validateKeyValuePairAndReturn('upgradeCTA', true);
+      assert.ok(res.error, 'upgradeCTA');
+
+      res = validateKeyValuePairAndReturn('downloadURL', true);
+      assert.ok(res.error, 'downloadUrl');
+
+      res = validateKeyValuePairAndReturn('downloadURL', 'nota.url');
+      assert.ok(res.error, 'downloadUrl invalid url');
+
+      res = validateKeyValuePairAndReturn('appStoreLink', true);
+      assert.ok(res.error, 'appStoreLink');
+
+      res = validateKeyValuePairAndReturn('appStoreLink', 'nota.url');
+      assert.ok(res.error, 'appStoreLink invalid url');
+
+      res = validateKeyValuePairAndReturn('playStoreLink', true);
+      assert.ok(res.error, 'playStoreLink');
+
+      res = validateKeyValuePairAndReturn('playStoreLink', 'nota.url');
+      assert.ok(res.error, 'playStoreLink invalid url');
+
+      res = validateKeyValuePairAndReturn('productSet', true);
+      assert.ok(res.error, 'productSet');
+
+      res = validateKeyValuePairAndReturn('productOrder', true);
+      assert.ok(res.error, 'productOrder');
+
+      res = validateKeyValuePairAndReturn(
+        'product:termsOfServiceDownloadURL',
+        'https://not.the.legal.url.com/blah'
+      );
+      assert.ok(res.error, 'product:termsOfServiceDownloadURL');
+
+      res = validateKeyValuePairAndReturn(
+        'product:termsOfServiceURL',
+        'nota.url'
+      );
+      assert.ok(res.error, 'product:termsOfServiceURL');
+
+      res = validateKeyValuePairAndReturn(
+        'product:privacyNoticeDownloadURL',
+        'https://not.the.legal.url.com/blah'
+      );
+      assert.ok(res.error, 'product:privacyNoticeDownloadURL');
+
+      res = validateKeyValuePairAndReturn(
+        'product:privacyNoticeURL',
+        'nota.url'
+      );
+      assert.ok(res.error, 'product:privacyNoticeURL');
+
+      res = validateKeyValuePairAndReturn('capabilities:blahblah', true);
+      assert.ok(res.error, 'capabilities:blahblah');
+    });
+
+    it('rejects if missing required props', () => {
+      let res = deletePropAndValidate('downloadURL');
+      assert.ok(res.error);
+
+      res = deletePropAndValidate('product:privacyNoticeURL');
+      assert.ok(res.error);
+
+      res = deletePropAndValidate('product:privacyNoticeDownloadURL');
+      assert.ok(res.error);
+
+      res = deletePropAndValidate('product:termsOfServiceURL');
+      assert.ok(res.error);
+
+      res = deletePropAndValidate('product:termsOfServiceDownloadURL');
+      assert.ok(res.error);
+
+      res = deletePropAndValidate('capabilities:aFakeClientId12345');
       assert.ok(res.error);
     });
   });
@@ -425,15 +513,7 @@ describe('lib/routes/validators:', () => {
       const plan = {
         ...basePlan,
         plan_metadata: {},
-        product_metadata: {
-          productSet: '123done',
-          productOrder: 0,
-          iconURL: 'http://example.org',
-          downloadURL: 'http://example.org',
-          upgradeCTA: 'hello <a href="http://example.org">world</a>',
-          newThing: 'this is unexpected',
-          'capabilities:8675309': '123done,321done',
-        },
+        product_metadata: validProductMetadata,
       };
       const res = subject.validate(plan);
       assert.ok(!res.error);
@@ -442,9 +522,9 @@ describe('lib/routes/validators:', () => {
     it('rejects invalid product metadata', () => {
       const plan = {
         ...basePlan,
-        product_metadata: {
-          iconURL: true,
-        },
+        product_metadata: Object.assign({}, validProductMetadata, {
+          webIconURL: true,
+        }),
       };
       const res = subject.validate(plan);
       assert.ok(res.error);

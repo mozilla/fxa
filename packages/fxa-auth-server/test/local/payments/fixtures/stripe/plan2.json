@@ -25,6 +25,16 @@
     "images": [],
     "livemode": false,
     "metadata": {
+      "webIconURL": "https://example.com/static/icon.svg",
+      "upgradeCTA": "hello <a href=\"http://example.org\">world</a>",
+      "downloadURL": "https://example.com/download",
+      "appStoreLink": "https://example.com/appStoreRedirect",
+      "playStoreLink": "https://example.com/playStoreRedirect",
+      "product:privacyNoticeURL": "https://accounts-static.cdn.mozilla.net/legal/privacy",
+      "product:privacyNoticeDownloadURL": "https://accounts-static.cdn.mozilla.net/legal/privacy.pdf",
+      "product:termsOfServiceURL": "https://accounts-static.cdn.mozilla.net/legal/terms",
+      "product:termsOfServiceDownloadURL": "https://accounts-static.cdn.mozilla.net/legal/terms.pdf",
+      "capabilities:aFakeClientId12345": "more,comma,separated,values",
       "productSet": "fpn_product",
       "productOrder": "2"
     },
