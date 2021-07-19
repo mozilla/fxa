@@ -24,33 +24,32 @@ async function init() {
   const hashParams = await getHashParams();
   const accessToken = await getVerifiedAccessToken(hashParams);
   Amplitude.subscribeToReduxStore(store);
+  updateAPIClientConfig(config);
 
-  // We should have gotten an accessToken or else redirected, but guard here
-  // anyway because App component requires a token.
   if (accessToken) {
-    updateAPIClientConfig(config);
     updateAPIClientToken(accessToken);
     store.dispatch(actions.fetchToken());
     store.dispatch(actions.fetchProfile());
-
-    render(
-      <App
-        {...{
-          config,
-          store,
-          queryParams,
-          matchMedia,
-          matchMediaDefault,
-          navigateToUrl,
-          getScreenInfo,
-          locationReload,
-          navigatorLanguages: navigator.languages,
-          stripePromise: loadStripe(config.stripe.apiKey),
-        }}
-      />,
-      document.getElementById('root')
-    );
   }
+
+  render(
+    <App
+      {...{
+        config,
+        store,
+        accessToken,
+        queryParams,
+        matchMedia,
+        matchMediaDefault,
+        navigateToUrl,
+        getScreenInfo,
+        locationReload,
+        navigatorLanguages: navigator.languages,
+        stripePromise: loadStripe(config.stripe.apiKey),
+      }}
+    />,
+    document.getElementById('root')
+  );
 }
 
 function headQuerySelector(name: string) {
@@ -125,12 +124,6 @@ async function getVerifiedAccessToken({
   } catch (err) {
     console.log('accessToken verify error', err);
     accessToken = null;
-  }
-
-  if (!accessToken) {
-    // TODO: bounce through a login redirect to get back here with a token
-    window.location.href = `${config.servers.content.url}/settings`;
-    return accessToken;
   }
 
   console.log('accessToken verified');

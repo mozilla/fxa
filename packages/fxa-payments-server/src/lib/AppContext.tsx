@@ -7,6 +7,7 @@ import { loadStripe } from '@stripe/stripe-js';
 export type AppContextType = {
   config: Config;
   queryParams: QueryParams;
+  accessToken: string | null;
   matchMedia: (query: string) => boolean;
   matchMediaDefault: (query: string) => MediaQueryList;
   navigateToUrl: (url: string) => void;
@@ -21,12 +22,13 @@ const noopFunction = () => {};
 
 export const defaultAppContext = {
   config,
+  queryParams: {},
+  accessToken: null,
   getScreenInfo: () => new ScreenInfo(),
   locationReload: noopFunction,
   matchMedia: () => false,
   matchMediaDefault: (query: string) => matchMedia(query),
   navigateToUrl: noopFunction,
-  queryParams: {},
   navigatorLanguages: ['en-US', 'en'],
   stripePromise: Promise.resolve(null),
 };

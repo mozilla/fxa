@@ -130,17 +130,26 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
-  const { locationReload, queryParams, matchMediaDefault } =
-    useContext(AppContext);
+  const {
+    accessToken,
+    config,
+    locationReload,
+    queryParams,
+    matchMediaDefault,
+  } = useContext(AppContext);
 
-  const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const planId = queryParams.plan;
+
+  if (!accessToken) {
+    window.location.href = `${config.servers.content.url}/subscriptions/products/${productId}?plan=${planId}&signin=yes`;
+  }
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
     fetchProductRouteResources();
   }, [fetchProductRouteResources]);
 
+  const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const plansById = useMemo(() => indexPlansById(plans), [plans]);
 
   const selectedPlan = useMemo(
@@ -148,7 +157,7 @@ export const Product = ({
     [plans]
   );
 
-  if (customer.loading || plans.loading || profile.loading) {
+  if (!accessToken || customer.loading || plans.loading || profile.loading) {
     return <LoadingOverlay isLoading={true} />;
   }
 

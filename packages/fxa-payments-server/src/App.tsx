@@ -36,6 +36,7 @@ type RouterOverride = () => (props: { children: ReactNode }) => JSX.Element;
 export type AppProps = {
   config: Config;
   store: Store;
+  accessToken: string | null;
   queryParams: QueryParams;
   matchMedia: (query: string) => boolean;
   matchMediaDefault: (query: string) => MediaQueryList;
@@ -50,6 +51,7 @@ export type AppProps = {
 export const App = ({
   config,
   store,
+  accessToken,
   queryParams,
   matchMedia,
   matchMediaDefault,
@@ -68,6 +70,7 @@ export const App = ({
   const appContextValue: AppContextType = {
     config,
     queryParams,
+    accessToken,
     matchMedia,
     matchMediaDefault,
     navigateToUrl,

@@ -242,6 +242,7 @@ export const defaultAppContextValue = (): AppContextType => ({
     flow_begin_time: Date.now(),
     flow_id: 'thisisanid',
   },
+  accessToken: 'lettherightonein',
   matchMedia: jest.fn().mockImplementation((query) => false),
   matchMediaDefault: jest.fn().mockImplementation((query) => {
     return {

@@ -67,7 +67,12 @@ export const Subscriptions = ({
   paymentUpdateStripeOverride,
   paymentUpdateApiClientOverrides,
 }: SubscriptionsProps) => {
-  const { config, locationReload, navigateToUrl } = useContext(AppContext);
+  const { accessToken, config, locationReload, navigateToUrl } =
+    useContext(AppContext);
+
+  if (!accessToken) {
+    window.location.href = `${config.servers.content.url}/subscriptions`;
+  }
 
   const [
     updatePaymentIsSuccessViaSCA,
@@ -124,7 +129,7 @@ export const Subscriptions = ({
     [navigateToUrl, SUPPORT_FORM_URL]
   );
 
-  if (customer.loading || profile.loading || plans.loading) {
+  if (!accessToken || customer.loading || profile.loading || plans.loading) {
     return <LoadingOverlay isLoading={true} />;
   }
 
