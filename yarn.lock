@@ -4149,23 +4149,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:^7.6.18":
-  version: 7.6.18
-  resolution: "@nestjs/testing@npm:7.6.18"
+"@nestjs/testing@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "@nestjs/testing@npm:8.0.4"
   dependencies:
     optional: 0.1.4
-    tslib: 2.2.0
+    tslib: 2.3.0
   peerDependencies:
-    "@nestjs/common": ^7.0.0
-    "@nestjs/core": ^7.0.0
-    "@nestjs/microservices": ^7.0.0
-    "@nestjs/platform-express": ^7.0.0
+    "@nestjs/common": ^8.0.0
+    "@nestjs/core": ^8.0.0
+    "@nestjs/microservices": ^8.0.0
+    "@nestjs/platform-express": ^8.0.0
   peerDependenciesMeta:
     "@nestjs/microservices":
       optional: true
     "@nestjs/platform-express":
       optional: true
-  checksum: 4b316f85502e468bbc8ee6cf9774d6b0610fa902b57665c4e07411887486cdc9e3147eba6ffed72c8e92946693ab635029f50e627b6c91eba0fd15be25c72b98
+  checksum: ea63da086a42e302d5f37878a1edd6d53eaa026a4be262fd3bbfe8b0472a695d9382a8d9c1b0893ef8fa6fab18de4c3631a37d86a741a6ac76dcdd3ad84f6d9a
   languageName: node
   linkType: hard
 
@@ -19912,7 +19912,7 @@ fsevents@~2.1.1:
     "@nestjs/platform-express": ^7.6.18
     "@nestjs/schedule": ^0.4.3
     "@nestjs/schematics": ^8.0.1
-    "@nestjs/testing": ^7.6.18
+    "@nestjs/testing": ^8.0.4
     "@sentry/integrations": ^6.8.0
     "@sentry/node": ^6.7.2
     "@types/chance": ^1.1.2
@@ -20437,7 +20437,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^7.6.18
     "@nestjs/graphql": ^7.11.0
     "@nestjs/mapped-types": ^0.4.1
-    "@nestjs/testing": ^7.6.18
+    "@nestjs/testing": ^8.0.4
     "@sentry/browser": ^6.9.0
     "@sentry/integrations": ^6.8.0
     "@sentry/node": ^6.7.2
