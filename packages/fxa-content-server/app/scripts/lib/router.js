@@ -154,6 +154,9 @@ const Router = Backbone.Router.extend({
         type: VerificationReasons.RECOVERY_KEY,
       }
     ),
+    'post_verify/finish_account_setup/set_password': createViewHandler(
+      'post_verify/finish_account_setup/set_password'
+    ),
     'post_verify/cad_qr/get_started': createViewHandler(
       'post_verify/cad_qr/get_started'
     ),

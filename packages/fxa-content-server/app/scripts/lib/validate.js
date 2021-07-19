@@ -21,10 +21,12 @@ const B64URL_STRING = /^[A-Za-z0-9-_]+$/;
 const B32_STRING = /^[0-9A-HJ-NP-TV-Z]+$/;
 
 // URL RegEx taken from http://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
-const urlRegEx = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/; //eslint-disable-line max-len
+const urlRegEx =
+  /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/; //eslint-disable-line max-len
 
 // Matches a UUID, e.g.: 12345678-1234-1234-1234-1234567890ab
-const uuidRegEx = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuidRegEx =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // case insensitive match of an unblock code, e.g.: AB12YU7Z
 const unblockCodeRegExpStr = `^[a-z0-9]{${UNBLOCK_CODE_LENGTH}}$`;
@@ -36,6 +38,9 @@ const TOTP_CODE = /^[0-9]{6}$/;
 const RECOVERY_CODE = /^([a-zA-Z0-9]{8,10})$/;
 
 const utmRegex = /^[\w\/.%-]{1,128}$/;
+
+const verificationRedirectUrlRegex =
+  /^(https:\/\/)(www\.mozilla\.org|accounts\.firefox\.com)/;
 
 var Validate = {
   /**
@@ -255,6 +260,16 @@ var Validate = {
    */
   isUtmValid(value) {
     return utmRegex.test(value);
+  },
+
+  /**
+   * Check if verification redirect is valid
+   *
+   * @param {String} value
+   * @returns {Boolean}
+   */
+  isVerificationRedirectValid(value) {
+    return verificationRedirectUrlRegex.test(value);
   },
 };
 
