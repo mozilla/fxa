@@ -10020,6 +10020,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"apollo-datasource@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "apollo-datasource@npm:3.0.1"
+  dependencies:
+    apollo-server-caching: ^3.0.1
+    apollo-server-env: ^4.0.1
+  checksum: dee2a79dba711ca35450a85ece06019457f5c1459757326fa92f3fa877ac2846f09a540b9e8d5dc3438761f2d2772199ee67d5548265d156b16a422fa0437046
+  languageName: node
+  linkType: hard
+
 "apollo-graphql@npm:^0.9.0, apollo-graphql@npm:^0.9.3":
   version: 0.9.3
   resolution: "apollo-graphql@npm:0.9.3"
@@ -10080,6 +10090,15 @@ __metadata:
   dependencies:
     lru-cache: ^6.0.0
   checksum: 70ea2c2978ce0b93e0930fb67cb9ccf02576e232017e1d001d22feeefe420f66064da5139e834b097f7b2378c0f0d4202d6f1c3070927365ace9d15b3d5d4066
+  languageName: node
+  linkType: hard
+
+"apollo-server-caching@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "apollo-server-caching@npm:3.0.1"
+  dependencies:
+    lru-cache: ^6.0.0
+  checksum: 0fd19a71bf017ba31de9b9fa751f141407986cdaaad423cc265186bfb51e0f6cfef53e391172dd470b03fc68f5e302b059942bcf012b497aaf18337814c2c4b7
   languageName: node
   linkType: hard
 
@@ -10166,6 +10185,16 @@ __metadata:
     node-fetch: ^2.6.1
     util.promisify: ^1.0.0
   checksum: d5ef05cbd94f95d96fa2bb09f32ed8363882ba4be9a3cea9a8c1442dc0069512c38e73da26b2a802a6ab8b03e479e4f4247d25e439a6e10b121e380184d99605
+  languageName: node
+  linkType: hard
+
+"apollo-server-env@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "apollo-server-env@npm:4.0.1"
+  dependencies:
+    node-fetch: ^2.6.1
+    util.promisify: ^1.0.1
+  checksum: e0a8e622df12db29d52c03795f86e236a0f22a59113b912ac7ed62079f0c96bd3cb07ab8110339287e3fcb39f2ad83dd1d22d1d591260c38d37d9c9d2523fe9f
   languageName: node
   linkType: hard
 
@@ -19999,7 +20028,7 @@ fsevents@~2.1.1:
     "@types/superagent": 4.1.11
     "@types/supertest": ^2.0.11
     "@types/yargs": ^17.0.0
-    apollo-datasource: ^0.9.0
+    apollo-datasource: ^3.0.1
     apollo-server: ^2.25.2
     apollo-server-express: ^2.25.2
     audit-filter: ^0.5.0
