@@ -46,7 +46,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@google-cloud/firestore": "^4.12.3",
+    "@google-cloud/firestore": "^4.13.2",
     "@hapi/hapi": "^20.1.5",
     "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^9.2.0",
