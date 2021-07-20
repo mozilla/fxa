@@ -1133,6 +1133,127 @@ describe('/account/create', () => {
   });
 });
 
+describe('/account/stub', () => {
+  function setup(extraConfig) {
+    const config = {
+      securityHistory: {
+        enabled: true,
+      },
+      ...extraConfig,
+    };
+    const mockLog = log('ERROR', 'test');
+    mockLog.activityEvent = sinon.spy(() => {
+      return Promise.resolve();
+    });
+    mockLog.flowEvent = sinon.spy(() => {
+      return Promise.resolve();
+    });
+    mockLog.error = sinon.spy();
+    mockLog.notifier.send = sinon.spy();
+
+    const mockMetricsContext = mocks.mockMetricsContext();
+    const email = Math.random() + '_stub@mozilla.com';
+    const mockRequest = mocks.mockRequest({
+      locale: 'en-GB',
+      log: mockLog,
+      metricsContext: mockMetricsContext,
+      payload: {
+        email,
+        clientId: '59cceb6f8c32317c',
+      },
+      uaBrowser: 'Firefox Mobile',
+      uaBrowserVersion: '9',
+      uaOS: 'iOS',
+      uaOSVersion: '11',
+      uaDeviceType: 'tablet',
+      uaFormFactor: 'iPad',
+    });
+    const clientAddress = mockRequest.app.clientAddress;
+    const emailCode = hexString(16);
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const mockDB = mocks.mockDB(
+      {
+        email,
+        emailCode,
+        emailVerified: false,
+        locale: 'en',
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: 52,
+        uaOS: 'Mac OS X',
+        uaOSVersion: '10.10',
+        uid,
+        wrapWrapKb: 'wibble',
+      },
+      {
+        emailRecord: new error.unknownAccount(),
+      }
+    );
+    const mockMailer = mocks.mockMailer();
+    const mockPush = mocks.mockPush();
+    const verificationReminders = mocks.mockVerificationReminders();
+    const accountRoutes = makeRoutes({
+      config,
+      db: mockDB,
+      log: mockLog,
+      mailer: mockMailer,
+      Password: function () {
+        return {
+          unwrap: function () {
+            return Promise.resolve('wibble');
+          },
+          verifyHash: function () {
+            return Promise.resolve('wibble');
+          },
+        };
+      },
+      push: mockPush,
+      verificationReminders,
+    });
+    const route = getRoute(accountRoutes, '/account/stub');
+
+    return {
+      config,
+      clientAddress,
+      email,
+      emailCode,
+      mockDB,
+      mockLog,
+      mockMailer,
+      mockMetricsContext,
+      mockRequest,
+      route,
+      uid,
+      verificationReminders,
+    };
+  }
+
+  it('creates an account', () => {
+    const { route, mockRequest, uid } = setup();
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(response.uid, uid);
+      assert.ok(response.access_token);
+    });
+  });
+
+  it('can refuse new account creations for selected OAuth clients', async () => {
+    const { mockRequest, route } = setup({
+      oauth: {
+        disableNewConnectionsForClients: ['d15ab1edd15ab1ed'],
+      },
+    });
+
+    mockRequest.payload.clientId = 'd15ab1edd15ab1ed';
+
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
+      assert.equal(err.output.statusCode, 503);
+    }
+  });
+});
+
 describe('/account/login', () => {
   const config = {
     securityHistory: {

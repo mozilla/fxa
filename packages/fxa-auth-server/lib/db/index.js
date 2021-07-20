@@ -77,7 +77,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   DB.prototype.createAccount = async function (data) {
     const { uid, email } = data;
     log.trace('DB.createAccount', { uid, email });
-    data.createdAt = data.verifierSetAt = Date.now();
+    data.verifierSetAt = data.verifierSetAt ?? Date.now(); // allow 0 to indicate no-password-set
+    data.createdAt = Date.now();
     data.normalizedEmail = normalizeEmail(data.email);
     try {
       await Account.create(data);
