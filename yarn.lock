@@ -2504,15 +2504,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/firestore@npm:^4.12.3":
-  version: 4.12.3
-  resolution: "@google-cloud/firestore@npm:4.12.3"
+"@google-cloud/firestore@npm:^4.13.2":
+  version: 4.13.2
+  resolution: "@google-cloud/firestore@npm:4.13.2"
   dependencies:
     fast-deep-equal: ^3.1.1
     functional-red-black-tree: ^1.0.1
-    google-gax: ^2.12.0
+    google-gax: ^2.17.1
     protobufjs: ^6.8.6
-  checksum: d1f6e783a03f32a17293e87eeb869ca44c721bb2b9a9406c8688a870698118d4e02c5fcfa116126a42c85e59a36e4ed5e1ee50b0480eb546943192351ba5294b
+  checksum: 9c1314b94720154f2e6619b06c9623da91256a335cb0285e729a4e0e276115502091ebc4616951a1cbe3dfbdae2eed92ac230e16cc9a9b6e6c225ddc8e3e3394
   languageName: node
   linkType: hard
 
@@ -19520,7 +19520,7 @@ fsevents@~2.1.1:
   resolution: "fxa-auth-server@workspace:packages/fxa-auth-server"
   dependencies:
     "@babel/core": ^7.14.6
-    "@google-cloud/firestore": ^4.12.3
+    "@google-cloud/firestore": ^4.13.2
     "@hapi/hapi": ^20.1.5
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.2.0
@@ -19903,7 +19903,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
-    "@google-cloud/firestore": ^4.12.3
+    "@google-cloud/firestore": ^4.13.2
     "@google-cloud/pubsub": ^2.15.1
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.2.0
@@ -21224,6 +21224,23 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"google-auth-library@npm:^7.3.0":
+  version: 7.3.0
+  resolution: "google-auth-library@npm:7.3.0"
+  dependencies:
+    arrify: ^2.0.0
+    base64-js: ^1.3.0
+    ecdsa-sig-formatter: ^1.0.11
+    fast-text-encoding: ^1.0.0
+    gaxios: ^4.0.0
+    gcp-metadata: ^4.2.0
+    gtoken: ^5.0.4
+    jws: ^4.0.0
+    lru-cache: ^6.0.0
+  checksum: cd92c1338f6a188b578f104c7565b740e232127abb32d68ce292b36ac4b7d1b90c4ef7e1add80ffc60f6199f21e4a2f569216e140f303b9a43c1a29df79024c8
+  languageName: node
+  linkType: hard
+
 "google-gax@npm:^2.12.0":
   version: 2.13.0
   resolution: "google-gax@npm:2.13.0"
@@ -21243,6 +21260,28 @@ fsevents@~2.1.1:
   bin:
     compileProtos: build/tools/compileProtos.js
   checksum: 3ad0c1b5150987ce598f910aec258dffb5b4201c9237b55f41cf910c6ee3d53db9ce9859107b24f778046709dbd57508c047fddb6f3c3796e59bb927b36ca03f
+  languageName: node
+  linkType: hard
+
+"google-gax@npm:^2.17.1":
+  version: 2.19.0
+  resolution: "google-gax@npm:2.19.0"
+  dependencies:
+    "@grpc/grpc-js": ~1.3.0
+    "@grpc/proto-loader": ^0.6.1
+    "@types/long": ^4.0.0
+    abort-controller: ^3.0.0
+    duplexify: ^4.0.0
+    fast-text-encoding: ^1.0.3
+    google-auth-library: ^7.3.0
+    is-stream-ended: ^0.1.4
+    node-fetch: ^2.6.1
+    object-hash: ^2.1.1
+    protobufjs: ^6.10.2
+    retry-request: ^4.0.0
+  bin:
+    compileProtos: build/tools/compileProtos.js
+  checksum: 0350d7fb81541e2a0b7bf1cc37ae1ab77334c8aba75dc5f378cef63349362288b8375821fd6d06d310712482ab4e2067e35395fd61692931124bff41fa9e1ec9
   languageName: node
   linkType: hard
 
