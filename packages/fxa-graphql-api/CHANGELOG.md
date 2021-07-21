@@ -1,3 +1,19 @@
+## 1.211.0
+
+### Bug fixes
+
+- tests: disable verification reminders functional tests ([7416baf36](https://github.com/mozilla/fxa/commit/7416baf36))
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+- deps: bump graphql-query-complexity from 0.8.0 to 0.8.1 ([a4c622a53](https://github.com/mozilla/fxa/commit/a4c622a53))
+- deps: bump @nestjs/config from 0.6.3 to 1.0.0 ([267bcf120](https://github.com/mozilla/fxa/commit/267bcf120))
+- deps: bump @nestjs/passport from 7.1.5 to 8.0.0 ([221bb57df](https://github.com/mozilla/fxa/commit/221bb57df))
+- deps: bump knex from 0.95.6 to 0.95.7 ([bac054b4d](https://github.com/mozilla/fxa/commit/bac054b4d))
+- deps-dev: bump @nestjs/cli from 7.6.0 to 8.0.2 ([6476e6fca](https://github.com/mozilla/fxa/commit/6476e6fca))
+
 ## 1.210.3
 
 No changes.

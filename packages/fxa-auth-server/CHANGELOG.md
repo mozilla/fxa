@@ -1,3 +1,35 @@
+## 1.211.0
+
+### New features
+
+- auth: add /account/stub route ([f88701a3a](https://github.com/mozilla/fxa/commit/f88701a3a))
+- fxa-auth-server: Setup CSS solution for emails ([aaa8f1da2](https://github.com/mozilla/fxa/commit/aaa8f1da2))
+- auth: add VAT tax population script ([34223646e](https://github.com/mozilla/fxa/commit/34223646e))
+- auth: add tax ID to customer invoices ([6f1d149ea](https://github.com/mozilla/fxa/commit/6f1d149ea))
+- fxa-auth-server: Setup storybook to preview auth-sever emails ([8a5e52f0d](https://github.com/mozilla/fxa/commit/8a5e52f0d))
+- auth: include invoice link in emails ([537e36cac](https://github.com/mozilla/fxa/commit/537e36cac))
+- emails: Add mjml feature flag ([3c77c9039](https://github.com/mozilla/fxa/commit/3c77c9039))
+
+### Bug fixes
+
+- subscriptions: include subscriptions when retrieving a customer ([cae61501a](https://github.com/mozilla/fxa/commit/cae61501a))
+- auth: update vat populate script to handle change ([c85afb902](https://github.com/mozilla/fxa/commit/c85afb902))
+- emails: send email for cancelation due to failed payments ([3142a4e53](https://github.com/mozilla/fxa/commit/3142a4e53))
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps: bump hot-shots from 8.3.2 to 8.5.0 ([f5cc3f7db](https://github.com/mozilla/fxa/commit/f5cc3f7db))
+- deps: bump @google-cloud/firestore from 4.12.3 to 4.13.2 ([30a794542](https://github.com/mozilla/fxa/commit/30a794542))
+- deps: bump nodemailer from 6.6.2 to 6.6.3 ([e2b33717b](https://github.com/mozilla/fxa/commit/e2b33717b))
+- deps: bump google-libphonenumber from 3.2.21 to 3.2.22 ([5a136ff4c](https://github.com/mozilla/fxa/commit/5a136ff4c))
+- fxa-auth-server: Improve validation for product metadata ([6c0b464d7](https://github.com/mozilla/fxa/commit/6c0b464d7))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+- deps: bump aws-sdk from 2.947.0 to 2.948.0 ([649cb36c6](https://github.com/mozilla/fxa/commit/649cb36c6))
+- deps: bump aws-sdk from 2.935.0 to 2.947.0 ([aaa4a41ea](https://github.com/mozilla/fxa/commit/aaa4a41ea))
+- deps: bump @hapi/hapi from 20.1.4 to 20.1.5 ([554160c54](https://github.com/mozilla/fxa/commit/554160c54))
+- deps: bump luxon from 1.27.0 to 2.0.1 ([9830d1ead](https://github.com/mozilla/fxa/commit/9830d1ead))
+
 ## 1.210.3
 
 ### Bug fixes

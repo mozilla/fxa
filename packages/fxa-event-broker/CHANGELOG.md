@@ -1,5 +1,21 @@
 # Change history
 
+## 1.211.0
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps: bump hot-shots from 8.3.2 to 8.5.0 ([f5cc3f7db](https://github.com/mozilla/fxa/commit/f5cc3f7db))
+- deps: bump @google-cloud/pubsub from 2.15.1 to 2.16.1 ([a2fec2f2f](https://github.com/mozilla/fxa/commit/a2fec2f2f))
+- deps: bump @google-cloud/firestore from 4.12.3 to 4.13.2 ([30a794542](https://github.com/mozilla/fxa/commit/30a794542))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+- deps: bump aws-sdk from 2.947.0 to 2.948.0 ([649cb36c6](https://github.com/mozilla/fxa/commit/649cb36c6))
+- deps: bump aws-sdk from 2.935.0 to 2.947.0 ([aaa4a41ea](https://github.com/mozilla/fxa/commit/aaa4a41ea))
+- deps: bump @nestjs/config from 0.6.3 to 1.0.0 ([267bcf120](https://github.com/mozilla/fxa/commit/267bcf120))
+- deps: bump @nestjs/passport from 7.1.5 to 8.0.0 ([221bb57df](https://github.com/mozilla/fxa/commit/221bb57df))
+- deps-dev: bump @nestjs/schematics from 7.3.1 to 8.0.1 ([802a65dc3](https://github.com/mozilla/fxa/commit/802a65dc3))
+- deps-dev: bump @nestjs/cli from 7.6.0 to 8.0.2 ([6476e6fca](https://github.com/mozilla/fxa/commit/6476e6fca))
+
 ## 1.210.3
 
 No changes.

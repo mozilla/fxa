@@ -1,3 +1,17 @@
+## 1.211.0
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-links from 6.3.0 to 6.3.4 ([b90d5f493](https://github.com/mozilla/fxa/commit/b90d5f493))
+- deps: bump @apollo/client from 3.3.20 to 3.3.21 ([b3cb0fa99](https://github.com/mozilla/fxa/commit/b3cb0fa99))
+- deps: bump @sentry/browser from 6.8.0 to 6.9.0 ([49207d72d](https://github.com/mozilla/fxa/commit/49207d72d))
+- deps: bump react-easy-crop from 3.5.1 to 3.5.2 ([367fa0e12](https://github.com/mozilla/fxa/commit/367fa0e12))
+- deps-dev: bump @testing-library/dom from 8.0.0 to 8.1.0 ([bda707ed5](https://github.com/mozilla/fxa/commit/bda707ed5))
+- deps-dev: bump @testing-library/react-hooks from 7.0.0 to 7.0.1 ([88a163b17](https://github.com/mozilla/fxa/commit/88a163b17))
+- deps-dev: bump @storybook/react from 6.3.0 to 6.3.4 ([f0a342ae8](https://github.com/mozilla/fxa/commit/f0a342ae8))
+- deps-dev: bump @storybook/addon-actions from 6.3.0 to 6.3.4 ([2b36e6504](https://github.com/mozilla/fxa/commit/2b36e6504))
+- deps: bump @sentry/browser from 6.7.2 to 6.8.0 ([f4c750bb7](https://github.com/mozilla/fxa/commit/f4c750bb7))
+
 ## 1.210.3
 
 No changes.

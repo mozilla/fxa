@@ -1,3 +1,12 @@
+## 1.211.0
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps: bump @google-cloud/pubsub from 2.15.1 to 2.16.1 ([a2fec2f2f](https://github.com/mozilla/fxa/commit/a2fec2f2f))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+- deps: bump @hapi/hapi from 20.1.4 to 20.1.5 ([554160c54](https://github.com/mozilla/fxa/commit/554160c54))
+
 ## 1.210.3
 
 No changes.
