@@ -76,7 +76,7 @@
     "handlebars": "^4.7.7",
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",
-    "hot-shots": "^8.3.2",
+    "hot-shots": "^8.5.0",
     "i18n-abide": "0.0.26",
     "ioredis": "^4.27.6",
     "jed": "0.5.4",
