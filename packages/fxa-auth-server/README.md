@@ -147,6 +147,62 @@ This saves the HTML template into `/templates`. Then make changes to the `.txt` 
 After updating a string in one of the templates in `./mailer/templates` you'll need to extract the strings.
 Follow the instructions at [mozilla/fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n#string-extraction).
 
+### 2021 Template Updates
+
+In 2021, FxA began converting the email templating system from Mustache, inline CSS, and GetText to a modernized stack using [MJML](https://mjml.io/), [EJS](https://ejs.co/), [Fluent](https://github.com/projectfluent/fluent.js/tree/master/fluent-dom), and [Storybook](https://github.com/storybookjs/storybook/tree/main/app/html) ([see the ADR](https://github.com/mozilla/fxa/blob/main/docs/adr/0024-upgrade-templating-toolset-of-auth-server-emails.md)). Until each template has been converted and verified by QA, the old system described above will be used for emails in production.
+
+#### MJML Feature Flag for Testing
+
+The auth-server has an `mjml` configuration value that designates which email templates have been converted to the new stack ( `mjml.templates` array) and controls which user emails will receive those templates ( `mjml.enabledEmailAddress` regex). The auth-server exposes a feature flag method to check these values and send the correct rendered template accordingly (old or new) which allows for testing across environments.
+
+This flag and logic around it can be removed, as well as old templates and documentation, once all templates have been converted, verified by QA, and tested in production.
+
+#### MJML and EJS
+
+- HTML email has a lot of quirks - MJML shifts the burden of maintaining solutions for these off of FxA engineers
+- Using EJS with MJML helps us include more logic in templates thereby making conditional rendering possible without creating any additional helper methods
+- A small example of how template variables are being passed down from the mailer object to the templates:
+
+```js
+const templateValues = {
+  buttonText: 'Sync another device',
+};
+const localized = this.templates.render(
+  message.template, // template name
+  message.layout || 'fxa', // template layout
+  templateValues
+);
+const button = `
+  <mj-include path="./lib/senders/emails/css/button/index.css" type="css" css-inline="inline" />
+  <mj-section>
+    <mj-column>
+      <mj-button css-class="primary-button"><%= buttonText %></mj-button>
+    </mj-column>
+  </mj-section>
+`;
+```
+
+#### Styles
+
+- Another advantage of using MJML for emails is that it inline styles with the compliled HTML elements making emails compatible with all the mail clients.
+- Currently, we are using `scss` stylesheets which get compiled down to css and are included in the mjml templates. Since we were creating new stylesheets for our emails, we took this as an opportunity to dry up the codebase by making sass classes and variables like the Tailwind ones as well as using the closest `px` value to the fxa-settings design guide for consistency across FxA's CSS
+- We are maintaining a global stylesheet which contains variables and shared classes, and template-specific stylesheet for the styles scoped to the respective template/partial.
+- Although there are lot of benefits of using stylesheets with MJML, one caveat that we'd like to highlight is the inevitible use of `!important` syntax with some of the styles. While compiling down the templates, mjml internally adds some default styles to the html elements, so if we were to add our custom styles on top of it we may have to use `!important` with them to override the default ones.
+- Styling classes is not always how it seems due to how MJML compiles our templates and you may need to add `div` or `td` after the class.
+- explain using the FxA guideline // To ask
+
+#### l10n (Fluent)
+
+- TODO, once the Fluent PR is merged and patten set, explain how to localize in the new templates
+- also mention the LTR/RTL text direction
+
+#### Storybook and Documentation
+
+- As part of the emails revamp project, we've setup a local storybook deployment in order to preview the various states of the emails which was not possible before without manually tweaking the code.
+- The templates that are converted to mjml are compiled down to html before they can be rendered in Storybook and with [storybook/controls](https://storybook.js.org/docs/react/essentials/controls) in place we can directly modify the variables without touching the codebase.
+- Each template has an optional `doc` string that serves to document when users will receive the email (like what triggers the email to be sent)
+- These templates are essentially html templates rendered in browser with storybook and there is a possibility that they may not exactly match with what users see in an email client.
+
 #### Production
 
 Use the `FXA_L10N_SHA` to pin L10N files to certain SHA. If not set then the `master` SHA will be used.
