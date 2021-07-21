@@ -54,7 +54,7 @@
     "consolidate": "0.16.0",
     "convict": "^6.1.0",
     "convict-format-with-moment": "^6.0.1",
-    "convict-format-with-validator": "^6.0.1",
+    "convict-format-with-validator": "^6.2.0",
     "cookie-parser": "1.4.5",
     "css-loader": "1.0.0",
     "duration-js": "4.0.0",

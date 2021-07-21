@@ -47,7 +47,7 @@
     "commander": "^6.0.0",
     "convict": "^6.1.0",
     "convict-format-with-moment": "^6.0.1",
-    "convict-format-with-validator": "^6.0.1",
+    "convict-format-with-validator": "^6.2.0",
     "express": "^4.17.1",
     "fxa-auth-client": "workspace:*",
     "fxa-shared": "workspace:*",
