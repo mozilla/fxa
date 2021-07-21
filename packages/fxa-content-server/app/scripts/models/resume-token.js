@@ -9,37 +9,16 @@
 
 import _ from 'underscore';
 import Backbone from 'backbone';
-
-const ALLOWED_KEYS = [
-  'deviceId',
-  'email',
-  'entrypoint',
-  'entrypointExperiment',
-  'entrypointVariation',
-  'flowBegin',
-  'flowId',
-  'newsletters',
-  'planId',
-  'productId',
-  'resetPasswordConfirm',
-  'style',
-  'uniqueUserId',
-  'utmCampaign',
-  'utmContent',
-  'utmMedium',
-  'utmSource',
-  'utmTerm',
-];
+import {
+  ALLOWED_KEYS,
+  DEFAULTS,
+  parse,
+  stringify,
+} from 'fxa-shared/lib/resume-token';
 
 const ResumeToken = Backbone.Model.extend(
   {
-    defaults: {
-      utmCampaign: null,
-      utmContent: null,
-      utmMedium: null,
-      utmSource: null,
-      utmTerm: null,
-    },
+    defaults: DEFAULTS,
 
     initialize(options) {
       // get rid of any data in the options block that is not expected.
@@ -60,19 +39,6 @@ const ResumeToken = Backbone.Model.extend(
     stringify,
   }
 );
-
-function parse(resumeToken) {
-  try {
-    return JSON.parse(atob(resumeToken));
-  } catch (e) {
-    // do nothing, its an invalid token.
-  }
-}
-
-function stringify(resumeObj) {
-  const encoded = btoa(JSON.stringify(resumeObj));
-  return encoded;
-}
 
 function createFromStringifiedResumeToken(stringifiedResumeToken) {
   const parsedResumeToken = parse(stringifiedResumeToken);
