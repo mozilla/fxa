@@ -539,7 +539,9 @@ export class StripeHandler {
       uid,
       subscriptionId: subscription.id,
     });
-
+    // TODO
+    // If this fxa user is a stub (no-password) this is where we should
+    // send the "create a password" email
     return {
       sourceCountry,
       subscription: filterSubscription(subscription),

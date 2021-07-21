@@ -22,6 +22,8 @@ import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import { determineSubscriptionCapabilities } from './utils/subscriptions';
 import validators from './validators';
+import { generateAccessToken } from '../oauth/grant';
+import { getClientById } from '../oauth/client';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -500,6 +502,54 @@ export class AccountHandler {
       sessionToken,
       verificationMethod,
     });
+  }
+
+  async accountStub(request: AuthRequest) {
+    this.log.begin('Account.stub', request);
+    const { email, clientId } = request.payload as any;
+    await this.customs.check(request, email, 'accountCreate');
+
+    if (this.OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(clientId)) {
+      throw error.disabledClientId(clientId);
+    }
+
+    const client = await getClientById(clientId);
+
+    await this.deleteAccountIfUnverified(request, email);
+
+    const { hex16: emailCode, hex32: authSalt } =
+      await this.generateRandomValues();
+    const [kA, wrapWrapKb] = await random.hex(32, 32);
+
+    const account = await this.db.createAccount({
+      uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+      createdAt: Date.now(),
+      email,
+      emailCode,
+      emailVerified: false,
+      kA,
+      wrapWrapKb,
+      authSalt,
+      verifierVersion: this.config.verifierVersion,
+      verifyHash: Buffer.alloc(32).toString('hex'),
+      verifierSetAt: 0,
+      locale: request.app.acceptLanguage,
+    });
+
+    const access = await generateAccessToken({
+      clientId: client.id,
+      name: client.name,
+      canGrant: client.canGrant,
+      publicClient: client.publicClient,
+      userId: account.uid,
+      scope: ScopeSet.fromString(`profile ${client.allowedScopes}`),
+      ttl: 1800,
+    });
+
+    return {
+      uid: account.uid,
+      access_token: access.token.toString('hex'),
+    };
   }
 
   async login(request: AuthRequest) {
@@ -1514,6 +1564,19 @@ export const accountRoutes = (
         },
       },
       handler: (request: AuthRequest) => accountHandler.accountCreate(request),
+    },
+    {
+      method: 'POST',
+      path: '/account/stub',
+      options: {
+        validate: {
+          payload: {
+            email: validators.email().required(),
+            clientId: validators.clientId.required(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) => accountHandler.accountStub(request),
     },
     {
       method: 'POST',
