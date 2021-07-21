@@ -4,6 +4,6 @@ import { NewUserEmailForm } from './index';
 
 storiesOf('components/NewUserEmailForm', module).add('default', () => (
   <div style={{ display: 'flex' }}>
-    <NewUserEmailForm />
+    <NewUserEmailForm getString={(id: string) => id} />
   </div>
 ));
