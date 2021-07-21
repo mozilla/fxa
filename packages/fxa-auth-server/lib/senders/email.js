@@ -36,6 +36,7 @@ module.exports = function (log, config) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    subscriptionAccountFinishSetup: 'subscription-account-finish-setup',
     subscriptionReactivation: 'subscription-reactivation',
     subscriptionRenewalReminder: 'subscription-renewal-reminder',
     subscriptionUpgrade: 'subscription-upgrade',
@@ -87,6 +88,7 @@ module.exports = function (log, config) {
   // Please create a DB migration to add the new templates into `emailTypes`
   // when you add new templates.
   const templateNameToContentMap = {
+    subscriptionAccountFinishSetup: 'subscriptions',
     subscriptionReactivation: 'subscriptions',
     subscriptionRenewalReminder: 'subscriptions',
     subscriptionUpgrade: 'subscriptions',
@@ -263,6 +265,7 @@ module.exports = function (log, config) {
     this.androidUrl = mailerConfig.androidUrl;
     this.createAccountRecoveryUrl = mailerConfig.createAccountRecoveryUrl;
     this.emailService = sender || require('./email_service')(config);
+    this.accountFinishSetupUrl = mailerConfig.accountFinishSetupUrl;
     this.initiatePasswordChangeUrl = mailerConfig.initiatePasswordChangeUrl;
     this.initiatePasswordResetUrl = mailerConfig.initiatePasswordResetUrl;
     this.iosUrl = mailerConfig.iosUrl;
@@ -1894,6 +1897,94 @@ module.exports = function (log, config) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (
+    message
+  ) {
+    const {
+      email,
+      uid,
+      productId,
+      productName,
+      invoiceNumber,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
+      planEmailIconURL,
+      invoiceDate,
+      nextInvoiceDate,
+      token,
+      code,
+    } = message;
+
+    const redirectUrl = message.redirectUrl || 'https://www.mozilla.org';
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+
+    log.trace('mailer.subscriptionAccountFinishSetupEmail', {
+      enabled,
+      email,
+      productId,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const query = { email, productName, token, code, redirectUrl };
+    const template = 'subscriptionAccountFinishSetup';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(
+      this.accountFinishSetupUrl,
+      message,
+      query,
+      template
+    );
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    const action = gettext('Create a password');
+    const translatorParams = { productName };
+    const subject = translator.format(
+      translator.gettext('%(productName)s payment confirmed'),
+      translatorParams
+    );
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        action,
+        ...links,
+        uid,
+        email,
+        productName,
+        invoiceNumber,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        invoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          invoiceDate
+        ),
+        nextInvoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          nextInvoiceDate
+        ),
+        icon: planEmailIconURL,
+        product: productName,
+        subject,
       },
     });
   };
