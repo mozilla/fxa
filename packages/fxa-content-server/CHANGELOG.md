@@ -1,3 +1,25 @@
+## 1.210.3
+
+No changes.
+
+## 1.210.2
+
+No changes.
+
+## 1.210.1
+
+No changes.
+
+## 1.210.0
+
+### New features
+
+- subscriptions: add query param to force sign in on checkout link ([20f2b5b68](https://github.com/mozilla/fxa/commit/20f2b5b68))
+
+### Other changes
+
+- deps-dev: bump @testing-library/react from 11.2.7 to 12.0.0 ([2206b080b](https://github.com/mozilla/fxa/commit/2206b080b))
+
 ## 1.209.1
 
 No changes.

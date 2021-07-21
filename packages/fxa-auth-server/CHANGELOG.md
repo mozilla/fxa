@@ -1,3 +1,45 @@
+## 1.210.3
+
+### Bug fixes
+
+- auth: update vat populate script to handle change ([c182e1b52](https://github.com/mozilla/fxa/commit/c182e1b52))
+- subscriptions: include subscriptions when retrieving a customer ([43cc9cefa](https://github.com/mozilla/fxa/commit/43cc9cefa))
+
+## 1.210.2
+
+### New features
+
+- auth: add VAT tax population script ([107c7995d](https://github.com/mozilla/fxa/commit/107c7995d))
+- auth: add tax ID to customer invoices ([b2317beca](https://github.com/mozilla/fxa/commit/b2317beca))
+
+## 1.210.1
+
+### New features
+
+- auth: include invoice link in emails ([dd8a0a37d](https://github.com/mozilla/fxa/commit/dd8a0a37d))
+
+## 1.210.0
+
+### New features
+
+- auth: don't delete an unverified account with an active subscription ([233de6342](https://github.com/mozilla/fxa/commit/233de6342))
+- auth-server: Setup EJS+MJML templating solution in fxa-auth-server ([f9211fe9d](https://github.com/mozilla/fxa/commit/f9211fe9d))
+- emails: fadd11fd0 feat(emails) - Update VPN exit survey URL ([fadd11fd0](https://github.com/mozilla/fxa/commit/fadd11fd0))
+- auth: add tax rate on sub create ([71e4671c5](https://github.com/mozilla/fxa/commit/71e4671c5))
+
+### Bug fixes
+
+- email: Update email templates to use images from fxa based cdn ([77e4e931a](https://github.com/mozilla/fxa/commit/77e4e931a))
+- auth: don't resend session otp codes when totp is enabled ([c05aba4f9](https://github.com/mozilla/fxa/commit/c05aba4f9))
+
+### Other changes
+
+- deps-dev: bump nock from 13.1.0 to 13.1.1 ([2f720ea98](https://github.com/mozilla/fxa/commit/2f720ea98))
+- deps: bump stripe from 8.156.0 to 8.157.0 ([1182ae881](https://github.com/mozilla/fxa/commit/1182ae881))
+- deps: bump aws-sdk from 2.934.0 to 2.935.0 ([76ad1ed67](https://github.com/mozilla/fxa/commit/76ad1ed67))
+- deps: bump aws-sdk from 2.933.0 to 2.934.0 ([1b083a782](https://github.com/mozilla/fxa/commit/1b083a782))
+- auth-server: fly away bluebird ([5f63d848b](https://github.com/mozilla/fxa/commit/5f63d848b))
+
 ## 1.209.1
 
 ### Bug fixes

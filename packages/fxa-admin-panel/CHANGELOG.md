@@ -1,3 +1,23 @@
+## 1.210.3
+
+No changes.
+
+## 1.210.2
+
+No changes.
+
+## 1.210.1
+
+No changes.
+
+## 1.210.0
+
+### Other changes
+
+- deps-dev: bump @testing-library/react from 11.2.7 to 12.0.0 ([2206b080b](https://github.com/mozilla/fxa/commit/2206b080b))
+- deps-dev: bump @testing-library/dom from 7.31.2 to 8.0.0 ([e43580c19](https://github.com/mozilla/fxa/commit/e43580c19))
+- deps-dev: bump @typescript-eslint/parser from 4.27.0 to 4.28.0 ([62b42451c](https://github.com/mozilla/fxa/commit/62b42451c))
+
 ## 1.209.1
 
 No changes.

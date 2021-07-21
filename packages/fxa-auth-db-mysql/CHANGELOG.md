@@ -1,3 +1,22 @@
+## 1.210.3
+
+No changes.
+
+## 1.210.2
+
+No changes.
+
+## 1.210.1
+
+No changes.
+
+## 1.210.0
+
+### Other changes
+
+- deps-dev: bump nock from 13.1.0 to 13.1.1 ([2f720ea98](https://github.com/mozilla/fxa/commit/2f720ea98))
+- auth-server: fly away bluebird ([5f63d848b](https://github.com/mozilla/fxa/commit/5f63d848b))
+
 ## 1.209.1
 
 No changes.

@@ -1,3 +1,23 @@
+## 1.210.3
+
+No changes.
+
+## 1.210.2
+
+No changes.
+
+## 1.210.1
+
+No changes.
+
+## 1.210.0
+
+### Other changes
+
+- deps: bump @sentry/integrations from 6.7.2 to 6.8.0 ([7dff8d306](https://github.com/mozilla/fxa/commit/7dff8d306))
+- deps-dev: bump nock from 13.1.0 to 13.1.1 ([2f720ea98](https://github.com/mozilla/fxa/commit/2f720ea98))
+- deps: bump graphql-upload from 11.0.0 to 12.0.0 ([2ed01b329](https://github.com/mozilla/fxa/commit/2ed01b329))
+
 ## 1.209.1
 
 No changes.

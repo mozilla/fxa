@@ -1,5 +1,27 @@
 # Change history
 
+## 1.210.3
+
+No changes.
+
+## 1.210.2
+
+No changes.
+
+## 1.210.1
+
+No changes.
+
+## 1.210.0
+
+### Other changes
+
+- deps: bump @sentry/integrations from 6.7.2 to 6.8.0 ([7dff8d306](https://github.com/mozilla/fxa/commit/7dff8d306))
+- deps-dev: bump nock from 13.1.0 to 13.1.1 ([2f720ea98](https://github.com/mozilla/fxa/commit/2f720ea98))
+- deps: bump aws-sdk from 2.934.0 to 2.935.0 ([76ad1ed67](https://github.com/mozilla/fxa/commit/76ad1ed67))
+- deps: bump aws-sdk from 2.933.0 to 2.934.0 ([1b083a782](https://github.com/mozilla/fxa/commit/1b083a782))
+- deps-dev: bump @typescript-eslint/parser from 4.27.0 to 4.28.0 ([62b42451c](https://github.com/mozilla/fxa/commit/62b42451c))
+
 ## 1.209.1
 
 No changes.
