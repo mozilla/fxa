@@ -1,5 +1,32 @@
 # Change history
 
+## 1.211.0
+
+### New features
+
+- payments: create new Checkout route for unauthenticated users ([9126b0231](https://github.com/mozilla/fxa/commit/9126b0231))
+
+### Bug fixes
+
+- subscriptions: update idempotency key on PayPal btn callback ([ac153ec7d](https://github.com/mozilla/fxa/commit/ac153ec7d))
+
+### Refactorings
+
+- payments: check for access token in routes ([5650487e4](https://github.com/mozilla/fxa/commit/5650487e4))
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps: bump hot-shots from 8.3.2 to 8.5.0 ([f5cc3f7db](https://github.com/mozilla/fxa/commit/f5cc3f7db))
+- deps: bump @stripe/stripe-js from 1.15.1 to 1.16.0 ([4b7f91eb2](https://github.com/mozilla/fxa/commit/4b7f91eb2))
+- fxa-payments-server: create newUserEmailForm component ([84a0bebe9](https://github.com/mozilla/fxa/commit/84a0bebe9))
+- deps-dev: bump @storybook/addon-links from 6.3.0 to 6.3.4 ([b90d5f493](https://github.com/mozilla/fxa/commit/b90d5f493))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+- deps: bump @sentry/browser from 6.8.0 to 6.9.0 ([49207d72d](https://github.com/mozilla/fxa/commit/49207d72d))
+- deps-dev: bump @storybook/react from 6.3.0 to 6.3.4 ([f0a342ae8](https://github.com/mozilla/fxa/commit/f0a342ae8))
+- deps-dev: bump @storybook/addon-actions from 6.3.0 to 6.3.4 ([2b36e6504](https://github.com/mozilla/fxa/commit/2b36e6504))
+- deps: bump @sentry/browser from 6.7.2 to 6.8.0 ([f4c750bb7](https://github.com/mozilla/fxa/commit/f4c750bb7))
+
 ## 1.210.3
 
 No changes.

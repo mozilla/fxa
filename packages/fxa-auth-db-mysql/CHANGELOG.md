@@ -1,3 +1,14 @@
+## 1.211.0
+
+### Bug fixes
+
+- emails: send email for cancelation due to failed payments ([3142a4e53](https://github.com/mozilla/fxa/commit/3142a4e53))
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+
 ## 1.210.3
 
 No changes.

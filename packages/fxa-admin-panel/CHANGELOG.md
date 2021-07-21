@@ -1,3 +1,14 @@
+## 1.211.0
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps-dev: bump @storybook/addon-links from 6.3.0 to 6.3.4 ([b90d5f493](https://github.com/mozilla/fxa/commit/b90d5f493))
+- deps: bump @apollo/client from 3.3.20 to 3.3.21 ([b3cb0fa99](https://github.com/mozilla/fxa/commit/b3cb0fa99))
+- deps-dev: bump @testing-library/dom from 8.0.0 to 8.1.0 ([bda707ed5](https://github.com/mozilla/fxa/commit/bda707ed5))
+- deps-dev: bump @storybook/react from 6.3.0 to 6.3.4 ([f0a342ae8](https://github.com/mozilla/fxa/commit/f0a342ae8))
+- deps-dev: bump @storybook/addon-actions from 6.3.0 to 6.3.4 ([2b36e6504](https://github.com/mozilla/fxa/commit/2b36e6504))
+
 ## 1.210.3
 
 No changes.

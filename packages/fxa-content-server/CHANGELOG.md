@@ -1,3 +1,23 @@
+## 1.211.0
+
+### New features
+
+- passwords: Add initial view for finishing setup of passwordless accounts ([ce8d8fe13](https://github.com/mozilla/fxa/commit/ce8d8fe13))
+
+### Bug fixes
+
+- tests: force signin on subscription functional tests ([6901163fc](https://github.com/mozilla/fxa/commit/6901163fc))
+- tests: disable verification reminders functional tests ([7416baf36](https://github.com/mozilla/fxa/commit/7416baf36))
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps: bump hot-shots from 8.3.2 to 8.5.0 ([f5cc3f7db](https://github.com/mozilla/fxa/commit/f5cc3f7db))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+- deps: bump @sentry/browser from 6.8.0 to 6.9.0 ([49207d72d](https://github.com/mozilla/fxa/commit/49207d72d))
+- deps: bump autoprefixer from 10.2.6 to 10.3.1 ([ed99209b5](https://github.com/mozilla/fxa/commit/ed99209b5))
+- deps: bump @sentry/browser from 6.7.2 to 6.8.0 ([f4c750bb7](https://github.com/mozilla/fxa/commit/f4c750bb7))
+
 ## 1.210.3
 
 No changes.

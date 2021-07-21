@@ -1,5 +1,14 @@
 # Change history
 
+## 1.211.0
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+- deps: bump @nestjs/config from 0.6.3 to 1.0.0 ([267bcf120](https://github.com/mozilla/fxa/commit/267bcf120))
+- deps-dev: bump @nestjs/cli from 7.6.0 to 8.0.2 ([6476e6fca](https://github.com/mozilla/fxa/commit/6476e6fca))
+
 ## 1.210.3
 
 No changes.

@@ -1,5 +1,19 @@
 # Change history
 
+## 1.211.0
+
+### Other changes
+
+- deps: bump hot-shots from 8.3.2 to 8.5.0 ([f5cc3f7db](https://github.com/mozilla/fxa/commit/f5cc3f7db))
+- deps: bump generic-pool from 3.7.8 to 3.8.2 ([3c10dfb61](https://github.com/mozilla/fxa/commit/3c10dfb61))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+- deps: bump aws-sdk from 2.947.0 to 2.948.0 ([649cb36c6](https://github.com/mozilla/fxa/commit/649cb36c6))
+- deps: bump @sentry/browser from 6.8.0 to 6.9.0 ([49207d72d](https://github.com/mozilla/fxa/commit/49207d72d))
+- deps: bump aws-sdk from 2.935.0 to 2.947.0 ([aaa4a41ea](https://github.com/mozilla/fxa/commit/aaa4a41ea))
+- deps: bump @nestjs/config from 0.6.3 to 1.0.0 ([267bcf120](https://github.com/mozilla/fxa/commit/267bcf120))
+- deps: bump knex from 0.95.6 to 0.95.7 ([bac054b4d](https://github.com/mozilla/fxa/commit/bac054b4d))
+- deps: bump @sentry/browser from 6.7.2 to 6.8.0 ([f4c750bb7](https://github.com/mozilla/fxa/commit/f4c750bb7))
+
 ## 1.210.3
 
 No changes.

@@ -1,3 +1,13 @@
+## 1.211.0
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-links from 6.3.0 to 6.3.4 ([b90d5f493](https://github.com/mozilla/fxa/commit/b90d5f493))
+- deps-dev: bump @testing-library/dom from 8.0.0 to 8.1.0 ([bda707ed5](https://github.com/mozilla/fxa/commit/bda707ed5))
+- deps-dev: bump sass from 1.35.1 to 1.35.2 ([1eb749771](https://github.com/mozilla/fxa/commit/1eb749771))
+- deps-dev: bump @storybook/react from 6.3.0 to 6.3.4 ([f0a342ae8](https://github.com/mozilla/fxa/commit/f0a342ae8))
+- deps-dev: bump @storybook/addon-actions from 6.3.0 to 6.3.4 ([2b36e6504](https://github.com/mozilla/fxa/commit/2b36e6504))
+
 ## 1.210.3
 
 No changes.

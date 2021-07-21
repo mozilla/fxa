@@ -1,3 +1,14 @@
+## 1.211.0
+
+### Other changes
+
+- deps: bump convict-format-with-validator from 6.0.1 to 6.2.0 ([a43649dcb](https://github.com/mozilla/fxa/commit/a43649dcb))
+- deps: bump @sentry/node from 6.7.2 to 6.9.0 ([10020fb87](https://github.com/mozilla/fxa/commit/10020fb87))
+- deps: bump aws-sdk from 2.947.0 to 2.948.0 ([649cb36c6](https://github.com/mozilla/fxa/commit/649cb36c6))
+- deps: bump aws-sdk from 2.935.0 to 2.947.0 ([aaa4a41ea](https://github.com/mozilla/fxa/commit/aaa4a41ea))
+- deps: bump @hapi/hapi from 20.1.4 to 20.1.5 ([554160c54](https://github.com/mozilla/fxa/commit/554160c54))
+- deps: bump @hapi/boom from 9.1.2 to 9.1.3 ([fe1f8bd17](https://github.com/mozilla/fxa/commit/fe1f8bd17))
+
 ## 1.210.3
 
 No changes.
