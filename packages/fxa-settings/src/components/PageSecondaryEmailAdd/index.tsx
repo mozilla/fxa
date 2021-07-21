@@ -8,7 +8,7 @@ import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
-import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');
@@ -32,8 +32,8 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         if (e.errno) {
           const errorText = l10n.getString(
             `auth-error-${e.errno}`,
-            null,
-            AuthUiErrors.EMAIL_PRIMARY_EXISTS.message
+            { retryAfter: e.retryAfterLocalized },
+            AuthUiErrorNos[e.errno].message
           );
           setErrorText(errorText);
         } else {
