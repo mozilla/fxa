@@ -112,8 +112,16 @@ export type OnValidateFunction = (
   getString?: Function
 ) => { value: any; valid: boolean | undefined; error: any };
 
+export type OnValidateFunctionPromise = (
+  value: any,
+  focused: boolean,
+  props: FieldProps,
+  getString?: Function
+) => Promise<{ value: any; valid: boolean | undefined; error: any }>;
+
 type InputProps = {
   onValidate?: OnValidateFunction;
+  onValidatePromise?: OnValidateFunctionPromise;
 } & WithLocalizationProps &
   FieldProps &
   React.DetailedHTMLProps<
@@ -146,6 +154,7 @@ const UnwrappedInput = (props: InputProps) => {
     label,
     initialValue,
     onValidate = defaultInputValidator,
+    onValidatePromise,
     tooltip,
     autoFocus,
     required = false,
@@ -157,25 +166,41 @@ const UnwrappedInput = (props: InputProps) => {
   const { validator } = useContext(FormContext) as FormContextValue;
 
   const onChange = useCallback(
-    (ev) => {
+    async (ev) => {
       const { value } = ev.target;
-      validator.updateField({
-        name,
-        ...onValidate(value, true, props, getString),
-      });
+      if (onValidatePromise) {
+        const result = await onValidatePromise(value, true, props, getString);
+        validator.updateField({
+          name,
+          ...result,
+        });
+      } else {
+        validator.updateField({
+          name,
+          ...onValidate(value, true, props, getString),
+        });
+      }
     },
-    [name, props, validator, onValidate, getString]
+    [name, props, validator, onValidate, onValidatePromise, getString]
   );
 
   const onBlur = useCallback(
-    (ev) => {
+    async (ev) => {
       const { value } = ev.target;
-      validator.updateField({
-        name,
-        ...onValidate(value, false, props, getString),
-      });
+      if (onValidatePromise) {
+        const result = await onValidatePromise(value, false, props, getString);
+        validator.updateField({
+          name,
+          ...result,
+        });
+      } else {
+        validator.updateField({
+          name,
+          ...onValidate(value, false, props, getString),
+        });
+      }
     },
-    [name, props, validator, onValidate, getString]
+    [name, props, validator, onValidate, onValidatePromise, getString]
   );
 
   const tooltipParentRef = useRef<HTMLInputElement>(null);

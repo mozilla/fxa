@@ -374,3 +374,4 @@ new-user-subscribe-product-updates = I'd like to receive product updates from { 
 new-user-subscribe-product-assurance = We only use your email to create your account. We will never sell it to a third party.
 new-user-email-validate = Email is not valid
 new-user-email-validate-confirm = Emails do not match
+new-user-existing-account-sign-in = You already have an account, <a>Sign in</a>
