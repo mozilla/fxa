@@ -19394,7 +19394,7 @@ fsevents@~2.1.1:
     react-router-dom: ^5.1.2
     react-scripts: ^4.0.3
     serve-static: ^1.14.1
-    supertest: ^6.1.3
+    supertest: ^6.1.4
     ts-jest: ^26.5.6
     ts-node: ^10.0.0
     typescript: ^4.2.4
@@ -19448,7 +19448,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^6.6.6
-    supertest: ^6.1.3
+    supertest: ^6.1.4
     ts-jest: 26.5.6
     ts-node: ^10.0.0
     tsconfig-paths: ^3.9.0
@@ -19966,7 +19966,7 @@ fsevents@~2.1.1:
     rimraf: ^3.0.2
     rxjs: ^6.6.6
     sqs-consumer: ^5.5.0
-    supertest: ^6.1.3
+    supertest: ^6.1.4
     ts-jest: 26.5.6
     ts-loader: ^8.3.0
     ts-node: ^10.0.0
@@ -20064,7 +20064,7 @@ fsevents@~2.1.1:
     rimraf: ^3.0.2
     rxjs: ^6.6.6
     superagent: ^6.1.0
-    supertest: ^6.1.3
+    supertest: ^6.1.4
     ts-jest: 26.5.6
     ts-node: ^10.0.0
     tslib: ^2.3.0
@@ -20240,7 +20240,7 @@ fsevents@~2.1.1:
     redux-thunk: ^2.3.0
     serve-static: ^1.14.1
     sinon: ^9.0.3
-    supertest: ^6.1.3
+    supertest: ^6.1.4
     ts-jest: ^26.5.6
     ts-node: ^10.0.0
     type-to-reducer: ^1.2.0
@@ -20554,7 +20554,7 @@ fsevents@~2.1.1:
     rxjs: ^6.6.6
     semver: ^7.3.5
     superagent: ^6.1.0
-    supertest: ^6.1.3
+    supertest: ^6.1.4
     ts-jest: 26.5.6
     ts-node: ^10.0.0
     tslib: ^2.3.0
@@ -36957,13 +36957,13 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"supertest@npm:^6.1.3":
-  version: 6.1.3
-  resolution: "supertest@npm:6.1.3"
+"supertest@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "supertest@npm:6.1.4"
   dependencies:
     methods: ^1.1.2
     superagent: ^6.1.0
-  checksum: 4a3e07881952e54ada2b67be59a91d5222b0b36410b1f23fb363fc45a956aa5a82b7a1a9a33c90a63e3cac4222b3313d41398c85fe04d9f8a7f7757bd15b370b
+  checksum: 7832277d009ea951b365599a2706491725017d5525226125b55c42f286de8a061c3b00064f312dc0c291359489fb84e01078f1a2012d4ca4b6683c3d08f607cb
   languageName: node
   linkType: hard
 
