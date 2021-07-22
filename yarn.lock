@@ -2942,7 +2942,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grpc/grpc-js@npm:^1.1.3, @grpc/grpc-js@npm:~1.3.0":
+"@grpc/grpc-js@npm:^1.3.6":
+  version: 1.3.6
+  resolution: "@grpc/grpc-js@npm:1.3.6"
+  dependencies:
+    "@types/node": ">=12.12.47"
+  checksum: cd56e22bdabed91b8c25241f103c640879f28138c6bfd49906de502298a4ebf3a63fe29aa902d62a4ff1852ce405cd5f23afa73c5eb3fae49ed4d33b3c24f816
+  languageName: node
+  linkType: hard
+
+"@grpc/grpc-js@npm:~1.3.0":
   version: 1.3.1
   resolution: "@grpc/grpc-js@npm:1.3.1"
   dependencies:
@@ -19905,7 +19914,7 @@ fsevents@~2.1.1:
   dependencies:
     "@google-cloud/firestore": ^4.13.2
     "@google-cloud/pubsub": ^2.16.1
-    "@grpc/grpc-js": ^1.1.3
+    "@grpc/grpc-js": ^1.3.6
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^8.0.2
