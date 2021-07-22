@@ -475,9 +475,6 @@ describe('lib/routes/validators:', () => {
       res = deletePropAndValidate('product:privacyNoticeURL');
       assert.ok(res.error);
 
-      res = deletePropAndValidate('product:privacyNoticeDownloadURL');
-      assert.ok(res.error);
-
       res = deletePropAndValidate('product:termsOfServiceURL');
       assert.ok(res.error);
 
