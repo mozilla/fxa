@@ -85,6 +85,7 @@ const MESSAGE = {
   productPaymentCycle: 'month',
   productMetadata,
   reminderLength: 14,
+  redirectUrl: 'http://getfirefox.com/',
   service: 'sync',
   subscription: {
     productName: 'Cooking with Foxkeh',
@@ -98,6 +99,7 @@ const MESSAGE = {
   time: '5:48:20 PM (PDT)',
   timeZone: 'America/Los_Angeles',
   tokenCode: 'abc123',
+  token: 'abc123',
   type: 'secondary',
   uaBrowser: 'Firefox',
   uaBrowserVersion: '70.0a1',
@@ -126,6 +128,9 @@ const MESSAGE_PARAMS = new Map([
   ['service', 'service'],
   ['uid', 'uid'],
   ['unblockCode', 'unblockCode'],
+  ['redirectUrl', 'redirectUrl'],
+  ['productName', 'productName'],
+  ['token', 'token'],
 ]);
 
 const COMMON_TESTS = new Map([
@@ -256,6 +261,34 @@ const TESTS = [
       { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
       { test: 'notInclude', expected: 'utm_source=email' },
       { test: 'notInclude', expected: 'PayPal' },
+    ]]
+  ])],
+  ['subscriptionAccountFinishSetupEmail', new Map([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountFinishSetup') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountFinishSetup' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountFinishSetup }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'productName', 'token', 'code', 'redirectUrl') },
+      { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
+      { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next invoice: 04/19/2020` },
+      { test: 'include', expected: `create a Firefox account password and download ${MESSAGE.productName}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'productName', 'token', 'code', 'redirectUrl') },
+      { test: 'include', expected: configUrl('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
+      { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next invoice: 04/19/2020` },
+      { test: 'include', expected: `create a Firefox account password and download ${MESSAGE.productName}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
   ['subscriptionSubsequentInvoiceEmail', new Map([

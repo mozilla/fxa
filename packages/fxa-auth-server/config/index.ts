@@ -1857,6 +1857,10 @@ conf.set(
   `${baseUri}/settings/change_password`
 );
 conf.set('smtp.verifyLoginUrl', `${baseUri}/complete_signin`);
+conf.set(
+  'smtp.accountFinishSetupUrl',
+  `${baseUri}/post_verify/finish_account_setup/set_password`
+);
 conf.set('smtp.reportSignInUrl', `${baseUri}/report_signin`);
 conf.set(
   'smtp.revokeAccountRecoveryUrl',
