@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Localized } from '@fluent/react';
+
+import { isEmailValid } from '../../../../fxa-shared/email/helpers';
 
 import shieldIcon from './images/shield.svg';
 
@@ -13,11 +15,13 @@ import {
 import './index.scss';
 
 export type NewUserEmailFormProps = {
+  getString: (id: string) => string;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
 };
 
 export const NewUserEmailForm = ({
+  getString,
   validatorInitialState,
   validatorMiddlewareReducer,
 }: NewUserEmailFormProps) => {
@@ -25,6 +29,8 @@ export const NewUserEmailForm = ({
     initialState: validatorInitialState,
     middleware: validatorMiddlewareReducer,
   });
+
+  const [emailInputState, setEmailInputState] = useState<string>();
 
   return (
     <Form
@@ -46,12 +52,13 @@ export const NewUserEmailForm = ({
           placeholder="foxy@mozilla.com"
           required
           spellCheck={false}
-          onValidate={(value) => {
-            return {
+          onValidate={(value, focused) => {
+            return emailInputValidationAndAccountCheck(
               value,
-              valid: true,
-              error: null,
-            };
+              focused,
+              setEmailInputState,
+              getString
+            );
           }}
         />
       </Localized>
@@ -64,12 +71,13 @@ export const NewUserEmailForm = ({
           data-testid="new-user-confirm-email"
           required
           spellCheck={false}
-          onValidate={(value) => {
-            return {
+          onValidate={(value, focused) => {
+            return emailConfirmationValidation(
               value,
-              valid: true,
-              error: null,
-            };
+              focused,
+              emailInputState,
+              getString
+            );
           }}
         />
       </Localized>
@@ -95,5 +103,56 @@ export const NewUserEmailForm = ({
     </Form>
   );
 };
+
+export function emailInputValidationAndAccountCheck(
+  value: string,
+  focused: boolean,
+  setEmailInputState: Function,
+  getString: Function
+) {
+  let error = null;
+  let valid = false;
+  setEmailInputState(value);
+  if (isEmailValid(value)) {
+    // check if we have an existing account here
+    valid = true;
+  }
+  const errorMsg = getString
+    ? /* istanbul ignore next - not testing l10n here */
+      getString('new-user-email-validate')
+    : 'Email is not valid';
+
+  if (!valid && !focused && errorMsg) {
+    error = errorMsg;
+  }
+
+  return {
+    value,
+    valid,
+    error,
+  };
+}
+
+export function emailConfirmationValidation(
+  value: string,
+  focused: boolean,
+  emailInputState: string | undefined,
+  getString: Function
+) {
+  let valid = false;
+
+  valid = emailInputState === value;
+
+  const errorMsg = getString
+    ? /* istanbul ignore next - not testing l10n here */
+      getString('new-user-email-validate-confirm')
+    : 'Emails do not match';
+
+  return {
+    value,
+    valid,
+    error: !valid && !focused ? errorMsg : null,
+  };
+}
 
 export default NewUserEmailForm;
