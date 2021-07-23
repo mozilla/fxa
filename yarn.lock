@@ -3736,6 +3736,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jest/types@npm:^27.0.6":
+  version: 27.0.6
+  resolution: "@jest/types@npm:27.0.6"
+  dependencies:
+    "@types/istanbul-lib-coverage": ^2.0.0
+    "@types/istanbul-reports": ^3.0.0
+    "@types/node": "*"
+    "@types/yargs": ^16.0.0
+    chalk: ^4.0.0
+  checksum: 86c1d8707ffcf8fb3574fa6865e1768d771c83494df5bfdc81199cac81fdbe947c69a7c113d03b7bf21c926bbfefffcfe7253138d6e52bb61a1386e05aff2a6b
+  languageName: node
+  linkType: hard
+
 "@josephg/resolvable@npm:^1.0.0":
   version: 1.0.0
   resolution: "@josephg/resolvable@npm:1.0.0"
@@ -13802,6 +13815,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ci-info@npm:^3.1.1":
+  version: 3.2.0
+  resolution: "ci-info@npm:3.2.0"
+  checksum: d4a898d60111d00f2b7a06a349162971fe0603aefa208fe8d1343ce9e93c48e3d37311c47211d5c9040d25b43038c817588e5b7d8eab5d17b00aec49c7b5fade
+  languageName: node
+  linkType: hard
+
 "cipher-base@npm:^1.0.0, cipher-base@npm:^1.0.1, cipher-base@npm:^1.0.3":
   version: 1.0.4
   resolution: "cipher-base@npm:1.0.4"
@@ -19457,7 +19477,7 @@ fsevents@~2.1.1:
     react-scripts: ^4.0.3
     serve-static: ^1.14.1
     supertest: ^6.1.4
-    ts-jest: ^26.5.6
+    ts-jest: ^27.0.4
     ts-node: ^10.0.0
     typescript: ^4.2.4
     webpack: ^4.43.0
@@ -19511,7 +19531,7 @@ fsevents@~2.1.1:
     rimraf: ^3.0.2
     rxjs: ^6.6.6
     supertest: ^6.1.4
-    ts-jest: 26.5.6
+    ts-jest: 27.0.4
     ts-node: ^10.0.0
     tsconfig-paths: ^3.9.0
     tslib: ^2.3.0
@@ -20029,7 +20049,7 @@ fsevents@~2.1.1:
     rxjs: ^6.6.6
     sqs-consumer: ^5.5.0
     supertest: ^6.1.4
-    ts-jest: 26.5.6
+    ts-jest: 27.0.4
     ts-loader: ^8.3.0
     ts-node: ^10.0.0
     tsconfig-paths: ^3.9.0
@@ -20127,7 +20147,7 @@ fsevents@~2.1.1:
     rxjs: ^6.6.6
     superagent: ^6.1.0
     supertest: ^6.1.4
-    ts-jest: 26.5.6
+    ts-jest: 27.0.4
     ts-node: ^10.0.0
     tslib: ^2.3.0
     typescript: ^4.2.4
@@ -20303,7 +20323,7 @@ fsevents@~2.1.1:
     serve-static: ^1.14.1
     sinon: ^9.0.3
     supertest: ^6.1.4
-    ts-jest: ^26.5.6
+    ts-jest: ^27.0.4
     ts-node: ^10.0.0
     type-to-reducer: ^1.2.0
     typedi: ^0.8.0
@@ -20417,7 +20437,7 @@ fsevents@~2.1.1:
     sass-loader: ^10.0.3
     sinon: ^9.2.3
     tailwindcss-dir: ^4.0.0
-    ts-jest: ^26.5.6
+    ts-jest: ^27.0.4
     typescript: ^4.2.4
     webpack: ^4.43.0
   languageName: unknown
@@ -20567,7 +20587,7 @@ fsevents@~2.1.1:
     sinon: ^9.0.3
     stripe: ^8.157.0
     superagent: ^6.1.0
-    ts-jest: 26.5.6
+    ts-jest: 27.0.4
     ts-loader: ^8.3.0
     ts-node: ^10.0.0
     tsconfig-paths: ^3.9.0
@@ -20617,7 +20637,7 @@ fsevents@~2.1.1:
     semver: ^7.3.5
     superagent: ^6.1.0
     supertest: ^6.1.4
-    ts-jest: 26.5.6
+    ts-jest: 27.0.4
     ts-node: ^10.0.0
     tslib: ^2.3.0
     typesafe-joi: ^2.1.0
@@ -23632,6 +23652,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"is-ci@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "is-ci@npm:3.0.0"
+  dependencies:
+    ci-info: ^3.1.1
+  bin:
+    is-ci: bin.js
+  checksum: 1e26d3ba6634ebee83f9d22f260354c5d950eada4d609c30cc2642069f8ba52f3aeb4c9bbf8099aaf04a2f44a1ed7beef2a24485f988753c8c078a57e9b3a2fd
+  languageName: node
+  linkType: hard
+
 "is-color-stop@npm:^1.0.0":
   version: 1.1.0
   resolution: "is-color-stop@npm:1.1.0"
@@ -25054,7 +25085,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jest-util@npm:^26.1.0, jest-util@npm:^26.6.0, jest-util@npm:^26.6.2":
+"jest-util@npm:^26.6.0, jest-util@npm:^26.6.2":
   version: 26.6.2
   resolution: "jest-util@npm:26.6.2"
   dependencies:
@@ -25065,6 +25096,20 @@ fsevents@~2.1.1:
     is-ci: ^2.0.0
     micromatch: ^4.0.2
   checksum: 1aef748c8224d00ead3389899177bd3b619479db7318f8d7de7fbedce283ac6a8dc8c9364a40a68e83e68e03fa18afbd6b49c8aafb81112807872f0f90fb5a37
+  languageName: node
+  linkType: hard
+
+"jest-util@npm:^27.0.0":
+  version: 27.0.6
+  resolution: "jest-util@npm:27.0.6"
+  dependencies:
+    "@jest/types": ^27.0.6
+    "@types/node": "*"
+    chalk: ^4.0.0
+    graceful-fs: ^4.2.4
+    is-ci: ^3.0.0
+    picomatch: ^2.2.3
+  checksum: a62ab3304ad58eb5fa130d66680d987890fca8c0505857a1b8bbcc8cf1de35eb3b82e19bdc5084dd10f68b3ce373234723f57f6e83781d4a4f66be1b647b488d
   languageName: node
   linkType: hard
 
@@ -38141,14 +38186,14 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:26.5.6, ts-jest@npm:^26.5.6":
-  version: 26.5.6
-  resolution: "ts-jest@npm:26.5.6"
+"ts-jest@npm:27.0.4, ts-jest@npm:^27.0.4":
+  version: 27.0.4
+  resolution: "ts-jest@npm:27.0.4"
   dependencies:
     bs-logger: 0.x
     buffer-from: 1.x
     fast-json-stable-stringify: 2.x
-    jest-util: ^26.1.0
+    jest-util: ^27.0.0
     json5: 2.x
     lodash: 4.x
     make-error: 1.x
@@ -38156,11 +38201,21 @@ resolve@~1.11.1:
     semver: 7.x
     yargs-parser: 20.x
   peerDependencies:
-    jest: ">=26 <27"
+    "@babel/core": ">=7.0.0-beta.0 <8"
+    "@types/jest": ^26.0.0
+    babel-jest: ">=27.0.0 <28"
+    jest: ^27.0.0
     typescript: ">=3.8 <5.0"
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: true
+    "@types/jest":
+      optional: true
+    babel-jest:
+      optional: true
   bin:
     ts-jest: cli.js
-  checksum: fd32a8b256091d45d850c491fd090f74a368d44bccc8fedfa0dd074757727e7f07621eb2a69ebf081428f44a357a879237a2cf0aef970896410d454d0bf87ac6
+  checksum: 2891c2052f881e9350367ec0f978193d4268485496aa2613e45d6208f5809e7a04932105be38f3d1c016ff43d7699b7c7728728df6864ce22bc054aa0954af2f
   languageName: node
   linkType: hard
 
