@@ -28,7 +28,7 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
-    "@sentry/node": "^6.9.0",
+    "@sentry/node": "^6.10.0",
     "base64url": "3.0.1",
     "bluebird": "^3.7.2",
     "convict": "^6.1.0",

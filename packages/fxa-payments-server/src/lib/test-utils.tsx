@@ -150,7 +150,7 @@ export const mockStripeElementOnBlurFns: {
 export type MockStripeType = {
   createToken(
     options?: stripe.TokenOptions
-  ): Promise<ReactStripeElements.PatchedTokenResponse>;
+  ): Promise<ReactStripeElements.TokenResponse>;
 };
 
 export type MockStripeContextType = {
@@ -172,6 +172,7 @@ function injectStripe<P extends Object>(
           ...props,
           stripe:
             mockStripe as ReactStripeElements.InjectedStripeProps['stripe'],
+          elements: null,
         }}
         as
         any

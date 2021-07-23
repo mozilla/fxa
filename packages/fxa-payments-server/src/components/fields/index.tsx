@@ -7,7 +7,6 @@ import React, {
   FormHTMLAttributes,
 } from 'react';
 import { withLocalization, WithLocalizationProps } from '@fluent/react';
-import { ReactStripeElements } from 'react-stripe-elements';
 import { CardElementProps } from '@stripe/react-stripe-js';
 import classNames from 'classnames';
 import { Validator, FieldType } from '../../lib/validator';
