@@ -60,7 +60,7 @@
     "react-async-hook": "^3.6.2",
     "react-dom": "^16.13.1",
     "react-easy-crop": "^3.5.2",
-    "react-hook-form": "^6.15.5",
+    "react-hook-form": "^7.11.1",
     "react-scripts": "^4.0.3",
     "react-webcam": "^5.2.4",
     "subscriptions-transport-ws": "^0.9.18",
