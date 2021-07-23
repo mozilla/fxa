@@ -178,6 +178,7 @@
     "sinon": "^9.0.3",
     "through": "2.3.8",
     "ts-node": "^10.0.0",
+    "typesafe-node-firestore": "^1.4.0",
     "typescript": "^4.2.4",
     "webpack": "^4.43.0",
     "webpack-watch-files-plugin": "^1.1.0",

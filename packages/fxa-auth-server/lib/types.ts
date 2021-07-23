@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Request, RequestApplicationState } from '@hapi/hapi';
+import { Token } from 'typedi';
 import { Logger } from 'mozlog';
+import { Firestore } from '@google-cloud/firestore';
 
 export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;
 
@@ -62,3 +64,7 @@ export interface AuthRequest extends Request {
   stashMetricsContext: any;
   propagateMetricsContext: any;
 }
+
+// Container token types
+export const AuthLogger = new Token<AuthLogger>('AUTH_LOGGER');
+export const AuthFirestore = new Token<Firestore>('AUTH_FIRESTORE');

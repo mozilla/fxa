@@ -10,6 +10,8 @@ const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
 const { CurrencyHelper } = require('../lib/payments/currencies');
+const { AuthLogger, AuthFirestore } = require('../lib/types');
+const { setupFirestore } = require('../lib/firestore-db.ts');
 
 async function run(config) {
   const statsd = config.statsd.enabled
@@ -28,6 +30,12 @@ async function run(config) {
   Container.set(StatsD, statsd);
 
   const log = require('../lib/log')({ ...config.log, statsd });
+  Container.set(AuthLogger, log);
+
+  if (config.authFirestore.enabled) {
+    const authFirestore = setupFirestore(config);
+    Container.set(AuthFirestore, authFirestore);
+  }
 
   const redis = require('../lib/redis')(
     { ...config.redis, ...config.redis.sessionTokens },
