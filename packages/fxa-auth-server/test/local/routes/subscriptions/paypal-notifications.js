@@ -41,6 +41,9 @@ describe('PayPalNotificationHandler', () => {
 
   beforeEach(() => {
     config = {
+      authFirestore: {
+        enabled: false,
+      },
       subscriptions: {
         enabled: true,
         stripeApiKey: 'sk_test_1234',
@@ -579,10 +582,10 @@ describe('PayPalNotificationHandler', () => {
       stripeHelper.customer = sinon.fake.resolves(mockCustomer);
       stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
       stripeHelper.getPaymentProvider = sinon.fake.returns('paypal');
-      stripeHelper.formatSubscriptionsForEmails = sinon.fake.resolves(
-        mockFormattedSubs
-      );
-      mailer.sendSubscriptionPaymentProviderCancelledEmail = sinon.fake.resolves();
+      stripeHelper.formatSubscriptionsForEmails =
+        sinon.fake.resolves(mockFormattedSubs);
+      mailer.sendSubscriptionPaymentProviderCancelledEmail =
+        sinon.fake.resolves();
 
       await handler.handleMpCancel(billingAgreementCancelNotification);
 

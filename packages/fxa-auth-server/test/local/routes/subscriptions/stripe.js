@@ -202,6 +202,9 @@ describe('sanitizePlans', () => {
 describe('subscriptions stripeRoutes', () => {
   beforeEach(() => {
     config = {
+      authFirestore: {
+        enabled: false,
+      },
       subscriptions: {
         enabled: true,
         managementClientId: MOCK_CLIENT_ID,
