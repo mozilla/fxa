@@ -9,7 +9,7 @@ const encrypt = require('../encrypt');
 const mysql = require('./mysql');
 const redis = require('./redis');
 const AccessToken = require('./accessToken');
-const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('../../constants');
+const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
 const RefreshTokenMetadata = require('./refreshTokenMetadata');
 
 const JWT_ACCESS_TOKENS_ENABLED = config.get(

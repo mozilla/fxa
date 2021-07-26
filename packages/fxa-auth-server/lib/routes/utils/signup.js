@@ -5,7 +5,7 @@
 'use strict';
 const userAgent = require('../../userAgent');
 const ScopeSet = require('fxa-shared').oauth.scopes;
-const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');
+const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
 module.exports = (log, db, mailer, push, verificationReminders) => {
@@ -23,13 +23,8 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
       const geoData = request.app.geo;
       const country = geoData.location && geoData.location.country;
       const countryCode = geoData.location && geoData.location.countryCode;
-      const {
-        deviceId,
-        flowId,
-        flowBeginTime,
-        productId,
-        planId,
-      } = await request.app.metricsContext;
+      const { deviceId, flowId, flowBeginTime, productId, planId } =
+        await request.app.metricsContext;
 
       await Promise.all([
         log.notifyAttachedServices('verified', request, {

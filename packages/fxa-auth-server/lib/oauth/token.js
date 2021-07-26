@@ -10,7 +10,7 @@ const db = require('./db');
 const encrypt = require('./encrypt');
 const JWTAccessToken = require('./jwt_access_token');
 const validators = require('./validators');
-const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('../constants');
+const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('fxa-shared/oauth/constants');
 
 /**
  * Get the tokenId stored in the DB for `accessToken`

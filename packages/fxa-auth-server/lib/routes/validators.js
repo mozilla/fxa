@@ -587,7 +587,8 @@ module.exports.newsletters = isA
         'firefox-accounts-journey',
         'knowledge-is-power',
         'take-action-for-the-internet',
-        'test-pilot'
+        'test-pilot',
+        'mozilla-and-you'
       )
   )
   .default([])

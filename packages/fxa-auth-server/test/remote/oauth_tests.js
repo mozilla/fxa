@@ -8,7 +8,7 @@ const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').getProperties();
-const { OAUTH_SCOPE_OLD_SYNC } = require('../../lib/constants');
+const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const error = require('../../lib/error');
 const testUtils = require('../lib/util');
 

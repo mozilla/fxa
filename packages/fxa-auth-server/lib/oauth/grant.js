@@ -21,7 +21,7 @@ const ACR_VALUE_AAL2 = 'AAL2';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
 const SCOPE_OPENID = ScopeSet.fromArray(['openid']);
-const { OAUTH_SCOPE_SESSION_TOKEN } = require('../../lib/constants');
+const { OAUTH_SCOPE_SESSION_TOKEN } = require('fxa-shared/oauth/constants');
 
 const ID_TOKEN_EXPIRATION = Math.floor(
   config.get('oauthServer.openid.ttl') / 1000
