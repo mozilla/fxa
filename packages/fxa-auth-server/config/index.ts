@@ -60,6 +60,47 @@ const conf = convict({
       format: String,
     },
   },
+  // Prefixed with service name to disambiguate from above firestore config
+  authFirestore: {
+    credentials: {
+      client_email: {
+        default: 'test@localtest.com',
+        doc: 'GCP Client key credential',
+        env: 'AUTH_FIRESTORE_CLIENT_EMAIL_CREDENTIAL',
+        format: String,
+      },
+      private_key: {
+        default: '',
+        doc: 'GCP Private key credential',
+        env: 'AUTH_FIRESTORE_PRIVATE_KEY_CREDENTIAL',
+        format: String,
+      },
+    },
+    enabled: {
+      default: true,
+      doc: 'Whether to use firestore',
+      env: 'AUTH_FIRESTORE_ENABLED',
+      format: Boolean,
+    },
+    keyFilename: {
+      default: path.resolve(__dirname, 'secret-key.json'),
+      doc: 'Path to GCP key file',
+      env: 'AUTH_FIRESTORE_KEY_FILE',
+      format: String,
+    },
+    prefix: {
+      default: 'fxa-auth-',
+      doc: 'Firestore collection prefix',
+      env: 'AUTH_FIRESTORE_COLLECTION_PREFIX',
+      format: String,
+    },
+    projectId: {
+      default: '',
+      doc: 'GCP Project id',
+      env: 'AUTH_FIRESTORE_PROJECT_ID',
+      format: String,
+    },
+  },
   geodb: {
     dbPath: {
       doc: 'Path to the maxmind database file',
