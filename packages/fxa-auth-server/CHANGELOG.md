@@ -1,3 +1,9 @@
+## 1.211.1
+
+### Other changes
+
+- fxa-auth-server: mark privacyNoticeDownloadURL as optional ([c5c78ab5a](https://github.com/mozilla/fxa/commit/c5c78ab5a))
+
 ## 1.211.0
 
 ### New features
