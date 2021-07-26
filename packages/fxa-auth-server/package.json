@@ -114,7 +114,7 @@
   "devDependencies": {
     "@babel/core": "^7.14.6",
     "@storybook/addon-controls": "^6.3.4",
-    "@storybook/addon-docs": "^6.3.4",
+    "@storybook/addon-docs": "^6.3.5",
     "@storybook/html": "^6.3.4",
     "@types/babel__core": "7.1.14",
     "@types/chai": "^4.2.18",
