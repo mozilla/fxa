@@ -71,7 +71,7 @@
     "@babel/core": "^7.14.6",
     "@rescripts/cli": "0.0.16",
     "@sentry/browser": "^6.10.0",
-    "@storybook/addon-actions": "^6.3.4",
+    "@storybook/addon-actions": "^6.3.5",
     "@storybook/addon-links": "^6.3.4",
     "@storybook/addons": "^6.3.0",
     "@storybook/react": "^6.3.4",
