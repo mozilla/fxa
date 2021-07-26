@@ -9,13 +9,20 @@ const { assert } = require('chai');
 const { default: Container } = require('typedi');
 
 const { mockLog } = require('../../mocks');
-const { AuthFirestore, AuthLogger } = require('../../../lib/types');
+const { AuthFirestore, AuthLogger, AppConfig } = require('../../../lib/types');
 const { GoogleIAP } = require('../../../lib/payments/google-iap');
+
+const mockConfig = {
+  authFirestore: {
+    prefix: 'mock-fxa-',
+  },
+};
 
 describe('GoogleIAP', () => {
   let sandbox;
   let firestore;
   let log;
+  let googleIap;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
@@ -23,6 +30,11 @@ describe('GoogleIAP', () => {
     log = mockLog();
     Container.set(AuthFirestore, firestore);
     Container.set(AuthLogger, log);
+    Container.set(AppConfig, mockConfig);
+
+    // Create and set a new one per test
+    googleIap = new GoogleIAP();
+    Container.set(GoogleIAP, googleIap);
   });
 
   afterEach(() => {
@@ -33,5 +45,36 @@ describe('GoogleIAP', () => {
     const googleIap = Container.get(GoogleIAP);
     assert.strictEqual(googleIap.log, log);
     assert.strictEqual(googleIap.firestore, firestore);
+    assert.strictEqual(googleIap.prefix, 'mock-fxa-googleIap');
+  });
+
+  describe('plans', () => {
+    it('returns successfully', async () => {
+      firestore.doc = sinon.fake.returns({
+        get: sinon.fake.resolves({
+          exists: true,
+          data: sinon.fake.returns({ plans: 'testObject' }),
+        }),
+      });
+      const result = await googleIap.plans();
+      assert.strictEqual(result, 'testObject');
+    });
+
+    it('throws error with no document found', async () => {
+      firestore.doc = sinon.fake.returns({
+        get: sinon.fake.resolves({
+          exists: false,
+        }),
+      });
+      try {
+        await googleIap.plans();
+        assert.fail('Expected exception thrown.');
+      } catch (err) {
+        assert.strictEqual(
+          err.message,
+          'Google Plans default document does not exist.'
+        );
+      }
+    });
   });
 });

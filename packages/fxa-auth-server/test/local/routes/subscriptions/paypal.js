@@ -91,6 +91,9 @@ describe('subscriptions payPalRoutes', () => {
 
   beforeEach(() => {
     config = {
+      authFirestore: {
+        enabled: false,
+      },
       subscriptions: {
         enabled: true,
         paypalNvpSigCredentials: {

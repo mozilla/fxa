@@ -5,6 +5,7 @@ import { Request, RequestApplicationState } from '@hapi/hapi';
 import { Token } from 'typedi';
 import { Logger } from 'mozlog';
 import { Firestore } from '@google-cloud/firestore';
+import { ConfigType } from '../config';
 
 export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;
 
@@ -68,3 +69,4 @@ export interface AuthRequest extends Request {
 // Container token types
 export const AuthLogger = new Token<AuthLogger>('AUTH_LOGGER');
 export const AuthFirestore = new Token<Firestore>('AUTH_FIRESTORE');
+export const AppConfig = new Token<ConfigType>('APP_CONFIG');

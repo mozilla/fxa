@@ -102,6 +102,7 @@ see [`fxa-auth-client`](https://github.com/mozilla/fxa/tree/main/packages/fxa-au
     - [POST /oauth/subscriptions/updatePayment (:lock: oauthToken)](#post-subscriptionsupdatepayment)
     - [GET /oauth/subscriptions/customer (:lock: oauthToken)](#get-subscriptionscustomer)
     - [GET /oauth/subscriptions/paypal-checkout (:lock: oauthToken)](#get-paypalcheckout)
+    - [GET /oauth/subscriptions/google/plans](#get-googleplans)
   - [Totp](#totp)
     - [POST /totp/create (:lock: sessionToken)](#post-totpcreate)
     - [POST /totp/destroy (:lock: sessionToken)](#post-totpdestroy)
@@ -3626,6 +3627,10 @@ Create a new setup intent for attaching a new payment method to the user.
 
 :lock: authenticated with OAuth bearer token
 Update a user's default payment method for invoices to the attached payment method id.
+
+#### GET /oauth/subscriptions/google/plans
+
+Returns available plans for Android clients.
 
 ### Totp
 

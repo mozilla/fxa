@@ -7,12 +7,13 @@ import zendesk from 'node-zendesk';
 import { ConfigType } from '../../../config';
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger } from '../../types';
+import { googleIapRoutes } from './google';
 import { paypalRoutes } from './paypal';
 import { paypalNotificationRoutes } from './paypal-notifications';
 import { sanitizePlans, StripeHandler, stripeRoutes } from './stripe';
 import { stripeWebhookRoutes } from './stripe-webhook';
-import { handleAuth } from './utils';
 import { supportRoutes } from './support';
+import { handleAuth } from './utils';
 
 const createRoutes = (
   log: AuthLogger,
@@ -84,6 +85,9 @@ const createRoutes = (
         stripeHelper
       )
     );
+  }
+  if (config.authFirestore.enabled) {
+    routes.push(...googleIapRoutes());
   }
 
   return routes;

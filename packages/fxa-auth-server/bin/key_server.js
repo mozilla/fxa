@@ -10,10 +10,12 @@ const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
 const { CurrencyHelper } = require('../lib/payments/currencies');
-const { AuthLogger, AuthFirestore } = require('../lib/types');
+const { AuthLogger, AuthFirestore, AppConfig } = require('../lib/types');
 const { setupFirestore } = require('../lib/firestore-db.ts');
 
 async function run(config) {
+  Container.set(AppConfig, config);
+
   const statsd = config.statsd.enabled
     ? new StatsD({
         ...config.statsd,
@@ -181,6 +183,7 @@ async function run(config) {
 
 async function main() {
   const config = require('../config');
+
   try {
     const server = await run(config.getProperties());
     process.on('uncaughtException', (err) => {
