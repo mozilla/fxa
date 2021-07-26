@@ -5,6 +5,10 @@
 'use strict';
 
 const validators = require('./validators');
+const ScopeSet = require('fxa-shared/oauth/scopes');
+const AppError = require('../../lib/error');
+
+const { OAUTH_SCOPE_NEWSLETTERS } = require('fxa-shared/oauth/constants');
 
 module.exports = (log, db) => {
   return [
@@ -13,7 +17,7 @@ module.exports = (log, db) => {
       path: '/newsletters',
       options: {
         auth: {
-          strategy: 'sessionToken',
+          strategies: ['sessionToken', 'oauthToken'],
         },
         validate: {
           payload: {
@@ -24,10 +28,22 @@ module.exports = (log, db) => {
       handler: async function (request) {
         log.begin('newsletters', request);
 
-        const { uid } = request.auth.credentials;
+        const usingSessionToken = request.auth.strategy === 'sessionToken';
+
+        if (!usingSessionToken) {
+          const scope = ScopeSet.fromArray(request.auth.credentials.scope);
+          if (!scope.contains(OAUTH_SCOPE_NEWSLETTERS)) {
+            throw AppError.unauthorized(
+              'Bearer token not authorized to update newsletters'
+            );
+          }
+        }
+
+        const uid = usingSessionToken
+          ? request.auth.credentials.uid
+          : request.auth.credentials.user;
 
         const { newsletters } = request.payload;
-
         const account = await db.account(uid);
 
         const geoData = request.app.geo;

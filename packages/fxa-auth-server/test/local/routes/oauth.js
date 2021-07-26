@@ -14,7 +14,7 @@ const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const JWTIdToken = require(`${ROOT_DIR}/lib/oauth/jwt_id_token`);
 
-const { OAUTH_SCOPE_OLD_SYNC } = require(`${ROOT_DIR}/lib/constants`);
+const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const MOCK_CLIENT_ID = '0123456789abcdef';
 const MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
 const MOCK_SCOPES = `profile https://identity.mozilla.com/apps/scoped-example ${OAUTH_SCOPE_OLD_SYNC}`;

@@ -9,7 +9,7 @@ const client = require('../../oauth/client');
 const {
   OAUTH_SCOPE_OLD_SYNC,
   MAX_NEW_ACCOUNT_AGE,
-} = require('../../constants');
+} = require('fxa-shared/oauth/constants');
 const token = require('../../oauth/token');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 

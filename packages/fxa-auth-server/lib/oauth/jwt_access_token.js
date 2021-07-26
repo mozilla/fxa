@@ -6,7 +6,7 @@ const hex = require('buf').to.hex;
 const OauthError = require('./error');
 const jwt = require('./jwt');
 const sub = require('./jwt_sub');
-const { OAUTH_SCOPE_OLD_SYNC } = require('../constants');
+const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const config = require('../../config');
 const TOKEN_SERVER_URL = config.get('syncTokenserverUrl');
 

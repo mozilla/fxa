@@ -35,7 +35,7 @@ const Joi = require('@hapi/joi');
 const {
   OAUTH_SCOPE_OLD_SYNC,
   OAUTH_SCOPE_SESSION_TOKEN,
-} = require('../../constants');
+} = require('fxa-shared/oauth/constants');
 const config = require('../../../config');
 const encrypt = require('../../oauth/encrypt');
 const util = require('../../oauth/util');
