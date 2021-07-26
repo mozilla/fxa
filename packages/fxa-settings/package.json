@@ -47,7 +47,7 @@
     "@types/material-ui": "^0.21.8",
     "@types/react-webcam": "^3.0.0",
     "base32-decode": "^1.0.0",
-    "base32-encode": "^1.2.0",
+    "base32-encode": "^2.0.0",
     "classnames": "^2.3.1",
     "fxa-auth-client": "workspace:*",
     "fxa-common-password-list": "^0.0.4",
