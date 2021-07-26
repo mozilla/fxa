@@ -410,7 +410,7 @@ module.exports.subscriptionProductMetadataBaseValidator = isA
     'product:privacyNoticeDownloadURL': isA
       .string()
       .regex(legalResourceDomainPattern)
-      .required(),
+      .optional(),
     'product:privacyNoticeURL': isA.string().uri().required(),
   })
   .pattern(capabilitiesClientIdPattern, isA.string(), {
