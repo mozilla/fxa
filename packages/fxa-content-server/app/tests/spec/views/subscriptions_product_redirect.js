@@ -24,6 +24,7 @@ describe('views/subscriptions_product_redirect', function () {
   let windowMock;
   let config;
   let notifier;
+  let getSignedInAccountStub;
 
   function render() {
     return view.render().then(() => view.afterVisible());
@@ -58,7 +59,12 @@ describe('views/subscriptions_product_redirect', function () {
       window: windowMock,
     });
 
-    sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+    account._fxaClient = {
+      isSignedIn: () => Promise.resolve(true),
+    };
+    getSignedInAccountStub = sinon
+      .stub(view, 'getSignedInAccount')
+      .returns(account);
     sinon.stub(view, 'initializeFlowEvents');
 
     sinon
@@ -71,6 +77,7 @@ describe('views/subscriptions_product_redirect', function () {
     $(view.el).remove();
     view.destroy();
     view = null;
+    getSignedInAccountStub.restore();
   });
 
   describe('initialize', () => {
@@ -79,43 +86,6 @@ describe('views/subscriptions_product_redirect', function () {
         currentPage: `/subscriptions/products/${PRODUCT_ID}`,
       });
       assert.equal(PRODUCT_ID, relier.get('subscriptionProductId'));
-    });
-
-    it('sets mustAuth to true when allowUnauthenticatedRedirects false', () => {
-      view.initialize({
-        currentPage: `/subscriptions/products/${PRODUCT_ID}`,
-        config: {
-          subscriptions: {
-            allowUnauthenticatedRedirects: false,
-          },
-        },
-      });
-      assert.isTrue(view.mustAuth, 'mustAuth should be true');
-    });
-
-    it('sets mustAuth to false when allowUnauthenticatedRedirects true', () => {
-      view.initialize({
-        currentPage: `/subscriptions/products/${PRODUCT_ID}`,
-        config: {
-          subscriptions: {
-            allowUnauthenticatedRedirects: true,
-          },
-        },
-      });
-      assert.isFalse(view.mustAuth, 'mustAuth should be false');
-    });
-
-    it('sets mustAuth to true when signin query param exists', () => {
-      windowMock.location.search = 'signin=true';
-      view.initialize({
-        currentPage: `/subscriptions/products/${PRODUCT_ID}`,
-        config: {
-          subscriptions: {
-            allowUnauthenticatedRedirects: true,
-          },
-        },
-      });
-      assert.isTrue(view.mustAuth, 'mustAuth should be true');
     });
   });
 
@@ -151,6 +121,89 @@ describe('views/subscriptions_product_redirect', function () {
             {}
           )
         );
+      });
+    });
+
+    describe('mustAuth', () => {
+      it('is false when isSignedIn=false, allowUnauthenticatedRedirects=true, forceSignin=false', async () => {
+        getSignedInAccountStub.returns(null);
+        view.initialize({
+          currentPage: `/subscriptions/products/${PRODUCT_ID}`,
+          config: {
+            subscriptions: {
+              allowUnauthenticatedRedirects: true,
+            },
+          },
+        });
+        await view.render();
+        assert.strictEqual(view._redirectPath, `checkout/${PRODUCT_ID}`);
+        assert.isFalse(view.mustAuth, 'mustAuth should be false');
+      });
+      it('is true when isSignedIn=true, allowUnauthenticatedRedirects=true, forceSignin=true', async () => {
+        windowMock.location.search = 'signin=true';
+        view.initialize({
+          currentPage: `/subscriptions/products/${PRODUCT_ID}`,
+          config: {
+            subscriptions: {
+              allowUnauthenticatedRedirects: true,
+            },
+          },
+        });
+        await view.render();
+        assert.strictEqual(view._redirectPath, `products/${PRODUCT_ID}`);
+        assert.isTrue(view.mustAuth, 'mustAuth should be true');
+      });
+      it('is true when isSignedIn=false, allowUnauthenticatedRedirects=true, forceSignin=true', async () => {
+        getSignedInAccountStub.returns(null);
+        windowMock.location.search = 'signin=true';
+        view.initialize({
+          currentPage: `/subscriptions/products/${PRODUCT_ID}`,
+          config: {
+            subscriptions: {
+              allowUnauthenticatedRedirects: true,
+            },
+          },
+        });
+        await view.render();
+        assert.strictEqual(view._redirectPath, `products/${PRODUCT_ID}`);
+        assert.isTrue(view.mustAuth, 'mustAuth should be true');
+      });
+      it('is true when isSignedIn=false, allowUnauthenticatedRedirects=false, forceSignin=true', async () => {
+        getSignedInAccountStub.returns(null);
+        windowMock.location.search = 'signin=true';
+        await view.render();
+        assert.strictEqual(view._redirectPath, `products/${PRODUCT_ID}`);
+        assert.isTrue(view.mustAuth, 'mustAuth should be true');
+      });
+      it('is true when isSignedIn=true, allowUnauthenticatedRedirects=false, forceSignin=true', async () => {
+        windowMock.location.search = 'signin=true';
+        await view.render();
+        assert.strictEqual(view._redirectPath, `products/${PRODUCT_ID}`);
+        assert.isTrue(view.mustAuth, 'mustAuth should be true');
+      });
+      it('is true when isSignedIn=true, allowUnauthenticatedRedirects=false, forceSignin=false', async () => {
+        await view.render();
+        assert.strictEqual(view._redirectPath, `products/${PRODUCT_ID}`);
+        assert.isTrue(view.mustAuth, 'mustAuth should be true');
+      });
+      it('is true when isSignedIn=true, allowUnauthenticatedRedirects=true, forceSignin=false', async () => {
+        view.initialize({
+          currentPage: `/subscriptions/products/${PRODUCT_ID}`,
+          config: {
+            subscriptions: {
+              allowUnauthenticatedRedirects: true,
+            },
+          },
+        });
+        await view.render();
+        assert.strictEqual(view._redirectPath, `products/${PRODUCT_ID}`);
+        assert.isTrue(view.mustAuth, 'mustAuth should be true');
+      });
+      it('is true when (isSignedIn=false, allowUnauthenticatedRedirects=false, forceSignin=false)', async () => {
+        getSignedInAccountStub.returns(null);
+        await view.render();
+        assert.strictEqual(view._redirectPath, `products/${PRODUCT_ID}`);
+        assert.isTrue(view.mustAuth, 'mustAuth should be true');
       });
     });
   });

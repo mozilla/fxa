@@ -7,7 +7,7 @@
 
 import Url from './url';
 
-const allowedUnauthenticatedRoutes = ['product'];
+const allowedUnauthenticatedRoutes = ['checkout'];
 const isAllowedUnauthenticatedRoute = (redirectPath) =>
   allowedUnauthenticatedRoutes.some((route) => redirectPath.startsWith(route));
 

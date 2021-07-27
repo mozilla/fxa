@@ -89,8 +89,8 @@ describe('lib/payment-server-redirect', () => {
     });
   });
 
-  it('redirects to the product route when there is no account', () => {
-    const REDIRECT_PATH = 'product/bleepbloop';
+  it('redirects to the checkout route when there is no account', () => {
+    const REDIRECT_PATH = 'checkout/bleepbloop';
     view.getSignedInAccount = sinon.stub().returns(null);
     PaymentServer.navigateToPaymentServer(
       view,
@@ -105,8 +105,8 @@ describe('lib/payment-server-redirect', () => {
     );
   });
 
-  it('redirects to the product route when account is not signed in', () => {
-    const REDIRECT_PATH = 'product/bleepbloop';
+  it('redirects to the checkout route when account is not signed in', () => {
+    const REDIRECT_PATH = 'checkout/bleepbloop';
     account._fxaClient = {
       isSignedIn: sinon.stub().resolves(false),
     };
