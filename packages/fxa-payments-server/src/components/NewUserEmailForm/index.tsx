@@ -5,7 +5,7 @@ import { isEmailValid } from '../../../../fxa-shared/email/helpers';
 
 import shieldIcon from './images/shield.svg';
 
-import { Form, Input, Checkbox, OnValidateFunction } from '../fields';
+import { Form, Input, Checkbox } from '../fields';
 import {
   State as ValidatorState,
   useValidatorState,
@@ -13,15 +13,18 @@ import {
 } from '../../lib/validator';
 
 import './index.scss';
+import { config } from '../../lib/config';
 
 export type NewUserEmailFormProps = {
   getString: (id: string) => string;
+  checkAccountExists: Function;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
 };
 
 export const NewUserEmailForm = ({
   getString,
+  checkAccountExists,
   validatorInitialState,
   validatorMiddlewareReducer,
 }: NewUserEmailFormProps) => {
@@ -52,12 +55,13 @@ export const NewUserEmailForm = ({
           placeholder="foxy@mozilla.com"
           required
           spellCheck={false}
-          onValidate={(value, focused) => {
+          onValidatePromise={(value, focused) => {
             return emailInputValidationAndAccountCheck(
               value,
               focused,
               setEmailInputState,
-              getString
+              getString,
+              checkAccountExists
             );
           }}
         />
@@ -104,26 +108,50 @@ export const NewUserEmailForm = ({
   );
 };
 
-export function emailInputValidationAndAccountCheck(
+export async function checkAccountExists(userEmail: string) {
+  const response = await fetch(`${config.servers.auth.url}/v1/account/status`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email: userEmail }),
+  });
+  return response.json();
+}
+
+export async function emailInputValidationAndAccountCheck(
   value: string,
   focused: boolean,
   setEmailInputState: Function,
-  getString: Function
+  getString: Function,
+  checkAccountExists: Function
 ) {
   let error = null;
   let valid = false;
+  let hasAccount = false;
   setEmailInputState(value);
   if (isEmailValid(value)) {
-    // check if we have an existing account here
     valid = true;
+    const response = await checkAccountExists(value);
+    if (response.exists) {
+      hasAccount = true;
+    }
   }
   const errorMsg = getString
     ? /* istanbul ignore next - not testing l10n here */
       getString('new-user-email-validate')
     : 'Email is not valid';
 
+  const accountExistsMsg = getString
+    ? getString('new-user-existing-account-sign-in')
+    : `You already have an account, <a>Sign in</a>`;
+
   if (!valid && !focused && errorMsg) {
     error = errorMsg;
+  }
+
+  if (hasAccount) {
+    error = accountExistsMsg;
   }
 
   return {
