@@ -15,7 +15,6 @@ class SubscriptionsProductRedirectView extends FormView {
   initialize(options) {
     this._currentPage = options.currentPage;
     this._productId = this._currentPage.split('/').pop();
-    this._queryParams = Url.searchParams(this.window.location.search);
     this.relier.set('subscriptionProductId', this._productId);
 
     this._subscriptionsConfig = {};
@@ -23,22 +22,38 @@ class SubscriptionsProductRedirectView extends FormView {
       this._subscriptionsConfig = options.config.subscriptions;
     }
 
-    this.mustAuth =
-      !!this._queryParams.signin ||
-      !this._subscriptionsConfig.allowUnauthenticatedRedirects;
-
     // Flow events need to be initialized before the navigation
     // so the flow_id and flow_begin_time are propagated
     this.initializeFlowEvents();
   }
 
+  render() {
+    const account = this.getSignedInAccount();
+    return Promise.resolve()
+      .then(() => {
+        const isSignedInPromise =
+          account?.isSignedIn() || Promise.resolve(false);
+        return isSignedInPromise.then((isSignedIn) => {
+          this._queryParams = Url.searchParams(this.window.location.search);
+          const forceSignin = !!this._queryParams.signin;
+          this._redirectPath =
+            !isSignedIn &&
+            this._subscriptionsConfig.allowUnauthenticatedRedirects &&
+            !forceSignin
+              ? `checkout/${this._productId}`
+              : `products/${this._productId}`;
+          this.mustAuth = this._redirectPath.startsWith('products');
+        });
+      })
+      .finally(() => FormView.prototype.render.bind(this)());
+  }
+
   afterRender() {
     delete this._queryParams.signin;
-    const redirectPath = `products/${this._productId}`;
     return PaymentServer.navigateToPaymentServer(
       this,
       this._subscriptionsConfig,
-      redirectPath,
+      this._redirectPath,
       this._queryParams
     );
   }
