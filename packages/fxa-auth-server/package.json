@@ -115,7 +115,7 @@
     "@babel/core": "^7.14.6",
     "@storybook/addon-controls": "^6.3.4",
     "@storybook/addon-docs": "^6.3.6",
-    "@storybook/html": "^6.3.4",
+    "@storybook/html": "^6.3.6",
     "@types/babel__core": "7.1.14",
     "@types/chai": "^4.2.18",
     "@types/convict": "^5.2.2",

@@ -6231,14 +6231,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/html@npm:^6.3.4":
-  version: 6.3.4
-  resolution: "@storybook/html@npm:6.3.4"
+"@storybook/html@npm:^6.3.6":
+  version: 6.3.6
+  resolution: "@storybook/html@npm:6.3.6"
   dependencies:
-    "@storybook/addons": 6.3.4
-    "@storybook/client-api": 6.3.4
-    "@storybook/core": 6.3.4
-    "@storybook/core-common": 6.3.4
+    "@storybook/addons": 6.3.6
+    "@storybook/client-api": 6.3.6
+    "@storybook/core": 6.3.6
+    "@storybook/core-common": 6.3.6
     "@types/webpack-env": ^1.16.0
     core-js: ^3.8.2
     global: ^4.4.0
@@ -6254,7 +6254,7 @@ __metadata:
     build-storybook: bin/build.js
     start-storybook: bin/index.js
     storybook-server: bin/index.js
-  checksum: 36700306a3a0247c96b3e6d8fec58bf01816c6b59d92e240e2b3468922109ac784b74bb147fd2d99560160ca9941fa3d8ba3d963abdda9a0c790836a2cd43029
+  checksum: f8d009383aa753edfa67f82ffd625dbf719a68760f1d7934de794db50d069c52a79fefa1cda2f35a52cf504882f1ff60bae431294e3de411abffa890559bcdc2
   languageName: node
   linkType: hard
 
@@ -19496,7 +19496,7 @@ fsevents@~2.1.1:
     "@sentry/node": ^6.10.0
     "@storybook/addon-controls": ^6.3.4
     "@storybook/addon-docs": ^6.3.6
-    "@storybook/html": ^6.3.4
+    "@storybook/html": ^6.3.6
     "@type-cacheable/core": ^5.2.0
     "@type-cacheable/ioredis-adapter": ^5.2.0
     "@types/babel__core": 7.1.14
