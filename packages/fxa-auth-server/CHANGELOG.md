@@ -1,3 +1,9 @@
+## 1.211.2
+
+### Bug fixes
+
+- auth: setup containers for email script ([76f2fda36](https://github.com/mozilla/fxa/commit/76f2fda36))
+
 ## 1.211.1
 
 ### Other changes
