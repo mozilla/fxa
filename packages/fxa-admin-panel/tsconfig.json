@@ -14,12 +14,15 @@
     ],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "jsx": "react-jsx"
   },
   "include": [
     "src"
   ],
   "references": [
-    {"path": "../fxa-react"}
+    {
+      "path": "../fxa-react"
+    }
   ]
 }

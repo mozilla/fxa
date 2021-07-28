@@ -1712,6 +1712,24 @@ describe('/recovery_email', () => {
           )
       );
     });
+
+    it('should fail when setting email has no password set', () => {
+      mockDB.getSecondaryEmail = sinon.spy(() => {
+        return Promise.resolve({
+          uid: mockRequest.auth.credentials.uid,
+          isVerified: true,
+          isPrimary: true,
+        });
+      });
+
+      mockRequest.auth.credentials.verifierSetAt = 0;
+
+      route = getRoute(accountRoutes, '/recovery_email/set_primary');
+      return runTest(route, mockRequest).then(
+        () => assert.fail('should have errored'),
+        (err) => assert.equal(err.errno, 104, 'unverified account errno')
+      );
+    });
   });
 
   describe('/recovery_email/secondary/verify_code', () => {

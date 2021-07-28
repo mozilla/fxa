@@ -812,36 +812,40 @@ module.exports = (
       },
       handler: async function (request) {
         const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
-        const primaryEmail = sessionToken.email;
-        const email = request.payload.email;
+        const { uid, verifierSetAt } = sessionToken;
+        const currentEmail = sessionToken.email;
+        const newEmail = request.payload.email;
 
         log.begin('Account.RecoveryEmailSetPrimary', request);
 
-        await customs.check(request, primaryEmail, 'setPrimaryEmail');
+        await customs.check(request, currentEmail, 'setPrimaryEmail');
 
         if (sessionToken.tokenVerificationId) {
           throw error.unverifiedSession();
         }
 
-        const secondaryEmail = await db.getSecondaryEmail(email);
-        if (secondaryEmail.uid !== uid) {
+        if (verifierSetAt <= 0) {
+          throw error.unverifiedAccount();
+        }
+
+        const newEmailRecord = await db.getSecondaryEmail(newEmail);
+        if (newEmailRecord.uid !== uid) {
           throw error.cannotChangeEmailToUnownedEmail();
         }
 
-        if (!secondaryEmail.isVerified) {
+        if (!newEmailRecord.isVerified) {
           throw error.cannotChangeEmailToUnverifiedEmail();
         }
 
-        if (!secondaryEmail.isPrimary) {
-          await db.setPrimaryEmail(uid, secondaryEmail.normalizedEmail);
+        if (!newEmailRecord.isPrimary) {
+          await db.setPrimaryEmail(uid, newEmailRecord.normalizedEmail);
 
           const devices = await request.app.devices;
           push.notifyProfileUpdated(uid, devices);
 
           log.notifyAttachedServices('primaryEmailChanged', request, {
             uid,
-            email: email,
+            email: newEmail,
           });
 
           // While we typically do not want to capture PII in Sentry, in this
@@ -850,8 +854,8 @@ module.exports = (
           const handleCriticalError = (err, source) => {
             Sentry.withScope((scope) => {
               scope.setContext('primaryEmailChange', {
-                originalEmail: primaryEmail,
-                newEmail: secondaryEmail.email,
+                originalEmail: currentEmail,
+                newEmail: newEmailRecord.email,
                 system: source,
               });
               Sentry.captureException(err);
@@ -864,8 +868,8 @@ module.exports = (
           updateZendeskPrimaryEmail(
             zendeskClient,
             uid,
-            primaryEmail,
-            secondaryEmail.email
+            currentEmail,
+            newEmailRecord.email
           ).catch((err) => handleCriticalError(err, 'zendesk'));
 
           if (stripeHelper) {
@@ -875,12 +879,12 @@ module.exports = (
               await updateStripeEmail(
                 stripeHelper,
                 uid,
-                primaryEmail,
-                secondaryEmail.email
+                currentEmail,
+                newEmailRecord.email
               );
               await stripeHelper.refreshCachedCustomer(
                 uid,
-                secondaryEmail.email
+                newEmailRecord.email
               );
             } catch (err) {
               // Due to the work involved by this point, we cannot abort the
@@ -891,7 +895,6 @@ module.exports = (
           }
 
           const account = await db.account(uid);
-
           await mailer.sendPostChangePrimaryEmail(account.emails, account, {
             acceptLanguage: request.app.acceptLanguage,
             uid,
