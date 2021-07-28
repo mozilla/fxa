@@ -6,10 +6,47 @@
 
 const config = require('../config').getProperties();
 const StatsD = require('hot-shots');
+const { CurrencyHelper } = require('../lib/payments/currencies');
+
+const { Container } = require('typedi');
+const { StripeHelper } = require('../lib/payments/stripe');
 const statsd = new StatsD(config.statsd);
+Container.set(StatsD, statsd);
 const log = require('../lib/log')(config.log.level, 'fxa-email-bouncer', {
   statsd,
 });
+
+// Set currencyHelper before stripe and paypal helpers, so they can use it.
+try {
+  // eslint-disable-next-line
+  const currencyHelper = new CurrencyHelper(config);
+  Container.set(CurrencyHelper, currencyHelper);
+} catch (err) {
+  log.error('Invalid currency configuration', {
+    err: { message: err.message },
+  });
+  process.exit(1);
+}
+
+/** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
+let stripeHelper = undefined;
+if (config.subscriptions && config.subscriptions.stripeApiKey) {
+  const { createStripeHelper } = require('../lib/payments/stripe');
+  stripeHelper = createStripeHelper(log, config, statsd);
+  Container.set(StripeHelper, stripeHelper);
+
+  if (config.subscriptions.paypalNvpSigCredentials.enabled) {
+    const { PayPalClient } = require('../lib/payments/paypal-client');
+    const { PayPalHelper } = require('../lib/payments/paypal');
+    const paypalClient = new PayPalClient(
+      config.subscriptions.paypalNvpSigCredentials
+    );
+    Container.set(PayPalClient, paypalClient);
+    const paypalHelper = new PayPalHelper({ log });
+    Container.set(PayPalHelper, paypalHelper);
+  }
+}
+
 const error = require('../lib/error');
 const Token = require('../lib/tokens')(log, config);
 const SQSReceiver = require('../lib/sqs')(log, statsd);
