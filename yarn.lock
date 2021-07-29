@@ -19442,7 +19442,7 @@ fsevents@~2.1.1:
     graphql-tools: ^7.0.5
     helmet: ^4.6.0
     jest: 26.6.0
-    knex: ^0.95.7
+    knex: ^0.95.8
     mozlog: ^3.0.2
     mysql: ^2.18.1
     objection: ^2.2.15
@@ -20056,7 +20056,7 @@ fsevents@~2.1.1:
     helmet: ^4.6.0
     ioredis: ^4.27.6
     jest: 26.6.0
-    knex: ^0.95.7
+    knex: ^0.95.8
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.1.1
@@ -20492,7 +20492,7 @@ fsevents@~2.1.1:
     js-md5: ^0.7.3
     jsdom: 16.6.0
     jsdom-global: 3.0.2
-    knex: ^0.95.7
+    knex: ^0.95.8
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^9.0.1
@@ -25905,9 +25905,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"knex@npm:^0.95.7":
-  version: 0.95.7
-  resolution: "knex@npm:0.95.7"
+"knex@npm:^0.95.8":
+  version: 0.95.8
+  resolution: "knex@npm:0.95.8"
   dependencies:
     colorette: 1.2.1
     commander: ^7.1.0
@@ -25918,7 +25918,7 @@ fsevents@~2.1.1:
     interpret: ^2.2.0
     lodash: ^4.17.21
     pg-connection-string: 2.5.0
-    rechoir: ^0.7.0
+    rechoir: 0.7.0
     resolve-from: ^5.0.0
     tarn: ^3.0.1
     tildify: 2.0.0
@@ -25935,7 +25935,7 @@ fsevents@~2.1.1:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: 1ba0a88f976fc214a874168a3ac70496d1e8027845ad460add97edef7d36833bd37f598b8e6c517fa8371bb2cfd9dcaa837eaad6da8eae99b652262cd67d194a
+  checksum: dc6715af37e11df1dd9386d5a4183a0ffd981d143ac341633ee4f1d8604ab603d347421f3159e6567f10271b82a2a5d576b1131308e4140ab1b8153e7c6f59b1
   languageName: node
   linkType: hard
 
@@ -33447,21 +33447,21 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"rechoir@npm:0.7.0, rechoir@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "rechoir@npm:0.7.0"
+  dependencies:
+    resolve: ^1.9.0
+  checksum: 15f55f55e06c175d98df85d503b139982378e7ca34e157439125e5a6f25a5cbd9cfe2aa2d1052e2c1edf89d7d22dc020c911fc968702c84f669a16a12a1ec7ac
+  languageName: node
+  linkType: hard
+
 "rechoir@npm:^0.6.2":
   version: 0.6.2
   resolution: "rechoir@npm:0.6.2"
   dependencies:
     resolve: ^1.1.6
   checksum: fe76bf9c21875ac16e235defedd7cbd34f333c02a92546142b7911a0f7c7059d2e16f441fe6fb9ae203f459c05a31b2bcf26202896d89e390eda7514d5d2702b
-  languageName: node
-  linkType: hard
-
-"rechoir@npm:^0.7.0":
-  version: 0.7.0
-  resolution: "rechoir@npm:0.7.0"
-  dependencies:
-    resolve: ^1.9.0
-  checksum: 15f55f55e06c175d98df85d503b139982378e7ca34e157439125e5a6f25a5cbd9cfe2aa2d1052e2c1edf89d7d22dc020c911fc968702c84f669a16a12a1ec7ac
   languageName: node
   linkType: hard
 
