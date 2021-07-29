@@ -72,7 +72,7 @@
     "@rescripts/cli": "0.0.16",
     "@sentry/browser": "^6.10.0",
     "@storybook/addon-actions": "^6.3.5",
-    "@storybook/addon-links": "^6.3.4",
+    "@storybook/addon-links": "^6.3.6",
     "@storybook/addons": "^6.3.0",
     "@storybook/react": "^6.3.5",
     "@tailwindcss/postcss7-compat": "^2.2.7",
