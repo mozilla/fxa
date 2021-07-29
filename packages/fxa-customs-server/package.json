@@ -30,7 +30,7 @@
     "bluebird": "^3.7.2",
     "bunyan": "^1.8.15",
     "convict": "^6.1.0",
-    "convict-format-with-moment": "^6.0.1",
+    "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "deep-equal": "2.0.5",
     "ip": "^1.1.5",
