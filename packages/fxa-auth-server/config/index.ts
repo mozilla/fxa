@@ -77,7 +77,7 @@ const conf = convict({
       },
     },
     enabled: {
-      default: true,
+      default: false,
       doc: 'Whether to use firestore',
       env: 'AUTH_FIRESTORE_ENABLED',
       format: Boolean,
@@ -819,6 +819,26 @@ const conf = convict({
         format: String,
         default: 'user',
         env: 'PAYPAL_NVP_SIGNATURE',
+      },
+    },
+    playApiServiceAccount: {
+      enabled: {
+        doc: 'Indicates whether the Play API is enabled',
+        format: Boolean,
+        default: false,
+        env: 'SUBSCRIPTIONS_PLAY_API_ENABLED',
+      },
+      clientEmail: {
+        doc: 'The email of the service account to use for Play API calls',
+        format: String,
+        default: 'email',
+        env: 'SUBSCRIPTIONS_PLAY_API_CLIENT_EMAIL',
+      },
+      privateKey: {
+        doc: 'The private key of the service account to use for Play API calls',
+        format: String,
+        default: 'key',
+        env: 'SUBSCRIPTIONS_PLAY_API_PRIVATE_KEY',
       },
     },
     sharedSecret: {

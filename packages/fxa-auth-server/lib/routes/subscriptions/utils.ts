@@ -27,4 +27,12 @@ export async function handleAuth(db: any, auth: any, fetchEmail = false) {
   return { uid, email };
 }
 
+export function handleUidAuth(auth: any): string {
+  const scope = ScopeSet.fromArray(auth.credentials.scope);
+  if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
+    throw error.invalidScopes();
+  }
+  return auth.credentials.user;
+}
+
 export type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
