@@ -30,7 +30,6 @@ jest.mock('../../lib/sentry');
 
 jest.mock('../../lib/flow-event');
 
-import { SignInLayout } from '../../components/AppLayout';
 import Checkout from './index';
 import { AppContextType } from '../../lib/AppContext';
 import { PLANS } from '../../lib/mock-data';
@@ -89,9 +88,7 @@ describe('routes/Checkout', () => {
     };
     return (
       <MockApp {...{ appContextValue }}>
-        <SignInLayout>
-          <Checkout {...props} />
-        </SignInLayout>
+        <Checkout {...props} />
       </MockApp>
     );
   };
@@ -104,13 +101,20 @@ describe('routes/Checkout', () => {
 
   it('renders as expected', async () => {
     const apiMocks = initApiMocks();
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId, getByTestId } = render(<Subject />);
     if (window.onload) {
       dispatchEvent(new Event('load'));
     }
 
-    const checkoutEle = await findByTestId('checkout-route-container');
-    expect(checkoutEle).toBeInTheDocument();
+    const formEl = await findByTestId('new-user-email-form');
+    expect(formEl).toBeInTheDocument();
+
+    const paymentForm = getByTestId('paymentForm');
+    expect(paymentForm).toBeInTheDocument();
+
+    const planDetailsEl = getByTestId('plan-details-component');
+    expect(planDetailsEl).toBeInTheDocument();
+
     expectNockScopesDone(apiMocks);
   });
 

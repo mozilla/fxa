@@ -14,8 +14,14 @@ const userProfile = {
   uid: 'UIDSTRINGHERE',
 };
 
-storiesOf('components/Header', module).add('default', () => (
-  <MockApp>
-    <Header {...{ profile: userProfile }} />
-  </MockApp>
-));
+storiesOf('components/Header', module)
+  .add('default', () => (
+    <MockApp>
+      <Header {...{ profile: userProfile }} />
+    </MockApp>
+  ))
+  .add('no profile', () => (
+    <MockApp>
+      <Header />
+    </MockApp>
+  ));

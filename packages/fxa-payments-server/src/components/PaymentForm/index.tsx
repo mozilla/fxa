@@ -16,7 +16,6 @@ import {
   Input,
   StripeElement,
   SubmitButton,
-  Checkbox,
   OnValidateFunction,
 } from '../fields';
 import {
@@ -44,6 +43,7 @@ import {
 } from '../../lib/PaymentProvider';
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
 import { PaymentConsentCheckbox } from '../PaymentConsentCheckbox';
+import PaymentLegalBlurb from '../PaymentLegalBlurb';
 
 export type StripePaymentSubmitResult = {
   stripe: Stripe;
@@ -75,6 +75,10 @@ export type BasePaymentFormProps = {
   customer?: Customer | null;
   getString?: (id: string) => string;
   onCancel?: () => void;
+  showLegal?: boolean;
+  submitButtonL10nId?: string;
+  submitButtonCopy?: string;
+  shouldAllowSubmit?: boolean;
   onSubmit: StripeSubmitHandler | StripeUpdateHandler | PaypalSubmitHandler;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
@@ -92,6 +96,10 @@ export const PaymentForm = ({
   getString,
   onSubmit: onSubmitForParent,
   onCancel,
+  showLegal = false,
+  submitButtonL10nId = '',
+  submitButtonCopy = 'Pay Now',
+  shouldAllowSubmit = true,
   validatorInitialState,
   validatorMiddlewareReducer,
   onMounted,
@@ -124,11 +132,12 @@ export const PaymentForm = ({
 
   const [lastSubmitNonce, setLastSubmitNonce] = useState('');
   const nonceMatch = submitNonce === lastSubmitNonce;
-  const shouldAllowSubmit = !nonceMatch && !inProgress && validator.allValid();
+  const allowSubmit =
+    !nonceMatch && !inProgress && validator.allValid() && shouldAllowSubmit;
   const showProgressSpinner = nonceMatch || inProgress;
 
-  const payButtonL10nId = (c: Customer) =>
-    hasPaymentProvider(c) && isPaypal(c.payment_provider)
+  const payButtonL10nId = (c?: Customer | null) =>
+    hasPaymentProvider(c) && isPaypal(c!.payment_provider)
       ? 'payment-pay-with-paypal-btn'
       : 'payment-pay-btn';
 
@@ -147,7 +156,7 @@ export const PaymentForm = ({
   const onStripeFormSubmit = useCallback(
     async (ev: React.FormEvent<HTMLFormElement>) => {
       ev.preventDefault();
-      if (!stripe || !elements || !shouldAllowSubmit) {
+      if (!stripe || !elements || !allowSubmit) {
         return;
       }
       setLastSubmitNonce(submitNonce);
@@ -164,7 +173,7 @@ export const PaymentForm = ({
         });
       }
     },
-    [validator, onSubmitForParent, stripe, submitNonce, shouldAllowSubmit]
+    [validator, onSubmitForParent, stripe, submitNonce, allowSubmit]
   );
 
   const onSubmit = getPaymentProviderMappedVal(customer, {
@@ -226,6 +235,67 @@ export const PaymentForm = ({
       </>
     );
 
+  const buttons = onCancel ? (
+    <div className="button-row">
+      <Localized id="payment-cancel-btn">
+        <button
+          data-testid="cancel"
+          className="settings-button cancel secondary-button"
+          onClick={onCancel}
+        >
+          Cancel
+        </button>
+      </Localized>
+
+      <Localized
+        id={submitButtonL10nId ? submitButtonL10nId : 'payment-update-btn'}
+      >
+        <SubmitButton
+          data-testid="submit"
+          className="settings-button primary-button"
+          name="submit"
+          disabled={inProgress}
+        >
+          {inProgress ? (
+            <span data-testid="spinner-update" className="spinner">
+              &nbsp;
+            </span>
+          ) : submitButtonCopy ? (
+            <span>{submitButtonCopy}</span>
+          ) : (
+            <span>Update</span>
+          )}
+        </SubmitButton>
+      </Localized>
+    </div>
+  ) : (
+    <div className="button-row">
+      <Localized id="payment-submit-btn">
+        <SubmitButton
+          data-testid="submit"
+          name="submit"
+          disabled={!allowSubmit}
+        >
+          {showProgressSpinner ? (
+            <span data-testid="spinner-submit" className="spinner">
+              &nbsp;
+            </span>
+          ) : (
+            <Localized
+              id={
+                submitButtonL10nId
+                  ? submitButtonL10nId
+                  : payButtonL10nId(customer)
+              }
+            >
+              <span className="lock">{submitButtonCopy}</span>
+            </Localized>
+          )}
+        </SubmitButton>
+      </Localized>
+    </div>
+  );
+
   return (
     <Form
       data-testid="paymentForm"
@@ -236,7 +306,16 @@ export const PaymentForm = ({
     >
       {paymentSource}
 
-      <hr />
+      {showLegal ? (
+        <>
+          <br />
+          <br />
+          <br />
+          <PaymentLegalBlurb provider={undefined} />
+        </>
+      ) : (
+        <hr />
+      )}
 
       {confirm && plan && (
         <>
@@ -245,56 +324,7 @@ export const PaymentForm = ({
         </>
       )}
 
-      {onCancel ? (
-        <div className="button-row">
-          <Localized id="payment-cancel-btn">
-            <button
-              data-testid="cancel"
-              className="settings-button cancel secondary-button"
-              onClick={onCancel}
-            >
-              Cancel
-            </button>
-          </Localized>
-
-          <Localized id="payment-update-btn">
-            <SubmitButton
-              data-testid="submit"
-              className="settings-button primary-button"
-              name="submit"
-              disabled={inProgress}
-            >
-              {inProgress ? (
-                <span data-testid="spinner-update" className="spinner">
-                  &nbsp;
-                </span>
-              ) : (
-                <span>Update</span>
-              )}
-            </SubmitButton>
-          </Localized>
-        </div>
-      ) : (
-        <div className="button-row">
-          <Localized id="payment-submit-btn">
-            <SubmitButton
-              data-testid="submit"
-              name="submit"
-              disabled={!shouldAllowSubmit}
-            >
-              {showProgressSpinner ? (
-                <span data-testid="spinner-submit" className="spinner">
-                  &nbsp;
-                </span>
-              ) : (
-                <Localized id={payButtonL10nId(customer!)}>
-                  <span className="lock">Pay now</span>
-                </Localized>
-              )}
-            </SubmitButton>
-          </Localized>
-        </div>
-      )}
+      {buttons}
     </Form>
   );
 };

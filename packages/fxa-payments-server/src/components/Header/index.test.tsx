@@ -33,6 +33,18 @@ describe('Header', () => {
     expect(avatar).toHaveAttribute('alt', userProfile.displayName);
   });
 
+  it('renders without profile', () => {
+    userProfile.displayName = null;
+    const subject = () => {
+      return render(<Header />);
+    };
+
+    const { queryByTestId } = subject();
+
+    const brand = queryByTestId('branding');
+    expect(brand).toBeVisible();
+  });
+
   it('alt falls back to email is displayName is null', () => {
     userProfile.displayName = null;
     const subject = () => {

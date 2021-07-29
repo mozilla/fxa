@@ -1,21 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { NewUserEmailForm } from './index';
 
+const WrapNewUserEmailForm = ({
+  accountExistsReturnValue,
+}: {
+  accountExistsReturnValue: boolean;
+}) => {
+  const [validEmail, setValidEmail] = useState<string>('');
+  const [accountExists, setAccountExists] = useState(false);
+  return (
+    <div style={{ display: 'flex' }}>
+      <NewUserEmailForm
+        signInURL={
+          'https://localhost:3031/subscriptions/products/productId?plan=planId&signin=yes'
+        }
+        setValidEmail={setValidEmail}
+        setAccountExists={setAccountExists}
+        getString={(id: string) => id}
+        checkAccountExists={() =>
+          Promise.resolve({ exists: accountExistsReturnValue })
+        }
+      />
+    </div>
+  );
+};
+
 storiesOf('components/NewUserEmailForm', module)
   .add('default', () => (
-    <div style={{ display: 'flex' }}>
-      <NewUserEmailForm
-        getString={(id: string) => id}
-        checkAccountExists={() => Promise.resolve({ exists: false })}
-      />
-    </div>
+    <WrapNewUserEmailForm accountExistsReturnValue={false} />
   ))
   .add('existing account', () => (
-    <div style={{ display: 'flex' }}>
-      <NewUserEmailForm
-        getString={(id: string) => id}
-        checkAccountExists={() => Promise.resolve({ exists: true })}
-      />
-    </div>
+    <WrapNewUserEmailForm accountExistsReturnValue={true} />
   ));
