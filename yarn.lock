@@ -12680,7 +12680,7 @@ __metadata:
     browserid-local-verify: 0.5.2
     compute-cluster: 0.0.9
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     eslint-plugin-fxa: ^2.0.2
@@ -14605,12 +14605,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"convict-format-with-moment@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "convict-format-with-moment@npm:6.0.1"
+"convict-format-with-moment@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "convict-format-with-moment@npm:6.2.0"
   dependencies:
-    moment: ^2.24.0
-  checksum: 5bfaec8150a3a174526259c3ef42d3839a58b7a96694b5a5b0d3fc1f48a0992e11b4460ed0e801c0480281451574d15e481891be24e47e1c00ec6771c032bff7
+    moment: ^2.29.1
+  checksum: 2f7ec47244ab5c8c58d69e9f7db32677ea8ea766e52170b7490272c70b42d261143715ae617a325e72d9225fea6349a13aca3c57a53abc4655b5dac9d2085732
   languageName: node
   linkType: hard
 
@@ -19372,7 +19372,7 @@ fsevents@~2.1.1:
     body-parser: ^1.19.0
     chance: ^1.1.7
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dateformat: ^4.3.1
     eslint: ^7.29.0
@@ -19433,7 +19433,7 @@ fsevents@~2.1.1:
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     express: ^4.17.1
@@ -19494,7 +19494,7 @@ fsevents@~2.1.1:
     bluebird: ^3.7.2
     chai: ^4.3.4
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     eslint-plugin-fxa: ^2.0.2
@@ -19573,7 +19573,7 @@ fsevents@~2.1.1:
     cldr-localenames-full: 39.0.0
     commander: 2.18.0
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     ejs: ^3.1.6
     email-addresses: 4.0.0
@@ -19705,7 +19705,7 @@ fsevents@~2.1.1:
     connect-cachify: 0.0.17
     consolidate: 0.16.0
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     cookie-parser: 1.4.5
     copy-webpack-plugin: ^5.1.1
@@ -19845,7 +19845,7 @@ fsevents@~2.1.1:
     bunyan: ^1.8.15
     chai: ^4.3.4
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     deep-equal: 2.0.5
     eslint: ^7.29.0
@@ -19946,7 +19946,7 @@ fsevents@~2.1.1:
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     eslint-config-prettier: ^8.3.0
@@ -20041,7 +20041,7 @@ fsevents@~2.1.1:
     class-validator: ^0.13.1
     commander: ^6.0.0
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     express: ^4.17.1
@@ -20104,7 +20104,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     chai: ^4.3.4
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     fxa-shared: "workspace:*"
@@ -20195,7 +20195,7 @@ fsevents@~2.1.1:
     celebrate: ^10.1.0
     classnames: ^2.3.1
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dayjs: ^1.9.4
     eslint: ^7.29.0
@@ -20277,7 +20277,7 @@ fsevents@~2.1.1:
     commander: 2.9.0
     compute-cluster: 0.0.9
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     eslint-plugin-fxa: ^2.0.2
@@ -20542,7 +20542,7 @@ fsevents@~2.1.1:
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
     convict: ^6.1.0
-    convict-format-with-moment: ^6.0.1
+    convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     express: ^4.17.1
@@ -28214,7 +28214,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"moment@npm:>= 2.9.0, moment@npm:^2.19.3, moment@npm:^2.24.0, moment@npm:^2.29.1":
+"moment@npm:>= 2.9.0, moment@npm:^2.19.3, moment@npm:^2.29.1":
   version: 2.29.1
   resolution: "moment@npm:2.29.1"
   checksum: 1e14d5f422a2687996be11dd2d50c8de3bd577c4a4ca79ba5d02c397242a933e5b941655de6c8cb90ac18f01cc4127e55b4a12ae3c527a6c0a274e455979345e
