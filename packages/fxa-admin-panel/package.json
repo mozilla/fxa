@@ -43,7 +43,7 @@
     "@material-ui/core": "v5.0.0-alpha.24",
     "body-parser": "^1.19.0",
     "convict": "^6.1.0",
-    "convict-format-with-moment": "^6.0.1",
+    "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "dateformat": "^4.3.1",
     "express": "^4.17.1",

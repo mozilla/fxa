@@ -29,7 +29,7 @@
     "@types/convict": "^5.2.2",
     "ajv": "^6.12.2",
     "convict": "^6.1.0",
-    "convict-format-with-moment": "^6.0.1",
+    "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "fxa-shared": "workspace:*",
     "mozlog": "^3.0.2",
