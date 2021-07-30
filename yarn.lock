@@ -19227,7 +19227,7 @@ fsevents@~2.1.1:
     web-push: 3.4.5
     webpack: ^4.43.0
     webpack-watch-files-plugin: ^1.1.0
-    ws: ^7.5.0
+    ws: ^8.0.0
   bin:
     fxa-auth: ./bin/key_server.js
   languageName: unknown
@@ -39639,7 +39639,7 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"ws@npm:^5.2.0 || ^6.0.0 || ^7.0.0, ws@npm:^7.0.0, ws@npm:^7.4.5, ws@npm:^7.5.0, ws@npm:~7.5.2":
+"ws@npm:^5.2.0 || ^6.0.0 || ^7.0.0, ws@npm:^7.0.0, ws@npm:^7.4.5, ws@npm:~7.5.2":
   version: 7.5.3
   resolution: "ws@npm:7.5.3"
   peerDependencies:
@@ -39660,6 +39660,21 @@ typescript@^4.3.5:
   dependencies:
     async-limiter: ~1.0.0
   checksum: 82f7512bb74ad6e94002b5016944aee2aeefd1c480477b5f55a03ee010d4a1bd5bb4a688e07695f0a727227a0591a1a7c70e31f97baad826e3c48f85be4db6a9
+  languageName: node
+  linkType: hard
+
+"ws@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "ws@npm:8.0.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ^5.0.2
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 8f1b802f9c0da799aecf26cfdc498f93e903b822dcad83bd75f98c26d67d0f15354841c895ba647a0ba443e10cb6043934f2b9c9ff8139c52efc8745c3965420
   languageName: node
   linkType: hard
 
