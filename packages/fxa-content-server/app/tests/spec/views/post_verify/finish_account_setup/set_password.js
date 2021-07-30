@@ -197,15 +197,6 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
           assert.isTrue(view.logError.calledWith(error));
         }
       });
-
-      it('with invalid passwords', async () => {
-        sinon.spy(view, 'logError');
-        view.$('#password').val('password1');
-        view.$('#vpassword').val('password2');
-        view.showValidationErrorsEnd();
-
-        assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1004)));
-      });
     });
   });
 });

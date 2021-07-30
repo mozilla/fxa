@@ -45,7 +45,6 @@ class SetPassword extends FormView {
   showValidationErrorsEnd() {
     if (this._getPassword() !== this._getVPassword()) {
       const err = AuthErrors.toError('PASSWORDS_DO_NOT_MATCH');
-      this.logError(err);
       this.showValidationError(this.$(PASSWORD_INPUT_SELECTOR), err, true);
     }
   }
