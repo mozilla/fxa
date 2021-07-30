@@ -5,9 +5,9 @@
 import http from 'http';
 import stream from 'stream';
 import net from 'net';
-import { render } from '../lib/senders/emails/renderer';
+import { renderWithOptionalLayout } from '../lib/senders/emails/renderer';
 
-const baseURL = require('../config').get('contentServer.url');
+const baseUrl = require('../config').get('contentServer.url');
 
 const { PORT = 8192, HOST = '0.0.0.0' } = process.env;
 
@@ -27,8 +27,8 @@ async function handleRequest(
     const body = await readStream(req);
     const data = JSON.parse(body.trim());
     const { template: templateName, ...variables } = data;
-    variables.baseURL = baseURL;
-    const result = render(templateName, variables);
+    variables.baseUrl = baseUrl;
+    const result = renderWithOptionalLayout(templateName, variables, 'fxa');
 
     res.writeHead(200, {
       'Content-Type': 'text/html',

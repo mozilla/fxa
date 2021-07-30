@@ -1,0 +1,52 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@use '../../global.scss';
+
+.hidden {
+  display: none;
+  width: 0;
+  height: 0;
+  max-height: 0;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.fxa-logo {
+  padding: global.$s-5 global.$s-0 !important;
+  height: 60px !important;
+  width: 60px !important;
+  margin: 0 auto !important;
+  display: block !important;
+}
+
+.sync {
+  height: 137px;
+  width: 270px;
+}
+
+.secondary-text div {
+  @extend .font-sans;
+  @extend .text-xs;
+  text-align: center !important;
+  color: global.$grey-400 !important;
+}
+
+.ltr {
+  div {
+    direction: ltr !important;
+  }
+  td {
+    direction: ltr !important;
+  }
+}
+
+.rtl {
+  div {
+    direction: rtl !important;
+  }
+  td {
+    direction: rtl !important;
+  }
+}

@@ -5,23 +5,61 @@
 import ejs = require('ejs');
 import mjml2html = require('mjml');
 import * as templates from './templates';
+import * as layouts from './layouts';
+import path = require('path');
 const config = require('../../../config').getProperties();
+
+const mjmlConfig: Record<any, any> = {
+  validationLevel: 'strict',
+  // filePath: path.join(__dirname, 'css', 'global.css'),
+};
 
 export const context = {
   buttonText: 'Sync another device',
   onDesktopOrTabletDevice: true,
-  baseURL: config.contentServer.url,
-  anotherDeviceURL:
+  anotherDeviceUrl:
+    config.contentServer.url +
     '/connect_another_device?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-connect-device',
-  iosURL: config.smtp.iosUrl,
-  androidURL: config.smtp.androidUrl,
+  preHeader: 'random headers',
+  privacyUrl: config.smtp.privacyUrl,
+  supportUrl: config.smtp.supportUrl,
+  oneClickLink: true,
+  iosUrl:
+    'https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png',
+  androidUrl:
+    'https://accounts-static.cdn.mozilla.net/product-icons/google-play.png',
+  subject: 'Reminder to sync your device',
+  cssBaseDir: `${__dirname}/css`,
 };
 
-export function render(
-  templateName: keyof typeof templates,
-  context: Record<any, any>
+function compile(
+  context: Record<any, any>,
+  templateName: string,
+  subTemplate?: string
 ) {
-  const template = ejs.compile(templates[templateName].render());
+  let template: ejs.TemplateFunction;
+  if (subTemplate) {
+    template = ejs.compile(
+      layouts[templateName as keyof typeof layouts].render(subTemplate)
+    );
+  } else {
+    template = ejs.compile(
+      templates[templateName as keyof typeof templates].render()
+    );
+  }
   const mjmlTemplate = template(context);
-  return mjml2html(mjmlTemplate).html;
+  const htmlTemplate = mjml2html(mjmlTemplate, mjmlConfig).html;
+  return htmlTemplate;
+}
+
+export function renderWithOptionalLayout(
+  templateName: string,
+  context: Record<any, any>,
+  layoutName?: string
+) {
+  if (layoutName) {
+    const subTemplate =
+      templates[templateName as keyof typeof templates].render();
+    return compile(context, layoutName, subTemplate);
+  } else return compile(context, templateName);
 }
