@@ -86,7 +86,7 @@
     "ajv": "^6.12.2",
     "apollo-server": "^2.25.2",
     "aws-sdk": "^2.952.0",
-    "celebrate": "^10.0.1",
+    "celebrate": "^15.0.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "cors": "^2.8.5",
