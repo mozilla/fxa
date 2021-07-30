@@ -459,6 +459,8 @@ const Account = Backbone.Model.extend(
 
           if (oldEcosystemAnonId) {
             updateOptions.ifMatch = oldEcosystemAnonId;
+          } else {
+            updateOptions.ifNoneMatch = '*';
           }
 
           this.set('ecosystemAnonId', newEcosystemAnonId);
