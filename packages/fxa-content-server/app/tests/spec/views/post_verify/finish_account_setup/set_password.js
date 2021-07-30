@@ -104,6 +104,7 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
         .stub(account, 'checkEmailExists')
         .callsFake(() => Promise.resolve(false));
       sinon.spy(view, 'navigate');
+      sinon.spy(view, 'logError');
       return view.render().then(() => $('#container').html(view.$el));
     });
 
@@ -111,26 +112,34 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
       assert.isTrue(
         view.navigate.calledWith('/', {}, { clearQueryParams: true })
       );
+      assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1023)));
     });
   });
 
   describe('with invalid params', () => {
+    beforeEach(() => {
+      sinon.spy(view, 'logError');
+    });
+
     it('invalid code', async () => {
       view._verificationInfo.set('code', 'invalid');
       await view.render();
       assert.lengthOf(view.$('#fxa-account-setup-set-damaged-header'), 1);
+      assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1026)));
     });
 
     it('invalid redirectUrl', async () => {
       view._verificationInfo.set('redirectUrl', 'invalid');
       await view.render();
       assert.lengthOf(view.$('#fxa-account-setup-set-damaged-header'), 1);
+      assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1026)));
     });
 
     it('invalid token', async () => {
       view._verificationInfo.set('token', 'invalid');
       await view.render();
       assert.lengthOf(view.$('#fxa-account-setup-set-damaged-header'), 1);
+      assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1026)));
     });
   });
 
@@ -141,6 +150,7 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
         .stub(account, 'isPasswordResetComplete')
         .callsFake(() => Promise.resolve(true));
       sinon.spy(view, 'navigateAway');
+      sinon.spy(view, 'logError');
     });
     it('should call redirectUrl', async () => {
       await view.render();
@@ -149,6 +159,7 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
           'https://www.mozilla.org/en-US/products/vpn/'
         )
       );
+      assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1025)));
     });
   });
 
@@ -172,17 +183,28 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
       });
     });
 
-    describe('errors', () => {
-      it('with error', () => {
+    describe('errors', async () => {
+      it('with error', async () => {
+        const error = new Error('failed');
+        sinon.spy(view, 'logError');
         sinon
           .stub(user, 'completeAccountPasswordReset')
-          .callsFake(() => Promise.reject(new Error('failed')));
+          .callsFake(() => Promise.reject(error));
         try {
-          view.submit();
+          await view.submit();
           assert.fail('should have failed');
         } catch (err) {
-          assert.isTrue(true);
+          assert.isTrue(view.logError.calledWith(error));
         }
+      });
+
+      it('with invalid passwords', async () => {
+        sinon.spy(view, 'logError');
+        view.$('#password').val('password1');
+        view.$('#vpassword').val('password2');
+        view.showValidationErrorsEnd();
+
+        assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1004)));
       });
     });
   });
