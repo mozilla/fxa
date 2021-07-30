@@ -19526,7 +19526,7 @@ fsevents@~2.1.1:
     factory-bot-ts: ^0.1.5
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
-    google-auth-library: ^7.1.2
+    google-auth-library: ^7.4.1
     graphql: ^15.5.1
     hot-shots: ^8.5.0
     jest: 26.6.0
@@ -20792,7 +20792,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^7.0.0, google-auth-library@npm:^7.1.2, google-auth-library@npm:^7.3.0":
+"google-auth-library@npm:^7.0.0, google-auth-library@npm:^7.3.0":
   version: 7.3.0
   resolution: "google-auth-library@npm:7.3.0"
   dependencies:
@@ -20806,6 +20806,23 @@ fsevents@~2.1.1:
     jws: ^4.0.0
     lru-cache: ^6.0.0
   checksum: 5d528d521dc9fc6ab52ab271052a836b4be84f46550ae7caa6f9d74421fc7e43f2a68d6aaf286e29410978373de3b4f644e7d42fb13d5a59eb7ba5c2cdf52cb9
+  languageName: node
+  linkType: hard
+
+"google-auth-library@npm:^7.4.1":
+  version: 7.4.1
+  resolution: "google-auth-library@npm:7.4.1"
+  dependencies:
+    arrify: ^2.0.0
+    base64-js: ^1.3.0
+    ecdsa-sig-formatter: ^1.0.11
+    fast-text-encoding: ^1.0.0
+    gaxios: ^4.0.0
+    gcp-metadata: ^4.2.0
+    gtoken: ^5.0.4
+    jws: ^4.0.0
+    lru-cache: ^6.0.0
+  checksum: 318e48902620feb609fd3c99c0a655da90ae4a619b873eb70efc04aaf811660800143daf9438f3c25600c9e0931ee3bcc86def61c6884e58374d048f5eb7dfa3
   languageName: node
   linkType: hard
 
