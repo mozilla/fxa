@@ -3229,7 +3229,7 @@ describe('models/account', function () {
       );
     });
 
-    it('does not supply ifMatch if an old eco anon id does not exist', async () => {
+    it('sets ifNoneMatch if an old eco anon id does not exist', async () => {
       fxaClient.accountProfile.restore();
       sandbox.stub(fxaClient, 'accountProfile').resolves({
         ecosystemAnonId: null,
@@ -3254,7 +3254,9 @@ describe('models/account', function () {
         fxaClient.updateEcosystemAnonId.calledWithExactly(
           SESSION_TOKEN,
           'test id',
-          {}
+          {
+            ifNoneMatch: '*',
+          }
         )
       );
     });
