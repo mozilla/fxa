@@ -11,7 +11,7 @@ __metadata:
   dependencies:
     audit-filter: 0.5.0
     client-sessions: 0.8.x
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     eslint-plugin-fxa: ^2.0.2
@@ -12333,7 +12333,7 @@ __metadata:
     body-parser: ^1.19.0
     browserid-local-verify: 0.5.2
     compute-cluster: 0.0.9
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
@@ -14267,13 +14267,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"convict@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "convict@npm:6.1.0"
+"convict@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "convict@npm:6.2.0"
   dependencies:
     lodash.clonedeep: ^4.5.0
-    yargs-parser: ^18.1.3
-  checksum: 24276d478842ea8b48071289a4658bce742d3fc5231c72e6691375affabda5875f600bc85bc2a9fdf72454b0ab2bf8bef413b589afb255018bb4e3327156c1bd
+    yargs-parser: ^20.2.7
+  checksum: a84eafea256c193a0e21f55f8f54ab3720039f3241428f2ad3cff91a847563ac79fca8b5a4d691648638f36abc54ad0985320b9af9ecef5ca138765ceadb1687
   languageName: node
   linkType: hard
 
@@ -18942,7 +18942,7 @@ fsevents@~2.1.1:
     babel-loader: ^8.2.2
     body-parser: ^1.19.0
     chance: ^1.1.7
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dateformat: ^4.3.1
@@ -19003,7 +19003,7 @@ fsevents@~2.1.1:
     chance: ^1.1.7
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
@@ -19064,7 +19064,7 @@ fsevents@~2.1.1:
     base64url: 3.0.1
     bluebird: ^3.7.2
     chai: ^4.3.4
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
@@ -19143,7 +19143,7 @@ fsevents@~2.1.1:
     cldr-core: ^39.0.0
     cldr-localenames-full: 39.0.0
     commander: 2.18.0
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     ejs: ^3.1.6
@@ -19275,7 +19275,7 @@ fsevents@~2.1.1:
     chosen-js: "git://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     connect-cachify: 0.0.17
     consolidate: 0.16.0
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     cookie-parser: 1.4.5
@@ -19415,7 +19415,7 @@ fsevents@~2.1.1:
     bluebird: ^3.7.2
     bunyan: ^1.8.15
     chai: ^4.3.4
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     deep-equal: 2.0.5
@@ -19516,7 +19516,7 @@ fsevents@~2.1.1:
     chance: ^1.1.7
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
@@ -19611,7 +19611,7 @@ fsevents@~2.1.1:
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
     commander: ^6.0.0
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
@@ -19674,7 +19674,7 @@ fsevents@~2.1.1:
     ajv: ^6.12.2
     audit-filter: ^0.5.0
     chai: ^4.3.4
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
@@ -19765,7 +19765,7 @@ fsevents@~2.1.1:
     caniuse-lite: ^1.0.30001239
     celebrate: ^10.1.0
     classnames: ^2.3.1
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dayjs: ^1.9.4
@@ -19847,7 +19847,7 @@ fsevents@~2.1.1:
     checksum: 0.1.1
     commander: 2.9.0
     compute-cluster: 0.0.9
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
@@ -20112,7 +20112,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
-    convict: ^6.1.0
+    convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
@@ -39890,13 +39890,20 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:^18.1.2, yargs-parser@npm:^18.1.3":
+"yargs-parser@npm:^18.1.2":
   version: 18.1.3
   resolution: "yargs-parser@npm:18.1.3"
   dependencies:
     camelcase: ^5.0.0
     decamelize: ^1.2.0
   checksum: 60e8c7d1b85814594d3719300ecad4e6ae3796748b0926137bfec1f3042581b8646d67e83c6fc80a692ef08b8390f21ddcacb9464476c39bbdf52e34961dd4d9
+  languageName: node
+  linkType: hard
+
+"yargs-parser@npm:^20.2.7":
+  version: 20.2.9
+  resolution: "yargs-parser@npm:20.2.9"
+  checksum: 8bb69015f2b0ff9e17b2c8e6bfe224ab463dd00ca211eece72a4cd8a906224d2703fb8a326d36fdd0e68701e201b2a60ed7cf81ce0fd9b3799f9fe7745977ae3
   languageName: node
   linkType: hard
 
