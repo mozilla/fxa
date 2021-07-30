@@ -189,9 +189,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/cli@npm:^7.14.5":
-  version: 7.14.5
-  resolution: "@babel/cli@npm:7.14.5"
+"@babel/cli@npm:^7.14.8":
+  version: 7.14.8
+  resolution: "@babel/cli@npm:7.14.8"
   dependencies:
     "@nicolo-ribaudo/chokidar-2": 2.1.8-no-fsevents.2
     chokidar: ^3.4.0
@@ -212,7 +212,7 @@ __metadata:
   bin:
     babel: ./bin/babel.js
     babel-external-helpers: ./bin/babel-external-helpers.js
-  checksum: 348d20170ec0d27041133964bd36c2bc64486c315f32a40bf27543ed73939be7648b1d6830c5576ceef9c5ce7bd130332653a7847bb665f2b037c55ad0e54fda
+  checksum: eb608f6ac587c9dc6d14a497a049fd87e7823ac7e9bae49c6780d947ef5ab5f22dd435208185e53a5ad943a1aa47cfd60d9910ead656225b5720da55c561167b
   languageName: node
   linkType: hard
 
@@ -19246,7 +19246,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-content-server@workspace:packages/fxa-content-server"
   dependencies:
-    "@babel/cli": ^7.14.5
+    "@babel/cli": ^7.14.8
     "@babel/core": ^7.14.6
     "@babel/plugin-proposal-class-properties": ^7.14.5
     "@babel/plugin-syntax-dynamic-import": ^7.8.3
