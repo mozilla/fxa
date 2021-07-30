@@ -182,6 +182,6 @@
     "typescript": "^4.3.5",
     "webpack": "^4.43.0",
     "webpack-watch-files-plugin": "^1.1.0",
-    "ws": "^7.5.0"
+    "ws": "^8.0.0"
   }
 }
