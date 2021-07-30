@@ -45,6 +45,7 @@ class SetPassword extends FormView {
   showValidationErrorsEnd() {
     if (this._getPassword() !== this._getVPassword()) {
       const err = AuthErrors.toError('PASSWORDS_DO_NOT_MATCH');
+      this.logError(err);
       this.showValidationError(this.$(PASSWORD_INPUT_SELECTOR), err, true);
     }
   }
@@ -63,16 +64,19 @@ class SetPassword extends FormView {
     const account = this.getAccount();
     return account.checkEmailExists().then((status) => {
       if (!status) {
+        this.logError(AuthErrors.toError('INVALID_EMAIL'));
         return this.navigate('/', {}, { clearQueryParams: true });
       }
 
       if (!this._verificationInfo.isValid()) {
+        this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         return;
       }
 
       const token = this._verificationInfo.get('token');
       return account.isPasswordResetComplete(token).then((isComplete) => {
         if (isComplete) {
+          this.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
           return this.navigateAway(this._verificationInfo.get('redirectUrl'));
         }
       });
@@ -90,8 +94,8 @@ class SetPassword extends FormView {
         return this.navigateAway(this._verificationInfo.get('redirectUrl'));
       })
       .catch((err) => {
+        this.logError(err);
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          this.logError(err);
           // The token has expired since the first check, re-render to
           // show a view that allows the user to receive a new link.
           return this.render();
