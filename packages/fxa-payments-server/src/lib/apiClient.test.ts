@@ -10,9 +10,6 @@ function nock(it: any) {
 jest.mock('./sentry');
 
 import {
-  createSubscription_PENDING,
-  createSubscription_FULFILLED,
-  createSubscription_REJECTED,
   cancelSubscription_PENDING,
   cancelSubscription_FULFILLED,
   cancelSubscription_REJECTED,
@@ -63,8 +60,14 @@ import {
   apiGetPaypalCheckoutToken,
   apiCapturePaypalPayment,
   apiUpdateBillingAgreement,
+  apiCreatePasswordlessAccount,
 } from './apiClient';
 import { PaymentProvider } from './PaymentProvider';
+
+const OAUTH_TOKEN = 'tok-8675309';
+const OAUTH_BASE_URL = 'http://oauth.example.com';
+const AUTH_BASE_URL = 'http://auth.example.com';
+const PROFILE_BASE_URL = 'http://profile.example.com';
 
 describe('APIError', () => {
   it('can be created without params', () => {
@@ -98,12 +101,42 @@ describe('APIError', () => {
   });
 });
 
-describe('API requests', () => {
-  const OAUTH_TOKEN = 'tok-8675309';
-  const OAUTH_BASE_URL = 'http://oauth.example.com';
-  const AUTH_BASE_URL = 'http://auth.example.com';
-  const PROFILE_BASE_URL = 'http://profile.example.com';
+describe('Authorization header', () => {
+  let config: Config;
 
+  beforeEach(() => {
+    jest.spyOn(global, 'fetch');
+
+    config = defaultConfig();
+    config.servers.profile.url = PROFILE_BASE_URL;
+    updateAPIClientConfig(config);
+
+    nock(PROFILE_BASE_URL).get('/v1/profile').reply(200, MOCK_PROFILE);
+    mockOptionsResponses(PROFILE_BASE_URL);
+  });
+
+  afterEach(() => {
+    noc.cleanAll();
+    (global.fetch as jest.Mock).mockRestore();
+  });
+
+  it('should be undefined when there is no access token', async () => {
+    await apiFetchProfile();
+    expect(
+      (global.fetch as jest.Mock).mock.calls[0][1]['headers']['Authorization']
+    ).toBeUndefined();
+  });
+
+  it('should be set when there is an access token', async () => {
+    updateAPIClientToken('unlimitedaccess');
+    await apiFetchProfile();
+    expect(
+      (global.fetch as jest.Mock).mock.calls[0][1]['headers']['Authorization']
+    ).toBe('Bearer unlimitedaccess');
+  });
+});
+
+describe('API requests', () => {
   let config: Config;
 
   beforeEach(() => {
@@ -161,6 +194,18 @@ describe('API requests', () => {
         .post('/v1/introspect', { token: OAUTH_TOKEN })
         .reply(200, MOCK_TOKEN);
       expect(await apiFetchToken()).toEqual(MOCK_TOKEN);
+      requestMock.done();
+    });
+  });
+
+  describe('apiCreatePasswordlessAccount', () => {
+    it('POST {auth-server}/v1/account/stub', async () => {
+      const arg = { email: 'endlessfur@cats.gd', clientId: 'xyz' };
+      const resp = { uid: 'abc123', access_token: 'wibble' };
+      const requestMock = nock(AUTH_BASE_URL)
+        .post('/v1/account/stub', arg)
+        .reply(200, resp);
+      expect(await apiCreatePasswordlessAccount(arg)).toEqual(resp);
       requestMock.done();
     });
   });

@@ -147,7 +147,7 @@ const defaultStripeOverride = () => ({
   confirmCardPayment: jest.fn().mockResolvedValue(CONFIRM_CARD_RESULT),
 });
 
-describe('routes/ProductV2/SubscriptionCreate', () => {
+describe('routes/Product/SubscriptionCreate', () => {
   let consoleSpy: jest.SpyInstance<void, [any?, ...any[]]>;
 
   beforeEach(() => {

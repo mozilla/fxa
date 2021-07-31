@@ -22,15 +22,14 @@ let config,
   requestOptions,
   zendeskClient;
 
-const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
-  'https://identity.mozilla.com/account/subscriptions';
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const REQUESTER_ID = 987654321;
 const SUBDOMAIN = 'test';
 
-const MOCK_SCOPES = ['profile:email', SUBSCRIPTIONS_MANAGEMENT_SCOPE];
+const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
 
 const ORG_ID = 123456789;
 // Returns a 201

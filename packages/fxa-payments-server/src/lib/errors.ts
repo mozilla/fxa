@@ -28,6 +28,7 @@ const BASIC_ERROR = 'basic-error-message';
 const PAYMENT_ERROR_1 = 'payment-error-1';
 const PAYMENT_ERROR_2 = 'payment-error-2';
 const PAYMENT_ERROR_3 = 'payment-error-3b';
+const FXA_SIGNUP_ERROR = 'fxa-signup-error';
 
 /*
  * errorToErrorMessageMap - the keys are lookups, that
@@ -128,12 +129,14 @@ const paymentErrors2 = [
 ];
 
 const paymentErrors3 = ['general-paypal-error'];
+const signupErrors = ['fxa_signup_error'];
 
 cardErrors.forEach((k) => (errorToErrorMessageMap[k] = CARD_ERROR));
 basicErrors.forEach((k) => (errorToErrorMessageMap[k] = BASIC_ERROR));
 paymentErrors1.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_1));
 paymentErrors2.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_2));
 paymentErrors3.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_3));
+signupErrors.forEach((k) => (errorToErrorMessageMap[k] = FXA_SIGNUP_ERROR));
 
 function getErrorMessage(error: undefined | StripeError | GeneralError) {
   if (!error) {

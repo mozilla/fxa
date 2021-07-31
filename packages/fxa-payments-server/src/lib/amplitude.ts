@@ -139,37 +139,6 @@ export function createSubscriptionEngaged(eventProperties: EventProperties) {
   );
 }
 
-export function createSubscription_PENDING(eventProperties: EventProperties) {
-  safeLogAmplitudeEvent(
-    eventGroupNames.createSubscription,
-    eventTypeNames.submit,
-    eventProperties
-  );
-}
-
-export function createSubscription_FULFILLED(
-  eventProperties: SuccessfulSubscriptionEventProperties
-) {
-  safeLogAmplitudeEvent(
-    eventGroupNames.createSubscription,
-    eventTypeNames.success,
-    eventProperties
-  );
-  safeLogAmplitudeEvent(
-    eventGroupNames.createSubscription,
-    eventTypeNames.complete,
-    eventProperties
-  );
-}
-
-export function createSubscription_REJECTED(eventProperties: EventProperties) {
-  safeLogAmplitudeEvent(
-    eventGroupNames.createSubscription,
-    eventTypeNames.fail,
-    eventProperties
-  );
-}
-
 export function updatePaymentMounted() {
   safeLogAmplitudeEvent(eventGroupNames.updatePayment, eventTypeNames.view, {});
 }

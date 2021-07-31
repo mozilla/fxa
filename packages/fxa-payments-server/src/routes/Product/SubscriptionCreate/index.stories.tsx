@@ -142,7 +142,7 @@ function init() {
   storiesOf('routes/Product/SubscriptionCreate/errors', module)
     .add('card declined', () => (
       <Subject
-        paymentErrorInitialState={{
+        subscriptionErrorInitialState={{
           type: 'card_error',
           code: 'card_declined',
           message: 'Should not be displayed',
@@ -151,7 +151,7 @@ function init() {
     ))
     .add('incorrect cvc', () => (
       <Subject
-        paymentErrorInitialState={{
+        subscriptionErrorInitialState={{
           type: 'card_error',
           code: 'incorrect_cvc',
           message: 'Should not be displayed',
@@ -160,7 +160,7 @@ function init() {
     ))
     .add('card expired', () => (
       <Subject
-        paymentErrorInitialState={{
+        subscriptionErrorInitialState={{
           type: 'card_error',
           code: 'expired_card',
           message: 'Your card has expired.',
@@ -169,7 +169,7 @@ function init() {
     ))
     .add('other error', () => (
       <Subject
-        paymentErrorInitialState={{
+        subscriptionErrorInitialState={{
           type: 'api_error',
         }}
       />

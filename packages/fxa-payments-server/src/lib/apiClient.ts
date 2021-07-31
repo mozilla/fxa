@@ -73,7 +73,7 @@ async function apiFetch(
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: accessToken ? `Bearer ${accessToken}` : undefined,
       ...(options.headers || {}),
     },
   });
@@ -199,6 +199,15 @@ export async function apiReactivateSubscription({
     subscriptionId,
     planId,
   };
+}
+
+export async function apiCreatePasswordlessAccount(params: {
+  email: string;
+  clientId: string;
+}) {
+  return apiFetch('POST', `${config.servers.auth.url}/v1/account/stub`, {
+    body: JSON.stringify(params),
+  });
 }
 
 export async function apiCreateCustomer(params: {

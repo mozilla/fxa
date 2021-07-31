@@ -359,7 +359,7 @@
         "termsUri": "",
         "privacyUri": "",
         "trusted": true,
-        "allowedScopes": "https://identity.mozilla.com/account/subscriptions",
+        "allowedScopes": "https://identity.mozilla.com/account/subscriptions https://identity.mozilla.com/account/newsletters",
         "publicClient": true
       },
       {
@@ -428,6 +428,6 @@
   },
   "mjml": {
     "enabledEmailAddress": "@testuser.com$",
-    "templates":  ["cadReminderFirst"]
+    "templates": ["cadReminderFirst"]
   }
 }
