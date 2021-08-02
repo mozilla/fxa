@@ -46,7 +46,7 @@
     "@sentry/integrations": "^6.10.0",
     "@sentry/node": "^6.10.0",
     "@types/sinon": "10.0.1",
-    "aws-sdk": "^2.957.0",
+    "aws-sdk": "^2.958.0",
     "axios": "^0.21.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
