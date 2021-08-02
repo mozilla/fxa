@@ -19223,6 +19223,7 @@ fsevents@~2.1.1:
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
     google-libphonenumber: ^3.2.22
+    googleapis: ^83.0.0
     grunt: ^1.4.1
     grunt-cli: ^1.4.3
     grunt-contrib-copy: 1.0.0
@@ -20861,7 +20862,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^7.0.0, google-auth-library@npm:^7.3.0":
+"google-auth-library@npm:^7.0.0, google-auth-library@npm:^7.0.2, google-auth-library@npm:^7.3.0":
   version: 7.3.0
   resolution: "google-auth-library@npm:7.3.0"
   dependencies:
@@ -20932,6 +20933,30 @@ fsevents@~2.1.1:
   bin:
     gp12-pem: build/src/bin/gp12-pem.js
   checksum: b4698748bb14356ce19fdcfe5d58922704a1719f34063e0a2c2533624cd47a0d329bab17464b8f7f21ac1b221e1c5e24aaaa5fe53f5433d6ffa2bcb2d0baf1a2
+  languageName: node
+  linkType: hard
+
+"googleapis-common@npm:^5.0.2":
+  version: 5.0.3
+  resolution: "googleapis-common@npm:5.0.3"
+  dependencies:
+    extend: ^3.0.2
+    gaxios: ^4.0.0
+    google-auth-library: ^7.0.2
+    qs: ^6.7.0
+    url-template: ^2.0.8
+    uuid: ^8.0.0
+  checksum: f8c20da197cded93a0250cabf5de01100acf80b24373fc645166fcaf4d5069040305e6cb5df4de78eb9adc68f25b7a578987f2e64212cf7329de24cfe33dde55
+  languageName: node
+  linkType: hard
+
+"googleapis@npm:^83.0.0":
+  version: 83.0.0
+  resolution: "googleapis@npm:83.0.0"
+  dependencies:
+    google-auth-library: ^7.0.2
+    googleapis-common: ^5.0.2
+  checksum: 090d73e6c959c21cda5faaf771ef04b15a464752c742a6c2cb88f2bf2b2ea22ddb6792068402afe594677b9449f0f2ed828995e91cf28bf83c1b4a3a0e7934ad
   languageName: node
   linkType: hard
 
@@ -38244,6 +38269,13 @@ typescript@^4.3.5:
     querystringify: ^2.1.1
     requires-port: ^1.0.0
   checksum: ce5c400db52d83b941944502000081e2338e46834cf16f2888961dc034ea5d49dbeb85ac8fdbe28c3fe738c09320a71a2f6d9286b748895cd464b1e208b6b991
+  languageName: node
+  linkType: hard
+
+"url-template@npm:^2.0.8":
+  version: 2.0.8
+  resolution: "url-template@npm:2.0.8"
+  checksum: 4183fccd74e3591e4154134d4443dccecba9c455c15c7df774f1f1e3fa340fd9bffb903b5beec347196d15ce49c34edf6dec0634a95d170ad6e78c0467d6e13e
   languageName: node
   linkType: hard
 

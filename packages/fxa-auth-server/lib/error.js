@@ -109,6 +109,10 @@ const ERRNO = {
   MISSING_PAYPAL_BILLING_AGREEMENT: 194,
   UNVERIFIED_PRIMARY_EMAIL_HAS_ACTIVE_SUBSCRIPTION: 195,
 
+  IAP_INVALID_TOKEN: 196,
+  IAP_INTERNAL_OTHER: 197,
+  IAP_UNKNOWN_APPNAME: 198,
+
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   BACKEND_SERVICE_FAILURE: 203,
@@ -1271,6 +1275,20 @@ AppError.unknownSubscription = (subscriptionId) => {
   );
 };
 
+AppError.unknownAppName = (appName) => {
+  return new AppError(
+    {
+      code: 404,
+      error: 'Not Found',
+      errno: ERRNO.IAP_UNKNOWN_APPNAME,
+      message: 'Unknown subscription',
+    },
+    {
+      appName,
+    }
+  );
+};
+
 AppError.unknownSubscriptionPlan = (planId) => {
   return new AppError(
     {
@@ -1361,6 +1379,32 @@ AppError.userAlreadySubscribedToProduct = () => {
     errno: ERRNO.SUBSCRIPTION_ALREADY_EXISTS,
     message: 'User already subscribed to product with different plan.',
   });
+};
+
+AppError.iapInvalidToken = (error) => {
+  const extra = error ? [{}, undefined, error] : [];
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.IAP_INVALID_TOKEN,
+      message: 'Invalid token',
+    },
+    ...extra
+  );
+};
+
+AppError.iapInternalError = (error) => {
+  const extra = error ? [{}, undefined, error] : [];
+  return new AppError(
+    {
+      code: 500,
+      error: 'Internal Error',
+      errno: ERRNO.IAP_INTERNAL_OTHER,
+      message: 'IAP Internal Error',
+    },
+    ...extra
+  );
 };
 
 AppError.insufficientACRValues = (foundValue) => {

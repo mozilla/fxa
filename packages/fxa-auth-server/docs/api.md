@@ -3628,9 +3628,15 @@ Create a new setup intent for attaching a new payment method to the user.
 :lock: authenticated with OAuth bearer token
 Update a user's default payment method for invoices to the attached payment method id.
 
-#### GET /oauth/subscriptions/google/plans
+#### GET /oauth/subscriptions/iap/plans/{appName}
 
-Returns available plans for Android clients.
+Returns available plans for In-App Purchase clients.
+
+#### POST /oauth/subscriptions/iap/play-token/{appName}
+
+:lock: authenticated with OAuth bearer token
+Validate and store a Play Store Puchase Token for the given user.
+Returns token validity.
 
 ### Totp
 
