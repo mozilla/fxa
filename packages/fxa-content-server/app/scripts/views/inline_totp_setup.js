@@ -76,6 +76,7 @@ var View = FormView.extend({
 
     if (!account.get('sessionToken')) {
       this.navigate(this._getMissingSessionTokenScreen());
+      return;
     }
 
     return account.sessionVerificationStatus().then(({ sessionVerified }) => {
