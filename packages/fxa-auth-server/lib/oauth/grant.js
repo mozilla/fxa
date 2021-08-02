@@ -232,6 +232,7 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
       hex(clientId),
       await determineSubscriptionCapabilities(
         stripeHelper,
+        undefined,
         hex(grant.userId),
         grant.email
       )

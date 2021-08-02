@@ -22,6 +22,7 @@ let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
 const {
   StripeHelper,
+  STRIPE_PRODUCT_METADATA,
   STRIPE_INVOICE_METADATA,
   SUBSCRIPTION_UPDATE_TYPES,
   MOZILLA_TAX_ID,
@@ -67,6 +68,9 @@ const {
   createAccountCustomer,
   getAccountCustomerByUid,
 } = require('fxa-shared/db/models/auth');
+const {
+  SubscriptionPurchase,
+} = require('../../../lib/payments/google-play/subscription-purchase');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -2245,6 +2249,96 @@ describe('StripeHelper', () => {
             customer1.subscriptions.data[0].id
           )
         );
+      });
+    });
+
+    describe('productToPlaySkus', () => {
+      it('formats skus from product metadata', () => {
+        const prod = {
+          product_metadata: {
+            [STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS]: 'sku1, sku2',
+          },
+        };
+        const result = stripeHelper.productToPlaySkus(prod);
+        assert.deepEqual(result, ['sku1', 'sku2']);
+      });
+
+      it('handles empty product metadata skus', () => {
+        const prod = {
+          product_metadata: {},
+        };
+        const result = stripeHelper.productToPlaySkus(prod);
+        assert.deepEqual(result, []);
+      });
+    });
+
+    describe('purchasesToSubscribedProductIds', () => {
+      let subPurchase;
+      let productId;
+      let productName;
+      let mockAllProducts;
+
+      beforeEach(() => {
+        productId = 'prod_test';
+        productName = 'testProduct;';
+        const mockProduct = {
+          id: productId,
+          name: productName,
+          metadata: {
+            [STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS]: 'testSku,testSku2',
+          },
+        };
+        mockAllProducts = [
+          {
+            product_id: mockProduct.id,
+            product_name: mockProduct.name,
+            product_metadata: mockProduct.metadata,
+          },
+          {
+            product_id: 'wrongProduct',
+            product_name: 'Wrong Product',
+            product_metadata: {},
+          },
+        ];
+        sandbox.stub(stripeHelper, 'allProducts').resolves(mockAllProducts);
+
+        const apiResponse = {
+          kind: 'androidpublisher#subscriptionPurchase',
+          startTimeMillis: `${Date.now() - 10000}`, // some time in the past
+          expiryTimeMillis: `${Date.now() + 10000}`, // some time in the future
+          autoRenewing: true,
+          priceCurrencyCode: 'JPY',
+          priceAmountMicros: '99000000',
+          countryCode: 'JP',
+          developerPayload: '',
+          paymentState: 1,
+          orderId: 'GPA.3313-5503-3858-32549',
+        };
+
+        subPurchase = SubscriptionPurchase.fromApiResponse(
+          apiResponse,
+          'testPackage',
+          'testToken',
+          'testSku',
+          Date.now()
+        );
+      });
+
+      it('returns product ids for the subscription purchase', async () => {
+        const result = await stripeHelper.purchasesToSubscribedProductIds([
+          subPurchase,
+        ]);
+        assert.deepEqual(result, [productId]);
+        sinon.assert.calledOnce(stripeHelper.allProducts);
+      });
+
+      it('returns no product ids for unknown subscription purchase', async () => {
+        subPurchase.sku = 'wrongSku';
+        const result = await stripeHelper.purchasesToSubscribedProductIds([
+          subPurchase,
+        ]);
+        assert.deepEqual(result, []);
+        sinon.assert.calledOnce(stripeHelper.allProducts);
       });
     });
 

@@ -189,7 +189,7 @@ export function singlePlan(
   subscription: Stripe.Subscription
 ): Stripe.Plan | null {
   const subItems = subscription.items.data;
-  return subItems.length > 1 ? null : subItems[0].plan;
+  return subItems.length > 1 ? null : subItems[0].plan || subItems[0].price;
 }
 
 /**

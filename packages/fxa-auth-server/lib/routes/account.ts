@@ -24,6 +24,7 @@ import { determineSubscriptionCapabilities } from './utils/subscriptions';
 import validators from './validators';
 import { generateAccessToken } from '../oauth/grant';
 import { getClientById } from '../oauth/client';
+import { PlayBilling } from '../payments/google-play/play-billing';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -37,12 +38,13 @@ const MS_ONE_MONTH = MS_ONE_DAY * 30;
 export class AccountHandler {
   private OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS: Set<string>;
 
-  private paypalHelper: PayPalHelper | undefined;
+  private paypalHelper?: PayPalHelper;
   private TokenCode: () => Promise<string>;
   private otpUtils: any;
   private tokenCodeLifetime: number;
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
+  private playBilling?: PlayBilling;
 
   constructor(
     private log: AuthLogger,
@@ -77,6 +79,9 @@ export class AccountHandler {
       config.subscriptions?.paypalNvpSigCredentials?.enabled
     ) {
       this.paypalHelper = Container.get(PayPalHelper);
+    }
+    if (config.authFirestore?.enabled) {
+      this.playBilling = Container.get(PlayBilling);
     }
   }
 
@@ -1027,7 +1032,8 @@ export class AccountHandler {
     ) {
       const capabilities = await determineSubscriptionCapabilities(
         this.stripeHelper,
-        uid,
+        this.playBilling,
+        uid as string,
         account.primaryEmail.email
       );
       if (capabilities) {
