@@ -2,7 +2,6 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import MockApp from '../../../.storybook/components/MockApp';
-import { SignInLayout } from '../AppLayout';
 import PaymentForm, { PaymentFormProps } from './index';
 import {
   State as ValidatorState,
@@ -10,6 +9,7 @@ import {
 } from '../../lib/validator';
 import { Plan, Customer } from '../../store/types';
 import { useNonce } from '../../lib/hooks';
+import { SignInLayout } from '../AppLayout';
 
 function init() {
   storiesOf('components/PaymentFormV2', module)
@@ -125,25 +125,14 @@ const Subject = ({
     getString: (x: string) => x,
   };
   return (
-    <MockPage locale={locale}>
-      <div className="product-payment">
-        <button onClick={refreshSubmitNonce}>Refresh submit nonce</button>
-        <p>Current nonce: {submitNonce}</p>
-        <PaymentForm {...paymentFormProps} />
-      </div>
-    </MockPage>
-  );
-};
-
-type MockPageProps = {
-  locale: string;
-  children: React.ReactNode;
-};
-
-const MockPage = ({ locale, children }: MockPageProps) => {
-  return (
     <MockApp languages={[locale]}>
-      <SignInLayout>{children}</SignInLayout>
+      <SignInLayout>
+        <div className="product-payment">
+          <button onClick={refreshSubmitNonce}>Refresh submit nonce</button>
+          <p>Current nonce: {submitNonce}</p>
+          <PaymentForm {...paymentFormProps} />
+        </div>
+      </SignInLayout>
     </MockApp>
   );
 };

@@ -74,7 +74,7 @@ export const MockApp = ({
     // should go away as soon as we switch to just the AppContext.stripePromise
     () =>
       applyStubsToStripe(
-        (window.Stripe(stripeApiKey) as unknown) as stripe.Stripe
+        window.Stripe(stripeApiKey) as unknown as stripe.Stripe
       ),
     [stripeApiKey, applyStubsToStripe]
   );

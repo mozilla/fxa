@@ -36,6 +36,7 @@ import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 import './index.scss';
 
 import { ProductProps } from '../index';
+import { PaymentConsentCheckbox } from '../../../components/PaymentConsentCheckbox';
 
 export type SubscriptionUpgradeProps = {
   isMobile: boolean;
@@ -192,35 +193,7 @@ export const SubscriptionUpgrade = ({
 
             <hr />
 
-            <Localized
-              id={`sub-update-confirm-with-legal-links-${selectedPlan.interval}`}
-              vars={{
-                amount: getLocalizedCurrency(
-                  selectedPlan.amount,
-                  selectedPlan.currency
-                ),
-                intervalCount: selectedPlan.interval_count,
-              }}
-              elems={{
-                strong: <strong></strong>,
-                termsOfServiceLink: <a href={termsOfServiceURL}></a>,
-                privacyNoticeLink: <a href={privacyNoticeURL}></a>,
-              }}
-            >
-              <Checkbox
-                data-testid="confirm"
-                name="confirm"
-                onClick={engageOnce}
-                required
-              >
-                {getDefaultPaymentConfirmText(
-                  selectedPlan.amount,
-                  selectedPlan.currency,
-                  selectedPlan.interval,
-                  selectedPlan.interval_count
-                )}
-              </Checkbox>
-            </Localized>
+            <PaymentConsentCheckbox plan={selectedPlan} onClick={engageOnce} />
 
             <hr />
 

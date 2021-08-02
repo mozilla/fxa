@@ -25,10 +25,7 @@ import {
   useValidatorState,
 } from '../../lib/validator';
 import { useCallbackOnce } from '../../lib/hooks';
-import {
-  getLocalizedCurrency,
-  getDefaultPaymentConfirmText,
-} from '../../lib/formats';
+import { getLocalizedCurrency } from '../../lib/formats';
 import { AppContext } from '../../lib/AppContext';
 import { Plan, Customer } from '../../store/types';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
@@ -46,6 +43,7 @@ import {
   PaymentProviders,
 } from '../../lib/PaymentProvider';
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
+import { PaymentConsentCheckbox } from '../PaymentConsentCheckbox';
 
 export type StripePaymentSubmitResult = {
   stripe: Stripe;
@@ -242,27 +240,7 @@ export const PaymentForm = ({
 
       {confirm && plan && (
         <>
-          <Localized
-            id={`payment-confirm-with-legal-links-${plan.interval}`}
-            vars={{
-              intervalCount: plan.interval_count,
-              amount: getLocalizedCurrency(plan.amount, plan.currency),
-            }}
-            elems={{
-              strong: <strong></strong>,
-              termsOfServiceLink: <a href={termsOfServiceURL}></a>,
-              privacyNoticeLink: <a href={privacyNoticeURL}></a>,
-            }}
-          >
-            <Checkbox data-testid="confirm" name="confirm" required>
-              {getDefaultPaymentConfirmText(
-                plan.amount,
-                plan.currency,
-                plan.interval,
-                plan.interval_count
-              )}
-            </Checkbox>
-          </Localized>
+          <PaymentConsentCheckbox plan={plan} />
           <hr />
         </>
       )}

@@ -343,7 +343,9 @@ export const StripeElement = (props: WrappedStripeElementProps) => {
   );
 };
 
-type CheckboxProps = { onValidate?: OnValidateFunction } & FieldProps &
+type CheckboxProps = {
+  onValidate?: OnValidateFunction;
+} & FieldProps &
   React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
