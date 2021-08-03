@@ -18,7 +18,7 @@ __metadata:
     express: ^4.17.1
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
-    ioredis: ^4.27.6
+    ioredis: ^4.27.7
     morgan: ^1.10.0
     node-rsa: 1.1.1
     pm2: ^5.1.0
@@ -19235,7 +19235,7 @@ fsevents@~2.1.1:
     hkdf: 0.0.2
     hot-shots: ^8.5.0
     i18n-abide: 0.0.26
-    ioredis: ^4.27.6
+    ioredis: ^4.27.7
     jed: 0.5.4
     jsdom: ^16.6.0
     jsonwebtoken: ^8.5.1
@@ -19695,7 +19695,7 @@ fsevents@~2.1.1:
     graphql-tools: ^8.0.0
     graphql-upload: ^12.0.0
     helmet: ^4.6.0
-    ioredis: ^4.27.6
+    ioredis: ^4.27.7
     jest: 26.6.0
     knex: ^0.95.8
     mozlog: ^3.0.2
@@ -20126,7 +20126,7 @@ fsevents@~2.1.1:
     generic-pool: ^3.8.2
     graphql: ^15.5.1
     hot-shots: ^8.5.0
-    ioredis: ^4.27.6
+    ioredis: ^4.27.7
     ip: ^1.1.5
     jest: 26.6.0
     joi: ^14.3.1
@@ -23004,7 +23004,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ioredis@npm:4.x.x, ioredis@npm:^4.27.6":
+"ioredis@npm:4.x.x":
   version: 4.27.6
   resolution: "ioredis@npm:4.27.6"
   dependencies:
@@ -23019,6 +23019,25 @@ fsevents@~2.1.1:
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
   checksum: 5ec6d6f3869fd63dfa9773b82e19ecb685f4a29af70c5172e400c534b77f3950806f551c88233be2795e803a7a68da0c24c92feb7e8ce07e70aed6fd0c85d513
+  languageName: node
+  linkType: hard
+
+"ioredis@npm:^4.27.7":
+  version: 4.27.7
+  resolution: "ioredis@npm:4.27.7"
+  dependencies:
+    cluster-key-slot: ^1.1.0
+    debug: ^4.3.1
+    denque: ^1.1.0
+    lodash.defaults: ^4.2.0
+    lodash.flatten: ^4.4.0
+    lodash.isarguments: ^3.1.0
+    p-map: ^2.1.0
+    redis-commands: 1.7.0
+    redis-errors: ^1.2.0
+    redis-parser: ^3.0.0
+    standard-as-callback: ^2.1.0
+  checksum: 42c2f242b3c91202578415dc39fbc9e9ecff58f19acbd91b654cbe12877181e18dbeb6c12b3e71225a7cc928cc4e34f536953375978093c7c1a6f7417a9dfd84
   languageName: node
   linkType: hard
 
@@ -26028,6 +26047,13 @@ fsevents@~2.1.1:
   version: 4.4.0
   resolution: "lodash.intersection@npm:4.4.0"
   checksum: 98935dcba1bbb981c3927e3822f6f6f344736c881df4b622e4e40ca4a125490425449e23179f46294a1b4c351de4e9a7bb60207cc6ddd65ecfd45ef727d35123
+  languageName: node
+  linkType: hard
+
+"lodash.isarguments@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "lodash.isarguments@npm:3.1.0"
+  checksum: ae1526f3eb5c61c77944b101b1f655f846ecbedcb9e6b073526eba6890dc0f13f09f72e11ffbf6540b602caee319af9ac363d6cdd6be41f4ee453436f04f13b5
   languageName: node
   linkType: hard
 
