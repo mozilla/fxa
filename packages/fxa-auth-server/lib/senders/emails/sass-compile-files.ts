@@ -59,6 +59,11 @@ async function main(directories: Record<any, any>) {
     path.join(__dirname, 'global.scss'),
     path.join(__dirname, 'css', 'global.css')
   );
+
+  await compileSass(
+    path.join(__dirname, 'locale-dir.scss'),
+    path.join(__dirname, 'css', 'locale-dir.css')
+  );
 }
 
 main({ partials, templates, layouts });

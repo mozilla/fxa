@@ -32,21 +32,3 @@
   text-align: center !important;
   color: global.$grey-400 !important;
 }
-
-.ltr {
-  div {
-    direction: ltr !important;
-  }
-  td {
-    direction: ltr !important;
-  }
-}
-
-.rtl {
-  div {
-    direction: rtl !important;
-  }
-  td {
-    direction: rtl !important;
-  }
-}

@@ -12,6 +12,23 @@ import { loadFtlFiles } from './load-ftl-files';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 
 const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
+
+const RTL_LOCALES = [
+  'ar',
+  'arc',
+  'ckb',
+  'dv',
+  'fa',
+  'ha',
+  'he',
+  'khw',
+  'ks',
+  'ps',
+  'ur',
+  'uz_AF',
+  'yi',
+];
+
 const baseDir = path.join(__dirname);
 
 class FluentLocalizer {
@@ -61,10 +78,15 @@ class FluentLocalizer {
       // back to the default locale if needed.
     };
 
+    let selectedLocale: string = 'en-US';
+
     async function* generateBundles(currentLocales: Array<string>) {
       let bundle = new FluentBundle(currentLocales);
       for (const locale of currentLocales) {
         let source = await fetchResource(locale);
+        if (source !== '' && locale !== 'en-US') {
+          selectedLocale = locale;
+        }
         let resource = new FluentResource(source);
         bundle.addResource(resource);
       }
@@ -76,6 +98,12 @@ class FluentLocalizer {
     l10n.connectRoot(document.documentElement);
 
     await l10n.translateRoots();
+
+    const isLocaleRenderedRtl = RTL_LOCALES.includes(selectedLocale);
+    if (isLocaleRenderedRtl) {
+      const body = document.getElementsByTagName('body')[0];
+      body.classList.add('rtl');
+    }
 
     const subject = await l10n.formatValue(mailSubject);
     return {
