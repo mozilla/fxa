@@ -484,7 +484,11 @@ export class StripeHandler {
     subscription: DeepPartial<Stripe.Subscription>;
   }> {
     this.log.begin('subscriptions.createSubscriptionWithPMI', request);
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    const { uid, email, account } = await handleAuth(
+      this.db,
+      request.auth,
+      true
+    );
     await this.customs.check(request, email, 'createSubscriptionWithPMI');
 
     const customer = await this.stripeHelper.customer({ uid, email });
@@ -522,13 +526,15 @@ export class StripeHandler {
     }
 
     const subIdempotencyKey = `${idempotencyKey}-createSub`;
-    const subscription = await this.stripeHelper.createSubscriptionWithPMI({
-      customerId: customer.id,
-      priceId,
-      paymentMethodId,
-      subIdempotencyKey,
-      taxRateId,
-    });
+    const subscription: any = await this.stripeHelper.createSubscriptionWithPMI(
+      {
+        customerId: customer.id,
+        priceId,
+        paymentMethodId,
+        subIdempotencyKey,
+        taxRateId,
+      }
+    );
 
     const sourceCountry =
       this.stripeHelper.extractSourceCountryFromSubscription(subscription);
@@ -539,9 +545,30 @@ export class StripeHandler {
       uid,
       subscriptionId: subscription.id,
     });
-    // TODO
-    // If this fxa user is a stub (no-password) this is where we should
+
+    // If this fxa user is a stub (no-password) this is where we
     // send the "create a password" email
+    if (account && account.verifierSetAt <= 0) {
+      const token = await this.db.createPasswordForgotToken(account);
+      const invoice: any = subscription.latest_invoice;
+      const plan = await this.stripeHelper.findPlanById(subscription.plan.id);
+      const meta = metadataFromPlan(plan);
+      await this.mailer.sendSubscriptionAccountFinishSetupEmail([], account, {
+        email,
+        uid,
+        productId: subscription.plan.product,
+        productName: plan.product_name,
+        invoiceNumber: invoice.number,
+        invoiceTotalInCents: invoice.total,
+        invoiceTotalCurrency: invoice.currency,
+        planEmailIconURL: meta.emailIconURL,
+        invoiceDate: invoice.created,
+        nextInvoiceDate: subscription.current_period_end,
+        token: token.data,
+        code: token.passCode,
+      });
+    }
+
     return {
       sourceCountry,
       subscription: filterSubscription(subscription),

@@ -7,6 +7,8 @@
  * without a password.
  */
 
+/* eslint camelcase:off */
+
 import Vat from '../../lib/vat';
 import VerificationInfo from './base';
 
@@ -15,15 +17,14 @@ export default VerificationInfo.extend({
     code: null,
     token: null,
     email: null,
-    productName: null,
-    redirectUrl: null,
+    product_name: null,
     service: null,
+    product_id: null,
   },
 
   validation: {
     code: Vat.verificationCode(),
     token: Vat.token(),
     email: Vat.email(),
-    redirectUrl: Vat.verificationRedirect(),
   },
 });

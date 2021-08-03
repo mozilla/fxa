@@ -1137,15 +1137,8 @@ export default class AuthClient {
     });
   }
 
-  async getSubscriptionPlans(accessToken: string) {
-    return this.request(
-      'GET',
-      '/oauth/subscriptions/plans',
-      null,
-      new Headers({
-        authorization: `Bearer ${accessToken}`,
-      })
-    );
+  async getSubscriptionPlans() {
+    return this.request('GET', '/oauth/subscriptions/plans');
   }
 
   async getActiveSubscriptions(accessToken: string) {

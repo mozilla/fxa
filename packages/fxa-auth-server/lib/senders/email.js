@@ -1920,8 +1920,6 @@ module.exports = function (log, config) {
       code,
     } = message;
 
-    const redirectUrl = message.redirectUrl || 'https://www.mozilla.org';
-
     const enabled = config.subscriptions.transactionalEmails.enabled;
 
     log.trace('mailer.subscriptionAccountFinishSetupEmail', {
@@ -1934,7 +1932,13 @@ module.exports = function (log, config) {
       return;
     }
 
-    const query = { email, productName, token, code, redirectUrl };
+    const query = {
+      email,
+      product_name: productName,
+      token,
+      code,
+      product_id: productId,
+    };
     const template = 'subscriptionAccountFinishSetup';
     const translator = this.translator(message.acceptLanguage);
 
