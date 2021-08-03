@@ -3711,16 +3711,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schedule@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@nestjs/schedule@npm:1.0.0"
+"@nestjs/schedule@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@nestjs/schedule@npm:1.0.1"
   dependencies:
     cron: 1.7.2
     uuid: 8.3.2
   peerDependencies:
     "@nestjs/common": ^6.10.11 || ^7.0.0 || ^8.0.0
+    "@nestjs/core": ^7.0.0 || ^8.0.0
     reflect-metadata: ^0.1.12
-  checksum: 6396db3f37f8c376aa8849780d03a8eb090e3452876bcd93eb3132d8dfb5a20e43cafda5f7b0ca6c64b2ccbee9295edd74254600ddfc02137ad2d30d54bce861
+  checksum: 2ff1d78b67dd3c6afa76a53641c8f8b6f4b5bbeb92b999704e8f3432834a5627efd476f3dbf3a0892a564d53dfad6c9ba5a10713b50cd5d2e410bbc98befe714
   languageName: node
   linkType: hard
 
@@ -19562,7 +19563,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.0
     "@nestjs/platform-express": ^8.0.4
-    "@nestjs/schedule": ^1.0.0
+    "@nestjs/schedule": ^1.0.1
     "@nestjs/schematics": ^8.0.2
     "@nestjs/testing": ^8.0.5
     "@sentry/integrations": ^6.10.0
