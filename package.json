@@ -74,7 +74,8 @@
       "fxa-settings": [
         "fxa-shared",
         "fxa-react",
-        "fxa-content-server"
+        "fxa-content-server",
+        "fxa-graphql-api"
       ]
     }
   },
