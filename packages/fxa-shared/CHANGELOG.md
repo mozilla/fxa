@@ -1,5 +1,27 @@
 # Change history
 
+## 1.212.0
+
+### New features
+
+- auth: query play store for products purchased ([e65867b70](https://github.com/mozilla/fxa/commit/e65867b70))
+- auth: allow /newsletters access with access token ([e8ca248ba](https://github.com/mozilla/fxa/commit/e8ca248ba))
+
+### Other changes
+
+- deps: updated base deps for train-212 ([8a391693f](https://github.com/mozilla/fxa/commit/8a391693f))
+- deps: bump stripe from 8.157.0 to 8.167.0 ([b13f89266](https://github.com/mozilla/fxa/commit/b13f89266))
+- deps: bump ioredis from 4.27.6 to 4.27.7 ([17f1ff4e7](https://github.com/mozilla/fxa/commit/17f1ff4e7))
+- deps: bump aws-sdk from 2.957.0 to 2.958.0 ([6053691b0](https://github.com/mozilla/fxa/commit/6053691b0))
+- deps: bump aws-sdk from 2.952.0 to 2.957.0 ([7c363c1c9](https://github.com/mozilla/fxa/commit/7c363c1c9))
+- deps: bump knex from 0.95.7 to 0.95.8 ([9993b6a59](https://github.com/mozilla/fxa/commit/9993b6a59))
+- deps-dev: bump @nestjs/testing from 8.0.4 to 8.0.5 ([880e63e0c](https://github.com/mozilla/fxa/commit/880e63e0c))
+- deps: bump @nestjs/common from 8.0.4 to 8.0.5 ([9ed11db51](https://github.com/mozilla/fxa/commit/9ed11db51))
+- deps: updated yarn to 3.0 and typescript to 4.3.5 ([b8a6bd51c](https://github.com/mozilla/fxa/commit/b8a6bd51c))
+- deps: bump @nestjs/core from 8.0.4 to 8.0.5 ([4819abcad](https://github.com/mozilla/fxa/commit/4819abcad))
+- deps: bump @sentry/browser from 6.9.0 to 6.10.0 ([360263e06](https://github.com/mozilla/fxa/commit/360263e06))
+- deps: bump aws-sdk from 2.948.0 to 2.952.0 ([6963baa8c](https://github.com/mozilla/fxa/commit/6963baa8c))
+
 ## 1.211.2
 
 No changes.

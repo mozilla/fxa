@@ -1,3 +1,17 @@
+## 1.212.0
+
+### Other changes
+
+- deps: updated base deps for train-212 ([8a391693f](https://github.com/mozilla/fxa/commit/8a391693f))
+- deps-dev: bump sass from 1.36.0 to 1.37.5 ([12d9c7763](https://github.com/mozilla/fxa/commit/12d9c7763))
+- deps-dev: bump @testing-library/user-event from 13.1.9 to 13.2.1 ([ed9417f71](https://github.com/mozilla/fxa/commit/ed9417f71))
+- deps-dev: bump @storybook/addon-links from 6.3.4 to 6.3.6 ([ade89c42e](https://github.com/mozilla/fxa/commit/ade89c42e))
+- deps: updated yarn to 3.0 and typescript to 4.3.5 ([b8a6bd51c](https://github.com/mozilla/fxa/commit/b8a6bd51c))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.1.2 to 2.2.7 ([14af04ad8](https://github.com/mozilla/fxa/commit/14af04ad8))
+- deps-dev: bump @storybook/react from 6.3.4 to 6.3.5 ([53152eb7b](https://github.com/mozilla/fxa/commit/53152eb7b))
+- deps-dev: bump sass from 1.35.2 to 1.36.0 ([a583b1ad6](https://github.com/mozilla/fxa/commit/a583b1ad6))
+- deps-dev: bump @storybook/addon-actions from 6.3.4 to 6.3.5 ([0b0c5e4d9](https://github.com/mozilla/fxa/commit/0b0c5e4d9))
+
 ## 1.211.2
 
 No changes.

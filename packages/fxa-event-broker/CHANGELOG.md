@@ -1,5 +1,28 @@
 # Change history
 
+## 1.212.0
+
+### Other changes
+
+- deps: updated base deps for train-212 ([8a391693f](https://github.com/mozilla/fxa/commit/8a391693f))
+- deps-dev: bump @nestjs/cli from 8.0.2 to 8.1.1 ([d85ef7d21](https://github.com/mozilla/fxa/commit/d85ef7d21))
+- deps: bump @nestjs/platform-express from 8.0.4 to 8.0.5 ([6f2663791](https://github.com/mozilla/fxa/commit/6f2663791))
+- deps: bump @nestjs/schedule from 1.0.0 to 1.0.1 ([d6ce4fd40](https://github.com/mozilla/fxa/commit/d6ce4fd40))
+- deps: bump aws-sdk from 2.957.0 to 2.958.0 ([6053691b0](https://github.com/mozilla/fxa/commit/6053691b0))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([1b30dca0e](https://github.com/mozilla/fxa/commit/1b30dca0e))
+- deps: bump google-auth-library from 7.3.0 to 7.4.1 ([a50f62191](https://github.com/mozilla/fxa/commit/a50f62191))
+- deps: bump aws-sdk from 2.952.0 to 2.957.0 ([7c363c1c9](https://github.com/mozilla/fxa/commit/7c363c1c9))
+- deps: bump convict from 6.1.0 to 6.2.0 ([99be156b7](https://github.com/mozilla/fxa/commit/99be156b7))
+- deps: bump convict-format-with-moment from 6.0.1 to 6.2.0 ([27490228a](https://github.com/mozilla/fxa/commit/27490228a))
+- deps-dev: bump @nestjs/testing from 8.0.4 to 8.0.5 ([880e63e0c](https://github.com/mozilla/fxa/commit/880e63e0c))
+- deps: bump @nestjs/common from 8.0.4 to 8.0.5 ([9ed11db51](https://github.com/mozilla/fxa/commit/9ed11db51))
+- deps: updated yarn to 3.0 and typescript to 4.3.5 ([b8a6bd51c](https://github.com/mozilla/fxa/commit/b8a6bd51c))
+- deps: bump @nestjs/core from 8.0.4 to 8.0.5 ([4819abcad](https://github.com/mozilla/fxa/commit/4819abcad))
+- deps-dev: bump @typescript-eslint/parser from 4.28.4 to 4.28.5 ([289edb45d](https://github.com/mozilla/fxa/commit/289edb45d))
+- deps: bump aws-sdk from 2.948.0 to 2.952.0 ([6963baa8c](https://github.com/mozilla/fxa/commit/6963baa8c))
+- deps-dev: bump @typescript-eslint/parser from 4.28.0 to 4.28.4 ([da5d4da2c](https://github.com/mozilla/fxa/commit/da5d4da2c))
+- deps-dev: bump supertest from 6.1.3 to 6.1.4 ([3316a6112](https://github.com/mozilla/fxa/commit/3316a6112))
+
 ## 1.211.2
 
 No changes.

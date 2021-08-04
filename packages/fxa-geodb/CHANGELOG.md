@@ -1,5 +1,11 @@
 # Change history
 
+## 1.212.0
+
+### Other changes
+
+- deps: updated base deps for train-212 ([8a391693f](https://github.com/mozilla/fxa/commit/8a391693f))
+
 ## 1.211.2
 
 No changes.

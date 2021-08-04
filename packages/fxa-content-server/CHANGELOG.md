@@ -1,3 +1,28 @@
+## 1.212.0
+
+### New features
+
+- payments: send account setup email to stub accounts ([fe315a8cf](https://github.com/mozilla/fxa/commit/fe315a8cf))
+- passwords: Add sentry logging for set password errors ([68ab373be](https://github.com/mozilla/fxa/commit/68ab373be))
+- content: redirect to new checkout route for unauthenticated users ([27ef9d76a](https://github.com/mozilla/fxa/commit/27ef9d76a))
+
+### Bug fixes
+
+- content: fix inline totp edge case ([d399fe797](https://github.com/mozilla/fxa/commit/d399fe797))
+- sentry: Don't log password not match errors ([459fbf6d9](https://github.com/mozilla/fxa/commit/459fbf6d9))
+- sentry: Add ifNoneMatch when setting new anonId ([020901230](https://github.com/mozilla/fxa/commit/020901230))
+- l10n: Update `continue to ...` text to match other usages ([fe1b9731c](https://github.com/mozilla/fxa/commit/fe1b9731c))
+
+### Other changes
+
+- deps: updated base deps for train-212 ([8a391693f](https://github.com/mozilla/fxa/commit/8a391693f))
+- deps-dev: bump @babel/cli from 7.14.5 to 7.14.8 ([20a758f11](https://github.com/mozilla/fxa/commit/20a758f11))
+- deps: bump convict from 6.1.0 to 6.2.0 ([99be156b7](https://github.com/mozilla/fxa/commit/99be156b7))
+- deps: bump convict-format-with-moment from 6.0.1 to 6.2.0 ([27490228a](https://github.com/mozilla/fxa/commit/27490228a))
+- deps: updated yarn to 3.0 and typescript to 4.3.5 ([b8a6bd51c](https://github.com/mozilla/fxa/commit/b8a6bd51c))
+- deps: bump @sentry/browser from 6.9.0 to 6.10.0 ([360263e06](https://github.com/mozilla/fxa/commit/360263e06))
+- deps-dev: bump intern from 4.9.1 to 4.10.0 ([9d753026b](https://github.com/mozilla/fxa/commit/9d753026b))
+
 ## 1.211.2
 
 No changes.
