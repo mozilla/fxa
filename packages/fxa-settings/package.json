@@ -39,7 +39,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.4.3",
+    "@apollo/client": "^3.4.5",
     "@emotion/react": "^11.4.0",
     "@fluent/react": "^0.13.1",
     "@material-ui/core": "v5.0.0-alpha.24",
@@ -68,13 +68,13 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.6",
+    "@babel/core": "^7.15.0",
     "@rescripts/cli": "0.0.16",
     "@sentry/browser": "^6.10.0",
-    "@storybook/addon-actions": "^6.3.5",
+    "@storybook/addon-actions": "^6.3.6",
     "@storybook/addon-links": "^6.3.6",
-    "@storybook/addons": "^6.3.0",
-    "@storybook/react": "^6.3.5",
+    "@storybook/addons": "^6.3.6",
+    "@storybook/react": "^6.3.6",
     "@tailwindcss/postcss7-compat": "^2.2.7",
     "@testing-library/dom": "^8.1.0",
     "@testing-library/jest-dom": "^5.14.1",

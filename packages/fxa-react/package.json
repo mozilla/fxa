@@ -37,11 +37,11 @@
     "tailwindcss-dir": "^4.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.6",
-    "@storybook/addon-actions": "^6.3.5",
+    "@babel/core": "^7.15.0",
+    "@storybook/addon-actions": "^6.3.6",
     "@storybook/addon-links": "^6.3.6",
-    "@storybook/addons": "^6.3.0",
-    "@storybook/react": "^6.3.5",
+    "@storybook/addons": "^6.3.6",
+    "@storybook/react": "^6.3.6",
     "@svgr/webpack": "^5.5.0",
     "@tailwindcss/postcss7-compat": "^2.2.7",
     "@testing-library/dom": "^8.1.0",
