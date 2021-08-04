@@ -61,6 +61,7 @@ import {
   apiCapturePaypalPayment,
   apiUpdateBillingAgreement,
   apiCreatePasswordlessAccount,
+  apiSignupForNewsletter,
 } from './apiClient';
 import { PaymentProvider } from './PaymentProvider';
 
@@ -636,6 +637,18 @@ describe('API requests', () => {
         ...metricsOptions,
         error,
       });
+      requestMock.done();
+    });
+  });
+
+  describe('apiSignupForNewsletter', () => {
+    it('POST {auth-server}/v1/account/newsletters', async () => {
+      const arg = { newsletterId: 'cooking-with-foxkeh' };
+      const resp = {};
+      const requestMock = nock(AUTH_BASE_URL)
+        .post('/v1/newsletters', arg)
+        .reply(200, resp);
+      expect(await apiSignupForNewsletter(arg)).toEqual(resp);
       requestMock.done();
     });
   });
