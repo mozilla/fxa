@@ -49,9 +49,24 @@ describe('routes/utils/subscriptions', () => {
         customer: sinon.spy(async () => ({
           subscriptions: {
             data: [
-              { plan: { product: 'prod_123456' }, status: 'active' },
-              { plan: { product: 'prod_876543' }, status: 'active' },
-              { plan: { product: 'prod_456789' }, status: 'incomplete' },
+              {
+                status: 'active',
+                items: {
+                  data: [{ price: { product: 'prod_123456' } }],
+                },
+              },
+              {
+                status: 'active',
+                items: {
+                  data: [{ price: { product: 'prod_876543' } }],
+                },
+              },
+              {
+                status: 'incomplete',
+                items: {
+                  data: [{ price: { product: 'prod_456789' } }],
+                },
+              },
             ],
           },
         })),
@@ -90,14 +105,16 @@ describe('routes/utils/subscriptions', () => {
     async function assertExpectedCapabilities(clientId, expectedCapabilities) {
       const allCapabilities = await determineSubscriptionCapabilities(
         mockStripeHelper,
+        undefined,
         UID,
         EMAIL
       );
-      const resultCapabilities = await determineClientVisibleSubscriptionCapabilities(
-        // null client represents sessionToken auth from content-server, unfiltered by client
-        clientId === 'null' ? null : Buffer.from(clientId, 'hex'),
-        allCapabilities
-      );
+      const resultCapabilities =
+        await determineClientVisibleSubscriptionCapabilities(
+          // null client represents sessionToken auth from content-server, unfiltered by client
+          clientId === 'null' ? null : Buffer.from(clientId, 'hex'),
+          allCapabilities
+        );
       assert.deepEqual(resultCapabilities.sort(), expectedCapabilities.sort());
     }
 

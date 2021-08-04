@@ -32,6 +32,7 @@ import error from '../error';
 import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
 import { CurrencyHelper } from './currencies';
+import { SubscriptionPurchase } from './google-play/subscription-purchase';
 
 export const CUSTOMER_RESOURCE = 'customers';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -45,6 +46,10 @@ export const MOZILLA_TAX_ID = 'Tax ID';
 
 enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
+}
+
+export enum STRIPE_PRODUCT_METADATA {
+  PLAY_SKU_IDS = 'playSkuIds',
 }
 
 export enum STRIPE_INVOICE_METADATA {
@@ -1025,6 +1030,39 @@ export class StripeHelper {
     return customer.subscriptions?.data.find(
       (subscription) => subscription.id === subscriptionId
     );
+  }
+
+  /**
+   * Return a list of skus for a given product.
+   */
+  productToPlaySkus(product: AbbrevProduct) {
+    const productSkus =
+      product.product_metadata[STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS] || '';
+    return productSkus
+      .trim()
+      .split(',')
+      .map((c) => c.trim())
+      .filter((c) => !!c);
+  }
+
+  /**
+   * Fetch all product ids that correspond to a list of Play SubscriptionPurchases.
+   */
+  async purchasesToSubscribedProductIds(purchases: SubscriptionPurchase[]) {
+    const products = await this.allProducts();
+    const purchasedSkus = purchases.map((purchase) =>
+      purchase.sku.toLowerCase()
+    );
+    const purchasedProducts = [];
+    for (const product of products) {
+      const playSkus = this.productToPlaySkus(product).map((sku) =>
+        sku.toLowerCase()
+      );
+      if (playSkus.some((sku) => purchasedSkus.includes(sku))) {
+        purchasedProducts.push(product.product_id);
+      }
+    }
+    return purchasedProducts;
   }
 
   /**
