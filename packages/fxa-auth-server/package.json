@@ -116,7 +116,7 @@
     "web-push": "3.4.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.6",
+    "@babel/core": "^7.15.0",
     "@storybook/addon-controls": "^6.3.6",
     "@storybook/addon-docs": "^6.3.6",
     "@storybook/html": "^6.3.6",
@@ -167,7 +167,7 @@
     "lodash.pick": "4.4.0",
     "mailparser": "0.6.1",
     "mkdirp": "0.5.1",
-    "mocha": "^9.0.1",
+    "mocha": "^9.0.3",
     "mocha-junit-reporter": "^2.0.0",
     "moment": "^2.29.1",
     "nock": "^13.1.1",
