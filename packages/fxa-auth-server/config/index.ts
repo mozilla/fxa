@@ -585,7 +585,7 @@ const conf = convict({
     passwordForgotToken: {
       format: 'duration',
       env: 'PASSWORD_FORGOT_TOKEN_TTL',
-      default: '60 minutes',
+      default: '24 hours',
     },
     passwordChangeToken: {
       format: 'duration',
@@ -880,7 +880,7 @@ const conf = convict({
         doc: 'Indicates whether FxA sends transactional lifecycle emails for subscriptions (i.e. versus Marketing Cloud)',
         format: Boolean,
         env: 'SUBSCRIPTIONS_TRANSACTIONAL_EMAILS_ENABLED',
-        default: false,
+        default: true,
       },
     },
   },

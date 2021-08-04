@@ -85,7 +85,6 @@ const MESSAGE = {
   productPaymentCycle: 'month',
   productMetadata,
   reminderLength: 14,
-  redirectUrl: 'http://getfirefox.com/',
   service: 'sync',
   subscription: {
     productName: 'Cooking with Foxkeh',
@@ -128,8 +127,7 @@ const MESSAGE_PARAMS = new Map([
   ['service', 'service'],
   ['uid', 'uid'],
   ['unblockCode', 'unblockCode'],
-  ['redirectUrl', 'redirectUrl'],
-  ['productName', 'productName'],
+  ['product_name', 'productName'],
   ['token', 'token'],
 ]);
 
@@ -271,7 +269,7 @@ const TESTS = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountFinishSetup }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'productName', 'token', 'code', 'redirectUrl') },
+      { test: 'include', expected: configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'code', 'product_id') },
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice number: ${MESSAGE.invoiceNumber}` },
@@ -281,7 +279,7 @@ const TESTS = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'productName', 'token', 'code', 'redirectUrl') },
+      { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'code', 'product_id') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice number: ${MESSAGE.invoiceNumber}` },

@@ -18,13 +18,14 @@ export async function handleAuth(db: any, auth: any, fetchEmail = false) {
   }
   const { user: uid } = auth.credentials;
   let email;
+  let account;
   if (!fetchEmail) {
     ({ email } = auth.credentials);
   } else {
-    const account = await db.account(uid);
+    account = await db.account(uid);
     ({ email } = account.primaryEmail);
   }
-  return { uid, email };
+  return { uid, email, account };
 }
 
 export function handleUidAuth(auth: any): string {

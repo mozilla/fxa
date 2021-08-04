@@ -1186,11 +1186,7 @@ const Account = Backbone.Model.extend(
      * @returns {Promise} - resolves with a list of subscription plans.
      */
     fetchSubscriptionPlans() {
-      return this._fetchShortLivedSubscriptionsOAuthToken().then(
-        (accessToken) => {
-          return this._fxaClient.getSubscriptionPlans(accessToken.get('token'));
-        }
-      );
+      return this._fxaClient.getSubscriptionPlans();
     },
 
     /**

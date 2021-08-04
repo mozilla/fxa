@@ -111,6 +111,7 @@ const LOG_METHOD_NAMES = [
 ];
 
 const MAILER_METHOD_NAMES = [
+  'sendSubscriptionAccountFinishSetupEmail',
   'sendSubscriptionUpgradeEmail',
   'sendSubscriptionDowngradeEmail',
   'sendSubscriptionPaymentExpiredEmail',
@@ -256,7 +257,7 @@ function mockDB(data, errors) {
           },
         ],
         uid: data.uid,
-        verifierSetAt: Date.now(),
+        verifierSetAt: data.verifierSetAt ?? Date.now(),
         wrapWrapKb: data.wrapWrapKb,
       });
     }),

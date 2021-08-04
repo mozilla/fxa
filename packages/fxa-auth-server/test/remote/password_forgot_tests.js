@@ -280,7 +280,10 @@ describe('remote password forgot', function () {
         })
         .then((x) => {
           assert.equal(x.tries, 3, 'three tries remaining');
-          assert.ok(x.ttl > 0 && x.ttl <= 60 * 60, 'ttl is ok');
+          assert.ok(
+            x.ttl > 0 && x.ttl <= config.tokenLifetimes.passwordForgotToken,
+            'ttl is ok'
+          );
         });
     });
   });

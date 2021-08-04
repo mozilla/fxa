@@ -420,17 +420,18 @@ describe('handleAuth', () => {
 
   describe('when fetchEmail is set to false', () => {
     it('returns the uid and the email from the auth header', async () => {
-      const expected = { uid: AUTH_UID, email: AUTH_EMAIL };
       const actual = await handleAuth(db, VALID_AUTH);
-      assert.deepEqual(actual, expected);
+      assert.equal(actual.uid, AUTH_UID);
+      assert.equal(actual.email, AUTH_EMAIL);
     });
   });
 
   describe('when fetchEmail is set to true', () => {
     it('returns the uid from the auth credentials and fetches the email from the database', async () => {
-      const expected = { uid: AUTH_UID, email: DB_EMAIL };
       const actual = await handleAuth(db, VALID_AUTH, true);
-      assert.deepEqual(actual, expected);
+      assert.equal(actual.uid, AUTH_UID);
+      assert.equal(actual.email, DB_EMAIL);
+      assert.equal(actual.account.email, DB_EMAIL);
     });
 
     it('should propogate errors from database', async () => {
@@ -493,6 +494,7 @@ describe('DirectStripeRoutes', () => {
       uid: UID,
       email: TEST_EMAIL,
       locale: ACCOUNT_LOCALE,
+      verifierSetAt: 0,
     });
     const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
     stripeHelperMock.currencyHelper = currencyHelper;
@@ -770,6 +772,27 @@ describe('DirectStripeRoutes', () => {
         UID,
         TEST_EMAIL
       );
+    });
+
+    it('sends an email when the fxa account is a stub', async () => {
+      const sourceCountry = 'us';
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+        sourceCountry
+      );
+      const customer = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      const expected = deepCopy(subscription2);
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+        expected
+      );
+      const idempotencyKey = uuidv4();
+
+      VALID_REQUEST.payload = {
+        priceId: 'quux',
+        idempotencyKey,
+      };
+      await directStripeRoutesInstance.createSubscriptionWithPMI(VALID_REQUEST);
+      sinon.assert.calledOnce(mailer.sendSubscriptionAccountFinishSetupEmail);
     });
   });
 

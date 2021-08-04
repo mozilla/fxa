@@ -31,7 +31,7 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
   beforeEach(() => {
     windowMock = new WindowMock();
     windowMock.location.search =
-      '?email=a@asdf.com&productName=123&token=e39ed2d69690c9392d74fb8a98603c426002eb3f25215c71fc7085ff74c31f34&code=90cf17f3b75c1b76d79500bc1499caac&redirectUrl=https://www.mozilla.org/en-US/products/vpn/';
+      '?email=a@asdf.com&product_name=123&token=e39ed2d69690c9392d74fb8a98603c426002eb3f25215c71fc7085ff74c31f34&code=90cf17f3b75c1b76d79500bc1499caac';
 
     relier = new Relier({
       window: windowMock,
@@ -128,13 +128,6 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
       assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1026)));
     });
 
-    it('invalid redirectUrl', async () => {
-      view._verificationInfo.set('redirectUrl', 'invalid');
-      await view.render();
-      assert.lengthOf(view.$('#fxa-account-setup-set-damaged-header'), 1);
-      assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1026)));
-    });
-
     it('invalid token', async () => {
       view._verificationInfo.set('token', 'invalid');
       await view.render();
@@ -149,17 +142,14 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
       sinon
         .stub(account, 'isPasswordResetComplete')
         .callsFake(() => Promise.resolve(true));
+      sinon
+        .stub(account, 'fetchSubscriptionPlans')
+        .callsFake(() => Promise.resolve([{}]));
       sinon.spy(view, 'navigateAway');
-      sinon.spy(view, 'logError');
     });
-    it('should call redirectUrl', async () => {
+    it('should navigate', async () => {
       await view.render();
-      assert.isTrue(
-        view.navigateAway.calledWith(
-          'https://www.mozilla.org/en-US/products/vpn/'
-        )
-      );
-      assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1025)));
+      assert.isTrue(view.navigateAway.calledOnce);
     });
   });
 
@@ -169,17 +159,16 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
         sinon
           .stub(user, 'completeAccountPasswordReset')
           .callsFake(() => Promise.resolve(true));
+        sinon
+          .stub(account, 'fetchSubscriptionPlans')
+          .callsFake(() => Promise.resolve([{}]));
         sinon.spy(view, 'navigateAway');
         view.$('#password').val('password');
         view.$('#vpassword').val('password');
         return view.submit();
       });
-      it('set password and navigates to redirectUrl', () => {
-        assert.isTrue(
-          view.navigateAway.calledWith(
-            'https://www.mozilla.org/en-US/products/vpn/'
-          )
-        );
+      it('set password and navigates', () => {
+        assert.isTrue(view.navigateAway.calledOnce);
       });
     });
 

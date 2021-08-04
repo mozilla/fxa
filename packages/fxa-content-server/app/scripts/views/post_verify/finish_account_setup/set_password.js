@@ -54,8 +54,24 @@ class SetPassword extends FormView {
     context.set({
       email,
       escapedEmail: `<span class="email">${_.escape(email)}</span>`,
-      productName: this._verificationInfo.get('productName'),
+      productName: decodeURIComponent(
+        this._verificationInfo.get('product_name').replace(/\+/g, ' ')
+      ),
       isLinkValid: !this._verificationInfo.isValid(),
+    });
+  }
+
+  redirectToProduct(account) {
+    return account.fetchSubscriptionPlans().then((plans) => {
+      const productId = this._verificationInfo.get('product_id');
+      const plan = plans.find((p) => p.product_id === productId);
+      const url = new URL(
+        plan && plan.product_metadata
+          ? plan.product_metadata.downloadURL
+          : 'https://mozilla.org'
+      );
+      url.searchParams.set('email', account.get('email'));
+      return this.navigateAway(url.href);
     });
   }
 
@@ -75,8 +91,7 @@ class SetPassword extends FormView {
       const token = this._verificationInfo.get('token');
       return account.isPasswordResetComplete(token).then((isComplete) => {
         if (isComplete) {
-          this.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
-          return this.navigateAway(this._verificationInfo.get('redirectUrl'));
+          return this.redirectToProduct(account);
         }
       });
     });
@@ -89,20 +104,22 @@ class SetPassword extends FormView {
     const code = this._verificationInfo.get('code');
     return this.user
       .completeAccountPasswordReset(account, password, token, code, this.relier)
-      .then(() => {
-        return this.navigateAway(this._verificationInfo.get('redirectUrl'));
-      })
-      .catch((err) => {
-        this.logError(err);
-        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          // The token has expired since the first check, re-render to
-          // show a view that allows the user to receive a new link.
-          return this.render();
-        }
+      .then(
+        () => {
+          return this.redirectToProduct(account);
+        },
+        (err) => {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            // The token has expired since the first check, re-render to
+            // show a view that allows the user to receive a new link.
+            return this.render();
+          }
 
-        // all other errors are unexpected, bail.
-        throw err;
-      });
+          // all other errors are unexpected, bail.
+          this.logError(err);
+          throw err;
+        }
+      );
   }
 }
 
