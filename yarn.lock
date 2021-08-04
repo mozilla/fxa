@@ -93,7 +93,36 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client@npm:^3.3.21, @apollo/client@npm:~3.2.5 || ~3.3.0":
+"@apollo/client@npm:^3.4.3":
+  version: 3.4.3
+  resolution: "@apollo/client@npm:3.4.3"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.0.0
+    "@wry/context": ^0.6.0
+    "@wry/equality": ^0.5.0
+    "@wry/trie": ^0.3.0
+    graphql-tag: ^2.12.3
+    hoist-non-react-statics: ^3.3.2
+    optimism: ^0.16.1
+    prop-types: ^15.7.2
+    symbol-observable: ^4.0.0
+    ts-invariant: ^0.9.0
+    tslib: ^2.3.0
+    zen-observable-ts: ^1.1.0
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0
+    react: ^16.8.0 || ^17.0.0
+    subscriptions-transport-ws: ^0.9.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    subscriptions-transport-ws:
+      optional: true
+  checksum: a4eab1ee72171769b773e65cd4c9150265e7dfa3789b9460a05da8524d822e87b646a807b0706136dc0d483cfe801e2bd9cff97db4be2b36939c1dd3a640d636
+  languageName: node
+  linkType: hard
+
+"@apollo/client@npm:~3.2.5 || ~3.3.0":
   version: 3.3.21
   resolution: "@apollo/client@npm:3.3.21"
   dependencies:
@@ -8643,6 +8672,13 @@ __metadata:
   version: 1.9.1
   resolution: "@types/yoga-layout@npm:1.9.1"
   checksum: 868f626b555af4f3566dfaeac2e32387c49fb1c9eaeb7a5ef4562e7d9b7f8400074c237b70c623a30eb69fc1fb94a9433c1eb72a79d8078d5f045b69809ab475
+  languageName: node
+  linkType: hard
+
+"@types/zen-observable@npm:0.8.3":
+  version: 0.8.3
+  resolution: "@types/zen-observable@npm:0.8.3"
+  checksum: 08c88354abcf03a2176a2ec32e07da1f25fdad94fbc2f419bea53d77deb04ad4759518b4fe3fc695e61065dd4bdf7c8bd26b5211a6cd5be2233872806bdee48d
   languageName: node
   linkType: hard
 
@@ -18973,7 +19009,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-admin-panel@workspace:packages/fxa-admin-panel"
   dependencies:
-    "@apollo/client": ^3.3.21
+    "@apollo/client": ^3.4.3
     "@babel/core": ^7.14.6
     "@emotion/react": ^11.4.0
     "@material-ui/core": v5.0.0-alpha.24
@@ -20012,7 +20048,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-settings@workspace:packages/fxa-settings"
   dependencies:
-    "@apollo/client": ^3.3.21
+    "@apollo/client": ^3.4.3
     "@babel/core": ^7.14.6
     "@emotion/react": ^11.4.0
     "@fluent/react": ^0.13.1
@@ -21049,6 +21085,17 @@ fsevents@~2.1.1:
   peerDependencies:
     graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 63e42155baae86fbaf58ed288cb4cf8a508d42f3c5421f08374a22a2ba3c108e40a4ee378f8a4aa2175b931ada78dd1b4f59b8090c7b3d258bccf24185beacb4
+  languageName: node
+  linkType: hard
+
+"graphql-tag@npm:^2.12.3":
+  version: 2.12.5
+  resolution: "graphql-tag@npm:2.12.5"
+  dependencies:
+    tslib: ^2.1.0
+  peerDependencies:
+    graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
+  checksum: 7afe8b0a261bc81278e8350cbc48a641986665fa88521ece137feb8d1d62aacbe79afd4e159b618d56af106291ae8369592e46584fd8fbaf4f440201ea884fdd
   languageName: node
   linkType: hard
 
@@ -29191,7 +29238,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"optimism@npm:^0.16.0":
+"optimism@npm:^0.16.0, optimism@npm:^0.16.1":
   version: 0.16.1
   resolution: "optimism@npm:0.16.1"
   dependencies:
@@ -37427,6 +37474,15 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"ts-invariant@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "ts-invariant@npm:0.9.0"
+  dependencies:
+    tslib: ^2.1.0
+  checksum: 9292b437abb29d2fcc72f09d6bca04006ed6a661c5b6dd1d64a9a5bef87010f4272391b9bfc61ddef137d4c9b69cdf5132e17dabeed654c598954624415e2c93
+  languageName: node
+  linkType: hard
+
 "ts-jest@npm:26.5.6, ts-jest@npm:^26.5.6":
   version: 26.5.6
   resolution: "ts-jest@npm:26.5.6"
@@ -40241,7 +40297,17 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"zen-observable@npm:^0.8.0, zen-observable@npm:^0.8.14":
+"zen-observable-ts@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "zen-observable-ts@npm:1.1.0"
+  dependencies:
+    "@types/zen-observable": 0.8.3
+    zen-observable: 0.8.15
+  checksum: 1772727f2c96af228c52b008260e1e4ae512782abc9d4f4a78d1a61913aa3b55ae672ad343ecf6895d9b968b5e3f4a41b5a317702cdc6cd5f6f93bc0dacf8103
+  languageName: node
+  linkType: hard
+
+"zen-observable@npm:0.8.15, zen-observable@npm:^0.8.0, zen-observable@npm:^0.8.14":
   version: 0.8.15
   resolution: "zen-observable@npm:0.8.15"
   checksum: b7289084bc1fc74a559b7259faa23d3214b14b538a8843d2b001a35e27147833f4107590b1b44bf5bc7f6dfe6f488660d3a3725f268e09b3925b3476153b7821
