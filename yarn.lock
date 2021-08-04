@@ -16607,7 +16607,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^4.0.0, enhanced-resolve@npm:^4.3.0, enhanced-resolve@npm:^4.5.0":
+"enhanced-resolve@npm:^4.3.0, enhanced-resolve@npm:^4.5.0":
   version: 4.5.0
   resolution: "enhanced-resolve@npm:4.5.0"
   dependencies:
@@ -16615,6 +16615,16 @@ __metadata:
     memory-fs: ^0.5.0
     tapable: ^1.0.0
   checksum: 4d87488584c4d67d356ef4ba04978af4b2d4d18190cb859efac8e8475a34d5d6c069df33faa5a0a22920b0586dbf330f6a08d52bb15a8771a9ce4d70a2da74ba
+  languageName: node
+  linkType: hard
+
+"enhanced-resolve@npm:^5.0.0":
+  version: 5.8.2
+  resolution: "enhanced-resolve@npm:5.8.2"
+  dependencies:
+    graceful-fs: ^4.2.4
+    tapable: ^2.2.0
+  checksum: 6e871ec5b183220dbcdaff8580cbdacee5425e321790e5846abd1b573d20d2bcb37f73ee983fd10c6d6878d31a2d08e234e72fc91a81236d64623ee6ba7d6611
   languageName: node
   linkType: hard
 
@@ -19481,7 +19491,7 @@ fsevents@~2.1.1:
     speed-trap: 0.0.10
     thread-loader: ^3.0.4
     time-grunt: 2.0.0
-    ts-loader: ^8.3.0
+    ts-loader: ^9.2.5
     ts-node: ^10.0.0
     typescript: ^4.3.5
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
@@ -19651,7 +19661,7 @@ fsevents@~2.1.1:
     sqs-consumer: ^5.5.0
     supertest: ^6.1.4
     ts-jest: 26.5.6
-    ts-loader: ^8.3.0
+    ts-loader: ^9.2.5
     ts-node: ^10.0.0
     tsconfig-paths: ^3.9.0
     typesafe-joi: ^2.1.0
@@ -20189,7 +20199,7 @@ fsevents@~2.1.1:
     stripe: ^8.157.0
     superagent: ^6.1.0
     ts-jest: 26.5.6
-    ts-loader: ^8.3.0
+    ts-loader: ^9.2.5
     ts-node: ^10.0.0
     tsconfig-paths: ^3.9.0
     typescript: ^4.3.5
@@ -37506,19 +37516,18 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"ts-loader@npm:^8.3.0":
-  version: 8.3.0
-  resolution: "ts-loader@npm:8.3.0"
+"ts-loader@npm:^9.2.5":
+  version: 9.2.5
+  resolution: "ts-loader@npm:9.2.5"
   dependencies:
     chalk: ^4.1.0
-    enhanced-resolve: ^4.0.0
-    loader-utils: ^2.0.0
+    enhanced-resolve: ^5.0.0
     micromatch: ^4.0.0
     semver: ^7.3.4
   peerDependencies:
     typescript: "*"
-    webpack: "*"
-  checksum: 93dd15b553a2621f969c4c834e7eb085b9b079adb702cba68a7ee516bcd2c67620e62cc5a8c57345e90c644ff6b689ee5a09f0702e440284fdfe872e9aaeefd8
+    webpack: ^5.0.0
+  checksum: e39fab0caac55dc3c57789ea690aca687d033f0d202e2a27cc37aa0f57f987e7a70d033750d4079253e549fdd5c4379e3b5049c17dd1665ab89263dee06f2d1c
   languageName: node
   linkType: hard
 
