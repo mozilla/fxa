@@ -102,11 +102,8 @@ module.exports = () => {
   const INDEX_ROUTES = [
     '/',
     '/subscriptions',
+    '/checkout/:productId',
     '/products/:productId',
-    '/v1/subscriptions',
-    '/v1/products/:productId',
-    '/v2/subscriptions',
-    '/v2/products/:productId',
   ];
 
   app.disable('x-powered-by');
