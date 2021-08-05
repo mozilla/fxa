@@ -1,3 +1,10 @@
+## 1.212.0
+
+### Other changes
+
+- deps: bump convict from 6.1.0 to 6.2.0 ([99be156b7](https://github.com/mozilla/fxa/commit/99be156b7))
+- deps: bump convict-format-with-moment from 6.0.1 to 6.2.0 ([27490228a](https://github.com/mozilla/fxa/commit/27490228a))
+
 ## 1.211.2
 
 No changes.

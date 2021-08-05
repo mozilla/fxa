@@ -1,3 +1,45 @@
+## 1.212.0
+
+### New features
+
+- payments: send account setup email to stub accounts ([fe315a8cf](https://github.com/mozilla/fxa/commit/fe315a8cf))
+- auth: query play store for products purchased ([e65867b70](https://github.com/mozilla/fxa/commit/e65867b70))
+- auth: add iap play token endpoint ([be05c07b9](https://github.com/mozilla/fxa/commit/be05c07b9))
+- fxa-auth-server: Setup fluent localizer to localize our emails ([627ccc30c](https://github.com/mozilla/fxa/commit/627ccc30c))
+- passwords: Ensure password set on account before changing primary email ([6a0b96764](https://github.com/mozilla/fxa/commit/6a0b96764))
+- auth: allow /newsletters access with access token ([e8ca248ba](https://github.com/mozilla/fxa/commit/e8ca248ba))
+- auth: add google plans endpoint ([845f0b0b8](https://github.com/mozilla/fxa/commit/845f0b0b8))
+- auth: add google iap service class ([5560bd9c0](https://github.com/mozilla/fxa/commit/5560bd9c0))
+- emails: 958c68ebb feat(emails)- Update exit survey link in subscription exit emails ([958c68ebb](https://github.com/mozilla/fxa/commit/958c68ebb))
+- emails: Add the finish account setup email for passwordless accounts ([445738953](https://github.com/mozilla/fxa/commit/445738953))
+
+### Bug fixes
+
+- emails: Render email content right to left for rtl locales ([fb003658d](https://github.com/mozilla/fxa/commit/fb003658d))
+- auth: setup containers for email script ([ec85ae82d](https://github.com/mozilla/fxa/commit/ec85ae82d))
+
+### Other changes
+
+- deps: updated base deps for train-212 ([8a391693f](https://github.com/mozilla/fxa/commit/8a391693f))
+- fxa-auth-server: Update docs to include information about new email templates ([b62327b40](https://github.com/mozilla/fxa/commit/b62327b40))
+- deps: bump stripe from 8.157.0 to 8.167.0 ([b13f89266](https://github.com/mozilla/fxa/commit/b13f89266))
+- deps-dev: bump sass from 1.36.0 to 1.37.5 ([12d9c7763](https://github.com/mozilla/fxa/commit/12d9c7763))
+- deps-dev: bump @storybook/addon-controls from 6.3.4 to 6.3.6 ([e0e735802](https://github.com/mozilla/fxa/commit/e0e735802))
+- deps: bump ioredis from 4.27.6 to 4.27.7 ([17f1ff4e7](https://github.com/mozilla/fxa/commit/17f1ff4e7))
+- deps: bump aws-sdk from 2.957.0 to 2.958.0 ([6053691b0](https://github.com/mozilla/fxa/commit/6053691b0))
+- deps: bump aws-sdk from 2.952.0 to 2.957.0 ([7c363c1c9](https://github.com/mozilla/fxa/commit/7c363c1c9))
+- deps-dev: bump ws from 7.5.3 to 8.0.0 ([5645de7bc](https://github.com/mozilla/fxa/commit/5645de7bc))
+- deps: bump convict from 6.1.0 to 6.2.0 ([99be156b7](https://github.com/mozilla/fxa/commit/99be156b7))
+- deps: bump convict-format-with-moment from 6.0.1 to 6.2.0 ([27490228a](https://github.com/mozilla/fxa/commit/27490228a))
+- deps: updated yarn to 3.0 and typescript to 4.3.5 ([b8a6bd51c](https://github.com/mozilla/fxa/commit/b8a6bd51c))
+- deps-dev: bump @storybook/html from 6.3.4 to 6.3.6 ([076388090](https://github.com/mozilla/fxa/commit/076388090))
+- 1976e6ed7 Updated usage info to include allowedScopes, updated SQL command and added console log for client id ([1976e6ed7](https://github.com/mozilla/fxa/commit/1976e6ed7))
+- deps-dev: bump @storybook/addon-docs from 6.3.4 to 6.3.6 ([e11a42472](https://github.com/mozilla/fxa/commit/e11a42472))
+- deps-dev: bump sass from 1.35.2 to 1.36.0 ([a583b1ad6](https://github.com/mozilla/fxa/commit/a583b1ad6))
+- deps: bump aws-sdk from 2.948.0 to 2.952.0 ([6963baa8c](https://github.com/mozilla/fxa/commit/6963baa8c))
+- fxa-auth-server: mark privacyNoticeDownloadURL as optional ([e8b9c4267](https://github.com/mozilla/fxa/commit/e8b9c4267))
+- deps: bump web-push from 3.4.4 to 3.4.5 ([02664ff61](https://github.com/mozilla/fxa/commit/02664ff61))
+
 ## 1.211.2
 
 ### Bug fixes

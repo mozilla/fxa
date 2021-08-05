@@ -1,5 +1,28 @@
 # Change history
 
+## 1.212.0
+
+### Refactorings
+
+- fxa-payments-server: Create PaymentConsentCheckbox component ([fa3512761](https://github.com/mozilla/fxa/commit/fa3512761))
+
+### Other changes
+
+- deps: updated base deps for train-212 ([8a391693f](https://github.com/mozilla/fxa/commit/8a391693f))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([1b30dca0e](https://github.com/mozilla/fxa/commit/1b30dca0e))
+- deps: bump convict from 6.1.0 to 6.2.0 ([99be156b7](https://github.com/mozilla/fxa/commit/99be156b7))
+- deps-dev: bump @storybook/addon-links from 6.3.4 to 6.3.6 ([ade89c42e](https://github.com/mozilla/fxa/commit/ade89c42e))
+- deps: bump convict-format-with-moment from 6.0.1 to 6.2.0 ([27490228a](https://github.com/mozilla/fxa/commit/27490228a))
+- deps: updated yarn to 3.0 and typescript to 4.3.5 ([b8a6bd51c](https://github.com/mozilla/fxa/commit/b8a6bd51c))
+- fxa-payments-server: Add account status check ([668bfcb7e](https://github.com/mozilla/fxa/commit/668bfcb7e))
+- deps-dev: bump @typescript-eslint/parser from 4.28.4 to 4.28.5 ([289edb45d](https://github.com/mozilla/fxa/commit/289edb45d))
+- deps-dev: bump @storybook/react from 6.3.4 to 6.3.5 ([53152eb7b](https://github.com/mozilla/fxa/commit/53152eb7b))
+- deps-dev: bump @storybook/addon-actions from 6.3.4 to 6.3.5 ([0b0c5e4d9](https://github.com/mozilla/fxa/commit/0b0c5e4d9))
+- fxa-payments-server: 705c4e3e2 task(fxa-payments-server) Add email validation ([705c4e3e2](https://github.com/mozilla/fxa/commit/705c4e3e2))
+- deps: bump @sentry/browser from 6.9.0 to 6.10.0 ([360263e06](https://github.com/mozilla/fxa/commit/360263e06))
+- deps-dev: bump @typescript-eslint/parser from 4.28.0 to 4.28.4 ([da5d4da2c](https://github.com/mozilla/fxa/commit/da5d4da2c))
+- deps-dev: bump supertest from 6.1.3 to 6.1.4 ([3316a6112](https://github.com/mozilla/fxa/commit/3316a6112))
+
 ## 1.211.2
 
 No changes.

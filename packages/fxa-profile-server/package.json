@@ -1,6 +1,6 @@
 {
   "name": "fxa-profile-server",
-  "version": "1.211.2",
+  "version": "1.212.0",
   "private": true,
   "description": "Firefox Accounts Profile service.",
   "scripts": {

@@ -1,5 +1,18 @@
 # Change history
 
+## 1.212.0
+
+### Other changes
+
+- deps-dev: bump @nestjs/cli from 8.0.2 to 8.1.1 ([d85ef7d21](https://github.com/mozilla/fxa/commit/d85ef7d21))
+- deps: bump @nestjs/platform-express from 8.0.4 to 8.0.5 ([6f2663791](https://github.com/mozilla/fxa/commit/6f2663791))
+- deps: bump convict from 6.1.0 to 6.2.0 ([99be156b7](https://github.com/mozilla/fxa/commit/99be156b7))
+- deps: bump convict-format-with-moment from 6.0.1 to 6.2.0 ([27490228a](https://github.com/mozilla/fxa/commit/27490228a))
+- deps: bump @nestjs/common from 8.0.4 to 8.0.5 ([9ed11db51](https://github.com/mozilla/fxa/commit/9ed11db51))
+- deps: updated yarn to 3.0 and typescript to 4.3.5 ([b8a6bd51c](https://github.com/mozilla/fxa/commit/b8a6bd51c))
+- deps: bump @nestjs/core from 8.0.4 to 8.0.5 ([4819abcad](https://github.com/mozilla/fxa/commit/4819abcad))
+- deps-dev: bump supertest from 6.1.3 to 6.1.4 ([3316a6112](https://github.com/mozilla/fxa/commit/3316a6112))
+
 ## 1.211.2
 
 No changes.

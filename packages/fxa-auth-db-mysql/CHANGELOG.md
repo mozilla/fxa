@@ -1,3 +1,15 @@
+## 1.212.0
+
+### New features
+
+- emails: Add the finish account setup email for passwordless accounts ([445738953](https://github.com/mozilla/fxa/commit/445738953))
+
+### Other changes
+
+- deps: updated base deps for train-212 ([8a391693f](https://github.com/mozilla/fxa/commit/8a391693f))
+- deps: bump convict from 6.1.0 to 6.2.0 ([99be156b7](https://github.com/mozilla/fxa/commit/99be156b7))
+- deps: bump convict-format-with-moment from 6.0.1 to 6.2.0 ([27490228a](https://github.com/mozilla/fxa/commit/27490228a))
+
 ## 1.211.2
 
 No changes.
