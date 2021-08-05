@@ -135,6 +135,7 @@ const expectedMergedConfig = {
     },
     oauth: {
       url: '',
+      clientId: '',
     },
     profile: {
       url: '',
@@ -155,28 +156,30 @@ const expectedMergedConfig = {
 
 const headSelector = (name: string | null) => `meta[name="${name}"]`;
 
-const mkHeadQuerySelector = (
-  configValue: string | null,
-  flagsValue: string | null,
-  missing: string | null
-) => (selector: string) =>
-  selector === headSelector(missing)
-    ? null
-    : {
-        getAttribute: (name: string) => {
-          if (name !== 'content') {
-            return null;
-          }
-          switch (selector) {
-            case headSelector(META_CONFIG):
-              return configValue;
-            case headSelector(META_FEATURE_FLAGS):
-              return flagsValue;
-            default:
+const mkHeadQuerySelector =
+  (
+    configValue: string | null,
+    flagsValue: string | null,
+    missing: string | null
+  ) =>
+  (selector: string) =>
+    selector === headSelector(missing)
+      ? null
+      : {
+          getAttribute: (name: string) => {
+            if (name !== 'content') {
               return null;
-          }
-        },
-      };
+            }
+            switch (selector) {
+              case headSelector(META_CONFIG):
+                return configValue;
+              case headSelector(META_FEATURE_FLAGS):
+                return flagsValue;
+              default:
+                return null;
+            }
+          },
+        };
 
 const baseHeadQuerySelector = mkHeadQuerySelector(
   encodedConfig,

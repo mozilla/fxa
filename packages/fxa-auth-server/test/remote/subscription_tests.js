@@ -7,6 +7,7 @@
 const ROOT_DIR = '../..';
 
 const { assert } = require('chai');
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const clientFactory = require('../client')();
 const config = require(`${ROOT_DIR}/config`).getProperties();
 const error = require(`${ROOT_DIR}/lib/error`);
@@ -117,7 +118,7 @@ describe('remote subscriptions:', function () {
       const tokenResponse3 = await client.grantOAuthTokensFromSessionToken({
         grant_type: 'fxa-credentials',
         client_id: CLIENT_ID,
-        scope: 'profile https://identity.mozilla.com/account/subscriptions',
+        scope: `profile ${OAUTH_SCOPE_SUBSCRIPTIONS}`,
       });
 
       tokens = [

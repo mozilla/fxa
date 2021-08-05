@@ -60,8 +60,7 @@ let config,
   request,
   requestOptions;
 
-const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
-  'https://identity.mozilla.com/account/subscriptions';
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
@@ -124,7 +123,7 @@ const ACTIVE_SUBSCRIPTIONS = [
 
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
-const MOCK_SCOPES = ['profile:email', SUBSCRIPTIONS_MANAGEMENT_SCOPE];
+const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
 
 function runTest(routePath, requestOptions, payments = null) {
   routes = require('../../../../lib/routes/subscriptions')(

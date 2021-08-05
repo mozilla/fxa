@@ -24,6 +24,7 @@ export interface Config {
     };
     oauth: {
       url: string;
+      clientId: string;
     };
     profile: {
       url: string;
@@ -68,6 +69,7 @@ export function defaultConfig(): Config {
       },
       oauth: {
         url: '',
+        clientId: '',
       },
       profile: {
         url: '',

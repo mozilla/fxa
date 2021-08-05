@@ -23,11 +23,10 @@ const { filterSubscription } = require('fxa-shared/subscriptions/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 
 const ACCOUNT_LOCALE = 'en-US';
-const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
-  'https://identity.mozilla.com/account/subscriptions';
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-const MOCK_SCOPES = ['profile:email', SUBSCRIPTIONS_MANAGEMENT_SCOPE];
+const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
 
 let log,
   config,

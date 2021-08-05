@@ -43,6 +43,7 @@ import '../../Product/SubscriptionCreate/index.scss';
 import AppContext from '../../../lib/AppContext';
 import { ButtonBaseProps } from '../../../components/PayPalButton';
 import { apiCapturePaypalPayment } from '../../../lib/apiClient';
+import { GeneralError } from '../../../lib/errors';
 const PaypalButton = React.lazy(
   () => import('../../../components/PayPalButton')
 );
@@ -67,7 +68,7 @@ export type SubscriptionCreateProps = {
   selectedPlan: Plan;
   refreshSubscriptions: () => void;
   validatorInitialState?: ValidatorState;
-  paymentErrorInitialState?: PaymentError;
+  subscriptionErrorInitialState?: PaymentError;
   stripeOverride?: SubscriptionCreateStripeAPIs;
   apiClientOverrides?: Partial<SubscriptionCreateAuthServerAPIs>;
   paypalButtonBase?: React.FC<ButtonBaseProps>;
@@ -80,7 +81,7 @@ export const SubscriptionCreate = ({
   selectedPlan,
   refreshSubscriptions,
   validatorInitialState,
-  paymentErrorInitialState,
+  subscriptionErrorInitialState,
   stripeOverride,
   apiClientOverrides = {},
   paypalButtonBase,
@@ -111,17 +112,17 @@ export const SubscriptionCreate = ({
 
   const [inProgress, setInProgress] = useState(false);
 
-  const [paymentError, setPaymentError] = useState<PaymentError>(
-    paymentErrorInitialState
-  );
+  const [subscriptionError, setSubscriptionError] = useState<
+    PaymentError | GeneralError
+  >(subscriptionErrorInitialState);
   const [retryStatus, setRetryStatus] = useState<RetryStatus>();
 
   // clear any error rendered with `ErrorMessage` on form change
   const onChange = useCallback(() => {
-    if (paymentError) {
-      setPaymentError(undefined);
+    if (subscriptionError) {
+      setSubscriptionError(undefined);
     }
-  }, [paymentError, setPaymentError]);
+  }, [subscriptionError, setSubscriptionError]);
 
   const onStripeFormSubmit: StripeSubmitHandler | StripeUpdateHandler =
     useCallback(
@@ -142,15 +143,18 @@ export const SubscriptionCreate = ({
             customer,
             retryStatus,
             onSuccess: refreshSubscriptions,
-            onFailure: setPaymentError,
+            onFailure: setSubscriptionError,
             onRetry: (status: RetryStatus) => {
               setRetryStatus(status);
-              setPaymentError({ type: 'card_error', code: 'card_declined' });
+              setSubscriptionError({
+                type: 'card_error',
+                code: 'card_declined',
+              });
             },
           });
         } catch (error) {
           console.error('handleSubscriptionPayment failed', error);
-          setPaymentError(error);
+          setSubscriptionError(error);
         }
         setInProgress(false);
         refreshSubmitNonce();
@@ -164,7 +168,7 @@ export const SubscriptionCreate = ({
         setInProgress,
         refreshSubscriptions,
         refreshSubmitNonce,
-        setPaymentError,
+        setSubscriptionError,
         setRetryStatus,
       ]
     );
@@ -180,7 +184,7 @@ export const SubscriptionCreate = ({
           });
           refreshSubscriptions();
         } catch (error) {
-          setPaymentError(error);
+          setSubscriptionError(error);
         }
         setInProgress(false);
         refreshSubmitNonce();
@@ -200,31 +204,31 @@ export const SubscriptionCreate = ({
       <Header {...{ profile }} />
       <div className="main-content">
         <PaymentErrorView
-          error={paymentError}
+          error={subscriptionError}
           onRetry={() => {
-            setPaymentError(undefined);
+            setSubscriptionError(undefined);
             setTransactionInProgress(false);
           }}
           className={classNames({
-            hidden: !paymentError,
+            hidden: !subscriptionError,
           })}
           plan={selectedPlan}
         />
         <PaymentProcessing
           provider="paypal"
           className={classNames({
-            hidden: !transactionInProgress || paymentError,
+            hidden: !transactionInProgress || subscriptionError,
           })}
         />
         <SubscriptionTitle
           screenType="create"
           className={classNames({
-            hidden: transactionInProgress || paymentError,
+            hidden: transactionInProgress || subscriptionError,
           })}
         />
         <div
           className={classNames('product-payment', {
-            hidden: transactionInProgress || paymentError,
+            hidden: transactionInProgress || subscriptionError,
           })}
           data-testid="subscription-create"
         >
@@ -252,7 +256,7 @@ export const SubscriptionCreate = ({
                           priceId={selectedPlan.plan_id}
                           newPaypalAgreement={true}
                           refreshSubscriptions={refreshSubscriptions}
-                          setPaymentError={setPaymentError}
+                          setPaymentError={setSubscriptionError}
                           ButtonBase={paypalButtonBase}
                           setTransactionInProgress={setTransactionInProgress}
                         />

@@ -10,10 +10,75 @@ import {
 } from '@stripe/stripe-js';
 import { SubscriptionCreateAuthServerAPIs } from '../routes/Product/SubscriptionCreate';
 import { Customer, Plan } from '../store/types';
+import {
+  handlePasswordlessSignUp,
+  PasswordlessSignupHandlerParam,
+} from './account';
 import { isExistingStripeCustomer } from './customer';
+import { GeneralError } from './errors';
 
 export type RetryStatus = undefined | { invoiceId: string };
 export type PaymentError = undefined | StripeError;
+export type SubscriptionPaymentHandlerParam = {
+  stripe: Pick<Stripe, 'createPaymentMethod' | 'confirmCardPayment'>;
+  name: string;
+  card: StripeCardElement | null;
+  idempotencyKey: string;
+  selectedPlan: Plan;
+  customer: Customer | null;
+  retryStatus: RetryStatus;
+  apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
+  onFailure: (error: PaymentError | GeneralError) => void;
+  onRetry: (status: RetryStatus) => void;
+  onSuccess: () => void;
+};
+
+export async function handlePasswordlessSubscription({
+  email,
+  clientId,
+  stripe,
+  name,
+  card,
+  idempotencyKey,
+  selectedPlan,
+  customer,
+  retryStatus,
+  apiCreateCustomer,
+  apiCreateSubscriptionWithPaymentMethod,
+  apiRetryInvoice,
+  apiDetachFailedPaymentMethod,
+  onFailure,
+  onRetry,
+  onSuccess,
+}: PasswordlessSignupHandlerParam &
+  SubscriptionPaymentHandlerParam &
+  SubscriptionCreateAuthServerAPIs) {
+  try {
+    await handlePasswordlessSignUp({
+      email,
+      clientId,
+    });
+
+    return handleSubscriptionPayment({
+      stripe,
+      name,
+      card,
+      idempotencyKey,
+      selectedPlan,
+      customer,
+      retryStatus,
+      apiCreateCustomer,
+      apiCreateSubscriptionWithPaymentMethod,
+      apiRetryInvoice,
+      apiDetachFailedPaymentMethod,
+      onFailure,
+      onRetry,
+      onSuccess,
+    });
+  } catch (e) {
+    onFailure(e);
+  }
+}
 
 export async function handleSubscriptionPayment({
   stripe,
@@ -30,29 +95,16 @@ export async function handleSubscriptionPayment({
   onFailure,
   onRetry,
   onSuccess,
-}: {
-  stripe: Pick<Stripe, 'createPaymentMethod' | 'confirmCardPayment'>;
-  name: string;
-  card: StripeCardElement | null;
-  idempotencyKey: string;
-  selectedPlan: Plan;
-  customer: Customer | null;
-  retryStatus: RetryStatus;
-  apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
-  onFailure: (error: PaymentError) => void;
-  onRetry: (status: RetryStatus) => void;
-  onSuccess: () => void;
-} & SubscriptionCreateAuthServerAPIs) {
+}: SubscriptionPaymentHandlerParam & SubscriptionCreateAuthServerAPIs) {
   // If there's an existing card on record, GOTO 3
 
   if (isExistingStripeCustomer(customer)) {
-    const createSubscriptionResult = await apiCreateSubscriptionWithPaymentMethod(
-      {
+    const createSubscriptionResult =
+      await apiCreateSubscriptionWithPaymentMethod({
         priceId: selectedPlan.plan_id,
         productId: selectedPlan.product_id,
         idempotencyKey,
-      }
-    );
+      });
     return handlePaymentIntent({
       customer,
       invoiceId: createSubscriptionResult.latest_invoice.id,
@@ -71,13 +123,11 @@ export async function handleSubscriptionPayment({
   }
 
   // 1. Create the payment method.
-  const {
-    paymentMethod,
-    error: paymentError,
-  } = await stripe.createPaymentMethod({
-    type: 'card',
-    card: card as StripeCardElement,
-  });
+  const { paymentMethod, error: paymentError } =
+    await stripe.createPaymentMethod({
+      type: 'card',
+      card: card as StripeCardElement,
+    });
   if (paymentError) {
     return onFailure(paymentError);
   }
@@ -106,14 +156,13 @@ export async function handleSubscriptionPayment({
 
   if (!retryStatus) {
     // 3a. Attempt to create the subscription.
-    const createSubscriptionResult = await apiCreateSubscriptionWithPaymentMethod(
-      {
+    const createSubscriptionResult =
+      await apiCreateSubscriptionWithPaymentMethod({
         priceId: selectedPlan.plan_id,
         productId: selectedPlan.product_id,
         paymentMethodId: paymentMethod.id,
         idempotencyKey,
-      }
-    );
+      });
     return handlePaymentIntent({
       customer,
       invoiceId: createSubscriptionResult.latest_invoice.id,

@@ -10,8 +10,9 @@ const path = require('path');
 
 const versionInfo = require('./version');
 
-const DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n
-  .supportedLanguages;
+const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+const DEFAULT_SUPPORTED_LANGUAGES =
+  require('fxa-shared').l10n.supportedLanguages;
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -19,8 +20,7 @@ convict.addFormats(require('convict-format-with-validator'));
 const conf = (module.exports = convict({
   allowed_iframe_contexts: {
     default: [],
-    doc:
-      'DEPRECATED - context query parameters allowed to embed FxA within an IFRAME',
+    doc: 'DEPRECATED - context query parameters allowed to embed FxA within an IFRAME',
     format: Array,
   },
   allowed_metrics_flow_cors_origins: {
@@ -116,8 +116,7 @@ const conf = (module.exports = convict({
     },
     reportOnly: {
       default: false,
-      doc:
-        'DEPRECATED - Only send the "Content-Security-Policy-Report-Only" header',
+      doc: 'DEPRECATED - Only send the "Content-Security-Policy-Report-Only" header',
       env: 'CSP_REPORT_ONLY',
     },
     reportOnlyEnabled: {
@@ -142,8 +141,7 @@ const conf = (module.exports = convict({
   },
   env: {
     default: 'production',
-    doc:
-      "What environment are we running in?  Note: all hosted environments are 'production'.",
+    doc: "What environment are we running in?  Note: all hosted environments are 'production'.",
     env: 'NODE_ENV',
     format: ['production', 'development'],
   },
@@ -169,8 +167,7 @@ const conf = (module.exports = convict({
       },
       initialBackoff: {
         default: '100 milliseconds',
-        doc:
-          'Initial backoff for feature-flagging Redis connection retries, increases exponentially with each attempt',
+        doc: 'Initial backoff for feature-flagging Redis connection retries, increases exponentially with each attempt',
         env: 'FEATURE_FLAGS_REDIS_TIMEOUT',
         format: 'duration',
       },
@@ -296,29 +293,25 @@ const conf = (module.exports = convict({
     fonts: {
       unsupportedLanguages: {
         default: [],
-        doc:
-          'DEPRECATED: These languages should use system fonts instead of Fira Sans',
+        doc: 'DEPRECATED: These languages should use system fonts instead of Fira Sans',
         format: Array,
       },
     },
     localeSubdirSuffix: {
       default: '',
-      doc:
-        'Enable alternative localized resources for Mozilla Online with private use subtag',
+      doc: 'Enable alternative localized resources for Mozilla Online with private use subtag',
       env: 'I18N_LOCALE_SUBDIR_SUFFIX',
       format: ['', '_x_mococn'],
     },
     supportedLanguages: {
       default: DEFAULT_SUPPORTED_LANGUAGES,
-      doc:
-        'List of languages this deployment should detect and display localized strings.',
+      doc: 'List of languages this deployment should detect and display localized strings.',
       env: 'I18N_SUPPORTED_LANGUAGES',
       format: Array,
     },
     translationDirectory: {
       default: path.resolve(__dirname, '../../app/i18n/'),
-      doc:
-        'The directory where per-locale .json files containing translations reside',
+      doc: 'The directory where per-locale .json files containing translations reside',
       env: 'I18N_TRANSLATION_DIR',
       format: String,
     },
@@ -388,8 +381,7 @@ const conf = (module.exports = convict({
       dcdb5ae7add825d2: '123done',
       '325b4083e32fe8e7': '321done',
     },
-    doc:
-      'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
+    doc: 'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
     env: 'OAUTH_CLIENT_IDS',
     format: Object,
   },
@@ -430,8 +422,7 @@ const conf = (module.exports = convict({
   },
   page_template_subdirectory: {
     default: 'src',
-    doc:
-      'Subdirectory of page_template_root for server-rendered page templates',
+    doc: 'Subdirectory of page_template_root for server-rendered page templates',
     env: 'PAGE_TEMPLATE_SUBDIRECTORY',
     format: ['src', 'dist'],
   },
@@ -442,8 +433,7 @@ const conf = (module.exports = convict({
         'a2270f727f45f648', // Fenix
         '1b1a3e44c54fbb58', // Firefox for iOS
       ],
-      doc:
-        'OAuth Client IDs that are allowed to pair. Remove all clients from this list to disable pairing.',
+      doc: 'OAuth Client IDs that are allowed to pair. Remove all clients from this list to disable pairing.',
       env: 'PAIRING_CLIENTS',
       format: Array,
     },
@@ -538,15 +528,13 @@ const conf = (module.exports = convict({
   sentry: {
     client_errors_dsn: {
       default: undefined,
-      doc:
-        'Sentry config for client side errors. If not set, then no errors reported.',
+      doc: 'Sentry config for client side errors. If not set, then no errors reported.',
       env: 'SENTRY_CLIENT_ERRORS_DSN',
       format: String,
     },
     server_errors_dsn: {
       default: undefined,
-      doc:
-        'Sentry config for Express server-side errors. If not set, then no errors reported.',
+      doc: 'Sentry config for Express server-side errors. If not set, then no errors reported.',
       env: 'SENTRY_SERVER_ERRORS_DSN',
       format: String,
     },
@@ -576,16 +564,14 @@ const conf = (module.exports = convict({
       targetURITemplateiOS: {
         default:
           'https://app.adjust.com/jsr?url=https%3A%2F%2Fnn8g.adj.st%2Ffxa-signin%3Futm_source%3Dsms%26signin%3D${ signinCode }%26adj_t%3D${ channel }%26adj_campaign%3Dfxa-conf-page%26adj_adgroup%3Dsms%26adj_creative%3Dlink%26adjust_deeplink_js%3D1', //eslint-disable-line max-len
-        doc:
-          'iOS Redirect URI - ES6 format template string. The variables `channel` and `signinCode` are interpolated',
+        doc: 'iOS Redirect URI - ES6 format template string. The variables `channel` and `signinCode` are interpolated',
         env: 'SMS_REDIRECT_TARGET_URI_TEMPLATE_IOS',
         format: String,
       },
       targetURITemplate: {
         default:
           'https://app.adjust.com/${ channel }?campaign=fxa-conf-page&adgroup=sms&creative=link&deep_link=firefox%3A%2F%2Ffxa-signin%3Futm_source%3Dsms%26signin%3D${ signinCode }', //eslint-disable-line max-len
-        doc:
-          'Default Redirect URI - ES6 format template string. The variables `channel` and `signinCode` are interpolated',
+        doc: 'Default Redirect URI - ES6 format template string. The variables `channel` and `signinCode` are interpolated',
         env: 'SMS_REDIRECT_TARGET_URI_TEMPLATE',
         format: String,
       },
@@ -593,8 +579,7 @@ const conf = (module.exports = convict({
   },
   sourceMapType: {
     default: 'source-map',
-    doc:
-      'Type of source maps created. See https://webpack.js.org/configuration/devtool/',
+    doc: 'Type of source maps created. See https://webpack.js.org/configuration/devtool/',
     env: 'SOURCE_MAP_TYPE',
     format: String,
   },
@@ -668,16 +653,14 @@ const conf = (module.exports = convict({
       format: String,
     },
     managementScopes: {
-      default: 'profile https://identity.mozilla.com/account/subscriptions',
-      doc:
-        'OAuth scopes needed for the subscription management pages to access auth server APIs',
+      default: `profile ${OAUTH_SCOPE_SUBSCRIPTIONS}`,
+      doc: 'OAuth scopes needed for the subscription management pages to access auth server APIs',
       env: 'SUBSCRIPTIONS_MANAGEMENT_SCOPES',
       format: String,
     },
     managementTokenTTL: {
       default: 1800,
-      doc:
-        'OAuth token time-to-live (in seconds) for subscriptions management pages',
+      doc: 'OAuth token time-to-live (in seconds) for subscriptions management pages',
       env: 'SUBSCRIPTIONS_MANAGEMENT_TOKEN_TTL',
       format: 'nat',
     },
@@ -689,8 +672,7 @@ const conf = (module.exports = convict({
     },
     allowUnauthenticatedRedirects: {
       default: false,
-      doc:
-        'Whether to allow any redirects to Payments for an unauthenticated user',
+      doc: 'Whether to allow any redirects to Payments for an unauthenticated user',
       env: 'SUBSCRIPTIONS_UNAUTHED_REDIRECTS',
       formlat: Boolean,
     },
@@ -718,14 +700,12 @@ const conf = (module.exports = convict({
   ecosystem_anon_id: {
     keys_file: {
       default: '',
-      doc:
-        'Path to a file containing an array of Account Ecosystem Telemetry pipeline JWK public key objects for encrypting the ecosystem user ID to the ecosystem anon ID',
+      doc: 'Path to a file containing an array of Account Ecosystem Telemetry pipeline JWK public key objects for encrypting the ecosystem user ID to the ecosystem anon ID',
       env: 'ECOSYSTEM_ANON_ID_KEYS_FILE',
       format: String,
     },
     keys: {
-      doc:
-        'Array of Account Ecosystem Telemetry pipeline JWK public key objects for encrypting the ecosystem user ID to the ecosystem anon ID',
+      doc: 'Array of Account Ecosystem Telemetry pipeline JWK public key objects for encrypting the ecosystem user ID to the ecosystem anon ID',
       default: [],
     },
   },
@@ -747,8 +727,7 @@ const conf = (module.exports = convict({
   use_https: false,
   var_path: {
     default: path.resolve(__dirname, '..', 'var'),
-    doc:
-      'The path where deployment specific resources will be sought (keys, etc), and logs will be kept.',
+    doc: 'The path where deployment specific resources will be sought (keys, etc), and logs will be kept.',
     env: 'VAR_PATH',
   },
 }));
