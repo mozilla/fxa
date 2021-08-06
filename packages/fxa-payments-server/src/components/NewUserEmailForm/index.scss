@@ -9,7 +9,8 @@
         font-size: 10px;
         position: absolute;
         right: 0;
-        top: 20px;
+        top: -5px;
+        z-index: 2;
 
         a {
             color: $grey-50;
@@ -21,6 +22,7 @@
         font-weight: 600;
         font-size: 15px;
         color: $grey-50;
+        display: inline-block;
     }
 
     .input-row--checkbox {

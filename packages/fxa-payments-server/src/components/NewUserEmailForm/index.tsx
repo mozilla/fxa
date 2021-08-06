@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { Localized } from '@fluent/react';
 
 import { isEmailValid } from '../../../../fxa-shared/email/helpers';
@@ -16,14 +16,20 @@ import './index.scss';
 import { config } from '../../lib/config';
 
 export type NewUserEmailFormProps = {
-  getString: (id: string) => string;
-  checkAccountExists: Function;
+  getString?: (id: string) => string;
+  signInURL: string;
+  setValidEmail: (value: string) => void;
+  setAccountExists: (value: boolean) => void;
+  checkAccountExists: (email: string) => Promise<{ exists: boolean }>;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
 };
 
 export const NewUserEmailForm = ({
   getString,
+  signInURL,
+  setValidEmail,
+  setAccountExists,
   checkAccountExists,
   validatorInitialState,
   validatorMiddlewareReducer,
@@ -41,9 +47,12 @@ export const NewUserEmailForm = ({
       validator={validator}
       className="new-user-email-form"
     >
-      <Localized id="new-user-sign-in-link">
+      <Localized
+        id="new-user-sign-in-link"
+        elems={{ a: <a href={signInURL}></a> }}
+      >
         <p className="sign-in-copy" data-testid="sign-in-copy">
-          Already have a Firefox account? <a>Sign in</a>
+          Already have a Firefox account? <a href={signInURL}>Sign in</a>
         </p>
       </Localized>
       <Localized id="new-user-email" attrs={{ placeholder: true, label: true }}>
@@ -59,9 +68,11 @@ export const NewUserEmailForm = ({
             return emailInputValidationAndAccountCheck(
               value,
               focused,
+              setValidEmail,
+              setAccountExists,
               setEmailInputState,
-              getString,
-              checkAccountExists
+              checkAccountExists,
+              getString
             );
           }}
         />
@@ -97,7 +108,7 @@ export const NewUserEmailForm = ({
 
       <div className="assurance-copy" data-testid="assurance-copy">
         <img src={shieldIcon} alt="shield" />
-        <Localized id="new-user-subscribe-product-updates">
+        <Localized id="new-user-subscribe-product-assurance">
           <p>
             We only use your email to create your account. We will never sell it
             to a third party.
@@ -122,9 +133,11 @@ export async function checkAccountExists(userEmail: string) {
 export async function emailInputValidationAndAccountCheck(
   value: string,
   focused: boolean,
-  setEmailInputState: Function,
-  getString: Function,
-  checkAccountExists: Function
+  setValidEmail: (value: string) => void,
+  setAccountExists: (value: boolean) => void,
+  setEmailInputState: (value: string) => void,
+  checkAccountExists: (email: string) => Promise<{ exists: boolean }>,
+  getString?: (id: string) => string
 ) {
   let error = null;
   let valid = false;
@@ -132,11 +145,14 @@ export async function emailInputValidationAndAccountCheck(
   setEmailInputState(value);
   if (isEmailValid(value)) {
     valid = true;
+    setValidEmail(value);
     const response = await checkAccountExists(value);
-    if (response.exists) {
-      hasAccount = true;
-    }
+    hasAccount = response.exists;
+    setAccountExists(response.exists);
+  } else {
+    setValidEmail('');
   }
+
   const errorMsg = getString
     ? /* istanbul ignore next - not testing l10n here */
       getString('new-user-email-validate')
@@ -165,7 +181,7 @@ export function emailConfirmationValidation(
   value: string,
   focused: boolean,
   emailInputState: string | undefined,
-  getString: Function
+  getString?: Function
 ) {
   let valid = false;
 

@@ -347,6 +347,8 @@ payment-confirmation-cc-card-ending-in = Card ending in { $last4 }
 
 ## new user email form
 new-user-sign-in-link = Already have a { -brand-name-firefox } account? <a>Sign in</a>
+new-user-step-1 = 1. Create a { -brand-name-firefox } account
+new-user-step-2 = 2. Choose your payment method
 new-user-email =
   .placeholder = foxy@mozilla.com
   .label = Enter your email
@@ -357,3 +359,5 @@ new-user-subscribe-product-assurance = We only use your email to create your acc
 new-user-email-validate = Email is not valid
 new-user-email-validate-confirm = Emails do not match
 new-user-existing-account-sign-in = You already have an account, <a>Sign in</a>
+new-user-card-title = Enter your card information
+new-user-submit = Subscribe Now

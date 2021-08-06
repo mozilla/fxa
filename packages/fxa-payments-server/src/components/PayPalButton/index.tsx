@@ -1,3 +1,5 @@
+// This file must be lazy loaded. Otherwise we have a race condition with
+// usePaypalButton hook (script loading) and the button will not render.
 import React, { useCallback } from 'react';
 import ReactDOM from 'react-dom';
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   act,
   fireEvent,
@@ -13,15 +13,36 @@ import {
   checkAccountExists,
 } from './index';
 
+const WrapNewUserEmailForm = ({
+  accountExistsReturnValue,
+}: {
+  accountExistsReturnValue: boolean;
+}) => {
+  const [validEmail, setValidEmail] = useState<string>('');
+  const [accountExists, setAccountExists] = useState(false);
+  return (
+    <div style={{ display: 'flex' }}>
+      <NewUserEmailForm
+        signInURL={
+          'https://localhost:3031/subscriptions/products/productId?plan=planId&signin=yes'
+        }
+        setValidEmail={setValidEmail}
+        setAccountExists={setAccountExists}
+        getString={(id: string) => id}
+        checkAccountExists={() =>
+          Promise.resolve({ exists: accountExistsReturnValue })
+        }
+      />
+    </div>
+  );
+};
+
 describe('NewUserEmailForm test', () => {
   it('renders as expected', () => {
     let subject;
     act(() => {
       subject = render(
-        <NewUserEmailForm
-          getString={(id: string) => id}
-          checkAccountExists={() => Promise.resolve({ exists: false })}
-        />
+        <WrapNewUserEmailForm accountExistsReturnValue={false} />
       );
     });
     const form = subject.queryByTestId('new-user-email-form');
@@ -49,10 +70,7 @@ describe('NewUserEmailForm test', () => {
     let subject;
     await act(async () => {
       subject = render(
-        <NewUserEmailForm
-          getString={(id: string) => id}
-          checkAccountExists={() => Promise.resolve({ exists: false })}
-        />
+        <WrapNewUserEmailForm accountExistsReturnValue={false} />
       );
       const firstEmail = subject.getByTestId('new-user-email');
 
@@ -67,10 +85,7 @@ describe('NewUserEmailForm test', () => {
 
     await act(async () => {
       subject = render(
-        <NewUserEmailForm
-          getString={(id: string) => id}
-          checkAccountExists={() => Promise.resolve({ exists: false })}
-        />
+        <WrapNewUserEmailForm accountExistsReturnValue={false} />
       );
       const firstEmail = subject.getByTestId('new-user-email');
       fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
@@ -84,10 +99,7 @@ describe('NewUserEmailForm test', () => {
     let subject;
     await act(async () => {
       subject = render(
-        <NewUserEmailForm
-          getString={(id: string) => id}
-          checkAccountExists={() => Promise.resolve({ exists: false })}
-        />
+        <WrapNewUserEmailForm accountExistsReturnValue={false} />
       );
       const firstEmail = subject.getByTestId('new-user-email');
       const secondEmail = subject.getByTestId('new-user-confirm-email');
@@ -106,10 +118,7 @@ describe('NewUserEmailForm test', () => {
     let subject;
     await act(async () => {
       subject = render(
-        <NewUserEmailForm
-          getString={(id: string) => id}
-          checkAccountExists={() => Promise.resolve({ exists: false })}
-        />
+        <WrapNewUserEmailForm accountExistsReturnValue={false} />
       );
       const firstEmail = subject.getByTestId('new-user-email');
       const secondEmail = subject.getByTestId('new-user-confirm-email');
@@ -136,6 +145,7 @@ describe('NewUserEmailForm test', () => {
       'foxy@mozilla.com',
       false,
       (state: string) => state,
+      (value: boolean) => value,
       (id: string) => id,
       checkAccountExists
     ).then((result) => {
