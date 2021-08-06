@@ -28,7 +28,7 @@ export async function handleAuth(db: any, auth: any, fetchEmail = false) {
 
 export function handleUidAuth(auth: any): string {
   const scope = ScopeSet.fromArray(auth.credentials.scope);
-  if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
+  if (!scope.contains(OAUTH_SCOPE_SUBSCRIPTIONS)) {
     throw error.invalidScopes();
   }
   return auth.credentials.user;
