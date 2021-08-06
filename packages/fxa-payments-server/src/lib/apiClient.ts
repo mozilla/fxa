@@ -312,6 +312,14 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
   }
 }
 
+export async function apiSignupForNewsletter(params: {
+  newsletterId: string;
+}): Promise<{}> {
+  return apiFetch('POST', `${config.servers.auth.url}/v1/newsletters`, {
+    body: JSON.stringify(params),
+  });
+}
+
 export async function apiRetryInvoice(params: {
   invoiceId: string;
   paymentMethodId: string;

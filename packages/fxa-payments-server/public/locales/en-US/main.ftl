@@ -41,6 +41,7 @@ coupon-expired = It looks like that promo code has expired.
 card-error = Your transaction could not be processed. Please verify your credit card information and try again.
 
 fxa-signup-error = There was a problem creating your account.  Please try again later.
+fxa-newsletter-signup-error = There was a problem subscribing you to the newsletter.
 
 ## settings
 settings-home = Account Home

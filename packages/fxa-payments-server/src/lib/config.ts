@@ -8,6 +8,7 @@ export interface Config {
     privacyNotice: string;
     termsOfService: string;
   };
+  newsletterId: string;
   productRedirectURLs: {
     [productId: string]: string;
   };
@@ -55,6 +56,7 @@ export function defaultConfig(): Config {
       privacyNotice: '',
       termsOfService: '',
     },
+    newsletterId: 'mozilla-and-you',
     productRedirectURLs: {},
     sentry: {
       url: 'https://sentry.prod.mozaws.net',

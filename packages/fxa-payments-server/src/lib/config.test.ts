@@ -116,6 +116,7 @@ const expectedMergedConfig = {
     privacyNotice: 'https://abc.xyz/privacy',
     termsOfService: 'https://abc.xyz/terms',
   },
+  newsletterId: 'mozilla-and-you',
   productRedirectURLs: {},
   sample: {
     example: {
