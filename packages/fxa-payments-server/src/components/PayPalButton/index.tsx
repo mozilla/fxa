@@ -18,6 +18,7 @@ export type PaypalButtonProps = {
   idempotencyKey: string;
   refreshSubmitNonce: () => void;
   refreshSubscriptions: () => void;
+  beforeCreateOrder?: () => Promise<void>;
   setPaymentError: Function;
   priceId?: string;
   newPaypalAgreement?: boolean;
@@ -35,6 +36,8 @@ export type ButtonBaseProps = {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
+export const GENERAL_PAYPAL_ERROR_ID = 'general-paypal-error';
+
 /* istanbul ignore next */
 export const PaypalButtonBase =
   typeof paypal !== 'undefined'
@@ -50,6 +53,7 @@ export const PaypalButton = ({
   idempotencyKey,
   refreshSubmitNonce,
   refreshSubscriptions,
+  beforeCreateOrder,
   setPaymentError,
   priceId,
   newPaypalAgreement,
@@ -59,32 +63,24 @@ export const PaypalButton = ({
 }: PaypalButtonProps) => {
   const createOrder = useCallback(async () => {
     try {
-      const { apiCreateCustomer, apiGetPaypalCheckoutToken } = {
+      if (beforeCreateOrder) {
+        await beforeCreateOrder();
+      }
+      const { apiGetPaypalCheckoutToken } = {
         ...apiClient,
         ...apiClientOverrides,
       };
-      if (!customer) {
-        await apiCreateCustomer({
-          idempotencyKey,
-        });
-      }
       const { token } = await apiGetPaypalCheckoutToken({ currencyCode });
       /* istanbul ignore next */
       return token;
     } catch (error) {
       if (!error.code) {
-        error.code = 'general-paypal-error';
+        error.code = GENERAL_PAYPAL_ERROR_ID;
       }
       setPaymentError(error);
     }
     return null;
-  }, [
-    apiClient.apiCreateCustomer,
-    apiClient.apiGetPaypalCheckoutToken,
-    customer,
-    idempotencyKey,
-    setPaymentError,
-  ]);
+  }, [apiClientOverrides, currencyCode, setPaymentError, beforeCreateOrder]);
 
   const onApprove = useCallback(
     async (data: { orderID: string }) => {
@@ -92,10 +88,19 @@ export const PaypalButton = ({
       /* istanbul ignore next */
       try {
         if (setTransactionInProgress) setTransactionInProgress(true);
-        const { apiCapturePaypalPayment, apiUpdateBillingAgreement } = {
+        const {
+          apiCreateCustomer,
+          apiCapturePaypalPayment,
+          apiUpdateBillingAgreement,
+        } = {
           ...apiClient,
           ...apiClientOverrides,
         };
+        if (!customer) {
+          await apiCreateCustomer({
+            idempotencyKey,
+          });
+        }
         // This is the same token as obtained in createOrder
         const token = data.orderID;
         if (isNewSubscription) {
@@ -114,7 +119,7 @@ export const PaypalButton = ({
       } catch (error) {
         if (isNewSubscription) {
           if (!error.code) {
-            error.code = 'general-paypal-error';
+            error.code = GENERAL_PAYPAL_ERROR_ID;
           }
           setPaymentError(error);
         } else {
@@ -125,17 +130,21 @@ export const PaypalButton = ({
       return null;
     },
     [
-      apiClient.apiCreateCustomer,
-      apiClient.apiGetPaypalCheckoutToken,
+      apiClientOverrides,
       customer,
       idempotencyKey,
+      newPaypalAgreement,
+      priceId,
+      refreshSubmitNonce,
+      refreshSubscriptions,
       setPaymentError,
+      setTransactionInProgress,
     ]
   );
 
   const onError = useCallback(
     (error) => {
-      error.code = 'general-paypal-error';
+      error.code = GENERAL_PAYPAL_ERROR_ID;
       setPaymentError(error);
     },
     [setPaymentError]
