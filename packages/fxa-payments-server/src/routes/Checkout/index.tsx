@@ -78,6 +78,7 @@ export const Checkout = ({
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [validEmail, setValidEmail] = useState<string>('');
   const [accountExists, setAccountExists] = useState(false);
+  const [emailsMatch, setEmailsMatch] = useState(false);
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
   const [inProgress, setInProgress] = useState(false);
   const [paymentError, setPaymentError] = useState<PaymentError>(
@@ -165,6 +166,7 @@ export const Checkout = ({
             signInURL={signInURL}
             setAccountExists={setAccountExists}
             checkAccountExists={checkAccountExists}
+            setEmailsMatch={setEmailsMatch}
           />
 
           <hr />
@@ -190,6 +192,12 @@ export const Checkout = ({
                       <PaypalButton
                         currencyCode={selectedPlan.currency}
                         customer={null}
+                        disabled={
+                          !checkboxSet ||
+                          validEmail === '' ||
+                          accountExists ||
+                          !emailsMatch
+                        }
                         idempotencyKey={submitNonce}
                         refreshSubmitNonce={refreshSubmitNonce}
                         refreshSubscriptions={refreshSubscriptions}
@@ -231,7 +239,10 @@ export const Checkout = ({
                 submitButtonL10nId: 'new-user-submit',
                 submitButtonCopy: 'Subscribe Now',
                 shouldAllowSubmit:
-                  checkboxSet && validEmail !== '' && !accountExists,
+                  checkboxSet &&
+                  validEmail !== '' &&
+                  !accountExists &&
+                  emailsMatch,
 
                 inProgress,
                 validatorInitialState,

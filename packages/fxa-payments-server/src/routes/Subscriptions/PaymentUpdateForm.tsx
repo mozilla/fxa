@@ -238,6 +238,7 @@ export const PaymentUpdateForm = ({
               <Suspense fallback={<div>Loading...</div>}>
                 <div className="paypal-button">
                   <PaypalButton
+                    disabled={false}
                     currencyCode={currencyCode}
                     customer={customer}
                     idempotencyKey={submitNonce}

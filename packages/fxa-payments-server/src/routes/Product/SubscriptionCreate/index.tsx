@@ -248,6 +248,7 @@ export const SubscriptionCreate = ({
                       </Localized>
                       <div className="paypal-button">
                         <PaypalButton
+                          disabled={false}
                           apiClientOverrides={apiClientOverrides}
                           currencyCode={selectedPlan.currency}
                           customer={customer}

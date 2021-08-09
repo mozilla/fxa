@@ -20,12 +20,14 @@ const WrapNewUserEmailForm = ({
 }) => {
   const [validEmail, setValidEmail] = useState<string>('');
   const [accountExists, setAccountExists] = useState(false);
+  const [emailsMatch, setEmailsMatch] = useState(false);
   return (
     <div style={{ display: 'flex' }}>
       <NewUserEmailForm
         signInURL={
           'https://localhost:3031/subscriptions/products/productId?plan=planId&signin=yes'
         }
+        setEmailsMatch={setEmailsMatch}
         setValidEmail={setValidEmail}
         setAccountExists={setAccountExists}
         getString={(id: string) => id}

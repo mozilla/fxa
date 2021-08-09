@@ -7,6 +7,7 @@ import { PickPartial } from '../../lib/types';
 import { CUSTOMER, PLAN } from '../../lib/mock-data';
 
 const Subject = ({
+  disabled = false,
   currencyCode = 'USD',
   customer = CUSTOMER,
   idempotencyKey = '',
@@ -19,6 +20,7 @@ const Subject = ({
   ...props
 }: PickPartial<
   PaypalButtonProps,
+  | 'disabled'
   | 'currencyCode'
   | 'customer'
   | 'idempotencyKey'
@@ -32,6 +34,7 @@ const Subject = ({
   return (
     <PaypalButton
       {...{
+        disabled,
         currencyCode,
         customer,
         idempotencyKey,
