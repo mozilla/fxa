@@ -7,7 +7,7 @@ import React, {
   Suspense,
 } from 'react';
 import { connect } from 'react-redux';
-import { Localized } from '@fluent/react';
+import { Localized, useLocalization } from '@fluent/react';
 import classNames from 'classnames';
 
 import { PaymentError } from '../../lib/stripe';
@@ -71,6 +71,7 @@ export const Checkout = ({
   const { locationReload, queryParams, matchMediaDefault } =
     useContext(AppContext);
   const { config } = useContext(AppContext);
+  const { l10n } = useLocalization();
   const checkboxValidator = useValidatorState();
   const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const [submitNonce, refreshSubmitNonce] = useNonce();
@@ -167,6 +168,7 @@ export const Checkout = ({
             setAccountExists={setAccountExists}
             checkAccountExists={checkAccountExists}
             setEmailsMatch={setEmailsMatch}
+            getString={l10n.getString.bind(l10n)}
           />
 
           <hr />
