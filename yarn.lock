@@ -5733,14 +5733,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/ioredis-adapter@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "@type-cacheable/ioredis-adapter@npm:5.2.0"
+"@type-cacheable/core@npm:^8.0.5":
+  version: 8.0.5
+  resolution: "@type-cacheable/core@npm:8.0.5"
   dependencies:
-    "@type-cacheable/core": ^5.2.0
+    serialize-javascript: ^4.0.0
+  checksum: d40c1de8600bc80a300349b38c81f94296024e112620a2179ea875c81fd0954d8970b9a646938b7e621cf43fbd5e259fe51d270a377b85e26aaadfa34a17a52d
+  languageName: node
+  linkType: hard
+
+"@type-cacheable/ioredis-adapter@npm:^8.0.5":
+  version: 8.0.5
+  resolution: "@type-cacheable/ioredis-adapter@npm:8.0.5"
+  dependencies:
+    "@type-cacheable/core": ^8.0.5
+    compare-versions: ^3.6.0
   peerDependencies:
     ioredis: ^4.14.1
-  checksum: 03de1accec2e5d5b939b773eae8ee4e1bc814cd37023f5431493f89aa125fc23fb3d5f854468fb77a8ed7c72ced0293dd9d3d82199a71db1886cb132be20d0ca
+  checksum: 0e067d4921572748b69f6f3420c3db6f18ce477b4dcc5d5660df889a02f7650fee1666604fe129e5a0db3153b51080186c0b4e3e6819ee0a5d55fbfb4aef3473
   languageName: node
   linkType: hard
 
@@ -17811,7 +17821,7 @@ fsevents@~2.1.1:
     "@storybook/addon-docs": ^6.3.6
     "@storybook/html": ^6.3.6
     "@type-cacheable/core": ^5.2.0
-    "@type-cacheable/ioredis-adapter": ^5.2.0
+    "@type-cacheable/ioredis-adapter": ^8.0.5
     "@types/babel__core": 7.1.14
     "@types/chai": ^4.2.18
     "@types/convict": ^5.2.2
