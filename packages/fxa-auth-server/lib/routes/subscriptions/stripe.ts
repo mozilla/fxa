@@ -566,6 +566,7 @@ export class StripeHandler {
         nextInvoiceDate: subscription.current_period_end,
         token: token.data,
         code: token.passCode,
+        expiresAt: Date.now() + this.config.tokenLifetimes.passwordForgotToken,
       });
     }
 

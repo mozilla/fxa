@@ -1918,6 +1918,7 @@ module.exports = function (log, config) {
       nextInvoiceDate,
       token,
       code,
+      expiresAt,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -1938,6 +1939,7 @@ module.exports = function (log, config) {
       token,
       code,
       product_id: productId,
+      expires_at: expiresAt,
     };
     const template = 'subscriptionAccountFinishSetup';
     const translator = this.translator(message.acceptLanguage);

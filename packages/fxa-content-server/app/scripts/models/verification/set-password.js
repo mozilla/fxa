@@ -16,6 +16,7 @@ export default VerificationInfo.extend({
   defaults: {
     code: null,
     token: null,
+    expires_at: 0,
     email: null,
     product_name: null,
     service: null,
@@ -26,5 +27,6 @@ export default VerificationInfo.extend({
     code: Vat.verificationCode(),
     token: Vat.token(),
     email: Vat.email(),
+    expires_at: Vat.number().min(0),
   },
 });

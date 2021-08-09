@@ -58,6 +58,7 @@ class SetPassword extends FormView {
         this._verificationInfo.get('product_name').replace(/\+/g, ' ')
       ),
       isLinkValid: !this._verificationInfo.isValid(),
+      expired: this._verificationInfo.get('expires_at') < Date.now(),
     });
   }
 
@@ -87,13 +88,6 @@ class SetPassword extends FormView {
         this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         return;
       }
-
-      const token = this._verificationInfo.get('token');
-      return account.isPasswordResetComplete(token).then((isComplete) => {
-        if (isComplete) {
-          return this.redirectToProduct(account);
-        }
-      });
     });
   }
 
@@ -102,6 +96,8 @@ class SetPassword extends FormView {
     const password = this._getPassword();
     const token = this._verificationInfo.get('token');
     const code = this._verificationInfo.get('code');
+    if (this._verificationInfo.get('expires_at') < Date.now()) {
+    }
     return this.user
       .completeAccountPasswordReset(account, password, token, code, this.relier)
       .then(
