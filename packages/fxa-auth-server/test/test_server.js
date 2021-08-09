@@ -6,15 +6,24 @@
 
 const crypto = require('crypto');
 const EventEmitter = require('events');
+const sinon = require('sinon');
+const { default: Container } = require('typedi');
 const mailbox = require('./mailbox');
 const proxyquire = require('proxyquire').noPreserveCache();
 const createMailHelper = require('./mail_helper');
 const createProfileHelper = require('./profile_helper');
+const { CapabilityService } = require('../lib/payments/capability');
 
 let currentServer;
 
 /* eslint-disable no-console */
 function TestServer(config, printLogs, options = {}) {
+  if (!Container.has(CapabilityService)) {
+    Container.set(CapabilityService, {
+      subscriptionCapabilities: sinon.fake.resolves([]),
+      determineClientVisibleSubscriptionCapabilities: sinon.fake.resolves(''),
+    });
+  }
   this.options = options;
 
   currentServer = this;

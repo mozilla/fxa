@@ -15,6 +15,7 @@ const {
   PurchaseQueryError,
   SkuType,
   PurchaseUpdateError,
+  NotificationType,
 } = require('../../../../lib/payments/google-play/types');
 
 const mockSubscriptionPurchase = {};
@@ -296,6 +297,35 @@ describe('PurchaseManager', () => {
     });
   });
 
+  describe('getPurchase', () => {
+    let purchaseManager;
+    let mockPurchaseDoc;
+
+    beforeEach(() => {
+      mockPurchaseDoc = {
+        exists: true,
+        data: sinon.fake.returns({}),
+      };
+
+      mockPurchaseDbRef.doc = sinon.fake.returns({
+        get: sinon.fake.resolves(mockPurchaseDoc),
+      });
+      purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
+      mockSubscriptionPurchase.fromFirestoreObject = sinon.fake.returns({});
+    });
+
+    it('returns an existing doc', async () => {
+      const result = await purchaseManager.getPurchase('testToken');
+      assert.deepEqual(result, {});
+    });
+
+    it('returns undefined with no doc', async () => {
+      mockPurchaseDoc.exists = false;
+      const result = await purchaseManager.getPurchase('testToken');
+      assert.isUndefined(result);
+    });
+  });
+
   describe('registerToUserAccount', () => {
     let purchaseManager;
     let mockPurchaseDoc;
@@ -405,6 +435,51 @@ describe('PurchaseManager', () => {
         assert.equal(err.name, PurchaseUpdateError.INVALID_TOKEN);
         assert.equal(err.message, 'Oops');
       }
+    });
+  });
+
+  describe('processDeveloperNotification', () => {
+    let purchaseManager;
+    let mockSubscription;
+    let mockNotification;
+
+    beforeEach(() => {
+      mockNotification = {};
+      mockSubscription = {};
+
+      purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
+      purchaseManager.querySubscriptionPurchase =
+        sinon.fake.resolves(mockSubscription);
+    });
+
+    it('returns null without a notification', async () => {
+      const result = await purchaseManager.processDeveloperNotification(
+        'testPackage',
+        mockNotification
+      );
+      assert.isNull(result);
+    });
+
+    it('returns null with a SUBSCRIPTION_PURCHASED type', async () => {
+      mockNotification.subscriptionNotification = mockSubscription;
+      mockSubscription.notificationType =
+        NotificationType.SUBSCRIPTION_PURCHASED;
+      const result = await purchaseManager.processDeveloperNotification(
+        'testPackage',
+        mockNotification
+      );
+      assert.isNull(result);
+    });
+
+    it('returns a subscription for other valid subscription notifications', async () => {
+      mockNotification.subscriptionNotification = mockSubscription;
+      mockSubscription.notificationType = NotificationType.SUBSCRIPTION_RENEWED;
+      const result = await purchaseManager.processDeveloperNotification(
+        'testPackage',
+        mockNotification
+      );
+      assert.deepEqual(result, mockSubscription);
+      sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
     });
   });
 });

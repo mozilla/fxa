@@ -1087,7 +1087,6 @@ export class StripeHelper {
       getMore = moreSubs.has_more;
       startAfter = moreSubs.data[moreSubs.data.length - 1].id;
     }
-
     return subscriptions;
   }
 

@@ -13,6 +13,7 @@ const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
 const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
+const pubsubAuth = require('./routes/auth-schemes/pubsub');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 const { configureSentry } = require('./sentry');
 
@@ -310,6 +311,7 @@ async function create(log, error, config, routes, db, translator, statsd) {
   };
 
   await server.register(require('@hapi/hawk'));
+  await server.register(require('hapi-auth-jwt2'));
 
   server.auth.strategy('sessionToken', 'hawk', {
     getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
@@ -362,6 +364,8 @@ async function create(log, error, config, routes, db, translator, statsd) {
     sharedSecretAuth.strategy(`Bearer ${config.supportPanel.secretBearerToken}`)
   );
   server.auth.strategy('supportPanelSecret', 'supportPanelSecret');
+
+  server.auth.strategy('pubsub', 'jwt', pubsubAuth.strategy(config));
 
   // routes should be registered after all auth strategies have initialized:
   // ref: http://hapijs.com/tutorials/auth

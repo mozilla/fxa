@@ -435,8 +435,7 @@ describe('lib/server', () => {
             code: 400,
             errno: 125,
             error: 'Request blocked',
-            info:
-              'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
+            info: 'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
             message: 'The request was blocked for security reasons',
           };
           beforeEach(() => {
@@ -668,6 +667,10 @@ function getConfig() {
     },
     supportPanel: {
       secretBearerToken: 'topsecrets',
+    },
+    pubsub: {
+      authenticate: false,
+      verificationToken: '',
     },
     verificationReminders: {},
   };

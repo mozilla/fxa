@@ -7,11 +7,15 @@
 const ROOT_DIR = '../..';
 
 const { assert } = require('chai');
+const { default: Container } = require('typedi');
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const clientFactory = require('../client')();
 const config = require(`${ROOT_DIR}/config`).getProperties();
 const error = require(`${ROOT_DIR}/lib/error`);
 const testServerFactory = require('../test_server');
+const { CapabilityService } = require('../../lib/payments/capability');
+const { StripeHelper } = require('../../lib/payments/stripe');
+const { AuthLogger } = require('../../lib/types');
 
 const validClients = config.oauthServer.clients.filter(
   (client) => client.trusted && client.canGrant && client.publicClient
@@ -81,6 +85,11 @@ describe('remote subscriptions:', function () {
         },
       ];
       mockStripeHelper.customer = async (uid, email) => ({});
+      Container.set(StripeHelper, mockStripeHelper);
+      Container.set(AuthLogger, {});
+      Container.remove(CapabilityService);
+      Container.set(CapabilityService, new CapabilityService());
+
       server = await testServerFactory.start(config, false, {
         authServerMockDependencies: {
           '../lib/payments/stripe': {

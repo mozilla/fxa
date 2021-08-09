@@ -46,11 +46,6 @@ export const SUBSCRIPTION_UPDATE_SCHEMA = joi
     eventCreatedAt: joi.number().integer().required(),
     isActive: joi.bool().required(),
     productCapabilities: joi.array().items(joi.string()).required(),
-    productId: joi.string().optional(),
-    // TODO: productName is the legacy name for productId, remove it
-    //       in due course then make productId required again.
-    productName: joi.string().optional(),
-    subscriptionId: joi.string().required(),
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
     uid: joi.string().required(),

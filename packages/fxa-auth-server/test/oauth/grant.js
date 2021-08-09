@@ -5,10 +5,13 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
+const { default: Container } = require('typedi');
+
 const config = require('../../config');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const AppError = require('../../lib/oauth/error');
 const { decodeJWT } = require('../lib/util');
+const { CapabilityService } = require('../../lib/payments/capability');
 
 async function assertThrowsAsync(fn, errorLike, errMsgMatcher, message) {
   let threw = null;
@@ -235,6 +238,7 @@ describe('generateTokens', () => {
   let mockConfig;
   let mockDB;
   let mockJWTAccessToken;
+  let mockCapabilityService;
 
   let generateTokens;
   let requestedGrant;
@@ -267,6 +271,7 @@ describe('generateTokens', () => {
       generateIdToken: sinon.spy(async () => ({ token: 'id_token' })),
       generateRefreshToken: sinon.spy(async () => ({ token: 'refresh_token' })),
     };
+    mockCapabilityService = {};
 
     mockConfig = {
       get(key) {
@@ -299,6 +304,7 @@ describe('generateTokens', () => {
       './jwt_access_token': mockJWTAccessToken,
     });
 
+    Container.set(CapabilityService, mockCapabilityService);
     grantModule.setStripeHelper(undefined);
 
     generateTokens = grantModule.generateTokens;
@@ -326,37 +332,11 @@ describe('generateTokens', () => {
   it('should generate a JWT access token if enabled, client_id allowed, and direct Stripe access enabled', async () => {
     const clientId = '9876543210';
 
-    grantModule.setStripeHelper({
-      customer: sinon.spy(async () => ({
-        subscriptions: {
-          data: [
-            {
-              items: { data: [{ price: { product: 'prod0' } }] },
-              status: 'active',
-            },
-            {
-              items: { data: [{ price: { product: 'prod1' } }] },
-              status: 'active',
-            },
-            {
-              items: { data: [{ price: { product: 'prod2' } }] },
-              status: 'incomplete',
-            },
-          ],
-        },
-      })),
-      allPlans: sinon.spy(async () => [
-        {
-          product_id: 'prod0',
-        },
-        {
-          product_id: 'prod1',
-          product_metadata: {
-            [`capabilities:${clientId}`]: 'cap1',
-          },
-        },
-      ]),
+    mockCapabilityService.subscriptionCapabilities = sinon.fake.resolves({
+      [`capabilities:${clientId}`]: 'cap1',
     });
+    mockCapabilityService.determineClientVisibleSubscriptionCapabilities =
+      sinon.fake.resolves(['cap1']);
 
     requestedGrant.clientId = Buffer.from(clientId, 'hex');
     const result = await generateTokens(requestedGrant);

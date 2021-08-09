@@ -50,6 +50,7 @@ describe('PlayBilling', () => {
     Container.set(AuthFirestore, firestore);
     Container.set(AuthLogger, log);
     Container.set(AppConfig, mockConfig);
+    Container.remove(PlayBilling);
   });
 
   afterEach(() => {
@@ -60,7 +61,7 @@ describe('PlayBilling', () => {
     const playBilling = Container.get(PlayBilling);
     assert.strictEqual(playBilling.log, log);
     assert.strictEqual(playBilling.firestore, firestore);
-    assert.strictEqual(playBilling.prefix, 'mock-fxa-googleIap');
+    assert.strictEqual(playBilling.prefix, 'mock-fxa-iap-');
   });
 
   describe('plans', () => {

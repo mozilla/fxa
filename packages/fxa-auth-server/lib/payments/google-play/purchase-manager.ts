@@ -26,8 +26,8 @@ import {
   SubscriptionPurchase,
 } from './subscription-purchase';
 import {
+  DeveloperNotification,
   NotificationType,
-  Purchase,
   PurchaseQueryError,
   PurchaseUpdateError,
   SkuType,
@@ -134,7 +134,7 @@ export class PurchaseManager {
         return subscriptionPurchase;
       }
     } catch (err) {
-      // Some unexpected error has occured while interacting with Firestore.
+      // Some unexpected error has occurred while interacting with Firestore.
       const libraryError = new Error(err.message);
       libraryError.name = PurchaseQueryError.OTHER_ERROR;
       throw libraryError;
@@ -246,6 +246,19 @@ export class PurchaseManager {
     }
   }
 
+  /**
+   * Get a purchase record from Firestore.
+   */
+  public async getPurchase(purchaseToken: string) {
+    const purchaseRecordDoc = await this.purchasesDbRef
+      .doc(purchaseToken)
+      .get();
+    if (purchaseRecordDoc.exists) {
+      return SubscriptionPurchase.fromFirestoreObject(purchaseRecordDoc.data());
+    }
+    return;
+  }
+
   /*
    * Register a purchase (both one-time product and recurring subscription) to a user.
    * It's intended to be exposed to Android app to verify purchases made in the app.
@@ -268,15 +281,8 @@ export class PurchaseManager {
     // https://developer.android.com/google/play/developer-api#subscriptions
 
     // STEP 1. Check if the purchase record is already in Firestore
-    let purchase: Purchase;
-    const purchaseRecordDoc = await this.purchasesDbRef
-      .doc(purchaseToken)
-      .get();
-    if (purchaseRecordDoc.exists) {
-      purchase = SubscriptionPurchase.fromFirestoreObject(
-        purchaseRecordDoc.data()
-      );
-    } else {
+    let purchase = await this.getPurchase(purchaseToken);
+    if (!purchase) {
       // STEP 1b. Query Play Developer API to verify the purchase
       try {
         purchase = await this.querySubscriptionPurchase(
@@ -315,6 +321,32 @@ export class PurchaseManager {
 
     // STEP 3: Register purchase to the user
     await this.forceRegisterToUserAccount(purchaseToken, userId);
+  }
+
+  async processDeveloperNotification(
+    packageName: string,
+    notification: DeveloperNotification
+  ): Promise<SubscriptionPurchase | null> {
+    // Type-guard for a real-time developer notification.
+    const subscriptionNotification = notification.subscriptionNotification;
+    if (!subscriptionNotification) {
+      return null;
+    }
+    if (
+      subscriptionNotification.notificationType !==
+      NotificationType.SUBSCRIPTION_PURCHASED
+    ) {
+      // We can safely ignore SUBSCRIPTION_PURCHASED because with new subscription, our Android app will send the same token to server for verification
+      // For other type of notification, we query Play Developer API to update our purchase record cache in Firestore
+      return await this.querySubscriptionPurchase(
+        packageName,
+        subscriptionNotification.subscriptionId,
+        subscriptionNotification.purchaseToken,
+        subscriptionNotification.notificationType
+      );
+    }
+
+    return null;
   }
 
   private convertPlayAPIErrorToLibraryError(playError: any): Error {

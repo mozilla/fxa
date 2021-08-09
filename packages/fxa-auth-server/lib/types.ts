@@ -66,7 +66,12 @@ export interface AuthRequest extends Request {
   propagateMetricsContext: any;
 }
 
+export interface ProfileClient {
+  deleteCache(uid: string): Promise<void>;
+}
+
 // Container token types
 export const AuthLogger = new Token<AuthLogger>('AUTH_LOGGER');
 export const AuthFirestore = new Token<Firestore>('AUTH_FIRESTORE');
 export const AppConfig = new Token<ConfigType>('APP_CONFIG');
+export const ProfileClient = new Token<ProfileClient>('PROFILE_CLIENT');

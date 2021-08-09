@@ -15,16 +15,15 @@ import { ConfigType } from '../../config';
 import authMethods from '../authMethods';
 import random from '../crypto/random';
 import error from '../error';
+import { getClientById } from '../oauth/client';
+import { generateAccessToken } from '../oauth/grant';
+import { CapabilityService } from '../payments/capability';
 import { PayPalHelper } from '../payments/paypal';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest, Awaited } from '../types';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
-import { determineSubscriptionCapabilities } from './utils/subscriptions';
 import validators from './validators';
-import { generateAccessToken } from '../oauth/grant';
-import { getClientById } from '../oauth/client';
-import { PlayBilling } from '../payments/google-play/play-billing';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -44,7 +43,7 @@ export class AccountHandler {
   private tokenCodeLifetime: number;
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
-  private playBilling?: PlayBilling;
+  private capabilityService: CapabilityService;
 
   constructor(
     private log: AuthLogger,
@@ -80,9 +79,7 @@ export class AccountHandler {
     ) {
       this.paypalHelper = Container.get(PayPalHelper);
     }
-    if (config.authFirestore?.enabled) {
-      this.playBilling = Container.get(PlayBilling);
-    }
+    this.capabilityService = Container.get(CapabilityService);
   }
 
   private async deleteAccountIfUnverified(request: AuthRequest, email: string) {
@@ -1030,13 +1027,12 @@ export class AccountHandler {
       this.config.subscriptions?.enabled &&
       scope.contains('profile:subscriptions')
     ) {
-      const capabilities = await determineSubscriptionCapabilities(
-        this.stripeHelper,
-        this.playBilling,
-        uid as string,
-        account.primaryEmail.email
-      );
-      if (capabilities) {
+      const capabilities =
+        await this.capabilityService.subscriptionCapabilities(
+          uid as string,
+          account.primaryEmail.email
+        );
+      if (Object.keys(capabilities).length > 0) {
         res.subscriptionsByClientId = capabilities;
       }
     }

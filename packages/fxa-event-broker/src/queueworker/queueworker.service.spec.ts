@@ -249,7 +249,7 @@ describe('QueueworkerService', () => {
       'password reset': { ...basePasswordResetMessage, ts: false },
       'primary email change': { ...basePrimaryEmailMessage, ts: false },
       'profile change': { ...baseProfileMessage, ts: false },
-      subscription: { ...baseSubscriptionUpdateMessage, productId: false },
+      subscription: { ...baseSubscriptionUpdateMessage, eventCreatedAt: false },
     };
     for (const [key, value] of Object.entries(invalidMessages)) {
       it(`logs an error on invalid ${key} message`, async () => {
