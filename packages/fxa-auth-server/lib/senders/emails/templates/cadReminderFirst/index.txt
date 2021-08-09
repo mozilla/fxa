@@ -1,0 +1,7 @@
+sync-reminder = "<%- headerText %>"
+
+sync-description = "<%- bodyText %>"
+
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>

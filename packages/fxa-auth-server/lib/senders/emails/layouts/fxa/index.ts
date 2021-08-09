@@ -13,17 +13,17 @@ export const render = (body: string) => {
         ${metaData}
       </mj-raw>
       <mj-title>
-        <%= subject %>
-      </mj-title>      
+        <%- subject %>
+      </mj-title>
     </mj-head>
     <mj-body css-class="body-80">
     <mj-include path="./lib/senders/emails/css/global.css" type="css" css-inline="inline" />
     <mj-include path="./lib/senders/emails/css/fxa/index.css" type="css" css-inline="inline" />
     <mj-include path="./lib/senders/emails/css/locale-dir.css" type="css" />
         <mj-raw>
-        <% if (preHeader) { %>
+        <% if (locals.preHeader) { %>
         <div class="hidden">
-          <%= preHeader %>
+          <%- preHeader %>
           &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
           &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
           &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
@@ -31,7 +31,7 @@ export const render = (body: string) => {
           ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌‌‌
         </div>
         <% } %>
-        <% if (typeof(sync) == "undefined" || sync == null) { %>
+        <% if (!locals.sync) { %>
         <img src="https://accounts-static.cdn.mozilla.net/product-icons/firefox-logo.png" class="fxa-logo" alt="Firefox logo"/>
         <% } else { %>
         <img src="https://accounts-static.cdn.mozilla.net/other/sync-devices.png" class="sync" alt="Sync devices"/>
@@ -41,8 +41,8 @@ export const render = (body: string) => {
       <mj-section>
         <mj-column>
           <mj-text css-class="secondary-text">Mozilla. 2 Harrison St, #175, San Francisco, CA 94105</mj-text>
-          <mj-text css-class="secondary-text privacy-url"><a class="link-blue" data-l10n-id="fxa-privacy-url" href="<%= privacyUrl %>">Mozilla Privacy Policy</a></mj-text>
-          <mj-text css-class="secondary-text support-url"><a class="link-blue" data-l10n-id="fxa-support-url" href="<%= supportUrl %>">Firefox Cloud Terms of Service</a></mj-text>
+          <mj-text css-class="secondary-text privacy-url"><a class="link-blue" data-l10n-id="fxa-privacy-url" href="<%- privacyUrl %>">Mozilla Privacy Policy</a></mj-text>
+          <mj-text css-class="secondary-text support-url"><a class="link-blue" data-l10n-id="fxa-support-url" href="<%- supportUrl %>">Firefox Cloud Terms of Service</a></mj-text>
         </mj-column>
       </mj-section>
     </mj-body>

@@ -7,7 +7,7 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { negotiateLanguages } from '@fluent/langneg';
 import { JSDOM } from 'jsdom';
 import path from 'path';
-import { renderWithOptionalLayout, context } from './renderer';
+import { renderWithOptionalLayout } from './renderer';
 import { loadFtlFiles } from './load-ftl-files';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 
@@ -15,18 +15,15 @@ const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
 
 const RTL_LOCALES = [
   'ar',
-  'arc',
   'ckb',
   'dv',
-  'fa',
-  'ha',
   'he',
-  'khw',
   'ks',
   'ps',
+  'fa',
+  'syr',
   'ur',
-  'uz_AF',
-  'yi',
+  'ug',
 ];
 
 const baseDir = path.join(__dirname);
@@ -40,17 +37,16 @@ class FluentLocalizer {
   async localizeEmail(
     templateName: string,
     layoutName: string,
-    mailSubject: string,
     variables: Record<any, any>,
     acceptLanguage: string
   ) {
-    const htmlDocument = renderWithOptionalLayout(
+    const { htmlTemplate, plainText } = renderWithOptionalLayout(
       templateName,
-      { ...variables, ...context },
+      { ...variables, ...variables.templateValues },
       layoutName
     );
 
-    const { document } = new JSDOM(htmlDocument).window;
+    const { document } = new JSDOM(htmlTemplate).window;
 
     const userLocales: Array<string> = [];
 
@@ -105,16 +101,32 @@ class FluentLocalizer {
       body.classList.add('rtl');
     }
 
-    const subject = await l10n.formatValue(mailSubject);
+    const subject = await l10n.formatValue(`${templateName}-subject`);
+    document.title = subject;
+
+    // localize the plaintext files
+    const plainTextArr = plainText.split('\n');
+    for (let i in plainTextArr) {
+      // match the lines that are of format key = "value" since we will be extracting the key
+      // to pass down to fluent
+      const arr = plainTextArr[i].match(/([a-zA-z-]*\s=\s"([^"]+)")/g) || '';
+      if (arr[0]) {
+        let [key, val] = arr[0].split('=');
+        key = key.replace(/\s/g, '');
+        val = val.replace(/"/g, '').trim();
+        // get the value from fluent using the extracted key
+        const localizedValue = await l10n.formatValue(key);
+        plainTextArr[i] = localizedValue ? localizedValue : val;
+      }
+    }
+    // convert back to string
+    const localizedPlainText = plainTextArr.join('\n');
+
     return {
       html: document.documentElement.outerHTML,
-      // The following snippet strips out the html and is not able to preserve the links.
-      // So potentially we will either modify the same snippet or think of some other way around
-      // text: document.documentElement
-      //   .querySelector('body')
-      //   ?.textContent?.replace(/(^[ \t]*\n)|(^[ \t]*)/gm, ''),
+      text: localizedPlainText,
       localizedSubject: subject,
     };
   }
 }
-module.exports = FluentLocalizer;
+export default FluentLocalizer;

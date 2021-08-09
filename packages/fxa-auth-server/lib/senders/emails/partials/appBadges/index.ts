@@ -8,14 +8,14 @@ export const appBadges = `
     <mj-group>
       <mj-column>
         <mj-image css-class="app-badges"
-          href="<%= iosUrl %>"
+          href="<%- iosUrl %>"
           src="https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png" 
           alt="iOS badge">
         </mj-image>
       </mj-column>
       <mj-column>
         <mj-image css-class="app-badges"
-          href="<%= androidUrl %>"
+          href="<%- androidUrl %>"
           src="https://accounts-static.cdn.mozilla.net/product-icons/google-play.png" 
           alt="android badge">
         </mj-image>
@@ -24,13 +24,13 @@ export const appBadges = `
   </mj-section>
   <mj-section>
     <mj-column>
-      <% if (onDesktopOrTabletDevice) { %>
+      <% if (locals.onDesktopOrTabletDevice) { %>
       <mj-text css-class="secondary-text mb-3"><span data-l10n-id="another-desktop-device"> Or, install on
-        <a href="<%= anotherDeviceUrl %>" class="link-blue" data-l10n-name="anotherDeviceLink">another desktop device</a></span>
+        <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another desktop device</a></span>
       </mj-text>
       <% } else { %>
-      <mj-text css-class="secondary-text mb-3 install-device-link"><span data-l10n-id="another-desktop-device"> Or, install on
-        <a href="<%= anotherDeviceUrl %>" class="link-blue" data-l10n-name="anotherDeviceLink">another device</a></span>
+      <mj-text css-class="secondary-text mb-3 install-device-link"><span data-l10n-id="another-device"> Or, install on
+        <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another device</a></span>
         <% } %>
       </mj-text>
     </mj-column>

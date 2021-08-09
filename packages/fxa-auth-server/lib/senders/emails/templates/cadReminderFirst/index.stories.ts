@@ -12,19 +12,23 @@ export default {
 const Template: Story<StorybookEmailArgs> = (args) => storybookEmail(args);
 
 const defaultVariables = {
-  buttonText: 'Sync another device',
+  action: 'Sync another device',
   oneClickLink: true,
-  anotherDeviceUrl:
-    '/connect_another_device?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-connect-device',
+  link: 'http://localhost:3030/connect_another_device?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-connect-device',
   iosUrl:
     'https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png',
   androidUrl:
     'https://accounts-static.cdn.mozilla.net/product-icons/google-play.png',
   onDesktopOrTabletDevice: true,
-  subject: 'Reminder to sync your device',
-  preHeader: 'Random headers',
-  privacyUrl: '',
-  supportUrl: '',
+  subject: 'Your Friendly Reminder: How To Complete Your Sync Setup',
+  privacyUrl:
+    'https://www.mozilla.org/privacy?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-privacy',
+  supportUrl:
+    'https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-support',
+  headerText: "Here's your reminder to sync devices.",
+  bodyText:
+    'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.',
+  acceptLanguage: 'en-US',
 };
 
 const commonPropsWithOverrides = (
@@ -33,7 +37,7 @@ const commonPropsWithOverrides = (
   Object.assign({
     template: 'cadReminderFirst',
     layout: 'fxa',
-    doc: 'The Connect Another Device Reminder is sent when [TODO: documentation].',
+    doc: 'Connect Another Device (CAD) reminder emails are sent out 24 hours after a user clicks "send me a reminder" on the connect another device page.',
     variables: {
       ...defaultVariables,
       ...overrides,
@@ -51,3 +55,9 @@ CadReminderMobile.args = commonPropsWithOverrides({
   onDesktopOrTabletDevice: false,
 });
 CadReminderMobile.storyName = 'User is on mobile device';
+
+export const CadReminderArLocale = Template.bind({});
+CadReminderArLocale.args = commonPropsWithOverrides({
+  acceptLanguage: 'ar',
+});
+CadReminderArLocale.storyName = 'User has ar locale';

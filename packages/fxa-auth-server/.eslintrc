@@ -3,5 +3,9 @@
     "require-atomic-updates": "off"
   },
   "extends": ["plugin:fxa/server"],
-  "plugins": ["fxa"]
+  "plugins": ["fxa"],
+  "parserOptions": {
+    "ecmaVersion": "2020",
+    "sourceType": "module"
+  }
 }

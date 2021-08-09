@@ -2,54 +2,62 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import fs from 'fs';
+import { join } from 'path';
 import ejs = require('ejs');
 import mjml2html = require('mjml');
 import * as templates from './templates';
 import * as layouts from './layouts';
-import path = require('path');
-const config = require('../../../config').getProperties();
 
 const mjmlConfig: Record<any, any> = {
-  validationLevel: 'soft',
-  // ignoreIncludes: config.env === 'test' ? true : false,
+  validationLevel: 'strict',
 };
 
-export const context = {
-  buttonText: 'Sync another device',
-  onDesktopOrTabletDevice: true,
-  anotherDeviceUrl:
-    config.contentServer.url +
-    '/connect_another_device?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-connect-device',
-  preHeader: 'random headers',
-  privacyUrl: config.smtp.privacyUrl,
-  supportUrl: config.smtp.supportUrl,
-  oneClickLink: true,
-  iosUrl:
-    'https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png',
-  androidUrl:
-    'https://accounts-static.cdn.mozilla.net/product-icons/google-play.png',
-  subject: 'Reminder to sync your device',
-  cssBaseDir: `${__dirname}/css`,
+const ejsConfig: Record<any, any> = {
+  root: __dirname,
 };
+const TEMPLATES_DIR = './lib/senders/emails/';
 
 function compile(
   context: Record<any, any>,
   templateName: string,
-  subTemplate?: string
+  subTemplate?: Record<any, string>
 ) {
-  let template: ejs.TemplateFunction;
+  // Ignore MJML includes since we don't test the styles of the templates.
+  // Futher context in PR #10018
+  const ignoreIncludes = typeof global.it === 'function';
+
+  let template: ejs.TemplateFunction, templateText: string;
+
   if (subTemplate) {
     template = ejs.compile(
-      layouts[templateName as keyof typeof layouts].render(subTemplate)
+      layouts[templateName as keyof typeof layouts].render(subTemplate.mjml)
+    );
+    const layoutText = fs
+      .readFileSync(join(TEMPLATES_DIR, 'layouts', templateName, 'index.txt'))
+      .toString();
+
+    templateText = ejs.render(
+      layoutText,
+      { ...context, body: subTemplate.text },
+      ejsConfig
     );
   } else {
     template = ejs.compile(
       templates[templateName as keyof typeof templates].render()
     );
+    templateText = fs
+      .readFileSync(join(TEMPLATES_DIR, 'templates', templateName, 'index.txt'))
+      .toString();
   }
+  const plainText = ejs.render(templateText, context, ejsConfig);
   const mjmlTemplate = template(context);
-  const htmlTemplate = mjml2html(mjmlTemplate, mjmlConfig).html;
-  return htmlTemplate;
+  const htmlTemplate = mjml2html(mjmlTemplate, {
+    ...mjmlConfig,
+    ignoreIncludes,
+  }).html;
+
+  return { htmlTemplate, plainText };
 }
 
 export function renderWithOptionalLayout(
@@ -57,9 +65,16 @@ export function renderWithOptionalLayout(
   context: Record<any, any>,
   layoutName?: string
 ) {
+  context.templateName = templateName;
   if (layoutName) {
-    const subTemplate =
-      templates[templateName as keyof typeof templates].render();
+    const subTemplate = {
+      mjml: templates[templateName as keyof typeof templates].render(),
+      text: fs
+        .readFileSync(
+          join(TEMPLATES_DIR, 'templates', templateName, 'index.txt')
+        )
+        .toString(),
+    };
     return compile(context, layoutName, subTemplate);
   } else return compile(context, templateName);
 }

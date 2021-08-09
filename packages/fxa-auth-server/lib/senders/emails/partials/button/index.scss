@@ -14,7 +14,7 @@
     background: global.$blue-400 !important;
     width: 310px !important;
     color: global.$white;
-    padding: 14px 0 !important;
+    padding: global.$s-4 global.$s-0 !important;
     border-radius: 4px !important;
   }
 }

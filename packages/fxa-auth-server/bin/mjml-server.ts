@@ -5,7 +5,9 @@
 import http from 'http';
 import stream from 'stream';
 import net from 'net';
-import { renderWithOptionalLayout } from '../lib/senders/emails/renderer';
+import FluentLocalizer from '../lib/senders/emails/fluent-localizer';
+
+const fluentLocalizer = new FluentLocalizer();
 
 const baseUrl = require('../config').get('contentServer.url');
 
@@ -26,9 +28,15 @@ async function handleRequest(
   try {
     const body = await readStream(req);
     const data = JSON.parse(body.trim());
-    const { template: templateName, ...variables } = data;
+    const { template: templateName, layout: layoutName, ...variables } = data;
     variables.baseUrl = baseUrl;
-    const result = renderWithOptionalLayout(templateName, variables, 'fxa');
+    const localized = await fluentLocalizer.localizeEmail(
+      templateName,
+      layoutName || 'fxa',
+      variables,
+      variables.acceptLanguage
+    );
+    const result = localized.html;
 
     res.writeHead(200, {
       'Content-Type': 'text/html',

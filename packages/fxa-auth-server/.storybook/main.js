@@ -7,5 +7,9 @@ module.exports = {
     '../lib/senders/emails/**/*.stories.tsx',
     '../lib/senders/emails/**/*.stories.ts',
   ],
-  addons: ['@storybook/addon-docs', '@storybook/addon-controls'],
+  addons: [
+    '@storybook/addon-docs',
+    '@storybook/addon-controls',
+    '@storybook/addon-toolbars',
+  ],
 };
