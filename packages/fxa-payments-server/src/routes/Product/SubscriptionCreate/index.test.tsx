@@ -595,13 +595,12 @@ describe('routes/Product/SubscriptionCreate', () => {
   });
 
   it('creates a new customer if needed for PayPal', async () => {
-    const MockedButtonBase = ({ createOrder }: ButtonBaseProps) => {
-      return <button data-testid="paypal-button" onClick={createOrder} />;
+    const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
+      return <button data-testid="paypal-button" onClick={onApprove} />;
     };
     const apiClientOverrides = {
       ...defaultApiClientOverrides(),
       apiCreateCustomer: jest.fn(),
-      apiGetPaypalCheckoutToken: jest.fn(),
     };
     updateConfig({
       featureFlags: {
