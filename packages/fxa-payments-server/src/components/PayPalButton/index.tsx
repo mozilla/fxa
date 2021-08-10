@@ -1,12 +1,15 @@
 // This file must be lazy loaded. Otherwise we have a race condition with
 // usePaypalButton hook (script loading) and the button will not render.
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import * as apiClient from '../../lib/apiClient';
 import { Customer } from '../../store/types';
 import { SubscriptionCreateAuthServerAPIs } from '../../routes/Product/SubscriptionCreate';
 import { PaymentUpdateAuthServerAPIs } from '../../routes/Subscriptions/PaymentUpdateForm';
+import classNames from 'classnames';
+
+import './index.scss';
 
 declare var paypal: {
   Buttons: {
@@ -17,6 +20,7 @@ declare var paypal: {
 export type PaypalButtonProps = {
   currencyCode: string;
   customer: Customer | null;
+  disabled: boolean;
   idempotencyKey: string;
   refreshSubmitNonce: () => void;
   refreshSubscriptions: () => void;
@@ -52,6 +56,7 @@ export const PaypalButtonBase =
 export const PaypalButton = ({
   currencyCode,
   customer,
+  disabled,
   idempotencyKey,
   refreshSubmitNonce,
   refreshSubscriptions,
@@ -152,6 +157,35 @@ export const PaypalButton = ({
     [setPaymentError]
   );
 
+  type PaypalButtonActionsType = {
+    disable: () => void;
+    enable: () => void;
+  };
+
+  const [paypalButtonActions, setPaypalButtonActions] =
+    useState<PaypalButtonActionsType>();
+
+  useEffect(() => {
+    if (paypalButtonActions) {
+      if (disabled) {
+        paypalButtonActions.disable();
+      } else {
+        paypalButtonActions.enable();
+      }
+    }
+  });
+
+  const onInit = useCallback(
+    (data, actions) => {
+      // set our actions for availability in useEffect
+      setPaypalButtonActions(actions);
+      if (disabled) {
+        actions.disable();
+      }
+    },
+    [disabled]
+  );
+
   // Style docs: https://developer.paypal.com/docs/business/checkout/reference/style-guide/
   const styleOptions = {
     layout: 'horizontal',
@@ -164,15 +198,22 @@ export const PaypalButton = ({
 
   return (
     <>
-      {ButtonBase && (
-        <ButtonBase
-          style={styleOptions}
-          data-testid="paypal-button"
-          createOrder={createOrder}
-          onApprove={onApprove}
-          onError={onError}
-        />
-      )}
+      <div
+        className={classNames({
+          'disabled-overlay': disabled,
+        })}
+      >
+        {ButtonBase && (
+          <ButtonBase
+            style={styleOptions}
+            data-testid="paypal-button"
+            createOrder={createOrder}
+            onInit={onInit}
+            onApprove={onApprove}
+            onError={onError}
+          />
+        )}
+      </div>
     </>
   );
 };

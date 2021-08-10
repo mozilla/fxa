@@ -20,6 +20,7 @@ export type NewUserEmailFormProps = {
   signInURL: string;
   setValidEmail: (value: string) => void;
   setAccountExists: (value: boolean) => void;
+  setEmailsMatch: (value: boolean) => void;
   checkAccountExists: (email: string) => Promise<{ exists: boolean }>;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
@@ -30,6 +31,7 @@ export const NewUserEmailForm = ({
   signInURL,
   setValidEmail,
   setAccountExists,
+  setEmailsMatch,
   checkAccountExists,
   validatorInitialState,
   validatorMiddlewareReducer,
@@ -91,6 +93,7 @@ export const NewUserEmailForm = ({
               value,
               focused,
               emailInputState,
+              setEmailsMatch,
               getString
             );
           }}
@@ -181,11 +184,12 @@ export function emailConfirmationValidation(
   value: string,
   focused: boolean,
   emailInputState: string | undefined,
+  setEmailsMatch: (value: boolean) => void,
   getString?: Function
 ) {
   let valid = false;
 
-  valid = emailInputState === value;
+  setEmailsMatch((valid = emailInputState === value));
 
   const errorMsg = getString
     ? /* istanbul ignore next - not testing l10n here */

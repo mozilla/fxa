@@ -11,6 +11,7 @@ const defaultApiClientOverrides = {
 };
 
 const Subject = ({
+  disabled = false,
   apiClientOverrides = defaultApiClientOverrides,
   currencyCode = 'USD',
   customer = CUSTOMER,
@@ -24,6 +25,7 @@ const Subject = ({
   ...props
 }: PickPartial<
   PaypalButtonProps,
+  | 'disabled'
   | 'currencyCode'
   | 'customer'
   | 'idempotencyKey'
@@ -37,6 +39,7 @@ const Subject = ({
   return (
     <PaypalButton
       {...{
+        disabled,
         apiClientOverrides,
         currencyCode,
         customer,
@@ -53,6 +56,6 @@ const Subject = ({
   );
 };
 
-storiesOf('routes/Product/PaypalButton', module).add('default', () => (
-  <Subject />
-));
+storiesOf('routes/Product/PaypalButton', module)
+  .add('default', () => <Subject />)
+  .add('disabled', () => <Subject disabled={true} />);

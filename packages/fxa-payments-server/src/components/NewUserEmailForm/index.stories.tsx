@@ -9,6 +9,7 @@ const WrapNewUserEmailForm = ({
 }) => {
   const [validEmail, setValidEmail] = useState<string>('');
   const [accountExists, setAccountExists] = useState(false);
+  const [emailsMatch, setEmailsMatch] = useState(false);
   return (
     <div style={{ display: 'flex' }}>
       <NewUserEmailForm
@@ -17,6 +18,7 @@ const WrapNewUserEmailForm = ({
         }
         setValidEmail={setValidEmail}
         setAccountExists={setAccountExists}
+        setEmailsMatch={setEmailsMatch}
         getString={(id: string) => id}
         checkAccountExists={() =>
           Promise.resolve({ exists: accountExistsReturnValue })
