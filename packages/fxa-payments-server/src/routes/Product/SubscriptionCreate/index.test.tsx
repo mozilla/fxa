@@ -1,7 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-import React from 'react';
 import {
   screen,
   render,
@@ -10,7 +9,7 @@ import {
   fireEvent,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { PaymentMethod, PaymentIntent } from '@stripe/stripe-js';
+import { PaymentMethod } from '@stripe/stripe-js';
 import { SignInLayout } from '../../../components/AppLayout';
 import {
   CUSTOMER,
@@ -18,6 +17,11 @@ import {
   PLAN,
   NEW_CUSTOMER,
   PAYPAL_CUSTOMER,
+  SUBSCRIPTION_RESULT,
+  DETACH_PAYMENT_METHOD_RESULT,
+  RETRY_INVOICE_RESULT,
+  PAYMENT_METHOD_RESULT,
+  CONFIRM_CARD_RESULT,
 } from '../../../lib/mock-data';
 import { PickPartial } from '../../../lib/types';
 
@@ -94,32 +98,6 @@ const Subject = ({
   );
 };
 
-const SUBSCRIPTION_RESULT = {
-  id: 'sub_1234',
-  latest_invoice: {
-    id: 'invoice_5678',
-    payment_intent: {
-      id: 'pi_7890',
-      client_secret: 'cs_abcd',
-      status: 'succeeded',
-    },
-  },
-};
-
-const RETRY_INVOICE_RESULT = {
-  id: 'invoice_5678',
-  payment_intent: {
-    id: 'pi_9876',
-    client_secret: 'cs_erty',
-    status: 'succeeded',
-  },
-};
-
-const DETACH_PAYMENT_METHOD_RESULT = {
-  id: 'pm_80808',
-  foo: 'quux',
-};
-
 const defaultApiClientOverrides = () => ({
   apiCreateCustomer: jest.fn().mockResolvedValue(NEW_CUSTOMER),
   apiCreateSubscriptionWithPaymentMethod: jest
@@ -131,16 +109,6 @@ const defaultApiClientOverrides = () => ({
     .mockResolvedValue(DETACH_PAYMENT_METHOD_RESULT),
   apiGetPaypalCheckoutToken: jest.fn().mockResolvedValue(MOCK_CHECKOUT_TOKEN),
 });
-
-const PAYMENT_METHOD_RESULT = {
-  paymentMethod: { id: 'pm_4567' } as PaymentMethod,
-  error: undefined,
-};
-
-const CONFIRM_CARD_RESULT = {
-  paymentIntent: { status: 'succeeded' } as PaymentIntent,
-  error: undefined,
-};
 
 const defaultStripeOverride = () => ({
   createPaymentMethod: jest.fn().mockResolvedValue(PAYMENT_METHOD_RESULT),
@@ -557,7 +525,12 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   it('handles a successful PayPal payment submission as new customer', async () => {
     const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
-      return <button data-testid="paypal-button" onClick={onApprove} />;
+      return (
+        <button
+          data-testid="paypal-button"
+          onClick={async () => onApprove!({ orderID: 'quux' })}
+        />
+      );
     };
     const apiClientOverrides = {
       ...defaultApiClientOverrides(),
@@ -596,7 +569,12 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   it('creates a new customer if needed for PayPal', async () => {
     const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
-      return <button data-testid="paypal-button" onClick={onApprove} />;
+      return (
+        <button
+          data-testid="paypal-button"
+          onClick={async () => onApprove!({ orderID: 'quux' })}
+        />
+      );
     };
     const apiClientOverrides = {
       ...defaultApiClientOverrides(),
@@ -883,7 +861,12 @@ describe('routes/Product/SubscriptionCreate', () => {
     const [_, refreshSubmitNonce] = useNonce();
     (refreshSubmitNonce as jest.Mock).mockClear();
     const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
-      return <button data-testid="paypal-button" onClick={onApprove} />;
+      return (
+        <button
+          data-testid="paypal-button"
+          onClick={async () => onApprove!({ orderID: 'quux' })}
+        />
+      );
     };
     const apiClientOverrides = {
       ...defaultApiClientOverrides(),

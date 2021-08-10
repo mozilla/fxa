@@ -42,6 +42,7 @@ card-error = Your transaction could not be processed. Please verify your credit 
 
 fxa-signup-error = There was a problem creating your account.  Please try again later.
 fxa-newsletter-signup-error = There was a problem subscribing you to the newsletter.
+fxa-post-passwordless-sub-error = Subscription confirmed, but the confirmation page failed to load. Please check your email to set up your account.
 
 ## settings
 settings-home = Account Home

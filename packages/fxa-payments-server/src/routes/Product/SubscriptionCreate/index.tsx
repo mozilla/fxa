@@ -1,5 +1,4 @@
 import React, { useState, useCallback, Suspense, useContext } from 'react';
-import { Stripe } from '@stripe/stripe-js';
 import classNames from 'classnames';
 import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
@@ -32,6 +31,7 @@ import {
   handleSubscriptionPayment,
   PaymentError,
   RetryStatus,
+  SubscriptionCreateStripeAPIs,
 } from '../../../lib/stripe';
 
 import * as Amplitude from '../../../lib/amplitude';
@@ -48,11 +48,6 @@ const PaypalButton = React.lazy(
   () => import('../../../components/PayPalButton')
 );
 
-export type SubscriptionCreateStripeAPIs = Pick<
-  Stripe,
-  'createPaymentMethod' | 'confirmCardPayment'
->;
-
 export type SubscriptionCreateAuthServerAPIs = Pick<
   typeof apiClient,
   | 'apiCreateCustomer'
@@ -66,7 +61,7 @@ export type SubscriptionCreateProps = {
   profile: Profile;
   customer: Customer | null;
   selectedPlan: Plan;
-  refreshSubscriptions: () => void;
+  refreshSubscriptions: (() => void) | (() => Promise<void>);
   validatorInitialState?: ValidatorState;
   subscriptionErrorInitialState?: PaymentError;
   stripeOverride?: SubscriptionCreateStripeAPIs;

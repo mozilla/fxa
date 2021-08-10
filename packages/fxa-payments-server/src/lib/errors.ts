@@ -30,6 +30,7 @@ const PAYMENT_ERROR_2 = 'payment-error-2';
 const PAYMENT_ERROR_3 = 'payment-error-3b';
 const FXA_SIGNUP_ERROR = 'fxa-signup-error';
 const FXA_NEWSLETTER_SIGNUP_ERROR = 'fxa-newsletter-signup-error';
+const FXA_POST_PASSWORDLESS_SUB_ERROR = 'fxa-post-passwordless-sub-error';
 
 /*
  * errorToErrorMessageMap - the keys are lookups, that
@@ -132,6 +133,7 @@ const paymentErrors2 = [
 const paymentErrors3 = ['general-paypal-error'];
 const signupErrors = ['fxa_signup_error'];
 const newsletterSignupErrors = ['fxa_newsletter_signup_error'];
+const postSuccessSubErrors = ['fxa_fetch_profile_customer_error'];
 
 cardErrors.forEach((k) => (errorToErrorMessageMap[k] = CARD_ERROR));
 basicErrors.forEach((k) => (errorToErrorMessageMap[k] = BASIC_ERROR));
@@ -141,6 +143,9 @@ paymentErrors3.forEach((k) => (errorToErrorMessageMap[k] = PAYMENT_ERROR_3));
 signupErrors.forEach((k) => (errorToErrorMessageMap[k] = FXA_SIGNUP_ERROR));
 newsletterSignupErrors.forEach(
   (k) => (errorToErrorMessageMap[k] = FXA_NEWSLETTER_SIGNUP_ERROR)
+);
+postSuccessSubErrors.forEach(
+  (k) => (errorToErrorMessageMap[k] = FXA_POST_PASSWORDLESS_SUB_ERROR)
 );
 
 function getErrorMessage(error: undefined | StripeError | GeneralError) {

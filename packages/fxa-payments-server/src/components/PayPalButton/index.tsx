@@ -23,7 +23,7 @@ export type PaypalButtonProps = {
   disabled: boolean;
   idempotencyKey: string;
   refreshSubmitNonce: () => void;
-  refreshSubscriptions: () => void;
+  refreshSubscriptions: (() => void) | (() => Promise<void>);
   beforeCreateOrder?: () => Promise<void>;
   setPaymentError: Function;
   priceId?: string;
@@ -36,10 +36,10 @@ export type PaypalButtonProps = {
 };
 
 export type ButtonBaseProps = {
-  createOrder?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onApprove?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onError?: (event: React.MouseEvent<HTMLButtonElement>) => void;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  createOrder?: () => void;
+  onApprove?: (data: { orderID: string }) => void;
+  onError?: () => void;
+  onClick?: (...args: any[]) => void;
 };
 
 export const GENERAL_PAYPAL_ERROR_ID = 'general-paypal-error';
@@ -94,7 +94,9 @@ export const PaypalButton = ({
       const isNewSubscription = newPaypalAgreement && priceId;
       /* istanbul ignore next */
       try {
-        if (setTransactionInProgress) setTransactionInProgress(true);
+        if (setTransactionInProgress) {
+          setTransactionInProgress(true);
+        }
         const {
           apiCreateCustomer,
           apiCapturePaypalPayment,
@@ -122,7 +124,7 @@ export const PaypalButton = ({
             token,
           });
         }
-        refreshSubscriptions();
+        await refreshSubscriptions();
       } catch (error) {
         if (isNewSubscription) {
           if (!error.code) {
@@ -130,7 +132,7 @@ export const PaypalButton = ({
           }
           setPaymentError(error);
         } else {
-          refreshSubscriptions();
+          await refreshSubscriptions();
         }
       }
       refreshSubmitNonce();

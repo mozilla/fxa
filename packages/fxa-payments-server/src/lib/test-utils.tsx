@@ -49,6 +49,7 @@ export const mockConfig = {
     },
     oauth: {
       url: 'https://oauth.example',
+      clientId: 'HAL',
     },
     profile: {
       url: 'https://profile.example',
