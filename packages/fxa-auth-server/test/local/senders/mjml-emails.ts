@@ -75,65 +75,64 @@ interface Test {
 
 // prettier-ignore
 const COMMON_TESTS = new Map<string, Test | any>([
-   ['from', { test: 'equal', expected: config.smtp.sender }],
-   ['sender', { test: 'equal', expected: config.smtp.sender }],
-   [
-     'headers',
-     new Map([
-       ['X-Device-Id', { test: 'equal', expected: MESSAGE.deviceId }],
-       ['X-Email-Service', { test: 'equal', expected: 'fxa-auth-server' }],
-       ['X-Flow-Begin-Time', { test: 'equal', expected: MESSAGE.flowBeginTime }],
-       ['X-Flow-Id', { test: 'equal', expected: MESSAGE.flowId }],
-       ['X-Service-Id', { test: 'equal', expected: MESSAGE.service }],
-       [
-         'X-SES-CONFIGURATION-SET',
-         { test: 'equal', expected: config.smtp.sesConfigurationSet },
-       ],
-       ['X-Uid', { test: 'equal', expected: MESSAGE.uid }],
-     ]),
-   ],
-   [
-     'text',
-     [
-       // Ensure no HTML character entities appear in plaintext emails, &amp; etc
-       { test: 'notMatch', expected: /(?:&#x?[0-9a-f]+;)|(?:&[a-z]+;)/i },
-     ],
-   ],
- ]);
+  ['from', { test: 'equal', expected: config.smtp.sender }],
+  ['sender', { test: 'equal', expected: config.smtp.sender }],
+  [
+    'headers',
+    new Map([
+      ['X-Device-Id', { test: 'equal', expected: MESSAGE.deviceId }],
+      ['X-Email-Service', { test: 'equal', expected: 'fxa-auth-server' }],
+      ['X-Flow-Begin-Time', { test: 'equal', expected: MESSAGE.flowBeginTime }],
+      ['X-Flow-Id', { test: 'equal', expected: MESSAGE.flowId }],
+      ['X-Service-Id', { test: 'equal', expected: MESSAGE.service }],
+      [
+        'X-SES-CONFIGURATION-SET',
+        { test: 'equal', expected: config.smtp.sesConfigurationSet },
+      ],
+      ['X-Uid', { test: 'equal', expected: MESSAGE.uid }],
+    ]),
+  ],
+  [
+    'text',
+    [
+      // Ensure no HTML character entities appear in plaintext emails, &amp; etc
+      { test: 'notMatch', expected: /(?:&#x?[0-9a-f]+;)|(?:&[a-z]+;)/i },
+    ],
+  ],
+]);
 
 // prettier-ignore
 const TESTS: [string, any][] = [
-    ['cadReminderFirstEmail', new Map<string, Test | any>([
-      ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How To Complete Your Sync Setup' }],
-      ['headers', new Map([
-        ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-first', 'connect-device') }],
-        ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderFirst') }],
-        ['X-Template-Name', { test: 'equal', expected: 'cadReminderFirst' }],
-        ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderFirst }],
-      ])],
-      ['html', [
-        { test: 'include', expected: "Here's your reminder to sync devices." },
-        { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
-        { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-first', 'connect-device')) },
-        { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
-        { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
-        { test: 'include', expected: 'another device' },
-        { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'cad-reminder-first', 'privacy')) },
-        { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-first', 'support')) },
-        { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
-      ]],
-      ['text', [
-        { test: 'include', expected: "Here's your reminder to sync devices." },
-        { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
-        { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-first', 'privacy')}` },
-        { test: 'include', expected: config.smtp.syncUrl },
-        { test: 'notInclude', expected: config.smtp.androidUrl },
-        { test: 'notInclude', expected: config.smtp.iosUrl },
-        { test: 'notInclude', expected: 'utm_source=email' },
-      ]],
+  ['cadReminderFirstEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How To Complete Your Sync Setup' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-first', 'connect-device') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderFirst') }],
+      ['X-Template-Name', { test: 'equal', expected: 'cadReminderFirst' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderFirst }],
     ])],
-    
-  ];
+    ['html', [
+      { test: 'include', expected: "Here's your reminder to sync devices." },
+      { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-first', 'connect-device')) },
+      { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
+      { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
+      { test: 'include', expected: 'another device' },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'cad-reminder-first', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-first', 'support')) },
+      { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
+    ]],
+    ['text', [
+      { test: 'include', expected: "Here's your reminder to sync devices." },
+      { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-first', 'privacy')}` },
+      { test: 'include', expected: config.smtp.syncUrl },
+      { test: 'notInclude', expected: config.smtp.androidUrl },
+      { test: 'notInclude', expected: config.smtp.iosUrl },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],  
+];
 
 describe('lib/senders/mjml-emails:', () => {
   type LocalizeFn = (message: Record<any, any>) => Promise<Record<any, string>>;
