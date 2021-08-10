@@ -34,6 +34,8 @@ it('should call logAmplitudeEvent with the correct event group and type names', 
       ['subCancel', 'complete'],
     ],
     ['cancelSubscription_REJECTED', ['subCancel', 'fail']],
+    ['createAccountMounted', ['subPayAccountSetup', 'view']],
+    ['createAccountEngaged', ['subPayAccountSetup', 'engage']],
   ];
 
   for (const [actionType, ...expectedArgs] of testCases) {

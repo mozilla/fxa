@@ -1,5 +1,4 @@
 import sentryMetrics from './sentry';
-import { config } from './config';
 
 interface FlowEventParams {
   device_id?: string;

@@ -21,6 +21,7 @@ export enum GROUPS {
   subCancel = 'fxa_subscribe_cancel',
   subManage = 'fxa_subscribe_manage',
   subPayManage = 'fxa_pay_manage',
+  subPayAccountSetup = 'fxa_pay_account_setup',
   subPaySetup = 'fxa_pay_setup',
   subPayUpgrade = 'fxa_pay_upgrade',
   subSupport = 'fxa_subscribe_support',

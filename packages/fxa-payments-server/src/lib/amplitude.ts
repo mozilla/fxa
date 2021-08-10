@@ -5,6 +5,7 @@ import { selectors } from '../store/selectors';
 import { Store } from '../store';
 
 const eventGroupNames = {
+  createAccount: 'subPayAccountSetup',
   createSubscription: 'subPaySetup',
   upgradeSubscription: 'subPayUpgrade',
   updatePayment: 'subPayManage',
@@ -39,6 +40,7 @@ export type EventProperties = GlobalEventProperties & {
   product_id?: string;
   paymentProvider?: PaymentProvider;
   error?: Error;
+  checkoutType?: string;
 };
 
 type SuccessfulSubscriptionEventProperties = EventProperties & {
@@ -341,6 +343,22 @@ export function updateSubscriptionPlan_REJECTED(
   safeLogAmplitudeEvent(
     eventGroupNames.upgradeSubscription,
     eventTypeNames.fail,
+    eventProperties
+  );
+}
+
+export function createAccountMounted(eventProperties: EventProperties) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.createAccount,
+    eventTypeNames.view,
+    eventProperties
+  );
+}
+
+export function createAccountEngaged(eventProperties: EventProperties) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.createAccount,
+    eventTypeNames.engage,
     eventProperties
   );
 }

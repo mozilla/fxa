@@ -21,6 +21,17 @@ $(document).ready(function () {
     prod: 'https://accounts.firefox.com/subscriptions/products',
   };
 
+  const contentURL = {
+    local: '//localhost:3030/',
+    dev: 'https://latest.dev.lcip.org/',
+    stage: 'https://accounts.stage.mozaws.net/',
+    prod: 'https://accounts.firefox.com/',
+  };
+
+  const pwdlessPaymentURL = {
+    local: '//localhost:3031/checkout/',
+  };
+
   const subscriptionConfig = {
     default: {
       product: 'prod_GqM9ToKK62qjkK',
@@ -48,26 +59,45 @@ $(document).ready(function () {
       paymentConfig = {
         env: paymentURL.dev,
         ...subscriptionConfig.default,
+        contentEnv: contentURL.dev,
       };
       break;
     case '123done-stage.dev.lcip.org':
       paymentConfig = {
         env: paymentURL.stage,
         ...subscriptionConfig.stage,
+        contentEnv: contentURL.stage,
       };
       break;
     case '123done-prod.dev.lcip.org':
       paymentConfig = {
         env: 'prod',
+        contentEnv: contentURL.prod,
       };
       break;
     default:
       paymentConfig = {
         env: paymentURL.local,
         ...subscriptionConfig.default,
+        contentEnv: contentURL.local,
       };
       break;
   }
+
+  let flowData;
+  $.getJSON(
+    `${paymentConfig.contentEnv}metrics-flow?form_type=subscribe&utm_campaign=123done`
+  ).done(function (data) {
+    $('.btn-subscribe-pwdless').each(function (index) {
+      let currencyMappedURL = $(this).attr('href');
+
+      if (data) {
+        currencyMappedURL = `${currencyMappedURL}&flow_id=${data.flowId}&flow_begin_time=${data.flowBeginTime}&device_id=${data.deviceId}`;
+      }
+
+      $(this).attr('href', currencyMappedURL);
+    });
+  });
 
   // Since we don't set up test payment stuff in prod,
   // we can just hide the buttons for that env
@@ -78,6 +108,13 @@ $(document).ready(function () {
       const { env, plans, product } = paymentConfig;
       const currency = $(this).attr('data-currency');
       const currencyMappedURL = `${env}${product}?plan=${plans[currency]}`;
+      $(this).attr('href', currencyMappedURL);
+    });
+
+    $('.btn-subscribe-pwdless').each(function (index) {
+      const { plans, product } = paymentConfig;
+      const currency = $(this).attr('data-currency');
+      const currencyMappedURL = `${pwdlessPaymentURL.local}${product}?plan=${plans[currency]}`;
       $(this).attr('href', currencyMappedURL);
     });
   }

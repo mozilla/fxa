@@ -30,6 +30,7 @@ const EVENT_PROPERTIES: {
   [GROUPS.subCancel]: NOP,
   [GROUPS.subManage]: NOP,
   [GROUPS.subPayManage]: NOP,
+  [GROUPS.subPayAccountSetup]: NOP,
   [GROUPS.subPaySetup]: NOP,
   [GROUPS.subPayUpgrade]: NOP,
   [GROUPS.subSupport]: NOP,
@@ -76,7 +77,8 @@ export function createAmplitudeEventPropertiesMapper(
   servicePropMapper: ServiceNameAndClientIdMapper
 ) {
   return (evt: Event, context: EventContext): AmplitudeEventProperties => {
-    const { serviceName: service, clientId: oauthClientId } = servicePropMapper(context);
+    const { serviceName: service, clientId: oauthClientId } =
+      servicePropMapper(context);
 
     return {
       plan_id: context.planId,
@@ -105,8 +107,11 @@ function mapAmplitudeEventPropertiesFromGroup(
 
 function mapConnectDeviceFlow(evt: Event): ConnectDeviceEventProperties | {} {
   if (evt.category && evt.category in CONNECT_DEVICE_FLOWS) {
-    const connectDeviceFlow = CONNECT_DEVICE_FLOWS[evt.category as ConnectDeviceFlowKeys];
-    const result: ConnectDeviceEventProperties = { connect_device_flow: connectDeviceFlow };
+    const connectDeviceFlow =
+      CONNECT_DEVICE_FLOWS[evt.category as ConnectDeviceFlowKeys];
+    const result: ConnectDeviceEventProperties = {
+      connect_device_flow: connectDeviceFlow,
+    };
 
     if (evt.target) {
       result.connect_device_os = evt.target;
@@ -118,8 +123,15 @@ function mapConnectDeviceFlow(evt: Event): ConnectDeviceEventProperties | {} {
   return {};
 }
 
-function mapEmailType(evt: Event, context: EventContext): EmailTypeEventProperties | {} {
-  if (evt.category && context.emailTypes && evt.category in context.emailTypes) {
+function mapEmailType(
+  evt: Event,
+  context: EventContext
+): EmailTypeEventProperties | {} {
+  if (
+    evt.category &&
+    context.emailTypes &&
+    evt.category in context.emailTypes
+  ) {
     const emailType = context.emailTypes[evt.category];
     const result: EmailTypeEventProperties = {
       email_type: emailType,

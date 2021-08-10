@@ -23,6 +23,7 @@ const WrapNewUserEmailForm = ({
         checkAccountExists={() =>
           Promise.resolve({ exists: accountExistsReturnValue })
         }
+        selectedPlan={{}}
       />
     </div>
   );

@@ -13,6 +13,23 @@ import {
   checkAccountExists,
 } from './index';
 import { Localized } from '@fluent/react';
+const selectedPlan = {
+  plan_id: 'planId',
+  plan_name: 'Pro level',
+  product_id: 'fpnID',
+  product_name: 'Firefox Private Network Pro',
+  currency: 'usd',
+  amount: 935,
+  interval: 'month' as const,
+  interval_count: 1,
+  plan_metadata: {
+    'product:subtitle': 'FPN subtitle',
+    'product:details:1': 'Detail 1',
+    'product:details:2': 'Detail 2',
+    'product:details:3': 'Detail 3',
+  },
+  checkout_type: 'without-account',
+};
 
 const WrapNewUserEmailForm = ({
   accountExistsReturnValue,
@@ -35,6 +52,7 @@ const WrapNewUserEmailForm = ({
         checkAccountExists={() =>
           Promise.resolve({ exists: accountExistsReturnValue })
         }
+        selectedPlan={selectedPlan}
       />
     </div>
   );

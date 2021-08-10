@@ -119,6 +119,9 @@ export const Checkout = ({
   const onSubmit = (evt: any) => {
     // Will be added in https://mozilla-hub.atlassian.net/browse/FXA-3666
     console.log('Not yet implemented: ', evt);
+
+    // For testing purposes, this will always succeed
+    Amplitude.createSubscriptionWithPaymentMethod_FULFILLED(selectedPlan);
   };
 
   usePaypalButtonSetup(config, setPaypalScriptLoaded);
@@ -169,6 +172,7 @@ export const Checkout = ({
             checkAccountExists={checkAccountExists}
             setEmailsMatch={setEmailsMatch}
             getString={l10n.getString.bind(l10n)}
+            selectedPlan={selectedPlan}
           />
 
           <hr />
