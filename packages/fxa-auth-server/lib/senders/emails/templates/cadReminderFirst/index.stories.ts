@@ -3,41 +3,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Story, Meta } from '@storybook/html';
-import storybookEmail, { StorybookEmailArgs } from '../../storybook-email';
+import storybookEmail, {
+  StorybookEmailArgs,
+  commonArgs,
+} from '../../storybook-email';
 
 export default {
-  title: 'Emails/cadReminder',
+  title: 'Emails/cadReminderFirst',
 } as Meta;
 
 const Template: Story<StorybookEmailArgs> = (args) => storybookEmail(args);
 
 const defaultVariables = {
+  ...commonArgs,
+  link: 'http://localhost:3030/connect_another_device',
   action: 'Sync another device',
-  oneClickLink: true,
-  link: 'http://localhost:3030/connect_another_device?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-connect-device',
-  iosUrl:
-    'https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png',
   androidUrl:
     'https://accounts-static.cdn.mozilla.net/product-icons/google-play.png',
+  iosUrl:
+    'https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png',
   onDesktopOrTabletDevice: true,
-  subject: 'Your Friendly Reminder: How To Complete Your Sync Setup',
-  privacyUrl:
-    'https://www.mozilla.org/privacy?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-privacy',
-  supportUrl:
-    'https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account?utm_medium=email&utm_campaign=fx-cad-reminder-first&utm_content=fx-support',
-  headerText: "Here's your reminder to sync devices.",
+  oneClickLink: true,
   bodyText:
     'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.',
-  acceptLanguage: 'en-US',
+  headerText: "Here's your reminder to sync devices.",
+  subject: 'Your Friendly Reminder: How To Complete Your Sync Setup',
 };
 
 const commonPropsWithOverrides = (
-  overrides: Partial<typeof defaultVariables> = {}
+  overrides: Partial<
+    typeof defaultVariables | StorybookEmailArgs['variables']
+  > = {}
 ) =>
   Object.assign({
     template: 'cadReminderFirst',
-    layout: 'fxa',
-    doc: 'Connect Another Device (CAD) reminder emails are sent out 24 hours after a user clicks "send me a reminder" on the connect another device page.',
+    doc: 'Connect Another Device (CAD) first reminder email is sent out 8 hours after a user clicks "send me a reminder" on the connect another device page.',
     variables: {
       ...defaultVariables,
       ...overrides,

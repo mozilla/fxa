@@ -8,13 +8,13 @@ export const cadReminder = `
   <mj-include path="./lib/senders/emails/css/cadReminder/index.css" type="css" css-inline="inline" />
   <mj-section>
     <mj-column>
-      <mj-text css-class="header-text"><span data-l10n-id="sync-reminder"><%- headerText %></span></mj-text>
+      <mj-text css-class="header-text"><span data-l10n-id="<%- templateName %>-title"><%- headerText %></span></mj-text>
       <mj-image css-class="sync-logo" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
     </mj-column>
   </mj-section>
   <mj-section>
     <mj-column>
-      <mj-text css-class="primary-text"><span data-l10n-id="sync-description"><%- bodyText %></span></mj-text>
+      <mj-text css-class="primary-text"><span data-l10n-id="<%- templateName %>-description"><%- bodyText %></span></mj-text>
     </mj-column>
   </mj-section>
   ${button}

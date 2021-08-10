@@ -1,0 +1,7 @@
+<%- templateName %>-title = "<%- headerText %>"
+
+<%- templateName %>-description = "<%- bodyText %>"
+
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>

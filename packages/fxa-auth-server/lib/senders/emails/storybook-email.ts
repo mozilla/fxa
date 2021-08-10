@@ -5,20 +5,27 @@
 export interface StorybookEmailArgs {
   template: string;
   layout: string;
+  acceptLanguage: string;
   doc?: string;
   variables: Record<string, any>;
 }
 
+export const commonArgs = {
+  privacyUrl: 'https://www.mozilla.org/privacy', // in production, `utm` parameters may exist
+  supportUrl:
+    'https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account',
+};
+
 export const storybookEmail = ({
   template,
-  layout,
+  layout = 'fxa',
+  acceptLanguage = 'en-US',
   doc,
   variables,
 }: StorybookEmailArgs): HTMLDivElement => {
   const container = document.createElement('div');
   container.innerHTML = 'Loading email...';
-
-  renderUsingMJML({ template, layout, variables })
+  renderUsingMJML({ template, layout, acceptLanguage, variables })
     .then(({ html, subject }) => {
       container.innerHTML = `
         ${doc ? `<p>Template Description: ${doc}</p>` : ''}
@@ -37,11 +44,13 @@ export const storybookEmail = ({
 async function renderUsingMJML({
   template,
   layout,
+  acceptLanguage,
   apiUrl = 'http://localhost:8192',
   variables,
 }: {
   template: string;
   layout: string;
+  acceptLanguage: string;
   apiUrl?: string;
   variables: Record<string, any>;
 }): Promise<Record<any, string>> {
@@ -50,6 +59,7 @@ async function renderUsingMJML({
     body: JSON.stringify({
       template,
       layout,
+      acceptLanguage,
       ...variables,
     }),
   });
