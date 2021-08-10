@@ -29,7 +29,7 @@ export const appBadges = `
         <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another desktop device</a></span>
       </mj-text>
       <% } else { %>
-      <mj-text css-class="secondary-text mb-3 install-device-link"><span data-l10n-id="another-device"> Or, install on
+      <mj-text css-class="secondary-text mb-3"><span data-l10n-id="another-device"> Or, install on
         <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another device</a></span>
         <% } %>
       </mj-text>

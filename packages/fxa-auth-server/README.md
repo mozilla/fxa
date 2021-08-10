@@ -153,7 +153,7 @@ In 2021, FxA began converting the email templating system from Mustache, inline 
 
 #### MJML Feature Flag for Testing
 
-The auth-server has an `MJML` configuration value that designates which email templates have been converted to the new stack (`mjml.templates` array) and controls which user emails will receive those templates (`mjml.enabledEmailAddress` regex). The auth-server exposes a feature flag method to check these values and send the correct rendered template accordingly (old or new) which allows for testing across environments.
+The auth-server has an `MJML` configuration value that designates which email templates have been converted to the new stack (`mjml.templates` array) and controls which user emails will receive those templates (`mjml.enabledEmailAddress` regex). The auth-server exposes a feature flag method to check these values and send the correct rendered template accordingly (old or new) which allows for testing across environments. To generate these new templates locally until we enable them for other environments, change `mjml.enabledEmailAddress` in dev config to `@testuser.com$`.
 
 This flag and logic around it can be removed, as well as old templates and documentation, once all templates have been converted, verified by QA, and tested in production.
 

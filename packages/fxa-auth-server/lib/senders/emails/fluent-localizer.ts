@@ -115,7 +115,10 @@ class FluentLocalizer {
         key = key.replace(/\s/g, '');
         val = val.replace(/"/g, '').trim();
         // get the value from fluent using the extracted key
-        const localizedValue = await l10n.formatValue(key);
+        const localizedValue = await l10n.formatValue(key, {
+          ...variables.templateValues,
+          ...variables,
+        });
         plainTextArr[i] = localizedValue ? localizedValue : val;
       }
     }

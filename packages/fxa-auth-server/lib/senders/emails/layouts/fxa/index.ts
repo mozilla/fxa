@@ -41,8 +41,8 @@ export const render = (body: string) => {
       <mj-section>
         <mj-column>
           <mj-text css-class="secondary-text">Mozilla. 2 Harrison St, #175, San Francisco, CA 94105</mj-text>
-          <mj-text css-class="secondary-text privacy-url"><a class="link-blue" data-l10n-id="fxa-privacy-url" href="<%- privacyUrl %>">Mozilla Privacy Policy</a></mj-text>
-          <mj-text css-class="secondary-text support-url"><a class="link-blue" data-l10n-id="fxa-support-url" href="<%- supportUrl %>">Firefox Cloud Terms of Service</a></mj-text>
+          <mj-text css-class="secondary-text"><a class="link-blue" data-l10n-id="fxa-privacy-url" href="<%- privacyUrl %>">Mozilla Privacy Policy</a></mj-text>
+          <mj-text css-class="secondary-text"><a class="link-blue" data-l10n-id="fxa-service-url" href="https://www.mozilla.org/about/legal/terms/services/">Firefox Cloud Terms of Service</a></mj-text>
         </mj-column>
       </mj-section>
     </mj-body>
