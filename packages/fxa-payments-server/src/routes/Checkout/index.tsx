@@ -26,8 +26,9 @@ import Header from '../../components/Header';
 import { Form } from '../../components/fields';
 import PaymentProcessing from '../../components/PaymentProcessing';
 import SubscriptionTitle from '../../components/SubscriptionTitle';
-import TermsAndPrivacy from '../../components/TermsAndPrivacy';
 import PlanDetails from '../../components/PlanDetails';
+import TermsAndPrivacy from '../../components/TermsAndPrivacy';
+import PaymentLegalBlurb from '../../components/PaymentLegalBlurb';
 import { PaymentConsentCheckbox } from '../../components/PaymentConsentCheckbox';
 
 import { State } from '../../store/state';
@@ -60,7 +61,6 @@ import { apiFetchCustomer, apiFetchProfile } from '../../lib/apiClient';
 import * as apiClient from '../../lib/apiClient';
 import sentry from '../../lib/sentry';
 import { ButtonBaseProps } from '../../components/PayPalButton';
-
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
 export type CheckoutProps = {
@@ -338,8 +338,6 @@ export const Checkout = ({
                 submitNonce,
                 onSubmit: onStripeSubmit,
                 onChange,
-
-                showLegal: true,
                 submitButtonL10nId: 'new-user-submit',
                 submitButtonCopy: 'Subscribe Now',
                 shouldAllowSubmit:
@@ -360,7 +358,14 @@ export const Checkout = ({
           </div>
 
           <div className="subscription-create-footer">
-            {selectedPlan && <TermsAndPrivacy plan={selectedPlan} />}
+            <>
+              <PaymentLegalBlurb provider={undefined} />
+              <TermsAndPrivacy
+                showFXALinks={true}
+                plan={selectedPlan}
+                contentServerURL={config.servers.content.url}
+              />
+            </>
           </div>
         </div>
         <PlanDetails

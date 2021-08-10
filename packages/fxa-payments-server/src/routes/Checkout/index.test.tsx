@@ -180,6 +180,12 @@ describe('routes/Checkout', () => {
 
     const planDetailsEl = getByTestId('plan-details-component');
     expect(planDetailsEl).toBeInTheDocument();
+
+    const paymentLegalBlurbEl = getByTestId('payment-legal-blurb-component');
+    expect(paymentLegalBlurbEl).toBeInTheDocument();
+
+    const termsAndPrivacyEl = getByTestId('terms-and-privacy-component');
+    expect(termsAndPrivacyEl).toBeInTheDocument();
   });
 
   it('displays an error with invalid product ID', async () => {

@@ -1,9 +1,12 @@
 @import '../../../../fxa-content-server/app/styles/variables';
 @import '../../../../fxa-content-server/app/styles/breakpoints';
-@import '../../styles/variables';
 
 .subscription-title {
   padding-top: 20px;
+}
+
+.subscription-create-footer {
+  margin-top: 40px;
 }
 
 .assurance-copy {
