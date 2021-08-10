@@ -21,6 +21,9 @@ const NULL_METADATA = {
   webIconBackground: null,
   upgradeCTA: null,
   downloadURL: null,
+  'product:termsOfServiceURL': '',
+  'product:termsOfServiceDownloadURL': '',
+  'product:privacyNoticeURL': '',
 };
 
 const PLAN: Plan = {
@@ -36,6 +39,14 @@ const PLAN: Plan = {
   product_metadata: null,
 };
 
+const requiredProductMetadata = {
+  'product:termsOfServiceURL': '',
+  'product:termsOfServiceDownloadURL': '',
+  'product:privacyNoticeURL': '',
+  downloadURL: null,
+  webIconURL: null,
+};
+
 describe('subscriptions/metadata', () => {
   describe('metadataFromPlan', () => {
     it('produces default null values', () => {
@@ -43,10 +54,13 @@ describe('subscriptions/metadata', () => {
     });
 
     it('extracts product metadata', () => {
-      const product_metadata: ProductMetadata = {
-        productSet: 'foo',
-        productOrder: '1',
-      };
+      const product_metadata: ProductMetadata = Object.assign(
+        requiredProductMetadata,
+        {
+          productSet: 'foo',
+          productOrder: '1',
+        }
+      );
       expect(metadataFromPlan({ ...PLAN, product_metadata })).to.deep.equal({
         ...NULL_METADATA,
         ...product_metadata,
@@ -54,10 +68,13 @@ describe('subscriptions/metadata', () => {
     });
 
     it('extracts plan metadata', () => {
-      const plan_metadata: ProductMetadata = {
-        productSet: 'foo',
-        productOrder: '1',
-      };
+      const plan_metadata: ProductMetadata = Object.assign(
+        requiredProductMetadata,
+        {
+          productSet: 'foo',
+          productOrder: '1',
+        }
+      );
       expect(metadataFromPlan({ ...PLAN, plan_metadata })).to.deep.equal({
         ...NULL_METADATA,
         ...plan_metadata,
@@ -65,13 +82,19 @@ describe('subscriptions/metadata', () => {
     });
 
     it('overrides product metadata with plan metadata', () => {
-      const product_metadata: ProductMetadata = {
-        productSet: 'foo',
-        productOrder: '1',
-      };
-      const plan_metadata: ProductMetadata = {
-        productSet: 'bar',
-      };
+      const product_metadata: ProductMetadata = Object.assign(
+        requiredProductMetadata,
+        {
+          productSet: 'foo',
+          productOrder: '1',
+        }
+      );
+      const plan_metadata: ProductMetadata = Object.assign(
+        requiredProductMetadata,
+        {
+          productSet: 'bar',
+        }
+      );
       expect(
         metadataFromPlan({ ...PLAN, plan_metadata, product_metadata })
       ).to.deep.equal({

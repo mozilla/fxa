@@ -27,7 +27,6 @@ import { useCallbackOnce } from '../../lib/hooks';
 import { getLocalizedCurrency } from '../../lib/formats';
 import { AppContext } from '../../lib/AppContext';
 import { Plan, Customer } from '../../store/types';
-import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import './index.scss';
 import { localeToStripeLocale, STRIPE_ELEMENT_STYLES } from '../../lib/stripe';
@@ -43,7 +42,6 @@ import {
 } from '../../lib/PaymentProvider';
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
 import { PaymentConsentCheckbox } from '../PaymentConsentCheckbox';
-import PaymentLegalBlurb from '../PaymentLegalBlurb';
 
 export type StripePaymentSubmitResult = {
   stripe: Stripe;
@@ -75,7 +73,6 @@ export type BasePaymentFormProps = {
   customer?: Customer | null;
   getString?: (id: string) => string;
   onCancel?: () => void;
-  showLegal?: boolean;
   submitButtonL10nId?: string;
   submitButtonCopy?: string;
   shouldAllowSubmit?: boolean;
@@ -96,7 +93,6 @@ export const PaymentForm = ({
   getString,
   onSubmit: onSubmitForParent,
   onCancel,
-  showLegal = false,
   submitButtonL10nId = '',
   submitButtonCopy = 'Pay Now',
   shouldAllowSubmit = true,
@@ -181,15 +177,6 @@ export const PaymentForm = ({
     [PaymentProviders.paypal]: onPaypalFormSubmit,
   });
 
-  const { navigatorLanguages } = useContext(AppContext);
-
-  let termsOfServiceURL, privacyNoticeURL;
-  if (plan && confirm) {
-    ({ termsOfServiceURL, privacyNoticeURL } = productDetailsFromPlan(
-      plan,
-      navigatorLanguages
-    ));
-  }
   const paymentSource =
     plan && isExistingCustomer(customer) ? (
       <div className="pricing-and-saved-payment">
@@ -305,17 +292,6 @@ export const PaymentForm = ({
       {...{ onChange }}
     >
       {paymentSource}
-
-      {showLegal ? (
-        <>
-          <br />
-          <br />
-          <br />
-          <PaymentLegalBlurb provider={undefined} />
-        </>
-      ) : (
-        <hr />
-      )}
 
       {confirm && plan && (
         <>

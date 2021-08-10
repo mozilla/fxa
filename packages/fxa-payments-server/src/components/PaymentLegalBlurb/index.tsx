@@ -6,29 +6,32 @@ import * as PaymentProvider from '../../lib/PaymentProvider';
 import './index.scss';
 
 function getPrivacyLinkText(): string {
-  return 'View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> and <paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>.';
+  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> <paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>.';
 }
 
 function getPaypalPrivacyLinkText(): string {
-  return 'View the <paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>.';
+  return '<paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>.';
 }
 
 function getStripePrivacyLinkText(): string {
-  return 'View the <stripePrivacyLink>Stripe privacy policy</stripePrivacyLink>.';
+  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink>.';
 }
 
 const PaypalPaymentLegalBlurb = () => (
-  <div className="payment-legal-blurb">
+  <div
+    className="payment-legal-blurb"
+    data-testid="payment-legal-blurb-component"
+  >
     <Localized id="payment-legal-copy-paypal">
       <p>Mozilla uses Paypal for secure payment processing.</p>
     </Localized>
 
     <Localized
-      id="payment-legal-link-paypal"
+      id="payment-legal-link-paypal-2"
       elems={{
         paypalPrivacyLink: (
           <a
-            href="https://paypal.com/privacy"
+            href="https://www.paypal.com/webapps/mpp/ua/privacy-full"
             target="_blank"
             rel="noopener noreferrer"
           ></a>
@@ -47,7 +50,7 @@ const StripePaymentLegalBlurb = () => (
     </Localized>
 
     <Localized
-      id="payment-legal-link-stripe-2"
+      id="payment-legal-link-stripe-3"
       elems={{
         stripePrivacyLink: (
           <a
@@ -70,7 +73,7 @@ const DefaultPaymentLegalBlurb = () => (
     </Localized>
 
     <Localized
-      id="payment-legal-link-stripe-and-paypal-2"
+      id="payment-legal-link-stripe-space-paypal"
       elems={{
         stripePrivacyLink: (
           <a

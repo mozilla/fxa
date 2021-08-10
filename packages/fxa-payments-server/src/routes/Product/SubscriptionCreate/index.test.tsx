@@ -141,8 +141,8 @@ describe('routes/Product/SubscriptionCreate', () => {
     expect(queryByTestId('subscription-create')).toBeInTheDocument();
     expect(queryByText('Payment information')).toBeInTheDocument();
     expect(queryByTestId('paypal-button')).not.toBeInTheDocument();
-    expect(queryByText('Terms of Service')).toBeInTheDocument();
-    expect(queryByText('Privacy Notice')).toBeInTheDocument();
+    expect(queryByTestId('terms')).toBeInTheDocument();
+    expect(queryByTestId('privacy')).toBeInTheDocument();
     expect(
       queryByText(
         'Mozilla uses Stripe and Paypal for secure payment processing.'

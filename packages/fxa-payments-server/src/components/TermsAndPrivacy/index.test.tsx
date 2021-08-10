@@ -6,6 +6,7 @@ import { MOCK_PLANS } from '../../lib/test-utils';
 import { TermsAndPrivacy } from './index';
 import { defaultAppContext, AppContext } from '../../lib/AppContext';
 import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
+import { config } from '../../lib/config';
 
 const enTermsOfServiceURL =
   'https://www.mozilla.org/en-US/about/legal/terms/services/';
@@ -61,6 +62,15 @@ it('renders as expected with a plan with no legal doc links metadata', () => {
     'href',
     DEFAULT_PRODUCT_DETAILS.privacyNoticeURL
   );
+});
+
+it('renders as expected when passed "showFXALinks" option', () => {
+  const { queryByTestId } = render(
+    <TermsAndPrivacy plan={planWithNoLegalLinks} showFXALinks={true} />
+  );
+
+  const fxaLegalSection = queryByTestId('fxa-legal-links');
+  expect(fxaLegalSection).toBeInTheDocument();
 });
 
 it('renders as expected with default locale', () => {

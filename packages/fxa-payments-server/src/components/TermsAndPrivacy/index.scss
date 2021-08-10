@@ -1,11 +1,18 @@
-.terms,
-.privacy {
-  display: flex;
-  font-size: 15px;
-  justify-content: center;
-  margin-top: 24px;
-}
+@import '../../../../fxa-content-server/app/styles/variables';
 
 .terms {
-  margin-top: 32px;
+  line-height: 18px;
+  clear: both;
+  text-align: center;
+  font-size: 11px;
+
+  a {
+    text-decoration: underline;
+    font-weight: 400;
+  }
+}
+
+.legal-heading {
+  color: $grey-50;
+  font-weight: 600;
 }
