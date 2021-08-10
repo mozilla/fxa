@@ -4622,15 +4622,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-toolbars@npm:^6.3.6":
-  version: 6.3.6
-  resolution: "@storybook/addon-toolbars@npm:6.3.6"
+"@storybook/addon-toolbars@npm:^6.3.7":
+  version: 6.3.7
+  resolution: "@storybook/addon-toolbars@npm:6.3.7"
   dependencies:
-    "@storybook/addons": 6.3.6
-    "@storybook/api": 6.3.6
-    "@storybook/client-api": 6.3.6
-    "@storybook/components": 6.3.6
-    "@storybook/theming": 6.3.6
+    "@storybook/addons": 6.3.7
+    "@storybook/api": 6.3.7
+    "@storybook/client-api": 6.3.7
+    "@storybook/components": 6.3.7
+    "@storybook/theming": 6.3.7
     core-js: ^3.8.2
     regenerator-runtime: ^0.13.7
   peerDependencies:
@@ -4641,7 +4641,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 5e48d24cef326a213ca540042744f941e8704ab7ac26054d44e795a1ee307690022eb865023c6f4af42cd12bd16221829ef4fdc63e95319cd8fbb86fb7e794a5
+  checksum: 8f855c7271deabaeaffc74db392b7b2785d8a771195744f42989e57f0915214bdee4a78a4eb632e2c8eefda08183be5f54267801fd9c40471ebdeacba5607b6c
   languageName: node
   linkType: hard
 
@@ -18056,7 +18056,7 @@ fsevents@~2.1.1:
     "@sentry/node": ^6.10.0
     "@storybook/addon-controls": ^6.3.7
     "@storybook/addon-docs": ^6.3.6
-    "@storybook/addon-toolbars": ^6.3.6
+    "@storybook/addon-toolbars": ^6.3.7
     "@storybook/html": ^6.3.6
     "@type-cacheable/core": ^5.2.0
     "@type-cacheable/ioredis-adapter": ^5.2.0
