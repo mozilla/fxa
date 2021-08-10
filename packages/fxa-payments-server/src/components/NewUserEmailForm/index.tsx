@@ -74,6 +74,7 @@ export const NewUserEmailForm = ({
               setAccountExists,
               setEmailInputState,
               checkAccountExists,
+              signInURL,
               getString
             );
           }}
@@ -140,6 +141,7 @@ export async function emailInputValidationAndAccountCheck(
   setAccountExists: (value: boolean) => void,
   setEmailInputState: (value: string) => void,
   checkAccountExists: (email: string) => Promise<{ exists: boolean }>,
+  signInURL: string,
   getString?: (id: string) => string
 ) {
   let error = null;
@@ -161,9 +163,19 @@ export async function emailInputValidationAndAccountCheck(
       getString('new-user-email-validate')
     : 'Email is not valid';
 
-  const accountExistsMsg = getString
-    ? getString('new-user-existing-account-sign-in')
-    : `You already have an account, <a>Sign in</a>`;
+  const accountExistsMsg = (
+    <Localized
+      id="new-user-already-has-account-sign-in"
+      elems={{ a: <a href={signInURL}></a> }}
+    >
+      <>
+        You already have an account.{' '}
+        <a data-testid="already-have-account-link" href={signInURL}>
+          Sign in
+        </a>
+      </>
+    </Localized>
+  );
 
   if (!valid && !focused && errorMsg) {
     error = errorMsg;
