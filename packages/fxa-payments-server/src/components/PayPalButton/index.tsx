@@ -23,9 +23,9 @@ export type PaypalButtonProps = {
   disabled: boolean;
   idempotencyKey: string;
   refreshSubmitNonce: () => void;
-  refreshSubscriptions: (() => void) | (() => Promise<void>);
+  postSubscriptionAttemptPaypalCallback: (() => void) | (() => Promise<void>);
   beforeCreateOrder?: () => Promise<void>;
-  setPaymentError: Function;
+  setSubscriptionError: Function;
   priceId?: string;
   newPaypalAgreement?: boolean;
   apiClientOverrides?: Partial<
@@ -59,9 +59,9 @@ export const PaypalButton = ({
   disabled,
   idempotencyKey,
   refreshSubmitNonce,
-  refreshSubscriptions,
+  postSubscriptionAttemptPaypalCallback,
   beforeCreateOrder,
-  setPaymentError,
+  setSubscriptionError,
   priceId,
   newPaypalAgreement,
   apiClientOverrides,
@@ -84,10 +84,15 @@ export const PaypalButton = ({
       if (!error.code) {
         error.code = GENERAL_PAYPAL_ERROR_ID;
       }
-      setPaymentError(error);
+      setSubscriptionError(error);
     }
     return null;
-  }, [apiClientOverrides, currencyCode, setPaymentError, beforeCreateOrder]);
+  }, [
+    apiClientOverrides,
+    currencyCode,
+    setSubscriptionError,
+    beforeCreateOrder,
+  ]);
 
   const onApprove = useCallback(
     async (data: { orderID: string }) => {
@@ -124,15 +129,15 @@ export const PaypalButton = ({
             token,
           });
         }
-        await refreshSubscriptions();
+        await postSubscriptionAttemptPaypalCallback();
       } catch (error) {
         if (isNewSubscription) {
           if (!error.code) {
             error.code = GENERAL_PAYPAL_ERROR_ID;
           }
-          setPaymentError(error);
+          setSubscriptionError(error);
         } else {
-          await refreshSubscriptions();
+          await postSubscriptionAttemptPaypalCallback();
         }
       }
       refreshSubmitNonce();
@@ -145,8 +150,8 @@ export const PaypalButton = ({
       newPaypalAgreement,
       priceId,
       refreshSubmitNonce,
-      refreshSubscriptions,
-      setPaymentError,
+      postSubscriptionAttemptPaypalCallback,
+      setSubscriptionError,
       setTransactionInProgress,
     ]
   );
@@ -154,9 +159,9 @@ export const PaypalButton = ({
   const onError = useCallback(
     (error) => {
       error.code = GENERAL_PAYPAL_ERROR_ID;
-      setPaymentError(error);
+      setSubscriptionError(error);
     },
-    [setPaymentError]
+    [setSubscriptionError]
   );
 
   type PaypalButtonActionsType = {

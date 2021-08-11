@@ -14,8 +14,8 @@ const Subject = ({
   refreshSubmitNonce = () => {},
   priceId = PLAN.plan_id,
   newPaypalAgreement = false,
-  refreshSubscriptions = () => {},
-  setPaymentError = () => {},
+  postSubscriptionAttemptPaypalCallback = () => {},
+  setSubscriptionError = () => {},
   setTransactionInProgress = () => {},
   ...props
 }: PickPartial<
@@ -27,8 +27,8 @@ const Subject = ({
   | 'refreshSubmitNonce'
   | 'priceId'
   | 'newPaypalAgreement'
-  | 'refreshSubscriptions'
-  | 'setPaymentError'
+  | 'postSubscriptionAttemptPaypalCallback'
+  | 'setSubscriptionError'
   | 'setTransactionInProgress'
 >) => {
   return (
@@ -41,8 +41,8 @@ const Subject = ({
         refreshSubmitNonce,
         priceId,
         newPaypalAgreement,
-        refreshSubscriptions,
-        setPaymentError,
+        postSubscriptionAttemptPaypalCallback,
+        setSubscriptionError,
         setTransactionInProgress,
         ...props,
       }}

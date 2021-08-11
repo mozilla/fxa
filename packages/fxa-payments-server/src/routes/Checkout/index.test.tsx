@@ -53,6 +53,7 @@ jest.mock('../../lib/apiClient', () => {
     apiCreateSubscriptionWithPaymentMethod: jest.fn(),
     apiGetPaypalCheckoutToken: jest.fn(),
     apiCapturePaypalPayment: jest.fn(),
+    apiSignupForNewsletter: jest.fn(),
   };
 });
 
@@ -72,6 +73,7 @@ import {
   apiFetchAccountStatus,
   apiGetPaypalCheckoutToken,
   apiCapturePaypalPayment,
+  apiSignupForNewsletter,
 } from '../../lib/apiClient';
 import { ButtonBaseProps } from '../../components/PayPalButton';
 import { updateConfig } from '../../lib/config';
@@ -115,6 +117,7 @@ describe('routes/Checkout', () => {
     (apiCapturePaypalPayment as jest.Mock)
       .mockClear()
       .mockResolvedValue(MOCK_PAYPAL_SUBSCRIPTION_RESULT);
+    (apiSignupForNewsletter as jest.Mock).mockClear().mockResolvedValue({});
 
     stripeOverride.createPaymentMethod
       .mockClear()
@@ -198,7 +201,7 @@ describe('routes/Checkout', () => {
   });
 
   describe('handling a passwordless Stripe subscription', () => {
-    const fillOutZeForm = async () => {
+    const fillOutZeForm = async (shouldSubscribeToNewsletter = false) => {
       const { getByTestId } = screen;
       fireEvent.change(getByTestId('new-user-email'), {
         target: { value: newAccountEmail },
@@ -206,6 +209,13 @@ describe('routes/Checkout', () => {
       fireEvent.change(getByTestId('new-user-confirm-email'), {
         target: { value: newAccountEmail },
       });
+      if (shouldSubscribeToNewsletter) {
+        const newsletterCheckbox = getByTestId(
+          'new-user-subscribe-product-updates'
+        );
+        fireEvent.click(newsletterCheckbox);
+        expect(newsletterCheckbox.checked).toEqual(true);
+      }
       fireEvent.change(getByTestId('name'), {
         target: { value: 'BMO' },
       });
@@ -339,6 +349,52 @@ describe('routes/Checkout', () => {
 
       expect(screen.getByTestId('payment-error')).toBeInTheDocument();
     });
+
+    describe('newsletter', () => {
+      it('POSTs to /newsletters if the newsletter checkbox is checked when subscription succeeds', async () => {
+        await act(async () => {
+          render(<Subject />);
+        });
+        const shouldSubscribeToNewsletter = true;
+        await fillOutZeForm(shouldSubscribeToNewsletter);
+        await waitForExpect(() => {
+          expect(apiSignupForNewsletter).toHaveBeenCalledTimes(1);
+        });
+        expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
+      });
+
+      it('Does not POST to /newsletters if the newsletter checkbox is unchecked when subscription succeeds', async () => {
+        await act(async () => {
+          render(<Subject />);
+        });
+        const shouldSubscribeToNewsletter = false;
+        await fillOutZeForm(shouldSubscribeToNewsletter);
+        await waitForExpect(() => {
+          expect(apiSignupForNewsletter).not.toHaveBeenCalled();
+        });
+        expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
+      });
+
+      it('Does not POST to /newsletters when newsletter checkbox is checked when subscription fails', async () => {
+        stripeOverride.createPaymentMethod.mockRejectedValue({
+          paymentIntent: undefined,
+          error: 'nope',
+        });
+        await act(async () => {
+          render(<Subject />);
+        });
+        const shouldSubscribeToNewsletter = true;
+        await fillOutZeForm(shouldSubscribeToNewsletter);
+        await waitForExpect(() => {
+          expect(apiSignupForNewsletter).not.toHaveBeenCalled();
+        });
+        expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      });
+
+      it('Displays a message if newsletter signup fails when subscription succeeds', async () => {
+        // TODO: FXA-3667
+      });
+    });
   });
 
   describe('handling a passwordless PayPal subscription', () => {
@@ -347,8 +403,7 @@ describe('routes/Checkout', () => {
         usePaypalUIByDefault: true,
       },
     });
-
-    const fillOutZeForm = async () => {
+    const fillOutZeForm = async (shouldSubscribeToNewsletter = false) => {
       const { getByTestId } = screen;
       fireEvent.change(getByTestId('new-user-email'), {
         target: { value: newAccountEmail },
@@ -356,6 +411,12 @@ describe('routes/Checkout', () => {
       fireEvent.change(getByTestId('new-user-confirm-email'), {
         target: { value: newAccountEmail },
       });
+      if (shouldSubscribeToNewsletter) {
+        const newsletterCheckbox = getByTestId(
+          'new-user-subscribe-product-updates'
+        );
+        fireEvent.click(newsletterCheckbox);
+      }
       await act(async () => {
         fireEvent.click(getByTestId('confirm'));
       });
@@ -511,6 +572,86 @@ describe('routes/Checkout', () => {
       });
 
       expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+    });
+    describe('newsletter', () => {
+      it('POSTs to /newsletters if the newsletter checkbox is checked when subscription succeeds', async () => {
+        const paypalButtonBase = ({
+          createOrder,
+          onApprove,
+        }: ButtonBaseProps) => {
+          return (
+            <button
+              data-testid="paypal-button"
+              onClick={async () => {
+                await createOrder!();
+                await onApprove!({ orderID: 'new-sub' });
+              }}
+            />
+          );
+        };
+        await act(async () => {
+          render(<Subject paypalButtonBase={paypalButtonBase} />);
+        });
+        const shouldSubscribeToNewsletter = true;
+        await fillOutZeForm(shouldSubscribeToNewsletter);
+        await waitForExpect(() => {
+          expect(apiSignupForNewsletter).toHaveBeenCalledTimes(1);
+        });
+        expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
+      });
+
+      it('Does not POST to /newsletters if the newsletter checkbox is unchecked when subscription succeeds', async () => {
+        const paypalButtonBase = ({
+          createOrder,
+          onApprove,
+        }: ButtonBaseProps) => {
+          return (
+            <button
+              data-testid="paypal-button"
+              onClick={async () => {
+                await createOrder!();
+                await onApprove!({ orderID: 'new-sub' });
+              }}
+            />
+          );
+        };
+        await act(async () => {
+          render(<Subject paypalButtonBase={paypalButtonBase} />);
+        });
+        const shouldSubscribeToNewsletter = false;
+        await fillOutZeForm(shouldSubscribeToNewsletter);
+        await waitForExpect(() => {
+          expect(apiSignupForNewsletter).not.toHaveBeenCalled();
+        });
+        expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
+      });
+
+      it('Does not POST to /newsletters when newsletter checkbox is checked when subscription fails', async () => {
+        (apiCapturePaypalPayment as jest.Mock).mockRejectedValue({});
+        const paypalButtonBase = ({ onApprove }: ButtonBaseProps) => {
+          return (
+            <button
+              data-testid="paypal-button"
+              onClick={async () => {
+                await onApprove!({ orderID: 'new-sub' });
+              }}
+            />
+          );
+        };
+        await act(async () => {
+          render(<Subject paypalButtonBase={paypalButtonBase} />);
+        });
+        const shouldSubscribeToNewsletter = true;
+        await fillOutZeForm(shouldSubscribeToNewsletter);
+        await waitForExpect(() => {
+          expect(apiSignupForNewsletter).not.toHaveBeenCalled();
+        });
+        expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      });
+
+      it('Displays a message if newsletter signup fails when subscription succeeds', async () => {
+        // TODO: FXA-3667
+      });
     });
   });
 });

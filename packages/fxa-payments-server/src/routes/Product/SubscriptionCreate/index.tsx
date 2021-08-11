@@ -61,7 +61,7 @@ export type SubscriptionCreateProps = {
   profile: Profile;
   customer: Customer | null;
   selectedPlan: Plan;
-  refreshSubscriptions: (() => void) | (() => Promise<void>);
+  refreshSubscriptions: () => void;
   validatorInitialState?: ValidatorState;
   subscriptionErrorInitialState?: PaymentError;
   stripeOverride?: SubscriptionCreateStripeAPIs;
@@ -251,8 +251,10 @@ export const SubscriptionCreate = ({
                           refreshSubmitNonce={refreshSubmitNonce}
                           priceId={selectedPlan.plan_id}
                           newPaypalAgreement={true}
-                          refreshSubscriptions={refreshSubscriptions}
-                          setPaymentError={setSubscriptionError}
+                          postSubscriptionAttemptPaypalCallback={
+                            refreshSubscriptions
+                          }
+                          setSubscriptionError={setSubscriptionError}
                           ButtonBase={paypalButtonBase}
                           setTransactionInProgress={setTransactionInProgress}
                         />

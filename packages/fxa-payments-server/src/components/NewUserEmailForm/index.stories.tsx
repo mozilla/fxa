@@ -24,6 +24,7 @@ const WrapNewUserEmailForm = ({
           Promise.resolve({ exists: accountExistsReturnValue })
         }
         selectedPlan={{}}
+        onToggleNewsletterCheckbox={() => {}}
       />
     </div>
   );
