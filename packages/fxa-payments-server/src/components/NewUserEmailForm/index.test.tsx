@@ -163,23 +163,6 @@ describe('NewUserEmailForm test', () => {
     });
   });
 
-  it('shows error when an account already exists', async () => {
-    let subject;
-    await act(async () => {
-      subject = render(
-        <WrapNewUserEmailForm accountExistsReturnValue={true} />
-      );
-      const firstEmail = subject.getByTestId('new-user-email');
-
-      fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
-      fireEvent.blur(firstEmail);
-    });
-
-    expect(
-      subject.queryByTestId('already-have-account-link')
-    ).toBeInTheDocument();
-  });
-
   it('Notifies the user if they already have an account', async () => {
     const checkAccountExists = (userAccount: string) =>
       Promise.resolve({ exists: true });
