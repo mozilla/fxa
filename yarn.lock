@@ -12337,14 +12337,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"checksum@npm:0.1.1":
-  version: 0.1.1
-  resolution: "checksum@npm:0.1.1"
+"checksum@npm:1.0.0":
+  version: 1.0.0
+  resolution: "checksum@npm:1.0.0"
   dependencies:
     optimist: ~0.3.5
   bin:
     checksum: bin/checksum-cli.js
-  checksum: 2f534921a3e2d5bb8bd1e9b8838dfdcf323679db49e1719e43ba857783104729140d84a0e0794fa5de14dc617a0dde13d3a785b89d50c6414f0f603eccd35407
+  checksum: a20d56a530ba5ef3c9be2f707f4dd69e86bb2cb34a9e57bc8009c039a2a1e94f2fff2f82413f5acead0707ba21b01e49434f6627d1b953c21b8f02298f473214
   languageName: node
   linkType: hard
 
@@ -18931,7 +18931,7 @@ fsevents@~2.1.1:
     aws-sdk: ^2.965.0
     bluebird: ^3.7.2
     buf: 0.1.1
-    checksum: 0.1.1
+    checksum: 1.0.0
     commander: 2.9.0
     compute-cluster: 0.0.9
     convict: ^6.2.0
