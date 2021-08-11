@@ -4447,7 +4447,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-actions@npm:*, @storybook/addon-actions@npm:^6.3.6":
+"@storybook/addon-actions@npm:*":
   version: 6.3.6
   resolution: "@storybook/addon-actions@npm:6.3.6"
   dependencies:
@@ -4477,6 +4477,39 @@ __metadata:
     react-dom:
       optional: true
   checksum: cdac1d6f0fdd7aa6d8d9587fc71eddf7ee0507bdf18d15ca1af29f34ad32dfe9eaa0b478cdc5ee1640a47b80c996062dbb1282162acd9af140eabe130f923989
+  languageName: node
+  linkType: hard
+
+"@storybook/addon-actions@npm:^6.3.7":
+  version: 6.3.7
+  resolution: "@storybook/addon-actions@npm:6.3.7"
+  dependencies:
+    "@storybook/addons": 6.3.7
+    "@storybook/api": 6.3.7
+    "@storybook/client-api": 6.3.7
+    "@storybook/components": 6.3.7
+    "@storybook/core-events": 6.3.7
+    "@storybook/theming": 6.3.7
+    core-js: ^3.8.2
+    fast-deep-equal: ^3.1.3
+    global: ^4.4.0
+    lodash: ^4.17.20
+    polished: ^4.0.5
+    prop-types: ^15.7.2
+    react-inspector: ^5.1.0
+    regenerator-runtime: ^0.13.7
+    ts-dedent: ^2.0.0
+    util-deprecate: ^1.0.2
+    uuid-browser: ^3.1.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 1ce6da9e6b2261f5c921e549fc7c2ff3c59bd20caefc720571129b47e24e88f9b235875ac40ec1c1fcf4748e42b8000c7786bf2cda4403f34818c10e57552eb2
   languageName: node
   linkType: hard
 
@@ -17863,7 +17896,7 @@ fsevents@~2.1.1:
     "@emotion/react": ^11.4.1
     "@material-ui/core": v5.0.0-alpha.24
     "@rescripts/cli": 0.0.16
-    "@storybook/addon-actions": ^6.3.6
+    "@storybook/addon-actions": ^6.3.7
     "@storybook/addon-links": ^6.3.6
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.6
@@ -18680,7 +18713,7 @@ fsevents@~2.1.1:
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^6.10.0
     "@sentry/node": ^6.10.0
-    "@storybook/addon-actions": ^6.3.6
+    "@storybook/addon-actions": ^6.3.7
     "@storybook/addon-links": ^6.3.6
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.6
@@ -18841,7 +18874,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.16.1
     "@fluent/langneg": ^0.5.2
     "@fluent/react": ^0.13.1
-    "@storybook/addon-actions": ^6.3.6
+    "@storybook/addon-actions": ^6.3.7
     "@storybook/addon-links": ^6.3.6
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.6
@@ -18906,7 +18939,7 @@ fsevents@~2.1.1:
     "@reach/router": ^1.3.4
     "@rescripts/cli": 0.0.16
     "@sentry/browser": ^6.10.0
-    "@storybook/addon-actions": ^6.3.6
+    "@storybook/addon-actions": ^6.3.7
     "@storybook/addon-links": ^6.3.6
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.6
