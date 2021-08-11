@@ -86,14 +86,14 @@ export const Checkout = ({
     paymentErrorInitialState
   );
 
-  const planId = queryParams.plan;
-  const signInURL = `${config.servers.content.url}/subscriptions/products/${productId}?plan=${planId}&signin=yes`;
-
   // Fetch plans on initial render or change in product ID
   useEffect(() => {
     fetchCheckoutRouteResources();
   }, [fetchCheckoutRouteResources]);
 
+  const planId = queryParams.plan;
+  const planQueryParam = planId ? `plan=${planId}&` : '';
+  const signInURL = `${config.servers.content.url}/subscriptions/products/${productId}?${planQueryParam}signin=yes`;
   const selectedPlan = useMemo(
     () => getSelectedPlan(productId, planId, plansByProductId),
     [productId, planId, plansByProductId]
