@@ -1976,7 +1976,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/register@npm:^7.12.1, @babel/register@npm:^7.14.5":
+"@babel/register@npm:^7.12.1":
   version: 7.14.5
   resolution: "@babel/register@npm:7.14.5"
   dependencies:
@@ -1988,6 +1988,21 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: 5fab2384f5e3588cf5978312997afcc4cabcfc519eb6db7ebe3c5e704dc7faa7eef691b6939bc086937f732cdfbba028ea3fec0bdc23c41f19443bea13135a97
+  languageName: node
+  linkType: hard
+
+"@babel/register@npm:^7.15.3":
+  version: 7.15.3
+  resolution: "@babel/register@npm:7.15.3"
+  dependencies:
+    clone-deep: ^4.0.1
+    find-cache-dir: ^2.0.0
+    make-dir: ^2.1.0
+    pirates: ^4.0.0
+    source-map-support: ^0.5.16
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 7da9d0399baebe6a5e517abd864cb22eef17d608e893d4f3b95d10411f0038b2b39c954fc611da9c3dc3d87427b8bdb45a576b1528100e65b36c1e9ad31987ca
   languageName: node
   linkType: hard
 
@@ -18803,7 +18818,7 @@ fsevents@~2.1.1:
   resolution: "fxa-payments-server@workspace:packages/fxa-payments-server"
   dependencies:
     "@babel/core": ^7.15.0
-    "@babel/register": ^7.14.5
+    "@babel/register": ^7.15.3
     "@fluent/bundle": ^0.16.1
     "@fluent/langneg": ^0.5.2
     "@fluent/react": ^0.13.1
