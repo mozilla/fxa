@@ -131,7 +131,34 @@ const TESTS: [string, any][] = [
       { test: 'notInclude', expected: config.smtp.iosUrl },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
-  ])],  
+  ])],
+  
+  ['lowRecoveryCodesEmail', new Map<string, Test | any>([
+    ['subject', [
+      { test: 'include', expected: '2' },
+      { test: 'include', expected: 'recovery codes remaining' },
+      { test: 'notInclude', expected: '1' },
+    ]],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('lowRecoveryCodes') }],
+      ['X-Template-Name', { test: 'equal', expected: 'lowRecoveryCodes' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.lowRecoveryCodes }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'low-recovery-codes', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'low-recovery-codes', 'support')) },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Generate codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
+      { test: 'include', expected: 'For more information, please visit' },
+      { test: 'include', expected: configUrl('supportUrl', 'low-recovery-codes', 'support') },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 ];
 
 describe('lib/senders/mjml-emails:', () => {
@@ -306,7 +333,7 @@ function applyAssertions(
 
   describe(`${type} - ${property}`, () => {
     assertions.forEach(({ test, expected }: Test) => {
-      it.only(`${test} - ${expected}`, () => {
+      it(`${test} - ${expected}`, () => {
         /* @ts-ignore */
         assert[test](target, expected, `${type}: ${property}`);
       });

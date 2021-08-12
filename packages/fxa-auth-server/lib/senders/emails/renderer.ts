@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import fs from 'fs';
+import { readFileSync } from 'fs';
 import { join } from 'path';
 import ejs = require('ejs');
 import mjml2html = require('mjml');
@@ -33,9 +33,10 @@ function compile(
     template = ejs.compile(
       layouts[templateName as keyof typeof layouts].render(subTemplate.mjml)
     );
-    const layoutText = fs
-      .readFileSync(join(TEMPLATES_DIR, 'layouts', templateName, 'index.txt'))
-      .toString();
+    const layoutText = readFileSync(
+      join(TEMPLATES_DIR, 'layouts', templateName, 'index.txt'),
+      'utf8'
+    );
 
     templateText = ejs.render(
       layoutText,
@@ -46,9 +47,10 @@ function compile(
     template = ejs.compile(
       templates[templateName as keyof typeof templates].render()
     );
-    templateText = fs
-      .readFileSync(join(TEMPLATES_DIR, 'templates', templateName, 'index.txt'))
-      .toString();
+    templateText = readFileSync(
+      join(TEMPLATES_DIR, 'templates', templateName, 'index.txt'),
+      'utf8'
+    );
   }
   const plainText = ejs.render(templateText, context, ejsConfig);
   const mjmlTemplate = template(context);
@@ -69,11 +71,10 @@ export function renderWithOptionalLayout(
   if (layoutName) {
     const subTemplate = {
       mjml: templates[templateName as keyof typeof templates].render(),
-      text: fs
-        .readFileSync(
-          join(TEMPLATES_DIR, 'templates', templateName, 'index.txt')
-        )
-        .toString(),
+      text: readFileSync(
+        join(TEMPLATES_DIR, 'templates', templateName, 'index.txt'),
+        'utf8'
+      ),
     };
     return compile(context, layoutName, subTemplate);
   } else return compile(context, templateName);

@@ -5,28 +5,27 @@
 export interface StorybookEmailArgs {
   template: string;
   layout: string;
-  description?: string;
+  doc?: string;
   variables: Record<string, any>;
 }
 
 export const storybookEmail = ({
   template,
   layout,
-  description,
+  doc,
   variables,
 }: StorybookEmailArgs): HTMLDivElement => {
   const container = document.createElement('div');
   container.innerHTML = 'Loading email...';
-  const emailDescriptionDiv = document.createElement('div');
-  if (description) {
-    emailDescriptionDiv.innerHTML = `
-        <p>${description}</p>
-        <hr />`;
-  }
 
   renderUsingMJML({ template, layout, variables })
-    .then((result) => {
-      container.innerHTML = emailDescriptionDiv.innerHTML + result;
+    .then(({ html, subject }) => {
+      container.innerHTML = `
+        ${doc ? `<p>Template Description: ${doc}</p>` : ''}
+        <p>Email Subject: ${subject}</p>
+        <hr />
+        ${html}
+      `;
     })
     .catch((error: Error) => {
       container.innerHTML = `Error loading email: ${error.message}`;
@@ -45,7 +44,7 @@ async function renderUsingMJML({
   layout: string;
   apiUrl?: string;
   variables: Record<string, any>;
-}): Promise<string> {
+}): Promise<Record<any, string>> {
   const response = await fetch(apiUrl, {
     method: 'POST',
     body: JSON.stringify({
@@ -55,10 +54,11 @@ async function renderUsingMJML({
     }),
   });
   const result = await response.text();
+  const { html, subject } = await JSON.parse(result);
   if (response.status !== 200) {
     throw new Error(result);
   }
-  return result;
+  return { html, subject };
 }
 
 export default storybookEmail;

@@ -1728,6 +1728,9 @@ module.exports = function (log, config) {
       'X-Link': links.link,
     };
 
+    // For now, passing down the subject using gettext since email.js tests were failing
+    // Fluent is still going to conditionally render the subject
+    // based on numberRemaining var for the new templates
     let subject;
     if (numberRemaining === 1) {
       subject = gettext('1 recovery code remaining');

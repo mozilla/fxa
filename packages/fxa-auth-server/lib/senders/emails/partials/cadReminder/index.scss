@@ -4,22 +4,8 @@
 
 @use '../../global.scss';
 
-.header-text div {
-  @extend .text-xl;
-  @extend .font-sans;
-  text-align: center !important;
-  @extend .mb-5;
-}
-
 .sync-logo img {
   width: 240px !important;
   margin: 0 auto;
   @extend .mb-5;
-}
-
-.primary-text div {
-  @extend .text-sm;
-  @extend .mb-5;
-  @extend .font-sans;
-  text-align: center !important;
 }

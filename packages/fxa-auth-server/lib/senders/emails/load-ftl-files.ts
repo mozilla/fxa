@@ -24,21 +24,21 @@ const getAllFiles = function (dirPath: string, arrayOfFiles: Array<any>) {
 };
 
 export function loadFtlFiles(dirPath: string) {
-  const ftlMap2: Record<any, any> = {};
+  const ftlMap: Record<string, string> = {};
   const fileArr: Array<any> = [];
   const ftlArr: Array<any> = getAllFiles(dirPath, fileArr);
 
   ftlArr.forEach((file) => {
     const indexLocale = path.parse(file).name;
     try {
-      ftlMap2[`${indexLocale}`]
-        ? (ftlMap2[`${indexLocale}`] += readFileSync(file, 'utf8'))
-        : (ftlMap2[`${indexLocale}`] = readFileSync(file, 'utf8'));
+      ftlMap[`${indexLocale}`]
+        ? (ftlMap[`${indexLocale}`] += readFileSync(file, 'utf8'))
+        : (ftlMap[`${indexLocale}`] = readFileSync(file, 'utf8'));
     } catch (e) {
-      ftlMap2[`${indexLocale}`]
-        ? (ftlMap2[`${indexLocale}`] += '')
-        : (ftlMap2[`${indexLocale}`] = '');
+      ftlMap[`${indexLocale}`]
+        ? (ftlMap[`${indexLocale}`] += '')
+        : (ftlMap[`${indexLocale}`] = '');
     }
   });
-  return ftlMap2;
+  return ftlMap;
 }

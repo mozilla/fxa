@@ -30,16 +30,16 @@ async function handleRequest(
     const data = JSON.parse(body.trim());
     const { template: templateName, layout: layoutName, ...variables } = data;
     variables.baseUrl = baseUrl;
-    const localized = await fluentLocalizer.localizeEmail(
+    const { html, subject } = await fluentLocalizer.localizeEmail(
       templateName,
       layoutName || 'fxa',
       variables,
       variables.acceptLanguage
     );
-    const result = localized.html;
+    const result = JSON.stringify({ html, subject });
 
     res.writeHead(200, {
-      'Content-Type': 'text/html',
+      'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
     });
     res.write(result.trim());
