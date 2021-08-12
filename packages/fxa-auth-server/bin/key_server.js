@@ -11,7 +11,7 @@ const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
 const { CurrencyHelper } = require('../lib/payments/currencies');
 const { AuthLogger, AuthFirestore, AppConfig } = require('../lib/types');
-const { setupFirestore } = require('../lib/firestore-db.ts');
+const { setupFirestore } = require('../lib/firestore-db');
 
 async function run(config) {
   Container.set(AppConfig, config);

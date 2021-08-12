@@ -1,3 +1,9 @@
+## 1.212.1
+
+### Bug fixes
+
+- auth: fixed import faux pas ([2aaf45414](https://github.com/mozilla/fxa/commit/2aaf45414))
+
 ## 1.212.0
 
 ### New features
