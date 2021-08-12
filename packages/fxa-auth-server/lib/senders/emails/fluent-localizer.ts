@@ -40,9 +40,10 @@ class FluentLocalizer {
     variables: Record<any, any>,
     acceptLanguage: string
   ) {
+    const templateVariables = { ...variables, ...variables.templateValues };
     const { htmlTemplate, plainText } = renderWithOptionalLayout(
       templateName,
-      { ...variables, ...variables.templateValues },
+      templateVariables,
       layoutName
     );
 
@@ -101,7 +102,10 @@ class FluentLocalizer {
       body.classList.add('rtl');
     }
 
-    const subject = await l10n.formatValue(`${templateName}-subject`);
+    const subject = await l10n.formatValue(
+      `${templateName}-subject`,
+      templateVariables
+    );
     document.title = subject;
 
     // localize the plaintext files
@@ -111,14 +115,13 @@ class FluentLocalizer {
       // to pass down to fluent
       const arr = plainTextArr[i].match(/([a-zA-z-]*\s=\s"([^"]+)")/g) || '';
       if (arr[0]) {
-        let [key, val] = arr[0].split('=');
-        key = key.replace(/\s/g, '');
-        val = val.replace(/"/g, '').trim();
+        let [key, val] = [
+          arr[0].substring(0, arr[0].indexOf('=') - 1),
+          arr[0].substring(arr[0].indexOf('=') + 2),
+        ];
+        val = val.replace(/"/g, '');
         // get the value from fluent using the extracted key
-        const localizedValue = await l10n.formatValue(key, {
-          ...variables.templateValues,
-          ...variables,
-        });
+        const localizedValue = await l10n.formatValue(key, templateVariables);
         plainTextArr[i] = localizedValue ? localizedValue : val;
       }
     }
@@ -128,7 +131,7 @@ class FluentLocalizer {
     return {
       html: document.documentElement.outerHTML,
       text: localizedPlainText,
-      localizedSubject: subject,
+      subject,
     };
   }
 }
