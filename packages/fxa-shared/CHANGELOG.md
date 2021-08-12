@@ -1,5 +1,9 @@
 # Change history
 
+## 1.212.1
+
+No changes.
+
 ## 1.212.0
 
 ### New features
