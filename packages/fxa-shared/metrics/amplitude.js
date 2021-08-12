@@ -30,6 +30,7 @@ const GROUPS = {
   subManage: 'fxa_subscribe_manage',
   subPayManage: 'fxa_pay_manage',
   subPaySetup: 'fxa_pay_setup',
+  subPayAccountSetup: 'fxa_pay_account_setup',
   subPayUpgrade: 'fxa_pay_upgrade',
   subSupport: 'fxa_subscribe_support',
   qrConnectDevice: 'fxa_qr_connect_device',
@@ -61,6 +62,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.subManage]: NOP,
   [GROUPS.subPayManage]: NOP,
   [GROUPS.subPaySetup]: mapSubscriptionPaymentEventProperties,
+  [GROUPS.subPayAccountSetup]: mapSubscriptionPaymentEventProperties,
   [GROUPS.subPayUpgrade]: NOP,
   [GROUPS.subSupport]: NOP,
   [GROUPS.qrConnectDevice]: NOP,
@@ -134,8 +136,18 @@ function mapSubscriptionPaymentEventProperties(
   eventTarget,
   data
 ) {
-  if (data && data.sourceCountry) {
-    return { source_country: data.sourceCountry };
+  if (data) {
+    const properties = {};
+
+    if (data.sourceCountry) {
+      properties['source_country'] = data.sourceCountry;
+    }
+
+    if (data.checkoutType) {
+      properties['checkout_type'] = data.checkoutType;
+    }
+
+    return properties;
   }
 }
 

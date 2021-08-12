@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Localized } from '@fluent/react';
 
 import { isEmailValid } from '../../../../fxa-shared/email/helpers';
@@ -14,6 +14,8 @@ import {
 
 import './index.scss';
 import { config } from '../../lib/config';
+import * as Amplitude from '../../lib/amplitude';
+import { useCallbackOnce } from '../../lib/hooks';
 
 export type NewUserEmailFormProps = {
   getString?: (id: string) => string;
@@ -24,6 +26,7 @@ export type NewUserEmailFormProps = {
   checkAccountExists: (email: string) => Promise<{ exists: boolean }>;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
+  selectedPlan: any;
 };
 
 export const NewUserEmailForm = ({
@@ -35,6 +38,7 @@ export const NewUserEmailForm = ({
   checkAccountExists,
   validatorInitialState,
   validatorMiddlewareReducer,
+  selectedPlan,
 }: NewUserEmailFormProps) => {
   const validator = useValidatorState({
     initialState: validatorInitialState,
@@ -43,11 +47,30 @@ export const NewUserEmailForm = ({
 
   const [emailInputState, setEmailInputState] = useState<string>();
 
+  selectedPlan.checkoutType = 'without-account';
+
+  const onFormMounted = useCallback(
+    () => Amplitude.createAccountMounted(selectedPlan),
+    [selectedPlan]
+  );
+  useEffect(() => {
+    onFormMounted();
+  }, [onFormMounted, selectedPlan]);
+
+  const onFormEngaged = useCallbackOnce(
+    () => Amplitude.createAccountEngaged(selectedPlan),
+    [selectedPlan]
+  );
+  const onChange = useCallback(() => {
+    onFormEngaged();
+  }, [onFormEngaged]);
+
   return (
     <Form
       data-testid="new-user-email-form"
       validator={validator}
       className="new-user-email-form"
+      {...{ onChange }}
     >
       <Localized
         id="new-user-sign-in-link"

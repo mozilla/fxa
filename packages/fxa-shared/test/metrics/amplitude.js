@@ -444,26 +444,29 @@ describe('metrics/amplitude:', () => {
       });
     });
 
-    describe('transform an event with sourceCountry:', () => {
-      it('did not include the source country in event properties when the event was not in the fxa_pay_setup group', () => {
+    describe('transform an event with subscription event details:', () => {
+      it('did not include the subscription event details in event properties when the event was not in the fxa_pay_setup group', () => {
         const actual = transform(
           { type: 'wibble.blee' },
-          { sourceCountry: 'GD' }
+          { sourceCountry: 'GD', checkoutType: 'without-account' }
         );
         assert.deepEqual(actual.event_properties, {});
       });
 
-      it('did not include the source country in event properties when none was found', () => {
+      it('did not include the subscription event details in event properties when none was found', () => {
         const actual = transform({ type: 'fxa_pay_setup.blee.quuz' }, {});
         assert.deepEqual(actual.event_properties, {});
       });
 
-      it('returned the correct source country event properties', () => {
+      it('returned the correct subscription event details event properties', () => {
         const actual = transform(
           { type: 'fxa_pay_setup.blee.quuz' },
-          { sourceCountry: 'GD' }
+          { sourceCountry: 'GD', checkoutType: 'without-account' }
         );
-        assert.deepEqual(actual.event_properties, { source_country: 'GD' });
+        assert.deepEqual(actual.event_properties, {
+          source_country: 'GD',
+          checkout_type: 'without-account',
+        });
       });
     });
   });
