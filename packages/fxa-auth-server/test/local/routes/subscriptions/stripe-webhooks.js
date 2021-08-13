@@ -1408,7 +1408,8 @@ describe('StripeWebhookHandler', () => {
 
   describe('sendSubscriptionInvoiceEmail', () => {
     const commonSendSubscriptionInvoiceEmailTest =
-      (expectedMethodName, billingReason) => async () => {
+      (expectedMethodName, billingReason, verifierSetAt = Date.now()) =>
+      async () => {
         const invoice = deepCopy(eventInvoicePaid.data.object);
         invoice.billing_reason = billingReason;
 
@@ -1417,7 +1418,11 @@ describe('StripeWebhookHandler', () => {
           mockInvoiceDetails
         );
 
-        const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
+        const mockAccount = {
+          emails: 'fakeemails',
+          locale: 'fakelocale',
+          verifierSetAt,
+        };
         StripeWebhookHandlerInstance.db.account = sinon.spy(
           async (data) => mockAccount
         );
@@ -1435,15 +1440,22 @@ describe('StripeWebhookHandler', () => {
           }
         );
         if (expectedMethodName === 'sendSubscriptionFirstInvoiceEmail') {
-          assert.calledWith(
-            StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail,
-            mockAccount.emails,
-            mockAccount,
-            {
-              acceptLanguage: mockAccount.locale,
-              ...mockInvoiceDetails,
-            }
-          );
+          if (verifierSetAt) {
+            assert.calledWith(
+              StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail,
+              mockAccount.emails,
+              mockAccount,
+              {
+                acceptLanguage: mockAccount.locale,
+                ...mockInvoiceDetails,
+              }
+            );
+          } else {
+            assert.isTrue(
+              StripeWebhookHandlerInstance.mailer.sendDownloadSubscriptionEmail
+                .notCalled
+            );
+          }
         }
       };
 
@@ -1451,7 +1463,17 @@ describe('StripeWebhookHandler', () => {
       'sends the initial invoice email for a newly created subscription',
       commonSendSubscriptionInvoiceEmailTest(
         'sendSubscriptionFirstInvoiceEmail',
-        'subscription_create'
+        'subscription_create',
+        1
+      )
+    );
+
+    it(
+      'sends the initial invoice email for a newly created subscription with passwordless account',
+      commonSendSubscriptionInvoiceEmailTest(
+        'sendSubscriptionFirstInvoiceEmail',
+        'subscription_create',
+        0
       )
     );
 
