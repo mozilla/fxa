@@ -3,3 +3,4 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 cadReminderSecond-subject = Final Reminder: Complete Sync Setup
+cadReminderSecond-action = Sync another device
