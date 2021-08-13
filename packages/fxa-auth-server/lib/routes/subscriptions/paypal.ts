@@ -22,6 +22,7 @@ import { StripeHelper } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { msToSec } from '../../time';
 import { AuthLogger, AuthRequest } from '../../types';
+import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
@@ -69,7 +70,11 @@ export class PayPalHandler extends StripeWebhookHandler {
    */
   async createSubscriptionWithPaypal(request: AuthRequest) {
     this.log.begin('subscriptions.createSubscriptionWithPaypal', request);
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    const { uid, email, account } = await handleAuth(
+      this.db,
+      request.auth,
+      true
+    );
     await this.customs.check(request, email, 'createSubscriptionWithPaypal');
 
     let customer = await this.stripeHelper.customer({
@@ -115,6 +120,16 @@ export class PayPalHandler extends StripeWebhookHandler {
     this.log.info('subscriptions.createSubscriptionWithPaypal.success', {
       uid,
       subscriptionId: subscription.id,
+    });
+
+    await sendFinishSetupEmailForStubAccount({
+      email,
+      uid,
+      account,
+      subscription,
+      db: this.db,
+      stripeHelper: this.stripeHelper,
+      mailer: this.mailer,
     });
 
     return {
