@@ -163,9 +163,7 @@ const TESTS: [string, any][] = [
   
   ['lowRecoveryCodesEmail', new Map<string, Test | any>([
     ['subject', [
-      { test: 'include', expected: '2' },
-      { test: 'include', expected: 'recovery codes remaining' },
-      { test: 'notInclude', expected: '1' },
+      { test: 'include', expected: '2 recovery codes remaining' }
     ]],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid') }],
@@ -182,8 +180,7 @@ const TESTS: [string, any][] = [
     ['text', [
       { test: 'include', expected: `Generate codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
-      { test: 'include', expected: 'For more information, please visit' },
-      { test: 'include', expected: configUrl('supportUrl', 'low-recovery-codes', 'support') },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'low-recovery-codes', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
@@ -218,6 +215,28 @@ const TESTS: [string, any][] = [
       { test: 'include', expected: config.smtp.syncUrl },
       { test: 'notInclude', expected: config.smtp.androidUrl },
       { test: 'notInclude', expected: config.smtp.iosUrl },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
+  ['postRemoveSecondaryEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Secondary email removed' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveSecondary') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveSecondary' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveSecondary }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-email-removed', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-email-removed', 'support')) },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-removed', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-email-removed', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],

@@ -6,3 +6,4 @@ export * as cadReminderFirst from './cadReminderFirst';
 export * as cadReminderSecond from './cadReminderSecond';
 export * as lowRecoveryCodes from './lowRecoveryCodes';
 export * as postVerify from './postVerify';
+export * as postRemoveSecondary from './postRemoveSecondary';
