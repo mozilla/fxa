@@ -7,11 +7,12 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import {
-  NewUserEmailForm,
-  emailInputValidationAndAccountCheck,
-  checkAccountExists,
-} from './index';
+jest.mock('../../lib/apiClient', () => ({
+  apiFetchAccountStatus: jest.fn(),
+}));
+import { apiFetchAccountStatus } from '../../lib/apiClient';
+
+import { NewUserEmailForm, emailInputValidationAndAccountCheck } from './index';
 import { Localized } from '@fluent/react';
 const selectedPlan = {
   plan_id: 'planId',
@@ -39,6 +40,10 @@ const WrapNewUserEmailForm = ({
   const [validEmail, setValidEmail] = useState<string>('');
   const [accountExists, setAccountExists] = useState(false);
   const [emailsMatch, setEmailsMatch] = useState(false);
+  (apiFetchAccountStatus as jest.Mock)
+    .mockClear()
+    .mockResolvedValue({ exists: accountExistsReturnValue });
+
   return (
     <div style={{ display: 'flex' }}>
       <NewUserEmailForm

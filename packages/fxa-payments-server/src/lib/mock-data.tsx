@@ -1,5 +1,6 @@
 import { Profile, Plan, Customer } from '../store/types';
 import { FilteredSetupIntent } from '../lib/apiClient';
+import { PaymentIntent, PaymentMethod } from '@stripe/stripe-js';
 
 export const PROFILE: Profile = {
   amrValues: [],
@@ -159,4 +160,45 @@ export const FILTERED_SETUP_INTENT: FilteredSetupIntent = {
   next_action: null,
   payment_method: 'card_1GnXR2Kb9q6OnNsLuymjpC5P',
   status: 'succeeded',
+};
+
+export const STUB_ACCOUNT_RESULT = {
+  uid: 'newquux',
+  access_token: 'keytothecity',
+};
+
+export const SUBSCRIPTION_RESULT = {
+  id: 'sub_1234',
+  latest_invoice: {
+    id: 'invoice_5678',
+    payment_intent: {
+      id: 'pi_7890',
+      client_secret: 'cs_abcd',
+      status: 'succeeded',
+    },
+  },
+};
+
+export const RETRY_INVOICE_RESULT = {
+  id: 'invoice_5678',
+  payment_intent: {
+    id: 'pi_9876',
+    client_secret: 'cs_erty',
+    status: 'succeeded',
+  },
+};
+
+export const DETACH_PAYMENT_METHOD_RESULT = {
+  id: 'pm_80808',
+  foo: 'quux',
+};
+
+export const PAYMENT_METHOD_RESULT = {
+  paymentMethod: { id: 'pm_4567' } as PaymentMethod,
+  error: undefined,
+};
+
+export const CONFIRM_CARD_RESULT = {
+  paymentIntent: { status: 'succeeded' } as PaymentIntent,
+  error: undefined,
 };

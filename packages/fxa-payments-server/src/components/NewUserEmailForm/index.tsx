@@ -13,9 +13,9 @@ import {
 } from '../../lib/validator';
 
 import './index.scss';
-import { config } from '../../lib/config';
 import * as Amplitude from '../../lib/amplitude';
 import { useCallbackOnce } from '../../lib/hooks';
+import { apiFetchAccountStatus } from '../../lib/apiClient';
 
 export type NewUserEmailFormProps = {
   getString?: (id: string) => string;
@@ -147,14 +147,7 @@ export const NewUserEmailForm = ({
 };
 
 export async function checkAccountExists(userEmail: string) {
-  const response = await fetch(`${config.servers.auth.url}/v1/account/status`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email: userEmail }),
-  });
-  return response.json();
+  return apiFetchAccountStatus(userEmail);
 }
 
 export async function emailInputValidationAndAccountCheck(

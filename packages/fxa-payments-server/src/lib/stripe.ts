@@ -33,6 +33,11 @@ export type SubscriptionPaymentHandlerParam = {
   onSuccess: () => void;
 };
 
+export type SubscriptionCreateStripeAPIs = Pick<
+  Stripe,
+  'createPaymentMethod' | 'confirmCardPayment'
+>;
+
 export async function handlePasswordlessSubscription({
   email,
   clientId,

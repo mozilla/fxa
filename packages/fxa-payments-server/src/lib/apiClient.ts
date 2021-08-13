@@ -90,6 +90,14 @@ async function apiFetch(
   return response.json();
 }
 
+export async function apiFetchAccountStatus(
+  email: string
+): Promise<{ exists: boolean }> {
+  return apiFetch('POST', `${config.servers.auth.url}/v1/account/status`, {
+    body: JSON.stringify({ email }),
+  });
+}
+
 export async function apiFetchProfile(): Promise<Profile> {
   return apiFetch('GET', `${config.servers.profile.url}/v1/profile`);
 }

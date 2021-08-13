@@ -136,9 +136,6 @@ describe('routes/Product', () => {
     const displayName = 'Foo Barson';
     const apiMocks = initApiMocks(displayName);
     const { findAllByText, queryByText, queryAllByText } = render(<Subject />);
-    if (window.onload) {
-      dispatchEvent(new Event('load'));
-    }
 
     await findAllByText('Set up your subscription');
     expect(

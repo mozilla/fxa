@@ -10,8 +10,6 @@ import { connect } from 'react-redux';
 import { Localized, useLocalization } from '@fluent/react';
 import classNames from 'classnames';
 
-import { PaymentError } from '../../lib/stripe';
-
 import { AppContext } from '../../lib/AppContext';
 import { useMatchMedia, useNonce, usePaypalButtonSetup } from '../../lib/hooks';
 import { getSelectedPlan } from '../../lib/plan';
@@ -19,7 +17,6 @@ import useValidatorState, {
   State as ValidatorState,
 } from '../../lib/validator';
 
-import PaymentForm from '../../components/PaymentForm';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { PlanErrorDialog } from '../../components/PlanErrorDialog';
 import NewUserEmailForm, {
@@ -36,12 +33,33 @@ import { PaymentConsentCheckbox } from '../../components/PaymentConsentCheckbox'
 import { State } from '../../store/state';
 import { sequences, SequenceFunctions } from '../../store/sequences';
 import { selectors, SelectorReturns } from '../../store/selectors';
-
-import * as Amplitude from '../../lib/amplitude';
+import { Customer, Profile } from '../../store/types';
 
 import AcceptedCards from '../Product/AcceptedCards';
 
 import './index.scss';
+import PaymentForm, {
+  StripePaymentSubmitResult,
+  StripePaymentUpdateResult,
+  StripeSubmitHandler,
+  StripeUpdateHandler,
+} from '../../components/PaymentForm';
+import PaymentErrorView from '../../components/PaymentErrorView';
+import SubscriptionSuccess from '../Product/SubscriptionSuccess';
+
+import * as Amplitude from '../../lib/amplitude';
+import {
+  handlePasswordlessSubscription,
+  PaymentError,
+  RetryStatus,
+  SubscriptionCreateStripeAPIs,
+} from '../../lib/stripe';
+import { GeneralError } from '../../lib/errors';
+import { handlePasswordlessSignUp } from '../../lib/account';
+import { apiFetchCustomer, apiFetchProfile } from '../../lib/apiClient';
+import * as apiClient from '../../lib/apiClient';
+import sentry from '../../lib/sentry';
+import { ButtonBaseProps } from '../../components/PayPalButton';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -54,8 +72,9 @@ export type CheckoutProps = {
   plans: SelectorReturns['plans'];
   plansByProductId: SelectorReturns['plansByProductId'];
   fetchCheckoutRouteResources: SequenceFunctions['fetchCheckoutRouteResources'];
-  paymentErrorInitialState?: PaymentError;
   validatorInitialState?: ValidatorState;
+  stripeOverride?: SubscriptionCreateStripeAPIs;
+  paypalButtonBase?: React.FC<ButtonBaseProps>;
 };
 
 export const Checkout = ({
@@ -65,31 +84,35 @@ export const Checkout = ({
   plans,
   plansByProductId,
   fetchCheckoutRouteResources,
-  paymentErrorInitialState,
   validatorInitialState,
+  stripeOverride,
+  paypalButtonBase,
 }: CheckoutProps) => {
-  const { locationReload, queryParams, matchMediaDefault } =
+  const { config, locationReload, queryParams, matchMediaDefault } =
     useContext(AppContext);
-  const { config } = useContext(AppContext);
   const { l10n } = useLocalization();
   const checkboxValidator = useValidatorState();
-  const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const [submitNonce, refreshSubmitNonce] = useNonce();
+  const [inProgress, setInProgress] = useState(false);
+  const [retryStatus, setRetryStatus] = useState<RetryStatus>();
+  const [subscriptionError, setSubscriptionError] = useState<
+    PaymentError | GeneralError
+  >();
+  const [profile, setProfile] = useState<Profile>();
+  const [customer, setCustomer] = useState<Customer>();
+  const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const [transactionInProgress, setTransactionInProgress] = useState(false);
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [validEmail, setValidEmail] = useState<string>('');
   const [accountExists, setAccountExists] = useState(false);
   const [emailsMatch, setEmailsMatch] = useState(false);
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
-  const [inProgress, setInProgress] = useState(false);
-  const [paymentError, setPaymentError] = useState<PaymentError>(
-    paymentErrorInitialState
-  );
 
   // Fetch plans on initial render or change in product ID
   useEffect(() => {
     fetchCheckoutRouteResources();
   }, [fetchCheckoutRouteResources]);
+  usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
 
   const planId = queryParams.plan;
   const planQueryParam = planId ? `plan=${planId}&` : '';
@@ -111,20 +134,57 @@ export const Checkout = ({
 
   // clear any error rendered with `ErrorMessage` on form change
   const onChange = useCallback(() => {
-    if (paymentError) {
-      setPaymentError(undefined);
+    if (subscriptionError) {
+      setSubscriptionError(undefined);
     }
-  }, [paymentError, setPaymentError]);
+  }, [subscriptionError, setSubscriptionError]);
 
-  const onSubmit = (evt: any) => {
-    // Will be added in https://mozilla-hub.atlassian.net/browse/FXA-3666
-    console.log('Not yet implemented: ', evt);
+  const onStripeSubmit: StripeSubmitHandler | StripeUpdateHandler = useCallback(
+    async ({
+      stripe: stripeFormParams,
+      ...params
+    }: StripePaymentSubmitResult | StripePaymentUpdateResult) => {
+      setInProgress(true);
+      try {
+        await handlePasswordlessSubscription({
+          ...params,
+          ...apiClient,
+          email: validEmail,
+          clientId: config.servers.oauth.clientId,
+          customer: null,
+          stripe: stripeOverride || stripeFormParams,
+          selectedPlan,
+          retryStatus,
+          onSuccess: fetchProfileAndCustomer,
+          onFailure: setSubscriptionError,
+          onRetry: (status: RetryStatus) => {
+            setRetryStatus(status);
+            setSubscriptionError({ type: 'card_error', code: 'card_declined' });
+          },
+        });
+        Amplitude.createSubscriptionWithPaymentMethod_FULFILLED(selectedPlan);
+      } catch (error) {
+        setSubscriptionError(error);
+      }
+      setInProgress(false);
+      refreshSubmitNonce();
+    },
+    [
+      refreshSubmitNonce,
+      validEmail,
+      config.servers.oauth.clientId,
+      stripeOverride,
+      selectedPlan,
+      retryStatus,
+    ]
+  );
 
-    // For testing purposes, this will always succeed
-    Amplitude.createSubscriptionWithPaymentMethod_FULFILLED(selectedPlan);
-  };
-
-  usePaypalButtonSetup(config, setPaypalScriptLoaded);
+  const beforePaypalCreateOrder = useCallback(async () => {
+    await handlePasswordlessSignUp({
+      email: validEmail,
+      clientId: config.servers.oauth.clientId,
+    });
+  }, [config.servers.oauth.clientId, validEmail]);
 
   if (plans.loading) {
     return <LoadingOverlay isLoading={true} />;
@@ -134,30 +194,63 @@ export const Checkout = ({
     return <PlanErrorDialog locationReload={locationReload} plans={plans} />;
   }
 
-  function refreshSubscriptions() {
-    // Will be added in https://mozilla-hub.atlassian.net/browse/FXA-3666
-    console.log('not yet implemented: refreshSubscriptions');
+  async function fetchProfileAndCustomer() {
+    try {
+      const [profile, customer] = await Promise.all([
+        apiFetchProfile(),
+        apiFetchCustomer(),
+      ]);
+      setProfile(profile);
+      setCustomer(customer);
+    } catch (e) {
+      sentry.captureException(e);
+      setSubscriptionError({ code: 'fxa_fetch_profile_customer_error' });
+    }
+  }
+
+  if (profile && customer) {
+    return (
+      <SubscriptionSuccess
+        {...{
+          plan: selectedPlan,
+          customer: customer,
+          profile: profile,
+          isMobile,
+        }}
+      />
+    );
   }
 
   return (
     <>
       <Header />
       <div className="main-content">
+        <PaymentErrorView
+          error={subscriptionError}
+          onRetry={() => {
+            setSubscriptionError(undefined);
+            setTransactionInProgress(false);
+          }}
+          className={classNames({
+            hidden: !subscriptionError,
+          })}
+          plan={selectedPlan}
+        />
         <PaymentProcessing
           provider="paypal"
           className={classNames({
-            hidden: !transactionInProgress || paymentError,
+            hidden: !transactionInProgress || subscriptionError,
           })}
         />
         <SubscriptionTitle
           screenType="create"
           className={classNames({
-            hidden: transactionInProgress || paymentError,
+            hidden: transactionInProgress || subscriptionError,
           })}
         />
         <div
           className={classNames('product-payment', {
-            hidden: transactionInProgress || paymentError,
+            hidden: transactionInProgress || subscriptionError,
           })}
           data-testid="subscription-create"
         >
@@ -196,6 +289,7 @@ export const Checkout = ({
                   <Suspense fallback={<div>Loading...</div>}>
                     <div className="paypal-button">
                       <PaypalButton
+                        beforeCreateOrder={beforePaypalCreateOrder}
                         currencyCode={selectedPlan.currency}
                         customer={null}
                         disabled={
@@ -205,9 +299,13 @@ export const Checkout = ({
                           !emailsMatch
                         }
                         idempotencyKey={submitNonce}
+                        newPaypalAgreement={true}
+                        priceId={selectedPlan.plan_id}
                         refreshSubmitNonce={refreshSubmitNonce}
-                        refreshSubscriptions={refreshSubscriptions}
-                        setPaymentError={setPaymentError}
+                        refreshSubscriptions={fetchProfileAndCustomer}
+                        setPaymentError={setSubscriptionError}
+                        setTransactionInProgress={setTransactionInProgress}
+                        ButtonBase={paypalButtonBase}
                       />
                     </div>
                   </Suspense>
@@ -238,7 +336,7 @@ export const Checkout = ({
             <PaymentForm
               {...{
                 submitNonce,
-                onSubmit,
+                onSubmit: onStripeSubmit,
                 onChange,
 
                 showLegal: true,
