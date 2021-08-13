@@ -19067,7 +19067,7 @@ fsevents@~2.1.1:
     react-hook-form: ^6.15.5
     react-scripts: ^4.0.3
     react-test-renderer: ^17.0.2
-    react-webcam: ^5.2.4
+    react-webcam: ^6.0.0
     subscriptions-transport-ws: ^0.9.18
     typescript: ^4.3.5
     uuid: ^8.3.2
@@ -31836,13 +31836,23 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-webcam@npm:*, react-webcam@npm:^5.2.4":
+"react-webcam@npm:*":
   version: 5.2.4
   resolution: "react-webcam@npm:5.2.4"
   peerDependencies:
     react: ">=15.3.0"
     react-dom: ">=15.3.0"
   checksum: 75c5872caeda009e7cb3b80a1e8312fe7e64be166c1dd7cf07f5e72813c892542d5f6f83b74ab40b8859034fbdd66801e53721c726487b43099d771580cb974e
+  languageName: node
+  linkType: hard
+
+"react-webcam@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "react-webcam@npm:6.0.0"
+  peerDependencies:
+    react: ">=15.3.0"
+    react-dom: ">=15.3.0"
+  checksum: d028363f343a69fcd992b9b097daea48ed25378ee0dec2eecf00052e356a080b7db213030dbe38fc0abee3a041b59471bb3671d6f0948fdd62b00fdb3917304e
   languageName: node
   linkType: hard
 
