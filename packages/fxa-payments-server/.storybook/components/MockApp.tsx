@@ -38,6 +38,7 @@ export const defaultAppContextValue: AppContextType = {
     },
   },
   queryParams: {},
+  accessToken: 'lettherightonein',
   navigateToUrl: action('navigateToUrl'),
   getScreenInfo: () => new ScreenInfo(window),
   matchMedia: (query: string) => window.matchMedia(query).matches,
