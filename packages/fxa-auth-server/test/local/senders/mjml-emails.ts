@@ -132,6 +132,34 @@ const TESTS: [string, any][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['cadReminderSecondEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Final Reminder: Complete Sync Setup' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-second', 'connect-device') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderSecond') }],
+      ['X-Template-Name', { test: 'equal', expected: 'cadReminderSecond' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderSecond }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Last reminder to sync devices!' },
+      { test: 'include', expected: 'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-second', 'connect-device')) },
+      { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
+      { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'cad-reminder-second', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-second', 'support')) },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Last reminder to sync devices!' },
+      { test: 'include', expected: 'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-second', 'privacy')}` },
+      { test: 'include', expected: config.smtp.syncUrl },
+      { test: 'notInclude', expected: config.smtp.androidUrl },
+      { test: 'notInclude', expected: config.smtp.iosUrl },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
   
   ['lowRecoveryCodesEmail', new Map<string, Test | any>([
     ['subject', [

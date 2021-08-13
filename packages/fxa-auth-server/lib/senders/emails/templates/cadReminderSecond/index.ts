@@ -2,6 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export * as cadReminderFirst from './cadReminderFirst';
-export * as cadReminderSecond from './cadReminderSecond';
-export * as lowRecoveryCodes from './lowRecoveryCodes';
+import { cadReminder } from '../../partials';
+
+export const render = () => cadReminder;
