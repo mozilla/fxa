@@ -6,6 +6,9 @@ export interface RawMetadata {
   [propName: string]: any;
 }
 
+// A mapping of OAuth client ids to their corresponding capabilities.
+export type ClientIdCapabilityMap = Record<string, string[]>;
+
 export interface Plan {
   amount: number | null;
   currency: string;

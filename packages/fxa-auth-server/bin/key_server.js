@@ -10,7 +10,12 @@ const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
 const { CurrencyHelper } = require('../lib/payments/currencies');
-const { AuthLogger, AuthFirestore, AppConfig } = require('../lib/types');
+const {
+  AuthLogger,
+  AuthFirestore,
+  AppConfig,
+  ProfileClient,
+} = require('../lib/types');
 const { setupFirestore } = require('../lib/firestore-db');
 
 async function run(config) {
@@ -94,6 +99,7 @@ async function run(config) {
     config.i18n.defaultLanguage
   );
   const profile = require('../lib/profile/client')(log, config, statsd);
+  Container.set(ProfileClient, profile);
   const senders = await require('../lib/senders')(
     log,
     config,

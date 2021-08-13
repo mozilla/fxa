@@ -4,7 +4,9 @@
 
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
+const { Container } = require('typedi');
 
+const { CapabilityService } = require('../payments/capability');
 const config = require('../../config');
 const OauthError = require('./error');
 const db = require('./db');
@@ -12,10 +14,6 @@ const util = require('./util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const JWTAccessToken = require('./jwt_access_token');
 const sub = require('./jwt_sub');
-const {
-  determineSubscriptionCapabilities,
-  determineClientVisibleSubscriptionCapabilities,
-} = require('../routes/utils/subscriptions');
 
 const ACR_VALUE_AAL2 = 'AAL2';
 const ACCESS_TYPE_OFFLINE = 'offline';
@@ -42,9 +40,15 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'profile:email',
   'profile:display_name',
 ]);
-let stripeHelper = null;
+
+/** @type {CapabilityService} */
+let capabilityService = undefined;
+
 module.exports.setStripeHelper = function (val) {
-  stripeHelper = val;
+  // This is a less than ideal hook into the existing call-stack to
+  // set the capabilityService at a time after the primary initialization
+  // of objects has occurred.
+  capabilityService = Container.get(CapabilityService);
 };
 
 // Given a set of verified user identity claims, can the given client
@@ -228,15 +232,14 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
   }
 
   if (grant.scope.contains('profile:subscriptions')) {
-    const capabilities = await determineClientVisibleSubscriptionCapabilities(
-      hex(clientId),
-      await determineSubscriptionCapabilities(
-        stripeHelper,
-        undefined,
-        hex(grant.userId),
-        grant.email
-      )
-    );
+    const capabilities =
+      await capabilityService.determineClientVisibleSubscriptionCapabilities(
+        hex(clientId),
+        await capabilityService.subscriptionCapabilities(
+          hex(grant.userId),
+          grant.email
+        )
+      );
     // To avoid mutating the input grant, create a
     // copy and add the new property there.
     grant = {

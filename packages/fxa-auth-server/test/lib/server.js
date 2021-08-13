@@ -1,6 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+const { default: Container } = require('typedi');
+const sinon = require('sinon');
 
 process.env.CONFIG_FILES = require.resolve('./oauth-test.json');
 const config = require('../../config');
@@ -8,6 +10,7 @@ const version = config.get('oauthServer.api.version');
 config.set('log.level', 'critical');
 const testConfig = config.getProperties();
 const createServer = require('../../bin/key_server');
+const { CapabilityService } = require('../../lib/payments/capability');
 
 function wrapServer(server, close) {
   var wrap = {};
@@ -58,6 +61,12 @@ function wrapServer(server, close) {
 }
 
 module.exports.start = async function () {
+  if (!Container.has(CapabilityService)) {
+    Container.set(CapabilityService, {
+      subscriptionCapabilities: sinon.fake.resolves([]),
+      determineClientVisibleSubscriptionCapabilities: sinon.fake.resolves(''),
+    });
+  }
   const { server, close } = await createServer(testConfig);
   return wrapServer(server, close);
 };

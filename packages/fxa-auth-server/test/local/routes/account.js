@@ -19,6 +19,7 @@ const otplib = require('otplib');
 const { default: Container } = require('typedi');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PayPalHelper } = require('../../../lib/payments/paypal');
+const { CapabilityService } = require('../../../lib/payments/capability');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 
 const { AccountHandler } = require('../../../lib/routes/account');
@@ -30,6 +31,7 @@ function hexString(bytes) {
 }
 
 const makeRoutes = function (options = {}, requireMocks) {
+  Container.set(CapabilityService, sinon.fake);
   const config = options.config || {};
   config.oauth = config.oauth || {};
   config.verifierVersion = config.verifierVersion || 0;
@@ -1390,6 +1392,7 @@ describe('/account/login', () => {
     check: () => Promise.resolve(),
     flag: () => Promise.resolve(),
   };
+  Container.set(CapabilityService, sinon.fake);
   const mockCadReminders = mocks.mockCadReminders();
   const accountRoutes = makeRoutes({
     checkPassword: function () {
@@ -3254,6 +3257,7 @@ describe('/account', () => {
     mockStripeHelper.subscriptionsToResponse = sinon.spy(
       async (subscriptions) => mockSubscriptionsResponse
     );
+    Container.set(CapabilityService, sinon.fake);
   });
 
   function buildRoute(subscriptionsEnabled = true) {
@@ -3355,6 +3359,8 @@ describe('/account/ecosystemAnonId', () => {
         ecosystemAnonId,
       },
     });
+
+    Container.set(CapabilityService, sinon.fake);
 
     route = getRoute(
       makeRoutes({

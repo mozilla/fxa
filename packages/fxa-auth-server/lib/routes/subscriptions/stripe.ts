@@ -14,22 +14,22 @@ import {
   filterSubscription,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
+import {
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+  PaypalPaymentError,
+} from 'fxa-shared/subscriptions/types';
 import omitBy from 'lodash/omitBy';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
+import { splitCapabilities } from '../../payments/capability';
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
-import { splitCapabilities } from '../utils/subscriptions';
 import validators from '../validators';
 import { handleAuth, ThenArg } from './utils';
-import { PaypalPaymentError } from 'fxa-shared/subscriptions/types';
-import {
-  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
-} from 'fxa-shared/subscriptions/types';
 
 /**
  * Delete any metadata keys prefixed by `capabilities:` before

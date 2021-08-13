@@ -22,10 +22,10 @@ export class PlayBilling {
 
   constructor() {
     const config = Container.get(AppConfig);
-    this.prefix = `${config.authFirestore.prefix}googleIap`;
+    this.prefix = `${config.authFirestore.prefix}iap-`;
     this.firestore = Container.get(AuthFirestore);
     this.iapConfigDbRef = this.firestore.collection(
-      `${this.prefix}iap-config`
+      `${config.authFirestore.prefix}iap-config`
     ) as TypedCollectionReference<IapConfig>;
     this.log = Container.get(AuthLogger);
 

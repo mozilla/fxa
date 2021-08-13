@@ -10,6 +10,7 @@ import { AuthLogger } from '../../types';
 import { googleIapRoutes } from './google';
 import { paypalRoutes } from './paypal';
 import { paypalNotificationRoutes } from './paypal-notifications';
+import { playPubsubRoutes } from './play-pubsub';
 import { sanitizePlans, StripeHandler, stripeRoutes } from './stripe';
 import { stripeWebhookRoutes } from './stripe-webhook';
 import { supportRoutes } from './support';
@@ -88,6 +89,7 @@ const createRoutes = (
   }
   if (config.authFirestore.enabled) {
     routes.push(...googleIapRoutes());
+    routes.push(...playPubsubRoutes(db));
   }
 
   return routes;

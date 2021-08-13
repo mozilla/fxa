@@ -101,6 +101,26 @@ const conf = convict({
       format: String,
     },
   },
+  pubsub: {
+    audience: {
+      default: 'example.com',
+      doc: 'PubSub JWT Audience for incoming Push Notifications',
+      env: 'PUBSUB_AUDIENCE',
+      format: String,
+    },
+    authenticate: {
+      default: true,
+      doc: 'Authenticate that incoming Push Notification originate from Google',
+      env: 'PUBSUB_AUTHENTICATE',
+      format: Boolean,
+    },
+    verificationToken: {
+      default: '',
+      doc: 'PubSub Verification Token for incoming Push Notifications',
+      env: 'PUBSUB_VERIFICATION_TOKEN',
+      format: String,
+    },
+  },
   geodb: {
     dbPath: {
       doc: 'Path to the maxmind database file',
