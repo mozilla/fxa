@@ -28,6 +28,7 @@ import error from '../../error';
 import { splitCapabilities } from '../../payments/capability';
 import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
+import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth, ThenArg } from './utils';
 
@@ -546,28 +547,15 @@ export class StripeHandler {
       subscriptionId: subscription.id,
     });
 
-    // If this fxa user is a stub (no-password) this is where we
-    // send the "create a password" email
-    if (account && account.verifierSetAt <= 0) {
-      const token = await this.db.createPasswordForgotToken(account);
-      const invoice: any = subscription.latest_invoice;
-      const plan = await this.stripeHelper.findPlanById(subscription.plan.id);
-      const meta = metadataFromPlan(plan);
-      await this.mailer.sendSubscriptionAccountFinishSetupEmail([], account, {
-        email,
-        uid,
-        productId: subscription.plan.product,
-        productName: plan.product_name,
-        invoiceNumber: invoice.number,
-        invoiceTotalInCents: invoice.total,
-        invoiceTotalCurrency: invoice.currency,
-        planEmailIconURL: meta.emailIconURL,
-        invoiceDate: invoice.created,
-        nextInvoiceDate: subscription.current_period_end,
-        token: token.data,
-        code: token.passCode,
-      });
-    }
+    await sendFinishSetupEmailForStubAccount({
+      email,
+      uid,
+      account,
+      subscription,
+      db: this.db,
+      stripeHelper: this.stripeHelper,
+      mailer: this.mailer,
+    });
 
     return {
       sourceCountry,
