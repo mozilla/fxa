@@ -8,7 +8,9 @@ import {
 } from './apiClient';
 import { GeneralError } from './errors';
 import sentry from './sentry';
-export const FXA_SIGNUP_ERROR: GeneralError = { code: 'fxa_signup_error' };
+export const FXA_SIGNUP_ERROR: GeneralError = {
+  code: 'fxa_account_signup_error',
+};
 
 export async function handlePasswordlessSignUp({
   email,
