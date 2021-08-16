@@ -16,6 +16,7 @@ import authMethods from '../authMethods';
 import random from '../crypto/random';
 import error from '../error';
 import { getClientById } from '../oauth/client';
+import jwt from '../oauth/jwt';
 import { generateAccessToken } from '../oauth/grant';
 import { CapabilityService } from '../payments/capability';
 import { PayPalHelper } from '../payments/paypal';
@@ -552,6 +553,49 @@ export class AccountHandler {
       uid: account.uid,
       access_token: access.token.toString('hex'),
     };
+  }
+
+  async finishSetup(request: AuthRequest) {
+    this.log.begin('Account.finishSetup', request);
+    const form = request.payload as any;
+    const authPW = form.authPW;
+    try {
+      const payload = (await jwt.verify(form.token, {
+        typ: 'fin+JWT',
+        ignoreExpiration: true,
+      })) as any;
+      const uid = payload.uid;
+      const account = await this.db.account(uid);
+      // Only proceed if the account is in the stub state.
+      // This prevents a token from being used multiple times.
+      if (account.verifierSetAt !== 0) {
+        return {};
+      }
+      const { authSalt, wrapWrapKb } = account;
+      const password = new this.Password(
+        authPW,
+        authSalt,
+        this.config.verifierVersion
+      );
+      const verifyHash = await password.verifyHash();
+      await this.db.verifyEmail(account, account.primaryEmail.emailCode);
+      await this.db.resetAccount(
+        { uid },
+        {
+          authSalt,
+          verifyHash,
+          wrapWrapKb,
+          verifierVersion: password.version,
+          keysHaveChanged: true,
+        }
+      );
+      await this.db.resetAccountTokens(uid);
+    } catch (err) {
+      this.log.error('Account.finish_setup.error', {
+        err,
+      });
+    }
+    return {};
   }
 
   async login(request: AuthRequest) {
@@ -1579,6 +1623,19 @@ export const accountRoutes = (
         },
       },
       handler: (request: AuthRequest) => accountHandler.accountStub(request),
+    },
+    {
+      method: 'POST',
+      path: '/account/finish_setup',
+      options: {
+        validate: {
+          payload: {
+            token: validators.jwt,
+            authPW: validators.authPW,
+          },
+        },
+      },
+      handler: (request: AuthRequest) => accountHandler.finishSetup(request),
     },
     {
       method: 'POST',

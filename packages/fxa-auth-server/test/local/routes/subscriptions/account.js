@@ -6,10 +6,17 @@
 
 const sinon = require('sinon');
 const assert = require('chai').assert;
+const proxyquire = require('proxyquire');
 
-const {
-  sendFinishSetupEmailForStubAccount,
-} = require('../../../../lib/routes/subscriptions/account');
+const token = 'a.test.jwt';
+const { sendFinishSetupEmailForStubAccount } = proxyquire(
+  '../../../../lib/routes/subscriptions/account',
+  {
+    '../../oauth/jwt': {
+      sign: sinon.stub().returns(token),
+    },
+  }
+);
 const invoice = require('../../payments/fixtures/stripe/invoice_open');
 
 describe('routes/subscriptions/account', () => {
@@ -28,46 +35,18 @@ describe('routes/subscriptions/account', () => {
       latest_invoice: invoice,
       plan,
     };
-    const token = { data: '?', passCode: '??' };
 
-    let db, stripeHelper, mailer;
+    let stripeHelper, mailer;
 
     beforeEach(() => {
-      db = {
-        createPasswordForgotToken: sinon.stub().resolves(token),
-      };
       stripeHelper = { findPlanById: sinon.stub().resolves(plan) };
       mailer = { sendSubscriptionAccountFinishSetupEmail: sinon.stub() };
     });
 
     it('does not send an email when the account is not a stub', async () => {
       await sendFinishSetupEmailForStubAccount({ email, uid, account: null });
-      sinon.assert.notCalled(db.createPasswordForgotToken);
       sinon.assert.notCalled(stripeHelper.findPlanById);
       sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
-    });
-
-    it('does not send an email when fails to get forgot password token', async () => {
-      db.createPasswordForgotToken.rejects();
-      try {
-        await sendFinishSetupEmailForStubAccount({
-          email,
-          uid,
-          account,
-          subscription,
-          db,
-          stripeHelper,
-          mailer,
-        });
-        assert.fail('should have thrown');
-      } catch (e) {
-        sinon.assert.calledOnceWithExactly(
-          db.createPasswordForgotToken,
-          account
-        );
-        sinon.assert.notCalled(stripeHelper.findPlanById);
-        sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
-      }
     });
 
     it('does not send an email when fails get the plan', async () => {
@@ -78,16 +57,11 @@ describe('routes/subscriptions/account', () => {
           uid,
           account,
           subscription,
-          db,
           stripeHelper,
           mailer,
         });
         assert.fail('should have thrown');
       } catch (e) {
-        sinon.assert.calledOnceWithExactly(
-          db.createPasswordForgotToken,
-          account
-        );
         sinon.assert.calledOnceWithExactly(
           stripeHelper.findPlanById,
           subscription.plan.id
@@ -102,11 +76,9 @@ describe('routes/subscriptions/account', () => {
         uid,
         account,
         subscription,
-        db,
         stripeHelper,
         mailer,
       });
-      sinon.assert.calledOnceWithExactly(db.createPasswordForgotToken, account);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.findPlanById,
         subscription.plan.id
@@ -126,8 +98,7 @@ describe('routes/subscriptions/account', () => {
           planEmailIconURL: subscription.plan.plan_metadata.emailIconURL,
           invoiceDate: invoice.created,
           nextInvoiceDate: subscription.current_period_end,
-          token: token.data,
-          code: token.passCode,
+          token,
         }
       );
     });

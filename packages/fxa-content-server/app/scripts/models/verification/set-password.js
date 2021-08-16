@@ -14,7 +14,6 @@ import VerificationInfo from './base';
 
 export default VerificationInfo.extend({
   defaults: {
-    code: null,
     token: null,
     email: null,
     product_name: null,
@@ -23,8 +22,7 @@ export default VerificationInfo.extend({
   },
 
   validation: {
-    code: Vat.verificationCode(),
-    token: Vat.token(),
+    token: Vat.jwt(),
     email: Vat.email(),
   },
 });

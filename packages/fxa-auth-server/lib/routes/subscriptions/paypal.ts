@@ -127,7 +127,6 @@ export class PayPalHandler extends StripeWebhookHandler {
       uid,
       account,
       subscription,
-      db: this.db,
       stripeHelper: this.stripeHelper,
       mailer: this.mailer,
     });

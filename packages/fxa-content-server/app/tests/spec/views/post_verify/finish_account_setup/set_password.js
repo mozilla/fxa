@@ -31,7 +31,7 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
   beforeEach(() => {
     windowMock = new WindowMock();
     windowMock.location.search =
-      '?email=a@asdf.com&product_name=123&token=e39ed2d69690c9392d74fb8a98603c426002eb3f25215c71fc7085ff74c31f34&code=90cf17f3b75c1b76d79500bc1499caac';
+      '?email=a@asdf.com&product_name=123&token=a.test.jwt';
 
     relier = new Relier({
       window: windowMock,
@@ -121,13 +121,6 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
       sinon.spy(view, 'logError');
     });
 
-    it('invalid code', async () => {
-      view._verificationInfo.set('code', 'invalid');
-      await view.render();
-      assert.lengthOf(view.$('#fxa-account-setup-set-damaged-header'), 1);
-      assert.isTrue(view.logError.calledWith(sinon.match.has('errno', 1026)));
-    });
-
     it('invalid token', async () => {
       view._verificationInfo.set('token', 'invalid');
       await view.render();
@@ -136,28 +129,11 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
     });
   });
 
-  describe('with used password reset code', () => {
-    beforeEach(() => {
-      account.isPasswordResetComplete.restore();
-      sinon
-        .stub(account, 'isPasswordResetComplete')
-        .callsFake(() => Promise.resolve(true));
-      sinon
-        .stub(account, 'fetchSubscriptionPlans')
-        .callsFake(() => Promise.resolve([{}]));
-      sinon.spy(view, 'navigateAway');
-    });
-    it('should navigate', async () => {
-      await view.render();
-      assert.isTrue(view.navigateAway.calledOnce);
-    });
-  });
-
   describe('submit', () => {
     describe('success', () => {
       beforeEach(() => {
         sinon
-          .stub(user, 'completeAccountPasswordReset')
+          .stub(account, 'finishSetup')
           .callsFake(() => Promise.resolve(true));
         sinon
           .stub(account, 'fetchSubscriptionPlans')
@@ -177,7 +153,7 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
         const error = new Error('failed');
         sinon.spy(view, 'logError');
         sinon
-          .stub(user, 'completeAccountPasswordReset')
+          .stub(account, 'finishSetup')
           .callsFake(() => Promise.reject(error));
         try {
           await view.submit();

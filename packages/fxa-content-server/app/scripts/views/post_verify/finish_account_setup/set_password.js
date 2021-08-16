@@ -87,13 +87,6 @@ class SetPassword extends FormView {
         this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         return;
       }
-
-      const token = this._verificationInfo.get('token');
-      return account.isPasswordResetComplete(token).then((isComplete) => {
-        if (isComplete) {
-          return this.redirectToProduct(account);
-        }
-      });
     });
   }
 
@@ -101,25 +94,15 @@ class SetPassword extends FormView {
     const account = this.getAccount();
     const password = this._getPassword();
     const token = this._verificationInfo.get('token');
-    const code = this._verificationInfo.get('code');
-    return this.user
-      .completeAccountPasswordReset(account, password, token, code, this.relier)
-      .then(
-        () => {
-          return this.redirectToProduct(account);
-        },
-        (err) => {
-          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-            // The token has expired since the first check, re-render to
-            // show a view that allows the user to receive a new link.
-            return this.render();
-          }
-
-          // all other errors are unexpected, bail.
-          this.logError(err);
-          throw err;
-        }
-      );
+    return account.finishSetup(token, account.get('email'), password).then(
+      () => {
+        return this.redirectToProduct(account);
+      },
+      (err) => {
+        this.logError(err);
+        throw err;
+      }
+    );
   }
 }
 

@@ -552,7 +552,6 @@ export class StripeHandler {
       uid,
       account,
       subscription,
-      db: this.db,
       stripeHelper: this.stripeHelper,
       mailer: this.mailer,
     });

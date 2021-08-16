@@ -1256,6 +1256,133 @@ describe('/account/stub', () => {
   });
 });
 
+describe('/account/finish_setup', () => {
+  function setup(options) {
+    const config = {
+      securityHistory: {
+        enabled: true,
+      },
+    };
+    const mockLog = log('ERROR', 'test');
+    mockLog.activityEvent = sinon.spy(() => {
+      return Promise.resolve();
+    });
+    mockLog.flowEvent = sinon.spy(() => {
+      return Promise.resolve();
+    });
+    mockLog.error = sinon.spy();
+    mockLog.notifier.send = sinon.spy();
+
+    const mockMetricsContext = mocks.mockMetricsContext();
+    const email = Math.random() + '_stub@mozilla.com';
+    const emailCode = hexString(16);
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const mockRequest = mocks.mockRequest({
+      locale: 'en-GB',
+      log: mockLog,
+      metricsContext: mockMetricsContext,
+      payload: {
+        token: 'a.test.token',
+        uid,
+      },
+      uaBrowser: 'Firefox Mobile',
+      uaBrowserVersion: '9',
+      uaOS: 'iOS',
+      uaOSVersion: '11',
+      uaDeviceType: 'tablet',
+      uaFormFactor: 'iPad',
+    });
+    const clientAddress = mockRequest.app.clientAddress;
+    const mockDB = mocks.mockDB(
+      {
+        email,
+        emailCode,
+        emailVerified: false,
+        locale: 'en',
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: 52,
+        uaOS: 'Mac OS X',
+        uaOSVersion: '10.10',
+        uid,
+        authSalt: '',
+        wrapWrapKb: 'wibble',
+        verifierSetAt: options.verifierSetAt,
+      },
+      {
+        emailRecord: new error.unknownAccount(),
+      }
+    );
+    const mockMailer = mocks.mockMailer();
+    const mockPush = mocks.mockPush();
+    const verificationReminders = mocks.mockVerificationReminders();
+    const accountRoutes = makeRoutes(
+      {
+        config,
+        db: mockDB,
+        log: mockLog,
+        mailer: mockMailer,
+        Password: function () {
+          return {
+            unwrap: function () {
+              return Promise.resolve('wibble');
+            },
+            verifyHash: function () {
+              return Promise.resolve('wibble');
+            },
+          };
+        },
+        push: mockPush,
+        verificationReminders,
+      },
+      {
+        '../oauth/jwt': {
+          verify: sinon.stub().returns(Promise.resolve({ uid })),
+        },
+      }
+    );
+    const route = getRoute(accountRoutes, '/account/finish_setup');
+
+    return {
+      config,
+      clientAddress,
+      email,
+      emailCode,
+      mockDB,
+      mockLog,
+      mockMailer,
+      mockMetricsContext,
+      mockRequest,
+      route,
+      uid,
+      verificationReminders,
+    };
+  }
+
+  it('succeeds when the account is a stub', () => {
+    const { route, mockRequest, mockDB } = setup({
+      verifierSetAt: 0,
+    });
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(mockDB.verifyEmail.callCount, 1);
+      assert.equal(mockDB.resetAccount.callCount, 1);
+      assert.equal(mockDB.resetAccountTokens.callCount, 1);
+      assert.deepEqual(response, {});
+    });
+  });
+
+  it('does nothing when the account is already set up', () => {
+    const { route, mockRequest, mockDB } = setup({
+      verifierSetAt: Date.now(),
+    });
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(mockDB.verifyEmail.callCount, 0);
+      assert.equal(mockDB.resetAccount.callCount, 0);
+      assert.equal(mockDB.resetAccountTokens.callCount, 0);
+      assert.deepEqual(response, {});
+    });
+  });
+});
+
 describe('/account/login', () => {
   const config = {
     securityHistory: {
