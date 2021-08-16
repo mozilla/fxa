@@ -1405,6 +1405,7 @@ module.exports = function (log, config) {
         androidLinkAttributes: linkAttributes(links.androidLink),
         androidUrl: links.androidLink,
         cadLinkAttributes: linkAttributes(links.link),
+        desktopLink: config.smtp.firefoxDesktopUrl,
         desktopLinkAttributes: linkAttributes(config.smtp.firefoxDesktopUrl),
         iosLinkAttributes: linkAttributes(links.iosLink),
         iosUrl: links.iosLink,

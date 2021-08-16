@@ -428,6 +428,11 @@
   },
   "mjml": {
     "enabledEmailAddress": "b@c.com",
-    "templates": ["cadReminderFirst", "cadReminderSecond", "lowRecoveryCodes"]
+    "templates": [
+      "cadReminderFirst",
+      "cadReminderSecond",
+      "lowRecoveryCodes",
+      "postVerify"
+    ]
   }
 }

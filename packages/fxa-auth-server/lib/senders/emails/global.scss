@@ -97,3 +97,9 @@ tr > td:first-child {
   @extend .font-sans;
   text-align: center !important;
 }
+
+.sync-logo img {
+  width: 240px !important;
+  margin: 0 auto;
+  @extend .mb-5;
+}

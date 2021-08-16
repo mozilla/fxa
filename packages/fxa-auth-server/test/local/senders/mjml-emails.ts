@@ -187,6 +187,40 @@ const TESTS: [string, any][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['postVerifyEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Account verified. Next, sync another device to finish setup' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'account-verified', 'connect-device') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerify') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postVerify' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
+    ])],
+    ['html', [
+      { test: 'include', expected: "Firefox Account verified. You're almost there." },
+      { test: 'include', expected: 'Next sync between your devices!' },
+      { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
+      { test: 'include', expected: decodeUrl(configHref('syncUrl', 'account-verified', 'connect-device')) },
+      { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
+      { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
+      { test: 'include', expected: 'another desktop device' },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-verified', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-verified', 'support')) },
+      { test: 'include', expected: decodeUrl(config.smtp.firefoxDesktopUrl) },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Firefox Account verified. You\'re almost there.' },
+      { test: 'include', expected: 'Next sync between your devices!' },
+      { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
+      { test: 'include', expected: `Have questions? Visit` },
+      { test: 'include', expected: configUrl('supportUrl', 'account-verified', 'support') },
+      { test: 'include', expected: config.smtp.syncUrl },
+      { test: 'notInclude', expected: config.smtp.androidUrl },
+      { test: 'notInclude', expected: config.smtp.iosUrl },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 ];
 
 describe('lib/senders/mjml-emails:', () => {
