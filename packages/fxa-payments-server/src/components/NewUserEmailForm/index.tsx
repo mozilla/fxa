@@ -24,6 +24,7 @@ export type NewUserEmailFormProps = {
   setAccountExists: (value: boolean) => void;
   setEmailsMatch: (value: boolean) => void;
   checkAccountExists: (email: string) => Promise<{ exists: boolean }>;
+  onToggleNewsletterCheckbox: () => void;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
   selectedPlan: any;
@@ -36,6 +37,7 @@ export const NewUserEmailForm = ({
   setAccountExists,
   setEmailsMatch,
   checkAccountExists,
+  onToggleNewsletterCheckbox,
   validatorInitialState,
   validatorMiddlewareReducer,
   selectedPlan,
@@ -128,6 +130,7 @@ export const NewUserEmailForm = ({
         <Checkbox
           data-testid="new-user-subscribe-product-updates"
           name="new-user-subscribe-product-updates"
+          onClick={onToggleNewsletterCheckbox}
         >
           I'd like to receive product updates from Firefox
         </Checkbox>

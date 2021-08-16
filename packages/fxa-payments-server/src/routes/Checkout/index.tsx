@@ -56,6 +56,7 @@ import {
 } from '../../lib/stripe';
 import { GeneralError } from '../../lib/errors';
 import { handlePasswordlessSignUp } from '../../lib/account';
+import { handleNewsletterSignup } from '../../lib/newsletter';
 import { apiFetchCustomer, apiFetchProfile } from '../../lib/apiClient';
 import * as apiClient from '../../lib/apiClient';
 import sentry from '../../lib/sentry';
@@ -107,6 +108,7 @@ export const Checkout = ({
   const [accountExists, setAccountExists] = useState(false);
   const [emailsMatch, setEmailsMatch] = useState(false);
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
+  const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
 
   // Fetch plans on initial render or change in product ID
   useEffect(() => {
@@ -163,8 +165,15 @@ export const Checkout = ({
           },
         });
         Amplitude.createSubscriptionWithPaymentMethod_FULFILLED(selectedPlan);
+        if (subscribeToNewsletter) {
+          await handleNewsletterSignup();
+        }
       } catch (error) {
-        setSubscriptionError(error);
+        if (error.code === 'fxa_newsletter_signup_error') {
+          // TODO: FXA-3667: Show AlertBar on success screen
+        } else {
+          setSubscriptionError(error);
+        }
       }
       setInProgress(false);
       refreshSubmitNonce();
@@ -176,8 +185,22 @@ export const Checkout = ({
       stripeOverride,
       selectedPlan,
       retryStatus,
+      subscribeToNewsletter,
     ]
   );
+
+  const postSubscriptionAttemptPaypalCallback = useCallback(async () => {
+    await fetchProfileAndCustomer();
+    if (subscribeToNewsletter) {
+      try {
+        await handleNewsletterSignup();
+      } catch (error) {
+        // TODO: FXA-3667: Show AlertBar on success screen
+        // Note: If both handleNewsletterSignup and fetchProfileAndCustomer fail,
+        // there would be an AlertBar on top of the PaymentErrorView screen.
+      }
+    }
+  }, [subscribeToNewsletter]);
 
   const beforePaypalCreateOrder = useCallback(async () => {
     await handlePasswordlessSignUp({
@@ -266,6 +289,9 @@ export const Checkout = ({
             setEmailsMatch={setEmailsMatch}
             getString={l10n.getString.bind(l10n)}
             selectedPlan={selectedPlan}
+            onToggleNewsletterCheckbox={() =>
+              toggleSubscribeToNewsletter(!subscribeToNewsletter)
+            }
           />
 
           <hr />
@@ -302,8 +328,10 @@ export const Checkout = ({
                         newPaypalAgreement={true}
                         priceId={selectedPlan.plan_id}
                         refreshSubmitNonce={refreshSubmitNonce}
-                        refreshSubscriptions={fetchProfileAndCustomer}
-                        setPaymentError={setSubscriptionError}
+                        postSubscriptionAttemptPaypalCallback={
+                          postSubscriptionAttemptPaypalCallback
+                        }
+                        setSubscriptionError={setSubscriptionError}
                         setTransactionInProgress={setTransactionInProgress}
                         ButtonBase={paypalButtonBase}
                       />
