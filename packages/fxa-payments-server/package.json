@@ -48,7 +48,7 @@
     "@fluent/react": "^0.13.1",
     "@rescripts/cli": "~0.0.16",
     "@storybook/addon-actions": "^6.3.7",
-    "@storybook/addon-links": "^6.3.6",
+    "@storybook/addon-links": "^6.3.7",
     "@storybook/addons": "^6.3.6",
     "@storybook/react": "^6.3.6",
     "@svgr/webpack": "^5.4.0",
