@@ -40,6 +40,7 @@ duplicate-transaction = Hmm. Looks like an identical transaction was just sent. 
 coupon-expired = It looks like that promo code has expired.
 card-error = Your transaction could not be processed. Please verify your credit card information and try again.
 
+##  $productName (String) - The name of the subscribed product.
 fxa-account-signup-error = A system error caused your ${ productName } sign-up to fail. Your payment method has not been charged. Please try again.
 newsletter-signup-error = You're not signed up for product update emails. You can try again in your account settings.
 fxa-post-passwordless-sub-error = Subscription confirmed, but the confirmation page failed to load. Please check your email to set up your account.
@@ -316,11 +317,19 @@ payment-processing-message = Please wait while we process your payment…
 payment-confirmation-alert = Click here to download
 payment-confirmation-mobile-alert = Didn't open app? <a>Click Here</a>
 payment-confirmation-thanks-heading = Thank you!
+
+## payment confirmation details
+## $email (string) - The user's email.
+## $productName (String) - The name of the subscribed product.
 payment-confirmation-thanks-subheading = A confirmation email has been sent to { $email } with details on how to get started with { $product_name }.
+payment-confirmation-thanks-heading-account-exists = Thanks, now check your email!
+
+## $email (string) - The user's email.
+payment-confirmation-thanks-subheading-account-exists = You'll receive an email at { $email } with instructions for setting up your account, as well as your payment details.
 payment-confirmation-order-heading = Order details
 payment-confirmation-invoice-number = Invoice #{ $invoiceNumber }
 payment-confirmation-billing-heading = Billed to
-payment-confirmation-details-heading = Payment details
+payment-confirmation-details-heading-2 = Payment information
 payment-confirmation-amount = { $amount } per { $interval }
 ## $amount (Number) - The amount billed. It will be formatted as currency.
 #  $intervalCount (Number) - The interval between payments, in days.

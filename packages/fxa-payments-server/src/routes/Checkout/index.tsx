@@ -259,6 +259,7 @@ export const Checkout = ({
             customer,
             profile,
             isMobile,
+            accountExists
           }}
         />
       </>

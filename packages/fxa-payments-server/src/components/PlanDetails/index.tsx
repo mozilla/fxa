@@ -30,13 +30,8 @@ export const PlanDetails = ({
 }: PlanDetailsProps) => {
   const { navigatorLanguages } = useContext(AppContext);
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
-  const {
-    product_name,
-    amount,
-    currency,
-    interval,
-    interval_count,
-  } = selectedPlan;
+  const { product_name, amount, currency, interval, interval_count } =
+    selectedPlan;
   const { webIconURL, webIconBackground } = metadataFromPlan(selectedPlan);
   const productDetails = productDetailsFromPlan(
     selectedPlan,
@@ -110,6 +105,25 @@ export const PlanDetails = ({
                   <li key={idx}>{detail}</li>
                 ))}
               </ul>
+              <div
+                className="plan-details-total"
+                aria-labelledby="plan-details-product"
+              >
+                <div className="plan-details-total-inner">
+                  <Localized id="plan-details-total-label">
+                    <p className="label">Total</p>
+                  </Localized>
+                  <Localized
+                    id={`plan-price-${interval}`}
+                    vars={{
+                      amount: getLocalizedCurrency(amount, currency),
+                      intervalCount: interval_count,
+                    }}
+                  >
+                    <p className="total-price">{planPrice}</p>
+                  </Localized>
+                </div>
+              </div>
             </div>
           ) : null}
           {showExpandButton ? (
@@ -140,27 +154,6 @@ export const PlanDetails = ({
             </div>
           ) : null}
         </div>
-        {!showExpandButton ? (
-          <div
-            className="plan-details-total"
-            aria-labelledby="plan-details-product"
-          >
-            <div className="plan-details-total-inner">
-              <Localized id="plan-details-total-label">
-                <p className="label">Total</p>
-              </Localized>
-              <Localized
-                id={`plan-price-${interval}`}
-                vars={{
-                  amount: getLocalizedCurrency(amount, currency),
-                  intervalCount: interval_count,
-                }}
-              >
-                <p className="total-price">{planPrice}</p>
-              </Localized>
-            </div>
-          </div>
-        ) : null}
       </div>
     </section>
   );

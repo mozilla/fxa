@@ -38,7 +38,7 @@
     color: $grey-50;
   }
 
-  .footer {
+  .options {
     border: 0;
     display: flex;
     flex-direction: column;
@@ -65,5 +65,13 @@
     .button:active {
       background: #002275;
     }
+  }
+
+  .footer {
+    border: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 60px;
   }
 }

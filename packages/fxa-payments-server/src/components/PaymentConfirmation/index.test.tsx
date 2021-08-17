@@ -255,15 +255,9 @@ describe('PaymentConfirmation', () => {
       const paypalLogo = queryByTestId('paypal-logo');
       expect(paypalLogo).toBeNull();
     });
-
-    it('renders the billing info row', () => {
-      const { queryByTestId } = subject();
-      const billingDetailsRow = queryByTestId('billing-info');
-      expect(billingDetailsRow).toBeVisible();
-    });
   });
 
-  describe('Payment Details', () => {
+  describe('Payment information', () => {
     const dayBasedId = 'payment-confirmation-amount-day';
     const weekBasedId = 'payment-confirmation-amount-week';
     const monthBasedId = 'payment-confirmation-amount-month';

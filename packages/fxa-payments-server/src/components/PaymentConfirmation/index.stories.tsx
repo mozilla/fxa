@@ -93,16 +93,29 @@ storiesOf('components/PaymentConfirmation', module)
         }}
       />
     </MockApp>
+  ))
+  .add('paypal', () => (
+    <MockApp>
+      <PaymentConfirmation
+        {...{
+          profile: userProfile,
+          selectedPlan,
+          customer: PAYPAL_CUSTOMER,
+          productUrl,
+        }}
+      />
+    </MockApp>
+  ))
+  .add('with passwordless account', () => (
+    <MockApp>
+      <PaymentConfirmation
+        {...{
+          profile: userProfile,
+          selectedPlan,
+          customer: PAYPAL_CUSTOMER,
+          productUrl,
+          accountExists: false,
+        }}
+      />
+    </MockApp>
   ));
-storiesOf('components/PaymentConfirmation', module).add('paypal', () => (
-  <MockApp>
-    <PaymentConfirmation
-      {...{
-        profile: userProfile,
-        selectedPlan,
-        customer: PAYPAL_CUSTOMER,
-        productUrl,
-      }}
-    />
-  </MockApp>
-));
