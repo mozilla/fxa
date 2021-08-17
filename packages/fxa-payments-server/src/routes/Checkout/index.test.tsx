@@ -31,6 +31,9 @@ import { AppContextType } from '../../lib/AppContext';
 import {
   CONFIRM_CARD_RESULT,
   CUSTOMER,
+  MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR,
+  MOCK_GENERAL_PAYPAL_ERROR,
+  MOCK_STRIPE_CARD_ERROR,
   NEW_CUSTOMER,
   PAYMENT_METHOD_RESULT,
   PLANS,
@@ -38,6 +41,10 @@ import {
   STUB_ACCOUNT_RESULT,
   SUBSCRIPTION_RESULT,
 } from '../../lib/mock-data';
+
+import { FXA_NEWSLETTER_SIGNUP_ERROR } from '../../lib/newsletter';
+import { FXA_SIGNUP_ERROR } from '../../lib/account';
+import { getErrorMessage } from '../../lib/errors';
 
 jest.mock('../../lib/apiClient', () => {
   return {
@@ -260,7 +267,9 @@ describe('routes/Checkout', () => {
     });
 
     it('displays an error when account creation failed', async () => {
-      (apiCreatePasswordlessAccount as jest.Mock).mockRejectedValue('nope');
+      (apiCreatePasswordlessAccount as jest.Mock).mockRejectedValue(
+        FXA_SIGNUP_ERROR
+      );
       await act(async () => {
         render(<Subject />);
       });
@@ -278,13 +287,17 @@ describe('routes/Checkout', () => {
         expect(apiFetchCustomer).not.toHaveBeenCalled();
       });
 
-      expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getErrorMessage(FXA_SIGNUP_ERROR)
+      );
     });
 
     it('displays an error when payment failed', async () => {
       stripeOverride.createPaymentMethod.mockRejectedValue({
-        paymentIntent: undefined,
-        error: 'nope',
+        paymentMethod: undefined,
+        error: MOCK_STRIPE_CARD_ERROR,
       });
       await act(async () => {
         render(<Subject />);
@@ -305,11 +318,17 @@ describe('routes/Checkout', () => {
         expect(apiFetchCustomer).not.toHaveBeenCalled();
       });
 
-      expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getErrorMessage(MOCK_STRIPE_CARD_ERROR)
+      );
     });
 
     it('displays a message when fetching user profile failed', async () => {
-      (apiFetchProfile as jest.Mock).mockRejectedValue(null);
+      (apiFetchProfile as jest.Mock).mockRejectedValue(
+        MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR
+      );
       await act(async () => {
         render(<Subject />);
       });
@@ -329,11 +348,17 @@ describe('routes/Checkout', () => {
         expect(apiFetchCustomer).toHaveBeenCalledTimes(1);
       });
 
-      expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getErrorMessage(MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR)
+      );
     });
 
     it('displays a message when fetching customer failed', async () => {
-      (apiFetchCustomer as jest.Mock).mockRejectedValue(null);
+      (apiFetchCustomer as jest.Mock).mockRejectedValue(
+        MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR
+      );
       await act(async () => {
         render(<Subject />);
       });
@@ -353,7 +378,11 @@ describe('routes/Checkout', () => {
         expect(apiFetchCustomer).toHaveBeenCalledTimes(1);
       });
 
-      expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getErrorMessage(MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR)
+      );
     });
 
     describe('newsletter', () => {
@@ -383,8 +412,8 @@ describe('routes/Checkout', () => {
 
       it('Does not POST to /newsletters when newsletter checkbox is checked when subscription fails', async () => {
         stripeOverride.createPaymentMethod.mockRejectedValue({
-          paymentIntent: undefined,
-          error: 'nope',
+          paymentMethod: undefined,
+          error: MOCK_STRIPE_CARD_ERROR,
         });
         await act(async () => {
           render(<Subject />);
@@ -398,7 +427,21 @@ describe('routes/Checkout', () => {
       });
 
       it('Displays a message if newsletter signup fails when subscription succeeds', async () => {
-        // TODO: FXA-3667
+        (apiSignupForNewsletter as jest.Mock).mockRejectedValue(
+          FXA_NEWSLETTER_SIGNUP_ERROR
+        );
+        await act(async () => {
+          render(<Subject />);
+        });
+        const shouldSubscribeToNewsletter = true;
+        await fillOutZeForm(shouldSubscribeToNewsletter);
+        await waitForExpect(() => {
+          expect(apiSignupForNewsletter).toHaveBeenCalled();
+        });
+        expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
+        expect(
+          screen.getByTestId('newsletter-signup-error-message')
+        ).toBeInTheDocument();
       });
     });
   });
@@ -469,7 +512,9 @@ describe('routes/Checkout', () => {
     });
 
     it('shows an error when account creation failed', async () => {
-      (apiCreatePasswordlessAccount as jest.Mock).mockRejectedValue('nope');
+      (apiCreatePasswordlessAccount as jest.Mock).mockRejectedValue(
+        FXA_SIGNUP_ERROR
+      );
       const paypalButtonBase = ({ createOrder }: ButtonBaseProps) => {
         return (
           <button
@@ -493,7 +538,11 @@ describe('routes/Checkout', () => {
         expect(apiGetPaypalCheckoutToken).not.toHaveBeenCalled();
       });
 
-      expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getErrorMessage(FXA_SIGNUP_ERROR)
+      );
     });
 
     it('shows an error when failed to get a PayPal checkout token', async () => {
@@ -525,7 +574,11 @@ describe('routes/Checkout', () => {
         expect(apiGetPaypalCheckoutToken).toHaveBeenCalledTimes(1);
       });
 
-      expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getErrorMessage(MOCK_GENERAL_PAYPAL_ERROR)
+      );
     });
 
     it('shows an error when customer creation failed', async () => {
@@ -551,7 +604,11 @@ describe('routes/Checkout', () => {
         expect(apiFetchCustomer).not.toHaveBeenCalled();
       });
 
-      expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getErrorMessage(MOCK_GENERAL_PAYPAL_ERROR)
+      );
     });
 
     it('shows an error when payment capture failed', async () => {
@@ -577,7 +634,11 @@ describe('routes/Checkout', () => {
         expect(apiFetchCustomer).not.toHaveBeenCalled();
       });
 
-      expect(screen.getByTestId('payment-error')).toBeInTheDocument();
+      const paymentErrorComponent = screen.getByTestId('payment-error');
+      expect(paymentErrorComponent).toBeInTheDocument();
+      expect(paymentErrorComponent).toHaveTextContent(
+        getErrorMessage(MOCK_GENERAL_PAYPAL_ERROR)
+      );
     });
     describe('newsletter', () => {
       it('POSTs to /newsletters if the newsletter checkbox is checked when subscription succeeds', async () => {
@@ -656,7 +717,31 @@ describe('routes/Checkout', () => {
       });
 
       it('Displays a message if newsletter signup fails when subscription succeeds', async () => {
-        // TODO: FXA-3667
+        (apiSignupForNewsletter as jest.Mock).mockRejectedValue(
+          FXA_NEWSLETTER_SIGNUP_ERROR
+        );
+        const paypalButtonBase = ({ onApprove }: ButtonBaseProps) => {
+          return (
+            <button
+              data-testid="paypal-button"
+              onClick={async () => {
+                await onApprove!({ orderID: 'new-sub' });
+              }}
+            />
+          );
+        };
+        await act(async () => {
+          render(<Subject paypalButtonBase={paypalButtonBase} />);
+        });
+        const shouldSubscribeToNewsletter = true;
+        await fillOutZeForm(shouldSubscribeToNewsletter);
+        await waitForExpect(() => {
+          expect(apiSignupForNewsletter).toHaveBeenCalled();
+        });
+        expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
+        expect(
+          screen.getByTestId('newsletter-signup-error-message')
+        ).toBeInTheDocument();
       });
     });
   });

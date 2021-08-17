@@ -62,7 +62,22 @@ import { apiFetchCustomer, apiFetchProfile } from '../../lib/apiClient';
 import * as apiClient from '../../lib/apiClient';
 import sentry from '../../lib/sentry';
 import { ButtonBaseProps } from '../../components/PayPalButton';
+import { AlertBar } from '../../components/AlertBar';
+
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
+
+const NewsletterErrorAlertBar = () => {
+  return (
+    <AlertBar className="alert newsletter-error">
+      <Localized id="newsletter-signup-error">
+        <span data-testid="newsletter-signup-error-message">
+          You're not signed up for product update emails. You can try again in
+          your account settings.
+        </span>
+      </Localized>
+    </AlertBar>
+  );
+};
 
 export type CheckoutProps = {
   match: {
@@ -109,6 +124,7 @@ export const Checkout = ({
   const [emailsMatch, setEmailsMatch] = useState(false);
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
+  const [newsletterSignupError, setNewsletterSignupError] = useState(false);
 
   // Fetch plans on initial render or change in product ID
   useEffect(() => {
@@ -170,9 +186,11 @@ export const Checkout = ({
         }
       } catch (error) {
         if (error.code === 'fxa_newsletter_signup_error') {
-          // TODO: FXA-3667: Show AlertBar on success screen
+          setNewsletterSignupError(true);
         } else {
-          setSubscriptionError(error);
+          // Some Stripe APIs like `createPaymentMethod` return an object with
+          // an error property on error.
+          setSubscriptionError(error?.error || error);
         }
       }
       setInProgress(false);
@@ -195,9 +213,9 @@ export const Checkout = ({
       try {
         await handleNewsletterSignup();
       } catch (error) {
-        // TODO: FXA-3667: Show AlertBar on success screen
-        // Note: If both handleNewsletterSignup and fetchProfileAndCustomer fail,
+        // If both fetchProfileAndCustomer and handleNewsletterSignup fail,
         // there would be an AlertBar on top of the PaymentErrorView screen.
+        setNewsletterSignupError(true);
       }
     }
   }, [subscribeToNewsletter]);
@@ -233,14 +251,17 @@ export const Checkout = ({
 
   if (profile && customer) {
     return (
-      <SubscriptionSuccess
-        {...{
-          plan: selectedPlan,
-          customer: customer,
-          profile: profile,
-          isMobile,
-        }}
-      />
+      <>
+        {newsletterSignupError && <NewsletterErrorAlertBar />}
+        <SubscriptionSuccess
+          {...{
+            plan: selectedPlan,
+            customer,
+            profile,
+            isMobile,
+          }}
+        />
+      </>
     );
   }
 
@@ -248,6 +269,7 @@ export const Checkout = ({
     <>
       <Header />
       <div className="main-content">
+        {newsletterSignupError && <NewsletterErrorAlertBar />}
         <PaymentErrorView
           error={subscriptionError}
           onRetry={() => {
@@ -258,6 +280,7 @@ export const Checkout = ({
             hidden: !subscriptionError,
           })}
           plan={selectedPlan}
+          isPasswordlessCheckout={true}
         />
         <PaymentProcessing
           provider="paypal"

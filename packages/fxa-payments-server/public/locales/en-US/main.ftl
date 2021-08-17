@@ -40,8 +40,8 @@ duplicate-transaction = Hmm. Looks like an identical transaction was just sent. 
 coupon-expired = It looks like that promo code has expired.
 card-error = Your transaction could not be processed. Please verify your credit card information and try again.
 
-fxa-signup-error = There was a problem creating your account.  Please try again later.
-fxa-newsletter-signup-error = There was a problem subscribing you to the newsletter.
+fxa-account-signup-error = A system error caused your ${ productName } sign-up to fail. Your payment method has not been charged. Please try again.
+newsletter-signup-error = You're not signed up for product update emails. You can try again in your account settings.
 fxa-post-passwordless-sub-error = Subscription confirmed, but the confirmation page failed to load. Please check your email to set up your account.
 
 ## settings

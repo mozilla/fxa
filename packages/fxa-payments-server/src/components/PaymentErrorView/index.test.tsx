@@ -45,6 +45,8 @@ describe('PaymentErrorView test with l10n', () => {
 
     const termsAndPrivacy = queryByTestId('terms');
     expect(termsAndPrivacy).toBeInTheDocument();
+
+    expect(queryByTestId('fxa-legal-links')).not.toBeInTheDocument();
   });
 
   it('calls passed onRetry function when retry button clicked', async () => {
@@ -99,5 +101,40 @@ describe('PaymentErrorView test with l10n', () => {
       fireEvent.click(getByTestId('manage-subscription-link'));
     });
     expect(mockHistoryPush).toHaveBeenCalledWith('/subscriptions');
+  });
+
+  it('does not render the ActionButton for post-subscription creation errors', async () => {
+    const { queryByTestId } = render(
+      <PaymentErrorView
+        onRetry={() => {}}
+        error={{ code: 'fxa_fetch_profile_customer_error' }}
+        plan={SELECTED_PLAN}
+      />
+    );
+
+    const expected =
+      'Subscription confirmed, but the confirmation page failed to load. Please check your email to set up your account.';
+    const actual = getLocalizedMessage(
+      bundle,
+      'fxa-post-passwordless-sub-error',
+      {}
+    );
+    expect(actual).toEqual(expected);
+
+    const actionButton = queryByTestId('error-view-action-button');
+    expect(actionButton).not.toBeInTheDocument();
+  });
+
+  it('shows FxA legal links in footer when isPasswordlessCheckout is true', async () => {
+    const { queryByTestId } = render(
+      <PaymentErrorView
+        onRetry={() => {}}
+        error={{ code: 'general-paypal-error' }}
+        plan={SELECTED_PLAN}
+        isPasswordlessCheckout={true}
+      />
+    );
+
+    expect(queryByTestId('fxa-legal-links')).toBeInTheDocument();
   });
 });

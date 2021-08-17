@@ -28,8 +28,8 @@ const BASIC_ERROR = 'basic-error-message';
 const PAYMENT_ERROR_1 = 'payment-error-1';
 const PAYMENT_ERROR_2 = 'payment-error-2';
 const PAYMENT_ERROR_3 = 'payment-error-3b';
-const FXA_SIGNUP_ERROR = 'fxa-signup-error';
-const FXA_NEWSLETTER_SIGNUP_ERROR = 'fxa-newsletter-signup-error';
+const FXA_SIGNUP_ERROR = 'fxa-account-signup-error';
+const FXA_NEWSLETTER_SIGNUP_ERROR = 'newsletter-signup-error';
 const FXA_POST_PASSWORDLESS_SUB_ERROR = 'fxa-post-passwordless-sub-error';
 
 /*
@@ -131,7 +131,7 @@ const paymentErrors2 = [
 ];
 
 const paymentErrors3 = ['general-paypal-error'];
-const signupErrors = ['fxa_signup_error'];
+const signupErrors = ['fxa_account_signup_error'];
 const newsletterSignupErrors = ['fxa_newsletter_signup_error'];
 const postSuccessSubErrors = ['fxa_fetch_profile_customer_error'];
 

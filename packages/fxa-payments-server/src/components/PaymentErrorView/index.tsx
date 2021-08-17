@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Localized } from '@fluent/react';
 import { StripeError } from '@stripe/stripe-js';
@@ -10,6 +10,8 @@ import TermsAndPrivacy from '../TermsAndPrivacy';
 
 import './index.scss';
 import { Plan } from '../../store/types';
+import PaymentLegalBlurb from '../PaymentLegalBlurb';
+import AppContext from '../../lib/AppContext';
 
 export type PaymentErrorViewProps = {
   onRetry: Function;
@@ -17,6 +19,7 @@ export type PaymentErrorViewProps = {
   error?: StripeError | GeneralError;
   className?: string;
   subscriptionTitle?: React.ReactElement<SubscriptionTitle>;
+  isPasswordlessCheckout?: boolean;
 };
 
 const retryButtonFn = (onRetry: PaymentErrorViewProps['onRetry']) => (
@@ -51,8 +54,10 @@ export const PaymentErrorView = ({
   error,
   className = '',
   subscriptionTitle,
+  isPasswordlessCheckout = false,
 }: PaymentErrorViewProps) => {
   const history = useHistory();
+  const { config } = useContext(AppContext);
 
   // We want the button label and onClick handler to be different depending
   // on the type of error
@@ -69,6 +74,8 @@ export const PaymentErrorView = ({
     <SubscriptionTitle screenType="error" className={className} />
   );
 
+  const productName = plan.product_name;
+
   return error ? (
     <>
       {title}
@@ -79,7 +86,7 @@ export const PaymentErrorView = ({
         <div className="wrapper">
           <img id="error-icon" src={errorIcon} alt="error icon" />
           <div>
-            <Localized id={getErrorMessage(error)}>
+            <Localized id={getErrorMessage(error)} vars={{ productName }}>
               <p data-testid="error-payment-submission">
                 {getErrorMessage(error)}
               </p>
@@ -88,8 +95,18 @@ export const PaymentErrorView = ({
         </div>
 
         <div className="footer" data-testid="footer">
-          <ActionButton />
-          <TermsAndPrivacy plan={plan} />
+          {/* This error code means the subscription was created successfully, but
+          there was an error loading the information on the success screen. In this
+          case, we do not want a "Try again" or "Manage subscription" button. */}
+          {error.code !== 'fxa_fetch_profile_customer_error' ? (
+            <ActionButton data-testid={'error-view-action-button'} />
+          ) : null}
+          <PaymentLegalBlurb provider={undefined} />
+          <TermsAndPrivacy
+            showFXALinks={isPasswordlessCheckout}
+            plan={plan}
+            contentServerURL={config.servers.content.url}
+          />
         </div>
       </section>
     </>

@@ -10,7 +10,9 @@
 
 #top-bar .alert {
   background: rgba(0, 0, 0, 0.1);
-  font-weight: bold;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 21px;
   margin: 4px auto;
   min-height: 2em;
   padding: 0.5em;
@@ -36,6 +38,11 @@
 
 #top-bar .alertError {
   background: #FF4F5E;
+}
+
+#top-bar .newsletter-error {
+  color: #3D3D3D;
+  background: #FFA436;
 }
 
 .alert span.checked::before {

@@ -202,3 +202,14 @@ export const CONFIRM_CARD_RESULT = {
   paymentIntent: { status: 'succeeded' } as PaymentIntent,
   error: undefined,
 };
+
+export const MOCK_STRIPE_CARD_ERROR = {
+  code: 'card_declined',
+};
+
+export const MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR = {
+  code: 'fxa_fetch_profile_customer_error',
+};
+export const MOCK_GENERAL_PAYPAL_ERROR = {
+  code: 'general-paypal-error',
+};

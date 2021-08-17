@@ -60,7 +60,7 @@ export const TermsAndPrivacy = ({
         >
           Privacy Notice
         </a>
-      </Localized>{' '}
+      </Localized>
       &nbsp;&nbsp;&nbsp;
       <Localized id="terms-download">
         <a

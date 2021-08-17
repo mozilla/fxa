@@ -34,7 +34,7 @@ export const SubscriptionSuccess = ({
 
   return (
     <>
-      <Header {...{ profile: profile }} />
+      <Header {...{ profile }} />
       <div className="main-content">
         <PaymentConfirmation
           {...{
