@@ -10195,9 +10195,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.965.0":
-  version: 2.965.0
-  resolution: "aws-sdk@npm:2.965.0"
+"aws-sdk@npm:^2.969.0":
+  version: 2.969.0
+  resolution: "aws-sdk@npm:2.969.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -10208,7 +10208,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: 506e4a126814b29751d0a8cc58cd1dff3990c34017b339c5624d4d249baa0c8b3c91288815ed0718ce1de44b1763b161351e5e89c6979f05a1bb77eb0f123e8c
+  checksum: 20d2b67d0254a864121627b795f4f1bc9ebf96a7b365658fa3cb506997d320ae6cbac9a61283b2559afbc48a2a8607a32f17d62b7243855d921d42858b37e437
   languageName: node
   linkType: hard
 
@@ -18603,7 +18603,7 @@ fsevents@~2.1.1:
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.965.0
+    aws-sdk: ^2.969.0
     babel-loader: ^8.2.2
     base64url: 3.0.1
     binary-split: 1.0.5
@@ -18935,7 +18935,7 @@ fsevents@~2.1.1:
   resolution: "fxa-email-event-proxy@workspace:packages/fxa-email-event-proxy"
   dependencies:
     audit-filter: ^0.5.0
-    aws-sdk: ^2.965.0
+    aws-sdk: ^2.969.0
     bluebird: ^3.7.2
     chai: ^4.3.4
     chai-as-promised: ^7.1.1
@@ -18986,7 +18986,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^4.28.5
     "@typescript-eslint/parser": ^4.29.0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.965.0
+    aws-sdk: ^2.969.0
     axios: ^0.21.1
     chance: ^1.1.7
     class-transformer: ^0.4.0
@@ -19316,7 +19316,7 @@ fsevents@~2.1.1:
     "@sentry/node": ^6.11.0
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.965.0
+    aws-sdk: ^2.969.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 1.0.0
@@ -19518,7 +19518,7 @@ fsevents@~2.1.1:
     ajv: ^6.12.2
     apollo-server: ^2.25.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.965.0
+    aws-sdk: ^2.969.0
     celebrate: ^10.0.1
     chai: ^4.3.4
     chance: ^1.1.7
