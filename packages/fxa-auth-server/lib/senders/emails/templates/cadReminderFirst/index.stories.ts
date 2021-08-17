@@ -37,9 +37,9 @@ const commonPropsWithOverrides = (
     },
   });
 
-export const CadReminderMobile = Template.bind({});
-CadReminderMobile.args = commonPropsWithOverrides();
-CadReminderMobile.storyName = 'User is on mobile device';
+export const CadReminderDefault = Template.bind({});
+CadReminderDefault.args = commonPropsWithOverrides();
+CadReminderDefault.storyName = 'default';
 
 export const CadReminderArLocale = Template.bind({});
 CadReminderArLocale.args = commonPropsWithOverrides({

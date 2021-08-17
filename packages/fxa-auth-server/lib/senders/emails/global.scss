@@ -49,19 +49,18 @@ $s-10: 40px;
 }
 
 .mt {
-  &-2 div {
+  &-2 {
     margin-top: $s-2 !important;
   }
-  &-6 div {
+  &-6 {
     margin-top: $s-6 !important;
   }
 }
 
 .mb {
-  &-3 div {
+  &-3 {
     margin-bottom: $s-3 !important;
   }
-
   &-5 {
     margin-bottom: $s-5 !important;
   }
@@ -84,22 +83,46 @@ tr > td:first-child {
   font-family: $font-sans;
 }
 
-.header-text div {
+.text-header div {
   @extend .text-xl;
   @extend .font-sans;
+  @extend .mb-3;
   text-align: center !important;
+}
+
+%text-body-common {
+  @extend .text-sm;
+  @extend .font-sans;
+  text-align: center !important;
+}
+
+.text-body div {
+  @extend %text-body-common;
   @extend .mb-5;
 }
 
-.primary-text div {
-  @extend .text-sm;
-  @extend .mb-5;
+.text-sub-body div {
+  @extend %text-body-common;
+  @extend .mb-3;
+}
+
+.text-footer div {
+  @extend .text-xs;
   @extend .font-sans;
   text-align: center !important;
+  color: $grey-400 !important;
 }
 
 .sync-logo img {
   width: 240px !important;
   margin: 0 auto;
   @extend .mb-5;
+  @extend .mt-2;
+}
+
+.graphic-devices img {
+  width: 240px !important;
+  margin: 0 auto;
+  @extend .mb-5;
+  @extend .mt-2;
 }

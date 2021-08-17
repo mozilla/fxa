@@ -4,7 +4,7 @@ postVerify-title = "Next sync between your devices!"
 
 postVerify-description = "Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices."
 
-postVerify-setup-text = "Set up next device"
+postVerify-setup = "Set up next device"
 <%- link %>
 
 <%- include('/partials/automatedEmailNoAction/index.txt') %>

@@ -32,3 +32,4 @@ const commonPropsWithOverrides = (
 
 export const PostRemoveSecondary = Template.bind({});
 PostRemoveSecondary.args = commonPropsWithOverrides();
+PostRemoveSecondary.storyName = 'default';

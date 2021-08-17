@@ -11,7 +11,7 @@ export default {
 } as Meta;
 
 const defaultVariables = {
-  ...cadReminderFirst.CadReminderMobile.args.variables,
+  ...cadReminderFirst.CadReminderDefault.args.variables,
   bodyText:
     'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.',
   headerText: 'Last reminder to sync devices!',
@@ -30,6 +30,6 @@ const commonPropsWithOverrides = (
     },
   });
 
-export const CadReminderMobile = Template.bind({});
-CadReminderMobile.args = commonPropsWithOverrides();
-CadReminderMobile.storyName = 'User is on mobile device';
+export const CadReminderDefault = Template.bind({});
+CadReminderDefault.args = commonPropsWithOverrides();
+CadReminderDefault.storyName = 'default';
