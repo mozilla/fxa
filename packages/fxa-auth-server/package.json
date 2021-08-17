@@ -54,7 +54,7 @@
     "@hapi/hoek": "^9.2.0",
     "@hapi/joi": "^15.1.1",
     "@sentry/node": "^6.11.0",
-    "@type-cacheable/core": "^5.2.0",
+    "@type-cacheable/core": "^10.0.1",
     "@type-cacheable/ioredis-adapter": "^5.2.0",
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.0",
