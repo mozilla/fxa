@@ -1,74 +1,114 @@
 import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
-import { AppContext } from '../../lib/AppContext';
+
 import {
   productDetailsFromPlan,
   DEFAULT_PRODUCT_DETAILS,
 } from 'fxa-shared/subscriptions/metadata';
+
 import { Plan } from '../../store/types';
 
+import { AppContext } from '../../lib/AppContext';
+import { legalDocsRedirectUrl } from '../../lib/formats';
+
 import './index.scss';
-import { legalDocsRedirectUrl } from 'fxa-payments-server/src/lib/formats';
 
 export type TermsAndPrivacyProps = {
   plan: Plan;
+  showFXALinks?: boolean;
+  contentServerURL?: string;
 };
 
-export const TermsAndPrivacy = ({ plan }: TermsAndPrivacyProps) => {
+export const TermsAndPrivacy = ({
+  plan,
+  showFXALinks = false,
+  contentServerURL,
+}: TermsAndPrivacyProps) => {
   const { navigatorLanguages } = useContext(AppContext);
 
   // TODO: if a plan is not supplied, fall back to default details
   // This mainly happens in ProductUpdateForm where we're updating payment
   // details across *all* plans - are there better URLs to pick in that case?
-  const {
-    termsOfServiceURL,
-    termsOfServiceDownloadURL,
-    privacyNoticeURL,
-  } = plan
-    ? productDetailsFromPlan(plan, navigatorLanguages)
-    : DEFAULT_PRODUCT_DETAILS;
+  const { termsOfServiceURL, termsOfServiceDownloadURL, privacyNoticeURL } =
+    plan
+      ? productDetailsFromPlan(plan, navigatorLanguages)
+      : DEFAULT_PRODUCT_DETAILS;
 
   const tosUrl = termsOfServiceDownloadURL
     ? legalDocsRedirectUrl(termsOfServiceDownloadURL)
     : termsOfServiceDownloadURL;
 
-  return (
-    <div>
-      <div className="terms">
+  const productLegalBlurb = (
+    <p>
+      <Localized id="terms">
+        <a
+          href={termsOfServiceURL}
+          target="_blank"
+          data-testid="terms"
+          rel="noopener noreferrer"
+        >
+          Terms of Service
+        </a>
+      </Localized>
+      &nbsp;&nbsp;&nbsp;
+      <Localized id="privacy">
+        <a
+          href={privacyNoticeURL}
+          target="_blank"
+          data-testid="privacy"
+          rel="noopener noreferrer"
+        >
+          Privacy Notice
+        </a>
+      </Localized>{' '}
+      &nbsp;&nbsp;&nbsp;
+      <Localized id="terms-download">
+        <a
+          href={tosUrl}
+          target="_blank"
+          data-testid="terms-download"
+          rel="noopener noreferrer"
+        >
+          Download Terms
+        </a>
+      </Localized>
+    </p>
+  );
+
+  const FXALegal = showFXALinks ? (
+    <>
+      <p className="legal-heading">Firefox Accounts</p>
+      <p data-testid="fxa-legal-links">
         <Localized id="terms">
           <a
-            rel="noopener noreferrer"
+            href={`${contentServerURL}/legal/terms`}
             target="_blank"
-            data-testid="terms"
-            href={termsOfServiceURL}
+            rel="noopener noreferrer"
+            data-testid="fxa-terms"
           >
             Terms of Service
           </a>
         </Localized>
-        &nbsp;&#x2022;&nbsp;
-        <Localized id="termsDownload">
+        &nbsp;&nbsp;&nbsp;
+        <Localized id="accounts-legal-copy">
           <a
-            rel="noopener noreferrer"
+            href={`${contentServerURL}/legal/privacy`}
             target="_blank"
-            data-testid="terms-download"
-            href={tosUrl}
-          >
-            Download Terms
-          </a>
-        </Localized>
-      </div>
-      <div className="privacy">
-        <Localized id="privacy">
-          <a
             rel="noopener noreferrer"
-            target="_blank"
-            data-testid="privacy"
-            href={privacyNoticeURL}
+            data-testid="fxa-privacy"
           >
             Privacy Notice
           </a>
         </Localized>
-      </div>
+      </p>
+    </>
+  ) : null;
+
+  return (
+    <div className="terms" data-testid="terms-and-privacy-component">
+      {FXALegal}
+      <p className="legal-heading">{plan?.product_name}</p>
+      {productLegalBlurb}
     </div>
   );
 };

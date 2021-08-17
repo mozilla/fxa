@@ -44,6 +44,9 @@ export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
   webIconBackground: null,
   upgradeCTA: null,
   downloadURL: null,
+  'product:termsOfServiceDownloadURL': '',
+  'product:termsOfServiceURL': '',
+  'product:privacyNoticeURL': '',
   ...plan.product_metadata,
   ...plan.plan_metadata,
 });

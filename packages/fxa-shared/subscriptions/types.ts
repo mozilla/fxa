@@ -31,14 +31,18 @@ export interface PlanMetadata {
 export interface ProductMetadata {
   appStoreLink?: string;
   capabilities?: string;
-  downloadURL?: string | null;
+  downloadURL: string | null;
   emailIconURL?: string | null;
   playStoreLink?: string;
   productOrder?: string | null;
   productSet?: string | null;
   upgradeCTA?: string | null;
   webIconBackground?: string | null;
-  webIconURL?: string | null;
+  webIconURL: string | null;
+  'product:termsOfServiceDownloadURL': string;
+  'product:termsOfServiceURL': string;
+  'product:privacyNoticeDownloadURL'?: string;
+  'product:privacyNoticeURL': string;
   // capabilities:{clientID}: string // filtered out or ignored for now
 }
 
