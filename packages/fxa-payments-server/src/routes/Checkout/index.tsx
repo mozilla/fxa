@@ -216,6 +216,7 @@ export const Checkout = ({
           customer: customer,
           profile: profile,
           isMobile,
+          accountExists,
         }}
       />
     );

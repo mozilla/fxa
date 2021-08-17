@@ -315,12 +315,12 @@ payment-processing-message = Please wait while we process your payment…
 ## payment confirmation
 payment-confirmation-alert = Click here to download
 payment-confirmation-mobile-alert = Didn't open app? <a>Click Here</a>
-payment-confirmation-thanks-heading = Thank you!
-payment-confirmation-thanks-subheading = A confirmation email has been sent to { $email } with details on how to get started with { $product_name }.
+payment-confirmation-thanks-heading-2 = Thanks, now check your email!
+payment-confirmation-thanks-subheading-2 = You'll receive an email at { $email } with instructions for setting up your account, as well as your payment details.
 payment-confirmation-order-heading = Order details
 payment-confirmation-invoice-number = Invoice #{ $invoiceNumber }
 payment-confirmation-billing-heading = Billed to
-payment-confirmation-details-heading = Payment details
+payment-confirmation-details-heading-2 = Payment information
 payment-confirmation-amount = { $amount } per { $interval }
 ## $amount (Number) - The amount billed. It will be formatted as currency.
 #  $intervalCount (Number) - The interval between payments, in days.

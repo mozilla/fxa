@@ -15,6 +15,7 @@ export type SubscriptionSuccessProps = {
   plan: Plan;
   profile: Profile;
   isMobile: boolean;
+  accountExists: boolean;
 };
 
 export const SubscriptionSuccess = ({
@@ -22,6 +23,7 @@ export const SubscriptionSuccess = ({
   plan,
   profile,
   isMobile,
+  accountExists = true,
 }: SubscriptionSuccessProps) => {
   const { product_id } = plan;
   const { downloadURL } = metadataFromPlan(plan);
@@ -42,6 +44,7 @@ export const SubscriptionSuccess = ({
             selectedPlan: plan,
             customer: customer,
             productUrl,
+            accountExists,
           }}
         />
         <PlanDetails

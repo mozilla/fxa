@@ -9,6 +9,8 @@ import { TermsAndPrivacy } from '../TermsAndPrivacy';
 import PaymentLegalBlurb from '../PaymentLegalBlurb';
 
 import circledCheckbox from './images/circled-confirm.svg';
+import emailSentIcon from './images/email-sent.svg';
+import checkmarkIcon from './images/checkmark.svg';
 
 import './index.scss';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
@@ -20,6 +22,7 @@ type PaymentConfirmationProps = {
   selectedPlan: Plan;
   productUrl: string;
   className?: string;
+  accountExists?: boolean;
 };
 
 export const PaymentConfirmation = ({
@@ -28,6 +31,7 @@ export const PaymentConfirmation = ({
   selectedPlan,
   productUrl,
   className = 'default',
+  accountExists = true,
 }: PaymentConfirmationProps) => {
   const { navigatorLanguages } = useContext(AppContext);
   const { amount, currency, interval, interval_count, product_name } =
@@ -65,19 +69,33 @@ export const PaymentConfirmation = ({
         data-testid="payment-confirmation"
       >
         <header>
-          <img
-            className="circled-check"
-            src={circledCheckbox}
-            alt="circled checkbox"
-          />
-          <Localized id="payment-confirmation-thanks-heading">
-            <h2>Thank you!</h2>
+          {accountExists ? (
+            <>
+              <img
+                className="circled-check"
+                src={circledCheckbox}
+                alt="circled checkbox"
+              />
+            </>
+          ) : (
+            <>
+              <img src={checkmarkIcon} alt="checkmark icon" />
+              <img
+                className="email-sent-icon"
+                src={emailSentIcon}
+                alt="email sent"
+              />
+            </>
+          )}
+
+          <Localized id="payment-confirmation-thanks-heading-2">
+            <h2>Thanks, now check your email!</h2>
           </Localized>
           <Localized
-            id="payment-confirmation-thanks-subheading"
-            vars={{ email, product_name }}
+            id="payment-confirmation-thanks-subheading-2"
+            vars={{ email }}
           >
-            <p>{`A confirmation email has been sent to ${email} with details on how to get started with ${product_name}.`}</p>
+            <p>{`You'll receive an email at ${email} with instructions for setting up your account as well as  your payment details.`}</p>
           </Localized>
         </header>
 
@@ -96,21 +114,9 @@ export const PaymentConfirmation = ({
           </div>
         </div>
 
-        {Provider.isStripe(payment_provider) && (
-          <div className="billing-info" data-testid="billing-info">
-            <Localized id="payment-confirmation-billing-heading">
-              <h3>Billed to</h3>
-            </Localized>
-            <div className="bottom-row">
-              {displayName ? <p>{displayName}</p> : null}
-              <p>{email}</p>
-            </div>
-          </div>
-        )}
-
         <div className="payment-details">
-          <Localized id="payment-confirmation-details-heading">
-            <h3>Payment details</h3>
+          <Localized id="payment-confirmation-details-heading-2">
+            <h3>Payment information</h3>
           </Localized>
           <div className="bottom-row">
             <Localized
@@ -127,21 +133,26 @@ export const PaymentConfirmation = ({
           </div>
         </div>
 
+        {accountExists && (
+          <div className="options" data-testid="options">
+            <a
+              data-testid="download-link"
+              className="button download-link"
+              href={productUrl}
+            >
+              {buttonLabel ||
+                l10n.getString(
+                  'payment-confirmation-download-button',
+                  null,
+                  'Continue to download'
+                )}
+            </a>
+          </div>
+        )}
+
         <div className="footer" data-testid="footer">
-          <a
-            data-testid="download-link"
-            className="button download-link"
-            href={productUrl}
-          >
-            {buttonLabel ||
-              l10n.getString(
-                'payment-confirmation-download-button',
-                null,
-                'Continue to download'
-              )}
-          </a>
           <PaymentLegalBlurb provider={payment_provider} />
-          <TermsAndPrivacy plan={selectedPlan} />
+          <TermsAndPrivacy plan={selectedPlan} showFXALinks={true} />
         </div>
       </section>
     </>
