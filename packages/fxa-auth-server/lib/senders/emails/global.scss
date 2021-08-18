@@ -9,6 +9,7 @@ $font-sans: sans-serif;
 $blue-400: #0090ed;
 $white: #fff;
 $grey-400: #6d6d6e;
+$grey-500: #4b5563;
 
 // Spacing values for margin and padding
 $s-0: 0px;
@@ -63,6 +64,9 @@ $s-10: 40px;
   }
   &-5 {
     margin-bottom: $s-5 !important;
+  }
+  &-6 {
+    margin-bottom: $s-6 !important;
   }
 }
 

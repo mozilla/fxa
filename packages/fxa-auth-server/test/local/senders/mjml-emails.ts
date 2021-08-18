@@ -286,6 +286,34 @@ const TESTS: [string, any][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['verifyEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Finish creating your account' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verify' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verify }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in starting with:' },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
+      { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')) },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
+      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])]
 ];
 
 describe('lib/senders/mjml-emails:', () => {
