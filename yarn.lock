@@ -17864,7 +17864,7 @@ fsevents@~2.1.1:
     typescript: ^4.3.5
     uuid: ^8.3.2
     verror: ^1.10.0
-    web-push: 3.4.5
+    web-push: 3.4.4
     webpack: ^4.43.0
     webpack-watch-files-plugin: ^1.1.0
     ws: ^8.0.0
@@ -37359,9 +37359,9 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"web-push@npm:3.4.5":
-  version: 3.4.5
-  resolution: "web-push@npm:3.4.5"
+"web-push@npm:3.4.4":
+  version: 3.4.4
+  resolution: "web-push@npm:3.4.4"
   dependencies:
     asn1.js: ^5.3.0
     http_ece: 1.1.0
@@ -37371,7 +37371,7 @@ typescript@^4.3.5:
     urlsafe-base64: ^1.0.0
   bin:
     web-push: src/cli.js
-  checksum: b81ffb404539c00a4d1b7b5a8ec788963f23cf042e1491d4c567167465a7211b497752b8e96156be4848543414ce5f8633ca9ed9d7f2707fe1bd4192616f41eb
+  checksum: 2ed47ffbaf7426ea201c84da4bad2b90db416b55395ee7b95639d660eb0ebfee94e1db601d5b02dc9f6c7c0b64e7a9798f8487277ec0ea1b2c68212f439f505d
   languageName: node
   linkType: hard
 
