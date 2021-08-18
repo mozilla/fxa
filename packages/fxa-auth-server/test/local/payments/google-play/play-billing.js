@@ -22,8 +22,10 @@ const mockConfig = {
   },
   subscriptions: {
     playApiServiceAccount: {
-      clientEmail: 'mock-client-email',
-      privateKey: 'mock-private-key',
+      credentials: {
+        clientEmail: 'mock-client-email',
+      },
+      keyFile: 'mock-private-keyfile',
     },
   },
 };

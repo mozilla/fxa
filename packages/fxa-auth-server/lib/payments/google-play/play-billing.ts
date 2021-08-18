@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Firestore } from '@google-cloud/firestore';
-import { google } from 'googleapis';
+import { Auth, google } from 'googleapis';
 import { Container } from 'typedi';
 import { TypedCollectionReference } from 'typesafe-node-firestore';
 
@@ -30,16 +30,17 @@ export class PlayBilling {
     this.log = Container.get(AuthLogger);
 
     // Initialize Google Play Developer API client
-    const jwtClient = new google.auth.JWT(
-      config.subscriptions.playApiServiceAccount.clientEmail,
-      undefined,
-      config.subscriptions.playApiServiceAccount.privateKey,
-      ['https://www.googleapis.com/auth/androidpublisher'], // Auth scope for Play Developer API
-      undefined
-    );
+    const playAccountConfig = config.subscriptions.playApiServiceAccount;
+    const authConfig: Auth.JWTOptions = {
+      email: playAccountConfig.credentials.client_email,
+      scopes: ['https://www.googleapis.com/auth/androidpublisher'],
+      ...(playAccountConfig.keyFilename
+        ? { keyFile: playAccountConfig.keyFilename }
+        : { key: playAccountConfig.credentials.private_key }),
+    };
     const playDeveloperApiClient = google.androidpublisher({
       version: 'v3',
-      auth: jwtClient,
+      auth: new Auth.JWT(authConfig),
     });
     const purchasesDbRef = this.firestore.collection(
       `${this.prefix}play-purchases`
