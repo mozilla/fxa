@@ -1,3 +1,11 @@
+## 1.213.0
+
+### Other changes
+
+- deps-dev: bump sass from 1.37.5 to 1.38.0 ([3c53df838](https://github.com/mozilla/fxa/commit/3c53df838))
+- deps-dev: bump @storybook/addon-links from 6.3.6 to 6.3.7 ([ad6033217](https://github.com/mozilla/fxa/commit/ad6033217))
+- deps-dev: bump @storybook/addon-actions from 6.3.6 to 6.3.7 ([9ac01e6af](https://github.com/mozilla/fxa/commit/9ac01e6af))
+
 ## 1.212.2
 
 No changes.

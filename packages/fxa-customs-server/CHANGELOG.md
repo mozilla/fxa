@@ -1,3 +1,12 @@
+## 1.213.0
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.16.3 to 2.16.4 ([15fa76f77](https://github.com/mozilla/fxa/commit/15fa76f77))
+- deps: bump @google-cloud/pubsub from 2.16.2 to 2.16.3 ([f90942d76](https://github.com/mozilla/fxa/commit/f90942d76))
+- deps: bump @sentry/node from 6.10.0 to 6.11.0 ([25f24a897](https://github.com/mozilla/fxa/commit/25f24a897))
+- deps: bump @google-cloud/pubsub from 2.16.1 to 2.16.2 ([0b8a9c4fe](https://github.com/mozilla/fxa/commit/0b8a9c4fe))
+
 ## 1.212.2
 
 No changes.

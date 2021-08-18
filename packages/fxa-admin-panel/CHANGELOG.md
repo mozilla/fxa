@@ -1,3 +1,16 @@
+## 1.213.0
+
+### Other changes
+
+- deps-dev: bump supertest from 6.1.5 to 6.1.6 ([ff94f17b8](https://github.com/mozilla/fxa/commit/ff94f17b8))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([c61eaf8f4](https://github.com/mozilla/fxa/commit/c61eaf8f4))
+- admin: disable flaky tests ([a75d2a1ac](https://github.com/mozilla/fxa/commit/a75d2a1ac))
+- deps-dev: bump @storybook/addon-links from 6.3.6 to 6.3.7 ([ad6033217](https://github.com/mozilla/fxa/commit/ad6033217))
+- deps-dev: bump supertest from 6.1.4 to 6.1.5 ([caa294dab](https://github.com/mozilla/fxa/commit/caa294dab))
+- deps-dev: bump @storybook/addon-actions from 6.3.6 to 6.3.7 ([9ac01e6af](https://github.com/mozilla/fxa/commit/9ac01e6af))
+- deps: bump @emotion/react from 11.4.0 to 11.4.1 ([c469cf8a8](https://github.com/mozilla/fxa/commit/c469cf8a8))
+- deps-dev: bump @typescript-eslint/parser from 4.28.5 to 4.29.0 ([3f1d1aaf9](https://github.com/mozilla/fxa/commit/3f1d1aaf9))
+
 ## 1.212.2
 
 ### Other changes

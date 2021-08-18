@@ -1,3 +1,12 @@
+## 1.213.0
+
+### Other changes
+
+- deps-dev: bump supertest from 6.1.5 to 6.1.6 ([ff94f17b8](https://github.com/mozilla/fxa/commit/ff94f17b8))
+- deps-dev: bump supertest from 6.1.4 to 6.1.5 ([caa294dab](https://github.com/mozilla/fxa/commit/caa294dab))
+- deps: bump @nestjs/core from 8.0.5 to 8.0.6 ([fde6cb4a3](https://github.com/mozilla/fxa/commit/fde6cb4a3))
+- deps: bump @sentry/node from 6.10.0 to 6.11.0 ([25f24a897](https://github.com/mozilla/fxa/commit/25f24a897))
+
 ## 1.212.2
 
 No changes.

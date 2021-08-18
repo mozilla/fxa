@@ -1,3 +1,13 @@
+## 1.213.0
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-links from 6.3.6 to 6.3.7 ([ad6033217](https://github.com/mozilla/fxa/commit/ad6033217))
+- deps: bump react-webcam from 5.2.4 to 6.0.0 ([7a2e723eb](https://github.com/mozilla/fxa/commit/7a2e723eb))
+- deps: bump @sentry/browser from 6.10.0 to 6.11.0 ([679f3e049](https://github.com/mozilla/fxa/commit/679f3e049))
+- deps-dev: bump @storybook/addon-actions from 6.3.6 to 6.3.7 ([9ac01e6af](https://github.com/mozilla/fxa/commit/9ac01e6af))
+- deps: bump @emotion/react from 11.4.0 to 11.4.1 ([c469cf8a8](https://github.com/mozilla/fxa/commit/c469cf8a8))
+
 ## 1.212.2
 
 No changes.

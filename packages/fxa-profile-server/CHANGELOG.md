@@ -1,3 +1,14 @@
+## 1.213.0
+
+### Other changes
+
+- deps: bump sharp from 0.28.3 to 0.29.0 ([11c764ae6](https://github.com/mozilla/fxa/commit/11c764ae6))
+- deps: bump aws-sdk from 2.965.0 to 2.969.0 ([9f277451f](https://github.com/mozilla/fxa/commit/9f277451f))
+- deps: bump @sentry/node from 6.10.0 to 6.11.0 ([25f24a897](https://github.com/mozilla/fxa/commit/25f24a897))
+- deps: bump aws-sdk from 2.963.0 to 2.965.0 ([3842bb268](https://github.com/mozilla/fxa/commit/3842bb268))
+- deps: bump checksum from 0.1.1 to 1.0.0 ([70dbbc9a4](https://github.com/mozilla/fxa/commit/70dbbc9a4))
+- deps: bump aws-sdk from 2.958.0 to 2.963.0 ([1d3993916](https://github.com/mozilla/fxa/commit/1d3993916))
+
 ## 1.212.2
 
 No changes.
