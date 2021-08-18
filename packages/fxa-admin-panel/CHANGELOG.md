@@ -1,3 +1,9 @@
+## 1.212.2
+
+### Other changes
+
+- admin: disable flaky tests ([3f8ec5a9e](https://github.com/mozilla/fxa/commit/3f8ec5a9e))
+
 ## 1.212.1
 
 No changes.

@@ -1,3 +1,9 @@
+## 1.212.2
+
+### Other changes
+
+- deps: bump web-push from 3.4.4 to 3.4.5" ([5fe001eab](https://github.com/mozilla/fxa/commit/5fe001eab))
+
 ## 1.212.1
 
 ### Bug fixes
