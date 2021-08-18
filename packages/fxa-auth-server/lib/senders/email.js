@@ -1924,7 +1924,6 @@ module.exports = function (log, config) {
       invoiceDate,
       nextInvoiceDate,
       token,
-      code,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -1943,7 +1942,6 @@ module.exports = function (log, config) {
       email,
       product_name: productName,
       token,
-      code,
       product_id: productId,
     };
     const template = 'subscriptionAccountFinishSetup';

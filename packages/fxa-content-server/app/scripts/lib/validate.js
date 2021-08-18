@@ -17,6 +17,8 @@ const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 // taken from the fxa-oauth-server
 const B64URL_STRING = /^[A-Za-z0-9-_]+$/;
 
+const JWT_STRING = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
+
 // Crockford base32 Regex. Excludes I, L, O, U
 const B32_STRING = /^[0-9A-HJ-NP-TV-Z]+$/;
 
@@ -226,6 +228,10 @@ var Validate = {
    */
   isBase64Url(value) {
     return B64URL_STRING.test(value);
+  },
+
+  isJWT(value) {
+    return JWT_STRING.test(value);
   },
 
   /**

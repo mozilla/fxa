@@ -1171,6 +1171,10 @@ const Account = Backbone.Model.extend(
         });
     },
 
+    finishSetup(token, email, password) {
+      return this._fxaClient.finishSetup(token, email, password);
+    },
+
     /**
      * Fetch the account's list of attached clients.
      *

@@ -4,13 +4,13 @@
 
 import Stripe from 'stripe';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import jwt from '../../oauth/jwt';
 
 export async function sendFinishSetupEmailForStubAccount({
   email,
   uid,
   account,
   subscription,
-  db,
   stripeHelper,
   mailer,
 }: {
@@ -18,14 +18,20 @@ export async function sendFinishSetupEmailForStubAccount({
   uid: string;
   account: any;
   subscription: any;
-  db: any;
   stripeHelper: any;
   mailer: any;
 }) {
   // If this fxa user is a stub (no-password) this is where we
   // send the "create a password" email
   if (account && account.verifierSetAt <= 0) {
-    const token = await db.createPasswordForgotToken(account);
+    const token = await jwt.sign(
+      { uid },
+      {
+        header: {
+          typ: 'fin+JWT',
+        },
+      }
+    );
     const invoice: Stripe.Invoice =
       subscription.latest_invoice as Stripe.Invoice;
     const plan = await stripeHelper.findPlanById(subscription.plan!.id);
@@ -41,8 +47,7 @@ export async function sendFinishSetupEmailForStubAccount({
       planEmailIconURL: meta.emailIconURL,
       invoiceDate: invoice.created,
       nextInvoiceDate: subscription.current_period_end,
-      token: token.data,
-      code: token.passCode,
+      token,
     });
   }
 }

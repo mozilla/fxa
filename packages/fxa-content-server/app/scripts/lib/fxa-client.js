@@ -1424,6 +1424,8 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} resolves with response when complete.
    */
   sendPushLoginRequest: createClientDelegate('sendPushLoginRequest'),
+
+  finishSetup: createClientDelegate('finishSetup'),
 };
 
 export default FxaClientWrapper;

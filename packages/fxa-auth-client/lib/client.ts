@@ -448,6 +448,16 @@ export default class AuthClient {
     return accountData;
   }
 
+  async finishSetup(token: string, email: string, newPassword: string) {
+    const credentials = await crypto.getCredentials(email, newPassword);
+    const payload = {
+      token,
+      authPW: credentials.authPW,
+    };
+    await this.request('POST', '/account/finish_setup', payload);
+    return;
+  }
+
   async accountKeys(
     keyFetchToken: hexstring,
     unwrapBKey: hexstring
