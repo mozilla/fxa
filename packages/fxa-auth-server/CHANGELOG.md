@@ -1,3 +1,9 @@
+## 1.213.1
+
+### Bug fixes
+
+- auth: Déjà vu with import bugs ([58242056b](https://github.com/mozilla/fxa/commit/58242056b))
+
 ## 1.213.0
 
 ### New features

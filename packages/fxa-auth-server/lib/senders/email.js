@@ -12,7 +12,7 @@ const url = require('url');
 const i18n = require('i18n-abide');
 const { URL } = url;
 const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
-import FluentLocalizer from './emails/fluent-localizer';
+const FluentLocalizer = require('./emails/fluent-localizer').default;
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json');
 
