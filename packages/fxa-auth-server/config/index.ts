@@ -842,23 +842,37 @@ const conf = convict({
       },
     },
     playApiServiceAccount: {
+      credentials: {
+        client_email: {
+          default: 'test@localtest.com',
+          doc: 'The email of the service account to use for Play API calls',
+          env: 'SUBSCRIPTIONS_PLAY_CLIENT_EMAIL_CREDENTIAL',
+          format: String,
+        },
+        private_key: {
+          default: '',
+          doc: 'The private key of the service account to use for Play API calls',
+          env: 'SUBSCRIPTIONS_PLAY_PRIVATE_KEY_CREDENTIAL',
+          format: String,
+        },
+      },
+      keyFilename: {
+        default: '',
+        doc: 'Path to GCP key file',
+        env: 'SUBSCRIPTIONS_PLAY_KEY_FILE',
+        format: String,
+      },
+      projectId: {
+        default: '',
+        doc: 'GCP Project id for Play Store Account',
+        env: 'SUBSCRIPTIONS_PLAY_API_PROJECT_ID',
+        format: String,
+      },
       enabled: {
         doc: 'Indicates whether the Play API is enabled',
         format: Boolean,
         default: false,
         env: 'SUBSCRIPTIONS_PLAY_API_ENABLED',
-      },
-      clientEmail: {
-        doc: 'The email of the service account to use for Play API calls',
-        format: String,
-        default: 'email',
-        env: 'SUBSCRIPTIONS_PLAY_API_CLIENT_EMAIL',
-      },
-      privateKey: {
-        doc: 'The private key of the service account to use for Play API calls',
-        format: String,
-        default: 'key',
-        env: 'SUBSCRIPTIONS_PLAY_API_PRIVATE_KEY',
       },
     },
     sharedSecret: {
