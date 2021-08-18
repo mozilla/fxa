@@ -13355,13 +13355,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color@npm:^3.0.0, color@npm:^3.1.2, color@npm:^3.1.3, color@npm:^3.2.0":
+"color@npm:^3.0.0, color@npm:^3.1.2, color@npm:^3.2.0":
   version: 3.2.1
   resolution: "color@npm:3.2.1"
   dependencies:
     color-convert: ^1.9.3
     color-string: ^1.6.0
   checksum: f81220e8b774d35865c2561be921f5652117638dcda7ca4029262046e37fc2444ac7bbfdd110cf1fd9c074a4ee5eda8f85944ffbdda26186b602dd9bb05f6400
+  languageName: node
+  linkType: hard
+
+"color@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "color@npm:4.0.1"
+  dependencies:
+    color-convert: ^2.0.1
+    color-string: ^1.6.0
+  checksum: 46b1e7c6a5d5b1db5e0a8f1f32eea015a1923c9a591cbef67e20b439d67fe8043a7c3beb96c602f0055068909c3ee73bc8ee1817e76a25861a92f64430d6118f
   languageName: node
   linkType: hard
 
@@ -19426,7 +19436,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     request: ^2.88.2
     rimraf: ^3.0.2
-    sharp: ^0.28.3
+    sharp: ^0.29.0
     sinon: ^9.0.3
     stream-to-array: 2.3.0
     through: 2.3.8
@@ -27784,12 +27794,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-addon-api@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "node-addon-api@npm:3.2.0"
+"node-addon-api@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "node-addon-api@npm:4.0.0"
   dependencies:
     node-gyp: latest
-  checksum: 538893f075a2f70b659e0ae82bdb2cd627b1b76ddcc9c39e95dc8ff4be786e9f6766ed2aac7d4159f879f0c49a3551636f6d09907865afc5643703e1752e4c3e
+  checksum: a296fd70e10111ed599c20d6543f890aefa36285afafd1c9930af6d6250767b16b046fe14ae65929c473461db0fe6432f81ba3c7a7f8929204a4dbcf2e239a65
   languageName: node
   linkType: hard
 
@@ -28076,13 +28086,6 @@ fsevents@~2.1.1:
     chalk: ~0.4.0
     underscore: ~1.6.0
   checksum: cc6f538062741e8914b65352499c444a754d18a95f8c4b336b9183367c44335f00a9d3beb54648f6a76d5434702a3d71bf37c23ef4c960d39595ed72d376c6fd
-  languageName: node
-  linkType: hard
-
-"noop-logger@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "noop-logger@npm:0.1.1"
-  checksum: 9f99da270d074a2f268de2eae3ebcb44f12cc2f7241417c7be9f1e206f614afa632a27b91febab86163f88bb54466d638e49c9f62d899105f18d5ed5bcd51ed1
   languageName: node
   linkType: hard
 
@@ -31015,9 +31018,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"prebuild-install@npm:^6.1.2":
-  version: 6.1.2
-  resolution: "prebuild-install@npm:6.1.2"
+"prebuild-install@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "prebuild-install@npm:6.1.4"
   dependencies:
     detect-libc: ^1.0.3
     expand-template: ^2.0.3
@@ -31026,7 +31029,6 @@ fsevents@~2.1.1:
     mkdirp-classic: ^0.5.3
     napi-build-utils: ^1.0.1
     node-abi: ^2.21.0
-    noop-logger: ^0.1.1
     npmlog: ^4.0.1
     pump: ^3.0.0
     rc: ^1.2.7
@@ -31034,8 +31036,8 @@ fsevents@~2.1.1:
     tar-fs: ^2.0.0
     tunnel-agent: ^0.6.0
   bin:
-    prebuild-install: ./bin.js
-  checksum: db205c9f408cdfc13a6ad0dbc88bc7aeed76fb5ccb232f1eb515e6686da7f20f48831ca9142dcf38b2785f5906914371a95342032e54e421c08efa45785c80b6
+    prebuild-install: bin.js
+  checksum: de4313eda821305912af922700a2db04bb8e77fe8aa9c2788550f1000c026cbefc82da468ec0c0a37764c5417bd8169dbd540928535fb38d00bb9bbd673dd217
   languageName: node
   linkType: hard
 
@@ -34371,20 +34373,20 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.28.3":
-  version: 0.28.3
-  resolution: "sharp@npm:0.28.3"
+"sharp@npm:^0.29.0":
+  version: 0.29.0
+  resolution: "sharp@npm:0.29.0"
   dependencies:
-    color: ^3.1.3
+    color: ^4.0.1
     detect-libc: ^1.0.3
-    node-addon-api: ^3.2.0
+    node-addon-api: ^4.0.0
     node-gyp: latest
-    prebuild-install: ^6.1.2
+    prebuild-install: ^6.1.4
     semver: ^7.3.5
     simple-get: ^3.1.0
     tar-fs: ^2.1.1
     tunnel-agent: ^0.6.0
-  checksum: ae25a81817dfa985ac5f9cb38d1add959a7740514c144aca5f414f3552909a22beb53d6d3613353a1fe7616ac43f2e50da60ce216352af5ee4efea32a442dfe5
+  checksum: ca70ee03e3052cef1bb441f80b0a8fd506e397d04c9a124848d6cc363debb3a95f2663bf1ef57994582a63036d540701765a884af8c72444b694319bc3c8d372
   languageName: node
   linkType: hard
 
