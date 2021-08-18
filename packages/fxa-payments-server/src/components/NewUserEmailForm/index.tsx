@@ -1,5 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { Localized } from '@fluent/react';
+import debounce from 'lodash.debounce';
 
 import { isEmailValid } from '../../../../fxa-shared/email/helpers';
 
@@ -67,6 +69,11 @@ export const NewUserEmailForm = ({
     onFormEngaged();
   }, [onFormEngaged]);
 
+  const debouncedCheckAccountExists = useMemo(
+    () => debounce((email: string) => checkAccountExists(email), 300),
+    []
+  );
+
   return (
     <Form
       data-testid="new-user-email-form"
@@ -91,18 +98,18 @@ export const NewUserEmailForm = ({
           placeholder="foxy@mozilla.com"
           required
           spellCheck={false}
-          onValidatePromise={(value, focused) => {
-            return emailInputValidationAndAccountCheck(
+          onValidatePromise={(value: string, focused: boolean) =>
+            emailInputValidationAndAccountCheck(
               value,
               focused,
               setValidEmail,
               setAccountExists,
               setEmailInputState,
-              checkAccountExists,
+              debouncedCheckAccountExists,
               signInURL,
               getString
-            );
-          }}
+            )
+          }
         />
       </Localized>
 
@@ -114,15 +121,15 @@ export const NewUserEmailForm = ({
           data-testid="new-user-confirm-email"
           required
           spellCheck={false}
-          onValidate={(value, focused) => {
-            return emailConfirmationValidation(
+          onValidate={(value: string, focused: boolean) =>
+            emailConfirmationValidation(
               value,
               focused,
               emailInputState,
               setEmailsMatch,
               getString
-            );
-          }}
+            )
+          }
         />
       </Localized>
 
@@ -159,7 +166,7 @@ export async function emailInputValidationAndAccountCheck(
   setValidEmail: (value: string) => void,
   setAccountExists: (value: boolean) => void,
   setEmailInputState: (value: string) => void,
-  checkAccountExists: (email: string) => Promise<{ exists: boolean }>,
+  debouncedCheckAccountExists: (email: string) => Promise<{ exists: boolean }>,
   signInURL: string,
   getString?: (id: string) => string
 ) {
@@ -170,9 +177,11 @@ export async function emailInputValidationAndAccountCheck(
   if (isEmailValid(value)) {
     valid = true;
     setValidEmail(value);
-    const response = await checkAccountExists(value);
-    hasAccount = response.exists;
-    setAccountExists(response.exists);
+    const response = await debouncedCheckAccountExists(value);
+    if (response?.exists) {
+      hasAccount = response.exists;
+    }
+    setAccountExists(hasAccount);
   } else {
     setValidEmail('');
   }
