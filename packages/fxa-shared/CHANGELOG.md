@@ -1,5 +1,25 @@
 # Change history
 
+## 1.213.0
+
+### New features
+
+- auth: add play RTDN handling ([f84f142ea](https://github.com/mozilla/fxa/commit/f84f142ea))
+- metrics: Emit metric when viewing account create form in payments ([b9c210361](https://github.com/mozilla/fxa/commit/b9c210361))
+- subscriptions: create acct and subscribe with Stripe ([3ced8935b](https://github.com/mozilla/fxa/commit/3ced8935b))
+
+### Other changes
+
+- fxa-payments-server: add legal links to checkout form ([b12a2de98](https://github.com/mozilla/fxa/commit/b12a2de98))
+- deps: bump aws-sdk from 2.965.0 to 2.969.0 ([9f277451f](https://github.com/mozilla/fxa/commit/9f277451f))
+- deps: bump stripe from 8.168.0 to 8.169.0 ([0bc6ab329](https://github.com/mozilla/fxa/commit/0bc6ab329))
+- deps: bump @sentry/browser from 6.10.0 to 6.11.0 ([679f3e049](https://github.com/mozilla/fxa/commit/679f3e049))
+- deps: bump @nestjs/core from 8.0.5 to 8.0.6 ([fde6cb4a3](https://github.com/mozilla/fxa/commit/fde6cb4a3))
+- deps: bump @sentry/node from 6.10.0 to 6.11.0 ([25f24a897](https://github.com/mozilla/fxa/commit/25f24a897))
+- deps: bump aws-sdk from 2.963.0 to 2.965.0 ([3842bb268](https://github.com/mozilla/fxa/commit/3842bb268))
+- deps: bump stripe from 8.167.0 to 8.168.0 ([0afc8393c](https://github.com/mozilla/fxa/commit/0afc8393c))
+- deps: bump aws-sdk from 2.958.0 to 2.963.0 ([1d3993916](https://github.com/mozilla/fxa/commit/1d3993916))
+
 ## 1.212.2
 
 No changes.

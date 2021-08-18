@@ -1,5 +1,44 @@
 # Change history
 
+## 1.213.0
+
+### New features
+
+- payment: update payment success page to new designs ([5a6cad9d9](https://github.com/mozilla/fxa/commit/5a6cad9d9))
+- payments: handle new/previously unhandled errors in passwordless checkout ([42bdc6c9f](https://github.com/mozilla/fxa/commit/42bdc6c9f))
+- payments: wire up newsletter checkbox in the Checkout route ([689e8ab81](https://github.com/mozilla/fxa/commit/689e8ab81))
+- subscriptions: handle passwordless subscriptions ([d2a8f9770](https://github.com/mozilla/fxa/commit/d2a8f9770))
+- metrics: Emit metric when viewing account create form in payments ([b9c210361](https://github.com/mozilla/fxa/commit/b9c210361))
+- payments: Display localized account exists tooltip in NewUserEmailForm ([941078612](https://github.com/mozilla/fxa/commit/941078612))
+- subscriptions: add an optional cb called in PayPal's createOrder ([8ccf0ae0d](https://github.com/mozilla/fxa/commit/8ccf0ae0d))
+- payments: add newsletter signup helper functions and config ([939b64054](https://github.com/mozilla/fxa/commit/939b64054))
+- subscriptions: create acct and subscribe with Stripe ([3ced8935b](https://github.com/mozilla/fxa/commit/3ced8935b))
+
+### Bug fixes
+
+- fxa-payments-server: debounce account check ([0991b8f9f](https://github.com/mozilla/fxa/commit/0991b8f9f))
+- storybook: add access token to app context in Payments storybook ([2a61e4e86](https://github.com/mozilla/fxa/commit/2a61e4e86))
+- payments: ensure plan is never undefined in Checkout signInURL ([5c9e18862](https://github.com/mozilla/fxa/commit/5c9e18862))
+- payments: add checkout route to INDEX_ROUTES ([c3fbf419c](https://github.com/mozilla/fxa/commit/c3fbf419c))
+
+### Other changes
+
+- deps: bump @stripe/stripe-js from 1.16.0 to 1.17.0 ([f2526bc71](https://github.com/mozilla/fxa/commit/f2526bc71))
+- deps-dev: bump supertest from 6.1.5 to 6.1.6 ([ff94f17b8](https://github.com/mozilla/fxa/commit/ff94f17b8))
+- fxa-payments-server: add legal links to checkout form ([b12a2de98](https://github.com/mozilla/fxa/commit/b12a2de98))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([c61eaf8f4](https://github.com/mozilla/fxa/commit/c61eaf8f4))
+- deps-dev: bump @storybook/addon-links from 6.3.6 to 6.3.7 ([ad6033217](https://github.com/mozilla/fxa/commit/ad6033217))
+- deps-dev: bump supertest from 6.1.4 to 6.1.5 ([caa294dab](https://github.com/mozilla/fxa/commit/caa294dab))
+- deps: bump @sentry/browser from 6.10.0 to 6.11.0 ([679f3e049](https://github.com/mozilla/fxa/commit/679f3e049))
+- deps-dev: bump @babel/register from 7.14.5 to 7.15.3 ([660d4f90e](https://github.com/mozilla/fxa/commit/660d4f90e))
+- deps: bump @sentry/node from 6.10.0 to 6.11.0 ([25f24a897](https://github.com/mozilla/fxa/commit/25f24a897))
+- deps-dev: bump @storybook/addon-actions from 6.3.6 to 6.3.7 ([9ac01e6af](https://github.com/mozilla/fxa/commit/9ac01e6af))
+- fxa-payments-server: paypal button disable ([5687c8d51](https://github.com/mozilla/fxa/commit/5687c8d51))
+- fxa-payments-server: add components to new checkout layout ([a469de6d5](https://github.com/mozilla/fxa/commit/a469de6d5))
+- deps-dev: bump @typescript-eslint/parser from 4.28.5 to 4.29.0 ([3f1d1aaf9](https://github.com/mozilla/fxa/commit/3f1d1aaf9))
+- deps: bump redux from 4.1.0 to 4.1.1 ([9394d0f9a](https://github.com/mozilla/fxa/commit/9394d0f9a))
+- deps-dev: bump caniuse-lite from 1.0.30001245 to 1.0.30001249 ([b8246af01](https://github.com/mozilla/fxa/commit/b8246af01))
+
 ## 1.212.2
 
 No changes.

@@ -1,5 +1,29 @@
 # Change history
 
+## 1.213.0
+
+### New features
+
+- auth: add play RTDN handling ([f84f142ea](https://github.com/mozilla/fxa/commit/f84f142ea))
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.16.3 to 2.16.4 ([15fa76f77](https://github.com/mozilla/fxa/commit/15fa76f77))
+- deps-dev: bump supertest from 6.1.5 to 6.1.6 ([ff94f17b8](https://github.com/mozilla/fxa/commit/ff94f17b8))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([c61eaf8f4](https://github.com/mozilla/fxa/commit/c61eaf8f4))
+- deps: bump aws-sdk from 2.965.0 to 2.969.0 ([9f277451f](https://github.com/mozilla/fxa/commit/9f277451f))
+- deps: bump @google-cloud/firestore from 4.13.2 to 4.14.1 ([18ab3cf1a](https://github.com/mozilla/fxa/commit/18ab3cf1a))
+- deps-dev: bump supertest from 6.1.4 to 6.1.5 ([caa294dab](https://github.com/mozilla/fxa/commit/caa294dab))
+- deps: bump @google-cloud/pubsub from 2.16.2 to 2.16.3 ([f90942d76](https://github.com/mozilla/fxa/commit/f90942d76))
+- deps: bump @nestjs/core from 8.0.5 to 8.0.6 ([fde6cb4a3](https://github.com/mozilla/fxa/commit/fde6cb4a3))
+- deps: bump @sentry/node from 6.10.0 to 6.11.0 ([25f24a897](https://github.com/mozilla/fxa/commit/25f24a897))
+- deps-dev: bump eslint-plugin-import from 2.23.4 to 2.24.0 ([95960c29d](https://github.com/mozilla/fxa/commit/95960c29d))
+- deps: bump aws-sdk from 2.963.0 to 2.965.0 ([3842bb268](https://github.com/mozilla/fxa/commit/3842bb268))
+- deps: bump @google-cloud/pubsub from 2.16.1 to 2.16.2 ([0b8a9c4fe](https://github.com/mozilla/fxa/commit/0b8a9c4fe))
+- deps: bump aws-sdk from 2.958.0 to 2.963.0 ([1d3993916](https://github.com/mozilla/fxa/commit/1d3993916))
+- deps-dev: bump @typescript-eslint/parser from 4.28.5 to 4.29.0 ([3f1d1aaf9](https://github.com/mozilla/fxa/commit/3f1d1aaf9))
+- deps: bump google-auth-library from 7.4.1 to 7.5.0 ([004b2d727](https://github.com/mozilla/fxa/commit/004b2d727))
+
 ## 1.212.2
 
 No changes.

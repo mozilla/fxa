@@ -1,3 +1,9 @@
+## 1.213.0
+
+### Other changes
+
+- deps: bump @sentry/node from 6.10.0 to 6.11.0 ([25f24a897](https://github.com/mozilla/fxa/commit/25f24a897))
+
 ## 1.212.2
 
 No changes.

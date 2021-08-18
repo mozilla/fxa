@@ -1,3 +1,21 @@
+## 1.213.0
+
+### New features
+
+- auth: use a JWT to finish account setup for stub accounts ([87bb1808b](https://github.com/mozilla/fxa/commit/87bb1808b))
+- subscriptions: create acct and subscribe with Stripe ([3ced8935b](https://github.com/mozilla/fxa/commit/3ced8935b))
+
+### Bug fixes
+
+- only 6 digits can be entered as security code ([46019d40c](https://github.com/mozilla/fxa/commit/46019d40c))
+
+### Other changes
+
+- deps: bump webpack-cli from 4.7.2 to 4.8.0 ([26358b0d4](https://github.com/mozilla/fxa/commit/26358b0d4))
+- deps: bump @sentry/browser from 6.10.0 to 6.11.0 ([679f3e049](https://github.com/mozilla/fxa/commit/679f3e049))
+- deps: bump @sentry/node from 6.10.0 to 6.11.0 ([25f24a897](https://github.com/mozilla/fxa/commit/25f24a897))
+- copy: Update reset password copy ([780d11e61](https://github.com/mozilla/fxa/commit/780d11e61))
+
 ## 1.212.2
 
 No changes.

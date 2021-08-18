@@ -1,3 +1,40 @@
+## 1.213.0
+
+### New features
+
+- auth: use a JWT to finish account setup for stub accounts ([87bb1808b](https://github.com/mozilla/fxa/commit/87bb1808b))
+- subscriptions: send finish setup email for PayPal subscriptions ([be5ec616a](https://github.com/mozilla/fxa/commit/be5ec616a))
+- fxa-auth-server: Convert cadReminderSecond email to new stack ([29e39d60f](https://github.com/mozilla/fxa/commit/29e39d60f))
+- auth: add play RTDN handling ([f84f142ea](https://github.com/mozilla/fxa/commit/f84f142ea))
+- fxa-auth-server: Convert lowRecoveryCodes template to new stack ([b5cd45241](https://github.com/mozilla/fxa/commit/b5cd45241))
+- auth-server: Convert cadReminderFirst to new stack ([22a3db9a9](https://github.com/mozilla/fxa/commit/22a3db9a9))
+- subscriptions: create acct and subscribe with Stripe ([3ced8935b](https://github.com/mozilla/fxa/commit/3ced8935b))
+
+### Bug fixes
+
+- allow Play config with private key ([c617dc8e9](https://github.com/mozilla/fxa/commit/c617dc8e9))
+- emails: stop escaping html tag in failed payment email ([a2e65f6b0](https://github.com/mozilla/fxa/commit/a2e65f6b0))
+- emails: Don't send download subscription for passwordless accounts ([5a43f6346](https://github.com/mozilla/fxa/commit/5a43f6346))
+
+### Other changes
+
+- deps-dev: bump sass from 1.37.5 to 1.38.0 ([3c53df838](https://github.com/mozilla/fxa/commit/3c53df838))
+- deps: bump aws-sdk from 2.965.0 to 2.969.0 ([9f277451f](https://github.com/mozilla/fxa/commit/9f277451f))
+- deps: bump @google-cloud/firestore from 4.13.2 to 4.14.1 ([18ab3cf1a](https://github.com/mozilla/fxa/commit/18ab3cf1a))
+- deps-dev: bump @storybook/html from 6.3.6 to 6.3.7 ([3f42c45cd](https://github.com/mozilla/fxa/commit/3f42c45cd))
+- deps: bump stripe from 8.168.0 to 8.169.0 ([0bc6ab329](https://github.com/mozilla/fxa/commit/0bc6ab329))
+- deps: bump luxon from 2.0.1 to 2.0.2 ([867deace5](https://github.com/mozilla/fxa/commit/867deace5))
+- deps: bump @sentry/node from 6.10.0 to 6.11.0 ([25f24a897](https://github.com/mozilla/fxa/commit/25f24a897))
+- deps: bump aws-sdk from 2.963.0 to 2.965.0 ([3842bb268](https://github.com/mozilla/fxa/commit/3842bb268))
+- auth-server: update docs and formatting nits ([5ebff0d8a](https://github.com/mozilla/fxa/commit/5ebff0d8a))
+- deps-dev: bump @storybook/addon-controls from 6.3.6 to 6.3.7 ([541d590c4](https://github.com/mozilla/fxa/commit/541d590c4))
+- deps-dev: bump @storybook/addon-toolbars from 6.3.6 to 6.3.7 ([f51c6e198](https://github.com/mozilla/fxa/commit/f51c6e198))
+- deps: bump stripe from 8.167.0 to 8.168.0 ([0afc8393c](https://github.com/mozilla/fxa/commit/0afc8393c))
+- deps: bump aws-sdk from 2.958.0 to 2.963.0 ([1d3993916](https://github.com/mozilla/fxa/commit/1d3993916))
+- deps: bump googleapis from 83.0.0 to 84.0.0 ([67be63c2c](https://github.com/mozilla/fxa/commit/67be63c2c))
+- subscriptions: fix a scope rename that should've been in 3ced8935b ([f7151dad5](https://github.com/mozilla/fxa/commit/f7151dad5))
+- deps: bump mjml from 4.10.1 to 4.10.2 ([65ed4dcf1](https://github.com/mozilla/fxa/commit/65ed4dcf1))
+
 ## 1.212.2
 
 ### Other changes
