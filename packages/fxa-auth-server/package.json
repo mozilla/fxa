@@ -70,7 +70,7 @@
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "ejs": "^3.1.6",
-    "email-addresses": "4.0.0",
+    "email-addresses": "5.0.0",
     "emittery": "^0.9.2",
     "fxa-geodb": "workspace:*",
     "fxa-jwtool": "^0.7.2",
