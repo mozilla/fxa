@@ -28,7 +28,7 @@ const BASIC_ERROR = 'basic-error-message';
 const PAYMENT_ERROR_1 = 'payment-error-1';
 const PAYMENT_ERROR_2 = 'payment-error-2';
 const PAYMENT_ERROR_3 = 'payment-error-3b';
-const FXA_SIGNUP_ERROR = 'fxa-account-signup-error';
+const FXA_SIGNUP_ERROR = 'fxa-account-signup-error-2';
 const FXA_NEWSLETTER_SIGNUP_ERROR = 'newsletter-signup-error';
 const FXA_POST_PASSWORDLESS_SUB_ERROR = 'fxa-post-passwordless-sub-error';
 
