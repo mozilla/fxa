@@ -434,6 +434,10 @@ describe('createBackendServiceAPI', () => {
     mockService
       .post('/test_post/abc', (body) => true)
       .replyWithError('ruh-roh!');
+    // we expect one retry
+    mockService
+      .post('/test_post/abc', (body) => true)
+      .replyWithError('ruh-roh!');
     try {
       await api.testPostWithValidation('abc', {}, { foo: 'bar' });
       assert.fail('should have thrown');
