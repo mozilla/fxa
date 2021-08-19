@@ -569,7 +569,7 @@ export class AccountHandler {
       // Only proceed if the account is in the stub state.
       // This prevents a token from being used multiple times.
       if (account.verifierSetAt !== 0) {
-        return {};
+        throw error.unauthorized('token already used');
       }
       const { authSalt, wrapWrapKb } = account;
       const password = new this.Password(
@@ -590,12 +590,24 @@ export class AccountHandler {
         }
       );
       await this.db.resetAccountTokens(uid);
+      const sessionToken = await this.createSessionToken({
+        account,
+        request,
+        // this route counts as verification
+        tokenVerificationCode: undefined,
+        tokenVerificationId: undefined,
+      });
+      return {
+        uid,
+        sessionToken: sessionToken.data,
+        verified: sessionToken.emailVerified,
+      };
     } catch (err) {
       this.log.error('Account.finish_setup.error', {
         err,
       });
+      throw err;
     }
-    return {};
   }
 
   async login(request: AuthRequest) {

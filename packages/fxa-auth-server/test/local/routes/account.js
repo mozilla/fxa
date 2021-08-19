@@ -1359,27 +1359,28 @@ describe('/account/finish_setup', () => {
   }
 
   it('succeeds when the account is a stub', () => {
-    const { route, mockRequest, mockDB } = setup({
+    const { route, mockRequest, mockDB, uid } = setup({
       verifierSetAt: 0,
     });
     return runTest(route, mockRequest, (response) => {
       assert.equal(mockDB.verifyEmail.callCount, 1);
       assert.equal(mockDB.resetAccount.callCount, 1);
       assert.equal(mockDB.resetAccountTokens.callCount, 1);
-      assert.deepEqual(response, {});
+      assert.ok(response.sessionToken);
+      assert.equal(response.uid, uid);
     });
   });
 
-  it('does nothing when the account is already set up', () => {
-    const { route, mockRequest, mockDB } = setup({
+  it('returns an unauthorized error when the account is already set up', async () => {
+    const { route, mockRequest } = setup({
       verifierSetAt: Date.now(),
     });
-    return runTest(route, mockRequest, (response) => {
-      assert.equal(mockDB.verifyEmail.callCount, 0);
-      assert.equal(mockDB.resetAccount.callCount, 0);
-      assert.equal(mockDB.resetAccountTokens.callCount, 0);
-      assert.deepEqual(response, {});
-    });
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.errno, 110);
+    }
   });
 });
 
