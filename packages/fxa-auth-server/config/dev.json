@@ -432,7 +432,8 @@
       "cadReminderFirst",
       "cadReminderSecond",
       "lowRecoveryCodes",
-      "postVerify"
+      "postVerify",
+      "postRemoveSecondary"
     ]
   }
 }
