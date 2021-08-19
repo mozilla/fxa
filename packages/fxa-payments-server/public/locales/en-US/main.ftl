@@ -41,7 +41,7 @@ coupon-expired = It looks like that promo code has expired.
 card-error = Your transaction could not be processed. Please verify your credit card information and try again.
 
 ##  $productName (String) - The name of the subscribed product.
-fxa-account-signup-error = A system error caused your ${ productName } sign-up to fail. Your payment method has not been charged. Please try again.
+fxa-account-signup-error-2 = A system error caused your { $productName } sign-up to fail. Your payment method has not been charged. Please try again.
 newsletter-signup-error = You're not signed up for product update emails. You can try again in your account settings.
 fxa-post-passwordless-sub-error = Subscription confirmed, but the confirmation page failed to load. Please check your email to set up your account.
 
