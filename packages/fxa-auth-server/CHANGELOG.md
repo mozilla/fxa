@@ -1,3 +1,10 @@
+## 1.213.2
+
+### Bug fixes
+
+- auth: rename subject of subscriptionAccountFinishSetup email ([2d8fffe4d](https://github.com/mozilla/fxa/commit/2d8fffe4d))
+- auth: use proper jwks key plugin ([7bf3897ba](https://github.com/mozilla/fxa/commit/7bf3897ba))
+
 ## 1.213.1
 
 ### Bug fixes
