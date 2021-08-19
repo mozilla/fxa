@@ -262,7 +262,7 @@ const TESTS = [
     ]]
   ])],
   ['subscriptionAccountFinishSetupEmail', new Map([
-    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+    ['subject', { test: 'equal', expected: `Welcome to ${MESSAGE.productName}: Please set your password.` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountFinishSetup') }],
       ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountFinishSetup' }],
