@@ -21,7 +21,7 @@ exports.strategy = (config) => {
   return {
     // Get the complete decoded token, because we need info from the header (the kid)
     complete: true,
-    key: jwksRsa.hapiJwt2Key({
+    key: jwksRsa.hapiJwt2KeyAsync({
       cache: true,
       rateLimit: true,
       jwksRequestsPerMinute: 5,
