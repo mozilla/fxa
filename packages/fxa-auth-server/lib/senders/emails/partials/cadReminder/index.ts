@@ -5,7 +5,6 @@
 import { appBadges, button, automatedEmailNoAction } from '../../partials';
 
 export const cadReminder = `
-  <mj-include path="./lib/senders/emails/css/cadReminder/index.css" type="css" css-inline="inline" />
   <mj-section>
     <mj-column>
       <mj-text css-class="header-text"><span data-l10n-id="<%- templateName %>-title"><%- headerText %></span></mj-text>

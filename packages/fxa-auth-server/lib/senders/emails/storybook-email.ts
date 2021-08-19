@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Story } from '@storybook/html';
+
 export interface StorybookEmailArgs {
   template: string;
   layout: string;
@@ -10,8 +12,14 @@ export interface StorybookEmailArgs {
   variables: Record<string, any>;
 }
 
+/* in production, `utm` parameters may also exist in the urls */
 export const commonArgs = {
-  privacyUrl: 'https://www.mozilla.org/privacy', // in production, `utm` parameters may exist
+  androidUrl:
+    'https://accounts-static.cdn.mozilla.net/product-icons/google-play.png',
+  iosUrl:
+    'https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png',
+  link: 'http://localhost:3030/connect_another_device',
+  privacyUrl: 'https://www.mozilla.org/privacy',
   supportUrl:
     'https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account',
 };
@@ -70,5 +78,8 @@ async function renderUsingMJML({
   }
   return { html, subject };
 }
+
+export const Template: Story<StorybookEmailArgs> = (args) =>
+  storybookEmail(args);
 
 export default storybookEmail;

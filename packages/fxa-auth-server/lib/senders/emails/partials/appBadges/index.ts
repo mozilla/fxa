@@ -26,7 +26,7 @@ export const appBadges = `
     <mj-column>
       <% if (locals.onDesktopOrTabletDevice) { %>
       <mj-text css-class="secondary-text mb-5"><span data-l10n-id="another-desktop-device"> Or, install on
-        <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another desktop device</a></span>
+        <a href="<%- desktopLink %>" class="link-blue" data-l10n-name="anotherDeviceLink">another desktop device</a></span>
       </mj-text>
       <% } else { %>
       <mj-text css-class="secondary-text mb-5"><span data-l10n-id="another-device"> Or, install on
