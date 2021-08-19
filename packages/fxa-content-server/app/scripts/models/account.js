@@ -1171,8 +1171,10 @@ const Account = Backbone.Model.extend(
         });
     },
 
-    finishSetup(token, email, password) {
-      return this._fxaClient.finishSetup(token, email, password);
+    finishSetup(relier, token, email, password) {
+      return this._fxaClient
+        .finishSetup(relier, token, email, password)
+        .then(this.set.bind(this));
     },
 
     /**
