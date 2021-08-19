@@ -1960,7 +1960,9 @@ module.exports = function (log, config) {
     const action = gettext('Create a password');
     const translatorParams = { productName };
     const subject = translator.format(
-      translator.gettext('%(productName)s payment confirmed'),
+      translator.gettext(
+        'Welcome to %(productName)s: Please set your password.'
+      ),
       translatorParams
     );
 
