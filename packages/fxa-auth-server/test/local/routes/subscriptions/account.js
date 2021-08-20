@@ -96,8 +96,8 @@ describe('routes/subscriptions/account', () => {
           invoiceTotalInCents: invoice.total,
           invoiceTotalCurrency: invoice.currency,
           planEmailIconURL: subscription.plan.plan_metadata.emailIconURL,
-          invoiceDate: invoice.created,
-          nextInvoiceDate: subscription.current_period_end,
+          invoiceDate: new Date(invoice.created * 1000),
+          nextInvoiceDate: new Date(subscription.current_period_end * 1000),
           token,
         }
       );
