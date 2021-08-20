@@ -32,21 +32,13 @@ export async function sendFinishSetupEmailForStubAccount({
         },
       }
     );
-    const invoice: Stripe.Invoice =
-      subscription.latest_invoice as Stripe.Invoice;
     const plan = await stripeHelper.findPlanById(subscription.plan!.id);
     const meta = metadataFromPlan(plan);
+    const invoiceDetails = await stripeHelper.extractInvoiceDetailsForEmail(
+      subscription.latest_invoice
+    );
     await mailer.sendSubscriptionAccountFinishSetupEmail([], account, {
-      email,
-      uid,
-      productId: subscription.plan!.product,
-      productName: plan.product_name,
-      invoiceNumber: invoice.number,
-      invoiceTotalInCents: invoice.total,
-      invoiceTotalCurrency: invoice.currency,
-      planEmailIconURL: meta.emailIconURL,
-      invoiceDate: invoice.created,
-      nextInvoiceDate: subscription.current_period_end,
+      ...invoiceDetails,
       token,
     });
   }
