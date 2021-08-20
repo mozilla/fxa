@@ -1,3 +1,9 @@
+## 1.213.3
+
+### Bug fixes
+
+- auth: return a session token in /account/finish_setup ([cad9b1b62](https://github.com/mozilla/fxa/commit/cad9b1b62))
+
 ## 1.213.2
 
 No changes.

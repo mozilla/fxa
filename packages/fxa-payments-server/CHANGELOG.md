@@ -1,5 +1,11 @@
 # Change history
 
+## 1.213.3
+
+### Bug fixes
+
+- auth/payments: ensure /newsletters endpoint validates request and passes newsletters on to SQS ([ab5cc8ebf](https://github.com/mozilla/fxa/commit/ab5cc8ebf))
+
 ## 1.213.2
 
 No changes.
