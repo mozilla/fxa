@@ -297,6 +297,7 @@ module.exports = ({ log, oauthDB, config }) => {
       config: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: Joi.object({
@@ -313,7 +314,8 @@ module.exports = ({ log, oauthDB, config }) => {
             access_type: Joi.string()
               .valid('offline', 'online')
               .default('online'),
-            code_challenge_method: validators.pkceCodeChallengeMethod.optional(),
+            code_challenge_method:
+              validators.pkceCodeChallengeMethod.optional(),
             code_challenge: validators.pkceCodeChallenge.optional(),
             keys_jwe: validators.jwe.optional(),
             acr_values: Joi.string().max(256).allow(null).optional(),

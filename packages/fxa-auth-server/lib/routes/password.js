@@ -127,6 +127,7 @@ module.exports = function (
       options: {
         auth: {
           strategy: 'passwordChangeToken',
+          payload: 'required',
         },
         validate: {
           query: {
@@ -532,6 +533,7 @@ module.exports = function (
       options: {
         auth: {
           strategy: 'passwordForgotToken',
+          payload: 'required',
         },
         validate: {
           query: {
@@ -625,6 +627,7 @@ module.exports = function (
       options: {
         auth: {
           strategy: 'passwordForgotToken',
+          payload: 'required',
         },
         validate: {
           payload: {

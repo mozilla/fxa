@@ -200,6 +200,7 @@ module.exports = (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           query: {
@@ -574,6 +575,7 @@ module.exports = (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
@@ -745,6 +747,7 @@ module.exports = (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
@@ -802,6 +805,7 @@ module.exports = (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
@@ -910,6 +914,7 @@ module.exports = (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
@@ -990,6 +995,7 @@ module.exports = (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
@@ -1059,6 +1065,7 @@ module.exports = (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
       },
       handler: async function (request) {

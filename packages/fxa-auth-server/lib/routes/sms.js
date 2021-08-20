@@ -28,6 +28,7 @@ module.exports = (log, db, config, customs, sms) => {
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
@@ -61,9 +62,8 @@ module.exports = (log, db, config, customs, sms) => {
           throw error.invalidPhoneNumber();
         }
 
-        const region = phoneNumberUtil.getRegionCodeForNumber(
-          parsedPhoneNumber
-        );
+        const region =
+          phoneNumberUtil.getRegionCodeForNumber(parsedPhoneNumber);
         await request.emitMetricsEvent(`sms.region.${region}`);
 
         if (!REGIONS.has(region)) {
