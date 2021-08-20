@@ -13,7 +13,7 @@ export const FXA_NEWSLETTER_SIGNUP_ERROR: GeneralError = {
 export async function handleNewsletterSignup() {
   try {
     await apiSignupForNewsletter({
-      newsletterId: config.newsletterId,
+      newsletters: [config.newsletterId],
     });
   } catch (e) {
     sentry.captureException(e);

@@ -643,7 +643,7 @@ describe('API requests', () => {
 
   describe('apiSignupForNewsletter', () => {
     it('POST {auth-server}/v1/account/newsletters', async () => {
-      const arg = { newsletterId: 'cooking-with-foxkeh' };
+      const arg = { newsletters: ['cooking-with-foxkeh'] };
       const resp = {};
       const requestMock = nock(AUTH_BASE_URL)
         .post('/v1/newsletters', arg)

@@ -9,6 +9,9 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const ScopeSet = require('fxa-shared/oauth/scopes');
+const error = require('../../../lib/error');
+
+const { INVALID_PARAMETER, MISSING_PARAMETER } = error.ERRNO;
 
 function makeRoutes(options = {}) {
   const log = options.log || mocks.mockLog();
@@ -180,6 +183,61 @@ describe('/newsletters should emit newsletters update message', () => {
       return runTest(route, request)
         .then(() => assert.fail('An error should have been thrown.'))
         .catch((e) => assert.equal(e.output.payload.code, 401))
+        .finally(() => ScopeSet.fromArray.restore());
+    });
+  });
+
+  describe('request errors', () => {
+    beforeEach(() => {
+      log = mocks.mockLog();
+      db = mocks.mockDB({
+        email,
+        uid,
+      });
+      routes = makeRoutes({ log, db });
+      route = getRoute(routes, '/newsletters');
+      sinon.stub(ScopeSet, 'fromArray').returns({ contains: () => true });
+    });
+    it('throws a bad request error when "newsletters" is missing', () => {
+      request = mocks.mockRequest({
+        auth: {
+          strategy: 'oauthToken',
+        },
+        credentials: {
+          email,
+          user: uid,
+        },
+        log,
+        payload: {
+          nope: 'not-correct',
+        },
+      });
+      return runTest(route, request)
+        .catch((e) => {
+          assert.equal(e.output.payload.code, 400);
+          assert.equal(e.output.payload.errno, MISSING_PARAMETER);
+        })
+        .finally(() => ScopeSet.fromArray.restore());
+    });
+    it('throws a bad request error when "newsletters" is present but invalid', () => {
+      request = mocks.mockRequest({
+        auth: {
+          strategy: 'oauthToken',
+        },
+        credentials: {
+          email,
+          user: uid,
+        },
+        log,
+        payload: {
+          newsletters: 'not-correct',
+        },
+      });
+      return runTest(route, request)
+        .catch((e) => {
+          assert.equal(e.output.payload.code, 400);
+          assert.equal(e.output.payload.errno, INVALID_PARAMETER);
+        })
         .finally(() => ScopeSet.fromArray.restore());
     });
   });
