@@ -109,7 +109,8 @@ export const googleIapRoutes = (): ServerRoute[] => {
             .required(),
         },
       },
-      handler: (request: AuthRequest) => googleIapHandler.plans(request),
+      handler: (request: AuthRequest) =>
+        googleIapHandler.registerToken(request),
     },
   ];
 };

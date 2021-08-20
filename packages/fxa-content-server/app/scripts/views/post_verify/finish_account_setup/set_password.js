@@ -94,15 +94,20 @@ class SetPassword extends FormView {
     const account = this.getAccount();
     const password = this._getPassword();
     const token = this._verificationInfo.get('token');
-    return account.finishSetup(token, account.get('email'), password).then(
-      () => {
-        return this.redirectToProduct(account);
-      },
-      (err) => {
-        this.logError(err);
-        throw err;
-      }
-    );
+    return this.user
+      .finishSetup(account, this.relier, token, account.get('email'), password)
+      .then(
+        () => {
+          return this.redirectToProduct(account);
+        },
+        (err) => {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            return this.navigate('/', {}, { clearQueryParams: true });
+          }
+          this.logError(err);
+          throw err;
+        }
+      );
   }
 }
 

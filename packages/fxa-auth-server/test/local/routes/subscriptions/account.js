@@ -35,11 +35,26 @@ describe('routes/subscriptions/account', () => {
       latest_invoice: invoice,
       plan,
     };
+    const invoiceDetails = {
+      email,
+      uid,
+      productId: subscription.plan.product,
+      productName: plan.product_name,
+      invoiceNumber: invoice.number,
+      invoiceTotalInCents: invoice.total,
+      invoiceTotalCurrency: invoice.currency,
+      planEmailIconURL: subscription.plan.plan_metadata.emailIconURL,
+      invoiceDate: invoice.created,
+      nextInvoiceDate: subscription.current_period_end,
+    };
 
     let stripeHelper, mailer;
 
     beforeEach(() => {
-      stripeHelper = { findPlanById: sinon.stub().resolves(plan) };
+      stripeHelper = {
+        findPlanById: sinon.stub().resolves(plan),
+        extractInvoiceDetailsForEmail: sinon.stub().resolves(invoiceDetails),
+      };
       mailer = { sendSubscriptionAccountFinishSetupEmail: sinon.stub() };
     });
 
@@ -84,20 +99,15 @@ describe('routes/subscriptions/account', () => {
         subscription.plan.id
       );
       sinon.assert.calledOnceWithExactly(
+        stripeHelper.extractInvoiceDetailsForEmail,
+        invoice
+      );
+      sinon.assert.calledOnceWithExactly(
         mailer.sendSubscriptionAccountFinishSetupEmail,
         [],
         account,
         {
-          email,
-          uid,
-          productId: subscription.plan.product,
-          productName: plan.product_name,
-          invoiceNumber: invoice.number,
-          invoiceTotalInCents: invoice.total,
-          invoiceTotalCurrency: invoice.currency,
-          planEmailIconURL: subscription.plan.plan_metadata.emailIconURL,
-          invoiceDate: invoice.created,
-          nextInvoiceDate: subscription.current_period_end,
+          ...invoiceDetails,
           token,
         }
       );
