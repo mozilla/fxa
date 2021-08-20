@@ -1425,7 +1425,11 @@ FxaClientWrapper.prototype = {
    */
   sendPushLoginRequest: createClientDelegate('sendPushLoginRequest'),
 
-  finishSetup: createClientDelegate('finishSetup'),
+  finishSetup: withClient((client, relier, token, email, password) => {
+    return client.finishSetup(token, email, password).then((accountData) => {
+      return getUpdatedSessionData(email, relier, accountData);
+    });
+  }),
 };
 
 export default FxaClientWrapper;

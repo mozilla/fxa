@@ -132,9 +132,7 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
   describe('submit', () => {
     describe('success', () => {
       beforeEach(() => {
-        sinon
-          .stub(account, 'finishSetup')
-          .callsFake(() => Promise.resolve(true));
+        sinon.stub(user, 'finishSetup').callsFake(() => Promise.resolve(true));
         sinon
           .stub(account, 'fetchSubscriptionPlans')
           .callsFake(() => Promise.resolve([{}]));
@@ -152,9 +150,7 @@ describe('views/post_verify/finish_account_setup/set_password', () => {
       it('with error', async () => {
         const error = new Error('failed');
         sinon.spy(view, 'logError');
-        sinon
-          .stub(account, 'finishSetup')
-          .callsFake(() => Promise.reject(error));
+        sinon.stub(user, 'finishSetup').callsFake(() => Promise.reject(error));
         try {
           await view.submit();
           assert.fail('should have failed');
