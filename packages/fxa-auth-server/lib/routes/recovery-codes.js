@@ -71,6 +71,7 @@ module.exports = (log, db, config, customs, mailer) => {
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {

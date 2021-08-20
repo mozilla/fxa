@@ -122,6 +122,7 @@ module.exports = ({ log, oauthDB }) => {
       config: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
