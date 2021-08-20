@@ -21,7 +21,7 @@ module.exports = (log, db) => {
         },
         validate: {
           payload: {
-            newsletters: validators.newsletters,
+            newsletters: validators.newsletters.required(),
           },
         },
       },
