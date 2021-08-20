@@ -25,10 +25,3 @@
   height: 137px;
   width: 270px;
 }
-
-.secondary-text div {
-  @extend .font-sans;
-  @extend .text-xs;
-  text-align: center !important;
-  color: global.$grey-400 !important;
-}
