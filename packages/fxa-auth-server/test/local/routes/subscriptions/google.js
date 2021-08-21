@@ -18,10 +18,9 @@ const {
 const error = require('../../../../lib/error');
 const { AuthLogger } = require('../../../../lib/types');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
+const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
 
-const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
-  'https://identity.mozilla.com/account/subscriptions';
-const MOCK_SCOPES = ['profile:email', SUBSCRIPTIONS_MANAGEMENT_SCOPE];
+const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS_IAP];
 
 const VALID_REQUEST = {
   auth: {
