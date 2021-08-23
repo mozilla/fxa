@@ -33,7 +33,7 @@ export const PaymentConfirmation = ({
   className = 'default',
   accountExists = true,
 }: PaymentConfirmationProps) => {
-  const { navigatorLanguages } = useContext(AppContext);
+  const { config, navigatorLanguages } = useContext(AppContext);
   const { amount, currency, interval, interval_count, product_name } =
     selectedPlan;
   const { displayName, email } = profile;
@@ -160,7 +160,11 @@ export const PaymentConfirmation = ({
 
         <div className="footer" data-testid="footer">
           <PaymentLegalBlurb provider={payment_provider} />
-          <TermsAndPrivacy plan={selectedPlan} showFXALinks={true} />
+          <TermsAndPrivacy
+            plan={selectedPlan}
+            showFXALinks={!accountExists}
+            contentServerURL={config.servers.content.url}
+          />
         </div>
       </section>
     </>

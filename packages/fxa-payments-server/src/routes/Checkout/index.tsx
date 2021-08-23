@@ -259,7 +259,7 @@ export const Checkout = ({
             customer,
             profile,
             isMobile,
-            accountExists
+            accountExists,
           }}
         />
       </>
@@ -413,7 +413,7 @@ export const Checkout = ({
             <>
               <PaymentLegalBlurb provider={undefined} />
               <TermsAndPrivacy
-                showFXALinks={true}
+                showFXALinks={!accountExists}
                 plan={selectedPlan}
                 contentServerURL={config.servers.content.url}
               />
