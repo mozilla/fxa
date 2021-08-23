@@ -25,7 +25,7 @@
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "gen-keys": "ts-node ./scripts/gen_keys.js; ts-node ./scripts/oauth_gen_keys.js; ts-node ./scripts/gen_vapid_keys.js",
     "write-emails": "npm run emails-scss && node -r ts-node/register ./scripts/write-emails-to-disk.js",
-    "clean-up-old-ci-stripe-customers": "ts-node ./scripts/clean-up-old-ci-stripe-customers.js",
+    "clean-up-old-ci-stripe-customers": "node -r esbuild-register ./scripts/clean-up-old-ci-stripe-customers.js --limit 1000",
     "populate-vat-taxes": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/populate-vat-taxes.ts",
     "paypal-processor": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/paypal-processor.ts",
     "subscription-reminders": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/subscription-reminders.ts",
