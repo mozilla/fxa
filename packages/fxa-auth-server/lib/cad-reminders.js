@@ -60,10 +60,9 @@ class CadReminders {
    *                      of elements added to that sorted set, i.e. the result of
    *                      [`redis.zadd`](https://redis.io/commands/zadd).
    */
-  async create(uid) {
+  async create(uid, now = Date.now()) {
     try {
       if (this.rolloutRate <= 1 && Math.random() < this.rolloutRate) {
-        const now = Date.now();
         const result = await props(
           this.keys.reduce((result, key) => {
             result[key] = this.redis.zadd(key, now, uid);
@@ -149,9 +148,8 @@ class CadReminders {
    *                      { timestamp, uid } reminder records
    *                      that have ticked past the relevant expiry interval.
    */
-  async process() {
+  async process(now = Date.now()) {
     try {
-      const now = Date.now();
       return await props(
         this.keys.reduce((result, key) => {
           const cutoff = now - this.intervals[key];

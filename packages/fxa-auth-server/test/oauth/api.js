@@ -188,7 +188,7 @@ describe('/v1', function () {
   const VERIFY_FAILURE = '{"status": "failure"}';
 
   before(async function () {
-    this.timeout(20000);
+    this.timeout(30000);
     Server = await testServer.start();
     return Promise.all([
       genAssertion(USERID + config.get('oauthServer.browserid.issuer')).then(
