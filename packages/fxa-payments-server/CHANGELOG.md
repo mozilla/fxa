@@ -1,5 +1,12 @@
 # Change history
 
+## 1.213.5
+
+### Bug fixes
+
+- subscriptions: copy query params into sign-in link ([e2f727a87](https://github.com/mozilla/fxa/commit/e2f727a87))
+- payments: add margin-top to PaymentUpdateForm action buttons ([9e38ad584](https://github.com/mozilla/fxa/commit/9e38ad584))
+
 ## 1.213.4
 
 ### Bug fixes
