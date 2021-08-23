@@ -1,5 +1,14 @@
 # Change history
 
+## 1.213.4
+
+### Bug fixes
+
+- payments: set PaymentErrorView action button background color and margin-bottom correctly ([b048422d5](https://github.com/mozilla/fxa/commit/b048422d5))
+- fxa-payments-server: fix skipped paypal legal link ([656bd592e](https://github.com/mozilla/fxa/commit/656bd592e))
+- fxa-payments-server: do not show fxa terms to existing users ([f8bab21b3](https://github.com/mozilla/fxa/commit/f8bab21b3))
+- fxa-payment-server: fluent syntax typo in error message ([ff607481f](https://github.com/mozilla/fxa/commit/ff607481f))
+
 ## 1.213.3
 
 ### Bug fixes
