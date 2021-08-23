@@ -6,9 +6,10 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 6
     labels:
-      - "code_quality"
+      - "maintenance"
       - "dependencies"
     reviewers:
       - "@mozilla/fxa-devs"
     ignore:
       - dependency-name: "@types/*"
+      - dependency-name: "web-push"
