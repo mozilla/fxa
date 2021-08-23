@@ -132,9 +132,12 @@ export const Checkout = ({
   }, [fetchCheckoutRouteResources]);
   usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
 
+  const signInQueryParams = { ...queryParams, signin: 'yes' };
+  const signInQueryParamString = Object.entries(signInQueryParams)
+    .map(([k, v]) => `${k}=${v}`)
+    .join('&');
   const planId = queryParams.plan;
-  const planQueryParam = planId ? `plan=${planId}&` : '';
-  const signInURL = `${config.servers.content.url}/subscriptions/products/${productId}?${planQueryParam}signin=yes`;
+  const signInURL = `${config.servers.content.url}/subscriptions/products/${productId}?${signInQueryParamString}`;
   const selectedPlan = useMemo(
     () => getSelectedPlan(productId, planId, plansByProductId),
     [productId, planId, plansByProductId]

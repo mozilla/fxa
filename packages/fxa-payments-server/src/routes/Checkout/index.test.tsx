@@ -170,6 +170,7 @@ describe('routes/Checkout', () => {
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams: {
         plan: planId,
+        extra: 'goodstuff',
       },
     };
     return (
@@ -180,7 +181,17 @@ describe('routes/Checkout', () => {
   };
 
   it('renders as expected', async () => {
-    const { findByTestId, getByTestId } = render(<Subject />);
+    await act(async () => {
+      render(<Subject planId="testo" />);
+    });
+
+    const { findByTestId, getByTestId } = screen;
+
+    const signInLink = getByTestId('sign-in-link');
+    expect(signInLink).toHaveAttribute(
+      'href',
+      `${mockConfig.servers.content.url}/subscriptions/products/${PRODUCT_ID}?plan=testo&extra=goodstuff&signin=yes`
+    );
 
     const formEl = await findByTestId('new-user-email-form');
     expect(formEl).toBeInTheDocument();
