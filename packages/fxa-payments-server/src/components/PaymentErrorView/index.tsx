@@ -26,7 +26,7 @@ const retryButtonFn = (onRetry: PaymentErrorViewProps['onRetry']) => (
   <Localized id="payment-error-retry-button">
     <button
       data-testid="retry-link"
-      className="button retry-link"
+      className="button retry-link primary-button"
       onClick={() => onRetry()}
     >
       Try again
@@ -39,7 +39,7 @@ const manageSubButtonFn = (onClick: VoidFunction) => {
     <Localized id="payment-error-manage-subscription-button">
       <button
         data-testid="manage-subscription-link"
-        className="button"
+        className="button primary-button"
         onClick={onClick}
       >
         Manage my subscription
