@@ -86,7 +86,10 @@ export const NewUserEmailForm = ({
         elems={{ a: <a href={signInURL}></a> }}
       >
         <p className="sign-in-copy" data-testid="sign-in-copy">
-          Already have a Firefox account? <a href={signInURL}>Sign in</a>
+          Already have a Firefox account?{' '}
+          <a data-testid="sign-in-link" href={signInURL}>
+            Sign in
+          </a>
         </p>
       </Localized>
       <Localized id="new-user-email" attrs={{ placeholder: true, label: true }}>
