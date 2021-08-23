@@ -16306,6 +16306,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-import-resolver-node@npm:^0.3.6":
+  version: 0.3.6
+  resolution: "eslint-import-resolver-node@npm:0.3.6"
+  dependencies:
+    debug: ^3.2.7
+    resolve: ^1.20.0
+  checksum: 6266733af1e112970e855a5bcc2d2058fb5ae16ad2a6d400705a86b29552b36131ffc5581b744c23d550de844206fb55e9193691619ee4dbf225c4bde526b1c8
+  languageName: node
+  linkType: hard
+
 "eslint-module-utils@npm:^2.6.2":
   version: 2.6.2
   resolution: "eslint-module-utils@npm:2.6.2"
@@ -16341,7 +16351,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import@npm:^2.22.1, eslint-plugin-import@npm:^2.24.0":
+"eslint-plugin-import@npm:^2.22.1":
   version: 2.24.0
   resolution: "eslint-plugin-import@npm:2.24.0"
   dependencies:
@@ -16363,6 +16373,31 @@ __metadata:
   peerDependencies:
     eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0
   checksum: 79fb1094197cd1dc720725bd29e5c5fe7d123fd9dd31eb182849993a81a8c18e2bfbc4d267a2caabe02bd4d21aafb1eca1da2f55aca7e5df99fd8ba908e7b869
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-import@npm:^2.24.1":
+  version: 2.24.1
+  resolution: "eslint-plugin-import@npm:2.24.1"
+  dependencies:
+    array-includes: ^3.1.3
+    array.prototype.flat: ^1.2.4
+    debug: ^2.6.9
+    doctrine: ^2.1.0
+    eslint-import-resolver-node: ^0.3.6
+    eslint-module-utils: ^2.6.2
+    find-up: ^2.0.0
+    has: ^1.0.3
+    is-core-module: ^2.6.0
+    minimatch: ^3.0.4
+    object.values: ^1.1.4
+    pkg-up: ^2.0.0
+    read-pkg-up: ^3.0.0
+    resolve: ^1.20.0
+    tsconfig-paths: ^3.10.1
+  peerDependencies:
+    eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0
+  checksum: 6a43dc2c045d8f70a370fead2ed342a4b009685bb75818c0e4dab8bb118b853a77d532c63684f5c0b808239809a5a7289c968e45b5cc56960963be5b8cf1ee54
   languageName: node
   linkType: hard
 
@@ -18975,7 +19010,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     eslint: ^7.29.0
     eslint-config-prettier: ^8.3.0
-    eslint-plugin-import: ^2.24.0
+    eslint-plugin-import: ^2.24.1
     express: ^4.17.1
     factory-bot-ts: ^0.1.5
     fxa-jwtool: ^0.7.2
@@ -22653,6 +22688,15 @@ fsevents@~2.1.1:
   dependencies:
     has: ^1.0.3
   checksum: c498902d4c4d0e8eba3a2e8293ccd442158cfe49a71d7cfad136ccf9902b6a41de34ddaa86cdc95c8b7c22f872e59572d8a5d994cbec04c8ecf27ffe75137119
+  languageName: node
+  linkType: hard
+
+"is-core-module@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "is-core-module@npm:2.6.0"
+  dependencies:
+    has: ^1.0.3
+  checksum: 183b3b96fed19822b13959876b0317e61fc2cb5ebcbc21639904c81f7ae328af57f8e18cc4750a9c4abebd686130c70d34a89521e57dbe002edfa4614507ce18
   languageName: node
   linkType: hard
 
@@ -37203,7 +37247,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tsconfig-paths@npm:3.10.1, tsconfig-paths@npm:^3.9.0":
+"tsconfig-paths@npm:3.10.1, tsconfig-paths@npm:^3.10.1, tsconfig-paths@npm:^3.9.0":
   version: 3.10.1
   resolution: "tsconfig-paths@npm:3.10.1"
   dependencies:
