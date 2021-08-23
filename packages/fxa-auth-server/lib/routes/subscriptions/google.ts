@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
+import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from 'fxa-shared/oauth/constants';
 import { Container } from 'typedi';
 
 import error from '../../error';
@@ -10,7 +11,7 @@ import { PlayBilling } from '../../payments/google-play/play-billing';
 import { PurchaseUpdateError } from '../../payments/google-play/types/errors';
 import { SkuType } from '../../payments/google-play/types/purchases';
 import { AuthLogger, AuthRequest } from '../../types';
-import { handleUidAuth } from './utils';
+import { handleAuthScoped } from './utils';
 
 export class GoogleIapHandler {
   private log: AuthLogger;
@@ -35,7 +36,9 @@ export class GoogleIapHandler {
    */
   public async registerToken(request: AuthRequest) {
     this.log.begin('googleIap.registerToken', request);
-    const uid = handleUidAuth(request.auth);
+    const { uid } = handleAuthScoped(request.auth, [
+      OAUTH_SCOPE_SUBSCRIPTIONS_IAP,
+    ]);
 
     const { appName } = request.params;
     const { sku, token } = request.payload as any;
