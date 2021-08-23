@@ -73,7 +73,7 @@ const DefaultPaymentLegalBlurb = () => (
     </Localized>
 
     <Localized
-      id="payment-legal-link-stripe-space-paypal"
+      id="payment-legal-link-stripe-paypal"
       elems={{
         stripePrivacyLink: (
           <a
@@ -84,7 +84,7 @@ const DefaultPaymentLegalBlurb = () => (
         ),
         paypalPrivacyLink: (
           <a
-            href="https://paypal.com/privacy"
+            href="https://www.paypal.com/webapps/mpp/ua/privacy-full"
             target="_blank"
             rel="noopener noreferrer"
           ></a>
