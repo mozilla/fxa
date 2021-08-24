@@ -90,7 +90,7 @@
     "chance": "^1.1.7",
     "eslint": "^7.29.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.24.0",
+    "eslint-plugin-import": "^2.24.1",
     "factory-bot-ts": "^0.1.5",
     "jest": "26.6.0",
     "nock": "^13.1.1",
