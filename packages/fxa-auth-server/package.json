@@ -48,7 +48,7 @@
     "@fluent/bundle": "^0.16.1",
     "@fluent/dom": "^0.7.0",
     "@fluent/langneg": "^0.5.2",
-    "@google-cloud/firestore": "^4.14.1",
+    "@google-cloud/firestore": "^4.14.2",
     "@hapi/hapi": "^20.1.5",
     "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^9.2.0",
