@@ -9,6 +9,7 @@ const jwtool = require('fxa-jwtool');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
+const { PlayBilling } = require('../lib/payments/google-play');
 const { CurrencyHelper } = require('../lib/payments/currencies');
 const {
   AuthLogger,
@@ -92,6 +93,15 @@ async function run(config) {
       const paypalHelper = new PayPalHelper({ log });
       Container.set(PayPalHelper, paypalHelper);
     }
+  }
+
+  // Create PlayBilling if enabled by fetching it.
+  if (
+    config.subscriptions &&
+    config.subscriptions.playApiServiceAccount &&
+    config.subscriptions.playApiServiceAccount.enabled
+  ) {
+    Container.get(PlayBilling);
   }
 
   const translator = await require('../lib/senders/translator')(
