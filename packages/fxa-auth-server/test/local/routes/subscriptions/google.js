@@ -7,8 +7,9 @@
 const sinon = require('sinon');
 const { default: Container } = require('typedi');
 const assert = { ...sinon.assert, ...require('chai').assert };
+const uuid = require('uuid');
 
-const { mockLog } = require('../../../mocks');
+const mocks = require('../../../mocks');
 const {
   GoogleIapHandler,
 } = require('../../../../lib/routes/subscriptions/google');
@@ -16,12 +17,15 @@ const {
   PurchaseUpdateError,
 } = require('../../../../lib/payments/google-play/types/errors');
 const error = require('../../../../lib/error');
-const { AuthLogger } = require('../../../../lib/types');
+const { AuthLogger, ProfileClient } = require('../../../../lib/types');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
 const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
+const { CapabilityService } = require('../../../../lib/payments/capability');
 
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS_IAP];
-
+const ACCOUNT_LOCALE = 'en-US';
+const TEST_EMAIL = 'test@email.com';
+const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const VALID_REQUEST = {
   auth: {
     credentials: {
@@ -36,13 +40,33 @@ describe('GoogleIapHandler', () => {
   let playBilling;
   let log;
   let googleIapHandler;
+  let mockCapabilityService;
+  let profile;
+  let db;
 
   beforeEach(() => {
-    log = mockLog();
+    log = mocks.mockLog();
     playBilling = {};
     Container.set(AuthLogger, log);
     Container.set(PlayBilling, playBilling);
-    googleIapHandler = new GoogleIapHandler();
+    profile = mocks.mockProfile({
+      deleteCache: sinon.spy(async (uid) => ({})),
+    });
+    db = mocks.mockDB({
+      uid: UID,
+      email: TEST_EMAIL,
+      locale: ACCOUNT_LOCALE,
+    });
+    db.account = sinon.fake.resolves({ primaryEmail: { email: TEST_EMAIL } });
+    mockCapabilityService = {};
+    const mockSubCalls = sinon.stub();
+    mockSubCalls.onFirstCall().resolves(['prod_1234']);
+    mockSubCalls.onSecondCall().resolves(['prod_2345']);
+    mockCapabilityService.subscribedProductIds = mockSubCalls;
+    mockCapabilityService.processProductDiff = sinon.fake.resolves({});
+    Container.set(CapabilityService, mockCapabilityService);
+    Container.set(ProfileClient, profile);
+    googleIapHandler = new GoogleIapHandler(db);
   });
 
   afterEach(() => {
@@ -67,7 +91,7 @@ describe('GoogleIapHandler', () => {
       payload: { sku: 'testSku', token: 'testToken' },
     };
 
-    it('returns valid', async () => {
+    it('returns valid with new products', async () => {
       playBilling.purchaseManager = {
         registerToUserAccount: sinon.fake.resolves({}),
       };
@@ -75,6 +99,28 @@ describe('GoogleIapHandler', () => {
       const result = await googleIapHandler.registerToken(request);
       assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
       assert.calledOnce(playBilling.packageName);
+      assert.calledOnce(db.account);
+      assert.calledTwice(mockCapabilityService.subscribedProductIds);
+      assert.calledOnce(profile.deleteCache);
+      assert.calledOnce(mockCapabilityService.processProductDiff);
+      assert.deepEqual(result, { tokenValid: true });
+    });
+
+    it('returns valid with no changed products', async () => {
+      mockCapabilityService.subscribedProductIds = sinon.fake.resolves([
+        'prod_1234',
+      ]);
+      playBilling.purchaseManager = {
+        registerToUserAccount: sinon.fake.resolves({}),
+      };
+      playBilling.packageName = sinon.fake.resolves('testPackage');
+      const result = await googleIapHandler.registerToken(request);
+      assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
+      assert.calledOnce(playBilling.packageName);
+      assert.calledOnce(db.account);
+      assert.calledTwice(mockCapabilityService.subscribedProductIds);
+      assert.notCalled(profile.deleteCache);
+      assert.notCalled(mockCapabilityService.processProductDiff);
       assert.deepEqual(result, { tokenValid: true });
     });
 
