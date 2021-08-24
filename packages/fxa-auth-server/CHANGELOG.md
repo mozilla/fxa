@@ -1,3 +1,10 @@
+## 1.213.6
+
+### Bug fixes
+
+- auth: refresh profile if needed ([aa20963b5](https://github.com/mozilla/fxa/commit/aa20963b5))
+- auth: retain userid in subsription purchase copy ([1d2c4de14](https://github.com/mozilla/fxa/commit/1d2c4de14))
+
 ## 1.213.5
 
 No changes.
