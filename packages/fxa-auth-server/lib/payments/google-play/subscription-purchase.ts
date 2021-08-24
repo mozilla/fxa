@@ -19,7 +19,7 @@
 import { NotificationType, Purchase, SkuType } from './types';
 import { PaymentState, PurchaseType } from './types/purchases';
 
-const FIRESTORE_OBJECT_INTERNAL_KEYS = ['skuType', 'formOfPayment', 'userId'];
+const FIRESTORE_OBJECT_INTERNAL_KEYS = ['skuType', 'formOfPayment'];
 export const GOOGLE_PLAY_FORM_OF_PAYMENT = 'GOOGLE_PLAY';
 
 /* This file contains internal implementation of classes and utilities that is only used inside of the library
@@ -46,7 +46,7 @@ export function mergePurchaseWithFirestorePurchaseRecord(
   purchase: any,
   firestoreObject: any
 ) {
-  // Copy all keys that exist in Firestore but not in Purchase object to the Purchase object (ex. userId)
+  // Copy all keys that exist in Firestore but not in Purchase object to the Purchase object.
   Object.keys(firestoreObject).map((key) => {
     // Skip the internal key-value pairs assigned by convertToFirestorePurchaseRecord()
     if (

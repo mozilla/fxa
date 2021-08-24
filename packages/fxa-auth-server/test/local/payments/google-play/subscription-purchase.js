@@ -164,7 +164,7 @@ describe('SubscriptionPurchase', () => {
       const result = SubscriptionPurchase.fromFirestoreObject(firestoreObj);
       // Internal keys are not defined on the subscription purchase.
       assert.isUndefined(result.skuType);
-      assert.isUndefined(result.userId);
+      assert.strictEqual(result.userId, 'testUser');
     });
 
     it('merges purchase with firestore object', () => {
