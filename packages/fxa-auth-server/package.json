@@ -33,7 +33,7 @@
     "maildev-preview": "ts-node ./lib/senders/emails/preview-in-maildev.ts",
     "start-mjml": "NODE_ENV=dev ts-node ./bin/mjml-server.ts",
     "storybook": "npm run emails-scss && start-storybook -p 6010 --no-version-updates",
-    "storybook-mjml": "nodemon -e scss,ts  --exec \"npm-run-all -p start-mjml storybook\""
+    "storybook-mjml": "npm-run-all -p start-mjml storybook"
   },
   "repository": {
     "type": "git",

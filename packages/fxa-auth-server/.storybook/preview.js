@@ -2,6 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { forceReRender } from '@storybook/html';
+
+let socket = new WebSocket('ws://0.0.0.0:8193');
+socket.onmessage = function (event) {
+  if (event.data === 'file-change') {
+    console.log('File changed, reloading...');
+    forceReRender();
+  }
+};
+
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
 };

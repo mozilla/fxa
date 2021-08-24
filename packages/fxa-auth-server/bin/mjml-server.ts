@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import http from 'http';
+import WebSocket from 'ws';
+import { resolve } from 'path';
 import stream from 'stream';
+import { watch } from 'fs';
 import net from 'net';
 import FluentLocalizer from '../lib/senders/emails/fluent-localizer';
 
@@ -11,15 +14,32 @@ const fluentLocalizer = new FluentLocalizer();
 
 const baseUrl = require('../config').get('contentServer.url');
 
-const { PORT = 8192, HOST = '0.0.0.0' } = process.env;
+const { API_PORT = 8192, WS_PORT = 8193, HOST = '0.0.0.0' } = process.env;
 
 const MJML_OPTIONS = {};
 
-console.log(`Starting MJML API server at ${HOST}:${PORT}`);
+console.log(`Starting Storybook servers...
+MJML renderer API: http://${HOST}:${API_PORT}
+File watcher WebSocket: ws://${HOST}:${WS_PORT}`);
 
-const server = http.createServer(handleRequest);
-server.on('clientError', handleError);
-server.listen({ port: PORT, host: HOST });
+const apiServer = http.createServer(handleRequest);
+apiServer.on('clientError', handleError);
+apiServer.listen({ port: API_PORT, host: HOST });
+
+watch(resolve('lib/senders/emails/'), { recursive: true }, (_, name) => {
+  connections.forEach((s) => s.send('file-change'));
+});
+
+const socket = new WebSocket.Server({
+  port: parseInt(WS_PORT as string),
+});
+let connections: WebSocket[] = [];
+socket.on('connection', (socket) => {
+  connections.push(socket);
+  socket.on('close', () => {
+    connections = connections.filter((s) => s !== socket);
+  });
+});
 
 async function handleRequest(
   req: http.IncomingMessage,
