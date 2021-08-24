@@ -75,14 +75,14 @@ export class CapabilityService {
    * Return a list of subscribed product ids for the user.
    */
   public async subscribedProductIds(uid: string, email: string) {
-    let subscribedProducts = await this.fetchSubscribedProductsFromStripe(
-      uid,
-      email
-    );
-    subscribedProducts = subscribedProducts.concat(
-      await this.fetchSubscribedProductsFromPlay(uid)
-    );
-    return [...new Set(subscribedProducts)];
+    const [subscribedStripeProducts, subscribedPlayProducts] =
+      await Promise.all([
+        this.fetchSubscribedProductsFromStripe(uid, email),
+        this.fetchSubscribedProductsFromPlay(uid),
+      ]);
+    return [
+      ...new Set([...subscribedStripeProducts, ...subscribedPlayProducts]),
+    ];
   }
 
   /**

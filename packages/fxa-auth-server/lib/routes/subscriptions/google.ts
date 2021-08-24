@@ -7,19 +7,26 @@ import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from 'fxa-shared/oauth/constants';
 import { Container } from 'typedi';
 
 import error from '../../error';
+import { CapabilityService } from '../../payments/capability';
 import { PlayBilling } from '../../payments/google-play/play-billing';
 import { PurchaseUpdateError } from '../../payments/google-play/types/errors';
 import { SkuType } from '../../payments/google-play/types/purchases';
-import { AuthLogger, AuthRequest } from '../../types';
+import { AuthLogger, AuthRequest, ProfileClient } from '../../types';
 import { handleAuthScoped } from './utils';
 
 export class GoogleIapHandler {
   private log: AuthLogger;
   private playBilling: PlayBilling;
+  private capabilityService: CapabilityService;
+  private db: any;
+  private profileClient: ProfileClient;
 
-  constructor() {
+  constructor(db: any) {
+    this.db = db;
     this.log = Container.get(AuthLogger);
     this.playBilling = Container.get(PlayBilling);
+    this.capabilityService = Container.get(CapabilityService);
+    this.profileClient = Container.get(ProfileClient);
   }
 
   /**
@@ -47,6 +54,14 @@ export class GoogleIapHandler {
       throw error.unknownAppName(appName);
     }
 
+    // Lookup the email for the user as we need it for capability checks
+    const { email } = (await this.db.account(uid)).primaryEmail;
+
+    const priorProductIds = await this.capabilityService.subscribedProductIds(
+      uid,
+      email
+    );
+
     try {
       await this.playBilling.purchaseManager.registerToUserAccount(
         packageName,
@@ -71,12 +86,28 @@ export class GoogleIapHandler {
           );
       }
     }
+    const currentProductIds = await this.capabilityService.subscribedProductIds(
+      uid,
+      email
+    );
+
+    // If our products have changed, process them and update the profile cache
+    if (priorProductIds != currentProductIds) {
+      // Update cache first in case RPs are quick to update.
+      await this.profileClient.deleteCache(uid);
+
+      await this.capabilityService.processProductDiff({
+        uid,
+        priorProductIds,
+        currentProductIds,
+      });
+    }
     return { tokenValid: true };
   }
 }
 
-export const googleIapRoutes = (): ServerRoute[] => {
-  const googleIapHandler = new GoogleIapHandler();
+export const googleIapRoutes = (db: any): ServerRoute[] => {
+  const googleIapHandler = new GoogleIapHandler(db);
   return [
     {
       method: 'GET',
