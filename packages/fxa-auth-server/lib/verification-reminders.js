@@ -107,10 +107,9 @@ module.exports = (log, config) => {
      *                      of elements added to that sorted set, i.e. the result of
      *                      [`redis.zadd`](https://redis.io/commands/zadd).
      */
-    async create(uid, flowId, flowBeginTime) {
+    async create(uid, flowId, flowBeginTime, now = Date.now()) {
       try {
         if (rolloutRate <= 1 && Math.random() < rolloutRate) {
-          const now = Date.now();
           const result = await props(
             keys.reduce((result, key) => {
               result[key] = redis.zadd(key, now, uid);
@@ -174,9 +173,8 @@ module.exports = (log, config) => {
      *                      { timestamp, uid, flowId, flowBeginTime } reminder records
      *                      that have ticked past the relevant expiry interval.
      */
-    async process() {
+    async process(now = Date.now()) {
       try {
-        const now = Date.now();
         return await props(
           keys.reduce((result, key, keyIndex) => {
             const cutoff = now - intervals[key];

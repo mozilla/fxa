@@ -130,14 +130,15 @@ describe('lib/verification-reminders:', () => {
     describe('process:', () => {
       let before, processResult;
 
-      beforeEach((done) => {
+      beforeEach(async () => {
         before = Date.now();
-        verificationReminders.create('blee').then(() => {
-          setTimeout(async () => {
-            processResult = await verificationReminders.process();
-            done();
-          }, 2);
-        });
+        await verificationReminders.create(
+          'blee',
+          undefined,
+          undefined,
+          before
+        );
+        processResult = await verificationReminders.process(before + 2);
       });
 
       afterEach(() => {
@@ -242,9 +243,10 @@ describe('lib/verification-reminders:', () => {
   });
 
   describe('create with metadata:', () => {
-    let createResult;
+    let before, createResult;
 
     beforeEach(async () => {
+      before = Date.now();
       createResult = await verificationReminders.create('wibble', 'blee', 42);
     });
 
@@ -299,11 +301,8 @@ describe('lib/verification-reminders:', () => {
     describe('process:', () => {
       let processResult;
 
-      beforeEach((done) => {
-        setTimeout(async () => {
-          processResult = await verificationReminders.process();
-          done();
-        }, 2);
+      beforeEach(async () => {
+        processResult = await verificationReminders.process(before + 2);
       });
 
       it('returned the correct result', async () => {
@@ -392,11 +391,10 @@ describe('lib/verification-reminders:', () => {
       describe('process:', () => {
         let secondProcessResult;
 
-        beforeEach((done) => {
-          setTimeout(async () => {
-            secondProcessResult = await verificationReminders.process();
-            done();
-          }, 1000);
+        beforeEach(async () => {
+          secondProcessResult = await verificationReminders.process(
+            before + 1000
+          );
         });
 
         // NOTE: Because this suite has a slow setup, don't add any more test cases!

@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash -e
 
-set -e
+DIR=$(dirname "$0")
+cd "$DIR/.."
 
 rm -rf coverage
 rm -rf .nyc_output
@@ -8,30 +9,38 @@ rm -rf .nyc_output
 if [ -z "$NODE_ENV" ]; then export NODE_ENV=dev; fi;
 if [ -z "$CORS_ORIGIN" ]; then export CORS_ORIGIN="http://foo,http://bar"; fi;
 
-set -u
 
-DEFAULT_ARGS="--require ts-node/register --recursive --timeout 5000 --exit"
+DEFAULT_ARGS="--require esbuild-register --recursive --timeout 5000 --exit"
 
-node -r ts-node/register ./scripts/gen_keys.js
-node -r ts-node/register ./scripts/gen_vapid_keys.js
-node -r ts-node/register ./scripts/oauth_gen_keys.js
-node -r ts-node/register ../fxa-auth-db-mysql/bin/db_patcher > /dev/null
-node -r ts-node/register ./scripts/oauth-db-patcher.js
+if [[ ! -e config/secret-key.json ]]; then
+  node -r esbuild-register ./scripts/gen_keys.js
+fi
+
+if [[ ! -e config/vapid-keys.json ]]; then
+  node -r esbuild-register ./scripts/gen_vapid_keys.js
+fi
+
+if [[ ! -e config/key.json ]]; then
+  node -r esbuild-register ./scripts/oauth_gen_keys.js
+fi
+
+node -r esbuild-register ../fxa-auth-db-mysql/bin/db_patcher > /dev/null
+node -r esbuild-register ./scripts/oauth-db-patcher.js
 
 GLOB=$*
 if [ -z "$GLOB" ]; then
   echo "Local tests"
-  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/local
+  mocha $DEFAULT_ARGS test/local
 
   echo "Oauth tests"
-  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/oauth
+  mocha $DEFAULT_ARGS test/oauth
 
   echo "Remote tests"
-  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/remote
+  mocha $DEFAULT_ARGS test/remote
 
   echo "Script tests"
-  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/scripts
+  mocha $DEFAULT_ARGS test/scripts
 
 else
-  ./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
+  mocha $DEFAULT_ARGS $GLOB
 fi
