@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Account, Device, TotpToken } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { RemoteLookupService } from '../remote-lookup/remote-lookup.service';
@@ -51,15 +52,21 @@ describe('AppController', () => {
 
   describe('index', () => {
     it('returns successfully', async () => {
-      mockRemote.account = jest.fn().mockResolvedValue(MOCKDATA.account);
-      mockRemote.devices = jest.fn().mockResolvedValue(MOCKDATA.devices);
+      (jest.spyOn(Account, 'findByUid') as jest.Mock).mockReturnValue(
+        MOCKDATA.account
+      );
+      (jest.spyOn(Device, 'findByUid') as jest.Mock).mockReturnValue(
+        MOCKDATA.devices
+      );
+      (jest.spyOn(TotpToken, 'findByUid') as jest.Mock).mockReturnValue(
+        MOCKDATA.totp
+      );
       mockRemote.subscriptions = jest
         .fn()
         .mockResolvedValue(formattedSubscriptions);
       mockRemote.signinLocations = jest
         .fn()
         .mockResolvedValue(formattedSigninLocations);
-      mockRemote.totpEnabled = jest.fn().mockResolvedValue(true);
 
       expect(
         await controller.root('testuser', { uid: 'testuid' })

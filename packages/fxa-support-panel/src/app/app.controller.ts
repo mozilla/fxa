@@ -11,6 +11,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { Account, Device, TotpToken } from 'fxa-shared/db/models/auth';
 
 import { CurrentUser } from '../auth/auth-header.decorator';
 import { AuthHeaderGuard } from '../auth/auth-header.guard';
@@ -35,33 +36,28 @@ export class AppController {
     // This is the user who is asking for the information:
     this.log.info('infoRequest', { authUser: user, requestTicket, uid });
 
-    const [
-      { createdAt, email, emailVerified, locale },
-      devices,
-      signinLocations,
-      totpEnabled,
-    ] = await Promise.all([
-      this.remote.account(uid),
-      this.remote.devices(uid),
+    const [account, devices, signinLocations, totp] = await Promise.all([
+      Account.findByUid(uid),
+      Device.findByUid(uid),
       this.remote.signinLocations(uid),
-      this.remote.totpEnabled(uid),
+      TotpToken.findByUid(uid),
     ]);
-    const subscriptions = await this.remote.subscriptions(uid, email);
+    const subscriptions = await this.remote.subscriptions(uid, account!.email);
 
     return {
-      created: String(new Date(createdAt)),
+      created: String(new Date(account!.createdAt)),
       devices: devices.map((d) => ({
-        created: String(new Date(d.createdAt)),
+        created: String(new Date(d.createdAt!)),
         name: d.name,
         type: d.type,
       })),
-      email,
-      emailVerified,
-      locale,
+      email: account!.email,
+      emailVerified: account!.emailVerified,
+      locale: account!.locale,
       signinLocations,
       subscriptionStatus: subscriptions.length > 0,
       subscriptions,
-      twoFactorAuth: totpEnabled,
+      twoFactorAuth: !!totp,
       uid,
     };
   }

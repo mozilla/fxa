@@ -149,20 +149,6 @@ describe('RemoteLookupService', () => {
     );
   });
 
-  it('returns an account', async () => {
-    (jest.spyOn(superagent, 'get') as jest.Mock).mockResolvedValue({
-      body: MOCKDATA.account,
-    });
-    expect(await service.account('test')).toStrictEqual(MOCKDATA.account);
-  });
-
-  it('returns the devices', async () => {
-    (jest.spyOn(superagent, 'get') as jest.Mock).mockResolvedValue({
-      body: MOCKDATA.devices,
-    });
-    expect(await service.devices('test')).toStrictEqual(MOCKDATA.devices);
-  });
-
   describe('subscriptions', () => {
     it('returns successfully', async () => {
       service.authServerGetBody = jest
@@ -200,33 +186,5 @@ describe('RemoteLookupService', () => {
     expect(await service.signinLocations('test')).toStrictEqual(
       formattedSigninLocations
     );
-  });
-
-  describe('totpEnabled', () => {
-    it('returns successfully', async () => {
-      (jest.spyOn(superagent, 'get') as jest.Mock).mockResolvedValue({
-        body: MOCKDATA.totp,
-      });
-      expect(await service.totpEnabled('test')).toBe(true);
-    });
-
-    it('returns false on 404', async () => {
-      (jest.spyOn(superagent, 'get') as jest.Mock).mockRejectedValue({
-        status: 404,
-      });
-      expect(await service.totpEnabled('test')).toBe(false);
-    });
-
-    it('re-throws other errors', async () => {
-      expect.assertions(1);
-      (jest.spyOn(superagent, 'get') as jest.Mock).mockRejectedValue(
-        new Error('unknown')
-      );
-      try {
-        await service.totpEnabled('test');
-      } catch (err) {
-        expect(err).toStrictEqual(new Error('unknown'));
-      }
-    });
   });
 });

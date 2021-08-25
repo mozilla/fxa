@@ -7,8 +7,6 @@ import superagent from 'superagent';
 
 import { AppConfig } from '../config';
 import {
-  AccountResponse,
-  DevicesResponse,
   SubscriptionResponse,
   SigninLocationResponse,
 } from './remote-responses.dto';
@@ -17,11 +15,9 @@ const MS_IN_SEC = 1000;
 
 @Injectable()
 export class RemoteLookupService {
-  private authdbUrl: string;
   private authServer: AppConfig['authServer'];
 
   constructor(configService: ConfigService<AppConfig>) {
-    this.authdbUrl = configService.get('authdbUrl') as string;
     this.authServer = configService.get(
       'authServer'
     ) as AppConfig['authServer'];
@@ -38,18 +34,6 @@ export class RemoteLookupService {
       .set('Authorization', `Bearer ${this.authServer.secretBearerToken}`)
       .set('accept', 'json')
       .then((response) => response.body);
-  }
-
-  async account(uid: string): Promise<AccountResponse> {
-    const response = await superagent.get(`${this.authdbUrl}/account/${uid}`);
-    return response.body;
-  }
-
-  async devices(uid: string): Promise<DevicesResponse> {
-    const response = await superagent.get(
-      `${this.authdbUrl}/account/${uid}/devices`
-    );
-    return response.body;
   }
 
   async subscriptions(
@@ -92,17 +76,5 @@ export class RemoteLookupService {
       ...v,
       lastAccessTime: new Date(v.lastAccessTime),
     }));
-  }
-
-  async totpEnabled(uid: string): Promise<boolean> {
-    try {
-      const response = await superagent.get(`${this.authdbUrl}/totp/${uid}`);
-      return response.body.enabled;
-    } catch (err) {
-      if (err.status === 404) {
-        return false;
-      }
-      throw err;
-    }
   }
 }

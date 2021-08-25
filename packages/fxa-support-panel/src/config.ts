@@ -4,6 +4,7 @@
 import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
+import { makeMySQLConfig } from 'fxa-shared/db/config';
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -41,11 +42,10 @@ const conf = convict({
       format: String,
     },
   },
-  authdbUrl: {
-    default: 'http://localhost:8000',
-    doc: 'fxa-auth-db-mysql url',
-    env: 'AUTHDB_URL',
-    format: String,
+  database: {
+    mysql: {
+      auth: makeMySQLConfig('AUTH', 'fxa'),
+    },
   },
   env: {
     default: 'production',
@@ -105,8 +105,7 @@ const conf = convict({
   csp: {
     frameAncestors: {
       default: 'none',
-      doc:
-        'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors',
+      doc: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors',
       env: 'CSP_FRAME_ANCESTORS',
     },
   },
