@@ -9,6 +9,7 @@ import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
 import { PlayBilling } from '../../payments/google-play/play-billing';
 import { DeveloperNotification } from '../../payments/google-play/types';
+import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest, ProfileClient } from '../../types';
 
 export class PlayPubsubHandler {
@@ -38,12 +39,12 @@ export class PlayPubsubHandler {
 
     if (developerNotification.testNotification) {
       this.log.info('play-test-notification', developerNotification);
-      return;
+      return {};
     }
 
     if (!developerNotification.subscriptionNotification) {
       this.log.info('play-other-notification', developerNotification);
-      return;
+      return {};
     }
 
     const purchase = await this.playBilling.purchaseManager.getPurchase(
@@ -56,17 +57,23 @@ export class PlayPubsubHandler {
         developerNotification.packageName,
         developerNotification
       );
-      return;
+      return {};
     }
 
     if (!purchase.userId) {
       // Purchase is not associated with a user, nothing else can be done.
-      return;
+      return {};
     }
     const uid = purchase.userId;
 
     // Lookup the email for the user as we need it for capability checks
-    const { email } = (await this.db.account(uid)).primaryEmail;
+    let email;
+    try {
+      email = (await this.db.account(uid)).primaryEmail.email;
+    } catch (err) {
+      reportSentryError(err, request);
+      return {};
+    }
 
     const priorProductIds = await this.capabilityService.subscribedProductIds(
       uid,
@@ -92,6 +99,7 @@ export class PlayPubsubHandler {
         currentProductIds,
       });
     }
+    return {};
   }
 
   /**
