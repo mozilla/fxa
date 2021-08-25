@@ -338,7 +338,7 @@ export class PurchaseManager {
     ) {
       // We can safely ignore SUBSCRIPTION_PURCHASED because with new subscription, our Android app will send the same token to server for verification
       // For other type of notification, we query Play Developer API to update our purchase record cache in Firestore
-      return await this.querySubscriptionPurchase(
+      return this.querySubscriptionPurchase(
         packageName,
         subscriptionNotification.subscriptionId,
         subscriptionNotification.purchaseToken,

@@ -92,7 +92,7 @@ describe('PlayPubsubHandler', () => {
   describe('rtdn', () => {
     it('notification that requires profile updating', async () => {
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
-      assert.isUndefined(result);
+      assert.deepEqual(result, {});
       assert.calledOnce(playPubsubHandlerInstance.extractMessage);
       assert.calledOnce(mockPlayBilling.purchaseManager.getPurchase);
       assert.calledOnce(db.account);
@@ -109,7 +109,7 @@ describe('PlayPubsubHandler', () => {
         'prod_1234',
       ]);
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
-      assert.isUndefined(result);
+      assert.deepEqual(result, {});
       assert.calledOnce(playPubsubHandlerInstance.extractMessage);
       assert.calledOnce(mockPlayBilling.purchaseManager.getPurchase);
       assert.calledOnce(db.account);
@@ -124,7 +124,7 @@ describe('PlayPubsubHandler', () => {
     it('test notification', async () => {
       mockDeveloperNotification.testNotification = true;
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
-      assert.isUndefined(result);
+      assert.deepEqual(result, {});
       assert.calledOnceWithExactly(
         log.info,
         'play-test-notification',
@@ -136,7 +136,7 @@ describe('PlayPubsubHandler', () => {
     it('missing subscription notification', async () => {
       mockDeveloperNotification.subscriptionNotification = null;
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
-      assert.isUndefined(result);
+      assert.deepEqual(result, {});
       assert.calledOnceWithExactly(
         log.info,
         'play-other-notification',
@@ -148,7 +148,7 @@ describe('PlayPubsubHandler', () => {
     it('non-existing purchase', async () => {
       mockPlayBilling.purchaseManager.getPurchase = sinon.fake.resolves(null);
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
-      assert.isUndefined(result);
+      assert.deepEqual(result, {});
       assert.calledOnce(
         mockPlayBilling.purchaseManager.processDeveloperNotification
       );
@@ -158,7 +158,7 @@ describe('PlayPubsubHandler', () => {
     it('no userId', async () => {
       mockPurchase.userId = null;
       const result = await playPubsubHandlerInstance.rtdn(mockRequest);
-      assert.isUndefined(result);
+      assert.deepEqual(result, {});
       assert.notCalled(
         mockPlayBilling.purchaseManager.processDeveloperNotification
       );
