@@ -1,3 +1,9 @@
+## 1.213.7
+
+### Bug fixes
+
+- auth: use header only for jwt and return data ([3fde39b34](https://github.com/mozilla/fxa/commit/3fde39b34))
+
 ## 1.213.6
 
 ### Bug fixes
