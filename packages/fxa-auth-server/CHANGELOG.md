@@ -1,3 +1,9 @@
+## 1.213.8
+
+### Bug fixes
+
+- auth: use object only for auth ([bb745928e](https://github.com/mozilla/fxa/commit/bb745928e))
+
 ## 1.213.7
 
 ### Bug fixes
