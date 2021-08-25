@@ -4,8 +4,10 @@
 
 @use '../../global.scss';
 
-.sync-logo img {
-  width: 240px !important;
-  margin: 0 auto;
-  @extend .mb-5;
+.text-footer-automatedEmail {
+  @extend .text-footer;
+  div {
+    @extend .mb-3;
+    @extend .mt-6;
+  }
 }

@@ -2,17 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Story, Meta } from '@storybook/html';
-import storybookEmail, {
-  StorybookEmailArgs,
-  commonArgs,
-} from '../../storybook-email';
+import { Meta } from '@storybook/html';
+import { Template, commonArgs } from '../../storybook-email';
 
 export default {
   title: 'Emails/lowRecoveryCodes',
 } as Meta;
-
-const Template: Story<StorybookEmailArgs> = (args) => storybookEmail(args);
 
 const defaultVariables = {
   ...commonArgs,

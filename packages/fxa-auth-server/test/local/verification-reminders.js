@@ -76,12 +76,18 @@ describe('lib/verification-reminders:', () => {
   });
 
   describe('create without metadata:', () => {
-    let createResult;
+    let before, createResult;
 
     beforeEach(async () => {
+      before = Date.now();
       // Clobber keys to assert that misbehaving callers can't wreck the internal behaviour
       verificationReminders.keys = [];
-      createResult = await verificationReminders.create('wibble');
+      createResult = await verificationReminders.create(
+        'wibble',
+        undefined,
+        undefined,
+        before - 1
+      );
     });
 
     afterEach(() => {
@@ -128,16 +134,16 @@ describe('lib/verification-reminders:', () => {
     });
 
     describe('process:', () => {
-      let before, processResult;
+      let processResult;
 
-      beforeEach((done) => {
-        before = Date.now();
-        verificationReminders.create('blee').then(() => {
-          setTimeout(async () => {
-            processResult = await verificationReminders.process();
-            done();
-          }, 2);
-        });
+      beforeEach(async () => {
+        await verificationReminders.create(
+          'blee',
+          undefined,
+          undefined,
+          before
+        );
+        processResult = await verificationReminders.process(before + 2);
       });
 
       afterEach(() => {
@@ -242,10 +248,16 @@ describe('lib/verification-reminders:', () => {
   });
 
   describe('create with metadata:', () => {
-    let createResult;
+    let before, createResult;
 
     beforeEach(async () => {
-      createResult = await verificationReminders.create('wibble', 'blee', 42);
+      before = Date.now();
+      createResult = await verificationReminders.create(
+        'wibble',
+        'blee',
+        42,
+        before
+      );
     });
 
     afterEach(() => {
@@ -299,11 +311,8 @@ describe('lib/verification-reminders:', () => {
     describe('process:', () => {
       let processResult;
 
-      beforeEach((done) => {
-        setTimeout(async () => {
-          processResult = await verificationReminders.process();
-          done();
-        }, 2);
+      beforeEach(async () => {
+        processResult = await verificationReminders.process(before + 2);
       });
 
       it('returned the correct result', async () => {
@@ -392,11 +401,10 @@ describe('lib/verification-reminders:', () => {
       describe('process:', () => {
         let secondProcessResult;
 
-        beforeEach((done) => {
-          setTimeout(async () => {
-            secondProcessResult = await verificationReminders.process();
-            done();
-          }, 1000);
+        beforeEach(async () => {
+          secondProcessResult = await verificationReminders.process(
+            before + 1000
+          );
         });
 
         // NOTE: Because this suite has a slow setup, don't add any more test cases!

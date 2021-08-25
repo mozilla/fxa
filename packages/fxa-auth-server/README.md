@@ -219,7 +219,9 @@ Fluent will take care of the rest, populating the element with the message value
 </p>
 ```
 
-By default emails render from left to right which could hamper the accessibility of emails for some locales so along with localizing the emails, we took care of rendering the emails from right to left for rtl locales and vice versa.
+Note that in order to access variables in the dom, we need to pass down a JSON object to the `data-l10n-args` attribute which will be used by the localizer to translate the text.
+
+By default emails render from left to right which could hamper their accessibility for some locales so along with localizing the emails, we took care of rendering them from right to left for rtl locales and vice versa.
 
 ##### Fluent for plaintext files
 

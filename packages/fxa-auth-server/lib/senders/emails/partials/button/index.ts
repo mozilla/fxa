@@ -6,7 +6,7 @@ export const button = `
   <mj-include path="./lib/senders/emails/css/button/index.css" type="css" css-inline="inline" />
   <mj-section>
     <mj-column>
-      <mj-button css-class="primary-button" href="<%- link %>"><%- action %></mj-button>
+      <mj-button css-class="primary-button" href="<%- link %>"><span data-l10n-id="<%- templateName %>-action"><%- action %></span></mj-button>
     </mj-column>
   </mj-section>
 `;

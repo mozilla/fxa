@@ -78,7 +78,7 @@ class FluentLocalizer {
     let selectedLocale: string = 'en-US';
 
     async function* generateBundles(currentLocales: Array<string>) {
-      let bundle = new FluentBundle(currentLocales);
+      let bundle = new FluentBundle(currentLocales, { useIsolating: false });
       for (const locale of currentLocales) {
         let source = await fetchResource(locale);
         if (source !== '' && locale !== 'en-US') {

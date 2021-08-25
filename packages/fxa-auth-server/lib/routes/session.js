@@ -43,6 +43,8 @@ module.exports = function (
       options: {
         auth: {
           strategy: 'sessionToken',
+          // since payload is allowed to be empty we do not
+          // do hawk payload validation otherwise we may break existing clients
         },
         validate: {
           payload: isA
@@ -99,6 +101,7 @@ module.exports = function (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           query: {
@@ -265,6 +268,7 @@ module.exports = function (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
@@ -329,6 +333,7 @@ module.exports = function (
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
