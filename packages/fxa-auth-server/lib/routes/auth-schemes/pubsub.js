@@ -28,6 +28,11 @@ exports.strategy = (config) => {
       jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
     }),
 
+    // Disable reading token from anything other than the header.
+    urlKey: false,
+    cookieKey: false,
+    payloadKey: false,
+
     validate: validateSender,
 
     verifyOptions: {
