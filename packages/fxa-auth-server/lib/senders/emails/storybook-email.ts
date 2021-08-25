@@ -10,6 +10,7 @@ export interface StorybookEmailArgs {
   acceptLanguage: string;
   doc?: string;
   variables: Record<string, any>;
+  direction: 'ltr' | 'rtl';
 }
 
 /* in production, `utm` parameters may also exist in the urls */
@@ -30,20 +31,34 @@ export const storybookEmail = ({
   acceptLanguage = 'en-US',
   doc,
   variables,
+  direction,
 }: StorybookEmailArgs): HTMLDivElement => {
-  const container = document.createElement('div');
-  container.innerHTML = 'Loading email...';
+  const container = document.createElement('article') as HTMLDivElement;
+  container.classList.add('email-template');
+  container.innerHTML = '<p class="message">Loading email...</p>';
   renderUsingMJML({ template, layout, acceptLanguage, variables })
-    .then(({ html, subject }) => {
+    .then(({ html, text, subject }) => {
       container.innerHTML = `
-        ${doc ? `<p>Template Description: ${doc}</p>` : ''}
-        <p>Email Subject: ${subject}</p>
-        <hr />
-        ${html}
+        <header>
+          <h1 class="template-name"><span>${layout} / </span>${template}</h1>
+          ${doc ? `<p class="template-description">${doc}</p>` : ''}
+          <p class="email-subject">Subject: ${subject}</p>
+        </header>
+
+        <main class="template-container">
+          <section class="template-html">
+            <span class="badge">HTML</span>
+            <div class="${direction}">${html}</div>
+          </section>
+          <section class="template-plaintext">
+            <span class="badge">Plaintext</span>
+            <div class="${direction}">${text}</div>
+          </section>
+        </main>
       `;
     })
     .catch((error: Error) => {
-      container.innerHTML = `Error loading email: ${error.message}`;
+      container.innerHTML = `<p class="message"><b>Loading error</b> - ${error.message}</p>`;
     });
 
   return container;
@@ -72,14 +87,14 @@ async function renderUsingMJML({
     }),
   });
   const result = await response.text();
-  const { html, subject } = await JSON.parse(result);
+  const { html, subject, text } = await JSON.parse(result);
   if (response.status !== 200) {
     throw new Error(result);
   }
-  return { html, subject };
+  return { html, subject, text };
 }
 
-export const Template: Story<StorybookEmailArgs> = (args) =>
-  storybookEmail(args);
+export const Template: Story<StorybookEmailArgs> = (args, context) =>
+  storybookEmail({ ...args, direction: context.globals.direction });
 
 export default storybookEmail;
