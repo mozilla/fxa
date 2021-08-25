@@ -73,10 +73,11 @@ describe('lib/cad-reminders', () => {
   });
 
   describe('create', () => {
-    let createResult;
+    let before, createResult;
 
     beforeEach(async () => {
-      createResult = await cadReminders.create('wibble');
+      before = Date.now();
+      createResult = await cadReminders.create('wibble', before - 1);
     });
 
     afterEach(async () => {
@@ -138,10 +139,9 @@ describe('lib/cad-reminders', () => {
     });
 
     describe('process', () => {
-      let before, processResult;
+      let processResult;
 
       beforeEach(async () => {
-        before = Date.now();
         await cadReminders.create('blee', before);
         processResult = await cadReminders.process(before + 2);
       });

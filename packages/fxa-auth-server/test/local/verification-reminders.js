@@ -76,12 +76,18 @@ describe('lib/verification-reminders:', () => {
   });
 
   describe('create without metadata:', () => {
-    let createResult;
+    let before, createResult;
 
     beforeEach(async () => {
+      before = Date.now();
       // Clobber keys to assert that misbehaving callers can't wreck the internal behaviour
       verificationReminders.keys = [];
-      createResult = await verificationReminders.create('wibble');
+      createResult = await verificationReminders.create(
+        'wibble',
+        undefined,
+        undefined,
+        before - 1
+      );
     });
 
     afterEach(() => {
@@ -128,10 +134,9 @@ describe('lib/verification-reminders:', () => {
     });
 
     describe('process:', () => {
-      let before, processResult;
+      let processResult;
 
       beforeEach(async () => {
-        before = Date.now();
         await verificationReminders.create(
           'blee',
           undefined,
@@ -247,7 +252,12 @@ describe('lib/verification-reminders:', () => {
 
     beforeEach(async () => {
       before = Date.now();
-      createResult = await verificationReminders.create('wibble', 'blee', 42);
+      createResult = await verificationReminders.create(
+        'wibble',
+        'blee',
+        42,
+        before
+      );
     });
 
     afterEach(() => {
