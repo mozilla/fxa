@@ -134,7 +134,9 @@ export const playPubsubRoutes = (db: any): ServerRoute[] => {
       method: 'POST',
       path: '/oauth/subscriptions/iap/rtdn',
       options: {
-        auth: 'pubsub',
+        auth: {
+          strategy: 'pubsub',
+        },
         validate: {
           payload: isA
             .object({
