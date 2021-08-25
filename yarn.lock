@@ -9345,6 +9345,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"apollo-datasource@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "apollo-datasource@npm:3.1.0"
+  dependencies:
+    apollo-server-caching: ^3.1.0
+    apollo-server-env: ^4.0.3
+  checksum: 32c890125b7f8e515e19900bcef40b051699424545c47271bb150c30920a82d86f8d176408efac6a85255294bd02b3eadf9be82f7229e555732b77080881cee9
+  languageName: node
+  linkType: hard
+
 "apollo-graphql@npm:^0.9.0":
   version: 0.9.3
   resolution: "apollo-graphql@npm:0.9.3"
@@ -9390,6 +9400,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"apollo-server-caching@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "apollo-server-caching@npm:3.1.0"
+  dependencies:
+    lru-cache: ^6.0.0
+  checksum: d2e4197b294f45fd02a9769c29232253f5252664ed369cade4b575f35e5cd473643ae3786c812e73ff49f7e85e8bf9b514766549e866002b9c8c80294db48c13
+  languageName: node
+  linkType: hard
+
 "apollo-server-core@npm:^2.25.2":
   version: 2.25.2
   resolution: "apollo-server-core@npm:2.25.2"
@@ -9432,6 +9451,15 @@ __metadata:
     node-fetch: ^2.6.1
     util.promisify: ^1.0.0
   checksum: 35bb002bc06c27b4339ccd193e519a130402009032fb1d90d780c3de10ee0c0e489c4778175084f3eae8f66dc62fdbb236c217b0f98e46709317d63f2f2c0332
+  languageName: node
+  linkType: hard
+
+"apollo-server-env@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "apollo-server-env@npm:4.0.3"
+  dependencies:
+    node-fetch: ^2.6.1
+  checksum: 816c2f7953eeb0136301de0c9939673681277c06c640e747cb505eb05cc09f5235ed2f603af61befe58a5fe354136da9243a416f530212dab23f986c7cdec0b7
   languageName: node
   linkType: hard
 
@@ -19185,7 +19213,7 @@ fsevents@~2.1.1:
     "@types/superagent": 4.1.11
     "@types/supertest": ^2.0.11
     "@types/yargs": ^17.0.0
-    apollo-datasource: ^0.9.0
+    apollo-datasource: ^3.1.0
     apollo-server: ^2.25.2
     apollo-server-express: ^2.25.2
     audit-filter: ^0.5.0
