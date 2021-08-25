@@ -1,5 +1,35 @@
 # Change history
 
+## 1.213.7
+
+No changes.
+
+## 1.213.6
+
+No changes.
+
+## 1.213.5
+
+### Bug fixes
+
+- subscriptions: copy query params into sign-in link ([e2f727a87](https://github.com/mozilla/fxa/commit/e2f727a87))
+- payments: add margin-top to PaymentUpdateForm action buttons ([9e38ad584](https://github.com/mozilla/fxa/commit/9e38ad584))
+
+## 1.213.4
+
+### Bug fixes
+
+- payments: set PaymentErrorView action button background color and margin-bottom correctly ([b048422d5](https://github.com/mozilla/fxa/commit/b048422d5))
+- fxa-payments-server: fix skipped paypal legal link ([656bd592e](https://github.com/mozilla/fxa/commit/656bd592e))
+- fxa-payments-server: do not show fxa terms to existing users ([f8bab21b3](https://github.com/mozilla/fxa/commit/f8bab21b3))
+- fxa-payment-server: fluent syntax typo in error message ([ff607481f](https://github.com/mozilla/fxa/commit/ff607481f))
+
+## 1.213.3
+
+### Bug fixes
+
+- auth/payments: ensure /newsletters endpoint validates request and passes newsletters on to SQS ([ab5cc8ebf](https://github.com/mozilla/fxa/commit/ab5cc8ebf))
+
 ## 1.213.2
 
 No changes.

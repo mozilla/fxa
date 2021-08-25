@@ -1,5 +1,27 @@
 # Change history
 
+## 1.213.7
+
+No changes.
+
+## 1.213.6
+
+No changes.
+
+## 1.213.5
+
+No changes.
+
+## 1.213.4
+
+### Bug fixes
+
+- auth: use IAP scope for token register ([f36196371](https://github.com/mozilla/fxa/commit/f36196371))
+
+## 1.213.3
+
+No changes.
+
 ## 1.213.2
 
 No changes.

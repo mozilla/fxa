@@ -1,3 +1,35 @@
+## 1.213.7
+
+### Bug fixes
+
+- auth: use header only for jwt and return data ([3fde39b34](https://github.com/mozilla/fxa/commit/3fde39b34))
+
+## 1.213.6
+
+### Bug fixes
+
+- auth: refresh profile if needed ([aa20963b5](https://github.com/mozilla/fxa/commit/aa20963b5))
+- auth: retain userid in subsription purchase copy ([1d2c4de14](https://github.com/mozilla/fxa/commit/1d2c4de14))
+
+## 1.213.5
+
+No changes.
+
+## 1.213.4
+
+### Bug fixes
+
+- auth: use IAP scope for token register ([f36196371](https://github.com/mozilla/fxa/commit/f36196371))
+
+## 1.213.3
+
+### Bug fixes
+
+- auth/payments: ensure /newsletters endpoint validates request and passes newsletters on to SQS ([ab5cc8ebf](https://github.com/mozilla/fxa/commit/ab5cc8ebf))
+- auth: use token handler for token endpoint ([6bf3c25f5](https://github.com/mozilla/fxa/commit/6bf3c25f5))
+- emails: handle Stripe timestamps that are in seconds ([949d13137](https://github.com/mozilla/fxa/commit/949d13137))
+- auth: return a session token in /account/finish_setup ([cad9b1b62](https://github.com/mozilla/fxa/commit/cad9b1b62))
+
 ## 1.213.2
 
 ### Bug fixes

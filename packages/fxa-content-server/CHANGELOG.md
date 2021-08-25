@@ -1,3 +1,25 @@
+## 1.213.7
+
+No changes.
+
+## 1.213.6
+
+No changes.
+
+## 1.213.5
+
+No changes.
+
+## 1.213.4
+
+No changes.
+
+## 1.213.3
+
+### Bug fixes
+
+- auth: return a session token in /account/finish_setup ([cad9b1b62](https://github.com/mozilla/fxa/commit/cad9b1b62))
+
 ## 1.213.2
 
 No changes.
