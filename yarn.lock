@@ -19061,7 +19061,7 @@ fsevents@~2.1.1:
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
     ip: ^1.1.5
-    ip-reputation-js-client: ^6.0.3
+    ip-reputation-js-client: ^6.0.4
     load-grunt-tasks: ^5.1.0
     lodash.isequal: 4.5.0
     lodash.merge: 4.6.2
@@ -22640,14 +22640,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ip-reputation-js-client@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "ip-reputation-js-client@npm:6.0.3"
+"ip-reputation-js-client@npm:^6.0.4":
+  version: 6.0.4
+  resolution: "ip-reputation-js-client@npm:6.0.4"
   dependencies:
     bluebird: 3.5.1
     joi: 13.4.0
     request: 2.87.0
-  checksum: bbfd9bae78877f2d271405b7bb8567f58651ba1b1b8cbf0ad4a9ade320cd77fb2656acd374c4001f76e423e959aa8cb0cf54fcb6a6964ed3f4130ccfb8e8990b
+  checksum: a33d9ee70afc65b8597cdc5e19be4b9e5913d0d5e2c706f06a6a10ef19381dbc28b0ea4619b0708f55c03223c532e77e767b84e5723803c82ab83e754db5d5f8
   languageName: node
   linkType: hard
 
