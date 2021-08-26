@@ -6242,7 +6242,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^8.0.0, @testing-library/dom@npm:^8.1.0":
+"@testing-library/dom@npm:^8.0.0":
   version: 8.1.0
   resolution: "@testing-library/dom@npm:8.1.0"
   dependencies:
@@ -6255,6 +6255,22 @@ __metadata:
     lz-string: ^1.4.4
     pretty-format: ^27.0.2
   checksum: 8d3778b59c08dba4f1ba62823c0dad0990d2fcbd0396fcf0b8a2c4ce7420f8c5adbcae708f8f58a75ead749bd06d9ef4285187763abb18ac464ed47c2f8e332b
+  languageName: node
+  linkType: hard
+
+"@testing-library/dom@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "@testing-library/dom@npm:8.2.0"
+  dependencies:
+    "@babel/code-frame": ^7.10.4
+    "@babel/runtime": ^7.12.5
+    "@types/aria-query": ^4.2.0
+    aria-query: ^4.2.2
+    chalk: ^4.1.0
+    dom-accessibility-api: ^0.5.6
+    lz-string: ^1.4.4
+    pretty-format: ^27.0.2
+  checksum: e631d2fe0490dd7ed193ea631541708656f9b4e6054a7ec0c6617f7fb0bf01b414dac63821f04bc9cd4eb3f573a2be69a4dd493b64db725962c9f1c1858f204d
   languageName: node
   linkType: hard
 
@@ -18546,7 +18562,7 @@ fsevents@~2.1.1:
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.6
     "@tailwindcss/postcss7-compat": ^2.2.7
-    "@testing-library/dom": ^8.1.0
+    "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.0.0
     "@testing-library/user-event": ^13.2.1
@@ -19533,7 +19549,7 @@ fsevents@~2.1.1:
     "@storybook/react": ^6.3.6
     "@svgr/webpack": ^5.5.0
     "@tailwindcss/postcss7-compat": ^2.2.7
-    "@testing-library/dom": ^8.1.0
+    "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.0.0
     "@testing-library/user-event": ^13.2.1
@@ -19597,7 +19613,7 @@ fsevents@~2.1.1:
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.6
     "@tailwindcss/postcss7-compat": ^2.2.7
-    "@testing-library/dom": ^8.1.0
+    "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.0.0
     "@testing-library/react-hooks": ^7.0.1
