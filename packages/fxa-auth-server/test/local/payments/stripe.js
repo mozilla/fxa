@@ -419,18 +419,20 @@ describe('StripeHelper', () => {
     });
 
     it('returns true for a non-cancelled active subscription', () => {
-      subscription2.status = 'active';
-      subscription2.cancel_at_period_end = false;
-      customerExpanded.subscriptions.data[0] = subscription2;
+      const subscription3 = deepCopy(subscription2);
+      subscription3.status = 'active';
+      subscription3.cancel_at_period_end = false;
+      customerExpanded.subscriptions.data[0] = subscription3;
       assert.isTrue(
         stripeHelper.hasSubscriptionRequiringPaymentMethod(customerExpanded)
       );
     });
 
     it('returns false for a cancelled active subscription', () => {
-      subscription2.status = 'active';
-      subscription2.cancel_at_period_end = true;
-      customerExpanded.subscriptions.data[0] = subscription2;
+      const subscription3 = deepCopy(subscription2);
+      subscription3.status = 'active';
+      subscription3.cancel_at_period_end = true;
+      customerExpanded.subscriptions.data[0] = subscription3;
       assert.isFalse(
         stripeHelper.hasSubscriptionRequiringPaymentMethod(customerExpanded)
       );
@@ -2529,6 +2531,29 @@ describe('StripeHelper', () => {
     it('calls Stripe with the correct arguments and iteratively returns active subscriptions', async () => {
       const subscription3 = deepCopy(subscription2);
       subscription3.status = 'cancelled';
+      async function* genSubscription() {
+        yield subscription1;
+        yield subscription2;
+        yield subscription3;
+      }
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'list')
+        .returns(genSubscription());
+      const actual = [];
+      for await (const item of stripeHelper.findActiveSubscriptionsByPlanId(
+        ...argsHelper
+      )) {
+        actual.push(item);
+      }
+      assert.deepEqual(actual, [subscription1, subscription2]);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.list,
+        argsStripe
+      );
+    });
+    it('does not return an active subscription marked as cancel_at_period_end', async () => {
+      const subscription3 = deepCopy(subscription2);
+      subscription3.cancel_at_period_end = 456;
       async function* genSubscription() {
         yield subscription1;
         yield subscription2;
