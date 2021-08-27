@@ -1,0 +1,34 @@
+<mj-include path="./css/appBadges/index.css" type="css" css-inline="inline" />
+
+<mj-section>
+  <mj-group>
+    <mj-column>
+      <mj-image css-class="app-badges"
+        href="<%- iosUrl %>"
+        src="https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png"
+        alt="iOS badge">
+      </mj-image>
+    </mj-column>
+    <mj-column>
+      <mj-image css-class="app-badges"
+        href="<%- androidUrl %>"
+        src="https://accounts-static.cdn.mozilla.net/product-icons/google-play.png"
+        alt="android badge">
+      </mj-image>
+    </mj-column>
+  </mj-group>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <% if (locals.onDesktopOrTabletDevice) { %>
+      <mj-text css-class="text-footer-appBadges"><span data-l10n-id="another-desktop-device"> Or, install on
+        <a href="<%- desktopLink %>" class="link-blue" data-l10n-name="anotherDeviceLink">another desktop device</a></span>
+      </mj-text>
+    <% } else { %>
+      <mj-text css-class="text-footer-appBadges"><span data-l10n-id="another-device"> Or, install on
+        <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another device</a></span>
+      </mj-text>
+    <% } %>
+  </mj-column>
+</mj-section>
