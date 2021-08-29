@@ -19198,7 +19198,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^7.2.0
-    sqs-consumer: ^5.5.0
+    sqs-consumer: ^5.6.0
     supertest: ^6.1.6
     ts-jest: 26.5.6
     ts-loader: ^8.3.0
@@ -35453,14 +35453,14 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"sqs-consumer@npm:^5.5.0":
-  version: 5.5.0
-  resolution: "sqs-consumer@npm:5.5.0"
+"sqs-consumer@npm:^5.6.0":
+  version: 5.6.0
+  resolution: "sqs-consumer@npm:5.6.0"
   dependencies:
     debug: ^4.1.1
   peerDependencies:
     aws-sdk: ^2.699.0
-  checksum: a7c83d2563c71062ce56b42d332bb1913f595898f30c4e602ee4a065152962413c34f8834ed37fc8e6c29915ca2e0ba82c9e680953bd3ec3f110e28c45b89d0d
+  checksum: bfa4e30f879b2c6d84adedf06e81b8b0ae35d851bdff5a422a55b024ca11f3a13bf09ae19eca055d4ecc019dfd22b6d5cd9c93fa92bca980756053a1c71cf536
   languageName: node
   linkType: hard
 
