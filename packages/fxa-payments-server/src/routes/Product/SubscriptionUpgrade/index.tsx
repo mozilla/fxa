@@ -37,6 +37,7 @@ import './index.scss';
 
 import { ProductProps } from '../index';
 import { PaymentConsentCheckbox } from '../../../components/PaymentConsentCheckbox';
+import { PaymentProviderDetails } from '../../../components/PaymentProviderDetails';
 
 export type SubscriptionUpgradeProps = {
   isMobile: boolean;
@@ -151,20 +152,7 @@ export const SubscriptionUpgrade = ({
                 <span className="title">Payment information</span>
               </Localized>
             </h3>
-
-            <div>
-              <Localized
-                id="payment-confirmation-cc-card-ending-in"
-                vars={{
-                  last4: cardLast4 as string,
-                }}
-              >
-                <p className={`c-card ${cardBrandLc}`}>
-                  {' '}
-                  Card ending in {cardLast4}
-                </p>
-              </Localized>
-            </div>
+            <PaymentProviderDetails customer={customer!} />
           </div>
 
           <Form
