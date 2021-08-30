@@ -19,44 +19,54 @@ const {
   click,
   createEmail,
   createUserAndLoadSettings,
+  fillOutFinishAccountSetup,
+  fillOutEmailFirstSignIn,
   getTestProductSubscriptionUrl,
   openPage,
+  openRP,
+  openVerificationLinkInSameTab,
   signInToTestProduct,
   subscribeAndSigninToRp,
   subscribeToTestProductWithCardNumber,
+  subscribeToTestProductWithPasswordlessAccount,
+  testElementExists,
   testElementTextInclude,
   visibleByQSA,
 } = FunctionalHelpers;
 
+const config = intern.config;
+const ENTER_EMAIL_PAGE_URL = config.fxaContentRoot;
+
 registerSuite('subscriptions', {
   tests: {
-    'visit product page without signing in, expect to see product name displayed in sub-header': function () {
-      if (
-        process.env.CIRCLECI === 'true' &&
-        !process.env.SUBHUB_STRIPE_APIKEY
-      ) {
-        this.skip('missing Stripe API key in CircleCI run');
-      }
-      return this.remote
-        .then(
-          clearBrowserState({
-            '123done': true,
-            force: true,
-          })
-        )
-        .then(
-          openPage(
-            getTestProductSubscriptionUrl(),
-            selectors.ENTER_EMAIL.HEADER
+    'visit product page without signing in, expect to see product name displayed in sub-header':
+      function () {
+        if (
+          process.env.CIRCLECI === 'true' &&
+          !process.env.SUBHUB_STRIPE_APIKEY
+        ) {
+          this.skip('missing Stripe API key in CircleCI run');
+        }
+        return this.remote
+          .then(
+            clearBrowserState({
+              '123done': true,
+              force: true,
+            })
           )
-        )
-        .then(
-          testElementTextInclude(
-            selectors.ENTER_EMAIL.SUB_HEADER,
-            `Continue to ${productIdNameMap[intern.config.testProductId]}`
+          .then(
+            openPage(
+              getTestProductSubscriptionUrl(),
+              selectors.ENTER_EMAIL.HEADER
+            )
           )
-        );
-    },
+          .then(
+            testElementTextInclude(
+              selectors.ENTER_EMAIL.SUB_HEADER,
+              `Continue to ${productIdNameMap[intern.config.testProductId]}`
+            )
+          );
+      },
 
     'sign up, subscribe, sign in to verify subscription': function () {
       if (
@@ -121,6 +131,53 @@ registerSuite('subscriptions', {
             'It looks like your credit card has expired.'
           )
         );
+    },
+    'sign up for subscription with password less account': function () {
+      if (
+        process.env.CIRCLECI === 'true' &&
+        !process.env.SUBHUB_STRIPE_APIKEY
+      ) {
+        this.skip('missing Stripe API key in CircleCI run');
+      }
+      const email = createEmail();
+      const PASSWORD = 'passwordzxcv';
+      return (
+        this.remote
+          .then(
+            clearBrowserState({
+              '123done': true,
+              force: true,
+            })
+          )
+          .then(openRP())
+          .then(
+            click(
+              selectors['123DONE'].BUTTON_SUBSCRIBE_PASSWORDLESS,
+              '.new-user-email-form'
+            )
+          )
+          .then(
+            subscribeToTestProductWithPasswordlessAccount(
+              '4242424242424242',
+              email
+            )
+          )
+          .then(testElementExists('.payment-confirmation'))
+
+          // Set password on passwordless account
+          .then(openVerificationLinkInSameTab(email, 0))
+          .then(fillOutFinishAccountSetup(PASSWORD))
+          .then(testElementExists('#splash-logo'))
+          .then(
+            clearBrowserState({
+              '123done': true,
+              force: true,
+            })
+          )
+          .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+      );
     },
   },
 });

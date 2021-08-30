@@ -238,6 +238,7 @@ module.exports = {
     BUTTON_SIGNUP: '.sign-in-button.signup',
     LINK_LOGOUT: '#logout',
     BUTTON_SUBSCRIBE: '.btn-subscribe',
+    BUTTON_SUBSCRIBE_PASSWORDLESS: '#pwdless-button',
     SUBSCRIBED: '.pro-status',
   },
   400: {
@@ -397,6 +398,12 @@ module.exports = {
   },
   FIREFOX_NOTES: {
     HEADER: '#notes-by-firefox',
+  },
+  FINISH_ACCOUNT_SETUP: {
+    HEADER: '#fxa-account-setup-set-password-header',
+    PASSWORD: '#password',
+    VPASSWORD: '#vpassword',
+    SUBMIT: 'button[type="submit"]',
   },
   FORCE_AUTH: {
     EMAIL: 'input[type=email]',
