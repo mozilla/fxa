@@ -15,7 +15,7 @@ describe('lib/channels/receivers/web-channel', () => {
   beforeEach(() => {
     windowMock = new WindowMock();
     Sentry = {
-      captureMessage: () => {},
+      captureException: () => {},
     };
     receiver = new WebChannelReceiver();
     receiver.initialize({
@@ -23,7 +23,7 @@ describe('lib/channels/receivers/web-channel', () => {
       window: windowMock,
       Sentry,
     });
-    sinon.spy(receiver._sentry, 'captureMessage');
+    sinon.spy(receiver._sentry, 'captureException');
   });
 
   afterEach(() => {
@@ -114,7 +114,7 @@ describe('lib/channels/receivers/web-channel', () => {
         )
       );
       assert.isTrue(receiver._reportError.calledOnce);
-      assert.isTrue(receiver._sentry.captureMessage.calledOnce);
+      assert.isTrue(receiver._sentry.captureException.calledOnce);
       assert.isTrue(receiver.trigger.calledOnce);
       assert.isTrue(receiver.trigger.calledWith('error', message));
     });
@@ -142,7 +142,7 @@ describe('lib/channels/receivers/web-channel', () => {
         )
       );
       assert.isTrue(receiver._reportError.calledOnce);
-      assert.isFalse(receiver._sentry.captureMessage.calledOnce);
+      assert.isFalse(receiver._sentry.captureException.calledOnce);
       assert.isTrue(receiver.trigger.calledOnce);
       assert.isTrue(receiver.trigger.calledWith('error', message));
     });
