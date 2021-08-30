@@ -15728,6 +15728,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"domutils@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "domutils@npm:2.8.0"
+  dependencies:
+    dom-serializer: ^1.0.1
+    domelementtype: ^2.2.0
+    domhandler: ^4.2.0
+  checksum: abf7434315283e9aadc2a24bac0e00eab07ae4313b40cc239f89d84d7315ebdfd2fb1b5bf750a96bc1b4403d7237c7b2ebf60459be394d625ead4ca89b934391
+  languageName: node
+  linkType: hard
+
 "dot-case@npm:^3.0.3":
   version: 3.0.3
   resolution: "dot-case@npm:3.0.3"
@@ -16125,6 +16136,13 @@ __metadata:
   version: 2.0.2
   resolution: "entities@npm:2.0.2"
   checksum: bd243bc7cdc2e2a07e1bdf61f491b9450cb9b3e638341076a9b818f35f50d0ed7035b1dcd0c451a9831e079aa6f9c0900a6e8f32b61e2698e985e860e6c95924
+  languageName: node
+  linkType: hard
+
+"entities@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "entities@npm:3.0.1"
+  checksum: aaf7f12033f0939be91f5161593f853f2da55866db55ccbf72f45430b8977e2b79dbd58c53d0fdd2d00bd7d313b75b0968d09f038df88e308aa97e39f9456572
   languageName: node
   linkType: hard
 
@@ -18990,7 +19008,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     helmet: ^4.6.0
     hot-shots: ^8.5.0
-    htmlparser2: 6.1.0
+    htmlparser2: 7.1.1
     http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
     install: 0.13.0
@@ -21746,15 +21764,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"htmlparser2@npm:6.1.0, htmlparser2@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "htmlparser2@npm:6.1.0"
+"htmlparser2@npm:7.1.1":
+  version: 7.1.1
+  resolution: "htmlparser2@npm:7.1.1"
   dependencies:
     domelementtype: ^2.0.1
     domhandler: ^4.0.0
-    domutils: ^2.5.2
-    entities: ^2.0.0
-  checksum: 81a7b3d9c3bb9acb568a02fc9b1b81ffbfa55eae7f1c41ae0bf840006d1dbf54cb3aa245b2553e2c94db674840a9f0fdad7027c9a9d01a062065314039058c4e
+    domutils: ^2.8.0
+    entities: ^3.0.1
+  checksum: f12b42188c608c582dd9f92ad7655fb5701ba85fb11a36a1ea1294921e8a9d5a3a961f9d9cc00da89a2cfeb8bc62f57f43ebfc27855e22ecab8a60009dcf2648
   languageName: node
   linkType: hard
 
@@ -21781,6 +21799,18 @@ fsevents@~2.1.1:
     domutils: ^2.0.0
     entities: ^2.0.0
   checksum: 615fcf34ae74775eba9d2c7c54034201645ac4146dfe2889cda21939aa77806ad3aee27963ae72c5c2da23ce7b0b99b2533e1d9f327b74821cc11f755cc5153f
+  languageName: node
+  linkType: hard
+
+"htmlparser2@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "htmlparser2@npm:6.1.0"
+  dependencies:
+    domelementtype: ^2.0.1
+    domhandler: ^4.0.0
+    domutils: ^2.5.2
+    entities: ^2.0.0
+  checksum: 81a7b3d9c3bb9acb568a02fc9b1b81ffbfa55eae7f1c41ae0bf840006d1dbf54cb3aa245b2553e2c94db674840a9f0fdad7027c9a9d01a062065314039058c4e
   languageName: node
   linkType: hard
 
