@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Story } from '@storybook/html';
+import * as config from '../../../config';
 
 export interface StorybookEmailArgs {
   template: string;
@@ -68,16 +69,21 @@ async function renderUsingMJML({
   template,
   layout,
   acceptLanguage,
-  apiUrl = 'http://localhost:8192',
   variables,
 }: {
   template: string;
   layout: string;
   acceptLanguage: string;
-  apiUrl?: string;
   variables: Record<string, any>;
 }): Promise<Record<any, string>> {
-  const response = await fetch(apiUrl, {
+  // We can't access auth-server config from the client
+  // so we need to assume the API URL based on environment
+  const apiUrl =
+    process.env.NODE_ENV === 'development'
+      ? 'http://localhost:9000'
+      : 'https://api-accounts.stage.mozaws.net';
+
+  const response = await fetch(`${apiUrl}/mjml-server`, {
     method: 'POST',
     body: JSON.stringify({
       template,

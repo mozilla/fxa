@@ -31,9 +31,7 @@
     "subscription-reminders": "CONFIG_FILES='config/secrets.json' ts-node ./scripts/subscription-reminders.ts",
     "emails-scss": "node -r ts-node/register ./lib/senders/emails/sass-compile-files.ts",
     "maildev-preview": "ts-node ./lib/senders/emails/preview-in-maildev.ts",
-    "start-mjml": "NODE_ENV=dev ts-node ./bin/mjml-server.ts",
-    "storybook": "npm run emails-scss && start-storybook -p 6010 --no-version-updates",
-    "storybook-mjml": "nodemon -e scss,ts  --exec \"npm-run-all -p start-mjml storybook\""
+    "storybook": "npm run emails-scss && start-storybook -p 6010 --no-version-updates"
   },
   "repository": {
     "type": "git",

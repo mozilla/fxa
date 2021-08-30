@@ -163,10 +163,16 @@ module.exports = function (
   );
   const newsletters = require('./newsletters')(log, db);
   const util = require('./util')(log, config, config.smtp.redirectDomain);
+  const mjmlServer = require('./mjml-server').default;
 
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {
     basePath = '';
+  }
+
+  // We don't want this in production - deployed storybook can use stage
+  if (config.env !== 'prod') {
+    defaults.push(mjmlServer(config));
   }
 
   const v1Routes = [].concat(
