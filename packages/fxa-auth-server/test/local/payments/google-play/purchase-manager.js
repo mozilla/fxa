@@ -359,7 +359,7 @@ describe('PurchaseManager', () => {
         SkuType.SUBS,
         'testUserId'
       );
-      assert.isUndefined(result);
+      assert.strictEqual(result, mockSubscription);
       sinon.assert.calledOnce(purchaseManager.querySubscriptionPurchase);
       sinon.assert.calledOnce(purchaseManager.forceRegisterToUserAccount);
     });
@@ -376,7 +376,7 @@ describe('PurchaseManager', () => {
         SkuType.SUBS,
         'testUserId'
       );
-      assert.isUndefined(result);
+      assert.strictEqual(result, mockSubscription);
       sinon.assert.notCalled(purchaseManager.querySubscriptionPurchase);
       sinon.assert.notCalled(purchaseManager.forceRegisterToUserAccount);
     });

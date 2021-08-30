@@ -2274,7 +2274,7 @@ describe('StripeHelper', () => {
       });
     });
 
-    describe('purchasesToSubscribedProductIds', () => {
+    describe('purchasesToProductIds', () => {
       let subPurchase;
       let productId;
       let productName;
@@ -2327,18 +2327,14 @@ describe('StripeHelper', () => {
       });
 
       it('returns product ids for the subscription purchase', async () => {
-        const result = await stripeHelper.purchasesToSubscribedProductIds([
-          subPurchase,
-        ]);
+        const result = await stripeHelper.purchasesToProductIds([subPurchase]);
         assert.deepEqual(result, [productId]);
         sinon.assert.calledOnce(stripeHelper.allProducts);
       });
 
       it('returns no product ids for unknown subscription purchase', async () => {
         subPurchase.sku = 'wrongSku';
-        const result = await stripeHelper.purchasesToSubscribedProductIds([
-          subPurchase,
-        ]);
+        const result = await stripeHelper.purchasesToProductIds([subPurchase]);
         assert.deepEqual(result, []);
         sinon.assert.calledOnce(stripeHelper.allProducts);
       });
