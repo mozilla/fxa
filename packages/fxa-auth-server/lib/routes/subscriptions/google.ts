@@ -11,7 +11,7 @@ import { CapabilityService } from '../../payments/capability';
 import { PlayBilling } from '../../payments/google-play/play-billing';
 import { PurchaseUpdateError } from '../../payments/google-play/types/errors';
 import { SkuType } from '../../payments/google-play/types/purchases';
-import { AuthLogger, AuthRequest, ProfileClient } from '../../types';
+import { AuthLogger, AuthRequest } from '../../types';
 import { handleAuthScoped } from './utils';
 
 export class GoogleIapHandler {
@@ -19,19 +19,16 @@ export class GoogleIapHandler {
   private playBilling: PlayBilling;
   private capabilityService: CapabilityService;
   private db: any;
-  private profileClient: ProfileClient;
 
   constructor(db: any) {
     this.db = db;
     this.log = Container.get(AuthLogger);
     this.playBilling = Container.get(PlayBilling);
     this.capabilityService = Container.get(CapabilityService);
-    this.profileClient = Container.get(ProfileClient);
   }
 
   /**
-   * Retrieve all the Android plans for the client.
-   */
+   * Retrieve all the Android plans for the client.   */
   public async plans(request: AuthRequest) {
     const { appName } = request.params;
     this.log.begin('googleIap.plans', request);
@@ -57,13 +54,9 @@ export class GoogleIapHandler {
     // Lookup the email for the user as we need it for capability checks
     const { email } = (await this.db.account(uid)).primaryEmail;
 
-    const priorProductIds = await this.capabilityService.subscribedProductIds(
-      uid,
-      email
-    );
-
+    let purchase;
     try {
-      await this.playBilling.purchaseManager.registerToUserAccount(
+      purchase = await this.playBilling.purchaseManager.registerToUserAccount(
         packageName,
         sku,
         token,
@@ -86,22 +79,7 @@ export class GoogleIapHandler {
           );
       }
     }
-    const currentProductIds = await this.capabilityService.subscribedProductIds(
-      uid,
-      email
-    );
-
-    // If our products have changed, process them and update the profile cache
-    if (priorProductIds != currentProductIds) {
-      // Update cache first in case RPs are quick to update.
-      await this.profileClient.deleteCache(uid);
-
-      await this.capabilityService.processProductDiff({
-        uid,
-        priorProductIds,
-        currentProductIds,
-      });
-    }
+    await this.capabilityService.playUpdate(uid, email, purchase);
     return { tokenValid: true };
   }
 }

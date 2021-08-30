@@ -1048,7 +1048,7 @@ export class StripeHelper {
   /**
    * Fetch all product ids that correspond to a list of Play SubscriptionPurchases.
    */
-  async purchasesToSubscribedProductIds(purchases: SubscriptionPurchase[]) {
+  async purchasesToProductIds(purchases: SubscriptionPurchase[]) {
     const products = await this.allProducts();
     const purchasedSkus = purchases.map((purchase) =>
       purchase.sku.toLowerCase()
