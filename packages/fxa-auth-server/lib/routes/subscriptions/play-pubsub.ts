@@ -10,21 +10,19 @@ import { CapabilityService } from '../../payments/capability';
 import { PlayBilling } from '../../payments/google-play/play-billing';
 import { DeveloperNotification } from '../../payments/google-play/types';
 import { reportSentryError } from '../../sentry';
-import { AuthLogger, AuthRequest, ProfileClient } from '../../types';
+import { AuthLogger, AuthRequest } from '../../types';
 
 export class PlayPubsubHandler {
   private log: AuthLogger;
   private playBilling: PlayBilling;
   private capabilityService: CapabilityService;
   private db: any;
-  private profileClient: ProfileClient;
 
   constructor(db: any) {
     this.db = db;
     this.log = Container.get(AuthLogger);
     this.playBilling = Container.get(PlayBilling);
     this.capabilityService = Container.get(CapabilityService);
-    this.profileClient = Container.get(ProfileClient);
   }
 
   /**
@@ -75,30 +73,18 @@ export class PlayPubsubHandler {
       return {};
     }
 
-    const priorProductIds = await this.capabilityService.subscribedProductIds(
-      uid,
-      email
-    );
-    await this.playBilling.purchaseManager.processDeveloperNotification(
-      developerNotification.packageName,
-      developerNotification
-    );
-    const currentProductIds = await this.capabilityService.subscribedProductIds(
-      uid,
-      email
-    );
-
-    // If our products have changed, process them and update the profile cache
-    if (priorProductIds != currentProductIds) {
-      // Update cache first in case RPs are quick to update.
-      await this.profileClient.deleteCache(uid);
-
-      await this.capabilityService.processProductDiff({
-        uid,
-        priorProductIds,
-        currentProductIds,
-      });
+    const updatedPurchase =
+      await this.playBilling.purchaseManager.processDeveloperNotification(
+        developerNotification.packageName,
+        developerNotification
+      );
+    if (!updatedPurchase) {
+      // This was an initial purchase, the token endpoint handles capability broadcasts.
+      return {};
     }
+
+    await this.capabilityService.playUpdate(uid, email, updatedPurchase);
+
     return {};
   }
 

@@ -17,7 +17,7 @@ const {
   PurchaseUpdateError,
 } = require('../../../../lib/payments/google-play/types/errors');
 const error = require('../../../../lib/error');
-const { AuthLogger, ProfileClient } = require('../../../../lib/types');
+const { AuthLogger } = require('../../../../lib/types');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
 const { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } = require('fxa-shared/oauth/constants');
 const { CapabilityService } = require('../../../../lib/payments/capability');
@@ -41,7 +41,6 @@ describe('GoogleIapHandler', () => {
   let log;
   let googleIapHandler;
   let mockCapabilityService;
-  let profile;
   let db;
 
   beforeEach(() => {
@@ -49,9 +48,6 @@ describe('GoogleIapHandler', () => {
     playBilling = {};
     Container.set(AuthLogger, log);
     Container.set(PlayBilling, playBilling);
-    profile = mocks.mockProfile({
-      deleteCache: sinon.spy(async (uid) => ({})),
-    });
     db = mocks.mockDB({
       uid: UID,
       email: TEST_EMAIL,
@@ -59,13 +55,8 @@ describe('GoogleIapHandler', () => {
     });
     db.account = sinon.fake.resolves({ primaryEmail: { email: TEST_EMAIL } });
     mockCapabilityService = {};
-    const mockSubCalls = sinon.stub();
-    mockSubCalls.onFirstCall().resolves(['prod_1234']);
-    mockSubCalls.onSecondCall().resolves(['prod_2345']);
-    mockCapabilityService.subscribedProductIds = mockSubCalls;
-    mockCapabilityService.processProductDiff = sinon.fake.resolves({});
+    mockCapabilityService.playUpdate = sinon.fake.resolves({});
     Container.set(CapabilityService, mockCapabilityService);
-    Container.set(ProfileClient, profile);
     googleIapHandler = new GoogleIapHandler(db);
   });
 
@@ -100,9 +91,7 @@ describe('GoogleIapHandler', () => {
       assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
       assert.calledOnce(playBilling.packageName);
       assert.calledOnce(db.account);
-      assert.calledTwice(mockCapabilityService.subscribedProductIds);
-      assert.calledOnce(profile.deleteCache);
-      assert.calledOnce(mockCapabilityService.processProductDiff);
+      assert.calledOnce(mockCapabilityService.playUpdate);
       assert.deepEqual(result, { tokenValid: true });
     });
 
@@ -118,9 +107,7 @@ describe('GoogleIapHandler', () => {
       assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
       assert.calledOnce(playBilling.packageName);
       assert.calledOnce(db.account);
-      assert.calledTwice(mockCapabilityService.subscribedProductIds);
-      assert.notCalled(profile.deleteCache);
-      assert.notCalled(mockCapabilityService.processProductDiff);
+      assert.calledOnce(mockCapabilityService.playUpdate);
       assert.deepEqual(result, { tokenValid: true });
     });
 

@@ -273,7 +273,7 @@ export class PurchaseManager {
     purchaseToken: string,
     skuType: SkuType,
     userId: string
-  ): Promise<void> {
+  ): Promise<SubscriptionPurchase> {
     // The original Google Play sample code did not use Google API efficiency
     // guidelines, the updated version here checks our local Firestore record
     // first to determine if we've seen the token before, and if not, it will
@@ -308,7 +308,7 @@ export class PurchaseManager {
     // STEP 3. Check if the purchase has been registered to an user. If it is, then return conflict error to our caller.
     if (purchase.userId === userId) {
       // Purchase record already registered to the target user. We'll do nothing.
-      return;
+      return purchase;
     } else if (purchase.userId) {
       this.log.info('purchase already registered', { purchase });
       // Purchase record already registered to different user. Return 'conflict' to caller
@@ -321,6 +321,8 @@ export class PurchaseManager {
 
     // STEP 3: Register purchase to the user
     await this.forceRegisterToUserAccount(purchaseToken, userId);
+
+    return purchase;
   }
 
   async processDeveloperNotification(
