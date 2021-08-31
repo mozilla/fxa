@@ -280,7 +280,7 @@ describe('metrics/amplitude', () => {
           },
         });
         assert.ok(args[0].time > Date.now() - 1000);
-        assert.ok(/^([0-9]+)\.([0-9])$/.test(args[0].app_version));
+        assert.ok(/^([0-9]+)\.([0-9]+)$/.test(args[0].app_version));
         const statsd = Container.get(StatsD);
         sinon.assert.calledWith(statsd.increment.firstCall, 'amplitude.event');
       });
