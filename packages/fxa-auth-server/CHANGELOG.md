@@ -1,3 +1,9 @@
+## 1.213.10
+
+### Bug fixes
+
+- auth: assume product change on play trigger ([7441828fe](https://github.com/mozilla/fxa/commit/7441828fe))
+
 ## 1.213.9
 
 No changes.
