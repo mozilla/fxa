@@ -13,7 +13,7 @@ const logger = {
   error: sinon.spy(),
 };
 const pkg = require('../../package.json');
-const APP_VERSION = /([0-9]+)\.([0-9])$/.exec(pkg.version)[0];
+const APP_VERSION = /([0-9]+)\.([0-9]+)$/.exec(pkg.version)[0];
 
 const schemaValidatorStub = sinon.stub().returns(true);
 let scope;
