@@ -12,6 +12,7 @@ const { mockLog } = require('../../mocks');
 const { AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PlayBilling } = require('../../../lib/payments/google-play');
+const { ProfileClient } = require('../../../lib/types');
 const proxyquire = require('proxyquire').noPreserveCache();
 
 const mockAuthEvents = {};
@@ -31,6 +32,7 @@ describe('CapabilityService', () => {
   let capabilityService;
   let log;
   let mockSubscriptionPurchase;
+  let mockProfileClient;
 
   beforeEach(async () => {
     mockAuthEvents.on = sinon.fake.returns({});
@@ -38,6 +40,9 @@ describe('CapabilityService', () => {
     mockPlayBilling = {
       userManager: {},
       purchaseManager: {},
+    };
+    mockProfileClient = {
+      deleteCache: sinon.fake.resolves({}),
     };
     mockStripeHelper.allPlans = sinon.spy(async () => [
       {
@@ -78,6 +83,7 @@ describe('CapabilityService', () => {
     Container.set(AuthLogger, log);
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(PlayBilling, mockPlayBilling);
+    Container.set(ProfileClient, mockProfileClient);
     capabilityService = new CapabilityService();
   });
 
@@ -100,15 +106,14 @@ describe('CapabilityService', () => {
     });
   });
 
-  describe('processProductDiff', () => {
+  describe('processProductIdDiff', () => {
     it('should process the product diff', async () => {
       mockAuthEvents.emit = sinon.fake.returns({});
-      await capabilityService.processProductDiff({
+      await capabilityService.processProductIdDiff({
         uid: UID,
         priorProductIds: ['prod_123456', 'prod_876543'],
         currentProductIds: ['prod_876543', 'prod_ABCDEF'],
       });
-      sinon.assert.calledTwice(mockAuthEvents.emit);
       sinon.assert.calledTwice(log.notifyAttachedServices);
     });
   });
@@ -139,11 +144,12 @@ describe('CapabilityService', () => {
           ],
         },
       }));
-      mockStripeHelper.purchasesToSubscribedProductIds = sinon.fake.returns([
+      mockStripeHelper.purchasesToProductIds = sinon.fake.returns([
         'prod_PLAY',
       ]);
       mockSubscriptionPurchase = {
         sku: 'play_1234',
+        isEntitlementActive: sinon.fake.returns(true),
       };
 
       mockPlayBilling.userManager.queryCurrentSubscriptions = sinon.spy(

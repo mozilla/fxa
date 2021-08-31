@@ -7,8 +7,9 @@ import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
 import Container from 'typedi';
 
 import { authEvents } from '../events';
-import { AuthLogger, AuthRequest } from '../types';
+import { AuthLogger, AuthRequest, ProfileClient } from '../types';
 import { PlayBilling } from './google-play/play-billing';
+import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { StripeHelper } from './stripe';
 
 function hex(blob: Buffer | string): string {
@@ -38,12 +39,14 @@ function allCapabilities(capabilityMap: ClientIdCapabilityMap): string[] {
  * and active subscription capability calculations and event emitting.
  */
 export class CapabilityService {
-  private stripeHelper: StripeHelper;
-  private playBilling?: PlayBilling;
   private log: AuthLogger;
+  private playBilling?: PlayBilling;
+  private stripeHelper: StripeHelper;
+  private profileClient: ProfileClient;
 
   constructor() {
     this.stripeHelper = Container.get(StripeHelper);
+    this.profileClient = Container.get(ProfileClient);
     if (Container.has(PlayBilling)) {
       this.playBilling = Container.get(PlayBilling);
     }
@@ -61,6 +64,55 @@ export class CapabilityService {
   }
 
   /**
+   * Handle a Google Play purchase change.
+   *
+   * This handles broadcasting and refreshing the subscription capabilities for
+   * the product ids that were possibly updated.
+   *
+   * Note that due to the asynchronous nature of Real-Time Developer Notifications
+   * and possible concurrent cached purchase updates we cannot with certainty determine
+   * the prior state of the Google Play purchase. Therefore for the purpose of ensuring
+   * relying parties get notified of changes we assume the prior state was the opposite
+   * of the current state and broadcast the changes appropriately. This can result in
+   * duplicate broadcasts telling RPs to turn on/off the user capability, but ensures
+   * the user always has proper access to the purchased products.
+   */
+  public async playUpdate(
+    uid: string,
+    email: string,
+    purchase: SubscriptionPurchase
+  ) {
+    const affectedProductId = (
+      await this.stripeHelper.purchasesToProductIds([purchase])
+    ).shift();
+    if (!affectedProductId) {
+      // Purchase is not mapped to a product id.
+      return;
+    }
+    const currentProductIds = await this.subscribedProductIds(uid, email);
+    let priorProductIds;
+    if (currentProductIds.includes(affectedProductId)) {
+      // Remove the product id from the prior list for processing to assume that it
+      // was previously inactive and ensure we broadcast a change.
+      priorProductIds = currentProductIds.filter(
+        (id) => id !== affectedProductId
+      );
+    } else {
+      // Its not a current product. Make sure we broadcast that the capabilities
+      // associates with this product are gone by adding it to a prior product list.
+      priorProductIds = [...currentProductIds, affectedProductId];
+    }
+    return Promise.all([
+      this.profileClient.deleteCache(uid),
+      this.processProductIdDiff({
+        uid,
+        priorProductIds,
+        currentProductIds,
+      }),
+    ]);
+  }
+
+  /**
    * Return a map of capabilities to client ids for the user.
    */
   public async subscriptionCapabilities(
@@ -72,9 +124,9 @@ export class CapabilityService {
   }
 
   /**
-   * Return a list of subscribed product ids for the user.
+   * Return a list of all product ids with an active subscription.
    */
-  public async subscribedProductIds(uid: string, email: string) {
+  private async subscribedProductIds(uid: string, email: string) {
     const [subscribedStripeProducts, subscribedPlayProducts] =
       await Promise.all([
         this.fetchSubscribedProductsFromStripe(uid, email),
@@ -90,40 +142,24 @@ export class CapabilityService {
    * and emit the necessary events for added/removed products as well as
    * added/removed capabilities.
    */
-  public async processProductDiff(options: {
+  public async processProductIdDiff(options: {
     uid: string;
     priorProductIds: string[];
     currentProductIds: string[];
   }) {
-    const { uid } = options;
-
-    // Calculate the product changes.
-    const newProducts = options.currentProductIds.filter(
-      (id) => !options.priorProductIds.includes(id)
-    );
-    const removedProducts = options.priorProductIds.filter(
-      (id) => !options.currentProductIds.includes(id)
-    );
-    for (const product of newProducts) {
-      authEvents.emit('account:productAdded', {
-        uid,
-        productId: product,
-      });
-    }
-    for (const product of removedProducts) {
-      authEvents.emit('account:productRemoved', {
-        uid,
-        productId: product,
-      });
-    }
+    const { uid, priorProductIds, currentProductIds } = options;
 
     // Calculate and announce capability changes.
-    const priorCapabilities = allCapabilities(
-      await this.productIdsToClientCapabilities(options.priorProductIds)
-    );
-    const currentCapabilities = allCapabilities(
-      await this.productIdsToClientCapabilities(options.currentProductIds)
-    );
+    const [priorClientCapabilities, currentClientCapabilities] =
+      await Promise.all([
+        this.productIdsToClientCapabilities(priorProductIds),
+        this.productIdsToClientCapabilities(currentProductIds),
+      ]);
+    const [priorCapabilities, currentCapabilities] = [
+      allCapabilities(priorClientCapabilities),
+      allCapabilities(currentClientCapabilities),
+    ];
+
     const newCapabilities = currentCapabilities.filter(
       (capability) => !priorCapabilities.includes(capability)
     );
@@ -131,7 +167,10 @@ export class CapabilityService {
       (capability) => !currentCapabilities.includes(capability)
     );
     if (newCapabilities.length > 0) {
-      this.broadcastCapabilitiesAdded({ uid, capabilities: newCapabilities });
+      this.broadcastCapabilitiesAdded({
+        uid,
+        capabilities: newCapabilities,
+      });
     }
     if (removedCapabilities.length > 0) {
       this.broadcastCapabilitiesRemoved({
@@ -139,6 +178,10 @@ export class CapabilityService {
         capabilities: removedCapabilities,
       });
     }
+    return {
+      newCapabilities,
+      removedCapabilities,
+    };
   }
 
   /**
@@ -229,11 +272,14 @@ export class CapabilityService {
     if (!this.playBilling) {
       return [];
     }
-    const purchases =
+    const allPurchases =
       await this.playBilling.userManager.queryCurrentSubscriptions(uid);
+    const purchases = allPurchases.filter((purchase) =>
+      purchase.isEntitlementActive()
+    );
     return purchases.length === 0
       ? []
-      : this.stripeHelper.purchasesToSubscribedProductIds(purchases);
+      : this.stripeHelper.purchasesToProductIds(purchases);
   }
 
   /**
