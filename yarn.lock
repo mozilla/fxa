@@ -18894,7 +18894,7 @@ fsevents@~2.1.1:
     safe-regex: ^2.1.1
     safe-url-assembler: 1.3.5
     sandboxed-regexp: ^0.3.0
-    sass: ^1.38.1
+    sass: ^1.38.2
     simplesmtp: 0.3.35
     sinon: ^9.0.3
     stripe: ^8.170.0
@@ -19611,7 +19611,7 @@ fsevents@~2.1.1:
     react-helmet: ^6.1.0
     react-transition-group: ^4.4.2
     rimraf: ^3.0.2
-    sass: 1.38.1
+    sass: 1.38.2
     sass-loader: ^10.0.3
     sinon: ^9.2.3
     tailwindcss-dir: ^4.0.0
@@ -34277,14 +34277,14 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"sass@npm:1.38.1, sass@npm:^1.38.1":
-  version: 1.38.1
-  resolution: "sass@npm:1.38.1"
+"sass@npm:1.38.2, sass@npm:^1.38.2":
+  version: 1.38.2
+  resolution: "sass@npm:1.38.2"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
   bin:
     sass: sass.js
-  checksum: e260889fd9163f68b3916fa69f2b7c99d2980e54e8938ac3a74f6d5a4fe4d0c15450871273286f5abdaecd6e218ff70b70e8f32188203ac6a9f08582fd721b3a
+  checksum: 41a0cf4539562dbe114d375cca3bbc090eeb13286d02367e772a09282c5bc4232226f1fbe08edbcc958f2dda9e17bc4c4aedd4da87c5aa4a4e3b816202913b33
   languageName: node
   linkType: hard
 
