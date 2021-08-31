@@ -91,7 +91,7 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
       // Do not report "No Such Channel" errors to Sentry.
       // This error is already muted in Sentry and is not actionable.
     } else {
-      this._sentry.captureMessage('WebChannel error: ' + error.message, {
+      this._sentry.captureException('WebChannel error: ' + error.message, {
         // manually capture the stack as a custom field
         extra: {
           stackTrace: error.stack,
