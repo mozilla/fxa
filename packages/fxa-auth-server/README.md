@@ -188,7 +188,7 @@ const localized = this.templates.render(
 
 Note: In ejs, `<%=` outputs the value into the template with HTML escaped, whereas `<%-` renders the string as is (unescaped)
 
-The emails for which the MJML feature flag is enabled can be rendered to disk using the `yarn write-emails` command.
+The emails for which the MJML feature flag is enabled can be rendered to disk using the `yarn write-emails` command. If you wish to compare before-and-after versions of templates you've converted to MJML you can remove values from the `mjml.templates` array and re-run the `write-emails` command, observing the generated HTML and text templates.
 
 #### Styles
 
