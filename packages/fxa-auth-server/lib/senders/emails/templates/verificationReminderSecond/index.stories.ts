@@ -4,7 +4,6 @@
 
 import { Meta } from '@storybook/html';
 import { commonArgs, Template } from '../../storybook-email';
-import { templateVariables } from '.';
 
 export default {
   title: 'Emails/verificationReminderSecond',
@@ -12,7 +11,11 @@ export default {
 
 const defaultVariables = {
   ...commonArgs,
-  ...templateVariables,
+  title: 'Still there?',
+  description:
+    'Almost a week ago you created a Firefox Account but never verified it. We’re worried about you.',
+  subDescription:
+    "Confirm this email address to activate your account and let us know you're okay.",
   action: 'Confirm email',
   link: 'http://localhost:3030/verify_email',
   subject: 'Final reminder: Activate your account',

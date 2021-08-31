@@ -7,7 +7,7 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { negotiateLanguages } from '@fluent/langneg';
 import { JSDOM } from 'jsdom';
 import path from 'path';
-import { renderWithOptionalLayout } from './renderer';
+import { render, TemplateContext } from './renderer';
 import { loadFtlFiles } from './load-ftl-files';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 
@@ -37,18 +37,12 @@ class FluentLocalizer {
   async localizeEmail(
     templateName: string,
     layoutName: string,
-    variables: Record<any, any>,
+    context: TemplateContext,
     acceptLanguage: string
   ) {
-    const templateVariables = { ...variables, ...variables.templateValues };
-    const { htmlTemplate, plainText } = renderWithOptionalLayout(
-      templateName,
-      templateVariables,
-      layoutName
-    );
-
-    const { document } = new JSDOM(htmlTemplate).window;
-
+    context = { ...context, ...context.templateValues };
+    const { html, text } = render(templateName, context, layoutName);
+    const { document } = new JSDOM(html).window;
     const userLocales: Array<string> = [];
 
     const parseLocales = acceptLanguage.split(',');
@@ -102,14 +96,11 @@ class FluentLocalizer {
       body.classList.add('rtl');
     }
 
-    const subject = await l10n.formatValue(
-      `${templateName}-subject`,
-      templateVariables
-    );
+    const subject = await l10n.formatValue(`${templateName}-subject`, context);
     document.title = subject;
 
     // localize the plaintext files
-    const plainTextArr = plainText.split('\n');
+    const plainTextArr = text.split('\n');
     for (let i in plainTextArr) {
       // match the lines that are of format key = "value" since we will be extracting the key
       // to pass down to fluent
@@ -121,7 +112,7 @@ class FluentLocalizer {
         ];
         val = val.replace(/"/g, '');
         // get the value from fluent using the extracted key
-        const localizedValue = await l10n.formatValue(key, templateVariables);
+        const localizedValue = await l10n.formatValue(key, context);
         plainTextArr[i] = localizedValue ? localizedValue : val;
       }
     }
