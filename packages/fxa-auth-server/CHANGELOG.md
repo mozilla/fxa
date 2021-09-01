@@ -1,3 +1,9 @@
+## 1.213.11
+
+### Bug fixes
+
+- tests: surprise! some tests fail with a patch version > 9 ([c5c0330a6](https://github.com/mozilla/fxa/commit/c5c0330a6))
+
 ## 1.213.10
 
 ### Bug fixes
