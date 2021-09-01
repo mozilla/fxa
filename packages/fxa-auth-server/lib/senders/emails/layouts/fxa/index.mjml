@@ -30,7 +30,7 @@
       <% if (!locals.sync) { %>
         <img src="https://accounts-static.cdn.mozilla.net/product-icons/firefox-logo.png" class="fxa-logo" alt="Firefox logo"/>
       <% } else { %>
-        <img src="https://accounts-static.cdn.mozilla.net/other/sync-devices.png" class="sync" alt="Sync devices"/>
+        <img src="https://accounts-static.cdn.mozilla.net/other/sync-devices.png" class="sync-img" alt="Sync devices"/>
       <% } %>
     </mj-raw>
 

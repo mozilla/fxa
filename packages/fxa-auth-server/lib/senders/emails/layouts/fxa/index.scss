@@ -21,7 +21,10 @@
   display: block !important;
 }
 
-.sync {
+.sync-img {
+  padding: global.$s-5 global.$s-0 !important;
   height: 137px;
   width: 270px;
+  margin: 0 auto !important;
+  display: block !important;
 }
