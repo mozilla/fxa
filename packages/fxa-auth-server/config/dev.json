@@ -437,7 +437,8 @@
       "verificationReminderFirst",
       "verificationReminderSecond",
       "verify",
-      "verifyShortCode"
+      "verifyShortCode",
+      "verifySecondaryCode"
     ]
   }
 }
