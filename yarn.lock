@@ -6343,7 +6343,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-hooks@npm:*, @testing-library/react-hooks@npm:^7.0.1":
+"@testing-library/react-hooks@npm:*":
   version: 7.0.1
   resolution: "@testing-library/react-hooks@npm:7.0.1"
   dependencies:
@@ -6362,6 +6362,28 @@ __metadata:
     react-test-renderer:
       optional: true
   checksum: eecb59df11ae8e9d715e3b1e13a199995d363d879a9177497a5609d5ad41f1c112cb708d24b4f2a6c6ce7d81edefae34e8e8bbd5cde2a1d0abcc0f539df904de
+  languageName: node
+  linkType: hard
+
+"@testing-library/react-hooks@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "@testing-library/react-hooks@npm:7.0.2"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@types/react": ">=16.9.0"
+    "@types/react-dom": ">=16.9.0"
+    "@types/react-test-renderer": ">=16.9.0"
+    react-error-boundary: ^3.1.0
+  peerDependencies:
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+    react-test-renderer: ">=16.9.0"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-test-renderer:
+      optional: true
+  checksum: 27c6169b5c9832bd02dcea232e6a0a3cd8d4504e13ecb49d57eb5ab6bea5e2f1bff65f3102068b7e57eec3cbd671326dc0b277335014b0edfbdedf11a1fe6db5
   languageName: node
   linkType: hard
 
@@ -19693,7 +19715,7 @@ fsevents@~2.1.1:
     "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.0.0
-    "@testing-library/react-hooks": ^7.0.1
+    "@testing-library/react-hooks": ^7.0.2
     "@testing-library/user-event": ^13.2.1
     "@types/babel__core": 7.1.14
     "@types/classnames": ^2.3.1
