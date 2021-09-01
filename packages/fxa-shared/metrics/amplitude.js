@@ -263,7 +263,7 @@ module.exports = {
 
         let version;
         try {
-          version = /([0-9]+)\.([0-9])$/.exec(data.version)[0];
+          version = /([0-9]+)\.([0-9]+)$/.exec(data.version)[0];
         } catch (err) {}
 
         // minimal data should be enabled for routes used by internal
