@@ -9,7 +9,7 @@ const { assert } = require('chai');
 const DAY = 1000 * 60 * 60 * 24;
 const WEEK = DAY * 7;
 const FOUR_WEEKS = WEEK * 4;
-const APP_VERSION = /^([0-9]+)\.([0-9])$/; // Matches `XXX.X` version number
+const APP_VERSION = /^([0-9]+)\.([0-9]+)$/; // Matches `XXX.X` version number
 
 describe('metrics/amplitude:', () => {
   let amplitude;
