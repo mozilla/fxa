@@ -70,7 +70,7 @@
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@rescripts/cli": "0.0.16",
-    "@sentry/browser": "^6.11.0",
+    "@sentry/browser": "^6.12.0",
     "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-links": "^6.3.7",
     "@storybook/addons": "^6.3.6",
