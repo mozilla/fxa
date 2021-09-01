@@ -649,6 +649,10 @@ describe('StripeWebhookHandler', () => {
           .resolves({ uid: UID, email: TEST_EMAIL });
       });
 
+      afterEach(() => {
+        StripeWebhookHandlerInstance.sendSubscriptionUpdatedEmail.restore();
+      });
+
       it('emits a notification when transitioning from "incomplete" to "active/trialing"', async () => {
         const updatedEvent = deepCopy(subscriptionUpdatedFromIncomplete);
         await StripeWebhookHandlerInstance.handleSubscriptionUpdatedEvent(
@@ -677,6 +681,30 @@ describe('StripeWebhookHandler', () => {
         );
         assert.notCalled(profile.deleteCache);
         assert.notCalled(stubSendSubscriptionStatusToSqs);
+      });
+
+      it('reports a sentry error with an eventId if sendSubscriptionUpdatedEmail fails', async () => {
+        const updatedEvent = deepCopy(subscriptionUpdated);
+        const fakeAppError = { output: { payload: {} } };
+        const fakeAppErrorWithEventId = {
+          output: {
+            payload: {
+              eventId: updatedEvent.id,
+            },
+          },
+        };
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        sendSubscriptionUpdatedEmailStub.rejects(fakeAppError);
+        await StripeWebhookHandlerInstance.handleSubscriptionUpdatedEvent(
+          {},
+          updatedEvent
+        );
+        assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
+        assert.calledWith(
+          sentryModule.reportSentryError,
+          fakeAppErrorWithEventId
+        );
       });
     });
 
