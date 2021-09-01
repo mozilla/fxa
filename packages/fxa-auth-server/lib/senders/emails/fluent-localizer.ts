@@ -116,8 +116,11 @@ class FluentLocalizer {
         plainTextArr[i] = localizedValue ? localizedValue : val;
       }
     }
-    // convert back to string
-    const localizedPlainText = plainTextArr.join('\n');
+    // convert back to string and
+    // strip excessive line breaks
+    const localizedPlainText = plainTextArr
+      .join('\n')
+      .replace(/(\n){2,}/g, '\n\n');
 
     return {
       html: document.documentElement.outerHTML,
