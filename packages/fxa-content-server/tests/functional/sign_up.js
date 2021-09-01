@@ -48,7 +48,7 @@ const ENTER_EMAIL_ENTRYPOINT = `entrypoint=${encodeURIComponent(
 var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
 var SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
 var SYNC_SERVICE = 'service=sync';
-const PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}?signin`;
+const PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}?signin=true`;
 
 function testAtConfirmScreen(email) {
   return function () {
