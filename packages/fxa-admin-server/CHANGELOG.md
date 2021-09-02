@@ -1,3 +1,11 @@
+## 1.214.0
+
+### Other changes
+
+- deps: bump graphql from 15.5.1 to 15.5.2 ([6800d12fd](https://github.com/mozilla/fxa/commit/6800d12fd))
+- deps-dev: bump tsconfig-paths from 3.10.1 to 3.11.0 ([3c7a79225](https://github.com/mozilla/fxa/commit/3c7a79225))
+- deps: bump knex from 0.95.8 to 0.95.10 ([8f63b924e](https://github.com/mozilla/fxa/commit/8f63b924e))
+
 ## 1.213.11
 
 No changes.

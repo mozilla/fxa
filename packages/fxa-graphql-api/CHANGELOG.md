@@ -1,3 +1,13 @@
+## 1.214.0
+
+### Other changes
+
+- deps: bump ioredis from 4.27.8 to 4.27.9 ([bcc59065a](https://github.com/mozilla/fxa/commit/bcc59065a))
+- deps: bump graphql from 15.5.1 to 15.5.2 ([6800d12fd](https://github.com/mozilla/fxa/commit/6800d12fd))
+- deps-dev: bump nock from 13.1.1 to 13.1.3 ([7c467acc0](https://github.com/mozilla/fxa/commit/7c467acc0))
+- deps: bump knex from 0.95.8 to 0.95.10 ([8f63b924e](https://github.com/mozilla/fxa/commit/8f63b924e))
+- deps: bump ioredis from 4.27.7 to 4.27.8 ([f05fca9a3](https://github.com/mozilla/fxa/commit/f05fca9a3))
+
 ## 1.213.11
 
 No changes.

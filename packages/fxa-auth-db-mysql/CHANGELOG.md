@@ -1,3 +1,9 @@
+## 1.214.0
+
+### Other changes
+
+- deps-dev: bump nock from 13.1.1 to 13.1.3 ([7c467acc0](https://github.com/mozilla/fxa/commit/7c467acc0))
+
 ## 1.213.11
 
 No changes.

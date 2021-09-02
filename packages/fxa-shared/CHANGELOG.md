@@ -1,5 +1,28 @@
 # Change history
 
+## 1.214.0
+
+### Bug fixes
+
+- allow patch version > 9 ([0c572f53d](https://github.com/mozilla/fxa/commit/0c572f53d))
+- auth: use IAP scope for token register ([18694cca4](https://github.com/mozilla/fxa/commit/18694cca4))
+
+### Other changes
+
+- deps: bump ioredis from 4.27.8 to 4.27.9 ([bcc59065a](https://github.com/mozilla/fxa/commit/bcc59065a))
+- deps: bump @sentry/browser from 6.11.0 to 6.12.0 ([4eb6a0c52](https://github.com/mozilla/fxa/commit/4eb6a0c52))
+- deps: bump graphql from 15.5.1 to 15.5.2 ([6800d12fd](https://github.com/mozilla/fxa/commit/6800d12fd))
+- deps: bump aws-sdk from 2.978.0 to 2.979.0 ([baf49c964](https://github.com/mozilla/fxa/commit/baf49c964))
+- deps: bump aws-sdk from 2.977.0 to 2.978.0 ([3d5e14d67](https://github.com/mozilla/fxa/commit/3d5e14d67))
+- deps: bump aws-sdk from 2.972.0 to 2.977.0 ([9b90d6e26](https://github.com/mozilla/fxa/commit/9b90d6e26))
+- deps-dev: bump tsconfig-paths from 3.10.1 to 3.11.0 ([3c7a79225](https://github.com/mozilla/fxa/commit/3c7a79225))
+- deps: bump stripe from 8.169.0 to 8.170.0 ([4aaa748bc](https://github.com/mozilla/fxa/commit/4aaa748bc))
+- deps: bump knex from 0.95.8 to 0.95.10 ([8f63b924e](https://github.com/mozilla/fxa/commit/8f63b924e))
+- deps: bump aws-sdk from 2.971.0 to 2.972.0 ([4706923b4](https://github.com/mozilla/fxa/commit/4706923b4))
+- deps: bump ioredis from 4.27.7 to 4.27.8 ([f05fca9a3](https://github.com/mozilla/fxa/commit/f05fca9a3))
+- deps: bump aws-sdk from 2.969.0 to 2.971.0 ([d53a82aed](https://github.com/mozilla/fxa/commit/d53a82aed))
+- deps: bump jsdom from 16.6.0 to 17.0.0 ([6152d0956](https://github.com/mozilla/fxa/commit/6152d0956))
+
 ## 1.213.11
 
 ### Bug fixes

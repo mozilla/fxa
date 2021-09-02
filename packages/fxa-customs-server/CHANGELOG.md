@@ -1,3 +1,11 @@
+## 1.214.0
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.16.6 to 2.17.0 ([41e5f714c](https://github.com/mozilla/fxa/commit/41e5f714c))
+- deps: bump ip-reputation-js-client from 6.0.3 to 6.0.4 ([1f111f5eb](https://github.com/mozilla/fxa/commit/1f111f5eb))
+- deps: bump @google-cloud/pubsub from 2.16.4 to 2.16.6 ([8a9aa2ac9](https://github.com/mozilla/fxa/commit/8a9aa2ac9))
+
 ## 1.213.11
 
 No changes.

@@ -1,3 +1,19 @@
+## 1.214.0
+
+### Bug fixes
+
+- tests: surprise! some tests fail with a patch version > 9 ([90854f8f2](https://github.com/mozilla/fxa/commit/90854f8f2))
+- logging: Report webchannel errors as sentry errors ([0c8ff9095](https://github.com/mozilla/fxa/commit/0c8ff9095))
+- tests: Add functional test for passwordless flows ([b82439884](https://github.com/mozilla/fxa/commit/b82439884))
+- auth: return a session token in /account/finish_setup ([791ccaec7](https://github.com/mozilla/fxa/commit/791ccaec7))
+- tests: force signin on sign up thru product functional test ([565b9b909](https://github.com/mozilla/fxa/commit/565b9b909))
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.11.0 to 6.12.0 ([4eb6a0c52](https://github.com/mozilla/fxa/commit/4eb6a0c52))
+- content: set SUBSCRIPTIONS_UNAUTHED_REDIRECTS to true by default ([e59695d7d](https://github.com/mozilla/fxa/commit/e59695d7d))
+- deps-dev: bump htmlparser2 from 6.1.0 to 7.1.1 ([cff1582ee](https://github.com/mozilla/fxa/commit/cff1582ee))
+
 ## 1.213.11
 
 ### Bug fixes
