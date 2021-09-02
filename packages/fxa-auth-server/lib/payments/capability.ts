@@ -45,7 +45,16 @@ export class CapabilityService {
   private profileClient: ProfileClient;
 
   constructor() {
-    this.stripeHelper = Container.get(StripeHelper);
+    // TODO: the mock stripeHelper here fixes this specific instance when
+    // stripe isn't configured, but we should have a better strategy
+    // in general as this helper becomes more pervasive
+    this.stripeHelper = Container.has(StripeHelper)
+      ? Container.get(StripeHelper)
+      : ({
+          purchasesToProductIds: () => Promise.resolve([]),
+          customer: () => Promise.resolve(null),
+          allPlans: () => Promise.resolve([]),
+        } as unknown as StripeHelper);
     this.profileClient = Container.get(ProfileClient);
     if (Container.has(PlayBilling)) {
       this.playBilling = Container.get(PlayBilling);
