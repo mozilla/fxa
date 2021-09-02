@@ -38,6 +38,10 @@ $s-10: 40px;
     font-size: 20px !important;
     line-height: 28px !important;
   }
+  &-3xl {
+    font-size: 32px !important;
+    line-height: 26px !important;
+  }
 }
 
 // Utility classes
@@ -129,4 +133,11 @@ tr > td:first-child {
   margin: 0 auto;
   @extend .mb-5;
   @extend .mt-2;
+}
+
+.large-code div {
+  text-align: center !important;
+  font-family: monospace;
+  @extend .text-3xl;
+  @extend .mb-6;
 }

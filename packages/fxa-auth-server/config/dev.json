@@ -436,7 +436,9 @@
       "postRemoveSecondary",
       "verificationReminderFirst",
       "verificationReminderSecond",
-      "verify"
+      "verify",
+      "verifyShortCode",
+      "verifySecondaryCode"
     ]
   }
 }
