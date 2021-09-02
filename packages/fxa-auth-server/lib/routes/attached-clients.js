@@ -224,6 +224,7 @@ module.exports = (log, db, devices, clientUtils) => {
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: isA

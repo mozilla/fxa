@@ -73,10 +73,11 @@ describe('lib/cad-reminders', () => {
   });
 
   describe('create', () => {
-    let createResult;
+    let before, createResult;
 
     beforeEach(async () => {
-      createResult = await cadReminders.create('wibble');
+      before = Date.now();
+      createResult = await cadReminders.create('wibble', before - 1);
     });
 
     afterEach(async () => {
@@ -138,16 +139,11 @@ describe('lib/cad-reminders', () => {
     });
 
     describe('process', () => {
-      let before, processResult;
+      let processResult;
 
-      beforeEach((done) => {
-        before = Date.now();
-        cadReminders.create('blee').then(() => {
-          setTimeout(async () => {
-            processResult = await cadReminders.process();
-            done();
-          }, 2);
-        });
+      beforeEach(async () => {
+        await cadReminders.create('blee', before);
+        processResult = await cadReminders.process(before + 2);
       });
 
       afterEach(async () => {

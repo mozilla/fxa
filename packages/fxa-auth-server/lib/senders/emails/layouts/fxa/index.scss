@@ -21,14 +21,10 @@
   display: block !important;
 }
 
-.sync {
+.sync-img {
+  padding: global.$s-5 global.$s-0 !important;
   height: 137px;
   width: 270px;
-}
-
-.secondary-text div {
-  @extend .font-sans;
-  @extend .text-xs;
-  text-align: center !important;
-  color: global.$grey-400 !important;
+  margin: 0 auto !important;
+  display: block !important;
 }

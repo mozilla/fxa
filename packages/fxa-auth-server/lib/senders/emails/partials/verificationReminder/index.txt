@@ -1,0 +1,5 @@
+confirm-email-plaintext = "Confirm email:"
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+<%- include('/partials/support/index.txt') %>

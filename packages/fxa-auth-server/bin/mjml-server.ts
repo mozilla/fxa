@@ -35,13 +35,13 @@ async function handleRequest(
       ...variables
     } = data;
     variables.baseUrl = baseUrl;
-    const { html, subject } = await fluentLocalizer.localizeEmail(
+    const { html, subject, text } = await fluentLocalizer.localizeEmail(
       templateName,
       layoutName || 'fxa',
       variables,
       acceptLanguage
     );
-    const result = JSON.stringify({ html, subject });
+    const result = JSON.stringify({ html, subject, text });
 
     res.writeHead(200, {
       'Content-Type': 'application/json',

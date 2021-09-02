@@ -165,28 +165,34 @@ HTML email has a lot of quirks - MJML shifts the burden of maintaining solutions
 const templateValues = {
   buttonText: 'Sync another device',
 };
+
 const localized = this.templates.render(
   message.template, // template name
   message.layout || 'fxa', // template layout
   templateValues
 );
-const button = `
-  <mj-include path="./lib/senders/emails/css/button/index.css" type="css" css-inline="inline" />
-  <mj-section>
-    <mj-column>
-      <mj-button css-class="primary-button"><%- buttonText %></mj-button>
-    </mj-column>
-  </mj-section>
-`;
+```
+
+```mjml
+<mj-include
+  path="./lib/senders/emails/css/button/index.css"
+  type="css"
+  css-inline="inline"
+/>
+<mj-section>
+  <mj-column>
+    <mj-button css-class="primary-button"><%- buttonText %></mj-button>
+  </mj-column>
+</mj-section>
 ```
 
 Note: In ejs, `<%=` outputs the value into the template with HTML escaped, whereas `<%-` renders the string as is (unescaped)
 
-The emails for which the MJML feature flag is enabled can be rendered to disk using the `yarn write-emails` command.
+The emails for which the MJML feature flag is enabled can be rendered to disk using the `yarn write-emails` command. If you wish to compare before-and-after versions of templates you've converted to MJML you can remove values from the `mjml.templates` array and re-run the `write-emails` command, observing the generated HTML and text templates.
 
 #### Styles
 
-Another advantage of using MJML for emails is that it inlines styles with the compliled HTML elements making emails compatible with all the mail clients. Currently, we are using `scss` stylesheets which get compiled down to css and are included in the MJML templates. We are maintaining shared stylesheets with common styles and variables, and template-specific stylesheet for the styles scoped to the respective template/partial. Although there are a lot of benefits of using stylesheets with MJML, one caveat that we'd like to highlight is the inevitible use of `!important` syntax with some of the styles. While compiling down the templates, MJML internally adds some default styles to the HTML elements, so if we were to add our custom styles on top of it we may have to use `!important` with them to override the default ones.  
+Another advantage of using MJML for emails is that it inlines styles with the compliled HTML elements making emails compatible with all the mail clients. Currently, we are using `scss` stylesheets which get compiled down to css and are included in the MJML templates. We are maintaining shared stylesheets with common styles and variables, and template-specific stylesheet for the styles scoped to the respective template/partial. Although there are a lot of benefits of using stylesheets with MJML, one caveat that we'd like to highlight is the inevitible use of `!important` syntax with some of the styles. While compiling down the templates, MJML internally adds some default styles to the HTML elements, so if we were to add our custom styles on top of it we may have to use `!important` with them to override the default ones.
 Styling classes is not always how it seems due to how MJML compiles our templates and you may need to add `div` or `td` after the class to target that specific element. FxA has created a [styleguide](https://storage.googleapis.com/mozilla-storybooks-fxa/index.html) for engineers to reference convenience classes provided by Tailwind. Since we were creating new stylesheets for our emails, we took this as an opportunity to DRY up the codebase by following Tailwind conventions and their associated styles for sass classes and variables as well as using the closest `px` value to the design guide for consistency across FxA's CSS.
 
 #### l10n (Fluent)
@@ -219,7 +225,9 @@ Fluent will take care of the rest, populating the element with the message value
 </p>
 ```
 
-By default emails render from left to right which could hamper the accessibility of emails for some locales so along with localizing the emails, we took care of rendering the emails from right to left for rtl locales and vice versa.
+Note that in order to access variables in the dom, we need to pass down a JSON object to the `data-l10n-args` attribute which will be used by the localizer to translate the text.
+
+By default emails render from left to right which could hamper their accessibility for some locales so along with localizing the emails, we took care of rendering them from right to left for rtl locales and vice versa.
 
 ##### Fluent for plaintext files
 

@@ -33,6 +33,7 @@ module.exports = (log, db, mailer, customs, config) => {
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {
@@ -227,6 +228,7 @@ module.exports = (log, db, mailer, customs, config) => {
       options: {
         auth: {
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: {

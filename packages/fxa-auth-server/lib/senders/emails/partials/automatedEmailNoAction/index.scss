@@ -2,8 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export * from './appBadges';
-export * from './button';
-export * from './metadata';
-export * from './automatedEmailNoAction';
-export * from './cadReminder';
+@use '../../global.scss';
+
+.text-footer-automatedEmail {
+  @extend .text-footer;
+  div {
+    @extend .mb-3;
+    @extend .mt-6;
+  }
+}

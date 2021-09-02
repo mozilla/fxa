@@ -62,7 +62,7 @@ $(document).ready(function () {
         contentEnv: contentURL.dev,
       };
       break;
-    case '123done-stage.dev.lcip.org':
+    case 'stage-123done.herokuapp.com':
       paymentConfig = {
         env: paymentURL.stage,
         ...subscriptionConfig.stage,

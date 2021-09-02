@@ -6,76 +6,68 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import ejs = require('ejs');
 import mjml2html = require('mjml');
-import * as templates from './templates';
-import * as layouts from './layouts';
 
-const mjmlConfig: Record<any, any> = {
+type TemplateComponent = 'layouts' | 'templates' | 'partials';
+export type TemplateContext = Record<string, any>;
+
+const TEMPLATES_DIR = './lib/senders/emails/';
+const mjmlConfig: Parameters<typeof mjml2html>[1] = {
   validationLevel: 'strict',
+  filePath: __dirname,
+  // (#10018) Ignore mj-includes since we don't test template styles
+  // This is going to cause issues
+  ignoreIncludes: typeof global.it === 'function',
 };
-
-const ejsConfig: Record<any, any> = {
+const ejsConfig: ejs.Options & { async?: never } = {
   root: __dirname,
 };
-const TEMPLATES_DIR = './lib/senders/emails/';
 
-function compile(
-  context: Record<any, any>,
-  templateName: string,
-  subTemplate?: Record<any, string>
-) {
-  // Ignore MJML includes since we don't test the styles of the templates.
-  // Futher context in PR #10018
-  const ignoreIncludes = typeof global.it === 'function';
-
-  let template: ejs.TemplateFunction, templateText: string;
-
-  if (subTemplate) {
-    template = ejs.compile(
-      layouts[templateName as keyof typeof layouts].render(subTemplate.mjml)
-    );
-    const layoutText = readFileSync(
-      join(TEMPLATES_DIR, 'layouts', templateName, 'index.txt'),
-      'utf8'
-    );
-
-    templateText = ejs.render(
-      layoutText,
-      { ...context, body: subTemplate.text },
-      ejsConfig
-    );
-  } else {
-    template = ejs.compile(
-      templates[templateName as keyof typeof templates].render()
-    );
-    templateText = readFileSync(
-      join(TEMPLATES_DIR, 'templates', templateName, 'index.txt'),
-      'utf8'
-    );
-  }
-  const plainText = ejs.render(templateText, context, ejsConfig);
-  const mjmlTemplate = template(context);
-  const htmlTemplate = mjml2html(mjmlTemplate, {
-    ...mjmlConfig,
-    ignoreIncludes,
-  }).html;
-
-  return { htmlTemplate, plainText };
+function getComponentContents(
+  name: string,
+  type: TemplateComponent
+): { mjml: string; text: string } {
+  const basePath = join(TEMPLATES_DIR, type, name);
+  return {
+    mjml: readFileSync(join(basePath, 'index.mjml'), 'utf8'),
+    text: readFileSync(join(basePath, 'index.txt'), 'utf8'),
+  };
 }
 
-export function renderWithOptionalLayout(
+function renderEjs(
+  name: string,
+  type: TemplateComponent,
+  context: TemplateContext,
+  body?: { mjml: string; text: string }
+) {
+  const { mjml, text } = getComponentContents(name, type);
+
+  return {
+    mjml: ejs.render(mjml, { ...context, body: body?.mjml }, ejsConfig),
+    text: ejs.render(text, { ...context, body: body?.text }, ejsConfig),
+  };
+}
+
+export function render(
   templateName: string,
-  context: Record<any, any>,
+  context: TemplateContext,
   layoutName?: string
 ) {
-  context.templateName = templateName;
+  let rendered: { html: string; text: string };
+  context = { ...context, templateName };
+
   if (layoutName) {
-    const subTemplate = {
-      mjml: templates[templateName as keyof typeof templates].render(),
-      text: readFileSync(
-        join(TEMPLATES_DIR, 'templates', templateName, 'index.txt'),
-        'utf8'
-      ),
-    };
-    return compile(context, layoutName, subTemplate);
-  } else return compile(context, templateName);
+    const renderedBody = renderEjs(templateName, 'templates', context);
+    const { mjml, text } = renderEjs(
+      layoutName,
+      'layouts',
+      context,
+      renderedBody
+    );
+    rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
+  } else {
+    const { mjml, text } = renderEjs(templateName, 'templates', context);
+    rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
+  }
+
+  return rendered;
 }

@@ -301,11 +301,14 @@ const focus = thenify(function (selector) {
  * @param {object} [options] options
  *   @param {boolean} [options.clearValue] - clear element value before
  *   typing. Defaults to true.
+ *   @param {boolean} [options.forceTypingText] - force typing text, used
+ *   in cases where you might validate input against api.
  * @returns {promise}
  */
 const type = thenify(function (selector, text, options = {}) {
   // always clear unless explicitly overridden
   var clearValue = options.clearValue !== false;
+  const forceTypingText = !!options.forceTypingText;
 
   text = String(text);
 
@@ -327,7 +330,7 @@ const type = thenify(function (selector, text, options = {}) {
       // test runner
       // calling `type` with more than one character on the "signup_password"
       // screen causes nothing to be written on the second attempt.
-      if (type === 'number' || type === 'password') {
+      if (type === 'number' || type === 'password' || forceTypingText) {
         var index = 0;
         var parent = this.parent;
 
@@ -2835,6 +2838,33 @@ const subscribeToTestProductWithCardNumber = thenify(function (
 });
 
 /**
+ * Subscribe to the test product with a passwordless accoutn.
+ *
+ * @returns {promise} resolves when complete
+ */
+const subscribeToTestProductWithPasswordlessAccount = thenify(function (
+  cardNumber,
+  email
+) {
+  const nextYear = (new Date().getFullYear() + 1).toString().substr(2);
+  return this.parent
+    .then(
+      type('input[data-testid=new-user-email]', email, {
+        forceTypingText: true,
+      })
+    )
+    .then(type('input[data-testid="new-user-confirm-email"]', email))
+    .then(type('input[name=name]', 'Testo McTestson'))
+    .then(click('input[data-testid=new-user-subscribe-product-updates]'))
+    .then(click('input[data-testid=confirm]'))
+    .then(typeIntoStripeElement('creditCard', 'cardnumber', cardNumber))
+    .then(typeIntoStripeElement('creditCard', 'exp-date', `12${nextYear}`))
+    .then(typeIntoStripeElement('creditCard', 'cvc', `123`))
+    .then(typeIntoStripeElement('creditCard', 'postal', `12345`))
+    .then(click('button[name=submit]'));
+});
+
+/**
  * Subscribe to the test product. The user should be signed in at this point.
  *
  * @returns {promise} resolves when complete
@@ -2886,6 +2916,13 @@ const fillOutForceChangePassword = thenify(function (oldPassword, newPassword) {
     .then(
       type(selectors.POST_VERIFY_FORCE_PASSWORD_CHANGE.VPASSWORD, newPassword)
     )
+    .then(click(selectors.POST_VERIFY_FORCE_PASSWORD_CHANGE.SUBMIT));
+});
+
+const fillOutFinishAccountSetup = thenify(function (newPassword) {
+  return this.parent
+    .then(type(selectors.FINISH_ACCOUNT_SETUP.PASSWORD, newPassword))
+    .then(type(selectors.FINISH_ACCOUNT_SETUP.VPASSWORD, newPassword))
     .then(click(selectors.POST_VERIFY_FORCE_PASSWORD_CHANGE.SUBMIT));
 });
 
@@ -3001,6 +3038,7 @@ module.exports = {
   fillOutEmailFirstEmail,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutFinishAccountSetup,
   fillOutForceAuth,
   fillOutForceChangePassword,
   fillOutPostVerifySecondaryEmailCode,
@@ -3064,6 +3102,7 @@ module.exports = {
   subscribeAndSigninToRp,
   subscribeToTestProduct,
   subscribeToTestProductWithCardNumber,
+  subscribeToTestProductWithPasswordlessAccount,
   switchToWindow,
   takeScreenshot,
   testAreEventsLogged,

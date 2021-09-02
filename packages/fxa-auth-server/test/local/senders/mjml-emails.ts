@@ -163,9 +163,7 @@ const TESTS: [string, any][] = [
   
   ['lowRecoveryCodesEmail', new Map<string, Test | any>([
     ['subject', [
-      { test: 'include', expected: '2' },
-      { test: 'include', expected: 'recovery codes remaining' },
-      { test: 'notInclude', expected: '1' },
+      { test: 'include', expected: '2 recovery codes remaining' }
     ]],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid') }],
@@ -182,11 +180,140 @@ const TESTS: [string, any][] = [
     ['text', [
       { test: 'include', expected: `Generate codes:\n${configUrl('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')}` },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'low-recovery-codes', 'privacy')}` },
-      { test: 'include', expected: 'For more information, please visit' },
-      { test: 'include', expected: configUrl('supportUrl', 'low-recovery-codes', 'support') },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'low-recovery-codes', 'support')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['postVerifyEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Account verified. Next, sync another device to finish setup' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'account-verified', 'connect-device') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerify') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postVerify' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
+    ])],
+    ['html', [
+      { test: 'include', expected: "Firefox Account verified. You're almost there." },
+      { test: 'include', expected: 'Next sync between your devices!' },
+      { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
+      { test: 'include', expected: decodeUrl(configHref('syncUrl', 'account-verified', 'connect-device')) },
+      { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
+      { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
+      { test: 'include', expected: 'another desktop device' },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-verified', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-verified', 'support')) },
+      { test: 'include', expected: decodeUrl(config.smtp.firefoxDesktopUrl) },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Firefox Account verified. You\'re almost there.' },
+      { test: 'include', expected: 'Next sync between your devices!' },
+      { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
+      { test: 'include', expected: `Have questions? Visit` },
+      { test: 'include', expected: configUrl('supportUrl', 'account-verified', 'support') },
+      { test: 'include', expected: config.smtp.syncUrl },
+      { test: 'notInclude', expected: config.smtp.androidUrl },
+      { test: 'notInclude', expected: config.smtp.iosUrl },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
+  ['postRemoveSecondaryEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Secondary email removed' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveSecondary') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveSecondary' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveSecondary }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-email-removed', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-email-removed', 'support')) },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-email-removed', 'account-email-removed', 'email', 'uid')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-email-removed', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-email-removed', 'support')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
+  ['verificationReminderFirstEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Reminder: Finish creating your account' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderFirst') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verificationReminderFirst' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderFirst }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'first-verification-reminder', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'first-verification-reminder', 'support')) },
+      { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')) },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'first-verification-reminder', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'first-verification-reminder', 'support')}` },
+      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'first-verification-reminder', 'confirm-email', 'code', 'reminder=first', 'uid')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
+  ['verificationReminderSecondEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Final reminder: Activate your account' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verificationReminderSecond') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verificationReminderSecond' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verificationReminderSecond }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'second-verification-reminder', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'second-verification-reminder', 'support')) },
+      { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid')) },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'second-verification-reminder', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'second-verification-reminder', 'support')}` },
+      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'second-verification-reminder', 'confirm-email', 'code', 'reminder=second', 'uid')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
+  ['verifyEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Finish creating your account' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verify' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verify }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in starting with:' },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
+      { test: 'include', expected: decodeUrl(configHref('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')) },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Confirm your account and get the most out of Firefox everywhere you sign in.' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome', 'support')}` },
+      { test: 'include', expected: `Confirm email:\n${configUrl('verificationUrl', 'welcome', 'activate', 'uid', 'code', 'service')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])]
 ];
 
 describe('lib/senders/mjml-emails:', () => {

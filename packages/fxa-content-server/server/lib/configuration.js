@@ -671,7 +671,7 @@ const conf = (module.exports = convict({
       format: String,
     },
     allowUnauthenticatedRedirects: {
-      default: false,
+      default: true,
       doc: 'Whether to allow any redirects to Payments for an unauthenticated user',
       env: 'SUBSCRIPTIONS_UNAUTHED_REDIRECTS',
       formlat: Boolean,

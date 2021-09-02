@@ -227,6 +227,9 @@ export class StripeWebhookHandler extends StripeHandler {
       ({ uid, email } = await this.sendSubscriptionUpdatedEmail(event));
     } catch (err) {
       // It's unexpected that we don't know about the customer or an error happens.
+      if (err.output && typeof err.output.payload === 'object') {
+        err.output.payload = { ...err.output.payload, eventId: event.id };
+      }
       reportSentryError(err, request);
       return;
     }

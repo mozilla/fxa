@@ -1091,7 +1091,8 @@ export class StripeHelper {
   }
 
   /**
-   * Find all active subscriptions for the given `planId`.
+   * Find all active subscriptions for the given `planId`. Filter out
+   * any subscriptions marked as `cancel_at_period_end`.
    *
    * It is expected that the `customer` is expanded.
    */
@@ -1107,7 +1108,10 @@ export class StripeHelper {
       expand: ['data.customer'],
     };
     for await (const subscription of this.stripe.subscriptions.list(params)) {
-      if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+      if (
+        !ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status) ||
+        subscription.cancel_at_period_end
+      ) {
         continue;
       }
       yield subscription;

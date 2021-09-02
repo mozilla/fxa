@@ -48,7 +48,7 @@ const ENTER_EMAIL_ENTRYPOINT = `entrypoint=${encodeURIComponent(
 var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
 var SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
 var SYNC_SERVICE = 'service=sync';
-const PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}`;
+const PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}?signin=true`;
 
 function testAtConfirmScreen(email) {
   return function () {
@@ -83,35 +83,36 @@ registerSuite('signup here', {
         .then(testErrorTextInclude('email'));
     },
 
-    'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function () {
-      // https://github.com/mozilla/fxa-content-server/issues/2209
-      var secondEmail = createEmail();
-      this.timeout = 90000;
+    'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account':
+      function () {
+        // https://github.com/mozilla/fxa-content-server/issues/2209
+        var secondEmail = createEmail();
+        this.timeout = 90000;
 
-      return this.remote
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testAtConfirmScreen(email))
-        .then(fillOutSignUpCode(email, 0))
+        return this.remote
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
+          .then(testAtConfirmScreen(email))
+          .then(fillOutSignUpCode(email, 0))
 
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown())
-        .then(signOut())
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(testSuccessWasShown())
+          .then(signOut())
 
-        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
 
-        .then(fillOutEmailFirstSignUp(secondEmail, PASSWORD))
-        .then(testAtConfirmScreen(secondEmail))
-        .then(fillOutSignUpCode(secondEmail, 0))
+          .then(fillOutEmailFirstSignUp(secondEmail, PASSWORD))
+          .then(testAtConfirmScreen(secondEmail))
+          .then(fillOutSignUpCode(secondEmail, 0))
 
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testSuccessWasShown())
-        .then(signOut())
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(testSuccessWasShown())
+          .then(signOut())
 
-        .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER));
-    },
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.SETTINGS.HEADER));
+      },
 
     'signup with email with leading whitespace on the email': function () {
       var emailWithoutSpace = email;
