@@ -1,5 +1,23 @@
 # Change history
 
+## 1.213.11
+
+### Bug fixes
+
+- allow patch version > 9 ([4c8da1474](https://github.com/mozilla/fxa/commit/4c8da1474))
+
+## 1.213.10
+
+No changes.
+
+## 1.213.9
+
+No changes.
+
+## 1.213.8
+
+No changes.
+
 ## 1.213.7
 
 No changes.

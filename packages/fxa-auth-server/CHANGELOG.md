@@ -1,3 +1,25 @@
+## 1.213.11
+
+### Bug fixes
+
+- tests: surprise! some tests fail with a patch version > 9 ([c5c0330a6](https://github.com/mozilla/fxa/commit/c5c0330a6))
+
+## 1.213.10
+
+### Bug fixes
+
+- auth: assume product change on play trigger ([7441828fe](https://github.com/mozilla/fxa/commit/7441828fe))
+
+## 1.213.9
+
+No changes.
+
+## 1.213.8
+
+### Bug fixes
+
+- auth: use object only for auth ([bb745928e](https://github.com/mozilla/fxa/commit/bb745928e))
+
 ## 1.213.7
 
 ### Bug fixes
