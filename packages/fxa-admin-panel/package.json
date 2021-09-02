@@ -91,7 +91,7 @@
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "babel-loader": "^8.2.2",
-    "chance": "^1.1.7",
+    "chance": "^1.1.8",
     "eslint": "^7.29.0",
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^24.3.6",
