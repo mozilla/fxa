@@ -2295,21 +2295,21 @@ export class StripeHelper {
       return this.abbrevProductFromStripeProduct(product);
     };
 
-    // If we already have an expanded Product, just extract from that.
-    if (typeof plan.product === 'object') {
-      return checkDeletedProduct(plan.product);
-    }
+    // The "plan" argument might not have any product info on it.
+    const planWithProductId = await this.findPlanById(plan.id);
 
     // Next, look for product details in cache
     const products = await this.allProducts();
-    const productCached = products.find((p) => p.product_id === plan.product);
+    const productCached = products.find(
+      (p) => p.product_id === planWithProductId.product_id
+    );
     if (productCached) {
       return productCached;
     }
 
     // Finally, do a direct Stripe fetch if none of the above works.
     return checkDeletedProduct(
-      await this.stripe.products.retrieve(plan.product)
+      await this.stripe.products.retrieve(planWithProductId.product_id)
     );
   }
 

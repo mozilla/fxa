@@ -3163,7 +3163,7 @@ describe('StripeHelper', () => {
       },
     };
 
-    let sandbox, mockCustomer, mockStripe, mockAllProducts;
+    let sandbox, mockCustomer, mockStripe, mockAllProducts, mockAllPlans;
     beforeEach(() => {
       sandbox = sinon.createSandbox();
 
@@ -3199,7 +3199,9 @@ describe('StripeHelper', () => {
           product_metadata: {},
         },
       ];
+      mockAllPlans = [{ ...mockPlan, plan_id: planId, product_id: productId }];
       sandbox.stub(stripeHelper, 'allProducts').resolves(mockAllProducts);
+      sandbox.stub(stripeHelper, 'allPlans').resolves(mockAllPlans);
 
       mockStripe = Object.entries({
         plans: mockPlan,
@@ -3304,7 +3306,7 @@ describe('StripeHelper', () => {
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixture
         );
-        assert.isFalse(stripeHelper.allProducts.called);
+        assert.isTrue(stripeHelper.allProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         assert.isFalse(mockStripe.customers.retrieve.called);
         assert.isFalse(mockStripe.charges.retrieve.called);
@@ -3324,7 +3326,7 @@ describe('StripeHelper', () => {
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixture
         );
-        assert.isFalse(stripeHelper.allProducts.called);
+        assert.isTrue(stripeHelper.allProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         assert.isFalse(mockStripe.customers.retrieve.called);
         assert.isFalse(mockStripe.charges.retrieve.called);
@@ -3683,6 +3685,18 @@ describe('StripeHelper', () => {
               emailIconUrl: productIconURLNew,
               downloadURL: productDownloadURLNew,
             },
+          }
+        );
+        mockAllPlans.unshift(
+          {
+            ...event.data.previous_attributes.plan,
+            plan_id: event.data.previous_attributes.plan.id,
+            product_id: productIdOld,
+          },
+          {
+            ...event.data.object.plan,
+            plan_id: event.data.object.plan.id,
+            product_id: productIdNew,
           }
         );
 
