@@ -438,7 +438,8 @@
       "verificationReminderSecond",
       "verify",
       "verifyShortCode",
-      "verifySecondaryCode"
+      "verifySecondaryCode",
+      "passwordReset"
     ]
   }
 }

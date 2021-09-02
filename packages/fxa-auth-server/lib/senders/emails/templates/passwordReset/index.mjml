@@ -1,0 +1,23 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-include path="./css/global.css" type="css" css-inline="inline" />
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="passwordReset-title">Your account password was changed</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="passwordReset-description">You will need to enter your new password on other devices to resume syncing.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/automatedEmailResetPassword/index.mjml') %>
