@@ -12787,10 +12787,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chance@npm:^1.1.7":
-  version: 1.1.7
-  resolution: "chance@npm:1.1.7"
-  checksum: 4d9f7f7b3a5a7436ebdc33ae06e5e6e7d40e66f9dbcf0e3ee78cf304d50f2fadd1ab8d9ab1f59f66428b32750c23ec82c832afbca4aa2bdf58f4fc85618cdd8b
+"chance@npm:^1.1.8":
+  version: 1.1.8
+  resolution: "chance@npm:1.1.8"
+  checksum: e733f51e1094d7b0343a9e79f38599086442e6284fc2789cf9e072c71a0070874a1b340f9fffe4e66260899733f768cf113434be466ecb0016e3afcb60add3ee
   languageName: node
   linkType: hard
 
@@ -18684,7 +18684,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/parser": ^4.29.3
     babel-loader: ^8.2.2
     body-parser: ^1.19.0
-    chance: ^1.1.7
+    chance: ^1.1.8
     convict: ^6.2.0
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
@@ -18743,7 +18743,7 @@ fsevents@~2.1.1:
     apollo-server-express: ^2.25.2
     audit-filter: ^0.5.0
     chai: ^4.3.4
-    chance: ^1.1.7
+    chance: ^1.1.8
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
     convict: ^6.2.0
@@ -19269,7 +19269,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     aws-sdk: ^2.979.0
     axios: ^0.21.1
-    chance: ^1.1.7
+    chance: ^1.1.8
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
     convict: ^6.2.0
@@ -19363,7 +19363,7 @@ fsevents@~2.1.1:
     apollo-server: ^2.25.2
     apollo-server-express: ^2.25.2
     audit-filter: ^0.5.0
-    chance: ^1.1.7
+    chance: ^1.1.8
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
     commander: ^6.0.0
@@ -19804,7 +19804,7 @@ fsevents@~2.1.1:
     aws-sdk: ^2.979.0
     celebrate: ^10.0.1
     chai: ^4.3.4
-    chance: ^1.1.7
+    chance: ^1.1.8
     class-transformer: ^0.4.0
     class-validator: ^0.13.1
     cors: ^2.8.5
