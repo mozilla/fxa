@@ -1,3 +1,62 @@
+## 1.214.0
+
+### New features
+
+- auth-server: Add env vars for MJML addresses/templates ([cea4bef26](https://github.com/mozilla/fxa/commit/cea4bef26))
+- fxa-auth-server: Convert verifyEmail Template to new stack ([6a7484c0d](https://github.com/mozilla/fxa/commit/6a7484c0d))
+- fxa-auth-server: refactor renderer to parse MJML files ([dae1535a6](https://github.com/mozilla/fxa/commit/dae1535a6))
+- auth-server: start rendering plaintext emails alongside html in storybook ([934a7ce83](https://github.com/mozilla/fxa/commit/934a7ce83))
+- auth-server: Convert verificationReminder templates to new stack and refactor the template styles ([7fcb64ba0](https://github.com/mozilla/fxa/commit/7fcb64ba0))
+- auth-server: Convert postRemoveSecondary template to new stack ([8ffb5ccd6](https://github.com/mozilla/fxa/commit/8ffb5ccd6))
+- auth-server: Convert postVerify template to new stack ([75c878256](https://github.com/mozilla/fxa/commit/75c878256))
+
+### Bug fixes
+
+- auth: fixed auth-server startup when stripe is not configured ([3f5880ee1](https://github.com/mozilla/fxa/commit/3f5880ee1))
+- tests: surprise! some tests fail with a patch version > 9 ([90854f8f2](https://github.com/mozilla/fxa/commit/90854f8f2))
+- auth: assume product change on play trigger ([a9007c6f2](https://github.com/mozilla/fxa/commit/a9007c6f2))
+- auth: don't send a subscription reminder email for cancel_at_period_end ([e71f43272](https://github.com/mozilla/fxa/commit/e71f43272))
+- test: fixed another case of nondeterminism in reminder tests ([bd2f6ca2c](https://github.com/mozilla/fxa/commit/bd2f6ca2c))
+- auth: use header only for jwt and return data ([fe86aeb07](https://github.com/mozilla/fxa/commit/fe86aeb07))
+- auth: use object only for auth ([e9904af54](https://github.com/mozilla/fxa/commit/e9904af54))
+- auth: refresh profile if needed ([047b33432](https://github.com/mozilla/fxa/commit/047b33432))
+- auth: retain userid in subsription purchase copy ([fe7a977be](https://github.com/mozilla/fxa/commit/fe7a977be))
+- auth: a couple test fixes for CI ([6c3149846](https://github.com/mozilla/fxa/commit/6c3149846))
+- tests: fixed some test races. extend oauth api test timeout ([097320c04](https://github.com/mozilla/fxa/commit/097320c04))
+- auth: use IAP scope for token register ([18694cca4](https://github.com/mozilla/fxa/commit/18694cca4))
+- auth/payments: ensure /newsletters endpoint validates request and passes newsletters on to SQS ([a95f1a51e](https://github.com/mozilla/fxa/commit/a95f1a51e))
+- auth: enable a retry on backendServices ([8e589f10d](https://github.com/mozilla/fxa/commit/8e589f10d))
+- auth: use token handler for token endpoint ([196c03d09](https://github.com/mozilla/fxa/commit/196c03d09))
+- emails: handle Stripe timestamps that are in seconds ([13bc7b50e](https://github.com/mozilla/fxa/commit/13bc7b50e))
+- auth: return a session token in /account/finish_setup ([791ccaec7](https://github.com/mozilla/fxa/commit/791ccaec7))
+- auth: rename subject of subscriptionAccountFinishSetup email ([bddf42203](https://github.com/mozilla/fxa/commit/bddf42203))
+- auth: use proper jwks key plugin ([5c64eba87](https://github.com/mozilla/fxa/commit/5c64eba87))
+
+### Other changes
+
+- auth: add eventId to Sentry errors for customer.subscription.updated events ([05bb2dedc](https://github.com/mozilla/fxa/commit/05bb2dedc))
+- deps: bump ioredis from 4.27.8 to 4.27.9 ([bcc59065a](https://github.com/mozilla/fxa/commit/bcc59065a))
+- cbb535470 moar ([cbb535470](https://github.com/mozilla/fxa/commit/cbb535470))
+- b65e2ad52 update docs ([b65e2ad52](https://github.com/mozilla/fxa/commit/b65e2ad52))
+- 0cfa80997 remove unused/unmaintained scripts ([0cfa80997](https://github.com/mozilla/fxa/commit/0cfa80997))
+- deps: bump aws-sdk from 2.978.0 to 2.979.0 ([baf49c964](https://github.com/mozilla/fxa/commit/baf49c964))
+- deps-dev: bump sass from 1.38.1 to 1.38.2 ([ae60cc452](https://github.com/mozilla/fxa/commit/ae60cc452))
+- deps-dev: bump esbuild from 0.12.23 to 0.12.24 ([56b49428f](https://github.com/mozilla/fxa/commit/56b49428f))
+- deps: bump aws-sdk from 2.977.0 to 2.978.0 ([3d5e14d67](https://github.com/mozilla/fxa/commit/3d5e14d67))
+- deps: bump @google-cloud/firestore from 4.14.2 to 4.15.0 ([0ad8f53aa](https://github.com/mozilla/fxa/commit/0ad8f53aa))
+- deps: bump aws-sdk from 2.972.0 to 2.977.0 ([9b90d6e26](https://github.com/mozilla/fxa/commit/9b90d6e26))
+- deps-dev: bump esbuild from 0.12.22 to 0.12.23 ([73b16d5d1](https://github.com/mozilla/fxa/commit/73b16d5d1))
+- deps-dev: bump nock from 13.1.1 to 13.1.3 ([7c467acc0](https://github.com/mozilla/fxa/commit/7c467acc0))
+- deps-dev: bump sass from 1.38.0 to 1.38.1 ([94b5086a6](https://github.com/mozilla/fxa/commit/94b5086a6))
+- deps: bump stripe from 8.169.0 to 8.170.0 ([4aaa748bc](https://github.com/mozilla/fxa/commit/4aaa748bc))
+- tests: use esbuild to speed up auth-server tests (experimental) ([3f05b0ee4](https://github.com/mozilla/fxa/commit/3f05b0ee4))
+- deps: bump @google-cloud/firestore from 4.14.1 to 4.14.2 ([833a65c56](https://github.com/mozilla/fxa/commit/833a65c56))
+- auth: add hawk payload validation to POSTs that require a payload body ([215e56c17](https://github.com/mozilla/fxa/commit/215e56c17))
+- deps: bump aws-sdk from 2.971.0 to 2.972.0 ([4706923b4](https://github.com/mozilla/fxa/commit/4706923b4))
+- deps: bump ioredis from 4.27.7 to 4.27.8 ([f05fca9a3](https://github.com/mozilla/fxa/commit/f05fca9a3))
+- deps: bump aws-sdk from 2.969.0 to 2.971.0 ([d53a82aed](https://github.com/mozilla/fxa/commit/d53a82aed))
+- deps: bump jsdom from 16.6.0 to 17.0.0 ([6152d0956](https://github.com/mozilla/fxa/commit/6152d0956))
+
 ## 1.213.11
 
 ### Bug fixes

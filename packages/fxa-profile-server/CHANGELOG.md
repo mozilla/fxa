@@ -1,3 +1,15 @@
+## 1.214.0
+
+### Other changes
+
+- deps: bump aws-sdk from 2.978.0 to 2.979.0 ([baf49c964](https://github.com/mozilla/fxa/commit/baf49c964))
+- deps: bump aws-sdk from 2.977.0 to 2.978.0 ([3d5e14d67](https://github.com/mozilla/fxa/commit/3d5e14d67))
+- deps: bump aws-sdk from 2.972.0 to 2.977.0 ([9b90d6e26](https://github.com/mozilla/fxa/commit/9b90d6e26))
+- deps-dev: bump nock from 13.1.1 to 13.1.3 ([7c467acc0](https://github.com/mozilla/fxa/commit/7c467acc0))
+- deps: bump @hapi/boom from 9.1.3 to 9.1.4 ([a2a21d934](https://github.com/mozilla/fxa/commit/a2a21d934))
+- deps: bump aws-sdk from 2.971.0 to 2.972.0 ([4706923b4](https://github.com/mozilla/fxa/commit/4706923b4))
+- deps: bump aws-sdk from 2.969.0 to 2.971.0 ([d53a82aed](https://github.com/mozilla/fxa/commit/d53a82aed))
+
 ## 1.213.11
 
 No changes.

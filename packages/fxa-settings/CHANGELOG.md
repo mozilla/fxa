@@ -1,3 +1,12 @@
+## 1.214.0
+
+### Other changes
+
+- deps-dev: bump @testing-library/react-hooks from 7.0.1 to 7.0.2 ([c4846c13b](https://github.com/mozilla/fxa/commit/c4846c13b))
+- deps: bump @sentry/browser from 6.11.0 to 6.12.0 ([4eb6a0c52](https://github.com/mozilla/fxa/commit/4eb6a0c52))
+- deps: bump graphql from 15.5.1 to 15.5.2 ([6800d12fd](https://github.com/mozilla/fxa/commit/6800d12fd))
+- deps-dev: bump @testing-library/dom from 8.1.0 to 8.2.0 ([c87889699](https://github.com/mozilla/fxa/commit/c87889699))
+
 ## 1.213.11
 
 No changes.

@@ -1,3 +1,12 @@
+## 1.214.0
+
+### Other changes
+
+- deps: bump graphql from 15.5.1 to 15.5.2 ([6800d12fd](https://github.com/mozilla/fxa/commit/6800d12fd))
+- deps-dev: bump @testing-library/dom from 8.1.0 to 8.2.0 ([c87889699](https://github.com/mozilla/fxa/commit/c87889699))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([e485e72e0](https://github.com/mozilla/fxa/commit/e485e72e0))
+- deps-dev: bump @typescript-eslint/parser from 4.29.0 to 4.29.3 ([918c215c2](https://github.com/mozilla/fxa/commit/918c215c2))
+
 ## 1.213.11
 
 No changes.

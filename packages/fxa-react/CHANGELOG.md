@@ -1,3 +1,11 @@
+## 1.214.0
+
+### Other changes
+
+- deps-dev: bump sass from 1.38.1 to 1.38.2 ([ae60cc452](https://github.com/mozilla/fxa/commit/ae60cc452))
+- deps-dev: bump @testing-library/dom from 8.1.0 to 8.2.0 ([c87889699](https://github.com/mozilla/fxa/commit/c87889699))
+- deps-dev: bump sass from 1.38.0 to 1.38.1 ([94b5086a6](https://github.com/mozilla/fxa/commit/94b5086a6))
+
 ## 1.213.11
 
 No changes.

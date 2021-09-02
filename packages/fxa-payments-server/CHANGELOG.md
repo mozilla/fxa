@@ -1,5 +1,28 @@
 # Change history
 
+## 1.214.0
+
+### Bug fixes
+
+- subscriptions: show correct payment provider info for upgrades ([71fd585fc](https://github.com/mozilla/fxa/commit/71fd585fc))
+- subscriptions: copy query params into sign-in link ([b43be6c52](https://github.com/mozilla/fxa/commit/b43be6c52))
+- payments: add margin-top to PaymentUpdateForm action buttons ([22dd47955](https://github.com/mozilla/fxa/commit/22dd47955))
+- payments: set PaymentErrorView action button background color and margin-bottom correctly ([9d8875335](https://github.com/mozilla/fxa/commit/9d8875335))
+- fxa-payments-server: fix skipped paypal legal link ([16a058209](https://github.com/mozilla/fxa/commit/16a058209))
+- fxa-payments-server: do not show fxa terms to existing users ([8141a84b4](https://github.com/mozilla/fxa/commit/8141a84b4))
+- fxa-payment-server: fluent syntax typo in error message ([5ca03cc5d](https://github.com/mozilla/fxa/commit/5ca03cc5d))
+- auth/payments: ensure /newsletters endpoint validates request and passes newsletters on to SQS ([a95f1a51e](https://github.com/mozilla/fxa/commit/a95f1a51e))
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.11.0 to 6.12.0 ([4eb6a0c52](https://github.com/mozilla/fxa/commit/4eb6a0c52))
+- deps: bump intl-pluralrules from 1.2.2 to 1.3.0 ([9fa2a8ef2](https://github.com/mozilla/fxa/commit/9fa2a8ef2))
+- deps-dev: bump caniuse-lite from 1.0.30001249 to 1.0.30001252 ([2cf36fae1](https://github.com/mozilla/fxa/commit/2cf36fae1))
+- deps-dev: bump nock from 13.1.1 to 13.1.3 ([7c467acc0](https://github.com/mozilla/fxa/commit/7c467acc0))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([e485e72e0](https://github.com/mozilla/fxa/commit/e485e72e0))
+- deps-dev: bump @typescript-eslint/parser from 4.29.0 to 4.29.3 ([918c215c2](https://github.com/mozilla/fxa/commit/918c215c2))
+- deps: bump @stripe/stripe-js from 1.17.0 to 1.17.1 ([af50ab3e7](https://github.com/mozilla/fxa/commit/af50ab3e7))
+
 ## 1.213.11
 
 No changes.

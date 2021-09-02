@@ -1,5 +1,28 @@
 # Change history
 
+## 1.214.0
+
+### Other changes
+
+- deps: bump google-auth-library from 7.6.2 to 7.8.0 ([47eef0507](https://github.com/mozilla/fxa/commit/47eef0507))
+- deps: bump graphql from 15.5.1 to 15.5.2 ([6800d12fd](https://github.com/mozilla/fxa/commit/6800d12fd))
+- deps: bump aws-sdk from 2.978.0 to 2.979.0 ([baf49c964](https://github.com/mozilla/fxa/commit/baf49c964))
+- deps: bump aws-sdk from 2.977.0 to 2.978.0 ([3d5e14d67](https://github.com/mozilla/fxa/commit/3d5e14d67))
+- deps: bump @google-cloud/firestore from 4.14.2 to 4.15.0 ([0ad8f53aa](https://github.com/mozilla/fxa/commit/0ad8f53aa))
+- deps: bump aws-sdk from 2.972.0 to 2.977.0 ([9b90d6e26](https://github.com/mozilla/fxa/commit/9b90d6e26))
+- deps: bump sqs-consumer from 5.5.0 to 5.6.0 ([af5d14e26](https://github.com/mozilla/fxa/commit/af5d14e26))
+- deps-dev: bump nock from 13.1.1 to 13.1.3 ([7c467acc0](https://github.com/mozilla/fxa/commit/7c467acc0))
+- deps-dev: bump tsconfig-paths from 3.10.1 to 3.11.0 ([3c7a79225](https://github.com/mozilla/fxa/commit/3c7a79225))
+- deps: bump @google-cloud/pubsub from 2.16.6 to 2.17.0 ([41e5f714c](https://github.com/mozilla/fxa/commit/41e5f714c))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([e485e72e0](https://github.com/mozilla/fxa/commit/e485e72e0))
+- deps-dev: bump @nestjs/schematics from 8.0.2 to 8.0.3 ([24e4bdb98](https://github.com/mozilla/fxa/commit/24e4bdb98))
+- deps-dev: bump eslint-plugin-import from 2.24.0 to 2.24.1 ([6f3b47ff9](https://github.com/mozilla/fxa/commit/6f3b47ff9))
+- deps: bump @google-cloud/firestore from 4.14.1 to 4.14.2 ([833a65c56](https://github.com/mozilla/fxa/commit/833a65c56))
+- deps-dev: bump @typescript-eslint/parser from 4.29.0 to 4.29.3 ([918c215c2](https://github.com/mozilla/fxa/commit/918c215c2))
+- deps: bump aws-sdk from 2.971.0 to 2.972.0 ([4706923b4](https://github.com/mozilla/fxa/commit/4706923b4))
+- deps: bump @google-cloud/pubsub from 2.16.4 to 2.16.6 ([8a9aa2ac9](https://github.com/mozilla/fxa/commit/8a9aa2ac9))
+- deps: bump aws-sdk from 2.969.0 to 2.971.0 ([d53a82aed](https://github.com/mozilla/fxa/commit/d53a82aed))
+
 ## 1.213.11
 
 No changes.
