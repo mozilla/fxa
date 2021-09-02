@@ -87,7 +87,7 @@
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "audit-filter": "^0.5.0",
-    "chance": "^1.1.7",
+    "chance": "^1.1.8",
     "eslint": "^7.29.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.1",
