@@ -1,0 +1,9 @@
+newDeviceLogin-title = "New sign-in to { $clientName }"
+
+<%- include('/partials/location/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>
