@@ -3,22 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { commonArgs, Template } from '../../storybook-email';
+import { storyWithProps, commonArgs, Template } from '../../storybook-email';
 
 export default {
   title: 'Emails/verifyShortCode',
 } as Meta;
 
-export const verifyShortCode = Template.bind({});
-verifyShortCode.args = {
-  template: 'verifyShortCode',
-  variables: {
-    ...commonArgs,
+const createStory = storyWithProps(
+  'verifyShortCode',
+  'Sent to verify an account via code.',
+  {
     location: 'Madrid, Spain (estimated)',
     device: 'Firefox on Mac OSX 10.11',
     ip: '10.246.67.38',
     code: '918398',
-    subject: 'Verification code: 918398',
-  },
-};
-verifyShortCode.storyName = 'default';
+  }
+);
+
+export const VerifyShortCode = createStory();

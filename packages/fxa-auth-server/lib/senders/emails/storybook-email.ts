@@ -4,7 +4,7 @@
 
 import { Story } from '@storybook/html';
 
-export interface StorybookEmailArgs {
+interface StorybookEmailArgs {
   template: string;
   layout: string;
   acceptLanguage: string;
@@ -14,18 +14,17 @@ export interface StorybookEmailArgs {
 }
 
 /* in production, `utm` parameters may also exist in the urls */
-export const commonArgs = {
+const commonArgs = {
   androidUrl:
-    'https://accounts-static.cdn.mozilla.net/product-icons/google-play.png',
+    'https://play.google.com/store/apps/details?id=org.mozilla.firefox',
   iosUrl:
-    'https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png',
-  link: 'http://localhost:3030/connect_another_device',
-  privacyUrl: 'https://www.mozilla.org/privacy',
+    'https://apps.apple.com/us/app/firefox-private-safe-browser/id989804926',
   supportUrl:
     'https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account',
+  privacyUrl: 'https://www.mozilla.org/privacy',
 };
 
-export const storybookEmail = ({
+const storybookEmail = ({
   template,
   layout = 'fxa',
   acceptLanguage = 'en-US',
@@ -94,7 +93,26 @@ async function renderUsingMJML({
   return { html, subject, text };
 }
 
-export const Template: Story<StorybookEmailArgs> = (args, context) =>
+const Template: Story<StorybookEmailArgs> = (args, context) =>
   storybookEmail({ ...args, direction: context.globals.direction });
 
-export default storybookEmail;
+export const storyWithProps = (
+  templateName: string,
+  templateDoc = '',
+  defaultArgs = {}
+) => {
+  return (overrides: Record<string, any> = {}, storyName = 'Default') => {
+    const template = Template.bind({});
+    template.args = {
+      template: templateName,
+      doc: templateDoc,
+      variables: {
+        ...commonArgs,
+        ...defaultArgs,
+        ...overrides,
+      },
+    };
+    template.storyName = storyName;
+    return template;
+  };
+};

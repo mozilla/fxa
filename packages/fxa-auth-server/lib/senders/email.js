@@ -427,7 +427,8 @@ module.exports = function (log, config) {
 
   Mailer.prototype.localize = async function (message) {
     const translator = this.translator(message.acceptLanguage);
-    let localized, localizedEmailHtml, localizedEmailText;
+    let localized, localizedEmailHtml, localizedEmailText, localizedSubject;
+    message.layout = message.layout || 'fxa';
 
     const templateValues = {
       ...message.templateValues,
@@ -438,26 +439,19 @@ module.exports = function (log, config) {
       translator,
     };
 
-    localized = this.templates.render(
-      message.template,
-      message.layout || 'fxa',
-      templateValues
-    );
-    localizedEmailHtml = localized.html;
-    localizedEmailText = localized.text;
-
-    let localizedSubject;
     if (featureFlags.isMjmlEnabledForUser(message.email, message.template)) {
-      const { template, acceptLanguage, layout } = message;
-      localized = await this.fluentLocalizer.localizeEmail(
-        template,
-        layout || 'fxa',
-        message,
-        acceptLanguage
-      );
+      localized = await this.fluentLocalizer.localizeEmail(message);
       localizedEmailHtml = localized.html;
       localizedEmailText = localized.text;
       localizedSubject = localized.subject;
+    } else {
+      localized = this.templates.render(
+        message.template,
+        message.layout,
+        templateValues
+      );
+      localizedEmailHtml = localized.html;
+      localizedEmailText = localized.text;
     }
 
     return {

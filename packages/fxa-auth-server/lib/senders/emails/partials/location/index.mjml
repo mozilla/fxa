@@ -3,28 +3,28 @@
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
 <mj-include path="./css/location/index.css" type="css" css-inline="inline" />
-  
+
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body-grey">
     <% if (locals.primaryEmail) { %>
       <span><%- primaryEmail %></span><br />
-    <% } %> 
+    <% } %>
     <% if (locals.device) { %>
-      <span><%- device %></span><br /> 
-    <% } %> 
+      <span><%- device %></span><br />
+    <% } %>
     <% if (locals.location) { %>
-      <span><%- location %></span><br /> 
-    <% } %> 
+      <span><%- location %></span><br />
+    <% } %>
     <% if (locals.ip) { %>
-      <span data-l10n-id="user-ip" data-l10n-args='<%= JSON.stringify({ip}) %>'>IP address: <%- ip %></span><br /> 
-    <% } %> 
+      <span data-l10n-id="user-ip" data-l10n-args='<%= JSON.stringify({ip}) %>'>IP address: <%- ip %></span><br />
+    <% } %>
     <% if (locals.date) { %>
-      <span><%- date %></span><br /> 
-    <% } %> 
+      <span><%- date %></span><br />
+    <% } %>
     <% if (locals.time) { %>
-      <span><%- time %><br /></span> 
-    <% } %>        
+      <span><%- time %><br /></span>
+    <% } %>
     </mj-text>
   </mj-column>
 </mj-section>

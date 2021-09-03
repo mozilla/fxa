@@ -3,29 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { commonArgs, Template } from '../../storybook-email';
+import { storyWithProps } from '../../storybook-email';
 
 export default {
   title: 'Emails/verify',
 } as Meta;
 
-const defaultVariables = {
-  ...commonArgs,
-  location: 'Madrid, Spain (estimated)',
-  device: 'Firefox on Mac OSX 10.11',
-  ip: '10.246.67.38',
-  link: 'http://localhost:3030/verify_email',
-  action: 'Confirm email',
-  subject: 'Finish creating your account',
-  sync: true,
-};
+const createStory = storyWithProps(
+  'verify',
+  'Received by all who complete FxA registration form.',
+  {
+    location: 'Madrid, Spain (estimated)',
+    device: 'Firefox on Mac OSX 10.11',
+    ip: '10.246.67.38',
+    link: 'http://localhost:3030/verify_email',
+    sync: true,
+  }
+);
 
-export const verifyEmail = Template.bind({});
-verifyEmail.args = {
-  template: 'verify',
-  doc: 'Low Recovery Code emails are sent when a user has 2 or less recovery codes remaining',
-  variables: {
-    ...defaultVariables,
-  },
-};
-verifyEmail.storyName = 'default';
+export const VerifyEmail = createStory();

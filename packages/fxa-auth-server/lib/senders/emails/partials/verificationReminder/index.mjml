@@ -7,7 +7,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="<%- templateName %>-title"><%- title %></span>
+      <span data-l10n-id="<%- template %>-title">Welcome to the Firefox family</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -15,10 +15,10 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-sub-body">
-      <span data-l10n-id="<%- templateName %>-description"><%- description %></span>
+      <span data-l10n-id="<%- template %>-description">A few days ago you created a Firefox account, but never confirmed it.</span>
     </mj-text>
     <mj-text css-class="text-body">
-      <span data-l10n-id="<%- templateName %>-sub-description"><%- subDescription %></span>
+      <span data-l10n-id="<%- template %>-sub-description">Confirm now and get technology that fights for and protects your privacy, arms you with practical knowledge, and the respect you deserve.</span>
     </mj-text>
   </mj-column>
 </mj-section>

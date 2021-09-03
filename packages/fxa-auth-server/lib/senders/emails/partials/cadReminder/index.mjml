@@ -7,7 +7,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="<%- templateName %>-title"><%- headerText %></span>
+      <span data-l10n-id="<%- template %>-title">Here's your reminder to sync devices.</span>
     </mj-text>
     <mj-image css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
   </mj-column>
@@ -16,7 +16,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="<%- templateName %>-description"><%- bodyText %></span>
+      <span data-l10n-id="<%- template %>-description">It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.</span>
     </mj-text>
   </mj-column>
 </mj-section>

@@ -3,19 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { commonArgs, Template } from '../../storybook-email';
+import { storyWithProps } from '../../storybook-email';
 
 export default {
   title: 'Emails/passwordReset',
 } as Meta;
 
-export const passwordReset = Template.bind({});
-passwordReset.args = {
-  template: 'passwordReset',
-  variables: {
-    ...commonArgs,
+const createStory = storyWithProps(
+  'passwordReset',
+  'Sent when password has been reset.',
+  {
     resetLink: 'http://localhost:3030/settings/change_password',
-    subject: 'Password updated',
-  },
-};
-passwordReset.storyName = 'default';
+  }
+);
+
+export const PasswordReset = createStory();
