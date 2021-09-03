@@ -24,7 +24,7 @@
       <span data-l10n-id="verifySecondaryCode-prompt">Use this verification code:</span>
     </mj-text>
 
-    <mj-text css-class="large-code"><%- code %></mj-text>
+    <mj-text css-class="code-large"><%- code %></mj-text>
 
     <mj-text css-class="text-body">
       <span data-l10n-id="verifySecondaryCode-expiry-notice">It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.</span>

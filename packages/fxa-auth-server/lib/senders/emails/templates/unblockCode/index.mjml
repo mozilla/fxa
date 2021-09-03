@@ -7,7 +7,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verifyShortCode-title">Is this you signing up?</span>
+      <span data-l10n-id="verifyShortCode-title">Is this you signing in?</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -17,15 +17,18 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifyShortCode-prompt">If yes, use this verification code in your registration form:</span>
+      <span data-l10n-id="unblockCode-prompt">If yes, here is the authorization code you need:</span>
     </mj-text>
 
-    <mj-text css-class="code-large"><%- code %></mj-text>
+    <mj-text css-class="code-medium">
+      <code><%- unblockCode %></code>
+    </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifyShortCode-expiry-notice">It expires in 5 minutes.</span>
+      <span data-l10n-id="unblockCode-report">
+        If no, help us fend off intruders and
+        <a class="link-blue" href="<%- reportSignInLink %>" data-l10n-name="reportSignInLink">report it to us</a>.
+      </span>
     </mj-text>
   </mj-column>
 </mj-section>
-
-<%- include('/partials/automatedEmailNoAction/index.mjml') %>

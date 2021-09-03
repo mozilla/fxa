@@ -442,7 +442,8 @@
       "passwordReset",
       "newDeviceLogin",
       "verifySecondary",
-      "passwordChanged"
+      "passwordChanged",
+      "unblockCode"
     ]
   }
 }

@@ -152,9 +152,20 @@ tr > td:first-child {
   @extend .mt-2;
 }
 
-.large-code div {
+%code-common {
   text-align: center !important;
   font-family: monospace;
-  @extend .text-3xl;
   @extend .mb-6;
+}
+
+.code {
+  &-medium div {
+    @extend %code-common;
+    @extend .text-lg;
+  }
+
+  &-large div {
+    @extend %code-common;
+    @extend .text-3xl;
+  }
 }
