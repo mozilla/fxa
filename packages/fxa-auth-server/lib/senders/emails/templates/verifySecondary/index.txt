@@ -1,0 +1,11 @@
+verifySecondary-title = "Verify secondary email"
+
+verifySecondary-explainer = "A request to use { $email } as a secondary email address has been made from the following Firefox Account:"
+
+<%- include('/partials/location/index.txt') %>
+
+verifySecondary-prompt = "Verify email:"
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+<%- include('/partials/support/index.txt') %>

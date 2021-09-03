@@ -57,6 +57,9 @@ $s-10: 40px;
   &-2 {
     margin-top: $s-2 !important;
   }
+  &-5 {
+    margin-top: $s-5 !important;
+  }
   &-6 {
     margin-top: $s-6 !important;
   }
@@ -106,6 +109,12 @@ tr > td:first-child {
 
 .text-body div {
   @extend %text-body-common;
+  @extend .mb-5;
+}
+
+.text-body-top-padded div {
+  @extend %text-body-common;
+  @extend .mt-5;
   @extend .mb-5;
 }
 

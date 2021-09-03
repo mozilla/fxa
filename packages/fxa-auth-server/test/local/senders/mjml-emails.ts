@@ -440,6 +440,43 @@ const TESTS: [string, any][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['verifySecondaryEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Confirm secondary email' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifySecondary') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifySecondary' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySecondary }],
+      ['X-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome-secondary', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome-secondary', 'support')) },
+      { test: 'include', expected: decodeUrl(configHref('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service')) },
+      { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox Account` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: MESSAGE.primaryEmail },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'welcome-secondary', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'welcome-secondary', 'support')}` },
+      { test: 'include', expected: `Verify email:\n${configUrl('verifySecondaryEmailUrl', 'welcome-secondary', 'activate', 'code', 'uid', 'type=secondary', 'secondary_email_verified', 'service')}` },
+      { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox Account` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: MESSAGE.primaryEmail },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 ];
 
 describe('lib/senders/mjml-emails:', () => {
