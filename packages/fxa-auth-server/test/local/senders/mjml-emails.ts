@@ -477,6 +477,37 @@ const TESTS: [string, any][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['passwordChangedEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Password updated' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordChanged') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordChanged' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChanged }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('initiatePasswordResetUrl', 'password-changed-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-changed-success', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-changed-success', 'support')) },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-changed-success', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-changed-success', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'password-changed-success', 'support')}` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 ];
 
 describe('lib/senders/mjml-emails:', () => {
