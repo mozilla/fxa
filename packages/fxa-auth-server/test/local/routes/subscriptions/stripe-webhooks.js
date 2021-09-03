@@ -346,6 +346,11 @@ describe('StripeWebhookHandler', () => {
         );
 
         it(
+          'ignores emailComplaint',
+          commonIgnorableErrorTest(error.emailComplaint(42))
+        );
+
+        it(
           'ignores missingSubscriptionForSourceError',
           commonIgnorableErrorTest(
             error.missingSubscriptionForSourceError(
