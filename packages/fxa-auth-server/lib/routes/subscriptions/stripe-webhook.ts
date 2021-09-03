@@ -26,6 +26,7 @@ import { StripeHandler } from './stripe';
 const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
   error.ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE,
   error.ERRNO.BOUNCE_HARD,
+  error.ERRNO.BOUNCE_COMPLAINT,
 ];
 
 export class StripeWebhookHandler extends StripeHandler {
