@@ -325,7 +325,9 @@ export const Checkout = ({
           <Localized id="new-user-step-2">
             <h2 className="step-header">2. Choose your payment method</h2>
           </Localized>
-          <strong>required</strong>
+          <Localized id="new-user-required-payment-consent">
+            <strong>Required</strong>
+          </Localized>
           <Form validator={checkboxValidator}>
             <PaymentConsentCheckbox
               plan={selectedPlan}
