@@ -41,6 +41,11 @@ export type EventProperties = GlobalEventProperties & {
   paymentProvider?: PaymentProvider;
   error?: Error;
   checkoutType?: string;
+  utm_campaign?: string;
+  utm_content?: string;
+  utm_medium?: string;
+  utm_source?: string;
+  utm_term?: string;
 };
 
 type SuccessfulSubscriptionEventProperties = EventProperties & {
@@ -52,7 +57,7 @@ type Error = { message?: string } | null;
 // These can still be overwritten in the event logging function.
 let globalEventProperties = {};
 
-function addGlobalEventProperties(props: GlobalEventProperties) {
+export function addGlobalEventProperties(props: GlobalEventProperties) {
   globalEventProperties = { ...globalEventProperties, ...props };
 }
 
@@ -97,6 +102,11 @@ const normalizeEventProperties = (eventProperties: EventProperties) => {
     productId = undefined,
     product_id = undefined,
     paymentProvider = undefined,
+    utm_campaign = undefined,
+    utm_content = undefined,
+    utm_medium = undefined,
+    utm_source = undefined,
+    utm_term = undefined,
     ...otherEventProperties
   } = eventProperties;
 
@@ -105,6 +115,11 @@ const normalizeEventProperties = (eventProperties: EventProperties) => {
     productId: productId || product_id,
     paymentProvider,
     reason: error && error.message ? error.message : undefined,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
     ...otherEventProperties,
   };
 };
