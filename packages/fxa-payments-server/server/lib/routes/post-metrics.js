@@ -14,12 +14,23 @@ const MAX_EVENT_OFFSET = clientMetricsConfig.maxEventOffset;
 const EVENT_TYPE_PATTERN = /^[\w\s.:-]+$/; // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
 const OFFSET_TYPE = joi.number().integer().min(0);
 const STRING_TYPE = joi.string().max(1024);
+const UTM = joi
+  .string()
+  .max(128)
+  // eslint-disable-next-line no-useless-escape
+  .regex(/^[\w\/.%-]+$/); // values here can be 'firefox/sync'
+const UTM_CAMPAIGN = UTM.allow('page+referral+-+not+part+of+a+campaign');
 const BODY_SCHEMA = {
   data: joi
     .object()
     .keys({
       flowBeginTime: OFFSET_TYPE.optional(),
       flowId: STRING_TYPE.hex().length(64).optional(),
+      utm_campaign: UTM_CAMPAIGN.optional(),
+      utm_content: UTM.optional(),
+      utm_medium: UTM.optional(),
+      utm_source: UTM.optional(),
+      utm_term: UTM.optional(),
     })
     .unknown(true)
     .required(),
