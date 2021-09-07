@@ -3,33 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { Template, commonArgs } from '../../storybook-email';
+import { storyWithProps } from '../../storybook-email';
 
 export default {
   title: 'Emails/postRemoveSecondary',
 } as Meta;
 
-const defaultVariables = {
-  ...commonArgs,
-  action: 'Manage account',
-  link: 'http://localhost:3030/settings',
-  subject: 'Secondary email removed',
-  secondaryEmail: 'secondary@email',
-};
+const createStory = storyWithProps(
+  'postRemoveSecondary',
+  'Sent to primary email after secondary email is removed.',
+  {
+    link: 'http://localhost:3030/settings',
+    secondaryEmail: 'secondary@email.com',
+  }
+);
 
-const commonPropsWithOverrides = (
-  overrides: Partial<typeof defaultVariables> = {}
-) =>
-  Object.assign({
-    template: 'postRemoveSecondary',
-    layout: 'fxa',
-    doc: 'Post Remove Secondary email is sent when user removes the secondary-email associated with his account',
-    variables: {
-      ...defaultVariables,
-      ...overrides,
-    },
-  });
-
-export const PostRemoveSecondary = Template.bind({});
-PostRemoveSecondary.args = commonPropsWithOverrides();
-PostRemoveSecondary.storyName = 'default';
+export const PostRemoveSecondary = createStory();

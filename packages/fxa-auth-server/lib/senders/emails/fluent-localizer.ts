@@ -34,21 +34,14 @@ class FluentLocalizer {
     this.localeContentMap = loadFtlFiles(baseDir);
   }
 
-  async localizeEmail(
-    templateName: string,
-    layoutName: string,
-    context: TemplateContext,
-    acceptLanguage: string
-  ) {
-    context = { ...context, ...context.templateValues };
-    const { html, text } = render(templateName, context, layoutName);
-    const { document } = new JSDOM(html).window;
+  async localizeEmail(context: TemplateContext) {
+    const { acceptLanguage, template, layout } = context;
     const userLocales: Array<string> = [];
-
     const parseLocales = acceptLanguage.split(',');
+
     for (let locale of parseLocales) {
       locale = locale.replace(/^\s*/, '').replace(/\s*$/, '');
-      const [lang, qual] = locale.split(';');
+      const [lang] = locale.split(';');
       userLocales.push(lang);
     }
 
@@ -64,13 +57,13 @@ class FluentLocalizer {
       const response = this.localeContentMap[locale]
         ? this.localeContentMap[locale]
         : '';
+
+      // If we can't fetch any strings; just return nothing and
+      // fluent will fall back to the default locale if needed.
       return response;
-      // We couldn't fetch any strings; just return nothing and fluent will fall
-      // back to the default locale if needed.
     };
 
     let selectedLocale: string = 'en-US';
-
     async function* generateBundles(currentLocales: Array<string>) {
       let bundle = new FluentBundle(currentLocales, { useIsolating: false });
       for (const locale of currentLocales) {
@@ -86,8 +79,20 @@ class FluentLocalizer {
 
     const l10n = new DOMLocalization(currentLocales, generateBundles);
 
-    l10n.connectRoot(document.documentElement);
+    context = { ...context, ...context.templateValues };
+    context.subject = await l10n.formatValue(`${template}-subject`, context);
 
+    // metadata.mjml needs a localized version of `action`,
+    // but only if oneClickLink is present.
+    if (context.oneClickLink) {
+      context.action = await l10n.formatValue(`${template}-action`, context);
+    }
+
+    const { html, text } = render(template, context, layout);
+    const { document } = new JSDOM(html).window;
+    document.title = context.subject;
+
+    l10n.connectRoot(document.documentElement);
     await l10n.translateRoots();
 
     const isLocaleRenderedRtl = RTL_LOCALES.includes(selectedLocale);
@@ -95,9 +100,6 @@ class FluentLocalizer {
       const body = document.getElementsByTagName('body')[0];
       body.classList.add('rtl');
     }
-
-    const subject = await l10n.formatValue(`${templateName}-subject`, context);
-    document.title = subject;
 
     // localize the plaintext files
     const plainTextArr = text.split('\n');
@@ -125,7 +127,7 @@ class FluentLocalizer {
     return {
       html: document.documentElement.outerHTML,
       text: localizedPlainText,
-      subject,
+      subject: context.subject,
     };
   }
 }

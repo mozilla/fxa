@@ -28,19 +28,14 @@ async function handleRequest(
   try {
     const body = await readStream(req);
     const data = JSON.parse(body.trim());
-    const {
-      template: templateName,
-      layout: layoutName,
-      acceptLanguage,
-      ...variables
-    } = data;
+    const { template, layout, acceptLanguage, ...variables } = data;
     variables.baseUrl = baseUrl;
-    const { html, subject, text } = await fluentLocalizer.localizeEmail(
-      templateName,
-      layoutName || 'fxa',
-      variables,
-      acceptLanguage
-    );
+    const { html, subject, text } = await fluentLocalizer.localizeEmail({
+      template,
+      layout: layout || 'fxa',
+      acceptLanguage,
+      ...variables,
+    });
     const result = JSON.stringify({ html, subject, text });
 
     res.writeHead(200, {

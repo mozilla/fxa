@@ -11,7 +11,7 @@
     <%- include('/partials/metadata.mjml') %>
   </mj-head>
 
-  <mj-body css-class="body-80">
+  <mj-body css-class="body">
     <mj-include path="./css/global.css" type="css" css-inline="inline" />
     <mj-include path="./css/fxa/index.css" type="css" css-inline="inline" />
     <mj-include path="./css/locale-dir.css" type="css" />

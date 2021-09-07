@@ -48,24 +48,19 @@ function renderEjs(
 }
 
 export function render(
-  templateName: string,
+  template: string,
   context: TemplateContext,
-  layoutName?: string
+  layout?: string
 ) {
   let rendered: { html: string; text: string };
-  context = { ...context, templateName };
+  context = { ...context, template };
 
-  if (layoutName) {
-    const renderedBody = renderEjs(templateName, 'templates', context);
-    const { mjml, text } = renderEjs(
-      layoutName,
-      'layouts',
-      context,
-      renderedBody
-    );
+  if (layout) {
+    const renderedBody = renderEjs(template, 'templates', context);
+    const { mjml, text } = renderEjs(layout, 'layouts', context, renderedBody);
     rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
   } else {
-    const { mjml, text } = renderEjs(templateName, 'templates', context);
+    const { mjml, text } = renderEjs(template, 'templates', context);
     rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
   }
 
