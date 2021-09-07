@@ -23,6 +23,7 @@ async function init() {
   const queryParams = parseParams(window.location.search);
   const hashParams = await getHashParams();
   const accessToken = await getVerifiedAccessToken(hashParams);
+  Amplitude.addGlobalEventProperties({ ...queryParams });
   Amplitude.subscribeToReduxStore(store);
   updateAPIClientConfig(config);
 
