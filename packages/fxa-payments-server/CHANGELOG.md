@@ -1,5 +1,11 @@
 # Change history
 
+## 1.214.1
+
+### Bug fixes
+
+- metrics: Update new payment flow metrics to support utm and append uid ([054d20994](https://github.com/mozilla/fxa/commit/054d20994))
+
 ## 1.214.0
 
 ### Bug fixes
