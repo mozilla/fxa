@@ -50,7 +50,7 @@
     "graphql": "^15.5.2",
     "graphql-tools": "^8.0.0",
     "helmet": "^4.6.0",
-    "knex": "^0.95.10",
+    "knex": "^0.95.11",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "objection": "^2.2.15",
