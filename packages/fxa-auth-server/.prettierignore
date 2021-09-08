@@ -10,6 +10,7 @@ LICENSE
 *.docker
 *.handlebars
 *.html
+*.mjml
 Dockerfile*
 test/load/*
 test/scripts/test_output/*

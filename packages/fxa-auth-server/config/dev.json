@@ -443,7 +443,10 @@
       "newDeviceLogin",
       "verifySecondary",
       "passwordChanged",
-      "unblockCode"
+      "unblockCode",
+      "verifyLogin",
+      "verifyLoginCode",
+      "verifyPrimary"
     ]
   }
 }

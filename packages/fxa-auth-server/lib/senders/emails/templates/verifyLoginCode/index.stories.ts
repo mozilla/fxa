@@ -7,16 +7,17 @@ import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Emails/verifyShortCode',
+  title: 'Emails/verifyLoginCode',
 } as Meta;
 
 const createStory = storyWithProps(
-  'verifyShortCode',
-  'Sent to users to verify their account via code after signing up.',
+  'verifyLoginCode',
+  'Sent to verify a login via code.',
   {
     ...MOCK_LOCATION,
     code: '918398',
+    passwordChangeLink: 'http://localhost:3030/settings/change_password',
   }
 );
 
-export const VerifyShortCode = createStory();
+export const VerifyLoginCodeEmail = createStory();

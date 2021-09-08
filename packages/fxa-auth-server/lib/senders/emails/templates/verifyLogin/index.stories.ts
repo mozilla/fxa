@@ -7,16 +7,25 @@ import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Emails/verifyShortCode',
+  title: 'Emails/verifyLogin',
 } as Meta;
 
 const createStory = storyWithProps(
-  'verifyShortCode',
-  'Sent to users to verify their account via code after signing up.',
+  'verifyLogin',
+  'Sent to users to verify a new login.',
   {
     ...MOCK_LOCATION,
-    code: '918398',
+    link: 'http://localhost:3030/complete_signin',
+    clientName: 'Firefox',
+    passwordChangeLink: 'http://localhost:3030/settings/change_password',
   }
 );
 
-export const VerifyShortCode = createStory();
+export const VerifyLoginFirefox = createStory(
+  {},
+  'Verify login through Firefox'
+);
+export const VerifyLoginOther = createStory(
+  { clientName: 'Some Other Relier' },
+  'Verify login through something else'
+);

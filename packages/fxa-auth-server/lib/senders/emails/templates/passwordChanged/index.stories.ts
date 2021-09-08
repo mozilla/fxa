@@ -3,19 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { buildStory } from '../../storybook-email';
+import { MOCK_LOCATION } from '../../partials/location/mocks';
+import { storyWithProps } from '../../storybook-email';
 
 export default {
   title: 'Emails/passwordChanged',
 } as Meta;
 
-const createStory = buildStory(
+const createStory = storyWithProps(
   'passwordChanged',
   'Sent when password has been changed.',
   {
-    location: 'Madrid, Spain (estimated)',
-    device: 'Firefox on Mac OSX 10.11',
-    ip: '10.246.67.38',
+    ...MOCK_LOCATION,
     resetLink: 'http://localhost:3030/settings/change_password',
   }
 );

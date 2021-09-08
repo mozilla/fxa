@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
+import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
@@ -13,9 +14,7 @@ const createStory = storyWithProps(
   'verify',
   'Received by all who complete FxA registration form.',
   {
-    location: 'Madrid, Spain (estimated)',
-    device: 'Firefox on Mac OSX 10.11',
-    ip: '10.246.67.38',
+    ...MOCK_LOCATION,
     link: 'http://localhost:3030/verify_email',
     sync: true,
   }

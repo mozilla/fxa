@@ -3,19 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { buildStory } from '../../storybook-email';
+import { MOCK_LOCATION } from '../../partials/location/mocks';
+import { storyWithProps } from '../../storybook-email';
 
 export default {
   title: 'Emails/verifySecondary',
 } as Meta;
 
-const createStory = buildStory(
+const createStory = storyWithProps(
   'verifySecondary',
   'Sent to verify the addition of a secondary email via link.',
   {
-    location: 'Madrid, Spain (estimated)',
-    device: 'Firefox on Mac OSX 10.11',
-    ip: '10.246.67.38',
+    ...MOCK_LOCATION,
     email: 'foo@bar.com',
     link: 'http://localhost:3030/verify_email',
   }

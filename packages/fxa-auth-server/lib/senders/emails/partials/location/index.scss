@@ -4,8 +4,14 @@
 
 @use '../../global.scss';
 
-.text-body-grey div {
+.text-body-grey-no-margin div {
   @extend %text-body-common;
-  @extend .mb-6;
   color: global.$grey-500 !important;
+}
+
+.text-body-grey {
+  @extend .text-body-grey-no-margin;
+  div {
+    @extend .mb-6;
+  }
 }
