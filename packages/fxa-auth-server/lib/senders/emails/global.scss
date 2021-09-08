@@ -18,6 +18,7 @@ $s-3: 12px;
 $s-4: 16px;
 $s-5: 20px;
 $s-6: 24px;
+$s-8: 32px;
 $s-10: 40px;
 
 // Font-size and line-height
@@ -62,6 +63,9 @@ $s-10: 40px;
   }
   &-6 {
     margin-top: $s-6 !important;
+  }
+  &-8 {
+    margin-top: $s-8 !important;
   }
 }
 
@@ -112,10 +116,13 @@ tr > td:first-child {
   @extend .mb-5;
 }
 
-.text-body-top-padded div {
+.text-body-no-margin div {
+  @extend %text-body-common;
+}
+
+.text-body-top-margin div {
   @extend %text-body-common;
   @extend .mt-5;
-  @extend .mb-5;
 }
 
 .text-sub-body div {
@@ -134,7 +141,7 @@ tr > td:first-child {
   @extend .text-footer;
   div {
     @extend .mb-3;
-    @extend .mt-6;
+    @extend .mt-8;
   }
 }
 

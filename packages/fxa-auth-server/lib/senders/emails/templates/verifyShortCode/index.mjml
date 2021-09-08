@@ -22,7 +22,7 @@
 
     <mj-text css-class="code-large"><%- code %></mj-text>
 
-    <mj-text css-class="text-body">
+    <mj-text css-class="text-body-no-margin">
       <span data-l10n-id="verifyShortCode-expiry-notice">It expires in 5 minutes.</span>
     </mj-text>
   </mj-column>

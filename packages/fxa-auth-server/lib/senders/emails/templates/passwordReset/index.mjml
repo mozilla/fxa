@@ -14,7 +14,7 @@
 
 <mj-section>
   <mj-column>
-    <mj-text css-class="text-body">
+    <mj-text css-class="text-body-no-margin">
       <span data-l10n-id="passwordReset-description">You will need to enter your new password on other devices to resume syncing.</span>
     </mj-text>
   </mj-column>

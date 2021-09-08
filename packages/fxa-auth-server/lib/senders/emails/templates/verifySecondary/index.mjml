@@ -21,7 +21,7 @@
 
 <mj-section>
   <mj-column>
-    <mj-text css-class="text-body-top-padded">
+    <mj-text css-class="text-body-top-margin">
       <span data-l10n-id="verifySecondary-post-verification">Once verified, this address will begin receiving security notifications and confirmations.</span>
     </mj-text>
   </mj-column>
