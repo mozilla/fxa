@@ -130,13 +130,17 @@ copy_ftl() {
 
 PAYMENTS="fxa-payments-server"
 SETTINGS="fxa-settings"
+AUTH="fxa-auth-server"
 
-# Copy .ftl files for payments or settings
+# Copy .ftl files for payments, settings, and auth (emails)
 case "$MODULE" in
     "$PAYMENTS")
         copy_ftl "main"
         ;;
     "$SETTINGS")
         copy_ftl "settings"
+        ;;
+    "$AUTH")
+        copy_ftl "auth"
         ;;
 esac
