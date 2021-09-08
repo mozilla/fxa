@@ -246,6 +246,9 @@ export const Checkout = ({
       ]);
       setProfile(profile);
       setCustomer(customer);
+      // Our stub accounts have a uid, append it to all future metric
+      // events
+      Amplitude.addGlobalEventProperties({ uid: profile.uid });
     } catch (e) {
       sentry.captureException(e);
       setSubscriptionError({ code: 'fxa_fetch_profile_customer_error' });
