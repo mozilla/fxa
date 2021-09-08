@@ -4690,15 +4690,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-toolbars@npm:^6.3.7":
-  version: 6.3.7
-  resolution: "@storybook/addon-toolbars@npm:6.3.7"
+"@storybook/addon-toolbars@npm:^6.3.8":
+  version: 6.3.8
+  resolution: "@storybook/addon-toolbars@npm:6.3.8"
   dependencies:
-    "@storybook/addons": 6.3.7
-    "@storybook/api": 6.3.7
-    "@storybook/client-api": 6.3.7
-    "@storybook/components": 6.3.7
-    "@storybook/theming": 6.3.7
+    "@storybook/addons": 6.3.8
+    "@storybook/api": 6.3.8
+    "@storybook/client-api": 6.3.8
+    "@storybook/components": 6.3.8
+    "@storybook/theming": 6.3.8
     core-js: ^3.8.2
     regenerator-runtime: ^0.13.7
   peerDependencies:
@@ -4709,7 +4709,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 8f855c7271deabaeaffc74db392b7b2785d8a771195744f42989e57f0915214bdee4a78a4eb632e2c8eefda08183be5f54267801fd9c40471ebdeacba5607b6c
+  checksum: 54e2b22afc4b1021fe8693b2c98153adaf190db33b55d045a01adde5872f4ab8a05fd1fbf6f044468487a496bf80c815172e479964355128804d308764a658f1
   languageName: node
   linkType: hard
 
@@ -5064,6 +5064,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/channel-postmessage@npm:6.3.8":
+  version: 6.3.8
+  resolution: "@storybook/channel-postmessage@npm:6.3.8"
+  dependencies:
+    "@storybook/channels": 6.3.8
+    "@storybook/client-logger": 6.3.8
+    "@storybook/core-events": 6.3.8
+    core-js: ^3.8.2
+    global: ^4.4.0
+    qs: ^6.10.0
+    telejson: ^5.3.2
+  checksum: 38b0419c54dc0f3421c3b5dfdc3c3b5d73bf2072d06f07bc9491a1580bbaa94491dfb425539156146fa2e4ea6cb552fb4d231969c61c574169b42a7c21d88fb1
+  languageName: node
+  linkType: hard
+
 "@storybook/channels@npm:6.3.6":
   version: 6.3.6
   resolution: "@storybook/channels@npm:6.3.6"
@@ -5152,6 +5167,35 @@ __metadata:
     react: ^16.8.0 || ^17.0.0
     react-dom: ^16.8.0 || ^17.0.0
   checksum: 498feb4bb689e4d5943996aa564ea7757438d1b7da6b9f6f0d1e9485c6d6abdc2b5df9bd6510cc28d0b3cb160d10a17ddcb6661e03526aaa87395d65099a217a
+  languageName: node
+  linkType: hard
+
+"@storybook/client-api@npm:6.3.8":
+  version: 6.3.8
+  resolution: "@storybook/client-api@npm:6.3.8"
+  dependencies:
+    "@storybook/addons": 6.3.8
+    "@storybook/channel-postmessage": 6.3.8
+    "@storybook/channels": 6.3.8
+    "@storybook/client-logger": 6.3.8
+    "@storybook/core-events": 6.3.8
+    "@storybook/csf": 0.0.1
+    "@types/qs": ^6.9.5
+    "@types/webpack-env": ^1.16.0
+    core-js: ^3.8.2
+    global: ^4.4.0
+    lodash: ^4.17.20
+    memoizerific: ^1.11.3
+    qs: ^6.10.0
+    regenerator-runtime: ^0.13.7
+    stable: ^0.1.8
+    store2: ^2.12.0
+    ts-dedent: ^2.0.0
+    util-deprecate: ^1.0.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  checksum: d069acb2cc8f4f681eff2940fb8373f10e5192d829bc235832c776ef1cd543e0aa33d5ecca275f509030fceea4f0239850fdb8854f952728603b35c42f26f9c6
   languageName: node
   linkType: hard
 
@@ -5252,6 +5296,41 @@ __metadata:
     react: ^16.8.0 || ^17.0.0
     react-dom: ^16.8.0 || ^17.0.0
   checksum: 5ec82bdd2a15219a3f0ef3fd2ee5efa0dbc5bb5ea6aa0a51f949d6e155037f14061d90b95d9b1c23e2d7f8a81ee9e103c1224dda9c92de94ab46f447ec39c115
+  languageName: node
+  linkType: hard
+
+"@storybook/components@npm:6.3.8":
+  version: 6.3.8
+  resolution: "@storybook/components@npm:6.3.8"
+  dependencies:
+    "@popperjs/core": ^2.6.0
+    "@storybook/client-logger": 6.3.8
+    "@storybook/csf": 0.0.1
+    "@storybook/theming": 6.3.8
+    "@types/color-convert": ^2.0.0
+    "@types/overlayscrollbars": ^1.12.0
+    "@types/react-syntax-highlighter": 11.0.5
+    color-convert: ^2.0.1
+    core-js: ^3.8.2
+    fast-deep-equal: ^3.1.3
+    global: ^4.4.0
+    lodash: ^4.17.20
+    markdown-to-jsx: ^7.1.3
+    memoizerific: ^1.11.3
+    overlayscrollbars: ^1.13.1
+    polished: ^4.0.5
+    prop-types: ^15.7.2
+    react-colorful: ^5.1.2
+    react-popper-tooltip: ^3.1.1
+    react-syntax-highlighter: ^13.5.3
+    react-textarea-autosize: ^8.3.0
+    regenerator-runtime: ^0.13.7
+    ts-dedent: ^2.0.0
+    util-deprecate: ^1.0.2
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  checksum: 627b75d6b5a74c81a1de5ab93fdcafaa779f4e09e208e001fb7855bd96bbc79f52e4b6b94394f6a2da8bb3de3927df757ab588e8d4ec39461d2ff8ef63422be1
   languageName: node
   linkType: hard
 
@@ -18971,7 +19050,7 @@ fsevents@~2.1.1:
     "@sentry/node": ^6.12.0
     "@storybook/addon-controls": ^6.3.7
     "@storybook/addon-docs": ^6.3.6
-    "@storybook/addon-toolbars": ^6.3.7
+    "@storybook/addon-toolbars": ^6.3.8
     "@storybook/html": ^6.3.7
     "@type-cacheable/core": ^5.2.0
     "@type-cacheable/ioredis-adapter": ^5.2.0
