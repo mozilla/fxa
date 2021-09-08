@@ -14,8 +14,7 @@ node -r esbuild-register ./scripts/gen_keys.js
 node -r esbuild-register ./scripts/gen_vapid_keys.js
 node -r esbuild-register ./scripts/oauth_gen_keys.js
 ../../_scripts/check-mysql.sh
-node -r esbuild-register ../fxa-auth-db-mysql/bin/db_patcher > /dev/null
-node -r esbuild-register ./scripts/oauth-db-patcher.js
+node ../db-migrations/bin/patcher.mjs
 
 TESTS=(local oauth remote scripts)
 for t in "${TESTS[@]}"; do

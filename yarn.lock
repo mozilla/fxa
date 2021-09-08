@@ -14990,6 +14990,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"db-migrations@workspace:packages/db-migrations":
+  version: 0.0.0-use.local
+  resolution: "db-migrations@workspace:packages/db-migrations"
+  dependencies:
+    mysql: ^2.18.1
+    mysql-patcher: 0.7.0
+  bin:
+    db-migrations: ./bin/patcher.mjs
+  languageName: unknown
+  linkType: soft
+
 "dbug@npm:0.4.2, dbug@npm:~0.4.2":
   version: 0.4.2
   resolution: "dbug@npm:0.4.2"
@@ -19066,7 +19077,6 @@ fsevents@~2.1.1:
     moment-timezone: ^0.5.33
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    mysql-patcher: 0.7.0
     nock: ^13.1.3
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     node-zendesk: ^2.1.0
@@ -19740,7 +19750,6 @@ fsevents@~2.1.1:
     mocha-text-cov: 0.1.1
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    mysql-patcher: 0.7.0
     nock: ^13.1.3
     nyc: ^15.1.0
     pm2: ^5.1.0

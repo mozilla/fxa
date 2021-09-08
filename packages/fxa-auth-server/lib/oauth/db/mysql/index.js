@@ -2,17 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path');
-
 const buf = require('buf').hex;
 const mysql = require('mysql');
-const MysqlPatcher = require('mysql-patcher');
 
 const encrypt = require('../../encrypt');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const unique = require('../../unique');
 const AccessToken = require('../accessToken');
-const patch = require('./patch');
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
@@ -32,69 +28,7 @@ function MysqlStore(options) {
   this._pool = mysql.createPool(options);
 }
 
-// Apply patches up to the current patch level.
-// This will also create the DB if it is missing.
-
-function updateDbSchema(patcher) {
-  return new Promise((resolve, reject) => {
-    patcher.patch(function (err) {
-      if (err) {
-        return reject(err);
-      }
-      resolve();
-    });
-  });
-}
-
-// Sanity-check that we're working with a compatible patch level.
-
-function checkDbPatchLevel(patcher) {
-  return new Promise((resolve, reject) => {
-    patcher.readDbPatchLevel(function (err) {
-      if (err) {
-        return reject(err);
-      }
-
-      // We can run if we're at or above some patch level.  Should be
-      // equal at initial deployment, and may be one or more higher
-      // later on, due to database changes in preparation for the next
-      // release.
-      if (patcher.currentPatchLevel >= patch.level) {
-        return resolve();
-      }
-
-      err = 'unexpected db patch level: ' + patcher.currentPatchLevel;
-      return reject(new Error(err));
-    });
-  });
-}
-
 MysqlStore.connect = async function mysqlConnect(options) {
-  if (options.createSchema) {
-    options.createDatabase = options.createSchema;
-    options.dir = path.join(__dirname, 'patches');
-    options.metaTable = 'dbMetadata';
-    options.patchKey = 'schema-patch-level';
-    options.patchLevel = patch.level;
-    options.mysql = mysql;
-    const patcher = new MysqlPatcher(options);
-    await new Promise((resolve, reject) => {
-      patcher.connect((err) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve();
-      });
-    });
-    if (options.createSchema) {
-      await updateDbSchema(patcher);
-    }
-    try {
-      await checkDbPatchLevel(patcher);
-    } finally {
-      patcher.end(() => {});
-    }
-  }
   return new MysqlStore(options);
 };
 

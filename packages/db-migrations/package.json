@@ -1,0 +1,12 @@
+{
+  "name": "db-migrations",
+  "private": true,
+  "version": "1.214.1",
+  "type": "module",
+  "license": "MPL-2.0",
+  "bin": "./bin/patcher.mjs",
+  "dependencies": {
+    "mysql": "^2.18.1",
+    "mysql-patcher": "0.7.0"
+  }
+}

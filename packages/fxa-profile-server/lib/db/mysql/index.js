@@ -2,16 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path');
 const mysql = require('mysql');
 const buf = require('buf').hex;
-const MysqlPatcher = require('mysql-patcher');
 
 const AppError = require('../../error');
 const config = require('../../config');
 const logger = require('../../logging')('db.mysql');
 const P = require('../../promise');
-const patch = require('./patch');
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_BIN';
@@ -32,76 +29,8 @@ function MysqlStore(options) {
   this._pool = mysql.createPool(options);
 }
 
-// Apply patches up to the current patch level.
-// This will also create the DB if it is missing.
-
-function updateDbSchema(patcher) {
-  logger.verbose('updateDbSchema', patcher.options);
-
-  var d = P.defer();
-  patcher.patch(function (err) {
-    if (err) {
-      logger.error('updateDbSchema', err);
-      return d.reject(err);
-    }
-    d.resolve();
-  });
-
-  return d.promise;
-}
-
-// Sanity-check that we're working with a compatible patch level.
-
-function checkDbPatchLevel(patcher) {
-  logger.verbose('checkDbPatchLevel', patcher.options);
-
-  var d = P.defer();
-
-  patcher.readDbPatchLevel(function (err) {
-    if (err) {
-      logger.error('checkDbPatchLevel', err);
-      return d.reject(err);
-    }
-
-    // We can run if we're at or above some patch level.  Should be
-    // equal at initial deployment, and may be one or more higher
-    // later on, due to database changes in preparation for the next
-    // release.
-    if (patcher.currentPatchLevel >= patch.level) {
-      return d.resolve();
-    }
-
-    err = 'unexpected db patch level: ' + patcher.currentPatchLevel;
-    return d.reject(new Error(err));
-  });
-
-  return d.promise;
-}
-
 MysqlStore.connect = function mysqlConnect(options) {
-  options.createDatabase = options.createSchema;
-  options.dir = path.join(__dirname, 'patches');
-  options.metaTable = 'dbMetadata';
-  options.patchKey = 'schema-patch-level';
-  options.patchLevel = patch.level;
-  options.mysql = mysql;
-  var patcher = new MysqlPatcher(options);
-
-  return P.promisify(patcher.connect, { context: patcher })()
-    .then(function () {
-      if (options.createSchema) {
-        return updateDbSchema(patcher);
-      }
-    })
-    .then(function () {
-      return checkDbPatchLevel(patcher);
-    })
-    .then(function () {
-      return P.promisify(patcher.end, { context: patcher })();
-    })
-    .then(function () {
-      return new MysqlStore(options);
-    });
+  return Promise.resolve(new MysqlStore(options));
 };
 
 const Q_AVATAR_INSERT =

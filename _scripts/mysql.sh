@@ -1,5 +1,7 @@
 #!/bin/bash -ex
 
+DIR=$(dirname "$0")
+
 # This docker image doesn't react to SIGINTs (Ctrl+C) which is used by
 # pm2 to kill processes.
 # We go around this by defining a SIGINT handler, running docker in the
@@ -21,5 +23,10 @@ docker run --rm --name=mydb \
   -e MYSQL_DATABASE=pushbox \
   -p 3306:3306 \
   mysql/mysql-server:5.7 &
+
+cd "$DIR"
+./check-mysql.sh
+
+node ../packages/db-migrations/bin/patcher.mjs
 
 while :; do read -r; done

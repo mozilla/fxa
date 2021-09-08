@@ -17,24 +17,15 @@ logger.info('config', JSON.stringify(JSON.parse(configuration.toString())));
 async function start() {
   const server = await Server.create();
   const events = require('../lib/events')(server);
-
-  db.ping().done(
-    async function () {
-      try {
-        await server.start();
-        logger.info('listening', server.info.uri);
-      } catch (err) {
-        logger.critical('server.start', err);
-        process.exit(1);
-      }
-
-      events.start();
-    },
-    function (err) {
-      logger.critical('db.ping', err);
-      process.exit(2);
-    }
-  );
+  try {
+    await db.ping();
+    await server.start();
+    logger.info('listening', server.info.uri);
+    events.start();
+  } catch (err) {
+    logger.critical('server.start', err);
+    process.exit(1);
+  }
 }
 
 start();
