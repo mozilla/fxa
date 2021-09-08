@@ -32,7 +32,8 @@
     "emails-scss": "node -r ts-node/register ./lib/senders/emails/sass-compile-files.ts",
     "start-mjml": "NODE_ENV=dev ts-node ./bin/mjml-server.ts",
     "storybook": "npm run emails-scss && start-storybook -p 6010 --no-version-updates",
-    "storybook-mjml": "nodemon -e scss,ts  --exec \"npm-run-all -p start-mjml storybook\""
+    "storybook-mjml": "nodemon -e scss,ts  --exec \"npm-run-all -p watch-ftl start-mjml storybook\"",
+    "watch-ftl": "yarn grunt watch-ftl"
   },
   "repository": {
     "type": "git",
