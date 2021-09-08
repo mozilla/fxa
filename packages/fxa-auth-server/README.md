@@ -229,6 +229,8 @@ Note that in order to access variables in the dom, we need to pass down a JSON o
 
 By default emails render from left to right which could hamper their accessibility for some locales so along with localizing the emails, we took care of rendering them from right to left for rtl locales and vice versa.
 
+**Reloading FTL files:** Email localizations are made available by merging individual template and partial FTL files into a single FTL file that can be found at `./public/locales/en-US/auth.ftl` (run `yarn grunt merge-ftl` if it's not there yet). If you are actively developing templates you may want to run `yarn grunt watch-ftl` so that the combined FTL file is regenerated when template/partial FTL files are changed.
+
 ##### Fluent for plaintext files
 
 Fluent is also being used to localize plaintext version of templates. Each and every template has an `index.txt` file which contains the plaintext version of it. A pattern is set which will help identify the text that needs to be localized: `fluent-id = "default value provided"` where value of `fluent-id` is same as `data-l10n-id` attribute of the corresponding markup element. If `fluent-id` is present in fluent bundle, the text will be localized else it will be replaced with the fallback value present. In cases, where we don't want to localize the text, just declare a string and it will be rendered as is. The following snippets will demonstrate how plaintext files are localized and generated:

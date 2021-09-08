@@ -5,14 +5,14 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
 import path from 'path';
 
-const getAllFiles = function (dirPath: string, arrayOfFiles: Array<any>) {
+const getAllFiles = function (dirPath: string) {
   const files = readdirSync(dirPath);
 
-  arrayOfFiles = arrayOfFiles || [];
+  let arrayOfFiles: string[] = [];
 
   files.forEach(function (file) {
     if (statSync(path.join(dirPath, file)).isDirectory()) {
-      arrayOfFiles = getAllFiles(dirPath + '/' + file, arrayOfFiles);
+      arrayOfFiles = getAllFiles(dirPath + '/' + file);
     } else {
       if (path.join(dirPath, file).includes('.ftl')) {
         arrayOfFiles.push(path.join(dirPath, file));
@@ -25,11 +25,11 @@ const getAllFiles = function (dirPath: string, arrayOfFiles: Array<any>) {
 
 export function loadFtlFiles(dirPath: string) {
   const ftlMap: Record<string, string> = {};
-  const fileArr: Array<any> = [];
-  const ftlArr: Array<any> = getAllFiles(dirPath, fileArr);
+  const ftlArr = getAllFiles(dirPath);
 
   ftlArr.forEach((file) => {
-    const indexLocale = path.parse(file).name;
+    const splitPath = path.parse(file).dir.split('/');
+    const indexLocale = splitPath[splitPath.length - 1];
     try {
       ftlMap[`${indexLocale}`]
         ? (ftlMap[`${indexLocale}`] += readFileSync(file, 'utf8'))

@@ -6,7 +6,7 @@ import { DOMLocalization } from '@fluent/dom';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { negotiateLanguages } from '@fluent/langneg';
 import { JSDOM } from 'jsdom';
-import path from 'path';
+import { join } from 'path';
 import { render, TemplateContext } from './renderer';
 import { loadFtlFiles } from './load-ftl-files';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
@@ -26,7 +26,7 @@ const RTL_LOCALES = [
   'ug',
 ];
 
-const baseDir = path.join(__dirname);
+const baseDir = join(__dirname, '../../../public/locales');
 
 class FluentLocalizer {
   localeContentMap: Record<any, any>;
