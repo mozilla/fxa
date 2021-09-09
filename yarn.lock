@@ -6805,9 +6805,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/postcss7-compat@npm:^2.2.10":
-  version: 2.2.10
-  resolution: "@tailwindcss/postcss7-compat@npm:2.2.10"
+"@tailwindcss/postcss7-compat@npm:^2.2.14":
+  version: 2.2.14
+  resolution: "@tailwindcss/postcss7-compat@npm:2.2.14"
   dependencies:
     arg: ^5.0.1
     autoprefixer: ^9
@@ -6823,6 +6823,7 @@ __metadata:
     fs-extra: ^10.0.0
     glob-parent: ^6.0.1
     html-tags: ^3.1.0
+    is-color-stop: ^1.1.0
     is-glob: ^4.0.1
     lodash: ^4.17.21
     lodash.topath: ^4.5.2
@@ -6846,7 +6847,7 @@ __metadata:
   bin:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
-  checksum: 62af68ea4c09b555d13e317aa681c4fd507ee8d200081d741658e80b0c4743ab358c27a0b427ff170d53b16bb531fe52d248097f1a9f8cf02b570118dbf0a4ac
+  checksum: 47c71b18090103364d1c91be2c9379a0a3e27b801a007436be37a4824b1bf61c1ca3a95dabf74860947e77ac9bc9feb1a903e483cb3b114cbf5179406ee5289c
   languageName: node
   linkType: hard
 
@@ -19268,7 +19269,7 @@ fsevents@~2.1.1:
     "@storybook/addon-links": ^6.3.8
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.6
-    "@tailwindcss/postcss7-compat": ^2.2.10
+    "@tailwindcss/postcss7-compat": ^2.2.14
     "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.0.0
@@ -20255,7 +20256,7 @@ fsevents@~2.1.1:
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.6
     "@svgr/webpack": ^5.5.0
-    "@tailwindcss/postcss7-compat": ^2.2.10
+    "@tailwindcss/postcss7-compat": ^2.2.14
     "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.0.0
@@ -20319,7 +20320,7 @@ fsevents@~2.1.1:
     "@storybook/addon-links": ^6.3.8
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.6
-    "@tailwindcss/postcss7-compat": ^2.2.10
+    "@tailwindcss/postcss7-compat": ^2.2.14
     "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.0.0
@@ -23598,7 +23599,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"is-color-stop@npm:^1.0.0":
+"is-color-stop@npm:^1.0.0, is-color-stop@npm:^1.1.0":
   version: 1.1.0
   resolution: "is-color-stop@npm:1.1.0"
   dependencies:
