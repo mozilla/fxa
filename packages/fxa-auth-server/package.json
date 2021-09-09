@@ -122,7 +122,7 @@
     "@storybook/addon-controls": "^6.3.7",
     "@storybook/addon-docs": "^6.3.8",
     "@storybook/addon-toolbars": "^6.3.8",
-    "@storybook/html": "^6.3.7",
+    "@storybook/html": "^6.3.8",
     "@types/babel__core": "7.1.14",
     "@types/chai": "^4.2.18",
     "@types/convict": "^5.2.2",
