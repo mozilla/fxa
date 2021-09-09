@@ -446,7 +446,8 @@
       "unblockCode",
       "verifyLogin",
       "verifyLoginCode",
-      "verifyPrimary"
+      "verifyPrimary",
+      "passwordResetAccountRecovery"
     ]
   }
 }
