@@ -447,7 +447,8 @@
       "verifyLogin",
       "verifyLoginCode",
       "verifyPrimary",
-      "passwordResetAccountRecovery"
+      "passwordResetAccountRecovery",
+      "postAddAccountRecovery"
     ]
   }
 }
