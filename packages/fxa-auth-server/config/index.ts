@@ -1888,6 +1888,18 @@ const conf = convict({
       env: 'ZENDESK_APP_FIELD_ID',
       format: Number,
     },
+    productPlatformFieldId: {
+      doc: 'Zendesk support ticket custom field for the product platform',
+      default: 360047272851,
+      env: 'ZENDESK_PRODUCT_PLATFORM_FIELD_ID',
+      format: Number,
+    },
+    productVersionFieldId: {
+      doc: 'Zendesk support ticket custom field for product version',
+      default: 360047246812,
+      env: 'ZENDESK_PRODUCT_VERSION_FIELD_ID',
+      format: Number,
+    },
   },
   otp: {
     step: {

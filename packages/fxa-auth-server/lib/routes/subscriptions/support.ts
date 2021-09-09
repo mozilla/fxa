@@ -60,6 +60,8 @@ export const supportRoutes = (
           payload: isA.object().keys({
             email: email().optional(),
             productName: isA.string().required(),
+            productPlatform: isA.string().optional(),
+            productVersion: isA.string().optional(),
             topic: isA.string().required(),
             app: isA.string().allow('').optional(),
             subject: isA.string().allow('').optional(),
@@ -92,6 +94,8 @@ export const supportRoutes = (
 
         const {
           productName,
+          productPlatform,
+          productVersion,
           topic,
           app,
           subject: payloadSubject,
@@ -104,6 +108,8 @@ export const supportRoutes = (
 
         const {
           productNameFieldId,
+          productPlatformFieldId,
+          productVersionFieldId,
           locationCityFieldId,
           locationStateFieldId,
           locationCountryFieldId,
@@ -121,6 +127,8 @@ export const supportRoutes = (
             },
             custom_fields: [
               { id: productNameFieldId, value: productName },
+              { id: productPlatformFieldId, value: productPlatform },
+              { id: productVersionFieldId, value: productVersion },
               { id: topicFieldId, value: topic },
               { id: appFieldId, value: app },
               { id: locationCityFieldId, value: location.city },
