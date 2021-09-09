@@ -10,6 +10,8 @@ import { ConfigType } from '../../../config';
 import error from '../../error';
 import { AuthLogger, AuthRequest } from '../../types';
 import { handleAuth } from './utils';
+import { email } from '../validators';
+import AppError from '../../error';
 
 export const supportRoutes = (
   log: AuthLogger,
@@ -23,6 +25,26 @@ export const supportRoutes = (
     return [];
   }
 
+  const getAccountInfo = async (request: AuthRequest) => {
+    if (request.auth.strategy === 'oauthToken') {
+      return handleAuth(db, request.auth, true);
+    }
+
+    // auth stratey is supportSecret here.
+    // The ticket might not be from a FxA user at all.
+    const { email } = request.payload as Record<string, any>;
+
+    try {
+      const account = await db.accountRecord(email);
+      return { uid: account.uid, email: account.email };
+    } catch (err: any) {
+      if (err.errno === AppError.ERRNO.ACCOUNT_UNKNOWN) {
+        return { uid: null, email };
+      }
+      throw err;
+    }
+  };
+
   return [
     {
       method: 'POST',
@@ -30,10 +52,13 @@ export const supportRoutes = (
       options: {
         auth: {
           payload: false,
-          strategy: 'oauthToken',
+          // The order here matters.  When the supportSecret strategy fails,
+          // the oauthToken strategy is tried.
+          strategies: ['supportSecret', 'oauthToken'],
         },
         validate: {
           payload: isA.object().keys({
+            email: email().optional(),
             productName: isA.string().required(),
             topic: isA.string().required(),
             app: isA.string().allow('').optional(),
@@ -49,9 +74,19 @@ export const supportRoutes = (
           }),
         },
       },
-      handler: async function (request: AuthRequest) {
+      handler: async function (
+        request: AuthRequest & { payload: Record<string, any> }
+      ) {
         log.begin('support.ticket', request);
-        const { uid, email } = await handleAuth(db, request.auth, true);
+
+        if (
+          request.auth.strategy === 'supportSecret' &&
+          !request.payload.email
+        ) {
+          throw AppError.missingRequestParameter('email');
+        }
+
+        const { uid, email } = await getAccountInfo(request);
         const { location } = request.app.geo;
         await customs.check(request, email, 'supportRequest');
 
@@ -61,7 +96,7 @@ export const supportRoutes = (
           app,
           subject: payloadSubject,
           message,
-        } = request.payload as Record<string, any>;
+        } = request.payload;
         let subject = productName;
         if (payloadSubject) {
           subject = subject.concat(': ', payloadSubject);
@@ -100,9 +135,9 @@ export const supportRoutes = (
           // Note that this awkward TypeScript conversion exists because the
           // typings for this client fail to accomodate using the newer Promise
           // return type.
-          const createRequest = ((await zendeskClient.requests.create(
+          const createRequest = (await zendeskClient.requests.create(
             zendeskReq
-          )) as unknown) as zendesk.Requests.ResponseModel;
+          )) as unknown as zendesk.Requests.ResponseModel;
 
           const zenUid = createRequest.requester_id;
 
@@ -118,9 +153,9 @@ export const supportRoutes = (
           // Zendesk user to the fxa uid.
           operation = 'showUser';
           const showRequest = await pRetry(async () => {
-            return ((await zendeskClient.users.show(
+            return (await zendeskClient.users.show(
               zenUid
-            )) as unknown) as zendesk.Users.ResponseModel;
+            )) as unknown as zendesk.Users.ResponseModel;
           }, retryOptions);
           const userFields = showRequest.user_fields as
             | null

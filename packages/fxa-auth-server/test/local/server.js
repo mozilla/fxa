@@ -673,5 +673,8 @@ function getConfig() {
       verificationToken: '',
     },
     verificationReminders: {},
+    support: {
+      secretBearerToken: 'topsecrets',
+    },
   };
 }

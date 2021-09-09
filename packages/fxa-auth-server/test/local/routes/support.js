@@ -11,6 +11,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const nock = require('nock');
 const { supportRoutes } = require('../../../lib/routes/subscriptions/support');
+const AppError = require('../../../lib/error');
 
 let config,
   log,
@@ -155,6 +156,7 @@ describe('support', () => {
   });
 
   requestOptions = {
+    auth: { strategy: 'oauthToken' },
     metricsContext: mocks.mockMetricsContext(),
     credentials: {
       user: UID,
@@ -174,6 +176,18 @@ describe('support', () => {
   };
 
   describe('with config.subscriptions.enabled = false', () => {
+    const setupNockForSuccess = () => {
+      nock(`https://${SUBDOMAIN}.zendesk.com`)
+        .post('/api/v2/requests.json')
+        .reply(201, MOCK_CREATE_REPLY);
+      nock(`https://${SUBDOMAIN}.zendesk.com`)
+        .get(`/api/v2/users/${REQUESTER_ID}.json`)
+        .reply(200, MOCK_NEW_SHOW_REPLY);
+      nock(`https://${SUBDOMAIN}.zendesk.com`)
+        .put(`/api/v2/users/${REQUESTER_ID}.json`)
+        .reply(200, MOCK_UPDATE_REPLY);
+    };
+
     it('should not set up any routes', async () => {
       config.subscriptions.enabled = false;
       routes = supportRoutes(log, db, config, customs, zendeskClient);
@@ -183,15 +197,7 @@ describe('support', () => {
     describe('POST /support/ticket', () => {
       it('should accept a first ticket for a subscriber', async () => {
         config.subscriptions.enabled = true;
-        nock(`https://${SUBDOMAIN}.zendesk.com`)
-          .post('/api/v2/requests.json')
-          .reply(201, MOCK_CREATE_REPLY);
-        nock(`https://${SUBDOMAIN}.zendesk.com`)
-          .get(`/api/v2/users/${REQUESTER_ID}.json`)
-          .reply(200, MOCK_NEW_SHOW_REPLY);
-        nock(`https://${SUBDOMAIN}.zendesk.com`)
-          .put(`/api/v2/users/${REQUESTER_ID}.json`)
-          .reply(200, MOCK_UPDATE_REPLY);
+        setupNockForSuccess();
         const spy = sinon.spy(zendeskClient.requests, 'create');
         const res = await runTest('/support/ticket', requestOptions);
         const zendeskReq = spy.firstCall.args[0].request;
@@ -283,6 +289,86 @@ describe('support', () => {
             err.toString(),
             'Error: Requested scopes are not allowed'
           );
+        }
+      });
+
+      it('should accept a ticket from another service using a shared secret', async () => {
+        config.subscriptions.enabled = true;
+        setupNockForSuccess();
+        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const res = await runTest('/support/ticket', {
+          ...requestOptions,
+          auth: { strategy: 'supportSecret' },
+          payload: { ...requestOptions.payload, email: TEST_EMAIL },
+        });
+        const zendeskReq = spy.firstCall.args[0].request;
+        assert.equal(
+          zendeskReq.subject,
+          `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
+        );
+        assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
+        assert.deepEqual(
+          zendeskReq.custom_fields.map((field) => field.value),
+          [
+            'FxA - 123done Pro',
+            requestOptions.payload.topic,
+            requestOptions.payload.app,
+            'Mountain View',
+            'California',
+            'United States',
+          ]
+        );
+        assert.deepEqual(res, { success: true, ticket: 91 });
+        nock.isDone();
+        spy.restore();
+      });
+
+      it('should work for someone who is not a FxA user', async () => {
+        const dbAccountRecord = db.accountRecord;
+        db.accountRecord = sinon.stub().throws(AppError.unknownAccount());
+
+        config.subscriptions.enabled = true;
+        setupNockForSuccess();
+        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const res = await runTest('/support/ticket', {
+          ...requestOptions,
+          auth: { strategy: 'supportSecret' },
+          payload: { ...requestOptions.payload, email: TEST_EMAIL },
+        });
+        const zendeskReq = spy.firstCall.args[0].request;
+        assert.equal(
+          zendeskReq.subject,
+          `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
+        );
+        assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
+        assert.deepEqual(
+          zendeskReq.custom_fields.map((field) => field.value),
+          [
+            'FxA - 123done Pro',
+            requestOptions.payload.topic,
+            requestOptions.payload.app,
+            'Mountain View',
+            'California',
+            'United States',
+          ]
+        );
+        assert.deepEqual(res, { success: true, ticket: 91 });
+        nock.isDone();
+        spy.restore();
+
+        db.accountRecord = dbAccountRecord;
+      });
+
+      it('should expect an email address in the payload from another service', async () => {
+        config.subscriptions.enabled = true;
+        try {
+          await runTest('/support/ticket', {
+            ...requestOptions,
+            auth: { strategy: 'supportSecret' },
+          });
+          assert.fail('an error should have been thrown');
+        } catch (e) {
+          assert.deepEqual(e, AppError.missingRequestParameter('email'));
         }
       });
     });

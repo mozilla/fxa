@@ -6,9 +6,12 @@ const { assert } = require('chai');
 const AppError = require('../../../../lib/error');
 const SharedSecretScheme = require('../../../../lib/routes/auth-schemes/shared-secret');
 const authStrategy = SharedSecretScheme.strategy('goodsecret')();
+const noThrowStrategy = SharedSecretScheme.strategy('goodsecret', {
+  throwOnFailure: false,
+})();
 const sinon = require('sinon');
 
-describe('lib/routes/auth-schemes/auth-oauth', () => {
+describe('lib/routes/auth-schemes/shared-secret', () => {
   it('should throws an invalid token error if the secrets do not match', () => {
     const request = { headers: { authorization: 'badsecret' } };
 
@@ -25,5 +28,17 @@ describe('lib/routes/auth-schemes/auth-oauth', () => {
     const request = { headers: { authorization: 'goodsecret' } };
     authStrategy.authenticate(request, { authenticated: faker });
     assert.isTrue(faker.calledOnceWith({ credentials: {} }));
+  });
+
+  it('should not throw if the secrets do not match', () => {
+    const request = { headers: { authorization: 'badsecret' } };
+
+    try {
+      const error = noThrowStrategy.authenticate(request, {});
+      assert.isTrue(error.isBoom);
+      assert.isTrue(error.isMissing);
+    } catch (err) {
+      assert.fail('No error should have been thrown');
+    }
   });
 });

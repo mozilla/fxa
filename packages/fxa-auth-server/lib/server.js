@@ -365,6 +365,14 @@ async function create(log, error, config, routes, db, translator, statsd) {
   );
   server.auth.strategy('supportPanelSecret', 'supportPanelSecret');
 
+  server.auth.scheme(
+    'supportSecret',
+    sharedSecretAuth.strategy(`Bearer ${config.support.secretBearerToken}`, {
+      throwOnFailure: false,
+    })
+  );
+  server.auth.strategy('supportSecret', 'supportSecret');
+
   server.auth.strategy('pubsub', 'jwt', pubsubAuth.strategy(config));
 
   // routes should be registered after all auth strategies have initialized:

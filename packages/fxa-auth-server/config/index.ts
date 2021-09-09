@@ -1923,6 +1923,14 @@ const conf = convict({
     env: 'SYNC_TOKENSERVER_URL',
     format: 'url',
   },
+  support: {
+    secretBearerToken: {
+      default: 'YOU MUST CHANGE ME',
+      doc: 'Shared secret to access the support endpoint.',
+      env: 'SUPPORT_AUTH_SECRET_BEARER_TOKEN',
+      format: 'String',
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration
