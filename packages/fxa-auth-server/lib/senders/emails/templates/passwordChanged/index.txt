@@ -1,0 +1,8 @@
+passwordChanged-title = "Password changed successfully"
+
+passwordChanged-description = "Your Firefox Account password was successfully changed from the following device:"
+
+<%- include('/partials/location/index.txt') %>
+
+<%- include('/partials/automatedEmailResetPassword/index.txt') %>
+<%- include('/partials/support/index.txt') %>
