@@ -47,6 +47,15 @@ function renderEjs(
   };
 }
 
+function renderMjml(mjml: string) {
+  try {
+    return mjml2html(mjml, mjmlConfig).html;
+  } catch (error: any) {
+    // Make this all happen in a single line so it reports to sentry
+    throw new Error(`${error.message} - ${mjml}`.replace(/(\r\n|\n|\r)/gm, ''));
+  }
+}
+
 export function render(
   templateName: string,
   context: TemplateContext,
@@ -63,10 +72,10 @@ export function render(
       context,
       renderedBody
     );
-    rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
+    rendered = { html: renderMjml(mjml), text };
   } else {
     const { mjml, text } = renderEjs(templateName, 'templates', context);
-    rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
+    rendered = { html: renderMjml(mjml), text };
   }
 
   return rendered;
