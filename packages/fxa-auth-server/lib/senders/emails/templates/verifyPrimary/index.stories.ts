@@ -7,16 +7,18 @@ import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Emails/verifyShortCode',
+  title: 'Emails/verifyPrimary',
 } as Meta;
 
 const createStory = storyWithProps(
-  'verifyShortCode',
-  'Sent to users to verify their account via code after signing up.',
+  'verifyPrimary',
+  'Sent to users with an unverified primary email, meaning an unverified account, when they attempt an action requiring a verified account.',
   {
     ...MOCK_LOCATION,
-    code: '918398',
+    link: 'http://localhost:3030/verify_primary_email',
+    sync: false,
+    passwordChangeLink: 'http://localhost:3030/settings/change_password',
   }
 );
 
-export const VerifyShortCode = createStory();
+export const VerifyPrimaryEmail = createStory();

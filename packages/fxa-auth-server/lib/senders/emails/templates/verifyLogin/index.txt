@@ -1,0 +1,11 @@
+verifyLogin-title = "Activate the Firefox family of products"
+
+verifyLogin-description = "For added security, please confirm this sign-in from the following device:"
+
+<%- include('/partials/location/index.txt') %>
+
+verifyLogin-action = "Confirm sign-in:"
+<%- link %>
+
+<%- include('/partials/changePassword/index.txt') %>
+<%- include('/partials/support/index.txt') %>

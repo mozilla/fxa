@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
+import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
@@ -13,15 +14,18 @@ const createStory = storyWithProps(
   'newDeviceLogin',
   'Sent to notify the account that a new device has signed in.',
   {
-    date: 'Thursday, Sep 2, 2021',
-    device: 'Firefox on Mac OSX 10.11',
-    ip: '10.246.67.38',
-    location: 'Madrid, Spain (estimated)',
-    time: '12:26:44 AM (CEST)',
+    ...MOCK_LOCATION,
     clientName: 'Firefox',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
     link: 'http://localhost:3030/settings',
   }
 );
 
-export const NewDeviceLogin = createStory();
+export const NewDeviceLoginFirefox = createStory(
+  {},
+  'New device login through Firefox'
+);
+export const NewDeviceLoginOther = createStory(
+  { clientName: 'Some Other Relier' },
+  'New device login through something else'
+);

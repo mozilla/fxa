@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { Template, storyWithProps } from '../../storybook-email';
+import { storyWithProps } from '../../storybook-email';
 
 export default {
   title: 'Emails/lowRecoveryCodes',

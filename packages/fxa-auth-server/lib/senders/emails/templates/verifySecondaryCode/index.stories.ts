@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { storyWithProps, commonArgs, Template } from '../../storybook-email';
+import { MOCK_LOCATION } from '../../partials/location/mocks';
+import { storyWithProps } from '../../storybook-email';
 
 export default {
   title: 'Emails/verifySecondaryCode',
@@ -13,9 +14,7 @@ const createStory = storyWithProps(
   'verifySecondaryCode',
   'Sent to verify the addition of a secondary email via code.',
   {
-    location: 'Madrid, Spain (estimated)',
-    device: 'Firefox on Mac OSX 10.11',
-    ip: '10.246.67.38',
+    ...MOCK_LOCATION,
     email: 'foo@bar.com',
     code: '918398',
   }
