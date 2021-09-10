@@ -675,6 +675,7 @@ function getConfig() {
     verificationReminders: {},
     support: {
       secretBearerToken: 'topsecrets',
+      ticketPayloadLimit: 131072,
     },
   };
 }

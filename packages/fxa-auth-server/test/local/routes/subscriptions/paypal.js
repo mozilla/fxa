@@ -102,6 +102,9 @@ describe('subscriptions payPalRoutes', () => {
       currenciesToCountries: {
         USD: ['US', 'CA', 'GB'],
       },
+      support: {
+        ticketPayloadLimit: 131072,
+      },
     };
     currencyHelper = new CurrencyHelper(config);
     log = mocks.mockLog();

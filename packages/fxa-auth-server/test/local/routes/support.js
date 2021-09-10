@@ -142,6 +142,9 @@ describe('support', () => {
         subdomain: 'test',
         productNameFieldId: '192837465',
       },
+      support: {
+        ticketPayloadLimit: 131072,
+      },
     };
 
     log = mocks.mockLog();

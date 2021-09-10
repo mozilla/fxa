@@ -56,6 +56,9 @@ export const supportRoutes = (
           // the oauthToken strategy is tried.
           strategies: ['supportSecret', 'oauthToken'],
         },
+        payload: {
+          maxBytes: config.support.ticketPayloadLimit,
+        },
         validate: {
           payload: isA.object().keys({
             email: email().optional(),

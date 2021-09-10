@@ -214,6 +214,9 @@ describe('subscriptions stripeRoutes', () => {
         },
       },
       currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
+      support: {
+        ticketPayloadLimit: 131072,
+      },
     };
 
     const currencyHelper = new CurrencyHelper(config);
