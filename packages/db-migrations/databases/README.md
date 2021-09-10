@@ -1,4 +1,9 @@
-## Schema
+## Structure
+
+Each mysql database has a directory here with its name matching the database name, a subdirectory named `patches`
+and a file named `target-patch.json`.
+
+## Patches
 
 This project uses the [mysql-patcher](https://www.npmjs.com/package/mysql-patcher) project to perform its database
 schema migrations, however this is only used in development, testing and staging but not in production. Production is
@@ -6,8 +11,8 @@ performed manually making sure each step succeeds properly.
 
 When adding a new patch file you need to provide two things:
 
-1. the forward and reverse patches in `db/schema/patch-xxx-xxx.sql`
-2. update `db/patch.js` to point to the new patches
+1. the forward and reverse patches in `${dbname}/patches/patch-xxx-xxx.sql`
+2. update `${dbname}/target-patch.json` to point to the new patches
 
 Each forward patch should perform it's actions and finally update the `dbMetadata` to the new patch level.
 

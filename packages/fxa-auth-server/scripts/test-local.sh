@@ -24,9 +24,6 @@ if [[ ! -e config/key.json ]]; then
   node -r esbuild-register ./scripts/oauth_gen_keys.js
 fi
 
-node -r esbuild-register ../fxa-auth-db-mysql/bin/db_patcher > /dev/null
-node -r esbuild-register ./scripts/oauth-db-patcher.js
-
 GLOB=$*
 if [ -z "$GLOB" ]; then
   echo "Local tests"
