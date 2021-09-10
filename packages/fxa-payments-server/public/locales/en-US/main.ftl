@@ -365,7 +365,6 @@ new-user-step-2 = 2. Choose your payment method
 # continue.
 new-user-required-payment-consent = Required
 new-user-email =
-  .placeholder = foxy@mozilla.com
   .label = Enter your email
 new-user-confirm-email =
   .label = Confirm your email
