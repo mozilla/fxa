@@ -20170,7 +20170,7 @@ fsevents@~2.1.1:
     react: ^16.12.0
     react-document-title: ^2.0.3
     react-dom: ^16.12.0
-    react-redux: ^7.2.4
+    react-redux: ^7.2.5
     react-router-dom: ^5.3.0
     react-scripts: ^4.0.3
     react-stripe-elements: ^6.1.2
@@ -33210,9 +33210,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-redux@npm:^7.2.4":
-  version: 7.2.4
-  resolution: "react-redux@npm:7.2.4"
+"react-redux@npm:^7.2.5":
+  version: 7.2.5
+  resolution: "react-redux@npm:7.2.5"
   dependencies:
     "@babel/runtime": ^7.12.1
     "@types/react-redux": ^7.1.16
@@ -33227,7 +33227,7 @@ fsevents@~2.1.1:
       optional: true
     react-native:
       optional: true
-  checksum: 214fa1a4811f95090b77d96ec7114c322adf388b6d086ebebf50cdaf03549758037283f953d2b920cf6ee2f6ffad8f35e92f1ab959b3f2c957f5075d00e16d0a
+  checksum: 04ac4a4178067cbcfc05506dfea9f7e01730093a5752f050567f7ae4a38c03c96da9d8fed051f8ab1ecede5ea8a15ee41c5f6c5eeb7f04f37e4d13e431ec7830
   languageName: node
   linkType: hard
 
