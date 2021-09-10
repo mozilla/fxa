@@ -168,6 +168,8 @@ describe('support', () => {
     payload: {
       plan: '123done',
       productName: 'FxA - 123done Pro',
+      productPlatform: 'BeOS',
+      productVersion: '5',
       topic: 'Billing',
       app: 'FxOS Client',
       subject: 'Change of address',
@@ -187,6 +189,17 @@ describe('support', () => {
         .put(`/api/v2/users/${REQUESTER_ID}.json`)
         .reply(200, MOCK_UPDATE_REPLY);
     };
+
+    const customFieldsOnTicket = [
+      'FxA - 123done Pro',
+      requestOptions.payload.productPlatform,
+      requestOptions.payload.productVersion,
+      requestOptions.payload.topic,
+      requestOptions.payload.app,
+      'Mountain View',
+      'California',
+      'United States',
+    ];
 
     it('should not set up any routes', async () => {
       config.subscriptions.enabled = false;
@@ -208,14 +221,7 @@ describe('support', () => {
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(
           zendeskReq.custom_fields.map((field) => field.value),
-          [
-            'FxA - 123done Pro',
-            requestOptions.payload.topic,
-            requestOptions.payload.app,
-            'Mountain View',
-            'California',
-            'United States',
-          ]
+          customFieldsOnTicket
         );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
@@ -258,14 +264,7 @@ describe('support', () => {
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(
           zendeskReq.custom_fields.map((field) => field.value),
-          [
-            'FxA - 123done Pro',
-            requestOptions.payload.topic,
-            requestOptions.payload.app,
-            'Mountain View',
-            'California',
-            'United States',
-          ]
+          customFieldsOnTicket
         );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
@@ -309,14 +308,7 @@ describe('support', () => {
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(
           zendeskReq.custom_fields.map((field) => field.value),
-          [
-            'FxA - 123done Pro',
-            requestOptions.payload.topic,
-            requestOptions.payload.app,
-            'Mountain View',
-            'California',
-            'United States',
-          ]
+          customFieldsOnTicket
         );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
@@ -343,14 +335,7 @@ describe('support', () => {
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(
           zendeskReq.custom_fields.map((field) => field.value),
-          [
-            'FxA - 123done Pro',
-            requestOptions.payload.topic,
-            requestOptions.payload.app,
-            'Mountain View',
-            'California',
-            'United States',
-          ]
+          customFieldsOnTicket
         );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
