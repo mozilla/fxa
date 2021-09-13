@@ -6,11 +6,8 @@
     .sign-in-copy {
         color: $grey-50;
         font-weight: 400;
-        font-size: 10px;
-        position: absolute;
-        right: 0;
-        top: -5px;
-        z-index: 2;
+        margin-top: -8px;
+        margin-left: 24px;
 
         a {
             color: $grey-50;

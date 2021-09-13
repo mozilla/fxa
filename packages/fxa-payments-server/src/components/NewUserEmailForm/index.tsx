@@ -92,6 +92,7 @@ export const NewUserEmailForm = ({
           </a>
         </p>
       </Localized>
+      <hr />
       <Localized id="new-user-email" attrs={{ label: true }}>
         <Input
           type="email"
