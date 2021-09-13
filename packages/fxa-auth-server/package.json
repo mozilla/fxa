@@ -150,7 +150,7 @@
     "babel-loader": "^8.2.2",
     "binary-split": "1.0.5",
     "chai": "^4.3.4",
-    "esbuild": "^0.12.25",
+    "esbuild": "^0.12.27",
     "esbuild-register": "^3.0.0",
     "eslint": "^7.29.0",
     "eslint-plugin-fxa": "^2.0.2",
