@@ -92,13 +92,12 @@ export const NewUserEmailForm = ({
           </a>
         </p>
       </Localized>
-      <Localized id="new-user-email" attrs={{ placeholder: true, label: true }}>
+      <Localized id="new-user-email" attrs={{ label: true }}>
         <Input
           type="email"
           name="new-user-email"
           label="Enter your email"
           data-testid="new-user-email"
-          placeholder="foxy@mozilla.com"
           required
           spellCheck={false}
           onValidatePromise={(value: string, focused: boolean) =>
