@@ -1,0 +1,373 @@
+#!/usr/bin/env node
+
+/**
+ * Hello and welcome to the FxA setup script.
+ *
+ * All you should need to do is have Node installed and run `./bootstrap`.
+ * It will walk you through steps, install and update things that are needed to run
+ * FxA, or bail out if it needs you to manually install things. It also shouldn't
+ * cause issues or overwrite things if you've previously set up FxA yourself.
+ *
+ * By default it'll run all setup steps, but you can pass in a list of things
+ * you would like to skip with the `--skip` flag:
+ *  - wsl = don't confirm installation of wsl
+ *  - deps = don't install yarn dependencies
+ *  - paypal = don't prompt to set up PayPal
+ *  - stripe = don't prompt to set up Stripe
+ *  - start = don't automatically start the PM2 servers
+ */
+
+const { exec } = require('child_process');
+const { join } = require('path');
+const { existsSync, writeFileSync } = require('fs');
+const { createInterface } = require('readline');
+const pkg = require('./package.json');
+
+const basePath = __dirname;
+const authConfigPath = 'packages/fxa-auth-server/config/secrets.json';
+const paymentsConfigPath =
+  'packages/fxa-payments-server/server/config/secrets.json';
+
+const dryRunSteps = [];
+
+const readline = createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+const isObject = (item) =>
+  item && typeof item === 'object' && !Array.isArray(item);
+const mergeDeep = (target, source) => {
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} });
+        mergeDeep(target[key], source[key]);
+      } else {
+        Object.assign(target, { [key]: source[key] });
+      }
+    }
+  }
+  return target;
+};
+
+const info = (message) => console.log('\x1b[1m%s\x1b[0m', message);
+const success = (message) => console.log('\x1b[32m%s\x1b[0m', message);
+const alert = (message) => console.log('\x1b[33m%s\x1b[0m', message);
+const error = (message, fatal = false) => {
+  console.log('\x1b[31m%s\x1b[0m', message);
+  if (fatal) {
+    process.exit(1);
+  }
+};
+
+const confirm = (message) => {
+  return new Promise((resolve) => {
+    readline.question(`${message} (Yes or No) `, (answer) => {
+      if (answer === 'Yes') {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    });
+  });
+};
+const input = (message, fallback) => {
+  return new Promise((resolve) => {
+    readline.question(`${message} (Default: ${fallback}) `, (answer) => {
+      resolve(answer.length > 0 ? answer : fallback);
+    });
+  });
+};
+const getArg = (name, fallback) => {
+  const arg = process.argv.find((arg) => arg.startsWith(`--${name}=`));
+  if (!arg) {
+    return fallback;
+  }
+  return arg.split('=')[1];
+};
+const boolArg = (name) => {
+  if (process.argv.find((arg) => arg === `--${name}`)) {
+    return true;
+  }
+  return false;
+};
+const skips = getArg('skip', '').split(',');
+const dryRun = boolArg('dry-run');
+
+const isMacOs = async (callback) =>
+  process.platform === 'darwin' && (await callback());
+const isWindows = async (callback) =>
+  process.platform === 'win32' && (await callback());
+
+const execute = async (command, description) => {
+  if (dryRun) {
+    dryRunSteps.push(description);
+    return Promise.resolve();
+  }
+
+  new Promise((resolve, reject) => {
+    info(`\n${capitalize(description)} started...`);
+
+    const child = exec(command);
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
+
+    child.on('exit', (code) => {
+      if (code === 0) {
+        success(`${capitalize(description)} succeeded`);
+        return resolve();
+      }
+      reject(
+        `Failed to ${description}, try running this command manually:\n => ${command}`
+      );
+    });
+  });
+};
+
+const check = async (name, callback) => {
+  return new Promise((resolve, reject) => {
+    const child = exec(`type -p ${name}`);
+    child.on('exit', async (code) => {
+      if (code !== 0) {
+        try {
+          if (Array.isArray(callback)) {
+            await execute(...callback);
+          } else if (typeof callback === 'function') {
+            await callback();
+          }
+        } catch (err) {
+          reject(err);
+        }
+      }
+      return resolve();
+    });
+  });
+};
+
+const getFileJson = (path, fallback) => {
+  const filePath = join(basePath, path);
+  if (existsSync(filePath)) {
+    const json = require(filePath);
+    return mergeDeep(fallback, json);
+  }
+  return fallback;
+};
+
+const updateFileJson = (path, data) => {
+  info(`Updating config in ${path}`);
+  const filePath = join(basePath, path);
+  writeFileSync(filePath, JSON.stringify(data, null, 2));
+  success('Done!');
+};
+
+const preInstallInfo = `Let's set up Firefox Accounts...
+=================================
+
+This process will attempt to install everything necessary to run FxA.
+It will also add default config values in the following files:
+  - ${authConfigPath}
+  - ${paymentsConfigPath}
+
+Keep an eye out for any input steps.`;
+const postInstallInfo = `Common commands:
+
+yarn start                Start all servers
+yarn stop                 Stop all servers
+yarn pm2 status           Display running server details
+yarn pm2 logs [process]   Display logs for all or specific server
+
+For more commands and details, check out the README.`;
+const wslInstallInfo = `Running FxA on Windows requires Windows Subsystem for Linux (WSL).
+You can install it here: https://docs.microsoft.com/windows/wsl/install-win10`;
+
+const main = async () => {
+  if (!dryRun) {
+    info(preInstallInfo);
+
+    if (!(await confirm('Continue with setup?'))) {
+      process.exit(0);
+    }
+  }
+
+  if (!skips.includes('wsl')) {
+    await isWindows(async () => {
+      if (dryRun) {
+        dryRunSteps.push(
+          'Ask if you have Windows Subsystem for Linux installed'
+        );
+      } else {
+        info(wslInstallInfo);
+        if (await confirm('Do you need to abort to install WSL?')) {
+          process.exit(0);
+        }
+      }
+    });
+  }
+
+  await check('yarn', ['npm install --global yarn', 'install Yarn']);
+
+  await check('docker', () => {
+    if (dryRun) {
+      dryRunSteps.push('Abort because Docker needs to be manually installed');
+    } else {
+      error("Docker doesn't appear to be installed. It can be installed at:");
+      isMacOs(() => info('https://docs.docker.com/desktop/mac/install/'));
+      isWindows(() => info('https://docs.docker.com/desktop/windows/install/'));
+      process.exit(1);
+    }
+  });
+
+  await check('python', () => {
+    if (dryRun) {
+      dryRunSteps.push('Abort because Python needs to be manually installed');
+    } else {
+      error("Python doesn't appear to be installed. It can be installed at:");
+      isMacOs(() => info('https://www.python.org/downloads/macos/'));
+      isWindows(() => info('https://www.python.org/downloads/windows/'));
+      process.exit(1);
+    }
+  });
+
+  await check('rustc', async () => {
+    await isMacOs(() =>
+      execute(
+        "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly --profile default",
+        'install Rust'
+      )
+    );
+    isWindows(() => {
+      if (dryRun) {
+        dryRunSteps.push('Abort because Rust needs to be manually installed');
+      } else {
+        error("Rust doesn't appear to be installed. It can be installed at:");
+        info(
+          'https://forge.rust-lang.org/infra/other-installation-methods.html'
+        );
+        process.exit(1);
+      }
+    });
+  });
+
+  if (!skips.includes('deps')) {
+    await execute('yarn install', 'install dependencies');
+  } else {
+    info('Skipping dependency installation');
+  }
+
+  // TODO - move this above deps (requires removing semver)
+  if (dryRun) {
+    dryRunSteps.push(`Ensure that your Node version is ${pkg.engines.node}`);
+  } else {
+    const semver = require('semver');
+
+    if (!semver.satisfies(process.version, pkg.engines.node)) {
+      error(
+        `FxA requires Node ${pkg.engines.node} but you're running ${process.version}`,
+        true
+      );
+    }
+  }
+
+  const authConfig = getFileJson(authConfigPath, {
+    subscriptions: {
+      stripeApiKey: 'sk_test_123',
+      paypalNvpSigCredentials: {
+        enabled: true,
+        sandbox: false,
+        user: 'business_account_email_ID',
+        pwd: 'business_account_password',
+        signature: 'business_account_signature',
+      },
+    },
+  });
+  const paymentsConfig = getFileJson(paymentsConfigPath, {
+    stripe: {
+      apiKey: 'pk_test_123',
+    },
+    paypal: {
+      clientId: 'sandbox_client_id',
+    },
+  });
+
+  if (!skips.includes('stripe')) {
+    if (dryRun) {
+      dryRunSteps.push('Prompt you for Stripe details');
+    } else if (await confirm('Do you want to set up Stripe?')) {
+      authConfig.subscriptions.stripeApiKey = await input(
+        'Enter your test Stripe Secret Key',
+        authConfig.subscriptions.stripeApiKey
+      );
+      paymentsConfig.stripe.apiKey = await input(
+        'Enter your test Stripe Publishable Key',
+        paymentsConfig.stripe.apiKey
+      );
+    }
+  }
+
+  if (!skips.includes('paypal')) {
+    if (dryRun) {
+      dryRunSteps.push('Prompt you for PayPal details');
+    } else if (await confirm('Do you want to set up PayPal?')) {
+      authConfig.subscriptions.paypalNvpSigCredentials.sandbox =
+        authConfig.subscriptions.paypalNvpSigCredentials.sandbox != null
+          ? authConfig.subscriptions.paypalNvpSigCredentials.sandbox
+          : true;
+      authConfig.subscriptions.paypalNvpSigCredentials.user = await input(
+        'Enter your sandbox PayPal business account username',
+        authConfig.subscriptions.paypalNvpSigCredentials.user
+      );
+      authConfig.subscriptions.paypalNvpSigCredentials.pwd = await input(
+        'Enter your sandbox PayPal business account password',
+        authConfig.subscriptions.paypalNvpSigCredentials.pwd
+      );
+      authConfig.subscriptions.paypalNvpSigCredentials.signature = await input(
+        'Enter your sandbox PayPal business account signature',
+        authConfig.subscriptions.paypalNvpSigCredentials.signature
+      );
+      paymentsConfig.paypal.clientId = await input(
+        'Enter your sandbox PayPal client ID',
+        paymentsConfig.paypal.clientId
+      );
+    }
+  }
+
+  if (dryRun) {
+    dryRunSteps.push(
+      `Update the following config files with defaults or input details:\n  - ${authConfigPath}\n  - ${paymentsConfigPath}`
+    );
+  } else {
+    updateFileJson(authConfigPath, authConfig);
+    updateFileJson(paymentsConfigPath, paymentsConfig);
+  }
+
+  if (!skips.includes('start')) {
+    await execute('yarn start', 'start servers');
+  }
+};
+
+main()
+  .then(() => {
+    if (dryRun) {
+      info("Here's what this script would do on your machine:\n");
+      info(dryRunSteps.map((step) => `- ${capitalize(step)}`).join('\n'));
+    } else {
+      success('\n🎉 FxA setup was successful!');
+      info(`\n${postInstallInfo}`);
+    }
+    process.exit(0);
+  })
+  .catch((err) => {
+    const message = err.message || (typeof err === 'string' ? err : null);
+    if (message) {
+      error(`💥 ${capitalize(message)}`);
+      if (err.stack) {
+        info(err.stack);
+      }
+    } else {
+      throw err || new Error('Something broke, but not sure what.');
+    }
+    process.exit(1);
+  });
