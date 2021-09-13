@@ -6,6 +6,10 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import ejs = require('ejs');
 import mjml2html = require('mjml');
+import { registerComponent } from 'mjml-core';
+import MjLocalize from 'mjml-fluent';
+
+registerComponent(MjLocalize);
 
 type TemplateComponent = 'layouts' | 'templates' | 'partials';
 export type TemplateContext = Record<string, any>;

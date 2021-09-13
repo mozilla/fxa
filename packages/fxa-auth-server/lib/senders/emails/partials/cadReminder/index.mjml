@@ -6,9 +6,9 @@
 
 <mj-section>
   <mj-column>
-    <mj-text css-class="text-header">
-      <span data-l10n-id="<%- template %>-title">Here's your reminder to sync devices.</span>
-    </mj-text>
+    <mj-localize id="<%- template %>-title">
+      <mj-text css-class="text-header">Here's your reminder to sync devices.</mj-text>
+    </mj-localize>
     <mj-image css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
   </mj-column>
 </mj-section>

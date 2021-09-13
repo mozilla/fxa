@@ -23,7 +23,7 @@ const getAllFiles = function (dirPath: string) {
   return arrayOfFiles;
 };
 
-export function loadFtlFiles(dirPath: string) {
+export function loadFtlFiles(dirPath: string): Record<string, string> {
   const ftlMap: Record<string, string> = {};
   const ftlArr = getAllFiles(dirPath);
 
@@ -40,5 +40,6 @@ export function loadFtlFiles(dirPath: string) {
         : (ftlMap[`${indexLocale}`] = '');
     }
   });
+
   return ftlMap;
 }

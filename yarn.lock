@@ -2406,6 +2406,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fluent/sequence@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@fluent/sequence@npm:0.6.0"
+  peerDependencies:
+    "@fluent/bundle": ">= 0.13.0"
+  checksum: 861cedf522e8067d91d12a1b8c2da3cacf440ba9165ff50fa72ae003cf13fa84401e2ef4976d5f280bbaf60c253939092dd852fa4dae02c43c89c53c5fdbe295
+  languageName: node
+  linkType: hard
+
 "@fullhuman/postcss-purgecss@npm:^2.1.2":
   version: 2.2.0
   resolution: "@fullhuman/postcss-purgecss@npm:2.2.0"
@@ -13056,7 +13065,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cached-iterable@npm:^0.3":
+"cached-iterable@npm:^0.3, cached-iterable@npm:^0.3.0":
   version: 0.3.0
   resolution: "cached-iterable@npm:0.3.0"
   checksum: ec486d37c6fd5df38992b785a49de611ccb8e87825e533f91c33e9e02e7061769cd1ac7bb958e828057ff2ecb6b290c9922fb49bfb7c21a04acb0c4f35ca230a
@@ -19592,6 +19601,7 @@ fsevents@~2.1.1:
     mailparser: 0.6.1
     memcached: ^2.2.2
     mjml: ^4.10.2
+    mjml-fluent: ^0.1.0
     mkdirp: 0.5.1
     mocha: ^9.0.3
     mocha-junit-reporter: ^2.0.0
@@ -27951,6 +27961,24 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"mjml-core@npm:4.10.3, mjml-core@npm:^4.10.2":
+  version: 4.10.3
+  resolution: "mjml-core@npm:4.10.3"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    cheerio: 1.0.0-rc.10
+    detect-node: 2.0.4
+    html-minifier: ^4.0.0
+    js-beautify: ^1.6.14
+    juice: ^7.0.0
+    lodash: ^4.17.21
+    mjml-migrate: 4.10.3
+    mjml-parser-xml: 4.10.3
+    mjml-validator: 4.10.3
+  checksum: e874b14234216fd4638110712a7a31f7ccaec3e9e0cae6819c057b766b8626eb9288d826a13cf98d030ac3a1941bef8d8e69a6e14b5b17e9c6ec1c3052902e95
+  languageName: node
+  linkType: hard
+
 "mjml-divider@npm:4.10.2":
   version: 4.10.2
   resolution: "mjml-divider@npm:4.10.2"
@@ -27959,6 +27987,19 @@ fsevents@~2.1.1:
     lodash: ^4.17.21
     mjml-core: 4.10.2
   checksum: e25071549fe5eb4083f81d9e53e67a5885d6583028e4dcc597873fd5f056e8dbc56ada0bacc44886e1e5e7e7cc69538f8d8e87ceb7225c7c9e1671fe18ee4a2b
+  languageName: node
+  linkType: hard
+
+"mjml-fluent@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "mjml-fluent@npm:0.1.0"
+  dependencies:
+    "@fluent/bundle": ^0.16.1
+    "@fluent/sequence": ^0.6.0
+    cached-iterable: ^0.3.0
+    jsdom: ^17.0.0
+    mjml-core: ^4.10.2
+  checksum: 0772ab2dd97d08abd373da426c326d7a4decdd4f299e5d1722d75680f4a077c4ac612911b74a0182380d72410ace6de9cc10fe5caba05663e7416b542c965f96
   languageName: node
   linkType: hard
 
@@ -28099,6 +28140,22 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"mjml-migrate@npm:4.10.3":
+  version: 4.10.3
+  resolution: "mjml-migrate@npm:4.10.3"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    js-beautify: ^1.6.14
+    lodash: ^4.17.21
+    mjml-core: 4.10.3
+    mjml-parser-xml: 4.10.3
+    yargs: ^16.1.0
+  bin:
+    migrate: lib/cli.js
+  checksum: 082920f420b286053a7c0808d2237daa38e48ee8533a3514466c8bd9f7d04242539af48a3328bfa1c96cc46b954a97bccdc3934ce9b62a56893ba83fb0f1519a
+  languageName: node
+  linkType: hard
+
 "mjml-navbar@npm:4.10.2":
   version: 4.10.2
   resolution: "mjml-navbar@npm:4.10.2"
@@ -28119,6 +28176,18 @@ fsevents@~2.1.1:
     htmlparser2: ^4.1.0
     lodash: ^4.17.15
   checksum: e5693385c5ec1d1795aa3335d2942ddc24b8aebad1f0a0855b8aca8bd2aa9aacaeed04a023839036f66351356d589f353f2798d233ec2c9fbf3026a90b38b3e3
+  languageName: node
+  linkType: hard
+
+"mjml-parser-xml@npm:4.10.3":
+  version: 4.10.3
+  resolution: "mjml-parser-xml@npm:4.10.3"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+    detect-node: 2.0.4
+    htmlparser2: ^4.1.0
+    lodash: ^4.17.15
+  checksum: 87219c80a8f00dd9fd02a20d2f9968cf11e52345628f1a4bea10c3bcde8b1cef178e9f6c32b684269163b2d1a7e7d70e0b034286a2ceeb5dd983d2175ce4e658
   languageName: node
   linkType: hard
 
@@ -28228,6 +28297,15 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/runtime": ^7.8.7
   checksum: 6e1ba0b01c17f3e9a9b6ff7856fb2d0030a3d37a4de8defaebd1e8daea938099d1bc0ea4ccccf1c16852220f736ce1e74d644e408265d52da5bf6af7867422bf
+  languageName: node
+  linkType: hard
+
+"mjml-validator@npm:4.10.3":
+  version: 4.10.3
+  resolution: "mjml-validator@npm:4.10.3"
+  dependencies:
+    "@babel/runtime": ^7.14.6
+  checksum: bb47746bab08579bc207b50f234aeba08c268539d9ee136031f67962c74ae0331737dc42e8895948b35b925e18f5c79443eef0d51b204100799df3974634297a
   languageName: node
   linkType: hard
 

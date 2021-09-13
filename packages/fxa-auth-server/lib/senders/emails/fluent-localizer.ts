@@ -10,6 +10,7 @@ import { join } from 'path';
 import { render, TemplateContext } from './renderer';
 import { loadFtlFiles } from './load-ftl-files';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
+import { MjmlLocalization, setLocalizer } from 'mjml-fluent';
 
 const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
 
@@ -29,7 +30,8 @@ const RTL_LOCALES = [
 const baseDir = join(__dirname, '../../../public/locales');
 
 class FluentLocalizer {
-  localeContentMap: Record<any, any>;
+  localeContentMap: Record<string, string>;
+
   constructor() {
     this.localeContentMap = loadFtlFiles(baseDir);
   }
@@ -64,10 +66,10 @@ class FluentLocalizer {
     };
 
     let selectedLocale: string = 'en-US';
-    async function* generateBundles(currentLocales: Array<string>) {
+    function* generateBundles() {
       let bundle = new FluentBundle(currentLocales, { useIsolating: false });
       for (const locale of currentLocales) {
-        let source = await fetchResource(locale);
+        let source = fetchResource(locale);
         if (source !== '' && locale !== 'en-US') {
           selectedLocale = locale;
         }
@@ -77,23 +79,21 @@ class FluentLocalizer {
       yield bundle;
     }
 
-    const l10n = new DOMLocalization(currentLocales, generateBundles);
+    const l10n = new MjmlLocalization(generateBundles());
+    setLocalizer(l10n);
 
     context = { ...context, ...context.templateValues };
-    context.subject = await l10n.formatValue(`${template}-subject`, context);
+    context.subject = l10n.getString(`${template}-subject`, context);
 
     // metadata.mjml needs a localized version of `action`,
     // but only if oneClickLink is present.
     if (context.oneClickLink) {
-      context.action = await l10n.formatValue(`${template}-action`, context);
+      context.action = l10n.getString(`${template}-action`, context);
     }
 
     const { html, text } = render(template, context, layout);
     const { document } = new JSDOM(html).window;
     document.title = context.subject;
-
-    l10n.connectRoot(document.documentElement);
-    await l10n.translateRoots();
 
     const isLocaleRenderedRtl = RTL_LOCALES.includes(selectedLocale);
     if (isLocaleRenderedRtl) {
@@ -114,7 +114,7 @@ class FluentLocalizer {
         ];
         val = val.replace(/"/g, '');
         // get the value from fluent using the extracted key
-        const localizedValue = await l10n.formatValue(key, context);
+        const localizedValue = l10n.getString(key, context);
         plainTextArr[i] = localizedValue ? localizedValue : val;
       }
     }
