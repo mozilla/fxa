@@ -1942,6 +1942,12 @@ const conf = convict({
       env: 'SUPPORT_AUTH_SECRET_BEARER_TOKEN',
       format: 'String',
     },
+    ticketPayloadLimit: {
+      default: 131072,
+      doc: 'The payload limit in bytes, default is 2^17',
+      env: 'SUPPORT_TICKET_PAYLOAD_LIMIT',
+      format: Number,
+    },
   },
 });
 
