@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import path from 'path';
 import ejs = require('ejs');
 import mjml2html = require('mjml');
 import { Logger } from 'mozlog';
@@ -11,7 +11,7 @@ import { Logger } from 'mozlog';
 type TemplateComponent = 'layouts' | 'templates' | 'partials';
 export type TemplateContext = Record<string, any>;
 
-const TEMPLATES_DIR = './lib/senders/emails/';
+const TEMPLATES_DIR = path.resolve(__dirname, '.');
 const mjmlConfig: Parameters<typeof mjml2html>[1] = {
   validationLevel: 'strict',
   filePath: __dirname,
@@ -27,10 +27,10 @@ function getComponentContents(
   name: string,
   type: TemplateComponent
 ): { mjml: string; text: string } {
-  const basePath = join(TEMPLATES_DIR, type, name);
+  const basePath = path.join(TEMPLATES_DIR, type, name);
   return {
-    mjml: readFileSync(join(basePath, 'index.mjml'), 'utf8'),
-    text: readFileSync(join(basePath, 'index.txt'), 'utf8'),
+    mjml: readFileSync(path.join(basePath, 'index.mjml'), 'utf8'),
+    text: readFileSync(path.join(basePath, 'index.txt'), 'utf8'),
   };
 }
 
