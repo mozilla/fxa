@@ -6,6 +6,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import ejs = require('ejs');
 import mjml2html = require('mjml');
+import { Logger } from 'mozlog';
 
 type TemplateComponent = 'layouts' | 'templates' | 'partials';
 export type TemplateContext = Record<string, any>;
@@ -48,26 +49,34 @@ function renderEjs(
 }
 
 export function render(
+  log: Logger,
   templateName: string,
   context: TemplateContext,
   layoutName?: string
 ) {
-  let rendered: { html: string; text: string };
-  context = { ...context, templateName };
+  try {
+    let rendered: { html: string; text: string };
+    context = { ...context, templateName };
 
-  if (layoutName) {
-    const renderedBody = renderEjs(templateName, 'templates', context);
-    const { mjml, text } = renderEjs(
-      layoutName,
-      'layouts',
-      context,
-      renderedBody
-    );
-    rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
-  } else {
-    const { mjml, text } = renderEjs(templateName, 'templates', context);
-    rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
+    if (layoutName) {
+      const renderedBody = renderEjs(templateName, 'templates', context);
+      const { mjml, text } = renderEjs(
+        layoutName,
+        'layouts',
+        context,
+        renderedBody
+      );
+      log.debug('Raw MJML', { mjml });
+      rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
+    } else {
+      const { mjml, text } = renderEjs(templateName, 'templates', context);
+      log.debug('Raw MJML', { mjml });
+      rendered = { html: mjml2html(mjml, mjmlConfig).html, text };
+    }
+
+    return rendered;
+  } catch (error: any) {
+    log.debug('Issue rendering email', { error });
+    throw error;
   }
-
-  return rendered;
 }

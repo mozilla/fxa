@@ -10,6 +10,7 @@ import path from 'path';
 import { render, TemplateContext } from './renderer';
 import { loadFtlFiles } from './load-ftl-files';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
+import { Logger } from 'mozlog';
 
 const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
 
@@ -30,7 +31,8 @@ const baseDir = path.join(__dirname);
 
 class FluentLocalizer {
   localeContentMap: Record<any, any>;
-  constructor() {
+
+  constructor(private log: Logger) {
     this.localeContentMap = loadFtlFiles(baseDir);
   }
 
@@ -41,7 +43,7 @@ class FluentLocalizer {
     acceptLanguage: string
   ) {
     context = { ...context, ...context.templateValues };
-    const { html, text } = render(templateName, context, layoutName);
+    const { html, text } = render(this.log, templateName, context, layoutName);
     const { document } = new JSDOM(html).window;
     const userLocales: Array<string> = [];
 
