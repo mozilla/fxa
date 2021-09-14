@@ -298,7 +298,7 @@ module.exports = function (log, config) {
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
-    this.fluentLocalizer = new FluentLocalizer();
+    this.fluentLocalizer = new FluentLocalizer(log);
   }
 
   Mailer.prototype.stop = function () {

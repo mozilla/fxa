@@ -6,10 +6,12 @@ import http from 'http';
 import stream from 'stream';
 import net from 'net';
 import FluentLocalizer from '../lib/senders/emails/fluent-localizer';
+const config = require('../config');
 
-const fluentLocalizer = new FluentLocalizer();
+const log = require('../lib/log')({ ...config.log });
+const fluentLocalizer = new FluentLocalizer(log);
 
-const baseUrl = require('../config').get('contentServer.url');
+const baseUrl = config.get('contentServer.url');
 
 const { PORT = 8192, HOST = '0.0.0.0' } = process.env;
 
