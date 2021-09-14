@@ -5936,7 +5936,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/react@npm:*, @storybook/react@npm:^6.3.6":
+"@storybook/react@npm:*":
   version: 6.3.6
   resolution: "@storybook/react@npm:6.3.6"
   dependencies:
@@ -5977,6 +5977,50 @@ __metadata:
     start-storybook: bin/index.js
     storybook-server: bin/index.js
   checksum: 19e2e33c84972ed50eb3e041605b6bea3fb2662731b06ea84464f8dfadcfb47cdec41f65ff051471a5b2e956b1dd56a9b5f237428237441cf6c7d13374e9371c
+  languageName: node
+  linkType: hard
+
+"@storybook/react@npm:^6.3.8":
+  version: 6.3.8
+  resolution: "@storybook/react@npm:6.3.8"
+  dependencies:
+    "@babel/preset-flow": ^7.12.1
+    "@babel/preset-react": ^7.12.10
+    "@pmmmwh/react-refresh-webpack-plugin": ^0.4.3
+    "@storybook/addons": 6.3.8
+    "@storybook/core": 6.3.8
+    "@storybook/core-common": 6.3.8
+    "@storybook/node-logger": 6.3.8
+    "@storybook/react-docgen-typescript-plugin": 1.0.2-canary.253f8c1.0
+    "@storybook/semver": ^7.3.2
+    "@types/webpack-env": ^1.16.0
+    babel-plugin-add-react-displayname: ^0.0.5
+    babel-plugin-named-asset-import: ^0.3.1
+    babel-plugin-react-docgen: ^4.2.1
+    core-js: ^3.8.2
+    global: ^4.4.0
+    lodash: ^4.17.20
+    prop-types: ^15.7.2
+    react-dev-utils: ^11.0.3
+    react-refresh: ^0.8.3
+    read-pkg-up: ^7.0.1
+    regenerator-runtime: ^0.13.7
+    ts-dedent: ^2.0.0
+    webpack: 4
+  peerDependencies:
+    "@babel/core": ^7.11.5
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: true
+    typescript:
+      optional: true
+  bin:
+    build-storybook: bin/build.js
+    start-storybook: bin/index.js
+    storybook-server: bin/index.js
+  checksum: b2e4392cdc45cf82975a56aee67f582b0170a09f4861d48c68235eea93439909f794313703defc43418d7aaf104c64d8c2d7a0536eb5d23773337237e86ba5d0
   languageName: node
   linkType: hard
 
@@ -18912,7 +18956,7 @@ fsevents@~2.1.1:
     "@storybook/addon-actions": ^6.3.7
     "@storybook/addon-links": ^6.3.8
     "@storybook/addons": ^6.3.6
-    "@storybook/react": ^6.3.6
+    "@storybook/react": ^6.3.8
     "@tailwindcss/postcss7-compat": ^2.2.14
     "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
@@ -19734,7 +19778,7 @@ fsevents@~2.1.1:
     "@storybook/addon-actions": ^6.3.7
     "@storybook/addon-links": ^6.3.8
     "@storybook/addons": ^6.3.6
-    "@storybook/react": ^6.3.6
+    "@storybook/react": ^6.3.8
     "@stripe/react-stripe-js": ^1.4.1
     "@stripe/stripe-js": ^1.17.1
     "@svgr/webpack": ^5.4.0
@@ -19896,7 +19940,7 @@ fsevents@~2.1.1:
     "@storybook/addon-actions": ^6.3.7
     "@storybook/addon-links": ^6.3.8
     "@storybook/addons": ^6.3.6
-    "@storybook/react": ^6.3.6
+    "@storybook/react": ^6.3.8
     "@svgr/webpack": ^5.5.0
     "@tailwindcss/postcss7-compat": ^2.2.14
     "@testing-library/dom": ^8.2.0
@@ -19961,7 +20005,7 @@ fsevents@~2.1.1:
     "@storybook/addon-actions": ^6.3.7
     "@storybook/addon-links": ^6.3.8
     "@storybook/addons": ^6.3.6
-    "@storybook/react": ^6.3.6
+    "@storybook/react": ^6.3.8
     "@tailwindcss/postcss7-compat": ^2.2.14
     "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
