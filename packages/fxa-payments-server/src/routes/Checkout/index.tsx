@@ -310,7 +310,6 @@ export const Checkout = ({
           <Localized id="new-user-step-1">
             <h2 className="step-header">1. Create a Firefox account</h2>
           </Localized>
-          <hr />
           <NewUserEmailForm
             setValidEmail={setValidEmail}
             signInURL={signInURL}
