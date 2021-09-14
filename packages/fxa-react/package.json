@@ -41,7 +41,7 @@
     "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-links": "^6.3.8",
     "@storybook/addons": "^6.3.6",
-    "@storybook/react": "^6.3.6",
+    "@storybook/react": "^6.3.8",
     "@svgr/webpack": "^5.5.0",
     "@tailwindcss/postcss7-compat": "^2.2.14",
     "@testing-library/dom": "^8.2.0",
