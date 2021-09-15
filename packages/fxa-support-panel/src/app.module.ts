@@ -11,6 +11,8 @@ import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { AppController } from './app/app.controller';
 import Config, { AppConfig } from './config';
 import { RemoteLookupService } from './remote-lookup/remote-lookup.service';
+import { DatabaseModule } from './database/database.module';
+import { DatabaseService } from './database/database.service';
 
 const version = getVersionInfo(__dirname);
 
@@ -20,11 +22,13 @@ const version = getVersionInfo(__dirname);
       load: [(): AppConfig => Config.getProperties()],
       isGlobal: true,
     }),
+    DatabaseModule,
     HealthModule.forRootAsync({
-      imports: [],
-      inject: [],
-      useFactory: async () => ({
+      imports: [DatabaseModule],
+      inject: [DatabaseService],
+      useFactory: async (db: DatabaseService) => ({
         version,
+        extraHealthData: () => db.dbHealthCheck(),
       }),
     }),
     LoggerModule,

@@ -5,20 +5,6 @@
 // Note that these `*.Response` interfaces are purely for access to known
 // response keys and not an attempt to validate the return payloads from
 // fxa-auth-db-mysql.
-export interface AccountResponse {
-  email: string;
-  emailVerified: boolean;
-  locale: string;
-  createdAt: number;
-}
-
-interface Device {
-  name: string;
-  type: string;
-  createdAt: number;
-}
-
-export interface DevicesResponse extends Array<Device> {}
 
 interface Subscription {
   created: string;
@@ -54,7 +40,6 @@ export interface TotpTokenResponse {
 /** SupportController configuration */
 export type SupportConfig = {
   authHeader: string;
-  authdbUrl: string;
   authServer: {
     secretBearerToken: string;
     signinLocationsSearchPath: string;
