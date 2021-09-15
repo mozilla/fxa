@@ -85,7 +85,9 @@ class FluentLocalizer {
     const l10n = new DOMLocalization(currentLocales, generateBundles);
 
     context = { ...context, ...context.templateValues };
-    context.subject = await l10n.formatValue(`${template}-subject`, context);
+    if (template !== '_storybook') {
+      context.subject = await l10n.formatValue(`${template}-subject`, context);
+    }
 
     // metadata.mjml needs a localized version of `action`,
     // but only if oneClickLink is present.
