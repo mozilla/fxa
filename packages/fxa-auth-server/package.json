@@ -57,7 +57,7 @@
     "@type-cacheable/ioredis-adapter": "^5.2.0",
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.0",
-    "ajv": "^8.6.3",
+    "ajv": "^6.12.2",
     "aws-sdk": "^2.987.0",
     "base64url": "3.0.1",
     "buf": "0.1.1",
