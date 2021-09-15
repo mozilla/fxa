@@ -453,7 +453,8 @@
       "postRemoveTwoStepAuthentication",
       "postVerifySecondary",
       "postAddTwoStepAuthentication",
-      "postChangePrimary"
+      "postChangePrimary",
+      "postConsumeRecoveryCode"
     ]
   }
 }
