@@ -7,12 +7,12 @@ import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Emails/postConsumeRecoveryCode',
+  title: 'Emails/postNewRecoveryCodes',
 } as Meta;
 
 const createStory = storyWithProps(
-  'postConsumeRecoveryCode',
-  'Sent when user has used a recovery code',
+  'postNewRecoveryCodes',
+  'Sent when user has created new recovery codes, resetting their existing ones',
   {
     ...MOCK_LOCATION,
     link: 'http://localhost:3030/settings',
@@ -20,4 +20,4 @@ const createStory = storyWithProps(
   }
 );
 
-export const PostConsumeRecoveryCode = createStory();
+export const PostNewRecoveryCodes = createStory();
