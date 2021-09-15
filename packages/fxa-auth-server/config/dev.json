@@ -449,7 +449,8 @@
       "verifyPrimary",
       "passwordResetAccountRecovery",
       "postAddAccountRecovery",
-      "postRemoveAccountRecovery"
+      "postRemoveAccountRecovery",
+      "postRemoveTwoStepAuthentication"
     ]
   }
 }

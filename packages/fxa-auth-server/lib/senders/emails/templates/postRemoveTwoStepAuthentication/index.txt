@@ -1,0 +1,14 @@
+postRemoveTwoStepAuthentication-title = "Two-step authentication disabled"
+
+postRemoveTwoStepAuthentication-description = "You have successfully disabled two-step authentication on your Firefox Account from the following device:"
+
+<%- include('/partials/location/index.txt') %>
+
+postRemoveTwoStepAuthentication-not-required = "Security codes will no longer be required at each sign-in."
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+
+<%- include('/partials/changePassword/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>
