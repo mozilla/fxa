@@ -3,21 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Templates/verify',
+  title: 'Layouts/FxA',
 } as Meta;
 
-const createStory = storyWithProps(
-  'verify',
-  'Received by all who complete FxA registration form.',
-  {
-    ...MOCK_LOCATION,
-    link: 'http://localhost:3030/verify_email',
-    sync: true,
-  }
-);
+const createStory = storyWithProps('_storybook', 'The FxA email base layout.', {
+  sync: false,
+  subject: 'N/A',
+});
 
-export const VerifyEmail = createStory();
+export const NotThroughSyncFlow = createStory(
+  {},
+  'Email not triggered through sync flow'
+);
+export const ThroughSyncFlow = createStory(
+  {
+    sync: true,
+  },
+  'Email triggered through sync flow'
+);
