@@ -455,7 +455,8 @@
       "postAddTwoStepAuthentication",
       "postChangePrimary",
       "postConsumeRecoveryCode",
-      "postNewRecoveryCodes"
+      "postNewRecoveryCodes",
+      "passwordChangeRequired"
     ]
   }
 }

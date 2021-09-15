@@ -82,6 +82,9 @@ $s-10: 40px;
   &-6 {
     margin-bottom: $s-6 !important;
   }
+  &-8 {
+    margin-bottom: $s-8 !important;
+  }
 }
 
 // Global styles
@@ -128,9 +131,17 @@ tr > td:first-child {
   @extend .mt-5;
 }
 
+.lg-bottom-margin div {
+  @extend .mb-8;
+}
+
 .text-sub-body div {
   @extend %text-body-common;
   @extend .mb-3;
+}
+
+.align-left div {
+  text-align: left !important;
 }
 
 .text-footer div {

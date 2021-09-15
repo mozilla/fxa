@@ -920,6 +920,25 @@ const TESTS: [string, any][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['passwordChangeRequiredEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Suspicious activity detected' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordChangeRequired') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordChangeRequired' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChangeRequired }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'change your password as a precaution' },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-change-required', 'privacy')) },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'change your password as a precaution' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-change-required', 'privacy')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 ];
 
 describe('lib/senders/mjml-emails:', () => {
