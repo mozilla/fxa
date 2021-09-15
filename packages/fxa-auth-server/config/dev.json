@@ -451,7 +451,8 @@
       "postAddAccountRecovery",
       "postRemoveAccountRecovery",
       "postRemoveTwoStepAuthentication",
-      "postVerifySecondary"
+      "postVerifySecondary",
+      "postAddTwoStepAuthentication"
     ]
   }
 }
