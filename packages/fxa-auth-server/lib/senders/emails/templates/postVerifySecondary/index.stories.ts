@@ -3,21 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Meta } from '@storybook/html';
-import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Templates/postRemoveAccountRecovery',
+  title: 'Templates/postVerifySecondary',
 } as Meta;
 
 const createStory = storyWithProps(
-  'postRemoveAccountRecovery',
-  'Sent when an account recovery key is removed.',
+  'postVerifySecondary',
+  'Sent to primary email after secondary email is verified.',
   {
-    ...MOCK_LOCATION,
     link: 'http://localhost:3030/settings',
+    secondaryEmail: 'secondary@email.com',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
   }
 );
 
-export const PostRemoveAccountRecovery = createStory();
+export const PostVerifySecondary = createStory();

@@ -450,7 +450,8 @@
       "passwordResetAccountRecovery",
       "postAddAccountRecovery",
       "postRemoveAccountRecovery",
-      "postRemoveTwoStepAuthentication"
+      "postRemoveTwoStepAuthentication",
+      "postVerifySecondary"
     ]
   }
 }
