@@ -1,3 +1,20 @@
+## 1.215.0
+
+### Refactorings
+
+- db: created a new package for all db migrations ([9e7814418](https://github.com/mozilla/fxa/commit/9e7814418))
+
+### Other changes
+
+- deps: bump sharp from 0.29.0 to 0.29.1 ([767cc66e8](https://github.com/mozilla/fxa/commit/767cc66e8))
+- deps: bump aws-sdk from 2.985.0 to 2.987.0 ([addcd4257](https://github.com/mozilla/fxa/commit/addcd4257))
+- deps: bump aws-sdk from 2.983.0 to 2.985.0 ([b2736bcfd](https://github.com/mozilla/fxa/commit/b2736bcfd))
+- deps: bump aws-sdk from 2.982.0 to 2.983.0 ([9db2dc21a](https://github.com/mozilla/fxa/commit/9db2dc21a))
+- deps: bump @hapi/inert from 6.0.3 to 6.0.4 ([dce2989f1](https://github.com/mozilla/fxa/commit/dce2989f1))
+- deps: bump aws-sdk from 2.981.0 to 2.982.0 ([60a512492](https://github.com/mozilla/fxa/commit/60a512492))
+- deps: bump @sentry/node from 6.11.0 to 6.12.0 ([4809fc2cc](https://github.com/mozilla/fxa/commit/4809fc2cc))
+- deps: bump aws-sdk from 2.979.0 to 2.981.0 ([e61ec1daa](https://github.com/mozilla/fxa/commit/e61ec1daa))
+
 ## 1.214.1
 
 No changes.

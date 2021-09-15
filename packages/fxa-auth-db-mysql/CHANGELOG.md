@@ -1,3 +1,13 @@
+## 1.215.0
+
+### Refactorings
+
+- db: created a new package for all db migrations ([9e7814418](https://github.com/mozilla/fxa/commit/9e7814418))
+
+### Other changes
+
+- deps: bump @sentry/node from 6.11.0 to 6.12.0 ([4809fc2cc](https://github.com/mozilla/fxa/commit/4809fc2cc))
+
 ## 1.214.1
 
 No changes.

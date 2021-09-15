@@ -1,3 +1,17 @@
+## 1.215.0
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-actions from 6.3.7 to 6.3.8 ([d03f02906](https://github.com/mozilla/fxa/commit/d03f02906))
+- deps: bump @fluent/bundle from 0.16.1 to 0.17.0 ([1ee852790](https://github.com/mozilla/fxa/commit/1ee852790))
+- deps: bump @fluent/react from 0.13.1 to 0.14.0" ([863f18f8c](https://github.com/mozilla/fxa/commit/863f18f8c))
+- deps-dev: bump @storybook/react from 6.3.6 to 6.3.8 ([008946e6e](https://github.com/mozilla/fxa/commit/008946e6e))
+- deps: bump @fluent/react from 0.13.1 to 0.14.0 ([8c924b644](https://github.com/mozilla/fxa/commit/8c924b644))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.2.10 to 2.2.14 ([e3dc86b4f](https://github.com/mozilla/fxa/commit/e3dc86b4f))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.2.7 to 2.2.10 ([0045fd38d](https://github.com/mozilla/fxa/commit/0045fd38d))
+- deps-dev: bump @storybook/addon-links from 6.3.7 to 6.3.8 ([c4f3d04a0](https://github.com/mozilla/fxa/commit/c4f3d04a0))
+- deps-dev: bump sass from 1.38.2 to 1.39.0 ([4e5d55175](https://github.com/mozilla/fxa/commit/4e5d55175))
+
 ## 1.214.1
 
 No changes.

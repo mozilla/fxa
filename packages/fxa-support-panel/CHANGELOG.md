@@ -1,5 +1,16 @@
 # Change history
 
+## 1.215.0
+
+### Refactorings
+
+- support: convert support panel to direct db access ([5c4192034](https://github.com/mozilla/fxa/commit/5c4192034))
+
+### Other changes
+
+- deps: bump @sentry/integrations from 6.10.0 to 6.12.0 ([edd5b0243](https://github.com/mozilla/fxa/commit/edd5b0243))
+- deps: bump @sentry/node from 6.11.0 to 6.12.0 ([4809fc2cc](https://github.com/mozilla/fxa/commit/4809fc2cc))
+
 ## 1.214.1
 
 No changes.

@@ -1,5 +1,19 @@
 # Change history
 
+## 1.215.0
+
+### Other changes
+
+- deps: bump aws-sdk from 2.985.0 to 2.987.0 ([addcd4257](https://github.com/mozilla/fxa/commit/addcd4257))
+- deps: bump aws-sdk from 2.983.0 to 2.985.0 ([b2736bcfd](https://github.com/mozilla/fxa/commit/b2736bcfd))
+- deps: bump @google-cloud/firestore from 4.15.0 to 4.15.1 ([93124e316](https://github.com/mozilla/fxa/commit/93124e316))
+- deps: bump aws-sdk from 2.982.0 to 2.983.0 ([9db2dc21a](https://github.com/mozilla/fxa/commit/9db2dc21a))
+- deps: bump @sentry/integrations from 6.10.0 to 6.12.0 ([edd5b0243](https://github.com/mozilla/fxa/commit/edd5b0243))
+- deps: bump aws-sdk from 2.981.0 to 2.982.0 ([60a512492](https://github.com/mozilla/fxa/commit/60a512492))
+- deps: bump @sentry/node from 6.11.0 to 6.12.0 ([4809fc2cc](https://github.com/mozilla/fxa/commit/4809fc2cc))
+- deps-dev: bump chance from 1.1.7 to 1.1.8 ([93c025b02](https://github.com/mozilla/fxa/commit/93c025b02))
+- deps: bump aws-sdk from 2.979.0 to 2.981.0 ([e61ec1daa](https://github.com/mozilla/fxa/commit/e61ec1daa))
+
 ## 1.214.1
 
 No changes.
