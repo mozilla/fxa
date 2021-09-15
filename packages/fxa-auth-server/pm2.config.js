@@ -33,6 +33,15 @@ module.exports = {
       time: true,
     },
     {
+      name: 'auth-ftl',
+      script: 'yarn grunt watch-ftl',
+      cwd: __dirname,
+      filter_env: ['npm_'],
+      max_restarts: '1',
+      min_uptime: '2m',
+      time: true,
+    },
+    {
       name: 'inbox',
       script: 'node -r ts-node/register test/mail_helper.js',
       cwd: __dirname,

@@ -6,10 +6,10 @@ import { DOMLocalization } from '@fluent/dom';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { negotiateLanguages } from '@fluent/langneg';
 import { JSDOM } from 'jsdom';
-import path from 'path';
+import { join } from 'path';
 import { render, TemplateContext } from './renderer';
-import { loadFtlFiles } from './load-ftl-files';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
+import { readFileSync } from 'fs';
 
 const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
 
@@ -26,20 +26,25 @@ const RTL_LOCALES = [
   'ug',
 ];
 
-const baseDir = path.join(__dirname);
+const baseDir = join(__dirname, '../../../public/locales');
+
+function fetchMessages(locale: string) {
+  try {
+    return readFileSync(`${baseDir}/${locale}/auth.ftl`, { encoding: 'utf8' });
+  } catch (e) {
+    // We couldn't fetch any strings; just return nothing and fluent will fall
+    // back to the default locale if needed.
+    return '';
+  }
+}
 
 class FluentLocalizer {
-  localeContentMap: Record<any, any>;
-  constructor() {
-    this.localeContentMap = loadFtlFiles(baseDir);
-  }
-
   async localizeEmail(context: TemplateContext) {
     const { acceptLanguage, template, layout } = context;
-    const userLocales: Array<string> = [];
-    const parseLocales = acceptLanguage.split(',');
+    const parsedLocales = acceptLanguage.split(',');
+    const userLocales: string[] = [];
 
-    for (let locale of parseLocales) {
+    for (let locale of parsedLocales) {
       locale = locale.replace(/^\s*/, '').replace(/\s*$/, '');
       const [lang] = locale.split(';');
       userLocales.push(lang);
@@ -53,28 +58,28 @@ class FluentLocalizer {
       }
     );
 
-    const fetchResource = (locale: string) => {
-      const response = this.localeContentMap[locale]
-        ? this.localeContentMap[locale]
-        : '';
-
-      // If we can't fetch any strings; just return nothing and
-      // fluent will fall back to the default locale if needed.
-      return response;
-    };
+    const fetched = currentLocales
+      .filter((l) => !OTHER_EN_LOCALES.includes(l))
+      .reduce<Record<string, string>>(
+        (obj, locale) =>
+          Object.assign(obj, { [locale]: fetchMessages(locale) }),
+        {}
+      );
 
     let selectedLocale: string = 'en-US';
-    async function* generateBundles(currentLocales: Array<string>) {
-      let bundle = new FluentBundle(currentLocales, { useIsolating: false });
+    async function* generateBundles(currentLocales: string[]) {
       for (const locale of currentLocales) {
-        let source = await fetchResource(locale);
-        if (source !== '' && locale !== 'en-US') {
+        const source = fetched[locale];
+        if (source !== '') {
           selectedLocale = locale;
+          const bundle = new FluentBundle(locale, {
+            useIsolating: false,
+          });
+          const resource = new FluentResource(source);
+          bundle.addResource(resource);
+          yield bundle;
         }
-        let resource = new FluentResource(source);
-        bundle.addResource(resource);
       }
-      yield bundle;
     }
 
     const l10n = new DOMLocalization(currentLocales, generateBundles);

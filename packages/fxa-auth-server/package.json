@@ -13,7 +13,7 @@
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
-    "postinstall": "../../_scripts/clone-l10n.sh fxa-auth-server",
+    "postinstall": "grunt merge-ftl && ../../_scripts/clone-l10n.sh fxa-auth-server",
     "start": "scripts/start-local.sh",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
@@ -32,7 +32,8 @@
     "emails-scss": "node -r ts-node/register ./lib/senders/emails/sass-compile-files.ts",
     "start-mjml": "NODE_ENV=dev ts-node ./bin/mjml-server.ts",
     "storybook": "npm run emails-scss && start-storybook -p 6010 --no-version-updates",
-    "storybook-mjml": "nodemon -e scss,ts  --exec \"npm-run-all -p start-mjml storybook\""
+    "storybook-mjml": "nodemon -e scss,ts  --exec \"npm-run-all -p watch-ftl start-mjml storybook\"",
+    "watch-ftl": "yarn grunt watch-ftl"
   },
   "repository": {
     "type": "git",
@@ -158,7 +159,9 @@
     "fxa-shared": "workspace:*",
     "grunt": "^1.4.1",
     "grunt-cli": "^1.4.3",
+    "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-copy": "1.0.0",
+    "grunt-contrib-watch": "^1.1.0",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "^23.0.0",
     "grunt-newer": "1.3.0",

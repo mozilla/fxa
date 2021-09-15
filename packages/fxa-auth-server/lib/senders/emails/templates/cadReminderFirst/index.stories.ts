@@ -19,10 +19,3 @@ const createStory = storyWithProps(
 );
 
 export const CadReminderDefault = createStory();
-
-export const CadReminderArLocale = createStory(
-  {
-    acceptLanguage: 'ar',
-  },
-  'User has Arabic locale'
-);
