@@ -43,7 +43,7 @@
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/register": "^7.15.3",
-    "@fluent/bundle": "^0.16.1",
+    "@fluent/bundle": "^0.17.0",
     "@fluent/langneg": "^0.5.2",
     "@fluent/react": "^0.13.1",
     "@rescripts/cli": "~0.0.16",

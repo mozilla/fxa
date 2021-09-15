@@ -22,7 +22,7 @@
     "test": "jest --env=jsdom-fourteen"
   },
   "dependencies": {
-    "@fluent/bundle": "^0.16.1",
+    "@fluent/bundle": "^0.17.0",
     "@fluent/langneg": "^0.5.2",
     "@fluent/react": "^0.13.1",
     "async-wait-until": "^2.0.7",
