@@ -702,6 +702,40 @@ const TESTS: [string, any][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['postRemoveAccountRecoveryEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Account recovery key removed' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveAccountRecovery') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postRemoveAccountRecovery' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postRemoveAccountRecovery }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')) },
+      { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-recovery-removed', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-recovery-removed', 'support')) },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-recovery-removed', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `please change your password.\n${configUrl('initiatePasswordChangeUrl', 'account-recovery-removed', 'change-password', 'email')}` },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-recovery-removed', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'account-recovery-removed', 'support')}` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 ];
 
 describe('lib/senders/mjml-emails:', () => {

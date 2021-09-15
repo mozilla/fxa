@@ -4,5 +4,3 @@ passwordResetAccountRecovery-description = You have successfully reset your pass
 passwordResetAccountRecovery-action = Create new recovery key
 passwordResetAccountRecovery-regen-required = You will need to generate a new recovery key.
 passwordResetAccountRecovery-create-key = Create new recovery key:
-passwordResetAccountRecovery-email-change = This is an automated email; if you did not authorize this action, then <a data-l10n-name="passwordChangeLink">please change your password</a>.
-  For more information, please visit <a data-l10n-name="supportLink">Mozilla Support</a>.
