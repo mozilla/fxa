@@ -46,7 +46,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@fluent/bundle": "^0.17.0",
-    "@fluent/dom": "^0.7.0",
+    "@fluent/dom": "^0.8.0",
     "@fluent/langneg": "^0.5.2",
     "@google-cloud/firestore": "^4.15.1",
     "@hapi/hapi": "^20.1.5",
