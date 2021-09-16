@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postRemoveSecondary-title">Secondary email removed</span>
+      <span data-l10n-id="postVerifySecondary-title">Secondary email added</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -13,10 +13,10 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="postRemoveSecondary-description" data-l10n-args='<%= JSON.stringify({secondaryEmail}) %>'>You have successfully removed secondary@email as a secondary email from your Firefox Account. Security notifications and sign-in confirmations will no longer be delivered to this address.</span>
+      <span data-l10n-id="postVerifySecondary-description" data-l10n-args='<%= JSON.stringify({secondaryEmail}) %>'>You have successfully verified secondary@email as a secondary email for your Firefox Account. Security notifications and sign-in confirmations will now be delivered to both email addresses.</span>
     </mj-text>
   </mj-column>
 </mj-section>
 
 <%- include('/partials/button/index.mjml') %>
-<%- include('/partials/automatedEmailNoAction/index.mjml') %>
+<%- include('/partials/automatedEmailChangePassword/index.mjml') %>
