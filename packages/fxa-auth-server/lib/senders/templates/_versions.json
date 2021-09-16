@@ -20,7 +20,6 @@
   "passwordChanged": 4,
   "passwordChangeRequired": 1,
   "passwordReset": 4,
-  "passwordResetRequired": 4,
   "postChangePrimary": 4,
   "postRemoveSecondary": 4,
   "postVerify": 5,

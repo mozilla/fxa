@@ -724,27 +724,6 @@ const TESTS = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
-  ['passwordResetRequiredEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Suspicious activity detected' }],
-    ['headers', new Map([
-      ['X-Link', { test: 'equal', expected: configUrl('initiatePasswordResetUrl', 'password-reset-required', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') }],
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetRequired') }],
-      ['X-Template-Name', { test: 'equal', expected: 'passwordResetRequired' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetRequired }],
-    ])],
-    ['html', [
-      { test: 'include', expected: configHref('initiatePasswordResetUrl', 'password-reset-required', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
-      { test: 'include', expected: configHref('passwordManagerInfoUrl', 'password-reset-required', 'password-info') },
-      { test: 'include', expected: configHref('privacyUrl', 'password-reset-required', 'privacy') },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-    ['text', [
-      { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-reset-required', 'reset-password', 'email', 'reset_password_confirm=false', 'email_to_hash_with=') },
-      { test: 'include', expected: `Learn how to see what passwords Firefox is storing for you.\n${configUrl('passwordManagerInfoUrl', 'password-reset-required', 'password-info')}` },
-      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-reset-required', 'privacy')}` },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-  ])],
   ['postAddAccountRecoveryEmail', new Map([
     ['subject', { test: 'equal', expected: 'Account recovery key generated' }],
     ['headers', new Map([

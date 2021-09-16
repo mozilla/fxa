@@ -58,7 +58,6 @@ module.exports = function (log, config) {
     downloadSubscription: 'new-subscription',
     lowRecoveryCodes: 'low-recovery-codes',
     newDeviceLogin: 'new-device-signin',
-    passwordResetRequired: 'password-reset-required',
     passwordChangeRequired: 'password-change-required',
     passwordChanged: 'password-changed-success',
     passwordReset: 'password-reset-success',
@@ -111,7 +110,6 @@ module.exports = function (log, config) {
     passwordChangeRequired: 'password-change',
     passwordReset: 'password-reset',
     passwordResetAccountRecovery: 'create-recovery-key',
-    passwordResetRequired: 'password-reset',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'connect-device',
     postChangePrimary: 'account-email-changed',
@@ -1283,34 +1281,6 @@ module.exports = function (log, config) {
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
-      },
-    });
-  };
-
-  Mailer.prototype.passwordResetRequiredEmail = function (message) {
-    const templateName = 'passwordResetRequired';
-    const subject = gettext('Suspicious activity detected');
-    const links = this._generateLinks(
-      this.initiatePasswordResetUrl,
-      message,
-      {},
-      templateName
-    );
-
-    const headers = {
-      'X-Link': links.resetLink,
-    };
-
-    return this.send({
-      ...message,
-      headers,
-      subject,
-      template: templateName,
-      templateValues: {
-        passwordManagerInfoUrl: links.passwordManagerInfoUrl,
-        privacyUrl: links.privacyUrl,
-        resetLink: links.resetLink,
-        subject,
       },
     });
   };
