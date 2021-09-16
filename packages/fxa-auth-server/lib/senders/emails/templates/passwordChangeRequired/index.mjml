@@ -2,8 +2,6 @@
   # License, v. 2.0. If a copy of the MPL was not distributed with this
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
-<mj-include path="./css/global.css" type="css" css-inline="inline" />
-
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
@@ -26,7 +24,7 @@
       <span data-l10n-id="passwordChangeRequired-different-password"><b>Important:</b> Pick a different password than what you were previously using and make sure that it is different from your email account.</span>
     </mj-text>
 
-    <mj-text css-class="text-body align-left lg-bottom-margin">
+    <mj-text css-class="text-body-lg-bottom-margin align-left">
       <span data-l10n-id="passwordChangeRequired-signoff">
         Best,<br />
         The Firefox Accounts Team

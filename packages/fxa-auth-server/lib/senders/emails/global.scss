@@ -131,7 +131,8 @@ tr > td:first-child {
   @extend .mt-5;
 }
 
-.lg-bottom-margin div {
+.text-body-lg-bottom-margin div {
+  @extend %text-body-common;
   @extend .mb-8;
 }
 

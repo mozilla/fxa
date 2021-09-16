@@ -6,7 +6,7 @@ import { Meta } from '@storybook/html';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Emails/passwordChangeRequired',
+  title: 'Templates/passwordChangeRequired',
 } as Meta;
 
 const createStory = storyWithProps(
