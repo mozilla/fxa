@@ -1,3 +1,9 @@
+## 1.215.1
+
+### Bug fixes
+
+- db: remove patch check from auth-db-mysql ([9572ca983](https://github.com/mozilla/fxa/commit/9572ca983))
+
 ## 1.215.0
 
 ### Refactorings
