@@ -45,7 +45,6 @@ const EMAIL_TYPES = {
   passwordChangeRequired: 'change_password',
   passwordReset: 'reset_password',
   passwordResetAccountRecovery: 'account_recovery',
-  passwordResetRequired: 'reset_password',
   postChangePrimary: 'change_email',
   postRemoveSecondary: 'secondary_email',
   postVerify: 'registration',
