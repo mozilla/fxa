@@ -451,7 +451,12 @@
       "postAddAccountRecovery",
       "postRemoveAccountRecovery",
       "postRemoveTwoStepAuthentication",
-      "postVerifySecondary"
+      "postVerifySecondary",
+      "postAddTwoStepAuthentication",
+      "postChangePrimary",
+      "postConsumeRecoveryCode",
+      "postNewRecoveryCodes",
+      "passwordChangeRequired"
     ]
   }
 }

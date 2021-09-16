@@ -1251,6 +1251,7 @@ module.exports = function (log, config) {
         passwordManagerInfoUrl: links.passwordManagerInfoUrl,
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
+        supportUrl: links.supportUrl,
         subject,
       },
     });
