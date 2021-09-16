@@ -11,8 +11,8 @@ services:
   #   ports:
   #     - "8080:8080"
   browserid-verifier:
-    image: browserid-verifier:build
-    command: node server.js
+    image: fxa-mono:build
+    command: node /fxa/packages/browserid-verifier/server.js
     environment:
       - PORT=5050
       - IP_ADDRESS=0.0.0.0
@@ -20,65 +20,52 @@ services:
     init: true
     ports:
       - "5050:5050"
-  authdb:
-    image: fxa-auth-db-mysql:build
-    entrypoint: /bin/bash -c
-    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/db_patcher.js && node bin/server.js"]
-    environment:
-      - HOST=0.0.0.0
-      - PORT=8000
-      - NODE_ENV=dev
-      - MYSQL_HOST=mysql
-      - MYSQL_SLAVE_HOST=mysql
-    init: true
-    ports:
-      - "8000:8000"
-    depends_on:
-      - mysql
   auth:
-    image: fxa-auth-server:build
+    image: fxa-mono:build
     entrypoint: /bin/bash -c
-    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/key_server.js"]
+    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node /fxa/packages/db-migrations/bin/patcher.mjs && node /fxa/packages/fxa-auth-server/dist/fxa-auth-server/bin/key_server.js"]
     environment:
       - PORT=9000
       - NODE_ENV=dev
       - IP_ADDRESS=0.0.0.0
       - DB=mysql
       - CONFIG_FILES=config/secrets.json
+      - AUTH_MYSQL_HOST=mysql
       - MYSQL_HOST=mysql
       - MEMCACHE_METRICS_CONTEXT_ADDRESS=memcached:11211
-      - HTTPDB_URL=http://authdb:8000
       - EMAIL_SERVICE_HOST=email
       - REDIS_HOST=redis
       - ACCESS_TOKEN_REDIS_HOST=redis
+      - REFRESH_TOKEN_REDIS_HOST=redis
       - SMTP_HOST=maildev
       - SMTP_PORT=25
       - SNS_TOPIC_ENDPOINT=http://goaws:4100
+      - MJML_ENABLED_EMAIL_ADDRESS=.+@mozilla\.com
     init: true
     ports:
       - "9000:9000"
     depends_on:
-      - authdb
       - redis
+      - mysql
   content:
-    image: fxa-content-server:build
-    command: node server/bin/fxa-content-server.js
+    image: fxa-mono:build
+    command: node /fxa/packages/fxa-content-server/server/bin/fxa-content-server.js
     environment:
       - PORT=3030
       - NODE_ENV=production
       - FEATURE_FLAGS_REDIS_HOST=redis
       - STATIC_DIRECTORY=dist
       - PAGE_TEMPLATE_SUBDIRECTORY=dist
-      - CONFIG_FILES=server/config/local.json
+      - CONFIG_FILES=/fxa/packages/fxa-content-server/server/config/production.json
     init: true
     ports:
       - "3030:3030"
     depends_on:
       - redis
   profile:
-    image: fxa-profile-server:build
+    image: fxa-mono:build
     entrypoint: /bin/bash -c
-    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/server.js"]
+    command: ["/fxa/_scripts/check-url.sh auth:9000/__version__ && node /fxa/packages/fxa-profile-server/bin/server.js"]
     environment:
       - HOST=0.0.0.0
       - PORT=1111
@@ -94,12 +81,13 @@ services:
     ports:
       - "1111:1111"
     depends_on:
+      - auth
       - mysql
       - memcached
   profile-worker:
-    image: fxa-profile-server:build
+    image: fxa-mono:build
     entrypoint: /bin/bash -c
-    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/worker.js"]
+    command: ["/fxa/_scripts/check-url.sh auth:9000/__version__ && node /fxa/packages/fxa-profile-server/bin/worker.js"]
     environment:
       - WORKER_HOST=0.0.0.0
       - WORKER_PORT=1113
@@ -113,12 +101,13 @@ services:
     ports:
       - "1113:1113"
     depends_on:
+      - auth
       - mysql
       - memcached
   profile-static:
-    image: fxa-profile-server:build
+    image: fxa-mono:build
     entrypoint: /bin/bash -c
-    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/_static.js"]
+    command: ["/fxa/_scripts/check-url.sh auth:9000/__version__ && node /fxa/packages/fxa-profile-server/bin/_static.js"]
     environment:
       - HOST=0.0.0.0
       # yes, port is intentionally set to 1111
@@ -130,12 +119,34 @@ services:
     ports:
       - "1112:1112"
     depends_on:
+      - auth
       - mysql
       - memcached
+  graphql-api:
+    image: fxa-mono:build
+    entrypoint: /bin/bash -c
+    command: ["/fxa/_scripts/check-url.sh auth:9000/__version__ && node /fxa/packages/fxa-graphql-api/dist/main.js"]
+    environment:
+      - PORT=8290
+      - AUTH_MYSQL_HOST=mysql
+      - PROFILE_MYSQL_HOST=mysql
+      - OAUTH_MYSQL_HOST=mysql
+      - AUTH_SERVER_URL=http://auth:9000/v1
+      - PROFILE_SERVER_URL=http://profile:1111/v1
+      - ACCESS_TOKEN_REDIS_HOST=redis
+      - CUSTOMS_SERVER_URL=none
+      - CORS_ORIGIN=http://localhost:3030
+    depends_on:
+      - auth
+      - profile
+      - mysql
+      - redis
+    ports:
+      - "8290:8290"
   redis:
     image: redis
   mysql:
-    image: mysql/mysql-server:5.6
+    image: mysql/mysql-server:5.7
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_ROOT_HOST=%
@@ -156,11 +167,3 @@ services:
     image: jdlk7/firestore-emulator
     ports:
       - "9090:9090"
-  email:
-    image: mozilla/fxa-email-service
-    environment:
-      - NODE_ENV=dev
-      - FXA_EMAIL_ENV=dev
-      - FXA_EMAIL_LOG_LEVEL=debug
-    ports:
-      - "8001:8001"

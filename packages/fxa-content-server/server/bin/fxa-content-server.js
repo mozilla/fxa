@@ -189,7 +189,7 @@ function makeApp() {
   );
 
   if (config.get('env') === 'development') {
-    app.use(settingsPath, useSettingsProxy);
+    app.use(settingsPath, useSettingsProxy());
   } else {
     app.get(settingsPath + '/*', modifySettingsStatic);
   }

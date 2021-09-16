@@ -8,7 +8,6 @@ const fs = require('fs');
 const Hapi = require('@hapi/hapi');
 const joi = require('@hapi/joi');
 const path = require('path');
-const url = require('url');
 const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
@@ -58,17 +57,7 @@ async function create(log, error, config, routes, db, translator, statsd) {
   const metricsEvents = require('./metrics/events')(log, config);
   const { sharedSecret: SUBSCRIPTIONS_SECRET } = config.subscriptions;
 
-  // Hawk needs to calculate request signatures based on public URL,
-  // not the local URL to which it is bound.
-  const publicURL = url.parse(config.publicUrl);
-  const defaultPorts = {
-    'http:': 80,
-    'https:': 443,
-  };
   const hawkOptions = {
-    host: publicURL.hostname,
-    port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol],
-
     // We're seeing massive clock skew in deployed clients, and it's
     // making auth harder than it needs to be.  This effectively disables
     // the timestamp checks by setting it to a humongous value.

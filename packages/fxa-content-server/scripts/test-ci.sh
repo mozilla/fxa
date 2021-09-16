@@ -26,7 +26,6 @@ mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
 node ./packages/db-migrations/bin/patcher.mjs
 
-export NEW_SETTINGS=false
 yarn workspaces foreach \
     --verbose \
     --topological-dev \

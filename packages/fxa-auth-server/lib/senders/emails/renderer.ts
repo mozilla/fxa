@@ -10,7 +10,6 @@ import mjml2html = require('mjml');
 type TemplateComponent = 'layouts' | 'templates' | 'partials';
 export type TemplateContext = Record<string, any>;
 
-const TEMPLATES_DIR = './lib/senders/emails/';
 const mjmlConfig: Parameters<typeof mjml2html>[1] = {
   validationLevel: 'strict',
   filePath: __dirname,
@@ -26,7 +25,7 @@ function getComponentContents(
   name: string,
   type: TemplateComponent
 ): { mjml: string; text: string } {
-  const basePath = join(TEMPLATES_DIR, type, name);
+  const basePath = join(__dirname, type, name);
   return {
     mjml: readFileSync(join(basePath, 'index.mjml'), 'utf8'),
     text: readFileSync(join(basePath, 'index.txt'), 'utf8'),

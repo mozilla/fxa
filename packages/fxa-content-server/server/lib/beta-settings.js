@@ -104,12 +104,13 @@ function modifyProxyRes(proxyRes, req, res) {
   });
 }
 
-const useSettingsProxy = createProxyMiddleware({
-  target: 'http://localhost:3000',
-  ws: true,
-  selfHandleResponse: true, // ensure res.end is not called early
-  onProxyRes: modifyProxyRes,
-});
+const useSettingsProxy = () =>
+  createProxyMiddleware({
+    target: 'http://localhost:3000',
+    ws: true,
+    selfHandleResponse: true, // ensure res.end is not called early
+    onProxyRes: modifyProxyRes,
+  });
 
 // Modify the static settings page by replacing __SERVER_CONFIG__ with the config object
 const modifySettingsStatic = function (req, res) {
