@@ -2367,12 +2367,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/dom@npm:^0.7.0":
-  version: 0.7.0
-  resolution: "@fluent/dom@npm:0.7.0"
+"@fluent/dom@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "@fluent/dom@npm:0.8.0"
   dependencies:
     cached-iterable: ^0.3
-  checksum: 7f9fbaaef75d435521fbc5d021febd5369b0b423665e1a42e071f8ffcf9ad084253807ae242d2ececb144f1047cfdec9b5ec9d6551149c1c2e2635599e7519d7
+  checksum: 1663c167dcd8a8fea5ddcd1183e2436eece7c65e3a4f5fa5ea6d2accbb7ec0b894127913bf8513254c3723e799e29cd791bf0aceff1ed7ed9d3a7c512567ba47
   languageName: node
   linkType: hard
 
@@ -19025,7 +19025,7 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/core": ^7.15.0
     "@fluent/bundle": ^0.17.0
-    "@fluent/dom": ^0.7.0
+    "@fluent/dom": ^0.8.0
     "@fluent/langneg": ^0.5.2
     "@google-cloud/firestore": ^4.15.1
     "@hapi/hapi": ^20.1.5
