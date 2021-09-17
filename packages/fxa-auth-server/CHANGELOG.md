@@ -1,3 +1,62 @@
+## 1.215.1
+
+No changes.
+
+## 1.215.0
+
+### New features
+
+- auth-server: Allow layout-only email stories ([2733da416](https://github.com/mozilla/fxa/commit/2733da416))
+- auth: convert postAddAccountRecovery email to new mjml stack ([7e898a9c8](https://github.com/mozilla/fxa/commit/7e898a9c8))
+- auth: convert passwordResetAccountRecovery email to new mjml stack ([a10d266c0](https://github.com/mozilla/fxa/commit/a10d266c0))
+- auth-server: Convert verifyPrimary, verifyLogin, and verifyShortCode templates to new mjml stack ([2ac4dc858](https://github.com/mozilla/fxa/commit/2ac4dc858))
+- subscriptions: accept Guardian submitted support tickets ([8bafe1969](https://github.com/mozilla/fxa/commit/8bafe1969))
+- auth-server: convert unblockCode template to new mjml stack ([0b99b3432](https://github.com/mozilla/fxa/commit/0b99b3432))
+- auth-server: convert passwordChanged template to new mjml stack ([2428ab507](https://github.com/mozilla/fxa/commit/2428ab507))
+- auth-server: convert verifySecondary template to new mjml stack ([e6b3e2539](https://github.com/mozilla/fxa/commit/e6b3e2539))
+- auth-server: refactor email storybook, renderer, and localizer to be more dry ([be1311084](https://github.com/mozilla/fxa/commit/be1311084))
+- auth-server: convert newDeviceLogin template to new stack ([72333800a](https://github.com/mozilla/fxa/commit/72333800a))
+- auth-server: convert passwordReset email template to new stack ([547332b53](https://github.com/mozilla/fxa/commit/547332b53))
+- auth-server: strip excessive line breaks in plaintext emails ([7a16741d8](https://github.com/mozilla/fxa/commit/7a16741d8))
+- auth-server: convert verifySecondaryCode template to new stack ([73ed9641c](https://github.com/mozilla/fxa/commit/73ed9641c))
+- auth-server: convert verifyShortCode template to new stack ([0dec6d2ef](https://github.com/mozilla/fxa/commit/0dec6d2ef))
+
+### Bug fixes
+
+- auth: make email footer spacing a little more consistent ([889e554fc](https://github.com/mozilla/fxa/commit/889e554fc))
+- subscriptions: ignore email complaint errors on webhooks ([f7d89b2a0](https://github.com/mozilla/fxa/commit/f7d89b2a0))
+- subscriptions: fix product fetching for up/downgrade email ([f67f85ae0](https://github.com/mozilla/fxa/commit/f67f85ae0))
+
+### Refactorings
+
+- auth: rewire how emails load in the main ftl file ([b0d0af958](https://github.com/mozilla/fxa/commit/b0d0af958))
+- auth: remove license header from new email FTL files ([dd41496d1](https://github.com/mozilla/fxa/commit/dd41496d1))
+- db: created a new package for all db migrations ([9e7814418](https://github.com/mozilla/fxa/commit/9e7814418))
+
+### Other changes
+
+- deps-dev: bump esbuild from 0.12.27 to 0.12.28 ([1954e0865](https://github.com/mozilla/fxa/commit/1954e0865))
+- deps: bump @fluent/bundle from 0.16.1 to 0.17.0 ([1ee852790](https://github.com/mozilla/fxa/commit/1ee852790))
+- auth: remove extraneous ar locale and storybook preview ([902bdebce](https://github.com/mozilla/fxa/commit/902bdebce))
+- auth: set up auth server to generate dist FTL file, clone/import existing FTL locales ([f17a4fa12](https://github.com/mozilla/fxa/commit/f17a4fa12))
+- deps-dev: bump @storybook/addon-controls from 6.3.7 to 6.3.8 ([1d05766bf](https://github.com/mozilla/fxa/commit/1d05766bf))
+- deps-dev: bump esbuild from 0.12.25 to 0.12.27 ([0e488854a](https://github.com/mozilla/fxa/commit/0e488854a))
+- deps: bump aws-sdk from 2.985.0 to 2.987.0 ([addcd4257](https://github.com/mozilla/fxa/commit/addcd4257))
+- subscriptions: increase support ticket payload limit ([97f23d289](https://github.com/mozilla/fxa/commit/97f23d289))
+- subscriptions: add two more support ticket fields ([28e151e01](https://github.com/mozilla/fxa/commit/28e151e01))
+- deps-dev: bump @storybook/html from 6.3.7 to 6.3.8 ([88a74dae8](https://github.com/mozilla/fxa/commit/88a74dae8))
+- deps: bump aws-sdk from 2.983.0 to 2.985.0 ([b2736bcfd](https://github.com/mozilla/fxa/commit/b2736bcfd))
+- deps-dev: bump @storybook/addon-docs from 6.3.6 to 6.3.8 ([8aa919fbe](https://github.com/mozilla/fxa/commit/8aa919fbe))
+- deps: bump stripe from 8.170.0 to 8.174.0 ([4ded5554e](https://github.com/mozilla/fxa/commit/4ded5554e))
+- deps-dev: bump @storybook/addon-toolbars from 6.3.7 to 6.3.8 ([dad54665d](https://github.com/mozilla/fxa/commit/dad54665d))
+- deps: bump @google-cloud/firestore from 4.15.0 to 4.15.1 ([93124e316](https://github.com/mozilla/fxa/commit/93124e316))
+- deps: bump aws-sdk from 2.982.0 to 2.983.0 ([9db2dc21a](https://github.com/mozilla/fxa/commit/9db2dc21a))
+- deps-dev: bump esbuild from 0.12.24 to 0.12.25 ([41b8f5aba](https://github.com/mozilla/fxa/commit/41b8f5aba))
+- deps: bump aws-sdk from 2.981.0 to 2.982.0 ([60a512492](https://github.com/mozilla/fxa/commit/60a512492))
+- deps: bump @sentry/node from 6.11.0 to 6.12.0 ([4809fc2cc](https://github.com/mozilla/fxa/commit/4809fc2cc))
+- deps-dev: bump sass from 1.38.2 to 1.39.0 ([4e5d55175](https://github.com/mozilla/fxa/commit/4e5d55175))
+- deps: bump aws-sdk from 2.979.0 to 2.981.0 ([e61ec1daa](https://github.com/mozilla/fxa/commit/e61ec1daa))
+
 ## 1.214.1
 
 No changes.

@@ -1,3 +1,21 @@
+## 1.215.1
+
+No changes.
+
+## 1.215.0
+
+### Refactorings
+
+- db: created a new package for all db migrations ([9e7814418](https://github.com/mozilla/fxa/commit/9e7814418))
+
+### Other changes
+
+- deps-dev: bump firefox-profile from 4.2.0 to 4.2.1 ([b3284a532](https://github.com/mozilla/fxa/commit/b3284a532))
+- deps-dev: bump htmlparser2 from 7.1.1 to 7.1.2 ([f061cd395](https://github.com/mozilla/fxa/commit/f061cd395))
+- deps: bump autoprefixer from 10.3.1 to 10.3.4 ([c89113131](https://github.com/mozilla/fxa/commit/c89113131))
+- deps-dev: bump @babel/cli from 7.14.8 to 7.15.4 ([c71b18f51](https://github.com/mozilla/fxa/commit/c71b18f51))
+- deps: bump @sentry/node from 6.11.0 to 6.12.0 ([4809fc2cc](https://github.com/mozilla/fxa/commit/4809fc2cc))
+
 ## 1.214.1
 
 No changes.

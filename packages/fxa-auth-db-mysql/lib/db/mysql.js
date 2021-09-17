@@ -10,7 +10,6 @@ const ip = require('ip');
 const mysql = require('mysql');
 const P = require('../promise');
 
-const patch = require('./patch');
 const dbUtil = require('./util');
 const config = require('../../config');
 
@@ -144,38 +143,7 @@ module.exports = function (log, error) {
 
   // this will be called from outside this file
   MySql.connect = function (options) {
-    return P.resolve().then(() => {
-      // check that the database patch level is what we expect (or one above)
-      var mysql = new MySql(options);
-
-      // Select : dbMetadata
-      // Fields : value
-      // Where  : name = $1
-      var DB_METADATA = 'CALL dbMetadata_1(?)';
-
-      // Note: `fxa-support-panel` has grants to allow execute for this
-      // specific stored procedure name. If this procedure name changes in the
-      // future, you must note this change in the deployment notes so the new
-      // versioned name is granted the execute privilege, or
-      // `fxa-support-panel` will break.
-
-      return mysql
-        .readFirstResult(DB_METADATA, [options.patchKey])
-        .then(function (result) {
-          mysql.patchLevel = +result.value;
-
-          log.info('connect', {
-            patchLevel: mysql.patchLevel,
-            patchLevelRequired: patch.level,
-          });
-
-          if (mysql.patchLevel >= patch.level) {
-            return mysql;
-          }
-
-          throw new Error('dbIncorrectPatchLevel');
-        });
-    });
+    return P.resolve(new MySql(options));
   };
 
   MySql.prototype.close = function () {
@@ -930,11 +898,13 @@ module.exports = function (log, error) {
   MySql.prototype.createUnblockCode = function (uid, code) {
     // hash the code since it's like a password
     code = dbUtil.createHash(uid, code);
-    return this.write(CREATE_UNBLOCK_CODE, [uid, code, Date.now()], function (
-      result
-    ) {
-      return {};
-    });
+    return this.write(
+      CREATE_UNBLOCK_CODE,
+      [uid, code, Date.now()],
+      function (result) {
+        return {};
+      }
+    );
   };
 
   var CONSUME_UNBLOCK_CODE = 'CALL consumeUnblockCode_3(?, ?)';

@@ -1,3 +1,16 @@
+## 1.215.1
+
+No changes.
+
+## 1.215.0
+
+### Other changes
+
+- deps: bump knex from 0.95.10 to 0.95.11 ([ee58efbbc](https://github.com/mozilla/fxa/commit/ee58efbbc))
+- deps: bump @sentry/integrations from 6.10.0 to 6.12.0 ([edd5b0243](https://github.com/mozilla/fxa/commit/edd5b0243))
+- deps: bump @sentry/node from 6.11.0 to 6.12.0 ([4809fc2cc](https://github.com/mozilla/fxa/commit/4809fc2cc))
+- deps-dev: bump chance from 1.1.7 to 1.1.8 ([93c025b02](https://github.com/mozilla/fxa/commit/93c025b02))
+
 ## 1.214.1
 
 No changes.

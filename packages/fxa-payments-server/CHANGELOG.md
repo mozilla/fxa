@@ -1,5 +1,29 @@
 # Change history
 
+## 1.215.1
+
+No changes.
+
+## 1.215.0
+
+### Bug fixes
+
+- subscriptions: capitalize "required" on checkout page ([4b1205fbf](https://github.com/mozilla/fxa/commit/4b1205fbf))
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-actions from 6.3.7 to 6.3.8 ([d03f02906](https://github.com/mozilla/fxa/commit/d03f02906))
+- deps: bump @fluent/bundle from 0.16.1 to 0.17.0 ([1ee852790](https://github.com/mozilla/fxa/commit/1ee852790))
+- deps: bump @fluent/react from 0.13.1 to 0.14.0" ([863f18f8c](https://github.com/mozilla/fxa/commit/863f18f8c))
+- deps-dev: bump @storybook/react from 6.3.6 to 6.3.8 ([008946e6e](https://github.com/mozilla/fxa/commit/008946e6e))
+- deps: bump @fluent/react from 0.13.1 to 0.14.0 ([8c924b644](https://github.com/mozilla/fxa/commit/8c924b644))
+- subscriptions: move the "already have an acct" message ([f2617d742](https://github.com/mozilla/fxa/commit/f2617d742))
+- subscriptions: remove email input placeholder text ([65fbda317](https://github.com/mozilla/fxa/commit/65fbda317))
+- deps: bump react-redux from 7.2.4 to 7.2.5 ([b376efd93](https://github.com/mozilla/fxa/commit/b376efd93))
+- deps-dev: bump @storybook/addon-links from 6.3.7 to 6.3.8 ([c4f3d04a0](https://github.com/mozilla/fxa/commit/c4f3d04a0))
+- deps: bump react-router-dom from 5.2.0 to 5.3.0 ([f52f03823](https://github.com/mozilla/fxa/commit/f52f03823))
+- deps: bump @sentry/node from 6.11.0 to 6.12.0 ([4809fc2cc](https://github.com/mozilla/fxa/commit/4809fc2cc))
+
 ## 1.214.1
 
 ### Bug fixes
