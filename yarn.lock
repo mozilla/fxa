@@ -18945,7 +18945,7 @@ fsevents@~2.1.1:
     knex: ^0.95.11
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    objection: ^2.2.15
+    objection: ^2.2.16
     pm2: ^5.1.0
     prettier: ^2.3.1
     proxyquire: ^2.1.3
@@ -19574,7 +19574,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.1.3
-    objection: ^2.2.15
+    objection: ^2.2.16
     passport: ^0.4.1
     passport-http-bearer: ^1.0.1
     pm2: ^5.1.0
@@ -20016,7 +20016,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     nyc: ^15.1.0
-    objection: ^2.2.15
+    objection: ^2.2.16
     pm2: ^5.1.0
     prettier: ^2.3.1
     proxyquire: ^2.1.3
@@ -29226,15 +29226,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"objection@npm:^2.2.15":
-  version: 2.2.15
-  resolution: "objection@npm:2.2.15"
+"objection@npm:^2.2.16":
+  version: 2.2.16
+  resolution: "objection@npm:2.2.16"
   dependencies:
     ajv: ^6.12.6
     db-errors: ^0.2.3
   peerDependencies:
     knex: <0.95.0
-  checksum: ce22dbcc9fcb3463bfda3edc9c9328dae71ae0c35460463c3ea809d6bf6dbf9465b699a2ff0993ee7c3993a871cf18ccb664c8273b89a2a11ac22ec317b15912
+  checksum: 5b56f6e3fb2ed39a5088982e62438b73e898dc94eb85653e6b1dfde4eb4e297df68ef12de18123bc15fef1df853ee89867c5b23eaca3d60df4a90452ffec8b4a
   languageName: node
   linkType: hard
 
