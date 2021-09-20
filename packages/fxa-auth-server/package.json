@@ -47,7 +47,7 @@
   "dependencies": {
     "@fluent/bundle": "^0.17.0",
     "@fluent/dom": "^0.7.0",
-    "@fluent/langneg": "^0.5.2",
+    "@fluent/langneg": "^0.6.0",
     "@google-cloud/firestore": "^4.15.1",
     "@hapi/hapi": "^20.1.5",
     "@hapi/hawk": "^8.0.0",
