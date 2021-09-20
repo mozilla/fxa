@@ -5,14 +5,21 @@
 'use strict';
 
 const sinon = require('sinon');
-const assert = require('chai').assert;
+const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
 
 const { mockLog } = require('../../mocks');
 const { AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PlayBilling } = require('../../../lib/payments/google-play');
+
+const subscriptionCreated =
+  require('./fixtures/stripe/subscription_created.json').data.object;
+
 const { ProfileClient } = require('../../../lib/types');
+const {
+  SubscriptionPurchase,
+} = require('../../../lib/payments/google-play/subscription-purchase');
 const proxyquire = require('proxyquire').noPreserveCache();
 
 const mockAuthEvents = {};
@@ -23,8 +30,31 @@ const { CapabilityService } = proxyquire('../../../lib/payments/capability', {
   },
 });
 
+const VALID_SUB_API_RESPONSE = {
+  kind: 'androidpublisher#subscriptionPurchase',
+  startTimeMillis: `${Date.now() - 10000}`, // some time in the past
+  expiryTimeMillis: `${Date.now() + 10000}`, // some time in the future
+  autoRenewing: true,
+  priceCurrencyCode: 'JPY',
+  priceAmountMicros: '99000000',
+  countryCode: 'JP',
+  developerPayload: '',
+  paymentState: 1,
+  orderId: 'GPA.3313-5503-3858-32549',
+};
+
 const UID = 'uid8675309';
 const EMAIL = 'user@example.com';
+
+/**
+ * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
+ * a deep copy of the object can be created which uses the test object as a template
+ *
+ * @param {Object} object
+ */
+function deepCopy(object) {
+  return JSON.parse(JSON.stringify(object));
+}
 
 describe('CapabilityService', () => {
   let mockStripeHelper;
@@ -85,6 +115,132 @@ describe('CapabilityService', () => {
     Container.set(PlayBilling, mockPlayBilling);
     Container.set(ProfileClient, mockProfileClient);
     capabilityService = new CapabilityService();
+  });
+
+  describe('stripeUpdate', () => {
+    beforeEach(() => {
+      mockStripeHelper.getCustomerUidEmailFromSubscription =
+        sinon.fake.resolves({
+          uid: UID,
+          email: EMAIL,
+        });
+      capabilityService.subscribedProductIds = sinon.fake.resolves([
+        'prod_FUUNYnlDso7FeB',
+      ]);
+      capabilityService.processProductIdDiff = sinon.fake.resolves();
+    });
+
+    it('handles a stripe product update with new products', async () => {
+      const sub = deepCopy(subscriptionCreated);
+      await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
+      assert.notCalled(mockStripeHelper.getCustomerUidEmailFromSubscription);
+      assert.calledWith(mockProfileClient.deleteCache, UID);
+      assert.calledWith(capabilityService.subscribedProductIds, {
+        uid: UID,
+        email: EMAIL,
+        forceRefresh: true,
+      });
+      assert.calledWith(capabilityService.processProductIdDiff, {
+        uid: UID,
+        priorProductIds: [],
+        currentProductIds: ['prod_FUUNYnlDso7FeB'],
+      });
+    });
+
+    it('handles a stripe product update with removed products', async () => {
+      const sub = deepCopy(subscriptionCreated);
+      capabilityService.subscribedProductIds = sinon.fake.resolves([]);
+      await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
+      assert.notCalled(mockStripeHelper.getCustomerUidEmailFromSubscription);
+      assert.calledWith(mockProfileClient.deleteCache, UID);
+      assert.calledWith(capabilityService.subscribedProductIds, {
+        uid: UID,
+        email: EMAIL,
+        forceRefresh: true,
+      });
+      assert.calledWith(capabilityService.processProductIdDiff, {
+        uid: UID,
+        priorProductIds: ['prod_FUUNYnlDso7FeB'],
+        currentProductIds: [],
+      });
+    });
+
+    it('handles a stripe product update without uid/email', async () => {
+      const sub = deepCopy(subscriptionCreated);
+      await capabilityService.stripeUpdate({ sub });
+      assert.calledWith(
+        mockStripeHelper.getCustomerUidEmailFromSubscription,
+        sub
+      );
+      assert.calledWith(mockProfileClient.deleteCache, UID);
+      assert.calledWith(capabilityService.subscribedProductIds, {
+        uid: UID,
+        email: EMAIL,
+        forceRefresh: true,
+      });
+      assert.calledWith(capabilityService.processProductIdDiff, {
+        uid: UID,
+        priorProductIds: [],
+        currentProductIds: ['prod_FUUNYnlDso7FeB'],
+      });
+    });
+  });
+
+  describe('playUpdate', () => {
+    let subscriptionPurchase;
+
+    beforeEach(() => {
+      mockStripeHelper.getCustomerUidEmailFromSubscription =
+        sinon.fake.resolves({
+          uid: UID,
+          email: EMAIL,
+        });
+      capabilityService.subscribedProductIds = sinon.fake.resolves([
+        'prod_FUUNYnlDso7FeB',
+      ]);
+      capabilityService.processProductIdDiff = sinon.fake.resolves();
+      subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
+        VALID_SUB_API_RESPONSE,
+        'testPackage',
+        'testToken',
+        'testSku',
+        Date.now()
+      );
+      mockStripeHelper.purchasesToProductIds = sinon.fake.resolves([
+        'prod_FUUNYnlDso7FeB',
+      ]);
+    });
+
+    it('handles a play purchase with new product', async () => {
+      await capabilityService.playUpdate(UID, EMAIL, subscriptionPurchase);
+      assert.calledWith(mockProfileClient.deleteCache, UID);
+      assert.calledWith(capabilityService.subscribedProductIds, {
+        uid: UID,
+        email: EMAIL,
+        forceRefresh: true,
+      });
+      assert.calledWith(capabilityService.processProductIdDiff, {
+        uid: UID,
+        priorProductIds: [],
+        currentProductIds: ['prod_FUUNYnlDso7FeB'],
+      });
+    });
+
+    it('handles a play purchase with a removed product', async () => {
+      capabilityService.subscribedProductIds = sinon.fake.resolves([]);
+      await capabilityService.playUpdate(UID, EMAIL, subscriptionPurchase);
+      assert.calledWith(mockProfileClient.deleteCache, UID);
+      assert.calledWith(capabilityService.subscribedProductIds, {
+        uid: UID,
+        email: EMAIL,
+        forceRefresh: true,
+      });
+      assert.calledWith(capabilityService.processProductIdDiff, {
+        uid: UID,
+        priorProductIds: ['prod_FUUNYnlDso7FeB'],
+        currentProductIds: [],
+      });
+    });
   });
 
   describe('broadcastCapabilitiesAdded', () => {
