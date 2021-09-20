@@ -641,6 +641,35 @@ const TESTS: [string, any][] = [
     ]],
   ])],
 
+  ['recoveryEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Reset your password' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('recovery') }],
+      ['X-Template-Name', { test: 'equal', expected: 'recovery' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.recovery }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'forgot-password', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'forgot-password', 'support')) },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'forgot-password', 'privacy')}` },
+      { test: 'include', expected: `For more information, please visit ${configUrl('supportUrl', 'forgot-password', 'support')}` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'include', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
   ['passwordResetAccountRecoveryEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Password updated using recovery key' }],
     ['headers', new Map([

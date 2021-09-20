@@ -456,7 +456,8 @@
       "postChangePrimary",
       "postConsumeRecoveryCode",
       "postNewRecoveryCodes",
-      "passwordChangeRequired"
+      "passwordChangeRequired",
+      "recovery"
     ]
   }
 }
