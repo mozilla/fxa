@@ -8293,6 +8293,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/uuid@npm:^8.3.1":
+  version: 8.3.1
+  resolution: "@types/uuid@npm:8.3.1"
+  checksum: b41bdc5e86c6f0f1899306be10455636da0f2168c9489b869edd6837ddeb7c0e501b1ff7d857402462986bada2a379125743dd895fa801d03437cd632116a373
+  languageName: node
+  linkType: hard
+
 "@types/validator@npm:^13.1.3":
   version: 13.1.3
   resolution: "@types/validator@npm:13.1.3"
@@ -19996,6 +20003,7 @@ fsevents@~2.1.1:
     "@types/proxyquire": ^1.3.28
     "@types/sinon": 10.0.1
     "@types/superagent": ^4.1.11
+    "@types/uuid": ^8.3.1
     accept-language: ^2.0.17
     ajv: ^6.12.2
     apollo-server: ^2.25.2
