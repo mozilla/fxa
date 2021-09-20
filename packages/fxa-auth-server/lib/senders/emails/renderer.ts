@@ -10,7 +10,7 @@ import mjml2html = require('mjml');
 type TemplateComponent = 'layouts' | 'templates' | 'partials';
 export type TemplateContext = Record<string, any>;
 
-const TEMPLATES_DIR = './lib/senders/emails/';
+const TEMPLATES_DIR = __dirname;
 const mjmlConfig: Parameters<typeof mjml2html>[1] = {
   validationLevel: 'strict',
   filePath: __dirname,
