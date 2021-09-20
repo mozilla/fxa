@@ -13716,7 +13716,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^6.0.0, commander@npm:^6.2.1":
+"commander@npm:^6.0.0, commander@npm:^6.1.0, commander@npm:^6.2.1":
   version: 6.2.1
   resolution: "commander@npm:6.2.1"
   checksum: d7090410c0de6bc5c67d3ca41c41760d6d268f3c799e530aafb73b7437d1826bbf0d2a3edac33f8b57cc9887b4a986dce307fa5557e109be40eadb7c43b21742
@@ -19137,6 +19137,7 @@ fsevents@~2.1.1:
     jsdom: ^17.0.0
     jsonwebtoken: ^8.5.1
     jsxgettext-recursive-next: 1.1.0
+    juice: ^8.0.0
     jwks-rsa: ^2.0.4
     jws: 4.0.0
     keypair: 1.0.3
@@ -19150,6 +19151,7 @@ fsevents@~2.1.1:
     mailparser: 0.6.1
     memcached: ^2.2.2
     mjml: ^4.10.2
+    mjml-browser: ^4.10.3
     mkdirp: 0.5.1
     mocha: ^9.0.3
     mocha-junit-reporter: ^2.0.0
@@ -25462,6 +25464,21 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"juice@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "juice@npm:8.0.0"
+  dependencies:
+    cheerio: ^1.0.0-rc.3
+    commander: ^6.1.0
+    mensch: ^0.3.4
+    slick: ^1.12.2
+    web-resource-inliner: ^5.0.0
+  bin:
+    juice: bin/juice
+  checksum: 1b2b249bcb5aa14f1884921f2dd44d6e2415b0c76352e60daa9825c3ea410dd0c08e0740f636ea6146504b5dcd07067b0ac8d1dd400b9ad3d207966a000f51ca
+  languageName: node
+  linkType: hard
+
 "junk@npm:^3.1.0":
   version: 3.1.0
   resolution: "junk@npm:3.1.0"
@@ -27423,6 +27440,13 @@ fsevents@~2.1.1:
     lodash: ^4.17.21
     mjml-core: 4.10.2
   checksum: 62afdde6c52a68e8a65683d0d957df936775129c5a0d67acdfa7d09467cc9c39e551e02c60a2c821f93ca54ce0a705a7005d778ce88347c5a9da3f5a07196329
+  languageName: node
+  linkType: hard
+
+"mjml-browser@npm:^4.10.3":
+  version: 4.10.3
+  resolution: "mjml-browser@npm:4.10.3"
+  checksum: c41783a0bcf17974fa61be1f50dda972c360e493dc52aa18e3326107ec39e40a532b9984f57fc62f30cbe346d189605e915add6abf8abcf19d0ad005267911d9
   languageName: node
   linkType: hard
 

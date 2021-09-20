@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Story } from '@storybook/html';
+import { render } from 'mjml-browser';
 
 interface StorybookEmailArgs {
   template: string;
@@ -76,21 +77,22 @@ async function renderUsingMJML({
   apiUrl?: string;
   variables: Record<string, any>;
 }): Promise<Record<any, string>> {
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    body: JSON.stringify({
-      template,
-      layout,
-      acceptLanguage,
-      ...variables,
-    }),
-  });
-  const result = await response.text();
-  const { html, subject, text } = await JSON.parse(result);
-  if (response.status !== 200) {
-    throw new Error(result);
-  }
-  return { html, subject, text };
+  // const response = await fetch(apiUrl, {
+  //   method: 'POST',
+  //   body: JSON.stringify({
+  //     template,
+  //     layout,
+  //     acceptLanguage,
+  //     ...variables,
+  //   }),
+  // });
+  // const result = await response.text();
+  // const { html, subject, text } = await JSON.parse(result);
+  // if (response.status !== 200) {
+  //   throw new Error(result);
+  // }
+  const { html, text } = render(template, variables, layout);
+  return { html, text };
 }
 
 const Template: Story<StorybookEmailArgs> = (args, context) =>
