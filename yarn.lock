@@ -218,11 +218,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/cli@npm:^7.15.4":
-  version: 7.15.4
-  resolution: "@babel/cli@npm:7.15.4"
+"@babel/cli@npm:^7.15.7":
+  version: 7.15.7
+  resolution: "@babel/cli@npm:7.15.7"
   dependencies:
-    "@nicolo-ribaudo/chokidar-2": 2.1.8-no-fsevents.2
+    "@nicolo-ribaudo/chokidar-2": 2.1.8-no-fsevents.3
     chokidar: ^3.4.0
     commander: ^4.0.1
     convert-source-map: ^1.1.0
@@ -241,7 +241,7 @@ __metadata:
   bin:
     babel: ./bin/babel.js
     babel-external-helpers: ./bin/babel-external-helpers.js
-  checksum: 99c529a7b8d367f3c88b472bf25235a0f666951d43482327f34eefc51d302b19e9d889c77635e39cc8bac6f6131b31b97c321bc6d72876f2520a1042b28ed760
+  checksum: 128c8251c1f8c3d719fe8a0c6ce45db0ac086c7f877bc9dd34a3cf0a3e8caa4664ca17c24ca4c644b4d277b6e3ce4a73cb950f69003fb278a90bbf7d4645f903
   languageName: node
   linkType: hard
 
@@ -3831,22 +3831,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nicolo-ribaudo/chokidar-2@npm:2.1.8-no-fsevents.2":
-  version: 2.1.8-no-fsevents.2
-  resolution: "@nicolo-ribaudo/chokidar-2@npm:2.1.8-no-fsevents.2"
-  dependencies:
-    anymatch: ^2.0.0
-    async-each: ^1.0.1
-    braces: ^2.3.2
-    glob-parent: ^5.1.2
-    inherits: ^2.0.3
-    is-binary-path: ^1.0.0
-    is-glob: ^4.0.0
-    normalize-path: ^3.0.0
-    path-is-absolute: ^1.0.0
-    readdirp: ^2.2.1
-    upath: ^1.1.1
-  checksum: 76003fce915aa6891b759498d3f79bc7b4db48395dc465e28f982e95fd04ebb63a7755ebbaa7e1fe6ff65edf182ba82ad51d97ebcf7ad1c6feaf8f53d43415bb
+"@nicolo-ribaudo/chokidar-2@npm:2.1.8-no-fsevents.3":
+  version: 2.1.8-no-fsevents.3
+  resolution: "@nicolo-ribaudo/chokidar-2@npm:2.1.8-no-fsevents.3"
+  checksum: ee55cc9241aeea7eb94b8a8551bfa4246c56c53bc71ecda0a2104018fcc328ba5723b33686bdf9cc65d4df4ae65e8016b89e0bbdeb94e0309fe91bb9ced42344
   languageName: node
   linkType: hard
 
@@ -19214,7 +19202,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-content-server@workspace:packages/fxa-content-server"
   dependencies:
-    "@babel/cli": ^7.15.4
+    "@babel/cli": ^7.15.7
     "@babel/core": ^7.15.0
     "@babel/plugin-proposal-class-properties": ^7.14.5
     "@babel/plugin-syntax-dynamic-import": ^7.8.3
