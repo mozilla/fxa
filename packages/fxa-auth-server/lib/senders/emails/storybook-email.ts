@@ -24,6 +24,16 @@ const commonArgs = {
   privacyUrl: 'https://www.mozilla.org/privacy',
 };
 
+const subplatCommonArgs = {
+  email: 'customer@example.com',
+  subscriptionTermsUrl: 'http://localhost:3031/legal-docs',
+  subscriptionPrivacyUrl: 'http://localhost:3031/legal-docs',
+  cancelSubscriptionUrl: 'http://localhost:3030/subscriptions',
+  updateBillingUrl: 'http://localhost:3030/subscriptions',
+  reactivateSubscriptionUrl: 'http://localhost:3030/subscriptions',
+  accountSettingsLink: 'http://localhost:3030/settings',
+};
+
 const storybookEmail = ({
   template,
   layout = 'fxa',
@@ -99,12 +109,14 @@ const Template: Story<StorybookEmailArgs> = (args, context) =>
 export const storyWithProps = (
   templateName: string,
   templateDoc = '',
-  defaultArgs = {}
+  defaultArgs = {},
+  layout = 'fxa'
 ) => {
   return (overrides: Record<string, any> = {}, storyName = 'Default') => {
     const template = Template.bind({});
     template.args = {
       template: templateName,
+      layout,
       doc: templateDoc,
       variables: {
         ...commonArgs,
@@ -116,3 +128,15 @@ export const storyWithProps = (
     return template;
   };
 };
+
+export const subplatStoryWithProps = (
+  templateName: string,
+  templateDoc = '',
+  defaultArgs = {}
+) =>
+  storyWithProps(
+    templateName,
+    templateDoc,
+    { ...defaultArgs, ...subplatCommonArgs },
+    'subplat'
+  );

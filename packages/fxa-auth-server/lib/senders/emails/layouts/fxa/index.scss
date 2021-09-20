@@ -4,13 +4,9 @@
 
 @use '../../global.scss';
 
-.hidden {
-  display: none;
-  width: 0;
-  height: 0;
-  max-height: 0;
-  line-height: 0;
-  overflow: hidden;
+.body {
+  max-width: 310px !important;
+  margin: global.$s-0 auto !important;
 }
 
 .fxa-logo {
@@ -27,4 +23,87 @@
   width: 300px;
   margin: 0 auto !important;
   display: block !important;
+}
+
+.text-header div {
+  @extend %text-header-common;
+  @extend .text-xl;
+  @extend .mb-3;
+}
+
+%text-body-common {
+  @extend %text-body-common;
+  @extend .text-sm;
+  text-align: center !important;
+}
+
+.text-body div {
+  @extend %text-body-common;
+  @extend .mb-5;
+}
+
+.text-body-no-margin div {
+  @extend %text-body-common;
+}
+
+.text-body-top-margin div {
+  @extend %text-body-common;
+  @extend .mt-5;
+}
+
+.text-body-lg-bottom-margin div {
+  @extend %text-body-common;
+  @extend .mb-8;
+}
+
+.text-sub-body div {
+  @extend %text-body-common;
+  @extend .mb-3;
+}
+
+.text-footer div {
+  @extend .text-xs;
+  @extend .font-sans;
+  text-align: center !important;
+  color: global.$grey-400 !important;
+}
+
+.text-footer-automatedEmail {
+  @extend .text-footer;
+  div {
+    @extend .mb-3;
+    @extend .mt-10;
+  }
+}
+
+.sync-logo img {
+  width: 240px !important;
+  margin: 0 auto;
+  @extend .mb-5;
+  @extend .mt-2;
+}
+
+.graphic-devices img {
+  width: 240px !important;
+  margin: 0 auto;
+  @extend .mb-5;
+  @extend .mt-2;
+}
+
+%code-common {
+  text-align: center !important;
+  font-family: monospace;
+  @extend .mb-6;
+}
+
+.code {
+  &-medium div {
+    @extend %code-common;
+    @extend .text-lg;
+  }
+
+  &-large div {
+    @extend %code-common;
+    @extend .text-3xl;
+  }
 }
