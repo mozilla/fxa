@@ -30,6 +30,7 @@ $(document).ready(function () {
 
   const pwdlessPaymentURL = {
     local: '//localhost:3031/checkout/',
+    stage: 'https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/checkout/',
   };
 
   const subscriptionConfig = {
@@ -67,6 +68,7 @@ $(document).ready(function () {
         env: paymentURL.stage,
         ...subscriptionConfig.stage,
         contentEnv: contentURL.stage,
+        pwdlessURL: pwdlessPaymentURL.stage,
       };
       break;
     case '123done-prod.dev.lcip.org':
@@ -80,6 +82,7 @@ $(document).ready(function () {
         env: paymentURL.local,
         ...subscriptionConfig.default,
         contentEnv: contentURL.local,
+        pwdlessURL: pwdlessPaymentURL.local,
       };
       break;
   }
@@ -112,9 +115,9 @@ $(document).ready(function () {
     });
 
     $('.btn-subscribe-pwdless').each(function (index) {
-      const { plans, product } = paymentConfig;
+      const { plans, product, pwdlessURL } = paymentConfig;
       const currency = $(this).attr('data-currency');
-      const currencyMappedURL = `${pwdlessPaymentURL.local}${product}?plan=${plans[currency]}`;
+      const currencyMappedURL = `${pwdlessURL}${product}?plan=${plans[currency]}`;
       $(this).attr('href', currencyMappedURL);
     });
   }
