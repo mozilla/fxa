@@ -448,7 +448,16 @@
       "verifyLoginCode",
       "verifyPrimary",
       "passwordResetAccountRecovery",
-      "postAddAccountRecovery"
+      "postAddAccountRecovery",
+      "postRemoveAccountRecovery",
+      "postRemoveTwoStepAuthentication",
+      "postVerifySecondary",
+      "postAddTwoStepAuthentication",
+      "postChangePrimary",
+      "postConsumeRecoveryCode",
+      "postNewRecoveryCodes",
+      "passwordChangeRequired",
+      "recovery"
     ]
   }
 }
