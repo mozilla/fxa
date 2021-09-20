@@ -37,16 +37,19 @@ const customerFixture = require('../../payments/fixtures/stripe/customer1.json')
 const customerPMIExpanded = require('../../payments/fixtures/stripe/customer_new_pmi_default_invoice_expanded.json');
 const multiPlanSubscription = require('../../payments/fixtures/stripe/subscription_multiplan.json');
 const emptyCustomer = require('../../payments/fixtures/stripe/customer_new.json');
-const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/stripe/subscription_updated_from_incomplete.json');
 const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
 const newSetupIntent = require('../../payments/fixtures/stripe/setup_intent_new.json');
 const stripePlan = require('../../payments/fixtures/stripe/plan1.json');
 const paymentMethodFixture = require('../../payments/fixtures/stripe/payment_method.json');
 
+const { CapabilityService } = require('../../../../lib/payments/capability');
+
 const currencyHelper = new CurrencyHelper({
   currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
 });
+const mockCapabilityService = {};
 Container.set(CurrencyHelper, currencyHelper);
+Container.set(CapabilityService, mockCapabilityService);
 
 let config,
   log,
@@ -1664,106 +1667,6 @@ describe('DirectStripeRoutes', () => {
           assert.strictEqual(err.message, 'Unknown customer');
           assert.strictEqual(err.output.payload['uid'], UID);
         }
-      });
-    });
-  });
-
-  describe('sendSubscriptionStatusToSqs', () => {
-    it('notifies attached services', async () => {
-      const event = deepCopy(subscriptionUpdatedFromIncomplete);
-      const subscription = deepCopy(subscription2);
-      const sub = { id: subscription.id, productId: subscription.plan.product };
-
-      directStripeRoutesInstance.stripeHelper.allPlans.resolves([
-        ...PLANS,
-        {
-          plan_id: subscription2.plan.id,
-          product_id: subscription2.plan.product,
-          product_metadata: {
-            capabilities: 'foo, bar, baz',
-          },
-        },
-      ]);
-
-      await directStripeRoutesInstance.sendSubscriptionStatusToSqs(
-        VALID_REQUEST,
-        UID,
-        event,
-        sub,
-        true
-      );
-
-      assert.isTrue(
-        directStripeRoutesInstance.log.notifyAttachedServices.calledOnceWith(
-          'subscription:update',
-          VALID_REQUEST,
-          {
-            uid: UID,
-            eventCreatedAt: event.created,
-            subscriptionId: sub.id,
-            isActive: true,
-            productId: sub.productId,
-            productCapabilities: ['foo', 'bar', 'baz'],
-          }
-        ),
-        'Expected log.notifyAttachedServices to be called'
-      );
-    });
-  });
-
-  describe('updateCustomerAndSendStatus', () => {
-    let event;
-
-    beforeEach(() => {
-      event = deepCopy(subscriptionUpdatedFromIncomplete);
-      sinon
-        .stub(directStripeRoutesInstance, 'sendSubscriptionStatusToSqs')
-        .resolves();
-    });
-
-    describe('when the customer is found from the subscription', () => {
-      it('calls all the update and notification functions', async () => {
-        directStripeRoutesInstance.stripeHelper.getCustomerUidEmailFromSubscription.resolves(
-          { uid: UID, email: TEST_EMAIL }
-        );
-
-        await directStripeRoutesInstance.updateCustomerAndSendStatus(
-          VALID_REQUEST,
-          event,
-          subscription2,
-          true
-        );
-
-        sinon.assert.calledOnce(
-          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
-        );
-        sinon.assert.calledOnce(profile.deleteCache);
-        sinon.assert.calledOnce(
-          directStripeRoutesInstance.sendSubscriptionStatusToSqs
-        );
-      });
-    });
-
-    describe('when the customer is not found from the subscription', () => {
-      it('returns without calling anything', async () => {
-        directStripeRoutesInstance.stripeHelper.getCustomerUidEmailFromSubscription.resolves(
-          { uid: undefined, email: undefined }
-        );
-
-        await directStripeRoutesInstance.updateCustomerAndSendStatus(
-          VALID_REQUEST,
-          event,
-          subscription2,
-          true
-        );
-
-        sinon.assert.notCalled(
-          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
-        );
-        sinon.assert.notCalled(profile.deleteCache);
-        sinon.assert.notCalled(
-          directStripeRoutesInstance.sendSubscriptionStatusToSqs
-        );
       });
     });
   });

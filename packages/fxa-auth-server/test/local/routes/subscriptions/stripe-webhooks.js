@@ -39,6 +39,7 @@ const failedDoReferenceTransactionResponse = require('../../payments/fixtures/pa
 const { default: Container } = require('typedi');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
 const { PayPalClientError } = require('../../../../lib/payments/paypal-client');
+const { CapabilityService } = require('../../../../lib/payments/capability');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const {
   PAYPAL_BILLING_AGREEMENT_INVALID,
@@ -46,65 +47,11 @@ const {
 } = require('../../../../lib/payments/paypal-error-codes');
 const { mockLog, asyncIterable } = require('../../../mocks');
 
-let config, log, db, customs, push, mailer, profile;
+let config, log, db, customs, push, mailer, profile, mockCapabilityService;
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-const NOW = Date.now();
-const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
-const PLANS = [
-  {
-    plan_id: 'firefox_pro_basic_823',
-    product_id: 'firefox_pro_basic',
-    product_name: 'Firefox Pro Basic',
-    interval: 'week',
-    amount: '123',
-    currency: 'usd',
-    plan_metadata: {},
-    product_metadata: {
-      emailIconURL: 'http://example.com/image.jpg',
-      downloadURL: 'http://getfirefox.com',
-      'capabilities:client1': 'exampleCap1',
-    },
-  },
-  {
-    plan_id: 'firefox_pro_basic_999',
-    product_id: 'firefox_pro_pro',
-    product_name: 'Firefox Pro Pro',
-    interval: 'month',
-    amount: '456',
-    currency: 'usd',
-    plan_metadata: {},
-    product_metadata: {
-      'capabilities:client2': 'exampleCap2, exampleCap4',
-    },
-  },
-  {
-    plan_id: PLAN_ID_1,
-    product_id: 'prod_G93l8Yn7XJHYUs',
-    product_name: 'FN Tier 1',
-    interval: 'month',
-    amount: 499,
-    current: 'usd',
-    plan_metadata: {
-      'capabilities:client1': 'exampleCap3',
-      // NOTE: whitespace in capabilities list should be flexible for human entry
-      'capabilities:client2': 'exampleCap5,exampleCap6,   exampleCap7',
-    },
-    product_metadata: {},
-  },
-];
-const SUBSCRIPTION_ID_1 = 'sub-8675309';
-const ACTIVE_SUBSCRIPTIONS = [
-  {
-    uid: UID,
-    subscriptionId: SUBSCRIPTION_ID_1,
-    productId: PLANS[0].product_id,
-    createdAt: NOW,
-    cancelledAt: null,
-  },
-];
 
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
@@ -119,68 +66,16 @@ function deepCopy(object) {
   return JSON.parse(JSON.stringify(object));
 }
 
-/**
- * Stripe integration tests
- */
-describe('subscriptions', () => {
-  beforeEach(() => {
-    config = {
-      subscriptions: {
-        enabled: true,
-        managementClientId: MOCK_CLIENT_ID,
-        managementTokenTTL: MOCK_TTL,
-        stripeApiKey: 'sk_test_1234',
-        paypalNvpSigCredentials: {
-          enabled: false,
-        },
-      },
-    };
-
-    log = mocks.mockLog();
-    customs = mocks.mockCustoms();
-
-    db = mocks.mockDB({
-      uid: UID,
-      email: TEST_EMAIL,
-      locale: ACCOUNT_LOCALE,
-    });
-    db.createAccountSubscription = sinon.spy(async (data) => ({}));
-    db.deleteAccountSubscription = sinon.spy(
-      async (uid, subscriptionId) => ({})
-    );
-    db.cancelAccountSubscription = sinon.spy(async () => ({}));
-    db.fetchAccountSubscriptions = sinon.spy(async (uid) =>
-      ACTIVE_SUBSCRIPTIONS.filter((s) => s.uid === uid)
-    );
-    db.getAccountSubscription = sinon.spy(async (uid, subscriptionId) => {
-      const subscription = ACTIVE_SUBSCRIPTIONS.filter(
-        (s) => s.uid === uid && s.subscriptionId === subscriptionId
-      )[0];
-      if (typeof subscription === 'undefined') {
-        throw { statusCode: 404, errno: 116 };
-      }
-      return subscription;
-    });
-
-    push = mocks.mockPush();
-    mailer = mocks.mockMailer();
-
-    profile = mocks.mockProfile({
-      deleteCache: sinon.spy(async (uid) => ({})),
-    });
-  });
-
-  afterEach(() => {
-    sinon.restore();
-  });
-});
-
 describe('StripeWebhookHandler', () => {
   let sandbox;
   let StripeWebhookHandlerInstance;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
+
+    mockCapabilityService = {
+      stripeUpdate: sandbox.stub().resolves({}),
+    };
 
     config = {
       authFirestore: {
@@ -214,6 +109,7 @@ describe('StripeWebhookHandler', () => {
     Container.set(CurrencyHelper, {});
     Container.set(PayPalHelper, paypalHelperMock);
     Container.set(StripeHelper, stripeHelperMock);
+    Container.set(CapabilityService, mockCapabilityService);
 
     StripeWebhookHandlerInstance = new StripeWebhookHandler(
       log,
@@ -232,7 +128,6 @@ describe('StripeWebhookHandler', () => {
   });
 
   describe('stripe webhooks', () => {
-    let stubSendSubscriptionStatusToSqs;
     const validPlan = deepCopy(eventPlanUpdated);
     const validPlanList = [validPlan.data.object, validPlan.data.object];
     const validProduct = deepCopy(eventProductUpdated);
@@ -252,9 +147,6 @@ describe('StripeWebhookHandler', () => {
           email: TEST_EMAIL,
         }
       );
-      stubSendSubscriptionStatusToSqs = sandbox
-        .stub(StripeWebhookHandlerInstance, 'sendSubscriptionStatusToSqs')
-        .resolves(true);
     });
 
     describe('handleWebhookEvent', () => {
@@ -448,16 +340,6 @@ describe('StripeWebhookHandler', () => {
         });
       });
     });
-
-    const assertSendSubscriptionStatusToSqsCalledWith = (event, isActive) =>
-      assert.calledWith(
-        stubSendSubscriptionStatusToSqs,
-        {},
-        UID,
-        event,
-        { id: event.data.object.id, productId: event.data.object.plan.product },
-        isActive
-      );
 
     describe('handleCustomerCreatedEvent', () => {
       it('creates a local db record with the account uid', async () => {
@@ -664,14 +546,12 @@ describe('StripeWebhookHandler', () => {
           {},
           updatedEvent
         );
+        assert.calledWithExactly(mockCapabilityService.stripeUpdate, {
+          sub: updatedEvent.data.object,
+          uid: UID,
+          email: TEST_EMAIL,
+        });
         assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
-        assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.refreshCachedCustomer,
-          UID,
-          TEST_EMAIL
-        );
-        assert.calledWith(profile.deleteCache, UID);
-        assertSendSubscriptionStatusToSqsCalledWith(updatedEvent, true);
       });
 
       it('does not emit a notification for any other subscription state change', async () => {
@@ -681,11 +561,7 @@ describe('StripeWebhookHandler', () => {
           updatedEvent
         );
         assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
-        assert.notCalled(
-          StripeWebhookHandlerInstance.stripeHelper.refreshCachedCustomer
-        );
-        assert.notCalled(profile.deleteCache);
-        assert.notCalled(stubSendSubscriptionStatusToSqs);
+        assert.notCalled(mockCapabilityService.stripeUpdate);
       });
 
       it('reports a sentry error with an eventId if sendSubscriptionUpdatedEmail fails', async () => {
@@ -726,6 +602,11 @@ describe('StripeWebhookHandler', () => {
           {},
           deletedEvent
         );
+        assert.calledWith(mockCapabilityService.stripeUpdate, {
+          sub: deletedEvent.data.object,
+          uid: UID,
+          email: TEST_EMAIL,
+        });
         assert.calledWith(
           sendSubscriptionDeletedEmailStub,
           deletedEvent.data.object
@@ -733,11 +614,6 @@ describe('StripeWebhookHandler', () => {
         assert.notCalled(
           StripeWebhookHandlerInstance.stripeHelper
             .getCustomerUidEmailFromSubscription
-        );
-        assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.refreshCachedCustomer,
-          UID,
-          TEST_EMAIL
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.customer,
@@ -751,8 +627,6 @@ describe('StripeWebhookHandler', () => {
             .conditionallyRemoveBillingAgreement,
           customerFixture
         );
-        assert.calledWith(profile.deleteCache, UID);
-        assertSendSubscriptionStatusToSqsCalledWith(deletedEvent, false);
       });
 
       it('does not conditionally delete without customer record', async () => {
@@ -1278,7 +1152,6 @@ describe('StripeWebhookHandler', () => {
           sendSubscriptionInvoiceEmailStub,
           PaidEvent.data.object
         );
-        assert.notCalled(stubSendSubscriptionStatusToSqs);
       });
     });
 
@@ -1312,7 +1185,6 @@ describe('StripeWebhookHandler', () => {
           sendSubscriptionPaymentFailedEmailStub,
           paymentFailedEvent.data.object
         );
-        assert.notCalled(stubSendSubscriptionStatusToSqs);
       });
 
       it('does not send email during subscription creation flow', async () => {
@@ -1333,18 +1205,9 @@ describe('StripeWebhookHandler', () => {
           {},
           createdEvent
         );
-        assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper
-            .getCustomerUidEmailFromSubscription,
-          createdEvent.data.object
-        );
-        assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.refreshCachedCustomer,
-          UID,
-          TEST_EMAIL
-        );
-        assert.calledWith(profile.deleteCache, UID);
-        assertSendSubscriptionStatusToSqsCalledWith(createdEvent, true);
+        assert.calledWith(mockCapabilityService.stripeUpdate, {
+          sub: createdEvent.data.object,
+        });
       });
 
       it('does not emit a notification for incomplete new subscriptions', async () => {
@@ -1357,11 +1220,7 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.stripeHelper
             .getCustomerUidEmailFromSubscription
         );
-        assert.notCalled(
-          StripeWebhookHandlerInstance.stripeHelper.refreshCachedCustomer
-        );
-        assert.notCalled(profile.deleteCache);
-        assert.notCalled(stubSendSubscriptionStatusToSqs);
+        assert.notCalled(mockCapabilityService.stripeUpdate);
       });
     });
   });

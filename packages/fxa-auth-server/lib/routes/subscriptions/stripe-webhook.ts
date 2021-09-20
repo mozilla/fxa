@@ -5,12 +5,14 @@ import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import * as Sentry from '@sentry/node';
 import { Account } from 'fxa-shared/db/models/auth';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
 import { reportSentryError } from '../../../lib/sentry';
 import error from '../../error';
+import { CapabilityService } from '../../payments/capability';
 import { PayPalHelper } from '../../payments/paypal';
 import { PayPalClientError } from '../../payments/paypal-client';
 import {
@@ -30,6 +32,7 @@ const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
 ];
 
 export class StripeWebhookHandler extends StripeHandler {
+  protected capabilityService: CapabilityService;
   protected paypalHelper?: PayPalHelper;
 
   constructor(
@@ -46,6 +49,7 @@ export class StripeWebhookHandler extends StripeHandler {
     if (config.subscriptions.paypalNvpSigCredentials.enabled) {
       this.paypalHelper = Container.get(PayPalHelper);
     }
+    this.capabilityService = Container.get(CapabilityService);
   }
 
   /**
@@ -205,9 +209,10 @@ export class StripeWebhookHandler extends StripeHandler {
     event: Stripe.Event
   ) {
     const sub = event.data.object as Stripe.Subscription;
-    if (['active', 'trialing'].includes(sub.status)) {
-      return this.updateCustomerAndSendStatus(request, event, sub, true);
+    if (ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)) {
+      return this.capabilityService.stripeUpdate({ sub });
     }
+    return;
   }
 
   /**
@@ -240,15 +245,9 @@ export class StripeWebhookHandler extends StripeHandler {
       ['active', 'trialing'].includes(sub.status) &&
       (event.data?.previous_attributes as any)?.status === 'incomplete'
     ) {
-      return this.updateCustomerAndSendStatus(
-        request,
-        event,
-        sub,
-        true,
-        uid,
-        email
-      );
+      return this.capabilityService.stripeUpdate({ sub, uid, email });
     }
+    return;
   }
 
   /**
@@ -272,14 +271,7 @@ export class StripeWebhookHandler extends StripeHandler {
       reportSentryError(err, request);
       return;
     }
-    await this.updateCustomerAndSendStatus(
-      request,
-      event,
-      sub,
-      false,
-      uid,
-      email
-    );
+    await this.capabilityService.stripeUpdate({ sub, uid, email });
     if (this.paypalHelper) {
       const customer = await this.stripeHelper.customer({ uid, email });
       if (!customer || customer.deleted) {
@@ -401,7 +393,7 @@ export class StripeWebhookHandler extends StripeHandler {
       reportSentryError(err, request);
       return;
     }
-    await this.updateCustomer(uid, email);
+    await this.stripeHelper.refreshCachedCustomer(uid, email);
   }
 
   /**
@@ -419,7 +411,7 @@ export class StripeWebhookHandler extends StripeHandler {
     const { uid, email } = await this.sendSubscriptionPaymentFailedEmail(
       invoice
     );
-    await this.updateCustomer(uid, email);
+    await this.stripeHelper.refreshCachedCustomer(uid, email);
   }
 
   /**
@@ -433,7 +425,7 @@ export class StripeWebhookHandler extends StripeHandler {
     const { uid, email } = await this.sendSubscriptionPaymentExpiredEmail(
       source
     );
-    await this.updateCustomer(uid, email);
+    await this.stripeHelper.refreshCachedCustomer(uid, email);
   }
 
   /**

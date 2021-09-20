@@ -4,6 +4,7 @@
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
+import Stripe from 'stripe';
 import Container from 'typedi';
 
 import { authEvents } from '../events';
@@ -73,6 +74,70 @@ export class CapabilityService {
   }
 
   /**
+   * Handle a Stripe Webhook subscription change.
+   *
+   * This handles broadcasting and refreshing the subscription capabilities for
+   * the product ids that were possibly updated.
+   *
+   * Stripe supports aligned subscriptions such that a single subscription can
+   * include multiple items for multiple products. We iterate through this list
+   * comparing the current and prior product ids to determine which products
+   * have been added or removed.
+   */
+  public async stripeUpdate({
+    sub,
+    uid,
+    email,
+  }: {
+    sub: Stripe.Subscription;
+    uid?: string | null;
+    email?: string | null;
+  }) {
+    if (!uid || !email) {
+      ({ uid, email } =
+        await this.stripeHelper.getCustomerUidEmailFromSubscription(sub));
+    }
+    if (!uid || !email) {
+      // There's nothing to do if we can't find the user. We don't report it
+      // as we expect this to occur in the case of a deleted user.
+      return;
+    }
+
+    // Stripe subscriptions from events do not have product expanded, we filter
+    // by product being the non-expanded string for type checks.
+    const affectedProductIds = sub.items.data
+      .map((item) => item.price.product)
+      .filter((product) => typeof product === 'string') as string[];
+    if (affectedProductIds.length === 0) {
+      return;
+    }
+    const currentProductIds = await this.subscribedProductIds({
+      uid,
+      email,
+      forceRefresh: true,
+    });
+    let priorProductIds = new Set([
+      ...currentProductIds,
+      ...affectedProductIds,
+    ]);
+    for (const affectedProductId of affectedProductIds) {
+      if (currentProductIds.includes(affectedProductId)) {
+        // Remove the product id from the prior list for processing to assume that it
+        // was previously inactive and ensure we broadcast a change.
+        priorProductIds.delete(affectedProductId);
+      }
+    }
+    return Promise.all([
+      this.profileClient.deleteCache(uid),
+      this.processProductIdDiff({
+        uid,
+        priorProductIds: [...priorProductIds],
+        currentProductIds,
+      }),
+    ]);
+  }
+
+  /**
    * Handle a Google Play purchase change.
    *
    * This handles broadcasting and refreshing the subscription capabilities for
@@ -98,7 +163,11 @@ export class CapabilityService {
       // Purchase is not mapped to a product id.
       return;
     }
-    const currentProductIds = await this.subscribedProductIds(uid, email);
+    const currentProductIds = await this.subscribedProductIds({
+      uid,
+      email,
+      forceRefresh: true,
+    });
     let priorProductIds;
     if (currentProductIds.includes(affectedProductId)) {
       // Remove the product id from the prior list for processing to assume that it
@@ -128,17 +197,25 @@ export class CapabilityService {
     uid: string,
     email: string
   ): Promise<ClientIdCapabilityMap> {
-    const subscribedProducts = await this.subscribedProductIds(uid, email);
+    const subscribedProducts = await this.subscribedProductIds({ uid, email });
     return this.productIdsToClientCapabilities(subscribedProducts);
   }
 
   /**
    * Return a list of all product ids with an active subscription.
    */
-  private async subscribedProductIds(uid: string, email: string) {
+  private async subscribedProductIds({
+    uid,
+    email,
+    forceRefresh = false,
+  }: {
+    uid: string;
+    email: string;
+    forceRefresh?: boolean;
+  }) {
     const [subscribedStripeProducts, subscribedPlayProducts] =
       await Promise.all([
-        this.fetchSubscribedProductsFromStripe(uid, email),
+        this.fetchSubscribedProductsFromStripe({ uid, email, forceRefresh }),
         this.fetchSubscribedProductsFromPlay(uid),
       ]);
     return [
@@ -294,10 +371,19 @@ export class CapabilityService {
   /**
    * Fetch the list of ids of products purchased from Stripe.
    */
-  private async fetchSubscribedProductsFromStripe(uid: string, email: string) {
+  private async fetchSubscribedProductsFromStripe({
+    uid,
+    email,
+    forceRefresh = false,
+  }: {
+    uid: string;
+    email: string;
+    forceRefresh?: boolean;
+  }): Promise<string[]> {
     const customer = await this.stripeHelper.customer({
       uid,
       email,
+      forceRefresh,
     });
     if (!customer || !customer.subscriptions!.data) {
       return [];
