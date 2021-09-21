@@ -17,5 +17,13 @@
     <mj-text css-class="text-body">
       Email body text, images, and other footers if applicable are displayed here.
     </mj-text>
+
+    <mj-text css-class="text-body">
+      Nunc venenatis cursus nulla vel dapibus. Ut nec ullamcorper arcu. Duis nec convallis leo, id condimentum tortor. Ut quis convallis massa. Pellentesque hendrerit velit id nisi malesuada, tincidunt vestibulum diam placerat. Fusce quis dolor enim. Cras eu metus quam. Nullam volutpat consectetur consectetur.
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse laoreet, mauris in tincidunt finibus, mauris odio consequat massa, non porta nunc risus id nunc. Ut sodales finibus magna.
+    </mj-text>
   </mj-column>
 </mj-section>

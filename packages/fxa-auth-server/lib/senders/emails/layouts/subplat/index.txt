@@ -1,0 +1,20 @@
+<%- body %>
+
+subplat-automated-email = "This is an automated email; if you received it in error, no action is required."
+
+<% if (locals.productName) { %>
+subplat-terms-policy-plaintext = "Terms and cancellation policy:"
+<%- subscriptionTermsUrl %>
+
+subplat-privacy-plaintext = "Privacy notice:"
+<%- subscriptionPrivacyUrl %>
+<% } %>
+
+subplat-cancel-plaintext = "Cancel subscription:"
+<%- cancelSubscriptionUrl %>
+
+subplat-update-billing-plaintext = "Update billing information:"
+<%- updateBillingUrl %>
+
+Mozilla Corporation
+2 Harrison St, #175, San Francisco, CA 94105

@@ -24,5 +24,5 @@
 </mj-section>
 
 <%- include('/partials/location/index.mjml') %>
-<%- include('/partials/button/index.mjml') %> 
+<%- include('/partials/button/index.mjml') %>
 <%- include('/partials/automatedEmailChangePassword/index.mjml') %>
