@@ -17,6 +17,12 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const [email, setEmail] = useState<string>();
   const inputRef = useRef<HTMLInputElement>(null);
   const { l10n } = useLocalization();
+
+  const subtitleText = l10n.getString(
+    'add-secondary-email-step-1',
+    null,
+    'Step 1 of 1'
+  );
   const navigate = useNavigate();
   const alertBar = useAlertBar();
   const account = useAccount();
@@ -63,7 +69,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
 
   return (
     <Localized id="add-secondary-email-page-title" attrs={{ title: true }}>
-      <FlowContainer title="Secondary email">
+      <FlowContainer title="Secondary email" subtitle={subtitleText}>
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           onSubmit={(ev) => {
