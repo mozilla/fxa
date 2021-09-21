@@ -7,7 +7,7 @@ import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Templates/postAddTwoStepAuthentication',
+  title: 'FxA Emails/Templates/postAddTwoStepAuthentication',
 } as Meta;
 
 const createStory = storyWithProps(

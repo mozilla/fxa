@@ -49,7 +49,9 @@ const storybookEmail = ({
     .then(({ html, text, subject }) => {
       container.innerHTML = `
         <header>
-          <h1 class="template-name"><span>${layout} / </span>${template}</h1>
+          <h1 class="template-name"><span>${layout} / </span>${
+        template === '_storybook' ? 'layout' : template
+      }</h1>
           ${doc ? `<p class="template-description">${doc}</p>` : ''}
           <p class="email-subject">Subject: ${subject}</p>
         </header>

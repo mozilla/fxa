@@ -7,7 +7,7 @@ import { MOCK_LOCATION } from '../../partials/location/mocks';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Templates/postNewRecoveryCodes',
+  title: 'FxA Emails/Templates/postNewRecoveryCodes',
 } as Meta;
 
 const createStory = storyWithProps(

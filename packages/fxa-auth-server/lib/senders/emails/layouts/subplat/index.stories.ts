@@ -6,7 +6,7 @@ import { Meta } from '@storybook/html';
 import { subplatStoryWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Layouts/Subplat',
+  title: 'SubPlat Emails/Layout',
 } as Meta;
 
 const createStory = subplatStoryWithProps(

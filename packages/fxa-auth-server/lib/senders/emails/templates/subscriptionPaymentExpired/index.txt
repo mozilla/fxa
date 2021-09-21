@@ -1,0 +1,11 @@
+postVerify-sub-title = "Firefox Account verified. You're almost there."
+
+postVerify-title = "Next sync between your devices!"
+
+postVerify-description = "Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices."
+
+postVerify-setup = "Set up next device"
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+postVerify-support = "Have questions? Visit <%- supportUrl %>"
