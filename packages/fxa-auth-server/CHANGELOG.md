@@ -1,3 +1,14 @@
+## 1.215.2
+
+### New features
+
+- auth: Convert 'recovery' email to mjml stack ([af4e9bf28](https://github.com/mozilla/fxa/commit/af4e9bf28))
+
+### Bug fixes
+
+- auth: use __dirname to retrieve template base dir ([044182360](https://github.com/mozilla/fxa/commit/044182360))
+- auth: include emails-scss in build command ([23c6c2558](https://github.com/mozilla/fxa/commit/23c6c2558))
+
 ## 1.215.1
 
 No changes.
