@@ -82,6 +82,10 @@ if [ "$BUILD_TYPE" = "Train" ]; then
   # HACK: filter out any tags with hyphens - these are feature branch releases
   LAST_TAG=`git tag -l --sort=version:refname | grep -v '-' | tail -1`
 else
+  if [ $CURRENT_BRANCH = "main" ]; then
+    abort "You're trying to create a patch release on main. Please check out the latest train branch."
+  fi
+
   # Current tag is last tag, when we're on a train branch for a patch
   LAST_TAG=`git describe --tags --first-parent --abbrev=0`
 fi
