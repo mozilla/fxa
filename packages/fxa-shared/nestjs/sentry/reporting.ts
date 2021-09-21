@@ -27,7 +27,19 @@ export interface ExtraContext {
  * @param obj Object to filter values on
  */
 export function filterObject<T>(obj: T): T {
-  if (typeof obj === 'object' && obj) {
+  if (Array.isArray(obj)) {
+    if (obj.length === 2 && typeof obj[1] === 'string') {
+      // Assume a key/value pair.
+      return [
+        obj[0],
+        obj[1].replace(TOKENREGEX, FILTERED).replace(EMAILREGEX, FILTERED),
+      ] as unknown as T;
+    }
+    if (Array.isArray(obj[0])) {
+      // Assume an array of array of key/values and filter each one.
+      return obj.map(filterObject) as unknown as T;
+    }
+  } else if (typeof obj === 'object' && obj) {
     for (const [key, value] of Object.entries(obj)) {
       if (typeof value === 'string') {
         // Typescript can't quite infer that this is the value that was
@@ -71,9 +83,14 @@ export function filterSentryEvent(event: Sentry.Event, hint: unknown) {
       event.request.url = event.request.url.replace(TOKENREGEX, FILTERED);
     }
     if (event.request.query_string) {
-      event.request.query_string = (
-        event.request.query_string as string
-      ).replace(TOKENREGEX, URIENCODEDFILTERED);
+      if (typeof event.request.query_string === 'string') {
+        event.request.query_string = event.request.query_string.replace(
+          TOKENREGEX,
+          URIENCODEDFILTERED
+        );
+      } else {
+        event.request.query_string = filterObject(event.request.query_string);
+      }
     }
     if (event.request.headers) {
       (event as any).request.headers = filterObject(event.request.headers);
