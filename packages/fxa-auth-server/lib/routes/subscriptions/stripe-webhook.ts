@@ -147,17 +147,23 @@ export class StripeWebhookHandler extends StripeHandler {
       'invoices'
     );
 
-    // This invoice must be for a paypal subscription for us to issue a
-    // paypal refund and be marked for out_of_band refund.
-    if (
-      invoice.collection_method !== 'send_invoice' ||
-      !creditNote.out_of_band_amount ||
-      creditNote.out_of_band_amount === 0
-    ) {
-      reportSentryError(
-        new Error(`Credit note issued for account balance: ${creditNote.id}`),
-        request
-      );
+    if (invoice.collection_method === 'charge_automatically') {
+      // This is a Stripe charge, report if needed and return as Stripe handles
+      // refunding the customer.
+      if (
+        creditNote.customer_balance_transaction ||
+        creditNote.out_of_band_amount
+      ) {
+        // We should be informed if it was applied to the account balance as they
+        // should be refunded to the card or if it was applied out of band.
+        reportSentryError(
+          new Error(
+            `Credit note issued for account balance or out of band: ${creditNote.id}`
+          ),
+          request
+        );
+      }
+
       return;
     }
 
