@@ -19863,7 +19863,7 @@ fsevents@~2.1.1:
     helmet: ^4.6.0
     hot-shots: ^8.5.0
     intl: 1.2.5
-    intl-pluralrules: ^1.3.0
+    intl-pluralrules: ^1.3.1
     jest: 26.6.0
     joi: ^14.3.1
     lodash.debounce: ^4.0.8
@@ -23082,10 +23082,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"intl-pluralrules@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "intl-pluralrules@npm:1.3.0"
-  checksum: 5c56b8f5a23b26e53b8c5c71fd3f389b3596e04286f198786671f027c17bdd27445c7e82e5f61fcec1d079ea0b724d8ffca6a79b94891e43cc75986b813a9d6e
+"intl-pluralrules@npm:^1.3.1":
+  version: 1.3.1
+  resolution: "intl-pluralrules@npm:1.3.1"
+  checksum: b22c2373b6b658e5a361d9d1e9a3d4478862a79a9723b910d29745ff6b5b78d8e1e10c47f344bd3835219b77d2f6cfd58388c1bab3b5daf4df72555e02342b40
   languageName: node
   linkType: hard
 
