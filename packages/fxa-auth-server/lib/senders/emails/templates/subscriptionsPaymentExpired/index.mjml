@@ -1,0 +1,31 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="subscriptionsPaymentExpired-title">Your credit card is about to expire</span>
+    </mj-text>
+
+    <mj-text css-class="text-body mb-3">
+      <span data-l10n-id="subscriptionsPaymentExpired-content">
+        The credit card you're using to make payments for the following subscriptions is about to expire.
+      </span>
+    </mj-text>
+
+  <mj-text css-class="text-body">
+    <ul>
+      <% for (const { productName } of subscriptions) { %>
+        <li data-l10n-id="subscriptionsPaymentExpired-name" data-l10n-args="<%= JSON.stringify({productName}) %>">
+          <%- productName %>
+        </li>
+      <% } %>
+    </ul>
+  </mj-text>
+
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/subscriptionUpdatePayment/index.mjml', { updateBillingUrl }) %>
+<%- include ('/partials/subscriptionSupport/index.mjml') %>

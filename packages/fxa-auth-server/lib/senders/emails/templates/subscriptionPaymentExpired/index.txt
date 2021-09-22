@@ -2,9 +2,8 @@ subscriptionPaymentExpired-subject = "Credit card for <%- productName %> expirin
 
 subscriptionPaymentExpired-title = "Your credit card is about to expire"
 
-subscriptionPaymentExpired-description = "The credit card you're using to make payments for { $productName } is about to expire."
+subscriptionPaymentExpired-content = "The credit card you're using to make payments for <%- productName %> is about to expire."
 
-subscriptionPaymentExpired-update-plaintext = "To prevent any interruption to your service, please update your payment information as soon as possible:"
-<%- updateBillingUrl %>
+<%- include('/partials/subscriptionUpdatePayment/index.txt', { updateBillingUrl }) %>
 
 <%- include ('/partials/subscriptionSupport/index.txt') %>

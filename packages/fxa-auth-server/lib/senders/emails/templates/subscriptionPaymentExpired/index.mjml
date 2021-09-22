@@ -9,17 +9,12 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionPaymentExpired-description" data-l10n-args="<%= JSON.stringify({productName}) %>">
+      <span data-l10n-id="subscriptionPaymentExpired-content" data-l10n-args="<%= JSON.stringify({productName}) %>">
         The credit card you're using to make payments for <%- productName %> is about to expire.
-      </span>
-    </mj-text>
-
-    <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionPaymentExpired-update">
-        To prevent any interruption to your service, please <a data-l10n-name="updateBillingUrl" href="<%- updateBillingUrl %>">update your payment information</a> as soon as possible.
       </span>
     </mj-text>
   </mj-column>
 </mj-section>
 
+<%- include('/partials/subscriptionUpdatePayment/index.mjml', { updateBillingUrl }) %>
 <%- include ('/partials/subscriptionSupport/index.mjml') %>
