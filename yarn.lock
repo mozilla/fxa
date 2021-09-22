@@ -16729,12 +16729,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:^0.12.28":
-  version: 0.12.28
-  resolution: "esbuild@npm:0.12.28"
+"esbuild@npm:^0.12.29":
+  version: 0.12.29
+  resolution: "esbuild@npm:0.12.29"
   bin:
     esbuild: bin/esbuild
-  checksum: 9127dc048aad41a59d736460b9ea3cf5e367a7e5a650b2b465e066ee291e3c5e9fa5ad4b56cd4dea76cde9a1dee25a0e9e94f558b24170fc124eb0778e043eae
+  checksum: 06a6e84eff02899b45c7d4441199f7bbc824a9f5a2d0332bfe9873963751213c71bcb03b8db96babbc45ef31c140580ff64317ee7600983fc88b84c2d9788bbf
   languageName: node
   linkType: hard
 
@@ -19217,7 +19217,7 @@ fsevents@~2.1.1:
     ejs: ^3.1.6
     email-addresses: 4.0.0
     emittery: ^0.9.2
-    esbuild: ^0.12.28
+    esbuild: ^0.12.29
     esbuild-register: ^3.0.0
     eslint: ^7.29.0
     eslint-plugin-fxa: ^2.0.2
