@@ -40,7 +40,9 @@
       </mj-column>
     </mj-section>
 
-    <%- body %>
+    <mj-wrapper css-class="px-6">
+      <%- body %>
+    </mj-wrapper>
 
     <mj-section css-class="footer-container">
       <mj-column>

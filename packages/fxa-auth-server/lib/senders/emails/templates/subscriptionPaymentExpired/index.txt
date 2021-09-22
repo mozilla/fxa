@@ -1,11 +1,10 @@
-postVerify-sub-title = "Firefox Account verified. You're almost there."
+subscriptionPaymentExpired-subject = "Credit card for <%- productName %> expiring soon"
 
-postVerify-title = "Next sync between your devices!"
+subscriptionPaymentExpired-title = "Your credit card is about to expire"
 
-postVerify-description = "Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices."
+subscriptionPaymentExpired-description = "The credit card you're using to make payments for { $productName } is about to expire."
 
-postVerify-setup = "Set up next device"
-<%- link %>
+subscriptionPaymentExpired-update-plaintext = "To prevent any interruption to your service, please update your payment information as soon as possible:"
+<%- updateBillingUrl %>
 
-<%- include('/partials/automatedEmailNoAction/index.txt') %>
-postVerify-support = "Have questions? Visit <%- supportUrl %>"
+<%- include ('/partials/subscriptionSupport/index.txt') %>

@@ -4,24 +4,22 @@
 
 <mj-section>
   <mj-column>
-    <mj-text css-class="text-sub-body">
-      <span data-l10n-id="postVerify-sub-title">Firefox Account verified. You're almost there.</span>
-    </mj-text>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postVerify-title">Next sync between your devices!</span>
+      <span data-l10n-id="subscriptionPaymentExpired-title">Your credit card is about to expire</span>
     </mj-text>
-    <mj-image css-class="sync-logo" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
-  </mj-column>
-</mj-section>
 
-<mj-section>
-  <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="postVerify-description">Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.</span>
+      <span data-l10n-id="subscriptionPaymentExpired-description" data-l10n-args="<%= JSON.stringify({productName}) %>">
+        The credit card you're using to make payments for <%- productName %> is about to expire.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionPaymentExpired-update">
+        To prevent any interruption to your service, please <a data-l10n-name="updateBillingUrl" href="<%- updateBillingUrl %>">update your payment information</a> as soon as possible.
+      </span>
     </mj-text>
   </mj-column>
 </mj-section>
 
-<%- include('/partials/button/index.mjml') %>
-<%- include('/partials/appBadges/index.mjml') %>
-<%- include('/partials/automatedEmailNoAction/index.mjml') %>
+<%- include ('/partials/subscriptionSupport/index.mjml') %>
