@@ -13,12 +13,6 @@ convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
   featureFlags: {
-    useSCAPaymentUIByDefault: {
-      default: false,
-      doc: 'Whether to use newer SCA payment UI components by default rather than at the /v2 sub-path',
-      env: 'FEATURE_USE_SCA_PAYMENT_UI_BY_DEFAULT',
-      format: Boolean,
-    },
     usePaypalUIByDefault: {
       default: false,
       doc: 'Whether to use PayPal payment UI by default rather than Stripe payment UI alone',
