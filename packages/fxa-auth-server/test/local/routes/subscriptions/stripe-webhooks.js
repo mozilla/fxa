@@ -766,6 +766,33 @@ describe('StripeWebhookHandler', () => {
         assert.calledOnce(sentryModule.reportSentryError);
       });
 
+      it('doesnt run or error report if its not manual invoice and not out of band', async () => {
+        const sentryModule = require('../../../../lib/sentry');
+        sandbox.stub(sentryModule, 'reportSentryError').returns({});
+        StripeWebhookHandlerInstance.paypalHelper = {};
+        invoice.collection_method = 'charge_automatically';
+        StripeWebhookHandlerInstance.stripeHelper.expandResource =
+          sinon.fake.resolves(invoice);
+        StripeWebhookHandlerInstance.stripeHelper.getInvoicePaypalTransactionId =
+          sinon.fake.resolves({});
+        invoiceCreditNoteEvent.data.object.out_of_band_amount = null;
+        const result = await StripeWebhookHandlerInstance.handleCreditNoteEvent(
+          {},
+          invoiceCreditNoteEvent
+        );
+        assert.isUndefined(result);
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          invoiceCreditNoteEvent.data.object.invoice,
+          'invoices'
+        );
+        assert.notCalled(
+          StripeWebhookHandlerInstance.stripeHelper
+            .getInvoicePaypalTransactionId
+        );
+        assert.notCalled(sentryModule.reportSentryError);
+      });
+
       it('doesnt issue refund without a paypal transaction to refund', async () => {
         StripeWebhookHandlerInstance.paypalHelper = {};
         invoice.collection_method = 'send_invoice';
