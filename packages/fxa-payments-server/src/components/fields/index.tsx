@@ -169,11 +169,25 @@ const UnwrappedInput = (props: InputProps) => {
     async (ev) => {
       const { value } = ev.target;
       if (onValidatePromise) {
+        const { selectionStart, selectionEnd } =
+          tooltipParentRef?.current as HTMLInputElement;
         const result = await onValidatePromise(value, true, props, getString);
+
         validator.updateField({
           name,
           ...result,
         });
+
+        // If the value hasn't changed since the cursor position was saved,
+        // restore it.  If we do nothing, the cursor will be moved to the end,
+        // regardless of the cursor position when the user started typing.
+        if (
+          tooltipParentRef.current &&
+          value === tooltipParentRef.current.value
+        ) {
+          tooltipParentRef.current.selectionStart = selectionStart;
+          tooltipParentRef.current.selectionEnd = selectionEnd;
+        }
       } else {
         validator.updateField({
           name,

@@ -95,7 +95,7 @@ export const NewUserEmailForm = ({
       <hr />
       <Localized id="new-user-email" attrs={{ label: true }}>
         <Input
-          type="email"
+          type="text"
           name="new-user-email"
           label="Enter your email"
           data-testid="new-user-email"
@@ -118,7 +118,7 @@ export const NewUserEmailForm = ({
 
       <Localized id="new-user-confirm-email" attrs={{ label: true }}>
         <Input
-          type="email"
+          type="text"
           name="new-user-confirm-email"
           label="Confirm your email"
           data-testid="new-user-confirm-email"
