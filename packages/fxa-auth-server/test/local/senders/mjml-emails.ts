@@ -53,6 +53,9 @@ const MESSAGE = {
   uaOSVersion: '10',
   uid: 'uid',
   unblockCode: 'AS6334PK',
+  productId: 'wibble',
+  planId: 'plan-example',
+  productName: 'Firefox Fortress',
 };
 
 // key = query param name, value = MESSAGE property name
@@ -102,7 +105,7 @@ const COMMON_TESTS = new Map<string, Test | any>([
 ]);
 
 // prettier-ignore
-const TESTS: [string, any][] = [
+const TESTS = [
   ['cadReminderFirstEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How To Complete Your Sync Setup' }],
     ['headers', new Map([
@@ -968,6 +971,44 @@ const TESTS: [string, any][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expiring soon` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentExpired') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentExpired' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms') },
+      { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]),
+    {updateTemplateValues: x => (
+      {...x, subscriptions: [{planId: MESSAGE.planId, productId: MESSAGE.productId, ...x.subscriptions[0]}]})}],
+  ['subscriptionPaymentExpiredEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Credit card for your subscriptions is expiring soon' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionsPaymentExpired') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionsPaymentExpired' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid') },
+      { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
 ];
 
 describe('lib/senders/mjml-emails:', () => {

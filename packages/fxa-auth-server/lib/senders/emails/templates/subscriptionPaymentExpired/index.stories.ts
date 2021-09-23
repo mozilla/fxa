@@ -11,7 +11,7 @@ export default {
 
 const createStory = subplatStoryWithProps(
   'subscriptionPaymentExpired',
-  'Sent whenever a user has a single subscription and their card will expire at the end of the month.',
+  'Sent whenever a user has a single subscription and their card will expire at the end of the month, triggered by a Stripe webhook.',
   {
     productName: 'Firefox Fortress',
     updateBillingUrl: 'http://localhost:3030/subscriptions',
