@@ -12161,7 +12161,7 @@ __metadata:
     temp: 0.9.4
     toobusy-js: 0.5.1
     underscore: ^1.13.1
-    walk: ^2.3.14
+    walk: ^2.3.15
   languageName: unknown
   linkType: soft
 
@@ -19516,7 +19516,7 @@ fsevents@~2.1.1:
     restify-clients: ^3.1.0
     sinon: ^9.0.3
     tap: ^14.11.0
-    walk: ^2.3.14
+    walk: ^2.3.15
   languageName: unknown
   linkType: soft
 
@@ -39222,12 +39222,21 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"walk@npm:2.3.14, walk@npm:^2.3.14, walk@npm:^2.3.9":
+"walk@npm:2.3.14, walk@npm:^2.3.9":
   version: 2.3.14
   resolution: "walk@npm:2.3.14"
   dependencies:
     foreachasync: ^3.0.0
   checksum: 77b744e340e890f82eb836b197655cbe171e5b92557446a9a26b89594fbe3b7ea64337b8d93e15a12831c6bf1bf6f83511b52f7bfcc441978b605883ff33bfcb
+  languageName: node
+  linkType: hard
+
+"walk@npm:^2.3.15":
+  version: 2.3.15
+  resolution: "walk@npm:2.3.15"
+  dependencies:
+    foreachasync: ^3.0.0
+  checksum: d494df1924656cc4881ff8f70474f80be10d07d0c899620e02ff8627e4f339f37e74d1b30b70e7a714d0b873b0dc8b20129a619c4b407b39949c756637ebe3a6
   languageName: node
   linkType: hard
 
