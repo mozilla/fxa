@@ -65,8 +65,6 @@ export const App = ({
   /* istanbul ignore next - router override is only used for tests */
   const Router = routerOverride ? routerOverride() : BrowserRouter;
 
-  const { useSCAPaymentUIByDefault = false } = config.featureFlags;
-
   const appContextValue: AppContextType = {
     config,
     queryParams,
