@@ -38,7 +38,7 @@
     "request": "^2.88.2",
     "should": "13.2.3",
     "temp": "0.9.4",
-    "walk": "^2.3.14"
+    "walk": "^2.3.15"
   },
   "scripts": {
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
