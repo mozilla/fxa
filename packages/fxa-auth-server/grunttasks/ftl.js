@@ -7,14 +7,14 @@
 module.exports = function (grunt) {
   grunt.config('concat', {
     ftl: {
-      src: ['.license.header', 'lib/**/en-US.ftl'],
-      dest: 'public/locales/en-US/auth.ftl',
+      src: ['.license.header', 'lib/**/en.ftl'],
+      dest: 'public/locales/en/auth.ftl',
     },
   });
 
   grunt.config('watch', {
     ftl: {
-      files: 'lib/**/en-US.ftl',
+      files: 'lib/**/en.ftl',
       tasks: ['merge-ftl'],
       options: {
         interrupt: true,
