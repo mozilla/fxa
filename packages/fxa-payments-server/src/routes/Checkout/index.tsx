@@ -143,6 +143,17 @@ export const Checkout = ({
     [productId, planId, plansByProductId]
   );
 
+  const metricsContext = {
+    flowId: queryParams.flow_id,
+    flowBeginTime: queryParams.flow_begin_time,
+    deviceId: queryParams.device_id,
+    utmCampaign: queryParams.utm_campaign,
+    utmContext: queryParams.utm_context,
+    utmMedium: queryParams.utm_medium,
+    utmSource: queryParams.utm_source,
+    utmTerm: queryParams.utm_term,
+  };
+
   const onFormMounted = useCallback(
     () => Amplitude.createSubscriptionMounted(selectedPlan),
     [selectedPlan]
@@ -182,6 +193,7 @@ export const Checkout = ({
             setRetryStatus(status);
             setSubscriptionError({ type: 'card_error', code: 'card_declined' });
           },
+          metricsContext,
         });
         Amplitude.createSubscriptionWithPaymentMethod_FULFILLED(selectedPlan);
         if (subscribeToNewsletter) {

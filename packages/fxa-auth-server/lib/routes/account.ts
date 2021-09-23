@@ -54,6 +54,7 @@ export class AccountHandler {
     private config: ConfigType,
     private customs: any,
     private signinUtils: any,
+    private signupUtils: any,
     private push: any,
     private verificationReminders: any,
     private oauth: any,
@@ -549,6 +550,12 @@ export class AccountHandler {
       ttl: 1800,
     });
 
+    this.setMetricsFlowCompleteSignal(request, clientId);
+    await request.stashMetricsContext({
+      uid: account.uid,
+      id: account.uid,
+    });
+
     return {
       uid: account.uid,
       access_token: access.token.toString('hex'),
@@ -565,6 +572,7 @@ export class AccountHandler {
         ignoreExpiration: true,
       })) as any;
       const uid = payload.uid;
+      form.uid = payload.uid;
       const account = await this.db.account(uid);
       // Only proceed if the account is in the stub state.
       // This prevents a token from being used multiple times.
@@ -577,8 +585,9 @@ export class AccountHandler {
         authSalt,
         this.config.verifierVersion
       );
+      const metricsContext = await request.gatherMetricsContext({});
+      await this.signupUtils.verifyAccount(request, account, {});
       const verifyHash = await password.verifyHash();
-      await this.db.verifyEmail(account, account.primaryEmail.emailCode);
       await this.db.resetAccount(
         { uid },
         {
@@ -1566,6 +1575,7 @@ export const accountRoutes = (
   config: ConfigType,
   customs: any,
   signinUtils: any,
+  signupUtils: any,
   push: any,
   verificationReminders: any,
   oauth: any,
@@ -1579,6 +1589,7 @@ export const accountRoutes = (
     config,
     customs,
     signinUtils,
+    signupUtils,
     push,
     verificationReminders,
     oauth,
@@ -1631,6 +1642,7 @@ export const accountRoutes = (
           payload: {
             email: validators.email().required(),
             clientId: validators.clientId.required(),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
           },
         },
       },

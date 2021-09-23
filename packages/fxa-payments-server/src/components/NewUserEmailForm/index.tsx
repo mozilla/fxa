@@ -74,6 +74,11 @@ export const NewUserEmailForm = ({
     []
   );
 
+  const onClickSignInButton = () => {
+    selectedPlan.other = 'click-signnin';
+    Amplitude.createAccountSignIn(selectedPlan);
+  };
+
   return (
     <Form
       data-testid="new-user-email-form"
@@ -83,11 +88,15 @@ export const NewUserEmailForm = ({
     >
       <Localized
         id="new-user-sign-in-link"
-        elems={{ a: <a href={signInURL}></a> }}
+        elems={{ a: <a onClick={onClickSignInButton} href={signInURL}></a> }}
       >
         <p className="sign-in-copy" data-testid="sign-in-copy">
           Already have a Firefox account?{' '}
-          <a data-testid="sign-in-link" href={signInURL}>
+          <a
+            data-testid="sign-in-link"
+            onClick={onClickSignInButton}
+            href={signInURL}
+          >
             Sign in
           </a>
         </p>

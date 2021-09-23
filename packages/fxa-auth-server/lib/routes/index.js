@@ -62,6 +62,7 @@ module.exports = function (
     config,
     customs,
     signinUtils,
+    signupUtils,
     push,
     verificationReminders,
     oauthRawDB,

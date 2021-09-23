@@ -55,6 +55,7 @@ export async function handlePasswordlessSubscription({
   onFailure,
   onRetry,
   onSuccess,
+  metricsContext,
 }: PasswordlessSignupHandlerParam &
   SubscriptionPaymentHandlerParam &
   SubscriptionCreateAuthServerAPIs) {
@@ -62,6 +63,7 @@ export async function handlePasswordlessSubscription({
     await handlePasswordlessSignUp({
       email,
       clientId,
+      metricsContext,
     });
 
     return handleSubscriptionPayment({

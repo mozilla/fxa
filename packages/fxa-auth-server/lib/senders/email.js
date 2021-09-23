@@ -1890,6 +1890,9 @@ module.exports = function (log, config) {
       invoiceDate,
       nextInvoiceDate,
       token,
+      flowId,
+      flowBeginTime,
+      deviceId,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -1909,6 +1912,9 @@ module.exports = function (log, config) {
       product_name: productName,
       token,
       product_id: productId,
+      flowId,
+      flowBeginTime,
+      deviceId,
     };
     const template = 'subscriptionAccountFinishSetup';
     const translator = this.translator(message.acceptLanguage);

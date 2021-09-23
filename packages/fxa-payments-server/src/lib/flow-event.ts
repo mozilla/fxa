@@ -39,6 +39,10 @@ export function init(eventData: FlowEventParams) {
   }
 }
 
+export function getFlowData() {
+  return initialized && optEventData;
+}
+
 export function logAmplitudeEvent(
   groupName: string,
   eventName: string,
@@ -74,4 +78,5 @@ export function logAmplitudeEvent(
 export default {
   init,
   logAmplitudeEvent,
+  getFlowData,
 };

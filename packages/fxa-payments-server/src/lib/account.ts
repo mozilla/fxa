@@ -5,6 +5,7 @@
 import {
   apiCreatePasswordlessAccount,
   updateAPIClientToken,
+  MetricsContext,
 } from './apiClient';
 import { GeneralError } from './errors';
 import sentry from './sentry';
@@ -15,14 +16,17 @@ export const FXA_SIGNUP_ERROR: GeneralError = {
 export async function handlePasswordlessSignUp({
   email,
   clientId,
+  metricsContext,
 }: {
   email: string;
   clientId: string;
+  metricsContext?: MetricsContext;
 }) {
   try {
     const { access_token: accessToken } = await apiCreatePasswordlessAccount({
       email,
       clientId,
+      metricsContext,
     });
     updateAPIClientToken(accessToken);
   } catch (e) {

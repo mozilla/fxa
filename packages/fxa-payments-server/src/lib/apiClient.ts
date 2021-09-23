@@ -1,12 +1,24 @@
 import { Config, defaultConfig } from './config';
 import { Plan, Profile, Customer, Subscription, Token } from '../store/types';
 import * as Amplitude from './amplitude';
+import { getFlowData } from './flow-event';
 import { PaymentMethod } from '@stripe/stripe-js';
 import { PaymentProvider } from './PaymentProvider';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
   [propName: string]: any;
+}
+
+export interface MetricsContext {
+  deviceId?: string;
+  flowId?: string;
+  flowBeginTime?: number;
+  utmCampaign?: string;
+  utmContext?: string;
+  utmMedium?: string;
+  utmSource?: string;
+  utmTerm?: string;
 }
 
 type ErrorResponseBody = {
@@ -212,6 +224,7 @@ export async function apiReactivateSubscription({
 export async function apiCreatePasswordlessAccount(params: {
   email: string;
   clientId: string;
+  metricsContext?: MetricsContext;
 }) {
   return apiFetch('POST', `${config.servers.auth.url}/v1/account/stub`, {
     body: JSON.stringify(params),
@@ -259,7 +272,11 @@ export async function apiCapturePaypalPayment(params: {
     const response = await apiFetch(
       'POST',
       `${config.servers.auth.url}/v1/oauth/subscriptions/active/new-paypal`,
-      { body: JSON.stringify(params) }
+      {
+        body: JSON.stringify(
+          Object.assign({}, params, { metricsContext: getFlowData() })
+        ),
+      }
     );
     Amplitude.createSubscriptionWithPaymentMethod_FULFILLED({
       ...metricsOptions,
@@ -304,7 +321,14 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
     const result = await apiFetch(
       'POST',
       `${config.servers.auth.url}/v1/oauth/subscriptions/active/new`,
-      { body: JSON.stringify({ priceId, paymentMethodId, idempotencyKey }) }
+      {
+        body: JSON.stringify({
+          priceId,
+          paymentMethodId,
+          idempotencyKey,
+          metricsContext: getFlowData(),
+        }),
+      }
     );
     Amplitude.createSubscriptionWithPaymentMethod_FULFILLED({
       ...metricsOptions,

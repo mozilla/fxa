@@ -13,6 +13,7 @@ export async function sendFinishSetupEmailForStubAccount({
   subscription,
   stripeHelper,
   mailer,
+  metricsContext,
 }: {
   email: string;
   uid: string;
@@ -20,6 +21,7 @@ export async function sendFinishSetupEmailForStubAccount({
   subscription: any;
   stripeHelper: any;
   mailer: any;
+  metricsContext?: any;
 }) {
   // If this fxa user is a stub (no-password) this is where we
   // send the "create a password" email
@@ -39,6 +41,7 @@ export async function sendFinishSetupEmailForStubAccount({
     );
     await mailer.sendSubscriptionAccountFinishSetupEmail([], account, {
       ...invoiceDetails,
+      ...metricsContext,
       token,
     });
   }

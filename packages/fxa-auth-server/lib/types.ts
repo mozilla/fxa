@@ -64,6 +64,7 @@ export interface AuthRequest extends Request {
   emitMetricsEvent: any;
   stashMetricsContext: any;
   propagateMetricsContext: any;
+  gatherMetricsContext: any;
 }
 
 export interface ProfileClient {
