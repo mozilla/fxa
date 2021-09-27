@@ -129,6 +129,9 @@ const MESSAGE_PARAMS = new Map([
   ['unblockCode', 'unblockCode'],
   ['product_name', 'productName'],
   ['token', 'token'],
+  ['flowId', 'flowId'],
+  ['flowBeginTime', 'flowBeginTime'],
+  ['deviceId', 'deviceId'],
 ]);
 
 const COMMON_TESTS = new Map([
@@ -269,7 +272,7 @@ const TESTS = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountFinishSetup }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id') },
+      { test: 'include', expected: configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice number: ${MESSAGE.invoiceNumber}` },
@@ -279,7 +282,7 @@ const TESTS = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id') },
+      { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice number: ${MESSAGE.invoiceNumber}` },

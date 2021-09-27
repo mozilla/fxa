@@ -88,7 +88,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     }
 
     const isPaypalCustomer = hasPaypalSubscription(customer);
-    const { token } = request.payload as Record<string, string>;
+    const { token, metricsContext } = request.payload as Record<string, string>;
     const currentBillingAgreement =
       this.stripeHelper.getCustomerPaypalAgreement(customer);
 
@@ -130,6 +130,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       subscription,
       stripeHelper: this.stripeHelper,
       mailer: this.mailer,
+      metricsContext,
     });
 
     return {
