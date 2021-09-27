@@ -6,7 +6,6 @@
 
 const chunk = require('lodash.chunk');
 const config = require('../../config').getProperties();
-const error = require('../../lib/error');
 const readUserRecords = require('./read-user-records');
 const sendEmailBatches = require('./send-email-batches');
 const Senders = require('../../lib/senders');
@@ -120,7 +119,16 @@ async function createMailer(
 ) {
   const sender = shouldSend ? null : createSenderMock(emailOutputDirname);
 
-  return (await Senders(log, config, error, translator, null, sender)).email;
+  return (
+    await Senders(
+      log,
+      config,
+      { check: () => Promise.resolve() },
+      translator,
+      {},
+      sender
+    )
+  ).email;
 }
 
 function createSenderMock(emailOutputDirname) {

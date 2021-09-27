@@ -16,7 +16,12 @@ require('../../lib/senders/translator')(
   config.i18n.defaultLanguage
 )
   .then((translator) => {
-    return require('../../lib/senders')(log, config, null, translator);
+    return require('../../lib/senders')(
+      log,
+      config,
+      { check: () => Promise.resolve() },
+      translator
+    );
   })
   .then((senders) => {
     return senders.sms.send.apply(null, args);

@@ -9,7 +9,6 @@ const ROOT_DIR = '../../..';
 const { assert } = require('chai');
 const config = require(`${ROOT_DIR}/config`).getProperties();
 const crypto = require('crypto');
-const error = require(`${ROOT_DIR}/lib/error`);
 const mocks = require(`${ROOT_DIR}/test/mocks`);
 const senders = require(`${ROOT_DIR}/lib/senders`);
 const sinon = require('sinon');
@@ -50,7 +49,9 @@ describe('lib/senders/index', () => {
             enableBudgetChecks: false,
           },
         }),
-        error,
+        {
+          check: sinon.stub().resolves(null),
+        },
         {}
       ).then((sndrs) => {
         const email = sndrs.email;
@@ -163,8 +164,8 @@ describe('lib/senders/index', () => {
               1
             );
 
-            const args = email._ungatedMailer.passwordChangedEmail.getCall(0)
-              .args;
+            const args =
+              email._ungatedMailer.passwordChangedEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
@@ -190,8 +191,8 @@ describe('lib/senders/index', () => {
           .then(() => {
             assert.equal(email._ungatedMailer.passwordResetEmail.callCount, 1);
 
-            const args = email._ungatedMailer.passwordResetEmail.getCall(0)
-              .args;
+            const args =
+              email._ungatedMailer.passwordResetEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
@@ -217,8 +218,8 @@ describe('lib/senders/index', () => {
           .then(() => {
             assert.equal(email._ungatedMailer.newDeviceLoginEmail.callCount, 1);
 
-            const args = email._ungatedMailer.newDeviceLoginEmail.getCall(0)
-              .args;
+            const args =
+              email._ungatedMailer.newDeviceLoginEmail.getCall(0).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
@@ -300,9 +301,10 @@ describe('lib/senders/index', () => {
               1
             );
 
-            const args = email._ungatedMailer.postAddTwoStepAuthenticationEmail.getCall(
-              0
-            ).args;
+            const args =
+              email._ungatedMailer.postAddTwoStepAuthenticationEmail.getCall(
+                0
+              ).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(
@@ -320,9 +322,8 @@ describe('lib/senders/index', () => {
         return createSender(config)
           .then((e) => {
             email = e;
-            email._ungatedMailer.postRemoveTwoStepAuthenticationEmail = sinon.spy(
-              () => Promise.resolve({})
-            );
+            email._ungatedMailer.postRemoveTwoStepAuthenticationEmail =
+              sinon.spy(() => Promise.resolve({}));
             return email.sendPostRemoveTwoStepAuthenticationEmail(
               EMAILS,
               acct,
@@ -336,9 +337,10 @@ describe('lib/senders/index', () => {
               1
             );
 
-            const args = email._ungatedMailer.postRemoveTwoStepAuthenticationEmail.getCall(
-              0
-            ).args;
+            const args =
+              email._ungatedMailer.postRemoveTwoStepAuthenticationEmail.getCall(
+                0
+              ).args;
             assert.equal(args[0].email, EMAIL, 'email correctly set');
             assert.equal(args[0].ccEmails.length, 1, 'email correctly set');
             assert.equal(

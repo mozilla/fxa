@@ -59,6 +59,6 @@ export class EmailBounce extends BaseAuthModel {
 
   static async findByEmail(email: string) {
     const { rows } = await EmailBounce.callProcedure(Proc.EmailBounces, email);
-    return rows.map((row: any) => EmailBounce.fromDatabaseJson(rows));
+    return rows.map((row: any) => EmailBounce.fromDatabaseJson(row));
   }
 }

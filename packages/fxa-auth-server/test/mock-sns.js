@@ -34,7 +34,7 @@ function MockSNS(options, config) {
     },
 
     publish(params) {
-      const promise = new Promise((resolve) => {
+      const promise = new Promise((resolve, reject) => {
         // HACK: Enable remote tests to see what was sent
         mailer.sendMail(
           {
@@ -43,7 +43,10 @@ function MockSNS(options, config) {
             subject: 'MockSNS.publish',
             text: params.Message,
           },
-          () => {
+          (err) => {
+            if (err) {
+              return reject(err);
+            }
             resolve({
               MessageId: 'fake message id',
             });

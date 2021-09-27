@@ -21,7 +21,6 @@
 process.env.NODE_ENV = 'dev';
 
 const config = require('../config').getProperties();
-const error = require('../lib/error');
 const createSenders = require('../lib/senders');
 const fs = require('fs');
 const log = require('../lib/log')({});
@@ -53,7 +52,14 @@ require('../lib/senders/translator')(
   config.i18n.defaultLanguage
 )
   .then((translator) => {
-    return createSenders(log, config, error, translator, {}, mailSender);
+    return createSenders(
+      log,
+      config,
+      { check: () => Promise.resolve() },
+      translator,
+      {},
+      mailSender
+    );
   })
   .then((senders) => {
     const mailer = senders.email._ungatedMailer;

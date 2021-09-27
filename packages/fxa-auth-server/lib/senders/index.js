@@ -10,13 +10,13 @@ const createSms = require('./sms');
 module.exports = async (
   log,
   config,
-  error,
+  bounces,
   translator,
   statsd,
   sender // This is only used in tests
 ) => {
   const defaultLanguage = config.i18n.defaultLanguage;
-  const Mailer = createMailer(log, config);
+  const Mailer = createMailer(log, config, bounces);
 
   async function createSenders() {
     const templates = await require('./templates')(log, translator);

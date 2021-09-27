@@ -19,6 +19,8 @@ if (!config.smtp.prependVerificationSubdomain.enabled) {
 if (!config.smtp.sesConfigurationSet) {
   config.smtp.sesConfigurationSet = 'ses-config';
 }
+config.smtp.user = 'test';
+config.smtp.password = 'test';
 config.smtp.subscriptionTermsUrl = 'http://example.com/terms';
 
 // Force enable the subscription transactional emails
@@ -1698,19 +1700,6 @@ describe('lib/senders/email:', () => {
       });
     });
 
-    it('resolves sendMail status', () => {
-      const message = {
-        email: 'test@restmail.net',
-        subject: 'subject',
-        template: 'verifyLogin',
-        uid: 'foo',
-      };
-
-      return mailer.send(message).then((status) => {
-        assert.deepEqual(status, [{ resp: 'ok' }]);
-      });
-    });
-
     it('logs emailEvent on send', () => {
       const message = {
         email: 'test@restmail.net',
@@ -2210,7 +2199,10 @@ async function setup(log, config, mocks, locale = 'en', sender = null) {
   ]);
   const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
     log,
-    config
+    config,
+    {
+      check: () => Promise.resolve(),
+    }
   );
   return new Mailer(translator, templates, config.smtp, sender);
 }
