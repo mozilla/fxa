@@ -549,6 +549,7 @@ module.exports = function (log, config) {
                   to: emailConfig && emailConfig.to,
                   emailSender,
                   emailService,
+                  template,
                 });
 
                 return reject(err);
