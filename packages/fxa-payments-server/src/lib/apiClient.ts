@@ -224,10 +224,11 @@ export async function apiReactivateSubscription({
 export async function apiCreatePasswordlessAccount(params: {
   email: string;
   clientId: string;
-  metricsContext?: MetricsContext;
 }) {
   return apiFetch('POST', `${config.servers.auth.url}/v1/account/stub`, {
-    body: JSON.stringify(params),
+    body: JSON.stringify(
+      Object.assign({}, params, { metricsContext: getFlowData() })
+    ),
   });
 }
 

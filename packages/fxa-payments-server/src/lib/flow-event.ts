@@ -40,7 +40,10 @@ export function init(eventData: FlowEventParams) {
 }
 
 export function getFlowData() {
-  return initialized && optEventData;
+  if (initialized) {
+    return optEventData;
+  }
+  return undefined;
 }
 
 export function logAmplitudeEvent(
