@@ -241,8 +241,8 @@ export function emailConfirmationValidation(
 
   return {
     value,
-    valid,
-    error: !valid && !focused ? errorMsg : null,
+    valid: valid || !value,
+    error: !valid && !focused && !!value ? errorMsg : null,
   };
 }
 
