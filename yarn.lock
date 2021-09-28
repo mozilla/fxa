@@ -3740,19 +3740,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^8.0.5":
-  version: 8.0.5
-  resolution: "@nestjs/platform-express@npm:8.0.5"
+"@nestjs/platform-express@npm:^8.0.7":
+  version: 8.0.7
+  resolution: "@nestjs/platform-express@npm:8.0.7"
   dependencies:
     body-parser: 1.19.0
     cors: 2.8.5
     express: 4.17.1
-    multer: 1.4.2
-    tslib: 2.3.0
+    multer: 1.4.3
+    tslib: 2.3.1
   peerDependencies:
     "@nestjs/common": ^8.0.0
     "@nestjs/core": ^8.0.0
-  checksum: 44efee7eb63981f0029ac9ec4295929d7a5d270b8d6e2144e003301b264dcdde1ba550d02d6495fc684faaa1d99f772c8637c6fc289fc604210c468c95e23c09
+  checksum: b33ac54feafec95853c2595601c545a46ea64277c132a8d76c557a350fea7c224e8cd2f80313214874c63f76a406790603e7fad37f1e1b26a46d47328b3cb7e5
   languageName: node
   linkType: hard
 
@@ -19250,7 +19250,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^8.0.6
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/platform-express": ^8.0.5
+    "@nestjs/platform-express": ^8.0.7
     "@sentry/integrations": ^6.12.0
     "@sentry/node": ^6.12.0
     "@types/chance": ^1.1.2
@@ -19769,7 +19769,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.0.5
+    "@nestjs/platform-express": ^8.0.7
     "@nestjs/schedule": ^1.0.1
     "@nestjs/schematics": ^8.0.3
     "@nestjs/testing": ^8.0.5
@@ -19866,7 +19866,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.0.5
+    "@nestjs/platform-express": ^8.0.7
     "@sentry/integrations": ^6.12.0
     "@sentry/node": ^6.12.0
     "@types/chance": ^1.1.2
@@ -20380,7 +20380,7 @@ fsevents@~2.1.1:
     "@nestjs/config": ^1.0.1
     "@nestjs/core": ^8.0.6
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/platform-express": ^8.0.5
+    "@nestjs/platform-express": ^8.0.7
     "@sentry/integrations": ^6.12.0
     "@sentry/node": ^6.12.0
     "@types/convict": ^5.2.2
@@ -28375,19 +28375,19 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"multer@npm:1.4.2":
-  version: 1.4.2
-  resolution: "multer@npm:1.4.2"
+"multer@npm:1.4.3":
+  version: 1.4.3
+  resolution: "multer@npm:1.4.3"
   dependencies:
     append-field: ^1.0.0
     busboy: ^0.2.11
     concat-stream: ^1.5.2
-    mkdirp: ^0.5.1
+    mkdirp: ^0.5.4
     object-assign: ^4.1.1
     on-finished: ^2.3.0
     type-is: ^1.6.4
     xtend: ^4.0.0
-  checksum: a77ba79ec96b8376fdd09531c1cfd36f1d04e195b5e944a2cd4979c992cdc9b521887abed0893f75a21c59bb4dffe6356046da966059c268801d1f7c83e6ea16
+  checksum: bf1752a3ba402604601331a358633d11331c6889b3c7e9aaf195a55b0764639091b6efe7c1a12bbec0fef66751262e89b616a09305e2f9702db36070fc9670d0
   languageName: node
   linkType: hard
 
@@ -38215,6 +38215,13 @@ resolve@^2.0.0-next.3:
   version: 2.3.0
   resolution: "tslib@npm:2.3.0"
   checksum: 8869694c26e4a7b56d449662fd54a4f9ba872c889d991202c74462bd99f10e61d5bd63199566c4284c0f742277736292a969642cc7b590f98727a7cae9529122
+  languageName: node
+  linkType: hard
+
+"tslib@npm:2.3.1":
+  version: 2.3.1
+  resolution: "tslib@npm:2.3.1"
+  checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9
   languageName: node
   linkType: hard
 
