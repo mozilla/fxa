@@ -16412,17 +16412,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"emittery@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "emittery@npm:0.10.0"
+  checksum: 2616a802df51e3f412b9b33f1b43161f7bc96037142cada6ecdbf35ddef1368e30d4f8e47fddc10b0753ccf91d3483b20ebca535b4b1e47526440e13150e2bc7
+  languageName: node
+  linkType: hard
+
 "emittery@npm:^0.7.1":
   version: 0.7.1
   resolution: "emittery@npm:0.7.1"
   checksum: ae934ba2bb346267bb01470cd07c48e5b5b2349bc00c94fe7800a954f00d0c4db5f6c748956e440b634c820f2f476d928efbce0d271a49fec47c5865d3ea281b
-  languageName: node
-  linkType: hard
-
-"emittery@npm:^0.9.2":
-  version: 0.9.2
-  resolution: "emittery@npm:0.9.2"
-  checksum: f23b191c6e1b2a9954a58ba19d96c66f8f0182469dc3c8152550572a66db82ee6f4f7db4a84cd20a37d616b924181954e186878fff8b084e295eaf841945f9cf
   languageName: node
   linkType: hard
 
@@ -19415,7 +19415,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     ejs: ^3.1.6
     email-addresses: 4.0.0
-    emittery: ^0.9.2
+    emittery: ^0.10.0
     esbuild: ^0.13.1
     esbuild-register: ^3.0.0
     eslint: ^7.29.0
