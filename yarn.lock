@@ -2459,9 +2459,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/pubsub@npm:^2.17.0":
-  version: 2.17.0
-  resolution: "@google-cloud/pubsub@npm:2.17.0"
+"@google-cloud/pubsub@npm:^2.18.1":
+  version: 2.18.1
+  resolution: "@google-cloud/pubsub@npm:2.18.1"
   dependencies:
     "@google-cloud/paginator": ^3.0.0
     "@google-cloud/precise-date": ^2.0.0
@@ -2478,7 +2478,7 @@ __metadata:
     is-stream-ended: ^0.1.4
     lodash.snakecase: ^4.1.1
     p-defer: ^3.0.0
-  checksum: c7023ffa5082d1cc6f6edf27ba9683f17a8ab94fdb5e4372d6b736294bd67e30576ad587d943313f35ecc6e1b9ec37a90d7ab5079b32bbac461f8032fab0875e
+  checksum: 9b2464d329970d61daf9c41b76c19378883011cb0a110ef6c21ef7a1f0d4b7fb36e1a1e28ad86f467bba7ae5c19f9dcfc8887c60d2d530bebedf7fd53b909096
   languageName: node
   linkType: hard
 
@@ -3740,19 +3740,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^8.0.5":
-  version: 8.0.5
-  resolution: "@nestjs/platform-express@npm:8.0.5"
+"@nestjs/platform-express@npm:^8.0.7":
+  version: 8.0.7
+  resolution: "@nestjs/platform-express@npm:8.0.7"
   dependencies:
     body-parser: 1.19.0
     cors: 2.8.5
     express: 4.17.1
-    multer: 1.4.2
-    tslib: 2.3.0
+    multer: 1.4.3
+    tslib: 2.3.1
   peerDependencies:
     "@nestjs/common": ^8.0.0
     "@nestjs/core": ^8.0.0
-  checksum: 44efee7eb63981f0029ac9ec4295929d7a5d270b8d6e2144e003301b264dcdde1ba550d02d6495fc684faaa1d99f772c8637c6fc289fc604210c468c95e23c09
+  checksum: b33ac54feafec95853c2595601c545a46ea64277c132a8d76c557a350fea7c224e8cd2f80313214874c63f76a406790603e7fad37f1e1b26a46d47328b3cb7e5
   languageName: node
   linkType: hard
 
@@ -10547,21 +10547,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autoprefixer@npm:10.3.4":
-  version: 10.3.4
-  resolution: "autoprefixer@npm:10.3.4"
+"autoprefixer@npm:10.3.5":
+  version: 10.3.5
+  resolution: "autoprefixer@npm:10.3.5"
   dependencies:
-    browserslist: ^4.16.8
-    caniuse-lite: ^1.0.30001252
-    colorette: ^1.3.0
+    browserslist: ^4.17.1
+    caniuse-lite: ^1.0.30001259
     fraction.js: ^4.1.1
+    nanocolors: ^0.1.5
     normalize-range: ^0.1.2
     postcss-value-parser: ^4.1.0
   peerDependencies:
     postcss: ^8.1.0
   bin:
     autoprefixer: bin/autoprefixer
-  checksum: fa037d78767158f3fd9b30e27870590824bddc7e38ffadf22b697e1a9d23b32cb4a164bef01e94b7820c8d719117ca5028db1764855fb6146fb2776d7bffe0e9
+  checksum: 0626aece9a59df50f682fcfa5ca29aaf63526ca85a60a7fe08f3da9ff6a730d99ff727068e84849f49c17ab5782658bc2085d932e04a1e49e530c7d357c244a9
   languageName: node
   linkType: hard
 
@@ -12393,18 +12393,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.16.8":
-  version: 4.16.8
-  resolution: "browserslist@npm:4.16.8"
+"browserslist@npm:^4.17.1":
+  version: 4.17.1
+  resolution: "browserslist@npm:4.17.1"
   dependencies:
-    caniuse-lite: ^1.0.30001251
-    colorette: ^1.3.0
-    electron-to-chromium: ^1.3.811
+    caniuse-lite: ^1.0.30001259
+    electron-to-chromium: ^1.3.846
     escalade: ^3.1.1
-    node-releases: ^1.1.75
+    nanocolors: ^0.1.5
+    node-releases: ^1.1.76
   bin:
     browserslist: cli.js
-  checksum: a442ab2156b95bc88627591c5af6f3e4952eab4a3b1eef942af37bbeaa717f60a78b31890c76b1ade08e881c541c6ac9e7a74f0a66968658e9fe013e69e69093
+  checksum: 7935fad6ad1ec6986e93854ea11c344b4fb0a8665a1501cf0a91cc832fd6a280ea147d2684b05520b70785c9ec88e746d6f5b0f8f0b70fc501b1684af5fc56dc
   languageName: node
   linkType: hard
 
@@ -12915,10 +12915,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30001251, caniuse-lite@npm:^1.0.30001252":
+"caniuse-lite@npm:^1.0.30001252":
   version: 1.0.30001252
   resolution: "caniuse-lite@npm:1.0.30001252"
   checksum: 0d25a2795ca224c1a689b08fe37a5dc6c4c79d80720f927bf7df70ed30c1b1b62c3cc51429eac01902d3fc298d9531b85efec331c2a051e42615c76fa348f118
+  languageName: node
+  linkType: hard
+
+"caniuse-lite@npm:^1.0.30001259":
+  version: 1.0.30001260
+  resolution: "caniuse-lite@npm:1.0.30001260"
+  dependencies:
+    nanocolors: ^0.1.0
+  checksum: a3a61073204636e02bc3972bfdcd8b3c3a2fb56f29b5ffa95fad7e5a01e2eece2ed92f1246728185992618a04f9221cbd83ddd96d2ef68083353d55ffe660e29
   languageName: node
   linkType: hard
 
@@ -13759,13 +13768,6 @@ __metadata:
   version: 1.2.2
   resolution: "colorette@npm:1.2.2"
   checksum: 69fec14ddaedd0f5b00e4bae40dc4bc61f7050ebdc82983a595d6fd64e650b9dc3c033fff378775683138e992e0ddd8717ac7c7cec4d089679dcfbe3cd921b04
-  languageName: node
-  linkType: hard
-
-"colorette@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "colorette@npm:1.3.0"
-  checksum: bda403dfba4d032bee4169f2a6436a83ae3da488a53bcb3be92dc44ace056518245cc614b12429d7529493d6b090a119b2523b0d55e8cd6b81ad939a3003c008
   languageName: node
   linkType: hard
 
@@ -16365,10 +16367,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-to-chromium@npm:^1.3.811":
-  version: 1.3.828
-  resolution: "electron-to-chromium@npm:1.3.828"
-  checksum: 1b02d012a2145e6f4a23d8c6d7050367bc4feb4dc7f16f899d69773dab42d9eeb1a770dfdf2ca6941da7629d0e93b34d55884dcbde404144fa49186f5a2db991
+"electron-to-chromium@npm:^1.3.846":
+  version: 1.3.849
+  resolution: "electron-to-chromium@npm:1.3.849"
+  checksum: b0106e8441e5b384daa4c33d8e069900f0ffa4363e66578a068ec115f951a8e131b7fb3585be505ea072b36608a65f9053f865f4744d65d85ea0b58d454e69b3
   languageName: node
   linkType: hard
 
@@ -16412,17 +16414,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"emittery@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "emittery@npm:0.10.0"
+  checksum: 2616a802df51e3f412b9b33f1b43161f7bc96037142cada6ecdbf35ddef1368e30d4f8e47fddc10b0753ccf91d3483b20ebca535b4b1e47526440e13150e2bc7
+  languageName: node
+  linkType: hard
+
 "emittery@npm:^0.7.1":
   version: 0.7.1
   resolution: "emittery@npm:0.7.1"
   checksum: ae934ba2bb346267bb01470cd07c48e5b5b2349bc00c94fe7800a954f00d0c4db5f6c748956e440b634c820f2f476d928efbce0d271a49fec47c5865d3ea281b
-  languageName: node
-  linkType: hard
-
-"emittery@npm:^0.9.2":
-  version: 0.9.2
-  resolution: "emittery@npm:0.9.2"
-  checksum: f23b191c6e1b2a9954a58ba19d96c66f8f0182469dc3c8152550572a66db82ee6f4f7db4a84cd20a37d616b924181954e186878fff8b084e295eaf841945f9cf
   languageName: node
   linkType: hard
 
@@ -19248,7 +19250,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^8.0.6
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/platform-express": ^8.0.5
+    "@nestjs/platform-express": ^8.0.7
     "@sentry/integrations": ^6.12.0
     "@sentry/node": ^6.12.0
     "@types/chance": ^1.1.2
@@ -19415,7 +19417,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     ejs: ^3.1.6
     email-addresses: 4.0.0
-    emittery: ^0.9.2
+    emittery: ^0.10.0
     esbuild: ^0.13.1
     esbuild-register: ^3.0.0
     eslint: ^7.29.0
@@ -19537,7 +19539,7 @@ fsevents@~2.1.1:
     "@types/sinon-express-mock": 1.3.9
     asmcrypto.js: ^0.22.0
     audit-filter: ^0.5.0
-    autoprefixer: 10.3.4
+    autoprefixer: 10.3.5
     babel-eslint: ^10.1.0
     babel-loader: ^8.2.2
     babel-plugin-dynamic-import-webpack: 1.1.0
@@ -19682,7 +19684,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-customs-server@workspace:packages/fxa-customs-server"
   dependencies:
-    "@google-cloud/pubsub": ^2.17.0
+    "@google-cloud/pubsub": ^2.18.1
     "@hapi/hapi": ^20.1.5
     "@hapi/hoek": ^9.2.0
     "@sentry/node": ^6.12.0
@@ -19756,7 +19758,7 @@ fsevents@~2.1.1:
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
     "@google-cloud/firestore": ^4.15.1
-    "@google-cloud/pubsub": ^2.17.0
+    "@google-cloud/pubsub": ^2.18.1
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
@@ -19767,7 +19769,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.0.5
+    "@nestjs/platform-express": ^8.0.7
     "@nestjs/schedule": ^1.0.1
     "@nestjs/schematics": ^8.0.3
     "@nestjs/testing": ^8.0.5
@@ -19864,7 +19866,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.0.5
+    "@nestjs/platform-express": ^8.0.7
     "@sentry/integrations": ^6.12.0
     "@sentry/node": ^6.12.0
     "@types/chance": ^1.1.2
@@ -19939,7 +19941,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-metrics-processor@workspace:packages/fxa-metrics-processor"
   dependencies:
-    "@google-cloud/pubsub": ^2.17.0
+    "@google-cloud/pubsub": ^2.18.1
     "@sentry/integrations": ^6.12.0
     "@sentry/node": ^6.12.0
     "@types/chai": ^4.2.18
@@ -20271,7 +20273,7 @@ fsevents@~2.1.1:
     postcss-cli: ^7.1.1
     postcss-import: ^12.0.1
     react: ^16.13.1
-    react-async-hook: ^3.6.2
+    react-async-hook: ^4.0.0
     react-dom: ^16.13.1
     react-easy-crop: ^3.5.3
     react-hook-form: ^6.15.5
@@ -20378,7 +20380,7 @@ fsevents@~2.1.1:
     "@nestjs/config": ^1.0.1
     "@nestjs/core": ^8.0.6
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/platform-express": ^8.0.5
+    "@nestjs/platform-express": ^8.0.7
     "@sentry/integrations": ^6.12.0
     "@sentry/node": ^6.12.0
     "@types/convict": ^5.2.2
@@ -28373,19 +28375,19 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"multer@npm:1.4.2":
-  version: 1.4.2
-  resolution: "multer@npm:1.4.2"
+"multer@npm:1.4.3":
+  version: 1.4.3
+  resolution: "multer@npm:1.4.3"
   dependencies:
     append-field: ^1.0.0
     busboy: ^0.2.11
     concat-stream: ^1.5.2
-    mkdirp: ^0.5.1
+    mkdirp: ^0.5.4
     object-assign: ^4.1.1
     on-finished: ^2.3.0
     type-is: ^1.6.4
     xtend: ^4.0.0
-  checksum: a77ba79ec96b8376fdd09531c1cfd36f1d04e195b5e944a2cd4979c992cdc9b521887abed0893f75a21c59bb4dffe6356046da966059c268801d1f7c83e6ea16
+  checksum: bf1752a3ba402604601331a358633d11331c6889b3c7e9aaf195a55b0764639091b6efe7c1a12bbec0fef66751262e89b616a09305e2f9702db36070fc9670d0
   languageName: node
   linkType: hard
 
@@ -28502,6 +28504,13 @@ fsevents@~2.1.1:
   dependencies:
     node-gyp: latest
   checksum: b6692edb0a37a7e85f14a2cdb71ef467c00df17e56d8738746984c0219f36494d0d826094aaa1c58ef971ea63e58e2019b6af72cb03b986d38b9821779878824
+  languageName: node
+  linkType: hard
+
+"nanocolors@npm:^0.1.0, nanocolors@npm:^0.1.5":
+  version: 0.1.12
+  resolution: "nanocolors@npm:0.1.12"
+  checksum: 2ce58f57006ddd1d2680d05fe21f54d858db8ba81bd13381598ddc546f7637e33c4407da2ea7da40ea1c96794250e7c14a4d00358b48eeae4d917d6a92bafe4c
   languageName: node
   linkType: hard
 
@@ -28930,10 +28939,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"node-releases@npm:^1.1.75":
-  version: 1.1.75
-  resolution: "node-releases@npm:1.1.75"
-  checksum: 74028e7d193c9c5986b2f6bb51f4f6405a3f144599bbb19751c81faece52af8eb3f5abac40cbcd11ead44be3f856be125aa71fbb8dd8bf0c7f90caa94179ee51
+"node-releases@npm:^1.1.76":
+  version: 1.1.76
+  resolution: "node-releases@npm:1.1.76"
+  checksum: 10174cb880fffbb2896954599a2551da66127dd3c65703c827536fe9a4b4431545a9e3378c2006fb5ba59d0f0764ceff87c9f7eb0e84fabf7958411fccd0edd1
   languageName: node
   linkType: hard
 
@@ -32825,12 +32834,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-async-hook@npm:^3.6.2":
-  version: 3.6.2
-  resolution: "react-async-hook@npm:3.6.2"
+"react-async-hook@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "react-async-hook@npm:4.0.0"
   peerDependencies:
     react: ">=16.8"
-  checksum: 6ec988a2336a62b2eebbf2fc3cc44ac6b2e2cb91124d94a36cbdb23a7c79307cb23e9a2f16cb4e943f367bfdebf1ce3599a8124c3b50aa4848ea80db3c042eb3
+  checksum: 059042027bff2751c89d1226ce7b463e73b54ad4018c627bd27d57c029469280d8e37e282bb943b35f91050fbd7d330965f65f0d8b1b7c0b9492fc848c6d82a3
   languageName: node
   linkType: hard
 
@@ -38206,6 +38215,13 @@ resolve@^2.0.0-next.3:
   version: 2.3.0
   resolution: "tslib@npm:2.3.0"
   checksum: 8869694c26e4a7b56d449662fd54a4f9ba872c889d991202c74462bd99f10e61d5bd63199566c4284c0f742277736292a969642cc7b590f98727a7cae9529122
+  languageName: node
+  linkType: hard
+
+"tslib@npm:2.3.1":
+  version: 2.3.1
+  resolution: "tslib@npm:2.3.1"
+  checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9
   languageName: node
   linkType: hard
 

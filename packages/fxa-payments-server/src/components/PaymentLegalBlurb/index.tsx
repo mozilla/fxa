@@ -6,15 +6,15 @@ import * as PaymentProvider from '../../lib/PaymentProvider';
 import './index.scss';
 
 function getPrivacyLinkText(): string {
-  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> <paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>.';
+  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink> <paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>';
 }
 
 function getPaypalPrivacyLinkText(): string {
-  return '<paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>.';
+  return '<paypalPrivacyLink>Paypal privacy policy</paypalPrivacyLink>';
 }
 
 function getStripePrivacyLinkText(): string {
-  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink>.';
+  return '<stripePrivacyLink>Stripe privacy policy</stripePrivacyLink>';
 }
 
 const PaypalPaymentLegalBlurb = () => (
