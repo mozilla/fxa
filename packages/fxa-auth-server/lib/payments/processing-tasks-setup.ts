@@ -5,7 +5,6 @@ import { setupAuthDatabase } from 'fxa-shared/db';
 import { StatsD } from 'hot-shots';
 import Container from 'typedi';
 
-import error from '../error';
 import { CurrencyHelper } from '../payments/currencies';
 import { StripeHelper } from './stripe';
 import { configureSentry } from '../sentry';
@@ -25,11 +24,11 @@ export async function setupProcesingTaskObjects() {
           log.error('statsd.error', err);
         },
       })
-    : (({
+    : ({
         increment: () => {},
         timing: () => {},
         close: () => {},
-      } as unknown) as StatsD);
+      } as unknown as StatsD);
   Container.set(StatsD, statsd);
 
   const log = require('../log')({ ...config.log, statsd });
@@ -41,7 +40,7 @@ export async function setupProcesingTaskObjects() {
   const senders = await require('../senders')(
     log,
     config,
-    error,
+    { check: () => Promise.resolve() },
     translator,
     statsd
   );

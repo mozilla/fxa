@@ -8,6 +8,8 @@ import url from 'url';
 import { makeMySQLConfig } from 'fxa-shared/db/config';
 
 const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
+const ONE_DAY = 1000 * 60 * 60 * 24;
+const FIVE_MINUTES = 1000 * 60 * 5;
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -386,6 +388,44 @@ const conf = convict({
       format: String,
       default: '',
       env: 'SES_CONFIGURATION_SET',
+    },
+    bounces: {
+      enabled: {
+        doc: 'Flag to enable checking for bounces before sending email',
+        format: Boolean,
+        default: true,
+        env: 'BOUNCES_ENABLED',
+      },
+      complaint: {
+        doc: 'Tiers of max allowed complaints per amount of milliseconds',
+        format: Object,
+        default: {
+          // 0 are allowed in the past day.
+          // 1 is allowed in the past year. TODO: a year seems insanely long
+          0: ONE_DAY,
+          1: 365 * ONE_DAY,
+        },
+        env: 'BOUNCES_COMPLAINT',
+      },
+      hard: {
+        doc: 'Tiers of max allowed hard bounces per amount of milliseconds',
+        format: Object,
+        default: {
+          // 0 are allowed in the past day.
+          // 1 is allowed in the past year. TODO: a year seems insanely long
+          0: ONE_DAY,
+          1: 365 * ONE_DAY,
+        },
+        env: 'BOUNCES_HARD',
+      },
+      soft: {
+        doc: 'Tiers of max allowed soft bounces per amount of milliseconds',
+        format: Object,
+        default: {
+          0: FIVE_MINUTES,
+        },
+        env: 'BOUNCES_SOFT',
+      },
     },
   },
   maxEventLoopDelay: {

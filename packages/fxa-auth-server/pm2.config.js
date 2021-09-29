@@ -23,6 +23,7 @@ module.exports = {
         SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX: '^sync.*@restmail\\.net$',
         FORCE_PASSWORD_CHANGE_EMAIL_REGEX: 'forcepwdchange',
         CONFIG_FILES: 'config/secrets.json',
+        EMAIL_CONFIG_USE_REDIS: 'false',
         PORT: '9000',
         PATH,
       },

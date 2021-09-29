@@ -1103,7 +1103,10 @@ async function setup(
   ]);
   const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
     log,
-    config
+    config,
+    {
+      check: () => Promise.resolve(),
+    }
   );
   return new Mailer(translator, templates, config.smtp, sender);
 }
