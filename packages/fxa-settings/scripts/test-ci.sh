@@ -18,7 +18,6 @@ yarn workspaces foreach \
     --topological-dev \
     --include 123done \
     --include browserid-verifier \
-    --include fxa-auth-db-mysql \
     --include fxa-auth-server \
     --include fxa-content-server \
     --include fxa-profile-server \

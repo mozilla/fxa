@@ -385,11 +385,6 @@ Firefox Accounts authorization is a complicated flow. You can get verbose loggin
 
 Valid `level` values (from least to most verbose logging) include: `"fatal", "error", "warn", "info", "trace", "debug"`.
 
-## Database integration
-
-This server depends on a database server
-from the [`fxa-auth-db-mysql` repo](../fxa-auth-db-mysql/).
-
 ## License
 
 MPL 2.0

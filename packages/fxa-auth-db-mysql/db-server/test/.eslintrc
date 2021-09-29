@@ -1,7 +1,0 @@
-extends: ../../.eslintrc
-
-env:
-  mocha: true
-
-rules:
-  fxa/async-crypto-random: 0

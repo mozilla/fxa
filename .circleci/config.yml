@@ -137,14 +137,12 @@ jobs:
             'fxa-admin-panel' \
             'fxa-support-panel' \
             'fxa-event-broker' \
-            'fxa-auth-db-mysql' \
             'fxa-profile-server' \
             '123done' \
             'browserid-verifier' \
             'fortress' \
             'fxa-auth-client' \
             'fxa-geodb' \
-            'fxa-email-event-proxy' \
             'fxa-customs-server' \
             )
             for p in "${PACKAGES[@]}"; do
@@ -194,23 +192,6 @@ jobs:
     steps:
       - test-content-server-part:
           index: 5
-
-  test-email-service:
-    resource_class: large
-    docker:
-      - image: circleci/rust:latest-node
-      - image: mysql:5.7.27
-        environment:
-          - MYSQL_DATABASE: fxa
-          - MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          - MYSQL_ROOT_PASSWORD: ''
-      - image: redis
-    steps:
-      - base-install
-      - run: cargo install cargo-audit
-      - run: ./packages/fxa-email-service/scripts/test-ci.sh
-      - store_artifacts:
-          path: artifacts
 
   deploy-packages:
     resource_class: small
@@ -362,17 +343,6 @@ workflows:
           filters:
             branches:
               ignore: main
-            tags:
-              ignore: /.*/
-      - test-email-service:
-          # since email-service is expensive
-          # to build and rarely changes
-          # we only run it on branches
-          # starting with "email-service-"
-          filters:
-            branches:
-              only:
-                - /^email-service-.*/
             tags:
               ignore: /.*/
       - build-and-deploy-storybooks:
