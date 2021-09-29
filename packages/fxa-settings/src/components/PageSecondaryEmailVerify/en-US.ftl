@@ -1,5 +1,6 @@
 ## Verify secondary email page
 
+add-secondary-email-step-2 = Step 2 of 2
 verify-secondary-email-error = There was a problem sending the verification code.
 verify-secondary-email-page-title =
   .title = Secondary email

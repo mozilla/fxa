@@ -43,6 +43,11 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     },
     [alertBar, l10n, navigate]
   );
+  const subtitleText = l10n.getString(
+    'add-secondary-email-step-2',
+    null,
+    'Step 2 of 2'
+  );
   // Using 'any' here, instead of FluentVariable, to avoid having to import @fluent/bundle.
   const email = (location?.state as any)?.email as string | undefined | any;
 
@@ -85,7 +90,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     !formState.isDirty || !formState.isValid || account.loading;
   return (
     <Localized id="verify-secondary-email-page-title" attrs={{ title: true }}>
-      <FlowContainer title="Secondary email">
+      <FlowContainer title="Secondary email" subtitle={subtitleText}>
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           data-testid="secondary-email-verify-form"
