@@ -79,6 +79,26 @@ export async function getAccountCustomerByUid(uid: string) {
 }
 
 /**
+ * Fetch the FxA user id and primary email for a customer by Stripe customer id.
+ * @param customerId
+ * @returns {Object} result
+ * @returns {string} result.uid - The FxA user id
+ * @returns {string} result.email - The primary email for the FxA user
+ */
+export async function getUidAndEmailByStripeCustomerId(customerId: string) {
+  const accounts = Account.tableName;
+  const accountCustomers = AccountCustomers.tableName;
+  return Account.query()
+    .select(`${accounts}.uid`, `${accounts}.email`)
+    .join(`${accountCustomers}`, `${accountCustomers}.uid`, `${accounts}.uid`)
+    .where({
+      [`${accountCustomers}.stripeCustomerId`]: customerId,
+    })
+    .limit(1)
+    .first();
+}
+
+/**
  * Attempts to update an accountCustomer record by fxa user id
  * Returns the number of affected rows
  *
