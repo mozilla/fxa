@@ -73,6 +73,9 @@ const {
 } = require('../../../lib/payments/google-play/subscription-purchase');
 
 const mockConfig = {
+  authFirestore: {
+    prefix: 'fxa-auth-',
+  },
   publicUrl: 'https://accounts.example.com',
   subscriptions: {
     cacheTtlSeconds: 10,
