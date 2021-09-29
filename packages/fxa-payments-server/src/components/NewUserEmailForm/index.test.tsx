@@ -122,19 +122,17 @@ describe('NewUserEmailForm test', () => {
   });
 
   it('shows error when emails do not match', async () => {
-    let subject;
-    await act(async () => {
-      subject = render(
-        <WrapNewUserEmailForm accountExistsReturnValue={false} />
-      );
-      const firstEmail = subject.getByTestId('new-user-email');
-      const secondEmail = subject.getByTestId('new-user-confirm-email');
-      fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
-      fireEvent.change(secondEmail, {
-        target: { value: 'not.the.same@email.com' },
-      });
-      fireEvent.blur(secondEmail);
+    let subject = render(
+      <WrapNewUserEmailForm accountExistsReturnValue={false} />
+    );
+    const firstEmail = subject.getByTestId('new-user-email');
+    const secondEmail = subject.getByTestId('new-user-confirm-email');
+    fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
+    fireEvent.change(secondEmail, {
+      target: { value: 'not.the.same@email.com' },
     });
+    fireEvent.blur(secondEmail);
+
     expect(
       subject.queryByText('new-user-email-validate-confirm')
     ).toBeVisible();
