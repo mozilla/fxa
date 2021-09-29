@@ -5,7 +5,9 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postVerifySecondary-title">Secondary email added</span>
+      <span data-l10n-id="postVerifySecondary-title">
+        Secondary email added
+      </span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -13,7 +15,13 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="postVerifySecondary-description" data-l10n-args='<%= JSON.stringify({secondaryEmail}) %>'>You have successfully verified secondary@email as a secondary email for your Firefox Account. Security notifications and sign-in confirmations will now be delivered to both email addresses.</span>
+      <span
+        data-l10n-id="postVerifySecondary-description"
+        data-l10n-args="<%= JSON.stringify({secondaryEmail}) %>">
+        You have successfully verified <%- secondaryEmail %> as a secondary
+        email for your Firefox Account. Security notifications and sign-in
+        confirmations will now be delivered to both email addresses.
+      </span>
     </mj-text>
   </mj-column>
 </mj-section>
