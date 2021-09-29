@@ -31,6 +31,7 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth, ThenArg } from './utils';
+const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
 /**
  * Delete any metadata keys prefixed by `capabilities:` before
@@ -497,7 +498,7 @@ export class StripeHandler {
       throw error.unknownCustomer(uid);
     }
 
-    const { priceId, paymentMethodId, idempotencyKey } =
+    const { priceId, paymentMethodId, idempotencyKey, metricsContext } =
       request.payload as Record<string, string>;
 
     let taxRateId: string | undefined;
@@ -554,6 +555,7 @@ export class StripeHandler {
       subscription,
       stripeHelper: this.stripeHelper,
       mailer: this.mailer,
+      metricsContext,
     });
 
     return {
@@ -871,6 +873,7 @@ export const stripeRoutes = (
             priceId: isA.string().required(),
             paymentMethodId: validators.stripePaymentMethodId.optional(),
             idempotencyKey: isA.string().required(),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
           },
         },
       },

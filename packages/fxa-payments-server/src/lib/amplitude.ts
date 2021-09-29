@@ -22,6 +22,7 @@ const eventTypeNames = {
   success: 'success',
   fail: 'fail',
   complete: 'complete',
+  other: 'other',
 
   submit3DS: '3ds-submit',
   success3DS: '3ds-success',
@@ -46,6 +47,7 @@ export type EventProperties = GlobalEventProperties & {
   utm_medium?: string;
   utm_source?: string;
   utm_term?: string;
+  other?: string;
 };
 
 type SuccessfulSubscriptionEventProperties = EventProperties & {
@@ -374,6 +376,14 @@ export function createAccountEngaged(eventProperties: EventProperties) {
   safeLogAmplitudeEvent(
     eventGroupNames.createAccount,
     eventTypeNames.engage,
+    eventProperties
+  );
+}
+
+export function createAccountSignIn(eventProperties: EventProperties) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.createAccount,
+    eventTypeNames.other,
     eventProperties
   );
 }

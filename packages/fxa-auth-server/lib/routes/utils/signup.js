@@ -23,6 +23,7 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
       const geoData = request.app.geo;
       const country = geoData.location && geoData.location.country;
       const countryCode = geoData.location && geoData.location.countryCode;
+
       const { deviceId, flowId, flowBeginTime, productId, planId } =
         await request.app.metricsContext;
 

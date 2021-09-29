@@ -79,6 +79,15 @@ const makeRoutes = function (options = {}, requireMocks) {
     '../../../lib/routes/account',
     requireMocks || {}
   );
+  const signupUtils =
+    options.signupUtils ||
+    require('../../../lib/routes/utils/signup')(
+      log,
+      db,
+      mailer,
+      push,
+      verificationReminders
+    );
   return accountRoutes(
     log,
     db,
@@ -87,6 +96,7 @@ const makeRoutes = function (options = {}, requireMocks) {
     config,
     customs,
     signinUtils,
+    signupUtils,
     push,
     verificationReminders,
     {
@@ -513,6 +523,7 @@ describe('deleteAccountIfUnverified', () => {
   mockConfig.signinConfirmation.skipForEmailAddresses = [];
   const mockCustoms = {};
   const mockSigninUtils = {};
+  const mockSignupUtils = {};
   const mockPush = {};
   const mockVerificationReminders = {};
   const mockOauth = {};
@@ -541,6 +552,7 @@ describe('deleteAccountIfUnverified', () => {
       mockConfig,
       mockCustoms,
       mockSigninUtils,
+      mockSignupUtils,
       mockPush,
       mockVerificationReminders,
       mockOauth,
@@ -561,6 +573,7 @@ describe('deleteAccountIfUnverified', () => {
       mockConfig,
       mockCustoms,
       mockSigninUtils,
+      mockSignupUtils,
       mockPush,
       mockVerificationReminders,
       mockOauth,

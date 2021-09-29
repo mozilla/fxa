@@ -196,6 +196,13 @@ module.exports = function (log, config) {
         id: request.payload.code,
       };
     }
+
+    if (request.payload && request.payload.uid && request.payload.token) {
+      return {
+        uid: request.payload.uid,
+        id: request.payload.uid,
+      };
+    }
   }
 
   /**

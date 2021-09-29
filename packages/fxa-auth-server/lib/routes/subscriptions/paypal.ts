@@ -26,6 +26,7 @@ import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
+const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
 export class PayPalHandler extends StripeWebhookHandler {
   protected paypalHelper: PayPalHelper;
@@ -87,7 +88,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     }
 
     const isPaypalCustomer = hasPaypalSubscription(customer);
-    const { token } = request.payload as Record<string, string>;
+    const { token, metricsContext } = request.payload as Record<string, string>;
     const currentBillingAgreement =
       this.stripeHelper.getCustomerPaypalAgreement(customer);
 
@@ -129,6 +130,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       subscription,
       stripeHelper: this.stripeHelper,
       mailer: this.mailer,
+      metricsContext,
     });
 
     return {
@@ -466,6 +468,7 @@ export const paypalRoutes = (
             priceId: isA.string().required(),
             token: validators.paypalPaymentToken.allow(null).optional(),
             idempotencyKey: isA.string().required(),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
           },
         },
       },

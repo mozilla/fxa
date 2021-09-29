@@ -3,6 +3,11 @@ export interface QueryParams {
   device_id?: string;
   flow_id?: string;
   flow_begin_time?: number;
+  utm_campaign?: string;
+  utm_context?: string;
+  utm_medium?: string;
+  utm_source?: string;
+  utm_term?: string;
 }
 
 export interface GenericObject {

@@ -147,6 +147,10 @@ function mapSubscriptionPaymentEventProperties(
       properties['checkout_type'] = data.checkoutType;
     }
 
+    if (data.other) {
+      properties['other'] = data.other;
+    }
+
     return properties;
   }
 }
