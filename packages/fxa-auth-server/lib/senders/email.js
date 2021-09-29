@@ -257,6 +257,7 @@ module.exports = function (log, config, bounces) {
       ignoreTLS: !mailerConfig.secure,
       port: mailerConfig.port,
       pool: true,
+      maxConnections: 2,
       maxMessages: 10,
     };
 
@@ -278,7 +279,6 @@ module.exports = function (log, config, bounces) {
     this.accountRecoveryCodesUrl = mailerConfig.accountRecoveryCodesUrl;
     this.androidUrl = mailerConfig.androidUrl;
     this.createAccountRecoveryUrl = mailerConfig.createAccountRecoveryUrl;
-    this.emailService = sender || require('./email_service')(config);
     this.accountFinishSetupUrl = mailerConfig.accountFinishSetupUrl;
     this.initiatePasswordChangeUrl = mailerConfig.initiatePasswordChangeUrl;
     this.initiatePasswordResetUrl = mailerConfig.initiatePasswordResetUrl;
@@ -292,12 +292,6 @@ module.exports = function (log, config, bounces) {
     this.privacyUrl = mailerConfig.privacyUrl;
     this.reportSignInUrl = mailerConfig.reportSignInUrl;
     this.revokeAccountRecoveryUrl = mailerConfig.revokeAccountRecoveryUrl;
-    this.selectEmailServices = require('./select_email_services')(
-      log,
-      config,
-      this.mailer,
-      this.emailService
-    );
     this.sender = mailerConfig.sender;
     this.sesConfigurationSet = mailerConfig.sesConfigurationSet;
     this.subscriptionSettingsUrl = mailerConfig.subscriptionSettingsUrl;
@@ -496,110 +490,93 @@ module.exports = function (log, config, bounces) {
     }
     message.templateVersion = templateVersion;
 
-    const services = await this.selectEmailServices(message);
+    const headers = {
+      'Content-Language': localized.language,
+      'X-Template-Name': template,
+      'X-Template-Version': templateVersion,
+      ...message.headers,
+      ...optionalHeader('X-Device-Id', message.deviceId),
+      ...optionalHeader('X-Flow-Id', message.flowId),
+      ...optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
+      ...optionalHeader('X-Service-Id', message.service),
+      ...optionalHeader('X-Uid', message.uid),
+    };
 
-    for (const service of services) {
-      const headers = {
-        'Content-Language': localized.language,
-        'X-Template-Name': template,
-        'X-Template-Version': templateVersion,
-        ...message.headers,
-        ...optionalHeader('X-Device-Id', message.deviceId),
-        ...optionalHeader('X-Flow-Id', message.flowId),
-        ...optionalHeader('X-Flow-Begin-Time', message.flowBeginTime),
-        ...optionalHeader('X-Service-Id', message.service),
-        ...optionalHeader('X-Uid', message.uid),
-      };
+    const to = message.email;
 
-      const { mailer, emailAddresses, emailService, emailSender } = service;
-      const to = emailAddresses[0];
-
-      try {
-        await bounces.check(to, template);
-      } catch (err) {
-        log.error('email.bounce.limit', {
-          err: err.message,
-          errno: err.errno,
-          to,
-          template,
-        });
-        throw err;
-      }
-
-      // Set headers that let us attribute success/failure correctly
-      message.emailService = headers['X-Email-Service'] = emailService;
-      message.emailSender = headers['X-Email-Sender'] = emailSender;
-
-      if (this.sesConfigurationSet && emailSender === 'ses') {
-        // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
-        // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
-        // actual outgoing email messages.
-        headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet;
-        headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(
-          message.metricsTemplate || template,
-          emailService
-        );
-      }
-
-      log.debug('mailer.send', {
-        email: to,
-        template,
-        headers: Object.keys(headers).join(','),
-      });
-
-      const emailConfig = {
-        sender: this.sender,
-        from: this.sender,
+    try {
+      await bounces.check(to, template);
+    } catch (err) {
+      log.error('email.bounce.limit', {
+        err: err.message,
+        errno: err.errno,
         to,
-        subject: localized.subject,
-        text: localized.text,
-        html: localized.html,
-        xMailer: false,
-        headers,
-      };
-
-      if (emailAddresses.length > 1) {
-        emailConfig.cc = emailAddresses.slice(1);
-      }
-
-      if (emailService === 'fxa-email-service') {
-        emailConfig.provider = emailSender;
-      }
-
-      await new Promise((resolve, reject) => {
-        mailer.sendMail(emailConfig, (err, status) => {
-          if (err) {
-            log.error('mailer.send.error', {
-              err: err.message,
-              code: err.code,
-              errno: err.errno,
-              message: status && status.message,
-              to: emailConfig && emailConfig.to,
-              emailSender,
-              emailService,
-              template,
-            });
-
-            return reject(err);
-          }
-
-          log.debug('mailer.send.1', {
-            status: status && status.message,
-            id: status && status.messageId,
-            to: emailConfig && emailConfig.to,
-            emailSender,
-            emailService,
-          });
-
-          emailUtils.logEmailEventSent(log, {
-            ...message,
-            headers,
-          });
-
-          return resolve(status);
-        });
+        template,
       });
+      throw err;
     }
+
+    if (this.sesConfigurationSet) {
+      // Note on SES Event Publishing: The X-SES-CONFIGURATION-SET and
+      // X-SES-MESSAGE-TAGS email headers will be stripped by SES from the
+      // actual outgoing email messages.
+      headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet;
+      headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(
+        message.metricsTemplate || template,
+        'fxa-auth-server'
+      );
+    }
+
+    log.debug('mailer.send', {
+      email: to,
+      template,
+      headers: Object.keys(headers).join(','),
+    });
+
+    const emailConfig = {
+      sender: this.sender,
+      from: this.sender,
+      to,
+      subject: localized.subject,
+      text: localized.text,
+      html: localized.html,
+      xMailer: false,
+      headers,
+    };
+
+    if (message.ccEmails) {
+      emailConfig.cc = message.ccEmails;
+    }
+
+    await new Promise((resolve, reject) => {
+      this.mailer.sendMail(emailConfig, (err, status) => {
+        if (err) {
+          log.error('mailer.send.error', {
+            err: err.message,
+            code: err.code,
+            errno: err.errno,
+            message: status && status.message,
+            to: emailConfig && emailConfig.to,
+            template,
+          });
+
+          return reject(err);
+        }
+
+        log.debug('mailer.send.1', {
+          status: status && status.message,
+          id: status && status.messageId,
+          to: emailConfig && emailConfig.to,
+        });
+
+        emailUtils.logEmailEventSent(log, {
+          ...message,
+          headers,
+        });
+
+        return resolve(status);
+      });
+    });
   };
 
   Mailer.prototype.verifyEmail = async function (message) {

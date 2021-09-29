@@ -75,12 +75,7 @@ Thumbs.db
 packages/browserid-verifier/loadtest/venv
 packages/browserid-verifier/loadtest/*.pyc
 
-# fxa-auth-db-mysql
-packages/fxa-auth-db-mysql/config/dev.js
-packages/fxa-auth-db-mysql/sandbox
-
 # fxa-auth-server
-packages/fxa-auth-server/fxa-auth-db-mysql
 packages/fxa-auth-server/sandbox
 packages/fxa-auth-server/config/key.json
 packages/fxa-auth-server/config/oldKey.json
@@ -113,16 +108,6 @@ packages/fxa-content-server/.tscompiled
 
 # fxa-customs-server
 packages/fxa-customs-server/test/mocks/temp.netset
-
-# fxa-email-event-proxy
-packages/fxa-email-event-proxy/*.zip
-
-# fxa-email-service
-packages/fxa-email-service/**/*.rs.bk
-packages/fxa-email-service/config/local.*
-packages/fxa-email-service/fxa-auth-db-mysql
-packages/fxa-email-service/target
-packages/fxa-email-service/.sourcehash
 
 # fxa-payments-server
 packages/fxa-payments-server/fxa-content-server-l10n/

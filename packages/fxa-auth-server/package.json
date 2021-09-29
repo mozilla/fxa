@@ -167,7 +167,6 @@
     "esbuild-register": "^3.2.0",
     "eslint": "^7.32.0",
     "eslint-plugin-fxa": "^2.0.2",
-    "fxa-auth-db-mysql": "workspace:*",
     "fxa-shared": "workspace:*",
     "grunt": "^1.4.1",
     "grunt-cli": "^1.4.3",
