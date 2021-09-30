@@ -72,7 +72,7 @@ This project is production Mozilla code and subject to our [engineering practice
 
 ## Git Commit Guidelines
 
-We loosely follow the [Angular commit guidelines](https://github.com/angular/angular.js/blob/main/CONTRIBUTING.md#type) of `<type>(<scope>): <subject>` where `type` must be one of:
+We loosely follow the [Angular commit guidelines](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#type) of `<type>(<scope>): <subject>` where `type` must be one of:
 
 - **feat**: A new feature
 - **fix**: A bug fix
@@ -116,6 +116,14 @@ This commit:
 
 Closes #
 ```
+
+After creating `~/.gitmessage`, update git to use the template with the following:
+
+```
+git config --global commit.template ~/.gitmessage
+```
+
+A text editor will open with the template any time `git commit` is run without the `-m` flag.
 
 Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes". Commits
 are expected to follow this format.

@@ -28,7 +28,7 @@ Use the following as a template, and fill in your own values:
     "apiKey": "pk_test_123"
   },
   "paypal": {
-    "clientId": "sandbox_client_id"
+    "clientId": "sb"
   }
 }
 ```
