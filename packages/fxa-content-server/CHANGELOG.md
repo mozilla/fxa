@@ -1,3 +1,15 @@
+## 1.216.0
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- deps-dev: bump @testing-library/react from 12.0.0 to 12.1.1 (#10548) ([cb9e59ddb](https://github.com/mozilla/fxa/commit/cb9e59ddb))
+- deps: bump autoprefixer from 10.3.4 to 10.3.5 (#10525) ([3c6030165](https://github.com/mozilla/fxa/commit/3c6030165))
+- deps: bump hot-shots from 8.5.0 to 8.5.1 (#10511) ([cc05a2780](https://github.com/mozilla/fxa/commit/cc05a2780))
+- deps: bump @sentry/browser from 6.13.1 to 6.13.2 ([09cdd2a07](https://github.com/mozilla/fxa/commit/09cdd2a07))
+- deps: bump @sentry/browser from 6.12.0 to 6.13.1 ([8c7809b15](https://github.com/mozilla/fxa/commit/8c7809b15))
+- deps-dev: bump @babel/cli from 7.15.4 to 7.15.7 ([68ab18276](https://github.com/mozilla/fxa/commit/68ab18276))
+
 ## 1.215.2
 
 No changes.

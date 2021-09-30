@@ -1,3 +1,9 @@
+## 1.216.0
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+
 ## 1.215.2
 
 No changes.

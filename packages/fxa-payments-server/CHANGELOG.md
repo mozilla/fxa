@@ -1,5 +1,27 @@
 # Change history
 
+## 1.216.0
+
+### Bug fixes
+
+- metrics: Add remaining metrics and `fxa_reg - complete` for pwordless accounts (#10516) ([22b7fd5d7](https://github.com/mozilla/fxa/commit/22b7fd5d7))
+- subscriptions: restore input cursor position post async render ([d3136d519](https://github.com/mozilla/fxa/commit/d3136d519))
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- deps-dev: bump @testing-library/react from 12.0.0 to 12.1.1 (#10548) ([cb9e59ddb](https://github.com/mozilla/fxa/commit/cb9e59ddb))
+- payments: create storybook for PaymentLegalBlurb (#10519) ([b68312e32](https://github.com/mozilla/fxa/commit/b68312e32))
+- deps: bump @stripe/react-stripe-js from 1.4.1 to 1.5.0 ([f612be57e](https://github.com/mozilla/fxa/commit/f612be57e))
+- deps: bump @stripe/stripe-js from 1.17.1 to 1.18.0 ([c0a656ff4](https://github.com/mozilla/fxa/commit/c0a656ff4))
+- payments: remove useSCAPaymentUIByDefault feature flag (#10514) ([ce3227920](https://github.com/mozilla/fxa/commit/ce3227920))
+- deps: bump hot-shots from 8.5.0 to 8.5.1 (#10511) ([cc05a2780](https://github.com/mozilla/fxa/commit/cc05a2780))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([d372a84fa](https://github.com/mozilla/fxa/commit/d372a84fa))
+- deps: bump @sentry/browser from 6.13.1 to 6.13.2 ([09cdd2a07](https://github.com/mozilla/fxa/commit/09cdd2a07))
+- deps: bump intl-pluralrules from 1.3.0 to 1.3.1 ([64fdccc3c](https://github.com/mozilla/fxa/commit/64fdccc3c))
+- deps: bump @sentry/browser from 6.12.0 to 6.13.1 ([8c7809b15](https://github.com/mozilla/fxa/commit/8c7809b15))
+- deps-dev: bump @typescript-eslint/parser from 4.29.3 to 4.31.2 ([5a19c2332](https://github.com/mozilla/fxa/commit/5a19c2332))
+
 ## 1.215.2
 
 No changes.

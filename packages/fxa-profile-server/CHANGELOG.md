@@ -1,3 +1,11 @@
+## 1.216.0
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- deps: bump aws-sdk from 2.992.0 to 2.996.0 (#10550) ([449eebbb1](https://github.com/mozilla/fxa/commit/449eebbb1))
+- deps: bump aws-sdk from 2.987.0 to 2.992.0 ([630d8d4f6](https://github.com/mozilla/fxa/commit/630d8d4f6))
+
 ## 1.215.2
 
 No changes.

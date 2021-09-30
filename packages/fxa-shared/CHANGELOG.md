@@ -1,5 +1,28 @@
 # Change history
 
+## 1.216.0
+
+### New features
+
+- auth: enable nodemailer SES transport (#10532) ([6ab822f7a](https://github.com/mozilla/fxa/commit/6ab822f7a))
+- shared: handle more query object types ([44fba7188](https://github.com/mozilla/fxa/commit/44fba7188))
+
+### Bug fixes
+
+- metrics: Add remaining metrics and `fxa_reg - complete` for pwordless accounts (#10516) ([22b7fd5d7](https://github.com/mozilla/fxa/commit/22b7fd5d7))
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- deps: bump aws-sdk from 2.992.0 to 2.996.0 (#10550) ([449eebbb1](https://github.com/mozilla/fxa/commit/449eebbb1))
+- deps: bump hot-shots from 8.5.0 to 8.5.1 (#10511) ([cc05a2780](https://github.com/mozilla/fxa/commit/cc05a2780))
+- deps: bump @sentry/browser from 6.13.1 to 6.13.2 ([09cdd2a07](https://github.com/mozilla/fxa/commit/09cdd2a07))
+- deps: bump aws-sdk from 2.987.0 to 2.992.0 ([630d8d4f6](https://github.com/mozilla/fxa/commit/630d8d4f6))
+- deps: bump @sentry/browser from 6.12.0 to 6.13.1 ([8c7809b15](https://github.com/mozilla/fxa/commit/8c7809b15))
+- deps: bump stripe from 8.175.0 to 8.176.0 ([662ad7405](https://github.com/mozilla/fxa/commit/662ad7405))
+- deps: bump stripe from 8.174.0 to 8.175.0 ([8f00ce7cc](https://github.com/mozilla/fxa/commit/8f00ce7cc))
+- deps: bump objection from 2.2.15 to 2.2.16 ([2cc072fdd](https://github.com/mozilla/fxa/commit/2cc072fdd))
+
 ## 1.215.2
 
 No changes.
