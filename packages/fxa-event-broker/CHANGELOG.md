@@ -1,5 +1,20 @@
 # Change history
 
+## 1.216.0
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- deps: bump @nestjs/platform-express from 8.0.7 to 8.0.8 (#10549) ([a01efbd94](https://github.com/mozilla/fxa/commit/a01efbd94))
+- deps: bump aws-sdk from 2.992.0 to 2.996.0 (#10550) ([449eebbb1](https://github.com/mozilla/fxa/commit/449eebbb1))
+- deps: bump @google-cloud/pubsub from 2.17.0 to 2.18.1 (#10539) ([525a929bc](https://github.com/mozilla/fxa/commit/525a929bc))
+- deps: bump @nestjs/platform-express from 8.0.5 to 8.0.7 (#10538) ([e2880dadf](https://github.com/mozilla/fxa/commit/e2880dadf))
+- deps: bump hot-shots from 8.5.0 to 8.5.1 (#10511) ([cc05a2780](https://github.com/mozilla/fxa/commit/cc05a2780))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([d372a84fa](https://github.com/mozilla/fxa/commit/d372a84fa))
+- deps: bump aws-sdk from 2.987.0 to 2.992.0 ([630d8d4f6](https://github.com/mozilla/fxa/commit/630d8d4f6))
+- deps-dev: bump @typescript-eslint/parser from 4.29.3 to 4.31.2 ([5a19c2332](https://github.com/mozilla/fxa/commit/5a19c2332))
+- deps-dev: bump eslint-plugin-import from 2.24.1 to 2.24.2 ([317d0c3d3](https://github.com/mozilla/fxa/commit/317d0c3d3))
+
 ## 1.215.2
 
 No changes.

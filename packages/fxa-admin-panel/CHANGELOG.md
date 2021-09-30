@@ -1,3 +1,12 @@
+## 1.216.0
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- deps-dev: bump @testing-library/react from 12.0.0 to 12.1.1 (#10548) ([cb9e59ddb](https://github.com/mozilla/fxa/commit/cb9e59ddb))
+- deps-dev: bump @typescript-eslint/eslint-plugin ([d372a84fa](https://github.com/mozilla/fxa/commit/d372a84fa))
+- deps-dev: bump @typescript-eslint/parser from 4.29.3 to 4.31.2 ([5a19c2332](https://github.com/mozilla/fxa/commit/5a19c2332))
+
 ## 1.215.2
 
 No changes.

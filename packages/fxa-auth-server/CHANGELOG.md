@@ -1,3 +1,50 @@
+## 1.216.0
+
+### New features
+
+- auth: enable nodemailer SES transport (#10532) ([6ab822f7a](https://github.com/mozilla/fxa/commit/6ab822f7a))
+- auth: add subplat email layout ([e89fef647](https://github.com/mozilla/fxa/commit/e89fef647))
+- auth: Convert 'recovery' email to mjml stack ([a45898797](https://github.com/mozilla/fxa/commit/a45898797))
+- auth: unify sub update for stripe change ([3082c40b4](https://github.com/mozilla/fxa/commit/3082c40b4))
+- auth: convert email template passwordChangeRequired to new mjml stack ([47dc0fa0d](https://github.com/mozilla/fxa/commit/47dc0fa0d))
+- auth: convert email template postNewRecoveryCodes to new mjml stack ([f33c3623c](https://github.com/mozilla/fxa/commit/f33c3623c))
+- auth: convert email template postConsumeRecoveryCodeEmail to new mjml stack ([39304e1b2](https://github.com/mozilla/fxa/commit/39304e1b2))
+- auth: convert email template postChangePrimary to new mjml stack ([13ad18f4e](https://github.com/mozilla/fxa/commit/13ad18f4e))
+- auth: convert email template postAddTwoStepAuthenticationEmail to new mjml stack ([bfcbf2288](https://github.com/mozilla/fxa/commit/bfcbf2288))
+- auth: Convert postVerifySecondary to new mjml stack ([b838c6e3c](https://github.com/mozilla/fxa/commit/b838c6e3c))
+- auth: Convert postRemoveTwoStepAuthentication to mjml stack ([f549ac8b9](https://github.com/mozilla/fxa/commit/f549ac8b9))
+- auth-server: Convert postRemoveAccountRecovery to new email stack ([46243bcdf](https://github.com/mozilla/fxa/commit/46243bcdf))
+
+### Bug fixes
+
+- metrics: Add remaining metrics and `fxa_reg - complete` for pwordless accounts (#10516) ([22b7fd5d7](https://github.com/mozilla/fxa/commit/22b7fd5d7))
+- auth-server: Update x2 hard-coded email addresses in new email templates ([7dbc6fae2](https://github.com/mozilla/fxa/commit/7dbc6fae2))
+- auth: stop reporting errors on legit credit nots ([99f03f472](https://github.com/mozilla/fxa/commit/99f03f472))
+- auth: use __dirname to retrieve template base dir ([006278898](https://github.com/mozilla/fxa/commit/006278898))
+- auth: include emails-scss in build command ([c514daa35](https://github.com/mozilla/fxa/commit/c514daa35))
+- auth: various template fixups ([800be5d50](https://github.com/mozilla/fxa/commit/800be5d50))
+- auth: template string cleanups ([91d5f8d03](https://github.com/mozilla/fxa/commit/91d5f8d03))
+- auth: update postRemoveSecondary fluent ids to match other casing ([834ec8ece](https://github.com/mozilla/fxa/commit/834ec8ece))
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- auth: add email template name to log.error if sending an email fails (#10543) ([e81d2ab07](https://github.com/mozilla/fxa/commit/e81d2ab07))
+- deps: bump aws-sdk from 2.992.0 to 2.996.0 (#10550) ([449eebbb1](https://github.com/mozilla/fxa/commit/449eebbb1))
+- deps: bump google-libphonenumber from 3.2.23 to 3.2.24 (#10547) ([7f2d945a4](https://github.com/mozilla/fxa/commit/7f2d945a4))
+- deps: bump emittery from 0.9.2 to 0.10.0 (#10522) ([184653600](https://github.com/mozilla/fxa/commit/184653600))
+- deps-dev: bump sass from 1.39.0 to 1.42.1 (#10521) ([80e5a2cc6](https://github.com/mozilla/fxa/commit/80e5a2cc6))
+- deps: bump hot-shots from 8.5.0 to 8.5.1 (#10511) ([cc05a2780](https://github.com/mozilla/fxa/commit/cc05a2780))
+- deps-dev: bump esbuild from 0.12.29 to 0.13.1 ([8b5977680](https://github.com/mozilla/fxa/commit/8b5977680))
+- deps: bump aws-sdk from 2.987.0 to 2.992.0 ([630d8d4f6](https://github.com/mozilla/fxa/commit/630d8d4f6))
+- deps-dev: bump esbuild from 0.12.28 to 0.12.29 ([ba026f469](https://github.com/mozilla/fxa/commit/ba026f469))
+- deps: bump stripe from 8.175.0 to 8.176.0 ([662ad7405](https://github.com/mozilla/fxa/commit/662ad7405))
+- deps: bump google-libphonenumber from 3.2.22 to 3.2.23 ([8c22edbfa](https://github.com/mozilla/fxa/commit/8c22edbfa))
+- deps: bump mjml from 4.10.2 to 4.10.3 ([b7fc989bd](https://github.com/mozilla/fxa/commit/b7fc989bd))
+- deps: bump googleapis from 84.0.0 to 87.0.0 ([58503834c](https://github.com/mozilla/fxa/commit/58503834c))
+- auth: remove passwordResetRequired email altogether, as its no longer used ([ed502a55f](https://github.com/mozilla/fxa/commit/ed502a55f))
+- deps: bump stripe from 8.174.0 to 8.175.0 ([8f00ce7cc](https://github.com/mozilla/fxa/commit/8f00ce7cc))
+
 ## 1.215.2
 
 ### New features

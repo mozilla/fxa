@@ -1,3 +1,11 @@
+## 1.216.0
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- deps-dev: bump @testing-library/react from 12.0.0 to 12.1.1 (#10548) ([cb9e59ddb](https://github.com/mozilla/fxa/commit/cb9e59ddb))
+- deps-dev: bump sass from 1.39.0 to 1.42.1 (#10521) ([80e5a2cc6](https://github.com/mozilla/fxa/commit/80e5a2cc6))
+
 ## 1.215.2
 
 No changes.

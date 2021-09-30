@@ -1,5 +1,13 @@
 # Change history
 
+## 1.216.0
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- deps: bump @nestjs/platform-express from 8.0.7 to 8.0.8 (#10549) ([a01efbd94](https://github.com/mozilla/fxa/commit/a01efbd94))
+- deps: bump @nestjs/platform-express from 8.0.5 to 8.0.7 (#10538) ([e2880dadf](https://github.com/mozilla/fxa/commit/e2880dadf))
+
 ## 1.215.2
 
 No changes.

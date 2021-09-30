@@ -1,3 +1,11 @@
+## 1.216.0
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- deps: bump @google-cloud/pubsub from 2.17.0 to 2.18.1 (#10539) ([525a929bc](https://github.com/mozilla/fxa/commit/525a929bc))
+- deps-dev: bump walk from 2.3.14 to 2.3.15 ([1383850dd](https://github.com/mozilla/fxa/commit/1383850dd))
+
 ## 1.215.2
 
 No changes.

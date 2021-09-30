@@ -1,3 +1,14 @@
+## 1.216.0
+
+### Other changes
+
+- deps: update pm2; dedupe (#10557) ([89e549a74](https://github.com/mozilla/fxa/commit/89e549a74))
+- fxa-settings: added Step x of x wording to secondary email (#10541) ([f028d7d1c](https://github.com/mozilla/fxa/commit/f028d7d1c))
+- deps-dev: bump @testing-library/react from 12.0.0 to 12.1.1 (#10548) ([cb9e59ddb](https://github.com/mozilla/fxa/commit/cb9e59ddb))
+- deps: bump react-async-hook from 3.6.2 to 4.0.0 (#10540) ([ede434621](https://github.com/mozilla/fxa/commit/ede434621))
+- deps: bump @sentry/browser from 6.13.1 to 6.13.2 ([09cdd2a07](https://github.com/mozilla/fxa/commit/09cdd2a07))
+- deps: bump @sentry/browser from 6.12.0 to 6.13.1 ([8c7809b15](https://github.com/mozilla/fxa/commit/8c7809b15))
+
 ## 1.215.2
 
 No changes.
