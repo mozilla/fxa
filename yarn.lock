@@ -3592,13 +3592,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:^8.0.5":
-  version: 8.0.5
-  resolution: "@nestjs/common@npm:8.0.5"
+"@nestjs/common@npm:^8.0.8":
+  version: 8.0.8
+  resolution: "@nestjs/common@npm:8.0.8"
   dependencies:
-    axios: 0.21.1
+    axios: 0.21.4
     iterare: 1.2.1
-    tslib: 2.3.0
+    tslib: 2.3.1
     uuid: 8.3.2
   peerDependencies:
     cache-manager: "*"
@@ -3613,7 +3613,7 @@ __metadata:
       optional: true
     class-validator:
       optional: true
-  checksum: cfbb263b8dddef28bd835b0407292958d168f9f07d0470ea19a40ec046913f8ca2cf99b566c373341feebbe637ff5d908d4223efc4dcd95cd2da51cd31cbf7fd
+  checksum: bebb6f9f8e8f37045073b135246a27f4fc2bb27dca02c2b477f6fed8ac918f8b4020b3c6ec33e1fa5f434c8c559d44dfc2b9391266d23908bf4e37c1458291b3
   languageName: node
   linkType: hard
 
@@ -9565,12 +9565,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:0.21.1, axios@npm:^0.21.0, axios@npm:^0.21.1, axios@npm:~0.21.1":
-  version: 0.21.1
-  resolution: "axios@npm:0.21.1"
+"axios@npm:0.21.4":
+  version: 0.21.4
+  resolution: "axios@npm:0.21.4"
   dependencies:
-    follow-redirects: ^1.10.0
-  checksum: c87915fa0b18c15c63350112b6b3563a3e2ae524d7707de0a73d2e065e0d30c5d3da8563037bc29d4cc1b7424b5a350cb7274fa52525c6c04a615fe561c6ab11
+    follow-redirects: ^1.14.0
+  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
   languageName: node
   linkType: hard
 
@@ -9580,6 +9580,15 @@ __metadata:
   dependencies:
     follow-redirects: 1.5.10
   checksum: dcace11a0a25fdf9b3b97fc9d011d23dd9c67cc13d91778080482ddddbbfe731f7410a090b11aa0bbbdf83686c5911ccb4289fd3683b7488c1b0c4d3c882380c
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.21.0, axios@npm:^0.21.1, axios@npm:~0.21.1":
+  version: 0.21.1
+  resolution: "axios@npm:0.21.1"
+  dependencies:
+    follow-redirects: ^1.10.0
+  checksum: c87915fa0b18c15c63350112b6b3563a3e2ae524d7707de0a73d2e065e0d30c5d3da8563037bc29d4cc1b7424b5a350cb7274fa52525c6c04a615fe561c6ab11
   languageName: node
   linkType: hard
 
@@ -17472,6 +17481,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:^1.14.0":
+  version: 1.14.4
+  resolution: "follow-redirects@npm:1.14.4"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: d4ce74cf5c6f363168b97e706b914eb9ffb6bf4d4c6d8f8330b93088d9b90e566611ddbcf0e42c8ed5fd17598dfeda1d19230d3e9d6d6c6b4d1c10ec3a0b99be
+  languageName: node
+  linkType: hard
+
 "for-each@npm:^0.3.3":
   version: 0.3.3
   resolution: "for-each@npm:0.3.3"
@@ -18061,7 +18080,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
-    "@nestjs/common": ^8.0.5
+    "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
     "@nestjs/core": ^8.0.6
     "@nestjs/graphql": ^8.0.2
@@ -18579,7 +18598,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^8.1.1
-    "@nestjs/common": ^8.0.5
+    "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
     "@nestjs/core": ^8.0.6
     "@nestjs/graphql": ^8.0.2
@@ -18676,7 +18695,7 @@ fsevents@~2.1.1:
   resolution: "fxa-graphql-api@workspace:packages/fxa-graphql-api"
   dependencies:
     "@nestjs/cli": ^8.1.1
-    "@nestjs/common": ^8.0.5
+    "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
     "@nestjs/core": ^8.0.6
     "@nestjs/graphql": ^8.0.2
@@ -19109,7 +19128,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
-    "@nestjs/common": ^8.0.5
+    "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
     "@nestjs/core": ^8.0.6
     "@nestjs/graphql": ^8.0.2
@@ -19192,7 +19211,7 @@ fsevents@~2.1.1:
   resolution: "fxa-support-panel@workspace:packages/fxa-support-panel"
   dependencies:
     "@nestjs/cli": ^8.1.1
-    "@nestjs/common": ^8.0.5
+    "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
     "@nestjs/core": ^8.0.6
     "@nestjs/mapped-types": ^1.0.0
