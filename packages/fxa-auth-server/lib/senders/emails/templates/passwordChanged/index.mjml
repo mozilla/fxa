@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="passwordChanged-title">Password changed successfully/span>
+      <span data-l10n-id="passwordChanged-title">Password changed successfully</span>
     </mj-text>
 
     <mj-text css-class="text-body">
