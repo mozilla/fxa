@@ -18,15 +18,20 @@ import {
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import {
+  AbbrevPlan,
+  AbbrevProduct,
+  SubscriptionUpdateEligibility,
+  MozillaSubscriptionTypes,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  WebSubscription,
+  PaypalPaymentError,
+} from 'fxa-shared/subscriptions/types';
+import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getSubscriptionUpdateEligibility,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
-import {
-  AbbrevPlan,
-  AbbrevProduct,
-  SubscriptionUpdateEligibility,
-} from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import moment from 'moment';
@@ -105,6 +110,13 @@ type BillingAddressOptions = {
   line2: string;
   postalCode: string;
   state: string;
+};
+
+export type PaymentBillingDetails = ReturnType<
+  StripeHelper['extractBillingDetails']
+> & {
+  paypal_payment_error?: PaypalPaymentError;
+  billing_agreement_id?: string;
 };
 
 /**
@@ -1613,13 +1625,111 @@ export class StripeHelper {
     return null;
   }
 
+  async getBillingDetailsAndSubscriptions(uid: string) {
+    const customer = await this.fetchCustomer(uid, [
+      'subscriptions.data.latest_invoice',
+      'invoice_settings.default_payment_method',
+    ]);
+
+    if (!customer) {
+      return null;
+    }
+
+    const billingDetails = this.extractBillingDetails(
+      customer
+    ) as PaymentBillingDetails;
+
+    if (billingDetails.payment_provider === 'paypal') {
+      billingDetails.billing_agreement_id =
+        this.getCustomerPaypalAgreement(customer);
+    }
+
+    if (
+      billingDetails.payment_provider === 'paypal' &&
+      this.hasSubscriptionRequiringPaymentMethod(customer)
+    ) {
+      if (!this.getCustomerPaypalAgreement(customer)) {
+        billingDetails.paypal_payment_error =
+          PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
+      } else if (this.hasOpenInvoice(customer)) {
+        billingDetails.paypal_payment_error =
+          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
+      }
+    }
+
+    const detailsAndSubs: {
+      customerId: string;
+      subscriptions: WebSubscription[];
+    } & PaymentBillingDetails = {
+      customerId: customer.id,
+      subscriptions: [],
+      ...billingDetails,
+    };
+
+    if (customer.subscriptions) {
+      detailsAndSubs.subscriptions = await this.subscriptionsToResponse(
+        customer.subscriptions
+      );
+    }
+
+    return detailsAndSubs;
+  }
+
+  /**
+   * Extracts billing details if a customer has a source on file.
+   */
+  extractBillingDetails(customer: Stripe.Customer) {
+    const defaultPayment = customer.invoice_settings.default_payment_method;
+    const paymentProvider = this.getPaymentProvider(customer);
+
+    if (defaultPayment) {
+      if (typeof defaultPayment === 'string') {
+        // This should always be expanded here.
+        throw error.backendServiceFailure('stripe', 'paymentExpansion');
+      }
+
+      if (defaultPayment.card) {
+        return {
+          billing_name: defaultPayment.billing_details.name,
+          payment_provider: paymentProvider,
+          payment_type: defaultPayment.card.funding,
+          last4: defaultPayment.card.last4,
+          exp_month: defaultPayment.card.exp_month,
+          exp_year: defaultPayment.card.exp_year,
+          brand: defaultPayment.card.brand,
+        };
+      }
+    }
+    if (customer.sources && customer.sources.data.length > 0) {
+      // Currently assume a single source, and we can only access these attributes
+      // on cards.
+      const src = customer.sources.data[0];
+      if (src.object === 'card') {
+        return {
+          billing_name: src.name,
+          payment_provider: paymentProvider,
+          payment_type: src.funding,
+          last4: src.last4,
+          exp_month: src.exp_month,
+          exp_year: src.exp_year,
+          brand: src.brand,
+        };
+      }
+    }
+
+    return {
+      payment_provider: paymentProvider,
+    };
+  }
+
   /**
    * Formats Stripe subscriptions for a customer into an appropriate response.
    */
   async subscriptionsToResponse(
     subscriptions: Stripe.ApiList<Stripe.Subscription>
-  ) {
+  ): Promise<WebSubscription[]> {
     const subs = [];
+    const products = await this.allAbbrevProducts();
     for (const sub of subscriptions.data) {
       let failure_code, failure_message;
 
@@ -1658,21 +1768,16 @@ export class StripeHelper {
         }
       }
 
-      const product = await this.expandResource(
-        // @ts-ignore
-        sub.plan.product,
-        PRODUCT_RESOURCE
-      );
+      // @ts-ignore
+      const product = products.find((p) => p.product_id === sub.plan.product);
 
-      // @ts-ignore
-      const product_id = product.id;
-      // @ts-ignore
-      const product_name = product.name;
+      const { product_id, product_name } = product!;
 
       // FIXME: Note that the plan is only set if the subscription contains a single
       // plan. Multiple product support will require changes here to fetch all
       // plans for this subscription.
       subs.push({
+        _subscription_type: MozillaSubscriptionTypes.WEB,
         created: sub.created,
         current_period_end: sub.current_period_end,
         current_period_start: sub.current_period_start,

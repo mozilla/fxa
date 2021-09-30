@@ -352,9 +352,7 @@ export class CapabilityService {
    * Fetch the list of subscription purchases from Google Play and return
    * the ids of the products purchased.
    */
-  private async fetchSubscribedProductsFromPlay(
-    uid: string
-  ): Promise<string[]> {
+  public async fetchSubscribedProductsFromPlay(uid: string): Promise<string[]> {
     if (!this.playBilling) {
       return [];
     }

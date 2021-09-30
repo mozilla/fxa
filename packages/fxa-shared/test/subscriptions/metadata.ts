@@ -2,9 +2,10 @@ import { expect } from 'chai';
 
 import {
   AbbrevPlan,
-  AccountSubscription,
+  WebSubscription,
   Plan,
   ProductMetadata,
+  MozillaSubscriptionTypes,
 } from '../../subscriptions/types';
 import {
   DEFAULT_PRODUCT_DETAILS,
@@ -225,8 +226,9 @@ describe('subscriptions/metadata', () => {
   });
 
   describe('getProductSupportApps', () => {
-    const subscriptions: AccountSubscription[] = [
+    const subscriptions: WebSubscription[] = [
       {
+        _subscription_type: MozillaSubscriptionTypes.WEB,
         created: 1600208907,
         current_period_end: 1602800907,
         current_period_start: 1600208907,
@@ -240,6 +242,7 @@ describe('subscriptions/metadata', () => {
         subscription_id: 'sub_I1qKQD2YFCVdFI',
       },
       {
+        _subscription_type: MozillaSubscriptionTypes.WEB,
         created: 1600185585,
         current_period_end: 1600271985,
         current_period_start: 1600185585,

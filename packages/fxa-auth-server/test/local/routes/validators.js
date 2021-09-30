@@ -9,6 +9,7 @@ const { assert } = require('chai');
 const validators = require('../../../lib/routes/validators');
 const plan1 = require('../payments/fixtures/stripe/plan1.json');
 const validProductMetadata = plan1.product.metadata;
+const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 
 describe('lib/routes/validators:', () => {
   it('isValidEmailAddress returns true for valid email addresses', () => {
@@ -598,6 +599,34 @@ describe('lib/routes/validators:', () => {
     });
   });
 
+  describe('subscriptionsGooglePlaySubscriptionValidator', () => {
+    it('accepts a valid Google Play subscription', () => {
+      const res =
+        validators.subscriptionsGooglePlaySubscriptionValidator.validate({
+          _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+          product_id: 'xyz',
+        });
+      assert.ok(!res.error);
+    });
+
+    it('rejects a Google Play subscription with the incorrect subscription type', () => {
+      const res =
+        validators.subscriptionsGooglePlaySubscriptionValidator.validate({
+          _subscription_type: 'unknown',
+          product_id: 'xyz',
+        });
+      assert.ok(res.error);
+    });
+
+    it('rejects a Google Play subscription a missing product id', () => {
+      const res =
+        validators.subscriptionsGooglePlaySubscriptionValidator.validate({
+          _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+        });
+      assert.ok(res.error);
+    });
+  });
+
   describe('subscriptionsStripeCustomerValidator', () => {
     const { subscriptionsStripeCustomerValidator: subject } = validators;
 
@@ -652,6 +681,65 @@ describe('lib/routes/validators:', () => {
       };
       const res = subject.validate(data);
       assert.ok(!res.error);
+    });
+  });
+
+  describe('subscriptionsMozillaSubscriptionsValidator', () => {
+    const stripeSub = {
+      _subscription_type: MozillaSubscriptionTypes.WEB,
+      cancel_at_period_end: false,
+      created: 1573695337,
+      current_period_end: 1576287337,
+      current_period_start: 1573695337,
+      end_at: null,
+      latest_invoice: 'in_1FeXFGJNcmPzuWtR3EUd2zw7',
+      plan_id: 'plan_G93lTs8hfK7NNG',
+      product_id: 'prod_G93l8Yn7XJHYUs',
+      product_name: 'testo',
+      status: 'active',
+      subscription_id: 'sub_xyz',
+    };
+    const playSub = {
+      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+      product_id: 'xyz',
+    };
+
+    it('accepts a list with Stripe and Google Play subscriptions', () => {
+      const res =
+        validators.subscriptionsMozillaSubscriptionsValidator.validate({
+          subscriptions: [stripeSub, playSub],
+        });
+      assert.ok(!res.error);
+    });
+
+    it('accepts a list with only Stripe subscriptions', () => {
+      const res =
+        validators.subscriptionsMozillaSubscriptionsValidator.validate({
+          subscriptions: [stripeSub, stripeSub],
+        });
+      assert.ok(!res.error);
+    });
+
+    it('accepts a list with only Google Play subscriptions', () => {
+      const res =
+        validators.subscriptionsMozillaSubscriptionsValidator.validate({
+          subscriptions: [playSub, playSub],
+        });
+      assert.ok(!res.error);
+    });
+
+    it('rejects an empty subscriptions list', () => {
+      const res =
+        validators.subscriptionsMozillaSubscriptionsValidator.validate({
+          subscriptions: [],
+        });
+      assert.ok(res.error);
+    });
+
+    it('rejects when the subscriptions property is missing', () => {
+      const res =
+        validators.subscriptionsMozillaSubscriptionsValidator.validate({});
+      assert.ok(res.error);
     });
   });
 });
