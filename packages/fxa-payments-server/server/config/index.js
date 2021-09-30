@@ -12,14 +12,7 @@ convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
-  featureFlags: {
-    usePaypalUIByDefault: {
-      default: false,
-      doc: 'Whether to use PayPal payment UI by default rather than Stripe payment UI alone',
-      env: 'FEATURE_USE_PAYPAL_UI_BY_DEFAULT',
-      format: Boolean,
-    },
-  },
+  featureFlags: {},
   amplitude: {
     enabled: {
       default: true,

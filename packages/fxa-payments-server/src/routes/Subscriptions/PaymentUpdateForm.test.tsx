@@ -129,12 +129,6 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
       return <button data-testid="paypal-button" onClick={onApprove} />;
     };
 
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
-
     await act(async () => {
       render(
         <Subject
@@ -193,12 +187,6 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
       return <button data-testid="paypal-button" onClick={onApprove} />;
     };
-
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
 
     await act(async () => {
       render(
@@ -315,11 +303,8 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   ];
 
   it('updates payment method as expected', async () => {
-    const {
-      apiClientOverrides,
-      stripeOverride,
-      refreshSubscriptions,
-    } = await commonSubmitSetup();
+    const { apiClientOverrides, stripeOverride, refreshSubscriptions } =
+      await commonSubmitSetup();
 
     expect(
       screen.queryByTestId('error-message-container')
@@ -363,18 +348,15 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   });
 
   it('displays an error if apiCreateSetupIntent throws', async () => {
-    const {
-      apiClientOverrides,
-      stripeOverride,
-      refreshSubscriptions,
-    } = await commonSubmitSetup({
-      apiClientOverrides: {
-        ...defaultApiClientOverrides(),
-        apiCreateSetupIntent: jest
-          .fn()
-          .mockRejectedValue('barf apiCreateSetupIntent'),
-      },
-    });
+    const { apiClientOverrides, stripeOverride, refreshSubscriptions } =
+      await commonSubmitSetup({
+        apiClientOverrides: {
+          ...defaultApiClientOverrides(),
+          apiCreateSetupIntent: jest
+            .fn()
+            .mockRejectedValue('barf apiCreateSetupIntent'),
+        },
+      });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
     expect(screen.getByText('basic-error-message')).toBeInTheDocument();
@@ -388,16 +370,15 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   });
 
   it('displays an error if confirmCardSetup throws', async () => {
-    const {
-      apiClientOverrides,
-      stripeOverride,
-      refreshSubscriptions,
-    } = await commonSubmitSetup({
-      stripeOverride: {
-        ...defaultStripeOverride(),
-        confirmCardSetup: jest.fn().mockRejectedValue('barf confirmCardSetup'),
-      },
-    });
+    const { apiClientOverrides, stripeOverride, refreshSubscriptions } =
+      await commonSubmitSetup({
+        stripeOverride: {
+          ...defaultStripeOverride(),
+          confirmCardSetup: jest
+            .fn()
+            .mockRejectedValue('barf confirmCardSetup'),
+        },
+      });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
     expect(screen.getByText('basic-error-message')).toBeInTheDocument();
@@ -413,18 +394,15 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   });
 
   it('displays an error if confirmCardSetup returns an error', async () => {
-    const {
-      apiClientOverrides,
-      stripeOverride,
-      refreshSubscriptions,
-    } = await commonSubmitSetup({
-      stripeOverride: {
-        ...defaultStripeOverride(),
-        confirmCardSetup: jest
-          .fn()
-          .mockResolvedValue({ error: { code: 'expired_card' } }),
-      },
-    });
+    const { apiClientOverrides, stripeOverride, refreshSubscriptions } =
+      await commonSubmitSetup({
+        stripeOverride: {
+          ...defaultStripeOverride(),
+          confirmCardSetup: jest
+            .fn()
+            .mockResolvedValue({ error: { code: 'expired_card' } }),
+        },
+      });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
     expect(screen.getByText('expired-card-error')).toBeInTheDocument();
@@ -440,16 +418,13 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   });
 
   it('displays an error if confirmCardSetup returns an empty setupIntent', async () => {
-    const {
-      apiClientOverrides,
-      stripeOverride,
-      refreshSubscriptions,
-    } = await commonSubmitSetup({
-      stripeOverride: {
-        ...defaultStripeOverride(),
-        confirmCardSetup: jest.fn().mockResolvedValue({ setupIntent: null }),
-      },
-    });
+    const { apiClientOverrides, stripeOverride, refreshSubscriptions } =
+      await commonSubmitSetup({
+        stripeOverride: {
+          ...defaultStripeOverride(),
+          confirmCardSetup: jest.fn().mockResolvedValue({ setupIntent: null }),
+        },
+      });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
     expect(screen.getByText('basic-error-message')).toBeInTheDocument();
@@ -465,18 +440,15 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   });
 
   it('displays an error if confirmCardSetup returns a setupIntent without a payment method ID', async () => {
-    const {
-      apiClientOverrides,
-      stripeOverride,
-      refreshSubscriptions,
-    } = await commonSubmitSetup({
-      stripeOverride: {
-        ...defaultStripeOverride(),
-        confirmCardSetup: jest
-          .fn()
-          .mockResolvedValue({ setupIntent: { payment_method: false } }),
-      },
-    });
+    const { apiClientOverrides, stripeOverride, refreshSubscriptions } =
+      await commonSubmitSetup({
+        stripeOverride: {
+          ...defaultStripeOverride(),
+          confirmCardSetup: jest
+            .fn()
+            .mockResolvedValue({ setupIntent: { payment_method: false } }),
+        },
+      });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
     expect(screen.getByText('basic-error-message')).toBeInTheDocument();
@@ -492,18 +464,15 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   });
 
   it('displays an error if apiUpdateDefaultPaymentMethod throws', async () => {
-    const {
-      apiClientOverrides,
-      stripeOverride,
-      refreshSubscriptions,
-    } = await commonSubmitSetup({
-      apiClientOverrides: {
-        ...defaultApiClientOverrides(),
-        apiUpdateDefaultPaymentMethod: jest
-          .fn()
-          .mockRejectedValue('barf apiUpdateDefaultPaymentMethod'),
-      },
-    });
+    const { apiClientOverrides, stripeOverride, refreshSubscriptions } =
+      await commonSubmitSetup({
+        apiClientOverrides: {
+          ...defaultApiClientOverrides(),
+          apiUpdateDefaultPaymentMethod: jest
+            .fn()
+            .mockRejectedValue('barf apiUpdateDefaultPaymentMethod'),
+        },
+      });
 
     expect(screen.queryByTestId('error-message-container')).toBeInTheDocument();
     expect(screen.getByText('basic-error-message')).toBeInTheDocument();

@@ -73,10 +73,6 @@ export function usePaypalButtonSetup(
 ) {
   /* istanbul ignore next */
   useEffect(() => {
-    if (!config.featureFlags.usePaypalUIByDefault) {
-      return;
-    }
-
     if (paypalButtonBase) {
       setPaypalScriptLoaded(true);
       return;

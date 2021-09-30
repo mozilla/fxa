@@ -152,11 +152,6 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   it('renders as expected with PayPal UI enabled', async () => {
     const { queryByTestId } = screen;
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
     const MockedButtonBase = ({}: ButtonBaseProps) => {
       return <button data-testid="paypal-button" />;
     };
@@ -176,11 +171,6 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   it('renders as expected with PayPal UI enabled and an existing Stripe customer', async () => {
     const { queryByTestId } = screen;
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
     const MockedButtonBase = ({}: ButtonBaseProps) => {
       return <button data-testid="paypal-button" />;
     };
@@ -199,11 +189,6 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   it('renders as expected with PayPal UI enabled and an existing PayPal customer', async () => {
     const { queryByTestId } = screen;
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
     const MockedButtonBase = ({}: ButtonBaseProps) => {
       return <button data-testid="paypal-button" />;
     };
@@ -539,11 +524,6 @@ describe('routes/Product/SubscriptionCreate', () => {
         .mockResolvedValue(MOCK_PAYPAL_SUBSCRIPTION_RESULT),
     };
     const refreshSubscriptions = jest.fn();
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
     await act(async () => {
       render(
         <Subject
@@ -580,11 +560,6 @@ describe('routes/Product/SubscriptionCreate', () => {
       ...defaultApiClientOverrides(),
       apiCreateCustomer: jest.fn(),
     };
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
     await act(async () => {
       render(
         <Subject
@@ -806,11 +781,7 @@ describe('routes/Product/SubscriptionCreate', () => {
           .fn()
           .mockRejectedValue({ code: 'barf apiGetPaypalCheckoutToken' }),
       };
-      updateConfig({
-        featureFlags: {
-          usePaypalUIByDefault: true,
-        },
-      });
+
       await act(async () => {
         render(
           <Subject
@@ -835,11 +806,6 @@ describe('routes/Product/SubscriptionCreate', () => {
     const MockedButtonBase = ({ onError }: ButtonBaseProps) => {
       return <button data-testid="paypal-button" onClick={onError} />;
     };
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
     await act(async () => {
       render(
         <Subject
@@ -874,11 +840,6 @@ describe('routes/Product/SubscriptionCreate', () => {
         .fn()
         .mockRejectedValue({ code: 'barf apiCapturePaypalPayment' }),
     };
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
     await act(async () => {
       render(
         <Subject

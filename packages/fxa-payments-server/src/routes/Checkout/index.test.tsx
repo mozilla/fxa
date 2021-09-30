@@ -458,11 +458,6 @@ describe('routes/Checkout', () => {
   });
 
   describe('handling a passwordless PayPal subscription', () => {
-    updateConfig({
-      featureFlags: {
-        usePaypalUIByDefault: true,
-      },
-    });
     const fillOutZeForm = async (shouldSubscribeToNewsletter = false) => {
       const { getByTestId } = screen;
       fireEvent.change(getByTestId('new-user-email'), {

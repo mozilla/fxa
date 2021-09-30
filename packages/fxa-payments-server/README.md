@@ -2,8 +2,6 @@
 
 This is the server that handles payments.
 
-To enable PayPal, restart the server with its feature flag enabled: `FEATURE_USE_PAYPAL_UI_BY_DEFAULT=true pm2 restart payments --update-env`
-
 ## Storybook
 
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
