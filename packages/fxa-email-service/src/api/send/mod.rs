@@ -49,7 +49,7 @@ impl FromDataSimple for Email {
 
     fn from_data(request: &Request, data: Data) -> Outcome<Self, Self::Error> {
         let mut email_address = String::new();
-        if let Err(error) = data.open().take(32768).read_to_string(&mut email_address) {
+        if let Err(error) = data.open().take(131072).read_to_string(&mut email_address) {
             return Outcome::Failure((
                 Status::InternalServerError,
                 AppErrorKind::Internal(error.to_string()).into(),
