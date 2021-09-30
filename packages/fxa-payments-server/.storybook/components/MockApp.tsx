@@ -24,9 +24,6 @@ type MockAppProps = {
 export const defaultAppContextValue: AppContextType = {
   config: {
     ...config,
-    featureFlags: {
-      usePaypalUIByDefault: true,
-    },
     productRedirectURLs: {
       product_8675309: 'https://example.com/product',
     },
