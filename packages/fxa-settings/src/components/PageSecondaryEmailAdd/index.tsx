@@ -21,7 +21,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const subtitleText = l10n.getString(
     'add-secondary-email-step-1',
     null,
-    'Step 1 of 1'
+    'Step 1 of 2'
   );
   const navigate = useNavigate();
   const alertBar = useAlertBar();
