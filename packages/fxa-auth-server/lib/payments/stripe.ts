@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { Firestore } from '@google-cloud/firestore';
 import * as Sentry from '@sentry/node';
 import cacheManager, { Cacheable, CacheClear } from '@type-cacheable/core';
 import { useAdapter } from '@type-cacheable/ioredis-adapter';
@@ -11,15 +12,15 @@ import {
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import {
-  AbbrevPlan,
-  AbbrevProduct,
-  SubscriptionUpdateEligibility,
-} from 'fxa-shared/subscriptions/types';
-import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getSubscriptionUpdateEligibility,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
+import {
+  AbbrevPlan,
+  AbbrevProduct,
+  SubscriptionUpdateEligibility,
+} from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import moment from 'moment';
@@ -33,6 +34,7 @@ import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
+import { StripeFirestore } from './stripe-firestore';
 
 export const CUSTOMER_RESOURCE = 'customers';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -106,6 +108,8 @@ export class StripeHelper {
   private redis: ioredis.Redis | undefined;
   private statsd: StatsD;
   private taxIds: { [key: string]: string };
+  private firestore: Firestore;
+  private stripeFirestore: StripeFirestore;
   public currencyHelper: CurrencyHelper;
 
   /**
@@ -118,6 +122,13 @@ export class StripeHelper {
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     this.taxIds = config.subscriptions.taxIds;
     this.currencyHelper = Container.get(CurrencyHelper);
+    this.firestore = Container.get(Firestore);
+
+    const firestore_prefix = `${config.authFirestore.prefix}stripe-`;
+    const customerCollectionDbRef = this.firestore.collection(
+      `${firestore_prefix}customers`
+    );
+
     // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
     // both TTL and whether caching should be enabled at all. We should
     // introduce a second setting for cache enable / disable.
@@ -135,6 +146,12 @@ export class StripeHelper {
       apiVersion: '2020-08-27',
       maxNetworkRetries: 3,
     });
+    this.stripeFirestore = new StripeFirestore(
+      this.firestore,
+      customerCollectionDbRef,
+      this.stripe
+    );
+
     cacheManager.setOptions({
       // Ensure the StripeHelper instance is passed into TTLBuilder functions
       excludeContext: false,
