@@ -48,8 +48,6 @@ const currencyHelper = new CurrencyHelper({
   currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
 });
 const mockCapabilityService = {};
-Container.set(CurrencyHelper, currencyHelper);
-Container.set(CapabilityService, mockCapabilityService);
 
 let config,
   log,
@@ -203,6 +201,7 @@ describe('sanitizePlans', () => {
  */
 describe('subscriptions stripeRoutes', () => {
   beforeEach(() => {
+    Container.reset();
     config = {
       authFirestore: {
         enabled: false,
@@ -224,6 +223,7 @@ describe('subscriptions stripeRoutes', () => {
 
     const currencyHelper = new CurrencyHelper(config);
     Container.set(CurrencyHelper, currencyHelper);
+    Container.set(CapabilityService, mockCapabilityService);
 
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
@@ -260,6 +260,7 @@ describe('subscriptions stripeRoutes', () => {
   });
 
   afterEach(() => {
+    Container.reset();
     sinon.restore();
   });
 

@@ -56,6 +56,7 @@ describe('PlayBilling', () => {
   });
 
   afterEach(() => {
+    Container.reset();
     sandbox.restore();
   });
 

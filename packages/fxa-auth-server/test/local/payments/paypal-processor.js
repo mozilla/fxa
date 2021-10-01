@@ -23,6 +23,7 @@ const {
   PAYPAL_SOURCE_ERRORS,
 } = require('../../../lib/payments/paypal-error-codes');
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
+const { CapabilityService } = require('../../../lib/payments/capability');
 
 const sandbox = sinon.createSandbox();
 
@@ -57,11 +58,13 @@ describe('PaypalProcessor', () => {
     Container.set(CurrencyHelper, currencyHelper);
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(PayPalHelper, mockPaypalHelper);
+    Container.set(CapabilityService, {});
     processor = new PaypalProcessor(mockLog, mockConfig, 1, 1, {}, {});
     processor.webhookHandler = mockHandler;
   });
 
   afterEach(() => {
+    Container.reset();
     sandbox.reset();
   });
 
@@ -152,9 +155,8 @@ describe('PaypalProcessor', () => {
     });
 
     it('returns true if success', async () => {
-      mockStripeHelper.updateInvoiceWithPaypalTransactionId = sandbox.fake.resolves(
-        {}
-      );
+      mockStripeHelper.updateInvoiceWithPaypalTransactionId =
+        sandbox.fake.resolves({});
       mockStripeHelper.payInvoiceOutOfBand = sandbox.fake.resolves({});
       const result = await processor.handlePaidTransaction(unpaidInvoice, [
         { status: 'Completed', transactionId: 'test1234' },
@@ -168,9 +170,8 @@ describe('PaypalProcessor', () => {
     });
 
     it('returns true and logs if > 1 success', async () => {
-      mockStripeHelper.updateInvoiceWithPaypalTransactionId = sandbox.fake.resolves(
-        {}
-      );
+      mockStripeHelper.updateInvoiceWithPaypalTransactionId =
+        sandbox.fake.resolves({});
       mockStripeHelper.payInvoiceOutOfBand = sandbox.fake.resolves({});
       mockLog.error = sandbox.fake.returns({});
       const result = await processor.handlePaidTransaction(unpaidInvoice, [
@@ -290,9 +291,8 @@ describe('PaypalProcessor', () => {
       mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(
         {}
       );
-      mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
-        'testba'
-      );
+      mockStripeHelper.getCustomerPaypalAgreement =
+        sandbox.fake.returns('testba');
       mockStripeHelper.getEmailTypes = sandbox.fake.returns([]);
       mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
         {}
@@ -323,9 +323,8 @@ describe('PaypalProcessor', () => {
       mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(
         {}
       );
-      mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
-        'testba'
-      );
+      mockStripeHelper.getCustomerPaypalAgreement =
+        sandbox.fake.returns('testba');
       mockStripeHelper.getEmailTypes = sandbox.fake.returns([]);
       mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
         {}
@@ -360,9 +359,8 @@ describe('PaypalProcessor', () => {
       mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(
         {}
       );
-      mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
-        'testba'
-      );
+      mockStripeHelper.getCustomerPaypalAgreement =
+        sandbox.fake.returns('testba');
 
       const result = await processor.makePaymentAttempt(invoice);
       assert.isFalse(result);
@@ -404,9 +402,8 @@ describe('PaypalProcessor', () => {
       processor.handlePaidTransaction = sandbox.fake.resolves(false);
       processor.handlePendingTransaction = sandbox.fake.resolves(false);
       processor.inGracePeriod = sandbox.fake.returns(true);
-      mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
-        'b-1234'
-      );
+      mockStripeHelper.getCustomerPaypalAgreement =
+        sandbox.fake.returns('b-1234');
       processor.attemptsToday = sandbox.fake.returns(0);
       processor.makePaymentAttempt = sandbox.fake.resolves({});
 
@@ -496,9 +493,8 @@ describe('PaypalProcessor', () => {
       processor.handlePaidTransaction = sandbox.fake.resolves(false);
       processor.handlePendingTransaction = sandbox.fake.resolves(false);
       processor.inGracePeriod = sandbox.fake.returns(true);
-      mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
-        undefined
-      );
+      mockStripeHelper.getCustomerPaypalAgreement =
+        sandbox.fake.returns(undefined);
       processor.attemptsToday = sandbox.fake.returns(0);
       mockStripeHelper.getEmailTypes = sandbox.fake.returns(['paymentFailed']);
       mockHandler.sendSubscriptionPaymentFailedEmail = sandbox.fake.resolves(
@@ -543,9 +539,8 @@ describe('PaypalProcessor', () => {
       processor.handlePaidTransaction = sandbox.fake.resolves(false);
       processor.handlePendingTransaction = sandbox.fake.resolves(false);
       processor.inGracePeriod = sandbox.fake.returns(false);
-      mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
-        'b-1234'
-      );
+      mockStripeHelper.getCustomerPaypalAgreement =
+        sandbox.fake.returns('b-1234');
       processor.cancelInvoiceSubscription = sandbox.fake.resolves({});
 
       const result = await processor.attemptInvoiceProcessing(invoice);
@@ -573,9 +568,8 @@ describe('PaypalProcessor', () => {
       processor.handlePaidTransaction = sandbox.fake.resolves(false);
       processor.handlePendingTransaction = sandbox.fake.resolves(false);
       processor.inGracePeriod = sandbox.fake.returns(true);
-      mockStripeHelper.getCustomerPaypalAgreement = sandbox.fake.returns(
-        'b-1234'
-      );
+      mockStripeHelper.getCustomerPaypalAgreement =
+        sandbox.fake.returns('b-1234');
       processor.attemptsToday = sandbox.fake.returns(20);
       processor.makePaymentAttempt = sandbox.fake.resolves({});
 

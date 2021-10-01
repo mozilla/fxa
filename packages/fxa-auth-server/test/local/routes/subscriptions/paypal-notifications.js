@@ -19,6 +19,7 @@ const {
   PayPalNotificationHandler,
 } = require('../../../../lib/routes/subscriptions/paypal-notifications');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
+const { CapabilityService } = require('../../../../lib/payments/capability');
 
 const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
@@ -73,6 +74,7 @@ describe('PayPalNotificationHandler', () => {
     paypalHelper = {};
 
     Container.set(PayPalHelper, paypalHelper);
+    Container.set(CapabilityService, {});
 
     handler = new PayPalNotificationHandler(
       log,
@@ -87,6 +89,7 @@ describe('PayPalNotificationHandler', () => {
   });
 
   afterEach(() => {
+    Container.reset();
     sinon.restore();
   });
 

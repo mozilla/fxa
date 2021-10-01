@@ -117,6 +117,10 @@ describe('CapabilityService', () => {
     capabilityService = new CapabilityService();
   });
 
+  afterEach(() => {
+    Container.reset();
+  });
+
   describe('stripeUpdate', () => {
     beforeEach(() => {
       mockStripeHelper.getCustomerUidEmailFromSubscription =

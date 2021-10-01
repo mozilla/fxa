@@ -73,6 +73,7 @@ describe('SubscriptionReminders', () => {
   });
 
   afterEach(() => {
+    Container.reset();
     sandbox.reset();
   });
 
