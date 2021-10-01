@@ -39,7 +39,7 @@
     "mysql": "^2.18.1",
     "mysql-patcher": "0.7.0",
     "request": "^2.88.2",
-    "restify": "^8.4.0"
+    "restify": "^8.6.0"
   },
   "devDependencies": {
     "audit-filter": "0.5.0",
