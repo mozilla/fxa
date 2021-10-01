@@ -60,7 +60,10 @@ export const PaymentConfirmation = ({
   );
 
   const { l10n } = useLocalization();
-  const downloadLink = productUrl + `/?email=${encodeURIComponent(email)}`;
+  const downloadLink: string =
+    productUrl.indexOf('?') > -1
+      ? productUrl + `&email=${encodeURIComponent(email)}`
+      : productUrl + `?email=${encodeURIComponent(email)}`;
 
   return (
     <>
