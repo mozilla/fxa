@@ -80,7 +80,7 @@
     "@nestjs/mapped-types": "^1.0.0",
     "@sentry/browser": "^6.13.2",
     "@sentry/integrations": "^6.13.2",
-    "@sentry/node": "^6.12.0",
+    "@sentry/node": "^6.13.2",
     "@types/js-md5": "^0.4.2",
     "@types/uuid": "^8.3.1",
     "accept-language": "^2.0.17",
