@@ -5760,23 +5760,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/core@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "@type-cacheable/core@npm:5.2.0"
+"@type-cacheable/core@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@type-cacheable/core@npm:10.0.1"
   dependencies:
-    serialize-javascript: ^3.0.0
-  checksum: f6ccb9a226d1e4e29b7ca11d931cf4729aaae67fcec7962c72b467bba5ced00babf0c4c56d95b2ec20cb511a419b1e49446d202a59686c30e6187fa23ed9da4f
+    serialize-javascript: ^6.0.0
+  checksum: 8de08a46cf6b471152505951038fb0362acc9a9e254995c9cbc4a1946d0d92ef7c3f2caa71eb0de141ed5a9154dd7d1e63271415b88d5be81130cb5700ddbf14
   languageName: node
   linkType: hard
 
-"@type-cacheable/ioredis-adapter@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "@type-cacheable/ioredis-adapter@npm:5.2.0"
+"@type-cacheable/ioredis-adapter@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@type-cacheable/ioredis-adapter@npm:10.0.1"
   dependencies:
-    "@type-cacheable/core": ^5.2.0
+    compare-versions: ^3.6.0
   peerDependencies:
+    "@type-cacheable/core": ^10.0.0
     ioredis: ^4.14.1
-  checksum: 03de1accec2e5d5b939b773eae8ee4e1bc814cd37023f5431493f89aa125fc23fb3d5f854468fb77a8ed7c72ced0293dd9d3d82199a71db1886cb132be20d0ca
+  checksum: a4185895ff3eb38e4ff3080936093bdd1af9ce879ff0a1858cd84e83717e928be2e6d8ff1cb4597c6f2df3ced27104695178315ae34d9a48ee9851e7b774c887
   languageName: node
   linkType: hard
 
@@ -18155,8 +18156,8 @@ fsevents@~2.1.1:
     "@storybook/addon-docs": ^6.3.8
     "@storybook/addon-toolbars": ^6.3.8
     "@storybook/html": ^6.3.8
-    "@type-cacheable/core": ^5.2.0
-    "@type-cacheable/ioredis-adapter": ^5.2.0
+    "@type-cacheable/core": ^10.0.1
+    "@type-cacheable/ioredis-adapter": ^10.0.1
     "@types/babel__core": 7.1.14
     "@types/chai": ^4.2.18
     "@types/convict": ^5.2.2
@@ -33997,15 +33998,6 @@ resolve@^2.0.0-next.3:
   version: 2.1.2
   resolution: "serialize-javascript@npm:2.1.2"
   checksum: 16ce4e4886aff10d5cbbc46149cae3a63f31ea1578f218ef3a363ae413fa245dde61ab039f6733cc86db7b3ff940bfcba9b5a4bfc7b5dd1b3967737c0bbc017e
-  languageName: node
-  linkType: hard
-
-"serialize-javascript@npm:^3.0.0":
-  version: 3.1.0
-  resolution: "serialize-javascript@npm:3.1.0"
-  dependencies:
-    randombytes: ^2.1.0
-  checksum: 0fc0131a78168d6237cfe1b21564f20a3b9b72e8ceebb21935baacf026631ed636912c20c7e9fa721a8f27a247e6f9849e705f27032d19863333c2cfab16d1c9
   languageName: node
   linkType: hard
 
