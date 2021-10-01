@@ -11,7 +11,6 @@ import {
 } from '../../../lib/test-utils';
 
 import { SubscriptionSuccess } from './index';
-import { profile } from 'console';
 
 afterEach(cleanup);
 
