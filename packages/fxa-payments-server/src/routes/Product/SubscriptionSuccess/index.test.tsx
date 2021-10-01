@@ -23,7 +23,7 @@ function assertRedirectForProduct(
     ...defaultConfig,
     env: 'testing',
     productRedirectURLs: {
-      '123doneProProduct': 'http://localhost:8080/',
+      '123doneProProduct': 'http://localhost:8080',
     },
   };
   const navigateToUrl = jest.fn();
@@ -42,7 +42,7 @@ function assertRedirectForProduct(
     </AppContext.Provider>
   );
   expect(getByTestId('download-link').getAttribute('href')).toEqual(
-    expectedUrl + `/?email=${encodeURIComponent(MOCK_PROFILE.email)}`
+    expectedUrl
   );
 }
 
@@ -51,12 +51,16 @@ describe('SubscriptionSuccess', () => {
     assertRedirectForProduct(
       '123doneProProduct',
       'local',
-      'http://localhost:8080/'
+      `http://localhost:8080/?email=${encodeURIComponent(MOCK_PROFILE.email)}`
     );
   });
 
   it('performs a redirect to the default URL for unknown product', () => {
-    assertRedirectForProduct('beepBoop', 'bazquux', 'https://mozilla.org');
+    assertRedirectForProduct(
+      'beepBoop',
+      'bazquux',
+      `https://mozilla.org/?email=${encodeURIComponent(MOCK_PROFILE.email)}`
+    );
   });
 
   it('renders the PlanDetails component on mobile', () => {
