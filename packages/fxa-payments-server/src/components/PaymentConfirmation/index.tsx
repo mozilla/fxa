@@ -146,7 +146,7 @@ export const PaymentConfirmation = ({
             <a
               data-testid="download-link"
               className="button download-link"
-              href={productUrl}
+              href={productUrl + `/?email=${encodeURIComponent(email)}`}
             >
               {buttonLabel ||
                 l10n.getString(
