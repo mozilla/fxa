@@ -38,14 +38,17 @@ const eventCreditNoteCreated = require('../../payments/fixtures/stripe/event_cre
 const failedDoReferenceTransactionResponse = require('../../payments/fixtures/paypal/do_reference_transaction_failure.json');
 const { default: Container } = require('typedi');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
-const { PayPalClientError } = require('../../../../lib/payments/paypal-client');
+const {
+  PayPalClientError,
+  PayPalClient,
+} = require('../../../../lib/payments/paypal-client');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
 } = require('../../../../lib/payments/paypal-error-codes');
-const { mockLog, asyncIterable } = require('../../../mocks');
+const { asyncIterable } = require('../../../mocks');
 
 let config, log, db, customs, push, mailer, profile, mockCapabilityService;
 
@@ -124,6 +127,7 @@ describe('StripeWebhookHandler', () => {
   });
 
   afterEach(() => {
+    Container.reset();
     sandbox.restore();
   });
 
@@ -364,7 +368,7 @@ describe('StripeWebhookHandler', () => {
     });
 
     describe('handleCustomerUpdatedEvent', () => {
-      it('refreshes the customor if the account exists', async () => {
+      it('removes the customor if the account exists', async () => {
         const authDbModule = require('fxa-shared/db/models/auth');
         const account = { email: customerFixture.email };
         sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
@@ -376,7 +380,7 @@ describe('StripeWebhookHandler', () => {
           }
         );
         assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.refreshCachedCustomer,
+          StripeWebhookHandlerInstance.stripeHelper.removeCustomerFromCache,
           customerFixture.metadata.userid,
           customerFixture.email
         );
@@ -981,11 +985,11 @@ describe('StripeWebhookHandler', () => {
 
       it('sends failed when processing invoices for paypal customers with invalid billing agreement', async () => {
         // Setup a failed invoice process
-        const paypalHelper = new PayPalHelper({ log: mockLog });
+        const paypalClient = Container.get(PayPalClient);
         const failedResponse = deepCopy(failedDoReferenceTransactionResponse);
         failedResponse.L_ERRORCODE0 = PAYPAL_BILLING_AGREEMENT_INVALID;
-        const rawString = paypalHelper.client.objectToNVP(failedResponse);
-        const parsedNvpObject = paypalHelper.client.nvpToObject(rawString);
+        const rawString = paypalClient.objectToNVP(failedResponse);
+        const parsedNvpObject = paypalClient.nvpToObject(rawString);
         const throwErr = new PayPalClientError(rawString, parsedNvpObject);
 
         StripeWebhookHandlerInstance.paypalHelper.processInvoice =
@@ -1028,11 +1032,11 @@ describe('StripeWebhookHandler', () => {
 
       it('sends failed when processing invoices for paypal customers with invalid billing agreement', async () => {
         // Setup a failed invoice process
-        const paypalHelper = new PayPalHelper({ log: mockLog });
         const failedResponse = deepCopy(failedDoReferenceTransactionResponse);
         failedResponse.L_ERRORCODE0 = PAYPAL_SOURCE_ERRORS[0];
-        const rawString = paypalHelper.client.objectToNVP(failedResponse);
-        const parsedNvpObject = paypalHelper.client.nvpToObject(rawString);
+        const paypalClient = Container.get(PayPalClient);
+        const rawString = paypalClient.objectToNVP(failedResponse);
+        const parsedNvpObject = paypalClient.nvpToObject(rawString);
         const throwErr = new PayPalClientError(rawString, parsedNvpObject);
 
         StripeWebhookHandlerInstance.paypalHelper.processInvoice =
@@ -1509,6 +1513,9 @@ describe('StripeWebhookHandler', () => {
         StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
           mockInvoiceDetails
         );
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves({
+          id: 'in_1GB4aHKb9q6OnNsLC9pbVY5a',
+        });
 
         const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
         StripeWebhookHandlerInstance.db.account = sinon.spy(async (data) => {
@@ -1525,7 +1532,7 @@ describe('StripeWebhookHandler', () => {
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper
             .extractInvoiceDetailsForEmail,
-          subscription.latest_invoice
+          { id: subscription.latest_invoice }
         );
 
         if (shouldSendSubscriptionFailedPaymentsCancellationEmail()) {

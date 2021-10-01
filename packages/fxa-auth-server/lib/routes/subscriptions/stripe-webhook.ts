@@ -20,7 +20,11 @@ import {
   PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT,
   PAYPAL_SOURCE_ERRORS,
 } from '../../payments/paypal-error-codes';
-import { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } from '../../payments/stripe';
+import {
+  INVOICES_RESOURCE,
+  StripeHelper,
+  SUBSCRIPTION_UPDATE_TYPES,
+} from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
@@ -63,6 +67,8 @@ export class StripeWebhookHandler extends StripeHandler {
         request.payload,
         request.headers['stripe-signature']
       );
+
+      await this.stripeHelper.processWebhookEventToFirestore(event);
 
       switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
         case 'credit_note.created':
@@ -303,7 +309,7 @@ export class StripeWebhookHandler extends StripeHandler {
       );
       return;
     }
-    this.stripeHelper.refreshCachedCustomer(uid, account.email);
+    this.stripeHelper.removeCustomerFromCache(uid, account.email);
   }
 
   /**
@@ -392,14 +398,12 @@ export class StripeWebhookHandler extends StripeHandler {
    */
   async handleInvoicePaidEvent(request: AuthRequest, event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
-    let uid, email;
     try {
-      ({ uid, email } = await this.sendSubscriptionInvoiceEmail(invoice));
+      await this.sendSubscriptionInvoiceEmail(invoice);
     } catch (err) {
       reportSentryError(err, request);
       return;
     }
-    await this.stripeHelper.refreshCachedCustomer(uid, email);
   }
 
   /**
@@ -414,10 +418,7 @@ export class StripeWebhookHandler extends StripeHandler {
       // Send payment failure emails only when processing a subscription renewal.
       return;
     }
-    const { uid, email } = await this.sendSubscriptionPaymentFailedEmail(
-      invoice
-    );
-    await this.stripeHelper.refreshCachedCustomer(uid, email);
+    await this.sendSubscriptionPaymentFailedEmail(invoice);
   }
 
   /**
@@ -431,7 +432,7 @@ export class StripeWebhookHandler extends StripeHandler {
     const { uid, email } = await this.sendSubscriptionPaymentExpiredEmail(
       source
     );
-    await this.stripeHelper.refreshCachedCustomer(uid, email);
+    await this.stripeHelper.removeCustomerFromCache(uid, email);
   }
 
   /**
@@ -638,10 +639,12 @@ export class StripeWebhookHandler extends StripeHandler {
         'Subscription latest_invoice was not a string.'
       );
     }
+    const invoice = await this.stripeHelper.expandResource<Stripe.Invoice>(
+      subscription.latest_invoice,
+      INVOICES_RESOURCE
+    );
     const invoiceDetails =
-      await this.stripeHelper.extractInvoiceDetailsForEmail(
-        subscription.latest_invoice
-      );
+      await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
     if (subscription.metadata?.cancelled_for_customer_at) {
       // Subscription already cancelled, should have triggered an email earlier
       return invoiceDetails;

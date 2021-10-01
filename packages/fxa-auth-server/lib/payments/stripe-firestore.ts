@@ -12,7 +12,7 @@ export enum FirestoreStripeError {
   STRIPE_CUSTOMER_DELETED = 'StripeCustomerDeleted',
 }
 
-function newFirestoreStripeError(
+export function newFirestoreStripeError(
   message: string,
   code: FirestoreStripeError
 ): Error {
@@ -22,11 +22,53 @@ function newFirestoreStripeError(
 }
 
 export class StripeFirestore {
+  private subscriptionCollection: string;
+  private invoiceCollection: string;
+
   constructor(
     private firestore: Firestore,
     private customerCollectionDbRef: CollectionReference,
-    private stripe: Stripe
-  ) {}
+    private stripe: Stripe,
+    prefix: string
+  ) {
+    this.subscriptionCollection = `${prefix}subscriptions`;
+    this.invoiceCollection = `${prefix}invoices`;
+  }
+
+  /**
+   * Retrieve a customer from Stripe and insert it if it doesn't exist.
+   */
+  async retrieveAndFetchCustomer(customerId: string) {
+    try {
+      const customer = await this.retrieveCustomer({ customerId });
+      return customer;
+    } catch (err) {
+      if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
+        return this.fetchAndInsertCustomer(customerId);
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Retrieve a subscription from Stripe and populate the Firestore record for
+   * the customer and subscription if it doesn't exist.
+   */
+  async retrieveAndFetchSubscription(subscriptionId: string) {
+    try {
+      const subscription = await this.retrieveSubscription(subscriptionId);
+      return subscription;
+    } catch (err) {
+      if (err.name === FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND) {
+        const subscription = await this.stripe.subscriptions.retrieve(
+          subscriptionId
+        );
+        await this.fetchAndInsertCustomer(subscription.customer as string);
+        return subscription;
+      }
+      throw err;
+    }
+  }
 
   /**
    * Get a Stripe customer by id, and insert it into Firestore keyed to the fxa uid.
@@ -35,17 +77,18 @@ export class StripeFirestore {
    * loads the customers subscriptions into Firestore.
    */
   async fetchAndInsertCustomer(customerId: string) {
-    const customer = await this.stripe.customers.retrieve(customerId, {
-      expand: ['subscriptions'],
-    });
+    const [customer, subscriptions] = await Promise.all([
+      this.stripe.customers.retrieve(customerId),
+      this.stripe.subscriptions
+        .list({ customer: customerId })
+        .autoPagingToArray({ limit: 100 }),
+    ]);
     if (customer.deleted) {
       throw newFirestoreStripeError(
         `Customer ${customerId} was deleted`,
         FirestoreStripeError.STRIPE_CUSTOMER_DELETED
       );
     }
-    // Drop Stripe.Response attribute from API call.
-    delete (customer as any).lastResponse;
 
     const uid = customer.metadata.userid;
     if (!uid) {
@@ -56,12 +99,12 @@ export class StripeFirestore {
     }
 
     const inserts = [this.insertCustomerRecord(uid, customer)];
-    if (customer.subscriptions) {
-      for (const subscription of customer.subscriptions.data) {
+    if (subscriptions) {
+      for (const subscription of subscriptions) {
         inserts.push(
           this.customerCollectionDbRef
             .doc(uid)
-            .collection('subscriptions')
+            .collection(this.subscriptionCollection)
             .doc(subscription.id)
             .set(subscription, { merge: true })
         );
@@ -93,7 +136,7 @@ export class StripeFirestore {
     }
 
     return customerSnap.docs[0].ref
-      .collection('subscriptions')
+      .collection(this.subscriptionCollection)
       .doc(subscription.id)
       .set(subscription, { merge: true });
   }
@@ -117,9 +160,9 @@ export class StripeFirestore {
     }
 
     return customerSnap.docs[0].ref
-      .collection('subscriptions')
+      .collection(this.subscriptionCollection)
       .doc(invoice.subscription)
-      .collection('invoices')
+      .collection(this.invoiceCollection)
       .doc(invoice.id)
       .set(invoice, { merge: true });
   }
@@ -129,8 +172,8 @@ export class StripeFirestore {
    */
   async retrieveCustomer(
     options:
-      | { uid: string; customerId: undefined }
-      | { uid: undefined; customerId: string }
+      | { uid: string; customerId?: undefined }
+      | { uid?: undefined; customerId: string }
   ) {
     if (options.uid) {
       const customerSnap = await this.customerCollectionDbRef
@@ -168,7 +211,7 @@ export class StripeFirestore {
     }
 
     const subscriptionSnap = await customerSnap.docs[0].ref
-      .collection('subscriptions')
+      .collection(this.subscriptionCollection)
       .get();
     return subscriptionSnap.docs.map(
       (doc) => doc.data() as Stripe.Subscription
@@ -180,7 +223,7 @@ export class StripeFirestore {
    */
   async retrieveSubscription(subscriptionId: string) {
     const subscriptionSnap = await this.firestore
-      .collectionGroup('stripe-subscriptions')
+      .collectionGroup(this.subscriptionCollection)
       .where('id', '==', subscriptionId)
       .get();
     if (!subscriptionSnap.empty) {
@@ -197,7 +240,7 @@ export class StripeFirestore {
    */
   async retrieveInvoice(invoiceId: string) {
     const invoiceSnap = await this.firestore
-      .collectionGroup('stripe-invoices')
+      .collectionGroup(this.invoiceCollection)
       .where('id', '==', invoiceId)
       .get();
     if (!invoiceSnap.empty) {

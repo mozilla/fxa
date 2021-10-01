@@ -1533,7 +1533,6 @@ describe('/account/login', () => {
     check: () => Promise.resolve(),
     flag: () => Promise.resolve(),
   };
-  Container.set(CapabilityService, sinon.fake);
   const mockCadReminders = mocks.mockCadReminders();
   const accountRoutes = makeRoutes({
     checkPassword: function () {
@@ -1551,6 +1550,10 @@ describe('/account/login', () => {
 
   const defaultEmailRecord = mockDB.emailRecord;
   const defaultEmailAccountRecord = mockDB.accountRecord;
+
+  beforeEach(() => {
+    Container.set(CapabilityService, sinon.fake);
+  });
 
   afterEach(() => {
     mockLog.activityEvent.resetHistory();
@@ -1575,6 +1578,7 @@ describe('/account/login', () => {
     mockRequest.payload.email = TEST_EMAIL;
     mockRequest.payload.verificationMethod = undefined;
     mockCadReminders.delete.resetHistory();
+    Container.reset();
   });
 
   it('emits the correct series of calls and events', () => {

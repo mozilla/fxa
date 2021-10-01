@@ -61,6 +61,7 @@ describe('GoogleIapHandler', () => {
   });
 
   afterEach(() => {
+    Container.reset();
     sinon.restore();
   });
 
