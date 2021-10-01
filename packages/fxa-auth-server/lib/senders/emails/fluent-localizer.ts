@@ -54,7 +54,7 @@ class FluentLocalizer {
       [...userLocales],
       [...OTHER_EN_LOCALES, ...availableLocales],
       {
-        defaultLocale: 'en-US',
+        defaultLocale: 'en',
       }
     );
 
@@ -66,7 +66,7 @@ class FluentLocalizer {
         {}
       );
 
-    let selectedLocale: string = 'en-US';
+    let selectedLocale: string = 'en';
     async function* generateBundles(currentLocales: string[]) {
       for (const locale of currentLocales) {
         const source = fetched[locale];

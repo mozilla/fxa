@@ -37,7 +37,7 @@ const subplatCommonArgs = {
 const storybookEmail = ({
   template,
   layout = 'fxa',
-  acceptLanguage = 'en-US',
+  acceptLanguage = 'en',
   doc,
   variables,
   direction,
