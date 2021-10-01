@@ -10,7 +10,7 @@
 
     <mj-text css-class="text-body">
       <span data-l10n-id="subscriptionPaymentExpired-content" data-l10n-args="<%= JSON.stringify({productName}) %>">
-        The credit card you're using to make payments for <%- productName %> is about to expire.
+        The credit card you’re using to make payments for <%- productName %> is about to expire.
       </span>
     </mj-text>
   </mj-column>

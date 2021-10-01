@@ -2,7 +2,7 @@ subscriptionsPaymentExpired-subject = "Credit card for your subscriptions is exp
 
 subscriptionsPaymentExpired-title = "Your credit card is about to expire"
 
-subscriptionsPaymentExpired-content = "The credit card you're using to make payments for the following subscriptions is about to expire."
+subscriptionsPaymentExpired-content = "The credit card you’re using to make payments for the following subscriptions is about to expire."
 
 <%- subscriptions.map(({ productName }) => `  - ${productName}`).join("\r") %>
 

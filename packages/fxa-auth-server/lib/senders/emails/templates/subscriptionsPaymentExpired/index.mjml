@@ -10,7 +10,7 @@
 
     <mj-text css-class="text-body-no-bottom-margin">
       <span data-l10n-id="subscriptionsPaymentExpired-content">
-        The credit card you're using to make payments for the following subscriptions is about to expire.
+        The credit card you’re using to make payments for the following subscriptions is about to expire.
       </span>
     </mj-text>
 

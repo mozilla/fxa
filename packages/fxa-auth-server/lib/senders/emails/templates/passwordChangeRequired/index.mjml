@@ -26,7 +26,10 @@
 
     <mj-text css-class="text-body-lg-bottom-margin align-left">
       <span data-l10n-id="passwordChangeRequired-signoff">
-        Best,<br />
+        Best,
+      </span>
+      <br />
+      <span data-l10n-id="passwordChangeRequired-signoff-name">
         The Firefox Accounts Team
       </span>
     </mj-text>

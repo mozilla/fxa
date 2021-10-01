@@ -124,7 +124,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderFirst }],
     ])],
     ['html', [
-      { test: 'include', expected: "Here's your reminder to sync devices." },
+      { test: 'include', expected: "Here’s your reminder to sync devices." },
       { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-first', 'connect-device')) },
       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
@@ -135,7 +135,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
     ]],
     ['text', [
-      { test: 'include', expected: "Here's your reminder to sync devices." },
+      { test: 'include', expected: "Here’s your reminder to sync devices." },
       { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-first', 'privacy')}` },
       { test: 'include', expected: config.smtp.syncUrl },
@@ -206,7 +206,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
     ])],
     ['html', [
-      { test: 'include', expected: "Firefox Account verified. You're almost there." },
+      { test: 'include', expected: "Firefox Account verified. You’re almost there." },
       { test: 'include', expected: 'Next sync between your devices!' },
       { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'account-verified', 'connect-device')) },
@@ -218,7 +218,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(config.smtp.firefoxDesktopUrl) },
     ]],
     ['text', [
-      { test: 'include', expected: 'Firefox Account verified. You\'re almost there.' },
+      { test: 'include', expected: 'Firefox Account verified. You’re almost there.' },
       { test: 'include', expected: 'Next sync between your devices!' },
       { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
