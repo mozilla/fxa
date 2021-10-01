@@ -74,7 +74,7 @@ describe('CapabilityService', () => {
     mockProfileClient = {
       deleteCache: sinon.fake.resolves({}),
     };
-    mockStripeHelper.allPlans = sinon.spy(async () => [
+    mockStripeHelper.allAbbrevPlans = sinon.spy(async () => [
       {
         product_id: 'prod_123456',
         product_metadata: {
@@ -351,7 +351,7 @@ describe('CapabilityService', () => {
     });
 
     it('supports capabilities visible to all clients', async () => {
-      mockStripeHelper.allPlans = sinon.spy(async () => [
+      mockStripeHelper.allAbbrevPlans = sinon.spy(async () => [
         {
           product_id: 'prod_123456',
           product_metadata: {

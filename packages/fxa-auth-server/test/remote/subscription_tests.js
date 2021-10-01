@@ -52,7 +52,7 @@ describe('remote subscriptions:', function () {
         pwd: 'pwd',
         signature: 'sig',
       };
-      mockStripeHelper.allPlans = async () => [
+      mockStripeHelper.allAbbrevPlans = async () => [
         {
           plan_id: PLAN_ID,
           product_id: PRODUCT_ID,

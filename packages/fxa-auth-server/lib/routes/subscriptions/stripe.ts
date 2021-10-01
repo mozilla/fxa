@@ -94,7 +94,7 @@ export class StripeHandler {
     this.log.begin('subscriptions.getClients', request);
     const capabilitiesByClientId: { [clientId: string]: string[] } = {};
 
-    const plans = await this.stripeHelper.allPlans();
+    const plans = await this.stripeHelper.allAbbrevPlans();
 
     const capabilitiesForAll: string[] = [];
     for (const plan of plans) {
@@ -258,14 +258,14 @@ export class StripeHandler {
 
   async listPlans(request: AuthRequest) {
     this.log.begin('subscriptions.listPlans', request);
-    const plans = await this.stripeHelper.allPlans();
+    const plans = await this.stripeHelper.allAbbrevPlans();
     return sanitizePlans(plans);
   }
 
   async getProductName(request: AuthRequest) {
     this.log.begin('subscriptions.getProductName', request);
     const { productId } = request.query as Record<string, string>;
-    const plans = await this.stripeHelper.allPlans();
+    const plans = await this.stripeHelper.allAbbrevPlans();
     const planForProduct = plans.find((plan) => plan.product_id === productId);
     if (!planForProduct) {
       throw error.unknownSubscriptionPlan();
@@ -666,7 +666,7 @@ export class StripeHandler {
    * Gather all capabilities granted by a product across all clients
    */
   async getProductCapabilities(productId: string): Promise<string[]> {
-    const plans = await this.stripeHelper.allPlans();
+    const plans = await this.stripeHelper.allAbbrevPlans();
     const capabilitiesForProduct = [];
     for (const plan of plans) {
       if (plan.product_id !== productId) {
