@@ -460,7 +460,8 @@
       "postNewRecoveryCodes",
       "passwordChangeRequired",
       "recovery",
-      "subscriptionPaymentExpired"
+      "subscriptionPaymentExpired",
+      "subscriptionsPaymentExpired"
     ]
   }
 }
