@@ -3635,16 +3635,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:^8.0.6":
-  version: 8.0.6
-  resolution: "@nestjs/core@npm:8.0.6"
+"@nestjs/core@npm:^8.0.9":
+  version: 8.0.9
+  resolution: "@nestjs/core@npm:8.0.9"
   dependencies:
     "@nuxtjs/opencollective": 0.3.2
-    fast-safe-stringify: 2.0.8
+    fast-safe-stringify: 2.1.1
     iterare: 1.2.1
     object-hash: 2.2.0
     path-to-regexp: 3.2.0
-    tslib: 2.3.0
+    tslib: 2.3.1
     uuid: 8.3.2
   peerDependencies:
     "@nestjs/common": ^8.0.0
@@ -3660,7 +3660,7 @@ __metadata:
       optional: true
     "@nestjs/websockets":
       optional: true
-  checksum: e2a72a1c705c2b9af351165979cded22df0e783e7b5b44683a4a0754a3bd847cec3244843e22ed30e8fa439e95410c2dc0457b36ab2cadb905d8fd51c71f082a
+  checksum: 65f481ef03b0432c89d0905b459084cb9839ea88e6ff56bf5b4f9e5a70823d681e8aebdeddcb19bebde71ace557123734fa7e884ed27814b433cb93318591a1e
   languageName: node
   linkType: hard
 
@@ -16808,7 +16808,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-safe-stringify@npm:2.0.8, fast-safe-stringify@npm:^2.0.6, fast-safe-stringify@npm:^2.0.7":
+"fast-safe-stringify@npm:2.1.1":
+  version: 2.1.1
+  resolution: "fast-safe-stringify@npm:2.1.1"
+  checksum: a851cbddc451745662f8f00ddb622d6766f9bd97642dabfd9a405fb0d646d69fc0b9a1243cbf67f5f18a39f40f6fa821737651ff1bceeba06c9992ca2dc5bd3d
+  languageName: node
+  linkType: hard
+
+"fast-safe-stringify@npm:^2.0.6, fast-safe-stringify@npm:^2.0.7":
   version: 2.0.8
   resolution: "fast-safe-stringify@npm:2.0.8"
   checksum: be8a07f342817e80c37286509355f91170bd89be9c1df9512ba0c5a61ce20ccf9bdae42ccf65e1fa3834734c78fc524121f709303ebbb97d22df3cb03ff9d7a5
@@ -18030,7 +18037,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
-    "@nestjs/core": ^8.0.6
+    "@nestjs/core": ^8.0.9
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/platform-express": ^8.0.8
@@ -18548,7 +18555,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^8.1.1
     "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
-    "@nestjs/core": ^8.0.6
+    "@nestjs/core": ^8.0.9
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
@@ -18645,7 +18652,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^8.1.1
     "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
-    "@nestjs/core": ^8.0.6
+    "@nestjs/core": ^8.0.9
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
@@ -19078,7 +19085,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
-    "@nestjs/core": ^8.0.6
+    "@nestjs/core": ^8.0.9
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/testing": ^8.0.5
@@ -19161,7 +19168,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^8.1.1
     "@nestjs/common": ^8.0.8
     "@nestjs/config": ^1.0.1
-    "@nestjs/core": ^8.0.6
+    "@nestjs/core": ^8.0.9
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/platform-express": ^8.0.8
     "@sentry/integrations": ^6.13.2
