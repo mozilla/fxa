@@ -60,10 +60,8 @@ export const PaymentConfirmation = ({
   );
 
   const { l10n } = useLocalization();
-  const downloadLink: string =
-    productUrl.indexOf('?') > -1
-      ? productUrl + `&email=${encodeURIComponent(email)}`
-      : productUrl + `?email=${encodeURIComponent(email)}`;
+  const downloadUrl: URL = new URL(productUrl);
+  downloadUrl.searchParams.append('email', email);
 
   return (
     <>
@@ -150,7 +148,7 @@ export const PaymentConfirmation = ({
             <a
               data-testid="download-link"
               className="button download-link"
-              href={downloadLink}
+              href={downloadUrl.href}
             >
               {buttonLabel ||
                 l10n.getString(

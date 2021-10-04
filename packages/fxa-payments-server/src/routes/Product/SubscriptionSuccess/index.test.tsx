@@ -51,7 +51,7 @@ describe('SubscriptionSuccess', () => {
     assertRedirectForProduct(
       '123doneProProduct',
       'local',
-      `http://localhost:8080?email=${encodeURIComponent(MOCK_PROFILE.email)}`
+      `http://localhost:8080/?email=${encodeURIComponent(MOCK_PROFILE.email)}`
     );
   });
 
@@ -59,7 +59,7 @@ describe('SubscriptionSuccess', () => {
     assertRedirectForProduct(
       'beepBoop',
       'bazquux',
-      `https://mozilla.org?email=${encodeURIComponent(MOCK_PROFILE.email)}`
+      `https://mozilla.org/?email=${encodeURIComponent(MOCK_PROFILE.email)}`
     );
   });
 
