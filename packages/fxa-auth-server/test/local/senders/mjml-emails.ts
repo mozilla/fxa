@@ -56,6 +56,15 @@ const MESSAGE = {
   productId: 'wibble',
   planId: 'plan-example',
   productName: 'Firefox Fortress',
+  subscription: {
+    productName: 'Cooking with Foxkeh',
+    planId: 'plan-example',
+    productId: 'wibble',
+  },
+  subscriptions: [
+    { productName: 'Firefox Fortress' },
+    { productName: 'Cooking with Foxkeh' },
+  ],
 };
 
 // key = query param name, value = MESSAGE property name
@@ -105,7 +114,7 @@ const COMMON_TESTS = new Map<string, Test | any>([
 ]);
 
 // prettier-ignore
-const TESTS = [
+const TESTS: [string, any, Record<string, any>?][] = [
   ['cadReminderFirstEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How To Complete Your Sync Setup' }],
     ['headers', new Map([
@@ -980,8 +989,8 @@ const TESTS = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email') },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      // { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -992,7 +1001,8 @@ const TESTS = [
   ]),
     {updateTemplateValues: x => (
       {...x, subscriptions: [{planId: MESSAGE.planId, productId: MESSAGE.productId, ...x.subscriptions[0]}]})}],
-  ['subscriptionPaymentExpiredEmail', new Map([
+
+  ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Credit card for your subscriptions is expiring soon' }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionsPaymentExpired') }],
