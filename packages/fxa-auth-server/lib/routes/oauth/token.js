@@ -488,6 +488,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
               if (err.errno === 108) {
                 throw AuthError.invalidToken();
               }
+              console.error('TOKEN HANDLER ERROR', JSON.stringify(err));
               throw err;
             }
             break;
@@ -499,7 +500,12 @@ module.exports = ({ log, oauthDB, db, mailer, devices }) => {
               config.getProperties(),
               sessionToken
             );
-            grant = await tokenHandler(req);
+            try {
+              grant = await tokenHandler(req);
+            } catch (err) {
+              console.error('TOKEN HANDLER ERROR', JSON.stringify(err));
+              throw err;
+            }
             break;
           default:
             throw AuthError.internalValidationError();
