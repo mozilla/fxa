@@ -31,7 +31,7 @@ const subplatCommonArgs = {
   cancelSubscriptionUrl: 'http://localhost:3030/subscriptions',
   updateBillingUrl: 'http://localhost:3030/subscriptions',
   reactivateSubscriptionUrl: 'http://localhost:3030/subscriptions',
-  accountSettingsLink: 'http://localhost:3030/settings',
+  accountSettingsUrl: 'http://localhost:3030/settings',
 };
 
 const storybookEmail = ({
@@ -140,5 +140,5 @@ export const subplatStoryWithProps = (
     templateName,
     templateDoc,
     { ...defaultArgs, ...subplatCommonArgs },
-    'subplat'
+    'subscription'
   );
