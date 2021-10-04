@@ -990,6 +990,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      // commented out during template conversion - this doesn't appear to actually existin rendered old templates but passes the test?
       // { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1010,7 +1011,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid')) },
       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
