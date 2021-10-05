@@ -5515,14 +5515,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/html@npm:^6.3.8":
-  version: 6.3.8
-  resolution: "@storybook/html@npm:6.3.8"
+"@storybook/html@npm:^6.3.9":
+  version: 6.3.9
+  resolution: "@storybook/html@npm:6.3.9"
   dependencies:
-    "@storybook/addons": 6.3.8
-    "@storybook/client-api": 6.3.8
-    "@storybook/core": 6.3.8
-    "@storybook/core-common": 6.3.8
+    "@storybook/addons": 6.3.9
+    "@storybook/client-api": 6.3.9
+    "@storybook/core": 6.3.9
+    "@storybook/core-common": 6.3.9
     "@types/webpack-env": ^1.16.0
     core-js: ^3.8.2
     global: ^4.4.0
@@ -5538,7 +5538,7 @@ __metadata:
     build-storybook: bin/build.js
     start-storybook: bin/index.js
     storybook-server: bin/index.js
-  checksum: 87f87017b6f003b6233281324699120d6a620f7927b0408b0220ec66a980262dc560f292d4cc5652f985a5e696cadde664bba328855d39e7a03d397919ccb330
+  checksum: e070d4df3e25b5ca0743410038e7ac0858516a479d44b84b21ed10288dacfe324a85181fe3d29a898ffdd36499ddf6cf1e69a5b007ec79b0c538019b628b340b
   languageName: node
   linkType: hard
 
@@ -18742,7 +18742,7 @@ fsevents@~2.1.1:
     "@storybook/addon-controls": ^6.3.8
     "@storybook/addon-docs": ^6.3.9
     "@storybook/addon-toolbars": ^6.3.8
-    "@storybook/html": ^6.3.8
+    "@storybook/html": ^6.3.9
     "@type-cacheable/core": ^5.2.0
     "@type-cacheable/ioredis-adapter": ^5.2.0
     "@types/babel__core": 7.1.14
