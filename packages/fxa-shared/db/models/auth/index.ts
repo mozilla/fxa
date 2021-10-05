@@ -85,7 +85,9 @@ export async function getAccountCustomerByUid(uid: string) {
  * @returns {string} result.uid - The FxA user id
  * @returns {string} result.email - The primary email for the FxA user
  */
-export async function getUidAndEmailByStripeCustomerId(customerId: string) {
+export async function getUidAndEmailByStripeCustomerId(
+  customerId: string
+): Promise<{ uid: string; email: string }> {
   const accounts = Account.tableName;
   const accountCustomers = AccountCustomers.tableName;
   return Account.query()
