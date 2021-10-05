@@ -21,9 +21,11 @@ const subscription2 = require('../../payments/fixtures/stripe/subscription2.json
 const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
 const { filterSubscription } = require('fxa-shared/subscriptions/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
+const buildRoutes = require('../../../../lib/routes/subscriptions');
 
 const ACCOUNT_LOCALE = 'en-US';
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
+const { CapabilityService } = require('../../../../lib/payments/capability');
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
@@ -45,7 +47,7 @@ function runTest(routePath, requestOptions) {
     email: TEST_EMAIL,
     locale: ACCOUNT_LOCALE,
   });
-  const routes = require('../../../../lib/routes/subscriptions')(
+  const routes = buildRoutes(
     log,
     db,
     config,
@@ -116,7 +118,12 @@ describe('subscriptions payPalRoutes', () => {
     payPalHelper.currencyHelper = currencyHelper;
     Container.set(PayPalHelper, payPalHelper);
     profile = {};
+    Container.set(CapabilityService, {});
     push = {};
+  });
+
+  afterEach(() => {
+    Container.reset();
   });
 
   describe('POST /oauth/subscriptions/paypal-checkout', () => {

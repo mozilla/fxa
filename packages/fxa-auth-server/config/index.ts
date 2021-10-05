@@ -830,8 +830,14 @@ const conf = convict({
     plansCacheTtlSeconds: {
       doc: 'The number of seconds to cache the list of plans from subhub',
       format: 'int',
-      default: 600,
+      default: 64000000, // about a couple years
       env: 'SUBHUB_PLANS_CACHE_TTL_SECONDS',
+    },
+    stripeTaxRatesCacheTtlSeconds: {
+      doc: 'The number of seconds to cache tax rates from Stripe',
+      format: 'int',
+      default: 600,
+      env: 'SUBHUB_TAX_RATES_CACHE_TTL_SECONDS',
     },
   },
   subscriptions: {

@@ -20,7 +20,11 @@ import {
   PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT,
   PAYPAL_SOURCE_ERRORS,
 } from '../../payments/paypal-error-codes';
-import { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } from '../../payments/stripe';
+import {
+  INVOICES_RESOURCE,
+  StripeHelper,
+  SUBSCRIPTION_UPDATE_TYPES,
+} from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
@@ -64,6 +68,8 @@ export class StripeWebhookHandler extends StripeHandler {
         request.headers['stripe-signature']
       );
 
+      await this.stripeHelper.processWebhookEventToFirestore(event);
+
       switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
         case 'credit_note.created':
           if (this.paypalHelper) {
@@ -104,11 +110,17 @@ export class StripeWebhookHandler extends StripeHandler {
         case 'invoice.payment_failed':
           await this.handleInvoicePaymentFailedEvent(request, event);
           break;
+        case 'product.created':
         case 'product.updated':
-          await this.handleProductUpdatedEvent(request, event);
+        case 'product.deleted':
+          await this.handleProductWebhookEvent(request, event);
           break;
+        case 'plan.created':
         case 'plan.updated':
-          await this.handlePlanUpdatedEvent(request, event);
+          await this.handlePlanCreatedOrUpdatedEvent(request, event);
+          break;
+        case 'plan.deleted':
+          await this.handlePlanDeletedEvent(request, event);
           break;
         default:
           Sentry.withScope((scope) => {
@@ -303,7 +315,7 @@ export class StripeWebhookHandler extends StripeHandler {
       );
       return;
     }
-    this.stripeHelper.refreshCachedCustomer(uid, account.email);
+    this.stripeHelper.removeCustomerFromCache(uid, account.email);
   }
 
   /**
@@ -392,14 +404,12 @@ export class StripeWebhookHandler extends StripeHandler {
    */
   async handleInvoicePaidEvent(request: AuthRequest, event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
-    let uid, email;
     try {
-      ({ uid, email } = await this.sendSubscriptionInvoiceEmail(invoice));
+      await this.sendSubscriptionInvoiceEmail(invoice);
     } catch (err) {
       reportSentryError(err, request);
       return;
     }
-    await this.stripeHelper.refreshCachedCustomer(uid, email);
   }
 
   /**
@@ -414,10 +424,7 @@ export class StripeWebhookHandler extends StripeHandler {
       // Send payment failure emails only when processing a subscription renewal.
       return;
     }
-    const { uid, email } = await this.sendSubscriptionPaymentFailedEmail(
-      invoice
-    );
-    await this.stripeHelper.refreshCachedCustomer(uid, email);
+    await this.sendSubscriptionPaymentFailedEmail(invoice);
   }
 
   /**
@@ -431,29 +438,39 @@ export class StripeWebhookHandler extends StripeHandler {
     const { uid, email } = await this.sendSubscriptionPaymentExpiredEmail(
       source
     );
-    await this.stripeHelper.refreshCachedCustomer(uid, email);
+    await this.stripeHelper.removeCustomerFromCache(uid, email);
   }
 
   /**
-   * Validate plan metadata on update
+   * Validate plan metadata and update cached plans.
    */
-  async handlePlanUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
+  async handlePlanCreatedOrUpdatedEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
     const plan = event.data.object as Stripe.Plan;
     const product = await this.stripeHelper.fetchProductById(
       plan.product as string
     );
-    if (!product) {
-      const msg = `handlePlanUpdatedEvent - Could not locate Product ${plan.product}`;
+    const allPlans = await this.stripeHelper.allPlans();
+    // remove the plan until we have validated its metadata
+    const updatedList = allPlans.filter((p) => p.id !== plan.id);
+
+    if (!product || product.deleted) {
+      const msg = `handlePlanCreatedOrUpdatedEvent - product ${plan.product} appear to have been deleted`;
       this.log.error(msg, { plan });
 
       Sentry.withScope((scope) => {
         scope.setContext('planUpdatedEvent', { plan });
         Sentry.captureMessage(msg, Sentry.Severity.Error);
       });
+
+      this.stripeHelper.updateAllPlans(updatedList);
       return;
     }
+
     const result = subscriptionProductMetadataValidator.validate({
-      ...product.product_metadata,
+      ...product.metadata,
       ...plan.metadata,
     });
 
@@ -467,33 +484,64 @@ export class StripeWebhookHandler extends StripeHandler {
         });
         Sentry.captureMessage(msg, Sentry.Severity.Error);
       });
+
+      this.stripeHelper.updateAllPlans(updatedList);
+      return;
     }
+
+    // The original plans list has the product expanded so we attach the
+    // product object here.
+    const updatedPlan = { ...plan, product };
+    updatedList.push(updatedPlan);
+    this.stripeHelper.updateAllPlans(updatedList);
+  }
+
+  async handlePlanDeletedEvent(request: AuthRequest, event: Stripe.Event) {
+    const plan = event.data.object as Stripe.Plan;
+    const allPlans = await this.stripeHelper.allPlans();
+    this.stripeHelper.updateAllPlans(allPlans.filter((p) => p.id !== plan.id));
   }
 
   /**
-   * Validate product metadata on update
+   * Update products cache and validate metadata.
    */
-  async handleProductUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
+  async handleProductWebhookEvent(request: AuthRequest, event: Stripe.Event) {
+    const allProducts = await this.stripeHelper.allProducts();
     const product = event.data.object as Stripe.Product;
-    const plans = this.stripeHelper.fetchPlansByProductId(product.id);
-    for await (const item of plans) {
-      const result = subscriptionProductMetadataValidator.validate({
-        ...item.metadata,
-        ...product.metadata,
-      });
+    const updatedList = allProducts.filter((p) => p.id !== product.id);
+    updatedList.push(product);
+    await this.stripeHelper.updateAllProducts(updatedList);
 
-      if (result?.error) {
-        const msg = `handleProductUpdatedEvent - Plan "${item.id}"'s metadata failed validation; Product ${product.id} updated.`;
-        this.log.error(msg, { error: result.error, product });
+    const plans = await this.stripeHelper.fetchPlansByProductId(product.id);
+    const allPlans = await this.stripeHelper.allPlans();
+    const updatedPlans = allPlans.filter(
+      (plan) => (plan.product as Stripe.Product).id !== product.id
+    );
 
-        Sentry.withScope((scope) => {
-          scope.setContext('validationError', {
-            error: result.error,
-          });
-          Sentry.captureMessage(msg, Sentry.Severity.Error);
+    if (event.type !== 'product.deleted') {
+      for (const plan of plans) {
+        const result = subscriptionProductMetadataValidator.validate({
+          ...product.metadata,
+          ...plan.metadata,
         });
+
+        if (result?.error) {
+          const msg = `handleProductWebhookEvent - Plan "${plan.id}"'s metadata failed validation on product ${product.id} update.`;
+          this.log.error(msg, { error: result.error, product });
+
+          Sentry.withScope((scope) => {
+            scope.setContext('validationError', {
+              error: result.error,
+            });
+            Sentry.captureMessage(msg, Sentry.Severity.Error);
+          });
+        } else {
+          updatedPlans.push({ ...plan, product });
+        }
       }
     }
+
+    this.stripeHelper.updateAllPlans(updatedPlans);
   }
 
   /**
@@ -638,10 +686,12 @@ export class StripeWebhookHandler extends StripeHandler {
         'Subscription latest_invoice was not a string.'
       );
     }
+    const invoice = await this.stripeHelper.expandResource<Stripe.Invoice>(
+      subscription.latest_invoice,
+      INVOICES_RESOURCE
+    );
     const invoiceDetails =
-      await this.stripeHelper.extractInvoiceDetailsForEmail(
-        subscription.latest_invoice
-      );
+      await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
     if (subscription.metadata?.cancelled_for_customer_at) {
       // Subscription already cancelled, should have triggered an email earlier
       return invoiceDetails;

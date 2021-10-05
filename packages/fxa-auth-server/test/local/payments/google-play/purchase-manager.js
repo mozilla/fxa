@@ -42,6 +42,10 @@ describe('PurchaseManager', () => {
     Container.set(AuthLogger, log);
   });
 
+  afterEach(() => {
+    Container.reset();
+  });
+
   it('can be instantiated', () => {
     const purchaseManager = new PurchaseManager(
       mockPurchaseDbRef,

@@ -56,6 +56,10 @@ describe('UserManager', () => {
     userManager = new UserManager(mockCollRef, mockPurchaseManager);
   });
 
+  afterEach(() => {
+    Container.reset();
+  });
+
   describe('queryCurrentSubscriptions', () => {
     it('returns the current subscriptions', async () => {
       const subscriptionPurchase = SubscriptionPurchase.fromApiResponse(

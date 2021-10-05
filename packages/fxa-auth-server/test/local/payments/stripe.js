@@ -62,6 +62,9 @@ const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_su
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
 const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
+const eventInvoiceCreated = require('./fixtures/stripe/event_invoice_created.json');
+const eventSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
+const eventCustomerUpdated = require('./fixtures/stripe/event_customer_updated.json');
 const closedPaymementIntent = require('./fixtures/stripe/paymentIntent_succeeded.json');
 const newSetupIntent = require('./fixtures/stripe/setup_intent_new.json');
 const {
@@ -71,6 +74,12 @@ const {
 const {
   SubscriptionPurchase,
 } = require('../../../lib/payments/google-play/subscription-purchase');
+const { AuthFirestore } = require('../../../lib/types');
+const { INVOICES_RESOURCE } = require('../../../lib/payments/stripe');
+const {
+  FirestoreStripeError,
+  newFirestoreStripeError,
+} = require('../../../lib/payments/stripe-firestore');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -84,6 +93,7 @@ const mockConfig = {
     key: 'foo',
     customerCacheTtlSeconds: 90,
     plansCacheTtlSeconds: 60,
+    stripeTaxRatesCacheTtlSeconds: 60,
   },
   currenciesToCountries: { ZAR: ['AS', 'CA'] },
 };
@@ -215,6 +225,7 @@ describe('StripeHelper', () => {
     // Make currencyHelper
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
+
     stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
     stripeHelper.redis = mockRedis;
     listStripePlans = sandbox
@@ -229,6 +240,7 @@ describe('StripeHelper', () => {
   });
 
   afterEach(() => {
+    Container.reset();
     sandbox.restore();
   });
 
@@ -1366,7 +1378,7 @@ describe('StripeHelper', () => {
       // Assert that a TTL was set for this cache entry
       assert.deepEqual(mockRedis.set.args[0][2], [
         'EX',
-        mockConfig.subhub.plansCacheTtlSeconds,
+        mockConfig.subhub.stripeTaxRatesCacheTtlSeconds,
       ]);
 
       assert(stripeHelper.stripe.taxRates.list.calledOnce);
@@ -1416,7 +1428,47 @@ describe('StripeHelper', () => {
 
       assert.deepEqual(
         await stripeHelper.allPlans(),
-        JSON.parse(await mockRedis.get('listPlans'))
+        JSON.parse(await mockRedis.get('listStripePlans'))
+      );
+    });
+  });
+
+  describe('updateAllPlans', () => {
+    it('updates the plans in the cache', async () => {
+      const newList = ['xyz'];
+      await stripeHelper.updateAllPlans(newList);
+      assert.deepEqual(mockRedis.set.args[0][2], [
+        'EX',
+        mockConfig.subhub.plansCacheTtlSeconds,
+      ]);
+      assert.deepEqual(
+        newList,
+        JSON.parse(await mockRedis.get('listStripePlans'))
+      );
+    });
+  });
+
+  describe('allAbbrevPlans', () => {
+    it('returns a AbbrevPlan list based on allPlans', async () => {
+      sandbox.spy(stripeHelper, 'allPlans');
+      const actual = await stripeHelper.allAbbrevPlans();
+      assert(stripeHelper.allPlans.calledOnce);
+      assert(stripeHelper.stripe.plans.list.calledOnce);
+
+      assert.deepEqual(
+        actual,
+        [plan1, plan2, plan3].map((p) => ({
+          amount: p.amount,
+          currency: p.currency,
+          interval_count: p.interval_count,
+          interval: p.interval,
+          plan_id: p.id,
+          plan_metadata: p.metadata,
+          plan_name: p.nickname || '',
+          product_id: p.product.id,
+          product_metadata: p.product.metadata,
+          product_name: p.product.name,
+        }))
       );
     });
   });
@@ -1435,29 +1487,17 @@ describe('StripeHelper', () => {
       },
     };
     beforeEach(() => {
-      stripeHelper.stripe.products.retrieve = sinon
-        .stub()
-        .resolves(mockProduct);
+      sandbox.stub(stripeHelper, 'allProducts').resolves([mockProduct]);
     });
 
-    it('returns null if there is an issue fetching the product', async () => {
-      stripeHelper.stripe.products.retrieve.rejects(
-        new Error('product does not exist')
-      );
-      const expected = null;
+    it('returns undefined if the product is not in allProducts', async () => {
       const actual = await stripeHelper.fetchProductById('invalidId');
-      assert(stripeHelper.log.error.called, 'error not logged');
-      assert.deepEqual(expected, actual);
+      assert.isUndefined(actual);
     });
 
-    it('returns an abbreviated product if product is fetched', async () => {
-      const expected = {
-        product_id: productId,
-        product_name: productName,
-        product_metadata: mockProduct.metadata,
-      };
+    it('returns a product of the correct id', async () => {
       const actual = await stripeHelper.fetchProductById(productId);
-      assert.deepEqual(expected, actual);
+      assert.deepEqual(mockProduct, actual);
     });
   });
 
@@ -1507,25 +1547,10 @@ describe('StripeHelper', () => {
       listStripePlans.restore();
       sandbox.stub(stripeHelper.stripe.plans, 'list').returns(planList);
 
-      const expected = [
-        {
-          plan_id: goodPlan.id,
-          plan_name: goodPlan.nickname,
-          plan_metadata: goodPlan.metadata,
-          product_id: goodPlan.product.id,
-          product_name: goodPlan.product.name,
-          product_metadata: goodPlan.product.metadata,
-          interval: goodPlan.interval,
-          interval_count: goodPlan.interval_count,
-          amount: goodPlan.amount,
-          currency: goodPlan.currency,
-        },
-      ];
-
       const actual = await stripeHelper.fetchAllPlans();
 
       /** Assert that only the "good" plan was returned */
-      assert.deepEqual(actual, expected);
+      assert.deepEqual(actual, [goodPlan]);
 
       /** Verify the error cases were handled properly */
       assert.equal(stripeHelper.log.error.callCount, 4);
@@ -1575,7 +1600,39 @@ describe('StripeHelper', () => {
 
       assert.deepEqual(
         await stripeHelper.allProducts(),
-        JSON.parse(await mockRedis.get('listProducts'))
+        JSON.parse(await mockRedis.get('listStripeProducts'))
+      );
+    });
+  });
+
+  describe('updateAllProducts', () => {
+    it('updates the products in the cache', async () => {
+      const newList = ['x'];
+      await stripeHelper.updateAllProducts(newList);
+      assert.deepEqual(mockRedis.set.args[0][2], [
+        'EX',
+        mockConfig.subhub.plansCacheTtlSeconds,
+      ]);
+      assert.deepEqual(
+        newList,
+        JSON.parse(await mockRedis.get('listStripeProducts'))
+      );
+    });
+  });
+
+  describe('allAbbrevProducts', () => {
+    it('returns a AbbrevProduct list based on allProducts', async () => {
+      sandbox.spy(stripeHelper, 'allProducts');
+      const actual = await stripeHelper.allAbbrevProducts();
+      assert(stripeHelper.stripe.products.list.calledOnce);
+      assert(stripeHelper.allProducts.calledOnce);
+      assert.deepEqual(
+        actual,
+        [product1, product2, product3].map((p) => ({
+          product_id: p.id,
+          product_name: p.name,
+          product_metadata: p.metadata,
+        }))
       );
     });
   });
@@ -2278,7 +2335,7 @@ describe('StripeHelper', () => {
       let subPurchase;
       let productId;
       let productName;
-      let mockAllProducts;
+      let mockAllAbbrevProducts;
 
       beforeEach(() => {
         productId = 'prod_test';
@@ -2290,7 +2347,7 @@ describe('StripeHelper', () => {
             [STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS]: 'testSku,testSku2',
           },
         };
-        mockAllProducts = [
+        mockAllAbbrevProducts = [
           {
             product_id: mockProduct.id,
             product_name: mockProduct.name,
@@ -2302,7 +2359,9 @@ describe('StripeHelper', () => {
             product_metadata: {},
           },
         ];
-        sandbox.stub(stripeHelper, 'allProducts').resolves(mockAllProducts);
+        sandbox
+          .stub(stripeHelper, 'allAbbrevProducts')
+          .resolves(mockAllAbbrevProducts);
 
         const apiResponse = {
           kind: 'androidpublisher#subscriptionPurchase',
@@ -2329,14 +2388,14 @@ describe('StripeHelper', () => {
       it('returns product ids for the subscription purchase', async () => {
         const result = await stripeHelper.purchasesToProductIds([subPurchase]);
         assert.deepEqual(result, [productId]);
-        sinon.assert.calledOnce(stripeHelper.allProducts);
+        sinon.assert.calledOnce(stripeHelper.allAbbrevProducts);
       });
 
       it('returns no product ids for unknown subscription purchase', async () => {
         subPurchase.sku = 'wrongSku';
         const result = await stripeHelper.purchasesToProductIds([subPurchase]);
         assert.deepEqual(result, []);
-        sinon.assert.calledOnce(stripeHelper.allProducts);
+        sinon.assert.calledOnce(stripeHelper.allAbbrevProducts);
       });
     });
 
@@ -3163,7 +3222,11 @@ describe('StripeHelper', () => {
       },
     };
 
-    let sandbox, mockCustomer, mockStripe, mockAllProducts, mockAllPlans;
+    let sandbox,
+      mockCustomer,
+      mockStripe,
+      mockAllAbbrevProducts,
+      mockAllAbbrevPlans;
     beforeEach(() => {
       sandbox = sinon.createSandbox();
 
@@ -3187,7 +3250,7 @@ describe('StripeHelper', () => {
         },
       };
 
-      mockAllProducts = [
+      mockAllAbbrevProducts = [
         {
           product_id: mockProduct.id,
           product_name: mockProduct.name,
@@ -3199,9 +3262,13 @@ describe('StripeHelper', () => {
           product_metadata: {},
         },
       ];
-      mockAllPlans = [{ ...mockPlan, plan_id: planId, product_id: productId }];
-      sandbox.stub(stripeHelper, 'allProducts').resolves(mockAllProducts);
-      sandbox.stub(stripeHelper, 'allPlans').resolves(mockAllPlans);
+      mockAllAbbrevPlans = [
+        { ...mockPlan, plan_id: planId, product_id: productId },
+      ];
+      sandbox
+        .stub(stripeHelper, 'allAbbrevProducts')
+        .resolves(mockAllAbbrevProducts);
+      sandbox.stub(stripeHelper, 'allAbbrevPlans').resolves(mockAllAbbrevPlans);
 
       mockStripe = Object.entries({
         plans: mockPlan,
@@ -3270,7 +3337,7 @@ describe('StripeHelper', () => {
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixture
         );
-        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         assert.isTrue(
           mockStripe.customers.retrieve.calledWith(fixture.customer)
@@ -3280,11 +3347,11 @@ describe('StripeHelper', () => {
       });
 
       it('extracts expected details from an invoice when product is missing from cache', async () => {
-        mockAllProducts[0].product_id = 'nope';
+        mockAllAbbrevProducts[0].product_id = 'nope';
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixture
         );
-        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isTrue(mockStripe.products.retrieve.called);
         assert.isTrue(
           mockStripe.customers.retrieve.calledWith(fixture.customer)
@@ -3306,7 +3373,7 @@ describe('StripeHelper', () => {
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixture
         );
-        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         assert.isFalse(mockStripe.customers.retrieve.called);
         assert.isFalse(mockStripe.charges.retrieve.called);
@@ -3326,7 +3393,7 @@ describe('StripeHelper', () => {
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixture
         );
-        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         assert.isFalse(mockStripe.customers.retrieve.called);
         assert.isFalse(mockStripe.charges.retrieve.called);
@@ -3356,13 +3423,13 @@ describe('StripeHelper', () => {
         assert.isTrue(
           mockStripe.customers.retrieve.calledWith(fixture.customer)
         );
-        assert.isFalse(stripeHelper.allProducts.called);
+        assert.isFalse(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         assert.isFalse(mockStripe.charges.retrieve.calledWith(fixture.charge));
       });
 
       it('throws an exception for deleted product', async () => {
-        mockAllProducts[0].product_id = 'nope';
+        mockAllAbbrevProducts[0].product_id = 'nope';
         mockStripe.products.retrieve = sinon
           .stub()
           .resolves({ ...mockProduct, deleted: true });
@@ -3376,7 +3443,7 @@ describe('StripeHelper', () => {
         assert.isNotNull(thrownError);
         assert.equal(thrownError.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
         assert.isTrue(mockStripe.products.retrieve.calledWith(productId));
-        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isTrue(
           mockStripe.customers.retrieve.calledWith(fixture.customer)
         );
@@ -3433,7 +3500,7 @@ describe('StripeHelper', () => {
             mockCustomer.subscriptions.data[0].items.data[0].plan
           )
         );
-        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         assert.deepEqual(result, expected);
       });
@@ -3458,7 +3525,7 @@ describe('StripeHelper', () => {
           mockStripe.customers.retrieve.calledWith(fixture.customer)
         );
         assert.isFalse(mockStripe.plans.retrieve.called);
-        assert.isFalse(stripeHelper.allProducts.called);
+        assert.isFalse(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
       });
 
@@ -3667,7 +3734,7 @@ describe('StripeHelper', () => {
           },
         };
 
-        mockAllProducts.push(
+        mockAllAbbrevProducts.push(
           {
             product_id: productIdOld,
             product_name: productNameOld,
@@ -3687,7 +3754,7 @@ describe('StripeHelper', () => {
             },
           }
         );
-        mockAllPlans.unshift(
+        mockAllAbbrevPlans.unshift(
           {
             ...event.data.previous_attributes.plan,
             plan_id: event.data.previous_attributes.plan.id,
@@ -3961,6 +4028,169 @@ describe('StripeHelper', () => {
         stripeHelper.stripe.customers.retrieve,
         customerId,
         { expand: [SUBSCRIPTIONS_RESOURCE] }
+      );
+    });
+
+    describe('with stripeFirestore', () => {
+      let stripeFirestore;
+      let customer;
+
+      beforeEach(() => {
+        customer = deepCopy(customer1);
+        stripeHelper.stripeFirestore = stripeFirestore = {};
+        Container.set(AuthFirestore, {});
+      });
+
+      afterEach(() => {
+        Container.remove(AuthFirestore);
+      });
+
+      it('expands the customer', async () => {
+        stripeFirestore.retrieveAndFetchCustomer = sandbox
+          .stub()
+          .resolves(deepCopy(customer));
+        stripeFirestore.retrieveCustomerSubscriptions = sandbox
+          .stub()
+          .resolves(deepCopy(customer.subscriptions.data));
+        const result = await stripeHelper.expandResource(
+          customer.id,
+          CUSTOMER_RESOURCE
+        );
+        // Note that top level will mismatch because subscriptions is copied
+        // without the object type.
+        assert.deepEqual(
+          result.subscriptions.data,
+          customer.subscriptions.data
+        );
+        assert.hasAllKeys(result, customer);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+          customer.id
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
+          customer.id
+        );
+      });
+
+      it('expands the subscription', async () => {
+        stripeFirestore.retrieveAndFetchSubscription = sandbox
+          .stub()
+          .resolves(deepCopy(subscription1));
+        const result = await stripeHelper.expandResource(
+          subscription1.id,
+          SUBSCRIPTIONS_RESOURCE
+        );
+        assert.deepEqual(result, subscription1);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+          subscription1.id
+        );
+      });
+
+      it('expands the invoice', async () => {
+        stripeFirestore.retrieveInvoice = sandbox
+          .stub()
+          .resolves(invoicePaidSubscriptionCreate);
+        const result = await stripeHelper.expandResource(
+          invoicePaidSubscriptionCreate.id,
+          INVOICES_RESOURCE
+        );
+        assert.deepEqual(result, invoicePaidSubscriptionCreate);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveInvoice,
+          invoicePaidSubscriptionCreate.id
+        );
+      });
+
+      it('expands invoice when invoice isnt found and inserts it', async () => {
+        stripeFirestore.retrieveInvoice = sandbox
+          .stub()
+          .rejects(
+            newFirestoreStripeError(
+              'not found',
+              FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
+            )
+          );
+        stripeFirestore.retrieveAndFetchCustomer = sandbox
+          .stub()
+          .resolves(customer);
+        stripeHelper.stripe.invoices.retrieve = sandbox
+          .stub()
+          .resolves(deepCopy(invoicePaidSubscriptionCreate));
+        stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+
+        const result = await stripeHelper.expandResource(
+          invoicePaidSubscriptionCreate.id,
+          INVOICES_RESOURCE
+        );
+        assert.deepEqual(result, invoicePaidSubscriptionCreate);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveInvoice,
+          invoicePaidSubscriptionCreate.id
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+          invoicePaidSubscriptionCreate.customer
+        );
+      });
+    });
+  });
+
+  describe('processWebhookEventToFirestore', () => {
+    let stripeFirestore;
+
+    beforeEach(() => {
+      stripeHelper.stripeFirestore = stripeFirestore = {};
+    });
+
+    it('handles invoice operations', async () => {
+      const event = deepCopy(eventInvoiceCreated);
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+        event.data.object.subscription
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertInvoiceRecord,
+        event.data.object
+      );
+    });
+
+    it('handles customer operations', async () => {
+      const event = deepCopy(eventCustomerUpdated);
+      stripeFirestore.retrieveAndFetchCustomer = sandbox.stub().resolves({});
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertCustomerRecord,
+        event.data.object.metadata.userid,
+        event.data.object
+      );
+    });
+
+    it('handles subscription operations', async () => {
+      const event = deepCopy(eventSubscriptionUpdated);
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertSubscriptionRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertSubscriptionRecord,
+        event.data.object
       );
     });
   });
