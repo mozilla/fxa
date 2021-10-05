@@ -41,6 +41,7 @@ import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import { Firestore } from '@google-cloud/firestore';
 
 export const CUSTOMER_RESOURCE = 'customers';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
