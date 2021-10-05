@@ -62,6 +62,9 @@ const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_su
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
 const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
+const eventInvoiceCreated = require('./fixtures/stripe/event_invoice_created.json');
+const eventSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
+const eventCustomerUpdated = require('./fixtures/stripe/event_customer_updated.json');
 const closedPaymementIntent = require('./fixtures/stripe/paymentIntent_succeeded.json');
 const newSetupIntent = require('./fixtures/stripe/setup_intent_new.json');
 const {
@@ -71,6 +74,12 @@ const {
 const {
   SubscriptionPurchase,
 } = require('../../../lib/payments/google-play/subscription-purchase');
+const { AuthFirestore } = require('../../../lib/types');
+const { INVOICES_RESOURCE } = require('../../../lib/payments/stripe');
+const {
+  FirestoreStripeError,
+  newFirestoreStripeError,
+} = require('../../../lib/payments/stripe-firestore');
 
 const mockConfig = {
   authFirestore: {
@@ -219,6 +228,7 @@ describe('StripeHelper', () => {
     // Make currencyHelper
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
+
     stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
     stripeHelper.redis = mockRedis;
     listStripePlans = sandbox
@@ -233,6 +243,7 @@ describe('StripeHelper', () => {
   });
 
   afterEach(() => {
+    Container.reset();
     sandbox.restore();
   });
 
@@ -4020,6 +4031,169 @@ describe('StripeHelper', () => {
         stripeHelper.stripe.customers.retrieve,
         customerId,
         { expand: [SUBSCRIPTIONS_RESOURCE] }
+      );
+    });
+
+    describe('with stripeFirestore', () => {
+      let stripeFirestore;
+      let customer;
+
+      beforeEach(() => {
+        customer = deepCopy(customer1);
+        stripeHelper.stripeFirestore = stripeFirestore = {};
+        Container.set(AuthFirestore, {});
+      });
+
+      afterEach(() => {
+        Container.remove(AuthFirestore);
+      });
+
+      it('expands the customer', async () => {
+        stripeFirestore.retrieveAndFetchCustomer = sandbox
+          .stub()
+          .resolves(deepCopy(customer));
+        stripeFirestore.retrieveCustomerSubscriptions = sandbox
+          .stub()
+          .resolves(deepCopy(customer.subscriptions.data));
+        const result = await stripeHelper.expandResource(
+          customer.id,
+          CUSTOMER_RESOURCE
+        );
+        // Note that top level will mismatch because subscriptions is copied
+        // without the object type.
+        assert.deepEqual(
+          result.subscriptions.data,
+          customer.subscriptions.data
+        );
+        assert.hasAllKeys(result, customer);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+          customer.id
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
+          customer.id
+        );
+      });
+
+      it('expands the subscription', async () => {
+        stripeFirestore.retrieveAndFetchSubscription = sandbox
+          .stub()
+          .resolves(deepCopy(subscription1));
+        const result = await stripeHelper.expandResource(
+          subscription1.id,
+          SUBSCRIPTIONS_RESOURCE
+        );
+        assert.deepEqual(result, subscription1);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+          subscription1.id
+        );
+      });
+
+      it('expands the invoice', async () => {
+        stripeFirestore.retrieveInvoice = sandbox
+          .stub()
+          .resolves(invoicePaidSubscriptionCreate);
+        const result = await stripeHelper.expandResource(
+          invoicePaidSubscriptionCreate.id,
+          INVOICES_RESOURCE
+        );
+        assert.deepEqual(result, invoicePaidSubscriptionCreate);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveInvoice,
+          invoicePaidSubscriptionCreate.id
+        );
+      });
+
+      it('expands invoice when invoice isnt found and inserts it', async () => {
+        stripeFirestore.retrieveInvoice = sandbox
+          .stub()
+          .rejects(
+            newFirestoreStripeError(
+              'not found',
+              FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
+            )
+          );
+        stripeFirestore.retrieveAndFetchCustomer = sandbox
+          .stub()
+          .resolves(customer);
+        stripeHelper.stripe.invoices.retrieve = sandbox
+          .stub()
+          .resolves(deepCopy(invoicePaidSubscriptionCreate));
+        stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+
+        const result = await stripeHelper.expandResource(
+          invoicePaidSubscriptionCreate.id,
+          INVOICES_RESOURCE
+        );
+        assert.deepEqual(result, invoicePaidSubscriptionCreate);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveInvoice,
+          invoicePaidSubscriptionCreate.id
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+          invoicePaidSubscriptionCreate.customer
+        );
+      });
+    });
+  });
+
+  describe('processWebhookEventToFirestore', () => {
+    let stripeFirestore;
+
+    beforeEach(() => {
+      stripeHelper.stripeFirestore = stripeFirestore = {};
+    });
+
+    it('handles invoice operations', async () => {
+      const event = deepCopy(eventInvoiceCreated);
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+        event.data.object.subscription
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertInvoiceRecord,
+        event.data.object
+      );
+    });
+
+    it('handles customer operations', async () => {
+      const event = deepCopy(eventCustomerUpdated);
+      stripeFirestore.retrieveAndFetchCustomer = sandbox.stub().resolves({});
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertCustomerRecord,
+        event.data.object.metadata.userid,
+        event.data.object
+      );
+    });
+
+    it('handles subscription operations', async () => {
+      const event = deepCopy(eventSubscriptionUpdated);
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertSubscriptionRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertSubscriptionRecord,
+        event.data.object
       );
     });
   });

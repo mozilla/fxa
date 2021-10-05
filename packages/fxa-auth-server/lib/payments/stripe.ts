@@ -38,9 +38,10 @@ import { ConfigType } from '../../config';
 import error from '../error';
 import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
+import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
-import { StripeFirestore } from './stripe-firestore';
+import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 
 export const CUSTOMER_RESOURCE = 'customers';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -134,8 +135,8 @@ export class StripeHelper {
   private redis: ioredis.Redis | undefined;
   private statsd: StatsD;
   private taxIds: { [key: string]: string };
-  private firestore: Firestore;
-  private stripeFirestore: StripeFirestore;
+  private firestore?: Firestore;
+  private stripeFirestore?: StripeFirestore;
   public currencyHelper: CurrencyHelper;
 
   /**
@@ -150,12 +151,6 @@ export class StripeHelper {
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     this.taxIds = config.subscriptions.taxIds;
     this.currencyHelper = Container.get(CurrencyHelper);
-    this.firestore = Container.get(Firestore);
-
-    const firestore_prefix = `${config.authFirestore.prefix}stripe-`;
-    const customerCollectionDbRef = this.firestore.collection(
-      `${firestore_prefix}customers`
-    );
 
     // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
     // both TTL and whether caching should be enabled at all. We should
@@ -174,11 +169,20 @@ export class StripeHelper {
       apiVersion: '2020-08-27',
       maxNetworkRetries: 3,
     });
-    this.stripeFirestore = new StripeFirestore(
-      this.firestore,
-      customerCollectionDbRef,
-      this.stripe
-    );
+
+    if (Container.has(AuthFirestore)) {
+      this.firestore = Container.get(AuthFirestore);
+      const firestore_prefix = `${config.authFirestore.prefix}stripe-`;
+      const customerCollectionDbRef = this.firestore.collection(
+        `${firestore_prefix}customers`
+      );
+      this.stripeFirestore = new StripeFirestore(
+        this.firestore,
+        customerCollectionDbRef,
+        this.stripe,
+        firestore_prefix
+      );
+    }
 
     cacheManager.setOptions({
       // Ensure the StripeHelper instance is passed into TTLBuilder functions
@@ -1764,8 +1768,7 @@ export class StripeHelper {
    *   - No product attached to the plan.
    *   - No email on the customer object.
    */
-  async extractInvoiceDetailsForEmail(latestInvoice: Stripe.Invoice | string) {
-    const invoice = await this.expandResource(latestInvoice, INVOICES_RESOURCE);
+  async extractInvoiceDetailsForEmail(invoice: Stripe.Invoice) {
     const customer = await this.expandResource(
       invoice.customer,
       CUSTOMER_RESOURCE
@@ -2335,19 +2338,123 @@ export class StripeHelper {
       throw error;
     }
 
+    if (this.stripeFirestore) {
+      switch (resourceType) {
+        case CUSTOMER_RESOURCE:
+          // @ts-ignore
+          const customer = await this.stripeFirestore.retrieveAndFetchCustomer(
+            resource
+          );
+          const subscriptions =
+            await this.stripeFirestore.retrieveCustomerSubscriptions(resource);
+          if (subscriptions.length) {
+            (customer as any).subscriptions = {
+              data: subscriptions as any,
+              has_more: false,
+            };
+          }
+          // @ts-ignore
+          return customer;
+        case SUBSCRIPTIONS_RESOURCE:
+          // @ts-ignore
+          return this.stripeFirestore.retrieveAndFetchSubscription(resource);
+        case INVOICES_RESOURCE:
+          try {
+            const invoice = await this.stripeFirestore.retrieveInvoice(
+              resource
+            );
+            // @ts-ignore
+            return invoice;
+          } catch (err) {
+            if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
+              const invoice = await this.stripe.invoices.retrieve(resource);
+              await this.stripeFirestore.retrieveAndFetchCustomer(
+                invoice.customer as string
+              );
+              await this.stripeFirestore.insertInvoiceRecord(invoice);
+              // @ts-ignore
+              return invoice;
+            }
+            throw err;
+          }
+      }
+    }
+
     // We make an exception here for customers because we need to get the
     // subscriptions for the customer.  The Stripe API stopped including
     // subscriptions for a customer in version 2020-08-27; this ensures
     // backwards compatibility for our code that's relying on that behavior.
     if (resourceType === CUSTOMER_RESOURCE) {
       // @ts-ignore
-      return this.stripe[CUSTOMER_RESOURCE].retrieve(resource, {
+      return this.stripe.customers.retrieve(resource, {
         expand: [SUBSCRIPTIONS_RESOURCE],
       });
     }
 
     // @ts-ignore
     return this.stripe[resourceType].retrieve(resource);
+  }
+
+  async processWebhookEventToFirestore(event: Stripe.Event) {
+    if (!this.stripeFirestore) {
+      return;
+    }
+
+    const { type, data } = event;
+
+    // Note that we must insert before any event handled by the general
+    // webhook code to ensure the object is up to date in Firestore before
+    // our code handles the event.
+    try {
+      switch (type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
+        case 'invoice.created':
+        case 'invoice.finalized':
+        case 'invoice.paid':
+        case 'invoice.payment_failed':
+        case 'invoice.updated':
+        case 'invoice.deleted':
+          const invoice = data.object as Stripe.Invoice;
+          await this.stripeFirestore.retrieveAndFetchSubscription(
+            invoice.subscription as string
+          );
+          // Now that the subscription is fetched, we can safely insert the
+          // invoice record.
+          await this.stripeFirestore.insertInvoiceRecord(invoice);
+          break;
+        case 'customer.created':
+        case 'customer.updated':
+        case 'customer.deleted':
+          const customer = data.object as Stripe.Customer;
+          // Ensure the customer and its subscriptions exist in Firestore.
+          // Note that we still insert the object here in case we've already
+          // fetched the customer previously.
+          await this.stripeFirestore.retrieveAndFetchCustomer(customer.id);
+          await this.stripeFirestore.insertCustomerRecord(
+            customer.metadata.userid,
+            customer
+          );
+          break;
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted':
+          const subscription = data.object as Stripe.Subscription;
+          await this.stripeFirestore.retrieveAndFetchSubscription(
+            subscription.id
+          );
+          await this.stripeFirestore.insertSubscriptionRecord(subscription);
+          break;
+        default: {
+        }
+      }
+    } catch (err) {
+      if (err.name === FirestoreStripeError.STRIPE_CUSTOMER_DELETED) {
+        // We cannot back-fill Firestore with records for deleted customers
+        // as they're missing necessary metadata for us to know which user
+        // the customer belongs to.
+        return;
+      }
+      throw err;
+    }
   }
 
   /**

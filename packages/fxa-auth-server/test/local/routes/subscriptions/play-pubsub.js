@@ -76,6 +76,7 @@ describe('PlayPubsubHandler', () => {
   });
 
   afterEach(() => {
+    Container.reset();
     sandbox.restore();
   });
 
