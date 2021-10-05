@@ -15,6 +15,7 @@ import {
   createAccountCustomer,
   deleteAccountCustomer,
   getAccountCustomerByUid,
+  getUidAndEmailByStripeCustomerId,
   updateAccountCustomer,
   PayPalBillingAgreements,
   createPayPalBA,
@@ -54,6 +55,24 @@ describe('auth', () => {
     it('returns false if the account is not found', async () => {
       const uid = chance.guid({ version: 4 }).replace(/-/g, '');
       assert.isFalse(await accountExists(uid));
+    });
+  });
+
+  describe('getUidAndEmailByStripeCustomerId', () => {
+    const stripeCustomerId = 'cus_123456789';
+    before(async () => {
+      await createAccountCustomer(USER_1.uid, stripeCustomerId);
+    });
+    it('finds an existing FxA user id and email', async () => {
+      const result = await getUidAndEmailByStripeCustomerId(stripeCustomerId);
+      assert.isDefined(result);
+      assert.equal(result.uid, USER_1.uid);
+      assert.equal(result.email, USER_1.email);
+    });
+
+    it('returns undefined if the stripeCustomerId is not found', async () => {
+      const result = await getUidAndEmailByStripeCustomerId('cus_123');
+      assert.isUndefined(result);
     });
   });
 
