@@ -275,9 +275,9 @@ describe('subscriptions stripeRoutes', () => {
 
   describe('Plans', () => {
     it('should list available subscription plans', async () => {
-      const stripeHelper = mocks.mockStripeHelper(['allPlans']);
+      const stripeHelper = mocks.mockStripeHelper(['allAbbrevPlans']);
 
-      stripeHelper.allPlans = sinon.spy(async () => {
+      stripeHelper.allAbbrevPlans = sinon.spy(async () => {
         return PLANS;
       });
 
@@ -560,7 +560,7 @@ describe('DirectStripeRoutes', () => {
 
   describe('getClients', () => {
     it('returns the clients and their capabilities', async () => {
-      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
+      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
 
       const expected = [
         {
@@ -1241,7 +1241,7 @@ describe('DirectStripeRoutes', () => {
 
   describe('getProductName', () => {
     it('should respond with product name for valid id', async () => {
-      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
+      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
       const productId = PLANS[1].product_id;
       const expected = { product_name: PLANS[1].product_name };
       const result = await directStripeRoutesInstance.getProductName({
@@ -1252,7 +1252,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('should respond with an error for invalid id', async () => {
-      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
+      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
       const productId = 'this-is-not-valid';
       try {
         await directStripeRoutesInstance.getProductName({
@@ -1272,7 +1272,7 @@ describe('DirectStripeRoutes', () => {
       const expected = sanitizePlans(PLANS);
       const request = {};
 
-      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
+      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
       const actual = await directStripeRoutesInstance.listPlans(request);
 
       assert.deepEqual(actual, expected);
@@ -1281,7 +1281,7 @@ describe('DirectStripeRoutes', () => {
 
   describe('getProductCapabilties', () => {
     it('extracts all capabilities for all products', async () => {
-      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
+      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
       assert.deepEqual(
         await directStripeRoutesInstance.getProductCapabilities(
           'firefox_pro_basic'

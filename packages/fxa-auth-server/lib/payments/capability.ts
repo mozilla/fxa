@@ -54,7 +54,7 @@ export class CapabilityService {
       : ({
           purchasesToProductIds: () => Promise.resolve([]),
           customer: () => Promise.resolve(null),
-          allPlans: () => Promise.resolve([]),
+          allAbbrevPlans: () => Promise.resolve([]),
         } as unknown as StripeHelper);
     this.profileClient = Container.get(ProfileClient);
     if (Container.has(PlayBilling)) {
@@ -406,7 +406,7 @@ export class CapabilityService {
     const allCapabilities: Record<string, Set<string>> = {};
 
     // Run through all plans and collect capabilities for subscribed products
-    const plans = await this.stripeHelper.allPlans();
+    const plans = await this.stripeHelper.allAbbrevPlans();
     for (const plan of plans) {
       if (!subscribedProducts.includes(plan.product_id)) {
         continue;

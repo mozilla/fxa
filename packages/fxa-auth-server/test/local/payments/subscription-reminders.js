@@ -104,7 +104,7 @@ describe('SubscriptionReminders', () => {
     it('returns [] when no plans are eligible', async () => {
       const shortPlan2 = deepCopy(shortPlan1);
       shortPlan2.interval = 'week';
-      mockStripeHelper.allPlans = sandbox.fake.resolves([
+      mockStripeHelper.allAbbrevPlans = sandbox.fake.resolves([
         shortPlan1,
         shortPlan2,
       ]);
@@ -112,7 +112,7 @@ describe('SubscriptionReminders', () => {
       assert.isEmpty(result);
     });
     it('returns a partial list when some plans are eligible', async () => {
-      mockStripeHelper.allPlans = sandbox.fake.resolves([
+      mockStripeHelper.allAbbrevPlans = sandbox.fake.resolves([
         shortPlan1,
         longPlan1,
         longPlan2,
@@ -122,7 +122,10 @@ describe('SubscriptionReminders', () => {
       assert.deepEqual(actual, expected);
     });
     it('returns all when all plans are eligible', async () => {
-      mockStripeHelper.allPlans = sandbox.fake.resolves([longPlan1, longPlan2]);
+      mockStripeHelper.allAbbrevPlans = sandbox.fake.resolves([
+        longPlan1,
+        longPlan2,
+      ]);
       const expected = [longPlan1, longPlan2];
       const actual = await reminder.getEligiblePlans();
       assert.deepEqual(actual, expected);

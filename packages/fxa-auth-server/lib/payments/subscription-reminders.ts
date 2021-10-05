@@ -56,7 +56,7 @@ export class SubscriptionReminders {
   }
 
   private async getEligiblePlans(): Promise<Plan[]> {
-    const allPlans = await this.stripeHelper.allPlans();
+    const allPlans = await this.stripeHelper.allAbbrevPlans();
     return allPlans.filter((plan) => this.isEligiblePlan(plan));
   }
 

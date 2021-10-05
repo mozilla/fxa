@@ -129,7 +129,12 @@ describe('StripeWebhookHandler', () => {
 
   describe('stripe webhooks', () => {
     const validPlan = deepCopy(eventPlanUpdated);
-    const validPlanList = [validPlan.data.object, validPlan.data.object];
+    const validPlanList = [validPlan.data.object, validPlan.data.object].map(
+      (p) => ({
+        ...p,
+        product: eventProductUpdated.data.object,
+      })
+    );
     const validProduct = deepCopy(eventProductUpdated);
 
     beforeEach(() => {
@@ -164,8 +169,9 @@ describe('StripeWebhookHandler', () => {
         'handleSubscriptionDeletedEvent',
         'handleCustomerUpdatedEvent',
         'handleCustomerSourceExpiringEvent',
-        'handleProductUpdatedEvent',
-        'handlePlanUpdatedEvent',
+        'handleProductWebhookEvent',
+        'handlePlanCreatedOrUpdatedEvent',
+        'handlePlanDeletedEvent',
         'handleCreditNoteEvent',
         'handleInvoicePaidEvent',
         'handleInvoicePaymentFailedEvent',
@@ -296,13 +302,16 @@ describe('StripeWebhookHandler', () => {
 
       describe('when the event.type is product.updated', () => {
         itOnlyCallsThisHandler(
-          'handleProductUpdatedEvent',
+          'handleProductWebhookEvent',
           eventProductUpdated
         );
       });
 
       describe('when the event.type is plan.updated', () => {
-        itOnlyCallsThisHandler('handlePlanUpdatedEvent', eventPlanUpdated);
+        itOnlyCallsThisHandler(
+          'handlePlanCreatedOrUpdatedEvent',
+          eventPlanUpdated
+        );
       });
 
       describe('when the event.type is credit_note.created', () => {
@@ -401,7 +410,7 @@ describe('StripeWebhookHandler', () => {
       });
     });
 
-    describe('handleProductUpdatedEvent', () => {
+    describe('handleProductWebhookEvent', () => {
       let scopeContextSpy, scopeSpy, captureMessageSpy;
       beforeEach(() => {
         captureMessageSpy = sinon.fake();
@@ -411,34 +420,56 @@ describe('StripeWebhookHandler', () => {
         };
         sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
         sandbox.replace(Sentry, 'captureMessage', captureMessageSpy);
+        StripeWebhookHandlerInstance.stripeHelper.allProducts.resolves([]);
       });
 
       it('throws a sentry error if the update event data is invalid', async () => {
         const updatedEvent = deepCopy(eventProductUpdated);
+        updatedEvent.data.object.id = 'anotherone';
         updatedEvent.data.object.metadata['product:termsOfServiceDownloadURL'] =
           'https://FAIL.cdn.mozilla.net/legal/mozilla_vpn_tos';
-        await StripeWebhookHandlerInstance.handleProductUpdatedEvent(
+        const invalidPlan = {
+          ...validPlan.data.object,
+          metadata: {},
+          product: updatedEvent.data.object,
+        };
+        const allPlans = [...validPlanList, invalidPlan];
+        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves(allPlans);
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+          [invalidPlan]
+        );
+        await StripeWebhookHandlerInstance.handleProductWebhookEvent(
           {},
           updatedEvent
         );
 
-        assert.called(
-          StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId
+        assert.calledOnce(scopeContextSpy);
+        assert.calledOnce(captureMessageSpy);
+
+        assert.calledOnce(StripeWebhookHandlerInstance.stripeHelper.allPlans);
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId,
+          updatedEvent.data.object.id
         );
-        assert.isTrue(
-          scopeContextSpy.called,
-          'Expected to call Sentry.withScope'
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts,
+          [updatedEvent.data.object]
         );
-        assert.isTrue(
-          captureMessageSpy.called,
-          'Expected to call Sentry.captureMessage'
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
+          validPlanList
         );
-        assert.equal(validPlanList.length, captureMessageSpy.callCount);
       });
 
       it('does not throw a sentry error if the update event data is valid', async () => {
         const updatedEvent = deepCopy(eventProductUpdated);
-        await StripeWebhookHandlerInstance.handleProductUpdatedEvent(
+        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves(
+          validPlanList
+        );
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+          validPlanList
+        );
+        await StripeWebhookHandlerInstance.handleProductWebhookEvent(
           {},
           updatedEvent
         );
@@ -448,10 +479,40 @@ describe('StripeWebhookHandler', () => {
           'Expected not to call Sentry.withScope'
         );
       });
+
+      it('updates the cached products and remove the plans on a product.deleted', async () => {
+        const deletedEvent = {
+          ...deepCopy(eventProductUpdated),
+          type: 'product.deleted',
+        };
+        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves(
+          validPlanList
+        );
+        StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
+          validPlanList
+        );
+        await StripeWebhookHandlerInstance.handleProductWebhookEvent(
+          {},
+          deletedEvent
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllProducts,
+          [deletedEvent.data.object]
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
+          []
+        );
+      });
     });
 
-    describe('handlePlanUpdatedEvent', () => {
+    describe('handlePlanCreatedOrUpdatedEvent', () => {
       let scopeContextSpy, scopeSpy, captureMessageSpy;
+      const plan = {
+        ...validPlan.data.object,
+        product: validProduct.data.object,
+      };
+
       beforeEach(() => {
         captureMessageSpy = sinon.fake();
         scopeContextSpy = sinon.fake();
@@ -460,6 +521,7 @@ describe('StripeWebhookHandler', () => {
         };
         sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
         sandbox.replace(Sentry, 'captureMessage', captureMessageSpy);
+        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves([plan]);
       });
 
       it('throws a sentry error if the update event data is invalid', async () => {
@@ -468,14 +530,15 @@ describe('StripeWebhookHandler', () => {
           'product:termsOfServiceDownloadURL':
             'https://FAIL.net/legal/mozilla_vpn_tos',
         };
-        await StripeWebhookHandlerInstance.handlePlanUpdatedEvent(
+        StripeWebhookHandlerInstance.stripeHelper.fetchProductById.resolves({
+          ...validProduct.data.object,
+        });
+
+        await StripeWebhookHandlerInstance.handlePlanCreatedOrUpdatedEvent(
           {},
           updatedEvent
         );
 
-        assert.called(
-          StripeWebhookHandlerInstance.stripeHelper.fetchProductById
-        );
         assert.isTrue(
           scopeContextSpy.called,
           'Expected to call Sentry.withScope'
@@ -484,11 +547,22 @@ describe('StripeWebhookHandler', () => {
           captureMessageSpy.called,
           'Expected to call Sentry.captureMessage'
         );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.fetchProductById,
+          validProduct.data.object.id
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
+          []
+        );
       });
 
       it('does not throw a sentry error if the update event data is valid', async () => {
         const updatedEvent = deepCopy(eventPlanUpdated);
-        await StripeWebhookHandlerInstance.handlePlanUpdatedEvent(
+        StripeWebhookHandlerInstance.stripeHelper.fetchProductById.resolves(
+          validProduct.data.object
+        );
+        await StripeWebhookHandlerInstance.handlePlanCreatedOrUpdatedEvent(
           {},
           updatedEvent
         );
@@ -501,6 +575,10 @@ describe('StripeWebhookHandler', () => {
           captureMessageSpy.notCalled,
           'Expected not to call Sentry.captureMessage'
         );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
+          [plan]
+        );
       });
 
       it('logs and throws sentry error if product is not found', async () => {
@@ -508,9 +586,9 @@ describe('StripeWebhookHandler', () => {
         const updatedEvent = deepCopy(eventPlanUpdated);
         updatedEvent.data.object.product = productId;
         StripeWebhookHandlerInstance.stripeHelper.fetchProductById.returns(
-          null
+          undefined
         );
-        await StripeWebhookHandlerInstance.handlePlanUpdatedEvent(
+        await StripeWebhookHandlerInstance.handlePlanCreatedOrUpdatedEvent(
           {},
           updatedEvent
         );
@@ -523,6 +601,31 @@ describe('StripeWebhookHandler', () => {
         assert.isTrue(
           captureMessageSpy.called,
           'Expected to call Sentry.captureMessage'
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.fetchProductById,
+          productId
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
+          []
+        );
+      });
+    });
+
+    describe('handlePlanDeletedEvent', () => {
+      it('deletes the plan from the cache', async () => {
+        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves([
+          validPlan.data.object,
+        ]);
+        const planDeletedEvent = { ...eventPlanUpdated, type: 'plan.deleted' };
+        await StripeWebhookHandlerInstance.handlePlanDeletedEvent(
+          {},
+          planDeletedEvent
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
+          []
         );
       });
     });

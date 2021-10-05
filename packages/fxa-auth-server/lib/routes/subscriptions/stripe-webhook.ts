@@ -104,11 +104,17 @@ export class StripeWebhookHandler extends StripeHandler {
         case 'invoice.payment_failed':
           await this.handleInvoicePaymentFailedEvent(request, event);
           break;
+        case 'product.created':
         case 'product.updated':
-          await this.handleProductUpdatedEvent(request, event);
+        case 'product.deleted':
+          await this.handleProductWebhookEvent(request, event);
           break;
+        case 'plan.created':
         case 'plan.updated':
-          await this.handlePlanUpdatedEvent(request, event);
+          await this.handlePlanCreatedOrUpdatedEvent(request, event);
+          break;
+        case 'plan.deleted':
+          await this.handlePlanDeletedEvent(request, event);
           break;
         default:
           Sentry.withScope((scope) => {
@@ -435,25 +441,35 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
-   * Validate plan metadata on update
+   * Validate plan metadata and update cached plans.
    */
-  async handlePlanUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
+  async handlePlanCreatedOrUpdatedEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
     const plan = event.data.object as Stripe.Plan;
     const product = await this.stripeHelper.fetchProductById(
       plan.product as string
     );
-    if (!product) {
-      const msg = `handlePlanUpdatedEvent - Could not locate Product ${plan.product}`;
+    const allPlans = await this.stripeHelper.allPlans();
+    // remove the plan until we have validated its metadata
+    const updatedList = allPlans.filter((p) => p.id !== plan.id);
+
+    if (!product || product.deleted) {
+      const msg = `handlePlanCreatedOrUpdatedEvent - product ${plan.product} appear to have been deleted`;
       this.log.error(msg, { plan });
 
       Sentry.withScope((scope) => {
         scope.setContext('planUpdatedEvent', { plan });
         Sentry.captureMessage(msg, Sentry.Severity.Error);
       });
+
+      this.stripeHelper.updateAllPlans(updatedList);
       return;
     }
+
     const result = subscriptionProductMetadataValidator.validate({
-      ...product.product_metadata,
+      ...product.metadata,
       ...plan.metadata,
     });
 
@@ -467,33 +483,64 @@ export class StripeWebhookHandler extends StripeHandler {
         });
         Sentry.captureMessage(msg, Sentry.Severity.Error);
       });
+
+      this.stripeHelper.updateAllPlans(updatedList);
+      return;
     }
+
+    // The original plans list has the product expanded so we attach the
+    // product object here.
+    const updatedPlan = { ...plan, product };
+    updatedList.push(updatedPlan);
+    this.stripeHelper.updateAllPlans(updatedList);
+  }
+
+  async handlePlanDeletedEvent(request: AuthRequest, event: Stripe.Event) {
+    const plan = event.data.object as Stripe.Plan;
+    const allPlans = await this.stripeHelper.allPlans();
+    this.stripeHelper.updateAllPlans(allPlans.filter((p) => p.id !== plan.id));
   }
 
   /**
-   * Validate product metadata on update
+   * Update products cache and validate metadata.
    */
-  async handleProductUpdatedEvent(request: AuthRequest, event: Stripe.Event) {
+  async handleProductWebhookEvent(request: AuthRequest, event: Stripe.Event) {
+    const allProducts = await this.stripeHelper.allProducts();
     const product = event.data.object as Stripe.Product;
-    const plans = this.stripeHelper.fetchPlansByProductId(product.id);
-    for await (const item of plans) {
-      const result = subscriptionProductMetadataValidator.validate({
-        ...item.metadata,
-        ...product.metadata,
-      });
+    const updatedList = allProducts.filter((p) => p.id !== product.id);
+    updatedList.push(product);
+    await this.stripeHelper.updateAllProducts(updatedList);
 
-      if (result?.error) {
-        const msg = `handleProductUpdatedEvent - Plan "${item.id}"'s metadata failed validation; Product ${product.id} updated.`;
-        this.log.error(msg, { error: result.error, product });
+    const plans = await this.stripeHelper.fetchPlansByProductId(product.id);
+    const allPlans = await this.stripeHelper.allPlans();
+    const updatedPlans = allPlans.filter(
+      (plan) => (plan.product as Stripe.Product).id !== product.id
+    );
 
-        Sentry.withScope((scope) => {
-          scope.setContext('validationError', {
-            error: result.error,
-          });
-          Sentry.captureMessage(msg, Sentry.Severity.Error);
+    if (event.type !== 'product.deleted') {
+      for (const plan of plans) {
+        const result = subscriptionProductMetadataValidator.validate({
+          ...product.metadata,
+          ...plan.metadata,
         });
+
+        if (result?.error) {
+          const msg = `handleProductWebhookEvent - Plan "${plan.id}"'s metadata failed validation on product ${product.id} update.`;
+          this.log.error(msg, { error: result.error, product });
+
+          Sentry.withScope((scope) => {
+            scope.setContext('validationError', {
+              error: result.error,
+            });
+            Sentry.captureMessage(msg, Sentry.Severity.Error);
+          });
+        } else {
+          updatedPlans.push({ ...plan, product });
+        }
       }
     }
+
+    this.stripeHelper.updateAllPlans(updatedPlans);
   }
 
   /**
