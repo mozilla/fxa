@@ -16,6 +16,7 @@ The Firefox Accounts (fxa) monorepo
 [Node debugging](#node-debugging)\
 [Android debugging](#android-debugging)\
 [FxA Email Service](#fxa-email-service)\
+[Connecting to a local MySQL DB](#connecting-to-a-local-mysql-db)\
 [Firefox for iOS](#firefox-for-ios)\
 [Running with MailDev](#running-with-maildev)\
 [Documentation](#documentation)
@@ -263,19 +264,19 @@ You can find the Storybook build associated with a given commit on Github via th
 
 The Google Cloud Platform project dashboard for the website can be found here, if you've been given access:
 
-* https://console.cloud.google.com/home/dashboard?project=storybook-static-sites
+- https://console.cloud.google.com/home/dashboard?project=storybook-static-sites
 
 For quick reference, here are [a few CircleCI environment variables][storybook-gcp-publisher-config] used by storybook-gcp-publisher that are relevant to FxA operations in CircleCI. Occasionally they may need maintenance or replacement - e.g. in case of a security incident involving another tool that exposes variables.
 
-* `STORYBOOKS_GITHUB_TOKEN` - personal access token on GitHub for use in posting status check updates
+- `STORYBOOKS_GITHUB_TOKEN` - personal access token on GitHub for use in posting status check updates
 
-* `STORYBOOKS_GCP_BUCKET` - name of the GCP bucket to which Storybook builds will be uploaded
+- `STORYBOOKS_GCP_BUCKET` - name of the GCP bucket to which Storybook builds will be uploaded
 
-* `STORYBOOKS_GCP_PROJECT_ID` - the ID of the GCP project to which the bucket belongs
+- `STORYBOOKS_GCP_PROJECT_ID` - the ID of the GCP project to which the bucket belongs
 
-* `STORYBOOKS_GCP_CLIENT_EMAIL` - client email address from GCP credentials with access to the bucket
+- `STORYBOOKS_GCP_CLIENT_EMAIL` - client email address from GCP credentials with access to the bucket
 
-* `STORYBOOKS_GCP_PRIVATE_KEY_BASE64` - the private key from GCP credentials, encoded with base64 to accomodate linebreaks
+- `STORYBOOKS_GCP_PRIVATE_KEY_BASE64` - the private key from GCP credentials, encoded with base64 to accomodate linebreaks
 
 [storybooks-fxa-site]: https://storage.googleapis.com/mozilla-storybooks-fxa/index.html
 [storybook-gcp-publisher-config]: https://github.com/mozilla-fxa/storybook-gcp-publisher#basic-1
@@ -390,6 +391,39 @@ start making changes to the email service then do the following:
 1. Stop the email-service using `yarn pm2 stop <email_service_id>`
 1. Build the service: `cd packages/fxa-email-service; cargo build --bin fxa_email_send`
 1. Run the service: `cd packages/fxa-email-service; ./scripts/run_send.sh`
+
+---
+
+### Connecting to a local MySQL DB
+
+> Skip this if you are not working on an FxA MySQL database.
+
+FxA has several databases, for example `fxa`, `fxa_profile` and `pushbox`. Sometimes changes need to be made to a database, or it is helpful to read local data for development.
+
+**Prerequisites**
+
+- FxA running locally (see [Workflow](#workflow))
+- Docker (see [Dependencies](#dependencies))
+- [mysql CLI](https://dev.mysql.com/doc/refman/en/mysql.html)
+  - If using the `mysql-client` option below, this can be installed via Homebrew with `brew install mysql-client`.
+
+**Steps**
+
+Execute an interactive shell on the MySQL DB container and start the MySQL shell:
+
+```sh
+yarn mysql
+```
+
+OR
+
+Start the MySQL shell through the MySQL client:
+
+```sh
+mysql -uroot --host=127.0.0.1 --port=3306
+```
+
+Note: `mysql` is located in the `mysql-client` installation directory, e.g. at `/usr/local/opt/mysql-client/bin/mysql`.
 
 ---
 
