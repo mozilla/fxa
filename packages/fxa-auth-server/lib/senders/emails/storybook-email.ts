@@ -31,7 +31,7 @@ const subplatCommonArgs = {
   cancelSubscriptionUrl: 'http://localhost:3030/subscriptions',
   updateBillingUrl: 'http://localhost:3030/subscriptions',
   reactivateSubscriptionUrl: 'http://localhost:3030/subscriptions',
-  accountSettingsLink: 'http://localhost:3030/settings',
+  accountSettingsUrl: 'http://localhost:3030/settings',
 };
 
 const storybookEmail = ({
@@ -49,7 +49,9 @@ const storybookEmail = ({
     .then(({ html, text, subject }) => {
       container.innerHTML = `
         <header>
-          <h1 class="template-name"><span>${layout} / </span>${template}</h1>
+          <h1 class="template-name"><span>${layout} / </span>${
+        template === '_storybook' ? 'layout' : template
+      }</h1>
           ${doc ? `<p class="template-description">${doc}</p>` : ''}
           <p class="email-subject">Subject: ${subject}</p>
         </header>
@@ -138,5 +140,5 @@ export const subplatStoryWithProps = (
     templateName,
     templateDoc,
     { ...defaultArgs, ...subplatCommonArgs },
-    'subplat'
+    'subscription'
   );

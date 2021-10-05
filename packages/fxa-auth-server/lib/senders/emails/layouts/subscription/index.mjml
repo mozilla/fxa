@@ -13,7 +13,7 @@
 
   <mj-body css-class="body">
     <mj-include path="./css/global.css" type="css" css-inline="inline" />
-    <mj-include path="./css/subplat/index.css" type="css" css-inline="inline" />
+    <mj-include path="./css/subscription/index.css" type="css" css-inline="inline" />
     <mj-include path="./css/locale-dir.css" type="css" />
 
     <mj-raw>
@@ -40,7 +40,9 @@
       </mj-column>
     </mj-section>
 
-    <%- body %>
+    <mj-wrapper css-class="px-6">
+      <%- body %>
+    </mj-wrapper>
 
     <mj-section css-class="footer-container">
       <mj-column>
@@ -58,7 +60,7 @@
 
         <mj-text css-class="footer-text-bottom-margin">
           <span data-l10n-id="subplat-manage-account">
-            Manage your Firefox account settings by visiting your <a href="<%- accountSettingsLink %>" class="footer-link" data-l10n-name="subplat-account-page">account page</a>.
+            Manage your Firefox account settings by visiting your <a href="<%- accountSettingsUrl %>" class="footer-link" data-l10n-name="subplat-account-page">account page</a>.
           </span>
         </mj-text>
 

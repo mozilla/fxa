@@ -459,7 +459,9 @@
       "postConsumeRecoveryCode",
       "postNewRecoveryCodes",
       "passwordChangeRequired",
-      "recovery"
+      "recovery",
+      "subscriptionPaymentExpired",
+      "subscriptionsPaymentExpired"
     ]
   }
 }

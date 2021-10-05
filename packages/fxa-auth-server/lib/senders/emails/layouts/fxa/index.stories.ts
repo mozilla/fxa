@@ -6,7 +6,7 @@ import { Meta } from '@storybook/html';
 import { storyWithProps } from '../../storybook-email';
 
 export default {
-  title: 'Layouts/FxA',
+  title: 'FxA Emails/Layout',
 } as Meta;
 
 const createStory = storyWithProps('_storybook', 'The FxA email base layout.', {

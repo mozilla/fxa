@@ -83,6 +83,9 @@ $s-10: 40px;
 }
 
 .mb {
+  &-0 {
+    margin-bottom: $s-0 !important;
+  }
   &-3 {
     margin-bottom: $s-3 !important;
   }
@@ -97,6 +100,13 @@ $s-10: 40px;
   }
   &-8 {
     margin-bottom: $s-8 !important;
+  }
+}
+
+.px {
+  &-6 {
+    padding-left: $s-6 !important;
+    padding-right: $s-6 !important;
   }
 }
 

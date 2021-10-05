@@ -20,12 +20,17 @@
 %text-body-common {
   @extend %text-body-common;
   @extend .text-md;
+  color: global.$grey-500 !important;
 }
 
 .text-body div {
   @extend %text-body-common;
   @extend .mb-6;
-  color: global.$grey-500 !important;
+}
+
+.text-body-no-bottom-margin div {
+  @extend %text-body-common;
+  @extend .mb-0;
 }
 
 .header-container {

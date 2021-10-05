@@ -7,7 +7,7 @@ import { storyWithProps } from '../../storybook-email';
 import * as cadReminderFirst from '../cadReminderFirst/index.stories';
 
 export default {
-  title: 'Templates/cadReminderSecond',
+  title: 'FxA Emails/Templates/cadReminderSecond',
 } as Meta;
 
 const createStory = storyWithProps(
