@@ -97,15 +97,6 @@
           background-image: image-url('graphic-logo-firefox.svg');
         }
 
-        &.logo-lockwise {
-          background-image: image-url('graphic-logo-lockwise.svg');
-          background-position-x: -5px;
-
-          html[dir='rtl'] & {
-            background-position-x: 5px;
-          }
-        }
-
         &.logo-monitor {
           background-image: image-url('graphic-logo-monitor.svg');
           background-position-x: -12px;
@@ -119,6 +110,10 @@
           background-image: image-url('graphic-logo-vpn.svg');
           background-size: auto 24px;
           background-position-y: 6px;
+        }
+        &.logo-relay {
+          background-image: image-url('graphic-logo-relay.svg');
+          background-position-x: -12px;
         }
       }
     }
