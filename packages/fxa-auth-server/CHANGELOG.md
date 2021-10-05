@@ -1,3 +1,13 @@
+## 1.216.1
+
+### New features
+
+- auth: store stripe docs in firestore ([9baa3480e](https://github.com/mozilla/fxa/commit/9baa3480e))
+
+### Refactorings
+
+- subscriptions: cache products and plans forever ([b3c741290](https://github.com/mozilla/fxa/commit/b3c741290))
+
 ## 1.216.0
 
 ### New features
