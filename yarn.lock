@@ -4335,6 +4335,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/node@npm:^6.13.2":
+  version: 6.13.2
+  resolution: "@sentry/node@npm:6.13.2"
+  dependencies:
+    "@sentry/core": 6.13.2
+    "@sentry/hub": 6.13.2
+    "@sentry/tracing": 6.13.2
+    "@sentry/types": 6.13.2
+    "@sentry/utils": 6.13.2
+    cookie: ^0.4.1
+    https-proxy-agent: ^5.0.0
+    lru_map: ^0.3.3
+    tslib: ^1.9.3
+  checksum: ef2685ec8bab563c1f7780c612062b8069c033dbb20b7738be0356989f5f8a607f9be73a2debbe5a40f0c41fb09175506985171487a93d358acd0b6623dac3e4
+  languageName: node
+  linkType: hard
+
 "@sentry/tracing@npm:6.12.0":
   version: 6.12.0
   resolution: "@sentry/tracing@npm:6.12.0"
@@ -4345,6 +4362,19 @@ __metadata:
     "@sentry/utils": 6.12.0
     tslib: ^1.9.3
   checksum: 9b4b7c8f13932dd6c9e522ba952d068b06d37db4ce8e94f2c644c29499712a82091bf062a2e9ffa002d92cc07942ebd500cf8c7545d3fc4d31018bdcce4c6f6a
+  languageName: node
+  linkType: hard
+
+"@sentry/tracing@npm:6.13.2":
+  version: 6.13.2
+  resolution: "@sentry/tracing@npm:6.13.2"
+  dependencies:
+    "@sentry/hub": 6.13.2
+    "@sentry/minimal": 6.13.2
+    "@sentry/types": 6.13.2
+    "@sentry/utils": 6.13.2
+    tslib: ^1.9.3
+  checksum: b485f4424522d83b56b53c4789f105bfda87412d80d292599e020e7f9cdd07e20480abaea4e72f5bad669841efd1449d9fca6adadd5af7c0ea239687f9fe8ff6
   languageName: node
   linkType: hard
 
@@ -18184,11 +18214,11 @@ fsevents@~2.1.1:
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
-    "@sentry/node": ^6.12.0
+    "@sentry/node": ^6.13.2
     "@storybook/addon-controls": ^6.3.8
     "@storybook/addon-docs": ^6.3.8
     "@storybook/addon-toolbars": ^6.3.8
-    "@storybook/html": ^6.3.9
+    "@storybook/html": ^6.3.8
     "@type-cacheable/core": ^10.0.1
     "@type-cacheable/ioredis-adapter": ^10.0.1
     "@types/babel__core": 7.1.14
