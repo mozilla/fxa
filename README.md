@@ -400,31 +400,30 @@ start making changes to the email service then do the following:
 
 FxA has several databases, for example `fxa`, `fxa_profile` and `pushbox`. Sometimes changes need to be made to a database, or it is helpful to read local data for development.
 
-Prerequisites
+**Prerequisites**
 
 - FxA running locally (see [Workflow](#workflow))
 - Docker (see [Dependencies](#dependencies))
 - [mysql CLI](https://dev.mysql.com/doc/refman/en/mysql.html)
+  - If using the `mysql-client` option below, this can be installed via Homebrew with `brew install mysql-client`.
 
-Steps
+**Steps**
 
-1. Obtain the docker container ID for the MySQL server:
-
-```
-docker container ls | grep mysql | cut -d ' ' -f1
-```
-
-2. Execute an interactive shell on the container:
+Execute an interactive shell on the MySQL DB container and start the MySQL shell:
 
 ```sh
-docker exec -it ${dockerContainerId} /bin/bash
+yarn mysql
 ```
 
-3. Start the MySQL shell:
+OR
+
+Start the MySQL shell through the MySQL client:
 
 ```sh
-mysql ${databaseName}
+mysql -uroot --host=127.0.0.1 --port=3306
 ```
+
+Note: `mysql` is located in the `mysql-client` installation directory, e.g. at `/usr/local/opt/mysql-client/bin/mysql`.
 
 ---
 
