@@ -6146,9 +6146,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/postcss7-compat@npm:^2.2.14":
-  version: 2.2.14
-  resolution: "@tailwindcss/postcss7-compat@npm:2.2.14"
+"@tailwindcss/postcss7-compat@npm:^2.2.16":
+  version: 2.2.16
+  resolution: "@tailwindcss/postcss7-compat@npm:2.2.16"
   dependencies:
     arg: ^5.0.1
     autoprefixer: ^9
@@ -6188,7 +6188,7 @@ __metadata:
   bin:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
-  checksum: 47c71b18090103364d1c91be2c9379a0a3e27b801a007436be37a4824b1bf61c1ca3a95dabf74860947e77ac9bc9feb1a903e483cb3b114cbf5179406ee5289c
+  checksum: 35287a50cd44da3d6fbd33debde250db4c85fbbdfb4dc3fc5deeb60608d7a6ab3e37d1cc7301f3d1de97a38eccdf06bb5092006abdc70d98932238ebd7f2d414
   languageName: node
   linkType: hard
 
@@ -18552,7 +18552,7 @@ fsevents@~2.1.1:
     "@storybook/addon-links": ^6.3.8
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.8
-    "@tailwindcss/postcss7-compat": ^2.2.14
+    "@tailwindcss/postcss7-compat": ^2.2.16
     "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.1.2
@@ -19539,7 +19539,7 @@ fsevents@~2.1.1:
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.8
     "@svgr/webpack": ^5.5.0
-    "@tailwindcss/postcss7-compat": ^2.2.14
+    "@tailwindcss/postcss7-compat": ^2.2.16
     "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.1.2
@@ -19603,7 +19603,7 @@ fsevents@~2.1.1:
     "@storybook/addon-links": ^6.3.8
     "@storybook/addons": ^6.3.6
     "@storybook/react": ^6.3.8
-    "@tailwindcss/postcss7-compat": ^2.2.14
+    "@tailwindcss/postcss7-compat": ^2.2.16
     "@testing-library/dom": ^8.2.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.1.2
