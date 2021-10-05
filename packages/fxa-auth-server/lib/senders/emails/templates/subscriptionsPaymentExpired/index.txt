@@ -4,9 +4,7 @@ subscriptionsPaymentExpired-title = "Your credit card is about to expire"
 
 subscriptionsPaymentExpired-content = "The credit card you're using to make payments for the following subscriptions is about to expire."
 
-<% for (const { productName } of subscriptions) { %>
-<%- productName %>
-<% } %>
+<%- subscriptions.map(({ productName }) => `  - ${productName}`).join("\r") %>
 
 <%- include('/partials/subscriptionUpdatePayment/index.txt', { updateBillingUrl }) %>
 

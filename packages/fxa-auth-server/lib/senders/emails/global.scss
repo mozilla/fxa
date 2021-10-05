@@ -83,6 +83,9 @@ $s-10: 40px;
 }
 
 .mb {
+  &-0 {
+    margin-bottom: $s-0 !important;
+  }
   &-3 {
     margin-bottom: $s-3 !important;
   }
