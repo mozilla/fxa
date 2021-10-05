@@ -3724,9 +3724,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^8.0.8":
-  version: 8.0.8
-  resolution: "@nestjs/platform-express@npm:8.0.8"
+"@nestjs/platform-express@npm:^8.0.10":
+  version: 8.0.10
+  resolution: "@nestjs/platform-express@npm:8.0.10"
   dependencies:
     body-parser: 1.19.0
     cors: 2.8.5
@@ -3736,7 +3736,7 @@ __metadata:
   peerDependencies:
     "@nestjs/common": ^8.0.0
     "@nestjs/core": ^8.0.0
-  checksum: adcb54c430a7642737f6ae286e342751fecf17a13d1bc81742d441b62fbc48ec4be39aebc0ab349b1f8182ba59502fb72642d9aeda24fb4dcccc9572b80bec6d
+  checksum: 93690ebfca0fd1b981d94023f9a667794af646e61c3685b333fe876a191e1e70ecb30e28e4e5a3e769ffed6e0a6af5a331df2f4dbaf90e5db8bf871b7988dbdd
   languageName: node
   linkType: hard
 
@@ -18621,7 +18621,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^8.0.9
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/platform-express": ^8.0.8
+    "@nestjs/platform-express": ^8.0.10
     "@sentry/integrations": ^6.13.2
     "@sentry/node": ^6.13.2
     "@types/chance": ^1.1.2
@@ -19140,7 +19140,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.0.8
+    "@nestjs/platform-express": ^8.0.10
     "@nestjs/schedule": ^1.0.1
     "@nestjs/schematics": ^8.0.3
     "@nestjs/testing": ^8.0.5
@@ -19237,7 +19237,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.0.8
+    "@nestjs/platform-express": ^8.0.10
     "@sentry/integrations": ^6.13.2
     "@sentry/node": ^6.13.2
     "@types/chance": ^1.1.2
@@ -19751,7 +19751,7 @@ fsevents@~2.1.1:
     "@nestjs/config": ^1.0.1
     "@nestjs/core": ^8.0.9
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/platform-express": ^8.0.8
+    "@nestjs/platform-express": ^8.0.10
     "@sentry/integrations": ^6.13.2
     "@sentry/node": ^6.13.2
     "@types/convict": ^5.2.2
