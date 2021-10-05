@@ -18,7 +18,8 @@ export type ClientCapabilities = Record<string, string[]>;
 
 @Injectable()
 export class ClientCapabilityService
-  implements OnApplicationBootstrap, OnApplicationShutdown {
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
   private config: AppConfig['clientCapabilityFetch'];
   private axiosInstance: AxiosInstance;
   private intervalName = 'clientCapabilities';
@@ -41,10 +42,10 @@ export class ClientCapabilityService
   async updateCapabilities(
     { throwOnError } = { throwOnError: false }
   ): Promise<void> {
-    let result: AxiosResponse;
+    let result: AxiosResponse<{ clientId: string; capabilities: string[] }[]>;
     try {
       result = await this.axiosInstance.get(this.config.clientUrl);
-    } catch (err) {
+    } catch (err: any) {
       if (throwOnError) {
         throw ExtendedError.withCause(
           'Unexpected error fetching client capabilities from auth-server',
@@ -60,7 +61,7 @@ export class ClientCapabilityService
       return;
     }
     this.log.debug('updateCapabilities', { clientCapabilities: result.data });
-    result.data.forEach(({ clientId, capabilities }: any) => {
+    result.data.forEach(({ clientId, capabilities }) => {
       this.capabilities[clientId] = capabilities;
     });
   }
