@@ -8,7 +8,7 @@ import { PageRecoveryKeyAdd } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 
-storiesOf('Pages|RecoveryKey', module)
+storiesOf('Pages/RecoveryKey', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppLayout>

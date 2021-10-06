@@ -10,7 +10,7 @@ import { LocationProvider } from '@reach/router';
 
 import { AppContext } from 'fxa-settings/src/models';
 
-storiesOf('Components|UnitRowSecondaryEmail', module)
+storiesOf('Components/UnitRowSecondaryEmail', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('No secondary email set', () => <UnitRowSecondaryEmail />)
   .add('One secondary email set, unverified', () => {

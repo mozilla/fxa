@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { ButtonIconTrash, ButtonIconReload } from '.';
 
-storiesOf('Components|ButtonIcon', module)
+storiesOf('Components/ButtonIcon', module)
   .add('ButtonIconTrash', () => (
     <div className="p-10 max-w-lg">
       <ButtonIconTrash title="Remove email" />

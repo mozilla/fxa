@@ -8,7 +8,7 @@ import React from 'react';
 import { PageDisplayName } from '.';
 import AppLayout from '../AppLayout';
 
-storiesOf('Pages|DisplayNmae', module)
+storiesOf('Pages/DisplayNmae', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppLayout>

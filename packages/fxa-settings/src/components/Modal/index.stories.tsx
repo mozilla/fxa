@@ -8,7 +8,7 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Modal } from '.';
 import { LocationProvider } from '@reach/router';
 
-storiesOf('Components|Modal', module)
+storiesOf('Components/Modal', module)
   .add('basic', () => (
     <LocationProvider>
       <ModalToggle>

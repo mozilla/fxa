@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import InputPassword from '.';
 
-storiesOf('Components|InputPassword', module).add('default', () => (
+storiesOf('Components/InputPassword', module).add('default', () => (
   <div className="p-10 max-w-lg">
     <InputPassword label="You think you know how to password? Enter it here." />
   </div>

@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import GetDataTrio from './index';
 
-storiesOf('Components|GetDataTrio', module).add('default', () => (
+storiesOf('Components/GetDataTrio', module).add('default', () => (
   <div className="p-10 max-w-xs">
     <GetDataTrio value="Copy that" />
   </div>

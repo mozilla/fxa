@@ -8,7 +8,7 @@ import { PageDeleteAccount } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 
-storiesOf('Pages|DeleteAccount', module)
+storiesOf('Pages/DeleteAccount', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppLayout>

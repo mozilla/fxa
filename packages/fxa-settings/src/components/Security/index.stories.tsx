@@ -9,7 +9,7 @@ import { Security } from '.';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/_mocks';
 
-storiesOf('Components|Security', module)
+storiesOf('Components/Security', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppContext.Provider

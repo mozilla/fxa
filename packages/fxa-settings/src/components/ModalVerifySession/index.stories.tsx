@@ -22,7 +22,7 @@ account.verifySession = (code: string) => {
   return Promise.reject(AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE);
 };
 
-storiesOf('Components|ModalVerifySession', module).add(
+storiesOf('Components/ModalVerifySession', module).add(
   'valid code: 123456',
   () => (
     <LocationProvider>

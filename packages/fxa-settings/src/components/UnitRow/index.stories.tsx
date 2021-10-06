@@ -11,7 +11,7 @@ import { UnitRow } from '.';
 import { Modal } from '../Modal';
 import { AppContext } from 'fxa-settings/src/models';
 
-storiesOf('Components|UnitRow', module)
+storiesOf('Components/UnitRow', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('basic, with falsey headerValue', () => (
     <UnitRow header="Some header" headerValue={null} />
@@ -64,11 +64,8 @@ storiesOf('Components|UnitRow', module)
     }
   )
   .add('with modal-triggering secondary CTA', () => {
-    const [
-      secondaryModalRevealed,
-      revealSecondaryModal,
-      hideModal,
-    ] = useBooleanState();
+    const [secondaryModalRevealed, revealSecondaryModal, hideModal] =
+      useBooleanState();
     return (
       <UnitRow
         header="Display name"

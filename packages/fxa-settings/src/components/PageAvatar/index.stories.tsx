@@ -10,7 +10,7 @@ import AppLayout from '../AppLayout';
 
 import PageAvatar from './';
 
-storiesOf('Pages|PageAvatar', module)
+storiesOf('Pages/PageAvatar', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppLayout>
