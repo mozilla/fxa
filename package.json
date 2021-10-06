@@ -107,10 +107,10 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^7.29.0",
+    "eslint": "^7.32.0",
     "eslint-plugin-fxa": "^2.0.2",
-    "eslint-plugin-jest": "^24.3.6",
-    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-jest": "^24.5.2",
+    "eslint-plugin-react": "^7.26.1",
     "json": "^11.0.0",
     "stylelint": "^13.13.1",
     "stylelint-config-prettier": "^8.0.2"

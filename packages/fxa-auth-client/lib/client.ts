@@ -161,7 +161,7 @@ export default class AuthClient {
     };
     try {
       return await this.request(method, path, payload, await makeHeaders());
-    } catch (e) {
+    } catch (e: any) {
       if (e.errno === ERRORS.INVALID_TIMESTAMP) {
         const serverTime = e.serverTime * 1000 || Date.now();
         this.localtimeOffsetMsec = serverTime - Date.now();
@@ -283,7 +283,7 @@ export default class AuthClient {
         accountData.unwrapBKey = credentials.unwrapBKey;
       }
       return accountData;
-    } catch (error) {
+    } catch (error: any) {
       if (
         error &&
         error.email &&
@@ -515,7 +515,7 @@ export default class AuthClient {
       } else {
         return await this.request('POST', '/account/destroy', payload);
       }
-    } catch (error) {
+    } catch (error: any) {
       if (
         error &&
         error.email &&
@@ -628,7 +628,7 @@ export default class AuthClient {
         accountData.unwrapBKey = credentials.unwrapBKey;
       }
       return accountData;
-    } catch (error) {
+    } catch (error: any) {
       if (
         error &&
         error.email &&
@@ -746,7 +746,7 @@ export default class AuthClient {
         keyFetchToken: passwordData.keyFetchToken,
         passwordChangeToken: passwordData.passwordChangeToken,
       };
-    } catch (error) {
+    } catch (error: any) {
       if (
         error &&
         error.email &&
