@@ -44,7 +44,7 @@
     "@storybook/react": "^6.3.8",
     "@svgr/webpack": "^5.5.0",
     "@tailwindcss/postcss7-compat": "^2.2.16",
-    "@testing-library/dom": "^8.2.0",
+    "@testing-library/dom": "^8.7.2",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.2.1",
