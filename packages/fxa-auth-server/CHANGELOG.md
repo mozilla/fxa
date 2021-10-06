@@ -1,3 +1,19 @@
+## 1.216.2
+
+### Bug fixes
+
+- auth: add firestore import ([4929d6c62](https://github.com/mozilla/fxa/commit/4929d6c62))
+
+## 1.216.1
+
+### New features
+
+- auth: store stripe docs in firestore ([9baa3480e](https://github.com/mozilla/fxa/commit/9baa3480e))
+
+### Refactorings
+
+- subscriptions: cache products and plans forever ([b3c741290](https://github.com/mozilla/fxa/commit/b3c741290))
+
 ## 1.216.0
 
 ### New features
@@ -20,7 +36,7 @@
 - metrics: Add remaining metrics and `fxa_reg - complete` for pwordless accounts (#10516) ([22b7fd5d7](https://github.com/mozilla/fxa/commit/22b7fd5d7))
 - auth-server: Update x2 hard-coded email addresses in new email templates ([7dbc6fae2](https://github.com/mozilla/fxa/commit/7dbc6fae2))
 - auth: stop reporting errors on legit credit nots ([99f03f472](https://github.com/mozilla/fxa/commit/99f03f472))
-- auth: use __dirname to retrieve template base dir ([006278898](https://github.com/mozilla/fxa/commit/006278898))
+- auth: use \_\_dirname to retrieve template base dir ([006278898](https://github.com/mozilla/fxa/commit/006278898))
 - auth: include emails-scss in build command ([c514daa35](https://github.com/mozilla/fxa/commit/c514daa35))
 - auth: various template fixups ([800be5d50](https://github.com/mozilla/fxa/commit/800be5d50))
 - auth: template string cleanups ([91d5f8d03](https://github.com/mozilla/fxa/commit/91d5f8d03))
@@ -53,7 +69,7 @@
 
 ### Bug fixes
 
-- auth: use __dirname to retrieve template base dir ([044182360](https://github.com/mozilla/fxa/commit/044182360))
+- auth: use \_\_dirname to retrieve template base dir ([044182360](https://github.com/mozilla/fxa/commit/044182360))
 - auth: include emails-scss in build command ([23c6c2558](https://github.com/mozilla/fxa/commit/23c6c2558))
 
 ## 1.215.1

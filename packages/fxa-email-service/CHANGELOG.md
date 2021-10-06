@@ -1,3 +1,13 @@
+## 1.216.2
+
+No changes.
+
+## 1.216.1
+
+### Bug fixes
+
+- email-service: increase /send body size limit (#10577) ([6b74d2cd7](https://github.com/mozilla/fxa/commit/6b74d2cd7))
+
 ## 1.216.0
 
 No changes.
