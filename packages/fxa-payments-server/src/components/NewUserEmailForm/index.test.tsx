@@ -109,14 +109,10 @@ describe('NewUserEmailForm test', () => {
   it('shows no error when valid email is input to first field', async () => {
     let subject;
 
-    await act(async () => {
-      subject = render(
-        <WrapNewUserEmailForm accountExistsReturnValue={false} />
-      );
-      const firstEmail = subject.getByTestId('new-user-email');
-      fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
-      fireEvent.blur(firstEmail);
-    });
+    subject = render(<WrapNewUserEmailForm accountExistsReturnValue={false} />);
+    const firstEmail = subject.getByTestId('new-user-email');
+    fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
+    fireEvent.blur(firstEmail);
 
     expect(subject.queryByText('new-user-email-validate')).toBeFalsy();
   });
