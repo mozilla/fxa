@@ -1,19 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
+import { useCallback, useEffect, useState } from 'react';
 import { Localized } from '@fluent/react';
-import debounce from 'lodash.debounce';
 
 import { isEmailValid } from '../../../../fxa-shared/email/helpers';
-
 import shieldIcon from './images/shield.svg';
-
 import { Form, Input, Checkbox } from '../fields';
 import {
   State as ValidatorState,
   useValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
-
 import './index.scss';
 import * as Amplitude from '../../lib/amplitude';
 import { useCallbackOnce } from '../../lib/hooks';
@@ -69,11 +64,6 @@ export const NewUserEmailForm = ({
     onFormEngaged();
   }, [onFormEngaged]);
 
-  const debouncedCheckAccountExists = useMemo(
-    () => debounce((email: string) => checkAccountExists(email), 300),
-    []
-  );
-
   const onClickSignInButton = () => {
     selectedPlan.other = 'click-signnin';
     Amplitude.createAccountSignIn(selectedPlan);
@@ -117,7 +107,7 @@ export const NewUserEmailForm = ({
               setValidEmail,
               setAccountExists,
               setEmailInputState,
-              debouncedCheckAccountExists,
+              checkAccountExists,
               signInURL,
               getString
             )
@@ -178,7 +168,7 @@ export async function emailInputValidationAndAccountCheck(
   setValidEmail: (value: string) => void,
   setAccountExists: (value: boolean) => void,
   setEmailInputState: (value: string) => void,
-  debouncedCheckAccountExists: (email: string) => Promise<{ exists: boolean }>,
+  checkAccountExists: (email: string) => Promise<{ exists: boolean }>,
   signInURL: string,
   getString?: (id: string) => string
 ) {
@@ -189,11 +179,13 @@ export async function emailInputValidationAndAccountCheck(
   if (isEmailValid(value)) {
     valid = true;
     setValidEmail(value);
-    const response = await debouncedCheckAccountExists(value);
-    if (response?.exists) {
-      hasAccount = response.exists;
+    if (!focused) {
+      const response = await checkAccountExists(value);
+      if (response?.exists) {
+        hasAccount = response.exists;
+      }
+      setAccountExists(hasAccount);
     }
-    setAccountExists(hasAccount);
   } else {
     setValidEmail('');
   }
