@@ -8,11 +8,11 @@ import { PageSecondaryEmailVerify } from '.';
 import { AppLayout } from '../AppLayout';
 import { WindowLocation, LocationProvider } from '@reach/router';
 
-const mockLocation = ({
+const mockLocation = {
   state: { email: 'johndope@example.com' },
-} as unknown) as WindowLocation;
+} as unknown as WindowLocation;
 
-storiesOf('Pages|SecondaryEmailVerify', module)
+storiesOf('Pages/SecondaryEmailVerify', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('valid: 1234, invalid: 4444', () => {
     return (

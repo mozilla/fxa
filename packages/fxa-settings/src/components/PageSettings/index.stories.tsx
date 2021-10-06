@@ -14,7 +14,7 @@ import { AppContext } from 'fxa-settings/src/models';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
-storiesOf('Pages|Settings', module)
+storiesOf('Pages/Settings', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('cold start', () => (
     <AppContext.Provider

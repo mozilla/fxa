@@ -15,7 +15,7 @@ const account = {
   },
   subscriptions: [{ created: 1, productName: 'x' }],
 } as any;
-storiesOf('Components|Nav', module)
+storiesOf('Components/Nav', module)
   .add('basic', () => <Nav />)
   .add('with link to Subscriptions', () => (
     <AppContext.Provider value={{ account, session: mockSession() }}>

@@ -13,7 +13,7 @@ const account = {
     id: null,
   },
 } as any;
-storiesOf('Components|Avatar', module)
+storiesOf('Components/Avatar', module)
   .add('default avatar', () => (
     <AppContext.Provider value={{ account }}>
       <Avatar className="w-32 h-32" />

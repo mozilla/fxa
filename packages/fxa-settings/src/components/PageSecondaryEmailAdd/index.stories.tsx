@@ -8,7 +8,7 @@ import { storiesOf } from '@storybook/react';
 import { AppLayout } from '../AppLayout';
 import { PageSecondaryEmailAdd } from '.';
 
-storiesOf('Pages|SecondaryEmailAdd', module)
+storiesOf('Pages/SecondaryEmailAdd', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('Default empty', () => (
     <AppLayout>

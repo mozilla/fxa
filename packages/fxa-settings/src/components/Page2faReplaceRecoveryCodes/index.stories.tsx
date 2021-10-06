@@ -27,7 +27,7 @@ const account = {
     }),
 } as any;
 
-storiesOf('Pages|2faReplaceRecoveryCodes', module)
+storiesOf('Pages/2faReplaceRecoveryCodes', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppContext.Provider value={mockAppContext({ account })}>

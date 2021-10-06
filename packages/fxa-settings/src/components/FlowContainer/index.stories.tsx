@@ -7,6 +7,6 @@ import { storiesOf } from '@storybook/react';
 import { FlowContainer } from '.';
 import { LocationProvider } from '@reach/router';
 
-storiesOf('Components|FlowContainer', module)
+storiesOf('Components/FlowContainer', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => <FlowContainer title="Flow container title" />);

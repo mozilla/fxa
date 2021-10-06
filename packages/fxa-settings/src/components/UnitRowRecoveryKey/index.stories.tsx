@@ -9,7 +9,7 @@ import UnitRowRecoveryKey from '.';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockAppContext, mockSession } from 'fxa-settings/src/models/_mocks';
 
-storiesOf('Components|UnitRowRecoveryKey', module)
+storiesOf('Components/UnitRowRecoveryKey', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('with recovery key', () => (
     <AppContext.Provider

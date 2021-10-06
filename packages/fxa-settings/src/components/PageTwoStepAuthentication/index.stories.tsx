@@ -8,7 +8,7 @@ import React from 'react';
 import { PageTwoStepAuthentication } from '.';
 import AppLayout from '../AppLayout';
 
-storiesOf('Pages|TwoStepAuthentication', module)
+storiesOf('Pages/TwoStepAuthentication', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppLayout>

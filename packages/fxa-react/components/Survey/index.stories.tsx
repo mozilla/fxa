@@ -5,7 +5,7 @@ import './index.scss';
 
 const surveyURL = 'https://www.surveygizmo.com/s3/5541940/pizza';
 
-storiesOf('Components|Survey', module)
+storiesOf('Components/Survey', module)
   .add('default', () => {
     const [showSurvey, setShowSurvey] = useState(true);
 

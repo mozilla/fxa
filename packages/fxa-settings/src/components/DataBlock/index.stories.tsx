@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import DataBlock from './index';
 
-storiesOf('Components|DataBlock', module)
+storiesOf('Components/DataBlock', module)
   .add('single', () => (
     <div className="p-10 max-w-lg">
       <DataBlock value="ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F" />

@@ -18,7 +18,7 @@ const account = {
   },
 } as any;
 
-storiesOf('Components|DropDownAvatarMenu', module)
+storiesOf('Components/DropDownAvatarMenu', module)
   .add('default - no avatar or display name', () => (
     <AppContext.Provider value={mockAppContext({ account })}>
       <div className="w-full flex justify-end">

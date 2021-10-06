@@ -10,22 +10,22 @@ import Breakpoints from './pages/Breakpoints';
 
 const fullConfig = resolveConfig(tailwindConfig);
 
-storiesOf('Design Guide|Settings', module).add('Introduction', () => (
+storiesOf('Design Guide/Settings', module).add('Introduction', () => (
   <Introduction />
 ));
 
-storiesOf('Design Guide|Settings', module).add('Colors', () => (
+storiesOf('Design Guide/Settings', module).add('Colors', () => (
   <Colors config={fullConfig} />
 ));
 
-storiesOf('Design Guide|Settings', module).add('Typography', () => (
+storiesOf('Design Guide/Settings', module).add('Typography', () => (
   <Typography config={fullConfig} />
 ));
 
-storiesOf('Design Guide|Settings', module).add('Spacing', () => (
+storiesOf('Design Guide/Settings', module).add('Spacing', () => (
   <Spacing config={fullConfig} />
 ));
 
-storiesOf('Design Guide|Settings', module).add('Breakpoints', () => (
+storiesOf('Design Guide/Settings', module).add('Breakpoints', () => (
   <Breakpoints config={fullConfig} />
 ));

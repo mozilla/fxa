@@ -6,6 +6,6 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import Head from './index';
 
-storiesOf('Components|Head', module)
+storiesOf('Components/Head', module)
   .add('basic', () => <Head />)
   .add('with title', () => <Head title="neat feature" />);

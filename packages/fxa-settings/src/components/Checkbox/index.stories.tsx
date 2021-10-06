@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import Checkbox from './index';
 
-storiesOf('Components|Checkbox', module).add('default', () => (
+storiesOf('Components/Checkbox', module).add('default', () => (
   <div className="p-10 max-w-lg">
     <div className="mb-3">
       <Checkbox />

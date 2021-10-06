@@ -8,7 +8,7 @@ import { PageChangePassword } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 
-storiesOf('Pages|ChangePassword', module)
+storiesOf('Pages/ChangePassword', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <AppLayout>
