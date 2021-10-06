@@ -13,6 +13,7 @@ https.globalAgent = new https.Agent({
   keepAlive: true,
 });
 
+// @ts-ignore
 global.crypto = new Crypto();
 // @ts-ignore
 global.fetch = fetch;
