@@ -27,6 +27,7 @@ const MANUAL_EXPERIMENTS = {
   newsletterSync: BaseExperiment,
   qrCodeCad: BaseExperiment,
   pushLogin: BaseExperiment,
+  pocketMigration: BaseExperiment,
 };
 
 const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);

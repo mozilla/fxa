@@ -2,7 +2,14 @@
   <header>
     <h1 id="fxa-enter-email-header">
       <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-      {{#t}}Enter your email{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+      {{#t}}Enter your email{{/t}}
+        {{#isInPocketMigration}}
+            <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        {{/isInPocketMigration}}
+
+        {{^isInPocketMigration}}
+            <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        {{/isInPocketMigration}}
     </h1>
   </header>
 

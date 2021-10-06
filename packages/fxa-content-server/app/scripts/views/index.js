@@ -22,6 +22,7 @@ import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import Template from 'templates/index.mustache';
 import checkEmailDomain from '../lib/email-domain-validator';
+import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 
 const EMAIL_SELECTOR = 'input[type=email]';
 
@@ -269,7 +270,8 @@ Cocktail.mixin(
   SyncSuggestionMixin({
     entrypoint: 'fxa:enter_email',
     flowEvent: 'link.signin',
-  })
+  }),
+  PocketMigrationMixin
 );
 
 export default IndexView;
