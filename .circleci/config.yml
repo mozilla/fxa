@@ -129,7 +129,6 @@ jobs:
             'fxa-event-broker' \
             'fxa-auth-db-mysql' \
             'fxa-profile-server' \
-            'fxa-metrics-processor' \
             '123done' \
             'browserid-verifier' \
             'fortress' \

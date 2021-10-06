@@ -14,7 +14,7 @@
         "999999",
         "--colors",
         "-r",
-        "ts-node/register",
+        "esbuild-register",
         "--recursive",
         "${workspaceFolder}/test"
       ],
@@ -31,7 +31,7 @@
         "999999",
         "--colors",
         "-r",
-        "ts-node/register",
+        "esbuild-register",
         "${workspaceFolder}/${relativeFile}"
       ],
       "console": "integratedTerminal",
@@ -46,7 +46,7 @@
         "--reporter=lcov",
         "${workspaceFolder}/node_modules/mocha/bin/_mocha",
         "--require",
-        "ts-node/register",
+        "esbuild-register",
         "--timeout",
         "999999",
         "--colors",

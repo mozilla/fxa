@@ -3,25 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import sinon from 'sinon';
+import { observeNavigationTiming } from '../../metrics/navigation-timing';
 
 type MockEntryList = { getEntries: () => [object] };
 type ObsCallback = (_entries: MockEntryList, _obs: object) => undefined;
-type sinonStub = ReturnType<typeof sinon.stub>;
 let cb = (_entries: MockEntryList, _obs: object) => {};
 
 const sandbox = sinon.createSandbox();
-(global.navigator as unknown) = { sendBeacon: sandbox.stub() };
-(global.fetch as sinonStub) = sandbox.stub();
-(global.Request as unknown) = sandbox.stub();
-(global.Blob as unknown) = class B {
-  parts: any;
-  options: any;
-  constructor(parts: any, options: any) {
-    this.parts = parts;
-    this.options = options;
-  }
-};
-
+const sendFn = sandbox.stub();
 const observeFn = sandbox.stub();
 const disconnectFn = sandbox.stub();
 const getEntries = sandbox.stub().returns([{ foo: 'bar' }]);
@@ -36,11 +25,6 @@ const mockGetEntriesByType = (perfEntries: PerformanceEntry[]) => {
   };
 };
 (global.PerformanceObserver as unknown) = mockPerformanceObserver;
-
-import {
-  observeNavigationTiming,
-  sendFn,
-} from '../../metrics/navigation-timing';
 
 // "queue" below is referring to
 // https://www.w3.org/TR/performance-timeline-2/#queue-a-performanceentry
@@ -57,17 +41,13 @@ describe('lib/navigation-timing', () => {
   describe('executes before PerformanceNavigationTiming object is queued', () => {
     it('uses PerformanceObserver', () => {
       mockGetEntriesByType([{ duration: 0 } as PerformanceEntry]);
-      observeNavigationTiming('/x/y/z');
+      observeNavigationTiming('/x/y/z', sendFn);
       cb({ getEntries }, mockObs);
       sinon.assert.calledOnceWithExactly(observeFn, {
         entryTypes: ['navigation'],
       });
-      const expectedJson = JSON.stringify({ foo: 'bar' });
-      sinon.assert.calledOnceWithExactly(
-        global.navigator.sendBeacon as sinonStub,
-        '/x/y/z',
-        new global.Blob([expectedJson], { type: 'application/json' })
-      );
+      const navTiming = { foo: 'bar' };
+      sinon.assert.calledOnceWithExactly(sendFn, '/x/y/z', navTiming);
       sinon.assert.calledOnce(disconnectFn);
     });
   });
@@ -76,31 +56,8 @@ describe('lib/navigation-timing', () => {
     it('sends performance metrics from peformance.getEntriesByType', () => {
       const navTiming = { duration: 1289 };
       mockGetEntriesByType([navTiming as PerformanceEntry]);
-      observeNavigationTiming('/x/y/z');
-      const expectedJson = JSON.stringify(navTiming);
-      sinon.assert.calledOnceWithExactly(
-        global.navigator.sendBeacon as sinonStub,
-        '/x/y/z',
-        new global.Blob([expectedJson], { type: 'application/json' })
-      );
-    });
-  });
-
-  describe('uses fetch with keepalive when available', () => {
-    it('sends navigation timing data with fetch', () => {
-      ((global.Request as unknown) as sinonStub).prototype.keepalive = true;
-      const navTiming = { duration: 1289 };
-      mockGetEntriesByType([navTiming as PerformanceEntry]);
-      observeNavigationTiming('/x/y/z', sendFn());
-      const expectedJson = JSON.stringify(navTiming);
-      sinon.assert.calledOnceWithExactly(global.fetch as sinonStub, '/x/y/z', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        keepalive: true,
-        body: expectedJson,
-      });
+      observeNavigationTiming('/x/y/z', sendFn);
+      sinon.assert.calledOnceWithExactly(sendFn, '/x/y/z', navTiming);
     });
   });
 });

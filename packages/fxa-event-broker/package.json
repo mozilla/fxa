@@ -13,7 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js"
@@ -88,6 +88,8 @@
     "@typescript-eslint/parser": "^4.33.0",
     "audit-filter": "^0.5.0",
     "chance": "^1.1.8",
+    "esbuild": "^0.13.4",
+    "esbuild-register": "^3.0.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
@@ -100,7 +102,6 @@
     "supertest": "^6.1.6",
     "ts-jest": "26.5.6",
     "ts-loader": "^8.3.0",
-    "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.11.0",
     "typesafe-node-firestore": "^1.4.0",
     "typescript": "^4.3.5"

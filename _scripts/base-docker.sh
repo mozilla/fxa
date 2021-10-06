@@ -47,7 +47,6 @@ npx yarn workspaces focus --production \
   fxa-geodb \
   fxa-graphql-api \
   fxa-auth-client \
-  fxa-metrics-processor \
   fxa-payments-server \
   fxa-profile-server \
   fxa-react \

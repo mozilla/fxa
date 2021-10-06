@@ -17,7 +17,7 @@
       "label": "Run Current Test",
       "type": "shell",
       "command": "./node_modules/mocha/bin/mocha",
-      "args": ["-r", "ts-node/register", "${relativeFile}"],
+      "args": ["-r", "esbuild-register", "${relativeFile}"],
       "group": "test",
       "presentation": {
         "echo": true,

@@ -10,7 +10,7 @@ module.exports = {
   apps: [
     {
       name: 'auth',
-      script: 'node -r ts-node/register bin/key_server.js',
+      script: 'node -r esbuild-register bin/key_server.js',
       cwd: __dirname,
       env: {
         DB: 'mysql',
@@ -44,7 +44,7 @@ module.exports = {
     },
     {
       name: 'inbox',
-      script: 'node -r ts-node/register test/mail_helper.js',
+      script: 'node -r esbuild-register test/mail_helper.js',
       cwd: __dirname,
       env: {
         NODE_ENV: 'dev',
