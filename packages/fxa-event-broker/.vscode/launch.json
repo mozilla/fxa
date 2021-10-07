@@ -14,7 +14,7 @@
         "999999",
         "--colors",
         "-r",
-        "ts-node/register",
+        "esbuild-register",
         "${workspaceFolder}/test/**/*.spec.ts",
         "${workspaceFolder}/test/**/**/*.spec.ts"
       ],
@@ -35,7 +35,7 @@
         "999999",
         "--colors",
         "-r",
-        "ts-node/register",
+        "esbuild-register",
         "${workspaceFolder}/${relativeFile}"
       ],
       "env": {

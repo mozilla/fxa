@@ -89,7 +89,7 @@ Run specific tests with the following commands:
 npm test -- test/local/account_routes.js
 
 # Grep for "SQSReceiver"
-NODE_ENV=dev npx mocha -r ts-node/register test/*/** -g "SQSReceiver"
+NODE_ENV=dev npx mocha -r esbuild-register test/*/** -g "SQSReceiver"
 ```
 
 To select a specific glob of tests to run:
@@ -343,31 +343,31 @@ manage this config.
 - To print the current live config to stdout:
 
   ```
-  npx ts-node scripts/email-config read
+  node -r esbuild-register scripts/email-config read
   ```
 
 - To set the live config from a JSON file on disk:
 
   ```
-  cat foo.json | npx ts-node scripts/email-config write
+  cat foo.json | node -r esbuild-register scripts/email-config write
   ```
 
 - To set the live config from a string:
 
   ```
-  echo '{"sendgrid":{"percentage":10}}' | npx ts-node scripts/email-config write
+  echo '{"sendgrid":{"percentage":10}}' | node -r esbuild-register scripts/email-config write
   ```
 
 - To undo the last change:
 
   ```
-  npx ts-node scripts/email-config revert
+  node -r esbuild-register scripts/email-config revert
   ```
 
 - To check the resolved config for a specific email address:
 
   ```
-  npx ts-node scripts/email-config check foo@example.com
+  node -r esbuild-register scripts/email-config check foo@example.com
   ```
 
 ## Troubleshooting

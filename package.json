@@ -126,5 +126,6 @@
     "http-proxy": "^1.18.1",
     "browserid-crypto": "git://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
     "fbjs/isomorphic-fetch": "^3.0.0"
-  }
+  },
+  "packageManager": "yarn@3.0.2"
 }

@@ -23,7 +23,7 @@
           "FIRESTORE_PROJECT_ID": "fx-event-broker"
         }
       },
-      "args": ["-r", "ts-node/register", "${relativeFile}"],
+      "args": ["-r", "esbuild-register", "${relativeFile}"],
       "group": "test",
       "presentation": {
         "echo": true,

@@ -15,18 +15,6 @@ const NAV_ENTRY_TYPE = 'navigation';
 
 // export for testing
 export const sendFn = () => {
-  if ('keepalive' in new Request('')) {
-    return (url: string, navTiming: PerformanceNavigationTiming) =>
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        keepalive: true,
-        body: JSON.stringify(navTiming),
-      });
-  }
-
   if (!!navigator.sendBeacon) {
     return (url: string, navTiming: PerformanceNavigationTiming) =>
       navigator.sendBeacon(

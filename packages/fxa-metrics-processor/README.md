@@ -10,16 +10,16 @@ Work in this package is tracked under the metrics epic, https://jira.mozilla.com
 
 ## Testing
 
-This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will test all files ending under `src/test/`, and uses `ts-node` so it can process TypeScript files.
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will test all files ending under `src/test/`, and uses `esbuild-register` so it can process TypeScript files.
 
 Test specific tests with the following commands:
 
 ```bash
 # Test only src/test/lib/pubsub.spec.ts
-npx mocha -r ts-node/register src/test/lib/pubsub.spec.ts
+npx mocha -r esbuild-register src/test/lib/pubsub.spec.ts
 
 # Grep for "return messages"
-npx mocha -r ts-node/register src/test/*/** -g "return messages"
+npx mocha -r esbuild-register src/test/*/** -g "return messages"
 ```
 
 Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.

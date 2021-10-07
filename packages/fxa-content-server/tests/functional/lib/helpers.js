@@ -2893,7 +2893,7 @@ const sendVerificationReminders = thenify(function () {
       'fxa-auth-server',
       'scripts'
     );
-    return cp.execSync('node -r ts-node/register verification-reminders.js', {
+    return cp.execSync('node -r esbuild-register verification-reminders.js', {
       cwd,
       env: {
         ...process.env,

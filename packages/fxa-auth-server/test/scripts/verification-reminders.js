@@ -17,7 +17,7 @@ const cwd = path.resolve(__dirname, ROOT_DIR);
 describe('scripts/verification-reminders:', () => {
   it('does not fail', () => {
     return execAsync(
-      'node -r ts-node/register scripts/verification-reminders',
+      'node -r esbuild-register scripts/verification-reminders',
       { cwd }
     );
   });
