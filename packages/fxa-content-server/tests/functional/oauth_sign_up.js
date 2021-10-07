@@ -27,6 +27,11 @@ const {
   testUrlInclude,
   visibleByQSA,
 } = FunctionalHelpers;
+const {
+  openFxaFromRp: openFxaFromRpRm,
+  testElementExists: testElementExistsRm,
+  fillOutEmailFirstEmail,
+} = FunctionalHelpers.helpersRemoteWrapped;
 
 registerSuite('oauth signup', {
   beforeEach: function () {
@@ -66,34 +71,61 @@ registerSuite('oauth signup', {
       );
     },
 
-    'signup, bounce email, allow user to restart flow but force a different email': function () {
-      return (
-        this.remote
-          .then(openFxaFromRp('enter-email'))
-          .then(fillOutEmailFirstSignUp(bouncedEmail, PASSWORD))
+    'signup, bounce email, allow user to restart flow but force a different email':
+      function () {
+        return (
+          this.remote
+            .then(openFxaFromRp('enter-email'))
+            .then(fillOutEmailFirstSignUp(bouncedEmail, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
-          .then(function () {
-            return getFxaClient().accountDestroy(bouncedEmail, PASSWORD);
-          })
+            .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+            .then(function () {
+              return getFxaClient().accountDestroy(bouncedEmail, PASSWORD);
+            })
 
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-          // expect an error message to already be present on redirect
-          .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP_BOUNCED_EMAIL))
+            .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+            // expect an error message to already be present on redirect
+            .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP_BOUNCED_EMAIL))
 
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
+            .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
-          .then(fillOutSignUpCode(email, 0))
+            .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+            .then(fillOutSignUpCode(email, 0))
 
-          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
-      );
-    },
+            .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
+        );
+      },
 
     'a success screen is available': function () {
       return this.remote.then(
         openPage(SUCCESS_URL, '#fxa-oauth-success-header')
       );
+    },
+
+    'in pocket migration experiment': async ({ remote }) => {
+      await openFxaFromRpRm(
+        'enter-email',
+        {
+          query: {
+            forceExperiment: 'pocketMigration',
+            forceExperimentGroup: 'treatment',
+          },
+        },
+        remote
+      );
+
+      await testElementExistsRm(selectors.POCKET_OAUTH.LOGO_IMG, remote);
+      await testElementExistsRm(selectors.POCKET_OAUTH.SERVICE_TILE, remote);
+      await testElementExistsRm(selectors.POCKET_OAUTH.ALL_SERVICES, remote);
+
+      await fillOutEmailFirstEmail(
+        email,
+        selectors.SIGNUP_PASSWORD.HEADER,
+        remote
+      );
+      await testElementExistsRm(selectors.POCKET_OAUTH.LOGO_IMG, remote);
+      await testElementExistsRm(selectors.POCKET_OAUTH.TOS, remote);
+      await testElementExistsRm(selectors.POCKET_OAUTH.PP, remote);
     },
   },
 });

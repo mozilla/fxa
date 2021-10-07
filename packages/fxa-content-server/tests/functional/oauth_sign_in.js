@@ -53,6 +53,11 @@ const {
   type,
   visibleByQSA,
 } = FunctionalHelpers;
+const {
+  openFxaFromRp: openFxaFromRpRm,
+  testElementExists: testElementExistsRm,
+  createUser: createUserRm,
+} = FunctionalHelpers.helpersRemoteWrapped;
 
 const testAtOAuthApp = thenify(function () {
   return this.parent
@@ -503,30 +508,33 @@ registerSuite('oauth signin', {
       );
     },
 
-    'login_hint specified by relier, registered, user changes email': function () {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(
-            openFxaFromRp('enter-email', {
-              header: selectors.SIGNIN_PASSWORD.HEADER,
-              query: {
-                login_hint: email,
-              },
-            })
-          )
-          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-
-          // user realizes they want to use a different account.
-          .then(
-            click(
-              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
-              selectors.ENTER_EMAIL.HEADER
+    'login_hint specified by relier, registered, user changes email':
+      function () {
+        return (
+          this.remote
+            .then(createUser(email, PASSWORD, { preVerified: true }))
+            .then(
+              openFxaFromRp('enter-email', {
+                header: selectors.SIGNIN_PASSWORD.HEADER,
+                query: {
+                  login_hint: email,
+                },
+              })
             )
-          )
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-      );
-    },
+            .then(
+              testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email)
+            )
+
+            // user realizes they want to use a different account.
+            .then(
+              click(
+                selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT,
+                selectors.ENTER_EMAIL.HEADER
+              )
+            )
+            .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        );
+      },
 
     'verified, blocked': function () {
       email = createEmail('blocked{id}');
@@ -610,6 +618,25 @@ registerSuite('oauth signin', {
         .then(fillOutSignInTokenCode(email, 0))
 
         .then(testElementExists(selectors.FIREFOX_NOTES.HEADER));
+    },
+
+    'in pocket migration experiment': async ({ remote }) => {
+      await createUserRm(email, PASSWORD, { preVerified: true }, remote);
+      await openFxaFromRpRm(
+        'enter-email',
+        {
+          header: selectors.SIGNIN_PASSWORD.HEADER,
+          query: {
+            email,
+            forceExperiment: 'pocketMigration',
+            forceExperimentGroup: 'treatment',
+          },
+        },
+        remote
+      );
+      await testElementExistsRm(selectors.POCKET_OAUTH.LOGO_IMG, remote);
+      await testElementExistsRm(selectors.POCKET_OAUTH.TOS, remote);
+      await testElementExistsRm(selectors.POCKET_OAUTH.PP, remote);
     },
   },
 });

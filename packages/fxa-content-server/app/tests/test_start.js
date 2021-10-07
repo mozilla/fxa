@@ -210,6 +210,7 @@ require('./spec/views/mixins/sync-suggestion-mixin');
 require('./spec/views/mixins/timer-mixin');
 require('./spec/views/mixins/user-card-mixin');
 require('./spec/views/mixins/verification-reason-mixin');
+require('./spec/views/mixins/pocket-migration-mixin');
 require('./spec/views/pair/auth_allow');
 require('./spec/views/pair/auth_totp');
 require('./spec/views/pair/auth_complete');
