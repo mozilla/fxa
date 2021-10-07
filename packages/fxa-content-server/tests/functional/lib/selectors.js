@@ -461,6 +461,13 @@ module.exports = {
   PAYMENTS: {
     HEADER: '.accepted-cards',
   },
+  POCKET_OAUTH: {
+    LOGO_IMG: '#graphic-client-pocket',
+    TOS: '#pocket-tos',
+    PP: '#pocket-pp',
+    SERVICE_TILE: '.service-pocket',
+    ALL_SERVICES: '.see-all-services',
+  },
   POST_VERIFY_ADD_SECONDARY_EMAIL: {
     EMAIL: 'input[type=email]',
     ERROR: '.error',

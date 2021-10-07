@@ -17,6 +17,7 @@ import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignUpMixin from './mixins/signup-mixin';
+import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 import Template from 'templates/sign_up_password.mustache';
 
 const t = (msg) => msg;
@@ -155,7 +156,8 @@ Cocktail.mixin(
   }),
   ServiceMixin,
   SignedInNotificationMixin,
-  SignUpMixin
+  SignUpMixin,
+  PocketMigrationMixin
 );
 
 export default SignUpPasswordView;

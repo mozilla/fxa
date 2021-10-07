@@ -1,15 +1,17 @@
 <div id="main-content" class="card">
   <header>
     <h1 id="fxa-enter-email-header">
-      <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
       {{#t}}Enter your email{{/t}}
+      <span class="service">
+        <!-- L10N: For languages structured like English, the phrase can read "to continue to %(serviceName)s" -->
         {{#isInPocketMigration}}
-            <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+          {{#unsafeTranslate}}Continue to{{/unsafeTranslate}}
+          <img id="graphic-client-pocket" src="/images/pocket_logo_rounded.svg" alt="Pocket" />
         {{/isInPocketMigration}}
-
         {{^isInPocketMigration}}
-            <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+          {{#t}}Continue to %(serviceName)s{{/t}}
         {{/isInPocketMigration}}
+      </span>
     </h1>
   </header>
 

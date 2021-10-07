@@ -17,13 +17,12 @@ const GROUPS = [
 const POCKET_CLIENTIDS = [
   '7377719276ad44ee', // pocket-mobile
   '749818d3f2e7857f', // pocket-web
-  'dcdb5ae7add825d2', // 123done
 ];
 
 // This experiment is disabled by default. If you would like to go through
 // the flow, load email-first screen and append query params
 // `?forceExperiment=pocketMigration&forceExperimentGroup=treatment`
-const ROLLOUT_RATE = 1.0;
+const ROLLOUT_RATE = 0;
 
 module.exports = class PocketMigration extends BaseGroupingRule {
   constructor() {

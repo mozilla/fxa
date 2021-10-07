@@ -5,10 +5,18 @@
       <span class="logo logo-firefox-browser">{{#t}}Firefox browser{{/t}}</span>
       {{#t}}Sync your bookmarks, passwords, and more on every device.{{/t}}
     </li>
-    <li class="firefox-service service-lockwise">
-      <span class="logo logo-lockwise">{{#t}}Firefox Lockwise{{/t}}</span>
-      {{#unsafeTranslate}}Securely access passwords saved in Firefox anywhere &mdash; even outside of the browser.{{/unsafeTranslate}}
-    </li>
+    {{#isInPocketMigration}}
+      <li class="firefox-service service-pocket">
+        <span class="logo logo-pocket">{{#t}}Pocket{{/t}}</span>
+        {{#t}}Save and discover the best stories from accross the web.{{/t}}
+      </li>
+    {{/isInPocketMigration}}
+    {{^isInPocketMigration}}
+      <li class="firefox-service service-lockwise">
+        <span class="logo logo-lockwise">{{#t}}Firefox Lockwise{{/t}}</span>
+        {{#unsafeTranslate}}Securely access passwords saved in Firefox anywhere &mdash; even outside of the browser.{{/unsafeTranslate}}
+      </li>
+    {{/isInPocketMigration}}
     <li class="firefox-service">
       <span class="logo logo-monitor">{{#t}}Firefox Monitor{{/t}}</span>
       {{#t}}Get a lookout for data breaches.{{/t}}
@@ -18,4 +26,9 @@
       {{#t}}A VPN from the trusted pioneer in internet privacy.{{/t}}
     </li>
   </ul>
+  {{#isInPocketMigration}}
+    <a class="see-all-services" href="https://www.mozilla.org/en-CA/firefox/products/" rel="noopener noreferrer">
+      {{#t}}See all{{/t}}
+    </a>
+  {{/isInPocketMigration}}
 </aside>

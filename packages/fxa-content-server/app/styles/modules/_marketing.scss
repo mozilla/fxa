@@ -54,6 +54,7 @@
   > ul {
     list-style: none;
     padding: 0;
+    margin-bottom: 0;
 
     @include respond-to('big') {
       display: grid;
@@ -120,6 +121,13 @@
           background-size: auto 24px;
           background-position-y: 6px;
         }
+
+        &.logo-pocket {
+          background-image: url("/images/pocket_logo_rounded.svg");
+          height: 27px;
+          margin-top: 4px;
+          margin-bottom: 9px;
+        }
       }
     }
   }
@@ -133,4 +141,9 @@
   @include respond-to('big') {
     margin-top: 20px;
   }
+}
+
+.see-all-services {
+  margin-bottom: 5px;
+  display: inline-block;
 }
