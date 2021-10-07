@@ -5787,15 +5787,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/ioredis-adapter@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "@type-cacheable/ioredis-adapter@npm:10.0.1"
+"@type-cacheable/ioredis-adapter@npm:^10.0.2":
+  version: 10.0.2
+  resolution: "@type-cacheable/ioredis-adapter@npm:10.0.2"
   dependencies:
     compare-versions: ^3.6.0
   peerDependencies:
     "@type-cacheable/core": ^10.0.0
     ioredis: ^4.14.1
-  checksum: a4185895ff3eb38e4ff3080936093bdd1af9ce879ff0a1858cd84e83717e928be2e6d8ff1cb4597c6f2df3ced27104695178315ae34d9a48ee9851e7b774c887
+  checksum: a25af87c4e56aa080033bf8257c8b403fec003e1d4a4c51b62c51077094b696f215e32083930272368f8296cb96229af7dfc7707e98724b54e994bb9742b7a20
   languageName: node
   linkType: hard
 
@@ -18221,7 +18221,7 @@ fsevents@~2.1.1:
     "@storybook/addon-toolbars": ^6.3.10
     "@storybook/html": ^6.3.10
     "@type-cacheable/core": ^10.0.1
-    "@type-cacheable/ioredis-adapter": ^10.0.1
+    "@type-cacheable/ioredis-adapter": ^10.0.2
     "@types/babel__core": 7.1.14
     "@types/chai": ^4.2.18
     "@types/convict": ^5.2.2
