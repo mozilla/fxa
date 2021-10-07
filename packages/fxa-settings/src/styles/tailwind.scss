@@ -9,6 +9,7 @@
 @import './drop-down-menu.scss';
 @import './cropper.scss';
 @import './slider.scss';
+@import './switch.scss';
 
 @tailwind base;
 @tailwind components;
@@ -50,7 +51,7 @@ body {
   }
 }
 
-@layer utilities{
+@layer utilities {
   .break-word {
     word-break: break-word;
   }
