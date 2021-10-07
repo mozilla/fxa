@@ -46,6 +46,7 @@ require('./spec/lib/experiments/grouping-rules/communication-prefs');
 require('./spec/lib/experiments/grouping-rules/index');
 require('./spec/lib/experiments/grouping-rules/is-sampled-user');
 require('./spec/lib/experiments/grouping-rules/newsletter-sync');
+require('./spec/lib/experiments/grouping-rules/pocket-migration');
 require('./spec/lib/experiments/grouping-rules/push');
 require('./spec/lib/experiments/grouping-rules/send-sms-install-link');
 require('./spec/lib/experiments/grouping-rules/sentry');
