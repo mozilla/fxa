@@ -29,8 +29,6 @@ const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
 
 const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
 
-const Mailer = require(`${LIB_DIR}/senders/email`)(log, config);
-
 run()
   .then(() => {
     log.info('verificationReminders.done', {});
@@ -54,6 +52,8 @@ async function run() {
       ),
     ]
   );
+  const bounces = require('../lib/bounces')(config, db);
+  const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, bounces);
 
   const mailer = new Mailer(translator, templates, config.smtp);
 
