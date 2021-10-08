@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { getUidAndEmailByStripeCustomerId } from 'fxa-shared/db/models/auth';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
@@ -94,8 +95,7 @@ export class CapabilityService {
     email?: string | null;
   }) {
     if (!uid || !email) {
-      ({ uid, email } =
-        await this.stripeHelper.getCustomerUidEmailFromSubscription(sub));
+      ({ uid, email } = await getUidAndEmailByStripeCustomerId(sub.customer));
     }
     if (!uid || !email) {
       // There's nothing to do if we can't find the user. We don't report it

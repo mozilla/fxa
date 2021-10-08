@@ -15,6 +15,7 @@ import {
   createAccountCustomer,
   deleteAccountCustomer,
   getAccountCustomerByUid,
+  getUidAndEmailByStripeCustomerId,
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import {
@@ -797,45 +798,6 @@ export class StripeHelper {
   }
 
   /** END: NEW FLOW HELPERS FOR PAYMENT METHODS **/
-
-  /**
-   * Fetch a customer record from Stripe by id and return its userid metadata
-   * and the email.
-   */
-  async getCustomerUidEmailFromSubscription(sub: Stripe.Subscription) {
-    if (typeof sub.customer !== 'string')
-      throw error.internalValidationError(
-        'getCustomerUidEmailFromSubscription',
-        { sub_id: sub.id }
-      );
-    const customer = await this.stripe.customers.retrieve(sub.customer);
-    if (customer.deleted) {
-      // Deleted customers lost their metadata so we can't send events for them
-      return { uid: null, email: null };
-    }
-    const uid = customer.metadata.userid;
-    const email = customer.email;
-    if (!uid || !email) {
-      const message = !uid
-        ? 'FxA UID does not exist on customer metadata.'
-        : 'Stripe customer is missing email';
-      Sentry.withScope((scope) => {
-        scope.setContext('stripeEvent', {
-          customer: { id: customer.id },
-        });
-        Sentry.captureMessage(message, Sentry.Severity.Error);
-      });
-      throw error.internalValidationError(
-        'getCustomerUidEmailFromSubscription',
-        customer,
-        new Error(message)
-      );
-    }
-    return {
-      uid,
-      email,
-    };
-  }
 
   /**
    * Update a customer's default payment method
@@ -1767,14 +1729,6 @@ export class StripeHelper {
    *   - No email on the customer object.
    */
   async extractInvoiceDetailsForEmail(invoice: Stripe.Invoice) {
-    const customer = await this.expandResource(
-      invoice.customer,
-      CUSTOMER_RESOURCE
-    );
-    if (!customer || customer.deleted) {
-      throw error.unknownCustomer(invoice.customer);
-    }
-
     // Dig up & expand objects in the invoice that usually come as just IDs
     const { plan } = invoice.lines.data[0];
     if (!plan) {
@@ -1786,6 +1740,27 @@ export class StripeHelper {
         new Error(`Unexpected line item: ${invoice.lines.data[0].id}`)
       );
     }
+
+    const { uid, email } = await getUidAndEmailByStripeCustomerId(
+      invoice.customer
+    );
+
+    if (!email || !uid) {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        { customerId: invoice.customer },
+        'Customer missing email or uid.'
+      );
+    }
+
+    const customer = await this.customer({
+      uid,
+      email,
+    });
+    if (!customer || customer.deleted) {
+      throw error.unknownCustomer(invoice.customer);
+    }
+
     const [abbrevProduct, charge] = await Promise.all([
       this.expandAbbrevProductForPlan(plan),
       this.expandResource(invoice.charge, CHARGES_RESOURCE),
@@ -1799,18 +1774,6 @@ export class StripeHelper {
       );
     }
 
-    if (!customer.email) {
-      throw error.internalValidationError(
-        'extractInvoiceDetailsForEmail',
-        { customerId: customer.id },
-        'Customer missing email.'
-      );
-    }
-
-    const {
-      email,
-      metadata: { userid: uid },
-    } = customer;
     const { product_id: productId, product_name: productName } = abbrevProduct;
     const {
       number: invoiceNumber,
@@ -1946,11 +1909,21 @@ export class StripeHelper {
       );
     }
 
-    const customer = await this.expandResource(
-      source.customer,
-      CUSTOMER_RESOURCE
+    const { uid, email } = await getUidAndEmailByStripeCustomerId(
+      source.customer
     );
-    if (customer.deleted === true) {
+    if (!uid || !email) {
+      throw error.internalValidationError(
+        'extractSourceDetailsForEmail',
+        { customerId: source.customer },
+        'Customer missing uid or email.'
+      );
+    }
+    const customer = await this.customer({
+      uid,
+      email,
+    });
+    if (!customer || customer.deleted) {
       throw error.unknownCustomer(source.customer);
     }
 
@@ -1970,18 +1943,6 @@ export class StripeHelper {
         source
       );
     }
-    if (!customer.email) {
-      throw error.internalValidationError(
-        'extractSourceDetailsForEmail',
-        { customerId: customer.id },
-        'Customer missing email.'
-      );
-    }
-
-    const {
-      email,
-      metadata: { userid: uid },
-    } = customer;
 
     return {
       uid,
@@ -2004,12 +1965,19 @@ export class StripeHelper {
 
     const eventData = event.data;
     const subscription = eventData.object as Stripe.Subscription;
-    const customer = await this.expandResource(
-      subscription.customer,
-      'customers'
-    );
-    if (customer.deleted === true) {
-      throw error.unknownCustomer(subscription.customer);
+    const customerId = subscription.customer;
+
+    const { uid, email } = await getUidAndEmailByStripeCustomerId(customerId);
+    if (!uid || !email) {
+      throw error.internalValidationError(
+        'extractSubscriptionUpdateEventDetailsForEmail',
+        { customerId },
+        'Customer missing uid or email.'
+      );
+    }
+    const customer = await this.customer({ uid, email });
+    if (!customer || customer.deleted) {
+      throw error.unknownCustomer(customerId);
     }
 
     let invoice = subscription.latest_invoice;
@@ -2019,11 +1987,6 @@ export class StripeHelper {
         expand: ['charge'],
       });
     }
-
-    const {
-      email,
-      metadata: { userid: uid },
-    } = customer;
 
     const planNew = singlePlan(subscription);
     if (!planNew) {
