@@ -19,6 +19,7 @@ import PulseGraphicMixin from './mixins/pulse-graphic-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/ready.mustache';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
+import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 
 const t = (msg) => msg;
 
@@ -193,7 +194,8 @@ Cocktail.mixin(
   MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
   PulseGraphicMixin,
   ServiceMixin,
-  VerificationReasonMixin
+  VerificationReasonMixin,
+  PocketMigrationMixin
 );
 
 export default View;
