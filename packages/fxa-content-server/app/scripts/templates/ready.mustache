@@ -17,7 +17,13 @@
 
     {{^isSync}}
       {{#isFromRelyingParty}}
-        <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
+        {{#isInPocketMigration}}
+          {{#unsafeTranslate}}You are now ready to use{{/unsafeTranslate}}
+          <img id="graphic-client-pocket" src="/images/pocket_logo_rounded.svg" alt="Pocket" />
+        {{/isInPocketMigration}}
+        {{^isInPocketMigration}}
+          <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
+        {{/isInPocketMigration}}
         {{#showContinueButton}}
           <div class="button-row">
             <button class="primary-button btn-continue">{{#t}}Continue{{/t}}</button>
