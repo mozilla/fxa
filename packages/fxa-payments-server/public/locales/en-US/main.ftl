@@ -375,3 +375,6 @@ new-user-email-validate-confirm = Emails do not match
 new-user-already-has-account-sign-in = You already have an account. <a>Sign in</a>
 new-user-card-title = Enter your card information
 new-user-submit = Subscribe Now
+
+manage-pocket-title = Looking for your Pocket Premium subscription?
+manage-pocket-body = To manage it, <a>click here</a>.
