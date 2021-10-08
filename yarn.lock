@@ -18264,7 +18264,7 @@ fsevents@~2.1.1:
     googleapis: ^88.2.0
     grunt: ^1.4.1
     grunt-cli: ^1.4.3
-    grunt-contrib-concat: ^1.0.1
+    grunt-contrib-concat: ^2.0.0
     grunt-contrib-copy: 1.0.0
     grunt-contrib-watch: ^1.1.0
     grunt-copyright: 0.3.0
@@ -18420,7 +18420,7 @@ fsevents@~2.1.1:
     grunt-ban-word: 0.1.1
     grunt-cdn: 0.6.5
     grunt-contrib-clean: ^2.0.0
-    grunt-contrib-concat: 1.0.1
+    grunt-contrib-concat: 2.0.0
     grunt-contrib-copy: 1.0.0
     grunt-contrib-cssmin: 4.0.0
     grunt-contrib-htmlmin: 3.1.0
@@ -20239,15 +20239,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt-contrib-concat@npm:1.0.1, grunt-contrib-concat@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "grunt-contrib-concat@npm:1.0.1"
+"grunt-contrib-concat@npm:2.0.0, grunt-contrib-concat@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "grunt-contrib-concat@npm:2.0.0"
   dependencies:
-    chalk: ^1.0.0
+    chalk: ^4.1.2
     source-map: ^0.5.3
   peerDependencies:
-    grunt: ">=0.4.0"
-  checksum: 1a7c294f78402b317ddc471e5b4405ec15241afe2297371c26869a28320a66de6c2d4014faadde028ed8a0f78db334df641e7e88d1c239b11b5e0de5d740dbf0
+    grunt: ">=1.4.1"
+  checksum: fe7bcd3b7b4ae8e4fde0d79c9bf8dbc41582905b8b1011a347b69fb5dc871dd6618f7adaf6a802b9d6e7e9262440b18a8334da65aff53aa25e82d800e8b37fdf
   languageName: node
   linkType: hard
 
