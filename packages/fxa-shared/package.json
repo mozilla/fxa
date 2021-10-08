@@ -92,7 +92,7 @@
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "cors": "^2.8.5",
-    "find-up": "^5.0.0",
+    "find-up": "^6.2.0",
     "generic-pool": "^3.8.2",
     "graphql": "^15.6.1",
     "hot-shots": "^8.5.2",
