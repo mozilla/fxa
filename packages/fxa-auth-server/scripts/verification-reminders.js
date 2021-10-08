@@ -52,7 +52,7 @@ async function run() {
       ),
     ]
   );
-  const bounces = require('../lib/bounces')(config, db);
+  const bounces = require(`${LIB_DIR}/bounces`)(config, db);
   const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, bounces);
 
   const mailer = new Mailer(translator, templates, config.smtp);
