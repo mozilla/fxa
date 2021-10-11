@@ -21,7 +21,6 @@ import { EmailType } from './email-type';
 import { SentEmail } from './sent-email';
 import { SecurityEvent } from './security-event';
 import { Stripe } from 'stripe';
-import error from 'fxa-auth-server/lib/error';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -84,12 +83,12 @@ export async function getAccountCustomerByUid(uid: string) {
  * Fetch the FxA user id and primary email for a customer by Stripe customer id.
  */
 export async function getUidAndEmailByStripeCustomerId(
-  customerId: string | Stripe.Customer | Stripe.DeletedCustomer | null
+  customer: string | Stripe.Customer | Stripe.DeletedCustomer | null
 ): Promise<{ uid: string | null; email: string | null }> {
-  if (typeof customerId !== 'string') {
-    throw error.internalValidationError('getUidAndEmailByStripeCustomerId', {
-      customer_id: customerId.id,
-    });
+  if (typeof customer !== 'string') {
+    throw new Error(
+      `Argument is not a string for customer with id ${customer?.id}`
+    );
   }
   const accounts = Account.tableName;
   const accountCustomers = AccountCustomers.tableName;
@@ -97,7 +96,7 @@ export async function getUidAndEmailByStripeCustomerId(
     .select(`${accounts}.uid`, `${accounts}.email`)
     .join(`${accountCustomers}`, `${accountCustomers}.uid`, `${accounts}.uid`)
     .where({
-      [`${accountCustomers}.stripeCustomerId`]: customerId,
+      [`${accountCustomers}.stripeCustomerId`]: customer,
     })
     .limit(1)
     .first();

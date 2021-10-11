@@ -31,7 +31,6 @@ import {
 } from './helpers';
 import customer1 from '../../../fixtures/stripe/customer1.json';
 import Stripe from 'stripe';
-import error from 'fxa-auth-server/lib/error';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
@@ -81,7 +80,10 @@ describe('auth', () => {
         await getUidAndEmailByStripeCustomerId(customer1 as Stripe.Customer);
         assert.fail('Validation error expected for invalid customer id.');
       } catch (err) {
-        assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+        assert.equal(
+          err.message,
+          `Argument is not a string for customer with id ${customer1.id}`
+        );
       }
     });
   });
