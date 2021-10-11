@@ -46,37 +46,38 @@ const mailSender = {
 
   close: function () {},
 };
+if (require.main === module) {
+  require('../lib/senders/translator')(
+    config.i18n.supportedLanguages,
+    config.i18n.defaultLanguage
+  )
+    .then((translator) => {
+      return createSenders(
+        log,
+        config,
+        { check: () => Promise.resolve() },
+        translator,
+        {},
+        mailSender
+      );
+    })
+    .then((senders) => {
+      const mailer = senders.email._ungatedMailer;
+      checkMessageType(mailer);
 
-require('../lib/senders/translator')(
-  config.i18n.supportedLanguages,
-  config.i18n.defaultLanguage
-)
-  .then((translator) => {
-    return createSenders(
-      log,
-      config,
-      { check: () => Promise.resolve() },
-      translator,
-      {},
-      mailSender
-    );
-  })
-  .then((senders) => {
-    const mailer = senders.email._ungatedMailer;
-    checkMessageType(mailer);
+      ensureTargetDirectoryExists();
 
-    ensureTargetDirectoryExists();
-
-    return sendMails(mailer, getMessageTypesToWrite(mailer));
-  })
-  .then(() => {
-    console.info('done');
-    process.exit(0);
-  })
-  .catch((err) => {
-    console.error(err.stack);
-    process.exit(1);
-  });
+      return sendMails(mailer, getMessageTypesToWrite(mailer));
+    })
+    .then(() => {
+      console.info('done');
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error(err.stack);
+      process.exit(1);
+    });
+}
 
 function getEmailOutputPath(subject, extension) {
   const outputFilename = `${subject.replace(/\s+/g, '_')}.${extension}`;

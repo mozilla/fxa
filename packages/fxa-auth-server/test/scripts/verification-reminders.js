@@ -13,12 +13,19 @@ const path = require('path');
 const execAsync = util.promisify(cp.exec);
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
+const execOptions = {
+  cwd,
+  env: {
+    NODE_ENV: 'dev',
+    LOG_LEVEL: 'error',
+  },
+};
 
 describe('scripts/verification-reminders:', () => {
   it('does not fail', () => {
     return execAsync(
       'node -r esbuild-register scripts/verification-reminders',
-      { cwd }
+      execOptions
     );
   });
 });

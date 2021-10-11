@@ -9,6 +9,9 @@ function unbuffer(val: string | Buffer) {
 }
 
 function buffer(value: string | Buffer) {
+  if (Buffer.isBuffer(value)) {
+    return value;
+  }
   // Don't convert things with no value, but we still want
   // to bufferize falsy things like the empty string.
   if (typeof value !== 'undefined' && value !== null) {

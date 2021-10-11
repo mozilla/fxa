@@ -107,12 +107,6 @@ const customer2Mock_noMatch = {
   },
 };
 
-const customer3Mock_duplicate_fxa = {
-  id: 'cus_3',
-  metadata: {
-    userid: USER_1.uid,
-  },
-};
 describe('scripts/populate-stripe-customer-db', function () {
   let knex: Knex;
 
@@ -146,14 +140,6 @@ describe('scripts/populate-stripe-customer-db', function () {
         customer1Mock.id
       );
       assert.equal(actual, notFoundMsg);
-    });
-
-    it('logs failed creation', async () => {
-      const actual = await processStripeCustomer(
-        customer3Mock_duplicate_fxa.metadata.userid,
-        customer1Mock.id
-      );
-      assert.isTrue(actual.includes(errMsg));
     });
   });
 });

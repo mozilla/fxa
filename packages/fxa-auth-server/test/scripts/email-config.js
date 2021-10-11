@@ -265,9 +265,9 @@ describe('scripts/email-config:', () => {
         .execAsync('node -r esbuild-register scripts/email-config read', {
           cwd,
         })
-        .then((stdout, stderr) => {
+        .then(({ stdout, stderr }) => {
           assert.equal(stdout, `${JSON.stringify(config, null, '  ')}\n`);
-          assert.equal(stderr, undefined);
+          assert.equal(stderr, '');
         });
     });
 
@@ -279,9 +279,9 @@ describe('scripts/email-config:', () => {
             cwd,
           }
         )
-        .then((stdout, stderr) => {
+        .then(({ stdout, stderr }) => {
           assert.equal(stdout, `${JSON.stringify(config, null, '  ')}\n`);
-          assert.equal(stderr, undefined);
+          assert.equal(stderr, '');
         });
     });
 
@@ -293,9 +293,9 @@ describe('scripts/email-config:', () => {
             cwd,
           }
         )
-        .then((stdout, stderr) => {
+        .then(({ stdout, stderr }) => {
           assert.equal(stdout, '{}\n');
-          assert.equal(stderr, undefined);
+          assert.equal(stderr, '');
         });
     });
 
@@ -317,9 +317,9 @@ describe('scripts/email-config:', () => {
           .execAsync('node -r esbuild-register scripts/email-config read', {
             cwd,
           })
-          .then((stdout, stderr) => {
+          .then(({ stdout, stderr }) => {
             assert.equal(stdout, `${JSON.stringify(config, null, '  ')}\n`);
-            assert.equal(stderr, undefined);
+            assert.equal(stderr, '');
           });
       });
 
@@ -331,9 +331,9 @@ describe('scripts/email-config:', () => {
               cwd,
             }
           )
-          .then((stdout, stderr) => {
+          .then(({ stdout, stderr }) => {
             assert.equal(stdout, `${JSON.stringify(config, null, '  ')}\n`);
-            assert.equal(stderr, undefined);
+            assert.equal(stderr, '');
           });
       });
 
@@ -345,12 +345,12 @@ describe('scripts/email-config:', () => {
               cwd,
             }
           )
-          .then((stdout, stderr) => {
+          .then(({ stdout, stderr }) => {
             const expected = {
               socketlabs: config.socketlabs,
             };
             assert.equal(stdout, `${JSON.stringify(expected, null, '  ')}\n`);
-            assert.equal(stderr, undefined);
+            assert.equal(stderr, '');
           });
       });
 
@@ -369,12 +369,12 @@ describe('scripts/email-config:', () => {
             .execAsync('node -r esbuild-register scripts/email-config read', {
               cwd,
             })
-            .then((stdout, stderr) => {
+            .then(({ stdout, stderr }) => {
               const expected = {
                 sendgrid: config.sendgrid,
               };
               assert.equal(stdout, `${JSON.stringify(expected, null, '  ')}\n`);
-              assert.equal(stderr, undefined);
+              assert.equal(stderr, '');
             });
         });
 
@@ -386,12 +386,12 @@ describe('scripts/email-config:', () => {
                 cwd,
               }
             )
-            .then((stdout, stderr) => {
+            .then(({ stdout, stderr }) => {
               const expected = {
                 sendgrid: config.sendgrid,
               };
               assert.equal(stdout, `${JSON.stringify(expected, null, '  ')}\n`);
-              assert.equal(stderr, undefined);
+              assert.equal(stderr, '');
             });
         });
 
@@ -403,9 +403,9 @@ describe('scripts/email-config:', () => {
                 cwd,
               }
             )
-            .then((stdout, stderr) => {
+            .then(({ stdout, stderr }) => {
               assert.equal(stdout, '{}\n');
-              assert.equal(stderr, undefined);
+              assert.equal(stderr, '');
             });
         });
       });
@@ -424,9 +424,9 @@ describe('scripts/email-config:', () => {
           .execAsync('node -r esbuild-register scripts/email-config read', {
             cwd,
           })
-          .then((stdout, stderr) => {
+          .then(({ stdout, stderr }) => {
             assert.equal(stdout, '');
-            assert.equal(stderr, undefined);
+            assert.equal(stderr, '');
           });
       });
 
@@ -438,9 +438,9 @@ describe('scripts/email-config:', () => {
               cwd,
             }
           )
-          .then((stdout, stderr) => {
+          .then(({ stdout, stderr }) => {
             assert.equal(stdout, '');
-            assert.equal(stderr, undefined);
+            assert.equal(stderr, '');
           });
       });
     });
