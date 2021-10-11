@@ -3,8 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { DataCollection } from '.';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
+import { Account, AppContext } from '../../models';
+
+const account = {
+  displayName: 'jrgm',
+  metricsOpt: jest.fn().mockResolvedValue(true),
+} as unknown as Account;
 
 describe('DataCollection', () => {
   it('renders as expected', () => {
@@ -23,5 +30,20 @@ describe('DataCollection', () => {
     );
   });
 
-  // TODO: submission tests with mutations, FXA-4106
+  it('toggles', async () => {
+    const it = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <DataCollection />
+      </AppContext.Provider>
+    );
+
+    const button = it.getByTestId('metrics-opt-out');
+    // since metricsOpt is async and uses useState the `act` here is necessary
+    await act(() => Promise.resolve(button.click()));
+    expect(account.metricsOpt).toBeCalledWith('out');
+    //@ts-ignore mock doesn't care that the prop is readonly
+    account.metricsOptOutAt = 1;
+    await act(() => Promise.resolve(button.click()));
+    expect(account.metricsOpt).toBeCalledWith('in');
+  });
 });

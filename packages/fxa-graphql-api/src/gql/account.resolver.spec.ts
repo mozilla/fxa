@@ -362,5 +362,31 @@ describe('AccountResolver', () => {
         });
       });
     });
+
+    describe('metricsOpt', () => {
+      it('opts out', async () => {
+        const result = await resolver.metricsOpt(USER_1.uid, {
+          clientMutationId: 'testid',
+          state: 'out',
+        });
+        const user = await Account.findByUid(USER_1.uid);
+        expect(user?.metricsOptOutAt).toBeGreaterThan(0);
+        expect(result).toStrictEqual({
+          clientMutationId: 'testid',
+        });
+      });
+
+      it('opts in', async () => {
+        const result = await resolver.metricsOpt(USER_1.uid, {
+          clientMutationId: 'testid',
+          state: 'in',
+        });
+        const user = await Account.findByUid(USER_1.uid);
+        expect(user?.metricsOptOutAt).toBeNull();
+        expect(result).toStrictEqual({
+          clientMutationId: 'testid',
+        });
+      });
+    });
   });
 });

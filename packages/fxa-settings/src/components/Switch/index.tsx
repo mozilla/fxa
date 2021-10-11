@@ -30,6 +30,7 @@ export const Switch = ({
         disabled={isSubmitting}
         aria-checked={isOn}
         {...{ id }}
+        data-testid={id}
         className="switch"
         title={
           isSubmitting
@@ -39,6 +40,7 @@ export const Switch = ({
             : l10n.getString('switch-turn-on', null, 'Turn on')
         }
         onClick={handler}
+        type="button"
       >
         <span className="slider" />
         <span className="slider-status" data-testid="slider-status">
