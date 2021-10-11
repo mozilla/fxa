@@ -1,3 +1,9 @@
+## 1.216.3
+
+### Other changes
+
+- #10665: 869bf3f45 Email verification reminder fix (#10665) ([869bf3f45](https://github.com/mozilla/fxa/commit/869bf3f45))
+
 ## 1.216.2
 
 ### Bug fixes
