@@ -5778,12 +5778,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/core@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "@type-cacheable/core@npm:10.0.1"
+"@type-cacheable/core@npm:^10.0.2":
+  version: 10.0.2
+  resolution: "@type-cacheable/core@npm:10.0.2"
   dependencies:
     serialize-javascript: ^6.0.0
-  checksum: 8de08a46cf6b471152505951038fb0362acc9a9e254995c9cbc4a1946d0d92ef7c3f2caa71eb0de141ed5a9154dd7d1e63271415b88d5be81130cb5700ddbf14
+  checksum: ef84abaf6df1e26fc12882110c00e941a2d9de78c98013010e46fdca31e438012e925a4759995fb951cfe76573a0ee6c60eca500916d324f5f9e5cb89bffb51d
   languageName: node
   linkType: hard
 
@@ -18206,7 +18206,7 @@ fsevents@~2.1.1:
     "@storybook/addon-docs": ^6.3.10
     "@storybook/addon-toolbars": ^6.3.10
     "@storybook/html": ^6.3.10
-    "@type-cacheable/core": ^10.0.1
+    "@type-cacheable/core": ^10.0.2
     "@type-cacheable/ioredis-adapter": ^10.0.2
     "@types/babel__core": 7.1.14
     "@types/chai": ^4.2.18
