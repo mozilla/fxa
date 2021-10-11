@@ -32,6 +32,9 @@ describe('stdout-mock', () => {
       {
         cc: [],
         to: 'testuser@testuser.com',
+        text: 'ok',
+        html: '<p>ok</p>',
+        headers: {},
       },
       (err, result) => {
         try {

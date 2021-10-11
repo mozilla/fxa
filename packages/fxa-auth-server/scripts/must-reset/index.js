@@ -12,7 +12,7 @@ module.exports = async function main(items, dbFunction) {
   const Token = require('../../lib/tokens')(log, config);
   const AuthDB = require('../../lib/db')(config, log, Token);
   const oauth = require('../../lib/oauth/db');
-  const db = await AuthDB.connect(config[config.db.backend]);
+  const db = await AuthDB.connect(config);
 
   const users = [];
   try {

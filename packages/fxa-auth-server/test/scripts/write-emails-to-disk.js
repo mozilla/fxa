@@ -10,21 +10,38 @@ const { assert } = require('chai');
 const cp = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const templateNames = require('../../lib/senders/templates/_versions');
+const templateNames = require('../../lib/senders/templates/_versions.json');
 const OUTPUT_DIRECTORY =
   require('../../scripts/write-emails-to-disk').OUTPUT_DIRECTORY;
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
+const execOptions = {
+  cwd,
+  env: {
+    NODE_ENV: 'dev',
+    LOG_LEVEL: 'error',
+  },
+  stdio: 'ignore',
+};
 
 describe('scripts/write-emails-to-disk:', () => {
   before(() => {
-    cp.execSync('node scripts/write-emails-to-disk', { cwd });
+    cp.execSync(
+      'node -r esbuild-register scripts/write-emails-to-disk',
+      execOptions
+    );
   });
 
-  for (const template in templateNames) {
+  for (const template of Object.keys(templateNames)) {
     // Ignore sms templates for now
     if (template.includes('sms')) {
-      return;
+      continue;
+    }
+
+    // Ignore templates with the plural form because they break
+    // the naming convention.
+    if (template.includes('subscriptions')) {
+      continue;
     }
 
     it(`writes ${template} email html`, async () => {

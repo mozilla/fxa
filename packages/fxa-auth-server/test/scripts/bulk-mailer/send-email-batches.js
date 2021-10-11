@@ -5,7 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
-const proxyquire = require('proxyquire');
+const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
 
 describe('send-email-batches', () => {
@@ -61,13 +61,13 @@ describe('send-email-batches', () => {
 
   it('calls log as expected', () => {
     assert.equal(log.info.callCount, 2);
-    assert.equal(log.info.args[0][0], 'send.begin');
+    assert.equal(log.info.args[0][0].op, 'send.begin');
 
-    assert.equal(log.info.args[1][0], 'send.complete');
-    assert.equal(log.info.args[1][1].count, 4);
-    assert.equal(log.info.args[1][1].successCount, 3);
-    assert.equal(log.info.args[1][1].errorCount, 1);
-    assert.equal(log.info.args[1][1].unsentCount, 0);
+    assert.equal(log.info.args[1][0].op, 'send.complete');
+    assert.equal(log.info.args[1][0].count, 4);
+    assert.equal(log.info.args[1][0].successCount, 3);
+    assert.equal(log.info.args[1][0].errorCount, 1);
+    assert.equal(log.info.args[1][0].unsentCount, 0);
   });
 
   it('calls sendEmailBatchSpy as expected', () => {

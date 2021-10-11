@@ -67,6 +67,14 @@ const account2Mock = createAccount(
 
 const DB = require('../../lib/db')(config, log, Token, UnblockCode);
 
+const execOptions = {
+  cwd,
+  env: {
+    NODE_ENV: 'dev',
+    LOG_LEVEL: 'error',
+  },
+};
+
 describe('scripts/bulk-mailer', function () {
   this.timeout(10000);
 
@@ -90,8 +98,8 @@ describe('scripts/bulk-mailer', function () {
       })
       .then(() => {
         return cp.execAsync(
-          `node scripts/dump-users --uids ${account1Mock.uid},${account2Mock.uid} > ${USER_DUMP_PATH}`,
-          { cwd }
+          `node -r esbuild-register scripts/dump-users --uids ${account1Mock.uid},${account2Mock.uid} > ${USER_DUMP_PATH}`,
+          execOptions
         );
       });
   });
@@ -107,7 +115,10 @@ describe('scripts/bulk-mailer', function () {
 
   it('fails if --input missing', () => {
     return cp
-      .execAsync('node scripts/bulk-mailer --method sendVerifyEmail', { cwd })
+      .execAsync(
+        'node -r esbuild-register scripts/bulk-mailer --method sendVerifyEmail',
+        execOptions
+      )
       .then(
         () => assert(false, 'script should have failed'),
         (err) => {
@@ -119,8 +130,8 @@ describe('scripts/bulk-mailer', function () {
   it('fails if --input file missing', () => {
     return cp
       .execAsync(
-        'node scripts/bulk-mailer --input does_not_exist --method sendVerifyEmail',
-        { cwd }
+        'node -r esbuild-register scripts/bulk-mailer --input does_not_exist --method sendVerifyEmail',
+        execOptions
       )
       .then(
         () => assert(false, 'script should have failed'),
@@ -132,7 +143,10 @@ describe('scripts/bulk-mailer', function () {
 
   it('fails if --method missing', () => {
     return cp
-      .execAsync('node scripts/bulk-mailer --input ${USER_DUMP_PATH}', { cwd })
+      .execAsync(
+        'node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH}',
+        execOptions
+      )
       .then(
         () => assert(false, 'script should have failed'),
         (err) => {
@@ -144,8 +158,8 @@ describe('scripts/bulk-mailer', function () {
   it('fails if --method is invalid', () => {
     return cp
       .execAsync(
-        'node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method doesNotExist',
-        { cwd }
+        'node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method doesNotExist',
+        execOptions
       )
       .then(
         () => assert(false, 'script should have failed'),
@@ -158,8 +172,8 @@ describe('scripts/bulk-mailer', function () {
   it('succeeds with valid input file and method, writing files to disk', () => {
     return cp
       .execAsync(
-        `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --write ${OUTPUT_DIRECTORY}`,
-        { cwd }
+        `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --write ${OUTPUT_DIRECTORY}`,
+        execOptions
       )
       .then(() => {
         assert.isTrue(
@@ -207,10 +221,10 @@ describe('scripts/bulk-mailer', function () {
   it('succeeds with valid input file and method, writing emails to stdout', () => {
     return cp
       .execAsync(
-        `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail`,
-        { cwd }
+        `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail`,
+        execOptions
       )
-      .then((result) => {
+      .then(({ stdout: result }) => {
         assert.include(result, account1Mock.uid);
         assert.include(result, account1Mock.email);
         assert.include(result, 'This is an automated email');
@@ -223,8 +237,8 @@ describe('scripts/bulk-mailer', function () {
 
   it('succeeds with valid input file and method, sends', () => {
     return cp.execAsync(
-      `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --send`,
-      { cwd }
+      `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --send`,
+      execOptions
     );
   });
 });

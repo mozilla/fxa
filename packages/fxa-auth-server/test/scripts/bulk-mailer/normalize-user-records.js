@@ -160,11 +160,11 @@ describe('normalize-user-records', () => {
         location: 'dropped, no email',
       },
       {
-        email: 'email@email.com',
+        primaryEmail: 'email@email.com',
         location: 'location 1',
       },
       {
-        email: 'email2@email.com',
+        primaryEmail: 'email2@email.com',
         location: 'location 2',
       },
     ];

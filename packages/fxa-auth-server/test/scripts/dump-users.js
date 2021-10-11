@@ -58,6 +58,14 @@ const account2Mock = createAccount(
 
 const DB = require('../../lib/db')(config, log, Token, UnblockCode);
 
+const execOptions = {
+  cwd,
+  env: {
+    NODE_ENV: 'dev',
+    LOG_LEVEL: 'error',
+  },
+};
+
 describe('scripts/dump-users', function () {
   this.timeout(10000);
 
@@ -86,17 +94,22 @@ describe('scripts/dump-users', function () {
   });
 
   it('fails if neither --emails nor --uids is specified', () => {
-    return cp.execAsync('node scripts/dump-users', { cwd }).then(
-      () => assert(false, 'script should have failed'),
-      (err) => {
-        assert.include(err.message, 'Command failed');
-      }
-    );
+    return cp
+      .execAsync('node -r esbuild-register scripts/dump-users', execOptions)
+      .then(
+        () => assert(false, 'script should have failed'),
+        (err) => {
+          assert.include(err.message, 'Command failed');
+        }
+      );
   });
 
   it('fails if both --emails nor --uids are specified', () => {
     return cp
-      .execAsync('node scripts/dump-users --emails --uids', { cwd })
+      .execAsync(
+        'node -r esbuild-register scripts/dump-users --emails --uids',
+        execOptions
+      )
       .then(
         () => assert(false, 'script should have failed'),
         (err) => {
@@ -106,26 +119,39 @@ describe('scripts/dump-users', function () {
   });
 
   it('fails if --emails specified w/o list of emails or --input', () => {
-    return cp.execAsync('node scripts/dump-users --emails', { cwd }).then(
-      () => assert(false, 'script should have failed'),
-      (err) => {
-        assert.include(err.message, 'Command failed');
-      }
-    );
+    return cp
+      .execAsync(
+        'node -r esbuild-register scripts/dump-users --emails',
+        execOptions
+      )
+      .then(
+        () => assert(false, 'script should have failed'),
+        (err) => {
+          assert.include(err.message, 'Command failed');
+        }
+      );
   });
 
   it('fails if --uids specified w/o list of uids or --input', () => {
-    return cp.execAsync('node scripts/dump-users --uids', { cwd }).then(
-      () => assert(false, 'script should have failed'),
-      (err) => {
-        assert.include(err.message, 'Command failed');
-      }
-    );
+    return cp
+      .execAsync(
+        'node -r esbuild-register scripts/dump-users --uids',
+        execOptions
+      )
+      .then(
+        () => assert(false, 'script should have failed'),
+        (err) => {
+          assert.include(err.message, 'Command failed');
+        }
+      );
   });
 
   it('fails if --uids w/ invalid uid', () => {
     return cp
-      .execAsync('node scripts/dump-users --uids deadbeef', { cwd })
+      .execAsync(
+        'node -r esbuild-register scripts/dump-users --uids deadbeef',
+        execOptions
+      )
       .then(
         () => assert(false, 'script should have failed'),
         (err) => {
@@ -136,8 +162,11 @@ describe('scripts/dump-users', function () {
 
   it('succeeds with --uids and 1 valid uid1', () => {
     return cp
-      .execAsync(`node scripts/dump-users --uids ${account1Mock.uid}`, { cwd })
-      .then((output) => {
+      .execAsync(
+        `node -r esbuild-register scripts/dump-users --uids ${account1Mock.uid}`,
+        execOptions
+      )
+      .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
@@ -149,10 +178,10 @@ describe('scripts/dump-users', function () {
   it('succeeds with --uids and 2 valid uids', () => {
     return cp
       .execAsync(
-        `node scripts/dump-users --uids ${account1Mock.uid},${account2Mock.uid}`,
-        { cwd }
+        `node -r esbuild-register scripts/dump-users --uids ${account1Mock.uid},${account2Mock.uid}`,
+        execOptions
       )
-      .then((output) => {
+      .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 
@@ -167,10 +196,10 @@ describe('scripts/dump-users', function () {
   it('succeeds with --uids and --input containing 1 uid', () => {
     return cp
       .execAsync(
-        'node scripts/dump-users --uids --input ../test/scripts/fixtures/one_uid.txt',
-        { cwd }
+        'node -r esbuild-register scripts/dump-users --uids --input ../test/scripts/fixtures/one_uid.txt',
+        execOptions
       )
-      .then((output) => {
+      .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
@@ -182,10 +211,10 @@ describe('scripts/dump-users', function () {
   it('succeeds with --uids and --input containing 2 uids', () => {
     return cp
       .execAsync(
-        'node scripts/dump-users --uids --input ../test/scripts/fixtures/two_uids.txt',
-        { cwd }
+        'node -r esbuild-register scripts/dump-users --uids --input ../test/scripts/fixtures/two_uids.txt',
+        execOptions
       )
-      .then((output) => {
+      .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 
@@ -199,7 +228,10 @@ describe('scripts/dump-users', function () {
 
   it('fails if --emails w/ invalid emails', () => {
     return cp
-      .execAsync('node scripts/dump-users --emails user3@test.com', { cwd })
+      .execAsync(
+        'node -r esbuild-register scripts/dump-users --emails user3@test.com',
+        execOptions
+      )
       .then(
         () => assert(false, 'script should have failed'),
         (err) => {
@@ -210,10 +242,11 @@ describe('scripts/dump-users', function () {
 
   it('succeeds with --emails and 1 valid email', () => {
     return cp
-      .execAsync(`node scripts/dump-users --emails ${account1Mock.email}`, {
-        cwd,
-      })
-      .then((output) => {
+      .execAsync(
+        `node -r esbuild-register scripts/dump-users --emails ${account1Mock.email}`,
+        execOptions
+      )
+      .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
@@ -225,10 +258,10 @@ describe('scripts/dump-users', function () {
   it('succeeds with --emails and 2 valid emails', () => {
     return cp
       .execAsync(
-        `node scripts/dump-users --emails ${account1Mock.email},${account2Mock.email}`,
-        { cwd }
+        `node -r esbuild-register scripts/dump-users --emails ${account1Mock.email},${account2Mock.email}`,
+        execOptions
       )
-      .then((output) => {
+      .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 
@@ -243,10 +276,10 @@ describe('scripts/dump-users', function () {
   it('succeeds with --emails and --input containing 1 email', () => {
     return cp
       .execAsync(
-        'node scripts/dump-users --emails --input ../test/scripts/fixtures/one_email.txt',
-        { cwd }
+        'node -r esbuild-register scripts/dump-users --emails --input ../test/scripts/fixtures/one_email.txt',
+        execOptions
       )
-      .then((output) => {
+      .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
@@ -258,10 +291,10 @@ describe('scripts/dump-users', function () {
   it('succeeds with --emails and --input containing 2 email', () => {
     return cp
       .execAsync(
-        'node scripts/dump-users --emails --input ../test/scripts/fixtures/two_emails.txt',
-        { cwd }
+        'node -r esbuild-register scripts/dump-users --emails --input ../test/scripts/fixtures/two_emails.txt',
+        execOptions
       )
-      .then((output) => {
+      .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 

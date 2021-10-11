@@ -52,6 +52,7 @@ module.exports = async function (
         console.info(JSON.stringify(msg));
       }
     },
+    debug() {},
   };
 
   const translator = await createTranslator(config);
