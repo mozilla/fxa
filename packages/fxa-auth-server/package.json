@@ -167,7 +167,7 @@
     "grunt-newer": "1.3.0",
     "jsxgettext-recursive-next": "1.1.0",
     "jws": "4.0.0",
-    "keypair": "1.0.3",
+    "keypair": "1.0.4",
     "leftpad": "0.0.1",
     "load-grunt-tasks": "^5.1.0",
     "lodash.chunk": "4.2.0",
