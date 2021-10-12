@@ -28,6 +28,7 @@ const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
 );
 
 const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
+const subscriptionAccountReminders = require(`${LIB_DIR}/subscription-account-reminders`)(log,config);
 
 run()
   .then(() => {
@@ -35,14 +36,15 @@ run()
     process.exit(0);
   })
   .catch((err) => {
-    log.error('verificationReminders.fatal', { err });
+    log.error('verificationReminders.fSSSatal', { err });
     process.exit(1);
   });
 
 async function run() {
-  const [vReminders, cReminders, db, templates, translator] = await Promise.all(
+  const [vReminders, saReminders, cReminders, db, templates, translator] = await Promise.all(
     [
       verificationReminders.process(),
+      subscriptionAccountReminders.process(),
       cadReminders.process(),
       require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(config),
       require(`${LIB_DIR}/senders/templates`)(log),
@@ -62,9 +64,7 @@ async function run() {
   await verificationReminders.keys.reduce(async (promise, key) => {
     await promise;
 
-    const method = `verificationReminder${key[0].toUpperCase()}${key.substr(
-      1
-    )}Email`;
+    const method = `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`;
     const reminders = vReminders[key];
 
     log.info('verificationReminders.processing', {
@@ -126,6 +126,74 @@ async function run() {
       return verificationReminders.reinstate(key, failedReminders);
     }
   }, Promise.resolve());
+
+  await subscriptionAccountReminders.keys.reduce(async (promise, key) => {
+    await promise;
+    const method = `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(
+      1
+    )}Email`;
+    const reminders = saReminders[key];
+
+    log.info('subscriptionAccountReminder.processing', {
+      count: reminders.length,
+      key,
+    });
+
+    const failedReminders = await reminders.reduce(
+      async (promise, { timestamp, uid, flowId, flowBeginTime }) => {
+        const failed = await promise;
+
+        try {
+          if (sent[uid]) {
+            // Don't send e.g. first and second reminders to the same email from a single batch
+            log.info('subscriptionAccountReminder.skipped.alreadySent', { uid });
+            failed.push({ timestamp, uid, flowId, flowBeginTime });
+            return failed;
+          }
+
+          const account = await db.account(uid);
+          await mailer[method]({
+            acceptLanguage: account.locale,
+            code: account.emailCode,
+            email: account.email,
+            flowBeginTime,
+            flowId,
+            uid,
+          });
+          // eslint-disable-next-line require-atomic-updates
+          sent[uid] = true;
+        } catch (err) {
+          const { errno } = err;
+          switch (errno) {
+            case error.ERRNO.ACCOUNT_UNKNOWN:
+            case error.ERRNO.BOUNCE_COMPLAINT:
+            case error.ERRNO.BOUNCE_HARD:
+            case error.ERRNO.BOUNCE_SOFT:
+              log.info('subscriptionAccountReminder.skipped.error', { uid, errno });
+              try {
+                await subscriptionAccountReminders.delete(uid);
+              } catch (ignore) {}
+              break;
+            default:
+              log.error('subscriptionAccountReminder.error', { err });
+              failed.push({ timestamp, uid, flowId, flowBeginTime });
+          }
+        }
+
+        return failed;
+      },
+      Promise.resolve([])
+    );
+
+    if (failedReminders.length > 0) {
+      log.info('subscriptionAccountReminder.reinstating', {
+        count: reminders.length,
+        key,
+      });
+      return subscriptionAccountReminders.reinstate(key, failedReminders);
+    }
+  }, Promise.resolve());
+
 
   // TODO: This is intentionally an exact copy of the above code
   // since CAD reminders are an experiment. At the end we'll either
@@ -190,5 +258,6 @@ async function run() {
 
   await db.close();
   await verificationReminders.close();
+  await subscriptionAccountReminders.close();
   await cadReminders.close();
 }
