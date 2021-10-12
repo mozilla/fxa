@@ -25,21 +25,6 @@ export async function sendFinishSetupEmailForStubAccount({
   subscriptionAccountReminders: any;
   metricsContext?: any;
 }) {
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-  console.log("########################");
-
   // If this fxa user is a stub (no-password) this is where we
   // send the "create a password" email
   if (account && account.verifierSetAt <= 0) {
@@ -64,8 +49,7 @@ export async function sendFinishSetupEmailForStubAccount({
 
 
     console.log("########################");
-    if (true || (metricsContext && subscriptionAccountReminders)) {
-      console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+    if (metricsContext && subscriptionAccountReminders) {
       await subscriptionAccountReminders.create(
         uid,
         metricsContext.flowId,
