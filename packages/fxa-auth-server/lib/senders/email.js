@@ -31,7 +31,7 @@ module.exports = function (log, config, bounces) {
     config
   );
   const cadReminders = require('../cad-reminders')(config, log);
-  const saReminders = require('../subscription-account-reminders')(log,config);
+  const subscriptionAccountReminders = require('../subscription-account-reminders')(log,config);
 
   const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
   const featureFlags = require('../features')(config);
@@ -764,14 +764,14 @@ module.exports = function (log, config, bounces) {
     };
   });
 
-  saReminders.keys.forEach((key, index) => {
+  subscriptionAccountReminders.keys.forEach((key, index) => {
         // Template names are generated in the form `verificationReminderFirstEmail`,
     // where `First` is the key derived from config, with an initial capital letter.
     const template = `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(
       1
     )}`;
     let subject;
-    if (index < saReminders.keys.length - 1) {
+    if (index < subscriptionAccountReminders.keys.length - 1) {
       subject = gettext('Finish Email 1');
     } else {
       subject = gettext('Finish Email 2');

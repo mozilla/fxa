@@ -428,7 +428,7 @@
     "firstInterval": "1s",
     "secondInterval": "2s"
   },
-  "subscriptonAccountReminders": {
+  "subscriptionAccountReminders": {
     "firstInterval": "5s",
     "secondInterval": "10s"
   },
