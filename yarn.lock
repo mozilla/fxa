@@ -9147,6 +9147,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"array-includes@npm:^3.1.4":
+  version: 3.1.4
+  resolution: "array-includes@npm:3.1.4"
+  dependencies:
+    call-bind: ^1.0.2
+    define-properties: ^1.1.3
+    es-abstract: ^1.19.1
+    get-intrinsic: ^1.1.1
+    is-string: ^1.0.7
+  checksum: 69967c38c52698f84b50a7aed5554aadc89c6ac6399b6d92ad061a5952f8423b4bba054c51d40963f791dfa294d7247cdd7988b6b1f2c5861477031c6386e1c0
+  languageName: node
+  linkType: hard
+
 "array-map@npm:~0.0.0":
   version: 0.0.0
   resolution: "array-map@npm:0.0.0"
@@ -9216,6 +9229,17 @@ __metadata:
     define-properties: ^1.1.3
     es-abstract: ^1.18.0-next.1
   checksum: 1ec5d9887ae45e70e4b993e801b440ae5ddcd0d2c6d1dbe214c311e91436152f510916bdac82b066693544b9801a3c510dfbec8a278ababf8de7eb0bde74636f
+  languageName: node
+  linkType: hard
+
+"array.prototype.flat@npm:^1.2.5":
+  version: 1.2.5
+  resolution: "array.prototype.flat@npm:1.2.5"
+  dependencies:
+    call-bind: ^1.0.2
+    define-properties: ^1.1.3
+    es-abstract: ^1.19.0
+  checksum: 9cc6414b111abfc7717e39546e4887b1e5ec74df8f1618d83425deaa95752bf05d475d1d241253b4d88d4a01f8e1bc84845ad5b7cc2047f8db2f614512acd40e
   languageName: node
   linkType: hard
 
@@ -15567,7 +15591,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"es-abstract@npm:^1.17.0-next.0, es-abstract@npm:^1.17.0-next.1, es-abstract@npm:^1.17.4, es-abstract@npm:^1.17.5, es-abstract@npm:^1.18.0-next.1, es-abstract@npm:^1.18.0-next.2, es-abstract@npm:^1.18.2, es-abstract@npm:^1.19.1, es-abstract@npm:^1.5.0":
+"es-abstract@npm:^1.17.0-next.0, es-abstract@npm:^1.17.0-next.1, es-abstract@npm:^1.17.4, es-abstract@npm:^1.17.5, es-abstract@npm:^1.18.0-next.1, es-abstract@npm:^1.18.0-next.2, es-abstract@npm:^1.18.2, es-abstract@npm:^1.19.0, es-abstract@npm:^1.19.1, es-abstract@npm:^1.5.0":
   version: 1.19.1
   resolution: "es-abstract@npm:1.19.1"
   dependencies:
@@ -16074,7 +16098,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import@npm:^2.22.1, eslint-plugin-import@npm:^2.24.2":
+"eslint-plugin-import@npm:^2.22.1":
   version: 2.24.2
   resolution: "eslint-plugin-import@npm:2.24.2"
   dependencies:
@@ -16096,6 +16120,29 @@ __metadata:
   peerDependencies:
     eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0
   checksum: df570aec83ffa126fd80596d9fb1b6799d3cde025ceeb159eb28383541ebbb855468c9a2dbc670ab9e91dd0a8f8a82e52fd909a7c61e9ffa585bcce84ae1aec4
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-import@npm:^2.25.1":
+  version: 2.25.1
+  resolution: "eslint-plugin-import@npm:2.25.1"
+  dependencies:
+    array-includes: ^3.1.4
+    array.prototype.flat: ^1.2.5
+    debug: ^2.6.9
+    doctrine: ^2.1.0
+    eslint-import-resolver-node: ^0.3.6
+    eslint-module-utils: ^2.6.2
+    has: ^1.0.3
+    is-core-module: ^2.7.0
+    is-glob: ^4.0.3
+    minimatch: ^3.0.4
+    object.values: ^1.1.5
+    resolve: ^1.20.0
+    tsconfig-paths: ^3.11.0
+  peerDependencies:
+    eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8
+  checksum: afc3982575a6d25d1ce313d88ffbdebd39e95481988fa930d24b5729b428554d7f273fd83b00e6fbb28715ffc88c5631a36d8855ffa55e0ffc39a32cb4dee6c9
   languageName: node
   linkType: hard
 
@@ -18750,7 +18797,7 @@ fsevents@~2.1.1:
     esbuild-register: ^3.0.0
     eslint: ^7.32.0
     eslint-config-prettier: ^8.3.0
-    eslint-plugin-import: ^2.24.2
+    eslint-plugin-import: ^2.25.1
     express: ^4.17.1
     factory-bot-ts: ^0.1.5
     fxa-jwtool: ^0.7.2
@@ -22505,6 +22552,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"is-core-module@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "is-core-module@npm:2.7.0"
+  dependencies:
+    has: ^1.0.3
+  checksum: 8ec6dc714438ef9dc4dae10c94d21bd5aa67244da7e85bd9e42f0fd298514181214f6bebe358a486477c1242458b170ad7a8c936be0be15d465862fa61d3d1c7
+  languageName: node
+  linkType: hard
+
 "is-data-descriptor@npm:^0.1.4":
   version: 0.1.4
   resolution: "is-data-descriptor@npm:0.1.4"
@@ -22691,6 +22747,15 @@ fsevents@~2.1.1:
   dependencies:
     is-extglob: ^2.1.1
   checksum: 84627cad11b4e745f5db5a163f32c47b711585a5ff6e14f8f8d026db87f4cdd3e2c95f6fa1f94ad22e469f36d819ae2814f03f9c668b164422ac3354a94672d3
+  languageName: node
+  linkType: hard
+
+"is-glob@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "is-glob@npm:4.0.3"
+  dependencies:
+    is-extglob: ^2.1.1
+  checksum: d381c1319fcb69d341cc6e6c7cd588e17cd94722d9a32dbd60660b993c4fb7d0f19438674e68dfec686d09b7c73139c9166b47597f846af387450224a8101ab4
   languageName: node
   linkType: hard
 
@@ -28516,6 +28581,17 @@ fsevents@~2.1.1:
     define-properties: ^1.1.3
     es-abstract: ^1.18.2
   checksum: 1a2f1e9d0bcfc299b8491170a50e6e7ca23392641d7781a8528e96c72f0013ba7ee731792ff8586c8eaec0328acda16c59622924c82c58bd0eb5c4ee67794856
+  languageName: node
+  linkType: hard
+
+"object.values@npm:^1.1.5":
+  version: 1.1.5
+  resolution: "object.values@npm:1.1.5"
+  dependencies:
+    call-bind: ^1.0.2
+    define-properties: ^1.1.3
+    es-abstract: ^1.19.1
+  checksum: 0f17e99741ebfbd0fa55ce942f6184743d3070c61bd39221afc929c8422c4907618c8da694c6915bc04a83ab3224260c779ba37fc07bb668bdc5f33b66a902a4
   languageName: node
   linkType: hard
 
