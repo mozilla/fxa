@@ -17,7 +17,7 @@ convict.addFormats(require('convict-format-with-validator'));
 const conf = convict({
   env: {
     doc: 'The current node.js environment',
-    default: 'prod',
+    default: 'dev',
     format: ['dev', 'test', 'stage', 'prod'],
     env: 'NODE_ENV',
   },
@@ -1835,6 +1835,46 @@ const conf = convict({
         default: 1,
         doc: 'Minimum connection count for the verification reminders Redis pool',
         env: 'VERIFICATION_REMINDERS_REDIS_MIN_CONNECTIONS',
+        format: 'nat',
+      },
+    },
+  },
+  subscriptionAccountReminders: {
+    rolloutRate: {
+      doc: 'Rollout rate for subscriptionAccount reminder emails, in the range 0 .. 1',
+      default: 1,
+      env: 'SUBSCRIPTION_ACCOUNT_REMINDERS_ROLLOUT_RATE',
+      format: Number,
+    },
+    firstInterval: {
+      doc: 'Time since account creation after which the first reminder is sent',
+      default: '1 day',
+      env: 'SUBSCRIPTION_ACCOUNT_REMINDERS_FIRST_INTERVAL',
+      format: 'duration',
+    },
+    secondInterval: {
+      doc: 'Time since account creation after which the second reminder is sent',
+      default: '5 days',
+      env: 'SUBSCRIPTION_ACCOUNT_REMINDERS_SECOND_INTERVAL',
+      format: 'duration',
+    },
+    redis: {
+      prefix: {
+        default: 'subscriptionAccountReminders:',
+        doc: 'Key prefix for the verification reminders Redis pool',
+        env: 'SUBSCRIPTION_ACCOUNT_REMINDERS_REDIS_PREFIX',
+        format: String,
+      },
+      maxConnections: {
+        default: 10,
+        doc: 'Maximum connection count for the subscriptionAccount reminders Redis pool',
+        env: 'SUBSCRIPTION_ACCOUNT_REMINDERS_REDIS_MAX_CONNECTIONS',
+        format: 'nat',
+      },
+      minConnections: {
+        default: 1,
+        doc: 'Minimum connection count for the subscriptionAccount reminders Redis pool',
+        env: 'SUBSCRIPTION_ACCOUNT_REMINDERS_REDIS_MIN_CONNECTIONS',
         format: 'nat',
       },
     },

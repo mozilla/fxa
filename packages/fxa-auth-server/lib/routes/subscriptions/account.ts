@@ -14,6 +14,7 @@ export async function sendFinishSetupEmailForStubAccount({
   stripeHelper,
   mailer,
   metricsContext,
+  subscriptionAccountReminders,
 }: {
   email: string;
   uid: string;
@@ -21,8 +22,24 @@ export async function sendFinishSetupEmailForStubAccount({
   subscription: any;
   stripeHelper: any;
   mailer: any;
+  subscriptionAccountReminders: any;
   metricsContext?: any;
 }) {
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+  console.log("########################");
+
   // If this fxa user is a stub (no-password) this is where we
   // send the "create a password" email
   if (account && account.verifierSetAt <= 0) {
@@ -44,5 +61,16 @@ export async function sendFinishSetupEmailForStubAccount({
       ...metricsContext,
       token,
     });
+
+
+    console.log("########################");
+    if (true || (metricsContext && subscriptionAccountReminders)) {
+      console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+      await subscriptionAccountReminders.create(
+        uid,
+        metricsContext.flowId,
+        metricsContext.flowBeginTime,
+      );
+    }
   }
 }

@@ -30,6 +30,7 @@ const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
 export class PayPalHandler extends StripeWebhookHandler {
   protected paypalHelper: PayPalHelper;
+  subscriptionAccountReminders: any;
 
   constructor(
     log: AuthLogger,
@@ -43,6 +44,10 @@ export class PayPalHandler extends StripeWebhookHandler {
   ) {
     super(log, db, config, customs, push, mailer, profile, stripeHelper);
     this.paypalHelper = Container.get(PayPalHelper);
+    this.subscriptionAccountReminders = require('../../subscription-account-reminders')(
+      log,
+      config
+    );
   }
 
   /**
@@ -130,6 +135,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       subscription,
       stripeHelper: this.stripeHelper,
       mailer: this.mailer,
+      subscriptionAccountReminders: this.subscriptionAccountReminders,
       metricsContext,
     });
 

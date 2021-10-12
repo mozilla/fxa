@@ -31,6 +31,7 @@ module.exports = function (log, config, bounces) {
     config
   );
   const cadReminders = require('../cad-reminders')(config, log);
+  const saReminders = require('../subscription-account-reminders')(log,config);
 
   const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
   const featureFlags = require('../features')(config);
@@ -762,6 +763,78 @@ module.exports = function (log, config, bounces) {
       });
     };
   });
+
+  saReminders.keys.forEach((key, index) => {
+        // Template names are generated in the form `verificationReminderFirstEmail`,
+    // where `First` is the key derived from config, with an initial capital letter.
+    const template = `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(
+      1
+    )}`;
+    let subject;
+    if (index < saReminders.keys.length - 1) {
+      subject = gettext('Finish Email 1');
+    } else {
+      subject = gettext('Finish Email 2');
+    }
+
+    templateNameToCampaignMap[template] = `${key}-subscription-account-reminder`;
+    templateNameToContentMap[template] = 'subscrition-account-create-email';
+
+    Mailer.prototype[`${template}Email`] = async function (message) {
+        const {
+          email,
+          uid,
+          productId,
+          productName,
+          token,
+          flowId,
+          flowBeginTime,
+          deviceId,
+        } = message;
+
+      log.trace(`mailer.${template}`, { email, uid });
+
+      const query = {
+        email,
+        product_name: productName,
+        token,
+        product_id: productId,
+        flowId,
+        flowBeginTime,
+        deviceId,
+      };
+
+      const links = this._generateLinks(
+        this.accountFinishSetupUrl,
+        message,
+        query,
+        template
+      );
+      const headers = {
+        'X-Link': links.link,
+      };
+
+      const action = gettext('Create a password');
+
+      return this.send({
+        ...message,
+        headers,
+        subject,
+        template,
+        templateValues: {
+          action,
+          email,
+          link: links.link,
+          oneClickLink: links.oneClickLink,
+          privacyUrl: links.privacyUrl,
+          subject,
+          supportUrl: links.supportUrl,
+          supportLinkAttributes: links.supportLinkAttributes,
+        },
+      });
+    };
+  });
+
 
   Mailer.prototype.unblockCodeEmail = function (message) {
     log.trace('mailer.unblockCodeEmail', {
@@ -1896,9 +1969,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (
-    message
-  ) {
+  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (message) {
     const {
       email,
       uid,
