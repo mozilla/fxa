@@ -18,7 +18,7 @@ __metadata:
     express: ^4.17.1
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
-    ioredis: ^4.27.10
+    ioredis: ^4.27.11
     morgan: ^1.10.0
     node-rsa: 1.1.1
     pm2: ^5.1.2
@@ -18438,7 +18438,7 @@ fsevents@~2.1.1:
     hkdf: 0.0.2
     hot-shots: ^8.5.2
     i18n-abide: 0.0.26
-    ioredis: ^4.27.10
+    ioredis: ^4.27.11
     jed: 0.5.4
     jsdom: ^18.0.0
     jsonwebtoken: ^8.5.1
@@ -18902,7 +18902,7 @@ fsevents@~2.1.1:
     graphql-tools: ^8.0.0
     graphql-upload: ^12.0.0
     helmet: ^4.6.0
-    ioredis: ^4.27.10
+    ioredis: ^4.27.11
     jest: 26.6.0
     knex: ^0.95.11
     mozlog: ^3.0.2
@@ -19336,7 +19336,7 @@ fsevents@~2.1.1:
     generic-pool: ^3.8.2
     graphql: ^15.6.1
     hot-shots: ^8.5.2
-    ioredis: ^4.27.10
+    ioredis: ^4.27.11
     ip: ^1.1.5
     jest: 26.6.0
     joi: ^14.3.1
@@ -22330,7 +22330,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ioredis@npm:4.x.x, ioredis@npm:^4.27.10":
+"ioredis@npm:4.x.x":
   version: 4.27.10
   resolution: "ioredis@npm:4.27.10"
   dependencies:
@@ -22346,6 +22346,25 @@ fsevents@~2.1.1:
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
   checksum: 798f57bbf6891ad4decb3338e992eb6c0f89dd99d0dd4377ea4a8340403aac66f8048a5d67aa8a5df24a56c7fd3fc864ac58f2b0f45901e228eebbe57887c5b2
+  languageName: node
+  linkType: hard
+
+"ioredis@npm:^4.27.11":
+  version: 4.27.11
+  resolution: "ioredis@npm:4.27.11"
+  dependencies:
+    cluster-key-slot: ^1.1.0
+    debug: ^4.3.1
+    denque: ^1.1.0
+    lodash.defaults: ^4.2.0
+    lodash.flatten: ^4.4.0
+    lodash.isarguments: ^3.1.0
+    p-map: ^2.1.0
+    redis-commands: 1.7.0
+    redis-errors: ^1.2.0
+    redis-parser: ^3.0.0
+    standard-as-callback: ^2.1.0
+  checksum: 0df459f7ab997398e1a6410e0d45e71e48f92babe2c4de310a2d018e56dde34f531e051f26b3baf05f6709e89a407c740017a4ef18e421486dfa5df2b4faf555
   languageName: node
   linkType: hard
 
