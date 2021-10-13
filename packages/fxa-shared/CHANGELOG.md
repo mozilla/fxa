@@ -1,5 +1,36 @@
 # Change history
 
+## 1.217.0
+
+### New features
+
+- db: update db and lookup method to locate FxA user by Stripe customer id (#10599) ([1ebc814ae](https://github.com/mozilla/fxa/commit/1ebc814ae))
+
+### Bug fixes
+
+- tests: fixed auth-server/scripts tests ([570e5a334](https://github.com/mozilla/fxa/commit/570e5a334))
+
+### Refactorings
+
+- build: use esbuild instead of ts-node (#10639) ([a95f1270a](https://github.com/mozilla/fxa/commit/a95f1270a))
+
+### Other changes
+
+- deps: bump @nestjs/config from 1.0.1 to 1.0.2 (#10685) ([ac5d3f3dd](https://github.com/mozilla/fxa/commit/ac5d3f3dd))
+- deps: bump stripe from 8.178.0 to 8.181.0 ([c163bd9af](https://github.com/mozilla/fxa/commit/c163bd9af))
+- deps: bump ioredis from 4.27.10 to 4.27.11 ([8d01acb19](https://github.com/mozilla/fxa/commit/8d01acb19))
+- deps: bump jsdom from 17.0.0 to 18.0.0 (#10657) ([4ae63295a](https://github.com/mozilla/fxa/commit/4ae63295a))
+- deps: bump aws-sdk from 2.996.0 to 2.1002.0 ([97e82c61b](https://github.com/mozilla/fxa/commit/97e82c61b))
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+- deps: bump ioredis from 4.27.9 to 4.27.10 ([c39396ae0](https://github.com/mozilla/fxa/commit/c39396ae0))
+- deps: bump @nestjs/core from 8.0.9 to 8.0.10 ([239bd66d9](https://github.com/mozilla/fxa/commit/239bd66d9))
+- deps: bump graphql from 15.5.2 to 15.6.1 ([c6a80d028](https://github.com/mozilla/fxa/commit/c6a80d028))
+- deps: bump @nestjs/core from 8.0.6 to 8.0.9 (#10597) ([e71cd2a03](https://github.com/mozilla/fxa/commit/e71cd2a03))
+- deps: bump @sentry/node from 6.12.0 to 6.13.2 (#10583) ([cb19efb3c](https://github.com/mozilla/fxa/commit/cb19efb3c))
+- deps: bump @sentry/integrations from 6.12.0 to 6.13.2 (#10569) ([ab0b3ab6d](https://github.com/mozilla/fxa/commit/ab0b3ab6d))
+- deps: bump @nestjs/common from 8.0.5 to 8.0.8 (#10565) ([c97c922a4](https://github.com/mozilla/fxa/commit/c97c922a4))
+- deps: bump stripe from 8.176.0 to 8.178.0 ([91bab740e](https://github.com/mozilla/fxa/commit/91bab740e))
+
 ## 1.216.3
 
 No changes.

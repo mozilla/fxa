@@ -1,3 +1,18 @@
+## 1.217.0
+
+### Refactorings
+
+- storybook: Use nested sections, tweak design guide bar ([5d1b529ff](https://github.com/mozilla/fxa/commit/5d1b529ff))
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-actions from 6.3.10 to 6.3.11 (#10687) ([7edf08edd](https://github.com/mozilla/fxa/commit/7edf08edd))
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+- deps-dev: bump @testing-library/dom from 8.2.0 to 8.7.2 ([677e4b381](https://github.com/mozilla/fxa/commit/677e4b381))
+- deps-dev: bump @storybook/addon-links from 6.3.8 to 6.3.9 ([9fdb14b7a](https://github.com/mozilla/fxa/commit/9fdb14b7a))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.2.14 to 2.2.16 ([7a76f658b](https://github.com/mozilla/fxa/commit/7a76f658b))
+- deps-dev: bump @testing-library/react from 12.1.1 to 12.1.2 (#10595) ([4a89d0d8e](https://github.com/mozilla/fxa/commit/4a89d0d8e))
+
 ## 1.216.3
 
 No changes.

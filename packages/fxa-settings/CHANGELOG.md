@@ -1,3 +1,21 @@
+## 1.217.0
+
+### Refactorings
+
+- storybook: Use nested sections, tweak design guide bar ([5d1b529ff](https://github.com/mozilla/fxa/commit/5d1b529ff))
+
+### Other changes
+
+- deps-dev: bump webpack-watch-files-plugin from 1.1.0 to 1.2.0 (#10688) ([58dd049de](https://github.com/mozilla/fxa/commit/58dd049de))
+- deps-dev: bump @storybook/addon-actions from 6.3.10 to 6.3.11 (#10687) ([7edf08edd](https://github.com/mozilla/fxa/commit/7edf08edd))
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+- deps-dev: bump @testing-library/dom from 8.2.0 to 8.7.2 ([677e4b381](https://github.com/mozilla/fxa/commit/677e4b381))
+- deps-dev: bump @storybook/addon-links from 6.3.8 to 6.3.9 ([9fdb14b7a](https://github.com/mozilla/fxa/commit/9fdb14b7a))
+- deps: bump graphql from 15.5.2 to 15.6.1 ([c6a80d028](https://github.com/mozilla/fxa/commit/c6a80d028))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.2.14 to 2.2.16 ([7a76f658b](https://github.com/mozilla/fxa/commit/7a76f658b))
+- deps-dev: bump @testing-library/react from 12.1.1 to 12.1.2 (#10595) ([4a89d0d8e](https://github.com/mozilla/fxa/commit/4a89d0d8e))
+- settings: fixed wording for step 1 of secondary email (#10574) ([fd7306bd3](https://github.com/mozilla/fxa/commit/fd7306bd3))
+
 ## 1.216.3
 
 No changes.
