@@ -16,7 +16,8 @@
       "../types",
       "../node_modules/@types",
       "../packages/*/node_modules/@types"
-    ]
+    ],
+    "useUnknownInCatchVariables": false
   },
   "exclude": ["../node_modules", "../packages/*/node_modules"]
 }

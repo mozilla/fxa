@@ -32,10 +32,10 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
-    "@babel/core": "^7.15.0",
+    "@babel/core": "^7.15.8",
     "@babel/plugin-proposal-class-properties": "^7.14.5",
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
-    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-env": "^7.15.8",
     "@babel/preset-react": "^7.14.5",
     "@babel/preset-typescript": "^7.15.0",
     "@sentry/browser": "^6.13.3",
@@ -90,7 +90,7 @@
     "handlebars": "^4.7.7",
     "helmet": "^4.6.0",
     "hot-shots": "^8.5.2",
-    "http-proxy-middleware": "^2.0.0",
+    "http-proxy-middleware": "^2.0.1",
     "i18n-abide": "0.0.26",
     "joi": "^14.3.1",
     "jquery": "3.6.0",
@@ -125,7 +125,7 @@
     "speed-trap": "0.0.10",
     "thread-loader": "^3.0.4",
     "time-grunt": "2.0.0",
-    "typescript": "^4.3.5",
+    "typescript": "^4.4.4",
     "ua-parser-js": "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version",
     "underscore": "^1.13.1",
     "verror": "1.10.0",
@@ -146,7 +146,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "core-js": "^3.15.1",
     "css": "3.0.0",
-    "esbuild": "^0.13.4",
+    "esbuild": "^0.13.5",
     "esbuild-register": "^3.0.0",
     "eslint": "^7.32.0",
     "eslint-plugin-fxa": "^2.0.2",
@@ -176,7 +176,7 @@
     "url-loader": "4.1.1",
     "webpack-dev-middleware": "^5.0.0",
     "xmlhttprequest": "git://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror",
-    "yargs": "^17.0.1"
+    "yargs": "^17.2.1"
   },
   "engines": {
     "node": ">=10",

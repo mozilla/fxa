@@ -120,8 +120,8 @@
   ],
   "resolutions": {
     "gobbledygook": "git://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
-    "tap/typescript": "^4.3.5",
-    "@nestjs/cli/typescript": "^4.3.5",
+    "tap/typescript": "^4.4.4",
+    "@nestjs/cli/typescript": "^4.4.4",
     "@types/node": "^14.14.5",
     "http-proxy": "^1.18.1",
     "browserid-crypto": "git://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
