@@ -4019,7 +4019,8 @@ describe('StripeHelper', () => {
         .stub()
         .resolves({});
       stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
-      await stripeHelper.processWebhookEventToFirestore(event);
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
+      assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
         event.data.object.subscription
@@ -4061,6 +4062,13 @@ describe('StripeHelper', () => {
         stripeHelper.stripeFirestore.insertSubscriptionRecord,
         event.data.object
       );
+    });
+
+    it('does not handle wibble events', async () => {
+      const event = deepCopy(eventSubscriptionUpdated);
+      event.type = 'wibble';
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
+      assert.isFalse(result);
     });
   });
 });
