@@ -2397,7 +2397,7 @@ export class StripeHelper {
 
   async processWebhookEventToFirestore(event: Stripe.Event) {
     if (!this.stripeFirestore) {
-      return;
+      return false;
     }
 
     const { type, data } = event;
@@ -2405,6 +2405,7 @@ export class StripeHelper {
     // Note that we must insert before any event handled by the general
     // webhook code to ensure the object is up to date in Firestore before
     // our code handles the event.
+    let handled = true;
     try {
       switch (type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
         case 'invoice.created':
@@ -2444,6 +2445,8 @@ export class StripeHelper {
           await this.stripeFirestore.insertSubscriptionRecord(subscription);
           break;
         default: {
+          handled = false;
+          break;
         }
       }
     } catch (err) {
@@ -2451,10 +2454,11 @@ export class StripeHelper {
         // We cannot back-fill Firestore with records for deleted customers
         // as they're missing necessary metadata for us to know which user
         // the customer belongs to.
-        return;
+        return handled;
       }
       throw err;
     }
+    return handled;
   }
 
   /**
