@@ -1,3 +1,9 @@
+## 1.217.1
+
+### Bug fixes
+
+- auth: revert "refactor(auth): use expandResource instead of retrieve" (#10711) ([ad211fd61](https://github.com/mozilla/fxa/commit/ad211fd61))
+
 ## 1.217.0
 
 ### New features
