@@ -1,3 +1,27 @@
+## 1.217.1
+
+No changes.
+
+## 1.217.0
+
+### New features
+
+- content-server: render pocket logo in password updated screen for pocket clients ([6d69cd596](https://github.com/mozilla/fxa/commit/6d69cd596))
+- content-server: conditionally render enhanced auth ui for pocket clients ([11fd630e5](https://github.com/mozilla/fxa/commit/11fd630e5))
+- flags: Add feature flag for pocket migration (#10636) ([73fc0aaea](https://github.com/mozilla/fxa/commit/73fc0aaea))
+
+### Refactorings
+
+- build: use esbuild instead of ts-node (#10639) ([a95f1270a](https://github.com/mozilla/fxa/commit/a95f1270a))
+
+### Other changes
+
+- deps: bump grunt-contrib-concat from 1.0.1 to 2.0.0 ([30b947a58](https://github.com/mozilla/fxa/commit/30b947a58))
+- deps: bump webpack-cli from 4.8.0 to 4.9.0 (#10645) ([039c4e0c3](https://github.com/mozilla/fxa/commit/039c4e0c3))
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+- deps-dev: bump @testing-library/react from 12.1.1 to 12.1.2 (#10595) ([4a89d0d8e](https://github.com/mozilla/fxa/commit/4a89d0d8e))
+- deps: bump @sentry/node from 6.12.0 to 6.13.2 (#10583) ([cb19efb3c](https://github.com/mozilla/fxa/commit/cb19efb3c))
+
 ## 1.216.3
 
 No changes.
