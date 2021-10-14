@@ -107,7 +107,7 @@ module.exports = (log, config) => {
      *                      of elements added to that sorted set, i.e. the result of
      *                      [`redis.zadd`](https://redis.io/commands/zadd).
      */
-    async create(uid, flowId, flowBeginTime, now = Date.now()) {
+    async create(uid, flowId, flowBeginTime, productId, productName ,now = Date.now()) {
       try {
         if (rolloutRate <= 1 && Math.random() < rolloutRate) {
           const result = await props(
@@ -119,7 +119,7 @@ module.exports = (log, config) => {
           if (flowId && flowBeginTime) {
             await redis.set(
               `${METADATA_KEY_SUB_FLOW}:${uid}`,
-              JSON.stringify([flowId, flowBeginTime])
+              JSON.stringify([flowId, flowBeginTime, productId, productName])
             );
           }
           log.info('subscriptionAccountReminders.create', {
@@ -188,8 +188,8 @@ module.exports = (log, config) => {
                     const uid = item;
                     let metadata = await redis.get(`${METADATA_KEY_SUB_FLOW}:${uid}`);
                     if (metadata) {
-                      const [flowId, flowBeginTime] = JSON.parse(metadata);
-                      metadata = { flowId, flowBeginTime };
+                      const [flowId, flowBeginTime, productId, productName] = JSON.parse(metadata);
+                      metadata = { flowId, flowBeginTime, productId, productName };
                       if (keyIndex === keys.length - 1) {
                         await redis.del(`${METADATA_KEY_SUB_FLOW}:${uid}`);
                       }

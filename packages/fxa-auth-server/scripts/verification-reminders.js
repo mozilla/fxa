@@ -22,6 +22,7 @@ const config = require(`${ROOT_DIR}/config`).getProperties();
 
 const error = require(`${LIB_DIR}/error`);
 const log = require(`${LIB_DIR}/log`)(config.log);
+const jwt = require(`${LIB_DIR}/oauth/jwt`)
 const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
   log,
   config
@@ -140,25 +141,36 @@ async function run() {
     });
 
     const failedReminders = await reminders.reduce(
-      async (promise, { timestamp, uid, flowId, flowBeginTime }) => {
+      async (promise, { timestamp, uid, flowId, flowBeginTime, productId, productName }) => {
         const failed = await promise;
 
         try {
           if (sent[uid]) {
             // Don't send e.g. first and second reminders to the same email from a single batch
             log.info('subscriptionAccountReminder.skipped.alreadySent', { uid });
-            failed.push({ timestamp, uid, flowId, flowBeginTime });
+            failed.push({ timestamp, uid, flowId, flowBeginTime, productId, productName  });
             return failed;
           }
 
           const account = await db.account(uid);
+          const token = await jwt.sign(
+            { uid },
+            {
+              header: {
+                typ: 'fin+JWT',
+              },
+            }
+          );
           await mailer[method]({
             acceptLanguage: account.locale,
             code: account.emailCode,
             email: account.email,
+            token: token,
             flowBeginTime,
             flowId,
             uid,
+            productId,
+            productName
           });
           // eslint-disable-next-line require-atomic-updates
           sent[uid] = true;
@@ -176,7 +188,7 @@ async function run() {
               break;
             default:
               log.error('subscriptionAccountReminder.error', { err });
-              failed.push({ timestamp, uid, flowId, flowBeginTime });
+              failed.push({ timestamp, uid, flowId, flowBeginTime, productId, productName  });
           }
         }
 

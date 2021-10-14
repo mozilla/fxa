@@ -47,13 +47,13 @@ export async function sendFinishSetupEmailForStubAccount({
       token,
     });
 
-
-    console.log("########################");
     if (metricsContext && subscriptionAccountReminders) {
       await subscriptionAccountReminders.create(
         uid,
         metricsContext.flowId,
         metricsContext.flowBeginTime,
+        invoiceDetails.productId,
+        invoiceDetails.productName
       );
     }
   }
