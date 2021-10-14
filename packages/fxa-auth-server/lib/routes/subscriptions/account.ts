@@ -52,6 +52,7 @@ export async function sendFinishSetupEmailForStubAccount({
         uid,
         metricsContext.flowId,
         metricsContext.flowBeginTime,
+        metricsContext.deviceId,
         invoiceDetails.productId,
         invoiceDetails.productName
       );

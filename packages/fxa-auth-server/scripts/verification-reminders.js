@@ -37,7 +37,7 @@ run()
     process.exit(0);
   })
   .catch((err) => {
-    log.error('verificationReminders.fSSSatal', { err });
+    log.error('verificationReminders.fatal', { err });
     process.exit(1);
   });
 
@@ -141,14 +141,14 @@ async function run() {
     });
 
     const failedReminders = await reminders.reduce(
-      async (promise, { timestamp, uid, flowId, flowBeginTime, productId, productName }) => {
+      async (promise, { timestamp, uid, flowId, flowBeginTime, deviceId, productId, productName }) => {
         const failed = await promise;
 
         try {
           if (sent[uid]) {
             // Don't send e.g. first and second reminders to the same email from a single batch
             log.info('subscriptionAccountReminder.skipped.alreadySent', { uid });
-            failed.push({ timestamp, uid, flowId, flowBeginTime, productId, productName  });
+            failed.push({ timestamp, uid, flowId, flowBeginTime, deviceId, productId, productName  });
             return failed;
           }
 
@@ -169,6 +169,7 @@ async function run() {
             flowBeginTime,
             flowId,
             uid,
+            deviceId,
             productId,
             productName
           });
@@ -188,7 +189,7 @@ async function run() {
               break;
             default:
               log.error('subscriptionAccountReminder.error', { err });
-              failed.push({ timestamp, uid, flowId, flowBeginTime, productId, productName  });
+              failed.push({ timestamp, uid, flowId, flowBeginTime, deviceId, productId, productName  });
           }
         }
 
