@@ -119,7 +119,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
-    "@storybook/addon-controls": "^6.3.10",
+    "@storybook/addon-controls": "^6.3.11",
     "@storybook/addon-docs": "^6.3.10",
     "@storybook/addon-toolbars": "^6.3.10",
     "@storybook/html": "^6.3.10",

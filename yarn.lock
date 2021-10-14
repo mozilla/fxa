@@ -4526,16 +4526,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-controls@npm:^6.3.10":
-  version: 6.3.10
-  resolution: "@storybook/addon-controls@npm:6.3.10"
+"@storybook/addon-controls@npm:^6.3.11":
+  version: 6.3.11
+  resolution: "@storybook/addon-controls@npm:6.3.11"
   dependencies:
-    "@storybook/addons": 6.3.10
-    "@storybook/api": 6.3.10
-    "@storybook/client-api": 6.3.10
-    "@storybook/components": 6.3.10
-    "@storybook/node-logger": 6.3.10
-    "@storybook/theming": 6.3.10
+    "@storybook/addons": 6.3.11
+    "@storybook/api": 6.3.11
+    "@storybook/client-api": 6.3.11
+    "@storybook/components": 6.3.11
+    "@storybook/node-logger": 6.3.11
+    "@storybook/theming": 6.3.11
     core-js: ^3.8.2
     ts-dedent: ^2.0.0
   peerDependencies:
@@ -4546,7 +4546,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 6585979a935983a63c304a330ff251f6e4f03d3da3d703de516060a8c232b990fd632662879b52d523d7391d3f2ee1d08d81fd831d7f25d4719df354fc62d1cc
+  checksum: 0327580a39c1c20c63851f7b50362dd5d328922b5c2ad55cd738bdf3efc4cff8050cad69d4de8eee0835825738c9220cb3e7ba0d9f0065fe03acee0b9d44075b
   languageName: node
   linkType: hard
 
@@ -5381,6 +5381,19 @@ __metadata:
     npmlog: ^4.1.2
     pretty-hrtime: ^1.0.3
   checksum: 2548c12110c944c9e8d9184279dd95ca0fd7b4cd1a926b518a77d9f3b0d6aef3f42cb9675bd782b959718a87d3791a8e5576f80881741bba41bbc3653e8b3e46
+  languageName: node
+  linkType: hard
+
+"@storybook/node-logger@npm:6.3.11":
+  version: 6.3.11
+  resolution: "@storybook/node-logger@npm:6.3.11"
+  dependencies:
+    "@types/npmlog": ^4.1.2
+    chalk: ^4.1.0
+    core-js: ^3.8.2
+    npmlog: ^4.1.2
+    pretty-hrtime: ^1.0.3
+  checksum: d5f3a82a9618b5755af3ae5a5c6b42b6b7499698aebb7a2deeb48ca39ce7ba039cb487a487d5d1d5b358dd918621e70bb5d9282566274f98b1a7680a7de2746c
   languageName: node
   linkType: hard
 
@@ -18678,7 +18691,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
     "@sentry/node": ^6.13.3
-    "@storybook/addon-controls": ^6.3.10
+    "@storybook/addon-controls": ^6.3.11
     "@storybook/addon-docs": ^6.3.10
     "@storybook/addon-toolbars": ^6.3.10
     "@storybook/html": ^6.3.10
