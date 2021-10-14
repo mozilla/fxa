@@ -2552,7 +2552,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@grpc/grpc-js@npm:^1.1.3, @grpc/grpc-js@npm:~1.3.0":
+"@grpc/grpc-js@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "@grpc/grpc-js@npm:1.4.1"
+  dependencies:
+    "@grpc/proto-loader": ^0.6.4
+    "@types/node": ">=12.12.47"
+  checksum: 2fefef0963a1276af1bcf3225267524c4a6733de0e99729d19433a5a1b0705e23e9f718b4a9c4c03961f1f0b5eee10c8694b594b28dbf91aa9e3fea2c5f5e398
+  languageName: node
+  linkType: hard
+
+"@grpc/grpc-js@npm:~1.3.0":
   version: 1.3.1
   resolution: "@grpc/grpc-js@npm:1.3.1"
   dependencies:
@@ -2573,6 +2583,21 @@ __metadata:
   bin:
     proto-loader-gen-types: build/bin/proto-loader-gen-types.js
   checksum: 7564ec1c3f675be9d1093dfa3aebe1730a57c2a180de1968f0c965a828d089726aa2dc26215003a7764b9c089e9f94b3917869b64064d42e7334122508498560
+  languageName: node
+  linkType: hard
+
+"@grpc/proto-loader@npm:^0.6.4":
+  version: 0.6.5
+  resolution: "@grpc/proto-loader@npm:0.6.5"
+  dependencies:
+    "@types/long": ^4.0.1
+    lodash.camelcase: ^4.3.0
+    long: ^4.0.0
+    protobufjs: ^6.10.0
+    yargs: ^16.1.1
+  bin:
+    proto-loader-gen-types: build/bin/proto-loader-gen-types.js
+  checksum: 8fb28e51aa9c531c292a7711c16d4dab06371b32c620a7af1112e5fec8dc2e3e443fb7b8e1c345313c63083940487b6fa142f466761dde6441eaea8a8ce9b0d0
   languageName: node
   linkType: hard
 
@@ -19030,7 +19055,7 @@ fsevents@~2.1.1:
   dependencies:
     "@google-cloud/firestore": ^4.15.1
     "@google-cloud/pubsub": ^2.18.1
-    "@grpc/grpc-js": ^1.1.3
+    "@grpc/grpc-js": ^1.4.1
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^8.1.2
