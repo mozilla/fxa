@@ -530,7 +530,7 @@ describe('DirectStripeRoutes', () => {
       );
 
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.removeCustomerFromCache,
+        directStripeRoutesInstance.stripeHelper.refreshCachedCustomer,
         UID,
         TEST_EMAIL
       );

@@ -77,7 +77,7 @@ export class StripeHandler {
   async customerChanged(request: AuthRequest, uid: string, email: string) {
     const [devices] = await Promise.all([
       await request.app.devices,
-      await this.stripeHelper.removeCustomerFromCache(uid, email),
+      await this.stripeHelper.refreshCachedCustomer(uid, email),
       await this.profile.deleteCache(uid),
     ]);
     await this.push.notifyProfileUpdated(uid, devices);
@@ -161,7 +161,11 @@ export class StripeHandler {
 
     const subscriptionId = request.params.subscriptionId;
 
-    await this.stripeHelper.cancelSubscriptionForCustomer(subscriptionId);
+    await this.stripeHelper.cancelSubscriptionForCustomer(
+      uid,
+      email,
+      subscriptionId
+    );
 
     await this.customerChanged(request, uid, email);
 
@@ -182,7 +186,11 @@ export class StripeHandler {
 
     const { subscriptionId } = request.payload as Record<string, string>;
 
-    await this.stripeHelper.reactivateSubscriptionForCustomer(subscriptionId);
+    await this.stripeHelper.reactivateSubscriptionForCustomer(
+      uid,
+      email,
+      subscriptionId
+    );
 
     await this.customerChanged(request, uid, email);
 
@@ -205,6 +213,8 @@ export class StripeHandler {
     const { planId } = request.payload as Record<string, string>;
 
     const subscription = await this.stripeHelper.subscriptionForCustomer(
+      uid,
+      email,
       subscriptionId
     );
     if (!subscription) {
@@ -356,6 +366,7 @@ export class StripeHandler {
     await this.customs.check(request, email, 'getCustomer');
 
     const customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions.data.latest_invoice',
       'invoice_settings.default_payment_method',
     ]);
     if (!customer) {
@@ -377,7 +388,7 @@ export class StripeHandler {
       if (!this.stripeHelper.getCustomerPaypalAgreement(customer)) {
         billingDetails.paypal_payment_error =
           PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
-      } else if (await this.stripeHelper.hasOpenInvoice(customer)) {
+      } else if (this.stripeHelper.hasOpenInvoice(customer)) {
         billingDetails.paypal_payment_error =
           PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
       }
