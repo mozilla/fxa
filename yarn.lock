@@ -5950,14 +5950,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^13.2.1":
-  version: 13.2.1
-  resolution: "@testing-library/user-event@npm:13.2.1"
+"@testing-library/user-event@npm:^13.3.0":
+  version: 13.3.0
+  resolution: "@testing-library/user-event@npm:13.3.0"
   dependencies:
     "@babel/runtime": ^7.12.5
   peerDependencies:
     "@testing-library/dom": ">=7.21.4"
-  checksum: 5c5eacb8feb57c8f1e023e3e5da4544ef0f8ce233a481fa1090ca73929a4666544bf576f362248c780a3fe4c1a11669414204603b0602e166810243391da392e
+  checksum: 0d17c47728aec71343fc4a8d8b594224c3031513ab59d5797695c53fdfcebef87797a7935ede68c0af896127b2a995e2feb20e64cbd0cd2b2af3f5240241af91
   languageName: node
   linkType: hard
 
@@ -18492,7 +18492,7 @@ fsevents@~2.1.1:
     "@testing-library/dom": ^8.9.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.1.2
-    "@testing-library/user-event": ^13.2.1
+    "@testing-library/user-event": ^13.3.0
     "@types/babel__core": 7.1.14
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
@@ -19484,7 +19484,7 @@ fsevents@~2.1.1:
     "@testing-library/dom": ^8.9.0
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.1.2
-    "@testing-library/user-event": ^13.2.1
+    "@testing-library/user-event": ^13.3.0
     "@types/camelcase": 5.2.0
     "@types/classnames": ^2.3.1
     "@types/file-loader": ^5.0.0
@@ -19549,7 +19549,7 @@ fsevents@~2.1.1:
     "@testing-library/jest-dom": ^5.14.1
     "@testing-library/react": ^12.1.2
     "@testing-library/react-hooks": ^7.0.2
-    "@testing-library/user-event": ^13.2.1
+    "@testing-library/user-event": ^13.3.0
     "@types/babel__core": 7.1.14
     "@types/classnames": ^2.3.1
     "@types/jest": ^26.0.23
