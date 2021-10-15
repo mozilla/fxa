@@ -3610,11 +3610,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:^8.0.8":
-  version: 8.0.8
-  resolution: "@nestjs/common@npm:8.0.8"
+"@nestjs/common@npm:^8.1.1":
+  version: 8.1.1
+  resolution: "@nestjs/common@npm:8.1.1"
   dependencies:
-    axios: 0.21.4
+    axios: 0.23.0
     iterare: 1.2.1
     tslib: 2.3.1
     uuid: 8.3.2
@@ -3631,7 +3631,7 @@ __metadata:
       optional: true
     class-validator:
       optional: true
-  checksum: bebb6f9f8e8f37045073b135246a27f4fc2bb27dca02c2b477f6fed8ac918f8b4020b3c6ec33e1fa5f434c8c559d44dfc2b9391266d23908bf4e37c1458291b3
+  checksum: c7f24709a517fa77b20864d33b12e5df802c7edab7b451086831a83030cd4750fed9a48203cf5b9ce24c75bea068eea050ab70fae6d1b4c381df002247bcd8b2
   languageName: node
   linkType: hard
 
@@ -10382,12 +10382,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:0.21.4, axios@npm:^0.21.0, axios@npm:~0.21.1":
-  version: 0.21.4
-  resolution: "axios@npm:0.21.4"
+"axios@npm:0.23.0":
+  version: 0.23.0
+  resolution: "axios@npm:0.23.0"
   dependencies:
-    follow-redirects: ^1.14.0
-  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
+    follow-redirects: ^1.14.4
+  checksum: 879f61022bd825da2a7ebb72410bc528683ba54c140436baa0b924b7cab02ec0919fe64a04a546f482a75f5fd570b77884f9826764a95f2fd88265e61dcb70db
   languageName: node
   linkType: hard
 
@@ -10397,6 +10397,15 @@ __metadata:
   dependencies:
     follow-redirects: 1.5.10
   checksum: dcace11a0a25fdf9b3b97fc9d011d23dd9c67cc13d91778080482ddddbbfe731f7410a090b11aa0bbbdf83686c5911ccb4289fd3683b7488c1b0c4d3c882380c
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.21.0, axios@npm:~0.21.1":
+  version: 0.21.4
+  resolution: "axios@npm:0.21.4"
+  dependencies:
+    follow-redirects: ^1.14.0
+  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
   languageName: node
   linkType: hard
 
@@ -18974,7 +18983,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
-    "@nestjs/common": ^8.0.8
+    "@nestjs/common": ^8.1.1
     "@nestjs/config": ^1.0.2
     "@nestjs/core": ^8.0.10
     "@nestjs/graphql": ^8.0.2
@@ -19494,7 +19503,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^8.1.2
-    "@nestjs/common": ^8.0.8
+    "@nestjs/common": ^8.1.1
     "@nestjs/config": ^1.0.2
     "@nestjs/core": ^8.0.10
     "@nestjs/graphql": ^8.0.2
@@ -19592,7 +19601,7 @@ fsevents@~2.1.1:
   resolution: "fxa-graphql-api@workspace:packages/fxa-graphql-api"
   dependencies:
     "@nestjs/cli": ^8.1.2
-    "@nestjs/common": ^8.0.8
+    "@nestjs/common": ^8.1.1
     "@nestjs/config": ^1.0.2
     "@nestjs/core": ^8.0.10
     "@nestjs/graphql": ^8.0.2
@@ -20026,7 +20035,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
-    "@nestjs/common": ^8.0.8
+    "@nestjs/common": ^8.1.1
     "@nestjs/config": ^1.0.2
     "@nestjs/core": ^8.0.10
     "@nestjs/graphql": ^8.0.2
@@ -20110,7 +20119,7 @@ fsevents@~2.1.1:
   resolution: "fxa-support-panel@workspace:packages/fxa-support-panel"
   dependencies:
     "@nestjs/cli": ^8.1.2
-    "@nestjs/common": ^8.0.8
+    "@nestjs/common": ^8.1.1
     "@nestjs/config": ^1.0.2
     "@nestjs/core": ^8.0.10
     "@nestjs/mapped-types": ^1.0.0
