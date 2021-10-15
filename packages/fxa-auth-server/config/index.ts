@@ -78,12 +78,6 @@ const conf = convict({
         format: String,
       },
     },
-    enabled: {
-      default: false,
-      doc: 'Whether to use firestore',
-      env: 'AUTH_FIRESTORE_ENABLED',
-      format: Boolean,
-    },
     keyFilename: {
       default: path.resolve(__dirname, 'secret-key.json'),
       doc: 'Path to GCP key file',

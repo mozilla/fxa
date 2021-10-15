@@ -40,7 +40,7 @@ async function run(config) {
   const log = require('../lib/log')({ ...config.log, statsd });
   Container.set(AuthLogger, log);
 
-  if (config.authFirestore.enabled) {
+  if (!Container.has(AuthFirestore)) {
     const authFirestore = setupFirestore(config);
     Container.set(AuthFirestore, authFirestore);
   }

@@ -9,11 +9,13 @@ executors:
       - image: memcached
       - image: pafortin/goaws
       - image: circleci/mysql:5.7.27
+      - image: jdlk7/firestore-emulator
         environment:
           NODE_ENV: dev
           FXA_EMAIL_ENV: dev
           FXA_EMAIL_LOG_LEVEL: debug
           RUST_BACKTRACE: 1
+          AUTH_FIRESTORE_EMULATOR_HOST: localhost:9090
     environment:
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
 
@@ -89,6 +91,11 @@ jobs:
       - image: memcached
       - image: pafortin/goaws
       - image: circleci/mysql:5.7.27
+      - image: jdlk7/firestore-emulator
+        environment:
+          NODE_ENV: dev
+          AUTH_FIRESTORE_EMULATOR_HOST: localhost:9090
+
     parameters:
       package:
         type: string
