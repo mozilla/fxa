@@ -461,7 +461,8 @@
       "passwordChangeRequired",
       "recovery",
       "subscriptionPaymentExpired",
-      "subscriptionsPaymentExpired"
+      "subscriptionsPaymentExpired",
+      "subscriptionReactivation"
     ]
   }
 }
