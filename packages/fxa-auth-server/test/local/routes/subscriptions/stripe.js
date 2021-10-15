@@ -25,6 +25,9 @@ const {
   handleAuth,
   DirectStripeRoutes,
 } = require('../../../../lib/routes/subscriptions');
+const { AuthLogger } = require('../../../../lib/types');
+const { CapabilityService } = require('../../../../lib/payments/capability');
+const { PlayBilling } = require('../../../../lib/payments/google-play');
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
   require('fxa-shared').subscriptions.stripe;
@@ -41,8 +44,6 @@ const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
 const newSetupIntent = require('../../payments/fixtures/stripe/setup_intent_new.json');
 const stripePlan = require('../../payments/fixtures/stripe/plan1.json');
 const paymentMethodFixture = require('../../payments/fixtures/stripe/payment_method.json');
-
-const { CapabilityService } = require('../../../../lib/payments/capability');
 
 const currencyHelper = new CurrencyHelper({
   currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
@@ -203,9 +204,6 @@ describe('subscriptions stripeRoutes', () => {
   beforeEach(() => {
     Container.reset();
     config = {
-      authFirestore: {
-        enabled: false,
-      },
       subscriptions: {
         enabled: true,
         managementClientId: MOCK_CLIENT_ID,
@@ -227,6 +225,9 @@ describe('subscriptions stripeRoutes', () => {
 
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
+
+    Container.set(AuthLogger, log);
+    Container.set(PlayBilling, {});
 
     db = mocks.mockDB({
       uid: UID,

@@ -21,11 +21,13 @@ const subscription2 = require('../../payments/fixtures/stripe/subscription2.json
 const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
 const { filterSubscription } = require('fxa-shared/subscriptions/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
+const { AuthLogger } = require('../../../../lib/types');
 const buildRoutes = require('../../../../lib/routes/subscriptions');
 
 const ACCOUNT_LOCALE = 'en-US';
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const { CapabilityService } = require('../../../../lib/payments/capability');
+const { PlayBilling } = require('../../../../lib/payments/google-play');
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
@@ -112,6 +114,8 @@ describe('subscriptions payPalRoutes', () => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
     token = uuid.v4();
+    Container.set(AuthLogger, log);
+    Container.set(PlayBilling, {});
     stripeHelper = sinon.createStubInstance(StripeHelper);
     Container.set(StripeHelper, stripeHelper);
     payPalHelper = sinon.createStubInstance(PayPalHelper);

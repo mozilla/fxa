@@ -87,7 +87,8 @@ const createRoutes = (
       )
     );
   }
-  if (config.authFirestore.enabled) {
+
+  if (config.subscriptions?.playApiServiceAccount?.enabled) {
     routes.push(...googleIapRoutes(db));
     routes.push(...playPubsubRoutes(db));
   }

@@ -135,8 +135,8 @@ export class StripeHelper {
   private redis: ioredis.Redis | undefined;
   private statsd: StatsD;
   private taxIds: { [key: string]: string };
-  private firestore?: Firestore;
-  private stripeFirestore?: StripeFirestore;
+  private firestore: Firestore;
+  private stripeFirestore: StripeFirestore;
   public currencyHelper: CurrencyHelper;
 
   /**
@@ -170,19 +170,17 @@ export class StripeHelper {
       maxNetworkRetries: 3,
     });
 
-    if (Container.has(AuthFirestore)) {
-      this.firestore = Container.get(AuthFirestore);
-      const firestore_prefix = `${config.authFirestore.prefix}stripe-`;
-      const customerCollectionDbRef = this.firestore.collection(
-        `${firestore_prefix}customers`
-      );
-      this.stripeFirestore = new StripeFirestore(
-        this.firestore,
-        customerCollectionDbRef,
-        this.stripe,
-        firestore_prefix
-      );
-    }
+    this.firestore = Container.get(AuthFirestore);
+    const firestore_prefix = `${config.authFirestore.prefix}stripe-`;
+    const customerCollectionDbRef = this.firestore.collection(
+      `${firestore_prefix}customers`
+    );
+    this.stripeFirestore = new StripeFirestore(
+      this.firestore,
+      customerCollectionDbRef,
+      this.stripe,
+      firestore_prefix
+    );
 
     cacheManager.setOptions({
       // Ensure the StripeHelper instance is passed into TTLBuilder functions
@@ -2338,57 +2336,42 @@ export class StripeHelper {
       throw error;
     }
 
-    if (this.stripeFirestore) {
-      switch (resourceType) {
-        case CUSTOMER_RESOURCE:
+    switch (resourceType) {
+      case CUSTOMER_RESOURCE:
+        // @ts-ignore
+        const customer = await this.stripeFirestore.retrieveAndFetchCustomer(
+          resource
+        );
+        const subscriptions =
+          await this.stripeFirestore.retrieveCustomerSubscriptions(resource);
+        if (subscriptions.length) {
+          (customer as any).subscriptions = {
+            data: subscriptions as any,
+            has_more: false,
+          };
+        }
+        // @ts-ignore
+        return customer;
+      case SUBSCRIPTIONS_RESOURCE:
+        // @ts-ignore
+        return this.stripeFirestore.retrieveAndFetchSubscription(resource);
+      case INVOICES_RESOURCE:
+        try {
+          const invoice = await this.stripeFirestore.retrieveInvoice(resource);
           // @ts-ignore
-          const customer = await this.stripeFirestore.retrieveAndFetchCustomer(
-            resource
-          );
-          const subscriptions =
-            await this.stripeFirestore.retrieveCustomerSubscriptions(resource);
-          if (subscriptions.length) {
-            (customer as any).subscriptions = {
-              data: subscriptions as any,
-              has_more: false,
-            };
-          }
-          // @ts-ignore
-          return customer;
-        case SUBSCRIPTIONS_RESOURCE:
-          // @ts-ignore
-          return this.stripeFirestore.retrieveAndFetchSubscription(resource);
-        case INVOICES_RESOURCE:
-          try {
-            const invoice = await this.stripeFirestore.retrieveInvoice(
-              resource
+          return invoice;
+        } catch (err) {
+          if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
+            const invoice = await this.stripe.invoices.retrieve(resource);
+            await this.stripeFirestore.retrieveAndFetchCustomer(
+              invoice.customer as string
             );
+            await this.stripeFirestore.insertInvoiceRecord(invoice);
             // @ts-ignore
             return invoice;
-          } catch (err) {
-            if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
-              const invoice = await this.stripe.invoices.retrieve(resource);
-              await this.stripeFirestore.retrieveAndFetchCustomer(
-                invoice.customer as string
-              );
-              await this.stripeFirestore.insertInvoiceRecord(invoice);
-              // @ts-ignore
-              return invoice;
-            }
-            throw err;
           }
-      }
-    }
-
-    // We make an exception here for customers because we need to get the
-    // subscriptions for the customer.  The Stripe API stopped including
-    // subscriptions for a customer in version 2020-08-27; this ensures
-    // backwards compatibility for our code that's relying on that behavior.
-    if (resourceType === CUSTOMER_RESOURCE) {
-      // @ts-ignore
-      return this.stripe.customers.retrieve(resource, {
-        expand: [SUBSCRIPTIONS_RESOURCE],
-      });
+          throw err;
+        }
     }
 
     // @ts-ignore
@@ -2396,10 +2379,6 @@ export class StripeHelper {
   }
 
   async processWebhookEventToFirestore(event: Stripe.Event) {
-    if (!this.stripeFirestore) {
-      return false;
-    }
-
     const { type, data } = event;
 
     // Note that we must insert before any event handled by the general

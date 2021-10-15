@@ -7,6 +7,9 @@
 const path = require('path');
 const program = require('commander');
 const pckg = require('../package.json');
+const { Container } = require('typedi');
+const { AuthFirestore } = require('../lib/types');
+const { setupFirestore } = require('../lib/firestore-db');
 
 async function init() {
   program
@@ -56,8 +59,14 @@ async function init() {
   // We don't need caching here and this skips creating a Redis connection.
   process.env.SUBHUB_PLANS_CACHE_TTL_SECONDS = 0;
 
+  // Use local firestore
+  process.env.AUTH_FIRESTORE_EMULATOR_HOST = 'localhost:9090';
+
   const config = require('../config').getProperties();
   const log = require('../lib/log')(config.log.level);
+
+  const authFirestore = setupFirestore(config);
+  Container.set(AuthFirestore, authFirestore);
 
   if (!config.subscriptions.stripeApiKey) {
     // When this is run in CI for pull requests on forks, the Stripe key
@@ -73,7 +82,6 @@ async function init() {
     process.exit(1);
   }
 
-  const { Container } = require('typedi');
   const { CurrencyHelper } = require('../lib/payments/currencies');
   const currencyHelper = new CurrencyHelper(config);
   Container.set(CurrencyHelper, currencyHelper);
