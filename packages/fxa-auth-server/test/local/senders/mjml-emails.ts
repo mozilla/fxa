@@ -1020,6 +1020,24 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
+
+  ['subscriptionReactivationEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} subscription reactivated` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionReactivation') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionReactivation' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionReactivation }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
 ];
 
 describe('lib/senders/mjml-emails:', () => {
