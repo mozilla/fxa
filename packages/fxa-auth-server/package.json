@@ -92,7 +92,7 @@
     "lodash": "^4.17.21",
     "luxon": "^2.0.2",
     "memcached": "^2.2.2",
-    "mjml": "^4.10.3",
+    "mjml": "^4.10.4",
     "moment-timezone": "^0.5.33",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
