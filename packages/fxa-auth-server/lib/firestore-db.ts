@@ -16,13 +16,13 @@ export function setupFirestore(config: ConfigType) {
   }
 
   // Utilize the local firestore emulator when the env indicates
-  if (process.env.AUTH_FIRESTORE_EMULATOR_HOST) {
+  if (process.env.FIRESTORE_EMULATOR_HOST) {
     return new Firestore({
       customHeaders: {
         Authorization: 'Bearer owner',
       },
       port: 9090,
-      projectId: 'fx-auth-server',
+      projectId: 'demo-fxa',
       servicePath: 'localhost',
       sslCreds: grpc.credentials.createInsecure(),
     });
