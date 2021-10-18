@@ -13,6 +13,7 @@ import { paypalNotificationRoutes } from './paypal-notifications';
 import { playPubsubRoutes } from './play-pubsub';
 import { sanitizePlans, StripeHandler, stripeRoutes } from './stripe';
 import { stripeWebhookRoutes } from './stripe-webhook';
+import { mozillaSubscriptionRoutes } from './mozilla';
 import { supportRoutes } from './support';
 import { handleAuth } from './utils';
 
@@ -60,6 +61,9 @@ const createRoutes = (
       )
     );
     routes.push(...supportRoutes(log, db, config, customs, zendeskClient));
+    routes.push(
+      ...mozillaSubscriptionRoutes({ log, db, customs, stripeHelper })
+    );
   }
   if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {
     routes.push(

@@ -80,6 +80,11 @@ const {
   FirestoreStripeError,
   newFirestoreStripeError,
 } = require('../../../lib/payments/stripe-firestore');
+const {
+  MozillaSubscriptionTypes,
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+} = require('../../../../fxa-shared/subscriptions/types');
 
 const mockConfig = {
   authFirestore: {
@@ -2785,13 +2790,14 @@ describe('StripeHelper', () => {
 
         const expected = [
           {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
             created: pastDueSubscription.created,
             current_period_end: pastDueSubscription.current_period_end,
             current_period_start: pastDueSubscription.current_period_start,
             cancel_at_period_end: false,
             end_at: null,
             plan_id: pastDueSubscription.plan.id,
-            product_id: productId,
+            product_id: product1.id,
             product_name: productName,
             status: 'past_due',
             subscription_id: pastDueSubscription.id,
@@ -2811,6 +2817,7 @@ describe('StripeHelper', () => {
           it('includes charge failure information with the subscription data', async () => {
             invoice.charge = failedChargeCopy;
             subscription.latest_invoice = invoice;
+            subscription.plan.product = product1.id;
 
             const input = { data: [subscription] };
 
@@ -2849,13 +2856,14 @@ describe('StripeHelper', () => {
               .resolves(paidInvoice);
             const expected = [
               {
+                _subscription_type: MozillaSubscriptionTypes.WEB,
                 created: subscription1.created,
                 current_period_end: subscription1.current_period_end,
                 current_period_start: subscription1.current_period_start,
                 cancel_at_period_end: false,
                 end_at: null,
                 plan_id: subscription1.plan.id,
-                product_id: productId,
+                product_id: product1.id,
                 product_name: productName,
                 status: 'active',
                 subscription_id: subscription1.id,
@@ -2880,13 +2888,14 @@ describe('StripeHelper', () => {
               .resolves(paidInvoice);
             const expected = [
               {
+                _subscription_type: MozillaSubscriptionTypes.WEB,
                 created: subscription.created,
                 current_period_end: subscription.current_period_end,
                 current_period_start: subscription.current_period_start,
                 cancel_at_period_end: true,
                 end_at: null,
                 plan_id: subscription.plan.id,
-                product_id: productId,
+                product_id: product1.id,
                 product_name: productName,
                 status: 'active',
                 subscription_id: subscription.id,
@@ -2903,12 +2912,15 @@ describe('StripeHelper', () => {
 
         describe('when the subscription has already ended', () => {
           it('set end_at to the last active day of the subscription', async () => {
-            const input = { data: [cancelledSubscription] };
+            const sub = deepCopy(cancelledSubscription);
+            sub.plan.product = product1.id;
+            const input = { data: [sub] };
             sandbox
               .stub(stripeHelper.stripe.invoices, 'retrieve')
               .resolves(paidInvoice);
             const expected = [
               {
+                _subscription_type: MozillaSubscriptionTypes.WEB,
                 created: cancelledSubscription.created,
                 current_period_end: cancelledSubscription.current_period_end,
                 current_period_start:
@@ -2916,8 +2928,8 @@ describe('StripeHelper', () => {
                 cancel_at_period_end: false,
                 end_at: cancelledSubscription.ended_at,
                 plan_id: cancelledSubscription.plan.id,
-                product_id: productId,
-                product_name: productName,
+                product_id: product1.id,
+                product_name: product1.name,
                 status: 'canceled',
                 subscription_id: cancelledSubscription.id,
                 failure_code: undefined,
@@ -4086,6 +4098,234 @@ describe('StripeHelper', () => {
       event.type = 'wibble';
       const result = await stripeHelper.processWebhookEventToFirestore(event);
       assert.isFalse(result);
+    });
+  });
+
+  describe('getBillingDetailsAndSubscriptions', () => {
+    const customer = { id: 'cus_xyz' };
+    const billingDetails = { payment_provider: 'paypal' };
+    const billingAgreementId = 'ba-123';
+
+    beforeEach(() => {
+      sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
+      sandbox
+        .stub(stripeHelper, 'extractBillingDetails')
+        .returns(billingDetails);
+      sandbox
+        .stub(stripeHelper, 'getCustomerPaypalAgreement')
+        .returns(billingAgreementId);
+      sandbox
+        .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
+        .returns(true);
+      sandbox.stub(stripeHelper, 'hasOpenInvoice').returns(true);
+    });
+
+    it('returns null when no customer is found', async () => {
+      stripeHelper.fetchCustomer.restore();
+      sandbox.stub(stripeHelper, 'fetchCustomer').resolves(undefined);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.equal(actual, null);
+      sinon.assert.calledOnceWithExactly(stripeHelper.fetchCustomer, 'uid', [
+        'subscriptions.data.latest_invoice',
+        'invoice_settings.default_payment_method',
+      ]);
+    });
+
+    it('includes the customer Stripe billing details', async () => {
+      const billingDetails = { payment_provider: 'stripe' };
+      stripeHelper.extractBillingDetails.restore();
+      sandbox
+        .stub(stripeHelper, 'extractBillingDetails')
+        .returns(billingDetails);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions: [],
+        ...billingDetails,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.extractBillingDetails,
+        customer
+      );
+    });
+
+    it('includes the customer PayPal billing details', async () => {
+      stripeHelper.hasSubscriptionRequiringPaymentMethod.restore();
+      sandbox
+        .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
+        .returns(false);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions: [],
+        billing_agreement_id: billingAgreementId,
+        ...billingDetails,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getCustomerPaypalAgreement,
+        customer
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.hasSubscriptionRequiringPaymentMethod,
+        customer
+      );
+    });
+
+    it('includes the missing billing agreement error state', async () => {
+      stripeHelper.getCustomerPaypalAgreement.restore();
+      sandbox.stub(stripeHelper, 'getCustomerPaypalAgreement').returns(null);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions: [],
+        billing_agreement_id: null,
+        paypal_payment_error: PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+        ...billingDetails,
+      });
+    });
+
+    it('includes the funding source error state', async () => {
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions: [],
+        billing_agreement_id: null,
+        paypal_payment_error: PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+        ...billingDetails,
+      });
+      sinon.assert.calledOnceWithExactly(stripeHelper.hasOpenInvoice, customer);
+    });
+
+    it('includes a list of subscriptions', async () => {
+      const subscriptions = [{ id: 'sub_testo' }];
+      stripeHelper.fetchCustomer.restore();
+      sandbox
+        .stub(stripeHelper, 'fetchCustomer')
+        .resolves({ ...customer, subscriptions });
+      sandbox
+        .stub(stripeHelper, 'subscriptionsToResponse')
+        .resolves(subscriptions);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions,
+        billing_agreement_id: billingAgreementId,
+        ...billingDetails,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.subscriptionsToResponse,
+        subscriptions
+      );
+    });
+  });
+
+  describe('extractBillingDetails', () => {
+    const paymentProvider = { payment_provider: 'stripe' };
+    const card = {
+      brand: 'visa',
+      exp_month: 8,
+      exp_year: 2022,
+      funding: 'credit',
+      last4: '4242',
+    };
+    const invoice_settings = {
+      default_payment_method: {
+        billing_details: {
+          name: 'Testo McTestson',
+        },
+        card,
+      },
+    };
+    const source = { name: 'Testo McTestson', object: 'card', ...card };
+
+    beforeEach(() => {
+      sandbox.stub(stripeHelper, 'getPaymentProvider').returns('stripe');
+    });
+
+    it('returns the correct payment provider', () => {
+      const customer = { id: 'cus_xyz', invoice_settings: {} };
+      const actual = stripeHelper.extractBillingDetails(customer);
+
+      assert.deepEqual(actual, paymentProvider);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentProvider,
+        customer
+      );
+    });
+
+    it('returns the card details from the default payment method', () => {
+      const customer = {
+        id: 'cus_xyz',
+        invoice_settings,
+      };
+
+      const actual = stripeHelper.extractBillingDetails(customer);
+
+      assert.deepEqual(actual, {
+        ...paymentProvider,
+        billing_name:
+          customer.invoice_settings.default_payment_method.billing_details.name,
+        payment_type:
+          customer.invoice_settings.default_payment_method.card.funding,
+        last4: customer.invoice_settings.default_payment_method.card.last4,
+        exp_month:
+          customer.invoice_settings.default_payment_method.card.exp_month,
+        exp_year:
+          customer.invoice_settings.default_payment_method.card.exp_year,
+        brand: customer.invoice_settings.default_payment_method.card.brand,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentProvider,
+        customer
+      );
+    });
+
+    it('returns the card details from the payment source', () => {
+      const customer = {
+        id: 'cus_xyz',
+        invoice_settings: {
+          default_payment_method: {},
+        },
+        sources: { data: [source] },
+      };
+
+      const actual = stripeHelper.extractBillingDetails(customer);
+
+      assert.deepEqual(actual, {
+        ...paymentProvider,
+        billing_name: customer.sources.data[0].name,
+        payment_type: customer.sources.data[0].funding,
+        last4: customer.sources.data[0].last4,
+        exp_month: customer.sources.data[0].exp_month,
+        exp_year: customer.sources.data[0].exp_year,
+        brand: customer.sources.data[0].brand,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentProvider,
+        customer
+      );
     });
   });
 });
