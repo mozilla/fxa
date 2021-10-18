@@ -80,7 +80,6 @@ const {
   FirestoreStripeError,
   newFirestoreStripeError,
 } = require('../../../lib/payments/stripe-firestore');
-const authDbModule = require('fxa-shared/db/models/auth');
 
 const mockConfig = {
   authFirestore: {
@@ -1152,6 +1151,8 @@ describe('StripeHelper', () => {
       sandbox.stub(stripeHelper.stripe.customers, 'update').resolves({});
       const now = new Date();
       const clock = sinon.useFakeTimers(now.getTime());
+
+      const authDbModule = require('fxa-shared/db/models/auth');
       sandbox.stub(authDbModule, 'updatePayPalBA').returns(0);
 
       await stripeHelper.removeCustomerPaypalAgreement(
@@ -3187,13 +3188,6 @@ describe('StripeHelper', () => {
           ],
         },
       };
-      sandbox.stub(authDbModule, 'getUidAndEmailByStripeCustomerId').resolves({
-        uid: mockCustomer.metadata.userid,
-        email: mockCustomer.email,
-      });
-      stripeHelperCustomerStub = sandbox
-        .stub(stripeHelper, 'customer')
-        .resolves(mockCustomer);
 
       mockAllAbbrevProducts = [
         {

@@ -15,7 +15,6 @@ import {
   createAccountCustomer,
   deleteAccountCustomer,
   getAccountCustomerByUid,
-  getUidAndEmailByStripeCustomerId,
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import {
@@ -1729,6 +1728,14 @@ export class StripeHelper {
    *   - No email on the customer object.
    */
   async extractInvoiceDetailsForEmail(invoice: Stripe.Invoice) {
+    const customer = await this.expandResource(
+      invoice.customer,
+      CUSTOMER_RESOURCE
+    );
+    if (!customer || customer.deleted) {
+      throw error.unknownCustomer(invoice.customer);
+    }
+
     // Dig up & expand objects in the invoice that usually come as just IDs
     const { plan } = invoice.lines.data[0];
     if (!plan) {
@@ -1740,27 +1747,6 @@ export class StripeHelper {
         new Error(`Unexpected line item: ${invoice.lines.data[0].id}`)
       );
     }
-
-    const { uid, email } = await getUidAndEmailByStripeCustomerId(
-      invoice.customer
-    );
-
-    if (!email || !uid) {
-      throw error.internalValidationError(
-        'extractInvoiceDetailsForEmail',
-        { customerId: invoice.customer },
-        'Customer missing email or uid.'
-      );
-    }
-
-    const customer = await this.customer({
-      uid,
-      email,
-    });
-    if (!customer || customer.deleted) {
-      throw error.unknownCustomer(invoice.customer);
-    }
-
     const [abbrevProduct, charge] = await Promise.all([
       this.expandAbbrevProductForPlan(plan),
       this.expandResource(invoice.charge, CHARGES_RESOURCE),
@@ -1774,6 +1760,18 @@ export class StripeHelper {
       );
     }
 
+    if (!customer.email) {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        { customerId: customer.id },
+        'Customer missing email.'
+      );
+    }
+
+    const {
+      email,
+      metadata: { userid: uid },
+    } = customer;
     const { product_id: productId, product_name: productName } = abbrevProduct;
     const {
       number: invoiceNumber,
@@ -1909,21 +1907,11 @@ export class StripeHelper {
       );
     }
 
-    const { uid, email } = await getUidAndEmailByStripeCustomerId(
-      source.customer
+    const customer = await this.expandResource(
+      source.customer,
+      CUSTOMER_RESOURCE
     );
-    if (!uid || !email) {
-      throw error.internalValidationError(
-        'extractSourceDetailsForEmail',
-        { customerId: source.customer },
-        'Customer missing uid or email.'
-      );
-    }
-    const customer = await this.customer({
-      uid,
-      email,
-    });
-    if (!customer || customer.deleted) {
+    if (customer.deleted === true) {
       throw error.unknownCustomer(source.customer);
     }
 
@@ -1943,6 +1931,18 @@ export class StripeHelper {
         source
       );
     }
+    if (!customer.email) {
+      throw error.internalValidationError(
+        'extractSourceDetailsForEmail',
+        { customerId: customer.id },
+        'Customer missing email.'
+      );
+    }
+
+    const {
+      email,
+      metadata: { userid: uid },
+    } = customer;
 
     return {
       uid,
@@ -1965,19 +1965,12 @@ export class StripeHelper {
 
     const eventData = event.data;
     const subscription = eventData.object as Stripe.Subscription;
-    const customerId = subscription.customer;
-
-    const { uid, email } = await getUidAndEmailByStripeCustomerId(customerId);
-    if (!uid || !email) {
-      throw error.internalValidationError(
-        'extractSubscriptionUpdateEventDetailsForEmail',
-        { customerId },
-        'Customer missing uid or email.'
-      );
-    }
-    const customer = await this.customer({ uid, email });
-    if (!customer || customer.deleted) {
-      throw error.unknownCustomer(customerId);
+    const customer = await this.expandResource(
+      subscription.customer,
+      'customers'
+    );
+    if (customer.deleted === true) {
+      throw error.unknownCustomer(subscription.customer);
     }
 
     let invoice = subscription.latest_invoice;
@@ -1987,6 +1980,11 @@ export class StripeHelper {
         expand: ['charge'],
       });
     }
+
+    const {
+      email,
+      metadata: { userid: uid },
+    } = customer;
 
     const planNew = singlePlan(subscription);
     if (!planNew) {
