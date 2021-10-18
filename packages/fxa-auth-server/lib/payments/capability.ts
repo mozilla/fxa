@@ -13,6 +13,7 @@ import { AuthLogger, AuthRequest, ProfileClient } from '../types';
 import { PlayBilling } from './google-play/play-billing';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { StripeHelper } from './stripe';
+import error from '../error';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -94,6 +95,15 @@ export class CapabilityService {
     uid?: string | null;
     email?: string | null;
   }) {
+    if (typeof sub.customer !== 'string') {
+      throw error.internalValidationError(
+        'stripeUpdate',
+        {
+          subscriptionId: sub.id,
+        },
+        'Subscription customer was not a string.'
+      );
+    }
     if (!uid || !email) {
       ({ uid, email } = await getUidAndEmailByStripeCustomerId(sub.customer));
     }

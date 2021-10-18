@@ -75,17 +75,6 @@ describe('auth', () => {
       assert.isNull(uid);
       assert.isNull(email);
     });
-    it('throws an error if a non-string is passed in as the argument', async () => {
-      try {
-        await getUidAndEmailByStripeCustomerId(customer1 as Stripe.Customer);
-        assert.fail('Validation error expected for invalid customer id.');
-      } catch (err) {
-        assert.equal(
-          err.message,
-          `Argument is not a string for customer with id ${customer1.id}`
-        );
-      }
-    });
   });
 
   describe('accountCustomers CRUD', () => {

@@ -83,20 +83,15 @@ export async function getAccountCustomerByUid(uid: string) {
  * Fetch the FxA user id and primary email for a customer by Stripe customer id.
  */
 export async function getUidAndEmailByStripeCustomerId(
-  customer: string | Stripe.Customer | Stripe.DeletedCustomer | null
+  customerId: string
 ): Promise<{ uid: string | null; email: string | null }> {
-  if (typeof customer !== 'string') {
-    throw new Error(
-      `Argument is not a string for customer with id ${customer?.id}`
-    );
-  }
   const accounts = Account.tableName;
   const accountCustomers = AccountCustomers.tableName;
   const result = await Account.query()
     .select(`${accounts}.uid`, `${accounts}.email`)
     .join(`${accountCustomers}`, `${accountCustomers}.uid`, `${accounts}.uid`)
     .where({
-      [`${accountCustomers}.stripeCustomerId`]: customer,
+      [`${accountCustomers}.stripeCustomerId`]: customerId,
     })
     .limit(1)
     .first();
