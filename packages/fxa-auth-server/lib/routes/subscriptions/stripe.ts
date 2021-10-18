@@ -122,32 +122,6 @@ export class StripeHandler {
     );
   }
 
-  // TODO: This can be removed, its a ghost function, no callers.
-  findCustomerSubscriptionByProductId(
-    customer: Stripe.Customer,
-    productId: string
-  ): Stripe.Subscription | undefined {
-    if (!customer.subscriptions) {
-      throw error.internalValidationError(
-        'findCustomerSubscriptionByProductId',
-        {
-          customerId: customer.id,
-        },
-        'Expected subscriptions to be loaded.'
-      );
-    }
-    return customer.subscriptions.data.find(
-      (sub) =>
-        sub.items.data.find(
-          (item) =>
-            item.plan.product === productId ||
-            (item.plan.product &&
-              typeof item.plan.product !== 'string' &&
-              item.plan.product.id)
-        ) != null
-    );
-  }
-
   async deleteSubscription(request: AuthRequest) {
     this.log.begin('subscriptions.deleteSubscription', request);
 
@@ -340,8 +314,6 @@ export class StripeHandler {
 
   /**
    * Create a customer.
-   *
-   * New PaymentMethod flow.
    */
   async createCustomer(
     request: AuthRequest
@@ -371,8 +343,6 @@ export class StripeHandler {
 
   /**
    * Retry an invoice by attaching a new payment method id for use.
-   *
-   * New PaymentMethod flow.
    */
   async retryInvoice(request: AuthRequest) {
     this.log.begin('subscriptions.retryInvoice', request);
@@ -401,8 +371,6 @@ export class StripeHandler {
 
   /**
    * Create a subscription for a user.
-   *
-   * New PaymentMethod flow.
    */
   async createSubscriptionWithPMI(request: AuthRequest): Promise<{
     sourceCountry: string | null;
@@ -583,67 +551,6 @@ export class StripeHandler {
 
     // Do nothing.  There's no course correction action to take.
     return { id: paymentMethodId };
-  }
-
-  /**
-   * Gather all capabilities granted by a product across all clients
-   */
-  async getProductCapabilities(productId: string): Promise<string[]> {
-    const plans = await this.stripeHelper.allAbbrevPlans();
-    const capabilitiesForProduct = [];
-    for (const plan of plans) {
-      if (plan.product_id !== productId) {
-        continue;
-      }
-      const metadata = metadataFromPlan(plan);
-      const capabilityKeys = [
-        'capabilities',
-        ...Object.keys(metadata).filter((key) =>
-          key.startsWith('capabilities:')
-        ),
-      ];
-      for (const key of capabilityKeys) {
-        capabilitiesForProduct.push(
-          ...splitCapabilities((metadata as any)[key])
-        );
-      }
-    }
-    // Remove duplicates with Set
-    const capabilitySet = new Set(capabilitiesForProduct);
-    return [...capabilitySet];
-  }
-
-  /**
-   * Get a list of subscriptions with a FxA UID and email address.
-   */
-  async getSubscriptions(request: AuthRequest) {
-    this.log.begin('subscriptions.getSubscriptions', request);
-
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.customer({
-      uid,
-      email,
-    });
-
-    // A FxA user isn't always a customer.
-    if (!customer) {
-      return [];
-    }
-
-    if (!customer.subscriptions) {
-      throw error.internalValidationError(
-        'getSubscriptions',
-        {
-          customerId: customer.id,
-        },
-        'Customer did not have any subscriptions.'
-      );
-    }
-    const response = await this.stripeHelper.subscriptionsToResponse(
-      customer.subscriptions
-    );
-
-    return response;
   }
 
   /**

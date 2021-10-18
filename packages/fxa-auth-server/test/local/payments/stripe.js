@@ -1964,51 +1964,6 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('updateCustomerPaymentMethod', () => {
-    it('updates a customer using stripe api', async () => {
-      const expected = deepCopy(customer1);
-      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves(expected);
-
-      const actual = await stripeHelper.updateCustomerPaymentMethod(
-        customer1.id,
-        'tok_visa'
-      );
-
-      assert.deepEqual(actual, expected);
-    });
-
-    it('surfaces payment token errors', async () => {
-      const apiError = new stripeError.StripeCardError();
-      sandbox.stub(stripeHelper.stripe.customers, 'update').rejects(apiError);
-
-      return stripeHelper
-        .updateCustomerPaymentMethod(customer1.id, 'tok_visa')
-        .then(
-          () => Promise.reject(new Error('Method expected to reject')),
-          (err) => {
-            assert.equal(
-              err.errno,
-              error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
-            );
-          }
-        );
-    });
-
-    it('surfaces stripe errors', async () => {
-      const apiError = new stripeError.StripeAPIError();
-      sandbox.stub(stripeHelper.stripe.customers, 'update').rejects(apiError);
-
-      return stripeHelper
-        .updateCustomerPaymentMethod(customer1.id, 'tok_visa')
-        .then(
-          () => Promise.reject(new Error('Method expected to reject')),
-          (err) => {
-            assert.equal(err, apiError);
-          }
-        );
-    });
-  });
-
   describe('addTaxIdToCustomer', () => {
     it('updates stripe if theres a tax id for the currency', async () => {
       const customer = deepCopy(customer1);

@@ -302,13 +302,6 @@ export class StripeHelper {
     return taxRates.find((tr) => tr.country?.toLowerCase() === lcCountryCode);
   }
 
-  /** BEGIN: NEW FLOW HELPERS FOR PAYMENT METHODS
-   *
-   * The following methods until the END are for the new payment method
-   * oriented flows that utilize client logic to determine appropriate actions.
-   *
-   **/
-
   /**
    * Create a stripe customer.
    */
@@ -498,8 +491,6 @@ export class StripeHelper {
 
   /**
    * Get Invoice object based on invoice Id
-   *
-   * @param id
    */
   async getInvoice(id: string): Promise<Stripe.Invoice> {
     return this.stripe.invoices.retrieve(id);
@@ -507,8 +498,6 @@ export class StripeHelper {
 
   /**
    * Finalizes an invoice and marks auto_advance as false.
-   *
-   * @param invoice
    */
   async finalizeInvoice(invoice: Stripe.Invoice) {
     return this.stripe.invoices.finalizeInvoice(invoice.id, {
@@ -518,9 +507,6 @@ export class StripeHelper {
 
   /**
    * Updates invoice metadata with the PayPal Transaction ID.
-   *
-   * @param invoice
-   * @param transactionId
    */
   async updateInvoiceWithPaypalTransactionId(
     invoice: Stripe.Invoice,
@@ -535,9 +521,6 @@ export class StripeHelper {
 
   /**
    * Updates invoice metadata with the PayPal Refund Transaction ID.
-   *
-   * @param invoice
-   * @param transactionId
    */
   async updateInvoiceWithPaypalRefundTransactionId(
     invoice: Stripe.Invoice,
@@ -552,8 +535,6 @@ export class StripeHelper {
 
   /**
    * Returns the Paypal transaction id for the invoice if one exists.
-   *
-   * @param invoice
    */
   getInvoicePaypalTransactionId(invoice: Stripe.Invoice) {
     return invoice.metadata?.paypalTransactionId;
@@ -568,8 +549,6 @@ export class StripeHelper {
    * or during a payment update on the subscription management page.
    *
    * The PayPal idempotencyKey has this number affixed to it in the pre-increment state.
-   *
-   * @param invoice
    */
   getPaymentAttempts(invoice: Stripe.Invoice): number {
     return parseInt(
@@ -581,9 +560,6 @@ export class StripeHelper {
    * Update the payment attempts on an invoice after attempting via PayPal.
    *
    * Increments by 1, or sets to the attempts passed in.
-   *
-   * @param invoice
-   * @param attempts
    */
   async updatePaymentAttempts(invoice: Stripe.Invoice, attempts?: number) {
     const setAttempt = attempts ?? this.getPaymentAttempts(invoice) + 1;
@@ -596,8 +572,6 @@ export class StripeHelper {
 
   /**
    * Get the email types that have been sent for this invoice.
-   *
-   * @param invoice
    */
   getEmailTypes(invoice: Stripe.Invoice) {
     return (invoice.metadata?.[STRIPE_INVOICE_METADATA.EMAIL_SENT] ?? '')
@@ -609,9 +583,6 @@ export class StripeHelper {
    * Updates the email types sent for this invoice. These types are concatentated
    * on the value of a single invoice metadata key and are thus limited to 500
    * characters.
-   *
-   * @param invoice
-   * @param emailType
    */
   async updateEmailSent(invoice: Stripe.Invoice, emailType: string) {
     const emailTypes = this.getEmailTypes(invoice);
@@ -629,8 +600,6 @@ export class StripeHelper {
 
   /**
    * Pays an invoice out of band.
-   *
-   * @param invoice
    */
   async payInvoiceOutOfBand(invoice: Stripe.Invoice) {
     return this.stripe.invoices.pay(invoice.id, { paid_out_of_band: true });
@@ -638,14 +607,6 @@ export class StripeHelper {
 
   /**
    * Update the customer object to add customer's PayPal billing address.
-   *
-   * @param customer_id
-   * @param city
-   * @param country
-   * @param line1
-   * @param line2
-   * @param postal_code
-   * @param state
    */
   async updateCustomerBillingAddress(
     customer_id: string,
@@ -666,9 +627,6 @@ export class StripeHelper {
    * Update the customer object to add a PayPal Billing Agreement ID.
    *
    * This is a no-op if the billing agreement is already attached to the customer.
-   *
-   * @param customer
-   * @param agreementId
    */
   async updateCustomerPaypalAgreement(
     customer: Stripe.Customer,
@@ -687,9 +645,6 @@ export class StripeHelper {
 
   /**
    * Remove the PayPal Billing Agreement ID from a customer.
-   *
-   * @param customer
-   * @param agreementId
    */
   async removeCustomerPaypalAgreement(
     uid: string,
@@ -706,8 +661,6 @@ export class StripeHelper {
 
   /**
    * Get the PayPal billing agreement id to use for this customer if available.
-   *
-   * @param customer
    */
   getCustomerPaypalAgreement(customer: Stripe.Customer): string | undefined {
     return customer.metadata[STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT];
@@ -719,8 +672,6 @@ export class StripeHelper {
    * Note that created times for Stripe are in seconds since epoch and that
    * invoices can be open for subscriptions that are cancelled, thus the extra
    * subscription check before returning an invoice.
-   *
-   * @param created
    */
   async *fetchOpenInvoices(
     created: Stripe.InvoiceListParams['created'],
@@ -743,8 +694,6 @@ export class StripeHelper {
 
   /**
    * Updates the invoice to uncollectible
-   *
-   * @param invoice
    */
   markUncollectible(invoice: Stripe.Invoice) {
     return this.stripe.invoices.markUncollectible(invoice.id);
@@ -752,8 +701,6 @@ export class StripeHelper {
 
   /**
    * Updates subscription to cancelled status
-   *
-   * @param subscriptionId
    */
   async cancelSubscription(
     subscriptionId: string
@@ -787,8 +734,6 @@ export class StripeHelper {
    * sources so we remove them all.
    *
    * Returns the deleted cards.
-   *
-   * @param customerId
    */
   async removeSources(customerId: string): Promise<Stripe.Card[]> {
     const sources = await this.stripe.customers.listSources(customerId, {
@@ -806,27 +751,6 @@ export class StripeHelper {
           ) as unknown as Promise<Stripe.Card>
       )
     );
-  }
-
-  /** END: NEW FLOW HELPERS FOR PAYMENT METHODS **/
-
-  /**
-   * Update a customer's default payment method
-   */
-  async updateCustomerPaymentMethod(
-    customerId: string,
-    paymentToken: string
-  ): Promise<Stripe.Customer> {
-    try {
-      return await this.stripe.customers.update(customerId, {
-        source: paymentToken,
-      });
-    } catch (err) {
-      if (err.type === 'StripeCardError') {
-        throw error.rejectedSubscriptionPaymentToken(err.message, err);
-      }
-      throw err;
-    }
   }
 
   async getPaymentMethod(
@@ -850,8 +774,6 @@ export class StripeHelper {
   /**
    * Returns whether or not the customer has any active subscriptions that
    * are require a payment method on file (not marked to be cancelled).
-   *
-   * @param customer
    */
   hasSubscriptionRequiringPaymentMethod(customer: Stripe.Customer) {
     const subscription = customer.subscriptions?.data.find(
@@ -879,8 +801,6 @@ export class StripeHelper {
   /**
    * Returns whether or not the customer has any active subscriptions that
    * have an open invoice (payment has not been processed).
-   *
-   * @param customer
    */
   hasOpenInvoice(customer: Stripe.Customer) {
     const subscription = customer.subscriptions?.data.find(
@@ -1155,9 +1075,6 @@ export class StripeHelper {
 
   /**
    * Find and return a subscription for a customer of the given plan id.
-   *
-   * @param customer
-   * @param planId
    */
   findCustomerSubscriptionByPlanId(
     customer: Stripe.Customer,
@@ -1366,7 +1283,7 @@ export class StripeHelper {
    *
    * Note that this call does not verify its a valid upgrade, the
    * `verifyPlanUpgradeForSubscription` should be done first to
-   * validate this is an appropraite change for tier use.
+   * validate this is an appropriate change for tier use.
    */
   async changeSubscriptionPlan(
     subscriptionId: string,
