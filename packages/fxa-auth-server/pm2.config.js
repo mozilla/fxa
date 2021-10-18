@@ -21,7 +21,7 @@ module.exports = {
         SIGNIN_UNBLOCK_FORCED_EMAILS: '^block.*@restmail\\.net$',
         SIGNIN_CONFIRMATION_ENABLED: 'true',
         SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX: '^sync.*@restmail\\.net$',
-        AUTH_FIRESTORE_EMULATOR_HOST: 'localhost:9090',
+        FIRESTORE_EMULATOR_HOST: 'localhost:9090',
         FORCE_PASSWORD_CHANGE_EMAIL_REGEX: 'forcepwdchange',
         CONFIG_FILES: 'config/secrets.json',
         EMAIL_CONFIG_USE_REDIS: 'false',
