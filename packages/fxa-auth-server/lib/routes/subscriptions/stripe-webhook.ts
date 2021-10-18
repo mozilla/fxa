@@ -416,7 +416,7 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
-   * Handle `invoice.paid` Stripe wehbook events.
+   * Handle `invoice.payment_failed` Stripe wehbook events.
    */
   async handleInvoicePaymentFailedEvent(
     request: AuthRequest,

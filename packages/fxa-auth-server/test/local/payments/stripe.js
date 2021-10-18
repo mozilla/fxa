@@ -1959,77 +1959,6 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('getCustomerUidEmailFromSubscription', () => {
-    let customer, subscription;
-    let scopeContextSpy, scopeSpy;
-
-    beforeEach(() => {
-      subscription = deepCopy(subscription2);
-
-      scopeContextSpy = sinon.fake();
-      scopeSpy = {
-        setContext: scopeContextSpy,
-      };
-      sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
-    });
-
-    describe('customer exists and has FxA UID on metadata', () => {
-      it('returns the uid and email information found on the customer object', async () => {
-        customer = deepCopy(newCustomer);
-        sandbox
-          .stub(stripeHelper.stripe.customers, 'retrieve')
-          .resolves(customer);
-
-        const expected = {
-          uid: customer.metadata.userid,
-          email: customer.email,
-        };
-        const actual = await stripeHelper.getCustomerUidEmailFromSubscription(
-          subscription
-        );
-
-        assert.deepEqual(actual, expected);
-        assert.isTrue(scopeContextSpy.notCalled, 'Expected to not call Sentry');
-      });
-    });
-
-    describe('customer deleted', () => {
-      it('returns undefined for uid and email', async () => {
-        customer = deepCopy(deletedCustomer);
-        sandbox
-          .stub(stripeHelper.stripe.customers, 'retrieve')
-          .resolves(customer);
-
-        const expected = { uid: null, email: null };
-        const actual = await stripeHelper.getCustomerUidEmailFromSubscription(
-          subscription
-        );
-
-        assert.deepEqual(actual, expected);
-        assert.isTrue(scopeContextSpy.notCalled, 'Expected to not call Sentry');
-      });
-    });
-
-    describe('customer exists but is missing FxA UID on metadata', () => {
-      it('notifies Sentry and throws validation check error', async () => {
-        customer = deepCopy(newCustomer);
-        customer.metadata = {};
-        sandbox
-          .stub(stripeHelper.stripe.customers, 'retrieve')
-          .resolves(customer);
-
-        try {
-          await stripeHelper.getCustomerUidEmailFromSubscription(subscription);
-          assert.fail('Internal validation check should be thrown');
-        } catch (err) {
-          assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
-        }
-
-        assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
-      });
-    });
-  });
-
   describe('updateCustomerPaymentMethod', () => {
     it('updates a customer using stripe api', async () => {
       const expected = deepCopy(customer1);
@@ -3285,7 +3214,6 @@ describe('StripeHelper', () => {
       mockStripe = Object.entries({
         plans: mockPlan,
         products: mockProduct,
-        customers: mockCustomer,
         invoices: mockInvoice,
         charges: mockCharge,
         sources: mockSource,

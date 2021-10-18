@@ -799,45 +799,6 @@ export class StripeHelper {
   /** END: NEW FLOW HELPERS FOR PAYMENT METHODS **/
 
   /**
-   * Fetch a customer record from Stripe by id and return its userid metadata
-   * and the email.
-   */
-  async getCustomerUidEmailFromSubscription(sub: Stripe.Subscription) {
-    if (typeof sub.customer !== 'string')
-      throw error.internalValidationError(
-        'getCustomerUidEmailFromSubscription',
-        { sub_id: sub.id }
-      );
-    const customer = await this.stripe.customers.retrieve(sub.customer);
-    if (customer.deleted) {
-      // Deleted customers lost their metadata so we can't send events for them
-      return { uid: null, email: null };
-    }
-    const uid = customer.metadata.userid;
-    const email = customer.email;
-    if (!uid || !email) {
-      const message = !uid
-        ? 'FxA UID does not exist on customer metadata.'
-        : 'Stripe customer is missing email';
-      Sentry.withScope((scope) => {
-        scope.setContext('stripeEvent', {
-          customer: { id: customer.id },
-        });
-        Sentry.captureMessage(message, Sentry.Severity.Error);
-      });
-      throw error.internalValidationError(
-        'getCustomerUidEmailFromSubscription',
-        customer,
-        new Error(message)
-      );
-    }
-    return {
-      uid,
-      email,
-    };
-  }
-
-  /**
    * Update a customer's default payment method
    */
   async updateCustomerPaymentMethod(
