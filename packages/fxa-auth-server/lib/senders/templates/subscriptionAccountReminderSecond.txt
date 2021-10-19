@@ -4,7 +4,9 @@
 
 {{t "Select “Create Password” to set up a new password and finish verifying your account."}}
 
-{{t "Confirm email:"}}
+{{t "Create Password:"}}
 {{{link}}}
 
-{{> support}}
+{{{t "Questions about your subscription? Our support team is here to help you:" }}}
+
+{{{ subscriptionSupportUrl }}}

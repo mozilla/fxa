@@ -825,7 +825,7 @@ module.exports = function (log, config, bounces) {
         templateValues: {
           action,
           email,
-          link: links.link,
+          ...links,
           oneClickLink: links.oneClickLink,
           privacyUrl: links.privacyUrl,
           subject,

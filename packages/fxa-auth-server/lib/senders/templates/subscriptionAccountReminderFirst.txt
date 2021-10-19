@@ -7,4 +7,6 @@
 {{t "Create Password:"}}
 {{{link}}}
 
-{{> support}}
+{{{t "Questions about your subscription? Our support team is here to help you:" }}}
+
+{{{ subscriptionSupportUrl }}}
