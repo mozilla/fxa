@@ -2,7 +2,7 @@
 
 {{t "Welcome to %(productName)s" }}
 
-{{{t "IvoTest2 Your payment is processing and may take up to four business days to complete. Your subscription will renew automatically each billing period unless you choose to cancel." }}}
+{{{t "Your payment is processing and may take up to four business days to complete. Your subscription will renew automatically each billing period unless you choose to cancel." }}}
 
 {{#if productPlan }}{{ productPlan }}{{/if}}
 {{#if invoiceNumber }}{{{t "Invoice number: %(invoiceNumber)s" }}}{{/if}}

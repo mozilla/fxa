@@ -1,19 +1,21 @@
 <tr style="page-break-before: always">
     <td valign="top">
       <h1 style="font-family: sans-serif; font-size: 21px; line-height: 29px; font-weight: normal; margin: 0 0 11px 0; text-align: center;">
-        {{t "Still there EMAIL 1?"}}
+        {{t "You can't access your subscription yet"}}
       </h1>
 
       <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 11px 0; text-align: center;">
-        {{t "account sub email 1."}}
+        {{t "A few days ago you created a Firefox Account but never verified it. We hope you’ll finish setting up your account, so you can use your new subscription."}}
       </p>
 
-      <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 21px 0; text-align: center;">
-        {{t "Create passowrd."}}
+      <p class="primary" style="font-family: sans-serif; font-size: 14px; line-height: 21px; font-weight: normal; margin: 0 0 11px 0; text-align: center;">
+        {{t "Select “Create Password” to set up a new password and finish verifying your account."}}
+      </p>
+
+      {{> button}}
+
+      <p style="text-align:center">
+        {{> automatedEmailResetPassword }}
       </p>
     </td>
   </tr>
-
-  {{> button}}
-
-  {{> automatedEmailNoAction}}

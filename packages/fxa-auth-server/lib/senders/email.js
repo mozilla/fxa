@@ -819,6 +819,7 @@ module.exports = function (log, config, bounces) {
       return this.send({
         ...message,
         headers,
+        layout: 'subscription',
         subject,
         template,
         templateValues: {
