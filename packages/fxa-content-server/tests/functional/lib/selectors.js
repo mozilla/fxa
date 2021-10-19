@@ -462,7 +462,7 @@ module.exports = {
     HEADER: '.accepted-cards',
   },
   POCKET_OAUTH: {
-    LOGO_IMG: '#graphic-client-pocket',
+    LOGO_IMG: '.graphic-client-pocket',
     TOS: '#pocket-tos',
     PP: '#pocket-pp',
     SERVICE_TILE: '.service-pocket',
