@@ -2,13 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// React looks unused here, but we need it for Storybook.
 import React, { useCallback } from 'react';
 import { Localized } from '@fluent/react';
-import { Plan, CustomerSubscription, Customer } from '../../../store/types';
+import { Plan, Customer } from '../../../store/types';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { getLocalizedDateString, getLocalizedDate } from '../../../lib/formats';
 import { ActionFunctions } from '../../../store/actions';
 import ReactivationConfirmationDialog from './ConfirmationDialog';
+import { WebSubscription } from 'fxa-shared/subscriptions/types';
 
 export default ({
   plan,
@@ -17,7 +19,7 @@ export default ({
   reactivateSubscription,
 }: {
   plan: Plan;
-  customerSubscription: CustomerSubscription;
+  customerSubscription: WebSubscription;
   customer: Customer;
   reactivateSubscription: ActionFunctions['reactivateSubscription'];
 }) => {

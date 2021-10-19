@@ -38,6 +38,7 @@ import './index.scss';
 import { ProductProps } from '../index';
 import { PaymentConsentCheckbox } from '../../../components/PaymentConsentCheckbox';
 import { PaymentProviderDetails } from '../../../components/PaymentProviderDetails';
+import { WebSubscription } from 'fxa-shared/subscriptions/types';
 
 export type SubscriptionUpgradeProps = {
   isMobile: boolean;
@@ -45,7 +46,7 @@ export type SubscriptionUpgradeProps = {
   customer: Customer;
   selectedPlan: Plan;
   upgradeFromPlan: Plan;
-  upgradeFromSubscription: CustomerSubscription;
+  upgradeFromSubscription: WebSubscription;
   updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
   updateSubscriptionPlanAndRefresh: ProductProps['updateSubscriptionPlanAndRefresh'];
   resetUpdateSubscriptionPlan: ProductProps['resetUpdateSubscriptionPlan'];

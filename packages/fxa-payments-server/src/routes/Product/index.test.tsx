@@ -41,6 +41,7 @@ import { SignInLayout } from '../../components/AppLayout';
 import Product from './index';
 import { AppContextType, defaultAppContext } from '../../lib/AppContext';
 import { defaultConfig } from 'fxa-payments-server/src/lib/config';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 describe('routes/Product', () => {
   let authServer = '';
@@ -114,20 +115,24 @@ describe('routes/Product', () => {
       .get('/v1/oauth/subscriptions/plans')
       .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
   ];
 
-  const initSubscribedApiMocks = (useDefaultIcon: boolean = false) => [
+  const initSubscribedApiMocks = ({
+    mockProfile = MOCK_PROFILE,
+    mockPlans = MOCK_PLANS,
+    mockCustomer = MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+  } = {}) => [
     nock(profileServer)
       .get('/v1/profile')
-      .reply(200, MOCK_PROFILE, { 'Access-Control-Allow-Origin': '*' }),
+      .reply(200, mockProfile, { 'Access-Control-Allow-Origin': '*' }),
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
+      .reply(200, mockPlans, { 'Access-Control-Allow-Origin': '*' }),
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
-      .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION, {
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
+      .reply(200, mockCustomer, {
         'Access-Control-Allow-Origin': '*',
       }),
   ];
@@ -164,7 +169,9 @@ describe('routes/Product', () => {
         .get('/v1/oauth/subscriptions/plans')
         .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
-        .get('/v1/oauth/subscriptions/customer')
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
         .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
     ];
     const { findByTestId } = render(<Subject />);
@@ -179,7 +186,9 @@ describe('routes/Product', () => {
         .get('/v1/oauth/subscriptions/plans')
         .reply(400, MOCK_PLANS),
       nock(authServer)
-        .get('/v1/oauth/subscriptions/customer')
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
         .reply(200, MOCK_CUSTOMER),
     ];
     const { findByTestId } = render(<Subject />);
@@ -196,7 +205,9 @@ describe('routes/Product', () => {
         .get('/v1/oauth/subscriptions/plans')
         .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
-        .get('/v1/oauth/subscriptions/customer')
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
         .reply(400, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
     ];
     const { findByTestId } = render(<Subject />);
@@ -213,7 +224,9 @@ describe('routes/Product', () => {
         .get('/v1/oauth/subscriptions/plans')
         .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
-        .get('/v1/oauth/subscriptions/customer')
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
         .reply(
           404,
           { errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER },
@@ -234,7 +247,9 @@ describe('routes/Product', () => {
         .get('/v1/oauth/subscriptions/plans')
         .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
-        .get('/v1/oauth/subscriptions/customer')
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
         .reply(
           200,
           { ...MOCK_CUSTOMER, subscriptions: [] },
@@ -322,6 +337,36 @@ describe('routes/Product', () => {
       />
     );
     const errorEl = await findByTestId('subscription-noplanchange-title');
+    expect(errorEl).toBeInTheDocument();
+    expectNockScopesDone(apiMocks);
+  });
+
+  it('displays roadblock for an IAP subscribed product', async () => {
+    const apiMocks = initSubscribedApiMocks({
+      mockCustomer: {
+        ...MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+        subscriptions: [
+          {
+            _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+            product_id: PRODUCT_ID,
+          },
+        ],
+      },
+    });
+    const { findByTestId } = render(
+      <Subject
+        {...{
+          planId: 'nextlevel',
+          productId: PRODUCT_ID,
+          appContext: {
+            config: {
+              ...defaultConfig(),
+            },
+          },
+        }}
+      />
+    );
+    const errorEl = await findByTestId('subscription-iapsubscribed-title');
     expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });

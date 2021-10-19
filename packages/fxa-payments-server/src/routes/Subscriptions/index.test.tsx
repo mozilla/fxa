@@ -65,6 +65,7 @@ jest.mock('./PaymentUpdateForm', () => ({
 import { SettingsLayout } from '../../components/AppLayout';
 import Subscriptions from './index';
 import { AppContextType } from '../../lib/AppContext';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 const { location } = window;
 
@@ -147,7 +148,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/active')
       .reply(200, mockActiveSubscriptions),
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, mockCustomer),
   ];
 
@@ -250,7 +251,9 @@ describe('routes/Subscriptions', () => {
         .reply(200, MOCK_PLANS),
       nock(authServer).get('/v1/oauth/subscriptions/active').reply(200, []),
       nock(authServer)
-        .get('/v1/oauth/subscriptions/customer')
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
         .reply(200, {
           ...MOCK_CUSTOMER,
           subscriptions: [],
@@ -273,7 +276,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/active')
       .reply(500, MOCK_ACTIVE_SUBSCRIPTIONS);
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(403, MOCK_CUSTOMER);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-profile');
@@ -288,7 +291,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/active')
       .reply(500, MOCK_ACTIVE_SUBSCRIPTIONS);
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(403, MOCK_CUSTOMER);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-plans');
@@ -302,7 +305,9 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/active')
       .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer).get('/v1/oauth/subscriptions/customer').reply(403, {});
+    nock(authServer)
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
+      .reply(403, {});
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-customer');
   });
@@ -315,9 +320,11 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/active')
       .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer).get('/v1/oauth/subscriptions/customer').reply(404, {
-      errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER,
-    });
+    nock(authServer)
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
+      .reply(404, {
+        errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER,
+      });
 
     const navigateToUrl = jest.fn();
     render(<Subject navigateToUrl={navigateToUrl} />);
@@ -374,11 +381,12 @@ describe('routes/Subscriptions', () => {
         },
       ]);
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
             product_id: 'prod_123',
@@ -453,11 +461,12 @@ describe('routes/Subscriptions', () => {
         },
       ]);
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
             product_id: 'prod_123',
@@ -546,25 +555,26 @@ describe('routes/Subscriptions', () => {
           ...MOCK_PLANS.slice(2),
         ];
 
-    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
-      nock(authServer).get('/v1/oauth/subscriptions/plans').reply(200, plans),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/active')
-        .reply(200, [
-          {
-            uid: 'a90fef48240b49b2b6a33d333aee9b13',
-            subscriptionId: 'sub0.28964929339372136',
-            productId: '123doneProProduct',
-            createdAt: 1565816388815,
-            cancelledAt: cancelledAtIsUnavailable ? null : 1566252991684,
-          },
-        ]);
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
+    nock(authServer).get('/v1/oauth/subscriptions/plans').reply(200, plans);
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
+      .get('/v1/oauth/subscriptions/active')
+      .reply(200, [
+        {
+          uid: 'a90fef48240b49b2b6a33d333aee9b13',
+          subscriptionId: 'sub0.28964929339372136',
+          productId: '123doneProProduct',
+          createdAt: 1565816388815,
+          cancelledAt: cancelledAtIsUnavailable ? null : 1566252991684,
+        },
+      ]);
+    nock(authServer)
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
             product_id: 'prod_123',
@@ -589,11 +599,12 @@ describe('routes/Subscriptions', () => {
         },
       ]);
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, {
         ...MOCK_CUSTOMER,
         subscriptions: [
           {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
             product_id: 'prod_123',
@@ -677,9 +688,7 @@ describe('routes/Subscriptions', () => {
           .post('/v1/oauth/subscriptions/reactivate')
           .reply(500, {});
 
-        const { debug, findByTestId, getByTestId, getByAltText } = render(
-          <Subject />
-        );
+        const { findByTestId, getByTestId } = render(<Subject />);
 
         // Wait for the page to load with one subscription
         await findByTestId('subscription-management-loaded');
@@ -707,7 +716,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/active')
       .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
     nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
+      .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, MOCK_CUSTOMER);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-subhub-missing-plan');

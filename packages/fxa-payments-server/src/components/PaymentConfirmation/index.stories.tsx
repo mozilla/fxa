@@ -4,6 +4,7 @@ import MockApp from '../../../.storybook/components/MockApp';
 import PaymentConfirmation from './index';
 import { Customer, Profile, Plan } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 const userProfile: Profile = {
   avatar: 'http://placekitten.com/256/256',
@@ -46,6 +47,7 @@ const customer: Customer = {
   brand: 'Visa',
   subscriptions: [
     {
+      _subscription_type: MozillaSubscriptionTypes.WEB,
       latest_invoice: '628031D-0002',
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
@@ -53,6 +55,7 @@ const customer: Customer = {
       product_name: '123 Done Pro',
       status: 'active',
       cancel_at_period_end: false,
+      created: Date.now(),
       current_period_end: Date.now() / 10 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,

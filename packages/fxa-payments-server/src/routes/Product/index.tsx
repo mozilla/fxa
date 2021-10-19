@@ -24,7 +24,13 @@ import SubscriptionSuccess from '../Product/SubscriptionSuccess';
 import SubscriptionUpgrade from '../Product/SubscriptionUpgrade';
 import SubscriptionCreate from '../Product/SubscriptionCreate';
 import SubscriptionChangeRoadblock from './SubscriptionChangeRoadblock';
-import { SubscriptionUpdateEligibility } from 'fxa-shared/subscriptions/types';
+import {
+  SubscriptionUpdateEligibility,
+  WebSubscription,
+} from 'fxa-shared/subscriptions/types';
+import { isWebSubscription } from 'fxa-shared/subscriptions/subscriptions';
+import { findCustomerIapSubscriptionByProductId } from '../../lib/customer';
+import IapRoadblock from './IapRoadblock';
 
 type PlansByIdType = {
   [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
@@ -58,6 +64,7 @@ const customerIsSubscribedToPlan = (
   customerSubscriptions &&
   customerSubscriptions.some(
     (customerSubscription) =>
+      isWebSubscription(customerSubscription) &&
       selectedPlan.plan_id === customerSubscription.plan_id
   );
 
@@ -65,14 +72,14 @@ const customerIsSubscribedToPlan = (
 // selected plan, determine whether if it's an upgrade or downgrade.
 // Otherwise, it's 'invalid'.
 const subscriptionUpdateEligibilityResult = (
-  customerSubscriptions: ProductProps['customerSubscriptions'],
+  customerSubscriptions: WebSubscription[],
   selectedPlan: Plan,
   plansById: PlansByIdType
 ):
   | {
       subscriptionUpdateEligibility: SubscriptionUpdateEligibility;
       plan: Plan;
-      subscription: CustomerSubscription;
+      subscription: WebSubscription;
     }
   | typeof SubscriptionUpdateEligibility.INVALID => {
   if (customerSubscriptions) {
@@ -197,8 +204,31 @@ export const Product = ({
 
   // Only check for upgrade or existing subscription if we have a customer.
   if (customer.result) {
-    const alreadySubscribedToSelectedPlan = customerIsSubscribedToPlan(
+    const iapSubscription = findCustomerIapSubscriptionByProductId(
       customerSubscriptions,
+      productId
+    );
+
+    if (iapSubscription) {
+      return (
+        <IapRoadblock
+          {...{
+            selectedPlan,
+            customer: customer.result,
+            profile: profile.result,
+            isMobile,
+            subscription: iapSubscription,
+          }}
+        />
+      );
+    }
+
+    const webSubscriptions = (customerSubscriptions || []).filter((s) =>
+      isWebSubscription(s)
+    ) as WebSubscription[];
+
+    const alreadySubscribedToSelectedPlan = customerIsSubscribedToPlan(
+      webSubscriptions,
       selectedPlan
     );
 
@@ -217,14 +247,14 @@ export const Product = ({
     }
 
     const planUpdateEligibilityResult = subscriptionUpdateEligibilityResult(
-      customerSubscriptions,
+      webSubscriptions,
       selectedPlan,
       plansById
     );
 
     // Not an upgrade or a downgrade.
     if (planUpdateEligibilityResult === SubscriptionUpdateEligibility.INVALID) {
-      if (customerIsSubscribedToProduct(customerSubscriptions, productId)) {
+      if (customerIsSubscribedToProduct(webSubscriptions, productId)) {
         return (
           <SubscriptionChangeRoadblock
             {...{ profile: profile.result, isMobile, selectedPlan }}
