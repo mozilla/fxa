@@ -10,6 +10,7 @@ import {
 import { Plan, Customer } from '../../store/types';
 import { useNonce } from '../../lib/hooks';
 import { SignInLayout } from '../AppLayout';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 function init() {
   storiesOf('components/PaymentFormV2', module)
@@ -67,6 +68,7 @@ const CUSTOMER: Customer = {
   brand: 'Visa',
   subscriptions: [
     {
+      _subscription_type: MozillaSubscriptionTypes.WEB,
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
       product_id: 'prod_123',
@@ -74,6 +76,7 @@ const CUSTOMER: Customer = {
       latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,
+      created: Date.now(),
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,

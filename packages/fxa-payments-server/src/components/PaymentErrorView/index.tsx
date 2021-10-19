@@ -14,25 +14,27 @@ import PaymentLegalBlurb from '../PaymentLegalBlurb';
 import AppContext from '../../lib/AppContext';
 
 export type PaymentErrorViewProps = {
-  onRetry: Function;
+  actionFn: VoidFunction;
   plan: Plan;
   error?: StripeError | GeneralError;
   className?: string;
   subscriptionTitle?: React.ReactElement<SubscriptionTitle>;
-  isPasswordlessCheckout?: boolean;
+  showFxaLegalFooterLinks?: boolean;
+  contentProps?: { [key: string]: unknown };
 };
 
-const retryButtonFn = (onRetry: PaymentErrorViewProps['onRetry']) => (
-  <Localized id="payment-error-retry-button">
-    <button
-      data-testid="retry-link"
-      className="button retry-link primary-button"
-      onClick={() => onRetry()}
-    >
-      Try again
-    </button>
-  </Localized>
-);
+const retryButtonFn = (onRetry: PaymentErrorViewProps['actionFn']) =>
+  onRetry && (
+    <Localized id="payment-error-retry-button">
+      <button
+        data-testid="retry-link"
+        className="button retry-link primary-button"
+        onClick={() => onRetry()}
+      >
+        Try again
+      </button>
+    </Localized>
+  );
 
 const manageSubButtonFn = (onClick: VoidFunction) => {
   return (
@@ -49,12 +51,13 @@ const manageSubButtonFn = (onClick: VoidFunction) => {
 };
 
 export const PaymentErrorView = ({
-  onRetry,
+  actionFn,
   plan,
   error,
   className = '',
   subscriptionTitle,
-  isPasswordlessCheckout = false,
+  showFxaLegalFooterLinks = false,
+  contentProps = {},
 }: PaymentErrorViewProps) => {
   const history = useHistory();
   const { config } = useContext(AppContext);
@@ -65,8 +68,10 @@ export const PaymentErrorView = ({
     switch (error?.code) {
       case 'no_subscription_change':
         return manageSubButtonFn(() => history.push('/subscriptions'));
+      case 'iap_already_subscribed':
+        return manageSubButtonFn(actionFn);
       default:
-        return retryButtonFn(onRetry);
+        return retryButtonFn(actionFn);
     }
   };
 
@@ -86,7 +91,10 @@ export const PaymentErrorView = ({
         <div className="wrapper">
           <img id="error-icon" src={errorIcon} alt="error icon" />
           <div>
-            <Localized id={getErrorMessage(error)} vars={{ productName }}>
+            <Localized
+              id={getErrorMessage(error)}
+              vars={{ productName, ...contentProps }}
+            >
               <p data-testid="error-payment-submission">
                 {getErrorMessage(error)}
               </p>
@@ -103,7 +111,7 @@ export const PaymentErrorView = ({
           ) : null}
           <PaymentLegalBlurb provider={undefined} />
           <TermsAndPrivacy
-            showFXALinks={isPasswordlessCheckout}
+            showFXALinks={showFxaLegalFooterLinks}
             plan={plan}
             contentServerURL={config.servers.content.url}
           />

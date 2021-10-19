@@ -31,7 +31,7 @@ export const SubscriptionChangeRoadblock = ({
           {...{
             subscriptionTitle: title,
             error: { code: 'no_subscription_change' },
-            onRetry: () => {}, // PaymentErrorView actually ignores this
+            actionFn: () => {}, // PaymentErrorView actually ignores this
             plan: selectedPlan,
           }}
         />
