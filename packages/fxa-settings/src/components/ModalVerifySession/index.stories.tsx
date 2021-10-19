@@ -7,7 +7,7 @@ import { storiesOf } from '@storybook/react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { ModalVerifySession } from '.';
 import { Account, AppContext } from 'fxa-settings/src/models';
-import { mockSession, MOCK_ACCOUNT } from 'fxa-settings/src/models/_mocks';
+import { mockSession, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 import { LocationProvider } from '@reach/router';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 

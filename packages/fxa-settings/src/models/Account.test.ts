@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { getNextAvatar } from './Account';
-import { mockEmail, MOCK_ACCOUNT } from './_mocks';
+import { mockEmail, MOCK_ACCOUNT } from './mocks';
 
 jest.mock('../lib/config', () => ({
   servers: {

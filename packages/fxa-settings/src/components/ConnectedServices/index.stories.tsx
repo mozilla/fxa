@@ -9,7 +9,7 @@ import { ConnectedServices } from '.';
 
 import { MOCK_SERVICES } from './MOCK_SERVICES';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext } from 'fxa-settings/src/models/_mocks';
+import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
 storiesOf('Components/ConnectedServices', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)

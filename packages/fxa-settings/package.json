@@ -18,7 +18,13 @@
     "test": "SKIP_PREFLIGHT_CHECK=true rescripts test"
   },
   "jest": {
-    "resetMocks": false
+    "resetMocks": false,
+    "collectCoverageFrom": [
+      "src/**/*",
+      "!src/**/*.stories.*",
+      "!src/**/mocks.*",
+      "!src/**/*.svg"
+    ]
   },
   "eslintConfig": {
     "extends": [

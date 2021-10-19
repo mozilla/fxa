@@ -5,7 +5,7 @@
 import { LocationProvider } from '@reach/router';
 import { storiesOf } from '@storybook/react';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/_mocks';
+import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 import React from 'react';
 import { Page2faReplaceRecoveryCodes } from '.';
 import AppLayout from '../AppLayout';

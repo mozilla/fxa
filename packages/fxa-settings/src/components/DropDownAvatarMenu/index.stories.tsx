@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import DropDownAvatarMenu from '.';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext } from 'fxa-settings/src/models/_mocks';
+import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
 const account = {
   avatar: {

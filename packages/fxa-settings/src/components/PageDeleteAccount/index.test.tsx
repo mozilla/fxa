@@ -6,17 +6,17 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { PageDeleteAccount } from '.';
 import { typeByTestIdFn } from '../../lib/test-utils';
 import { Account, AppContext } from '../../models';
 
-const account = ({
+const account = {
   primaryEmail: {
     email: 'rfeeley@mozilla.com',
   },
   uid: '0123456789abcdef',
-} as unknown) as Account;
+} as unknown as Account;
 
 window.URL.createObjectURL = jest.fn();
 

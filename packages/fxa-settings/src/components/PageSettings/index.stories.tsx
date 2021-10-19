@@ -8,7 +8,7 @@ import { PageSettings } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 import { isMobileDevice } from '../../lib/utilities';
-import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../models/_mocks';
+import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../models/mocks';
 import { MOCK_SERVICES } from '../ConnectedServices/MOCK_SERVICES';
 import { AppContext } from 'fxa-settings/src/models';
 

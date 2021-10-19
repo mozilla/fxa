@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { mockAppContext, mockSession } from '../../models/_mocks';
+import { mockAppContext, mockSession } from '../../models/mocks';
 import DropDownAvatarMenu from '.';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 import { Account, AppContext } from '../../models';
@@ -15,7 +15,7 @@ jest.mock('fxa-settings/src/lib/metrics', () => ({
   settingsViewName: 'quuz',
 }));
 
-const account = ({
+const account = {
   avatar: {
     id: 'abc1234',
     url: 'http://placekitten.com/512/512',
@@ -25,7 +25,7 @@ const account = ({
     email: 'johndope@example.com',
   },
   displayName: 'John Dope',
-} as unknown) as Account;
+} as unknown as Account;
 
 const makeSession = (isError: boolean = false) => {
   const s = mockSession();
@@ -37,13 +37,13 @@ const makeSession = (isError: boolean = false) => {
 
 describe('DropDownAvatarMenu', () => {
   it('renders and toggles as expected with default values', () => {
-    const account = ({
+    const account = {
       avatar: { url: null, id: null },
       displayName: null,
       primaryEmail: {
         email: 'johndope@example.com',
       },
-    } as unknown) as Account;
+    } as unknown as Account;
     render(
       <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
