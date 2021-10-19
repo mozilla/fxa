@@ -10,7 +10,6 @@
 
 const BaseGroupingRule = require('./base');
 const GROUPS = [
-  'control',
   // Treatment branch is the migration flow
   'treatment',
 ];
@@ -22,7 +21,7 @@ const POCKET_CLIENTIDS = [
 // This experiment is disabled by default. If you would like to go through
 // the flow, load email-first screen and append query params
 // `?forceExperiment=pocketMigration&forceExperimentGroup=treatment`
-const ROLLOUT_RATE = 0;
+const ROLLOUT_RATE = 1;
 
 module.exports = class PocketMigration extends BaseGroupingRule {
   constructor() {

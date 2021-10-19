@@ -1,3 +1,9 @@
+## 1.217.2
+
+### Other changes
+
+- #10769: 13a0589d8 Train 217 pocket fixes uplift (#10769) ([13a0589d8](https://github.com/mozilla/fxa/commit/13a0589d8))
+
 ## 1.217.1
 
 No changes.
