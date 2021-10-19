@@ -772,9 +772,9 @@ module.exports = function (log, config, bounces) {
     )}`;
     let subject;
     if (index < subscriptionAccountReminders.keys.length - 1) {
-      subject = gettext('Finish Email 1');
+      subject = gettext('Reminder: Finish setting up your account');
     } else {
-      subject = gettext('Finish Email 2');
+      subject = gettext('Final reminder: Setup your account');
     }
 
     templateNameToCampaignMap[template] = `${key}-subscription-account-reminder`;
@@ -828,9 +828,11 @@ module.exports = function (log, config, bounces) {
           ...links,
           oneClickLink: links.oneClickLink,
           privacyUrl: links.privacyUrl,
+          termsOfServiceDownloadURL: links.termsOfServiceDownloadURL,
           subject,
           supportUrl: links.supportUrl,
           supportLinkAttributes: links.supportLinkAttributes,
+          reminderShortForm: true
         },
       });
     };

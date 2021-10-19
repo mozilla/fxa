@@ -13,13 +13,17 @@
       </p>
 
       {{> button}}
+    </td>
+  </tr>
 
-      <p style="text-align:center">
+  <br/>
+
+  <tr>
+    <td valign="top" align="center">
+      <p class="primary" style="font-family: sans-serif; font-size: 13px; line-height: 21px; font-weight: normal; margin: 11px 0 11px 0; text-align: center;">
         {{{t "Questions about your subscription? Our <a href=\"%(subscriptionSupportUrl)s\">support team</a> is here to help you." }}}
-      </p>
-
-      <p style="text-align:center">
-        {{> automatedEmailResetPassword }}
       </p>
     </td>
   </tr>
+
+  {{> automatedEmailResetPassword}}
