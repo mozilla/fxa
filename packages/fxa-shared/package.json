@@ -87,7 +87,7 @@
     "accept-language": "^2.0.17",
     "ajv": "^6.12.2",
     "apollo-server": "^2.25.2",
-    "aws-sdk": "^2.1002.0",
+    "aws-sdk": "^2.1010.0",
     "celebrate": "^10.0.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
