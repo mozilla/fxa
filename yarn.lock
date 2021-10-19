@@ -19983,7 +19983,7 @@ fsevents@~2.1.1:
     verror: 1.10.0
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
     webpack: ^4.41.2
-    webpack-cli: ^4.9.0
+    webpack-cli: ^4.9.1
     webpack-dev-middleware: ^5.0.0
     xmlhttprequest: "git://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror"
     yargs: ^17.0.1
@@ -39590,7 +39590,7 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"v8-compile-cache@npm:^2.0.3, v8-compile-cache@npm:^2.2.0, v8-compile-cache@npm:^2.3.0":
+"v8-compile-cache@npm:^2.0.3, v8-compile-cache@npm:^2.3.0":
   version: 2.3.0
   resolution: "v8-compile-cache@npm:2.3.0"
   checksum: adb0a271eaa2297f2f4c536acbfee872d0dd26ec2d76f66921aa7fc437319132773483344207bdbeee169225f4739016d8d2dbf0553913a52bb34da6d0334f8e
@@ -40018,9 +40018,9 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"webpack-cli@npm:^4.9.0":
-  version: 4.9.0
-  resolution: "webpack-cli@npm:4.9.0"
+"webpack-cli@npm:^4.9.1":
+  version: 4.9.1
+  resolution: "webpack-cli@npm:4.9.1"
   dependencies:
     "@discoveryjs/json-ext": ^0.5.0
     "@webpack-cli/configtest": ^1.1.0
@@ -40033,7 +40033,6 @@ typescript@^4.3.5:
     import-local: ^3.0.2
     interpret: ^2.2.0
     rechoir: ^0.7.0
-    v8-compile-cache: ^2.2.0
     webpack-merge: ^5.7.3
   peerDependencies:
     webpack: 4.x.x || 5.x.x
@@ -40048,7 +40047,7 @@ typescript@^4.3.5:
       optional: true
   bin:
     webpack-cli: bin/cli.js
-  checksum: bc378a23773510c9a6a58669fe782f7849b50cbb78a948723583e7b059eae2f49888eb6dba398361af916b3d56195d99cdb494a595a2ecc95a5638e99b59c923
+  checksum: 2aff0349c15e54d616e1fd6dc1f59be16ec1a630f652f948c0b4b108776d1889446e3498e83d9d514bf1b28c5125a8b87c4aeb5dceb41b593ba90765af673c4f
   languageName: node
   linkType: hard
 
