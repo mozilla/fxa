@@ -25,6 +25,7 @@ import { AuthLogger, AuthRequest, Awaited } from '../types';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
+import { MozillaSubscription } from 'fxa-shared/subscriptions/types';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -1470,9 +1471,7 @@ export class AccountHandler {
 
     const { uid, email } = request.auth.credentials;
 
-    let subscriptions: Awaited<
-      ReturnType<StripeHelper['subscriptionsToResponse']>
-    > = [];
+    let subscriptions: Awaited<MozillaSubscription[]> = [];
 
     if (this.config.subscriptions.enabled) {
       try {

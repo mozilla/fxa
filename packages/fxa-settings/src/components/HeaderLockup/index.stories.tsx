@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { HeaderLockup } from '.';
 import { AppContext } from '../../models';
-import { mockAppContext } from 'fxa-settings/src/models/_mocks';
+import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
 const account = {
   avatar: {

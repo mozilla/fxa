@@ -8,6 +8,7 @@
 const { URL } = require('url');
 const punycode = require('punycode.js');
 const isA = require('@hapi/joi');
+const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
@@ -349,6 +350,7 @@ module.exports.subscriptionsInvoicePIExpandedValidator = isA
 
 // This is subhub's perspective on an active subscription
 module.exports.subscriptionsSubscriptionValidator = isA.object({
+  _subscription_type: MozillaSubscriptionTypes.WEB,
   created: isA.number().required(),
   current_period_end: isA.number().required(),
   current_period_start: isA.number().required(),
@@ -451,6 +453,7 @@ module.exports.subscriptionsPlanValidator = isA.object({
 });
 
 module.exports.subscriptionsCustomerValidator = isA.object({
+  customerId: isA.string().optional(),
   billing_name: isA
     .alternatives(isA.string(), isA.any().allow(null))
     .optional(),
@@ -554,6 +557,11 @@ module.exports.subscriptionsStripeSubscriptionValidator = isA
   })
   .unknown(true);
 
+module.exports.subscriptionsGooglePlaySubscriptionValidator = isA.object({
+  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+  product_id: isA.string().required(),
+});
+
 module.exports.subscriptionsStripeCustomerValidator = isA
   .object({
     invoices_settings: isA
@@ -571,6 +579,33 @@ module.exports.subscriptionsStripeCustomerValidator = isA
       })
       .unknown(true)
       .optional(),
+  })
+  .unknown(true);
+
+module.exports.subscriptionsMozillaSubscriptionsValidator = isA
+  .object({
+    customerId: isA.string().optional(),
+    billing_name: isA
+      .alternatives(isA.string(), isA.any().allow(null))
+      .optional(),
+    exp_month: isA.number().optional(),
+    exp_year: isA.number().optional(),
+    last4: isA.string().optional(),
+    payment_provider: isA.string().optional(),
+    payment_type: isA.string().optional(),
+    paypal_payment_error: isA.string().optional(),
+    brand: isA.string().optional(),
+    billing_agreement_id: isA
+      .alternatives(isA.string(), isA.any().allow(null))
+      .optional(),
+    subscriptions: isA
+      .array()
+      .items(
+        module.exports.subscriptionsSubscriptionValidator,
+        module.exports.subscriptionsGooglePlaySubscriptionValidator
+      )
+      .min(1)
+      .required(),
   })
   .unknown(true);
 

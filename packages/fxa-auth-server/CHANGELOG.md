@@ -1,3 +1,67 @@
+## 1.217.2
+
+No changes.
+
+## 1.217.1
+
+### Bug fixes
+
+- auth: revert "refactor(auth): use expandResource instead of retrieve" (#10711) ([ad211fd61](https://github.com/mozilla/fxa/commit/ad211fd61))
+
+## 1.217.0
+
+### New features
+
+- auth: store stripe docs in firestore ([3e27a295e](https://github.com/mozilla/fxa/commit/3e27a295e))
+- auth-server: Convert subscriptionsPaymentExpired ([53bd039e5](https://github.com/mozilla/fxa/commit/53bd039e5))
+- auth-server: Convert subscriptionPaymentExpired to new mjml stack ([08b9a08c1](https://github.com/mozilla/fxa/commit/08b9a08c1))
+- auth: add firestore collection and stripe storage ([d7c208bd6](https://github.com/mozilla/fxa/commit/d7c208bd6))
+
+### Bug fixes
+
+- auth: ignore handled webhook events ([bf89e9393](https://github.com/mozilla/fxa/commit/bf89e9393))
+- tests: fixed auth-server/scripts tests ([570e5a334](https://github.com/mozilla/fxa/commit/570e5a334))
+- 461d3584c fix new failing test ([461d3584c](https://github.com/mozilla/fxa/commit/461d3584c))
+- auth: wrap span in '<' in the reset password email (#10576) ([f59b30045](https://github.com/mozilla/fxa/commit/f59b30045))
+
+### Refactorings
+
+- auth: use expandResource instead of retrieve ([12947c092](https://github.com/mozilla/fxa/commit/12947c092))
+- build: use esbuild instead of ts-node (#10639) ([a95f1270a](https://github.com/mozilla/fxa/commit/a95f1270a))
+- subscriptions: cache products and plans forever ([497e236fe](https://github.com/mozilla/fxa/commit/497e236fe))
+- auth: default ftl locale to en ([5d736719b](https://github.com/mozilla/fxa/commit/5d736719b))
+
+### Other changes
+
+- deps: bump @hapi/hapi from 20.2.0 to 20.2.1 (#10689) ([2455f998b](https://github.com/mozilla/fxa/commit/2455f998b))
+- deps-dev: bump webpack-watch-files-plugin from 1.1.0 to 1.2.0 (#10688) ([58dd049de](https://github.com/mozilla/fxa/commit/58dd049de))
+- deps: bump stripe from 8.178.0 to 8.181.0 ([c163bd9af](https://github.com/mozilla/fxa/commit/c163bd9af))
+- deps-dev: bump keypair from 1.0.3 to 1.0.4 ([0466b82ff](https://github.com/mozilla/fxa/commit/0466b82ff))
+- deps: bump google-libphonenumber from 3.2.24 to 3.2.25 ([fe7d1967f](https://github.com/mozilla/fxa/commit/fe7d1967f))
+- deps: bump ioredis from 4.27.10 to 4.27.11 ([8d01acb19](https://github.com/mozilla/fxa/commit/8d01acb19))
+- #10665: 67fad955f Email verification reminder fix (#10665) ([67fad955f](https://github.com/mozilla/fxa/commit/67fad955f))
+- deps: bump jsdom from 17.0.0 to 18.0.0 (#10657) ([4ae63295a](https://github.com/mozilla/fxa/commit/4ae63295a))
+- deps: bump @type-cacheable/core from 10.0.1 to 10.0.2 ([0b2590748](https://github.com/mozilla/fxa/commit/0b2590748))
+- deps: bump grunt-contrib-concat from 1.0.1 to 2.0.0 ([30b947a58](https://github.com/mozilla/fxa/commit/30b947a58))
+- deps: bump googleapis from 87.0.0 to 88.2.0 (#10640) ([29bc0f299](https://github.com/mozilla/fxa/commit/29bc0f299))
+- deps: bump aws-sdk from 2.996.0 to 2.1002.0 ([97e82c61b](https://github.com/mozilla/fxa/commit/97e82c61b))
+- deps-dev: bump esbuild from 0.13.1 to 0.13.4 ([5724e2a94](https://github.com/mozilla/fxa/commit/5724e2a94))
+- deps: bump @type-cacheable/ioredis-adapter from 10.0.1 to 10.0.2 ([705c83121](https://github.com/mozilla/fxa/commit/705c83121))
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+- deps: bump ioredis from 4.27.9 to 4.27.10 ([c39396ae0](https://github.com/mozilla/fxa/commit/c39396ae0))
+- 563800f5e little tweaks ([563800f5e](https://github.com/mozilla/fxa/commit/563800f5e))
+- deps-dev: bump @storybook/html from 6.3.8 to 6.3.9 ([eba69a044](https://github.com/mozilla/fxa/commit/eba69a044))
+- 76774a30d Add subscriptionsPaymentExpired to dev.json, update ftl files from en-US to en ([76774a30d](https://github.com/mozilla/fxa/commit/76774a30d))
+- ebeecd66e Add new email to dev.json config, fix TS issue in tests ([ebeecd66e](https://github.com/mozilla/fxa/commit/ebeecd66e))
+- 5e94c93ff rename subplat to subscription ([5e94c93ff](https://github.com/mozilla/fxa/commit/5e94c93ff))
+- f065bbda0 WIP tests ([f065bbda0](https://github.com/mozilla/fxa/commit/f065bbda0))
+- auth-server: Update story files to reflect 'fxa emails' and 'subplat emails' ([d7f469dc0](https://github.com/mozilla/fxa/commit/d7f469dc0))
+- deps-dev: bump @storybook/addon-docs from 6.3.8 to 6.3.9 (#10594) ([f9cef0189](https://github.com/mozilla/fxa/commit/f9cef0189))
+- deps: bump @hapi/hapi from 20.1.5 to 20.2.0 (#10579) ([4d02a92e8](https://github.com/mozilla/fxa/commit/4d02a92e8))
+- deps: bump @sentry/node from 6.12.0 to 6.13.2 (#10583) ([cb19efb3c](https://github.com/mozilla/fxa/commit/cb19efb3c))
+- deps: bump nodemailer from 6.6.3 to 6.6.5 (#10584) ([c774907c2](https://github.com/mozilla/fxa/commit/c774907c2))
+- deps: bump stripe from 8.176.0 to 8.178.0 ([91bab740e](https://github.com/mozilla/fxa/commit/91bab740e))
+
 ## 1.216.3
 
 ### Other changes

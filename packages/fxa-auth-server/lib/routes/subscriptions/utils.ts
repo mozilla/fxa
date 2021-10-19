@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { OAUTH_SCOPE_SUBSCRIPTIONS } from 'fxa-shared/oauth/constants';
 import ScopeSet from 'fxa-shared/oauth/scopes';
+import {
+  GooglePlaySubscription,
+  MozillaSubscriptionTypes,
+} from 'fxa-shared/subscriptions/types';
 
 import error from '../../error';
 import { AuthRequest } from '../../types';
@@ -52,6 +56,15 @@ export function handleAuthScoped(auth: AuthRequest['auth'], scopes: string[]) {
   }
   const { user: uid, email } = auth.credentials;
   return { uid, email } as { uid: string; email: string };
+}
+
+export function subscribedProductIdsToIapGooglePlaySubscriptions(
+  productIds: string[]
+): GooglePlaySubscription[] {
+  return productIds.map((productId) => ({
+    _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+    product_id: productId,
+  }));
 }
 
 export type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;

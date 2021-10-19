@@ -18,15 +18,20 @@ import {
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import {
+  AbbrevPlan,
+  AbbrevProduct,
+  SubscriptionUpdateEligibility,
+  MozillaSubscriptionTypes,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  WebSubscription,
+  PaypalPaymentError,
+} from 'fxa-shared/subscriptions/types';
+import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getSubscriptionUpdateEligibility,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
-import {
-  AbbrevPlan,
-  AbbrevProduct,
-  SubscriptionUpdateEligibility,
-} from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import moment from 'moment';
@@ -107,6 +112,13 @@ type BillingAddressOptions = {
   state: string;
 };
 
+export type PaymentBillingDetails = ReturnType<
+  StripeHelper['extractBillingDetails']
+> & {
+  paypal_payment_error?: PaypalPaymentError;
+  billing_agreement_id?: string;
+};
+
 /**
  * The CacheUpdate decorator has an _optional_ property in its options
  * parameter named `cacheKeysToClear`.  However, if you do not pass in a value
@@ -135,8 +147,8 @@ export class StripeHelper {
   private redis: ioredis.Redis | undefined;
   private statsd: StatsD;
   private taxIds: { [key: string]: string };
-  private firestore?: Firestore;
-  private stripeFirestore?: StripeFirestore;
+  private firestore: Firestore;
+  private stripeFirestore: StripeFirestore;
   public currencyHelper: CurrencyHelper;
 
   /**
@@ -170,19 +182,17 @@ export class StripeHelper {
       maxNetworkRetries: 3,
     });
 
-    if (Container.has(AuthFirestore)) {
-      this.firestore = Container.get(AuthFirestore);
-      const firestore_prefix = `${config.authFirestore.prefix}stripe-`;
-      const customerCollectionDbRef = this.firestore.collection(
-        `${firestore_prefix}customers`
-      );
-      this.stripeFirestore = new StripeFirestore(
-        this.firestore,
-        customerCollectionDbRef,
-        this.stripe,
-        firestore_prefix
-      );
-    }
+    this.firestore = Container.get(AuthFirestore);
+    const firestore_prefix = `${config.authFirestore.prefix}stripe-`;
+    const customerCollectionDbRef = this.firestore.collection(
+      `${firestore_prefix}customers`
+    );
+    this.stripeFirestore = new StripeFirestore(
+      this.firestore,
+      customerCollectionDbRef,
+      this.stripe,
+      firestore_prefix
+    );
 
     cacheManager.setOptions({
       // Ensure the StripeHelper instance is passed into TTLBuilder functions
@@ -799,45 +809,6 @@ export class StripeHelper {
   }
 
   /** END: NEW FLOW HELPERS FOR PAYMENT METHODS **/
-
-  /**
-   * Fetch a customer record from Stripe by id and return its userid metadata
-   * and the email.
-   */
-  async getCustomerUidEmailFromSubscription(sub: Stripe.Subscription) {
-    if (typeof sub.customer !== 'string')
-      throw error.internalValidationError(
-        'getCustomerUidEmailFromSubscription',
-        { sub_id: sub.id }
-      );
-    const customer = await this.stripe.customers.retrieve(sub.customer);
-    if (customer.deleted) {
-      // Deleted customers lost their metadata so we can't send events for them
-      return { uid: null, email: null };
-    }
-    const uid = customer.metadata.userid;
-    const email = customer.email;
-    if (!uid || !email) {
-      const message = !uid
-        ? 'FxA UID does not exist on customer metadata.'
-        : 'Stripe customer is missing email';
-      Sentry.withScope((scope) => {
-        scope.setContext('stripeEvent', {
-          customer: { id: customer.id },
-        });
-        Sentry.captureMessage(message, Sentry.Severity.Error);
-      });
-      throw error.internalValidationError(
-        'getCustomerUidEmailFromSubscription',
-        customer,
-        new Error(message)
-      );
-    }
-    return {
-      uid,
-      email,
-    };
-  }
 
   /**
    * Update a customer's default payment method
@@ -1613,13 +1584,111 @@ export class StripeHelper {
     return null;
   }
 
+  async getBillingDetailsAndSubscriptions(uid: string) {
+    const customer = await this.fetchCustomer(uid, [
+      'subscriptions.data.latest_invoice',
+      'invoice_settings.default_payment_method',
+    ]);
+
+    if (!customer) {
+      return null;
+    }
+
+    const billingDetails = this.extractBillingDetails(
+      customer
+    ) as PaymentBillingDetails;
+
+    if (billingDetails.payment_provider === 'paypal') {
+      billingDetails.billing_agreement_id =
+        this.getCustomerPaypalAgreement(customer);
+    }
+
+    if (
+      billingDetails.payment_provider === 'paypal' &&
+      this.hasSubscriptionRequiringPaymentMethod(customer)
+    ) {
+      if (!this.getCustomerPaypalAgreement(customer)) {
+        billingDetails.paypal_payment_error =
+          PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
+      } else if (this.hasOpenInvoice(customer)) {
+        billingDetails.paypal_payment_error =
+          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
+      }
+    }
+
+    const detailsAndSubs: {
+      customerId: string;
+      subscriptions: WebSubscription[];
+    } & PaymentBillingDetails = {
+      customerId: customer.id,
+      subscriptions: [],
+      ...billingDetails,
+    };
+
+    if (customer.subscriptions) {
+      detailsAndSubs.subscriptions = await this.subscriptionsToResponse(
+        customer.subscriptions
+      );
+    }
+
+    return detailsAndSubs;
+  }
+
+  /**
+   * Extracts billing details if a customer has a source on file.
+   */
+  extractBillingDetails(customer: Stripe.Customer) {
+    const defaultPayment = customer.invoice_settings.default_payment_method;
+    const paymentProvider = this.getPaymentProvider(customer);
+
+    if (defaultPayment) {
+      if (typeof defaultPayment === 'string') {
+        // This should always be expanded here.
+        throw error.backendServiceFailure('stripe', 'paymentExpansion');
+      }
+
+      if (defaultPayment.card) {
+        return {
+          billing_name: defaultPayment.billing_details.name,
+          payment_provider: paymentProvider,
+          payment_type: defaultPayment.card.funding,
+          last4: defaultPayment.card.last4,
+          exp_month: defaultPayment.card.exp_month,
+          exp_year: defaultPayment.card.exp_year,
+          brand: defaultPayment.card.brand,
+        };
+      }
+    }
+    if (customer.sources && customer.sources.data.length > 0) {
+      // Currently assume a single source, and we can only access these attributes
+      // on cards.
+      const src = customer.sources.data[0];
+      if (src.object === 'card') {
+        return {
+          billing_name: src.name,
+          payment_provider: paymentProvider,
+          payment_type: src.funding,
+          last4: src.last4,
+          exp_month: src.exp_month,
+          exp_year: src.exp_year,
+          brand: src.brand,
+        };
+      }
+    }
+
+    return {
+      payment_provider: paymentProvider,
+    };
+  }
+
   /**
    * Formats Stripe subscriptions for a customer into an appropriate response.
    */
   async subscriptionsToResponse(
     subscriptions: Stripe.ApiList<Stripe.Subscription>
-  ) {
+  ): Promise<WebSubscription[]> {
     const subs = [];
+    const products = await this.allAbbrevProducts();
     for (const sub of subscriptions.data) {
       let failure_code, failure_message;
 
@@ -1658,21 +1727,16 @@ export class StripeHelper {
         }
       }
 
-      const product = await this.expandResource(
-        // @ts-ignore
-        sub.plan.product,
-        PRODUCT_RESOURCE
-      );
+      // @ts-ignore
+      const product = products.find((p) => p.product_id === sub.plan.product);
 
-      // @ts-ignore
-      const product_id = product.id;
-      // @ts-ignore
-      const product_name = product.name;
+      const { product_id, product_name } = product!;
 
       // FIXME: Note that the plan is only set if the subscription contains a single
       // plan. Multiple product support will require changes here to fetch all
       // plans for this subscription.
       subs.push({
+        _subscription_type: MozillaSubscriptionTypes.WEB,
         created: sub.created,
         current_period_end: sub.current_period_end,
         current_period_start: sub.current_period_start,
@@ -2338,57 +2402,42 @@ export class StripeHelper {
       throw error;
     }
 
-    if (this.stripeFirestore) {
-      switch (resourceType) {
-        case CUSTOMER_RESOURCE:
+    switch (resourceType) {
+      case CUSTOMER_RESOURCE:
+        // @ts-ignore
+        const customer = await this.stripeFirestore.retrieveAndFetchCustomer(
+          resource
+        );
+        const subscriptions =
+          await this.stripeFirestore.retrieveCustomerSubscriptions(resource);
+        if (subscriptions.length) {
+          (customer as any).subscriptions = {
+            data: subscriptions as any,
+            has_more: false,
+          };
+        }
+        // @ts-ignore
+        return customer;
+      case SUBSCRIPTIONS_RESOURCE:
+        // @ts-ignore
+        return this.stripeFirestore.retrieveAndFetchSubscription(resource);
+      case INVOICES_RESOURCE:
+        try {
+          const invoice = await this.stripeFirestore.retrieveInvoice(resource);
           // @ts-ignore
-          const customer = await this.stripeFirestore.retrieveAndFetchCustomer(
-            resource
-          );
-          const subscriptions =
-            await this.stripeFirestore.retrieveCustomerSubscriptions(resource);
-          if (subscriptions.length) {
-            (customer as any).subscriptions = {
-              data: subscriptions as any,
-              has_more: false,
-            };
-          }
-          // @ts-ignore
-          return customer;
-        case SUBSCRIPTIONS_RESOURCE:
-          // @ts-ignore
-          return this.stripeFirestore.retrieveAndFetchSubscription(resource);
-        case INVOICES_RESOURCE:
-          try {
-            const invoice = await this.stripeFirestore.retrieveInvoice(
-              resource
+          return invoice;
+        } catch (err) {
+          if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
+            const invoice = await this.stripe.invoices.retrieve(resource);
+            await this.stripeFirestore.retrieveAndFetchCustomer(
+              invoice.customer as string
             );
+            await this.stripeFirestore.insertInvoiceRecord(invoice);
             // @ts-ignore
             return invoice;
-          } catch (err) {
-            if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
-              const invoice = await this.stripe.invoices.retrieve(resource);
-              await this.stripeFirestore.retrieveAndFetchCustomer(
-                invoice.customer as string
-              );
-              await this.stripeFirestore.insertInvoiceRecord(invoice);
-              // @ts-ignore
-              return invoice;
-            }
-            throw err;
           }
-      }
-    }
-
-    // We make an exception here for customers because we need to get the
-    // subscriptions for the customer.  The Stripe API stopped including
-    // subscriptions for a customer in version 2020-08-27; this ensures
-    // backwards compatibility for our code that's relying on that behavior.
-    if (resourceType === CUSTOMER_RESOURCE) {
-      // @ts-ignore
-      return this.stripe.customers.retrieve(resource, {
-        expand: [SUBSCRIPTIONS_RESOURCE],
-      });
+          throw err;
+        }
     }
 
     // @ts-ignore
@@ -2396,15 +2445,12 @@ export class StripeHelper {
   }
 
   async processWebhookEventToFirestore(event: Stripe.Event) {
-    if (!this.stripeFirestore) {
-      return;
-    }
-
     const { type, data } = event;
 
     // Note that we must insert before any event handled by the general
     // webhook code to ensure the object is up to date in Firestore before
     // our code handles the event.
+    let handled = true;
     try {
       switch (type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
         case 'invoice.created':
@@ -2444,6 +2490,8 @@ export class StripeHelper {
           await this.stripeFirestore.insertSubscriptionRecord(subscription);
           break;
         default: {
+          handled = false;
+          break;
         }
       }
     } catch (err) {
@@ -2451,10 +2499,11 @@ export class StripeHelper {
         // We cannot back-fill Firestore with records for deleted customers
         // as they're missing necessary metadata for us to know which user
         // the customer belongs to.
-        return;
+        return handled;
       }
       throw err;
     }
+    return handled;
   }
 
   /**

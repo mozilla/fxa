@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-server",
-  "version": "1.216.3",
+  "version": "1.217.2",
   "description": "FxA GraphQL Admin Server",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -30,12 +30,12 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@nestjs/common": "^8.0.8",
-    "@nestjs/config": "^1.0.1",
+    "@nestjs/common": "^8.1.1",
+    "@nestjs/config": "^1.0.2",
     "@nestjs/core": "^8.0.10",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.0",
-    "@nestjs/platform-express": "^8.0.11",
+    "@nestjs/platform-express": "^8.1.1",
     "@sentry/integrations": "^6.13.3",
     "@sentry/node": "^6.13.3",
     "apollo-server": "^2.25.2",

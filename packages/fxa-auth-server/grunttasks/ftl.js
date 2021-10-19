@@ -7,7 +7,7 @@
 module.exports = function (grunt) {
   grunt.config('concat', {
     ftl: {
-      src: ['.license.header', 'lib/**/en.ftl'],
+      src: ['lib/senders/emails/auth.ftl', 'lib/**/senders/emails/**/en.ftl'],
       dest: 'public/locales/en/auth.ftl',
     },
   });

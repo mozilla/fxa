@@ -15,6 +15,7 @@ const {
   SUBSCRIPTION_UPDATE_TYPES,
 } = require('../../../../lib/payments/stripe');
 const moment = require('moment');
+const authDbModule = require('fxa-shared/db/models/auth');
 
 const {
   StripeWebhookHandler,
@@ -124,6 +125,11 @@ describe('StripeWebhookHandler', () => {
       profile,
       stripeHelperMock
     );
+
+    sandbox.stub(authDbModule, 'getUidAndEmailByStripeCustomerId').resolves({
+      uid: UID,
+      email: TEST_EMAIL,
+    });
   });
 
   afterEach(() => {
@@ -150,12 +156,6 @@ describe('StripeWebhookHandler', () => {
         product_name: validProduct.data.object.name,
         product_metadata: validProduct.data.object.metadata,
       });
-      StripeWebhookHandlerInstance.stripeHelper.getCustomerUidEmailFromSubscription.resolves(
-        {
-          uid: UID,
-          email: TEST_EMAIL,
-        }
-      );
     });
 
     describe('handleWebhookEvent', () => {
@@ -350,6 +350,19 @@ describe('StripeWebhookHandler', () => {
           await StripeWebhookHandlerInstance.handleWebhookEvent(request);
           assertNamedHandlerCalled();
           assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
+        });
+
+        it('does not call sentry if handled by firestore', async () => {
+          const event = deepCopy(subscriptionCreated);
+          event.type = 'firestore.document.created';
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+            event
+          );
+          StripeWebhookHandlerInstance.stripeHelper.processWebhookEventToFirestore =
+            sinon.stub().resolves(true);
+          await StripeWebhookHandlerInstance.handleWebhookEvent(request);
+          assertNamedHandlerCalled();
+          sinon.assert.notCalled(scopeContextSpy);
         });
       });
     });
@@ -718,10 +731,7 @@ describe('StripeWebhookHandler', () => {
           sendSubscriptionDeletedEmailStub,
           deletedEvent.data.object
         );
-        assert.notCalled(
-          StripeWebhookHandlerInstance.stripeHelper
-            .getCustomerUidEmailFromSubscription
-        );
+        assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.customer,
           {
@@ -1350,10 +1360,7 @@ describe('StripeWebhookHandler', () => {
           {},
           createdEvent
         );
-        assert.notCalled(
-          StripeWebhookHandlerInstance.stripeHelper
-            .getCustomerUidEmailFromSubscription
-        );
+        assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
         assert.notCalled(mockCapabilityService.stripeUpdate);
       });
     });

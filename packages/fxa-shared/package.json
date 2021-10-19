@@ -1,6 +1,6 @@
 {
   "name": "fxa-shared",
-  "version": "1.216.3",
+  "version": "1.217.2",
   "description": "Shared module for FxA repositories",
   "main": "dist/index.js",
   "exports": {
@@ -74,8 +74,8 @@
     "uuid": "^8.3.2"
   },
   "dependencies": {
-    "@nestjs/common": "^8.0.8",
-    "@nestjs/config": "^1.0.1",
+    "@nestjs/common": "^8.1.1",
+    "@nestjs/config": "^1.0.2",
     "@nestjs/core": "^8.0.10",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.0",
@@ -87,7 +87,7 @@
     "accept-language": "^2.0.17",
     "ajv": "^6.12.2",
     "apollo-server": "^2.25.2",
-    "aws-sdk": "^2.1002.0",
+    "aws-sdk": "^2.1010.0",
     "celebrate": "^10.0.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",

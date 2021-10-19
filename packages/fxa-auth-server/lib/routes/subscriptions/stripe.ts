@@ -3,7 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
-import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
+import {
+  AbbrevPlan,
+  WebSubscription,
+} from 'fxa-shared/dist/subscriptions/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
@@ -49,13 +52,6 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
     return plan;
   });
 }
-
-type PaymentBillingDetails = ReturnType<
-  StripeHandler['extractBillingDetails']
-> & {
-  paypal_payment_error?: PaypalPaymentError;
-  billing_agreement_id?: string;
-};
 
 export class StripeHandler {
   subscriptionAccountReminders: any;
@@ -320,106 +316,33 @@ export class StripeHandler {
   }
 
   /**
-   * Extracts billing details if a customer has a source on file.
+   * This is a misnomer: it does not return a customer.  It returns an object
+   * with Stripe billing details and a list of subscriptions.
    */
-  extractBillingDetails(customer: Stripe.Customer) {
-    const defaultPayment = customer.invoice_settings.default_payment_method;
-    const paymentProvider = this.stripeHelper.getPaymentProvider(customer);
-
-    if (defaultPayment) {
-      if (typeof defaultPayment === 'string') {
-        // This should always be expanded here.
-        throw error.backendServiceFailure('stripe', 'paymentExpansion');
-      }
-
-      if (defaultPayment.card) {
-        return {
-          billing_name: defaultPayment.billing_details.name,
-          payment_provider: paymentProvider,
-          payment_type: defaultPayment.card.funding,
-          last4: defaultPayment.card.last4,
-          exp_month: defaultPayment.card.exp_month,
-          exp_year: defaultPayment.card.exp_year,
-          brand: defaultPayment.card.brand,
-        };
-      }
-    }
-    if (customer.sources && customer.sources.data.length > 0) {
-      // Currently assume a single source, and we can only access these attributes
-      // on cards.
-      const src = customer.sources.data[0];
-      if (src.object === 'card') {
-        return {
-          billing_name: src.name,
-          payment_provider: paymentProvider,
-          payment_type: src.funding,
-          last4: src.last4,
-          exp_month: src.exp_month,
-          exp_year: src.exp_year,
-          brand: src.brand,
-        };
-      }
-    }
-
-    return {
-      payment_provider: paymentProvider,
-    };
-  }
-
   async getCustomer(request: AuthRequest) {
     this.log.begin('subscriptions.getCustomer', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'getCustomer');
+    const billingDetailsAndSubscriptions =
+      await this.stripeHelper.getBillingDetailsAndSubscriptions(uid);
 
-    const customer = await this.stripeHelper.fetchCustomer(uid, [
-      'subscriptions.data.latest_invoice',
-      'invoice_settings.default_payment_method',
-    ]);
-    if (!customer) {
+    if (!billingDetailsAndSubscriptions) {
       throw error.unknownCustomer(uid);
     }
-    const billingDetails = this.extractBillingDetails(
-      customer
-    ) as PaymentBillingDetails;
-
-    if (billingDetails.payment_provider === 'paypal') {
-      billingDetails.billing_agreement_id =
-        this.stripeHelper.getCustomerPaypalAgreement(customer);
-    }
-
     if (
-      billingDetails.payment_provider === 'paypal' &&
-      this.stripeHelper.hasSubscriptionRequiringPaymentMethod(customer)
+      billingDetailsAndSubscriptions &&
+      (!billingDetailsAndSubscriptions.subscriptions ||
+        billingDetailsAndSubscriptions.subscriptions.length === 0)
     ) {
-      if (!this.stripeHelper.getCustomerPaypalAgreement(customer)) {
-        billingDetails.paypal_payment_error =
-          PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
-      } else if (this.stripeHelper.hasOpenInvoice(customer)) {
-        billingDetails.paypal_payment_error =
-          PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
-      }
-    }
-
-    const response = {
-      subscriptions: [] as ThenArg<
-        ReturnType<StripeHelper['subscriptionsToResponse']>
-      >,
-      ...billingDetails,
-    };
-
-    if (!customer.subscriptions) {
       throw error.internalValidationError(
-        'listActive',
-        { customerId: customer.id },
+        'subscriptionsGetCustomer',
+        { customerId: billingDetailsAndSubscriptions.customerId },
         'Customer has no subscriptions.'
       );
     }
 
-    response.subscriptions = await this.stripeHelper.subscriptionsToResponse(
-      customer.subscriptions
-    );
-    return response;
+    return billingDetailsAndSubscriptions;
   }
 
   /**

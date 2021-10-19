@@ -6,7 +6,7 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 import { PageRecoveryKeyAdd } from '.';
 
@@ -14,12 +14,12 @@ jest.mock('base32-encode', () =>
   jest.fn().mockReturnValue('00000000000000000000000000000000')
 );
 
-const account = ({
+const account = {
   primaryEmail: {
     email: 'johndope@example.com',
   },
   createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
-} as unknown) as Account;
+} as unknown as Account;
 
 window.URL.createObjectURL = jest.fn();
 

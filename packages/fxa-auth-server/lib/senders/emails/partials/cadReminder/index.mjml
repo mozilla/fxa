@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="<%- template %>-title">Here's your reminder to sync devices.</span>
+      <span data-l10n-id="<%- template %>-title">Here’s your reminder to sync devices.</span>
     </mj-text>
     <mj-image css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
   </mj-column>

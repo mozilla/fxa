@@ -1,5 +1,44 @@
 # Change history
 
+## 1.217.2
+
+No changes.
+
+## 1.217.1
+
+No changes.
+
+## 1.217.0
+
+### New features
+
+- payments: display pocket external subscription link on subscriptions page ([a264d0201](https://github.com/mozilla/fxa/commit/a264d0201))
+- payments: add email address to download link (#10578) ([19fc41a8b](https://github.com/mozilla/fxa/commit/19fc41a8b))
+
+### Bug fixes
+
+- payments: check if email exists on blur only (#10634) ([26c3c179c](https://github.com/mozilla/fxa/commit/26c3c179c))
+- payments: do not show error message on empty confirm email input (#10546) ([f99c9df4a](https://github.com/mozilla/fxa/commit/f99c9df4a))
+
+### Refactorings
+
+- build: use esbuild instead of ts-node (#10639) ([a95f1270a](https://github.com/mozilla/fxa/commit/a95f1270a))
+
+### Other changes
+
+- deps-dev: bump @typescript-eslint/eslint-plugin from 4.31.2 to 5.0.0 (#10690) ([aa63c6e58](https://github.com/mozilla/fxa/commit/aa63c6e58))
+- deps-dev: bump @storybook/addon-actions from 6.3.10 to 6.3.11 (#10687) ([7edf08edd](https://github.com/mozilla/fxa/commit/7edf08edd))
+- deps-dev: bump @typescript-eslint/parser from 4.33.0 to 5.0.0 ([14435a9a1](https://github.com/mozilla/fxa/commit/14435a9a1))
+- deps: bump @stripe/react-stripe-js from 1.5.0 to 1.6.0 (#10648) ([65ff3bae6](https://github.com/mozilla/fxa/commit/65ff3bae6))
+- deps-dev: bump @typescript-eslint/parser from 4.31.2 to 4.33.0 (#10642) ([3f65ae1da](https://github.com/mozilla/fxa/commit/3f65ae1da))
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+- deps-dev: bump caniuse-lite from 1.0.30001260 to 1.0.30001265 ([8be2ec714](https://github.com/mozilla/fxa/commit/8be2ec714))
+- deps-dev: bump @storybook/addon-links from 6.3.8 to 6.3.9 ([9fdb14b7a](https://github.com/mozilla/fxa/commit/9fdb14b7a))
+- deps-dev: bump @testing-library/react from 12.1.1 to 12.1.2 (#10595) ([4a89d0d8e](https://github.com/mozilla/fxa/commit/4a89d0d8e))
+- deps: bump @sentry/node from 6.12.0 to 6.13.2 (#10583) ([cb19efb3c](https://github.com/mozilla/fxa/commit/cb19efb3c))
+- payments: remove usePaypalUIByDefault feature flag (#10563) ([ad741e723](https://github.com/mozilla/fxa/commit/ad741e723))
+- fxa: update README and CONTRIBUTING files with fixed links, template instructions, and secrets (#10562) ([85844558f](https://github.com/mozilla/fxa/commit/85844558f))
+
 ## 1.216.3
 
 No changes.

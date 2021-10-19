@@ -1,3 +1,18 @@
+## 1.217.2
+
+No changes.
+
+## 1.217.1
+
+No changes.
+
+## 1.217.0
+
+### Other changes
+
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+- deps: bump @sentry/node from 6.12.0 to 6.13.2 (#10583) ([cb19efb3c](https://github.com/mozilla/fxa/commit/cb19efb3c))
+
 ## 1.216.3
 
 No changes.

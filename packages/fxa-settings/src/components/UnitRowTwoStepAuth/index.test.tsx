@@ -5,14 +5,14 @@
 import React from 'react';
 import { screen, act, fireEvent } from '@testing-library/react';
 import { UnitRowTwoStepAuth } from '.';
-import { renderWithRouter, mockAppContext } from '../../models/_mocks';
+import { renderWithRouter, mockAppContext } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 
 jest.mock('../../models/AlertBarInfo');
-const account = ({
+const account = {
   totp: { exists: true, verified: true },
   disableTwoStepAuth: jest.fn().mockResolvedValue(true),
-} as unknown) as Account;
+} as unknown as Account;
 
 describe('UnitRowTwoStepAuth', () => {
   it('renders when Two-step authentication is enabled', async () => {
@@ -49,9 +49,9 @@ describe('UnitRowTwoStepAuth', () => {
   });
 
   it('renders when Two-step authentication is not enabled', () => {
-    const account = ({
+    const account = {
       totp: { exists: false, verified: false },
-    } as unknown) as Account;
+    } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />
@@ -69,10 +69,10 @@ describe('UnitRowTwoStepAuth', () => {
   });
 
   it('can be refreshed', async () => {
-    const account = ({
+    const account = {
       totp: { exists: false, verified: false },
       refresh: jest.fn(),
-    } as unknown) as Account;
+    } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowTwoStepAuth />

@@ -7,7 +7,7 @@ import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import UnitRowTwoStepAuth from '.';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext } from 'fxa-settings/src/models/_mocks';
+import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
 storiesOf('Components/UnitRowTwoStepAuth', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)

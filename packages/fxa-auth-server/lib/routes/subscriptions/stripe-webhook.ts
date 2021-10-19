@@ -68,7 +68,8 @@ export class StripeWebhookHandler extends StripeHandler {
         request.headers['stripe-signature']
       );
 
-      await this.stripeHelper.processWebhookEventToFirestore(event);
+      const firestoreHandled =
+        await this.stripeHelper.processWebhookEventToFirestore(event);
 
       switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
         case 'credit_note.created':
@@ -123,15 +124,17 @@ export class StripeWebhookHandler extends StripeHandler {
           await this.handlePlanDeletedEvent(request, event);
           break;
         default:
-          Sentry.withScope((scope) => {
-            scope.setContext('stripeEvent', {
-              event: { id: event.id, type: event.type },
+          if (!firestoreHandled) {
+            Sentry.withScope((scope) => {
+              scope.setContext('stripeEvent', {
+                event: { id: event.id, type: event.type },
+              });
+              Sentry.captureMessage(
+                'Unhandled Stripe event received.',
+                Sentry.Severity.Info
+              );
             });
-            Sentry.captureMessage(
-              'Unhandled Stripe event received.',
-              Sentry.Severity.Info
-            );
-          });
+          }
           break;
       }
     } catch (error) {
@@ -413,7 +416,7 @@ export class StripeWebhookHandler extends StripeHandler {
   }
 
   /**
-   * Handle `invoice.paid` Stripe wehbook events.
+   * Handle `invoice.payment_failed` Stripe wehbook events.
    */
   async handleInvoicePaymentFailedEvent(
     request: AuthRequest,

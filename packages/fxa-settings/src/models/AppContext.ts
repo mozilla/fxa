@@ -6,7 +6,7 @@ import { createApolloClient } from '../lib/gql';
 import { Account, ACCOUNT_FIELDS, GET_PROFILE_INFO } from './Account';
 import { Session } from './Session';
 import firefox, { FirefoxCommand } from '../lib/firefox';
-import { mockAppContext } from './_mocks';
+import { mockAppContext } from './mocks';
 import { AlertBarInfo } from './AlertBarInfo';
 
 export const GET_INITIAL_STATE = gql`

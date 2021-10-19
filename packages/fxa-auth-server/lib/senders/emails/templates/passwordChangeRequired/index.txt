@@ -6,6 +6,7 @@ passwordChangeRequired-sign-in = "Sign back into any device or service where you
 
 passwordChangeRequired-different-password-plaintext = "Important: Pick a different password than what you were previously using and make sure that it is different from your email account."
 
-passwordChangeRequired-signoff-plaintext = "Best, The Firefox Accounts Team"
+passwordChangeRequired-signoff = "Best,"
+passwordChangeRequired-signoff-name = "The Firefox Accounts Team"
 
 <%- include('/partials/support/index.txt') %>

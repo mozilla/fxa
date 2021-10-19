@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.216.3",
+  "version": "1.217.2",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build": "tsc --build ../fxa-react && NODE_ENV=production grunt build",
@@ -96,7 +96,7 @@
     "jquery": "3.6.0",
     "jquery-modal": "git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
     "jquery-simulate": "1.0.2",
-    "jquery-ui": "1.12.1",
+    "jquery-ui": "1.13.0",
     "jquery-ui-touch-punch-amd": "1.0.1",
     "js-md5": "0.6.0",
     "jsxgettext-recursive-next": "1.1.0",
@@ -131,7 +131,7 @@
     "verror": "1.10.0",
     "webcrypto-liner": "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb",
     "webpack": "^4.41.2",
-    "webpack-cli": "^4.9.0"
+    "webpack-cli": "^4.9.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.15.7",

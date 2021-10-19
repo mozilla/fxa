@@ -1,3 +1,5 @@
+# Variables:
+#  $code (Number) - e.g. 123456
 verifyLoginCode-subject = Verification code: { $code }
 verifyLoginCode-title = Is this you signing in?
 verifyLoginCode-prompt = If yes, here is the verification code:

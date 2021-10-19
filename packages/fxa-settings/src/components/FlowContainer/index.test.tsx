@@ -6,7 +6,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { fireEvent, screen } from '@testing-library/react';
 import FlowContainer from './index';
-import { renderWithRouter } from '../../models/_mocks';
+import { renderWithRouter } from '../../models/mocks';
 import { act } from 'react-dom/test-utils';
 
 it('renders', async () => {

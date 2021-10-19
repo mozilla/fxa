@@ -19,7 +19,7 @@
       {{#isFromRelyingParty}}
         {{#isInPocketMigration}}
           {{#unsafeTranslate}}You are now ready to use{{/unsafeTranslate}}
-          <img id="graphic-client-pocket" src="/images/pocket_logo_rounded.svg" alt="Pocket" />
+          <div class="graphic graphic-client-pocket">Pocket</div>
         {{/isInPocketMigration}}
         {{^isInPocketMigration}}
           <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>

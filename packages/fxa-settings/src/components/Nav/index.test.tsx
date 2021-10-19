@@ -8,12 +8,12 @@ import { Account, AppContext } from '../../models';
 import { getDefault } from '../../lib/config';
 import Nav from '.';
 
-const account = ({
+const account = {
   primaryEmail: {
     email: 'stomlinson@mozilla.com',
   },
   subscriptions: [],
-} as unknown) as Account;
+} as unknown as Account;
 
 describe('Nav', () => {
   it('renders as expected', () => {
@@ -56,15 +56,34 @@ describe('Nav', () => {
     );
 
     expect(screen.queryByTestId('nav-link-subscriptions')).toBeNull();
+
+    // TODO: shouldn't be null in FXA-4106, replace w/ DataCollection test
+    expect(screen.queryByTestId('nav-link-data-collection')).toBeNull();
+  });
+
+  it('conditionally renders DataCollection', () => {
+    render(
+      <AppContext.Provider value={{ account, config: getDefault() }}>
+        <Nav showDataCollection />
+      </AppContext.Provider>
+    );
+
+    expect(screen.getByTestId('nav-link-data-collection')).toHaveTextContent(
+      'Data Collection and Use'
+    );
+    expect(screen.getByTestId('nav-link-data-collection')).toHaveAttribute(
+      'href',
+      '#data-collection'
+    );
   });
 
   it('renders as expected with subscriptions link', () => {
-    const account = ({
+    const account = {
       primaryEmail: {
         email: 'stomlinson@mozilla.com',
       },
       subscriptions: [{ created: 1, productName: 'x' }],
-    } as unknown) as Account;
+    } as unknown as Account;
     render(
       <AppContext.Provider value={{ account }}>
         <Nav />

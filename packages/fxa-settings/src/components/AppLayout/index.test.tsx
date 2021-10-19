@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import AppLayout from '.';
-import { renderWithRouter } from '../../models/_mocks';
+import { renderWithRouter } from '../../models/mocks';
 import { HomePath } from '../../constants';
 
 it('renders the app with children', async () => {

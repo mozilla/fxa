@@ -7,7 +7,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { HomePath } from '../../constants';
-import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import PageChangePassword from '.';
 import {
   logViewEvent,
@@ -28,12 +28,12 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const account = ({
+const account = {
   primaryEmail: {
     email: 'test@example.com',
   },
   changePassword: jest.fn().mockResolvedValue(true),
-} as unknown) as Account;
+} as unknown as Account;
 
 const render = async () => {
   await renderWithRouter(

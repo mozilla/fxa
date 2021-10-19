@@ -1,2 +1,2 @@
-fxa-privacy-url = Mozilla Privacy Policy
-fxa-service-url = Firefox Cloud Terms of Service
+fxa-privacy-url = { -brand-mozilla } Privacy Policy
+fxa-service-url = { -brand-firefox } Cloud Terms of Service

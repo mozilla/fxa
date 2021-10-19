@@ -9,7 +9,7 @@ import { ReactComponent as OpenExternal } from './open-external.svg';
 import { useAccount, useConfig } from '../../models';
 import { Localized } from '@fluent/react';
 
-export const Nav = () => {
+export const Nav = ({ showDataCollection = false }) => {
   const account = useAccount();
   const config = useConfig();
   const primaryEmail = account.primaryEmail.email;
@@ -68,6 +68,19 @@ export const Nav = () => {
                 </a>
               </Localized>
             </li>
+            {showDataCollection && (
+              <li className="mt-3">
+                <Localized id="nav-data-collection">
+                  <a
+                    href="#data-collection"
+                    data-testid="nav-link-data-collection"
+                    className="inline-block py-1 px-2 hover:bg-grey-100"
+                  >
+                    Data Collection and Use
+                  </a>
+                </Localized>
+              </li>
+            )}
           </ul>
         </li>
 

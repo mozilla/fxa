@@ -9,11 +9,11 @@ import {
   renderWithRouter,
   mockEmail,
   mockAppContext,
-} from '../../models/_mocks';
+} from '../../models/mocks';
 import { UnitRowSecondaryEmail } from '.';
 import { Account, AppContext } from '../../models';
 
-const account = ({
+const account = {
   emails: [
     mockEmail('johndope@example.com'),
     mockEmail('johndope2@example.com', false, false),
@@ -22,7 +22,7 @@ const account = ({
   makeEmailPrimary: jest.fn().mockResolvedValue(true),
   deleteSecondaryEmail: jest.fn().mockResolvedValue(true),
   refresh: jest.fn(),
-} as unknown) as Account;
+} as unknown as Account;
 
 jest.mock('../../models/AlertBarInfo');
 window.console.error = jest.fn();
@@ -34,9 +34,9 @@ afterAll(() => {
 describe('UnitRowSecondaryEmail', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {
-      const account = ({
+      const account = {
         emails: [mockEmail('johndope@example.com')],
-      } as unknown) as Account;
+      } as unknown as Account;
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
@@ -79,12 +79,12 @@ describe('UnitRowSecondaryEmail', () => {
     });
 
     it('renders as expected when verified', () => {
-      const account = ({
+      const account = {
         emails: [
           mockEmail('johndope@example.com'),
           mockEmail('johndope2@example.com', false),
         ],
-      } as unknown) as Account;
+      } as unknown as Account;
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
@@ -131,9 +131,9 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope3@example.com', false),
         mockEmail('johndope4@example.com', false),
       ];
-      const account = ({
+      const account = {
         emails,
-      } as unknown) as Account;
+      } as unknown as Account;
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
@@ -169,9 +169,9 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope3@example.com', false),
         mockEmail('johndope4@example.com', false, false),
       ];
-      const account = ({
+      const account = {
         emails,
-      } as unknown) as Account;
+      } as unknown as Account;
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <UnitRowSecondaryEmail />
@@ -202,10 +202,10 @@ describe('UnitRowSecondaryEmail', () => {
         { ...primaryEmail },
         mockEmail('johndope2@example.com', false, false),
       ];
-      const account = ({
+      const account = {
         emails,
         resendEmailCode: jest.fn().mockResolvedValue(true),
-      } as unknown) as Account;
+      } as unknown as Account;
 
       const { history } = renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
@@ -227,10 +227,10 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false, false),
       ];
-      const account = ({
+      const account = {
         emails,
         resendEmailCode: jest.fn().mockRejectedValue(new Error()),
-      } as unknown) as Account;
+      } as unknown as Account;
       const context = mockAppContext({ account });
       renderWithRouter(
         <AppContext.Provider value={context}>
@@ -253,10 +253,10 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('somethingdifferent@example.com'),
         mockEmail('johndope2@example.com', false, true),
       ];
-      const account = ({
+      const account = {
         emails,
         makeEmailPrimary: jest.fn().mockResolvedValue(true),
-      } as unknown) as Account;
+      } as unknown as Account;
       const context = mockAppContext({ account });
       renderWithRouter(
         <AppContext.Provider value={context}>
@@ -278,10 +278,10 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false, true),
       ];
-      const account = ({
+      const account = {
         emails,
         makeEmailPrimary: jest.fn().mockRejectedValue(new Error()),
-      } as unknown) as Account;
+      } as unknown as Account;
       const context = mockAppContext({ account });
       renderWithRouter(
         <AppContext.Provider value={context}>
@@ -303,10 +303,10 @@ describe('UnitRowSecondaryEmail', () => {
         { ...primaryEmail },
         mockEmail('johndope2@example.com', false, false),
       ];
-      const account = ({
+      const account = {
         emails,
         deleteSecondaryEmail: jest.fn().mockResolvedValue(true),
-      } as unknown) as Account;
+      } as unknown as Account;
       const context = mockAppContext({ account });
       renderWithRouter(
         <AppContext.Provider value={context}>
@@ -328,10 +328,10 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false, false),
       ];
-      const account = ({
+      const account = {
         emails,
         deleteSecondaryEmail: jest.fn().mockRejectedValue(new Error()),
-      } as unknown) as Account;
+      } as unknown as Account;
       const context = mockAppContext({ account });
       renderWithRouter(
         <AppContext.Provider value={context}>

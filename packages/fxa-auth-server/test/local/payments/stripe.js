@@ -80,6 +80,11 @@ const {
   FirestoreStripeError,
   newFirestoreStripeError,
 } = require('../../../lib/payments/stripe-firestore');
+const {
+  MozillaSubscriptionTypes,
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+} = require('../../../../fxa-shared/subscriptions/types');
 
 const mockConfig = {
   authFirestore: {
@@ -206,6 +211,7 @@ describe('StripeHelper', () => {
   let existingCustomer;
   let mockStatsd;
   const existingUid = '40cc397def2d487b9b8ba0369079a267';
+  let stripeFirestore;
 
   before(async () => {
     await createTestDatabase();
@@ -228,9 +234,13 @@ describe('StripeHelper', () => {
     // Make currencyHelper
     const currencyHelper = new CurrencyHelper(mockConfig);
     Container.set(CurrencyHelper, currencyHelper);
+    Container.set(AuthFirestore, {
+      collection: sinon.fake.returns({}),
+    });
 
     stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
     stripeHelper.redis = mockRedis;
+    stripeHelper.stripeFirestore = stripeFirestore = {};
     listStripePlans = sandbox
       .stub(stripeHelper.stripe.plans, 'list')
       .returns(asyncIterable([plan1, plan2, plan3]));
@@ -1954,77 +1964,6 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('getCustomerUidEmailFromSubscription', () => {
-    let customer, subscription;
-    let scopeContextSpy, scopeSpy;
-
-    beforeEach(() => {
-      subscription = deepCopy(subscription2);
-
-      scopeContextSpy = sinon.fake();
-      scopeSpy = {
-        setContext: scopeContextSpy,
-      };
-      sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
-    });
-
-    describe('customer exists and has FxA UID on metadata', () => {
-      it('returns the uid and email information found on the customer object', async () => {
-        customer = deepCopy(newCustomer);
-        sandbox
-          .stub(stripeHelper.stripe.customers, 'retrieve')
-          .resolves(customer);
-
-        const expected = {
-          uid: customer.metadata.userid,
-          email: customer.email,
-        };
-        const actual = await stripeHelper.getCustomerUidEmailFromSubscription(
-          subscription
-        );
-
-        assert.deepEqual(actual, expected);
-        assert.isTrue(scopeContextSpy.notCalled, 'Expected to not call Sentry');
-      });
-    });
-
-    describe('customer deleted', () => {
-      it('returns undefined for uid and email', async () => {
-        customer = deepCopy(deletedCustomer);
-        sandbox
-          .stub(stripeHelper.stripe.customers, 'retrieve')
-          .resolves(customer);
-
-        const expected = { uid: null, email: null };
-        const actual = await stripeHelper.getCustomerUidEmailFromSubscription(
-          subscription
-        );
-
-        assert.deepEqual(actual, expected);
-        assert.isTrue(scopeContextSpy.notCalled, 'Expected to not call Sentry');
-      });
-    });
-
-    describe('customer exists but is missing FxA UID on metadata', () => {
-      it('notifies Sentry and throws validation check error', async () => {
-        customer = deepCopy(newCustomer);
-        customer.metadata = {};
-        sandbox
-          .stub(stripeHelper.stripe.customers, 'retrieve')
-          .resolves(customer);
-
-        try {
-          await stripeHelper.getCustomerUidEmailFromSubscription(subscription);
-          assert.fail('Internal validation check should be thrown');
-        } catch (err) {
-          assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
-        }
-
-        assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
-      });
-    });
-  });
-
   describe('updateCustomerPaymentMethod', () => {
     it('updates a customer using stripe api', async () => {
       const expected = deepCopy(customer1);
@@ -2851,13 +2790,14 @@ describe('StripeHelper', () => {
 
         const expected = [
           {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
             created: pastDueSubscription.created,
             current_period_end: pastDueSubscription.current_period_end,
             current_period_start: pastDueSubscription.current_period_start,
             cancel_at_period_end: false,
             end_at: null,
             plan_id: pastDueSubscription.plan.id,
-            product_id: productId,
+            product_id: product1.id,
             product_name: productName,
             status: 'past_due',
             subscription_id: pastDueSubscription.id,
@@ -2877,6 +2817,7 @@ describe('StripeHelper', () => {
           it('includes charge failure information with the subscription data', async () => {
             invoice.charge = failedChargeCopy;
             subscription.latest_invoice = invoice;
+            subscription.plan.product = product1.id;
 
             const input = { data: [subscription] };
 
@@ -2915,13 +2856,14 @@ describe('StripeHelper', () => {
               .resolves(paidInvoice);
             const expected = [
               {
+                _subscription_type: MozillaSubscriptionTypes.WEB,
                 created: subscription1.created,
                 current_period_end: subscription1.current_period_end,
                 current_period_start: subscription1.current_period_start,
                 cancel_at_period_end: false,
                 end_at: null,
                 plan_id: subscription1.plan.id,
-                product_id: productId,
+                product_id: product1.id,
                 product_name: productName,
                 status: 'active',
                 subscription_id: subscription1.id,
@@ -2946,13 +2888,14 @@ describe('StripeHelper', () => {
               .resolves(paidInvoice);
             const expected = [
               {
+                _subscription_type: MozillaSubscriptionTypes.WEB,
                 created: subscription.created,
                 current_period_end: subscription.current_period_end,
                 current_period_start: subscription.current_period_start,
                 cancel_at_period_end: true,
                 end_at: null,
                 plan_id: subscription.plan.id,
-                product_id: productId,
+                product_id: product1.id,
                 product_name: productName,
                 status: 'active',
                 subscription_id: subscription.id,
@@ -2969,12 +2912,15 @@ describe('StripeHelper', () => {
 
         describe('when the subscription has already ended', () => {
           it('set end_at to the last active day of the subscription', async () => {
-            const input = { data: [cancelledSubscription] };
+            const sub = deepCopy(cancelledSubscription);
+            sub.plan.product = product1.id;
+            const input = { data: [sub] };
             sandbox
               .stub(stripeHelper.stripe.invoices, 'retrieve')
               .resolves(paidInvoice);
             const expected = [
               {
+                _subscription_type: MozillaSubscriptionTypes.WEB,
                 created: cancelledSubscription.created,
                 current_period_end: cancelledSubscription.current_period_end,
                 current_period_start:
@@ -2982,8 +2928,8 @@ describe('StripeHelper', () => {
                 cancel_at_period_end: false,
                 end_at: cancelledSubscription.ended_at,
                 plan_id: cancelledSubscription.plan.id,
-                product_id: productId,
-                product_name: productName,
+                product_id: product1.id,
+                product_name: product1.name,
                 status: 'canceled',
                 subscription_id: cancelledSubscription.id,
                 failure_code: undefined,
@@ -3229,7 +3175,9 @@ describe('StripeHelper', () => {
       mockCustomer,
       mockStripe,
       mockAllAbbrevProducts,
-      mockAllAbbrevPlans;
+      mockAllAbbrevPlans,
+      expandMock;
+
     beforeEach(() => {
       sandbox = sinon.createSandbox();
 
@@ -3273,10 +3221,11 @@ describe('StripeHelper', () => {
         .resolves(mockAllAbbrevProducts);
       sandbox.stub(stripeHelper, 'allAbbrevPlans').resolves(mockAllAbbrevPlans);
 
+      expandMock = sandbox.stub(stripeHelper, 'expandResource');
+
       mockStripe = Object.entries({
         plans: mockPlan,
         products: mockProduct,
-        customers: mockCustomer,
         invoices: mockInvoice,
         charges: mockCharge,
         sources: mockSource,
@@ -3336,16 +3285,18 @@ describe('StripeHelper', () => {
         },
       };
 
+      beforeEach(() => {
+        expandMock.onCall(0).resolves(mockCustomer);
+        expandMock.onCall(1).resolves(mockCharge);
+      });
+
       it('extracts expected details from an invoice that requires requests to expand', async () => {
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixture
         );
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        assert.isTrue(
-          mockStripe.customers.retrieve.calledWith(fixture.customer)
-        );
-        assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+        sinon.assert.calledTwice(expandMock);
         assert.deepEqual(result, expected);
       });
 
@@ -3356,10 +3307,7 @@ describe('StripeHelper', () => {
         );
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isTrue(mockStripe.products.retrieve.called);
-        assert.isTrue(
-          mockStripe.customers.retrieve.calledWith(fixture.customer)
-        );
-        assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+        sinon.assert.calledTwice(expandMock);
         assert.deepEqual(result, expected);
       });
 
@@ -3378,8 +3326,7 @@ describe('StripeHelper', () => {
         );
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        assert.isFalse(mockStripe.customers.retrieve.called);
-        assert.isFalse(mockStripe.charges.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
         assert.deepEqual(result, expected);
       });
 
@@ -3393,13 +3340,13 @@ describe('StripeHelper', () => {
         };
         fixture.customer = mockCustomer;
         fixture.charge = null;
+        expandMock.onCall(1).resolves(null);
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixture
         );
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        assert.isFalse(mockStripe.customers.retrieve.called);
-        assert.isFalse(mockStripe.charges.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
         assert.deepEqual(result, {
           ...expected,
           lastFour: null,
@@ -3408,9 +3355,7 @@ describe('StripeHelper', () => {
       });
 
       it('throws an exception for deleted customer', async () => {
-        mockStripe.customers.retrieve = sinon
-          .stub()
-          .resolves({ ...mockCustomer, deleted: true });
+        expandMock.onCall(0).resolves({ ...mockCustomer, deleted: true });
 
         let thrownError = null;
         try {
@@ -3423,12 +3368,9 @@ describe('StripeHelper', () => {
           thrownError.errno,
           error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER
         );
-        assert.isTrue(
-          mockStripe.customers.retrieve.calledWith(fixture.customer)
-        );
         assert.isFalse(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        assert.isFalse(mockStripe.charges.retrieve.calledWith(fixture.charge));
+        sinon.assert.calledOnce(expandMock);
       });
 
       it('throws an exception for deleted product', async () => {
@@ -3447,10 +3389,7 @@ describe('StripeHelper', () => {
         assert.equal(thrownError.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
         assert.isTrue(mockStripe.products.retrieve.calledWith(productId));
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
-        assert.isTrue(
-          mockStripe.customers.retrieve.calledWith(fixture.customer)
-        );
-        assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+        sinon.assert.calledTwice(expandMock);
       });
 
       it('throws an exception with unexpected data', async () => {
@@ -3493,26 +3432,21 @@ describe('StripeHelper', () => {
         ],
       };
 
+      beforeEach(() => {
+        expandMock.onCall(0).resolves(mockCustomer);
+        expandMock.onCall(1).resolves(mockPlan);
+      });
+
       it('extracts expected details from a source that requires requests to expand', async () => {
         const result = await stripeHelper.extractSourceDetailsForEmail(fixture);
-        assert.isTrue(
-          mockStripe.customers.retrieve.calledWith(fixture.customer)
-        );
-        assert.isTrue(
-          mockStripe.plans.retrieve.calledWith(
-            mockCustomer.subscriptions.data[0].items.data[0].plan
-          )
-        );
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         assert.deepEqual(result, expected);
+        sinon.assert.calledTwice(expandMock);
       });
 
       it('throws an exception for deleted customer', async () => {
-        mockStripe.customers.retrieve = sinon
-          .stub()
-          .resolves({ ...mockCustomer, deleted: true });
-
+        expandMock.onCall(0).resolves({ ...mockCustomer, deleted: true });
         let thrownError = null;
         try {
           await stripeHelper.extractSourceDetailsForEmail(fixture);
@@ -3524,10 +3458,7 @@ describe('StripeHelper', () => {
           thrownError.errno,
           error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER
         );
-        assert.isTrue(
-          mockStripe.customers.retrieve.calledWith(fixture.customer)
-        );
-        assert.isFalse(mockStripe.plans.retrieve.called);
+        sinon.assert.calledOnce(expandMock);
         assert.isFalse(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
       });
@@ -3618,6 +3549,7 @@ describe('StripeHelper', () => {
             'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail'
           )
           .resolves(mockUpgradeDowngradeDetails);
+        expandMock.onCall(0).resolves(mockCustomer);
       });
 
       function assertOnlyExpectedHelperCalledWith(expectedHelperName, ...args) {
@@ -3853,6 +3785,10 @@ describe('StripeHelper', () => {
         },
       };
 
+      beforeEach(() => {
+        expandMock.onCall(0).returns(mockCharge.payment_method_details);
+      });
+
       it('extracts expected details for a subscription reactivation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         sandbox.stub(stripeHelper, 'customer').resolves(mockCustomer);
@@ -3914,6 +3850,10 @@ describe('StripeHelper', () => {
           data: [mockSource],
         },
       };
+
+      beforeEach(() => {
+        expandMock.onCall(0).returns(mockPaymentMethod);
+      });
 
       it('throws for a deleted customer', async () => {
         sandbox.stub(stripeHelper, 'customer').resolves(null);
@@ -4001,142 +3941,97 @@ describe('StripeHelper', () => {
   });
 
   describe('expandResource', () => {
-    it('returns the same resource if it is not an id string', async () => {
-      const actual = await stripeHelper.expandResource(
-        customer1,
+    let customer;
+
+    beforeEach(() => {
+      customer = deepCopy(customer1);
+    });
+
+    it('expands the customer', async () => {
+      stripeFirestore.retrieveAndFetchCustomer = sandbox
+        .stub()
+        .resolves(deepCopy(customer));
+      stripeFirestore.retrieveCustomerSubscriptions = sandbox
+        .stub()
+        .resolves(deepCopy(customer.subscriptions.data));
+      const result = await stripeHelper.expandResource(
+        customer.id,
         CUSTOMER_RESOURCE
       );
-      assert.deepEqual(actual, customer1);
-    });
-
-    it('throws an error if an invalid resource type is passed', async () => {
-      try {
-        await stripeHelper.expandResource('quux', 'NOPE');
-        assert.fail('An error should have been thrown');
-      } catch (e) {
-        assert.equal(
-          e.message,
-          'stripeHelper.expandResource was provided an invalid resource type: NOPE'
-        );
-      }
-    });
-
-    it('expands the subscriptions on a custom resource', async () => {
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'retrieve')
-        .resolves(customer1);
-      const customerId = 'wibble';
-      await stripeHelper.expandResource(customerId, CUSTOMER_RESOURCE);
+      // Note that top level will mismatch because subscriptions is copied
+      // without the object type.
+      assert.deepEqual(result.subscriptions.data, customer.subscriptions.data);
+      assert.hasAllKeys(result, customer);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.customers.retrieve,
-        customerId,
-        { expand: [SUBSCRIPTIONS_RESOURCE] }
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+        customer.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
+        customer.id
       );
     });
 
-    describe('with stripeFirestore', () => {
-      let stripeFirestore;
-      let customer;
+    it('expands the subscription', async () => {
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves(deepCopy(subscription1));
+      const result = await stripeHelper.expandResource(
+        subscription1.id,
+        SUBSCRIPTIONS_RESOURCE
+      );
+      assert.deepEqual(result, subscription1);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+        subscription1.id
+      );
+    });
 
-      beforeEach(() => {
-        customer = deepCopy(customer1);
-        stripeHelper.stripeFirestore = stripeFirestore = {};
-        Container.set(AuthFirestore, {});
-      });
+    it('expands the invoice', async () => {
+      stripeFirestore.retrieveInvoice = sandbox
+        .stub()
+        .resolves(invoicePaidSubscriptionCreate);
+      const result = await stripeHelper.expandResource(
+        invoicePaidSubscriptionCreate.id,
+        INVOICES_RESOURCE
+      );
+      assert.deepEqual(result, invoicePaidSubscriptionCreate);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveInvoice,
+        invoicePaidSubscriptionCreate.id
+      );
+    });
 
-      afterEach(() => {
-        Container.remove(AuthFirestore);
-      });
+    it('expands invoice when invoice isnt found and inserts it', async () => {
+      stripeFirestore.retrieveInvoice = sandbox
+        .stub()
+        .rejects(
+          newFirestoreStripeError(
+            'not found',
+            FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
+          )
+        );
+      stripeFirestore.retrieveAndFetchCustomer = sandbox
+        .stub()
+        .resolves(customer);
+      stripeHelper.stripe.invoices.retrieve = sandbox
+        .stub()
+        .resolves(deepCopy(invoicePaidSubscriptionCreate));
+      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
 
-      it('expands the customer', async () => {
-        stripeFirestore.retrieveAndFetchCustomer = sandbox
-          .stub()
-          .resolves(deepCopy(customer));
-        stripeFirestore.retrieveCustomerSubscriptions = sandbox
-          .stub()
-          .resolves(deepCopy(customer.subscriptions.data));
-        const result = await stripeHelper.expandResource(
-          customer.id,
-          CUSTOMER_RESOURCE
-        );
-        // Note that top level will mismatch because subscriptions is copied
-        // without the object type.
-        assert.deepEqual(
-          result.subscriptions.data,
-          customer.subscriptions.data
-        );
-        assert.hasAllKeys(result, customer);
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
-          customer.id
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
-          customer.id
-        );
-      });
-
-      it('expands the subscription', async () => {
-        stripeFirestore.retrieveAndFetchSubscription = sandbox
-          .stub()
-          .resolves(deepCopy(subscription1));
-        const result = await stripeHelper.expandResource(
-          subscription1.id,
-          SUBSCRIPTIONS_RESOURCE
-        );
-        assert.deepEqual(result, subscription1);
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
-          subscription1.id
-        );
-      });
-
-      it('expands the invoice', async () => {
-        stripeFirestore.retrieveInvoice = sandbox
-          .stub()
-          .resolves(invoicePaidSubscriptionCreate);
-        const result = await stripeHelper.expandResource(
-          invoicePaidSubscriptionCreate.id,
-          INVOICES_RESOURCE
-        );
-        assert.deepEqual(result, invoicePaidSubscriptionCreate);
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.retrieveInvoice,
-          invoicePaidSubscriptionCreate.id
-        );
-      });
-
-      it('expands invoice when invoice isnt found and inserts it', async () => {
-        stripeFirestore.retrieveInvoice = sandbox
-          .stub()
-          .rejects(
-            newFirestoreStripeError(
-              'not found',
-              FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
-            )
-          );
-        stripeFirestore.retrieveAndFetchCustomer = sandbox
-          .stub()
-          .resolves(customer);
-        stripeHelper.stripe.invoices.retrieve = sandbox
-          .stub()
-          .resolves(deepCopy(invoicePaidSubscriptionCreate));
-        stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
-
-        const result = await stripeHelper.expandResource(
-          invoicePaidSubscriptionCreate.id,
-          INVOICES_RESOURCE
-        );
-        assert.deepEqual(result, invoicePaidSubscriptionCreate);
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.retrieveInvoice,
-          invoicePaidSubscriptionCreate.id
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
-          invoicePaidSubscriptionCreate.customer
-        );
-      });
+      const result = await stripeHelper.expandResource(
+        invoicePaidSubscriptionCreate.id,
+        INVOICES_RESOURCE
+      );
+      assert.deepEqual(result, invoicePaidSubscriptionCreate);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveInvoice,
+        invoicePaidSubscriptionCreate.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+        invoicePaidSubscriptionCreate.customer
+      );
     });
   });
 
@@ -4153,7 +4048,8 @@ describe('StripeHelper', () => {
         .stub()
         .resolves({});
       stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
-      await stripeHelper.processWebhookEventToFirestore(event);
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
+      assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
         event.data.object.subscription
@@ -4194,6 +4090,241 @@ describe('StripeHelper', () => {
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.insertSubscriptionRecord,
         event.data.object
+      );
+    });
+
+    it('does not handle wibble events', async () => {
+      const event = deepCopy(eventSubscriptionUpdated);
+      event.type = 'wibble';
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
+      assert.isFalse(result);
+    });
+  });
+
+  describe('getBillingDetailsAndSubscriptions', () => {
+    const customer = { id: 'cus_xyz' };
+    const billingDetails = { payment_provider: 'paypal' };
+    const billingAgreementId = 'ba-123';
+
+    beforeEach(() => {
+      sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
+      sandbox
+        .stub(stripeHelper, 'extractBillingDetails')
+        .returns(billingDetails);
+      sandbox
+        .stub(stripeHelper, 'getCustomerPaypalAgreement')
+        .returns(billingAgreementId);
+      sandbox
+        .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
+        .returns(true);
+      sandbox.stub(stripeHelper, 'hasOpenInvoice').returns(true);
+    });
+
+    it('returns null when no customer is found', async () => {
+      stripeHelper.fetchCustomer.restore();
+      sandbox.stub(stripeHelper, 'fetchCustomer').resolves(undefined);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.equal(actual, null);
+      sinon.assert.calledOnceWithExactly(stripeHelper.fetchCustomer, 'uid', [
+        'subscriptions.data.latest_invoice',
+        'invoice_settings.default_payment_method',
+      ]);
+    });
+
+    it('includes the customer Stripe billing details', async () => {
+      const billingDetails = { payment_provider: 'stripe' };
+      stripeHelper.extractBillingDetails.restore();
+      sandbox
+        .stub(stripeHelper, 'extractBillingDetails')
+        .returns(billingDetails);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions: [],
+        ...billingDetails,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.extractBillingDetails,
+        customer
+      );
+    });
+
+    it('includes the customer PayPal billing details', async () => {
+      stripeHelper.hasSubscriptionRequiringPaymentMethod.restore();
+      sandbox
+        .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
+        .returns(false);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions: [],
+        billing_agreement_id: billingAgreementId,
+        ...billingDetails,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getCustomerPaypalAgreement,
+        customer
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.hasSubscriptionRequiringPaymentMethod,
+        customer
+      );
+    });
+
+    it('includes the missing billing agreement error state', async () => {
+      stripeHelper.getCustomerPaypalAgreement.restore();
+      sandbox.stub(stripeHelper, 'getCustomerPaypalAgreement').returns(null);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions: [],
+        billing_agreement_id: null,
+        paypal_payment_error: PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+        ...billingDetails,
+      });
+    });
+
+    it('includes the funding source error state', async () => {
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions: [],
+        billing_agreement_id: null,
+        paypal_payment_error: PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+        ...billingDetails,
+      });
+      sinon.assert.calledOnceWithExactly(stripeHelper.hasOpenInvoice, customer);
+    });
+
+    it('includes a list of subscriptions', async () => {
+      const subscriptions = [{ id: 'sub_testo' }];
+      stripeHelper.fetchCustomer.restore();
+      sandbox
+        .stub(stripeHelper, 'fetchCustomer')
+        .resolves({ ...customer, subscriptions });
+      sandbox
+        .stub(stripeHelper, 'subscriptionsToResponse')
+        .resolves(subscriptions);
+
+      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
+        'uid'
+      );
+      assert.deepEqual(actual, {
+        customerId: customer.id,
+        subscriptions,
+        billing_agreement_id: billingAgreementId,
+        ...billingDetails,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.subscriptionsToResponse,
+        subscriptions
+      );
+    });
+  });
+
+  describe('extractBillingDetails', () => {
+    const paymentProvider = { payment_provider: 'stripe' };
+    const card = {
+      brand: 'visa',
+      exp_month: 8,
+      exp_year: 2022,
+      funding: 'credit',
+      last4: '4242',
+    };
+    const invoice_settings = {
+      default_payment_method: {
+        billing_details: {
+          name: 'Testo McTestson',
+        },
+        card,
+      },
+    };
+    const source = { name: 'Testo McTestson', object: 'card', ...card };
+
+    beforeEach(() => {
+      sandbox.stub(stripeHelper, 'getPaymentProvider').returns('stripe');
+    });
+
+    it('returns the correct payment provider', () => {
+      const customer = { id: 'cus_xyz', invoice_settings: {} };
+      const actual = stripeHelper.extractBillingDetails(customer);
+
+      assert.deepEqual(actual, paymentProvider);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentProvider,
+        customer
+      );
+    });
+
+    it('returns the card details from the default payment method', () => {
+      const customer = {
+        id: 'cus_xyz',
+        invoice_settings,
+      };
+
+      const actual = stripeHelper.extractBillingDetails(customer);
+
+      assert.deepEqual(actual, {
+        ...paymentProvider,
+        billing_name:
+          customer.invoice_settings.default_payment_method.billing_details.name,
+        payment_type:
+          customer.invoice_settings.default_payment_method.card.funding,
+        last4: customer.invoice_settings.default_payment_method.card.last4,
+        exp_month:
+          customer.invoice_settings.default_payment_method.card.exp_month,
+        exp_year:
+          customer.invoice_settings.default_payment_method.card.exp_year,
+        brand: customer.invoice_settings.default_payment_method.card.brand,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentProvider,
+        customer
+      );
+    });
+
+    it('returns the card details from the payment source', () => {
+      const customer = {
+        id: 'cus_xyz',
+        invoice_settings: {
+          default_payment_method: {},
+        },
+        sources: { data: [source] },
+      };
+
+      const actual = stripeHelper.extractBillingDetails(customer);
+
+      assert.deepEqual(actual, {
+        ...paymentProvider,
+        billing_name: customer.sources.data[0].name,
+        payment_type: customer.sources.data[0].funding,
+        last4: customer.sources.data[0].last4,
+        exp_month: customer.sources.data[0].exp_month,
+        exp_year: customer.sources.data[0].exp_year,
+        brand: customer.sources.data[0].brand,
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.getPaymentProvider,
+        customer
       );
     });
   });

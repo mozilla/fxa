@@ -5,7 +5,7 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 import Modal from './index';
-import { renderWithRouter } from '../../models/_mocks';
+import { renderWithRouter } from '../../models/mocks';
 
 it('renders as expected', () => {
   const onDismiss = jest.fn();

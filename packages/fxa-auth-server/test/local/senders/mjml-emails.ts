@@ -124,7 +124,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderFirst }],
     ])],
     ['html', [
-      { test: 'include', expected: "Here's your reminder to sync devices." },
+      { test: 'include', expected: "Here’s your reminder to sync devices." },
       { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-first', 'connect-device')) },
       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
@@ -135,7 +135,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
     ]],
     ['text', [
-      { test: 'include', expected: "Here's your reminder to sync devices." },
+      { test: 'include', expected: "Here’s your reminder to sync devices." },
       { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-first', 'privacy')}` },
       { test: 'include', expected: config.smtp.syncUrl },
@@ -206,7 +206,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
     ])],
     ['html', [
-      { test: 'include', expected: "Firefox Account verified. You're almost there." },
+      { test: 'include', expected: "Firefox Account verified. You’re almost there." },
       { test: 'include', expected: 'Next sync between your devices!' },
       { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'account-verified', 'connect-device')) },
@@ -218,7 +218,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(config.smtp.firefoxDesktopUrl) },
     ]],
     ['text', [
-      { test: 'include', expected: 'Firefox Account verified. You\'re almost there.' },
+      { test: 'include', expected: 'Firefox Account verified. You’re almost there.' },
       { test: 'include', expected: 'Next sync between your devices!' },
       { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
@@ -1020,6 +1020,24 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
+
+  ['subscriptionReactivationEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} subscription reactivated` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionReactivation') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionReactivation' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionReactivation }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
 ];
 
 describe('lib/senders/mjml-emails:', () => {

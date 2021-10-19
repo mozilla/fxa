@@ -467,7 +467,8 @@
       "subscriptionPaymentExpired",
       "subscriptionsPaymentExpired",
       "subscriptionAccountReminderFirst",
-      "subscriptionAccountReminderSecond"
+      "subscriptionAccountReminderSecond",
+      "subscriptionReactivation"
     ]
   }
 }

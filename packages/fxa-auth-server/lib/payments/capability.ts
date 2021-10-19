@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { getUidAndEmailByStripeCustomerId } from 'fxa-shared/db/models/auth';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
@@ -12,6 +13,7 @@ import { AuthLogger, AuthRequest, ProfileClient } from '../types';
 import { PlayBilling } from './google-play/play-billing';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { StripeHelper } from './stripe';
+import error from '../error';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -93,9 +95,17 @@ export class CapabilityService {
     uid?: string | null;
     email?: string | null;
   }) {
+    if (typeof sub.customer !== 'string') {
+      throw error.internalValidationError(
+        'stripeUpdate',
+        {
+          subscriptionId: sub.id,
+        },
+        'Subscription customer was not a string.'
+      );
+    }
     if (!uid || !email) {
-      ({ uid, email } =
-        await this.stripeHelper.getCustomerUidEmailFromSubscription(sub));
+      ({ uid, email } = await getUidAndEmailByStripeCustomerId(sub.customer));
     }
     if (!uid || !email) {
       // There's nothing to do if we can't find the user. We don't report it
@@ -352,9 +362,7 @@ export class CapabilityService {
    * Fetch the list of subscription purchases from Google Play and return
    * the ids of the products purchased.
    */
-  private async fetchSubscribedProductsFromPlay(
-    uid: string
-  ): Promise<string[]> {
+  public async fetchSubscribedProductsFromPlay(uid: string): Promise<string[]> {
     if (!this.playBilling) {
       return [];
     }

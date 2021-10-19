@@ -20,6 +20,7 @@ import { PayPalBillingAgreements } from './paypal-ba';
 import { EmailType } from './email-type';
 import { SentEmail } from './sent-email';
 import { SecurityEvent } from './security-event';
+import { Stripe } from 'stripe';
 
 export type PayPalBillingAgreementStatusType =
   | 'Pending'
@@ -80,17 +81,13 @@ export async function getAccountCustomerByUid(uid: string) {
 
 /**
  * Fetch the FxA user id and primary email for a customer by Stripe customer id.
- * @param customerId
- * @returns {Object} result
- * @returns {string} result.uid - The FxA user id
- * @returns {string} result.email - The primary email for the FxA user
  */
 export async function getUidAndEmailByStripeCustomerId(
   customerId: string
-): Promise<{ uid: string; email: string }> {
+): Promise<{ uid: string | null; email: string | null }> {
   const accounts = Account.tableName;
   const accountCustomers = AccountCustomers.tableName;
-  return Account.query()
+  const result = await Account.query()
     .select(`${accounts}.uid`, `${accounts}.email`)
     .join(`${accountCustomers}`, `${accountCustomers}.uid`, `${accounts}.uid`)
     .where({
@@ -98,6 +95,10 @@ export async function getUidAndEmailByStripeCustomerId(
     })
     .limit(1)
     .first();
+  if (!result) {
+    return { uid: null, email: null };
+  }
+  return result;
 }
 
 /**

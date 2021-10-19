@@ -1,5 +1,41 @@
 # Change history
 
+## 1.217.2
+
+No changes.
+
+## 1.217.1
+
+No changes.
+
+## 1.217.0
+
+### Refactorings
+
+- build: use esbuild instead of ts-node (#10639) ([a95f1270a](https://github.com/mozilla/fxa/commit/a95f1270a))
+
+### Other changes
+
+- deps-dev: bump @typescript-eslint/eslint-plugin from 4.31.2 to 5.0.0 (#10690) ([aa63c6e58](https://github.com/mozilla/fxa/commit/aa63c6e58))
+- deps: bump @nestjs/config from 1.0.1 to 1.0.2 (#10685) ([ac5d3f3dd](https://github.com/mozilla/fxa/commit/ac5d3f3dd))
+- deps-dev: bump @typescript-eslint/parser from 4.33.0 to 5.0.0 ([14435a9a1](https://github.com/mozilla/fxa/commit/14435a9a1))
+- deps-dev: bump eslint-plugin-import from 2.24.2 to 2.25.1 ([39cdff036](https://github.com/mozilla/fxa/commit/39cdff036))
+- deps-dev: bump @nestjs/cli from 8.1.1 to 8.1.2 (#10658) ([659019a0f](https://github.com/mozilla/fxa/commit/659019a0f))
+- deps: bump @nestjs/platform-express from 8.0.10 to 8.0.11 ([8fecabe2c](https://github.com/mozilla/fxa/commit/8fecabe2c))
+- deps-dev: bump @typescript-eslint/parser from 4.31.2 to 4.33.0 (#10642) ([3f65ae1da](https://github.com/mozilla/fxa/commit/3f65ae1da))
+- deps: bump aws-sdk from 2.996.0 to 2.1002.0 ([97e82c61b](https://github.com/mozilla/fxa/commit/97e82c61b))
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+- deps: bump @nestjs/core from 8.0.9 to 8.0.10 ([239bd66d9](https://github.com/mozilla/fxa/commit/239bd66d9))
+- deps: bump graphql from 15.5.2 to 15.6.1 ([c6a80d028](https://github.com/mozilla/fxa/commit/c6a80d028))
+- event-broker: add types for axios dep update ([d26f3146f](https://github.com/mozilla/fxa/commit/d26f3146f))
+- deps: bump @nestjs/platform-express from 8.0.8 to 8.0.10 ([18ae87a2f](https://github.com/mozilla/fxa/commit/18ae87a2f))
+- deps: bump axios from 0.21.4 to 0.22.0 ([d98e321b5](https://github.com/mozilla/fxa/commit/d98e321b5))
+- deps: bump @nestjs/core from 8.0.6 to 8.0.9 (#10597) ([e71cd2a03](https://github.com/mozilla/fxa/commit/e71cd2a03))
+- deps: bump @sentry/node from 6.12.0 to 6.13.2 (#10583) ([cb19efb3c](https://github.com/mozilla/fxa/commit/cb19efb3c))
+- deps: bump google-auth-library from 7.8.0 to 7.10.0 ([3a48bcca7](https://github.com/mozilla/fxa/commit/3a48bcca7))
+- deps: bump @sentry/integrations from 6.12.0 to 6.13.2 (#10569) ([ab0b3ab6d](https://github.com/mozilla/fxa/commit/ab0b3ab6d))
+- deps: bump @nestjs/common from 8.0.5 to 8.0.8 (#10565) ([c97c922a4](https://github.com/mozilla/fxa/commit/c97c922a4))
+
 ## 1.216.3
 
 No changes.

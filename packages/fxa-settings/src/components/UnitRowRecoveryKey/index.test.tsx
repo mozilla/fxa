@@ -5,13 +5,13 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import UnitRowRecoveryKey from '.';
-import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 
-const account = ({
+const account = {
   recoveryKey: true,
   deleteRecoveryKey: jest.fn().mockResolvedValue(true),
-} as unknown) as Account;
+} as unknown as Account;
 
 describe('UnitRowRecoveryKey', () => {
   it('renders when recovery key is set', () => {
@@ -32,9 +32,9 @@ describe('UnitRowRecoveryKey', () => {
   });
 
   it('renders when recovery key is not set', () => {
-    const account = ({
+    const account = {
       recoveryKey: false,
-    } as unknown) as Account;
+    } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <UnitRowRecoveryKey />
@@ -52,10 +52,10 @@ describe('UnitRowRecoveryKey', () => {
   });
 
   it('can be refreshed', async () => {
-    const account = ({
+    const account = {
       recoveryKey: false,
       refresh: jest.fn(),
-    } as unknown) as Account;
+    } as unknown as Account;
     await act(async () => {
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>

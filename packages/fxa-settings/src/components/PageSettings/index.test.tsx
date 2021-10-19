@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import PageSettings from '.';
-import { renderWithRouter } from '../../models/_mocks';
+import { renderWithRouter } from '../../models/mocks';
 import * as Metrics from '../../lib/metrics';
 
 jest.spyOn(Metrics, 'setProperties');
@@ -17,6 +17,10 @@ it('renders without imploding', async () => {
   expect(screen.getByTestId('settings-security')).toBeInTheDocument();
   expect(screen.getByTestId('settings-connected-services')).toBeInTheDocument();
   expect(screen.getByTestId('settings-delete-account')).toBeInTheDocument();
+  // TODO: remove .not, FXA-4106
+  expect(
+    screen.queryByTestId('settings-data-collection')
+  ).not.toBeInTheDocument();
   expect(Metrics.setProperties).toHaveBeenCalledWith({
     uid: 'abc123',
   });

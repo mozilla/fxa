@@ -6,23 +6,26 @@ import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
 import { Account, AppContext } from '../../models';
-import { renderWithRouter, mockAppContext } from '../../models/_mocks';
+import {
+  renderWithRouter,
+  mockAppContext,
+} from 'fxa-settings/src/models/mocks';
 import { isMobileDevice } from '../../lib/utilities';
-import { MOCK_SERVICES } from './MOCK_SERVICES';
+import { MOCK_SERVICES } from './mocks';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
-const account = ({
+const account = {
   attachedClients: MOCK_SERVICES,
   disconnectClient: jest.fn().mockResolvedValue(true),
-} as unknown) as Account;
+} as unknown as Account;
 
 const getIconAndServiceLink = async (name: string, testId: string) => {
   const servicesList = MOCK_SERVICES.filter((item) => item.name === name);
-  const account = ({
+  const account = {
     attachedClients: servicesList,
     disconnectClient: jest.fn().mockResolvedValue(true),
-  } as unknown) as Account;
+  } as unknown as Account;
   renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
       <ConnectedServices />
@@ -165,10 +168,10 @@ describe('Connected Services', () => {
   });
 
   it('renders <ConnectAnotherDevicePromo/> when no mobile devices in list', async () => {
-    const account = ({
+    const account = {
       attachedClients: SERVICES_NON_MOBILE,
       disconnectClient: jest.fn().mockResolvedValue(true),
-    } as unknown) as Account;
+    } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />

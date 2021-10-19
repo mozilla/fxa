@@ -87,9 +87,16 @@ export type AbbrevPlan = {
   product_name: string;
 };
 
-// The GET /account endpoint on the auth server includes a list of
-// subscriptions.  This type represents one of those subscriptions.
-export type AccountSubscription = Pick<
+// Do not re-order the list items without updating their references.
+export const SUBSCRIPTION_TYPES = ['web', 'iap_google', 'iap_apple'] as const;
+export type SubscriptionTypes = typeof SUBSCRIPTION_TYPES;
+export type SubscriptionType = SubscriptionTypes[number];
+export const MozillaSubscriptionTypes = {
+  WEB: SUBSCRIPTION_TYPES[0],
+  IAP_GOOGLE: SUBSCRIPTION_TYPES[1],
+  IAP_APPLE: SUBSCRIPTION_TYPES[2],
+} as const;
+export type WebSubscription = Pick<
   Stripe.Subscription,
   | 'created'
   | 'current_period_end'
@@ -97,6 +104,7 @@ export type AccountSubscription = Pick<
   | 'cancel_at_period_end'
 > &
   Partial<Pick<Stripe.Charge, 'failure_code' | 'failure_message'>> & {
+    _subscription_type: SubscriptionTypes[0];
     end_at: Stripe.Subscription['ended_at'];
     latest_invoice: Stripe.Invoice['number'];
     plan_id: Stripe.Plan['id'];
@@ -108,6 +116,11 @@ export type AccountSubscription = Pick<
     >;
     subscription_id: Stripe.Subscription['id'];
   };
+export type GooglePlaySubscription = {
+  _subscription_type: SubscriptionTypes[1];
+  product_id: Stripe.Product['id'];
+};
+export type MozillaSubscription = WebSubscription | GooglePlaySubscription;
 
 export const PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT = 'missing_agreement';
 export const PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE = 'funding_source';

@@ -1,5 +1,19 @@
 # Change history
 
+## 1.217.2
+
+No changes.
+
+## 1.217.1
+
+No changes.
+
+## 1.217.0
+
+### Other changes
+
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+
 ## 1.216.3
 
 No changes.

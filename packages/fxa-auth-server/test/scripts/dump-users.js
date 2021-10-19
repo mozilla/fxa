@@ -63,6 +63,7 @@ const execOptions = {
   env: {
     NODE_ENV: 'dev',
     LOG_LEVEL: 'error',
+    AUTH_FIRESTORE_EMULATOR_HOST: 'localhost:9090',
   },
 };
 

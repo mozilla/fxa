@@ -8,7 +8,7 @@ import { PageSettings } from '.';
 import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 import { isMobileDevice } from '../../lib/utilities';
-import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../models/_mocks';
+import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../models/mocks';
 import { MOCK_SERVICES } from '../ConnectedServices/MOCK_SERVICES';
 import { AppContext } from 'fxa-settings/src/models';
 
@@ -67,6 +67,25 @@ storiesOf('Pages/Settings', module)
     >
       <AppLayout>
         <PageSettings />
+      </AppLayout>
+    </AppContext.Provider>
+  ))
+  .add('with telemetry opt-out', () => (
+    <AppContext.Provider
+      value={mockAppContext({
+        account: {
+          ...MOCK_ACCOUNT,
+          subscriptions: [{ created: 1, productName: 'x' }],
+          emails: [
+            mockEmail('johndope@example.com'),
+            mockEmail('johndope2@gmail.com', false),
+          ],
+          attachedClients: SERVICES_NON_MOBILE,
+        } as any,
+      })}
+    >
+      <AppLayout>
+        <PageSettings showDataCollection={true} />
       </AppLayout>
     </AppContext.Provider>
   ));

@@ -22,6 +22,8 @@ const {
 } = require('../../../lib/payments/google-play/subscription-purchase');
 const proxyquire = require('proxyquire').noPreserveCache();
 
+const authDbModule = require('fxa-shared/db/models/auth');
+
 const mockAuthEvents = {};
 
 const { CapabilityService } = proxyquire('../../../lib/payments/capability', {
@@ -119,15 +121,16 @@ describe('CapabilityService', () => {
 
   afterEach(() => {
     Container.reset();
+    sinon.restore();
   });
 
   describe('stripeUpdate', () => {
     beforeEach(() => {
-      mockStripeHelper.getCustomerUidEmailFromSubscription =
-        sinon.fake.resolves({
-          uid: UID,
-          email: EMAIL,
-        });
+      const fake = sinon.fake.resolves({
+        uid: UID,
+        email: EMAIL,
+      });
+      sinon.replace(authDbModule, 'getUidAndEmailByStripeCustomerId', fake);
       capabilityService.subscribedProductIds = sinon.fake.resolves([
         'prod_FUUNYnlDso7FeB',
       ]);
@@ -137,7 +140,7 @@ describe('CapabilityService', () => {
     it('handles a stripe product update with new products', async () => {
       const sub = deepCopy(subscriptionCreated);
       await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
-      assert.notCalled(mockStripeHelper.getCustomerUidEmailFromSubscription);
+      assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
       assert.calledWith(mockProfileClient.deleteCache, UID);
       assert.calledWith(capabilityService.subscribedProductIds, {
         uid: UID,
@@ -155,7 +158,7 @@ describe('CapabilityService', () => {
       const sub = deepCopy(subscriptionCreated);
       capabilityService.subscribedProductIds = sinon.fake.resolves([]);
       await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
-      assert.notCalled(mockStripeHelper.getCustomerUidEmailFromSubscription);
+      assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
       assert.calledWith(mockProfileClient.deleteCache, UID);
       assert.calledWith(capabilityService.subscribedProductIds, {
         uid: UID,
@@ -173,8 +176,8 @@ describe('CapabilityService', () => {
       const sub = deepCopy(subscriptionCreated);
       await capabilityService.stripeUpdate({ sub });
       assert.calledWith(
-        mockStripeHelper.getCustomerUidEmailFromSubscription,
-        sub
+        authDbModule.getUidAndEmailByStripeCustomerId,
+        sub.customer
       );
       assert.calledWith(mockProfileClient.deleteCache, UID);
       assert.calledWith(capabilityService.subscribedProductIds, {
@@ -194,11 +197,11 @@ describe('CapabilityService', () => {
     let subscriptionPurchase;
 
     beforeEach(() => {
-      mockStripeHelper.getCustomerUidEmailFromSubscription =
-        sinon.fake.resolves({
-          uid: UID,
-          email: EMAIL,
-        });
+      const fake = sinon.fake.resolves({
+        uid: UID,
+        email: EMAIL,
+      });
+      sinon.replace(authDbModule, 'getUidAndEmailByStripeCustomerId', fake);
       capabilityService.subscribedProductIds = sinon.fake.resolves([
         'prod_FUUNYnlDso7FeB',
       ]);

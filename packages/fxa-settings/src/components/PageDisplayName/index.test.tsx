@@ -7,7 +7,7 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen } from '@testing-library/react';
 import PageDisplayName from '.';
-import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { HomePath } from '../../constants';
 import { Account, AppContext } from '../../models';
 
@@ -26,10 +26,10 @@ const submitDisplayName = async (newName: string) => {
   });
 };
 
-const account = ({
+const account = {
   displayName: 'jrgm',
   setDisplayName: jest.fn().mockResolvedValue(true),
-} as unknown) as Account;
+} as unknown as Account;
 
 it('renders', async () => {
   renderWithRouter(<PageDisplayName />);
@@ -79,10 +79,10 @@ it('navigates back to settings home and shows a success message on a successful 
 
 it('displays a general error in the alert bar', async () => {
   const gqlError: any = new Error('test error');
-  const account = ({
+  const account = {
     displayName: 'jrgm',
     setDisplayName: jest.fn().mockRejectedValue(gqlError),
-  } as unknown) as Account;
+  } as unknown as Account;
   const context = mockAppContext({ account });
   renderWithRouter(
     <AppContext.Provider value={context}>
@@ -97,10 +97,10 @@ it('displays a general error in the alert bar', async () => {
 it('displays the GraphQL error', async () => {
   const gqlError: any = new Error('test error');
   gqlError.graphQLErrors = ['test'];
-  const account = ({
+  const account = {
     displayName: 'jrgm',
     setDisplayName: jest.fn().mockRejectedValue(gqlError),
-  } as unknown) as Account;
+  } as unknown as Account;
   renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
       <PageDisplayName />

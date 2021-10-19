@@ -29,6 +29,7 @@ import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+import { ReactComponent as PocketIcon } from '../../images/pocket-icon.svg';
 import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 
 import PaymentUpdateForm, {
@@ -325,6 +326,47 @@ export const Subscriptions = ({
                 }}
               />
             ))}
+
+          <div className="settings-unit">
+            <div className="subscription pocket-external">
+              <div>
+                <PocketIcon className="pocket-icon" />
+              </div>
+              <div>
+                <p data-testid="manage-pocket-title">
+                  <Localized id="manage-pocket-title">
+                    <b>Looking for your Pocket Premium subscription?</b>
+                  </Localized>
+                </p>
+                <Localized
+                  id="manage-pocket-body"
+                  elems={{
+                    a: (
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href="https://getpocket.com/premium/manage"
+                        data-testid="manage-pocket-link"
+                      ></a>
+                    ),
+                  }}
+                >
+                  <p>
+                    To manage it,{' '}
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href="https://getpocket.com/premium/manage"
+                      data-testid="manage-pocket-link"
+                    >
+                      click here
+                    </a>
+                    .
+                  </p>
+                </Localized>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,22 +1,8 @@
 #!/bin/bash -ex
 
-# This docker image doesn't react to SIGINTs (Ctrl+C) which is used by
-# pm2 to kill processes.
-# We go around this by defining a SIGINT handler, running docker in the
-# background (but still logging on the screen), and running a read to keep
-# the script running.
+DIR=$(dirname "$0")
+cd "$DIR/../_dev/firebase"
 
-function on_sigint() {
-  echo "Firestore Emulator shutting down."
-  docker stop firestore
-  exit 0
-}
-
-trap on_sigint INT
-
-# Create pushbox db on start (because pushbox doesn't create it)
-docker run --rm --name=firestore \
-  -p 9090:9090 \
-  jdlk7/firestore-emulator &
-
-while :; do read -r; done
+# the "demo-" prefix for --project is special
+# see https://firebase.google.com/docs/emulator-suite/connect_firestore#choose_a_firebase_project
+docker run --rm -p 4400:4400 -p 4500:4500 -p 8085:8085 -p 9090:9090 -p 9299:9299 -v "$(pwd)":/home/node --name firebase-tools andreysenov/firebase-tools:latest firebase emulators:start --project demo-fxa

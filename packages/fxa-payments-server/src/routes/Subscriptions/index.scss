@@ -274,3 +274,23 @@
     padding: 0;
   }
 }
+
+.pocket-external {
+  display: flex;
+  align-items: baseline;
+
+  p:first-child {
+    margin-top: 0;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.pocket-icon {
+  width: 26px;
+  height: 23px;
+  margin-right: 12px;
+  vertical-align: text-top;
+}

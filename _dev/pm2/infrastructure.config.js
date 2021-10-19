@@ -33,13 +33,6 @@ module.exports = {
       kill_timeout: 20000,
     },
     {
-      name: 'pubsub',
-      script: '_scripts/pubsub.sh',
-      max_restarts: '1',
-      min_uptime: '2m',
-      kill_timeout: 20000,
-    },
-    {
       name: 'firestore',
       script: '_scripts/firestore.sh',
       max_restarts: '1',

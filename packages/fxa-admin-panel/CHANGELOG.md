@@ -1,3 +1,30 @@
+## 1.217.2
+
+No changes.
+
+## 1.217.1
+
+No changes.
+
+## 1.217.0
+
+### Refactorings
+
+- build: use esbuild instead of ts-node (#10639) ([a95f1270a](https://github.com/mozilla/fxa/commit/a95f1270a))
+
+### Other changes
+
+- deps-dev: bump @typescript-eslint/eslint-plugin from 4.31.2 to 5.0.0 (#10690) ([aa63c6e58](https://github.com/mozilla/fxa/commit/aa63c6e58))
+- deps-dev: bump @storybook/addon-actions from 6.3.10 to 6.3.11 (#10687) ([7edf08edd](https://github.com/mozilla/fxa/commit/7edf08edd))
+- deps-dev: bump @typescript-eslint/parser from 4.33.0 to 5.0.0 ([14435a9a1](https://github.com/mozilla/fxa/commit/14435a9a1))
+- deps-dev: bump @typescript-eslint/parser from 4.31.2 to 4.33.0 (#10642) ([3f65ae1da](https://github.com/mozilla/fxa/commit/3f65ae1da))
+- deps: updated dependencies (#10638) ([f57031d15](https://github.com/mozilla/fxa/commit/f57031d15))
+- deps-dev: bump @testing-library/dom from 8.2.0 to 8.7.2 ([677e4b381](https://github.com/mozilla/fxa/commit/677e4b381))
+- deps-dev: bump @storybook/addon-links from 6.3.8 to 6.3.9 ([9fdb14b7a](https://github.com/mozilla/fxa/commit/9fdb14b7a))
+- deps: bump graphql from 15.5.2 to 15.6.1 ([c6a80d028](https://github.com/mozilla/fxa/commit/c6a80d028))
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.2.14 to 2.2.16 ([7a76f658b](https://github.com/mozilla/fxa/commit/7a76f658b))
+- deps-dev: bump @testing-library/react from 12.1.1 to 12.1.2 (#10595) ([4a89d0d8e](https://github.com/mozilla/fxa/commit/4a89d0d8e))
+
 ## 1.216.3
 
 No changes.

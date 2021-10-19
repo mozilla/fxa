@@ -6,19 +6,19 @@ import 'mutationobserver-shim';
 import '@testing-library/jest-dom/extend-expect';
 import { act, screen } from '@testing-library/react';
 import { Account, AppContext } from '../../models';
-import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import React from 'react';
 
 import { Page2faReplaceRecoveryCodes } from '.';
 
 jest.mock('../../models/AlertBarInfo');
 const recoveryCodes = ['abc123'];
-const account = ({
+const account = {
   primaryEmail: {
     email: 'pbooth@mozilla.com',
   },
   replaceRecoveryCodes: jest.fn().mockResolvedValue({ recoveryCodes }),
-} as unknown) as Account;
+} as unknown as Account;
 
 window.URL.createObjectURL = jest.fn();
 
@@ -39,9 +39,9 @@ it('renders', async () => {
 });
 
 it('displays an error when fails to fetch new recovery codes', async () => {
-  const account = ({
+  const account = {
     replaceRecoveryCodes: jest.fn().mockRejectedValue(new Error('wat')),
-  } as unknown) as Account;
+  } as unknown as Account;
   const context = mockAppContext({ account });
   await act(async () => {
     renderWithRouter(

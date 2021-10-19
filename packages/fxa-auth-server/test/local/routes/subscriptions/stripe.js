@@ -13,10 +13,6 @@ const mocks = require('../../../mocks');
 const error = require('../../../../lib/error');
 const { StripeHelper } = require('../../../../lib/payments/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
-const {
-  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
-} = require('fxa-shared/subscriptions/types');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
 
@@ -25,6 +21,9 @@ const {
   handleAuth,
   DirectStripeRoutes,
 } = require('../../../../lib/routes/subscriptions');
+const { AuthLogger } = require('../../../../lib/types');
+const { CapabilityService } = require('../../../../lib/payments/capability');
+const { PlayBilling } = require('../../../../lib/payments/google-play');
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
   require('fxa-shared').subscriptions.stripe;
@@ -34,15 +33,12 @@ const cancelledSubscription = require('../../payments/fixtures/stripe/subscripti
 const trialSubscription = require('../../payments/fixtures/stripe/subscription_trialing.json');
 const pastDueSubscription = require('../../payments/fixtures/stripe/subscription_past_due.json');
 const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
-const customerPMIExpanded = require('../../payments/fixtures/stripe/customer_new_pmi_default_invoice_expanded.json');
 const multiPlanSubscription = require('../../payments/fixtures/stripe/subscription_multiplan.json');
 const emptyCustomer = require('../../payments/fixtures/stripe/customer_new.json');
 const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
 const newSetupIntent = require('../../payments/fixtures/stripe/setup_intent_new.json');
 const stripePlan = require('../../payments/fixtures/stripe/plan1.json');
 const paymentMethodFixture = require('../../payments/fixtures/stripe/payment_method.json');
-
-const { CapabilityService } = require('../../../../lib/payments/capability');
 
 const currencyHelper = new CurrencyHelper({
   currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
@@ -203,9 +199,6 @@ describe('subscriptions stripeRoutes', () => {
   beforeEach(() => {
     Container.reset();
     config = {
-      authFirestore: {
-        enabled: false,
-      },
       subscriptions: {
         enabled: true,
         managementClientId: MOCK_CLIENT_ID,
@@ -227,6 +220,9 @@ describe('subscriptions stripeRoutes', () => {
 
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
+
+    Container.set(AuthLogger, log);
+    Container.set(PlayBilling, {});
 
     db = mocks.mockDB({
       uid: UID,
@@ -1375,285 +1371,55 @@ describe('DirectStripeRoutes', () => {
 
   describe('getCustomer', () => {
     describe('customer is found', () => {
-      let customer;
+      const mockResp = {
+        subscriptions: [
+          {
+            _subscription_type: 'web',
+            subscription_id: 'sub_1JhyIYBVqmGyQTMa3XMF6ADj',
+          },
+        ],
+        payment_provider: 'dinersclub',
+      };
 
-      beforeEach(() => {
-        customer = deepCopy(emptyCustomer);
-        directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
-          []
+      it('calls getBillingDetailsAndSubscriptions on StripeHelper', async () => {
+        directStripeRoutesInstance.stripeHelper.getBillingDetailsAndSubscriptions.resolves(
+          mockResp
         );
-        directStripeRoutesInstance.stripeHelper.hasSubscriptionRequiringPaymentMethod.returns(
-          false
+        const resp = await directStripeRoutesInstance.getCustomer(
+          VALID_REQUEST
         );
+        sinon.assert.calledOnceWithExactly(
+          directStripeRoutesInstance.stripeHelper
+            .getBillingDetailsAndSubscriptions,
+          VALID_REQUEST.auth.credentials.user
+        );
+        assert.deepEqual(resp, mockResp);
       });
 
-      describe('customer has payment_provider property', () => {
-        it('calls getPaymentProvider once to determine payment_provider', async () => {
-          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-            customer
-          );
+      it('throws when the customer has no subscriptions', async () => {
+        directStripeRoutesInstance.stripeHelper.getBillingDetailsAndSubscriptions.resolves(
+          { ...mockResp, subscriptions: [] }
+        );
+        try {
           await directStripeRoutesInstance.getCustomer(VALID_REQUEST);
-          sinon.assert.calledOnceWithExactly(
-            directStripeRoutesInstance.stripeHelper.getPaymentProvider,
-            customer
-          );
-        });
+          assert.fail('An error should have been thrown');
+        } catch (err) {
+          assert.strictEqual(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+        }
 
-        it('payment_provider === value returned by getPaymentProvider', async () => {
-          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-            customer
-          );
-          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
-            'not_chosen'
-          );
-
-          const actual = await directStripeRoutesInstance.getCustomer(
-            VALID_REQUEST
-          );
-          assert.strictEqual(actual.payment_provider, 'not_chosen');
-        });
-      });
-
-      describe('customer has paypal_payment_error', () => {
-        it('shows missing agreement when none is present', async () => {
-          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-            customer
-          );
-          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
-            'paypal'
-          );
-          directStripeRoutesInstance.stripeHelper.hasSubscriptionRequiringPaymentMethod.returns(
-            true
-          );
-          directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement.returns(
-            false
-          );
-          directStripeRoutesInstance.stripeHelper.hasOpenInvoice.returns(false);
-
-          const actual = await directStripeRoutesInstance.getCustomer(
-            VALID_REQUEST
-          );
-          assert.strictEqual(actual.payment_provider, 'paypal');
-          assert.strictEqual(
-            actual.paypal_payment_error,
-            PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT
-          );
-          sinon.assert.calledOnceWithExactly(
-            directStripeRoutesInstance.stripeHelper
-              .hasSubscriptionRequiringPaymentMethod,
-            customer
-          );
-          sinon.assert.calledWithExactly(
-            directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
-            customer
-          );
-          sinon.assert.notCalled(
-            directStripeRoutesInstance.stripeHelper.hasOpenInvoice
-          );
-        });
-
-        it('shows funding_source when agreement is present', async () => {
-          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-            customer
-          );
-          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
-            'paypal'
-          );
-          directStripeRoutesInstance.stripeHelper.hasSubscriptionRequiringPaymentMethod.returns(
-            true
-          );
-          directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement.returns(
-            true
-          );
-          directStripeRoutesInstance.stripeHelper.hasOpenInvoice.returns(true);
-
-          const actual = await directStripeRoutesInstance.getCustomer(
-            VALID_REQUEST
-          );
-          assert.strictEqual(actual.payment_provider, 'paypal');
-          assert.strictEqual(
-            actual.paypal_payment_error,
-            PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE
-          );
-          sinon.assert.calledOnceWithExactly(
-            directStripeRoutesInstance.stripeHelper
-              .hasSubscriptionRequiringPaymentMethod,
-            customer
-          );
-          sinon.assert.calledWithExactly(
-            directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
-            customer
-          );
-          sinon.assert.calledOnceWithExactly(
-            directStripeRoutesInstance.stripeHelper.hasOpenInvoice,
-            customer
-          );
-        });
-
-        it('shows no error when no open invoice and agreement on file', async () => {
-          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-            customer
-          );
-          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
-            'paypal'
-          );
-          directStripeRoutesInstance.stripeHelper.hasSubscriptionRequiringPaymentMethod.returns(
-            true
-          );
-          directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement.returns(
-            true
-          );
-          directStripeRoutesInstance.stripeHelper.hasOpenInvoice.returns(false);
-
-          const actual = await directStripeRoutesInstance.getCustomer(
-            VALID_REQUEST
-          );
-          assert.strictEqual(actual.payment_provider, 'paypal');
-          assert.isUndefined(actual.paypal_payment_error);
-          sinon.assert.calledOnceWithExactly(
-            directStripeRoutesInstance.stripeHelper
-              .hasSubscriptionRequiringPaymentMethod,
-            customer
-          );
-          sinon.assert.calledWithExactly(
-            directStripeRoutesInstance.stripeHelper.getCustomerPaypalAgreement,
-            customer
-          );
-          sinon.assert.calledOnceWithExactly(
-            directStripeRoutesInstance.stripeHelper.hasOpenInvoice,
-            customer
-          );
-        });
-      });
-
-      describe('customer has payment sources', () => {
-        describe('default invoice payment method is a card object', () => {
-          it('adds payment method data to the response', async () => {
-            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-              customerPMIExpanded
-            );
-            directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
-              'not_chosen'
-            );
-
-            const defaultInvoice =
-              customerPMIExpanded.invoice_settings.default_payment_method;
-            const expected = {
-              subscriptions: [],
-              billing_name: defaultInvoice.billing_details.name,
-              brand: defaultInvoice.card.brand,
-              payment_provider: 'not_chosen',
-              payment_type: defaultInvoice.card.funding,
-              last4: defaultInvoice.card.last4,
-              exp_month: defaultInvoice.card.exp_month,
-              exp_year: defaultInvoice.card.exp_year,
-            };
-            const actual = await directStripeRoutesInstance.getCustomer(
-              VALID_REQUEST
-            );
-
-            assert.deepEqual(actual, expected);
-          });
-        });
-        describe('default invoice payment method is a string', () => {
-          it('throws error as it must be expanded', async () => {
-            const customerExpanded = deepCopy(customerPMIExpanded);
-            customerExpanded.invoice_settings.default_payment_method =
-              'pm_1H0FRp2eZvKYlo2CeIZoc0wj';
-            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-              customerExpanded
-            );
-            try {
-              await directStripeRoutesInstance.getCustomer(VALID_REQUEST);
-              assert.fail('getCustomer should fail with string payment method');
-            } catch (err) {
-              assert.strictEqual(
-                err.errno,
-                error.ERRNO.BACKEND_SERVICE_FAILURE
-              );
-              assert.strictEqual(
-                err.message,
-                'A backend service request failed.'
-              );
-              assert.strictEqual(err.output.payload.service, 'stripe');
-            }
-          });
-        });
-        describe('payment source is a card object', () => {
-          it('adds source data to the response', async () => {
-            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-              customer
-            );
-            directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
-              'not_chosen'
-            );
-
-            const expected = {
-              subscriptions: [],
-              billing_name: customer.sources.data[0].name,
-              brand: customer.sources.data[0].brand,
-              payment_provider: 'not_chosen',
-              payment_type: customer.sources.data[0].funding,
-              last4: customer.sources.data[0].last4,
-              exp_month: customer.sources.data[0].exp_month,
-              exp_year: customer.sources.data[0].exp_year,
-            };
-            const actual = await directStripeRoutesInstance.getCustomer(
-              VALID_REQUEST
-            );
-
-            assert.deepEqual(actual, expected);
-          });
-        });
-        describe('payment source is a source object', () => {
-          it('does not add the source data to the response', async () => {
-            customer.sources.data[0].object = 'source';
-            customer.subscriptions.data = [];
-            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-              customer
-            );
-            directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
-              'not_chosen'
-            );
-
-            const expected = {
-              subscriptions: [],
-              payment_provider: 'not_chosen',
-            };
-            const actual = await directStripeRoutesInstance.getCustomer(
-              VALID_REQUEST
-            );
-
-            assert.deepEqual(actual, expected);
-          });
-        });
-      });
-      describe('customer has no payment sources', () => {
-        it('does not add source information to the response', async () => {
-          customer.sources.data = [];
-          customer.subscriptions.data = [];
-          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
-            customer
-          );
-          directStripeRoutesInstance.stripeHelper.getPaymentProvider.returns(
-            'not_chosen'
-          );
-
-          const expected = {
-            subscriptions: [],
-            payment_provider: 'not_chosen',
-          };
-          const actual = await directStripeRoutesInstance.getCustomer(
-            VALID_REQUEST
-          );
-
-          assert.deepEqual(actual, expected);
-        });
+        sinon.assert.calledOnceWithExactly(
+          directStripeRoutesInstance.stripeHelper
+            .getBillingDetailsAndSubscriptions,
+          VALID_REQUEST.auth.credentials.user
+        );
       });
     });
+
     describe('customer is not found', () => {
       it('throws an error', async () => {
-        directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
+        directStripeRoutesInstance.stripeHelper.getBillingDetailsAndSubscriptions.resolves(
+          null
+        );
 
         try {
           await directStripeRoutesInstance.getCustomer(VALID_REQUEST);
@@ -1668,6 +1434,11 @@ describe('DirectStripeRoutes', () => {
           assert.strictEqual(err.message, 'Unknown customer');
           assert.strictEqual(err.output.payload['uid'], UID);
         }
+        sinon.assert.calledOnceWithExactly(
+          directStripeRoutesInstance.stripeHelper
+            .getBillingDetailsAndSubscriptions,
+          VALID_REQUEST.auth.credentials.user
+        );
       });
     });
   });

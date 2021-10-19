@@ -9,7 +9,7 @@ import {
   mockAppContext,
   mockSession,
   renderWithRouter,
-} from '../../models/_mocks';
+} from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 import { VerifiedSessionGuard } from '.';
 
@@ -28,12 +28,12 @@ it('renders the content when verified', async () => {
 it('renders the guard when unverified', async () => {
   const onDismiss = jest.fn();
   const onError = jest.fn();
-  const account = ({
+  const account = {
     primaryEmail: {
       email: 'smcarthur@mozilla.com',
     },
     sendVerificationCode: jest.fn().mockResolvedValue(true),
-  } as unknown) as Account;
+  } as unknown as Account;
   renderWithRouter(
     <AppContext.Provider
       value={mockAppContext({ account, session: mockSession(false) })}

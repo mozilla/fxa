@@ -8,7 +8,7 @@ import {
   ProductDetailsStringProperty,
   ProductDetailsListProperties,
   ProductDetailsListProperty,
-  AccountSubscription,
+  WebSubscription,
   AbbrevPlan,
 } from './types';
 
@@ -146,7 +146,7 @@ export const productDetailsFromPlan = (
  * id.  This is used for the app/service select on the support form.
  */
 export const getProductSupportApps =
-  (subscriptions: AccountSubscription[]) => (plans: AbbrevPlan[]) => {
+  (subscriptions: WebSubscription[]) => (plans: AbbrevPlan[]) => {
     const metadataPrefix = 'support:app:';
     return plans.reduce((acc: { [keys: string]: string[] }, p) => {
       if (

@@ -17,7 +17,6 @@ import {
   getAccountCustomerByUid,
   getUidAndEmailByStripeCustomerId,
   updateAccountCustomer,
-  PayPalBillingAgreements,
   createPayPalBA,
   getAllPayPalBAByUid,
   updatePayPalBA,
@@ -30,6 +29,8 @@ import {
   randomEmail,
   testDatabaseSetup,
 } from './helpers';
+import customer1 from '../../../fixtures/stripe/customer1.json';
+import Stripe from 'stripe';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
@@ -69,10 +70,10 @@ describe('auth', () => {
       assert.equal(result.uid, USER_1.uid);
       assert.equal(result.email, USER_1.email);
     });
-
-    it('returns undefined if the stripeCustomerId is not found', async () => {
-      const result = await getUidAndEmailByStripeCustomerId('cus_123');
-      assert.isUndefined(result);
+    it('returns null for uid and email if the stripeCustomerId is not found', async () => {
+      const { uid, email } = await getUidAndEmailByStripeCustomerId('cus_123');
+      assert.isNull(uid);
+      assert.isNull(email);
     });
   });
 
