@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import PageSettings from '.';
-import { renderWithRouter } from '../../models/_mocks';
+import { renderWithRouter } from '../../models/mocks';
 import * as Metrics from '../../lib/metrics';
 
 jest.spyOn(Metrics, 'setProperties');

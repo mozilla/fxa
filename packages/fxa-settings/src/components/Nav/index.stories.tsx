@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { mockSession } from '../../models/_mocks';
+import { mockSession } from '../../models/mocks';
 import { getDefault } from '../../lib/config';
 import { Nav } from '.';
 import { AppContext } from 'fxa-settings/src/models';

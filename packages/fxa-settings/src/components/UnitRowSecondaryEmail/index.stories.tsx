@@ -5,7 +5,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { UnitRowSecondaryEmail } from '.';
-import { mockAppContext, mockEmail } from '../../models/_mocks';
+import { mockAppContext, mockEmail } from '../../models/mocks';
 import { LocationProvider } from '@reach/router';
 
 import { AppContext } from 'fxa-settings/src/models';

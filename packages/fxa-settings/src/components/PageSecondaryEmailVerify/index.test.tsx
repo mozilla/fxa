@@ -10,19 +10,19 @@ import {
   mockAppContext,
   mockSession,
   renderWithRouter,
-} from '../../models/_mocks';
+} from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 import { PageSecondaryEmailVerify } from '.';
 import { WindowLocation } from '@reach/router';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
-const mockLocation = ({
+const mockLocation = {
   state: { email: 'johndope@example.com' },
-} as unknown) as WindowLocation;
+} as unknown as WindowLocation;
 
-const account = ({
+const account = {
   verifySecondaryEmail: jest.fn().mockResolvedValue(true),
-} as unknown) as Account;
+} as unknown as Account;
 
 window.console.error = jest.fn();
 
@@ -46,9 +46,9 @@ describe('PageSecondaryEmailVerify', () => {
   it('renders error messages', async () => {
     const error: any = new Error();
     error.errno = AuthUiErrors.INVALID_VERIFICATION_CODE.errno;
-    const account = ({
+    const account = {
       verifySecondaryEmail: jest.fn().mockRejectedValue(error),
-    } as unknown) as Account;
+    } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <PageSecondaryEmailVerify location={mockLocation} />

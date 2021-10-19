@@ -5,7 +5,7 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import UnitRow from '.';
-import { renderWithRouter } from '../../models/_mocks';
+import { renderWithRouter } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 import { HomePath } from '../../constants';
 
@@ -124,9 +124,9 @@ describe('UnitRow', () => {
   });
 
   it('renders as expected with the default avatar', () => {
-    const account = ({
+    const account = {
       avatar: { url: null, id: null, isDefault: true },
-    } as unknown) as Account;
+    } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={{ account }}>
         <UnitRow
@@ -145,13 +145,13 @@ describe('UnitRow', () => {
   });
 
   it('renders as expected with the user avatar', () => {
-    const account = ({
+    const account = {
       avatar: {
         id: null,
         url: 'http://localhost:1111/v1/avatar/t',
         isDefault: false,
       },
-    } as unknown) as Account;
+    } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={{ account }}>
         <UnitRow

@@ -9,7 +9,7 @@ import {
   renderWithRouter,
   mockSession,
   mockAppContext,
-} from '../../models/_mocks';
+} from '../../models/mocks';
 import React from 'react';
 import PageTwoStepAuthentication, { metricsPreInPostFix } from '.';
 import { checkCode, getCode } from '../../lib/totp';
@@ -37,14 +37,14 @@ const totp = {
   recoveryCodes: ['3594s0tbsq', '0zrg82sdzm', 'wx88yxenfc'],
 };
 
-const account = ({
+const account = {
   primaryEmail: {
     email: 'ibicking@mozilla.com',
   },
   createTotp: jest.fn().mockResolvedValue(totp),
   verifyTotp: jest.fn().mockResolvedValue(true),
   sendVerificationCode: jest.fn().mockResolvedValue(true),
-} as unknown) as Account;
+} as unknown as Account;
 const session = mockSession();
 
 window.URL.createObjectURL = jest.fn();
@@ -198,13 +198,13 @@ describe('step 3', () => {
 
   it('shows an generic error when the code cannot be verified', async () => {
     const error = new Error('unexpected');
-    const account = ({
+    const account = {
       primaryEmail: {
         email: 'ibicking@mozilla.com',
       },
       createTotp: jest.fn().mockResolvedValue(totp),
       verifyTotp: jest.fn().mockRejectedValue(error),
-    } as unknown) as Account;
+    } as unknown as Account;
     await getRecoveryCodes(account);
     (getCode as jest.Mock).mockResolvedValue('999911');
     await act(async () => {
@@ -222,13 +222,13 @@ describe('step 3', () => {
   it('shows the api error when the code cannot be verified', async () => {
     const error: any = new Error();
     error.errno = AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno;
-    const account = ({
+    const account = {
       primaryEmail: {
         email: 'ibicking@mozilla.com',
       },
       createTotp: jest.fn().mockResolvedValue(totp),
       verifyTotp: jest.fn().mockRejectedValue(error),
-    } as unknown) as Account;
+    } as unknown as Account;
     await getRecoveryCodes(account);
     (getCode as jest.Mock).mockResolvedValue('009001');
     await act(async () => {

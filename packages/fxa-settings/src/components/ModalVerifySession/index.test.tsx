@@ -5,18 +5,18 @@
 import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
-import { mockSession, renderWithRouter } from '../../models/_mocks';
+import { mockSession, renderWithRouter } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 import { ModalVerifySession } from '.';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
-const account = ({
+const account = {
   primaryEmail: {
     email: 'jgruen@mozilla.com',
   },
   sendVerificationCode: jest.fn().mockResolvedValue(true),
   verifySession: jest.fn().mockResolvedValue(true),
-} as unknown) as Account;
+} as unknown as Account;
 const session = mockSession(false);
 
 window.console.error = jest.fn();
@@ -51,13 +51,13 @@ describe('ModalVerifySession', () => {
   it('renders error messages', async () => {
     const error: any = new Error('invalid code');
     error.errno = AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno;
-    const account = ({
+    const account = {
       primaryEmail: {
         email: 'jgruen@mozilla.com',
       },
       sendVerificationCode: jest.fn().mockResolvedValue(true),
       verifySession: jest.fn().mockRejectedValue(error),
-    } as unknown) as Account;
+    } as unknown as Account;
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(
@@ -83,13 +83,13 @@ describe('ModalVerifySession', () => {
 
   it('bubbles other errors', async () => {
     const error = new Error('network error');
-    const account = ({
+    const account = {
       primaryEmail: {
         email: 'jgruen@mozilla.com',
       },
       sendVerificationCode: jest.fn().mockResolvedValue(true),
       verifySession: jest.fn().mockRejectedValue(error),
-    } as unknown) as Account;
+    } as unknown as Account;
     const onDismiss = jest.fn();
     const onError = jest.fn();
     renderWithRouter(

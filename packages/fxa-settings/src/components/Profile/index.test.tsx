@@ -5,10 +5,10 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { Profile } from '.';
-import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 
-const account = ({
+const account = {
   avatar: { url: null, id: null },
   primaryEmail: {
     email: 'vladikoff@mozilla.com',
@@ -16,7 +16,7 @@ const account = ({
   emails: [],
   displayName: 'Vlad',
   passwordCreated: 0,
-} as unknown) as Account;
+} as unknown as Account;
 
 // todo:
 // add test cases for different states, including secondary email

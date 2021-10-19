@@ -5,16 +5,16 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { PageSecondaryEmailAdd } from '.';
 import { Account, AppContext } from '../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 window.console.error = jest.fn();
 
-const account = ({
+const account = {
   createSecondaryEmail: jest.fn().mockResolvedValue(true),
-} as unknown) as Account;
+} as unknown as Account;
 
 afterAll(() => {
   (window.console.error as jest.Mock).mockReset();
@@ -71,9 +71,9 @@ describe('PageSecondaryEmailAdd', () => {
     it('displays an error message in the tooltip', async () => {
       const error: any = new Error('Email Address already added');
       error.errno = AuthUiErrors.EMAIL_PRIMARY_EXISTS.errno;
-      const account = ({
+      const account = {
         createSecondaryEmail: jest.fn().mockRejectedValue(error),
-      } as unknown) as Account;
+      } as unknown as Account;
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
           <PageSecondaryEmailAdd />

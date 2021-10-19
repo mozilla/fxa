@@ -7,7 +7,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen } from '@testing-library/react';
 
 import { Account, AppContext } from '../../models';
-import { mockAppContext, renderWithRouter } from '../../models/_mocks';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
 
 import PageAvatar from '.';
 import {
@@ -26,9 +26,9 @@ jest.mock('fxa-settings/src/lib/metrics', () => ({
   settingsViewName: 'quuz',
 }));
 
-const account = ({
+const account = {
   avatar: { url: null, id: null },
-} as unknown) as Account;
+} as unknown as Account;
 
 it('PageAvatar | renders', async () => {
   renderWithRouter(
