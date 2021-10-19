@@ -143,7 +143,10 @@
   background-image: image-url('send_tab_complete.svg');
 }
 
-#graphic-client-pocket {
+.graphic-client-pocket {
+  background-image: image-url('pocket_logo_rounded.svg');
+  width: 90px;
+  margin-bottom: 0;
   display: inline-block;
   vertical-align: middle;
   height: 24px;
