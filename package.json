@@ -94,7 +94,8 @@
       "eslint -c _dev/.eslintrc"
     ],
     "*.{ts,tsx}": [
-      "prettier --config _dev/.prettierrc --write"
+      "prettier --config _dev/.prettierrc --write",
+      "eslint -c _dev/.eslintrcts"
     ],
     "*.css": [
       "prettier --config _dev/.prettierrc --write"
