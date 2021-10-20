@@ -12,6 +12,7 @@ import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/confirm_signup_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
+import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 
 const CODE_INPUT_SELECTOR = 'input.otp-code';
 
@@ -118,7 +119,8 @@ Cocktail.mixin(
   NewsletterSyncExperiment,
   ResendMixin(),
   ServiceMixin,
-  SessionVerificationPollMixin
+  SessionVerificationPollMixin,
+  PocketMigrationMixin
 );
 
 export default ConfirmSignupCodeView;
