@@ -73,8 +73,8 @@ const makeRoutes = function (options = {}, requireMocks) {
     signinUtils.checkPassword = options.checkPassword;
   }
   const push = options.push || require('../../../lib/push')(log, db, {});
-  const verificationReminders =
-    options.verificationReminders || mocks.mockVerificationReminders();
+  const verificationReminders = options.verificationReminders || mocks.mockVerificationReminders();
+  const subscriptionAccountReminders = options.subscriptionAccountReminders || mocks.mockVerificationReminders();
   const { accountRoutes } = proxyquire(
     '../../../lib/routes/account',
     requireMocks || {}
@@ -99,6 +99,7 @@ const makeRoutes = function (options = {}, requireMocks) {
     signupUtils,
     push,
     verificationReminders,
+    subscriptionAccountReminders,
     {
       removeUser: () => {},
       removePublicAndCanGrantTokens: () => {},
@@ -526,6 +527,7 @@ describe('deleteAccountIfUnverified', () => {
   const mockSignupUtils = {};
   const mockPush = {};
   const mockVerificationReminders = {};
+  const mockSubscriptionAccountReminders = {};
   const mockOauth = {};
   const emailRecord = {
     isPrimary: true,
@@ -555,6 +557,7 @@ describe('deleteAccountIfUnverified', () => {
       mockSignupUtils,
       mockPush,
       mockVerificationReminders,
+      mockSubscriptionAccountReminders,
       mockOauth,
       mockStripeHelper
     );
@@ -576,6 +579,7 @@ describe('deleteAccountIfUnverified', () => {
       mockSignupUtils,
       mockPush,
       mockVerificationReminders,
+      mockSubscriptionAccountReminders,
       mockOauth,
       mockStripeHelper
     );
@@ -670,6 +674,7 @@ describe('/account/create', () => {
     const mockMailer = mocks.mockMailer();
     const mockPush = mocks.mockPush();
     const verificationReminders = mocks.mockVerificationReminders();
+    const subscriptionAccountReminders = mocks.mockVerificationReminders();
     const accountRoutes = makeRoutes({
       config,
       db: mockDB,
@@ -687,6 +692,7 @@ describe('/account/create', () => {
       },
       push: mockPush,
       verificationReminders,
+      subscriptionAccountReminders,
     });
     const route = getRoute(accountRoutes, '/account/create');
 
@@ -704,6 +710,7 @@ describe('/account/create', () => {
       sessionTokenId,
       uid,
       verificationReminders,
+      subscriptionAccountReminders,
     };
   }
 
@@ -721,6 +728,7 @@ describe('/account/create', () => {
       sessionTokenId,
       uid,
       verificationReminders,
+      subscriptionAccountReminders,
     } = setup();
 
     const now = Date.now();
@@ -1008,6 +1016,7 @@ describe('/account/create', () => {
       route,
       uid,
       verificationReminders,
+      subscriptionAccountReminders,
     } = setup();
 
     const now = Date.now();
@@ -1098,7 +1107,7 @@ describe('/account/create', () => {
   });
 
   it('should return an error if email fails to send', () => {
-    const { mockMailer, mockRequest, route, verificationReminders } = setup();
+    const { mockMailer, mockRequest, route, verificationReminders, subscriptionAccountReminders } = setup();
 
     mockMailer.sendVerifyEmail = sinon.spy(() => Promise.reject());
 
@@ -1113,7 +1122,7 @@ describe('/account/create', () => {
   });
 
   it('should return a bounce error if send fails with one', () => {
-    const { mockMailer, mockRequest, route, verificationReminders } = setup();
+    const { mockMailer, mockRequest, route, verificationReminders, subscriptionAccountReminders } = setup();
 
     mockMailer.sendVerifyEmail = sinon.spy(() =>
       Promise.reject(error.emailBouncedHard(42))
@@ -1206,6 +1215,7 @@ describe('/account/stub', () => {
     const mockMailer = mocks.mockMailer();
     const mockPush = mocks.mockPush();
     const verificationReminders = mocks.mockVerificationReminders();
+    const subscriptionAccountReminders = mocks.mockVerificationReminders();
     const accountRoutes = makeRoutes({
       config,
       db: mockDB,
@@ -1223,6 +1233,7 @@ describe('/account/stub', () => {
       },
       push: mockPush,
       verificationReminders,
+      subscriptionAccountReminders,
     });
     const route = getRoute(accountRoutes, '/account/stub');
 
@@ -1239,6 +1250,7 @@ describe('/account/stub', () => {
       route,
       uid,
       verificationReminders,
+      subscriptionAccountReminders,
     };
   }
 
@@ -1328,6 +1340,7 @@ describe('/account/finish_setup', () => {
     const mockMailer = mocks.mockMailer();
     const mockPush = mocks.mockPush();
     const verificationReminders = mocks.mockVerificationReminders();
+    const subscriptionAccountReminders = mocks.mockVerificationReminders();
     const accountRoutes = makeRoutes(
       {
         config,
@@ -1346,6 +1359,7 @@ describe('/account/finish_setup', () => {
         },
         push: mockPush,
         verificationReminders,
+        subscriptionAccountReminders,
       },
       {
         '../oauth/jwt': {
@@ -1368,6 +1382,7 @@ describe('/account/finish_setup', () => {
       route,
       uid,
       verificationReminders,
+      subscriptionAccountReminders,
     };
   }
 
