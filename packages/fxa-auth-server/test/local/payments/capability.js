@@ -250,6 +250,32 @@ describe('CapabilityService', () => {
     });
   });
 
+  describe('fetchSubscribedAbbrevPurchasesFromPlay', () => {
+    mockSubscriptionPurchase = {
+      sku: 'play_1234',
+      isEntitlementActive: sinon.fake.returns(true),
+      autoRenewing: true,
+      expiryTimeMillis: Date.now(),
+      packageName: 'org.mozilla.cooking.with.foxkeh',
+      cancelReason: 1,
+    };
+    it('returns an active play subscription purchase with abbreviated properties', async () => {
+      const expected = {
+        sku: mockSubscriptionPurchase.sku,
+        auto_renewing: mockSubscriptionPurchase.autoRenewing,
+        expiry_time_millis: mockSubscriptionPurchase.expiryTimeMillis,
+        package_name: mockSubscriptionPurchase.packageName,
+        cancel_reason: mockSubscriptionPurchase.cancelReason,
+      };
+      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon.spy(
+        async () => [mockSubscriptionPurchase]
+      );
+      const result =
+        await capabilityService.fetchSubscribedAbbrevPurchasesFromPlay(UID);
+      assert.deepEqual([expected], result);
+    });
+  });
+
   describe('broadcastCapabilitiesAdded', () => {
     it('should broadcast the capabilities added', async () => {
       const capabilities = ['cap2'];

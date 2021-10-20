@@ -15,6 +15,7 @@ import { PaymentErrorView } from '../../../components/PaymentErrorView';
 import PlanDetails from '../../../components/PlanDetails';
 import SubscriptionTitle from '../../../components/SubscriptionTitle';
 import { Customer, Profile, Plan } from '../../../store/types';
+import { getIapSubscriptionManagementUrl } from '../../../lib/formats';
 
 export type IapRoadblockProps = {
   isMobile: boolean;
@@ -32,18 +33,6 @@ const getIapSubscriptionAppStoreL10Id = (
       return 'brand-name-google-play';
     case MozillaSubscriptionTypes.IAP_APPLE:
       return 'brand-name-apple-app-store';
-  }
-};
-
-const getIapSubscriptionManagementUrl = (
-  s: IapRoadblockProps['subscription']
-) => {
-  switch (s._subscription_type) {
-    case MozillaSubscriptionTypes.IAP_GOOGLE:
-      return 'https://play.google.com/store/account/subscriptions';
-    case MozillaSubscriptionTypes.IAP_APPLE:
-      // TODO Need actual link
-      return 'https://apple.com';
   }
 };
 

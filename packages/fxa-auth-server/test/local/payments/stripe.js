@@ -2271,94 +2271,6 @@ describe('StripeHelper', () => {
       });
     });
 
-    describe('productToPlaySkus', () => {
-      it('formats skus from product metadata', () => {
-        const prod = {
-          product_metadata: {
-            [STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS]: 'sku1, sku2',
-          },
-        };
-        const result = stripeHelper.productToPlaySkus(prod);
-        assert.deepEqual(result, ['sku1', 'sku2']);
-      });
-
-      it('handles empty product metadata skus', () => {
-        const prod = {
-          product_metadata: {},
-        };
-        const result = stripeHelper.productToPlaySkus(prod);
-        assert.deepEqual(result, []);
-      });
-    });
-
-    describe('purchasesToProductIds', () => {
-      let subPurchase;
-      let productId;
-      let productName;
-      let mockAllAbbrevProducts;
-
-      beforeEach(() => {
-        productId = 'prod_test';
-        productName = 'testProduct;';
-        const mockProduct = {
-          id: productId,
-          name: productName,
-          metadata: {
-            [STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS]: 'testSku,testSku2',
-          },
-        };
-        mockAllAbbrevProducts = [
-          {
-            product_id: mockProduct.id,
-            product_name: mockProduct.name,
-            product_metadata: mockProduct.metadata,
-          },
-          {
-            product_id: 'wrongProduct',
-            product_name: 'Wrong Product',
-            product_metadata: {},
-          },
-        ];
-        sandbox
-          .stub(stripeHelper, 'allAbbrevProducts')
-          .resolves(mockAllAbbrevProducts);
-
-        const apiResponse = {
-          kind: 'androidpublisher#subscriptionPurchase',
-          startTimeMillis: `${Date.now() - 10000}`, // some time in the past
-          expiryTimeMillis: `${Date.now() + 10000}`, // some time in the future
-          autoRenewing: true,
-          priceCurrencyCode: 'JPY',
-          priceAmountMicros: '99000000',
-          countryCode: 'JP',
-          developerPayload: '',
-          paymentState: 1,
-          orderId: 'GPA.3313-5503-3858-32549',
-        };
-
-        subPurchase = SubscriptionPurchase.fromApiResponse(
-          apiResponse,
-          'testPackage',
-          'testToken',
-          'testSku',
-          Date.now()
-        );
-      });
-
-      it('returns product ids for the subscription purchase', async () => {
-        const result = await stripeHelper.purchasesToProductIds([subPurchase]);
-        assert.deepEqual(result, [productId]);
-        sinon.assert.calledOnce(stripeHelper.allAbbrevProducts);
-      });
-
-      it('returns no product ids for unknown subscription purchase', async () => {
-        subPurchase.sku = 'wrongSku';
-        const result = await stripeHelper.purchasesToProductIds([subPurchase]);
-        assert.deepEqual(result, []);
-        sinon.assert.calledOnce(stripeHelper.allAbbrevProducts);
-      });
-    });
-
     describe('fetchAllSubscriptionsForCustomer', () => {
       it('calls Stripe with the correct arguments', async () => {
         sandbox
@@ -4496,6 +4408,125 @@ describe('StripeHelper', () => {
         stripeHelper.getPaymentProvider,
         customer
       );
+    });
+  });
+
+  describe('Google Play helpers', () => {
+    let subPurchase;
+    let productId;
+    let productName;
+    let mockProduct;
+    let mockAllAbbrevProducts;
+
+    beforeEach(() => {
+      productId = 'prod_test';
+      productName = 'testProduct;';
+      mockProduct = {
+        product_id: productId,
+        product_name: productName,
+        product_metadata: {
+          [STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS]: 'testSku,testSku2',
+        },
+      };
+      mockAllAbbrevProducts = [
+        mockProduct,
+        {
+          product_id: 'wrongProduct',
+          product_name: 'Wrong Product',
+          product_metadata: {},
+        },
+      ];
+      sandbox
+        .stub(stripeHelper, 'allAbbrevProducts')
+        .resolves(mockAllAbbrevProducts);
+    });
+
+    describe('productToPlaySkus', () => {
+      it('formats skus from product metadata', () => {
+        const result = stripeHelper.productToPlaySkus(mockProduct);
+        assert.deepEqual(result, ['testSku', 'testSku2']);
+      });
+
+      it('handles empty product metadata skus', () => {
+        const prod = {
+          ...mockProduct,
+          product_metadata: {},
+        };
+        const result = stripeHelper.productToPlaySkus(prod);
+        assert.deepEqual(result, []);
+      });
+    });
+
+    describe('purchasesToProductIds', () => {
+      beforeEach(() => {
+        const apiResponse = {
+          kind: 'androidpublisher#subscriptionPurchase',
+          startTimeMillis: `${Date.now() - 10000}`, // some time in the past
+          expiryTimeMillis: `${Date.now() + 10000}`, // some time in the future
+          autoRenewing: true,
+          priceCurrencyCode: 'JPY',
+          priceAmountMicros: '99000000',
+          countryCode: 'JP',
+          developerPayload: '',
+          paymentState: 1,
+          orderId: 'GPA.3313-5503-3858-32549',
+        };
+
+        subPurchase = SubscriptionPurchase.fromApiResponse(
+          apiResponse,
+          'testPackage',
+          'testToken',
+          'testSku',
+          Date.now()
+        );
+      });
+
+      it('returns product ids for the subscription purchase', async () => {
+        const result = await stripeHelper.purchasesToProductIds([subPurchase]);
+        assert.deepEqual(result, [productId]);
+        sinon.assert.calledOnce(stripeHelper.allAbbrevProducts);
+      });
+
+      it('returns no product ids for unknown subscription purchase', async () => {
+        subPurchase.sku = 'wrongSku';
+        const result = await stripeHelper.purchasesToProductIds([subPurchase]);
+        assert.deepEqual(result, []);
+        sinon.assert.calledOnce(stripeHelper.allAbbrevProducts);
+      });
+    });
+
+    describe('appendAbbrevPurchasesWithProductIds', () => {
+      let mockAbbrevPurchase;
+
+      beforeEach(() => {
+        mockAbbrevPurchase = {
+          auto_renewing: true,
+          expiry_time_millis: Date.now(),
+          package_name: 'org.mozilla.cooking.with.foxkeh',
+          sku: 'testSku',
+        };
+      });
+
+      it('appends a matching product id to a subscription purchase', async () => {
+        const expected = {
+          ...mockAbbrevPurchase,
+          product_id: productId,
+        };
+        const result = await stripeHelper.appendAbbrevPurchasesWithProductIds([
+          mockAbbrevPurchase,
+        ]);
+        assert.deepEqual([expected], result);
+      });
+      it('returns an empty list if no matching product ids are found', async () => {
+        const mockAbbrevPurchase1 = {
+          ...mockAbbrevPurchase,
+          sku: 'notMatchingSku',
+        };
+        const result = await stripeHelper.appendAbbrevPurchasesWithProductIds([
+          mockAbbrevPurchase1,
+        ]);
+        assert.isEmpty(result);
+      });
     });
   });
 });

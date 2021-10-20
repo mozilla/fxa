@@ -14,6 +14,10 @@ import { Customer } from '../../../store/types';
 const subscription: IapSubscription = {
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
   product_id: SELECTED_PLAN.product_id,
+  auto_renewing: true,
+  expiry_time_millis: Date.now(),
+  package_name: 'mozilla.cooking.with.foxkeh.monthly',
+  sku: 'mozilla.foxkeh',
 };
 const MOCK_PROPS: IapRoadblockProps = {
   profile: PROFILE,

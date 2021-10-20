@@ -222,6 +222,10 @@ export const MOCK_GENERAL_PAYPAL_ERROR = {
 export const IAP_GOOGLE_SUBSCRIPTION = {
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
   product_id: 'prod_123',
+  auto_renewing: true,
+  expiry_time_millis: Date.now(),
+  package_name: 'org.mozilla.cooking.with.foxkeh',
+  sku: 'org.mozilla.foxkeh.yearly',
 };
 
 export const IAP_APPLE_SUBSCRIPTION = {

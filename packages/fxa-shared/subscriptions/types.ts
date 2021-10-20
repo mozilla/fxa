@@ -116,10 +116,18 @@ export type WebSubscription = Pick<
     >;
     subscription_id: Stripe.Subscription['id'];
   };
-export type GooglePlaySubscription = {
+
+export interface AbbrevPurchase {
+  auto_renewing: boolean;
+  cancel_reason?: number;
+  expiry_time_millis: number;
+  package_name: string;
+  sku: string;
+}
+export interface GooglePlaySubscription extends AbbrevPurchase {
   _subscription_type: SubscriptionTypes[1];
   product_id: Stripe.Product['id'];
-};
+}
 export type AppleSubscription = {
   _subscription_type: SubscriptionTypes[2];
   product_id: Stripe.Product['id'];

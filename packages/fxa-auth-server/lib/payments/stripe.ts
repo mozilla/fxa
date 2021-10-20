@@ -48,6 +48,7 @@ import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import { AbbrevPurchase } from 'fxa-shared/subscriptions/types';
 
 export const CUSTOMER_RESOURCE = 'customers';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -1036,6 +1037,31 @@ export class StripeHelper {
       }
     }
     return purchasedProducts;
+  }
+
+  /**
+   * Append any matching product ids to their corresponding AbbrevPurchase.
+   */
+  async appendAbbrevPurchasesWithProductIds(
+    purchases: AbbrevPurchase[]
+  ): Promise<(AbbrevPurchase & { product_id: string })[]> {
+    const products = await this.allAbbrevProducts();
+    const appendedAbbrevPurchases = [];
+    for (const product of products) {
+      const playSkus = this.productToPlaySkus(product).map((sku) =>
+        sku.toLowerCase()
+      );
+      const matchingAbbrevPurchases = purchases.filter((purchase) =>
+        playSkus.includes(purchase.sku.toLowerCase())
+      );
+      for (const matchingAbbrevPurchase of matchingAbbrevPurchases) {
+        appendedAbbrevPurchases.push({
+          ...matchingAbbrevPurchase,
+          product_id: product.product_id,
+        });
+      }
+    }
+    return appendedAbbrevPurchases;
   }
 
   /**

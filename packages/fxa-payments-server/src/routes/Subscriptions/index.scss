@@ -88,6 +88,14 @@
     }
   }
 
+  .iap-details {
+    color: $faint-text-color;
+
+    .iap-type {
+      margin-bottom: 0.5em;
+    }
+  }
+
   .card-details,
   .subscription-cancelled-details,
   .price-details {

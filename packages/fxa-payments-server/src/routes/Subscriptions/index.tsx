@@ -31,11 +31,16 @@ import PaymentUpdateForm, {
   PaymentUpdateStripeAPIs,
   PaymentUpdateAuthServerAPIs,
 } from './PaymentUpdateForm';
-import { isWebSubscription } from 'fxa-shared/subscriptions/subscriptions';
+import {
+  isIapSubscription,
+  isWebSubscription,
+} from 'fxa-shared/subscriptions/subscriptions';
 import {
   MozillaSubscription,
+  MozillaSubscriptionTypes,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
+import SubscriptionIapItem from './SubscriptionIapItem/SubscriptionIapItem';
 
 export type SubscriptionsProps = {
   profile: SelectorReturns['profile'];
@@ -100,6 +105,15 @@ export const Subscriptions = ({
   const SUPPORT_FORM_URL = `${config.servers.content.url}/support`;
 
   const engaged = useRef(false);
+
+  // Sort multiple subscriptions with web type subscriptions first, since
+  // the list of active subs follows the `PaymentUpdateForm` which only
+  // applies to web subscriptions.
+  customerSubscriptions?.sort((a, b) => {
+    const typeA = a._subscription_type;
+    const typeB = b._subscription_type;
+    return typeA > typeB ? -1 : typeA < typeB ? 1 : 0;
+  });
 
   useEffect(() => {
     Amplitude.manageSubscriptionsMounted();
@@ -276,7 +290,7 @@ export const Subscriptions = ({
             <div className="settings-unit-stub">
               <header className="settings-unit-summary">
                 <Localized id="settings-subscriptions-title">
-                  <h2 className="settings-unit-title">Subscriptions</h2>
+                  <h2>Subscriptions</h2>
                 </Localized>
               </header>
               <button
@@ -310,7 +324,7 @@ export const Subscriptions = ({
             customerSubscriptions &&
             customerSubscriptions.map(
               (customerSubscription, idx) =>
-                isWebSubscription(customerSubscription) && (
+                (isWebSubscription(customerSubscription) && (
                   <SubscriptionItem
                     key={idx}
                     {...{
@@ -331,7 +345,20 @@ export const Subscriptions = ({
                       paymentUpdateApiClientOverrides,
                     }}
                   />
-                )
+                )) ||
+                (isIapSubscription(customerSubscription) && (
+                  <SubscriptionIapItem
+                    key={idx}
+                    {...{
+                      customerSubscription,
+                      plan: planForProductId(
+                        customerSubscription.product_id,
+                        plans.result
+                      ),
+                      refreshSubscriptions: fetchSubscriptionsRouteResources,
+                    }}
+                  />
+                ))
             )}
 
           <div className="settings-unit">
@@ -392,6 +419,9 @@ const customerSubscriptionForId = (
 
 const planForId = (planId: string, plans: Plan[]): Plan | null =>
   plans.filter((plan) => plan.plan_id === planId)[0];
+
+const planForProductId = (productId: string, plans: Plan[]): Plan | null =>
+  plans.filter((plan) => plan.product_id === productId)[0];
 
 type CancellationDialogMessageProps = {
   subscriptionId: string;

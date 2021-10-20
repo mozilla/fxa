@@ -8,10 +8,12 @@ project-brand = Firefox Accounts
 -brand-name-firefox = Firefox
 -brand-name-paypal = PayPal
 -brand-name-stripe = Stripe
+-brand-name-google = Google
+-brand-name-apple = Apple
 
 # the following are not terms because they are not used directly in messages,
 # but rather looked up in code and passed into the message as variables.
-brand-name-google-play = Google Play Store
+brand-name-google-play = { -brand-name-google } Play Store
 # App Store here refers to Apple's App Store not the generic app store.
 brand-name-apple-app-store = App Store
 
@@ -237,6 +239,7 @@ sub-plan-price-year = { $intervalCount ->
 }
 ## $date (Date) - The date for the next time a charge will occur.
 sub-next-bill = Next billed on { $date }
+sub-expires-on = Expires on { $date }
 
 ##
 pay-update-card-exp = Expires { $expirationDate }
@@ -280,6 +283,11 @@ sub-item-cancel-msg =
 sub-item-cancel-confirm =
     Cancel my access and my saved information within
     { $name } on { $period }
+
+## subscription iap item
+sub-iap-item-google-purchase = { -brand-name-google }: In-App purchase
+sub-iap-item-apple-purchase = { -brand-name-apple }: In-App purchase
+sub-iap-item-manage-button = Manage
 
 account-activated = Your account is activated, <userEl/>
 

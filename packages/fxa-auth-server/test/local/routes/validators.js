@@ -600,11 +600,18 @@ describe('lib/routes/validators:', () => {
   });
 
   describe('subscriptionsGooglePlaySubscriptionValidator', () => {
+    const mockAbbrevPurchase = {
+      auto_renewing: true,
+      expiry_time_millis: Date.now(),
+      package_name: 'org.mozilla.cooking.with.foxkeh',
+      sku: 'org.mozilla.foxkeh.yearly',
+    };
     it('accepts a valid Google Play subscription', () => {
       const res =
         validators.subscriptionsGooglePlaySubscriptionValidator.validate({
           _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
           product_id: 'xyz',
+          ...mockAbbrevPurchase,
         });
       assert.ok(!res.error);
     });
@@ -614,6 +621,7 @@ describe('lib/routes/validators:', () => {
         validators.subscriptionsGooglePlaySubscriptionValidator.validate({
           _subscription_type: 'unknown',
           product_id: 'xyz',
+          ...mockAbbrevPurchase,
         });
       assert.ok(res.error);
     });
@@ -622,6 +630,7 @@ describe('lib/routes/validators:', () => {
       const res =
         validators.subscriptionsGooglePlaySubscriptionValidator.validate({
           _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+          ...mockAbbrevPurchase,
         });
       assert.ok(res.error);
     });
@@ -702,6 +711,10 @@ describe('lib/routes/validators:', () => {
     const playSub = {
       _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
       product_id: 'xyz',
+      auto_renewing: true,
+      expiry_time_millis: Date.now(),
+      package_name: 'org.mozilla.cooking.with.foxkeh',
+      sku: 'org.mozilla.foxkeh.yearly',
     };
 
     it('accepts a list with Stripe and Google Play subscriptions', () => {
