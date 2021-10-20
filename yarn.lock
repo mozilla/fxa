@@ -19819,7 +19819,6 @@ fsevents@~2.1.1:
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/dateformat": ^3.0.1
-    "@types/eslint": 7.2.13
     "@types/express": ^4.17.12
     "@types/helmet": 4.0.0
     "@types/jest": ^26.0.23
@@ -19830,8 +19829,6 @@ fsevents@~2.1.1:
     "@types/serve-static": 1.13.9
     "@types/supertest": ^2.0.11
     "@types/webpack": 5.28.0
-    "@typescript-eslint/eslint-plugin": ^5.0.0
-    "@typescript-eslint/parser": ^5.0.0
     babel-loader: ^8.2.2
     body-parser: ^1.19.0
     chance: ^1.1.8
@@ -19842,9 +19839,6 @@ fsevents@~2.1.1:
     esbuild: ^0.13.4
     esbuild-register: ^3.0.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
-    eslint-plugin-jest: ^24.5.2
-    eslint-plugin-react: ^7.26.1
     express: ^4.17.1
     express-http-proxy: ^1.6.2
     fxa-react: "workspace:*"

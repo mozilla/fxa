@@ -1,7 +1,8 @@
 const { readdirSync, readFileSync, statSync } = require('fs');
 const { resolve } = require('path');
 
-const FXA_REACT_IMPORT_REGEX = /import(?:["'\s]*[\w*{}\n\r\t, ]+from\s*)?["'\s].*(fxa-react\/components\/[\w\/.]+)["'\s].*$/gm;
+const FXA_REACT_IMPORT_REGEX =
+  /import(?:["'\s]*[\w*{}\n\r\t, ]+from\s*)?["'\s].*(fxa-react\/components\/[\w/.]+)["'\s].*$/gm;
 
 function eligibleFile(file) {
   return (

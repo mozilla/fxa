@@ -57,18 +57,18 @@ describe('DropDownAvatarMenu', () => {
     expect(toggleButton).toHaveAttribute('title', 'drop-down-menu-title');
     expect(toggleButton).toHaveAttribute('aria-controls', dropDownId);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
-    expect(dropDown).toBeInTheDocument;
+    expect(dropDown).toBeInTheDocument();
     expect(screen.getByTestId('drop-down-name-or-email').textContent).toContain(
       'johndope@example.com'
     );
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
   });
 
   it('renders as expected with avatar url and displayName set', () => {
@@ -92,9 +92,9 @@ describe('DropDownAvatarMenu', () => {
     const dropDown = screen.queryByTestId('drop-down-avatar-menu');
 
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
-    expect(dropDown).toBeInTheDocument;
+    expect(dropDown).toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
   });
 
   it('closes on click outside', () => {
@@ -110,9 +110,9 @@ describe('DropDownAvatarMenu', () => {
     const dropDown = screen.queryByTestId('drop-down-avatar-menu');
 
     fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
-    expect(dropDown).toBeInTheDocument;
+    expect(dropDown).toBeInTheDocument();
     fireEvent.click(container);
-    expect(dropDown).not.toBeInTheDocument;
+    expect(dropDown).not.toBeInTheDocument();
   });
 
   describe('destroySession', () => {

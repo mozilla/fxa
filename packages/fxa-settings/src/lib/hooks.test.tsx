@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useRef } from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import {
   useFocusOnTriggeringElementOnClose,
@@ -74,7 +74,7 @@ describe('useChangeFocusEffect', () => {
     const elToFocusRef = useChangeFocusEffect();
     return (
       <div>
-        <a href="#">some other focusable thing</a>
+        <a href="#foo">some other focusable thing</a>
         <div ref={elToFocusRef} tabIndex={0} data-testid="el-to-focus" />
       </div>
     );

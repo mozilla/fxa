@@ -107,6 +107,7 @@ describe('PageDeleteAccount', () => {
     const deleteAccountButton = screen.getByTestId('delete-account-button');
     expect(deleteAccountButton).toBeEnabled();
 
+    // eslint-disable-next-line no-restricted-globals
     expect(location.pathname).toContainEqual('/');
   });
 });

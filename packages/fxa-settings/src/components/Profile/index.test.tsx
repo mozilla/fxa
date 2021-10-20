@@ -28,7 +28,7 @@ describe('Profile', () => {
       </AppContext.Provider>
     );
 
-    expect(await findByText('Vlad')).toBeTruthy;
-    expect(await findByText('vladikoff@mozilla.com')).toBeTruthy;
+    expect(await findByText('Vlad')).toBeTruthy();
+    expect(await findByText('vladikoff@mozilla.com')).toBeTruthy();
   });
 });

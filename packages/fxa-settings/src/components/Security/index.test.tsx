@@ -20,8 +20,8 @@ describe('Security', () => {
       </AppContext.Provider>
     );
 
-    expect(await screen.findByText('rk-header')).toBeTruthy;
-    expect(await screen.findByText('tfa-row-header')).toBeTruthy;
+    expect(await screen.findByText('rk-header')).toBeTruthy();
+    expect(await screen.findByText('tfa-row-header')).toBeTruthy();
 
     const result = await screen.findAllByText('Not set');
     expect(result).toHaveLength(2);

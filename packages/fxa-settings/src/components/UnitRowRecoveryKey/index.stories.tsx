@@ -7,7 +7,7 @@ import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import UnitRowRecoveryKey from '.';
 import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext, mockSession } from 'fxa-settings/src/models/mocks';
+import { mockAppContext } from 'fxa-settings/src/models/mocks';
 
 storiesOf('Components/UnitRowRecoveryKey', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)

@@ -9,8 +9,8 @@
     "build-storybook": "NODE_ENV=production STORYBOOK_BUILD=1 npm run build-postcss && build-storybook -s .storybook/design-guide",
     "build": "tsc --build ../fxa-react && NODE_ENV=production npm run build-postcss && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false rescripts build",
     "eject": "react-scripts eject",
-    "lint:eslint": "eslint .",
-    "lint": "npm-run-all --parallel lint:eslint lint:sass",
+    "lint:eslint": "eslint -c ../../_dev/.eslintrcts .",
+    "lint": "npm-run-all --parallel lint:eslint",
     "restart": "npm run build-postcss && pm2 restart pm2.config.js",
     "start": "npm run build-postcss && pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
@@ -24,12 +24,6 @@
       "!src/**/*.stories.*",
       "!src/**/mocks.*",
       "!src/**/*.svg"
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
     ]
   },
   "browserslist": {
@@ -100,9 +94,6 @@
     "@types/webpack": "5.28.0",
     "babel-loader": "^8.2.2",
     "eslint": "^7.32.0",
-    "eslint-plugin-fxa": "^2.0.2",
-    "eslint-plugin-jest": "^24.5.2",
-    "eslint-plugin-react": "^7.26.1",
     "fxa-shared": "workspace:*",
     "jest-watch-typeahead": "0.6.5",
     "mutationobserver-shim": "^0.3.7",

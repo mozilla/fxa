@@ -24,7 +24,7 @@ it('renders as expected', () => {
 it('renders confirm button as a link if route is passed', () => {
   const route = '/some/route';
   const onDismiss = jest.fn();
-  const { container } = renderWithRouter(
+  renderWithRouter(
     <Modal
       headerId="some-header"
       descId="some-description"

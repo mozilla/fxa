@@ -40,7 +40,7 @@ describe('UnitRowTwoStepAuth', () => {
     );
 
     await act(async () => {
-      fireEvent.click(await screen.getByTestId('two-step-unit-row-modal'));
+      fireEvent.click(await screen.findByTestId('two-step-unit-row-modal'));
     });
 
     expect(

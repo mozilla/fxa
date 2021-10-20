@@ -45,7 +45,6 @@ const account = {
   verifyTotp: jest.fn().mockResolvedValue(true),
   sendVerificationCode: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
-const session = mockSession();
 
 window.URL.createObjectURL = jest.fn();
 
