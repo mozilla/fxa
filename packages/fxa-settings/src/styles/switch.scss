@@ -23,6 +23,10 @@
   &[aria-checked='true'] {
     @apply text-left border-transparent;
 
+    [dir='rtl'] & {
+      @apply text-right;
+    }
+
     .slider {
       @apply bg-blue-500;
 
@@ -39,17 +43,33 @@
         left: calc(
           100% - 1.25rem - 0.125rem
         ); /* 100% minus the width and padding of pseudo */
+
+        [dir='rtl'] & {
+          @apply left-auto;
+          right: calc(
+            100% - 1.25rem - 0.125rem
+          ); /* 100% minus the width and padding of pseudo */
+        }
       }
 
       &-status {
         /* pr matches pseudo width + .5 rem to account for long l10n */
         @apply text-grey-50 pr-6 pl-3;
+
+        [dir='rtl'] & {
+          /* pl matches pseudo width + .5 rem to account for long l10n */
+          @apply pl-6 pr-3;
+        }
       }
     }
   }
 
   &[aria-checked='false'] {
     @apply text-right border-grey-200;
+
+    [dir='rtl'] & {
+      @apply text-left;
+    }
 
     .slider {
       @apply bg-grey-50;
@@ -65,11 +85,20 @@
 
       &::before {
         @apply shadow left-0.5;
+
+        [dir='rtl'] & {
+          @apply left-auto right-0.5;
+        }
       }
 
       &-status {
         /* pl matches pseudo width + .5 rem to account for long l10n */
         @apply text-grey-500 pl-7 pr-2;
+
+        [dir='rtl'] & {
+          /* pr matches pseudo width + .5 rem to account for long l10n */
+          @apply pr-7 pl-2;
+        }
       }
     }
   }
@@ -80,7 +109,7 @@
 
     &::before {
       left: calc(
-        50% - ((1rem - 0.125rem) / 2)
+        50% - ((1.25rem - 0.125rem) / 2)
       ); /* 50% minus half the width and padding */
     }
   }
@@ -106,12 +135,24 @@
       &-status {
         /* pr matches pseudo width + .25rem to account for long l10n */
         @apply pr-4 pl-1;
+
+        [dir='rtl'] & {
+          /* pl matches pseudo width + .25rem to account for long l10n */
+          @apply pl-4 pr-1;
+        }
       }
 
       &::before {
         left: calc(
           100% - 0.75rem - 0.125rem
         ); /* 100% minus the width and padding */
+
+        [dir='rtl'] & {
+          @apply left-auto;
+          right: calc(
+            100% - 0.75rem - 0.125rem
+          ); /* 100% minus the width and padding */
+        }
       }
     }
 
@@ -121,6 +162,11 @@
       .slider-status {
         /* pl matches pseudo width + .25rem to account for long l10n */
         @apply pl-4 pr-1;
+
+        [dir='rtl'] & {
+          /* pr matches pseudo width + .25rem to account for long l10n */
+          @apply pr-4 pl-1;
+        }
       }
     }
 

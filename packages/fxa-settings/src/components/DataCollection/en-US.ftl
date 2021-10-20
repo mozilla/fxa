@@ -1,8 +1,8 @@
 ## Data collection section
 
 dc-heading = Data Collection and Use
-dc-subheader = Analytics and Improvements
-dc-subheader-content = Allow Firefox Accounts to send technical and interaction data to Mozilla.
-dc-opt-out-success = You’ve successfully opted out from Firefox Accounts sending technical and interaction data to Mozilla.
-dc-opt-in-success = You’ve successfully opted in to Firefox Accounts sending technical and interaction data to Mozilla. Thank you!
+dc-subheader = Help improve { -product-firefox-accounts }
+dc-subheader-content = Allow { -product-firefox-accounts } to send technical and interaction data to { -brand-mozilla }.
+dc-opt-out-success = Opt out successful. { -product-firefox-accounts } won’t send technical or interaction data to { -brand-mozilla }.
+dc-opt-in-success = Thanks! Sharing this data helps us improve { -product-firefox-accounts }.
 dc-learn-more = Learn more

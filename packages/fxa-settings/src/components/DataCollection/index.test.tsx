@@ -18,7 +18,7 @@ describe('DataCollection', () => {
     const { container } = render(<DataCollection />);
 
     expect(container).toHaveTextContent('Data Collection and Use');
-    expect(container).toHaveTextContent('Analytics and Improvements');
+    expect(container).toHaveTextContent('Help improve Firefox Accounts');
     expect(container).toHaveTextContent(
       'Allow Firefox Accounts to send technical and interaction data to Mozilla.'
     );
