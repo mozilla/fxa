@@ -7,7 +7,7 @@ import { BaseModel } from '../base';
 import { Knex } from 'knex';
 
 export enum Proc {
-  AccountRecord = 'accountRecord_8',
+  AccountRecord = 'accountRecord_9',
   AccountResetToken = 'accountResetToken_1',
   AccountDevices = 'accountDevices_16',
   ConsumeRecoveryCode = 'consumeRecoveryCode_3',

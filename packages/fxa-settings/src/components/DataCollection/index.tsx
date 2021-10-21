@@ -5,43 +5,35 @@
 import { Localized, useLocalization } from '@fluent/react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import Switch from '../Switch';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useAlertBar } from '../../models';
-// import { useAccount } from '../../models';
+import { useAccount } from '../../models';
 
 export const DataCollection = () => {
-  // TODO: grab actual value here, FXA-4106
-  // const { metricsOptOut }  = useAccount();
-  const [metricsOptOut, setMetricsOptOut] = useState<boolean>(true);
+  const account = useAccount();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const alertBar = useAlertBar();
   const { l10n } = useLocalization();
 
-  const handleMetricsOptOutToggle = () => {
-    setIsSubmitting(true);
-    // TODO: remove this & replace with gql mutation, FXA-4106
-    setTimeout(() => {
-      if (metricsOptOut) {
-        alertBar.success(
-          l10n.getString(
+  const handleMetricsOptOutToggle = useCallback(async () => {
+    try {
+      setIsSubmitting(true);
+      await account.metricsOpt(account.metricsOptOutAt ? 'in' : 'out');
+      setIsSubmitting(false);
+      const alertArgs: [string, null, string] = account.metricsOptOutAt
+        ? [
             'dc-opt-out-success',
             null,
-            'You’ve successfully opted out from Firefox Accounts sending technical and interaction data to Mozilla.'
-          )
-        );
-      } else {
-        alertBar.success(
-          l10n.getString(
+            'You’ve successfully opted out from Firefox Accounts sending technical and interaction data to Mozilla.',
+          ]
+        : [
             'dc-opt-in-success',
             null,
-            'You’ve successfully opted in to Firefox Accounts sending technical and interaction data to Mozilla. Thank you!'
-          )
-        );
-      }
-      setMetricsOptOut(!metricsOptOut);
-      setIsSubmitting(false);
-    }, 1000);
-  };
+            'You’ve successfully opted in to Firefox Accounts sending technical and interaction data to Mozilla. Thank you!',
+          ];
+      alertBar.success(l10n.getString.apply(l10n, alertArgs));
+    } catch (err) {}
+  }, [account, alertBar, l10n, setIsSubmitting]);
 
   return (
     <section className="mt-11" data-testid="settings-data-collection">
@@ -72,21 +64,19 @@ export const DataCollection = () => {
           </div>
 
           <div className="flex-1 text-center tablet:pt-1">
-            <form>
-              <Switch
-                {...{
-                  isSubmitting,
-                  isOn: metricsOptOut,
-                  id: 'metrics-opt-out',
-                  handler: handleMetricsOptOutToggle,
-                  localizedLabel: (
-                    <Localized id="dc-subheader">
-                      Analytics and Improvements
-                    </Localized>
-                  ),
-                }}
-              />
-            </form>
+            <Switch
+              {...{
+                isSubmitting,
+                isOn: !account.metricsOptOutAt,
+                id: 'metrics-opt-out',
+                handler: handleMetricsOptOutToggle,
+                localizedLabel: (
+                  <Localized id="dc-subheader">
+                    Analytics and Improvements
+                  </Localized>
+                ),
+              }}
+            />
           </div>
         </div>
       </div>

@@ -44,6 +44,7 @@ import {
   VerifyTotpInput,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
+import { MetricsOptInput } from './dto/input/metrics-opt';
 import {
   BasicPayload,
   ChangeRecoveryCodesPayload,
@@ -353,6 +354,20 @@ export class AccountResolver {
     @Args('input', { type: () => VerifySessionInput }) input: VerifySessionInput
   ) {
     await this.authAPI.sessionVerifyCode(token, input.code);
+    return { clientMutationId: input.clientMutationId };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description: 'Set the metrics opt in or out state',
+  })
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
+  public async metricsOpt(
+    @GqlUserId() uid: string,
+    @Args('input', { type: () => MetricsOptInput })
+    input: MetricsOptInput
+  ): Promise<BasicPayload> {
+    await Account.setMetricsOpt(uid, input.state);
     return { clientMutationId: input.clientMutationId };
   }
 

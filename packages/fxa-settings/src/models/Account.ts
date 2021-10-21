@@ -47,6 +47,7 @@ export interface AccountData {
   accountCreated: number;
   passwordCreated: number;
   recoveryKey: boolean;
+  metricsOptOutAt: number | null;
   primaryEmail: Email;
   emails: Email[];
   attachedClients: AttachedClient[];
@@ -96,6 +97,7 @@ export const ACCOUNT_FIELDS = `
       accountCreated
       passwordCreated
       recoveryKey
+      metricsOptOutAt
       primaryEmail @client
       emails {
         email
@@ -242,6 +244,10 @@ export class Account implements AccountData {
 
   get accountCreated() {
     return this.data.accountCreated;
+  }
+
+  get metricsOptOutAt() {
+    return this.data.metricsOptOutAt;
   }
 
   get passwordCreated() {
@@ -687,11 +693,8 @@ export class Account implements AccountData {
     const keys = await this.withLoadingStatus(
       this.authClient.accountKeys(reauth.keyFetchToken!, reauth.unwrapBKey!)
     );
-    const {
-      recoveryKey,
-      recoveryKeyId,
-      recoveryData,
-    } = await generateRecoveryKey(this.uid, keys);
+    const { recoveryKey, recoveryKeyId, recoveryData } =
+      await generateRecoveryKey(this.uid, keys);
     await this.withLoadingStatus(
       this.authClient.createRecoveryKey(
         sessionToken()!,
@@ -710,6 +713,31 @@ export class Account implements AccountData {
       },
     });
     return recoveryKey;
+  }
+
+  async metricsOpt(state: 'in' | 'out') {
+    await this.withLoadingStatus(
+      this.apolloClient.mutate({
+        mutation: gql`
+          mutation metricsOpt($input: MetricsOptInput!) {
+            metricsOpt(input: $input) {
+              clientMutationId
+            }
+          }
+        `,
+        update: (cache) => {
+          cache.modify({
+            id: cache.identify({ __typename: 'Account' }),
+            fields: {
+              metricsOptOutAt: () => {
+                return state === 'out' ? Date.now() : null;
+              },
+            },
+          });
+        },
+        variables: { input: { state } },
+      })
+    );
   }
 
   async destroy(password: string) {
