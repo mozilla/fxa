@@ -4869,16 +4869,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-controls@npm:^6.3.11":
-  version: 6.3.11
-  resolution: "@storybook/addon-controls@npm:6.3.11"
+"@storybook/addon-controls@npm:^6.3.12":
+  version: 6.3.12
+  resolution: "@storybook/addon-controls@npm:6.3.12"
   dependencies:
-    "@storybook/addons": 6.3.11
-    "@storybook/api": 6.3.11
-    "@storybook/client-api": 6.3.11
-    "@storybook/components": 6.3.11
-    "@storybook/node-logger": 6.3.11
-    "@storybook/theming": 6.3.11
+    "@storybook/addons": 6.3.12
+    "@storybook/api": 6.3.12
+    "@storybook/client-api": 6.3.12
+    "@storybook/components": 6.3.12
+    "@storybook/node-logger": 6.3.12
+    "@storybook/theming": 6.3.12
     core-js: ^3.8.2
     ts-dedent: ^2.0.0
   peerDependencies:
@@ -4889,7 +4889,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 0327580a39c1c20c63851f7b50362dd5d328922b5c2ad55cd738bdf3efc4cff8050cad69d4de8eee0835825738c9220cb3e7ba0d9f0065fe03acee0b9d44075b
+  checksum: 4cdb81ed2c38edd68d86cc77ca7e5debbff4ff5def1e14ac308ea02860461616da4b5d7c9945c3acc14748bd41a1784204dabf7a306a8b39d23e768938d2aa4c
   languageName: node
   linkType: hard
 
@@ -20081,7 +20081,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
     "@sentry/node": ^6.13.3
-    "@storybook/addon-controls": ^6.3.11
+    "@storybook/addon-controls": ^6.3.12
     "@storybook/addon-docs": ^6.3.12
     "@storybook/addon-toolbars": ^6.3.12
     "@storybook/html": ^6.3.10
