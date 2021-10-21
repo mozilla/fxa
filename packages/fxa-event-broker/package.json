@@ -59,7 +59,7 @@
     "google-auth-library": "^7.10.0",
     "graphql": "^15.6.1",
     "hot-shots": "^8.5.2",
-    "jwks-rsa": "^1.11.0",
+    "jwks-rsa": "^2.0.5",
     "mozlog": "^3.0.2",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
