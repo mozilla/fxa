@@ -981,6 +981,7 @@ export class AccountHandler {
         uid: sessionToken.uid,
         sessionToken: sessionToken.data,
         authAt: sessionToken.lastAuthAt(),
+        metricsEnabled: !accountRecord.metricsOptOutAt,
       };
 
       if (keyFetchToken) {
@@ -1705,6 +1706,7 @@ export const accountRoutes = (
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
             authAt: isA.number().integer(),
+            metricsEnabled: isA.boolean().required(),
           },
         },
       },

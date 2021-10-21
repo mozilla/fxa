@@ -432,6 +432,11 @@ export class AccountResolver {
   }
 
   @ResolveField()
+  public metricsEnabled(@Parent() account: Account) {
+    return !account.metricsOptOutAt;
+  }
+
+  @ResolveField()
   public async subscriptions(@GqlSessionToken() token: string) {
     const account = await this.authAPI.account(token);
     return account.subscriptions.map(snakeToCamelObject);

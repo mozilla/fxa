@@ -413,7 +413,7 @@ describe('/session/reauth', () => {
 
       assert.equal(
         Object.keys(res).length,
-        4,
+        5,
         'response object had correct number of keys'
       );
       assert.equal(res.uid, TEST_UID, 'response object contained correct uid');
