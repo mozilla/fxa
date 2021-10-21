@@ -18,22 +18,23 @@ import {
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import {
-  AbbrevPlan,
-  AbbrevProduct,
-  SubscriptionUpdateEligibility,
-  MozillaSubscriptionTypes,
-  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
-  WebSubscription,
-  PaypalPaymentError,
-} from 'fxa-shared/subscriptions/types';
-import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getSubscriptionUpdateEligibility,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
+import {
+  AbbrevPlan,
+  AbbrevProduct,
+  MozillaSubscriptionTypes,
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+  PaypalPaymentError,
+  SubscriptionUpdateEligibility,
+  WebSubscription,
+} from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
+import pick from 'lodash/pick';
 import moment from 'moment';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
@@ -2459,7 +2460,17 @@ export class StripeHelper {
         case 'invoice.payment_failed':
         case 'invoice.updated':
         case 'invoice.deleted':
-          const invoice = data.object as Stripe.Invoice;
+          let invoice: Partial<Stripe.Invoice>;
+          if (data.previous_attributes) {
+            invoice = pick(data.object, [
+              'id',
+              'customer',
+              'subscription',
+              ...Object.keys(data.previous_attributes),
+            ]);
+          } else {
+            invoice = data.object;
+          }
           await this.stripeFirestore.retrieveAndFetchSubscription(
             invoice.subscription as string
           );
@@ -2470,22 +2481,40 @@ export class StripeHelper {
         case 'customer.created':
         case 'customer.updated':
         case 'customer.deleted':
-          const customer = data.object as Stripe.Customer;
+          let customer: Partial<Stripe.Customer>;
+          if (data.previous_attributes) {
+            customer = pick(data.object, [
+              'id',
+              'metadata',
+              ...Object.keys(data.previous_attributes),
+            ]);
+          } else {
+            customer = data.object;
+          }
           // Ensure the customer and its subscriptions exist in Firestore.
           // Note that we still insert the object here in case we've already
           // fetched the customer previously.
-          await this.stripeFirestore.retrieveAndFetchCustomer(customer.id);
+          await this.stripeFirestore.retrieveAndFetchCustomer(customer.id!);
           await this.stripeFirestore.insertCustomerRecord(
-            customer.metadata.userid,
+            customer.metadata!.userid,
             customer
           );
           break;
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
         case 'customer.subscription.deleted':
-          const subscription = data.object as Stripe.Subscription;
+          let subscription: Partial<Stripe.Subscription>;
+          if (data.previous_attributes) {
+            subscription = pick(data.object, [
+              'id',
+              'customer',
+              ...Object.keys(data.previous_attributes),
+            ]);
+          } else {
+            subscription = data.object;
+          }
           await this.stripeFirestore.retrieveAndFetchSubscription(
-            subscription.id
+            subscription.id!
           );
           await this.stripeFirestore.insertSubscriptionRecord(subscription);
           break;
