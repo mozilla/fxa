@@ -63,7 +63,7 @@
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",
     "@types/graphql": "^14.5.0",
-    "@types/node": "^15.12.2",
+    "@types/node": "^16.11.3",
     "@types/rimraf": "3.0.0",
     "@types/supertest": "^2.0.11",
     "@types/yargs": "^17.0.0",

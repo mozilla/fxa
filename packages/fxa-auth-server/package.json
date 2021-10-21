@@ -137,7 +137,7 @@
     "@types/memcached": "^2.2.6",
     "@types/mocha": "^8.2.2",
     "@types/nock": "^11.1.0",
-    "@types/node": "^15.12.2",
+    "@types/node": "^16.11.3",
     "@types/node-zendesk": "^2.0.2",
     "@types/nodemailer": "^6.4.2",
     "@types/request": "2.48.5",

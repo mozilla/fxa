@@ -2,9 +2,6 @@
   "name": "123done",
   "description": "A simple tasklist app that demonstrates FxA Sign-In",
   "version": "0.0.2",
-  "engines": {
-    "node": "14.x"
-  },
   "author": {
     "name": "Mozilla",
     "url": "https://mozilla.org/"
