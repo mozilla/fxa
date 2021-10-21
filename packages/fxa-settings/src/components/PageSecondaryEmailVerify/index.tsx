@@ -55,7 +55,9 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     async (email: string, code: string) => {
       try {
         await account.verifySecondaryEmail(email, code);
-        logViewEvent('verify-secondary-email.verification', 'success');
+        if (account.metricsEnabled) {
+          logViewEvent('verify-secondary-email.verification', 'success');
+        }
         alertSuccessAndGoHome(email);
       } catch (e) {
         if (e.errno) {
@@ -74,7 +76,9 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
             )
           );
         }
-        logViewEvent('verify-secondary-email.verification', 'fail');
+        if (account.metricsEnabled) {
+          logViewEvent('verify-secondary-email.verification', 'fail');
+        }
       }
     },
     [account, alertSuccessAndGoHome, setErrorText, alertBar, l10n]
@@ -96,7 +100,9 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           data-testid="secondary-email-verify-form"
           onSubmit={handleSubmit(({ verificationCode }) => {
             verifySecondaryEmail(email, verificationCode);
-            logViewEvent('verify-secondary-email.verification', 'clicked');
+            if (account.metricsEnabled) {
+              logViewEvent('verify-secondary-email.verification', 'clicked');
+            }
           })}
         >
           <Localized

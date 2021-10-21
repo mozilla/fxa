@@ -7,7 +7,7 @@ import AppLayout from '../AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import * as Metrics from '../../lib/metrics';
-import { useConfig, useInitialState } from '../../models';
+import { useAccount, useConfig, useInitialState } from '../../models';
 import { Router } from '@reach/router';
 import Head from 'fxa-react/components/Head';
 import PageSettings from '../PageSettings';
@@ -33,6 +33,7 @@ type AppProps = {
 
 export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
   const config = useConfig();
+  const { metricsEnabled } = useAccount();
 
   useEffect(() => {
     config.metrics.navTiming.enabled &&
@@ -41,8 +42,10 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
 
   const { loading, error } = useInitialState();
   useEffect(() => {
-    Metrics.init(flowQueryParams);
-  }, [flowQueryParams]);
+    if (metricsEnabled) {
+      Metrics.init(flowQueryParams);
+    }
+  }, [flowQueryParams, metricsEnabled]);
 
   // In case of an invalid token the page will redirect,
   // but to prevent a flash of the error message we show

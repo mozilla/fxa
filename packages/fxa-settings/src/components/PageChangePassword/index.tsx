@@ -7,11 +7,7 @@ import { useForm, ValidateResult } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { HomePath } from '../../constants';
-import {
-  logViewEvent,
-  settingsViewName,
-  usePageViewEvent,
-} from '../../lib/metrics';
+import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { useAccount, useAlertBar } from '../../models';
 import FlowContainer from '../FlowContainer';
 import InputPassword from '../InputPassword';
@@ -47,7 +43,10 @@ const ValidationIcon = ({
 
 // eslint-disable-next-line no-empty-pattern
 export const PageChangePassword = ({}: RouteComponentProps) => {
-  usePageViewEvent('settings.change-password');
+  const account = useAccount();
+  if (account.metricsEnabled) {
+    logViewEvent(settingsViewName, 'settings.change-password');
+  }
   const {
     handleSubmit,
     register,
@@ -66,11 +65,9 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     },
   });
   const alertBar = useAlertBar();
-  const [currentPasswordErrorText, setCurrentPasswordErrorText] = useState<
-    string
-  >();
+  const [currentPasswordErrorText, setCurrentPasswordErrorText] =
+    useState<string>();
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
-  const account = useAccount();
   const navigate = useNavigate();
   const goHome = useCallback(
     () => navigate(HomePath + '#password', { replace: true }),
@@ -97,7 +94,9 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       }
       try {
         await account.changePassword(oldPassword, newPassword);
-        logViewEvent(settingsViewName, 'change-password.success');
+        if (account.metricsEnabled) {
+          logViewEvent(settingsViewName, 'change-password.success');
+        }
         alertSuccessAndGoHome();
       } catch (e) {
         const localizedError = l10n.getString(

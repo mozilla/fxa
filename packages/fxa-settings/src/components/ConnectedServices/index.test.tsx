@@ -10,14 +10,20 @@ import {
   renderWithRouter,
   mockAppContext,
 } from 'fxa-settings/src/models/mocks';
+import { logViewEvent } from '../../lib/metrics';
 import { isMobileDevice } from '../../lib/utilities';
 import { MOCK_SERVICES } from './mocks';
+
+jest.mock('../../lib/metrics', () => ({
+  logViewEvent: jest.fn(),
+}));
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 
 const account = {
   attachedClients: MOCK_SERVICES,
   disconnectClient: jest.fn().mockResolvedValue(true),
+  metricsEnabled: true,
 } as unknown as Account;
 
 const getIconAndServiceLink = async (name: string, testId: string) => {
@@ -67,7 +73,11 @@ const expectDisconnectModalHeader = async () => {
   ).toBeInTheDocument();
 };
 
-describe('Connected Services', () => {
+describe('ConnectedServices', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders "fresh load" <ConnectedServices/> with correct content', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
@@ -215,7 +225,7 @@ describe('Connected Services', () => {
     await expectDisconnectModalHeader();
   });
 
-  it('renders "lost" modal when user has selected "lost" option', async () => {
+  it('renders "lost" modal when user has selected "lost" option and emits a metrics event', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
@@ -225,10 +235,14 @@ describe('Connected Services', () => {
     await expectDisconnectModalHeader();
     await chooseRadioByLabel('Lost or stolen');
     await clickConfirmDisconnectButton();
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'settings.clients.disconnect',
+      'submit.lost'
+    );
     expect(await screen.queryByTestId('lost-device-desc')).toBeInTheDocument();
   });
 
-  it('renders "suspicious" modal when user has selected "suspicious" option in survey modal', async () => {
+  it('renders "suspicious" modal when user has selected "suspicious" option in survey modal and emits a metrics event', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <ConnectedServices />
@@ -238,6 +252,10 @@ describe('Connected Services', () => {
     await expectDisconnectModalHeader();
     await chooseRadioByLabel('Suspicious');
     await clickConfirmDisconnectButton();
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'settings.clients.disconnect',
+      'submit.suspicious'
+    );
     expect(
       await screen.queryByTestId('suspicious-device-desc')
     ).toBeInTheDocument();
@@ -254,9 +272,28 @@ describe('Connected Services', () => {
     ).length;
     await clickFirstSignOutButton();
     await clickConfirmDisconnectButton();
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'settings.clients.disconnect',
+      'submit.'
+    );
     const finalCount = (
       await screen.findAllByTestId('settings-connected-service')
     ).length;
     expect(finalCount === initialCount - 1).toBeTruthy;
+  });
+
+  it('does not submit a metrics event for opted out users', async () => {
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({
+          account: { ...account, metricsEnabled: false } as Account,
+        })}
+      >
+        <ConnectedServices />
+      </AppContext.Provider>
+    );
+    await clickFirstSignOutButton();
+    await clickConfirmDisconnectButton();
+    expect(logViewEvent).not.toHaveBeenCalled();
   });
 });

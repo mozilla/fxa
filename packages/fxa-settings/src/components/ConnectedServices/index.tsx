@@ -73,11 +73,8 @@ export const ConnectedServices = () => {
   // After the user confirms they want to disconnect from sync in Confirm Disconnect modal,
   // if their reason was a lost/stolen device, or a suspicious device, then we show them
   // an informative modal with some advice on next steps to take.
-  const [
-    adviceModalRevealed,
-    revealAdviceModal,
-    hideAdviceModal,
-  ] = useBooleanState();
+  const [adviceModalRevealed, revealAdviceModal, hideAdviceModal] =
+    useBooleanState();
 
   const [selectedClient, setSelectedClient] = useState<AttachedClient | null>(
     null
@@ -99,7 +96,9 @@ export const ConnectedServices = () => {
   const disconnectClient = useCallback(
     async (client: AttachedClient) => {
       try {
-        logViewEvent('settings.clients.disconnect', `submit.${reason}`);
+        if (account.metricsEnabled) {
+          logViewEvent('settings.clients.disconnect', `submit.${reason}`);
+        }
         await account.disconnectClient(client);
         // TODO: Add `timing.clients.disconnect` flow timing event as seen in
         // old-settings? #6903

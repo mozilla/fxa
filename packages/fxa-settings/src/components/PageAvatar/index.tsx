@@ -17,11 +17,7 @@ import { useAccount, useAlertBar } from '../../models';
 import { HomePath } from '../../constants';
 import { onFileChange } from '../../lib/file-utils';
 import { getCroppedImg } from '../../lib/canvas-utils';
-import {
-  logViewEvent,
-  settingsViewName,
-  usePageViewEvent,
-} from '../../lib/metrics';
+import { logViewEvent, settingsViewName } from '../../lib/metrics';
 
 import Avatar from '../Avatar';
 import FlowContainer from '../FlowContainer';
@@ -39,9 +35,11 @@ const PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE = 2 * 1024 * 1024;
 const frameClass = `rounded-full m-auto w-40 object-cover`;
 
 export const PageAddAvatar = (_: RouteComponentProps) => {
-  usePageViewEvent('settings.avatar.change');
-  const navigate = useNavigate();
   const account = useAccount();
+  if (account.metricsEnabled) {
+    logViewEvent(settingsViewName, 'settings.avatar.change');
+  }
+  const navigate = useNavigate();
   const { l10n } = useLocalization();
   const { avatar } = useAccount();
   const alertBar = useAlertBar();
@@ -59,7 +57,9 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
     async (file: Blob) => {
       try {
         await account.uploadAvatar(file);
-        logViewEvent(settingsViewName, 'avatar.crop.submit.change');
+        if (account.metricsEnabled) {
+          logViewEvent(settingsViewName, 'avatar.crop.submit.change');
+        }
         navigate(HomePath + '#profile-picture', { replace: true });
       } catch (e) {
         onFileError();

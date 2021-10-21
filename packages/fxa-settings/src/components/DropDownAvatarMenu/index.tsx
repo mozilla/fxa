@@ -12,13 +12,12 @@ import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 
 export const DropDownAvatarMenu = () => {
-  const { displayName, primaryEmail } = useAccount();
+  const { displayName, primaryEmail, metricsEnabled } = useAccount();
   const session = useSession();
   const [isRevealed, setRevealed] = useState(false);
   const toggleRevealed = () => setRevealed(!isRevealed);
-  const avatarMenuInsideRef = useClickOutsideEffect<HTMLDivElement>(
-    setRevealed
-  );
+  const avatarMenuInsideRef =
+    useClickOutsideEffect<HTMLDivElement>(setRevealed);
   useEscKeydownEffect(setRevealed);
   const alertBar = useAlertBar();
   const dropDownId = 'drop-down-avatar-menu';
@@ -28,7 +27,9 @@ export const DropDownAvatarMenu = () => {
     if (session.destroy) {
       try {
         await session.destroy();
-        logViewEvent(settingsViewName, 'signout.success');
+        if (metricsEnabled) {
+          logViewEvent(settingsViewName, 'signout.success');
+        }
         window.location.assign(`${window.location.origin}/signin`);
       } catch (e) {
         alertBar.error(l10n.getString('drop-down-menu-sign-out-error'));

@@ -16,7 +16,11 @@ import {
   ROOTPATH,
   VPNLink,
 } from '../../constants';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import {
+  logPageViewEvent,
+  logViewEvent,
+  settingsViewName,
+} from '../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
@@ -34,7 +38,10 @@ const checkboxLabels = [
 ];
 
 export const PageDeleteAccount = (_: RouteComponentProps) => {
-  usePageViewEvent('settings.delete-account');
+  const account = useAccount();
+  if (account.metricsEnabled) {
+    logPageViewEvent(settingsViewName);
+  }
   const { l10n } = useLocalization();
   const { handleSubmit, register, formState, setValue } = useForm<FormData>({
     mode: 'all',
@@ -59,23 +66,24 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const goHome = useCallback(() => window.history.back(), []);
 
-  const account = useAccount();
-
   const advanceStep = () => {
     setSubtitleText(l10n.getString('delete-account-step-2-2'));
     setConfirmed(true);
-
-    logViewEvent('flow.settings.account-delete', 'terms-checked.success');
+    if (account.metricsEnabled) {
+      logViewEvent('flow.settings.account-delete', 'terms-checked.success');
+    }
   };
 
   const deleteAccount = useCallback(
     async (password: string) => {
       try {
         await account.destroy(password);
-        logViewEvent(
-          'flow.settings.account-delete',
-          'confirm-password.success'
-        );
+        if (account.metricsEnabled) {
+          logViewEvent(
+            'flow.settings.account-delete',
+            'confirm-password.success'
+          );
+        }
         // must use location.href over navigate() since this is an external link
         window.location.href = `${ROOTPATH}?delete_account_success=true`;
       } catch (e) {
@@ -89,25 +97,30 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           setValue('password', '');
         } else {
           alertBar.error(localizedError);
-          logViewEvent('flow.settings.account-delete', 'confirm-password.fail');
+
+          if (account.metricsEnabled) {
+            logViewEvent(
+              'flow.settings.account-delete',
+              'confirm-password.fail'
+            );
+          }
         }
       }
     },
     [account, l10n, setErrorText, setValue, alertBar]
   );
 
-  const handleConfirmChange = (labelText: string) => (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    event.persist();
-    setCheckedBoxes((existing) => {
-      if (event.target.checked) {
-        return [...existing, labelText];
-      } else {
-        return [...existing.filter((text) => text !== labelText)];
-      }
-    });
-  };
+  const handleConfirmChange =
+    (labelText: string) => (event: ChangeEvent<HTMLInputElement>) => {
+      event.persist();
+      setCheckedBoxes((existing) => {
+        if (event.target.checked) {
+          return [...existing, labelText];
+        } else {
+          return [...existing.filter((text) => text !== labelText)];
+        }
+      });
+    };
 
   const onFormSubmit = ({ password }: FormData) => {
     deleteAccount(password);

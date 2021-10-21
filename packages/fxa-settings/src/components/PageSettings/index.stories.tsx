@@ -10,7 +10,7 @@ import AppLayout from '../AppLayout';
 import { isMobileDevice } from '../../lib/utilities';
 import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../models/mocks';
 import { MOCK_SERVICES } from '../ConnectedServices/mocks';
-import { AppContext } from 'fxa-settings/src/models';
+import { AppContext } from '../../models';
 
 const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
 

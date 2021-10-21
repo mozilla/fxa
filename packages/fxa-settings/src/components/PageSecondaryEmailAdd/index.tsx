@@ -1,7 +1,11 @@
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import {
+  logPageViewEvent,
+  logViewEvent,
+  settingsViewName,
+} from '../../lib/metrics';
 import { HomePath } from '../../constants';
 import InputText from '../InputText';
 import FlowContainer from '../FlowContainer';
@@ -11,7 +15,10 @@ import { useAccount, useAlertBar } from 'fxa-settings/src/models';
 import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
-  usePageViewEvent('settings.emails');
+  const account = useAccount();
+  if (account.metricsEnabled) {
+    logPageViewEvent(settingsViewName);
+  }
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
   const [errorText, setErrorText] = useState<string>();
   const [email, setEmail] = useState<string>();
@@ -25,7 +32,6 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   );
   const navigate = useNavigate();
   const alertBar = useAlertBar();
-  const account = useAccount();
   const goHome = () =>
     navigate(HomePath + '#secondary-email', { replace: true });
 
@@ -76,7 +82,9 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
             ev.preventDefault();
             if (inputRef.current) {
               createSecondaryEmail(email!);
-              logViewEvent('settings.emails', 'submit');
+              if (account.metricsEnabled) {
+                logViewEvent('settings.emails', 'submit');
+              }
             }
           }}
         >

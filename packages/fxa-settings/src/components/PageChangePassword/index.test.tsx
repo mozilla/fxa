@@ -9,11 +9,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import { HomePath } from '../../constants';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import PageChangePassword from '.';
-import {
-  logViewEvent,
-  settingsViewName,
-  usePageViewEvent,
-} from '../../lib/metrics';
+import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { typeByTestIdFn } from '../../lib/test-utils';
 import { AppContext, Account } from '../../models';
 
@@ -28,6 +24,10 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
 const account = {
   primaryEmail: {
     email: 'test@example.com',
@@ -35,16 +35,23 @@ const account = {
   changePassword: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
 
-const render = async () => {
-  await renderWithRouter(
-    <AppContext.Provider value={mockAppContext({ account })}>
+const render = async (metricsEnabled = true) => {
+  renderWithRouter(
+    <AppContext.Provider
+      value={mockAppContext({
+        account: {
+          ...account,
+          metricsEnabled,
+        } as Account,
+      })}
+    >
       <PageChangePassword />
     </AppContext.Provider>
   );
 };
 
-const changePassword = async () => {
-  await render();
+const changePassword = async (metricsEnabled = true) => {
+  await render(metricsEnabled);
   await inputCurrentPassword('quuz');
   await inputNewPassword('testotesto');
   await inputVerifyPassword('testotesto');
@@ -67,15 +74,23 @@ it('renders', async () => {
 
 it('emits a metrics event on render', async () => {
   await render();
-  expect(usePageViewEvent).toHaveBeenCalledWith('settings.change-password');
+  expect(logViewEvent).toHaveBeenCalledWith(
+    settingsViewName,
+    'settings.change-password'
+  );
 });
 
-it('emits an Amplitude event on success', async () => {
+it('emits a metrics event on success', async () => {
   await changePassword();
   expect(logViewEvent).toHaveBeenCalledWith(
     settingsViewName,
     'change-password.success'
   );
+});
+
+it('does not emit a metrics event on success for opted out users', async () => {
+  await changePassword(false);
+  expect(logViewEvent).not.toHaveBeenCalled();
 });
 
 it('redirects on success', async () => {

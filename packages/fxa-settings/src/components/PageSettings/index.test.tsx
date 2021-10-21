@@ -5,11 +5,20 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import PageSettings from '.';
-import { renderWithRouter } from '../../models/mocks';
+import {
+  renderWithRouter,
+  mockAppContext,
+  MOCK_ACCOUNT,
+} from '../../models/mocks';
 import * as Metrics from '../../lib/metrics';
+import { Account, AppContext } from '../../models';
 
 jest.spyOn(Metrics, 'setProperties');
-jest.spyOn(Metrics, 'usePageViewEvent');
+jest.spyOn(Metrics, 'logPageViewEvent');
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 it('renders without imploding', async () => {
   renderWithRouter(<PageSettings />);
@@ -21,8 +30,27 @@ it('renders without imploding', async () => {
   expect(
     screen.queryByTestId('settings-data-collection')
   ).not.toBeInTheDocument();
+
   expect(Metrics.setProperties).toHaveBeenCalledWith({
     uid: 'abc123',
   });
-  expect(Metrics.usePageViewEvent).toHaveBeenCalledWith('settings');
+  expect(Metrics.logPageViewEvent).toHaveBeenCalledWith('settings');
+});
+
+it('does not log metrics for opted out users', () => {
+  renderWithRouter(
+    <AppContext.Provider
+      value={mockAppContext({
+        account: {
+          ...MOCK_ACCOUNT,
+          metricsEnabled: false,
+        } as Account,
+      })}
+    >
+      <PageSettings />
+    </AppContext.Provider>
+  );
+
+  expect(Metrics.setProperties).not.toHaveBeenCalled();
+  expect(Metrics.logPageViewEvent).not.toHaveBeenCalled();
 });

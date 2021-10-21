@@ -28,11 +28,18 @@ export const UnitRowRecoveryKey = () => {
       alertBar.success(
         l10n.getString('rk-key-removed', null, 'Account recovery key removed.')
       );
-      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
+      if (account.metricsEnabled) {
+        logViewEvent(
+          'flow.settings.account-recovery',
+          'confirm-revoke.success'
+        );
+      }
     } catch (e) {
       hideModal();
       alertBar.error(l10n.getString('rk-remove-error'));
-      logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
+      if (account.metricsEnabled) {
+        logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
+      }
     }
   }, [account, hideModal, alertBar, l10n]);
 
@@ -105,10 +112,12 @@ export const UnitRowRecoveryKey = () => {
             onDismiss={hideModal}
             onConfirm={() => {
               deleteRecoveryKey();
-              logViewEvent(
-                'flow.settings.account-recovery',
-                'confirm-revoke.submit'
-              );
+              if (account.metricsEnabled) {
+                logViewEvent(
+                  'flow.settings.account-recovery',
+                  'confirm-revoke.submit'
+                );
+              }
             }}
             confirmBtnClassName="cta-caution"
             confirmText={l10n.getString('rk-action-remove', null, 'Remove')}

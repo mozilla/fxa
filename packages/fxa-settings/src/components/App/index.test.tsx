@@ -6,6 +6,8 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
+import { Account, AppContext } from '../../models';
+import { mockAppContext, MOCK_ACCOUNT } from '../../models/mocks';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -37,7 +39,7 @@ it('renders', async () => {
   });
 });
 
-it('Initializes metrics flow data when present', async () => {
+describe('metrics flow', () => {
   const DEVICE_ID = 'yoyo';
   const BEGIN_TIME = 123456;
   const FLOW_ID = 'abc123';
@@ -50,14 +52,40 @@ it('Initializes metrics flow data when present', async () => {
     },
   });
 
-  await act(async () => {
-    render(<App {...updatedAppProps} />);
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  expect(flowInit).toHaveBeenCalledWith({
-    deviceId: DEVICE_ID,
-    flowId: FLOW_ID,
-    flowBeginTime: BEGIN_TIME,
+  it('Initializes metrics flow data when present', async () => {
+    await act(async () => {
+      render(<App {...updatedAppProps} />);
+    });
+
+    expect(flowInit).toHaveBeenCalledWith({
+      deviceId: DEVICE_ID,
+      flowId: FLOW_ID,
+      flowBeginTime: BEGIN_TIME,
+    });
+    expect(window.location.replace).not.toHaveBeenCalled();
   });
-  expect(window.location.replace).not.toHaveBeenCalled();
+
+  it('Does not initial metrics flow data for opted out users', async () => {
+    await act(async () => {
+      render(
+        <AppContext.Provider
+          value={mockAppContext({
+            account: {
+              ...MOCK_ACCOUNT,
+              metricsEnabled: false,
+            } as Account,
+          })}
+        >
+          <App {...updatedAppProps} />
+        </AppContext.Provider>
+      );
+    });
+
+    expect(window.location.replace).not.toHaveBeenCalled();
+    expect(flowInit).not.toHaveBeenCalled();
+  });
 });

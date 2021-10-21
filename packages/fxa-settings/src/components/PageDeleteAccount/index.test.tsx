@@ -8,6 +8,7 @@ import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { PageDeleteAccount } from '.';
+import { logViewEvent, logPageViewEvent } from '../../lib/metrics';
 import { typeByTestIdFn } from '../../lib/test-utils';
 import { Account, AppContext } from '../../models';
 
@@ -16,7 +17,18 @@ const account = {
     email: 'rfeeley@mozilla.com',
   },
   uid: '0123456789abcdef',
+  metricsEnabled: true,
 } as unknown as Account;
+
+jest.mock('../../lib/metrics', () => ({
+  logViewEvent: jest.fn(),
+  logPageViewEvent: jest.fn(),
+  settingsViewName: 'quuz',
+}));
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 window.URL.createObjectURL = jest.fn();
 
@@ -108,5 +120,40 @@ describe('PageDeleteAccount', () => {
     expect(deleteAccountButton).toBeEnabled();
 
     expect(location.pathname).toContainEqual('/');
+  });
+
+  describe('metrics events', () => {
+    it('emits them', async () => {
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <PageDeleteAccount />
+        </AppContext.Provider>
+      );
+
+      await advanceStep();
+      await typeByTestIdFn('delete-account-confirm-input-field')('hunter67');
+
+      // TODO: write better tests for each event
+      expect(logViewEvent).toHaveBeenCalled();
+      expect(logPageViewEvent).toHaveBeenCalledWith('quuz');
+    });
+
+    it('does not emit them for opted out users', async () => {
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({
+            account: { ...account, metricsEnabled: false } as Account,
+          })}
+        >
+          <PageDeleteAccount />
+        </AppContext.Provider>
+      );
+
+      await advanceStep();
+      await typeByTestIdFn('delete-account-confirm-input-field')('hunter67');
+
+      expect(logPageViewEvent).not.toHaveBeenCalled();
+      expect(logViewEvent).not.toHaveBeenCalled();
+    });
   });
 });

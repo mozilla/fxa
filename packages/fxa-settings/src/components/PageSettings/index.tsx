@@ -23,13 +23,15 @@ type ShowDataCollectionProp = {
 export const PageSettings = ({
   showDataCollection = false,
 }: RouteComponentProps<{}> & ShowDataCollectionProp) => {
-  const { uid } = useAccount();
+  const { uid, metricsEnabled } = useAccount();
 
-  Metrics.setProperties({
-    lang: document.querySelector('html')?.getAttribute('lang'),
-    uid,
-  });
-  Metrics.usePageViewEvent(Metrics.settingsViewName);
+  if (metricsEnabled) {
+    Metrics.setProperties({
+      lang: document.querySelector('html')?.getAttribute('lang'),
+      uid,
+    });
+    Metrics.logPageViewEvent(Metrics.settingsViewName);
+  }
 
   return (
     <div id="fxa-settings" className="flex">

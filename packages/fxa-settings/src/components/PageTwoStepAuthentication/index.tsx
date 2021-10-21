@@ -52,10 +52,12 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const { logPageViewEventOnce: logStep2PageViewEvent } = useMetrics();
   const { logViewEventOnce: logTotpSubmitEvent } = useMetrics();
   const logDataTrioActionEvent = (action: string) => {
-    logViewEvent(
-      `flow.${metricsPreInPostFix}.recovery-codes`,
-      `${action}-option`
-    );
+    if (account.metricsEnabled) {
+      logViewEvent(
+        `flow.${metricsPreInPostFix}.recovery-codes`,
+        `${action}-option`
+      );
+    }
   };
 
   const localizedStep1 = l10n.getString('tfa-step-1-3', null, 'Step 1 of 3');
@@ -63,9 +65,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const [showQrCode, setShowQrCode] = useState(true);
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
   const [invalidCodeError, setInvalidCodeError] = useState<string>('');
-  const [recoveryCodesAcknowledged, setRecoveryCodesAcknowledged] = useState<
-    boolean
-  >(false);
+  const [recoveryCodesAcknowledged, setRecoveryCodesAcknowledged] =
+    useState<boolean>(false);
   const [recoveryCodeError, setRecoveryCodeError] = useState<string>('');
 
   // Handles the "Continue" on step two, which doesn't submits any values.
@@ -157,14 +158,22 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   };
 
   useEffect(() => {
-    session.verified && logStep1PageViewEvent(metricsPreInPostFix);
-  }, [session.verified, logStep1PageViewEvent]);
+    session.verified &&
+      account.metricsEnabled &&
+      logStep1PageViewEvent(metricsPreInPostFix);
+  }, [session.verified, logStep1PageViewEvent, account.metricsEnabled]);
 
   useEffect(() => {
     totpVerified &&
       !recoveryCodesAcknowledged &&
+      account.metricsEnabled &&
       logStep2PageViewEvent(`${metricsPreInPostFix}.recovery-codes`);
-  }, [totpVerified, recoveryCodesAcknowledged, logStep2PageViewEvent]);
+  }, [
+    totpVerified,
+    recoveryCodesAcknowledged,
+    logStep2PageViewEvent,
+    account.metricsEnabled,
+  ]);
 
   const moveBack = () => {
     if (!totpVerified) {

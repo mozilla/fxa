@@ -9,7 +9,11 @@ import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../DataBlock';
 import { HomePath } from '../../constants';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import {
+  logPageViewEvent,
+  logViewEvent,
+  settingsViewName,
+} from '../../lib/metrics';
 import {
   AuthUiErrors,
   AuthUiErrorNos,
@@ -20,7 +24,10 @@ type FormData = {
 };
 
 export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
-  usePageViewEvent('settings.account-recovery');
+  const account = useAccount();
+  if (account.metricsEnabled) {
+    logPageViewEvent(settingsViewName);
+  }
   const { handleSubmit, register, formState, setValue } = useForm<FormData>({
     mode: 'all',
     defaultValues: {
@@ -50,7 +57,6 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
     );
     navigate(HomePath + '#recovery-key', { replace: true });
   };
-  const account = useAccount();
 
   const createRecoveryKey = useCallback(
     async (password: string) => {
@@ -62,10 +68,12 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
             .join(' ')
         );
         setSubtitleText(l10n.getString('recovery-key-step-2'));
-        logViewEvent(
-          'flow.settings.account-recovery',
-          'confirm-password.success'
-        );
+        if (account.metricsEnabled) {
+          logViewEvent(
+            'flow.settings.account-recovery',
+            'confirm-password.success'
+          );
+        }
       } catch (e) {
         let localizedError;
 
@@ -87,10 +95,12 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
           setErrorText(localizedError);
         } else {
           alertBar.error(localizedError);
-          logViewEvent(
-            'flow.settings.account-recovery',
-            'confirm-password.fail'
-          );
+          if (account.metricsEnabled) {
+            logViewEvent(
+              'flow.settings.account-recovery',
+              'confirm-password.fail'
+            );
+          }
         }
         setValue('password', '');
       }
@@ -128,10 +138,12 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
               <DataBlock
                 value={formattedRecoveryKey}
                 onAction={(type) => {
-                  logViewEvent(
-                    'flow.settings.account-recovery',
-                    `recovery-key.${type}-option`
-                  );
+                  if (account.metricsEnabled) {
+                    logViewEvent(
+                      'flow.settings.account-recovery',
+                      `recovery-key.${type}-option`
+                    );
+                  }
                 }}
               ></DataBlock>
               <Localized id="recovery-key-close-button">
@@ -150,10 +162,12 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
           <form
             onSubmit={handleSubmit(({ password }) => {
               createRecoveryKey(password);
-              logViewEvent(
-                'flow.settings.account-recovery',
-                'confirm-password.submit'
-              );
+              if (account.metricsEnabled) {
+                logViewEvent(
+                  'flow.settings.account-recovery',
+                  'confirm-password.submit'
+                );
+              }
             })}
           >
             <div className="mt-4 mb-6" data-testid="recovery-key-input">

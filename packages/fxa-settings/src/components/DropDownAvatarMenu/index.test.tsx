@@ -6,7 +6,7 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { mockAppContext, mockSession } from '../../models/mocks';
 import DropDownAvatarMenu from '.';
-import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
+import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { Account, AppContext } from '../../models';
 
 jest.mock('../../models/AlertBarInfo');
@@ -25,6 +25,7 @@ const account = {
     email: 'johndope@example.com',
   },
   displayName: 'John Dope',
+  metricsEnabled: true,
 } as unknown as Account;
 
 const makeSession = (isError: boolean = false) => {
@@ -116,7 +117,11 @@ describe('DropDownAvatarMenu', () => {
   });
 
   describe('destroySession', () => {
-    it('redirects the user on success', async () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('redirects the user on success and emits a metrics event', async () => {
       //@ts-ignore
       delete window.location;
       window.location = {
@@ -143,6 +148,24 @@ describe('DropDownAvatarMenu', () => {
       expect(window.location.assign).toHaveBeenCalledWith(
         `${window.location.origin}/signin`
       );
+    });
+
+    it('does not emit a metrics event for opted out users', async () => {
+      render(
+        <AppContext.Provider
+          value={mockAppContext({
+            account: { ...account, metricsEnabled: false } as Account,
+            session: makeSession(),
+          })}
+        >
+          <DropDownAvatarMenu />
+        </AppContext.Provider>
+      );
+      fireEvent.click(screen.getByTestId('drop-down-avatar-menu-toggle'));
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
+      });
+      expect(logViewEvent).not.toHaveBeenCalled();
     });
 
     it('displays an error in the AlertBar', async () => {

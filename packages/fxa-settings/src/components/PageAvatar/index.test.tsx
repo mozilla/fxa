@@ -18,16 +18,20 @@ import {
   ZoomInBtn,
   ZoomOutBtn,
 } from './buttons';
-import { usePageViewEvent } from '../../lib/metrics';
+import { logViewEvent, settingsViewName } from '../../lib/metrics';
 
 jest.mock('fxa-settings/src/lib/metrics', () => ({
-  usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
 }));
 
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
 const account = {
   avatar: { url: null, id: null },
+  metricsEnabled: true,
 } as unknown as Account;
 
 it('PageAvatar | renders', async () => {
@@ -46,7 +50,23 @@ it('PageAvatar | emits a metrics event on render', async () => {
       <PageAvatar />
     </AppContext.Provider>
   );
-  expect(usePageViewEvent).toHaveBeenCalledWith('settings.avatar.change');
+  expect(logViewEvent).toHaveBeenCalledWith(
+    settingsViewName,
+    'settings.avatar.change'
+  );
+});
+
+it('PageAvatar | does not emit a metrics event on render for opted out users', async () => {
+  renderWithRouter(
+    <AppContext.Provider
+      value={mockAppContext({
+        account: { ...account, metricsEnabled: false } as Account,
+      })}
+    >
+      <PageAvatar />
+    </AppContext.Provider>
+  );
+  expect(logViewEvent).not.toHaveBeenCalled();
 });
 
 it('PageAddAvatar | render add, take buttons on initial load', async () => {
@@ -74,7 +94,7 @@ it('PageAddAvatar | renders AddPhotoBtn and calls onchange correctly', async () 
   expect(screen.getByTestId('add-photo-btn')).toBeInTheDocument();
 });
 
-it('PageAddAvatar | renders ConfirmBtns and calls onsave correctly', async () => {
+it('PageAddAvatar | renders ConfirmBtns, calls onsave correctly', async () => {
   const onSave = jest.fn();
   renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
