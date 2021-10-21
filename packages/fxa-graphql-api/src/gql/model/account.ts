@@ -42,12 +42,8 @@ export class Account {
   @Field({ description: 'Whether the user has had a recovery key issued.' })
   public recoveryKey!: boolean;
 
-  @Field({
-    nullable: true,
-    description:
-      'Timestamp of when the user opted out of account metrics, null otherwise',
-  })
-  public metricsOptOutAt!: number;
+  @Field({ description: 'Whether metrics are enabled and may be reported' })
+  public metricsEnabled!: boolean;
 
   @Field((type) => [Email], { description: 'Email addresses for the user.' })
   public emails!: Email[];

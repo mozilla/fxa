@@ -54,6 +54,7 @@ const PERSISTENT = {
   // move forward, very hard to move back.
   sessionTokenContext: undefined,
   uid: undefined,
+  metricsEnabled: undefined,
   verified: undefined,
   alertText: undefined,
 };

@@ -11,6 +11,7 @@ import { Account, AppContext } from '../../models';
 const account = {
   displayName: 'jrgm',
   metricsOpt: jest.fn().mockResolvedValue(true),
+  metricsEnabled: true,
 } as unknown as Account;
 
 describe('DataCollection', () => {
@@ -42,7 +43,7 @@ describe('DataCollection', () => {
     await act(() => Promise.resolve(button.click()));
     expect(account.metricsOpt).toBeCalledWith('out');
     //@ts-ignore mock doesn't care that the prop is readonly
-    account.metricsOptOutAt = 1;
+    account.metricsEnabled = false;
     await act(() => Promise.resolve(button.click()));
     expect(account.metricsOpt).toBeCalledWith('in');
   });

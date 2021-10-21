@@ -22,18 +22,18 @@ export const DataCollection = () => {
   const handleMetricsOptOutToggle = useCallback(async () => {
     try {
       setIsSubmitting(true);
-      await account.metricsOpt(account.metricsOptOutAt ? 'in' : 'out');
+      await account.metricsOpt(account.metricsEnabled ? 'out' : 'in');
       setIsSubmitting(false);
-      const alertArgs: [string, null, string] = account.metricsOptOutAt
+      const alertArgs: [string, null, string] = account.metricsEnabled
         ? [
-            'dc-opt-out-success',
-            null,
-            'Opt out successful. Firefox Accounts won’t send technical or interaction data to Mozilla.',
-          ]
-        : [
             'dc-opt-in-success',
             null,
             'Thanks! Sharing this data helps us improve Firefox Accounts.',
+          ]
+        : [
+            'dc-opt-out-success',
+            null,
+            'Opt out successful. Firefox Accounts won’t send technical or interaction data to Mozilla.',
           ];
       alertBar.success(l10n.getString.apply(l10n, alertArgs));
     } catch (err) {}
@@ -73,7 +73,7 @@ export const DataCollection = () => {
             <Switch
               {...{
                 isSubmitting,
-                isOn: !account.metricsOptOutAt,
+                isOn: account.metricsEnabled,
                 id: 'metrics-opt-out',
                 handler: handleMetricsOptOutToggle,
                 localizedLabel: localizedHeader,

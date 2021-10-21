@@ -47,7 +47,7 @@ export interface AccountData {
   accountCreated: number;
   passwordCreated: number;
   recoveryKey: boolean;
-  metricsOptOutAt: number | null;
+  metricsEnabled: boolean;
   primaryEmail: Email;
   emails: Email[];
   attachedClients: AttachedClient[];
@@ -97,7 +97,7 @@ export const ACCOUNT_FIELDS = `
       accountCreated
       passwordCreated
       recoveryKey
-      metricsOptOutAt
+      metricsEnabled
       primaryEmail @client
       emails {
         email
@@ -246,8 +246,8 @@ export class Account implements AccountData {
     return this.data.accountCreated;
   }
 
-  get metricsOptOutAt() {
-    return this.data.metricsOptOutAt;
+  get metricsEnabled() {
+    return this.data.metricsEnabled;
   }
 
   get passwordCreated() {
@@ -729,8 +729,8 @@ export class Account implements AccountData {
           cache.modify({
             id: cache.identify({ __typename: 'Account' }),
             fields: {
-              metricsOptOutAt: () => {
-                return state === 'out' ? Date.now() : null;
+              metricsEnabled: () => {
+                return state === 'in';
               },
             },
           });
