@@ -269,6 +269,7 @@ describe('StripeHelper', () => {
     it('creates a customer using stripe api', async () => {
       const expected = deepCopy(newCustomerPM);
       sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
       const uid = chance.guid({ version: 4 }).replace(/-/g, '');
       const actual = await stripeHelper.createPlainCustomer(
         uid,
@@ -276,8 +277,12 @@ describe('StripeHelper', () => {
         'Joe Cool',
         uuidv4()
       );
-
       assert.deepEqual(actual, expected);
+      sinon.assert.calledWithExactly(
+        stripeHelper.stripeFirestore.insertCustomerRecord,
+        uid,
+        expected
+      );
     });
 
     it('surfaces stripe errors', async () => {
@@ -4037,6 +4042,43 @@ describe('StripeHelper', () => {
           'id',
           'customer',
           'subscription',
+          ...Object.keys(event.data.previous_attributes),
+        ])
+      );
+    });
+
+    it('handles skipping customer create operations done via API', async () => {
+      const event = deepCopy(eventCustomerUpdated);
+      event.type = 'customer.created';
+      event.request = {
+        id: 'someid',
+      };
+      stripeFirestore.retrieveAndFetchCustomer = sandbox.stub().resolves({});
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.notCalled(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer
+      );
+      sinon.assert.notCalled(stripeHelper.stripeFirestore.insertCustomerRecord);
+    });
+
+    it('handles customer create operations done via dashboard', async () => {
+      const event = deepCopy(eventCustomerUpdated);
+      event.type = 'customer.created';
+      event.request = null;
+      stripeFirestore.retrieveAndFetchCustomer = sandbox.stub().resolves({});
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertCustomerRecord,
+        event.data.object.metadata.userid,
+        pick(event.data.object, [
+          'id',
+          'metadata',
           ...Object.keys(event.data.previous_attributes),
         ])
       );

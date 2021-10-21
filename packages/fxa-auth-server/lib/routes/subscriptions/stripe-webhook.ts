@@ -78,6 +78,11 @@ export class StripeWebhookHandler extends StripeHandler {
           }
           break;
         case 'customer.created':
+          // We don't need to setup the local customer if it happened via API
+          // because we already set this up during creation.
+          if (event.request?.id) {
+            break;
+          }
           await this.handleCustomerCreatedEvent(request, event);
           break;
         case 'customer.subscription.created':
