@@ -414,7 +414,7 @@ export class StripeHelper {
       payment_provider: 'stripe',
     });
 
-    return this.stripe.subscriptions.create(
+    const subscription = await this.stripe.subscriptions.create(
       {
         customer: customerId,
         items: [{ price: priceId }],
@@ -423,6 +423,13 @@ export class StripeHelper {
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
+    await this.stripeFirestore.insertSubscriptionRecordWithBackfill({
+      ...subscription,
+      latest_invoice: subscription.latest_invoice
+        ? (subscription.latest_invoice as Stripe.Invoice).id
+        : null,
+    });
+    return subscription;
   }
 
   /**
@@ -463,7 +470,7 @@ export class StripeHelper {
       payment_provider: 'paypal',
     });
 
-    return this.stripe.subscriptions.create(
+    const subscription = await this.stripe.subscriptions.create(
       {
         customer: customer.id,
         items: [{ price: priceId }],
@@ -474,6 +481,13 @@ export class StripeHelper {
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
+    await this.stripeFirestore.insertSubscriptionRecordWithBackfill({
+      ...subscription,
+      latest_invoice: subscription.latest_invoice
+        ? (subscription.latest_invoice as Stripe.Invoice).id
+        : null,
+    });
+    return subscription;
   }
 
   async invoicePayableWithPaypal(invoice: Stripe.Invoice): Promise<boolean> {
@@ -1307,16 +1321,23 @@ export class StripeHelper {
       plan_change_date: moment().unix(),
     };
 
-    return await this.stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: false,
-      items: [
-        {
-          id: subscription.items.data[0].id,
-          plan: newPlanId,
-        },
-      ],
-      metadata: updatedMetadata,
-    });
+    const newSubscription = await this.stripe.subscriptions.update(
+      subscriptionId,
+      {
+        cancel_at_period_end: false,
+        items: [
+          {
+            id: subscription.items.data[0].id,
+            plan: newPlanId,
+          },
+        ],
+        metadata: updatedMetadata,
+      }
+    );
+    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
+      newSubscription
+    );
+    return newSubscription;
   }
 
   /**
@@ -1337,13 +1358,19 @@ export class StripeHelper {
       throw error.unknownSubscription();
     }
 
-    await this.stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: true,
-      metadata: {
-        ...(subscription.metadata || {}),
-        cancelled_for_customer_at: moment().unix(),
-      },
-    });
+    const newSubscription = await this.stripe.subscriptions.update(
+      subscriptionId,
+      {
+        cancel_at_period_end: true,
+        metadata: {
+          ...(subscription.metadata || {}),
+          cancelled_for_customer_at: moment().unix(),
+        },
+      }
+    );
+    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
+      newSubscription
+    );
   }
 
   /**
@@ -1381,13 +1408,20 @@ export class StripeHelper {
       );
     }
 
-    return this.stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: false,
-      metadata: {
-        ...(subscription.metadata || {}),
-        cancelled_for_customer_at: '',
-      },
-    });
+    const newSubscription = await this.stripe.subscriptions.update(
+      subscriptionId,
+      {
+        cancel_at_period_end: false,
+        metadata: {
+          ...(subscription.metadata || {}),
+          cancelled_for_customer_at: '',
+        },
+      }
+    );
+    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
+      newSubscription
+    );
+    return newSubscription;
   }
 
   /**
@@ -2398,6 +2432,7 @@ export class StripeHelper {
           // invoice record.
           await this.stripeFirestore.insertInvoiceRecord(invoice);
           break;
+        // @ts-ignore
         case 'customer.created':
           if (event.request?.id) {
             break;
@@ -2424,7 +2459,11 @@ export class StripeHelper {
           );
           break;
         case 'customer.subscription.created':
+        // @ts-ignore
         case 'customer.subscription.updated':
+          if (event.request?.id) {
+            break;
+          }
         case 'customer.subscription.deleted':
           let subscription: Partial<Stripe.Subscription>;
           if (data.previous_attributes) {

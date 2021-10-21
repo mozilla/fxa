@@ -255,6 +255,33 @@ describe('StripeFirestore', () => {
     });
   });
 
+  describe('insertSubscriptionRecordWithBackfill', () => {
+    it('inserts a record', async () => {
+      stripeFirestore.insertSubscriptionRecord = sinon.fake.resolves({});
+      const result = await stripeFirestore.insertSubscriptionRecordWithBackfill(
+        deepCopy(subscription1)
+      );
+      assert.isUndefined(result, {});
+      assert.calledOnce(stripeFirestore.insertSubscriptionRecord);
+    });
+
+    it('backfills on customer not found', async () => {
+      stripeFirestore.insertSubscriptionRecord = sinon.fake.rejects(
+        newFirestoreStripeError(
+          'no customer',
+          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+        )
+      );
+      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      const result = await stripeFirestore.insertSubscriptionRecordWithBackfill(
+        deepCopy(subscription1)
+      );
+      assert.isUndefined(result, {});
+      assert.calledOnce(stripeFirestore.insertSubscriptionRecord);
+      assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+    });
+  });
+
   describe('insertInvoiceRecord', () => {
     let invoice;
 
