@@ -323,7 +323,10 @@ export class StripeHelper {
         idempotency_key: idempotencyKey,
       }
     );
-    await createAccountCustomer(uid, stripeCustomer.id);
+    await Promise.all([
+      createAccountCustomer(uid, stripeCustomer.id),
+      this.stripeFirestore.insertCustomerRecord(uid, stripeCustomer),
+    ]);
     return stripeCustomer;
   }
 
@@ -2396,6 +2399,9 @@ export class StripeHelper {
           await this.stripeFirestore.insertInvoiceRecord(invoice);
           break;
         case 'customer.created':
+          if (event.request?.id) {
+            break;
+          }
         case 'customer.updated':
         case 'customer.deleted':
           let customer: Partial<Stripe.Customer>;
