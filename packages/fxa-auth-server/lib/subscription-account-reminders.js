@@ -35,7 +35,7 @@ module.exports = (log, config) => {
   if (!config.redis || !config.redis.host) {
     return {
       keys: [],
-      async create(uid, flowId, flowBeginTime) {
+      async create(uid, flowId, flowBeginTime, deviceId, productId, productName) {
         return {};
       },
       async delete(uid) {
@@ -116,7 +116,7 @@ module.exports = (log, config) => {
               return result;
             }, {})
           );
-          if (flowId && flowBeginTime) {
+          if (flowId && flowBeginTime && deviceId && productId && productName) {
             await redis.set(
               `${METADATA_KEY_SUB_FLOW}:${uid}`,
               JSON.stringify([flowId, flowBeginTime, deviceId, productId, productName])
@@ -170,7 +170,7 @@ module.exports = (log, config) => {
      * ticked past the expiry intervals set in config.
      *
      * @returns {Promise} - Each property on the resolved object will be an array of
-     *                      { timestamp, uid, flowId, flowBeginTime } reminder records
+     *                      { timestamp, uid, flowId, flowBeginTime, deviceId, productId, productName } reminder records
      *                      that have ticked past the relevant expiry interval.
      */
     async process(now = Date.now()) {
@@ -226,19 +226,19 @@ module.exports = (log, config) => {
         const result = await redis.zadd(
           key,
           ...reminders.reduce((args, reminder) => {
-            const { timestamp, uid, flowId, flowBeginTime } = reminder;
+            const { timestamp, uid, flowId, flowBeginTime, deviceId, productId, productName } = reminder;
             args.push(timestamp, uid);
-            if (flowId && flowBeginTime) {
-              metadata.push({ uid, flowId, flowBeginTime });
+            if (flowId && flowBeginTime && deviceId && productId && productName) {
+              metadata.push({ uid, flowId, flowBeginTime, deviceId, productId, productName });
             }
             return args;
           }, [])
         );
         await Promise.all(
-          metadata.map(({ uid, flowId, flowBeginTime }) => {
+          metadata.map(({ uid, flowId, flowBeginTime, deviceId, productId, productName }) => {
             return redis.set(
               `${METADATA_KEY_SUB_FLOW}:${uid}`,
-              JSON.stringify([flowId, flowBeginTime])
+              JSON.stringify([flowId, flowBeginTime, deviceId, productId, productName])
             );
           })
         );
