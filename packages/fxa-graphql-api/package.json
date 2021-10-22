@@ -79,7 +79,7 @@
     "@types/graphql": "^14.5.0",
     "@types/graphql-upload": "^8.0.5",
     "@types/ioredis": "^4.26.4",
-    "@types/node": "^15.12.2",
+    "@types/node": "^16.11.3",
     "@types/passport": "^1.0.6",
     "@types/passport-http-bearer": "^1.0.36",
     "@types/superagent": "4.1.11",
