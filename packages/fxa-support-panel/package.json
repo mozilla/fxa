@@ -33,7 +33,7 @@
   "dependencies": {
     "@nestjs/common": "^8.1.1",
     "@nestjs/config": "^1.0.2",
-    "@nestjs/core": "^8.0.10",
+    "@nestjs/core": "^8.1.1",
     "@nestjs/mapped-types": "^1.0.0",
     "@nestjs/platform-express": "^8.1.1",
     "@sentry/integrations": "^6.13.3",
