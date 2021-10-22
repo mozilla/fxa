@@ -9,8 +9,17 @@ const { version } = require('../../../package.json');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const sinon = require('sinon');
-
-const amplitudeModule = require('../../../lib/metrics/amplitude');
+const metricsEnabled = sinon.stub();
+metricsEnabled.withArgs('frip').resolves(false);
+metricsEnabled.withArgs('blee').resolves(true);
+const proxyquire = require('proxyquire');
+const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
+  'fxa-shared/db/models/auth': {
+    Account: {
+      metricsEnabled,
+    },
+  },
+});
 const mocks = require('../../mocks');
 const mockAmplitudeConfig = {
   schemaValidation: true,
@@ -22,34 +31,6 @@ const WEEK = DAY * 7;
 const MONTH = DAY * 28;
 
 describe('metrics/amplitude', () => {
-  it('interface is correct', () => {
-    assert.equal(typeof amplitudeModule, 'function');
-    assert.equal(amplitudeModule.length, 2);
-  });
-
-  it('throws if log argument is missing', () => {
-    assert.throws(() =>
-      amplitudeModule(null, {
-        amplitude: mockAmplitudeConfig,
-        oauth: { clientIds: {} },
-        verificationReminders: {},
-      })
-    );
-  });
-
-  it('throws if config argument is missing', () => {
-    assert.throws(() =>
-      amplitudeModule(
-        {},
-        {
-          amplitude: mockAmplitudeConfig,
-          oauth: { clientIds: null },
-          verificationReminders: {},
-        }
-      )
-    );
-  });
-
   describe('instantiate', () => {
     let log, amplitude;
 
@@ -202,6 +183,40 @@ describe('metrics/amplitude', () => {
       });
     });
 
+    describe('uid opted out', () => {
+      it('credentials with metricsOptOutAt set do not log', async () => {
+        await amplitude(
+          'account.confirmed',
+          mocks.mockRequest({
+            credentials: {
+              uid: 'blee',
+              metricsOptOutAt: Date.now(),
+            },
+          })
+        );
+        sinon.assert.notCalled(log.amplitudeEvent);
+      });
+
+      it('opted out uid in credentials does not log', async () => {
+        await amplitude(
+          'account.confirmed',
+          mocks.mockRequest({
+            credentials: {
+              uid: 'frip',
+            },
+          })
+        );
+        sinon.assert.notCalled(log.amplitudeEvent);
+      });
+
+      it('opted out uid in data does not log', async () => {
+        await amplitude('account.confirmed', mocks.mockRequest({}), {
+          uid: 'frip',
+        });
+        sinon.assert.notCalled(log.amplitudeEvent);
+      });
+    });
+
     describe('account.confirmed', () => {
       beforeEach(() => {
         const now = Date.now();
@@ -296,7 +311,7 @@ describe('metrics/amplitude', () => {
           uaFormFactor: 'f',
           locale: 'g',
           credentials: {
-            uid: 'h',
+            uid: 'blee',
           },
           devices: [],
           query: {
@@ -319,7 +334,7 @@ describe('metrics/amplitude', () => {
         assert.equal(log.amplitudeEvent.callCount, 1);
         const args = log.amplitudeEvent.args[0];
         assert.equal(args[0].device_id, undefined);
-        assert.equal(args[0].user_id, 'h');
+        assert.equal(args[0].user_id, 'blee');
         assert.equal(args[0].event_type, 'fxa_reg - created');
         assert.equal(args[0].session_id, undefined);
         assert.equal(args[0].language, 'g');
@@ -873,7 +888,7 @@ describe('metrics/amplitude', () => {
           }),
           {
             service: 'zang',
-            uid: 'frip',
+            uid: 'blee',
           }
         );
       });
@@ -881,7 +896,7 @@ describe('metrics/amplitude', () => {
       it('data properties were set', () => {
         assert.equal(log.amplitudeEvent.callCount, 1);
         const args = log.amplitudeEvent.args[0];
-        assert.equal(args[0].user_id, 'frip');
+        assert.equal(args[0].user_id, 'blee');
         assert.equal(args[0].event_properties.service, 'undefined_oauth');
         assert.equal(args[0].event_properties.oauth_client_id, 'zang');
       });

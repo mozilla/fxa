@@ -15,6 +15,14 @@ const error = require('../lib/error');
 const knownIpLocation = require('./known-ip-location');
 const sinon = require('sinon');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
+const proxyquire = require('proxyquire');
+const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
+  'fxa-shared/db/models/auth': {
+    Account: {
+      metricsEnabled: sinon.stub().resolves(true),
+    },
+  },
+});
 
 const CUSTOMS_METHOD_NAMES = [
   'check',
@@ -698,16 +706,15 @@ function generateMetricsContext() {
 }
 
 function mockRequest(data, errors) {
-  const events = require('../lib/metrics/events')(
-    data.log || module.exports.mockLog(),
-    {
-      amplitude: { rawEvents: false },
-      oauth: {
-        clientIds: data.clientIds || {},
-      },
-      verificationReminders: {},
-    }
-  );
+  const events = proxyquire('../lib/metrics/events', {
+    './amplitude': amplitudeModule,
+  })(data.log || module.exports.mockLog(), {
+    amplitude: { rawEvents: false },
+    oauth: {
+      clientIds: data.clientIds || {},
+    },
+    verificationReminders: {},
+  });
   const metricsContext =
     data.metricsContext || module.exports.mockMetricsContext();
 

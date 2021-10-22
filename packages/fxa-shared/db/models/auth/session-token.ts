@@ -84,6 +84,7 @@ export class SessionToken extends BaseToken {
   deviceCommandName?: string;
   deviceCommandData?: string;
   tokenVerificationId?: string;
+  metricsOptOutAt?: number;
 
   // generated
   deviceAvailableCommands!: {
@@ -191,7 +192,7 @@ export class SessionToken extends BaseToken {
         authAt ?? null,
         intBoolTransformer.to(mustVerify)
       );
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -230,7 +231,7 @@ export class SessionToken extends BaseToken {
           );
         }
       });
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
