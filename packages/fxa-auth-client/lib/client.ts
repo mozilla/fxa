@@ -261,6 +261,7 @@ export default class AuthClient {
     sessionToken: hexstring;
     verified: boolean;
     authAt: number;
+    metricsEnabled: boolean;
     keyFetchToken?: hexstring;
     verificationMethod?: string;
     verificationReason?: string;
@@ -606,6 +607,7 @@ export default class AuthClient {
     uid: string;
     verified: boolean;
     authAt: number;
+    metricsEnabled: boolean;
     verificationMethod?: string;
     verificationReason?: string;
     keyFetchToken?: hexstring;

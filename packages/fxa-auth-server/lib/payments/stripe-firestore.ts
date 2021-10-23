@@ -117,14 +117,14 @@ export class StripeFirestore {
   /**
    * Insert a Stripe customer into Firestore keyed to the fxa id.
    */
-  insertCustomerRecord(uid: string, customer: Stripe.Customer) {
+  insertCustomerRecord(uid: string, customer: Partial<Stripe.Customer>) {
     return this.customerCollectionDbRef.doc(uid).set(customer, { merge: true });
   }
 
   /**
    * Insert a subscription record into Firestore under the customer's stripe id.
    */
-  async insertSubscriptionRecord(subscription: Stripe.Subscription) {
+  async insertSubscriptionRecord(subscription: Partial<Stripe.Subscription>) {
     const customerSnap = await this.customerCollectionDbRef
       .where('id', '==', subscription.customer as string)
       .get();
@@ -137,14 +137,14 @@ export class StripeFirestore {
 
     return customerSnap.docs[0].ref
       .collection(this.subscriptionCollection)
-      .doc(subscription.id)
+      .doc(subscription.id!)
       .set(subscription, { merge: true });
   }
 
   /**
    * Insert an invoice record into Firestore under the customer's stripe id.
    */
-  async insertInvoiceRecord(invoice: Stripe.Invoice) {
+  async insertInvoiceRecord(invoice: Partial<Stripe.Invoice>) {
     const customerSnap = await this.customerCollectionDbRef
       .where('id', '==', invoice.customer as string)
       .get();
@@ -163,7 +163,7 @@ export class StripeFirestore {
       .collection(this.subscriptionCollection)
       .doc(invoice.subscription)
       .collection(this.invoiceCollection)
-      .doc(invoice.id)
+      .doc(invoice.id!)
       .set(invoice, { merge: true });
   }
 

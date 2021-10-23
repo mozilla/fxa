@@ -30,6 +30,7 @@ const {
 const {
   openFxaFromRp: openFxaFromRpRm,
   testElementExists: testElementExistsRm,
+  fillOutEmailFirstSignUp: fillOutEmailFirstSignUpRm,
   fillOutEmailFirstEmail,
 } = FunctionalHelpers.helpersRemoteWrapped;
 
@@ -126,6 +127,15 @@ registerSuite('oauth signup', {
       await testElementExistsRm(selectors.POCKET_OAUTH.LOGO_IMG, remote);
       await testElementExistsRm(selectors.POCKET_OAUTH.TOS, remote);
       await testElementExistsRm(selectors.POCKET_OAUTH.PP, remote);
+
+      await fillOutEmailFirstSignUpRm(
+        email,
+        PASSWORD,
+        { enterEmail: false },
+        remote
+      );
+
+      await testElementExistsRm(selectors.POCKET_OAUTH.LOGO_IMG, remote);
     },
   },
 });

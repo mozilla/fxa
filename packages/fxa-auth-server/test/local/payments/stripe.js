@@ -85,6 +85,7 @@ const {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
 } = require('../../../../fxa-shared/subscriptions/types');
+const { pick } = require('lodash');
 
 const mockConfig = {
   authFirestore: {
@@ -268,6 +269,7 @@ describe('StripeHelper', () => {
     it('creates a customer using stripe api', async () => {
       const expected = deepCopy(newCustomerPM);
       sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
       const uid = chance.guid({ version: 4 }).replace(/-/g, '');
       const actual = await stripeHelper.createPlainCustomer(
         uid,
@@ -275,8 +277,12 @@ describe('StripeHelper', () => {
         'Joe Cool',
         uuidv4()
       );
-
       assert.deepEqual(actual, expected);
+      sinon.assert.calledWithExactly(
+        stripeHelper.stripeFirestore.insertCustomerRecord,
+        uid,
+        expected
+      );
     });
 
     it('surfaces stripe errors', async () => {
@@ -1961,51 +1967,6 @@ describe('StripeHelper', () => {
             }
           );
       });
-    });
-  });
-
-  describe('updateCustomerPaymentMethod', () => {
-    it('updates a customer using stripe api', async () => {
-      const expected = deepCopy(customer1);
-      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves(expected);
-
-      const actual = await stripeHelper.updateCustomerPaymentMethod(
-        customer1.id,
-        'tok_visa'
-      );
-
-      assert.deepEqual(actual, expected);
-    });
-
-    it('surfaces payment token errors', async () => {
-      const apiError = new stripeError.StripeCardError();
-      sandbox.stub(stripeHelper.stripe.customers, 'update').rejects(apiError);
-
-      return stripeHelper
-        .updateCustomerPaymentMethod(customer1.id, 'tok_visa')
-        .then(
-          () => Promise.reject(new Error('Method expected to reject')),
-          (err) => {
-            assert.equal(
-              err.errno,
-              error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
-            );
-          }
-        );
-    });
-
-    it('surfaces stripe errors', async () => {
-      const apiError = new stripeError.StripeAPIError();
-      sandbox.stub(stripeHelper.stripe.customers, 'update').rejects(apiError);
-
-      return stripeHelper
-        .updateCustomerPaymentMethod(customer1.id, 'tok_visa')
-        .then(
-          () => Promise.reject(new Error('Method expected to reject')),
-          (err) => {
-            assert.equal(err, apiError);
-          }
-        );
     });
   });
 
@@ -4060,8 +4021,72 @@ describe('StripeHelper', () => {
       );
     });
 
+    it('handles invoice operations with previous attributes', async () => {
+      const event = deepCopy(eventInvoiceCreated);
+      event.data.previous_attributes = {
+        amount_due: 1000,
+      };
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
+      assert.isTrue(result);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+        event.data.object.subscription
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertInvoiceRecord,
+        pick(event.data.object, [
+          'id',
+          'customer',
+          'subscription',
+          ...Object.keys(event.data.previous_attributes),
+        ])
+      );
+    });
+
+    it('handles skipping customer create operations done via API', async () => {
+      const event = deepCopy(eventCustomerUpdated);
+      event.type = 'customer.created';
+      event.request = {
+        id: 'someid',
+      };
+      stripeFirestore.retrieveAndFetchCustomer = sandbox.stub().resolves({});
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.notCalled(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer
+      );
+      sinon.assert.notCalled(stripeHelper.stripeFirestore.insertCustomerRecord);
+    });
+
+    it('handles customer create operations done via dashboard', async () => {
+      const event = deepCopy(eventCustomerUpdated);
+      event.type = 'customer.created';
+      event.request = null;
+      stripeFirestore.retrieveAndFetchCustomer = sandbox.stub().resolves({});
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertCustomerRecord,
+        event.data.object.metadata.userid,
+        pick(event.data.object, [
+          'id',
+          'metadata',
+          ...Object.keys(event.data.previous_attributes),
+        ])
+      );
+    });
+
     it('handles customer operations', async () => {
       const event = deepCopy(eventCustomerUpdated);
+      delete event.data.previous_attributes;
       stripeFirestore.retrieveAndFetchCustomer = sandbox.stub().resolves({});
       stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
       await stripeHelper.processWebhookEventToFirestore(event);
@@ -4076,8 +4101,29 @@ describe('StripeHelper', () => {
       );
     });
 
+    it('handles customer operations with previous attributes', async () => {
+      const event = deepCopy(eventCustomerUpdated);
+      stripeFirestore.retrieveAndFetchCustomer = sandbox.stub().resolves({});
+      stripeFirestore.insertCustomerRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertCustomerRecord,
+        event.data.object.metadata.userid,
+        pick(event.data.object, [
+          'id',
+          'metadata',
+          ...Object.keys(event.data.previous_attributes),
+        ])
+      );
+    });
+
     it('handles subscription operations', async () => {
       const event = deepCopy(eventSubscriptionUpdated);
+      delete event.data.previous_attributes;
       stripeFirestore.retrieveAndFetchSubscription = sandbox
         .stub()
         .resolves({});
@@ -4090,6 +4136,27 @@ describe('StripeHelper', () => {
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.insertSubscriptionRecord,
         event.data.object
+      );
+    });
+
+    it('handles subscription operations with previous_attributes', async () => {
+      const event = deepCopy(eventSubscriptionUpdated);
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertSubscriptionRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertSubscriptionRecord,
+        pick(event.data.object, [
+          'id',
+          'customer',
+          ...Object.keys(event.data.previous_attributes),
+        ])
       );
     });
 

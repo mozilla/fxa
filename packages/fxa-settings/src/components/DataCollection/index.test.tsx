@@ -3,15 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { DataCollection } from '.';
+import { mockAppContext, renderWithRouter } from '../../models/mocks';
+import { Account, AppContext } from '../../models';
+
+const account = {
+  displayName: 'jrgm',
+  metricsOpt: jest.fn().mockResolvedValue(true),
+  metricsEnabled: true,
+} as unknown as Account;
 
 describe('DataCollection', () => {
   it('renders as expected', () => {
     const { container } = render(<DataCollection />);
 
     expect(container).toHaveTextContent('Data Collection and Use');
-    expect(container).toHaveTextContent('Analytics and Improvements');
+    expect(container).toHaveTextContent('Help improve Firefox Accounts');
     expect(container).toHaveTextContent(
       'Allow Firefox Accounts to send technical and interaction data to Mozilla.'
     );
@@ -23,5 +31,20 @@ describe('DataCollection', () => {
     );
   });
 
-  // TODO: submission tests with mutations, FXA-4106
+  it('toggles', async () => {
+    const it = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <DataCollection />
+      </AppContext.Provider>
+    );
+
+    const button = it.getByTestId('metrics-opt-out');
+    // since metricsOpt is async and uses useState the `act` here is necessary
+    await act(() => Promise.resolve(button.click()));
+    expect(account.metricsOpt).toBeCalledWith('out');
+    //@ts-ignore mock doesn't care that the prop is readonly
+    account.metricsEnabled = false;
+    await act(() => Promise.resolve(button.click()));
+    expect(account.metricsOpt).toBeCalledWith('in');
+  });
 });

@@ -31,6 +31,7 @@ const selectFields = [
   ),
   raw('COALESCE(keysChangedAt, verifierSetAt, createdAt) AS keysChangedAt'),
   'ecosystemAnonId',
+  'metricsOptOutAt',
   'disabledAt',
 ];
 
@@ -66,6 +67,7 @@ export class Account extends BaseAuthModel {
   profileChangedAt!: number;
   keysChangedAt!: number;
   ecosystemAnonId!: string;
+  metricsOptOutAt?: number;
   devices?: Device[];
   emails?: Email[];
 
@@ -135,7 +137,7 @@ export class Account extends BaseAuthModel {
         createdAt,
         locale ?? ''
       );
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -190,7 +192,7 @@ export class Account extends BaseAuthModel {
         uuidTransformer.to(uid),
         email
       );
-    } catch (e) {
+    } catch (e: any) {
       e = convertError(e);
       if (e.errno === 101) {
         e.errno = 148;
@@ -222,7 +224,7 @@ export class Account extends BaseAuthModel {
         verifiedAt ?? null,
         Date.now()
       );
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -234,7 +236,7 @@ export class Account extends BaseAuthModel {
         uuidTransformer.to(uid),
         uuidTransformer.to(emailCode)
       );
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -246,7 +248,7 @@ export class Account extends BaseAuthModel {
         uuidTransformer.to(uid),
         email
       );
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -260,7 +262,7 @@ export class Account extends BaseAuthModel {
         BaseAuthModel.sha256(Buffer.concat([id, Buffer.from(code, 'utf8')])),
         Date.now()
       );
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -277,7 +279,7 @@ export class Account extends BaseAuthModel {
         throw notFound();
       }
       return rows[0];
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -292,7 +294,7 @@ export class Account extends BaseAuthModel {
         Date.now(),
         flowId ? uuidTransformer.to(flowId) : null
       );
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -314,7 +316,7 @@ export class Account extends BaseAuthModel {
         flowId: uuidTransformer.from(row.flowId),
         email: row.email,
       };
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -325,7 +327,7 @@ export class Account extends BaseAuthModel {
         Proc.ResetAccountTokens,
         uuidTransformer.to(uid)
       );
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -348,7 +350,7 @@ export class Account extends BaseAuthModel {
           );
         }
       });
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -374,7 +376,7 @@ export class Account extends BaseAuthModel {
         }
       }
       throw notFound();
-    } catch (e) {
+    } catch (e: any) {
       throw convertError(e);
     }
   }
@@ -424,5 +426,17 @@ export class Account extends BaseAuthModel {
       account.primaryEmail = account.emails?.find((email) => email.isPrimary);
     }
     return account;
+  }
+
+  static async setMetricsOpt(
+    uid: string,
+    state: 'in' | 'out',
+    timestamp: number = Date.now()
+  ) {
+    await Account.query()
+      .update({
+        metricsOptOutAt: state === 'out' ? timestamp : null,
+      })
+      .where('uid', uuidTransformer.to(uid));
   }
 }

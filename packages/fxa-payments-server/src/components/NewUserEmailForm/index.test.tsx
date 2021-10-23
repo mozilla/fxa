@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 jest.mock('../../lib/apiClient', () => ({
@@ -150,26 +145,19 @@ describe('NewUserEmailForm test', () => {
   });
 
   it('shows no error when emails match', async () => {
-    let subject;
-    await act(async () => {
-      subject = render(
-        <WrapNewUserEmailForm accountExistsReturnValue={false} />
-      );
-      const firstEmail = subject.getByTestId('new-user-email');
-      const secondEmail = subject.getByTestId('new-user-confirm-email');
+    let subject = render(
+      <WrapNewUserEmailForm accountExistsReturnValue={false} />
+    );
+    const firstEmail = subject.getByTestId('new-user-email');
+    const secondEmail = subject.getByTestId('new-user-confirm-email');
 
-      fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
-      fireEvent.blur(firstEmail);
-      fireEvent.change(secondEmail, { target: { value: 'valid@email.com' } });
-      fireEvent.blur(secondEmail);
+    fireEvent.change(firstEmail, { target: { value: 'valid@email.com' } });
+    fireEvent.change(secondEmail, {
+      target: { value: 'valid@email.com' },
     });
-    waitForElementToBeRemoved(
-      subject.queryByText('new-user-email-validate-confirm')
-    ).then(() => {
-      expect(
-        subject.queryByText('new-user-email-validate-confirm')
-      ).toBeFalsy();
-    });
+    fireEvent.blur(secondEmail);
+
+    expect(subject.queryByText('new-user-email-validate-confirm')).toBeFalsy();
   });
 
   it('Notifies the user if they already have an account', async () => {

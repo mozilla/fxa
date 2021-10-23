@@ -42,6 +42,8 @@ for (const db of databases) {
       database: db,
     });
   } catch (error) {
+    // fyi these logs show up in `pm2 logs mysql`
+    console.error(error);
     console.error(db, 'failed to patch to', level);
     process.exit(2);
   }

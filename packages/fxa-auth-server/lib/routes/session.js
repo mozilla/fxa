@@ -132,6 +132,7 @@ module.exports = function (
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
             authAt: isA.number().integer(),
+            metricsEnabled: isA.boolean().required(),
           },
         },
       },
@@ -216,6 +217,7 @@ module.exports = function (
         const response = {
           uid: sessionToken.uid,
           authAt: sessionToken.lastAuthAt(),
+          metricsEnabled: !accountRecord.metricsOptOut,
         };
 
         if (requestHelper.wantsKeys(request)) {

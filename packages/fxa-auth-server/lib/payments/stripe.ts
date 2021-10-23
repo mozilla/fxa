@@ -18,22 +18,23 @@ import {
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import {
-  AbbrevPlan,
-  AbbrevProduct,
-  SubscriptionUpdateEligibility,
-  MozillaSubscriptionTypes,
-  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
-  WebSubscription,
-  PaypalPaymentError,
-} from 'fxa-shared/subscriptions/types';
-import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getSubscriptionUpdateEligibility,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
+import {
+  AbbrevPlan,
+  AbbrevProduct,
+  MozillaSubscriptionTypes,
+  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
+  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
+  PaypalPaymentError,
+  SubscriptionUpdateEligibility,
+  WebSubscription,
+} from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
+import pick from 'lodash/pick';
 import moment from 'moment';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
@@ -302,13 +303,6 @@ export class StripeHelper {
     return taxRates.find((tr) => tr.country?.toLowerCase() === lcCountryCode);
   }
 
-  /** BEGIN: NEW FLOW HELPERS FOR PAYMENT METHODS
-   *
-   * The following methods until the END are for the new payment method
-   * oriented flows that utilize client logic to determine appropriate actions.
-   *
-   **/
-
   /**
    * Create a stripe customer.
    */
@@ -329,7 +323,10 @@ export class StripeHelper {
         idempotency_key: idempotencyKey,
       }
     );
-    await createAccountCustomer(uid, stripeCustomer.id);
+    await Promise.all([
+      createAccountCustomer(uid, stripeCustomer.id),
+      this.stripeFirestore.insertCustomerRecord(uid, stripeCustomer),
+    ]);
     return stripeCustomer;
   }
 
@@ -498,8 +495,6 @@ export class StripeHelper {
 
   /**
    * Get Invoice object based on invoice Id
-   *
-   * @param id
    */
   async getInvoice(id: string): Promise<Stripe.Invoice> {
     return this.stripe.invoices.retrieve(id);
@@ -507,8 +502,6 @@ export class StripeHelper {
 
   /**
    * Finalizes an invoice and marks auto_advance as false.
-   *
-   * @param invoice
    */
   async finalizeInvoice(invoice: Stripe.Invoice) {
     return this.stripe.invoices.finalizeInvoice(invoice.id, {
@@ -518,9 +511,6 @@ export class StripeHelper {
 
   /**
    * Updates invoice metadata with the PayPal Transaction ID.
-   *
-   * @param invoice
-   * @param transactionId
    */
   async updateInvoiceWithPaypalTransactionId(
     invoice: Stripe.Invoice,
@@ -535,9 +525,6 @@ export class StripeHelper {
 
   /**
    * Updates invoice metadata with the PayPal Refund Transaction ID.
-   *
-   * @param invoice
-   * @param transactionId
    */
   async updateInvoiceWithPaypalRefundTransactionId(
     invoice: Stripe.Invoice,
@@ -552,8 +539,6 @@ export class StripeHelper {
 
   /**
    * Returns the Paypal transaction id for the invoice if one exists.
-   *
-   * @param invoice
    */
   getInvoicePaypalTransactionId(invoice: Stripe.Invoice) {
     return invoice.metadata?.paypalTransactionId;
@@ -568,8 +553,6 @@ export class StripeHelper {
    * or during a payment update on the subscription management page.
    *
    * The PayPal idempotencyKey has this number affixed to it in the pre-increment state.
-   *
-   * @param invoice
    */
   getPaymentAttempts(invoice: Stripe.Invoice): number {
     return parseInt(
@@ -581,9 +564,6 @@ export class StripeHelper {
    * Update the payment attempts on an invoice after attempting via PayPal.
    *
    * Increments by 1, or sets to the attempts passed in.
-   *
-   * @param invoice
-   * @param attempts
    */
   async updatePaymentAttempts(invoice: Stripe.Invoice, attempts?: number) {
     const setAttempt = attempts ?? this.getPaymentAttempts(invoice) + 1;
@@ -596,8 +576,6 @@ export class StripeHelper {
 
   /**
    * Get the email types that have been sent for this invoice.
-   *
-   * @param invoice
    */
   getEmailTypes(invoice: Stripe.Invoice) {
     return (invoice.metadata?.[STRIPE_INVOICE_METADATA.EMAIL_SENT] ?? '')
@@ -609,9 +587,6 @@ export class StripeHelper {
    * Updates the email types sent for this invoice. These types are concatentated
    * on the value of a single invoice metadata key and are thus limited to 500
    * characters.
-   *
-   * @param invoice
-   * @param emailType
    */
   async updateEmailSent(invoice: Stripe.Invoice, emailType: string) {
     const emailTypes = this.getEmailTypes(invoice);
@@ -629,8 +604,6 @@ export class StripeHelper {
 
   /**
    * Pays an invoice out of band.
-   *
-   * @param invoice
    */
   async payInvoiceOutOfBand(invoice: Stripe.Invoice) {
     return this.stripe.invoices.pay(invoice.id, { paid_out_of_band: true });
@@ -638,14 +611,6 @@ export class StripeHelper {
 
   /**
    * Update the customer object to add customer's PayPal billing address.
-   *
-   * @param customer_id
-   * @param city
-   * @param country
-   * @param line1
-   * @param line2
-   * @param postal_code
-   * @param state
    */
   async updateCustomerBillingAddress(
     customer_id: string,
@@ -666,9 +631,6 @@ export class StripeHelper {
    * Update the customer object to add a PayPal Billing Agreement ID.
    *
    * This is a no-op if the billing agreement is already attached to the customer.
-   *
-   * @param customer
-   * @param agreementId
    */
   async updateCustomerPaypalAgreement(
     customer: Stripe.Customer,
@@ -687,9 +649,6 @@ export class StripeHelper {
 
   /**
    * Remove the PayPal Billing Agreement ID from a customer.
-   *
-   * @param customer
-   * @param agreementId
    */
   async removeCustomerPaypalAgreement(
     uid: string,
@@ -706,8 +665,6 @@ export class StripeHelper {
 
   /**
    * Get the PayPal billing agreement id to use for this customer if available.
-   *
-   * @param customer
    */
   getCustomerPaypalAgreement(customer: Stripe.Customer): string | undefined {
     return customer.metadata[STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT];
@@ -719,8 +676,6 @@ export class StripeHelper {
    * Note that created times for Stripe are in seconds since epoch and that
    * invoices can be open for subscriptions that are cancelled, thus the extra
    * subscription check before returning an invoice.
-   *
-   * @param created
    */
   async *fetchOpenInvoices(
     created: Stripe.InvoiceListParams['created'],
@@ -743,8 +698,6 @@ export class StripeHelper {
 
   /**
    * Updates the invoice to uncollectible
-   *
-   * @param invoice
    */
   markUncollectible(invoice: Stripe.Invoice) {
     return this.stripe.invoices.markUncollectible(invoice.id);
@@ -752,8 +705,6 @@ export class StripeHelper {
 
   /**
    * Updates subscription to cancelled status
-   *
-   * @param subscriptionId
    */
   async cancelSubscription(
     subscriptionId: string
@@ -787,8 +738,6 @@ export class StripeHelper {
    * sources so we remove them all.
    *
    * Returns the deleted cards.
-   *
-   * @param customerId
    */
   async removeSources(customerId: string): Promise<Stripe.Card[]> {
     const sources = await this.stripe.customers.listSources(customerId, {
@@ -806,27 +755,6 @@ export class StripeHelper {
           ) as unknown as Promise<Stripe.Card>
       )
     );
-  }
-
-  /** END: NEW FLOW HELPERS FOR PAYMENT METHODS **/
-
-  /**
-   * Update a customer's default payment method
-   */
-  async updateCustomerPaymentMethod(
-    customerId: string,
-    paymentToken: string
-  ): Promise<Stripe.Customer> {
-    try {
-      return await this.stripe.customers.update(customerId, {
-        source: paymentToken,
-      });
-    } catch (err) {
-      if (err.type === 'StripeCardError') {
-        throw error.rejectedSubscriptionPaymentToken(err.message, err);
-      }
-      throw err;
-    }
   }
 
   async getPaymentMethod(
@@ -850,8 +778,6 @@ export class StripeHelper {
   /**
    * Returns whether or not the customer has any active subscriptions that
    * are require a payment method on file (not marked to be cancelled).
-   *
-   * @param customer
    */
   hasSubscriptionRequiringPaymentMethod(customer: Stripe.Customer) {
     const subscription = customer.subscriptions?.data.find(
@@ -879,8 +805,6 @@ export class StripeHelper {
   /**
    * Returns whether or not the customer has any active subscriptions that
    * have an open invoice (payment has not been processed).
-   *
-   * @param customer
    */
   hasOpenInvoice(customer: Stripe.Customer) {
     const subscription = customer.subscriptions?.data.find(
@@ -1155,9 +1079,6 @@ export class StripeHelper {
 
   /**
    * Find and return a subscription for a customer of the given plan id.
-   *
-   * @param customer
-   * @param planId
    */
   findCustomerSubscriptionByPlanId(
     customer: Stripe.Customer,
@@ -1366,7 +1287,7 @@ export class StripeHelper {
    *
    * Note that this call does not verify its a valid upgrade, the
    * `verifyPlanUpgradeForSubscription` should be done first to
-   * validate this is an appropraite change for tier use.
+   * validate this is an appropriate change for tier use.
    */
   async changeSubscriptionPlan(
     subscriptionId: string,
@@ -2459,7 +2380,17 @@ export class StripeHelper {
         case 'invoice.payment_failed':
         case 'invoice.updated':
         case 'invoice.deleted':
-          const invoice = data.object as Stripe.Invoice;
+          let invoice: Partial<Stripe.Invoice>;
+          if (data.previous_attributes) {
+            invoice = pick(data.object, [
+              'id',
+              'customer',
+              'subscription',
+              ...Object.keys(data.previous_attributes),
+            ]);
+          } else {
+            invoice = data.object;
+          }
           await this.stripeFirestore.retrieveAndFetchSubscription(
             invoice.subscription as string
           );
@@ -2468,24 +2399,45 @@ export class StripeHelper {
           await this.stripeFirestore.insertInvoiceRecord(invoice);
           break;
         case 'customer.created':
+          if (event.request?.id) {
+            break;
+          }
         case 'customer.updated':
         case 'customer.deleted':
-          const customer = data.object as Stripe.Customer;
+          let customer: Partial<Stripe.Customer>;
+          if (data.previous_attributes) {
+            customer = pick(data.object, [
+              'id',
+              'metadata',
+              ...Object.keys(data.previous_attributes),
+            ]);
+          } else {
+            customer = data.object;
+          }
           // Ensure the customer and its subscriptions exist in Firestore.
           // Note that we still insert the object here in case we've already
           // fetched the customer previously.
-          await this.stripeFirestore.retrieveAndFetchCustomer(customer.id);
+          await this.stripeFirestore.retrieveAndFetchCustomer(customer.id!);
           await this.stripeFirestore.insertCustomerRecord(
-            customer.metadata.userid,
+            customer.metadata!.userid,
             customer
           );
           break;
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
         case 'customer.subscription.deleted':
-          const subscription = data.object as Stripe.Subscription;
+          let subscription: Partial<Stripe.Subscription>;
+          if (data.previous_attributes) {
+            subscription = pick(data.object, [
+              'id',
+              'customer',
+              ...Object.keys(data.previous_attributes),
+            ]);
+          } else {
+            subscription = data.object;
+          }
           await this.stripeFirestore.retrieveAndFetchSubscription(
-            subscription.id
+            subscription.id!
           );
           await this.stripeFirestore.insertSubscriptionRecord(subscription);
           break;

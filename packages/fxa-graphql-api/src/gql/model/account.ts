@@ -42,6 +42,9 @@ export class Account {
   @Field({ description: 'Whether the user has had a recovery key issued.' })
   public recoveryKey!: boolean;
 
+  @Field({ description: 'Whether metrics are enabled and may be reported' })
+  public metricsEnabled!: boolean;
+
   @Field((type) => [Email], { description: 'Email addresses for the user.' })
   public emails!: Email[];
 

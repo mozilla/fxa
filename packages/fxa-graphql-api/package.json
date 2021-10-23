@@ -79,7 +79,7 @@
     "@types/graphql": "^14.5.0",
     "@types/graphql-upload": "^8.0.5",
     "@types/ioredis": "^4.26.4",
-    "@types/node": "^15.12.2",
+    "@types/node": "^16.11.3",
     "@types/passport": "^1.0.6",
     "@types/passport-http-bearer": "^1.0.36",
     "@types/superagent": "4.1.11",
@@ -90,12 +90,12 @@
     "esbuild": "^0.13.1",
     "esbuild-register": "^3.0.0",
     "eslint": "^7.32.0",
-    "jest": "26.6.0",
+    "jest": "27.3.1",
     "nock": "^13.1.3",
     "pm2": "^5.1.2",
     "prettier": "^2.3.1",
     "supertest": "^6.1.6",
-    "ts-jest": "26.5.6",
+    "ts-jest": "^27.0.7",
     "typescript": "^4.3.5"
   },
   "jest": {

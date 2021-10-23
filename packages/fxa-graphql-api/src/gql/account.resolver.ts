@@ -44,6 +44,7 @@ import {
   VerifyTotpInput,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
+import { MetricsOptInput } from './dto/input/metrics-opt';
 import {
   BasicPayload,
   ChangeRecoveryCodesPayload,
@@ -356,6 +357,20 @@ export class AccountResolver {
     return { clientMutationId: input.clientMutationId };
   }
 
+  @Mutation((returns) => BasicPayload, {
+    description: 'Set the metrics opt in or out state',
+  })
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @CatchGatewayError
+  public async metricsOpt(
+    @GqlUserId() uid: string,
+    @Args('input', { type: () => MetricsOptInput })
+    input: MetricsOptInput
+  ): Promise<BasicPayload> {
+    await Account.setMetricsOpt(uid, input.state);
+    return { clientMutationId: input.clientMutationId };
+  }
+
   @Query((returns) => AccountType, { nullable: true })
   @UseGuards(GqlAuthGuard)
   public account(@GqlUserId() uid: string, @Info() info: GraphQLResolveInfo) {
@@ -414,6 +429,11 @@ export class AccountResolver {
     } else {
       return null;
     }
+  }
+
+  @ResolveField()
+  public metricsEnabled(@Parent() account: Account) {
+    return !account.metricsOptOutAt;
   }
 
   @ResolveField()
