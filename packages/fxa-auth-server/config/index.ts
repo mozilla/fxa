@@ -1894,7 +1894,7 @@ const conf = convict({
     },
     productNameFieldId: {
       doc: 'Zendesk support ticket custom field for the product name',
-      default: 360022027772,
+      default: 360047198211,
       env: 'ZENDESK_PRODUCT_NAME_FIELD_ID',
       format: Number,
     },
@@ -1918,7 +1918,7 @@ const conf = convict({
     },
     topicFieldId: {
       doc: 'Zendesk support ticket custom field for topic',
-      default: 360028484432,
+      default: 360047206172,
       env: 'ZENDESK_TOPIC_FIELD_ID',
       format: Number,
     },
