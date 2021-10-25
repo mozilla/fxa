@@ -8,8 +8,8 @@ function test_suite() {
 
   for i in $(seq "$numGroups")
   do
-    node tests/intern.js --suites="${suite}" --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" --groupsCount="${numGroups}" --groupNum="${i}" --firefoxBinary=./firefox/firefox || \
-    node tests/intern.js --suites="${suite}" --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" --groupsCount="${numGroups}" --groupNum="${i}" --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
+    node tests/intern.js --suites="${suite}" --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" --groupsCount="${numGroups}" --groupNum="${i}" || \
+    node tests/intern.js --suites="${suite}" --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" --groupsCount="${numGroups}" --groupNum="${i}" --grep="$(<rerun.txt)"
   done
 }
 
@@ -51,8 +51,7 @@ _scripts/check-url.sh localhost:3031/__lbheartbeat__
 _scripts/check-url.sh localhost:3030/bundle/app.bundle.js
 
 cd packages/fxa-content-server
-mozinstall /firefox.tar.bz2
-./firefox/firefox -v
+
 test_suite circle 6
 
 # node 5 currently has the least work to do in the above tests

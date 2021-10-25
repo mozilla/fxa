@@ -42,6 +42,18 @@ New packages require username and password environment variables
 in CircleCI [project settings](https://ui.circleci.com/settings/project/github/mozilla/fxa/environment-variables) in order to
 deploy.
 
+## Triggering manual jobs
+
+```sh
+curl -u $CIRCLECI_API_TOKEN \
+     -d build_parameters[CIRCLE_JOB]=$JOB_NAME \
+     https://circleci.com/api/v1.1/project/github/mozilla/fxa/tree/$GITHUB_BRANCH
+```
+
+- `$CIRCLECI_API_TOKEN` is your personal API token from https://app.circleci.com/settings/user/tokens
+- `$JOB_NAME` is the job to run from config.yml, `test-content-server-remote` for example
+- `$GITHUB_BRANCH` is the branch you'd like to build & deploy to docker hub (this may be `main`)
+
 ## Local Testing
 
 With the CircleCI [CLI](https://circleci.com/docs/2.0/local-cli/)
