@@ -142,6 +142,25 @@ export class StripeFirestore {
   }
 
   /**
+   * Insert a subscription record into Firestore under the customer's stripe id.
+   * If the customer does not exist, this will backfill the customer with all their
+   * subscriptions.
+   */
+  async insertSubscriptionRecordWithBackfill(
+    subscription: Partial<Stripe.Subscription>
+  ) {
+    try {
+      await this.insertSubscriptionRecord(subscription);
+    } catch (err) {
+      if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
+        await this.fetchAndInsertCustomer(subscription.customer as string);
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  /**
    * Insert an invoice record into Firestore under the customer's stripe id.
    */
   async insertInvoiceRecord(invoice: Partial<Stripe.Invoice>) {

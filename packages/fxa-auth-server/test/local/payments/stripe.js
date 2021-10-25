@@ -670,6 +670,9 @@ describe('StripeHelper', () => {
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpanded);
       const subIdempotencyKey = uuidv4();
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
       const actual = await stripeHelper.createSubscriptionWithPMI({
         customerId: 'customerId',
         priceId: 'priceId',
@@ -688,6 +691,15 @@ describe('StripeHelper', () => {
           default_tax_rates: ['tr_asdf'],
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        {
+          ...subscriptionPMIExpanded,
+          latest_invoice: subscriptionPMIExpanded.latest_invoice
+            ? subscriptionPMIExpanded.latest_invoice.id
+            : null,
+        }
       );
       sinon.assert.callCount(mockStatsd.increment, 1);
     });
@@ -747,6 +759,9 @@ describe('StripeHelper', () => {
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpanded);
       const subIdempotencyKey = uuidv4();
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
       const actual = await stripeHelper.createSubscriptionWithPaypal({
         customer: customer1,
         priceId: 'priceId',
@@ -755,6 +770,15 @@ describe('StripeHelper', () => {
       });
 
       assert.deepEqual(actual, subscriptionPMIExpanded);
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        {
+          ...subscriptionPMIExpanded,
+          latest_invoice: subscriptionPMIExpanded.latest_invoice
+            ? subscriptionPMIExpanded.latest_invoice.id
+            : null,
+        }
+      );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.subscriptions.create,
         {
@@ -813,6 +837,9 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscription1);
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
       const actual = await stripeHelper.createSubscriptionWithPaypal({
         customer: customer1,
         priceId: 'priceId',
@@ -823,6 +850,15 @@ describe('StripeHelper', () => {
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.subscriptions.del,
         collectionSubscription.id
+      );
+      sinon.assert.calledWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        {
+          ...subscription1,
+          latest_invoice: subscription1.latest_invoice
+            ? subscription1.latest_invoice.id
+            : null,
+        }
       );
     });
   });
@@ -1751,6 +1787,9 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'retrieve')
         .resolves(subscription);
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
 
       const update = sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
@@ -1777,6 +1816,10 @@ describe('StripeHelper', () => {
             plan_change_date: unixTimestamp,
           },
         })
+      );
+      sinon.assert.calledWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        subscription2
       );
     });
 
@@ -1806,7 +1849,10 @@ describe('StripeHelper', () => {
     beforeEach(() => {
       stripeSubscriptionsUpdateStub = sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
-        .resolves();
+        .resolves({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
     });
 
     describe('customer owns subscription', () => {
@@ -1831,6 +1877,10 @@ describe('StripeHelper', () => {
               cancelled_for_customer_at: unixTimestamp,
             },
           })
+        );
+        sinon.assert.calledWithExactly(
+          stripeFirestore.insertSubscriptionRecordWithBackfill,
+          {}
         );
       });
     });
@@ -1862,6 +1912,9 @@ describe('StripeHelper', () => {
       stripeSubscriptionsUpdateStub = sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
         .resolves();
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
     });
 
     describe('customer owns subscription', () => {
@@ -1892,6 +1945,10 @@ describe('StripeHelper', () => {
                 cancelled_for_customer_at: '',
               },
             })
+          );
+          sinon.assert.calledWithExactly(
+            stripeFirestore.insertSubscriptionRecordWithBackfill,
+            expected
           );
         });
       });
@@ -4121,8 +4178,54 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('handles subscription operations', async () => {
+    it('handles skipping subscription create operations done via API', async () => {
       const event = deepCopy(eventSubscriptionUpdated);
+      event.type = 'customer.subscription.created';
+      event.request = {
+        id: 'someid',
+      };
+      stripeFirestore.insertSubscriptionRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.notCalled(
+        stripeHelper.stripeFirestore.insertSubscriptionRecord
+      );
+    });
+
+    it('handles skipping subscription update operations done via API', async () => {
+      const event = deepCopy(eventSubscriptionUpdated);
+      event.type = 'customer.subscription.updated';
+      event.request = {
+        id: 'someid',
+      };
+      stripeFirestore.insertSubscriptionRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.notCalled(
+        stripeHelper.stripeFirestore.insertSubscriptionRecord
+      );
+    });
+
+    it('handles subscription create operations', async () => {
+      const event = deepCopy(eventSubscriptionUpdated);
+      event.type = 'customer.subscription.created';
+      delete event.data.previous_attributes;
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertSubscriptionRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertSubscriptionRecord,
+        event.data.object
+      );
+    });
+
+    it('handles subscription update operations', async () => {
+      const event = deepCopy(eventSubscriptionUpdated);
+      event.type = 'customer.subscription.updated';
       delete event.data.previous_attributes;
       stripeFirestore.retrieveAndFetchSubscription = sandbox
         .stub()
