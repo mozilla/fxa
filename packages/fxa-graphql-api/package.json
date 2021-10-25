@@ -44,7 +44,7 @@
     "apollo-server-express": "^2.25.2",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
-    "commander": "^6.0.0",
+    "commander": "^8.3.0",
     "convict": "^6.2.0",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
