@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
 import { Account, AppContext } from '../../models';
 import {
@@ -39,26 +39,20 @@ const getIconAndServiceLink = async (name: string, testId: string) => {
 };
 
 const clickFirstSignOutButton = async () => {
-  await act(async () => {
-    const signOutButtons = await screen.findAllByTestId(
-      'connected-service-sign-out'
-    );
-    await fireEvent.click(signOutButtons[0]);
-  });
+  const signOutButtons = await screen.findAllByTestId(
+    'connected-service-sign-out'
+  );
+  fireEvent.click(signOutButtons[0]);
 };
 
 const chooseRadioByLabel = async (label: string) => {
-  await act(async () => {
-    const radio = await screen.findByLabelText(label);
-    await fireEvent.click(radio);
-  });
+  const radio = await screen.findByLabelText(label);
+  fireEvent.click(radio);
 };
 
 const clickConfirmDisconnectButton = async () => {
-  await act(async () => {
-    const confirmButton = await screen.findByTestId('modal-confirm');
-    await fireEvent.click(confirmButton);
-  });
+  const confirmButton = await screen.findByTestId('modal-confirm');
+  fireEvent.click(confirmButton);
 };
 
 const expectDisconnectModalHeader = async () => {
@@ -192,9 +186,11 @@ describe('Connected Services', () => {
       </AppContext.Provider>
     );
 
-    expect(
-      await screen.findByTestId('connect-another-device-promo')
-    ).toBeNull();
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('connect-another-device-promo')
+      ).not.toBeInTheDocument()
+    );
   });
 
   it('renders the sign out buttons', async () => {
@@ -257,9 +253,10 @@ describe('Connected Services', () => {
     ).length;
     await clickFirstSignOutButton();
     await clickConfirmDisconnectButton();
-    const finalCount = (
-      await screen.findAllByTestId('settings-connected-service')
-    ).length;
-    expect(finalCount === initialCount - 1).toBeTruthy();
+    await waitFor(() =>
+      expect(
+        screen.queryAllByTestId('settings-connected-service')
+      ).toHaveLength(initialCount - 1)
+    );
   });
 });

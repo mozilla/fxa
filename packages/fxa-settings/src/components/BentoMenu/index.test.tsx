@@ -3,42 +3,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import BentoMenu from '.';
 
+const dropDownId = 'drop-down-bento-menu';
+
 describe('BentoMenu', () => {
-  it('renders and toggles as expected with default values', () => {
+  it('renders and toggles as expected with default values', async () => {
     render(<BentoMenu />);
 
     const toggleButton = screen.getByTestId('drop-down-bento-menu-toggle');
-    const dropDownId = 'drop-down-bento-menu';
-    const dropDown = screen.queryByTestId(dropDownId);
 
     expect(toggleButton).toHaveAttribute('title', 'bento-menu-title');
     expect(toggleButton).toHaveAttribute('aria-controls', dropDownId);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
-    expect(dropDown).toBeInTheDocument();
+    await screen.findByTestId(dropDownId);
 
     fireEvent.click(toggleButton);
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
-  it('closes on esc keypress', () => {
+  it('closes on esc keypress', async () => {
     render(<BentoMenu />);
-    const dropDown = screen.queryByTestId('drop-down-bento-menu');
 
     fireEvent.click(screen.getByTestId('drop-down-bento-menu-toggle'));
-    expect(dropDown).toBeInTheDocument();
+    await screen.findByTestId(dropDownId);
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 
-  it('closes on click outside', () => {
+  it('closes on click outside', async () => {
     const { container } = render(
       <div className="w-full flex justify-end">
         <div className="flex pr-10 pt-4">
@@ -46,11 +45,10 @@ describe('BentoMenu', () => {
         </div>
       </div>
     );
-    const dropDown = screen.queryByTestId('drop-down-bento-menu');
 
     fireEvent.click(screen.getByTestId('drop-down-bento-menu-toggle'));
-    expect(dropDown).toBeInTheDocument();
+    await screen.findByTestId(dropDownId);
     fireEvent.click(container);
-    expect(dropDown).not.toBeInTheDocument();
+    expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
   });
 });
