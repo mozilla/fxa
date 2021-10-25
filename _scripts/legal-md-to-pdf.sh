@@ -23,6 +23,8 @@ set -o errexit
 documents_to_convert=(
   mozilla_vpn_privacy_notice.md
   mozilla_vpn_tos.md
+  firefox_relay_tos.md
+  firefox_relay_privacy_notice.md
 )
 
 legal_docs_path=""
