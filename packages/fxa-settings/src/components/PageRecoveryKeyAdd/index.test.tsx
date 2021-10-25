@@ -4,11 +4,12 @@
 
 import 'mutationobserver-shim';
 import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 import { PageRecoveryKeyAdd } from '.';
+import * as Metrics from '../../lib/metrics';
 
 jest.mock('base32-encode', () =>
   jest.fn().mockReturnValue('00000000000000000000000000000000')
@@ -94,5 +95,127 @@ describe('PageRecoveryKeyAdd', () => {
     );
     expect(screen.getByTestId('databutton-copy')).toBeEnabled();
     expect(screen.getByTestId('close-button')).toBeEnabled();
+  });
+
+  describe('metrics', () => {
+    let logViewEventSpy: jest.SpyInstance;
+    let logPageViewEventSpy: jest.SpyInstance;
+
+    beforeAll(() => {
+      logViewEventSpy = jest
+        .spyOn(Metrics, 'logViewEvent')
+        .mockImplementation();
+      logPageViewEventSpy = jest
+        .spyOn(Metrics, 'logPageViewEvent')
+        .mockImplementation();
+    });
+
+    afterEach(() => {
+      logViewEventSpy.mockReset();
+      logPageViewEventSpy.mockReset();
+    });
+
+    afterAll(() => {
+      logViewEventSpy.mockRestore();
+      logPageViewEventSpy.mockReset();
+    });
+
+    const createRecoveryKey = async (
+      metricsEnabled: boolean,
+      process = false
+    ) => {
+      const account = {
+        primaryEmail: {
+          email: 'johndope@example.com',
+        },
+        metricsEnabled,
+      } as unknown as Account;
+
+      if (process) {
+        account.createRecoveryKey = jest
+          .fn()
+          .mockResolvedValue(new Uint8Array(20));
+      }
+
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({
+            account,
+          })}
+        >
+          <PageRecoveryKeyAdd />
+        </AppContext.Provider>
+      );
+
+      const passwordField = await screen.findByLabelText('Enter password');
+      fireEvent.input(passwordField, { target: { value: 'myFavPassword' } });
+
+      const continueButton = screen.getByRole('button', { name: 'Continue' });
+      await waitFor(() => expect(continueButton).toBeEnabled());
+      fireEvent.click(continueButton);
+
+      // Wait for page to settle
+      if (process) {
+        await screen.findByText('Your recovery key has been created.', {
+          exact: false,
+        });
+      } else {
+        await screen.findByLabelText('Enter password');
+      }
+    };
+
+    const expectConfirmPasswordEvent = (event: string) => {
+      expect(logViewEventSpy).toHaveBeenCalledWith(
+        'flow.settings.account-recovery',
+        `confirm-password.${event}`
+      );
+    };
+
+    const expectRecoveryConsumeEvent = (type: string) => {
+      expect(logViewEventSpy).toHaveBeenCalledWith(
+        'flow.settings.account-recovery',
+        `recovery-key.${type}-option`
+      );
+    };
+
+    it('does not emit any events for opted out users', async () => {
+      await createRecoveryKey(false, true);
+      expect(logViewEventSpy).not.toHaveBeenCalled();
+      expect(logPageViewEventSpy).not.toHaveBeenCalled();
+    });
+
+    it('emits page view, submit and success events for opted in users', async () => {
+      await createRecoveryKey(true, true);
+      expect(logViewEventSpy).toBeCalledTimes(2);
+      expectConfirmPasswordEvent('submit');
+      expectConfirmPasswordEvent('success');
+      expect(logPageViewEventSpy).toHaveBeenCalledWith(
+        Metrics.settingsViewName
+      );
+    });
+
+    it('emits failure event for opted out users', async () => {
+      await createRecoveryKey(true, false);
+      expect(logViewEventSpy).toBeCalledTimes(2);
+      expectConfirmPasswordEvent('fail');
+    });
+
+    it('emits events for key-saving actions', async () => {
+      window.open = jest.fn().mockReturnValue({
+        document: { write: jest.fn(), close: jest.fn() },
+        focus: jest.fn(),
+        print: jest.fn(),
+        close: jest.fn(),
+      });
+
+      await createRecoveryKey(true, true);
+
+      fireEvent.click(screen.getByTestId('databutton-copy'));
+      await waitFor(() => expectRecoveryConsumeEvent('copy'));
+      fireEvent.click(screen.getByTestId('databutton-print'));
+      await waitFor(() => expectRecoveryConsumeEvent('print'));
+      fireEvent.click(screen.getByTestId('databutton-download'));
+      await waitFor(() => expectRecoveryConsumeEvent('download'));
+    });
   });
 });

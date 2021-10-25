@@ -70,20 +70,18 @@ describe('metrics flow', () => {
   });
 
   it('Does not initial metrics flow data for opted out users', async () => {
-    await act(async () => {
-      render(
-        <AppContext.Provider
-          value={mockAppContext({
-            account: {
-              ...MOCK_ACCOUNT,
-              metricsEnabled: false,
-            } as Account,
-          })}
-        >
-          <App {...updatedAppProps} />
-        </AppContext.Provider>
-      );
-    });
+    render(
+      <AppContext.Provider
+        value={mockAppContext({
+          account: {
+            ...MOCK_ACCOUNT,
+            metricsEnabled: false,
+          } as Account,
+        })}
+      >
+        <App {...updatedAppProps} />
+      </AppContext.Provider>
+    );
 
     expect(window.location.replace).not.toHaveBeenCalled();
     expect(flowInit).not.toHaveBeenCalled();

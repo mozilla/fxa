@@ -304,9 +304,7 @@ describe('metrics', () => {
       close: jest.fn(),
     });
 
-    await act(async () => {
-      render();
-    });
+    render({ ...account, metricsEnabled: true } as Account);
     await submitTotp('867530');
 
     await act(async () => {
@@ -360,6 +358,18 @@ describe('metrics', () => {
       `flow.${metricsPreInPostFix}.recovery-codes`,
       `download-option`
     );
+  });
+
+  it('does not emit a metrics event on render for opted out users', () => {
+    const mockLogViewEvent = jest.fn();
+
+    jest.spyOn(Metrics, 'useMetrics').mockReturnValue({
+      logViewEventOnce: mockLogViewEvent,
+      logPageViewEventOnce: jest.fn(),
+    });
+
+    render({ ...account, metricsEnabled: false } as Account);
+    expect(mockLogViewEvent).not.toHaveBeenCalled();
   });
 });
 

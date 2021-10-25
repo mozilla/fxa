@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { PageSecondaryEmailAdd } from '.';
 import { Account, AppContext } from '../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import * as Metrics from '../../lib/metrics';
 
 window.console.error = jest.fn();
 
@@ -91,6 +92,70 @@ describe('PageSecondaryEmailAdd', () => {
       expect(
         screen.queryByText(AuthUiErrors.EMAIL_PRIMARY_EXISTS.message)
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('metrics', () => {
+    let logViewEventSpy: jest.SpyInstance;
+    let logPageViewEventSpy: jest.SpyInstance;
+
+    beforeAll(() => {
+      logViewEventSpy = jest
+        .spyOn(Metrics, 'logViewEvent')
+        .mockImplementation();
+      logPageViewEventSpy = jest
+        .spyOn(Metrics, 'logPageViewEvent')
+        .mockImplementation();
+    });
+
+    afterEach(() => {
+      logViewEventSpy.mockReset();
+      logPageViewEventSpy.mockReset();
+    });
+
+    afterAll(() => {
+      logViewEventSpy.mockRestore();
+      logPageViewEventSpy.mockReset();
+    });
+
+    const createSecondaryEmail = async (metricsEnabled: boolean) => {
+      const account = {
+        metricsEnabled,
+        createSecondaryEmail: jest.fn().mockResolvedValue(true),
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({
+            account,
+          })}
+        >
+          <PageSecondaryEmailAdd />
+        </AppContext.Provider>
+      );
+
+      const emailField = await screen.findByLabelText('Enter email address');
+      fireEvent.input(emailField, {
+        target: { value: 'johndope2@example.com' },
+      });
+
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await waitFor(() => expect(saveButton).toBeEnabled());
+      fireEvent.click(saveButton);
+    };
+
+    it('emits page view and submit events for opted in users', async () => {
+      await createSecondaryEmail(true);
+      expect(logViewEventSpy).toHaveBeenCalledWith('settings.emails', 'submit');
+      expect(logPageViewEventSpy).toHaveBeenCalledWith(
+        Metrics.settingsViewName
+      );
+    });
+
+    it('does not emit any events for opted out users', async () => {
+      await createSecondaryEmail(false);
+      expect(logViewEventSpy).not.toHaveBeenCalled();
+      expect(logPageViewEventSpy).not.toHaveBeenCalled();
     });
   });
 });
