@@ -3090,7 +3090,7 @@ module.exports = function (log, config, bounces) {
     links.accountSettingsLinkAttributes = `href="${links.accountSettingsUrl}" target="_blank" rel="noopener noreferrer" style="color:#ffffff;font-weight:500;"`;
 
     links.cancellationSurveyUrl =
-      'https://survey.alchemer.com/s3/6351954/Cancellation-of-Service-Mozilla-VPN-Q2-21';
+      'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21';
 
     links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
 
