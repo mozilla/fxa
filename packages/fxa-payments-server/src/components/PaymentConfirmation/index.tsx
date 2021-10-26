@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
-import * as Provider from '../../lib/PaymentProvider';
 import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
 import { Plan, Profile, Customer } from '../../store/types';
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
@@ -15,6 +14,7 @@ import checkmarkIcon from './images/checkmark.svg';
 import './index.scss';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { AppContext } from '../../lib/AppContext';
+import { WebSubscription } from 'fxa-shared/subscriptions/types';
 
 type PaymentConfirmationProps = {
   customer: Customer;
@@ -45,7 +45,7 @@ export const PaymentConfirmation = ({
     navigatorLanguages
   ).successActionButtonLabel;
 
-  const invoiceNumber = subscriptions[0].latest_invoice;
+  const invoiceNumber = (subscriptions[0] as WebSubscription).latest_invoice;
   const date = new Date().toLocaleDateString(navigator.language, {
     year: 'numeric',
     month: 'long',
