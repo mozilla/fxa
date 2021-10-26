@@ -54,7 +54,7 @@ it('Initializes metrics flow data when present', async () => {
     render(<App {...updatedAppProps} />);
   });
 
-  expect(flowInit).toHaveBeenCalledWith({
+  expect(flowInit).toHaveBeenCalledWith(true, {
     deviceId: DEVICE_ID,
     flowId: FLOW_ID,
     flowBeginTime: BEGIN_TIME,
