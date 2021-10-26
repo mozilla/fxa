@@ -53,6 +53,7 @@ module.exports = (log, Token, config) => {
         this.verificationMethod
       );
       this.verifiedAt = details.verifiedAt || null;
+      this.metricsOptOutAt = details.metricsOptOutAt || null;
     }
 
     static create(details) {

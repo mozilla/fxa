@@ -439,4 +439,17 @@ export class Account extends BaseAuthModel {
       })
       .where('uid', uuidTransformer.to(uid));
   }
+
+  static async metricsEnabled(uid: string) {
+    try {
+      const { metricsOptOutAt } = await Account.query()
+        .select('metricsOptOutAt')
+        .where('uid', uuidTransformer.to(uid))
+        .first();
+      return !metricsOptOutAt;
+    } catch (error) {
+      // err on caution / don't throw
+      return false;
+    }
+  }
 }

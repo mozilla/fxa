@@ -14,7 +14,17 @@ const log = {
   info: sinon.spy(),
   trace: sinon.spy(),
 };
-const events = require('../../../lib/metrics/events')(log, {
+const proxyquire = require('proxyquire');
+const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
+  'fxa-shared/db/models/auth': {
+    Account: {
+      metricsEnabled: sinon.stub().resolves(true),
+    },
+  },
+});
+const events = proxyquire('../../../lib/metrics/events', {
+  './amplitude': amplitudeModule,
+})(log, {
   amplitude: { rawEvents: false },
   oauth: {
     clientIds: {},
