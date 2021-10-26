@@ -58,6 +58,7 @@ export class AccountHandler {
     private signupUtils: any,
     private push: any,
     private verificationReminders: any,
+    private subscriptionAccountReminders: any,
     private oauth: any,
     private stripeHelper: StripeHelper
   ) {
@@ -607,6 +608,8 @@ export class AccountHandler {
         tokenVerificationCode: undefined,
         tokenVerificationId: undefined,
       });
+
+      await this.subscriptionAccountReminders.delete(uid);
       return {
         uid,
         sessionToken: sessionToken.data,
@@ -1578,6 +1581,7 @@ export const accountRoutes = (
   signupUtils: any,
   push: any,
   verificationReminders: any,
+  subscriptionAccountReminders: any,
   oauth: any,
   stripeHelper: StripeHelper
 ) => {
@@ -1592,6 +1596,7 @@ export const accountRoutes = (
     signupUtils,
     push,
     verificationReminders,
+    subscriptionAccountReminders,
     oauth,
     stripeHelper
   );

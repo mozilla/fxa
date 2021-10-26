@@ -13,6 +13,7 @@ export async function sendFinishSetupEmailForStubAccount({
   stripeHelper,
   mailer,
   metricsContext,
+  subscriptionAccountReminders,
 }: {
   email: string;
   uid: string;
@@ -20,6 +21,7 @@ export async function sendFinishSetupEmailForStubAccount({
   subscription: any;
   stripeHelper: any;
   mailer: any;
+  subscriptionAccountReminders: any;
   metricsContext?: any;
 }) {
   // If this fxa user is a stub (no-password) this is where we
@@ -43,5 +45,16 @@ export async function sendFinishSetupEmailForStubAccount({
       ...metricsContext,
       token,
     });
+
+    if (metricsContext && subscriptionAccountReminders) {
+      await subscriptionAccountReminders.create(
+        uid,
+        metricsContext.flowId,
+        metricsContext.flowBeginTime,
+        metricsContext.deviceId,
+        invoiceDetails.productId,
+        invoiceDetails.productName
+      );
+    }
   }
 }

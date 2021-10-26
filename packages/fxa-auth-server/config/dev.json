@@ -428,6 +428,10 @@
     "firstInterval": "1s",
     "secondInterval": "2s"
   },
+  "subscriptionAccountReminders": {
+    "firstInterval": "5s",
+    "secondInterval": "10s"
+  },
   "mjml": {
     "enabledEmailAddress": "b@c.com",
     "templates": [
@@ -462,6 +466,8 @@
       "recovery",
       "subscriptionPaymentExpired",
       "subscriptionsPaymentExpired",
+      "subscriptionAccountReminderFirst",
+      "subscriptionAccountReminderSecond",
       "subscriptionReactivation"
     ]
   }

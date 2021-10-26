@@ -54,6 +54,8 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 }
 
 export class StripeHandler {
+  subscriptionAccountReminders: any;
+
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
     //        inheriting classes thus this interface join.
@@ -65,7 +67,12 @@ export class StripeHandler {
     protected mailer: any,
     protected profile: any,
     protected stripeHelper: StripeHelper
-  ) {}
+  ) {
+    this.subscriptionAccountReminders = require('../../subscription-account-reminders')(
+      log,
+      config
+    );
+  }
 
   /**
    * Reload the customer data to reflect a change.
@@ -446,6 +453,7 @@ export class StripeHandler {
       subscription,
       stripeHelper: this.stripeHelper,
       mailer: this.mailer,
+      subscriptionAccountReminders: this.subscriptionAccountReminders,
       metricsContext,
     });
 

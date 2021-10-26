@@ -21,6 +21,8 @@ const { version: VERSION } = require('../../package.json');
 // Maps template name to email type
 const EMAIL_TYPES = {
   subscriptionAccountFinishSetup: 'subscription_account_finish_setup',
+  subscriptionAccountReminderFirst: 'subscription_account_finish_setup',
+  subscriptionAccountReminderSecond: 'subscription_account_finish_setup',
   subscriptionReactivation: 'subscription_reactivation',
   subscriptionRenewalReminder: 'subscription_renewal_reminder',
   subscriptionUpgrade: 'subscription_upgrade',
@@ -166,6 +168,17 @@ module.exports = (log, config) => {
       `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`
     ] = 'registration';
   });
+
+  const subscriptionAccountReminders = require('../subscription-account-reminders')(
+    log,
+    config
+  );
+  subscriptionAccountReminders.keys.forEach((key) => {
+    EMAIL_TYPES[
+      `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(1)}Email`
+    ] = 'subscription_account_finish_setup';
+  });
+
 
   const transformEvent = initialize(
     config.oauth.clientIds,

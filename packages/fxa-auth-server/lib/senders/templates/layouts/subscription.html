@@ -263,9 +263,14 @@
                                         {{#if productName}}
                                         {{t "You're receiving this email because %(email)s has a Firefox account and you signed up for %(productName)s." }}
                                         {{else}}
+                                        {{#if reminderShortForm}}
+                                        {{t "You're receiving this email because %(email)s has a Firefox account"}}
+                                        {{else}}
                                         {{t "You're receiving this email because %(email)s has a Firefox account and you have subscribed to multiple products." }}
                                         {{/if}}
+                                        {{/if}}
                                         <br /><br />
+                                        {{#unless reminderShortForm}}
                                         {{{t "Manage your Firefox account settings by visiting your <a %(accountSettingsLinkAttributes)s>account page</a>." }}}
                                         <br /><br />
                                         {{#if productName}}<a
@@ -296,8 +301,23 @@
                                           rel="noopener noreferrer"
                                           style="color:#ffffff;font-weight:500;"
                                           alias="UpdateBillingInformation"
-                                          >{{t "Update billing information" }}</a
+                                          >{{t "Update billing information" }}</a>
+                                        {{else}}
+                                       <a
+                                          href="{{{privacyUrl}}}"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          style="color:#ffffff;font-weight:normal;"
+                                          alias="PrivacyPolicy"
+                                          >{{t "Mozilla Privacy Policy" }}</a
                                         >
+                                        &nbsp;&nbsp;&#8226;&nbsp;&nbsp;<a href="{{{subscriptionTermsUrl}}}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style="color:#ffffff;font-weight:500;"
+                                        alias="TermsofService"
+                                        >{{t "Firefox Cloud Terms of Service" }}</a>
+                                        {{/unless}}
                                         <br />
                                       </td>
                                     </tr>

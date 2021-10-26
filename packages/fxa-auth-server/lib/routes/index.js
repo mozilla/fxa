@@ -40,6 +40,8 @@ module.exports = function (
     log,
     config
   );
+  const subscriptionAccountReminders =
+    require('../subscription-account-reminders')(log, config);
   const signupUtils = require('./utils/signup')(
     log,
     db,
@@ -65,6 +67,7 @@ module.exports = function (
     signupUtils,
     push,
     verificationReminders,
+    subscriptionAccountReminders,
     oauthRawDB,
     stripeHelper
   );

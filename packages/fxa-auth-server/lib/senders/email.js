@@ -31,6 +31,7 @@ module.exports = function (log, config, bounces) {
     config
   );
   const cadReminders = require('../cad-reminders')(config, log);
+  const subscriptionAccountReminders = require('../subscription-account-reminders')(log,config);
 
   const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
   const featureFlags = require('../features')(config);
@@ -762,6 +763,81 @@ module.exports = function (log, config, bounces) {
       });
     };
   });
+
+  subscriptionAccountReminders.keys.forEach((key, index) => {
+        // Template names are generated in the form `verificationReminderFirstEmail`,
+    // where `First` is the key derived from config, with an initial capital letter.
+    const template = `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(
+      1
+    )}`;
+    let subject;
+    if (index < subscriptionAccountReminders.keys.length - 1) {
+      subject = gettext('Reminder: Finish setting up your account');
+    } else {
+      subject = gettext('Final reminder: Setup your account');
+    }
+
+    templateNameToCampaignMap[template] = `${key}-subscription-account-reminder`;
+    templateNameToContentMap[template] = 'subscrition-account-create-email';
+
+    Mailer.prototype[`${template}Email`] = async function (message) {
+        const {
+          email,
+          uid,
+          productId,
+          productName,
+          token,
+          flowId,
+          flowBeginTime,
+          deviceId,
+        } = message;
+
+      log.trace(`mailer.${template}`, { email, uid });
+
+      const query = {
+        email,
+        product_name: productName,
+        token,
+        product_id: productId,
+        flowId,
+        flowBeginTime,
+        deviceId,
+      };
+
+      const links = this._generateLinks(
+        this.accountFinishSetupUrl,
+        message,
+        query,
+        template
+      );
+      const headers = {
+        'X-Link': links.link,
+      };
+
+      const action = gettext('Create a password');
+
+      return this.send({
+        ...message,
+        headers,
+        layout: 'subscription',
+        subject,
+        template,
+        templateValues: {
+          action,
+          email,
+          ...links,
+          oneClickLink: links.oneClickLink,
+          privacyUrl: links.privacyUrl,
+          termsOfServiceDownloadURL: links.termsOfServiceDownloadURL,
+          subject,
+          supportUrl: links.supportUrl,
+          supportLinkAttributes: links.supportLinkAttributes,
+          reminderShortForm: true
+        },
+      });
+    };
+  });
+
 
   Mailer.prototype.unblockCodeEmail = function (message) {
     log.trace('mailer.unblockCodeEmail', {
@@ -1896,9 +1972,7 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (
-    message
-  ) {
+  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (message) {
     const {
       email,
       uid,
