@@ -122,6 +122,31 @@ export class StripeFirestore {
   }
 
   /**
+   * Insert a customer record into Firestore under the fxa id.
+   * If the customer does not exist, this will backfill the customer with all their
+   * subscriptions.
+   *
+   * Note: This is slightly different than the `retrieveAndFetchCustomer` method above
+   * as this will avoid inserting the record if the customer did not exist in Firestore
+   * and was fetched.
+   */
+  async insertCustomerRecordWithBackfill(
+    uid: string,
+    customer: Partial<Stripe.Customer>
+  ) {
+    try {
+      await this.retrieveCustomer({ uid });
+    } catch (err) {
+      if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
+        return this.fetchAndInsertCustomer(customer.id!);
+      } else {
+        throw err;
+      }
+    }
+    return this.insertCustomerRecord(uid, customer);
+  }
+
+  /**
    * Insert a subscription record into Firestore under the customer's stripe id.
    */
   async insertSubscriptionRecord(subscription: Partial<Stripe.Subscription>) {
