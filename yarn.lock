@@ -41,6 +41,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@angular-devkit/core@npm:12.2.10":
+  version: 12.2.10
+  resolution: "@angular-devkit/core@npm:12.2.10"
+  dependencies:
+    ajv: 8.6.2
+    ajv-formats: 2.1.0
+    fast-json-stable-stringify: 2.1.0
+    magic-string: 0.25.7
+    rxjs: 6.6.7
+    source-map: 0.7.3
+  checksum: 58230695968b08e1f2fbdc70ff19bb7c92437830b678c10d3e876b0fb3ebfe3b0a83e65a81a353696e98fc4a07aec55be88d07dcef5d558ef54ddab24fd25c06
+  languageName: node
+  linkType: hard
+
 "@angular-devkit/core@npm:12.2.7":
   version: 12.2.7
   resolution: "@angular-devkit/core@npm:12.2.7"
@@ -79,6 +93,17 @@ __metadata:
     ora: 5.4.0
     rxjs: 6.6.7
   checksum: ea68f7611b883119b340a3266388ffbad0b9c4cfb2db342eb60f6c0533985839505d68c5fd2cc5d7ec8f6322be3c731d9b13718506bc12bc444197ae813cf81d
+  languageName: node
+  linkType: hard
+
+"@angular-devkit/schematics@npm:12.2.10":
+  version: 12.2.10
+  resolution: "@angular-devkit/schematics@npm:12.2.10"
+  dependencies:
+    "@angular-devkit/core": 12.2.10
+    ora: 5.4.1
+    rxjs: 6.6.7
+  checksum: 7d8325ed2287699b2675b603b602faccce121027c437c129e196ec5478d50de124390175390c377e9ed969a7846234737e7c40850ae2144d881f1c359feaa8ec
   languageName: node
   linkType: hard
 
@@ -4138,6 +4163,21 @@ __metadata:
   peerDependencies:
     typescript: ^3.4.5 || ^4.3.5
   checksum: 723285e786088d7df85f26f38d479df35d601185527df364b0c6c559f77b2606314fd8b4da1fef7d617d10077c7bd2d2a307a922139364d01a680c33b0236767
+  languageName: node
+  linkType: hard
+
+"@nestjs/schematics@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "@nestjs/schematics@npm:8.0.4"
+  dependencies:
+    "@angular-devkit/core": 12.2.10
+    "@angular-devkit/schematics": 12.2.10
+    fs-extra: 10.0.0
+    jsonc-parser: 3.0.0
+    pluralize: 8.0.0
+  peerDependencies:
+    typescript: ^3.4.5 || ^4.3.5
+  checksum: 4791539c47fab896b3128d9aa1f1620e4942cc61275078edf66c8d0f506ed28b55a4589559dfc7c3931afcb4886917df4e1d22c272d9329ee3b0624bd3efcd41
   languageName: node
   linkType: hard
 
@@ -20404,7 +20444,7 @@ fsevents@~2.1.1:
     "@nestjs/passport": ^8.0.1
     "@nestjs/platform-express": ^8.1.1
     "@nestjs/schedule": ^1.0.1
-    "@nestjs/schematics": ^8.0.3
+    "@nestjs/schematics": ^8.0.4
     "@nestjs/testing": ^8.1.1
     "@sentry/integrations": ^6.13.3
     "@sentry/node": ^6.13.3
