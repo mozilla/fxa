@@ -247,7 +247,13 @@ export class Account implements AccountData {
   }
 
   get metricsEnabled() {
-    return this.data.metricsEnabled;
+    // This might be requested before account data is ready,
+    // so default to disabled until we can get a proper read
+    try {
+      return this.data.metricsEnabled;
+    } catch {
+      return false;
+    }
   }
 
   get passwordCreated() {

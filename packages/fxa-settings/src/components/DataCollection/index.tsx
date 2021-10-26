@@ -8,6 +8,7 @@ import Switch from '../Switch';
 import React, { useCallback, useState } from 'react';
 import { useAlertBar } from '../../models';
 import { useAccount } from '../../models';
+import { setEnabled } from '../../lib/metrics';
 
 export const DataCollection = () => {
   const account = useAccount();
@@ -24,6 +25,7 @@ export const DataCollection = () => {
       setIsSubmitting(true);
       await account.metricsOpt(account.metricsEnabled ? 'out' : 'in');
       setIsSubmitting(false);
+      setEnabled(account.metricsEnabled);
       const alertArgs: [string, null, string] = account.metricsEnabled
         ? [
             'dc-opt-in-success',

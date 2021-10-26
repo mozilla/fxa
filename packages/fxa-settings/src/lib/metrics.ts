@@ -62,6 +62,7 @@ type EventData = FlowQueryParams &
   };
 
 let initialized = false;
+let metricsEnabled = false;
 let viewNamePrefix: string | null;
 let flowEventData: FlowQueryParams;
 let configurableProperties: ConfigurableProperties = defaultConfigProps();
@@ -71,9 +72,11 @@ function defaultConfigProps(): ConfigurableProperties {
     try {
       return (
         window.performance.timeOrigin +
-        (window.performance.getEntriesByType(
-          'navigation'
-        )[0] as PerformanceNavigationTiming).fetchStart
+        (
+          window.performance.getEntriesByType(
+            'navigation'
+          )[0] as PerformanceNavigationTiming
+        ).fetchStart
       );
     } catch (e) {
       return Date.now();
@@ -117,7 +120,7 @@ function getScreenInfo(): ScreenInfo {
  * @param eventData
  */
 async function postMetrics(eventData: EventData) {
-  if (!initialized || !window.navigator.sendBeacon) {
+  if (!metricsEnabled || !initialized || !window.navigator.sendBeacon) {
     return;
   }
 
@@ -134,6 +137,13 @@ async function postMetrics(eventData: EventData) {
   } else {
     window.navigator.sendBeacon('/metrics', JSON.stringify(eventData));
   }
+}
+
+/**
+ * Toggles metrics collection
+ */
+export function setEnabled(value: boolean) {
+  metricsEnabled = value;
 }
 
 /**
@@ -154,7 +164,9 @@ export function reset() {
  *
  * @param flowQueryParams - Flow data sent via query params from the content-server
  */
-export async function init(flowQueryParams: FlowQueryParams) {
+export async function init(enabled: boolean, flowQueryParams: FlowQueryParams) {
+  setEnabled(enabled);
+
   if (!initialized) {
     // Initialize from the qs if we have the critical flow pieces
     if (

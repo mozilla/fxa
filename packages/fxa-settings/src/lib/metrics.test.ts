@@ -84,8 +84,8 @@ function redefineProp<T>(o: any, p: string, value?: T): T {
   return value!;
 }
 
-function initFlow() {
-  init({
+function initFlow(enabled = true) {
+  init(enabled, {
     deviceId,
     flowBeginTime,
     flowId,
@@ -151,6 +151,14 @@ describe('init', () => {
 describe('postMetrics', () => {
   it('does not send metrics when uninitialized', () => {
     logEvents([eventSlug]);
+
+    expect(window.navigator.sendBeacon).not.toHaveBeenCalled();
+  });
+
+  it('does not send *any* metrics when disabled', () => {
+    initFlow(false);
+    logEvents([eventSlug]);
+    logViewEvent(eventGroup, eventType);
 
     expect(window.navigator.sendBeacon).not.toHaveBeenCalled();
   });

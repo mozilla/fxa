@@ -7,6 +7,7 @@ import { act, render, screen } from '@testing-library/react';
 import { DataCollection } from '.';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
+import * as Metrics from '../../lib/metrics';
 
 const account = {
   displayName: 'jrgm',
@@ -15,6 +16,12 @@ const account = {
 } as unknown as Account;
 
 describe('DataCollection', () => {
+  let setEnabledSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    setEnabledSpy = jest.spyOn(Metrics, 'setEnabled').mockImplementation();
+  });
+
   it('renders as expected', () => {
     const { container } = render(<DataCollection />);
 
@@ -42,9 +49,11 @@ describe('DataCollection', () => {
     // since metricsOpt is async and uses useState the `act` here is necessary
     await act(() => Promise.resolve(button.click()));
     expect(account.metricsOpt).toBeCalledWith('out');
+    expect(setEnabledSpy).toBeCalledWith(true);
     //@ts-ignore mock doesn't care that the prop is readonly
     account.metricsEnabled = false;
     await act(() => Promise.resolve(button.click()));
     expect(account.metricsOpt).toBeCalledWith('in');
+    expect(setEnabledSpy).toBeCalledWith(false);
   });
 });
