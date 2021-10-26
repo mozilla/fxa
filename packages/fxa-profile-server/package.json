@@ -26,7 +26,7 @@
     "buf": "0.1.1",
     "checksum": "1.0.0",
     "compute-cluster": "0.0.9",
-    "convict": "^6.2.0",
+    "convict": "^6.2.1",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "fxa-shared": "workspace:*",
