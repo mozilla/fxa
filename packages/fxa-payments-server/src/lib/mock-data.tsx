@@ -1,7 +1,6 @@
 import { Profile, Plan, Customer } from '../store/types';
 import { FilteredSetupIntent } from '../lib/apiClient';
 import { PaymentIntent, PaymentMethod } from '@stripe/stripe-js';
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 export const PROFILE: Profile = {
   amrValues: [],
@@ -29,14 +28,12 @@ export const CUSTOMER: Customer = {
   brand: 'Visa',
   subscriptions: [
     {
-      _subscription_type: MozillaSubscriptionTypes.WEB,
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
       product_id: 'prod_123',
       product_name: '123done Pro',
       latest_invoice: '628031D-0002',
       status: 'active',
-      created: Date.now(),
       cancel_at_period_end: false,
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
@@ -118,7 +115,6 @@ export const PAYPAL_CUSTOMER: Customer = {
   brand: '',
   subscriptions: [
     {
-      _subscription_type: MozillaSubscriptionTypes.WEB,
       subscription_id: 'sub0.28964929339372136',
       plan_id: 'plan_123',
       product_id: 'prod_123',
@@ -126,7 +122,6 @@ export const PAYPAL_CUSTOMER: Customer = {
       latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,
-      created: Date.now(),
       current_period_end: Date.now() / 1000 + 86400 * 31,
       current_period_start: Date.now() / 1000 - 86400 * 31,
       end_at: null,
@@ -217,14 +212,4 @@ export const MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR = {
 };
 export const MOCK_GENERAL_PAYPAL_ERROR = {
   code: 'general-paypal-error',
-};
-
-export const IAP_GOOGLE_SUBSCRIPTION = {
-  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-  product_id: 'prod_123',
-};
-
-export const IAP_APPLE_SUBSCRIPTION = {
-  _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
-  product_id: 'prod_123',
 };

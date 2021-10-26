@@ -139,7 +139,7 @@ export async function apiFetchToken(): Promise<Token> {
 export async function apiFetchCustomer(): Promise<Customer> {
   return apiFetch(
     'GET',
-    `${config.servers.auth.url}/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions`
+    `${config.servers.auth.url}/v1/oauth/subscriptions/customer`
   );
 }
 

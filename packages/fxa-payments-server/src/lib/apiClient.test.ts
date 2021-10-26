@@ -212,11 +212,9 @@ describe('API requests', () => {
   });
 
   describe('apiFetchCustomer', () => {
-    it('GET {auth-server}/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions', async () => {
+    it('GET {auth-server}/v1/oauth/subscriptions/customer', async () => {
       const requestMock = nock(AUTH_BASE_URL)
-        .get(
-          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
-        )
+        .get('/v1/oauth/subscriptions/customer')
         .reply(200, MOCK_CUSTOMER);
       expect(await apiFetchCustomer()).toEqual(MOCK_CUSTOMER);
       requestMock.done();

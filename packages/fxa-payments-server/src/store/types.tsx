@@ -1,7 +1,4 @@
-import {
-  MozillaSubscription,
-  PaypalPaymentError,
-} from 'fxa-shared/subscriptions/types';
+import { PaypalPaymentError } from 'fxa-shared/subscriptions/types';
 import { Stripe } from 'stripe';
 import { PaymentProvider } from '../lib/PaymentProvider';
 
@@ -85,7 +82,7 @@ export type Customer = {
   payment_provider?: PaymentProvider;
   payment_type?: string;
   paypal_payment_error?: PaypalPaymentError;
-  subscriptions: Array<MozillaSubscription>;
+  subscriptions: Array<CustomerSubscription>;
 };
 
 export interface CreateSubscriptionResult {

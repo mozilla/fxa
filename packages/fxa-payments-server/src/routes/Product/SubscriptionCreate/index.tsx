@@ -200,7 +200,7 @@ export const SubscriptionCreate = ({
       <div className="main-content">
         <PaymentErrorView
           error={subscriptionError}
-          actionFn={() => {
+          onRetry={() => {
             setSubscriptionError(undefined);
             setTransactionInProgress(false);
           }}

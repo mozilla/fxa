@@ -106,7 +106,7 @@ export type WebSubscription = Pick<
   Partial<Pick<Stripe.Charge, 'failure_code' | 'failure_message'>> & {
     _subscription_type: SubscriptionTypes[0];
     end_at: Stripe.Subscription['ended_at'];
-    latest_invoice: string;
+    latest_invoice: Stripe.Invoice['number'];
     plan_id: Stripe.Plan['id'];
     product_name: Stripe.Product['name'];
     product_id: Stripe.Product['id'];
@@ -120,12 +120,7 @@ export type GooglePlaySubscription = {
   _subscription_type: SubscriptionTypes[1];
   product_id: Stripe.Product['id'];
 };
-export type AppleSubscription = {
-  _subscription_type: SubscriptionTypes[2];
-  product_id: Stripe.Product['id'];
-};
-export type IapSubscription = GooglePlaySubscription | AppleSubscription;
-export type MozillaSubscription = WebSubscription | IapSubscription;
+export type MozillaSubscription = WebSubscription | GooglePlaySubscription;
 
 export const PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT = 'missing_agreement';
 export const PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE = 'funding_source';

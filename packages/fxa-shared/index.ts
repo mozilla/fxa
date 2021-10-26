@@ -13,7 +13,6 @@ import {
   productDetailsFromPlan,
 } from './subscriptions/metadata';
 import * as stripe from './subscriptions/stripe';
-import * as subscriptions from './subscriptions/subscriptions';
 
 import amplitude from './metrics/amplitude';
 import flowPerformance from './metrics/flow-performance';
@@ -48,6 +47,5 @@ module.exports = {
       productDetailsFromPlan,
     },
     stripe,
-    subscriptions,
   },
 };

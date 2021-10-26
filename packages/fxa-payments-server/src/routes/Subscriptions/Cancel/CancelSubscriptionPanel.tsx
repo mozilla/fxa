@@ -18,12 +18,11 @@ import { SubscriptionsProps } from '../index';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import * as Amplitude from '../../../lib/amplitude';
 import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
-import { WebSubscription } from 'fxa-shared/subscriptions/types';
 
 export type CancelSubscriptionPanelProps = {
   plan: Plan;
   cancelSubscription: SubscriptionsProps['cancelSubscription'];
-  customerSubscription: WebSubscription;
+  customerSubscription: CustomerSubscription;
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
   paymentProvider: PaymentProvider | undefined;
 };

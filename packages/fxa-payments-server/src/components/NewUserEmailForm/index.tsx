@@ -1,5 +1,4 @@
-// React looks unused here, but we need it for Storybook.
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Localized } from '@fluent/react';
 
 import { isEmailValid } from '../../../../fxa-shared/email/helpers';

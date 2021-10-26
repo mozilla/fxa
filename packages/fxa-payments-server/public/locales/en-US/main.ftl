@@ -9,12 +9,6 @@ project-brand = Firefox Accounts
 -brand-name-paypal = PayPal
 -brand-name-stripe = Stripe
 
-# the following are not terms because they are not used directly in messages,
-# but rather looked up in code and passed into the message as variables.
-brand-name-google-play = Google Play Store
-# App Store here refers to Apple's App Store not the genreic app store.
-brand-name-apple-app-store = App Store
-
 document =
   .title = Firefox Accounts
 
@@ -36,9 +30,6 @@ country-currency-mismatch = The currency of this subscription is not valid for t
 currency-currency-mismatch = Sorry. You can't switch between currencies.
 
 no-subscription-change = Sorry. You can't change your subscription plan.
-
-# $mobileAppStore (String) - "Google Play Store" or "App Store", localized when the translation is available.
-iap-already-subscribed = You’re already subscribed through the { $mobileAppStore }.
 
 expired-card-error = It looks like your credit card has expired. Try another card.
 insufficient-funds-error = It looks like your card has insufficient funds. Try another card.
@@ -69,7 +60,6 @@ subscription-success-title = Subscription confirmation
 subscription-processing-title = Confirming subscription…
 subscription-error-title = Error confirming subscription…
 subscription-noplanchange-title = This subscription plan change is not supported
-subscription-iapsubscribed-title = Already subscribed
 
 ##  $productName (String) - The name of the subscribed product.
 ##  $amount (Number) - The amount billed. It will be formatted as currency.
