@@ -770,7 +770,11 @@ const Account = Backbone.Model.extend(
 
           this.set(updatedSessionData);
 
-          this._notifier.trigger('set-uid', this.get('uid'));
+          this._notifier.trigger(
+            'set-uid',
+            this.get('uid'),
+            this.get('metricsEnabled')
+          );
 
           return updatedSessionData;
         })

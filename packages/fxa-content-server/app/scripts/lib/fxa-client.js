@@ -113,6 +113,7 @@ function getUpdatedSessionData(email, relier, accountData, options = {}) {
     verificationMethod: accountData.verificationMethod,
     verificationReason: accountData.verificationReason,
     verified: accountData.verified || false,
+    metricsEnabled: accountData.metricsEnabled || false,
   };
 
   if (wantsKeys(relier, sessionTokenContext)) {

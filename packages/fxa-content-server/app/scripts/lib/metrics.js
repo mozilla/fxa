@@ -185,6 +185,7 @@ function Metrics(options = {}) {
   this._startTime = options.startTime || this._speedTrap.baseTime;
   this._syncEngines = options.syncEngines || [];
   this._uid = options.uid || NOT_REPORTED_VALUE;
+  this._metricsEnabled = options.metricsEnabled ?? true;
   this._uniqueUserId = options.uniqueUserId || NOT_REPORTED_VALUE;
   this._userPreferences = {};
   this._utmCampaign = options.utmCampaign || NOT_REPORTED_VALUE;
@@ -521,6 +522,9 @@ _.extend(Metrics.prototype, Backbone.Events, {
   },
 
   _send(data, isPageUnloading) {
+    if (!this._metricsEnabled) {
+      return Promise.resolve(true);
+    }
     const url = `${this._collector}/metrics`;
     const payload = JSON.stringify(data);
 
@@ -856,9 +860,12 @@ _.extend(Metrics.prototype, Backbone.Events, {
     }
   },
 
-  _setUid(uid) {
+  _setUid(uid, metricsEnabled) {
     if (uid) {
       this._uid = uid;
+    }
+    if (typeof metricsEnabled !== 'undefined') {
+      this._metricsEnabled = !!metricsEnabled;
     }
   },
 
