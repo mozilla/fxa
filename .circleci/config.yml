@@ -1,10 +1,13 @@
 version: 2.1
 
+orbs:
+  browser-tools: circleci/browser-tools@1.2.3
+
 executors:
   content-server-executor:
     resource_class: medium+
     docker:
-      - image: mozilla/fxa-circleci
+      - image: cimg/node:16.12-browsers
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -49,6 +52,10 @@ commands:
         type: integer
         default: 6
     steps:
+      - browser-tools/install-firefox:
+          version: 78.9.0esr
+      - browser-tools/install-geckodriver:
+          version: v0.29.1
       - base-install:
           package: fxa-content-server
       - run:
@@ -68,6 +75,10 @@ commands:
 
   test-settings-server:
     steps:
+      - browser-tools/install-firefox:
+          version: 78.9.0esr
+      - browser-tools/install-geckodriver:
+          version: v0.29.1
       - base-install:
           package: fxa-settings
       - run:
@@ -86,7 +97,7 @@ jobs:
   test-package:
     resource_class: medium+
     docker:
-      - image: circleci/node:16
+      - image: cimg/node:16.12
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -114,7 +125,7 @@ jobs:
   test-many:
     resource_class: medium+
     docker:
-      - image: circleci/node:16
+      - image: cimg/node:16.12
       - image: circleci/mysql:5.7.27
       - image: jdlk7/firestore-emulator
       - image: memcached
@@ -213,7 +224,7 @@ jobs:
   deploy-packages:
     resource_class: small
     docker:
-      - image: circleci/node:16
+      - image: cimg/node:16.12
     environment:
       DOCKER_BUILDKIT: 1
     steps:
@@ -230,30 +241,16 @@ jobs:
       - store_artifacts:
           path: artifacts
 
-  # this job is manually triggered as needed. see _dev/docker/circleci/README.md
-  build-and-deploy-fxa-circleci:
-    resource_class: small
-    docker:
-      - image: circleci/node:16
-    environment:
-      DOCKER_BUILDKIT: 1
-    steps:
-      - setup_remote_docker:
-          version: 18.09.3
-      - checkout
-      - run:
-          name: Build & deploy fxa-circleci
-          command: ./.circleci/build-and-deploy-fxa-circleci.sh
-          no_output_timeout: 1h
-      - store_artifacts:
-          path: artifacts
-
-  # This job is manually triggered for now. see _dev/docker/circleci/README.md
+  # This job is manually triggered for now. see .circleci/README.md
   test-content-server-remote:
     resource_class: large
     docker:
-      - image: mozilla/fxa-circleci
+      - image: cimg/node:16.12-browsers
     steps:
+      - browser-tools/install-firefox:
+          version: 78.9.0esr
+      - browser-tools/install-geckodriver:
+          version: v0.29.1
       - base-install:
           package: fxa-content-server
       - run:
@@ -288,7 +285,7 @@ jobs:
   build-and-deploy-storybooks:
     resource_class: small
     docker:
-      - image: circleci/node:16
+      - image: cimg/node:16.12
     steps:
       - base-install:
           package: many
