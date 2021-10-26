@@ -28,7 +28,7 @@
     "@sentry/node": "^6.13.3",
     "@types/convict": "^5.2.2",
     "ajv": "^6.12.2",
-    "convict": "^6.2.0",
+    "convict": "^6.2.1",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "fxa-shared": "workspace:*",
