@@ -12,7 +12,6 @@ import { State as ValidatorState } from '../../lib/validator';
 import { Product, ProductProps } from './index';
 import { Customer, Plan, Profile } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 function init() {
   storiesOf('routes/Product', module)
@@ -52,8 +51,6 @@ function init() {
           },
           customerSubscriptions: [
             {
-              _subscription_type: MozillaSubscriptionTypes.WEB,
-              created: Date.now(),
               current_period_end: Date.now() / 1000 + 86400,
               current_period_start: Date.now() / 1000 - 86400,
               cancel_at_period_end: false,
@@ -225,8 +222,6 @@ const CUSTOMER: Customer = {
   brand: 'Visa',
   subscriptions: [
     {
-      _subscription_type: MozillaSubscriptionTypes.WEB,
-      created: Date.now(),
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
       product_id: 'prod_123',

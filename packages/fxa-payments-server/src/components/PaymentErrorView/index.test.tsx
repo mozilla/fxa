@@ -24,7 +24,7 @@ describe('PaymentErrorView test with l10n', () => {
   it('renders as expected', () => {
     const { queryByTestId, queryByAltText } = render(
       <PaymentErrorView
-        actionFn={() => {}}
+        onRetry={() => {}}
         error={{ code: 'general-paypal-error' }}
         plan={SELECTED_PLAN}
       />
@@ -53,7 +53,7 @@ describe('PaymentErrorView test with l10n', () => {
     const onRetry = jest.fn();
     const { getByTestId } = render(
       <PaymentErrorView
-        actionFn={onRetry}
+        onRetry={onRetry}
         error={{ code: 'general-paypal-error' }}
         plan={SELECTED_PLAN}
       />
@@ -69,7 +69,7 @@ describe('PaymentErrorView test with l10n', () => {
   it('navigates to the correct relative URL when the "Manage my subscription" button is clicked', async () => {
     const { getByTestId } = render(
       <PaymentErrorView
-        actionFn={() => {}}
+        onRetry={() => {}}
         error={{ code: 'no_subscription_change' }}
         plan={SELECTED_PLAN}
       />
@@ -86,7 +86,7 @@ describe('PaymentErrorView test with l10n', () => {
     const { getByTestId } = render(
       <PaymentErrorView
         subscriptionTitle={<SubscriptionTitle screenType={'noplanchange'} />}
-        actionFn={() => {}}
+        onRetry={() => {}}
         error={{ code: 'no_subscription_change' }}
         plan={SELECTED_PLAN}
       />
@@ -106,7 +106,7 @@ describe('PaymentErrorView test with l10n', () => {
   it('does not render the ActionButton for post-subscription creation errors', async () => {
     const { queryByTestId } = render(
       <PaymentErrorView
-        actionFn={() => {}}
+        onRetry={() => {}}
         error={{ code: 'fxa_fetch_profile_customer_error' }}
         plan={SELECTED_PLAN}
       />
@@ -128,10 +128,10 @@ describe('PaymentErrorView test with l10n', () => {
   it('shows FxA legal links in footer when isPasswordlessCheckout is true', async () => {
     const { queryByTestId } = render(
       <PaymentErrorView
-        actionFn={() => {}}
+        onRetry={() => {}}
         error={{ code: 'general-paypal-error' }}
         plan={SELECTED_PLAN}
-        showFxaLegalFooterLinks={true}
+        isPasswordlessCheckout={true}
       />
     );
 

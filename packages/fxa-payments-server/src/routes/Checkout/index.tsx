@@ -279,7 +279,7 @@ export const Checkout = ({
         {newsletterSignupError && <NewsletterErrorAlertBar />}
         <PaymentErrorView
           error={subscriptionError}
-          actionFn={() => {
+          onRetry={() => {
             setSubscriptionError(undefined);
             setTransactionInProgress(false);
           }}
@@ -287,7 +287,7 @@ export const Checkout = ({
             hidden: !subscriptionError,
           })}
           plan={selectedPlan}
-          showFxaLegalFooterLinks={true}
+          isPasswordlessCheckout={true}
         />
         <PaymentProcessing
           provider="paypal"

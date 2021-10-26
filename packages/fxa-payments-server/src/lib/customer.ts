@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { isIapSubscription } from 'fxa-shared/subscriptions/subscriptions';
-import {
-  IapSubscription,
-  MozillaSubscription,
-} from 'fxa-shared/subscriptions/types';
 import { Customer } from '../store/types';
 import {
   isNotChosen,
@@ -43,20 +38,10 @@ export const isExistingPaypalCustomer = (customer: Customer | null) =>
 export const isExistingCustomer = (customer?: Customer | null) =>
   !!(customer && hasSubscriptions(customer) && hasPaymentProvider(customer));
 
-export const findCustomerIapSubscriptionByProductId = (
-  subscriptions: MozillaSubscription[] | null,
-  productId: string
-) =>
-  subscriptions &&
-  (subscriptions.find(
-    (s) => isIapSubscription(s) && s.product_id === productId
-  ) as IapSubscription);
-
 export default {
   hasSubscriptions,
   hasPaymentProvider,
   isExistingCustomer,
   isExistingPaypalCustomer,
   isExistingStripeCustomer,
-  findCustomerIapSubscriptionByProductId,
 };

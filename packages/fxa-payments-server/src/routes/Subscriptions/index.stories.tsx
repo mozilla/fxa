@@ -1,3 +1,4 @@
+import React, { ReactNode } from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import MockApp, {
@@ -5,16 +6,15 @@ import MockApp, {
 } from '../../../.storybook/components/MockApp';
 import { SettingsLayout } from '../../components/AppLayout';
 import { Subscriptions, SubscriptionsProps } from './index';
-import { PaymentUpdateStripeAPIs } from './PaymentUpdateForm';
+import {
+  PaymentUpdateStripeAPIs,
+  PaymentUpdateAuthServerAPIs,
+} from './PaymentUpdateForm';
 import { QueryParams } from '../../lib/types';
 import { APIError } from '../../lib/apiClient';
 import { FetchState } from '../../store/types';
 import { linkTo } from '@storybook/addon-links';
 import { CUSTOMER, FILTERED_SETUP_INTENT } from '../../lib/mock-data';
-import {
-  MozillaSubscriptionTypes,
-  WebSubscription,
-} from 'fxa-shared/subscriptions/types';
 
 function init() {
   setupVariantStories('routes/Subscriptions', {
@@ -271,8 +271,6 @@ const baseProps: SubscriptionsProps = {
 
 const customerSubscriptions = [
   {
-    _subscription_type: MozillaSubscriptionTypes.WEB,
-    created: Date.now(),
     current_period_end: (Date.now() + 86400) / 1000,
     current_period_start: (Date.now() - 86400) / 1000,
     cancel_at_period_end: false,
@@ -284,7 +282,7 @@ const customerSubscriptions = [
     status: 'active',
     subscription_id: 'sub_5551212',
   },
-] as WebSubscription[];
+];
 
 const subscribedProps: SubscriptionsProps = {
   ...baseProps,
@@ -305,15 +303,34 @@ const subscribedProps: SubscriptionsProps = {
   customerSubscriptions: customerSubscriptions,
 };
 
+const subscribedWithPayPalProps: SubscriptionsProps = {
+  ...baseProps,
+  customer: {
+    loading: false,
+    error: null,
+    result: {
+      billing_name: 'Jane Doe',
+      payment_provider: 'paypal',
+      payment_type: 'card',
+      last4: '8675',
+      exp_month: '12',
+      exp_year: '2028',
+      brand: 'Visa',
+      subscriptions: customerSubscriptions,
+    },
+  },
+  customerSubscriptions: customerSubscriptions,
+};
+
 const cancelledProps: SubscriptionsProps = {
   ...subscribedProps,
   customerSubscriptions: subscribedProps.customerSubscriptions
-    ? ([
+    ? [
         {
           ...subscribedProps.customerSubscriptions[0],
           cancel_at_period_end: true,
         },
-      ] as WebSubscription[])
+      ]
     : null,
 };
 

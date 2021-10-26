@@ -16,10 +16,6 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
 import { Plan, Token } from '../../src/store/types';
-import {
-  MozillaSubscription,
-  MozillaSubscriptionTypes,
-} from 'fxa-shared/subscriptions/types';
 
 declare global {
   namespace NodeJS {
@@ -590,7 +586,6 @@ export const MOCK_CUSTOMER = {
   exp_year: '2020',
   subscriptions: [
     {
-      _subscription_type: MozillaSubscriptionTypes.WEB,
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
       product_id: 'prod_123',
@@ -598,11 +593,10 @@ export const MOCK_CUSTOMER = {
       latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,
-      created: 1565815388.815,
       current_period_start: 1565816388.815,
       current_period_end: 1568408388.815,
       end_at: null,
-    } as MozillaSubscription,
+    },
   ],
 };
 
@@ -611,7 +605,6 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
   subscriptions: [
     ...MOCK_CUSTOMER.subscriptions,
     {
-      _subscription_type: MozillaSubscriptionTypes.WEB,
       subscription_id: 'sub0.21234123424',
       plan_id: PLAN_ID,
       product_id: PRODUCT_ID,

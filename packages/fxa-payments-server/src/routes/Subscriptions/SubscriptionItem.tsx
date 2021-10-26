@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// React looks unused here, but we need it for Storybook.
 import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
-import { Plan, Customer } from '../../store/types';
+import { CustomerSubscription, Plan, Customer } from '../../store/types';
 import { SelectorReturns } from '../../store/selectors';
 import { SubscriptionsProps } from './index';
 
@@ -15,10 +14,9 @@ import AppContext from '../../lib/AppContext';
 import CancelSubscriptionPanel from './Cancel/CancelSubscriptionPanel';
 import ReactivateSubscriptionPanel from './Reactivate/ManagementPanel';
 import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
-import { WebSubscription } from 'fxa-shared/subscriptions/types';
 
 export type SubscriptionItemProps = {
-  customerSubscription: WebSubscription;
+  customerSubscription: CustomerSubscription;
   plan: Plan | null;
   cancelSubscription: SubscriptionsProps['cancelSubscription'];
   reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
