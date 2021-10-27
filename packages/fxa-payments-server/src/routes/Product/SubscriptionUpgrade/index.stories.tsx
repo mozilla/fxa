@@ -16,6 +16,7 @@ import {
 } from '../../../lib/mock-data';
 
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
+import { WebSubscription } from 'fxa-shared/subscriptions/types';
 
 function init() {
   storiesOf('routes/Product/SubscriptionUpgrade', module)
@@ -100,7 +101,7 @@ const MOCK_PROPS: SubscriptionUpgradeProps = {
   customer: CUSTOMER,
   selectedPlan: SELECTED_PLAN,
   upgradeFromPlan: UPGRADE_FROM_PLAN,
-  upgradeFromSubscription: CUSTOMER.subscriptions[0],
+  upgradeFromSubscription: CUSTOMER.subscriptions[0] as WebSubscription,
   updateSubscriptionPlanStatus: {
     error: null,
     loading: false,

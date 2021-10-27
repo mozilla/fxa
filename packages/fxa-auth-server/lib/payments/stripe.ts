@@ -1697,8 +1697,7 @@ export class StripeHelper {
         current_period_start: sub.current_period_start,
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
-        // @ts-ignore
-        latest_invoice: latestInvoice.number,
+        latest_invoice: latestInvoice!.number!,
         // @ts-ignore
         plan_id: sub.plan.id,
         product_name,
@@ -2434,11 +2433,11 @@ export class StripeHelper {
           break;
         // @ts-ignore
         case 'customer.created':
-          if (event.request?.id) {
-            break;
-          }
         case 'customer.updated':
         case 'customer.deleted':
+          if (type === 'customer.created' && event.request?.id) {
+            break;
+          }
           let customer: Partial<Stripe.Customer>;
           if (data.previous_attributes) {
             customer = pick(data.object, [

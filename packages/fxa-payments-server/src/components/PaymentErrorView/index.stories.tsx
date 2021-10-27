@@ -6,7 +6,7 @@ import { SELECTED_PLAN } from '../../lib/mock-data';
 storiesOf('components/PaymentError', module).add('default', () => (
   <PaymentErrorView
     error={{ code: 'general-paypal-error' }}
-    onRetry={() => {}}
+    actionFn={() => {}}
     plan={SELECTED_PLAN}
   />
 ));

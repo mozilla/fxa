@@ -1,10 +1,5 @@
-import React, {
-  useEffect,
-  useContext,
-  useCallback,
-  useState,
-  useRef,
-} from 'react';
+// React looks unused here, but we need it for Storybook.
+import React, { useEffect, useContext, useCallback, useRef } from 'react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { connect } from 'react-redux';
 import { Localized } from '@fluent/react';
@@ -18,7 +13,7 @@ import { actions, ActionFunctions } from '../../store/actions';
 import { selectors, SelectorReturns } from '../../store/selectors';
 import { sequences, SequenceFunctions } from '../../store/sequences';
 import { State } from '../../store/state';
-import { CustomerSubscription, Profile, Plan } from '../../store/types';
+import { Profile, Plan } from '../../store/types';
 
 import './index.scss';
 import SubscriptionItem from './SubscriptionItem';
@@ -36,6 +31,11 @@ import PaymentUpdateForm, {
   PaymentUpdateStripeAPIs,
   PaymentUpdateAuthServerAPIs,
 } from './PaymentUpdateForm';
+import { isWebSubscription } from 'fxa-shared/subscriptions/subscriptions';
+import {
+  MozillaSubscription,
+  WebSubscription,
+} from 'fxa-shared/subscriptions/types';
 
 export type SubscriptionsProps = {
   profile: SelectorReturns['profile'];
@@ -188,11 +188,15 @@ export const Subscriptions = ({
     return <LoadingOverlay isLoading={true} />;
   }
 
-  const hasActiveSubscription =
+  const activeWebSubscription =
     customerSubscriptions &&
-    customerSubscriptions.some((s) => !s.cancel_at_period_end);
+    customerSubscriptions.find(
+      (s) => isWebSubscription(s) && !s.cancel_at_period_end
+    );
   const showPaymentUpdateForm =
-    customer && customer.result && hasActiveSubscription;
+    customer && customer.result && activeWebSubscription;
+  const planId =
+    activeWebSubscription && (activeWebSubscription as WebSubscription).plan_id;
 
   return (
     <div className="subscription-management" onClick={onAnyClick}>
@@ -290,10 +294,7 @@ export const Subscriptions = ({
           {customer.result && showPaymentUpdateForm && (
             <PaymentUpdateForm
               {...{
-                plan: planForId(
-                  customer.result.subscriptions[0].plan_id,
-                  plans.result
-                ),
+                plan: planForId(planId!, plans.result),
                 customer: customer.result,
                 refreshSubscriptions: fetchSubscriptionsRouteResources,
                 setUpdatePaymentIsSuccess,
@@ -307,25 +308,31 @@ export const Subscriptions = ({
 
           {customer.result &&
             customerSubscriptions &&
-            customerSubscriptions.map((customerSubscription, idx) => (
-              <SubscriptionItem
-                key={idx}
-                {...{
-                  customer: customer.result,
-                  cancelSubscription,
-                  reactivateSubscription,
-                  customerSubscription,
-                  cancelSubscriptionStatus,
-                  plan: planForId(customerSubscription.plan_id, plans.result),
-                  refreshSubscriptions: fetchSubscriptionsRouteResources,
-                  setUpdatePaymentIsSuccess,
-                  resetUpdatePaymentIsSuccess:
-                    resetUpdatePaymentIsSuccessAndAlert,
-                  paymentUpdateStripeOverride,
-                  paymentUpdateApiClientOverrides,
-                }}
-              />
-            ))}
+            customerSubscriptions.map(
+              (customerSubscription, idx) =>
+                isWebSubscription(customerSubscription) && (
+                  <SubscriptionItem
+                    key={idx}
+                    {...{
+                      customer: customer.result,
+                      cancelSubscription,
+                      reactivateSubscription,
+                      customerSubscription,
+                      cancelSubscriptionStatus,
+                      plan: planForId(
+                        customerSubscription.plan_id,
+                        plans.result
+                      ),
+                      refreshSubscriptions: fetchSubscriptionsRouteResources,
+                      setUpdatePaymentIsSuccess,
+                      resetUpdatePaymentIsSuccess:
+                        resetUpdatePaymentIsSuccessAndAlert,
+                      paymentUpdateStripeOverride,
+                      paymentUpdateApiClientOverrides,
+                    }}
+                  />
+                )
+            )}
 
           <div className="settings-unit">
             <div className="subscription pocket-external">
@@ -375,18 +382,20 @@ export const Subscriptions = ({
 
 const customerSubscriptionForId = (
   subscriptionId: string,
-  customerSubscriptions: CustomerSubscription[]
-): CustomerSubscription | null =>
+  customerSubscriptions: MozillaSubscription[]
+): WebSubscription | null =>
   customerSubscriptions.filter(
-    (subscription) => subscription.subscription_id === subscriptionId
-  )[0];
+    (subscription) =>
+      isWebSubscription(subscription) &&
+      subscription.subscription_id === subscriptionId
+  )[0] as WebSubscription;
 
 const planForId = (planId: string, plans: Plan[]): Plan | null =>
   plans.filter((plan) => plan.plan_id === planId)[0];
 
 type CancellationDialogMessageProps = {
   subscriptionId: string;
-  customerSubscriptions: CustomerSubscription[];
+  customerSubscriptions: MozillaSubscription[];
   plans: Plan[];
   resetCancelSubscription: SubscriptionsProps['resetCancelSubscription'];
   supportFormUrl: string;
@@ -402,8 +411,8 @@ const CancellationDialogMessage = ({
   const customerSubscription = customerSubscriptionForId(
     subscriptionId,
     customerSubscriptions
-  ) as CustomerSubscription;
-  const plan = planForId(customerSubscription.plan_id, plans) as Plan;
+  );
+  const plan = planForId(customerSubscription!.plan_id, plans) as Plan;
 
   return (
     <DialogMessage onDismiss={resetCancelSubscription}>
@@ -416,7 +425,7 @@ const CancellationDialogMessage = ({
         id="sub-route-idx-cancel-msg"
         vars={{
           name: plan.product_name,
-          date: getLocalizedDate(customerSubscription.current_period_end),
+          date: getLocalizedDate(customerSubscription!.current_period_end),
         }}
       >
         <p>
@@ -424,7 +433,7 @@ const CancellationDialogMessage = ({
           <br />
           You will still have access to {plan.product_name} until{' '}
           {getLocalizedDateString(
-            customerSubscription.current_period_end,
+            customerSubscription!.current_period_end,
             false
           )}
           .
