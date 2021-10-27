@@ -37,7 +37,6 @@ import {
 } from 'fxa-shared/subscriptions/subscriptions';
 import {
   MozillaSubscription,
-  MozillaSubscriptionTypes,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
 import SubscriptionIapItem from './SubscriptionIapItem/SubscriptionIapItem';
@@ -351,11 +350,10 @@ export const Subscriptions = ({
                     key={idx}
                     {...{
                       customerSubscription,
-                      plan: planForProductId(
+                      productName: productNameFromProductIdAndPlans(
                         customerSubscription.product_id,
                         plans.result
                       ),
-                      refreshSubscriptions: fetchSubscriptionsRouteResources,
                     }}
                   />
                 ))
@@ -420,8 +418,11 @@ const customerSubscriptionForId = (
 const planForId = (planId: string, plans: Plan[]): Plan | null =>
   plans.filter((plan) => plan.plan_id === planId)[0];
 
-const planForProductId = (productId: string, plans: Plan[]): Plan | null =>
-  plans.filter((plan) => plan.product_id === productId)[0];
+const productNameFromProductIdAndPlans = (
+  productId: string,
+  plans: Plan[]
+): string =>
+  plans.filter((plan) => plan.product_id === productId)[0].product_name || '';
 
 type CancellationDialogMessageProps = {
   subscriptionId: string;

@@ -1,7 +1,6 @@
 import { FluentNumber, FluentDateTime } from '@fluent/bundle';
 import {
-  AppleSubscription,
-  GooglePlaySubscription,
+  IapSubscription,
   MozillaSubscriptionTypes,
 } from 'fxa-shared/subscriptions/types';
 import { PlanInterval } from '../store/types';
@@ -171,9 +170,7 @@ export function getDefaultPaymentConfirmText(
 export const legalDocsRedirectUrl = (docUrl: string): string =>
   `/legal-docs?url=${encodeURI(docUrl)}`;
 
-export const getIapSubscriptionManagementUrl = (
-  s: GooglePlaySubscription | AppleSubscription
-) => {
+export const getIapSubscriptionManagementUrl = (s: IapSubscription) => {
   switch (s._subscription_type) {
     case MozillaSubscriptionTypes.IAP_GOOGLE:
       return `https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(

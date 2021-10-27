@@ -4442,9 +4442,9 @@ describe('StripeHelper', () => {
     });
 
     describe('productToPlaySkus', () => {
-      it('formats skus from product metadata', () => {
+      it('formats skus from product metadata, including transforming them to lowercase', () => {
         const result = stripeHelper.productToPlaySkus(mockProduct);
-        assert.deepEqual(result, ['testSku', 'testSku2']);
+        assert.deepEqual(result, ['testsku', 'testsku2']);
       });
 
       it('handles empty product metadata skus', () => {
@@ -4495,11 +4495,11 @@ describe('StripeHelper', () => {
       });
     });
 
-    describe('appendAbbrevPurchasesWithProductIds', () => {
-      let mockAbbrevPurchase;
+    describe('appendAbbrevPlayPurchasesWithProductIds', () => {
+      let mockAbbrevPlayPurchase;
 
       beforeEach(() => {
-        mockAbbrevPurchase = {
+        mockAbbrevPlayPurchase = {
           auto_renewing: true,
           expiry_time_millis: Date.now(),
           package_name: 'org.mozilla.cooking.with.foxkeh',
@@ -4509,22 +4509,24 @@ describe('StripeHelper', () => {
 
       it('appends a matching product id to a subscription purchase', async () => {
         const expected = {
-          ...mockAbbrevPurchase,
+          ...mockAbbrevPlayPurchase,
           product_id: productId,
         };
-        const result = await stripeHelper.appendAbbrevPurchasesWithProductIds([
-          mockAbbrevPurchase,
-        ]);
+        const result =
+          await stripeHelper.appendAbbrevPlayPurchasesWithProductIds([
+            mockAbbrevPlayPurchase,
+          ]);
         assert.deepEqual([expected], result);
       });
       it('returns an empty list if no matching product ids are found', async () => {
-        const mockAbbrevPurchase1 = {
-          ...mockAbbrevPurchase,
+        const mockAbbrevPlayPurchase1 = {
+          ...mockAbbrevPlayPurchase,
           sku: 'notMatchingSku',
         };
-        const result = await stripeHelper.appendAbbrevPurchasesWithProductIds([
-          mockAbbrevPurchase1,
-        ]);
+        const result =
+          await stripeHelper.appendAbbrevPlayPurchasesWithProductIds([
+            mockAbbrevPlayPurchase1,
+          ]);
         assert.isEmpty(result);
       });
     });

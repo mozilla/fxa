@@ -82,17 +82,19 @@ export class MozillaSubscriptionHandler {
 
     const stripeBillingDetailsAndSubscriptions =
       await this.stripeHelper.getBillingDetailsAndSubscriptions(uid);
-    const iapSubscribedGooglePlayAbbrevPurchases =
-      await this.capabilityService.fetchSubscribedAbbrevPurchasesFromPlay(uid);
+    const iapSubscribedGooglePlayAbbrevPlayPurchases =
+      await this.capabilityService.fetchSubscribedAbbrevPlayPurchasesFromPlay(
+        uid
+      );
 
-    const iapAbbrevPurchasesWithProductIds =
-      await this.stripeHelper.appendAbbrevPurchasesWithProductIds(
-        iapSubscribedGooglePlayAbbrevPurchases
+    const iapAbbrevPlayPurchasesWithProductIds =
+      await this.stripeHelper.appendAbbrevPlayPurchasesWithProductIds(
+        iapSubscribedGooglePlayAbbrevPlayPurchases
       );
 
     if (
       !stripeBillingDetailsAndSubscriptions &&
-      iapAbbrevPurchasesWithProductIds.length === 0
+      iapAbbrevPlayPurchasesWithProductIds.length === 0
     ) {
       throw error.unknownCustomer(uid);
     }
@@ -105,12 +107,10 @@ export class MozillaSubscriptionHandler {
     };
 
     const iapGooglePlaySubscriptions: GooglePlaySubscription[] =
-      iapAbbrevPurchasesWithProductIds.map((purchase) => {
-        return {
-          ...purchase,
-          _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-        };
-      });
+      iapAbbrevPlayPurchasesWithProductIds.map((purchase) => ({
+        ...purchase,
+        _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+      }));
 
     return {
       ...response,

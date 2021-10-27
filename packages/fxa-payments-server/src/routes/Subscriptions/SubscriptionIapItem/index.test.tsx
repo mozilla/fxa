@@ -33,11 +33,11 @@ const googleSubscription: IapSubscription = {
 
 type SubjectProps = PickPartial<
   SubscriptionIapItemProps,
-  'plan' | 'customerSubscription'
+  'productName' | 'customerSubscription'
 >;
 
 const Subject = ({
-  plan = SELECTED_PLAN,
+  productName = SELECTED_PLAN.product_name,
   customerSubscription = googleSubscription,
 }: SubjectProps) => {
   return (
@@ -45,7 +45,7 @@ const Subject = ({
       <SignInLayout>
         <SubscriptionIapItem
           {...{
-            plan,
+            productName,
             customerSubscription,
           }}
         />
@@ -93,10 +93,5 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
     expect(iapDetailsEle).toHaveTextContent('Apple');
     const manageButton = queryByTestId('manage-iap-subscription-button');
     expect(manageButton).toBeNull();
-  });
-  it('displays an error dialog if no plan is found', async () => {
-    const { findByTestId } = render(<Subject plan={null} />);
-    const planErrorEle = await findByTestId('error-subhub-missing-plan');
-    expect(planErrorEle).toBeInTheDocument();
   });
 });

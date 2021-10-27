@@ -250,7 +250,7 @@ describe('CapabilityService', () => {
     });
   });
 
-  describe('fetchSubscribedAbbrevPurchasesFromPlay', () => {
+  describe('fetchSubscribedAbbrevPlayPurchasesFromPlay', () => {
     mockSubscriptionPurchase = {
       sku: 'play_1234',
       isEntitlementActive: sinon.fake.returns(true),
@@ -267,11 +267,11 @@ describe('CapabilityService', () => {
         package_name: mockSubscriptionPurchase.packageName,
         cancel_reason: mockSubscriptionPurchase.cancelReason,
       };
-      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon.spy(
-        async () => [mockSubscriptionPurchase]
-      );
+      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
+        .stub()
+        .resolves([mockSubscriptionPurchase]);
       const result =
-        await capabilityService.fetchSubscribedAbbrevPurchasesFromPlay(UID);
+        await capabilityService.fetchSubscribedAbbrevPlayPurchasesFromPlay(UID);
       assert.deepEqual([expected], result);
     });
   });
@@ -341,9 +341,9 @@ describe('CapabilityService', () => {
         isEntitlementActive: sinon.fake.returns(true),
       };
 
-      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon.spy(
-        async () => [mockSubscriptionPurchase]
-      );
+      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
+        .stub()
+        .resolves([mockSubscriptionPurchase]);
     });
 
     async function assertExpectedCapabilities(clientId, expectedCapabilities) {

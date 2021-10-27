@@ -117,14 +117,14 @@ export type WebSubscription = Pick<
     subscription_id: Stripe.Subscription['id'];
   };
 
-export interface AbbrevPurchase {
+export interface AbbrevPlayPurchase {
   auto_renewing: boolean;
   cancel_reason?: number;
   expiry_time_millis: number;
   package_name: string;
   sku: string;
 }
-export interface GooglePlaySubscription extends AbbrevPurchase {
+export interface GooglePlaySubscription extends AbbrevPlayPurchase {
   _subscription_type: SubscriptionTypes[1];
   product_id: Stripe.Product['id'];
 }

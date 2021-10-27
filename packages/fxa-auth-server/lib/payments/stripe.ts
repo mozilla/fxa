@@ -48,7 +48,7 @@ import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
-import { AbbrevPurchase } from 'fxa-shared/subscriptions/types';
+import { AbbrevPlayPurchase } from 'fxa-shared/subscriptions/types';
 
 export const CUSTOMER_RESOURCE = 'customers';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -1015,7 +1015,7 @@ export class StripeHelper {
     return productSkus
       .trim()
       .split(',')
-      .map((c) => c.trim())
+      .map((c) => c.trim().toLowerCase())
       .filter((c) => !!c);
   }
 
@@ -1029,9 +1029,7 @@ export class StripeHelper {
     );
     const purchasedProducts = [];
     for (const product of products) {
-      const playSkus = this.productToPlaySkus(product).map((sku) =>
-        sku.toLowerCase()
-      );
+      const playSkus = this.productToPlaySkus(product);
       if (playSkus.some((sku) => purchasedSkus.includes(sku))) {
         purchasedProducts.push(product.product_id);
       }
@@ -1040,28 +1038,26 @@ export class StripeHelper {
   }
 
   /**
-   * Append any matching product ids to their corresponding AbbrevPurchase.
+   * Append any matching product ids to their corresponding AbbrevPlayPurchase.
    */
-  async appendAbbrevPurchasesWithProductIds(
-    purchases: AbbrevPurchase[]
-  ): Promise<(AbbrevPurchase & { product_id: string })[]> {
+  async appendAbbrevPlayPurchasesWithProductIds(
+    purchases: AbbrevPlayPurchase[]
+  ): Promise<(AbbrevPlayPurchase & { product_id: string })[]> {
     const products = await this.allAbbrevProducts();
-    const appendedAbbrevPurchases = [];
+    const appendedAbbrevPlayPurchases = [];
     for (const product of products) {
-      const playSkus = this.productToPlaySkus(product).map((sku) =>
-        sku.toLowerCase()
-      );
-      const matchingAbbrevPurchases = purchases.filter((purchase) =>
+      const playSkus = this.productToPlaySkus(product);
+      const matchingAbbrevPlayPurchases = purchases.filter((purchase) =>
         playSkus.includes(purchase.sku.toLowerCase())
       );
-      for (const matchingAbbrevPurchase of matchingAbbrevPurchases) {
-        appendedAbbrevPurchases.push({
-          ...matchingAbbrevPurchase,
+      for (const matchingAbbrevPlayPurchase of matchingAbbrevPlayPurchases) {
+        appendedAbbrevPlayPurchases.push({
+          ...matchingAbbrevPlayPurchase,
           product_id: product.product_id,
         });
       }
     }
-    return appendedAbbrevPurchases;
+    return appendedAbbrevPlayPurchases;
   }
 
   /**

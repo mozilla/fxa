@@ -37,7 +37,7 @@ const mockSubsAndBillingDetails = {
   ],
   payment_provider: 'dinersclub',
 };
-const mockAbbrevPurchase = {
+const mockAbbrevPlayPurchase = {
   auto_renewing: true,
   expiry_time_millis: Date.now(),
   package_name: 'org.mozilla.cooking.with.foxkeh',
@@ -56,17 +56,17 @@ const stripeHelper = {
   getBillingDetailsAndSubscriptions: sandbox
     .stub()
     .resolves(mockSubsAndBillingDetails),
-  appendAbbrevPurchasesWithProductIds: sandbox.stub().resolves([
+  appendAbbrevPlayPurchasesWithProductIds: sandbox.stub().resolves([
     {
-      ...mockAbbrevPurchase,
+      ...mockAbbrevPlayPurchase,
       product_id: iap_product_id,
     },
   ]),
 };
 const capabilityService = {
-  fetchSubscribedAbbrevPurchasesFromPlay: sandbox
+  fetchSubscribedAbbrevPlayPurchasesFromPlay: sandbox
     .stub()
-    .resolves([mockAbbrevPurchase]),
+    .resolves([mockAbbrevPlayPurchase]),
 };
 const {
   mozillaSubscriptionRoutes,
@@ -103,7 +103,7 @@ describe('mozilla-subscriptions', () => {
           {
             _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
             product_id: iap_product_id,
-            ...mockAbbrevPurchase,
+            ...mockAbbrevPlayPurchase,
           },
         ],
       });
@@ -111,9 +111,9 @@ describe('mozilla-subscriptions', () => {
 
     it('gets customer billing details and only Stripe subscriptions', async () => {
       const capabilityService = {
-        fetchSubscribedAbbrevPurchasesFromPlay: sandbox.stub().resolves([]),
+        fetchSubscribedAbbrevPlayPurchasesFromPlay: sandbox.stub().resolves([]),
       };
-      stripeHelper.appendAbbrevPurchasesWithProductIds = sandbox
+      stripeHelper.appendAbbrevPlayPurchasesWithProductIds = sandbox
         .stub()
         .resolves([]);
       const resp = await runTest(
@@ -131,9 +131,9 @@ describe('mozilla-subscriptions', () => {
     it('gets customer billing details and only Google Play subscriptions', async () => {
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        appendAbbrevPurchasesWithProductIds: sandbox.stub().resolves([
+        appendAbbrevPlayPurchasesWithProductIds: sandbox.stub().resolves([
           {
-            ...mockAbbrevPurchase,
+            ...mockAbbrevPlayPurchase,
             product_id: iap_product_id,
           },
         ]),
@@ -149,7 +149,7 @@ describe('mozilla-subscriptions', () => {
           {
             _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
             product_id: iap_product_id,
-            ...mockAbbrevPurchase,
+            ...mockAbbrevPlayPurchase,
           },
         ],
       });
@@ -157,11 +157,11 @@ describe('mozilla-subscriptions', () => {
 
     it('throws an error when there are no subsriptions', async () => {
       const capabilityService = {
-        fetchSubscribedAbbrevPurchasesFromPlay: sandbox.stub().resolves([]),
+        fetchSubscribedAbbrevPlayPurchasesFromPlay: sandbox.stub().resolves([]),
       };
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        appendAbbrevPurchasesWithProductIds: sandbox.stub().resolves([]),
+        appendAbbrevPlayPurchasesWithProductIds: sandbox.stub().resolves([]),
       };
       try {
         await runTest(

@@ -600,7 +600,7 @@ describe('lib/routes/validators:', () => {
   });
 
   describe('subscriptionsGooglePlaySubscriptionValidator', () => {
-    const mockAbbrevPurchase = {
+    const mockAbbrevPlayPurchase = {
       auto_renewing: true,
       expiry_time_millis: Date.now(),
       package_name: 'org.mozilla.cooking.with.foxkeh',
@@ -611,7 +611,7 @@ describe('lib/routes/validators:', () => {
         validators.subscriptionsGooglePlaySubscriptionValidator.validate({
           _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
           product_id: 'xyz',
-          ...mockAbbrevPurchase,
+          ...mockAbbrevPlayPurchase,
         });
       assert.ok(!res.error);
     });
@@ -621,7 +621,7 @@ describe('lib/routes/validators:', () => {
         validators.subscriptionsGooglePlaySubscriptionValidator.validate({
           _subscription_type: 'unknown',
           product_id: 'xyz',
-          ...mockAbbrevPurchase,
+          ...mockAbbrevPlayPurchase,
         });
       assert.ok(res.error);
     });
@@ -630,7 +630,7 @@ describe('lib/routes/validators:', () => {
       const res =
         validators.subscriptionsGooglePlaySubscriptionValidator.validate({
           _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-          ...mockAbbrevPurchase,
+          ...mockAbbrevPlayPurchase,
         });
       assert.ok(res.error);
     });

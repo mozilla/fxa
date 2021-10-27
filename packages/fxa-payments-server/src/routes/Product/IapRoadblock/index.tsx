@@ -6,8 +6,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { useLocalization } from '@fluent/react';
 import {
-  AppleSubscription,
-  GooglePlaySubscription,
+  IapSubscription,
   MozillaSubscriptionTypes,
 } from 'fxa-shared/subscriptions/types';
 import { Header } from '../../../components/Header';
@@ -22,7 +21,7 @@ export type IapRoadblockProps = {
   profile: Profile;
   customer: Customer;
   selectedPlan: Plan;
-  subscription: GooglePlaySubscription | AppleSubscription;
+  subscription: IapSubscription;
 };
 
 const getIapSubscriptionAppStoreL10Id = (
