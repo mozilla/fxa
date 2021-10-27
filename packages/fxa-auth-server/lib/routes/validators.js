@@ -559,7 +559,12 @@ module.exports.subscriptionsStripeSubscriptionValidator = isA
 
 module.exports.subscriptionsGooglePlaySubscriptionValidator = isA.object({
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+  auto_renewing: isA.bool().required(),
+  cancel_reason: isA.number().optional(),
+  expiry_time_millis: isA.number().required(),
+  package_name: isA.string().required(),
   product_id: isA.string().required(),
+  sku: isA.string().required(),
 });
 
 module.exports.subscriptionsStripeCustomerValidator = isA

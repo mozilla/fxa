@@ -14,6 +14,7 @@ import { PlayBilling } from './google-play/play-billing';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { StripeHelper } from './stripe';
 import error from '../error';
+import { AbbrevPlayPurchase } from 'fxa-shared/subscriptions/types';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -359,10 +360,46 @@ export class CapabilityService {
   }
 
   /**
+   * Extract an AbbrevPlayPurchase from a SubscriptionPurchase
+   */
+  private AbbrevPlayPurchaseFromSubscriptionPurchase(
+    purchase: SubscriptionPurchase
+  ): AbbrevPlayPurchase {
+    return {
+      auto_renewing: purchase.autoRenewing,
+      expiry_time_millis: purchase.expiryTimeMillis,
+      package_name: purchase.packageName,
+      sku: purchase.sku,
+      ...(purchase.cancelReason && { cancel_reason: purchase.cancelReason }),
+    };
+  }
+
+  /**
+   * Fetch the list of subscription purchases from Google Play and return
+   * a list of AbbrevPlayPurchases.
+   */
+  public async fetchSubscribedAbbrevPlayPurchasesFromPlay(
+    uid: string
+  ): Promise<AbbrevPlayPurchase[]> {
+    if (!this.playBilling) {
+      return [];
+    }
+    const allPurchases =
+      await this.playBilling.userManager.queryCurrentSubscriptions(uid);
+    const purchases = allPurchases.filter((purchase) =>
+      purchase.isEntitlementActive()
+    );
+
+    return purchases.map(this.AbbrevPlayPurchaseFromSubscriptionPurchase);
+  }
+
+  /**
    * Fetch the list of subscription purchases from Google Play and return
    * the ids of the products purchased.
    */
-  public async fetchSubscribedProductsFromPlay(uid: string): Promise<string[]> {
+  private async fetchSubscribedProductsFromPlay(
+    uid: string
+  ): Promise<string[]> {
     if (!this.playBilling) {
       return [];
     }

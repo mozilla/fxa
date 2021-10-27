@@ -7,12 +7,13 @@ import { Container } from 'typedi';
 import error from '../../error';
 import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
 import { CapabilityService } from '../../../lib/payments/capability';
-import { MozillaSubscription } from '../../../../fxa-shared/subscriptions/types';
-import { AuthLogger, AuthRequest } from '../../types';
 import {
-  handleAuth,
-  subscribedProductIdsToIapGooglePlaySubscriptions,
-} from './utils';
+  GooglePlaySubscription,
+  MozillaSubscription,
+  MozillaSubscriptionTypes,
+} from '../../../../fxa-shared/subscriptions/types';
+import { AuthLogger, AuthRequest } from '../../types';
+import { handleAuth } from './utils';
 import validators from '../validators';
 
 export const mozillaSubscriptionRoutes = ({
@@ -81,12 +82,19 @@ export class MozillaSubscriptionHandler {
 
     const stripeBillingDetailsAndSubscriptions =
       await this.stripeHelper.getBillingDetailsAndSubscriptions(uid);
-    const iapSubscribedGooglePlayProducts =
-      await this.capabilityService.fetchSubscribedProductsFromPlay(uid);
+    const iapSubscribedGooglePlayAbbrevPlayPurchases =
+      await this.capabilityService.fetchSubscribedAbbrevPlayPurchasesFromPlay(
+        uid
+      );
+
+    const iapAbbrevPlayPurchasesWithProductIds =
+      await this.stripeHelper.appendAbbrevPlayPurchasesWithProductIds(
+        iapSubscribedGooglePlayAbbrevPlayPurchases
+      );
 
     if (
       !stripeBillingDetailsAndSubscriptions &&
-      iapSubscribedGooglePlayProducts.length === 0
+      iapAbbrevPlayPurchasesWithProductIds.length === 0
     ) {
       throw error.unknownCustomer(uid);
     }
@@ -97,10 +105,12 @@ export class MozillaSubscriptionHandler {
     } & Partial<PaymentBillingDetails> = stripeBillingDetailsAndSubscriptions || {
       subscriptions: [],
     };
-    const iapGooglePlaySubscriptions =
-      subscribedProductIdsToIapGooglePlaySubscriptions(
-        iapSubscribedGooglePlayProducts
-      );
+
+    const iapGooglePlaySubscriptions: GooglePlaySubscription[] =
+      iapAbbrevPlayPurchasesWithProductIds.map((purchase) => ({
+        ...purchase,
+        _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+      }));
 
     return {
       ...response,

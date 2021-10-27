@@ -50,6 +50,8 @@ import {
   MOCK_CUSTOMER,
   MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
   MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+  PLAN_ID,
+  PRODUCT_ID,
 } from '../../lib/test-utils';
 
 import FlowEvent from '../../lib/flow-event';
@@ -65,7 +67,11 @@ jest.mock('./PaymentUpdateForm', () => ({
 import { SettingsLayout } from '../../components/AppLayout';
 import Subscriptions from './index';
 import { AppContextType } from '../../lib/AppContext';
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import {
+  IapSubscription,
+  MozillaSubscriptionTypes,
+  WebSubscription,
+} from 'fxa-shared/subscriptions/types';
 
 const { location } = window;
 
@@ -736,5 +742,85 @@ describe('routes/Subscriptions', () => {
     );
 
     window.location = location;
+  });
+
+  describe('IAP subscriptions', () => {
+    const webSubscription: WebSubscription = {
+      _subscription_type: MozillaSubscriptionTypes.WEB,
+      subscription_id: 'sub0.28964929339372136',
+      created: 1565816388.815,
+      end_at: 1568408388.815,
+      plan_id: PLAN_ID,
+      product_id: PRODUCT_ID,
+      product_name: '123done Pro',
+      latest_invoice: '628031D-0002',
+      status: 'active',
+      cancel_at_period_end: false,
+      current_period_start: 1565816388.815,
+      current_period_end: 1568408388.815,
+    };
+    const appleIapSubscription: IapSubscription = {
+      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+      product_id: PRODUCT_ID,
+    };
+
+    const googleIapSubscription: IapSubscription = {
+      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+      product_id: PRODUCT_ID,
+      auto_renewing: true,
+      expiry_time_millis: Date.now(),
+      package_name: 'mozilla.cooking.with.foxkeh.monthly',
+      sku: 'mozilla.foxkeh',
+    };
+
+    it('does not render the PaymentUpdateForm if only IAP subscriptions are present', async () => {
+      initApiMocks({
+        mockCustomer: {
+          ...MOCK_CUSTOMER,
+          subscriptions: [appleIapSubscription, googleIapSubscription],
+        },
+      });
+      initApiMocks({
+        mockCustomer: {
+          ...MOCK_CUSTOMER,
+          subscriptions: [appleIapSubscription, googleIapSubscription],
+        },
+      });
+
+      const { findByTestId, queryAllByTestId, queryByTestId } = render(
+        <Subject />
+      );
+
+      await findByTestId('subscription-management-loaded');
+
+      const paymentUpdateForm = queryByTestId('PaymentUpdateForm');
+      expect(paymentUpdateForm).toBeNull();
+
+      const items = queryAllByTestId('subscription-item');
+      expect(items.length).toBe(2);
+    });
+
+    it('renders the PaymentUpdateForm if both Web and IAP subscriptions are present', async () => {
+      initApiMocks({
+        mockCustomer: {
+          ...MOCK_CUSTOMER,
+          subscriptions: [
+            appleIapSubscription,
+            googleIapSubscription,
+            webSubscription,
+          ],
+        },
+      });
+
+      const { findByTestId, queryAllByTestId } = render(<Subject />);
+
+      await findByTestId('subscription-management-loaded');
+
+      const paymentUpdateForm = await findByTestId('PaymentUpdateForm');
+      expect(paymentUpdateForm).toBeInTheDocument();
+
+      const items = queryAllByTestId('subscription-item');
+      expect(items.length).toBe(3);
+    });
   });
 });

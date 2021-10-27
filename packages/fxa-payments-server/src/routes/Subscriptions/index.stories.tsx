@@ -1,3 +1,4 @@
+import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import MockApp, {
@@ -12,6 +13,7 @@ import { FetchState } from '../../store/types';
 import { linkTo } from '@storybook/addon-links';
 import { CUSTOMER, FILTERED_SETUP_INTENT } from '../../lib/mock-data';
 import {
+  IapSubscription,
   MozillaSubscriptionTypes,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
@@ -38,10 +40,41 @@ function setupVariantStories(
       />
     ))
     .add('no subscription', () => <SubscriptionsRoute />)
-    .add('subscribed', () => (
+    .add('subscribed with web subscription', () => (
       <SubscriptionsRoute
         routeProps={{
           ...subscribedProps,
+        }}
+      />
+    ))
+    .add('subscribed with Google IAP', () => (
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedIapProps,
+        }}
+      />
+    ))
+    .add('subscribed with Apple IAP', () => (
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedIapProps,
+          customerSubscriptions: [
+            {
+              ...subscribedProps.customerSubscriptions![0],
+              _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+            },
+          ],
+        }}
+      />
+    ))
+    .add('subscribed with Google IAP and web subscription', () => (
+      <SubscriptionsRoute
+        routeProps={{
+          ...subscribedIapProps,
+          customerSubscriptions: [
+            ...customerSubscriptions,
+            ...subscribedIapProps.customerSubscriptions,
+          ],
         }}
       />
     ))
@@ -279,7 +312,7 @@ const customerSubscriptions = [
     end_at: null,
     latest_invoice: '628031D-0002',
     plan_id: PLAN_ID,
-    product_id: 'product_123',
+    product_id: PRODUCT_ID,
     product_name: 'Example Product',
     status: 'active',
     subscription_id: 'sub_5551212',
@@ -327,6 +360,20 @@ const reactivationErrorProps = {
       message: 'reactivateSubscription API not implemented',
     }),
   },
+};
+
+const subscribedIapProps = {
+  ...subscribedProps,
+  customerSubscriptions: [
+    {
+      ...subscribedProps.customerSubscriptions![0],
+      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+      expiry_time_millis: Date.now(),
+      auto_renewing: true,
+      sku: 'cooking.with.foxkeh',
+      package_name: 'foxkeh',
+    },
+  ] as IapSubscription[],
 };
 
 // TODO: Move to some shared lib?
