@@ -894,7 +894,13 @@ describe('DirectStripeRoutes', () => {
         .onCall(1)
         .resolves(expected);
       directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.resolves(
-        customer
+        {
+          ...customer,
+          invoice_settings: { default_payment_method: paymentMethodId },
+        }
+      );
+      directStripeRoutesInstance.stripeHelper.removeCustomerFromCache.resolves(
+        {}
       );
       directStripeRoutesInstance.stripeHelper.removeSources.resolves([
         {},
@@ -914,6 +920,9 @@ describe('DirectStripeRoutes', () => {
       assert.deepEqual(filterCustomer(expected), actual);
       sinon.assert.calledOnce(
         directStripeRoutesInstance.stripeHelper.removeSources
+      );
+      sinon.assert.calledOnce(
+        directStripeRoutesInstance.stripeHelper.removeCustomerFromCache
       );
     });
 

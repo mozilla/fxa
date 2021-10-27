@@ -213,6 +213,35 @@ describe('StripeFirestore', () => {
     });
   });
 
+  describe('insertCustomerRecordWithBackfill', () => {
+    it('inserts a record', async () => {
+      stripeFirestore.retrieveCustomer = sinon.fake.resolves(customer);
+      stripeFirestore.insertCustomerRecord = sinon.fake.resolves({});
+      await stripeFirestore.insertCustomerRecordWithBackfill(
+        'fxauid',
+        customer
+      );
+      assert.calledOnce(stripeFirestore.retrieveCustomer);
+      assert.calledOnce(stripeFirestore.insertCustomerRecord);
+    });
+
+    it('backfills on customer not found', async () => {
+      stripeFirestore.retrieveCustomer = sinon.fake.rejects(
+        newFirestoreStripeError(
+          'no customer',
+          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+        )
+      );
+      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      await stripeFirestore.insertCustomerRecordWithBackfill(
+        'fxauid',
+        customer
+      );
+      assert.calledOnce(stripeFirestore.retrieveCustomer);
+      assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+    });
+  });
+
   describe('insertSubscriptionRecord', () => {
     it('inserts a record', async () => {
       const customerSnap = {

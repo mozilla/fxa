@@ -511,22 +511,14 @@ export class StripeHandler {
       );
     }
 
-    await this.stripeHelper.updateDefaultPaymentMethod(
+    customer = await this.stripeHelper.updateDefaultPaymentMethod(
       customer.id,
       paymentMethodId
     );
-    await this.stripeHelper.removeSources(customer.id);
-
-    // Refetch the customer and force a cache clear
-    customer = await this.stripeHelper.customer({
-      uid,
-      email,
-      forceRefresh: true,
-    });
-    if (!customer) {
-      // We had a customer, we really shouldn't lose it now.
-      throw error.unexpectedError(request);
-    }
+    await Promise.all([
+      this.stripeHelper.removeSources(customer.id),
+      this.stripeHelper.removeCustomerFromCache(uid, email),
+    ]);
     return filterCustomer(customer);
   }
 

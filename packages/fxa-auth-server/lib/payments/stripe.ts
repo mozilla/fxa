@@ -355,21 +355,25 @@ export class StripeHelper {
         },
         { idempotencyKey }
       );
-      await this.stripe.customers.update(customerId, {
+      const customer = await this.stripe.customers.update(customerId, {
         invoice_settings: { default_payment_method: paymentMethodId },
       });
+      await this.stripeFirestore.insertCustomerRecordWithBackfill(
+        customer.metadata.userid,
+        customer
+      );
       // Try paying now instead of waiting for Stripe since this could block a
       // customer from finishing a payment
-      await this.stripe.invoices.pay(invoiceId);
+      const invoice = await this.stripe.invoices.pay(invoiceId, {
+        expand: ['payment_intent'],
+      });
+      return invoice;
     } catch (err) {
       if (err.type === 'StripeCardError') {
         throw error.rejectedSubscriptionPaymentToken(err.message, err);
       }
       throw err;
     }
-    return this.stripe.invoices.retrieve(invoiceId, {
-      expand: ['payment_intent'],
-    });
   }
 
   /**
@@ -406,9 +410,13 @@ export class StripeHelper {
         }
         throw err;
       }
-      await this.stripe.customers.update(customerId, {
+      const customer = await this.stripe.customers.update(customerId, {
         invoice_settings: { default_payment_method: paymentMethodId },
       });
+      await this.stripeFirestore.insertCustomerRecordWithBackfill(
+        customer.metadata.userid,
+        customer
+      );
     }
 
     this.statsd.increment('stripe_subscription', {
@@ -639,7 +647,14 @@ export class StripeHelper {
       postal_code: options.postalCode,
       state: options.state,
     };
-    return this.stripe.customers.update(customer_id, { address });
+    const customer = await this.stripe.customers.update(customer_id, {
+      address,
+    });
+    await this.stripeFirestore.insertCustomerRecordWithBackfill(
+      customer.metadata.userid,
+      customer
+    );
+    return customer;
   }
 
   /**
@@ -657,9 +672,14 @@ export class StripeHelper {
     ) {
       return customer;
     }
-    return this.stripe.customers.update(customer.id, {
+    const updatedCustomer = await this.stripe.customers.update(customer.id, {
       metadata: { [STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT]: agreementId },
     });
+    await this.stripeFirestore.insertCustomerRecordWithBackfill(
+      customer.metadata.userid,
+      updatedCustomer
+    );
+    return updatedCustomer;
   }
 
   /**
@@ -670,12 +690,13 @@ export class StripeHelper {
     customerId: string,
     billingAgreementId: string
   ) {
-    return [
+    const [customer] = await Promise.all([
       this.stripe.customers.update(customerId, {
         metadata: { [STRIPE_CUSTOMER_METADATA.PAYPAL_AGREEMENT]: null },
       }),
       updatePayPalBA(uid, billingAgreementId, 'Cancelled', Date.now()),
-    ];
+    ]);
+    return this.stripeFirestore.insertCustomerRecordWithBackfill(uid, customer);
   }
 
   /**
@@ -741,9 +762,14 @@ export class StripeHelper {
     customerId: string,
     paymentMethodId: string
   ): Promise<Stripe.Customer> {
-    return this.stripe.customers.update(customerId, {
+    const customer = await this.stripe.customers.update(customerId, {
       invoice_settings: { default_payment_method: paymentMethodId },
     });
+    await this.stripeFirestore.insertCustomerRecordWithBackfill(
+      customer.metadata.userid,
+      customer
+    );
+    return customer;
   }
 
   /**
@@ -840,11 +866,15 @@ export class StripeHelper {
         currency?.toUpperCase() ?? customer.currency?.toUpperCase() ?? ''
       ];
     if (taxId) {
-      await this.stripe.customers.update(customer.id, {
+      const updatedCustomer = await this.stripe.customers.update(customer.id, {
         invoice_settings: {
           custom_fields: [{ name: MOZILLA_TAX_ID, value: taxId }],
         },
       });
+      await this.stripeFirestore.insertCustomerRecordWithBackfill(
+        customer.metadata.userid,
+        updatedCustomer
+      );
     }
   }
 
@@ -2380,7 +2410,6 @@ export class StripeHelper {
 
     switch (resourceType) {
       case CUSTOMER_RESOURCE:
-        // @ts-ignore
         const customer = await this.stripeFirestore.retrieveAndFetchCustomer(
           resource
         );
@@ -2420,9 +2449,104 @@ export class StripeHelper {
     return this.stripe[resourceType].retrieve(resource);
   }
 
+  /**
+   * Process a customer event that needs to be saved to Firestore.
+   */
+  async processCustomerEventToFirestore(event: Stripe.Event) {
+    const { data } = event;
+    let customer: Partial<Stripe.Customer>;
+    if (data.previous_attributes) {
+      customer = pick(data.object, [
+        'id',
+        'metadata',
+        ...Object.keys(data.previous_attributes),
+      ]);
+    } else {
+      customer = data.object;
+    }
+    // Ensure the customer and its subscriptions exist in Firestore.
+    // Note that we still insert the object here in case we've already
+    // fetched the customer previously.
+    return this.stripeFirestore.insertCustomerRecordWithBackfill(
+      customer.metadata!.userid,
+      customer
+    );
+  }
+
+  /**
+   * Process a subscription event that needs to be saved to Firestore.
+   */
+  async processSubscriptionEventToFirestore(event: Stripe.Event) {
+    const { data } = event;
+    let subscription: Partial<Stripe.Subscription>;
+    if (data.previous_attributes) {
+      subscription = pick(data.object, [
+        'id',
+        'customer',
+        ...Object.keys(data.previous_attributes),
+      ]);
+    } else {
+      subscription = data.object;
+      // If we have no prior attributes, such that this is a full object
+      // insert, we can insert without checking for prior one.
+      return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
+        subscription
+      );
+    }
+
+    // If we already have a subscription, we can insert the update.
+    try {
+      await this.stripeFirestore.retrieveSubscription(subscription.id!);
+      return this.stripeFirestore.insertSubscriptionRecord(subscription);
+    } catch (err) {
+      if (err.name === FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND) {
+        return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
+          data.object
+        );
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Process a invoice event that needs to be saved to Firestore.
+   */
+  async processInvoiceEventToFirestore(event: Stripe.Event) {
+    const { data } = event;
+
+    let invoice: Partial<Stripe.Invoice>;
+    if (data.previous_attributes) {
+      invoice = pick(data.object, [
+        'id',
+        'customer',
+        'subscription',
+        ...Object.keys(data.previous_attributes),
+      ]);
+    } else {
+      invoice = data.object;
+    }
+
+    try {
+      await this.stripeFirestore.retrieveInvoice(invoice.id!);
+      return this.stripeFirestore.insertInvoiceRecord(invoice);
+    } catch (err) {
+      if (err.name !== FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
+        await this.stripeFirestore.retrieveAndFetchSubscription(
+          invoice.subscription as string
+        );
+        // Now that the subscription is fetched, we must check to see if we have
+        // a prior invoice. If we don't, we need a complete invoice record inserted.
+        return this.stripeFirestore.insertInvoiceRecord(data.object);
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Process a webhook event from Stripe and if needed, save it to Firestore.
+   */
   async processWebhookEventToFirestore(event: Stripe.Event) {
     const { type, data } = event;
-
     // Note that we must insert before any event handled by the general
     // webhook code to ensure the object is up to date in Firestore before
     // our code handles the event.
@@ -2435,71 +2559,25 @@ export class StripeHelper {
         case 'invoice.payment_failed':
         case 'invoice.updated':
         case 'invoice.deleted':
-          let invoice: Partial<Stripe.Invoice>;
-          if (data.previous_attributes) {
-            invoice = pick(data.object, [
-              'id',
-              'customer',
-              'subscription',
-              ...Object.keys(data.previous_attributes),
-            ]);
-          } else {
-            invoice = data.object;
-          }
-          await this.stripeFirestore.retrieveAndFetchSubscription(
-            invoice.subscription as string
-          );
-          // Now that the subscription is fetched, we can safely insert the
-          // invoice record.
-          await this.stripeFirestore.insertInvoiceRecord(invoice);
+          await this.processInvoiceEventToFirestore(event);
           break;
-        // @ts-ignore
         case 'customer.created':
         case 'customer.updated':
+          if (!event.request?.id) {
+            await this.processCustomerEventToFirestore(event);
+          }
+          break;
         case 'customer.deleted':
-          if (type === 'customer.created' && event.request?.id) {
-            break;
-          }
-          let customer: Partial<Stripe.Customer>;
-          if (data.previous_attributes) {
-            customer = pick(data.object, [
-              'id',
-              'metadata',
-              ...Object.keys(data.previous_attributes),
-            ]);
-          } else {
-            customer = data.object;
-          }
-          // Ensure the customer and its subscriptions exist in Firestore.
-          // Note that we still insert the object here in case we've already
-          // fetched the customer previously.
-          await this.stripeFirestore.retrieveAndFetchCustomer(customer.id!);
-          await this.stripeFirestore.insertCustomerRecord(
-            customer.metadata!.userid,
-            customer
-          );
+          await this.processCustomerEventToFirestore(event);
           break;
         case 'customer.subscription.created':
-        // @ts-ignore
         case 'customer.subscription.updated':
-          if (event.request?.id) {
-            break;
+          if (!event.request?.id) {
+            await this.processSubscriptionEventToFirestore(event);
           }
+          break;
         case 'customer.subscription.deleted':
-          let subscription: Partial<Stripe.Subscription>;
-          if (data.previous_attributes) {
-            subscription = pick(data.object, [
-              'id',
-              'customer',
-              ...Object.keys(data.previous_attributes),
-            ]);
-          } else {
-            subscription = data.object;
-          }
-          await this.stripeFirestore.retrieveAndFetchSubscription(
-            subscription.id!
-          );
-          await this.stripeFirestore.insertSubscriptionRecord(subscription);
+          await this.processSubscriptionEventToFirestore(event);
           break;
         default: {
           handled = false;
