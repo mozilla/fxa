@@ -4360,15 +4360,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@peculiar/asn1-schema@npm:^2.0.27, @peculiar/asn1-schema@npm:^2.0.32":
-  version: 2.0.32
-  resolution: "@peculiar/asn1-schema@npm:2.0.32"
+"@peculiar/asn1-schema@npm:^2.0.38":
+  version: 2.0.38
+  resolution: "@peculiar/asn1-schema@npm:2.0.38"
   dependencies:
-    "@types/asn1js": ^2.0.0
+    "@types/asn1js": ^2.0.2
     asn1js: ^2.1.1
-    pvtsutils: ^1.1.2
-    tslib: ^2.2.0
-  checksum: 20befb1774de8377d28589e8815afcd513e5721eac06a1a0119e2dc733ba68843f5c5a0ef72cad163cb890db2b6995498a60e6224c3422f686f316f41d3958b6
+    pvtsutils: ^1.2.0
+    tslib: ^2.3.0
+  checksum: 59d39e339da0bb2e05666be64f429d2dc6435a5d321cfd390fc318cb9854c801d63ff83b1f976129f6eea1107f704a32c51833e4350962a9724f403b3521fc22
   languageName: node
   linkType: hard
 
@@ -4381,16 +4381,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@peculiar/webcrypto@npm:^1.1.7":
-  version: 1.1.7
-  resolution: "@peculiar/webcrypto@npm:1.1.7"
+"@peculiar/webcrypto@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@peculiar/webcrypto@npm:1.2.0"
   dependencies:
-    "@peculiar/asn1-schema": ^2.0.32
+    "@peculiar/asn1-schema": ^2.0.38
     "@peculiar/json-schema": ^1.1.12
-    pvtsutils: ^1.1.6
-    tslib: ^2.2.0
-    webcrypto-core: ^1.2.0
-  checksum: 8b6e365aaed7494a7d0c655f2382b9e4a7096c06c349f37e48f0167e59ed3450a3ed29553e32546ef20ca1b08203ac03f7c697e7c9711a74e38f4b9e4ee1d7d8
+    pvtsutils: ^1.2.1
+    tslib: ^2.3.1
+    webcrypto-core: ^1.3.0
+  checksum: 7e83f4f3cb5dd035fc34105bf3c1c44f5cc1da023f2018ee3c6d89c38a75f2f7356c65b6755bb8957f9f172318bee07962fd315664b2809245a219d30588a4f3
   languageName: node
   linkType: hard
 
@@ -7543,10 +7543,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/asn1js@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@types/asn1js@npm:2.0.0"
-  checksum: 9fbe3b9986372fa892796111fdc4d069df28d767aa319ca702b62bb1436cae9246e20d10ce6c91da2140c31562b69ed529263495b4a75f6149ed6ef07ce4d5d8
+"@types/asn1js@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@types/asn1js@npm:2.0.2"
+  checksum: 4079eca4c0916a0cea6bf490fec3bb5d64cd54e99efc0b32dfb1f6636712d47045042b9cd503afd2c0251e1095578dbb7f8d246a088fa1598fdb00ab4c05614f
   languageName: node
   linkType: hard
 
@@ -11058,7 +11058,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asn1js@npm:^2.0.26, asn1js@npm:^2.1.1":
+"asn1js@npm:^2.1.1":
   version: 2.1.1
   resolution: "asn1js@npm:2.1.1"
   dependencies:
@@ -20070,7 +20070,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-auth-client@workspace:packages/fxa-auth-client"
   dependencies:
-    "@peculiar/webcrypto": ^1.1.7
+    "@peculiar/webcrypto": ^1.2.0
     "@types/assert": ^1.5.4
     "@types/fast-text-encoding": ^1
     "@types/mocha": ^8
@@ -33728,12 +33728,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"pvtsutils@npm:^1.1.2, pvtsutils@npm:^1.1.6":
-  version: 1.1.6
-  resolution: "pvtsutils@npm:1.1.6"
+"pvtsutils@npm:^1.2.0, pvtsutils@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "pvtsutils@npm:1.2.1"
   dependencies:
-    tslib: ^2.2.0
-  checksum: 970eec0ef64197f1a7ffb33f9d06bc888f654fb4aba83774a3020e079bd79a27630a201846fb4ccf2db1bbc10455a007da28fb7a9d0589759c6b85eaed623140
+    tslib: ^2.3.1
+  checksum: 7930149a50f8eb5b9685aa06d0fdffb32a9fa82de964441c5ff26bad02266cf1139e611fcf1d002083e8048572d396ed6e86c5a10d66468582c8183585db40d1
   languageName: node
   linkType: hard
 
@@ -39349,7 +39349,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.3.1, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:~2.3.0":
+"tslib@npm:2.3.1, tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:~2.3.0":
   version: 2.3.1
   resolution: "tslib@npm:2.3.1"
   checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9
@@ -40714,16 +40714,16 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"webcrypto-core@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "webcrypto-core@npm:1.2.0"
+"webcrypto-core@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "webcrypto-core@npm:1.3.0"
   dependencies:
-    "@peculiar/asn1-schema": ^2.0.27
+    "@peculiar/asn1-schema": ^2.0.38
     "@peculiar/json-schema": ^1.1.12
-    asn1js: ^2.0.26
-    pvtsutils: ^1.1.2
-    tslib: ^2.1.0
-  checksum: 9d4c1d12b96b93f0bc094f440a47f7b55c05141c63ae1173b500716a42cfa90928db3bd61ac3aff5f53fb40be4d21acea17baeb0eb2087a4ebf376ff1946f30d
+    asn1js: ^2.1.1
+    pvtsutils: ^1.2.0
+    tslib: ^2.3.1
+  checksum: bc3d4fd45102b0ab8dce31074d228fe54014caec7858a4d45baa4f339994863a29cbc504950e29c5fe09f2d37b4e9cbaa256de379bcef7bd74b052120207abaf
   languageName: node
   linkType: hard
 
