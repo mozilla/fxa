@@ -498,7 +498,7 @@ describe('models/account', function () {
         it('emits set-uid event correctly', () => {
           assert.equal(notifier.trigger.callCount, 1);
           const args = notifier.trigger.args[0];
-          assert.lengthOf(args, 2);
+          assert.lengthOf(args, 3);
           assert.equal(args[0], 'set-uid');
           assert.equal(args[1], UID);
         });
@@ -545,7 +545,7 @@ describe('models/account', function () {
         it('emits set-uid event correctly', () => {
           assert.equal(notifier.trigger.callCount, 1);
           const args = notifier.trigger.args[0];
-          assert.lengthOf(args, 2);
+          assert.lengthOf(args, 3);
           assert.equal(args[0], 'set-uid');
           assert.equal(args[1], UID);
         });
@@ -591,7 +591,7 @@ describe('models/account', function () {
         it('emits set-uid event correctly', () => {
           assert.equal(notifier.trigger.callCount, 1);
           const args = notifier.trigger.args[0];
-          assert.lengthOf(args, 2);
+          assert.lengthOf(args, 3);
           assert.equal(args[0], 'set-uid');
           assert.equal(args[1], UID);
         });
@@ -807,7 +807,7 @@ describe('models/account', function () {
         it('emits set-uid event correctly', () => {
           assert.equal(notifier.trigger.callCount, 1);
           const args = notifier.trigger.args[0];
-          assert.lengthOf(args, 2);
+          assert.lengthOf(args, 3);
           assert.equal(args[0], 'set-uid');
           assert.equal(args[1], UID);
         });
@@ -860,7 +860,7 @@ describe('models/account', function () {
         it('emits set-uid event correctly', () => {
           assert.equal(notifier.trigger.callCount, 1);
           const args = notifier.trigger.args[0];
-          assert.lengthOf(args, 2);
+          assert.lengthOf(args, 3);
           assert.equal(args[0], 'set-uid');
           assert.equal(args[1], UID);
         });
@@ -917,7 +917,7 @@ describe('models/account', function () {
         it('emits set-uid event correctly', () => {
           assert.equal(notifier.trigger.callCount, 1);
           const args = notifier.trigger.args[0];
-          assert.lengthOf(args, 2);
+          assert.lengthOf(args, 3);
           assert.equal(args[0], 'set-uid');
           assert.equal(args[1], UID);
         });
@@ -1043,7 +1043,7 @@ describe('models/account', function () {
         it('emits set-uid event correctly', () => {
           assert.equal(notifier.trigger.callCount, 1);
           const args = notifier.trigger.args[0];
-          assert.lengthOf(args, 2);
+          assert.lengthOf(args, 3);
           assert.equal(args[0], 'set-uid');
           assert.equal(args[1], UID);
         });

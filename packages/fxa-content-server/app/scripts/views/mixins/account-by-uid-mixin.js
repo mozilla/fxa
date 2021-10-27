@@ -11,7 +11,8 @@ export default {
    */
   getUidAndSetSignedInAccount() {
     const uid = this.relier.get('uid');
-    this.notifier.trigger('set-uid', uid);
+    const metricsEnabled = this.relier.get('metricsEnabled');
+    this.notifier.trigger('set-uid', uid, metricsEnabled);
 
     // A uid param is set by RPs linking directly to the settings
     // page for a particular account.
