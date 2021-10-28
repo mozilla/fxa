@@ -1,3 +1,11 @@
+## 1.218.0
+
+### Other changes
+
+- deps-dev: bump grunt-eslint from 23.0.0 to 24.0.0 ([574aa2f24](https://github.com/mozilla/fxa/commit/574aa2f24))
+- deps: bump convict from 6.2.0 to 6.2.1 ([ef7842bc0](https://github.com/mozilla/fxa/commit/ef7842bc0))
+- node: upgrade to node 16 (#10799) ([17e06a38d](https://github.com/mozilla/fxa/commit/17e06a38d))
+
 ## 1.217.2
 
 No changes.

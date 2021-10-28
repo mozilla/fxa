@@ -1,3 +1,21 @@
+## 1.218.0
+
+### Bug fixes
+
+- project: update other deps so we can update to jest 27.3.1 ([a3716198c](https://github.com/mozilla/fxa/commit/a3716198c))
+
+### Other changes
+
+- deps-dev: bump @tailwindcss/postcss7-compat from 2.2.16 to 2.2.17 (#10844) ([345847df9](https://github.com/mozilla/fxa/commit/345847df9))
+- deps: bump convict from 6.2.0 to 6.2.1 ([ef7842bc0](https://github.com/mozilla/fxa/commit/ef7842bc0))
+- deps-dev: bump @testing-library/user-event from 13.3.0 to 13.5.0 ([50ffaf06e](https://github.com/mozilla/fxa/commit/50ffaf06e))
+- deps: bump @emotion/react from 11.4.1 to 11.5.0 (#10789) ([421db96a9](https://github.com/mozilla/fxa/commit/421db96a9))
+- deps-dev: bump jest from 26.6.0 to 27.3.1 ([6b6a68853](https://github.com/mozilla/fxa/commit/6b6a68853))
+- deps-dev: bump @storybook/addon-links from 6.3.10 to 6.3.12 ([bf11b4aef](https://github.com/mozilla/fxa/commit/bf11b4aef))
+- deps-dev: bump @storybook/react from 6.3.10 to 6.3.11 ([16af0e483](https://github.com/mozilla/fxa/commit/16af0e483))
+- deps-dev: bump @testing-library/user-event from 13.2.1 to 13.3.0 ([e75bb61c9](https://github.com/mozilla/fxa/commit/e75bb61c9))
+- deps-dev: bump @testing-library/dom from 8.7.2 to 8.9.0 ([9c6005fc9](https://github.com/mozilla/fxa/commit/9c6005fc9))
+
 ## 1.217.2
 
 No changes.

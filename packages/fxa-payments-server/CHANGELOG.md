@@ -1,5 +1,30 @@
 # Change history
 
+## 1.218.0
+
+### New features
+
+- auth/payments: show Google IAP subscription on subscription management page (#10833) ([1e300b916](https://github.com/mozilla/fxa/commit/1e300b916))
+- subscriptions: block web subscription when IAP subscribed ([eff687f39](https://github.com/mozilla/fxa/commit/eff687f39))
+- subscriptions: block web subscription when IAP subscribed ([0f2ad3d3a](https://github.com/mozilla/fxa/commit/0f2ad3d3a))
+
+### Bug fixes
+
+- project: update other deps so we can update to jest 27.3.1 ([a3716198c](https://github.com/mozilla/fxa/commit/a3716198c))
+
+### Other changes
+
+- subscriptions: block web subscription when IAP subscribed" ([7acb514c4](https://github.com/mozilla/fxa/commit/7acb514c4))
+- deps: bump convict from 6.2.0 to 6.2.1 ([ef7842bc0](https://github.com/mozilla/fxa/commit/ef7842bc0))
+- deps: bump redux-thunk from 2.3.0 to 2.4.0 ([4331b9071](https://github.com/mozilla/fxa/commit/4331b9071))
+- node: upgrade to node 16 (#10799) ([17e06a38d](https://github.com/mozilla/fxa/commit/17e06a38d))
+- deps: bump @stripe/stripe-js from 1.18.0 to 1.20.3 ([381188267](https://github.com/mozilla/fxa/commit/381188267))
+- deps-dev: bump caniuse-lite from 1.0.30001265 to 1.0.30001270 (#10793) ([f306cba26](https://github.com/mozilla/fxa/commit/f306cba26))
+- deps-dev: bump jest from 26.6.0 to 27.3.1 ([6b6a68853](https://github.com/mozilla/fxa/commit/6b6a68853))
+- deps-dev: bump @storybook/addon-links from 6.3.10 to 6.3.12 ([bf11b4aef](https://github.com/mozilla/fxa/commit/bf11b4aef))
+- deps: bump async-wait-until from 2.0.7 to 2.0.8 ([2a6e6772a](https://github.com/mozilla/fxa/commit/2a6e6772a))
+- deps-dev: bump @storybook/react from 6.3.10 to 6.3.11 ([16af0e483](https://github.com/mozilla/fxa/commit/16af0e483))
+
 ## 1.217.2
 
 No changes.

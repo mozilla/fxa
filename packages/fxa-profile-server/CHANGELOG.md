@@ -1,3 +1,14 @@
+## 1.218.0
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1013.0 to 2.1016.0 (#10841) ([ab4c9eb7a](https://github.com/mozilla/fxa/commit/ab4c9eb7a))
+- deps: bump convict from 6.2.0 to 6.2.1 ([ef7842bc0](https://github.com/mozilla/fxa/commit/ef7842bc0))
+- deps: bump aws-sdk from 2.1011.0 to 2.1013.0 (#10812) ([a78c2b17f](https://github.com/mozilla/fxa/commit/a78c2b17f))
+- deps: bump sharp from 0.29.1 to 0.29.2 ([49382d8de](https://github.com/mozilla/fxa/commit/49382d8de))
+- deps: bump aws-sdk from 2.1010.0 to 2.1011.0 ([7d03b5d3e](https://github.com/mozilla/fxa/commit/7d03b5d3e))
+- deps: bump aws-sdk from 2.1002.0 to 2.1010.0 ([b9f41d79d](https://github.com/mozilla/fxa/commit/b9f41d79d))
+
 ## 1.217.2
 
 No changes.
