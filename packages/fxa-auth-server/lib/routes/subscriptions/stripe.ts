@@ -68,10 +68,8 @@ export class StripeHandler {
     protected profile: any,
     protected stripeHelper: StripeHelper
   ) {
-    this.subscriptionAccountReminders = require('../../subscription-account-reminders')(
-      log,
-      config
-    );
+    this.subscriptionAccountReminders =
+      require('../../subscription-account-reminders')(log, config);
   }
 
   /**
@@ -80,7 +78,7 @@ export class StripeHandler {
   async customerChanged(request: AuthRequest, uid: string, email: string) {
     const [devices] = await Promise.all([
       await request.app.devices,
-      await this.stripeHelper.refreshCachedCustomer(uid, email),
+      await this.stripeHelper.removeCustomerFromCache(uid, email),
       await this.profile.deleteCache(uid),
     ]);
     await this.push.notifyProfileUpdated(uid, devices);
