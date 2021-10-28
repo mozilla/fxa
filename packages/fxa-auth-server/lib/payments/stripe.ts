@@ -2530,7 +2530,7 @@ export class StripeHelper {
       await this.stripeFirestore.retrieveInvoice(invoice.id!);
       return this.stripeFirestore.insertInvoiceRecord(invoice);
     } catch (err) {
-      if (err.name !== FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
+      if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
         await this.stripeFirestore.retrieveAndFetchSubscription(
           invoice.subscription as string
         );
