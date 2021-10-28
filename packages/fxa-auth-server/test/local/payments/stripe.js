@@ -4027,21 +4027,53 @@ describe('StripeHelper', () => {
       stripeHelper.stripeFirestore = stripeFirestore = {};
     });
 
-    it('handles invoice operations', async () => {
+    it('handles invoice operations with firestore invoice', async () => {
       const event = deepCopy(eventInvoiceCreated);
       stripeFirestore.retrieveAndFetchSubscription = sandbox
         .stub()
         .resolves({});
+      stripeFirestore.retrieveInvoice = sandbox.stub().resolves({});
       stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
       const result = await stripeHelper.processWebhookEventToFirestore(event);
       assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
-        event.data.object.subscription
+        stripeHelper.stripeFirestore.retrieveInvoice,
+        event.data.object.id
       );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.insertInvoiceRecord,
         event.data.object
+      );
+      sinon.assert.notCalled(stripeFirestore.retrieveAndFetchSubscription);
+    });
+
+    it('handles invoice operations with no firestore invoice', async () => {
+      const event = deepCopy(eventInvoiceCreated);
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.retrieveInvoice = sandbox
+        .stub()
+        .rejects(
+          newFirestoreStripeError(
+            'no invoice',
+            FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
+          )
+        );
+      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
+      assert.isTrue(result);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveInvoice,
+        event.data.object.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertInvoiceRecord,
+        event.data.object
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.retrieveAndFetchSubscription,
+        event.data.object.subscription
       );
     });
 
@@ -4068,6 +4100,35 @@ describe('StripeHelper', () => {
           'subscription',
           ...Object.keys(event.data.previous_attributes),
         ])
+      );
+    });
+
+    it('handles invoice operations with previous attributes and no firestore invoice', async () => {
+      const event = deepCopy(eventInvoiceCreated);
+      event.data.previous_attributes = {
+        amount_due: 1000,
+      };
+      stripeFirestore.retrieveInvoice = sandbox
+        .stub()
+        .rejects(
+          newFirestoreStripeError(
+            'no invoice',
+            FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
+          )
+        );
+      stripeFirestore.retrieveAndFetchSubscription = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      const result = await stripeHelper.processWebhookEventToFirestore(event);
+      assert.isTrue(result);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
+        event.data.object.subscription
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.insertInvoiceRecord,
+        event.data.object
       );
     });
 
