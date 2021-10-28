@@ -30,7 +30,7 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@nestjs/common": "^8.1.1",
+    "@nestjs/common": "^8.1.2",
     "@nestjs/config": "^1.0.2",
     "@nestjs/core": "^8.1.1",
     "@nestjs/graphql": "^8.0.2",
