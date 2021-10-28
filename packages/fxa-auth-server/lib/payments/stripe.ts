@@ -335,7 +335,7 @@ export class StripeHelper {
    * Insert a local db record for a customer that already exist on Stripe.
    */
   async createLocalCustomer(uid: string, stripeCustomer: Stripe.Customer) {
-    await createAccountCustomer(uid, stripeCustomer.id);
+    return createAccountCustomer(uid, stripeCustomer.id);
   }
 
   /**
@@ -465,7 +465,7 @@ export class StripeHelper {
       if (sub.collection_method === 'send_invoice') {
         sub.latest_invoice = await this.expandResource(
           sub.latest_invoice,
-          'invoices'
+          INVOICES_RESOURCE
         );
         return sub;
       }
@@ -507,7 +507,7 @@ export class StripeHelper {
     }
     const subscription = await this.expandResource(
       invoice.subscription,
-      'subscriptions'
+      SUBSCRIPTIONS_RESOURCE
     );
     if (subscription?.collection_method !== 'send_invoice') {
       // Not a PayPal funded subscription.
@@ -520,7 +520,7 @@ export class StripeHelper {
    * Get Invoice object based on invoice Id
    */
   async getInvoice(id: string): Promise<Stripe.Invoice> {
-    return this.stripe.invoices.retrieve(id);
+    return this.expandResource<Stripe.Invoice>(id, INVOICES_RESOURCE);
   }
 
   /**
@@ -833,10 +833,14 @@ export class StripeHelper {
    * Returns true if the FxA account with uid has an active subscription.
    */
   async hasActiveSubscription(uid: string): Promise<Boolean> {
-    const customer = await this.fetchCustomer(uid, ['subscriptions']);
-    if (!customer) {
+    const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
+    if (!stripeCustomerId) {
       return false;
     }
+    const customer = await this.expandResource<Stripe.Customer>(
+      stripeCustomerId,
+      CUSTOMER_RESOURCE
+    );
     const subscription = customer.subscriptions?.data.find((sub) =>
       ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
     );
@@ -847,13 +851,20 @@ export class StripeHelper {
    * Returns whether or not the customer has any active subscriptions that
    * have an open invoice (payment has not been processed).
    */
-  hasOpenInvoice(customer: Stripe.Customer) {
-    const subscription = customer.subscriptions?.data.find(
-      (sub) =>
-        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
-        (sub.latest_invoice as Stripe.Invoice).status === 'open'
+  async hasOpenInvoice(customer: Stripe.Customer) {
+    const activeInvoices = customer.subscriptions?.data
+      .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status))
+      .map((sub) => sub.latest_invoice)
+      .filter((invoice) => invoice !== null);
+    if (!activeInvoices?.length) {
+      return false;
+    }
+    const invoices = await Promise.all(
+      activeInvoices.map((invoice) =>
+        this.expandResource<Stripe.Invoice>(invoice!, INVOICES_RESOURCE)
+      )
     );
-    return !!subscription;
+    return invoices.some((invoice) => invoice.status === 'open');
   }
 
   /**
@@ -905,19 +916,17 @@ export class StripeHelper {
    */
   async fetchCustomer(
     uid: string,
-    expand?: string[]
+    expand?: ('subscriptions' | 'invoice_settings.default_payment_method')[]
   ): Promise<Stripe.Customer | void> {
-    const accountCustomer = await getAccountCustomerByUid(uid);
-    if (
-      accountCustomer === undefined ||
-      accountCustomer.stripeCustomerId === undefined
-    ) {
+    const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
+    if (!stripeCustomerId) {
       return;
     }
 
-    const customer = await this.stripe.customers.retrieve(
-      accountCustomer.stripeCustomerId,
-      { expand }
+    // By default this has subscriptions expanded.
+    const customer = await this.expandResource<Stripe.Customer>(
+      stripeCustomerId,
+      CUSTOMER_RESOURCE
     );
 
     if (customer.deleted) {
@@ -945,15 +954,16 @@ export class StripeHelper {
       throw error.backendServiceFailure('stripe', 'fetchCustomer', {}, err);
     }
 
-    // We need to get all the subscriptions for a customer
-    if (customer.subscriptions && customer.subscriptions.has_more) {
-      const additionalSubscriptions =
-        await this.fetchAllSubscriptionsForCustomer(
-          customer.id,
-          customer.subscriptions.data[customer.subscriptions.data.length - 1].id
+    // There's only 2 expansions used in our code-base:
+    //  - subscriptions
+    //  - invoice_settings.default_payment_method
+    // Subscriptions is already expanded. Manually fetch the other if needed.
+    if (expand?.includes('invoice_settings.default_payment_method')) {
+      customer.invoice_settings.default_payment_method =
+        await this.expandResource(
+          customer.invoice_settings.default_payment_method,
+          PAYMENT_METHOD_RESOURCE
         );
-      customer.subscriptions.data.push(...additionalSubscriptions);
-      customer.subscriptions.has_more = false;
     }
 
     return customer;
@@ -970,7 +980,6 @@ export class StripeHelper {
     email: string
   ): Promise<Stripe.Customer | void> {
     return this.fetchCustomer(uid, [
-      'sources',
       'subscriptions',
       'invoice_settings.default_payment_method',
     ]);
@@ -1020,6 +1029,9 @@ export class StripeHelper {
    * Fetch a subscription for a customer from Stripe.
    *
    * Uses Redis caching if configured.
+   *
+   * Note: This method is used in context to only return this
+   * subscription if it belongs to this user.
    */
   async subscriptionForCustomer(
     uid: string,
@@ -1088,31 +1100,6 @@ export class StripeHelper {
       }
     }
     return appendedAbbrevPlayPurchases;
-  }
-
-  /**
-   * Fetch a list of subscriptions for a customer from Stripe.
-   */
-  async fetchAllSubscriptionsForCustomer(
-    customerId: string,
-    startAfterSubscriptionId: string
-  ): Promise<Stripe.Subscription[]> {
-    let getMore = true;
-    const subscriptions = [];
-    let startAfter = startAfterSubscriptionId;
-
-    while (getMore) {
-      const moreSubs = await this.stripe.subscriptions.list({
-        customer: customerId,
-        starting_after: startAfter,
-      });
-
-      subscriptions.push(...moreSubs.data);
-
-      getMore = moreSubs.has_more;
-      startAfter = moreSubs.data[moreSubs.data.length - 1].id;
-    }
-    return subscriptions;
   }
 
   /**
@@ -1359,8 +1346,9 @@ export class StripeHelper {
     subscriptionId: string,
     newPlanId: string
   ): Promise<Stripe.Subscription> {
-    const subscription = await this.stripe.subscriptions.retrieve(
-      subscriptionId
+    const subscription = await this.expandResource<Stripe.Subscription>(
+      subscriptionId,
+      SUBSCRIPTIONS_RESOURCE
     );
     const currentPlanId = subscription.items.data[0].plan.id;
     if (currentPlanId === newPlanId) {
@@ -1593,7 +1581,6 @@ export class StripeHelper {
 
   async getBillingDetailsAndSubscriptions(uid: string) {
     const customer = await this.fetchCustomer(uid, [
-      'subscriptions.data.latest_invoice',
       'invoice_settings.default_payment_method',
     ]);
 
@@ -1617,7 +1604,7 @@ export class StripeHelper {
       if (!this.getCustomerPaypalAgreement(customer)) {
         billingDetails.paypal_payment_error =
           PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT;
-      } else if (this.hasOpenInvoice(customer)) {
+      } else if (await this.hasOpenInvoice(customer)) {
         billingDetails.paypal_payment_error =
           PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE;
       }
@@ -1708,9 +1695,10 @@ export class StripeHelper {
 
       let latestInvoice = sub.latest_invoice;
       if (typeof latestInvoice === 'string') {
-        latestInvoice = await this.stripe.invoices.retrieve(latestInvoice, {
-          expand: ['charge'],
-        });
+        latestInvoice = await this.expandResource<Stripe.Invoice>(
+          latestInvoice,
+          INVOICES_RESOURCE
+        );
       }
 
       // If this is a charge-automatically payment that is past_due, attempt
@@ -1905,7 +1893,7 @@ export class StripeHelper {
       downloadURL: planDownloadURL = '',
     } = productMetadata;
 
-    const { lastFour, cardType } = await this.extractCardDetails({
+    const { lastFour, cardType } = this.extractCardDetails({
       charge,
     });
 
@@ -1987,7 +1975,7 @@ export class StripeHelper {
     return formattedSubscriptions;
   }
 
-  async extractCardDetails({ charge }: { charge: Stripe.Charge | null }) {
+  extractCardDetails({ charge }: { charge: Stripe.Charge | null }) {
     let lastFour: string | null = null;
     let cardType: string | null = null;
     if (charge?.payment_method_details?.card) {
@@ -2300,7 +2288,7 @@ export class StripeHelper {
       // default_payment_method *should* be expanded, but just in case...
       const paymentMethod = await this.expandResource(
         customer.invoice_settings.default_payment_method,
-        'paymentMethods'
+        PAYMENT_METHOD_RESOURCE
       );
       if (paymentMethod.card) {
         ({ last4: lastFour, brand: cardType } = paymentMethod.card);
@@ -2309,17 +2297,18 @@ export class StripeHelper {
       // already handle undefined lastFour and cardType gracefully
     } else if (customer.default_source) {
       // Legacy pre-SCA customer still using a Source rather than PaymentMethod
-      let source: Stripe.Card;
       if (typeof customer.default_source !== 'string') {
         // We don't expand this resource in cached customer, but it seemed to happen once
-        source = customer.default_source as Stripe.Card;
+        ({ last4: lastFour, brand: cardType } =
+          customer.default_source as Stripe.Card);
       } else {
-        // We *do* expand sources, so just do a local lookup by ID.
-        source = customer.sources?.data.find(
-          (s) => s.id === customer.default_source
-        ) as Stripe.Card;
+        // Sources are available as payment methods, so we can expand them.
+        const pm = await this.expandResource<Stripe.PaymentMethod>(
+          customer.default_source,
+          PAYMENT_METHOD_RESOURCE
+        );
+        ({ last4: lastFour, brand: cardType } = pm.card!);
       }
-      ({ last4: lastFour, brand: cardType } = source);
     }
 
     return { lastFour, cardType };
@@ -2443,10 +2432,18 @@ export class StripeHelper {
           }
           throw err;
         }
+      case PRODUCT_RESOURCE:
+        const products = await this.allProducts();
+        // @ts-ignore
+        return products.find((p) => p.id === resource);
+      case PLAN_RESOURCE:
+        const plans = await this.allPlans();
+        // @ts-ignore
+        return plans.find((p) => p.id === resource);
+      default:
+        // @ts-ignore
+        return this.stripe[resourceType].retrieve(resource);
     }
-
-    // @ts-ignore
-    return this.stripe[resourceType].retrieve(resource);
   }
 
   /**

@@ -208,9 +208,10 @@ export class PayPalHelper {
    *
    * @param idempotencyKey
    */
-  public parseIdempotencyKey(
-    idempotencyKey: string
-  ): { invoiceId: string; paymentAttempt: number } {
+  public parseIdempotencyKey(idempotencyKey: string): {
+    invoiceId: string;
+    paymentAttempt: number;
+  } {
     const parsedValue = idempotencyKey.split('-');
     return {
       invoiceId: parsedValue[0],
@@ -278,7 +279,8 @@ export class PayPalHelper {
       pendingReason: response.PENDINGREASON as ChargeResponse['pendingReason'],
       reasonCode: response.REASONCODE as ChargeResponse['reasonCode'],
       transactionId: response.TRANSACTIONID,
-      transactionType: response.TRANSACTIONTYPE as ChargeResponse['transactionType'],
+      transactionType:
+        response.TRANSACTIONTYPE as ChargeResponse['transactionType'],
     };
   }
 
@@ -291,7 +293,8 @@ export class PayPalHelper {
   ): Promise<AgreementDetails> {
     const response = await this.client.baUpdate(options);
     return {
-      status: response.BILLINGAGREEMENTSTATUS.toLowerCase() as AgreementDetails['status'],
+      status:
+        response.BILLINGAGREEMENTSTATUS.toLowerCase() as AgreementDetails['status'],
       city: response.CITY,
       countryCode: response.COUNTRYCODE,
       state: response.STATE,
@@ -371,9 +374,8 @@ export class PayPalHelper {
   async conditionallyRemoveBillingAgreement(
     customer: Stripe.Customer
   ): Promise<boolean> {
-    const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
-      customer
-    );
+    const billingAgreementId =
+      this.stripeHelper.getCustomerPaypalAgreement(customer);
     if (!billingAgreementId) {
       return false;
     }
