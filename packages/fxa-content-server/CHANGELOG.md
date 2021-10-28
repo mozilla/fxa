@@ -1,3 +1,25 @@
+## 1.218.0
+
+### New features
+
+- metrics: filter backbone metrics when opted-out (#10832) ([c14d4aac4](https://github.com/mozilla/fxa/commit/c14d4aac4))
+- auth: add metricsEnabled to auth and content-server frontend (#10796) ([a3386861f](https://github.com/mozilla/fxa/commit/a3386861f))
+- content-server: render pocket logo in confirm signup code screen for pocket clients ([244e95dc0](https://github.com/mozilla/fxa/commit/244e95dc0))
+
+### Bug fixes
+
+- content-server: remove en-CA locale from Fx products link ([453a1f86c](https://github.com/mozilla/fxa/commit/453a1f86c))
+- content-server: move pocket logo img rendering to css ([c9989c31d](https://github.com/mozilla/fxa/commit/c9989c31d))
+- ux: Remove newsletters when in pocket migration from signup (#10694) ([e4bf828e9](https://github.com/mozilla/fxa/commit/e4bf828e9))
+
+### Other changes
+
+- deps: bump autoprefixer from 10.3.5 to 10.3.7 ([3a0b12628](https://github.com/mozilla/fxa/commit/3a0b12628))
+- ci: update circleci with new base images (#10818) ([9eaa80e1d](https://github.com/mozilla/fxa/commit/9eaa80e1d))
+- deps: bump convict from 6.2.0 to 6.2.1 ([ef7842bc0](https://github.com/mozilla/fxa/commit/ef7842bc0))
+- deps: bump webpack-cli from 4.9.0 to 4.9.1 ([21cfffd45](https://github.com/mozilla/fxa/commit/21cfffd45))
+- deps: bump jquery-ui from 1.12.1 to 1.13.0 ([f8b9029b8](https://github.com/mozilla/fxa/commit/f8b9029b8))
+
 ## 1.217.2
 
 ### Other changes

@@ -1,5 +1,35 @@
 # Change history
 
+## 1.218.0
+
+### New features
+
+- auth/payments: show Google IAP subscription on subscription management page (#10833) ([1e300b916](https://github.com/mozilla/fxa/commit/1e300b916))
+- subscriptions: block web subscription when IAP subscribed ([eff687f39](https://github.com/mozilla/fxa/commit/eff687f39))
+- auth: do not emit metrics for opted-out users (#10817) ([c34058a21](https://github.com/mozilla/fxa/commit/c34058a21))
+- subscriptions: block web subscription when IAP subscribed ([0f2ad3d3a](https://github.com/mozilla/fxa/commit/0f2ad3d3a))
+- auth: added metricsOptOut db column to fxa (#10736) ([773a2fab0](https://github.com/mozilla/fxa/commit/773a2fab0))
+- subscriptions: add endpoint for billing details and IAP ## 1.217.2 Stripe subscriptions ([8d229a51a](https://github.com/mozilla/fxa/commit/8d229a51a))
+- auth: use getUidAndEmailByStripeCustomerId helper in Stripe webhook handlers (#10662) ([84770cc3e](https://github.com/mozilla/fxa/commit/84770cc3e))
+
+### Bug fixes
+
+- project: update other deps so we can update to jest 27.3.1 ([a3716198c](https://github.com/mozilla/fxa/commit/a3716198c))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1013.0 to 2.1016.0 (#10841) ([ab4c9eb7a](https://github.com/mozilla/fxa/commit/ab4c9eb7a))
+- deps: bump @nestjs/common from 8.1.1 to 8.1.2 (#10840) ([ece968d91](https://github.com/mozilla/fxa/commit/ece968d91))
+- subscriptions: block web subscription when IAP subscribed" ([7acb514c4](https://github.com/mozilla/fxa/commit/7acb514c4))
+- deps: bump aws-sdk from 2.1011.0 to 2.1013.0 (#10812) ([a78c2b17f](https://github.com/mozilla/fxa/commit/a78c2b17f))
+- node: upgrade to node 16 (#10799) ([17e06a38d](https://github.com/mozilla/fxa/commit/17e06a38d))
+- deps: bump @nestjs/core from 8.0.10 to 8.1.1 ([aec2faeb7](https://github.com/mozilla/fxa/commit/aec2faeb7))
+- deps-dev: bump @nestjs/testing from 8.0.5 to 8.1.1 ([35fe06c74](https://github.com/mozilla/fxa/commit/35fe06c74))
+- deps-dev: bump jest from 26.6.0 to 27.3.1 ([6b6a68853](https://github.com/mozilla/fxa/commit/6b6a68853))
+- deps: bump aws-sdk from 2.1010.0 to 2.1011.0 ([7d03b5d3e](https://github.com/mozilla/fxa/commit/7d03b5d3e))
+- deps: bump aws-sdk from 2.1002.0 to 2.1010.0 ([b9f41d79d](https://github.com/mozilla/fxa/commit/b9f41d79d))
+- deps: bump @nestjs/common from 8.0.8 to 8.1.1 ([023a66764](https://github.com/mozilla/fxa/commit/023a66764))
+
 ## 1.217.2
 
 No changes.

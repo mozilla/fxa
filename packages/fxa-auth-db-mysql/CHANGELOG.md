@@ -1,3 +1,9 @@
+## 1.218.0
+
+### Other changes
+
+- deps: bump convict from 6.2.0 to 6.2.1 ([ef7842bc0](https://github.com/mozilla/fxa/commit/ef7842bc0))
+
 ## 1.217.2
 
 No changes.

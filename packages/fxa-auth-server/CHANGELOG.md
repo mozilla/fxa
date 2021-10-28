@@ -1,3 +1,54 @@
+## 1.218.0
+
+### New features
+
+- auth: add updated customer to firestore ([935afd0fe](https://github.com/mozilla/fxa/commit/935afd0fe))
+- auth/payments: show Google IAP subscription on subscription management page (#10833) ([1e300b916](https://github.com/mozilla/fxa/commit/1e300b916))
+- subscriptions: block web subscription when IAP subscribed ([eff687f39](https://github.com/mozilla/fxa/commit/eff687f39))
+- auth: do not emit metrics for opted-out users (#10817) ([c34058a21](https://github.com/mozilla/fxa/commit/c34058a21))
+- auth: add reminder emails for accounts created through subscription flow (#10773) ([07dfceb50](https://github.com/mozilla/fxa/commit/07dfceb50))
+- auth: create sub firestore record ([678da067a](https://github.com/mozilla/fxa/commit/678da067a))
+- auth: create customer firestore record ([020d9c016](https://github.com/mozilla/fxa/commit/020d9c016))
+- auth: add metricsEnabled to auth and content-server frontend (#10796) ([a3386861f](https://github.com/mozilla/fxa/commit/a3386861f))
+- auth: added metricsOptOut db column to fxa (#10736) ([773a2fab0](https://github.com/mozilla/fxa/commit/773a2fab0))
+- auth: restrict webhook event updates ([429d73d85](https://github.com/mozilla/fxa/commit/429d73d85))
+- subscriptions: add endpoint for billing details and IAP ## 1.217.2 Stripe subscriptions ([8d229a51a](https://github.com/mozilla/fxa/commit/8d229a51a))
+- auth: use getUidAndEmailByStripeCustomerId helper in Stripe webhook handlers (#10662) ([84770cc3e](https://github.com/mozilla/fxa/commit/84770cc3e))
+- auth: require auth firestore usage ([6a42d1d73](https://github.com/mozilla/fxa/commit/6a42d1d73))
+- auth-server: convert subscriptionReactivation email template to stack ([6d3772158](https://github.com/mozilla/fxa/commit/6d3772158))
+
+### Bug fixes
+
+- auth: insert invoices when not found ([c3c365dfe](https://github.com/mozilla/fxa/commit/c3c365dfe))
+- auth: use local firestore emulator ([6b97509f5](https://github.com/mozilla/fxa/commit/6b97509f5))
+
+### Refactorings
+
+- auth: remove dead functions and code ([f033156a8](https://github.com/mozilla/fxa/commit/f033156a8))
+- auth: Add comments and brand references to ftl, update straight quotes ([c788084b8](https://github.com/mozilla/fxa/commit/c788084b8))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1013.0 to 2.1016.0 (#10841) ([ab4c9eb7a](https://github.com/mozilla/fxa/commit/ab4c9eb7a))
+- deps-dev: bump grunt-eslint from 23.0.0 to 24.0.0 ([574aa2f24](https://github.com/mozilla/fxa/commit/574aa2f24))
+- deps: bump convict from 6.2.0 to 6.2.1 ([ef7842bc0](https://github.com/mozilla/fxa/commit/ef7842bc0))
+- auth: update survey url (#10815) ([db7322e0d](https://github.com/mozilla/fxa/commit/db7322e0d))
+- deps: bump aws-sdk from 2.1011.0 to 2.1013.0 (#10812) ([a78c2b17f](https://github.com/mozilla/fxa/commit/a78c2b17f))
+- auth: update field inputs for the Subscription Service Ticket Form (#10785) ([01e35e5d1](https://github.com/mozilla/fxa/commit/01e35e5d1))
+- node: upgrade to node 16 (#10799) ([17e06a38d](https://github.com/mozilla/fxa/commit/17e06a38d))
+- deps: bump googleapis from 88.2.0 to 89.0.0 ([68a6456ee](https://github.com/mozilla/fxa/commit/68a6456ee))
+- deps-dev: bump @storybook/html from 6.3.10 to 6.3.12 (#10792) ([5f8e08a89](https://github.com/mozilla/fxa/commit/5f8e08a89))
+- deps-dev: bump @storybook/addon-controls from 6.3.11 to 6.3.12 (#10791) ([358137e78](https://github.com/mozilla/fxa/commit/358137e78))
+- deps-dev: bump nodemon from 2.0.13 to 2.0.14 ([0262c7a36](https://github.com/mozilla/fxa/commit/0262c7a36))
+- deps: bump nodemailer from 6.6.5 to 6.7.0 ([b73bf3c21](https://github.com/mozilla/fxa/commit/b73bf3c21))
+- deps: bump aws-sdk from 2.1010.0 to 2.1011.0 ([7d03b5d3e](https://github.com/mozilla/fxa/commit/7d03b5d3e))
+- deps: bump aws-sdk from 2.1002.0 to 2.1010.0 ([b9f41d79d](https://github.com/mozilla/fxa/commit/b9f41d79d))
+- deps-dev: bump @storybook/addon-docs from 6.3.10 to 6.3.12 (#10728) ([5bec1e215](https://github.com/mozilla/fxa/commit/5bec1e215))
+- deps-dev: bump @storybook/addon-toolbars from 6.3.10 to 6.3.12 ([75d87a482](https://github.com/mozilla/fxa/commit/75d87a482))
+- deps: bump mjml from 4.10.3 to 4.10.4 ([bfd8b62aa](https://github.com/mozilla/fxa/commit/bfd8b62aa))
+- deps-dev: bump @storybook/addon-controls from 6.3.10 to 6.3.11 ([827718ad7](https://github.com/mozilla/fxa/commit/827718ad7))
+- deps-dev: bump nodemon from 2.0.12 to 2.0.13 ([8052cdd89](https://github.com/mozilla/fxa/commit/8052cdd89))
+
 ## 1.217.2
 
 No changes.
