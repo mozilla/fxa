@@ -1,3 +1,9 @@
+## 1.218.2
+
+### Bug fixes
+
+- auth: fixed import path snafu ([6bbca4f18](https://github.com/mozilla/fxa/commit/6bbca4f18))
+
 ## 1.218.1
 
 ### New features
