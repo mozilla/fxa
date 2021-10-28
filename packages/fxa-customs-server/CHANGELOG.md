@@ -1,3 +1,9 @@
+## 1.218.1
+
+### Bug fixes
+
+- customs: limit totp verification by email ([c5912899c](https://github.com/mozilla/fxa/commit/c5912899c))
+
 ## 1.218.0
 
 ### Other changes

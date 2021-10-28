@@ -1,3 +1,9 @@
+## 1.218.1
+
+### Bug fixes
+
+- content: revert to using mozilla/fxa-circleci for test-content-server-remote ([6ac1af8d0](https://github.com/mozilla/fxa/commit/6ac1af8d0))
+
 ## 1.218.0
 
 ### New features
