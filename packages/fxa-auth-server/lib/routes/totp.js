@@ -291,6 +291,10 @@ module.exports = (log, db, mailer, customs, config) => {
           await request.emitMetricsEvent('totpToken.verified', { uid });
         } else {
           log.info('totp.unverified', { uid });
+          await customs.flag(request.app.clientAddress, {
+            email,
+            errno: errors.ERRNO.INVALID_EXPIRED_OTP_CODE,
+          });
           await request.emitMetricsEvent('totpToken.unverified', { uid });
         }
 
