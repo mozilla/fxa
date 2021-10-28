@@ -1,3 +1,13 @@
+## 1.218.1
+
+### New features
+
+- auth: remove more direct stripe calls ([42720c1e5](https://github.com/mozilla/fxa/commit/42720c1e5))
+
+### Bug fixes
+
+- customs: limit totp verification by email ([c5912899c](https://github.com/mozilla/fxa/commit/c5912899c))
+
 ## 1.218.0
 
 ### New features
