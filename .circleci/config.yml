@@ -245,12 +245,9 @@ jobs:
   test-content-server-remote:
     resource_class: large
     docker:
-      - image: cimg/node:16.12-browsers
+      # using the old image until we know why the orb is broken with manual jobs
+      - image: mozilla/fxa-circleci
     steps:
-      - browser-tools/install-firefox:
-          version: 78.9.0esr
-      - browser-tools/install-geckodriver:
-          version: v0.29.1
       - base-install:
           package: fxa-content-server
       - run:
