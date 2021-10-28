@@ -5,6 +5,7 @@ import pRetry from 'p-retry';
 import querystring from 'querystring';
 import superagent from 'superagent';
 import { EventEmitter } from 'events';
+import { Logger } from 'mozlog';
 
 export const PAYPAL_SANDBOX_BASE = 'https://api-3t.sandbox.paypal.com';
 export const PAYPAL_SANDBOX_IPN_BASE = 'https://ipnpb.sandbox.paypal.com';
@@ -278,12 +279,13 @@ export class PayPalClient {
     factor: number;
   };
   private emitter: EventEmitter;
+  private log: Logger;
   public on: (
     event: 'response',
     listener: (response: ResponseEventType) => void
   ) => EventEmitter;
 
-  constructor(options: PaypalOptions) {
+  constructor(options: PaypalOptions, log: any) {
     this.url = options.sandbox ? PAYPAL_SANDBOX_API : PAYPAL_LIVE_API;
     this.ipnUrl = options.sandbox ? PAYPAL_SANDBOX_IPN : PAYPAL_LIVE_IPN;
     this.user = options.user;
@@ -297,6 +299,7 @@ export class PayPalClient {
     };
     this.emitter = new EventEmitter();
     this.on = this.emitter.on.bind(this.emitter);
+    this.log = log;
   }
 
   private objectToNVP(object: Record<string, any>): string {
@@ -376,7 +379,9 @@ export class PayPalClient {
     if (resultObj.ACK === 'Success' || resultObj.ACK === 'SuccessWithWarning') {
       return resultObj;
     } else {
-      throw new PayPalClientError(result.text, resultObj);
+      const err = new PayPalClientError(result.text, resultObj);
+      this.log.error('paypalClient.doRequest', err);
+      throw err;
     }
   }
 

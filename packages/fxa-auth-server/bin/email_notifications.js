@@ -39,7 +39,8 @@ if (config.subscriptions && config.subscriptions.stripeApiKey) {
     const { PayPalClient } = require('../lib/payments/paypal-client');
     const { PayPalHelper } = require('../lib/payments/paypal');
     const paypalClient = new PayPalClient(
-      config.subscriptions.paypalNvpSigCredentials
+      config.subscriptions.paypalNvpSigCredentials,
+      log
     );
     Container.set(PayPalClient, paypalClient);
     const paypalHelper = new PayPalHelper({ log });

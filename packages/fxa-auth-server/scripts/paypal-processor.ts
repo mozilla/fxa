@@ -33,7 +33,8 @@ export async function init() {
   const { log, database, senders } = await setupProcesingTaskObjects();
 
   const paypalClient = new PayPalClient(
-    config.subscriptions.paypalNvpSigCredentials
+    config.subscriptions.paypalNvpSigCredentials,
+    log
   );
   Container.set(PayPalClient, paypalClient);
   const paypalHelper = new PayPalHelper({ log });
