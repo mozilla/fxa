@@ -19,6 +19,10 @@ const CODE_VERIFYING_ACTION = {
   passwordForgotVerifyCode: true,
   verifyRecoveryCode: true,
   verifySessionCode: true,
+  // not high entropy
+  // changes at 60 seconds
+  // limits by email
+  verifyTotpCode: true,
 };
 
 // Actions that, if allowed, would allow an attacker
