@@ -2404,12 +2404,10 @@ export class StripeHelper {
         );
         const subscriptions =
           await this.stripeFirestore.retrieveCustomerSubscriptions(resource);
-        if (subscriptions.length) {
-          (customer as any).subscriptions = {
-            data: subscriptions as any,
-            has_more: false,
-          };
-        }
+        (customer as any).subscriptions = {
+          data: subscriptions as any,
+          has_more: false,
+        };
         // @ts-ignore
         return customer;
       case SUBSCRIPTIONS_RESOURCE:

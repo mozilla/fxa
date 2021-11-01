@@ -3859,6 +3859,28 @@ describe('StripeHelper', () => {
       );
     });
 
+    it('includes the empty subscriptions list on the expanded customer', async () => {
+      stripeFirestore.retrieveAndFetchCustomer = sandbox
+        .stub()
+        .resolves(deepCopy(customer));
+      stripeFirestore.retrieveCustomerSubscriptions = sandbox
+        .stub()
+        .resolves([]);
+      const result = await stripeHelper.expandResource(
+        customer.id,
+        CUSTOMER_RESOURCE
+      );
+      assert.deepEqual(result.subscriptions.data, []);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveAndFetchCustomer,
+        customer.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.retrieveCustomerSubscriptions,
+        customer.id
+      );
+    });
+
     it('expands the subscription', async () => {
       stripeFirestore.retrieveAndFetchSubscription = sandbox
         .stub()
