@@ -1,3 +1,9 @@
+## 1.218.3
+
+### Bug fixes
+
+- subscriptions: include empty subscriptions list for customer (#10871) ([cd57b1c96](https://github.com/mozilla/fxa/commit/cd57b1c96))
+
 ## 1.218.2
 
 ### Bug fixes
