@@ -8,6 +8,7 @@ project-brand = Firefox Accounts
 -brand-name-firefox = Firefox
 -brand-name-paypal = PayPal
 -brand-name-stripe = Stripe
+-brand-name-pocket = Pocket
 
 # the following are not terms because they are not used directly in messages,
 # but rather looked up in code and passed into the message as variables.
@@ -386,5 +387,5 @@ new-user-already-has-account-sign-in = You already have an account. <a>Sign in</
 new-user-card-title = Enter your card information
 new-user-submit = Subscribe Now
 
-manage-pocket-title = Looking for your Pocket Premium subscription?
+manage-pocket-title = Looking for your { -brand-name-pocket } premium subscription?
 manage-pocket-body = To manage it, <a>click here</a>.
