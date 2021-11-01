@@ -15,14 +15,7 @@ import { DeleteAccountPath } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
 
-// TODO: remove this, FXA-4106. Replace props with: `_: RouteComponentProps,`
-type ShowDataCollectionProp = {
-  showDataCollection?: boolean;
-};
-
-export const PageSettings = ({
-  showDataCollection = false,
-}: RouteComponentProps<{}> & ShowDataCollectionProp) => {
+export const PageSettings = (_: RouteComponentProps) => {
   const { uid } = useAccount();
 
   Metrics.setProperties({
@@ -34,13 +27,13 @@ export const PageSettings = ({
   return (
     <div id="fxa-settings" className="flex">
       <div className="hidden desktop:block desktop:flex-2">
-        <Nav {...{ showDataCollection }} />
+        <Nav />
       </div>
       <div className="flex-7 max-w-full">
         <Profile />
         <Security />
         <ConnectedServices />
-        {showDataCollection && <DataCollection />}
+        <DataCollection />
         <div className="flex mx-4 tablet:mx-0" id="delete-account">
           <Localized id="delete-account-link">
             <Link

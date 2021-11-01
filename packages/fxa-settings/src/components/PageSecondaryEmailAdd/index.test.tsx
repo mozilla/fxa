@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { PageSecondaryEmailAdd } from '.';
 import { Account, AppContext } from '../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import * as Metrics from '../../lib/metrics';
 
 window.console.error = jest.fn();
 
@@ -91,6 +92,61 @@ describe('PageSecondaryEmailAdd', () => {
       expect(
         screen.queryByText(AuthUiErrors.EMAIL_PRIMARY_EXISTS.message)
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('metrics', () => {
+    let logViewEventSpy: jest.SpyInstance;
+    let usePageViewEventSpy: jest.SpyInstance;
+
+    beforeAll(() => {
+      logViewEventSpy = jest
+        .spyOn(Metrics, 'logViewEvent')
+        .mockImplementation();
+      usePageViewEventSpy = jest
+        .spyOn(Metrics, 'usePageViewEvent')
+        .mockImplementation();
+    });
+
+    afterEach(() => {
+      logViewEventSpy.mockReset();
+      usePageViewEventSpy.mockReset();
+    });
+
+    afterAll(() => {
+      logViewEventSpy.mockRestore();
+      usePageViewEventSpy.mockReset();
+    });
+
+    const createSecondaryEmail = async () => {
+      const account = {
+        createSecondaryEmail: jest.fn().mockResolvedValue(true),
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({
+            account,
+          })}
+        >
+          <PageSecondaryEmailAdd />
+        </AppContext.Provider>
+      );
+
+      const emailField = await screen.findByLabelText('Enter email address');
+      fireEvent.input(emailField, {
+        target: { value: 'johndope2@example.com' },
+      });
+
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await waitFor(() => expect(saveButton).toBeEnabled());
+      fireEvent.click(saveButton);
+    };
+
+    it('emits page view and submit metrics events', async () => {
+      await createSecondaryEmail();
+      expect(logViewEventSpy).toHaveBeenCalledWith('settings.emails', 'submit');
+      expect(usePageViewEventSpy).toHaveBeenCalledWith('settings.emails');
     });
   });
 });

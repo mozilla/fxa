@@ -3,10 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import {
+  screen,
+  fireEvent,
+  act,
+  within,
+  waitFor,
+} from '@testing-library/react';
 import UnitRowRecoveryKey from '.';
 import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
+import * as Metrics from '../../lib/metrics';
 
 const account = {
   recoveryKey: true,
@@ -70,5 +77,67 @@ describe('UnitRowRecoveryKey', () => {
       fireEvent.click(screen.getByTestId('recovery-key-refresh'));
     });
     expect(account.refresh).toBeCalledWith('recovery');
+  });
+
+  describe('delete recovery key', () => {
+    let logViewEventSpy: jest.SpyInstance;
+
+    beforeAll(() => {
+      logViewEventSpy = jest
+        .spyOn(Metrics, 'logViewEvent')
+        .mockImplementation();
+    });
+
+    afterEach(() => {
+      logViewEventSpy.mockReset();
+    });
+
+    afterAll(() => {
+      logViewEventSpy.mockRestore();
+    });
+
+    const removeRecoveryKey = async (process = false) => {
+      const account = {
+        recoveryKey: true,
+      } as unknown as Account;
+
+      if (process) {
+        account.deleteRecoveryKey = jest.fn().mockResolvedValue(true);
+      }
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <UnitRowRecoveryKey />
+        </AppContext.Provider>
+      );
+
+      fireEvent.click(await screen.findByRole('button', { name: 'Remove' }));
+      fireEvent.click(
+        await within(
+          await screen.findByLabelText('Remove recovery key?')
+        ).findByRole('button', { name: 'Remove' })
+      );
+    };
+
+    const expectRevokeEvent = (event: string) => {
+      expect(logViewEventSpy).toHaveBeenCalledWith(
+        'flow.settings.account-recovery',
+        `confirm-revoke.${event}`
+      );
+    };
+
+    it('emits correct metrics submit and success events', async () => {
+      await removeRecoveryKey(true);
+      await waitFor(() => expect(logViewEventSpy).toBeCalledTimes(2));
+      expectRevokeEvent('submit');
+      expectRevokeEvent('success');
+    });
+
+    it('emits metrics submit and failure events', async () => {
+      await removeRecoveryKey();
+      expect(logViewEventSpy).toBeCalledTimes(2);
+      expectRevokeEvent('submit');
+      expectRevokeEvent('fail');
+    });
   });
 });
