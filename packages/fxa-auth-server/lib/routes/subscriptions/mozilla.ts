@@ -11,7 +11,7 @@ import {
   GooglePlaySubscription,
   MozillaSubscription,
   MozillaSubscriptionTypes,
-} from '../../../../fxa-shared/subscriptions/types';
+} from 'fxa-shared/subscriptions/types';
 import { AuthLogger, AuthRequest } from '../../types';
 import { handleAuth } from './utils';
 import validators from '../validators';
