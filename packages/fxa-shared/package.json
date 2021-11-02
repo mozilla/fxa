@@ -110,7 +110,7 @@
     "objection": "^2.2.17",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "stripe": "^8.185.0",
+    "stripe": "^8.186.0",
     "superagent": "^6.1.0"
   },
   "jest": {
