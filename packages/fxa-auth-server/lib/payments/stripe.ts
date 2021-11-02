@@ -1620,9 +1620,14 @@ export class StripeHelper {
     };
 
     if (customer.subscriptions) {
-      detailsAndSubs.subscriptions = await this.subscriptionsToResponse(
-        customer.subscriptions
+      const activeSubscriptions = customer.subscriptions.data.filter((sub) =>
+        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
       );
+
+      detailsAndSubs.subscriptions = await this.subscriptionsToResponse({
+        ...customer.subscriptions,
+        data: activeSubscriptions,
+      });
     }
 
     return detailsAndSubs;
