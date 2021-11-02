@@ -348,7 +348,7 @@ export class StripeHelper {
     idempotencyKey: string
   ) {
     try {
-      await this.stripe.paymentMethods.attach(
+      const paymentMethod = await this.stripe.paymentMethods.attach(
         paymentMethodId,
         {
           customer: customerId,
@@ -362,11 +362,13 @@ export class StripeHelper {
         customer.metadata.userid,
         customer
       );
+      await this.stripeFirestore.insertPaymentMethodRecord(paymentMethod);
       // Try paying now instead of waiting for Stripe since this could block a
       // customer from finishing a payment
       const invoice = await this.stripe.invoices.pay(invoiceId, {
         expand: ['payment_intent'],
       });
+      await this.stripeFirestore.insertInvoiceRecord(invoice);
       return invoice;
     } catch (err) {
       if (err.type === 'StripeCardError') {
@@ -395,9 +397,10 @@ export class StripeHelper {
     } = opts;
     const taxRates = taxRateId ? [taxRateId] : [];
 
+    let paymentMethod;
     if (paymentMethodId) {
       try {
-        await this.stripe.paymentMethods.attach(
+        paymentMethod = await this.stripe.paymentMethods.attach(
           paymentMethodId,
           {
             customer: customerId,
@@ -417,6 +420,7 @@ export class StripeHelper {
         customer.metadata.userid,
         customer
       );
+      await this.stripeFirestore.insertPaymentMethodRecord(paymentMethod);
     }
 
     this.statsd.increment('stripe_subscription', {
@@ -801,7 +805,10 @@ export class StripeHelper {
   async getPaymentMethod(
     paymentMethodId: string
   ): Promise<Stripe.PaymentMethod> {
-    return await this.stripe.paymentMethods.retrieve(paymentMethodId);
+    return this.expandResource<Stripe.PaymentMethod>(
+      paymentMethodId,
+      PAYMENT_METHOD_RESOURCE
+    );
   }
 
   getPaymentProvider(customer: Stripe.Customer) {
@@ -908,7 +915,11 @@ export class StripeHelper {
   async detachPaymentMethod(
     paymentMethodId: string
   ): Promise<Stripe.PaymentMethod> {
-    return await this.stripe.paymentMethods.detach(paymentMethodId);
+    const paymentMethod = await this.stripe.paymentMethods.detach(
+      paymentMethodId
+    );
+    await this.stripeFirestore.removePaymentMethodRecord(paymentMethodId);
+    return paymentMethod;
   }
 
   /**
@@ -2435,6 +2446,34 @@ export class StripeHelper {
           }
           throw err;
         }
+      case PAYMENT_METHOD_RESOURCE:
+        try {
+          const paymentMethod =
+            await this.stripeFirestore.retrievePaymentMethod(resource);
+          // @ts-ignore
+          return paymentMethod;
+        } catch (err) {
+          if (
+            err.name === FirestoreStripeError.FIRESTORE_PAYMENT_METHOD_NOT_FOUND
+          ) {
+            const paymentMethod = await this.stripe.paymentMethods.retrieve(
+              resource
+            );
+            // Payment methods may not be attached to customers, in which case we
+            // cannot store it in Firestore.
+            if (paymentMethod.customer) {
+              await this.stripeFirestore.retrieveAndFetchCustomer(
+                paymentMethod.customer as string
+              );
+              await this.stripeFirestore.insertPaymentMethodRecord(
+                paymentMethod
+              );
+            }
+            // @ts-ignore
+            return paymentMethod;
+          }
+          throw err;
+        }
       case PRODUCT_RESOURCE:
         const products = await this.allProducts();
         // @ts-ignore
@@ -2498,6 +2537,26 @@ export class StripeHelper {
   }
 
   /**
+   * Process a payment method event that needs to be saved to Firestore.
+   *
+   * Note that this does not account for previous attributes as payment methods
+   * only change in their entirety.
+   */
+  async processPaymentMethodEventToFirestore(event: Stripe.Event) {
+    const { data } = event;
+
+    const paymentMethod = data.object as Stripe.PaymentMethod;
+
+    if (event.type === 'payment_method.detached') {
+      await this.stripeFirestore.removePaymentMethodRecord(paymentMethod.id!);
+    } else {
+      await this.stripeFirestore.insertPaymentMethodRecordWithBackfill(
+        paymentMethod
+      );
+    }
+  }
+
+  /**
    * Process a webhook event from Stripe and if needed, save it to Firestore.
    */
   async processWebhookEventToFirestore(event: Stripe.Event) {
@@ -2533,6 +2592,14 @@ export class StripeHelper {
           break;
         case 'customer.subscription.deleted':
           await this.processSubscriptionEventToFirestore(event);
+          break;
+        case 'payment_method.attached':
+        case 'payment_method.automatically_updated':
+        case 'payment_method.detached':
+        case 'payment_method.updated':
+          if (!event.request?.id) {
+            await this.processPaymentMethodEventToFirestore(event);
+          }
           break;
         default: {
           handled = false;

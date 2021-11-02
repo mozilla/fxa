@@ -16,6 +16,7 @@ const {
 const customer1 = require('./fixtures/stripe/customer1.json');
 const subscription1 = require('./fixtures/stripe/subscription1.json');
 const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
+const paymentMethod = require('./fixtures/stripe/payment_method.json');
 
 /**
  * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
@@ -363,6 +364,105 @@ describe('StripeFirestore', () => {
     });
   });
 
+  describe('insertPaymentMethodRecord', () => {
+    it('inserts a record', async () => {
+      const customerSnap = {
+        empty: false,
+        docs: [
+          {
+            ref: {
+              collection: sinon.fake.returns({
+                doc: sinon.fake.returns({ set: sinon.fake.resolves({}) }),
+              }),
+            },
+          },
+        ],
+      };
+      customerCollectionDbRef.where = sinon.fake.returns({
+        get: sinon.fake.resolves(customerSnap),
+      });
+      const result = await stripeFirestore.insertPaymentMethodRecord(
+        deepCopy(paymentMethod)
+      );
+      assert.deepEqual(result, {});
+      assert.calledOnce(customerCollectionDbRef.where);
+      assert.calledOnce(customerSnap.docs[0].ref.collection);
+    });
+
+    it('errors on customer not found', async () => {
+      customerCollectionDbRef.where = sinon.fake.returns({
+        get: sinon.fake.resolves({ empty: true }),
+      });
+      try {
+        await stripeFirestore.insertPaymentMethodRecord(paymentMethod);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(
+          err.name,
+          FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+        );
+        assert.calledOnce(customerCollectionDbRef.where);
+      }
+    });
+  });
+
+  describe('insertPaymentMethodRecordWithBackfill', () => {
+    it('inserts a record', async () => {
+      stripeFirestore.insertPaymentMethodRecord = sinon.fake.resolves({});
+      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      const result =
+        await stripeFirestore.insertPaymentMethodRecordWithBackfill(
+          deepCopy(paymentMethod)
+        );
+      assert.isUndefined(result, {});
+      assert.calledOnce(stripeFirestore.insertPaymentMethodRecord);
+      assert.notCalled(stripeFirestore.fetchAndInsertCustomer);
+    });
+
+    it('backfills on customer not found', async () => {
+      const insertStub = sinon.stub();
+      stripeFirestore.insertPaymentMethodRecord = insertStub;
+      insertStub
+        .onCall(0)
+        .rejects(
+          newFirestoreStripeError(
+            'no customer',
+            FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+          )
+        );
+      insertStub.onCall(1).resolves({});
+      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves({});
+      await stripeFirestore.insertPaymentMethodRecordWithBackfill(
+        deepCopy(paymentMethod)
+      );
+      assert.calledTwice(stripeFirestore.insertPaymentMethodRecord);
+      assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+    });
+  });
+
+  describe('removePaymentMethodRecord', () => {
+    it('removes a record', async () => {
+      const paymentMethodSnap = {
+        empty: false,
+        docs: [
+          {
+            ref: {
+              delete: sinon.fake.resolves({}),
+            },
+          },
+        ],
+      };
+      firestore.collectionGroup = sinon.fake.returns({
+        where: sinon.fake.returns({
+          get: sinon.fake.resolves(paymentMethodSnap),
+        }),
+      });
+      await stripeFirestore.removePaymentMethodRecord(deepCopy(paymentMethod));
+      assert.calledOnce(firestore.collectionGroup);
+      assert.calledOnce(paymentMethodSnap.docs[0].ref.delete);
+    });
+  });
+
   describe('retrieveCustomer', () => {
     it('fetches a customer by uid', async () => {
       customerCollectionDbRef.doc = sinon.fake.returns({
@@ -561,6 +661,45 @@ describe('StripeFirestore', () => {
         assert.equal(
           err.name,
           FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
+        );
+      }
+    });
+  });
+
+  describe('retrievePaymentMethod', () => {
+    it('retrieves a payment method', async () => {
+      const paymentMethodSnap = {
+        empty: false,
+        docs: [
+          {
+            data: () => deepCopy(paymentMethod),
+          },
+        ],
+      };
+      firestore.collectionGroup = sinon.fake.returns({
+        where: sinon.fake.returns({
+          get: sinon.fake.resolves(paymentMethodSnap),
+        }),
+      });
+      const result = await stripeFirestore.retrievePaymentMethod(
+        paymentMethod.id
+      );
+      assert.deepEqual(result, paymentMethod);
+    });
+
+    it('errors on payment method not found', async () => {
+      firestore.collectionGroup = sinon.fake.returns({
+        where: sinon.fake.returns({
+          get: sinon.fake.resolves({ empty: true }),
+        }),
+      });
+      try {
+        await stripeFirestore.retrievePaymentMethod(paymentMethod.id);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(
+          err.name,
+          FirestoreStripeError.FIRESTORE_PAYMENT_METHOD_NOT_FOUND
         );
       }
     });
