@@ -90,7 +90,6 @@ describe('views/post_verify/cad_qr/scan_code', () => {
       );
       assert.lengthOf(view.$('#graphic-cad-qr-code'), 1);
       assert.lengthOf(view.$('.qr-code-step-message'), 4);
-      assert.lengthOf(view.$('#use-sms-link'), 1);
     });
 
     it('polls for new devices', () => {

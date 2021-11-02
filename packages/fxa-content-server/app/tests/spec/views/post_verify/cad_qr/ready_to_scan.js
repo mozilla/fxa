@@ -76,7 +76,6 @@ describe('views/post_verify/cad_qr/ready_to_scan', () => {
       assert.lengthOf(view.$('.graphic-laptop-mobile-qr'), 1);
       assert.lengthOf(view.$('#submit-btn'), 1);
       assert.lengthOf(view.$('#maybe-later-link'), 1);
-      assert.lengthOf(view.$('#use-sms-link'), 1);
     });
   });
 

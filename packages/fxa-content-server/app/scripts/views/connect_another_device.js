@@ -30,15 +30,9 @@ class ConnectAnotherDeviceView extends FormView {
   template = Template;
 
   beforeRender() {
-    const account = this.getAccount();
-
     // To avoid to redirection loops the forceView property might be set
     if (this.model.get('forceView')) {
       return;
-    }
-
-    if (this.isSignIn() && this._areSmsRequirementsMet(account)) {
-      return this.replaceCurrentPageWithQrCadScreen(account);
     }
 
     if (this.isEligibleForPairing()) {
