@@ -49,7 +49,7 @@ export const PlanUpgradeDetails = ({
         <PlanDetailsCard className="to-plan" plan={selectedPlan} />
 
         <div
-          className="plan-details-total"
+          className="plan-details-total plan-upgrade-details-total"
           aria-labelledby="plan-details-product"
         >
           <div className="plan-details-total-inner">
