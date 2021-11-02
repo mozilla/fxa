@@ -175,7 +175,7 @@
     "mailparser": "0.6.1",
     "mkdirp": "0.5.1",
     "mocha": "^9.1.2",
-    "mocha-junit-reporter": "^2.0.0",
+    "mocha-junit-reporter": "^2.0.2",
     "moment": "^2.29.1",
     "nock": "^13.1.4",
     "nodemon": "^2.0.14",

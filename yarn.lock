@@ -20296,7 +20296,7 @@ fsevents@~2.1.1:
     mjml: ^4.10.4
     mkdirp: 0.5.1
     mocha: ^9.1.2
-    mocha-junit-reporter: ^2.0.0
+    mocha-junit-reporter: ^2.0.2
     moment: ^2.29.1
     moment-timezone: ^0.5.33
     mozlog: ^3.0.2
@@ -29451,18 +29451,18 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mocha-junit-reporter@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "mocha-junit-reporter@npm:2.0.0"
+"mocha-junit-reporter@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "mocha-junit-reporter@npm:2.0.2"
   dependencies:
     debug: ^2.2.0
     md5: ^2.1.0
     mkdirp: ~0.5.1
-    strip-ansi: ^4.0.0
+    strip-ansi: ^6.0.1
     xml: ^1.0.0
   peerDependencies:
     mocha: ">=2.2.5"
-  checksum: dbfe211c4131156e53b18002834e78f6306c136efe1fb5a16bdf6fd727cf7f9aeb9152a50cdae234cfb1a14e9bb72943b20ad21f33dc6d46ed8ada2c3f988ecb
+  checksum: 78505ab4c471a176ac27195d7a95034ff90e2a123ec79f762b588e845a40a5423821e6bbf444033931e60bcab9b4fdd57d08026cecef7c7e766fbd2334c43df4
   languageName: node
   linkType: hard
 
@@ -37940,6 +37940,15 @@ resolve@^2.0.0-next.3:
   dependencies:
     ansi-regex: ^4.1.0
   checksum: bdb5f76ade97062bd88e7723aa019adbfacdcba42223b19ccb528ffb9fb0b89a5be442c663c4a3fb25268eaa3f6ea19c7c3fbae830bd1562d55adccae1fcec46
+  languageName: node
+  linkType: hard
+
+"strip-ansi@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "strip-ansi@npm:6.0.1"
+  dependencies:
+    ansi-regex: ^5.0.1
+  checksum: f3cd25890aef3ba6e1a74e20896c21a46f482e93df4a06567cebf2b57edabb15133f1f94e57434e0a958d61186087b1008e89c94875d019910a213181a14fc8c
   languageName: node
   linkType: hard
 
