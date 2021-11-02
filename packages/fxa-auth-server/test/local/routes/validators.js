@@ -741,12 +741,12 @@ describe('lib/routes/validators:', () => {
       assert.ok(!res.error);
     });
 
-    it('rejects an empty subscriptions list', () => {
+    it('allows an empty subscriptions list', () => {
       const res =
         validators.subscriptionsMozillaSubscriptionsValidator.validate({
           subscriptions: [],
         });
-      assert.ok(res.error);
+      assert.ok(!res.error);
     });
 
     it('rejects when the subscriptions property is missing', () => {

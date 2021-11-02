@@ -4318,7 +4318,7 @@ describe('StripeHelper', () => {
     });
 
     it('includes a list of subscriptions', async () => {
-      const subscriptions = [{ id: 'sub_testo' }];
+      const subscriptions = { data: [{ id: 'sub_testo', status: 'active' }] };
       stripeHelper.fetchCustomer.restore();
       sandbox
         .stub(stripeHelper, 'fetchCustomer')
@@ -4339,6 +4339,30 @@ describe('StripeHelper', () => {
       sinon.assert.calledOnceWithExactly(
         stripeHelper.subscriptionsToResponse,
         subscriptions
+      );
+    });
+
+    it('filters out canceled subscriptions', async () => {
+      const subscriptions = {
+        data: [
+          { id: 'sub_testo', status: 'active' },
+          { id: 'sub_testo', status: 'canceled' },
+        ],
+      };
+      stripeHelper.fetchCustomer.restore();
+      sandbox
+        .stub(stripeHelper, 'fetchCustomer')
+        .resolves({ ...customer, subscriptions });
+      sandbox
+        .stub(stripeHelper, 'subscriptionsToResponse')
+        .resolves(subscriptions);
+
+      await stripeHelper.getBillingDetailsAndSubscriptions('uid');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.subscriptionsToResponse,
+        {
+          data: [{ id: 'sub_testo', status: 'active' }],
+        } // no canceled subs passed here
       );
     });
   });

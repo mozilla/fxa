@@ -609,7 +609,6 @@ module.exports.subscriptionsMozillaSubscriptionsValidator = isA
         module.exports.subscriptionsSubscriptionValidator,
         module.exports.subscriptionsGooglePlaySubscriptionValidator
       )
-      .min(1)
       .required(),
   })
   .unknown(true);
