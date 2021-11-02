@@ -69,36 +69,39 @@ registerSuite('cached signin', {
       );
     },
 
-    'sign in with incorrect email case before normalization fix, on second attempt canonical form is used': function () {
-      return (
-        this.remote
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+    'sign in with incorrect email case before normalization fix, on second attempt canonical form is used':
+      function () {
+        return (
+          this.remote
+            .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+            .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
-          .then(testElementExists(selectors.SETTINGS.HEADER))
+            .then(testElementExists(selectors.SETTINGS.HEADER))
 
-          // reset prefill and context
-          .then(clearSessionStorage())
+            // reset prefill and context
+            .then(clearSessionStorage())
 
-          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
-          // synthesize signin pre-#4470 with incorrect email case.
-          // to avoid a timing issue where the de-normalized email was
-          // being overwritten in localStorage when denormalization was
-          // done on the settings page, wait for the signin page to load,
-          // denormalize, then refresh. See #4711
-          .then(denormalizeStoredEmail(email))
+            .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
+            // synthesize signin pre-#4470 with incorrect email case.
+            // to avoid a timing issue where the de-normalized email was
+            // being overwritten in localStorage when denormalization was
+            // done on the settings page, wait for the signin page to load,
+            // denormalize, then refresh. See #4711
+            .then(denormalizeStoredEmail(email))
 
-          .refresh()
+            .refresh()
 
-          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+            .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
 
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+            .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-          // email is normalized!
-          .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, email))
-      );
-    },
+            .then(testElementExists(selectors.SETTINGS.HEADER))
+            // email is normalized!
+            .then(
+              testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, email)
+            )
+        );
+      },
 
     'sign in once, use a different account': function () {
       return (
@@ -204,195 +207,204 @@ registerSuite('cached signin', {
       );
     },
 
-    'sign in on desktop then specify a different email on query parameter continues to cache desktop signin': function () {
-      return (
-        this.remote
-          .then(
-            openPage(
-              PAGE_ENTER_EMAIL_SYNC_DESKTOP,
-              selectors.ENTER_EMAIL.HEADER
+    'sign in on desktop then specify a different email on query parameter continues to cache desktop signin':
+      function () {
+        return (
+          this.remote
+            .then(
+              openPage(
+                PAGE_ENTER_EMAIL_SYNC_DESKTOP,
+                selectors.ENTER_EMAIL.HEADER
+              )
             )
-          )
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
-            })
-          )
+            .then(
+              respondToWebChannelMessage('fxaccounts:can_link_account', {
+                ok: true,
+              })
+            )
+            .then(fillOutEmailFirstSignIn(email, PASSWORD))
+            .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+
+            .then(
+              openPage(
+                ENTER_EMAIL_URL + '?email=' + email2,
+                selectors.SIGNIN_PASSWORD.HEADER
+              )
+            )
+            .then(
+              testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email2)
+            )
+            .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+            .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+
+            .then(testElementExists(selectors.SETTINGS.HEADER))
+
+            // reset prefill and context
+            .then(clearSessionStorage())
+
+            // testing to make sure cached signin comes back after a refresh
+            .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
+            .then(
+              testElementTextEquals(
+                selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+                email
+              )
+            )
+            .then(click(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
+
+            .then(testElementExists(selectors.ENTER_EMAIL.EMAIL))
+        );
+      },
+
+    'sign in with desktop context then no context, desktop credentials should persist':
+      function () {
+        return (
+          this.remote
+            .then(
+              openPage(
+                PAGE_ENTER_EMAIL_SYNC_DESKTOP,
+                selectors.ENTER_EMAIL.HEADER
+              )
+            )
+            .then(
+              respondToWebChannelMessage('fxaccounts:can_link_account', {
+                ok: true,
+              })
+            )
+            .then(fillOutEmailFirstSignIn(email, PASSWORD))
+            .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+
+            // ensure signin page is visible otherwise credentials might
+            // not be cleared by clicking .use-different
+            .then(
+              openPage(
+                ENTER_EMAIL_URL,
+                selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT
+              )
+            )
+            .then(visibleByQSA(selectors.SIGNIN_PASSWORD.HEADER))
+            .then(click(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
+            // need to wait for the email field to be visible
+            // before attempting to sign-in.
+            .then(visibleByQSA(selectors.ENTER_EMAIL.EMAIL))
+
+            .then(fillOutEmailFirstSignIn(email2, PASSWORD))
+            .then(testElementExists(selectors.SETTINGS.HEADER))
+
+            // reset prefill and context
+            .then(clearSessionStorage())
+
+            // testing to make sure cached signin comes back after a refresh
+            .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
+            .then(
+              testElementTextEquals(
+                selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+                email
+              )
+            )
+
+            .refresh()
+
+            .then(
+              testElementExists(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT)
+            )
+            .then(
+              testElementTextEquals(
+                selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
+                email
+              )
+            )
+        );
+      },
+
+    'sign in then use cached credentials to sign in again, existing session token should be re-authenticated':
+      function () {
+        let accountData1, accountData2;
+        return this.remote
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(getStoredAccountByEmail(email))
+          .then((accountData) => {
+            assert.ok(accountData.sessionToken);
+            accountData1 = accountData;
+          })
+
+          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
+          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(getStoredAccountByEmail(email))
+          .then((accountData) => {
+            assert.ok(accountData.sessionToken);
+            accountData2 = accountData;
+          })
+
+          .then(() => {
+            assert.equal(accountData1.uid, accountData2.uid);
+            assert.equal(accountData1.sessionToken, accountData2.sessionToken);
+          });
+      },
+
+    'sign in then use cached credentials to sign in to sync, a new session token should be created':
+      function () {
+        let accountData1, accountData2;
+        return this.remote
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(getStoredAccountByEmail(email))
+          .then((accountData) => {
+            assert.ok(accountData.sessionToken);
+            accountData1 = accountData;
+          })
 
           .then(
             openPage(
-              ENTER_EMAIL_URL + '?email=' + email2,
-              selectors.SIGNIN_PASSWORD.HEADER
+              PAGE_ENTER_EMAIL_SYNC_DESKTOP,
+              selectors.SIGNIN_PASSWORD.HEADER,
+              {
+                query: {
+                  forceUA: userAgent['desktop_firefox_71'],
+                },
+                webChannelResponses: {
+                  'fxaccounts:can_link_account': {
+                    ok: true,
+                  },
+                  'fxaccounts:fxa_status': {
+                    signedInUser: null,
+                  },
+                },
+              }
             )
           )
-          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email2))
+          .then(respondToWebChannelMessage())
           .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-          .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
-
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-
-          // reset prefill and context
-          .then(clearSessionStorage())
-
-          // testing to make sure cached signin comes back after a refresh
-          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
           .then(
-            testElementTextEquals(
-              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
-              email
+            click(
+              selectors.SIGNIN_PASSWORD.SUBMIT,
+              selectors.SIGNIN_TOKEN_CODE.HEADER
             )
           )
-          .then(click(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
+          .then(fillOutSignInTokenCode(email, 0))
 
-          .then(testElementExists(selectors.ENTER_EMAIL.EMAIL))
-      );
-    },
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(testIsBrowserNotified('fxaccounts:login'))
+          .then(getStoredAccountByEmail(email))
+          .then((accountData) => {
+            assert.ok(accountData.sessionToken);
+            accountData2 = accountData;
+          })
 
-    'sign in with desktop context then no context, desktop credentials should persist': function () {
-      return (
-        this.remote
-          .then(
-            openPage(
-              PAGE_ENTER_EMAIL_SYNC_DESKTOP,
-              selectors.ENTER_EMAIL.HEADER
-            )
-          )
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
-            })
-          )
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
-
-          // ensure signin page is visible otherwise credentials might
-          // not be cleared by clicking .use-different
-          .then(
-            openPage(
-              ENTER_EMAIL_URL,
-              selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT
-            )
-          )
-          .then(visibleByQSA(selectors.SIGNIN_PASSWORD.HEADER))
-          .then(click(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
-          // need to wait for the email field to be visible
-          // before attempting to sign-in.
-          .then(visibleByQSA(selectors.ENTER_EMAIL.EMAIL))
-
-          .then(fillOutEmailFirstSignIn(email2, PASSWORD))
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-
-          // reset prefill and context
-          .then(clearSessionStorage())
-
-          // testing to make sure cached signin comes back after a refresh
-          .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
-          .then(
-            testElementTextEquals(
-              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
-              email
-            )
-          )
-
-          .refresh()
-
-          .then(testElementExists(selectors.SIGNIN_PASSWORD.LINK_USE_DIFFERENT))
-          .then(
-            testElementTextEquals(
-              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
-              email
-            )
-          )
-      );
-    },
-
-    'sign in then use cached credentials to sign in again, existing session token should be re-authenticated': function () {
-      let accountData1, accountData2;
-      return this.remote
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(getStoredAccountByEmail(email))
-        .then((accountData) => {
-          assert.ok(accountData.sessionToken);
-          accountData1 = accountData;
-        })
-
-        .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
-        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
-
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(getStoredAccountByEmail(email))
-        .then((accountData) => {
-          assert.ok(accountData.sessionToken);
-          accountData2 = accountData;
-        })
-
-        .then(() => {
-          assert.equal(accountData1.uid, accountData2.uid);
-          assert.equal(accountData1.sessionToken, accountData2.sessionToken);
-        });
-    },
-
-    'sign in then use cached credentials to sign in to sync, a new session token should be created': function () {
-      let accountData1, accountData2;
-      return this.remote
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(getStoredAccountByEmail(email))
-        .then((accountData) => {
-          assert.ok(accountData.sessionToken);
-          accountData1 = accountData;
-        })
-
-        .then(
-          openPage(
-            PAGE_ENTER_EMAIL_SYNC_DESKTOP,
-            selectors.SIGNIN_PASSWORD.HEADER,
-            {
-              query: {
-                forceUA: userAgent['desktop_firefox_71'],
-              },
-              webChannelResponses: {
-                'fxaccounts:can_link_account': {
-                  ok: true,
-                },
-                'fxaccounts:fxa_status': {
-                  signedInUser: null,
-                },
-              },
-            }
-          )
-        )
-        .then(respondToWebChannelMessage())
-        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-        .then(
-          click(
-            selectors.SIGNIN_PASSWORD.SUBMIT,
-            selectors.SIGNIN_TOKEN_CODE.HEADER
-          )
-        )
-        .then(fillOutSignInTokenCode(email, 0))
-
-        .then(
-          testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
-        )
-        .then(testIsBrowserNotified('fxaccounts:login'))
-        .then(getStoredAccountByEmail(email))
-        .then((accountData) => {
-          assert.ok(accountData.sessionToken);
-          accountData2 = accountData;
-        })
-
-        .then(() => {
-          assert.equal(accountData1.uid, accountData2.uid);
-          assert.notEqual(accountData1.sessionToken, accountData2.sessionToken);
-        });
-    },
+          .then(() => {
+            assert.equal(accountData1.uid, accountData2.uid);
+            assert.notEqual(
+              accountData1.sessionToken,
+              accountData2.sessionToken
+            );
+          });
+      },
   },
 });
