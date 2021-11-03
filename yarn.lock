@@ -14617,10 +14617,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorette@npm:1.2.1":
-  version: 1.2.1
-  resolution: "colorette@npm:1.2.1"
-  checksum: 06e2fcdb9e2a2c527ac84509a56eadf481cde1768933eb612808f3bb3a9d9872c06b4a9f95e4d0f7befeef8b38307f79b88242d9ea52470d1125520b8116de08
+"colorette@npm:2.0.16":
+  version: 2.0.16
+  resolution: "colorette@npm:2.0.16"
+  checksum: cd55596a3a2d1071c1a28eee7fd8a5387593ff1bd10a3e8d0a6221499311fe34a9f2b9272d77c391e0e003dcdc8934fb2f8d106e7ef1f7516f8060c901d41a27
   languageName: node
   linkType: hard
 
@@ -20126,7 +20126,7 @@ fsevents@~2.1.1:
     graphql-tools: ^8.0.0
     helmet: ^4.6.0
     jest: 27.3.1
-    knex: ^0.95.11
+    knex: ^0.95.13
     mozlog: ^3.0.2
     mysql: ^2.18.1
     objection: ^2.2.17
@@ -20757,7 +20757,7 @@ fsevents@~2.1.1:
     helmet: ^4.6.0
     ioredis: ^4.27.11
     jest: 27.3.1
-    knex: ^0.95.11
+    knex: ^0.95.13
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.1.4
@@ -21197,7 +21197,7 @@ fsevents@~2.1.1:
     js-md5: ^0.7.3
     jsdom: 18.0.0
     jsdom-global: 3.0.2
-    knex: ^0.95.11
+    knex: ^0.95.13
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^9.1.2
@@ -27267,11 +27267,11 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"knex@npm:^0.95.11":
-  version: 0.95.11
-  resolution: "knex@npm:0.95.11"
+"knex@npm:^0.95.13":
+  version: 0.95.13
+  resolution: "knex@npm:0.95.13"
   dependencies:
-    colorette: 1.2.1
+    colorette: 2.0.16
     commander: ^7.1.0
     debug: 4.3.2
     escalade: ^3.1.1
@@ -27291,13 +27291,15 @@ fsevents@~2.1.1:
       optional: true
     pg:
       optional: true
+    pg-native:
+      optional: true
     sqlite3:
       optional: true
     tedious:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: a0a4451dad286e1bdec17380514e402d4b27130edb19775f4a41d5789e14811b4aaa52c0a359655cb7710aa456daa035df764d1086440e1756c2a2c4e71186b3
+  checksum: 5d5dce81d35659028a24842ee873e885878da3ba445a7c2df2aa58e2cfa4ac9c157e5cb5fa8898a3d6e13aa87618f13323064021b5d5b7f57e1f9cab6c498235
   languageName: node
   linkType: hard
 
