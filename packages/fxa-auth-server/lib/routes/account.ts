@@ -1098,10 +1098,7 @@ export class AccountHandler {
       scope.contains('profile:subscriptions')
     ) {
       const capabilities =
-        await this.capabilityService.subscriptionCapabilities(
-          uid as string,
-          account.primaryEmail.email
-        );
+        await this.capabilityService.subscriptionCapabilities(uid as string);
       if (Object.keys(capabilities).length > 0) {
         res.subscriptionsByClientId = capabilities;
       }
@@ -1477,10 +1474,10 @@ export class AccountHandler {
     if (this.config.subscriptions.enabled) {
       try {
         if (this.stripeHelper) {
-          const customer = await this.stripeHelper.customer({
-            uid: uid as string,
-            email: email as string,
-          });
+          const customer = await this.stripeHelper.fetchCustomer(
+            uid as string,
+            ['subscriptions']
+          );
           if (!customer) {
             throw error.unknownCustomer(uid);
           }

@@ -5,7 +5,6 @@ import { Firestore } from '@google-cloud/firestore';
 import * as Sentry from '@sentry/node';
 import cacheManager, {
   Cacheable,
-  CacheClear,
   CacheClearStrategy,
   CacheClearStrategyContext,
   CacheUpdate,
@@ -141,7 +140,6 @@ export class StripeHelper {
   // Note that this isn't quite accurate, as the auth-server logger has some extras
   // attached to it in Hapi.
   private log: Logger;
-  private customerCacheTtlSeconds: number;
   private plansAndProductsCacheTtlSeconds: number;
   private stripeTaxRatesCacheTtlSeconds: number;
   private webhookSecret: string;
@@ -158,7 +156,6 @@ export class StripeHelper {
    */
   constructor(log: Logger, config: ConfigType, statsd: StatsD) {
     this.log = log;
-    this.customerCacheTtlSeconds = config.subhub.customerCacheTtlSeconds;
     this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
     this.stripeTaxRatesCacheTtlSeconds =
       config.subhub.stripeTaxRatesCacheTtlSeconds;
@@ -611,7 +608,7 @@ export class StripeHelper {
   }
 
   /**
-   * Updates the email types sent for this invoice. These types are concatentated
+   * Updates the email types sent for this invoice. These types are concatenated
    * on the value of a single invoice metadata key and are thus limited to 500
    * characters.
    */
@@ -889,11 +886,12 @@ export class StripeHelper {
           custom_fields: [{ name: MOZILLA_TAX_ID, value: taxId }],
         },
       });
-      await this.stripeFirestore.insertCustomerRecordWithBackfill(
+      return this.stripeFirestore.insertCustomerRecordWithBackfill(
         customer.metadata.userid,
         updatedCustomer
       );
     }
+    return;
   }
 
   /**
@@ -980,42 +978,6 @@ export class StripeHelper {
     return customer;
   }
 
-  static customerCacheKey = (args: any[]) => `customer-${args[0]}|${args[1]}`;
-
-  @Cacheable({
-    cacheKey: StripeHelper.customerCacheKey,
-    ttlSeconds: (args, context) => context.customerCacheTtlSeconds,
-  })
-  async cachedCustomer(
-    uid: string,
-    email: string
-  ): Promise<Stripe.Customer | void> {
-    return this.fetchCustomer(uid, [
-      'subscriptions',
-      'invoice_settings.default_payment_method',
-    ]);
-  }
-
-  /**
-   * Fetch a customer for the record from Stripe based on user ID & email.
-   *
-   * Uses Redis caching if configured.
-   */
-  async customer({
-    uid,
-    email,
-    forceRefresh = false,
-  }: {
-    uid: string;
-    email: string;
-    forceRefresh?: boolean;
-  }): Promise<Stripe.Customer | undefined> {
-    if (forceRefresh) {
-      await this.removeCustomerFromCache(uid, email);
-    }
-    return (await this.cachedCustomer(uid, email)) || undefined;
-  }
-
   /**
    * On FxA deletion, if the user is a Stripe Customer:
    * - delete the stripe customer to delete
@@ -1032,7 +994,6 @@ export class StripeHelper {
           {}
         );
       }
-      await this.removeCustomerFromCache(uid, email);
     }
   }
 
@@ -1049,7 +1010,7 @@ export class StripeHelper {
     email: string,
     subscriptionId: string
   ): Promise<Stripe.Subscription | void> {
-    const customer = await this.customer({ uid, email });
+    const customer = await this.fetchCustomer(uid, ['subscriptions']);
     if (!customer) {
       return;
     }
@@ -1161,28 +1122,6 @@ export class StripeHelper {
       (sub) => sub.items.data.find((item) => item.plan.id === planId) != null
     );
   }
-
-  /**
-   * Delete a cached customer record based on user ID & email.
-   */
-  async refreshCachedCustomer(
-    uid: string,
-    email: string
-  ): Promise<Stripe.Customer | undefined> {
-    try {
-      return await this.customer({ uid, email, forceRefresh: true });
-    } catch (err) {
-      this.log.error(`subhub.refreshCachedCustomer.failed`, { err });
-      return;
-    }
-  }
-
-  /**
-   * Remove the cache entry for a customer account
-   * This is to be used on account deletion
-   */
-  @CacheClear({ cacheKey: StripeHelper.customerCacheKey })
-  async removeCustomerFromCache(uid: string, email: string) {}
 
   /**
    * Fetches all plans that are attached to a product from the cached products
@@ -1354,13 +1293,9 @@ export class StripeHelper {
    * validate this is an appropriate change for tier use.
    */
   async changeSubscriptionPlan(
-    subscriptionId: string,
+    subscription: Stripe.Subscription,
     newPlanId: string
   ): Promise<Stripe.Subscription> {
-    const subscription = await this.expandResource<Stripe.Subscription>(
-      subscriptionId,
-      SUBSCRIPTIONS_RESOURCE
-    );
     const currentPlanId = subscription.items.data[0].plan.id;
     if (currentPlanId === newPlanId) {
       throw error.subscriptionAlreadyChanged();
@@ -1373,7 +1308,7 @@ export class StripeHelper {
     };
 
     const newSubscription = await this.stripe.subscriptions.update(
-      subscriptionId,
+      subscription.id,
       {
         cancel_at_period_end: false,
         items: [
@@ -1789,7 +1724,7 @@ export class StripeHelper {
         throw error.internalValidationError(
           'formatSubscriptionsForSupport',
           sub,
-          new Error(`Product invalid for subcription: ${sub.id}`)
+          new Error(`Product invalid for subscription: ${sub.id}`)
         );
       }
       const product_name = product.name;
@@ -2252,10 +2187,7 @@ export class StripeHelper {
     } = baseDetails;
 
     const { lastFour, cardType } =
-      await this.extractCustomerDefaultPaymentDetails({
-        uid,
-        email,
-      });
+      await this.extractCustomerDefaultPaymentDetails(uid);
 
     const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
       subscription: subscription.id,
@@ -2284,17 +2216,13 @@ export class StripeHelper {
     };
   }
 
-  async extractCustomerDefaultPaymentDetails({
-    uid,
-    email,
-  }: {
-    uid: string;
-    email: string;
-  }) {
+  async extractCustomerDefaultPaymentDetails(uid: string) {
     let lastFour = null;
     let cardType = null;
 
-    const customer = await this.customer({ uid, email });
+    const customer = await this.fetchCustomer(uid, [
+      'invoice_settings.default_payment_method',
+    ]);
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -2302,10 +2230,8 @@ export class StripeHelper {
     if (customer.invoice_settings.default_payment_method) {
       // Post-SCA customer with a default PaymentMethod
       // default_payment_method *should* be expanded, but just in case...
-      const paymentMethod = await this.expandResource(
-        customer.invoice_settings.default_payment_method,
-        PAYMENT_METHOD_RESOURCE
-      );
+      const paymentMethod = customer.invoice_settings
+        .default_payment_method as Stripe.PaymentMethod;
       if (paymentMethod.card) {
         ({ last4: lastFour, brand: cardType } = paymentMethod.card);
       }
@@ -2492,9 +2418,8 @@ export class StripeHelper {
    * Process a customer event that needs to be saved to Firestore.
    */
   async processCustomerEventToFirestore(event: Stripe.Event) {
-    const { data } = event;
     const customer = await this.stripe.customers.retrieve(
-      (data.object as Stripe.Customer).id
+      (event.data.object as Stripe.Customer).id
     );
     const { uid } = await getUidAndEmailByStripeCustomerId(customer.id);
     if (!uid) {
@@ -2511,9 +2436,8 @@ export class StripeHelper {
    * Process a subscription event that needs to be saved to Firestore.
    */
   async processSubscriptionEventToFirestore(event: Stripe.Event) {
-    const { data } = event;
     const subscription = await this.stripe.subscriptions.retrieve(
-      (data.object as Stripe.Subscription).id
+      (event.data.object as Stripe.Subscription).id
     );
     return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
       subscription
@@ -2524,9 +2448,8 @@ export class StripeHelper {
    * Process a invoice event that needs to be saved to Firestore.
    */
   async processInvoiceEventToFirestore(event: Stripe.Event) {
-    const { data } = event;
     const invoice = await this.stripe.invoices.retrieve(
-      (data.object as Stripe.Invoice).id
+      (event.data.object as Stripe.Invoice).id
     );
 
     try {
@@ -2550,17 +2473,12 @@ export class StripeHelper {
    * only change in their entirety.
    */
   async processPaymentMethodEventToFirestore(event: Stripe.Event) {
-    const { data } = event;
-
-    const paymentMethod = data.object as Stripe.PaymentMethod;
-
-    if (event.type === 'payment_method.detached') {
-      await this.stripeFirestore.removePaymentMethodRecord(paymentMethod.id!);
-    } else {
-      await this.stripeFirestore.insertPaymentMethodRecordWithBackfill(
-        paymentMethod
-      );
-    }
+    const paymentMethod = await this.stripe.paymentMethods.retrieve(
+      (event.data.object as Stripe.PaymentMethod).id
+    );
+    return this.stripeFirestore.insertPaymentMethodRecordWithBackfill(
+      paymentMethod
+    );
   }
 
   /**
@@ -2598,9 +2516,7 @@ export class StripeHelper {
         case 'payment_method.automatically_updated':
         case 'payment_method.detached':
         case 'payment_method.updated':
-          if (!event.request?.id) {
-            await this.processPaymentMethodEventToFirestore(event);
-          }
+          await this.processPaymentMethodEventToFirestore(event);
           break;
         default: {
           handled = false;

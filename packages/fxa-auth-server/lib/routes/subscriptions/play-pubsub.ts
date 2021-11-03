@@ -63,16 +63,6 @@ export class PlayPubsubHandler {
       return {};
     }
     const uid = purchase.userId;
-
-    // Lookup the email for the user as we need it for capability checks
-    let email;
-    try {
-      email = (await this.db.account(uid)).primaryEmail.email;
-    } catch (err) {
-      reportSentryError(err, request);
-      return {};
-    }
-
     const updatedPurchase =
       await this.playBilling.purchaseManager.processDeveloperNotification(
         developerNotification.packageName,
@@ -83,7 +73,7 @@ export class PlayPubsubHandler {
       return {};
     }
 
-    await this.capabilityService.playUpdate(uid, email, updatedPurchase);
+    await this.capabilityService.playUpdate(uid, updatedPurchase);
 
     return {};
   }

@@ -73,8 +73,10 @@ const makeRoutes = function (options = {}, requireMocks) {
     signinUtils.checkPassword = options.checkPassword;
   }
   const push = options.push || require('../../../lib/push')(log, db, {});
-  const verificationReminders = options.verificationReminders || mocks.mockVerificationReminders();
-  const subscriptionAccountReminders = options.subscriptionAccountReminders || mocks.mockVerificationReminders();
+  const verificationReminders =
+    options.verificationReminders || mocks.mockVerificationReminders();
+  const subscriptionAccountReminders =
+    options.subscriptionAccountReminders || mocks.mockVerificationReminders();
   const { accountRoutes } = proxyquire(
     '../../../lib/routes/account',
     requireMocks || {}
@@ -728,7 +730,6 @@ describe('/account/create', () => {
       sessionTokenId,
       uid,
       verificationReminders,
-      subscriptionAccountReminders,
     } = setup();
 
     const now = Date.now();
@@ -1016,7 +1017,6 @@ describe('/account/create', () => {
       route,
       uid,
       verificationReminders,
-      subscriptionAccountReminders,
     } = setup();
 
     const now = Date.now();
@@ -1107,7 +1107,7 @@ describe('/account/create', () => {
   });
 
   it('should return an error if email fails to send', () => {
-    const { mockMailer, mockRequest, route, verificationReminders, subscriptionAccountReminders } = setup();
+    const { mockMailer, mockRequest, route, verificationReminders } = setup();
 
     mockMailer.sendVerifyEmail = sinon.spy(() => Promise.reject());
 
@@ -1122,7 +1122,7 @@ describe('/account/create', () => {
   });
 
   it('should return a bounce error if send fails with one', () => {
-    const { mockMailer, mockRequest, route, verificationReminders, subscriptionAccountReminders } = setup();
+    const { mockMailer, mockRequest, route, verificationReminders } = setup();
 
     mockMailer.sendVerifyEmail = sinon.spy(() =>
       Promise.reject(error.emailBouncedHard(42))
@@ -3410,10 +3410,12 @@ describe('/account', () => {
     };
     mockSubscriptionsResponse = [subscription];
     mockStripeHelper = mocks.mockStripeHelper([
-      'customer',
+      'fetchCustomer',
       'subscriptionsToResponse',
     ]);
-    mockStripeHelper.customer = sinon.spy(async (uid, email) => mockCustomer);
+    mockStripeHelper.fetchCustomer = sinon.spy(
+      async (uid, email) => mockCustomer
+    );
     mockStripeHelper.subscriptionsToResponse = sinon.spy(
       async (subscriptions) => mockSubscriptionsResponse
     );
@@ -3435,7 +3437,9 @@ describe('/account', () => {
 
   it('should return formatted Stripe subscriptions when subscriptions are enabled', () => {
     return runTest(buildRoute(), request, (result) => {
-      assert.deepEqual(mockStripeHelper.customer.args[0], [{ uid, email }]);
+      sinon.assert.calledOnceWithExactly(mockStripeHelper.fetchCustomer, uid, [
+        'subscriptions',
+      ]);
       assert.deepEqual(mockStripeHelper.subscriptionsToResponse.args[0], [
         mockCustomer.subscriptions,
       ]);
@@ -3447,7 +3451,7 @@ describe('/account', () => {
   });
 
   it('should swallow unknownCustomer errors from stripe.customer', () => {
-    mockStripeHelper.customer = sinon.spy(() => {
+    mockStripeHelper.fetchCustomer = sinon.spy(() => {
       throw error.unknownCustomer();
     });
 
@@ -3456,13 +3460,13 @@ describe('/account', () => {
         subscriptions: [],
       });
       assert.equal(log.begin.callCount, 1);
-      assert.equal(mockStripeHelper.customer.callCount, 1);
+      assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
       assert.equal(mockStripeHelper.subscriptionsToResponse.callCount, 0);
     });
   });
 
   it('should propagate other errors from stripe.customer', async () => {
-    mockStripeHelper.customer = sinon.spy(() => {
+    mockStripeHelper.fetchCustomer = sinon.spy(() => {
       throw error.unexpectedError();
     });
 
@@ -3484,7 +3488,7 @@ describe('/account', () => {
       });
 
       assert.equal(log.begin.callCount, 1);
-      assert.equal(mockStripeHelper.customer.callCount, 0);
+      assert.equal(mockStripeHelper.fetchCustomer.callCount, 0);
     });
   });
 });

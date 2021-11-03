@@ -390,7 +390,7 @@ describe('StripeWebhookHandler', () => {
     });
 
     describe('handleCustomerUpdatedEvent', () => {
-      it('removes the customor if the account exists', async () => {
+      it('removes the customer if the account exists', async () => {
         const authDbModule = require('fxa-shared/db/models/auth');
         const account = { email: customerFixture.email };
         sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
@@ -402,9 +402,9 @@ describe('StripeWebhookHandler', () => {
           }
         );
         assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.removeCustomerFromCache,
+          authDbModule.Account.findByUid,
           customerFixture.metadata.userid,
-          customerFixture.email
+          { include: ['emails'] }
         );
       });
 
@@ -419,9 +419,6 @@ describe('StripeWebhookHandler', () => {
             data: { object: customerFixture },
             type: 'customer.updated',
           }
-        );
-        assert.notCalled(
-          StripeWebhookHandlerInstance.stripeHelper.refreshCachedCustomer
         );
         assert.calledOnce(sentryModule.reportSentryError);
       });
@@ -669,7 +666,6 @@ describe('StripeWebhookHandler', () => {
         assert.calledWithExactly(mockCapabilityService.stripeUpdate, {
           sub: updatedEvent.data.object,
           uid: UID,
-          email: TEST_EMAIL,
         });
         assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
       });
@@ -711,7 +707,7 @@ describe('StripeWebhookHandler', () => {
 
     describe('handleSubscriptionDeletedEvent', () => {
       it('sends email and emits a notification when a subscription is deleted', async () => {
-        StripeWebhookHandlerInstance.stripeHelper.customer.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchCustomer.resolves(
           customerFixture
         );
         const deletedEvent = deepCopy(subscriptionDeleted);
@@ -725,7 +721,6 @@ describe('StripeWebhookHandler', () => {
         assert.calledWith(mockCapabilityService.stripeUpdate, {
           sub: deletedEvent.data.object,
           uid: UID,
-          email: TEST_EMAIL,
         });
         assert.calledWith(
           sendSubscriptionDeletedEmailStub,
@@ -733,11 +728,9 @@ describe('StripeWebhookHandler', () => {
         );
         assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
         assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.customer,
-          {
-            uid: UID,
-            email: TEST_EMAIL,
-          }
+          StripeWebhookHandlerInstance.stripeHelper.fetchCustomer,
+          UID,
+          ['subscriptions']
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.paypalHelper
@@ -760,11 +753,9 @@ describe('StripeWebhookHandler', () => {
           deletedEvent.data.object
         );
         assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.customer,
-          {
-            uid: UID,
-            email: TEST_EMAIL,
-          }
+          StripeWebhookHandlerInstance.stripeHelper.fetchCustomer,
+          UID,
+          ['subscriptions']
         );
         assert.notCalled(
           StripeWebhookHandlerInstance.paypalHelper

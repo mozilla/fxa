@@ -15,9 +15,19 @@ const error = require('../../../../lib/error');
 const completedMerchantPaymentNotification = require('../fixtures/merch_pmt_completed.json');
 const pendingMerchantPaymentNotification = require('../fixtures/merch_pmt_pending.json');
 const billingAgreementCancelNotification = require('../fixtures/mp_cancel_successful.json');
-const {
-  PayPalNotificationHandler,
-} = require('../../../../lib/routes/subscriptions/paypal-notifications');
+const proxyquire = require('proxyquire').noPreserveCache();
+
+const sandbox = sinon.createSandbox();
+
+const dbStub = {
+  getPayPalBAByBAId: sandbox.stub(),
+  Account: {},
+};
+
+const { PayPalNotificationHandler } = proxyquire(
+  '../../../../lib/routes/subscriptions/paypal-notifications',
+  { 'fxa-shared/db/models/auth': dbStub }
+);
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 
@@ -38,7 +48,6 @@ describe('PayPalNotificationHandler', () => {
   let push;
   let stripeHelper;
   /** @type sinon.SinonSandbox */
-  let sandbox;
 
   beforeEach(() => {
     config = {
@@ -90,7 +99,7 @@ describe('PayPalNotificationHandler', () => {
 
   afterEach(() => {
     Container.reset();
-    sinon.restore();
+    sandbox.reset();
   });
 
   describe('handleIpnEvent', () => {
@@ -372,14 +381,9 @@ describe('PayPalNotificationHandler', () => {
     };
 
     it('receives IPN message with successful billing agreement cancelled and email sent', async () => {
-      sandbox = sinon.createSandbox();
-
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getPayPalBAByBAId')
-        .resolves(billingAgreement);
-      sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
-      stripeHelper.customer = sinon.fake.resolves({
+      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
+      dbStub.Account.findByUid = sandbox.stub().resolves(account);
+      stripeHelper.fetchCustomer = sinon.fake.resolves({
         ...customer,
         subscriptions,
       });
@@ -392,18 +396,19 @@ describe('PayPalNotificationHandler', () => {
 
       assert.isUndefined(result);
       sinon.assert.calledOnceWithExactly(
-        authDbModule.getPayPalBAByBAId,
+        dbStub.getPayPalBAByBAId,
         billingAgreementCancelNotification.mp_id
       );
       sinon.assert.calledOnceWithExactly(
-        authDbModule.Account.findByUid,
+        dbStub.Account.findByUid,
         billingAgreement.uid,
         { include: ['emails'] }
       );
-      sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
-        uid: account.uid,
-        email: account.email,
-      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.fetchCustomer,
+        account.uid,
+        ['subscriptions']
+      );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.removeCustomerPaypalAgreement,
         account.uid,
@@ -414,15 +419,10 @@ describe('PayPalNotificationHandler', () => {
         ...customer,
         subscriptions,
       });
-
-      sandbox.restore();
     });
 
     it('receives IPN message with billing agreement not found', async () => {
-      sandbox = sinon.createSandbox();
-
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox.stub(authDbModule, 'getPayPalBAByBAId').resolves(undefined);
+      dbStub.getPayPalBAByBAId.resolves(undefined);
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
@@ -430,21 +430,17 @@ describe('PayPalNotificationHandler', () => {
 
       assert.isUndefined(result);
       sinon.assert.calledOnceWithExactly(
-        authDbModule.getPayPalBAByBAId,
+        dbStub.getPayPalBAByBAId,
         billingAgreementCancelNotification.mp_id
       );
       sinon.assert.calledOnce(log.error);
-
-      sandbox.restore();
     });
 
     it('receives IPN message for billing agreement already cancelled', async () => {
-      sandbox = sinon.createSandbox();
-
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getPayPalBAByBAId')
-        .returns({ ...billingAgreement, status: 'Cancelled' });
+      dbStub.getPayPalBAByBAId.resolves({
+        ...billingAgreement,
+        status: 'Cancelled',
+      });
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
@@ -452,21 +448,14 @@ describe('PayPalNotificationHandler', () => {
 
       assert.isUndefined(result);
       sinon.assert.calledOnceWithExactly(
-        authDbModule.getPayPalBAByBAId,
+        dbStub.getPayPalBAByBAId,
         billingAgreementCancelNotification.mp_id
       );
-
-      sandbox.restore();
     });
 
     it('receives IPN message for billing agreement with no FXA account', async () => {
-      sandbox = sinon.createSandbox();
-
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getPayPalBAByBAId')
-        .resolves(billingAgreement);
-      sandbox.stub(authDbModule.Account, 'findByUid').resolves(null);
+      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
+      dbStub.Account.findByUid = sandbox.stub().resolves(null);
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
@@ -474,28 +463,21 @@ describe('PayPalNotificationHandler', () => {
 
       assert.isUndefined(result);
       sinon.assert.calledOnceWithExactly(
-        authDbModule.getPayPalBAByBAId,
+        dbStub.getPayPalBAByBAId,
         billingAgreementCancelNotification.mp_id
       );
       sinon.assert.calledOnceWithExactly(
-        authDbModule.Account.findByUid,
+        dbStub.Account.findByUid,
         billingAgreement.uid,
         { include: ['emails'] }
       );
       sinon.assert.calledOnce(log.error);
-
-      sandbox.restore();
     });
 
     it('receives IPN message for billing agreement with no Stripe customer', async () => {
-      sandbox = sinon.createSandbox();
-
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getPayPalBAByBAId')
-        .resolves(billingAgreement);
-      sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
-      stripeHelper.customer = sinon.fake.resolves(undefined);
+      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
+      dbStub.Account.findByUid = sinon.stub().resolves(account);
+      stripeHelper.fetchCustomer = sinon.fake.resolves(undefined);
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
@@ -503,32 +485,26 @@ describe('PayPalNotificationHandler', () => {
 
       assert.isUndefined(result);
       sinon.assert.calledOnceWithExactly(
-        authDbModule.getPayPalBAByBAId,
+        dbStub.getPayPalBAByBAId,
         billingAgreementCancelNotification.mp_id
       );
       sinon.assert.calledOnceWithExactly(
-        authDbModule.Account.findByUid,
+        dbStub.Account.findByUid,
         billingAgreement.uid,
         { include: ['emails'] }
       );
-      sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
-        uid: account.uid,
-        email: account.email,
-      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.fetchCustomer,
+        account.uid,
+        ['subscriptions']
+      );
       sinon.assert.calledOnce(log.error);
-
-      sandbox.restore();
     });
 
     it('receives IPN message for inactive subscription and email not sent', async () => {
-      sandbox = sinon.createSandbox();
-
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getPayPalBAByBAId')
-        .resolves(billingAgreement);
-      sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
-      stripeHelper.customer = sinon.fake.resolves({
+      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
+      dbStub.Account.findByUid = sandbox.stub().resolves(account);
+      stripeHelper.fetchCustomer = sinon.fake.resolves({
         ...customer,
         subscriptions: undefined,
       });
@@ -541,18 +517,19 @@ describe('PayPalNotificationHandler', () => {
 
       assert.isUndefined(result);
       sinon.assert.calledOnceWithExactly(
-        authDbModule.getPayPalBAByBAId,
+        dbStub.getPayPalBAByBAId,
         billingAgreementCancelNotification.mp_id
       );
       sinon.assert.calledOnceWithExactly(
-        authDbModule.Account.findByUid,
+        dbStub.Account.findByUid,
         billingAgreement.uid,
         { include: ['emails'] }
       );
-      sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
-        uid: account.uid,
-        email: account.email,
-      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.fetchCustomer,
+        account.uid,
+        ['subscriptions']
+      );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.removeCustomerPaypalAgreement,
         account.uid,
@@ -563,26 +540,18 @@ describe('PayPalNotificationHandler', () => {
         ...customer,
         subscriptions: undefined,
       });
-
-      sandbox.restore();
     });
 
     it('sends an email', async () => {
-      sandbox = sinon.createSandbox();
-
       const mockCustomer = {
         ...customer,
         subscriptions,
       };
       const mockFormattedSubs = { productId: 'quux' };
       const mockAcct = { ...account, emails: [account.email, 'bar@baz.gd'] };
-      const authDbModule = require('fxa-shared/db/models/auth');
-      sandbox
-        .stub(authDbModule, 'getPayPalBAByBAId')
-        .resolves(billingAgreement);
-
-      sandbox.stub(authDbModule.Account, 'findByUid').resolves(mockAcct);
-      stripeHelper.customer = sinon.fake.resolves(mockCustomer);
+      dbStub.getPayPalBAByBAId.resolves(billingAgreement);
+      dbStub.Account.findByUid = sandbox.stub().resolves(mockAcct);
+      stripeHelper.fetchCustomer = sinon.fake.resolves(mockCustomer);
       stripeHelper.removeCustomerPaypalAgreement = sinon.fake.resolves({});
       stripeHelper.getPaymentProvider = sinon.fake.returns('paypal');
       stripeHelper.formatSubscriptionsForEmails =

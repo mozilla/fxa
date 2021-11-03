@@ -271,7 +271,7 @@ export class StripeWebhookHandler extends StripeHandler {
       ['active', 'trialing'].includes(sub.status) &&
       (event.data?.previous_attributes as any)?.status === 'incomplete'
     ) {
-      return this.capabilityService.stripeUpdate({ sub, uid, email });
+      return this.capabilityService.stripeUpdate({ sub, uid });
     }
     return;
   }
@@ -284,9 +284,9 @@ export class StripeWebhookHandler extends StripeHandler {
     event: Stripe.Event
   ) {
     const sub = event.data.object as Stripe.Subscription;
-    let uid, email;
+    let uid;
     try {
-      ({ uid, email } = await this.sendSubscriptionDeletedEmail(sub));
+      ({ uid } = await this.sendSubscriptionDeletedEmail(sub));
     } catch (err) {
       // FIXME: If the customer was deleted, we don't send an email that their subscription
       //        was cancelled. This is because the email requires a bunch of details that
@@ -297,9 +297,11 @@ export class StripeWebhookHandler extends StripeHandler {
       reportSentryError(err, request);
       return;
     }
-    await this.capabilityService.stripeUpdate({ sub, uid, email });
+    await this.capabilityService.stripeUpdate({ sub, uid });
     if (this.paypalHelper) {
-      const customer = await this.stripeHelper.customer({ uid, email });
+      const customer = await this.stripeHelper.fetchCustomer(uid, [
+        'subscriptions',
+      ]);
       if (!customer || customer.deleted) {
         return;
       }
@@ -323,7 +325,6 @@ export class StripeWebhookHandler extends StripeHandler {
       );
       return;
     }
-    this.stripeHelper.removeCustomerFromCache(uid, account.email);
   }
 
   /**
@@ -446,7 +447,6 @@ export class StripeWebhookHandler extends StripeHandler {
     const { uid, email } = await this.sendSubscriptionPaymentExpiredEmail(
       source
     );
-    await this.stripeHelper.removeCustomerFromCache(uid, email);
   }
 
   /**
@@ -674,13 +674,13 @@ export class StripeWebhookHandler extends StripeHandler {
    * whether the user still has an account.
    *
    * We receive a subscription deleted event for the following:
-   *   1. A user canceled subscripiton.
+   *   1. A user canceled subscription.
    *   2. Subscription canceled after multiple Stripe attempts to pay an invoice.
    *   3. PayPal processor canceled the subscription after failed attempts.
    *   4. A user deleted their account.
    *   5. An admin or support agent cancelled the subscription.
    *
-   * (1) and (5) are handled at the time of cancelation, so we do not send an additional
+   * (1) and (5) are handled at the time of cancellation, so we do not send an additional
    * email here.
    */
   async sendSubscriptionDeletedEmail(subscription: Stripe.Subscription) {

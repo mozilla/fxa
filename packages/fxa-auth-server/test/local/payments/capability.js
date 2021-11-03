@@ -142,11 +142,7 @@ describe('CapabilityService', () => {
       await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
       assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, {
-        uid: UID,
-        email: EMAIL,
-        forceRefresh: true,
-      });
+      assert.calledWith(capabilityService.subscribedProductIds, UID);
       assert.calledWith(capabilityService.processProductIdDiff, {
         uid: UID,
         priorProductIds: [],
@@ -160,11 +156,7 @@ describe('CapabilityService', () => {
       await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
       assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, {
-        uid: UID,
-        email: EMAIL,
-        forceRefresh: true,
-      });
+      assert.calledWith(capabilityService.subscribedProductIds, UID);
       assert.calledWith(capabilityService.processProductIdDiff, {
         uid: UID,
         priorProductIds: ['prod_FUUNYnlDso7FeB'],
@@ -180,11 +172,7 @@ describe('CapabilityService', () => {
         sub.customer
       );
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, {
-        uid: UID,
-        email: EMAIL,
-        forceRefresh: true,
-      });
+      assert.calledWith(capabilityService.subscribedProductIds, UID);
       assert.calledWith(capabilityService.processProductIdDiff, {
         uid: UID,
         priorProductIds: [],
@@ -221,11 +209,7 @@ describe('CapabilityService', () => {
     it('handles a play purchase with new product', async () => {
       await capabilityService.playUpdate(UID, EMAIL, subscriptionPurchase);
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, {
-        uid: UID,
-        email: EMAIL,
-        forceRefresh: true,
-      });
+      assert.calledWith(capabilityService.subscribedProductIds, UID);
       assert.calledWith(capabilityService.processProductIdDiff, {
         uid: UID,
         priorProductIds: [],
@@ -237,11 +221,7 @@ describe('CapabilityService', () => {
       capabilityService.subscribedProductIds = sinon.fake.resolves([]);
       await capabilityService.playUpdate(UID, EMAIL, subscriptionPurchase);
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, {
-        uid: UID,
-        email: EMAIL,
-        forceRefresh: true,
-      });
+      assert.calledWith(capabilityService.subscribedProductIds, UID);
       assert.calledWith(capabilityService.processProductIdDiff, {
         uid: UID,
         priorProductIds: ['prod_FUUNYnlDso7FeB'],
@@ -309,7 +289,7 @@ describe('CapabilityService', () => {
 
   describe('determineClientVisibleSubscriptionCapabilities', () => {
     beforeEach(() => {
-      mockStripeHelper.customer = sinon.spy(async () => ({
+      mockStripeHelper.fetchCustomer = sinon.spy(async () => ({
         subscriptions: {
           data: [
             {

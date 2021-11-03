@@ -91,7 +91,6 @@ describe('GoogleIapHandler', () => {
       const result = await googleIapHandler.registerToken(request);
       assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
       assert.calledOnce(playBilling.packageName);
-      assert.calledOnce(db.account);
       assert.calledOnce(mockCapabilityService.playUpdate);
       assert.deepEqual(result, { tokenValid: true });
     });
@@ -107,7 +106,6 @@ describe('GoogleIapHandler', () => {
       const result = await googleIapHandler.registerToken(request);
       assert.calledOnce(playBilling.purchaseManager.registerToUserAccount);
       assert.calledOnce(playBilling.packageName);
-      assert.calledOnce(db.account);
       assert.calledOnce(mockCapabilityService.playUpdate);
       assert.deepEqual(result, { tokenValid: true });
     });

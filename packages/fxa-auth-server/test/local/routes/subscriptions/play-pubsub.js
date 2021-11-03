@@ -86,7 +86,6 @@ describe('PlayPubsubHandler', () => {
       assert.deepEqual(result, {});
       assert.calledOnce(playPubsubHandlerInstance.extractMessage);
       assert.calledOnce(mockPlayBilling.purchaseManager.getPurchase);
-      assert.calledOnce(db.account);
       assert.calledOnce(
         mockPlayBilling.purchaseManager.processDeveloperNotification
       );

@@ -53,7 +53,7 @@ export class PayPalHandler extends StripeWebhookHandler {
    */
   async getCheckoutToken(request: AuthRequest) {
     this.log.begin('subscriptions.getCheckoutToken', request);
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    const { email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'getCheckoutToken');
 
     const { currencyCode } = request.payload as Record<string, string>;
@@ -81,10 +81,9 @@ export class PayPalHandler extends StripeWebhookHandler {
     );
     await this.customs.check(request, email, 'createSubscriptionWithPaypal');
 
-    let customer = await this.stripeHelper.customer({
-      uid,
-      email,
-    });
+    let customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions',
+    ]);
 
     if (!customer) {
       throw error.unknownCustomer(uid);
@@ -271,10 +270,9 @@ export class PayPalHandler extends StripeWebhookHandler {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'updatePaypalBillingAgreement');
 
-    let customer = await this.stripeHelper.customer({
-      uid,
-      email,
-    });
+    let customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions',
+    ]);
 
     if (!customer) {
       throw error.unknownCustomer(uid);
