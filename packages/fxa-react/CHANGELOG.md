@@ -1,3 +1,11 @@
+## 1.218.5
+
+### Other changes
+
+- deps-dev: bump @testing-library/jest-dom from 5.14.1 to 5.15.0 (#10899) ([d9798a2f2](https://github.com/mozilla/fxa/commit/d9798a2f2))
+- deps: Update storybook packages to fix error ([9e0d99ed0](https://github.com/mozilla/fxa/commit/9e0d99ed0))
+- deps-dev: bump sass from 1.42.1 to 1.43.4 (#10862) ([f3e2be4d9](https://github.com/mozilla/fxa/commit/f3e2be4d9))
+
 ## 1.218.4
 
 No changes.

@@ -1,3 +1,14 @@
+## 1.218.5
+
+### Bug fixes
+
+- chore: Remove links to sms page from qr code page (#10890) ([ea95c2bd6](https://github.com/mozilla/fxa/commit/ea95c2bd6))
+- tet: Fix a few pocket localization issues (#10880) ([1a73295c1](https://github.com/mozilla/fxa/commit/1a73295c1))
+
+### Other changes
+
+- deps: bump autoprefixer from 10.3.7 to 10.4.0 (#10863) ([e7b5fae65](https://github.com/mozilla/fxa/commit/e7b5fae65))
+
 ## 1.218.4
 
 No changes.

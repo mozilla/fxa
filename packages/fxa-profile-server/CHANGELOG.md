@@ -1,3 +1,10 @@
+## 1.218.5
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1016.0 to 2.1020.0 (#10902) ([22f932063](https://github.com/mozilla/fxa/commit/22f932063))
+- deps-dev: bump nock from 13.1.3 to 13.1.4 (#10884) ([d9dc1d08c](https://github.com/mozilla/fxa/commit/d9dc1d08c))
+
 ## 1.218.4
 
 No changes.

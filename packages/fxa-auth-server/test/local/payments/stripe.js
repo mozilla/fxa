@@ -85,7 +85,6 @@ const {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
 } = require('../../../../fxa-shared/subscriptions/types');
-const { pick } = require('lodash');
 
 const mockConfig = {
   authFirestore: {
@@ -3961,14 +3960,10 @@ describe('StripeHelper', () => {
       const result = await stripeHelper.processWebhookEventToFirestore(event);
       assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveInvoice,
-        event.data.object.id
-      );
-      sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.insertInvoiceRecord,
         event.data.object
       );
-      sinon.assert.notCalled(stripeFirestore.retrieveAndFetchSubscription);
+      sinon.assert.notCalled(stripeFirestore.retrieveInvoice);
     });
 
     it('handles invoice operations with no firestore invoice', async () => {
@@ -3976,83 +3971,29 @@ describe('StripeHelper', () => {
       stripeFirestore.retrieveAndFetchSubscription = sandbox
         .stub()
         .resolves({});
-      stripeFirestore.retrieveInvoice = sandbox
-        .stub()
+      const insertStub = sandbox.stub();
+      stripeFirestore.insertInvoiceRecord = insertStub;
+      insertStub
+        .onCall(0)
         .rejects(
           newFirestoreStripeError(
             'no invoice',
-            FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
+            FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
           )
         );
-      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      insertStub.onCall(1).resolves({});
       const result = await stripeHelper.processWebhookEventToFirestore(event);
       assert.isTrue(result);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveInvoice,
-        event.data.object.id
+      sinon.assert.calledTwice(
+        stripeHelper.stripeFirestore.insertInvoiceRecord
       );
-      sinon.assert.calledOnceWithExactly(
+      sinon.assert.calledWithExactly(
         stripeHelper.stripeFirestore.insertInvoiceRecord,
         event.data.object
       );
       sinon.assert.calledOnceWithExactly(
         stripeFirestore.retrieveAndFetchSubscription,
         event.data.object.subscription
-      );
-    });
-
-    it('handles invoice operations with previous attributes and firestore invoice', async () => {
-      const event = deepCopy(eventInvoiceCreated);
-      event.data.previous_attributes = {
-        amount_due: 1000,
-      };
-      stripeFirestore.retrieveInvoice = sandbox.stub().resolves({});
-      stripeFirestore.retrieveAndFetchSubscription = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
-      const result = await stripeHelper.processWebhookEventToFirestore(event);
-      assert.isTrue(result);
-      sinon.assert.notCalled(
-        stripeHelper.stripeFirestore.retrieveAndFetchSubscription
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.insertInvoiceRecord,
-        pick(event.data.object, [
-          'id',
-          'customer',
-          'subscription',
-          ...Object.keys(event.data.previous_attributes),
-        ])
-      );
-    });
-
-    it('handles invoice operations with previous attributes and no firestore invoice', async () => {
-      const event = deepCopy(eventInvoiceCreated);
-      event.data.previous_attributes = {
-        amount_due: 1000,
-      };
-      stripeFirestore.retrieveInvoice = sandbox
-        .stub()
-        .rejects(
-          newFirestoreStripeError(
-            'no invoice',
-            FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
-          )
-        );
-      stripeFirestore.retrieveAndFetchSubscription = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
-      const result = await stripeHelper.processWebhookEventToFirestore(event);
-      assert.isTrue(result);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveAndFetchSubscription,
-        event.data.object.subscription
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.insertInvoiceRecord,
-        event.data.object
       );
     });
 
@@ -4083,31 +4024,10 @@ describe('StripeHelper', () => {
         sinon.assert.calledOnceWithExactly(
           stripeHelper.stripeFirestore.insertCustomerRecordWithBackfill,
           event.data.object.metadata.userid,
-          pick(event.data.object, [
-            'id',
-            'metadata',
-            ...Object.keys(event.data.previous_attributes),
-          ])
+          event.data.object
         );
       });
     }
-
-    it('handles customer operations with previous attributes', async () => {
-      const event = deepCopy(eventCustomerUpdated);
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      await stripeHelper.processWebhookEventToFirestore(event);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.insertCustomerRecordWithBackfill,
-        event.data.object.metadata.userid,
-        pick(event.data.object, [
-          'id',
-          'metadata',
-          ...Object.keys(event.data.previous_attributes),
-        ])
-      );
-    });
 
     for (const type of [
       'customer.subscription.created',
@@ -4144,57 +4064,6 @@ describe('StripeHelper', () => {
         );
       });
     }
-
-    it('handles subscription operations with previous_attributes and firestore subscription', async () => {
-      const event = deepCopy(eventSubscriptionUpdated);
-      stripeFirestore.retrieveSubscription = sandbox.stub().resolves({});
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertSubscriptionRecord = sandbox.stub().resolves({});
-      await stripeHelper.processWebhookEventToFirestore(event);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.insertSubscriptionRecord,
-        pick(event.data.object, [
-          'id',
-          'customer',
-          ...Object.keys(event.data.previous_attributes),
-        ])
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveSubscription,
-        event.data.object.id
-      );
-      sinon.assert.notCalled(
-        stripeFirestore.insertSubscriptionRecordWithBackfill
-      );
-    });
-
-    it('handles subscription operations with previous_attributes and no firestore subscription', async () => {
-      const event = deepCopy(eventSubscriptionUpdated);
-      stripeFirestore.retrieveSubscription = sandbox
-        .stub()
-        .rejects(
-          newFirestoreStripeError(
-            'no sub',
-            FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND
-          )
-        );
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertSubscriptionRecord = sandbox.stub().resolves({});
-      await stripeHelper.processWebhookEventToFirestore(event);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.insertSubscriptionRecordWithBackfill,
-        event.data.object
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.retrieveSubscription,
-        event.data.object.id
-      );
-      sinon.assert.notCalled(stripeFirestore.insertSubscriptionRecord);
-    });
 
     it('does not handle wibble events', async () => {
       const event = deepCopy(eventSubscriptionUpdated);

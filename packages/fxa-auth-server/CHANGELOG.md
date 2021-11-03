@@ -1,3 +1,21 @@
+## 1.218.5
+
+### Bug fixes
+
+- emails: pass language for new sub/stub acct email (#10908) ([ba8e42eb5](https://github.com/mozilla/fxa/commit/ba8e42eb5))
+- auth: only return active subs ([810872cf1](https://github.com/mozilla/fxa/commit/810872cf1))
+- auth: dont merge records ([718a3a9ab](https://github.com/mozilla/fxa/commit/718a3a9ab))
+- subscriptions: filter canceled subscriptions (#10896) ([6b8af21c4](https://github.com/mozilla/fxa/commit/6b8af21c4))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1016.0 to 2.1020.0 (#10902) ([22f932063](https://github.com/mozilla/fxa/commit/22f932063))
+- deps-dev: bump mocha-junit-reporter from 2.0.0 to 2.0.2 (#10886) ([460229d30](https://github.com/mozilla/fxa/commit/460229d30))
+- deps-dev: bump nock from 13.1.3 to 13.1.4 (#10884) ([d9dc1d08c](https://github.com/mozilla/fxa/commit/d9dc1d08c))
+- deps: bump stripe from 8.185.0 to 8.186.0 (#10883) ([569e3721f](https://github.com/mozilla/fxa/commit/569e3721f))
+- deps-dev: bump sass from 1.42.1 to 1.43.4 (#10862) ([f3e2be4d9](https://github.com/mozilla/fxa/commit/f3e2be4d9))
+- deps: bump stripe from 8.181.0 to 8.185.0 (#10881) ([3809e5188](https://github.com/mozilla/fxa/commit/3809e5188))
+
 ## 1.218.4
 
 ### Bug fixes

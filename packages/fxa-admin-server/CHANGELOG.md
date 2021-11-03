@@ -1,3 +1,9 @@
+## 1.218.5
+
+### Other changes
+
+- deps: bump knex from 0.95.11 to 0.95.13 (#10903) ([c6b854f99](https://github.com/mozilla/fxa/commit/c6b854f99))
+
 ## 1.218.4
 
 No changes.

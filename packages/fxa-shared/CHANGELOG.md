@@ -1,5 +1,15 @@
 # Change history
 
+## 1.218.5
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1016.0 to 2.1020.0 (#10902) ([22f932063](https://github.com/mozilla/fxa/commit/22f932063))
+- deps: bump knex from 0.95.11 to 0.95.13 (#10903) ([c6b854f99](https://github.com/mozilla/fxa/commit/c6b854f99))
+- deps-dev: bump @nestjs/testing from 8.1.1 to 8.1.2 (#10888) ([9838b2df6](https://github.com/mozilla/fxa/commit/9838b2df6))
+- deps: bump stripe from 8.185.0 to 8.186.0 (#10883) ([569e3721f](https://github.com/mozilla/fxa/commit/569e3721f))
+- deps: bump stripe from 8.181.0 to 8.185.0 (#10881) ([3809e5188](https://github.com/mozilla/fxa/commit/3809e5188))
+
 ## 1.218.4
 
 No changes.

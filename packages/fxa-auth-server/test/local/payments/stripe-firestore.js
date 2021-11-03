@@ -439,6 +439,33 @@ describe('StripeFirestore', () => {
       assert.deepEqual(subscriptions, [customer.subscriptions.data[0]]);
     });
 
+    it('retrieves only active customer subscriptions', async () => {
+      const sub1 = deepCopy(customer.subscriptions.data[0]);
+      const sub2 = deepCopy(customer.subscriptions.data[0]);
+      sub2.status = 'cancelled';
+      const subscriptionSnap = {
+        docs: [{ data: () => sub1 }, { data: () => sub2 }],
+      };
+      customerCollectionDbRef.where = sinon.fake.returns({
+        get: sinon.fake.resolves({
+          empty: false,
+          docs: [
+            {
+              ref: {
+                collection: sinon.fake.returns({
+                  get: sinon.fake.resolves(subscriptionSnap),
+                }),
+              },
+            },
+          ],
+        }),
+      });
+      const subscriptions = await stripeFirestore.retrieveCustomerSubscriptions(
+        customer.id
+      );
+      assert.deepEqual(subscriptions, [sub1]);
+    });
+
     it('errors on customer not found', async () => {
       customerCollectionDbRef.where = sinon.fake.returns({
         get: sinon.fake.resolves({
