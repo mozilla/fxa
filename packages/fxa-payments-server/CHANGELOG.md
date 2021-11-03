@@ -1,5 +1,22 @@
 # Change history
 
+## 1.218.5
+
+### Bug fixes
+
+- tet: Fix a few pocket localization issues (#10880) ([1a73295c1](https://github.com/mozilla/fxa/commit/1a73295c1))
+- subscriptions: update sub upgrade layout (#10878) ([b19d8ff35](https://github.com/mozilla/fxa/commit/b19d8ff35))
+
+### Other changes
+
+- deps: bump redux from 4.1.1 to 4.1.2 (#10900) ([07c881714](https://github.com/mozilla/fxa/commit/07c881714))
+- deps-dev: bump @testing-library/jest-dom from 5.14.1 to 5.15.0 (#10899) ([d9798a2f2](https://github.com/mozilla/fxa/commit/d9798a2f2))
+- deps: Update storybook packages to fix error ([9e0d99ed0](https://github.com/mozilla/fxa/commit/9e0d99ed0))
+- deps-dev: bump @babel/register from 7.15.3 to 7.16.0 (#10887) ([321cbc0aa](https://github.com/mozilla/fxa/commit/321cbc0aa))
+- deps-dev: bump nock from 13.1.3 to 13.1.4 (#10884) ([d9dc1d08c](https://github.com/mozilla/fxa/commit/d9dc1d08c))
+- deps: bump express-http-proxy from 1.6.2 to 1.6.3 (#10842) ([076e63f8b](https://github.com/mozilla/fxa/commit/076e63f8b))
+- deps: bump react-redux from 7.2.5 to 7.2.6 (#10861) ([f7a1958f1](https://github.com/mozilla/fxa/commit/f7a1958f1))
+
 ## 1.218.4
 
 No changes.

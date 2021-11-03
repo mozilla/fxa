@@ -1,3 +1,11 @@
+## 1.218.5
+
+### Other changes
+
+- deps-dev: bump @testing-library/jest-dom from 5.14.1 to 5.15.0 (#10899) ([d9798a2f2](https://github.com/mozilla/fxa/commit/d9798a2f2))
+- deps: Update storybook packages to fix error ([9e0d99ed0](https://github.com/mozilla/fxa/commit/9e0d99ed0))
+- deps: bump express-http-proxy from 1.6.2 to 1.6.3 (#10842) ([076e63f8b](https://github.com/mozilla/fxa/commit/076e63f8b))
+
 ## 1.218.4
 
 No changes.

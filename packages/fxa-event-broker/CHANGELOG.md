@@ -1,5 +1,14 @@
 # Change history
 
+## 1.218.5
+
+### Other changes
+
+- deps: bump axios from 0.22.0 to 0.24.0 (#10901) ([4a4f42e31](https://github.com/mozilla/fxa/commit/4a4f42e31))
+- deps: bump aws-sdk from 2.1016.0 to 2.1020.0 (#10902) ([22f932063](https://github.com/mozilla/fxa/commit/22f932063))
+- deps-dev: bump @nestjs/testing from 8.1.1 to 8.1.2 (#10888) ([9838b2df6](https://github.com/mozilla/fxa/commit/9838b2df6))
+- deps-dev: bump nock from 13.1.3 to 13.1.4 (#10884) ([d9dc1d08c](https://github.com/mozilla/fxa/commit/d9dc1d08c))
+
 ## 1.218.4
 
 No changes.
