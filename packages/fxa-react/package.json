@@ -38,10 +38,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
-    "@storybook/addon-actions": "^6.3.11",
+    "@storybook/addon-actions": "^6.3.12",
     "@storybook/addon-links": "^6.3.12",
-    "@storybook/addons": "^6.3.10",
-    "@storybook/react": "^6.3.11",
+    "@storybook/addons": "^6.3.12",
+    "@storybook/react": "^6.3.12",
     "@svgr/webpack": "^5.5.0",
     "@tailwindcss/postcss7-compat": "^2.2.17",
     "@testing-library/dom": "^8.9.0",
