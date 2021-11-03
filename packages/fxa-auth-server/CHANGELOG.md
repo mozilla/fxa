@@ -1,3 +1,9 @@
+## 1.218.4
+
+### Bug fixes
+
+- subscriptions: filter canceled subscriptions ([dbb56f0e3](https://github.com/mozilla/fxa/commit/dbb56f0e3))
+
 ## 1.218.3
 
 ### Bug fixes
