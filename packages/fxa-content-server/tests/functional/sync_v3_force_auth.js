@@ -69,9 +69,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .then(fillOutSignInTokenCode(email, 0))
-        .then(
-          testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
-        )
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
@@ -105,9 +103,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .then(fillOutSignInTokenCode(email, 0))
-        .then(
-          testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
-        )
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
@@ -141,9 +137,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .then(fillOutSignInTokenCode(email, 0))
-        .then(
-          testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
-        )
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 

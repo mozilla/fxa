@@ -59,9 +59,7 @@ registerSuite('Firefox Desktop Sync v3 settings', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(fillOutSignInTokenCode(email, 0))
         .then(testIsBrowserNotified('fxaccounts:login'))
-        .then(
-          testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
-        )
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         // wait until account data is in localstorage before redirecting
         .then(
@@ -89,15 +87,16 @@ registerSuite('Firefox Desktop Sync v3 settings', {
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
     },
 
-    'sign in, change the password by browsing directly to settings': function () {
-      return this.remote
-        .then(openPage(SETTINGS_NOCONTEXT_URL, selectors.SETTINGS.HEADER))
-        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        .then(visibleByQSA(selectors.CHANGE_PASSWORD.DETAILS))
-        .then(noSuchBrowserNotification('fxaccounts:change_password'))
+    'sign in, change the password by browsing directly to settings':
+      function () {
+        return this.remote
+          .then(openPage(SETTINGS_NOCONTEXT_URL, selectors.SETTINGS.HEADER))
+          .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+          .then(visibleByQSA(selectors.CHANGE_PASSWORD.DETAILS))
+          .then(noSuchBrowserNotification('fxaccounts:change_password'))
 
-        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
-    },
+          .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
+      },
 
     'sign in, delete the account': function () {
       return this.remote

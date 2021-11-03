@@ -395,31 +395,6 @@ describe('views/connect_another_device', () => {
         assert.lengthOf(view.$('.success'), 1);
       });
     });
-
-    describe('with a Fx desktop user that completed sign-in', () => {
-      beforeEach(() => {
-        sinon.stub(view, 'isSignIn').callsFake(() => true);
-        sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
-        sinon.spy(view, 'replaceCurrentPage');
-
-        windowMock.navigator.userAgent =
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
-
-        return view.render().then(() => {
-          view.afterVisible();
-        });
-      });
-
-      it('shows qr code cad', () => {
-        assert.isTrue(view.isSignIn.called);
-        assert.isTrue(
-          view.replaceCurrentPage.calledWith(
-            '/post_verify/cad_qr/get_started',
-            { account }
-          )
-        );
-      });
-    });
   });
 
   describe('_isSignedIn', () => {

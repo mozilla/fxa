@@ -91,9 +91,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
       return this.remote
         .then(setupTest({ preVerified: true }))
         .then(fillOutSignInTokenCode(email, 0))
-        .then(
-          testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
-        )
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
@@ -108,9 +106,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
           // email 0 is the original signin email, open the resent email instead
           .then(fillOutSignInTokenCode(email, 1))
 
-          .then(
-            testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
-          )
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },
@@ -126,9 +122,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
           .then(visibleByQSA(selectors.SIGNIN_TOKEN_CODE.TOOLTIP))
           .then(fillOutSignInTokenCode(email, 0))
 
-          .then(
-            testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
-          )
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },

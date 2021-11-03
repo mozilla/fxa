@@ -44,10 +44,8 @@ export class PayPalHandler extends StripeWebhookHandler {
   ) {
     super(log, db, config, customs, push, mailer, profile, stripeHelper);
     this.paypalHelper = Container.get(PayPalHelper);
-    this.subscriptionAccountReminders = require('../../subscription-account-reminders')(
-      log,
-      config
-    );
+    this.subscriptionAccountReminders =
+      require('../../subscription-account-reminders')(log, config);
   }
 
   /**
@@ -129,7 +127,6 @@ export class PayPalHandler extends StripeWebhookHandler {
     });
 
     await sendFinishSetupEmailForStubAccount({
-      email,
       uid,
       account,
       subscription,
