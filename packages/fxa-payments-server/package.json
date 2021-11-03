@@ -52,7 +52,7 @@
     "@storybook/addons": "^6.3.10",
     "@storybook/react": "^6.3.11",
     "@svgr/webpack": "^5.4.0",
-    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/jest-dom": "^5.15.0",
     "@testing-library/react": "^12.1.2",
     "@types/accept-language-parser": "^1.5.1",
     "@types/classnames": "^2.3.1",
