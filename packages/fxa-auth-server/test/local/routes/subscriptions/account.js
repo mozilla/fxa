@@ -5,7 +5,6 @@
 'use strict';
 
 const sinon = require('sinon');
-const assert = require('chai').assert;
 const proxyquire = require('proxyquire');
 
 const token = 'a.test.jwt';
@@ -23,7 +22,7 @@ describe('routes/subscriptions/account', () => {
   describe('sendFinishSetupEmailForStubAccount', () => {
     const email = 'testo@moz.gg';
     const uid = 'quux';
-    const account = { email, verifierSetAt: 0 };
+    const account = { email, verifierSetAt: 0, locale: 'gd' };
     const plan = {
       id: 'testo',
       product: 'wedabest',
@@ -64,40 +63,14 @@ describe('routes/subscriptions/account', () => {
       sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
     });
 
-    it('does not send an email when fails get the plan', async () => {
-      stripeHelper.findPlanById.rejects();
-      try {
-        await sendFinishSetupEmailForStubAccount({
-          email,
-          uid,
-          account,
-          subscription,
-          stripeHelper,
-          mailer,
-        });
-        assert.fail('should have thrown');
-      } catch (e) {
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.findPlanById,
-          subscription.plan.id
-        );
-        sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
-      }
-    });
-
     it('sends an email to the stub account', async () => {
       await sendFinishSetupEmailForStubAccount({
-        email,
         uid,
         account,
         subscription,
         stripeHelper,
         mailer,
       });
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.findPlanById,
-        subscription.plan.id
-      );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.extractInvoiceDetailsForEmail,
         invoice
@@ -107,6 +80,7 @@ describe('routes/subscriptions/account', () => {
         [],
         account,
         {
+          acceptLanguage: account.locale,
           ...invoiceDetails,
           token,
         }

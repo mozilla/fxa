@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import jwt from '../../oauth/jwt';
 
 export async function sendFinishSetupEmailForStubAccount({
-  email,
   uid,
   account,
   subscription,
@@ -15,7 +13,6 @@ export async function sendFinishSetupEmailForStubAccount({
   metricsContext,
   subscriptionAccountReminders,
 }: {
-  email: string;
   uid: string;
   account: any;
   subscription: any;
@@ -35,12 +32,11 @@ export async function sendFinishSetupEmailForStubAccount({
         },
       }
     );
-    const plan = await stripeHelper.findPlanById(subscription.plan!.id);
-    const meta = metadataFromPlan(plan);
     const invoiceDetails = await stripeHelper.extractInvoiceDetailsForEmail(
       subscription.latest_invoice
     );
     await mailer.sendSubscriptionAccountFinishSetupEmail([], account, {
+      acceptLanguage: account.locale,
       ...invoiceDetails,
       ...metricsContext,
       token,
