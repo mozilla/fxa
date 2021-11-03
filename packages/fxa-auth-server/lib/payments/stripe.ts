@@ -2454,16 +2454,8 @@ export class StripeHelper {
    */
   async processCustomerEventToFirestore(event: Stripe.Event) {
     const { data } = event;
-    let customer: Partial<Stripe.Customer>;
-    if (data.previous_attributes) {
-      customer = pick(data.object, [
-        'id',
-        'metadata',
-        ...Object.keys(data.previous_attributes),
-      ]);
-    } else {
-      customer = data.object;
-    }
+    const customer = data.object as Stripe.Customer;
+
     // Ensure the customer and its subscriptions exist in Firestore.
     // Note that we still insert the object here in case we've already
     // fetched the customer previously.
@@ -2478,34 +2470,10 @@ export class StripeHelper {
    */
   async processSubscriptionEventToFirestore(event: Stripe.Event) {
     const { data } = event;
-    let subscription: Partial<Stripe.Subscription>;
-    if (data.previous_attributes) {
-      subscription = pick(data.object, [
-        'id',
-        'customer',
-        ...Object.keys(data.previous_attributes),
-      ]);
-    } else {
-      subscription = data.object;
-      // If we have no prior attributes, such that this is a full object
-      // insert, we can insert without checking for prior one.
-      return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
-        subscription
-      );
-    }
-
-    // If we already have a subscription, we can insert the update.
-    try {
-      await this.stripeFirestore.retrieveSubscription(subscription.id!);
-      return this.stripeFirestore.insertSubscriptionRecord(subscription);
-    } catch (err) {
-      if (err.name === FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND) {
-        return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
-          data.object
-        );
-      }
-      throw err;
-    }
+    const subscription = data.object as Stripe.Subscription;
+    return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
+      subscription
+    );
   }
 
   /**
@@ -2513,33 +2481,20 @@ export class StripeHelper {
    */
   async processInvoiceEventToFirestore(event: Stripe.Event) {
     const { data } = event;
-
-    let invoice: Partial<Stripe.Invoice>;
-    if (data.previous_attributes) {
-      invoice = pick(data.object, [
-        'id',
-        'customer',
-        'subscription',
-        ...Object.keys(data.previous_attributes),
-      ]);
-    } else {
-      invoice = data.object;
-    }
+    const invoice = data.object as Stripe.Invoice;
 
     try {
-      await this.stripeFirestore.retrieveInvoice(invoice.id!);
-      return this.stripeFirestore.insertInvoiceRecord(invoice);
+      await this.stripeFirestore.insertInvoiceRecord(invoice);
     } catch (err) {
-      if (err.name === FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND) {
+      if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
         await this.stripeFirestore.retrieveAndFetchSubscription(
           invoice.subscription as string
         );
-        // Now that the subscription is fetched, we must check to see if we have
-        // a prior invoice. If we don't, we need a complete invoice record inserted.
         return this.stripeFirestore.insertInvoiceRecord(data.object);
       }
       throw err;
     }
+    return;
   }
 
   /**

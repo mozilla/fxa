@@ -106,7 +106,7 @@ export class StripeFirestore {
             .doc(uid)
             .collection(this.subscriptionCollection)
             .doc(subscription.id)
-            .set(subscription, { merge: true })
+            .set(subscription)
         );
       }
     }
@@ -118,7 +118,7 @@ export class StripeFirestore {
    * Insert a Stripe customer into Firestore keyed to the fxa id.
    */
   insertCustomerRecord(uid: string, customer: Partial<Stripe.Customer>) {
-    return this.customerCollectionDbRef.doc(uid).set(customer, { merge: true });
+    return this.customerCollectionDbRef.doc(uid).set(customer);
   }
 
   /**
@@ -163,7 +163,7 @@ export class StripeFirestore {
     return customerSnap.docs[0].ref
       .collection(this.subscriptionCollection)
       .doc(subscription.id!)
-      .set(subscription, { merge: true });
+      .set(subscription);
   }
 
   /**
@@ -208,7 +208,7 @@ export class StripeFirestore {
       .doc(invoice.subscription)
       .collection(this.invoiceCollection)
       .doc(invoice.id!)
-      .set(invoice, { merge: true });
+      .set(invoice);
   }
 
   /**
