@@ -445,7 +445,6 @@ export class StripeHandler {
     });
 
     await sendFinishSetupEmailForStubAccount({
-      email,
       uid,
       account,
       subscription,
