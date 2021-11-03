@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CollectionReference, Firestore } from '@google-cloud/firestore';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { Stripe } from 'stripe';
 
 export enum FirestoreStripeError {
@@ -257,9 +258,9 @@ export class StripeFirestore {
     const subscriptionSnap = await customerSnap.docs[0].ref
       .collection(this.subscriptionCollection)
       .get();
-    return subscriptionSnap.docs.map(
-      (doc) => doc.data() as Stripe.Subscription
-    );
+    return subscriptionSnap.docs
+      .map((doc) => doc.data() as Stripe.Subscription)
+      .filter((sub) => ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status));
   }
 
   /**
