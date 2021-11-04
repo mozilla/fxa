@@ -23,7 +23,7 @@ describe('Security', () => {
     expect(await screen.findByText('rk-header')).toBeTruthy;
     expect(await screen.findByText('tfa-row-header')).toBeTruthy;
 
-    const result = await screen.findAllByText('Not set');
+    const result = await screen.findAllByText('Not Set');
     expect(result).toHaveLength(2);
   });
 

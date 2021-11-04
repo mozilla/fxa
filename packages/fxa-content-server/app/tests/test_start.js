@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals globalThis */
+
 mocha.setup('bdd');
 mocha.timeout(20000);
 
@@ -278,7 +280,7 @@ const runTests = function () {
   });
 
   var runner = mocha.run();
-
+  globalThis.runner = runner;
   /**
    * Monkey patch runner.fail to clean the stack trace. Using
    * `runner.on('fail', ..` does not work because the callback

@@ -45,7 +45,7 @@ export const UnitRowRecoveryKey = () => {
       headerValue={
         recoveryKey
           ? l10n.getString('rk-enabled', null, 'Enabled')
-          : l10n.getString('rk-not-set', null, 'Not set')
+          : l10n.getString('rk-not-set', null, 'Not Set')
       }
       route={recoveryKey ? undefined : `${HomePath}/account_recovery`}
       revealModal={recoveryKey ? revealModal : undefined}

@@ -259,21 +259,65 @@ jobs:
       - store_test_results:
           path: artifacts/tests
 
+  # This job is manually triggered for now. see .circleci/README.md
+  production-smoke-tests:
+    resource_class: medium+
+    docker:
+      - image: mcr.microsoft.com/playwright:focal
+    steps:
+      - checkout
+      # use a separate cache until this is on main
+      - restore_cache:
+          keys:
+            # prefer the exact hash
+            - fxa-yarn-cache-pw-{{ checksum "yarn.lock" }}
+            # any cache to start with is better than nothing
+            - fxa-yarn-cache-pw-
+      - run: ./.circleci/base-install.sh
+      - save_cache:
+          key: fxa-yarn-cache-pw-{{ checksum "yarn.lock" }}
+          paths:
+            - .yarn/cache
+            - .yarn/build-state.yml
+            - .yarn/install-state.gz
+      - run:
+          name: Running smoke tests
+          command: yarn workspace functional-tests test-production
+      - store_artifacts:
+          path: artifacts
+      - store_test_results:
+          path: artifacts/tests
+
   playwright-functional-tests:
-    resource_class: medium
+    resource_class: medium+
     docker:
       - image: mcr.microsoft.com/playwright:focal
       - image: redis
       - image: memcached
       - image: circleci/mysql:5.7.27
     environment:
-      NODE_ENV: development
+      NODE_ENV: dev
     steps:
-      - base-install:
-          package: fxa-settings
+      # needed by check-mysql.sh
+      - run: apt-get install -y netcat
+      - checkout
+      # use a separate cache until this is on main
+      - restore_cache:
+          keys:
+            # prefer the exact hash
+            - fxa-yarn-cache-pw-{{ checksum "yarn.lock" }}
+            # any cache to start with is better than nothing
+            - fxa-yarn-cache-pw-
+      - run: ./.circleci/base-install.sh
+      - save_cache:
+          key: fxa-yarn-cache-pw-{{ checksum "yarn.lock" }}
+          paths:
+            - .yarn/cache
+            - .yarn/build-state.yml
+            - .yarn/install-state.gz
       - run:
           name: Running playwright tests
-          command: ./packages/fxa-settings/scripts/playwright-tests.sh
+          command: ./packages/functional-tests/scripts/test-ci.sh
       - store_artifacts:
           path: artifacts
       - store_test_results:
@@ -344,6 +388,12 @@ workflows:
             tags:
               ignore: /.*/
       - test-content-server-5:
+          filters:
+            branches:
+              ignore: main
+            tags:
+              ignore: /.*/
+      - playwright-functional-tests:
           filters:
             branches:
               ignore: main

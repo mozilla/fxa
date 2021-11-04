@@ -91,14 +91,14 @@ describe('UnitRow', () => {
       <UnitRow
         header="Display name"
         headerValue={null}
-        noHeaderValueText="Not set"
+        noHeaderValueText="Not Set"
         ctaText="Create"
         route="/display_name"
       />
     );
 
     expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
-      'Not set'
+      'Not Set'
     );
     expect(screen.getByTestId('unit-row-route').textContent).toContain(
       'Create'

@@ -36,6 +36,13 @@ export interface MetricsContext {
   utmTerm?: string;
 }
 
+export type VerificationMethod =
+  | 'email'
+  | 'email-otp'
+  | 'email-2fa'
+  | 'email-captcha'
+  | 'totp-2fa';
+
 function langHeader(lang?: string) {
   return new Headers(
     lang
@@ -221,7 +228,13 @@ export default class AuthClient {
       verificationMethod?: string;
       metricsContext?: MetricsContext;
     } = {}
-  ) {
+  ): Promise<{
+    uid: hexstring;
+    authAt: number;
+    sessionToken: hexstring;
+    keyFetchToken?: hexstring;
+    verificationMethod?: VerificationMethod;
+  }> {
     const credentials = await crypto.getCredentials(email, password);
     const payloadOptions = ({ keys, lang, ...rest }: any) => rest;
     const payload = {
