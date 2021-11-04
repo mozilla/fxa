@@ -1,3 +1,7 @@
+## 1.218.6
+
+No changes.
+
 ## 1.218.5
 
 ### Bug fixes

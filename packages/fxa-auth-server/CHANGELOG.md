@@ -1,3 +1,10 @@
+## 1.218.6
+
+### Bug fixes
+
+- stripe: fixed stripe type ([e1cb25671](https://github.com/mozilla/fxa/commit/e1cb25671))
+- auth: always fetch latest stripe object to store ([fea09198e](https://github.com/mozilla/fxa/commit/fea09198e))
+
 ## 1.218.5
 
 ### Bug fixes
