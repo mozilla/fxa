@@ -118,7 +118,10 @@ export class StripeFirestore {
   /**
    * Insert a Stripe customer into Firestore keyed to the fxa id.
    */
-  insertCustomerRecord(uid: string, customer: Partial<Stripe.Customer>) {
+  insertCustomerRecord(
+    uid: string,
+    customer: Partial<Stripe.Customer | Stripe.DeletedCustomer>
+  ) {
     return this.customerCollectionDbRef.doc(uid).set(customer);
   }
 
