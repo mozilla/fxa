@@ -15,6 +15,7 @@ import {
   createAccountCustomer,
   deleteAccountCustomer,
   getAccountCustomerByUid,
+  getUidAndEmailByStripeCustomerId,
   updatePayPalBA,
 } from 'fxa-shared/db/models/auth';
 import {
@@ -24,6 +25,7 @@ import {
 } from 'fxa-shared/subscriptions/stripe';
 import {
   AbbrevPlan,
+  AbbrevPlayPurchase,
   AbbrevProduct,
   MozillaSubscriptionTypes,
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
@@ -34,7 +36,6 @@ import {
 } from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
-import pick from 'lodash/pick';
 import moment from 'moment';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
@@ -48,7 +49,6 @@ import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
-import { AbbrevPlayPurchase } from 'fxa-shared/subscriptions/types';
 
 export const CUSTOMER_RESOURCE = 'customers';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -2454,15 +2454,18 @@ export class StripeHelper {
    */
   async processCustomerEventToFirestore(event: Stripe.Event) {
     const { data } = event;
-    const customer = data.object as Stripe.Customer;
+    const customer = await this.stripe.customers.retrieve(
+      (data.object as Stripe.Customer).id
+    );
+    const { uid } = await getUidAndEmailByStripeCustomerId(customer.id);
+    if (!uid) {
+      return;
+    }
 
     // Ensure the customer and its subscriptions exist in Firestore.
     // Note that we still insert the object here in case we've already
     // fetched the customer previously.
-    return this.stripeFirestore.insertCustomerRecordWithBackfill(
-      customer.metadata!.userid,
-      customer
-    );
+    return this.stripeFirestore.insertCustomerRecordWithBackfill(uid, customer);
   }
 
   /**
@@ -2470,7 +2473,9 @@ export class StripeHelper {
    */
   async processSubscriptionEventToFirestore(event: Stripe.Event) {
     const { data } = event;
-    const subscription = data.object as Stripe.Subscription;
+    const subscription = await this.stripe.subscriptions.retrieve(
+      (data.object as Stripe.Subscription).id
+    );
     return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
       subscription
     );
@@ -2481,7 +2486,9 @@ export class StripeHelper {
    */
   async processInvoiceEventToFirestore(event: Stripe.Event) {
     const { data } = event;
-    const invoice = data.object as Stripe.Invoice;
+    const invoice = await this.stripe.invoices.retrieve(
+      (data.object as Stripe.Invoice).id
+    );
 
     try {
       await this.stripeFirestore.insertInvoiceRecord(invoice);
@@ -2490,7 +2497,7 @@ export class StripeHelper {
         await this.stripeFirestore.retrieveAndFetchSubscription(
           invoice.subscription as string
         );
-        return this.stripeFirestore.insertInvoiceRecord(data.object);
+        return this.stripeFirestore.insertInvoiceRecord(invoice);
       }
       throw err;
     }
@@ -2518,18 +2525,12 @@ export class StripeHelper {
           break;
         case 'customer.created':
         case 'customer.updated':
-          if (!event.request?.id) {
-            await this.processCustomerEventToFirestore(event);
-          }
-          break;
         case 'customer.deleted':
           await this.processCustomerEventToFirestore(event);
           break;
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
-          if (!event.request?.id) {
-            await this.processSubscriptionEventToFirestore(event);
-          }
+          await this.processSubscriptionEventToFirestore(event);
           break;
         case 'customer.subscription.deleted':
           await this.processSubscriptionEventToFirestore(event);
