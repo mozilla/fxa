@@ -25,6 +25,7 @@ import {
   StripeHelper,
   SUBSCRIPTION_UPDATE_TYPES,
 } from '../../payments/stripe';
+import { FirestoreStripeError } from '../../payments/stripe-firestore';
 import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
@@ -33,6 +34,10 @@ const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
   error.ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE,
   error.ERRNO.BOUNCE_HARD,
   error.ERRNO.BOUNCE_COMPLAINT,
+];
+
+const IGNORABLE_FIRESTORE_STRIPE_ERRORS = [
+  FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
 ];
 
 export class StripeWebhookHandler extends StripeHandler {
@@ -143,7 +148,12 @@ export class StripeWebhookHandler extends StripeHandler {
           break;
       }
     } catch (error) {
-      if (!IGNORABLE_STRIPE_WEBHOOK_ERRNOS.includes(error.errno)) {
+      if (
+        !(
+          IGNORABLE_STRIPE_WEBHOOK_ERRNOS.includes(error.errno) ||
+          IGNORABLE_FIRESTORE_STRIPE_ERRORS.includes(error.name)
+        )
+      ) {
         // Error is not ignorable, so re-throw.
         throw error;
       }
