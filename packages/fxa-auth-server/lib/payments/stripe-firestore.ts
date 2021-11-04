@@ -9,6 +9,7 @@ export enum FirestoreStripeError {
   FIRESTORE_CUSTOMER_NOT_FOUND = 'FirestoreCustomerNotFound',
   FIRESTORE_SUBSCRIPTION_NOT_FOUND = 'FirestoreSubscriptionNotFound',
   FIRESTORE_INVOICE_NOT_FOUND = 'FirestoreInvoiceNotFound',
+  FIRESTORE_PAYMENT_METHOD_NOT_FOUND = 'FirestorePaymentMethodNotFound',
   STRIPE_CUSTOMER_MISSING_UID = 'StripeCustomerMissingUid',
   STRIPE_CUSTOMER_DELETED = 'StripeCustomerDeleted',
 }
@@ -22,9 +23,28 @@ export function newFirestoreStripeError(
   return error;
 }
 
+/**
+ * StripeFirestore manages access to the Stripe customer data stored in Firestore.
+ *
+ * The data is architected with sub-collections as follows:
+ *
+ *  - customers
+ *    - payment_methods
+ *    - subscriptions
+ *      - invoices
+ *
+ * There are collectionGroup single field exceptions for subscription, invoice, and
+ * payment_method ids allowing collectionGroup queries to directly locate a subscription,
+ * invoice, or payment method without having to locate the customer.
+ *
+ * Customers are stored with a document id that corresponds to the FxA uid.
+ * Subscriptions, invoices, and payment methods are all stored with a document id that
+ * matches the Stripe object id.
+ */
 export class StripeFirestore {
   private subscriptionCollection: string;
   private invoiceCollection: string;
+  private paymentMethodCollection: string;
 
   constructor(
     private firestore: Firestore,
@@ -34,6 +54,7 @@ export class StripeFirestore {
   ) {
     this.subscriptionCollection = `${prefix}subscriptions`;
     this.invoiceCollection = `${prefix}invoices`;
+    this.paymentMethodCollection = `${prefix}payment_methods`;
   }
 
   /**
@@ -213,6 +234,63 @@ export class StripeFirestore {
   }
 
   /**
+   * Insert an invoice record into Firestore under the customer's stripe id.
+   */
+  async insertPaymentMethodRecord(
+    paymentMethod: Partial<Stripe.PaymentMethod>
+  ) {
+    const customerSnap = await this.customerCollectionDbRef
+      .where('id', '==', paymentMethod.customer as string)
+      .get();
+    if (customerSnap.empty) {
+      throw newFirestoreStripeError(
+        `Customer ${paymentMethod.customer} was not found`,
+        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+      );
+    }
+
+    return customerSnap.docs[0].ref
+      .collection(this.paymentMethodCollection)
+      .doc(paymentMethod.id!)
+      .set(paymentMethod, { merge: true });
+  }
+
+  /**
+   * Insert a payment method record into Firestore under the customer's stripe id.
+   * If the customer does not exist, this will backfill the customer with all their
+   * subscriptions.
+   */
+  async insertPaymentMethodRecordWithBackfill(
+    paymentMethod: Partial<Stripe.PaymentMethod>
+  ) {
+    try {
+      await this.insertPaymentMethodRecord(paymentMethod);
+    } catch (err) {
+      if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
+        await this.fetchAndInsertCustomer(paymentMethod.customer as string);
+        return this.insertPaymentMethodRecord(paymentMethod);
+      } else {
+        throw err;
+      }
+    }
+    return;
+  }
+
+  /**
+   * Remove a payment method record from Firestore under the customer's stripe id.
+   */
+  async removePaymentMethodRecord(paymentMethodId: string) {
+    const paymentMethodSnap = await this.firestore
+      .collectionGroup(this.paymentMethodCollection)
+      .where('id', '==', paymentMethodId)
+      .get();
+    if (paymentMethodSnap.empty) {
+      return;
+    }
+    return paymentMethodSnap.docs[0].ref.delete();
+  }
+
+  /**
    * Retrieve the customer from Firestore by either FxA uid or Stripe customer id.
    */
   async retrieveCustomer(
@@ -294,6 +372,23 @@ export class StripeFirestore {
     throw newFirestoreStripeError(
       `Invoice ${invoiceId} was not found`,
       FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
+    );
+  }
+
+  /**
+   * Retrieve a payment method from Firestore by Stripe payment method id.
+   */
+  async retrievePaymentMethod(paymentMethodId: string) {
+    const paymentMethodSnap = await this.firestore
+      .collectionGroup(this.paymentMethodCollection)
+      .where('id', '==', paymentMethodId)
+      .get();
+    if (!paymentMethodSnap.empty) {
+      return paymentMethodSnap.docs[0].data() as Stripe.PaymentMethod;
+    }
+    throw newFirestoreStripeError(
+      `Payment method ${paymentMethodId} was not found`,
+      FirestoreStripeError.FIRESTORE_PAYMENT_METHOD_NOT_FOUND
     );
   }
 }

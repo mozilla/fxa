@@ -61,6 +61,7 @@ const failedCharge = require('./fixtures/stripe/charge_failed.json');
 const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
+const eventPaymentMethodDetached = require('./fixtures/stripe/event_payment_method_detached.json');
 const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const eventInvoiceCreated = require('./fixtures/stripe/event_invoice_created.json');
 const eventSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
@@ -75,7 +76,10 @@ const {
   SubscriptionPurchase,
 } = require('../../../lib/payments/google-play/subscription-purchase');
 const { AuthFirestore } = require('../../../lib/types');
-const { INVOICES_RESOURCE } = require('../../../lib/payments/stripe');
+const {
+  INVOICES_RESOURCE,
+  PAYMENT_METHOD_RESOURCE,
+} = require('../../../lib/payments/stripe');
 const {
   FirestoreStripeError,
   newFirestoreStripeError,
@@ -386,13 +390,14 @@ describe('StripeHelper', () => {
   });
 
   describe('getPaymentMethod', () => {
-    it('calls the Strip api', async () => {
+    it('calls the Stripe api', async () => {
       const paymentMethodId = 'pm_9001';
-      sandbox.stub(stripeHelper.stripe.paymentMethods, 'retrieve');
+      sandbox.stub(stripeHelper, 'expandResource');
       await stripeHelper.getPaymentMethod(paymentMethodId);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.paymentMethods.retrieve,
-        paymentMethodId
+        stripeHelper.expandResource,
+        paymentMethodId,
+        PAYMENT_METHOD_RESOURCE
       );
     });
   });
@@ -540,6 +545,7 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.paymentMethods, 'detach')
         .resolves(expected);
+      stripeFirestore.removePaymentMethodRecord = sandbox.stub().resolves({});
       const actual = await stripeHelper.detachPaymentMethod(paymentMethodId);
       assert.deepEqual(actual, expected);
       sinon.assert.calledOnceWithExactly(
@@ -612,6 +618,8 @@ describe('StripeHelper', () => {
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
+      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
       const actual = await stripeHelper.retryInvoiceWithPaymentId(
         'customerId',
         'invoiceId',
@@ -693,6 +701,7 @@ describe('StripeHelper', () => {
       stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
         .stub()
         .resolves({});
+      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
       const actual = await stripeHelper.createSubscriptionWithPMI({
         customerId: 'customerId',
         priceId: 'priceId',
