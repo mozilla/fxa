@@ -1,5 +1,11 @@
 # Change history
 
+## 1.218.6
+
+### Other changes
+
+- deps-dev: bump p-event from 4.2.0 to 5.0.1 (#10919) ([25e35725b](https://github.com/mozilla/fxa/commit/25e35725b))
+
 ## 1.218.5
 
 ### Other changes

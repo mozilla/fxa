@@ -1,3 +1,18 @@
+## 1.218.6
+
+### New features
+
+- auth: store payment methods in firestore ([a9b36e6e1](https://github.com/mozilla/fxa/commit/a9b36e6e1))
+
+### Bug fixes
+
+- auth: always fetch latest stripe object to store ([fea09198e](https://github.com/mozilla/fxa/commit/fea09198e))
+
+### Other changes
+
+- deps: bump p-retry from 4.6.1 to 5.0.0 (#10916) ([87faa4429](https://github.com/mozilla/fxa/commit/87faa4429))
+- deps: bump verror from 1.10.0 to 1.10.1 (#10918) ([cdb60d1ef](https://github.com/mozilla/fxa/commit/cdb60d1ef))
+
 ## 1.218.5
 
 ### Bug fixes

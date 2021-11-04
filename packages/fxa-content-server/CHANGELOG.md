@@ -1,3 +1,9 @@
+## 1.218.6
+
+### Other changes
+
+- deps: bump verror from 1.10.0 to 1.10.1 (#10918) ([cdb60d1ef](https://github.com/mozilla/fxa/commit/cdb60d1ef))
+
 ## 1.218.5
 
 ### Bug fixes

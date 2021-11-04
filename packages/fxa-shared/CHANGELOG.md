@@ -1,5 +1,11 @@
 # Change history
 
+## 1.218.6
+
+### Other changes
+
+- deps: bump jsdom from 18.0.0 to 18.0.1 (#10917) ([9b18fba9e](https://github.com/mozilla/fxa/commit/9b18fba9e))
+
 ## 1.218.5
 
 ### Other changes
