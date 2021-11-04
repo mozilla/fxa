@@ -154,7 +154,7 @@ export class StripeFirestore {
    */
   async insertCustomerRecordWithBackfill(
     uid: string,
-    customer: Partial<Stripe.Customer>
+    customer: Partial<Stripe.Customer | Stripe.DeletedCustomer>
   ) {
     try {
       await this.retrieveCustomer({ uid });
