@@ -19768,7 +19768,7 @@ fsevents@~2.1.1:
     typesafe-node-firestore: ^1.4.0
     typescript: ^4.3.5
     uuid: ^8.3.2
-    verror: ^1.10.0
+    verror: ^1.10.1
     web-push: 3.4.4
     webpack: ^4.43.0
     webpack-watch-files-plugin: ^1.2.0
@@ -19927,7 +19927,7 @@ fsevents@~2.1.1:
     underscore: ^1.13.1
     upng-js: 2.1.0
     url-loader: 4.1.1
-    verror: 1.10.0
+    verror: 1.10.1
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
     webpack: ^4.41.2
     webpack-cli: ^4.9.1
@@ -40012,7 +40012,7 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"verror@npm:1.10.0, verror@npm:^1.10.0":
+"verror@npm:1.10.0":
   version: 1.10.0
   resolution: "verror@npm:1.10.0"
   dependencies:
@@ -40020,6 +40020,17 @@ typescript@^4.3.5:
     core-util-is: 1.0.2
     extsprintf: ^1.2.0
   checksum: c431df0bedf2088b227a4e051e0ff4ca54df2c114096b0c01e1cbaadb021c30a04d7dd5b41ab277bcd51246ca135bf931d4c4c796ecae7a4fef6d744ecef36ea
+  languageName: node
+  linkType: hard
+
+"verror@npm:1.10.1, verror@npm:^1.10.1":
+  version: 1.10.1
+  resolution: "verror@npm:1.10.1"
+  dependencies:
+    assert-plus: ^1.0.0
+    core-util-is: 1.0.2
+    extsprintf: ^1.2.0
+  checksum: 690a8d6ad5a4001672290e9719e3107c86269bc45fe19f844758eecf502e59f8aa9631b19b839f6d3dea562334884d22d1eb95ae7c863032075a9212c889e116
   languageName: node
   linkType: hard
 
