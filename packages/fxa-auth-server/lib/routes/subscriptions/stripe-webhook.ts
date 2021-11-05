@@ -159,6 +159,12 @@ export class StripeWebhookHandler extends StripeHandler {
       }
       // Caught an ignorable error, so let's log but continue to 200 OK response
       this.log.error('subscriptions.handleWebhookEvent.failure', { error });
+
+      // Caught an ignorable firestore stripe error, but log to Sentry
+      if (IGNORABLE_FIRESTORE_STRIPE_ERRORS.includes(error.name))
+        Sentry.withScope((scope) => {
+          Sentry.captureMessage(error.message, Sentry.Severity.Info);
+        });
     }
     return {};
   }
