@@ -13633,19 +13633,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cldr-core@npm:^39.0.0":
-  version: 39.0.0
-  resolution: "cldr-core@npm:39.0.0"
-  checksum: 87cd02979572fac09a261197fd424898f37d1b9bc568f96f3835d44a37d25f22606e0618f155754328b7ded22cd49c0db3293657ae6eeab8bbed3c9bf453376c
+"cldr-core@npm:^40.0.0":
+  version: 40.0.0
+  resolution: "cldr-core@npm:40.0.0"
+  checksum: d443a9f35065e2ff7c8901c542825921c796d4a29f698821a540cc9ed84e4778f801c14c09aafabb1a59bbdd77ee68bef5aa526ecb74208b851aa0dd7bb98e97
   languageName: node
   linkType: hard
 
-"cldr-localenames-full@npm:39.0.0":
-  version: 39.0.0
-  resolution: "cldr-localenames-full@npm:39.0.0"
+"cldr-localenames-full@npm:40.0.0":
+  version: 40.0.0
+  resolution: "cldr-localenames-full@npm:40.0.0"
   peerDependencies:
-    cldr-core: 39.0.0
-  checksum: 062b01553d475d0c3ab6911599e3c53c1beb65d9d1b3fefa489248054b847df046e95a5b36ec1f5c116ce279def64c97409c9d8dc38098f2bc4f25aeb8bf1db7
+    cldr-core: 40.0.0
+  checksum: 177ed110077415e48e4c6666c92bad3a56d8a78aa1e46f96ef8806cea032d376ec2cbc857092b25a3602afed03eba9b898852c9435a6e132c8cd485b5333fbbe
   languageName: node
   linkType: hard
 
@@ -19677,8 +19677,8 @@ fsevents@~2.1.1:
     buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
     chai: ^4.3.4
-    cldr-core: ^39.0.0
-    cldr-localenames-full: 39.0.0
+    cldr-core: ^40.0.0
+    cldr-localenames-full: 40.0.0
     commander: 2.18.0
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
