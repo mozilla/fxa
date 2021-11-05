@@ -52,7 +52,7 @@
     "fxa-auth-client": "workspace:*",
     "fxa-shared": "workspace:*",
     "get-stream": "^6.0.1",
-    "graphql": "^15.6.1",
+    "graphql": "^16.0.1",
     "graphql-parse-resolve-info": "^4.12.0",
     "graphql-query-complexity": "0.8.0",
     "graphql-tools": "^8.0.0",
