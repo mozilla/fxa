@@ -76,7 +76,7 @@
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@rescripts/cli": "0.0.16",
-    "@sentry/browser": "^6.13.3",
+    "@sentry/browser": "^6.14.0",
     "@storybook/addon-actions": "^6.3.12",
     "@storybook/addon-links": "^6.3.12",
     "@storybook/addons": "^6.3.12",
