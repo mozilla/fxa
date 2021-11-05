@@ -283,6 +283,11 @@ AppError.translate = function (request, response) {
       info: payload.info,
       stack: response.stack,
     });
+
+    if (response.data) {
+      error.output.payload.data = JSON.stringify(response.data);
+    }
+
     if (payload.statusCode >= 500) {
       decorateErrorWithRequest(error, request);
     }
