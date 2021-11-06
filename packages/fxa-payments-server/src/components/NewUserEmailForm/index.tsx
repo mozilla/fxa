@@ -110,6 +110,7 @@ export const NewUserEmailForm = ({
               setEmailInputState,
               checkAccountExists,
               signInURL,
+              onClickSignInButton,
               getString
             )
           }
@@ -171,6 +172,7 @@ export async function emailInputValidationAndAccountCheck(
   setEmailInputState: (value: string) => void,
   checkAccountExists: (email: string) => Promise<{ exists: boolean }>,
   signInURL: string,
+  onClickSignInButton: () => void,
   getString?: (id: string) => string
 ) {
   let error = null;
@@ -199,11 +201,15 @@ export async function emailInputValidationAndAccountCheck(
   const accountExistsMsg = (
     <Localized
       id="new-user-already-has-account-sign-in"
-      elems={{ a: <a href={signInURL}></a> }}
+      elems={{ a: <a onClick={onClickSignInButton} href={signInURL}></a> }}
     >
       <>
         You already have an account.{' '}
-        <a data-testid="already-have-account-link" href={signInURL}>
+        <a
+          data-testid="already-have-account-link"
+          onClick={onClickSignInButton}
+          href={signInURL}
+        >
           Sign in
         </a>
       </>
