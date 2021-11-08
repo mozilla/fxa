@@ -172,6 +172,7 @@ describe('NewUserEmailForm test', () => {
       (value: string) => {},
       checkAccountExists,
       'example.com/signin',
+      () => {},
       (id: string) => id
     );
 
