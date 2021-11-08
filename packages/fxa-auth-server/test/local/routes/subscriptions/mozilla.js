@@ -27,7 +27,11 @@ const VALID_REQUEST = {
       email: `${TEST_EMAIL}`,
     },
   },
+  query: {
+    uid: `${UID}`,
+  },
 };
+const mockCustomer = { id: 'cus_testo', subscriptions: { data: {} } };
 const mockSubsAndBillingDetails = {
   subscriptions: [
     {
@@ -37,6 +41,16 @@ const mockSubsAndBillingDetails = {
   ],
   payment_provider: 'dinersclub',
 };
+const mockFormattedWebSubscription = {
+  created: 1588972390,
+  current_period_end: 1591650790,
+  current_period_start: 1588972390,
+  plan_changed: null,
+  previous_product: null,
+  product_name: 'Amazing Product',
+  status: 'active',
+  subscription_id: 'sub_12345',
+};
 const mockAbbrevPlayPurchase = {
   auto_renewing: true,
   expiry_time_millis: Date.now(),
@@ -44,6 +58,7 @@ const mockAbbrevPlayPurchase = {
   sku: 'org.mozilla.foxkeh.yearly',
 };
 const iap_product_id = 'iap_prod_lol';
+const iap_product_name = 'LOL Daily';
 const mocks = require('../../../mocks');
 const log = mocks.mockLog();
 const db = mocks.mockDB({
@@ -52,33 +67,21 @@ const db = mocks.mockDB({
   locale: ACCOUNT_LOCALE,
 });
 const customs = mocks.mockCustoms();
-const stripeHelper = {
-  getBillingDetailsAndSubscriptions: sandbox
-    .stub()
-    .resolves(mockSubsAndBillingDetails),
-  appendAbbrevPlayPurchasesWithProductIds: sandbox.stub().resolves([
-    {
-      ...mockAbbrevPlayPurchase,
-      product_id: iap_product_id,
-    },
-  ]),
-};
-const capabilityService = {
-  fetchSubscribedAbbrevPlayPurchasesFromPlay: sandbox
-    .stub()
-    .resolves([mockAbbrevPlayPurchase]),
-};
+let stripeHelper;
 const {
   mozillaSubscriptionRoutes,
 } = require('../../../../lib/routes/subscriptions/mozilla');
 
 async function runTest(routePath, routeDependencies = {}) {
+  const playSubscriptions = {
+    getSubscriptions: sandbox.stub().resolves([mockAbbrevPlayPurchase]),
+  };
   const routes = mozillaSubscriptionRoutes({
     log,
     db,
     customs,
     stripeHelper,
-    capabilityService,
+    playSubscriptions,
     ...routeDependencies,
   });
   const route = getRoute(routes, routePath, 'GET');
@@ -88,7 +91,26 @@ async function runTest(routePath, routeDependencies = {}) {
 
 describe('mozilla-subscriptions', () => {
   beforeEach(() => {
-    sandbox.resetHistory();
+    stripeHelper = {
+      getBillingDetailsAndSubscriptions: sandbox
+        .stub()
+        .resolves(mockSubsAndBillingDetails),
+      addProductInfoToAbbrevPlayPurchases: sandbox.stub().resolves([
+        {
+          ...mockAbbrevPlayPurchase,
+          product_id: iap_product_id,
+          product_name: iap_product_name,
+        },
+      ]),
+      fetchCustomer: sandbox.stub().resolves(mockCustomer),
+      formatSubscriptionsForSupport: sandbox
+        .stub()
+        .resolves([mockFormattedWebSubscription]),
+    };
+  });
+
+  afterEach(() => {
+    sandbox.reset();
   });
 
   describe('GET /customer/billing-and-subscriptions', () => {
@@ -103,6 +125,7 @@ describe('mozilla-subscriptions', () => {
           {
             _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
             product_id: iap_product_id,
+            product_name: iap_product_name,
             ...mockAbbrevPlayPurchase,
           },
         ],
@@ -110,16 +133,16 @@ describe('mozilla-subscriptions', () => {
     });
 
     it('gets customer billing details and only Stripe subscriptions', async () => {
-      const capabilityService = {
-        fetchSubscribedAbbrevPlayPurchasesFromPlay: sandbox.stub().resolves([]),
+      const playSubscriptions = {
+        getSubscriptions: sandbox.stub().resolves([]),
       };
-      stripeHelper.appendAbbrevPlayPurchasesWithProductIds = sandbox
+      stripeHelper.addProductInfoToAbbrevPlayPurchases = sandbox
         .stub()
         .resolves([]);
       const resp = await runTest(
         '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
         {
-          capabilityService,
+          playSubscriptions,
         }
       );
       assert.deepEqual(resp, {
@@ -131,10 +154,11 @@ describe('mozilla-subscriptions', () => {
     it('gets customer billing details and only Google Play subscriptions', async () => {
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        appendAbbrevPlayPurchasesWithProductIds: sandbox.stub().resolves([
+        addProductInfoToAbbrevPlayPurchases: sandbox.stub().resolves([
           {
             ...mockAbbrevPlayPurchase,
             product_id: iap_product_id,
+            product_name: iap_product_name,
           },
         ]),
       };
@@ -149,6 +173,7 @@ describe('mozilla-subscriptions', () => {
           {
             _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
             product_id: iap_product_id,
+            product_name: iap_product_name,
             ...mockAbbrevPlayPurchase,
           },
         ],
@@ -156,18 +181,18 @@ describe('mozilla-subscriptions', () => {
     });
 
     it('throws an error when there are no subsriptions', async () => {
-      const capabilityService = {
-        fetchSubscribedAbbrevPlayPurchasesFromPlay: sandbox.stub().resolves([]),
+      const playSubscriptions = {
+        getSubscriptions: sandbox.stub().resolves([]),
       };
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        appendAbbrevPlayPurchasesWithProductIds: sandbox.stub().resolves([]),
+        addProductInfoToAbbrevPlayPurchases: sandbox.stub().resolves([]),
       };
       try {
         await runTest(
           '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
           {
-            capabilityService,
+            playSubscriptions,
             stripeHelper,
           }
         );
@@ -175,6 +200,32 @@ describe('mozilla-subscriptions', () => {
       } catch (e) {
         assert.strictEqual(e.errno, ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
       }
+    });
+  });
+
+  describe('GET /oauth/mozilla-subscriptions/support-panel/subscriptions', () => {
+    it('gets the expected subscriptions', async () => {
+      const resp = await runTest(
+        '/oauth/mozilla-subscriptions/support-panel/subscriptions',
+        {
+          stripeHelper,
+        }
+      );
+      assert.deepEqual(resp, {
+        [MozillaSubscriptionTypes.WEB]: [mockFormattedWebSubscription],
+        [MozillaSubscriptionTypes.IAP_GOOGLE]: [
+          {
+            ...mockAbbrevPlayPurchase,
+            product_id: iap_product_id,
+            product_name: iap_product_name,
+          },
+        ],
+      });
+      assert.calledOnceWithExactly(stripeHelper.fetchCustomer, UID);
+      assert.calledOnceWithExactly(
+        stripeHelper.formatSubscriptionsForSupport,
+        mockCustomer.subscriptions
+      );
     });
   });
 });

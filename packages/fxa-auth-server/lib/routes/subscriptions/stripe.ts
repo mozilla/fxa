@@ -549,32 +549,6 @@ export class StripeHandler {
     // Do nothing.  There's no course correction action to take.
     return { id: paymentMethodId };
   }
-
-  /**
-   * Get a list of subscriptions for support agents
-   */
-  async getSubscriptionsForSupport(request: AuthRequest) {
-    this.log.begin('subscriptions.getSubscriptionsForSupport', request);
-    const { uid, email } = request.query as Record<string, string>;
-
-    // We know that a user has to be a customer to create a support ticket
-    const customer = await this.stripeHelper.customer({ uid, email });
-    if (!customer || !customer.subscriptions) {
-      throw error.internalValidationError(
-        'getSubscriptionsForSupport',
-        {
-          customerId: customer?.id,
-          uid,
-        },
-        'No customer object or no subscriptions object present for customer.'
-      );
-    }
-    const response = await this.stripeHelper.formatSubscriptionsForSupport(
-      customer.subscriptions
-    );
-
-    return response;
-  }
 }
 
 export const stripeRoutes = (
@@ -803,30 +777,6 @@ export const stripeRoutes = (
         },
       },
       handler: (request: AuthRequest) => stripeHandler.getProductName(request),
-    },
-    {
-      method: 'GET',
-      path: '/oauth/subscriptions/search',
-      options: {
-        auth: {
-          payload: false,
-          strategy: 'supportPanelSecret',
-        },
-        response: {
-          schema: isA
-            .array()
-            .items(validators.subscriptionsSubscriptionSupportValidator),
-        },
-        validate: {
-          query: {
-            uid: isA.string().required(),
-            email: validators.email().required(),
-            limit: isA.number().optional(),
-          },
-        },
-      },
-      handler: (request: AuthRequest) =>
-        stripeHandler.getSubscriptionsForSupport(request),
     },
     {
       method: 'PUT',

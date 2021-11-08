@@ -137,9 +137,8 @@ export class PayPalNotificationHandler extends PayPalHandler {
       nextPeriodValidSubscription
     ) {
       const { uid, email } = account;
-      const subscriptions = await this.stripeHelper.formatSubscriptionsForEmails(
-        customer
-      );
+      const subscriptions =
+        await this.stripeHelper.formatSubscriptionsForEmails(customer);
       await this.mailer.sendSubscriptionPaymentProviderCancelledEmail(
         account.emails,
         account,

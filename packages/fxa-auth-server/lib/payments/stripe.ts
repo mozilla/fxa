@@ -1093,9 +1093,11 @@ export class StripeHelper {
   /**
    * Append any matching product ids to their corresponding AbbrevPlayPurchase.
    */
-  async appendAbbrevPlayPurchasesWithProductIds(
+  async addProductInfoToAbbrevPlayPurchases(
     purchases: AbbrevPlayPurchase[]
-  ): Promise<(AbbrevPlayPurchase & { product_id: string })[]> {
+  ): Promise<
+    (AbbrevPlayPurchase & { product_id: string; product_name: string })[]
+  > {
     const products = await this.allAbbrevProducts();
     const appendedAbbrevPlayPurchases = [];
     for (const product of products) {
@@ -1107,6 +1109,7 @@ export class StripeHelper {
         appendedAbbrevPlayPurchases.push({
           ...matchingAbbrevPlayPurchase,
           product_id: product.product_id,
+          product_name: product.product_name,
         });
       }
     }

@@ -75,9 +75,8 @@ class PayPalFixer {
   }
 
   async issueRefund(invoice: stripe.Invoice) {
-    const transactionId = this.stripeHelper.getInvoicePaypalTransactionId(
-      invoice
-    );
+    const transactionId =
+      this.stripeHelper.getInvoicePaypalTransactionId(invoice);
     if (!transactionId) {
       return;
     }
@@ -155,11 +154,11 @@ export async function init() {
           log.error('statsd.error', err);
         },
       })
-    : (({
+    : ({
         increment: () => {},
         timing: () => {},
         close: () => {},
-      } as unknown) as StatsD);
+      } as unknown as StatsD);
   Container.set(StatsD, statsd);
 
   const log = require('../lib/log')({ ...config.log, statsd });

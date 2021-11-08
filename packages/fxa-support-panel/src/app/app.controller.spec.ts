@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Account, Device, TotpToken } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 import { RemoteLookupService } from '../remote-lookup/remote-lookup.service';
 import {
@@ -84,7 +85,9 @@ describe('AppController', () => {
         locale: MOCKDATA.account.locale,
         signinLocations: formattedSigninLocations,
         subscriptionStatus: true,
-        subscriptions: formattedSubscriptions,
+        webSubscriptions: formattedSubscriptions[MozillaSubscriptionTypes.WEB],
+        playSubscriptions:
+          formattedSubscriptions[MozillaSubscriptionTypes.IAP_GOOGLE],
         twoFactorAuth: true,
         uid: 'testuid',
       });

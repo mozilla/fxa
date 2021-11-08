@@ -65,7 +65,6 @@ const failedCharge = require('./fixtures/stripe/charge_failed.json');
 const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
-const eventPaymentMethodDetached = require('./fixtures/stripe/event_payment_method_detached.json');
 const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const eventInvoiceCreated = require('./fixtures/stripe/event_invoice_created.json');
 const eventSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
@@ -4427,7 +4426,7 @@ describe('StripeHelper', () => {
       });
     });
 
-    describe('appendAbbrevPlayPurchasesWithProductIds', () => {
+    describe('addProductInfoToAbbrevPlayPurchases', () => {
       let mockAbbrevPlayPurchase;
 
       beforeEach(() => {
@@ -4439,15 +4438,15 @@ describe('StripeHelper', () => {
         };
       });
 
-      it('appends a matching product id to a subscription purchase', async () => {
+      it('adds matching product info to a subscription purchase', async () => {
         const expected = {
           ...mockAbbrevPlayPurchase,
           product_id: productId,
+          product_name: productName,
         };
-        const result =
-          await stripeHelper.appendAbbrevPlayPurchasesWithProductIds([
-            mockAbbrevPlayPurchase,
-          ]);
+        const result = await stripeHelper.addProductInfoToAbbrevPlayPurchases([
+          mockAbbrevPlayPurchase,
+        ]);
         assert.deepEqual([expected], result);
       });
       it('returns an empty list if no matching product ids are found', async () => {
@@ -4455,10 +4454,9 @@ describe('StripeHelper', () => {
           ...mockAbbrevPlayPurchase,
           sku: 'notMatchingSku',
         };
-        const result =
-          await stripeHelper.appendAbbrevPlayPurchasesWithProductIds([
-            mockAbbrevPlayPurchase1,
-          ]);
+        const result = await stripeHelper.addProductInfoToAbbrevPlayPurchases([
+          mockAbbrevPlayPurchase1,
+        ]);
         assert.isEmpty(result);
       });
     });
