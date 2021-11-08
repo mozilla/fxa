@@ -6602,10 +6602,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stripe/stripe-js@npm:^1.20.3":
-  version: 1.20.3
-  resolution: "@stripe/stripe-js@npm:1.20.3"
-  checksum: 3bdd2e105ee7cb7bd5dabbee8535a838cf2bdc0e1a4470f2ac8c1d433ece73bb3317ebc211e20aff4bc5d214838b7256e67096e2d2f5777cdef0551873302c08
+"@stripe/stripe-js@npm:^1.21.1":
+  version: 1.21.1
+  resolution: "@stripe/stripe-js@npm:1.21.1"
+  checksum: 577f6327bddadaa76f7bebdedf2eacd12fb1fba52704781feb209b726ec59ad0e8791b6f0ca841a15c2042677c8d35af52b860fd9cc236a4fd653d44dceb469d
   languageName: node
   linkType: hard
 
@@ -20346,7 +20346,7 @@ fsevents@~2.1.1:
     "@storybook/addons": ^6.3.12
     "@storybook/react": ^6.3.12
     "@stripe/react-stripe-js": ^1.6.0
-    "@stripe/stripe-js": ^1.20.3
+    "@stripe/stripe-js": ^1.21.1
     "@svgr/webpack": ^5.4.0
     "@testing-library/jest-dom": ^5.15.0
     "@testing-library/react": ^12.1.2
