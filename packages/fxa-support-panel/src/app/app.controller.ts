@@ -17,6 +17,8 @@ import { CurrentUser } from '../auth/auth-header.decorator';
 import { AuthHeaderGuard } from '../auth/auth-header.guard';
 import { RemoteLookupService } from '../remote-lookup/remote-lookup.service';
 import { AccountQuery } from './account-query.dto';
+import { SubscriptionResponse } from '../remote-lookup/remote-responses.dto';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 @Controller()
 @UseGuards(AuthHeaderGuard)
@@ -55,8 +57,11 @@ export class AppController {
       emailVerified: account!.emailVerified,
       locale: account!.locale,
       signinLocations,
-      subscriptionStatus: subscriptions.length > 0,
-      subscriptions,
+      subscriptionStatus: Object.keys(subscriptions).some(
+        (k) => subscriptions[k as keyof SubscriptionResponse].length > 0
+      ),
+      webSubscriptions: subscriptions[MozillaSubscriptionTypes.WEB],
+      playSubscriptions: subscriptions[MozillaSubscriptionTypes.IAP_GOOGLE],
       twoFactorAuth: !!totp,
       uid,
     };

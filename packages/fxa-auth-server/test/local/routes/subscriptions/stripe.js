@@ -8,7 +8,6 @@ const sinon = require('sinon');
 const assert = require('chai').assert;
 const { Container } = require('typedi');
 const uuid = require('uuid');
-const { getRoute } = require('../../../routes_helpers');
 const mocks = require('../../../mocks');
 const error = require('../../../../lib/error');
 const { StripeHelper } = require('../../../../lib/payments/stripe');
@@ -24,6 +23,7 @@ const {
   sanitizePlans,
   handleAuth,
 } = require('../../../../lib/routes/subscriptions');
+
 const { StripeHandler: DirectStripeRoutes } = proxyquire(
   '../../../../lib/routes/subscriptions/stripe',
   {
@@ -31,7 +31,7 @@ const { StripeHandler: DirectStripeRoutes } = proxyquire(
   }
 );
 
-const { AuthLogger } = require('../../../../lib/types');
+const { AuthLogger, AppConfig } = require('../../../../lib/types');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
 
@@ -46,7 +46,6 @@ const customerFixture = require('../../payments/fixtures/stripe/customer1.json')
 const emptyCustomer = require('../../payments/fixtures/stripe/customer_new.json');
 const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
 const newSetupIntent = require('../../payments/fixtures/stripe/setup_intent_new.json');
-const stripePlan = require('../../payments/fixtures/stripe/plan1.json');
 const paymentMethodFixture = require('../../payments/fixtures/stripe/payment_method.json');
 
 const currencyHelper = new CurrencyHelper({
@@ -54,17 +53,7 @@ const currencyHelper = new CurrencyHelper({
 });
 const mockCapabilityService = {};
 
-let config,
-  log,
-  db,
-  customs,
-  push,
-  mailer,
-  profile,
-  routes,
-  route,
-  request,
-  requestOptions;
+let config, log, db, customs, push, mailer, profile;
 
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 
@@ -130,24 +119,6 @@ const ACTIVE_SUBSCRIPTIONS = [
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
-
-function runTest(routePath, requestOptions, payments = null) {
-  routes = require('../../../../lib/routes/subscriptions')(
-    log,
-    db,
-    config,
-    customs,
-    push,
-    mailer,
-    profile,
-    payments
-  );
-  route = getRoute(routes, routePath, requestOptions.method || 'GET');
-  request = mocks.mockRequest(requestOptions);
-  request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
-
-  return route.handler(request);
-}
 
 /**
  * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
@@ -222,6 +193,7 @@ describe('subscriptions stripeRoutes', () => {
         ticketPayloadLimit: 131072,
       },
     };
+    Container.set(AppConfig, config);
 
     const currencyHelper = new CurrencyHelper(config);
     Container.set(CurrencyHelper, currencyHelper);
@@ -333,58 +305,6 @@ describe('subscriptions stripeRoutes', () => {
       ];
       const res = await directStripeRoutes.listActive(VALID_REQUEST);
       assert.deepEqual(res, expected);
-    });
-  });
-
-  describe('GET /oauth/subscriptions/search', () => {
-    let reqOpts, stripeHelper;
-    const customer = deepCopy(customerFixture);
-
-    beforeEach(() => {
-      customer.subscriptions.data[0].metadata = {
-        previous_plan_id: 'plan_123',
-        plan_change_date: '1588962638',
-      };
-      reqOpts = {
-        ...requestOptions,
-        method: 'GET',
-        query: { uid: UID, email: 'testo@blackhole.example.io' },
-        auth: { strategy: 'supportPanelSecret' },
-      };
-
-      stripeHelper = sinon.createStubInstance(StripeHelper);
-      stripeHelper.fetchCustomer.resolves(customer);
-      stripeHelper.expandResource.resolves(stripePlan);
-      stripeHelper.findPlanById.resolves(PLANS[0]);
-      stripeHelper.formatSubscriptionsForSupport.restore();
-    });
-
-    it('should return a formatted list of subscriptions in the customer response', async () => {
-      const sub = customer.subscriptions.data[0];
-      const expected = [
-        {
-          created: sub.created,
-          current_period_end: sub.current_period_end,
-          current_period_start: sub.current_period_start,
-          plan_changed: 1588962638,
-          previous_product: PLANS[0].product_name,
-          product_name: stripePlan.name,
-          status: sub.status,
-          subscription_id: sub.id,
-        },
-      ];
-
-      const response = await runTest(
-        '/oauth/subscriptions/search',
-        reqOpts,
-        stripeHelper
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.fetchCustomer,
-        reqOpts.query.uid,
-        ['subscriptions']
-      );
-      assert.deepEqual(response, expected);
     });
   });
 });

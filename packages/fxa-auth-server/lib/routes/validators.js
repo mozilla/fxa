@@ -367,7 +367,7 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
 });
 
 // This is support-panel's perspective on a subscription
-module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
+module.exports.subscriptionsWebSubscriptionSupportValidator = isA.object({
   created: isA.number().required(),
   current_period_end: isA.number().required(),
   current_period_start: isA.number().required(),
@@ -376,6 +376,23 @@ module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
   product_name: isA.string().required(),
   status: isA.string().required(),
   subscription_id: module.exports.subscriptionsSubscriptionId.required(),
+});
+module.exports.subscriptionsPlaySubscriptionSupportValidator = isA.object({
+  auto_renewing: isA.bool().required(),
+  cancel_reason: isA.number().optional(),
+  expiry_time_millis: isA.number().required(),
+  package_name: isA.string().optional(),
+  sku: isA.string().optional(),
+  product_id: isA.string().optional(),
+  product_name: isA.string().required(),
+});
+module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
+  [MozillaSubscriptionTypes.WEB]: isA
+    .array()
+    .items(module.exports.subscriptionsWebSubscriptionSupportValidator),
+  [MozillaSubscriptionTypes.IAP_GOOGLE]: isA
+    .array()
+    .items(module.exports.subscriptionsPlaySubscriptionSupportValidator),
 });
 
 module.exports.subscriptionsSubscriptionListValidator = isA.object({

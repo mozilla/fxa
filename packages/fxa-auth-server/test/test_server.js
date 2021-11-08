@@ -13,12 +13,13 @@ const proxyquire = require('proxyquire').noPreserveCache();
 const createMailHelper = require('./mail_helper');
 const createProfileHelper = require('./profile_helper');
 const { CapabilityService } = require('../lib/payments/capability');
-const { AuthFirestore } = require('../lib/types');
+const { AuthFirestore, AppConfig } = require('../lib/types');
 
 let currentServer;
 
 /* eslint-disable no-console */
 function TestServer(config, printLogs, options = {}) {
+  Container.set(AppConfig, config);
   if (!Container.has(CapabilityService)) {
     Container.set(CapabilityService, {
       subscriptionCapabilities: sinon.fake.resolves([]),
