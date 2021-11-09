@@ -13,7 +13,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body align-left">
-      <span data-l10n-id="passwordChangeRequired-suspicious-activity">We detected suspicious behavior on your Firefox account. To prevent unauthorized access to your Firefox Account, we’ve disconnected all devices on your account and are requiring you to change your password as a precaution.</span>
+      <span data-l10n-id="passwordChangeRequired-suspicious-activity">We detected suspicious behavior on your Firefox account. To prevent unauthorized access to your Firefox account, we’ve disconnected all devices on your account and are requiring you to change your password as a precaution.</span>
     </mj-text>
 
     <mj-text css-class="text-body align-left">
@@ -30,7 +30,7 @@
       </span>
       <br />
       <span data-l10n-id="passwordChangeRequired-signoff-name">
-        The Firefox Accounts Team
+        The Firefox accounts team
       </span>
     </mj-text>
   </mj-column>

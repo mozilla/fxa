@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-sub-body">
-      <span data-l10n-id="postVerify-sub-title">Firefox Account verified. You’re almost there.</span>
+      <span data-l10n-id="postVerify-sub-title">Firefox account verified. You’re almost there.</span>
     </mj-text>
     <mj-text css-class="text-header">
       <span data-l10n-id="postVerify-title">Next sync between your devices!</span>

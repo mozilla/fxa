@@ -1,6 +1,6 @@
 postRemoveAccountRecovery-title = "Account recovery key removed"
 
-postRemoveAccountRecovery-description = "You have successfully removed an account recovery key for your Firefox Account using the following device:"
+postRemoveAccountRecovery-description = "You have successfully removed an account recovery key for your Firefox account using the following device:"
 
 <%- include('/partials/location/index.txt') %>
 
