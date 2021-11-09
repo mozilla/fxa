@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const nock = require('nock');
 const sinon = require('sinon');
-const { mockLog } = require('../../mocks');
 
 const {
   PayPalClient,
@@ -29,8 +28,8 @@ const successfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_r
 const unSuccessfulDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
 const successfulRefundTransactionResponse = require('./fixtures/paypal/refund_transaction_success.json');
 const searchTransactionResponse = require('./fixtures/paypal/transaction_search_success.json');
-const sampleIpnMessage =
-  require('./fixtures/paypal/sample_ipn_message.json').message;
+const sampleIpnMessage = require('./fixtures/paypal/sample_ipn_message.json')
+  .message;
 
 const sandbox = sinon.createSandbox();
 
@@ -39,15 +38,12 @@ describe('PayPalClient', () => {
   let client;
 
   beforeEach(() => {
-    client = new PayPalClient(
-      {
-        user: 'user',
-        sandbox: true,
-        pwd: 'pwd',
-        signature: 'sig',
-      },
-      mockLog()
-    );
+    client = new PayPalClient({
+      user: 'user',
+      sandbox: true,
+      pwd: 'pwd',
+      signature: 'sig',
+    });
   });
 
   afterEach(() => {
@@ -60,15 +56,12 @@ describe('PayPalClient', () => {
     });
 
     it('uses live', () => {
-      client = new PayPalClient(
-        {
-          user: 'user',
-          sandbox: false,
-          pwd: 'pwd',
-          signature: 'sig',
-        },
-        mockLog()
-      );
+      client = new PayPalClient({
+        user: 'user',
+        sandbox: false,
+        pwd: 'pwd',
+        signature: 'sig',
+      });
       assert.equal(client.url, PAYPAL_LIVE_API);
     });
   });
