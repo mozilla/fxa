@@ -1,3 +1,9 @@
+## 1.218.7
+
+### Other changes
+
+- auth: update survey url (#10815)" (#10937) ([c592cf64e](https://github.com/mozilla/fxa/commit/c592cf64e))
+
 ## 1.218.6
 
 ### Bug fixes
