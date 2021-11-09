@@ -87,8 +87,7 @@ async function run(config) {
       const { PayPalClient } = require('../lib/payments/paypal-client');
       const { PayPalHelper } = require('../lib/payments/paypal');
       const paypalClient = new PayPalClient(
-        config.subscriptions.paypalNvpSigCredentials,
-        log
+        config.subscriptions.paypalNvpSigCredentials
       );
       Container.set(PayPalClient, paypalClient);
       const paypalHelper = new PayPalHelper({ log });
