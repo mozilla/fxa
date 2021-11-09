@@ -9,7 +9,7 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="postRemoveAccountRecovery-description">You have successfully removed an account recovery key for your Firefox Account using the following device:</span>
+      <span data-l10n-id="postRemoveAccountRecovery-description">You have successfully removed an account recovery key for your Firefox account using the following device:</span>
     </mj-text>
   </mj-column>
 </mj-section>

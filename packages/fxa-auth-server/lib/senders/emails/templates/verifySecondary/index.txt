@@ -1,6 +1,6 @@
 verifySecondary-title = "Verify secondary email"
 
-verifySecondary-explainer = "A request to use { $email } as a secondary email address has been made from the following Firefox Account:"
+verifySecondary-explainer = "A request to use { $email } as a secondary email address has been made from the following Firefox account:"
 
 <%- include('/partials/location/index.txt') %>
 

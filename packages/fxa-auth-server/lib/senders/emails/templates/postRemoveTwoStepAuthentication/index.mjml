@@ -9,7 +9,7 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="postRemoveTwoStepAuthentication-description">You have successfully disabled two-step authentication on your Firefox Account from the following device:</span>
+      <span data-l10n-id="postRemoveTwoStepAuthentication-description">You have successfully disabled two-step authentication on your Firefox account from the following device:</span>
     </mj-text>
   </mj-column>
 </mj-section>
