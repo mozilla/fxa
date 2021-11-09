@@ -199,21 +199,37 @@ plan-price-day = { $intervalCount ->
   [one] { $amount } daily
   *[other] { $amount } every { $intervalCount } days
 }
+  .title = { $intervalCount ->
+    [one] { $amount } daily
+    *[other] { $amount } every { $intervalCount } days
+  }
 #  $intervalCount (Number) - The interval between payments, in weeks.
 plan-price-week = { $intervalCount ->
   [one] { $amount } weekly
   *[other] { $amount } every { $intervalCount } weeks
 }
+  .title = { $intervalCount ->
+    [one] { $amount } daily
+    *[other] { $amount } every { $intervalCount } days
+  }
 #  $intervalCount (Number) - The interval between payments, in months.
 plan-price-month = { $intervalCount ->
   [one] { $amount } monthly
   *[other] { $amount } every { $intervalCount } months
 }
+  .title = { $intervalCount ->
+    [one] { $amount } monthly
+    *[other] { $amount } every { $intervalCount } months
+  }
 #  $intervalCount (Number) - The interval between payments, in years.
 plan-price-year = { $intervalCount ->
   [one] { $amount } yearly
   *[other] { $amount } every { $intervalCount } years
 }
+  .title = { $intervalCount ->
+    [one] { $amount } daily
+    *[other] { $amount } every { $intervalCount } days
+  }
 
 
 ## subscription billing details

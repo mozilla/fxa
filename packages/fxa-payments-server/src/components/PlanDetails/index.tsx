@@ -115,12 +115,15 @@ export const PlanDetails = ({
                   </Localized>
                   <Localized
                     id={`plan-price-${interval}`}
+                    attrs={{ title: true }}
                     vars={{
                       amount: getLocalizedCurrency(amount, currency),
                       intervalCount: interval_count,
                     }}
                   >
-                    <p className="total-price">{planPrice}</p>
+                    <p className="total-price" title={planPrice}>
+                      {planPrice}
+                    </p>
                   </Localized>
                 </div>
               </div>
