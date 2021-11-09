@@ -1,4 +1,3 @@
-
 # Variables:
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionPaymentExpired-subject = Credit card for { $productName } expiring soon
