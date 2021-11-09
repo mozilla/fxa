@@ -70,6 +70,22 @@ describe('AppErrors', () => {
     assert.equal(result.output.payload.param, 'bar');
   });
 
+  it('should translate with payload data', () => {
+    const data = require('./payments/fixtures/paypal/do_reference_transaction_failure.json');
+
+    const result = AppError.translate(null, {
+      output: {
+        statusCode: 500,
+        payload: {
+          error: 'Internal Server Error',
+        },
+      },
+      data: data,
+    });
+
+    assert.equal(JSON.stringify(data), result.output.payload.data);
+  });
+
   it('should translate with invalid parameter', () => {
     const result = AppError.translate(null, {
       output: {
