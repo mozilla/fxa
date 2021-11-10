@@ -64,8 +64,8 @@ export function setupDatabase(opts: MySQLConfig): Knex {
     client: 'mysql',
     pool: {
       afterCreate: setupConnection,
-      min: 0,
-      max: opts.connectionLimit,
+      min: opts.connectionLimitMin,
+      max: opts.connectionLimitMax,
       acquireTimeoutMillis: opts.acquireTimeoutMillis,
     },
   });
