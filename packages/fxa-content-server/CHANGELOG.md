@@ -1,3 +1,12 @@
+## 1.219.0
+
+### Other changes
+
+- deps-dev: bump @babel/cli from 7.15.7 to 7.16.0 (#10950) ([8349d44c5](https://github.com/mozilla/fxa/commit/8349d44c5))
+- deps: bump @sentry/node from 6.13.3 to 6.14.1 (#10943) ([bff4cedc9](https://github.com/mozilla/fxa/commit/bff4cedc9))
+- deps: bump @sentry/browser from 6.13.3 to 6.14.0 (#10933) ([b4fa20dba](https://github.com/mozilla/fxa/commit/b4fa20dba))
+- deps: bump verror from 1.10.0 to 1.10.1 (#10918) ([cdb60d1ef](https://github.com/mozilla/fxa/commit/cdb60d1ef))
+
 ## 1.218.9
 
 No changes.
