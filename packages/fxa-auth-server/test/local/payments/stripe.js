@@ -65,7 +65,6 @@ const failedCharge = require('./fixtures/stripe/charge_failed.json');
 const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
-const eventPaymentMethodDetached = require('./fixtures/stripe/event_payment_method_detached.json');
 const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
 const eventInvoiceCreated = require('./fixtures/stripe/event_invoice_created.json');
 const eventSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
@@ -1840,7 +1839,6 @@ describe('StripeHelper', () => {
       };
 
       sandbox.stub(moment, 'unix').returns(unixTimestamp);
-      sandbox.stub(stripeHelper, 'expandResource').resolves(subscription);
       stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
         .stub()
         .resolves({});
@@ -1850,7 +1848,7 @@ describe('StripeHelper', () => {
         .resolves(subscription2);
 
       const actual = await stripeHelper.changeSubscriptionPlan(
-        'sub_GAt1vgMqOSr5hT',
+        subscription,
         'plan_G93mMKnIFCjZek'
       );
       assert.deepEqual(actual, subscription2);
@@ -1878,14 +1876,13 @@ describe('StripeHelper', () => {
     });
 
     it('throws an error if the user already upgraded', async () => {
-      sandbox.stub(stripeHelper, 'expandResource').resolves(subscription2);
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
         .resolves(subscription2);
       let thrown;
       try {
         await stripeHelper.changeSubscriptionPlan(
-          'sub_GAt1vgMqOSr5hT',
+          subscription2,
           'plan_G93mMKnIFCjZek'
         );
       } catch (err) {
@@ -2208,136 +2205,6 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('customer caching', () => {
-    const email = 'test@example.com';
-    const customer = deepCopy(customer1);
-    let expandStub;
-
-    beforeEach(() => {
-      expandStub = sandbox.stub(stripeHelper, 'expandResource');
-      expandStub.onCall(0).resolves(customer);
-      expandStub.onCall(1).resolves(null);
-    });
-
-    describe('customer', () => {
-      it('fetches an existing customer and caches it', async () => {
-        assert.deepEqual(
-          await stripeHelper.customer({ uid: existingUid, email }),
-          customer
-        );
-        assert(mockRedis.get.calledOnce);
-        assert(mockRedis.set.calledOnce);
-
-        // Assert that a TTL was set for this cache entry
-        assert.deepEqual(mockRedis.set.args[0][2], [
-          'EX',
-          mockConfig.subhub.customerCacheTtlSeconds,
-        ]);
-
-        assert.deepEqual(
-          await stripeHelper.customer({ uid: existingUid, email }),
-          customer1
-        );
-        assert(mockRedis.get.calledTwice);
-        assert(mockRedis.set.calledOnce);
-        assert(stripeHelper.expandResource.calledTwice);
-
-        const customerKey = StripeHelper.customerCacheKey([existingUid, email]);
-        assert.deepEqual(
-          await stripeHelper.customer({ uid: existingUid, email }),
-          JSON.parse(await mockRedis.get(customerKey))
-        );
-      });
-    });
-
-    describe('subscriptionForCustomer', () => {
-      it('uses cached customer data to look up a subscription', async () => {
-        assert.deepEqual(
-          await stripeHelper.customer({ uid: existingUid, email }),
-          customer1
-        );
-        assert(mockRedis.get.calledOnce);
-        assert(mockRedis.set.calledOnce);
-
-        assert.deepEqual(
-          await stripeHelper.subscriptionForCustomer(
-            existingUid,
-            email,
-            customer1.subscriptions.data[0].id
-          ),
-          customer1.subscriptions.data[0]
-        );
-        assert(mockRedis.get.calledTwice);
-        assert(mockRedis.set.calledOnce);
-        assert(stripeHelper.expandResource.calledTwice);
-      });
-
-      it('returns void if no customer is found', async () => {
-        sandbox.stub(stripeHelper, 'customer').resolves(null);
-
-        assert.isUndefined(
-          await stripeHelper.subscriptionForCustomer(
-            existingUid,
-            email,
-            customer1.subscriptions.data[0].id
-          )
-        );
-      });
-    });
-
-    describe('cache deletion', () => {
-      let customerKey;
-
-      beforeEach(async () => {
-        customerKey = StripeHelper.customerCacheKey([existingUid, email]);
-        assert.deepEqual(
-          await stripeHelper.customer({ uid: existingUid, email }),
-          JSON.parse(await mockRedis.get(customerKey))
-        );
-      });
-
-      describe('refreshCachedCustomer', () => {
-        it('forces a refresh of a cached customer by uid and email', async () => {
-          await stripeHelper.refreshCachedCustomer(existingUid, email);
-          sinon.assert.calledThrice(stripeHelper.expandResource);
-        });
-
-        it('logs errors', async () => {
-          sandbox.stub(stripeHelper, 'customer').rejects(Error);
-          await stripeHelper.refreshCachedCustomer(existingUid, email);
-          assert(
-            stripeHelper.log.error.calledOnceWith(
-              'subhub.refreshCachedCustomer.failed'
-            )
-          );
-        });
-      });
-
-      describe('removeCustomerFromCache', () => {
-        it('removes the entry from redis', async () => {
-          assert.isNotEmpty(await mockRedis.get(customerKey));
-
-          await stripeHelper.removeCustomerFromCache(existingUid, email);
-
-          assert.isTrue(mockRedis.del.calledOnceWithExactly(customerKey));
-          assert.isTrue(log.error.notCalled);
-          assert.isUndefined(await mockRedis.get(customerKey));
-        });
-
-        it('does not fail if key does not exist', async () => {
-          const key = StripeHelper.customerCacheKey(['test-test-test', email]);
-          assert.isUndefined(await mockRedis.get(key));
-
-          await stripeHelper.removeCustomerFromCache('test-test-test', email);
-
-          assert.isTrue(mockRedis.del.calledOnceWithExactly(key));
-          assert.isTrue(log.error.notCalled);
-          assert.isUndefined(await mockRedis.get(key));
-        });
-      });
-    });
-  });
-
   describe('removeCustomer', () => {
     let stripeCustomerDel;
     const email = 'test@example.com';
@@ -2346,8 +2213,6 @@ describe('StripeHelper', () => {
       stripeCustomerDel = sandbox
         .stub(stripeHelper.stripe.customers, 'del')
         .resolves();
-
-      sandbox.spy(stripeHelper, 'removeCustomerFromCache');
     });
 
     describe('when customer is found', () => {
@@ -2355,23 +2220,17 @@ describe('StripeHelper', () => {
         const uid = chance.guid({ version: 4 }).replace(/-/g, '');
         const customerId = 'cus_1234456sdf';
         const testAccount = await createAccountCustomer(uid, customerId);
-
         await stripeHelper.removeCustomer(testAccount.uid, email);
-
         assert(stripeCustomerDel.calledOnce);
         assert((await getAccountCustomerByUid(uid)) === undefined);
-        assert(stripeHelper.removeCustomerFromCache.calledOnce);
       });
     });
 
     describe('when customer is not found', () => {
       it('does not throw any errors', async () => {
         const uid = chance.guid({ version: 4 }).replace(/-/g, '');
-
         await stripeHelper.removeCustomer(uid, email);
-
         assert(stripeCustomerDel.notCalled);
-        assert(stripeHelper.removeCustomerFromCache.notCalled);
       });
     });
 
@@ -2388,7 +2247,6 @@ describe('StripeHelper', () => {
         await stripeHelper.removeCustomer(testAccount.uid, email);
 
         assert(deleteCustomer.calledOnce);
-        assert(stripeHelper.removeCustomerFromCache.calledOnce);
         assert(stripeHelper.log.error.calledOnce);
         assert.equal(
           `StripeHelper.removeCustomer failed to remove AccountCustomer record for uid ${uid}`,
@@ -3687,7 +3545,7 @@ describe('StripeHelper', () => {
 
       it('extracts expected details for a subscription reactivation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
-        sandbox.stub(stripeHelper, 'customer').resolves(mockCustomer);
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(mockCustomer);
         const result =
           await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
             event.data.object,
@@ -3708,7 +3566,7 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
-        sandbox.stub(stripeHelper, 'customer').resolves(customer);
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
         const result =
           await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
             event.data.object,
@@ -3752,7 +3610,7 @@ describe('StripeHelper', () => {
       });
 
       it('throws for a deleted customer', async () => {
-        sandbox.stub(stripeHelper, 'customer').resolves(null);
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(null);
         let thrown;
         try {
           await stripeHelper.extractCustomerDefaultPaymentDetails({
@@ -3766,7 +3624,7 @@ describe('StripeHelper', () => {
       });
 
       it('extracts from default payment method first when available', async () => {
-        sandbox.stub(stripeHelper, 'customer').resolves(mockCustomer);
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(mockCustomer);
         const result = await stripeHelper.extractCustomerDefaultPaymentDetails({
           uid,
           email,
@@ -3781,7 +3639,7 @@ describe('StripeHelper', () => {
         expandMock.onCall(0).resolves({ card: mockSource });
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
-        sandbox.stub(stripeHelper, 'customer').resolves(customer);
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
         const result = await stripeHelper.extractCustomerDefaultPaymentDetails({
           uid,
           email,
@@ -3796,7 +3654,7 @@ describe('StripeHelper', () => {
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
         customer.default_source = null;
-        sandbox.stub(stripeHelper, 'customer').resolves(customer);
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
         const result = await stripeHelper.extractCustomerDefaultPaymentDetails({
           uid,
           email,

@@ -110,10 +110,9 @@ export class PayPalNotificationHandler extends PayPalHandler {
       });
       return;
     }
-    const customer = await this.stripeHelper.customer({
-      uid: account.uid,
-      email: account.email,
-    });
+    const customer = await this.stripeHelper.fetchCustomer(account.uid, [
+      'subscriptions',
+    ]);
     if (!customer) {
       this.log.error('handleMpCancel', {
         message: 'Stripe customer not found',
@@ -137,9 +136,8 @@ export class PayPalNotificationHandler extends PayPalHandler {
       nextPeriodValidSubscription
     ) {
       const { uid, email } = account;
-      const subscriptions = await this.stripeHelper.formatSubscriptionsForEmails(
-        customer
-      );
+      const subscriptions =
+        await this.stripeHelper.formatSubscriptionsForEmails(customer);
       await this.mailer.sendSubscriptionPaymentProviderCancelledEmail(
         account.emails,
         account,

@@ -15,12 +15,22 @@ const { StripeHelper } = require('../../../../lib/payments/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
+const proxyquire = require('proxyquire').noPreserveCache();
+const dbStub = {
+  getAccountCustomerByUid: sinon.stub(),
+};
 
 const {
   sanitizePlans,
   handleAuth,
-  DirectStripeRoutes,
 } = require('../../../../lib/routes/subscriptions');
+const { StripeHandler: DirectStripeRoutes } = proxyquire(
+  '../../../../lib/routes/subscriptions/stripe',
+  {
+    'fxa-shared/db/models/auth': dbStub,
+  }
+);
+
 const { AuthLogger } = require('../../../../lib/types');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
@@ -295,9 +305,9 @@ describe('subscriptions stripeRoutes', () => {
 
   describe('listActive', () => {
     it('should list active subscriptions', async () => {
-      const stripeHelper = mocks.mockStripeHelper(['customer']);
+      const stripeHelper = mocks.mockStripeHelper(['fetchCustomer']);
 
-      stripeHelper.customer = sinon.spy(async (uid, customer) => {
+      stripeHelper.fetchCustomer = sinon.spy(async (uid, customer) => {
         return customerFixture;
       });
 
@@ -343,7 +353,7 @@ describe('subscriptions stripeRoutes', () => {
       };
 
       stripeHelper = sinon.createStubInstance(StripeHelper);
-      stripeHelper.customer.resolves(customer);
+      stripeHelper.fetchCustomer.resolves(customer);
       stripeHelper.expandResource.resolves(stripePlan);
       stripeHelper.findPlanById.resolves(PLANS[0]);
       stripeHelper.formatSubscriptionsForSupport.restore();
@@ -369,10 +379,11 @@ describe('subscriptions stripeRoutes', () => {
         reqOpts,
         stripeHelper
       );
-      sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
-        uid: reqOpts.query.uid,
-        email: reqOpts.query.email,
-      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.fetchCustomer,
+        reqOpts.query.uid,
+        ['subscriptions']
+      );
       assert.deepEqual(response, expected);
     });
   });
@@ -524,12 +535,6 @@ describe('DirectStripeRoutes', () => {
         TEST_EMAIL
       );
 
-      sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.stripeHelper.removeCustomerFromCache,
-        UID,
-        TEST_EMAIL
-      );
-
       assert.isTrue(
         directStripeRoutesInstance.profile.deleteCache.calledOnceWith(UID),
         'Expected profile.deleteCache to be called once'
@@ -613,7 +618,7 @@ describe('DirectStripeRoutes', () => {
         paymentMethod
       );
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
     });
 
     it('creates a subscription with a payment method', async () => {
@@ -664,7 +669,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('errors when a customer has not been created', async () => {
-      directStripeRoutesInstance.stripeHelper.customer.resolves(undefined);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(undefined);
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
         idempotencyKey: uuidv4(),
@@ -734,7 +739,7 @@ describe('DirectStripeRoutes', () => {
         sourceCountry
       );
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
       const expected = deepCopy(subscription2);
       directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
         expected
@@ -781,7 +786,7 @@ describe('DirectStripeRoutes', () => {
         sourceCountry
       );
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
       const expected = deepCopy(subscription2);
       directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
         expected
@@ -800,7 +805,9 @@ describe('DirectStripeRoutes', () => {
   describe('retryInvoice', () => {
     it('retries the invoice with the payment method', async () => {
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      dbStub.getAccountCustomerByUid.resolves({
+        stripeCustomerId: customer.id,
+      });
       const expected = deepCopy(openInvoice);
       directStripeRoutesInstance.stripeHelper.retryInvoiceWithPaymentId.resolves(
         expected
@@ -827,7 +834,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('errors when a customer has not been created', async () => {
-      directStripeRoutesInstance.stripeHelper.customer.resolves(undefined);
+      dbStub.getAccountCustomerByUid.resolves({});
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
         idempotencyKey: uuidv4(),
@@ -845,7 +852,9 @@ describe('DirectStripeRoutes', () => {
   describe('createSetupIntent', () => {
     it('creates a new setup intent', async () => {
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      dbStub.getAccountCustomerByUid.resolves({
+        stripeCustomerId: customer.id,
+      });
       const expected = deepCopy(newSetupIntent);
       directStripeRoutesInstance.stripeHelper.createSetupIntent.resolves(
         expected
@@ -861,6 +870,7 @@ describe('DirectStripeRoutes', () => {
 
     it('errors when a customer has not been created', async () => {
       VALID_REQUEST.payload = {};
+      dbStub.getAccountCustomerByUid.resolves({});
       try {
         await directStripeRoutesInstance.createSetupIntent(VALID_REQUEST);
         assert.fail('Create customer should fail.');
@@ -887,10 +897,10 @@ describe('DirectStripeRoutes', () => {
       const expected = deepCopy(emptyCustomer);
       expected.invoice_settings.default_payment_method = paymentMethodId;
 
-      directStripeRoutesInstance.stripeHelper.customer
+      directStripeRoutesInstance.stripeHelper.fetchCustomer
         .onCall(0)
         .resolves(customer);
-      directStripeRoutesInstance.stripeHelper.customer
+      directStripeRoutesInstance.stripeHelper.fetchCustomer
         .onCall(1)
         .resolves(expected);
       directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.resolves(
@@ -898,9 +908,6 @@ describe('DirectStripeRoutes', () => {
           ...customer,
           invoice_settings: { default_payment_method: paymentMethodId },
         }
-      );
-      directStripeRoutesInstance.stripeHelper.removeCustomerFromCache.resolves(
-        {}
       );
       directStripeRoutesInstance.stripeHelper.removeSources.resolves([
         {},
@@ -921,16 +928,13 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnce(
         directStripeRoutesInstance.stripeHelper.removeSources
       );
-      sinon.assert.calledOnce(
-        directStripeRoutesInstance.stripeHelper.removeCustomerFromCache
-      );
     });
 
     it('errors when a customer currency does not match new paymentMethod country', async () => {
       // Payment method country already set to US in beforeEach;
       const customer = deepCopy(emptyCustomer);
       customer.currency = 'EUR';
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
 
       try {
         await directStripeRoutesInstance.updateDefaultPaymentMethod(
@@ -970,7 +974,7 @@ describe('DirectStripeRoutes', () => {
       const paymentMethodId = 'pm_9001';
       const expected = { id: paymentMethodId, isGood: 'yep' };
 
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
       directStripeRoutesInstance.stripeHelper.detachPaymentMethod.resolves(
         expected
       );
@@ -995,7 +999,7 @@ describe('DirectStripeRoutes', () => {
       const paymentMethodId = 'pm_9001';
       const resp = { id: paymentMethodId, isGood: 'yep' };
 
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
       directStripeRoutesInstance.stripeHelper.detachPaymentMethod.resolves(
         resp
       );
@@ -1092,7 +1096,7 @@ describe('DirectStripeRoutes', () => {
 
       const customer = deepCopy(customerFixture);
       customer.currency = 'USD';
-      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(customer);
 
       plan = deepCopy(PLANS[0]);
       plan.currency = 'USD';
@@ -1190,7 +1194,7 @@ describe('DirectStripeRoutes', () => {
     describe('customer is found', () => {
       describe('customer has no subscriptions', () => {
         it('returns an empty array', async () => {
-          directStripeRoutesInstance.stripeHelper.customer.resolves(
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
             emptyCustomer
           );
           const expected = [];
@@ -1214,7 +1218,9 @@ describe('DirectStripeRoutes', () => {
             setToCancelSubscription,
           ];
 
-          directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+            customer
+          );
 
           const activeSubscriptions =
             await directStripeRoutesInstance.listActive(VALID_REQUEST);
@@ -1251,7 +1257,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('customer is not found', () => {
       it('returns an empty array', async () => {
-        directStripeRoutesInstance.stripeHelper.customer.resolves();
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
         const expected = [];
         const actual = await directStripeRoutesInstance.listActive(
           VALID_REQUEST

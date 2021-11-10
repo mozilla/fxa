@@ -90,11 +90,9 @@ export class CapabilityService {
   public async stripeUpdate({
     sub,
     uid,
-    email,
   }: {
     sub: Stripe.Subscription;
     uid?: string | null;
-    email?: string | null;
   }) {
     if (typeof sub.customer !== 'string') {
       throw error.internalValidationError(
@@ -105,10 +103,10 @@ export class CapabilityService {
         'Subscription customer was not a string.'
       );
     }
-    if (!uid || !email) {
-      ({ uid, email } = await getUidAndEmailByStripeCustomerId(sub.customer));
+    if (!uid) {
+      ({ uid } = await getUidAndEmailByStripeCustomerId(sub.customer));
     }
-    if (!uid || !email) {
+    if (!uid) {
       // There's nothing to do if we can't find the user. We don't report it
       // as we expect this to occur in the case of a deleted user.
       return;
@@ -122,11 +120,7 @@ export class CapabilityService {
     if (affectedProductIds.length === 0) {
       return;
     }
-    const currentProductIds = await this.subscribedProductIds({
-      uid,
-      email,
-      forceRefresh: true,
-    });
+    const currentProductIds = await this.subscribedProductIds(uid);
     let priorProductIds = new Set([
       ...currentProductIds,
       ...affectedProductIds,
@@ -162,11 +156,7 @@ export class CapabilityService {
    * duplicate broadcasts telling RPs to turn on/off the user capability, but ensures
    * the user always has proper access to the purchased products.
    */
-  public async playUpdate(
-    uid: string,
-    email: string,
-    purchase: SubscriptionPurchase
-  ) {
+  public async playUpdate(uid: string, purchase: SubscriptionPurchase) {
     const affectedProductId = (
       await this.stripeHelper.purchasesToProductIds([purchase])
     ).shift();
@@ -174,11 +164,7 @@ export class CapabilityService {
       // Purchase is not mapped to a product id.
       return;
     }
-    const currentProductIds = await this.subscribedProductIds({
-      uid,
-      email,
-      forceRefresh: true,
-    });
+    const currentProductIds = await this.subscribedProductIds(uid);
     let priorProductIds;
     if (currentProductIds.includes(affectedProductId)) {
       // Remove the product id from the prior list for processing to assume that it
@@ -205,28 +191,19 @@ export class CapabilityService {
    * Return a map of capabilities to client ids for the user.
    */
   public async subscriptionCapabilities(
-    uid: string,
-    email: string
+    uid: string
   ): Promise<ClientIdCapabilityMap> {
-    const subscribedProducts = await this.subscribedProductIds({ uid, email });
+    const subscribedProducts = await this.subscribedProductIds(uid);
     return this.productIdsToClientCapabilities(subscribedProducts);
   }
 
   /**
    * Return a list of all product ids with an active subscription.
    */
-  private async subscribedProductIds({
-    uid,
-    email,
-    forceRefresh = false,
-  }: {
-    uid: string;
-    email: string;
-    forceRefresh?: boolean;
-  }) {
+  private async subscribedProductIds(uid: string) {
     const [subscribedStripeProducts, subscribedPlayProducts] =
       await Promise.all([
-        this.fetchSubscribedProductsFromStripe({ uid, email, forceRefresh }),
+        this.fetchSubscribedProductsFromStripe(uid),
         this.fetchSubscribedProductsFromPlay(uid),
       ]);
     return [
@@ -416,20 +393,12 @@ export class CapabilityService {
   /**
    * Fetch the list of ids of products purchased from Stripe.
    */
-  private async fetchSubscribedProductsFromStripe({
-    uid,
-    email,
-    forceRefresh = false,
-  }: {
-    uid: string;
-    email: string;
-    forceRefresh?: boolean;
-  }): Promise<string[]> {
-    const customer = await this.stripeHelper.customer({
-      uid,
-      email,
-      forceRefresh,
-    });
+  private async fetchSubscribedProductsFromStripe(
+    uid: string
+  ): Promise<string[]> {
+    const customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions',
+    ]);
     if (!customer || !customer.subscriptions!.data) {
       return [];
     }

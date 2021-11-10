@@ -51,9 +51,6 @@ export class GoogleIapHandler {
       throw error.unknownAppName(appName);
     }
 
-    // Lookup the email for the user as we need it for capability checks
-    const { email } = (await this.db.account(uid)).primaryEmail;
-
     let purchase;
     try {
       purchase = await this.playBilling.purchaseManager.registerToUserAccount(
@@ -79,7 +76,7 @@ export class GoogleIapHandler {
           );
       }
     }
-    await this.capabilityService.playUpdate(uid, email, purchase);
+    await this.capabilityService.playUpdate(uid, purchase);
     return { tokenValid: true };
   }
 }

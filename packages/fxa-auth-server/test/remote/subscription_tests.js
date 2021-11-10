@@ -84,7 +84,7 @@ describe('remote subscriptions:', function () {
           },
         },
       ];
-      mockStripeHelper.customer = async (uid, email) => ({});
+      mockStripeHelper.fetchCustomer = async (uid, email) => ({});
       Container.set(StripeHelper, mockStripeHelper);
       Container.set(AuthLogger, {});
       Container.remove(CapabilityService);
@@ -163,7 +163,7 @@ describe('remote subscriptions:', function () {
 
     describe('with no subscriptions', () => {
       beforeEach(() => {
-        mockStripeHelper.customer = async (uid, email) => ({
+        mockStripeHelper.fetchCustomer = async (uid, email) => ({
           subscriptions: { data: [] },
         });
         mockStripeHelper.subscriptionsToResponse = async (subscriptions) => [];
@@ -197,7 +197,7 @@ describe('remote subscriptions:', function () {
       const subscriptionId = 'sub_12345';
       const date = Date.now();
       beforeEach(() => {
-        mockStripeHelper.customer = async (uid, email) => ({
+        mockStripeHelper.fetchCustomer = async (uid, email) => ({
           subscriptions: {
             data: [
               {

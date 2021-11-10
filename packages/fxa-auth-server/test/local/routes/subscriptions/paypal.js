@@ -191,7 +191,7 @@ describe('subscriptions payPalRoutes', () => {
       customer = deepCopy(customerFixture);
       subscription = deepCopy(subscription2);
       subscription.latest_invoice = deepCopy(openInvoice);
-      stripeHelper.customer = sinon.fake.resolves(customer);
+      stripeHelper.fetchCustomer = sinon.fake.resolves(customer);
       stripeHelper.findPlanById = sinon.fake.resolves(plan);
       payPalHelper.createBillingAgreement = sinon.fake.resolves('B-test');
       payPalHelper.agreementDetails = sinon.fake.resolves({
@@ -209,7 +209,7 @@ describe('subscriptions payPalRoutes', () => {
       it('throws a missing PayPal billing agreement error', async () => {
         const c = deepCopy(customer);
         c.subscriptions.data[0].collection_method = 'send_invoice';
-        stripeHelper.customer = sinon.fake.resolves(c);
+        stripeHelper.fetchCustomer = sinon.fake.resolves(c);
         stripeHelper.getCustomerPaypalAgreement = sinon.fake.returns(undefined);
 
         try {
@@ -246,7 +246,7 @@ describe('subscriptions payPalRoutes', () => {
       it('throws a billing agreement already exists error', async () => {
         const c = deepCopy(customer);
         c.subscriptions.data[0].collection_method = 'send_invoice';
-        stripeHelper.customer = sinon.fake.resolves(c);
+        stripeHelper.fetchCustomer = sinon.fake.resolves(c);
         authDbModule.getAccountCustomerByUid =
           sinon.fake.resolves(accountCustomer);
         stripeHelper.getCustomerPaypalAgreement =
@@ -282,7 +282,7 @@ describe('subscriptions payPalRoutes', () => {
           sourceCountry: 'CA',
           subscription: filterSubscription(subscription),
         });
-        sinon.assert.calledOnce(stripeHelper.customer);
+        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
         sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
         sinon.assert.calledOnce(payPalHelper.agreementDetails);
         sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
@@ -328,7 +328,7 @@ describe('subscriptions payPalRoutes', () => {
           sourceCountry: 'CA',
           subscription: filterSubscription(subscription),
         });
-        sinon.assert.calledOnce(stripeHelper.customer);
+        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
         sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
         sinon.assert.calledOnce(payPalHelper.agreementDetails);
         sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
@@ -448,7 +448,7 @@ describe('subscriptions payPalRoutes', () => {
           },
         };
         c.subscriptions.data[0].collection_method = 'send_invoice';
-        stripeHelper.customer = sinon.fake.resolves(c);
+        stripeHelper.fetchCustomer = sinon.fake.resolves(c);
         stripeHelper.getCustomerPaypalAgreement =
           sinon.fake.returns(paypalAgreementId);
         payPalHelper.processInvoice = sinon.fake.resolves({});
@@ -491,7 +491,7 @@ describe('subscriptions payPalRoutes', () => {
           sourceCountry: 'GD',
           subscription: filterSubscription(subscription),
         });
-        sinon.assert.calledOnce(stripeHelper.customer);
+        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
         sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
         sinon.assert.calledOnce(payPalHelper.processInvoice);
       });
@@ -552,7 +552,7 @@ describe('subscriptions payPalRoutes', () => {
       subscription.collection_method = 'send_invoice';
       subscription.latest_invoice = deepCopy(openInvoice);
       customer.subscriptions.data = [subscription];
-      stripeHelper.customer = sinon.fake.resolves(customer);
+      stripeHelper.fetchCustomer = sinon.fake.resolves(customer);
       stripeHelper.findPlanById = sinon.fake.resolves(plan);
       payPalHelper.createBillingAgreement = sinon.fake.resolves('B-test');
       payPalHelper.agreementDetails = sinon.fake.resolves({
@@ -570,7 +570,7 @@ describe('subscriptions payPalRoutes', () => {
         defaultRequestOptions
       );
       assert.deepEqual(actual, filterCustomer(customer));
-      sinon.assert.calledOnce(stripeHelper.customer);
+      sinon.assert.calledOnce(stripeHelper.fetchCustomer);
       sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
       sinon.assert.calledOnce(payPalHelper.agreementDetails);
       sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
@@ -589,7 +589,7 @@ describe('subscriptions payPalRoutes', () => {
         defaultRequestOptions
       );
       assert.deepEqual(actual, filterCustomer(customer));
-      sinon.assert.calledOnce(stripeHelper.customer);
+      sinon.assert.calledOnce(stripeHelper.fetchCustomer);
       sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
       sinon.assert.calledOnce(payPalHelper.agreementDetails);
       sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
@@ -605,7 +605,7 @@ describe('subscriptions payPalRoutes', () => {
         defaultRequestOptions
       );
       assert.deepEqual(actual, filterCustomer(customer));
-      sinon.assert.calledOnce(stripeHelper.customer);
+      sinon.assert.calledOnce(stripeHelper.fetchCustomer);
       sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
       sinon.assert.calledOnce(payPalHelper.agreementDetails);
       sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);

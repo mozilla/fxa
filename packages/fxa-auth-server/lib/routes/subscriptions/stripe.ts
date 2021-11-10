@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
-import {
-  AbbrevPlan,
-  WebSubscription,
-} from 'fxa-shared/dist/subscriptions/types';
+import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
+import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
@@ -17,11 +15,6 @@ import {
   filterSubscription,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
-import {
-  PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
-  PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-  PaypalPaymentError,
-} from 'fxa-shared/subscriptions/types';
 import omitBy from 'lodash/omitBy';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
@@ -33,7 +26,8 @@ import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
-import { handleAuth, ThenArg } from './utils';
+import { handleAuth } from './utils';
+
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
 /**
@@ -77,9 +71,8 @@ export class StripeHandler {
    */
   async customerChanged(request: AuthRequest, uid: string, email: string) {
     const [devices] = await Promise.all([
-      await request.app.devices,
-      await this.stripeHelper.removeCustomerFromCache(uid, email),
-      await this.profile.deleteCache(uid),
+      request.app.devices,
+      this.profile.deleteCache(uid),
     ]);
     await this.push.notifyProfileUpdated(uid, devices);
     this.log.notifyAttachedServices('profileDataChanged', request, {
@@ -216,7 +209,7 @@ export class StripeHandler {
     // Verify the new plan currency and customer currency are compatible.
     // Stripe does not allow customers to change currency after a currency is set, which
     // occurs on initial subscription. (https://stripe.com/docs/billing/customer#payment)
-    const customer = await this.stripeHelper.customer({ uid, email });
+    const customer = await this.stripeHelper.fetchCustomer(uid);
     const planCurrency = (await this.stripeHelper.findPlanById(planId))
       .currency;
     if (customer && customer.currency != planCurrency) {
@@ -224,7 +217,7 @@ export class StripeHandler {
     }
 
     // Update the plan
-    await this.stripeHelper.changeSubscriptionPlan(subscriptionId, planId);
+    await this.stripeHelper.changeSubscriptionPlan(subscription, planId);
 
     await this.customerChanged(request, uid, email);
 
@@ -253,11 +246,10 @@ export class StripeHandler {
 
   async listActive(request: AuthRequest) {
     this.log.begin('subscriptions.listActive', request);
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.customer({
-      uid,
-      email,
-    });
+    const { uid } = await handleAuth(this.db, request.auth, true);
+    const customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions',
+    ]);
     const activeSubscriptions = [];
 
     if (customer && customer.subscriptions) {
@@ -327,9 +319,9 @@ export class StripeHandler {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createCustomer');
 
-    let customer = await this.stripeHelper.customer({ uid, email });
+    let customer = await this.stripeHelper.fetchCustomer(uid);
     if (customer) {
-      return customer;
+      return filterCustomer(customer);
     }
 
     const { displayName, idempotencyKey } = request.payload as Record<
@@ -354,8 +346,8 @@ export class StripeHandler {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'retryInvoice');
 
-    const customer = await this.stripeHelper.customer({ uid, email });
-    if (!customer) {
+    const { stripeCustomerId } = await getAccountCustomerByUid(uid);
+    if (!stripeCustomerId) {
       throw error.unknownCustomer(uid);
     }
 
@@ -363,7 +355,7 @@ export class StripeHandler {
       request.payload as Record<string, string>;
     const retryIdempotencyKey = `${idempotencyKey}-retryInvoice`;
     const invoice = await this.stripeHelper.retryInvoiceWithPaymentId(
-      customer.id,
+      stripeCustomerId,
       invoiceId,
       paymentMethodId,
       retryIdempotencyKey
@@ -389,7 +381,7 @@ export class StripeHandler {
     );
     await this.customs.check(request, email, 'createSubscriptionWithPMI');
 
-    const customer = await this.stripeHelper.customer({ uid, email });
+    const customer = await this.stripeHelper.fetchCustomer(uid);
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -469,11 +461,13 @@ export class StripeHandler {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createSetupIntent');
 
-    const customer = await this.stripeHelper.customer({ uid, email });
-    if (!customer) {
+    const { stripeCustomerId } = await getAccountCustomerByUid(uid);
+    if (!stripeCustomerId) {
       throw error.unknownCustomer(uid);
     }
-    const setupIntent = await this.stripeHelper.createSetupIntent(customer.id);
+    const setupIntent = await this.stripeHelper.createSetupIntent(
+      stripeCustomerId
+    );
     return filterIntent(setupIntent);
   }
 
@@ -486,7 +480,7 @@ export class StripeHandler {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'updateDefaultPaymentMethod');
 
-    let customer = await this.stripeHelper.customer({ uid, email });
+    let customer = await this.stripeHelper.fetchCustomer(uid);
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -512,10 +506,7 @@ export class StripeHandler {
       customer.id,
       paymentMethodId
     );
-    await Promise.all([
-      this.stripeHelper.removeSources(customer.id),
-      this.stripeHelper.removeCustomerFromCache(uid, email),
-    ]);
+    await this.stripeHelper.removeSources(customer.id);
     return filterCustomer(customer);
   }
 
@@ -529,7 +520,9 @@ export class StripeHandler {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'detachFailedPaymentMethod');
 
-    let customer = await this.stripeHelper.customer({ uid, email });
+    const customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions',
+    ]);
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -555,10 +548,12 @@ export class StripeHandler {
    */
   async getSubscriptionsForSupport(request: AuthRequest) {
     this.log.begin('subscriptions.getSubscriptionsForSupport', request);
-    const { uid, email } = request.query as Record<string, string>;
+    const { uid } = request.query as Record<string, string>;
 
     // We know that a user has to be a customer to create a support ticket
-    const customer = await this.stripeHelper.customer({ uid, email });
+    const customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions',
+    ]);
     if (!customer || !customer.subscriptions) {
       throw error.internalValidationError(
         'getSubscriptionsForSupport',
