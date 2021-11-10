@@ -42,5 +42,10 @@ export function makeMySQLConfig(envPrefix: string, database: string) {
       env: envPrefix + '_MYSQL_USERNAME',
       format: String,
     },
+    connectionLimit: {
+      doc: 'The maximum number of connections that the pool can use at once.',
+      default: 10,
+      env: envPrefix + '_MYSQL_CONNECTION_LIMIT',
+    },
   };
 }
