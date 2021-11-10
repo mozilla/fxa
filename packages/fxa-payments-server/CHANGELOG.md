@@ -1,5 +1,17 @@
 # Change history
 
+## 1.219.0
+
+### New features
+
+- subscription: emit event on error sign-in click ([30992d600](https://github.com/mozilla/fxa/commit/30992d600))
+
+### Other changes
+
+- deps: bump @sentry/node from 6.13.3 to 6.14.1 (#10943) ([bff4cedc9](https://github.com/mozilla/fxa/commit/bff4cedc9))
+- deps: bump @stripe/stripe-js from 1.20.3 to 1.21.1 (#10944) ([de6d47c4f](https://github.com/mozilla/fxa/commit/de6d47c4f))
+- deps: bump @sentry/browser from 6.13.3 to 6.14.0 (#10933) ([b4fa20dba](https://github.com/mozilla/fxa/commit/b4fa20dba))
+
 ## 1.218.7
 
 No changes.

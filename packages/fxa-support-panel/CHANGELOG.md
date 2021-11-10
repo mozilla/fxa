@@ -1,5 +1,14 @@
 # Change history
 
+## 1.219.0
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 8.1.2 to 8.2.0 (#10949) ([e27d89e50](https://github.com/mozilla/fxa/commit/e27d89e50))
+- deps: bump @sentry/node from 6.13.3 to 6.14.1 (#10943) ([bff4cedc9](https://github.com/mozilla/fxa/commit/bff4cedc9))
+- deps: bump @sentry/integrations from 6.13.3 to 6.14.1 (#10940) ([e49710a8b](https://github.com/mozilla/fxa/commit/e49710a8b))
+- deps: bump @nestjs/config from 1.0.2 to 1.1.0 (#10932) ([be9feb3c1](https://github.com/mozilla/fxa/commit/be9feb3c1))
+
 ## 1.218.7
 
 No changes.
