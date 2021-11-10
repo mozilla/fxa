@@ -3,13 +3,13 @@
         <h1 id="fxa-confirm-signup-code-header">
           {{#t}}Enter verification code{{/t}}
           <span class="service">
-            <!-- L10N: For languages structured like English, the phrase can read "to continue to %(serviceName)s" -->
             {{#isInPocketMigration}}
-              {{#unsafeTranslate}}Continue to{{/unsafeTranslate}}
-              <div class="graphic graphic-client-pocket">Pocket</div>
+                <!-- L10N: For languages structured like English, the phrase can read "to continue to" with Pocket image following -->
+                {{#unsafeTranslate}}Continue to <div class="graphic graphic-client-pocket">Pocket</div>{{/unsafeTranslate}}
             {{/isInPocketMigration}}
             {{^isInPocketMigration}}
-              {{#t}}Continue to %(serviceName)s{{/t}}
+                <!-- L10N: For languages structured like English, the phrase can read "to continue to %(serviceName)s" -->
+                {{#t}}Continue to %(serviceName)s{{/t}}
             {{/isInPocketMigration}}
           </span>
         </h1>
