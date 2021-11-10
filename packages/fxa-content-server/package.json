@@ -150,7 +150,7 @@
     "esbuild-register": "^3.0.0",
     "eslint": "^7.32.0",
     "eslint-plugin-fxa": "^2.0.2",
-    "firefox-profile": "4.2.1",
+    "firefox-profile": "4.2.2",
     "got": "11.8.2",
     "grunt-ban-word": "0.1.1",
     "grunt-copyright": "0.3.0",
