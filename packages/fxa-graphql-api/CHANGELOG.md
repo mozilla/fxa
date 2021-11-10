@@ -1,3 +1,13 @@
+## 1.218.9
+
+### Bug fixes
+
+- tests: Add fixes for test ([f71826141](https://github.com/mozilla/fxa/commit/f71826141))
+
+## 1.218.8
+
+No changes.
+
 ## 1.218.7
 
 No changes.

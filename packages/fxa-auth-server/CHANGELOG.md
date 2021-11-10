@@ -1,3 +1,13 @@
+## 1.218.9
+
+No changes.
+
+## 1.218.8
+
+### Bug fixes
+
+- support: revert Zendesk field ids ([289b818a1](https://github.com/mozilla/fxa/commit/289b818a1))
+
 ## 1.218.7
 
 ### Other changes

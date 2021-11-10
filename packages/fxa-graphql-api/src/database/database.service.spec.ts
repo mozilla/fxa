@@ -18,6 +18,9 @@ describe('DatabaseService', () => {
       password: '',
       port: 3306,
       user: 'root',
+      connectionLimitMin: 2,
+      connectionLimitMax: 10,
+      acquireTimeoutMillis: 30000,
     };
     const MockConfig: Provider = {
       provide: ConfigService,
@@ -25,6 +28,7 @@ describe('DatabaseService', () => {
         get: jest.fn().mockReturnValue({
           mysql: {
             auth: dbConfig,
+            profile: dbConfig,
           },
         }),
       },
