@@ -1,6 +1,6 @@
 {
   "name": "fxa-payments-server",
-  "version": "1.218.7",
+  "version": "1.218.8",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
     "postinstall": "../../_scripts/clone-l10n.sh fxa-payments-server",

@@ -1,5 +1,11 @@
 # Change history
 
+## 1.218.8
+
+### Bug fixes
+
+- metrics: temporarily disable the metrics opt out check (#10969) ([deaff14b1](https://github.com/mozilla/fxa/commit/deaff14b1))
+
 ## 1.218.7
 
 No changes.
