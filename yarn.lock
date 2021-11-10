@@ -9771,6 +9771,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ajv@npm:^8.7.1":
+  version: 8.7.1
+  resolution: "ajv@npm:8.7.1"
+  dependencies:
+    fast-deep-equal: ^3.1.1
+    json-schema-traverse: ^1.0.0
+    require-from-string: ^2.0.2
+    uri-js: ^4.2.2
+  checksum: e8102fa84807d5008b7439f8ffd3ccae0f98d37010c18624982d277cb8e324efd9149a5e1f56326c8793e21b858e7e220c3250ee2c29efb52fea943b8512e7aa
+  languageName: node
+  linkType: hard
+
 "align-text@npm:^0.1.1, align-text@npm:^0.1.3":
   version: 0.1.4
   resolution: "align-text@npm:0.1.4"
@@ -19720,7 +19732,7 @@ fsevents@~2.1.1:
     "@types/verror": ^1.10.4
     "@types/webpack": 5.28.0
     acorn: ^8.0.1
-    ajv: ^6.12.2
+    ajv: ^8.7.1
     audit-filter: ^0.5.0
     aws-sdk: ^2.1022.0
     babel-loader: ^8.2.2
@@ -20271,7 +20283,7 @@ fsevents@~2.1.1:
     "@types/mocha": ^8.2.2
     "@types/node": ^16.11.3
     "@types/sinon": 10.0.1
-    ajv: ^6.12.2
+    ajv: ^8.7.1
     audit-filter: ^0.5.0
     chai: ^4.3.4
     convict: ^6.2.1
@@ -20643,7 +20655,7 @@ fsevents@~2.1.1:
     "@types/superagent": ^4.1.11
     "@types/uuid": ^8.3.1
     accept-language: ^2.0.17
-    ajv: ^6.12.2
+    ajv: ^8.7.1
     apollo-server: ^2.25.2
     audit-filter: ^0.5.0
     aws-sdk: ^2.1022.0
