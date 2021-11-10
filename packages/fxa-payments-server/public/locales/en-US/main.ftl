@@ -209,8 +209,8 @@ plan-price-week = { $intervalCount ->
   *[other] { $amount } every { $intervalCount } weeks
 }
   .title = { $intervalCount ->
-    [one] { $amount } daily
-    *[other] { $amount } every { $intervalCount } days
+    [one] { $amount } weekly
+    *[other] { $amount } every { $intervalCount } weeks
   }
 #  $intervalCount (Number) - The interval between payments, in months.
 plan-price-month = { $intervalCount ->
@@ -227,8 +227,8 @@ plan-price-year = { $intervalCount ->
   *[other] { $amount } every { $intervalCount } years
 }
   .title = { $intervalCount ->
-    [one] { $amount } daily
-    *[other] { $amount } every { $intervalCount } days
+    [one] { $amount } yearly
+    *[other] { $amount } every { $intervalCount } years
   }
 
 
