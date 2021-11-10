@@ -200,6 +200,7 @@
     .plan-details-total-inner {
       display: flex;
       justify-content: space-between;
+      gap: 8px;
     }
 
     p {
@@ -210,13 +211,17 @@
     .label {
       color: #6d6d6e;
       font-weight: 600;
-      margin-top: 5px;
+      margin-top: auto;
     }
 
     .total-price {
       color: rgba(12, 12, 13, 0.8);
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: auto;
     }
   }
 }
