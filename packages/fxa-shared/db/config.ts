@@ -8,6 +8,8 @@ export interface MySQLConfig {
   password: string;
   port: number;
   user: string;
+  connectionLimit: number;
+  acquireTimeoutMillis: number;
 }
 
 export function makeMySQLConfig(envPrefix: string, database: string) {
@@ -46,6 +48,11 @@ export function makeMySQLConfig(envPrefix: string, database: string) {
       doc: 'The maximum number of connections that the pool can use at once.',
       default: 10,
       env: envPrefix + '_MYSQL_CONNECTION_LIMIT',
+    },
+    acquireTimeoutMillis: {
+      doc: 'The milliseconds before a timeout occurs if a resource cannot be acquired',
+      default: 30000,
+      env: envPrefix + '_MYSQL_ACQUIRE_TIMEOUT',
     },
   };
 }
