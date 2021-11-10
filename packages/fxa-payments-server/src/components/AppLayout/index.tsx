@@ -17,7 +17,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         data-testid="stage"
         className="fade-in-forward"
         style={{ opacity: 1 }}
-        lang={navigator.language}
       >
         {children}
       </div>
