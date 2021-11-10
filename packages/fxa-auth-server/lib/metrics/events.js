@@ -104,6 +104,11 @@ module.exports = (log, config) => {
       const request = this;
       let isFlowCompleteSignal = false;
 
+      const isMetricsEnabled = await request.app.isMetricsEnabled;
+      if (!isMetricsEnabled) {
+        return;
+      }
+
       if (ACTIVITY_EVENTS.has(event)) {
         emitActivityEvent(event, request, data);
       }

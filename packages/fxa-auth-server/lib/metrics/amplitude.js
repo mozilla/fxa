@@ -16,7 +16,6 @@ const { Container } = require('typedi');
 const { StatsD } = require('hot-shots');
 
 const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
-const { Account } = require('fxa-shared/db/models/auth');
 const { version: VERSION } = require('../../package.json');
 
 // Maps template name to email type
@@ -170,16 +169,13 @@ module.exports = (log, config) => {
     ] = 'registration';
   });
 
-  const subscriptionAccountReminders = require('../subscription-account-reminders')(
-    log,
-    config
-  );
+  const subscriptionAccountReminders =
+    require('../subscription-account-reminders')(log, config);
   subscriptionAccountReminders.keys.forEach((key) => {
     EMAIL_TYPES[
       `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(1)}Email`
     ] = 'subscription_account_finish_setup';
   });
-
 
   const transformEvent = initialize(
     config.oauth.clientIds,
@@ -204,11 +200,6 @@ module.exports = (log, config) => {
       });
       return;
     }
-    if (getFromToken(request, 'metricsOptOutAt')) {
-      // This catches most but not all cases where the given uid
-      // is opted out and saves us from making a db call further down
-      return;
-    }
 
     let devices;
     try {
@@ -222,9 +213,6 @@ module.exports = (log, config) => {
     const { formFactor } = request.app.ua;
     const service = getService(request, data, metricsContext);
     const uid = data.uid || getFromToken(request, 'uid');
-    if (uid && !(await Account.metricsEnabled(uid))) {
-      return;
-    }
     const deviceId = getFromMetricsContext(
       metricsContext,
       'device_id',

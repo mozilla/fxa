@@ -2,4 +2,4 @@
 
 -- DROP PROCEDURE `sessionWithDevice_19`;
 
--- UPDATE dbMetadata SET value = '120' WHERE name = 'schema-patch-level';
+-- UPDATE dbMetadata SET value = '121' WHERE name = 'schema-patch-level';
