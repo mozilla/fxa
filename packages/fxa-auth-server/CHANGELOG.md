@@ -1,3 +1,28 @@
+## 1.219.0
+
+### New features
+
+- auth: remove redis customer caching ([878a991ce](https://github.com/mozilla/fxa/commit/878a991ce))
+- auth: add more logging to PayPalClientError (#10872) ([90084c66a](https://github.com/mozilla/fxa/commit/90084c66a))
+- auth: store payment methods in firestore ([a9b36e6e1](https://github.com/mozilla/fxa/commit/a9b36e6e1))
+
+### Bug fixes
+
+- auth: Address l10n comments for new emails ([4b2937a98](https://github.com/mozilla/fxa/commit/4b2937a98))
+- auth: New emails - update 'Firefox Accounts' capitalization, fix extra space ([a6317c6ce](https://github.com/mozilla/fxa/commit/a6317c6ce))
+
+### Other changes
+
+- auth: update survey url (#10938) ([41e8f9bb1](https://github.com/mozilla/fxa/commit/41e8f9bb1))
+- deps: bump luxon from 2.0.2 to 2.1.1 (#10951) ([5cd5b7ef1](https://github.com/mozilla/fxa/commit/5cd5b7ef1))
+- deps: bump @sentry/node from 6.13.3 to 6.14.1 (#10943) ([bff4cedc9](https://github.com/mozilla/fxa/commit/bff4cedc9))
+- deps: bump stripe from 8.186.0 to 8.186.1 (#10941) ([eb1bf62a3](https://github.com/mozilla/fxa/commit/eb1bf62a3))
+- auth: update survey url (#10815)" (#10937) ([a3bfb9bdc](https://github.com/mozilla/fxa/commit/a3bfb9bdc))
+- deps: bump aws-sdk from 2.1020.0 to 2.1022.0 (#10931) ([0c85e4d2c](https://github.com/mozilla/fxa/commit/0c85e4d2c))
+- deps: bump cldr-core and cldr-localenames-full (#10930) ([c5ec36ea5](https://github.com/mozilla/fxa/commit/c5ec36ea5))
+- deps: bump p-retry from 4.6.1 to 5.0.0 (#10916) ([87faa4429](https://github.com/mozilla/fxa/commit/87faa4429))
+- deps: bump verror from 1.10.0 to 1.10.1 (#10918) ([cdb60d1ef](https://github.com/mozilla/fxa/commit/cdb60d1ef))
+
 ## 1.218.9
 
 No changes.
