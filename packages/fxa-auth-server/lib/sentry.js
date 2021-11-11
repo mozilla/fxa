@@ -6,6 +6,7 @@
 
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
+const { ExtraErrorData } = require('@sentry/integrations');
 const verror = require('verror');
 
 const getVersion = require('./version').getVersion;
@@ -155,8 +156,10 @@ async function configureSentry(server, config) {
       beforeSend(event, hint) {
         return filterSentryEvent(event, hint);
       },
+      normalizeDepth: 6,
       integrations: [
         new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
+        new ExtraErrorData({ depth: 5 }),
       ],
     });
     Sentry.configureScope((scope) => {
