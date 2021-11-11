@@ -5,9 +5,11 @@ import { setupAuthDatabase } from 'fxa-shared/db';
 import { StatsD } from 'hot-shots';
 import Container from 'typedi';
 
+import { setupFirestore } from '../firestore-db';
 import { CurrencyHelper } from '../payments/currencies';
-import { StripeHelper } from './stripe';
 import { configureSentry } from '../sentry';
+import { AuthFirestore, AuthLogger, ProfileClient } from '../types';
+import { StripeHelper } from './stripe';
 
 const config = require('../../config').getProperties();
 
@@ -31,12 +33,21 @@ export async function setupProcesingTaskObjects() {
       } as unknown as StatsD);
   Container.set(StatsD, statsd);
 
+  if (!Container.has(AuthFirestore)) {
+    const authFirestore = setupFirestore(config);
+    Container.set(AuthFirestore, authFirestore);
+  }
+
   const log = require('../log')({ ...config.log, statsd });
+  Container.set(AuthLogger, log);
 
   const translator = await require('../senders/translator')(
     config.i18n.supportedLanguages,
     config.i18n.defaultLanguage
   );
+  const profile = require('../profile/client')(log, config, statsd);
+  Container.set(ProfileClient, profile);
+
   const senders = await require('../senders')(
     log,
     config,
