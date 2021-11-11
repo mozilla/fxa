@@ -13,7 +13,9 @@ export async function init() {
   // Load program options
   program.version(pckg.version).parse(process.argv);
 
-  const { log, stripeHelper } = await setupProcesingTaskObjects();
+  const { log, stripeHelper } = await setupProcesingTaskObjects(
+    'populate-vat-taxes'
+  );
 
   const stripe = (stripeHelper as any).stripe as Stripe;
 
