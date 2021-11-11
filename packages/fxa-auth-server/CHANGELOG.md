@@ -1,3 +1,10 @@
+## 1.219.2
+
+### Bug fixes
+
+- auth: setup container objects for processor ([043f63532](https://github.com/mozilla/fxa/commit/043f63532))
+- auth: remove remaining cache references ([fb83f64b4](https://github.com/mozilla/fxa/commit/fb83f64b4))
+
 ## 1.219.1
 
 ### Other changes
