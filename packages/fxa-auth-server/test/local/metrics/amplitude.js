@@ -183,37 +183,15 @@ describe('metrics/amplitude', () => {
       });
     });
 
-    describe('uid opted out', () => {
+    describe('sets metricsUid when uid specified', () => {
       it('credentials with metricsOptOutAt set do not log', async () => {
-        await amplitude(
-          'account.confirmed',
-          mocks.mockRequest({
-            credentials: {
-              uid: 'blee',
-              metricsOptOutAt: Date.now(),
-            },
-          })
-        );
-        sinon.assert.notCalled(log.amplitudeEvent);
-      });
-
-      it('opted out uid in credentials does not log', async () => {
-        await amplitude(
-          'account.confirmed',
-          mocks.mockRequest({
-            credentials: {
-              uid: 'frip',
-            },
-          })
-        );
-        sinon.assert.notCalled(log.amplitudeEvent);
-      });
-
-      it('opted out uid in data does not log', async () => {
-        await amplitude('account.confirmed', mocks.mockRequest({}), {
-          uid: 'frip',
+        const request = mocks.mockRequest({
+          credentials: {
+            uid: 'blee',
+          },
         });
-        sinon.assert.notCalled(log.amplitudeEvent);
+        await amplitude('account.confirmed', request);
+        assert.equal(request.auth.artifacts.metricsUid, 'blee');
       });
     });
 
