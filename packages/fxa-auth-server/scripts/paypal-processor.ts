@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import program from 'commander';
-
+import { StatsD } from 'hot-shots';
 import Container from 'typedi';
+import { promisify } from 'util';
+
 import { PayPalHelper } from '../lib/payments/paypal';
 import { PayPalClient } from '../lib/payments/paypal-client';
-
-import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { PaypalProcessor } from '../lib/payments/paypal-processor';
+import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
 
 const pckg = require('../package.json');
 const config = require('../config').getProperties();
@@ -48,7 +49,11 @@ export async function init() {
     database,
     senders.email
   );
+  const statsd = Container.get(StatsD);
+  statsd.increment('paypal-processor.startup');
   await processor.processInvoices();
+  statsd.increment('paypal-processor.shutdown');
+  await promisify(statsd.close).bind(statsd)();
   return 0;
 }
 
