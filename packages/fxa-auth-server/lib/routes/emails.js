@@ -886,10 +886,6 @@ module.exports = (
                 currentEmail,
                 newEmailRecord.email
               );
-              await stripeHelper.refreshCachedCustomer(
-                uid,
-                newEmailRecord.email
-              );
             } catch (err) {
               // Due to the work involved by this point, we cannot abort the
               // request. We instead report it for manual fixing with sufficient

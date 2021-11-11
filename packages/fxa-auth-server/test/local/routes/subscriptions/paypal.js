@@ -179,7 +179,6 @@ describe('subscriptions payPalRoutes', () => {
     let plan, customer, subscription;
 
     beforeEach(() => {
-      stripeHelper.refreshCachedCustomer = sinon.fake.resolves({});
       stripeHelper.cancelSubscription = sinon.fake.resolves({});
       stripeHelper.taxRateByCountryCode = sinon.fake.resolves({
         id: 'tr-1234',
@@ -531,7 +530,6 @@ describe('subscriptions payPalRoutes', () => {
     let plan, customer, subscription, invoices;
 
     beforeEach(() => {
-      stripeHelper.refreshCachedCustomer = sinon.fake.resolves({});
       invoices = [];
 
       async function* genInvoice() {

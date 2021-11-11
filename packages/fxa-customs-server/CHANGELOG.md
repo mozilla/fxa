@@ -1,3 +1,17 @@
+## 1.219.2
+
+No changes.
+
+## 1.219.1
+
+No changes.
+
+## 1.219.0
+
+### Other changes
+
+- deps: bump @sentry/node from 6.13.3 to 6.14.1 (#10943) ([bff4cedc9](https://github.com/mozilla/fxa/commit/bff4cedc9))
+
 ## 1.218.9
 
 No changes.

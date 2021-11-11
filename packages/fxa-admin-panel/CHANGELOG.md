@@ -1,3 +1,17 @@
+## 1.219.2
+
+No changes.
+
+## 1.219.1
+
+No changes.
+
+## 1.219.0
+
+### Other changes
+
+- deps-dev: bump jest-watch-typeahead from 0.6.5 to 1.0.0 (#10961) ([54b697535](https://github.com/mozilla/fxa/commit/54b697535))
+
 ## 1.218.9
 
 No changes.
