@@ -15,7 +15,8 @@ export class SentryService {
     // Setup Sentry
     Sentry.init({
       ...sentryConfig,
-      integrations: [new ExtraErrorData()],
+      normalizeDepth: 6,
+      integrations: [new ExtraErrorData({ depth: 5 })],
       beforeSend(event, hint) {
         return filterSentryEvent(event, hint);
       },
