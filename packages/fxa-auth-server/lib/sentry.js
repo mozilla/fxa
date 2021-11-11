@@ -145,7 +145,7 @@ function reportSentryError(err, request) {
   });
 }
 
-async function configureSentry(server, config) {
+async function configureSentry(server, config, processName = 'key_server') {
   const sentryDsn = config.sentryDsn;
   const versionData = await getVersion();
   if (sentryDsn) {
@@ -160,7 +160,7 @@ async function configureSentry(server, config) {
       ],
     });
     Sentry.configureScope((scope) => {
-      scope.setTag('process', 'key_server');
+      scope.setTag('process', processName);
     });
 
     if (!server) {

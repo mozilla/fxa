@@ -31,7 +31,9 @@ export async function init() {
     )
     .parse(process.argv);
 
-  const { log, database, senders } = await setupProcesingTaskObjects();
+  const { log, database, senders } = await setupProcesingTaskObjects(
+    'paypal-processor'
+  );
 
   const paypalClient = new PayPalClient(
     config.subscriptions.paypalNvpSigCredentials
