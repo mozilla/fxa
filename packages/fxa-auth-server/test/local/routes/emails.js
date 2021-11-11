@@ -1602,7 +1602,6 @@ describe('/recovery_email', () => {
   describe('/recovery_email/set_primary', () => {
     it('should set primary email on account', () => {
       stripeHelper.fetchCustomer = sinon.fake.returns(CUSTOMER_1);
-      stripeHelper.refreshCachedCustomer = sinon.fake.resolves();
       stripeHelper.stripe = {
         customers: { update: sinon.fake.returns(CUSTOMER_1_UPDATED) },
       };
@@ -1667,7 +1666,6 @@ describe('/recovery_email', () => {
         );
         assert.equal(stripeHelper.fetchCustomer.callCount, 1);
         assert.equal(stripeHelper.stripe.customers.update.callCount, 1);
-        assert.equal(stripeHelper.refreshCachedCustomer.callCount, 1);
       });
     });
 
