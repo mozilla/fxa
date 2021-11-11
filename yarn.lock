@@ -2753,9 +2753,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/pubsub@npm:^2.18.1":
-  version: 2.18.1
-  resolution: "@google-cloud/pubsub@npm:2.18.1"
+"@google-cloud/pubsub@npm:^2.18.2":
+  version: 2.18.2
+  resolution: "@google-cloud/pubsub@npm:2.18.2"
   dependencies:
     "@google-cloud/paginator": ^3.0.0
     "@google-cloud/precise-date": ^2.0.0
@@ -2772,7 +2772,7 @@ __metadata:
     is-stream-ended: ^0.1.4
     lodash.snakecase: ^4.1.1
     p-defer: ^3.0.0
-  checksum: 9b2464d329970d61daf9c41b76c19378883011cb0a110ef6c21ef7a1f0d4b7fb36e1a1e28ad86f467bba7ae5c19f9dcfc8887c60d2d530bebedf7fd53b909096
+  checksum: f00a72c5b83ce691d421d702ecb8c3ebcc7afc18c03870f756576363d9b48f192962bdf2a7d83380b5f4c259e072887ce9374d49f9dc6a3f61d33a099d6bd08a
   languageName: node
   linkType: hard
 
@@ -20018,7 +20018,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-customs-server@workspace:packages/fxa-customs-server"
   dependencies:
-    "@google-cloud/pubsub": ^2.18.1
+    "@google-cloud/pubsub": ^2.18.2
     "@hapi/hapi": ^20.2.1
     "@hapi/hoek": ^9.2.0
     "@sentry/node": ^6.14.1
@@ -20092,7 +20092,7 @@ fsevents@~2.1.1:
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
     "@google-cloud/firestore": ^4.15.1
-    "@google-cloud/pubsub": ^2.18.1
+    "@google-cloud/pubsub": ^2.18.2
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
@@ -20277,7 +20277,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-metrics-processor@workspace:packages/fxa-metrics-processor"
   dependencies:
-    "@google-cloud/pubsub": ^2.18.1
+    "@google-cloud/pubsub": ^2.18.2
     "@sentry/integrations": ^6.14.1
     "@sentry/node": ^6.14.1
     "@types/chai": ^4.2.18
