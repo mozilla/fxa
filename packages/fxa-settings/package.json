@@ -69,7 +69,7 @@
     "react-hook-form": "^6.15.5",
     "react-scripts": "^4.0.3",
     "react-webcam": "^6.0.0",
-    "subscriptions-transport-ws": "^0.9.18",
+    "subscriptions-transport-ws": "^0.11.0",
     "typescript": "^4.3.5",
     "uuid": "^8.3.2"
   },
