@@ -1,3 +1,9 @@
+## 1.219.3
+
+### Bug fixes
+
+- auth: add sentry process name and sub reminder stats ([584cc83e0](https://github.com/mozilla/fxa/commit/584cc83e0))
+
 ## 1.219.2
 
 ### Bug fixes

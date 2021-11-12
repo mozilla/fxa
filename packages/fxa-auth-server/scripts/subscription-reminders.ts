@@ -1,8 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import program from 'commander';
+import { StatsD } from 'hot-shots';
+import Container from 'typedi';
+import { promisify } from 'util';
 
 import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { SubscriptionReminders } from '../lib/payments/subscription-reminders';
@@ -28,12 +30,8 @@ async function init() {
     )
     .parse(process.argv);
 
-  const {
-    log,
-    database,
-    senders,
-    stripeHelper,
-  } = await setupProcesingTaskObjects();
+  const { log, database, senders, stripeHelper } =
+    await setupProcesingTaskObjects('subscription-reminders');
 
   const subscriptionReminders = new SubscriptionReminders(
     log,
@@ -44,7 +42,11 @@ async function init() {
     senders.email,
     stripeHelper
   );
+  const statsd = Container.get(StatsD);
+  statsd.increment('subscription-reminders.startup');
   await subscriptionReminders.sendReminders();
+  statsd.increment('subscription-reminders.shutdown');
+  await promisify(statsd.close).bind(statsd)();
   return 0;
 }
 
