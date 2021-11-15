@@ -1,13 +1,10 @@
-# Upload files in assets/product-icons & assets/legal to S3 buckets for CDN distribution
+# Upload files in assets/product-icons & assets/legal to stage and prod S3 buckets for CDN distribution
 #
 # Requirements:
-# This action requires a set of AWS credentials with write access to the destination bucket directories (product-icons & legal)
-#
-#   Credentials must be passed in as the following secrets:
-#    - CDN_S3_AWS_ACCESS_KEY_ID
-#    - CDN_S3_AWS_SECRET_ACCESS_KEY
+# 1. Github OIDC Provider in destination AWS account - https://github.com/aws-actions/configure-aws-credentials
+# 2. IAM Role with write access to destination bucket paths, scoped to the repository running the action
 
-name: "Asset Upload"
+name: "CDN Asset Upload"
 on:
   push:
     branches:
@@ -20,12 +17,29 @@ jobs:
   Upload-assets-to-CDN:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name:  "Asset upload to CDN"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure Stage AWS credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::142069644989:role/fxa-content-cdn-stage-asset-upload
+          role-session-name: CDNAssetUpload
+
+      - name: "Asset upload to stage CDN S3 bucket"
+        run: |
+          aws s3 cp --cache-control 'public,max-age=86400' --recursive assets/product-icons s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/product-icons
+          aws s3 cp --cache-control 'public,max-age=86400' --content-disposition attachment --recursive assets/legal s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/legal
+
+      - name: Configure Production AWS credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          aws-region: us-west-2
+          role-to-assume: arn:aws:iam::361527076523:role/fxa-content-cdn-prod-asset-upload
+          role-session-name: CDNAssetUpload
+
+      - name: "Asset upload to production CDN S3 bucket"
         run: |
           aws s3 cp --cache-control 'public,max-age=86400' --recursive assets/product-icons s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/product-icons
           aws s3 cp --cache-control 'public,max-age=86400' --content-disposition attachment --recursive assets/legal s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/legal
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.CDN_S3_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.CDN_S3_AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-west-2'
