@@ -20710,7 +20710,7 @@ fsevents@~2.1.1:
     jest: 27.3.1
     joi: ^14.3.1
     js-md5: ^0.7.3
-    jsdom: 18.0.1
+    jsdom: 18.1.0
     jsdom-global: 3.0.2
     knex: ^0.95.13
     lodash.omitby: ^4.6.0
@@ -26068,9 +26068,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jsdom@npm:18.0.1":
-  version: 18.0.1
-  resolution: "jsdom@npm:18.0.1"
+"jsdom@npm:18.1.0":
+  version: 18.1.0
+  resolution: "jsdom@npm:18.1.0"
   dependencies:
     abab: ^2.0.5
     acorn: ^8.5.0
@@ -26104,7 +26104,7 @@ fsevents@~2.1.1:
   peerDependenciesMeta:
     canvas:
       optional: true
-  checksum: 475475d4ba6316d92e7098aa803e33aa6b0968db9180aedb4bf7aeeaa93ca4629e4976b506213f7fdf40c5a8bb50d41e3cc4b8227f2c09daa9161f08257e4975
+  checksum: d0188c702e4221e7f6b2124679bd5dd87a57a8ed271f17aedc6c4de4a88154ada6ba46c43625c5305dbb1979a9d47e71471cd20dce4502495bda69c673c5810b
   languageName: node
   linkType: hard
 
