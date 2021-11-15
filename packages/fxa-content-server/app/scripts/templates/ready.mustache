@@ -18,10 +18,8 @@
     {{^isSync}}
       {{#isFromRelyingParty}}
         {{#isInPocketMigration}}
-          {{#unsafeTranslate}}
-              <!-- L10N: Pocket image follows `You are now ready to use` -->
-              You are now ready to use <div class="graphic graphic-client-pocket">Pocket</div>
-          {{/unsafeTranslate}}
+            <!-- L10N: Pocket image follows `You are now ready to use` -->
+            {{#unsafeTranslate}}You are now ready to use <div class="graphic graphic-client-pocket">Pocket</div>{{/unsafeTranslate}}
         {{/isInPocketMigration}}
         {{^isInPocketMigration}}
           <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
