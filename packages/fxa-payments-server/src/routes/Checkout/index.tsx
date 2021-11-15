@@ -63,6 +63,7 @@ import * as apiClient from '../../lib/apiClient';
 import sentry from '../../lib/sentry';
 import { ButtonBaseProps } from '../../components/PayPalButton';
 import { AlertBar } from '../../components/AlertBar';
+import { PaymentMethodHeader } from '../../components/PaymentMethodHeader';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -324,18 +325,11 @@ export const Checkout = ({
           />
 
           <hr />
-          <Localized id="new-user-step-2">
-            <h2 className="step-header">2. Choose your payment method</h2>
-          </Localized>
-          <Localized id="new-user-required-payment-consent">
-            <strong>Required</strong>
-          </Localized>
-          <Form validator={checkboxValidator}>
-            <PaymentConsentCheckbox
-              plan={selectedPlan}
-              onClick={() => setCheckboxSet(!checkboxSet)}
-            />
-          </Form>
+          <PaymentMethodHeader
+            plan={selectedPlan}
+            onClick={() => setCheckboxSet(!checkboxSet)}
+            prefix="2. "
+          />
           <>
             {paypalScriptLoaded && (
               <>

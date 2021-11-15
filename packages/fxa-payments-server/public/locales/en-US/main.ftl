@@ -397,3 +397,5 @@ new-user-submit = Subscribe Now
 
 manage-pocket-title = Looking for your { -brand-name-pocket } premium subscription?
 manage-pocket-body = To manage it, <a>click here</a>.
+
+payment-method-header = { $prefix }Choose your payment method
