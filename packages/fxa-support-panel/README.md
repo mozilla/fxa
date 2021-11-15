@@ -17,6 +17,18 @@ service).
 Read-only access is enforced on the database by using a MySQL user restricted to the stored
 procedures needed to run the queries that fetch basic profile information.
 
+## Local Development
+
+In order to make API calls, the support panel needs a shared secret bearer token with the auth server. This can be done by setting the corresponding environment variables for each server to match to the same string value:
+- fxa-support-panel: `AUTH_SECRET_BEARER_TOKEN`
+- fxa-auth-server: `SUPPORT_PANEL_AUTH_SECRET_BEARER_TOKEN`
+
+Note: the default config for each server should already have this set up.
+
+The support panel can be viewed locally by going to `http://localhost:${port}/?uid=${uid}`, where:
+- `port` is the port as defined in `./pm2.config.js`
+- `uid` is a local FxA user ID
+
 ## Testing
 
 This package uses [Jest](https://mochajs.org/) to test its code. By default `yarn test` will test all files ending in `.spec.ts`.
