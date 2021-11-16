@@ -9,7 +9,9 @@ const StatsD = require('hot-shots');
 const { CurrencyHelper } = require('../lib/payments/currencies');
 
 const { Container } = require('typedi');
+const { AuthFirestore } = require('../lib/types');
 const { StripeHelper } = require('../lib/payments/stripe');
+const { setupFirestore } = require('../lib/firestore-db');
 const statsd = new StatsD(config.statsd);
 Container.set(StatsD, statsd);
 const log = require('../lib/log')(config.log.level, 'fxa-email-bouncer', {
@@ -27,6 +29,9 @@ try {
   });
   process.exit(1);
 }
+
+const authFirestore = setupFirestore(config);
+Container.set(AuthFirestore, authFirestore);
 
 /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
 let stripeHelper = undefined;
