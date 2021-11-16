@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.219.3",
+  "version": "1.219.4",
   "description": "Firefox Accounts, an identity provider for Mozilla cloud services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -54,7 +54,7 @@
     "@hapi/hoek": "^9.2.0",
     "@hapi/joi": "^15.1.1",
     "@sentry/integrations": "^6.14.2",
-    "@sentry/node": "^6.14.1",
+    "@sentry/node": "^6.14.3",
     "@type-cacheable/core": "^10.0.2",
     "@type-cacheable/ioredis-adapter": "^10.0.2",
     "@types/ejs": "^3.0.6",
@@ -82,7 +82,7 @@
     "hapi-auth-jwt2": "^10.2.0",
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",
-    "hot-shots": "^8.5.2",
+    "hot-shots": "^9.0.0",
     "i18n-abide": "0.0.26",
     "ioredis": "^4.27.11",
     "jed": "0.5.4",
@@ -94,7 +94,7 @@
     "luxon": "^2.1.1",
     "memcached": "^2.2.2",
     "mjml": "^4.10.4",
-    "moment-timezone": "^0.5.33",
+    "moment-timezone": "^0.5.34",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "node-uap": "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
@@ -111,7 +111,7 @@
     "safe-regex": "^2.1.1",
     "safe-url-assembler": "1.3.5",
     "sandboxed-regexp": "^0.3.0",
-    "stripe": "^8.187.0",
+    "stripe": "^8.188.0",
     "superagent": "^6.1.0",
     "typedi": "^0.8.0",
     "uuid": "^8.3.2",

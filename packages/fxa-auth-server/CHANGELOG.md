@@ -1,3 +1,9 @@
+## 1.219.4
+
+### Bug fixes
+
+- auth: add firestore to email_notifications process ([5e0485378](https://github.com/mozilla/fxa/commit/5e0485378))
+
 ## 1.219.3
 
 ### Bug fixes

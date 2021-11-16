@@ -1,6 +1,6 @@
 {
   "name": "fxa-event-broker",
-  "version": "1.219.3",
+  "version": "1.219.4",
   "description": "Firefox Accounts Event Broker",
   "scripts": {
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
@@ -44,7 +44,7 @@
     "@nestjs/platform-express": "^8.2.0",
     "@nestjs/schedule": "^1.0.1",
     "@sentry/integrations": "^6.14.1",
-    "@sentry/node": "^6.14.1",
+    "@sentry/node": "^6.14.3",
     "@types/sinon": "10.0.1",
     "aws-sdk": "^2.1022.0",
     "axios": "^0.24.0",
@@ -58,7 +58,7 @@
     "fxa-shared": "workspace:*",
     "google-auth-library": "^7.10.1",
     "graphql": "^15.6.1",
-    "hot-shots": "^8.5.2",
+    "hot-shots": "^9.0.0",
     "jwks-rsa": "^2.0.5",
     "mozlog": "^3.0.2",
     "passport": "^0.4.1",

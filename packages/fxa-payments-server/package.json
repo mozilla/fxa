@@ -1,6 +1,6 @@
 {
   "name": "fxa-payments-server",
-  "version": "1.219.3",
+  "version": "1.219.4",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
     "postinstall": "../../_scripts/clone-l10n.sh fxa-payments-server",
@@ -111,7 +111,7 @@
   },
   "dependencies": {
     "@sentry/browser": "^6.14.3",
-    "@sentry/node": "^6.14.1",
+    "@sentry/node": "^6.14.3",
     "@stripe/react-stripe-js": "^1.6.0",
     "@stripe/stripe-js": "^1.21.1",
     "accept-language-parser": "^1.5.0",
@@ -129,7 +129,7 @@
     "fxa-settings": "workspace:*",
     "fxa-shared": "workspace:*",
     "helmet": "^4.6.0",
-    "hot-shots": "^8.5.2",
+    "hot-shots": "^9.0.0",
     "intl-pluralrules": "^1.3.1",
     "joi": "^14.3.1",
     "morgan": "^1.10.0",

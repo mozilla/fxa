@@ -1,6 +1,6 @@
 {
   "name": "fxa-shared",
-  "version": "1.219.3",
+  "version": "1.219.4",
   "description": "Shared module for FxA repositories",
   "main": "dist/index.js",
   "exports": {
@@ -81,7 +81,7 @@
     "@nestjs/mapped-types": "^1.0.0",
     "@sentry/browser": "^6.14.3",
     "@sentry/integrations": "^6.14.1",
-    "@sentry/node": "^6.14.1",
+    "@sentry/node": "^6.14.3",
     "@types/js-md5": "^0.4.2",
     "@types/uuid": "^8.3.1",
     "accept-language": "^2.0.17",
@@ -95,7 +95,7 @@
     "find-up": "^5.0.0",
     "generic-pool": "^3.8.2",
     "graphql": "^15.6.1",
-    "hot-shots": "^8.5.2",
+    "hot-shots": "^9.0.0",
     "ioredis": "^4.27.11",
     "ip": "^1.1.5",
     "joi": "^14.3.1",
@@ -110,7 +110,7 @@
     "objection": "^2.2.17",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "stripe": "^8.187.0",
+    "stripe": "^8.188.0",
     "superagent": "^6.1.0"
   },
   "jest": {

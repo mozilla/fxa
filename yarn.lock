@@ -2417,16 +2417,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/cache@npm:^11.5.0":
-  version: 11.5.0
-  resolution: "@emotion/cache@npm:11.5.0"
+"@emotion/cache@npm:^11.6.0":
+  version: 11.6.0
+  resolution: "@emotion/cache@npm:11.6.0"
   dependencies:
     "@emotion/memoize": ^0.7.4
-    "@emotion/sheet": ^1.0.3
+    "@emotion/sheet": ^1.1.0
     "@emotion/utils": ^1.0.0
     "@emotion/weak-memoize": ^0.2.5
     stylis: ^4.0.10
-  checksum: 8b3fac281ea201d617b594d79e4b38903ee538e9aa2117f3f99a4f952b3f93d92659a569b3b934efa31ae450b2ddd9ae435b6c77db70aa99ac8cae4cbd71450b
+  checksum: 3c72c50bfe06fd7ec2728988181173664183d2320305a01bb757caa6a9d485de25fccde1b173d810423d2ff88a178d5a72cc21db76b9e458311a8ce3044dd2a1
   languageName: node
   linkType: hard
 
@@ -2487,14 +2487,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/react@npm:^11.5.0":
-  version: 11.5.0
-  resolution: "@emotion/react@npm:11.5.0"
+"@emotion/react@npm:^11.6.0":
+  version: 11.6.0
+  resolution: "@emotion/react@npm:11.6.0"
   dependencies:
     "@babel/runtime": ^7.13.10
-    "@emotion/cache": ^11.5.0
+    "@emotion/cache": ^11.6.0
     "@emotion/serialize": ^1.0.2
-    "@emotion/sheet": ^1.0.3
+    "@emotion/sheet": ^1.1.0
     "@emotion/utils": ^1.0.0
     "@emotion/weak-memoize": ^0.2.5
     hoist-non-react-statics: ^3.3.1
@@ -2506,7 +2506,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 4188b664cc5b7142cf58323d78911cfdeef106d7b26987f8e4aceb51074e99a48a16cf6c3d1aa124462d2135a7b0d2b5d1bc2bbb6ac6167010f69607d822d51a
+  checksum: 4fb2d108dc32716d1f162026ac5fdbd0662e3b435a34fb324629d72bb6bff61b18ac8975b51457c16ffa41543bade5d07558566ab76420b3926fbb9159441232
   languageName: node
   linkType: hard
 
@@ -2550,10 +2550,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/sheet@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "@emotion/sheet@npm:1.0.3"
-  checksum: 43a9b9a0e4261d40c02907bbea4d19e7c75d102fbd04e55a94e025b26b7a78bb499c2f76c9a0bd94f36bee0b0219006ab26a1ebb9eb4cbb30f2925313de30b61
+"@emotion/sheet@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@emotion/sheet@npm:1.1.0"
+  checksum: a4b74e16a8fea1157413efe4904f5f679d724323cb605d66d20a0b98744422f5d411fca927ceb52e4de454a0a819c5273ca9496db9f011b4ecd17b9f1b212007
   languageName: node
   linkType: hard
 
@@ -4700,19 +4700,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:6.14.1":
-  version: 6.14.1
-  resolution: "@sentry/core@npm:6.14.1"
-  dependencies:
-    "@sentry/hub": 6.14.1
-    "@sentry/minimal": 6.14.1
-    "@sentry/types": 6.14.1
-    "@sentry/utils": 6.14.1
-    tslib: ^1.9.3
-  checksum: 858f54b39fce1c4048b91ec4bf004bda1fcd8405d75399da5e2986688fade036f7fb17e02ecf545fa7a3e9b45dd37edc9809e6d10b32e16c3d0a9aa2efe0ff13
-  languageName: node
-  linkType: hard
-
 "@sentry/core@npm:6.14.3":
   version: 6.14.3
   resolution: "@sentry/core@npm:6.14.3"
@@ -4723,17 +4710,6 @@ __metadata:
     "@sentry/utils": 6.14.3
     tslib: ^1.9.3
   checksum: f3edb42055a6baf6accfc0e44c8a4811f727d184a85d63f57da2aac3b5bbe43898590be6a2a2ecb2bfb68ea02c26f007ca3aa4d13afd4b0548064aa4065626b3
-  languageName: node
-  linkType: hard
-
-"@sentry/hub@npm:6.14.1":
-  version: 6.14.1
-  resolution: "@sentry/hub@npm:6.14.1"
-  dependencies:
-    "@sentry/types": 6.14.1
-    "@sentry/utils": 6.14.1
-    tslib: ^1.9.3
-  checksum: 250d27b54342d651c91783734f9ea52e1dd1eb45781b7d03b9ba59b6d2975a03ee66d91668130fa746c04e4a9c54fae7f7f3decd849c560b362fbbadb1cb54a2
   languageName: node
   linkType: hard
 
@@ -4772,17 +4748,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/minimal@npm:6.14.1":
-  version: 6.14.1
-  resolution: "@sentry/minimal@npm:6.14.1"
-  dependencies:
-    "@sentry/hub": 6.14.1
-    "@sentry/types": 6.14.1
-    tslib: ^1.9.3
-  checksum: f3408a661a39b52f6f41d7bf62eb791e87748f5d722e26fc9952ccf29e0c677b7fbe2fc5506023fec31dd13377796f127500f25bfdabc70afd9e965c687d8c7e
-  languageName: node
-  linkType: hard
-
 "@sentry/minimal@npm:6.14.3":
   version: 6.14.3
   resolution: "@sentry/minimal@npm:6.14.3"
@@ -4794,33 +4759,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:^6.14.1":
-  version: 6.14.1
-  resolution: "@sentry/node@npm:6.14.1"
+"@sentry/node@npm:^6.14.3":
+  version: 6.14.3
+  resolution: "@sentry/node@npm:6.14.3"
   dependencies:
-    "@sentry/core": 6.14.1
-    "@sentry/hub": 6.14.1
-    "@sentry/tracing": 6.14.1
-    "@sentry/types": 6.14.1
-    "@sentry/utils": 6.14.1
+    "@sentry/core": 6.14.3
+    "@sentry/hub": 6.14.3
+    "@sentry/tracing": 6.14.3
+    "@sentry/types": 6.14.3
+    "@sentry/utils": 6.14.3
     cookie: ^0.4.1
     https-proxy-agent: ^5.0.0
     lru_map: ^0.3.3
     tslib: ^1.9.3
-  checksum: d22d570dc9283231b0c1397b345800a7ae0f7e9676e9a949382283fe69690529a77f17af4d2de8e72a3f06d5b4b67a5720f80c13226579502c404e33291dd988
+  checksum: 94254310c1d8cbf58afe3402edfac8959e02cdf70ff152671aaf7e70b33b77bd49c47facaf73ebf015bc887bb71adafde6284a2ff7880b0409fa65de8b49478b
   languageName: node
   linkType: hard
 
-"@sentry/tracing@npm:6.14.1":
-  version: 6.14.1
-  resolution: "@sentry/tracing@npm:6.14.1"
+"@sentry/tracing@npm:6.14.3":
+  version: 6.14.3
+  resolution: "@sentry/tracing@npm:6.14.3"
   dependencies:
-    "@sentry/hub": 6.14.1
-    "@sentry/minimal": 6.14.1
-    "@sentry/types": 6.14.1
-    "@sentry/utils": 6.14.1
+    "@sentry/hub": 6.14.3
+    "@sentry/minimal": 6.14.3
+    "@sentry/types": 6.14.3
+    "@sentry/utils": 6.14.3
     tslib: ^1.9.3
-  checksum: f31c96337e6697a2466cc2aa6435368bdcdb43203696d7e8d895922d1d5627e065ad608f5d62e85a831a9e779c01fe037dcaa45e7b8daaaf2eb22b9a67211776
+  checksum: b0f161f244651a97a00185e08215c7dfe32687c1fb3b5fe58b59ad7bf8953b090c0e831e0c5d3bf1da1b219e5b5ab1ffcc9b81adc01c09e0abebc344f656c036
   languageName: node
   linkType: hard
 
@@ -19533,7 +19498,7 @@ fsevents@~2.1.1:
   dependencies:
     "@apollo/client": ^3.4.5
     "@babel/core": ^7.15.0
-    "@emotion/react": ^11.5.0
+    "@emotion/react": ^11.6.0
     "@material-ui/core": v5.0.0-alpha.24
     "@rescripts/cli": 0.0.16
     "@storybook/addon-actions": ^6.3.12
@@ -19613,7 +19578,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/platform-express": ^8.2.0
     "@sentry/integrations": ^6.14.1
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/graphql": ^14.5.0
@@ -19686,7 +19651,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-auth-db-mysql@workspace:packages/fxa-auth-db-mysql"
   dependencies:
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     audit-filter: 0.5.0
     base64url: 3.0.1
     bluebird: ^3.7.2
@@ -19731,7 +19696,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
     "@sentry/integrations": ^6.14.2
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@storybook/addon-controls": ^6.3.12
     "@storybook/addon-docs": ^6.3.12
     "@storybook/addon-toolbars": ^6.3.12
@@ -19804,7 +19769,7 @@ fsevents@~2.1.1:
     hapi-auth-jwt2: ^10.2.0
     hapi-error: ^2.3.0
     hkdf: 0.0.2
-    hot-shots: ^8.5.2
+    hot-shots: ^9.0.0
     i18n-abide: 0.0.26
     ioredis: ^4.27.11
     jed: 0.5.4
@@ -19828,7 +19793,7 @@ fsevents@~2.1.1:
     mocha: ^9.1.2
     mocha-junit-reporter: ^2.0.2
     moment: ^2.29.1
-    moment-timezone: ^0.5.33
+    moment-timezone: ^0.5.34
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.1.4
@@ -19857,7 +19822,7 @@ fsevents@~2.1.1:
     sass: ^1.43.4
     simplesmtp: 0.3.35
     sinon: ^9.0.3
-    stripe: ^8.187.0
+    stripe: ^8.188.0
     superagent: ^6.1.0
     through: 2.3.8
     typedi: ^0.8.0
@@ -19895,7 +19860,7 @@ fsevents@~2.1.1:
     "@babel/preset-react": ^7.14.5
     "@babel/preset-typescript": ^7.15.0
     "@sentry/browser": ^6.14.3
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@testing-library/react": ^12.1.2
     "@types/backbone": ^1.4.10
     "@types/sinon-chai": 3.2.5
@@ -19968,7 +19933,7 @@ fsevents@~2.1.1:
     grunt-z-schema: 0.1.0
     handlebars: ^4.7.7
     helmet: ^4.6.0
-    hot-shots: ^8.5.2
+    hot-shots: ^9.0.0
     htmlparser2: 7.1.2
     http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
@@ -20051,7 +20016,7 @@ fsevents@~2.1.1:
     "@google-cloud/pubsub": ^2.18.2
     "@hapi/hapi": ^20.2.1
     "@hapi/hoek": ^9.2.0
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     audit-filter: ^0.5.0
     bl: 5.0.0
     bluebird: ^3.7.2
@@ -20138,7 +20103,7 @@ fsevents@~2.1.1:
     "@nestjs/schematics": ^8.0.4
     "@nestjs/testing": ^8.2.0
     "@sentry/integrations": ^6.14.1
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/express": ^4.17.12
@@ -20172,7 +20137,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     google-auth-library: ^7.10.1
     graphql: ^15.6.1
-    hot-shots: ^8.5.2
+    hot-shots: ^9.0.0
     jest: 27.3.1
     jwks-rsa: ^2.0.5
     mozlog: ^3.0.2
@@ -20233,7 +20198,7 @@ fsevents@~2.1.1:
     "@nestjs/passport": ^8.0.1
     "@nestjs/platform-express": ^8.2.0
     "@sentry/integrations": ^6.14.1
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/get-stream": 3.0.2
@@ -20309,7 +20274,7 @@ fsevents@~2.1.1:
   dependencies:
     "@google-cloud/pubsub": ^2.18.2
     "@sentry/integrations": ^6.14.1
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@types/chai": ^4.2.18
     "@types/convict": ^5.2.2
     "@types/mocha": ^8.2.2
@@ -20367,7 +20332,7 @@ fsevents@~2.1.1:
     "@fluent/react": ^0.13.1
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^6.14.3
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@storybook/addon-actions": ^6.3.12
     "@storybook/addon-links": ^6.3.12
     "@storybook/addons": ^6.3.12
@@ -20430,7 +20395,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     handlebars: ^4.7.7
     helmet: ^4.6.0
-    hot-shots: ^8.5.2
+    hot-shots: ^9.0.0
     intl: 1.2.5
     intl-pluralrules: ^1.3.1
     jest: 27.3.1
@@ -20484,7 +20449,7 @@ fsevents@~2.1.1:
     "@hapi/hapi": ^20.2.1
     "@hapi/inert": 6.0.4
     "@hapi/joi": ^17.1.1
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@types/sharp": ^0
     audit-filter: ^0.5.0
     aws-sdk: ^2.1022.0
@@ -20588,7 +20553,7 @@ fsevents@~2.1.1:
   dependencies:
     "@apollo/client": ^3.4.5
     "@babel/core": ^7.15.0
-    "@emotion/react": ^11.5.0
+    "@emotion/react": ^11.6.0
     "@fluent/react": ^0.13.1
     "@material-ui/core": v5.0.0-alpha.24
     "@reach/router": ^1.3.4
@@ -20668,7 +20633,7 @@ fsevents@~2.1.1:
     "@nestjs/testing": ^8.2.0
     "@sentry/browser": ^6.14.3
     "@sentry/integrations": ^6.14.1
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
     "@types/generic-pool": ^3.1.9
@@ -20704,7 +20669,7 @@ fsevents@~2.1.1:
     find-up: ^5.0.0
     generic-pool: ^3.8.2
     graphql: ^15.6.1
-    hot-shots: ^8.5.2
+    hot-shots: ^9.0.0
     ioredis: ^4.27.11
     ip: ^1.1.5
     jest: 27.3.1
@@ -20728,7 +20693,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rxjs: ^7.2.0
     sinon: ^9.0.3
-    stripe: ^8.187.0
+    stripe: ^8.188.0
     superagent: ^6.1.0
     ts-jest: ^27.0.7
     ts-loader: ^8.3.0
@@ -20750,7 +20715,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/platform-express": ^8.2.0
     "@sentry/integrations": ^6.14.1
-    "@sentry/node": ^6.14.1
+    "@sentry/node": ^6.14.3
     "@types/convict": ^5.2.2
     "@types/eslint": 7.2.13
     "@types/hbs": ^4
@@ -22586,15 +22551,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hot-shots@npm:^8.5.2":
-  version: 8.5.2
-  resolution: "hot-shots@npm:8.5.2"
+"hot-shots@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "hot-shots@npm:9.0.0"
   dependencies:
     unix-dgram: 2.0.x
   dependenciesMeta:
     unix-dgram:
       optional: true
-  checksum: b15a74b0c05a6a3c4d99b582d10222d49688607c92e1118d1664ad04210a8afe3a4800bfcd31791175ddad687ccfcea6038da352229f759a2660aa2610f2c835
+  checksum: bafc26a2a89154d6f0777d89f506f7aa03a0cb14f0bb6e9bc147bbca5ca549085b634db69bc7f754607360bd58e520b94fa398621cef30aaf8081bb2f08ea48b
   languageName: node
   linkType: hard
 
@@ -29170,7 +29135,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"moment-timezone@npm:^0.5.33, moment-timezone@npm:^0.5.x":
+"moment-timezone@npm:^0.5.34":
+  version: 0.5.34
+  resolution: "moment-timezone@npm:0.5.34"
+  dependencies:
+    moment: ">= 2.9.0"
+  checksum: 12a1d3d52e4ba509cf1fa36bbda59d898a08fa80ab35f6c358747e93aec1f07e617cec647eaf2e8acf5f9132e581d4704d34a9edffa9a80c5cd04bf23b277595
+  languageName: node
+  linkType: hard
+
+"moment-timezone@npm:^0.5.x":
   version: 0.5.33
   resolution: "moment-timezone@npm:0.5.33"
   dependencies:
@@ -37647,13 +37621,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"stripe@npm:^8.187.0":
-  version: 8.187.0
-  resolution: "stripe@npm:8.187.0"
+"stripe@npm:^8.188.0":
+  version: 8.188.0
+  resolution: "stripe@npm:8.188.0"
   dependencies:
     "@types/node": ">=8.1.0"
     qs: ^6.6.0
-  checksum: 3bca83b02f997c1e45e61cb833cb57845118440ffa1c071abfc159f40a59800e38091ccfa9f621ea18d31584234890f42bf1aa3d85f3f2f6397a4dd48ee1aaac
+  checksum: 18dd342d97a6b86958a336c01fd54ae8fc89d146670fcbe8b3c5ea6d69398b01b51e2d83c6892eeddb4182cfda8d198433e314ef9b905353fca55f108cf180e2
   languageName: node
   linkType: hard
 
