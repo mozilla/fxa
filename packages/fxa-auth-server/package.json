@@ -82,7 +82,7 @@
     "hapi-auth-jwt2": "^10.2.0",
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",
-    "hot-shots": "^8.5.2",
+    "hot-shots": "^9.0.0",
     "i18n-abide": "0.0.26",
     "ioredis": "^4.27.11",
     "jed": "0.5.4",
