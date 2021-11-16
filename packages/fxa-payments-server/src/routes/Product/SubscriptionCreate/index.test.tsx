@@ -38,8 +38,6 @@ import waitForExpect from 'wait-for-expect';
 
 import SubscriptionCreate, { SubscriptionCreateProps } from './index';
 
-import { updateConfig } from '../../../lib/config';
-
 import { ButtonBaseProps } from '../../../components/PayPalButton';
 
 jest.mock('../../../lib/hooks', () => {
@@ -151,7 +149,7 @@ describe('routes/Product/SubscriptionCreate', () => {
   });
 
   it('renders as expected with PayPal UI enabled', async () => {
-    const { queryByTestId } = screen;
+    const { queryByTestId, findByTestId } = screen;
     const MockedButtonBase = ({}: ButtonBaseProps) => {
       return <button data-testid="paypal-button" />;
     };
@@ -164,9 +162,20 @@ describe('routes/Product/SubscriptionCreate', () => {
         />
       );
     });
-    waitForExpect(() =>
-      expect(queryByTestId('paypal-button')).toBeInTheDocument()
+    await waitForExpect(() => {
+      expect(queryByTestId('paypal-button')).toBeInTheDocument();
+    });
+
+    expect(queryByTestId('paypal-button-container')?.className).toEqual(
+      'disabled-overlay'
     );
+
+    const checkbox = await findByTestId('confirm');
+    await act(async () => {
+      fireEvent.click(checkbox);
+    });
+
+    expect(queryByTestId('paypal-button-container')?.className).toBeFalsy();
   });
 
   it('renders as expected with PayPal UI enabled and an existing Stripe customer', async () => {
@@ -605,7 +614,9 @@ describe('routes/Product/SubscriptionCreate', () => {
     const commonSetup = commonCreateSubscriptionFailureTest();
     await commonSetup();
     await act(async () => {
-      fireEvent.click(screen.getByTestId('confirm'));
+      fireEvent.change(screen.getByTestId('name'), {
+        target: { value: 'Bar Bar' },
+      });
     });
     await waitForExpect(() =>
       expect(

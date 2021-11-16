@@ -209,6 +209,7 @@ export const PaypalButton = ({
         className={classNames({
           'disabled-overlay': disabled,
         })}
+        data-testid="paypal-button-container"
       >
         {ButtonBase && (
           <ButtonBase

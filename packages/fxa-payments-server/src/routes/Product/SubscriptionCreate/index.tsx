@@ -1,9 +1,7 @@
 import React, { useState, useCallback, Suspense, useContext } from 'react';
 import classNames from 'classnames';
 import { Plan, Profile, Customer } from '../../../store/types';
-import useValidatorState, {
-  State as ValidatorState,
-} from '../../../lib/validator';
+import { State as ValidatorState } from '../../../lib/validator';
 
 import { useNonce, usePaypalButtonSetup } from '../../../lib/hooks';
 
@@ -46,8 +44,6 @@ import AppContext from '../../../lib/AppContext';
 import { ButtonBaseProps } from '../../../components/PayPalButton';
 import { apiCapturePaypalPayment } from '../../../lib/apiClient';
 import { GeneralError } from '../../../lib/errors';
-import { Form } from '../../../components/fields';
-import { PaymentConsentCheckbox } from '../../../components/PaymentConsentCheckbox';
 import { PaymentMethodHeader } from '../../../components/PaymentMethodHeader';
 const PaypalButton = React.lazy(
   () => import('../../../components/PayPalButton')
@@ -233,12 +229,10 @@ export const SubscriptionCreate = ({
           })}
           data-testid="subscription-create"
         >
-          <div className="payment-method-header">
-            <PaymentMethodHeader
-              plan={selectedPlan}
-              onClick={() => setCheckboxSet(!checkboxSet)}
-            />
-          </div>
+          <PaymentMethodHeader
+            plan={selectedPlan}
+            onClick={() => setCheckboxSet(!checkboxSet)}
+          />
           {!hasPaymentProvider(customer) && (
             <>
               {paypalScriptLoaded && (
@@ -248,11 +242,6 @@ export const SubscriptionCreate = ({
                     data-testid="pay-with-other"
                   >
                     <Suspense fallback={<div>Loading...</div>}>
-                      {/* <Localized id="pay-with-heading-other">
-                        <p className="pay-with-heading">
-                          Select payment option
-                        </p>
-                      </Localized> */}
                       <div className="paypal-button">
                         <PaypalButton
                           disabled={!checkboxSet}

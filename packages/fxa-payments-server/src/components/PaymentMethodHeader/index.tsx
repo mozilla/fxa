@@ -20,9 +20,11 @@ export const PaymentMethodHeader = ({
   return (
     <>
       <Localized id="payment-method-header" vars={{ prefix }}>
-        <h2 style={{ marginTop: '40px' }}>Choose your payment method</h2>
+        <h2 style={{ marginTop: '40px' }} data-testid="header">
+          Choose your payment method
+        </h2>
       </Localized>
-      <Localized id="new-user-required-payment-consent">
+      <Localized id="payment-method-required">
         <strong>Required</strong>
       </Localized>
       <Form validator={checkboxValidator}>

@@ -399,3 +399,4 @@ manage-pocket-title = Looking for your { -brand-name-pocket } premium subscripti
 manage-pocket-body = To manage it, <a>click here</a>.
 
 payment-method-header = { $prefix }Choose your payment method
+payment-method-required = Required
