@@ -105,11 +105,6 @@ export class StripeWebhookHandler extends StripeHandler {
             await this.handleInvoiceCreatedEvent(request, event);
           }
           break;
-        case 'invoice.finalized':
-          if (this.paypalHelper) {
-            await this.handleInvoiceOpenEvent(request, event);
-          }
-          break;
         case 'invoice.paid':
           await this.handleInvoicePaidEvent(request, event);
           break;
@@ -341,71 +336,6 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
     return this.stripeHelper.finalizeInvoice(invoice);
-  }
-
-  /**
-   * Handle `invoice.open` events, if the subscription invoice is for a PayPal
-   * customer, charge them if needed.
-   */
-  async handleInvoiceOpenEvent(request: AuthRequest, event: Stripe.Event) {
-    // Type-guard to require paypalHelper.
-    if (!this.paypalHelper) {
-      return;
-    }
-    const invoice = event.data.object as Stripe.Invoice;
-    if (!(await this.stripeHelper.invoicePayableWithPaypal(invoice))) {
-      return;
-    }
-    if (invoice.amount_due === 0) {
-      return this.paypalHelper.processZeroInvoice(invoice);
-    }
-    const customer = await this.stripeHelper.expandResource(
-      invoice.customer,
-      'customers'
-    );
-    if (!customer || customer.deleted) {
-      return;
-    }
-    const billingAgreementId =
-      this.stripeHelper.getCustomerPaypalAgreement(customer);
-    if (!billingAgreementId) {
-      await this.sendSubscriptionPaymentFailedEmail(invoice);
-      return;
-    }
-    try {
-      await this.paypalHelper.processInvoice({
-        customer,
-        invoice,
-        batchProcessing: true,
-      });
-      return true;
-    } catch (err) {
-      if (err instanceof PayPalClientError) {
-        if (err.errorCode === PAYPAL_BILLING_AGREEMENT_INVALID) {
-          const uid = customer.metadata.userid;
-          await this.stripeHelper.removeCustomerPaypalAgreement(
-            uid,
-            customer.id,
-            billingAgreementId
-          );
-          await this.sendSubscriptionPaymentFailedEmail(invoice);
-          return false;
-        }
-        if (PAYPAL_SOURCE_ERRORS.includes(err.errorCode ?? 0)) {
-          await this.sendSubscriptionPaymentFailedEmail(invoice);
-          return false;
-        }
-        if (err.errorCode === PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT) {
-          // Occurs when multiple different PayPal business credentials are
-          // used with the same Stripe account. Report the error but don't
-          // throw Stripe an error.
-          reportSentryError(err, request);
-          return false;
-        }
-      }
-      this.log.error('processInvoice', { err, invoiceId: invoice.id });
-      throw err;
-    }
   }
 
   /**
