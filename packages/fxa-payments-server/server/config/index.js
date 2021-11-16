@@ -12,7 +12,14 @@ convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
-  featureFlags: {},
+  featureFlags: {
+    subscriptionCoupons: {
+      default: false,
+      doc: 'Whether to show the coupon UI',
+      env: 'FEATURE_SHOW_COUPON',
+      format: Boolean,
+    },
+  },
   amplitude: {
     enabled: {
       default: true,

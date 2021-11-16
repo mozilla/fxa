@@ -437,6 +437,10 @@ export const Checkout = ({
             showExpandButton: isMobile,
           }}
         />
+        {config.featureFlags.subscriptionCoupons ? (
+          // To be updated in issue #7097
+          <div id="coupon-container"></div>
+        ) : null}
       </div>
     </>
   );

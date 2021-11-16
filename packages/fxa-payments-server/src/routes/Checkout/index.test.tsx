@@ -207,6 +207,18 @@ describe('routes/Checkout', () => {
 
     const termsAndPrivacyEl = getByTestId('terms-and-privacy-component');
     expect(termsAndPrivacyEl).toBeInTheDocument();
+
+    expect(document.getElementById('coupon-container')).not.toBeInTheDocument();
+  });
+
+  it('renders as expected with coupons enabled', async () => {
+    updateConfig({
+      featureFlags: {
+        subscriptionCoupons: true,
+      },
+    });
+    render(<Subject />);
+    expect(document.getElementById('coupon-container')).toBeInTheDocument();
   });
 
   it('displays an error with invalid product ID', async () => {
