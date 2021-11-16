@@ -16,22 +16,25 @@ import {
 import { AuthLogger, AuthRequest } from '../../types';
 import { handleAuth } from './utils';
 import validators from '../validators';
+import { ConfigType } from '../../../config';
 
 export const mozillaSubscriptionRoutes = ({
   log,
   db,
+  config,
   customs,
   stripeHelper,
   playSubscriptions,
 }: {
   log: AuthLogger;
   db: any;
+  config: ConfigType;
   customs: any;
   stripeHelper: StripeHelper;
   playSubscriptions?: PlaySubscriptions;
 }): ServerRoute[] => {
   if (!playSubscriptions) {
-    playSubscriptions = Container.get(PlaySubscriptions);
+    playSubscriptions = new PlaySubscriptions(config);
   }
   const mozillaSubscriptionHandler = new MozillaSubscriptionHandler(
     log,

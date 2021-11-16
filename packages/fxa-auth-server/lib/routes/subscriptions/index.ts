@@ -62,7 +62,7 @@ const createRoutes = (
     );
     routes.push(...supportRoutes(log, db, config, customs, zendeskClient));
     routes.push(
-      ...mozillaSubscriptionRoutes({ log, db, customs, stripeHelper })
+      ...mozillaSubscriptionRoutes({ log, db, config, customs, stripeHelper })
     );
   }
   if (stripeHelper && config.subscriptions.paypalNvpSigCredentials.enabled) {

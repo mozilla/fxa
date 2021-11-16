@@ -4,10 +4,10 @@
 
 import Container from 'typedi';
 import { internalValidationError } from '../../../lib/error';
-import { AppConfig } from '../../types';
 import { PlayBilling } from './play-billing';
 import { AbbrevPlayPurchase } from 'fxa-shared/subscriptions/types';
 import { SubscriptionPurchase } from './subscription-purchase';
+import { ConfigType } from '../../../config';
 
 // TODO move this when we add support for Apple IAP subscriptions
 export interface SubscriptionsService<T> {
@@ -34,8 +34,7 @@ export class PlaySubscriptions
 {
   private playBilling?: PlayBilling;
 
-  constructor() {
-    const config = Container.get(AppConfig);
+  constructor(config: ConfigType) {
     if (!config.subscriptions.enabled) {
       throw internalValidationError(
         'PlaySubscriptions',

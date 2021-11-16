@@ -5,7 +5,6 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
-const { AppConfig } = require('../../../../lib/types');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
 const {
   PlaySubscriptions,
@@ -20,13 +19,12 @@ describe('PlaySubscriptions', () => {
   let playSubscriptions, mockPlayBilling;
 
   beforeEach(() => {
-    Container.set(AppConfig, mockConfig);
     mockPlayBilling = {
       userManager: {},
       purchaseManager: {},
     };
     Container.set(PlayBilling, mockPlayBilling);
-    playSubscriptions = new PlaySubscriptions();
+    playSubscriptions = new PlaySubscriptions(mockConfig);
   });
 
   afterEach(() => {
@@ -99,7 +97,7 @@ describe('PlaySubscriptions', () => {
 
     it('returns an empty list when the PlayBilling dependency is not present', async () => {
       Container.remove(PlayBilling);
-      playSubscriptions = new PlaySubscriptions();
+      playSubscriptions = new PlaySubscriptions(mockConfig);
       const actual = await playSubscriptions.getSubscriptions(UID);
       assert.deepEqual(actual, []);
     });
