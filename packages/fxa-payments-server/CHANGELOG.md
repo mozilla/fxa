@@ -1,5 +1,11 @@
 # Change history
 
+## 1.219.5
+
+### New features
+
+- legal-docs: remove supported lang check on redirect (#11028) ([a29df9c8b](https://github.com/mozilla/fxa/commit/a29df9c8b))
+
 ## 1.219.4
 
 No changes.
