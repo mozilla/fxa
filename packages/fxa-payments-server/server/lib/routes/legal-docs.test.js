@@ -79,13 +79,6 @@ describe('lib/routes/legal-docs', () => {
     expect(mockRes.redirect).toHaveBeenLastCalledWith(fullUrl);
   });
 
-  it('falls back to the default locale when the language is not supported', async () => {
-    const req = { query: { url: validUrl }, get: () => 'gd' };
-    await legalDocsRoute.process(req, mockRes);
-    expect(mockRes.redirect).toHaveBeenCalledTimes(1);
-    expect(mockRes.redirect).toHaveBeenLastCalledWith(`${validUrl}.en.pdf`);
-  });
-
   it('checks up to the limit number of languages', async () => {
     const req = { query: { url: validUrl }, get: () => 'id,it,ja,ka' };
     mockFetch
@@ -137,21 +130,6 @@ describe('lib/routes/legal-docs', () => {
     expect(mockFetch).toHaveBeenNthCalledWith(1, `${validUrl}.es-AR.pdf`, {
       method: 'HEAD',
     });
-    expect(mockFetch).toHaveBeenLastCalledWith(fullUrl, {
-      method: 'HEAD',
-    });
-    expect(mockRes.redirect).toHaveBeenCalledTimes(1);
-    expect(mockRes.redirect).toHaveBeenLastCalledWith(fullUrl);
-  });
-
-  it('falls back to the language without the region when language is not supported', async () => {
-    const noregion = `${validUrl}/noregion`;
-    const fullUrl = `${noregion}.fr.pdf`;
-    // fr-FR is not in the list supported lanuage, but fr is.
-    const req = { query: { url: noregion }, get: () => 'fr-FR' };
-    mockFetch.mockResolvedValueOnce({ status: 200 });
-    await legalDocsRoute.process(req, mockRes);
-    expect(mockFetch).toHaveBeenCalledTimes(1);
     expect(mockFetch).toHaveBeenLastCalledWith(fullUrl, {
       method: 'HEAD',
     });
