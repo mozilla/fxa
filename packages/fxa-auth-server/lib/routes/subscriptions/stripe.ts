@@ -800,30 +800,6 @@ export const stripeRoutes = (
       handler: (request: AuthRequest) => stripeHandler.getProductName(request),
     },
     {
-      method: 'GET',
-      path: '/oauth/subscriptions/search',
-      options: {
-        auth: {
-          payload: false,
-          strategy: 'supportPanelSecret',
-        },
-        response: {
-          schema: isA
-            .array()
-            .items(validators.subscriptionsSubscriptionSupportValidator),
-        },
-        validate: {
-          query: {
-            uid: isA.string().required(),
-            email: validators.email().required(),
-            limit: isA.number().optional(),
-          },
-        },
-      },
-      handler: (request: AuthRequest) =>
-        stripeHandler.getSubscriptionsForSupport(request),
-    },
-    {
       method: 'PUT',
       path: '/oauth/subscriptions/active/{subscriptionId}',
       options: {

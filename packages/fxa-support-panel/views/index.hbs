@@ -54,8 +54,10 @@
     </table>
 
     {{#subscriptionStatus}}
-    <h3>Subscriptions</h3>
-    {{#subscriptions}}
+    <h3>Current Subscriptions</h3>
+
+    {{#webSubscriptions}}
+    <h4>Web Subscriptions</h4>
     <table>
 
       <tr>
@@ -65,10 +67,6 @@
       <tr>
         <th>Created:</th>
         <td>{{ created }}</td>
-      </tr>
-      <tr>
-        <th>Status:</th>
-        <td>{{ status }}</td>
       </tr>
       <tr>
         <th>Last Payment:</th>
@@ -88,7 +86,27 @@
       </tr>
     </table>
     <br/>
-    {{/subscriptions}}
+    {{/webSubscriptions}}
+
+    {{#playSubscriptions}}
+    <h4>Google Play Subscriptions</h4>
+    <table>
+
+      <tr>
+        <th>Subscription:</th>
+        <td>{{ product_name }}</td>
+      </tr>
+      <tr>
+        <th>Auto Renewing:</th>
+        <td>{{ auto_renewing }}</td>
+      </tr>
+      <tr>
+        <th>Next Payment:</th>
+        <td>{{ expiry }}</td>
+      </tr>
+    </table>
+    <br/>
+    {{/playSubscriptions}}
     {{/subscriptionStatus}}
 
   </body>

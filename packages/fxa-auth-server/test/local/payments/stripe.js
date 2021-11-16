@@ -4285,7 +4285,7 @@ describe('StripeHelper', () => {
       });
     });
 
-    describe('appendAbbrevPlayPurchasesWithProductIds', () => {
+    describe('addProductInfoToAbbrevPlayPurchases', () => {
       let mockAbbrevPlayPurchase;
 
       beforeEach(() => {
@@ -4297,15 +4297,15 @@ describe('StripeHelper', () => {
         };
       });
 
-      it('appends a matching product id to a subscription purchase', async () => {
+      it('adds matching product info to a subscription purchase', async () => {
         const expected = {
           ...mockAbbrevPlayPurchase,
           product_id: productId,
+          product_name: productName,
         };
-        const result =
-          await stripeHelper.appendAbbrevPlayPurchasesWithProductIds([
-            mockAbbrevPlayPurchase,
-          ]);
+        const result = await stripeHelper.addProductInfoToAbbrevPlayPurchases([
+          mockAbbrevPlayPurchase,
+        ]);
         assert.deepEqual([expected], result);
       });
       it('returns an empty list if no matching product ids are found', async () => {
@@ -4313,10 +4313,9 @@ describe('StripeHelper', () => {
           ...mockAbbrevPlayPurchase,
           sku: 'notMatchingSku',
         };
-        const result =
-          await stripeHelper.appendAbbrevPlayPurchasesWithProductIds([
-            mockAbbrevPlayPurchase1,
-          ]);
+        const result = await stripeHelper.addProductInfoToAbbrevPlayPurchases([
+          mockAbbrevPlayPurchase1,
+        ]);
         assert.isEmpty(result);
       });
     });
