@@ -10,6 +10,7 @@ import {
 } from '../../lib/test-utils';
 import { act } from 'react-dom/test-utils';
 import { getLocalizedCurrency } from '../../lib/formats';
+import waitForExpect from 'wait-for-expect';
 
 jest.mock('../../lib/sentry');
 
@@ -19,13 +20,26 @@ describe('components/PaymentMethodHeader', () => {
     return cleanup();
   });
 
-  it('renders as expected', async () => {
+  it('render header without prefix', async () => {
     const plan = MOCK_PLANS[0];
     const props = { plan, onClick: () => {} };
-    const { findByTestId } = render(<PaymentMethodHeader {...props} />);
-    const header = await findByTestId('header');
+    const { queryByTestId } = render(<PaymentMethodHeader {...props} />);
 
-    expect(header).toBeVisible();
+    await waitForExpect(() => {
+      expect(queryByTestId('header')).toBeInTheDocument();
+      expect(queryByTestId('header-prefix')).not.toBeInTheDocument();
+    });
+  });
+
+  it('render header with prefix', async () => {
+    const plan = MOCK_PLANS[0];
+    const props = { plan, onClick: () => {}, prefix: '2.' };
+    const { queryByTestId } = render(<PaymentMethodHeader {...props} />);
+
+    await waitForExpect(() => {
+      expect(queryByTestId('header')).not.toBeInTheDocument();
+      expect(queryByTestId('header-prefix')).toBeInTheDocument();
+    });
   });
 
   describe('Fluent localized text', () => {
@@ -33,16 +47,15 @@ describe('components/PaymentMethodHeader', () => {
 
     it('returns correct heading without prefix', async () => {
       const msgId = 'payment-method-header';
-      const prefix = '';
       const expected = 'Choose your payment method';
-      const actual = getLocalizedMessage(bundle, msgId, { prefix });
+      const actual = getLocalizedMessage(bundle, msgId, {});
 
       expect(actual).toEqual(expected);
     });
 
     it('returns correct heading with prefix', async () => {
-      const msgId = 'payment-method-header';
-      const prefix = '2. ';
+      const msgId = 'payment-method-header-prefix';
+      const prefix = '2.';
       const expected = '2. Choose your payment method';
       const actual = getLocalizedMessage(bundle, msgId, { prefix });
 

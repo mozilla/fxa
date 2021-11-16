@@ -17,13 +17,25 @@ export const PaymentMethodHeader = ({
   prefix = '',
 }: PaymentMethodHeaderProps) => {
   const checkboxValidator = useValidatorState();
+  const headerMarginTop = '40px';
   return (
     <>
-      <Localized id="payment-method-header" vars={{ prefix }}>
-        <h2 style={{ marginTop: '40px' }} data-testid="header">
-          Choose your payment method
-        </h2>
-      </Localized>
+      {prefix ? (
+        <Localized id="payment-method-header-prefix" vars={{ prefix }}>
+          <h2
+            style={{ marginTop: headerMarginTop }}
+            data-testid="header-prefix"
+          >
+            Choose your payment method
+          </h2>
+        </Localized>
+      ) : (
+        <Localized id="payment-method-header">
+          <h2 style={{ marginTop: headerMarginTop }} data-testid="header">
+            Choose your payment method
+          </h2>
+        </Localized>
+      )}
       <Localized id="payment-method-required">
         <strong>Required</strong>
       </Localized>

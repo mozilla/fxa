@@ -328,7 +328,7 @@ export const Checkout = ({
           <PaymentMethodHeader
             plan={selectedPlan}
             onClick={() => setCheckboxSet(!checkboxSet)}
-            prefix="2. "
+            prefix="2."
           />
           <>
             {paypalScriptLoaded && (
