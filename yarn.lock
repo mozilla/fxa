@@ -19828,7 +19828,7 @@ fsevents@~2.1.1:
     mocha: ^9.1.2
     mocha-junit-reporter: ^2.0.2
     moment: ^2.29.1
-    moment-timezone: ^0.5.33
+    moment-timezone: ^0.5.34
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.1.4
@@ -29170,7 +29170,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"moment-timezone@npm:^0.5.33, moment-timezone@npm:^0.5.x":
+"moment-timezone@npm:^0.5.34":
+  version: 0.5.34
+  resolution: "moment-timezone@npm:0.5.34"
+  dependencies:
+    moment: ">= 2.9.0"
+  checksum: 12a1d3d52e4ba509cf1fa36bbda59d898a08fa80ab35f6c358747e93aec1f07e617cec647eaf2e8acf5f9132e581d4704d34a9edffa9a80c5cd04bf23b277595
+  languageName: node
+  linkType: hard
+
+"moment-timezone@npm:^0.5.x":
   version: 0.5.33
   resolution: "moment-timezone@npm:0.5.33"
   dependencies:
