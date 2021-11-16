@@ -129,7 +129,7 @@
     "fxa-settings": "workspace:*",
     "fxa-shared": "workspace:*",
     "helmet": "^4.6.0",
-    "hot-shots": "^8.5.2",
+    "hot-shots": "^9.0.0",
     "intl-pluralrules": "^1.3.1",
     "joi": "^14.3.1",
     "morgan": "^1.10.0",
