@@ -12944,7 +12944,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cacache@npm:^12.0.2, cacache@npm:^12.0.3":
+"cacache@npm:^12.0.2":
   version: 12.0.4
   resolution: "cacache@npm:12.0.4"
   dependencies:
@@ -14616,25 +14616,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"copy-webpack-plugin@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "copy-webpack-plugin@npm:5.1.1"
+"copy-webpack-plugin@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "copy-webpack-plugin@npm:9.1.0"
   dependencies:
-    cacache: ^12.0.3
-    find-cache-dir: ^2.1.0
-    glob-parent: ^3.1.0
-    globby: ^7.1.1
-    is-glob: ^4.0.1
-    loader-utils: ^1.2.3
-    minimatch: ^3.0.4
+    fast-glob: ^3.2.7
+    glob-parent: ^6.0.1
+    globby: ^11.0.3
     normalize-path: ^3.0.0
-    p-limit: ^2.2.1
-    schema-utils: ^1.0.0
-    serialize-javascript: ^2.1.2
-    webpack-log: ^2.0.0
+    schema-utils: ^3.1.1
+    serialize-javascript: ^6.0.0
   peerDependencies:
-    webpack: ^4.0.0 || ^5.0.0
-  checksum: a6f22872ebc911abdaca3e1897f5f9f3b18192b88b694ec1bd879e600b843a23aa9851600253fddd273110545ee0152c6e377cf5992ba48f2d322815bf1fc6a1
+    webpack: ^5.1.0
+  checksum: 06cb4fb6fc99a95ccfd3169115ee57f64953e5b4075900fc8faab98b7e7d3fcd6915b125fdb98c919cfd55e581a8444f5c6b9dbb342cbd60b154d8fb3f79f2b9
   languageName: node
   linkType: hard
 
@@ -16170,7 +16164,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dir-glob@npm:^2.0.0, dir-glob@npm:^2.2.2":
+"dir-glob@npm:^2.2.2":
   version: 2.2.2
   resolution: "dir-glob@npm:2.2.2"
   dependencies:
@@ -19885,7 +19879,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     cookie-parser: 1.4.5
-    copy-webpack-plugin: ^5.1.1
+    copy-webpack-plugin: ^9.1.0
     core-js: ^3.15.1
     css: 3.0.0
     css-loader: 1.0.0
@@ -21361,20 +21355,6 @@ fsevents@~2.1.1:
     pify: ^2.0.0
     pinkie-promise: ^2.0.0
   checksum: 18109d6b9d55643d2b98b59c3cfae7073ccfe39829632f353d516cc124d836c2ddebe48a23f04af63d66a621b6d86dd4cbd7e6af906f2458a7fe510ffc4bd424
-  languageName: node
-  linkType: hard
-
-"globby@npm:^7.1.1":
-  version: 7.1.1
-  resolution: "globby@npm:7.1.1"
-  dependencies:
-    array-union: ^1.0.1
-    dir-glob: ^2.0.0
-    glob: ^7.1.2
-    ignore: ^3.3.5
-    pify: ^3.0.0
-    slash: ^1.0.0
-  checksum: f0eba08a08ae7c98149a4411661c0bf08c4717d81e6f355cf624fb01880b249737eb8e951bf86124cb3af8ea1c793c0a9d363ed5cdec99bb2c6b68f8a323025f
   languageName: node
   linkType: hard
 
@@ -30795,7 +30775,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"p-limit@npm:^2.0.0, p-limit@npm:^2.2.0, p-limit@npm:^2.2.1":
+"p-limit@npm:^2.0.0, p-limit@npm:^2.2.0":
   version: 2.3.0
   resolution: "p-limit@npm:2.3.0"
   dependencies:
@@ -35897,7 +35877,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"schema-utils@npm:^3.0.0, schema-utils@npm:^3.1.0":
+"schema-utils@npm:^3.0.0, schema-utils@npm:^3.1.0, schema-utils@npm:^3.1.1":
   version: 3.1.1
   resolution: "schema-utils@npm:3.1.1"
   dependencies:
