@@ -1,6 +1,5 @@
 const parseDiff = require('diffparser');
 const fetch = require('node-fetch');
-const { moduleDependencies } = require('../package.json').fxa;
 const fs = require('fs');
 const path = require('path');
 
@@ -15,6 +14,23 @@ const testable = fs
   })
   .filter((de) => de.isDirectory())
   .map((de) => de.name);
+
+function packageJsonPath(name) {
+  return path.resolve(__dirname, '../packages', name, 'package.json');
+}
+
+const moduleDependencies = Object.fromEntries(
+  testable
+    .filter((name) => fs.existsSync(packageJsonPath(name)))
+    .map((name) => {
+      const pkg = require(packageJsonPath(name));
+      const deps = Object.entries(pkg.dependencies || {})
+        .concat(Object.entries(pkg.devDependencies || {}))
+        .filter(([_, v]) => v.startsWith('workspace:'))
+        .map(([dep]) => dep);
+      return [name, deps];
+    })
+);
 
 const IS_BUILD_SCRIPT = /^\.circleci\//;
 
@@ -109,11 +125,9 @@ async function main() {
     for (const mod of toRun) {
       console.log(mod);
     }
-  }
-  else if (branch === 'main') {
+  } else if (branch === 'main') {
     console.log('all');
-  }
-  else {
+  } else {
     //TODO diff main..branch
     console.log('all');
   }
