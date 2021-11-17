@@ -10,7 +10,6 @@ const fetch = require('node-fetch');
 const Sentry = require('@sentry/node');
 const { cdnFqdn, resultsCacheLimit } = config.get('legalDocLinks');
 const acceptLanuageParser = require('accept-language-parser');
-const supportedLanguages = require('fxa-shared/l10n/supportedLanguages.json');
 const DEFAULT_LOCALE = 'en';
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // a day in milliseconds
 const LANGUAGES_LIMIT = 3;
@@ -20,10 +19,7 @@ const LANGUAGES_LIMIT = 3;
  *  - checkedOn: timestamp (in ms) when the last check against the url was performed
  *  - result: boolean
  *
- * The size of this map will also be limited.  There are 71 supported languages
- * and two docs per product (not price/plan).  With some generous rounding, we
- * have 200 per product.  The current default is set to 65536, which should
- * give us a decent runway.
+ * The size of this map will also be limited.  The current default is set to 65536.
  */
 const cache = new Map();
 
@@ -41,8 +37,6 @@ const getFullPath = (pathWithoutLocale, language) =>
  */
 const getLanguageTag = (lang) =>
   lang.region ? `${lang.code}-${lang.region}` : lang.code;
-
-const isSupportedLanguage = (tag) => supportedLanguages.includes(tag);
 
 const isCacheExpired = (lastChecked) =>
   Math.round(Date.now() - lastChecked) > CACHE_DURATION;
@@ -118,9 +112,7 @@ module.exports = {
     const withTag = parsed.map((l) => ({ ...l, tag: getLanguageTag(l) }));
 
     // Since a request here potentially fans out to mulitple requests, limit that number
-    const supported = withTag
-      .filter((l) => isSupportedLanguage(l.tag))
-      .slice(0, LANGUAGES_LIMIT);
+    const supported = withTag.slice(0, LANGUAGES_LIMIT);
 
     // Check for exact match on the language tag in order of priority
     const checkedTags = [];
@@ -143,12 +135,7 @@ module.exports = {
     // might not be on the list of supported language while the language
     // without the region is.
     const languageOnlyTags = withTag
-      .filter(
-        (l) =>
-          !!l.region &&
-          !checkedTags.includes(l.code) &&
-          isSupportedLanguage(l.code)
-      )
+      .filter((l) => !!l.region && !checkedTags.includes(l.code))
       .slice(0, LANGUAGES_LIMIT);
 
     for (const l of languageOnlyTags) {
