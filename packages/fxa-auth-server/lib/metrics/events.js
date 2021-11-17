@@ -102,6 +102,16 @@ module.exports = (log, config) => {
       }
 
       const request = this;
+
+      if (data && data.uid) {
+        request.auth.artifacts = { metricsUid: data.uid };
+      }
+
+      const isMetricsEnabled = await request.app.isMetricsEnabled;
+      if (!isMetricsEnabled) {
+        return;
+      }
+
       let isFlowCompleteSignal = false;
 
       if (ACTIVITY_EVENTS.has(event)) {
