@@ -217,8 +217,10 @@ describe('routes/Checkout', () => {
         subscriptionCoupons: true,
       },
     });
-    render(<Subject />);
-    expect(document.getElementById('coupon-container')).toBeInTheDocument();
+
+    const { findByTestId } = render(<Subject planId="testo" />);
+    const element = await findByTestId('coupon-container');
+    expect(element).toBeInTheDocument();
   });
 
   it('displays an error with invalid product ID', async () => {
