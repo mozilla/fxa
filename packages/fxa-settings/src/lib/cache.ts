@@ -1,6 +1,7 @@
 import { InMemoryCache, gql } from '@apollo/client';
 import Storage from './storage';
 import { Email } from '../models';
+import { searchParam } from '../lib/utilities';
 import config from './config';
 
 const storage = Storage.factory('localStorage');
@@ -25,6 +26,14 @@ function accounts(accounts?: LocalAccounts) {
 
 export function currentAccount(account?: OldSettingsData) {
   const all = accounts() || {};
+
+  // Current user can be specified in url params (ex. when clicking
+  // `Manage account` from sync prefs.
+  const forceUid = searchParam('uid', window.location.search);
+  if (forceUid && all[forceUid]) {
+    storage.set('currentAccountUid', forceUid);
+  }
+
   const uid = storage.get('currentAccountUid') as hexstring;
   if (account) {
     all[account.uid] = account;

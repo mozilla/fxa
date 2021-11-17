@@ -21,7 +21,7 @@ const subscription2 = require('../../payments/fixtures/stripe/subscription2.json
 const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
 const { filterSubscription } = require('fxa-shared/subscriptions/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
-const { AuthLogger } = require('../../../../lib/types');
+const { AuthLogger, AppConfig } = require('../../../../lib/types');
 const buildRoutes = require('../../../../lib/routes/subscriptions');
 
 const ACCOUNT_LOCALE = 'en-US';
@@ -114,6 +114,7 @@ describe('subscriptions payPalRoutes', () => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
     token = uuid.v4();
+    Container.set(AppConfig, config);
     Container.set(AuthLogger, log);
     Container.set(PlayBilling, {});
     stripeHelper = sinon.createStubInstance(StripeHelper);

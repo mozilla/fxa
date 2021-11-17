@@ -758,6 +758,7 @@ function mockRequest(data, errors) {
         deviceType: data.uaDeviceType || null,
         formFactor: data.uaFormFactor || null,
       },
+      isMetricsEnabled: Promise.resolve(true),
       ...app,
     },
     auth: {

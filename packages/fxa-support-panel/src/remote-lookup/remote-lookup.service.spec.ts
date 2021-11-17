@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import superagent from 'superagent';
 
 import { RemoteLookupService } from './remote-lookup.service';
@@ -42,28 +43,40 @@ export const MOCKDATA = {
       stateCode: 'OR',
     },
   ],
-  subscriptions: [
-    {
-      created: 1555354567,
-      current_period_end: 1579716673,
-      current_period_start: 1579630273,
-      plan_changed: 1579630273,
-      previous_product: 'Old Product',
-      product_name: 'Example Product',
-      status: 'active',
-      subscription_id: 'sub_GZ7WKEJp1YGZ86',
-    },
-    {
-      created: 1588972390,
-      current_period_end: 1591650790,
-      current_period_start: 1588972390,
-      plan_changed: null,
-      previous_product: null,
-      product_name: 'Amazing Product',
-      status: 'active',
-      subscription_id: 'sub_12345',
-    },
-  ],
+  subscriptions: {
+    [MozillaSubscriptionTypes.WEB]: [
+      {
+        created: 1555354567,
+        current_period_end: 1579716673,
+        current_period_start: 1579630273,
+        plan_changed: 1579630273,
+        previous_product: 'Old Product',
+        product_name: 'Example Product',
+        status: 'active',
+        subscription_id: 'sub_GZ7WKEJp1YGZ86',
+      },
+      {
+        created: 1588972390,
+        current_period_end: 1591650790,
+        current_period_start: 1588972390,
+        plan_changed: null,
+        previous_product: null,
+        product_name: 'Amazing Product',
+        status: 'active',
+        subscription_id: 'sub_12345',
+      },
+    ],
+    [MozillaSubscriptionTypes.IAP_GOOGLE]: [
+      {
+        auto_renewing: false,
+        expiry_time_millis: 1591650790000,
+        package_name: 'club.foxkeh',
+        sku: 'LOL.daily',
+        product_id: 'prod_testo',
+        product_name: 'LOL Daily',
+      },
+    ],
+  },
   totp: {
     enabled: true,
     epoch: now,
@@ -72,28 +85,41 @@ export const MOCKDATA = {
   },
 };
 
-export const formattedSubscriptions = [
-  {
-    created: String(new Date(1555354567 * MS_IN_SEC)),
-    current_period_end: String(new Date(1579716673 * MS_IN_SEC)),
-    current_period_start: String(new Date(1579630273 * MS_IN_SEC)),
-    plan_changed: String(new Date(1579630273 * MS_IN_SEC)),
-    previous_product: 'Old Product',
-    product_name: 'Example Product',
-    status: 'active',
-    subscription_id: 'sub_GZ7WKEJp1YGZ86',
-  },
-  {
-    created: String(new Date(1588972390 * MS_IN_SEC)),
-    current_period_end: String(new Date(1591650790 * MS_IN_SEC)),
-    current_period_start: String(new Date(1588972390 * MS_IN_SEC)),
-    plan_changed: 'N/A',
-    previous_product: 'N/A',
-    product_name: 'Amazing Product',
-    status: 'active',
-    subscription_id: 'sub_12345',
-  },
-];
+export const formattedSubscriptions = {
+  [MozillaSubscriptionTypes.WEB]: [
+    {
+      created: String(new Date(1555354567 * MS_IN_SEC)),
+      current_period_end: String(new Date(1579716673 * MS_IN_SEC)),
+      current_period_start: String(new Date(1579630273 * MS_IN_SEC)),
+      plan_changed: String(new Date(1579630273 * MS_IN_SEC)),
+      previous_product: 'Old Product',
+      product_name: 'Example Product',
+      status: 'active',
+      subscription_id: 'sub_GZ7WKEJp1YGZ86',
+    },
+    {
+      created: String(new Date(1588972390 * MS_IN_SEC)),
+      current_period_end: String(new Date(1591650790 * MS_IN_SEC)),
+      current_period_start: String(new Date(1588972390 * MS_IN_SEC)),
+      plan_changed: 'N/A',
+      previous_product: 'N/A',
+      product_name: 'Amazing Product',
+      status: 'active',
+      subscription_id: 'sub_12345',
+    },
+  ],
+  [MozillaSubscriptionTypes.IAP_GOOGLE]: [
+    {
+      auto_renewing: false,
+      expiry_time_millis: 1591650790000,
+      expiry: String(new Date(1591650790 * MS_IN_SEC)),
+      package_name: 'club.foxkeh',
+      sku: 'LOL.daily',
+      product_id: 'prod_testo',
+      product_name: 'LOL Daily',
+    },
+  ],
+};
 
 export const formattedSigninLocations = [
   {
@@ -163,7 +189,10 @@ describe('RemoteLookupService', () => {
       service.authServerGetBody = jest
         .fn()
         .mockRejectedValue({ status: 500, response: { body: { errno: 998 } } });
-      expect(await service.subscriptions('test', 'email')).toStrictEqual([]);
+      expect(await service.subscriptions('test', 'email')).toStrictEqual({
+        [MozillaSubscriptionTypes.WEB]: [],
+        [MozillaSubscriptionTypes.IAP_GOOGLE]: [],
+      });
     });
 
     it('re-throws other errors', async () => {

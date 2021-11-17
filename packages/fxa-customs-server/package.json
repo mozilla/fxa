@@ -1,6 +1,6 @@
 {
   "name": "fxa-customs-server",
-  "version": "1.219.4",
+  "version": "1.219.5",
   "description": "Firefox Accounts Customs Server",
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
@@ -25,7 +25,7 @@
     "@google-cloud/pubsub": "^2.18.2",
     "@hapi/hapi": "^20.2.1",
     "@hapi/hoek": "^9.2.0",
-    "@sentry/node": "^6.14.3",
+    "@sentry/node": "^6.15.0",
     "bl": "5.0.0",
     "bluebird": "^3.7.2",
     "bunyan": "^1.8.15",

@@ -1,6 +1,6 @@
 {
   "name": "fxa-profile-server",
-  "version": "1.219.4",
+  "version": "1.219.5",
   "private": true,
   "description": "Firefox Accounts Profile service.",
   "scripts": {
@@ -20,7 +20,7 @@
     "@hapi/hapi": "^20.2.1",
     "@hapi/inert": "6.0.4",
     "@hapi/joi": "^17.1.1",
-    "@sentry/node": "^6.14.3",
+    "@sentry/node": "^6.15.0",
     "aws-sdk": "^2.1022.0",
     "bluebird": "^3.7.2",
     "buf": "0.1.1",

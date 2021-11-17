@@ -1,6 +1,6 @@
 {
   "name": "fxa-graphql-api",
-  "version": "1.219.4",
+  "version": "1.219.5",
   "description": "FxA GraphQL API",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -38,7 +38,7 @@
     "@nestjs/passport": "^8.0.1",
     "@nestjs/platform-express": "^8.2.0",
     "@sentry/integrations": "^6.14.1",
-    "@sentry/node": "^6.14.3",
+    "@sentry/node": "^6.15.0",
     "apollo-datasource": "^0.9.0",
     "apollo-server": "^2.25.2",
     "apollo-server-express": "^2.25.2",

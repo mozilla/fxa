@@ -14,7 +14,7 @@ describe('lib/experiments/grouping-rules/base', () => {
 
   // Give a bit of leeway when making calculations since we
   // are using a relatively small sample set.
-  const LEEWAY_PERCENTAGE = 5;
+  const LEEWAY_PERCENTAGE = 8;
 
   const MAX_HASH_VALUE = Math.pow(2, 32);
 

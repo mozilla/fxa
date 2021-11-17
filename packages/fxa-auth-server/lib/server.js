@@ -16,6 +16,7 @@ const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const pubsubAuth = require('./routes/auth-schemes/pubsub');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 const { configureSentry } = require('./sentry');
+const { Account } = require('fxa-shared/db/models/auth');
 
 function trimLocale(header) {
   if (!header) {
@@ -236,6 +237,55 @@ async function create(log, error, config, routes, db, translator, statsd) {
       }
 
       return db.devices(uid);
+    });
+
+    defineLazyGetter(request.app, 'isMetricsEnabled', async () => {
+      // This catches most but not all cases where the given uid
+      // is opted out and saves us from making a db call further down.
+      // Note that unverified accounts can not be opted out of metrics.
+
+      let uid;
+      if (
+        request.auth &&
+        request.auth.credentials &&
+        request.auth.credentials.uid
+      ) {
+        // sessionToken strategy sets this property already
+        return !request.auth.credentials.metricsOptOutAt;
+      } else if (
+        request.auth &&
+        request.auth.credentials &&
+        request.auth.credentials.user
+      ) {
+        // oauthToken strategy comes with uid as user
+        uid = request.auth.credentials.user;
+      } else if (request.payload && request.payload.uid) {
+        // Some unauthenticated requests might set uid in payload, ex. `/account/status`
+        uid = request.payload.uid;
+      } else if (
+        request.auth &&
+        request.auth.artifacts &&
+        request.auth.artifacts.metricsUid
+      ) {
+        // For access tokens, we stash the uid
+        uid = request.auth.artifacts.metricsUid;
+      } else if (request.payload && request.payload.email) {
+        // last resort is to check if an email is in the payload
+        try {
+          const account = await Account.findByPrimaryEmail(
+            request.payload.email
+          );
+          uid = account.uid;
+        } catch (err) {
+          // Unknown accounts will have the default experience
+        }
+      }
+
+      if (!uid) {
+        return true;
+      }
+
+      return Account.metricsEnabled(uid);
     });
 
     if (request.headers.authorization) {

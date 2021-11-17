@@ -2,11 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import {
+  AbbrevPlayPurchase,
+  MozillaSubscriptionTypes,
+} from 'fxa-shared/subscriptions/types';
+
 // Note that these `*.Response` interfaces are purely for access to known
 // response keys and not an attempt to validate the return payloads from
 // fxa-auth-db-mysql.
 
-interface Subscription {
+interface WebSubscription {
   created: string;
   current_period_end: string;
   current_period_start: string;
@@ -17,7 +22,15 @@ interface Subscription {
   subscription_id: string;
 }
 
-export interface SubscriptionResponse extends Array<Subscription> {}
+type PlaySubscription = Omit<AbbrevPlayPurchase, 'expiry_time_millis'> & {
+  product_id: string;
+  expiry: string;
+};
+
+export type SubscriptionResponse = {
+  [MozillaSubscriptionTypes.WEB]: WebSubscription[];
+  [MozillaSubscriptionTypes.IAP_GOOGLE]: PlaySubscription[];
+};
 
 interface SigninLocation {
   city: string;

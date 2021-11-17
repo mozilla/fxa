@@ -755,4 +755,96 @@ describe('lib/routes/validators:', () => {
       assert.ok(res.error);
     });
   });
+
+  describe('support-panel subscriptions', () => {
+    const webSub = {
+      created: 1636489882,
+      current_period_end: 1639081882,
+      current_period_start: 1636489882,
+      plan_changed: null,
+      previous_product: null,
+      product_name: 'Cooking with Foxkeh',
+      status: 'active',
+      subscription_id: 'sub_1Ju0yUBVqmGyQTMaG1mtTbdZ',
+    };
+    const playSub = {
+      auto_renewing: false,
+      expiry_time_millis: 1591650790000,
+      package_name: 'club.foxkeh',
+      sku: 'LOL.daily',
+      product_id: 'prod_testo',
+      product_name: 'LOL Daily',
+    };
+
+    describe('subscriptionsWebSubscriptionSupportValidator', () => {
+      const required = [
+        'created',
+        'current_period_end',
+        'current_period_start',
+        'product_name',
+        'status',
+        'subscription_id',
+      ];
+
+      it('accepts a valid web subscription for the support-panel', () => {
+        const res =
+          validators.subscriptionsWebSubscriptionSupportValidator.validate(
+            webSub
+          );
+        assert.ok(!res.error);
+      });
+
+      for (const x of required) {
+        it(`rejects when the required property ${x} is not present`, () => {
+          const s = { ...webSub, [x]: undefined };
+          const res =
+            validators.subscriptionsWebSubscriptionSupportValidator.validate(s);
+          assert.ok(res.error);
+        });
+      }
+    });
+
+    describe('subscriptionsPlaySubscriptionSupportValidator', () => {
+      const required = ['auto_renewing', 'expiry_time_millis', 'product_name'];
+
+      it('accepts a valid Play subscription for the support-panel', () => {
+        const res =
+          validators.subscriptionsPlaySubscriptionSupportValidator.validate(
+            playSub
+          );
+        assert.ok(!res.error);
+      });
+
+      for (const x of required) {
+        it(`rejects when the required property ${x} is not present`, () => {
+          const s = { ...playSub, [x]: undefined };
+          const res =
+            validators.subscriptionsWebSubscriptionSupportValidator.validate(s);
+          assert.ok(res.error);
+        });
+      }
+    });
+
+    describe('subscriptionsSubscriptionSupportValidator', () => {
+      it('accepts a valid response object', () => {
+        const subs = {
+          [MozillaSubscriptionTypes.WEB]: [webSub],
+          [MozillaSubscriptionTypes.IAP_GOOGLE]: [playSub],
+        };
+        const res =
+          validators.subscriptionsSubscriptionSupportValidator.validate(subs);
+        assert.ok(!res.error);
+      });
+
+      it('accepts empty arrays', () => {
+        const subs = {
+          [MozillaSubscriptionTypes.WEB]: [],
+          [MozillaSubscriptionTypes.IAP_GOOGLE]: [],
+        };
+        const res =
+          validators.subscriptionsSubscriptionSupportValidator.validate(subs);
+        assert.ok(!res.error);
+      });
+    });
+  });
 });

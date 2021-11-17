@@ -442,13 +442,11 @@ export class Account extends BaseAuthModel {
 
   static async metricsEnabled(uid: string) {
     try {
-      // TODO: Enable this once UI has toggle
-      // const { metricsOptOutAt } = await Account.query()
-      //   .select('metricsOptOutAt')
-      //   .where('uid', uuidTransformer.to(uid))
-      //   .first();
-      // return !metricsOptOutAt;
-      return true;
+      const { metricsOptOutAt } = await Account.query()
+        .select('metricsOptOutAt')
+        .where('uid', uuidTransformer.to(uid))
+        .first();
+      return !metricsOptOutAt;
     } catch (error) {
       // err on caution / don't throw
       return false;

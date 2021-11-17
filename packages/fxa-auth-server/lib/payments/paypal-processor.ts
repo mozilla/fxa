@@ -238,9 +238,8 @@ export class PaypalProcessor {
       if (err instanceof PayPalClientError) {
         if (err.errorCode === PAYPAL_BILLING_AGREEMENT_INVALID) {
           const uid = customer.metadata.userid;
-          const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
-            customer
-          ) as string;
+          const billingAgreementId =
+            this.stripeHelper.getCustomerPaypalAgreement(customer) as string;
           await this.stripeHelper.removeCustomerPaypalAgreement(
             uid,
             customer.id,
@@ -335,9 +334,8 @@ export class PaypalProcessor {
     }
 
     // 5
-    const billingAgreementId = this.stripeHelper.getCustomerPaypalAgreement(
-      customer
-    );
+    const billingAgreementId =
+      this.stripeHelper.getCustomerPaypalAgreement(customer);
     if (!billingAgreementId) {
       await this.sendFailedPaymentEmail(invoice);
       return;

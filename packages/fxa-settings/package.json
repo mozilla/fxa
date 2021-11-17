@@ -1,6 +1,6 @@
 {
   "name": "fxa-settings",
-  "version": "1.219.4",
+  "version": "1.219.5",
   "homepage": "https://accounts.firefox.com/settings",
   "private": true,
   "scripts": {
@@ -76,7 +76,7 @@
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@rescripts/cli": "0.0.16",
-    "@sentry/browser": "^6.14.3",
+    "@sentry/browser": "^6.15.0",
     "@storybook/addon-actions": "^6.3.12",
     "@storybook/addon-links": "^6.3.12",
     "@storybook/addons": "^6.3.12",
