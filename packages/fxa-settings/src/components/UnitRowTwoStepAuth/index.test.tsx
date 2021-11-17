@@ -62,7 +62,7 @@ describe('UnitRowTwoStepAuth', () => {
     ).toContain('tfa-row-header');
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
-    ).toContain('Not set');
+    ).toContain('Not Set');
     expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
       'Add'
     );
@@ -80,7 +80,7 @@ describe('UnitRowTwoStepAuth', () => {
     );
     expect(
       screen.getByTestId('two-step-unit-row-header-value')
-    ).toHaveTextContent('Not set');
+    ).toHaveTextContent('Not Set');
     await act(async () => {
       fireEvent.click(screen.getByTestId('two-step-refresh'));
     });

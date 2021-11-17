@@ -2,7 +2,7 @@
 
 rk-header = Recovery key
 rk-enabled = Enabled
-rk-not-set = Not set
+rk-not-set = Not Set
 rk-action-create = Create
 rk-action-remove = Remove
 rk-cannot-refresh = Sorry, there was a problem refreshing the recovery key.

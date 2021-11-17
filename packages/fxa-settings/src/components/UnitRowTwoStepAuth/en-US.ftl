@@ -3,7 +3,7 @@
 tfa-row-header = Two-step authentication
 tfa-row-disabled = Two-step authentication disabled.
 tfa-row-enabled = Enabled
-tfa-row-not-set = Not set
+tfa-row-not-set = Not Set
 tfa-row-action-add = Add
 tfa-row-action-disable = Disable
 

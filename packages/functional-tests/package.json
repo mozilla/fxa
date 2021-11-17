@@ -1,0 +1,22 @@
+{
+  "name": "functional-tests",
+  "version": "1.218.5",
+  "private": true,
+  "scripts": {
+    "test": "playwright test --project=local",
+    "test-local": "playwright test --project=local",
+    "test-stage": "playwright test --project=stage",
+    "test-production": "playwright test --project=production"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.16.3",
+    "@types/upng-js": "^2",
+    "fxa-auth-client": "workspace:*",
+    "fxa-content-server": "workspace:*",
+    "fxa-payments-server": "workspace:*",
+    "fxa-settings": "workspace:*",
+    "jsqr": "^1.4.0",
+    "playwright": "^1.16.3",
+    "upng-js": "^2.1.0"
+  }
+}

@@ -45,7 +45,7 @@ describe('UnitRowRecoveryKey', () => {
     ).toContain('rk-header');
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
-    ).toContain('Not set');
+    ).toContain('Not Set');
     expect(
       screen.getByTestId('recovery-key-unit-row-route').textContent
     ).toContain('Create');
@@ -65,7 +65,7 @@ describe('UnitRowRecoveryKey', () => {
     });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value')
-    ).toHaveTextContent('Not set');
+    ).toHaveTextContent('Not Set');
     await act(async () => {
       fireEvent.click(screen.getByTestId('recovery-key-refresh'));
     });

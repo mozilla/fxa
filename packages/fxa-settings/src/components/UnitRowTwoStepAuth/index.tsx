@@ -23,11 +23,8 @@ export const UnitRowTwoStepAuth = () => {
     totp: { exists, verified },
   } = account;
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
-  const [
-    secondaryModalRevealed,
-    revealSecondaryModal,
-    hideSecondaryModal,
-  ] = useBooleanState();
+  const [secondaryModalRevealed, revealSecondaryModal, hideSecondaryModal] =
+    useBooleanState();
   const { l10n } = useLocalization();
 
   const disableTwoStepAuth = useCallback(async () => {
@@ -73,7 +70,7 @@ export const UnitRowTwoStepAuth = () => {
         }
       : {
           headerValue: null,
-          noHeaderValueText: l10n.getString('tfa-row-not-set', null, 'Not set'),
+          noHeaderValueText: l10n.getString('tfa-row-not-set', null, 'Not Set'),
           ctaText: l10n.getString('tfa-row-action-add', null, 'Add'),
           secondaryCtaText: undefined,
           revealSecondaryModal: undefined,

@@ -22,10 +22,10 @@
       "env": {
         "DEBUG": "1"
       },
-      "program": "${workspaceFolder}/node_modules/folio/cli.js",
-      "args": ["--config=${workspaceFolder}/packages/fxa-settings/fnl/config.ts", "--timeout=0"],
+      "program": "${workspaceFolder}/node_modules/@playwright/test/cli.js",
+      "args": ["test","--config=${workspaceFolder}/packages/functional-tests/playwright.config.ts", "--project=local"],
       "autoAttachChildProcesses": true,
-      "cwd":"${workspaceFolder}",
+      "cwd":"${workspaceFolder}/packages/functional-tests",
       "request": "launch",
     }
   ]
