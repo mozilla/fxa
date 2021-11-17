@@ -1,6 +1,5 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import TestRenderer from 'react-test-renderer';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { PaymentMethodHeader } from '.';
 import {
@@ -9,8 +8,6 @@ import {
   setupFluentLocalizationTest,
 } from '../../lib/test-utils';
 import { act } from 'react-dom/test-utils';
-import { getLocalizedCurrency } from '../../lib/formats';
-import waitForExpect from 'wait-for-expect';
 
 jest.mock('../../lib/sentry');
 
