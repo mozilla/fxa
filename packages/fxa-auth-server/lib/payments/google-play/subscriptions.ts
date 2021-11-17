@@ -1,13 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
+import {
+  AbbrevPlayPurchase,
+  GooglePlaySubscription,
+  MozillaSubscriptionTypes,
+} from 'fxa-shared/subscriptions/types';
 import Container from 'typedi';
+
 import { internalValidationError } from '../../../lib/error';
+import { AppConfig } from '../../types';
+import { StripeHelper } from '../stripe';
 import { PlayBilling } from './play-billing';
-import { AbbrevPlayPurchase } from 'fxa-shared/subscriptions/types';
 import { SubscriptionPurchase } from './subscription-purchase';
-import { ConfigType } from '../../../config';
 
 // TODO move this when we add support for Apple IAP subscriptions
 export interface SubscriptionsService<T> {
@@ -30,11 +35,13 @@ export function abbrevPlayPurchaseFromSubscriptionPurchase(
 }
 
 export class PlaySubscriptions
-  implements SubscriptionsService<AbbrevPlayPurchase>
+  implements SubscriptionsService<GooglePlaySubscription>
 {
   private playBilling?: PlayBilling;
+  private stripeHelper?: StripeHelper;
 
-  constructor(config: ConfigType) {
+  constructor() {
+    const config = Container.get(AppConfig);
     if (!config.subscriptions.enabled) {
       throw internalValidationError(
         'PlaySubscriptions',
@@ -48,9 +55,13 @@ export class PlaySubscriptions
     if (Container.has(PlayBilling)) {
       this.playBilling = Container.get(PlayBilling);
     }
+
+    if (Container.has(StripeHelper)) {
+      this.stripeHelper = Container.get(StripeHelper);
+    }
   }
 
-  async getSubscriptions(uid: string) {
+  async getAbbrevPlayPurchases(uid: string) {
     if (!this.playBilling) {
       return [];
     }
@@ -62,5 +73,24 @@ export class PlaySubscriptions
     );
 
     return purchases.map(abbrevPlayPurchaseFromSubscriptionPurchase);
+  }
+
+  /**
+   * Gets all active Google Play subscriptions for the given user id
+   */
+  async getSubscriptions(uid: string): Promise<GooglePlaySubscription[]> {
+    if (!this.stripeHelper) {
+      return [];
+    }
+    const iapSubscribedGooglePlayAbbrevPlayPurchases =
+      await this.getAbbrevPlayPurchases(uid);
+    const iapAbbrevPlayPurchasesWithStripeProductData =
+      await this.stripeHelper.addProductInfoToAbbrevPlayPurchases(
+        iapSubscribedGooglePlayAbbrevPlayPurchases
+      );
+    return iapAbbrevPlayPurchasesWithStripeProductData.map((purchase) => ({
+      ...purchase,
+      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+    }));
   }
 }

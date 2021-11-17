@@ -611,6 +611,7 @@ describe('lib/routes/validators:', () => {
         validators.subscriptionsGooglePlaySubscriptionValidator.validate({
           _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
           product_id: 'xyz',
+          product_name: 'Awesome product',
           ...mockAbbrevPlayPurchase,
         });
       assert.ok(!res.error);
@@ -711,6 +712,7 @@ describe('lib/routes/validators:', () => {
     const playSub = {
       _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
       product_id: 'xyz',
+      product_name: 'Awesome product',
       auto_renewing: true,
       expiry_time_millis: Date.now(),
       package_name: 'org.mozilla.cooking.with.foxkeh',

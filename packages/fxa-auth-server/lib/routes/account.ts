@@ -8,6 +8,10 @@ import {
   getAllPayPalBAByUid,
 } from 'fxa-shared/db/models/auth';
 import ScopeSet from 'fxa-shared/oauth/scopes';
+import {
+  GooglePlaySubscription,
+  WebSubscription,
+} from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
 import * as uuid from 'uuid';
 
@@ -16,16 +20,16 @@ import authMethods from '../authMethods';
 import random from '../crypto/random';
 import error from '../error';
 import { getClientById } from '../oauth/client';
-import jwt from '../oauth/jwt';
 import { generateAccessToken } from '../oauth/grant';
+import jwt from '../oauth/jwt';
 import { CapabilityService } from '../payments/capability';
+import { PlaySubscriptions } from '../payments/google-play/subscriptions';
 import { PayPalHelper } from '../payments/paypal';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest, Awaited } from '../types';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
-import { MozillaSubscription } from 'fxa-shared/subscriptions/types';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -1467,29 +1471,26 @@ export class AccountHandler {
   async getAccount(request: AuthRequest) {
     this.log.begin('Account.get', request);
 
-    const { uid, email } = request.auth.credentials;
+    const { uid } = request.auth.credentials;
 
-    let subscriptions: Awaited<MozillaSubscription[]> = [];
+    let webSubscriptions: Awaited<WebSubscription[]> = [];
+    let iapGooglePlaySubscriptions: Awaited<GooglePlaySubscription[]> = [];
 
     if (this.config.subscriptions.enabled) {
       try {
-        if (this.stripeHelper) {
-          const customer = await this.stripeHelper.fetchCustomer(
-            uid as string,
-            ['subscriptions']
-          );
-          if (!customer) {
-            throw error.unknownCustomer(uid);
-          }
-          if (!customer.subscriptions) {
-            throw error.internalValidationError(
-              'Account.get',
-              { uid, customerId: customer.id },
-              'Expected customer to have subscriptions.'
-            );
-          }
-          subscriptions = await this.stripeHelper.subscriptionsToResponse(
+        const customer = await this.stripeHelper.fetchCustomer(uid as string, [
+          'subscriptions',
+        ]);
+        if (customer && customer.subscriptions) {
+          webSubscriptions = await this.stripeHelper.subscriptionsToResponse(
             customer.subscriptions
+          );
+        }
+
+        if (this.config.subscriptions?.playApiServiceAccount?.enabled) {
+          const playSubscriptions = Container.get(PlaySubscriptions);
+          iapGooglePlaySubscriptions = await playSubscriptions.getSubscriptions(
+            uid as string
           );
         }
       } catch (err) {
@@ -1499,7 +1500,9 @@ export class AccountHandler {
       }
     }
 
-    return { subscriptions };
+    return {
+      subscriptions: [...iapGooglePlaySubscriptions, ...webSubscriptions],
+    };
   }
 
   async updateEcosystemAnonId(request: AuthRequest) {
@@ -1872,7 +1875,10 @@ export const accountRoutes = (
             // https://github.com/mozilla/fxa/issues/1808
             subscriptions: isA
               .array()
-              .items(validators.subscriptionsSubscriptionValidator),
+              .items(
+                validators.subscriptionsSubscriptionValidator,
+                validators.subscriptionsGooglePlaySubscriptionValidator
+              ),
           },
         },
       },

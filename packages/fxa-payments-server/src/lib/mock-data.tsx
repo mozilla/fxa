@@ -1,7 +1,8 @@
-import { Profile, Plan, Customer } from '../store/types';
-import { FilteredSetupIntent } from '../lib/apiClient';
 import { PaymentIntent, PaymentMethod } from '@stripe/stripe-js';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+
+import { FilteredSetupIntent } from '../lib/apiClient';
+import { Customer, Plan, Profile } from '../store/types';
 
 export const PROFILE: Profile = {
   amrValues: [],
@@ -226,9 +227,11 @@ export const IAP_GOOGLE_SUBSCRIPTION = {
   expiry_time_millis: Date.now(),
   package_name: 'org.mozilla.cooking.with.foxkeh',
   sku: 'org.mozilla.foxkeh.yearly',
+  product_name: 'Cooking with Foxkeh',
 };
 
 export const IAP_APPLE_SUBSCRIPTION = {
   _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
   product_id: 'prod_123',
+  product_name: 'Cooking with Foxkeh',
 };

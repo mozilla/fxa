@@ -215,6 +215,7 @@ module.exports = {
   mockCadReminders,
   mockStripeHelper,
   mockPayPalHelper,
+  mockPlaySubscriptions,
 };
 
 function mockCustoms(errors) {
@@ -834,4 +835,11 @@ function mockStripeHelper(methods) {
 
 function mockPayPalHelper(methods) {
   return mockObject(methods, require('../lib/payments/paypal').PayPalHelper);
+}
+
+function mockPlaySubscriptions(methods) {
+  return mockObject(
+    methods,
+    require('../lib/payments/google-play/subscriptions').PlaySubscriptions
+  );
 }

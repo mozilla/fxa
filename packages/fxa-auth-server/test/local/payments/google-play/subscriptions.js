@@ -10,13 +10,25 @@ const {
   PlaySubscriptions,
   abbrevPlayPurchaseFromSubscriptionPurchase,
 } = require('../../../../lib/payments/google-play/subscriptions');
+const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+const { AppConfig } = require('../../../../lib/types');
+const { StripeHelper } = require('../../../../lib/payments/stripe');
 
 describe('PlaySubscriptions', () => {
   const mockConfig = { subscriptions: { enabled: true } };
   const UID = 'uid8675309';
   const sandbox = sinon.createSandbox();
 
-  let playSubscriptions, mockPlayBilling;
+  let playSubscriptions, mockPlayBilling, mockStripeHelper;
+
+  const mockSubscriptionPurchase = {
+    sku: 'play_1234',
+    isEntitlementActive: sinon.fake.returns(true),
+    autoRenewing: true,
+    expiryTimeMillis: Date.now(),
+    packageName: 'org.mozilla.cooking.with.foxkeh',
+    cancelReason: 1,
+  };
 
   beforeEach(() => {
     mockPlayBilling = {
@@ -24,7 +36,12 @@ describe('PlaySubscriptions', () => {
       purchaseManager: {},
     };
     Container.set(PlayBilling, mockPlayBilling);
-    playSubscriptions = new PlaySubscriptions(mockConfig);
+    mockStripeHelper = {
+      addProductInfoToAbbrevPlayPurchases: {},
+    };
+    Container.set(StripeHelper, mockStripeHelper);
+    Container.set(AppConfig, mockConfig);
+    playSubscriptions = new PlaySubscriptions();
   });
 
   afterEach(() => {
@@ -32,16 +49,7 @@ describe('PlaySubscriptions', () => {
     sandbox.reset();
   });
 
-  describe('getSubscriptions', () => {
-    const mockSubscriptionPurchase = {
-      sku: 'play_1234',
-      isEntitlementActive: sinon.fake.returns(true),
-      autoRenewing: true,
-      expiryTimeMillis: Date.now() + 99999,
-      packageName: 'org.mozilla.cooking.with.foxkeh',
-      cancelReason: 1,
-    };
-
+  describe('getAbbrevPlayPurchases', () => {
     it('returns an active play subscription purchase with abbreviated properties', async () => {
       const expected = {
         sku: mockSubscriptionPurchase.sku,
@@ -58,7 +66,7 @@ describe('PlaySubscriptions', () => {
             isEntitlementActive: () => true,
           },
         ]);
-      const result = await playSubscriptions.getSubscriptions(UID);
+      const result = await playSubscriptions.getAbbrevPlayPurchases(UID);
       assert.calledOnceWithExactly(
         mockPlayBilling.userManager.queryCurrentSubscriptions,
         UID
@@ -70,7 +78,7 @@ describe('PlaySubscriptions', () => {
       mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
         .stub()
         .resolves([]);
-      const actual = await playSubscriptions.getSubscriptions(UID);
+      const actual = await playSubscriptions.getAbbrevPlayPurchases(UID);
       assert.calledOnceWithExactly(
         mockPlayBilling.userManager.queryCurrentSubscriptions,
         UID
@@ -87,7 +95,7 @@ describe('PlaySubscriptions', () => {
             isEntitlementActive: () => false,
           },
         ]);
-      const actual = await playSubscriptions.getSubscriptions(UID);
+      const actual = await playSubscriptions.getAbbrevPlayPurchases(UID);
       assert.calledOnceWithExactly(
         mockPlayBilling.userManager.queryCurrentSubscriptions,
         UID
@@ -98,8 +106,47 @@ describe('PlaySubscriptions', () => {
     it('returns an empty list when the PlayBilling dependency is not present', async () => {
       Container.remove(PlayBilling);
       playSubscriptions = new PlaySubscriptions(mockConfig);
-      const actual = await playSubscriptions.getSubscriptions(UID);
+      const actual = await playSubscriptions.getAbbrevPlayPurchases(UID);
       assert.deepEqual(actual, []);
+    });
+  });
+
+  describe('getSubscriptions', () => {
+    it('returns active Google play subscription purchases', async () => {
+      const mockAbbrevPlayPurchase = {
+        sku: mockSubscriptionPurchase.sku,
+        auto_renewing: mockSubscriptionPurchase.autoRenewing,
+        expiry_time_millis: mockSubscriptionPurchase.expiryTimeMillis,
+        package_name: mockSubscriptionPurchase.packageName,
+        cancel_reason: mockSubscriptionPurchase.cancelReason,
+      };
+      const mockIapAbbrevPlayPurchasesWithStripeProductData = {
+        ...mockAbbrevPlayPurchase,
+        product_name: 'LOL Product',
+        product_id: 'prod_lol',
+      };
+      sandbox
+        .stub(playSubscriptions, 'getAbbrevPlayPurchases')
+        .resolves([mockAbbrevPlayPurchase]);
+      mockStripeHelper.addProductInfoToAbbrevPlayPurchases = sinon
+        .stub()
+        .resolves([mockIapAbbrevPlayPurchasesWithStripeProductData]);
+      const result = await playSubscriptions.getSubscriptions(UID);
+      assert.calledOnceWithExactly(
+        playSubscriptions.getAbbrevPlayPurchases,
+        UID
+      );
+      assert.calledOnceWithExactly(
+        mockStripeHelper.addProductInfoToAbbrevPlayPurchases,
+        [mockAbbrevPlayPurchase]
+      );
+      const expected = [
+        {
+          ...mockIapAbbrevPlayPurchasesWithStripeProductData,
+          _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+        },
+      ];
+      assert.deepEqual(expected, result);
     });
   });
 });

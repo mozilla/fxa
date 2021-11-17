@@ -21,6 +21,10 @@ const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PayPalHelper } = require('../../../lib/payments/paypal');
 const { CapabilityService } = require('../../../lib/payments/capability');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
+const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
+const {
+  PlaySubscriptions,
+} = require('../../../lib/payments/google-play/subscriptions');
 
 const { AccountHandler } = require('../../../lib/routes/account');
 
@@ -3383,7 +3387,33 @@ describe('/account', () => {
   const email = 'foo@example.com';
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
-  const subscription = {
+  let log,
+    request,
+    mockCustomer,
+    mockWebSubscriptionsResponse,
+    mockStripeHelper,
+    mockPlaySubscriptions;
+
+  function buildRoute(
+    subscriptionsEnabled = true,
+    playSubscriptionsEnabled = false
+  ) {
+    const accountRoutes = makeRoutes({
+      config: {
+        subscriptions: {
+          enabled: subscriptionsEnabled,
+          playApiServiceAccount: {
+            enabled: playSubscriptionsEnabled,
+          },
+        },
+      },
+      log,
+      stripeHelper: mockStripeHelper,
+    });
+    return getRoute(accountRoutes, '/account');
+  }
+
+  const webSubscription = {
     current_period_end: Date.now() + 60000,
     current_period_start: Date.now() - 60000,
     cancel_at_period_end: true,
@@ -3396,9 +3426,7 @@ describe('/account', () => {
     subscription_id: 'mngh',
   };
 
-  let log, request, mockCustomer, mockSubscriptionsResponse, mockStripeHelper;
-
-  beforeEach(async () => {
+  beforeEach(() => {
     log = mocks.mockLog();
     request = mocks.mockRequest({
       credentials: { uid, email },
@@ -3408,7 +3436,7 @@ describe('/account', () => {
       id: 1234,
       subscriptions: ['fake'],
     };
-    mockSubscriptionsResponse = [subscription];
+    mockWebSubscriptionsResponse = [webSubscription];
     mockStripeHelper = mocks.mockStripeHelper([
       'fetchCustomer',
       'subscriptionsToResponse',
@@ -3417,78 +3445,220 @@ describe('/account', () => {
       async (uid, email) => mockCustomer
     );
     mockStripeHelper.subscriptionsToResponse = sinon.spy(
-      async (subscriptions) => mockSubscriptionsResponse
+      async (subscriptions) => mockWebSubscriptionsResponse
     );
     Container.set(CapabilityService, sinon.fake);
   });
 
-  function buildRoute(subscriptionsEnabled = true) {
-    const accountRoutes = makeRoutes({
-      config: {
-        subscriptions: {
-          enabled: subscriptionsEnabled,
-        },
-      },
-      log,
-      stripeHelper: mockStripeHelper,
-    });
-    return getRoute(accountRoutes, '/account');
-  }
-
-  it('should return formatted Stripe subscriptions when subscriptions are enabled', () => {
-    return runTest(buildRoute(), request, (result) => {
-      sinon.assert.calledOnceWithExactly(mockStripeHelper.fetchCustomer, uid, [
-        'subscriptions',
+  describe('web subscriptions', () => {
+    beforeEach(async () => {
+      mockCustomer = {
+        id: 1234,
+        subscriptions: ['fake'],
+      };
+      mockWebSubscriptionsResponse = [webSubscription];
+      mockStripeHelper = mocks.mockStripeHelper([
+        'fetchCustomer',
+        'subscriptionsToResponse',
       ]);
-      assert.deepEqual(mockStripeHelper.subscriptionsToResponse.args[0], [
-        mockCustomer.subscriptions,
+      mockStripeHelper.fetchCustomer = sinon.spy(
+        async (uid, email) => mockCustomer
+      );
+      mockStripeHelper.subscriptionsToResponse = sinon.spy(
+        async (subscriptions) => mockWebSubscriptionsResponse
+      );
+      Container.set(CapabilityService, sinon.fake);
+    });
+
+    it('should return formatted Stripe subscriptions when subscriptions are enabled', () => {
+      return runTest(buildRoute(), request, (result) => {
+        sinon.assert.calledOnceWithExactly(log.begin, 'Account.get', request);
+        sinon.assert.calledOnceWithExactly(
+          mockStripeHelper.fetchCustomer,
+          uid,
+          ['subscriptions']
+        );
+        sinon.assert.calledOnceWithExactly(
+          mockStripeHelper.subscriptionsToResponse,
+          mockCustomer.subscriptions
+        );
+        assert.deepEqual(result, {
+          subscriptions: mockWebSubscriptionsResponse,
+        });
+      });
+    });
+
+    it('should swallow unknownCustomer errors from stripe.customer', () => {
+      mockStripeHelper.fetchCustomer = sinon.spy(() => {
+        throw error.unknownCustomer();
+      });
+
+      return runTest(buildRoute(), request, (result) => {
+        assert.deepEqual(result, {
+          subscriptions: [],
+        });
+        assert.equal(log.begin.callCount, 1);
+        assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+        assert.equal(mockStripeHelper.subscriptionsToResponse.callCount, 0);
+      });
+    });
+
+    it('should propagate other errors from stripe.customer', async () => {
+      mockStripeHelper.fetchCustomer = sinon.spy(() => {
+        throw error.unexpectedError();
+      });
+
+      let failed = false;
+      try {
+        await runTest(buildRoute(), request, () => {});
+      } catch (err) {
+        failed = true;
+        assert.equal(err.errno, error.ERRNO.UNEXPECTED_ERROR);
+      }
+
+      assert.isTrue(failed);
+    });
+
+    it('should not return stripe.customer result when subscriptions are disabled', () => {
+      return runTest(buildRoute(false), request, (result) => {
+        assert.deepEqual(result, {
+          subscriptions: [],
+        });
+
+        assert.equal(log.begin.callCount, 1);
+        assert.equal(mockStripeHelper.fetchCustomer.callCount, 0);
+      });
+    });
+  });
+
+  describe('Google Play subscriptions', () => {
+    const mockIapSubscription = {
+      auto_renewing: true,
+      expiry_time_millis: Date.now(),
+      package_name: 'org.mozilla.cooking.with.foxkeh',
+      sku: 'org.mozilla.foxkeh.yearly',
+      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+      product_id: 'iap_prod_lol',
+      product_name: 'LOL daily',
+    };
+
+    let subscriptionsEnabled, playSubscriptionsEnabled;
+
+    beforeEach(async () => {
+      subscriptionsEnabled = true;
+      playSubscriptionsEnabled = true;
+      mockCustomer = undefined;
+      mockWebSubscriptionsResponse = [];
+      mockStripeHelper = mocks.mockStripeHelper([
+        'fetchCustomer',
+        'subscriptionsToResponse',
       ]);
-      assert.deepEqual(result, {
-        subscriptions: mockSubscriptionsResponse,
-      });
-      assert.deepEqual(log.begin.args[0], ['Account.get', request]);
-    });
-  });
-
-  it('should swallow unknownCustomer errors from stripe.customer', () => {
-    mockStripeHelper.fetchCustomer = sinon.spy(() => {
-      throw error.unknownCustomer();
-    });
-
-    return runTest(buildRoute(), request, (result) => {
-      assert.deepEqual(result, {
-        subscriptions: [],
-      });
-      assert.equal(log.begin.callCount, 1);
-      assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
-      assert.equal(mockStripeHelper.subscriptionsToResponse.callCount, 0);
-    });
-  });
-
-  it('should propagate other errors from stripe.customer', async () => {
-    mockStripeHelper.fetchCustomer = sinon.spy(() => {
-      throw error.unexpectedError();
+      mockStripeHelper.fetchCustomer = sinon.spy(
+        async (uid, email) => mockCustomer
+      );
+      mockStripeHelper.subscriptionsToResponse = sinon.spy(
+        async (subscriptions) => mockWebSubscriptionsResponse
+      );
+      Container.set(CapabilityService, sinon.fake);
+      mockPlaySubscriptions = mocks.mockPlaySubscriptions(['getSubscriptions']);
+      Container.set(PlaySubscriptions, mockPlaySubscriptions);
+      mockPlaySubscriptions.getSubscriptions = sinon.spy(async (uid) => [
+        mockIapSubscription,
+      ]);
     });
 
-    let failed = false;
-    try {
-      await runTest(buildRoute(), request, () => {});
-    } catch (err) {
-      failed = true;
-      assert.equal(err.errno, error.ERRNO.UNEXPECTED_ERROR);
-    }
+    it('should return formatted Google Play subscriptions when Play subscriptions are enabled', () => {
+      return runTest(
+        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
+        request,
+        (result) => {
+          assert.equal(log.begin.callCount, 1);
+          assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+          assert.equal(mockStripeHelper.subscriptionsToResponse.callCount, 0);
+          sinon.assert.calledOnceWithExactly(
+            mockPlaySubscriptions.getSubscriptions,
+            uid
+          );
+          assert.deepEqual(result, {
+            subscriptions: [mockIapSubscription],
+          });
+        }
+      );
+    });
 
-    assert.isTrue(failed);
-  });
+    it('should return formatted Google Play and web subscriptions when Play subscriptions are enabled', () => {
+      mockCustomer = {
+        id: 1234,
+        subscriptions: ['fake'],
+      };
+      mockWebSubscriptionsResponse = [webSubscription];
+      mockStripeHelper.fetchCustomer = sinon.spy(
+        async (uid, email) => mockCustomer
+      );
+      mockStripeHelper.subscriptionsToResponse = sinon.spy(
+        async (subscriptions) => mockWebSubscriptionsResponse
+      );
 
-  it('should not return stripe.customer result when subscriptions are disabled', () => {
-    return runTest(buildRoute(false), request, (result) => {
-      assert.deepEqual(result, {
-        subscriptions: [],
-      });
+      return runTest(
+        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
+        request,
+        (result) => {
+          assert.equal(log.begin.callCount, 1);
+          assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+          assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 1);
+          assert.deepEqual(result, {
+            subscriptions: [
+              ...[mockIapSubscription],
+              ...mockWebSubscriptionsResponse,
+            ],
+          });
+        }
+      );
+    });
 
-      assert.equal(log.begin.callCount, 1);
-      assert.equal(mockStripeHelper.fetchCustomer.callCount, 0);
+    it('should return an empty list when subscriptions are enabled and no active Google Play or web subscriptions are found', () => {
+      mockPlaySubscriptions.getSubscriptions = sinon.spy(async (uid) => []);
+
+      return runTest(
+        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
+        request,
+        (result) => {
+          assert.equal(log.begin.callCount, 1);
+          assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+          assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 1);
+          assert.deepEqual(result, {
+            subscriptions: [],
+          });
+        }
+      );
+    });
+
+    it('should not return any Play subscriptions when Play subscriptions are disabled', () => {
+      playSubscriptionsEnabled = false;
+      mockCustomer = {
+        id: 1234,
+        subscriptions: ['fake'],
+      };
+      mockWebSubscriptionsResponse = [webSubscription];
+      mockStripeHelper.fetchCustomer = sinon.spy(
+        async (uid, email) => mockCustomer
+      );
+      mockStripeHelper.subscriptionsToResponse = sinon.spy(
+        async (subscriptions) => mockWebSubscriptionsResponse
+      );
+
+      return runTest(
+        buildRoute(subscriptionsEnabled, playSubscriptionsEnabled),
+        request,
+        (result) => {
+          assert.equal(log.begin.callCount, 1);
+          assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+          assert.equal(mockPlaySubscriptions.getSubscriptions.callCount, 0);
+          assert.deepEqual(result, {
+            subscriptions: mockWebSubscriptionsResponse,
+          });
+        }
+      );
     });
   });
 });
