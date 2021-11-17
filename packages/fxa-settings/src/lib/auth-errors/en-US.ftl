@@ -2,6 +2,7 @@
 
 auth-error-102 = Unknown account
 auth-error-103 = Incorrect password
+auth-error-105 = Invalid verification code
 auth-error-110 = Invalid token
 # This string is the amount of time required before a user can attempt another request.
 # Variables:
