@@ -397,6 +397,6 @@ manage-pocket-title = Looking for your { -brand-name-pocket } premium subscripti
 manage-pocket-body = To manage it, <a>click here</a>.
 
 payment-method-header = Choose your payment method
-## $prefix (string) - If header is part of a multi step process and needs a header. eg. '2.'
+# $prefix (string) - If header is part of a multi step process and needs a header. eg. '2.'
 payment-method-header-prefix = { $prefix } Choose your payment method
 payment-method-required = Required

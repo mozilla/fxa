@@ -25,10 +25,8 @@ describe('components/PaymentMethodHeader', () => {
     const props = { plan, onClick: () => {} };
     const { queryByTestId } = render(<PaymentMethodHeader {...props} />);
 
-    await waitForExpect(() => {
-      expect(queryByTestId('header')).toBeInTheDocument();
-      expect(queryByTestId('header-prefix')).not.toBeInTheDocument();
-    });
+    expect(queryByTestId('header')).toBeInTheDocument();
+    expect(queryByTestId('header-prefix')).not.toBeInTheDocument();
   });
 
   it('render header with prefix', async () => {
@@ -36,10 +34,8 @@ describe('components/PaymentMethodHeader', () => {
     const props = { plan, onClick: () => {}, prefix: '2.' };
     const { queryByTestId } = render(<PaymentMethodHeader {...props} />);
 
-    await waitForExpect(() => {
-      expect(queryByTestId('header')).not.toBeInTheDocument();
-      expect(queryByTestId('header-prefix')).toBeInTheDocument();
-    });
+    expect(queryByTestId('header')).not.toBeInTheDocument();
+    expect(queryByTestId('header-prefix')).toBeInTheDocument();
   });
 
   describe('Fluent localized text', () => {
@@ -101,18 +97,11 @@ describe('components/PaymentMethodHeader', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 daily</strong>, according to <termsOfServiceLink>Terms of Service</termsOfServiceLink> and <privacyNoticeLink>Privacy Notice</privacyNoticeLink>, until I cancel my subscription.';
 
-      const testRenderer = TestRenderer.create(
-        <PaymentMethodHeader {...props} />
-      );
-      const testInstance = testRenderer.root;
-      const legalCheckbox = testInstance.findByProps({
-        id: 'payment-confirm-with-legal-links-day',
-      });
-      const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
+      const { findByTestId } = render(<PaymentMethodHeader {...props} />);
 
-      expect(legalCheckbox.props.vars.amount).toStrictEqual(expectedAmount);
-      expect(legalCheckbox.props.vars.intervalCount).toBe(plan.interval_count);
-      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+      const checkbox = await findByTestId('confirm');
+
+      expect(checkbox.nextSibling?.textContent).toEqual(expectedMsg);
     });
   });
 });
