@@ -42,44 +42,6 @@
   "engines": {
     "node": "^16.12.0"
   },
-  "fxa": {
-    "moduleDependencies": {
-      "fxa-content-server": [
-        "123done",
-        "fortress",
-        "fxa-auth-server",
-        "fxa-auth-client",
-        "fxa-shared",
-        "fxa-profile-server",
-        "fxa-payments-server",
-        "fxa-settings"
-      ],
-      "fxa-auth-server": [
-        "fxa-auth-db-mysql",
-        "fxa-shared"
-      ],
-      "fxa-auth-client": [
-        "fxa-auth-server"
-      ],
-      "fxa-event-broker": [
-        "fxa-shared"
-      ],
-      "fxa-profile-server": [
-        "fxa-auth-server",
-        "fxa-shared"
-      ],
-      "fxa-payments-server": [
-        "fxa-shared",
-        "fxa-react"
-      ],
-      "fxa-settings": [
-        "fxa-shared",
-        "fxa-react",
-        "fxa-content-server",
-        "fxa-graphql-api"
-      ]
-    }
-  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
