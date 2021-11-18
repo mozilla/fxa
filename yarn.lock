@@ -20148,6 +20148,7 @@ fsevents@~2.1.1:
     eslint-plugin-react: ^7.26.1
     express: ^4.17.1
     express-http-proxy: ^1.6.3
+    fxa-admin-server: "workspace:*"
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     graphql: ^15.6.1
@@ -20173,7 +20174,7 @@ fsevents@~2.1.1:
   languageName: unknown
   linkType: soft
 
-"fxa-admin-server@workspace:packages/fxa-admin-server":
+"fxa-admin-server@workspace:*, fxa-admin-server@workspace:packages/fxa-admin-server":
   version: 0.0.0-use.local
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
