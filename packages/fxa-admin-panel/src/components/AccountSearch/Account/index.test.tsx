@@ -5,7 +5,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
-import '@testing-library/jest-dom/extend-expect';
 import { Account, AccountProps } from './index';
 
 let accountResponse: AccountProps = {

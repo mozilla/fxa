@@ -6,7 +6,6 @@ import React from 'react';
 import Chance from 'chance';
 import { render, fireEvent, act, screen } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import '@testing-library/jest-dom/extend-expect';
 import { CLEAR_BOUNCES_BY_EMAIL } from './Account/index';
 import { GET_ACCOUNT_BY_EMAIL, AccountSearch } from './index';
 
