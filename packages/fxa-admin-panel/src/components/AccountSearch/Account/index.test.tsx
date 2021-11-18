@@ -6,10 +6,12 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import '@testing-library/jest-dom/extend-expect';
-import { Account } from './index';
+import { Account, AccountProps } from './index';
 
-let accountResponse = {
+let accountResponse: AccountProps = {
   uid: 'ca1c61239f2448b2af618f0b50226cde',
+  email: 'hey@happy.com',
+  emailVerified: true,
   emails: [
     {
       email: 'hey@happy.com',
@@ -74,7 +76,7 @@ it('displays the account', async () => {
   expect(getByTestId('account-section')).toBeInTheDocument();
   expect(getByTestId('verified-status')).toHaveTextContent('verified');
   expect(getByTestId('email-label')).toHaveTextContent(
-    accountResponse.emails[0].email
+    accountResponse.emails![0].email
   );
   expect(getByTestId('uid-label')).toHaveTextContent(accountResponse.uid);
   expect(getByTestId('createdat-label')).toHaveTextContent(
@@ -83,7 +85,7 @@ it('displays the account', async () => {
 });
 
 it('displays the unverified account', async () => {
-  accountResponse.emails[0].isVerified = false;
+  accountResponse.emails![0].isVerified = false;
   const { getByTestId } = render(
     <MockedProvider>
       <Account {...accountResponse} />
@@ -127,7 +129,7 @@ it('displays the session token status', async () => {
 });
 
 it('displays secondary emails', async () => {
-  accountResponse.emails.push({
+  accountResponse.emails!.push({
     email: 'ohdeceiver@gmail.com',
     isVerified: false,
     isPrimary: false,

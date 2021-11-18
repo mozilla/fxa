@@ -6,6 +6,15 @@ import React from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
+import {
+  Account as AccountType,
+  EmailBounce as EmailBounceType,
+  Email as EmailType,
+  SecurityEvents as SecurityEventsType,
+  Totp as TotpType,
+  RecoveryKeys as RecoveryKeysType,
+  SessionTokens as SessionTokensType,
+} from 'fxa-admin-server/src/graphql';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -15,68 +24,14 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-type AccountProps = {
-  uid: string;
-  createdAt: number;
-  disabledAt: number | null;
-  emails: EmailProps[];
-  emailBounces: EmailBounceProps[];
-  totp: TotpProps[];
-  recoveryKeys: RecoveryKeysProps[];
-  sessionTokens: SessionTokensProps[];
+export type AccountProps = AccountType & {
   onCleared: Function;
   query: string;
-  securityEvents: SecurityEventsProps[];
-};
-
-type EmailBounceProps = {
-  email: string;
-  createdAt: number;
-  bounceType: string;
-  bounceSubType: string;
-};
-
-type EmailProps = {
-  email: string;
-  isVerified: boolean;
-  isPrimary: boolean;
-  createdAt: number;
-};
-
-type SecurityEventsProps = {
-  uid: string;
-  verified: boolean;
-  createdAt: number;
-  name: string;
-};
-
-type TotpProps = {
-  verified: boolean;
-  createdAt: number;
-  enabled: boolean;
-};
-
-type RecoveryKeysProps = {
-  createdAt: number;
-  verifiedAt: number;
-  enabled: boolean;
-};
-
-type SessionTokensProps = {
-  tokenId: string;
-  uid: string;
-  createdAt: number;
-  uaBrowser: string;
-  uaBrowserVersion: string;
-  uaOS: string;
-  uaOSVersion: string;
-  uaDeviceType: string;
-  lastAccessTime: number;
 };
 
 type DangerZoneProps = {
   uid: string;
-  email: EmailProps;
+  email: EmailType;
   disabledAt: number | null;
   onCleared: Function;
 };
@@ -236,8 +191,8 @@ export const Account = ({
   securityEvents,
 }: AccountProps) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
-  const primaryEmail = emails.find((email) => email.isPrimary)!;
-  const secondaryEmails = emails.filter((email) => !email.isPrimary)!;
+  const primaryEmail = emails!.find((email) => email.isPrimary)!;
+  const secondaryEmails = emails!.filter((email) => !email.isPrimary);
 
   return (
     <section className="account" data-testid="account-section">
@@ -317,15 +272,15 @@ export const Account = ({
         <li>
           <h3>Email bounces</h3>
         </li>
-        {emailBounces.length > 0 ? (
+        {emailBounces && emailBounces.length > 0 ? (
           <>
             <ClearButton
               {...{
-                emails: emails.map((emails) => emails.email),
+                emails: emails!.map((emails) => emails.email),
                 onCleared,
               }}
             />
-            {emailBounces.map((emailBounce: EmailBounceProps) => (
+            {emailBounces.map((emailBounce: EmailBounceType) => (
               <EmailBounce key={emailBounce.createdAt} {...emailBounce} />
             ))}
           </>
@@ -340,9 +295,9 @@ export const Account = ({
         <li>
           <h3>TOTP (Time-Based One-Time Passwords)</h3>
         </li>
-        {totp.length > 0 ? (
+        {totp && totp.length > 0 ? (
           <>
-            {totp.map((totpIndex: TotpProps) => (
+            {totp.map((totpIndex: TotpType) => (
               <TotpEnabled key={totpIndex.createdAt} {...totpIndex} />
             ))}
           </>
@@ -357,9 +312,9 @@ export const Account = ({
         <li>
           <h3>Recovery Key</h3>
         </li>
-        {recoveryKeys.length > 0 ? (
+        {recoveryKeys && recoveryKeys.length > 0 ? (
           <>
-            {recoveryKeys.map((recoveryKeysIndex: RecoveryKeysProps) => (
+            {recoveryKeys.map((recoveryKeysIndex: RecoveryKeysType) => (
               <RecoveryKeys
                 key={recoveryKeysIndex.createdAt}
                 {...recoveryKeysIndex}
@@ -377,9 +332,9 @@ export const Account = ({
         <li>
           <h3>Current Session</h3>
         </li>
-        {sessionTokens.length > 0 ? (
+        {sessionTokens && sessionTokens.length > 0 ? (
           <>
-            {sessionTokens.map((sessionTokensIndex: SessionTokensProps) => (
+            {sessionTokens.map((sessionTokensIndex: SessionTokensType) => (
               <SessionTokens
                 key={sessionTokensIndex.createdAt}
                 {...sessionTokensIndex}
@@ -397,7 +352,7 @@ export const Account = ({
         <li>
           <h4>Account History</h4>
           <div className="account-history-info">
-            {securityEvents.length > 0 ? (
+            {securityEvents && securityEvents.length > 0 ? (
               <>
                 <TableContainer component={Paper}>
                   <Table
@@ -412,12 +367,12 @@ export const Account = ({
                     </TableHead>
                     <TableBody>
                       {securityEvents.map(
-                        (securityEvents: SecurityEventsProps) => (
+                        (securityEvents: SecurityEventsType) => (
                           <TableRow>
                             <TableCell>{securityEvents.name}</TableCell>
                             <TableCell>
                               {dateFormat(
-                                new Date(securityEvents.createdAt),
+                                new Date(securityEvents.createdAt!),
                                 DATE_FORMAT
                               )}
                             </TableCell>
@@ -442,7 +397,7 @@ export const Account = ({
         <DangerZone
           {...{
             uid,
-            disabledAt,
+            disabledAt: disabledAt!,
             email: primaryEmail, // only the primary for now
             onCleared: onCleared,
           }}
@@ -457,7 +412,7 @@ const EmailBounce = ({
   createdAt,
   bounceType,
   bounceSubType,
-}: EmailBounceProps) => {
+}: EmailBounceType) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
     <li data-testid="bounce-group">
@@ -479,7 +434,7 @@ const EmailBounce = ({
   );
 };
 
-const TotpEnabled = ({ verified, createdAt, enabled }: TotpProps) => {
+const TotpEnabled = ({ verified, createdAt, enabled }: TotpType) => {
   const totpDate = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
     <li data-testid="">
@@ -513,13 +468,12 @@ const TotpEnabled = ({ verified, createdAt, enabled }: TotpProps) => {
   );
 };
 
-const RecoveryKeys = ({
-  verifiedAt,
-  createdAt,
-  enabled,
-}: RecoveryKeysProps) => {
-  const recoveryKeyCreatedDate = dateFormat(new Date(createdAt), DATE_FORMAT);
-  const recoveryKeyVerifiedDate = dateFormat(new Date(verifiedAt), DATE_FORMAT);
+const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
+  const recoveryKeyCreatedDate = dateFormat(new Date(createdAt!), DATE_FORMAT);
+  const recoveryKeyVerifiedDate = dateFormat(
+    new Date(verifiedAt!),
+    DATE_FORMAT
+  );
   return (
     <li data-testid="">
       <ul className="gradient-info-display">
@@ -562,20 +516,20 @@ const SessionTokens = ({
   uaOSVersion,
   uaDeviceType,
   lastAccessTime,
-}: SessionTokensProps) => {
+}: SessionTokensType) => {
   return (
     <li data-testid="">
       <ul className="gradient-info-display">
         <li>
           Created At:{' '}
           <span data-testid="session-token-created-at" className="result">
-            {dateFormat(new Date(createdAt), DATE_FORMAT)}
+            {dateFormat(new Date(createdAt!), DATE_FORMAT)}
           </span>
         </li>
         <li>
           Last Used:{' '}
           <span data-testid="session-token-accessed-at" className="result">
-            {dateFormat(new Date(lastAccessTime), DATE_FORMAT)}
+            {dateFormat(new Date(lastAccessTime!), DATE_FORMAT)}
           </span>
         </li>
         <li>

@@ -6,63 +6,7 @@ import React, { useState } from 'react';
 import { useLazyQuery, gql } from '@apollo/client';
 import Account from './Account';
 import './index.scss';
-
-interface AccountType {
-  uid: any;
-  createdAt: number;
-  disabledAt: number | null;
-  emails: [
-    {
-      email: string;
-      isVerified: boolean;
-      isPrimary: boolean;
-      createdAt: number;
-    }
-  ];
-  emailBounces: [
-    {
-      email: string;
-      createdAt: number;
-      bounceType: string;
-      bounceSubType: string;
-    }
-  ];
-  securityEvents: [
-    {
-      uid: string;
-      verified: boolean;
-      createdAt: number;
-      name: string;
-    }
-  ];
-  totp: [
-    {
-      verified: boolean;
-      createdAt: number;
-      enabled: boolean;
-    }
-  ];
-  recoveryKeys: [
-    {
-      createdAt: number;
-      verifiedAt: number;
-      enabled: boolean;
-    }
-  ];
-  sessionTokens: [
-    {
-      tokenId: string;
-      uid: string;
-      createdAt: number;
-      uaBrowser: string;
-      uaBrowserVersion: string;
-      uaOS: string;
-      uaOSVersion: string;
-      uaDeviceType: string;
-      lastAccessTime: number;
-    }
-  ];
-}
+import { Account as AccountType } from 'fxa-admin-server/src/graphql';
 
 export const GET_ACCOUNT_BY_EMAIL = gql`
   query getAccountByEmail($email: String!) {
