@@ -10,7 +10,7 @@ module.exports = {
   apps: [
     {
       name: 'admin-server',
-      script: 'nest start --debug=9150 --watch',
+      script: 'yarn nest start --debug=9150 --watch',
       cwd: __dirname,
       max_restarts: '1',
       min_uptime: '2m',
