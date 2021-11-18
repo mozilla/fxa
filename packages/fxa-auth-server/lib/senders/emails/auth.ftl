@@ -7,14 +7,17 @@
 ### Emails have a rich HTML version and a plaintext version. The strings are usually identical
 ### but sometimes they differ slightly.
 
-## Firefox and Mozilla Brand
+# Firefox and Mozilla Brand
 -brand-mozilla = Mozilla
 -brand-firefox = Firefox
 
-## "Accounts" can be localized, "Firefox" must be treated as a brand.
+# "Accounts" can be localized and should be lowercase, "Firefox" must be treated as a brand.
 -product-firefox-accounts = Firefox accounts
 
-## "Account" can be localized, "Firefox" must be treated as a brand.
+# "Account" can be localized and should be lowercase, "Firefox" must be treated as a brand.
 -product-firefox-account = Firefox account
+
+# "Firefox Cloud" should be treated as a brand.
+-product-firefox-cloud = Firefox Cloud
 
 ## Email content
