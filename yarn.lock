@@ -10111,7 +10111,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^6.1.0, ajv@npm:^6.10.0, ajv@npm:^6.10.2, ajv@npm:^6.12.2, ajv@npm:^6.12.4, ajv@npm:^6.12.5, ajv@npm:^6.12.6, ajv@npm:^6.5.5":
+"ajv@npm:^6.1.0, ajv@npm:^6.10.0, ajv@npm:^6.10.2, ajv@npm:^6.12.2, ajv@npm:^6.12.4, ajv@npm:^6.12.5, ajv@npm:^6.5.5":
   version: 6.12.6
   resolution: "ajv@npm:6.12.6"
   dependencies:
@@ -10132,6 +10132,18 @@ __metadata:
     require-from-string: ^2.0.2
     uri-js: ^4.2.2
   checksum: e091264ff6c8134d9072e804f6f1d56e8dacc143537852d9afb456f0bb6c4eff98307e152da2faf7afef2ebf665278316aa5cf30f7d81ccecc9654c11629e2a6
+  languageName: node
+  linkType: hard
+
+"ajv@npm:^8.6.2":
+  version: 8.8.1
+  resolution: "ajv@npm:8.8.1"
+  dependencies:
+    fast-deep-equal: ^3.1.1
+    json-schema-traverse: ^1.0.0
+    require-from-string: ^2.0.2
+    uri-js: ^4.2.2
+  checksum: 1d586cea81b266f5f984c3a9f392a70f59181eb895ecb3463c4fc5c6acd5a4aefbe28f6d361dec4b04078fa6ec8343113cc8abdf577c8b99790d30ef71eea6b2
   languageName: node
   linkType: hard
 
@@ -20032,7 +20044,7 @@ fsevents@~2.1.1:
     knex: ^0.95.14
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    objection: ^2.2.17
+    objection: ^3.0.0
     pm2: ^5.1.2
     prettier: ^2.3.1
     proxyquire: ^2.1.3
@@ -20665,7 +20677,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.1.4
-    objection: ^2.2.17
+    objection: ^3.0.0
     passport: ^0.4.1
     passport-http-bearer: ^1.0.1
     pm2: ^5.1.2
@@ -21110,7 +21122,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     nyc: ^15.1.0
-    objection: ^2.2.17
+    objection: ^3.0.0
     pm2: ^5.1.2
     prettier: ^2.3.1
     proxyquire: ^2.1.3
@@ -30848,15 +30860,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"objection@npm:^2.2.17":
-  version: 2.2.17
-  resolution: "objection@npm:2.2.17"
+"objection@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "objection@npm:3.0.0"
   dependencies:
-    ajv: ^6.12.6
+    ajv: ^8.6.2
     db-errors: ^0.2.3
   peerDependencies:
-    knex: <0.95.0
-  checksum: 37d79de8525fce19f9bfdba52e7d81491a82ba1124a356aec7bba0ba5ad05263e3a5b1e7a82ddcbd1a928162494aa522d99dde55ec00a75779b128fec465101f
+    knex: ">=0.95.0"
+  checksum: 180b742e107c81d60e8d19ecec3cad0ff1426d79d112a577e2c12ecaf143b5ffea3780b0f5a372141964cd582b29ff555d35ef3bd41017a3d7eacbb31dac5144
   languageName: node
   linkType: hard
 
