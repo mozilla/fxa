@@ -13,5 +13,7 @@ profile-password =
 profile-password-created-date = Created { $date }
 profile-primary-email =
   .header = Primary email
+# Default value for the primary email when missing
+profile-primary-email-none = None
 
 ##

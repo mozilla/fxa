@@ -3,10 +3,11 @@ import { useAccount } from '../../models';
 import { UnitRow } from '../UnitRow';
 import { UnitRowSecondaryEmail } from '../UnitRowSecondaryEmail';
 import { HomePath } from '../../constants';
-import { Localized } from '@fluent/react';
+import { Localized, useLocalization } from '@fluent/react';
 
 export const Profile = () => {
   const { avatar, primaryEmail, displayName, passwordCreated } = useAccount();
+  const { l10n } = useLocalization();
 
   const pwdDateText = Intl.DateTimeFormat('default', {
     year: 'numeric',
@@ -75,6 +76,11 @@ export const Profile = () => {
             header="Primary email"
             headerId="primary-email"
             headerValue={primaryEmail.email}
+            noHeaderValueText={l10n.getString(
+              'profile-primary-email-none',
+              null,
+              'None'
+            )}
             headerValueClassName="break-all"
             prefixDataTestId="primary-email"
           />
