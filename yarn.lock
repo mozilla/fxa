@@ -21158,7 +21158,7 @@ fsevents@~2.1.1:
     express: ^4.17.1
     fxa-shared: "workspace:*"
     handlebars: ^4.7.7
-    hbs: ^4.1.2
+    hbs: ^4.2.0
     helmet: ^4.6.0
     jest: 27.3.1
     mozlog: ^3.0.2
@@ -22831,13 +22831,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"hbs@npm:^4.1.2":
-  version: 4.1.2
-  resolution: "hbs@npm:4.1.2"
+"hbs@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "hbs@npm:4.2.0"
   dependencies:
     handlebars: 4.7.7
-    walk: 2.3.14
-  checksum: 93b110080a71d9b0d5b5409b3506f980b8c06cb53a11541427a691823ef2148533bdb426c773b6921af44a84a3247e0b3d8fa4c49d3230f190788414563d4164
+    walk: 2.3.15
+  checksum: 811259d1bc6ecf94fca824df438167306a5f7e122b82aca59a3c593067c50175ce81c3de4d258b9cb19ae9ef5b91e8486282b5791191940bb5d8a298304965b5
   languageName: node
   linkType: hard
 
@@ -40839,16 +40839,7 @@ typescript@^4.3.5:
   languageName: node
   linkType: hard
 
-"walk@npm:2.3.14":
-  version: 2.3.14
-  resolution: "walk@npm:2.3.14"
-  dependencies:
-    foreachasync: ^3.0.0
-  checksum: 77b744e340e890f82eb836b197655cbe171e5b92557446a9a26b89594fbe3b7ea64337b8d93e15a12831c6bf1bf6f83511b52f7bfcc441978b605883ff33bfcb
-  languageName: node
-  linkType: hard
-
-"walk@npm:^2.3.15, walk@npm:^2.3.9":
+"walk@npm:2.3.15, walk@npm:^2.3.15, walk@npm:^2.3.9":
   version: 2.3.15
   resolution: "walk@npm:2.3.15"
   dependencies:
