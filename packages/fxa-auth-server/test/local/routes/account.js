@@ -3451,7 +3451,7 @@ describe('/account', () => {
   });
 
   describe('web subscriptions', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
       mockCustomer = {
         id: 1234,
         subscriptions: ['fake'],
@@ -3544,7 +3544,7 @@ describe('/account', () => {
 
     let subscriptionsEnabled, playSubscriptionsEnabled;
 
-    beforeEach(async () => {
+    beforeEach(() => {
       subscriptionsEnabled = true;
       playSubscriptionsEnabled = true;
       mockCustomer = undefined;

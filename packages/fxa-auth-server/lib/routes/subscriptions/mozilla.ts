@@ -7,6 +7,7 @@ import {
   MozillaSubscription,
   MozillaSubscriptionTypes,
 } from 'fxa-shared/subscriptions/types';
+import { Container } from 'typedi';
 
 import { ConfigType } from '../../../config';
 import { PlaySubscriptions } from '../../../lib/payments/google-play/subscriptions';
@@ -32,7 +33,7 @@ export const mozillaSubscriptionRoutes = ({
   playSubscriptions?: PlaySubscriptions;
 }): ServerRoute[] => {
   if (!playSubscriptions) {
-    playSubscriptions = new PlaySubscriptions();
+    playSubscriptions = Container.get(PlaySubscriptions);
   }
   const mozillaSubscriptionHandler = new MozillaSubscriptionHandler(
     log,
