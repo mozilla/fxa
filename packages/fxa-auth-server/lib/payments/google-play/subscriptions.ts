@@ -56,8 +56,9 @@ export class PlaySubscriptions
       this.playBilling = Container.get(PlayBilling);
     }
 
-    // Since config.subscriptions.enabled is true here, StripeHelper will already exist.
-    this.stripeHelper = Container.get(StripeHelper);
+    if (Container.has(StripeHelper)) {
+      this.stripeHelper = Container.get(StripeHelper);
+    }
   }
 
   async getAbbrevPlayPurchases(uid: string) {

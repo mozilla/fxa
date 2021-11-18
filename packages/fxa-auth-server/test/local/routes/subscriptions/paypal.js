@@ -28,9 +28,6 @@ const ACCOUNT_LOCALE = 'en-US';
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
-const {
-  PlaySubscriptions,
-} = require('../../../../lib/payments/google-play/subscriptions');
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
@@ -128,7 +125,6 @@ describe('subscriptions payPalRoutes', () => {
     profile = {};
     Container.set(CapabilityService, {});
     push = {};
-    Container.set(PlaySubscriptions, {});
   });
 
   afterEach(() => {
