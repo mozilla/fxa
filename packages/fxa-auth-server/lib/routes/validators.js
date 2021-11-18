@@ -581,6 +581,7 @@ module.exports.subscriptionsGooglePlaySubscriptionValidator = isA.object({
   expiry_time_millis: isA.number().required(),
   package_name: isA.string().required(),
   product_id: isA.string().required(),
+  product_name: isA.string().required(),
   sku: isA.string().required(),
 });
 

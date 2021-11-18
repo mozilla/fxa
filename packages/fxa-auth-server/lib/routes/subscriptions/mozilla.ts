@@ -1,22 +1,21 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
-import { Container } from 'typedi';
-import error from '../../error';
-import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
-import { PlaySubscriptions } from '../../../lib/payments/google-play/subscriptions';
 import {
-  GooglePlaySubscription,
   MozillaSubscription,
   MozillaSubscriptionTypes,
 } from 'fxa-shared/subscriptions/types';
-import { AuthLogger, AuthRequest } from '../../types';
-import { handleAuth } from './utils';
-import validators from '../validators';
+import { Container } from 'typedi';
+
 import { ConfigType } from '../../../config';
+import { PlaySubscriptions } from '../../../lib/payments/google-play/subscriptions';
+import error from '../../error';
+import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
+import { AuthLogger, AuthRequest } from '../../types';
+import validators from '../validators';
+import { handleAuth } from './utils';
 
 export const mozillaSubscriptionRoutes = ({
   log,
@@ -34,7 +33,7 @@ export const mozillaSubscriptionRoutes = ({
   playSubscriptions?: PlaySubscriptions;
 }): ServerRoute[] => {
   if (!playSubscriptions) {
-    playSubscriptions = new PlaySubscriptions(config);
+    playSubscriptions = Container.get(PlaySubscriptions);
   }
   const mozillaSubscriptionHandler = new MozillaSubscriptionHandler(
     log,
@@ -107,12 +106,12 @@ export class MozillaSubscriptionHandler {
 
     const stripeBillingDetailsAndSubscriptions =
       await this.stripeHelper.getBillingDetailsAndSubscriptions(uid);
-    const iapAbbrevPlayPurchasesWithProductIds =
-      await this.getPlaySubscriptions(uid);
+    const iapGooglePlaySubscriptions =
+      await this.playSubscriptions.getSubscriptions(uid);
 
     if (
       !stripeBillingDetailsAndSubscriptions &&
-      iapAbbrevPlayPurchasesWithProductIds.length === 0
+      iapGooglePlaySubscriptions.length === 0
     ) {
       throw error.unknownCustomer(uid);
     }
@@ -124,12 +123,6 @@ export class MozillaSubscriptionHandler {
       subscriptions: [],
     };
 
-    const iapGooglePlaySubscriptions: GooglePlaySubscription[] =
-      iapAbbrevPlayPurchasesWithProductIds.map((purchase) => ({
-        ...purchase,
-        _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-      }));
-
     return {
       ...response,
       subscriptions: [...response.subscriptions, ...iapGooglePlaySubscriptions],
@@ -139,7 +132,9 @@ export class MozillaSubscriptionHandler {
   async getSubscriptionsForSupportPanel(request: AuthRequest) {
     this.log.begin('mozillaSubscriptions.supportPanelSubscriptions', request);
     const { uid } = request.query as Record<string, string>;
-    const iapPlaySubscriptions = await this.getPlaySubscriptions(uid);
+    const iapPlaySubscriptions = await this.playSubscriptions.getSubscriptions(
+      uid
+    );
     const customer = await this.stripeHelper.fetchCustomer(uid);
     const webSubscriptions = customer?.subscriptions;
     const formattedWebSubscriptions = webSubscriptions
@@ -150,13 +145,5 @@ export class MozillaSubscriptionHandler {
       [MozillaSubscriptionTypes.WEB]: formattedWebSubscriptions,
       [MozillaSubscriptionTypes.IAP_GOOGLE]: iapPlaySubscriptions,
     };
-  }
-
-  async getPlaySubscriptions(uid: string) {
-    const iapSubscribedGooglePlayAbbrevPlayPurchases =
-      await this.playSubscriptions.getSubscriptions(uid);
-    return this.stripeHelper.addProductInfoToAbbrevPlayPurchases(
-      iapSubscribedGooglePlayAbbrevPlayPurchases
-    );
   }
 }

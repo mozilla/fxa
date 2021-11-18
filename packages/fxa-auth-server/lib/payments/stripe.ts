@@ -1052,7 +1052,7 @@ export class StripeHelper {
   }
 
   /**
-   * Append any matching product ids to their corresponding AbbrevPlayPurchase.
+   * Append any matching product ids and names to their corresponding AbbrevPlayPurchase.
    */
   async addProductInfoToAbbrevPlayPurchases(
     purchases: AbbrevPlayPurchase[]

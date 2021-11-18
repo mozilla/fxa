@@ -5,7 +5,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class Subscription {
-  @Field()
+  @Field({ nullable: true })
   public created!: number;
 
   @Field()

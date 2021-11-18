@@ -4210,7 +4210,7 @@ describe('StripeHelper', () => {
 
     beforeEach(() => {
       productId = 'prod_test';
-      productName = 'testProduct;';
+      productName = 'testProduct';
       mockProduct = {
         product_id: productId,
         product_name: productName,

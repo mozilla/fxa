@@ -16,6 +16,9 @@ const testServerFactory = require('../test_server');
 const { CapabilityService } = require('../../lib/payments/capability');
 const { StripeHelper } = require('../../lib/payments/stripe');
 const { AuthLogger } = require('../../lib/types');
+const {
+  PlaySubscriptions,
+} = require('../../lib/payments/google-play/subscriptions');
 
 const validClients = config.oauthServer.clients.filter(
   (client) => client.trusted && client.canGrant && client.publicClient
@@ -42,6 +45,7 @@ describe('remote subscriptions:', function () {
 
     let client, server, tokens;
     const mockStripeHelper = {};
+    const mockPlaySubscriptions = {};
 
     before(async () => {
       config.subscriptions.enabled = true;
@@ -86,6 +90,7 @@ describe('remote subscriptions:', function () {
       ];
       mockStripeHelper.fetchCustomer = async (uid, email) => ({});
       Container.set(StripeHelper, mockStripeHelper);
+      Container.set(PlaySubscriptions, mockPlaySubscriptions);
       Container.set(AuthLogger, {});
       Container.remove(CapabilityService);
       Container.set(CapabilityService, new CapabilityService());
@@ -135,6 +140,11 @@ describe('remote subscriptions:', function () {
         tokenResponse2.access_token,
         tokenResponse3.access_token,
       ];
+
+      mockStripeHelper.subscriptionsToResponse = async (subscriptions) => [];
+      mockPlaySubscriptions.getActiveGooglePlaySubscriptions = async (
+        uid
+      ) => [];
     });
 
     it('should return client capabilities with shared secret', async () => {
@@ -166,7 +176,10 @@ describe('remote subscriptions:', function () {
         mockStripeHelper.fetchCustomer = async (uid, email) => ({
           subscriptions: { data: [] },
         });
-        mockStripeHelper.subscriptionsToResponse = async (subscriptions) => [];
+      });
+
+      afterEach(() => {
+        Container.reset();
       });
 
       it('should not return any subscription capabilities by default with session token', async () => {
@@ -237,6 +250,10 @@ describe('remote subscriptions:', function () {
             failure_message: undefined,
           },
         ];
+      });
+
+      afterEach(() => {
+        Container.reset();
       });
 
       it('should return all subscription capabilities with session token', async () => {

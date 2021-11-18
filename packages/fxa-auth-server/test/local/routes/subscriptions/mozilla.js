@@ -1,8 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
-'use strict';
+import { ERRNO } from '../../../../lib/error';
+
+('use strict');
 
 const sinon = require('sinon');
 const chai = require('chai');
@@ -11,9 +14,6 @@ const uuid = require('uuid');
 const sandbox = sinon.createSandbox();
 const { getRoute } = require('../../../routes_helpers');
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
-import { ERRNO } from '../../../../lib/error';
-
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const TEST_EMAIL = 'testo@example.gg';
 const ACCOUNT_LOCALE = 'en-US';
@@ -59,6 +59,12 @@ const mockAbbrevPlayPurchase = {
 };
 const iap_product_id = 'iap_prod_lol';
 const iap_product_name = 'LOL Daily';
+const mockGooglePlaySubscription = {
+  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+  product_id: iap_product_id,
+  product_name: iap_product_name,
+  ...mockAbbrevPlayPurchase,
+};
 const mocks = require('../../../mocks');
 const log = mocks.mockLog();
 const db = mocks.mockDB({
@@ -74,7 +80,8 @@ const {
 
 async function runTest(routePath, routeDependencies = {}) {
   const playSubscriptions = {
-    getSubscriptions: sandbox.stub().resolves([mockAbbrevPlayPurchase]),
+    getAbbrevPlayPurchases: sandbox.stub().resolves([mockAbbrevPlayPurchase]),
+    getSubscriptions: sandbox.stub().resolves([mockGooglePlaySubscription]),
   };
   const routes = mozillaSubscriptionRoutes({
     log,
@@ -122,18 +129,14 @@ describe('mozilla-subscriptions', () => {
         ...mockSubsAndBillingDetails,
         subscriptions: [
           ...mockSubsAndBillingDetails.subscriptions,
-          {
-            _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-            product_id: iap_product_id,
-            product_name: iap_product_name,
-            ...mockAbbrevPlayPurchase,
-          },
+          mockGooglePlaySubscription,
         ],
       });
     });
 
     it('gets customer billing details and only Stripe subscriptions', async () => {
       const playSubscriptions = {
+        getAbbrevPlayPurchases: sandbox.stub().resolves([]),
         getSubscriptions: sandbox.stub().resolves([]),
       };
       stripeHelper.addProductInfoToAbbrevPlayPurchases = sandbox
@@ -180,8 +183,9 @@ describe('mozilla-subscriptions', () => {
       });
     });
 
-    it('throws an error when there are no subsriptions', async () => {
+    it('throws an error when there are no subscriptions', async () => {
       const playSubscriptions = {
+        getAbbrevPlayPurchases: sandbox.stub().resolves([]),
         getSubscriptions: sandbox.stub().resolves([]),
       };
       const stripeHelper = {
@@ -218,6 +222,7 @@ describe('mozilla-subscriptions', () => {
             ...mockAbbrevPlayPurchase,
             product_id: iap_product_id,
             product_name: iap_product_name,
+            _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
           },
         ],
       });
