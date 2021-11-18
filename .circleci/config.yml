@@ -299,7 +299,7 @@ jobs:
       NODE_ENV: dev
     steps:
       # needed by check-mysql.sh
-      - run: apt-get install -y netcat
+      - run: apt-get update && apt-get install -y netcat
       - checkout
       # use a separate cache until this is on main
       - restore_cache:
