@@ -1,13 +1,12 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render, act } from '@testing-library/react';
 import { PaymentMethodHeader } from '.';
 import {
   getLocalizedMessage,
   MOCK_PLANS,
   setupFluentLocalizationTest,
 } from '../../lib/test-utils';
-import { act } from 'react-dom/test-utils';
 
 jest.mock('../../lib/sentry');
 
