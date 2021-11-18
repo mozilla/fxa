@@ -48,7 +48,7 @@
     "grunt": "^1.4.1",
     "grunt-cli": "^1.4.3",
     "grunt-copyright": "0.3.0",
-    "grunt-eslint": "^24.0.0",
+    "grunt-eslint": "^23.0.0",
     "load-grunt-tasks": "^5.1.0",
     "pm2": "^5.1.2",
     "prettier": "^2.3.1",
