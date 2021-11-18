@@ -81,7 +81,7 @@ type Account {
   email: String!
   emailVerified: Boolean!
   createdAt: Float!
-  disabledAt: Float!
+  disabledAt: Float
   emails: [Email!]
   emailBounces: [EmailBounce!]
   totp: [Totp!]

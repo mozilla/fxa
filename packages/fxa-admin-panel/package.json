@@ -48,6 +48,7 @@
     "dateformat": "^4.3.1",
     "express": "^4.17.1",
     "express-http-proxy": "^1.6.3",
+    "fxa-admin-server": "workspace:*",
     "fxa-react": "workspace:*",
     "graphql": "^15.6.1",
     "helmet": "^4.6.0",
