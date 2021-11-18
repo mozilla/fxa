@@ -8,8 +8,8 @@ import {
   ProductDetailsStringProperty,
   ProductDetailsListProperties,
   ProductDetailsListProperty,
-  WebSubscription,
   AbbrevPlan,
+  MozillaSubscription,
 } from './types';
 
 const DEFAULT_LOCALE = 'en-US';
@@ -146,7 +146,7 @@ export const productDetailsFromPlan = (
  * id.  This is used for the app/service select on the support form.
  */
 export const getProductSupportApps =
-  (subscriptions: WebSubscription[]) => (plans: AbbrevPlan[]) => {
+  (subscriptions: MozillaSubscription[]) => (plans: AbbrevPlan[]) => {
     const metadataPrefix = 'support:app:';
     return plans.reduce((acc: { [keys: string]: string[] }, p) => {
       if (
