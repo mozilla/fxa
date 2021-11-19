@@ -1,8 +1,7 @@
 import AuthClient from 'fxa-auth-client';
 import { EmailClient } from '../email';
 
-type Resolved<T> = T extends PromiseLike<infer U> ? U : T;
-export type Credentials = Resolved<ReturnType<AuthClient['signUp']>> & {
+export type Credentials = Awaited<ReturnType<AuthClient['signUp']>> & {
   email: string;
   password: string;
   secret?: string;

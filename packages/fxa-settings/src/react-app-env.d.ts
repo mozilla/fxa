@@ -8,8 +8,6 @@ type hexstring = string;
 
 type Hash<T> = { [key: string]: T };
 
-type Resolved<T> = T extends PromiseLike<infer U> ? U : T;
-
 interface FlowQueryParams {
   broker?: string;
   context?: string;

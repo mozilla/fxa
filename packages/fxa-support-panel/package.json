@@ -14,11 +14,11 @@
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
-    "test": "jest && yarn test:e2e",
+    "test": "jest --runInBand && yarn test:e2e",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --runInBand --config ./test/jest-e2e.json"
   },
   "private": true,
   "repository": {
@@ -54,7 +54,7 @@
     "rxjs": "^7.2.0",
     "semver": "^7.3.5",
     "superagent": "^6.1.0",
-    "tslib": "^2.3.0",
+    "tslib": "^2.3.1",
     "typesafe-joi": "^2.1.0"
   },
   "devDependencies": {
@@ -67,14 +67,14 @@
     "@types/supertest": "^2.0.11",
     "audit-filter": "^0.5.0",
     "esbuild": "^0.13.14",
-    "esbuild-register": "^3.0.0",
+    "esbuild-register": "^3.1.2",
     "eslint": "^7.32.0",
     "jest": "27.3.1",
     "pm2": "^5.1.2",
     "prettier": "^2.3.1",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.7",
-    "typescript": "^4.3.5"
+    "typescript": "^4.5.2"
   },
   "jest": {
     "moduleFileExtensions": [

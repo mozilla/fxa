@@ -23,7 +23,5 @@ export type FunctionWithIgnoredReturn<T extends (...args: any) => any> = (
   ...args: Parameters<T>
 ) => unknown;
 
-export type PromiseResolved<T> = T extends Promise<infer U> ? U : T;
-
 export type PickPartial<T, K extends keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
