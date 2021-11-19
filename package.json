@@ -10,6 +10,7 @@
     "start": "nps --prefix=start",
     "stop": "nps --prefix=stop",
     "restart": "nps --prefix=restart",
+    "delete": "nps --prefix=delete",
     "adb-reverse": "./_scripts/adb-reverse.sh",
     "test": "_scripts/test-package.sh",
     "config-fxios": "node _scripts/config-fxios.js",

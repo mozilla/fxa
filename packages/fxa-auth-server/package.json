@@ -17,6 +17,7 @@
     "start": "scripts/start-local.sh",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
     "test": "VERIFIER_VERSION=0 scripts/test-local.sh",
     "test-ci": "scripts/test-local.sh && npm run test-e2e",
     "test-e2e": "NODE_ENV=dev mocha -r esbuild-register test/e2e",
