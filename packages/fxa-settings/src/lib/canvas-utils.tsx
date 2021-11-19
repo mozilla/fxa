@@ -120,9 +120,9 @@ export async function getRotatedImage(
     ctx.drawImage(image, -image.width / 2, -image.height / 2);
   }
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     canvas.toBlob((file) => {
-      resolve(URL.createObjectURL(file));
+      file ? resolve(URL.createObjectURL(file)) : reject(new Error('no image'));
     }, 'image/jpeg');
   });
 }

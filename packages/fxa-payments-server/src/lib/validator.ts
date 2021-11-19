@@ -164,9 +164,9 @@ export const mainReducer: ActionReducer = (state, action) => {
       const { name, fieldType, required, initialValue } = action;
       return setFieldState(state, name, (field) => ({
         value: initialValue,
+        ...field,
         valid: null,
         error: null,
-        ...field,
         fieldType,
         required,
       }));

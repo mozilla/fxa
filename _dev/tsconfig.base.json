@@ -11,6 +11,7 @@
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "useUnknownInCatchVariables": false,
     "baseUrl": "../packages",
     "typeRoots": [
       "../types",
