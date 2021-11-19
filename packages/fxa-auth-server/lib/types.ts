@@ -7,8 +7,6 @@ import { Logger } from 'mozlog';
 import { Firestore } from '@google-cloud/firestore';
 import { ConfigType } from '../config';
 
-export type Awaited<T> = T extends PromiseLike<infer U> ? Awaited<U> : T;
-
 /**
  * Auth-Server specific interfaces to use objects.
  *

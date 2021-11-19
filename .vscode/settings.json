@@ -20,5 +20,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "python.pythonPath": "usr/bin/python3",
-  "prettier.configPath": "_dev/.prettierrc"
+  "prettier.configPath": "_dev/.prettierrc",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

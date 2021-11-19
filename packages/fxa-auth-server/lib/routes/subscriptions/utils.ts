@@ -53,5 +53,3 @@ export function handleAuthScoped(auth: AuthRequest['auth'], scopes: string[]) {
   const { user: uid, email } = auth.credentials;
   return { uid, email } as { uid: string; email: string };
 }
-
-export type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;

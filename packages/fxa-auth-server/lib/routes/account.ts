@@ -26,7 +26,7 @@ import { CapabilityService } from '../payments/capability';
 import { PlaySubscriptions } from '../payments/google-play/subscriptions';
 import { PayPalHelper } from '../payments/paypal';
 import { StripeHelper } from '../payments/stripe';
-import { AuthLogger, AuthRequest, Awaited } from '../types';
+import { AuthLogger, AuthRequest } from '../types';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
