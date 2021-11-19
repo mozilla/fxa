@@ -6,11 +6,13 @@ const PATH = process.env.PATH.split(':')
   .filter((p) => !p.includes(process.env.TMPDIR))
   .join(':');
 
+const nest = require.resolve('@nestjs/cli/bin/nest.js');
+
 module.exports = {
   apps: [
     {
       name: 'admin-server',
-      script: 'yarn nest start --debug=9150 --watch',
+      script: `${nest} start --debug=9150 --watch`,
       cwd: __dirname,
       max_restarts: '1',
       min_uptime: '2m',
