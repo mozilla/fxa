@@ -13,6 +13,7 @@
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
     "test": "yarn test:mocha && yarn test:jest",
     "test:mocha": "tsc --build && node ./scripts/mocha-coverage.js -r esbuild-register --recursive test/**/*.{js,ts}",
     "test:jest": "jest --runInBand --coverage",

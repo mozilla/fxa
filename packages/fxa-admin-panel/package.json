@@ -14,6 +14,7 @@
     "restart": "tsc --build ../fxa-react && npm run build-postcss && pm2 restart pm2.config.js",
     "start": "tsc --build ../fxa-react && npm run build-postcss && pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
     "storybook": "npm run build-postcss && start-storybook -p 6009",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose",
     "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js",

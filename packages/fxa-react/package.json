@@ -18,6 +18,7 @@
     "restart": "pm2 restart pm2.config.js",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
+    "delete": "pm2 delete pm2.config.js",
     "storybook": "npm run build-postcss && start-storybook -p 6007 --no-version-updates",
     "test": "jest --runInBand --env=jest-environment-jsdom"
   },
