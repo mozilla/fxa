@@ -6,11 +6,13 @@ const PATH = process.env.PATH.split(':')
   .filter((p) => !p.includes(process.env.TMPDIR))
   .join(':');
 
+const nest = require.resolve('@nestjs/cli/bin/nest.js');
+
 module.exports = {
   apps: [
     {
       name: 'event-broker',
-      script: 'nest start --debug=9180 --watch',
+      script: `${nest} start --debug=9180 --watch`,
       cwd: __dirname,
       max_restarts: '1',
       env: {
