@@ -84,9 +84,8 @@ const SupportView = BaseView.extend({
         return account
           .fetchSubscriptionPlans()
           .then((plans) => {
-            const productSupportApps = getProductSupportApps(subscriptions)(
-              plans
-            );
+            const productSupportApps =
+              getProductSupportApps(subscriptions)(plans);
             this.productSupportApps = productSupportApps;
           })
           .then(() => account.fetchProfile());
@@ -158,7 +157,7 @@ const SupportView = BaseView.extend({
         'subscription.initialize',
         new SubscriptionModel(
           {
-            planId: subscription.plan_id,
+            planId: subscription.plan_id || subscription.sku,
             productId: subscription.product_id,
           },
           {

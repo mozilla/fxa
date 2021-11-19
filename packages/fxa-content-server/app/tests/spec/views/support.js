@@ -212,6 +212,36 @@ describe('views/support', function () {
         });
     });
 
+    it('uses the SKU in place for plan ID in metrics when given a Google Play Subscription', () => {
+      account.getSubscriptions.restore();
+      sinon.stub(account, 'getSubscriptions').resolves([
+        {
+          product_id: '123done_xyz',
+          product_name: '123Done Pro',
+          sku: 'com.moz.stuff.cool',
+        },
+      ]);
+      return view
+        .render()
+        .then(function () {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function () {
+          view
+            .$('#product option:eq(1)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(notifier.trigger.callCount, 5);
+          const args = notifier.trigger.args[4];
+          assert.lengthOf(args, 3);
+          assert.equal(args[0], 'subscription.initialize');
+          assert.instanceOf(args[1], SubscriptionModel);
+          assert.equal(args[1].get('planId'), 'com.moz.stuff.cool');
+          assert.equal(args[1].get('productId'), '123done_xyz');
+        });
+    });
+
     it('should be prefixed "Other" when "Other" is selected', function () {
       return view
         .render()
