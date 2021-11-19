@@ -85,7 +85,7 @@
     "browserslist": "^4.7.2",
     "caniuse-lite": "^1.0.30001270",
     "esbuild": "^0.13.14",
-    "esbuild-register": "^3.0.0",
+    "esbuild-register": "^3.1.2",
     "eslint": "^7.32.0",
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-fxa": "^2.0.2",
@@ -107,7 +107,7 @@
     "style-loader": "^1.3.0",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.7",
-    "typescript": "^4.3.5",
+    "typescript": "^4.5.2",
     "wait-for-expect": "^3.0.2",
     "webpack": "^4.43.0"
   },

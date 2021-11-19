@@ -15978,14 +15978,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild-register@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "esbuild-register@npm:3.0.0"
+"esbuild-register@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "esbuild-register@npm:3.1.2"
   dependencies:
     jsonc-parser: ^3.0.0
   peerDependencies:
     esbuild: ">=0.12 <1"
-  checksum: 54fc34d54bf7153bcac39a8e3ea749f175422ee810653ebdde95ccaf6ad0ba3a6c9d7aa6c084d09803fe5100b100cb4c0a1abf0fcf53dc4cad17d28f7d0a1535
+  checksum: 966855f0feb7b6afee6b6d7768390216658bacdc10720df823e0705c0289dee98a5978c2c6e4d8d281589e42b214718b6a4030767439da72aae177a54bf87eb1
   languageName: node
   linkType: hard
 
@@ -18364,7 +18364,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     dateformat: ^4.3.1
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-fxa: ^2.0.2
@@ -18394,7 +18394,7 @@ fsevents@~2.1.1:
     supertest: ^6.1.6
     tailwindcss: ^1.9.1
     ts-jest: ^27.0.7
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     webpack: ^4.43.0
   languageName: unknown
   linkType: soft
@@ -18430,7 +18430,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
@@ -18453,7 +18453,7 @@ fsevents@~2.1.1:
     ts-morph: ^12.2.0
     tsconfig-paths: ^3.11.0
     tslib: ^2.3.0
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     yargs: ^17.0.1
   languageName: unknown
   linkType: soft
@@ -18472,11 +18472,11 @@ fsevents@~2.1.1:
     abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     fast-text-encoding: ^1.0.3
     mocha: ^9.1.2
     node-fetch: ^2.6.1
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
   languageName: unknown
   linkType: soft
@@ -18582,7 +18582,7 @@ fsevents@~2.1.1:
     email-addresses: 4.0.0
     emittery: ^0.10.0
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     fxa-auth-db-mysql: "workspace:*"
@@ -18661,7 +18661,7 @@ fsevents@~2.1.1:
     through: 2.3.8
     typedi: ^0.8.0
     typesafe-node-firestore: ^1.4.0
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     uuid: ^8.3.2
     verror: ^1.10.1
     web-push: 3.4.4
@@ -18725,7 +18725,7 @@ fsevents@~2.1.1:
     css-loader: 1.0.0
     duration-js: 4.0.0
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     expose-loader: 1.0.3
@@ -18817,7 +18817,7 @@ fsevents@~2.1.1:
     thread-loader: ^3.0.4
     time-grunt: 2.0.0
     ts-loader: ^8.3.0
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
     underscore: ^1.13.1
     upng-js: 2.1.0
@@ -18961,7 +18961,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-config-prettier: ^8.3.0
     eslint-plugin-import: ^2.25.1
@@ -18991,7 +18991,7 @@ fsevents@~2.1.1:
     tsconfig-paths: ^3.11.0
     typesafe-joi: ^2.1.0
     typesafe-node-firestore: ^1.4.0
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     uuid: ^8.3.2
   languageName: unknown
   linkType: soft
@@ -19057,7 +19057,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     express: ^4.17.1
     fxa-auth-client: "workspace:*"
@@ -19087,7 +19087,7 @@ fsevents@~2.1.1:
     supertest: ^6.1.6
     ts-jest: ^27.0.7
     tslib: ^2.3.0
-    typescript: ^4.3.5
+    typescript: ^4.5.2
   languageName: unknown
   linkType: soft
 
@@ -19121,7 +19121,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     fxa-shared: "workspace:*"
     mocha: ^9.1.2
@@ -19130,7 +19130,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     sinon: ^9.0.3
     typedi: ^0.8.0
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     uuid: ^8.3.2
   languageName: unknown
   linkType: soft
@@ -19214,7 +19214,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     dayjs: ^1.9.4
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-fxa: ^2.0.2
@@ -19268,7 +19268,7 @@ fsevents@~2.1.1:
     ts-jest: ^27.0.7
     type-to-reducer: ^1.2.0
     typedi: ^0.8.0
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     uuid: ^8.3.2
     wait-for-expect: ^3.0.2
     webpack: ^4.43.0
@@ -19379,7 +19379,7 @@ fsevents@~2.1.1:
     tailwindcss: ^1.9.1
     tailwindcss-dir: ^4.0.0
     ts-jest: ^27.0.7
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     webpack: ^4.43.0
   languageName: unknown
   linkType: soft
@@ -19455,7 +19455,7 @@ fsevents@~2.1.1:
     style-loader: ^1.3.0
     subscriptions-transport-ws: ^0.11.0
     tailwindcss: ^1.9.1
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     uuid: ^8.3.2
     webpack: ^4.43.0
     webpack-merge-and-include-globally: ^2.3.4
@@ -19505,7 +19505,7 @@ fsevents@~2.1.1:
     class-validator: ^0.13.1
     cors: ^2.8.5
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     find-up: ^5.0.0
@@ -19540,7 +19540,7 @@ fsevents@~2.1.1:
     ts-jest: ^27.0.7
     ts-loader: ^8.3.0
     tsconfig-paths: ^3.11.0
-    typescript: ^4.3.5
+    typescript: ^4.5.2
     underscore: ^1.13.1
     uuid: ^8.3.2
   languageName: unknown
@@ -19571,7 +19571,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.13.14
-    esbuild-register: ^3.0.0
+    esbuild-register: ^3.1.2
     eslint: ^7.32.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
@@ -19591,7 +19591,7 @@ fsevents@~2.1.1:
     ts-jest: ^27.0.7
     tslib: ^2.3.0
     typesafe-joi: ^2.1.0
-    typescript: ^4.3.5
+    typescript: ^4.5.2
   languageName: unknown
   linkType: soft
 
@@ -37952,23 +37952,23 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-typescript@^4.3.5:
-  version: 4.3.5
-  resolution: "typescript@npm:4.3.5"
+"typescript@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "typescript@npm:4.5.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: bab033b5e2b0790dd35b77fd005df976ef80b8d84fd2c6e63cc31808151875beae9216e5a315fe7068e8499905c3c354248fe83272cdfc13b7705635f0c66c97
+  checksum: 74f9ce65d532bdf5d0214b3f60cf37992180023388c87a11ee6f838a803067ef0b63c600fa501b0deb07f989257dce1e244c9635ed79feca40bbccf6e0aa1ebc
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.3.5#~builtin<compat/typescript>":
-  version: 4.3.5
-  resolution: "typescript@patch:typescript@npm%3A4.3.5#~builtin<compat/typescript>::version=4.3.5&hash=ddd1e8"
+"typescript@patch:typescript@^4.5.2#~builtin<compat/typescript>, typescript@patch:typescript@npm%3A^4.5.2#~builtin<compat/typescript>":
+  version: 4.5.2
+  resolution: "typescript@patch:typescript@npm%3A4.5.2#~builtin<compat/typescript>::version=4.5.2&hash=ddd1e8"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 61fc1a2ca5037420de5bbe17c6ddc4cbcc0d52301ed94f0a7b5821c55ff9eb96307f0816f745ca8f0fc87ed92f3951cde6d97cd6fd6bc6920c02ea63b5b26259
+  checksum: 24a439e062a05e3285a4f0e8a40644116ecdca89f3e908bed01e5a01b9aee747e3bcf0e85fe9e017e5ebf0c0863437c39479f2616f55a244c2d82d37022cdc4f
   languageName: node
   linkType: hard
 
