@@ -14,7 +14,7 @@
     "eject": "react-scripts eject",
     "test": "npm-run-all test:frontend test:server",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test",
-    "test:server": "jest --coverage --verbose --config server/jest.config.js",
+    "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "storybook": "start-storybook -s ./public -p 6006",
     "build-storybook": "build-storybook && cp -r public/locales public/images storybook-static/"

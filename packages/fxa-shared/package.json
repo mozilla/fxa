@@ -15,7 +15,7 @@
     "restart": "pm2 restart pm2.config.js",
     "test": "yarn test:mocha && yarn test:jest",
     "test:mocha": "tsc --build && node ./scripts/mocha-coverage.js -r esbuild-register --recursive test/**/*.{js,ts}",
-    "test:jest": "jest --coverage",
+    "test:jest": "jest --runInBand --coverage",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"

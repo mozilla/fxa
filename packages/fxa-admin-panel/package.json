@@ -16,7 +16,7 @@
     "stop": "pm2 stop pm2.config.js",
     "storybook": "npm run build-postcss && start-storybook -p 6009",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose",
-    "test:server": "jest --coverage --verbose --config server/jest.config.js",
+    "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js",
     "test": "CI=true npm-run-all test:frontend test:server"
   },
   "eslintConfig": {

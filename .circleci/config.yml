@@ -11,7 +11,7 @@ executors:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: circleci/mysql:5.7.27
+      - image: circleci/mysql:5.7.31
       - image: jdlk7/firestore-emulator
         environment:
           NODE_ENV: dev
@@ -101,7 +101,7 @@ jobs:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: circleci/mysql:5.7.27
+      - image: circleci/mysql:5.7.31
       - image: jdlk7/firestore-emulator
         environment:
           NODE_ENV: dev
@@ -125,8 +125,8 @@ jobs:
   test-many:
     resource_class: medium+
     docker:
-      - image: cimg/node:14.18
-      - image: circleci/mysql:5.7.27
+      - image: cimg/node:16.13
+      - image: circleci/mysql:5.7.31
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
@@ -139,10 +139,10 @@ jobs:
             PACKAGES=(\
             'fxa-shared' \
             'fxa-react' \
-            'fxa-admin-server' \
             'fxa-graphql-api' \
-            'fxa-admin-panel' \
             'fxa-payments-server' \
+            'fxa-admin-server' \
+            'fxa-admin-panel' \
             'fxa-support-panel' \
             'fxa-event-broker' \
             'fxa-auth-db-mysql' \
@@ -294,7 +294,7 @@ jobs:
       - image: mcr.microsoft.com/playwright:focal
       - image: redis
       - image: memcached
-      - image: circleci/mysql:5.7.27
+      - image: circleci/mysql:5.7.31
     environment:
       NODE_ENV: dev
     steps:

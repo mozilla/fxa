@@ -26,7 +26,6 @@ mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
 node ./packages/db-migrations/bin/patcher.mjs
 
-export NEW_SETTINGS=false
 yarn workspaces foreach \
     --verbose \
     --topological-dev \
@@ -49,6 +48,8 @@ npx pm2 ls
 _scripts/check-url.sh localhost:3031/__lbheartbeat__
 # ensure content-server is ready
 _scripts/check-url.sh localhost:3030/bundle/app.bundle.js
+# ensure settings is ready
+_scripts/check-url.sh localhost:3030/settings/static/js/bundle.js
 
 cd packages/fxa-content-server
 
