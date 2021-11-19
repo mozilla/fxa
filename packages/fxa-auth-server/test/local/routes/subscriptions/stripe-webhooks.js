@@ -439,7 +439,9 @@ describe('StripeWebhookHandler', () => {
           product: updatedEvent.data.object,
         };
         const allPlans = [...validPlanList, invalidPlan];
-        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves(allPlans);
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
+          allPlans
+        );
         StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
           [invalidPlan]
         );
@@ -451,7 +453,9 @@ describe('StripeWebhookHandler', () => {
         assert.calledOnce(scopeContextSpy);
         assert.calledOnce(captureMessageSpy);
 
-        assert.calledOnce(StripeWebhookHandlerInstance.stripeHelper.allPlans);
+        assert.calledOnce(
+          StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans
+        );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId,
           updatedEvent.data.object.id
@@ -468,7 +472,7 @@ describe('StripeWebhookHandler', () => {
 
       it('does not throw a sentry error if the update event data is valid', async () => {
         const updatedEvent = deepCopy(eventProductUpdated);
-        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
           validPlanList
         );
         StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(
@@ -490,7 +494,7 @@ describe('StripeWebhookHandler', () => {
           ...deepCopy(eventProductUpdated),
           type: 'product.deleted',
         };
-        StripeWebhookHandlerInstance.stripeHelper.allPlans.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.fetchAllPlans.resolves(
           validPlanList
         );
         StripeWebhookHandlerInstance.stripeHelper.fetchPlansByProductId.resolves(

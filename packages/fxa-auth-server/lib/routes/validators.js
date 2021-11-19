@@ -448,10 +448,36 @@ module.exports.subscriptionProductMetadataValidator = {
         error: 'Capability missing from metadata',
       };
     }
-
     return module.exports.subscriptionProductMetadataBaseValidator.validate(
-      metadata
+      metadata,
+      {
+        abortEarly: false,
+      }
     );
+  },
+  async validateAsync(metadata) {
+    const hasCapability = Object.keys(metadata).some((k) =>
+      capabilitiesClientIdPattern.test(k)
+    );
+
+    if (!hasCapability) {
+      return {
+        error: 'Capability missing from metadata',
+      };
+    }
+
+    try {
+      const value = await isA.validate(
+        metadata,
+        module.exports.subscriptionProductMetadataBaseValidator,
+        {
+          abortEarly: false,
+        }
+      );
+      return { value };
+    } catch (error) {
+      return { error };
+    }
   },
 };
 

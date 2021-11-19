@@ -190,4 +190,29 @@ async function configureSentry(server, config, processName = 'key_server') {
   }
 }
 
-module.exports = { configureSentry, reportSentryError };
+/**
+ * Report a validation error to Sentry with validation details.
+ *
+ * @param {*} message
+ * @param {string | import('@hapi/joi').ValidationError} error
+ */
+function reportValidationError(message, error) {
+  const details = {};
+  if (typeof error === 'string') {
+    details.error = error;
+  } else {
+    for (const errorItem of error.details) {
+      const key = errorItem.path.join('.');
+      details[key] = {
+        message: errorItem.message,
+        type: errorItem.type,
+      };
+    }
+  }
+  Sentry.withScope((scope) => {
+    scope.setContext('validationError', details);
+    Sentry.captureMessage(message, Sentry.Severity.Error);
+  });
+}
+
+module.exports = { configureSentry, reportSentryError, reportValidationError };

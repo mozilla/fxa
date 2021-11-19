@@ -10,16 +10,10 @@ import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
-import { reportSentryError } from '../../../lib/sentry';
+import { reportSentryError, reportValidationError } from '../../../lib/sentry';
 import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
 import { PayPalHelper } from '../../payments/paypal';
-import { PayPalClientError } from '../../payments/paypal-client';
-import {
-  PAYPAL_BILLING_AGREEMENT_INVALID,
-  PAYPAL_BILLING_TRANSACTION_WRONG_ACCOUNT,
-  PAYPAL_SOURCE_ERRORS,
-} from '../../payments/paypal-error-codes';
 import {
   INVOICES_RESOURCE,
   StripeHelper,
@@ -407,22 +401,15 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
 
-    const result = subscriptionProductMetadataValidator.validate({
+    const { error } = await subscriptionProductMetadataValidator.validateAsync({
       ...product.metadata,
       ...plan.metadata,
     });
 
-    if (result?.error) {
+    if (error) {
       const msg = `handlePlanUpdatedEvent - Plan "${plan.id}"'s metadata failed validation`;
-      this.log.error(msg, { error: result.error, plan });
-
-      Sentry.withScope((scope) => {
-        scope.setContext('validationError', {
-          error: result.error,
-        });
-        Sentry.captureMessage(msg, Sentry.Severity.Error);
-      });
-
+      this.log.error(msg, { error, plan });
+      reportValidationError(msg, error as any);
       this.stripeHelper.updateAllPlans(updatedList);
       return;
     }
@@ -451,28 +438,23 @@ export class StripeWebhookHandler extends StripeHandler {
     await this.stripeHelper.updateAllProducts(updatedList);
 
     const plans = await this.stripeHelper.fetchPlansByProductId(product.id);
-    const allPlans = await this.stripeHelper.allPlans();
+    const allPlans = await this.stripeHelper.fetchAllPlans();
     const updatedPlans = allPlans.filter(
       (plan) => (plan.product as Stripe.Product).id !== product.id
     );
 
     if (event.type !== 'product.deleted') {
       for (const plan of plans) {
-        const result = subscriptionProductMetadataValidator.validate({
-          ...product.metadata,
-          ...plan.metadata,
-        });
-
-        if (result?.error) {
-          const msg = `handleProductWebhookEvent - Plan "${plan.id}"'s metadata failed validation on product ${product.id} update.`;
-          this.log.error(msg, { error: result.error, product });
-
-          Sentry.withScope((scope) => {
-            scope.setContext('validationError', {
-              error: result.error,
-            });
-            Sentry.captureMessage(msg, Sentry.Severity.Error);
+        const { error } =
+          await subscriptionProductMetadataValidator.validateAsync({
+            ...product.metadata,
+            ...plan.metadata,
           });
+
+        if (error) {
+          const msg = `handleProductWebhookEvent - Plan "${plan.id}"'s metadata failed validation on product ${product.id} update.`;
+          this.log.error(msg, { error, product });
+          reportValidationError(msg, error as any);
         } else {
           updatedPlans.push({ ...plan, product });
         }
