@@ -136,6 +136,11 @@ export const UnitRowSecondaryEmail = () => {
           headerId="secondary-email"
           prefixDataTestId="secondary-email"
           headerValue={null}
+          noHeaderValueText={l10n.getString(
+            'se-secondary-email-none',
+            null,
+            'None'
+          )}
           route={`${HomePath}/emails`}
           {...{
             alertBarRevealed: alertBar.visible,
