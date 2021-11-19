@@ -7,7 +7,7 @@
     "lint": "npm-run-all --parallel lint:eslint lint:sass",
     "lint:eslint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "start": "pm2 start pm2.config.js",
+    "start": "pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3031/__lbheartbeat__",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",

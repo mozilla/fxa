@@ -31,7 +31,6 @@ yarn workspaces foreach \
     --topological-dev \
     --include 123done \
     --include browserid-verifier \
-    --include fxa-auth-db-mysql \
     --include fxa-auth-server \
     --include fxa-content-server \
     --include fxa-graphql-api \
@@ -40,16 +39,9 @@ yarn workspaces foreach \
     --include fxa-react \
     --include fxa-settings \
     --include fxa-shared \
-    --include fxa-support-panel \
     run start > ~/.pm2/logs/startup.log
 
 npx pm2 ls
-# ensure payments-server is ready
-_scripts/check-url.sh localhost:3031/__lbheartbeat__
-# ensure content-server is ready
-_scripts/check-url.sh localhost:3030/bundle/app.bundle.js
-# ensure settings is ready
-_scripts/check-url.sh localhost:3030/settings/static/js/bundle.js
 
 cd packages/fxa-content-server
 
