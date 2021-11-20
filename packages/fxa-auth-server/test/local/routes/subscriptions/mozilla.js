@@ -206,31 +206,4 @@ describe('mozilla-subscriptions', () => {
       }
     });
   });
-
-  describe('GET /oauth/mozilla-subscriptions/support-panel/subscriptions', () => {
-    it('gets the expected subscriptions', async () => {
-      const resp = await runTest(
-        '/oauth/mozilla-subscriptions/support-panel/subscriptions',
-        {
-          stripeHelper,
-        }
-      );
-      assert.deepEqual(resp, {
-        [MozillaSubscriptionTypes.WEB]: [mockFormattedWebSubscription],
-        [MozillaSubscriptionTypes.IAP_GOOGLE]: [
-          {
-            ...mockAbbrevPlayPurchase,
-            product_id: iap_product_id,
-            product_name: iap_product_name,
-            _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-          },
-        ],
-      });
-      assert.calledOnceWithExactly(stripeHelper.fetchCustomer, UID);
-      assert.calledOnceWithExactly(
-        stripeHelper.formatSubscriptionsForSupport,
-        mockCustomer.subscriptions
-      );
-    });
-  });
 });

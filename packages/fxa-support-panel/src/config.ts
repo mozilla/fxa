@@ -30,8 +30,8 @@ const conf = convict({
       format: String,
     },
     subscriptionsSearchPath: {
-      default: '/v1/oauth/mozilla-subscriptions/support-panel/subscriptions',
-      doc: 'Auth server path for subscriptions search endpoint',
+      default: '/v1/oauth/support-panel/subscriptions',
+      doc: 'Auth server path for subscriptions',
       env: 'AUTH_SERVER_SUBS_SEARCH_PATH',
       format: String,
     },
