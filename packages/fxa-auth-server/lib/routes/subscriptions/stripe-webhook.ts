@@ -117,6 +117,10 @@ export class StripeWebhookHandler extends StripeHandler {
         case 'plan.deleted':
           await this.handlePlanDeletedEvent(request, event);
           break;
+        case 'tax_rate.created':
+        case 'tax_rate.updated':
+          await this.handleTaxRateCreatedOrUpdatedEvent(request, event);
+          break;
         default:
           if (!firestoreHandled) {
             Sentry.withScope((scope) => {
@@ -425,6 +429,17 @@ export class StripeWebhookHandler extends StripeHandler {
     const plan = event.data.object as Stripe.Plan;
     const allPlans = await this.stripeHelper.allPlans();
     this.stripeHelper.updateAllPlans(allPlans.filter((p) => p.id !== plan.id));
+  }
+
+  async handleTaxRateCreatedOrUpdatedEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
+    const taxRate = event.data.object as Stripe.TaxRate;
+    const allTaxRates = await this.stripeHelper.allTaxRates();
+    const updatedList = allTaxRates.filter((tr) => tr.id !== taxRate.id);
+    updatedList.push(taxRate);
+    this.stripeHelper.updateAllTaxRates(updatedList);
   }
 
   /**

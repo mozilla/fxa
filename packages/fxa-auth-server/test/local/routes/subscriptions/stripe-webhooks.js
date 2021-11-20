@@ -36,6 +36,8 @@ const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/even
 const eventProductUpdated = require('../../payments/fixtures/stripe/product_updated_event.json');
 const eventPlanUpdated = require('../../payments/fixtures/stripe/plan_updated_event.json');
 const eventCreditNoteCreated = require('../../payments/fixtures/stripe/event_credit_note_created.json');
+const eventTaxRateCreated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
+const eventTaxRateUpdated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
 const { default: Container } = require('typedi');
 const { PayPalHelper } = require('../../../../lib/payments/paypal');
 const { CapabilityService } = require('../../../../lib/payments/capability');
@@ -171,6 +173,7 @@ describe('StripeWebhookHandler', () => {
         'handleInvoicePaidEvent',
         'handleInvoicePaymentFailedEvent',
         'handleInvoiceCreatedEvent',
+        'handleTaxRateCreatedOrUpdatedEvent',
       ];
       const handlerStubs = {};
 
@@ -328,6 +331,20 @@ describe('StripeWebhookHandler', () => {
         itOnlyCallsThisHandler(
           'handleInvoiceCreatedEvent',
           eventInvoiceCreated
+        );
+      });
+
+      describe('when the event.type is tax_rate.created', () => {
+        itOnlyCallsThisHandler(
+          'handleTaxRateCreatedOrUpdatedEvent',
+          eventTaxRateCreated
+        );
+      });
+
+      describe('when the event.type is tax_rate.updated', () => {
+        itOnlyCallsThisHandler(
+          'handleTaxRateCreatedOrUpdatedEvent',
+          eventTaxRateUpdated
         );
       });
 
@@ -635,6 +652,52 @@ describe('StripeWebhookHandler', () => {
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.stripeHelper.updateAllPlans,
           []
+        );
+      });
+    });
+
+    describe('handleTaxRateCreatedOrUpdatedEvent', () => {
+      const taxRate = deepCopy(eventTaxRateCreated.data.object);
+
+      beforeEach(() => {
+        StripeWebhookHandlerInstance.stripeHelper.allTaxRates.resolves([
+          taxRate,
+        ]);
+        StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates.resolves();
+      });
+
+      it('adds a new tax rate on tax_rate.created', async () => {
+        const createdEvent = deepCopy(eventTaxRateCreated);
+        StripeWebhookHandlerInstance.stripeHelper.allTaxRates.resolves([]);
+        await StripeWebhookHandlerInstance.handleTaxRateCreatedOrUpdatedEvent(
+          {},
+          createdEvent
+        );
+
+        assert.calledOnce(
+          StripeWebhookHandlerInstance.stripeHelper.allTaxRates
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates,
+          [taxRate]
+        );
+      });
+
+      it('updates an existing tax rate on tax_rate.updated', async () => {
+        const updatedEvent = deepCopy(eventTaxRateUpdated);
+        const updatedTaxRate = updatedEvent.data.object;
+
+        await StripeWebhookHandlerInstance.handleTaxRateCreatedOrUpdatedEvent(
+          {},
+          updatedEvent
+        );
+
+        assert.calledOnce(
+          StripeWebhookHandlerInstance.stripeHelper.allTaxRates
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.updateAllTaxRates,
+          [updatedTaxRate]
         );
       });
     });

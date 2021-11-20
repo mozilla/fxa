@@ -62,6 +62,7 @@ export const MOZILLA_TAX_ID = 'Tax ID';
 
 export const STRIPE_PRODUCTS_CACHE_KEY = 'listStripeProducts';
 export const STRIPE_PLANS_CACHE_KEY = 'listStripePlans';
+export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';
 
 enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
@@ -284,11 +285,21 @@ export class StripeHelper {
    * Uses Redis caching if configured.
    */
   @Cacheable({
-    cacheKey: 'listActiveTaxRates',
+    cacheKey: STRIPE_TAX_RATES_CACHE_KEY,
     ttlSeconds: (args, context) => context.stripeTaxRatesCacheTtlSeconds,
   })
   async allTaxRates() {
     return this.fetchAllTaxRates();
+  }
+
+  @CacheUpdate({
+    cacheKey: STRIPE_TAX_RATES_CACHE_KEY,
+    ttlSeconds: (args, context) => context.stripeTaxRatesCacheTtlSeconds,
+    cacheKeysToClear: 'noop',
+    clearStrategy: noopCacheClearStrategy,
+  })
+  async updateAllTaxRates(allTaxRates: Stripe.TaxRate[]) {
+    return allTaxRates;
   }
 
   /**
