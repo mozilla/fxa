@@ -58,7 +58,11 @@ const checkEmailDomain = ($element, view) => {
 
   const showInvalidDomainError = (domain) => {
     const invalidDomainError = AuthErrors.toInvalidEmailDomainError(domain);
-    $(() => view.showValidationError($element, invalidDomainError));
+    $(() =>
+      view.showValidationError($element, invalidDomainError, undefined, {
+        domain,
+      })
+    );
     view.logEvent('emailDomainValidation.fail');
   };
 

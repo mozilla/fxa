@@ -380,9 +380,9 @@ var FormView = BaseView.extend({
    * @param {Boolean} shouldFocusEl
    * @returns {String}
    */
-  showValidationError(el, err, shouldFocusEl = true) {
+  showValidationError(el, err, shouldFocusEl = true, translationContext = {}) {
     const $invalidEl = this.$(el);
-    const message = AuthErrors.toInterpolatedMessage(err, this.translator);
+    const message = AuthErrors.toMessage(err);
 
     this.logError(err);
 
@@ -423,6 +423,7 @@ var FormView = BaseView.extend({
         invalidEl: $invalidEl,
         message,
         translator: this.translator,
+        translationContext,
       });
 
       maybeFocus().then(() => {

@@ -14,9 +14,11 @@ describe('views/behaviors/navigate', function () {
     };
 
     const navigateBehavior = new NavigateBehavior('settings', options);
+    const translateMock = sinon.stub().returns(options.success);
     const viewMock = {
       navigate: sinon.spy(),
       config: {},
+      translate: translateMock,
     };
 
     const accountMock = { set: sinon.spy() };
@@ -32,6 +34,7 @@ describe('views/behaviors/navigate', function () {
     assert.isTrue(
       accountMock.set.calledOnceWithExactly('alertText', options.success)
     );
+    assert.isTrue(translateMock.calledOnce);
     assert.equal(endpoint, 'settings');
     assert.equal(navigateOptions.success, 'success');
     assert.equal(navigateOptions.error, 'error');
