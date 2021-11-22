@@ -40,6 +40,11 @@ const Tooltip = BaseView.extend({
     // element. If the element has the 'tooltip-below' class, the
     // tooltip is displayed just below it.
     this.invalidEl = $(options.invalidEl);
+    this.translationContext = options.translationContext;
+  },
+
+  setInitialContext(context) {
+    context.set(this.translationContext);
   },
 
   template() {
