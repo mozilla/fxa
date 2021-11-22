@@ -8,16 +8,12 @@
   }
 
   .subscription-update-heading {
-    display: none;
+    display: block;
+    text-align: center;
 
-    @include min-width('tablet') {
-      display: block;
-      text-align: center;
-
-      h2 {
-        font-weight: normal;
-        margin-top: 20px;
-      }
+    h2 {
+      font-weight: normal;
+      margin-top: 20px;
     }
   }
 
