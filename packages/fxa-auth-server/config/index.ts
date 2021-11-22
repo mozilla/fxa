@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import convict from 'convict';
 import fs from 'fs';
+import { makeMySQLConfig } from 'fxa-shared/db/config';
 import path from 'path';
 import url from 'url';
-import { makeMySQLConfig } from 'fxa-shared/db/config';
 
 const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
 const ONE_DAY = 1000 * 60 * 60 * 24;
@@ -830,7 +830,7 @@ const conf = convict({
     stripeTaxRatesCacheTtlSeconds: {
       doc: 'The number of seconds to cache tax rates from Stripe',
       format: 'int',
-      default: 600,
+      default: 64000000, // about a couple years
       env: 'SUBHUB_TAX_RATES_CACHE_TTL_SECONDS',
     },
   },

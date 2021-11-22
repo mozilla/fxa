@@ -1495,7 +1495,22 @@ describe('StripeHelper', () => {
 
       assert.deepEqual(
         await stripeHelper.allTaxRates(),
-        JSON.parse(await mockRedis.get('listActiveTaxRates'))
+        JSON.parse(await mockRedis.get('listStripeTaxRates'))
+      );
+    });
+  });
+
+  describe('updateAllTaxRates', () => {
+    it('updates the tax rates in the cache', async () => {
+      const newList = ['xyz'];
+      await stripeHelper.updateAllTaxRates(newList);
+      assert.deepEqual(mockRedis.set.args[0][2], [
+        'EX',
+        mockConfig.subhub.stripeTaxRatesCacheTtlSeconds,
+      ]);
+      assert.deepEqual(
+        newList,
+        JSON.parse(await mockRedis.get('listStripeTaxRates'))
       );
     });
   });
