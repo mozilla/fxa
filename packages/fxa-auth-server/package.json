@@ -78,7 +78,7 @@
     "fxa-jwtool": "^0.7.2",
     "fxa-shared": "workspace:*",
     "google-libphonenumber": "^3.2.25",
-    "googleapis": "^89.0.0",
+    "googleapis": "^91.0.0",
     "handlebars": "^4.7.7",
     "hapi-auth-jwt2": "^10.2.0",
     "hapi-error": "^2.3.0",

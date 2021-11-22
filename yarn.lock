@@ -18590,7 +18590,7 @@ fsevents@~2.1.1:
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
     google-libphonenumber: ^3.2.25
-    googleapis: ^89.0.0
+    googleapis: ^91.0.0
     grunt: ^1.4.1
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.0.0
@@ -20353,13 +20353,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"googleapis@npm:^89.0.0":
-  version: 89.0.0
-  resolution: "googleapis@npm:89.0.0"
+"googleapis@npm:^91.0.0":
+  version: 91.0.0
+  resolution: "googleapis@npm:91.0.0"
   dependencies:
     google-auth-library: ^7.0.2
     googleapis-common: ^5.0.2
-  checksum: 1a73d0684aa912773dc05d7ea5ba95fb7aa8a9f4bac3177cd40a5cfe66845aa8cc75f38843ad29f0db1a0539f594d6400dce811f999cc6dd331e833d06bd665d
+  checksum: 2a618e797d00fb641f79c8431d61594a63f0c88fc0ef6aa5310e002d5915753ceab821fd9b91215d1d036894e8abc19b97ac381d500621ffdee08a5414443a1d
   languageName: node
   linkType: hard
 
