@@ -24,7 +24,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@google-cloud/pubsub": "^2.18.2",
-    "@sentry/integrations": "^6.14.1",
+    "@sentry/integrations": "^6.15.0",
     "@sentry/node": "^6.15.0",
     "@types/convict": "^5.2.2",
     "ajv": "^6.12.2",

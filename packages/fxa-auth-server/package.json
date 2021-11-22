@@ -54,7 +54,7 @@
     "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^9.2.0",
     "@hapi/joi": "^15.1.1",
-    "@sentry/integrations": "^6.14.2",
+    "@sentry/integrations": "^6.15.0",
     "@sentry/node": "^6.15.0",
     "@type-cacheable/core": "^10.0.2",
     "@type-cacheable/ioredis-adapter": "^10.0.2",
