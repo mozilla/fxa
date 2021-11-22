@@ -8,13 +8,13 @@ import { knex, Knex } from 'knex';
 import { AppConfig } from '../config';
 import {
   Account,
-  EmailBounces,
-  Emails,
-  Totp,
-  RecoveryKeys,
-  SessionTokens,
-  SecurityEvents,
-} from './model';
+  EmailBounce,
+  Email,
+  TotpToken,
+  RecoveryKey,
+  SessionToken,
+  SecurityEvent,
+} from 'fxa-shared/db/models/auth';
 
 function typeCasting(field: any, next: any) {
   if (field.type === 'TINY' && field.length === 1) {
@@ -27,12 +27,12 @@ function typeCasting(field: any, next: any) {
 export class DatabaseService {
   public knex: Knex;
   public account: typeof Account;
-  public emails: typeof Emails;
-  public emailBounces: typeof EmailBounces;
-  public securityEvents: typeof SecurityEvents;
-  public totp: typeof Totp;
-  public recoveryKeys: typeof RecoveryKeys;
-  public sessionTokens: typeof SessionTokens;
+  public emails: typeof Email;
+  public emailBounces: typeof EmailBounce;
+  public securityEvents: typeof SecurityEvent;
+  public totp: typeof TotpToken;
+  public recoveryKeys: typeof RecoveryKey;
+  public sessionTokens: typeof SessionToken;
 
   constructor(configService: ConfigService<AppConfig>) {
     const dbConfig = configService.get('database') as AppConfig['database'];
@@ -41,12 +41,12 @@ export class DatabaseService {
       client: 'mysql',
     });
     this.account = Account.bindKnex(this.knex);
-    this.emails = Emails.bindKnex(this.knex);
-    this.emailBounces = EmailBounces.bindKnex(this.knex);
-    this.securityEvents = SecurityEvents.bindKnex(this.knex);
-    this.totp = Totp.bindKnex(this.knex);
-    this.recoveryKeys = RecoveryKeys.bindKnex(this.knex);
-    this.sessionTokens = SessionTokens.bindKnex(this.knex);
+    this.emails = Email.bindKnex(this.knex);
+    this.emailBounces = EmailBounce.bindKnex(this.knex);
+    this.securityEvents = SecurityEvent.bindKnex(this.knex);
+    this.totp = TotpToken.bindKnex(this.knex);
+    this.recoveryKeys = RecoveryKey.bindKnex(this.knex);
+    this.sessionTokens = SessionToken.bindKnex(this.knex);
   }
 
   async dbHealthCheck(): Promise<Record<string, any>> {

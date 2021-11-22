@@ -7,19 +7,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { Knex } from 'knex';
 
-import { Account, EmailBounces } from '../../database/model';
+import { Account, EmailBounce } from 'fxa-shared/db/models/auth';
 import {
   randomAccount,
   randomEmail,
   randomEmailBounce,
   testDatabaseSetup,
-} from '../../database/model/helpers';
+} from 'fxa-shared/test/db/models/auth/helpers';
 import { EmailBounceResolver } from './email-bounce.resolver';
 import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
-const EMAIL_2 = randomEmail(USER_1, true);
 const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email);
 
 describe('EmailBounceResolver', () => {
@@ -28,18 +27,18 @@ describe('EmailBounceResolver', () => {
   let knex: Knex;
   let db = {
     account: Account,
-    emailBounces: EmailBounces,
+    emailBounces: EmailBounce,
   };
 
   beforeAll(async () => {
-    knex = await testDatabaseSetup('testAdminEmailResolver');
-    db.emailBounces = EmailBounces.bindKnex(knex);
+    knex = await testDatabaseSetup();
+    db.emailBounces = EmailBounce.bindKnex(knex);
     db.account = Account.bindKnex(knex);
 
     // Load the users in
     await (db.account as any).query().insertGraph({
       ...USER_1,
-      emails: [EMAIL_1, EMAIL_2],
+      emails: [EMAIL_1],
     });
     await db.emailBounces.query().insert(EMAIL_BOUNCE_1);
   });
