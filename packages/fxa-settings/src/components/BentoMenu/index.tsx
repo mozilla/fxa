@@ -12,6 +12,7 @@ import monitorIcon from './monitor.svg';
 import pocketIcon from './pocket.svg';
 import desktopIcon from './desktop.svg';
 import mobileIcon from './mobile.svg';
+import relayIcon from './relay.svg';
 import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
@@ -128,6 +129,20 @@ export const BentoMenu = () => {
                         <img src={vpnIcon} alt="" />
                       </div>
                       <Localized id="bento-menu-vpn">Mozilla VPN</Localized>
+                    </LinkExternal>
+                  </li>
+                  <li>
+                    <LinkExternal
+                      data-testid="relay-link"
+                      href="https://relay.firefox.com/"
+                      className="block p-2 ltr:pl-6 rtl:pr-6 hover:bg-grey-100"
+                    >
+                      <div className={iconClassNames}>
+                        <img src={relayIcon} alt="" />
+                      </div>
+                      <Localized id="bento-menu-firefox-relay">
+                        Firefox Relay
+                      </Localized>
                     </LinkExternal>
                   </li>
                 </ul>
