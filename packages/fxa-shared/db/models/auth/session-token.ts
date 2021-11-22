@@ -49,6 +49,7 @@ export class SessionToken extends BaseToken {
   ];
 
   // table fields
+  tokenId!: string;
   tokenData!: string;
   uid!: string;
   createdAt!: number;
