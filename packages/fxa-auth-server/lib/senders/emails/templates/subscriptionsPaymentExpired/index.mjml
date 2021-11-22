@@ -17,7 +17,7 @@
   <mj-text css-class="text-body">
     <ul>
       <% for (const { productName } of subscriptions) { %>
-        <li data-l10n-id="subscriptionsPaymentExpired-name" data-l10n-args="<%= JSON.stringify({productName}) %>">
+        <li>
           <%- productName %>
         </li>
       <% } %>
