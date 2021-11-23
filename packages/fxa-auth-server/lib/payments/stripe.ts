@@ -2491,6 +2491,14 @@ export class StripeHelper {
   }
 
   /**
+   * Process a payment_method.detached event. Remove the payment method from Firestore.
+   */
+  async processPaymentMethodDetachedEventToFirestore(event: Stripe.Event) {
+    const paymentMethodId = (event.data.object as Stripe.PaymentMethod).id;
+    await this.stripeFirestore.removePaymentMethodRecord(paymentMethodId);
+  }
+
+  /**
    * Process a webhook event from Stripe and if needed, save it to Firestore.
    */
   async processWebhookEventToFirestore(event: Stripe.Event) {
@@ -2523,9 +2531,11 @@ export class StripeHelper {
           break;
         case 'payment_method.attached':
         case 'payment_method.automatically_updated':
-        case 'payment_method.detached':
         case 'payment_method.updated':
           await this.processPaymentMethodEventToFirestore(event);
+          break;
+        case 'payment_method.detached':
+          await this.processPaymentMethodDetachedEventToFirestore(event);
           break;
         default: {
           handled = false;
