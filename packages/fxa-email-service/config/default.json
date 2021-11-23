@@ -8,12 +8,12 @@
   "deliveryproblemlimits": {
     "enabled": true,
     "complaint": [
-      { "period": "day", "limit": 0 },
-      { "period": "year", "limit": 1 }
+      { "period": "15 minutes", "limit": 0 },
+      { "period": "day", "limit": 1 }
     ],
     "hard": [
-      { "period": "day", "limit": 0 },
-      { "period": "year", "limit": 1 }
+      { "period": "15 minutes", "limit": 0 },
+      { "period": "day", "limit": 1 }
     ],
     "soft": [
       { "period": "5 minutes", "limit": 0 }
