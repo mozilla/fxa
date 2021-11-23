@@ -8872,6 +8872,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ansi-regex@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "ansi-regex@npm:6.0.1"
+  checksum: 1ff8b7667cded1de4fa2c9ae283e979fc87036864317da86a2e546725f96406746411d0d85e87a2d12fa5abd715d90006de7fa4fa0477c92321ad3b4c7d4e169
+  languageName: node
+  linkType: hard
+
 "ansi-styles@npm:^2.2.1":
   version: 2.2.1
   resolution: "ansi-styles@npm:2.2.1"
@@ -12313,6 +12320,13 @@ __metadata:
   version: 1.0.2
   resolution: "char-regex@npm:1.0.2"
   checksum: b563e4b6039b15213114626621e7a3d12f31008bdce20f9c741d69987f62aeaace7ec30f6018890ad77b2e9b4d95324c9f5acfca58a9441e3b1dcdd1e2525d17
+  languageName: node
+  linkType: hard
+
+"char-regex@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "char-regex@npm:2.0.0"
+  checksum: 6084a8f0f652cdeba71cb7bbab40a2878bd41286044dffbe439fba81813a4fbf7c74ecaeb093caa8163f60e9865d4578ff42e6389ade3d7571d17af7691fcabe
   languageName: node
   linkType: hard
 
@@ -18400,7 +18414,7 @@ fsevents@~2.1.1:
     graphql: ^15.6.1
     helmet: ^4.6.0
     jest: 27.3.1
-    jest-watch-typeahead: 0.6.5
+    jest-watch-typeahead: 1.0.0
     mozlog: ^3.0.2
     node-sass: ^6.0.1
     npm-run-all: ^4.1.5
@@ -19465,7 +19479,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     get-orientation: ^1.1.2
     graphql: ^15.6.1
-    jest-watch-typeahead: 0.6.5
+    jest-watch-typeahead: 1.0.0
     lodash.groupby: ^4.6.0
     mutationobserver-shim: ^0.3.7
     node-sass: ^6.0.1
@@ -24561,20 +24575,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jest-watch-typeahead@npm:0.6.5":
-  version: 0.6.5
-  resolution: "jest-watch-typeahead@npm:0.6.5"
+"jest-watch-typeahead@npm:1.0.0":
+  version: 1.0.0
+  resolution: "jest-watch-typeahead@npm:1.0.0"
   dependencies:
     ansi-escapes: ^4.3.1
     chalk: ^4.0.0
     jest-regex-util: ^27.0.0
     jest-watcher: ^27.0.0
-    slash: ^3.0.0
-    string-length: ^4.0.1
-    strip-ansi: ^6.0.0
+    slash: ^4.0.0
+    string-length: ^5.0.1
+    strip-ansi: ^7.0.1
   peerDependencies:
-    jest: ^26.0.0 || ^27.0.0
-  checksum: 01f5113e51cb49365661986144bfc6520d9e8d74d8a5d7527d5edb8e2bc8f128f6cf7baa512bb6bb35fdbb86fa92f0b26a4a7a4db66ac4dc3f7ea603ba48ca81
+    jest: ^27.0.0
+  checksum: 388d5189744e3fad21a8dd9e7fb5bbb9e8c12b4d07b76f8fa9c8df47fa93f25427602b20d9061431abb54290f9a24690adbf5204fd2d8cef7a7688c2f81db18d
   languageName: node
   linkType: hard
 
@@ -35306,6 +35320,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"slash@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "slash@npm:4.0.0"
+  checksum: da8e4af73712253acd21b7853b7e0dbba776b786e82b010a5bfc8b5051a1db38ed8aba8e1e8f400dd2c9f373be91eb1c42b66e91abb407ff42b10feece5e1d2d
+  languageName: node
+  linkType: hard
+
 "slice-ansi@npm:^2.1.0":
   version: 2.1.0
   resolution: "slice-ansi@npm:2.1.0"
@@ -36048,6 +36069,16 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"string-length@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "string-length@npm:5.0.1"
+  dependencies:
+    char-regex: ^2.0.0
+    strip-ansi: ^7.0.1
+  checksum: 71f73b8c8a743e01dcd001bcf1b197db78d5e5e53b12bd898cddaf0961be09f947dfd8c429783db3694b55b05cb5a51de6406c5085ff1aaa10c4771440c8396d
+  languageName: node
+  linkType: hard
+
 "string-natural-compare@npm:^3.0.1":
   version: 3.0.1
   resolution: "string-natural-compare@npm:3.0.1"
@@ -36248,6 +36279,15 @@ resolve@^2.0.0-next.3:
   dependencies:
     ansi-regex: ^5.0.1
   checksum: f3cd25890aef3ba6e1a74e20896c21a46f482e93df4a06567cebf2b57edabb15133f1f94e57434e0a958d61186087b1008e89c94875d019910a213181a14fc8c
+  languageName: node
+  linkType: hard
+
+"strip-ansi@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "strip-ansi@npm:7.0.1"
+  dependencies:
+    ansi-regex: ^6.0.1
+  checksum: 257f78fa433520e7f9897722731d78599cb3fce29ff26a20a5e12ba4957463b50a01136f37c43707f4951817a75e90820174853d6ccc240997adc5df8f966039
   languageName: node
   linkType: hard
 
