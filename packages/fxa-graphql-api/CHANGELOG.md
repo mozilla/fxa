@@ -1,3 +1,29 @@
+## 1.220.0
+
+### New features
+
+- auth: return IAP and web subscriptions in /account route (#10964) ([6fd78e313](https://github.com/mozilla/fxa/commit/6fd78e313))
+
+### Bug fixes
+
+- pm2: resolve nest cli path in pm2 configs (#11082) ([dbf8f2ab4](https://github.com/mozilla/fxa/commit/dbf8f2ab4))
+
+### Other changes
+
+- deps-dev: bump nock from 13.1.4 to 13.2.1 (#11121) ([7ecc6f0e7](https://github.com/mozilla/fxa/commit/7ecc6f0e7))
+- deps: add dependencies on other workspaces for runtime dependency (#11115) ([e3a3fcc19](https://github.com/mozilla/fxa/commit/e3a3fcc19))
+- deps: bump class-validator from 0.13.1 to 0.13.2 (#11107) ([6bf558a23](https://github.com/mozilla/fxa/commit/6bf558a23))
+- deps: bump @sentry/integrations from 6.14.2 to 6.15.0 (#11108) ([b567728cf](https://github.com/mozilla/fxa/commit/b567728cf))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: bump ioredis from 4.27.11 to 4.28.0 (#11076) ([d74962e1b](https://github.com/mozilla/fxa/commit/d74962e1b))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps-dev: bump esbuild from 0.13.4 to 0.13.14 (#11053) ([46b813268](https://github.com/mozilla/fxa/commit/46b813268))
+- deps: bump @nestjs/platform-express from 8.2.0 to 8.2.2 (#11062) ([2fb01493f](https://github.com/mozilla/fxa/commit/2fb01493f))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+- deps: bump @nestjs/core from 8.1.1 to 8.2.0 (#11003) ([85750f0ee](https://github.com/mozilla/fxa/commit/85750f0ee))
+- deps: bump knex from 0.95.13 to 0.95.14 (#11002) ([b12fbbb7c](https://github.com/mozilla/fxa/commit/b12fbbb7c))
+
 ## 1.219.5
 
 No changes.

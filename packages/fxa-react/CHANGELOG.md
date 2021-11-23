@@ -1,3 +1,12 @@
+## 1.220.0
+
+### Other changes
+
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: bump async-wait-until from 2.0.8 to 2.0.9 (#11078) ([251b14f8f](https://github.com/mozilla/fxa/commit/251b14f8f))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps: Update yarn to 3.1.0 and dedupe deps. fix resolve conflicts (#11072) ([c72a1a003](https://github.com/mozilla/fxa/commit/c72a1a003))
+
 ## 1.219.5
 
 No changes.

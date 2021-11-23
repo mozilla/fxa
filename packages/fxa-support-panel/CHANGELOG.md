@@ -1,5 +1,33 @@
 # Change history
 
+## 1.220.0
+
+### New features
+
+- support-panel: add Play subscriptions to support-panel (#10948) ([efd4a5601](https://github.com/mozilla/fxa/commit/efd4a5601))
+
+### Bug fixes
+
+- pm2: resolve nest cli path in pm2 configs (#11082) ([dbf8f2ab4](https://github.com/mozilla/fxa/commit/dbf8f2ab4))
+
+### Refactorings
+
+- support-panel: move support panel subscriptions route ([7a5b3eb8f](https://github.com/mozilla/fxa/commit/7a5b3eb8f))
+
+### Other changes
+
+- deps: bump class-validator from 0.13.1 to 0.13.2 (#11107) ([6bf558a23](https://github.com/mozilla/fxa/commit/6bf558a23))
+- deps: bump @sentry/integrations from 6.14.2 to 6.15.0 (#11108) ([b567728cf](https://github.com/mozilla/fxa/commit/b567728cf))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps-dev: bump esbuild from 0.13.4 to 0.13.14 (#11053) ([46b813268](https://github.com/mozilla/fxa/commit/46b813268))
+- deps: bump @nestjs/platform-express from 8.2.0 to 8.2.2 (#11062) ([2fb01493f](https://github.com/mozilla/fxa/commit/2fb01493f))
+- deps: bump hbs from 4.1.2 to 4.2.0 (#11052) ([154956bcc](https://github.com/mozilla/fxa/commit/154956bcc))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+- support: add local dev instructions to README (#11010) ([c74c19f98](https://github.com/mozilla/fxa/commit/c74c19f98))
+- deps: bump @nestjs/core from 8.1.1 to 8.2.0 (#11003) ([85750f0ee](https://github.com/mozilla/fxa/commit/85750f0ee))
+
 ## 1.219.5
 
 No changes.
