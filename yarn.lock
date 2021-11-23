@@ -8672,7 +8672,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv-formats@npm:2.1.1":
+"ajv-formats@npm:2.1.1, ajv-formats@npm:^2.1.1":
   version: 2.1.1
   resolution: "ajv-formats@npm:2.1.1"
   dependencies:
@@ -8692,6 +8692,17 @@ __metadata:
   peerDependencies:
     ajv: ^6.9.1
   checksum: 7dc5e5931677a680589050f79dcbe1fefbb8fea38a955af03724229139175b433c63c68f7ae5f86cf8f65d55eb7c25f75a046723e2e58296707617ca690feae9
+  languageName: node
+  linkType: hard
+
+"ajv-keywords@npm:^5.0.0":
+  version: 5.1.0
+  resolution: "ajv-keywords@npm:5.1.0"
+  dependencies:
+    fast-deep-equal: ^3.1.3
+  peerDependencies:
+    ajv: ^8.8.2
+  checksum: c35193940b853119242c6757787f09ecf89a2c19bcd36d03ed1a615e710d19d450cb448bfda407b939aba54b002368c8bff30529cc50a0536a8e10bcce300421
   languageName: node
   linkType: hard
 
@@ -8752,6 +8763,18 @@ __metadata:
     json-schema-traverse: ^0.4.1
     uri-js: ^4.2.2
   checksum: 874972efe5c4202ab0a68379481fbd3d1b5d0a7bd6d3cc21d40d3536ebff3352a2a1fabb632d4fd2cc7fe4cbdcd5ed6782084c9bbf7f32a1536d18f9da5007d4
+  languageName: node
+  linkType: hard
+
+"ajv@npm:^8.8.0":
+  version: 8.8.2
+  resolution: "ajv@npm:8.8.2"
+  dependencies:
+    fast-deep-equal: ^3.1.1
+    json-schema-traverse: ^1.0.0
+    require-from-string: ^2.0.2
+    uri-js: ^4.2.2
+  checksum: 90849ef03c4f4f7051d15f655120137b89e3205537d683beebd39d95f40c0ca00ea8476cd999602d2f433863e7e4bf1b81d1869d1e07f4dcf56d71b6430a605c
   languageName: node
   linkType: hard
 
@@ -9389,6 +9412,13 @@ __metadata:
   version: 2.1.0
   resolution: "array-union@npm:2.1.0"
   checksum: 5bee12395cba82da674931df6d0fea23c4aa4660cb3b338ced9f828782a65caa232573e6bf3968f23e0c5eb301764a382cef2f128b170a9dc59de0e36c39f98d
+  languageName: node
+  linkType: hard
+
+"array-union@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "array-union@npm:3.0.1"
+  checksum: 47b29f88258e8f37ffb93ddaa327d4308edd950b52943c172b73558afdd3fa74cfd68816ba5aa4b894242cf281fa3c6d0362ae057e4a18bddbaedbe46ebe7112
   languageName: node
   linkType: hard
 
@@ -11881,7 +11911,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cacache@npm:^12.0.2, cacache@npm:^12.0.3":
+"cacache@npm:^12.0.2":
   version: 12.0.4
   resolution: "cacache@npm:12.0.4"
   dependencies:
@@ -13524,25 +13554,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"copy-webpack-plugin@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "copy-webpack-plugin@npm:5.1.1"
+"copy-webpack-plugin@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "copy-webpack-plugin@npm:10.0.0"
   dependencies:
-    cacache: ^12.0.3
-    find-cache-dir: ^2.1.0
-    glob-parent: ^3.1.0
-    globby: ^7.1.1
-    is-glob: ^4.0.1
-    loader-utils: ^1.2.3
-    minimatch: ^3.0.4
+    fast-glob: ^3.2.7
+    glob-parent: ^6.0.1
+    globby: ^12.0.2
     normalize-path: ^3.0.0
-    p-limit: ^2.2.1
-    schema-utils: ^1.0.0
-    serialize-javascript: ^2.1.2
-    webpack-log: ^2.0.0
+    schema-utils: ^4.0.0
+    serialize-javascript: ^6.0.0
   peerDependencies:
-    webpack: ^4.0.0 || ^5.0.0
-  checksum: a6f22872ebc911abdaca3e1897f5f9f3b18192b88b694ec1bd879e600b843a23aa9851600253fddd273110545ee0152c6e377cf5992ba48f2d322815bf1fc6a1
+    webpack: ^5.1.0
+  checksum: 70652af613b6bee93039c95daa72a68b0cdc4f66d3d861d9237b4b338968fb5c4fb1860c8424348c73d480975844887c9a0d9a2a57257c226a896b2348d2edcd
   languageName: node
   linkType: hard
 
@@ -15085,7 +15109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dir-glob@npm:^2.0.0, dir-glob@npm:^2.2.2":
+"dir-glob@npm:^2.2.2":
   version: 2.2.2
   resolution: "dir-glob@npm:2.2.2"
   dependencies:
@@ -18755,7 +18779,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     cookie-parser: 1.4.6
-    copy-webpack-plugin: ^5.1.1
+    copy-webpack-plugin: ^10.0.0
     core-js: ^3.15.1
     css: 3.0.0
     css-loader: 1.0.0
@@ -20236,6 +20260,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"globby@npm:^12.0.2":
+  version: 12.0.2
+  resolution: "globby@npm:12.0.2"
+  dependencies:
+    array-union: ^3.0.1
+    dir-glob: ^3.0.1
+    fast-glob: ^3.2.7
+    ignore: ^5.1.8
+    merge2: ^1.4.1
+    slash: ^4.0.0
+  checksum: f474ced866755f48ce7e8a7e11b0a1d90fa1f1c25cf86c245fbf05a862accfba695102a843b6386dbe41fa73c2f9a7e625bf566fa7648d2e1304f58748975e3f
+  languageName: node
+  linkType: hard
+
 "globby@npm:^6.1.0":
   version: 6.1.0
   resolution: "globby@npm:6.1.0"
@@ -20246,20 +20284,6 @@ fsevents@~2.1.1:
     pify: ^2.0.0
     pinkie-promise: ^2.0.0
   checksum: 18109d6b9d55643d2b98b59c3cfae7073ccfe39829632f353d516cc124d836c2ddebe48a23f04af63d66a621b6d86dd4cbd7e6af906f2458a7fe510ffc4bd424
-  languageName: node
-  linkType: hard
-
-"globby@npm:^7.1.1":
-  version: 7.1.1
-  resolution: "globby@npm:7.1.1"
-  dependencies:
-    array-union: ^1.0.1
-    dir-glob: ^2.0.0
-    glob: ^7.1.2
-    ignore: ^3.3.5
-    pify: ^3.0.0
-    slash: ^1.0.0
-  checksum: f0eba08a08ae7c98149a4411661c0bf08c4717d81e6f355cf624fb01880b249737eb8e951bf86124cb3af8ea1c793c0a9d363ed5cdec99bb2c6b68f8a323025f
   languageName: node
   linkType: hard
 
@@ -26970,6 +26994,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"merge2@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "merge2@npm:1.4.1"
+  checksum: 7268db63ed5169466540b6fb947aec313200bcf6d40c5ab722c22e242f651994619bcd85601602972d3c85bd2cc45a358a4c61937e9f11a061919a1da569b0c2
+  languageName: node
+  linkType: hard
+
 "merge@npm:^2.1.1":
   version: 2.1.1
   resolution: "merge@npm:2.1.1"
@@ -29542,7 +29573,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"p-limit@npm:^2.0.0, p-limit@npm:^2.2.0, p-limit@npm:^2.2.1":
+"p-limit@npm:^2.0.0, p-limit@npm:^2.2.0":
   version: 2.3.0
   resolution: "p-limit@npm:2.3.0"
   dependencies:
@@ -34694,6 +34725,18 @@ resolve@^2.0.0-next.3:
     ajv: ^6.12.5
     ajv-keywords: ^3.5.2
   checksum: fb73f3d759d43ba033c877628fe9751620a26879f6301d3dbeeb48cf2a65baec5cdf99da65d1bf3b4ff5444b2e59cbe4f81c2456b5e0d2ba7d7fd4aed5da29ce
+  languageName: node
+  linkType: hard
+
+"schema-utils@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "schema-utils@npm:4.0.0"
+  dependencies:
+    "@types/json-schema": ^7.0.9
+    ajv: ^8.8.0
+    ajv-formats: ^2.1.1
+    ajv-keywords: ^5.0.0
+  checksum: c843e92fdd1a5c145dbb6ffdae33e501867f9703afac67bdf35a685e49f85b1dcc10ea250033175a64bd9d31f0555bc6785b8359da0c90bcea30cf6dfbb55a8f
   languageName: node
   linkType: hard
 
