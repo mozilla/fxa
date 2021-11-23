@@ -69,6 +69,8 @@ const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subsc
 const eventInvoiceCreated = require('./fixtures/stripe/event_invoice_created.json');
 const eventSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
 const eventCustomerUpdated = require('./fixtures/stripe/event_customer_updated.json');
+const eventPaymentMethodAttached = require('./fixtures/stripe/event_payment_method_attached.json');
+const eventPaymentMethodDetached = require('./fixtures/stripe/event_payment_method_detached.json');
 const closedPaymementIntent = require('./fixtures/stripe/paymentIntent_succeeded.json');
 const newSetupIntent = require('./fixtures/stripe/setup_intent_new.json');
 const {
@@ -3956,6 +3958,44 @@ describe('StripeHelper', () => {
         );
       });
     }
+
+    for (const type of [
+      'payment_method.attached',
+      'payment_method.automatically_updated',
+      'payment_method.updated',
+    ]) {
+      it(`handles ${type} operations`, async () => {
+        const event = deepCopy(eventPaymentMethodAttached);
+        event.type = type;
+        delete event.data.previous_attributes;
+        stripeHelper.stripe.paymentMethods.retrieve = sandbox
+          .stub()
+          .resolves(paymentMethodAttach);
+        stripeFirestore.retrievePaymentMethod = sandbox.stub().resolves({});
+        stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox
+          .stub()
+          .resolves({});
+        await stripeHelper.processWebhookEventToFirestore(event);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.insertPaymentMethodRecordWithBackfill,
+          paymentMethodAttach
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripe.paymentMethods.retrieve,
+          event.data.object.id
+        );
+      });
+    }
+
+    it('handles payment_method.detached operations', async () => {
+      const event = deepCopy(eventPaymentMethodDetached);
+      stripeFirestore.removePaymentMethodRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.removePaymentMethodRecord,
+        event.data.object.id
+      );
+    });
 
     it('does not handle wibble events', async () => {
       const event = deepCopy(eventSubscriptionUpdated);
