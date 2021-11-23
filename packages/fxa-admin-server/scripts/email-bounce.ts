@@ -3,14 +3,14 @@ import { Model } from 'objection';
 import yargs from 'yargs';
 
 import Config from '../src/config';
-import { Account, EmailBounces } from '../src/database/model';
+import { Account, EmailBounce } from 'fxa-shared/db/models/auth';
 import {
   AccountIsh,
   BounceIsh,
   randomAccount,
   randomEmail,
   randomEmailBounce,
-} from '../src/database/model/helpers';
+} from 'fxa-shared/test/db/models/auth/helpers';
 
 const config = Config.getProperties();
 
@@ -39,7 +39,7 @@ async function addBounceToDB() {
       await Account.query().insertGraph({ ...account });
     }
 
-    await EmailBounces.query().insertGraph(bounce);
+    await EmailBounce.query().insertGraph(bounce);
     if (!argv.email) {
       console.log(`=> Created 1 email bounce for ${bounce.email}`);
     }
