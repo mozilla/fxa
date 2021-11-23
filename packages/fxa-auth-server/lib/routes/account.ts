@@ -1476,7 +1476,7 @@ export class AccountHandler {
     let webSubscriptions: Awaited<WebSubscription[]> = [];
     let iapGooglePlaySubscriptions: Awaited<GooglePlaySubscription[]> = [];
 
-    if (this.config.subscriptions.enabled) {
+    if (this.config.subscriptions?.enabled && this.stripeHelper) {
       try {
         const customer = await this.stripeHelper.fetchCustomer(uid as string, [
           'subscriptions',
