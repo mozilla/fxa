@@ -18523,7 +18523,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
-    nock: ^13.1.4
+    nock: ^13.2.1
     nyc: ^15.1.0
     pm2: ^5.1.2
     prettier: ^2.3.1
@@ -18652,7 +18652,7 @@ fsevents@~2.1.1:
     moment-timezone: ^0.5.34
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    nock: ^13.1.4
+    nock: ^13.2.1
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     node-zendesk: ^2.1.0
     nodemailer: ^6.7.1
@@ -19000,7 +19000,7 @@ fsevents@~2.1.1:
     jest: 27.3.1
     jwks-rsa: ^2.0.5
     mozlog: ^3.0.2
-    nock: ^13.1.4
+    nock: ^13.2.1
     p-event: ^4.2.0
     passport: ^0.4.1
     passport-jwt: ^4.0.0
@@ -19101,7 +19101,7 @@ fsevents@~2.1.1:
     knex: ^0.95.14
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    nock: ^13.1.4
+    nock: ^13.2.1
     objection: ^2.2.17
     passport: ^0.4.1
     passport-http-bearer: ^1.0.1
@@ -19266,7 +19266,7 @@ fsevents@~2.1.1:
     morgan: ^1.10.0
     mozlog: ^3.0.2
     nocache: ^3.0.1
-    nock: ^13.1.4
+    nock: ^13.2.1
     node-fetch: ^2.6.1
     node-sass: ^6.0.1
     normalize.css: 8.0.1
@@ -19336,7 +19336,7 @@ fsevents@~2.1.1:
     mocha-text-cov: 0.1.1
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    nock: ^13.1.4
+    nock: ^13.2.1
     nyc: ^15.1.0
     pm2: ^5.1.2
     pngparse: 2.0.1
@@ -28270,7 +28270,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nock@npm:*, nock@npm:^13.1.4":
+"nock@npm:*":
   version: 13.1.4
   resolution: "nock@npm:13.1.4"
   dependencies:
@@ -28279,6 +28279,18 @@ fsevents@~2.1.1:
     lodash.set: ^4.3.2
     propagate: ^2.0.0
   checksum: 2452150f52991229dcba1ee5f32870e7db7ef338fa7a0d4b73f6c034a8df22da076b9569ec04e3c1cdaa919a4657aad702b8eb20ada81b0f43c2feb9c6ae4b48
+  languageName: node
+  linkType: hard
+
+"nock@npm:^13.2.1":
+  version: 13.2.1
+  resolution: "nock@npm:13.2.1"
+  dependencies:
+    debug: ^4.1.0
+    json-stringify-safe: ^5.0.1
+    lodash.set: ^4.3.2
+    propagate: ^2.0.0
+  checksum: b401fb8143ca88095ee34c715e2806eda2813dace4f4c4798961ad961c18003d1529f4507a79c429d2c3c768e136632ee19ee9ebfef71f0cb022df152594df1d
   languageName: node
   linkType: hard
 
