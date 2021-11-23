@@ -19292,7 +19292,7 @@ fsevents@~2.1.1:
     redux-thunk: ^2.4.0
     serve-static: ^1.14.1
     sinon: ^9.0.3
-    style-loader: ^1.3.0
+    style-loader: ^3.3.1
     supertest: ^6.1.6
     ts-jest: ^27.0.7
     type-to-reducer: ^1.2.0
@@ -19481,7 +19481,7 @@ fsevents@~2.1.1:
     react-scripts: ^4.0.3
     react-test-renderer: ^17.0.2
     react-webcam: ^6.0.0
-    style-loader: ^1.3.0
+    style-loader: ^3.3.1
     subscriptions-transport-ws: ^0.11.0
     tailwindcss: ^1.9.1
     typescript: ^4.5.2
@@ -36349,6 +36349,15 @@ resolve@^2.0.0-next.3:
   peerDependencies:
     webpack: ^4.0.0 || ^5.0.0
   checksum: 1be9e8705307f5b8eb89e80f3703fa27296dccec349d790eace7aabe212f08c7c8f3ea6b6cb97bc53e82fbebfb9aa0689259671a8315f4655e24a850781e062a
+  languageName: node
+  linkType: hard
+
+"style-loader@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "style-loader@npm:3.3.1"
+  peerDependencies:
+    webpack: ^5.0.0
+  checksum: 470feef680f59e2fce4d6601b5c55b88c01ad8d1dd693c528ffd591ff5fd7c01a4eff3bdbe62f26f847d6bd2430c9ab594be23307cfe7a3446ab236683f0d066
   languageName: node
   linkType: hard
 
