@@ -1,3 +1,46 @@
+## 1.220.0
+
+### New features
+
+- payments: Add feature flag for Coupons (#11048) ([37b539a64](https://github.com/mozilla/fxa/commit/37b539a64))
+- auth: include validation details for product/plan ([e81f5e077](https://github.com/mozilla/fxa/commit/e81f5e077))
+- auth: return IAP and web subscriptions in /account route (#10964) ([6fd78e313](https://github.com/mozilla/fxa/commit/6fd78e313))
+- support-panel: add Play subscriptions to support-panel (#10948) ([efd4a5601](https://github.com/mozilla/fxa/commit/efd4a5601))
+- auth: remove paypal webhook based invoice processing ([ce83c2349](https://github.com/mozilla/fxa/commit/ce83c2349))
+
+### Bug fixes
+
+- metrics: Re-enable toggling metrics for user (#10990) ([f7b0e7d7c](https://github.com/mozilla/fxa/commit/f7b0e7d7c))
+- sentry depth filtering ([a14088c62](https://github.com/mozilla/fxa/commit/a14088c62))
+
+### Refactorings
+
+- auth: cache tax rates in Redis (effectively) indefinitely (#11087) ([7e520c402](https://github.com/mozilla/fxa/commit/7e520c402))
+- support-panel: move support panel subscriptions route ([7a5b3eb8f](https://github.com/mozilla/fxa/commit/7a5b3eb8f))
+
+### Other changes
+
+- deps-dev: bump nock from 13.1.4 to 13.2.1 (#11121) ([7ecc6f0e7](https://github.com/mozilla/fxa/commit/7ecc6f0e7))
+- deps: add dependencies on other workspaces for runtime dependency (#11115) ([e3a3fcc19](https://github.com/mozilla/fxa/commit/e3a3fcc19))
+- auth-server: Additional FTL tweaks based on feedback (#11061) ([2ae2f231a](https://github.com/mozilla/fxa/commit/2ae2f231a))
+- deps: bump @sentry/integrations from 6.14.2 to 6.15.0 (#11108) ([b567728cf](https://github.com/mozilla/fxa/commit/b567728cf))
+- deps: bump googleapis from 89.0.0 to 91.0.0 (#11075) ([795131d51](https://github.com/mozilla/fxa/commit/795131d51))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: bump ioredis from 4.27.11 to 4.28.0 (#11076) ([d74962e1b](https://github.com/mozilla/fxa/commit/d74962e1b))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps: Update yarn to 3.1.0 and dedupe deps. fix resolve conflicts (#11072) ([c72a1a003](https://github.com/mozilla/fxa/commit/c72a1a003))
+- deps-dev: bump esbuild from 0.13.4 to 0.13.14 (#11053) ([46b813268](https://github.com/mozilla/fxa/commit/46b813268))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump nodemailer from 6.7.0 to 6.7.1 (#11037) ([c0dafcdae](https://github.com/mozilla/fxa/commit/c0dafcdae))
+- deps: bump moment-timezone from 0.5.33 to 0.5.34 (#11022) ([3301362b9](https://github.com/mozilla/fxa/commit/3301362b9))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+- deps: bump hot-shots from 8.5.2 to 9.0.0 (#11018) ([10dfa5e1a](https://github.com/mozilla/fxa/commit/10dfa5e1a))
+- deps: bump stripe from 8.187.0 to 8.188.0 (#11019) ([f30ab7208](https://github.com/mozilla/fxa/commit/f30ab7208))
+- deps: bump stripe from 8.186.1 to 8.187.0 ([62a2ea827](https://github.com/mozilla/fxa/commit/62a2ea827))
+- deps: bump p-retry from 4.6.1 to 5.0.0 (#10916)" (#10983) ([b1c15298e](https://github.com/mozilla/fxa/commit/b1c15298e))
+- deps-dev: bump nodemon from 2.0.14 to 2.0.15 (#10977) ([468590704](https://github.com/mozilla/fxa/commit/468590704))
+- deps: bump keyv from 4.0.3 to 4.0.4 (#10979) ([92a39bd2c](https://github.com/mozilla/fxa/commit/92a39bd2c))
+
 ## 1.219.5
 
 No changes.

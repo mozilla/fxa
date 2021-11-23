@@ -1,3 +1,14 @@
+## 1.220.0
+
+### Other changes
+
+- deps: bump @google-cloud/pubsub from 2.18.2 to 2.18.3 (#11124) ([90d5db79e](https://github.com/mozilla/fxa/commit/90d5db79e))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: Update yarn to 3.1.0 and dedupe deps. fix resolve conflicts (#11072) ([c72a1a003](https://github.com/mozilla/fxa/commit/c72a1a003))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+- deps: bump @google-cloud/pubsub from 2.18.1 to 2.18.2 (#10975) ([7823787d7](https://github.com/mozilla/fxa/commit/7823787d7))
+
 ## 1.219.5
 
 No changes.

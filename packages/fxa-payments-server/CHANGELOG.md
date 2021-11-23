@@ -1,5 +1,32 @@
 # Change history
 
+## 1.220.0
+
+### New features
+
+- payments: Add feature flag for Coupons (#11048) ([37b539a64](https://github.com/mozilla/fxa/commit/37b539a64))
+- auth: return IAP and web subscriptions in /account route (#10964) ([6fd78e313](https://github.com/mozilla/fxa/commit/6fd78e313))
+
+### Bug fixes
+
+- subscriptions: always show title on upgrade (#11117) ([339ecb529](https://github.com/mozilla/fxa/commit/339ecb529))
+- subscription: enable paypal on consent (#11006) ([15bc46193](https://github.com/mozilla/fxa/commit/15bc46193))
+
+### Other changes
+
+- deps-dev: bump nock from 13.1.4 to 13.2.1 (#11121) ([7ecc6f0e7](https://github.com/mozilla/fxa/commit/7ecc6f0e7))
+- deps: add dependencies on other workspaces for runtime dependency (#11115) ([e3a3fcc19](https://github.com/mozilla/fxa/commit/e3a3fcc19))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: bump async-wait-until from 2.0.8 to 2.0.9 (#11078) ([251b14f8f](https://github.com/mozilla/fxa/commit/251b14f8f))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps: Update yarn to 3.1.0 and dedupe deps. fix resolve conflicts (#11072) ([c72a1a003](https://github.com/mozilla/fxa/commit/c72a1a003))
+- deps-dev: bump esbuild from 0.13.4 to 0.13.14 (#11053) ([46b813268](https://github.com/mozilla/fxa/commit/46b813268))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump @sentry/browser from 6.14.3 to 6.15.0 (#11038) ([8344a2332](https://github.com/mozilla/fxa/commit/8344a2332))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+- deps: bump hot-shots from 8.5.2 to 9.0.0 (#11018) ([10dfa5e1a](https://github.com/mozilla/fxa/commit/10dfa5e1a))
+- deps: bump @sentry/browser from 6.14.0 to 6.14.3 (#11004) ([d67ce665a](https://github.com/mozilla/fxa/commit/d67ce665a))
+
 ## 1.219.5
 
 ### New features

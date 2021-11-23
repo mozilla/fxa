@@ -1,3 +1,11 @@
+## 1.220.0
+
+### Other changes
+
+- deps-dev: bump nock from 13.1.4 to 13.2.1 (#11121) ([7ecc6f0e7](https://github.com/mozilla/fxa/commit/7ecc6f0e7))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+
 ## 1.219.5
 
 No changes.

@@ -1,3 +1,30 @@
+## 1.220.0
+
+### New features
+
+- settings: Add Firefox Relay to Settings bento menu (#11127) ([61d4c71fb](https://github.com/mozilla/fxa/commit/61d4c71fb))
+- tests: implement prod smoke tests in playwright ([833326ad5](https://github.com/mozilla/fxa/commit/833326ad5))
+
+### Bug fixes
+
+- content: l10n for texts in settings+content (#11086) ([73a720ad7](https://github.com/mozilla/fxa/commit/73a720ad7))
+- settings: support contextual translation of 'None' Because: ([8959220ad](https://github.com/mozilla/fxa/commit/8959220ad))
+- settings: l10n for email verif. error code (#11044) ([6c379f687](https://github.com/mozilla/fxa/commit/6c379f687))
+- settings: load the user specified in url on settings (#11025) ([6f1d3522d](https://github.com/mozilla/fxa/commit/6f1d3522d))
+
+### Other changes
+
+- deps-dev: bump jest-watch-typeahead from 0.6.5 to 1.0.0 (#11123) ([a7460d79d](https://github.com/mozilla/fxa/commit/a7460d79d))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps: Update yarn to 3.1.0 and dedupe deps. fix resolve conflicts (#11072) ([c72a1a003](https://github.com/mozilla/fxa/commit/c72a1a003))
+- deps-dev: bump jest-watch-typeahead from 0.6.5 to 1.0.0 (#10961)" (#11045) ([4b6e42e95](https://github.com/mozilla/fxa/commit/4b6e42e95))
+- deps: bump @sentry/browser from 6.14.3 to 6.15.0 (#11038) ([8344a2332](https://github.com/mozilla/fxa/commit/8344a2332))
+- deps: bump @emotion/react from 11.5.0 to 11.6.0 (#11021) ([f3e071306](https://github.com/mozilla/fxa/commit/f3e071306))
+- deps: bump @sentry/browser from 6.14.0 to 6.14.3 (#11004) ([d67ce665a](https://github.com/mozilla/fxa/commit/d67ce665a))
+- deps: bump subscriptions-transport-ws from 0.9.19 to 0.11.0 (#10998) ([61668ec7e](https://github.com/mozilla/fxa/commit/61668ec7e))
+- deps: bump react-hook-form from 6.15.5 to 6.15.8 (#10997) ([bd20fe296](https://github.com/mozilla/fxa/commit/bd20fe296))
+
 ## 1.219.5
 
 No changes.
