@@ -11,7 +11,7 @@ module.exports = function (options) {
   'use strict';
 
   options = options || {};
-  var dbPath = options.dbPath || DEFAULTS.DB_PATH;
+  var dbPath = options.dbPath || DEFAULTS.DB_PATH || '';
 
   const dbLookup = maxmind.openSync(dbPath);
 
