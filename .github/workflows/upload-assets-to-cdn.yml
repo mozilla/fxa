@@ -17,10 +17,10 @@ jobs:
   Upload-assets-to-CDN:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: "Checkout repository"
         uses: actions/checkout@v2
 
-      - name: Configure Stage AWS credentials
+      - name: "Configure Stage AWS credentials"
         uses: aws-actions/configure-aws-credentials@master
         with:
           aws-region: us-east-1
@@ -43,3 +43,11 @@ jobs:
         run: |
           aws s3 cp --cache-control 'public,max-age=86400' --recursive assets/product-icons --exclude "*" --include "*.svg" --include "*.png" s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/product-icons
           aws s3 cp --cache-control 'public,max-age=86400' --recursive --content-disposition attachment --exclude "*" --include "*.pdf"  assets/legal s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/legal
+
+      - name: "Post to fxa-team Slack channel"
+        uses: slackapi/slack-github-action@v1.16.0
+        with:
+          channel-id: 'CLV3KMZ8B'
+          slack-message: "New assets have been uploaded to CDN: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
