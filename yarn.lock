@@ -12572,10 +12572,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"class-transformer@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "class-transformer@npm:0.4.0"
-  checksum: 4057346b512705b1a5a68025b025a5be1ff847d7e0e76e82bbb937f832cf6235c5f66e874487d4bd35d67401411e8a3279c9d36bdd8c800336d5507ee6e94af0
+"class-transformer@npm:^0.5.1":
+  version: 0.5.1
+  resolution: "class-transformer@npm:0.5.1"
+  checksum: f191c8b4cc4239990f5efdd790cabdd852c243ed66248e39f6616a349c910c6eed2d9fd1fbf7ee6ea89f69b4f1d0b493b27347fe0cd0ae26b47c3745a805b6d3
   languageName: node
   linkType: hard
 
@@ -18454,7 +18454,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     chai: ^4.3.4
     chance: ^1.1.8
-    class-transformer: ^0.4.0
+    class-transformer: ^0.5.1
     class-validator: ^0.13.2
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
@@ -18988,7 +18988,7 @@ fsevents@~2.1.1:
     aws-sdk: ^2.1022.0
     axios: ^0.24.0
     chance: ^1.1.8
-    class-transformer: ^0.4.0
+    class-transformer: ^0.5.1
     class-validator: ^0.13.2
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
@@ -19083,7 +19083,7 @@ fsevents@~2.1.1:
     apollo-server-express: ^2.25.2
     audit-filter: ^0.5.0
     chance: ^1.1.8
-    class-transformer: ^0.4.0
+    class-transformer: ^0.5.1
     class-validator: ^0.13.2
     commander: ^6.0.0
     convict: ^6.2.1
@@ -19538,7 +19538,7 @@ fsevents@~2.1.1:
     celebrate: ^10.0.1
     chai: ^4.3.4
     chance: ^1.1.8
-    class-transformer: ^0.4.0
+    class-transformer: ^0.5.1
     class-validator: ^0.13.2
     cors: ^2.8.5
     esbuild: ^0.13.14
@@ -19602,7 +19602,7 @@ fsevents@~2.1.1:
     "@types/superagent": 4.1.11
     "@types/supertest": ^2.0.11
     audit-filter: ^0.5.0
-    class-transformer: ^0.4.0
+    class-transformer: ^0.5.1
     class-validator: ^0.13.2
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
