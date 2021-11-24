@@ -4,18 +4,15 @@
 
 import React from 'react';
 
-export const AdminLogs = () => {
+export const SiteStatus = () => {
   return (
     <div className="text-grey-600">
-      <h2 className="text-lg font-semibold mb-2">Admin Logs</h2>
+      <h2 className="text-lg font-semibold mb-2">Site Status</h2>
 
-      <p className="mb-2">
-        This is a read-only view of all administrative changes that have been
-        done to any user account.
-      </p>
+      <p className="mb-2">This page displays the health of our services.</p>
       <p>⚠️ This page is not complete.</p>
     </div>
   );
 };
 
-export default AdminLogs;
+export default SiteStatus;
