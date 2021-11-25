@@ -4,6 +4,12 @@ import { GET_SESSION_VERIFIED, Session } from './Session';
 import { clearSignedInAccountUid } from '../lib/cache';
 import { gql, useQuery } from '@apollo/client';
 import { getDefault } from '../lib/config';
+import { GetInitialState } from '../types/GetInitialState';
+import {
+  destroySession,
+  destroySessionVariables,
+} from '../types/destroySession';
+import { GetSession } from '../types/GetSession';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -14,7 +20,7 @@ export function useAccount() {
 }
 
 export function useSession() {
-  const ref = useRef(({} as unknown) as Session);
+  const ref = useRef<Partial<Session>>({});
   const { apolloClient, session } = useContext(AppContext);
   if (session) {
     return session;
@@ -22,7 +28,7 @@ export function useSession() {
   if (!apolloClient) {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
-  const data = apolloClient.cache.readQuery<{ session: Session }>({
+  const data = apolloClient.cache.readQuery<GetSession>({
     query: GET_SESSION_VERIFIED,
   })!;
   if (
@@ -34,7 +40,7 @@ export function useSession() {
   if (!ref.current.destroy) {
     ref.current.destroy = () =>
       apolloClient
-        .mutate({
+        .mutate<destroySession, destroySessionVariables>({
           mutation: gql`
             mutation destroySession($input: DestroySessionInput!) {
               destroySession(input: $input) {
@@ -64,7 +70,7 @@ export function useInitialState() {
   if (!apolloClient) {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
-  return useQuery(GET_INITIAL_STATE, { client: apolloClient });
+  return useQuery<GetInitialState>(GET_INITIAL_STATE, { client: apolloClient });
 }
 
 export function useAlertBar() {

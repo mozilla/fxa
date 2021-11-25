@@ -1,119 +1,81 @@
-import { gql, ApolloClient, Reference } from '@apollo/client';
+import { gql, ApolloClient, Reference, DocumentNode } from '@apollo/client';
 import config from '../lib/config';
 import AuthClient, { generateRecoveryKey } from 'fxa-auth-client/browser';
 import { currentAccount, sessionToken } from '../lib/cache';
 import firefox from '../lib/firefox';
 import Storage from '../lib/storage';
+import {
+  GetAccount,
+  GetAccount_account,
+  GetAccount_account_attachedClients,
+  GetAccount_account_emails,
+} from '../types/GetAccount';
+import { metricsOpt, metricsOptVariables } from '../types/metricsOpt';
+import {
+  attachedClientDisconnect,
+  attachedClientDisconnectVariables,
+} from '../types/attachedClientDisconnect';
+import { deleteAvatar } from '../types/deleteAvatar';
+import {
+  updateDisplayName,
+  updateDisplayNameVariables,
+} from '../types/updateDisplayName';
+import { UpdatePassword } from '../types/UpdatePassword';
 
-export interface DeviceLocation {
-  city: string | null;
-  country: string | null;
-  state: string | null;
-  stateCode: string | null;
-}
-
-export interface Email {
-  email: string;
-  isPrimary: boolean;
-  verified: boolean;
-}
-
-// TODO: why doesn't this match fxa-graphql-api/src/lib/resolvers/types/attachedClient.ts?
-export interface AttachedClient {
-  clientId: string;
-  isCurrentSession: boolean;
-  userAgent: string;
-  deviceType: string | null;
-  deviceId: string | null;
-  name: string;
-  lastAccessTime: number;
-  lastAccessTimeFormatted: string;
-  approximateLastAccessTime: number | null;
-  approximateLastAccessTimeFormatted: string | null;
-  location: DeviceLocation;
-  os: string | null;
-  sessionTokenId: string | null;
-  refreshTokenId: string | null;
-}
-
-export interface AccountData {
-  uid: hexstring;
-  displayName: string | null;
-  avatar: {
-    id: string | null;
-    url: string | null;
-    isDefault: boolean;
-  };
-  accountCreated: number;
-  passwordCreated: number;
-  recoveryKey: boolean;
-  metricsEnabled: boolean;
-  primaryEmail: Email;
-  emails: Email[];
-  attachedClients: AttachedClient[];
-  totp: {
-    exists: boolean;
-    verified: boolean;
-  };
-  subscriptions: {
-    created: number;
-    productName: string;
-  }[];
-}
-
-const ATTACHED_CLIENTS_FIELDS = `
-      attachedClients {
-        clientId
-        isCurrentSession
-        userAgent
-        deviceType
-        deviceId
-        name
-        lastAccessTime
-        lastAccessTimeFormatted
-        approximateLastAccessTime
-        approximateLastAccessTimeFormatted
-        location {
-          city
-          country
-          state
-          stateCode
-        }
-        os
-        sessionTokenId
-        refreshTokenId
-      }
-`;
-
-export const ACCOUNT_FIELDS = `
-    account {
-      uid
-      displayName
-      avatar {
-        id
-        url
-        isDefault @client
-      }
-      accountCreated
-      passwordCreated
-      recoveryKey
-      metricsEnabled
-      primaryEmail @client
-      emails {
-        email
-        isPrimary
-        verified
-      }
-      ${ATTACHED_CLIENTS_FIELDS}
-      totp {
-        exists
-        verified
-      }
-      subscriptions {
-        created
-        productName
-      }
+export const ACCOUNT_FIELDS = gql`
+  fragment accountFields on Account {
+    uid
+    displayName
+    avatar {
+      id
+      url
+      isDefault @client
     }
+    accountCreated
+    passwordCreated
+    recoveryKey
+    metricsEnabled
+    primaryEmail @client {
+      email
+    }
+    emails {
+      email
+      isPrimary
+      verified
+    }
+    totp {
+      exists
+      verified
+    }
+    subscriptions {
+      created
+      productName
+    }
+  }
+
+  fragment attachedClientsFields on Account {
+    attachedClients {
+      clientId
+      isCurrentSession
+      userAgent
+      deviceType
+      deviceId
+      name
+      lastAccessTime
+      lastAccessTimeFormatted
+      approximateLastAccessTime
+      approximateLastAccessTimeFormatted
+      location {
+        city
+        country
+        state
+        stateCode
+      }
+      os
+      sessionTokenId
+      refreshTokenId
+    }
+  }
 `;
 
 export const GET_PROFILE_INFO = gql`
@@ -125,7 +87,9 @@ export const GET_PROFILE_INFO = gql`
         id
         url
       }
-      primaryEmail @client
+      primaryEmail @client {
+        email
+      }
       emails {
         email
         isPrimary
@@ -137,16 +101,21 @@ export const GET_PROFILE_INFO = gql`
 
 export const GET_ACCOUNT = gql`
   query GetAccount {
-    ${ACCOUNT_FIELDS}
+    account {
+      ...accountFields
+      ...attachedClientsFields
+    }
   }
+  ${ACCOUNT_FIELDS}
 `;
 
 export const GET_CONNECTED_CLIENTS = gql`
   query GetConnectedClients {
     account {
-      ${ATTACHED_CLIENTS_FIELDS}
+      ...attachedClientsFields
     }
   }
+  ${ACCOUNT_FIELDS}
 `;
 
 export const GET_RECOVERY_KEY_EXISTS = gql`
@@ -158,7 +127,7 @@ export const GET_RECOVERY_KEY_EXISTS = gql`
 `;
 
 export const GET_TOTP_STATUS = gql`
-  query GetRecoveryKeyExists {
+  query GetTotpStatus {
     account {
       totp {
         exists
@@ -195,7 +164,7 @@ export function getNextAvatar(
   return { id: existingId, url: existingUrl, isDefault: false };
 }
 
-export class Account implements AccountData {
+export class Account implements GetAccount_account {
   private readonly authClient: AuthClient;
   private readonly apolloClient: ApolloClient<object>;
   private _loading: boolean;
@@ -217,13 +186,21 @@ export class Account implements AccountData {
     }
   }
 
+  private async queryWithLoadingStatus(query: DocumentNode) {
+    await this.withLoadingStatus(
+      this.apolloClient.query({
+        fetchPolicy: 'network-only',
+        query,
+      })
+    );
+  }
+
   private get data() {
-    const { account } = this.apolloClient.cache.readQuery<{
-      account: AccountData;
-    }>({
+    const { account } = this.apolloClient.cache.readQuery<GetAccount>({
       query: GET_ACCOUNT,
     })!;
-    return account;
+    console.log(account);
+    return account!;
   }
 
   get loading() {
@@ -293,24 +270,20 @@ export class Account implements AccountData {
   }
 
   async refresh(field: 'account' | 'clients' | 'totp' | 'recovery') {
-    let query = GET_ACCOUNT;
     switch (field) {
+      case 'account':
+        await this.queryWithLoadingStatus(GET_ACCOUNT);
+        break;
       case 'clients':
-        query = GET_CONNECTED_CLIENTS;
+        await this.queryWithLoadingStatus(GET_CONNECTED_CLIENTS);
         break;
       case 'recovery':
-        query = GET_RECOVERY_KEY_EXISTS;
+        await this.queryWithLoadingStatus(GET_RECOVERY_KEY_EXISTS);
         break;
       case 'totp':
-        query = GET_TOTP_STATUS;
+        await this.queryWithLoadingStatus(GET_TOTP_STATUS);
         break;
     }
-    await this.withLoadingStatus(
-      this.apolloClient.query({
-        fetchPolicy: 'network-only',
-        query,
-      })
-    );
   }
 
   async changePassword(oldPassword: string, newPassword: string) {
@@ -334,7 +307,7 @@ export class Account implements AccountData {
       response.unwrapBKey
     );
     sessionToken(response.sessionToken);
-    this.apolloClient.cache.writeQuery({
+    this.apolloClient.cache.writeQuery<UpdatePassword>({
       query: gql`
         query UpdatePassword {
           account {
@@ -348,16 +321,15 @@ export class Account implements AccountData {
       data: {
         account: {
           passwordCreated: response.authAt * 1000,
-          __typename: 'Account',
         },
-        session: { verified: response.verified, __typename: 'Session' },
+        session: { verified: response.verified },
       },
     });
   }
 
   async setDisplayName(displayName: string) {
     await this.withLoadingStatus(
-      this.apolloClient.mutate({
+      this.apolloClient.mutate<updateDisplayName, updateDisplayNameVariables>({
         mutation: gql`
           mutation updateDisplayName($input: UpdateDisplayNameInput!) {
             updateDisplayName(input: $input) {
@@ -396,7 +368,7 @@ export class Account implements AccountData {
 
   async deleteAvatar() {
     await this.withLoadingStatus(
-      this.apolloClient.mutate({
+      this.apolloClient.mutate<deleteAvatar>({
         mutation: gql`
           mutation deleteAvatar($input: DeleteAvatarInput!) {
             deleteAvatar(input: $input) {
@@ -425,9 +397,12 @@ export class Account implements AccountData {
     firefox.profileChanged(this.uid);
   }
 
-  async disconnectClient(client: AttachedClient) {
+  async disconnectClient(client: GetAccount_account_attachedClients) {
     await this.withLoadingStatus(
-      this.apolloClient.mutate({
+      this.apolloClient.mutate<
+        attachedClientDisconnect,
+        attachedClientDisconnectVariables
+      >({
         mutation: gql`
           mutation attachedClientDisconnect(
             $input: AttachedClientDisconnectInput!
@@ -441,7 +416,9 @@ export class Account implements AccountData {
           cache.modify({
             id: cache.identify({ __typename: 'Account' }),
             fields: {
-              attachedClients: (existingClients: AttachedClient[]) => {
+              attachedClients: (
+                existingClients: GetAccount_account_attachedClients[]
+              ) => {
                 const updatedList = [...existingClients];
                 return updatedList.filter(
                   // TODO: should this also go into the AttachedClient model?
@@ -527,7 +504,7 @@ export class Account implements AccountData {
       id: cache.identify({ __typename: 'Account' }),
       fields: {
         emails(existingEmails) {
-          return existingEmails.map((x: Email) =>
+          return existingEmails.map((x: GetAccount_account_emails) =>
             x.email === email ? { ...x, verified: true } : { ...x }
           );
         },
@@ -594,7 +571,7 @@ export class Account implements AccountData {
       id: cache.identify({ __typename: 'Account' }),
       fields: {
         emails(existingEmails) {
-          return existingEmails.map((x: Email) => {
+          return existingEmails.map((x: GetAccount_account_emails) => {
             const e = { ...x };
             if (e.email === email) {
               e.isPrimary = true;
@@ -723,7 +700,7 @@ export class Account implements AccountData {
 
   async metricsOpt(state: 'in' | 'out') {
     await this.withLoadingStatus(
-      this.apolloClient.mutate({
+      this.apolloClient.mutate<metricsOpt, metricsOptVariables>({
         mutation: gql`
           mutation metricsOpt($input: MetricsOptInput!) {
             metricsOpt(input: $input) {

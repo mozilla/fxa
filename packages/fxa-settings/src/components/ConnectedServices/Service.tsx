@@ -5,7 +5,6 @@
 import React from 'react';
 
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
-import { DeviceLocation } from '../../models/Account';
 import { ReactComponent as WebIcon } from './web.svg';
 import { ReactComponent as DesktopIcon } from './desktop.svg';
 import { ReactComponent as FPNIcon } from './fpn.svg';
@@ -16,6 +15,7 @@ import { ReactComponent as MonitorIcon } from './monitor.svg';
 import { ReactComponent as PocketIcon } from './pocket.svg';
 import { ReactComponent as LockwiseIcon } from './lockwise.svg';
 import { Localized } from '@fluent/react';
+import { attachedClientsFields_attachedClients_location } from '../../types/attachedClientsFields';
 
 export function Service({
   name,
@@ -26,7 +26,7 @@ export function Service({
 }: {
   name: string;
   deviceType: string | null;
-  location: DeviceLocation;
+  location: attachedClientsFields_attachedClients_location;
   lastAccessTimeFormatted: string;
   handleSignOut: () => void;
 }) {

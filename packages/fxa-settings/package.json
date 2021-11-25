@@ -16,7 +16,8 @@
     "stop": "pm2 stop pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "storybook": "npm run build-postcss && start-storybook -p 6008 -s .storybook/design-guide --no-version-updates",
-    "test": "SKIP_PREFLIGHT_CHECK=true rescripts test"
+    "test": "SKIP_PREFLIGHT_CHECK=true rescripts test",
+    "generate-types": "apollo codegen:generate --localSchemaFile ../fxa-graphql-api/src/schema.gql --target typescript --outputFlat src/types --passthroughCustomScalars --no-addTypename"
   },
   "jest": {
     "resetMocks": false,
@@ -99,6 +100,7 @@
     "@types/testing-library__react-hooks": "^4",
     "@types/uuid": "^8",
     "@types/webpack": "5.28.0",
+    "apollo": "^2.33.9",
     "autoprefixer": "^9.8.6",
     "babel-loader": "^8.2.2",
     "css-loader": "^3.6.0",

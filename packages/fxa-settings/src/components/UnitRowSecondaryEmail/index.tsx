@@ -4,15 +4,16 @@
 
 import React, { ReactNode, useCallback, useState } from 'react';
 import { useNavigate } from '@reach/router';
-import { useAccount, Email, useAlertBar } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import UnitRow from '../UnitRow';
 import ModalVerifySession from '../ModalVerifySession';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
 import { HomePath } from '../../constants';
+import { accountFields_emails } from '../../types/accountFields';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
-  secondary: Email;
+  secondary: accountFields_emails;
   isLastVerifiedSecondaryEmail: boolean;
 };
 

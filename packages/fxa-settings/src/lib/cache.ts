@@ -1,8 +1,8 @@
 import { InMemoryCache, gql } from '@apollo/client';
 import Storage from './storage';
-import { Email } from '../models';
 import { searchParam } from '../lib/utilities';
 import config from './config';
+import { accountFields_emails } from '../types/accountFields';
 
 const storage = Storage.factory('localStorage');
 
@@ -76,6 +76,9 @@ export function consumeAlertTextExternal() {
 
 // sessionToken is added as a local field as an example.
 export const typeDefs = gql`
+  extend type Avatar {
+    isDefault: Boolean!
+  }
   extend type Account {
     primaryEmail: Email!
   }
@@ -90,7 +93,7 @@ export const cache = new InMemoryCache({
       fields: {
         primaryEmail: {
           read(_, o) {
-            const emails = o.readField<Email[]>('emails');
+            const emails = o.readField<accountFields_emails[]>('emails');
             return emails?.find((email) => email.isPrimary);
           },
         },

@@ -10,13 +10,14 @@ import { logViewEvent } from '../../lib/metrics';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Modal } from '../Modal';
 import { isMobileDevice } from '../../lib/utilities';
-import { AttachedClient, useAccount, useAlertBar } from '../../models';
+import { useAccount, useAlertBar } from '../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
 import { Service } from './Service';
 import { VerifiedSessionGuard } from '../VerifiedSessionGuard';
 import { clearSignedInAccountUid } from '../../lib/cache';
 import { Localized, useLocalization } from '@fluent/react';
+import { attachedClientsFields_attachedClients as AttachedClient } from '../../types/attachedClientsFields';
 
 const UTM_PARAMS =
   '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -25,7 +26,7 @@ const DEVICES_SUPPORT_URL =
 
 // TODO: move into Account?
 export function sortAndFilterConnectedClients(
-  attachedClients: Array<AttachedClient>
+  attachedClients: AttachedClient[]
 ) {
   const groupedByName = groupBy(attachedClients, 'name');
 
@@ -34,10 +35,10 @@ export function sortAndFilterConnectedClients(
     .map((key) => {
       return groupedByName[key].sort(
         (a: AttachedClient, b: AttachedClient) =>
-          a.lastAccessTime - b.lastAccessTime
+          a.lastAccessTime! - b.lastAccessTime!
       )[0];
     })
-    .sort((a, b) => b.lastAccessTime - a.lastAccessTime);
+    .sort((a, b) => b.lastAccessTime! - a.lastAccessTime!);
 
   // move currently active client to the top
   sortedAndUniqueClients.forEach((client, i) => {
@@ -73,11 +74,8 @@ export const ConnectedServices = () => {
   // After the user confirms they want to disconnect from sync in Confirm Disconnect modal,
   // if their reason was a lost/stolen device, or a suspicious device, then we show them
   // an informative modal with some advice on next steps to take.
-  const [
-    adviceModalRevealed,
-    revealAdviceModal,
-    hideAdviceModal,
-  ] = useBooleanState();
+  const [adviceModalRevealed, revealAdviceModal, hideAdviceModal] =
+    useBooleanState();
 
   const [selectedClient, setSelectedClient] = useState<AttachedClient | null>(
     null
@@ -115,7 +113,7 @@ export const ConnectedServices = () => {
           alertBar.success(
             l10n.getString(
               'cs-logged-out',
-              { service: name },
+              { service: name! },
               `Logged out of ${name}.`
             )
           );
@@ -195,10 +193,10 @@ export const ConnectedServices = () => {
             <Service
               {...{
                 key: `${client.lastAccessTime}:${client.name}`,
-                name: client.name,
+                name: client.name!,
                 deviceType: client.deviceType,
-                location: client.location,
-                lastAccessTimeFormatted: client.lastAccessTimeFormatted,
+                location: client.location!,
+                lastAccessTimeFormatted: client.lastAccessTimeFormatted!,
                 isCurrentSession: client.isCurrentSession,
                 clientId: client.clientId,
                 handleSignOut: () => {
@@ -257,7 +255,7 @@ export const ConnectedServices = () => {
 
               <Localized
                 id="cs-disconnect-sync-content"
-                vars={{ device: selectedClient!.name }}
+                vars={{ device: selectedClient!.name! }}
               >
                 <p
                   id="connected-devices-sign-out-description"

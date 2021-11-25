@@ -8,14 +8,20 @@ import { Session } from './Session';
 import firefox, { FirefoxCommand } from '../lib/firefox';
 import { mockAppContext } from './mocks';
 import { AlertBarInfo } from './AlertBarInfo';
+import { GetProfileInfo } from '../types/GetProfileInfo';
+import { GetUid } from '../types/GetUid';
+import { UpdatePasswordCreated } from '../types/UpdatePasswordCreated';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
-    ${ACCOUNT_FIELDS}
+    account {
+      ...accountFields
+    }
     session {
       verified
     }
   }
+  ${ACCOUNT_FIELDS}
 `;
 
 export interface AppContextValue {
@@ -38,7 +44,7 @@ export function initializeAppContext() {
   const alertBarInfo = new AlertBarInfo();
 
   const isForCurrentUser = (event: Event) => {
-    const { account } = apolloClient.cache.readQuery<{ account: Account }>({
+    const { account } = apolloClient.cache.readQuery<GetUid>({
       query: gql`
         query GetUid {
           account {
@@ -47,12 +53,12 @@ export function initializeAppContext() {
         }
       `,
     })!;
-    return account.uid === (event as CustomEvent).detail.uid;
+    return account!.uid === (event as CustomEvent).detail.uid;
   };
 
   firefox.addEventListener(FirefoxCommand.ProfileChanged, (event) => {
     if (isForCurrentUser(event)) {
-      apolloClient.query({
+      apolloClient.query<GetProfileInfo>({
         query: GET_PROFILE_INFO,
         fetchPolicy: 'network-only',
       });
@@ -60,7 +66,7 @@ export function initializeAppContext() {
   });
   firefox.addEventListener(FirefoxCommand.PasswordChanged, (event) => {
     if (isForCurrentUser(event)) {
-      apolloClient.writeQuery({
+      apolloClient.writeQuery<UpdatePasswordCreated>({
         query: gql`
           query UpdatePasswordCreated {
             account {
@@ -71,7 +77,6 @@ export function initializeAppContext() {
         data: {
           account: {
             passwordCreated: Date.now(),
-            __typename: 'Account',
           },
         },
       });

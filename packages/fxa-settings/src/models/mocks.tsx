@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { AccountData, Session } from '.';
+import { Session } from '.';
 import { AppContextValue } from './AppContext';
 import {
   createHistory,
@@ -13,8 +13,9 @@ import {
 import { render } from '@testing-library/react';
 import { getDefault } from '../lib/config';
 import { AlertBarInfo } from './AlertBarInfo';
+import { GetAccount_account } from '../types/GetAccount';
 
-export const MOCK_ACCOUNT: AccountData = {
+export const MOCK_ACCOUNT: GetAccount_account = {
   uid: 'abc123',
   displayName: 'John Dope',
   avatar: {
@@ -30,8 +31,6 @@ export const MOCK_ACCOUNT: AccountData = {
   subscriptions: [],
   primaryEmail: {
     email: 'johndope@example.com',
-    isPrimary: true,
-    verified: true,
   },
   emails: [
     {
