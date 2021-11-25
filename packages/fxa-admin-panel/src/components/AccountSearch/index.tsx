@@ -5,108 +5,75 @@
 import React, { useState } from 'react';
 import { useLazyQuery, gql } from '@apollo/client';
 import Account from './Account';
-import { Account as AccountType } from 'fxa-admin-server/src/graphql';
 import iconSearch from '../../images/icon-search.svg';
+import { accountData } from '../../types/accountData';
+import { getEmails, getEmailsVariables } from '../../types/getEmails';
+
+const ACCOUNT_QUERY = gql`
+  fragment accountData on Account {
+    uid
+    createdAt
+    disabledAt
+    emails {
+      email
+      isVerified
+      isPrimary
+      createdAt
+    }
+    emailBounces {
+      email
+      createdAt
+      bounceType
+      bounceSubType
+    }
+    securityEvents {
+      uid
+      nameId
+      verified
+      createdAt
+      name
+    }
+    totp {
+      verified
+      createdAt
+      enabled
+    }
+    recoveryKeys {
+      createdAt
+      verifiedAt
+      enabled
+    }
+    sessionTokens {
+      tokenId
+      uid
+      createdAt
+      uaBrowser
+      uaBrowserVersion
+      uaOS
+      uaOSVersion
+      uaDeviceType
+      lastAccessTime
+    }
+  }
+`;
 
 export const GET_ACCOUNT_BY_EMAIL = gql`
   query getAccountByEmail($email: String!) {
     accountByEmail(email: $email) {
-      uid
-      createdAt
-      disabledAt
-      emails {
-        email
-        isVerified
-        isPrimary
-        createdAt
-      }
-      emailBounces {
-        email
-        createdAt
-        bounceType
-        bounceSubType
-      }
-      securityEvents {
-        uid
-        nameId
-        verified
-        createdAt
-        name
-      }
-      totp {
-        verified
-        createdAt
-        enabled
-      }
-      recoveryKeys {
-        createdAt
-        verifiedAt
-        enabled
-      }
-      sessionTokens {
-        tokenId
-        uid
-        createdAt
-        uaBrowser
-        uaBrowserVersion
-        uaOS
-        uaOSVersion
-        uaDeviceType
-        lastAccessTime
-      }
+      ...accountData
     }
   }
+  ${ACCOUNT_QUERY}
 `;
 
 // new query for getting account by UID
 export const GET_ACCOUNT_BY_UID = gql`
   query getAccountByUid($uid: String!) {
     accountByUid(uid: $uid) {
-      uid
-      createdAt
-      disabledAt
-      emails {
-        email
-        isVerified
-        isPrimary
-        createdAt
-      }
-      emailBounces {
-        email
-        createdAt
-        bounceType
-        bounceSubType
-      }
-      securityEvents {
-        uid
-        nameId
-        verified
-        createdAt
-        name
-      }
-      totp {
-        verified
-        createdAt
-        enabled
-      }
-      recoveryKeys {
-        createdAt
-        verifiedAt
-        enabled
-      }
-      sessionTokens {
-        tokenId
-        uid
-        createdAt
-        uaBrowser
-        uaBrowserVersion
-        uaOS
-        uaOSVersion
-        uaDeviceType
-        lastAccessTime
-      }
+      ...accountData
     }
   }
+  ${ACCOUNT_QUERY}
 `;
 
 function validateUID(uid: string) {
@@ -132,8 +99,10 @@ export const AccountSearch = () => {
   // choose which query result to show based on type of query made
   const [isEmail, setIsEmail] = useState<boolean>(false);
   const queryResults = isEmail && showResult ? emailResults : uidResults;
-  const [getEmailLike, { data: returnedEmails }] =
-    useLazyQuery(GET_EMAILS_LIKE);
+  const [getEmailLike, { data: returnedEmails }] = useLazyQuery<
+    getEmails,
+    getEmailsVariables
+  >(GET_EMAILS_LIKE);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -164,8 +133,8 @@ export const AccountSearch = () => {
 
   let filteredList: string[] = [];
   if (returnedEmails != null && showSuggestion) {
-    for (let i = 0; i < returnedEmails.getEmailsLike.length; i++) {
-      filteredList[i] = returnedEmails.getEmailsLike[i].email;
+    for (let i = 0; i < returnedEmails!.getEmailsLike!.length; i++) {
+      filteredList[i] = returnedEmails!.getEmailsLike![i].email;
     }
   }
 
@@ -291,8 +260,8 @@ const AccountSearchResult = ({
   loading: boolean;
   error?: {};
   data?: {
-    accountByEmail: AccountType;
-    accountByUid: AccountType;
+    accountByEmail: accountData;
+    accountByUid: accountData;
   };
   query: string;
 }) => {

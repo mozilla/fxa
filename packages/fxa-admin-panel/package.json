@@ -18,7 +18,8 @@
     "storybook": "npm run build-postcss && start-storybook -p 6009",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose",
     "test:server": "jest --runInBand --coverage --verbose --config server/jest.config.js",
-    "test": "CI=true npm-run-all test:frontend test:server"
+    "test": "CI=true npm-run-all test:frontend test:server",
+    "generate-types": "apollo codegen:generate --localSchemaFile ../fxa-admin-server/src/schema.gql --target typescript --outputFlat src/types --passthroughCustomScalars --no-addTypename"
   },
   "eslintConfig": {
     "extends": [
@@ -49,7 +50,6 @@
     "dateformat": "^4.3.1",
     "express": "^4.17.1",
     "express-http-proxy": "^1.6.3",
-    "fxa-admin-server": "workspace:*",
     "fxa-react": "workspace:*",
     "graphql": "^15.6.1",
     "helmet": "^4.6.0",
@@ -92,6 +92,7 @@
     "@types/webpack": "5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
+    "apollo": "^2.33.9",
     "autoprefixer": "^9.8.6",
     "babel-loader": "^8.2.2",
     "chance": "^1.1.8",

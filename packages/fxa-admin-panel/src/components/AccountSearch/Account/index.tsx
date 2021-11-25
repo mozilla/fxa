@@ -7,14 +7,22 @@ import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
 import './index.scss';
 import {
-  Account as AccountType,
-  EmailBounce as EmailBounceType,
-  Email as EmailType,
-  SecurityEvents as SecurityEventsType,
-  Totp as TotpType,
-  RecoveryKeys as RecoveryKeysType,
-  SessionTokens as SessionTokensType,
-} from 'fxa-admin-server/src/graphql';
+  accountData as AccountType,
+  accountData_emailBounces as EmailBounceType,
+  accountData_emails as EmailType,
+  accountData_securityEvents as SecurityEventsType,
+  accountData_totp as TotpType,
+  accountData_recoveryKeys as RecoveryKeysType,
+  accountData_sessionTokens as SessionTokensType,
+} from '../../../types/accountData';
+import {
+  clearBouncesByEmail,
+  clearBouncesByEmailVariables,
+} from '../../../types/clearBouncesByEmail';
+import {
+  disableAccount,
+  disableAccountVariables,
+} from '../../../types/disableAccount';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -23,6 +31,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import { unverify, unverifyVariables } from '../../../types/unverify';
 
 export type AccountProps = AccountType & {
   onCleared: Function;
@@ -57,7 +66,10 @@ export const ClearButton = ({
   emails: string[];
   onCleared: Function;
 }) => {
-  const [clearBounces] = useMutation(CLEAR_BOUNCES_BY_EMAIL);
+  const [clearBounces] = useMutation<
+    clearBouncesByEmail,
+    clearBouncesByEmailVariables
+  >(CLEAR_BOUNCES_BY_EMAIL);
 
   const handleClear = () => {
     if (!window.confirm('Are you sure? This cannot be undone.')) {
@@ -91,7 +103,10 @@ export const DangerZone = ({
   disabledAt,
   onCleared,
 }: DangerZoneProps) => {
-  const [unverify, { loading: unverifyLoading }] = useMutation(UNVERIFY_EMAIL, {
+  const [unverify, { loading: unverifyLoading }] = useMutation<
+    unverify,
+    unverifyVariables
+  >(UNVERIFY_EMAIL, {
     onCompleted: () => {
       window.alert("The user's email has been unverified.");
       onCleared();
@@ -108,7 +123,7 @@ export const DangerZone = ({
     unverify({ variables: { email: email.email } });
   };
 
-  const [disableAccount, { loading: disableLoading }] = useMutation(
+  const [disableAccount] = useMutation<disableAccount, disableAccountVariables>(
     DISABLE_ACCOUNT,
     {
       onCompleted: () => {

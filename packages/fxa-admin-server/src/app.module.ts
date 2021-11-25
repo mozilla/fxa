@@ -35,9 +35,6 @@ const version = getVersionInfo(__dirname);
         debug: configService.get<string>('env') !== 'production',
         playground: configService.get<string>('env') !== 'production',
         autoSchemaFile: join(__dirname, './schema.gql'),
-        definitions: {
-          path: join(process.cwd(), 'src/graphql.ts'),
-        },
         context: ({ req }) => ({ req }),
         plugins: [SentryPlugin],
       }),
