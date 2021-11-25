@@ -40,6 +40,9 @@ export class EmailBounce {
   @Field()
   public email!: string;
 
+  @Field()
+  public templateName!: string;
+
   @Field((type) => BounceType)
   public bounceType!: string;
 

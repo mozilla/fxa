@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { EmailType } from '.';
 import { BaseAuthModel, Proc } from './base-auth';
 
 const BOUNCE_TYPES = {
@@ -37,20 +38,28 @@ export class EmailBounce extends BaseAuthModel {
 
   // table fields
   email!: string;
+  emailTypeId!: number;
   bounceType!: number;
   bounceSubType!: number;
   createdAt!: number;
 
   static async create({
     email,
+    templateName,
     bounceType,
     bounceSubType,
   }: Pick<EmailBounce, 'email'> & {
+    templateName: string;
     bounceType: BounceType;
     bounceSubType: BounceSubType;
   }) {
+    const emailTypes = EmailType.bindKnex(this.knex);
+    const { id: emailTypeId } = await emailTypes
+      .query()
+      .findOne({ emailType: templateName });
     return EmailBounce.query().insert({
       email,
+      emailTypeId,
       bounceType: BOUNCE_TYPES[bounceType],
       bounceSubType: BOUNCE_SUB_TYPES[bounceSubType],
       createdAt: Date.now(),

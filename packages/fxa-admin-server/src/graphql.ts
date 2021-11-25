@@ -34,6 +34,7 @@ export enum BounceSubType {
 
 export interface EmailBounce {
     email: string;
+    templateName: string;
     bounceType: BounceType;
     bounceSubType: BounceSubType;
     createdAt: number;

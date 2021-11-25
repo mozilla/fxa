@@ -17,7 +17,7 @@ export type AccountIsh = Pick<
 >;
 export type BounceIsh = Pick<
   EmailBounce,
-  'bounceSubType' | 'bounceType' | 'createdAt' | 'email'
+  'bounceSubType' | 'bounceType' | 'createdAt' | 'email' | 'emailTypeId'
 >;
 
 export const chance = new Chance();
@@ -57,6 +57,7 @@ export function randomEmailBounce(email: string): BounceIsh {
     bounceSubType: chance.integer({ min: 0, max: 14 }),
     bounceType: chance.integer({ min: 0, max: 3 }),
     createdAt: chance.timestamp(),
+    emailTypeId: chance.integer({ min: 1, max: 30 }),
     email,
   };
 }
