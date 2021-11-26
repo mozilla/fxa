@@ -19002,7 +19002,7 @@ fsevents@~2.1.1:
     jwks-rsa: ^2.0.5
     mozlog: ^3.0.2
     nock: ^13.2.1
-    p-event: ^4.2.0
+    p-event: ^5.0.1
     passport: ^0.5.0
     passport-jwt: ^4.0.0
     pm2: ^5.1.2
@@ -29495,12 +29495,21 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"p-event@npm:^4.1.0, p-event@npm:^4.2.0":
+"p-event@npm:^4.1.0":
   version: 4.2.0
   resolution: "p-event@npm:4.2.0"
   dependencies:
     p-timeout: ^3.1.0
   checksum: 8a3588f7a816a20726a3262dfeee70a631e3997e4773d23219176333eda55cce9a76219e3d2b441b331eb746e14fdb381eb2694ab9ff2fcf87c846462696fe89
+  languageName: node
+  linkType: hard
+
+"p-event@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "p-event@npm:5.0.1"
+  dependencies:
+    p-timeout: ^5.0.2
+  checksum: 3bdd8df6092e6b149f25e9c2eb1c0843b3b4279b07be2a2c72c02b65b267a8908c2040fefd606f2497b0f2bcefcd214f8ca5a74f0c883515d400ccf1d88d5683
   languageName: node
   linkType: hard
 
@@ -29633,6 +29642,13 @@ fsevents@~2.1.1:
   dependencies:
     p-finally: ^1.0.0
   checksum: 3dd0eaa048780a6f23e5855df3dd45c7beacff1f820476c1d0d1bcd6648e3298752ba2c877aa1c92f6453c7dd23faaf13d9f5149fc14c0598a142e2c5e8d649c
+  languageName: node
+  linkType: hard
+
+"p-timeout@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "p-timeout@npm:5.0.2"
+  checksum: 69eda717e2cbc3d831617a805e069ce69f8cbf51b70f1d1760d3d118536c6b891bbc74f758a4e0d337180ff053f65cdbfc9f5dd04f368ab38173e76f47cf13a8
   languageName: node
   linkType: hard
 
