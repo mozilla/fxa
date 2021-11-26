@@ -3938,9 +3938,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:^8.2.0":
-  version: 8.2.0
-  resolution: "@nestjs/testing@npm:8.2.0"
+"@nestjs/testing@npm:^8.2.3":
+  version: 8.2.3
+  resolution: "@nestjs/testing@npm:8.2.3"
   dependencies:
     optional: 0.1.4
     tslib: 2.3.1
@@ -3954,7 +3954,7 @@ __metadata:
       optional: true
     "@nestjs/platform-express":
       optional: true
-  checksum: e7efbe35268cf16c792ed529c5939380be543eff6cd26e0bbfd04dde20d8ff14b87dc7d90d227a6a0612fc21c28333008ea6cfb6295c132aeee753d77fb8eb92
+  checksum: da18f96227083aea175a41c9fd753d6f606c1b66d4ec2a6cf6b47d371bbeb69305aff0a5238794861e87fe8e7bc987c40205ddd82e6bcf8dc462fc9b6c16ed99
   languageName: node
   linkType: hard
 
@@ -18961,7 +18961,7 @@ fsevents@~2.1.1:
     "@nestjs/platform-express": ^8.2.3
     "@nestjs/schedule": ^1.0.2
     "@nestjs/schematics": ^8.0.5
-    "@nestjs/testing": ^8.2.0
+    "@nestjs/testing": ^8.2.3
     "@sentry/integrations": ^6.15.0
     "@sentry/node": ^6.15.0
     "@types/chance": ^1.1.2
@@ -19502,7 +19502,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^8.2.3
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/testing": ^8.2.0
+    "@nestjs/testing": ^8.2.3
     "@sentry/browser": ^6.15.0
     "@sentry/integrations": ^6.15.0
     "@sentry/node": ^6.15.0
