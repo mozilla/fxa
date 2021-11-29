@@ -1,3 +1,9 @@
+## 1.220.1
+
+### Bug fixes
+
+- metrics: update content-server regex to match the auth-server regex ([f2bc9d54c](https://github.com/mozilla/fxa/commit/f2bc9d54c))
+
 ## 1.220.0
 
 ### New features
