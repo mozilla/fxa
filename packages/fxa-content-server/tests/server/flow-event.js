@@ -586,20 +586,21 @@ registerSuite('flow-event', {
       },
     },
 
-    'call flowEvent with valid-seeming flow data but flowMetrics.validate returns false': {
-      beforeEach() {
-        flowMetricsValidateResult = false;
-        setup({}, 1000);
-      },
+    'call flowEvent with valid-seeming flow data but flowMetrics.validate returns false':
+      {
+        beforeEach() {
+          flowMetricsValidateResult = false;
+          setup({}, 1000);
+        },
 
-      'process.stderr.write was not called': () => {
-        assert.equal(process.stderr.write.callCount, 0);
-      },
+        'process.stderr.write was not called': () => {
+          assert.equal(process.stderr.write.callCount, 0);
+        },
 
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
+        'amplitude was not called': () => {
+          assert.equal(mocks.amplitude.callCount, 0);
+        },
       },
-    },
 
     'call flowEvent without flow event': {
       beforeEach() {
@@ -658,7 +659,7 @@ registerSuite('flow-event', {
         flowEvent(
           mocks.request,
           {
-            client_id: 'deadbeef', //eslint-disable-line camelcase
+            client_id: 'deadbeef$', //eslint-disable-line camelcase
             events: [{ offset: 0, type: 'flow.begin' }],
             flowBeginTime,
             flowId:
