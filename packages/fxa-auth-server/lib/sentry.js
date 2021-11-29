@@ -161,6 +161,8 @@ async function configureSentry(server, config, processName = 'key_server') {
         new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
         new ExtraErrorData({ depth: 5 }),
       ],
+      // https://docs.sentry.io/platforms/node/configuration/options/#max-value-length
+      maxValueLength: 500,
     });
     Sentry.configureScope((scope) => {
       scope.setTag('process', processName);
@@ -191,6 +193,26 @@ async function configureSentry(server, config, processName = 'key_server') {
 }
 
 /**
+ * Format a Stripe product/plan metadata validation error message for
+ * Sentry to include as much detail as possible about what metadata
+ * failed validation and in what way.
+ *
+ * @param {string} planId
+ * @param {string | import('@hapi/joi').ValidationError} error
+ */
+function formatMetadataValidationErrorMessage(planId, error) {
+  let msg = `${planId} metadata invalid:`;
+  if (typeof error === 'string') {
+    msg = msg + ' ' + error;
+  } else {
+    for (const errorItem of error.details) {
+      msg = msg + ' ' + errorItem.message + ';';
+    }
+  }
+  return msg;
+}
+
+/**
  * Report a validation error to Sentry with validation details.
  *
  * @param {*} message
@@ -215,4 +237,9 @@ function reportValidationError(message, error) {
   });
 }
 
-module.exports = { configureSentry, reportSentryError, reportValidationError };
+module.exports = {
+  configureSentry,
+  reportSentryError,
+  reportValidationError,
+  formatMetadataValidationErrorMessage,
+};
