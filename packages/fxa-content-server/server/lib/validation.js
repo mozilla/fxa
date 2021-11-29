@@ -26,7 +26,7 @@ const PATTERNS = {
   EXPERIMENT: /^[\w.-]+$/,
   FORM_TYPE: /^(email|other|button|subscribe)$/,
   PRODUCT_ID: /^prod_[0-9A-Za-z]+$/,
-  SERVICE: /^(sync|content-server|none|[0-9a-f]{16})$/,
+  SERVICE: /^([a-zA-Z0-9\-]{1,16})$/,
   SYNC_ENGINE: /^[a-z]+$/,
   UNIQUE_USER_ID: /^[0-9a-z-]{36}$/,
 };
