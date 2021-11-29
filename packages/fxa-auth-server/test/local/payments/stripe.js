@@ -1701,9 +1701,12 @@ describe('StripeHelper', () => {
       );
 
       /** Plan.product has invalid metadata */
-      assert.equal(
-        `fetchAllPlans - Plan "${planInvalidProductMetadata.id}"'s metadata failed validation`,
-        stripeHelper.log.error.getCall(3).args[0]
+      assert.isTrue(
+        stripeHelper.log.error
+          .getCall(3)
+          .args[0].includes(
+            `fetchAllPlans: ${planInvalidProductMetadata.id} metadata invalid:`
+          )
       );
     });
   });

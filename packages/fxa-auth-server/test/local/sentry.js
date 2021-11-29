@@ -13,7 +13,10 @@ const Sentry = require('@sentry/node');
 const error = require('../../lib/error');
 
 const config = require('../../config').getProperties();
-const configureSentry = require('../../lib/sentry').configureSentry;
+const {
+  configureSentry,
+  formatMetadataValidationErrorMessage,
+} = require('../../lib/sentry');
 
 const sandbox = sinon.createSandbox();
 
@@ -75,8 +78,7 @@ describe('Sentry', () => {
       code: 500,
       errno: 998,
       error: 'Internal Server Error',
-      info:
-        'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
+      info: 'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
       message: 'An internal validation check failed.',
       op: 'internalError',
     });
@@ -131,5 +133,36 @@ describe('Sentry', () => {
     assert.equal(ctx.path, endError.attempt.path);
     assert.equal(ctx.errorName, 'EndpointError');
     assert.equal(ctx.reason, endError.reason);
+  });
+  describe('Sentry helpers', () => {
+    describe('formatMetadataValidationErrorMessage', () => {
+      let error, actualMsg, expectedMsg;
+      const plan = {
+        id: 'plan_123',
+      };
+      it('formats the error message when error is a string', () => {
+        error = 'Capability missing from metadata';
+        actualMsg = formatMetadataValidationErrorMessage(plan.id, error);
+        expectedMsg = `${plan.id} metadata invalid: ${error}`;
+        assert.deepEqual(actualMsg, expectedMsg);
+      });
+      it('formats the error message when error is an object', () => {
+        error = {
+          details: [
+            {
+              message: '"downloadURL" is required',
+              type: 'any.required',
+            },
+            {
+              message: 'product:privacyNoticeURL must be a valid uri',
+              type: 'string.uri',
+            },
+          ],
+        };
+        expectedMsg = `${plan.id} metadata invalid: ${error.details[0].message}; ${error.details[1].message};`;
+        actualMsg = formatMetadataValidationErrorMessage(plan.id, error);
+        assert.deepEqual(actualMsg, expectedMsg);
+      });
+    });
   });
 });

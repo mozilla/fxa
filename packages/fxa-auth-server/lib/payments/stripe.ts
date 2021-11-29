@@ -44,7 +44,10 @@ import { ConfigType } from '../../config';
 import error from '../error';
 import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
-import { reportValidationError } from '../sentry';
+import {
+  formatMetadataValidationErrorMessage,
+  reportValidationError,
+} from '../sentry';
 import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
@@ -1200,8 +1203,8 @@ export class StripeHelper {
         });
 
       if (error) {
-        const msg = `fetchAllPlans - Plan "${item.id}"'s metadata failed validation`;
-        this.log.error(msg, { error, plan: item });
+        const msg = formatMetadataValidationErrorMessage(item.id, error as any);
+        this.log.error(`fetchAllPlans: ${msg}`, { error, plan: item });
         reportValidationError(msg, error as any);
         continue;
       }
