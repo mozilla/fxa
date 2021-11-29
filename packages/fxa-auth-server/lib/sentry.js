@@ -203,11 +203,11 @@ async function configureSentry(server, config, processName = 'key_server') {
 function formatMetadataValidationErrorMessage(planId, error) {
   let msg = `${planId} metadata invalid:`;
   if (typeof error === 'string') {
-    msg = msg + ' ' + error;
+    msg = `${msg} ${error}`;
   } else {
-    for (const errorItem of error.details) {
-      msg = msg + ' ' + errorItem.message + ';';
-    }
+    msg = `${msg}${error.details
+      .map(({ message }) => ` ${message};`)
+      .join('')}`;
   }
   return msg;
 }
