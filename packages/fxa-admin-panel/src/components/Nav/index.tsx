@@ -17,10 +17,12 @@ export const Nav = () => (
       <ul className="list-none p-0 m-0 text-sm">
         <li>
           <NavLink
-            exact
             to="/account-search"
-            className="rounded text-grey-600 bg-grey-10 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100"
-            activeClassName="bg-grey-50 font-semibold"
+            className={({ isActive }) =>
+              `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
+                isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
+              }`
+            }
           >
             <img
               className="inline-flex mr-2 w-4"
@@ -32,10 +34,12 @@ export const Nav = () => (
         </li>
         <li>
           <NavLink
-            exact
             to="/site-status"
-            className="rounded text-grey-600 bg-grey-10 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100"
-            activeClassName="bg-grey-50 font-semibold"
+            className={({ isActive }) =>
+              `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
+                isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
+              }`
+            }
           >
             <img
               className="inline-flex mr-2 w-4"
@@ -47,10 +51,12 @@ export const Nav = () => (
         </li>
         <li>
           <NavLink
-            exact
             to="/admin-logs"
-            className="rounded text-grey-600 bg-grey-10 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100"
-            activeClassName="bg-grey-50 font-semibold"
+            className={({ isActive }) =>
+              `rounded text-grey-600 flex mt-2 px-3 py-2 no-underline hover:bg-grey-100 focus:bg-grey-100 ${
+                isActive ? 'bg-grey-50 font-semibold' : 'bg-grey-10'
+              }`
+            }
           >
             <img
               className="inline-flex mr-2 w-4"
