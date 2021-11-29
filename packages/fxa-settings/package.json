@@ -83,7 +83,7 @@
     "@storybook/addons": "^6.3.12",
     "@storybook/react": "^6.3.12",
     "@tailwindcss/postcss7-compat": "^2.2.17",
-    "@testing-library/dom": "^8.9.0",
+    "@testing-library/dom": "^8.11.1",
     "@testing-library/jest-dom": "^5.15.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^7.0.2",
