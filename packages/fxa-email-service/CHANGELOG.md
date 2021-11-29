@@ -1,3 +1,9 @@
+## 1.220.1
+
+### Other changes
+
+- #11149: 32f26623e Train-220 Uplift email config (#11149) ([32f26623e](https://github.com/mozilla/fxa/commit/32f26623e))
+
 ## 1.220.0
 
 No changes.

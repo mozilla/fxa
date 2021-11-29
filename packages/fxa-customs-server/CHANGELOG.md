@@ -1,3 +1,7 @@
+## 1.220.1
+
+No changes.
+
 ## 1.220.0
 
 ### Other changes
