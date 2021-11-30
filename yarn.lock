@@ -3771,9 +3771,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@nestjs/config@npm:1.1.0"
+"@nestjs/config@npm:^1.1.5":
+  version: 1.1.5
+  resolution: "@nestjs/config@npm:1.1.5"
   dependencies:
     dotenv: 10.0.0
     dotenv-expand: 5.1.0
@@ -3785,7 +3785,7 @@ __metadata:
     "@nestjs/common": ^7.0.0 || ^8.0.0
     reflect-metadata: ^0.1.13
     rxjs: ^6.0.0 || ^7.2.0
-  checksum: 485c7fdf574f36bdabe80113d7f09d3470e2e9d82f47489ee7c0a3cddd329279d6e80986895a096ef553dd927cc1dfc22386421943c4d209aa6ac4f3361e1f46
+  checksum: ae468f4d7d8d7b8dec30af3413e672aaa77d6f3889a6ceaad5ecf8dbc9771d102b6e5aa126190a98f52bcfa82ed565b1fcf0b58da45e254723ee3d21bdb267eb
   languageName: node
   linkType: hard
 
@@ -18449,7 +18449,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/cli": ^8.1.5
     "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.0
+    "@nestjs/config": ^1.1.5
     "@nestjs/core": ^8.2.3
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
@@ -18974,7 +18974,7 @@ fsevents@~2.1.1:
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^8.1.2
     "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.0
+    "@nestjs/config": ^1.1.5
     "@nestjs/core": ^8.2.3
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
@@ -19072,7 +19072,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/cli": ^8.1.2
     "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.0
+    "@nestjs/config": ^1.1.5
     "@nestjs/core": ^8.2.3
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
@@ -19519,7 +19519,7 @@ fsevents@~2.1.1:
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
     "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.0
+    "@nestjs/config": ^1.1.5
     "@nestjs/core": ^8.2.3
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
@@ -19603,7 +19603,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/cli": ^8.1.2
     "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.0
+    "@nestjs/config": ^1.1.5
     "@nestjs/core": ^8.2.3
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/platform-express": ^8.2.3
