@@ -40,7 +40,7 @@ const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
 const styleClasses = {
   enabledOrVerified: 'font-semibold text-green-900',
   notEnabledOrVerified: 'font-semibold text-red-600',
-  gradientInfoDisplay: 'border-l-2 border-grey-500 mb-8 pl-4',
+  borderInfoDisplay: 'border-l-2 border-grey-500 mb-8 pl-4',
   li: 'list-none pl-0',
   result: 'font-medium text-violet-900',
 };
@@ -213,7 +213,7 @@ export const Account = ({
           <h3 data-testid="email-label" className="mt-0 my-0 mb-1 text-lg">
             <span
               className={`${
-                query === primaryEmail.email ? 'bg-yellow-100' : ''
+                query === primaryEmail.email ? 'bg-yellow-100' : undefined
               }`}
             >
               {primaryEmail.email}
@@ -230,16 +230,13 @@ export const Account = ({
             {primaryEmail.isVerified ? 'verified' : 'not verified'}
           </span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           <div data-testid="uid-label">
-            uid: <span className={`${styleClasses.result}`}>{uid}</span>
+            uid: <span className={styleClasses.result}>{uid}</span>
           </div>
           <div className="text-right">
             created at:{' '}
-            <span
-              className={`${styleClasses.result}`}
-              data-testid="createdat-label"
-            >
+            <span className={styleClasses.result} data-testid="createdat-label">
               {createdAt}
             </span>
             <br />
@@ -248,24 +245,23 @@ export const Account = ({
           </div>
         </li>
 
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           <h3 className="mt-0 my-0 mb-1 text-lg">Secondary Emails</h3>
         </li>
         {secondaryEmails.length > 0 ? (
           <li
-            className={`${styleClasses.gradientInfoDisplay} ${styleClasses.li} mb-5`}
+            className={`{styleClasses.borderInfoDisplay} ${styleClasses.li} mb-5`}
             data-testid="secondary-section"
           >
             <ul>
               {secondaryEmails.map((secondaryEmail) => (
-                <li
-                  key={secondaryEmail.createdAt}
-                  className={`${styleClasses.li}`}
-                >
+                <li key={secondaryEmail.createdAt} className={styleClasses.li}>
                   <span
                     data-testid="secondary-email"
                     className={`${
-                      query === secondaryEmail.email ? 'bg-yellow-100' : ''
+                      query === secondaryEmail.email
+                        ? 'bg-yellow-100'
+                        : undefined
                     }`}
                   >
                     {secondaryEmail.email}
@@ -286,14 +282,13 @@ export const Account = ({
           </li>
         ) : (
           <li
-            data-testid=""
-            className={`${styleClasses.gradientInfoDisplay} ${styleClasses.li}`}
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
           >
             This account doesn't have any secondary emails.
           </li>
         )}
 
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           <h3 className="mt-0 my-0 mb-1 text-lg">Email bounces</h3>
         </li>
         {emailBounces && emailBounces.length > 0 ? (
@@ -311,13 +306,13 @@ export const Account = ({
         ) : (
           <li
             data-testid="no-bounces-message"
-            className={`${styleClasses.gradientInfoDisplay} ${styleClasses.li}`}
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
           >
             This account doesn't have any bounced emails.
           </li>
         )}
 
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           <h3 className="mt-0 my-0 mb-1 text-lg">
             TOTP (Time-Based One-Time Passwords)
           </h3>
@@ -330,14 +325,13 @@ export const Account = ({
           </>
         ) : (
           <li
-            data-testid=""
-            className={`${styleClasses.gradientInfoDisplay} ${styleClasses.li}`}
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
           >
             This account doesn't have TOTP enabled.
           </li>
         )}
 
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           <h3 className="mt-0 my-0 mb-1 text-lg">Recovery Key</h3>
         </li>
         {recoveryKeys && recoveryKeys.length > 0 ? (
@@ -351,14 +345,13 @@ export const Account = ({
           </>
         ) : (
           <li
-            data-testid=""
-            className={`${styleClasses.gradientInfoDisplay} ${styleClasses.li}`}
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
           >
             This account doesn't have a recovery key enabled.
           </li>
         )}
 
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           <h3 className="mt-0 my-0 mb-1 text-lg">Current Session</h3>
         </li>
         {sessionTokens && sessionTokens.length > 0 ? (
@@ -372,8 +365,7 @@ export const Account = ({
           </>
         ) : (
           <li
-            data-testid=""
-            className={`${styleClasses.gradientInfoDisplay} ${styleClasses.li}`}
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
           >
             This account is not currently signed in.
           </li>
@@ -381,7 +373,7 @@ export const Account = ({
       </ul>
       <hr className="border-grey-50 mb-4" />
       <h3 className="mt-0 my-0 mb-1 text-lg">Account History</h3>
-      <div className={`${styleClasses.gradientInfoDisplay}`}>
+      <div className={styleClasses.borderInfoDisplay}>
         {securityEvents && securityEvents.length > 0 ? (
           <>
             <TableContainer component={Paper}>
@@ -394,7 +386,7 @@ export const Account = ({
                 </TableHead>
                 <TableBody>
                   {securityEvents.map((securityEvents: SecurityEventsType) => (
-                    <TableRow>
+                    <TableRow key={securityEvents.createdAt}>
                       <TableCell>{securityEvents.name}</TableCell>
                       <TableCell>
                         {dateFormat(
@@ -438,22 +430,21 @@ const EmailBounce = ({
 }: EmailBounceType) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
-    <li data-testid="bounce-group" className={`${styleClasses.li}`}>
-      <ul className={`${styleClasses.gradientInfoDisplay}`}>
-        <li className={`${styleClasses.li}`}>
-          email: <span className={`${styleClasses.result}`}>{email}</span>
+    <li data-testid="bounce-group" className={styleClasses.li}>
+      <ul className={styleClasses.borderInfoDisplay}>
+        <li className={styleClasses.li}>
+          email: <span className={styleClasses.result}>{email}</span>
         </li>
-        <li className={`${styleClasses.li}`}>
-          created at:{' '}
-          <span className={`${styleClasses.result}`}>{createdAt}</span> ({date})
+        <li className={styleClasses.li}>
+          created at: <span className={styleClasses.result}>{createdAt}</span> (
+          {date})
         </li>
-        <li className={`${styleClasses.li}`}>
-          bounce type:{' '}
-          <span className={`${styleClasses.result}`}>{bounceType}</span>
+        <li className={styleClasses.li}>
+          bounce type: <span className={styleClasses.result}>{bounceType}</span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           bounce subtype:{' '}
-          <span className={`${styleClasses.result}`}>{bounceSubType}</span>
+          <span className={styleClasses.result}>{bounceSubType}</span>
         </li>
       </ul>
     </li>
@@ -463,18 +454,15 @@ const EmailBounce = ({
 const TotpEnabled = ({ verified, createdAt, enabled }: TotpType) => {
   const totpDate = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
-    <li data-testid="" className={`${styleClasses.li}`}>
-      <ul className={`${styleClasses.gradientInfoDisplay}`}>
-        <li className={`${styleClasses.li}`}>
+    <li className={styleClasses.li}>
+      <ul className={styleClasses.borderInfoDisplay}>
+        <li className={styleClasses.li}>
           TOTP Created At:{' '}
-          <span
-            data-testid="totp-created-at"
-            className={`${styleClasses.result}`}
-          >
+          <span data-testid="totp-created-at" className={styleClasses.result}>
             {totpDate}
           </span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           TOTP Verified:{' '}
           <span
             data-testid="totp-verified"
@@ -487,7 +475,7 @@ const TotpEnabled = ({ verified, createdAt, enabled }: TotpType) => {
             {verified ? 'verified' : 'not verified'}
           </span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           TOTP Enabled:{' '}
           <span
             data-testid="totp-enabled"
@@ -512,18 +500,18 @@ const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
     DATE_FORMAT
   );
   return (
-    <li data-testid="" className={`${styleClasses.li}`}>
-      <ul className={`${styleClasses.gradientInfoDisplay}`}>
-        <li className={`${styleClasses.li}`}>
+    <li className={styleClasses.li}>
+      <ul className={styleClasses.borderInfoDisplay}>
+        <li className={styleClasses.li}>
           Recovery Key Created At:{' '}
           <span
             data-testid="recovery-keys-created-at"
-            className={`${styleClasses.result}`}
+            className={styleClasses.result}
           >
             {recoveryKeyCreatedDate}
           </span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           Recovery Key Verified At:{' '}
           <span
             data-testid="recovery-keys-verified"
@@ -536,7 +524,7 @@ const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
             {verifiedAt ? recoveryKeyVerifiedDate : 'not verified'}
           </span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           Recovery Key Enabled:{' '}
           <span
             data-testid="recovery-keys-enabled"
@@ -564,49 +552,49 @@ const SessionTokens = ({
   lastAccessTime,
 }: SessionTokensType) => {
   return (
-    <li data-testid="" className={`${styleClasses.li}`}>
-      <ul className={`${styleClasses.gradientInfoDisplay}`}>
-        <li className={`${styleClasses.li}`}>
+    <li className={styleClasses.li}>
+      <ul className={styleClasses.borderInfoDisplay}>
+        <li className={styleClasses.li}>
           Created At:{' '}
           <span
             data-testid="session-token-created-at"
-            className={`${styleClasses.result}`}
+            className={styleClasses.result}
           >
             {dateFormat(new Date(createdAt!), DATE_FORMAT)}
           </span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           Last Used:{' '}
           <span
             data-testid="session-token-accessed-at"
-            className={`${styleClasses.result}`}
+            className={styleClasses.result}
           >
             {dateFormat(new Date(lastAccessTime!), DATE_FORMAT)}
           </span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           Browser:{' '}
           <span
             data-testid="session-token-browser"
-            className={`${styleClasses.result}`}
+            className={styleClasses.result}
           >
             {uaBrowser} {uaBrowserVersion}
           </span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           Operating System:{' '}
           <span
             data-testid="session-token-operating-system"
-            className={`${styleClasses.result}`}
+            className={styleClasses.result}
           >
             {uaOS} {uaOSVersion}
           </span>
         </li>
-        <li className={`${styleClasses.li}`}>
+        <li className={styleClasses.li}>
           Device:{' '}
           <span
             data-testid="session-token-device"
-            className={`${styleClasses.result}`}
+            className={styleClasses.result}
           >
             {uaDeviceType}
           </span>
