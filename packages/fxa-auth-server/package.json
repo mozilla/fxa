@@ -124,7 +124,7 @@
     "@babel/core": "^7.15.0",
     "@storybook/addon-controls": "^6.3.12",
     "@storybook/addon-docs": "^6.3.12",
-    "@storybook/addon-toolbars": "^6.3.12",
+    "@storybook/addon-toolbars": "^6.4.1",
     "@storybook/html": "^6.3.12",
     "@types/babel__core": "7.1.14",
     "@types/chai": "^4.2.18",
