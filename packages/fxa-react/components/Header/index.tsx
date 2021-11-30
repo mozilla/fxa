@@ -8,6 +8,7 @@ type HeaderProps = {
   left: ReactElement;
   right: ReactElement;
   className?: string;
+  styles?: React.CSSProperties;
 };
 
 export const Header = (props: HeaderProps) => {
@@ -16,6 +17,7 @@ export const Header = (props: HeaderProps) => {
       data-testid="header"
       role="banner"
       className={props.className || 'sticky top-0 bg-grey-10 z-10'}
+      style={props.styles}
     >
       <div className="px-6 tablet:px-8 py-4 flex justify-between">
         <div className="flex items-center">{props.left}</div>

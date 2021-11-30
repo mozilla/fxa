@@ -7,9 +7,10 @@ import logo from '../../images/ff-logo.svg';
 
 type LogoLockupProps = {
   children: string | ReactElement;
+  className?: string;
 };
 
-export const LogoLockup = ({ children }: LogoLockupProps) => (
+export const LogoLockup = ({ children, className = '' }: LogoLockupProps) => (
   <>
     <img
       src={logo}
@@ -19,7 +20,7 @@ export const LogoLockup = ({ children }: LogoLockupProps) => (
     />
     <h1
       data-testid="logo-text"
-      className="hidden tablet:inline-flex self-center text-xl"
+      className={`hidden tablet:inline-flex self-center text-xl ${className}`}
     >
       {children}
     </h1>

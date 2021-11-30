@@ -55,7 +55,7 @@ export class CapabilityService {
       ? Container.get(StripeHelper)
       : ({
           purchasesToProductIds: () => Promise.resolve([]),
-          customer: () => Promise.resolve(null),
+          fetchCustomer: () => Promise.resolve(null),
           allAbbrevPlans: () => Promise.resolve([]),
         } as unknown as StripeHelper);
     this.profileClient = Container.get(ProfileClient);

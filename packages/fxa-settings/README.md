@@ -329,6 +329,24 @@ the RTL/LTR definitions. You can still use the tailwind classes, as shown below:
 }
 ```
 
+Alternatively, you can utilize the SCSS parent selector (`&`) to generate the same code as above while keeping nesting inside the parent class like so:
+
+```scss
+.drop-down-menu {
+  &::before {
+    content: '';
+    @apply caret-top absolute -top-3;
+  }
+
+  [dir='ltr'] &::before {
+    @apply left-55;
+  }
+  [dir='rtl'] &::before {
+    @apply right-55;
+  }
+}
+```
+
 #### PurgeCSS
 
 When it comes to time to create a production build we use PostCSS and PurgeCSS to strip out unused styles. PurgeCSS will look through all of the TSX files, including those of externally imported components, and identify which class names to keep styles for. In order for this to work properly it's important to avoid dynamic class names:

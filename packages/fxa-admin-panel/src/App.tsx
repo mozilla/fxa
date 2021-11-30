@@ -7,13 +7,16 @@ import { Switch, Redirect, Route, BrowserRouter } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import AccountSearch from './components/AccountSearch';
 import AdminLogs from './components/AdminLogs';
+import SiteStatus from './components/SiteStatus';
 
 const App = () => (
   <BrowserRouter>
     <AppLayout>
       <Switch>
-        <Redirect exact from="/" to="/admin-logs" />
         <Route path="/admin-logs" component={AdminLogs} />
+      </Switch>
+      <Switch>
+        <Route path="/site-status" component={SiteStatus} />
       </Switch>
       <Switch>
         <Redirect exact from="/" to="/account-search" />
