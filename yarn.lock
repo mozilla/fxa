@@ -3746,7 +3746,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:^8.2.3":
+"@nestjs/common@npm:^8.1.2":
   version: 8.2.3
   resolution: "@nestjs/common@npm:8.2.3"
   dependencies:
@@ -3771,7 +3771,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:^1.1.5":
+"@nestjs/config@npm:^1.1.0":
   version: 1.1.5
   resolution: "@nestjs/config@npm:1.1.5"
   dependencies:
@@ -3789,7 +3789,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:^8.2.3":
+"@nestjs/core@npm:^8.2.0":
   version: 8.2.3
   resolution: "@nestjs/core@npm:8.2.3"
   dependencies:
@@ -3878,7 +3878,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^8.2.3":
+"@nestjs/platform-express@npm:^8.2.2":
   version: 8.2.3
   resolution: "@nestjs/platform-express@npm:8.2.3"
   dependencies:
@@ -3894,7 +3894,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schedule@npm:^1.0.2":
+"@nestjs/schedule@npm:^1.0.1":
   version: 1.0.2
   resolution: "@nestjs/schedule@npm:1.0.2"
   dependencies:
@@ -3938,7 +3938,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:^8.2.3":
+"@nestjs/testing@npm:^8.2.0":
   version: 8.2.3
   resolution: "@nestjs/testing@npm:8.2.3"
   dependencies:
@@ -5848,7 +5848,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^8.11.1":
+"@testing-library/dom@npm:^8.9.0":
   version: 8.11.1
   resolution: "@testing-library/dom@npm:8.11.1"
   dependencies:
@@ -5864,7 +5864,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^5.15.1":
+"@testing-library/jest-dom@npm:^5.15.0":
   version: 5.15.1
   resolution: "@testing-library/jest-dom@npm:5.15.1"
   dependencies:
@@ -5976,15 +5976,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-morph/common@npm:~0.12.2":
-  version: 0.12.2
-  resolution: "@ts-morph/common@npm:0.12.2"
+"@ts-morph/common@npm:~0.11.1":
+  version: 0.11.1
+  resolution: "@ts-morph/common@npm:0.11.1"
   dependencies:
     fast-glob: ^3.2.7
     minimatch: ^3.0.4
     mkdirp: ^1.0.4
     path-browserify: ^1.0.1
-  checksum: 3095b7159523a65296305113c6d85c8c7d873b821df28a7bd95b9a0a344fcb386b3356940f0833a7275cc43869669c8a8aed012cc2c25892a066d31db7440a85
+  checksum: 2853215cfdfb9b65f96ceef91b15a73ab6591fd27d072801884ea5acc1a8f0becd5ac214d5f3d840f5d650b7654585a9b9df86fc4287872e7be1c6f566381bfd
   languageName: node
   linkType: hard
 
@@ -8885,6 +8885,13 @@ __metadata:
   version: 5.0.1
   resolution: "ansi-regex@npm:5.0.1"
   checksum: 2aa4bb54caf2d622f1afdad09441695af2a83aa3fe8b8afa581d205e57ed4261c183c4d3877cee25794443fde5876417d859c108078ab788d6af7e4fe52eb66b
+  languageName: node
+  linkType: hard
+
+"ansi-regex@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "ansi-regex@npm:6.0.1"
+  checksum: 1ff8b7667cded1de4fa2c9ae283e979fc87036864317da86a2e546725f96406746411d0d85e87a2d12fa5abd715d90006de7fa4fa0477c92321ad3b4c7d4e169
   languageName: node
   linkType: hard
 
@@ -11991,7 +11998,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cacheable-request@npm:^7.0.2":
+"cacheable-request@npm:^7.0.1":
   version: 7.0.2
   resolution: "cacheable-request@npm:7.0.2"
   dependencies:
@@ -12330,6 +12337,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"char-regex@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "char-regex@npm:2.0.0"
+  checksum: 6084a8f0f652cdeba71cb7bbab40a2878bd41286044dffbe439fba81813a4fbf7c74ecaeb093caa8163f60e9865d4578ff42e6389ade3d7571d17af7691fcabe
+  languageName: node
+  linkType: hard
+
 "character-entities-legacy@npm:^1.0.0":
   version: 1.1.4
   resolution: "character-entities-legacy@npm:1.1.4"
@@ -12572,10 +12586,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"class-transformer@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "class-transformer@npm:0.5.1"
-  checksum: f191c8b4cc4239990f5efdd790cabdd852c243ed66248e39f6616a349c910c6eed2d9fd1fbf7ee6ea89f69b4f1d0b493b27347fe0cd0ae26b47c3745a805b6d3
+"class-transformer@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "class-transformer@npm:0.4.0"
+  checksum: 4057346b512705b1a5a68025b025a5be1ff847d7e0e76e82bbb937f832cf6235c5f66e874487d4bd35d67401411e8a3279c9d36bdd8c800336d5507ee6e94af0
   languageName: node
   linkType: hard
 
@@ -12879,12 +12893,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"code-block-writer@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "code-block-writer@npm:11.0.0"
-  dependencies:
-    tslib: 2.3.1
-  checksum: d3d92a06f762d5926ecdb2033e4f30eb4c51aca365ea69ef424afbce7cc2b1518a50deff2645cc17b6fa53f234d664631f2268a4caf91af6a1fd696aa0b2fefb
+"code-block-writer@npm:^10.1.1":
+  version: 10.1.1
+  resolution: "code-block-writer@npm:10.1.1"
+  checksum: e048037acbcbda19fca62a3a63e4a64226ea6b5dc0fad7632d34a88c1165b29a357e5e19f0497811e9911472e824ab85f68176f40e439da87e051908956eb47c
   languageName: node
   linkType: hard
 
@@ -15930,10 +15942,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-android-arm64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-android-arm64@npm:0.13.15"
+  conditions: os=android & cpu=arm64
+  languageName: node
+  linkType: hard
+
 "esbuild-android-arm64@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-android-arm64@npm:0.14.1"
   conditions: os=android & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"esbuild-darwin-64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-darwin-64@npm:0.13.15"
+  conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
@@ -15944,10 +15970,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-darwin-arm64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-darwin-arm64@npm:0.13.15"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
 "esbuild-darwin-arm64@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-darwin-arm64@npm:0.14.1"
   conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"esbuild-freebsd-64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-freebsd-64@npm:0.13.15"
+  conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
@@ -15958,10 +15998,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-freebsd-arm64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-freebsd-arm64@npm:0.13.15"
+  conditions: os=freebsd & cpu=arm64
+  languageName: node
+  linkType: hard
+
 "esbuild-freebsd-arm64@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-freebsd-arm64@npm:0.14.1"
   conditions: os=freebsd & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-32@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-linux-32@npm:0.13.15"
+  conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
@@ -15972,10 +16026,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-linux-64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-linux-64@npm:0.13.15"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
 "esbuild-linux-64@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-linux-64@npm:0.14.1"
   conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-arm64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-linux-arm64@npm:0.13.15"
+  conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
@@ -15986,10 +16054,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-linux-arm@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-linux-arm@npm:0.13.15"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
 "esbuild-linux-arm@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-linux-arm@npm:0.14.1"
   conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"esbuild-linux-mips64le@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-linux-mips64le@npm:0.13.15"
+  conditions: os=linux & cpu=mips64el
   languageName: node
   linkType: hard
 
@@ -16000,6 +16082,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-linux-ppc64le@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-linux-ppc64le@npm:0.13.15"
+  conditions: os=linux & cpu=ppc64
+  languageName: node
+  linkType: hard
+
 "esbuild-linux-ppc64le@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-linux-ppc64le@npm:0.14.1"
@@ -16007,10 +16096,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-netbsd-64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-netbsd-64@npm:0.13.15"
+  conditions: os=netbsd & cpu=x64
+  languageName: node
+  linkType: hard
+
 "esbuild-netbsd-64@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-netbsd-64@npm:0.14.1"
   conditions: os=netbsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-openbsd-64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-openbsd-64@npm:0.13.15"
+  conditions: os=openbsd & cpu=x64
   languageName: node
   linkType: hard
 
@@ -16032,10 +16135,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-sunos-64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-sunos-64@npm:0.13.15"
+  conditions: os=sunos & cpu=x64
+  languageName: node
+  linkType: hard
+
 "esbuild-sunos-64@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-sunos-64@npm:0.14.1"
   conditions: os=sunos & cpu=x64
+  languageName: node
+  linkType: hard
+
+"esbuild-windows-32@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-windows-32@npm:0.13.15"
+  conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
@@ -16046,6 +16163,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-windows-64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-windows-64@npm:0.13.15"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
 "esbuild-windows-64@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-windows-64@npm:0.14.1"
@@ -16053,10 +16177,79 @@ __metadata:
   languageName: node
   linkType: hard
 
+"esbuild-windows-arm64@npm:0.13.15":
+  version: 0.13.15
+  resolution: "esbuild-windows-arm64@npm:0.13.15"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
 "esbuild-windows-arm64@npm:0.14.1":
   version: 0.14.1
   resolution: "esbuild-windows-arm64@npm:0.14.1"
   conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"esbuild@npm:^0.13.14":
+  version: 0.13.15
+  resolution: "esbuild@npm:0.13.15"
+  dependencies:
+    esbuild-android-arm64: 0.13.15
+    esbuild-darwin-64: 0.13.15
+    esbuild-darwin-arm64: 0.13.15
+    esbuild-freebsd-64: 0.13.15
+    esbuild-freebsd-arm64: 0.13.15
+    esbuild-linux-32: 0.13.15
+    esbuild-linux-64: 0.13.15
+    esbuild-linux-arm: 0.13.15
+    esbuild-linux-arm64: 0.13.15
+    esbuild-linux-mips64le: 0.13.15
+    esbuild-linux-ppc64le: 0.13.15
+    esbuild-netbsd-64: 0.13.15
+    esbuild-openbsd-64: 0.13.15
+    esbuild-sunos-64: 0.13.15
+    esbuild-windows-32: 0.13.15
+    esbuild-windows-64: 0.13.15
+    esbuild-windows-arm64: 0.13.15
+  dependenciesMeta:
+    esbuild-android-arm64:
+      optional: true
+    esbuild-darwin-64:
+      optional: true
+    esbuild-darwin-arm64:
+      optional: true
+    esbuild-freebsd-64:
+      optional: true
+    esbuild-freebsd-arm64:
+      optional: true
+    esbuild-linux-32:
+      optional: true
+    esbuild-linux-64:
+      optional: true
+    esbuild-linux-arm:
+      optional: true
+    esbuild-linux-arm64:
+      optional: true
+    esbuild-linux-mips64le:
+      optional: true
+    esbuild-linux-ppc64le:
+      optional: true
+    esbuild-netbsd-64:
+      optional: true
+    esbuild-openbsd-64:
+      optional: true
+    esbuild-sunos-64:
+      optional: true
+    esbuild-windows-32:
+      optional: true
+    esbuild-windows-64:
+      optional: true
+    esbuild-windows-arm64:
+      optional: true
+  bin:
+    esbuild: bin/esbuild
+  checksum: d5fac8f28a6328592e45f9d49a7e98420cf2c2a3ff5a753bbf011ab79bcb5c062209ef862d3ae0875d8f2a50d40c112b0224e8b419a7cbffc6e2b02cee11ef7e
   languageName: node
   linkType: hard
 
@@ -18377,8 +18570,8 @@ fsevents@~2.1.1:
     "@storybook/addons": ^6.3.12
     "@storybook/react": ^6.3.12
     "@tailwindcss/postcss7-compat": ^2.2.17
-    "@testing-library/dom": ^8.11.1
-    "@testing-library/jest-dom": ^5.15.1
+    "@testing-library/dom": ^8.9.0
+    "@testing-library/jest-dom": ^5.15.0
     "@testing-library/react": ^12.1.2
     "@testing-library/user-event": ^13.5.0
     "@types/babel__core": 7.1.14
@@ -18406,7 +18599,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dateformat: ^4.3.1
-    esbuild: ^0.14.0
+    esbuild: ^0.13.14
     esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
@@ -18421,7 +18614,7 @@ fsevents@~2.1.1:
     graphql: ^15.6.1
     helmet: ^4.6.0
     jest: 27.3.1
-    jest-watch-typeahead: 0.6.5
+    jest-watch-typeahead: 1.0.0
     mozlog: ^3.0.2
     node-sass: ^6.0.1
     npm-run-all: ^4.1.5
@@ -18436,7 +18629,6 @@ fsevents@~2.1.1:
     serve-static: ^1.14.1
     supertest: ^6.1.6
     tailwindcss: ^1.9.1
-    tailwindcss-textshadow: ^2.1.3
     ts-jest: ^27.0.7
     typescript: ^4.5.2
     webpack: ^4.43.0
@@ -18448,12 +18640,12 @@ fsevents@~2.1.1:
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
     "@nestjs/cli": ^8.1.5
-    "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.5
-    "@nestjs/core": ^8.2.3
+    "@nestjs/common": ^8.1.2
+    "@nestjs/config": ^1.1.0
+    "@nestjs/core": ^8.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/platform-express": ^8.2.3
+    "@nestjs/platform-express": ^8.2.2
     "@sentry/integrations": ^6.15.0
     "@sentry/node": ^6.15.0
     "@types/chance": ^1.1.2
@@ -18468,12 +18660,12 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     chai: ^4.3.4
     chance: ^1.1.8
-    class-transformer: ^0.5.1
+    class-transformer: ^0.4.0
     class-validator: ^0.13.2
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
-    esbuild: ^0.14.0
+    esbuild: ^0.13.14
     esbuild-register: ^3.1.2
     eslint: ^7.32.0
     express: ^4.17.1
@@ -18493,8 +18685,8 @@ fsevents@~2.1.1:
     rxjs: ^7.2.0
     supertest: ^6.1.6
     ts-jest: ^27.0.7
-    ts-morph: ^13.0.2
-    tsconfig-paths: ^3.12.0
+    ts-morph: ^12.2.0
+    tsconfig-paths: ^3.11.0
     tslib: ^2.3.1
     typescript: ^4.5.2
     yargs: ^17.0.1
@@ -18624,7 +18816,7 @@ fsevents@~2.1.1:
     ejs: ^3.1.6
     email-addresses: 4.0.0
     emittery: ^0.10.0
-    esbuild: ^0.14.0
+    esbuild: ^0.13.14
     esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
@@ -18666,7 +18858,7 @@ fsevents@~2.1.1:
     luxon: ^2.1.1
     mailparser: 0.6.1
     memcached: ^2.2.2
-    mjml: ^4.11.0
+    mjml: ^4.10.4
     mkdirp: 0.5.1
     mocha: ^9.1.2
     mocha-junit-reporter: ^2.0.2
@@ -18690,7 +18882,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     proxyquire: ^2.1.3
     punycode.js: 2.1.0
-    qrcode: ^1.5.0
+    qrcode: ^1.4.4
     read: 1.0.7
     request: ^2.88.2
     rimraf: ^3.0.2
@@ -18700,7 +18892,7 @@ fsevents@~2.1.1:
     sass: ^1.43.4
     simplesmtp: 0.3.35
     sinon: ^9.0.3
-    stripe: ^8.191.0
+    stripe: ^8.188.0
     superagent: ^6.1.0
     through: 2.3.8
     typedi: ^0.8.0
@@ -18768,7 +18960,7 @@ fsevents@~2.1.1:
     css: 3.0.0
     css-loader: 1.0.0
     duration-js: 4.0.0
-    esbuild: ^0.14.0
+    esbuild: ^0.13.14
     esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
@@ -18790,7 +18982,7 @@ fsevents@~2.1.1:
     fxa-react: "workspace:*"
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
-    got: 11.8.3
+    got: 11.8.2
     grunt: ^1.4.1
     grunt-babel: 8.0.0
     grunt-ban-word: 0.1.1
@@ -18973,16 +19165,16 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
     "@nestjs/cli": ^8.1.2
-    "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.5
-    "@nestjs/core": ^8.2.3
+    "@nestjs/common": ^8.1.2
+    "@nestjs/config": ^1.1.0
+    "@nestjs/core": ^8.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.2.3
-    "@nestjs/schedule": ^1.0.2
+    "@nestjs/platform-express": ^8.2.2
+    "@nestjs/schedule": ^1.0.1
     "@nestjs/schematics": ^8.0.5
-    "@nestjs/testing": ^8.2.3
+    "@nestjs/testing": ^8.2.0
     "@sentry/integrations": ^6.15.0
     "@sentry/node": ^6.15.0
     "@types/chance": ^1.1.2
@@ -19002,12 +19194,12 @@ fsevents@~2.1.1:
     aws-sdk: ^2.1022.0
     axios: ^0.24.0
     chance: ^1.1.8
-    class-transformer: ^0.5.1
+    class-transformer: ^0.4.0
     class-validator: ^0.13.2
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
-    esbuild: ^0.14.0
+    esbuild: ^0.13.14
     esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-config-prettier: ^8.3.0
@@ -19024,7 +19216,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     nock: ^13.2.1
     p-event: ^4.2.0
-    passport: ^0.5.0
+    passport: ^0.4.1
     passport-jwt: ^4.0.0
     pm2: ^5.1.2
     prettier: ^2.3.1
@@ -19035,7 +19227,7 @@ fsevents@~2.1.1:
     supertest: ^6.1.6
     ts-jest: ^27.0.7
     ts-loader: ^8.3.0
-    tsconfig-paths: ^3.12.0
+    tsconfig-paths: ^3.11.0
     typesafe-joi: ^2.1.0
     typesafe-node-firestore: ^1.4.0
     typescript: ^4.5.2
@@ -19071,13 +19263,13 @@ fsevents@~2.1.1:
   resolution: "fxa-graphql-api@workspace:packages/fxa-graphql-api"
   dependencies:
     "@nestjs/cli": ^8.1.2
-    "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.5
-    "@nestjs/core": ^8.2.3
+    "@nestjs/common": ^8.1.2
+    "@nestjs/config": ^1.1.0
+    "@nestjs/core": ^8.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.2.3
+    "@nestjs/platform-express": ^8.2.2
     "@sentry/integrations": ^6.15.0
     "@sentry/node": ^6.15.0
     "@types/chance": ^1.1.2
@@ -19097,13 +19289,13 @@ fsevents@~2.1.1:
     apollo-server-express: ^2.25.2
     audit-filter: ^0.5.0
     chance: ^1.1.8
-    class-transformer: ^0.5.1
+    class-transformer: ^0.4.0
     class-validator: ^0.13.2
     commander: ^6.0.0
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
-    esbuild: ^0.14.0
+    esbuild: ^0.13.14
     esbuild-register: ^3.1.2
     eslint: ^7.32.0
     express: ^4.17.1
@@ -19125,7 +19317,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     nock: ^13.2.1
     objection: ^2.2.17
-    passport: ^0.5.0
+    passport: ^0.4.1
     passport-http-bearer: ^1.0.1
     pm2: ^5.1.2
     prettier: ^2.3.1
@@ -19223,7 +19415,7 @@ fsevents@~2.1.1:
     "@stripe/react-stripe-js": ^1.6.0
     "@stripe/stripe-js": ^1.21.1
     "@svgr/webpack": ^5.4.0
-    "@testing-library/jest-dom": ^5.15.1
+    "@testing-library/jest-dom": ^5.15.0
     "@testing-library/react": ^12.1.2
     "@types/accept-language-parser": ^1.5.1
     "@types/classnames": ^2.3.1
@@ -19262,7 +19454,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     dayjs: ^1.9.4
-    esbuild: ^0.14.0
+    esbuild: ^0.13.14
     esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
@@ -19311,7 +19503,7 @@ fsevents@~2.1.1:
     redux-actions: ^2.6.5
     redux-devtools-extension: ^2.13.9
     redux-promise-middleware: ^6.1.2
-    redux-thunk: ^2.4.1
+    redux-thunk: ^2.4.0
     serve-static: ^1.14.1
     sinon: ^9.0.3
     style-loader: ^1.3.0
@@ -19366,7 +19558,7 @@ fsevents@~2.1.1:
     prettier: ^2.3.1
     request: ^2.88.2
     rimraf: ^3.0.2
-    sharp: ^0.29.3
+    sharp: ^0.29.2
     sinon: ^9.0.3
     stream-to-array: 2.3.0
     through: 2.3.8
@@ -19387,8 +19579,8 @@ fsevents@~2.1.1:
     "@storybook/react": ^6.3.12
     "@svgr/webpack": ^5.5.0
     "@tailwindcss/postcss7-compat": ^2.2.17
-    "@testing-library/dom": ^8.11.1
-    "@testing-library/jest-dom": ^5.15.1
+    "@testing-library/dom": ^8.9.0
+    "@testing-library/jest-dom": ^5.15.0
     "@testing-library/react": ^12.1.2
     "@testing-library/user-event": ^13.5.0
     "@types/camelcase": 5.2.0
@@ -19452,8 +19644,8 @@ fsevents@~2.1.1:
     "@storybook/addons": ^6.3.12
     "@storybook/react": ^6.3.12
     "@tailwindcss/postcss7-compat": ^2.2.17
-    "@testing-library/dom": ^8.11.1
-    "@testing-library/jest-dom": ^5.15.1
+    "@testing-library/dom": ^8.9.0
+    "@testing-library/jest-dom": ^5.15.0
     "@testing-library/react": ^12.1.2
     "@testing-library/react-hooks": ^7.0.2
     "@testing-library/user-event": ^13.5.0
@@ -19487,7 +19679,7 @@ fsevents@~2.1.1:
     fxa-shared: "workspace:*"
     get-orientation: ^1.1.2
     graphql: ^15.6.1
-    jest-watch-typeahead: 0.6.5
+    jest-watch-typeahead: 1.0.0
     lodash.groupby: ^4.6.0
     mutationobserver-shim: ^0.3.7
     node-sass: ^6.0.1
@@ -19518,12 +19710,12 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
-    "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.5
-    "@nestjs/core": ^8.2.3
+    "@nestjs/common": ^8.1.2
+    "@nestjs/config": ^1.1.0
+    "@nestjs/core": ^8.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/testing": ^8.2.3
+    "@nestjs/testing": ^8.2.0
     "@sentry/browser": ^6.15.0
     "@sentry/integrations": ^6.15.0
     "@sentry/node": ^6.15.0
@@ -19552,10 +19744,10 @@ fsevents@~2.1.1:
     celebrate: ^10.0.1
     chai: ^4.3.4
     chance: ^1.1.8
-    class-transformer: ^0.5.1
+    class-transformer: ^0.4.0
     class-validator: ^0.13.2
     cors: ^2.8.5
-    esbuild: ^0.14.0
+    esbuild: ^0.13.14
     esbuild-register: ^3.1.2
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
@@ -19586,11 +19778,11 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rxjs: ^7.2.0
     sinon: ^9.0.3
-    stripe: ^8.191.0
+    stripe: ^8.188.0
     superagent: ^6.1.0
     ts-jest: ^27.0.7
     ts-loader: ^8.3.0
-    tsconfig-paths: ^3.12.0
+    tsconfig-paths: ^3.11.0
     typescript: ^4.5.2
     underscore: ^1.13.1
     uuid: ^8.3.2
@@ -19602,11 +19794,11 @@ fsevents@~2.1.1:
   resolution: "fxa-support-panel@workspace:packages/fxa-support-panel"
   dependencies:
     "@nestjs/cli": ^8.1.2
-    "@nestjs/common": ^8.2.3
-    "@nestjs/config": ^1.1.5
-    "@nestjs/core": ^8.2.3
+    "@nestjs/common": ^8.1.2
+    "@nestjs/config": ^1.1.0
+    "@nestjs/core": ^8.2.0
     "@nestjs/mapped-types": ^1.0.0
-    "@nestjs/platform-express": ^8.2.3
+    "@nestjs/platform-express": ^8.2.2
     "@sentry/integrations": ^6.15.0
     "@sentry/node": ^6.15.0
     "@types/convict": ^5.2.2
@@ -19616,12 +19808,12 @@ fsevents@~2.1.1:
     "@types/superagent": 4.1.11
     "@types/supertest": ^2.0.11
     audit-filter: ^0.5.0
-    class-transformer: ^0.5.1
+    class-transformer: ^0.4.0
     class-validator: ^0.13.2
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
-    esbuild: ^0.14.0
+    esbuild: ^0.13.14
     esbuild-register: ^3.1.2
     eslint: ^7.32.0
     express: ^4.17.1
@@ -20454,22 +20646,22 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"got@npm:11.8.3":
-  version: 11.8.3
-  resolution: "got@npm:11.8.3"
+"got@npm:11.8.2":
+  version: 11.8.2
+  resolution: "got@npm:11.8.2"
   dependencies:
     "@sindresorhus/is": ^4.0.0
     "@szmarczak/http-timer": ^4.0.5
     "@types/cacheable-request": ^6.0.1
     "@types/responselike": ^1.0.0
     cacheable-lookup: ^5.0.3
-    cacheable-request: ^7.0.2
+    cacheable-request: ^7.0.1
     decompress-response: ^6.0.0
     http2-wrapper: ^1.0.0-beta.5.2
     lowercase-keys: ^2.0.0
     p-cancelable: ^2.0.0
     responselike: ^2.0.0
-  checksum: 3b6db107d9765470b18e4cb22f7c7400381be7425b9be5823f0168d6c21b5d6b28b023c0b3ee208f73f6638c3ce251948ca9b54a1e8f936d3691139ac202d01b
+  checksum: 41ad7bf74f7ec18bca81997ea0a6c8b6b75405cc3ba76d49c5d9d4658cad200d5a9fa7b0a13058458d0df6bed217baabd122d5d351c6bc6996514a5e428744bb
   languageName: node
   linkType: hard
 
@@ -24606,20 +24798,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jest-watch-typeahead@npm:0.6.5":
-  version: 0.6.5
-  resolution: "jest-watch-typeahead@npm:0.6.5"
+"jest-watch-typeahead@npm:1.0.0":
+  version: 1.0.0
+  resolution: "jest-watch-typeahead@npm:1.0.0"
   dependencies:
     ansi-escapes: ^4.3.1
     chalk: ^4.0.0
     jest-regex-util: ^27.0.0
     jest-watcher: ^27.0.0
-    slash: ^3.0.0
-    string-length: ^4.0.1
-    strip-ansi: ^6.0.0
+    slash: ^4.0.0
+    string-length: ^5.0.1
+    strip-ansi: ^7.0.1
   peerDependencies:
-    jest: ^26.0.0 || ^27.0.0
-  checksum: 01f5113e51cb49365661986144bfc6520d9e8d74d8a5d7527d5edb8e2bc8f128f6cf7baa512bb6bb35fdbb86fa92f0b26a4a7a4db66ac4dc3f7ea603ba48ca81
+    jest: ^27.0.0
+  checksum: 388d5189744e3fad21a8dd9e7fb5bbb9e8c12b4d07b76f8fa9c8df47fa93f25427602b20d9061431abb54290f9a24690adbf5204fd2d8cef7a7688c2f81db18d
   languageName: node
   linkType: hard
 
@@ -27724,7 +27916,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mjml@npm:^4.11.0":
+"mjml@npm:^4.10.4":
   version: 4.11.0
   resolution: "mjml@npm:4.11.0"
   dependencies:
@@ -29926,13 +30118,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"passport@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "passport@npm:0.5.0"
+"passport@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "passport@npm:0.4.1"
   dependencies:
     passport-strategy: 1.x.x
     pause: 0.0.1
-  checksum: 5a3db4b420c0255fb8fdfe26005529582ea5697bff5c566ea02ec7e93c5a542f16b298c5545b0e7b5eb4db04eb4d15885948040adf9a98ed77dafb25ed155b7c
+  checksum: 6e0d855e281df8568f4b361d8377995295e59b08391a1b57d18d1404dbaa67af1523c987e9a071d6b0d1550f022637d62f9854bbd31ebc30372f0bfb1acb2567
   languageName: node
   linkType: hard
 
@@ -32229,7 +32421,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"qrcode@npm:^1.5.0":
+"qrcode@npm:^1.4.4":
   version: 1.5.0
   resolution: "qrcode@npm:1.5.0"
   dependencies:
@@ -33350,7 +33542,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"redux-thunk@npm:^2.4.1":
+"redux-thunk@npm:^2.4.0":
   version: 2.4.1
   resolution: "redux-thunk@npm:2.4.1"
   peerDependencies:
@@ -35038,7 +35230,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.29.3":
+"sharp@npm:^0.29.2":
   version: 0.29.3
   resolution: "sharp@npm:0.29.3"
   dependencies:
@@ -35350,6 +35542,13 @@ resolve@^2.0.0-next.3:
   version: 3.0.0
   resolution: "slash@npm:3.0.0"
   checksum: 94a93fff615f25a999ad4b83c9d5e257a7280c90a32a7cb8b4a87996e4babf322e469c42b7f649fd5796edd8687652f3fb452a86dc97a816f01113183393f11c
+  languageName: node
+  linkType: hard
+
+"slash@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "slash@npm:4.0.0"
+  checksum: da8e4af73712253acd21b7853b7e0dbba776b786e82b010a5bfc8b5051a1db38ed8aba8e1e8f400dd2c9f373be91eb1c42b66e91abb407ff42b10feece5e1d2d
   languageName: node
   linkType: hard
 
@@ -36095,6 +36294,16 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"string-length@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "string-length@npm:5.0.1"
+  dependencies:
+    char-regex: ^2.0.0
+    strip-ansi: ^7.0.1
+  checksum: 71f73b8c8a743e01dcd001bcf1b197db78d5e5e53b12bd898cddaf0961be09f947dfd8c429783db3694b55b05cb5a51de6406c5085ff1aaa10c4771440c8396d
+  languageName: node
+  linkType: hard
+
 "string-natural-compare@npm:^3.0.1":
   version: 3.0.1
   resolution: "string-natural-compare@npm:3.0.1"
@@ -36298,6 +36507,15 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"strip-ansi@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "strip-ansi@npm:7.0.1"
+  dependencies:
+    ansi-regex: ^6.0.1
+  checksum: 257f78fa433520e7f9897722731d78599cb3fce29ff26a20a5e12ba4957463b50a01136f37c43707f4951817a75e90820174853d6ccc240997adc5df8f966039
+  languageName: node
+  linkType: hard
+
 "strip-ansi@npm:~0.1.0":
   version: 0.1.1
   resolution: "strip-ansi@npm:0.1.1"
@@ -36377,7 +36595,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"stripe@npm:^8.191.0":
+"stripe@npm:^8.188.0":
   version: 8.191.0
   resolution: "stripe@npm:8.191.0"
   dependencies:
@@ -36770,16 +36988,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tailwindcss-textshadow@npm:^2.1.3":
-  version: 2.1.3
-  resolution: "tailwindcss-textshadow@npm:2.1.3"
-  dependencies:
-    tailwindcss: ^1.2.0
-  checksum: e6a8ace931ecd076722a99abec71fdd0a905cd170a9ce905d29153f77d6040f68cc6485253f7e0410eea7872d7a67d92825b76f80acbf2918d032719a8a7e195
-  languageName: node
-  linkType: hard
-
-"tailwindcss@npm:^1.0.1, tailwindcss@npm:^1.2.0, tailwindcss@npm:^1.9.1":
+"tailwindcss@npm:^1.0.1, tailwindcss@npm:^1.9.1":
   version: 1.9.6
   resolution: "tailwindcss@npm:1.9.6"
   dependencies:
@@ -37740,13 +37949,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"ts-morph@npm:^13.0.2":
-  version: 13.0.2
-  resolution: "ts-morph@npm:13.0.2"
+"ts-morph@npm:^12.2.0":
+  version: 12.2.0
+  resolution: "ts-morph@npm:12.2.0"
   dependencies:
-    "@ts-morph/common": ~0.12.2
-    code-block-writer: ^11.0.0
-  checksum: 325e850b99f96a71b57ced55e2bf687bdc6dc477070a946a47ca925633c62f201d2a706c6972e7bb6a37d7d9e0414b040fd46800d2fd86423185818fefe284a6
+    "@ts-morph/common": ~0.11.1
+    code-block-writer: ^10.1.1
+  checksum: c6c066d49da84555d56c1fd16d6de52cb123ea1b6eb71869b29a23ce351849aef3529396d7103a456e9f6e10c56493efe959b4331741e1db7c613d7f5a9de9c9
   languageName: node
   linkType: hard
 
@@ -37814,18 +38023,6 @@ resolve@^2.0.0-next.3:
     minimist: ^1.2.0
     strip-bom: ^3.0.0
   checksum: e14aaa6883f316d611db41cbb0fc8779b59c66b31d1e045565ad4540c77ccd3d2bb66f7c261b74ff535d3cc6b4a1ce21dc84774bf2a2a603ed6b0fb96f7e0cc7
-  languageName: node
-  linkType: hard
-
-"tsconfig-paths@npm:^3.12.0":
-  version: 3.12.0
-  resolution: "tsconfig-paths@npm:3.12.0"
-  dependencies:
-    "@types/json5": ^0.0.29
-    json5: ^1.0.1
-    minimist: ^1.2.0
-    strip-bom: ^3.0.0
-  checksum: 4999ec6cd1c7cc06750a460dbc0d39fe3595a4308cb5f1d0d0a8283009cf9c0a30d5a156508c28fe3a47760508af5263ab288fc23d71e9762779674257a95d3b
   languageName: node
   linkType: hard
 
