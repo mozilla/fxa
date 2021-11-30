@@ -1,3 +1,16 @@
+## 1.220.2
+
+### Bug fixes
+
+- bulk-mailer: date normalization was wrong (#11184) ([e4cbfbcab](https://github.com/mozilla/fxa/commit/e4cbfbcab))
+
+## 1.220.1
+
+### Other changes
+
+- #11147: daba77073 Train 220 dot release optional ridealong (#11147) ([daba77073](https://github.com/mozilla/fxa/commit/daba77073))
+- #11149: 32f26623e Train-220 Uplift email config (#11149) ([32f26623e](https://github.com/mozilla/fxa/commit/32f26623e))
+
 ## 1.220.0
 
 ### New features
