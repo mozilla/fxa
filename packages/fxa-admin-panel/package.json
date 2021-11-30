@@ -41,7 +41,6 @@
   "dependencies": {
     "@apollo/client": "^3.4.5",
     "@emotion/react": "^11.6.0",
-    "@material-ui/core": "v5.0.0-alpha.24",
     "body-parser": "^1.19.0",
     "convict": "^6.2.1",
     "convict-format-with-moment": "^6.2.0",

@@ -15,14 +15,6 @@ import {
   SessionTokens as SessionTokensType,
 } from 'fxa-admin-server/src/graphql';
 
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-
 export type AccountProps = AccountType & {
   onCleared: Function;
   query: string;
@@ -376,29 +368,28 @@ export const Account = ({
       <div className={styleClasses.borderInfoDisplay}>
         {securityEvents && securityEvents.length > 0 ? (
           <>
-            <TableContainer component={Paper}>
-              <Table className="pt-1" aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Event</TableCell>
-                    <TableCell>Timestamp</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {securityEvents.map((securityEvents: SecurityEventsType) => (
-                    <TableRow key={securityEvents.createdAt}>
-                      <TableCell>{securityEvents.name}</TableCell>
-                      <TableCell>
-                        {dateFormat(
-                          new Date(securityEvents.createdAt!),
-                          DATE_FORMAT
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <table className="pt-1" aria-label="simple table">
+              <thead>
+                <tr>
+                  <th className="text-left">Event</th>
+                  <th className="text-left">Timestamp</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {securityEvents.map((securityEvents: SecurityEventsType) => (
+                  <tr key={securityEvents.createdAt}>
+                    <td className="pr-4">{securityEvents.name}</td>
+                    <td>
+                      {dateFormat(
+                        new Date(securityEvents.createdAt!),
+                        DATE_FORMAT
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </>
         ) : (
           <div
