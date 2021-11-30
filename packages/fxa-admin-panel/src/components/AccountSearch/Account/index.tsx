@@ -212,20 +212,20 @@ export const Account = ({
         <li className={`${styleClasses.li} flex justify-between`}>
           <h3 data-testid="email-label" className="mt-0 my-0 mb-1 text-lg">
             <span
-              className={`${
+              className={
                 query === primaryEmail.email ? 'bg-yellow-100' : undefined
-              }`}
+              }
             >
               {primaryEmail.email}
             </span>
           </h3>
           <span
             data-testid="verified-status"
-            className={`${
+            className={
               primaryEmail.isVerified
                 ? styleClasses.enabledOrVerified
                 : styleClasses.notEnabledOrVerified
-            }`}
+            }
           >
             {primaryEmail.isVerified ? 'verified' : 'not verified'}
           </span>
@@ -258,11 +258,11 @@ export const Account = ({
                 <li key={secondaryEmail.createdAt} className={styleClasses.li}>
                   <span
                     data-testid="secondary-email"
-                    className={`${
+                    className={
                       query === secondaryEmail.email
                         ? 'bg-yellow-100'
                         : undefined
-                    }`}
+                    }
                   >
                     {secondaryEmail.email}
                   </span>
