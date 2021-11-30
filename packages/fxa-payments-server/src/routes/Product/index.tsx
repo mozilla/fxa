@@ -31,6 +31,7 @@ import {
 import { isWebSubscription } from 'fxa-shared/subscriptions/subscriptions';
 import { findCustomerIapSubscriptionByProductId } from '../../lib/customer';
 import IapRoadblock from './IapRoadblock';
+import { useParams } from 'react-router-dom';
 
 type PlansByIdType = {
   [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
@@ -105,11 +106,6 @@ const subscriptionUpdateEligibilityResult = (
 };
 
 export type ProductProps = {
-  match: {
-    params: {
-      productId: string;
-    };
-  };
   profile: SelectorReturns['profile'];
   plans: SelectorReturns['plans'];
   customer: SelectorReturns['customer'];
@@ -123,9 +119,6 @@ export type ProductProps = {
 };
 
 export const Product = ({
-  match: {
-    params: { productId },
-  },
   profile,
   plans,
   customer,
@@ -137,6 +130,7 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
+  const { productId } = useParams() as { productId: string };
   const {
     accessToken,
     config,

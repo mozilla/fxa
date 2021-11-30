@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 import { useLocalization } from '@fluent/react';
 import {
   IapSubscription,

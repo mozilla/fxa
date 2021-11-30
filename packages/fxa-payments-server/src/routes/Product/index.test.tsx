@@ -43,6 +43,16 @@ import { AppContextType, defaultAppContext } from '../../lib/AppContext';
 import { defaultConfig } from 'fxa-payments-server/src/lib/config';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
+const mockProductId = PRODUCT_ID;
+jest.mock('react-router-dom', () => {
+  const originalRouterDom = jest.requireActual('react-router-dom');
+  return {
+    __esModule: true,
+    ...originalRouterDom,
+    useParams: () => jest.fn().mockReturnValue({ productId: mockProductId }),
+  };
+});
+
 describe('routes/Product', () => {
   let authServer = '';
   let profileServer = '';
@@ -77,11 +87,6 @@ describe('routes/Product', () => {
     appContext?: Partial<AppContextType>;
   }) => {
     const props = {
-      match: {
-        params: {
-          productId,
-        },
-      },
       createSubscriptionMounted: () => {},
       createSubscriptionEngaged: () => {},
     };
@@ -137,7 +142,7 @@ describe('routes/Product', () => {
       }),
   ];
 
-  it('renders with product ID and display name', async () => {
+  fit('renders with product ID and display name', async () => {
     const displayName = 'Foo Barson';
     const apiMocks = initApiMocks(displayName);
     const { findAllByText, queryByText, queryAllByText } = render(<Subject />);

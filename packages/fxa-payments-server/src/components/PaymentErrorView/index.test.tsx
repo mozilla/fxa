@@ -10,12 +10,15 @@ import { PaymentErrorView } from './index';
 import SubscriptionTitle, { titles } from '../SubscriptionTitle';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 
-const mockHistoryPush = jest.fn();
-jest.mock('react-router-dom', () => ({
-  useHistory: () => ({
-    push: mockHistoryPush,
-  }),
-}));
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => {
+  const originalRouterDom = jest.requireActual('react-router-dom');
+  return {
+    __esModule: true,
+    ...originalRouterDom,
+    useNavigate: () => mockedNavigate,
+  };
+});
 
 afterEach(cleanup);
 describe('PaymentErrorView test with l10n', () => {
@@ -79,7 +82,7 @@ describe('PaymentErrorView test with l10n', () => {
       fireEvent.click(getByTestId('manage-subscription-link'));
     });
 
-    expect(mockHistoryPush).toHaveBeenCalledWith('/subscriptions');
+    expect(mockedNavigate).toHaveBeenCalledWith('/subscriptions');
   });
 
   it('uses the given SubscriptionTitle', async () => {
@@ -100,7 +103,7 @@ describe('PaymentErrorView test with l10n', () => {
     await act(async () => {
       fireEvent.click(getByTestId('manage-subscription-link'));
     });
-    expect(mockHistoryPush).toHaveBeenCalledWith('/subscriptions');
+    expect(mockedNavigate).toHaveBeenCalledWith('/subscriptions');
   });
 
   it('does not render the ActionButton for post-subscription creation errors', async () => {

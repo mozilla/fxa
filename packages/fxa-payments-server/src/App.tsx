@@ -2,7 +2,14 @@ import React, { ReactNode, useContext } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { loadStripe } from '@stripe/stripe-js';
 import { StripeProvider } from 'react-stripe-elements';
-import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Route,
+  Redirect,
+  Switch,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
 import { Localized } from '@fluent/react';
 import DocumentTitle from 'react-document-title';
 
@@ -91,37 +98,41 @@ export const App = ({
             <AppErrorBoundary>
               <StripeProvider apiKey={config.stripe.apiKey}>
                 <ReduxProvider store={store}>
-                  <Router>
-                    <React.Suspense fallback={<RouteFallback />}>
-                      <Switch>
+                  <React.Suspense fallback={<RouteFallback />}>
+                    <Router>
+                      <Routes>
                         {/* Note: every permutation of Route and nested Routes below should also be listed in INDEX_ROUTES in server/lib/server.js */}
-                        <Route path="/" exact>
-                          <Redirect to="/subscriptions" />
-                        </Route>
-                        <Route path="/subscriptions" exact>
-                          <SettingsLayout>
-                            <Subscriptions />
-                          </SettingsLayout>
-                        </Route>
+                        <Route
+                          path="/"
+                          element={<Navigate to="/subscriptions" />}
+                        />
+                        <Route
+                          path="/subscriptions"
+                          element={
+                            <SettingsLayout>
+                              <Subscriptions />
+                            </SettingsLayout>
+                          }
+                        />
                         <Route
                           path="/products/:productId"
-                          render={(props) => (
+                          element={
                             <SignInLayout>
-                              <Product {...props} />
+                              <Product />
                             </SignInLayout>
-                          )}
+                          }
                         />
                         <Route
                           path="/checkout/:productId"
-                          render={(props) => (
+                          element={
                             <SignInLayout>
-                              <Checkout {...props} />
+                              <Checkout />
                             </SignInLayout>
-                          )}
+                          }
                         />
-                      </Switch>
-                    </React.Suspense>
-                  </Router>
+                      </Routes>
+                    </Router>
+                  </React.Suspense>
                 </ReduxProvider>
               </StripeProvider>
             </AppErrorBoundary>
