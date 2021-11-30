@@ -3627,6 +3627,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@googlemaps/google-maps-services-js@npm:^3.3.3":
+  version: 3.3.3
+  resolution: "@googlemaps/google-maps-services-js@npm:3.3.3"
+  dependencies:
+    "@googlemaps/url-signature": ^1.0.4
+    agentkeepalive: ^4.1.0
+    axios: ^0.24.0
+    query-string: ^7.0.1
+    retry-axios: ^2.2.1
+  checksum: 0a758241b6bba06d1e8217ae4cece876dbfe36322d89528486cc31f952e10b1d0e9458895ac17bdd4b72c5aa3390e910c05c7f725703ba03185cfefb51f7aabd
+  languageName: node
+  linkType: hard
+
+"@googlemaps/url-signature@npm:^1.0.4":
+  version: 1.0.7
+  resolution: "@googlemaps/url-signature@npm:1.0.7"
+  dependencies:
+    crypto-js: ^4.1.1
+  checksum: ee464b05af35e4918249d763f68c0b3b93a0c18da730d3625581073db8f824cf7f0c4c4d240a45c455ada4d4883a047dcf12cbd3332a0acad07e294720d2aa74
+  languageName: node
+  linkType: hard
+
 "@graphql-tools/merge@npm:6.2.14":
   version: 6.2.14
   resolution: "@graphql-tools/merge@npm:6.2.14"
@@ -9878,6 +9900,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"agentkeepalive@npm:^4.1.0":
+  version: 4.1.4
+  resolution: "agentkeepalive@npm:4.1.4"
+  dependencies:
+    debug: ^4.1.0
+    depd: ^1.1.2
+    humanize-ms: ^1.2.1
+  checksum: d49c24d4b333e9507119385895a583872f4f53d62764a89be165926e824056a126955bae4a6d3c6f7cd26f4089621a40f7b27675f7868214d82118f744b9e82d
+  languageName: node
+  linkType: hard
+
 "aggregate-error@npm:^3.0.0":
   version: 3.0.1
   resolution: "aggregate-error@npm:3.0.1"
@@ -15220,6 +15253,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"crypto-js@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "crypto-js@npm:4.1.1"
+  checksum: b3747c12ee3a7632fab3b3e171ea50f78b182545f0714f6d3e7e2858385f0f4101a15f2517e033802ce9d12ba50a391575ff4638c9de3dd9b2c4bc47768d5425
+  languageName: node
+  linkType: hard
+
 "crypto-random-string@npm:^1.0.0":
   version: 1.0.0
   resolution: "crypto-random-string@npm:1.0.0"
@@ -16228,7 +16268,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"depd@npm:~1.1.2":
+"depd@npm:^1.1.2, depd@npm:~1.1.2":
   version: 1.1.2
   resolution: "depd@npm:1.1.2"
   checksum: 6b406620d269619852885ce15965272b829df6f409724415e0002c8632ab6a8c0a08ec1f0bd2add05dc7bd7507606f7e2cc034fa24224ab829580040b835ecd9
@@ -16381,6 +16421,13 @@ __metadata:
   bin:
     detective: bin/detective.js
   checksum: 2ab266aecbd695b42e4703cfa560178ceac4308a74baece58185775426e65573d563d84f33e6a3b28ef3a544aa0c039c0730ada939c6458862e6643f66044f32
+  languageName: node
+  linkType: hard
+
+"diacritics@npm:1.3.0":
+  version: 1.3.0
+  resolution: "diacritics@npm:1.3.0"
+  checksum: ef7552c36e221879be22bc977281d1ae644f0eb94a24b380d654bf3aeae76c8096e533059732980bb3b5cb77ce7de4178f038f79415ee715f6d3eea7025cadea
   languageName: node
   linkType: hard
 
@@ -18978,6 +19025,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"filter-obj@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "filter-obj@npm:1.1.0"
+  checksum: cf2104a7c45ff48e7f505b78a3991c8f7f30f28bd8106ef582721f321f1c6277f7751aacd5d83026cb079d9d5091082f588d14a72e7c5d720ece79118fa61e10
+  languageName: node
+  linkType: hard
+
 "finalhandler@npm:~1.1.2":
   version: 1.1.2
   resolution: "finalhandler@npm:1.1.2"
@@ -19990,6 +20044,7 @@ fsevents@~2.1.1:
     "@fluent/dom": ^0.7.0
     "@fluent/langneg": ^0.5.2
     "@google-cloud/firestore": ^5.0.1
+    "@googlemaps/google-maps-services-js": ^3.3.3
     "@hapi/hapi": ^20.2.1
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.2.0
@@ -20071,6 +20126,7 @@ fsevents@~2.1.1:
     hkdf: 0.0.2
     hot-shots: ^9.0.0
     i18n-abide: 0.0.26
+    i18n-iso-countries: ^7.1.0
     ioredis: ^4.28.0
     jed: 0.5.4
     jsdom: ^19.0.0
@@ -23383,6 +23439,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"humanize-ms@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "humanize-ms@npm:1.2.1"
+  dependencies:
+    ms: ^2.0.0
+  checksum: 9c7a74a2827f9294c009266c82031030eae811ca87b0da3dceb8d6071b9bde22c9f3daef0469c3c533cc67a97d8a167cd9fc0389350e5f415f61a79b171ded16
+  languageName: node
+  linkType: hard
+
 "husky@npm:^4.2.5":
   version: 4.2.5
   resolution: "husky@npm:4.2.5"
@@ -23430,6 +23495,15 @@ fsevents@~2.1.1:
     merge-po: bin/merge-po.sh
     po2json.js: bin/po2json.js
   checksum: bef1e65de19dcf8c11c6470422eba2bf60285f87765ad456c4d915e073d305a3d08a451d2ccd1ded73c7f217378171bc33aa0a6630a96d0ba00d3fdc47486b25
+  languageName: node
+  linkType: hard
+
+"i18n-iso-countries@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "i18n-iso-countries@npm:7.1.0"
+  dependencies:
+    diacritics: 1.3.0
+  checksum: 172e7da0c9be3c898ec24106bc801b40a8f7bc958f8c04cf40704c5d7ffb4941cf227060000b6f0829b0e6351359048122026b928a37fac3f9c1b95737b575d6
   languageName: node
   linkType: hard
 
@@ -29569,7 +29643,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ms@npm:2.1.3, ms@npm:^2.1.1, ms@npm:^2.1.2":
+"ms@npm:2.1.3, ms@npm:^2.0.0, ms@npm:^2.1.1, ms@npm:^2.1.2":
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
   checksum: aa92de608021b242401676e35cfa5aa42dd70cbdc082b916da7fb925c542173e36bce97ea3e804923fe92c0ad991434e4a38327e15a1b5b5f945d66df615ae6d
@@ -33909,6 +33983,18 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"query-string@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "query-string@npm:7.0.1"
+  dependencies:
+    decode-uri-component: ^0.2.0
+    filter-obj: ^1.1.0
+    split-on-first: ^1.0.0
+    strict-uri-encode: ^2.0.0
+  checksum: 2eb990c0eaa80998d074aac2ad5bcc7f21fa2e53a7d129d19883abe724a2eedb987ca81b731755307431914b0f958767bfe7c5f7433d0974a1650b5d313e5618
+  languageName: node
+  linkType: hard
+
 "querystring-es3@npm:^0.2.0, querystring-es3@npm:~0.2.0":
   version: 0.2.1
   resolution: "querystring-es3@npm:0.2.1"
@@ -35830,6 +35916,15 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"retry-axios@npm:^2.2.1":
+  version: 2.6.0
+  resolution: "retry-axios@npm:2.6.0"
+  peerDependencies:
+    axios: "*"
+  checksum: cf7e63d89f00ead2633e60f00b504ec10217db8165327879b6feb0fa787fffe687d06ee145b2f43d2b4ea8916d42c951d34ee32ee1ea47c9d0b602d4963bd7f9
+  languageName: node
+  linkType: hard
+
 "retry-request@npm:^4.0.0":
   version: 4.1.1
   resolution: "retry-request@npm:4.1.1"
@@ -37397,6 +37492,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"split-on-first@npm:^1.0.0":
+  version: 1.1.0
+  resolution: "split-on-first@npm:1.1.0"
+  checksum: 16ff85b54ddcf17f9147210a4022529b343edbcbea4ce977c8f30e38408b8d6e0f25f92cd35b86a524d4797f455e29ab89eb8db787f3c10708e0b47ebf528d30
+  languageName: node
+  linkType: hard
+
 "split-string@npm:^3.0.1, split-string@npm:^3.0.2":
   version: 3.1.0
   resolution: "split-string@npm:3.1.0"
@@ -37712,6 +37814,13 @@ resolve@^2.0.0-next.3:
   version: 1.1.0
   resolution: "strict-uri-encode@npm:1.1.0"
   checksum: 9466d371f7b36768d43f7803f26137657559e4c8b0161fb9e320efb8edba3ae22f8e99d4b0d91da023b05a13f62ec5412c3f4f764b5788fac11d1fea93720bb3
+  languageName: node
+  linkType: hard
+
+"strict-uri-encode@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "strict-uri-encode@npm:2.0.0"
+  checksum: eaac4cf978b6fbd480f1092cab8b233c9b949bcabfc9b598dd79a758f7243c28765ef7639c876fa72940dac687181b35486ea01ff7df3e65ce3848c64822c581
   languageName: node
   linkType: hard
 
