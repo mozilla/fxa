@@ -6,15 +6,6 @@ import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import noc from 'nock';
 
-const { location } = window;
-
-function nock(it: any) {
-  //@ts-ignore
-  return noc(...arguments).defaultReplyHeaders({
-    'Access-Control-Allow-Origin': '*',
-  });
-}
-
 import { AuthServerErrno } from '../../lib/errors';
 
 import {
@@ -33,15 +24,29 @@ import {
   mockOptionsResponses,
 } from '../../lib/test-utils';
 
-jest.mock('../../lib/sentry');
-
-jest.mock('../../lib/flow-event');
-
 import { SignInLayout } from '../../components/AppLayout';
-import Product from './index';
-import { AppContextType, defaultAppContext } from '../../lib/AppContext';
+import Product from '.';
+import { AppContextType } from '../../lib/AppContext';
 import { defaultConfig } from 'fxa-payments-server/src/lib/config';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import * as Router from 'react-router-dom';
+
+function nock(it: any) {
+  //@ts-ignore
+  return noc(...arguments).defaultReplyHeaders({
+    'Access-Control-Allow-Origin': '*',
+  });
+}
+
+jest.mock('../../lib/sentry');
+jest.mock('../../lib/flow-event');
+
+const mockedNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  __esModule: true,
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
+}));
 
 describe('routes/Product', () => {
   let authServer = '';
@@ -60,6 +65,7 @@ describe('routes/Product', () => {
 
   afterEach(() => {
     noc.cleanAll();
+    jest.clearAllMocks();
     return cleanup();
   });
 
@@ -76,12 +82,8 @@ describe('routes/Product', () => {
     navigateToUrl?: (url: string) => void;
     appContext?: Partial<AppContextType>;
   }) => {
+    jest.spyOn(Router, 'useParams').mockReturnValue({ productId });
     const props = {
-      match: {
-        params: {
-          productId,
-        },
-      },
       createSubscriptionMounted: () => {},
       createSubscriptionEngaged: () => {},
     };
@@ -380,18 +382,11 @@ describe('routes/Product', () => {
   });
 
   it('redirects to content server when there is no access token', async () => {
-    delete window.location;
-    window.location = {};
-    const setSpy = jest.fn();
-    Object.defineProperty(window.location, 'href', { set: setSpy });
-
     const appContext = { ...defaultAppContextValue(), accessToken: undefined };
-    render(<Subject productId="fizz" planId="quux" appContext={appContext} />);
+    render(<Subject productId="fizz" planId="quux" {...{ appContext }} />);
 
-    expect(setSpy).toHaveBeenCalledWith(
+    expect(mockedNavigate).toHaveBeenCalledWith(
       'https://content.example/subscriptions/products/fizz?plan=quux&signin=yes'
     );
-
-    window.location = location;
   });
 });

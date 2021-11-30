@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Localized } from '@fluent/react';
 import { StripeError } from '@stripe/stripe-js';
 
@@ -59,7 +59,7 @@ export const PaymentErrorView = ({
   showFxaLegalFooterLinks = false,
   contentProps = {},
 }: PaymentErrorViewProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { config } = useContext(AppContext);
 
   // We want the button label and onClick handler to be different depending
@@ -67,7 +67,7 @@ export const PaymentErrorView = ({
   const ActionButton = () => {
     switch (error?.code) {
       case 'no_subscription_change':
-        return manageSubButtonFn(() => history.push('/subscriptions'));
+        return manageSubButtonFn(() => navigate('/subscriptions'));
       case 'iap_already_subscribed':
         return manageSubButtonFn(actionFn);
       default:
