@@ -1,3 +1,9 @@
+## 1.220.2
+
+### Bug fixes
+
+- bulk-mailer: date normalization was wrong (#11184) ([e4cbfbcab](https://github.com/mozilla/fxa/commit/e4cbfbcab))
+
 ## 1.220.1
 
 ### Other changes
