@@ -18370,7 +18370,6 @@ fsevents@~2.1.1:
     "@apollo/client": ^3.4.5
     "@babel/core": ^7.15.0
     "@emotion/react": ^11.6.0
-    "@material-ui/core": v5.0.0-alpha.24
     "@rescripts/cli": 0.0.16
     "@storybook/addon-actions": ^6.3.12
     "@storybook/addon-links": ^6.3.12
