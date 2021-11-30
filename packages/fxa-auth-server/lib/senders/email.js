@@ -31,7 +31,8 @@ module.exports = function (log, config, bounces) {
     config
   );
   const cadReminders = require('../cad-reminders')(config, log);
-  const subscriptionAccountReminders = require('../subscription-account-reminders')(log,config);
+  const subscriptionAccountReminders =
+    require('../subscription-account-reminders')(log, config);
 
   const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
   const featureFlags = require('../features')(config);
@@ -510,7 +511,7 @@ module.exports = function (log, config, bounces) {
       const to = emailAddresses[0];
 
       try {
-        await bounces.check(to);
+        await bounces.check(to, template);
       } catch (err) {
         log.error('email.bounce.limit', {
           err: err.message,
@@ -765,7 +766,7 @@ module.exports = function (log, config, bounces) {
   });
 
   subscriptionAccountReminders.keys.forEach((key, index) => {
-        // Template names are generated in the form `verificationReminderFirstEmail`,
+    // Template names are generated in the form `verificationReminderFirstEmail`,
     // where `First` is the key derived from config, with an initial capital letter.
     const template = `subscriptionAccountReminder${key[0].toUpperCase()}${key.substr(
       1
@@ -777,20 +778,22 @@ module.exports = function (log, config, bounces) {
       subject = gettext('Final reminder: Setup your account');
     }
 
-    templateNameToCampaignMap[template] = `${key}-subscription-account-reminder`;
+    templateNameToCampaignMap[
+      template
+    ] = `${key}-subscription-account-reminder`;
     templateNameToContentMap[template] = 'subscrition-account-create-email';
 
     Mailer.prototype[`${template}Email`] = async function (message) {
-        const {
-          email,
-          uid,
-          productId,
-          productName,
-          token,
-          flowId,
-          flowBeginTime,
-          deviceId,
-        } = message;
+      const {
+        email,
+        uid,
+        productId,
+        productName,
+        token,
+        flowId,
+        flowBeginTime,
+        deviceId,
+      } = message;
 
       log.trace(`mailer.${template}`, { email, uid });
 
@@ -832,12 +835,11 @@ module.exports = function (log, config, bounces) {
           subject,
           supportUrl: links.supportUrl,
           supportLinkAttributes: links.supportLinkAttributes,
-          reminderShortForm: true
+          reminderShortForm: true,
         },
       });
     };
   });
-
 
   Mailer.prototype.unblockCodeEmail = function (message) {
     log.trace('mailer.unblockCodeEmail', {
@@ -1972,7 +1974,9 @@ module.exports = function (log, config, bounces) {
     });
   };
 
-  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (message) {
+  Mailer.prototype.subscriptionAccountFinishSetupEmail = async function (
+    message
+  ) {
     const {
       email,
       uid,

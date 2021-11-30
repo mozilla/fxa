@@ -418,6 +418,18 @@ const conf = convict({
         },
         env: 'BOUNCES_SOFT',
       },
+      ignoreTemplates: {
+        doc: 'Always ignore bounces from these email templates',
+        format: Array,
+        default: [
+          'verifyLoginCode',
+          'verifyLogin',
+          'recovery',
+          'unblockCode',
+          'subscriptionAccountFinishSetup',
+        ],
+        env: 'BOUNCES_IGNORE_TEMPLATES',
+      },
     },
   },
   maxEventLoopDelay: {
