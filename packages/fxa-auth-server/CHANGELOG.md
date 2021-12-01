@@ -1,3 +1,9 @@
+## 1.220.3
+
+### Bug fixes
+
+- metrics: Don't override hapi request artifacts (#11210) ([f8b48a627](https://github.com/mozilla/fxa/commit/f8b48a627))
+
 ## 1.220.2
 
 ### Bug fixes
