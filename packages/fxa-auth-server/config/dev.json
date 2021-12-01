@@ -468,7 +468,8 @@
       "subscriptionsPaymentExpired",
       "subscriptionAccountReminderFirst",
       "subscriptionAccountReminderSecond",
-      "subscriptionReactivation"
+      "subscriptionReactivation",
+      "subscriptionUpgrade"
     ]
   }
 }
