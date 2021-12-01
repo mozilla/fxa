@@ -8,6 +8,7 @@ const error = require('./error');
 
 module.exports = (config, db) => {
   const configBounces = (config.smtp && config.smtp.bounces) || {};
+  const ignoreTemplates = configBounces.ignoreTemplates || [];
   const BOUNCES_ENABLED = !!configBounces.enabled;
 
   const BOUNCE_TYPE_HARD = 1;
@@ -27,7 +28,11 @@ module.exports = (config, db) => {
     [BOUNCE_TYPE_COMPLAINT]: error.emailComplaint,
   };
 
-  function checkBounces(email) {
+  function checkBounces(email, template) {
+    if (ignoreTemplates.includes(template)) {
+      return;
+    }
+
     return db.emailBounces(email).then(applyRules);
   }
 
