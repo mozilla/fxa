@@ -1,6 +1,11 @@
-import { Client, PlaceType2 } from '@googlemaps/google-maps-services-js';
+import {
+  Client,
+  PlaceType2,
+  Status,
+} from '@googlemaps/google-maps-services-js';
 import countries from 'i18n-iso-countries';
 import { ConfigType } from '../config';
+import { Logger } from 'mozlog';
 const config: ConfigType = require('../config').getProperties();
 
 export type ZipLocation = {
@@ -18,21 +23,27 @@ export type ZipLocation = {
  * @returns
  */
 export async function getLocationFromZip(
+  log: Logger,
   zip: string,
   country: string = 'US'
-): Promise<ZipLocation | null> {
+): Promise<ZipLocation | {}> {
   const client = new Client();
   const countryName =
     country.length === 2 ? countries.getName(country, 'en') : country;
 
   try {
-    const { data } = await client.geocode({
+    const {
+      data: { results, status },
+    } = await client.geocode({
       params: {
         address: `${zip},${countryName}`,
         key: config.subscriptions.googleMapsApiKey,
       },
     });
-    const address_components = data.results[0]?.address_components;
+
+    if (status !== Status.OK) throw new Error(status);
+
+    const { address_components } = results[0];
 
     if (address_components) {
       const state = address_components.find((add) =>
@@ -55,9 +66,10 @@ export async function getLocationFromZip(
         stateCode: state?.short_name || '',
       };
     } else {
-      throw new Error(data.status);
+      throw new Error(status);
     }
   } catch (err) {
-    return null;
+    log.error('geocoding.1', { err: err.message });
+    return {};
   }
 }
