@@ -1,7 +1,7 @@
 # Variables:
 # $productNameNew (String) - The name of the subscribed product, e.g. Mozilla VPN
 
-subscriptionUpgrade-subject = { $productNameNew } subscription upgraded
+subscriptionUpgrade-subject = You have upgraded to { $productNameNew }
 
 subscriptionUpgrade-title = Thank you for upgrading!
 
