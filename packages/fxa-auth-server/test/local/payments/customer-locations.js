@@ -9,23 +9,26 @@ const sinon = require('sinon');
 
 const STATES_LONG_NAME_TO_SHORT_NAME_MAP = require('../../../lib/payments/states-long-name-to-short-name-map.json');
 const { deepCopy } = require('./util');
-const { mockLog } = require('../../mocks');
+const { mockLog, mockStripeHelper } = require('../../mocks');
 const {
   CustomerLocations,
 } = require('../../../lib/payments/customer-locations');
+const { PayPalBillingAgreements } = require('fxa-shared/db/models/auth');
 
 const sandbox = sinon.createSandbox();
 
+const mockUid = 'abc123';
 const mockPayPalCustomer = {
   id: 'cus_123',
   address: {
     country: 'CA',
   },
+  metadata: {
+    userid: mockUid,
+  },
 };
-const mockUid = 'abc123';
 
 describe('CustomerLocations', () => {
-  let mockStripeHelper;
   let customerLocations;
   const mockLocationResults = [
     {
@@ -41,13 +44,15 @@ describe('CustomerLocations', () => {
       count: 6,
     },
   ];
+  mockLog.error = sandbox.fake.returns({});
+  mockLog.info = sandbox.fake.returns({});
   mockLog.debug = sandbox.fake.returns({});
 
   beforeEach(() => {
-    mockStripeHelper = {
-      fetchCustomer: () => mockPayPalCustomer,
-    };
-    customerLocations = new CustomerLocations(mockLog, mockStripeHelper);
+    customerLocations = new CustomerLocations({
+      log: mockLog,
+      stripeHelper: mockStripeHelper,
+    });
   });
 
   afterEach(() => {
@@ -55,7 +60,7 @@ describe('CustomerLocations', () => {
   });
 
   describe('constructor', () => {
-    it('sets log and Stripe helper', () => {
+    it('sets the logger and Stripe helper', () => {
       assert.strictEqual(customerLocations.log, mockLog);
       assert.strictEqual(customerLocations.stripeHelper, mockStripeHelper);
     });
@@ -63,18 +68,18 @@ describe('CustomerLocations', () => {
 
   describe('getBestLocationForPayPalUser', () => {
     it('returns unknown country and state when no country is found in Stripe', async () => {
-      mockStripeHelper.fetchCustomer = sandbox.fake.resolves({
+      const customer = {
         ...deepCopy(mockPayPalCustomer),
         address: null,
-      });
+      };
       const expected = {
         uid: mockUid,
-        state: 'unknown',
-        country: 'unknown',
+        state: undefined,
+        country: undefined,
         count: 1,
       };
       const result = await customerLocations.getBestLocationForPayPalUser(
-        mockUid,
+        customer,
         mockLocationResults
       );
       assert.deepEqual(result, expected);
@@ -82,45 +87,32 @@ describe('CustomerLocations', () => {
     it('returns Stripe country and unknown state when no inferred locations are provided', async () => {
       const expected = {
         uid: mockUid,
-        state: 'unknown',
+        state: undefined,
         country: mockPayPalCustomer.address.country,
         count: 1,
       };
       const result = await customerLocations.getBestLocationForPayPalUser(
-        mockUid,
+        mockPayPalCustomer,
         []
       );
       assert.deepEqual(result, expected);
     });
-    it('returns null when the location for the Stripe country is not needed', async () => {
-      mockStripeHelper.fetchCustomer = sandbox.fake.resolves({
-        ...deepCopy(mockPayPalCustomer),
-        address: {
-          country: 'DE',
-        },
-      });
-      const result = await customerLocations.getBestLocationForPayPalUser(
-        mockUid,
-        mockLocationResults
-      );
-      assert.deepEqual(result, null);
-    });
     it('returns Stripe country and unknown state when no matching country is found', async () => {
       const nonmatchingCountry = 'US';
-      mockStripeHelper.fetchCustomer = sandbox.fake.resolves({
+      const customer = {
         ...deepCopy(mockPayPalCustomer),
         address: {
           country: nonmatchingCountry,
         },
-      });
+      };
       const expected = {
         uid: mockUid,
-        state: 'unknown',
+        state: undefined,
         country: nonmatchingCountry,
         count: 1,
       };
       const result = await customerLocations.getBestLocationForPayPalUser(
-        mockUid,
+        customer,
         mockLocationResults
       );
       assert.deepEqual(result, expected);
@@ -136,12 +128,12 @@ describe('CustomerLocations', () => {
         count: 1,
       };
       const result = await customerLocations.getBestLocationForPayPalUser(
-        mockUid,
+        mockPayPalCustomer,
         mockLocationResults
       );
       assert.deepEqual(result, expected);
     });
-    it('returns Stripe country and the mode state when a matching country is found', async () => {
+    it('returns Stripe country and the state of a matching non-mode country', async () => {
       const mockLocationResultsModeCountryMismatch =
         deepCopy(mockLocationResults);
       mockLocationResultsModeCountryMismatch[0].count = 100;
@@ -155,7 +147,7 @@ describe('CustomerLocations', () => {
         count: 1,
       };
       const result = await customerLocations.getBestLocationForPayPalUser(
-        mockUid,
+        mockPayPalCustomer,
         mockLocationResultsModeCountryMismatch
       );
       assert.deepEqual(result, expected);
@@ -176,7 +168,7 @@ describe('CustomerLocations', () => {
       const expected = 'Germany';
       const result = customerLocations.mapLongToShortCountryName('Germany');
       sinon.assert.calledOnceWithExactly(
-        mockLog.debug,
+        mockLog.info,
         'customerLocations.mapLongToShortCountryName',
         {
           message: 'Country not found in long name to short name map.',
@@ -203,7 +195,7 @@ describe('CustomerLocations', () => {
         'Saxony-Anhalt'
       );
       sinon.assert.calledOnceWithExactly(
-        mockLog.debug,
+        mockLog.info,
         'customerLocations.mapLongToShortStateName',
         {
           message: 'State not found in long name to short name map.',
@@ -214,23 +206,177 @@ describe('CustomerLocations', () => {
     });
   });
 
-  describe('getPayPalCustomerCountry', () => {
-    it('returns null if the customer is not found in Stripe', async () => {
-      mockStripeHelper.fetchCustomer = sandbox.fake.resolves(undefined);
-      const result = await customerLocations.getPayPalCustomerCountry(mockUid);
-      assert.equal(result, null);
-    });
-    it('returns null if the country is not found for the Stripe customer', async () => {
-      mockStripeHelper.fetchCustomer = sandbox.fake.resolves({
-        address: null,
+  describe('isPayPalCustomer', () => {
+    it('does not check the FxA DB for Stripe customers', async () => {
+      const findOneStub = sinon.stub().resolves();
+      PayPalBillingAgreements.query = () => ({
+        findOne: findOneStub,
       });
-      const result = await customerLocations.getPayPalCustomerCountry(mockUid);
-      assert.equal(result, null);
+      const customer = {
+        metadata: {},
+        invoice_settings: {
+          default_payment_method: {},
+        },
+      };
+      const actual = await customerLocations.isPayPalCustomer(customer);
+      const expected = false;
+      assert.equal(actual, expected);
+      sinon.assert.notCalled(customerLocations.log.debug);
+      sinon.assert.notCalled(findOneStub);
     });
-    it('returns the Stripe country if found', async () => {
-      const expected = mockPayPalCustomer.address.country;
-      const result = await customerLocations.getPayPalCustomerCountry(mockUid);
-      assert.deepEqual(result, expected);
+  });
+
+  describe('backfillCustomerLocation', () => {
+    let customer, backfillArguments;
+
+    beforeEach(() => {
+      customer = deepCopy(mockPayPalCustomer);
+      backfillArguments = { limit: 5, isDryRun: false, delay: 0 };
+      async function* customerGenerator() {
+        yield customer;
+      }
+      customerLocations.stripeHelper.stripe = {
+        customers: { list: sandbox.stub().returns(customerGenerator()) },
+      };
+    });
+
+    it('expands default payment method on customers', async () => {
+      sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(true);
+      await customerLocations.backfillCustomerLocation(backfillArguments);
+      sinon.assert.calledOnceWithExactly(
+        customerLocations.stripeHelper.stripe.customers.list,
+        {
+          expand: ['data.invoice_settings.default_payment_method'],
+        }
+      );
+    });
+
+    it('skips when a customer already has a state in their address', async () => {
+      customer.address.state = 'ZE';
+      sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(true);
+      await customerLocations.backfillCustomerLocation(backfillArguments);
+      sinon.assert.calledOnceWithExactly(
+        customerLocations.log.info,
+        'CustomerLocations.skipHaveState',
+        {
+          message:
+            'Skipping customer as they already have a state in their address.',
+          customerId: customer.id,
+        }
+      );
+    });
+
+    it('skips when customer country is not US or CA', async () => {
+      customer.address.country = 'ZE';
+      sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(true);
+      await customerLocations.backfillCustomerLocation(backfillArguments);
+      sinon.assert.calledOnceWithExactly(
+        customerLocations.log.info,
+        'CustomerLocations.skipNotInRequiredCountries',
+        {
+          messge: 'Skipping customer as they are not in the US or Canada.',
+          customerId: customer.id,
+        }
+      );
+    });
+
+    it('skips when a Stripe customer does not have a postal code', async () => {
+      sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(false);
+      customer.invoice_settings = {};
+      await customerLocations.backfillCustomerLocation(backfillArguments);
+      sinon.assert.calledOnceWithExactly(
+        customerLocations.log.info,
+        'CustomerLocations.noPostalCode',
+        {
+          message: 'No postal code for Stripe customer.',
+          customerId: customer.id,
+        }
+      );
+    });
+
+    it('updates the address for a PayPal customer', async () => {
+      sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(true);
+      sandbox
+        .stub(customerLocations, 'findPayPalUserLocation')
+        .resolves({ state: 'BC', country: 'CA' });
+      customerLocations.stripeHelper.updateCustomerBillingAddress = sandbox
+        .stub()
+        .resolves({});
+      await customerLocations.backfillCustomerLocation(backfillArguments);
+      sinon.assert.calledOnceWithExactly(
+        customerLocations.stripeHelper.updateCustomerBillingAddress,
+        customer.id,
+        {
+          line1: '',
+          line2: '',
+          city: '',
+          state: 'BC',
+          country: 'CA',
+          postalCode: '',
+        }
+      );
+    });
+
+    it('updates the address for a Stripe customer', async () => {
+      customer.invoice_settings = {
+        default_payment_method: {
+          billing_details: { address: { postal_code: '12345' } },
+          card: { country: 'US' },
+        },
+      };
+      sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(false);
+      customerLocations.stripeHelper.setCustomerLocation = sandbox
+        .stub()
+        .resolves({});
+      await customerLocations.backfillCustomerLocation(backfillArguments);
+      sinon.assert.calledOnceWithExactly(
+        customerLocations.stripeHelper.setCustomerLocation,
+        {
+          customerId: customer.id,
+          postalCode: '12345',
+          country: 'US',
+        }
+      );
+    });
+
+    it('logs an error on exception', async () => {
+      sandbox
+        .stub(customerLocations, 'isPayPalCustomer')
+        .throws(new Error('catch me'));
+      await customerLocations.backfillCustomerLocation(backfillArguments);
+      sinon.assert.calledOnceWithExactly(
+        customerLocations.log.error,
+        'CustomerLocations.failure',
+        {
+          message: 'catch me',
+          customerId: customer.id,
+        }
+      );
+    });
+
+    it('does not update the address when it is a dry-run', async () => {
+      sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(true);
+      sandbox
+        .stub(customerLocations, 'findPayPalUserLocation')
+        .resolves({ state: 'BC', country: 'CA' });
+      customerLocations.stripeHelper.updateCustomerBillingAddress = sandbox
+        .stub()
+        .resolves({});
+      backfillArguments = { ...backfillArguments, isDryRun: true };
+      await customerLocations.backfillCustomerLocation(backfillArguments);
+      sinon.assert.calledOnceWithExactly(
+        customerLocations.log.debug,
+        'CustomerLocations.dryRunPayPal',
+        {
+          message: 'Customer is a PayPal user with a best inferred location.',
+          customerId: customer.id,
+          state: 'BC',
+          country: 'CA',
+        }
+      );
+      sinon.assert.notCalled(
+        customerLocations.stripeHelper.updateCustomerBillingAddress
+      );
     });
   });
 });

@@ -132,6 +132,15 @@ export type PaymentBillingDetails = ReturnType<
   billing_agreement_id?: string;
 };
 
+// The countries we need region data for
+export const COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP = {
+  // The long name is used in the BigQuery metrics logs; the short name is used
+  // in the Stripe customer billing address.  The long names are also used to
+  // index into the country to states maps.
+  'United States': 'US',
+  Canada: 'CA',
+} as { [key: string]: string };
+
 /**
  * The CacheUpdate decorator has an _optional_ property in its options
  * parameter named `cacheKeysToClear`.  However, if you do not pass in a value
@@ -861,7 +870,7 @@ export class StripeHelper {
     customerId: string;
     postalCode: string;
     country: string;
-  }): Promise<boolean> {
+  }): Promise<void> {
     try {
       const state = await this.googleMapsService.getStateFromZip(
         postalCode,
@@ -876,8 +885,6 @@ export class StripeHelper {
         country,
         postalCode,
       });
-
-      return true;
     } catch (err: unknown) {
       Sentry.withScope((scope) => {
         scope.setContext('setCustomerLocation', {
@@ -888,10 +895,7 @@ export class StripeHelper {
         Sentry.captureException(err);
       });
     }
-
-    return false;
   }
-
   /**
    * Update the customer object to add a PayPal Billing Agreement ID.
    *

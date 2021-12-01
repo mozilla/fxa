@@ -17,7 +17,7 @@ import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/customer-locations';
+import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { PayPalHelper } from '../../payments/paypal';
 import STATES_LONG_NAME_TO_SHORT_NAME_MAP from '../../payments/states-long-name-to-short-name-map.json';
 import { StripeHelper } from '../../payments/stripe';
