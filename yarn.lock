@@ -19441,6 +19441,15 @@ fsevents@~2.1.1:
   languageName: unknown
   linkType: soft
 
+"fxa-release@file:./../fxa-release::locator=fxa%40workspace%3A.":
+  version: 0.1.0
+  resolution: "fxa-release@file:./../fxa-release#./../fxa-release::hash=21a51b&locator=fxa%40workspace%3A."
+  bin:
+    fxa-release: dist/fxa-release.js
+  checksum: 60b9e2aaa11aa5b9e0f5577da3fbd8d543b31e0f9c8ab4e06f5117f7dc3316bb7f761551523c80ebde3ae5df70d196c32216e4cf527b335cc9c4be6a6604e14d
+  languageName: node
+  linkType: hard
+
 "fxa-settings@workspace:*, fxa-settings@workspace:packages/fxa-settings":
   version: 0.0.0-use.local
   resolution: "fxa-settings@workspace:packages/fxa-settings"
@@ -19661,6 +19670,7 @@ fsevents@~2.1.1:
     eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^24.5.2
     eslint-plugin-react: ^7.26.1
+    fxa-release: "file:./../fxa-release"
     husky: ^4.2.5
     json: ^11.0.0
     lint-staged: ^10.2.11

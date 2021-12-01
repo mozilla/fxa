@@ -17,7 +17,8 @@
     "format": "yarn workspaces foreach run format",
     "ports": "pm2 jlist | json -d'\\t' -a -c 'this.pm2_env.env.PORT' pm2_env.env.PORT name",
     "heroku-postbuild": "yarn workspace 123done install",
-    "mysql": "docker exec -it $(docker container ls | grep mysql | cut -d' ' -f1) mysql"
+    "mysql": "docker exec -it $(docker container ls | grep mysql | cut -d' ' -f1) mysql",
+    "release": "fxa-release"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {
@@ -74,6 +75,7 @@
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^24.5.2",
     "eslint-plugin-react": "^7.26.1",
+    "fxa-release": "file:./../fxa-release",
     "json": "^11.0.0",
     "stylelint": "^13.13.1",
     "stylelint-config-prettier": "^8.0.2"
