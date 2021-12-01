@@ -15,7 +15,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
-    "chalk": "^4.1.1",
+    "chalk": "^5.0.0",
     "foxfire": "^2.0.0"
   },
   "devDependencies": {
