@@ -189,6 +189,9 @@ describe('metrics/amplitude', () => {
           credentials: {
             uid: 'blee',
           },
+          auth: {
+            artifacts: {},
+          },
         });
         await amplitude('account.confirmed', request);
         assert.equal(request.auth.artifacts.metricsUid, 'blee');
