@@ -8,6 +8,8 @@ const program = require('commander');
 const pckg = require('../package.json');
 const config = require('../config').getProperties();
 const StatsD = require('hot-shots');
+const { Container } = require('typedi');
+const { AppConfig, AuthLogger } = require('../lib/types');
 
 const statsd = new StatsD(config.statsd);
 const log = require('../lib/log')(
@@ -17,6 +19,9 @@ const log = require('../lib/log')(
 );
 const Token = require('../lib/tokens')(log, config);
 const DB = require('../lib/db')(config, log, Token);
+
+Container.set(AppConfig, config);
+Container.set(AuthLogger, log);
 
 function isNotFoundError(err) {
   return err.message === 'Unknown account';

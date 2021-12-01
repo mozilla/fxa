@@ -8,7 +8,7 @@ const path = require('path');
 const program = require('commander');
 const pckg = require('../package.json');
 const { Container } = require('typedi');
-const { AuthFirestore } = require('../lib/types');
+const { AppConfig, AuthFirestore, AuthLogger } = require('../lib/types');
 const { setupFirestore } = require('../lib/firestore-db');
 
 async function init() {
@@ -64,6 +64,9 @@ async function init() {
 
   const config = require('../config').getProperties();
   const log = require('../lib/log')(config.log.level);
+
+  Container.set(AppConfig, config);
+  Container.set(AuthLogger, log);
 
   const authFirestore = setupFirestore(config);
   Container.set(AuthFirestore, authFirestore);

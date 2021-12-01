@@ -22,11 +22,15 @@
 
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
+const { AppConfig, AuthLogger } = require('../lib/types');
 const readline = require('readline');
 const config = require('../config').getProperties();
 const log = require('../lib/log')(config.log.level);
 const Token = require('../lib/tokens')(log, config);
 const mailer = null;
+
+Container.set(AppConfig, config);
+Container.set(AuthLogger, log);
 
 const DB = require('../lib/db')(config, log, Token);
 

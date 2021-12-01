@@ -80,12 +80,13 @@ const {
 const {
   SubscriptionPurchase,
 } = require('../../../lib/payments/google-play/subscription-purchase');
-const { AuthFirestore } = require('../../../lib/types');
+const { AuthFirestore, AuthLogger, AppConfig } = require('../../../lib/types');
 const {
   INVOICES_RESOURCE,
   PAYMENT_METHOD_RESOURCE,
   STRIPE_PRICE_METADATA,
 } = require('../../../lib/payments/stripe');
+const { GoogleMapsService } = require('../../../lib/google-maps-services');
 const {
   FirestoreStripeError,
   newFirestoreStripeError,
@@ -222,6 +223,7 @@ describe('StripeHelper', () => {
   let mockStatsd;
   const existingUid = '40cc397def2d487b9b8ba0369079a267';
   let stripeFirestore;
+  let mockGoogleMapsService;
 
   before(async () => {
     await createTestDatabase();
@@ -247,6 +249,12 @@ describe('StripeHelper', () => {
     Container.set(AuthFirestore, {
       collection: sinon.fake.returns({}),
     });
+    Container.set(AuthLogger, log);
+    Container.set(AppConfig, mockConfig);
+    mockGoogleMapsService = {
+      getStateFromZip: sandbox.stub().resolves('ABD'),
+    };
+    Container.set(GoogleMapsService, mockGoogleMapsService);
 
     stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
     stripeHelper.redis = mockRedis;
@@ -3518,8 +3526,7 @@ describe('StripeHelper', () => {
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateReactivationDetailsForEmail',
           event.data.object,
-          expectedBaseUpdateDetails,
-          mockInvoice
+          expectedBaseUpdateDetails
         );
       });
 
@@ -3701,6 +3708,12 @@ describe('StripeHelper', () => {
             card: {
               last4: lastFour,
               brand: cardType,
+              country: 'US',
+            },
+            billing_details: {
+              address: {
+                postal_code: '99999',
+              },
             },
           },
         },
@@ -3748,11 +3761,53 @@ describe('StripeHelper', () => {
       });
     });
 
+    describe('extractCustomerDefaultPaymentDetailsByUid', () => {
+      it('fetches the customer and calls extractCustomerDefaultPaymentDetails', async () => {
+        const paymentDetails = {
+          lastFour: '4242',
+          cardType: 'Moz',
+          country: 'GD',
+          postalCode: '99999',
+        };
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer1);
+        sandbox
+          .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
+          .resolves(paymentDetails);
+        const actual =
+          await stripeHelper.extractCustomerDefaultPaymentDetailsByUid(uid);
+        assert.deepEqual(actual, paymentDetails);
+        sinon.assert.calledOnceWithExactly(stripeHelper.fetchCustomer, uid, [
+          'invoice_settings.default_payment_method',
+        ]);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.extractCustomerDefaultPaymentDetails,
+          customer1
+        );
+      });
+
+      it('throws for a deleted customer', async () => {
+        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(null);
+        let thrown;
+        try {
+          await stripeHelper.extractCustomerDefaultPaymentDetailsByUid(uid);
+        } catch (err) {
+          thrown = err;
+        }
+        assert.equal(thrown.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      });
+    });
+
     describe('extractCustomerDefaultPaymentDetails', () => {
       const mockPaymentMethod = {
         card: {
           last4: '4321',
           brand: 'MasterCard',
+          country: 'US',
+        },
+        billing_details: {
+          address: {
+            postal_code: '99999',
+          },
         },
       };
 
@@ -3760,6 +3815,7 @@ describe('StripeHelper', () => {
         id: sourceId,
         last4: '0987',
         brand: 'Visa',
+        country: 'US',
       };
 
       const mockCustomer = {
@@ -3776,44 +3832,62 @@ describe('StripeHelper', () => {
         expandMock.onCall(0).returns(mockPaymentMethod);
       });
 
-      it('throws for a deleted customer', async () => {
-        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(null);
-        let thrown;
-        try {
-          await stripeHelper.extractCustomerDefaultPaymentDetails({
-            uid,
-            email,
-          });
-        } catch (err) {
-          thrown = err;
-        }
-        assert.equal(thrown.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
-      });
-
       it('extracts from default payment method first when available', async () => {
-        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(mockCustomer);
-        const result = await stripeHelper.extractCustomerDefaultPaymentDetails({
-          uid,
-          email,
-        });
+        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
+          mockCustomer
+        );
         assert.deepEqual(result, {
           lastFour: mockPaymentMethod.card.last4,
           cardType: mockPaymentMethod.card.brand,
+          country: mockPaymentMethod.card.country,
+          postalCode: mockPaymentMethod.billing_details.address.postal_code,
+        });
+      });
+
+      it('does not include the postal code when address is not available in payment method', async () => {
+        const customer = deepCopy(mockCustomer);
+        delete customer.invoice_settings.default_payment_method.billing_details
+          .address;
+        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
+          customer
+        );
+        assert.deepEqual(result, {
+          lastFour: mockPaymentMethod.card.last4,
+          cardType: mockPaymentMethod.card.brand,
+          country: mockPaymentMethod.card.country,
+          postalCode: null,
         });
       });
 
       it('extracts from default source when available', async () => {
-        expandMock.onCall(0).resolves({ card: mockSource });
+        expandMock.onCall(0).resolves(mockPaymentMethod);
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
-        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
-        const result = await stripeHelper.extractCustomerDefaultPaymentDetails({
-          uid,
-          email,
-        });
+        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
+          customer
+        );
         assert.deepEqual(result, {
-          lastFour: mockSource.last4,
-          cardType: mockSource.brand,
+          lastFour: mockPaymentMethod.card.last4,
+          cardType: mockPaymentMethod.card.brand,
+          country: mockPaymentMethod.card.country,
+          postalCode: mockPaymentMethod.billing_details.address.postal_code,
+        });
+      });
+
+      it('does not include the postal code when address is not available in source', async () => {
+        const noAddressPaymentMethod = deepCopy(mockPaymentMethod);
+        delete noAddressPaymentMethod.billing_details.address;
+        expandMock.onCall(0).resolves(noAddressPaymentMethod);
+        const customer = deepCopy(mockCustomer);
+        customer.invoice_settings.default_payment_method = null;
+        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
+          customer
+        );
+        assert.deepEqual(result, {
+          lastFour: mockPaymentMethod.card.last4,
+          cardType: mockPaymentMethod.card.brand,
+          country: mockPaymentMethod.card.country,
+          postalCode: null,
         });
       });
 
@@ -3821,14 +3895,14 @@ describe('StripeHelper', () => {
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
         customer.default_source = null;
-        sandbox.stub(stripeHelper, 'fetchCustomer').resolves(customer);
-        const result = await stripeHelper.extractCustomerDefaultPaymentDetails({
-          uid,
-          email,
-        });
+        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
+          customer
+        );
         assert.deepEqual(result, {
           lastFour: null,
           cardType: null,
+          country: null,
+          postalCode: null,
         });
       });
     });
@@ -4403,6 +4477,188 @@ describe('StripeHelper', () => {
         stripeHelper.getPaymentProvider,
         customer
       );
+    });
+  });
+
+  describe('setCustomerLocation', () => {
+    const err = new Error('testo');
+    const expectedAddressArg = {
+      line1: '',
+      line2: '',
+      city: '',
+      state: 'ABD',
+      country: 'GD',
+      postalCode: '99999',
+    };
+    let sentryScope;
+
+    beforeEach(() => {
+      sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureMessage');
+      sandbox.stub(Sentry, 'captureException');
+    });
+
+    it('updates the Stripe customer address', async () => {
+      sandbox
+        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
+        .resolves({ postalCode: '99999', country: 'GD' });
+      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
+      const actual = await stripeHelper.setCustomerLocation(customer1);
+      assert.isTrue(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.extractCustomerDefaultPaymentDetails,
+        customer1
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.googleMapsService.getStateFromZip,
+        '99999',
+        'GD'
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updateCustomerBillingAddress,
+        customer1.id,
+        expectedAddressArg
+      );
+    });
+
+    it('fails when an error is thrown while extracting customer payment details', async () => {
+      sandbox
+        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
+        .rejects(err);
+      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
+      const actual = await stripeHelper.setCustomerLocation(customer1);
+      assert.isFalse(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.extractCustomerDefaultPaymentDetails,
+        customer1
+      );
+      sinon.assert.notCalled(mockGoogleMapsService.getStateFromZip);
+      sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'setCustomerLocation',
+        {
+          customer: { id: customer1.id },
+        }
+      );
+      sinon.assert.calledOnceWithExactly(Sentry.captureException, err);
+    });
+
+    it('fails when postal code is missing in customer payment details', async () => {
+      sandbox
+        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
+        .resolves({ country: 'GD' });
+      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
+      const actual = await stripeHelper.setCustomerLocation(customer1);
+      assert.isFalse(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.extractCustomerDefaultPaymentDetails,
+        customer1
+      );
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'setCustomerLocation',
+        { customer: { id: customer1.id } }
+      );
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+
+        `Cannot find a postal code or country for customer ${customer1.id}`,
+        Sentry.Severity.Error
+      );
+      sinon.assert.notCalled(stripeHelper.googleMapsService.getStateFromZip);
+      sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
+    });
+
+    it('fails when country is missing in customer payment details', async () => {
+      sandbox
+        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
+        .resolves({ postalCode: 'GD' });
+      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
+      const actual = await stripeHelper.setCustomerLocation(customer1);
+      assert.isFalse(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.extractCustomerDefaultPaymentDetails,
+        customer1
+      );
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'setCustomerLocation',
+        { customer: { id: customer1.id } }
+      );
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+
+        `Cannot find a postal code or country for customer ${customer1.id}`,
+        Sentry.Severity.Error
+      );
+      sinon.assert.notCalled(stripeHelper.googleMapsService.getStateFromZip);
+      sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
+    });
+
+    it('fails when an error is thrown by Google Maps service', async () => {
+      sandbox
+        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
+        .resolves({ postalCode: '99999', country: 'GD' });
+      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
+      mockGoogleMapsService.getStateFromZip = sandbox.stub().rejects(err);
+      const actual = await stripeHelper.setCustomerLocation(customer1);
+      assert.isFalse(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.extractCustomerDefaultPaymentDetails,
+        customer1
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.googleMapsService.getStateFromZip,
+        '99999',
+        'GD'
+      );
+      sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'setCustomerLocation',
+        {
+          customer: { id: customer1.id },
+        }
+      );
+      sinon.assert.calledOnceWithExactly(Sentry.captureException, err);
+    });
+
+    it('fails when an error is thrown while updating the customer address', async () => {
+      sandbox
+        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
+        .resolves({ postalCode: '99999', country: 'GD' });
+      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').rejects(err);
+      const actual = await stripeHelper.setCustomerLocation(customer1);
+      assert.isFalse(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.extractCustomerDefaultPaymentDetails,
+        customer1
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.googleMapsService.getStateFromZip,
+        '99999',
+        'GD'
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updateCustomerBillingAddress,
+        customer1.id,
+        expectedAddressArg
+      );
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'setCustomerLocation',
+        {
+          customer: { id: customer1.id },
+        }
+      );
+      sinon.assert.calledOnceWithExactly(Sentry.captureException, err);
     });
   });
 
