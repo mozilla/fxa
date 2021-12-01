@@ -5937,9 +5937,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@theintern/digdug@npm:~2.6.0":
-  version: 2.6.0
-  resolution: "@theintern/digdug@npm:2.6.0"
+"@theintern/digdug@npm:~2.6.2":
+  version: 2.6.2
+  resolution: "@theintern/digdug@npm:2.6.2"
   dependencies:
     "@theintern/common": ~0.3.0
     command-exists: ~1.2.9
@@ -5947,18 +5947,18 @@ __metadata:
     tslib: ~2.3.0
   bin:
     digdugEnvironments: bin/digdugEnvironments.js
-  checksum: b48b2460f2ef9aa55a05d8e641d4105a93bfac02c2caf73c03340b1e67fe06f06c95358a43e4e990b5df1b1a3832bd055ef56751aa40123b8ea19ce5b843fcc8
+  checksum: 6edf171958c41ec9c55d5e2a5cd0ca6e2abc1e24d181b64c682f72cec6dec64319e330b36cc7a02a80b1cfe56d619f55a2f5ede9df32a3e581c641509889c1dd
   languageName: node
   linkType: hard
 
-"@theintern/leadfoot@npm:~2.4.0":
-  version: 2.4.0
-  resolution: "@theintern/leadfoot@npm:2.4.0"
+"@theintern/leadfoot@npm:~2.4.1":
+  version: 2.4.1
+  resolution: "@theintern/leadfoot@npm:2.4.1"
   dependencies:
     "@theintern/common": ~0.3.0
-    jszip: ~3.6.0
+    jszip: ~3.7.1
     tslib: ~2.3.0
-  checksum: 2d8e8a572d2c91e7c191ad9cd108e8b40f3c120fad7da657765f9dcdbb17ec157fe68dc942241110428d4daf537bf773d7f6050e72b42daf26fc101bbd66ce30
+  checksum: 9a8c36653659cf991fc3c0a0e96a12cab615d7d24bfee74c29f086d1afb3052bad0d8f787a8e35bc02800b2941481060eb110afad0a70f5c97ec68097c1254de
   languageName: node
   linkType: hard
 
@@ -18818,7 +18818,7 @@ fsevents@~2.1.1:
     http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
     install: 0.13.0
-    intern: ^4.10.0
+    intern: ^4.10.1
     joi: ^14.3.1
     jquery: 3.6.0
     jquery-modal: "git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
@@ -22510,13 +22510,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"intern@npm:^4.10.0":
-  version: 4.10.0
-  resolution: "intern@npm:4.10.0"
+"intern@npm:^4.10.1":
+  version: 4.10.1
+  resolution: "intern@npm:4.10.1"
   dependencies:
     "@theintern/common": ~0.3.0
-    "@theintern/digdug": ~2.6.0
-    "@theintern/leadfoot": ~2.4.0
+    "@theintern/digdug": ~2.6.2
+    "@theintern/leadfoot": ~2.4.1
     "@types/benchmark": ~2.1.1
     "@types/chai": ~4.2.20
     "@types/charm": ~1.0.2
@@ -22554,7 +22554,7 @@ fsevents@~2.1.1:
     ws: ~7.5.2
   bin:
     intern: bin/intern.js
-  checksum: c94dbd080580b111b1cf408f4bdb27a37b8b318528f67b38c0206ff7b616b77e10bcea126c42673f2ed3335523a029fb56695fdf5c45c30990dd3e84e242330d
+  checksum: 40a4313a1fa6ea416b2c00a6b7ac3735483b3d805df2e62fba59db91b17c248c462b71d94139f5af5c9f7ab17a7eeded6805a89f807b4a8d75db7e0101009b80
   languageName: node
   linkType: hard
 
@@ -25385,15 +25385,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jszip@npm:~3.6.0":
-  version: 3.6.0
-  resolution: "jszip@npm:3.6.0"
+"jszip@npm:~3.7.1":
+  version: 3.7.1
+  resolution: "jszip@npm:3.7.1"
   dependencies:
     lie: ~3.3.0
     pako: ~1.0.2
     readable-stream: ~2.3.6
     set-immediate-shim: ~1.0.1
-  checksum: dd82d93fa5c6a22e83d3393c86442a58f9e7effad1a3171abcf504901f3d9d6d618fb9a5ac7b0ceeee2abc15a167298101b5ada1e153ab8301bcfd80b3605f07
+  checksum: 67d737a82b294cc102e7451e32d5acbbab29860399be460cae598084327e6f2ea0c9bca2d3dad701da6a75ddf77f34c6a1dd7db0c3d5c0fec5998b7e56d6d59d
   languageName: node
   linkType: hard
 
