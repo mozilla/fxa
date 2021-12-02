@@ -72,7 +72,7 @@
     "chai": "^4.3.4",
     "chance": "^1.1.8",
     "esbuild": "^0.14.0",
-    "esbuild-register": "^3.1.2",
+    "esbuild-register": "^3.2.0",
     "eslint": "^7.32.0",
     "jest": "27.3.1",
     "pm2": "^5.1.2",
