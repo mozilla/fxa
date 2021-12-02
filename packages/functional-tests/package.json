@@ -9,7 +9,7 @@
     "test-production": "playwright test --project=production"
   },
   "devDependencies": {
-    "@playwright/test": "^1.16.3",
+    "@playwright/test": "^1.17.1",
     "@types/upng-js": "^2",
     "fxa-auth-client": "workspace:*",
     "fxa-content-server": "workspace:*",
