@@ -202,8 +202,8 @@ module.exports = (log, config) => {
     }
 
     const uid = data.uid || getFromToken(request, 'uid');
-    if (uid) {
-      request.auth.artifacts = { metricsUid: uid };
+    if (uid && request.auth.artifacts) {
+      request.auth.artifacts.metricsUid = uid;
     }
 
     let devices;
