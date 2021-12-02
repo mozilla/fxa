@@ -18351,7 +18351,7 @@ fsevents@~2.1.1:
     fxa-payments-server: "workspace:*"
     fxa-settings: "workspace:*"
     jsqr: ^1.4.0
-    playwright: ^1.16.3
+    playwright: ^1.17.1
     upng-js: ^2.1.0
   languageName: unknown
   linkType: soft
@@ -30416,14 +30416,40 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"playwright@npm:^1.16.3":
-  version: 1.16.3
-  resolution: "playwright@npm:1.16.3"
+"playwright-core@npm:=1.17.1":
+  version: 1.17.1
+  resolution: "playwright-core@npm:1.17.1"
   dependencies:
-    playwright-core: =1.16.3
+    commander: ^8.2.0
+    debug: ^4.1.1
+    extract-zip: ^2.0.1
+    https-proxy-agent: ^5.0.0
+    jpeg-js: ^0.4.2
+    mime: ^2.4.6
+    pngjs: ^5.0.0
+    progress: ^2.0.3
+    proper-lockfile: ^4.1.1
+    proxy-from-env: ^1.1.0
+    rimraf: ^3.0.2
+    socks-proxy-agent: ^6.1.0
+    stack-utils: ^2.0.3
+    ws: ^7.4.6
+    yauzl: ^2.10.0
+    yazl: ^2.5.1
   bin:
     playwright: cli.js
-  checksum: c1fe9255e3023195ca94c7a693b8816f9f13ce5901599806ac161df8da193f2bbb016fa452c8f750602845e7ce517129ea639feae0ea182d0ec77e4cb6fc9030
+  checksum: 916da00f06b159cc8d238f109c298ee49f660b132e60ca43c5fcd3a86626a186ac224c3ac257d26e37fa45ba10fa4b0092eaed09560e4e130cae4f452cc7eec2
+  languageName: node
+  linkType: hard
+
+"playwright@npm:^1.17.1":
+  version: 1.17.1
+  resolution: "playwright@npm:1.17.1"
+  dependencies:
+    playwright-core: =1.17.1
+  bin:
+    playwright: cli.js
+  checksum: b2e39740d6d0ab45b776bad6a57e5fe90606b2db1cd1ae108107a8eeece9c6e64fe65eaaf5e0cb8aba2d1019356fffb07fbb39a1b6ec033f5f8bde25055acdfa
   languageName: node
   linkType: hard
 
