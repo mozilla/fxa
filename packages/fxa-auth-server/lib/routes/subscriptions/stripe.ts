@@ -5,6 +5,7 @@ import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
+import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
@@ -23,6 +24,7 @@ import { ConfigType } from '../../../config';
 import error from '../../error';
 import { splitCapabilities } from '../../payments/capability';
 import { StripeHelper } from '../../payments/stripe';
+import { stripeInvoiceToInvoicePreviewDTO } from '../../payments/stripe-formatter';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
@@ -364,6 +366,28 @@ export class StripeHandler {
     await this.customerChanged(request, uid, email);
 
     return filterInvoice(invoice);
+  }
+
+  /**
+   * Preview an invoice for a new plan.
+   */
+  async previewInvoice(
+    request: AuthRequest
+  ): Promise<invoiceDTO.invoicePreviewSchema> {
+    this.log.begin('subscriptions.previewInvoice', request);
+    await this.customs.check(request, 'previewInvoice');
+
+    const { promotionCode, priceId } = request.payload as Record<
+      string,
+      string
+    >;
+    const country = request.app.geo.location?.country || 'US';
+    const previewInvoice = await this.stripeHelper.previewInvoice({
+      country,
+      promotionCode,
+      priceId,
+    });
+    return stripeInvoiceToInvoicePreviewDTO(previewInvoice);
   }
 
   /**
@@ -722,6 +746,23 @@ export const stripeRoutes = (
         },
       },
       handler: (request: AuthRequest) => stripeHandler.retryInvoice(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/invoice/preview',
+      options: {
+        auth: false,
+        response: {
+          schema: invoiceDTO.invoicePreviewSchema as any,
+        },
+        validate: {
+          payload: {
+            priceId: validators.subscriptionsPlanId.required(),
+            promotionCode: isA.string().optional(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) => stripeHandler.previewInvoice(request),
     },
     {
       method: 'POST',
