@@ -1,6 +1,7 @@
 <%# This Source Code Form is subject to the terms of the Mozilla Public
   # License, v. 2.0. If a copy of the MPL was not distributed with this
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
 <mj-section css-class="mb-6">
   <mj-group>
     <mj-column>
@@ -17,19 +18,27 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="subscriptionUpgrade-title" data-l10n-args="<%= JSON.stringify({productNameNew}) %>">Thank you for upgrading to <%- productNameNew %>!</span>
+      <span data-l10n-id="subscriptionUpgrade-title" data-l10n-args="<%= JSON.stringify({productNameNew}) %>">Thank you for upgrading!</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionUpgrade-upgrade-info" data-l10n-args="<%= JSON.stringify({productNameNew, productNameOld}) %>">You have successfully upgraded from <%- productNameOld %> to <%- productNameNew %>.</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionUpgrade-content" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, paymentProrated, productNameNew, productNameOld, productPaymentCycle}) %>">
-        You have successfully upgraded from <%- productNameOld %> to <%- productNameNew %>.
-        <br><br>
-        Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycle %> to <%- paymentAmountNew %>. At that time you will also be charged a one-time fee of <%- paymentProrated %> to reflect the higher charge for the remainder of this <%- productPaymentCycle %>.
-        <br><br>
-        If there is new software for you to install in order to use <%- productNameNew %>, you will receive a separate email with download instructions.
-        <br><br>
-        Your subscription will automatically renew each billing period unless you choose to cancel.
-      </span>
+      <span data-l10n-id="subscriptionUpgrade-charge-info" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, paymentProrated, productPaymentCycle}) %>">Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycle %> to <%- paymentAmountNew %>. At that time you will also be charged a one-time fee of <%- paymentProrated %> to reflect the higher charge for the remainder of this <%- productPaymentCycle %>.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionUpgrade-install" data-l10n-args="<%= JSON.stringify({productNameNew}) %>">If there is new software for you to install in order to use <%- productNameNew %>, you will receive a separate email with download instructions.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionUpgrade-auto-renew">Your subscription will automatically renew each billing period unless you choose to cancel.</span>
     </mj-text>
   </mj-column>
 </mj-section>
