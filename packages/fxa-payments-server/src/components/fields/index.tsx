@@ -17,7 +17,7 @@ export const FormContext = React.createContext<FormContextValue | null>(null);
 
 type FormProps = {
   children: React.ReactNode;
-  validator: Validator;
+  validator: Validator | undefined;
 } & DetailedHTMLProps<FormHTMLAttributes<HTMLFormElement>, HTMLFormElement>;
 
 export const Form = (props: FormProps) => {

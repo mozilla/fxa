@@ -64,6 +64,7 @@ import sentry from '../../lib/sentry';
 import { ButtonBaseProps } from '../../components/PayPalButton';
 import { AlertBar } from '../../components/AlertBar';
 import { PaymentMethodHeader } from '../../components/PaymentMethodHeader';
+import Coupon from '../../components/Coupon';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -433,7 +434,16 @@ export const Checkout = ({
         />
         {config.featureFlags.subscriptionCoupons ? (
           // To be updated in issue #7097
-          <div data-testid="coupon-container"></div>
+          <section data-testid="coupon-container">
+            <Coupon
+              {...{
+                className: classNames('default', {
+                  hidden: transactionInProgress && isMobile,
+                }),
+                isMobile,
+              }}
+            />
+          </section>
         ) : null}
       </div>
     </>
