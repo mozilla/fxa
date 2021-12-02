@@ -125,7 +125,7 @@
     "@storybook/addon-controls": "^6.3.12",
     "@storybook/addon-docs": "^6.3.12",
     "@storybook/addon-toolbars": "^6.4.2",
-    "@storybook/html": "^6.3.12",
+    "@storybook/html": "^6.4.4",
     "@types/babel__core": "7.1.14",
     "@types/chai": "^4.2.18",
     "@types/convict": "^5.2.2",
