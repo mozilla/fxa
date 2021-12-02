@@ -4,6 +4,7 @@ import * as Amplitude from './amplitude';
 import { getFlowData } from './flow-event';
 import { PaymentMethod } from '@stripe/stripe-js';
 import { PaymentProvider } from './PaymentProvider';
+import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
@@ -369,6 +370,17 @@ export async function apiRetryInvoice(params: {
   return apiFetch(
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/retry`,
+    { body: JSON.stringify(params) }
+  );
+}
+
+export async function apiInvoicePreview(params: {
+  priceId: string;
+  promotionCode: string;
+}): Promise<InvoicePreview> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
     { body: JSON.stringify(params) }
   );
 }

@@ -333,7 +333,7 @@ export const SubscriptionCreate = ({
           }}
         />
         {config.featureFlags.subscriptionCoupons ? (
-          <CouponForm {...{ coupon, setCoupon }} />
+          <CouponForm {...{ planId: selectedPlan.plan_id, coupon, setCoupon }} />
         ) : null}
       </div>
     </>

@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import { AppContext } from '../../lib/AppContext';
 import { useMatchMedia, useNonce, usePaypalButtonSetup } from '../../lib/hooks';
 import { getSelectedPlan } from '../../lib/plan';
-import useValidatorState, {
+import {
   State as ValidatorState,
 } from '../../lib/validator';
 
@@ -23,13 +23,11 @@ import NewUserEmailForm, {
   checkAccountExists,
 } from '../../components/NewUserEmailForm';
 import Header from '../../components/Header';
-import { Form } from '../../components/fields';
 import PaymentProcessing from '../../components/PaymentProcessing';
 import SubscriptionTitle from '../../components/SubscriptionTitle';
 import PlanDetails from '../../components/PlanDetails';
 import TermsAndPrivacy from '../../components/TermsAndPrivacy';
 import PaymentLegalBlurb from '../../components/PaymentLegalBlurb';
-import { PaymentConsentCheckbox } from '../../components/PaymentConsentCheckbox';
 
 import { State } from '../../store/state';
 import { sequences, SequenceFunctions } from '../../store/sequences';
@@ -435,11 +433,11 @@ export const Checkout = ({
             selectedPlan,
             isMobile,
             showExpandButton: isMobile,
-            coupon: coupon,
+            coupon,
           }}
         />
         {config.featureFlags.subscriptionCoupons ? (
-          <CouponForm {...{ coupon, setCoupon }} />
+          <CouponForm {...{ planId: selectedPlan.plan_id, coupon, setCoupon }} />
         ) : null}
       </div>
     </>
