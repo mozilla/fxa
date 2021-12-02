@@ -25,7 +25,9 @@ export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
     >
       <div className="coupon-component-inner">
         <Localized id="coupon-header">
-          <h4>Discount</h4>
+          <div class="coupon-header">
+            <h4>Discount</h4>
+          </div>
         </Localized>
         <Form validator={validator} onSubmit={onSubmit}>
           <Localized attrs={{ placeholder: false }} id={undefined}>

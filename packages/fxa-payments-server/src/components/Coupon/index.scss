@@ -4,7 +4,7 @@
 .coupon-component {
   font-size: 15px;
   margin: 32px 0;
-  padding-top: 250px;
+  padding-top: 300px;
 
   @include max-width('tablet') {
     margin-left: 16px;
@@ -36,41 +36,41 @@
       max-width: 327px;
       position: fixed;
     }
+    width: 100%;
     background: $color-white;
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(12, 12, 13, 0.1);
+
+    form {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      margin: 0  0 16px 0;
+    }
+
+    .input-row {
+      margin: 0 16px 0 0;
+      width: 185px;
+    }
+
+    input {
+      width: 185px;
+    }
+
+    button {
+      width: 110px;
+    }
   }
 
   .coupon-header {
-    border-bottom: 1px solid $grey-30;
     display: flex;
     justify-content: space-between;
-    margin: 0 16px;
+    margin: 0 10px;
     padding: 16px 0;
 
-    p {
+    h4 {
       margin: 0;
     }
   }
 
-  .btn {
-    background: none;
-    border: 1px solid transparent;
-    color: $blue-60;
-    font-size: 15px;
-    font-weight: normal;
-    height: initial;
-    line-height: 22px;
-    margin: 9px 0;
-    outline: none;
-    padding: 7px 6px 7px 25px;
-    position: relative;
-    width: initial;
-
-    &:focus {
-      border: 1px solid #0a84ff;
-      box-shadow: unset;
-      padding: 7px 16px 7px 40px;
-    }
-  }
 }
