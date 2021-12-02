@@ -4123,9 +4123,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.16.3":
-  version: 1.16.3
-  resolution: "@playwright/test@npm:1.16.3"
+"@playwright/test@npm:^1.17.1":
+  version: 1.17.1
+  resolution: "@playwright/test@npm:1.17.1"
   dependencies:
     "@babel/code-frame": ^7.14.5
     "@babel/core": ^7.14.8
@@ -4150,19 +4150,21 @@ __metadata:
     expect: =27.2.5
     jest-matcher-utils: =27.2.5
     jpeg-js: ^0.4.2
+    mime: ^2.4.6
     minimatch: ^3.0.3
     ms: ^2.1.2
     open: ^8.3.0
     pirates: ^4.0.1
     pixelmatch: ^5.2.1
-    playwright-core: =1.16.3
+    playwright-core: =1.17.1
     pngjs: ^5.0.0
     rimraf: ^3.0.2
     source-map-support: ^0.4.18
     stack-utils: ^2.0.3
+    yazl: ^2.5.1
   bin:
     playwright: cli.js
-  checksum: 363f2f214da1aa5ad0e6f5a3affb0a4d33a43bfc5a628e3c58816ef363a0dbae2400e36334142c0d65e1bbde1f622a032e5b55e92e541b1e7e7c82ae8c7d835c
+  checksum: ed13a14f16e1521a799ffdfbc560419243be05d3f29c7474795f5fc6622a95209a4fa47b97a081432efc65efa3e1f2c4a2d2fd91e1aace08966d1fa1c73000e8
   languageName: node
   linkType: hard
 
@@ -18344,14 +18346,14 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "functional-tests@workspace:packages/functional-tests"
   dependencies:
-    "@playwright/test": ^1.16.3
+    "@playwright/test": ^1.17.1
     "@types/upng-js": ^2
     fxa-auth-client: "workspace:*"
     fxa-content-server: "workspace:*"
     fxa-payments-server: "workspace:*"
     fxa-settings: "workspace:*"
     jsqr: ^1.4.0
-    playwright: ^1.16.3
+    playwright: ^1.17.1
     upng-js: ^2.1.0
   languageName: unknown
   linkType: soft
@@ -30390,9 +30392,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:=1.16.3":
-  version: 1.16.3
-  resolution: "playwright-core@npm:1.16.3"
+"playwright-core@npm:=1.17.1":
+  version: 1.17.1
+  resolution: "playwright-core@npm:1.17.1"
   dependencies:
     commander: ^8.2.0
     debug: ^4.1.1
@@ -30412,18 +30414,18 @@ fsevents@~2.1.1:
     yazl: ^2.5.1
   bin:
     playwright: cli.js
-  checksum: b37e5abadb22096f84515fa9307587747a65c2b465b10b0688ae228aff5537eb5faa88ee9d1cd1225ff9270747b6c9b72a76a008cfb670b8df939b078f3d29b9
+  checksum: 916da00f06b159cc8d238f109c298ee49f660b132e60ca43c5fcd3a86626a186ac224c3ac257d26e37fa45ba10fa4b0092eaed09560e4e130cae4f452cc7eec2
   languageName: node
   linkType: hard
 
-"playwright@npm:^1.16.3":
-  version: 1.16.3
-  resolution: "playwright@npm:1.16.3"
+"playwright@npm:^1.17.1":
+  version: 1.17.1
+  resolution: "playwright@npm:1.17.1"
   dependencies:
-    playwright-core: =1.16.3
+    playwright-core: =1.17.1
   bin:
     playwright: cli.js
-  checksum: c1fe9255e3023195ca94c7a693b8816f9f13ce5901599806ac161df8da193f2bbb016fa452c8f750602845e7ce517129ea639feae0ea182d0ec77e4cb6fc9030
+  checksum: b2e39740d6d0ab45b776bad6a57e5fe90606b2db1cd1ae108107a8eeece9c6e64fe65eaaf5e0cb8aba2d1019356fffb07fbb39a1b6ec033f5f8bde25055acdfa
   languageName: node
   linkType: hard
 
