@@ -71,7 +71,12 @@ enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
 }
 
+export enum STRIPE_PRICE_METADATA {
+  PROMOTION_CODES = 'promotionCodes',
+}
+
 export enum STRIPE_PRODUCT_METADATA {
+  PROMOTION_CODES = 'promotionCodes',
   PLAY_SKU_IDS = 'playSkuIds',
 }
 
@@ -513,6 +518,122 @@ export class StripeHelper {
         : null,
     });
     return subscription;
+  }
+
+  /**
+   * Previews an invoice for a customer in the provided country with a
+   * subscription of the given priceId and a possible discount applied.
+   *
+   * The discount parameter is optional and can be either a coupon id or
+   * a promotion code.
+   */
+  async previewInvoice({
+    country,
+    priceId,
+    promotionCode,
+  }: {
+    country: string;
+    priceId: string;
+    promotionCode?: string;
+  }) {
+    const params: Stripe.InvoiceRetrieveUpcomingParams = {};
+    const taxRate = await this.taxRateByCountryCode(country);
+    if (taxRate) {
+      params.subscription_default_tax_rates = [taxRate.id];
+    }
+
+    if (promotionCode) {
+      const promoCode = await this.findValidPromoCode(promotionCode, priceId);
+      if (promoCode) {
+        params['coupon'] = promoCode.coupon.id;
+      }
+    }
+    return this.stripe.invoices.retrieveUpcoming({
+      customer_details: {
+        address: {
+          country,
+        },
+      },
+      subscription_items: [
+        {
+          price: priceId,
+        },
+      ],
+      ...params,
+    });
+  }
+
+  /**
+   * Determines whether a given promotion code is
+   * a valid code in the system for the given price, and if it hasn't
+   * expired.
+   *
+   * Note that this does not check whether the coupon has been redeemed to
+   * many times, whether its valid for a first time customer, or any of the
+   * other conditions that may apply to its use.
+   */
+  async findValidPromoCode(
+    code: string,
+    priceId: string
+  ): Promise<Stripe.PromotionCode | undefined> {
+    const nowSecs = Date.now() / 1000;
+
+    // Determine if code exists, is active, and has not expired.
+    const promotionCode = await this.findPromoCodeByCode(code);
+    if (
+      !promotionCode ||
+      (promotionCode.expires_at && promotionCode.expires_at < nowSecs)
+    ) {
+      return;
+    }
+
+    // Is the coupon valid given redemptions/expiration and product restrictions?
+    if (!promotionCode.coupon.valid) {
+      return;
+    }
+
+    // Is the coupon valid for this price?
+    const price = await this.findPlanById(priceId);
+    const validPromotionCodes: string[] = [];
+    if (
+      price.plan_metadata &&
+      price.plan_metadata[STRIPE_PRICE_METADATA.PROMOTION_CODES]
+    ) {
+      validPromotionCodes.push(
+        ...price.plan_metadata[STRIPE_PRICE_METADATA.PROMOTION_CODES]
+          .split(',')
+          .map((c) => c.trim())
+      );
+    }
+    if (
+      price.product_metadata &&
+      price.product_metadata[STRIPE_PRODUCT_METADATA.PROMOTION_CODES]
+    ) {
+      validPromotionCodes.push(
+        ...price.product_metadata[STRIPE_PRODUCT_METADATA.PROMOTION_CODES]
+          .split(',')
+          .map((c) => c.trim())
+      );
+    }
+    if (!validPromotionCodes.includes(code)) {
+      return;
+    }
+
+    return promotionCode;
+  }
+
+  /**
+   * Queries Stripe for active promotion codes and returns a matching one if
+   * found.
+   */
+  async findPromoCodeByCode(
+    code: string
+  ): Promise<Stripe.PromotionCode | undefined> {
+    const promoCodes = await this.stripe.promotionCodes.list({
+      active: true,
+      code,
+    });
+    return promoCodes.data.find((c) => c.code === code);
   }
 
   async invoicePayableWithPaypal(invoice: Stripe.Invoice): Promise<boolean> {

@@ -34,6 +34,9 @@ const { StripeHandler: DirectStripeRoutes } = proxyquire(
 const { AuthLogger, AppConfig } = require('../../../../lib/types');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
+const {
+  stripeInvoiceToInvoicePreviewDTO,
+} = require('../../../../lib/payments/stripe-formatter');
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
   require('fxa-shared').subscriptions.stripe;
@@ -45,6 +48,7 @@ const pastDueSubscription = require('../../payments/fixtures/stripe/subscription
 const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
 const emptyCustomer = require('../../payments/fixtures/stripe/customer_new.json');
 const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
+const invoicePreviewTax = require('../../payments/fixtures/stripe/invoice_preview_tax.json');
 const newSetupIntent = require('../../payments/fixtures/stripe/setup_intent_new.json');
 const paymentMethodFixture = require('../../payments/fixtures/stripe/payment_method.json');
 
@@ -522,6 +526,27 @@ describe('DirectStripeRoutes', () => {
       );
 
       assert.deepEqual(filterCustomer(expected), actual);
+    });
+  });
+
+  describe('previewInvoice', () => {
+    it('returns the preview invoice', async () => {
+      const expected = deepCopy(invoicePreviewTax);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
+      VALID_REQUEST.payload = {
+        promotionCode: 'promoCode',
+        priceId: 'priceId',
+      };
+      VALID_REQUEST.app.geo = {};
+
+      const actual = await directStripeRoutesInstance.previewInvoice(
+        VALID_REQUEST
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.previewInvoice,
+        { country: 'US', promotionCode: 'promoCode', priceId: 'priceId' }
+      );
+      assert.deepEqual(stripeInvoiceToInvoicePreviewDTO(expected), actual);
     });
   });
 
