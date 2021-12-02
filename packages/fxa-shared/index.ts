@@ -12,6 +12,7 @@ import {
   metadataFromPlan,
   productDetailsFromPlan,
 } from './subscriptions/metadata';
+import * as invoice from './dto/auth/payments/invoice';
 import * as stripe from './subscriptions/stripe';
 import * as subscriptions from './subscriptions/subscriptions';
 
@@ -49,5 +50,12 @@ module.exports = {
     },
     stripe,
     subscriptions,
+  },
+  dto: {
+    auth: {
+      payments: {
+        invoice,
+      },
+    },
   },
 };

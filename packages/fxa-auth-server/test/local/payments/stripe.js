@@ -84,6 +84,7 @@ const { AuthFirestore } = require('../../../lib/types');
 const {
   INVOICES_RESOURCE,
   PAYMENT_METHOD_RESOURCE,
+  STRIPE_PRICE_METADATA,
 } = require('../../../lib/payments/stripe');
 const {
   FirestoreStripeError,
@@ -894,6 +895,150 @@ describe('StripeHelper', () => {
             : null,
         }
       );
+    });
+  });
+
+  describe('findValidPromoCode', () => {
+    it('finds a valid promoCode with plan metadata', async () => {
+      const promoCode = { code: 'promo1', coupon: { valid: true } };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
+        },
+      });
+      const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
+      assert.deepEqual(actual, promoCode);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.findPlanById, 'planId');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+    });
+
+    it('does not find an expired promoCode', async () => {
+      const expiredTime = Date.now() / 1000 - 50;
+      const promoCode = {
+        code: 'promo1',
+        coupon: { valid: true },
+        expires_at: expiredTime,
+      };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
+        },
+      });
+      const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
+      assert.isUndefined(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+      sinon.assert.notCalled(stripeHelper.findPlanById);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+    });
+
+    it('does not find a promoCode with a different plan', async () => {
+      const promoCode = { code: 'promo1', coupon: { valid: true } };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {},
+      });
+      const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
+      assert.isUndefined(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.findPlanById, 'planId');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+    });
+
+    it('does not find an invalid promoCode', async () => {
+      const promoCode = {
+        code: 'promo1',
+        coupon: { valid: false },
+      };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
+        },
+      });
+      const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
+      assert.isUndefined(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+      sinon.assert.notCalled(stripeHelper.findPlanById);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+    });
+  });
+
+  describe('findPromoCodeByCode', () => {
+    it('finds a promo code', async () => {
+      const promoCode = { code: 'code1' };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      const actual = await stripeHelper.findPromoCodeByCode('code1');
+      assert.deepEqual(actual, promoCode);
+    });
+
+    it('finds no promo code', async () => {
+      const promoCode = { code: 'code2' };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      const actual = await stripeHelper.findPromoCodeByCode('code1');
+      assert.isUndefined(actual);
     });
   });
 

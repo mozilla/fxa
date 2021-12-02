@@ -19711,6 +19711,7 @@ fsevents@~2.1.1:
     ts-jest: ^27.0.7
     ts-loader: ^8.3.0
     tsconfig-paths: ^3.12.0
+    typesafe-joi: ^2.1.0
     typescript: ^4.5.2
     underscore: ^1.13.1
     uuid: ^8.3.2
