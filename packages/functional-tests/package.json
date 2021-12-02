@@ -16,7 +16,7 @@
     "fxa-payments-server": "workspace:*",
     "fxa-settings": "workspace:*",
     "jsqr": "^1.4.0",
-    "playwright": "^1.16.3",
+    "playwright": "^1.17.1",
     "upng-js": "^2.1.0"
   }
 }
