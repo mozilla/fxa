@@ -11,6 +11,7 @@ import { HomePath } from '../../constants';
 import { useAccount, useAlertBar, useSession } from '../../models';
 import { useLocalization, Localized } from '@fluent/react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { copyRecoveryCodes } from '../../lib/totp';
 
 export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
@@ -65,7 +66,11 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
         </Localized>
         <div className="mt-6 flex flex-col items-center h-auto justify-between">
           {recoveryCodes.length > 0 ? (
-            <DataBlock value={recoveryCodes} />
+            <DataBlock
+              value={recoveryCodes.map((x) => x)}
+              separator=" "
+              onCopy={copyRecoveryCodes}
+            />
           ) : (
             <LoadingSpinner />
           )}

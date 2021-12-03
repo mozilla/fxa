@@ -36,6 +36,10 @@ it('renders', async () => {
   expect(screen.getByTestId('2fa-recovery-codes')).toHaveTextContent(
     recoveryCodes[0]
   );
+
+  expect(screen.getByTestId('datablock').textContent?.trim()).toEqual(
+    recoveryCodes.join(' ')
+  );
 });
 
 it('displays an error when fails to fetch new recovery codes', async () => {

@@ -53,3 +53,14 @@ export async function checkCode(
 
   return false;
 }
+
+export function copyRecoveryCodes(event: React.ClipboardEvent<HTMLDivElement>) {
+  const selection = document.getSelection();
+  if (selection) {
+    event.clipboardData.setData(
+      'text/plain',
+      selection.toString().replace(/\s/g, '\n')
+    );
+    event.preventDefault();
+  }
+}
