@@ -281,6 +281,9 @@ jobs:
           name: Running playwright tests
           command: ./packages/functional-tests/scripts/test-ci.sh
       - store_artifacts:
+          path: ~/.pm2/logs
+          destination: logs
+      - store_artifacts:
           path: artifacts
       - store_test_results:
           path: artifacts/tests
