@@ -53,9 +53,18 @@ const MESSAGE = {
   uaOSVersion: '10',
   uid: 'uid',
   unblockCode: 'AS6334PK',
+  paymentAmountOldInCents: 9999099.9,
+  paymentAmountOldCurrency: 'jpy',
+  paymentAmountNewInCents: 12312099.9,
+  paymentAmountNewCurrency: 'gbp',
+  paymentProratedInCents: 523099.9,
+  paymentProratedCurrency: 'usd',
   productId: 'wibble',
   planId: 'plan-example',
   productName: 'Firefox Fortress',
+  productNameOld: 'Product A',
+  productNameNew: 'Product B',
+  productPaymentCycle: 'month',
   subscription: {
     productName: 'Cooking with Foxkeh',
     planId: 'plan-example',
@@ -65,6 +74,14 @@ const MESSAGE = {
     { productName: 'Firefox Fortress' },
     { productName: 'Cooking with Foxkeh' },
   ],
+};
+
+const MESSAGE_FORMATTED = {
+  // Note: Intl.NumberFormat rounds 1/10 cent up
+  invoiceTotal: '€10,000.00',
+  paymentAmountOld: '¥99,991',
+  paymentAmountNew: '£123,121.00',
+  paymentProrated: '$5,231.00',
 };
 
 // key = query param name, value = MESSAGE property name
@@ -990,7 +1007,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
-      // commented out during template conversion - this doesn't appear to actually existin rendered old templates but passes the test?
+      // commented out during template conversion - this doesn't appear to actually exist in rendered old templates but passes the test?
       // { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1035,6 +1052,32 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+
+  ['subscriptionUpgradeEmail', new Map([
+    ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionUpgrade') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionUpgrade' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionUpgrade }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      // commented out during template conversion - this doesn't appear to actually exist in rendered old templates but passes the test?
+      // { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
