@@ -13,5 +13,7 @@ auth-error-110 = Invalid token
 #                           (for example: "in 15 minutes")
 auth-error-114 = You've tried too many times. Please try again { $retryAfter }.
 auth-error-138 = Unverified session
+auth-error-139 = Secondary email must be different than your account email
 auth-error-155 = TOTP token not found
+auth-error-183 = Invalid or expired verification code
 auth-error-1008 = Your new password must be different

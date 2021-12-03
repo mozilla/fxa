@@ -8,7 +8,3 @@ add-secondary-email-enter-address =
   .label = Enter email address
 add-secondary-email-cancel-button = Cancel
 add-secondary-email-save-button = Save
-
-## Auth-server based errors that originate from backend service
-
-auth-error-139 = Secondary email must be different than your account email
