@@ -1,6 +1,6 @@
-var chalk = require("chalk");
+import chalk from "chalk";
 
-var CONFIGS = {
+const CONFIGS = {
   local: {
     auth: "http://localhost:9000/v1",
     content: "http://localhost:3030/",
@@ -46,14 +46,14 @@ var CONFIGS = {
   }
 };
 
-var env = process.env.FXA_ENV || "local";
-var FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || "fx_desktop_v3";
-var e10sDisabled = process.env.DISABLE_E10S === "true";
-var fxaEnv = CONFIGS[env];
+const env = process.env.FXA_ENV || "local";
+const FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || "fx_desktop_v3";
+const e10sDisabled = process.env.DISABLE_E10S === "true";
+let fxaEnv = CONFIGS[env];
 
 if (!fxaEnv) {
   // If env is not found in the above list, assume it's an fxa-dev box.
-  var host = "https://" + env + ".dev.lcip.org/";
+  const host = "https://" + env + ".dev.lcip.org/";
 
   fxaEnv = {
     auth: host + "auth/v1",
@@ -64,7 +64,7 @@ if (!fxaEnv) {
   };
 }
 
-var fxaProfile = {
+const fxaProfile = {
   // enable debugger and toolbox
   "devtools.chrome.enabled": true,
   "devtools.debugger.remote-enabled": true,
@@ -118,11 +118,6 @@ var fxaProfile = {
 
 // Configuration for local sync development
 
-// The loop server is either production or local, nothing on stable or latest
-if (fxaEnv.loop) {
-  fxaProfile["loop.server"] = fxaEnv.loop;
-}
-
 if (e10sDisabled) {
   // disable e10s
   fxaProfile["browser.tabs.remote.autostart"] = false;
@@ -143,4 +138,4 @@ console.log(chalk.yellow("FXA_DESKTOP_CONTEXT:", FXA_DESKTOP_CONTEXT));
 console.log(chalk.yellow("FIREFOX_DEBUGGER:", !!process.env.FIREFOX_DEBUGGER));
 console.log(chalk.yellow("FXA_DESKTOP_CONTEXT:", FXA_DESKTOP_CONTEXT));
 
-module.exports = fxaProfile;
+export default fxaProfile;
