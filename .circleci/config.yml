@@ -265,7 +265,7 @@ jobs:
           path: artifacts/tests
 
   playwright-functional-tests:
-    resource_class: medium+
+    resource_class: large
     docker:
       - image: mcr.microsoft.com/playwright:v1.17.1-focal
       - image: redis
