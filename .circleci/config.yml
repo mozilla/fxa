@@ -265,7 +265,7 @@ jobs:
           path: artifacts/tests
 
   playwright-functional-tests:
-    resource_class: medium+
+    resource_class: large
     docker:
       - image: mcr.microsoft.com/playwright:v1.17.1-focal
       - image: redis
@@ -280,6 +280,9 @@ jobs:
       - run:
           name: Running playwright tests
           command: ./packages/functional-tests/scripts/test-ci.sh
+      - store_artifacts:
+          path: ~/.pm2/logs
+          destination: logs
       - store_artifacts:
           path: artifacts
       - store_test_results:
