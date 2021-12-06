@@ -9,6 +9,17 @@
     },
     "clients": [
       {
+        "id": "749818d3f2e7857f",
+        "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+        "hashedSecretPrevious": "0726282857047586fb4edc335b5492ef1e4a0d95d3f1114627bb89b4e57cf6e1",
+        "name": "Pocket",
+        "imageUri": "https://example.domain/logo",
+        "redirectUri": "https://example.domain/return?foo=bar",
+        "trusted": true,
+        "canGrant": false,
+        "allowedScopes": "https://identity.mozilla.com/apps/notes https://identity.mozilla.com/apps/lockbox"
+      },
+      {
         "id": "dcdb5ae7add825d2",
         "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
         "hashedSecretPrevious": "0726282857047586fb4edc335b5492ef1e4a0d95d3f1114627bb89b4e57cf6e1",

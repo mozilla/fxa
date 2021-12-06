@@ -11,6 +11,7 @@ const JWTool = require('fxa-jwtool');
 const testServer = require('../lib/server');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { decodeJWT } = require('../lib/util');
+const sinon = require('sinon');
 
 const db = require('../../lib/oauth/db');
 const encrypt = require('../../lib/oauth/encrypt');
@@ -186,6 +187,7 @@ function basicAuthHeader(clientId, secret) {
 
 describe('/v1', function () {
   const VERIFY_FAILURE = '{"status": "failure"}';
+  let sandbox;
 
   before(async function () {
     this.timeout(30000);
@@ -215,8 +217,13 @@ describe('/v1', function () {
     return Server.close();
   });
 
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+  });
+
   afterEach(function () {
     nock.cleanAll();
+    sandbox.restore();
   });
 
   describe('/authorization', function () {
@@ -2765,33 +2772,63 @@ describe('/v1', function () {
       });
     });
 
-    it('should reject expired tokens from after the epoch', function () {
-      this.slow(2200);
-      var epoch = config.get('oauthServer.expiration.accessTokenExpiryEpoch');
-      config.set('oauthServer.expiration.accessTokenExpiryEpoch', Date.now());
-      return newToken({
+    it('should reject expired tokens from after the epoch', async function () {
+      let res = await newToken({
         ttl: 1,
-      })
-        .then(async function (res) {
-          await new Promise((ok) => setTimeout(ok, 1500));
-          assert.equal(res.statusCode, 200);
-          assertSecurityHeaders(res);
-          assert.equal(res.result.expires_in, 1);
-          return Server.api.post({
-            url: '/verify',
-            payload: {
-              token: res.result.access_token,
-            },
-          });
-        })
-        .then(function (res) {
-          assert.equal(res.statusCode, 400);
-          assertSecurityHeaders(res);
-          assert.equal(res.result.errno, 108);
-        })
-        .finally(function () {
-          config.set('oauthServer.expiration.accessTokenExpiryEpoch', epoch);
-        });
+      });
+
+      assert.equal(res.statusCode, 200);
+      assertSecurityHeaders(res);
+      assert.equal(res.result.expires_in, 1);
+
+      sandbox.useFakeTimers({
+        now: Date.now() + 1000 * 60 * 60, // 1 hr in future
+        shouldAdvanceTime: true,
+      });
+
+      res = await Server.api.post({
+        url: '/verify',
+        payload: {
+          token: res.result.access_token,
+        },
+      });
+
+      assert.equal(res.statusCode, 400);
+      assertSecurityHeaders(res);
+      assert.equal(res.result.errno, 115);
+    });
+
+    it('should not reject expired tokens from pocket clients', async function () {
+      const clientId = '749818d3f2e7857f';
+      config.set('oauthServer.expiration.accessTokenExpiryEpoch', undefined);
+      Server = await testServer.start();
+      let res = await newToken(
+        {
+          ttl: 1,
+        },
+        {
+          clientId,
+        }
+      );
+
+      assert.equal(res.statusCode, 200);
+      assertSecurityHeaders(res);
+      assert.equal(res.result.expires_in, 1);
+
+      sandbox.useFakeTimers({
+        now: Date.now() + 1000 * 60 * 60, // 1 hr in future
+        shouldAdvanceTime: true,
+      });
+
+      res = await Server.api.post({
+        url: '/verify',
+        payload: {
+          token: res.result.access_token,
+        },
+      });
+
+      assert.equal(res.statusCode, 200);
+      assertSecurityHeaders(res);
     });
 
     describe('response', function () {
