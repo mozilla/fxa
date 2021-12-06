@@ -63,7 +63,7 @@ export function ConnectAnotherDevicePromo() {
                 StoreType.google,
                 navigatorLanguages
               )}
-              alt="Get it on Google Play"
+              alt="Download Firefox for Android."
               style={{ maxHeight: '40px' }}
               className="text-xs"
             />
@@ -80,7 +80,7 @@ export function ConnectAnotherDevicePromo() {
                 StoreType.apple,
                 navigatorLanguages
               )}
-              alt="Download on the App Store"
+              alt="Download Firefox for iOS!"
               className="text-xs"
             />
           </Localized>

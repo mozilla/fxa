@@ -130,11 +130,11 @@ export function getStoreImageByLanguages(
   // Iterate through available languages until logo is found, otherwise default to 'en'
   for (let i = 0; i < userLanguages.length; i += 1) {
     // If language string includes region, eg. zh-TW, check if an image is available.
+    const dashLocation = userLanguages[i].indexOf('-');
     const language =
-      userLanguages[i].length === 5 &&
-      hasKey(storeImages[store], userLanguages[i])
+      dashLocation && hasKey(storeImages[store], userLanguages[i])
         ? userLanguages[i]
-        : userLanguages[i].slice(0, 2);
+        : userLanguages[i].slice(0, dashLocation);
 
     if (hasKey(storeImages[store], language)) {
       return storeImages[store][language];
