@@ -134,6 +134,70 @@ describe('Sentry', () => {
     assert.equal(ctx.errorName, 'EndpointError');
     assert.equal(ctx.reason, endError.reason);
   });
+
+  describe('ignores errors', () => {
+    let sentryCaptureSpy;
+
+    beforeEach(async () => {
+      config.sentryDsn = 'https://deadbeef:deadbeef@localhost/123';
+      sentryCaptureSpy = sandbox.stub(Sentry, 'captureException');
+      const scopeSpy = {
+        addEventProcessor: sinon.fake(),
+        setContext: sinon.fake(),
+        setExtra: sinon.fake(),
+      };
+      sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
+
+      await configureSentry(server, config);
+    });
+
+    afterEach(() => {
+      sandbox.reset();
+    });
+
+    it('ignores WError by error number', async () => {
+      await server.events.emit({ name: 'request', channel: 'error' }, [
+        {},
+        {
+          error: new verror.WError(
+            error.emailBouncedHard(),
+            'Something bad happened'
+          ),
+        },
+      ]);
+      sinon.assert.notCalled(sentryCaptureSpy);
+    });
+
+    it('ignores error by error number', async () => {
+      await server.events.emit({ name: 'request', channel: 'error' }, [
+        {},
+        { error: error.emailBouncedHard() },
+      ]);
+      sinon.assert.notCalled(sentryCaptureSpy);
+    });
+
+    it('does not ignore valid error', async () => {
+      await server.events.emit({ name: 'request', channel: 'error' }, [
+        {},
+        {
+          error: new verror.WError(
+            error.emailBouncedSoft(),
+            'Something bad happened'
+          ),
+        },
+      ]);
+      sinon.assert.calledOnce(sentryCaptureSpy);
+    });
+
+    it('does not ingore valid error', async () => {
+      await server.events.emit({ name: 'request', channel: 'error' }, [
+        {},
+        { error: error.emailBouncedSoft() },
+      ]);
+      sinon.assert.calledOnce(sentryCaptureSpy);
+    });
+  });
+
   describe('Sentry helpers', () => {
     describe('formatMetadataValidationErrorMessage', () => {
       let error, actualMsg, expectedMsg;
