@@ -5,7 +5,7 @@ DIR=$(dirname "$0")
 cd "$DIR/.."
 
 yarn build
-SKIP_PREFLIGHT_CHECK=true yarn test
+SKIP_PREFLIGHT_CHECK=true yarn test --coverage --watchAll=false
 
 mkdir -p config
 

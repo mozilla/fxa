@@ -499,7 +499,7 @@ All logging methods have the argument `eventProperties`, which can be used to su
 
 ## Testing and Mocks for Tests/Storybook
 
-This package uses [Jest](https://jestjs.io/) to test its code. By default `yarn test` will test all JS files under `src/`.
+This package uses [Jest](https://jestjs.io/) to test its code. By default `yarn test` will test all JS files under `src/`. Running `yarn test:coverage` will also provide a coverage report, which should be respected.
 
 Test specific tests with the following commands:
 

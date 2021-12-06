@@ -16,7 +16,8 @@
     "stop": "pm2 stop pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "storybook": "npm run build-postcss && start-storybook -p 6008 -s .storybook/design-guide --no-version-updates",
-    "test": "SKIP_PREFLIGHT_CHECK=true rescripts test"
+    "test": "SKIP_PREFLIGHT_CHECK=true rescripts test",
+    "test:coverage": "yarn test --coverage --watchAll=false"
   },
   "jest": {
     "resetMocks": false,
@@ -24,8 +25,32 @@
       "src/**/*",
       "!src/**/*.stories.*",
       "!src/**/mocks.*",
-      "!src/**/*.svg"
-    ]
+      "!src/**/*.svg",
+      "!src/index.*",
+      "!src/components/*(ScrollToTop|UnitRowRecoveryKey|PageAvatar|App)/*",
+      "!src/lib/*(cache.ts|canvas-utils.tsx|file-utils.tsx|firefox.ts|totp.ts|gql.ts)",
+      "!src/models/*"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 0,
+        "functions": 0,
+        "lines": 0,
+        "statements": 0
+      },
+      "src/components/**/*": {
+        "branches": 50,
+        "functions": 25,
+        "lines": 65,
+        "statements": 50
+      },
+      "src/lib/**/*": {
+        "branches": 50,
+        "functions": 90,
+        "lines": 60,
+        "statements": 60
+      }
+    }
   },
   "eslintConfig": {
     "extends": [
