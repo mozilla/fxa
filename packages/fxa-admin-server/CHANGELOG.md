@@ -1,3 +1,9 @@
+## 1.220.4
+
+### Bug fixes
+
+- admin-server: move ts-morph to dependencies ([08f36054b](https://github.com/mozilla/fxa/commit/08f36054b))
+
 ## 1.220.3
 
 No changes.
