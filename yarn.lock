@@ -12226,10 +12226,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001270, caniuse-lite@npm:^1.0.30001271, caniuse-lite@npm:^1.0.30001272":
+"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30001109, caniuse-lite@npm:^1.0.30001125, caniuse-lite@npm:^1.0.30001271, caniuse-lite@npm:^1.0.30001272":
   version: 1.0.30001274
   resolution: "caniuse-lite@npm:1.0.30001274"
   checksum: 75790d021edbc68dbb36c0bc63255fad1e7aa3986039e685d10340e7e9a37147b0ddedaba22cf6c52b3657cca794ed41af88045ad5cce79084e9361e95f1c5d4
+  languageName: node
+  linkType: hard
+
+"caniuse-lite@npm:^1.0.30001285":
+  version: 1.0.30001285
+  resolution: "caniuse-lite@npm:1.0.30001285"
+  checksum: 03abdcea913961f4484a7e9494482a0e8a32d6b2305e3922196d0672897c043ac2e1ce884c69730921400c7cddb41ae27a9fcfdaa7d82d11a75d7331393ab5c6
   languageName: node
   linkType: hard
 
@@ -19334,7 +19341,7 @@ fsevents@~2.1.1:
     babel-eslint: ^10.1.0
     babel-loader: ^8.2.2
     browserslist: ^4.7.2
-    caniuse-lite: ^1.0.30001270
+    caniuse-lite: ^1.0.30001285
     celebrate: ^10.1.0
     classnames: ^2.3.1
     convict: ^6.2.1
