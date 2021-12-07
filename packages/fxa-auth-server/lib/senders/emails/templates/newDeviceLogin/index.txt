@@ -1,4 +1,4 @@
-newDeviceLogin-title = "New sign-in to { $clientName }"
+newDeviceLogin-title = "New sign-in to <%- clientName %>"
 
 <%- include('/partials/location/index.txt') %>
 
