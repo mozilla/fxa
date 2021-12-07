@@ -64,7 +64,6 @@ export function ConnectAnotherDevicePromo() {
                 navigatorLanguages
               )}
               alt="Download Firefox for Android."
-              style={{ maxHeight: '40px' }}
               className="text-xs"
             />
           </Localized>
