@@ -84,7 +84,7 @@
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
     "browserslist": "^4.7.2",
-    "caniuse-lite": "^1.0.30001270",
+    "caniuse-lite": "^1.0.30001285",
     "esbuild": "^0.14.2",
     "esbuild-register": "^3.2.0",
     "eslint": "^7.32.0",
