@@ -1,12 +1,15 @@
 import {
+  AddressComponent,
+  AddressType,
   Client,
   PlaceType2,
   Status,
 } from '@googlemaps/google-maps-services-js';
 import countries from 'i18n-iso-countries';
-import { ConfigType } from '../config';
 import { Logger } from 'mozlog';
 import { Container } from 'typedi';
+
+import { ConfigType } from '../config';
 
 export type ZipLocation = {
   city: string;
@@ -16,7 +19,7 @@ export type ZipLocation = {
   stateCode: string;
 };
 
-export class Geocoding {
+export class GoogleMapsService {
   private log: Logger;
   private client: Client;
   private googleMapsApiKey: string;
@@ -24,7 +27,14 @@ export class Geocoding {
   constructor(log: Logger, config: ConfigType) {
     this.log = log;
     this.client = Container.get(Client);
-    this.googleMapsApiKey = config.subscriptions.googleMapsApiKey;
+    this.googleMapsApiKey = config.googleMapsApiKey;
+  }
+
+  findAddressComponentByType(
+    addressComponents: AddressComponent[],
+    type: AddressType
+  ) {
+    return addressComponents.find((address) => address.types.includes(type));
   }
 
   async getLocationFromZip(zip: string, country: string = 'US') {
@@ -45,24 +55,29 @@ export class Geocoding {
         throw new Error(
           `${
             errorMessage ? `${status} - ${errorMessage}` : `${status}`
-          } for ${zip}, ${country}`
+          } for ${zip}, ${countryName}`
         );
 
-      const { address_components } = results[0];
+      const { address_components: addressComponents } = results[0];
 
-      if (address_components) {
-        const state = address_components.find((address) =>
-          address.types.includes(PlaceType2.administrative_area_level_1)
+      if (addressComponents) {
+        const state = this.findAddressComponentByType(
+          addressComponents,
+          PlaceType2.administrative_area_level_1
         );
-        const country = address_components.find((address) =>
-          address.types.includes(PlaceType2.country)
+        const country = this.findAddressComponentByType(
+          addressComponents,
+          PlaceType2.country
         );
-        const locality = address_components.find((address) =>
-          address.types.includes(PlaceType2.locality)
+        const locality = this.findAddressComponentByType(
+          addressComponents,
+          PlaceType2.locality
         );
-        const adminArea2 = address_components.find((address) =>
-          address.types.includes(PlaceType2.administrative_area_level_2)
+        const adminArea2 = this.findAddressComponentByType(
+          addressComponents,
+          PlaceType2.administrative_area_level_2
         );
+
         return {
           city: locality?.long_name || adminArea2?.long_name || '',
           country: country?.long_name || '',
@@ -71,10 +86,10 @@ export class Geocoding {
           stateCode: state?.short_name || '',
         };
       } else {
-        throw new Error(`Address not found for ${zip}, ${country}`);
+        throw new Error(`Address not found for ${zip}, ${countryName}`);
       }
-    } catch (err) {
-      this.log.error('geocoding.1', { err: err.message });
+    } catch (error) {
+      this.log.error('GoogleMapsServices.getLocationFromZip.failed', { error });
       return {};
     }
   }

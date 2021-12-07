@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const { mockLog } = require('../mocks');
 const sinon = require('sinon');
-const { Geocoding } = require('../../lib/geocoding');
+const { GoogleMapsService } = require('../../lib/googlemapsservices');
 const { Client } = require('@googlemaps/google-maps-services-js');
 const { default: Container } = require('typedi');
 
@@ -93,10 +93,16 @@ const noResult = {
   },
 };
 
-const mockConfig = {
-  subscriptions: {
-    googleMapsApiKey: 'foo',
+const noResultWithError = {
+  data: {
+    results: [],
+    status: 'UNKNOWN_ERROR',
+    error_message: 'An unknown error has occurred',
   },
+};
+
+const mockConfig = {
+  googleMapsApiKey: 'foo',
 };
 
 describe('geocoding', () => {
@@ -124,7 +130,7 @@ describe('geocoding', () => {
       geocode: sinon.fake.returns(geocodeResultUSZip),
     });
 
-    const geocoding = new Geocoding(log, mockConfig);
+    const geocoding = new GoogleMapsService(log, mockConfig);
 
     const actualResult = await geocoding.getLocationFromZip(log, '20639');
     assert.deepEqual(actualResult, expectedResult);
@@ -143,7 +149,7 @@ describe('geocoding', () => {
       geocode: sinon.fake.returns(geocodeResultDEZip),
     });
 
-    const geocoding = new Geocoding(log, mockConfig);
+    const geocoding = new GoogleMapsService(log, mockConfig);
 
     const actualResult = await geocoding.getLocationFromZip('06369', 'DE');
     assert.deepEqual(actualResult, expectedResult);
@@ -156,14 +162,32 @@ describe('geocoding', () => {
       geocode: sinon.fake.returns(noResult),
     });
 
-    const geocoding = new Geocoding(log, mockConfig);
+    const geocoding = new GoogleMapsService(log, mockConfig);
 
     const actualResult = await geocoding.getLocationFromZip('11111', 'DE');
     assert.deepEqual(actualResult, expectedResult);
     console.log(geocoding.log.error.getCall(0).args[0]);
     assert.equal(
-      `ZERO_RESULTS for 11111, DE`,
-      geocoding.log.error.getCall(0).args[1].err
+      `ZERO_RESULTS for 11111, Germany`,
+      geocoding.log.error.getCall(0).args[1].error.message
+    );
+  });
+
+  it('returns empty object for error from Geocoding API', async () => {
+    const expectedResult = {};
+
+    Container.set(Client, {
+      geocode: sinon.fake.returns(noResultWithError),
+    });
+
+    const geocoding = new GoogleMapsService(log, mockConfig);
+
+    const actualResult = await geocoding.getLocationFromZip('11111', 'DE');
+    assert.deepEqual(actualResult, expectedResult);
+    console.log(geocoding.log.error.getCall(0).args[0]);
+    assert.equal(
+      `UNKNOWN_ERROR - An unknown error has occurred for 11111, Germany`,
+      geocoding.log.error.getCall(0).args[1].error.message
     );
   });
 });
