@@ -22,33 +22,19 @@
   "jest": {
     "resetMocks": false,
     "collectCoverageFrom": [
-      "src/**/*",
+      "src/**/*.{ts,tsx,js}",
       "!src/**/*.stories.*",
       "!src/**/mocks.*",
-      "!src/**/*.svg",
-      "!src/index.*",
-      "!src/components/*(ScrollToTop|UnitRowRecoveryKey|PageAvatar|App)/*",
-      "!src/lib/*(cache.ts|canvas-utils.tsx|file-utils.tsx|firefox.ts|totp.ts|gql.ts)",
-      "!src/models/*"
+      "!src/components/*(ScrollToTop|UnitRowRecoveryKey|PageAvatar|App)/*"
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 0,
-        "functions": 0,
-        "lines": 0,
-        "statements": 0
+        "branches": 50,
+        "lines": 45
       },
       "src/components/**/*": {
         "branches": 50,
-        "functions": 25,
-        "lines": 65,
-        "statements": 50
-      },
-      "src/lib/**/*": {
-        "branches": 50,
-        "functions": 90,
-        "lines": 60,
-        "statements": 60
+        "lines": 65
       }
     }
   },
