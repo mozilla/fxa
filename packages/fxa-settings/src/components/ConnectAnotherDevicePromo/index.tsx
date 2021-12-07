@@ -63,7 +63,7 @@ export function ConnectAnotherDevicePromo() {
                 StoreType.google,
                 navigatorLanguages
               )}
-              alt="Download Firefox for Android."
+              alt="Download Firefox for Android"
               className="text-xs"
             />
           </Localized>
@@ -79,7 +79,7 @@ export function ConnectAnotherDevicePromo() {
                 StoreType.apple,
                 navigatorLanguages
               )}
-              alt="Download Firefox for iOS!"
+              alt="Download Firefox for iOS"
               className="text-xs"
             />
           </Localized>
