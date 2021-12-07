@@ -8,6 +8,7 @@ const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
 const { ExtraErrorData } = require('@sentry/integrations');
 const verror = require('verror');
+const { ERRNO } = require('./error');
 
 const getVersion = require('./version').getVersion;
 
@@ -16,6 +17,13 @@ const getVersion = require('./version').getVersion;
 const TOKENREGEX = /[a-fA-F0-9]{32,}/gi;
 const FILTERED = '[Filtered]';
 const URIENCODEDFILTERED = encodeURIComponent(FILTERED);
+
+// Maintain list of errors that should not be sent to Sentry
+const IGNORED_ERROR_NUMBERS = [
+  ERRNO.BOUNCE_HARD,
+  ERRNO.BOUNCE_SOFT,
+  ERRNO.BOUNCE_COMPLAINT,
+];
 
 /**
  * Filters all of an objects string properties to remove tokens.
@@ -87,6 +95,10 @@ function reportSentryError(err, request) {
     } catch (e) {
       // ignore bad stack frames
     }
+  }
+
+  if (ignoreErrors(err)) {
+    return;
   }
 
   Sentry.withScope((scope) => {
@@ -190,6 +202,22 @@ async function configureSentry(server, config, processName = 'key_server') {
       }
     );
   }
+}
+
+/**
+ * Prevents errors from being captured in sentry.
+ *
+ * @param {Error} error An error with an error number. Note that errors of type vError will
+ *                use the underlying jse_cause error if possible.
+ */
+function ignoreErrors(error) {
+  if (!error) return;
+
+  // If the jse error exists target that.
+  error = error.jse_cause || error;
+
+  // Ingore specific error numbers
+  return IGNORED_ERROR_NUMBERS.includes(error.errno);
 }
 
 /**
