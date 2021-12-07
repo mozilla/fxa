@@ -7,8 +7,9 @@
 const { assert } = require('chai');
 const { mockLog } = require('../mocks');
 const sinon = require('sinon');
-const { getLocationFromZip } = require('../../lib/geocoding');
+const { Geocoding } = require('../../lib/geocoding');
 const { Client } = require('@googlemaps/google-maps-services-js');
+const { default: Container } = require('typedi');
 
 const geocodeResultUSZip = {
   data: {
@@ -92,10 +93,21 @@ const noResult = {
   },
 };
 
-const log = mockLog();
+const mockConfig = {
+  subscriptions: {
+    googleMapsApiKey: 'foo',
+  },
+};
 
 describe('geocoding', () => {
+  let log;
+
+  beforeEach(() => {
+    log = mockLog();
+  });
+
   afterEach(() => {
+    Container.reset();
     sinon.restore();
   });
 
@@ -107,10 +119,14 @@ describe('geocoding', () => {
       state: 'Maryland',
       stateCode: 'MD',
     };
-    const geocodeStub = sinon.stub().resolves(geocodeResultUSZip);
-    sinon.stub(Client.prototype, 'geocode').callsFake(geocodeStub);
 
-    const actualResult = await getLocationFromZip(log, '20639');
+    Container.set(Client, {
+      geocode: sinon.fake.returns(geocodeResultUSZip),
+    });
+
+    const geocoding = new Geocoding(log, mockConfig);
+
+    const actualResult = await geocoding.getLocationFromZip(log, '20639');
     assert.deepEqual(actualResult, expectedResult);
   });
 
@@ -122,19 +138,32 @@ describe('geocoding', () => {
       state: 'Saxony-Anhalt',
       stateCode: 'SA',
     };
-    const geocodeStub = sinon.stub().resolves(geocodeResultDEZip);
-    sinon.stub(Client.prototype, 'geocode').callsFake(geocodeStub);
 
-    const actualResult = await getLocationFromZip('06369', 'DE');
+    Container.set(Client, {
+      geocode: sinon.fake.returns(geocodeResultDEZip),
+    });
+
+    const geocoding = new Geocoding(log, mockConfig);
+
+    const actualResult = await geocoding.getLocationFromZip('06369', 'DE');
     assert.deepEqual(actualResult, expectedResult);
   });
 
-  it('returns null for invalid zipcode', async () => {
+  it('returns empty object for invalid zipcode', async () => {
     const expectedResult = {};
-    const geocodeStub = sinon.stub().resolves(noResult);
-    sinon.stub(Client.prototype, 'geocode').callsFake(geocodeStub);
 
-    const actualResult = await getLocationFromZip(log, '11111', 'DE');
+    Container.set(Client, {
+      geocode: sinon.fake.returns(noResult),
+    });
+
+    const geocoding = new Geocoding(log, mockConfig);
+
+    const actualResult = await geocoding.getLocationFromZip('11111', 'DE');
     assert.deepEqual(actualResult, expectedResult);
+    console.log(geocoding.log.error.getCall(0).args[0]);
+    assert.equal(
+      `ZERO_RESULTS for 11111, DE`,
+      geocoding.log.error.getCall(0).args[1].err
+    );
   });
 });
