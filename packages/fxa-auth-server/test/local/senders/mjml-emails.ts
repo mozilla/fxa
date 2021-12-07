@@ -17,11 +17,29 @@ import proxyquire from 'proxyquire';
 import { URL } from 'url';
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
+if (!config.smtp.prependVerificationSubdomain.enabled) {
+  config.smtp.prependVerificationSubdomain.enabled = true;
+}
 if (!config.smtp.sesConfigurationSet) {
   config.smtp.sesConfigurationSet = 'ses-config';
 }
 
+config.smtp.user = 'test';
+config.smtp.password = 'test';
+config.smtp.subscriptionTermsUrl = 'http://example.com/terms';
+
+// Force enable the subscription transactional emails
+config.subscriptions.transactionalEmails.enabled = true;
+
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
+
+const SUBSCRIPTION_TERMS_URL = 'https://example.com/subscription-product/terms';
+const SUBSCRIPTION_PRIVACY_URL =
+  'https://example.com/subscription-product/privacy';
+const productMetadata = {
+  'product:termsOfServiceDownloadURL': SUBSCRIPTION_TERMS_URL,
+  'product:privacyNoticeDownloadURL': SUBSCRIPTION_PRIVACY_URL,
+};
 
 const MESSAGE = {
   // Note: acceptLanguage is not just a single locale
@@ -59,8 +77,9 @@ const MESSAGE = {
   paymentAmountNewCurrency: 'gbp',
   paymentProratedInCents: 523099.9,
   paymentProratedCurrency: 'usd',
-  productId: 'wibble',
   planId: 'plan-example',
+  productId: 'wibble',
+  productMetadata,
   productName: 'Firefox Fortress',
   productNameOld: 'Product A',
   productNameNew: 'Product B',
@@ -1007,8 +1026,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
-      // commented out during template conversion - this doesn't appear to actually exist in rendered old templates but passes the test?
-      // { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -1047,6 +1065,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms') },
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -1056,7 +1075,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
 
-  ['subscriptionUpgradeEmail', new Map([
+  ['subscriptionUpgradeEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionUpgrade') }],
@@ -1065,8 +1084,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      // commented out during template conversion - this doesn't appear to actually exist in rendered old templates but passes the test?
-      // { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
       { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
@@ -1176,7 +1194,20 @@ function configUrl(
   ...params: Array<any>
 ) {
   let baseUri: string;
-  baseUri = config.smtp[key];
+  if (key === 'subscriptionTermsUrl') {
+    baseUri = SUBSCRIPTION_TERMS_URL;
+  } else if (key === 'subscriptionPrivacyUrl') {
+    baseUri = SUBSCRIPTION_PRIVACY_URL;
+  } else {
+    baseUri = config.smtp[key];
+  }
+
+  if (key === 'verificationUrl' || key === 'verifyLoginUrl') {
+    baseUri = baseUri.replace(
+      '//',
+      `//${config.smtp.prependVerificationSubdomain.subdomain}.`
+    );
+  }
 
   const out = new URL(baseUri);
 
@@ -1195,6 +1226,10 @@ function configUrl(
   ].forEach(([key, value]) => out.searchParams.append(key, value));
 
   const url = out.toString();
+  if (['subscriptionTermsUrl', 'subscriptionPrivacyUrl'].includes(key)) {
+    const parsedUrl = new URL(config.subscriptions.paymentsServer.url);
+    return `${parsedUrl.origin}/legal-docs?url=${encodeURIComponent(url)}`;
+  }
 
   return url;
 }
