@@ -10,6 +10,16 @@ import { AppContext } from '../../models';
 
 export function ConnectAnotherDevicePromo() {
   const { navigatorLanguages } = useContext(AppContext);
+  const GooglePlayBadge = getStoreImageByLanguages(
+    StoreType.google,
+    navigatorLanguages
+  );
+  const AppStoreBadge = getStoreImageByLanguages(
+    StoreType.apple,
+    navigatorLanguages
+  );
+
+  console.log('GooglePlayBadge', GooglePlayBadge);
 
   return (
     <div
@@ -58,13 +68,9 @@ export function ConnectAnotherDevicePromo() {
             id="connect-another-play-store-image"
             attrs={{ alt: true }}
           >
-            <img
-              src={getStoreImageByLanguages(
-                StoreType.google,
-                navigatorLanguages
-              )}
-              alt="Download Firefox for Android"
-              className="text-xs"
+            <AppStoreBadge
+              role="img"
+              aria-label="Download Firefox for Android"
             />
           </Localized>
         </LinkExternal>
@@ -74,14 +80,7 @@ export function ConnectAnotherDevicePromo() {
           href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926"
         >
           <Localized id="connect-another-app-store-image" attrs={{ alt: true }}>
-            <img
-              src={getStoreImageByLanguages(
-                StoreType.apple,
-                navigatorLanguages
-              )}
-              alt="Download Firefox for iOS"
-              className="text-xs"
-            />
+            <GooglePlayBadge role="img" aria-label="Download Firefox for iOS" />
           </Localized>
         </LinkExternal>
       </div>

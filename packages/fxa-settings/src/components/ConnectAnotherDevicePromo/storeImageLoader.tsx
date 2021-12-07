@@ -1,56 +1,57 @@
-import daApple from '../../assets/images/apple_app_store_button/da.svg';
-import deApple from '../../assets/images/apple_app_store_button/de.svg';
-import enApple from '../../assets/images/apple_app_store_button/en.svg';
-import esApple from '../../assets/images/apple_app_store_button/es.svg';
-import etApple from '../../assets/images/apple_app_store_button/et.svg';
-import frApple from '../../assets/images/apple_app_store_button/fr.svg';
-import heApple from '../../assets/images/apple_app_store_button/he.svg';
-import huApple from '../../assets/images/apple_app_store_button/hu.svg';
-import idApple from '../../assets/images/apple_app_store_button/id.svg';
-import itApple from '../../assets/images/apple_app_store_button/it.svg';
-import jaApple from '../../assets/images/apple_app_store_button/ja.svg';
-import koApple from '../../assets/images/apple_app_store_button/ko.svg';
-import ltApple from '../../assets/images/apple_app_store_button/lt.svg';
-import nbNOApple from '../../assets/images/apple_app_store_button/nb-NO.svg';
-import nlApple from '../../assets/images/apple_app_store_button/nl.svg';
-import plApple from '../../assets/images/apple_app_store_button/pl.svg';
-import ptBRApple from '../../assets/images/apple_app_store_button/pt-BR.svg';
-import ptApple from '../../assets/images/apple_app_store_button/pt.svg';
-import ruApple from '../../assets/images/apple_app_store_button/ru.svg';
-import skApple from '../../assets/images/apple_app_store_button/sk.svg';
-import slApple from '../../assets/images/apple_app_store_button/sl.svg';
-import svSEApple from '../../assets/images/apple_app_store_button/sv-SE.svg';
-import trApple from '../../assets/images/apple_app_store_button/tr.svg';
-import zhCNApple from '../../assets/images/apple_app_store_button/zh-CN.svg';
-import zhTWApple from '../../assets/images/apple_app_store_button/zh-TW.svg';
+import { FunctionComponent, SVGProps } from 'react';
+import { ReactComponent as daApple } from '../../assets/images/apple_app_store_button/da.svg';
+import { ReactComponent as deApple } from '../../assets/images/apple_app_store_button/de.svg';
+import { ReactComponent as enApple } from '../../assets/images/apple_app_store_button/en.svg';
+import { ReactComponent as esApple } from '../../assets/images/apple_app_store_button/es.svg';
+import { ReactComponent as etApple } from '../../assets/images/apple_app_store_button/et.svg';
+import { ReactComponent as frApple } from '../../assets/images/apple_app_store_button/fr.svg';
+import { ReactComponent as heApple } from '../../assets/images/apple_app_store_button/he.svg';
+import { ReactComponent as huApple } from '../../assets/images/apple_app_store_button/hu.svg';
+import { ReactComponent as idApple } from '../../assets/images/apple_app_store_button/id.svg';
+import { ReactComponent as itApple } from '../../assets/images/apple_app_store_button/it.svg';
+import { ReactComponent as jaApple } from '../../assets/images/apple_app_store_button/ja.svg';
+import { ReactComponent as koApple } from '../../assets/images/apple_app_store_button/ko.svg';
+import { ReactComponent as ltApple } from '../../assets/images/apple_app_store_button/lt.svg';
+import { ReactComponent as nbNOApple } from '../../assets/images/apple_app_store_button/nb-NO.svg';
+import { ReactComponent as nlApple } from '../../assets/images/apple_app_store_button/nl.svg';
+import { ReactComponent as plApple } from '../../assets/images/apple_app_store_button/pl.svg';
+import { ReactComponent as ptBRApple } from '../../assets/images/apple_app_store_button/pt-BR.svg';
+import { ReactComponent as ptApple } from '../../assets/images/apple_app_store_button/pt.svg';
+import { ReactComponent as ruApple } from '../../assets/images/apple_app_store_button/ru.svg';
+import { ReactComponent as skApple } from '../../assets/images/apple_app_store_button/sk.svg';
+import { ReactComponent as slApple } from '../../assets/images/apple_app_store_button/sl.svg';
+import { ReactComponent as svSEApple } from '../../assets/images/apple_app_store_button/sv-SE.svg';
+import { ReactComponent as trApple } from '../../assets/images/apple_app_store_button/tr.svg';
+import { ReactComponent as zhCNApple } from '../../assets/images/apple_app_store_button/zh-CN.svg';
+import { ReactComponent as zhTWApple } from '../../assets/images/apple_app_store_button/zh-TW.svg';
 
-import caGoogle from '../../assets/images/google_play_store_button/ca.svg';
-import csGoogle from '../../assets/images/google_play_store_button/cs.svg';
-import daGoogle from '../../assets/images/google_play_store_button/da.svg';
-import deGoogle from '../../assets/images/google_play_store_button/de.svg';
-import enGoogle from '../../assets/images/google_play_store_button/en.svg';
-import esGoogle from '../../assets/images/google_play_store_button/es.svg';
-import etGoogle from '../../assets/images/google_play_store_button/et.svg';
-import frGoogle from '../../assets/images/google_play_store_button/fr.svg';
-import huGoogle from '../../assets/images/google_play_store_button/hu.svg';
-import idGoogle from '../../assets/images/google_play_store_button/id.svg';
-import itGoogle from '../../assets/images/google_play_store_button/it.svg';
-import jaGoogle from '../../assets/images/google_play_store_button/ja.svg';
-import koGoogle from '../../assets/images/google_play_store_button/ko.svg';
-import ltGoogle from '../../assets/images/google_play_store_button/lt.svg';
-import nbNOGoogle from '../../assets/images/google_play_store_button/nb-NO.svg';
-import nlGoogle from '../../assets/images/google_play_store_button/nl.svg';
-import plGoogle from '../../assets/images/google_play_store_button/pl.svg';
-import ptBRGoogle from '../../assets/images/google_play_store_button/pt-BR.svg';
-import ptGoogle from '../../assets/images/google_play_store_button/pt.svg';
-import ruGoogle from '../../assets/images/google_play_store_button/ru.svg';
-import skGoogle from '../../assets/images/google_play_store_button/sk.svg';
-import slGoogle from '../../assets/images/google_play_store_button/sl.svg';
-import svGoogle from '../../assets/images/google_play_store_button/sv.svg';
-import trGoogle from '../../assets/images/google_play_store_button/tr.svg';
-import ukGoogle from '../../assets/images/google_play_store_button/uk.svg';
-import zhCNGoogle from '../../assets/images/google_play_store_button/zh-CN.svg';
-import zhTWGoogle from '../../assets/images/google_play_store_button/zh-TW.svg';
+import { ReactComponent as caGoogle } from '../../assets/images/google_play_store_button/ca.svg';
+import { ReactComponent as csGoogle } from '../../assets/images/google_play_store_button/cs.svg';
+import { ReactComponent as daGoogle } from '../../assets/images/google_play_store_button/da.svg';
+import { ReactComponent as deGoogle } from '../../assets/images/google_play_store_button/de.svg';
+import { ReactComponent as enGoogle } from '../../assets/images/google_play_store_button/en.svg';
+import { ReactComponent as esGoogle } from '../../assets/images/google_play_store_button/es.svg';
+import { ReactComponent as etGoogle } from '../../assets/images/google_play_store_button/et.svg';
+import { ReactComponent as frGoogle } from '../../assets/images/google_play_store_button/fr.svg';
+import { ReactComponent as huGoogle } from '../../assets/images/google_play_store_button/hu.svg';
+import { ReactComponent as idGoogle } from '../../assets/images/google_play_store_button/id.svg';
+import { ReactComponent as itGoogle } from '../../assets/images/google_play_store_button/it.svg';
+import { ReactComponent as jaGoogle } from '../../assets/images/google_play_store_button/ja.svg';
+import { ReactComponent as koGoogle } from '../../assets/images/google_play_store_button/ko.svg';
+import { ReactComponent as ltGoogle } from '../../assets/images/google_play_store_button/lt.svg';
+import { ReactComponent as nbNOGoogle } from '../../assets/images/google_play_store_button/nb-NO.svg';
+import { ReactComponent as nlGoogle } from '../../assets/images/google_play_store_button/nl.svg';
+import { ReactComponent as plGoogle } from '../../assets/images/google_play_store_button/pl.svg';
+import { ReactComponent as ptBRGoogle } from '../../assets/images/google_play_store_button/pt-BR.svg';
+import { ReactComponent as ptGoogle } from '../../assets/images/google_play_store_button/pt.svg';
+import { ReactComponent as ruGoogle } from '../../assets/images/google_play_store_button/ru.svg';
+import { ReactComponent as skGoogle } from '../../assets/images/google_play_store_button/sk.svg';
+import { ReactComponent as slGoogle } from '../../assets/images/google_play_store_button/sl.svg';
+import { ReactComponent as svGoogle } from '../../assets/images/google_play_store_button/sv.svg';
+import { ReactComponent as trGoogle } from '../../assets/images/google_play_store_button/tr.svg';
+import { ReactComponent as ukGoogle } from '../../assets/images/google_play_store_button/uk.svg';
+import { ReactComponent as zhCNGoogle } from '../../assets/images/google_play_store_button/zh-CN.svg';
+import { ReactComponent as zhTWGoogle } from '../../assets/images/google_play_store_button/zh-TW.svg';
 
 export enum StoreType {
   apple,
@@ -126,7 +127,11 @@ function hasKey<O>(obj: O, key: PropertyKey): key is keyof O {
 export function getStoreImageByLanguages(
   store: StoreType,
   userLanguages: readonly string[] = ['en']
-) {
+): FunctionComponent<
+  SVGProps<SVGSVGElement> & {
+    title?: string | undefined;
+  }
+> {
   // Iterate through available languages until logo is found, otherwise default to 'en'
   for (let i = 0; i < userLanguages.length; i += 1) {
     // If language string includes region, eg. zh-TW, check if an image is available.
@@ -135,8 +140,8 @@ export function getStoreImageByLanguages(
       dashLocation && hasKey(storeImages[store], userLanguages[i])
         ? userLanguages[i]
         : userLanguages[i].slice(0, dashLocation);
-
     if (hasKey(storeImages[store], language)) {
+      // TODO: seems like this can be undefined?
       return storeImages[store][language];
     }
   }
