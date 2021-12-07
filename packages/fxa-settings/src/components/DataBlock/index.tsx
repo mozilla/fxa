@@ -51,7 +51,7 @@ export const DataBlock = ({
           valueIsArray ? 'py-4' : 'py-5'
         }`}
         data-testid={dataTestId}
-        {...{onCopy}}
+        {...{ onCopy }}
       >
         {valueIsArray ? (
           (value as string[]).map((item) => (
