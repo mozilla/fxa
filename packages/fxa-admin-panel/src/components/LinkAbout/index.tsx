@@ -4,18 +4,18 @@
 
 import React from 'react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import './index.scss';
+import iconExternalLink from '../../images/icon-external-link.svg';
 
 export const LinkAbout = () => (
   <LinkExternal
-    className="about-link inline-flex align-self-center"
+    className="inline-flex align-self-center font-semibold text-white text-shadow-md hover:opacity-75 focus:opacity-75"
     href="https://github.com/mozilla/fxa/blob/main/packages/fxa-admin-panel/README.md"
   >
-    <span>About</span>{' '}
+    <span className="pr-2">About</span>{' '}
     <img
-      className="inline-flex icon"
-      src={require('../../images/icon-external-link.svg')}
-      alt="external link"
+      className="inline-flex w-5 h-auto"
+      src={iconExternalLink}
+      alt="external icon"
     />
   </LinkExternal>
 );

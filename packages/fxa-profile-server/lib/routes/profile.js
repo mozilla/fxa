@@ -71,6 +71,7 @@ module.exports = {
       amrValues: Joi.array().items(Joi.string().required()).allow(null),
       twoFactorAuthentication: Joi.boolean().allow(null),
       subscriptions: Joi.array().items(Joi.string().required()).optional(),
+      metricsEnabled: Joi.boolean().optional(),
 
       //openid-connect
       sub: Joi.string().allow(null),

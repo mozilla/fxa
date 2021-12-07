@@ -5,8 +5,8 @@
 import React, { useState } from 'react';
 import { useLazyQuery, gql } from '@apollo/client';
 import Account from './Account';
-import './index.scss';
 import { Account as AccountType } from 'fxa-admin-server/src/graphql';
+import iconSearch from '../../images/icon-search.svg';
 
 export const GET_ACCOUNT_BY_EMAIL = gql`
   query getAccountByEmail($email: String!) {
@@ -183,16 +183,19 @@ export const AccountSearch = () => {
   };
 
   const renderSuggestions = () => {
-    if (filteredList.length === 0 || searchInput.length < 5) {
-      return null;
-    }
-    return (
-      <ul>
-        {filteredList.map((item) => (
-          <li onClick={() => suggestionSelected(item)}>{item}</li>
-        ))}
-      </ul>
-    );
+    return filteredList.map((item) => (
+      <a
+        key={item}
+        className="p-2 border-b border-grey-100 block hover:bg-grey-10 focus:bg-grey-10"
+        href="#suggestion"
+        onClick={(e: any) => {
+          e.preventDefault();
+          suggestionSelected(item);
+        }}
+      >
+        {item}
+      </a>
+    ));
   };
 
   const suggestionSelected = (value: string) => {
@@ -201,14 +204,15 @@ export const AccountSearch = () => {
   };
 
   return (
-    <div className="account-search" data-testid="account-search">
-      <h2>Account Search</h2>
-      <p>
+    <div className="text-grey-600" data-testid="account-search">
+      <h2 className="text-lg font-semibold mb-2">Account Search</h2>
+
+      <p className="mb-1">
         Search for a Firefox user account by email or UID and view its details,
         including: secondary emails, email bounces, time-based one-time
         passwords, recovery keys, and current session.
       </p>
-      <p>
+      <p className="mb-1">
         Email addresses are blocked from the FxA email sender when an email sent
         to the address has bounced. Remove an email address from the blocked
         list by first searching for an account by email. Brief account
@@ -216,40 +220,61 @@ export const AccountSearch = () => {
         account. Delete the block on the email by deleting the bounced email
         data.
       </p>
-      <form onSubmit={handleSubmit} data-testid="search-form" className="flex">
-        <label htmlFor="email">Email or UID to search for:</label>
-        <br />
-        <input
-          autoComplete="off"
-          value={searchInput}
-          autoFocus
-          name="email"
-          type="search"
-          onChange={handleChange}
-          placeholder="hello@world.com or UID"
-          data-testid="email-input"
-        />
-        <div className="suggestions-list">{renderSuggestions()}</div>
-        <button
-          className="account-search-search-button"
-          title="search"
-          data-testid="search-button"
-        ></button>
+
+      <form
+        onSubmit={handleSubmit}
+        data-testid="search-form"
+        className="mt-5 relative"
+      >
+        <label
+          htmlFor="email"
+          className="block uppercase text-sm text-grey-500"
+        >
+          Email or UID to search for:
+        </label>
+
+        <div className="flex max-w-lg mt-2 relative">
+          <input
+            autoComplete="off"
+            value={searchInput}
+            autoFocus
+            name="email"
+            id="email"
+            type="search"
+            onChange={handleChange}
+            placeholder="Email or UID"
+            data-testid="email-input"
+            className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500"
+          />
+          <button
+            className="bg-grey-100 px-3 rounded-r flex flex-row items-center"
+            title="search"
+            data-testid="search-button"
+          >
+            <img
+              className="inline-flex w-4 h-auto"
+              src={iconSearch}
+              alt="search icon"
+            />
+          </button>
+          {showSuggestion && filteredList.length > 0 && (
+            <div className="suggestions-list absolute top-full w-full bg-white border border-grey-100 mt-3 shadow-sm rounded overflow-hidden">
+              {renderSuggestions()}
+            </div>
+          )}
+        </div>
       </form>
 
       {showResult && queryResults.refetch ? (
-        <>
-          <hr />
-          <AccountSearchResult
-            onCleared={queryResults.refetch}
-            {...{
-              loading: queryResults.loading,
-              error: queryResults.error,
-              data: queryResults.data,
-              query: searchInput,
-            }}
-          />
-        </>
+        <AccountSearchResult
+          onCleared={queryResults.refetch}
+          {...{
+            loading: queryResults.loading,
+            error: queryResults.error,
+            data: queryResults.data,
+            query: searchInput,
+          }}
+        />
       ) : null}
     </div>
   );

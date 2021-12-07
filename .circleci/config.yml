@@ -24,21 +24,17 @@ executors:
 
 commands:
   base-install:
-    parameters:
-      package:
-        type: string
-        default: none
     steps:
       - checkout
       - restore_cache:
           keys:
             # prefer the exact hash
-            - fxa-yarn-cache-3-{{ checksum "yarn.lock" }}
+            - fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
             # any cache to start with is better than nothing
-            - fxa-yarn-cache-3-
-      - run: ./.circleci/base-install.sh << parameters.package >>
+            - fxa-yarn-cache-4-
+      - run: ./.circleci/base-install.sh
       - save_cache:
-          key: fxa-yarn-cache-3-{{ checksum "yarn.lock" }}
+          key: fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
           paths:
             - .yarn/cache
             - .yarn/build-state.yml
@@ -56,8 +52,7 @@ commands:
           version: 78.9.0esr
       - browser-tools/install-geckodriver:
           version: v0.29.1
-      - base-install:
-          package: fxa-content-server
+      - base-install
       - run:
           name: Running test section << parameters.index >> of << parameters.total >>
           environment:
@@ -79,8 +74,7 @@ commands:
           version: 78.9.0esr
       - browser-tools/install-geckodriver:
           version: v0.29.1
-      - base-install:
-          package: fxa-settings
+      - base-install
       - run:
           name: Running test...
           command: ./.circleci/test-package.sh fxa-settings
@@ -111,8 +105,7 @@ jobs:
       package:
         type: string
     steps:
-      - base-install:
-          package: << parameters.package >>
+      - base-install
       - run:
           name: Testing << parameters.package >>
           command: ./.circleci/test-package.sh << parameters.package >>
@@ -131,8 +124,7 @@ jobs:
       - image: memcached
       - image: redis
     steps:
-      - base-install:
-          package: many
+      - base-install
       - run:
           name: Testing...
           command: |
@@ -214,8 +206,7 @@ jobs:
           - MYSQL_ROOT_PASSWORD: ''
       - image: redis
     steps:
-      - base-install:
-          package: fxa-email-service
+      - base-install
       - run: cargo install cargo-audit
       - run: ./packages/fxa-email-service/scripts/test-ci.sh
       - store_artifacts:
@@ -248,8 +239,7 @@ jobs:
       # using the old image until we know why the orb is broken with manual jobs
       - image: mozilla/fxa-circleci
     steps:
-      - base-install:
-          package: fxa-content-server
+      - base-install
       - run:
           name: Running test section against a remote target
           command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
@@ -263,23 +253,9 @@ jobs:
   production-smoke-tests:
     resource_class: medium+
     docker:
-      - image: mcr.microsoft.com/playwright:focal
+      - image: mcr.microsoft.com/playwright:v1.17.1-focal
     steps:
-      - checkout
-      # use a separate cache until this is on main
-      - restore_cache:
-          keys:
-            # prefer the exact hash
-            - fxa-yarn-cache-pw-{{ checksum "yarn.lock" }}
-            # any cache to start with is better than nothing
-            - fxa-yarn-cache-pw-
-      - run: ./.circleci/base-install.sh
-      - save_cache:
-          key: fxa-yarn-cache-pw-{{ checksum "yarn.lock" }}
-          paths:
-            - .yarn/cache
-            - .yarn/build-state.yml
-            - .yarn/install-state.gz
+      - base-install
       - run:
           name: Running smoke tests
           command: yarn workspace functional-tests test-production
@@ -289,9 +265,9 @@ jobs:
           path: artifacts/tests
 
   playwright-functional-tests:
-    resource_class: medium+
+    resource_class: large
     docker:
-      - image: mcr.microsoft.com/playwright:focal
+      - image: mcr.microsoft.com/playwright:v1.17.1-focal
       - image: redis
       - image: memcached
       - image: circleci/mysql:5.7.31
@@ -300,24 +276,13 @@ jobs:
     steps:
       # needed by check-mysql.sh
       - run: apt-get update && apt-get install -y netcat
-      - checkout
-      # use a separate cache until this is on main
-      - restore_cache:
-          keys:
-            # prefer the exact hash
-            - fxa-yarn-cache-pw-{{ checksum "yarn.lock" }}
-            # any cache to start with is better than nothing
-            - fxa-yarn-cache-pw-
-      - run: ./.circleci/base-install.sh
-      - save_cache:
-          key: fxa-yarn-cache-pw-{{ checksum "yarn.lock" }}
-          paths:
-            - .yarn/cache
-            - .yarn/build-state.yml
-            - .yarn/install-state.gz
+      - base-install
       - run:
           name: Running playwright tests
           command: ./packages/functional-tests/scripts/test-ci.sh
+      - store_artifacts:
+          path: ~/.pm2/logs
+          destination: logs
       - store_artifacts:
           path: artifacts
       - store_test_results:
@@ -328,8 +293,7 @@ jobs:
     docker:
       - image: cimg/node:14.18
     steps:
-      - base-install:
-          package: many
+      - base-install
       - run:
           name: Build and deploy Storybooks
           command: npx github:mozilla-fxa/storybook-gcp-publisher

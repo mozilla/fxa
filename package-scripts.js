@@ -5,7 +5,7 @@ module.exports = {
       default: `_dev/pm2/start.sh && _scripts/pm2-all.sh start && pm2 restart sync && echo "Use 'yarn stop' to stop all the servers"`,
       infrastructure: `_dev/pm2/start.sh`,
       services: `_scripts/pm2-all.sh start`,
-      firefox: './packages/fxa-dev-launcher/bin/fxa-dev-launcher &',
+      firefox: './packages/fxa-dev-launcher/bin/fxa-dev-launcher.mjs &',
     },
     stop: {
       default: 'pm2 kill',

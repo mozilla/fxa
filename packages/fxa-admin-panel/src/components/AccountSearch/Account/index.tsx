@@ -5,7 +5,6 @@
 import React from 'react';
 import dateFormat from 'dateformat';
 import { gql, useMutation } from '@apollo/client';
-import './index.scss';
 import {
   Account as AccountType,
   EmailBounce as EmailBounceType,
@@ -15,14 +14,6 @@ import {
   RecoveryKeys as RecoveryKeysType,
   SessionTokens as SessionTokensType,
 } from 'fxa-admin-server/src/graphql';
-
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 
 export type AccountProps = AccountType & {
   onCleared: Function;
@@ -37,6 +28,14 @@ type DangerZoneProps = {
 };
 
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
+
+const styleClasses = {
+  enabledOrVerified: 'font-semibold text-green-900',
+  notEnabledOrVerified: 'font-semibold text-red-600',
+  borderInfoDisplay: 'border-l-2 border-grey-500 mb-8 pl-4',
+  li: 'list-none pl-0',
+  result: 'font-medium text-violet-900',
+};
 
 export const CLEAR_BOUNCES_BY_EMAIL = gql`
   mutation clearBouncesByEmail($email: String!) {
@@ -72,7 +71,11 @@ export const ClearButton = ({
   };
 
   return (
-    <button data-testid="clear-button" className="delete" onClick={handleClear}>
+    <button
+      data-testid="clear-button"
+      className="bg-red-600 border-0 rounded-md text-base mt-3 mx-0 mb-6 px-4 py-3 text-white transition duration-200 hover:bg-red-700"
+      onClick={handleClear}
+    >
       Clear all bounces
     </button>
   );
@@ -135,18 +138,19 @@ export const DangerZone = ({
   if (unverifyLoading) unverifyMessage = loadingMessage;
 
   return (
-    <li>
-      <h3 className="danger-zone-title">Danger Zone</h3>
-      <p>
+    <>
+      <h3 className="mt-0 my-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-1 pt-1 rounded-sm text-lg text-white">
+        Danger Zone
+      </h3>
+      <p className="text-base leading-6 mb-4">
         Please run these commands with caution — some actions are irreversible.
       </p>
-      <br />
-      <h2>Email Verification</h2>
-      <p className="danger-zone-info">
+      <h2 className="text-lg">Email Verification</h2>
+      <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
         Reset email verification. User needs to re-verify on next login.
         <br />
         <button
-          className="danger-zone-button"
+          className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
           type="button"
           onClick={handleUnverify}
         >
@@ -155,8 +159,8 @@ export const DangerZone = ({
         <br />
         {unverifyMessage}
       </p>
-      <h2>Disable Login</h2>
-      <p className="danger-zone-info">
+      <h2 className="text-lg">Disable Login</h2>
+      <p className="text-base leading-6 border-l-2 border-red-600 mb-4 pl-4">
         Stops this account from logging in.
         <br />
         {disabledAt ? (
@@ -165,7 +169,7 @@ export const DangerZone = ({
           </div>
         ) : (
           <button
-            className="danger-zone-button"
+            className="bg-grey-10 border-2 border-grey-100 font-medium h-12 leading-6 mt-4 mr-4 rounded text-red-700 w-40 hover:border-2 hover:border-grey-10 hover:bg-grey-50 hover:text-red-700"
             type="button"
             onClick={handleDisable}
           >
@@ -173,7 +177,7 @@ export const DangerZone = ({
           </button>
         )}
       </p>
-    </li>
+    </>
   );
 };
 
@@ -195,32 +199,36 @@ export const Account = ({
   const secondaryEmails = emails!.filter((email) => !email.isPrimary);
 
   return (
-    <section className="account" data-testid="account-section">
+    <section className="mt-8" data-testid="account-section">
       <ul>
-        <li className="flex justify-space-between">
-          <h3 data-testid="email-label">
+        <li className={`${styleClasses.li} flex justify-between`}>
+          <h3 data-testid="email-label" className="mt-0 my-0 mb-1 text-lg">
             <span
-              className={`${query === primaryEmail.email ? 'highlight' : ''}`}
+              className={
+                query === primaryEmail.email ? 'bg-yellow-100' : undefined
+              }
             >
               {primaryEmail.email}
             </span>
           </h3>
           <span
             data-testid="verified-status"
-            className={`${
-              primaryEmail.isVerified ? 'verified' : 'not-verified'
-            }`}
+            className={
+              primaryEmail.isVerified
+                ? styleClasses.enabledOrVerified
+                : styleClasses.notEnabledOrVerified
+            }
           >
             {primaryEmail.isVerified ? 'verified' : 'not verified'}
           </span>
         </li>
-        <li className="flex justify-space-between">
+        <li className={styleClasses.li}>
           <div data-testid="uid-label">
-            uid: <span className="result">{uid}</span>
+            uid: <span className={styleClasses.result}>{uid}</span>
           </div>
-          <div className="created-at">
+          <div className="text-right">
             created at:{' '}
-            <span className="result" data-testid="createdat-label">
+            <span className={styleClasses.result} data-testid="createdat-label">
               {createdAt}
             </span>
             <br />
@@ -228,31 +236,34 @@ export const Account = ({
             <br />
           </div>
         </li>
-        <li></li>
 
-        <li>
-          <h3>Secondary Emails</h3>
+        <li className={styleClasses.li}>
+          <h3 className="mt-0 my-0 mb-1 text-lg">Secondary Emails</h3>
         </li>
         {secondaryEmails.length > 0 ? (
           <li
-            className="secondary-emails gradient-info-display"
+            className={`{styleClasses.borderInfoDisplay} ${styleClasses.li} mb-5`}
             data-testid="secondary-section"
           >
             <ul>
               {secondaryEmails.map((secondaryEmail) => (
-                <li key={secondaryEmail.createdAt}>
+                <li key={secondaryEmail.createdAt} className={styleClasses.li}>
                   <span
                     data-testid="secondary-email"
-                    className={`${
-                      query === secondaryEmail.email ? 'highlight' : ''
-                    }`}
+                    className={
+                      query === secondaryEmail.email
+                        ? 'bg-yellow-100'
+                        : undefined
+                    }
                   >
                     {secondaryEmail.email}
                   </span>
                   <span
                     data-testid="secondary-verified"
-                    className={`verification ${
-                      secondaryEmail.isVerified ? 'verified' : 'not-verified'
+                    className={`ml-3 text-base ${
+                      secondaryEmail.isVerified
+                        ? styleClasses.enabledOrVerified
+                        : styleClasses.notEnabledOrVerified
                     }`}
                   >
                     {secondaryEmail.isVerified ? 'verified' : 'not verified'}
@@ -262,15 +273,15 @@ export const Account = ({
             </ul>
           </li>
         ) : (
-          <li data-testid="" className="gradient-info-display">
+          <li
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
+          >
             This account doesn't have any secondary emails.
           </li>
         )}
-        <li></li>
-        <br />
 
-        <li>
-          <h3>Email bounces</h3>
+        <li className={styleClasses.li}>
+          <h3 className="mt-0 my-0 mb-1 text-lg">Email bounces</h3>
         </li>
         {emailBounces && emailBounces.length > 0 ? (
           <>
@@ -285,15 +296,18 @@ export const Account = ({
             ))}
           </>
         ) : (
-          <li data-testid="no-bounces-message" className="email-bounce">
+          <li
+            data-testid="no-bounces-message"
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
+          >
             This account doesn't have any bounced emails.
           </li>
         )}
-        <li></li>
-        <br />
 
-        <li>
-          <h3>TOTP (Time-Based One-Time Passwords)</h3>
+        <li className={styleClasses.li}>
+          <h3 className="mt-0 my-0 mb-1 text-lg">
+            TOTP (Time-Based One-Time Passwords)
+          </h3>
         </li>
         {totp && totp.length > 0 ? (
           <>
@@ -302,15 +316,15 @@ export const Account = ({
             ))}
           </>
         ) : (
-          <li data-testid="" className="gradient-info-display">
+          <li
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
+          >
             This account doesn't have TOTP enabled.
           </li>
         )}
-        <li></li>
-        <br />
 
-        <li>
-          <h3>Recovery Key</h3>
+        <li className={styleClasses.li}>
+          <h3 className="mt-0 my-0 mb-1 text-lg">Recovery Key</h3>
         </li>
         {recoveryKeys && recoveryKeys.length > 0 ? (
           <>
@@ -322,15 +336,15 @@ export const Account = ({
             ))}
           </>
         ) : (
-          <li data-testid="" className="gradient-info-display">
+          <li
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
+          >
             This account doesn't have a recovery key enabled.
           </li>
         )}
-        <li></li>
-        <br />
 
-        <li>
-          <h3>Current Session</h3>
+        <li className={styleClasses.li}>
+          <h3 className="mt-0 my-0 mb-1 text-lg">Current Session</h3>
         </li>
         {sessionTokens && sessionTokens.length > 0 ? (
           <>
@@ -342,67 +356,59 @@ export const Account = ({
             ))}
           </>
         ) : (
-          <li data-testid="" className="gradient-info-display">
+          <li
+            className={`${styleClasses.borderInfoDisplay} ${styleClasses.li}`}
+          >
             This account is not currently signed in.
           </li>
         )}
-        <li></li>
-        <br />
-        <hr />
-        <li>
-          <h4>Account History</h4>
-          <div className="account-history-info">
-            {securityEvents && securityEvents.length > 0 ? (
-              <>
-                <TableContainer component={Paper}>
-                  <Table
-                    className="account-history-table"
-                    aria-label="simple table"
-                  >
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Event</TableCell>
-                        <TableCell>Timestamp</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {securityEvents.map(
-                        (securityEvents: SecurityEventsType) => (
-                          <TableRow>
-                            <TableCell>{securityEvents.name}</TableCell>
-                            <TableCell>
-                              {dateFormat(
-                                new Date(securityEvents.createdAt!),
-                                DATE_FORMAT
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        )
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </>
-            ) : (
-              <div
-                data-testid="acccount-security-events"
-                className="security-events"
-              >
-                No account history to display.
-              </div>
-            )}
-          </div>
-        </li>
-        <hr />
-        <DangerZone
-          {...{
-            uid,
-            disabledAt: disabledAt!,
-            email: primaryEmail, // only the primary for now
-            onCleared: onCleared,
-          }}
-        />
       </ul>
+      <hr className="border-grey-50 mb-4" />
+      <h3 className="mt-0 my-0 mb-1 text-lg">Account History</h3>
+      <div className={styleClasses.borderInfoDisplay}>
+        {securityEvents && securityEvents.length > 0 ? (
+          <>
+            <table className="pt-1" aria-label="simple table">
+              <thead>
+                <tr>
+                  <th className="text-left">Event</th>
+                  <th className="text-left">Timestamp</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {securityEvents.map((securityEvents: SecurityEventsType) => (
+                  <tr key={securityEvents.createdAt}>
+                    <td className="pr-4">{securityEvents.name}</td>
+                    <td>
+                      {dateFormat(
+                        new Date(securityEvents.createdAt!),
+                        DATE_FORMAT
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        ) : (
+          <div
+            data-testid="acccount-security-events"
+            className="security-events"
+          >
+            No account history to display.
+          </div>
+        )}
+      </div>
+      <hr className="border-grey-50 mb-4" />
+      <DangerZone
+        {...{
+          uid,
+          disabledAt: disabledAt!,
+          email: primaryEmail, // only the primary for now
+          onCleared: onCleared,
+        }}
+      />
     </section>
   );
 };
@@ -415,19 +421,21 @@ const EmailBounce = ({
 }: EmailBounceType) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
-    <li data-testid="bounce-group">
-      <ul className="gradient-info-display">
-        <li>
-          email: <span className="result">{email}</span>
+    <li data-testid="bounce-group" className={styleClasses.li}>
+      <ul className={styleClasses.borderInfoDisplay}>
+        <li className={styleClasses.li}>
+          email: <span className={styleClasses.result}>{email}</span>
         </li>
-        <li>
-          created at: <span className="result">{createdAt}</span> ({date})
+        <li className={styleClasses.li}>
+          created at: <span className={styleClasses.result}>{createdAt}</span> (
+          {date})
         </li>
-        <li>
-          bounce type: <span className="result">{bounceType}</span>
+        <li className={styleClasses.li}>
+          bounce type: <span className={styleClasses.result}>{bounceType}</span>
         </li>
-        <li>
-          bounce subtype: <span className="result">{bounceSubType}</span>
+        <li className={styleClasses.li}>
+          bounce subtype:{' '}
+          <span className={styleClasses.result}>{bounceSubType}</span>
         </li>
       </ul>
     </li>
@@ -437,28 +445,36 @@ const EmailBounce = ({
 const TotpEnabled = ({ verified, createdAt, enabled }: TotpType) => {
   const totpDate = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
-    <li data-testid="">
-      <ul className="gradient-info-display">
-        <li>
+    <li className={styleClasses.li}>
+      <ul className={styleClasses.borderInfoDisplay}>
+        <li className={styleClasses.li}>
           TOTP Created At:{' '}
-          <span data-testid="totp-created-at" className="result">
+          <span data-testid="totp-created-at" className={styleClasses.result}>
             {totpDate}
           </span>
         </li>
-        <li>
+        <li className={styleClasses.li}>
           TOTP Verified:{' '}
           <span
             data-testid="totp-verified"
-            className={`verification ${verified ? 'verified' : 'not-verified'}`}
+            className={`ml-3 text-base ${
+              verified
+                ? styleClasses.enabledOrVerified
+                : styleClasses.notEnabledOrVerified
+            }`}
           >
             {verified ? 'verified' : 'not verified'}
           </span>
         </li>
-        <li>
+        <li className={styleClasses.li}>
           TOTP Enabled:{' '}
           <span
             data-testid="totp-enabled"
-            className={`verification ${enabled ? 'enabled' : 'not-enabled'}`}
+            className={`ml-3 text-base ${
+              enabled
+                ? styleClasses.enabledOrVerified
+                : styleClasses.notEnabledOrVerified
+            }`}
           >
             {enabled ? 'enabled' : 'not-enabled'}
           </span>
@@ -475,30 +491,39 @@ const RecoveryKeys = ({ verifiedAt, createdAt, enabled }: RecoveryKeysType) => {
     DATE_FORMAT
   );
   return (
-    <li data-testid="">
-      <ul className="gradient-info-display">
-        <li>
+    <li className={styleClasses.li}>
+      <ul className={styleClasses.borderInfoDisplay}>
+        <li className={styleClasses.li}>
           Recovery Key Created At:{' '}
-          <span data-testid="recovery-keys-created-at" className="result">
+          <span
+            data-testid="recovery-keys-created-at"
+            className={styleClasses.result}
+          >
             {recoveryKeyCreatedDate}
           </span>
         </li>
-        <li>
+        <li className={styleClasses.li}>
           Recovery Key Verified At:{' '}
           <span
             data-testid="recovery-keys-verified"
-            className={`verification ${
-              verifiedAt ? 'verified' : 'not-verified'
+            className={`ml-3 text-base ${
+              verifiedAt
+                ? styleClasses.enabledOrVerified
+                : styleClasses.notEnabledOrVerified
             }`}
           >
             {verifiedAt ? recoveryKeyVerifiedDate : 'not verified'}
           </span>
         </li>
-        <li>
+        <li className={styleClasses.li}>
           Recovery Key Enabled:{' '}
           <span
             data-testid="recovery-keys-enabled"
-            className={`verification ${enabled ? 'enabled' : 'not-enabled'}`}
+            className={`ml-3 text-base ${
+              enabled
+                ? styleClasses.enabledOrVerified
+                : styleClasses.notEnabledOrVerified
+            }`}
           >
             {enabled ? 'enabled' : 'not-enabled'}
           </span>
@@ -518,35 +543,50 @@ const SessionTokens = ({
   lastAccessTime,
 }: SessionTokensType) => {
   return (
-    <li data-testid="">
-      <ul className="gradient-info-display">
-        <li>
+    <li className={styleClasses.li}>
+      <ul className={styleClasses.borderInfoDisplay}>
+        <li className={styleClasses.li}>
           Created At:{' '}
-          <span data-testid="session-token-created-at" className="result">
+          <span
+            data-testid="session-token-created-at"
+            className={styleClasses.result}
+          >
             {dateFormat(new Date(createdAt!), DATE_FORMAT)}
           </span>
         </li>
-        <li>
+        <li className={styleClasses.li}>
           Last Used:{' '}
-          <span data-testid="session-token-accessed-at" className="result">
+          <span
+            data-testid="session-token-accessed-at"
+            className={styleClasses.result}
+          >
             {dateFormat(new Date(lastAccessTime!), DATE_FORMAT)}
           </span>
         </li>
-        <li>
+        <li className={styleClasses.li}>
           Browser:{' '}
-          <span data-testid="session-token-browser" className="result">
+          <span
+            data-testid="session-token-browser"
+            className={styleClasses.result}
+          >
             {uaBrowser} {uaBrowserVersion}
           </span>
         </li>
-        <li>
+        <li className={styleClasses.li}>
           Operating System:{' '}
-          <span data-testid="session-token-operating-system" className="result">
+          <span
+            data-testid="session-token-operating-system"
+            className={styleClasses.result}
+          >
             {uaOS} {uaOSVersion}
           </span>
         </li>
-        <li>
+        <li className={styleClasses.li}>
           Device:{' '}
-          <span data-testid="session-token-device" className="result">
+          <span
+            data-testid="session-token-device"
+            className={styleClasses.result}
+          >
             {uaDeviceType}
           </span>
         </li>
