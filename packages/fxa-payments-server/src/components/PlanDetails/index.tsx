@@ -14,6 +14,7 @@ import ffLogo from '../../images/firefox-logo.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
+import { checkoutContext } from '../../routes/Checkout';
 
 type PlanDetailsProps = {
   selectedPlan: Plan;
@@ -37,19 +38,18 @@ export const PlanDetails = ({
     selectedPlan,
     navigatorLanguages
   );
-
   const role = isMobile ? undefined : 'complementary';
-
   const setWebIconBackground = webIconBackground
     ? { background: webIconBackground }
     : '';
-
   const planPrice = formatPlanPricing(
     amount,
     currency,
     interval,
     interval_count
   );
+
+  const { coupon } = useContext(checkoutContext);
 
   return (
     <section
@@ -109,6 +109,27 @@ export const PlanDetails = ({
                 className="plan-details-total"
                 aria-labelledby="plan-details-product"
               >
+                {coupon ? (
+                  <div>
+                    <div className="plan-details-total-inner">
+                      <div className="label">List Pirce</div>
+                      <div className="total-price">
+                        <Localized
+                          id={`plan-price-${interval}`}
+                          attrs={{ title: true }}
+                          vars={{
+                            amount: getLocalizedCurrency(amount, currency),
+                            intervalCount: interval_count,
+                          }}
+                        ></Localized>
+                      </div>
+                    </div>
+                    <div className="plan-details-total-inner">
+                      <div className="label">Discount</div>
+                      <div className="total-price">-${coupon.amount}</div>
+                    </div>
+                  </div>
+                ) : null}
                 <div className="plan-details-total-inner">
                   <Localized id="plan-details-total-label">
                     <p className="label">Total</p>
@@ -117,7 +138,12 @@ export const PlanDetails = ({
                     id={`plan-price-${interval}`}
                     attrs={{ title: true }}
                     vars={{
-                      amount: getLocalizedCurrency(amount, currency),
+                      amount: coupon
+                        ? getLocalizedCurrency(
+                            amount - coupon.amount * 100,
+                            currency
+                          )
+                        : getLocalizedCurrency(amount, currency),
                       intervalCount: interval_count,
                     }}
                   >

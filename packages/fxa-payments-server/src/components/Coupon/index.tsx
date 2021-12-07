@@ -9,6 +9,7 @@ import { AppContext } from '../../lib/AppContext';
 import './index.scss';
 import { Form, Input, OnValidateFunction, SubmitButton } from '../fields';
 import useValidatorState from '../../lib/validator';
+import { checkoutContext } from '../../routes/Checkout';
 
 type CouponProps = {
   isMobile: boolean;
@@ -23,17 +24,20 @@ export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
     initialState: undefined,
   });
 
+  const { setCoupon } = useContext(checkoutContext);
+
   const onSubmit: FormEventHandler = (event: any) => {
     event.preventDefault();
-    debugger;
     event.stopPropagation();
     setHasCoupon(true);
+    setCoupon({ amount: 2 });
   };
 
   const removeCoupon: MouseEventHandler<HTMLButtonElement> = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
     setHasCoupon(false);
+    setCoupon(0);
   };
 
   return (

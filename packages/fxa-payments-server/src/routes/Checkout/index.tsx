@@ -95,6 +95,11 @@ export type CheckoutProps = {
   paypalButtonBase?: React.FC<ButtonBaseProps>;
 };
 
+export const checkoutContext = React.createContext({
+  coupon: { amount: 0 },
+  setCoupon: () => {},
+});
+
 export const Checkout = ({
   match: {
     params: { productId },
@@ -127,6 +132,7 @@ export const Checkout = ({
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
   const [newsletterSignupError, setNewsletterSignupError] = useState(false);
+  const [coupon, setCoupon] = useState(null);
 
   // Fetch plans on initial render or change in product ID
   useEffect(() => {
@@ -275,7 +281,7 @@ export const Checkout = ({
   }
 
   return (
-    <>
+    <checkoutContext.Provider value={{ coupon, setCoupon }}>
       <Header />
       <div className="main-content">
         {newsletterSignupError && <NewsletterErrorAlertBar />}
@@ -446,7 +452,7 @@ export const Checkout = ({
           </section>
         ) : null}
       </div>
-    </>
+    </checkoutContext.Provider>
   );
 };
 
