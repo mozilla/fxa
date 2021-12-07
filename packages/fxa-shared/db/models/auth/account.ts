@@ -436,6 +436,7 @@ export class Account extends BaseAuthModel {
     await Account.query()
       .update({
         metricsOptOutAt: state === 'out' ? timestamp : null,
+        profileChangedAt: Date.now(),
       })
       .where('uid', uuidTransformer.to(uid));
   }

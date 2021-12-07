@@ -39,6 +39,7 @@ module.exports = {
       subscriptions: Joi.array().items(Joi.string().required()).optional(),
       subscriptionsByClientId: Joi.object().unknown(true).optional(),
       profileChangedAt: Joi.number().optional(),
+      metricsEnabled: Joi.boolean().optional(),
     },
   },
   handler: async function _core_profile(req) {
@@ -114,6 +115,9 @@ module.exports = {
             }
             if (typeof body.ecosystemAnonId !== 'undefined') {
               result.ecosystemAnonId = body.ecosystemAnonId;
+            }
+            if (typeof body.metricsEnabled !== 'undefined') {
+              result.metricsEnabled = body.metricsEnabled;
             }
             return resolve(result);
           }
