@@ -19,6 +19,8 @@ type CouponProps = {
 export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
   const role = isMobile ? undefined : 'complementary';
   const [hasCoupon, setHasCoupon] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [error, setError] = useState(false);
 
   const validator = useValidatorState({
     initialState: undefined,
@@ -29,15 +31,19 @@ export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
   const onSubmit: FormEventHandler = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
-    setHasCoupon(true);
-    setCoupon({ amount: 2 });
+    if (couponCode === 'test') {
+      setHasCoupon(true);
+      setCoupon({ amount: 2 });
+    } else {
+      setError(true);
+    }
   };
 
   const removeCoupon: MouseEventHandler<HTMLButtonElement> = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
     setHasCoupon(false);
-    setCoupon(0);
+    setCoupon(null);
   };
 
   return (
@@ -65,10 +71,16 @@ export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
         ) : (
           <Form validator={validator} onSubmit={onSubmit}>
             <Localized attrs={{ placeholder: false }} id={undefined}>
-              <Input
+              <input
+                className={`input-row ${error ? 'invalid' : ''}`}
                 type="text"
                 name="coupon"
                 data-testid="coupon"
+                value={couponCode}
+                onChange={(event) => {
+                  setError(false);
+                  setCouponCode(event.target.value);
+                }}
                 placeholder="Enter code"
               />
             </Localized>
@@ -79,6 +91,11 @@ export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
             </SubmitButton>
           </Form>
         )}
+        {error ? (
+          <div className="coupon-error">
+            The code you entered is invalid or expired.
+          </div>
+        ) : null}
       </div>
     </section>
   );
