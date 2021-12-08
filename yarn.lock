@@ -18539,7 +18539,7 @@ fsevents@~2.1.1:
     fxa-admin-server: "workspace:*"
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
-    graphql: ^15.6.1
+    graphql: ^16.1.0
     helmet: ^4.6.0
     jest: 27.4.3
     jest-watch-typeahead: 0.6.5
@@ -18599,7 +18599,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
-    graphql: ^15.6.1
+    graphql: ^16.1.0
     graphql-tools: ^8.0.0
     helmet: ^4.6.0
     jest: 27.4.3
@@ -19137,7 +19137,7 @@ fsevents@~2.1.1:
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
     google-auth-library: ^7.10.2
-    graphql: ^15.6.1
+    graphql: ^16.1.0
     hot-shots: ^9.0.0
     jest: 27.4.3
     jwks-rsa: ^2.0.5
@@ -19232,7 +19232,7 @@ fsevents@~2.1.1:
     fxa-profile-server: "workspace:*"
     fxa-shared: "workspace:*"
     get-stream: ^6.0.1
-    graphql: ^15.6.1
+    graphql: ^16.1.0
     graphql-parse-resolve-info: ^4.12.0
     graphql-query-complexity: 0.8.0
     graphql-tools: ^8.0.0
@@ -19606,7 +19606,7 @@ fsevents@~2.1.1:
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     get-orientation: ^1.1.2
-    graphql: ^15.6.1
+    graphql: ^16.1.0
     jest-watch-typeahead: 0.6.5
     lodash.groupby: ^4.6.0
     mutationobserver-shim: ^0.3.7
@@ -19681,7 +19681,7 @@ fsevents@~2.1.1:
     eslint-plugin-fxa: ^2.0.2
     find-up: ^5.0.0
     generic-pool: ^3.8.2
-    graphql: ^15.6.1
+    graphql: ^16.1.0
     hot-shots: ^9.0.0
     ioredis: ^4.28.0
     ip: ^1.1.5
@@ -20746,10 +20746,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"graphql@npm:*, graphql@npm:^15.3.0, graphql@npm:^15.6.1":
+"graphql@npm:*, graphql@npm:^15.3.0":
   version: 15.6.1
   resolution: "graphql@npm:15.6.1"
   checksum: 4c6dcf385f7a87a5103fcb7640394244ae8d1d4ede521085192a1cf1e60115c4f6285d783961575d908709f7ee3e4cdd16b3f7c54eb37499c0420c6301e98968
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^16.1.0":
+  version: 16.1.0
+  resolution: "graphql@npm:16.1.0"
+  checksum: fa393f0e3d284a681606a3296aaa902e730036af89ae0142f91d72f7053c59627df65fc5fdac48f46d6c1f07f4406411ac4948b317621de729e3ccc8980dec1f
   languageName: node
   linkType: hard
 
