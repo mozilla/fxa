@@ -26,14 +26,19 @@ export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
     initialState: undefined,
   });
 
-  const { setCoupon } = useContext(checkoutContext);
+  const { coupon, setCoupon } = useContext(checkoutContext);
 
   const onSubmit: FormEventHandler = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
     if (couponCode === 'test') {
       setHasCoupon(true);
-      setCoupon({ amount: 2 });
+      setCoupon({
+        name: 'Test Coupon',
+        type: 'fixed',
+        expiry: '1/1/2022',
+        amount: 2,
+      });
     } else {
       setError(true);
     }
@@ -61,8 +66,8 @@ export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
         {hasCoupon ? (
           <div className="flex">
             <div className="coupon-details">
-              <div>Coupon Name</div>
-              <div>Expires 1/1/2020</div>
+              <div>{coupon.name}</div>
+              <div>Expires {coupon.expiry}</div>
             </div>
             <button onClick={removeCoupon}>
               <span>Remove</span>
