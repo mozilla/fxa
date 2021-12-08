@@ -53,18 +53,6 @@
       width: 185px;
     }
 
-    input {
-      width: 185px;
-    }
-
-    input.invalid {
-        border-color: $error-background-color;
-
-        &:focus {
-          box-shadow: 0 0 0 3px rgba($error-background-color, 0.3);
-        }
-    }
-
     button {
       width: 110px;
     }

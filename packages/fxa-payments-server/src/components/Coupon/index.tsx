@@ -71,18 +71,20 @@ export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
         ) : (
           <Form validator={validator} onSubmit={onSubmit}>
             <Localized attrs={{ placeholder: false }} id={undefined}>
-              <input
-                className={`input-row ${error ? 'invalid' : ''}`}
-                type="text"
-                name="coupon"
-                data-testid="coupon"
-                value={couponCode}
-                onChange={(event) => {
-                  setError(false);
-                  setCouponCode(event.target.value);
-                }}
-                placeholder="Enter code"
-              />
+              <div className="input-row">
+                <input
+                  className={`${error ? 'invalid' : ''}`}
+                  type="text"
+                  name="coupon"
+                  data-testid="coupon"
+                  value={couponCode}
+                  onChange={(event) => {
+                    setError(false);
+                    setCouponCode(event.target.value);
+                  }}
+                  placeholder="Enter code"
+                />
+              </div>
             </Localized>
             <SubmitButton name="apply">
               <Localized id="sub-apply">
