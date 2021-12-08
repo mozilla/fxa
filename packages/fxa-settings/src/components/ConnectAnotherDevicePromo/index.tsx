@@ -2,13 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
-import playStoreIcon from './play-store.svg';
-import appStoreIcon from './app-store.svg';
 import { Localized } from '@fluent/react';
+import { getStoreImageByLanguages, StoreType } from './storeImageLoader';
+import { AppContext } from '../../models';
 
 export function ConnectAnotherDevicePromo() {
+  const { navigatorLanguages } = useContext(AppContext);
+  const GooglePlayBadge = getStoreImageByLanguages(
+    StoreType.google,
+    navigatorLanguages
+  );
+  const AppStoreBadge = getStoreImageByLanguages(
+    StoreType.apple,
+    navigatorLanguages
+  );
+
   return (
     <div
       className="my-1 flex flex-col mobileLandscape:flex-row"
@@ -33,7 +43,7 @@ export function ConnectAnotherDevicePromo() {
             ),
           }}
         >
-          <p className="text-grey-300 text-xs">
+          <p className="text-grey-400 text-xs">
             Find Firefox in the Google Play and App Store or
             <br />
             <LinkExternal
@@ -52,14 +62,24 @@ export function ConnectAnotherDevicePromo() {
           data-testid="play-store-link"
           href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox"
         >
-          <img src={playStoreIcon} alt="" />
+          <Localized
+            id="connect-another-play-store-image"
+            attrs={{ title: true }}
+          >
+            <GooglePlayBadge role="img" title="Download Firefox for Android" />
+          </Localized>
         </LinkExternal>
         <LinkExternal
           className="self-center p-2"
           data-testid="app-store-link"
           href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926"
         >
-          <img src={appStoreIcon} alt="" />
+          <Localized
+            id="connect-another-app-store-image"
+            attrs={{ title: true }}
+          >
+            <AppStoreBadge role="img" title="Download Firefox for iOS" />
+          </Localized>
         </LinkExternal>
       </div>
     </div>

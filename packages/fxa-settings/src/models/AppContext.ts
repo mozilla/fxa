@@ -25,6 +25,7 @@ export interface AppContextValue {
   account?: Account;
   alertBarInfo?: AlertBarInfo;
   session?: Session; // used exclusively for test mocking
+  navigatorLanguages?: readonly string[];
 }
 
 export function initializeAppContext() {
@@ -91,6 +92,7 @@ export function initializeAppContext() {
     config,
     account,
     alertBarInfo,
+    navigatorLanguages: navigator.languages || ['en-US', 'en'],
   } as AppContextValue;
 }
 
