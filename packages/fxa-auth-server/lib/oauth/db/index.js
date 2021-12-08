@@ -196,6 +196,10 @@ class OauthDB {
     const db = await this.mysql;
     await db._removeUser(uid);
   }
+
+  getPocketIds() {
+    return POCKET_IDS;
+  }
 }
 
 function clientEquals(configClient, dbClient) {

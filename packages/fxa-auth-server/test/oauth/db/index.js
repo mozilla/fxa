@@ -654,20 +654,6 @@ describe('db', function () {
         scope: ScopeSet.fromArray(['no_scope']),
       };
 
-      before(function () {
-        return db.registerClient({
-          id: pocketId,
-          name: 'pocket',
-          hashedSecret: randomString(32),
-          imageUri: 'https://example.domain/logo',
-          redirectUri: 'https://example.domain/return?foo=bar',
-          trusted: true,
-        });
-      });
-      after(function () {
-        return db.removeClient(pocketId);
-      });
-
       it('stores them in mysql', async () => {
         const t = await db.generateAccessToken(tokenData);
         const mysql = await db.mysql;

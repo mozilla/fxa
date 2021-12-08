@@ -53,23 +53,31 @@ exports.verify = async function verify(accessToken) {
   const token = await db.getAccessToken(await exports.getTokenId(accessToken));
   if (!token) {
     throw OauthError.invalidToken();
-  } else if (+token.expiresAt < Date.now()) {
-    // We dug ourselves a bit of a hole with token expiry,
-    // and this logic is here to help us climb back out.
-    // There's a huge backlog of expired tokens in the wild,
-    // and if we start rejecting them all at once, then the
-    // thundering herd of token updates will crush our db.
-    // Instead we "grandfather" these old tokens in and
-    // pretend they're still valid, while chipping away at
-    // the backlog by either slowly reducing this epoch, or
-    // by slowly purging older tokens from the db.
-    if (
-      +token.expiresAt >=
-      config.get('oauthServer.expiration.accessTokenExpiryEpoch')
-    ) {
-      throw OauthError.expiredToken(token.expiresAt);
-    }
   }
+
+  // We dug ourselves a bit of a hole with token expiry,
+  // and this logic is here to help us climb back out.
+  // There's a huge backlog of expired tokens in the wild,
+  // and if we start rejecting them all at once, then the
+  // thundering herd of token updates will crush our db.
+  // Instead we "grandfather" these old tokens in and
+  // pretend they're still valid, while chipping away at
+  // the backlog by either slowly reducing this epoch, or
+  // by slowly purging older tokens from the db.
+  const expired =
+    +token.expiresAt < Date.now() &&
+    +token.expiresAt >=
+      config.get('oauthServer.expiration.accessTokenExpiryEpoch');
+
+  // Pocket was one of FxA first clients and does not currently support refresh tokens.
+  // We currently can't expire any pocket tokens.
+  // Ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1547902
+  const isPocket = db.getPocketIds().includes(token.clientId.toString('hex'));
+
+  if (expired && !isPocket) {
+    throw OauthError.expiredToken(token.expiresAt);
+  }
+
   var tokenInfo = {
     user: token.userId.toString('hex'),
     client_id: token.clientId.toString('hex'),
