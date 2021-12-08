@@ -1,5 +1,33 @@
 # Change history
 
+## 1.221.0
+
+### New features
+
+- profile: add metricsEnabled to profile. closes #9081 (#10882) ([e2d10147c](https://github.com/mozilla/fxa/commit/e2d10147c))
+
+### Bug fixes
+
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1022.0 to 2.1044.0 (#11271) ([6eeb2eb74](https://github.com/mozilla/fxa/commit/6eeb2eb74))
+- deps: bump @nestjs/mapped-types from 1.0.0 to 1.0.1 (#11257) ([31a01cc4d](https://github.com/mozilla/fxa/commit/31a01cc4d))
+- deps-dev: bump esbuild from 0.14.1 to 0.14.2 ([b02bdf11f](https://github.com/mozilla/fxa/commit/b02bdf11f))
+- deps-dev: bump jest from 27.3.1 to 27.4.3 ([5bc98e34d](https://github.com/mozilla/fxa/commit/5bc98e34d))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump esbuild-register from 3.1.2 to 3.2.0 (#11218) ([a66e94841](https://github.com/mozilla/fxa/commit/a66e94841))
+- deps: bump jsdom from 18.1.0 to 18.1.1 ([2a20d0588](https://github.com/mozilla/fxa/commit/2a20d0588))
+- deps-dev: bump esbuild from 0.13.14 to 0.14.0 (#11186) ([fd2d059eb](https://github.com/mozilla/fxa/commit/fd2d059eb))
+- deps: bump @nestjs/config from 1.1.0 to 1.1.5 (#11174) ([6bffbbae0](https://github.com/mozilla/fxa/commit/6bffbbae0))
+- deps: bump @nestjs/common from 8.1.2 to 8.2.3 (#11168) ([9cda83496](https://github.com/mozilla/fxa/commit/9cda83496))
+- deps-dev: bump @nestjs/testing from 8.2.0 to 8.2.3 (#11166) ([6cb640160](https://github.com/mozilla/fxa/commit/6cb640160))
+- deps-dev: bump tsconfig-paths from 3.11.0 to 3.12.0 (#11167) ([de19f3591](https://github.com/mozilla/fxa/commit/de19f3591))
+- deps: bump @nestjs/core from 8.2.0 to 8.2.3 (#11155) ([f7c73fbd4](https://github.com/mozilla/fxa/commit/f7c73fbd4))
+- deps: bump class-transformer from 0.4.0 to 0.5.1 (#11141) ([dcaaa2128](https://github.com/mozilla/fxa/commit/dcaaa2128))
+- deps: bump stripe from 8.188.0 to 8.191.0 (#11143) ([2bbea7715](https://github.com/mozilla/fxa/commit/2bbea7715))
+
 ## 1.220.5
 
 No changes.

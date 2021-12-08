@@ -1,3 +1,27 @@
+## 1.221.0
+
+### New features
+
+- admin-panel: account history table styles not working (#11194) ([08ac45fed](https://github.com/mozilla/fxa/commit/08ac45fed))
+- admin-panel: convert Account component to Tailwind classes (#11189) ([17e085806](https://github.com/mozilla/fxa/commit/17e085806))
+- admin-panel: replace majority of admin-panel with tailwind styles (#11135) ([bc5ee92fc](https://github.com/mozilla/fxa/commit/bc5ee92fc))
+
+### Bug fixes
+
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps: bump node-sass from 6.0.1 to 7.0.0 ([c7b00d176](https://github.com/mozilla/fxa/commit/c7b00d176))
+- deps-dev: bump esbuild from 0.14.1 to 0.14.2 ([b02bdf11f](https://github.com/mozilla/fxa/commit/b02bdf11f))
+- deps-dev: bump jest from 27.3.1 to 27.4.3 ([5bc98e34d](https://github.com/mozilla/fxa/commit/5bc98e34d))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump esbuild-register from 3.1.2 to 3.2.0 (#11218) ([a66e94841](https://github.com/mozilla/fxa/commit/a66e94841))
+- deps-dev: bump esbuild from 0.13.14 to 0.14.0 (#11186) ([fd2d059eb](https://github.com/mozilla/fxa/commit/fd2d059eb))
+- deps-dev: bump @testing-library/dom from 8.9.0 to 8.11.1 (#11178) ([bc7066e5f](https://github.com/mozilla/fxa/commit/bc7066e5f))
+- deps-dev: bump jest-watch-typeahead from 0.6.5 to 1.0.0" (#11148) ([06cea5b97](https://github.com/mozilla/fxa/commit/06cea5b97))
+- deps-dev: bump @testing-library/jest-dom from 5.15.0 to 5.15.1 (#11145) ([00f2cf587](https://github.com/mozilla/fxa/commit/00f2cf587))
+
 ## 1.220.5
 
 No changes.

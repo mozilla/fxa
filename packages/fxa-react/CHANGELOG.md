@@ -1,3 +1,21 @@
+## 1.221.0
+
+### New features
+
+- admin-panel: replace majority of admin-panel with tailwind styles (#11135) ([bc5ee92fc](https://github.com/mozilla/fxa/commit/bc5ee92fc))
+
+### Bug fixes
+
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps-dev: bump sass from 1.43.4 to 1.44.0 ([218c125b7](https://github.com/mozilla/fxa/commit/218c125b7))
+- deps-dev: bump jest from 27.3.1 to 27.4.3 ([5bc98e34d](https://github.com/mozilla/fxa/commit/5bc98e34d))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump @testing-library/dom from 8.9.0 to 8.11.1 (#11178) ([bc7066e5f](https://github.com/mozilla/fxa/commit/bc7066e5f))
+- deps-dev: bump @testing-library/jest-dom from 5.15.0 to 5.15.1 (#11145) ([00f2cf587](https://github.com/mozilla/fxa/commit/00f2cf587))
+
 ## 1.220.5
 
 No changes.

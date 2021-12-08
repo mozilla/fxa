@@ -1,3 +1,27 @@
+## 1.221.0
+
+### Bug fixes
+
+- admin-server: move ts-morph to dependencies (#11240) ([0c7eb471f](https://github.com/mozilla/fxa/commit/0c7eb471f))
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+- admin-server: update imports in email-bounce script (#11128) ([cff6bdee1](https://github.com/mozilla/fxa/commit/cff6bdee1))
+
+### Other changes
+
+- deps: bump @nestjs/mapped-types from 1.0.0 to 1.0.1 (#11257) ([31a01cc4d](https://github.com/mozilla/fxa/commit/31a01cc4d))
+- deps-dev: bump esbuild from 0.14.1 to 0.14.2 ([b02bdf11f](https://github.com/mozilla/fxa/commit/b02bdf11f))
+- deps-dev: bump jest from 27.3.1 to 27.4.3 ([5bc98e34d](https://github.com/mozilla/fxa/commit/5bc98e34d))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump esbuild-register from 3.1.2 to 3.2.0 (#11218) ([a66e94841](https://github.com/mozilla/fxa/commit/a66e94841))
+- deps-dev: bump esbuild from 0.13.14 to 0.14.0 (#11186) ([fd2d059eb](https://github.com/mozilla/fxa/commit/fd2d059eb))
+- deps: bump @nestjs/config from 1.1.0 to 1.1.5 (#11174) ([6bffbbae0](https://github.com/mozilla/fxa/commit/6bffbbae0))
+- deps: bump @nestjs/common from 8.1.2 to 8.2.3 (#11168) ([9cda83496](https://github.com/mozilla/fxa/commit/9cda83496))
+- deps-dev: bump tsconfig-paths from 3.11.0 to 3.12.0 (#11167) ([de19f3591](https://github.com/mozilla/fxa/commit/de19f3591))
+- deps: bump @nestjs/platform-express from 8.2.2 to 8.2.3 (#11165) ([9f5056ab8](https://github.com/mozilla/fxa/commit/9f5056ab8))
+- deps: bump @nestjs/core from 8.2.0 to 8.2.3 (#11155) ([f7c73fbd4](https://github.com/mozilla/fxa/commit/f7c73fbd4))
+- deps: bump class-transformer from 0.4.0 to 0.5.1 (#11141) ([dcaaa2128](https://github.com/mozilla/fxa/commit/dcaaa2128))
+- deps-dev: bump ts-morph from 12.2.0 to 13.0.2 (#11144) ([3d27875e5](https://github.com/mozilla/fxa/commit/3d27875e5))
+
 ## 1.220.5
 
 No changes.

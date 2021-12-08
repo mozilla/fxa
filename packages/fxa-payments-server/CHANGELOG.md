@@ -1,5 +1,24 @@
 # Change history
 
+## 1.221.0
+
+### Bug fixes
+
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+- subscriptions: sub upgrade remove dup heading (#11156) ([291b9b1c2](https://github.com/mozilla/fxa/commit/291b9b1c2))
+
+### Other changes
+
+- deps: bump node-sass from 6.0.1 to 7.0.0 ([c7b00d176](https://github.com/mozilla/fxa/commit/c7b00d176))
+- deps-dev: bump caniuse-lite from 1.0.30001274 to 1.0.30001285 (#11260) ([29bbdab6e](https://github.com/mozilla/fxa/commit/29bbdab6e))
+- deps-dev: bump esbuild from 0.14.1 to 0.14.2 ([b02bdf11f](https://github.com/mozilla/fxa/commit/b02bdf11f))
+- deps-dev: bump jest from 27.3.1 to 27.4.3 ([5bc98e34d](https://github.com/mozilla/fxa/commit/5bc98e34d))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump esbuild-register from 3.1.2 to 3.2.0 (#11218) ([a66e94841](https://github.com/mozilla/fxa/commit/a66e94841))
+- deps-dev: bump esbuild from 0.13.14 to 0.14.0 (#11186) ([fd2d059eb](https://github.com/mozilla/fxa/commit/fd2d059eb))
+- deps: bump redux-thunk from 2.4.0 to 2.4.1 (#11175) ([ad44edb73](https://github.com/mozilla/fxa/commit/ad44edb73))
+- deps-dev: bump @testing-library/jest-dom from 5.15.0 to 5.15.1 (#11145) ([00f2cf587](https://github.com/mozilla/fxa/commit/00f2cf587))
+
 ## 1.220.5
 
 No changes.
