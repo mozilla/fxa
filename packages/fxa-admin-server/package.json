@@ -48,7 +48,7 @@
     "convict-format-with-validator": "^6.2.0",
     "express": "^4.17.1",
     "fxa-shared": "workspace:*",
-    "graphql": "^15.6.1",
+    "graphql": "^16.1.0",
     "graphql-tools": "^8.0.0",
     "helmet": "^4.6.0",
     "knex": "^0.95.14",
