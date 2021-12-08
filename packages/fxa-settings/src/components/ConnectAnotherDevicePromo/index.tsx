@@ -19,8 +19,6 @@ export function ConnectAnotherDevicePromo() {
     navigatorLanguages
   );
 
-  console.log('GooglePlayBadge', GooglePlayBadge);
-
   return (
     <div
       className="my-1 flex flex-col mobileLandscape:flex-row"
@@ -66,12 +64,9 @@ export function ConnectAnotherDevicePromo() {
         >
           <Localized
             id="connect-another-play-store-image"
-            attrs={{ alt: true }}
+            attrs={{ title: true }}
           >
-            <AppStoreBadge
-              role="img"
-              aria-label="Download Firefox for Android"
-            />
+            <GooglePlayBadge role="img" title="Download Firefox for Android" />
           </Localized>
         </LinkExternal>
         <LinkExternal
@@ -79,8 +74,11 @@ export function ConnectAnotherDevicePromo() {
           data-testid="app-store-link"
           href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926"
         >
-          <Localized id="connect-another-app-store-image" attrs={{ alt: true }}>
-            <GooglePlayBadge role="img" aria-label="Download Firefox for iOS" />
+          <Localized
+            id="connect-another-app-store-image"
+            attrs={{ title: true }}
+          >
+            <AppStoreBadge role="img" title="Download Firefox for iOS" />
           </Localized>
         </LinkExternal>
       </div>
