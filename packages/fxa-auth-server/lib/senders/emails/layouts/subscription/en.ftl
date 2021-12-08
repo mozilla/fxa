@@ -14,6 +14,7 @@ subplat-terms-policy-plaintext = { subplat-terms-policy }:
 subplat-cancel = Cancel subscription
 subplat-cancel-plaintext = { subplat-cancel }:
 subplat-reactivate = Reactivate subscription
+subplat-reactivate-plaintext = { subplat-reactivate }:
 subplat-update-billing = Update billing information
 subplat-legal = Legal
 subplat-privacy = Privacy

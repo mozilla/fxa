@@ -71,6 +71,9 @@ const MESSAGE = {
   uaOSVersion: '10',
   uid: 'uid',
   unblockCode: 'AS6334PK',
+  invoiceDate: new Date(1584747098816),
+  invoiceTotalInCents: 999999.9,
+  invoiceTotalCurrency: 'eur',
   paymentAmountOldInCents: 9999099.9,
   paymentAmountOldCurrency: 'jpy',
   paymentAmountNewInCents: 12312099.9,
@@ -1015,6 +1018,28 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-change-required', 'privacy')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
+  ])],
+
+  ['subscriptionAccountDeletionEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountDeletion') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountDeletion' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountDeletion }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
   ])],
 
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
