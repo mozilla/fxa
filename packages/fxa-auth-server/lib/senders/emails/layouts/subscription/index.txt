@@ -10,8 +10,13 @@ subplat-privacy-plaintext = "Privacy notice:"
 <%- subscriptionPrivacyUrl %>
 <% } %>
 
+<% if (locals.isCancellationEmail) { %>
+subplat-reactivate-plaintext = "Reactivate subscription:"
+<%- reactivateSubscriptionUrl %>
+<% } else { %>
 subplat-cancel-plaintext = "Cancel subscription:"
 <%- cancelSubscriptionUrl %>
+<% } %>
 
 subplat-update-billing-plaintext = "Update billing information:"
 <%- updateBillingUrl %>
