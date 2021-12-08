@@ -31,47 +31,61 @@ describe('Connect another device Promo', () => {
 
 describe('getStoreImageByLanguages', () => {
   it('should return default image, if no locale is provided', () => {
-    const expected = 'en.svg';
-    expect(getStoreImageByLanguages(StoreType.apple)).toEqual(expected);
+    const expected = 'SvgEn';
+    const {
+      render: { name: actual },
+    }: any = getStoreImageByLanguages(StoreType.apple);
+
+    expect(actual).toEqual(expected);
   });
 
   it('should return default image, if invalid locale is provided', () => {
     const languages = ['invalidLanguage'];
-    const expected = 'en.svg';
-    expect(getStoreImageByLanguages(StoreType.apple, languages)).toEqual(
-      expected
-    );
+    const expected = 'SvgEn';
+    const {
+      render: { name: actual },
+    }: any = getStoreImageByLanguages(StoreType.apple, languages);
+
+    expect(actual).toEqual(expected);
   });
 
   it('should return image for valid language', () => {
     const languages = ['en', 'de'];
-    const expected = 'en.svg';
-    expect(getStoreImageByLanguages(StoreType.apple, languages)).toEqual(
-      expected
-    );
+    const expected = 'SvgEn';
+    const {
+      render: { name: actual },
+    }: any = getStoreImageByLanguages(StoreType.apple, languages);
+
+    expect(actual).toEqual(expected);
   });
 
   it('should return valid image if multiple languages are provided and 1st language is not valid', () => {
     const languages = ['invalidLanguage', 'en'];
-    const expected = 'en.svg';
-    expect(getStoreImageByLanguages(StoreType.apple, languages)).toEqual(
-      expected
-    );
+    const expected = 'SvgEn';
+    const {
+      render: { name: actual },
+    }: any = getStoreImageByLanguages(StoreType.apple, languages);
+
+    expect(actual).toEqual(expected);
   });
 
   it('should return image with region code', () => {
     const languages = ['pt-BR', 'pt'];
-    const expected = 'pt-BR.svg';
-    expect(getStoreImageByLanguages(StoreType.apple, languages)).toEqual(
-      expected
-    );
+    const expected = 'SvgPtBr';
+    const {
+      render: { name: actual },
+    }: any = getStoreImageByLanguages(StoreType.apple, languages);
+
+    expect(actual).toEqual(expected);
   });
 
   it('should return language image if region is not available', () => {
     const languages = ['pt-ZA', 'pt'];
-    const expected = 'pt.svg';
-    expect(getStoreImageByLanguages(StoreType.apple, languages)).toEqual(
-      expected
-    );
+    const expected = 'SvgPt';
+    const {
+      render: { name: actual },
+    }: any = getStoreImageByLanguages(StoreType.apple, languages);
+
+    expect(actual).toEqual(expected);
   });
 });
