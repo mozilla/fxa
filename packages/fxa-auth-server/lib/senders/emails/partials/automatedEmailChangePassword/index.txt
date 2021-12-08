@@ -1,1 +1,1 @@
-automated-email-change-plaintext = "This is an automated email; if you didn’t add a new device to your Firefox account, you should change your password immediately at { $passwordChangeLink }"
+automated-email-change-plaintext = "This is an automated email; if you didn’t add a new device to your Firefox account, you should change your password immediately at <%- passwordChangeLink %>"

@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="newDeviceLogin-title" data-l10n-args='<%= JSON.stringify({clientName}) %>'>New sign-in to <%- clientName %></span>
+      <span data-l10n-id="newDeviceLogin-title" data-l10n-args="<%= JSON.stringify({clientName}) %>">New sign-in to <%- clientName %></span>
     </mj-text>
   </mj-column>
 </mj-section>
