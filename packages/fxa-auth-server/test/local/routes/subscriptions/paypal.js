@@ -177,7 +177,7 @@ describe('subscriptions payPalRoutes', () => {
   });
 
   describe('POST /oauth/subscriptions/active/new-paypal', () => {
-    let plan, customer, subscription;
+    let plan, customer, subscription, promoCode;
 
     beforeEach(() => {
       stripeHelper.cancelSubscription = sinon.fake.resolves({});
@@ -203,6 +203,8 @@ describe('subscriptions payPalRoutes', () => {
         sinon.fake.resolves(subscription);
       stripeHelper.updateCustomerPaypalAgreement =
         sinon.fake.resolves(customer);
+      promoCode = { coupon: { id: 'test-coupon' } };
+      stripeHelper.findValidPromoCode = sinon.fake.resolves(promoCode);
     });
 
     describe('existing PayPal subscriber with no billing agreement on record', () => {
@@ -291,11 +293,64 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
         sinon.assert.calledOnce(stripeHelper.customerTaxId);
         sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
+        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
         sinon.assert.calledWithExactly(
           stripeHelper.createSubscriptionWithPaypal,
           {
             customer,
             priceId: undefined,
+            couponId: undefined,
+            subIdempotencyKey: undefined,
+            taxRateId: 'tr-1234',
+          }
+        );
+        sinon.assert.calledOnceWithExactly(
+          authDbModule.getAccountCustomerByUid,
+          UID
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.updateCustomerBillingAddress,
+          accountCustomer.stripeCustomerId,
+          {
+            city: undefined,
+            country: 'CA',
+            line1: undefined,
+            line2: undefined,
+            postalCode: undefined,
+            state: undefined,
+          }
+        );
+      });
+
+      it('should run a charge successfully with coupon', async () => {
+        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
+          ...defaultRequestOptions,
+          payload: { token, promotionCode: 'test-promo' },
+        });
+        assert.deepEqual(actual, {
+          sourceCountry: 'CA',
+          subscription: filterSubscription(subscription),
+        });
+        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
+        sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
+        sinon.assert.calledOnce(payPalHelper.agreementDetails);
+        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
+        sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
+        sinon.assert.calledOnce(payPalHelper.processInvoice);
+        sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
+        sinon.assert.calledOnce(stripeHelper.customerTaxId);
+        sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
+        sinon.assert.calledWithExactly(
+          stripeHelper.findValidPromoCode,
+          'test-promo',
+          undefined
+        );
+        sinon.assert.calledWithExactly(
+          stripeHelper.createSubscriptionWithPaypal,
+          {
+            customer,
+            priceId: undefined,
+            couponId: 'test-coupon',
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
           }
@@ -349,6 +404,26 @@ describe('subscriptions payPalRoutes', () => {
             postalCode: undefined,
             state: undefined,
           }
+        );
+      });
+
+      it('should throw an error if invalid promotion code', async () => {
+        stripeHelper.findValidPromoCode = sinon.fake.rejects(
+          error.invalidPromoCode('invalid-promo')
+        );
+        try {
+          await runTest('/oauth/subscriptions/active/new-paypal', {
+            ...defaultRequestOptions,
+            payload: { token, promotionCode: 'invalid-promo' },
+          });
+          assert.fail('Should have thrown an error');
+        } catch (err) {
+          assert.equal(err.message, 'Invalid promotion code');
+        }
+        sinon.assert.calledWithExactly(
+          stripeHelper.findValidPromoCode,
+          'invalid-promo',
+          undefined
         );
       });
 
@@ -465,6 +540,7 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.notCalled(payPalHelper.agreementDetails);
         sinon.assert.notCalled(stripeHelper.updateCustomerPaypalAgreement);
         sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
+        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
         sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
         sinon.assert.calledOnce(stripeHelper.customerTaxId);
         sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
@@ -482,6 +558,56 @@ describe('subscriptions payPalRoutes', () => {
               },
             },
             priceId: undefined,
+            couponId: undefined,
+            subIdempotencyKey: undefined,
+            taxRateId: 'tr-1234',
+          }
+        );
+
+        assert.deepEqual(actual, {
+          sourceCountry: 'GD',
+          subscription: filterSubscription(subscription),
+        });
+        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
+        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
+        sinon.assert.calledOnce(payPalHelper.processInvoice);
+      });
+
+      it('should run a charge successfully with a coupon', async () => {
+        const requestOptions = deepCopy(defaultRequestOptions);
+        requestOptions.payload = { promotionCode: 'test-promo' };
+        const actual = await runTest(
+          '/oauth/subscriptions/active/new-paypal',
+          requestOptions
+        );
+
+        sinon.assert.notCalled(payPalHelper.createBillingAgreement);
+        sinon.assert.notCalled(payPalHelper.agreementDetails);
+        sinon.assert.notCalled(stripeHelper.updateCustomerPaypalAgreement);
+        sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
+        sinon.assert.calledWithExactly(
+          stripeHelper.findValidPromoCode,
+          'test-promo',
+          undefined
+        );
+        sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
+        sinon.assert.calledOnce(stripeHelper.customerTaxId);
+        sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
+        sinon.assert.calledWithExactly(
+          stripeHelper.createSubscriptionWithPaypal,
+          {
+            customer: {
+              ...customer,
+              address: {
+                country: 'GD',
+              },
+              metadata: {
+                ...customer.metadata,
+                paypalAgreementId,
+              },
+            },
+            priceId: undefined,
+            couponId: 'test-coupon',
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
           }

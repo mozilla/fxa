@@ -724,6 +724,7 @@ describe('StripeHelper', () => {
           items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
           default_tax_rates: ['tr_asdf'],
+          coupon: undefined,
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
@@ -822,6 +823,7 @@ describe('StripeHelper', () => {
           expand: ['latest_invoice'],
           collection_method: 'send_invoice',
           days_until_due: 1,
+          coupon: undefined,
           default_tax_rates: ['tr_asdf'],
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }

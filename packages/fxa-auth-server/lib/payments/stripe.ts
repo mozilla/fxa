@@ -402,6 +402,7 @@ export class StripeHelper {
     customerId: string;
     priceId: string;
     paymentMethodId?: string;
+    couponId?: string;
     subIdempotencyKey: string;
     taxRateId?: string;
   }) {
@@ -409,6 +410,7 @@ export class StripeHelper {
       customerId,
       priceId,
       paymentMethodId,
+      couponId,
       subIdempotencyKey,
       taxRateId,
     } = opts;
@@ -450,6 +452,7 @@ export class StripeHelper {
         items: [{ price: priceId }],
         expand: ['latest_invoice.payment_intent'],
         default_tax_rates: taxRates,
+        coupon: couponId,
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
@@ -475,10 +478,11 @@ export class StripeHelper {
   async createSubscriptionWithPaypal(opts: {
     customer: Stripe.Customer;
     priceId: string;
+    couponId?: string;
     subIdempotencyKey: string;
     taxRateId?: string;
   }) {
-    const { customer, priceId, subIdempotencyKey, taxRateId } = opts;
+    const { customer, priceId, couponId, subIdempotencyKey, taxRateId } = opts;
     const taxRates = taxRateId ? [taxRateId] : [];
 
     const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
@@ -508,6 +512,7 @@ export class StripeHelper {
         collection_method: 'send_invoice',
         days_until_due: 1,
         default_tax_rates: taxRates,
+        coupon: couponId,
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );

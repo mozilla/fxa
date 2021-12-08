@@ -150,10 +150,14 @@ export class PayPalHandler extends StripeWebhookHandler {
     uid: string;
     customer: Stripe.Customer;
   }) {
-    const { priceId, token, idempotencyKey } = request.payload as Record<
-      string,
-      string
-    >;
+    const {
+      priceId,
+      promotionCode: promotionCodeFromRequest,
+      token,
+      idempotencyKey,
+    } = request.payload as Record<string, string>;
+    const promotionCode: Stripe.PromotionCode | undefined =
+      await this.extractPromotionCode(promotionCodeFromRequest, priceId);
     const currency = (await this.stripeHelper.findPlanById(priceId)).currency;
     const { agreementId, agreementDetails } =
       await this.createAndVerifyBillingAgreement({ uid, token, currency });
@@ -171,6 +175,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       this.stripeHelper.createSubscriptionWithPaypal({
         customer,
         priceId,
+        couponId: promotionCode?.coupon.id,
         subIdempotencyKey: idempotencyKey,
         taxRateId: taxRate?.id,
       }),
@@ -212,10 +217,13 @@ export class PayPalHandler extends StripeWebhookHandler {
     request: AuthRequest;
     customer: Stripe.Customer;
   }) {
-    const { priceId, idempotencyKey } = request.payload as Record<
-      string,
-      string
-    >;
+    const {
+      priceId,
+      promotionCode: promotionCodeFromRequest,
+      idempotencyKey,
+    } = request.payload as Record<string, string>;
+    const promotionCode: Stripe.PromotionCode | undefined =
+      await this.extractPromotionCode(promotionCodeFromRequest, priceId);
     const taxRate = customer.address?.country
       ? await this.stripeHelper.taxRateByCountryCode(customer.address?.country)
       : undefined;
@@ -228,6 +236,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     const subscription = await this.stripeHelper.createSubscriptionWithPaypal({
       customer,
       priceId,
+      couponId: promotionCode?.coupon.id,
       subIdempotencyKey: idempotencyKey,
       taxRateId: taxRate?.id,
     });
@@ -467,6 +476,7 @@ export const paypalRoutes = (
         validate: {
           payload: {
             priceId: isA.string().required(),
+            promotionCode: isA.string().optional(),
             token: validators.paypalPaymentToken.allow(null).optional(),
             idempotencyKey: isA.string().required(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
