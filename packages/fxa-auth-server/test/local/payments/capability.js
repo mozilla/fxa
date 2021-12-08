@@ -23,6 +23,9 @@ const {
 const proxyquire = require('proxyquire').noPreserveCache();
 
 const authDbModule = require('fxa-shared/db/models/auth');
+const {
+  PurchaseQueryError,
+} = require('../../../lib/payments/google-play/types');
 
 const mockAuthEvents = {};
 
@@ -302,9 +305,7 @@ describe('CapabilityService', () => {
 
     async function assertExpectedCapabilities(clientId, expectedCapabilities) {
       const allCapabilities = await capabilityService.subscriptionCapabilities(
-        undefined,
-        UID,
-        EMAIL
+        UID
       );
       const resultCapabilities =
         await capabilityService.determineClientVisibleSubscriptionCapabilities(
@@ -314,6 +315,27 @@ describe('CapabilityService', () => {
         );
       assert.deepEqual(resultCapabilities.sort(), expectedCapabilities.sort());
     }
+
+    it('handles a firestore fetch error', async () => {
+      const error = new Error('test error');
+      error.name = PurchaseQueryError.OTHER_ERROR;
+      mockPlayBilling.userManager.queryCurrentSubscriptions = sinon
+        .stub()
+        .rejects(error);
+      const allCapabilities = await capabilityService.subscriptionCapabilities(
+        UID
+      );
+      assert.deepEqual(allCapabilities, {
+        '*': ['capAll'],
+        c1: ['cap4', 'cap5'],
+        c2: ['cap5', 'cap6', 'capC', 'capD'],
+        c3: ['capD', 'capE'],
+      });
+      assert.calledOnceWithExactly(
+        mockPlayBilling.userManager.queryCurrentSubscriptions,
+        UID
+      );
+    });
 
     it('only reveals capabilities relevant to the client', async () => {
       const expected = {
