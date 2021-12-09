@@ -10,6 +10,7 @@ export type POMS = ReturnType<typeof createPages>;
 
 export type TestOptions = {
   pages: POMS;
+  verifyAccount: boolean;
   credentials: Credentials;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
@@ -25,16 +26,18 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     { scope: 'worker', auto: true },
   ],
 
-  credentials: async ({ target }, use, testInfo) => {
+  verifyAccount: true,
+
+  credentials: async ({ target, verifyAccount }, use, testInfo) => {
     const email = EmailClient.emailFromTestTitle(testInfo.title);
     const password = 'asdzxcasd';
     await target.email.clear(email);
     let credentials: Credentials;
     try {
-      credentials = await target.createAccount(email, password);
+      credentials = await target.createAccount(email, password, verifyAccount);
     } catch (e) {
       await target.auth.accountDestroy(email, password);
-      credentials = await target.createAccount(email, password);
+      credentials = await target.createAccount(email, password, verifyAccount);
     }
 
     await use(credentials);

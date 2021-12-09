@@ -67,4 +67,17 @@ test.describe('severity-1', () => {
     await login.submit();
     expect(await relier.isLoggedIn()).toBe(true);
   });
+
+  test.describe('unverified', () => {
+    test.use({ verifyAccount: false });
+
+    test('goto settings with unverified account', async ({
+      page,
+      pages: { settings },
+    }) => {
+      test.fixme();
+      await settings.goto();
+      await page.pause();
+    });
+  });
 });

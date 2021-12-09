@@ -11,10 +11,10 @@ export class LocalTarget extends BaseTarget {
     super('http://localhost:9000', 'http://localhost:9001');
   }
 
-  async createAccount(email: string, password: string) {
+  async createAccount(email: string, password: string, verify: boolean = true) {
     const result = await this.auth.signUp(email, password, {
       lang: 'en',
-      preVerified: 'true',
+      preVerified: verify ? 'true' : undefined,
     });
     await this.auth.deviceRegister(result.sessionToken, 'playwright', 'tester');
     return {
