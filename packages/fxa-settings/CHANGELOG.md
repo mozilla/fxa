@@ -1,3 +1,25 @@
+## 1.221.0
+
+### Bug fixes
+
+- settings: add translated store images (#11229) ([e5878e4fd](https://github.com/mozilla/fxa/commit/e5878e4fd))
+- settings: move auth errors to common file (#11238) ([4d6c6ccf1](https://github.com/mozilla/fxa/commit/4d6c6ccf1))
+- settings: fix copy and paste of recovery codes ([d5f39490f](https://github.com/mozilla/fxa/commit/d5f39490f))
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps: bump react-easy-crop from 4.0.0 to 4.0.1 (#11274) ([36e490511](https://github.com/mozilla/fxa/commit/36e490511))
+- deps: bump node-sass from 6.0.1 to 7.0.0 ([c7b00d176](https://github.com/mozilla/fxa/commit/c7b00d176))
+- bf8cd5c17 Simplify coverage config ([bf8cd5c17](https://github.com/mozilla/fxa/commit/bf8cd5c17))
+- settings: add test coverage thresholds ([e2a7f9b5d](https://github.com/mozilla/fxa/commit/e2a7f9b5d))
+- deps: bump react-easy-crop from 3.5.3 to 4.0.0 (#11233) ([5f39fc939](https://github.com/mozilla/fxa/commit/5f39fc939))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump @testing-library/dom from 8.9.0 to 8.11.1 (#11178) ([bc7066e5f](https://github.com/mozilla/fxa/commit/bc7066e5f))
+- deps-dev: bump jest-watch-typeahead from 0.6.5 to 1.0.0" (#11148) ([06cea5b97](https://github.com/mozilla/fxa/commit/06cea5b97))
+- deps-dev: bump @testing-library/jest-dom from 5.15.0 to 5.15.1 (#11145) ([00f2cf587](https://github.com/mozilla/fxa/commit/00f2cf587))
+- docs: Add parent selector example to rtl styles (#11137) ([dab28ee04](https://github.com/mozilla/fxa/commit/dab28ee04))
+
 ## 1.220.5
 
 No changes.

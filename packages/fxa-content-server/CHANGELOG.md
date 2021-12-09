@@ -1,3 +1,21 @@
+## 1.221.0
+
+### Bug fixes
+
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+- metrics: update content-server regex to match the auth-server regex (#11180) ([0eea4fdd4](https://github.com/mozilla/fxa/commit/0eea4fdd4))
+- content: replace lockwise section with section about relay Because: ([18b1a4086](https://github.com/mozilla/fxa/commit/18b1a4086))
+
+### Other changes
+
+- deps: bump node-sass from 6.0.1 to 7.0.0 ([c7b00d176](https://github.com/mozilla/fxa/commit/c7b00d176))
+- deps-dev: bump esbuild from 0.14.1 to 0.14.2 ([b02bdf11f](https://github.com/mozilla/fxa/commit/b02bdf11f))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump esbuild-register from 3.1.2 to 3.2.0 (#11218) ([a66e94841](https://github.com/mozilla/fxa/commit/a66e94841))
+- deps-dev: bump intern from 4.10.0 to 4.10.1 (#11199) ([22409c552](https://github.com/mozilla/fxa/commit/22409c552))
+- deps-dev: bump esbuild from 0.13.14 to 0.14.0 (#11186) ([fd2d059eb](https://github.com/mozilla/fxa/commit/fd2d059eb))
+- deps-dev: bump got from 11.8.2 to 11.8.3 (#11161) ([7cc3bfd13](https://github.com/mozilla/fxa/commit/7cc3bfd13))
+
 ## 1.220.5
 
 No changes.

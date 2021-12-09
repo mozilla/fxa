@@ -1,3 +1,20 @@
+## 1.221.0
+
+### New features
+
+- profile: add metricsEnabled to profile. closes #9081 (#10882) ([e2d10147c](https://github.com/mozilla/fxa/commit/e2d10147c))
+
+### Bug fixes
+
+- admin-server: move ts-morph to dependencies (#11240) ([0c7eb471f](https://github.com/mozilla/fxa/commit/0c7eb471f))
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1022.0 to 2.1044.0 (#11271) ([6eeb2eb74](https://github.com/mozilla/fxa/commit/6eeb2eb74))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps: bump sharp from 0.29.2 to 0.29.3 (#11142) ([de252b969](https://github.com/mozilla/fxa/commit/de252b969))
+
 ## 1.220.5
 
 No changes.

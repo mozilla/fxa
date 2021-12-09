@@ -1,3 +1,44 @@
+## 1.221.0
+
+### New features
+
+- auth-server: convert subscriptionAccountDeletion email template to stack (#11266) ([fdae4ae8e](https://github.com/mozilla/fxa/commit/fdae4ae8e))
+- auth-server: convert subscriptionUpgrade email template to stack (#11207) ([44d80714d](https://github.com/mozilla/fxa/commit/44d80714d))
+- profile: add metricsEnabled to profile. closes #9081 (#10882) ([e2d10147c](https://github.com/mozilla/fxa/commit/e2d10147c))
+- auth: include product/plan validation details in Sentry message (#11181) ([9b4caac24](https://github.com/mozilla/fxa/commit/9b4caac24))
+
+### Bug fixes
+
+- auth-server: investigate test regarding subscriptionTermsUrl for new email templates (#11264) ([b056f3d74](https://github.com/mozilla/fxa/commit/b056f3d74))
+- auth-server: fix email footer text in subscriptionUpgrade (#11253) ([a82037e8f](https://github.com/mozilla/fxa/commit/a82037e8f))
+- auth-server: [new email templates] postAddTwoStepAuthentication (#11279) ([dfe584a87](https://github.com/mozilla/fxa/commit/dfe584a87))
+- tokens: Don't check expiration dates for pocket access token on profile server (#11254) ([b54e8cfe0](https://github.com/mozilla/fxa/commit/b54e8cfe0))
+- auth-server: variables are not replaced in new email templates (#11267) ([f44709e1e](https://github.com/mozilla/fxa/commit/f44709e1e))
+- auth: do not log hard email bounces to sentry ([8dd5963c4](https://github.com/mozilla/fxa/commit/8dd5963c4))
+- admin-server: move ts-morph to dependencies (#11240) ([0c7eb471f](https://github.com/mozilla/fxa/commit/0c7eb471f))
+- emails: Don't bounce emails that could stop a user from getting access to account (#11195) ([11a6aeb16](https://github.com/mozilla/fxa/commit/11a6aeb16))
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+- bulk-mailer: date normalization was wrong (#11184) ([f474db3dd](https://github.com/mozilla/fxa/commit/f474db3dd))
+- auth: remove payment method from Firestore on payment_method.detached webhook (#11139) ([a36b8b03d](https://github.com/mozilla/fxa/commit/a36b8b03d))
+- configs: fix CapabilityService's dep on StripeHelper again (#11132) ([9c800b6af](https://github.com/mozilla/fxa/commit/9c800b6af))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1022.0 to 2.1044.0 (#11271) ([6eeb2eb74](https://github.com/mozilla/fxa/commit/6eeb2eb74))
+- deps-dev: bump sass from 1.43.4 to 1.44.0 ([218c125b7](https://github.com/mozilla/fxa/commit/218c125b7))
+- deps: bump googleapis from 91.0.0 to 92.0.0 ([e2a951897](https://github.com/mozilla/fxa/commit/e2a951897))
+- deps-dev: bump esbuild from 0.14.1 to 0.14.2 ([b02bdf11f](https://github.com/mozilla/fxa/commit/b02bdf11f))
+- deps: bump nodemailer from 6.7.1 to 6.7.2 ([ad917f656](https://github.com/mozilla/fxa/commit/ad917f656))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump esbuild-register from 3.1.2 to 3.2.0 (#11218) ([a66e94841](https://github.com/mozilla/fxa/commit/a66e94841))
+- deps-dev: bump @storybook/addon-toolbars from 6.3.12 to 6.4.2 (#11200)" ([1b3f12706](https://github.com/mozilla/fxa/commit/1b3f12706))
+- deps-dev: bump @storybook/addon-toolbars from 6.3.12 to 6.4.2 (#11200) ([a7cf56a2c](https://github.com/mozilla/fxa/commit/a7cf56a2c))
+- deps-dev: bump esbuild from 0.13.14 to 0.14.0 (#11186) ([fd2d059eb](https://github.com/mozilla/fxa/commit/fd2d059eb))
+- deps: bump mjml from 4.10.4 to 4.11.0 (#11159) ([c5a93adff](https://github.com/mozilla/fxa/commit/c5a93adff))
+- deps: bump qrcode from 1.4.4 to 1.5.0 (#11153) ([85deab9a7](https://github.com/mozilla/fxa/commit/85deab9a7))
+- email: change email-service bounce config (#11138) ([9c3b509d9](https://github.com/mozilla/fxa/commit/9c3b509d9))
+- deps: bump stripe from 8.188.0 to 8.191.0 (#11143) ([2bbea7715](https://github.com/mozilla/fxa/commit/2bbea7715))
+
 ## 1.220.5
 
 No changes.
