@@ -12,7 +12,7 @@ export default {
 
 const createStory = storyWithProps(
   'unblockCode',
-  'Sent to verify or unblock a blocked account sign-in via code.',
+  'Sent to verify or unblock an account via code that has reached the login attempt rate limit.',
   {
     ...MOCK_LOCATION,
     unblockCode: '1ILO0Z5P',

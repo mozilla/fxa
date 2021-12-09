@@ -12,7 +12,7 @@ export default {
 
 const createStory = storyWithProps(
   'verify',
-  'Received by all who complete FxA registration form.',
+  "Sent to users that create an account through Firefox, don't verify their email, and go into Sync preferences to resend the verification email as a link.",
   {
     ...MOCK_LOCATION,
     link: 'http://localhost:3030/verify_email',
