@@ -469,6 +469,7 @@
       "subscriptionAccountDeletion",
       "subscriptionAccountReminderFirst",
       "subscriptionAccountReminderSecond",
+      "subscriptionDowngrade",
       "subscriptionReactivation",
       "subscriptionUpgrade"
     ]
