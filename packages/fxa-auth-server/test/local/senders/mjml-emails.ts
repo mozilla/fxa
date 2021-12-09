@@ -1064,6 +1064,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
       { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
 
