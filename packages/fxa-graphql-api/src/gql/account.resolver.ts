@@ -16,6 +16,10 @@ import AuthClient from 'fxa-auth-client';
 import { Account, AccountOptions } from 'fxa-shared/db/models/auth';
 import { profileByUid, selectedAvatar } from 'fxa-shared/db/models/profile';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import {
+  ExtraContext,
+  reportRequestException,
+} from 'fxa-shared/nestjs/sentry/reporting';
 import getStream from 'get-stream';
 import { GraphQLResolveInfo } from 'graphql';
 import {
@@ -403,17 +407,30 @@ export class AccountResolver {
     @GqlSessionToken() token: string,
     @Parent() account: Account
   ) {
-    const avatar = await selectedAvatar(account.uid);
-    if (avatar) {
-      return avatar;
-    }
+    try {
+      const avatar = await selectedAvatar(account.uid);
+      if (avatar) {
+        return avatar;
+      }
 
-    const profile = await this.profileAPI.getProfile(token);
-    const url = profile.avatar;
-    return {
-      id: `default-${url[url.length - 1]}`,
-      url,
-    };
+      const profile = await this.profileAPI.getProfile(token);
+      const url = profile.avatar;
+      return {
+        id: `default-${url[url.length - 1]}`,
+        url,
+      };
+    } catch (error) {
+      const accountContext: ExtraContext = {
+        name: 'account',
+        fieldData: {
+          accountId: account.uid,
+          verifierSetAt: account.verifierSetAt.toString(),
+        },
+      };
+      this.log.error(error, { uid: account.uid });
+      reportRequestException(error, [accountContext]);
+      return {};
+    }
   }
 
   @ResolveField()
