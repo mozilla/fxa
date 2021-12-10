@@ -14,6 +14,7 @@ import { PlayBilling } from './google-play/play-billing';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { StripeHelper } from './stripe';
 import error from '../error';
+import { PurchaseQueryError } from './google-play/types';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -345,14 +346,24 @@ export class CapabilityService {
     if (!this.playBilling) {
       return [];
     }
-    const allPurchases =
-      await this.playBilling.userManager.queryCurrentSubscriptions(uid);
-    const purchases = allPurchases.filter((purchase) =>
-      purchase.isEntitlementActive()
-    );
-    return purchases.length === 0
-      ? []
-      : this.stripeHelper.purchasesToProductIds(purchases);
+    try {
+      const allPurchases =
+        await this.playBilling.userManager.queryCurrentSubscriptions(uid);
+      const purchases = allPurchases.filter((purchase) =>
+        purchase.isEntitlementActive()
+      );
+      return purchases.length === 0
+        ? []
+        : this.stripeHelper.purchasesToProductIds(purchases);
+    } catch (err) {
+      if (err.name === PurchaseQueryError.OTHER_ERROR) {
+        this.log.error('Failed to query purchases from Google Play', {
+          uid,
+          err,
+        });
+      }
+      return [];
+    }
   }
 
   /**
