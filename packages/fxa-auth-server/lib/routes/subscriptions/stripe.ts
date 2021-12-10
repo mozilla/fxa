@@ -69,6 +69,28 @@ export class StripeHandler {
   }
 
   /**
+   * Extracts a promotion code from the request, while verifying its
+   * validity for this priceId and returns a promotionCode if valid, or
+   * throws an invalidPromoCode error if not.
+   */
+  protected async extractPromotionCode(
+    promotionCodeFromRequest: string,
+    priceId: string
+  ) {
+    let promotionCode: Stripe.PromotionCode | undefined;
+    if (promotionCodeFromRequest) {
+      promotionCode = await this.stripeHelper.findValidPromoCode(
+        promotionCodeFromRequest,
+        priceId
+      );
+      if (!promotionCode) {
+        throw error.invalidPromoCode(promotionCode);
+      }
+    }
+    return promotionCode;
+  }
+
+  /**
    * Reload the customer data to reflect a change.
    */
   async customerChanged(request: AuthRequest, uid: string, email: string) {
@@ -410,8 +432,16 @@ export class StripeHandler {
       throw error.unknownCustomer(uid);
     }
 
-    const { priceId, paymentMethodId, idempotencyKey, metricsContext } =
-      request.payload as Record<string, string>;
+    const {
+      priceId,
+      paymentMethodId,
+      promotionCode: promotionCodeFromRequest,
+      idempotencyKey,
+      metricsContext,
+    } = request.payload as Record<string, string>;
+
+    const promotionCode: Stripe.PromotionCode | undefined =
+      await this.extractPromotionCode(promotionCodeFromRequest, priceId);
 
     let taxRateId: string | undefined;
     // Skip the payment source check if there's no payment method id.
@@ -445,6 +475,7 @@ export class StripeHandler {
         customerId: customer.id,
         priceId,
         paymentMethodId,
+        couponId: promotionCode?.coupon.id,
         subIdempotencyKey,
         taxRateId,
       }
@@ -718,6 +749,7 @@ export const stripeRoutes = (
           payload: {
             priceId: isA.string().required(),
             paymentMethodId: validators.stripePaymentMethodId.optional(),
+            promotionCode: isA.string().optional(),
             idempotencyKey: isA.string().required(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           },

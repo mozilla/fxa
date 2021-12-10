@@ -113,6 +113,8 @@ const ERRNO = {
   IAP_INTERNAL_OTHER: 197,
   IAP_UNKNOWN_APPNAME: 198,
 
+  INVALID_PROMOTION_CODE: 199,
+
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
   BACKEND_SERVICE_FAILURE: 203,
@@ -1248,6 +1250,20 @@ AppError.invalidPkceChallenge = (pkceHashValue) => {
     },
     {
       pkceHashValue,
+    }
+  );
+};
+
+AppError.invalidPromoCode = (promtionCode) => {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_PROMOTION_CODE,
+      message: 'Invalid promotion code',
+    },
+    {
+      promtionCode,
     }
   );
 };
