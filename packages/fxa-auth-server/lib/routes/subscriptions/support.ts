@@ -134,9 +134,9 @@ export const supportRoutes = (
               { id: productVersionFieldId, value: productVersion },
               { id: topicFieldId, value: topic },
               { id: appFieldId, value: app },
-              { id: locationCityFieldId, value: location.city },
-              { id: locationStateFieldId, value: location.state },
-              { id: locationCountryFieldId, value: location.country },
+              { id: locationCityFieldId, value: location?.city },
+              { id: locationStateFieldId, value: location?.state },
+              { id: locationCountryFieldId, value: location?.country },
             ],
           },
         };
