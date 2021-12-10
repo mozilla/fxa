@@ -5,19 +5,12 @@ import React, {
   FormEventHandler,
 } from 'react';
 import { Localized } from '@fluent/react';
-import { AppContext } from '../../lib/AppContext';
 import './index.scss';
-import { Form, Input, OnValidateFunction, SubmitButton } from '../fields';
+import { Form, SubmitButton } from '../fields';
 import useValidatorState from '../../lib/validator';
 import { checkoutContext } from '../../routes/Checkout';
 
-type CouponProps = {
-  isMobile: boolean;
-  className?: string;
-};
-
-export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
-  const role = isMobile ? undefined : 'complementary';
+export const Coupon = () => {
   const [hasCoupon, setHasCoupon] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [error, setError] = useState(false);
@@ -52,11 +45,7 @@ export const Coupon = ({ isMobile, className = 'default' }: CouponProps) => {
   };
 
   return (
-    <section
-      className={`coupon-component ${className}`}
-      {...{ role }}
-      data-testid="coupon-component"
-    >
+    <section className={`coupon-component`} data-testid="coupon-component">
       <div className="coupon-component-inner">
         <Localized id="coupon-header">
           <div className="coupon-header">

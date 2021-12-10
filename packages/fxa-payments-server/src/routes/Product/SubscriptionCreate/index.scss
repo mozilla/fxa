@@ -17,7 +17,7 @@
   grid-row: 2/3;
 
   @include max-width('tablet') {
-    grid-row: 3/4;
+    grid-row: 4/5;
   }
 }
 
@@ -30,7 +30,7 @@
   padding: 16px 16px 60px;
 
   @include max-width('tablet') {
-    grid-row: 3/4;
+    grid-row: 4/5;
     margin: 24px 16px;
     min-height: 100%;
   }

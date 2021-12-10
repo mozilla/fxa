@@ -4,31 +4,17 @@
 .coupon-component {
   font-size: 15px;
   margin: 32px 0;
-  padding-top: 300px;
+
+  @include min-width('tablet') {
+    padding-top: 285px;
+  }
 
   @include max-width('tablet') {
-    margin-left: 16px;
-    margin-right: 16px;
-    margin-bottom: 0;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 -1px white, 0 1px white,
-      -2px 2px 2px -2px rgba(12, 12, 13, 0.1),
-      2px 2px 2px -2px rgba(12, 12, 13, 0.1);
-    text-align: center;
-    position: relative;
-    grid-row: 2/3;
-    margin-top: 0;
-    grid-row: 3/4;
+    margin: 0 16px;
     margin-top: 24px;
-    margin: 16px 16px 32px;
-
-    .coupon-component-card {
-      box-shadow: 0 -1px white, 0 1px white,
-        -2px 2px 2px -2px rgba(12, 12, 13, 0.1),
-        2px 2px 2px -2px rgba(12, 12, 13, 0.1);
-      text-align: center;
-      position: relative;
-    }
+    border-radius: 0 0 8px 8px;
+    position: relative;
+    grid-row: 3/4;
   }
 
   .coupon-component-inner {
@@ -41,38 +27,40 @@
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(12, 12, 13, 0.1);
 
-    form, .flex {
+    form,
+    .flex {
       display: flex;
       flex-wrap: nowrap;
       justify-content: center;
-      margin: 0  0 16px 0;
     }
 
-    .input-row, .coupon-details {
-      margin: 0 16px 0 0;
+    .input-row,
+    .coupon-details {
+      margin: 0;
+      padding: 0 16px 0 0;
+      padding-bottom: 16px;
       width: 185px;
     }
 
     button {
+      max-height: 40px;
       width: 110px;
     }
 
     .coupon-error {
-      margin: 10px;
+      margin: 16px;
+      padding-bottom: 10px;
       width: 185px;
       color: red;
     }
   }
 
   .coupon-header {
-    display: flex;
-    justify-content: space-between;
-    margin: 0 10px;
+    margin: 0 16px;
     padding: 16px 0;
 
     h4 {
       margin: 0;
     }
   }
-
 }
