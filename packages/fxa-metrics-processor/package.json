@@ -23,7 +23,7 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@google-cloud/pubsub": "^2.18.3",
+    "@google-cloud/pubsub": "^2.18.4",
     "@sentry/integrations": "^6.15.0",
     "@sentry/node": "^6.15.0",
     "@types/convict": "^5.2.2",

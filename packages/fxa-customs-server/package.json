@@ -23,7 +23,7 @@
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^2.18.3",
+    "@google-cloud/pubsub": "^2.18.4",
     "@hapi/hapi": "^20.2.1",
     "@hapi/hoek": "^9.2.0",
     "@sentry/node": "^6.15.0",
