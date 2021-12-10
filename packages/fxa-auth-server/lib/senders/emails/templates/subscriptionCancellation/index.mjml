@@ -14,7 +14,7 @@
   <mj-column>
     <mj-text css-class="text-body">
       <span data-l10n-id="subscriptionCancellation-content" data-l10n-args="<%= JSON.stringify({productName, invoiceTotal, invoiceDateOnly, serviceLastActiveDateOnly}) %>">
-          We‘ve cancelled your <%- productName %> subscription. Your final payment of <%- invoiceTotal %> was paid on <%- invoiceDateOnly %>. Your service will continue until the end of your current billing period, which is <%- serviceLastActiveDateOnly %>.
+          We’ve cancelled your <%- productName %> subscription. Your final payment of <%- invoiceTotal %> was paid on <%- invoiceDateOnly %>. Your service will continue until the end of your current billing period, which is <%- serviceLastActiveDateOnly %>.
       </span>
     </mj-text>
   </mj-column>
