@@ -49,6 +49,7 @@
     "@fluent/bundle": "^0.17.0",
     "@fluent/dom": "^0.7.0",
     "@fluent/langneg": "^0.5.2",
+    "@google-cloud/bigquery": "^5.9.2",
     "@google-cloud/firestore": "^5.0.1",
     "@hapi/hapi": "^20.2.1",
     "@hapi/hawk": "^8.0.0",
