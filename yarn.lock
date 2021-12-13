@@ -18846,7 +18846,7 @@ fsevents@~2.1.1:
     sass: ^1.44.0
     simplesmtp: 0.3.35
     sinon: ^9.0.3
-    stripe: ^8.191.0
+    stripe: ^8.193.0
     superagent: ^6.1.0
     through: 2.3.8
     typedi: ^0.8.0
@@ -19731,7 +19731,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rxjs: ^7.2.0
     sinon: ^9.0.3
-    stripe: ^8.191.0
+    stripe: ^8.193.0
     superagent: ^6.1.0
     ts-jest: ^27.0.7
     ts-loader: ^8.3.0
@@ -36732,13 +36732,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"stripe@npm:^8.191.0":
-  version: 8.191.0
-  resolution: "stripe@npm:8.191.0"
+"stripe@npm:^8.193.0":
+  version: 8.193.0
+  resolution: "stripe@npm:8.193.0"
   dependencies:
     "@types/node": ">=8.1.0"
     qs: ^6.6.0
-  checksum: f9bdd883c257245c04cdb09404c540f6d7d05e8f164ba5f76ab47dcf3fb75882b7a7f87aed9a2d36b8bf47f9d03f1b4f073f5704ac914fca9f6252023012d1d2
+  checksum: ee26331f9c1ac52084e5526ad73bcad1f4b845ac9d07d5890ec90a09015a5a609b56db3519fa1d289e5bd7728ed6e3002cefc7003835cfd3820f92d8249a82e1
   languageName: node
   linkType: hard
 
