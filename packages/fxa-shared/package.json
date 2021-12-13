@@ -80,7 +80,7 @@
     "@nestjs/core": "^8.2.3",
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
-    "@sentry/browser": "^6.15.0",
+    "@sentry/browser": "^6.16.1",
     "@sentry/integrations": "^6.15.0",
     "@sentry/node": "^6.15.0",
     "@types/js-md5": "^0.4.2",
