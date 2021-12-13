@@ -135,7 +135,7 @@ services:
   redis:
     image: redis
   mysql:
-    image: mysql/mysql-server:5.6
+    image: mysql/mysql-server:5.7
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_ROOT_HOST=%
