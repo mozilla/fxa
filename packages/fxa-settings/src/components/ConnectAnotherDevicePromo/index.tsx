@@ -66,7 +66,10 @@ export function ConnectAnotherDevicePromo() {
             id="connect-another-play-store-image"
             attrs={{ title: true }}
           >
-            <GooglePlayBadge role="img" title="Download Firefox for Android" />
+            <GooglePlayBadge
+              role="img"
+              title="Download Firefox on Google Play"
+            />
           </Localized>
         </LinkExternal>
         <LinkExternal
@@ -78,7 +81,10 @@ export function ConnectAnotherDevicePromo() {
             id="connect-another-app-store-image"
             attrs={{ title: true }}
           >
-            <AppStoreBadge role="img" title="Download Firefox for iOS" />
+            <AppStoreBadge
+              role="img"
+              title="Download Firefox on the App Store"
+            />
           </Localized>
         </LinkExternal>
       </div>

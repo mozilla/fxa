@@ -9,6 +9,6 @@ connect-another-find-fx-mobile = Find { -brand-firefox } in the { -google-play }
 connect-another-play-store-image =
     .title = Download { -brand-firefox } on { -google-play }
 connect-another-app-store-image =
-    .title = Download { -brand-firefox } on { -app-store }
+    .title = Download { -brand-firefox } on the { -app-store }
 
 ##
