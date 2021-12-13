@@ -471,6 +471,7 @@
       "subscriptionAccountReminderSecond",
       "subscriptionCancellation",
       "subscriptionDowngrade",
+      "subscriptionFirstInvoice",
       "subscriptionPaymentFailed",
       "subscriptionPaymentProviderCancelled",
       "subscriptionReactivation",

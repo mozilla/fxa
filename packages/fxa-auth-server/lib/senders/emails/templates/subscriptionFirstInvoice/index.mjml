@@ -1,0 +1,60 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section css-class="mb-6">
+  <mj-column>
+    <mj-image src="<%- icon %>" alt="<%- productName %> icon" title="<%- productName %>" css-class="product-icon"></mj-image>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="subscriptionFirstInvoice-title" data-l10n-args="<%= JSON.stringify({productName}) %>">Thank you for subscribing to <%- productName %></span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionFirstInvoice-content-processing">
+        Your payment is currently processing and may take up to four business days to complete.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionFirstInvoice-content-install" data-l10n-args="<%= JSON.stringify({productName}) %>">
+        You will receive a separate email with download instructions on how to start using <%- productName %>.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionFirstInvoice-content-auto-renew">
+        Your subscription will automatically renew each billing period unless you choose to cancel.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionFirstInvoice-content-invoice-number-label">Invoice Number:</span>
+      <span>
+        <b data-l10n-id="subscriptionFirstInvoice-content-invoice-number-value" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>"><%- invoiceNumber %></b>
+      </span>
+      <br />
+      <span data-l10n-id="subscriptionFirstInvoice-content-charge" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
+        Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>
+      </span>
+      <br />
+      <%- include ('/partials/viewInvoice/index.mjml') %>
+      <% if (locals.payment_provider) { %>
+        <br />
+        <%- include ('/partials/paymentProvider/index.mjml') %>
+      <% } %>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionFirstInvoice-content-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
+        Next Invoice: <%- nextInvoiceDateOnly %>
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include ('/partials/subscriptionSupport/index.mjml') %>

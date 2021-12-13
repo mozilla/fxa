@@ -1,0 +1,6 @@
+<% if (payment_provider === "paypal") { %>
+    payment-provider = "PayPal"
+<% } %>
+<% if (payment_provider === "stripe" && lastFour) { %>
+    card-ending-in = "<%- cardType %> card ending in <%- lastFour %>"
+<% } %>

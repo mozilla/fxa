@@ -71,15 +71,22 @@ const MESSAGE = {
   uaOSVersion: '10',
   uid: 'uid',
   unblockCode: 'AS6334PK',
+  cardType: 'mastercard',
   invoiceDate: new Date(1584747098816),
+  invoiceLink:
+    'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
+  invoiceNumber: '8675309',
   invoiceTotalInCents: 999999.9,
   invoiceTotalCurrency: 'eur',
+  lastFour: '5309',
+  nextInvoiceDate: new Date(1587339098816),
   paymentAmountOldInCents: 9999099.9,
   paymentAmountOldCurrency: 'jpy',
   paymentAmountNewInCents: 12312099.9,
   paymentAmountNewCurrency: 'gbp',
   paymentProratedInCents: 523099.9,
   paymentProratedCurrency: 'usd',
+  payment_provider: 'stripe',
   planId: 'plan-example',
   productId: 'wibble',
   productMetadata,
@@ -1089,6 +1096,42 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
       { test: 'include', expected: `billing period, which is 04/19/2020.` },
       { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+
+  ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
+      { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      // Need to rewrite - attributes cause this to fail
+      // { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      // Link appears in Storybook, undefined in HTML, does not exist in txt
+      // { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
     ]]
   ])],
 

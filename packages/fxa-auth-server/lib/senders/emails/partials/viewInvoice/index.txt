@@ -1,0 +1,2 @@
+view-invoice-plaintext = "View invoice:"
+<%- invoiceLink %>
