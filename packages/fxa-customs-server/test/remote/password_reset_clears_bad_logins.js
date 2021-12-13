@@ -78,7 +78,7 @@ test('too many failed logins', function (t) {
     });
 });
 
-test('failed logins are cleared', function (t) {
+test('failed logins are cleared', { skip: true }, function (t) {
   return client
     .postAsync('/passwordReset', { email: TEST_EMAIL })
     .spread(function (req, res, obj) {
