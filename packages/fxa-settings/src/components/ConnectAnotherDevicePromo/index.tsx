@@ -66,7 +66,10 @@ export function ConnectAnotherDevicePromo() {
             id="connect-another-play-store-image"
             attrs={{ title: true }}
           >
-            <GooglePlayBadge role="img" title="Download Firefox for Android" />
+            <GooglePlayBadge
+              role="img"
+              title="Download Firefox on Google Play"
+            />
           </Localized>
         </LinkExternal>
         <LinkExternal
@@ -75,10 +78,13 @@ export function ConnectAnotherDevicePromo() {
           href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926"
         >
           <Localized
-            id="connect-another-app-store-image"
+            id="connect-another-app-store-image-2"
             attrs={{ title: true }}
           >
-            <AppStoreBadge role="img" title="Download Firefox for iOS" />
+            <AppStoreBadge
+              role="img"
+              title="Download Firefox on the App Store"
+            />
           </Localized>
         </LinkExternal>
       </div>
