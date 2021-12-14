@@ -2974,12 +2974,14 @@ module.exports = function (config, DB) {
       return db
         .createEmailBounce({
           email,
+          templateName: 'verify',
           bounceType: 'Permanent',
           bounceSubType: 'NoEmail',
         })
         .then(() =>
           db.createEmailBounce({
             email,
+            templateName: 'passwordReset',
             bounceType: 'Transient',
             bounceSubType: 'General',
           })
@@ -2988,9 +2990,11 @@ module.exports = function (config, DB) {
         .then((bounces) => {
           assert.lengthOf(bounces, 2);
           assert.equal(bounces[0].email, email);
+          assert.equal(bounces[0].emailTypeId, 33);
           assert.equal(bounces[0].bounceType, 2);
           assert.equal(bounces[0].bounceSubType, 2);
           assert.equal(bounces[1].email, email);
+          assert.equal(bounces[0].emailTypeId, 6);
           assert.equal(bounces[1].bounceType, 1);
           assert.equal(bounces[1].bounceSubType, 3);
         });

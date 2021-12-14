@@ -749,6 +749,7 @@ Parameters:
 
 - body: (object)
   - email: A string of the email address that bounced
+  - templateName: A string of the email template that was used
   - bounceType: The bounce type ([`'Permanent'`, `'Transient'`, `'Complaint'`])
   - bounceSubType: The bounce sub type string
 

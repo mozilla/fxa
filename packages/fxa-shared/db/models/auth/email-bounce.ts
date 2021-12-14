@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { EmailType } from '.';
+import { convertError } from '../../mysql';
 import { BaseAuthModel, Proc } from './base-auth';
 
 const BOUNCE_TYPES = {
@@ -53,17 +54,18 @@ export class EmailBounce extends BaseAuthModel {
     bounceType: BounceType;
     bounceSubType: BounceSubType;
   }) {
-    const emailTypes = EmailType.bindKnex(this.knex);
-    const { id: emailTypeId } = await emailTypes
-      .query()
-      .findOne({ emailType: templateName });
-    return EmailBounce.query().insert({
-      email,
-      emailTypeId,
-      bounceType: BOUNCE_TYPES[bounceType],
-      bounceSubType: BOUNCE_SUB_TYPES[bounceSubType],
-      createdAt: Date.now(),
-    });
+    try {
+      await EmailBounce.callProcedure(
+        Proc.CreateEmailBounce,
+        email,
+        templateName,
+        BOUNCE_TYPES[bounceType],
+        BOUNCE_SUB_TYPES[bounceSubType],
+        Date.now()
+      );
+    } catch (e: any) {
+      throw convertError(e);
+    }
   }
 
   static async findByEmail(email: string) {

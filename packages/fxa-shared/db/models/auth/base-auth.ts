@@ -16,6 +16,7 @@ export enum Proc {
   CreateAccount = 'createAccount_9',
   CreateDevice = 'createDevice_5',
   CreateEmail = 'createEmail_2',
+  CreateEmailBounce = 'createEmailBounce_2',
   CreateKeyFetchToken = 'createKeyFetchToken_2',
   CreatePasswordChangeToken = 'createPasswordChangeToken_2',
   CreatePasswordForgotToken = 'createPasswordForgotToken_2',
