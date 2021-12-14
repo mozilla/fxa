@@ -1131,6 +1131,27 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
 
+  ['subscriptionPaymentFailedEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment failed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentFailed') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentFailed' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentFailed }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-failed', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-failed', 'subscription-terms') },
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+
   ['subscriptionReactivationEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} subscription reactivated` }],
     ['headers', new Map([

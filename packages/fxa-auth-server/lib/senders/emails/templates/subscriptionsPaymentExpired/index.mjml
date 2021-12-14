@@ -14,16 +14,15 @@
       </span>
     </mj-text>
 
-  <mj-text css-class="text-body">
-    <ul>
-      <% for (const { productName } of subscriptions) { %>
-        <li>
-          <%- productName %>
-        </li>
-      <% } %>
-    </ul>
-  </mj-text>
-
+    <mj-text css-class="text-body">
+      <ul>
+        <% for (const { productName } of subscriptions) { %>
+          <li>
+            <%- productName %>
+          </li>
+        <% } %>
+      </ul>
+    </mj-text>
   </mj-column>
 </mj-section>
 
