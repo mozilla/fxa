@@ -14615,6 +14615,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "db-migrations@workspace:packages/db-migrations"
   dependencies:
+    convict: ^6.2.1
+    convict-format-with-moment: ^6.2.0
+    convict-format-with-validator: ^6.2.0
+    fxa-shared: "workspace:*"
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
   bin:
