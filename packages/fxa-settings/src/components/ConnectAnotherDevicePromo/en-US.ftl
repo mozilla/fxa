@@ -8,7 +8,7 @@ connect-another-find-fx-mobile = Find { -brand-firefox } in the { -google-play }
 # These images are used to encourage users to download Firefox on their mobile devices.
 connect-another-play-store-image =
     .title = Download { -brand-firefox } on { -google-play }
-connect-another-app-store-image =
+connect-another-app-store-image-2 =
     .title = Download { -brand-firefox } on the { -app-store }
 
 ##
