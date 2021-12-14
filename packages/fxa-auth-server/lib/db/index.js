@@ -944,12 +944,26 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
   DB.prototype.replaceRecoveryCodes = async function (uid, count) {
     log.trace('DB.replaceRecoveryCodes', { uid });
+    const codes = await this.createRecoveryCodes(uid, count);
+    await this.updateRecoveryCodes(uid, codes);
+    return codes;
+  };
+
+  DB.prototype.createRecoveryCodes = async function (uid, count) {
+    log.trace('DB.createRecoveryCodes', { uid });
     const getCode = base32(config.totp.recoveryCodes.length);
     const codes = await Promise.all(
       Array.from({ length: count }, async () => {
         return (await getCode()).toLowerCase();
       })
     );
+    return codes;
+  };
+
+  DB.prototype.updateRecoveryCodes = async function (uid, codes) {
+    log.trace('DB.updateRecoveryCodes', { uid, codes });
+
+    // Convert codes into hashes
     const hashes = await Promise.all(
       codes.map(async (code) => {
         // eslint-disable-next-line fxa/async-crypto-random
@@ -965,7 +979,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       })
     );
     await Account.replaceRecoveryCodes(uid, hashes);
-    return codes;
   };
 
   DB.prototype.consumeRecoveryCode = async function (uid, code) {

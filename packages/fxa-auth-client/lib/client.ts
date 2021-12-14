@@ -1026,6 +1026,13 @@ export default class AuthClient {
     return this.sessionGet('/recoveryCodes', sessionToken);
   }
 
+  async updateRecoveryCodes(
+    sessionToken: hexstring,
+    recoveryCodes: string[]
+  ): Promise<{ success: boolean }> {
+    return this.sessionPut('/recoveryCodes', sessionToken, { recoveryCodes });
+  }
+
   async consumeRecoveryCode(sessionToken: hexstring, code: string) {
     return this.sessionPost('/session/verify/recoveryCode', sessionToken, {
       code,

@@ -50,6 +50,10 @@ const settingsConfig = {
   oauth: {
     clientId: config.get('oauth_client_id'),
   },
+  recoveryCodes: {
+    count: config.get('recovery_codes.count'),
+    length: config.get('recovery_codes.length'),
+  },
 };
 
 // Inject Beta Settings meta content

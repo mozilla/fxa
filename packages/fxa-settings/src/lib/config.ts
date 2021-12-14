@@ -32,6 +32,10 @@ export interface Config {
   oauth: {
     clientId: string;
   };
+  recoveryCodes: {
+    count: number;
+    length: number;
+  };
   version: string;
 }
 
@@ -58,6 +62,10 @@ export function getDefault() {
     },
     oauth: {
       clientId: '',
+    },
+    recoveryCodes: {
+      count: 8,
+      length: 10,
     },
   } as Config;
 }

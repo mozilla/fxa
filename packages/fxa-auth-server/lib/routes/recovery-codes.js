@@ -6,12 +6,19 @@
 
 const errors = require('../error');
 const isA = require('@hapi/joi');
-const BASE_36 = require('./validators').BASE_36;
+const validators = require('./validators');
+
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
 module.exports = (log, db, config, customs, mailer) => {
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
+
+  // Validate recovery codes
+  const recoveryCodesSchema = validators.recoveryCodes(
+    RECOVERY_CODE_COUNT,
+    RECOVERY_CODE_SANE_MAX_LENGTH
+  );
 
   return [
     {
@@ -22,9 +29,7 @@ module.exports = (log, db, config, customs, mailer) => {
           strategy: 'sessionToken',
         },
         response: {
-          schema: {
-            recoveryCodes: isA.array().items(isA.string()),
-          },
+          schema: recoveryCodesSchema,
         },
       },
       async handler(request) {
@@ -66,6 +71,60 @@ module.exports = (log, db, config, customs, mailer) => {
       },
     },
     {
+      method: 'PUT',
+      path: '/recoveryCodes',
+
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: recoveryCodesSchema,
+        },
+        response: {
+          schema: {
+            success: isA.boolean(),
+          },
+        },
+      },
+      async handler(request) {
+        log.begin('updateRecoveryCodes', request);
+
+        const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
+
+        // Since TOTP and recovery codes go hand in hand, you should only be
+        // able to replace recovery codes in a TOTP verified session.
+        if (!authenticatorAssuranceLevel || authenticatorAssuranceLevel <= 1) {
+          throw errors.unverifiedSession();
+        }
+
+        const { recoveryCodes } = request.payload;
+        await db.updateRecoveryCodes(uid, recoveryCodes);
+
+        const account = await db.account(uid);
+        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+
+        await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
+          acceptLanguage,
+          ip,
+          location: geo.location,
+          timeZone: geo.timeZone,
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uid,
+        });
+
+        log.info('account.recoveryCode.replaced', { uid });
+
+        await request.emitMetricsEvent('recoveryCode.replaced', { uid });
+
+        return { success: true };
+      },
+    },
+    {
       method: 'POST',
       path: '/session/verify/recoveryCode',
       options: {
@@ -75,11 +134,12 @@ module.exports = (log, db, config, customs, mailer) => {
         },
         validate: {
           payload: {
-            code: isA
-              .string()
-              .max(RECOVERY_CODE_SANE_MAX_LENGTH)
-              .regex(BASE_36)
-              .required(),
+            // Validation here is done with BASE_36 superset to be backwards compatible...
+            // Ideally all recovery codes are Crockford Base32.
+            code: validators.recoveryCode(
+              RECOVERY_CODE_SANE_MAX_LENGTH,
+              validators.BASE_36
+            ),
           },
         },
         response: {
