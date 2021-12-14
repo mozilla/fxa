@@ -5,51 +5,60 @@
 'use strict';
 
 const { assert } = require('chai');
+const Sentry = require('@sentry/node');
 const { mockLog } = require('../mocks');
 const sinon = require('sinon');
 const { GoogleMapsService } = require('../../lib/google-maps-services');
 const { default: Container } = require('typedi');
 const { AuthLogger, AppConfig } = require('../../lib/types');
 
-// const geocodeResultUSZip = {
-//   data: {
-//     results: [
-//       {
-//         address_components: [
-//           {
-//             long_name: '20639',
-//             short_name: '20639',
-//             types: ['postal_code'],
-//           },
-//           {
-//             long_name: 'Huntingtown',
-//             short_name: 'Huntingtown',
-//             types: ['locality', 'political'],
-//           },
-//           {
-//             long_name: 'Calvert County',
-//             short_name: 'Calvert County',
-//             types: ['administrative_area_level_2', 'political'],
-//           },
-//           {
-//             long_name: 'Maryland',
-//             short_name: 'MD',
-//             types: ['administrative_area_level_1', 'political'],
-//           },
-//           {
-//             long_name: 'United States',
-//             short_name: 'US',
-//             types: ['country', 'political'],
-//           },
-//         ],
-//         formatted_address: 'Huntingtown, MD 20639, USA',
-//         place_id: 'ChIJyU14qhKDt4kRQcsnBrUz5IY',
-//         types: ['postal_code'],
-//       },
-//     ],
-//     status: 'OK',
-//   },
-// };
+const geocodeResultMany = {
+  data: {
+    results: [
+      {
+        address_components: [
+          {
+            long_name: 'Maryland',
+            short_name: 'MD',
+            types: ['administrative_area_level_1', 'political'],
+          },
+        ],
+      },
+      {
+        address_components: [
+          {
+            long_name: 'New York',
+            short_name: 'NY',
+            types: ['administrative_area_level_1', 'political'],
+          },
+        ],
+      },
+    ],
+    status: 'OK',
+  },
+};
+
+const geocodeResultWithoutState = {
+  data: {
+    results: [
+      {
+        address_components: [
+          {
+            long_name: '20639',
+            short_name: '20639',
+            types: ['postal_code'],
+          },
+          {
+            long_name: 'United States',
+            short_name: 'US',
+            types: ['country', 'political'],
+          },
+        ],
+      },
+    ],
+    status: 'OK',
+  },
+};
 
 const geocodeResultDEZip = {
   data: {
@@ -57,29 +66,11 @@ const geocodeResultDEZip = {
       {
         address_components: [
           {
-            long_name: '06369',
-            short_name: '06369',
-            types: ['postal_code'],
-          },
-          {
-            long_name: 'Diebzig',
-            short_name: 'Diebzig',
-            types: ['political', 'sublocality', 'sublocality_level_1'],
-          },
-          {
             long_name: 'Saxony-Anhalt',
             short_name: 'SA',
             types: ['administrative_area_level_1', 'political'],
           },
-          {
-            long_name: 'Germany',
-            short_name: 'DE',
-            types: ['country', 'political'],
-          },
         ],
-        formatted_address: '06369, Germany',
-        place_id: 'ChIJU6PmZdsMpkcRsDHiRl1mIxw',
-        types: ['postal_code'],
       },
     ],
     status: 'OK',
@@ -108,7 +99,7 @@ const mockConfig = {
 let googleMapsServices;
 let googleClient;
 
-describe.skip('GoogleMapsServices', () => {
+describe('GoogleMapsServices', () => {
   let log;
 
   beforeEach(() => {
@@ -124,12 +115,9 @@ describe.skip('GoogleMapsServices', () => {
     sinon.restore();
   });
 
-  describe('getGeocodeResults', () => {});
-
   describe('getStateFromZip', () => {
     it('returns location for zip code and country', async () => {
       const expectedResult = 'SA';
-
       googleClient.geocode = sinon.stub().resolves(geocodeResultDEZip);
 
       const actualResult = await googleMapsServices.getStateFromZip(
@@ -138,40 +126,115 @@ describe.skip('GoogleMapsServices', () => {
       );
       assert.equal(actualResult, expectedResult);
     });
-  });
 
-  it('returns empty object for invalid zipcode', async () => {
-    const expectedResult = new Error('ZERO_RESULTS for 11111, Germany');
+    it('Throws Error for invalid country code', async () => {
+      const expectedMessage =
+        'Invalid country (Germany). Only ISO 3166-1 alpha-2 country codes are supported.';
 
-    googleClient.geocode = sinon.stub().resolves(noResult);
+      try {
+        await googleMapsServices.getStateFromZip('11111', 'Germany');
+        assert.fail(expectedMessage);
+      } catch (err) {
+        assert.equal(
+          expectedMessage,
+          googleMapsServices.log.error.getCall(0).args[1].error.message
+        );
+      }
+    });
 
-    try {
-      await googleMapsServices.getStateFromZip('11111', 'DE');
-      assert.fail('Error: ZERO_RESULTS for 11111, Germany');
-    } catch (err) {
-      console.log(err);
-      console.log(err.address);
-      console.log(Object.keys(err));
-      assert.equal(
-        `Error: ZERO_RESULTS for 11111, Germany`,
-        googleMapsServices.log.error.getCall(0).args[1].error.message
-      );
-      assert.deepEqual(err.message, expectedResult.message);
-    }
-  });
+    it('Throws Error for zip cod without state', async () => {
+      const expectedMessage = 'State could not be found. (11111, Germany)';
+      googleClient.geocode = sinon.stub().resolves(geocodeResultWithoutState);
 
-  it('returns empty object for error from Geocoding API', async () => {
-    const expectedResult = {};
-    googleClient.geocode = sinon.stub().resolves(noResultWithError);
+      try {
+        await googleMapsServices.getStateFromZip('11111', 'DE');
+        assert.fail(expectedMessage);
+      } catch (err) {
+        assert.equal(
+          expectedMessage,
+          googleMapsServices.log.error.getCall(0).args[1].error.message
+        );
+      }
+    });
 
-    const actualResult = await googleMapsServices.getStateFromZip(
-      '11111',
-      'DE'
-    );
-    assert.deepEqual(actualResult, expectedResult);
-    assert.equal(
-      `Error: UNKNOWN_ERROR - An unknown error has occurred for 11111, Germany`,
-      googleMapsServices.log.error.getCall(0).args[1].error.message
-    );
+    it('Throws error if more than 1 result is returned', async () => {
+      const expectedMessage = 'Could not find unique results. (11111, Germany)';
+      googleClient.geocode = sinon.stub().resolves(geocodeResultMany);
+
+      try {
+        await googleMapsServices.getStateFromZip('11111', 'DE');
+        assert.fail(expectedMessage);
+      } catch (err) {
+        assert.equal(
+          expectedMessage,
+          googleMapsServices.log.error.getCall(0).args[1].error.message
+        );
+      }
+    });
+
+    it('Throws error if no results were found', async () => {
+      const expectedMessage =
+        'Could not find any results for address. (11111, Germany)';
+      googleClient.geocode = sinon.stub().resolves(noResult);
+
+      try {
+        await googleMapsServices.getStateFromZip('11111', 'DE');
+        assert.fail(expectedMessage);
+      } catch (err) {
+        assert.equal(
+          expectedMessage,
+          googleMapsServices.log.error.getCall(0).args[1].error.message
+        );
+      }
+    });
+
+    it('Throws error for bad status code', async () => {
+      const expectedMessage =
+        'UNKNOWN_ERROR - An unknown error has occurred. (11111, Germany)';
+      googleClient.geocode = sinon.stub().resolves(noResultWithError);
+
+      const scopeContextSpy = sinon.fake();
+      const scopeSpy = {
+        setContext: scopeContextSpy,
+      };
+      sinon.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
+      sinon.replace(Sentry, 'captureMessage', sinon.stub());
+
+      try {
+        await googleMapsServices.getStateFromZip('11111', 'DE');
+        assert.fail(expectedMessage);
+      } catch (err) {
+        assert.equal(
+          expectedMessage,
+          googleMapsServices.log.error.getCall(0).args[1].error.message
+        );
+        assert.isTrue(scopeContextSpy.calledOnce);
+        assert.isTrue(Sentry.captureMessage.calledOnce);
+      }
+    });
+
+    it('Throws error when GeocodeData fails', async () => {
+      const expectedMessage = 'Geocode is not available';
+      googleClient.geocode = sinon.stub().rejects(new Error(expectedMessage));
+
+      const scopeContextSpy = sinon.fake();
+      const scopeSpy = {
+        setContext: scopeContextSpy,
+      };
+      sinon.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
+      sinon.replace(Sentry, 'captureMessage', sinon.stub());
+
+      try {
+        await googleMapsServices.getStateFromZip('11111', 'DE');
+        assert.fail(expectedMessage);
+      } catch (err) {
+        assert.equal(
+          expectedMessage,
+          googleMapsServices.log.error.getCall(0).args[1].error.message
+        );
+        assert.isTrue(scopeContextSpy.calledOnce);
+        assert.isTrue(Sentry.captureMessage.calledOnce);
+      }
+    });
   });
 });

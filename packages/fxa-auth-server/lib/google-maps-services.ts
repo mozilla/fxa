@@ -1,5 +1,6 @@
 import {
   Client,
+  GeocodeResponseData,
   GeocodeResult,
   PlaceType2,
   Status,
@@ -7,29 +8,8 @@ import {
 import * as Sentry from '@sentry/node';
 import countries from 'i18n-iso-countries';
 import { Container } from 'typedi';
+
 import { AppConfig, AuthLogger } from './types';
-
-export enum GoogleMapsServiceErrorMsg {
-  ZERO_RESULTS = 'Could not find any results for address',
-  NON_UNIQUE_RESULTS = 'Could not find unique results',
-  STATE_NOT_FOUND = 'Could not find state',
-  INVALID_COUNTRY = 'Invalid country. Only ISO 3166-1 alpha-2 country codes are supported.',
-  GOOGLE_SERVICE_ERROR = 'A google maps service error has occurred.',
-}
-
-type GoogleMapsServiceErrorExtras = {
-  country?: string;
-  address?: string;
-  googleStatus?: string;
-  googleErrorMessage?: string;
-};
-
-export class GoogleMapsServiceError extends Error {
-  constructor(message: string, extras?: GoogleMapsServiceErrorExtras) {
-    super(message);
-    if (extras) Object.assign(this, extras);
-  }
-}
 
 export class GoogleMapsService {
   private log: AuthLogger;
@@ -43,38 +23,24 @@ export class GoogleMapsService {
     this.googleMapsApiKey = config.googleMapsApiKey;
   }
 
-  async getGeocodeResult(address: string): Promise<GeocodeResult> {
+  private async getGeocodeData(address: string): Promise<GeocodeResponseData> {
     try {
-      const {
-        data: { results, status, error_message: errorMessage },
-      } = await this.client.geocode({
+      const { data } = await this.client.geocode({
         params: {
           address,
           key: this.googleMapsApiKey,
         },
       });
 
-      if (Status.ZERO_RESULTS)
-        throw new GoogleMapsServiceError(
-          GoogleMapsServiceErrorMsg.ZERO_RESULTS,
-          { address }
-        );
+      const { status, error_message: errorMessage } = data;
 
-      if (status !== Status.OK)
-        throw new GoogleMapsServiceError(
-          GoogleMapsServiceErrorMsg.GOOGLE_SERVICE_ERROR,
-          { googleStatus: status, googleErrorMessage: errorMessage }
-        );
+      if ([Status.OK, Status.ZERO_RESULTS].includes(status)) return data;
 
-      if (results.length > 1)
-        throw new GoogleMapsServiceError(
-          GoogleMapsServiceErrorMsg.NON_UNIQUE_RESULTS,
-          { address }
-        );
-
-      return results[0];
+      throw new Error(
+        `${status}${errorMessage && ` - ${errorMessage}`}. (${address})`
+      );
     } catch (error) {
-      // If GoogleMapsServices returns anything other than OK, send to Sentry
+      // If GoogleMapsServices returns anything other than OK or ZERO_RESULTS, send to Sentry
       Sentry.withScope((scope) => {
         scope.setContext('googleMapsService', {
           address,
@@ -85,32 +51,40 @@ export class GoogleMapsService {
     }
   }
 
+  private async getOneGeocodeResult(address: string): Promise<GeocodeResult> {
+    const { results, status } = await this.getGeocodeData(address);
+
+    if (status === Status.ZERO_RESULTS)
+      throw new Error(`Could not find any results for address. (${address})`);
+
+    if (results.length > 1)
+      throw new Error(`Could not find unique results. (${address})`);
+
+    return results[0];
+  }
+
   async getStateFromZip(zip: string, country: string): Promise<string> {
     const countryName = countries.getName(country, 'en');
     const address = `${zip}, ${countryName}`;
 
     try {
       if (!countryName)
-        throw new GoogleMapsServiceError(
-          GoogleMapsServiceErrorMsg.INVALID_COUNTRY,
-          { country }
+        throw new Error(
+          `Invalid country (${country}). Only ISO 3166-1 alpha-2 country codes are supported.`
         );
 
       const { address_components: addressComponents } =
-        await this.getGeocodeResult(address);
+        await this.getOneGeocodeResult(address);
 
       const state = addressComponents.find((address) =>
         address.types.includes(PlaceType2.administrative_area_level_1)
       );
       if (!state?.short_name)
-        throw new GoogleMapsServiceError(
-          GoogleMapsServiceErrorMsg.STATE_NOT_FOUND,
-          { address }
-        );
+        throw new Error(`State could not be found. (${address})`);
 
       return state.short_name;
     } catch (error) {
-      this.log.error('GoogleMapsServices.getLocationFromZip.failed', { error });
+      this.log.error('GoogleMapsServices.getStateFromZip.failed', { error });
       throw error;
     }
   }
