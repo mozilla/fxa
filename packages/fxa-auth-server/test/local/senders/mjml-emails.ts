@@ -1112,8 +1112,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
-      // Need to rewrite - attributes cause this to fail
-      // { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `${MESSAGE.invoiceNumber}</b>` },
       { test: 'include', expected: `MasterCard card ending in 5309` },
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
@@ -1128,8 +1127,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `MasterCard card ending in 5309` },
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
-      // Link appears in Storybook, undefined in HTML, does not exist in txt
-      // { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
       { test: 'notInclude', expected: 'utm_source=email' },
       { test: 'notInclude', expected: 'PayPal' },
     ]]
