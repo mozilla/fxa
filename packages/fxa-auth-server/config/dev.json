@@ -472,6 +472,7 @@
       "subscriptionCancellation",
       "subscriptionDowngrade",
       "subscriptionPaymentFailed",
+      "subscriptionPaymentProviderCancelled",
       "subscriptionReactivation",
       "subscriptionUpgrade"
     ]
