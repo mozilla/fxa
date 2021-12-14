@@ -1,4 +1,4 @@
-payment-method = Payment method: Paypal
+payment-method = Payment method: PayPal
 credit-card = Credit card:
 # Variables:
 #  $cardType (String) - The name of the credit card, e.g. Visa
