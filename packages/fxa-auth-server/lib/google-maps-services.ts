@@ -9,20 +9,25 @@ import countries from 'i18n-iso-countries';
 import { Container } from 'typedi';
 import { AppConfig, AuthLogger } from './types';
 
-export enum GoogleMapsServiceErrorType {
+export enum GoogleMapsServiceErrorMsg {
   ZERO_RESULTS = 'Could not find any results for address',
   NON_UNIQUE_RESULTS = 'Could not find unique results',
-  GEOCODE_ERROR = '',
+  STATE_NOT_FOUND = 'Could not find state',
+  INVALID_COUNTRY = 'Invalid country. Only ISO 3166-1 alpha-2 country codes are supported.',
+  GOOGLE_SERVICE_ERROR = 'A google maps service error has occurred.',
 }
 
-export class GoogleMapsServiceError extends Error {
-  public address?: string;
+type GoogleMapsServiceErrorExtras = {
+  country?: string;
+  address?: string;
+  googleStatus?: string;
+  googleErrorMessage?: string;
+};
 
-  constructor(message: string, address?: string) {
-    super();
-    this.name = 'GoogleMapsServiceErrorType';
-    this.message = message;
-    if (address) this.address = address;
+export class GoogleMapsServiceError extends Error {
+  constructor(message: string, extras?: GoogleMapsServiceErrorExtras) {
+    super(message);
+    if (extras) Object.assign(this, extras);
   }
 }
 
@@ -50,22 +55,21 @@ export class GoogleMapsService {
       });
 
       if (Status.ZERO_RESULTS)
-        // throw new Error(`Could not find any results for address, ${address}`);
         throw new GoogleMapsServiceError(
-          'Could not find any results for address',
-          address
+          GoogleMapsServiceErrorMsg.ZERO_RESULTS,
+          { address }
         );
 
       if (status !== Status.OK)
-        throw new Error(
-          `${
-            errorMessage ? `${status} - ${errorMessage}` : `${status}`
-          } for ${address}`
+        throw new GoogleMapsServiceError(
+          GoogleMapsServiceErrorMsg.GOOGLE_SERVICE_ERROR,
+          { googleStatus: status, googleErrorMessage: errorMessage }
         );
 
       if (results.length > 1)
-        throw new Error(
-          `Could not find unique results for address, ${address}`
+        throw new GoogleMapsServiceError(
+          GoogleMapsServiceErrorMsg.NON_UNIQUE_RESULTS,
+          { address }
         );
 
       return results[0];
@@ -87,8 +91,9 @@ export class GoogleMapsService {
 
     try {
       if (!countryName)
-        throw new Error(
-          `Invalid country (${country}). Only ISO 3166-1 alpha-2 are supported.`
+        throw new GoogleMapsServiceError(
+          GoogleMapsServiceErrorMsg.INVALID_COUNTRY,
+          { country }
         );
 
       const { address_components: addressComponents } =
@@ -98,7 +103,10 @@ export class GoogleMapsService {
         address.types.includes(PlaceType2.administrative_area_level_1)
       );
       if (!state?.short_name)
-        throw new Error(`Could not find State for address, ${address}`);
+        throw new GoogleMapsServiceError(
+          GoogleMapsServiceErrorMsg.STATE_NOT_FOUND,
+          { address }
+        );
 
       return state.short_name;
     } catch (error) {
