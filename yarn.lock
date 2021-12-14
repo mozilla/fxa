@@ -19026,7 +19026,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     helmet: ^4.6.0
     hot-shots: ^9.0.0
-    htmlparser2: 7.1.2
+    htmlparser2: 7.2.0
     http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
     install: 0.13.0
@@ -21890,15 +21890,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"htmlparser2@npm:7.1.2":
-  version: 7.1.2
-  resolution: "htmlparser2@npm:7.1.2"
+"htmlparser2@npm:7.2.0":
+  version: 7.2.0
+  resolution: "htmlparser2@npm:7.2.0"
   dependencies:
     domelementtype: ^2.0.1
     domhandler: ^4.2.2
     domutils: ^2.8.0
     entities: ^3.0.1
-  checksum: 80374dce981d94ff03155733cda289534878e2d05cb435cc9eddc64716e617abf720938d813f18a16878254c8eb5873c7d9e2964bf240202f0a5b71b8e06069f
+  checksum: 96563d9965729cfcb3f5f19c26d013c6831b4cb38d79d8c185e9cd669ea6a9ffe8fb9ccc74d29a068c9078aa0e2767053ed6b19aa32723c41550340d0094bea0
   languageName: node
   linkType: hard
 
