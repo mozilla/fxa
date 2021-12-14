@@ -253,6 +253,10 @@ test.describe('severity-1', () => {
     for (const code of recoveryCodes) {
       expect(newCodes).not.toContain(code);
     }
+    await settings.clickRecoveryCodeAck();
+    await totp.setRecoveryCode(newCodes[0]);
+    await totp.submit();
+    await settings.waitForAlertBar();
     await settings.signOut();
     await login.login(credentials.email, credentials.password, newCodes[0]);
     expect(page.url()).toMatch(settings.url);

@@ -29,6 +29,10 @@ export abstract class SettingsLayout extends BaseLayout {
     return this.page.click('[data-testid=modal-confirm]');
   }
 
+  clickRecoveryCodeAck() {
+    return this.page.click('[data-testid=ack-recovery-code]');
+  }
+
   async clickHelp() {
     const [helpPage] = await Promise.all([
       this.page.context().waitForEvent('page'),

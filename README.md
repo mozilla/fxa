@@ -246,6 +246,31 @@ yarn test all
 
 - Note that this invokes the same test suite that CI uses, and is not necessarily the same as running `yarn test` in any given package.
 
+#### Functional Playwrite Tests
+
+You can run functional tests that emulate user behavior. This is a good final pass for any change that affects the UI. It can also save lots of time during development, because running the functional test is quite fast. Note that functional tests are not a replacement for unit tests, so use them judiciously.
+
+Make sure the stack has been started and is running (`yarn start`). From here, there are a few variants:
+
+```bash
+# Run tests in headless mode
+yarn workspace functional-tests test
+
+# Run tests in debug mode allowing step through of each test stage. Note, using the --grep argument
+# or adding .only statements to tests cases is a good idea when debugging, since stepping though every
+# single tests is not desirable.
+yarn workspace functional-tests test --debug --grep=$test_name
+
+# Run tests in debug console mode, allowing browser debugging.
+# https://playwright.dev/docs/debug#selectors-in-developer-tools-console
+PWDEBUG=console yarn workspace functional-tests test
+
+# Target a specific test
+yarn test workspace functional-tests test --grep=$test_name
+```
+
+For more info, see details at https://playwright.dev.
+
 #### Emulating CI environment
 
 It is possible to run various test suites (known as Jobs) acting as Circle CI. This is useful if you're encountering CI-specific failures. Please refer to [this documentation](https://github.com/mozilla/fxa/tree/main/.circleci#local-testing).

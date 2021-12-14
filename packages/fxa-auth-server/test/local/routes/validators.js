@@ -849,4 +849,77 @@ describe('lib/routes/validators:', () => {
       });
     });
   });
+
+  describe('recovery codes', () => {
+    it('allows base32 codes', () => {
+      assert.notExists(
+        validators
+          .recoveryCodes(2, 10)
+          .validate({ recoveryCodes: ['123456789A', '123456789B'] }).error
+      );
+    });
+
+    it('allows base36 codes', () => {
+      assert.notExists(
+        validators
+          .recoveryCodes(1, 10)
+          .validate({ recoveryCodes: ['012345678L'] }).error
+      );
+    });
+
+    it('detects missing recovery codes', () => {
+      assert.exists(
+        validators.recoveryCodes(2, 10).validate({ recoveryCodes: [] }).error
+      );
+      assert.exists(validators.recoveryCodes(2, 10).validate({}).error);
+    });
+
+    it('detects improper count', () => {
+      assert.exists(
+        validators.recoveryCodes(2, 10).validate({
+          recoveryCodes: ['123456789A', '123456789B', '123456789C'],
+        }).error
+      );
+    });
+
+    it('detects duplicates', () => {
+      assert.exists(
+        validators
+          .recoveryCodes(2, 10)
+          .validate({ recoveryCodes: ['1234567890', '1234567890'] }).error
+      );
+    });
+
+    it('detects allows less than maximum', () => {
+      assert.exists(
+        validators
+          .recoveryCodes(2, 10)
+          .validate({ recoveryCodes: ['123456789', '123456789'] }).error
+      );
+    });
+
+    it('detects minimum', () => {
+      assert.exists(
+        validators.recoveryCodes(2, 10).validate({ recoveryCodes: ['', ''] })
+          .error
+      );
+    });
+  });
+
+  describe('recovery code', () => {
+    it('validates recovery codes', () => {
+      assert.notExists(
+        validators.recoveryCode(10).validate('0123456789').error
+      );
+    });
+
+    it('invalidates recovery code', () => {
+      assert.exists(validators.recoveryCode(10).validate('012345678-').error);
+    });
+
+    it('requires proper length', () => {
+      assert.exists(validators.recoveryCode(5).validate('1234').error);
+      assert.exists(validators.recoveryCode(11).validate('123456').error);
+    });
+  });
 });

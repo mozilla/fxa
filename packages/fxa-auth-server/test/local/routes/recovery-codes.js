@@ -14,10 +14,11 @@ let log, db, customs, routes, route, request, requestOptions, mailer;
 const TEST_EMAIL = 'test@email.com';
 const UID = 'uid';
 
-function runTest(routePath, requestOptions) {
+function runTest(routePath, requestOptions, method) {
   const config = {
     recoveryCodes: {
       count: 8,
+      length: 10,
       notifyLowCount: 2,
     },
   };
@@ -28,7 +29,7 @@ function runTest(routePath, requestOptions) {
     customs,
     mailer
   );
-  route = getRoute(routes, routePath);
+  route = getRoute(routes, routePath, method);
   request = mocks.mockRequest(requestOptions);
   request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
 
@@ -61,10 +62,10 @@ describe('recovery codes', () => {
     };
   });
 
-  describe('/recoveryCodes', () => {
+  describe('GET /recoveryCodes', () => {
     it('should replace recovery codes in TOTP session', () => {
       requestOptions.credentials.authenticatorAssuranceLevel = 2;
-      return runTest('/recoveryCodes', requestOptions).then((res) => {
+      return runTest('/recoveryCodes', requestOptions, 'GET').then((res) => {
         assert.equal(res.recoveryCodes.length, 2, 'correct default code count');
 
         assert.equal(db.replaceRecoveryCodes.callCount, 1);
@@ -76,7 +77,35 @@ describe('recovery codes', () => {
 
     it("should't replace codes in non-TOTP verified session", () => {
       requestOptions.credentials.authenticatorAssuranceLevel = 1;
-      return runTest('/recoveryCodes', requestOptions).then(
+      return runTest('/recoveryCodes', requestOptions, 'GET').then(
+        assert.fail,
+        (err) => {
+          assert.equal(err.errno, error.ERRNO.SESSION_UNVERIFIED);
+        }
+      );
+    });
+  });
+
+  describe('PUT /recoveryCodes', () => {
+    it('should overwrite recovery codes in TOTP session', () => {
+      requestOptions.credentials.authenticatorAssuranceLevel = 2;
+      requestOptions.payload.recoveryCodes = ['123'];
+
+      return runTest('/recoveryCodes', requestOptions, 'PUT').then((res) => {
+        assert.equal(res.success, true, 'returns success');
+
+        assert.equal(db.updateRecoveryCodes.callCount, 1);
+
+        const args = db.updateRecoveryCodes.args[0];
+        assert.equal(args[0], UID, 'called with uid');
+        assert.deepEqual(args[1], ['123'], 'called with recovery codes');
+      });
+    });
+
+    it("should't overwrite codes for non-TOTP verified session", () => {
+      requestOptions.credentials.authenticatorAssuranceLevel = 1;
+      requestOptions.payload.recoveryCodes = ['123'];
+      return runTest('/recoveryCodes', requestOptions, 'PUT').then(
         assert.fail,
         (err) => {
           assert.equal(err.errno, error.ERRNO.SESSION_UNVERIFIED);

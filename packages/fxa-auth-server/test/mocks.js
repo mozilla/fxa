@@ -47,6 +47,7 @@ const DB_METHOD_NAMES = [
   'createEmail',
   'createKeyFetchToken',
   'createPasswordForgotToken',
+  'createRecoveryCodes',
   'createRecoveryKey',
   'createSessionToken',
   'createSigninCode',
@@ -89,6 +90,7 @@ const DB_METHOD_NAMES = [
   'updateDevice',
   'updateEcosystemAnonId',
   'updateLocale',
+  'updateRecoveryCodes',
   'updateRecoveryKey',
   'updateSessionToken',
   'updateTotpToken',
@@ -549,6 +551,12 @@ function mockDB(data, errors) {
     }),
     replaceRecoveryCodes: sinon.spy(() => {
       return Promise.resolve(['12312312', '12312312']);
+    }),
+    createRecoveryCodes: sinon.spy(() => {
+      return Promise.resolve(['12312312', '12312312']);
+    }),
+    updateRecoveryCodes: sinon.spy(() => {
+      return Promise.resolve({ succes: true });
     }),
   });
 }
