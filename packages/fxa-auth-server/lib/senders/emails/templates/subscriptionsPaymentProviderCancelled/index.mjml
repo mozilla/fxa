@@ -1,0 +1,36 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="subscriptionsPaymentProviderCancelled-title">Sorry, we’re having trouble with your payment method</span>
+    </mj-text>
+
+    <mj-text css-class="text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionsPaymentProviderCancelled-content-detected">
+        We have detected a problem with your payment method for the following subscriptions.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <ul>
+        <% for (const { productName } of subscriptions) { %>
+          <li>
+            <%- productName %>
+          </li>
+        <% } %>
+      </ul>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionsPaymentProviderCancelled-content-payment">
+        It may be that your credit card has expired, or your current payment method is out of date.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/subscriptionUpdatePayment/index.mjml', { updateBillingUrl }) %>
+<%- include ('/partials/subscriptionSupport/index.mjml') %>
