@@ -9,22 +9,19 @@ test.describe('severity-1', () => {
     credentials,
     pages: { login, settings },
   }) => {
-    test.fixme(
-      true,
-      '(Invalid parameter in request body) response to attachedClientDisconnect mutation'
-    );
     await page.goto(
       target.contentServerUrl +
         '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
     );
     await login.login(credentials.email, credentials.password);
     await settings.goto();
-    const services = await settings.connectedServices.services();
+    let services = await settings.connectedServices.services();
     const sync = services.find((s) => s.name !== 'playwright');
     await sync.signout();
     await page.click('text=Rather not say >> input[name="reason"]');
     await settings.clickModalConfirm();
-    // The sync row should be removed but isn't
+    await page.waitForURL('**/signin', { waitUntil: 'networkidle' });
+    expect(page.locator('#password')).toBeVisible();
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293385

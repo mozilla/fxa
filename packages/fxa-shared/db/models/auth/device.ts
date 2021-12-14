@@ -194,7 +194,10 @@ export class Device extends BaseAuthModel {
     if (!result) {
       throw notFound();
     }
-    return result;
+    return {
+      sessionTokenId: uuidTransformer.from(result.sessionTokenId),
+      refreshTokenId: uuidTransformer.from(result.refreshTokenId),
+    };
   }
 
   static fromRows(rows: object[]): Device[] {
