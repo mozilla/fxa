@@ -116,7 +116,7 @@
     "@sentry/browser": "^6.16.1",
     "@sentry/node": "^6.15.0",
     "@stripe/react-stripe-js": "^1.6.0",
-    "@stripe/stripe-js": "^1.21.1",
+    "@stripe/stripe-js": "^1.22.0",
     "accept-language-parser": "^1.5.0",
     "celebrate": "^10.1.0",
     "classnames": "^2.3.1",
