@@ -39,7 +39,8 @@
       margin: 0;
       padding: 0 16px 0 0;
       padding-bottom: 16px;
-      width: 185px;
+      width: 57%;
+
     }
 
     button {
@@ -47,10 +48,16 @@
       width: 110px;
     }
 
+    @media (min-width: 521px), (orientation: landscape) and (min-width: 641px) {
+      button {
+        max-height: 48px;
+      }
+    }
+
     .coupon-error {
       margin: 16px;
       padding-bottom: 10px;
-      width: 185px;
+      width: 57%;
       color: red;
     }
   }
