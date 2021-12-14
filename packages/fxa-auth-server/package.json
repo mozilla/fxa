@@ -93,7 +93,7 @@
     "jwks-rsa": "^2.0.4",
     "keyv": "4.0.4",
     "lodash": "^4.17.21",
-    "luxon": "^2.1.1",
+    "luxon": "^2.2.0",
     "memcached": "^2.2.2",
     "mjml": "^4.11.0",
     "moment-timezone": "^0.5.34",
