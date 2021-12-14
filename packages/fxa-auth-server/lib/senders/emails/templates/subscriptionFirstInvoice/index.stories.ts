@@ -11,7 +11,7 @@ export default {
 
 const createStory = subplatStoryWithProps(
   'subscriptionFirstInvoice',
-  'Sent to inform a user that their payment is currently being processed.',
+  'Sent to inform a user that their first payment is currently being processed.',
   {
     productName: 'Firefox Fortress',
     icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
@@ -29,34 +29,16 @@ export const SubscriptionFirstInvoice = createStory();
 
 export const SubscriptionFirstInvoiceWithPayPal = createStory(
   {
-    productName: 'Firefox Fortress',
-    icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
-    invoiceDateOnly: '10/13/2021',
-    invoiceLink:
-      'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
-    invoiceNumber: '8675309',
-    invoiceTotal: '$20.00',
-    nextInvoiceDateOnly: '11/13/2021',
     payment_provider: 'paypal',
-    subscriptionSupportUrl: 'http://localhost:3030/support',
   },
-  'PayPal'
+  'Payment method - PayPal'
 );
 
 export const SubscriptionFirstInvoiceWithStripe = createStory(
   {
-    productName: 'Firefox Fortress',
     cardType: 'MasterCard',
-    icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
-    invoiceDateOnly: '10/13/2021',
-    invoiceLink:
-      'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
-    invoiceNumber: '8675309',
-    invoiceTotal: '$20.00',
     lastFour: '5309',
-    nextInvoiceDateOnly: '11/13/2021',
     payment_provider: 'stripe',
-    subscriptionSupportUrl: 'http://localhost:3030/support',
   },
-  'Stripe'
+  'Payment method - Stripe'
 );

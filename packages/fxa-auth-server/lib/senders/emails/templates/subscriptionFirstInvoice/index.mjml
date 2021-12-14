@@ -32,7 +32,7 @@
       </span>
     </mj-text>
 
-    <mj-text css-class="text-body">
+    <mj-text css-class="text-body-no-bottom-margin">
       <span data-l10n-id="subscriptionFirstInvoice-content-invoice-number-label">Invoice Number:</span>
       <span>
         <b data-l10n-id="subscriptionFirstInvoice-content-invoice-number-value" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>"><%- invoiceNumber %></b>
@@ -43,11 +43,11 @@
       </span>
       <br />
       <%- include ('/partials/viewInvoice/index.mjml') %>
-      <% if (locals.payment_provider) { %>
-        <br />
-        <%- include ('/partials/paymentProvider/index.mjml') %>
-      <% } %>
     </mj-text>
+
+    <% if (locals.payment_provider) { %>
+      <%- include ('/partials/paymentProvider/index.mjml') %>
+    <% } %>
 
     <mj-text css-class="text-body">
       <span data-l10n-id="subscriptionFirstInvoice-content-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
