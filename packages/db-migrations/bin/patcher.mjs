@@ -4,7 +4,6 @@
 
 import { promisify } from 'util';
 import fs from 'fs/promises';
-import { existsSync } from 'fs';
 import path from 'path';
 import mysql from 'mysql';
 import patcher from 'mysql-patcher';
@@ -12,31 +11,21 @@ import convict from 'convict';
 import { makeMySQLConfig } from 'fxa-shared/db/config.js';
 const patch = promisify(patcher.patch);
 
-convict.addFormats(import('convict-format-with-moment'));
-convict.addFormats(import('convict-format-with-validator'));
+const conf = convict({
+  fxa: makeMySQLConfig('AUTH', 'fxa'),
+  fxa_profile: makeMySQLConfig('PROFILE', 'fxa_profile'),
+  fxa_oauth: makeMySQLConfig('OAUTH', 'fxa_oauth'),
+});
+if (process.env.CONFIG_FILES) {
+  const files = process.env.CONFIG_FILES.split(',');
+  conf.loadFile(files);
+}
+conf.validate()
 
 const databasesDir = path.resolve(
   new URL('.', import.meta.url).pathname,
   '../databases'
 );
-
-const conf = convict({
-  env: {
-    default: 'development',
-    doc: 'The current node.js environment',
-    env: 'NODE_ENV',
-    format: ['development', 'test', 'stage', 'production'],
-  },
-  fxa: makeMySQLConfig('AUTH', 'fxa'),
-  fxa_profile: makeMySQLConfig('PROFILE', 'fxa_profile'),
-  fxa_oauth: makeMySQLConfig('OAUTH', 'fxa_oauth'),
-});
-
-let envConfig = path.join(databasesDir, `${conf.get('env')}.json`);
-envConfig = `${envConfig},${process.env.CONFIG_FILES || ''}`;
-const files = envConfig.split(',').filter(existsSync);
-conf.loadFile(files);
-conf.validate({ allowed: 'strict' });
 
 const databases = (
   await fs.readdir(databasesDir, {
@@ -51,7 +40,7 @@ for (const db of databases) {
     await fs.readFile(path.resolve(databasesDir, db, 'target-patch.json'))
   );
   try {
-    let cfg = conf.get(db);
+    const cfg = conf.get(db);
     await patch({
       user: cfg.user,
       password: cfg.password,
