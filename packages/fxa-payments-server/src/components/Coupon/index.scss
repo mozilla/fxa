@@ -58,10 +58,14 @@
     }
 
     .coupon-error {
-      margin: 16px;
-      padding-bottom: 10px;
+      margin: 0px 16px 16px 16px;
+      padding-bottom: 0px;
       width: 57%;
       color: red;
+
+      @include max-width('tablet') {
+        padding-bottom: 16px;
+      }
     }
   }
 
