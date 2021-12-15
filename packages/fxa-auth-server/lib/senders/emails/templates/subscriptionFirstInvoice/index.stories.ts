@@ -25,8 +25,6 @@ const createStory = subplatStoryWithProps(
   }
 );
 
-export const SubscriptionFirstInvoice = createStory();
-
 export const SubscriptionFirstInvoiceWithPayPal = createStory(
   {
     payment_provider: 'paypal',

@@ -41,13 +41,10 @@
       <span data-l10n-id="subscriptionFirstInvoice-content-charge" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
         Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>
       </span>
-      <br />
-      <%- include ('/partials/viewInvoice/index.mjml') %>
     </mj-text>
 
-    <% if (locals.payment_provider) { %>
-      <%- include ('/partials/paymentProvider/index.mjml') %>
-    <% } %>
+    <%- include ('/partials/viewInvoice/index.mjml') %>
+    <%- include ('/partials/paymentProvider/index.mjml') %>
 
     <mj-text css-class="text-body">
       <span data-l10n-id="subscriptionFirstInvoice-content-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">

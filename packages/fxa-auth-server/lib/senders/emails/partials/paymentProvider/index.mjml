@@ -2,17 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
-<% if (payment_provider === 'paypal') { %>
-  <mj-text css-class="text-body">
-    <span data-l10n-id="payment-provider-paypal" css-class="margin-top">Payment Method: PayPal</span>
-  </mj-text>
-<% } %>
+<mj-text css-class="text-body margin-top">
+  <span data-l10n-id="payment-method" >Payment Method:</span>
 
-<% if (payment_provider === "stripe" && lastFour) { %>
-  <mj-text css-class="text-body">
-    <span data-l10n-id="payment-method" css-class="margin-top">Payment Method:</span>
+  <% if (payment_provider === 'paypal') { %>
+    <span data-l10n-id="paypal">PayPal</span>
+  <% } %>
+
+  <% if (payment_provider === "stripe" && lastFour) { %>
     <span data-l10n-id="card-ending-in" data-l10n-args="<%= JSON.stringify({cardType, lastFour}) %>">
       <%- cardType %> card ending in <%- lastFour %>
     </span>
-  </mj-text>
-<% } %>
+  <% } %>
+</mj-text>

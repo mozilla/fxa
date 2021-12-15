@@ -11,9 +11,8 @@ subscriptionFirstInvoice-content-auto-renew = "Your subscription will automatica
 subscriptionFirstInvoice-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
 subscriptionFirstInvoice-content-charge = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
 <%- include ('/partials/viewInvoice/index.txt') %>
-<% if (locals.payment_provider) { %>
 <%- include ('/partials/paymentProvider/index.txt') %>
-<% } %>
+
 subscriptionFirstInvoice-content-next-invoice = "Next Invoice: <%- nextInvoiceDateOnly %>"
 
 <%- include ('/partials/subscriptionSupport/index.txt') %>

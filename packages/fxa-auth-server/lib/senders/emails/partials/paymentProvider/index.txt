@@ -1,5 +1,5 @@
 <% if (payment_provider === "paypal") { %>
-    payment-provider-paypal = "Payment Method: PayPal"
+    payment-provider-paypal-plaintext = "Payment Method: PayPal"
 <% } %>
 <% if (payment_provider === "stripe" && lastFour) { %>
     payment-method = "Payment Method:"
