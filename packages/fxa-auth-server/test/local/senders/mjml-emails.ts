@@ -1163,6 +1163,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-expired', 'subscription-terms') },
       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -1224,6 +1225,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-provider-cancelled', 'update-billing', 'email', 'uid')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-provider-cancelled', 'subscription-terms') },
       { test: 'include', expected: 'We have detected a problem with your payment method for the following subscriptions.' },
       { test: 'include', expected: 'It may be that your credit card has expired, or your current payment method is out of date.' },
       { test: 'notInclude', expected: 'utm_source=email' },
