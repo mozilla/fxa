@@ -1255,6 +1255,41 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
 
+  ['subscriptionSubsequentInvoiceEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: `${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment received` },
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]]
+  ])],
+
   ['subscriptionUpgradeEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
     ['headers', new Map([
