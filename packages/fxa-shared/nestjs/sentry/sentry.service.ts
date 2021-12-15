@@ -5,6 +5,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ExtraErrorData } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
 
+import { tagCriticalEvent } from '../../tags/sentry';
 import { filterSentryEvent } from './reporting';
 import { SENTRY_CONFIG } from './sentry.constants';
 import { SentryConfigParams } from './sentry.module';
@@ -17,8 +18,8 @@ export class SentryService {
       ...sentryConfig,
       normalizeDepth: 6,
       integrations: [new ExtraErrorData({ depth: 5 })],
-      beforeSend(event, hint) {
-        return filterSentryEvent(event, hint);
+      beforeSend(event: Sentry.Event, hint) {
+        return filterSentryEvent(tagCriticalEvent(event), hint);
       },
     });
   }

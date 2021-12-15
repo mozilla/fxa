@@ -9,7 +9,7 @@ const Sentry = require('@sentry/node');
 const { ExtraErrorData } = require('@sentry/integrations');
 const verror = require('verror');
 const { ERRNO } = require('./error');
-
+const { tagCriticalEvent } = require('fxa-shared/tags/sentry');
 const getVersion = require('./version').getVersion;
 
 // Matches uid, session, oauth and other common tokens which we would
@@ -53,6 +53,8 @@ function filterObject(obj) {
  * @param {Sentry.Event} event
  */
 function filterSentryEvent(event, hint) {
+  event = tagCriticalEvent(event);
+
   if (event.breadcrumbs) {
     for (const bc of event.breadcrumbs) {
       if (bc.message) {

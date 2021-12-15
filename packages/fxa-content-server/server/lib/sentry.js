@@ -8,6 +8,7 @@ const config = require('./configuration');
 const SENTRY_SERVER_ERRORS_DSN = config.get('sentry.server_errors_dsn');
 const STACKTRACE_FRAME_LENGTH = 10;
 const RELEASE = require('../../package.json').version;
+const { tagCriticalEvent } = require('fxa-shared/tags/sentry');
 
 const Sentry = require('@sentry/node');
 
@@ -22,6 +23,8 @@ function removeQuery(url) {
 }
 
 const eventFilter = (event) => {
+  event = tagCriticalEvent(event);
+
   if (_.get(event, 'request.headers.Referer')) {
     event.request.headers.Referer = removeQuery(event.request.headers.Referer);
   }

@@ -6,6 +6,7 @@ import _ from 'underscore';
 import Logger from './logger';
 import * as Sentry from '@sentry/browser';
 import Url from './url';
+import { tagCriticalEvent } from 'fxa-shared/tags/sentry';
 
 var ALLOWED_QUERY_PARAMETERS = [
   'automatedBrowser',
@@ -30,6 +31,7 @@ var ALLOWED_QUERY_PARAMETERS = [
  * @private
  */
 function beforeSend(data) {
+  data = tagCriticalEvent(data);
   if (data && data.request) {
     if (data.request.url) {
       data.request.url = cleanUpQueryParam(data.request.url);
