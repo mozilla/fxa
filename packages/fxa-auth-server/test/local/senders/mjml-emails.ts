@@ -1163,6 +1163,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-expired', 'subscription-terms') },
       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -1214,6 +1215,26 @@ const TESTS: [string, any, Record<string, any>?][] = [
     {updateTemplateValues: x => (
       {...x, subscriptions: [{planId: MESSAGE.planId, productId: MESSAGE.productId, ...x.subscriptions[0]}]})}
   ],
+
+  ['subscriptionPaymentProviderCancelledEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Payment information update required for Mozilla subscriptions' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionsPaymentProviderCancelled') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionsPaymentProviderCancelled' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionsPaymentProviderCancelled }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-provider-cancelled', 'update-billing', 'email', 'uid')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-provider-cancelled', 'subscription-terms') },
+      { test: 'include', expected: 'We have detected a problem with your payment method for the following subscriptions.' },
+      { test: 'include', expected: 'It may be that your credit card has expired, or your current payment method is out of date.' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'We have detected a problem with your payment method for the following subscriptions.' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
 
   ['subscriptionReactivationEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} subscription reactivated` }],

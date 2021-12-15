@@ -67,7 +67,7 @@
         </mj-text>
 
         <mj-text css-class="footer-text">
-          <% if (locals.productName) { %>
+          <% if (locals.productName || locals.subscriptions?.length > 0) { %>
             <a href="<%- subscriptionTermsUrl %>" class="footer-link" data-l10n-id="subplat-terms-policy">Terms and cancellation policy</a>
             &nbsp;&nbsp;&bull;&nbsp;&nbsp;
           <% } %>

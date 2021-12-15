@@ -6,18 +6,12 @@ import { Meta } from '@storybook/html';
 import { subplatStoryWithProps } from '../../storybook-email';
 
 export default {
-  title: 'SubPlat Emails/Layout',
+  title: 'SubPlat Emails/Templates/subscriptionsPaymentProviderCancelled',
 } as Meta;
 
 const createStory = subplatStoryWithProps(
-  '_storybook',
-  'The Subscription Platform email base layout.',
-  {
-    subject: 'N/A',
-  }
-);
-
-export const LayoutMultipleProducts = createStory(
+  'subscriptionsPaymentProviderCancelled',
+  'Sent when a user has multiple subscriptions and a problem has been detected with payment method.',
   {
     subscriptions: [
       {
@@ -27,21 +21,9 @@ export const LayoutMultipleProducts = createStory(
         productName: 'Mozilla VPN',
       },
     ],
-  },
-  'Multiple products'
+    subscriptionSupportUrl: 'http://localhost:3030/support',
+    updateBillingUrl: 'http://localhost:3030/subscriptions',
+  }
 );
 
-export const LayoutWithProduct = createStory(
-  {
-    productName: 'Mozilla VPN',
-  },
-  'Specific product'
-);
-
-export const LayoutWithProductCancellation = createStory(
-  {
-    productName: 'Mozilla VPN',
-    isCancellationEmail: true,
-  },
-  'Cancellation email'
-);
+export const SubscriptionsPaymentProviderCancelled = createStory();
