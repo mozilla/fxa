@@ -4,7 +4,7 @@
 
 subplat-automated-email = "This is an automated email; if you received it in error, no action is required."
 
-<% if (locals.productName || locals.subscriptions.length > 0) { %>
+<% if (locals.productName || locals.subscriptions?.length > 0) { %>
 subplat-terms-policy-plaintext = "Terms and cancellation policy:"
 <%- subscriptionTermsUrl %>
 
