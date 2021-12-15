@@ -8,7 +8,7 @@ import { Localized } from '@fluent/react';
 import './index.scss';
 import { Form, SubmitButton } from '../fields';
 import useValidatorState from '../../lib/validator';
-import { checkoutContext } from '../../routes/Checkout';
+import { CouponContext } from '../../lib/CouponContext';
 
 export const Coupon = () => {
   const [hasCoupon, setHasCoupon] = useState(false);
@@ -19,7 +19,7 @@ export const Coupon = () => {
     initialState: undefined,
   });
 
-  const { coupon, setCoupon } = useContext(checkoutContext);
+  const { coupon, setCoupon } = useContext(CouponContext);
 
   const onSubmit: FormEventHandler = (event: any) => {
     event.preventDefault();

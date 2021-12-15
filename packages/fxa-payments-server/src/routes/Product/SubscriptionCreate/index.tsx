@@ -45,6 +45,9 @@ import { ButtonBaseProps } from '../../../components/PayPalButton';
 import { apiCapturePaypalPayment } from '../../../lib/apiClient';
 import { GeneralError } from '../../../lib/errors';
 import { PaymentMethodHeader } from '../../../components/PaymentMethodHeader';
+import Coupon from '../../../components/Coupon';
+import { CouponContext } from '../../../lib/CouponContext';
+
 const PaypalButton = React.lazy(
   () => import('../../../components/PayPalButton')
 );
@@ -196,6 +199,8 @@ export const SubscriptionCreate = ({
     [PaymentProviders.paypal]: onPaypalFormSubmit,
   });
 
+  const [coupon, setCoupon] = useState(null);
+
   return (
     <>
       <Header {...{ profile }} />
@@ -316,17 +321,24 @@ export const SubscriptionCreate = ({
             {selectedPlan && <TermsAndPrivacy plan={selectedPlan} />}
           </div>
         </div>
-        <PlanDetails
-          {...{
-            className: classNames('default', {
-              hidden: transactionInProgress && isMobile,
-            }),
-            profile,
-            selectedPlan,
-            isMobile,
-            showExpandButton: isMobile,
-          }}
-        />
+        <CouponContext.Provider value={{ coupon, setCoupon }}>
+          <PlanDetails
+            {...{
+              className: classNames('default', {
+                hidden: transactionInProgress && isMobile,
+              }),
+              selectedPlan,
+              isMobile,
+              showExpandButton: isMobile,
+            }}
+          />
+          {config.featureFlags.subscriptionCoupons ? (
+            // To be updated in issue #7097
+            <section data-testid="coupon-container">
+              <Coupon />
+            </section>
+          ) : null}
+        </CouponContext.Provider>
       </div>
     </>
   );

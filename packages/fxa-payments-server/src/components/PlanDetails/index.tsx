@@ -14,7 +14,7 @@ import ffLogo from '../../images/firefox-logo.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
-import { checkoutContext } from '../../routes/Checkout';
+import { CouponContext } from '../../lib/CouponContext';
 
 type PlanDetailsProps = {
   selectedPlan: Plan;
@@ -29,6 +29,7 @@ export const PlanDetails = ({
   showExpandButton = false,
   className = 'default',
 }: PlanDetailsProps) => {
+  const { config } = useContext(AppContext);
   const { navigatorLanguages } = useContext(AppContext);
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
   const { product_name, amount, currency, interval, interval_count } =
@@ -49,7 +50,7 @@ export const PlanDetails = ({
     interval_count
   );
 
-  const { coupon } = useContext(checkoutContext);
+  const { coupon } = useContext(CouponContext);
 
   return (
     <section
@@ -109,7 +110,7 @@ export const PlanDetails = ({
                 className="plan-details-total"
                 aria-labelledby="plan-details-product"
               >
-                {coupon ? (
+                {coupon && config.featureFlags.subscriptionCoupons ? (
                   <div>
                     <div className="plan-details-total-inner">
                       <div className="label">List Pirce</div>
@@ -138,12 +139,13 @@ export const PlanDetails = ({
                     id={`plan-price-${interval}`}
                     attrs={{ title: true }}
                     vars={{
-                      amount: coupon
-                        ? getLocalizedCurrency(
-                            amount - coupon.amount * 100,
-                            currency
-                          )
-                        : getLocalizedCurrency(amount, currency),
+                      amount:
+                        coupon && config.featureFlags.subscriptionCoupons
+                          ? getLocalizedCurrency(
+                              amount - coupon.amount * 100,
+                              currency
+                            )
+                          : getLocalizedCurrency(amount, currency),
                       intervalCount: interval_count,
                     }}
                   >

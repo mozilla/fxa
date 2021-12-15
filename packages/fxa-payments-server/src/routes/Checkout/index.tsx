@@ -5,6 +5,7 @@ import React, {
   useState,
   useCallback,
   Suspense,
+  SetStateAction,
 } from 'react';
 import { connect } from 'react-redux';
 import { Localized, useLocalization } from '@fluent/react';
@@ -65,6 +66,7 @@ import { ButtonBaseProps } from '../../components/PayPalButton';
 import { AlertBar } from '../../components/AlertBar';
 import { PaymentMethodHeader } from '../../components/PaymentMethodHeader';
 import Coupon from '../../components/Coupon';
+import { CouponContext } from '../../lib/CouponContext';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -94,11 +96,6 @@ export type CheckoutProps = {
   stripeOverride?: SubscriptionCreateStripeAPIs;
   paypalButtonBase?: React.FC<ButtonBaseProps>;
 };
-
-export const checkoutContext = React.createContext({
-  coupon: { amount: 0 },
-  setCoupon: () => {},
-});
 
 export const Checkout = ({
   match: {
@@ -132,6 +129,7 @@ export const Checkout = ({
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
   const [newsletterSignupError, setNewsletterSignupError] = useState(false);
+
   const [coupon, setCoupon] = useState(null);
 
   // Fetch plans on initial render or change in product ID
@@ -281,7 +279,7 @@ export const Checkout = ({
   }
 
   return (
-    <checkoutContext.Provider value={{ coupon, setCoupon }}>
+    <>
       <Header />
       <div className="main-content">
         {newsletterSignupError && <NewsletterErrorAlertBar />}
@@ -428,31 +426,26 @@ export const Checkout = ({
             </>
           </div>
         </div>
-        <PlanDetails
-          {...{
-            className: classNames('default', {
-              hidden: transactionInProgress && isMobile,
-            }),
-            selectedPlan,
-            isMobile,
-            showExpandButton: isMobile,
-          }}
-        />
-        {config.featureFlags.subscriptionCoupons ? (
-          // To be updated in issue #7097
-          <section data-testid="coupon-container">
-            <Coupon
-              {...{
-                className: classNames('default', {
-                  hidden: transactionInProgress && isMobile,
-                }),
-                isMobile,
-              }}
-            />
-          </section>
-        ) : null}
+        <CouponContext.Provider value={{ coupon, setCoupon }}>
+          <PlanDetails
+            {...{
+              className: classNames('default', {
+                hidden: transactionInProgress && isMobile,
+              }),
+              selectedPlan,
+              isMobile,
+              showExpandButton: isMobile,
+            }}
+          />
+          {config.featureFlags.subscriptionCoupons ? (
+            // To be updated in issue #7097
+            <section data-testid="coupon-container">
+              <Coupon />
+            </section>
+          ) : null}
+        </CouponContext.Provider>
       </div>
-    </checkoutContext.Provider>
+    </>
   );
 };
 
