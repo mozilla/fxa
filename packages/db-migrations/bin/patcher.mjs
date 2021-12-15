@@ -7,7 +7,20 @@ import fs from 'fs/promises';
 import path from 'path';
 import mysql from 'mysql';
 import patcher from 'mysql-patcher';
+import convict from 'convict';
+import { makeMySQLConfig } from 'fxa-shared/db/config.js';
 const patch = promisify(patcher.patch);
+
+const conf = convict({
+  fxa: makeMySQLConfig('AUTH', 'fxa'),
+  fxa_profile: makeMySQLConfig('PROFILE', 'fxa_profile'),
+  fxa_oauth: makeMySQLConfig('OAUTH', 'fxa_oauth'),
+});
+if (process.env.CONFIG_FILES) {
+  const files = process.env.CONFIG_FILES.split(',');
+  conf.loadFile(files);
+}
+conf.validate()
 
 const databasesDir = path.resolve(
   new URL('.', import.meta.url).pathname,
@@ -27,11 +40,12 @@ for (const db of databases) {
     await fs.readFile(path.resolve(databasesDir, db, 'target-patch.json'))
   );
   try {
+    const cfg = conf.get(db);
     await patch({
-      user: 'root',
-      password: '',
-      host: 'localhost',
-      port: 3306,
+      user: cfg.user,
+      password: cfg.password,
+      host: cfg.host,
+      port: cfg.port,
       dir: path.resolve(databasesDir, db, 'patches'),
       patchKey: 'schema-patch-level',
       metaTable: 'dbMetadata',
@@ -39,7 +53,7 @@ for (const db of databases) {
       mysql,
       createDatabase: true,
       reversePatchAllowed: false,
-      database: db,
+      database: cfg.database,
     });
   } catch (error) {
     // fyi these logs show up in `pm2 logs mysql`
