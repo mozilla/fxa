@@ -17,7 +17,19 @@ const createStory = subplatStoryWithProps(
   }
 );
 
-export const LayoutNoProduct = createStory({}, 'Multiple products');
+export const LayoutMultipleProducts = createStory(
+  {
+    subscriptions: [
+      {
+        productName: 'Firefox Fortress',
+      },
+      {
+        productName: 'Mozilla VPN',
+      },
+    ],
+  },
+  'Multiple products'
+);
 
 export const LayoutWithProduct = createStory(
   {
