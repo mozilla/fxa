@@ -1,3 +1,5 @@
+<% if (!locals.productName && locals.productNameNew) { locals.productName = locals.productNameNew %><% } %>
+
 <%- body %>
 
 subplat-automated-email = "This is an automated email; if you received it in error, no action is required."
@@ -10,8 +12,13 @@ subplat-privacy-plaintext = "Privacy notice:"
 <%- subscriptionPrivacyUrl %>
 <% } %>
 
+<% if (locals.isCancellationEmail) { %>
+subplat-reactivate-plaintext = "Reactivate subscription:"
+<%- reactivateSubscriptionUrl %>
+<% } else { %>
 subplat-cancel-plaintext = "Cancel subscription:"
 <%- cancelSubscriptionUrl %>
+<% } %>
 
 subplat-update-billing-plaintext = "Update billing information:"
 <%- updateBillingUrl %>

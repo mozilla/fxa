@@ -18,4 +18,6 @@ if (process.env.NODE_ENV === 'production') {
   config.purge.content.push('../fxa-react/components/**/*.tsx');
 }
 
+config.plugins.push(require('tailwindcss-textshadow'));
+
 module.exports = config;

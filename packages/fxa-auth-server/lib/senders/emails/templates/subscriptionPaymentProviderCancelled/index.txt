@@ -1,0 +1,10 @@
+subscriptionPaymentProviderCancelled-subject = "Payment information update required for <%- productName %>"
+
+subscriptionPaymentProviderCancelled-title = "Sorry, we’re having trouble with your payment method"
+
+subscriptionPaymentProviderCancelled-content-detect = "We have detected a problem with your payment method for <%- productName %>."
+
+subscriptionPaymentProviderCancelled-content-reason = "It may be that your credit card has expired, or your current payment method is out of date."
+
+<%- include('/partials/subscriptionUpdatePayment/index.txt', { updateBillingUrl }) %>
+<%- include ('/partials/subscriptionSupport/index.txt') %>

@@ -1,3 +1,49 @@
+## 1.221.0
+
+### New features
+
+- profile: add metricsEnabled to profile. closes #9081 (#10882) ([e2d10147c](https://github.com/mozilla/fxa/commit/e2d10147c))
+
+### Bug fixes
+
+- admin-server: move ts-morph to dependencies (#11240) ([0c7eb471f](https://github.com/mozilla/fxa/commit/0c7eb471f))
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1022.0 to 2.1044.0 (#11271) ([6eeb2eb74](https://github.com/mozilla/fxa/commit/6eeb2eb74))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps: bump sharp from 0.29.2 to 0.29.3 (#11142) ([de252b969](https://github.com/mozilla/fxa/commit/de252b969))
+
+## 1.220.5
+
+No changes.
+
+## 1.220.4
+
+No changes.
+
+## 1.220.3
+
+No changes.
+
+## 1.220.2
+
+No changes.
+
+## 1.220.1
+
+No changes.
+
+## 1.220.0
+
+### Other changes
+
+- deps-dev: bump nock from 13.1.4 to 13.2.1 (#11121) ([7ecc6f0e7](https://github.com/mozilla/fxa/commit/7ecc6f0e7))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+
 ## 1.219.5
 
 No changes.

@@ -68,7 +68,7 @@ module.exports = class UserRecordNormalizer {
 
   formatDate(date) {
     return `${date.getUTCFullYear()}-${leftpad(
-      date.getUTCMonth(),
+      date.getUTCMonth() + 1,
       2
     )}-${leftpad(date.getUTCDate(), 2)} @ ${leftpad(
       date.getUTCHours(),

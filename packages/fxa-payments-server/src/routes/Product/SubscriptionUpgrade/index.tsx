@@ -1,26 +1,15 @@
-import React, { useCallback, useEffect, useContext } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Localized } from '@fluent/react';
 
-import {
-  Plan,
-  Customer,
-  CustomerSubscription,
-  Profile,
-} from '../../../store/types';
+import { Plan, Customer, Profile } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 
 import * as Amplitude from '../../../lib/amplitude';
 
-import {
-  getLocalizedDate,
-  getLocalizedDateString,
-  getLocalizedCurrency,
-  formatPlanPricing,
-  getDefaultPaymentConfirmText,
-} from '../../../lib/formats';
+import { getLocalizedDate, getLocalizedDateString } from '../../../lib/formats';
 import { useCallbackOnce } from '../../../lib/hooks';
 
-import { Form, SubmitButton, Checkbox } from '../../../components/fields';
+import { Form, SubmitButton } from '../../../components/fields';
 import { useValidatorState } from '../../../lib/validator';
 
 import DialogMessage from '../../../components/DialogMessage';
@@ -30,8 +19,6 @@ import { PaymentProvider } from 'fxa-payments-server/src/lib/PaymentProvider';
 
 import PlanUpgradeDetails from './PlanUpgradeDetails';
 import Header from '../../../components/Header';
-import { AppContext } from '../../../lib/AppContext';
-import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import './index.scss';
 
@@ -63,12 +50,6 @@ export const SubscriptionUpgrade = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: SubscriptionUpgradeProps) => {
-  const { navigatorLanguages } = useContext(AppContext);
-  const { termsOfServiceURL, privacyNoticeURL } = productDetailsFromPlan(
-    selectedPlan,
-    navigatorLanguages
-  );
-
   const validator = useValidatorState();
 
   const inProgress = updateSubscriptionPlanStatus.loading;
@@ -104,10 +85,6 @@ export const SubscriptionUpgrade = ({
     ]
   );
 
-  const { last4: cardLast4, brand: cardBrand } = customer;
-
-  const cardBrandLc = ('' + cardBrand).toLowerCase();
-
   const mobileUpdateHeading = isMobile ? (
     <div className="mobile-subscription-title">
       <div className="subscription-update-heading">
@@ -137,16 +114,17 @@ export const SubscriptionUpgrade = ({
           className="product-payment product-upgrade"
           data-testid="subscription-upgrade"
         >
-          <div
-            className="subscription-update-heading"
-            data-testid="subscription-update-heading"
-          >
-            <Localized id="product-plan-change-heading">
-              <h2>Review your change</h2>
-            </Localized>
-            <p className="subheading"></p>
-          </div>
-
+          {!isMobile ? (
+            <div
+              className="subscription-update-heading"
+              data-testid="subscription-update-heading"
+            >
+              <Localized id="product-plan-change-heading">
+                <h2>Review your change</h2>
+              </Localized>
+              <p className="subheading"></p>
+            </div>
+          ) : null}
           <div className="payment-details">
             <h3 className="billing-title">
               <Localized id="sub-update-payment-title">

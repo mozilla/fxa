@@ -1,5 +1,89 @@
 # Change history
 
+## 1.221.0
+
+### New features
+
+- profile: add metricsEnabled to profile. closes #9081 (#10882) ([e2d10147c](https://github.com/mozilla/fxa/commit/e2d10147c))
+
+### Bug fixes
+
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1022.0 to 2.1044.0 (#11271) ([6eeb2eb74](https://github.com/mozilla/fxa/commit/6eeb2eb74))
+- deps: bump @nestjs/mapped-types from 1.0.0 to 1.0.1 (#11257) ([31a01cc4d](https://github.com/mozilla/fxa/commit/31a01cc4d))
+- deps-dev: bump esbuild from 0.14.1 to 0.14.2 ([b02bdf11f](https://github.com/mozilla/fxa/commit/b02bdf11f))
+- deps-dev: bump jest from 27.3.1 to 27.4.3 ([5bc98e34d](https://github.com/mozilla/fxa/commit/5bc98e34d))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump esbuild-register from 3.1.2 to 3.2.0 (#11218) ([a66e94841](https://github.com/mozilla/fxa/commit/a66e94841))
+- deps: bump jsdom from 18.1.0 to 18.1.1 ([2a20d0588](https://github.com/mozilla/fxa/commit/2a20d0588))
+- deps-dev: bump esbuild from 0.13.14 to 0.14.0 (#11186) ([fd2d059eb](https://github.com/mozilla/fxa/commit/fd2d059eb))
+- deps: bump @nestjs/config from 1.1.0 to 1.1.5 (#11174) ([6bffbbae0](https://github.com/mozilla/fxa/commit/6bffbbae0))
+- deps: bump @nestjs/common from 8.1.2 to 8.2.3 (#11168) ([9cda83496](https://github.com/mozilla/fxa/commit/9cda83496))
+- deps-dev: bump @nestjs/testing from 8.2.0 to 8.2.3 (#11166) ([6cb640160](https://github.com/mozilla/fxa/commit/6cb640160))
+- deps-dev: bump tsconfig-paths from 3.11.0 to 3.12.0 (#11167) ([de19f3591](https://github.com/mozilla/fxa/commit/de19f3591))
+- deps: bump @nestjs/core from 8.2.0 to 8.2.3 (#11155) ([f7c73fbd4](https://github.com/mozilla/fxa/commit/f7c73fbd4))
+- deps: bump class-transformer from 0.4.0 to 0.5.1 (#11141) ([dcaaa2128](https://github.com/mozilla/fxa/commit/dcaaa2128))
+- deps: bump stripe from 8.188.0 to 8.191.0 (#11143) ([2bbea7715](https://github.com/mozilla/fxa/commit/2bbea7715))
+
+## 1.220.5
+
+No changes.
+
+## 1.220.4
+
+No changes.
+
+## 1.220.3
+
+No changes.
+
+## 1.220.2
+
+No changes.
+
+## 1.220.1
+
+No changes.
+
+## 1.220.0
+
+### New features
+
+- auth: return IAP and web subscriptions in /account route (#10964) ([6fd78e313](https://github.com/mozilla/fxa/commit/6fd78e313))
+
+### Bug fixes
+
+- metrics: Re-enable toggling metrics for user (#10990) ([f7b0e7d7c](https://github.com/mozilla/fxa/commit/f7b0e7d7c))
+- sentry depth filtering ([a14088c62](https://github.com/mozilla/fxa/commit/a14088c62))
+
+### Refactorings
+
+- admin: use shared db models (#11113) ([684c406b1](https://github.com/mozilla/fxa/commit/684c406b1))
+
+### Other changes
+
+- deps: bump class-validator from 0.13.1 to 0.13.2 (#11107) ([6bf558a23](https://github.com/mozilla/fxa/commit/6bf558a23))
+- deps: bump @sentry/integrations from 6.14.2 to 6.15.0 (#11108) ([b567728cf](https://github.com/mozilla/fxa/commit/b567728cf))
+- subscriptions: allow IAP subscribers to use Support Form (#11073) ([4645cd7ce](https://github.com/mozilla/fxa/commit/4645cd7ce))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: bump ioredis from 4.27.11 to 4.28.0 (#11076) ([d74962e1b](https://github.com/mozilla/fxa/commit/d74962e1b))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps-dev: bump esbuild from 0.13.4 to 0.13.14 (#11053) ([46b813268](https://github.com/mozilla/fxa/commit/46b813268))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump @sentry/browser from 6.14.3 to 6.15.0 (#11038) ([8344a2332](https://github.com/mozilla/fxa/commit/8344a2332))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+- deps: bump hot-shots from 8.5.2 to 9.0.0 (#11018) ([10dfa5e1a](https://github.com/mozilla/fxa/commit/10dfa5e1a))
+- deps: bump stripe from 8.187.0 to 8.188.0 (#11019) ([f30ab7208](https://github.com/mozilla/fxa/commit/f30ab7208))
+- deps: bump @nestjs/core from 8.1.1 to 8.2.0 (#11003) ([85750f0ee](https://github.com/mozilla/fxa/commit/85750f0ee))
+- deps: bump @sentry/browser from 6.14.0 to 6.14.3 (#11004) ([d67ce665a](https://github.com/mozilla/fxa/commit/d67ce665a))
+- deps: bump jsdom from 18.0.1 to 18.1.0 (#11001) ([0e98720cb](https://github.com/mozilla/fxa/commit/0e98720cb))
+- deps: bump knex from 0.95.13 to 0.95.14 (#11002) ([b12fbbb7c](https://github.com/mozilla/fxa/commit/b12fbbb7c))
+- deps: bump stripe from 8.186.1 to 8.187.0 ([62a2ea827](https://github.com/mozilla/fxa/commit/62a2ea827))
+- deps-dev: bump @nestjs/testing from 8.1.2 to 8.2.0 (#10976) ([47ee4042b](https://github.com/mozilla/fxa/commit/47ee4042b))
+
 ## 1.219.5
 
 No changes.

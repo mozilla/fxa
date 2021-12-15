@@ -528,7 +528,7 @@ describe('lib/metrics', () => {
         assert.isArray(data.timers.foo);
         assert.lengthOf(data.timers.foo, 1);
         assert.isObject(data.timers.foo[0]);
-        assert.isAtLeast(data.timers.foo[0].elapsed, 4);
+        assert.isNumber(data.timers.foo[0].elapsed);
       });
     });
 

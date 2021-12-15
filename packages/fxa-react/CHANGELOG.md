@@ -1,3 +1,50 @@
+## 1.221.0
+
+### New features
+
+- admin-panel: replace majority of admin-panel with tailwind styles (#11135) ([bc5ee92fc](https://github.com/mozilla/fxa/commit/bc5ee92fc))
+
+### Bug fixes
+
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps-dev: bump sass from 1.43.4 to 1.44.0 ([218c125b7](https://github.com/mozilla/fxa/commit/218c125b7))
+- deps-dev: bump jest from 27.3.1 to 27.4.3 ([5bc98e34d](https://github.com/mozilla/fxa/commit/5bc98e34d))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump @testing-library/dom from 8.9.0 to 8.11.1 (#11178) ([bc7066e5f](https://github.com/mozilla/fxa/commit/bc7066e5f))
+- deps-dev: bump @testing-library/jest-dom from 5.15.0 to 5.15.1 (#11145) ([00f2cf587](https://github.com/mozilla/fxa/commit/00f2cf587))
+
+## 1.220.5
+
+No changes.
+
+## 1.220.4
+
+No changes.
+
+## 1.220.3
+
+No changes.
+
+## 1.220.2
+
+No changes.
+
+## 1.220.1
+
+No changes.
+
+## 1.220.0
+
+### Other changes
+
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: bump async-wait-until from 2.0.8 to 2.0.9 (#11078) ([251b14f8f](https://github.com/mozilla/fxa/commit/251b14f8f))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps: Update yarn to 3.1.0 and dedupe deps. fix resolve conflicts (#11072) ([c72a1a003](https://github.com/mozilla/fxa/commit/c72a1a003))
+
 ## 1.219.5
 
 No changes.

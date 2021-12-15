@@ -9,11 +9,15 @@ import Chance from 'chance';
 import { knex, Knex } from 'knex';
 
 import { setupAuthDatabase } from '../../../../db';
-import { Account } from '../../../../db/models/auth/account';
+import { Account, EmailBounce } from '../../../../db/models/auth';
 
 export type AccountIsh = Pick<
   Account,
   'uid' | 'email' | 'emails' | 'normalizedEmail'
+>;
+export type BounceIsh = Pick<
+  EmailBounce,
+  'bounceSubType' | 'bounceType' | 'createdAt' | 'email'
 >;
 
 export const chance = new Chance();
@@ -45,6 +49,59 @@ export function randomEmail(account: AccountIsh, primary = true) {
     isVerified: true,
     normalizedEmail: account.normalizedEmail,
     uid: account.uid,
+  };
+}
+
+export function randomEmailBounce(email: string): BounceIsh {
+  return {
+    bounceSubType: chance.integer({ min: 0, max: 14 }),
+    bounceType: chance.integer({ min: 0, max: 3 }),
+    createdAt: chance.timestamp(),
+    email,
+  };
+}
+
+export function randomTotp(account: AccountIsh) {
+  return {
+    uid: account.uid,
+    sharedSecret: 'abcd1234',
+    epoch: 0,
+    createdAt: chance.timestamp(),
+    verified: true,
+    enabled: true,
+  };
+}
+
+export function randomRecoveryKey(account: AccountIsh) {
+  return {
+    uid: account.uid,
+    recoveryData: 'abcd1234',
+    recoveryKeyIdHash:
+      '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    createdAt: chance.timestamp(),
+    verifiedAt: chance.timestamp(),
+    enabled: true,
+  };
+}
+
+export function randomSessionToken(account: AccountIsh) {
+  return {
+    tokenId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    tokenData:
+      '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    uid: account.uid,
+    createdAt: chance.timestamp(),
+    uaBrowser: 'Chrome',
+    uaBrowserVersion: '89.0.4389',
+    uaOS: 'Mac OS X',
+    uaOSVersion: '11.2.1',
+    uaDeviceType: 'Mac',
+    lastAccessTime: chance.timestamp(),
+    uaFormFactor: 'abcd1234',
+    authAt: chance.timestamp(),
+    verificationMethod: 1,
+    verifiedAt: chance.timestamp(),
+    mustVerify: false,
   };
 }
 
@@ -88,6 +145,10 @@ export async function testDatabaseSetup(): Promise<Knex> {
     './account-customers.sql',
     './paypal-ba.sql',
     './email-types.sql',
+    './email-bounces.sql',
+    './totp.sql',
+    './recovery-keys.sql',
+    './session-tokens.sql',
   ]);
   // The order matters for inserts or foreign key refs
   await runSql(['./insert-email-types.sql', './sent-emails.sql']);

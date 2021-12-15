@@ -394,10 +394,9 @@ const conf = convict({
         doc: 'Tiers of max allowed complaints per amount of milliseconds',
         format: Object,
         default: {
-          // 0 are allowed in the past day.
-          // 1 is allowed in the past year. TODO: a year seems insanely long
-          0: ONE_DAY,
-          1: 365 * ONE_DAY,
+          // # of bounces allowed : time since last bounce
+          0: 3 * FIVE_MINUTES,
+          1: ONE_DAY,
         },
         env: 'BOUNCES_COMPLAINT',
       },
@@ -405,10 +404,9 @@ const conf = convict({
         doc: 'Tiers of max allowed hard bounces per amount of milliseconds',
         format: Object,
         default: {
-          // 0 are allowed in the past day.
-          // 1 is allowed in the past year. TODO: a year seems insanely long
-          0: ONE_DAY,
-          1: 365 * ONE_DAY,
+          // # of bounces allowed : time since last bounce
+          0: 3 * FIVE_MINUTES,
+          1: ONE_DAY,
         },
         env: 'BOUNCES_HARD',
       },
@@ -419,6 +417,18 @@ const conf = convict({
           0: FIVE_MINUTES,
         },
         env: 'BOUNCES_SOFT',
+      },
+      ignoreTemplates: {
+        doc: 'Always ignore bounces from these email templates',
+        format: Array,
+        default: [
+          'verifyLoginCode',
+          'verifyLogin',
+          'recovery',
+          'unblockCode',
+          'subscriptionAccountFinishSetup',
+        ],
+        env: 'BOUNCES_IGNORE_TEMPLATES',
       },
     },
   },

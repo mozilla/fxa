@@ -145,6 +145,9 @@ describe('step 2', () => {
     expect(screen.getByTestId('2fa-recovery-codes')).toHaveTextContent(
       totp.recoveryCodes[0]
     );
+    expect(screen.getByTestId('datablock').textContent?.trim()).toEqual(
+      totp.recoveryCodes.join(' ')
+    );
   });
 
   it('shows an error when an invalid auth code is entered', async () => {

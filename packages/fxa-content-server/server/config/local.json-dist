@@ -45,5 +45,8 @@
   "csp": {
     "enabled": true,
     "reportUri": "/_/csp-violation"
+  },
+  "recovery_codes": {
+    "count": 3
   }
 }

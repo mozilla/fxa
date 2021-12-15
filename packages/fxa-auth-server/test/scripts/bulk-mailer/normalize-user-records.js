@@ -55,14 +55,7 @@ describe('normalize-user-records', () => {
   });
 
   describe('normalizeLocationTimestamp', () => {
-    const date = new Date();
-    date.setUTCFullYear(2017);
-    date.setUTCMonth(1);
-    date.setUTCDate(2);
-    date.setUTCHours(3);
-    date.setUTCMinutes(4);
-    date.setUTCSeconds(5);
-    date.setUTCMilliseconds(678);
+    const date = new Date('2017-01-02T03:04Z');
 
     const expectedTimestamp = '2017-01-02 @ 03:04 UTC';
 

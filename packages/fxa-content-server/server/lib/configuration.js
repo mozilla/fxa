@@ -467,6 +467,20 @@ const conf = (module.exports = convict({
     doc: 'The publically visible URL of the deployment',
     env: 'PUBLIC_URL',
   },
+  recovery_codes: {
+    count: {
+      default: 8,
+      doc: 'The default number of recovery codes to create',
+      env: 'RECOVERY_CODE_COUNT',
+      format: 'nat',
+    },
+    length: {
+      default: 10,
+      doc: 'The default length of a recovery code',
+      env: 'RECOVERY_CODE_LENGTH',
+      format: 'nat',
+    },
+  },
   redirect_port: {
     default: 80,
     doc: 'Redirect port for HTTPS',

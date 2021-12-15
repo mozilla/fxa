@@ -1112,6 +1112,7 @@ export class AccountHandler {
     // want to return `profileChangedAt` if a valid scope was found and set.
     if (Object.keys(res).length !== 0) {
       res.profileChangedAt = account.profileChangedAt;
+      res.metricsEnabled = !account.metricsOptOutAt;
     }
 
     return res;
@@ -1476,7 +1477,7 @@ export class AccountHandler {
     let webSubscriptions: Awaited<WebSubscription[]> = [];
     let iapGooglePlaySubscriptions: Awaited<GooglePlaySubscription[]> = [];
 
-    if (this.config.subscriptions.enabled) {
+    if (this.config.subscriptions?.enabled && this.stripeHelper) {
       try {
         const customer = await this.stripeHelper.fetchCustomer(uid as string, [
           'subscriptions',
@@ -1770,6 +1771,7 @@ export const accountRoutes = (
             authenticatorAssuranceLevel: isA.number().min(0),
             subscriptionsByClientId: isA.object().unknown(true).optional(),
             profileChangedAt: isA.number().min(0),
+            metricsEnabled: isA.boolean().optional(),
           },
         },
       },

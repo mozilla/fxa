@@ -19,12 +19,16 @@ type actionFn = (action: actions) => void;
 export type DataBlockProps = {
   value: string | string[];
   prefixDataTestId?: string;
+  separator?: string;
+  onCopy?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
   onAction?: actionFn;
 };
 
 export const DataBlock = ({
   value,
   prefixDataTestId,
+  separator,
+  onCopy,
   onAction = () => {},
 }: DataBlockProps) => {
   const valueIsArray = Array.isArray(value);
@@ -47,11 +51,13 @@ export const DataBlock = ({
           valueIsArray ? 'py-4' : 'py-5'
         }`}
         data-testid={dataTestId}
+        {...{ onCopy }}
       >
         {valueIsArray ? (
           (value as string[]).map((item) => (
             <span key={item} className="flex-50% py-1">
               {item}
+              {separator || ''}
             </span>
           ))
         ) : (

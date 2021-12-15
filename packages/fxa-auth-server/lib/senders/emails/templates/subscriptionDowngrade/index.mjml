@@ -1,0 +1,38 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section css-class="mb-6">
+  <mj-group>
+    <mj-column>
+      <mj-image src="<%- productIconURLOld %>" alt="<%- productNameOld %>" title="<%- productNameOld %>" css-class="product-icon">
+      </mj-image>
+    </mj-column>
+    <mj-column>
+      <mj-image src="<%- productIconURLNew %>" alt="<%- productNameNew %>" title="<%- productNameNew %>" css-class="product-icon">
+      </mj-image>
+    </mj-column>
+  </mj-group>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionDowngrade-content-switch" data-l10n-args="<%= JSON.stringify({productNameNew, productNameOld}) %>">You have successfully switched from <%- productNameOld %> to <%- productNameNew %>.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionDowngrade-content-charge" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, paymentProrated, productPaymentCycle}) %>">Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycle %> to <%- paymentAmountNew %>. At that time you will also be given a one-time credit of <%- paymentProrated %> to reflect the lower charge for the remainder of this <%- productPaymentCycle %>.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionDowngrade-content-install" data-l10n-args="<%= JSON.stringify({productNameNew}) %>">If there is new software for you to install in order to use <%- productNameNew %>, you will receive a separate email with download instructions.</span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionDowngrade-content-auto-renew">Your subscription will automatically renew each billing period unless you choose to cancel.</span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include ('/partials/subscriptionSupport/index.mjml') %>

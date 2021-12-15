@@ -4,6 +4,7 @@ import AuthClient, { generateRecoveryKey } from 'fxa-auth-client/browser';
 import { currentAccount, sessionToken } from '../lib/cache';
 import firefox from '../lib/firefox';
 import Storage from '../lib/storage';
+import random from '../lib/random';
 
 export interface DeviceLocation {
   city: string | null;
@@ -488,6 +489,25 @@ export class Account implements AccountData {
     return this.withLoadingStatus(
       this.authClient.replaceRecoveryCodes(sessionToken()!)
     );
+  }
+
+  async generateRecoveryCodes(count: number, length: number) {
+    const recoveryCodes: string[] = [];
+    const gen = random.base32(length);
+    while (recoveryCodes.length < count) {
+      const rc = (await gen()).toLowerCase();
+      if (recoveryCodes.indexOf(rc) === -1) {
+        recoveryCodes.push(rc);
+      }
+    }
+    return recoveryCodes;
+  }
+
+  async updateRecoveryCodes(recoveryCodes: string[]) {
+    const result = await this.withLoadingStatus(
+      this.authClient.updateRecoveryCodes(sessionToken()!, recoveryCodes)
+    );
+    return result;
   }
 
   async createSecondaryEmail(email: string) {

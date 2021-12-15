@@ -16,7 +16,7 @@
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
-    "@peculiar/webcrypto": "^1.2.2",
+    "@peculiar/webcrypto": "^1.2.3",
     "abab": "^2.0.5",
     "abort-controller": "^3.0.0",
     "node-fetch": "^2.6.1"
@@ -28,8 +28,8 @@
     "@types/node": "^16.11.3",
     "@types/node-fetch": "^2.5.7",
     "asmcrypto.js": "^0.22.0",
-    "esbuild": "^0.13.14",
-    "esbuild-register": "^3.1.2",
+    "esbuild": "^0.14.2",
+    "esbuild-register": "^3.2.0",
     "fast-text-encoding": "^1.0.3",
     "mocha": "^9.1.2",
     "typescript": "^4.5.2",

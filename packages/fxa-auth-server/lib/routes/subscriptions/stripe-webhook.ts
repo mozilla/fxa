@@ -10,7 +10,11 @@ import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
-import { reportSentryError, reportValidationError } from '../../../lib/sentry';
+import {
+  formatMetadataValidationErrorMessage,
+  reportSentryError,
+  reportValidationError,
+} from '../../../lib/sentry';
 import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
 import { PayPalHelper } from '../../payments/paypal';
@@ -411,8 +415,11 @@ export class StripeWebhookHandler extends StripeHandler {
     });
 
     if (error) {
-      const msg = `handlePlanUpdatedEvent - Plan "${plan.id}"'s metadata failed validation`;
-      this.log.error(msg, { error, plan });
+      const msg = formatMetadataValidationErrorMessage(plan.id, error as any);
+      this.log.error(`handlePlanCreatedOrUpdatedEvent: ${msg}`, {
+        error,
+        plan,
+      });
       reportValidationError(msg, error as any);
       this.stripeHelper.updateAllPlans(updatedList);
       return;
@@ -467,8 +474,14 @@ export class StripeWebhookHandler extends StripeHandler {
           });
 
         if (error) {
-          const msg = `handleProductWebhookEvent - Plan "${plan.id}"'s metadata failed validation on product ${product.id} update.`;
-          this.log.error(msg, { error, product });
+          const msg = formatMetadataValidationErrorMessage(
+            plan.id,
+            error as any
+          );
+          this.log.error(`handleProductWebhookEvent: ${msg}`, {
+            error,
+            product,
+          });
           reportValidationError(msg, error as any);
         } else {
           updatedPlans.push({ ...plan, product });

@@ -47,13 +47,15 @@ module.exports = {
       autorestart: false,
       kill_timeout: 20000,
     },
-    {
-      name: 'pushbox',
-      script: '_scripts/pushbox.sh',
-      max_restarts: '1',
-      min_uptime: '2m',
-      args: '3306 root@mydb:3306',
-      kill_timeout: 20000,
-    },
+
+    // TODO FIXME?? this has been broken for-ev-er, do we even want it?
+    // {
+    //   name: 'pushbox',
+    //   script: '_scripts/pushbox.sh',
+    //   max_restarts: '1',
+    //   min_uptime: '2m',
+    //   args: '3306 root@mydb:3306',
+    //   kill_timeout: 20000,
+    // },
   ],
 };

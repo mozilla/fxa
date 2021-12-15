@@ -17,11 +17,29 @@ import proxyquire from 'proxyquire';
 import { URL } from 'url';
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
+if (!config.smtp.prependVerificationSubdomain.enabled) {
+  config.smtp.prependVerificationSubdomain.enabled = true;
+}
 if (!config.smtp.sesConfigurationSet) {
   config.smtp.sesConfigurationSet = 'ses-config';
 }
 
+config.smtp.user = 'test';
+config.smtp.password = 'test';
+config.smtp.subscriptionTermsUrl = 'http://example.com/terms';
+
+// Force enable the subscription transactional emails
+config.subscriptions.transactionalEmails.enabled = true;
+
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
+
+const SUBSCRIPTION_TERMS_URL = 'https://example.com/subscription-product/terms';
+const SUBSCRIPTION_PRIVACY_URL =
+  'https://example.com/subscription-product/privacy';
+const productMetadata = {
+  'product:termsOfServiceDownloadURL': SUBSCRIPTION_TERMS_URL,
+  'product:privacyNoticeDownloadURL': SUBSCRIPTION_PRIVACY_URL,
+};
 
 const MESSAGE = {
   // Note: acceptLanguage is not just a single locale
@@ -53,9 +71,23 @@ const MESSAGE = {
   uaOSVersion: '10',
   uid: 'uid',
   unblockCode: 'AS6334PK',
-  productId: 'wibble',
+  invoiceDate: new Date(1584747098816),
+  invoiceTotalInCents: 999999.9,
+  invoiceTotalCurrency: 'eur',
+  paymentAmountOldInCents: 9999099.9,
+  paymentAmountOldCurrency: 'jpy',
+  paymentAmountNewInCents: 12312099.9,
+  paymentAmountNewCurrency: 'gbp',
+  paymentProratedInCents: 523099.9,
+  paymentProratedCurrency: 'usd',
   planId: 'plan-example',
+  productId: 'wibble',
+  productMetadata,
   productName: 'Firefox Fortress',
+  productNameOld: 'Product A',
+  productNameNew: 'Product B',
+  productPaymentCycle: 'month',
+  serviceLastActiveDate: new Date(1587339098816),
   subscription: {
     productName: 'Cooking with Foxkeh',
     planId: 'plan-example',
@@ -65,6 +97,14 @@ const MESSAGE = {
     { productName: 'Firefox Fortress' },
     { productName: 'Cooking with Foxkeh' },
   ],
+};
+
+const MESSAGE_FORMATTED = {
+  // Note: Intl.NumberFormat rounds 1/10 cent up
+  invoiceTotal: '€10,000.00',
+  paymentAmountOld: '¥99,991',
+  paymentAmountNew: '£123,121.00',
+  paymentProrated: '$5,231.00',
 };
 
 // key = query param name, value = MESSAGE property name
@@ -981,6 +1021,77 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
   ])],
 
+  ['subscriptionAccountDeletionEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountDeletion') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountDeletion' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountDeletion }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+
+  ['subscriptionDowngradeEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `You have switched to ${MESSAGE.productNameNew}` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionDowngrade') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionDowngrade' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionDowngrade }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-downgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-downgrade', 'subscription-terms') },
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+
+  ['subscriptionCancellationEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionCancellation') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionCancellation' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionCancellation }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-cancellation', 'subscription-terms')) },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: `billing period, which is 04/19/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: `billing period, which is 04/19/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expiring soon` }],
     ['headers', new Map([
@@ -990,8 +1101,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
-      // commented out during template conversion - this doesn't appear to actually existin rendered old templates but passes the test?
-      // { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -1021,6 +1131,49 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
 
+  ['subscriptionPaymentFailedEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment failed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentFailed') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentFailed' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentFailed }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-failed', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-failed', 'subscription-terms') },
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+  ['subscriptionPaymentProviderCancelledEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Payment information update required for ${MESSAGE.productName}` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentProviderCancelled') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentProviderCancelled' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentProviderCancelled }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-provider-cancelled', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-provider-cancelled', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: `We have detected a problem with your payment method for ${MESSAGE.productName}.` },
+      { test: 'include', expected: 'It may be that your credit card has expired, or your current payment method is out of date.' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `We have detected a problem with your payment method for ${MESSAGE.productName}.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]),
+    {updateTemplateValues: x => (
+      {...x, subscriptions: [{planId: MESSAGE.planId, productId: MESSAGE.productId, ...x.subscriptions[0]}]})}
+  ],
+
   ['subscriptionReactivationEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} subscription reactivated` }],
     ['headers', new Map([
@@ -1030,11 +1183,37 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms') },
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+
+  ['subscriptionUpgradeEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionUpgrade') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionUpgrade' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionUpgrade }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
@@ -1133,7 +1312,20 @@ function configUrl(
   ...params: Array<any>
 ) {
   let baseUri: string;
-  baseUri = config.smtp[key];
+  if (key === 'subscriptionTermsUrl') {
+    baseUri = SUBSCRIPTION_TERMS_URL;
+  } else if (key === 'subscriptionPrivacyUrl') {
+    baseUri = SUBSCRIPTION_PRIVACY_URL;
+  } else {
+    baseUri = config.smtp[key];
+  }
+
+  if (key === 'verificationUrl' || key === 'verifyLoginUrl') {
+    baseUri = baseUri.replace(
+      '//',
+      `//${config.smtp.prependVerificationSubdomain.subdomain}.`
+    );
+  }
 
   const out = new URL(baseUri);
 
@@ -1152,6 +1344,10 @@ function configUrl(
   ].forEach(([key, value]) => out.searchParams.append(key, value));
 
   const url = out.toString();
+  if (['subscriptionTermsUrl', 'subscriptionPrivacyUrl'].includes(key)) {
+    const parsedUrl = new URL(config.subscriptions.paymentsServer.url);
+    return `${parsedUrl.origin}/legal-docs?url=${encodeURIComponent(url)}`;
+  }
 
   return url;
 }

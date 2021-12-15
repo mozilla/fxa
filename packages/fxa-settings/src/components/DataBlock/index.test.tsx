@@ -21,11 +21,11 @@ const multiValue = [
   'D4J6KY8FL4',
 ];
 
-const account = ({
+const account = {
   primaryEmail: {
     email: 'pbooth@mozilla.com',
   },
-} as unknown) as Account;
+} as unknown as Account;
 
 Object.defineProperty(window.navigator, 'clipboard', {
   value: { writeText: jest.fn() },
@@ -50,6 +50,18 @@ it('can render multiple values', () => {
   multiValue.forEach((value) => {
     expect(screen.getByText(value)).toBeInTheDocument();
   });
+});
+
+it('can apply spacing to multiple values', () => {
+  render(
+    <AppContext.Provider value={{ account }}>
+      <DataBlock value={multiValue} separator=" " />
+    </AppContext.Provider>
+  );
+
+  expect(screen.getByTestId('datablock').textContent?.trim()).toEqual(
+    multiValue.join(' ')
+  );
 });
 
 it('displays a tooltip on action', async () => {

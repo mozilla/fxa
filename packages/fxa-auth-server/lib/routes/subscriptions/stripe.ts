@@ -5,6 +5,7 @@ import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
+import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
@@ -23,6 +24,7 @@ import { ConfigType } from '../../../config';
 import error from '../../error';
 import { splitCapabilities } from '../../payments/capability';
 import { StripeHelper } from '../../payments/stripe';
+import { stripeInvoiceToInvoicePreviewDTO } from '../../payments/stripe-formatter';
 import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
@@ -64,6 +66,28 @@ export class StripeHandler {
   ) {
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
+  }
+
+  /**
+   * Extracts a promotion code from the request, while verifying its
+   * validity for this priceId and returns a promotionCode if valid, or
+   * throws an invalidPromoCode error if not.
+   */
+  protected async extractPromotionCode(
+    promotionCodeFromRequest: string,
+    priceId: string
+  ) {
+    let promotionCode: Stripe.PromotionCode | undefined;
+    if (promotionCodeFromRequest) {
+      promotionCode = await this.stripeHelper.findValidPromoCode(
+        promotionCodeFromRequest,
+        priceId
+      );
+      if (!promotionCode) {
+        throw error.invalidPromoCode(promotionCode);
+      }
+    }
+    return promotionCode;
   }
 
   /**
@@ -367,6 +391,28 @@ export class StripeHandler {
   }
 
   /**
+   * Preview an invoice for a new plan.
+   */
+  async previewInvoice(
+    request: AuthRequest
+  ): Promise<invoiceDTO.invoicePreviewSchema> {
+    this.log.begin('subscriptions.previewInvoice', request);
+    await this.customs.check(request, 'previewInvoice');
+
+    const { promotionCode, priceId } = request.payload as Record<
+      string,
+      string
+    >;
+    const country = request.app.geo.location?.country || 'US';
+    const previewInvoice = await this.stripeHelper.previewInvoice({
+      country,
+      promotionCode,
+      priceId,
+    });
+    return stripeInvoiceToInvoicePreviewDTO(previewInvoice);
+  }
+
+  /**
    * Create a subscription for a user.
    */
   async createSubscriptionWithPMI(request: AuthRequest): Promise<{
@@ -386,8 +432,16 @@ export class StripeHandler {
       throw error.unknownCustomer(uid);
     }
 
-    const { priceId, paymentMethodId, idempotencyKey, metricsContext } =
-      request.payload as Record<string, string>;
+    const {
+      priceId,
+      paymentMethodId,
+      promotionCode: promotionCodeFromRequest,
+      idempotencyKey,
+      metricsContext,
+    } = request.payload as Record<string, string>;
+
+    const promotionCode: Stripe.PromotionCode | undefined =
+      await this.extractPromotionCode(promotionCodeFromRequest, priceId);
 
     let taxRateId: string | undefined;
     // Skip the payment source check if there's no payment method id.
@@ -421,6 +475,7 @@ export class StripeHandler {
         customerId: customer.id,
         priceId,
         paymentMethodId,
+        couponId: promotionCode?.coupon.id,
         subIdempotencyKey,
         taxRateId,
       }
@@ -694,6 +749,7 @@ export const stripeRoutes = (
           payload: {
             priceId: isA.string().required(),
             paymentMethodId: validators.stripePaymentMethodId.optional(),
+            promotionCode: isA.string().optional(),
             idempotencyKey: isA.string().required(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           },
@@ -722,6 +778,23 @@ export const stripeRoutes = (
         },
       },
       handler: (request: AuthRequest) => stripeHandler.retryInvoice(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/invoice/preview',
+      options: {
+        auth: false,
+        response: {
+          schema: invoiceDTO.invoicePreviewSchema as any,
+        },
+        validate: {
+          payload: {
+            priceId: validators.subscriptionsPlanId.required(),
+            promotionCode: isA.string().optional(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) => stripeHandler.previewInvoice(request),
     },
     {
       method: 'POST',

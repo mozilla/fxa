@@ -466,9 +466,15 @@
       "recovery",
       "subscriptionPaymentExpired",
       "subscriptionsPaymentExpired",
+      "subscriptionAccountDeletion",
       "subscriptionAccountReminderFirst",
       "subscriptionAccountReminderSecond",
-      "subscriptionReactivation"
+      "subscriptionCancellation",
+      "subscriptionDowngrade",
+      "subscriptionPaymentFailed",
+      "subscriptionPaymentProviderCancelled",
+      "subscriptionReactivation",
+      "subscriptionUpgrade"
     ]
   }
 }

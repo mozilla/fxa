@@ -11,7 +11,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import DataBlock from '../DataBlock';
 import { useAccount, useAlertBar, useSession } from '../../models';
-import { checkCode, getCode } from '../../lib/totp';
+import { checkCode, copyRecoveryCodes, getCode } from '../../lib/totp';
 import { HomePath } from '../../constants';
 import { logViewEvent, useMetrics } from '../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
@@ -63,9 +63,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const [showQrCode, setShowQrCode] = useState(true);
   const [totpVerified, setTotpVerified] = useState<boolean>(false);
   const [invalidCodeError, setInvalidCodeError] = useState<string>('');
-  const [recoveryCodesAcknowledged, setRecoveryCodesAcknowledged] = useState<
-    boolean
-  >(false);
+  const [recoveryCodesAcknowledged, setRecoveryCodesAcknowledged] =
+    useState<boolean>(false);
   const [recoveryCodeError, setRecoveryCodeError] = useState<string>('');
 
   // Handles the "Continue" on step two, which doesn't submits any values.
@@ -307,8 +306,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             </Localized>
             <div className="mt-6 flex flex-col items-center justify-between">
               <DataBlock
-                value={totpInfo.result.recoveryCodes}
+                value={totpInfo.result.recoveryCodes.map((x) => x)}
+                separator=" "
                 onAction={logDataTrioActionEvent}
+                onCopy={copyRecoveryCodes}
               ></DataBlock>
             </div>
           </div>

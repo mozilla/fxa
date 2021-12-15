@@ -69,6 +69,8 @@ const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subsc
 const eventInvoiceCreated = require('./fixtures/stripe/event_invoice_created.json');
 const eventSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
 const eventCustomerUpdated = require('./fixtures/stripe/event_customer_updated.json');
+const eventPaymentMethodAttached = require('./fixtures/stripe/event_payment_method_attached.json');
+const eventPaymentMethodDetached = require('./fixtures/stripe/event_payment_method_detached.json');
 const closedPaymementIntent = require('./fixtures/stripe/paymentIntent_succeeded.json');
 const newSetupIntent = require('./fixtures/stripe/setup_intent_new.json');
 const {
@@ -82,6 +84,7 @@ const { AuthFirestore } = require('../../../lib/types');
 const {
   INVOICES_RESOURCE,
   PAYMENT_METHOD_RESOURCE,
+  STRIPE_PRICE_METADATA,
 } = require('../../../lib/payments/stripe');
 const {
   FirestoreStripeError,
@@ -721,6 +724,7 @@ describe('StripeHelper', () => {
           items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
           default_tax_rates: ['tr_asdf'],
+          coupon: undefined,
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
@@ -819,6 +823,7 @@ describe('StripeHelper', () => {
           expand: ['latest_invoice'],
           collection_method: 'send_invoice',
           days_until_due: 1,
+          coupon: undefined,
           default_tax_rates: ['tr_asdf'],
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
@@ -892,6 +897,150 @@ describe('StripeHelper', () => {
             : null,
         }
       );
+    });
+  });
+
+  describe('findValidPromoCode', () => {
+    it('finds a valid promoCode with plan metadata', async () => {
+      const promoCode = { code: 'promo1', coupon: { valid: true } };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
+        },
+      });
+      const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
+      assert.deepEqual(actual, promoCode);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.findPlanById, 'planId');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+    });
+
+    it('does not find an expired promoCode', async () => {
+      const expiredTime = Date.now() / 1000 - 50;
+      const promoCode = {
+        code: 'promo1',
+        coupon: { valid: true },
+        expires_at: expiredTime,
+      };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
+        },
+      });
+      const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
+      assert.isUndefined(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+      sinon.assert.notCalled(stripeHelper.findPlanById);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+    });
+
+    it('does not find a promoCode with a different plan', async () => {
+      const promoCode = { code: 'promo1', coupon: { valid: true } };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {},
+      });
+      const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
+      assert.isUndefined(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.findPlanById, 'planId');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+    });
+
+    it('does not find an invalid promoCode', async () => {
+      const promoCode = {
+        code: 'promo1',
+        coupon: { valid: false },
+      };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
+        },
+      });
+      const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
+      assert.isUndefined(actual);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+      sinon.assert.notCalled(stripeHelper.findPlanById);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.promotionCodes.list,
+        {
+          active: true,
+          code: 'promo1',
+        }
+      );
+    });
+  });
+
+  describe('findPromoCodeByCode', () => {
+    it('finds a promo code', async () => {
+      const promoCode = { code: 'code1' };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      const actual = await stripeHelper.findPromoCodeByCode('code1');
+      assert.deepEqual(actual, promoCode);
+    });
+
+    it('finds no promo code', async () => {
+      const promoCode = { code: 'code2' };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promoCode] });
+      const actual = await stripeHelper.findPromoCodeByCode('code1');
+      assert.isUndefined(actual);
     });
   });
 
@@ -1699,9 +1848,12 @@ describe('StripeHelper', () => {
       );
 
       /** Plan.product has invalid metadata */
-      assert.equal(
-        `fetchAllPlans - Plan "${planInvalidProductMetadata.id}"'s metadata failed validation`,
-        stripeHelper.log.error.getCall(3).args[0]
+      assert.isTrue(
+        stripeHelper.log.error
+          .getCall(3)
+          .args[0].includes(
+            `fetchAllPlans: ${planInvalidProductMetadata.id} metadata invalid:`
+          )
       );
     });
   });
@@ -3956,6 +4108,44 @@ describe('StripeHelper', () => {
         );
       });
     }
+
+    for (const type of [
+      'payment_method.attached',
+      'payment_method.automatically_updated',
+      'payment_method.updated',
+    ]) {
+      it(`handles ${type} operations`, async () => {
+        const event = deepCopy(eventPaymentMethodAttached);
+        event.type = type;
+        delete event.data.previous_attributes;
+        stripeHelper.stripe.paymentMethods.retrieve = sandbox
+          .stub()
+          .resolves(paymentMethodAttach);
+        stripeFirestore.retrievePaymentMethod = sandbox.stub().resolves({});
+        stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox
+          .stub()
+          .resolves({});
+        await stripeHelper.processWebhookEventToFirestore(event);
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripeFirestore.insertPaymentMethodRecordWithBackfill,
+          paymentMethodAttach
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.stripe.paymentMethods.retrieve,
+          event.data.object.id
+        );
+      });
+    }
+
+    it('handles payment_method.detached operations', async () => {
+      const event = deepCopy(eventPaymentMethodDetached);
+      stripeFirestore.removePaymentMethodRecord = sandbox.stub().resolves({});
+      await stripeHelper.processWebhookEventToFirestore(event);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripeFirestore.removePaymentMethodRecord,
+        event.data.object.id
+      );
+    });
 
     it('does not handle wibble events', async () => {
       const event = deepCopy(eventSubscriptionUpdated);

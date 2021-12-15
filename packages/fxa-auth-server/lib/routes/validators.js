@@ -15,6 +15,7 @@ const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 module.exports.HEX_STRING = HEX_STRING;
 
 module.exports.BASE_36 = /^[a-zA-Z0-9]*$/;
+module.exports.BASE_10 = /^[0-9]*$/;
 
 // RFC 4648, section 5
 module.exports.URL_SAFE_BASE_64 = /^[A-Za-z0-9_-]+$/;
@@ -282,6 +283,22 @@ module.exports.recoveryData = isA
   .regex(/[a-zA-Z0-9.]/)
   .max(1024)
   .required();
+
+module.exports.recoveryCode = function (len, base) {
+  const regex = base || module.exports.BASE_36;
+  return isA.string().regex(regex).min(8).max(len);
+};
+module.exports.recoveryCodes = function (codeCount, codeLen, base) {
+  return isA.object({
+    recoveryCodes: isA
+      .array()
+      .min(1)
+      .max(codeCount)
+      .unique()
+      .items(module.exports.recoveryCode(codeLen, base))
+      .required(),
+  });
+};
 
 module.exports.stripePaymentMethodId = isA.string().max(30);
 module.exports.paypalPaymentToken = isA.string().max(30);

@@ -1,3 +1,71 @@
+## 1.221.0
+
+### Bug fixes
+
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+- metrics: update content-server regex to match the auth-server regex (#11180) ([0eea4fdd4](https://github.com/mozilla/fxa/commit/0eea4fdd4))
+- content: replace lockwise section with section about relay Because: ([18b1a4086](https://github.com/mozilla/fxa/commit/18b1a4086))
+
+### Other changes
+
+- deps: bump node-sass from 6.0.1 to 7.0.0 ([c7b00d176](https://github.com/mozilla/fxa/commit/c7b00d176))
+- deps-dev: bump esbuild from 0.14.1 to 0.14.2 ([b02bdf11f](https://github.com/mozilla/fxa/commit/b02bdf11f))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump esbuild-register from 3.1.2 to 3.2.0 (#11218) ([a66e94841](https://github.com/mozilla/fxa/commit/a66e94841))
+- deps-dev: bump intern from 4.10.0 to 4.10.1 (#11199) ([22409c552](https://github.com/mozilla/fxa/commit/22409c552))
+- deps-dev: bump esbuild from 0.13.14 to 0.14.0 (#11186) ([fd2d059eb](https://github.com/mozilla/fxa/commit/fd2d059eb))
+- deps-dev: bump got from 11.8.2 to 11.8.3 (#11161) ([7cc3bfd13](https://github.com/mozilla/fxa/commit/7cc3bfd13))
+
+## 1.220.5
+
+No changes.
+
+## 1.220.4
+
+No changes.
+
+## 1.220.3
+
+No changes.
+
+## 1.220.2
+
+No changes.
+
+## 1.220.1
+
+### Bug fixes
+
+- metrics: update content-server regex to match the auth-server regex ([f2bc9d54c](https://github.com/mozilla/fxa/commit/f2bc9d54c))
+
+## 1.220.0
+
+### New features
+
+- tests: implement prod smoke tests in playwright ([833326ad5](https://github.com/mozilla/fxa/commit/833326ad5))
+
+### Bug fixes
+
+- content: l10n for texts in settings+content (#11086) ([73a720ad7](https://github.com/mozilla/fxa/commit/73a720ad7))
+- metrics: Re-enable toggling metrics for user (#10990) ([f7b0e7d7c](https://github.com/mozilla/fxa/commit/f7b0e7d7c))
+- l10n: Move l10n comments out of `unsafeTranslate` tag (#11008) ([86c824969](https://github.com/mozilla/fxa/commit/86c824969))
+
+### Other changes
+
+- deps-dev: bump copy-webpack-plugin from 5.1.1 to 10.0.0 (#11120)" ([3b521a2e8](https://github.com/mozilla/fxa/commit/3b521a2e8))
+- deps-dev: bump copy-webpack-plugin from 5.1.1 to 10.0.0 (#11120) ([972d4d55e](https://github.com/mozilla/fxa/commit/972d4d55e))
+- deps: add dependencies on other workspaces for runtime dependency (#11115) ([e3a3fcc19](https://github.com/mozilla/fxa/commit/e3a3fcc19))
+- subscriptions: allow IAP subscribers to use Support Form (#11073) ([4645cd7ce](https://github.com/mozilla/fxa/commit/4645cd7ce))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps-dev: bump esbuild from 0.13.4 to 0.13.14 (#11053) ([46b813268](https://github.com/mozilla/fxa/commit/46b813268))
+- deps: bump cookie-parser from 1.4.5 to 1.4.6 (#11049) ([ef3926e25](https://github.com/mozilla/fxa/commit/ef3926e25))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump @sentry/browser from 6.14.3 to 6.15.0 (#11038) ([8344a2332](https://github.com/mozilla/fxa/commit/8344a2332))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+- deps: bump hot-shots from 8.5.2 to 9.0.0 (#11018) ([10dfa5e1a](https://github.com/mozilla/fxa/commit/10dfa5e1a))
+- deps: bump @sentry/browser from 6.14.0 to 6.14.3 (#11004) ([d67ce665a](https://github.com/mozilla/fxa/commit/d67ce665a))
+
 ## 1.219.5
 
 No changes.

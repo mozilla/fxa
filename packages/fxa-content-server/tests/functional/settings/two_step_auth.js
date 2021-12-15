@@ -5,6 +5,7 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const { testElementDisabled } = require('../lib/helpers');
 const FunctionalHelpers = require('../lib/helpers');
 const selectors = require('../lib/selectors');
 
@@ -169,7 +170,7 @@ registerSuite('TOTP', {
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
     },
 
-    'can navigate directly to recovery codes': function () {
+    'can change recovery codes': function () {
       return this.remote
         .then(confirmTotpCode(secret))
         .then(
@@ -178,22 +179,72 @@ registerSuite('TOTP', {
             selectors.TOTP.RECOVERY_CODES_DESCRIPTION
           )
         )
-        .then(click(selectors.SETTINGS.SECURITY.TFA.CLOSE_RECOVERY_KEY_BLOCK));
+        .then(testElementExists(selectors.SETTINGS.SECURITY.TFA.RECOVERY_CODES))
+        .findByCssSelector(selectors.SETTINGS.SECURITY.TFA.FIRST_RECOVERY_CODE)
+        .getVisibleText()
+        .then((code) => {
+          return this.remote
+            .then(click(selectors.SETTINGS.SECURITY.TFA.CONTINUE_RECOVERY_KEY))
+            .then(
+              testElementExists(
+                selectors.SETTINGS.SECURITY.TFA.RECOVERY_KEY_INPUT
+              )
+            )
+            .then(
+              testElementDisabled(
+                selectors.SETTINGS.SECURITY.TFA.SUBMIT_RECOVERY_KEY
+              )
+            )
+            .then(
+              type(selectors.SETTINGS.SECURITY.TFA.RECOVERY_KEY_INPUT, code)
+            )
+            .then(click(selectors.SETTINGS.SECURITY.TFA.SUBMIT_RECOVERY_KEY));
+        });
     },
 
-    'can reset password, prompt for TOTP and login - same browser same tab': function () {
-      return (
-        this.remote
-          .then(confirmTotpCode(secret))
+    'can reset password, prompt for TOTP and login - same browser same tab':
+      function () {
+        return (
+          this.remote
+            .then(confirmTotpCode(secret))
 
+            .then(signOut())
+            //.then(clearBrowserState())
+
+            .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
+            .then(fillOutResetPassword(email))
+            .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+
+            .then(openVerificationLinkInSameTab(email, 2))
+            .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+            .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
+
+            .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
+            .then(
+              click(
+                selectors.TOTP_SIGNIN.SUBMIT,
+                selectors.CONNECT_ANOTHER_DEVICE.HEADER
+              )
+            )
+
+            .then(testIsBrowserNotified('fxaccounts:login'))
+
+            .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
+        );
+      },
+
+    'can reset password, prompt for TOTP and login - same browser different tab':
+      function () {
+        return this.remote
+          .then(confirmTotpCode(secret))
           .then(signOut())
-          //.then(clearBrowserState())
 
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
 
-          .then(openVerificationLinkInSameTab(email, 2))
+          .then(openVerificationLinkInNewTab(email, 2))
+          .then(switchToWindow(1))
           .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
           .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
@@ -207,59 +258,32 @@ registerSuite('TOTP', {
 
           .then(testIsBrowserNotified('fxaccounts:login'))
 
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS))
-      );
-    },
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
+      },
 
-    'can reset password, prompt for TOTP and login - same browser different tab': function () {
-      return this.remote
-        .then(confirmTotpCode(secret))
-        .then(signOut())
+    'can reset password, prompt for TOTP and login - verify different browser':
+      function () {
+        return (
+          this.remote
+            .then(confirmTotpCode(secret))
+            .then(signOut())
 
-        .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
-        .then(fillOutResetPassword(email))
-        .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+            .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
+            .then(fillOutResetPassword(email))
+            .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
 
-        .then(openVerificationLinkInNewTab(email, 2))
-        .then(switchToWindow(1))
-        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
-        .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
+            // clear all browser state, simulate opening in a new browser
+            .then(clearBrowserState({ force: true }))
+            .then(openVerificationLinkInSameTab(email, 2))
+            .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+            .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
-        .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
-        .then(
-          click(
-            selectors.TOTP_SIGNIN.SUBMIT,
-            selectors.CONNECT_ANOTHER_DEVICE.HEADER
-          )
-        )
+            .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
+            .then(click(selectors.TOTP_SIGNIN.SUBMIT))
 
-        .then(testIsBrowserNotified('fxaccounts:login'))
-
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
-    },
-
-    'can reset password, prompt for TOTP and login - verify different browser': function () {
-      return (
-        this.remote
-          .then(confirmTotpCode(secret))
-          .then(signOut())
-
-          .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
-          .then(fillOutResetPassword(email))
-          .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
-
-          // clear all browser state, simulate opening in a new browser
-          .then(clearBrowserState({ force: true }))
-          .then(openVerificationLinkInSameTab(email, 2))
-          .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
-          .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
-
-          .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
-          .then(click(selectors.TOTP_SIGNIN.SUBMIT))
-
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-      );
-    },
+            .then(testElementExists(selectors.SETTINGS.HEADER))
+        );
+      },
   },
 });
 

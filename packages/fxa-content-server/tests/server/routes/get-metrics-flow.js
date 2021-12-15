@@ -103,57 +103,58 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(argsFlowEvent.length, 3);
     },
 
-    'supports query params and logs begin amplitude and flow events': function () {
-      request = {
-        headers: {},
-        query: {
-          context: 'blee',
-          entrypoint: 'zoo',
-          entrypoint_experiment: 'herf',
-          entrypoint_variation: 'menk',
-          event_type: 'foo.bar',
-          form_type: 'other',
-          service: 'sync',
-          uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
-          utm_campaign: 'foo',
-          utm_content: 'bar',
-          utm_medium: 'biz',
-          utm_source: 'baz',
-          utm_term: 'quix',
-        },
-      };
-      instance.process(request, response);
+    'supports query params and logs begin amplitude and flow events':
+      function () {
+        request = {
+          headers: {},
+          query: {
+            context: 'blee',
+            entrypoint: 'zoo',
+            entrypoint_experiment: 'herf',
+            entrypoint_variation: 'menk',
+            event_type: 'foo.bar',
+            form_type: 'other',
+            service: 'sync',
+            uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
+            utm_campaign: 'foo',
+            utm_content: 'bar',
+            utm_medium: 'biz',
+            utm_source: 'baz',
+            utm_term: 'quix',
+          },
+        };
+        instance.process(request, response);
 
-      assert.isFalse(mocks.log.info.called);
+        assert.isFalse(mocks.log.info.called);
 
-      assert.equal(mocks.amplitude.callCount, 1);
-      let args = mocks.amplitude.args[0];
-      assert.equal(args.length, 3);
-      assert.ok(args[0].flowTime);
-      assert.ok(args[0].time);
-      assert.equal(args[0].type, 'flow.begin');
-      assert.equal(args[2].entrypoint, 'zoo');
-      assert.equal(args[2].entrypoint_experiment, 'herf');
-      assert.equal(args[2].entrypoint_variation, 'menk');
-      assert.equal(args[2].event_type, 'foo.bar');
-      assert.equal(args[2].location.country, 'United States');
-      assert.equal(args[2].location.state, 'California');
-      assert.equal(args[2].uid, 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e');
-      assert.ok(args[2].flowId);
-      assert.ok(args[2].deviceId);
-      assert.notEqual(args[2].deviceId, args[2].flowId);
+        assert.equal(mocks.amplitude.callCount, 1);
+        let args = mocks.amplitude.args[0];
+        assert.equal(args.length, 3);
+        assert.ok(args[0].flowTime);
+        assert.ok(args[0].time);
+        assert.equal(args[0].type, 'flow.begin');
+        assert.equal(args[2].entrypoint, 'zoo');
+        assert.equal(args[2].entrypoint_experiment, 'herf');
+        assert.equal(args[2].entrypoint_variation, 'menk');
+        assert.equal(args[2].event_type, 'foo.bar');
+        assert.equal(args[2].location.country, 'United States');
+        assert.equal(args[2].location.state, 'California');
+        assert.equal(args[2].uid, 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e');
+        assert.ok(args[2].flowId);
+        assert.ok(args[2].deviceId);
+        assert.notEqual(args[2].deviceId, args[2].flowId);
 
-      assert.equal(mocks.flowEvent.logFlowEvent.callCount, 1);
-      args = mocks.flowEvent.logFlowEvent.args[0];
-      const eventData = args[0];
-      const metricsData = args[1];
-      assert.ok(eventData.flowTime);
-      assert.ok(eventData.time);
-      assert.equal(eventData.type, 'flow.begin');
-      assert.equal(metricsData.entrypoint, 'zoo');
-      assert.ok(metricsData.flowId);
-      assert.ok(metricsData.deviceId);
-    },
+        assert.equal(mocks.flowEvent.logFlowEvent.callCount, 1);
+        args = mocks.flowEvent.logFlowEvent.args[0];
+        const eventData = args[0];
+        const metricsData = args[1];
+        assert.ok(eventData.flowTime);
+        assert.ok(eventData.time);
+        assert.equal(eventData.type, 'flow.begin');
+        assert.equal(metricsData.entrypoint, 'zoo');
+        assert.ok(metricsData.flowId);
+        assert.ok(metricsData.deviceId);
+      },
 
     'invalid context query parameter': function () {
       const query = {
@@ -196,7 +197,7 @@ registerSuite('routes/get-metrics-flow', {
 
     'invalid service query parameter': function () {
       const query = {
-        service: 'zzzz',
+        service: 'zz$z',
       };
 
       const validation = joi.object(instance.validate.query);
@@ -204,7 +205,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(result.error);
       const error = result.error.details[0];
       assert.equal(error.path, 'service');
-      assert.equal(error.context.value, 'zzzz');
+      assert.equal(error.context.value, 'zz$z');
     },
 
     'invalid utm_campaign query parameter': function () {
@@ -298,167 +299,172 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'invalid!!');
     },
 
-    'logs enter-email.view amplitude and flow events if form_type email is set': function () {
-      request = {
-        headers: {},
-        query: {
-          entrypoint: 'bar',
-          form_type: 'email',
-          service: 'sync',
-          utm_campaign: 'foo',
-          utm_content: 'bar',
-          utm_medium: 'biz',
-          utm_source: 'baz',
-          utm_term: 'quix',
-        },
-      };
-      instance.process(request, response);
+    'logs enter-email.view amplitude and flow events if form_type email is set':
+      function () {
+        request = {
+          headers: {},
+          query: {
+            entrypoint: 'bar',
+            form_type: 'email',
+            service: 'sync',
+            utm_campaign: 'foo',
+            utm_content: 'bar',
+            utm_medium: 'biz',
+            utm_source: 'baz',
+            utm_term: 'quix',
+          },
+        };
+        instance.process(request, response);
 
-      assert.isFalse(mocks.log.info.called);
+        assert.isFalse(mocks.log.info.called);
 
-      assert.equal(mocks.amplitude.callCount, 2);
-      let args = mocks.amplitude.args[1];
-      assert.equal(args.length, 3);
-      assert.ok(args[0].flowTime);
-      assert.ok(args[0].time);
-      assert.equal(args[0].type, 'screen.enter-email');
-      assert.equal(args[2].entrypoint, 'bar');
-      assert.equal(args[2].location.country, 'United States');
-      assert.equal(args[2].location.state, 'California');
-      assert.ok(args[2].flowId);
+        assert.equal(mocks.amplitude.callCount, 2);
+        let args = mocks.amplitude.args[1];
+        assert.equal(args.length, 3);
+        assert.ok(args[0].flowTime);
+        assert.ok(args[0].time);
+        assert.equal(args[0].type, 'screen.enter-email');
+        assert.equal(args[2].entrypoint, 'bar');
+        assert.equal(args[2].location.country, 'United States');
+        assert.equal(args[2].location.state, 'California');
+        assert.ok(args[2].flowId);
 
-      assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
-      args = mocks.flowEvent.logFlowEvent.args[1];
-      const eventData = args[0];
-      const metricsData = args[1];
-      assert.ok(eventData.flowTime);
-      assert.ok(eventData.time);
-      assert.equal(eventData.type, 'flow.enter-email.view');
-      assert.equal(metricsData.entrypoint, 'bar');
-      assert.ok(metricsData.flowId);
-    },
+        assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
+        args = mocks.flowEvent.logFlowEvent.args[1];
+        const eventData = args[0];
+        const metricsData = args[1];
+        assert.ok(eventData.flowTime);
+        assert.ok(eventData.time);
+        assert.equal(eventData.type, 'flow.enter-email.view');
+        assert.equal(metricsData.entrypoint, 'bar');
+        assert.ok(metricsData.flowId);
+      },
 
-    'logs button.view amplitude and flow events if form_type button is set': function () {
-      request = {
-        headers: {},
-        query: {
-          entrypoint: 'bar',
-          form_type: 'button',
-          service: 'sync',
-          utm_campaign: 'foo',
-          utm_content: 'bar',
-          utm_medium: 'biz',
-          utm_source: 'baz',
-          utm_term: 'quix',
-        },
-      };
-      instance.process(request, response);
+    'logs button.view amplitude and flow events if form_type button is set':
+      function () {
+        request = {
+          headers: {},
+          query: {
+            entrypoint: 'bar',
+            form_type: 'button',
+            service: 'sync',
+            utm_campaign: 'foo',
+            utm_content: 'bar',
+            utm_medium: 'biz',
+            utm_source: 'baz',
+            utm_term: 'quix',
+          },
+        };
+        instance.process(request, response);
 
-      assert.isFalse(mocks.log.info.called);
+        assert.isFalse(mocks.log.info.called);
 
-      assert.equal(mocks.amplitude.callCount, 2);
-      let args = mocks.amplitude.args[1];
-      assert.equal(args.length, 3);
-      assert.ok(args[0].flowTime);
-      assert.ok(args[0].time);
-      assert.equal(args[0].type, 'screen.rp-button');
-      assert.equal(args[2].entrypoint, 'bar');
-      assert.equal(args[2].location.country, 'United States');
-      assert.equal(args[2].location.state, 'California');
-      assert.ok(args[2].flowId);
+        assert.equal(mocks.amplitude.callCount, 2);
+        let args = mocks.amplitude.args[1];
+        assert.equal(args.length, 3);
+        assert.ok(args[0].flowTime);
+        assert.ok(args[0].time);
+        assert.equal(args[0].type, 'screen.rp-button');
+        assert.equal(args[2].entrypoint, 'bar');
+        assert.equal(args[2].location.country, 'United States');
+        assert.equal(args[2].location.state, 'California');
+        assert.ok(args[2].flowId);
 
-      assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
-      args = mocks.flowEvent.logFlowEvent.args[1];
-      const eventData = args[0];
-      const metricsData = args[1];
-      assert.ok(eventData.flowTime);
-      assert.ok(eventData.time);
-      assert.equal(eventData.type, 'flow.rp-button.view');
-      assert.equal(metricsData.entrypoint, 'bar');
-      assert.ok(metricsData.flowId);
-    },
+        assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
+        args = mocks.flowEvent.logFlowEvent.args[1];
+        const eventData = args[0];
+        const metricsData = args[1];
+        assert.ok(eventData.flowTime);
+        assert.ok(eventData.time);
+        assert.equal(eventData.type, 'flow.rp-button.view');
+        assert.equal(metricsData.entrypoint, 'bar');
+        assert.ok(metricsData.flowId);
+      },
 
-    'logs button.view amplitude and flow events if form_type subscribe is set': function () {
-      request = {
-        headers: {},
-        query: {
-          entrypoint: 'bar',
-          form_type: 'subscribe',
-          product_id: 'prod_fuaUSifnw92au',
-          service: 'sync',
-          utm_campaign: 'foo',
-          utm_content: 'bar',
-          utm_medium: 'biz',
-          utm_source: 'baz',
-          utm_term: 'quix',
-        },
-      };
-      instance.process(request, response);
+    'logs button.view amplitude and flow events if form_type subscribe is set':
+      function () {
+        request = {
+          headers: {},
+          query: {
+            entrypoint: 'bar',
+            form_type: 'subscribe',
+            product_id: 'prod_fuaUSifnw92au',
+            service: 'sync',
+            utm_campaign: 'foo',
+            utm_content: 'bar',
+            utm_medium: 'biz',
+            utm_source: 'baz',
+            utm_term: 'quix',
+          },
+        };
+        instance.process(request, response);
 
-      assert.isFalse(mocks.log.info.called);
+        assert.isFalse(mocks.log.info.called);
 
-      assert.equal(mocks.amplitude.callCount, 2);
-      let args = mocks.amplitude.args[1];
-      assert.equal(args.length, 3);
-      assert.ok(args[0].flowTime);
-      assert.ok(args[0].time);
-      assert.equal(args[0].type, 'screen.subscribe');
-      assert.equal(args[2].entrypoint, 'bar');
-      assert.equal(args[2].product_id, 'prod_fuaUSifnw92au');
-      assert.equal(args[2].location.country, 'United States');
-      assert.equal(args[2].location.state, 'California');
-      assert.ok(args[2].flowId);
+        assert.equal(mocks.amplitude.callCount, 2);
+        let args = mocks.amplitude.args[1];
+        assert.equal(args.length, 3);
+        assert.ok(args[0].flowTime);
+        assert.ok(args[0].time);
+        assert.equal(args[0].type, 'screen.subscribe');
+        assert.equal(args[2].entrypoint, 'bar');
+        assert.equal(args[2].product_id, 'prod_fuaUSifnw92au');
+        assert.equal(args[2].location.country, 'United States');
+        assert.equal(args[2].location.state, 'California');
+        assert.ok(args[2].flowId);
 
-      assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
-      args = mocks.flowEvent.logFlowEvent.args[1];
-      const eventData = args[0];
-      const metricsData = args[1];
-      assert.ok(eventData.flowTime);
-      assert.ok(eventData.time);
-      assert.equal(eventData.type, 'flow.subscribe.view');
-      assert.equal(metricsData.entrypoint, 'bar');
-      assert.equal(metricsData.product_id, 'prod_fuaUSifnw92au');
-      assert.ok(metricsData.flowId);
-    },
+        assert.equal(mocks.flowEvent.logFlowEvent.callCount, 2);
+        args = mocks.flowEvent.logFlowEvent.args[1];
+        const eventData = args[0];
+        const metricsData = args[1];
+        assert.ok(eventData.flowTime);
+        assert.ok(eventData.time);
+        assert.equal(eventData.type, 'flow.subscribe.view');
+        assert.equal(metricsData.entrypoint, 'bar');
+        assert.equal(metricsData.product_id, 'prod_fuaUSifnw92au');
+        assert.ok(metricsData.flowId);
+      },
 
-    'logs flow.rp.engage amplitude event if event_type=engage and service and uid are present': function () {
-      request = {
-        headers: {},
-        query: {
-          event_type: 'engage',
-          service: '0123456789abcdef',
-          uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
-        },
-      };
-      instance.process(request, response);
+    'logs flow.rp.engage amplitude event if event_type=engage and service and uid are present':
+      function () {
+        request = {
+          headers: {},
+          query: {
+            event_type: 'engage',
+            service: '0123456789abcdef',
+            uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
+          },
+        };
+        instance.process(request, response);
 
-      assert.isFalse(mocks.log.info.called);
+        assert.isFalse(mocks.log.info.called);
 
-      assert.equal(mocks.amplitude.callCount, 1);
-      const args = mocks.amplitude.args[0];
-      assert.equal(args.length, 3);
-      assert.ok(args[0].flowTime);
-      assert.ok(args[0].time);
-      assert.equal(args[2].service, '0123456789abcdef');
-      assert.equal(args[0].type, 'flow.rp.engage');
-      assert.equal(args[2].uid, 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e');
-      assert.ok(args[2].flowId);
-    },
+        assert.equal(mocks.amplitude.callCount, 1);
+        const args = mocks.amplitude.args[0];
+        assert.equal(args.length, 3);
+        assert.ok(args[0].flowTime);
+        assert.ok(args[0].time);
+        assert.equal(args[2].service, '0123456789abcdef');
+        assert.equal(args[0].type, 'flow.rp.engage');
+        assert.equal(args[2].uid, 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e');
+        assert.ok(args[2].flowId);
+      },
 
-    'does not log flow.rp.engage amplitude event if service is not a registered oauth client_id': function () {
-      request = {
-        headers: {},
-        query: {
-          event_type: 'engage',
-          service: '1234123412341234', // syntactically valid but not a registered oauth client
-          uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
-        },
-      };
-      instance.process(request, response);
+    'does not log flow.rp.engage amplitude event if service is not a registered oauth client_id':
+      function () {
+        request = {
+          headers: {},
+          query: {
+            event_type: 'engage',
+            service: '1234123412341234', // syntactically valid but not a registered oauth client
+            uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
+          },
+        };
+        instance.process(request, response);
 
-      assert.isFalse(mocks.log.info.called);
-      assert.equal(mocks.amplitude.callCount, 0);
-    },
+        assert.isFalse(mocks.log.info.called);
+        assert.equal(mocks.amplitude.callCount, 0);
+      },
 
     'validates CORS': function () {
       const dfd = this.async(1000);
@@ -523,7 +529,7 @@ registerSuite('routes/get-metrics-flow remote request', {
   },
 
   'invalid service query parameter': function () {
-    return testInvalidFlowQueryParam('service', 'zzzz');
+    return testInvalidFlowQueryParam('service', 'zz$z');
   },
 
   'invalid utm_campaign query parameter': function () {

@@ -1,5 +1,76 @@
 # Change history
 
+## 1.221.0
+
+### Bug fixes
+
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1022.0 to 2.1044.0 (#11271) ([6eeb2eb74](https://github.com/mozilla/fxa/commit/6eeb2eb74))
+- deps: bump @nestjs/mapped-types from 1.0.0 to 1.0.1 (#11257) ([31a01cc4d](https://github.com/mozilla/fxa/commit/31a01cc4d))
+- deps-dev: bump esbuild from 0.14.1 to 0.14.2 ([b02bdf11f](https://github.com/mozilla/fxa/commit/b02bdf11f))
+- deps-dev: bump jest from 27.3.1 to 27.4.3 ([5bc98e34d](https://github.com/mozilla/fxa/commit/5bc98e34d))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump esbuild-register from 3.1.2 to 3.2.0 (#11218) ([a66e94841](https://github.com/mozilla/fxa/commit/a66e94841))
+- deps-dev: bump esbuild from 0.13.14 to 0.14.0 (#11186) ([fd2d059eb](https://github.com/mozilla/fxa/commit/fd2d059eb))
+- deps: bump @nestjs/config from 1.1.0 to 1.1.5 (#11174) ([6bffbbae0](https://github.com/mozilla/fxa/commit/6bffbbae0))
+- deps: bump @nestjs/common from 8.1.2 to 8.2.3 (#11168) ([9cda83496](https://github.com/mozilla/fxa/commit/9cda83496))
+- deps-dev: bump @nestjs/testing from 8.2.0 to 8.2.3 (#11166) ([6cb640160](https://github.com/mozilla/fxa/commit/6cb640160))
+- deps-dev: bump tsconfig-paths from 3.11.0 to 3.12.0 (#11167) ([de19f3591](https://github.com/mozilla/fxa/commit/de19f3591))
+- deps: bump @nestjs/platform-express from 8.2.2 to 8.2.3 (#11165) ([9f5056ab8](https://github.com/mozilla/fxa/commit/9f5056ab8))
+- deps: bump @nestjs/core from 8.2.0 to 8.2.3 (#11155) ([f7c73fbd4](https://github.com/mozilla/fxa/commit/f7c73fbd4))
+- deps: bump passport from 0.4.1 to 0.5.0 (#11151) ([62d0ea0e8](https://github.com/mozilla/fxa/commit/62d0ea0e8))
+- deps: bump @nestjs/schedule from 1.0.1 to 1.0.2 (#11140) ([106ee8e85](https://github.com/mozilla/fxa/commit/106ee8e85))
+- deps: bump class-transformer from 0.4.0 to 0.5.1 (#11141) ([dcaaa2128](https://github.com/mozilla/fxa/commit/dcaaa2128))
+
+## 1.220.5
+
+No changes.
+
+## 1.220.4
+
+No changes.
+
+## 1.220.3
+
+No changes.
+
+## 1.220.2
+
+No changes.
+
+## 1.220.1
+
+No changes.
+
+## 1.220.0
+
+### Bug fixes
+
+- pm2: resolve nest cli path in pm2 configs (#11082) ([dbf8f2ab4](https://github.com/mozilla/fxa/commit/dbf8f2ab4))
+
+### Other changes
+
+- deps-dev: bump nock from 13.1.4 to 13.2.1 (#11121) ([7ecc6f0e7](https://github.com/mozilla/fxa/commit/7ecc6f0e7))
+- deps: bump @google-cloud/pubsub from 2.18.2 to 2.18.3 (#11124) ([90d5db79e](https://github.com/mozilla/fxa/commit/90d5db79e))
+- deps: bump class-validator from 0.13.1 to 0.13.2 (#11107) ([6bf558a23](https://github.com/mozilla/fxa/commit/6bf558a23))
+- deps: bump google-auth-library from 7.10.1 to 7.10.2 (#11109) ([0067ccf69](https://github.com/mozilla/fxa/commit/0067ccf69))
+- deps: bump @sentry/integrations from 6.14.2 to 6.15.0 (#11108) ([b567728cf](https://github.com/mozilla/fxa/commit/b567728cf))
+- deps-dev: bump @nestjs/schematics from 8.0.4 to 8.0.5 (#11106) ([1f5477c92](https://github.com/mozilla/fxa/commit/1f5477c92))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps-dev: bump esbuild from 0.13.4 to 0.13.14 (#11053) ([46b813268](https://github.com/mozilla/fxa/commit/46b813268))
+- deps: bump @nestjs/platform-express from 8.2.0 to 8.2.2 (#11062) ([2fb01493f](https://github.com/mozilla/fxa/commit/2fb01493f))
+- deps: bump @sentry/node from 6.14.3 to 6.15.0 (#11036) ([cb0f09d41](https://github.com/mozilla/fxa/commit/cb0f09d41))
+- deps: bump @sentry/node from 6.14.1 to 6.14.3 (#11020) ([507aef4b4](https://github.com/mozilla/fxa/commit/507aef4b4))
+- deps: bump hot-shots from 8.5.2 to 9.0.0 (#11018) ([10dfa5e1a](https://github.com/mozilla/fxa/commit/10dfa5e1a))
+- deps: bump @nestjs/core from 8.1.1 to 8.2.0 (#11003) ([85750f0ee](https://github.com/mozilla/fxa/commit/85750f0ee))
+- deps-dev: bump p-event from 4.2.0 to 5.0.1 (#10919)" (#10982) ([1b53f6ea9](https://github.com/mozilla/fxa/commit/1b53f6ea9))
+- deps-dev: bump @nestjs/testing from 8.1.2 to 8.2.0 (#10976) ([47ee4042b](https://github.com/mozilla/fxa/commit/47ee4042b))
+- deps: bump @google-cloud/pubsub from 2.18.1 to 2.18.2 (#10975) ([7823787d7](https://github.com/mozilla/fxa/commit/7823787d7))
+
 ## 1.219.5
 
 No changes.

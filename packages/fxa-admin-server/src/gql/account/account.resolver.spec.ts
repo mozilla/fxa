@@ -9,12 +9,12 @@ import { Knex } from 'knex';
 
 import {
   Account,
-  EmailBounces,
-  Emails,
-  Totp,
-  RecoveryKeys,
-  SessionTokens,
-} from '../../database/model';
+  EmailBounce,
+  Email,
+  TotpToken,
+  RecoveryKey,
+  SessionToken,
+} from 'fxa-shared/db/models/auth';
 import {
   randomAccount,
   randomEmail,
@@ -23,13 +23,12 @@ import {
   randomRecoveryKey,
   randomSessionToken,
   testDatabaseSetup,
-} from '../../database/model/helpers';
+} from 'fxa-shared/test/db/models/auth/helpers';
 import { AccountResolver } from './account.resolver';
 import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
-const EMAIL_2 = randomEmail(USER_1, true);
 const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email);
 const TOTP_1 = randomTotp(USER_1);
 const RECOVERY_KEY_1 = randomRecoveryKey(USER_1);
@@ -43,25 +42,25 @@ describe('AccountResolver', () => {
   let knex: Knex;
   let db = {
     account: Account,
-    emails: Emails,
-    emailBounces: EmailBounces,
-    totp: Totp,
-    recoveryKeys: RecoveryKeys,
-    sessionTokens: SessionTokens,
+    emails: Email,
+    emailBounces: EmailBounce,
+    totp: TotpToken,
+    recoveryKeys: RecoveryKey,
+    sessionTokens: SessionToken,
   };
 
   beforeAll(async () => {
-    knex = await testDatabaseSetup('testAdminAccountResolver');
+    knex = await testDatabaseSetup();
     // Load the users in
     db.account = Account.bindKnex(knex);
-    db.emails = Emails.bindKnex(knex);
-    db.emailBounces = EmailBounces.bindKnex(knex);
-    db.totp = Totp.bindKnex(knex);
-    db.recoveryKeys = RecoveryKeys.bindKnex(knex);
-    db.sessionTokens = SessionTokens.bindKnex(knex);
+    db.emails = Email.bindKnex(knex);
+    db.emailBounces = EmailBounce.bindKnex(knex);
+    db.totp = TotpToken.bindKnex(knex);
+    db.recoveryKeys = RecoveryKey.bindKnex(knex);
+    db.sessionTokens = SessionToken.bindKnex(knex);
     await (db.account as any).query().insertGraph({
       ...USER_1,
-      emails: [EMAIL_1, EMAIL_2],
+      emails: [EMAIL_1],
     });
     await db.emailBounces.query().insert(EMAIL_BOUNCE_1);
     await db.totp.query().insert(TOTP_1);
@@ -138,7 +137,7 @@ describe('AccountResolver', () => {
     const result = await resolver.emailBounces(user);
     expect(result).toBeDefined();
     const bounce = result[0];
-    expect(bounce).toEqual(EMAIL_BOUNCE_1);
+    expect(bounce).toEqual(expect.objectContaining(EMAIL_BOUNCE_1));
   });
 
   it('loads emails', async () => {
@@ -148,7 +147,7 @@ describe('AccountResolver', () => {
     )) as Account;
     const result = await resolver.emails(user);
     expect(result).toBeDefined();
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(1);
   });
 
   it('loads totp', async () => {

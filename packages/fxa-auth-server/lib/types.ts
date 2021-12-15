@@ -44,7 +44,7 @@ export interface AuthApp extends RequestApplicationState {
   };
   isSuspiciousRequest: boolean;
   geo: {
-    location: {
+    location?: {
       city: string;
       state: string;
       country: string;

@@ -1,3 +1,72 @@
+## 1.221.0
+
+### Bug fixes
+
+- settings: add translated store images (#11229) ([e5878e4fd](https://github.com/mozilla/fxa/commit/e5878e4fd))
+- settings: move auth errors to common file (#11238) ([4d6c6ccf1](https://github.com/mozilla/fxa/commit/4d6c6ccf1))
+- settings: fix copy and paste of recovery codes ([d5f39490f](https://github.com/mozilla/fxa/commit/d5f39490f))
+- reverse dep rollback from conflict resolution ([5527014cb](https://github.com/mozilla/fxa/commit/5527014cb))
+
+### Other changes
+
+- deps: bump react-easy-crop from 4.0.0 to 4.0.1 (#11274) ([36e490511](https://github.com/mozilla/fxa/commit/36e490511))
+- deps: bump node-sass from 6.0.1 to 7.0.0 ([c7b00d176](https://github.com/mozilla/fxa/commit/c7b00d176))
+- bf8cd5c17 Simplify coverage config ([bf8cd5c17](https://github.com/mozilla/fxa/commit/bf8cd5c17))
+- settings: add test coverage thresholds ([e2a7f9b5d](https://github.com/mozilla/fxa/commit/e2a7f9b5d))
+- deps: bump react-easy-crop from 3.5.3 to 4.0.0 (#11233) ([5f39fc939](https://github.com/mozilla/fxa/commit/5f39fc939))
+- #11211: 2fedcbc4a Train 220 (#11211) ([2fedcbc4a](https://github.com/mozilla/fxa/commit/2fedcbc4a))
+- deps-dev: bump @testing-library/dom from 8.9.0 to 8.11.1 (#11178) ([bc7066e5f](https://github.com/mozilla/fxa/commit/bc7066e5f))
+- deps-dev: bump jest-watch-typeahead from 0.6.5 to 1.0.0" (#11148) ([06cea5b97](https://github.com/mozilla/fxa/commit/06cea5b97))
+- deps-dev: bump @testing-library/jest-dom from 5.15.0 to 5.15.1 (#11145) ([00f2cf587](https://github.com/mozilla/fxa/commit/00f2cf587))
+- docs: Add parent selector example to rtl styles (#11137) ([dab28ee04](https://github.com/mozilla/fxa/commit/dab28ee04))
+
+## 1.220.5
+
+No changes.
+
+## 1.220.4
+
+No changes.
+
+## 1.220.3
+
+No changes.
+
+## 1.220.2
+
+No changes.
+
+## 1.220.1
+
+No changes.
+
+## 1.220.0
+
+### New features
+
+- settings: Add Firefox Relay to Settings bento menu (#11127) ([61d4c71fb](https://github.com/mozilla/fxa/commit/61d4c71fb))
+- tests: implement prod smoke tests in playwright ([833326ad5](https://github.com/mozilla/fxa/commit/833326ad5))
+
+### Bug fixes
+
+- content: l10n for texts in settings+content (#11086) ([73a720ad7](https://github.com/mozilla/fxa/commit/73a720ad7))
+- settings: support contextual translation of 'None' Because: ([8959220ad](https://github.com/mozilla/fxa/commit/8959220ad))
+- settings: l10n for email verif. error code (#11044) ([6c379f687](https://github.com/mozilla/fxa/commit/6c379f687))
+- settings: load the user specified in url on settings (#11025) ([6f1d3522d](https://github.com/mozilla/fxa/commit/6f1d3522d))
+
+### Other changes
+
+- deps-dev: bump jest-watch-typeahead from 0.6.5 to 1.0.0 (#11123) ([a7460d79d](https://github.com/mozilla/fxa/commit/a7460d79d))
+- ci: slow down pm2 startup (#11084) ([a62532cc5](https://github.com/mozilla/fxa/commit/a62532cc5))
+- deps: update typescript to 4.5.2 ([60ca05cb8](https://github.com/mozilla/fxa/commit/60ca05cb8))
+- deps: Update yarn to 3.1.0 and dedupe deps. fix resolve conflicts (#11072) ([c72a1a003](https://github.com/mozilla/fxa/commit/c72a1a003))
+- deps-dev: bump jest-watch-typeahead from 0.6.5 to 1.0.0 (#10961)" (#11045) ([4b6e42e95](https://github.com/mozilla/fxa/commit/4b6e42e95))
+- deps: bump @sentry/browser from 6.14.3 to 6.15.0 (#11038) ([8344a2332](https://github.com/mozilla/fxa/commit/8344a2332))
+- deps: bump @emotion/react from 11.5.0 to 11.6.0 (#11021) ([f3e071306](https://github.com/mozilla/fxa/commit/f3e071306))
+- deps: bump @sentry/browser from 6.14.0 to 6.14.3 (#11004) ([d67ce665a](https://github.com/mozilla/fxa/commit/d67ce665a))
+- deps: bump subscriptions-transport-ws from 0.9.19 to 0.11.0 (#10998) ([61668ec7e](https://github.com/mozilla/fxa/commit/61668ec7e))
+- deps: bump react-hook-form from 6.15.5 to 6.15.8 (#10997) ([bd20fe296](https://github.com/mozilla/fxa/commit/bd20fe296))
+
 ## 1.219.5
 
 No changes.

@@ -181,4 +181,13 @@ describe('bounces', () => {
         });
     });
   });
+
+  it('ignores bounce for a specific email template', async () => {
+    const db = {
+      emailBounces: sinon.spy(() => Promise.resolve([])),
+    };
+    const bounces = createBounces(config, db);
+    await bounces.check(EMAIL, 'recovery');
+    assert.equal(db.emailBounces.callCount, 0);
+  });
 });

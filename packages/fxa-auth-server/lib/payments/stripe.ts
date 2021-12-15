@@ -44,7 +44,10 @@ import { ConfigType } from '../../config';
 import error from '../error';
 import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
-import { reportValidationError } from '../sentry';
+import {
+  formatMetadataValidationErrorMessage,
+  reportValidationError,
+} from '../sentry';
 import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
@@ -68,7 +71,12 @@ enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
 }
 
+export enum STRIPE_PRICE_METADATA {
+  PROMOTION_CODES = 'promotionCodes',
+}
+
 export enum STRIPE_PRODUCT_METADATA {
+  PROMOTION_CODES = 'promotionCodes',
   PLAY_SKU_IDS = 'playSkuIds',
 }
 
@@ -394,6 +402,7 @@ export class StripeHelper {
     customerId: string;
     priceId: string;
     paymentMethodId?: string;
+    couponId?: string;
     subIdempotencyKey: string;
     taxRateId?: string;
   }) {
@@ -401,6 +410,7 @@ export class StripeHelper {
       customerId,
       priceId,
       paymentMethodId,
+      couponId,
       subIdempotencyKey,
       taxRateId,
     } = opts;
@@ -442,6 +452,7 @@ export class StripeHelper {
         items: [{ price: priceId }],
         expand: ['latest_invoice.payment_intent'],
         default_tax_rates: taxRates,
+        coupon: couponId,
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
@@ -467,10 +478,11 @@ export class StripeHelper {
   async createSubscriptionWithPaypal(opts: {
     customer: Stripe.Customer;
     priceId: string;
+    couponId?: string;
     subIdempotencyKey: string;
     taxRateId?: string;
   }) {
-    const { customer, priceId, subIdempotencyKey, taxRateId } = opts;
+    const { customer, priceId, couponId, subIdempotencyKey, taxRateId } = opts;
     const taxRates = taxRateId ? [taxRateId] : [];
 
     const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
@@ -500,6 +512,7 @@ export class StripeHelper {
         collection_method: 'send_invoice',
         days_until_due: 1,
         default_tax_rates: taxRates,
+        coupon: couponId,
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
@@ -510,6 +523,122 @@ export class StripeHelper {
         : null,
     });
     return subscription;
+  }
+
+  /**
+   * Previews an invoice for a customer in the provided country with a
+   * subscription of the given priceId and a possible discount applied.
+   *
+   * The discount parameter is optional and can be either a coupon id or
+   * a promotion code.
+   */
+  async previewInvoice({
+    country,
+    priceId,
+    promotionCode,
+  }: {
+    country: string;
+    priceId: string;
+    promotionCode?: string;
+  }) {
+    const params: Stripe.InvoiceRetrieveUpcomingParams = {};
+    const taxRate = await this.taxRateByCountryCode(country);
+    if (taxRate) {
+      params.subscription_default_tax_rates = [taxRate.id];
+    }
+
+    if (promotionCode) {
+      const promoCode = await this.findValidPromoCode(promotionCode, priceId);
+      if (promoCode) {
+        params['coupon'] = promoCode.coupon.id;
+      }
+    }
+    return this.stripe.invoices.retrieveUpcoming({
+      customer_details: {
+        address: {
+          country,
+        },
+      },
+      subscription_items: [
+        {
+          price: priceId,
+        },
+      ],
+      ...params,
+    });
+  }
+
+  /**
+   * Determines whether a given promotion code is
+   * a valid code in the system for the given price, and if it hasn't
+   * expired.
+   *
+   * Note that this does not check whether the coupon has been redeemed to
+   * many times, whether its valid for a first time customer, or any of the
+   * other conditions that may apply to its use.
+   */
+  async findValidPromoCode(
+    code: string,
+    priceId: string
+  ): Promise<Stripe.PromotionCode | undefined> {
+    const nowSecs = Date.now() / 1000;
+
+    // Determine if code exists, is active, and has not expired.
+    const promotionCode = await this.findPromoCodeByCode(code);
+    if (
+      !promotionCode ||
+      (promotionCode.expires_at && promotionCode.expires_at < nowSecs)
+    ) {
+      return;
+    }
+
+    // Is the coupon valid given redemptions/expiration and product restrictions?
+    if (!promotionCode.coupon.valid) {
+      return;
+    }
+
+    // Is the coupon valid for this price?
+    const price = await this.findPlanById(priceId);
+    const validPromotionCodes: string[] = [];
+    if (
+      price.plan_metadata &&
+      price.plan_metadata[STRIPE_PRICE_METADATA.PROMOTION_CODES]
+    ) {
+      validPromotionCodes.push(
+        ...price.plan_metadata[STRIPE_PRICE_METADATA.PROMOTION_CODES]
+          .split(',')
+          .map((c) => c.trim())
+      );
+    }
+    if (
+      price.product_metadata &&
+      price.product_metadata[STRIPE_PRODUCT_METADATA.PROMOTION_CODES]
+    ) {
+      validPromotionCodes.push(
+        ...price.product_metadata[STRIPE_PRODUCT_METADATA.PROMOTION_CODES]
+          .split(',')
+          .map((c) => c.trim())
+      );
+    }
+    if (!validPromotionCodes.includes(code)) {
+      return;
+    }
+
+    return promotionCode;
+  }
+
+  /**
+   * Queries Stripe for active promotion codes and returns a matching one if
+   * found.
+   */
+  async findPromoCodeByCode(
+    code: string
+  ): Promise<Stripe.PromotionCode | undefined> {
+    const promoCodes = await this.stripe.promotionCodes.list({
+      active: true,
+      code,
+    });
+    return promoCodes.data.find((c) => c.code === code);
   }
 
   async invoicePayableWithPaypal(invoice: Stripe.Invoice): Promise<boolean> {
@@ -1200,8 +1329,8 @@ export class StripeHelper {
         });
 
       if (error) {
-        const msg = `fetchAllPlans - Plan "${item.id}"'s metadata failed validation`;
-        this.log.error(msg, { error, plan: item });
+        const msg = formatMetadataValidationErrorMessage(item.id, error as any);
+        this.log.error(`fetchAllPlans: ${msg}`, { error, plan: item });
         reportValidationError(msg, error as any);
         continue;
       }
@@ -2491,6 +2620,14 @@ export class StripeHelper {
   }
 
   /**
+   * Process a payment_method.detached event. Remove the payment method from Firestore.
+   */
+  async processPaymentMethodDetachedEventToFirestore(event: Stripe.Event) {
+    const paymentMethodId = (event.data.object as Stripe.PaymentMethod).id;
+    await this.stripeFirestore.removePaymentMethodRecord(paymentMethodId);
+  }
+
+  /**
    * Process a webhook event from Stripe and if needed, save it to Firestore.
    */
   async processWebhookEventToFirestore(event: Stripe.Event) {
@@ -2523,9 +2660,11 @@ export class StripeHelper {
           break;
         case 'payment_method.attached':
         case 'payment_method.automatically_updated':
-        case 'payment_method.detached':
         case 'payment_method.updated':
           await this.processPaymentMethodEventToFirestore(event);
+          break;
+        case 'payment_method.detached':
+          await this.processPaymentMethodDetachedEventToFirestore(event);
           break;
         default: {
           handled = false;

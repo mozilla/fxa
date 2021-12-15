@@ -34,6 +34,9 @@ const { StripeHandler: DirectStripeRoutes } = proxyquire(
 const { AuthLogger, AppConfig } = require('../../../../lib/types');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/google-play');
+const {
+  stripeInvoiceToInvoicePreviewDTO,
+} = require('../../../../lib/payments/stripe-formatter');
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
   require('fxa-shared').subscriptions.stripe;
@@ -45,6 +48,7 @@ const pastDueSubscription = require('../../payments/fixtures/stripe/subscription
 const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
 const emptyCustomer = require('../../payments/fixtures/stripe/customer_new.json');
 const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
+const invoicePreviewTax = require('../../payments/fixtures/stripe/invoice_preview_tax.json');
 const newSetupIntent = require('../../payments/fixtures/stripe/setup_intent_new.json');
 const paymentMethodFixture = require('../../payments/fixtures/stripe/payment_method.json');
 
@@ -447,6 +451,35 @@ describe('DirectStripeRoutes', () => {
     sandbox.restore();
   });
 
+  describe('extractPromotionCode', () => {
+    it('should extract a valid PromotionCode', async () => {
+      const promoCode = { coupon: { id: 'test-code' } };
+      directStripeRoutesInstance.stripeHelper.findValidPromoCode.resolves(
+        promoCode
+      );
+      const res = await directStripeRoutesInstance.extractPromotionCode(
+        'promo1',
+        'plan1'
+      );
+      assert.equal(res, promoCode);
+    });
+
+    it('should throw an error if on invalid promotion code', async () => {
+      directStripeRoutesInstance.stripeHelper.findValidPromoCode.resolves(
+        undefined
+      );
+      try {
+        await directStripeRoutesInstance.extractPromotionCode(
+          'promo1',
+          'plan1'
+        );
+        assert.fail('Expected to throw an error');
+      } catch (err) {
+        assert.equal(err.message, 'Invalid promotion code');
+      }
+    });
+  });
+
   describe('customerChanged', () => {
     it('Creates profile update push notification and logs profile changed event', async () => {
       await directStripeRoutesInstance.customerChanged(
@@ -525,6 +558,27 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
+  describe('previewInvoice', () => {
+    it('returns the preview invoice', async () => {
+      const expected = deepCopy(invoicePreviewTax);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
+      VALID_REQUEST.payload = {
+        promotionCode: 'promoCode',
+        priceId: 'priceId',
+      };
+      VALID_REQUEST.app.geo = {};
+
+      const actual = await directStripeRoutesInstance.previewInvoice(
+        VALID_REQUEST
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.previewInvoice,
+        { country: 'US', promotionCode: 'promoCode', priceId: 'priceId' }
+      );
+      assert.deepEqual(stripeInvoiceToInvoicePreviewDTO(expected), actual);
+    });
+  });
+
   describe('createSubscriptionWithPMI', () => {
     let plan, paymentMethod;
 
@@ -585,6 +639,68 @@ describe('DirectStripeRoutes', () => {
           subscription: filterSubscription(expected),
         },
         actual
+      );
+    });
+
+    it('creates a subscription with a payment method and promotion code', async () => {
+      const sourceCountry = 'us';
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+        sourceCountry
+      );
+      const expected = deepCopy(subscription2);
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+        expected
+      );
+      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
+      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
+      directStripeRoutesInstance.extractPromotionCode = sinon.stub().resolves({
+        coupon: { id: 'couponId' },
+      });
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        promotionCode: 'promoCode',
+        idempotencyKey: uuidv4(),
+      };
+
+      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
+        VALID_REQUEST
+      );
+
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.customerChanged,
+        VALID_REQUEST,
+        UID,
+        TEST_EMAIL
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.taxRateByCountryCode,
+        'US'
+      );
+      sinon.assert.calledOnce(
+        directStripeRoutesInstance.stripeHelper.customerTaxId
+      );
+      sinon.assert.calledOnce(
+        directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer
+      );
+
+      assert.deepEqual(
+        {
+          sourceCountry,
+          subscription: filterSubscription(expected),
+        },
+        actual
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
+        {
+          customerId: 'cus_new',
+          priceId: 'Jane Doe',
+          paymentMethodId: 'pm_asdf',
+          couponId: 'couponId',
+          subIdempotencyKey: `${VALID_REQUEST.payload.idempotencyKey}-createSub`,
+          taxRateId: undefined,
+        }
       );
     });
 
@@ -687,6 +803,7 @@ describe('DirectStripeRoutes', () => {
         {
           customerId: customer.id,
           priceId: 'quux',
+          couponId: undefined,
           paymentMethodId: undefined,
           subIdempotencyKey: `${idempotencyKey}-createSub`,
           taxRateId: undefined,
