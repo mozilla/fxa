@@ -1,4 +1,5 @@
 export enum FirefoxCommand {
+  Signout = 'fxaccounts:logout',
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
   PasswordChanged = 'fxaccounts:change_password',
@@ -121,6 +122,10 @@ export class Firefox extends EventTarget {
     this.broadcast(FirefoxCommand.AccountDeleted, { uid });
   }
 
+  signout(uid: hexstring) {
+    this.send(FirefoxCommand.Signout, { uid });
+  }
+
   passwordChanged(
     email: string,
     uid: hexstring,
@@ -162,7 +167,7 @@ function noop() {}
 const firefox = canUseEventTarget
   ? new Firefox()
   : // otherwise a mock
-    ((Object.fromEntries(
+    (Object.fromEntries(
       Object.getOwnPropertyNames(Firefox.prototype)
         .map((name) => [name, noop])
         .concat([
@@ -170,6 +175,6 @@ const firefox = canUseEventTarget
           ['removeEventListener', noop],
           ['dispatchEvent', noop],
         ])
-    ) as unknown) as Firefox);
+    ) as unknown as Firefox);
 
 export default firefox;

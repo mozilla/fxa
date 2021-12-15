@@ -20,8 +20,8 @@ test.describe('severity-1', () => {
     await sync.signout();
     await page.click('text=Rather not say >> input[name="reason"]');
     await settings.clickModalConfirm();
-    await page.waitForURL('**/signin', { waitUntil: 'networkidle' });
-    expect(page.locator('#password')).toBeVisible();
+    await page.waitForNavigation({ waitUntil: 'networkidle' });
+    expect(page.locator('input[type=email]')).toBeVisible();
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293385

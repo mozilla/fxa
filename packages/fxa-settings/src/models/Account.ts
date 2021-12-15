@@ -778,4 +778,11 @@ export class Account implements AccountData {
     firefox.accountDeleted(this.uid);
     Storage.factory('localStorage').clear();
   }
+
+  async signout() {
+    // Not 100% sure this okay but it works. When this is called,
+    // if the firefox account is connected, then this will log
+    // you out.
+    firefox.signout(this.uid);
+  }
 }
