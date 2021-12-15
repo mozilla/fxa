@@ -130,6 +130,8 @@ function sendMail(mailer, messageToSend) {
     productIconURLOld: 'http://placekitten.com/512/512?image=1',
     productNameOld: 'Product A',
     productNameNew: 'Product B',
+    invoiceLink:
+      'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
     invoiceTotalInCents: 999999.9,
     invoiceTotalCurrency: 'eur',
     paymentAmountOldInCents: 9999099.9,

@@ -20,4 +20,7 @@
 # "Firefox Cloud" should be treated as a brand.
 -product-firefox-cloud = Firefox Cloud
 
+# Other brands
+-paypal = PayPal
+
 ## Email content

@@ -1,0 +1,9 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-text css-class="text-body-no-bottom-margin margin-top">
+  <span data-l10n-id="view-invoice">
+    <a data-l10n-name="invoiceLink" href="<%- invoiceLink %>">View your invoice</a>.
+  </span>
+</mj-text>
