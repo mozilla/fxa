@@ -9,6 +9,7 @@
     padding-top: 285px;
   }
 
+
   @include max-width('tablet') {
     margin: 0 16px;
     margin-top: 24px;
@@ -32,6 +33,7 @@
       display: flex;
       flex-wrap: nowrap;
       justify-content: center;
+      align-items: center;
     }
 
     .input-row,
@@ -46,6 +48,7 @@
     button {
       max-height: 40px;
       width: 110px;
+      margin-bottom: 16px;
     }
 
     @media (min-width: 521px), (orientation: landscape) and (min-width: 641px) {
@@ -70,4 +73,11 @@
       margin: 0;
     }
   }
+}
+
+.coupon-component.has-coupon {
+  @include min-width('tablet') {
+    padding-top: 420px;
+  }
+
 }

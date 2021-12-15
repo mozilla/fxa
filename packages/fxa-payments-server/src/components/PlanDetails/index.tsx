@@ -111,10 +111,10 @@ export const PlanDetails = ({
                 aria-labelledby="plan-details-product"
               >
                 {coupon && config.featureFlags.subscriptionCoupons ? (
-                  <div>
+                  <div className="plan-details-coupon-details">
                     <div className="plan-details-total-inner">
-                      <div className="label">List Pirce</div>
-                      <div className="total-price">
+                      <div>List Price</div>
+                      <div>
                         <Localized
                           id={`plan-price-${interval}`}
                           attrs={{ title: true }}
@@ -126,8 +126,8 @@ export const PlanDetails = ({
                       </div>
                     </div>
                     <div className="plan-details-total-inner">
-                      <div className="label">Discount</div>
-                      <div className="total-price">-${coupon.amount}</div>
+                      <div>Discount</div>
+                      <div>-${coupon.amount}</div>
                     </div>
                   </div>
                 ) : null}
@@ -154,6 +154,12 @@ export const PlanDetails = ({
                     </p>
                   </Localized>
                 </div>
+                {coupon ? (
+                  <div className="coupon-info">
+                    Your plan will automatically renew after six months at the
+                    list price.
+                  </div>
+                ) : null}
               </div>
             </div>
           ) : null}

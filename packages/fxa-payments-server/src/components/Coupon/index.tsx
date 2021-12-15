@@ -45,7 +45,10 @@ export const Coupon = () => {
   };
 
   return (
-    <section className={`coupon-component`} data-testid="coupon-component">
+    <section
+      className={`coupon-component ${coupon ? 'has-coupon' : ''}`}
+      data-testid="coupon-component"
+    >
       <div className="coupon-component-inner">
         <Localized id="coupon-header">
           <div className="coupon-header">

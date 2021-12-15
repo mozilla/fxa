@@ -10,7 +10,10 @@
   @include max-width('tablet') {
     margin: 16px 16px 32px;
     .plan-details-component-card {
-      box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgba(12, 12, 13, 0.1), 2px 2px 2px -2px rgba(12, 12, 13, 0.1);  text-align: center;
+      box-shadow: 0 -1px white, 0 1px white,
+        -2px 2px 2px -2px rgba(12, 12, 13, 0.1),
+        2px 2px 2px -2px rgba(12, 12, 13, 0.1);
+      text-align: center;
       position: relative;
     }
   }
@@ -23,7 +26,10 @@
     margin-bottom: 0;
     .plan-details-component-card {
       border-radius: 0 0 8px 8px;
-      box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgba(12, 12, 13, 0.1), 2px 2px 2px -2px rgba(12, 12, 13, 0.1);  text-align: center;
+      box-shadow: 0 -1px white, 0 1px white,
+        -2px 2px 2px -2px rgba(12, 12, 13, 0.1),
+        2px 2px 2px -2px rgba(12, 12, 13, 0.1);
+      text-align: center;
       position: relative;
     }
   }
@@ -146,6 +152,13 @@
     @include min-width('tablet') {
       border-bottom: 0;
     }
+
+    .plan-details-coupon-details {
+      border-bottom: 1px solid #d7d7db;
+      margin-bottom: 16px;
+      padding-bottom: 24px;
+
+    }
   }
 
   .footer {
@@ -222,6 +235,26 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       margin-top: auto;
+    }
+
+    .coupon-info {
+      padding-top: 24px;
+      color: #1cc4a0;
+      display: flex;
+      font-size: 15px;
+      font-weight: normal;
+      justify-content: center;
+    }
+
+    .coupon-info::before{
+      background-image: url('./images/Information.svg');
+      background-position: center;
+      background-repeat: no-repeat;
+      content: '';
+      display: inline-block;
+      height: 40px;
+      margin-right: 12px;
+      width: 40px;
     }
   }
 }
