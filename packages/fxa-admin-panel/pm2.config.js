@@ -57,7 +57,7 @@ module.exports = {
         'postcss.config.js',
         'tailwind.config.js',
         'src/styles',
-        'src/components/**/*.scss',
+        'src/components/**/*.css',
         require.resolve('fxa-react/configs/tailwind.js'),
       ],
       ignore_watch: ['src/styles/tailwind.out.css'],
