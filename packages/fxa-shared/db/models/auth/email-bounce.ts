@@ -1,6 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { EmailType } from '.';
+import { convertError } from '../../mysql';
 import { BaseAuthModel, Proc } from './base-auth';
 
 const BOUNCE_TYPES = {
@@ -37,24 +39,33 @@ export class EmailBounce extends BaseAuthModel {
 
   // table fields
   email!: string;
+  emailTypeId!: number;
   bounceType!: number;
   bounceSubType!: number;
   createdAt!: number;
 
   static async create({
     email,
+    templateName,
     bounceType,
     bounceSubType,
   }: Pick<EmailBounce, 'email'> & {
+    templateName: string;
     bounceType: BounceType;
     bounceSubType: BounceSubType;
   }) {
-    return EmailBounce.query().insert({
-      email,
-      bounceType: BOUNCE_TYPES[bounceType],
-      bounceSubType: BOUNCE_SUB_TYPES[bounceSubType],
-      createdAt: Date.now(),
-    });
+    try {
+      await EmailBounce.callProcedure(
+        Proc.CreateEmailBounce,
+        email,
+        templateName,
+        BOUNCE_TYPES[bounceType],
+        BOUNCE_SUB_TYPES[bounceSubType],
+        Date.now()
+      );
+    } catch (e: any) {
+      throw convertError(e);
+    }
   }
 
   static async findByEmail(email: string) {

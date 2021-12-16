@@ -4,6 +4,7 @@
 
 type EmailBounce {
   email: String!
+  templateName: String!
   bounceType: BounceType!
   bounceSubType: BounceSubType!
   createdAt: Float!

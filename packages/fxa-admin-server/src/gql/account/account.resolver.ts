@@ -38,6 +38,12 @@ const EMAIL_COLUMNS = [
 ];
 
 const SECURITY_EVENTS_COLUMNS = ['uid', 'verified', 'createdAt'];
+const EMAIL_BOUNCE_COLUMNS = [
+  'email',
+  'bounceType',
+  'bounceSubType',
+  'createdAt',
+];
 const TOTP_COLUMNS = ['uid', 'epoch', 'createdAt', 'verified', 'enabled'];
 const RECOVERYKEY_COLUMNS = ['uid', 'createdAt', 'verifiedAt', 'enabled'];
 const SESSIONTOKEN_COLUMNS = [
@@ -140,11 +146,15 @@ export class AccountResolver {
       .query()
       .select('emails.normalizedEmail')
       .where('emails.uid', uidBuffer);
-    const result = await this.db.emailBounces.query().where(
-      'emailBounces.email',
-      'in',
-      emails.map((x) => x.normalizedEmail)
-    );
+    const result = await this.db.emailBounces
+      .query()
+      .select(...EMAIL_BOUNCE_COLUMNS, 'emailTypes.emailType as templateName')
+      .join('emailTypes', 'emailTypes.id', 'emailBounces.emailTypeId')
+      .where(
+        'emailBounces.email',
+        'in',
+        emails.map((x) => x.normalizedEmail)
+      );
     return result;
   }
 

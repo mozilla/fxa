@@ -10,6 +10,7 @@ import { Knex } from 'knex';
 import {
   Account,
   EmailBounce,
+  EmailType,
   Email,
   TotpToken,
   RecoveryKey,
@@ -44,6 +45,7 @@ describe('AccountResolver', () => {
     account: Account,
     emails: Email,
     emailBounces: EmailBounce,
+    emailTypes: EmailType,
     totp: TotpToken,
     recoveryKeys: RecoveryKey,
     sessionTokens: SessionToken,
@@ -55,6 +57,7 @@ describe('AccountResolver', () => {
     db.account = Account.bindKnex(knex);
     db.emails = Email.bindKnex(knex);
     db.emailBounces = EmailBounce.bindKnex(knex);
+    db.emailTypes = EmailType.bindKnex(knex);
     db.totp = TotpToken.bindKnex(knex);
     db.recoveryKeys = RecoveryKey.bindKnex(knex);
     db.sessionTokens = SessionToken.bindKnex(knex);
@@ -134,10 +137,16 @@ describe('AccountResolver', () => {
       USER_1.email,
       'joe'
     )) as Account;
+    const { emailType: templateName } = await db.emailTypes
+      .query()
+      .findOne({ id: EMAIL_BOUNCE_1.emailTypeId });
     const result = await resolver.emailBounces(user);
     expect(result).toBeDefined();
     const bounce = result[0];
-    expect(bounce).toEqual(expect.objectContaining(EMAIL_BOUNCE_1));
+    const { emailTypeId, ...bounceValues } = EMAIL_BOUNCE_1;
+    expect(bounce).toEqual(
+      expect.objectContaining({ ...bounceValues, templateName })
+    );
   });
 
   it('loads emails', async () => {

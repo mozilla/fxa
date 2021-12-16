@@ -415,6 +415,7 @@ export const Account = ({
 
 const EmailBounce = ({
   email,
+  templateName,
   createdAt,
   bounceType,
   bounceSubType,
@@ -425,6 +426,9 @@ const EmailBounce = ({
       <ul className={styleClasses.borderInfoDisplay}>
         <li className={styleClasses.li}>
           email: <span className={styleClasses.result}>{email}</span>
+        </li>
+        <li className={styleClasses.li}>
+          template: <span className={styleClasses.result}>{templateName}</span>
         </li>
         <li className={styleClasses.li}>
           created at: <span className={styleClasses.result}>{createdAt}</span> (

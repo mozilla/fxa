@@ -109,6 +109,7 @@ module.exports = function (log, error) {
         // Template name corresponds directly with the email template that was used
         if (templateName) {
           logData.template = templateName;
+          bounce.templateName = templateName;
         }
 
         if (language) {

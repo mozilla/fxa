@@ -1375,10 +1375,11 @@ module.exports = function (log, error) {
     return this.write(DELETE_SECURITY_EVENTS_BY_UID, [uid]);
   };
 
-  const CREATE_EMAIL_BOUNCE = 'CALL createEmailBounce_1(?, ?, ?, ?)';
+  const CREATE_EMAIL_BOUNCE = 'CALL createEmailBounce_2(?, ?, ?, ?)';
   MySql.prototype.createEmailBounce = function (data) {
     const args = [
       data.email,
+      data.templateName,
       dbUtil.mapEmailBounceType(data.bounceType),
       dbUtil.mapEmailBounceSubType(data.bounceSubType),
       Date.now(),
