@@ -9,7 +9,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { config, readConfigFromMeta } from './lib/config';
 import App from './App';
-import './index.scss';
+import './styles/tailwind.out.css';
 
 readConfigFromMeta(headQuerySelector);
 
