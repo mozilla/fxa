@@ -60,5 +60,12 @@ module.exports = (log, config, redirectDomain) => {
         return h.redirect(config.contentServer.url + request.raw.req.url);
       },
     },
+    {
+      method: 'GET',
+      path: '/reinotest',
+      handler: function (request, h) {
+        return 'Hello workd!';
+      },
+    },
   ];
 };
