@@ -22,7 +22,7 @@
 
     <mj-text css-class="text-body-no-bottom-margin">
       <span data-l10n-id="subscriptionSubsequentInvoice-content-invoice-number" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>">
-        Invoice Number:<b><%- invoiceNumber %></b>
+        Invoice Number: <b><%- invoiceNumber %></b>
       </span>
     </mj-text>
 
