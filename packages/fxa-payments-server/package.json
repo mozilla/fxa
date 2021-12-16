@@ -114,7 +114,7 @@
   },
   "dependencies": {
     "@sentry/browser": "^6.16.1",
-    "@sentry/node": "^6.15.0",
+    "@sentry/node": "^6.16.1",
     "@stripe/react-stripe-js": "^1.7.0",
     "@stripe/stripe-js": "^1.22.0",
     "accept-language-parser": "^1.5.0",
