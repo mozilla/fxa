@@ -476,6 +476,7 @@
       "subscriptionPaymentProviderCancelled",
       "subscriptionReactivation",
       "subscriptionsPaymentProviderCancelled",
+      "subscriptionSubsequentInvoice",
       "subscriptionUpgrade"
     ]
   }
