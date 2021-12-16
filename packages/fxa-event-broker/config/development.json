@@ -4,6 +4,9 @@
     "clientUrl": "http://localhost:9000/v1/oauth/subscriptions/clients"
   },
   "env": "development",
+  "firestore": {
+    "enabled": true
+  },
   "log": {
     "fmt": "pretty",
     "level": "debug"
@@ -11,8 +14,8 @@
   "openid": {
     "issuer": "http://localhost:3030"
   },
-  "firestore": {
-    "enabled": true
+  "pubsub": {
+    "authenticate": false
   },
   "serviceNotificationQueueUrl": "http://localhost:4100/serviceNotifications"
 }

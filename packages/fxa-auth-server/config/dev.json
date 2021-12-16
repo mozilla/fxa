@@ -21,7 +21,7 @@
     "user": "local",
     "password": "local"
   },
-  "snsTopicArn": "arn:aws:sns:local-01:000000000000:local-topic1",
+  "snsTopicArn": "arn:aws:sns:us-east-1:100010001000:fxa-account-change-dev",
   "snsTopicEndpoint": "http://localhost:4100/",
   "securityHistory": {
     "ipProfiling": {
