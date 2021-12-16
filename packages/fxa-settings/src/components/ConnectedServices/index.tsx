@@ -102,7 +102,6 @@ export const ConnectedServices = () => {
         // old-settings? #6903
         if (client.isCurrentSession) {
           clearSignedInAccountUid();
-          await account.signout();
           window.location.assign(`${window.location.origin}/signin`);
         } else if (reason === 'suspicious' || reason === 'lost') {
           // Wait to clear disconnecting state till the advice modal has been shown

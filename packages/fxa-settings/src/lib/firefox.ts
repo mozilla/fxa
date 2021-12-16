@@ -1,5 +1,4 @@
 export enum FirefoxCommand {
-  Signout = 'fxaccounts:logout',
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
   PasswordChanged = 'fxaccounts:change_password',
@@ -120,10 +119,6 @@ export class Firefox extends EventTarget {
   accountDeleted(uid: hexstring) {
     this.send(FirefoxCommand.AccountDeleted, { uid });
     this.broadcast(FirefoxCommand.AccountDeleted, { uid });
-  }
-
-  signout(uid: hexstring) {
-    this.send(FirefoxCommand.Signout, { uid });
   }
 
   passwordChanged(
