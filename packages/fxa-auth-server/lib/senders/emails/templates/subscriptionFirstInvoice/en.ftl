@@ -9,10 +9,9 @@ subscriptionFirstInvoice-content-processing = Your payment is currently processi
 #  $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscriptionFirstInvoice-content-install = You will receive a separate email with download instructions on how to start using { $productName }.
 subscriptionFirstInvoice-content-auto-renew = Your subscription will automatically renew each billing period unless you choose to cancel.
-subscriptionFirstInvoice-content-invoice-number-label = Invoice Number:
 # Variables:
 #  $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
-subscriptionFirstInvoice-content-invoice-number-value = { $invoiceNumber }
+subscriptionFirstInvoice-content-invoice-number = Invoice Number: <b>{ $invoiceNumber }</b>
 # Variables:
 #  $invoiceNumber (String) - The invoice number of the subscription invoice, e.g. 8675309
 subscriptionFirstInvoice-content-invoice-number-plaintext = Invoice Number: { $invoiceNumber }

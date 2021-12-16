@@ -33,11 +33,12 @@
     </mj-text>
 
     <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionFirstInvoice-content-invoice-number-label">Invoice Number:</span>
-      <span>
-        <b data-l10n-id="subscriptionFirstInvoice-content-invoice-number-value" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>"><%- invoiceNumber %></b>
+      <span data-l10n-id="subscriptionFirstInvoice-content-invoice-number" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>">
+        Invoice Number: <b><%- invoiceNumber %></b>
       </span>
-      <br />
+    </mj-text>
+
+    <mj-text css-class="text-body-no-bottom-margin">
       <span data-l10n-id="subscriptionFirstInvoice-content-charge" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
         Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>
       </span>

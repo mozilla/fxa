@@ -21,24 +21,44 @@ const createStory = subplatStoryWithProps(
     invoiceLink:
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
     nextInvoiceDateOnly: '1/14/2022',
-    paymentProrated: '$5,231.00',
-    showProratedAmount: true,
     subscriptionSupportUrl: 'http://localhost:3030/support',
   }
 );
 
-export const SubscriptionSubsequentInvoiceWithPayPal = createStory(
+export const SubscriptionSubsequentInvoicePayPalProrated = createStory(
   {
     payment_provider: 'paypal',
+    paymentProrated: '$5,231.00',
+    showProratedAmount: true,
   },
-  'Payment method - PayPal'
+  'PayPal with prorated amount'
 );
 
-export const SubscriptionSubsequentInvoiceWithStripe = createStory(
+export const SubscriptionSubsequentInvoicePayPalNoProrated = createStory(
+  {
+    payment_provider: 'paypal',
+    showProratedAmount: false,
+  },
+  'PayPal with no prorated amount'
+);
+
+export const SubscriptionSubsequentInvoiceStripeProrated = createStory(
   {
     cardType: 'MasterCard',
     lastFour: '5309',
     payment_provider: 'stripe',
+    paymentProrated: '$5,231.00',
+    showProratedAmount: true,
   },
-  'Payment method - Stripe'
+  'Stripe with prorated amount'
+);
+
+export const SubscriptionSubsequentInvoiceStripeNoProrated = createStory(
+  {
+    cardType: 'MasterCard',
+    lastFour: '5309',
+    payment_provider: 'stripe',
+    showProratedAmount: false,
+  },
+  'Stripe with no prorated amount'
 );
