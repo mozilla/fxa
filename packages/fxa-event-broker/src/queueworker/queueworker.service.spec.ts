@@ -98,7 +98,7 @@ describe('QueueworkerService', () => {
       info: jest.fn(),
     };
     topic = {
-      publishJSON: jest.fn().mockResolvedValue('mockid'),
+      publishMessage: jest.fn().mockResolvedValue('mockid'),
     };
     pubsub = {
       topic: jest.fn().mockReturnValue(topic),

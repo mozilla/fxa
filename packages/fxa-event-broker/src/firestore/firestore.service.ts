@@ -52,9 +52,14 @@ export class FirestoreService {
         servicePath: 'localhost',
         sslCreds: grpc.credentials.createInsecure(),
       });
-      this.db.collection(`${this.prefix}clients`).doc('dcdb5ae7add825d2').set({
-        webhookUrl: 'http://localhost:8080/api/webhook',
-      });
+      if (this.prefix === 'fxa-eb-') {
+        this.db
+          .collection(`${this.prefix}clients`)
+          .doc('dcdb5ae7add825d2')
+          .set({
+            webhookUrl: 'http://localhost:8080/api/webhook',
+          });
+      }
     } else {
       this.db = new Firestore(config);
     }

@@ -157,6 +157,8 @@ export class QueueworkerService
         event: message.event,
         timestamp: Date.now(),
         uid: message.uid,
+        //@ts-ignore
+        email: message.email,
       });
       this.log.debug('publishedMessage', { clientId, messageId });
     }
