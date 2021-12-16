@@ -137,6 +137,12 @@ const conf = convict({
       format: Boolean,
     },
   },
+  googleMapsApiKey: {
+    default: '',
+    env: 'GOOGLE_MAPS_APIKEY',
+    format: String,
+    doc: 'Google Maps Services API key',
+  },
   log: {
     app: {
       default: 'fxa-auth-server',
