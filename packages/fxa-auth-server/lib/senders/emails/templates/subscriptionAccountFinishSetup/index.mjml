@@ -1,0 +1,34 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section css-class="mb-6">
+  <mj-column>
+    <mj-image src="<%- icon %>" alt="<%- productName %> icon" title="<%- productName %>" css-class="product-icon"></mj-image>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="subscriptionAccountFinishSetup-title" data-l10n-args="<%= JSON.stringify({productName}) %>">Welcome to <%- productName %></span>
+    </mj-text>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionAccountFinishSetup-content-processing">
+        Your payment is processing and may take up to four business days to complete. Your subscription will renew automatically each billing period unless you choose to cancel.
+      </span>
+    </mj-text>
+
+    <%- include ('/partials/paymentPlanDetails/index.mjml') %>
+
+    <mj-text css-class="text-body">
+      <span data-l10n-id="subscriptionAccountFinishSetup-content-create" data-l10n-args="<%= JSON.stringify({productName}) %>">
+        Next, you’ll create a Firefox account password and download <%- productName %>.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include ('/partials/button/index.mjml', { cssClass: 'mb-8'}) %>
+<%- include ('/partials/subscriptionSupport/index.mjml') %>

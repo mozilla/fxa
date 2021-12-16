@@ -1,0 +1,15 @@
+<% if (productName) { %>
+payment-plan-product-name = "<%- productName %>"
+<% } %>
+
+<% if (invoiceNumber) { %>
+payment-plan-invoice-number = "Invoice Number: <%- invoiceNumber %>"
+<% } %>
+
+<% if (invoiceTotal) { %>
+payment-plan-charged = "Charged: <%- invoiceTotal %> on <%- invoiceDateOnly %>"
+<% } %>
+
+<% if (nextInvoiceDateOnly) { %>
+payment-plan-next-invoice = "Next Invoice: <%- nextInvoiceDateOnly %>"
+<% } %>

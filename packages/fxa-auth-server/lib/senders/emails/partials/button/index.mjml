@@ -5,7 +5,7 @@
 <mj-include path="./css/button/index.css" type="css" css-inline="inline" />
 
 <mj-section>
-  <mj-column>
+  <mj-column css-class="<%= locals.cssClass || undefined %>">
     <mj-button css-class="primary-button" href="<%- link %>">
       <span data-l10n-id="<%- template %>-action">Click here</span>
     </mj-button>
