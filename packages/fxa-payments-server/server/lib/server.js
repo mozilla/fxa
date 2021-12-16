@@ -32,6 +32,8 @@ module.exports = () => {
   const { cors, routing } = require('fxa-shared/express')();
   const { v4: uuid } = require('uuid');
 
+  const { tagCriticalEvent } = require('fxa-shared/tags/sentry');
+
   const NOOP = () => {};
   const StatsD = require('hot-shots');
   const statsdConfig = config.get('statsd');
@@ -111,7 +113,10 @@ module.exports = () => {
 
   const sentryDSN = config.get('sentry.dsn');
   if (sentryDSN) {
-    sentry.init({ dsn: sentryDSN });
+    sentry.init({
+      dsn: sentryDSN,
+      beforeSend: tagCriticalEvent,
+    });
     app.use(sentry.Handlers.requestHandler());
   }
 

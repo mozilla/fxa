@@ -15,11 +15,14 @@ var DB = require('../lib/db/mysql')(logger, error);
 var restify = require('restify');
 // configure Sentry
 var Sentry = require('@sentry/node');
+const { tagCriticalEvent } = require('fxa-shared/tags/sentry');
+
 const sentryDsn = config.sentryDsn;
 
 if (sentryDsn) {
   Sentry.init({
     dsn: sentryDsn,
+    beforeSend: tagCriticalEvent,
   });
   logger.info('sentryEnabled');
 } else {

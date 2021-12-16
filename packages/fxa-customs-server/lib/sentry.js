@@ -7,6 +7,7 @@
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
 const version = require('../package.json').version;
+const { tagCriticalEvent } = require('fxa-shared/tags/sentry');
 
 async function configureSentry(server, config, log) {
   const sentryDsn = config.sentryDsn;
@@ -17,6 +18,7 @@ async function configureSentry(server, config, log) {
       integrations: [
         new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
       ],
+      beforeSend: tagCriticalEvent,
     });
 
     Sentry.configureScope((scope) => {

@@ -13,6 +13,8 @@ const logger = require('../logging')('server.web');
 const request = require('../request');
 const summary = require('../logging/summary');
 
+const { tagCriticalEvent } = require('fxa-shared/tags/sentry');
+
 function trimLocale(header) {
   if (!header) {
     return header;
@@ -87,6 +89,7 @@ exports.create = async function createServer() {
   if (sentryDsn) {
     Sentry.init({
       dsn: sentryDsn,
+      beforeSend: tagCriticalEvent,
     });
     server.events.on(
       { name: 'request', channels: 'error' },
@@ -208,9 +211,8 @@ exports.create = async function createServer() {
       const route = cloneDeep(routeDefinition);
       var scope = route.config.auth && route.config.auth.scope;
       if (scope) {
-        route.config.auth.scope = ScopeSet.fromArray(
-          scope
-        ).getImplicantValues();
+        route.config.auth.scope =
+          ScopeSet.fromArray(scope).getImplicantValues();
       }
       return route;
     })

@@ -4,6 +4,7 @@
 
 import Logger from './logger';
 import * as Sentry from '@sentry/browser';
+import { tagCriticalEvent } from 'fxa-shared/tags/sentry';
 
 var ALLOWED_QUERY_PARAMETERS = [
   'automatedBrowser',
@@ -129,7 +130,7 @@ SentryMetrics.prototype = {
       Sentry.init({
         release,
         dsn,
-        beforeSend,
+        beforeSend: tagCriticalEvent,
       });
     } catch (e) {
       this._logger.error(e);
