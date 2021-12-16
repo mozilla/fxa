@@ -43,7 +43,7 @@
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-payments-server#README.md",
   "devDependencies": {
     "@babel/core": "^7.15.0",
-    "@babel/register": "^7.16.0",
+    "@babel/register": "^7.16.5",
     "@fluent/bundle": "^0.17.0",
     "@fluent/langneg": "^0.5.2",
     "@fluent/react": "^0.13.1",
