@@ -23,6 +23,10 @@ export class GoogleMapsService {
     this.googleMapsApiKey = config.googleMapsApiKey;
   }
 
+  /**
+   * Retrieve Geocode Data for the specified address. For more information review
+   * https://developers.google.com/maps/documentation/geocoding/overview
+   */
   private async getGeocodeData(address: string): Promise<GeocodeResponseData> {
     try {
       const { data } = await this.client.geocode({
@@ -51,6 +55,9 @@ export class GoogleMapsService {
     }
   }
 
+  /**
+   * Retrieve a unique GeocodeResult for a given address.
+   */
   private async getOneGeocodeResult(address: string): Promise<GeocodeResult> {
     const { results, status } = await this.getGeocodeData(address);
 
@@ -63,8 +70,15 @@ export class GoogleMapsService {
     return results[0];
   }
 
+  /**
+   * Retrieve State Code from Zip and Country Code.
+   * Country Code is required as ISO-3166-1 alpha-2 codes
+   * State codes are returned as ISO-3166-2 codes
+   */
   async getStateFromZip(zip: string, country: string): Promise<string> {
     const countryName = countries.getName(country, 'en');
+    // Address format should be in accordance with the format used by the national postal service of the country.
+    // For more information review https://developers.google.com/maps/documentation/geocoding/overview
     const address = `${zip}, ${countryName}`;
 
     try {
@@ -84,7 +98,11 @@ export class GoogleMapsService {
 
       return state.short_name;
     } catch (error) {
-      this.log.error('GoogleMapsServices.getStateFromZip.failed', { error });
+      this.log.error('GoogleMapsServices.getStateFromZip.failed', {
+        error,
+        zip,
+        country,
+      });
       throw error;
     }
   }

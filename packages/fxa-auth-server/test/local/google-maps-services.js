@@ -118,6 +118,7 @@ describe('GoogleMapsServices', () => {
   describe('getStateFromZip', () => {
     it('returns location for zip code and country', async () => {
       const expectedResult = 'SA';
+      const expectedAddress = '06369, Germany';
       googleClient.geocode = sinon.stub().resolves(geocodeResultDEZip);
 
       const actualResult = await googleMapsServices.getStateFromZip(
@@ -125,6 +126,11 @@ describe('GoogleMapsServices', () => {
         'DE'
       );
       assert.equal(actualResult, expectedResult);
+      assert.isTrue(googleClient.geocode.calledOnce);
+      assert.equal(
+        googleClient.geocode.getCall(0).args[0].params.address,
+        expectedAddress
+      );
     });
 
     it('Throws Error for invalid country code', async () => {

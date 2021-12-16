@@ -139,7 +139,7 @@ const conf = convict({
   },
   googleMapsApiKey: {
     default: '',
-    env: 'SUBSCRIPTIONS_GOOGLE_MAPS_APIKEY',
+    env: 'GOOGLE_MAPS_APIKEY',
     format: String,
     doc: 'Google Maps Services API key',
   },
