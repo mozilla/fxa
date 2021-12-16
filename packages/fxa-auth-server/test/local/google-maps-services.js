@@ -111,7 +111,6 @@ describe('GoogleMapsServices', () => {
   });
 
   afterEach(() => {
-    Container.reset();
     sinon.restore();
   });
 
