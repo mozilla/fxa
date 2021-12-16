@@ -162,7 +162,7 @@ function noop() {}
 const firefox = canUseEventTarget
   ? new Firefox()
   : // otherwise a mock
-    ((Object.fromEntries(
+    (Object.fromEntries(
       Object.getOwnPropertyNames(Firefox.prototype)
         .map((name) => [name, noop])
         .concat([
@@ -170,6 +170,6 @@ const firefox = canUseEventTarget
           ['removeEventListener', noop],
           ['dispatchEvent', noop],
         ])
-    ) as unknown) as Firefox);
+    ) as unknown as Firefox);
 
 export default firefox;

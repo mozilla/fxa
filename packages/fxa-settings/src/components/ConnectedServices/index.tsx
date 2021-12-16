@@ -73,11 +73,8 @@ export const ConnectedServices = () => {
   // After the user confirms they want to disconnect from sync in Confirm Disconnect modal,
   // if their reason was a lost/stolen device, or a suspicious device, then we show them
   // an informative modal with some advice on next steps to take.
-  const [
-    adviceModalRevealed,
-    revealAdviceModal,
-    hideAdviceModal,
-  ] = useBooleanState();
+  const [adviceModalRevealed, revealAdviceModal, hideAdviceModal] =
+    useBooleanState();
 
   const [selectedClient, setSelectedClient] = useState<AttachedClient | null>(
     null

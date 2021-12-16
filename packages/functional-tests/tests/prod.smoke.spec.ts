@@ -9,10 +9,6 @@ test.describe('severity-1', () => {
     credentials,
     pages: { login, settings },
   }) => {
-    test.fixme(
-      true,
-      '(Invalid parameter in request body) response to attachedClientDisconnect mutation'
-    );
     await page.goto(
       target.contentServerUrl +
         '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
@@ -23,8 +19,32 @@ test.describe('severity-1', () => {
     const sync = services.find((s) => s.name !== 'playwright');
     await sync.signout();
     await page.click('text=Rather not say >> input[name="reason"]');
+    // FIXME
+    // Playwright isn't behaving like a vanilla browser when
+    // sync is disconnected. It's logging out of the web context
+    // but not the browser like it should. This could be due
+    // to a missing pref to handle the broadcast logout message???
+    // In the meantime we have this hack copied from
+    // settings/src/lib/firefox.ts to blast a direct command
+    await page.evaluate((uid) => {
+      window.dispatchEvent(
+        new CustomEvent('WebChannelMessageToChrome', {
+          detail: JSON.stringify({
+            id: 'account_updates',
+            message: {
+              command: 'fxaccounts:logout',
+              data: { uid },
+            },
+          }),
+        })
+      );
+    }, credentials.uid);
+
+    // The clickModalConfirm needs to follow the above event. If
+    // it does not, a race condition can occur.
     await settings.clickModalConfirm();
-    // The sync row should be removed but isn't
+    await login.setEmail(credentials.email);
+    expect(page.url()).toMatch(login.url);
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293385
