@@ -24,7 +24,8 @@
 .subscription-title + .product-payment {
   border-top: 0;
   border-radius: 0 0 8px 8px;
-  box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgba(12, 12, 13, 0.1), 2px 2px 2px -2px rgba(12, 12, 13, 0.1);
+  box-shadow: 0 -1px white, 0 1px white, -2px 2px 2px -2px rgba(12, 12, 13, 0.1),
+    2px 2px 2px -2px rgba(12, 12, 13, 0.1);
 
   @include max-width('tablet') {
     box-shadow: 0px 1px 4px 0px rgba(12, 12, 13, 0.1);
@@ -35,7 +36,8 @@
 .subscription-title + .product-payment {
   grid-row: 2/3;
 
-  @include max-width('tablet') {
+  @include max-width('tablet');
+  @media (orientation: landscape) {
     grid-row: 4/5;
   }
 }
@@ -48,7 +50,8 @@
   color: rgba(12, 12, 13, 0.8);
   padding: 16px 16px 60px;
 
-  @include max-width('tablet') {
+  @include max-width('tablet');
+  @media (orientation: landscape) {
     grid-row: 4/5;
     margin: 24px 16px;
     min-height: 100%;

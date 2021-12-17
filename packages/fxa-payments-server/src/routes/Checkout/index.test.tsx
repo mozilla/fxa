@@ -208,7 +208,7 @@ describe('routes/Checkout', () => {
     const termsAndPrivacyEl = getByTestId('terms-and-privacy-component');
     expect(termsAndPrivacyEl).toBeInTheDocument();
 
-    expect(document.getElementById('coupon-container')).not.toBeInTheDocument();
+    expect(document.getElementById('coupon-component')).not.toBeInTheDocument();
   });
 
   it('renders as expected with coupons enabled', async () => {
@@ -219,7 +219,7 @@ describe('routes/Checkout', () => {
     });
 
     const { findByTestId } = render(<Subject planId="testo" />);
-    const element = await findByTestId('coupon-container');
+    const element = await findByTestId('coupon-component');
     expect(element).toBeInTheDocument();
   });
 

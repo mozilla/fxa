@@ -439,9 +439,7 @@ export const Checkout = ({
           />
           {config.featureFlags.subscriptionCoupons ? (
             // To be updated in issue #7097
-            <section data-testid="coupon-container">
-              <Coupon />
-            </section>
+            <Coupon />
           ) : null}
         </CouponContext.Provider>
       </div>

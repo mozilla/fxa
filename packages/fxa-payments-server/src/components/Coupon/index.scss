@@ -9,12 +9,15 @@
     padding-top: 285px;
   }
 
-
   @include max-width('tablet') {
-    margin: 0 16px;
-    margin-top: 24px;
+    margin: 24px 16px 0 16px;
     border-radius: 0 0 8px 8px;
     position: relative;
+    grid-row: 3/4;
+  }
+
+  @media (orientation: landscape) and (max-width: 641px) {
+    margin: 24px 0;
     grid-row: 3/4;
   }
 
@@ -32,28 +35,31 @@
     .flex {
       display: flex;
       flex-wrap: nowrap;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
     }
 
     .input-row,
     .coupon-details {
-      margin: 0;
-      padding: 0 16px 0 0;
-      padding-bottom: 16px;
-      width: 57%;
-
+      margin: 0 0 0 16px;
+      padding: 0 16px 16px 0;
     }
 
     button {
       max-height: 40px;
       width: 110px;
-      margin-bottom: 16px;
+      margin: 0 16px 16px 0;
     }
 
-    @media (min-width: 521px), (orientation: landscape) and (min-width: 641px) {
+    @media (min-width: 521px) {
       button {
         max-height: 48px;
+      }
+    }
+
+    @media (orientation: landscape) and (max-width: 641px) {
+      button {
+        max-height: 40px;
       }
     }
 
@@ -63,7 +69,8 @@
       width: 57%;
       color: red;
 
-      @include max-width('tablet') {
+      @include max-width('tablet');
+      @media (orientation: landscape) {
         padding-bottom: 16px;
       }
     }
@@ -83,5 +90,4 @@
   @include min-width('tablet') {
     padding-top: 420px;
   }
-
 }
