@@ -160,7 +160,12 @@ export class PayPalHandler extends StripeWebhookHandler {
       await this.extractPromotionCode(promotionCodeFromRequest, priceId);
     const currency = (await this.stripeHelper.findPlanById(priceId)).currency;
     const { agreementId, agreementDetails } =
-      await this.createAndVerifyBillingAgreement({ uid, token, currency });
+      await this.createAndVerifyBillingAgreement({
+        uid,
+        token,
+        currency,
+        location: request.app.geo.location,
+      });
 
     const taxRate = await this.stripeHelper.taxRateByCountryCode(
       agreementDetails.countryCode
@@ -305,6 +310,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       uid,
       token,
       currency: customer.currency,
+      location: request.app.geo.location,
     });
 
     await this.stripeHelper.updateCustomerPaypalAgreement(
@@ -365,6 +371,12 @@ export class PayPalHandler extends StripeWebhookHandler {
     uid: string;
     token: string;
     currency: string;
+    location?: {
+      city: string;
+      state: string;
+      country: string;
+      countryCode: string;
+    };
   }) {
     const { uid, token, currency } = options;
     // Create PayPal billing agreement
@@ -379,6 +391,11 @@ export class PayPalHandler extends StripeWebhookHandler {
     // copy bill to address information to Customer
     const accountCustomer = await getAccountCustomerByUid(uid);
     if (accountCustomer.stripeCustomerId) {
+      let locationDetails = {} as any;
+      if (agreementDetails.countryCode === options.location?.countryCode) {
+        locationDetails.city = options.location?.city;
+        locationDetails.state = options.location?.state;
+      }
       this.stripeHelper.updateCustomerBillingAddress(
         accountCustomer.stripeCustomerId,
         {
@@ -388,6 +405,7 @@ export class PayPalHandler extends StripeWebhookHandler {
           line2: agreementDetails.street2,
           postalCode: agreementDetails.zip,
           state: agreementDetails.state,
+          ...locationDetails,
         }
       );
     }
