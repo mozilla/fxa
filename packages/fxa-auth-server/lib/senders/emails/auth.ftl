@@ -21,6 +21,6 @@
 -product-firefox-cloud = Firefox Cloud
 
 # Other brands
--paypal = PayPal
+-brand-paypal = PayPal
 
 ## Email content
