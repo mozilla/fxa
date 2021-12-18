@@ -201,6 +201,20 @@
         "NO_COVERAGE": "1",
         "CORS_ORIGIN": "http://foo,http://bar"
       },
-    }
+    }, {
+      "type": "node",
+      "request": "launch",
+      "name": "Verification Reminders",
+      
+      "args": [
+        "-r", "esbuild-register", "${workspaceFolder}/scripts/verification-reminders.js"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+    },
+
   ]
 }
