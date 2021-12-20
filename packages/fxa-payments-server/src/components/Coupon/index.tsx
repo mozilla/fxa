@@ -50,17 +50,19 @@ export const Coupon = () => {
     >
       <div className="coupon-component-inner">
         {hasCoupon ? (
-          <Localized id="coupon-discount-applied">
-            <div className="coupon-header">
-              <h4>Discount Reward Applied</h4>
-            </div>
-          </Localized>
+          <div className="coupon-header">
+            <h4>
+              <Localized id="coupon-discount-applied">
+                Discount Reward Applied
+              </Localized>
+            </h4>
+          </div>
         ) : (
-          <Localized id="coupon-discount">
-            <div className="coupon-header">
-              <h4>Discount</h4>
-            </div>
-          </Localized>
+          <div className="coupon-header">
+            <h4>
+              <Localized id="coupon-discount">Discount</Localized>
+            </h4>
+          </div>
         )}
         {hasCoupon ? (
           <div className="flex">
