@@ -1,8 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
-import { StripeHelper } from '../lib/payments/stripe';
+import { Stripe } from 'stripe-search-beta';
 
 const { BigQuery } = require('@google-cloud/bigquery');
 const fs = require('fs');
@@ -16,23 +15,31 @@ type PayPalUserLocationResult = {
 
 // GCP credentials are stored in the GOOGLE_APPLICATION_CREDENTIALS env var
 // See https://cloud.google.com/docs/authentication/getting-started
+const ENV = process.env.NODE_ENV?.toLowerCase();
 const GCP_PROJECT_NAME = 'bdanforth-fxa-dev';
-const GCP_DATASET_ID = 'fxa_auth_prod';
+const GCP_DATASET_ID = ENV === 'prod' ? 'fxa_auth_prod' : 'fxa_auth_stage';
 const GCP_TABLE_NAME = 'fxa_4218_uid_state_country_count';
 const DATASET_LOCATION = 'US';
-const PAYPAL_UIDS_FILENAME = 'secret-paypal-users-fxa-4218.tsv';
-const BATCH_SIZE = 50; // How many users to look for in BigQuery at one time
+const PAYPAL_UIDS_FILENAME =
+  ENV === 'prod'
+    ? 'secret-paypal-users-fxa-4218.tsv'
+    : 'secret-stage-paypal-users-fxa-4218.tsv';
+const BATCH_SIZE = 100; // How many users to look for in BigQuery at one time
 // The countries we need data for
 const COUNTRIES_LONG_NAME = ['United States', 'Canada']; // Long name is used in BigQuery derived table
 const COUNTRIES_SHORT_NAME = ['US', 'CA']; // Short name is used in Stripe customer billing address
 
 export class PayPalUserLocations {
   private bigquery: any;
-  // @ts-ignore We initialize stripeHelper in the async `init` method
-  private stripeHelper: StripeHelper;
+  private stripe: any;
 
   constructor() {
     this.bigquery = new BigQuery();
+    // @ts-ignore
+    this.stripe = new Stripe(process.env.STRIPE_API_KEY, {
+      apiVersion: '2020-08-27;search_api_beta=v1',
+      maxNetworkRetries: 3,
+    });
   }
 
   /**
@@ -57,25 +64,52 @@ export class PayPalUserLocations {
     return COUNTRIES_SHORT_NAME.includes(countryCode);
   }
 
+  async getCustomerByUid(uid: string): Promise<Stripe.Customer | null> {
+    // See https://stripe.com/docs/search-api/api-details
+    const { data } = await this.stripe.customers.search({
+      query: `metadata["userid"]:"${uid}"`,
+      search_window: 'all_time', // The only other option is 'last_year'
+    });
+
+    if (!data.length) {
+      return null;
+    }
+    if (data.length > 1) {
+      console.warn(
+        // @ts-ignore
+        `Stripe returned more than one customer for uid: ${uid}: [${customers
+          // @ts-ignore
+          .map((customer) => customer.id)
+          .join(', ')}]. Picking first customer.`
+      );
+    }
+    // FIXME: Use a better process to select best customer if needed.
+    const customer = data[0];
+
+    return customer;
+  }
+
   /**
    * For PayPal customers, their payment method country is stored in the
    * customer's billing address. This will return an ISO 3166-2 country
    *  code. 'US' and 'CA' are the only ones we're interested in.
    */
   async getPayPalCustomerCountry(uid: string): Promise<string | null> {
-    // 1. Get the Stripe customer object from Firestore else Stripe
-    const customer = await this.stripeHelper.fetchCustomer(uid);
+    // // 1. Get the Stripe customer object from Firestore else Stripe
+    // Using the Beta Stripe Search API to avoid making DB and Firestore calls
+    const customer = await this.getCustomerByUid(uid);
     if (!customer) {
-      console.log(`Stripe customer for ${uid} not found.`);
+      console.warn(`Stripe customer for ${uid} not found.`);
       return null;
     }
+
     // 2. Get the Stripe customer billing address; should be `address.country`
     // Note: We already know this user is or was a PayPal subscriber, so we
     // don't have to check.
     const { address } = customer;
     const country = address?.country;
     if (!country) {
-      console.log(`No country on address for customer ${customer.id}.`);
+      console.warn(`No country on address for customer ${customer.id}.`);
       return null;
     }
     return country;
@@ -97,9 +131,7 @@ export class PayPalUserLocations {
     for (const uid of uids) {
       let bestLocation;
       // Avoid hitting Stripe 100 rps rate limit in prod by artificially slowing down requests.
-      // After the first runthrough of the script, we should have backfilled everyone in
-      // Firestore, and this delay can be removed.
-      await this.sleep(200);
+      await this.sleep(100);
       const country = await this.getPayPalCustomerCountry(uid);
       if (!country) {
         bestLocation = { uid, state: 'Unknown', country: 'Unknown', count: 1 };
@@ -107,6 +139,9 @@ export class PayPalUserLocations {
         continue;
       }
       if (!this.isCountryNeeded(country)) {
+        console.log(
+          `Ignoring user ${uid} as their country, ${country}, is not needed.`
+        );
         continue;
       }
       let locations = results.filter((result) => result.uid === uid);
@@ -126,17 +161,14 @@ export class PayPalUserLocations {
               ...location,
               country: 'US',
             };
-            break;
           case 'Canada':
             return {
               ...location,
               country: 'CA',
             };
-            break;
           default:
             // We don't care about any other countries.
             return location;
-            break;
         }
       });
       const modeLocation = locations[0];
@@ -177,16 +209,12 @@ export class PayPalUserLocations {
       location: DATASET_LOCATION,
     };
     const [job] = await this.bigquery.createQueryJob(options);
-    console.log(`Job ${job.id} started.`);
+    console.warn(`Job ${job.id} started.`);
     const [rows] = await job.getQueryResults();
     return rows;
   }
 
   async init() {
-    const { stripeHelper } = await setupProcesingTaskObjects(
-      'paypal-user-locations'
-    );
-    this.stripeHelper = stripeHelper;
     const path = `${__dirname}/../config/${PAYPAL_UIDS_FILENAME}`;
     const paypalUids = this.parseInput(path);
     const processedUids = [];

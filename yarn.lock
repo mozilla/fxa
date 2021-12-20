@@ -20186,6 +20186,7 @@ fsevents@~2.1.1:
     simplesmtp: 0.3.35
     sinon: ^9.0.3
     stripe: ^8.193.0
+    stripe-search-beta: 8.184.0
     superagent: ^6.1.0
     through: 2.3.8
     typedi: ^0.8.0
@@ -38138,6 +38139,16 @@ resolve@^2.0.0-next.3:
   version: 3.1.1
   resolution: "strip-json-comments@npm:3.1.1"
   checksum: 492f73e27268f9b1c122733f28ecb0e7e8d8a531a6662efbd08e22cccb3f9475e90a1b82cab06a392f6afae6d2de636f977e231296400d0ec5304ba70f166443
+  languageName: node
+  linkType: hard
+
+"stripe-search-beta@npm:8.184.0":
+  version: 8.184.0
+  resolution: "stripe-search-beta@npm:8.184.0"
+  dependencies:
+    "@types/node": ">=8.1.0"
+    qs: ^6.6.0
+  checksum: 51eb9fb0a0b0375bc09b504d6d821d81e07f3fc0af2cd8a8e8750a7a142ad1b1d3d7a5217f9ae248c79897bd7c653b6cf4900516694f8731afdeda9c32888ffb
   languageName: node
   linkType: hard
 
