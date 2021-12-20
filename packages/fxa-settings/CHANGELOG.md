@@ -1,3 +1,9 @@
+## 1.221.1
+
+### Bug fixes
+
+- settings: google badge text missing (#11311) ([a71fce01e](https://github.com/mozilla/fxa/commit/a71fce01e))
+
 ## 1.221.0
 
 ### Bug fixes

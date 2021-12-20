@@ -1,5 +1,11 @@
 # Change history
 
+## 1.221.1
+
+### New features
+
+- auth: add invoice preview route ([1165f6a5d](https://github.com/mozilla/fxa/commit/1165f6a5d))
+
 ## 1.221.0
 
 ### New features
