@@ -113,7 +113,9 @@ export const PlanDetails = ({
                 {coupon && config.featureFlags.subscriptionCoupons ? (
                   <div className="plan-details-coupon-details">
                     <div className="plan-details-total-inner">
-                      <div>List Price</div>
+                      <Localized id="plan-details-list-price">
+                        <div>List Price</div>
+                      </Localized>
                       <div>
                         <Localized
                           id={`plan-price-${interval}`}
@@ -126,7 +128,9 @@ export const PlanDetails = ({
                       </div>
                     </div>
                     <div className="plan-details-total-inner">
-                      <div>Discount</div>
+                      <Localized id="coupon-discount">
+                        <div>Discount</div>
+                      </Localized>
                       <div>-${coupon.amount}</div>
                     </div>
                   </div>
@@ -155,10 +159,11 @@ export const PlanDetails = ({
                   </Localized>
                 </div>
                 {coupon ? (
-                  <div className="coupon-info">
-                    Your plan will automatically renew after six months at the
-                    list price.
-                  </div>
+                  <Localized id="coupon-success">
+                    <div className="coupon-info">
+                      Your plan will automatically renew at the list price.
+                    </div>
+                  </Localized>
                 ) : null}
               </div>
             </div>

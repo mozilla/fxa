@@ -27,9 +27,8 @@ export const Coupon = () => {
     if (couponCode === 'test') {
       setHasCoupon(true);
       setCoupon({
-        name: 'Test Coupon',
+        code: 'TEST',
         type: 'fixed',
-        expiry: '1/1/2022',
         amount: 2,
       });
     } else {
@@ -50,25 +49,34 @@ export const Coupon = () => {
       data-testid="coupon-component"
     >
       <div className="coupon-component-inner">
-        <Localized id="coupon-header">
-          <div className="coupon-header">
-            <h4>{hasCoupon ? 'Discount Reward Applied' : 'Discount'}</h4>
-          </div>
-        </Localized>
+        {hasCoupon ? (
+          <Localized id="coupon-discount-applied">
+            <div className="coupon-header">
+              <h4>Discount Reward Applied</h4>
+            </div>
+          </Localized>
+        ) : (
+          <Localized id="coupon-discount">
+            <div className="coupon-header">
+              <h4>Discount</h4>
+            </div>
+          </Localized>
+        )}
         {hasCoupon ? (
           <div className="flex">
             <div className="coupon-details">
-              <div>{coupon.name}</div>
-              <div>Expires {coupon.expiry}</div>
+              <div>{couponCode}</div>
             </div>
             <button onClick={removeCoupon}>
-              <span>Remove</span>
+              <Localized id="coupon-remove">
+                <span>Remove</span>
+              </Localized>
             </button>
           </div>
         ) : (
           <Form validator={validator} onSubmit={onSubmit}>
-            <Localized attrs={{ placeholder: false }} id={undefined}>
-              <div className="input-row">
+            <div className="input-row">
+              <Localized attrs={{ placeholder: true }} id="coupon-enter-code">
                 <input
                   className={`${error ? 'invalid' : ''}`}
                   type="text"
@@ -81,19 +89,22 @@ export const Coupon = () => {
                   }}
                   placeholder="Enter code"
                 />
-              </div>
-            </Localized>
+              </Localized>
+            </div>
+
             <SubmitButton name="apply">
-              <Localized id="sub-apply">
+              <Localized id="coupon-submit">
                 <span>Apply</span>
               </Localized>
             </SubmitButton>
           </Form>
         )}
         {error ? (
-          <div className="coupon-error">
-            The code you entered is invalid or expired.
-          </div>
+          <Localized id="coupon-error">
+            <div className="coupon-error">
+              The code you entered is invalid or expired.
+            </div>
+          </Localized>
         ) : null}
       </div>
     </section>
