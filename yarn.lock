@@ -19908,7 +19908,7 @@ fsevents@~2.1.1:
     react-dom: ^16.13.0
     react-router-dom: ^5.3.0
     react-scripts: ^4.0.3
-    serve-static: ^1.14.1
+    serve-static: ^1.14.2
     supertest: ^6.1.6
     tailwindcss: ^1.9.1
     tailwindcss-textshadow: ^2.1.3
@@ -20331,7 +20331,7 @@ fsevents@~2.1.1:
     request: ^2.88.2
     request-promise: 4.2.6
     sass-loader: ^10.0.3
-    serve-static: ^1.14.1
+    serve-static: ^1.14.2
     sinon: 4.5.0
     sinon-chai: ^3.7.0
     sinon-express-mock: ^2.2.1
@@ -20788,7 +20788,7 @@ fsevents@~2.1.1:
     redux-devtools-extension: ^2.13.9
     redux-promise-middleware: ^6.1.2
     redux-thunk: ^2.4.1
-    serve-static: ^1.14.1
+    serve-static: ^1.14.2
     sinon: ^9.0.3
     style-loader: ^1.3.0
     supertest: ^6.1.6
@@ -36588,6 +36588,27 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"send@npm:0.17.2":
+  version: 0.17.2
+  resolution: "send@npm:0.17.2"
+  dependencies:
+    debug: 2.6.9
+    depd: ~1.1.2
+    destroy: ~1.0.4
+    encodeurl: ~1.0.2
+    escape-html: ~1.0.3
+    etag: ~1.8.1
+    fresh: 0.5.2
+    http-errors: 1.8.1
+    mime: 1.6.0
+    ms: 2.1.3
+    on-finished: ~2.3.0
+    range-parser: ~1.2.1
+    statuses: ~1.5.0
+  checksum: c28f36deb4ccba9b8d6e6a1e472b8e7c40a1f51575bdf8f67303568cc9e71131faa3adc36fdb72611616ccad1584358bbe4c3ebf419e663ecc5de868ad3d3f03
+  languageName: node
+  linkType: hard
+
 "send@npm:^0.16.2":
   version: 0.16.2
   resolution: "send@npm:0.16.2"
@@ -36671,7 +36692,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"serve-static@npm:1.14.1, serve-static@npm:^1.14.1":
+"serve-static@npm:1.14.1":
   version: 1.14.1
   resolution: "serve-static@npm:1.14.1"
   dependencies:
@@ -36680,6 +36701,18 @@ resolve@^2.0.0-next.3:
     parseurl: ~1.3.3
     send: 0.17.1
   checksum: c6b268e8486d39ecd54b86c7f2d0ee4a38cd7514ddd9c92c8d5793bb005afde5e908b12395898ae206782306ccc848193d93daa15b86afb3cbe5a8414806abe8
+  languageName: node
+  linkType: hard
+
+"serve-static@npm:^1.14.2":
+  version: 1.14.2
+  resolution: "serve-static@npm:1.14.2"
+  dependencies:
+    encodeurl: ~1.0.2
+    escape-html: ~1.0.3
+    parseurl: ~1.3.3
+    send: 0.17.2
+  checksum: d97f3183b1dfcd8ce9c0e37e18e87fd31147ed6c8ee0b2c3a089d795e44ee851ca5061db01574f806d54f4e4b70bc694d9ca64578653514e04a28cbc97a1de05
   languageName: node
   linkType: hard
 
