@@ -1,3 +1,9 @@
+## 1.221.2
+
+### Other changes
+
+- dependabot: a4dfb2efe Cherry-pick cc21f4e (dependabot) ([a4dfb2efe](https://github.com/mozilla/fxa/commit/a4dfb2efe))
+
 ## 1.221.1
 
 ### New features
