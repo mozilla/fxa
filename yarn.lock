@@ -3627,16 +3627,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@googlemaps/google-maps-services-js@npm:^3.3.3":
-  version: 3.3.3
-  resolution: "@googlemaps/google-maps-services-js@npm:3.3.3"
+"@googlemaps/google-maps-services-js@npm:^3.3.4":
+  version: 3.3.4
+  resolution: "@googlemaps/google-maps-services-js@npm:3.3.4"
   dependencies:
     "@googlemaps/url-signature": ^1.0.4
     agentkeepalive: ^4.1.0
     axios: ^0.24.0
     query-string: ^7.0.1
     retry-axios: ^2.2.1
-  checksum: 0a758241b6bba06d1e8217ae4cece876dbfe36322d89528486cc31f952e10b1d0e9458895ac17bdd4b72c5aa3390e910c05c7f725703ba03185cfefb51f7aabd
+  checksum: 58edd55c58e1e4dffa4a9e51698e7b8894fef01ab5ef8891086b0c8379c825c8d64db4b3c97d879708bac6425453abff3635e2b79a5485d9728d9bb8a3b31874
   languageName: node
   linkType: hard
 
@@ -20043,7 +20043,7 @@ fsevents@~2.1.1:
     "@fluent/dom": ^0.7.0
     "@fluent/langneg": ^0.5.2
     "@google-cloud/firestore": ^5.0.1
-    "@googlemaps/google-maps-services-js": ^3.3.3
+    "@googlemaps/google-maps-services-js": ^3.3.4
     "@hapi/hapi": ^20.2.1
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.2.0
