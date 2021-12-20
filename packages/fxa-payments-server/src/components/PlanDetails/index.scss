@@ -50,6 +50,19 @@
     padding: 0;
   }
 
+  @media (orientation: landscape) and (max-width: 844px) {
+    border-radius: 0 0 8px 8px;
+    margin: 0 16px 0 16px;
+    grid-row: 2/3;
+
+    .container.plan-details-component-card {
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 -1px white, 0 1px white,
+        -2px 2px 2px -2px rgba(12, 12, 13, 0.1),
+        2px 2px 2px -2px rgba(12, 12, 13, 0.1);
+    }
+  }
+
   .plan-details-component-inner {
     @include min-width('tablet') {
       max-width: 327px;

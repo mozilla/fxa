@@ -31,6 +31,10 @@
     }
   }
 
+  @media (orientation: landscape) and (max-width: 844px) {
+    margin: 0 16px;
+  }
+
   .subtitle {
     color: #008787;
     display: flex;

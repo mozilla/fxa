@@ -12,6 +12,8 @@
     box-shadow: 0px 1px 4px 0px rgba(12, 12, 13, 0.1);
     border-radius: 8px;
   }
+
+
 }
 
 .subscription-title + .product-payment {
@@ -21,7 +23,8 @@
     grid-row: 4/5;
   }
 
-  @media (orientation: landscape) and (max-width: 641px) {
+  @media (orientation: landscape) and (max-width: 844px) {
+    // border-radius: 8px 8px 0 0;
     grid-row: 4/5;
   }
 }
@@ -40,7 +43,7 @@
     min-height: 100%;
   }
 
-  @media (orientation: landscape) and (max-width: 641px) {
+  @media (orientation: landscape) and (max-width: 844px)  {
     grid-row: 4/5;
     margin: 24px 16px;
     min-height: 100%;
