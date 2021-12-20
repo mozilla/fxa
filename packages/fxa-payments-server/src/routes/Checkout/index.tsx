@@ -120,7 +120,10 @@ export const Checkout = ({
   >();
   const [profile, setProfile] = useState<Profile>();
   const [customer, setCustomer] = useState<Customer>();
-  const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
+  const isMobile = !useMatchMedia(
+    '(min-width: 845px) or ((min-width: 768px) and (orientation: portrait))',
+    matchMediaDefault
+  );
   const [transactionInProgress, setTransactionInProgress] = useState(false);
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [validEmail, setValidEmail] = useState<string>('');
