@@ -1,3 +1,9 @@
+## 1.221.3
+
+### Bug fixes
+
+- auth: fix location optional ([6171d360f](https://github.com/mozilla/fxa/commit/6171d360f))
+
 ## 1.221.2
 
 ### Other changes
