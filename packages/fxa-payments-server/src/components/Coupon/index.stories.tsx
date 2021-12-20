@@ -6,21 +6,11 @@ import Coupon from './index';
 storiesOf('components/Coupon', module)
   .add('default', () => (
     <MockApp>
-      <Coupon
-        {...{
-          className: 'default',
-          isMobile: false,
-        }}
-      />
+      <Coupon />
     </MockApp>
   ))
   .add('localized to xx-pirate', () => (
     <MockApp languages={['xx-pirate']}>
-      <Coupon
-        {...{
-          className: 'default',
-          isMobile: false,
-        }}
-      />
+      <Coupon />
     </MockApp>
   ));

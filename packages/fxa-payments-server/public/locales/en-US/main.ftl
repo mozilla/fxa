@@ -354,7 +354,7 @@ coupon-remove = Remove
 coupon-error = The code you entered is invalid or expired.
 coupon-success = Your plan will automatically renew at the list price.
 coupon-enter-code =
-  .placeholder = EnterCode
+  .placeholder = Enter Code
 
 ## payment-processing
 payment-processing-message = Please wait while we process your payment…

@@ -1,6 +1,11 @@
 import React from 'react';
 
-export const CouponContext = React.createContext({
+type CouponContextType = {
+  coupon: any;
+  setCoupon: any;
+};
+
+export const CouponContext = React.createContext<CouponContextType>({
   coupon: null,
-  setCoupon: () => {},
+  setCoupon: null,
 });
