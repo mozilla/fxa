@@ -344,16 +344,17 @@ plan-details-header = Product details
 plan-details-show-button = Show details
 plan-details-hide-button = Hide details
 plan-details-total-label = Total
-plan-details-list-price = aList Price
+plan-details-list-price = List Price
 
 ## coupons
-coupon-discount = aDiscount
-coupon-discount-applied = aDiscount Reward Applied
-coupon-submit = aApply
-coupon-remove = aRemove
-coupon-error = aThe code you entered is invalid or expired.
-coupon-success = aYour plan will automatically renew at the list price.
-coupon-enter-code = aEnter code
+coupon-discount = Discount
+coupon-discount-applied = Discount Reward Applied
+coupon-submit = Apply
+coupon-remove = Remove
+coupon-error = The code you entered is invalid or expired.
+coupon-success = Your plan will automatically renew at the list price.
+coupon-enter-code =
+  .placeholder = EnterCode
 
 ## payment-processing
 payment-processing-message = Please wait while we process your payment…
