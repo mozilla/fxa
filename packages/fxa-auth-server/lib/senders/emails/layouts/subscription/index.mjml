@@ -53,16 +53,14 @@
             <span data-l10n-id="subplat-explainer-specific" data-l10n-args="<%= JSON.stringify({ email, productName }) %>">
               You’re receiving this email because <%- email %> has a Firefox account and you signed up for <%- productName %>.
             </span>
+          <% } else if (locals.reminderShortForm) { %>
+            <span data-l10n-id="subplat-explainer-reminder-form" data-l10n-args="<%= JSON.stringify({ email }) %>">
+              You’re receiving this email because <%- email %> has a Firefox account.
+            </span>
           <% } else { %>
-            <% if (locals.reminderShortForm) { %>
-              <span data-l10n-id="subplat-explainer-reminder-form" data-l10n-args="<%= JSON.stringify({ email }) %>">
-                You’re receiving this email because <%- email %> has a Firefox account.
-              </span>
-            <% } else { %>
-              <span data-l10n-id="subplat-explainer-multiple" data-l10n-args="<%= JSON.stringify({ email }) %>">
-                You’re receiving this email because <%- email %> has a Firefox account and you have subscribed to multiple products.
-              </span>
-            <% } %>
+            <span data-l10n-id="subplat-explainer-multiple" data-l10n-args="<%= JSON.stringify({ email }) %>">
+              You’re receiving this email because <%- email %> has a Firefox account and you have subscribed to multiple products.
+            </span>
           <% } %>
         </mj-text>
 
