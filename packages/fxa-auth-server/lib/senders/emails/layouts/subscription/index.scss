@@ -84,3 +84,18 @@
   width: 58px;
   height: 58px;
 }
+
+.text-footer div {
+  @extend .text-sm;
+  @extend .font-sans;
+  text-align: center !important;
+  color: global.$grey-400 !important;
+}
+
+.text-footer-automatedEmail {
+  @extend .text-footer;
+  div {
+    @extend .mb-3;
+    @extend .mt-10;
+  }
+}

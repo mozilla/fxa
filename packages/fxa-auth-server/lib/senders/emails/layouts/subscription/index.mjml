@@ -54,34 +54,49 @@
               You’re receiving this email because <%- email %> has a Firefox account and you signed up for <%- productName %>.
             </span>
           <% } else { %>
-            <span data-l10n-id="subplat-explainer-multiple" data-l10n-args="<%= JSON.stringify({ email }) %>">
-              You’re receiving this email because <%- email %> has a Firefox account and you have subscribed to multiple products.
+            <% if (locals.reminderShortForm) { %>
+              <span data-l10n-id="subplat-explainer-reminder-form" data-l10n-args="<%= JSON.stringify({ email }) %>">
+                You’re receiving this email because <%- email %> has a Firefox account.
+              </span>
+            <% } else { %>
+              <span data-l10n-id="subplat-explainer-multiple" data-l10n-args="<%= JSON.stringify({ email }) %>">
+                You’re receiving this email because <%- email %> has a Firefox account and you have subscribed to multiple products.
+              </span>
+            <% } %>
+          <% } %>
+        </mj-text>
+
+        <% if (!locals.reminderShortForm) { %>
+          <mj-text css-class="footer-text-bottom-margin">
+            <span data-l10n-id="subplat-manage-account">
+              Manage your Firefox account settings by visiting your <a href="<%- accountSettingsUrl %>" class="footer-link" data-l10n-name="subplat-account-page">account page</a>.
             </span>
-          <% } %>
-        </mj-text>
+          </mj-text>
 
-        <mj-text css-class="footer-text-bottom-margin">
-          <span data-l10n-id="subplat-manage-account">
-            Manage your Firefox account settings by visiting your <a href="<%- accountSettingsUrl %>" class="footer-link" data-l10n-name="subplat-account-page">account page</a>.
-          </span>
-        </mj-text>
+          <mj-text css-class="footer-text">
+            <% if (locals.productName || locals.subscriptions?.length > 0) { %>
+              <a href="<%- subscriptionTermsUrl %>" class="footer-link" data-l10n-id="subplat-terms-policy">Terms and cancellation policy</a>
+              &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+            <% } %>
 
-        <mj-text css-class="footer-text">
-          <% if (locals.productName || locals.subscriptions?.length > 0) { %>
-            <a href="<%- subscriptionTermsUrl %>" class="footer-link" data-l10n-id="subplat-terms-policy">Terms and cancellation policy</a>
-            &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-          <% } %>
+            <% if (locals.isCancellationEmail) { %>
+              <a href="<%- reactivateSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-reactivate">Reactivate subscription</a>
+              &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+            <% } else { %>
+              <a href="<%- cancelSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-cancel">Cancel subscription</a>
+              &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+            <% } %>
 
-          <% if (locals.isCancellationEmail) { %>
-            <a href="<%- reactivateSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-reactivate">Reactivate subscription</a>
-            &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-          <% } else { %>
-            <a href="<%- cancelSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-cancel">Cancel subscription</a>
-            &nbsp;&nbsp;&bull;&nbsp;&nbsp;
-          <% } %>
+            <a href="<%- updateBillingUrl %>" class="footer-link" data-l10n-id="subplat-update-billing">Update billing information</a>
+          </mj-text>
+        <% } else { %>
+          <mj-text css-class="footer-text">
+            <a href="<%- privacyUrl %>" class="footer-link" data-l10n-id="subplat-privacy-policy">Mozilla Privacy Policy</a>
+              &nbsp;&nbsp;&bull;&nbsp;&nbsp;
 
-          <a href="<%- updateBillingUrl %>" class="footer-link" data-l10n-id="subplat-update-billing">Update billing information</a>
-        </mj-text>
+            <a href="<%- subscriptionTermsUrl %>" class="footer-link" data-l10n-id="subplat-cloud-terms">Firefox Cloud Terms of Service</a>
+          </mj-text>
+        <% } %>
 
         <mj-image css-class="mozilla-logo"
           href="https://www.mozilla.org"

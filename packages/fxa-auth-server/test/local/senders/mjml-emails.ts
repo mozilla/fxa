@@ -1084,6 +1084,26 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
 
+  ['subscriptionAccountReminderFirstEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Reminder: Finish setting up your account' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountReminderFirst') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountReminderFirst' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountReminderFirst }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'first-subscription-account-reminder', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'first-subscription-account-reminder', 'support')) },
+      { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Create Password:\n${configUrl('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
   ['subscriptionDowngradeEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `You have switched to ${MESSAGE.productNameNew}` }],
     ['headers', new Map([
