@@ -1,0 +1,18 @@
+<mj-section css-class="mb-8">
+  <% if (locals.productIconURLOld && locals.productIconURLNew) { %>
+    <mj-group>
+      <mj-column>
+        <mj-image src="<%- productIconURLOld %>" alt="<%- productNameOld %>" title="<%- productNameOld %>" css-class="product-icon">
+        </mj-image>
+      </mj-column>
+      <mj-column>
+        <mj-image src="<%- productIconURLNew %>" alt="<%- productNameNew %>" title="<%- productNameNew %>" css-class="product-icon">
+        </mj-image>
+      </mj-column>
+    </mj-group>
+  <% } else { %>
+    <mj-column>
+      <mj-image src="<%- icon %>" alt="<%- productName %>" title="<%- productName %>" css-class="product-icon"></mj-image>
+    </mj-column>
+  <% } %>
+</mj-section>

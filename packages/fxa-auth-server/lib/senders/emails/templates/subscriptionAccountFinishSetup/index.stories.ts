@@ -11,17 +11,30 @@ export default {
 
 const createStory = subplatStoryWithProps(
   'subscriptionAccountFinishSetup',
-  'Sent to a user to inform them that their payment is processing and prompt them to create a password and download subscription.',
+  'Sent to a user after they purchased the product through the password-less flow without an existing Firefox account.',
   {
     productName: 'Firefox Fortress',
-    invoiceDateOnly: '10/13/2021',
-    invoiceNumber: '8675309',
-    invoiceTotal: '$20.00',
-    nextInvoiceDateOnly: '11/13/2021',
     icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
     link: 'http://localhost:3030/post_verify/finish_account_setup/set_password',
     subscriptionSupportUrl: 'http://localhost:3030/support',
   }
 );
 
-export const SubscriptionAccountFinishSetup = createStory();
+export const SubscriptionFirstInvoiceMissingDetails = createStory(
+  {
+    invoiceDateOnly: '10/13/2021',
+    invoiceNumber: '8675309',
+    invoiceTotal: '$20.00',
+  },
+  'Missing Details'
+);
+
+export const SubscriptionAccountFinishSetupFullDetails = createStory(
+  {
+    invoiceDateOnly: '10/13/2021',
+    invoiceNumber: '8675309',
+    invoiceTotal: '$20.00',
+    nextInvoiceDateOnly: '11/13/2021',
+  },
+  'Full Details'
+);
