@@ -276,8 +276,16 @@ describe('subscriptions payPalRoutes', () => {
       });
 
       it('should run a charge successfully', async () => {
+        const requestOptions = deepCopy(defaultRequestOptions);
+        requestOptions.geo = {
+          location: {
+            countryCode: 'CA',
+            city: 'Toronto',
+            state: 'Ontario',
+          },
+        };
         const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
-          ...defaultRequestOptions,
+          ...requestOptions,
           payload: { token },
         });
         assert.deepEqual(actual, {
@@ -312,12 +320,12 @@ describe('subscriptions payPalRoutes', () => {
           stripeHelper.updateCustomerBillingAddress,
           accountCustomer.stripeCustomerId,
           {
-            city: undefined,
+            city: 'Toronto',
             country: 'CA',
             line1: undefined,
             line2: undefined,
             postalCode: undefined,
-            state: undefined,
+            state: 'Ontario',
           }
         );
       });
@@ -688,11 +696,19 @@ describe('subscriptions payPalRoutes', () => {
     });
 
     it('should update the billing agreement and process invoice', async () => {
+      const requestOptions = deepCopy(defaultRequestOptions);
+      requestOptions.geo = {
+        location: {
+          countryCode: 'CA',
+          city: 'Toronto',
+          state: 'Ontario',
+        },
+      };
       invoices.push(subscription.latest_invoice);
       subscription.latest_invoice.subscription = subscription;
       const actual = await runTest(
         '/oauth/subscriptions/paymentmethod/billing-agreement',
-        defaultRequestOptions
+        requestOptions
       );
       assert.deepEqual(actual, filterCustomer(customer));
       sinon.assert.calledOnce(stripeHelper.fetchCustomer);
@@ -702,6 +718,18 @@ describe('subscriptions payPalRoutes', () => {
       sinon.assert.calledOnce(stripeHelper.fetchOpenInvoices);
       sinon.assert.calledOnce(stripeHelper.getCustomerPaypalAgreement);
       sinon.assert.calledOnce(payPalHelper.processInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updateCustomerBillingAddress,
+        accountCustomer.stripeCustomerId,
+        {
+          city: 'Toronto',
+          country: 'CA',
+          line1: undefined,
+          line2: undefined,
+          postalCode: undefined,
+          state: 'Ontario',
+        }
+      );
     });
 
     it('should update the billing agreement and process zero invoice', async () => {
