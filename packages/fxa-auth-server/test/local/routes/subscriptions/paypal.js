@@ -274,8 +274,16 @@ describe('subscriptions payPalRoutes', () => {
       });
 
       it('should run a charge successfully', async () => {
+        const requestOptions = deepCopy(defaultRequestOptions);
+        requestOptions.geo = {
+          location: {
+            countryCode: 'CA',
+            city: 'Toronto',
+            state: 'Ontario',
+          },
+        };
         const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
-          ...defaultRequestOptions,
+          ...requestOptions,
           payload: { token },
         });
         assert.deepEqual(actual, {
@@ -296,6 +304,58 @@ describe('subscriptions payPalRoutes', () => {
           {
             customer,
             priceId: undefined,
+            couponId: undefined,
+            subIdempotencyKey: undefined,
+            taxRateId: 'tr-1234',
+          }
+        );
+        sinon.assert.calledOnceWithExactly(
+          authDbModule.getAccountCustomerByUid,
+          UID
+        );
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.updateCustomerBillingAddress,
+          accountCustomer.stripeCustomerId,
+          {
+            city: 'Toronto',
+            country: 'CA',
+            line1: undefined,
+            line2: undefined,
+            postalCode: undefined,
+            state: 'Ontario',
+          }
+        );
+      });
+
+      it('should run a charge successfully with coupon', async () => {
+        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
+          ...defaultRequestOptions,
+          payload: { token, promotionCode: 'test-promo' },
+        });
+        assert.deepEqual(actual, {
+          sourceCountry: 'CA',
+          subscription: filterSubscription(subscription),
+        });
+        sinon.assert.calledOnce(stripeHelper.fetchCustomer);
+        sinon.assert.calledOnce(payPalHelper.createBillingAgreement);
+        sinon.assert.calledOnce(payPalHelper.agreementDetails);
+        sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
+        sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
+        sinon.assert.calledOnce(payPalHelper.processInvoice);
+        sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
+        sinon.assert.calledOnce(stripeHelper.customerTaxId);
+        sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
+        sinon.assert.calledWithExactly(
+          stripeHelper.findValidPromoCode,
+          'test-promo',
+          undefined
+        );
+        sinon.assert.calledWithExactly(
+          stripeHelper.createSubscriptionWithPaypal,
+          {
+            customer,
+            priceId: undefined,
+            couponId: 'test-coupon',
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
           }
@@ -562,11 +622,19 @@ describe('subscriptions payPalRoutes', () => {
     });
 
     it('should update the billing agreement and process invoice', async () => {
+      const requestOptions = deepCopy(defaultRequestOptions);
+      requestOptions.geo = {
+        location: {
+          countryCode: 'CA',
+          city: 'Toronto',
+          state: 'Ontario',
+        },
+      };
       invoices.push(subscription.latest_invoice);
       subscription.latest_invoice.subscription = subscription;
       const actual = await runTest(
         '/oauth/subscriptions/paymentmethod/billing-agreement',
-        defaultRequestOptions
+        requestOptions
       );
       assert.deepEqual(actual, filterCustomer(customer));
       sinon.assert.calledOnce(stripeHelper.fetchCustomer);
@@ -576,6 +644,18 @@ describe('subscriptions payPalRoutes', () => {
       sinon.assert.calledOnce(stripeHelper.fetchOpenInvoices);
       sinon.assert.calledOnce(stripeHelper.getCustomerPaypalAgreement);
       sinon.assert.calledOnce(payPalHelper.processInvoice);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.updateCustomerBillingAddress,
+        accountCustomer.stripeCustomerId,
+        {
+          city: 'Toronto',
+          country: 'CA',
+          line1: undefined,
+          line2: undefined,
+          postalCode: undefined,
+          state: 'Ontario',
+        }
+      );
     });
 
     it('should update the billing agreement and process zero invoice', async () => {
