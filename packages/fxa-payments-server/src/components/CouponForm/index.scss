@@ -69,8 +69,11 @@
       width: 57%;
       color: red;
 
-      @include max-width('tablet');
-      @media (orientation: landscape) {
+      @include max-width('tablet') {
+        padding-bottom: 16px;
+      }
+
+      @media (orientation: landscape) and (max-width: 844px) {
         padding-bottom: 16px;
       }
     }

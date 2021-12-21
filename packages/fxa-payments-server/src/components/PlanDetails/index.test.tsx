@@ -11,6 +11,9 @@ import {
   getLocalizedMessage,
 } from '../../lib/test-utils';
 import { updateConfig } from '../../lib/config';
+import { Plan } from 'fxa-shared/subscriptions/types';
+import CouponForm from '../CouponForm';
+import { Coupon } from '../../lib/Coupon';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -23,7 +26,7 @@ const userProfile = {
   uid: 'UIDSTRINGHERE',
 };
 
-const selectedPlan = {
+const selectedPlan: Plan = {
   plan_id: 'planId',
   plan_name: 'Pro level',
   product_id: 'fpnID',
@@ -38,6 +41,7 @@ const selectedPlan = {
     'product:details:2': 'Detail 2',
     'product:details:3': 'Detail 3',
   },
+  product_metadata: null,
 };
 
 afterEach(cleanup);
@@ -182,30 +186,42 @@ describe('PlanDetails', () => {
   });
 
   describe('Valid Coupon Used', () => {
-    // it('updates price', () => {
-    //   updateConfig({
-    //     featureFlags: {
-    //       subscriptionCoupons: true,
-    //     },
-    //   });
+    it('updates price', async () => {
+      updateConfig({
+        featureFlags: {
+          subscriptionCoupons: true,
+        },
+      });
 
-    //   const subject = () => {
-    //     return render(
-    //         <PlanDetails
-    //           {...{
-    //             profile: userProfile,
-    //             showExpandButton: false,
-    //             isMobile: false,
-    //             selectedPlan,
-    //             coupon: { amount: 200}
-    //           }}
-    //         />
-    //     );
-    //   };
+      const coupon: Coupon = { amount: 200, couponCode: '' };
+      const props = {
+        ...{
+          profile: userProfile,
+          showExpandButton: false,
+          isMobile: false,
+          selectedPlan,
+          coupon: coupon,
+        },
+      };
 
-    //   const { queryByTestId} = subject();
-    //   expect(queryByTestId('total-price')).toContain('7.35');
-    // });
+      const testRenderer = TestRenderer.create(<PlanDetails {...props} />);
+      const testInstance = testRenderer.root;
+
+      const planPriceComponent = testInstance.findByProps({
+        id: 'total-price',
+      });
+
+      const expectedAmount = getLocalizedCurrency(
+        selectedPlan.amount
+          ? selectedPlan.amount - coupon.amount
+          : selectedPlan.amount,
+        selectedPlan.currency
+      );
+
+      expect(planPriceComponent.props.vars.amount).toStrictEqual(
+        expectedAmount
+      );
+    });
 
     it('displays a success message', () => {
       const subject = () => {
@@ -216,7 +232,7 @@ describe('PlanDetails', () => {
               showExpandButton: false,
               isMobile: false,
               selectedPlan,
-              coupon: { amount: 200 },
+              coupon: { amount: 200, couponCode: '' },
             }}
           />
         );
