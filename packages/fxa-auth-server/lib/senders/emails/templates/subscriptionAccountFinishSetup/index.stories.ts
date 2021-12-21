@@ -39,7 +39,7 @@ export const SubscriptionFirstInvoiceNextOnly = createStory(
   {
     nextInvoiceDateOnly: '11/13/2021',
   },
-  'Missing Details - Invoice Total Only'
+  'Missing Details - Next Invoice Only'
 );
 
 export const SubscriptionAccountFinishSetupFullDetails = createStory(
