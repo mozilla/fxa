@@ -20,13 +20,26 @@ const createStory = subplatStoryWithProps(
   }
 );
 
-export const SubscriptionFirstInvoiceMissingDetails = createStory(
+export const SubscriptionFirstInvoiceNumberOnly = createStory(
+  {
+    invoiceNumber: '8675309',
+  },
+  'Missing Details - Invoice Number Only'
+);
+
+export const SubscriptionFirstInvoiceTotalOnly = createStory(
   {
     invoiceDateOnly: '10/13/2021',
-    invoiceNumber: '8675309',
     invoiceTotal: '$20.00',
   },
-  'Missing Details'
+  'Missing Details - Invoice Date & Total Only'
+);
+
+export const SubscriptionFirstInvoiceNextOnly = createStory(
+  {
+    nextInvoiceDateOnly: '11/13/2021',
+  },
+  'Missing Details - Invoice Total Only'
 );
 
 export const SubscriptionAccountFinishSetupFullDetails = createStory(

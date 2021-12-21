@@ -5,11 +5,9 @@
 <mj-text css-class="text-body">
   <b data-l10n-id="payment-details">Payment details:</b>
   <ul>
-    <% if (locals.productName) { %>
-      <li data-l10n-args="<%= JSON.stringify({productName}) %>">
-        <%- productName %>
-      </li>
-    <% } %>
+    <li data-l10n-args="<%= JSON.stringify({productName}) %>">
+      <%- productName %>
+    </li>
 
     <% if (locals.invoiceNumber) { %>
       <li data-l10n-id="payment-plan-invoice-number" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>">
@@ -17,7 +15,7 @@
       </li>
     <% } %>
 
-    <% if (locals.invoiceTotal) { %>
+    <% if (locals.invoiceDateOnly && locals.invoiceTotal) { %>
       <li data-l10n-id="payment-plan-charged" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
         Charged: <%- invoiceTotal %> on <%- invoiceDateOnly %>
       </li>

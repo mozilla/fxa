@@ -6,7 +6,7 @@
 payment-plan-invoice-number = "Invoice Number: <%- invoiceNumber %>"
 <% } %>
 
-<% if (locals.invoiceTotal) { %>
+<% if (locals.invoiceDateOnly && locals.invoiceTotal) { %>
 payment-plan-charged = "Charged: <%- invoiceTotal %> on <%- invoiceDateOnly %>"
 <% } %>
 
