@@ -397,7 +397,7 @@ export class StripeHandler {
     request: AuthRequest
   ): Promise<invoiceDTO.invoicePreviewSchema> {
     this.log.begin('subscriptions.previewInvoice', request);
-    await this.customs.check(request, 'previewInvoice');
+    await this.customs.checkIpOnly(request, 'previewInvoice');
 
     const { promotionCode, priceId } = request.payload as Record<
       string,

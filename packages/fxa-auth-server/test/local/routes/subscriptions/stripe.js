@@ -567,9 +567,13 @@ describe('DirectStripeRoutes', () => {
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
-
       const actual = await directStripeRoutesInstance.previewInvoice(
         VALID_REQUEST
+      );
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.checkIpOnly,
+        VALID_REQUEST,
+        'previewInvoice'
       );
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
