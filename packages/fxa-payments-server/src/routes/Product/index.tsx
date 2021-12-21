@@ -156,7 +156,10 @@ export const Product = ({
     fetchProductRouteResources();
   }, [fetchProductRouteResources]);
 
-  const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
+  const isMobile = !useMatchMedia(
+    '(min-width: 845px) or ((min-width: 768px) and (orientation: portrait))',
+    matchMediaDefault
+  );
   const plansById = useMemo(() => indexPlansById(plans), [plans]);
 
   const selectedPlan = useMemo(

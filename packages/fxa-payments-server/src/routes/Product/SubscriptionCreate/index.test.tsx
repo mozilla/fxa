@@ -48,6 +48,7 @@ jest.mock('../../../lib/hooks', () => {
   };
 });
 import { useNonce } from '../../../lib/hooks';
+import { updateConfig } from '../../../lib/config';
 
 // TODO: Move to some shared lib?
 const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
@@ -146,6 +147,7 @@ describe('routes/Product/SubscriptionCreate', () => {
         'Mozilla uses Stripe and Paypal for secure payment processing.'
       )
     ).toBeInTheDocument();
+    expect(document.getElementById('coupon-component')).not.toBeInTheDocument();
   });
 
   it('renders as expected with PayPal UI enabled', async () => {
@@ -230,6 +232,18 @@ describe('routes/Product/SubscriptionCreate', () => {
     expect(subscriptionProcessingTitle).toHaveClass('hidden');
     expect(screen.queryByTestId('subscription-create')).toBeInTheDocument();
     expect(screen.queryByTestId('plan-details-component')).toBeInTheDocument();
+  });
+
+  it('renders as expected with coupons enabled', async () => {
+    updateConfig({
+      featureFlags: {
+        subscriptionCoupons: true,
+      },
+    });
+
+    const { findByTestId } = render(<Subject />);
+    const element = await findByTestId('coupon-component');
+    expect(element).toBeInTheDocument();
   });
 
   async function commonSubmitSetup({

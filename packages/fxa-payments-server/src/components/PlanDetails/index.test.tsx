@@ -10,6 +10,10 @@ import {
   setupFluentLocalizationTest,
   getLocalizedMessage,
 } from '../../lib/test-utils';
+import { updateConfig } from '../../lib/config';
+import { Plan } from 'fxa-shared/subscriptions/types';
+import CouponForm from '../CouponForm';
+import { Coupon } from '../../lib/Coupon';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -22,7 +26,7 @@ const userProfile = {
   uid: 'UIDSTRINGHERE',
 };
 
-const selectedPlan = {
+const selectedPlan: Plan = {
   plan_id: 'planId',
   plan_name: 'Pro level',
   product_id: 'fpnID',
@@ -37,6 +41,7 @@ const selectedPlan = {
     'product:details:2': 'Detail 2',
     'product:details:3': 'Detail 3',
   },
+  product_metadata: null,
 };
 
 afterEach(cleanup);
@@ -162,6 +167,82 @@ describe('PlanDetails', () => {
     expect(queryByTestId('plan-details-component')).not.toHaveAttribute('role');
   });
 
+  it('does not show the coupon success message when there is no coupon used', () => {
+    const subject = () => {
+      return render(
+        <PlanDetails
+          {...{
+            profile: userProfile,
+            showExpandButton: false,
+            isMobile: false,
+            selectedPlan,
+          }}
+        />
+      );
+    };
+
+    const { queryByTestId } = subject();
+    expect(queryByTestId('coupon-success')).not.toBeInTheDocument();
+  });
+
+  describe('Valid Coupon Used', () => {
+    it('updates price', async () => {
+      updateConfig({
+        featureFlags: {
+          subscriptionCoupons: true,
+        },
+      });
+
+      const coupon: Coupon = { amount: 200, couponCode: '' };
+      const props = {
+        ...{
+          profile: userProfile,
+          showExpandButton: false,
+          isMobile: false,
+          selectedPlan,
+          coupon: coupon,
+        },
+      };
+
+      const testRenderer = TestRenderer.create(<PlanDetails {...props} />);
+      const testInstance = testRenderer.root;
+
+      const planPriceComponent = testInstance.findByProps({
+        id: 'total-price',
+      });
+
+      const expectedAmount = getLocalizedCurrency(
+        selectedPlan.amount
+          ? selectedPlan.amount - coupon.amount
+          : selectedPlan.amount,
+        selectedPlan.currency
+      );
+
+      expect(planPriceComponent.props.vars.amount).toStrictEqual(
+        expectedAmount
+      );
+    });
+
+    it('displays a success message', () => {
+      const subject = () => {
+        return render(
+          <PlanDetails
+            {...{
+              profile: userProfile,
+              showExpandButton: false,
+              isMobile: false,
+              selectedPlan,
+              coupon: { amount: 200, couponCode: '' },
+            }}
+          />
+        );
+      };
+
+      const { queryByTestId } = subject();
+      expect(queryByTestId('coupon-success')).toBeInTheDocument();
+    });
+  });
+
   describe('Payment Amount Localization', () => {
     const dayBasedId = 'plan-price-day';
     const weekBasedId = 'plan-price-week';
@@ -201,13 +282,13 @@ describe('PlanDetails', () => {
         });
         const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-        expect(planPriceComponent.props.vars.amount).toStrictEqual(expectedAmount);
+        expect(planPriceComponent.props.vars.amount).toStrictEqual(
+          expectedAmount
+        );
         expect(planPriceComponent.props.vars.intervalCount).toBe(
           plan.interval_count
         );
-        expect(planPriceComponent.props.children).toBe(
-          expectedMsg
-        );
+        expect(planPriceComponent.props.children).toBe(expectedMsg);
       }
 
       describe('When plan has day interval', () => {

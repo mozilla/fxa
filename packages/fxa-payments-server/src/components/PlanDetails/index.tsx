@@ -14,12 +14,14 @@ import ffLogo from '../../images/firefox-logo.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
+import { Coupon } from '../../lib/Coupon';
 
 type PlanDetailsProps = {
   selectedPlan: Plan;
   isMobile: boolean;
   showExpandButton?: boolean;
   className?: string;
+  coupon?: Coupon;
 };
 
 export const PlanDetails = ({
@@ -27,7 +29,9 @@ export const PlanDetails = ({
   isMobile,
   showExpandButton = false,
   className = 'default',
+  coupon,
 }: PlanDetailsProps) => {
+  const { config } = useContext(AppContext);
   const { navigatorLanguages } = useContext(AppContext);
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
   const { product_name, amount, currency, interval, interval_count } =
@@ -37,13 +41,10 @@ export const PlanDetails = ({
     selectedPlan,
     navigatorLanguages
   );
-
   const role = isMobile ? undefined : 'complementary';
-
   const setWebIconBackground = webIconBackground
     ? { background: webIconBackground }
     : '';
-
   const planPrice = formatPlanPricing(
     amount,
     currency,
@@ -109,23 +110,78 @@ export const PlanDetails = ({
                 className="plan-details-total"
                 aria-labelledby="plan-details-product"
               >
+                {coupon && config.featureFlags.subscriptionCoupons ? (
+                  <div className="plan-details-coupon-details">
+                    <div className="plan-details-total-inner">
+                      <Localized id="plan-details-list-price">
+                        <div>List Price</div>
+                      </Localized>
+                      <div>
+                        <Localized
+                          id={`list-price`}
+                          attrs={{ title: true }}
+                          vars={{
+                            amount: getLocalizedCurrency(amount, currency),
+                            intervalCount: interval_count,
+                          }}
+                        ></Localized>
+                      </div>
+                    </div>
+                    <div className="plan-details-total-inner">
+                      <Localized id="coupon-discount">
+                        <div>Discount</div>
+                      </Localized>
+                      <div>
+                        <Localized
+                          id={`coupon-amount`}
+                          attrs={{ title: true }}
+                          vars={{
+                            amount: getLocalizedCurrency(
+                              coupon.amount,
+                              currency
+                            ),
+                            intervalCount: interval_count,
+                          }}
+                        ></Localized>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
                 <div className="plan-details-total-inner">
                   <Localized id="plan-details-total-label">
                     <p className="label">Total</p>
                   </Localized>
                   <Localized
-                    id={`plan-price-${interval}`}
+                    id={`total-price`}
                     attrs={{ title: true }}
                     vars={{
-                      amount: getLocalizedCurrency(amount, currency),
+                      amount:
+                        coupon && config.featureFlags.subscriptionCoupons
+                          ? getLocalizedCurrency(
+                              amount ? amount - coupon.amount : amount,
+                              currency
+                            )
+                          : getLocalizedCurrency(amount, currency),
                       intervalCount: interval_count,
                     }}
                   >
-                    <p className="total-price" title={planPrice}>
+                    <p
+                      className="total-price"
+                      title={planPrice}
+                      data-testid="total-price"
+                      id="total-price"
+                    >
                       {planPrice}
                     </p>
                   </Localized>
                 </div>
+                {coupon ? (
+                  <Localized id="coupon-success">
+                    <div className="coupon-info" data-testid="coupon-success">
+                      Your plan will automatically renew at the list price.
+                    </div>
+                  </Localized>
+                ) : null}
               </div>
             </div>
           ) : null}
