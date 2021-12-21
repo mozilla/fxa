@@ -88,12 +88,15 @@ const MESSAGE = {
   paymentProratedCurrency: 'usd',
   payment_provider: 'stripe',
   planId: 'plan-example',
+  planInterval: 'day',
+  planIntervalCount: 2,
   productId: 'wibble',
   productMetadata,
   productName: 'Firefox Fortress',
   productNameOld: 'Product A',
   productNameNew: 'Product B',
   productPaymentCycle: 'month',
+  reminderLength: 14,
   serviceLastActiveDate: new Date(1587339098816),
   subscription: {
     productName: 'Cooking with Foxkeh',
@@ -1267,6 +1270,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
+
   ['subscriptionPaymentProviderCancelledEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Payment information update required for ${MESSAGE.productName}` }],
     ['headers', new Map([
@@ -1325,6 +1329,33 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+
+  ['subscriptionRenewalReminderEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.subscription.productName} automatic renewal notice` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionRenewalReminder') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionRenewalReminder' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionRenewalReminder }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-renewal-reminder', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-renewal-reminder', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-renewal-reminder', 'subscription-support')) },
+      { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
+      { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days. At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+      { test: 'include', expected: "Sincerely," },
+      { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.subscription.productName} automatic renewal notice` },
+      { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
+      { test: 'include', expected: `Your current subscription is set to automatically renew in ${MESSAGE.reminderLength} days. At that time, Mozilla will renew your ${MESSAGE.planIntervalCount} ${MESSAGE.planInterval} subscription and a charge of ${MESSAGE_FORMATTED.invoiceTotal} will be applied to the payment method on your account.` },
+      { test: 'include', expected: "Sincerely," },
+      { test: 'include', expected: `The ${MESSAGE.subscription.productName} team` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],

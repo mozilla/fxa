@@ -1,2 +1,0 @@
-updateBilling-plaintext = "We’ll try your payment again over the next few days, but you may need to help us fix it by updating your payment information:"
-<%- updateBillingUrl %>

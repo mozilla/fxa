@@ -1,0 +1,9 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-text css-class="text-body">
+  <span data-l10n-id="subscriptionSupportContact" data-l10n-args="<%= JSON.stringify({productName}) %>">
+    Thank you for subscribing to <%- productName %>. If you have any questions about your subscription or need more information about <%- productName %>, please <a data-l10n-name="subscriptionSupportUrl" href="<%- subscriptionSupportUrl %>">contact us</a>.
+  </span>
+</mj-text>

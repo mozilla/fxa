@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="updateBilling">
+      <span data-l10n-id="subscriptionUpdateBillingTry">
         We’ll try your payment again over the next few days, but you may need to help us fix it by <a data-l10n-name="updateBillingUrl" href="<%- updateBillingUrl %>">updating your payment information</a>.
       </span>
     </mj-text>
