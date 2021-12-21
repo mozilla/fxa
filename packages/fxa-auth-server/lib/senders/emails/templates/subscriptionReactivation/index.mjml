@@ -2,11 +2,7 @@
   # License, v. 2.0. If a copy of the MPL was not distributed with this
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
-<mj-section css-class="mb-6">
-  <mj-column>
-    <mj-image src="<%- icon %>" alt="<%- productName %> icon" title="<%- productName %>" css-class="product-icon"></mj-image>
-  </mj-column>
-</mj-section>
+<%- include ('/partials/icon/index.mjml') %>
 
 <mj-section>
   <mj-column>

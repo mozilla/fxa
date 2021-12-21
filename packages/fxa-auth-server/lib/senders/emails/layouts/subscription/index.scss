@@ -11,7 +11,7 @@
 
 .text-header div {
   @extend %text-header-common;
-  @extend .text-1xl;
+  @extend .text-2xl;
   @extend .mb-4;
   font-weight: 700;
   color: global.$grey-600 !important;

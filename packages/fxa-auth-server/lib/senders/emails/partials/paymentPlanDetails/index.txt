@@ -1,0 +1,15 @@
+<% if (locals.productName) { %>
+<%- productName %>
+<% } %>
+
+<% if (locals.invoiceNumber) { %>
+payment-plan-invoice-number = "Invoice Number: <%- invoiceNumber %>"
+<% } %>
+
+<% if (locals.invoiceDateOnly && locals.invoiceTotal) { %>
+payment-plan-charged = "Charged: <%- invoiceTotal %> on <%- invoiceDateOnly %>"
+<% } %>
+
+<% if (locals.nextInvoiceDateOnly) { %>
+payment-plan-next-invoice = "Next Invoice: <%- nextInvoiceDateOnly %>"
+<% } %>
