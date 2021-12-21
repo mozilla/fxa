@@ -4,4 +4,8 @@ verificationReminderFirst-description = "A few days ago you created a Firefox ac
 
 verificationReminderFirst-sub-description = "Confirm now and get technology that fights for and protects your privacy, arms you with practical knowledge, and the respect you deserve."
 
-<%- include('/partials/verificationReminder/index.txt') %>
+confirm-email-plaintext = "Confirm email:"
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+<%- include('/partials/support/index.txt') %>
