@@ -5725,15 +5725,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/integrations@npm:^6.15.0":
-  version: 6.15.0
-  resolution: "@sentry/integrations@npm:6.15.0"
+"@sentry/integrations@npm:^6.16.1":
+  version: 6.16.1
+  resolution: "@sentry/integrations@npm:6.16.1"
   dependencies:
-    "@sentry/types": 6.15.0
-    "@sentry/utils": 6.15.0
+    "@sentry/types": 6.16.1
+    "@sentry/utils": 6.16.1
     localforage: ^1.8.1
     tslib: ^1.9.3
-  checksum: 53f6461ff27722df97f9de112a2adc2a53f405b235ba540bf57bf23fb95e25ea32f02949d8e552356cfb78dc186454a0731fb1c52fe3c29f760d2377d30be507
+  checksum: 966213e0abf463c5a7828dda07ab06db3e25b8934f2e54e3cba4fe8edd384f5dbb0f343a544ee19ae87b6e94601e31a1aef34d6965f44f7d9afaac773665f659
   languageName: node
   linkType: hard
 
@@ -5778,27 +5778,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/types@npm:6.15.0":
-  version: 6.15.0
-  resolution: "@sentry/types@npm:6.15.0"
-  checksum: e84a53cd8cf4603ac794049729d44f2d67cde3a29875b7404d61d36d904cdb4cd9d35ff53463ba1828ab4a4cbd734cd276ce10d3bb7c32a0ffdea1ac4344fb5f
-  languageName: node
-  linkType: hard
-
 "@sentry/types@npm:6.16.1":
   version: 6.16.1
   resolution: "@sentry/types@npm:6.16.1"
   checksum: 994791c471a83b3e9a3c7052b6b2fef3ab404834eaabb61f3dd15b79782ca9cf6774cfb760040bbc06812a8420e8d40681d81a7d4b51ce7ed578d72d97c9a0b8
-  languageName: node
-  linkType: hard
-
-"@sentry/utils@npm:6.15.0":
-  version: 6.15.0
-  resolution: "@sentry/utils@npm:6.15.0"
-  dependencies:
-    "@sentry/types": 6.15.0
-    tslib: ^1.9.3
-  checksum: 150a7d8b4ed15f2cd04687062e08a62dad18a754ef8c00fcbaebc7816fb80336785aedd3ea3f6e47e7397d5c253177d029961fe98ff8869ceb566fd78cc91f84
   languageName: node
   linkType: hard
 
@@ -19929,7 +19912,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/platform-express": ^8.2.3
-    "@sentry/integrations": ^6.15.0
+    "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
@@ -20048,7 +20031,7 @@ fsevents@~2.1.1:
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^9.2.0
     "@hapi/joi": ^15.1.1
-    "@sentry/integrations": ^6.15.0
+    "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@storybook/addon-controls": ^6.3.12
     "@storybook/addon-docs": ^6.3.12
@@ -20459,7 +20442,7 @@ fsevents@~2.1.1:
     "@nestjs/schedule": ^1.0.2
     "@nestjs/schematics": ^8.0.5
     "@nestjs/testing": ^8.2.3
-    "@sentry/integrations": ^6.15.0
+    "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
@@ -20554,7 +20537,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.0.1
     "@nestjs/platform-express": ^8.2.3
-    "@sentry/integrations": ^6.15.0
+    "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
@@ -20632,7 +20615,7 @@ fsevents@~2.1.1:
   resolution: "fxa-metrics-processor@workspace:packages/fxa-metrics-processor"
   dependencies:
     "@google-cloud/pubsub": ^2.18.4
-    "@sentry/integrations": ^6.15.0
+    "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/chai": ^4.2.18
     "@types/convict": ^5.2.2
@@ -21001,7 +20984,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/testing": ^8.2.3
     "@sentry/browser": ^6.16.1
-    "@sentry/integrations": ^6.15.0
+    "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
@@ -21084,7 +21067,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^8.2.3
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/platform-express": ^8.2.3
-    "@sentry/integrations": ^6.15.0
+    "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/convict": ^5.2.2
     "@types/eslint": 7.2.13
