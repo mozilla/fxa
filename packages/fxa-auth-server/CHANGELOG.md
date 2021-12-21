@@ -1,3 +1,21 @@
+## 1.221.3
+
+### Bug fixes
+
+- auth: fix location optional ([6171d360f](https://github.com/mozilla/fxa/commit/6171d360f))
+
+## 1.221.2
+
+### Other changes
+
+- dependabot: a4dfb2efe Cherry-pick cc21f4e (dependabot) ([a4dfb2efe](https://github.com/mozilla/fxa/commit/a4dfb2efe))
+
+## 1.221.1
+
+### New features
+
+- auth: add invoice preview route ([1165f6a5d](https://github.com/mozilla/fxa/commit/1165f6a5d))
+
 ## 1.221.0
 
 ### New features
