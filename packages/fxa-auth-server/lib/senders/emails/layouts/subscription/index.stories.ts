@@ -21,7 +21,7 @@ export const LayoutNoProduct = createStory(
   {
     reminderShortForm: true,
   },
-  'Reminder short form - user has Firefox account, no specific product, shows Mozilla Privacy Policy and Firefox Cloud Terms of Service links, hides Terms and cancellation policy, Cancel/Reactivate subscription, and Update billing information links'
+  'Reminder short form - no specified product'
 );
 
 export const LayoutMultipleProducts = createStory(
