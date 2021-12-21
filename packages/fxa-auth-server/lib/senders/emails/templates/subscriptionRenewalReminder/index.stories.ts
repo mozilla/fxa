@@ -11,7 +11,7 @@ export default {
 
 const createStory = subplatStoryWithProps(
   'subscriptionRenewalReminder',
-  'Sent when a user remind them to renew their subscription.',
+  'Sent to remind a user of an upcoming automatic subscription renewal X days out from charge (X being what is set in the Stripe dashboard)',
   {
     productName: 'Firefox Fortress',
     invoiceTotal: '$20.00',
