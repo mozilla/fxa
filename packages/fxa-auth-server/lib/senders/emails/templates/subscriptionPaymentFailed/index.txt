@@ -6,5 +6,5 @@ subscriptionPaymentFailed-content-problem = "We had a problem with your latest p
 
 subscriptionPaymentFailed-content-outdated = "It may be that your credit card has expired, or your current payment method is out of date."
 
-<%- include ('/partials/updateBilling/index.txt') %>
+<%- include ('/partials/subscriptionUpdateBillingTry/index.txt') %>
 <%- include ('/partials/subscriptionSupport/index.txt') %>

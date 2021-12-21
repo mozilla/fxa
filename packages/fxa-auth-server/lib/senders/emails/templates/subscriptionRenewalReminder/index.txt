@@ -1,0 +1,15 @@
+subscriptionRenewalReminder-subject = "<%- productName %> automatic renewal notice"
+
+subscriptionRenewalReminder-title = "Your subscription will be renewed soon"
+
+subscriptionRenewalReminder-content-greeting = "Dear <%- productName %> customer,"
+
+subscriptionRenewalReminder-content-current = "Your current subscription is set to automatically renew in <%- reminderLength %> days. At that time, Mozilla will renew your <%- planIntervalCount%> <%- planInterval%> subscription and a charge of <%- invoiceTotal%> will be applied to the payment method on your account."
+
+<%- include ('/partials/subscriptionUpdateBillingEnsure/index.txt') %>
+
+<%- include ('/partials/subscriptionSupportContact/index.txt') %>
+
+subscriptionRenewalReminder-content-closing = "Sincerely,"
+
+subscriptionRenewalReminder-content-signature = "The <%- productName %> team"
