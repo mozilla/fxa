@@ -6,19 +6,12 @@ import React, {
 } from 'react';
 import { Localized } from '@fluent/react';
 import './index.scss';
-import { Form, SubmitButton } from '../fields';
-import useValidatorState from '../../lib/validator';
 import { CouponContext } from '../../lib/CouponContext';
 
 export const Coupon = () => {
   const [hasCoupon, setHasCoupon] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [error, setError] = useState(false);
-
-  const validator = useValidatorState({
-    initialState: undefined,
-  });
-
   const { coupon, setCoupon } = useContext(CouponContext);
 
   const onSubmit: FormEventHandler = (event: any) => {
@@ -76,7 +69,7 @@ export const Coupon = () => {
             </button>
           </div>
         ) : (
-          <Form validator={validator} onSubmit={onSubmit}>
+          <form onSubmit={onSubmit}>
             <div className="input-row">
               <Localized attrs={{ placeholder: true }} id="coupon-enter-code">
                 <input
@@ -94,12 +87,12 @@ export const Coupon = () => {
               </Localized>
             </div>
 
-            <SubmitButton name="apply">
+            <button name="apply" type="submit">
               <Localized id="coupon-submit">
                 <span>Apply</span>
               </Localized>
-            </SubmitButton>
-          </Form>
+            </button>
+          </form>
         )}
         {error ? (
           <Localized id="coupon-error">
