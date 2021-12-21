@@ -5,7 +5,6 @@ import React, {
   useState,
   useCallback,
   Suspense,
-  SetStateAction,
 } from 'react';
 import { connect } from 'react-redux';
 import { Localized, useLocalization } from '@fluent/react';
@@ -111,7 +110,6 @@ export const Checkout = ({
   const { config, locationReload, queryParams, matchMediaDefault } =
     useContext(AppContext);
   const { l10n } = useLocalization();
-  const checkboxValidator = useValidatorState();
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [inProgress, setInProgress] = useState(false);
   const [retryStatus, setRetryStatus] = useState<RetryStatus>();
@@ -441,8 +439,7 @@ export const Checkout = ({
           }}
         />
         {config.featureFlags.subscriptionCoupons ? (
-          // To be updated in issue #7097
-          <CouponForm coupon={coupon} setCoupon={setCoupon} />
+          <CouponForm {...{ coupon, setCoupon }} />
         ) : null}
       </div>
     </>

@@ -32,7 +32,10 @@ describe('CouponForm', () => {
   });
 
   it('shows the coupon code and hides the input when a coupon is used', () => {
-    const coupon: Coupon = { amount: 200 };
+    const coupon: Coupon = {
+      amount: 200,
+      couponCode: '',
+    };
     const subject = () => {
       return render(<CouponForm coupon={coupon} setCoupon={(coupon) => {}} />);
     };

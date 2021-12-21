@@ -13,20 +13,21 @@ export const CouponForm = ({ coupon, setCoupon }: CouponFormProps) => {
   const [couponCode, setCouponCode] = useState(coupon ? 'test' : '');
   const [error, setError] = useState(false);
 
-  const onSubmit: FormEventHandler = (event: any) => {
+  const onSubmit: FormEventHandler = (event) => {
     event.preventDefault();
     event.stopPropagation();
     if (couponCode === 'test') {
       setHasCoupon(true);
       setCoupon({
         amount: 200,
+        couponCode: '',
       });
     } else {
       setError(true);
     }
   };
 
-  const removeCoupon: MouseEventHandler<HTMLButtonElement> = (event: any) => {
+  const removeCoupon: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
     event.stopPropagation();
     setHasCoupon(false);
