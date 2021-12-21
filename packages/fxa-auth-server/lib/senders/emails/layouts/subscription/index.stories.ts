@@ -17,6 +17,13 @@ const createStory = subplatStoryWithProps(
   }
 );
 
+export const LayoutNoProduct = createStory(
+  {
+    reminderShortForm: true,
+  },
+  'Reminder short form - no specified product'
+);
+
 export const LayoutMultipleProducts = createStory(
   {
     subscriptions: [

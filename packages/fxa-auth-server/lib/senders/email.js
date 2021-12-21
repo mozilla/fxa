@@ -781,7 +781,7 @@ module.exports = function (log, config, bounces) {
     templateNameToCampaignMap[
       template
     ] = `${key}-subscription-account-reminder`;
-    templateNameToContentMap[template] = 'subscrition-account-create-email';
+    templateNameToContentMap[template] = 'subscription-account-create-email';
 
     Mailer.prototype[`${template}Email`] = async function (message) {
       const {

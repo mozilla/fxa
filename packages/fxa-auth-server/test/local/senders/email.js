@@ -1127,7 +1127,7 @@ const TESTS = [
   ['subscriptionAccountReminderFirstEmail', new Map([
     ['subject', { test: 'equal', expected: 'Reminder: Finish setting up your account' }],
     ['headers', new Map([
-      ['X-Link', { test: 'equal', expected: configUrl('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscrition-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') }],
+      ['X-Link', { test: 'equal', expected: configUrl('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountReminderFirst') }],
       ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountReminderFirst' }],
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountReminderFirst }],
@@ -1135,18 +1135,18 @@ const TESTS = [
     ['html', [
       { test: 'include', expected: configHref('privacyUrl', 'first-subscription-account-reminder', 'privacy') },
       { test: 'include', expected: configHref('supportUrl', 'first-subscription-account-reminder', 'support') },
-      { test: 'include', expected: configHref('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscrition-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
+      { test: 'include', expected: configHref('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Create a password:\n${configUrl('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscrition-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')}` },
+      { test: 'include', expected: `Create a password:\n${configUrl('accountFinishSetupUrl', 'first-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
   ['subscriptionAccountReminderSecondEmail', new Map([
     ['subject', { test: 'equal', expected: 'Final reminder: Setup your account' }],
     ['headers', new Map([
-      ['X-Link', { test: 'equal', expected: configUrl('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscrition-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') }],
+      ['X-Link', { test: 'equal', expected: configUrl('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountReminderSecond') }],
       ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountReminderSecond' }],
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountReminderSecond }],
@@ -1154,11 +1154,11 @@ const TESTS = [
     ['html', [
       { test: 'include', expected: configHref('privacyUrl', 'second-subscription-account-reminder', 'privacy') },
       { test: 'include', expected: configHref('supportUrl', 'second-subscription-account-reminder', 'support') },
-      { test: 'include', expected: configHref('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscrition-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
+      { test: 'include', expected: configHref('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Create a password:\n${configUrl('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscrition-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')}` },
+      { test: 'include', expected: `Create a password:\n${configUrl('accountFinishSetupUrl', 'second-subscription-account-reminder', 'subscription-account-create-email', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],

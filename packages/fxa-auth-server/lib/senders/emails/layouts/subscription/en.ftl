@@ -7,6 +7,7 @@ subplat-update-billing-plaintext = { subplat-update-billing }:
 subplat-explainer-specific = You’re receiving this email because { $email } has a { -product-firefox-account } and you signed up for { $productName }.
 # Variables:
 #  $email (String) - A user's primary email address
+subplat-explainer-reminder-form = You’re receiving this email because { $email } has a { -product-firefox-account }.
 subplat-explainer-multiple = You’re receiving this email because { $email } has a { -product-firefox-account } and you have subscribed to multiple products.
 subplat-manage-account = Manage your { -product-firefox-account } settings by visiting your <a data-l10n-name="subplat-account-page">account page</a>.
 subplat-terms-policy = Terms and cancellation policy
@@ -16,5 +17,9 @@ subplat-cancel-plaintext = { subplat-cancel }:
 subplat-reactivate = Reactivate subscription
 subplat-reactivate-plaintext = { subplat-reactivate }:
 subplat-update-billing = Update billing information
+subplat-privacy-policy = { -brand-mozilla } Privacy Policy
+subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
+subplat-cloud-terms = { -product-firefox-cloud } Terms of Service
+subplat-cloud-terms-plaintext = { subplat-cloud-terms }:
 subplat-legal = Legal
 subplat-privacy = Privacy

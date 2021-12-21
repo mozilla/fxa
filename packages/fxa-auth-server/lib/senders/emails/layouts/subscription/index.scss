@@ -84,3 +84,11 @@
   width: 58px;
   height: 58px;
 }
+
+.text-footer div {
+  @extend .text-sm;
+}
+
+.text-footer-automatedEmail {
+  @extend .text-footer;
+}
