@@ -854,7 +854,7 @@ const conf = convict({
     coupons: {
       enabled: {
         doc: 'feature flag for enabling coupons',
-        default: true,
+        default: false,
         env: 'COUPONS_ENABLED',
         format: Boolean,
       },

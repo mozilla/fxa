@@ -51,6 +51,8 @@ export const PlanDetails = ({
   );
 
   const { coupon } = useContext(CouponContext);
+  // console.log('###########################')
+  // console.log('test: ' + coupon.amount);
 
   return (
     <section
@@ -153,14 +155,19 @@ export const PlanDetails = ({
                       intervalCount: interval_count,
                     }}
                   >
-                    <p className="total-price" title={planPrice}>
+                    <p
+                      className="total-price"
+                      title={planPrice}
+                      data-testid="total-price"
+                      id="total-price"
+                    >
                       {planPrice}
                     </p>
                   </Localized>
                 </div>
                 {coupon ? (
                   <Localized id="coupon-success">
-                    <div className="coupon-info">
+                    <div className="coupon-info" data-testid="coupon-success">
                       Your plan will automatically renew at the list price.
                     </div>
                   </Localized>

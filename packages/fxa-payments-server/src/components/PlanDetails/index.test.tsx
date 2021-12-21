@@ -10,6 +10,8 @@ import {
   setupFluentLocalizationTest,
   getLocalizedMessage,
 } from '../../lib/test-utils';
+import { CouponContext } from '../../lib/CouponContext';
+import { updateConfig } from '../../lib/config';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -162,6 +164,105 @@ describe('PlanDetails', () => {
     expect(queryByTestId('plan-details-component')).not.toHaveAttribute('role');
   });
 
+  it('does not show the coupon success message when there is no coupon used', () => {
+    const subject = () => {
+      return render(
+        <CouponContext.Provider value={{ coupon: null, setCoupon: null }}>
+          <PlanDetails
+            {...{
+              profile: userProfile,
+              showExpandButton: false,
+              isMobile: false,
+              selectedPlan,
+            }}
+          />
+        </CouponContext.Provider>
+      );
+    };
+
+    const { queryByTestId } = subject();
+    expect(queryByTestId('coupon-success')).not.toBeInTheDocument();
+  });
+
+  describe('Valid Coupon Used', () => {
+    // Still figuring out mock on context
+    // it('updates price', () => {
+    //   updateConfig({
+    //     featureFlags: {
+    //       subscriptionCoupons: true,
+    //     },
+    //   });
+
+    //   const subject = () => {
+    //     return render(
+    //       <CouponContext.Provider value={{coupon: {amount: 2}, setCoupon: null}}>
+    //         <PlanDetails
+    //           {...{
+    //             profile: userProfile,
+    //             showExpandButton: false,
+    //             isMobile: false,
+    //             selectedPlan,
+    //           }}
+    //         />
+    //       </CouponContext.Provider>
+    //     );
+    //   };
+
+    //   const { queryByTestId} = subject();
+
+    //   expect(queryByTestId('total-price')).toContain('7.35');
+    // });
+
+    // it('updates price', () => {
+    //   updateConfig({
+    //     featureFlags: {
+    //       subscriptionCoupons: true,
+    //     },
+    //   });
+
+    //   const element = TestRenderer.create(
+    //     (
+    //       <CouponContext.Provider
+    //         value={{ coupon: { amount: 2 }, setCoupon: null }}
+    //       >
+    //         <PlanDetails
+    //           {...{
+    //             profile: userProfile,
+    //             showExpandButton: false,
+    //             isMobile: false,
+    //             selectedPlan,
+    //           }}
+    //         />
+    //       </CouponContext.Provider>
+    //     )
+    //   );
+
+    //   expect(element.root.findByProps({id: 'total-price'})).toBeInTheDocument();
+    // });
+
+    it('displays a success message', () => {
+      const subject = () => {
+        return render(
+          <CouponContext.Provider
+            value={{ coupon: { amount: 2 }, setCoupon: null }}
+          >
+            <PlanDetails
+              {...{
+                profile: userProfile,
+                showExpandButton: false,
+                isMobile: false,
+                selectedPlan,
+              }}
+            />
+          </CouponContext.Provider>
+        );
+      };
+
+      const { queryByTestId } = subject();
+      expect(queryByTestId('coupon-success')).toBeInTheDocument();
+    });
+  });
+
   describe('Payment Amount Localization', () => {
     const dayBasedId = 'plan-price-day';
     const weekBasedId = 'plan-price-week';
@@ -201,13 +302,13 @@ describe('PlanDetails', () => {
         });
         const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-        expect(planPriceComponent.props.vars.amount).toStrictEqual(expectedAmount);
+        expect(planPriceComponent.props.vars.amount).toStrictEqual(
+          expectedAmount
+        );
         expect(planPriceComponent.props.vars.intervalCount).toBe(
           plan.interval_count
         );
-        expect(planPriceComponent.props.children).toBe(
-          expectedMsg
-        );
+        expect(planPriceComponent.props.children).toBe(expectedMsg);
       }
 
       describe('When plan has day interval', () => {

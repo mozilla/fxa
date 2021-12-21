@@ -11,14 +11,7 @@ afterEach(cleanup);
 describe('PlanDetails', () => {
   it('renders as expected', () => {
     const subject = () => {
-      return render(
-        <Coupon
-          {...{
-            className: 'default',
-            isMobile: false,
-          }}
-        />
-      );
+      return render(<Coupon />);
     };
 
     const { queryByTestId } = subject();
