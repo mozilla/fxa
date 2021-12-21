@@ -146,7 +146,7 @@ export const PlanDetails = ({
                       amount:
                         coupon && config.featureFlags.subscriptionCoupons
                           ? getLocalizedCurrency(
-                              amount ? amount - coupon.amount * 100 : amount,
+                              amount ? amount - coupon.amount : amount,
                               currency
                             )
                           : getLocalizedCurrency(amount, currency),

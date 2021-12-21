@@ -182,7 +182,6 @@ describe('PlanDetails', () => {
   });
 
   describe('Valid Coupon Used', () => {
-    // Still figuring out mock on context
     // it('updates price', () => {
     //   updateConfig({
     //     featureFlags: {
@@ -192,49 +191,20 @@ describe('PlanDetails', () => {
 
     //   const subject = () => {
     //     return render(
-    //       <CouponContext.Provider value={{coupon: {amount: 2}, setCoupon: null}}>
     //         <PlanDetails
     //           {...{
     //             profile: userProfile,
     //             showExpandButton: false,
     //             isMobile: false,
     //             selectedPlan,
+    //             coupon: { amount: 200}
     //           }}
     //         />
-    //       </CouponContext.Provider>
     //     );
     //   };
 
     //   const { queryByTestId} = subject();
-
     //   expect(queryByTestId('total-price')).toContain('7.35');
-    // });
-
-    // it('updates price', () => {
-    //   updateConfig({
-    //     featureFlags: {
-    //       subscriptionCoupons: true,
-    //     },
-    //   });
-
-    //   const element = TestRenderer.create(
-    //     (
-    //       <CouponContext.Provider
-    //         value={{ coupon: { amount: 2 }, setCoupon: null }}
-    //       >
-    //         <PlanDetails
-    //           {...{
-    //             profile: userProfile,
-    //             showExpandButton: false,
-    //             isMobile: false,
-    //             selectedPlan,
-    //           }}
-    //         />
-    //       </CouponContext.Provider>
-    //     )
-    //   );
-
-    //   expect(element.root.findByProps({id: 'total-price'})).toBeInTheDocument();
     // });
 
     it('displays a success message', () => {
@@ -246,7 +216,7 @@ describe('PlanDetails', () => {
               showExpandButton: false,
               isMobile: false,
               selectedPlan,
-              coupon: { amount: 2 },
+              coupon: { amount: 200 },
             }}
           />
         );

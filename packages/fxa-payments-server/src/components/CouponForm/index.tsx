@@ -19,7 +19,7 @@ export const CouponForm = ({ coupon, setCoupon }: CouponFormProps) => {
     if (couponCode === 'test') {
       setHasCoupon(true);
       setCoupon({
-        amount: 2,
+        amount: 200,
       });
     } else {
       setError(true);
