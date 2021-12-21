@@ -1176,6 +1176,25 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
 
+  ['subscriptionFailedPaymentsCancellationEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFailedPaymentsCancellation') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFailedPaymentsCancellation' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFailedPaymentsCancellation }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-failed-payments-cancellation', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-failed-payments-cancellation', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: `We’ve cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed. To get access again, start a new subscription with an updated payment method.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `We’ve cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed. To get access again, start a new subscription with an updated payment method.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+
   ['subscriptionFirstInvoiceEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
     ['headers', new Map([
