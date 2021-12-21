@@ -9,8 +9,8 @@ type CouponFormProps = {
 };
 
 export const CouponForm = ({ coupon, setCoupon }: CouponFormProps) => {
-  const [hasCoupon, setHasCoupon] = useState(false);
-  const [couponCode, setCouponCode] = useState('');
+  const [hasCoupon, setHasCoupon] = useState(coupon ? true : false);
+  const [couponCode, setCouponCode] = useState(coupon ? 'test' : '');
   const [error, setError] = useState(false);
 
   const onSubmit: FormEventHandler = (event: any) => {
@@ -55,7 +55,7 @@ export const CouponForm = ({ coupon, setCoupon }: CouponFormProps) => {
           </div>
         )}
         {hasCoupon ? (
-          <div className="flex">
+          <div className="flex" data-testid="coupon-hascoupon">
             <div className="coupon-details">
               <div>{couponCode}</div>
             </div>
@@ -66,14 +66,14 @@ export const CouponForm = ({ coupon, setCoupon }: CouponFormProps) => {
             </button>
           </div>
         ) : (
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} data-testid="coupon-form">
             <div className="input-row">
               <Localized attrs={{ placeholder: true }} id="coupon-enter-code">
                 <input
                   className={`${error ? 'invalid' : ''}`}
                   type="text"
                   name="coupon"
-                  data-testid="coupon"
+                  data-testid="coupon-input"
                   value={couponCode}
                   onChange={(event) => {
                     setError(false);
@@ -84,7 +84,7 @@ export const CouponForm = ({ coupon, setCoupon }: CouponFormProps) => {
               </Localized>
             </div>
 
-            <button name="apply" type="submit">
+            <button name="apply" type="submit" data-testid="coupon-button">
               <Localized id="coupon-submit">
                 <span>Apply</span>
               </Localized>
@@ -93,7 +93,7 @@ export const CouponForm = ({ coupon, setCoupon }: CouponFormProps) => {
         )}
         {error ? (
           <Localized id="coupon-error">
-            <div className="coupon-error">
+            <div className="coupon-error" data-testid="coupon-error">
               The code you entered is invalid or expired.
             </div>
           </Localized>
