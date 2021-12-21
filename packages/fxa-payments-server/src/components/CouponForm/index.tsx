@@ -1,18 +1,17 @@
-import React, {
-  useState,
-  useContext,
-  MouseEventHandler,
-  FormEventHandler,
-} from 'react';
+import React, { useState, MouseEventHandler, FormEventHandler } from 'react';
 import { Localized } from '@fluent/react';
 import './index.scss';
-import { CouponContext } from '../../lib/CouponContext';
+import { Coupon } from '../../lib/Coupon';
 
-export const Coupon = () => {
+type CouponFormProps = {
+  coupon?: Coupon;
+  setCoupon: (coupon: Coupon | undefined) => void;
+};
+
+export const CouponForm = ({ coupon, setCoupon }: CouponFormProps) => {
   const [hasCoupon, setHasCoupon] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [error, setError] = useState(false);
-  const { coupon, setCoupon } = useContext(CouponContext);
 
   const onSubmit: FormEventHandler = (event: any) => {
     event.preventDefault();
@@ -20,8 +19,6 @@ export const Coupon = () => {
     if (couponCode === 'test') {
       setHasCoupon(true);
       setCoupon({
-        code: 'TEST',
-        type: 'fixed',
         amount: 2,
       });
     } else {
@@ -33,7 +30,7 @@ export const Coupon = () => {
     event.preventDefault();
     event.stopPropagation();
     setHasCoupon(false);
-    setCoupon(null);
+    setCoupon(undefined);
   };
 
   return (
@@ -106,4 +103,4 @@ export const Coupon = () => {
   );
 };
 
-export default Coupon;
+export default CouponForm;

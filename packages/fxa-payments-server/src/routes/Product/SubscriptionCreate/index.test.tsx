@@ -147,6 +147,7 @@ describe('routes/Product/SubscriptionCreate', () => {
         'Mozilla uses Stripe and Paypal for secure payment processing.'
       )
     ).toBeInTheDocument();
+    expect(document.getElementById('coupon-component')).not.toBeInTheDocument();
   });
 
   it('renders as expected with PayPal UI enabled', async () => {

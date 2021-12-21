@@ -14,13 +14,14 @@ import ffLogo from '../../images/firefox-logo.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
-import { CouponContext } from '../../lib/CouponContext';
+import { Coupon } from '../../lib/Coupon';
 
 type PlanDetailsProps = {
   selectedPlan: Plan;
   isMobile: boolean;
   showExpandButton?: boolean;
   className?: string;
+  coupon?: Coupon;
 };
 
 export const PlanDetails = ({
@@ -28,6 +29,7 @@ export const PlanDetails = ({
   isMobile,
   showExpandButton = false,
   className = 'default',
+  coupon,
 }: PlanDetailsProps) => {
   const { config } = useContext(AppContext);
   const { navigatorLanguages } = useContext(AppContext);
@@ -49,10 +51,6 @@ export const PlanDetails = ({
     interval,
     interval_count
   );
-
-  const { coupon } = useContext(CouponContext);
-  // console.log('###########################')
-  // console.log('test: ' + coupon.amount);
 
   return (
     <section
@@ -133,7 +131,7 @@ export const PlanDetails = ({
                       <Localized id="coupon-discount">
                         <div>Discount</div>
                       </Localized>
-                      <div>-${coupon.amount}</div>
+                      <div>${coupon.amount}</div>
                     </div>
                   </div>
                 ) : null}

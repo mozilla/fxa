@@ -65,8 +65,8 @@ import sentry from '../../lib/sentry';
 import { ButtonBaseProps } from '../../components/PayPalButton';
 import { AlertBar } from '../../components/AlertBar';
 import { PaymentMethodHeader } from '../../components/PaymentMethodHeader';
-import Coupon from '../../components/Coupon';
-import { CouponContext } from '../../lib/CouponContext';
+import CouponForm from '../../components/CouponForm';
+import { Coupon } from '../../lib/Coupon';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -133,7 +133,7 @@ export const Checkout = ({
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
   const [newsletterSignupError, setNewsletterSignupError] = useState(false);
 
-  const [coupon, setCoupon] = useState(null);
+  const [coupon, setCoupon] = useState<Coupon>();
 
   // Fetch plans on initial render or change in product ID
   useEffect(() => {
@@ -429,22 +429,21 @@ export const Checkout = ({
             </>
           </div>
         </div>
-        <CouponContext.Provider value={{ coupon, setCoupon }}>
-          <PlanDetails
-            {...{
-              className: classNames('default', {
-                hidden: transactionInProgress && isMobile,
-              }),
-              selectedPlan,
-              isMobile,
-              showExpandButton: isMobile,
-            }}
-          />
-          {config.featureFlags.subscriptionCoupons ? (
-            // To be updated in issue #7097
-            <Coupon />
-          ) : null}
-        </CouponContext.Provider>
+        <PlanDetails
+          {...{
+            className: classNames('default', {
+              hidden: transactionInProgress && isMobile,
+            }),
+            selectedPlan,
+            isMobile,
+            showExpandButton: isMobile,
+            coupon: coupon,
+          }}
+        />
+        {config.featureFlags.subscriptionCoupons ? (
+          // To be updated in issue #7097
+          <CouponForm coupon={coupon} setCoupon={setCoupon} />
+        ) : null}
       </div>
     </>
   );

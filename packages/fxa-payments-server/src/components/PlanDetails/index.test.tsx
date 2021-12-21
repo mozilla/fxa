@@ -10,7 +10,6 @@ import {
   setupFluentLocalizationTest,
   getLocalizedMessage,
 } from '../../lib/test-utils';
-import { CouponContext } from '../../lib/CouponContext';
 import { updateConfig } from '../../lib/config';
 
 const userProfile = {
@@ -167,16 +166,14 @@ describe('PlanDetails', () => {
   it('does not show the coupon success message when there is no coupon used', () => {
     const subject = () => {
       return render(
-        <CouponContext.Provider value={{ coupon: null, setCoupon: null }}>
-          <PlanDetails
-            {...{
-              profile: userProfile,
-              showExpandButton: false,
-              isMobile: false,
-              selectedPlan,
-            }}
-          />
-        </CouponContext.Provider>
+        <PlanDetails
+          {...{
+            profile: userProfile,
+            showExpandButton: false,
+            isMobile: false,
+            selectedPlan,
+          }}
+        />
       );
     };
 
@@ -243,18 +240,15 @@ describe('PlanDetails', () => {
     it('displays a success message', () => {
       const subject = () => {
         return render(
-          <CouponContext.Provider
-            value={{ coupon: { amount: 2 }, setCoupon: null }}
-          >
-            <PlanDetails
-              {...{
-                profile: userProfile,
-                showExpandButton: false,
-                isMobile: false,
-                selectedPlan,
-              }}
-            />
-          </CouponContext.Provider>
+          <PlanDetails
+            {...{
+              profile: userProfile,
+              showExpandButton: false,
+              isMobile: false,
+              selectedPlan,
+              coupon: { amount: 2 },
+            }}
+          />
         );
       };
 
