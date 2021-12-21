@@ -95,7 +95,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.1",
     "factory-bot-ts": "^0.1.5",
-    "jest": "27.4.3",
+    "jest": "27.4.5",
     "nock": "^13.2.1",
     "p-event": "^4.2.0",
     "pm2": "^5.1.2",
