@@ -33,7 +33,7 @@
 
     <mj-section css-class="header-container">
       <mj-column>
-        <mj-image css-class="fxa-logo"
+        <mj-image css-class="fxa-logo-firefox"
           href="https://www.mozilla.org/firefox/new"
           src="https://accounts-static.cdn.mozilla.net/product-icons/firefox-logo-email.png"
           alt="Firefox logo"

@@ -437,6 +437,7 @@
     "templates": [
       "cadReminderFirst",
       "cadReminderSecond",
+      "downloadSubscription",
       "lowRecoveryCodes",
       "postVerify",
       "postRemoveSecondary",
