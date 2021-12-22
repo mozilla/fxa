@@ -3528,26 +3528,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/react@npm:^0.13.1":
-  version: 0.13.1
-  resolution: "@fluent/react@npm:0.13.1"
+"@fluent/react@npm:^0.14.1":
+  version: 0.14.1
+  resolution: "@fluent/react@npm:0.14.1"
   dependencies:
-    "@fluent/sequence": 0.5.0
-    cached-iterable: ^0.2.1
-    prop-types: ^15.7.2
+    "@fluent/sequence": ^0.7.0
+    cached-iterable: ^0.3.0
   peerDependencies:
-    "@fluent/bundle": ">=0.16.0 <0.17.0"
+    "@fluent/bundle": ">=0.16.0 <0.18.0"
     react: ">=16.8.0"
-  checksum: 129dd2856fd0ee0f0fce97e0594f6c22cf841b5e59f419a63d0376c9db17b15881376be453caeb7bc198fdf90346cc536767eff94e4ef84404e72c4733725f0c
+  checksum: d2121ef267f7a3e9c2364368f121786fedea5f1d0881e15dfd78049db7f6015f789685b17584e82154e3f128c1e067c1fed2572fad52888fd2c52c0c2e2c2b6f
   languageName: node
   linkType: hard
 
-"@fluent/sequence@npm:0.5.0":
-  version: 0.5.0
-  resolution: "@fluent/sequence@npm:0.5.0"
+"@fluent/sequence@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@fluent/sequence@npm:0.7.0"
   peerDependencies:
     "@fluent/bundle": ">= 0.13.0"
-  checksum: 68e482b4927f68ff5a8c30b48373b033335784a171d4c01b71e1109fcb88591a01c8ca71c20320e5553d1a536aa4fa56c28ed80f63ae02ef5a96038cb2f3820b
+  checksum: 569c52674552dc735e2febcbd75056145be463b59a3e25a30575d69be2ef41af78f0be9a5bb59017ed08838a076dfb4689a2a73d5cbbe077483592736f689942
   languageName: node
   linkType: hard
 
@@ -13398,14 +13397,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cached-iterable@npm:^0.2.1":
-  version: 0.2.1
-  resolution: "cached-iterable@npm:0.2.1"
-  checksum: 3b9be982710a368ebed79055ed509128802d948d7d1db0fa4b9524c2c323e66922ad561a9a21b6cedd1684e8c8c235de1c5bdd523bc52d0cf07999510de77735
-  languageName: node
-  linkType: hard
-
-"cached-iterable@npm:^0.3":
+"cached-iterable@npm:^0.3, cached-iterable@npm:^0.3.0":
   version: 0.3.0
   resolution: "cached-iterable@npm:0.3.0"
   checksum: ec486d37c6fd5df38992b785a49de611ccb8e87825e533f91c33e9e02e7061769cd1ac7bb958e828057ff2ecb6b290c9922fb49bfb7c21a04acb0c4f35ca230a
@@ -20671,7 +20663,7 @@ fsevents@~2.1.1:
     "@babel/register": ^7.16.5
     "@fluent/bundle": ^0.17.0
     "@fluent/langneg": ^0.5.2
-    "@fluent/react": ^0.13.1
+    "@fluent/react": ^0.14.1
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^6.16.1
     "@sentry/node": ^6.16.1
@@ -20839,7 +20831,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.15.0
     "@fluent/bundle": ^0.17.0
     "@fluent/langneg": ^0.5.2
-    "@fluent/react": ^0.13.1
+    "@fluent/react": ^0.14.1
     "@storybook/addon-actions": ^6.3.12
     "@storybook/addon-links": ^6.3.12
     "@storybook/addons": ^6.3.12
@@ -20901,7 +20893,7 @@ fsevents@~2.1.1:
     "@apollo/client": ^3.4.5
     "@babel/core": ^7.15.0
     "@emotion/react": ^11.7.1
-    "@fluent/react": ^0.13.1
+    "@fluent/react": ^0.14.1
     "@material-ui/core": v5.0.0-alpha.24
     "@reach/router": ^1.3.4
     "@rescripts/cli": 0.0.16
