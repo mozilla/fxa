@@ -27,9 +27,9 @@ import {
   AbbrevPlayPurchase,
   AbbrevProduct,
   MozillaSubscriptionTypes,
+  PaypalPaymentError,
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
-  PaypalPaymentError,
   SubscriptionUpdateEligibility,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
@@ -39,9 +39,9 @@ import moment from 'moment';
 import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 import { Container } from 'typedi';
-
 import { ConfigType } from '../../config';
 import error from '../error';
+import { GoogleMapsService } from '../google-maps-services';
 import Redis from '../redis';
 import { subscriptionProductMetadataValidator } from '../routes/validators';
 import {
@@ -153,12 +153,13 @@ export class StripeHelper {
   private plansAndProductsCacheTtlSeconds: number;
   private stripeTaxRatesCacheTtlSeconds: number;
   private webhookSecret: string;
-  private stripe: Stripe;
   private redis: ioredis.Redis | undefined;
   private statsd: StatsD;
   private taxIds: { [key: string]: string };
   private firestore: Firestore;
   private stripeFirestore: StripeFirestore;
+  readonly googleMapsService: GoogleMapsService;
+  readonly stripe: Stripe;
   public currencyHelper: CurrencyHelper;
 
   /**
@@ -202,6 +203,7 @@ export class StripeHelper {
       this.stripe,
       firestore_prefix
     );
+    this.googleMapsService = Container.get(GoogleMapsService);
 
     cacheManager.setOptions({
       // Ensure the StripeHelper instance is passed into TTLBuilder functions
@@ -775,7 +777,7 @@ export class StripeHelper {
   }
 
   /**
-   * Update the customer object to add customer's PayPal billing address.
+   * Update the customer object to add customer's address.
    */
   async updateCustomerBillingAddress(
     customer_id: string,
@@ -797,6 +799,61 @@ export class StripeHelper {
       customer
     );
     return customer;
+  }
+
+  /**
+   * Set the state (code), country (code), and postal code for a customer.
+   * Returns a boolean indicating success.  It does not throw any exceptions as
+   * this operation should not block any functionality.
+   *
+   * Currently this only works on customers who use Stripe as their payment
+   * provider.
+   *
+   * This will _overwrite_ any existing customer address.
+   */
+  async setCustomerLocation(customer: Stripe.Customer): Promise<boolean> {
+    try {
+      const { postalCode, country } =
+        await this.extractCustomerDefaultPaymentDetails(customer);
+
+      if (!postalCode || !country) {
+        Sentry.withScope((scope) => {
+          scope.setContext('setCustomerLocation', {
+            customer: { id: customer.id },
+          });
+          Sentry.captureMessage(
+            `Cannot find a postal code or country for customer ${customer.id}`,
+            Sentry.Severity.Error
+          );
+        });
+        return false;
+      }
+
+      const state = await this.googleMapsService.getStateFromZip(
+        postalCode,
+        country
+      );
+
+      await this.updateCustomerBillingAddress(customer.id, {
+        line1: '',
+        line2: '',
+        city: '',
+        state,
+        country,
+        postalCode,
+      });
+
+      return true;
+    } catch (err: unknown) {
+      Sentry.withScope((scope) => {
+        scope.setContext('setCustomerLocation', {
+          customer: { id: customer.id },
+        });
+        Sentry.captureException(err);
+      });
+    }
+
+    return false;
   }
 
   /**
@@ -2243,8 +2300,7 @@ export class StripeHelper {
     } else if (cancelAtPeriodEndOld && !cancelAtPeriodEndNew && !planOld) {
       return this.extractSubscriptionUpdateReactivationDetailsForEmail(
         subscription,
-        baseDetails,
-        invoice
+        baseDetails
       );
     } else if (!cancelAtPeriodEndNew && planOld) {
       return this.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
@@ -2312,8 +2368,7 @@ export class StripeHelper {
    */
   async extractSubscriptionUpdateReactivationDetailsForEmail(
     subscription: Stripe.Subscription,
-    baseDetails: any,
-    invoice: Stripe.Invoice
+    baseDetails: any
   ) {
     const {
       uid,
@@ -2325,7 +2380,7 @@ export class StripeHelper {
     } = baseDetails;
 
     const { lastFour, cardType } =
-      await this.extractCustomerDefaultPaymentDetails(uid);
+      await this.extractCustomerDefaultPaymentDetailsByUid(uid);
 
     const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
       subscription: subscription.id,
@@ -2354,16 +2409,23 @@ export class StripeHelper {
     };
   }
 
-  async extractCustomerDefaultPaymentDetails(uid: string) {
-    let lastFour = null;
-    let cardType = null;
-
+  async extractCustomerDefaultPaymentDetailsByUid(uid: string) {
     const customer = await this.fetchCustomer(uid, [
       'invoice_settings.default_payment_method',
     ]);
+
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
+
+    return this.extractCustomerDefaultPaymentDetails(customer);
+  }
+
+  async extractCustomerDefaultPaymentDetails(customer: Stripe.Customer) {
+    let lastFour = null;
+    let cardType = null;
+    let country = null;
+    let postalCode = null;
 
     if (customer.invoice_settings.default_payment_method) {
       // Post-SCA customer with a default PaymentMethod
@@ -2371,27 +2433,36 @@ export class StripeHelper {
       const paymentMethod = customer.invoice_settings
         .default_payment_method as Stripe.PaymentMethod;
       if (paymentMethod.card) {
-        ({ last4: lastFour, brand: cardType } = paymentMethod.card);
+        ({ last4: lastFour, brand: cardType, country } = paymentMethod.card);
       }
+      if (paymentMethod.billing_details.address)
+        ({ postal_code: postalCode } = paymentMethod.billing_details.address);
       // PaymentMethods should all be cards, but email templates should
       // already handle undefined lastFour and cardType gracefully
     } else if (customer.default_source) {
       // Legacy pre-SCA customer still using a Source rather than PaymentMethod
       if (typeof customer.default_source !== 'string') {
         // We don't expand this resource in cached customer, but it seemed to happen once
-        ({ last4: lastFour, brand: cardType } =
-          customer.default_source as Stripe.Card);
+        ({
+          last4: lastFour,
+          brand: cardType,
+          country,
+          address_zip: postalCode,
+        } = customer.default_source as Stripe.Card);
       } else {
         // Sources are available as payment methods, so we can expand them.
         const pm = await this.expandResource<Stripe.PaymentMethod>(
           customer.default_source,
           PAYMENT_METHOD_RESOURCE
         );
-        ({ last4: lastFour, brand: cardType } = pm.card!);
+        ({ last4: lastFour, brand: cardType, country } = pm.card!);
+
+        if (pm.billing_details.address)
+          ({ postal_code: postalCode } = pm.billing_details.address);
       }
     }
 
-    return { lastFour, cardType };
+    return { lastFour, cardType, country, postalCode };
   }
 
   /**
