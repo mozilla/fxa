@@ -52,8 +52,6 @@ export const PlanDetails = ({
     interval_count
   );
 
-  console.log(config.featureFlags.subscriptionCoupons)
-
   return (
     <section
       className={`plan-details-component ${className}`}
