@@ -22,6 +22,8 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
       throw new Error('No discount for coupon');
     return discount.amount;
   } catch (err) {
+    console.log('erererererere');
+    console.log(err);
     if (err instanceof APIError)
       sentry.captureException(err);
     throw err;
@@ -132,7 +134,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
         {error ? (
           <Localized id="coupon-error">
             <div className="coupon-error" data-testid="coupon-error">
-              The code you entered is invalid or expired.
+              {error}
             </div>
           </Localized>
         ) : null}

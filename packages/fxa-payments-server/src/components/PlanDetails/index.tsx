@@ -45,8 +45,10 @@ export const PlanDetails = ({
   const setWebIconBackground = webIconBackground
     ? { background: webIconBackground }
     : '';
+
+  const discountAmount = coupon && amount && config.featureFlags.subscriptionCoupons ? amount - coupon.amount : amount;
   const planPrice = formatPlanPricing(
-    amount,
+    discountAmount,
     currency,
     interval,
     interval_count
@@ -142,10 +144,10 @@ export const PlanDetails = ({
                             ),
                             intervalCount: interval_count,
                           }}
-                        >{getLocalizedCurrencyString(
+                        >{`- ${getLocalizedCurrencyString(
                           coupon.amount,
                           currency
-                        )}</Localized>
+                        )}`}</Localized>
                       </div>
                     </div>
                   </div>
