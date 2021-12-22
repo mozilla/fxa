@@ -73,7 +73,9 @@ export class JwtsetService {
     return this.generateSET({
       clientId: proEvent.clientId,
       events: {
-        [set.PROFILE_EVENT_ID]: {},
+        [set.PROFILE_EVENT_ID]: {
+          email: proEvent.email,
+        },
       },
       uid: proEvent.uid,
     });

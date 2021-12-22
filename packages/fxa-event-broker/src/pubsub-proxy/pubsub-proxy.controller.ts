@@ -193,6 +193,7 @@ export class PubsubProxyController {
         return await this.jwtset.generateProfileSET({
           clientId,
           uid: message.uid,
+          email: message.email,
         });
       }
       default:

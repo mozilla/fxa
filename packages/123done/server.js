@@ -89,6 +89,11 @@ app.post('/api/todos/save', checkAuth, function (req, res) {
   res.send(200);
 });
 
+app.post('/api/webhook', function (req, res) {
+  res.set('Content-Type', 'application/json');
+  res.send(req.body);
+});
+
 // the 'todo/get' api gets the current version of the todo list
 // from the server
 app.get('/api/todos/get', checkAuth, function (req, res) {

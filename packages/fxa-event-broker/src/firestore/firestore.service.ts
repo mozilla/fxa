@@ -48,10 +48,18 @@ export class FirestoreService {
           Authorization: 'Bearer owner',
         },
         port: 9090,
-        projectId: 'fx-event-broker',
+        projectId: 'demo-fxa',
         servicePath: 'localhost',
         sslCreds: grpc.credentials.createInsecure(),
       });
+      if (this.prefix === 'fxa-eb-') {
+        this.db
+          .collection(`${this.prefix}clients`)
+          .doc('dcdb5ae7add825d2')
+          .set({
+            webhookUrl: 'http://localhost:8080/api/webhook',
+          });
+      }
     } else {
       this.db = new Firestore(config);
     }

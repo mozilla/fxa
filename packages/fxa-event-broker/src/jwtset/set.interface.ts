@@ -22,7 +22,11 @@ export type passwordEvent = {
   changeTime: number;
 };
 
-export type profileEvent = deleteEvent;
+export type profileEvent = {
+  clientId: string;
+  uid: string;
+  email: string;
+};
 
 export type securityEvent = {
   uid: string;

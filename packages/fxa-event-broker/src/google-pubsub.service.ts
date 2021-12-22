@@ -12,7 +12,7 @@ export const GooglePubsubFactory: Provider = {
   useFactory: async (config: ConfigService<AppConfig>) => {
     const pubsubConfig = config.get('pubsub') as AppConfig['pubsub'];
     if (pubsubConfig.audience === 'example.com') {
-      return new PubSub({ projectId: 'fxa-event-broker' });
+      return new PubSub({ projectId: 'demo-fxa' });
     }
     return new PubSub();
   },

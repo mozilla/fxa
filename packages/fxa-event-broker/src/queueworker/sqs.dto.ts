@@ -86,6 +86,7 @@ export const PROFILE_CHANGE_SCHEMA = joi
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
     uid: joi.string().required(),
+    email: joi.string().optional(),
   })
   .unknown(true)
   .required();

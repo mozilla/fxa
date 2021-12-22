@@ -31,7 +31,8 @@ function extractRegionFromUrl(url: string) {
 
 @Injectable()
 export class QueueworkerService
-  implements OnApplicationBootstrap, OnApplicationShutdown {
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
   private region: string;
   private topicPrefix: string;
   private readonly app: Consumer;
@@ -119,6 +120,25 @@ export class QueueworkerService
     }
   }
 
+  private async publishMessage(clientId: string, json: any) {
+    const topicName = this.topicPrefix + clientId;
+    if (this.pubsub.isEmulator) {
+      const topics = await this.pubsub.getTopics();
+      if (topics && topics[0]) {
+        const topic = topics[0].find((t) => t.name.endsWith(topicName));
+        if (!topic) {
+          const [newTopic] = await this.pubsub.createTopic(topicName);
+          await newTopic.createSubscription(`sub-${clientId}`, {
+            pushConfig: {
+              pushEndpoint: `http://host.docker.internal:8093/v1/proxy/${clientId}`,
+            },
+          });
+        }
+      }
+    }
+    return this.pubsub.topic(topicName).publishMessage({ json });
+  }
+
   /**
    * Generic fan-out of the message to the pubsub clientId queues.
    *
@@ -132,14 +152,15 @@ export class QueueworkerService
     this.metrics.increment('message.type', { eventType });
     const clientIds = await this.firestore.fetchClientIds(message.uid);
     for (const clientId of clientIds) {
-      const topicName = this.topicPrefix + clientId;
-      const messageId = await this.pubsub.topic(topicName).publishJSON({
+      const messageId = await this.publishMessage(clientId, {
         changeTime: message.timestamp ? message.timestamp : message.ts * 1000,
         event: message.event,
         timestamp: Date.now(),
         uid: message.uid,
+        //@ts-ignore
+        email: message.email,
       });
-      this.log.debug('publishedMessage', { topicName, messageId });
+      this.log.debug('publishedMessage', { clientId, messageId });
     }
   }
 
@@ -205,7 +226,6 @@ export class QueueworkerService
     const notifyClientPromises = Object.entries(notifyClientIds)
       .filter(([clientId]) => clientIds.includes(clientId))
       .map(async ([clientId, capabilities]) => {
-        const topicName = this.topicPrefix + clientId;
         const rpMessage = Object.assign(
           {},
           {
@@ -215,10 +235,8 @@ export class QueueworkerService
           }
         );
 
-        const messageId = await this.pubsub
-          .topic(topicName)
-          .publishJSON(rpMessage);
-        this.log.debug('publishedMessage', { topicName, messageId });
+        const messageId = await this.publishMessage(clientId, rpMessage);
+        this.log.debug('publishedMessage', { clientId, messageId });
       });
     await Promise.all(notifyClientPromises);
   }

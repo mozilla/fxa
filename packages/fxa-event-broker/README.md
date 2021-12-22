@@ -56,7 +56,9 @@ Services should update any cached profile data they hold about the user.
   - `https://schemas.accounts.firefox.com/event/profile-change`
 - Event Payload
   - [Profile Event Identifier]
-    - `{}`
+    - email
+      - The new primary email address for the given user (sub)
+      - This property will be undefined if the email hasn't changed
 
 ### Example Profile Change Event
 
@@ -67,7 +69,9 @@ Services should update any cached profile data they hold about the user.
      "iat": 1565720808,
      "jti": "e19ed6c5-4816-4171-aa43-56ffe80dbda1",
      "events": {
-       "https://schemas.accounts.firefox.com/event/profile-change": {}
+       "https://schemas.accounts.firefox.com/event/profile-change": {
+         "email": "example@mozilla.com"
+       }
      }
 
 ### Subscription State Change
