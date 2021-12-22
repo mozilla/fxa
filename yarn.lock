@@ -20483,7 +20483,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     nock: ^13.2.1
     p-event: ^4.2.0
-    passport: ^0.5.1
+    passport: ^0.5.2
     passport-jwt: ^4.0.0
     pm2: ^5.1.2
     prettier: ^2.3.1
@@ -20584,7 +20584,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     nock: ^13.2.1
     objection: ^2.2.17
-    passport: ^0.5.1
+    passport: ^0.5.2
     passport-http-bearer: ^1.0.1
     pm2: ^5.1.2
     prettier: ^2.3.1
@@ -31580,13 +31580,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"passport@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "passport@npm:0.5.1"
+"passport@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "passport@npm:0.5.2"
   dependencies:
     passport-strategy: 1.x.x
     pause: 0.0.1
-  checksum: 50c31d6501a456d53e4d45aa87ab4f4b488d9ff88ab49e55b418eac415095b472d8a4190e39267e74173f6d6055e2fc6c6846c22115ddf17be41bebc82e07b71
+  checksum: be17a64a069f412299dea342fea1f4c755aea66fcd71e9422c5e254be18b069a39b00d141e4c63fb852f1bfea6030e8e170593d7f0db5c197fddec781e9e8de4
   languageName: node
   linkType: hard
 
