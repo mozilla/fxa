@@ -22,8 +22,6 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
       throw new Error('No discount for coupon');
     return discount.amount;
   } catch (err) {
-    console.log('erererererere');
-    console.log(err);
     if (err instanceof APIError)
       sentry.captureException(err);
     throw err;
