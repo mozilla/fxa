@@ -3,14 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @use '../../global.scss';
-@use '../../layouts/fxa/index.scss';
 
 .app-badges {
+  max-width: 310px !important;
+  text-align: center !important;
+}
+
+.app-badge {
   padding: global.$s-10 global.$s-0 global.$s-5 !important;
 
   img {
     width: 152px !important;
     height: 44px !important;
+    margin: 0 auto !important;
   }
 }
 

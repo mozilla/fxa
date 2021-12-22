@@ -1,38 +1,53 @@
-<%# This Source Code Form is subject to the terms of the Mozilla Public
-  # License, v. 2.0. If a copy of the MPL was not distributed with this
+<%# This Source Code Form is subject to the terms of the Mozilla Public 
+  # License, v. 2.0. If a copy of the MPL was not distributed with this 
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
 <mj-include path="./css/appBadges/index.css" type="css" css-inline="inline" />
 
+<% locals.iosUrl = locals.iosUrl || locals.appStoreLink %> 
+<% locals.androidUrl = locals.androidUrl ||  locals.playStoreLink %> 
+
 <mj-section>
-  <mj-group>
-    <mj-column>
-      <mj-image css-class="app-badges"
-        href="<%- iosUrl %>"
-        src="https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png"
-        alt="iOS badge">
-      </mj-image>
-    </mj-column>
-    <mj-column>
-      <mj-image css-class="app-badges"
-        href="<%- androidUrl %>"
-        src="https://accounts-static.cdn.mozilla.net/product-icons/google-play.png"
-        alt="android badge">
-      </mj-image>
-    </mj-column>
+  <mj-group css-class="app-badges">
+
+    <% if (locals.iosUrl) { %>
+      <mj-column>
+        <mj-image
+          css-class="app-badge"
+          href="<%- iosUrl %>"
+          src="https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png"
+          alt="iOS badge"
+        >
+        </mj-image>
+      </mj-column>
+    <% } %>
+    <% if (locals.androidUrl) { %>
+      <mj-column>
+        <mj-image
+          css-class="app-badge"
+          href="<%- androidUrl %>"
+          src="https://accounts-static.cdn.mozilla.net/product-icons/google-play.png"
+          alt="android badge"
+        >
+        </mj-image>
+      </mj-column>
+    <% } %>
+
   </mj-group>
 </mj-section>
 
-<mj-section>
-  <mj-column>
-    <% if (locals.onDesktopOrTabletDevice) { %>
-      <mj-text css-class="text-footer-appBadges"><span data-l10n-id="another-desktop-device"> Or, install on
-        <a href="<%- desktopLink %>" class="link-blue" data-l10n-name="anotherDeviceLink">another desktop device</a></span>
-      </mj-text>
-    <% } else { %>
-      <mj-text css-class="text-footer-appBadges"><span data-l10n-id="another-device"> Or, install on
-        <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another device</a></span>
-      </mj-text>
-    <% } %>
-  </mj-column>
-</mj-section>
+<% if (!locals.hideDeviceLink) { %>
+  <mj-section>
+    <mj-column>
+      <% if (locals.onDesktopOrTabletDevice) { %>
+        <mj-text css-class="text-footer-appBadges"><span data-l10n-id="another-desktop-device"> Or, install on
+          <a href="<%- desktopLink %>" class="link-blue" data-l10n-name="anotherDeviceLink">another desktop device</a></span>
+        </mj-text>
+      <% } else { %>
+        <mj-text css-class="text-footer-appBadges"><span data-l10n-id="another-device"> Or, install on
+          <a href="<%- link %>" class="link-blue" data-l10n-name="anotherDeviceLink">another device</a></span>
+        </mj-text>
+      <% } %>
+    </mj-column>
+  </mj-section>
+<% } %>
