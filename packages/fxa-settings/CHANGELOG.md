@@ -1,3 +1,17 @@
+## 1.222.0
+
+### Bug fixes
+
+- settings: add confirm recovery code modal Because: ([03ff9f476](https://github.com/mozilla/fxa/commit/03ff9f476))
+- settings: google badge text missing (#11311) ([ededb2c3b](https://github.com/mozilla/fxa/commit/ededb2c3b))
+
+### Other changes
+
+- auth: destroying attached client would fail (#11302) ([76703f48d](https://github.com/mozilla/fxa/commit/76703f48d))
+- deps: bump @sentry/browser from 6.15.0 to 6.16.1 (#11308) ([5da6dfc65](https://github.com/mozilla/fxa/commit/5da6dfc65))
+- deps: bump @emotion/react from 11.6.0 to 11.7.1 (#11306) ([04d69c697](https://github.com/mozilla/fxa/commit/04d69c697))
+- deps-dev: bump @testing-library/jest-dom from 5.15.1 to 5.16.1 ([7d4cf059d](https://github.com/mozilla/fxa/commit/7d4cf059d))
+
 ## 1.221.3
 
 No changes.

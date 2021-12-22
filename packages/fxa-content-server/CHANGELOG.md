@@ -1,3 +1,22 @@
+## 1.222.0
+
+### New features
+
+- fxa-shared: Allows sentry events for critical endpoints to be 'tagged' as such. Because: ([6abd9bd3e](https://github.com/mozilla/fxa/commit/6abd9bd3e))
+
+### Bug fixes
+
+- settings: add confirm recovery code modal Because: ([03ff9f476](https://github.com/mozilla/fxa/commit/03ff9f476))
+- test: fixed flaky mocha test (#11325) ([0a198a76a](https://github.com/mozilla/fxa/commit/0a198a76a))
+
+### Other changes
+
+- deps: bump serve-static from 1.14.1 to 1.14.2 (#11384) ([6fa22e726](https://github.com/mozilla/fxa/commit/6fa22e726))
+- deps: bump @sentry/node from 6.15.0 to 6.16.1 ([d6e82ae9c](https://github.com/mozilla/fxa/commit/d6e82ae9c))
+- deps: bump body-parser from 1.19.0 to 1.19.1 ([99506953e](https://github.com/mozilla/fxa/commit/99506953e))
+- deps-dev: bump htmlparser2 from 7.1.2 to 7.2.0 ([3fb6cb684](https://github.com/mozilla/fxa/commit/3fb6cb684))
+- deps: bump @sentry/browser from 6.15.0 to 6.16.1 (#11308) ([5da6dfc65](https://github.com/mozilla/fxa/commit/5da6dfc65))
+
 ## 1.221.3
 
 No changes.

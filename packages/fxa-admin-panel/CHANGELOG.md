@@ -1,3 +1,18 @@
+## 1.222.0
+
+### New features
+
+- db: add emailTypeId column to emailBounces, start recording templates on bounces, display in admin panel ([12affe682](https://github.com/mozilla/fxa/commit/12affe682))
+
+### Other changes
+
+- deps-dev: bump ts-jest from 27.0.7 to 27.1.2 (#11386) ([fd027535e](https://github.com/mozilla/fxa/commit/fd027535e))
+- deps: bump serve-static from 1.14.1 to 1.14.2 (#11384) ([6fa22e726](https://github.com/mozilla/fxa/commit/6fa22e726))
+- admin-panel: remove unused scss files, scss dependencies since we use tailwind now ([c931b2041](https://github.com/mozilla/fxa/commit/c931b2041))
+- deps: bump body-parser from 1.19.0 to 1.19.1 ([99506953e](https://github.com/mozilla/fxa/commit/99506953e))
+- deps: bump @emotion/react from 11.6.0 to 11.7.1 (#11306) ([04d69c697](https://github.com/mozilla/fxa/commit/04d69c697))
+- deps-dev: bump @testing-library/jest-dom from 5.15.1 to 5.16.1 ([7d4cf059d](https://github.com/mozilla/fxa/commit/7d4cf059d))
+
 ## 1.221.3
 
 No changes.

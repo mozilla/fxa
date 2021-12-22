@@ -1,5 +1,26 @@
 # Change history
 
+## 1.222.0
+
+### New features
+
+- event-broker: add email to profile-change event ([38372fe63](https://github.com/mozilla/fxa/commit/38372fe63))
+- event-broker: wire up events from auth-server through event-broker to webhooks in local dev ([dfb1cd951](https://github.com/mozilla/fxa/commit/dfb1cd951))
+
+### Other changes
+
+- deps: bump passport from 0.5.1 to 0.5.2 (#11415) ([9a7e510a4](https://github.com/mozilla/fxa/commit/9a7e510a4))
+- deps: bump @nestjs/common from 8.2.3 to 8.2.4 (#11420) ([3dba1b300](https://github.com/mozilla/fxa/commit/3dba1b300))
+- deps: bump @nestjs/core from 8.2.3 to 8.2.4 (#11398) ([cc54604bf](https://github.com/mozilla/fxa/commit/cc54604bf))
+- deps: bump @sentry/integrations from 6.15.0 to 6.16.1 ([032efbdbe](https://github.com/mozilla/fxa/commit/032efbdbe))
+- deps-dev: bump ts-jest from 27.0.7 to 27.1.2 (#11386) ([fd027535e](https://github.com/mozilla/fxa/commit/fd027535e))
+- deps: bump passport from 0.5.0 to 0.5.1 ([023255f59](https://github.com/mozilla/fxa/commit/023255f59))
+- deps: bump @sentry/node from 6.15.0 to 6.16.1 ([d6e82ae9c](https://github.com/mozilla/fxa/commit/d6e82ae9c))
+- deps: bump aws-sdk from 2.1045.0 to 2.1046.0 (#11295) ([9fc001e7b](https://github.com/mozilla/fxa/commit/9fc001e7b))
+- deps: bump @google-cloud/pubsub from 2.18.3 to 2.18.4 ([be1c262aa](https://github.com/mozilla/fxa/commit/be1c262aa))
+- deps: bump aws-sdk from 2.1044.0 to 2.1045.0 ([515af6847](https://github.com/mozilla/fxa/commit/515af6847))
+- deps: bump @google-cloud/firestore from 4.15.1 to 5.0.1 ([8fa279874](https://github.com/mozilla/fxa/commit/8fa279874))
+
 ## 1.221.3
 
 No changes.

@@ -1,3 +1,59 @@
+## 1.222.0
+
+### New features
+
+- subscriptions: set customer location w/ payment info (#11393) ([404a97f61](https://github.com/mozilla/fxa/commit/404a97f61))
+- auth: convert downloadSubscription email templates ([cce459384](https://github.com/mozilla/fxa/commit/cce459384))
+- auth-server: convert subscriptionFailedPaymentsCancellation ([f05f28449](https://github.com/mozilla/fxa/commit/f05f28449))
+- auth-server: convert `subscriptionRenewalReminder` (#11403) ([b241f4a98](https://github.com/mozilla/fxa/commit/b241f4a98))
+- auth-server: convert `subscriptionAccountReminderSecond` (#11404) ([118b21763](https://github.com/mozilla/fxa/commit/118b21763))
+- auth-server: convert `subscriptionAccountReminderFirst` (#11390) ([5366e748b](https://github.com/mozilla/fxa/commit/5366e748b))
+- auth-server: convert `subscriptionAccountFinishSetup` (#11367) ([2c1886813](https://github.com/mozilla/fxa/commit/2c1886813))
+- auth: add ip geo data when it matches billing country for paypal (#11377) ([367c31885](https://github.com/mozilla/fxa/commit/367c31885))
+- fxa-shared: Allows sentry events for critical endpoints to be 'tagged' as such. Because: ([6abd9bd3e](https://github.com/mozilla/fxa/commit/6abd9bd3e))
+- subscriptions: return location data from zip (#11196) ([879ccf4c8](https://github.com/mozilla/fxa/commit/879ccf4c8))
+- auth-server: convert `subscriptionSubsequentInvoice` (#11354) ([b201f3215](https://github.com/mozilla/fxa/commit/b201f3215))
+- event-broker: wire up events from auth-server through event-broker to webhooks in local dev ([dfb1cd951](https://github.com/mozilla/fxa/commit/dfb1cd951))
+- auth-server: convert `subscriptionsPaymentProviderCancelled` (#11343) ([47f185371](https://github.com/mozilla/fxa/commit/47f185371))
+- auth-server: convert `subscriptionFirstInvoice` (#11323) ([5738daa45](https://github.com/mozilla/fxa/commit/5738daa45))
+- db: add emailTypeId column to emailBounces, start recording templates on bounces, display in admin panel ([12affe682](https://github.com/mozilla/fxa/commit/12affe682))
+- auth-server: convert `subscriptionPaymentProviderCancelled` (#11324) ([3597631df](https://github.com/mozilla/fxa/commit/3597631df))
+- auth-server: convert `subscriptionPaymentFailed` (#11301) ([e733db7b4](https://github.com/mozilla/fxa/commit/e733db7b4))
+- auth: add coupon to new sub api ([de9b826f1](https://github.com/mozilla/fxa/commit/de9b826f1))
+- auth-server: convert `subscriptionCancellation` (#11282) ([29bb22074](https://github.com/mozilla/fxa/commit/29bb22074))
+- auth-server: convert `subscriptionDowngrade` (#11290) ([40e491a42](https://github.com/mozilla/fxa/commit/40e491a42))
+- auth: add invoice preview route ([883668335](https://github.com/mozilla/fxa/commit/883668335))
+
+### Bug fixes
+
+- auth-server: text in plain version of postVerifySecondary template (#11410) ([06da37a94](https://github.com/mozilla/fxa/commit/06da37a94))
+- subscriptions: use ip only customs check on invoicePreview (#11414) ([e28b4c00d](https://github.com/mozilla/fxa/commit/e28b4c00d))
+- auth-server: revised strings for brand names (#11375) ([f04d0bee9](https://github.com/mozilla/fxa/commit/f04d0bee9))
+- settings: add confirm recovery code modal Because: ([03ff9f476](https://github.com/mozilla/fxa/commit/03ff9f476))
+- auth: fix location optional ([805c1e594](https://github.com/mozilla/fxa/commit/805c1e594))
+- auth-server: revise emails to update apostrophes (#11297) ([786fd512d](https://github.com/mozilla/fxa/commit/786fd512d))
+- auth: handle firestore play fetch error ([a6cad6793](https://github.com/mozilla/fxa/commit/a6cad6793))
+
+### Other changes
+
+- auth-server: Add 'merge-ftl' to 'storybook-mjml' command ([e130e94fc](https://github.com/mozilla/fxa/commit/e130e94fc))
+- deps: bump i18n-iso-countries from 7.1.0 to 7.2.0 (#11397) ([aaf0bc2c2](https://github.com/mozilla/fxa/commit/aaf0bc2c2))
+- deps: bump @sentry/integrations from 6.15.0 to 6.16.1 ([032efbdbe](https://github.com/mozilla/fxa/commit/032efbdbe))
+- deps-dev: bump sass from 1.45.0 to 1.45.1 ([0696a28f2](https://github.com/mozilla/fxa/commit/0696a28f2))
+- auth: Fix second verification reminder email ([56fb3f7de](https://github.com/mozilla/fxa/commit/56fb3f7de))
+- deps: bump @googlemaps/google-maps-services-js from 3.3.3 to 3.3.4 (#11383) ([f4e060b13](https://github.com/mozilla/fxa/commit/f4e060b13))
+- deps: bump stripe from 8.193.0 to 8.194.0 (#11388) ([cc21f4e3c](https://github.com/mozilla/fxa/commit/cc21f4e3c))
+- 6abcba419 Adds launch task for verification reminders. ([6abcba419](https://github.com/mozilla/fxa/commit/6abcba419))
+- deps: bump @sentry/node from 6.15.0 to 6.16.1 ([d6e82ae9c](https://github.com/mozilla/fxa/commit/d6e82ae9c))
+- deps-dev: bump sass from 1.44.0 to 1.45.0 ([f5751c8fe](https://github.com/mozilla/fxa/commit/f5751c8fe))
+- deps: bump luxon from 2.1.1 to 2.2.0 ([9d1eb2992](https://github.com/mozilla/fxa/commit/9d1eb2992))
+- deps: bump stripe from 8.191.0 to 8.193.0 (#11303) ([d59c19d29](https://github.com/mozilla/fxa/commit/d59c19d29))
+- deps: bump aws-sdk from 2.1045.0 to 2.1046.0 (#11295) ([9fc001e7b](https://github.com/mozilla/fxa/commit/9fc001e7b))
+- auth-server: Update email storybook docs, update Fx 'Account' to Fx 'account' ([f353ef1e2](https://github.com/mozilla/fxa/commit/f353ef1e2))
+- deps: bump aws-sdk from 2.1044.0 to 2.1045.0 ([515af6847](https://github.com/mozilla/fxa/commit/515af6847))
+- deps: bump @google-cloud/firestore from 4.15.1 to 5.0.1 ([8fa279874](https://github.com/mozilla/fxa/commit/8fa279874))
+- deps: bump jsdom from 18.1.1 to 19.0.0 ([19cd329d9](https://github.com/mozilla/fxa/commit/19cd329d9))
+
 ## 1.221.3
 
 ### Bug fixes

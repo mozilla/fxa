@@ -1,5 +1,23 @@
 # Change history
 
+## 1.222.0
+
+### New features
+
+- payments: coupon Component UI (#11391) ([bbff150bb](https://github.com/mozilla/fxa/commit/bbff150bb))
+- fxa-shared: Allows sentry events for critical endpoints to be 'tagged' as such. Because: ([6abd9bd3e](https://github.com/mozilla/fxa/commit/6abd9bd3e))
+
+### Other changes
+
+- deps-dev: bump ts-jest from 27.0.7 to 27.1.2 (#11386) ([fd027535e](https://github.com/mozilla/fxa/commit/fd027535e))
+- deps: bump serve-static from 1.14.1 to 1.14.2 (#11384) ([6fa22e726](https://github.com/mozilla/fxa/commit/6fa22e726))
+- deps-dev: bump @babel/register from 7.16.0 to 7.16.5 ([0ffbe864c](https://github.com/mozilla/fxa/commit/0ffbe864c))
+- deps: bump @sentry/node from 6.15.0 to 6.16.1 ([d6e82ae9c](https://github.com/mozilla/fxa/commit/d6e82ae9c))
+- deps: bump @stripe/react-stripe-js from 1.6.0 to 1.7.0 ([2737a56ab](https://github.com/mozilla/fxa/commit/2737a56ab))
+- deps: bump @stripe/stripe-js from 1.21.1 to 1.22.0 ([456df7f3b](https://github.com/mozilla/fxa/commit/456df7f3b))
+- deps: bump @sentry/browser from 6.15.0 to 6.16.1 (#11308) ([5da6dfc65](https://github.com/mozilla/fxa/commit/5da6dfc65))
+- deps-dev: bump @testing-library/jest-dom from 5.15.1 to 5.16.1 ([7d4cf059d](https://github.com/mozilla/fxa/commit/7d4cf059d))
+
 ## 1.221.3
 
 No changes.

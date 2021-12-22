@@ -1,5 +1,29 @@
 # Change history
 
+## 1.222.0
+
+### New features
+
+- fxa-shared: Allows sentry events for critical endpoints to be 'tagged' as such. Because: ([6abd9bd3e](https://github.com/mozilla/fxa/commit/6abd9bd3e))
+- db: add emailTypeId column to emailBounces, start recording templates on bounces, display in admin panel ([12affe682](https://github.com/mozilla/fxa/commit/12affe682))
+- auth: add invoice preview route ([883668335](https://github.com/mozilla/fxa/commit/883668335))
+
+### Other changes
+
+- deps: bump @nestjs/common from 8.2.3 to 8.2.4 (#11420) ([3dba1b300](https://github.com/mozilla/fxa/commit/3dba1b300))
+- deps: bump @nestjs/core from 8.2.3 to 8.2.4 (#11398) ([cc54604bf](https://github.com/mozilla/fxa/commit/cc54604bf))
+- deps: bump @sentry/integrations from 6.15.0 to 6.16.1 ([032efbdbe](https://github.com/mozilla/fxa/commit/032efbdbe))
+- deps-dev: bump ts-jest from 27.0.7 to 27.1.2 (#11386) ([fd027535e](https://github.com/mozilla/fxa/commit/fd027535e))
+- deps: bump stripe from 8.193.0 to 8.194.0 (#11388) ([cc21f4e3c](https://github.com/mozilla/fxa/commit/cc21f4e3c))
+- auth: destroying attached client would fail (#11302) ([76703f48d](https://github.com/mozilla/fxa/commit/76703f48d))
+- deps: bump @sentry/node from 6.15.0 to 6.16.1 ([d6e82ae9c](https://github.com/mozilla/fxa/commit/d6e82ae9c))
+- 2d519d084 Feedback ([2d519d084](https://github.com/mozilla/fxa/commit/2d519d084))
+- deps: bump @sentry/browser from 6.15.0 to 6.16.1 (#11308) ([5da6dfc65](https://github.com/mozilla/fxa/commit/5da6dfc65))
+- deps: bump stripe from 8.191.0 to 8.193.0 (#11303) ([d59c19d29](https://github.com/mozilla/fxa/commit/d59c19d29))
+- deps: bump aws-sdk from 2.1045.0 to 2.1046.0 (#11295) ([9fc001e7b](https://github.com/mozilla/fxa/commit/9fc001e7b))
+- deps: bump aws-sdk from 2.1044.0 to 2.1045.0 ([515af6847](https://github.com/mozilla/fxa/commit/515af6847))
+- deps: bump jsdom from 18.1.1 to 19.0.0 ([19cd329d9](https://github.com/mozilla/fxa/commit/19cd329d9))
+
 ## 1.221.3
 
 No changes.
