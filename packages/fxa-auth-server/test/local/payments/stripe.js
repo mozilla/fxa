@@ -3431,7 +3431,7 @@ describe('StripeHelper', () => {
         eventCustomerSubscriptionUpdated.data.object.plan.currency,
       paymentAmountNewInCents:
         eventCustomerSubscriptionUpdated.data.object.plan.amount,
-      productPaymentCycle: 'month',
+      productPaymentCycleNew: 'month',
       closeDate: 1326853478,
       productMetadata: {
         emailIconURL:

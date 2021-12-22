@@ -2196,7 +2196,7 @@ export class StripeHelper {
 
     const abbrevProductNew = await this.expandAbbrevProductForPlan(planNew);
     const {
-      interval: productPaymentCycle,
+      interval: productPaymentCycleNew,
       amount: paymentAmountNewInCents,
       currency: paymentAmountNewCurrency,
     } = planNew;
@@ -2221,7 +2221,7 @@ export class StripeHelper {
       planIdNew,
       paymentAmountNewInCents,
       paymentAmountNewCurrency,
-      productPaymentCycle,
+      productPaymentCycleNew,
       closeDate: event.created,
       productMetadata: productNewMetadata,
     };
