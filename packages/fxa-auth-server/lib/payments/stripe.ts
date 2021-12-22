@@ -2730,7 +2730,8 @@ export class StripeHelper {
           await this.processSubscriptionEventToFirestore(event);
           break;
         case 'payment_method.attached':
-        case 'payment_method.automatically_updated':
+        // @ts-ignore
+        case 'payment_method.card_automatically_updated':
         case 'payment_method.updated':
           await this.processPaymentMethodEventToFirestore(event);
           break;
