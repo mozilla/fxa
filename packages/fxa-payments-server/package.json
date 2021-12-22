@@ -46,7 +46,7 @@
     "@babel/register": "^7.16.5",
     "@fluent/bundle": "^0.17.0",
     "@fluent/langneg": "^0.5.2",
-    "@fluent/react": "^0.13.1",
+    "@fluent/react": "^0.14.1",
     "@rescripts/cli": "~0.0.16",
     "@storybook/addon-actions": "^6.3.12",
     "@storybook/addon-links": "^6.3.12",
