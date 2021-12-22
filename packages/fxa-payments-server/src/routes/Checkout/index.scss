@@ -1,7 +1,6 @@
 @import '../../../../fxa-content-server/app/styles/variables';
 @import '../../../../fxa-content-server/app/styles/breakpoints';
 
-
 .subscription-title {
   padding-top: 20px;
 }
@@ -37,7 +36,7 @@
 .subscription-title + .product-payment {
   grid-row: 2/3;
 
-  @include max-width('tablet'){
+  @include max-width('tablet') {
     grid-row: 4/5;
   }
 
@@ -54,13 +53,13 @@
   color: rgba(12, 12, 13, 0.8);
   padding: 16px 16px 60px;
 
-  @include max-width('tablet'){
+  @include max-width('tablet') {
     grid-row: 4/5;
     margin: 24px 16px;
     min-height: 100%;
   }
 
-  @media (orientation: landscape) and (max-width: 844px)  {
+  @media (orientation: landscape) and (max-width: 844px) {
     grid-row: 4/5;
     margin: 24px 16px;
     min-height: 100%;

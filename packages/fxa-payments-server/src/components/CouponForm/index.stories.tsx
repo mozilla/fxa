@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
+import React, { useState } from 'react';
+
+import CouponForm from '.';
 import MockApp from '../../../.storybook/components/MockApp';
-import CouponForm from './index';
 import { Coupon } from '../../lib/Coupon';
+import { SELECTED_PLAN } from '../../lib/mock-data';
 
 storiesOf('components/Coupon', module).add('default', () => {
   const [coupon, setCoupon] = useState<Coupon>();
+
   return (
     <MockApp>
-      <CouponForm coupon={coupon} setCoupon={setCoupon} />
+      <CouponForm planId={SELECTED_PLAN.plan_id} coupon={coupon} setCoupon={setCoupon} />
     </MockApp>
   );
 });

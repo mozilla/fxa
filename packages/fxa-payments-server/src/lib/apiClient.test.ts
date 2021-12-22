@@ -1,14 +1,5 @@
 import noc from 'nock';
 
-function nock(it: any) {
-  //@ts-ignore
-  return noc(...arguments).defaultReplyHeaders({
-    'Access-Control-Allow-Origin': '*',
-  });
-}
-
-jest.mock('./sentry');
-
 import {
   cancelSubscription_PENDING,
   cancelSubscription_FULFILLED,
@@ -23,7 +14,6 @@ import {
   updateDefaultPaymentMethod_FULFILLED,
   updateDefaultPaymentMethod_REJECTED,
 } from './amplitude';
-jest.mock('./amplitude');
 
 import { Config, defaultConfig } from './config';
 
@@ -62,8 +52,20 @@ import {
   apiUpdateBillingAgreement,
   apiCreatePasswordlessAccount,
   apiSignupForNewsletter,
+  apiInvoicePreview,
 } from './apiClient';
 import { PaymentProvider } from './PaymentProvider';
+import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+
+function nock(it: any) {
+  //@ts-ignore
+  return noc(...arguments).defaultReplyHeaders({
+    'Access-Control-Allow-Origin': '*',
+  });
+}
+
+jest.mock('./sentry');
+jest.mock('./amplitude');
 
 const OAUTH_TOKEN = 'tok-8675309';
 const OAUTH_BASE_URL = 'http://oauth.example.com';
@@ -434,6 +436,39 @@ describe('API requests', () => {
           invoiceId: 'inv_12345',
           paymentMethodId: 'pm_test',
           idempotencyKey: 'idk-8675309',
+        })
+      ).toEqual(expected);
+      requestMock.done();
+    });
+  });
+
+  describe('apiInvoicePreview', () => {
+    const path = '/v1/oauth/subscriptions/invoice/preview';
+
+    it(`POST {auth-server}${path} valid Coupon Code`, async () => {
+      const expected: InvoicePreview = {
+        subtotal: 200,
+        total: 170,
+        line_items: [
+          {
+            amount: 200,
+            currency: 'usd',
+            id: 'price_kkljasdk32lkjasd',
+            name: 'Plan name',
+          },
+        ],
+        discount: {
+          amount: 30,
+          amount_off: null,
+          percent_off: 15,
+        },
+      };
+      const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
+
+      expect(
+        await apiInvoicePreview({
+          priceId: 'price_kkljasdk32lkjasd',
+          promotionCode: 'VALID',
         })
       ).toEqual(expected);
       requestMock.done();

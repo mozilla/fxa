@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Localized } from '@fluent/react';
-import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
+import { getLocalizedCurrency, formatPlanPricing, getLocalizedCurrencyString } from '../../lib/formats';
 import {
   metadataFromPlan,
   productDetailsFromPlan,
@@ -45,8 +45,10 @@ export const PlanDetails = ({
   const setWebIconBackground = webIconBackground
     ? { background: webIconBackground }
     : '';
+
+  const discountAmount = coupon && amount && config.featureFlags.subscriptionCoupons ? amount - coupon.amount : amount;
   const planPrice = formatPlanPricing(
-    amount,
+    discountAmount,
     currency,
     interval,
     interval_count
@@ -124,7 +126,7 @@ export const PlanDetails = ({
                             amount: getLocalizedCurrency(amount, currency),
                             intervalCount: interval_count,
                           }}
-                        ></Localized>
+                        >{getLocalizedCurrencyString(amount, currency)}</Localized>
                       </div>
                     </div>
                     <div className="plan-details-total-inner">
@@ -142,7 +144,10 @@ export const PlanDetails = ({
                             ),
                             intervalCount: interval_count,
                           }}
-                        ></Localized>
+                        >{`- ${getLocalizedCurrencyString(
+                          coupon.amount,
+                          currency
+                        )}`}</Localized>
                       </div>
                     </div>
                   </div>
