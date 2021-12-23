@@ -1,3 +1,14 @@
+## 1.222.0
+
+### New features
+
+- fxa-shared: Allows sentry events for critical endpoints to be 'tagged' as such. Because: ([6abd9bd3e](https://github.com/mozilla/fxa/commit/6abd9bd3e))
+
+### Other changes
+
+- deps: bump @sentry/node from 6.15.0 to 6.16.1 ([d6e82ae9c](https://github.com/mozilla/fxa/commit/d6e82ae9c))
+- 2d519d084 Feedback ([2d519d084](https://github.com/mozilla/fxa/commit/2d519d084))
+
 ## 1.221.3
 
 No changes.

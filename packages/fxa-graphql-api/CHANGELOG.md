@@ -1,3 +1,19 @@
+## 1.222.0
+
+### New features
+
+- gql: add more detailed error on avatar ([dbc7056f8](https://github.com/mozilla/fxa/commit/dbc7056f8))
+
+### Other changes
+
+- deps: bump passport from 0.5.1 to 0.5.2 (#11415) ([9a7e510a4](https://github.com/mozilla/fxa/commit/9a7e510a4))
+- deps: bump @nestjs/common from 8.2.3 to 8.2.4 (#11420) ([3dba1b300](https://github.com/mozilla/fxa/commit/3dba1b300))
+- deps: bump @nestjs/core from 8.2.3 to 8.2.4 (#11398) ([cc54604bf](https://github.com/mozilla/fxa/commit/cc54604bf))
+- deps: bump @sentry/integrations from 6.15.0 to 6.16.1 ([032efbdbe](https://github.com/mozilla/fxa/commit/032efbdbe))
+- deps-dev: bump ts-jest from 27.0.7 to 27.1.2 (#11386) ([fd027535e](https://github.com/mozilla/fxa/commit/fd027535e))
+- deps: bump passport from 0.5.0 to 0.5.1 ([023255f59](https://github.com/mozilla/fxa/commit/023255f59))
+- deps: bump @sentry/node from 6.15.0 to 6.16.1 ([d6e82ae9c](https://github.com/mozilla/fxa/commit/d6e82ae9c))
+
 ## 1.221.3
 
 No changes.

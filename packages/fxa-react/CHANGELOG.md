@@ -1,3 +1,13 @@
+## 1.222.0
+
+### Other changes
+
+- deps-dev: bump sass from 1.45.0 to 1.45.1 ([0696a28f2](https://github.com/mozilla/fxa/commit/0696a28f2))
+- deps-dev: bump ts-jest from 27.0.7 to 27.1.2 (#11386) ([fd027535e](https://github.com/mozilla/fxa/commit/fd027535e))
+- deps-dev: bump babel-preset-react-app from 10.0.0 to 10.0.1 ([2d7bc194d](https://github.com/mozilla/fxa/commit/2d7bc194d))
+- deps-dev: bump sass from 1.44.0 to 1.45.0 ([f5751c8fe](https://github.com/mozilla/fxa/commit/f5751c8fe))
+- deps-dev: bump @testing-library/jest-dom from 5.15.1 to 5.16.1 ([7d4cf059d](https://github.com/mozilla/fxa/commit/7d4cf059d))
+
 ## 1.221.3
 
 No changes.
