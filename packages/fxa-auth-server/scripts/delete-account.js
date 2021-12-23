@@ -22,15 +22,31 @@
 
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
-const { AppConfig, AuthLogger } = require('../lib/types');
+const {
+  AppConfig,
+  AuthLogger,
+  AuthFirestore,
+  ProfileClient,
+} = require('../lib/types');
 const readline = require('readline');
 const config = require('../config').getProperties();
 const log = require('../lib/log')(config.log.level);
 const Token = require('../lib/tokens')(log, config);
 const mailer = null;
+const { setupFirestore } = require('../lib/firestore-db');
 
+const statsd = {
+  increment: () => {},
+  timing: () => {},
+  close: () => {},
+};
+Container.set(StatsD, statsd);
 Container.set(AppConfig, config);
 Container.set(AuthLogger, log);
+const authFirestore = setupFirestore(config);
+Container.set(AuthFirestore, authFirestore);
+const profile = require('../lib/profile/client')(log, config, statsd);
+Container.set(ProfileClient, profile);
 
 const DB = require('../lib/db')(config, log, Token);
 
@@ -62,12 +78,7 @@ DB.connect(config).then(async (db) => {
 
   const push = require('../lib/push')(log, db, config);
   const oauthDB = require('../lib/oauth/db');
-  const statsd = {
-    increment: () => {},
-    timing: () => {},
-    close: () => {},
-  };
-  Container.set(StatsD, statsd);
+
   const verificationReminders = require('../lib/verification-reminders')(
     log,
     config
@@ -93,19 +104,21 @@ DB.connect(config).then(async (db) => {
   }
 
   // Load the account-deletion route, so we can use its logic directly.
-  const accountDestroyRoute = require('../lib/routes/account')(
-    log,
-    db,
-    mailer,
-    MockPassword,
-    config,
-    mockCustoms,
-    signinUtils,
-    push,
-    verificationReminders,
-    oauthDB,
-    stripeHelper
-  ).find((r) => r.path === '/account/destroy');
+  const accountDestroyRoute = require('../lib/routes/account')
+    ['accountRoutes'](
+      log,
+      db,
+      mailer,
+      MockPassword,
+      config,
+      mockCustoms,
+      signinUtils,
+      push,
+      verificationReminders,
+      oauthDB,
+      stripeHelper
+    )
+    .find((r) => r.path === '/account/destroy');
 
   let retval = 0;
 
