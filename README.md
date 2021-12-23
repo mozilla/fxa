@@ -44,7 +44,7 @@ The Firefox Accounts (fxa) monorepo
 
 Note: If `yarn install` fails, ensure your `yarn -v` is at least `1.22.0`.
 
-Note this starts up all required services, including Redis, MySQL, and Memcached. It is recommended that you don't run these services yourself, or occupy any of the [server ports](https://github.com/mozilla/fxa/blob/main/mysql_servers.json). Doing so may result in errors.
+Note this starts up all required services, including Redis, MySQL, and Memcached. It is recommended that you don't run these services yourself, or occupy any of the server ports they use. Doing so may result in errors.
 
 4. Visit [localhost:3030](http://localhost:3030/).
 
