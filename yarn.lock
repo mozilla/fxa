@@ -5129,19 +5129,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^8.2.3":
-  version: 8.2.3
-  resolution: "@nestjs/platform-express@npm:8.2.3"
+"@nestjs/platform-express@npm:^8.2.4":
+  version: 8.2.4
+  resolution: "@nestjs/platform-express@npm:8.2.4"
   dependencies:
     body-parser: 1.19.0
     cors: 2.8.5
     express: 4.17.1
-    multer: 1.4.3
+    multer: 1.4.4
     tslib: 2.3.1
   peerDependencies:
     "@nestjs/common": ^8.0.0
     "@nestjs/core": ^8.0.0
-  checksum: b2e4f0da9362190c566261a5ca81c8cfe6ffb39f2b2bf53ac05d5bffb4cc4c14ff131cc969156aca72f890716b49ee813c4c61ea56bdfbd2da253a80ec847058
+  checksum: 9e9990b7372bf7689c7194368febaf73d69b2549fd814a51f07c731f8c0b5443883471c56f52f4085685bc533a4ae05b372fc150b240d53d2e90f5df3ccd1cbe
   languageName: node
   linkType: hard
 
@@ -19911,7 +19911,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^8.2.4
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
-    "@nestjs/platform-express": ^8.2.3
+    "@nestjs/platform-express": ^8.2.4
     "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
@@ -20438,7 +20438,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.2.3
+    "@nestjs/platform-express": ^8.2.4
     "@nestjs/schedule": ^1.0.2
     "@nestjs/schematics": ^8.0.5
     "@nestjs/testing": ^8.2.3
@@ -20536,7 +20536,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.2.3
+    "@nestjs/platform-express": ^8.2.4
     "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
@@ -21066,7 +21066,7 @@ fsevents@~2.1.1:
     "@nestjs/config": ^1.1.5
     "@nestjs/core": ^8.2.4
     "@nestjs/mapped-types": ^1.0.1
-    "@nestjs/platform-express": ^8.2.3
+    "@nestjs/platform-express": ^8.2.4
     "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/convict": ^5.2.2
@@ -29632,9 +29632,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"multer@npm:1.4.3":
-  version: 1.4.3
-  resolution: "multer@npm:1.4.3"
+"multer@npm:1.4.4":
+  version: 1.4.4
+  resolution: "multer@npm:1.4.4"
   dependencies:
     append-field: ^1.0.0
     busboy: ^0.2.11
@@ -29644,7 +29644,7 @@ fsevents@~2.1.1:
     on-finished: ^2.3.0
     type-is: ^1.6.4
     xtend: ^4.0.0
-  checksum: bf1752a3ba402604601331a358633d11331c6889b3c7e9aaf195a55b0764639091b6efe7c1a12bbec0fef66751262e89b616a09305e2f9702db36070fc9670d0
+  checksum: b5550d250aeee9c4d630eaecd133af0899239f6b10cec4b448ddd0a808025b383520b8227198a8612f60c2cd2094bcb60de93d973084f889d4e40efe6dbd641e
   languageName: node
   linkType: hard
 
