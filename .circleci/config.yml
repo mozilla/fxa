@@ -7,7 +7,7 @@ executors:
   content-server-executor:
     resource_class: large
     docker:
-      - image: cimg/node:14.18-browsers
+      - image: cimg/node:16.13-browsers
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -91,7 +91,7 @@ jobs:
   test-package:
     resource_class: medium+
     docker:
-      - image: cimg/node:14.18
+      - image: cimg/node:16.13
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -215,7 +215,7 @@ jobs:
   deploy-packages:
     resource_class: small
     docker:
-      - image: cimg/node:14.18
+      - image: cimg/node:16.13
     environment:
       DOCKER_BUILDKIT: 1
     steps:
@@ -291,7 +291,7 @@ jobs:
   build-and-deploy-storybooks:
     resource_class: small
     docker:
-      - image: cimg/node:14.18
+      - image: cimg/node:16.13
     steps:
       - base-install
       - run:
