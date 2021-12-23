@@ -8,25 +8,23 @@ import { Coupon } from '../../lib/Coupon';
 import sentry from '../../lib/sentry';
 
 /*
-* Check if the coupon promotion code provided by the user is valid.
-* If it is valid, return the discounted amount in cents.
-*/
+ * Check if the coupon promotion code provided by the user is valid.
+ * If it is valid, return the discounted amount in cents.
+ */
 const checkPromotionCode = async (planId: string, promotionCode: string) => {
   try {
     const { discount } = await apiInvoicePreview({
       priceId: planId,
-      promotionCode
+      promotionCode,
     });
 
-    if(!discount)
-      throw new Error('No discount for coupon');
+    if (!discount) throw new Error('No discount for coupon');
     return discount.amount;
   } catch (err) {
-    if (err instanceof APIError)
-      sentry.captureException(err);
+    if (err instanceof APIError) sentry.captureException(err);
     throw err;
   }
-}
+};
 
 type CouponFormProps = {
   planId: string;
@@ -36,7 +34,7 @@ type CouponFormProps = {
 
 export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
   const [hasCoupon, setHasCoupon] = useState(coupon ? true : false);
-  const [couponCode, setCouponCode] = useState(coupon ? 'test' : '');
+  const [couponCode, setCouponCode] = useState(coupon ? coupon.couponCode : '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -122,7 +120,12 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
               </Localized>
             </div>
 
-            <button name="apply" type="submit" data-testid="coupon-button" disabled={loading}>
+            <button
+              name="apply"
+              type="submit"
+              data-testid="coupon-button"
+              disabled={loading}
+            >
               <Localized id="coupon-submit">
                 <span>Apply</span>
               </Localized>
