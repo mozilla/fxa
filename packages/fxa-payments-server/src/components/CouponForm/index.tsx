@@ -18,10 +18,14 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
       promotionCode,
     });
 
-    if (!discount) throw new Error('No discount for coupon');
+    if (!discount) {
+      throw new Error('No discount for coupon');
+    }
     return discount.amount;
   } catch (err) {
-    if (err instanceof APIError) sentry.captureException(err);
+    if (err instanceof APIError) {
+      sentry.captureException(err);
+    }
     throw err;
   }
 };
