@@ -23,6 +23,7 @@
     "test-e2e": "NODE_ENV=dev mocha -r esbuild-register test/e2e",
     "test-scripts": "NODE_ENV=dev mocha -r esbuild-register test/scripts --exit",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha -r esbuild-register --timeout=300000 test/remote",
+    "test-mjml": "NODE_ENV=dev mocha -r esbuild-register test/mjml --exit",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "gen-keys": "node -r esbuild-register ./scripts/gen_keys.js; node -r esbuild-register ./scripts/oauth_gen_keys.js; node -r esbuild-register ./scripts/gen_vapid_keys.js",
     "write-emails": "npm run emails-scss && node -r esbuild-register ./scripts/write-emails-to-disk.js",
