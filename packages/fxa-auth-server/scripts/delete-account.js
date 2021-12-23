@@ -83,6 +83,16 @@ DB.connect(config).then(async (db) => {
     log,
     config
   );
+  const subscriptionAccountReminders =
+    require('../lib/subscription-account-reminders')(log, config);
+  const signupUtils = require('../lib/routes/utils/signup')(
+    log,
+    db,
+    mailer,
+    push,
+    verificationReminders
+  );
+
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
@@ -113,8 +123,10 @@ DB.connect(config).then(async (db) => {
       config,
       mockCustoms,
       signinUtils,
+      signupUtils,
       push,
       verificationReminders,
+      subscriptionAccountReminders,
       oauthDB,
       stripeHelper
     )
