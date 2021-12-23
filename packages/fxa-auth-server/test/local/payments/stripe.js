@@ -4185,7 +4185,7 @@ describe('StripeHelper', () => {
 
     for (const type of [
       'payment_method.attached',
-      'payment_method.automatically_updated',
+      'payment_method.card_automatically_updated',
       'payment_method.updated',
     ]) {
       it(`handles ${type} operations`, async () => {
