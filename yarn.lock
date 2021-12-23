@@ -3512,12 +3512,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/dom@npm:^0.7.0":
-  version: 0.7.0
-  resolution: "@fluent/dom@npm:0.7.0"
+"@fluent/dom@npm:^0.8.1":
+  version: 0.8.1
+  resolution: "@fluent/dom@npm:0.8.1"
   dependencies:
     cached-iterable: ^0.3
-  checksum: 7f9fbaaef75d435521fbc5d021febd5369b0b423665e1a42e071f8ffcf9ad084253807ae242d2ececb144f1047cfdec9b5ec9d6551149c1c2e2635599e7519d7
+  checksum: ece3389d3ad53c89a239d5966768ad2062fb10426e615a7c60ec9c0d810fa6d6298359f5e106b8831e3b7931138c4d9c27c635f15ede1b37a552f1a575b0a329
   languageName: node
   linkType: hard
 
@@ -20023,7 +20023,7 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/core": ^7.15.0
     "@fluent/bundle": ^0.17.0
-    "@fluent/dom": ^0.7.0
+    "@fluent/dom": ^0.8.1
     "@fluent/langneg": ^0.5.2
     "@google-cloud/firestore": ^5.0.1
     "@googlemaps/google-maps-services-js": ^3.3.4
