@@ -19940,7 +19940,7 @@ fsevents@~2.1.1:
     graphql-tools: ^8.0.0
     helmet: ^4.6.0
     jest: 27.4.3
-    knex: ^0.95.14
+    knex: ^0.95.15
     mozlog: ^3.0.2
     mysql: ^2.18.1
     pm2: ^5.1.2
@@ -20579,7 +20579,7 @@ fsevents@~2.1.1:
     helmet: ^4.6.0
     ioredis: ^4.28.0
     jest: 27.4.3
-    knex: ^0.95.14
+    knex: ^0.95.15
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.2.1
@@ -21029,7 +21029,7 @@ fsevents@~2.1.1:
     js-md5: ^0.7.3
     jsdom: 19.0.0
     jsdom-global: 3.0.2
-    knex: ^0.95.14
+    knex: ^0.95.15
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^9.1.2
@@ -27228,9 +27228,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"knex@npm:^0.95.14":
-  version: 0.95.14
-  resolution: "knex@npm:0.95.14"
+"knex@npm:^0.95.15":
+  version: 0.95.15
+  resolution: "knex@npm:0.95.15"
   dependencies:
     colorette: 2.0.16
     commander: ^7.1.0
@@ -27260,7 +27260,7 @@ fsevents@~2.1.1:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: f33f7a9a720e2758b86dd9b361f54a06c7914a5d69a4aae4606a76048b402031d251d6dcac8eb54d28817604b39f8a91ebe671b1cd965288faab67a8d472a284
+  checksum: f70ad630c1a829b785514070a67d472511877c8fd17ef75df9dcadf9f7a244356a16dc85cd61a1c0a91a24a5a8d6355bfc29d1ff037092d0e1c7dfb3d19f9ff6
   languageName: node
   linkType: hard
 
