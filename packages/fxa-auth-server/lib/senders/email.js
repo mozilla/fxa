@@ -1597,7 +1597,7 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postAddTwoStepAuthentication';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Two-step verification enabled');
+    const subject = gettext('Two-step authentication enabled');
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
@@ -1644,7 +1644,7 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'postRemoveTwoStepAuthentication';
     const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Two-step verification is off');
+    const subject = gettext('Two-step authentication is off');
     const action = gettext('Manage account');
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,

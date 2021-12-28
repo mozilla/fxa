@@ -836,7 +836,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['postRemoveTwoStepAuthenticationEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Two-step verification is off' }],
+    ['subject', { test: 'equal', expected: 'Two-step authentication is off' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveTwoStepAuthentication') }],

@@ -757,7 +757,7 @@ const TESTS = [
     ]],
   ])],
   ['postAddTwoStepAuthenticationEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Two-step verification enabled' }],
+    ['subject', { test: 'equal', expected: 'Two-step authentication enabled' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddTwoStepAuthentication') }],
@@ -933,7 +933,7 @@ const TESTS = [
     ]],
   ])],
   ['postRemoveTwoStepAuthenticationEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Two-step verification is off' }],
+    ['subject', { test: 'equal', expected: 'Two-step authentication is off' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-disabled', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postRemoveTwoStepAuthentication') }],

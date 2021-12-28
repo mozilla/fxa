@@ -86,7 +86,17 @@ class FluentLocalizer {
 
     context = { ...context, ...context.templateValues };
     if (template !== '_storybook') {
-      context.subject = await l10n.formatValue(`${template}-subject`, context);
+      if (template === 'postRemoveTwoStepAuthentication') {
+        context.subject = await l10n.formatValue(
+          `${template}-subject-line`,
+          context
+        );
+      } else {
+        context.subject = await l10n.formatValue(
+          `${template}-subject`,
+          context
+        );
+      }
     }
 
     // metadata.mjml needs a localized version of `action`,
