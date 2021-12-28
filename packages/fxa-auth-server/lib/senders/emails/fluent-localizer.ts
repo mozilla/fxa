@@ -10,6 +10,7 @@ import { join } from 'path';
 import { render, TemplateContext } from './renderer';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 import { readFileSync } from 'fs';
+import { PatternElement, VariableReference } from '@fluent/bundle/esm/ast';
 
 const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
 
@@ -99,6 +100,34 @@ class FluentLocalizer {
     const { document } = new JSDOM(html).window;
     document.title = context.subject;
 
+    // Since all language strings start as english, we will use
+    // the english bundle as the source of truth for variable names.
+    const baseBundle = new FluentBundle('en', { useIsolating: false });
+    baseBundle.addResource(new FluentResource(fetched['en']));
+
+    // Loop over translatable elements
+    for (const x of document.querySelectorAll('[data-l10n-id]')) {
+      // Get the l10n-id
+      const attr = l10n.getAttributes(x);
+
+      // Determine the varialbes contained in the language string,
+      // and auto generate a context (ie data-l10n-args).
+      const localContext: any = {};
+      const message = baseBundle.getMessage(attr.id);
+      if (message && message.value instanceof Array) {
+        message.value
+          .map((x: PatternElement) => (x as VariableReference).name)
+          .forEach((x) => {
+            if (x && context[x]) {
+              localContext[x] = context[x];
+            }
+          });
+      }
+
+      // Apply the context
+      l10n.setAttributes(x, attr.id, localContext);
+    }
+
     l10n.connectRoot(document.documentElement);
     await l10n.translateRoots();
 
@@ -113,16 +142,10 @@ class FluentLocalizer {
     for (let i in plainTextArr) {
       // match the lines that are of format key = "value" since we will be extracting the key
       // to pass down to fluent
-      const arr = plainTextArr[i].match(/([a-zA-z-]*\s=\s"([^"]+)")/g) || '';
-      if (arr[0]) {
-        let [key, val] = [
-          arr[0].substring(0, arr[0].indexOf('=') - 1),
-          arr[0].substring(arr[0].indexOf('=') + 2),
-        ];
-        val = val.replace(/"/g, '');
-        // get the value from fluent using the extracted key
-        const localizedValue = await l10n.formatValue(key, context);
-        plainTextArr[i] = localizedValue ? localizedValue : val;
+      const { key, val } = splitPlainTextLine(plainTextArr[i]);
+
+      if (key && val) {
+        plainTextArr[i] = (await l10n.formatValue(key, context)) || val;
       }
     }
     // convert back to string and
@@ -138,4 +161,14 @@ class FluentLocalizer {
     };
   }
 }
+
+const reSplitLine = /(?<key>[a-zA-Z0-9-_]+)\s*=\s*"(?<val>.*)?"/;
+export function splitPlainTextLine(plainText: string) {
+  const matches = reSplitLine.exec(plainText);
+  const key = matches?.groups?.key;
+  const val = matches?.groups?.val;
+
+  return { key, val };
+}
+
 export default FluentLocalizer;

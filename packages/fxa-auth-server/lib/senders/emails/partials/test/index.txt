@@ -1,0 +1,4 @@
+<%- template %>-title = "Not Localized - Render - <%- template %> - <%- testTerm %> "
+
+<%- template %>-description = "Not Loclalized - A test to validate edge cases in mjml rendering and fluent localization. - <%- template %> - <%- testTerm %>"
+<%- link %>

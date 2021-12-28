@@ -44,6 +44,7 @@ const productMetadata = {
 const MESSAGE = {
   // Note: acceptLanguage is not just a single locale
   acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
+  androidLink: 'https://example.com/play-store',
   appStoreLink: 'https://example.com/app-store',
   code: 'abc123',
   date: 'Wednesday, Apr 7, 2021',
@@ -78,6 +79,7 @@ const MESSAGE = {
   invoiceNumber: '8675309',
   invoiceTotalInCents: 999999.9,
   invoiceTotalCurrency: 'eur',
+  iosLink: 'https://example.com/app-store',
   lastFour: '5309',
   nextInvoiceDate: new Date(1587339098816),
   paymentAmountOldInCents: 9999099.9,
