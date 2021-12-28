@@ -27,6 +27,7 @@ export type SubscriptionPaymentHandlerParam = {
   selectedPlan: Plan;
   customer: Customer | null;
   retryStatus: RetryStatus;
+  promoCode: string | null;
   apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
   onFailure: (error: PaymentError | GeneralError) => void;
   onRetry: (status: RetryStatus) => void;
@@ -48,6 +49,7 @@ export async function handlePasswordlessSubscription({
   selectedPlan,
   customer,
   retryStatus,
+  promoCode,
   apiCreateCustomer,
   apiCreateSubscriptionWithPaymentMethod,
   apiRetryInvoice,
@@ -72,6 +74,7 @@ export async function handlePasswordlessSubscription({
       selectedPlan,
       customer,
       retryStatus,
+      promoCode,
       apiCreateCustomer,
       apiCreateSubscriptionWithPaymentMethod,
       apiRetryInvoice,
@@ -93,6 +96,7 @@ export async function handleSubscriptionPayment({
   selectedPlan,
   customer,
   retryStatus,
+  promoCode,
   apiCreateCustomer,
   apiCreateSubscriptionWithPaymentMethod,
   apiRetryInvoice,
@@ -167,6 +171,7 @@ export async function handleSubscriptionPayment({
         productId: selectedPlan.product_id,
         paymentMethodId: paymentMethod.id,
         idempotencyKey,
+        promoCode: promoCode || undefined,
       });
     return handlePaymentIntent({
       customer,

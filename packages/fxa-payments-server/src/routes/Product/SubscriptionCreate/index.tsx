@@ -312,6 +312,7 @@ export const SubscriptionCreate = ({
                 plan: selectedPlan,
                 onMounted: onFormMounted,
                 onEngaged: onFormEngaged,
+                promoCode: coupon?.couponCode,
               }}
             />
           </div>
@@ -333,7 +334,9 @@ export const SubscriptionCreate = ({
           }}
         />
         {config.featureFlags.subscriptionCoupons ? (
-          <CouponForm {...{ planId: selectedPlan.plan_id, coupon, setCoupon }} />
+          <CouponForm
+            {...{ planId: selectedPlan.plan_id, coupon, setCoupon }}
+          />
         ) : null}
       </div>
     </>

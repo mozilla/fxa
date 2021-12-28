@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
-
 const fs = require('fs');
 const path = require('path');
 const convict = require('convict');
@@ -14,7 +12,7 @@ convict.addFormats(require('convict-format-with-validator'));
 const conf = convict({
   featureFlags: {
     subscriptionCoupons: {
-      default: false,
+      default: true,
       doc: 'Whether to show the coupon UI',
       env: 'FEATURE_SHOW_COUPON',
       format: Boolean,
