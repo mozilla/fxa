@@ -706,6 +706,7 @@ describe('lib/routes/validators:', () => {
       plan_id: 'plan_G93lTs8hfK7NNG',
       product_id: 'prod_G93l8Yn7XJHYUs',
       product_name: 'testo',
+      promotion_code: 'testo',
       status: 'active',
       subscription_id: 'sub_xyz',
     };

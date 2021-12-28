@@ -307,7 +307,7 @@ describe('subscriptions payPalRoutes', () => {
           {
             customer,
             priceId: undefined,
-            couponId: undefined,
+            promotionCode: undefined,
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
           }
@@ -358,7 +358,7 @@ describe('subscriptions payPalRoutes', () => {
           {
             customer,
             priceId: undefined,
-            couponId: 'test-coupon',
+            promotionCode: promoCode,
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
           }
@@ -566,7 +566,7 @@ describe('subscriptions payPalRoutes', () => {
               },
             },
             priceId: undefined,
-            couponId: undefined,
+            promotionCode: undefined,
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
           }
@@ -615,7 +615,7 @@ describe('subscriptions payPalRoutes', () => {
               },
             },
             priceId: undefined,
-            couponId: 'test-coupon',
+            promotionCode: promoCode,
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
           }

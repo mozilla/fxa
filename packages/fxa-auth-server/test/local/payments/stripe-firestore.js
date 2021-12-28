@@ -135,6 +135,11 @@ describe('StripeFirestore', () => {
       assert.deepEqual(result, subscription);
       assert.calledOnce(stripeFirestore.retrieveSubscription);
       assert.calledOnce(stripeFirestore.fetchAndInsertCustomer);
+      assert.calledOnceWithExactly(
+        stripe.subscriptions.retrieve,
+        subscription.id,
+        { expand: ['discount.promotion_code'] }
+      );
     });
 
     it('errors otherwise', async () => {
@@ -177,7 +182,10 @@ describe('StripeFirestore', () => {
       const result = await stripeFirestore.fetchAndInsertCustomer(customer.id);
       assert.deepEqual(result, customer);
       assert.calledOnce(stripe.customers.retrieve);
-      assert.calledOnce(stripe.subscriptions.list);
+      assert.calledOnceWithExactly(stripe.subscriptions.list, {
+        customer: customer.id,
+        expand: ['data.discount.promotion_code'],
+      });
       assert.calledOnce(stripeFirestore.insertCustomerRecord);
       assert.calledOnce(customerCollectionDbRef.doc);
     });

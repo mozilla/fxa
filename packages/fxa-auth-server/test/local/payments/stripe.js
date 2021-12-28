@@ -732,7 +732,7 @@ describe('StripeHelper', () => {
           items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
           default_tax_rates: ['tr_asdf'],
-          coupon: undefined,
+          promotion_code: undefined,
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
@@ -746,6 +746,65 @@ describe('StripeHelper', () => {
         }
       );
       sinon.assert.callCount(mockStatsd.increment, 1);
+    });
+
+    it('uses the given promotion code', async () => {
+      const promotionCode = { id: 'redpanda' };
+      const attachExpected = deepCopy(paymentMethodAttach);
+      const customerExpected = deepCopy(newCustomerPM);
+      const newSubscription = deepCopy(subscriptionPMIExpanded);
+      newSubscription.discount = { promotion_code: promotionCode.id };
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .resolves(attachExpected);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'update')
+        .resolves(customerExpected);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(newSubscription);
+      const subIdempotencyKey = uuidv4();
+      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      const actual = await stripeHelper.createSubscriptionWithPMI({
+        customerId: 'customerId',
+        priceId: 'priceId',
+        paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+        subIdempotencyKey,
+        taxRateId: 'tr_asdf',
+        promotionCode,
+      });
+
+      const subWithExpandedPromotionCode = {
+        ...newSubscription,
+        discount: { promotion_code: promotionCode },
+      };
+      assert.deepEqual(actual, subWithExpandedPromotionCode);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.create,
+        {
+          customer: 'customerId',
+          items: [{ price: 'priceId' }],
+          expand: ['latest_invoice.payment_intent'],
+          default_tax_rates: ['tr_asdf'],
+          promotion_code: promotionCode.id,
+        },
+        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        {
+          ...subWithExpandedPromotionCode,
+          latest_invoice: subscriptionPMIExpanded.latest_invoice
+            ? subscriptionPMIExpanded.latest_invoice.id
+            : null,
+        }
+      );
     });
 
     it('surfaces payment issues', async () => {
@@ -831,7 +890,59 @@ describe('StripeHelper', () => {
           expand: ['latest_invoice'],
           collection_method: 'send_invoice',
           days_until_due: 1,
-          coupon: undefined,
+          promotion_code: undefined,
+          default_tax_rates: ['tr_asdf'],
+        },
+        { idempotencyKey: `ssc-${subIdempotencyKey}` }
+      );
+      sinon.assert.callCount(mockStatsd.increment, 1);
+    });
+
+    it('uses the given promotion code to create a subscription', async () => {
+      const promotionCode = { id: 'redpanda' };
+      const newSubscription = deepCopy(subscriptionPMIExpanded);
+      newSubscription.discount = { promotion_code: promotionCode.id };
+      sandbox
+        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
+        .returns(undefined);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(newSubscription);
+      const subIdempotencyKey = uuidv4();
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves({});
+      const actual = await stripeHelper.createSubscriptionWithPaypal({
+        customer: customer1,
+        priceId: 'priceId',
+        subIdempotencyKey,
+        taxRateId: 'tr_asdf',
+        promotionCode,
+      });
+
+      const subWithExpandedPromotionCode = {
+        ...newSubscription,
+        discount: { promotion_code: promotionCode },
+      };
+      assert.deepEqual(actual, subWithExpandedPromotionCode);
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        {
+          ...subWithExpandedPromotionCode,
+          latest_invoice: subscriptionPMIExpanded.latest_invoice
+            ? subscriptionPMIExpanded.latest_invoice.id
+            : null,
+        }
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.create,
+        {
+          customer: customer1.id,
+          items: [{ price: 'priceId' }],
+          expand: ['latest_invoice'],
+          collection_method: 'send_invoice',
+          days_until_due: 1,
+          promotion_code: promotionCode.id,
           default_tax_rates: ['tr_asdf'],
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
@@ -2003,6 +2114,94 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('copyExpandedSubscriptionProperties', () => {
+    let oldSubscription, newSubscription;
+    const promotionCode = { id: 'jortssendme' };
+
+    beforeEach(() => {
+      oldSubscription = deepCopy(subscription1);
+      newSubscription = deepCopy(subscription1);
+    });
+
+    it('copies the promotion code from the old subscription to the new one', () => {
+      oldSubscription.discount = { promotion_code: promotionCode };
+      newSubscription.discount = { promotion_code: promotionCode.id };
+      const actual = stripeHelper.copyExpandedSubscriptionProperties(
+        oldSubscription,
+        newSubscription
+      );
+      assert.deepEqual(actual.discount.promotion_code, promotionCode);
+    });
+
+    it('does not copy the promo code when the new subscription does not have the discount property', () => {
+      oldSubscription.discount = { promotion_code: promotionCode };
+      const actual = stripeHelper.copyExpandedSubscriptionProperties(
+        oldSubscription,
+        newSubscription
+      );
+      assert.isNull(actual.discount);
+    });
+
+    it('does not copy the promo code when the old subscription does not have the discount property', () => {
+      newSubscription.discount = { promotion_code: promotionCode.id };
+      const actual = stripeHelper.copyExpandedSubscriptionProperties(
+        oldSubscription,
+        newSubscription
+      );
+      assert.deepEqual(actual.discount, { promotion_code: promotionCode.id });
+    });
+
+    it('does not copy the promo code when there an id mismatch', () => {
+      oldSubscription.discount = { promotion_code: promotionCode };
+      newSubscription.discount = { promotion_code: '???' };
+      const actual = stripeHelper.copyExpandedSubscriptionProperties(
+        oldSubscription,
+        newSubscription
+      );
+      assert.deepEqual(actual.discount, { promotion_code: '???' });
+    });
+  });
+
+  describe('updateSubscriptionAndBackfill', () => {
+    it('updates and backfills', async () => {
+      const subscription = deepCopy(subscription1);
+      const updatedSubscription = deepCopy(subscription1);
+      updatedSubscription.cancel_at_period_end = false;
+      const newProps = {
+        cancel_at_period_end: false,
+      };
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'update')
+        .resolves(updatedSubscription);
+      sandbox
+        .stub(stripeHelper, 'copyExpandedSubscriptionProperties')
+        .returns(updatedSubscription);
+
+      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+        .stub()
+        .resolves();
+      const actual = await stripeHelper.updateSubscriptionAndBackfill(
+        subscription,
+        newProps
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.subscriptions.update,
+        subscription.id,
+        newProps
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.copyExpandedSubscriptionProperties,
+        subscription,
+        updatedSubscription
+      );
+      sinon.assert.calledOnceWithExactly(
+        stripeFirestore.insertSubscriptionRecordWithBackfill,
+        updatedSubscription
+      );
+      assert.deepEqual(actual, updatedSubscription);
+    });
+  });
+
   describe('changeSubscriptionPlan', () => {
     it('accepts valid upgrade and adds the appropriate metadata', async () => {
       const unixTimestamp = moment().unix();
@@ -2014,22 +2213,20 @@ describe('StripeHelper', () => {
       };
 
       sandbox.stub(moment, 'unix').returns(unixTimestamp);
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-
-      const update = sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'update')
+      sandbox
+        .stub(stripeHelper, 'updateSubscriptionAndBackfill')
         .resolves(subscription2);
 
       const actual = await stripeHelper.changeSubscriptionPlan(
         subscription,
         'plan_G93mMKnIFCjZek'
       );
-      assert.deepEqual(actual, subscription2);
 
-      assert.isTrue(
-        update.calledOnceWithExactly('sub_GAt1vgMqOSr5hT', {
+      assert.deepEqual(actual, subscription2);
+      sinon.assert.calledWithExactly(
+        stripeHelper.updateSubscriptionAndBackfill,
+        subscription,
+        {
           cancel_at_period_end: false,
           items: [
             {
@@ -2042,17 +2239,13 @@ describe('StripeHelper', () => {
             previous_plan_id: subscription1.items.data[0].plan.id,
             plan_change_date: unixTimestamp,
           },
-        })
-      );
-      sinon.assert.calledWithExactly(
-        stripeFirestore.insertSubscriptionRecordWithBackfill,
-        subscription2
+        }
       );
     });
 
     it('throws an error if the user already upgraded', async () => {
       sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'update')
+        .stub(stripeHelper, 'updateSubscriptionAndBackfill')
         .resolves(subscription2);
       let thrown;
       try {
@@ -2064,47 +2257,40 @@ describe('StripeHelper', () => {
         thrown = err;
       }
       assert.equal(thrown.errno, error.ERRNO.SUBSCRIPTION_ALREADY_CHANGED);
+      sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
     });
   });
 
   describe('cancelSubscriptionForCustomer', () => {
-    let stripeSubscriptionsUpdateStub;
-
     beforeEach(() => {
-      stripeSubscriptionsUpdateStub = sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'update')
-        .resolves({});
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
+      sandbox.stub(stripeHelper, 'updateSubscriptionAndBackfill').resolves({});
     });
 
     describe('customer owns subscription', () => {
       it('calls subscription update', async () => {
         const existingMetadata = { foo: 'bar' };
         const unixTimestamp = moment().unix();
+        const subscription = { ...subscription2, metadata: existingMetadata };
         sandbox.stub(moment, 'unix').returns(unixTimestamp);
         sandbox
           .stub(stripeHelper, 'subscriptionForCustomer')
-          .resolves({ ...subscription2, metadata: existingMetadata });
+          .resolves(subscription);
 
         await stripeHelper.cancelSubscriptionForCustomer(
           '123',
           'test@example.com',
           subscription2.id
         );
-        assert.isTrue(
-          stripeSubscriptionsUpdateStub.calledOnceWith(subscription2.id, {
+        sinon.assert.calledOnceWithExactly(
+          stripeHelper.updateSubscriptionAndBackfill,
+          subscription,
+          {
             cancel_at_period_end: true,
             metadata: {
               ...existingMetadata,
               cancelled_for_customer_at: unixTimestamp,
             },
-          })
-        );
-        sinon.assert.calledWithExactly(
-          stripeFirestore.insertSubscriptionRecordWithBackfill,
-          {}
+          }
         );
       });
     });
@@ -2122,7 +2308,9 @@ describe('StripeHelper', () => {
             () => Promise.reject(new Error('Method expected to reject')),
             (err) => {
               assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
-              assert.isTrue(stripeSubscriptionsUpdateStub.notCalled);
+              sinon.assert.notCalled(
+                stripeHelper.updateSubscriptionAndBackfill
+              );
             }
           );
       });
@@ -2130,17 +2318,6 @@ describe('StripeHelper', () => {
   });
 
   describe('reactivateSubscriptionForCustomer', () => {
-    let stripeSubscriptionsUpdateStub;
-
-    beforeEach(() => {
-      stripeSubscriptionsUpdateStub = sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'update')
-        .resolves();
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-    });
-
     describe('customer owns subscription', () => {
       describe('the intial subscription has a active status', () => {
         it('returns the updated subscription', async () => {
@@ -2150,9 +2327,11 @@ describe('StripeHelper', () => {
             metadata: existingMetadata,
           };
           sandbox
+            .stub(stripeHelper, 'updateSubscriptionAndBackfill')
+            .resolves(expected);
+          sandbox
             .stub(stripeHelper, 'subscriptionForCustomer')
             .resolves(expected);
-          stripeHelper.stripe.subscriptions.update.resolves(expected);
 
           const actual = await stripeHelper.reactivateSubscriptionForCustomer(
             '123',
@@ -2161,18 +2340,16 @@ describe('StripeHelper', () => {
           );
 
           assert.deepEqual(actual, expected);
-          assert.isTrue(
-            stripeSubscriptionsUpdateStub.calledOnceWith(expected.id, {
+          sinon.assert.calledOnceWithExactly(
+            stripeHelper.updateSubscriptionAndBackfill,
+            expected,
+            {
               cancel_at_period_end: false,
               metadata: {
                 ...existingMetadata,
                 cancelled_for_customer_at: '',
               },
-            })
-          );
-          sinon.assert.calledWithExactly(
-            stripeFirestore.insertSubscriptionRecordWithBackfill,
-            expected
+            }
           );
         });
       });
@@ -2185,7 +2362,9 @@ describe('StripeHelper', () => {
           sandbox
             .stub(stripeHelper, 'subscriptionForCustomer')
             .resolves(expected);
-          stripeHelper.stripe.subscriptions.update.resolves(expected);
+          sandbox
+            .stub(stripeHelper, 'updateSubscriptionAndBackfill')
+            .resolves(expected);
 
           const actual = await stripeHelper.reactivateSubscriptionForCustomer(
             '123',
@@ -2194,14 +2373,15 @@ describe('StripeHelper', () => {
           );
 
           assert.deepEqual(actual, expected);
-
-          assert.isTrue(
-            stripeSubscriptionsUpdateStub.calledOnceWith(expected.id, {
+          sinon.assert.calledWithExactly(
+            stripeHelper.updateSubscriptionAndBackfill,
+            expected,
+            {
               cancel_at_period_end: false,
               metadata: {
                 cancelled_for_customer_at: '',
               },
-            })
+            }
           );
         });
       });
@@ -2212,6 +2392,9 @@ describe('StripeHelper', () => {
 
           sandbox
             .stub(stripeHelper, 'subscriptionForCustomer')
+            .resolves(expected);
+          sandbox
+            .stub(stripeHelper, 'updateSubscriptionAndBackfill')
             .resolves(expected);
 
           return stripeHelper
@@ -2224,7 +2407,9 @@ describe('StripeHelper', () => {
               () => Promise.reject(new Error('Method expected to reject')),
               (err) => {
                 assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
-                assert.isTrue(stripeSubscriptionsUpdateStub.notCalled);
+                sinon.assert.notCalled(
+                  stripeHelper.updateSubscriptionAndBackfill
+                );
               }
             );
         });
@@ -2234,6 +2419,7 @@ describe('StripeHelper', () => {
     describe('customer does not own the subscription', () => {
       it('throws an error', async () => {
         sandbox.stub(stripeHelper, 'subscriptionForCustomer').resolves();
+        sandbox.stub(stripeHelper, 'updateSubscriptionAndBackfill').resolves();
         return stripeHelper
           .reactivateSubscriptionForCustomer(
             '123',
@@ -2244,7 +2430,9 @@ describe('StripeHelper', () => {
             () => Promise.reject(new Error('Method expected to reject')),
             (err) => {
               assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
-              assert.isTrue(stripeSubscriptionsUpdateStub.notCalled);
+              sinon.assert.notCalled(
+                stripeHelper.updateSubscriptionAndBackfill
+              );
             }
           );
       });
@@ -2722,6 +2910,7 @@ describe('StripeHelper', () => {
             failure_code: failedChargeCopy.failure_code,
             failure_message: failedChargeCopy.failure_message,
             latest_invoice: invoice.number,
+            promotion_code: null,
           },
         ];
 
@@ -2798,6 +2987,7 @@ describe('StripeHelper', () => {
                 failure_code: undefined,
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
+                promotion_code: null,
               },
             ];
 
@@ -2830,6 +3020,7 @@ describe('StripeHelper', () => {
                 failure_code: undefined,
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
+                promotion_code: null,
               },
             ];
 
@@ -2866,9 +3057,9 @@ describe('StripeHelper', () => {
                 failure_code: undefined,
                 failure_message: undefined,
                 latest_invoice: paidInvoice.number,
+                promotion_code: null,
               },
             ];
-
             const actual = await stripeHelper.subscriptionsToResponse(input);
             assert.deepEqual(actual, expected);
             assert.isNotNull(actual[0].end_at);
@@ -2913,6 +3104,43 @@ describe('StripeHelper', () => {
           response.find((x) => x.subscription_id === incompleteSubscription.id),
           'should not contain incompleteSubscription'
         );
+      });
+    });
+
+    describe('when a subscription has a promotion code', () => {
+      it('includes the promotion code value in the returned value', async () => {
+        const promotionCode = { id: '9001', code: 'jortssendme' };
+        const subscription = deepCopy(subscription1);
+        subscription.discount = { promotion_code: promotionCode };
+        const input = { data: [subscription] };
+        sandbox
+          .stub(stripeHelper.stripe.invoices, 'retrieve')
+          .resolves(paidInvoice);
+        const callback = sandbox.stub(stripeHelper, 'expandResource');
+        callback.onCall(0).resolves(paidInvoice);
+        callback.onCall(1).resolves({ id: productId, name: productName });
+        const expected = [
+          {
+            _subscription_type: MozillaSubscriptionTypes.WEB,
+            created: subscription1.created,
+            current_period_end: subscription1.current_period_end,
+            current_period_start: subscription1.current_period_start,
+            cancel_at_period_end: false,
+            end_at: null,
+            plan_id: subscription1.plan.id,
+            product_id: product1.id,
+            product_name: productName,
+            status: 'active',
+            subscription_id: subscription1.id,
+            failure_code: undefined,
+            failure_message: undefined,
+            latest_invoice: paidInvoice.number,
+            promotion_code: promotionCode.code,
+          },
+        ];
+
+        const actual = await stripeHelper.subscriptionsToResponse(input);
+        assert.deepEqual(actual, expected);
       });
     });
   });
@@ -4178,7 +4406,8 @@ describe('StripeHelper', () => {
         );
         sinon.assert.calledOnceWithExactly(
           stripeHelper.stripe.subscriptions.retrieve,
-          event.data.object.id
+          event.data.object.id,
+          { expand: ['discount.promotion_code'] }
         );
       });
     }

@@ -180,7 +180,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       this.stripeHelper.createSubscriptionWithPaypal({
         customer,
         priceId,
-        couponId: promotionCode?.coupon.id,
+        promotionCode,
         subIdempotencyKey: idempotencyKey,
         taxRateId: taxRate?.id,
       }),
@@ -241,7 +241,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     const subscription = await this.stripeHelper.createSubscriptionWithPaypal({
       customer,
       priceId,
-      couponId: promotionCode?.coupon.id,
+      promotionCode: promotionCode,
       subIdempotencyKey: idempotencyKey,
       taxRateId: taxRate?.id,
     });

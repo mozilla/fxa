@@ -404,7 +404,7 @@ export class StripeHelper {
     customerId: string;
     priceId: string;
     paymentMethodId?: string;
-    couponId?: string;
+    promotionCode?: Stripe.PromotionCode;
     subIdempotencyKey: string;
     taxRateId?: string;
   }) {
@@ -412,7 +412,7 @@ export class StripeHelper {
       customerId,
       priceId,
       paymentMethodId,
-      couponId,
+      promotionCode,
       subIdempotencyKey,
       taxRateId,
     } = opts;
@@ -454,10 +454,13 @@ export class StripeHelper {
         items: [{ price: priceId }],
         expand: ['latest_invoice.payment_intent'],
         default_tax_rates: taxRates,
-        coupon: couponId,
+        promotion_code: promotionCode?.id,
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
+    if (promotionCode && subscription.discount?.promotion_code) {
+      subscription.discount.promotion_code = promotionCode;
+    }
     await this.stripeFirestore.insertSubscriptionRecordWithBackfill({
       ...subscription,
       latest_invoice: subscription.latest_invoice
@@ -480,11 +483,12 @@ export class StripeHelper {
   async createSubscriptionWithPaypal(opts: {
     customer: Stripe.Customer;
     priceId: string;
-    couponId?: string;
+    promotionCode?: Stripe.PromotionCode;
     subIdempotencyKey: string;
     taxRateId?: string;
   }) {
-    const { customer, priceId, couponId, subIdempotencyKey, taxRateId } = opts;
+    const { customer, priceId, promotionCode, subIdempotencyKey, taxRateId } =
+      opts;
     const taxRates = taxRateId ? [taxRateId] : [];
 
     const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
@@ -514,10 +518,13 @@ export class StripeHelper {
         collection_method: 'send_invoice',
         days_until_due: 1,
         default_tax_rates: taxRates,
-        coupon: couponId,
+        promotion_code: promotionCode?.id,
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
+    if (promotionCode && subscription.discount?.promotion_code) {
+      subscription.discount.promotion_code = promotionCode;
+    }
     await this.stripeFirestore.insertSubscriptionRecordWithBackfill({
       ...subscription,
       latest_invoice: subscription.latest_invoice
@@ -1481,6 +1488,50 @@ export class StripeHelper {
   }
 
   /**
+   * While we do update the subscription in Firestore on webhook events, we
+   * need to keep the subscription in a consistent shape in the time after the
+   * API update but before the webhook handling.  This function copies expanded
+   * properties that are not returned by Stripe.subscriptions.update from the
+   * old subscription object into the returned one.
+   *
+   * Currently it only handles `discount.promotion_code`.
+   */
+  copyExpandedSubscriptionProperties(
+    oldSubscription: Stripe.Subscription,
+    newSubscription: Stripe.Subscription
+  ) {
+    if (
+      oldSubscription.discount?.promotion_code &&
+      newSubscription.discount?.promotion_code &&
+      (oldSubscription.discount.promotion_code as Stripe.PromotionCode).id ===
+        newSubscription.discount?.promotion_code
+    ) {
+      newSubscription.discount.promotion_code =
+        oldSubscription.discount.promotion_code;
+    }
+
+    return newSubscription;
+  }
+
+  async updateSubscriptionAndBackfill(
+    subscription: Stripe.Subscription,
+    newProps: Stripe.SubscriptionUpdateParams
+  ) {
+    const updatedSubscription = await this.stripe.subscriptions.update(
+      subscription.id,
+      newProps
+    );
+    const newSubscription = this.copyExpandedSubscriptionProperties(
+      subscription,
+      updatedSubscription
+    );
+    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
+      newSubscription
+    );
+    return newSubscription;
+  }
+
+  /**
    * Change a subscription to the new plan.
    *
    * Note that this call does not verify its a valid upgrade, the
@@ -1502,8 +1553,8 @@ export class StripeHelper {
       plan_change_date: moment().unix(),
     };
 
-    const newSubscription = await this.stripe.subscriptions.update(
-      subscription.id,
+    const updatedSubscription = await this.updateSubscriptionAndBackfill(
+      subscription,
       {
         cancel_at_period_end: false,
         items: [
@@ -1515,10 +1566,7 @@ export class StripeHelper {
         metadata: updatedMetadata,
       }
     );
-    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
-      newSubscription
-    );
-    return newSubscription;
+    return updatedSubscription;
   }
 
   /**
@@ -1539,19 +1587,13 @@ export class StripeHelper {
       throw error.unknownSubscription();
     }
 
-    const newSubscription = await this.stripe.subscriptions.update(
-      subscriptionId,
-      {
-        cancel_at_period_end: true,
-        metadata: {
-          ...(subscription.metadata || {}),
-          cancelled_for_customer_at: moment().unix(),
-        },
-      }
-    );
-    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
-      newSubscription
-    );
+    await this.updateSubscriptionAndBackfill(subscription, {
+      cancel_at_period_end: true,
+      metadata: {
+        ...(subscription.metadata || {}),
+        cancelled_for_customer_at: moment().unix(),
+      },
+    });
   }
 
   /**
@@ -1589,8 +1631,8 @@ export class StripeHelper {
       );
     }
 
-    const newSubscription = await this.stripe.subscriptions.update(
-      subscriptionId,
+    const reactivatedSubscription = await this.updateSubscriptionAndBackfill(
+      subscription,
       {
         cancel_at_period_end: false,
         metadata: {
@@ -1599,10 +1641,7 @@ export class StripeHelper {
         },
       }
     );
-    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
-      newSubscription
-    );
-    return newSubscription;
+    return reactivatedSubscription;
   }
 
   /**
@@ -1892,6 +1931,8 @@ export class StripeHelper {
         subscription_id: sub.id,
         failure_code,
         failure_message,
+        promotion_code:
+          (sub.discount?.promotion_code as Stripe.PromotionCode)?.code ?? null,
       });
     }
     return subs;
@@ -2646,7 +2687,8 @@ export class StripeHelper {
    */
   async processSubscriptionEventToFirestore(event: Stripe.Event) {
     const subscription = await this.stripe.subscriptions.retrieve(
-      (event.data.object as Stripe.Subscription).id
+      (event.data.object as Stripe.Subscription).id,
+      { expand: ['discount.promotion_code'] }
     );
     return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
       subscription
