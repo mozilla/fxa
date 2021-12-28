@@ -310,7 +310,7 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
       client_secret: string;
       status: string;
       payment_method: string;
-      promoCode: string;
+      promoCode?: string;
     };
   };
 }> {

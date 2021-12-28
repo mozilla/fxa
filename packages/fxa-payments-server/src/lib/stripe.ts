@@ -27,7 +27,7 @@ export type SubscriptionPaymentHandlerParam = {
   selectedPlan: Plan;
   customer: Customer | null;
   retryStatus: RetryStatus;
-  promoCode: string | null;
+  promoCode: string | undefined;
   apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
   onFailure: (error: PaymentError | GeneralError) => void;
   onRetry: (status: RetryStatus) => void;
@@ -113,6 +113,7 @@ export async function handleSubscriptionPayment({
         priceId: selectedPlan.plan_id,
         productId: selectedPlan.product_id,
         idempotencyKey,
+        promoCode: promoCode || undefined,
       });
     return handlePaymentIntent({
       customer,
