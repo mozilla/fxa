@@ -2164,10 +2164,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/bundle@npm:^0.17.0":
-  version: 0.17.0
-  resolution: "@fluent/bundle@npm:0.17.0"
-  checksum: fe08d02298da98b1315c97f7526145c4a8a33a32c13d77fd6b765d924a8e8eafff8d9d56270eac5f77fb2b75a640438fb274eeb1cca292bcc1ac8228852f3628
+"@fluent/bundle@npm:^0.17.1":
+  version: 0.17.1
+  resolution: "@fluent/bundle@npm:0.17.1"
+  checksum: 446809a522a1a5cada39ec179bdde7f318b3276ca273db4ba871b440468189449e384baa7021244f2e768075c98bfa21d7e4b08dba2e1a4a13a2a9f5cc57aea0
   languageName: node
   linkType: hard
 
@@ -18491,7 +18491,7 @@ fsevents@~2.1.1:
   resolution: "fxa-auth-server@workspace:packages/fxa-auth-server"
   dependencies:
     "@babel/core": ^7.15.0
-    "@fluent/bundle": ^0.17.0
+    "@fluent/bundle": ^0.17.1
     "@fluent/dom": ^0.8.1
     "@fluent/langneg": ^0.5.2
     "@google-cloud/firestore": ^5.0.1
@@ -19138,7 +19138,7 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/core": ^7.15.0
     "@babel/register": ^7.16.5
-    "@fluent/bundle": ^0.17.0
+    "@fluent/bundle": ^0.17.1
     "@fluent/langneg": ^0.5.2
     "@fluent/react": ^0.13.1
     "@rescripts/cli": ~0.0.16
@@ -19306,7 +19306,7 @@ fsevents@~2.1.1:
   resolution: "fxa-react@workspace:packages/fxa-react"
   dependencies:
     "@babel/core": ^7.15.0
-    "@fluent/bundle": ^0.17.0
+    "@fluent/bundle": ^0.17.1
     "@fluent/langneg": ^0.5.2
     "@fluent/react": ^0.13.1
     "@storybook/addon-actions": ^6.3.12

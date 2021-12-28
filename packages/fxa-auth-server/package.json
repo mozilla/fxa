@@ -46,7 +46,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@fluent/bundle": "^0.17.0",
+    "@fluent/bundle": "^0.17.1",
     "@fluent/dom": "^0.8.1",
     "@fluent/langneg": "^0.5.2",
     "@google-cloud/firestore": "^5.0.1",
