@@ -3570,6 +3570,7 @@ describe('StripeHelper', () => {
     const productNameNew = '123 Done Pro Monthly';
     const productIconURLNew = 'http://example.com/icon-new';
     const productDownloadURLNew = 'http://example.com/download-new';
+    const productPaymentCycleOld = 'month';
 
     describe('extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail', () => {
       const commonTest = (isUpgrade) => async () => {
@@ -3583,6 +3584,7 @@ describe('StripeHelper', () => {
           productNameNew,
           productIconURLNew,
           productDownloadURLNew,
+          productPaymentCycleOld,
           productMetadata: {
             ...expectedBaseUpdateDetails.productMetadata,
             emailIconURL: productIconURLNew,
