@@ -15912,14 +15912,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild-register@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "esbuild-register@npm:3.2.0"
+"esbuild-register@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "esbuild-register@npm:3.3.0"
   dependencies:
     jsonc-parser: ^3.0.0
+    tsconfig-paths: ^3.12.0
   peerDependencies:
     esbuild: ">=0.12 <1"
-  checksum: 834e7d14315abaceb5356a0aab73d60183f812b3eb045741be09c69e34811184bf23f1c69dceede4ff87d430575b88d405fbdfb7351a4f6936d5bf6ec7493584
+  checksum: 73eace06c861dc13fc59a9c74135c2dcf0d410977a6bcbd712469652846f8ea345cf40f673c46f20c036285d6292561bc03c4d713423bc2d392fdfc6971f6b46
   languageName: node
   linkType: hard
 
@@ -18335,7 +18336,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     dateformat: ^4.3.1
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-fxa: ^2.0.2
@@ -18401,7 +18402,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
@@ -18442,7 +18443,7 @@ fsevents@~2.1.1:
     abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     fast-text-encoding: ^1.0.3
     mocha: ^9.1.2
     node-fetch: ^2.6.1
@@ -18553,7 +18554,7 @@ fsevents@~2.1.1:
     email-addresses: 4.0.0
     emittery: ^0.10.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     fxa-auth-db-mysql: "workspace:*"
@@ -18698,7 +18699,7 @@ fsevents@~2.1.1:
     css-loader: 1.0.0
     duration-js: 4.0.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     expose-loader: 1.0.3
@@ -18936,7 +18937,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     eslint-config-prettier: ^8.3.0
     eslint-plugin-import: ^2.25.1
@@ -19032,7 +19033,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     express: ^4.17.1
     fxa-auth-client: "workspace:*"
@@ -19098,7 +19099,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     fxa-shared: "workspace:*"
     mocha: ^9.1.2
@@ -19191,7 +19192,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     dayjs: ^1.9.4
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-fxa: ^2.0.2
@@ -19484,7 +19485,7 @@ fsevents@~2.1.1:
     class-validator: ^0.13.2
     cors: ^2.8.5
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     eslint-plugin-fxa: ^2.0.2
     find-up: ^5.0.0
@@ -19551,7 +19552,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.14.2
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.3.0
     eslint: ^7.32.0
     express: ^4.17.1
     fxa-shared: "workspace:*"
