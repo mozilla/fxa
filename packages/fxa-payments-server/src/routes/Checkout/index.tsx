@@ -13,9 +13,7 @@ import classNames from 'classnames';
 import { AppContext } from '../../lib/AppContext';
 import { useMatchMedia, useNonce, usePaypalButtonSetup } from '../../lib/hooks';
 import { getSelectedPlan } from '../../lib/plan';
-import {
-  State as ValidatorState,
-} from '../../lib/validator';
+import { State as ValidatorState } from '../../lib/validator';
 
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { PlanErrorDialog } from '../../components/PlanErrorDialog';
@@ -431,7 +429,9 @@ export const Checkout = ({
           }}
         />
         {config.featureFlags.subscriptionCoupons ? (
-          <CouponForm {...{ planId: selectedPlan.plan_id, coupon, setCoupon }} />
+          <CouponForm
+            {...{ planId: selectedPlan.plan_id, coupon, setCoupon }}
+          />
         ) : null}
       </div>
     </>

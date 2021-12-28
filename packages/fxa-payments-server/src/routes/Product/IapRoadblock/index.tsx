@@ -42,7 +42,6 @@ export const IapRoadblock = ({
   subscription,
 }: IapRoadblockProps) => {
   const { l10n } = useLocalization();
-  // const navigate = useNavigate();
   const mobileAppStore = l10n.getString(
     getIapSubscriptionAppStoreL10Id(subscription)
   );
@@ -52,7 +51,6 @@ export const IapRoadblock = ({
     <SubscriptionTitle screenType="iapsubscribed" subtitle={subtitle} />
   );
 
-  // const manageSubscription: VoidFunction = () => navigate(appStoreLink);
   const manageSubscription: VoidFunction = () =>
     (window.location.href = appStoreLink);
 

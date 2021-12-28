@@ -201,9 +201,6 @@ export const Product = ({
   }
 
   if (!plans.result || plans.error !== null || !selectedPlan) {
-    // console.log('selectedPlan', selectedPlan);
-    // console.log('plans', plans);
-    // console.log('planId', planId);
     return <PlanErrorDialog {...{ locationReload, plans }} />;
   }
 
