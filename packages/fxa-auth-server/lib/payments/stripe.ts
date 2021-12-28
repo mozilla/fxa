@@ -2422,6 +2422,7 @@ export class StripeHelper {
     const {
       amount: paymentAmountOldInCents,
       currency: paymentAmountOldCurrency,
+      interval: productPaymentCycleOld,
     } = planOld;
     const { product_id: productIdOld, product_name: productNameOld } =
       abbrevProductOld;
@@ -2443,6 +2444,7 @@ export class StripeHelper {
       productNameOld,
       productIconURLOld,
       productDownloadURLOld,
+      productPaymentCycleOld,
       paymentAmountOldInCents,
       paymentAmountOldCurrency,
       invoiceNumber,
