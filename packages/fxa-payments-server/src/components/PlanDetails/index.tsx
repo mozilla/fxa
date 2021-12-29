@@ -167,6 +167,7 @@ export const PlanDetails = ({
                   </Localized>
                   <Localized
                     id={`plan-price-${interval}`}
+                    data-testid="plan-price-total"
                     attrs={{ title: true }}
                     vars={{
                       amount:
