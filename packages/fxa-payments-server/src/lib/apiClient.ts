@@ -261,6 +261,7 @@ export async function apiCapturePaypalPayment(params: {
   idempotencyKey: string;
   priceId: string;
   token?: string;
+  promoCode?: string;
 }): Promise<{
   sourceCountry: string;
   subscription: Subscription;
