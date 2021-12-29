@@ -15,6 +15,7 @@ import './index.scss';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { AppContext } from '../../lib/AppContext';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import { Coupon } from '../../lib/Coupon';
 
 type PaymentConfirmationProps = {
   customer: Customer;
@@ -23,6 +24,7 @@ type PaymentConfirmationProps = {
   productUrl: string;
   className?: string;
   accountExists?: boolean;
+  coupon?: Coupon;
 };
 
 export const PaymentConfirmation = ({
@@ -32,6 +34,7 @@ export const PaymentConfirmation = ({
   productUrl,
   className = 'default',
   accountExists = true,
+  coupon,
 }: PaymentConfirmationProps) => {
   const { config, navigatorLanguages } = useContext(AppContext);
   const { amount, currency, interval, interval_count, product_name } =
@@ -132,7 +135,10 @@ export const PaymentConfirmation = ({
             <Localized
               id={`payment-confirmation-amount-${interval}`}
               vars={{
-                amount: getLocalizedCurrency(amount, currency),
+                amount: getLocalizedCurrency(
+                  coupon ? amount - coupon?.amount : amount,
+                  currency
+                ),
                 intervalCount: interval_count,
               }}
             >

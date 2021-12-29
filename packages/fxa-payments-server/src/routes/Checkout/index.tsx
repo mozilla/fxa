@@ -13,9 +13,7 @@ import classNames from 'classnames';
 import { AppContext } from '../../lib/AppContext';
 import { useMatchMedia, useNonce, usePaypalButtonSetup } from '../../lib/hooks';
 import { getSelectedPlan } from '../../lib/plan';
-import {
-  State as ValidatorState,
-} from '../../lib/validator';
+import { State as ValidatorState } from '../../lib/validator';
 
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { PlanErrorDialog } from '../../components/PlanErrorDialog';
@@ -251,6 +249,7 @@ export const Checkout = ({
       ]);
       setProfile(profile);
       setCustomer(customer);
+      setCoupon(coupon);
       // Our stub accounts have a uid, append it to all future metric
       // events
       Amplitude.addGlobalEventProperties({ uid: profile.uid });
@@ -271,6 +270,7 @@ export const Checkout = ({
             profile,
             isMobile,
             accountExists,
+            coupon,
           }}
         />
       </>
@@ -437,7 +437,9 @@ export const Checkout = ({
           }}
         />
         {config.featureFlags.subscriptionCoupons ? (
-          <CouponForm {...{ planId: selectedPlan.plan_id, coupon, setCoupon }} />
+          <CouponForm
+            {...{ planId: selectedPlan.plan_id, coupon, setCoupon }}
+          />
         ) : null}
       </div>
     </>

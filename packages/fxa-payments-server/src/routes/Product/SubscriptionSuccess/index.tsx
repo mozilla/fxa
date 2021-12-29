@@ -7,6 +7,7 @@ import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import PlanDetails from '../../../components/PlanDetails';
 import PaymentConfirmation from '../../../components/PaymentConfirmation';
 import Header from '../../../components/Header';
+import { Coupon } from '../../../lib/Coupon';
 
 const defaultProductRedirectURL = 'https://mozilla.org';
 
@@ -16,6 +17,7 @@ export type SubscriptionSuccessProps = {
   profile: Profile;
   isMobile: boolean;
   accountExists?: boolean;
+  coupon?: Coupon;
 };
 
 export const SubscriptionSuccess = ({
@@ -24,6 +26,7 @@ export const SubscriptionSuccess = ({
   profile,
   isMobile,
   accountExists = true,
+  coupon,
 }: SubscriptionSuccessProps) => {
   const { product_id } = plan;
   const { downloadURL } = metadataFromPlan(plan);
@@ -45,6 +48,7 @@ export const SubscriptionSuccess = ({
             customer: customer,
             productUrl,
             accountExists,
+            coupon,
           }}
         />
         <PlanDetails
@@ -52,6 +56,7 @@ export const SubscriptionSuccess = ({
             selectedPlan: plan,
             isMobile,
             showExpandButton: isMobile,
+            coupon: coupon,
           }}
         />
       </div>
