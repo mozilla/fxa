@@ -12,7 +12,7 @@ convict.addFormats(require('convict-format-with-validator'));
 const conf = convict({
   featureFlags: {
     subscriptionCoupons: {
-      default: true,
+      default: false,
       doc: 'Whether to show the coupon UI',
       env: 'FEATURE_SHOW_COUPON',
       format: Boolean,
