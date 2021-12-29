@@ -21,7 +21,8 @@ const createStory = subplatStoryWithProps(
       'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
     productNameNew: 'Product Name B',
     productNameOld: 'Product Name A',
-    productPaymentCycle: 'month',
+    productPaymentCycleNew: 'year',
+    productPaymentCycleOld: 'month',
     paymentProrated: '$5,231.00',
     subscriptionSupportUrl: 'http://localhost:3030/support',
   }

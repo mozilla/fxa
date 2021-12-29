@@ -2088,7 +2088,8 @@ module.exports = function (log, config, bounces) {
       paymentAmountNewCurrency,
       paymentProratedInCents,
       paymentProratedCurrency,
-      productPaymentCycle,
+      productPaymentCycleNew,
+      productPaymentCycleOld,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2138,7 +2139,8 @@ module.exports = function (log, config, bounces) {
           paymentProratedCurrency,
           message.acceptLanguage
         ),
-        productPaymentCycle,
+        productPaymentCycleNew,
+        productPaymentCycleOld,
         icon: productIconURLNew,
         product: productNameNew,
         subject: translator.format(subject, translatorParams),
@@ -2162,7 +2164,8 @@ module.exports = function (log, config, bounces) {
       paymentAmountNewCurrency,
       paymentProratedInCents,
       paymentProratedCurrency,
-      productPaymentCycle,
+      productPaymentCycleNew,
+      productPaymentCycleOld,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2217,7 +2220,8 @@ module.exports = function (log, config, bounces) {
           paymentProratedCurrency,
           message.acceptLanguage
         ),
-        productPaymentCycle,
+        productPaymentCycleNew,
+        productPaymentCycleOld,
         icon: productIconURLNew,
         product: productNameNew,
         subject: translator.format(subject, translatorParams),

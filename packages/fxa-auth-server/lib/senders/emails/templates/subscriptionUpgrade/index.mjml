@@ -19,7 +19,7 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionUpgrade-charge-info" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, paymentProrated, productPaymentCycle}) %>">Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycle %> to <%- paymentAmountNew %>. At that time you will also be charged a one-time fee of <%- paymentProrated %> to reflect the higher charge for the remainder of this <%- productPaymentCycle %>.</span>
+      <span data-l10n-id="subscriptionUpgrade-content-charge-info" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, paymentProrated, productPaymentCycleNew, productPaymentCycleOld}) %>">Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>. At that time you will also be charged a one-time fee of <%- paymentProrated %> to reflect the higher charge for the remainder of this <%- productPaymentCycleOld %>.</span>
     </mj-text>
 
     <mj-text css-class="text-body">

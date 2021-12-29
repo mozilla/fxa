@@ -140,7 +140,8 @@ function sendMail(mailer, messageToSend) {
     paymentAmountNewCurrency: 'gbp',
     paymentProratedInCents: 523099.9,
     paymentProratedCurrency: 'usd',
-    productPaymentCycle: 'month',
+    productPaymentCycleNew: 'month',
+    productPaymentCycleOld: 'year',
     redirectTo: 'https://redirect.com/',
     reminderLength: 14,
     resume:
