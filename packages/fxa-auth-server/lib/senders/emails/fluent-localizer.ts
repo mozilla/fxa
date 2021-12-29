@@ -86,7 +86,18 @@ class FluentLocalizer {
 
     context = { ...context, ...context.templateValues };
     if (template !== '_storybook') {
-      context.subject = await l10n.formatValue(`${template}-subject`, context);
+      // TODO: #11471 Improve dynamically rendered actions & subjects in email.js, etc.
+      if (template === 'postRemoveTwoStepAuthentication') {
+        context.subject = await l10n.formatValue(
+          `${template}-subject-line`,
+          context
+        );
+      } else {
+        context.subject = await l10n.formatValue(
+          `${template}-subject`,
+          context
+        );
+      }
     }
 
     // metadata.mjml needs a localized version of `action`,
