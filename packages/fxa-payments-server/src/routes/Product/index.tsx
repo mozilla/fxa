@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useMemo } from 'react';
+import React, { useEffect, useContext, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import { Localized } from '@fluent/react';
 import { AuthServerErrno } from '../../lib/errors';
@@ -31,6 +31,7 @@ import {
 import { isWebSubscription } from 'fxa-shared/subscriptions/subscriptions';
 import { findCustomerIapSubscriptionByProductId } from '../../lib/customer';
 import IapRoadblock from './IapRoadblock';
+import { Coupon } from '../../lib/Coupon';
 
 type PlansByIdType = {
   [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
@@ -167,6 +168,8 @@ export const Product = ({
     [plans]
   );
 
+  const [coupon, setCoupon] = useState<Coupon>();
+
   if (!accessToken || customer.loading || plans.loading || profile.loading) {
     return <LoadingOverlay isLoading={true} />;
   }
@@ -244,6 +247,7 @@ export const Product = ({
             customer: customer.result,
             profile: profile.result,
             isMobile,
+            coupon,
           }}
         />
       );
@@ -272,6 +276,8 @@ export const Product = ({
             customer: customer.result,
             selectedPlan,
             refreshSubscriptions: fetchCustomerAndSubscriptions,
+            coupon: coupon,
+            setCoupon: setCoupon,
           }}
         />
       );
@@ -318,6 +324,8 @@ export const Product = ({
         customer: customer.result,
         selectedPlan,
         refreshSubscriptions: fetchCustomerAndSubscriptions,
+        coupon: coupon,
+        setCoupon: setCoupon,
       }}
     />
   );
