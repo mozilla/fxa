@@ -5,11 +5,8 @@
 import { DOMLocalization } from '@fluent/dom';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { negotiateLanguages } from '@fluent/langneg';
-import { JSDOM } from 'jsdom';
-import { join } from 'path';
-import { render, TemplateContext } from './renderer';
+import { LocalizerBindings, TemplateContext } from './localizer-bindings';
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
-import { readFileSync } from 'fs';
 
 const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
 
@@ -26,19 +23,13 @@ const RTL_LOCALES = [
   'ug',
 ];
 
-const baseDir = join(__dirname, '../../../public/locales');
-
-function fetchMessages(locale: string) {
-  try {
-    return readFileSync(`${baseDir}/${locale}/auth.ftl`, { encoding: 'utf8' });
-  } catch (e) {
-    // We couldn't fetch any strings; just return nothing and fluent will fall
-    // back to the default locale if needed.
-    return '';
-  }
-}
-
 class FluentLocalizer {
+  private readonly bindings: LocalizerBindings;
+
+  constructor(bindings: LocalizerBindings) {
+    this.bindings = bindings;
+  }
+
   async localizeEmail(context: TemplateContext) {
     const { acceptLanguage, template, layout } = context;
     const parsedLocales = acceptLanguage.split(',');
@@ -58,13 +49,12 @@ class FluentLocalizer {
       }
     );
 
-    const fetched = currentLocales
-      .filter((l) => !OTHER_EN_LOCALES.includes(l))
-      .reduce<Record<string, string>>(
-        (obj, locale) =>
-          Object.assign(obj, { [locale]: fetchMessages(locale) }),
-        {}
-      );
+    const fetched: Record<string, string> = {};
+    for (const locale of currentLocales.filter(
+      (l) => !OTHER_EN_LOCALES.includes(l)
+    )) {
+      fetched[locale] = await this.bindings.fetchLocalizationMessages(locale);
+    }
 
     let selectedLocale: string = 'en';
     async function* generateBundles(currentLocales: string[]) {
@@ -106,16 +96,18 @@ class FluentLocalizer {
       context.action = await l10n.formatValue(`${template}-action`, context);
     }
 
-    const { html, text } = render(template, context, layout);
-    const { document } = new JSDOM(html).window;
-    document.title = context.subject;
+    const { text, rootElement } = await this.bindings.renderTemplate(
+      template,
+      context,
+      layout
+    );
 
-    l10n.connectRoot(document.documentElement);
+    l10n.connectRoot(rootElement);
     await l10n.translateRoots();
 
     const isLocaleRenderedRtl = RTL_LOCALES.includes(selectedLocale);
     if (isLocaleRenderedRtl) {
-      const body = document.getElementsByTagName('body')[0];
+      const body = rootElement.getElementsByTagName('body')[0];
       body.classList.add('rtl');
     }
 
@@ -143,7 +135,7 @@ class FluentLocalizer {
       .replace(/(\n){2,}/g, '\n\n');
 
     return {
-      html: document.documentElement.outerHTML,
+      html: rootElement.outerHTML,
       text: localizedPlainText,
       subject: context.subject,
     };

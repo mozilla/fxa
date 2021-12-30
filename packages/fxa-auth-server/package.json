@@ -31,9 +31,7 @@
     "paypal-processor": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/paypal-processor.ts",
     "subscription-reminders": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/subscription-reminders.ts",
     "emails-scss": "node -r esbuild-register ./lib/senders/emails/sass-compile-files.ts",
-    "start-mjml": "NODE_ENV=dev node -r esbuild-register ./bin/mjml-server.ts",
-    "storybook": "npm run emails-scss && start-storybook -p 6010 --no-version-updates",
-    "storybook-mjml": "nodemon -e scss,ts  --exec \"grunt merge-ftl && npm-run-all -p watch-ftl start-mjml storybook\"",
+    "storybook": "npm run emails-scss && start-storybook -p 6010 --no-version-updates -s ./",
     "watch-ftl": "yarn grunt watch-ftl"
   },
   "repository": {
@@ -178,6 +176,7 @@
     "lodash.chunk": "4.2.0",
     "lodash.pick": "4.4.0",
     "mailparser": "0.6.1",
+    "mjml-browser": "^4.11.0",
     "mkdirp": "0.5.1",
     "mocha": "^9.1.2",
     "mocha-junit-reporter": "^2.0.2",
