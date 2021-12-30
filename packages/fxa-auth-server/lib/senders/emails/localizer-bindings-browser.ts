@@ -11,13 +11,11 @@ import {
 // When rendering templates in storybook, use the mjml-browser implementation
 import mjml2html from 'mjml-browser';
 
-// NOTE: Unfortunately, importing the ejs package won't work from a browser
-// context, so per their docs, import official build. This is less than ideal,
-// because we are now blind to the version of the package.
-//
-// A better solution would be great! Consider automating build before
-// startup, and base it on installed verison of package.
-import ejs from '../../../bin/ejs';
+// Unfortunately, importing the ejs package won't work from a browser context,
+// so per their docs, we must use the 'official' build. Currently this is
+// automically pulled in by the install-ejs.sh script and is invoked before
+// storybook starts up.
+import ejs from '../../../vendor/ejs';
 
 // Overload required or client side errors out.
 ejs.fileLoader = function (filePath: string) {

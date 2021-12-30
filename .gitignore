@@ -95,6 +95,7 @@ packages/fxa-auth-server/.mail_output
 packages/fxa-auth-server/fxa-content-server-l10n
 packages/fxa-auth-server/lib/senders/emails/css
 packages/fxa-auth-server/public/locales
+packages/fxa-auth-server/vendor
 
 # fxa-content-server
 packages/fxa-content-server/pids
