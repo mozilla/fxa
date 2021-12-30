@@ -2180,10 +2180,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/langneg@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "@fluent/langneg@npm:0.5.2"
-  checksum: 00bb1be6428a90d46a6b02bee63461230c9266e39c166175410d62b1669ba47720cbf07805ddd9da337c06f3775d540cb1371bfb2f0be79db34dcdbb2671b100
+"@fluent/langneg@npm:^0.6.1":
+  version: 0.6.1
+  resolution: "@fluent/langneg@npm:0.6.1"
+  checksum: ff5783a4c8a2ed21a66bcaf2f534b3cf0bb88dfe9763bf3fedd715c7d88cf7299dd59d6f79a1431a32a95eb2ef20babf7f6466e1d81db52f54d56dd6cf4a7e38
   languageName: node
   linkType: hard
 
@@ -18493,7 +18493,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.15.0
     "@fluent/bundle": ^0.17.1
     "@fluent/dom": ^0.8.1
-    "@fluent/langneg": ^0.5.2
+    "@fluent/langneg": ^0.6.1
     "@google-cloud/firestore": ^5.0.1
     "@googlemaps/google-maps-services-js": ^3.3.5
     "@hapi/hapi": ^20.2.1
@@ -19139,7 +19139,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.15.0
     "@babel/register": ^7.16.5
     "@fluent/bundle": ^0.17.1
-    "@fluent/langneg": ^0.5.2
+    "@fluent/langneg": ^0.6.1
     "@fluent/react": ^0.13.1
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^6.16.1
@@ -19307,7 +19307,7 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/core": ^7.15.0
     "@fluent/bundle": ^0.17.1
-    "@fluent/langneg": ^0.5.2
+    "@fluent/langneg": ^0.6.1
     "@fluent/react": ^0.13.1
     "@storybook/addon-actions": ^6.3.12
     "@storybook/addon-links": ^6.3.12
