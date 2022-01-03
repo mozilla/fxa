@@ -18946,7 +18946,7 @@ fsevents@~2.1.1:
     esbuild-register: ^3.2.0
     eslint: ^7.32.0
     eslint-config-prettier: ^8.3.0
-    eslint-plugin-import: ^2.25.1
+    eslint-plugin-import: ^2.25.4
     express: ^4.17.1
     factory-bot-ts: ^0.1.5
     fxa-jwtool: ^0.7.2
