@@ -263,7 +263,7 @@ export const SubscriptionCreate = ({
                           setSubscriptionError={setSubscriptionError}
                           ButtonBase={paypalButtonBase}
                           setTransactionInProgress={setTransactionInProgress}
-                          promoCode={coupon?.couponCode}
+                          promotionCode={coupon?.promotionCode}
                         />
                       </div>
                     </Suspense>
@@ -313,7 +313,7 @@ export const SubscriptionCreate = ({
                 plan: selectedPlan,
                 onMounted: onFormMounted,
                 onEngaged: onFormEngaged,
-                promoCode: coupon?.couponCode,
+                promotionCode: coupon?.promotionCode,
               }}
             />
           </div>

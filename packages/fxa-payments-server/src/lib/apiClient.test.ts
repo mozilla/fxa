@@ -427,7 +427,7 @@ describe('API requests', () => {
       const expected = { sourceCountry: 'US', subscription: { what: 'ever' } };
       const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
 
-      const paramsWithPromo = Object.assign(params, { promoCode: 'TEST' });
+      const paramsWithPromo = Object.assign(params, { promotionCode: 'TEST' });
 
       expect(
         await apiCreateSubscriptionWithPaymentMethod(paramsWithPromo)
@@ -441,6 +441,7 @@ describe('API requests', () => {
       ).toBeCalledWith({
         ...metricsOptions,
         sourceCountry: expected.sourceCountry,
+        promotionCode: 'TEST',
       });
       requestMock.done();
     });
@@ -652,7 +653,7 @@ describe('API requests', () => {
     });
 
     it('POST {auth-server}/v1/oauth/subscriptions/active/new-paypal with coupon', async () => {
-      const paramsWithPromo = Object.assign(params, { promoCode: 'TEST' });
+      const paramsWithPromo = Object.assign(params, { promotionCode: 'TEST' });
 
       const requestMock = nock(AUTH_BASE_URL)
         .post(path, paramsWithPromo)

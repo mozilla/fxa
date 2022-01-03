@@ -48,7 +48,7 @@ export type EventProperties = GlobalEventProperties & {
   utm_source?: string;
   utm_term?: string;
   other?: string;
-  promoCode?: string;
+  promotionCode?: string;
 };
 
 type SuccessfulSubscriptionEventProperties = EventProperties & {

@@ -453,15 +453,15 @@ describe('DirectStripeRoutes', () => {
 
   describe('extractPromotionCode', () => {
     it('should extract a valid PromotionCode', async () => {
-      const promoCode = { coupon: { id: 'test-code' } };
+      const promotionCode = { coupon: { id: 'test-code' } };
       directStripeRoutesInstance.stripeHelper.findValidPromoCode.resolves(
-        promoCode
+        promotionCode
       );
       const res = await directStripeRoutesInstance.extractPromotionCode(
         'promo1',
         'plan1'
       );
-      assert.equal(res, promoCode);
+      assert.equal(res, promotionCode);
     });
 
     it('should throw an error if on invalid promotion code', async () => {
@@ -563,7 +563,7 @@ describe('DirectStripeRoutes', () => {
       const expected = deepCopy(invoicePreviewTax);
       directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
       VALID_REQUEST.payload = {
-        promotionCode: 'promoCode',
+        promotionCode: 'promotionCode',
         priceId: 'priceId',
       };
       VALID_REQUEST.app.geo = {};
@@ -577,7 +577,7 @@ describe('DirectStripeRoutes', () => {
       );
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
-        { country: 'US', promotionCode: 'promoCode', priceId: 'priceId' }
+        { country: 'US', promotionCode: 'promotionCode', priceId: 'priceId' }
       );
       assert.deepEqual(stripeInvoiceToInvoicePreviewDTO(expected), actual);
     });
@@ -663,7 +663,7 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         priceId: 'Jane Doe',
         paymentMethodId: 'pm_asdf',
-        promotionCode: 'promoCode',
+        promotionCode: 'promotionCode',
         idempotencyKey: uuidv4(),
       };
 
