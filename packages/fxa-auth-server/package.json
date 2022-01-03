@@ -79,7 +79,7 @@
     "fxa-geodb": "workspace:*",
     "fxa-jwtool": "^0.7.2",
     "fxa-shared": "workspace:*",
-    "google-libphonenumber": "^3.2.25",
+    "google-libphonenumber": "^3.2.26",
     "googleapis": "^92.0.0",
     "handlebars": "^4.7.7",
     "hapi-auth-jwt2": "^10.2.0",
