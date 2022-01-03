@@ -16,10 +16,24 @@ import mjml2html from 'mjml-browser';
 // automically pulled in by the install-ejs.sh script and is invoked before
 // storybook starts up.
 import ejs from '../../../vendor/ejs';
+import { transformMjIncludeTags } from './mjml-browser-helper';
 
-// Overload required or client side errors out.
+/**
+ * Allows ejs to import requested files. This gets invoked when include() is
+ * used in a template. Note that this function MUST be synchronous.
+ */
 ejs.fileLoader = function (filePath: string) {
-  return filePath;
+  var request = new XMLHttpRequest();
+
+  // Synchronous request
+  request.open('GET', '/lib/senders/emails' + filePath, false); // `false` makes the request synchronous
+  request.send(null);
+
+  if (request.status === 200) {
+    return request.responseText;
+  }
+
+  return '';
 };
 
 /**
@@ -40,7 +54,6 @@ export class BrowserLocalizerBindings extends LocalizerBindings {
         ejs: {},
         mjml: {
           validationLevel: 'strict',
-          ignoreIncludes: typeof global.it === 'function',
         },
         l10n: {
           basePath: '/public/locales',
@@ -70,6 +83,10 @@ export class BrowserLocalizerBindings extends LocalizerBindings {
   }
 
   protected mjml2html(mjml: string): string {
+    // Work around the fact tht mjml-browser doesn't support mj-inculde tags
+    mjml = transformMjIncludeTags(mjml);
+    // Re-render to pull in css files
+    mjml = this.renderEjs(mjml, {});
     return mjml2html(mjml, this.opts.mjml).html;
   }
 }
