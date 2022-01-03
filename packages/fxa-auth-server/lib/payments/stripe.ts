@@ -550,12 +550,12 @@ export class StripeHelper {
     }
 
     if (promotionCode) {
-      const promotionCode = await this.findValidPromoCode(
+      const stripePromotionCode = await this.findValidPromoCode(
         promotionCode,
         priceId
       );
-      if (promotionCode) {
-        params['coupon'] = promotionCode.coupon.id;
+      if (stripePromotionCode) {
+        params['coupon'] = stripePromotionCode.coupon.id;
       }
     }
     return this.stripe.invoices.retrieveUpcoming({
