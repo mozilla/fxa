@@ -49,7 +49,7 @@ export type StripePaymentSubmitResult = {
   name: string;
   card: StripeCardElement | null;
   idempotencyKey: string;
-  promotionCode: string | undefined;
+  promotionCode?: string;
 };
 export type StripePaymentUpdateResult = StripePaymentSubmitResult & {
   card: StripeCardElement;
@@ -57,7 +57,7 @@ export type StripePaymentUpdateResult = StripePaymentSubmitResult & {
 export type PaypalPaymentSubmitResult = {
   priceId: string;
   idempotencyKey: string;
-  promotionCode: string | undefined;
+  promotionCode?: string;
 };
 
 export type StripeSubmitHandler = (x: StripePaymentSubmitResult) => void;

@@ -27,7 +27,7 @@ export type SubscriptionPaymentHandlerParam = {
   selectedPlan: Plan;
   customer: Customer | null;
   retryStatus: RetryStatus;
-  promotionCode: string | undefined;
+  promotionCode?: string;
   apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
   onFailure: (error: PaymentError | GeneralError) => void;
   onRetry: (status: RetryStatus) => void;
