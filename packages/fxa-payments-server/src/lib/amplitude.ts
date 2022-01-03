@@ -406,7 +406,7 @@ export function couponEngaged(eventProperties: EventProperties) {
   );
 }
 
-export function couponMounted_PENDING(eventProperties: EventProperties) {
+export function coupon_PENDING(eventProperties: EventProperties) {
   safeLogAmplitudeEvent(
     eventGroupNames.coupon,
     eventTypeNames.submit,
@@ -414,7 +414,7 @@ export function couponMounted_PENDING(eventProperties: EventProperties) {
   );
 }
 
-export function couponEngaged_FULFILLED(eventProperties: EventProperties) {
+export function coupon_FULFILLED(eventProperties: EventProperties) {
   safeLogAmplitudeEvent(
     eventGroupNames.coupon,
     eventTypeNames.success,
@@ -422,7 +422,7 @@ export function couponEngaged_FULFILLED(eventProperties: EventProperties) {
   );
 }
 
-export function couponEngaged_REJECTED(eventProperties: EventProperties) {
+export function coupon_REJECTED(eventProperties: EventProperties) {
   safeLogAmplitudeEvent(
     eventGroupNames.coupon,
     eventTypeNames.fail,
