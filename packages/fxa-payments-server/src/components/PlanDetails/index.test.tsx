@@ -208,7 +208,7 @@ describe('PlanDetails', () => {
       const testInstance = testRenderer.root;
 
       const planPriceComponent = testInstance.findByProps({
-        id: 'total-price',
+        'data-testid': `plan-price-total`,
       });
 
       const expectedAmount = getLocalizedCurrency(
