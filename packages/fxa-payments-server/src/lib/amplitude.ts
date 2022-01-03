@@ -41,7 +41,7 @@ export type EventProperties = GlobalEventProperties & {
   productId?: string;
   product_id?: string;
   paymentProvider?: PaymentProvider;
-  couponPromoCode?: string;
+  promotionCode?: string;
   error?: Error;
   checkoutType?: string;
   utm_campaign?: string;

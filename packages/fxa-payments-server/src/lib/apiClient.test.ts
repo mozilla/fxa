@@ -376,11 +376,13 @@ describe('API requests', () => {
       productId: 'prod_abdce',
       paymentMethodId: 'pm_test',
       idempotencyKey: 'idk-8675309',
+      promotionCode: 'VALID',
     };
-    const metricsOptions = {
+    const metricsOptions: EventProperties = {
       planId: params.priceId,
       productId: params.productId,
       paymentProvider: 'stripe',
+      promotionCode: params.promotionCode,
     };
 
     it(`POST {auth-server}${path}`, async () => {
@@ -404,7 +406,8 @@ describe('API requests', () => {
     });
 
     it('sends amplitude ping on error', async () => {
-      const { priceId, paymentMethodId, idempotencyKey } = params;
+      const { priceId, paymentMethodId, idempotencyKey, promotionCode } =
+        params;
       const requestMock = nock(AUTH_BASE_URL)
         .post(path, { priceId, paymentMethodId, idempotencyKey })
         .reply(400, { message: 'oops' });
@@ -480,7 +483,7 @@ describe('API requests', () => {
       const promotionCode = 'VALID';
       const metricsOptions: EventProperties = {
         ...metricsOptionsBase,
-        couponPromoCode: promotionCode,
+        promotionCode,
       };
       const expected: InvoicePreview = {
         subtotal: 200,
@@ -518,7 +521,7 @@ describe('API requests', () => {
       const promotionCode = 'INVALID';
       const metricsOptions: EventProperties = {
         ...metricsOptionsBase,
-        couponPromoCode: promotionCode,
+        promotionCode,
       };
       const expected: InvoicePreview = {
         subtotal: 200,
@@ -660,14 +663,17 @@ describe('API requests', () => {
 
   describe('apiCapturePaypalPayment', () => {
     const path = '/v1/oauth/subscriptions/active/new-paypal';
+    const promotionCode = 'VALID';
     const params = {
       idempotencyKey: 'idk-8675309',
       priceId: 'price_12345',
+      promotionCode,
       ...MOCK_CHECKOUT_TOKEN,
     };
     const metricsOptions = {
       planId: params.priceId,
       paymentProvider: 'paypal',
+      promotionCode,
     };
 
     it('POST {auth-server}/v1/oauth/subscriptions/active/new-paypal', async () => {
