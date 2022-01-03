@@ -435,7 +435,7 @@ describe('API requests', () => {
 
       expect(
         <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
-      ).toBeCalledWith(metricsOptions);
+      ).toBeCalledWith({ ...metricsOptions, promotionCode: 'TEST' });
       expect(
         <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
       ).toBeCalledWith({
@@ -670,6 +670,7 @@ describe('API requests', () => {
       ).toBeCalledWith({
         ...metricsOptions,
         sourceCountry: 'FR',
+        promotionCode: 'TEST',
       });
 
       requestMock.done();

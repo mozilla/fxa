@@ -113,7 +113,7 @@ export async function handleSubscriptionPayment({
         priceId: selectedPlan.plan_id,
         productId: selectedPlan.product_id,
         idempotencyKey,
-        promotionCode: promotionCode || undefined,
+        promotionCode: promotionCode,
       });
     return handlePaymentIntent({
       customer,
@@ -172,7 +172,7 @@ export async function handleSubscriptionPayment({
         productId: selectedPlan.product_id,
         paymentMethodId: paymentMethod.id,
         idempotencyKey,
-        promotionCode: promotionCode || undefined,
+        promotionCode: promotionCode,
       });
     return handlePaymentIntent({
       customer,
