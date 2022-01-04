@@ -14,6 +14,7 @@ const i18n = require('i18n-abide');
 const { URL } = url;
 const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
 const FluentLocalizer = require('./emails/fluent-localizer').default;
+const { NodeLocalizerBindings } = require('./emails/localizer-bindings-node');
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json');
 
@@ -307,7 +308,7 @@ module.exports = function (log, config, bounces) {
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
-    this.fluentLocalizer = new FluentLocalizer();
+    this.fluentLocalizer = new FluentLocalizer(new NodeLocalizerBindings());
   }
 
   Mailer.prototype.stop = function () {

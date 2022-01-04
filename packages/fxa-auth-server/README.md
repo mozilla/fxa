@@ -258,8 +258,13 @@ http://localhost:3030/connect_another_device?utm_medium=email&utm_campaign=fx-ca
 #### Storybook and Documentation
 
 As part of the emails revamp project, Storybook was setup locally in order to preview the various states of the emails which was not possible before without manually tweaking the code. The templates that are converted to MJML are compiled down to HTML before they can be rendered in Storybook and with [Controls addon](https://storybook.js.org/docs/react/essentials/controls) in place we can directly modify the variables without touching the codebase.
+
 Each template has an optional `doc` string which serves to document when users will receive the email meaning what triggers the email to be sent. These templates are essentially HTML templates rendered in browser with Storybook and there is a possibility that they may not exactly match with what users see in an email client.
-To preview these templates with Storybook, run `yarn storybook-mjml` in `fxa-auth-server` root directory
+To preview these templates with Storybook, run `yarn storybook` in `fxa-auth-server` root directory.
+
+In addition to running locally, Storybook can be built into a static format. This is ultimately what happens in our CI. This static format is then deployed and manual QA may be conducted against it. To test what this will look like, run `yarn build-storybook` then navigate to the `storybook-static` folder and run `http-server . -p 8081`. From there, simply navigate to the `http://locahost:8081/index.html` and you will see the resulting static build. _(If you don't have `http-sever` installed, simply run `npm install -g http-server`)_
+
+**Important!** The previews in storybook are generated using the `mjml-browser` module and not the de facto `mjml` module. The difference is subtle but important. As the name indicates, `mjml-browser` is designed to render from a browser context, whereas mjml uses a nodejs context. Ideally these modules would be identical, but at the time of writing this, there are a couple [minor differences](https://github.com/mjmlio/mjml/tree/master/packages/mjml-browser#unavailable-features). Our code introduces a couple work arounds to achieve parity with the way templates would be rendered using the `mjml` module. If styles in sent out emails ever seem off, consider this discrepancy as an unlikely but potential source of error.
 
 #### Production
 

@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Story } from '@storybook/html';
+import FluentLocalizer from './fluent-localizer';
+import { BrowserLocalizerBindings } from './localizer-bindings-browser';
 
 interface StorybookEmailArgs {
   template: string;
@@ -81,30 +83,21 @@ async function renderUsingMJML({
   template,
   layout,
   acceptLanguage,
-  apiUrl = 'http://localhost:8192',
   variables,
 }: {
   template: string;
   layout: string;
   acceptLanguage: string;
-  apiUrl?: string;
   variables: Record<string, any>;
 }): Promise<Record<any, string>> {
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    body: JSON.stringify({
-      template,
-      layout,
-      acceptLanguage,
-      ...variables,
-    }),
+  const localizer = new FluentLocalizer(new BrowserLocalizerBindings());
+
+  return localizer.localizeEmail({
+    template,
+    layout,
+    acceptLanguage,
+    ...variables,
   });
-  const result = await response.text();
-  const { html, subject, text } = await JSON.parse(result);
-  if (response.status !== 200) {
-    throw new Error(result);
-  }
-  return { html, subject, text };
 }
 
 const Template: Story<StorybookEmailArgs> = (args, context) =>
