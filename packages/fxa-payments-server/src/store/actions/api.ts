@@ -43,7 +43,8 @@ export default {
   cancelSubscription: (
     subscriptionId: string,
     plan: Plan,
-    paymentProvider: PaymentProvider | undefined
+    paymentProvider: PaymentProvider | undefined,
+    promotionCode: string | undefined
   ) =>
     ({
       type: 'cancelSubscription',
@@ -54,6 +55,7 @@ export default {
           planId: plan.plan_id,
           productId: plan.product_id,
           paymentProvider,
+          promotionCode,
         });
         // Cancellation response does not include subscriptionId, but we want it.
         return { ...result, subscriptionId };

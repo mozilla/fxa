@@ -74,11 +74,14 @@ export const cancelSubscriptionAndRefresh =
   (
     subscriptionId: string,
     plan: Plan,
-    paymentProvider: PaymentProvider | undefined
+    paymentProvider: PaymentProvider | undefined,
+    promotionCode: string | undefined
   ) =>
-  async (dispatch: Function, getState: Function) => {
+  async (dispatch: Function) => {
     try {
-      await dispatch(cancelSubscription(subscriptionId, plan, paymentProvider));
+      await dispatch(
+        cancelSubscription(subscriptionId, plan, paymentProvider, promotionCode)
+      );
       await dispatch(fetchCustomerAndSubscriptions());
     } catch (err) {
       handleThunkError(err);

@@ -38,6 +38,7 @@ export const SubscriptionItem = ({
 
   const paymentProvider: PaymentProvider | undefined =
     customer?.payment_provider;
+  const promotionCode = customerSubscription.promotion_code;
 
   if (!plan) {
     // TODO: This really shouldn't happen, would mean the user has a
@@ -69,6 +70,7 @@ export const SubscriptionItem = ({
               customerSubscription,
               plan,
               paymentProvider,
+              promotionCode,
             }}
           />
         ) : (

@@ -179,12 +179,15 @@ export async function apiCancelSubscription(params: {
   planId: string;
   productId: string;
   paymentProvider: PaymentProvider | undefined;
+  promotionCode: string | undefined;
 }) {
-  const { subscriptionId, planId, productId, paymentProvider } = params;
+  const { subscriptionId, planId, productId, paymentProvider, promotionCode } =
+    params;
   const metricsOptions = {
     planId,
     productId,
     paymentProvider,
+    promotionCode,
   };
   try {
     Amplitude.cancelSubscription_PENDING(metricsOptions);

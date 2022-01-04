@@ -219,11 +219,24 @@ describe('CancelSubscriptionPanel', () => {
       (Amplitude.cancelSubscriptionMounted as jest.Mock).mockClear();
       (Amplitude.cancelSubscriptionEngaged as jest.Mock).mockClear();
       const plan = findMockPlan('plan_daily');
-      render(<CancelSubscriptionPanel {...baseProps} plan={plan} />);
+      render(
+        <CancelSubscriptionPanel
+          {...baseProps}
+          plan={plan}
+          paymentProvider="stripe"
+          promotionCode="gogogo"
+        />
+      );
       fireEvent.click(getByTestId('reveal-cancel-subscription-button'));
-      expect(Amplitude.cancelSubscriptionMounted).toHaveBeenCalledTimes(1);
+      expect(Amplitude.cancelSubscriptionMounted).toHaveBeenCalledWith({
+        ...plan,
+        promotionCode: 'gogogo',
+      });
       fireEvent.click(getByTestId('confirm-cancel-subscription-checkbox'));
-      expect(Amplitude.cancelSubscriptionEngaged).toHaveBeenCalledTimes(1);
+      expect(Amplitude.cancelSubscriptionEngaged).toHaveBeenCalledWith({
+        ...plan,
+        promotionCode: 'gogogo',
+      });
     });
   });
 });

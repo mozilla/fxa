@@ -285,11 +285,13 @@ describe('API requests', () => {
       planId: 'plan_2345',
       productId: 'prod_4567',
       paymentProvider: 'paypal' as PaymentProvider,
+      promotionCode: 'freecats',
     };
     const metricsOptions = {
       planId: params.planId,
       productId: params.productId,
       paymentProvider: params.paymentProvider,
+      promotionCode: params.promotionCode,
     };
 
     it('DELETE {auth-server}/v1/oauth/subscriptions/active/', async () => {

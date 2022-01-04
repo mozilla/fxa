@@ -40,6 +40,7 @@ export type EventProperties = GlobalEventProperties & {
   productId?: string;
   product_id?: string;
   paymentProvider?: PaymentProvider;
+  promotionCode?: string;
   error?: Error;
   checkoutType?: string;
   utm_campaign?: string;
