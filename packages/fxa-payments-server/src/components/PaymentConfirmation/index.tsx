@@ -136,7 +136,7 @@ export const PaymentConfirmation = ({
               id={`payment-confirmation-amount-${interval}`}
               vars={{
                 amount: getLocalizedCurrency(
-                  coupon ? amount - coupon?.amount : amount,
+                  coupon && amount ? amount - coupon?.amount : amount,
                   currency
                 ),
                 intervalCount: interval_count,
