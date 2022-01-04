@@ -266,11 +266,9 @@ export async function apiCapturePaypalPayment(params: {
   sourceCountry: string;
   subscription: Subscription;
 }> {
-  const { promotionCode } = params;
   const metricsOptions: Amplitude.EventProperties = {
     planId: params.priceId,
     paymentProvider: 'paypal',
-    promotionCode: promotionCode,
   };
   Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
   try {
@@ -322,7 +320,6 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
     planId: params.priceId,
     productId: params.productId,
     paymentProvider: 'stripe',
-    promotionCode: promotionCode,
   };
   try {
     Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
