@@ -56,7 +56,7 @@ export const PaymentConfirmation = ({
   });
 
   const planPrice = formatPlanPricing(
-    amount,
+    coupon && amount ? amount - coupon.amount : amount,
     currency,
     interval,
     interval_count
@@ -142,7 +142,7 @@ export const PaymentConfirmation = ({
                 intervalCount: interval_count,
               }}
             >
-              <p>{planPrice}</p>
+              <p data-testid="plan-price">{planPrice}</p>
             </Localized>
 
             <PaymentProviderDetails customer={customer} />

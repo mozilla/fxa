@@ -10,8 +10,10 @@ import {
   MOCK_PLANS,
   setupFluentLocalizationTest,
   getLocalizedMessage,
+  defaultAppContextValue,
 } from '../../lib/test-utils';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
+import { Coupon } from '../../lib/Coupon';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -97,6 +99,11 @@ const paypalCustomer: Customer = {
       end_at: null,
     },
   ],
+};
+
+const coupon: Coupon = {
+  amount: 200,
+  couponCode: 'TEST',
 };
 
 afterEach(cleanup);
@@ -207,6 +214,28 @@ describe('PaymentConfirmation', () => {
       )
     ).toBeInTheDocument();
     expect(queryByText(defaultButtonLabel)).not.toBeInTheDocument();
+  });
+
+  it('renders with a discounted amount when coupon is present', () => {
+    const subject = () => {
+      return render(
+        <AppContext.Provider value={{ ...defaultAppContext }}>
+          <PaymentConfirmation
+            {...{
+              profile: userProfileNoDisplayName,
+              selectedPlan,
+              customer,
+              productUrl,
+              coupon,
+            }}
+          />
+        </AppContext.Provider>
+      );
+    };
+
+    const { queryByTestId } = subject();
+    const planPrice = queryByTestId('plan-price');
+    expect(planPrice?.innerHTML).toContain('$7.35 monthly');
   });
 
   describe('When payment_provider is "paypal"', () => {

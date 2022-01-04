@@ -65,6 +65,11 @@ const customer: Customer = {
 
 const productUrl = 'https://mozilla.org';
 
+const coupon = {
+  amount: 200,
+  couponCode: 'TEST',
+};
+
 storiesOf('components/PaymentConfirmation', module)
   .add('default', () => (
     <MockApp>
@@ -118,6 +123,19 @@ storiesOf('components/PaymentConfirmation', module)
           customer: PAYPAL_CUSTOMER,
           productUrl,
           accountExists: false,
+        }}
+      />
+    </MockApp>
+  ))
+  .add('with coupon', () => (
+    <MockApp>
+      <PaymentConfirmation
+        {...{
+          profile: userProfile,
+          selectedPlan,
+          customer: PAYPAL_CUSTOMER,
+          productUrl,
+          coupon,
         }}
       />
     </MockApp>
