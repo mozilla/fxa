@@ -1,0 +1,15 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mjml>
+  <mj-head>
+    <mj-raw>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </mj-raw>
+    <mj-title><%- subject %></mj-title>
+  </mj-head>
+  <mj-body css-class="body">
+    <%- body %>
+  </mj-body>
+</mjml>
