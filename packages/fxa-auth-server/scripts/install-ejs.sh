@@ -12,4 +12,4 @@ ejs_version=$(npm info ejs version)
 [ ! -d "./vendor" ] && mkdir vendor
 
 # Download it from github
-wget -O ./vendor/ejs.js https://github.com/mde/ejs/releases/download/v$ejs_version/ejs.min.js
+curl -L https://github.com/mde/ejs/releases/download/v$ejs_version/ejs.min.js -o ./vendor/ejs.js
