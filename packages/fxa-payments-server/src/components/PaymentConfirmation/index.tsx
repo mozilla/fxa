@@ -55,8 +55,9 @@ export const PaymentConfirmation = ({
     day: 'numeric',
   });
 
+  const finalAmount = coupon && amount ? amount - coupon.amount : amount;
   const planPrice = formatPlanPricing(
-    coupon && amount ? amount - coupon.amount : amount,
+    finalAmount,
     currency,
     interval,
     interval_count
@@ -135,10 +136,7 @@ export const PaymentConfirmation = ({
             <Localized
               id={`payment-confirmation-amount-${interval}`}
               vars={{
-                amount: getLocalizedCurrency(
-                  coupon && amount ? amount - coupon?.amount : amount,
-                  currency
-                ),
+                amount: getLocalizedCurrency(finalAmount, currency),
                 intervalCount: interval_count,
               }}
             >
