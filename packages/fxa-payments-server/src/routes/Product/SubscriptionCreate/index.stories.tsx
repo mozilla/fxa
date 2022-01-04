@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Stripe,
   StripeCardElement,
@@ -16,6 +16,7 @@ import { APIError } from '../../../lib/apiClient';
 import { PickPartial } from '../../../lib/types';
 import { SignInLayout } from '../../../components/AppLayout';
 import SubscriptionCreate, { SubscriptionCreateProps } from './index';
+import { Coupon } from '../../../lib/Coupon';
 
 // TODO: Move to some shared lib?
 const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
@@ -26,9 +27,10 @@ const wait = (delay: number) =>
 
 function init() {
   storiesOf('routes/Product/SubscriptionCreate', module)
-    .add('default', () => <Subject />)
+    .add('default', () => <Subject setCoupon={() => {}} />)
     .add('with retry', () => (
       <Subject
+        setCoupon={() => {}}
         apiClientOverrides={{
           ...defaultApiClientOverrides,
           apiCreateSubscriptionWithPaymentMethod: async () => {
@@ -42,6 +44,7 @@ function init() {
     ))
     .add('with confirmation', () => (
       <Subject
+        setCoupon={() => {}}
         apiClientOverrides={{
           ...defaultApiClientOverrides,
           apiCreateSubscriptionWithPaymentMethod: async () => {
@@ -69,6 +72,7 @@ function init() {
   storiesOf('routes/Product/SubscriptionCreate/failures', module)
     .add('createPaymentMethod', () => (
       <Subject
+        setCoupon={() => {}}
         stripeOverride={{
           ...defaultStripeOverride,
           createPaymentMethod: async () => {
@@ -79,6 +83,7 @@ function init() {
     ))
     .add('confirmCardPayment', () => (
       <Subject
+        setCoupon={() => {}}
         apiClientOverrides={{
           ...defaultApiClientOverrides,
           apiCreateSubscriptionWithPaymentMethod: async () => {
@@ -97,6 +102,7 @@ function init() {
     ))
     .add('apiCreateSubscriptionWithPaymentMethod', () => (
       <Subject
+        setCoupon={() => {}}
         apiClientOverrides={{
           apiCreateSubscriptionWithPaymentMethod: async () => {
             throw new APIError({
@@ -109,6 +115,7 @@ function init() {
     ))
     .add('apiCreateCustomer', () => (
       <Subject
+        setCoupon={() => {}}
         customer={null}
         apiClientOverrides={{
           apiCreateCustomer: async () => {
@@ -122,6 +129,7 @@ function init() {
     ))
     .add('apiRetryInvoice', () => (
       <Subject
+        setCoupon={() => {}}
         apiClientOverrides={{
           apiCreateSubscriptionWithPaymentMethod: async () => {
             const result = deepCopy(SUBSCRIPTION_RESULT);
@@ -142,6 +150,7 @@ function init() {
   storiesOf('routes/Product/SubscriptionCreate/errors', module)
     .add('card declined', () => (
       <Subject
+        setCoupon={() => {}}
         subscriptionErrorInitialState={{
           type: 'card_error',
           code: 'card_declined',
@@ -151,6 +160,7 @@ function init() {
     ))
     .add('incorrect cvc', () => (
       <Subject
+        setCoupon={() => {}}
         subscriptionErrorInitialState={{
           type: 'card_error',
           code: 'incorrect_cvc',
@@ -160,6 +170,7 @@ function init() {
     ))
     .add('card expired', () => (
       <Subject
+        setCoupon={() => {}}
         subscriptionErrorInitialState={{
           type: 'card_error',
           code: 'expired_card',
@@ -169,6 +180,7 @@ function init() {
     ))
     .add('other error', () => (
       <Subject
+        setCoupon={() => {}}
         subscriptionErrorInitialState={{
           type: 'api_error',
         }}
