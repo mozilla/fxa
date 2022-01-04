@@ -83,7 +83,8 @@ export class StripeFirestore {
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND) {
         const subscription = await this.stripe.subscriptions.retrieve(
-          subscriptionId
+          subscriptionId,
+          { expand: ['discount.promotion_code'] }
         );
         await this.fetchAndInsertCustomer(subscription.customer as string);
         return subscription;
@@ -102,7 +103,10 @@ export class StripeFirestore {
     const [customer, subscriptions] = await Promise.all([
       this.stripe.customers.retrieve(customerId),
       this.stripe.subscriptions
-        .list({ customer: customerId })
+        .list({
+          customer: customerId,
+          expand: ['data.discount.promotion_code'],
+        })
         .autoPagingToArray({ limit: 100 }),
     ]);
     if (customer.deleted) {

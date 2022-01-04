@@ -477,7 +477,7 @@ export class StripeHandler {
         customerId: customer.id,
         priceId,
         paymentMethodId,
-        couponId: promotionCode?.coupon.id,
+        promotionCode: promotionCode,
         subIdempotencyKey,
         taxRateId,
       }
