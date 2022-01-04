@@ -49,6 +49,7 @@ export type StripePaymentSubmitResult = {
   name: string;
   card: StripeCardElement | null;
   idempotencyKey: string;
+  promotionCode?: string;
 };
 export type StripePaymentUpdateResult = StripePaymentSubmitResult & {
   card: StripeCardElement;
@@ -56,6 +57,7 @@ export type StripePaymentUpdateResult = StripePaymentSubmitResult & {
 export type PaypalPaymentSubmitResult = {
   priceId: string;
   idempotencyKey: string;
+  promotionCode?: string;
 };
 
 export type StripeSubmitHandler = (x: StripePaymentSubmitResult) => void;
@@ -83,6 +85,7 @@ export type BasePaymentFormProps = {
   onEngaged: Function;
   onChange: Function;
   submitNonce: string;
+  promotionCode?: string;
 } & WithLocalizationProps;
 
 export const PaymentForm = ({
@@ -102,6 +105,7 @@ export const PaymentForm = ({
   onEngaged,
   onChange: onChangeProp,
   submitNonce,
+  promotionCode,
 }: BasePaymentFormProps) => {
   const isStripeCustomer = isExistingStripeCustomer(customer);
 
@@ -144,6 +148,7 @@ export const PaymentForm = ({
       (onSubmitForParent as PaypalSubmitHandler)({
         priceId: plan!.plan_id,
         idempotencyKey: submitNonce,
+        promotionCode: promotionCode,
       });
     },
     [onSubmitForParent, submitNonce]
@@ -166,6 +171,7 @@ export const PaymentForm = ({
           name,
           card,
           idempotencyKey: submitNonce,
+          promotionCode: promotionCode,
         });
       }
     },

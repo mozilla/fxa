@@ -422,6 +422,28 @@ describe('API requests', () => {
       });
       requestMock.done();
     });
+
+    it(`POST {auth-server}${path} with coupon`, async () => {
+      const expected = { sourceCountry: 'US', subscription: { what: 'ever' } };
+      const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
+
+      const paramsWithPromo = Object.assign(params, { promotionCode: 'TEST' });
+
+      expect(
+        await apiCreateSubscriptionWithPaymentMethod(paramsWithPromo)
+      ).toEqual(expected.subscription);
+
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+      ).toBeCalledWith(metricsOptions);
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
+      ).toBeCalledWith({
+        ...metricsOptions,
+        sourceCountry: expected.sourceCountry,
+      });
+      requestMock.done();
+    });
   });
 
   describe('apiRetryInvoice', () => {
@@ -626,6 +648,29 @@ describe('API requests', () => {
         ...metricsOptions,
         error,
       });
+      requestMock.done();
+    });
+
+    it('POST {auth-server}/v1/oauth/subscriptions/active/new-paypal with coupon', async () => {
+      const paramsWithPromo = Object.assign(params, { promotionCode: 'TEST' });
+
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path, paramsWithPromo)
+        .reply(200, MOCK_PAYPAL_SUBSCRIPTION_RESULT);
+      expect(await apiCapturePaypalPayment(paramsWithPromo)).toEqual(
+        MOCK_PAYPAL_SUBSCRIPTION_RESULT
+      );
+
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+      ).toBeCalledWith(metricsOptions);
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
+      ).toBeCalledWith({
+        ...metricsOptions,
+        sourceCountry: 'FR',
+      });
+
       requestMock.done();
     });
   });

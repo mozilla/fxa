@@ -909,18 +909,18 @@ describe('StripeHelper', () => {
   });
 
   describe('findValidPromoCode', () => {
-    it('finds a valid promoCode with plan metadata', async () => {
-      const promoCode = { code: 'promo1', coupon: { valid: true } };
+    it('finds a valid promotionCode with plan metadata', async () => {
+      const promotionCode = { code: 'promo1', coupon: { valid: true } };
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promoCode] });
+        .resolves({ data: [promotionCode] });
       sandbox.stub(stripeHelper, 'findPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
         },
       });
       const actual = await stripeHelper.findValidPromoCode('promo1', 'planId');
-      assert.deepEqual(actual, promoCode);
+      assert.deepEqual(actual, promotionCode);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripe.promotionCodes.list,
         {
@@ -938,16 +938,16 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('does not find an expired promoCode', async () => {
+    it('does not find an expired promotionCode', async () => {
       const expiredTime = Date.now() / 1000 - 50;
-      const promoCode = {
+      const promotionCode = {
         code: 'promo1',
         coupon: { valid: true },
         expires_at: expiredTime,
       };
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promoCode] });
+        .resolves({ data: [promotionCode] });
       sandbox.stub(stripeHelper, 'findPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
@@ -972,11 +972,11 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('does not find a promoCode with a different plan', async () => {
-      const promoCode = { code: 'promo1', coupon: { valid: true } };
+    it('does not find a promotionCode with a different plan', async () => {
+      const promotionCode = { code: 'promo1', coupon: { valid: true } };
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promoCode] });
+        .resolves({ data: [promotionCode] });
       sandbox.stub(stripeHelper, 'findPlanById').resolves({
         plan_metadata: {},
       });
@@ -999,14 +999,14 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('does not find an invalid promoCode', async () => {
-      const promoCode = {
+    it('does not find an invalid promotionCode', async () => {
+      const promotionCode = {
         code: 'promo1',
         coupon: { valid: false },
       };
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promoCode] });
+        .resolves({ data: [promotionCode] });
       sandbox.stub(stripeHelper, 'findPlanById').resolves({
         plan_metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
@@ -1034,19 +1034,19 @@ describe('StripeHelper', () => {
 
   describe('findPromoCodeByCode', () => {
     it('finds a promo code', async () => {
-      const promoCode = { code: 'code1' };
+      const promotionCode = { code: 'code1' };
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promoCode] });
+        .resolves({ data: [promotionCode] });
       const actual = await stripeHelper.findPromoCodeByCode('code1');
-      assert.deepEqual(actual, promoCode);
+      assert.deepEqual(actual, promotionCode);
     });
 
     it('finds no promo code', async () => {
-      const promoCode = { code: 'code2' };
+      const promotionCode = { code: 'code2' };
       sandbox
         .stub(stripeHelper.stripe.promotionCodes, 'list')
-        .resolves({ data: [promoCode] });
+        .resolves({ data: [promotionCode] });
       const actual = await stripeHelper.findPromoCodeByCode('code1');
       assert.isUndefined(actual);
     });

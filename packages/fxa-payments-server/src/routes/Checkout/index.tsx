@@ -355,6 +355,7 @@ export const Checkout = ({
                         setSubscriptionError={setSubscriptionError}
                         setTransactionInProgress={setTransactionInProgress}
                         ButtonBase={paypalButtonBase}
+                        promotionCode={coupon?.promotionCode}
                       />
                     </div>
                   </Suspense>
@@ -402,6 +403,7 @@ export const Checkout = ({
                 plan: selectedPlan,
                 onMounted: onFormMounted,
                 onEngaged: onFormEngaged,
+                promotionCode: coupon?.promotionCode,
               }}
             />
           </div>
