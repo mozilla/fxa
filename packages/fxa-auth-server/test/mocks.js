@@ -104,6 +104,8 @@ const DB_METHOD_NAMES = [
   'cancelAccountSubscription',
   'reactivateAccountSubscription',
   'fetchAccountSubscriptions',
+  'getGoogleId',
+  'createLinkedGoogleAccount',
 ];
 
 const LOG_METHOD_NAMES = [
@@ -344,6 +346,9 @@ function mockDB(data, errors) {
         emailVerified: data.emailVerified,
         locale: data.locale,
         wrapWrapKb: data.wrapWrapKb,
+        primaryEmail: {
+          email: data.email,
+        },
       });
     }),
     createDevice: sinon.spy((uid) => {
