@@ -279,7 +279,7 @@ It is possible to run various test suites (known as Jobs) acting as Circle CI. T
 
 ### Storybook in CircleCI
 
-Several of the packages in this project use [Storybook][] as a tool for building and demoing user interface components in React. These notably include [fxa-settings][fxa-settings-storybook], [fxa-payments-server][fxa-payments-server-storybook], and [fxa-react][].
+Several of the packages in this project use [Storybook][] as a tool for building and demoing user interface components in React. These notably include [fxa-settings][fxa-settings-storybook], [fxa-payments-server][fxa-payments-server-storybook], [fxa-react][], and [fxa-auth-server][fxa-auth-server-storybook].
 
 For most test runs [in CircleCI][storybook-circleci], a static build of Storybook for the relevant commit is published to [a website on the Google Cloud Platform][storybooks-fxa-site] using [mozilla-fxa/storybook-gcp-publisher][storybook-gcp-publisher]. Refer to that tool's github repository for more details.
 
@@ -311,6 +311,7 @@ For quick reference, here are [a few CircleCI environment variables][storybook-g
 [fxa-payments-server-storybook]: packages/fxa-payments-server#storybook
 [fxa-react]: ./packages/fxa-react
 [storybook-circleci]: https://github.com/mozilla/fxa/blob/main/.circleci/config.yml#L270-L272
+[fxa-auth-server-storybook]: ./packages/fxa-auth-server#2021-template-updates
 
 ---
 

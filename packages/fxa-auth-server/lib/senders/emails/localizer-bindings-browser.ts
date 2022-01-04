@@ -25,7 +25,7 @@ import { transformMjIncludeTags } from './mjml-browser-helper';
  * used in a template. Note that this function MUST be synchronous.
  */
 ejs.fileLoader = function (filePath: string) {
-  var request = new XMLHttpRequest();
+  const request = new XMLHttpRequest();
 
   // `false` makes the request synchronous
   request.open('GET', './lib/senders/emails' + filePath, false);
