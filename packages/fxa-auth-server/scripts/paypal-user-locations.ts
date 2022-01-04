@@ -18,11 +18,11 @@ type PayPalUserLocationResult = {
 const ENV = process.env.NODE_ENV?.toLowerCase();
 const GCP_PROJECT_NAME = 'bdanforth-fxa-dev';
 const GCP_DATASET_ID = ENV === 'prod' ? 'fxa_auth_prod' : 'fxa_auth_stage';
-const GCP_TABLE_NAME = 'fxa_4218_uid_state_country_count';
+const GCP_TABLE_NAME = 'fxa_4218_uid_state_country_count_01042022';
 const DATASET_LOCATION = 'US';
 const PAYPAL_UIDS_FILENAME =
   ENV === 'prod'
-    ? 'secret-paypal-users-fxa-4218.tsv'
+    ? 'secret-prod-paypal-users-fxa-4218-01042022.tsv'
     : 'secret-stage-paypal-users-fxa-4218.tsv';
 const BATCH_SIZE = 100; // How many users to look for in BigQuery at one time
 // The countries we need data for
@@ -119,6 +119,33 @@ export class PayPalUserLocations {
     return new Promise((resolve) => setTimeout(resolve, delayMs));
   }
 
+  sortInferredLocations(
+    locations: PayPalUserLocationResult[]
+  ): PayPalUserLocationResult[] {
+    // We have one or more locations for this user; get mode location.
+    locations.sort((a, b) => b.count - a.count);
+    // Transform country long name into country short name for direct
+    // string comparison
+    locations = locations.map((location) => {
+      switch (location.country) {
+        case 'United States':
+          return {
+            ...location,
+            country: 'US',
+          };
+        case 'Canada':
+          return {
+            ...location,
+            country: 'CA',
+          };
+        default:
+          // We don't care about any other countries.
+          return location;
+      }
+    });
+    return locations;
+  }
+
   /**
    * Some uids may have multipe regions/countries; use the location that is most frequent.
    * TODO: Deprioritize Virginia, US location due to FXA-4280 (if lots of locations are Virginia)
@@ -129,63 +156,66 @@ export class PayPalUserLocations {
   ): Promise<PayPalUserLocationResult[]> {
     const dedupedResults = [];
     for (const uid of uids) {
-      let bestLocation;
-      // Avoid hitting Stripe 100 rps rate limit in prod by artificially slowing down requests.
-      await this.sleep(100);
-      const country = await this.getPayPalCustomerCountry(uid);
-      if (!country) {
-        bestLocation = { uid, state: 'Unknown', country: 'Unknown', count: 1 };
-        dedupedResults.push(bestLocation);
-        continue;
-      }
-      if (!this.isCountryNeeded(country)) {
-        console.log(
-          `Ignoring user ${uid} as their country, ${country}, is not needed.`
-        );
-        continue;
-      }
-      let locations = results.filter((result) => result.uid === uid);
-      if (locations.length === 0) {
-        bestLocation = { uid, state: 'Unknown', country, count: 1 };
-        dedupedResults.push(bestLocation);
-        continue;
-      }
-      // We have one or more locations for this user; get mode location.
-      locations.sort((a, b) => b.count - a.count);
-      // Transform country long name into country short name for direct
-      // string comparison
-      locations = locations.map((location) => {
-        switch (location.country) {
-          case 'United States':
-            return {
-              ...location,
-              country: 'US',
-            };
-          case 'Canada':
-            return {
-              ...location,
-              country: 'CA',
-            };
-          default:
-            // We don't care about any other countries.
-            return location;
+      try {
+        let bestLocation;
+        // Avoid hitting Stripe 100 rps rate limit in prod by artificially slowing down requests.
+        await this.sleep(75);
+        const country = await this.getPayPalCustomerCountry(uid);
+        if (!country) {
+          bestLocation = {
+            uid,
+            state: 'Unknown',
+            country: 'Unknown',
+            count: 1,
+          };
+          let locations = results.filter((result) => result.uid === uid);
+          if (locations.length === 0) {
+            console.log(
+              `User ${uid} has no country in Stripe and no inferred locations from the metrics logs.`
+            );
+          } else {
+            locations = this.sortInferredLocations(locations);
+            const bestInferredLocation = locations[0]; // FYI: This may be outside of the U.S. and Canada
+            console.log(
+              `User ${uid} has no country in Stripe; inferring location from metrics logs only: ${bestInferredLocation}.`
+            );
+          }
+          dedupedResults.push(bestLocation);
+          continue;
         }
-      });
-      const modeLocation = locations[0];
-      // Prioritize country from Stripe customer
-      if (modeLocation.country === country) {
-        // Use this location
-        bestLocation = modeLocation;
-      } else if (locations.some((location) => location.country === country)) {
-        // Use the next most frequent location with a matching country
-        bestLocation = locations.find(
-          (location) => location.country === country
+        if (!this.isCountryNeeded(country)) {
+          console.log(
+            `Ignoring user ${uid} as their country, ${country}, is not needed.`
+          );
+          continue;
+        }
+        let locations = results.filter((result) => result.uid === uid);
+        if (locations.length === 0) {
+          bestLocation = { uid, state: 'Unknown', country, count: 1 };
+          dedupedResults.push(bestLocation);
+          continue;
+        }
+        locations = this.sortInferredLocations(locations);
+        const modeLocation = locations[0];
+        // Prioritize country from Stripe customer
+        if (modeLocation.country === country) {
+          // Use this location
+          bestLocation = modeLocation;
+        } else if (locations.some((location) => location.country === country)) {
+          // Use the next most frequent location with a matching country
+          bestLocation = locations.find(
+            (location) => location.country === country
+          );
+        } else {
+          // No location results countries match the Stripe customer country
+          bestLocation = { uid, state: 'Unknown', country, count: 1 };
+        }
+        dedupedResults.push(bestLocation);
+      } catch (err) {
+        console.log(
+          `Encountered an error getting the best location for user: ${uid}. Skipping.`
         );
-      } else {
-        // No location results countries match the Stripe customer country
-        bestLocation = { uid, state: 'Unknown', country, count: 1 };
       }
-      dedupedResults.push(bestLocation);
     }
     // @ts-ignore dedupedResults can be []
     return dedupedResults;
@@ -223,15 +253,23 @@ export class PayPalUserLocations {
     const results = [];
     while (processedUids.length !== paypalUids.length) {
       const uidsToProcess = paypalUids.slice(startIndex, stopIndex);
-      const resultsWithDupes = await this.getLocationForUids(uidsToProcess);
-      const dedupedResults = await this.findBestLocationForUsers(
-        uidsToProcess,
-        resultsWithDupes
-      );
-      results.push(...dedupedResults);
-      startIndex += BATCH_SIZE;
-      stopIndex += BATCH_SIZE;
-      processedUids.push(...uidsToProcess);
+      try {
+        const resultsWithDupes = await this.getLocationForUids(uidsToProcess);
+        const dedupedResults = await this.findBestLocationForUsers(
+          uidsToProcess,
+          resultsWithDupes
+        );
+        results.push(...dedupedResults);
+        startIndex += BATCH_SIZE;
+        stopIndex += BATCH_SIZE;
+        processedUids.push(...uidsToProcess);
+      } catch (err) {
+        console.log(
+          `Processing a batch of uids failed. Error: ${err}`,
+          'uidsToProcess: ',
+          uidsToProcess
+        );
+      }
     }
     // Sort alphabetically by country, then state.
     results.sort((a, b) => {
@@ -253,9 +291,38 @@ export class PayPalUserLocations {
       }
       return 0;
     });
-    results.forEach((result) =>
-      console.log(result.uid, result.country, result.state)
-    );
+    let count = 1;
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      let prevResult;
+      if (i > 0) {
+        prevResult = results[i - 1];
+      } else {
+        // This is the first result we're processing in the list, so just move on until
+        // we have a second result to compare to.
+        continue;
+      }
+      if (
+        result.country === prevResult?.country &&
+        result.state === prevResult?.state
+      ) {
+        // Same state as before
+        count++;
+      } else {
+        // Onto a new state; record the count and then reset it
+        console.log(
+          `End of results for ${prevResult?.country} / ${prevResult?.state} -- count: ${count}.`
+        );
+        count = 1;
+      }
+      console.log(result.uid, result.country, result.state);
+      if (i === results.length - 1) {
+        // On the last result; log the count before exiting the loop
+        console.log(
+          `End of results for ${result?.country} / ${result?.state} -- count: ${count}.`
+        );
+      }
+    }
   }
 }
 
