@@ -4502,16 +4502,13 @@ describe('StripeHelper', () => {
     });
 
     it('updates the Stripe customer address', async () => {
-      sandbox
-        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
-        .resolves({ postalCode: '99999', country: 'GD' });
       sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
-      const actual = await stripeHelper.setCustomerLocation(customer1);
+      const actual = await stripeHelper.setCustomerLocation({
+        customerId: customer1.id,
+        postalCode: expectedAddressArg.postalCode,
+        country: expectedAddressArg.country,
+      });
       assert.isTrue(actual);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.extractCustomerDefaultPaymentDetails,
-        customer1
-      );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.googleMapsService.getStateFromZip,
         '99999',
@@ -4524,96 +4521,15 @@ describe('StripeHelper', () => {
       );
     });
 
-    it('fails when an error is thrown while extracting customer payment details', async () => {
-      sandbox
-        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
-        .rejects(err);
-      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
-      const actual = await stripeHelper.setCustomerLocation(customer1);
-      assert.isFalse(actual);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.extractCustomerDefaultPaymentDetails,
-        customer1
-      );
-      sinon.assert.notCalled(mockGoogleMapsService.getStateFromZip);
-      sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
-      sinon.assert.calledOnce(Sentry.withScope);
-      sinon.assert.calledOnceWithExactly(
-        sentryScope.setContext,
-        'setCustomerLocation',
-        {
-          customer: { id: customer1.id },
-        }
-      );
-      sinon.assert.calledOnceWithExactly(Sentry.captureException, err);
-    });
-
-    it('fails when postal code is missing in customer payment details', async () => {
-      sandbox
-        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
-        .resolves({ country: 'GD' });
-      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
-      const actual = await stripeHelper.setCustomerLocation(customer1);
-      assert.isFalse(actual);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.extractCustomerDefaultPaymentDetails,
-        customer1
-      );
-      sinon.assert.calledOnce(Sentry.withScope);
-      sinon.assert.calledOnceWithExactly(
-        sentryScope.setContext,
-        'setCustomerLocation',
-        { customer: { id: customer1.id } }
-      );
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
-
-        `Cannot find a postal code or country for customer ${customer1.id}`,
-        Sentry.Severity.Error
-      );
-      sinon.assert.notCalled(stripeHelper.googleMapsService.getStateFromZip);
-      sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
-    });
-
-    it('fails when country is missing in customer payment details', async () => {
-      sandbox
-        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
-        .resolves({ postalCode: 'GD' });
-      sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
-      const actual = await stripeHelper.setCustomerLocation(customer1);
-      assert.isFalse(actual);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.extractCustomerDefaultPaymentDetails,
-        customer1
-      );
-      sinon.assert.calledOnce(Sentry.withScope);
-      sinon.assert.calledOnceWithExactly(
-        sentryScope.setContext,
-        'setCustomerLocation',
-        { customer: { id: customer1.id } }
-      );
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
-
-        `Cannot find a postal code or country for customer ${customer1.id}`,
-        Sentry.Severity.Error
-      );
-      sinon.assert.notCalled(stripeHelper.googleMapsService.getStateFromZip);
-      sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
-    });
-
     it('fails when an error is thrown by Google Maps service', async () => {
-      sandbox
-        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
-        .resolves({ postalCode: '99999', country: 'GD' });
       sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
       mockGoogleMapsService.getStateFromZip = sandbox.stub().rejects(err);
-      const actual = await stripeHelper.setCustomerLocation(customer1);
+      const actual = await stripeHelper.setCustomerLocation({
+        customerId: customer1.id,
+        postalCode: expectedAddressArg.postalCode,
+        country: expectedAddressArg.country,
+      });
       assert.isFalse(actual);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.extractCustomerDefaultPaymentDetails,
-        customer1
-      );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.googleMapsService.getStateFromZip,
         '99999',
@@ -4626,22 +4542,21 @@ describe('StripeHelper', () => {
         'setCustomerLocation',
         {
           customer: { id: customer1.id },
+          postalCode: expectedAddressArg.postalCode,
+          country: expectedAddressArg.country,
         }
       );
       sinon.assert.calledOnceWithExactly(Sentry.captureException, err);
     });
 
     it('fails when an error is thrown while updating the customer address', async () => {
-      sandbox
-        .stub(stripeHelper, 'extractCustomerDefaultPaymentDetails')
-        .resolves({ postalCode: '99999', country: 'GD' });
       sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').rejects(err);
-      const actual = await stripeHelper.setCustomerLocation(customer1);
+      const actual = await stripeHelper.setCustomerLocation({
+        customerId: customer1.id,
+        postalCode: expectedAddressArg.postalCode,
+        country: expectedAddressArg.country,
+      });
       assert.isFalse(actual);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.extractCustomerDefaultPaymentDetails,
-        customer1
-      );
       sinon.assert.calledOnceWithExactly(
         stripeHelper.googleMapsService.getStateFromZip,
         '99999',
@@ -4658,6 +4573,8 @@ describe('StripeHelper', () => {
         'setCustomerLocation',
         {
           customer: { id: customer1.id },
+          postalCode: expectedAddressArg.postalCode,
+          country: expectedAddressArg.country,
         }
       );
       sinon.assert.calledOnceWithExactly(Sentry.captureException, err);

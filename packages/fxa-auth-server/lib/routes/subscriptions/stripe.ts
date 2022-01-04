@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import isA from '@hapi/joi';
+import * as Sentry from '@sentry/node';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
@@ -444,13 +445,14 @@ export class StripeHandler {
       await this.extractPromotionCode(promotionCodeFromRequest, priceId);
 
     let taxRateId: string | undefined;
+    let paymentMethod: Stripe.PaymentMethod | undefined;
+
     // Skip the payment source check if there's no payment method id.
     if (paymentMethodId) {
       const planCurrency = (await this.stripeHelper.findPlanById(priceId))
         .currency;
-      const paymentMethodCountry = (
-        await this.stripeHelper.getPaymentMethod(paymentMethodId)
-      ).card?.country;
+      paymentMethod = await this.stripeHelper.getPaymentMethod(paymentMethodId);
+      const paymentMethodCountry = paymentMethod.card?.country;
       if (
         !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
           planCurrency,
@@ -483,6 +485,26 @@ export class StripeHandler {
 
     const sourceCountry =
       this.stripeHelper.extractSourceCountryFromSubscription(subscription);
+
+    if (paymentMethod?.billing_details?.address?.postal_code && sourceCountry) {
+      this.stripeHelper.setCustomerLocation({
+        customerId: customer.id,
+        postalCode: paymentMethod.billing_details.address.postal_code,
+        country: sourceCountry,
+      });
+    } else {
+      Sentry.withScope((scope) => {
+        scope.setContext('createSubscriptionWithPMI', {
+          customerId: customer.id,
+          subscriptionId: subscription.id,
+          paymentMethodId: paymentMethod?.id,
+        });
+        Sentry.captureMessage(
+          `Cannot find a postal code or country for customer ${customer.id}`,
+          Sentry.Severity.Error
+        );
+      });
+    }
 
     await this.customerChanged(request, uid, email);
 
@@ -542,9 +564,10 @@ export class StripeHandler {
 
     const { paymentMethodId } = request.payload as Record<string, string>;
 
-    const paymentMethodCountry = (
-      await this.stripeHelper.getPaymentMethod(paymentMethodId)
-    ).card?.country;
+    const paymentMethod = await this.stripeHelper.getPaymentMethod(
+      paymentMethodId
+    );
+    const paymentMethodCountry = paymentMethod.card?.country;
     if (
       !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
         customer.currency,
@@ -561,6 +584,29 @@ export class StripeHandler {
       customer.id,
       paymentMethodId
     );
+
+    if (
+      paymentMethod?.billing_details?.address?.postal_code &&
+      paymentMethodCountry
+    ) {
+      this.stripeHelper.setCustomerLocation({
+        customerId: customer.id,
+        postalCode: paymentMethod.billing_details.address.postal_code,
+        country: paymentMethodCountry,
+      });
+    } else {
+      Sentry.withScope((scope) => {
+        scope.setContext('updateDefaultPaymentMethod', {
+          customerId: customer!.id,
+          paymentMethodId: paymentMethod?.id,
+        });
+        Sentry.captureMessage(
+          `Cannot find a postal code or country for customer ${customer!.id}`,
+          Sentry.Severity.Error
+        );
+      });
+    }
+
     await this.stripeHelper.removeSources(customer.id);
     return filterCustomer(customer);
   }
