@@ -158,8 +158,8 @@ export class StripeHelper {
   private taxIds: { [key: string]: string };
   private firestore: Firestore;
   private stripeFirestore: StripeFirestore;
-  readonly googleMapsService: GoogleMapsService;
   readonly stripe: Stripe;
+  private googleMapsService: GoogleMapsService;
   public currencyHelper: CurrencyHelper;
 
   /**
@@ -173,6 +173,7 @@ export class StripeHelper {
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     this.taxIds = config.subscriptions.taxIds;
     this.currencyHelper = Container.get(CurrencyHelper);
+    this.googleMapsService = Container.get(GoogleMapsService);
 
     // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
     // both TTL and whether caching should be enabled at all. We should
@@ -774,6 +775,33 @@ export class StripeHelper {
    */
   async payInvoiceOutOfBand(invoice: Stripe.Invoice) {
     return this.stripe.invoices.pay(invoice.id, { paid_out_of_band: true });
+  }
+
+  async updateCustomerAddress(customer: Stripe.Customer, postalCode: string) {
+    const customerCountryCode = customer.address?.country;
+    if (!customerCountryCode) {
+      return;
+    }
+    try {
+      const state = await this.googleMapsService.getStateFromZip(
+        postalCode,
+        customerCountryCode
+      );
+      return await this.stripe.customers.update(customer.id, {
+        address: {
+          line1: '',
+          state,
+          postal_code: postalCode,
+          country: customerCountryCode,
+        },
+      });
+    } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setContext('customer', { id: customer.id });
+        Sentry.captureException(error);
+      });
+    }
+    return;
   }
 
   /**

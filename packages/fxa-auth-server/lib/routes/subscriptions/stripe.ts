@@ -448,9 +448,10 @@ export class StripeHandler {
     if (paymentMethodId) {
       const planCurrency = (await this.stripeHelper.findPlanById(priceId))
         .currency;
-      const paymentMethodCountry = (
-        await this.stripeHelper.getPaymentMethod(paymentMethodId)
-      ).card?.country;
+      const paymentMethod = await this.stripeHelper.getPaymentMethod(
+        paymentMethodId
+      );
+      const paymentMethodCountry = paymentMethod.card?.country;
       if (
         !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
           planCurrency,
@@ -458,6 +459,17 @@ export class StripeHandler {
         )
       ) {
         throw error.currencyCountryMismatch(planCurrency, paymentMethodCountry);
+      }
+      if (
+        !customer.address?.state &&
+        paymentMethod.billing_details?.address?.postal_code
+      ) {
+        // We intentionally don't wait for this as it makes more API calls and we
+        // don't need this updated immediately to proceed.
+        this.stripeHelper.updateCustomerAddress(
+          customer,
+          paymentMethod.billing_details?.address?.postal_code
+        );
       }
       if (paymentMethodCountry) {
         if (!this.stripeHelper.customerTaxId(customer)) {
@@ -542,9 +554,21 @@ export class StripeHandler {
 
     const { paymentMethodId } = request.payload as Record<string, string>;
 
-    const paymentMethodCountry = (
-      await this.stripeHelper.getPaymentMethod(paymentMethodId)
-    ).card?.country;
+    const paymentMethod = await this.stripeHelper.getPaymentMethod(
+      paymentMethodId
+    );
+    const paymentMethodCountry = paymentMethod.card?.country;
+    if (
+      !customer.address?.state &&
+      paymentMethod.billing_details?.address?.postal_code
+    ) {
+      // We intentionally don't wait for this as it makes more API calls and we
+      // don't need this updated immediately to proceed.
+      this.stripeHelper.updateCustomerAddress(
+        customer,
+        paymentMethod.billing_details?.address?.postal_code
+      );
+    }
     if (
       !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
         customer.currency,
