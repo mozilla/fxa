@@ -28,7 +28,7 @@ ejs.fileLoader = function (filePath: string) {
   var request = new XMLHttpRequest();
 
   // `false` makes the request synchronous
-  request.open('GET', '/lib/senders/emails' + filePath, false);
+  request.open('GET', 'lib/senders/emails' + filePath, false);
   request.send(null);
 
   if (request.status === 200) {
