@@ -103,7 +103,7 @@ const paypalCustomer: Customer = {
 
 const coupon: Coupon = {
   amount: 200,
-  couponCode: 'TEST',
+  promotionCode: 'TEST',
 };
 
 afterEach(cleanup);
