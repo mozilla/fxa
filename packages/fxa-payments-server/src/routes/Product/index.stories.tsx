@@ -13,6 +13,7 @@ import { Product, ProductProps } from './index';
 import { Customer, Plan, Profile } from '../../store/types';
 import { PAYPAL_CUSTOMER } from '../../lib/mock-data';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import { Route, BrowserRouter, Routes } from 'react-router-dom';
 
 function init() {
   storiesOf('routes/Product', module)
@@ -242,11 +243,6 @@ const CUSTOMER: Customer = {
 };
 
 const MOCK_PROPS: ProductProps = {
-  match: {
-    params: {
-      productId: PRODUCT_ID,
-    },
-  },
   profile: {
     error: null,
     loading: false,

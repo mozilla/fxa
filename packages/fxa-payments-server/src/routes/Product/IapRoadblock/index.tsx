@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 import { useLocalization } from '@fluent/react';
 import {
   IapSubscription,
@@ -15,6 +14,7 @@ import PlanDetails from '../../../components/PlanDetails';
 import SubscriptionTitle from '../../../components/SubscriptionTitle';
 import { Customer, Profile, Plan } from '../../../store/types';
 import { getIapSubscriptionManagementUrl } from '../../../lib/formats';
+import { useNavigate } from 'react-router-dom';
 
 export type IapRoadblockProps = {
   isMobile: boolean;
@@ -50,6 +50,7 @@ export const IapRoadblock = ({
   const title = (
     <SubscriptionTitle screenType="iapsubscribed" subtitle={subtitle} />
   );
+
   const manageSubscription: VoidFunction = () =>
     (window.location.href = appStoreLink);
 

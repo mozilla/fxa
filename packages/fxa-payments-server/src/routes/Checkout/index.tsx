@@ -13,9 +13,7 @@ import classNames from 'classnames';
 import { AppContext } from '../../lib/AppContext';
 import { useMatchMedia, useNonce, usePaypalButtonSetup } from '../../lib/hooks';
 import { getSelectedPlan } from '../../lib/plan';
-import {
-  State as ValidatorState,
-} from '../../lib/validator';
+import { State as ValidatorState } from '../../lib/validator';
 
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { PlanErrorDialog } from '../../components/PlanErrorDialog';
@@ -64,6 +62,7 @@ import { AlertBar } from '../../components/AlertBar';
 import { PaymentMethodHeader } from '../../components/PaymentMethodHeader';
 import CouponForm from '../../components/CouponForm';
 import { Coupon } from '../../lib/Coupon';
+import { useParams } from 'react-router-dom';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -81,11 +80,6 @@ const NewsletterErrorAlertBar = () => {
 };
 
 export type CheckoutProps = {
-  match: {
-    params: {
-      productId: string;
-    };
-  };
   plans: SelectorReturns['plans'];
   plansByProductId: SelectorReturns['plansByProductId'];
   fetchCheckoutRouteResources: SequenceFunctions['fetchCheckoutRouteResources'];
@@ -95,9 +89,6 @@ export type CheckoutProps = {
 };
 
 export const Checkout = ({
-  match: {
-    params: { productId },
-  },
   plans,
   plansByProductId,
   fetchCheckoutRouteResources,
@@ -107,6 +98,7 @@ export const Checkout = ({
 }: CheckoutProps) => {
   const { config, locationReload, queryParams, matchMediaDefault } =
     useContext(AppContext);
+  const { productId } = useParams() as { productId: string };
   const { l10n } = useLocalization();
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [inProgress, setInProgress] = useState(false);
@@ -437,7 +429,9 @@ export const Checkout = ({
           }}
         />
         {config.featureFlags.subscriptionCoupons ? (
-          <CouponForm {...{ planId: selectedPlan.plan_id, coupon, setCoupon }} />
+          <CouponForm
+            {...{ planId: selectedPlan.plan_id, coupon, setCoupon }}
+          />
         ) : null}
       </div>
     </>

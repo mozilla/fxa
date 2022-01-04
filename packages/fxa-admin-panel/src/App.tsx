@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { Switch, Redirect, Route, BrowserRouter } from 'react-router-dom';
+import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import AccountSearch from './components/AccountSearch';
 import AdminLogs from './components/AdminLogs';
@@ -12,16 +12,12 @@ import SiteStatus from './components/SiteStatus';
 const App = () => (
   <BrowserRouter>
     <AppLayout>
-      <Switch>
-        <Route path="/admin-logs" component={AdminLogs} />
-      </Switch>
-      <Switch>
-        <Route path="/site-status" component={SiteStatus} />
-      </Switch>
-      <Switch>
-        <Redirect exact from="/" to="/account-search" />
-        <Route path="/account-search" component={AccountSearch} />
-      </Switch>
+      <Routes>
+        <Route path="/admin-logs" element={<AdminLogs />} />
+        <Route path="/site-status" element={<SiteStatus />} />
+        <Route path="/account-search" element={<AccountSearch />} />
+        <Route path="/" element={<Navigate to="/account-search" />} />
+      </Routes>
     </AppLayout>
   </BrowserRouter>
 );
