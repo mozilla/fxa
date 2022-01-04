@@ -2,6 +2,8 @@ type MjIncludeTag = { path: string; inline: boolean; type: string };
 
 /**
  * Important! At the current momement, mjml-browser does not support <mj-include>.
+ * See: https://github.com/mjmlio/mjml/tree/master/packages/mjml-browser#unavailable-features
+ *
  * Until this is supported, we will convert mj-incude tags into mj-style tags with
  * ejs includes. The allows parity between mjml and mjml-browser.
  * @param mjml mjml document
@@ -22,12 +24,7 @@ export function transformMjIncludeTags(mjml: string): string {
   const hasOpeningMjHeadTag = /<mj-head>/.test(mjml);
   const hasClosingMjHeadTag = /<\/mj-head>/.test(mjml);
   if (!hasOpeningMjHeadTag && !hasClosingMjHeadTag) {
-    mjml = mjml.replace(
-      '<mjml>',
-      `<mjml>
-  <mj-head>
-  </mj-head>`
-    );
+    mjml = mjml.replace('<mjml>', `<mjml> <mj-head> </mj-head> `);
   } else if (!hasOpeningMjHeadTag) {
     throw new Error('Missing <mj-head> tag');
   } else if (!hasClosingMjHeadTag) {
@@ -41,13 +38,10 @@ export function transformMjIncludeTags(mjml: string): string {
   if (includes.length) {
     // Update the header tag, appending the includes
     mjml = mjml.replace(
-      /\<\/mj-head\>/,
-      '\n  ' +
-        includes.map((x) => toMjStyle(x)).join('\n    ') +
-        '\n  </mj-head>'
+      /<\/mj-head>/,
+      `${includes.map((x) => toMjStyle(x)).join('')}</mj-head>`
     );
   }
-
   return mjml;
 }
 
@@ -55,32 +49,35 @@ function extractMjIncludeTags(mjml: string): MjIncludeTag[] {
   let chomp = false;
   let include = '';
   let includes = [];
-  mjml.split('\n').forEach((x) => {
-    if (chomp && /<mj-/.test(x)) {
-      throw new Error('Malformed <mj-include> tag');
-    }
+  mjml
+    .replace(/<mj-include/g, ' <mj-include')
+    .split(/\n|\s/g)
+    .forEach((x) => {
+      if (chomp && /<mj-/.test(x)) {
+        throw new Error('Malformed <mj-include> tag');
+      }
 
-    // Keep adding text while, chomping
-    if (chomp) {
-      include += x;
-    }
-    // Find start tag and begin chomping
-    else if (/<mj-include/.test(x)) {
-      include = x;
-      chomp = true;
-    }
+      // Keep adding text while, chomping
+      if (chomp) {
+        include += x;
+      }
+      // Find start tag and begin chomping
+      else if (/<mj-include/.test(x)) {
+        include = x;
+        chomp = true;
+      }
 
-    // If current line has end tag, end chomp
-    if (/\/>/.test(include)) {
-      chomp = false;
-    }
+      // If current line has end tag, end chomp
+      if (/\/>/.test(include)) {
+        chomp = false;
+      }
 
-    // If done chomping and include tag, parse it
-    if (include && !chomp) {
-      includes.push(parseMjIncludeTag(include));
-      include = '';
-    }
-  });
+      // If done chomping and include tag, parse it
+      if (include && !chomp) {
+        includes.push(parseMjIncludeTag(include));
+        include = '';
+      }
+    });
 
   // Inidcates /> is missing
   if (chomp) {

@@ -1,5 +1,10 @@
 #!/bin/bash -e
 
+# Unfortunately, importing the ejs package won't work from a browser context,
+# so per their docs, we must use the 'official' build. This script makes a best
+# effort at ensuring the currently installed verison of mjml is in sync with
+# the package used by the browser.
+
 # Get current version
 ejs_version=$(npm info ejs version)
 

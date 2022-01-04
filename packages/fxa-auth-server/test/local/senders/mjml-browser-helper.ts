@@ -3,8 +3,12 @@ import { transformMjIncludeTags } from '../../../lib/senders/emails/mjml-browser
 
 describe('converts <mj-include> to <mj-style> tag', () => {
   function compact(mjml: string) {
-    // New lines and white space should have no effect
-    return mjml.replace(/\n/g, '').replace(/\s+/g, ' ').trim();
+    // New lines and white space between tags should have no effect
+    return mjml
+      .replace(/\n/g, '')
+      .replace(/\s+/g, ' ')
+      .replace(/\>\s*</g, '/><')
+      .trim();
   }
 
   function test(testCase: { pre: string; post: string }) {
@@ -99,18 +103,32 @@ describe('converts <mj-include> to <mj-style> tag', () => {
     });
   });
 
+  it('handles multiple includes on one line', () => {
+    test({
+      pre: `<mjml><mj-head><mj-include path="./test1.css" type="css" /><mj-include path="./test2.css" type="css" /></mj-head></mjml>`,
+      post: `<mjml>
+        <mj-head>
+          <mj-include path="./test1.css" type="css" />
+          <mj-include path="./test2.css" type="css" />
+          <mj-style> <%- include('/test1.css') %> </mj-style>
+          <mj-style> <%- include('/test2.css') %> </mj-style>
+        </mj-head>
+      </mjml>`,
+    });
+  });
+
   it('ignores non css type', () => {
     test({
       pre: `<mjml>
-  <mj-head>
-    <mj-include path="./test.css" />
-  </mj-head>
-</mjml>`,
+              <mj-head>
+                <mj-include path="./test.css" />
+              </mj-head>
+            </mjml>`,
       post: `<mjml>
-  <mj-head>
-    <mj-include path="./test.css" />
-  </mj-head>
-</mjml>`,
+              <mj-head>
+                <mj-include path="./test.css" />
+              </mj-head>
+            </mjml>`,
     });
   });
 

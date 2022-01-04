@@ -10,8 +10,8 @@ import {
   TemplateContext,
 } from './localizer-bindings';
 
-import ejs = require('ejs');
-import mjml2html = require('mjml');
+import ejs from 'ejs';
+import mjml2html from 'mjml';
 import { join } from 'path';
 
 /**

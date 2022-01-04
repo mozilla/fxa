@@ -11,10 +11,12 @@ import {
 // When rendering templates in storybook, use the mjml-browser implementation
 import mjml2html from 'mjml-browser';
 
-// Unfortunately, importing the ejs package won't work from a browser context,
-// so per their docs, we must use the 'official' build. Currently this is
-// automically pulled in by the install-ejs.sh script and is invoked before
-// storybook starts up.
+/**
+ * Unfortunately, importing the ejs package won't work from a browser context,
+ * so per their docs, we must use the 'official' build. Currently this is
+ * automically pulled in by the install-ejs.sh script and is invoked before
+ * storybook starts up.
+ */
 import ejs from '../../../vendor/ejs';
 import { transformMjIncludeTags } from './mjml-browser-helper';
 
@@ -25,8 +27,8 @@ import { transformMjIncludeTags } from './mjml-browser-helper';
 ejs.fileLoader = function (filePath: string) {
   var request = new XMLHttpRequest();
 
-  // Synchronous request
-  request.open('GET', '/lib/senders/emails' + filePath, false); // `false` makes the request synchronous
+  // `false` makes the request synchronous
+  request.open('GET', '/lib/senders/emails' + filePath, false);
   request.send(null);
 
   if (request.status === 200) {
