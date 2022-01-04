@@ -52,6 +52,7 @@ import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import { stripeInvoiceToInvoicePreviewDTO } from './stripe-formatter';
 
 export const CUSTOMER_RESOURCE = 'customers';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -2008,6 +2009,7 @@ export class StripeHelper {
    *   - No email on the customer object.
    */
   async extractInvoiceDetailsForEmail(invoice: Stripe.Invoice) {
+    console.log('Reino ----- Email should get here right?');
     const customer = await this.expandResource(
       invoice.customer,
       CUSTOMER_RESOURCE
@@ -2080,6 +2082,12 @@ export class StripeHelper {
 
     const payment_provider = this.getPaymentProvider(customer);
 
+    const { discount } = stripeInvoiceToInvoicePreviewDTO(invoice);
+
+    console.log('Reino - Here is where the log for this begins!!!');
+    console.log(discount);
+    console.log(invoice);
+
     return {
       uid,
       email,
@@ -2090,6 +2098,8 @@ export class StripeHelper {
       invoiceNumber,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      subtotal: invoice.subtotal,
+      discountAmount: discount?.amount,
       invoiceDate: new Date(invoiceDate * 1000),
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),
       productId,

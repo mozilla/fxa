@@ -553,7 +553,13 @@ export class StripeWebhookHandler extends StripeHandler {
     ];
     switch (invoice.billing_reason) {
       case 'subscription_create':
-        await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        if (invoiceDetails.subtotal && invoiceDetails.discountAmount) {
+          await this.mailer.sendSubscriptionFirstInvoiceDiscountEmail(
+            ...mailParams
+          );
+        } else {
+          await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        }
 
         // To not overwhelm users with emails, we only send download subscription email
         // for existing accounts. Passwordless accounts get their own email.

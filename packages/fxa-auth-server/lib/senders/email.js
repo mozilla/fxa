@@ -59,6 +59,7 @@ module.exports = function (log, config, bounces) {
       'subscription-failed-payments-cancellation',
     subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
     subscriptionFirstInvoice: 'subscription-first-invoice',
+    subscriptionFirstInvoiceDiscount: 'subscription-first-invoice-discount',
     downloadSubscription: 'new-subscription',
     lowRecoveryCodes: 'low-recovery-codes',
     newDeviceLogin: 'new-device-signin',
@@ -107,6 +108,7 @@ module.exports = function (log, config, bounces) {
     subscriptionFailedPaymentsCancellation: 'subscriptions',
     subscriptionSubsequentInvoice: 'subscriptions',
     subscriptionFirstInvoice: 'subscriptions',
+    subscriptionFirstInvoiceDiscount: 'subscriptions',
     downloadSubscription: 'subscriptions',
     lowRecoveryCodes: 'recovery-codes',
     newDeviceLogin: 'manage-account',
@@ -2876,6 +2878,99 @@ module.exports = function (log, config, bounces) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        payment_provider,
+        cardType: cardTypeToText(cardType),
+        lastFour,
+        nextInvoiceDate,
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionFirstInvoiceDiscountEmail = async function (
+    message
+  ) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceNumber,
+      invoiceDate,
+      invoiceLink,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
+      subtotal,
+      discountAmount,
+      payment_provider,
+      cardType,
+      lastFour,
+      nextInvoiceDate,
+    } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionFirstInvoiceDiscount', {
+      enabled,
+      email,
+      productId,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionFirstInvoiceDiscount';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = { productName };
+    const subject = translator.gettext('%(productName)s payment confirmed');
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        invoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          invoiceDate
+        ),
+        nextInvoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          nextInvoiceDate
+        ),
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+        invoiceLink,
+        invoiceNumber,
+        invoiceDate,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        subtotal: this._getLocalizedCurrencyString(
+          subtotal,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        discountAmount: `-${this._getLocalizedCurrencyString(
+          discountAmount,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        )}`,
         payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,
