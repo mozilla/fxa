@@ -271,6 +271,7 @@ jobs:
       - image: redis
       - image: memcached
       - image: circleci/mysql:5.7.31
+      - image: jdlk7/firestore-emulator
     environment:
       NODE_ENV: dev
     steps:
