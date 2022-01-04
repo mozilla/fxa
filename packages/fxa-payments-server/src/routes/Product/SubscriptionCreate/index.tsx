@@ -72,7 +72,7 @@ export type SubscriptionCreateProps = {
   apiClientOverrides?: Partial<SubscriptionCreateAuthServerAPIs>;
   paypalButtonBase?: React.FC<ButtonBaseProps>;
   coupon?: Coupon;
-  setCoupon: (value: string) => void;
+  setCoupon: (value: any) => void;
 };
 
 export const SubscriptionCreate = ({
