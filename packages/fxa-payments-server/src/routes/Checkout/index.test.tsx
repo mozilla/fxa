@@ -87,6 +87,14 @@ import { updateConfig } from '../../lib/config';
 
 const newAccountEmail = 'testo@example.gd';
 
+let mockProductId: string;
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: () => ({
+    productId: mockProductId,
+  }),
+}));
+
 describe('routes/Checkout', () => {
   let authServer = '';
   let profileServer = '';
@@ -152,12 +160,8 @@ describe('routes/Checkout', () => {
     navigateToUrl?: (url: string) => void;
     appContext?: Partial<AppContextType>;
   } & Partial<CheckoutProps>) => {
+    mockProductId = productId;
     const props = {
-      match: {
-        params: {
-          productId,
-        },
-      },
       plans: PLANS,
       plansByProductId: () => PLANS[0],
       fetchCheckoutRouteResources: () => PLANS,

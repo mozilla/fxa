@@ -33,6 +33,7 @@ export type PaypalButtonProps = {
   >;
   setTransactionInProgress?: Function;
   ButtonBase?: React.ElementType;
+  promotionCode?: string;
 };
 
 export type ButtonBaseProps = {
@@ -67,6 +68,7 @@ export const PaypalButton = ({
   apiClientOverrides,
   setTransactionInProgress,
   ButtonBase = PaypalButtonBase,
+  promotionCode,
 }: PaypalButtonProps) => {
   const createOrder = useCallback(async () => {
     try {
@@ -123,6 +125,7 @@ export const PaypalButton = ({
             // @ts-ignore Doesn't like that the existence check for priceId is stored in isNewSubscription
             priceId,
             token,
+            promotionCode,
           });
         } else {
           await apiUpdateBillingAgreement({

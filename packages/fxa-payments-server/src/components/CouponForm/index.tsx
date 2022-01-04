@@ -38,7 +38,9 @@ type CouponFormProps = {
 
 export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
   const [hasCoupon, setHasCoupon] = useState(coupon ? true : false);
-  const [couponCode, setCouponCode] = useState(coupon ? coupon.couponCode : '');
+  const [promotionCode, setPromotionCode] = useState(
+    coupon ? coupon.promotionCode : ''
+  );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -47,10 +49,10 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
     event.stopPropagation();
     try {
       setLoading(true);
-      const amount = await checkPromotionCode(planId, couponCode);
+      const amount = await checkPromotionCode(planId, promotionCode);
       setHasCoupon(true);
       setCoupon({
-        couponCode: couponCode,
+        promotionCode: promotionCode,
         amount,
       });
     } catch (err) {
@@ -96,7 +98,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
         {hasCoupon ? (
           <div className="flex" data-testid="coupon-hascoupon">
             <div className="coupon-details">
-              <div>{couponCode}</div>
+              <div>{promotionCode}</div>
             </div>
             <button onClick={removeCoupon}>
               <Localized id="coupon-remove">
@@ -113,10 +115,10 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
                   type="text"
                   name="coupon"
                   data-testid="coupon-input"
-                  value={couponCode}
+                  value={promotionCode}
                   onChange={(event) => {
                     setError('');
-                    setCouponCode(event.target.value);
+                    setPromotionCode(event.target.value);
                   }}
                   placeholder="Enter code"
                   disabled={loading}

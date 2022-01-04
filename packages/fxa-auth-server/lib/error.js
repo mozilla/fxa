@@ -1254,7 +1254,7 @@ AppError.invalidPkceChallenge = (pkceHashValue) => {
   );
 };
 
-AppError.invalidPromoCode = (promtionCode) => {
+AppError.invalidPromoCode = (promotionCode) => {
   return new AppError(
     {
       code: 400,
@@ -1263,7 +1263,7 @@ AppError.invalidPromoCode = (promtionCode) => {
       message: 'Invalid promotion code',
     },
     {
-      promtionCode,
+      promotionCode,
     }
   );
 };

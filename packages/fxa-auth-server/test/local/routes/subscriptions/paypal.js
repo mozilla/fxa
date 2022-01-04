@@ -177,7 +177,7 @@ describe('subscriptions payPalRoutes', () => {
   });
 
   describe('POST /oauth/subscriptions/active/new-paypal', () => {
-    let plan, customer, subscription, promoCode;
+    let plan, customer, subscription, promotionCode;
 
     beforeEach(() => {
       stripeHelper.cancelSubscription = sinon.fake.resolves({});
@@ -203,8 +203,8 @@ describe('subscriptions payPalRoutes', () => {
         sinon.fake.resolves(subscription);
       stripeHelper.updateCustomerPaypalAgreement =
         sinon.fake.resolves(customer);
-      promoCode = { coupon: { id: 'test-coupon' } };
-      stripeHelper.findValidPromoCode = sinon.fake.resolves(promoCode);
+      promotionCode = { coupon: { id: 'test-coupon' } };
+      stripeHelper.findValidPromoCode = sinon.fake.resolves(promotionCode);
     });
 
     describe('existing PayPal subscriber with no billing agreement on record', () => {

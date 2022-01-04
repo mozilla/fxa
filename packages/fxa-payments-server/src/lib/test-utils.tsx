@@ -20,6 +20,7 @@ import {
   MozillaSubscription,
   MozillaSubscriptionTypes,
 } from 'fxa-shared/subscriptions/types';
+import { MemoryRouter } from 'react-router-dom';
 
 declare global {
   namespace NodeJS {
@@ -291,11 +292,13 @@ export const MockApp = ({
         <AppContext.Provider
           value={appContextValue || defaultAppContextValue()}
         >
-          <React.Suspense
-            fallback={<div data-testid="is-loading">Loading</div>}
-          >
-            {children}
-          </React.Suspense>
+          <MemoryRouter initialEntries={['/']}>
+            <React.Suspense
+              fallback={<div data-testid="is-loading">Loading</div>}
+            >
+              {children}
+            </React.Suspense>
+          </MemoryRouter>
         </AppContext.Provider>
       </MockStripeContext.Provider>
     </ReduxProvider>

@@ -1,4 +1,5 @@
 import React, { useEffect, useContext, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Localized } from '@fluent/react';
 import { AuthServerErrno } from '../../lib/errors';
@@ -11,7 +12,7 @@ import { State } from '../../store/state';
 import { sequences, SequenceFunctions } from '../../store/sequences';
 import { actions, ActionFunctions } from '../../store/actions';
 import { selectors, SelectorReturns } from '../../store/selectors';
-import { CustomerSubscription, Plan, ProductMetadata } from '../../store/types';
+import { Plan, ProductMetadata } from '../../store/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { getSubscriptionUpdateEligibility } from 'fxa-shared/subscriptions/stripe';
 
@@ -32,6 +33,7 @@ import { isWebSubscription } from 'fxa-shared/subscriptions/subscriptions';
 import { findCustomerIapSubscriptionByProductId } from '../../lib/customer';
 import IapRoadblock from './IapRoadblock';
 import { Coupon } from '../../lib/Coupon';
+import { useParams } from 'react-router-dom';
 
 type PlansByIdType = {
   [plan_id: string]: { plan: Plan; metadata: ProductMetadata };
@@ -106,11 +108,6 @@ const subscriptionUpdateEligibilityResult = (
 };
 
 export type ProductProps = {
-  match: {
-    params: {
-      productId: string;
-    };
-  };
   profile: SelectorReturns['profile'];
   plans: SelectorReturns['plans'];
   customer: SelectorReturns['customer'];
@@ -124,9 +121,6 @@ export type ProductProps = {
 };
 
 export const Product = ({
-  match: {
-    params: { productId },
-  },
   profile,
   plans,
   customer,
@@ -138,6 +132,8 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
+  const { productId } = useParams() as { productId: string };
+
   const {
     accessToken,
     config,
@@ -145,11 +141,14 @@ export const Product = ({
     queryParams,
     matchMediaDefault,
   } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const planId = queryParams.plan;
 
   if (!accessToken) {
-    window.location.href = `${config.servers.content.url}/subscriptions/products/${productId}?plan=${planId}&signin=yes`;
+    navigate(
+      `${config.servers.content.url}/subscriptions/products/${productId}?plan=${planId}&signin=yes`
+    );
   }
 
   // Fetch plans on initial render, change in product ID, or auth change.
@@ -165,7 +164,7 @@ export const Product = ({
 
   const selectedPlan = useMemo(
     () => getSelectedPlan(productId, planId, plansByProductId),
-    [plans]
+    [productId, planId, plansByProductId]
   );
 
   const [coupon, setCoupon] = useState<Coupon>();
@@ -205,7 +204,7 @@ export const Product = ({
   }
 
   if (!plans.result || plans.error !== null || !selectedPlan) {
-    return <PlanErrorDialog locationReload={locationReload} plans={plans} />;
+    return <PlanErrorDialog {...{ locationReload, plans }} />;
   }
 
   // Only check for upgrade or existing subscription if we have a customer.

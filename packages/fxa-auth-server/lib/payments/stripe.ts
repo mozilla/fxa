@@ -550,9 +550,12 @@ export class StripeHelper {
     }
 
     if (promotionCode) {
-      const promoCode = await this.findValidPromoCode(promotionCode, priceId);
-      if (promoCode) {
-        params['coupon'] = promoCode.coupon.id;
+      const stripePromotionCode = await this.findValidPromoCode(
+        promotionCode,
+        priceId
+      );
+      if (stripePromotionCode) {
+        params['coupon'] = stripePromotionCode.coupon.id;
       }
     }
     return this.stripe.invoices.retrieveUpcoming({
@@ -806,35 +809,24 @@ export class StripeHelper {
    * Returns a boolean indicating success.  It does not throw any exceptions as
    * this operation should not block any functionality.
    *
-   * Currently this only works on customers who use Stripe as their payment
-   * provider.
-   *
    * This will _overwrite_ any existing customer address.
    */
-  async setCustomerLocation(customer: Stripe.Customer): Promise<boolean> {
+  async setCustomerLocation({
+    customerId,
+    postalCode,
+    country,
+  }: {
+    customerId: string;
+    postalCode: string;
+    country: string;
+  }): Promise<boolean> {
     try {
-      const { postalCode, country } =
-        await this.extractCustomerDefaultPaymentDetails(customer);
-
-      if (!postalCode || !country) {
-        Sentry.withScope((scope) => {
-          scope.setContext('setCustomerLocation', {
-            customer: { id: customer.id },
-          });
-          Sentry.captureMessage(
-            `Cannot find a postal code or country for customer ${customer.id}`,
-            Sentry.Severity.Error
-          );
-        });
-        return false;
-      }
-
       const state = await this.googleMapsService.getStateFromZip(
         postalCode,
         country
       );
 
-      await this.updateCustomerBillingAddress(customer.id, {
+      await this.updateCustomerBillingAddress(customerId, {
         line1: '',
         line2: '',
         city: '',
@@ -847,7 +839,9 @@ export class StripeHelper {
     } catch (err: unknown) {
       Sentry.withScope((scope) => {
         scope.setContext('setCustomerLocation', {
-          customer: { id: customer.id },
+          customer: { id: customerId },
+          postalCode,
+          country,
         });
         Sentry.captureException(err);
       });

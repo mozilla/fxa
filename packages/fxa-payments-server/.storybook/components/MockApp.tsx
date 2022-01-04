@@ -7,6 +7,7 @@ import { AppContext, AppContextType } from '../../src/lib/AppContext';
 import { config } from '../../src/lib/config';
 import ScreenInfo from '../../src/lib/screen-info';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Stripe API key used in official doc examples. Used as fallback if missing
 // from config and is necessary for Stripe elements to render at all
@@ -99,7 +100,13 @@ export const MockApp = ({
         bundles={['main']}
       >
         <StripeProvider stripe={mockStripe}>
-          <MockLoader>{children}</MockLoader>
+          <MockLoader>
+            <BrowserRouter>
+              <Routes>
+                <Route path="*" element={children} />
+              </Routes>
+            </BrowserRouter>
+          </MockLoader>
         </StripeProvider>
       </AppLocalizationProvider>
     </AppContext.Provider>

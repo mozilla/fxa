@@ -261,6 +261,7 @@ export async function apiCapturePaypalPayment(params: {
   idempotencyKey: string;
   priceId: string;
   token?: string;
+  promotionCode?: string;
 }): Promise<{
   sourceCountry: string;
   subscription: Subscription;
@@ -300,6 +301,7 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
   productId: string;
   paymentMethodId?: string;
   idempotencyKey: string;
+  promotionCode?: string;
 }): Promise<{
   id: string;
   latest_invoice: {
@@ -309,10 +311,11 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
       client_secret: string;
       status: string;
       payment_method: string;
+      promotionCode?: string;
     };
   };
 }> {
-  const { priceId, paymentMethodId, idempotencyKey } = params;
+  const { priceId, paymentMethodId, idempotencyKey, promotionCode } = params;
   const metricsOptions: Amplitude.EventProperties = {
     planId: params.priceId,
     productId: params.productId,
@@ -329,6 +332,7 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
           paymentMethodId,
           idempotencyKey,
           metricsContext: getFlowData(),
+          promotionCode: promotionCode,
         }),
       }
     );

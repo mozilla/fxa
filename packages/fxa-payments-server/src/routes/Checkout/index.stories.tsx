@@ -69,11 +69,6 @@ const CheckoutRoute = ({
 );
 
 const MOCK_PROPS: CheckoutProps = {
-  match: {
-    params: {
-      productId: PRODUCT_ID,
-    },
-  },
   plans: {
     error: null,
     loading: false,
