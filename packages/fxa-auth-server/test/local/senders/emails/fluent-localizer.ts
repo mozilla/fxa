@@ -1,6 +1,7 @@
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { join } from 'path';
+import * as fs from 'fs';
 import FluentLocalizer, {
   splitPlainTextLine,
 } from '../../../../lib/senders/emails/fluent-localizer';
@@ -53,22 +54,22 @@ describe('fluent localizer', () => {
   });
 
   describe('fluent-localizer', () => {
-    const localizer = new FluentLocalizer(
-      new NodeLocalizerBindings({
-        templates: {
-          basePath: __dirname,
-        },
-        ejs: {
-          root: __dirname,
-        },
-        mjml: {
-          filePath: __dirname,
-        },
-        l10n: {
-          basePath: join(__dirname, '../../../temp/public/locales'),
-        },
-      })
-    );
+    const opts = {
+      templates: {
+        basePath: __dirname,
+      },
+      ejs: {
+        root: __dirname,
+      },
+      mjml: {
+        filePath: __dirname,
+      },
+      l10n: {
+        basePath: join(__dirname, '../../../temp/public/locales'),
+      },
+    };
+
+    const localizer = new FluentLocalizer(new NodeLocalizerBindings());
 
     function getTestContext(test: string): TemplateContext {
       return {
@@ -126,6 +127,13 @@ describe('fluent localizer', () => {
         );
       });
     }
+
+    it.only('has valid config', () => {
+      // Temporary, debugging failing test in CI
+      const path = join(opts.l10n.basePath, 'en/auth.ftl');
+      console.log('auth.ftl contents', fs.readFileSync(path).toString('utf-8'));
+      assert.isTrue(fs.existsSync(path));
+    });
 
     it('creates localizer', async () => {
       assert.exists(localizer);
