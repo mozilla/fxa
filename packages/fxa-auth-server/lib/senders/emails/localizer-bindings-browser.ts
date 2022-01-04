@@ -28,7 +28,7 @@ ejs.fileLoader = function (filePath: string) {
   var request = new XMLHttpRequest();
 
   // `false` makes the request synchronous
-  request.open('GET', 'lib/senders/emails' + filePath, false);
+  request.open('GET', './lib/senders/emails' + filePath, false);
   request.send(null);
 
   if (request.status === 200) {
@@ -51,14 +51,14 @@ export class BrowserLocalizerBindings extends LocalizerBindings {
     this.opts = Object.assign(
       {
         templates: {
-          basePath: '/lib/senders/emails',
+          basePath: './lib/senders/emails',
         },
         ejs: {},
         mjml: {
           validationLevel: 'strict',
         },
         l10n: {
-          basePath: '/public/locales',
+          basePath: './public/locales',
         },
       },
       opts
