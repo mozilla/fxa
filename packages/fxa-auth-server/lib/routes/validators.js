@@ -365,7 +365,6 @@ module.exports.subscriptionsInvoicePIExpandedValidator = isA
   })
   .unknown(true);
 
-// This is subhub's perspective on an active subscription
 module.exports.subscriptionsSubscriptionValidator = isA.object({
   _subscription_type: MozillaSubscriptionTypes.WEB,
   created: isA.number().required(),
@@ -381,6 +380,7 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
   product_name: isA.string().required(),
   status: isA.string().required(),
   subscription_id: module.exports.subscriptionsSubscriptionId.required(),
+  promotion_code: isA.string().optional().allow(null),
 });
 
 // This is support-panel's perspective on a subscription

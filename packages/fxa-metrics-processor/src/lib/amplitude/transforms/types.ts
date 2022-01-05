@@ -25,6 +25,7 @@ export enum GROUPS {
   subPaySetup = 'fxa_pay_setup',
   subPayUpgrade = 'fxa_pay_upgrade',
   subSupport = 'fxa_subscribe_support',
+  subCoupon = 'fxa_subscribe_coupon',
 }
 
 export type OptionalString = string | null;

@@ -269,6 +269,7 @@ export async function apiCapturePaypalPayment(params: {
   const metricsOptions: Amplitude.EventProperties = {
     planId: params.priceId,
     paymentProvider: 'paypal',
+    promotionCode: params.promotionCode,
   };
   Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
   try {
@@ -320,6 +321,7 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
     planId: params.priceId,
     productId: params.productId,
     paymentProvider: 'stripe',
+    promotionCode: params.promotionCode,
   };
   try {
     Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
@@ -382,11 +384,31 @@ export async function apiInvoicePreview(params: {
   priceId: string;
   promotionCode: string;
 }): Promise<InvoicePreview> {
-  return apiFetch(
-    'POST',
-    `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
-    { body: JSON.stringify(params) }
-  );
+  const metricsOptions: Amplitude.EventProperties = {
+    planId: params.priceId,
+    promotionCode: params.promotionCode,
+  };
+  try {
+    Amplitude.coupon_PENDING(metricsOptions);
+    const result: InvoicePreview = await apiFetch(
+      'POST',
+      `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
+      { body: JSON.stringify(params) }
+    );
+
+    if (!result?.discount?.amount) {
+      throw new Error('No discount for coupon');
+    }
+
+    Amplitude.coupon_FULFILLED(metricsOptions);
+    return result;
+  } catch (error) {
+    Amplitude.coupon_REJECTED({
+      ...metricsOptions,
+      error,
+    });
+    throw error;
+  }
 }
 
 export type FilteredSetupIntent = {

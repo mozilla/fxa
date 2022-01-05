@@ -715,7 +715,9 @@ describe('DirectStripeRoutes', () => {
           customerId: 'cus_new',
           priceId: 'Jane Doe',
           paymentMethodId: 'pm_asdf',
-          couponId: 'couponId',
+          promotionCode: {
+            coupon: { id: 'couponId' },
+          },
           subIdempotencyKey: `${VALID_REQUEST.payload.idempotencyKey}-createSub`,
           taxRateId: undefined,
         }
@@ -821,7 +823,7 @@ describe('DirectStripeRoutes', () => {
         {
           customerId: customer.id,
           priceId: 'quux',
-          couponId: undefined,
+          promotionCode: undefined,
           paymentMethodId: undefined,
           subIdempotencyKey: `${idempotencyKey}-createSub`,
           taxRateId: undefined,

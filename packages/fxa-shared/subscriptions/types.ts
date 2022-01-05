@@ -115,6 +115,7 @@ export type WebSubscription = Pick<
       'incomplete' | 'incomplete_expired'
     >;
     subscription_id: Stripe.Subscription['id'];
+    promotion_code?: string;
   };
 
 export interface AbbrevPlayPurchase {

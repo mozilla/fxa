@@ -13,6 +13,7 @@ const eventGroupNames = {
   manageSubscriptions: 'subManage',
   createSubscriptionWithPaymentMethod: 'subPaySetup',
   updateDefaultPaymentMethod: 'subPayManage',
+  coupon: 'subCoupon',
 } as const;
 
 const eventTypeNames = {
@@ -40,6 +41,7 @@ export type EventProperties = GlobalEventProperties & {
   productId?: string;
   product_id?: string;
   paymentProvider?: PaymentProvider;
+  promotionCode?: string;
   error?: Error;
   checkoutType?: string;
   utm_campaign?: string;
@@ -384,6 +386,46 @@ export function createAccountSignIn(eventProperties: EventProperties) {
   safeLogAmplitudeEvent(
     eventGroupNames.createAccount,
     eventTypeNames.other,
+    eventProperties
+  );
+}
+
+export function couponMounted(eventProperties: EventProperties) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.coupon,
+    eventTypeNames.view,
+    eventProperties
+  );
+}
+
+export function couponEngaged(eventProperties: EventProperties) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.coupon,
+    eventTypeNames.engage,
+    eventProperties
+  );
+}
+
+export function coupon_PENDING(eventProperties: EventProperties) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.coupon,
+    eventTypeNames.submit,
+    eventProperties
+  );
+}
+
+export function coupon_FULFILLED(eventProperties: EventProperties) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.coupon,
+    eventTypeNames.success,
+    eventProperties
+  );
+}
+
+export function coupon_REJECTED(eventProperties: EventProperties) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.coupon,
+    eventTypeNames.fail,
     eventProperties
   );
 }

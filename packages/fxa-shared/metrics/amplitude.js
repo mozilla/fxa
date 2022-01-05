@@ -33,6 +33,7 @@ const GROUPS = {
   subPayAccountSetup: 'fxa_pay_account_setup',
   subPayUpgrade: 'fxa_pay_upgrade',
   subSupport: 'fxa_subscribe_support',
+  subCoupon: 'fxa_subscribe_coupon',
   qrConnectDevice: 'fxa_qr_connect_device',
 };
 
@@ -65,6 +66,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.subPayAccountSetup]: mapSubscriptionPaymentEventProperties,
   [GROUPS.subPayUpgrade]: NOP,
   [GROUPS.subSupport]: NOP,
+  [GROUPS.subCoupon]: NOP,
   [GROUPS.qrConnectDevice]: NOP,
 };
 
@@ -324,6 +326,7 @@ module.exports = {
           plan_id: data.planId || data.plan_id,
           product_id: data.productId || data.product_id,
           payment_provider: data.paymentProvider,
+          promotionCode: data.promotionCode,
         }),
         EVENT_PROPERTIES[eventGroup](
           eventType,

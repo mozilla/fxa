@@ -16,6 +16,8 @@ node -r esbuild-register ./scripts/oauth_gen_keys.js
 ../../_scripts/check-mysql.sh
 node ../db-migrations/bin/patcher.mjs
 
+yarn run merge-ftl:test
+
 TESTS=(local oauth remote scripts)
 for t in "${TESTS[@]}"; do
   echo "testing $t"

@@ -13,6 +13,10 @@ import {
   updateDefaultPaymentMethod_PENDING,
   updateDefaultPaymentMethod_FULFILLED,
   updateDefaultPaymentMethod_REJECTED,
+  EventProperties,
+  coupon_PENDING,
+  coupon_FULFILLED,
+  coupon_REJECTED,
 } from './amplitude';
 
 import { Config, defaultConfig } from './config';
@@ -373,7 +377,7 @@ describe('API requests', () => {
       paymentMethodId: 'pm_test',
       idempotencyKey: 'idk-8675309',
     };
-    const metricsOptions = {
+    const metricsOptions: EventProperties = {
       planId: params.priceId,
       productId: params.productId,
       paymentProvider: 'stripe',
@@ -427,7 +431,8 @@ describe('API requests', () => {
       const expected = { sourceCountry: 'US', subscription: { what: 'ever' } };
       const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
 
-      const paramsWithPromo = Object.assign(params, { promotionCode: 'TEST' });
+      const promotionCode = 'TEST';
+      const paramsWithPromo = Object.assign(params, { promotionCode });
 
       expect(
         await apiCreateSubscriptionWithPaymentMethod(paramsWithPromo)
@@ -435,12 +440,16 @@ describe('API requests', () => {
 
       expect(
         <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
-      ).toBeCalledWith(metricsOptions);
+      ).toBeCalledWith({
+        ...metricsOptions,
+        promotionCode,
+      });
       expect(
         <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
       ).toBeCalledWith({
         ...metricsOptions,
         sourceCountry: expected.sourceCountry,
+        promotionCode,
       });
       requestMock.done();
     });
@@ -466,8 +475,18 @@ describe('API requests', () => {
 
   describe('apiInvoicePreview', () => {
     const path = '/v1/oauth/subscriptions/invoice/preview';
+    const priceId = 'price_kkljasdk32lkjasd';
+
+    const metricsOptionsBase: EventProperties = {
+      planId: priceId,
+    };
 
     it(`POST {auth-server}${path} valid Coupon Code`, async () => {
+      const promotionCode = 'VALID';
+      const metricsOptions: EventProperties = {
+        ...metricsOptionsBase,
+        promotionCode,
+      };
       const expected: InvoicePreview = {
         subtotal: 200,
         total: 170,
@@ -475,7 +494,7 @@ describe('API requests', () => {
           {
             amount: 200,
             currency: 'usd',
-            id: 'price_kkljasdk32lkjasd',
+            id: priceId,
             name: 'Plan name',
           },
         ],
@@ -489,10 +508,59 @@ describe('API requests', () => {
 
       expect(
         await apiInvoicePreview({
-          priceId: 'price_kkljasdk32lkjasd',
-          promotionCode: 'VALID',
+          priceId,
+          promotionCode,
         })
       ).toEqual(expected);
+
+      expect(<jest.Mock>coupon_PENDING).toBeCalledWith(metricsOptions);
+      expect(<jest.Mock>coupon_FULFILLED).toBeCalledWith(metricsOptions);
+
+      requestMock.done();
+    });
+
+    it(`POST {auth-server}${path} invalid Coupon Code`, async () => {
+      const promotionCode = 'INVALID';
+      const metricsOptions: EventProperties = {
+        ...metricsOptionsBase,
+        promotionCode,
+      };
+      const expected: InvoicePreview = {
+        subtotal: 200,
+        total: 170,
+        line_items: [
+          {
+            amount: 200,
+            currency: 'usd',
+            id: priceId,
+            name: 'Plan name',
+          },
+        ],
+        discount: {
+          amount: 0,
+          amount_off: null,
+          percent_off: 15,
+        },
+      };
+      const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
+      let error = null;
+
+      try {
+        await apiInvoicePreview({
+          priceId,
+          promotionCode,
+        });
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).not.toBeNull();
+      expect(<jest.Mock>coupon_PENDING).toBeCalledWith(metricsOptions);
+      expect(<jest.Mock>coupon_REJECTED).toBeCalledWith({
+        ...metricsOptions,
+        error,
+      });
+
       requestMock.done();
     });
   });
@@ -652,7 +720,8 @@ describe('API requests', () => {
     });
 
     it('POST {auth-server}/v1/oauth/subscriptions/active/new-paypal with coupon', async () => {
-      const paramsWithPromo = Object.assign(params, { promotionCode: 'TEST' });
+      const promotionCode = 'TEST';
+      const paramsWithPromo = Object.assign(params, { promotionCode });
 
       const requestMock = nock(AUTH_BASE_URL)
         .post(path, paramsWithPromo)
@@ -663,12 +732,16 @@ describe('API requests', () => {
 
       expect(
         <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
-      ).toBeCalledWith(metricsOptions);
+      ).toBeCalledWith({
+        ...metricsOptions,
+        promotionCode,
+      });
       expect(
         <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
       ).toBeCalledWith({
         ...metricsOptions,
         sourceCountry: 'FR',
+        promotionCode,
       });
 
       requestMock.done();

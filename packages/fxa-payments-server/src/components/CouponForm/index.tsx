@@ -1,11 +1,20 @@
 import './index.scss';
 
 import { Localized } from '@fluent/react';
-import React, { FormEventHandler, MouseEventHandler, useState } from 'react';
+import React, {
+  FormEventHandler,
+  MouseEventHandler,
+  useState,
+  useCallback,
+  useEffect,
+} from 'react';
 
 import { APIError, apiInvoicePreview } from '../../lib/apiClient';
 import { Coupon } from '../../lib/Coupon';
 import sentry from '../../lib/sentry';
+
+import * as Amplitude from '../../lib/amplitude';
+import { useCallbackOnce } from '../../lib/hooks';
 
 /*
  * Check if the coupon promotion code provided by the user is valid.
@@ -18,7 +27,7 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
       promotionCode,
     });
 
-    if (!discount) {
+    if (!discount?.amount) {
       throw new Error('No discount for coupon');
     }
     return discount.amount;
@@ -43,6 +52,22 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
   );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const onFormMounted = useCallback(
+    () => Amplitude.couponMounted({ planId }),
+    [planId]
+  );
+  useEffect(() => {
+    onFormMounted();
+  }, [onFormMounted, planId]);
+
+  const onFormEngaged = useCallbackOnce(
+    () => Amplitude.couponEngaged({ planId }),
+    [planId]
+  );
+  const onChange = useCallback(() => {
+    onFormEngaged();
+  }, [onFormEngaged]);
 
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
@@ -106,7 +131,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
           </button>
         </div>
       ) : (
-        <form onSubmit={onSubmit} data-testid="coupon-form">
+        <form onSubmit={onSubmit} onChange={onChange} data-testid="coupon-form">
           <div className="input-row">
             <Localized attrs={{ placeholder: true }} id="coupon-enter-code">
               <input

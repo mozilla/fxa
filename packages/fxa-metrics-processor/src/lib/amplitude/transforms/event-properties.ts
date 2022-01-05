@@ -34,6 +34,7 @@ const EVENT_PROPERTIES: {
   [GROUPS.subPaySetup]: NOP,
   [GROUPS.subPayUpgrade]: NOP,
   [GROUPS.subSupport]: NOP,
+  [GROUPS.subCoupon]: NOP,
 } as const;
 
 const CONNECT_DEVICE_FLOWS = {
