@@ -73,7 +73,7 @@ describe('fluent localizer', () => {
       },
     };
 
-    const localizer = new FluentLocalizer(new NodeLocalizerBindings());
+    const localizer = new FluentLocalizer(new NodeLocalizerBindings(opts));
 
     function getTestContext(test: string): TemplateContext {
       return {
@@ -131,13 +131,6 @@ describe('fluent localizer', () => {
         );
       });
     }
-
-    it.only('has valid config', () => {
-      // Temporary, debugging failing test in CI
-      const path = join(opts.l10n.basePath, 'en/auth.ftl');
-      console.log('auth.ftl contents', fs.readFileSync(path).toString('utf-8'));
-      assert.isTrue(fs.existsSync(path));
-    });
 
     it('creates localizer', async () => {
       assert.exists(localizer);
