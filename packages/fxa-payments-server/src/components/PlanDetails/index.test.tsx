@@ -193,7 +193,7 @@ describe('PlanDetails', () => {
         },
       });
 
-      const coupon: Coupon = { amount: 200, couponCode: '' };
+      const coupon: Coupon = { amount: 200, promotionCode: '' };
       const props = {
         ...{
           profile: userProfile,
@@ -232,7 +232,7 @@ describe('PlanDetails', () => {
               showExpandButton: false,
               isMobile: false,
               selectedPlan,
-              coupon: { amount: 200, couponCode: '' },
+              coupon: { amount: 200, promotionCode: '' },
             }}
           />
         );

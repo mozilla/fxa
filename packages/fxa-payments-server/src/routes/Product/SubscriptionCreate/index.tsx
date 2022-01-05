@@ -71,6 +71,8 @@ export type SubscriptionCreateProps = {
   stripeOverride?: SubscriptionCreateStripeAPIs;
   apiClientOverrides?: Partial<SubscriptionCreateAuthServerAPIs>;
   paypalButtonBase?: React.FC<ButtonBaseProps>;
+  coupon?: Coupon;
+  setCoupon: (value: Coupon | undefined) => void;
 };
 
 export const SubscriptionCreate = ({
@@ -84,6 +86,8 @@ export const SubscriptionCreate = ({
   stripeOverride,
   apiClientOverrides = {},
   paypalButtonBase,
+  coupon,
+  setCoupon,
 }: SubscriptionCreateProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [transactionInProgress, setTransactionInProgress] = useState(false);
@@ -198,8 +202,6 @@ export const SubscriptionCreate = ({
     [PaymentProviders.stripe]: onStripeFormSubmit,
     [PaymentProviders.paypal]: onPaypalFormSubmit,
   });
-
-  const [coupon, setCoupon] = useState<Coupon>();
 
   return (
     <>

@@ -11,7 +11,13 @@ afterEach(cleanup);
 describe('CouponForm', () => {
   it('renders as expected', () => {
     const subject = () => {
-      return render(<CouponForm planId={SELECTED_PLAN.plan_id} coupon={undefined} setCoupon={() => {}} />);
+      return render(
+        <CouponForm
+          planId={SELECTED_PLAN.plan_id}
+          coupon={undefined}
+          setCoupon={() => {}}
+        />
+      );
     };
 
     const { queryByTestId } = subject();
@@ -23,23 +29,37 @@ describe('CouponForm', () => {
 
   it('shows an error message when invalid coupon code is used', async () => {
     const subject = () => {
-      return render(<CouponForm planId={SELECTED_PLAN.plan_id} coupon={undefined} setCoupon={() => {}} />);
+      return render(
+        <CouponForm
+          planId={SELECTED_PLAN.plan_id}
+          coupon={undefined}
+          setCoupon={() => {}}
+        />
+      );
     };
 
     const { queryByTestId, getByTestId } = subject();
     fireEvent.change(getByTestId('coupon-input'), { target: { value: 'a' } });
     fireEvent.click(getByTestId('coupon-button'));
 
-    await waitForExpect(() => expect(queryByTestId('coupon-error')).toBeInTheDocument());
+    await waitForExpect(() =>
+      expect(queryByTestId('coupon-error')).toBeInTheDocument()
+    );
   });
 
   it('shows the coupon code and hides the input when a coupon is used', () => {
     const coupon: Coupon = {
       amount: 200,
-      couponCode: '',
+      promotionCode: '',
     };
     const subject = () => {
-      return render(<CouponForm planId={SELECTED_PLAN.plan_id} coupon={coupon} setCoupon={(coupon) => {}} />);
+      return render(
+        <CouponForm
+          planId={SELECTED_PLAN.plan_id}
+          coupon={coupon}
+          setCoupon={(coupon) => {}}
+        />
+      );
     };
 
     const { queryByTestId } = subject();
