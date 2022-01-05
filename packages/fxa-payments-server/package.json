@@ -123,7 +123,7 @@
     "convict-format-with-validator": "^6.2.0",
     "dayjs": "^1.9.4",
     "eslint-plugin-jest": "^24.5.2",
-    "express": "^4.17.1",
+    "express": "^4.17.2",
     "fxa-auth-server": "workspace:*",
     "fxa-geodb": "workspace:*",
     "fxa-react": "workspace:*",
