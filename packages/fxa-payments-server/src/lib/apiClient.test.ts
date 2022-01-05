@@ -471,7 +471,7 @@ describe('API requests', () => {
     });
   });
 
-  describe.only('apiInvoicePreview', () => {
+  describe('apiInvoicePreview', () => {
     const path = '/v1/oauth/subscriptions/invoice/preview';
     const priceId = 'price_kkljasdk32lkjasd';
 

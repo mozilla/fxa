@@ -326,6 +326,7 @@ module.exports = {
           plan_id: data.planId || data.plan_id,
           product_id: data.productId || data.product_id,
           payment_provider: data.paymentProvider,
+          promotionCode: data.promotionCode,
         }),
         EVENT_PROPERTIES[eventGroup](
           eventType,
