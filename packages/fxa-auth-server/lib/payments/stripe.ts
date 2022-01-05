@@ -2071,6 +2071,7 @@ export class StripeHelper {
 
     const invoiceDiscountAmountInCents =
       (invoice.total_discount_amounts &&
+        invoice.total_discount_amounts.length &&
         invoice.total_discount_amounts[0].amount) ||
       null;
 
