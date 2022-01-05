@@ -42,7 +42,7 @@
     "@sentry/browser": "^6.16.1",
     "@sentry/node": "^6.16.1",
     "asmcrypto.js": "^0.22.0",
-    "autoprefixer": "10.4.0",
+    "autoprefixer": "10.4.1",
     "babel-loader": "^8.2.2",
     "backbone": "^1.4.0",
     "backbone.cocktail": "0.5.15",
