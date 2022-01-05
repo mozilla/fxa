@@ -8,7 +8,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import * as Metrics from '../../lib/metrics';
 import { useAccount, useConfig, useInitialState } from '../../models';
-import { Router } from '@reach/router';
+import { Redirect, Router } from '@reach/router';
 import Head from 'fxa-react/components/Head';
 import PageSettings from '../PageSettings';
 import PageChangePassword from '../PageChangePassword';
@@ -24,7 +24,6 @@ import { HomePath } from '../../constants';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import PageAvatar from '../PageAvatar';
-import { Redirect } from '@reach/router';
 
 type AppProps = {
   flowQueryParams: FlowQueryParams;
@@ -83,6 +82,7 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
               to="/settings#connected-services"
               noThrow
             />
+            <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
           </ScrollToTop>
         </Router>
       </AppLayout>
