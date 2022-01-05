@@ -106,29 +106,32 @@ class FluentLocalizer {
     // Look up template variables in current context, and apply them automatically
     // as l10n args. Because translations originate from text in 'en', use this as
     // the source of truth for variable names.
-    const baseBundle = new FluentBundle('en', { useIsolating: false });
-    baseBundle.addResource(new FluentResource(fetched['en']));
-    for (const element of rootElement.querySelectorAll('[data-l10n-id]')) {
-      const attr = l10n.getAttributes(element);
-      const args: any = {};
-      const message = baseBundle.getMessage(attr.id);
+    // const baseBundle = new FluentBundle('en', { useIsolating: false });
+    // baseBundle.addResource(new FluentResource(fetched['en']));
+    // for (const element of rootElement.querySelectorAll('[data-l10n-id]')) {
+    //   const attr = l10n.getAttributes(element);
+    //   const args: any = {};
+    //   const message = baseBundle.getMessage(attr.id);
 
-      // Require that all data-l10n-id values are present in en file.
-      if (!message) {
-        throw new Error('Missing data-1l0n-id detected. l10n-id=' + attr.id);
-      }
+    //   if (message) {
 
-      if (message && message.value instanceof Array) {
-        message.value
-          .map((x: PatternElement) => (x as VariableReference).name)
-          .forEach((x) => {
-            if (x && context[x]) {
-              args[x] = context[x];
-            }
-          });
-      }
-      l10n.setAttributes(element, attr.id, args);
-    }
+    //     // TODO: Require that all data-l10n-id values are present in en file.
+    //     // if (!message) {
+    //     //   throw new Error('Missing data-l10n-id detected. l10n-id=' + attr.id);
+    //     // }
+
+    //     if (message && message.value instanceof Array) {
+    //       message.value
+    //         .map((x: PatternElement) => (x as VariableReference).name)
+    //         .forEach((x) => {
+    //           if (x && context[x]) {
+    //             args[x] = context[x];
+    //           }
+    //         });
+    //     }
+    //     l10n.setAttributes(element, attr.id, args);
+    //   }
+    // }
 
     l10n.connectRoot(rootElement);
     await l10n.translateRoots();
