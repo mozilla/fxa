@@ -40,7 +40,15 @@
   margin: 32px 0;
   padding: 0;
 
-  @media (min-width: 768px) {
+  @include min-width('tablet') {
+    display: flex;
+    flex-direction: column;
+    height: 0px;
+    grid-row: auto;
+    padding: 0;
+  }
+
+  @media (min-width: 1024px) {
     display: flex;
     flex-direction: column;
     height: 0px;

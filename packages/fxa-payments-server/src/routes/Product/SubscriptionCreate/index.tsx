@@ -333,12 +333,13 @@ export const SubscriptionCreate = ({
             showExpandButton: isMobile,
             coupon: coupon,
           }}
-        />
-        {config.featureFlags.subscriptionCoupons ? (
-          <CouponForm
-            {...{ planId: selectedPlan.plan_id, coupon, setCoupon }}
-          />
-        ) : null}
+        >
+          {config.featureFlags.subscriptionCoupons ? (
+            <CouponForm
+              {...{ planId: selectedPlan.plan_id, coupon, setCoupon }}
+            />
+          ) : null}
+        </PlanDetails>
       </div>
     </>
   );

@@ -155,8 +155,8 @@ export const Product = ({
     fetchProductRouteResources();
   }, [fetchProductRouteResources]);
 
-  const isMobile = !useMatchMedia(
-    '(min-width: 845px) or ((min-width: 768px) and (orientation: portrait))',
+  const isMobile = useMatchMedia(
+    '(max-width: 429px) and (max-height: 945px) and (orientation: portrait),(max-width: 945px) and (orientation: landscape) and (max-height: 429px)',
     matchMediaDefault
   );
   const plansById = useMemo(() => indexPlansById(plans), [plans]);
