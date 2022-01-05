@@ -133,6 +133,7 @@ const MAILER_METHOD_NAMES = [
   'sendSubscriptionReactivationEmail',
   'sendSubscriptionSubsequentInvoiceEmail',
   'sendSubscriptionFirstInvoiceEmail',
+  'sendSubscriptionFirstInvoiceDiscountEmail',
   'sendDownloadSubscriptionEmail',
   'sendLowRecoveryCodesEmail',
   'sendNewDeviceLoginEmail',

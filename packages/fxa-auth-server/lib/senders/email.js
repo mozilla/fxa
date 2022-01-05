@@ -2901,8 +2901,8 @@ module.exports = function (log, config, bounces) {
       invoiceLink,
       invoiceTotalInCents,
       invoiceTotalCurrency,
-      subtotal,
-      discountAmount,
+      invoiceSubtotalInCents,
+      invoiceDiscountAmountInCents,
       payment_provider,
       cardType,
       lastFour,
@@ -2961,16 +2961,16 @@ module.exports = function (log, config, bounces) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
-        subtotal: this._getLocalizedCurrencyString(
-          subtotal,
+        invoiceSubtotal: this._getLocalizedCurrencyString(
+          invoiceSubtotalInCents,
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
-        discountAmount: `-${this._getLocalizedCurrencyString(
-          discountAmount,
+        invoiceDiscountAmount: this._getLocalizedCurrencyString(
+          invoiceDiscountAmountInCents,
           invoiceTotalCurrency,
           message.acceptLanguage
-        )}`,
+        ),
         payment_provider,
         cardType: cardTypeToText(cardType),
         lastFour,

@@ -8,9 +8,9 @@
 
 {{{t "Invoice Number: %(invoiceNumber)s" }}}
 
-{{{t "Subtotal: %(subtotal)s" }}}
+{{{t "Subtotal: %(invoiceSubtotal)s" }}}
 
-{{{t "One-time discount: %(discountAmount)s" }}}
+{{{t "One-time discount: -%(invoiceDiscountAmount)s" }}}
 
 {{{t "Charged %(invoiceTotal)s on %(invoiceDateOnly)s" }}}
 

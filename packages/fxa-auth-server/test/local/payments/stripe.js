@@ -63,6 +63,7 @@ const unsuccessfulPaymentIntent = require('./fixtures/stripe/paymentIntent_requi
 const paymentMethodAttach = require('./fixtures/stripe/payment_method_attach.json');
 const failedCharge = require('./fixtures/stripe/charge_failed.json');
 const invoicePaidSubscriptionCreate = require('./fixtures/stripe/invoice_paid_subscription_create.json');
+const invoicePaidSubscriptionCreateDiscount = require('./fixtures/stripe/invoice_paid_subscription_create_discount.json');
 const eventCustomerSourceExpiring = require('./fixtures/stripe/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/stripe/event_customer_subscription_updated.json');
 const subscriptionCreatedInvoice = require('./fixtures/stripe/invoice_paid_subscription_create.json');
@@ -3415,6 +3416,17 @@ describe('StripeHelper', () => {
         },
       };
 
+      const fixtureDiscount = { ...invoicePaidSubscriptionCreateDiscount };
+      fixtureDiscount.lines.data[0] = {
+        ...fixtureDiscount.lines.data[0],
+        plan: {
+          id: planId,
+          nickname: planName,
+          product: productId,
+          metadata: mockPlan.metadata,
+        },
+      };
+
       const expected = {
         uid,
         email,
@@ -3425,6 +3437,8 @@ describe('StripeHelper', () => {
         invoiceNumber: 'AAF2CECC-0001',
         invoiceTotalCurrency: 'usd',
         invoiceTotalInCents: 500,
+        invoiceSubTotalInCents: 500,
+        invoiceDiscountAmountInCents: null,
         invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
         nextInvoiceDate: new Date('2020-04-24T22:23:40.000Z'),
         payment_provider: 'stripe',
@@ -3440,6 +3454,14 @@ describe('StripeHelper', () => {
           'product:privacyNoticeURL': privacyNoticeURL,
           'product:termsOfServiceURL': termsOfServiceURL,
         },
+      };
+
+      const expectedDiscount = {
+        ...expected,
+        invoiceNumber: '3432720C-0001',
+        invoiceTotalInCents: 450,
+        invoiceSubTotalInCents: 500,
+        invoiceDiscountAmountInCents: 50,
       };
 
       beforeEach(() => {
@@ -3509,6 +3531,16 @@ describe('StripeHelper', () => {
           lastFour: null,
           cardType: null,
         });
+      });
+
+      it('extracts expected details from an invoice with discount', async () => {
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixtureDiscount
+        );
+        assert.isTrue(stripeHelper.allAbbrevProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        sinon.assert.calledTwice(expandMock);
+        assert.deepEqual(result, expectedDiscount);
       });
 
       it('throws an exception for deleted customer', async () => {

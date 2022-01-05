@@ -49,18 +49,18 @@ can obtain one at http://mozilla.org/MPL/2.0/. %> <%- include
     <mj-text css-class="text-body-no-bottom-margin">
       <span
         data-l10n-id="subscriptionFirstInvoiceDiscount-content-subtotal"
-        data-l10n-args="<%= JSON.stringify({subtotal}) %>"
+        data-l10n-args="<%= JSON.stringify({invoiceSubtotal}) %>"
       >
-        Subtotal: <%- subtotal %>
+        Subtotal: <%- invoiceSubtotal %>
       </span>
     </mj-text>
 
     <mj-text css-class="text-body-no-bottom-margin">
       <span
         data-l10n-id="subscriptionFirstInvoiceDiscount-content-onetime-discount"
-        data-l10n-args="<%= JSON.stringify({discountAmount}) %>"
+        data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount}) %>"
       >
-        One-time discount: <%- discountAmount %>
+        One-time discount: -<%- invoiceDiscountAmount %>
       </span>
     </mj-text>
 
