@@ -243,7 +243,6 @@ export const Checkout = ({
       ]);
       setProfile(profile);
       setCustomer(customer);
-      setCoupon(coupon);
       // Our stub accounts have a uid, append it to all future metric
       // events
       Amplitude.addGlobalEventProperties({ uid: profile.uid });
