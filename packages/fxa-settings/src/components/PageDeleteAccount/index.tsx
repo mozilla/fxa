@@ -133,13 +133,6 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                   </a>
                 </li>
                 <li className="list-disc">
-                  <a className="link-blue" href={LockwiseLink}>
-                    <Localized id="firefox-lockwise">
-                      Firefox Lockwise
-                    </Localized>
-                  </a>
-                </li>
-                <li className="list-disc">
                   <a className="link-blue" href={MonitorLink}>
                     <Localized id="product-firefox-monitor">
                       Firefox Monitor
