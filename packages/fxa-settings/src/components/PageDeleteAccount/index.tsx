@@ -9,13 +9,7 @@ import { useAccount, useAlertBar } from '../../models';
 import InputPassword from '../InputPassword';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import {
-  HomePath,
-  LockwiseLink,
-  MonitorLink,
-  ROOTPATH,
-  VPNLink,
-} from '../../constants';
+import { HomePath, MonitorLink, ROOTPATH, VPNLink } from '../../constants';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
@@ -96,18 +90,17 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
     [account, l10n, setErrorText, setValue, alertBar]
   );
 
-  const handleConfirmChange = (labelText: string) => (
-    event: ChangeEvent<HTMLInputElement>
-  ) => {
-    event.persist();
-    setCheckedBoxes((existing) => {
-      if (event.target.checked) {
-        return [...existing, labelText];
-      } else {
-        return [...existing.filter((text) => text !== labelText)];
-      }
-    });
-  };
+  const handleConfirmChange =
+    (labelText: string) => (event: ChangeEvent<HTMLInputElement>) => {
+      event.persist();
+      setCheckedBoxes((existing) => {
+        if (event.target.checked) {
+          return [...existing, labelText];
+        } else {
+          return [...existing.filter((text) => text !== labelText)];
+        }
+      });
+    };
 
   const onFormSubmit = ({ password }: FormData) => {
     deleteAccount(password);
