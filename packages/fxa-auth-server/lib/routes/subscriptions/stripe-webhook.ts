@@ -541,7 +541,8 @@ export class StripeWebhookHandler extends StripeHandler {
   async sendSubscriptionInvoiceEmail(invoice: Stripe.Invoice) {
     const invoiceDetails =
       await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
-    const { uid } = invoiceDetails;
+    const { uid, invoiceSubtotalInCents, invoiceDiscountAmountInCents } =
+      invoiceDetails;
     const account = await this.db.account(uid);
     const mailParams = [
       account.emails,
@@ -553,7 +554,13 @@ export class StripeWebhookHandler extends StripeHandler {
     ];
     switch (invoice.billing_reason) {
       case 'subscription_create':
-        await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        if (invoiceSubtotalInCents && invoiceDiscountAmountInCents) {
+          await this.mailer.sendSubscriptionFirstInvoiceDiscountEmail(
+            ...mailParams
+          );
+        } else {
+          await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        }
 
         // To not overwhelm users with emails, we only send download subscription email
         // for existing accounts. Passwordless accounts get their own email.

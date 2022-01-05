@@ -2058,6 +2058,7 @@ export class StripeHelper {
       created: invoiceDate,
       currency: invoiceTotalCurrency,
       total: invoiceTotalInCents,
+      subtotal: invoiceSubtotalInCents,
       hosted_invoice_url: invoiceLink,
       lines: {
         data: [
@@ -2067,6 +2068,13 @@ export class StripeHelper {
         ],
       },
     } = invoice;
+
+    const invoiceDiscountAmountInCents =
+      (invoice.total_discount_amounts &&
+        invoice.total_discount_amounts.length &&
+        invoice.total_discount_amounts[0].amount) ||
+      null;
+
     const { id: planId, nickname: planName } = plan;
     const productMetadata = this.mergeMetadata(plan, abbrevProduct);
     const {
@@ -2090,6 +2098,8 @@ export class StripeHelper {
       invoiceNumber,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      invoiceSubtotalInCents,
+      invoiceDiscountAmountInCents,
       invoiceDate: new Date(invoiceDate * 1000),
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),
       productId,
