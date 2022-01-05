@@ -358,7 +358,7 @@ describe('subscriptions payPalRoutes', () => {
           {
             customer,
             priceId: undefined,
-            promotionCode: promoCode,
+            promotionCode,
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
           }
@@ -615,7 +615,7 @@ describe('subscriptions payPalRoutes', () => {
               },
             },
             priceId: undefined,
-            promotionCode: promoCode,
+            promotionCode,
             subIdempotencyKey: undefined,
             taxRateId: 'tr-1234',
           }
