@@ -2058,7 +2058,7 @@ export class StripeHelper {
       created: invoiceDate,
       currency: invoiceTotalCurrency,
       total: invoiceTotalInCents,
-      subtotal: invoiceSubTotalInCents,
+      subtotal: invoiceSubtotalInCents,
       hosted_invoice_url: invoiceLink,
       lines: {
         data: [
@@ -2097,7 +2097,7 @@ export class StripeHelper {
       invoiceNumber,
       invoiceTotalInCents,
       invoiceTotalCurrency,
-      invoiceSubTotalInCents,
+      invoiceSubtotalInCents,
       invoiceDiscountAmountInCents,
       invoiceDate: new Date(invoiceDate * 1000),
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),

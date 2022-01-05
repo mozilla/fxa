@@ -1256,7 +1256,7 @@ describe('StripeWebhookHandler', () => {
         if (
           expectedMethodName === 'sendSubscriptionFirstInvoiceDiscountEmail'
         ) {
-          mockInvoiceDetails.invoiceSubTotalInCents = 12;
+          mockInvoiceDetails.invoiceSubtotalInCents = 12;
           mockInvoiceDetails.invoiceDiscountAmountInCents = 34;
         }
         StripeWebhookHandlerInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(

@@ -541,7 +541,7 @@ export class StripeWebhookHandler extends StripeHandler {
   async sendSubscriptionInvoiceEmail(invoice: Stripe.Invoice) {
     const invoiceDetails =
       await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
-    const { uid, invoiceSubTotalInCents, invoiceDiscountAmountInCents } =
+    const { uid, invoiceSubtotalInCents, invoiceDiscountAmountInCents } =
       invoiceDetails;
     const account = await this.db.account(uid);
     const mailParams = [
@@ -554,7 +554,7 @@ export class StripeWebhookHandler extends StripeHandler {
     ];
     switch (invoice.billing_reason) {
       case 'subscription_create':
-        if (invoiceSubTotalInCents && invoiceDiscountAmountInCents) {
+        if (invoiceSubtotalInCents && invoiceDiscountAmountInCents) {
           await this.mailer.sendSubscriptionFirstInvoiceDiscountEmail(
             ...mailParams
           );

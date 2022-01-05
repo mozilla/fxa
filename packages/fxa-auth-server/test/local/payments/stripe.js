@@ -3437,7 +3437,7 @@ describe('StripeHelper', () => {
         invoiceNumber: 'AAF2CECC-0001',
         invoiceTotalCurrency: 'usd',
         invoiceTotalInCents: 500,
-        invoiceSubTotalInCents: 500,
+        invoiceSubtotalInCents: 500,
         invoiceDiscountAmountInCents: null,
         invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
         nextInvoiceDate: new Date('2020-04-24T22:23:40.000Z'),
@@ -3460,7 +3460,7 @@ describe('StripeHelper', () => {
         ...expected,
         invoiceNumber: '3432720C-0001',
         invoiceTotalInCents: 450,
-        invoiceSubTotalInCents: 500,
+        invoiceSubtotalInCents: 500,
         invoiceDiscountAmountInCents: 50,
       };
 
