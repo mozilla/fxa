@@ -22,10 +22,6 @@ const COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP = {
   Canada: 'CA',
 };
 
-function sleep(delayMs: number) {
-  return new Promise((resolve) => setTimeout(resolve, delayMs));
-}
-
 export class CustomerLocations {
   private log: Logger;
   private stripeHelper: StripeHelper;
@@ -45,7 +41,11 @@ export class CustomerLocations {
   /**
    * For PayPal customers, their payment method country is stored in the
    * customer's billing address. This will return an ISO 3166-2 country
-   *  code. 'US' and 'CA' are the only ones we're interested in.
+   * code. 'US' and 'CA' are the only ones we're interested in.
+   *
+   * This method assumes the uid passed in is for a known current or past
+   * PayPal user. See
+   * https://mozilla-hub.atlassian.net/browse/FXA-4224?focusedCommentId=493802.
    */
   async getPayPalCustomerCountry(uid: string): Promise<string | null> {
     // 1. Get the Stripe customer object from Firestore else Stripe
@@ -58,8 +58,6 @@ export class CustomerLocations {
       return null;
     }
     // 2. Get the Stripe customer billing address; should be `address.country`
-    // We already know this user is or was a PayPal subscriber, so we
-    // don't have to check.
     const { address } = customer;
     const country = address?.country;
     if (!country) {
@@ -119,10 +117,6 @@ export class CustomerLocations {
     results: PayPalUserLocationResult[]
   ): Promise<PayPalUserLocationResult | null> {
     let bestLocation = { uid, state: 'unknown', country: 'unknown', count: 1 };
-    // Avoid hitting Stripe 100 rps rate limit in prod by artificially slowing down requests.
-    // After the first runthrough of the script, we should have backfilled everyone in
-    // Firestore, and this delay can be removed.
-    await sleep(200);
     const country = await this.getPayPalCustomerCountry(uid);
     if (!country) {
       this.log.debug('customerLocations.getBestLocationForPayPalUser', {
@@ -154,9 +148,9 @@ export class CustomerLocations {
     // Prioritize country from Stripe customer
     if (modeLocation.country === country) {
       bestLocation = { ...modeLocation, count: 1 };
-    } else if (locations.some((location) => location.country === country)) {
+    } else if (locations.find((location) => location.country === country)) {
       bestLocation = {
-        ...locations.find((location) => location.country === country)!,
+        ...locations.find((location) => location.country === country),
         count: 1,
       };
     } else {

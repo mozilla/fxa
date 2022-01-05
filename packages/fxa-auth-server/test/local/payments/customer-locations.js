@@ -106,17 +106,17 @@ describe('CustomerLocations', () => {
       assert.deepEqual(result, null);
     });
     it('returns Stripe country and unknown state when no matching country is found', async () => {
-      const otherCountry = 'US';
+      const nonmatchingCountry = 'US';
       mockStripeHelper.fetchCustomer = sandbox.fake.resolves({
         ...deepCopy(mockPayPalCustomer),
         address: {
-          country: otherCountry,
+          country: nonmatchingCountry,
         },
       });
       const expected = {
         uid: mockUid,
         state: 'unknown',
-        country: otherCountry,
+        country: nonmatchingCountry,
         count: 1,
       };
       const result = await customerLocations.getBestLocationForPayPalUser(
@@ -141,7 +141,7 @@ describe('CustomerLocations', () => {
       );
       assert.deepEqual(result, expected);
     });
-    it('returns Stripe country and the mode state when a matching country is found, even if the mode country does not match', async () => {
+    it('returns Stripe country and the mode state when a matching country is found', async () => {
       const mockLocationResultsModeCountryMismatch =
         deepCopy(mockLocationResults);
       mockLocationResultsModeCountryMismatch[0].count = 100;
