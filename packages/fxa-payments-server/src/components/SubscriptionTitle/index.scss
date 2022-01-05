@@ -22,6 +22,24 @@
     grid-row: 1/2;
   }
 
+  @media (orientation: landscape) and (max-width: 927px) and (max-height: 429px) {
+    margin: 0 16px auto;
+    border-bottom: 0;
+    border-top: 0;
+    position: relative;
+    z-index: 1;
+    grid-row: 1/2;
+  }
+
+  @media (orientation: portrait) and (max-height: 927px) and (max-width: 429px) {
+    margin: 0 16px auto;
+    border-bottom: 0;
+    border-top: 0;
+    position: relative;
+    z-index: 1;
+    grid-row: 1/2;
+  }
+
   @include min-width('tablet') {
     text-align: center;
 
@@ -29,10 +47,6 @@
       font-weight: normal;
       margin-top: 20px;
     }
-  }
-
-  @media (orientation: landscape) and (max-width: 844px) {
-    margin: 0 16px;
   }
 
   .subtitle {

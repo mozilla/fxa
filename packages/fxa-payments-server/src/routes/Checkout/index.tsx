@@ -108,8 +108,8 @@ export const Checkout = ({
   >();
   const [profile, setProfile] = useState<Profile>();
   const [customer, setCustomer] = useState<Customer>();
-  const isMobile = !useMatchMedia(
-    '(min-width: 845px) or ((min-width: 768px) and (orientation: portrait))',
+  const isMobile = useMatchMedia(
+    '(max-width: 429px) and (max-height: 945px) and (orientation: portrait),(max-width: 945px) and (orientation: landscape) and (max-height: 429px)',
     matchMediaDefault
   );
   const [transactionInProgress, setTransactionInProgress] = useState(false);
@@ -430,12 +430,13 @@ export const Checkout = ({
             showExpandButton: isMobile,
             coupon,
           }}
-        />
-        {config.featureFlags.subscriptionCoupons ? (
-          <CouponForm
-            {...{ planId: selectedPlan.plan_id, coupon, setCoupon }}
-          />
-        ) : null}
+        >
+          {config.featureFlags.subscriptionCoupons ? (
+            <CouponForm
+              {...{ planId: selectedPlan.plan_id, coupon, setCoupon }}
+            />
+          ) : null}
+        </PlanDetails>
       </div>
     </>
   );

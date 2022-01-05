@@ -26,6 +26,7 @@ type PlanDetailsProps = {
   showExpandButton?: boolean;
   className?: string;
   coupon?: Coupon;
+  children?: any;
 };
 
 export const PlanDetails = ({
@@ -34,6 +35,7 @@ export const PlanDetails = ({
   showExpandButton = false,
   className = 'default',
   coupon,
+  children,
 }: PlanDetailsProps) => {
   const { config } = useContext(AppContext);
   const { navigatorLanguages } = useContext(AppContext);
@@ -62,7 +64,7 @@ export const PlanDetails = ({
   );
 
   return (
-    <section
+    <div
       className={`plan-details-component ${className}`}
       {...{ role }}
       data-testid="plan-details-component"
@@ -229,7 +231,8 @@ export const PlanDetails = ({
           ) : null}
         </div>
       </div>
-    </section>
+      {children}
+    </div>
   );
 };
 
