@@ -1,0 +1,21 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-header">
+      <span data-l10n-id="<%- template %>-title" >Not Localized - Test Render <%- testTerm %> </span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section>
+  <mj-column>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="<%- template %>-description" >Not Loclalized - A test to validate edge cases in mjml rendering and fluent localization. <%- testTerm %></span>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<%- include('/partials/button/index.mjml') %>

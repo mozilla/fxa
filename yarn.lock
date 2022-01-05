@@ -6230,6 +6230,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/chai-as-promised@npm:^7":
+  version: 7.1.4
+  resolution: "@types/chai-as-promised@npm:7.1.4"
+  dependencies:
+    "@types/chai": "*"
+  checksum: bb974e77e0357fcc9a01f4b46eb1d3d6a40621a479654fa17539890cd59635faf9b860b8c3851f638d1e239404b1dc8e7ab1305f26dec43e19cce6796e01fe48
+  languageName: node
+  linkType: hard
+
 "@types/chai@npm:*, @types/chai@npm:^4.2.18, @types/chai@npm:~4.2.20":
   version: 4.2.21
   resolution: "@types/chai@npm:4.2.21"
@@ -18712,6 +18721,7 @@ fsevents@~2.1.1:
     "@type-cacheable/ioredis-adapter": ^10.0.2
     "@types/babel__core": 7.1.14
     "@types/chai": ^4.2.18
+    "@types/chai-as-promised": ^7
     "@types/convict": ^5.2.2
     "@types/ejs": ^3.0.6
     "@types/hapi__hapi": ^19.0.3
@@ -18745,6 +18755,7 @@ fsevents@~2.1.1:
     buf: 0.1.1
     buffer-equal-constant-time: 1.0.1
     chai: ^4.3.4
+    chai-as-promised: ^7.1.1
     cldr-core: ^40.0.0
     cldr-localenames-full: 40.0.0
     commander: 2.18.0

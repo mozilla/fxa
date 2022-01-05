@@ -10,6 +10,13 @@ module.exports = function (grunt) {
       src: ['lib/senders/emails/auth.ftl', 'lib/**/senders/emails/**/en.ftl'],
       dest: 'public/locales/en/auth.ftl',
     },
+    'ftl-test': {
+      src: [
+        'test/local/senders/emails/auth.ftl',
+        'test/local/senders/emails/**/en.ftl',
+      ],
+      dest: 'test/temp/public/locales/en/auth.ftl',
+    },
   });
 
   grunt.config('watch', {
@@ -23,5 +30,6 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('merge-ftl', ['concat:ftl']);
+  grunt.registerTask('merge-ftl:test', ['concat:ftl-test']);
   grunt.registerTask('watch-ftl', ['watch:ftl']);
 };
