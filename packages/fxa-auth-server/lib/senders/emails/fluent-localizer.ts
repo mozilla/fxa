@@ -113,10 +113,10 @@ class FluentLocalizer {
       const args: any = {};
       const message = baseBundle.getMessage(attr.id);
 
-      // Require that all data-l10n-id values are present in en file.
-      if (!message) {
-        throw new Error('Missing data-1l0n-id detected. l10n-id=' + attr.id);
-      }
+      // TODO: Require that all data-l10n-id values are present in en file.
+      // if (!message) {
+      //   throw new Error('Missing data-l10n-id detected. l10n-id=' + attr.id);
+      // }
 
       if (message && message.value instanceof Array) {
         message.value
