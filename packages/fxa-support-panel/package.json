@@ -44,7 +44,7 @@
     "convict": "^6.2.1",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
-    "express": "^4.17.1",
+    "express": "^4.17.2",
     "fxa-shared": "workspace:*",
     "handlebars": "^4.7.7",
     "hbs": "^4.2.0",
