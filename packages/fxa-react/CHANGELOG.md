@@ -1,3 +1,10 @@
+## 1.223.0
+
+### Other changes
+
+- deps: bump @fluent/langneg from 0.5.2 to 0.6.1 (#11477) ([67057664c](https://github.com/mozilla/fxa/commit/67057664c))
+- deps: bump @fluent/bundle from 0.17.0 to 0.17.1 (#11454) ([aaa3446c9](https://github.com/mozilla/fxa/commit/aaa3446c9))
+
 ## 1.222.0
 
 ### Other changes

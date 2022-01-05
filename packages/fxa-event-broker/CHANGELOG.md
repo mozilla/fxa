@@ -1,5 +1,17 @@
 # Change history
 
+## 1.223.0
+
+### Other changes
+
+- deps: bump express from 4.17.1 to 4.17.2 (#11509) ([e6433d1de](https://github.com/mozilla/fxa/commit/e6433d1de))
+- deps-dev: bump eslint-plugin-import from 2.25.3 to 2.25.4 (#11484) ([41569d649](https://github.com/mozilla/fxa/commit/41569d649))
+- deps: bump aws-sdk from 2.1046.0 to 2.1048.0 (#11456) ([336f4de77](https://github.com/mozilla/fxa/commit/336f4de77))
+- deps-dev: bump @nestjs/testing from 8.2.3 to 8.2.4 (#11448) ([052f06ba0](https://github.com/mozilla/fxa/commit/052f06ba0))
+- deps: bump google-auth-library from 7.10.2 to 7.11.0 (#11447) ([8c7739956](https://github.com/mozilla/fxa/commit/8c7739956))
+- deps-dev: bump @nestjs/cli from 8.1.5 to 8.1.6 (#11446) ([f6b430f74](https://github.com/mozilla/fxa/commit/f6b430f74))
+- deps: bump @nestjs/platform-express from 8.2.3 to 8.2.4 (#11433) ([b4967a6c6](https://github.com/mozilla/fxa/commit/b4967a6c6))
+
 ## 1.222.0
 
 ### New features

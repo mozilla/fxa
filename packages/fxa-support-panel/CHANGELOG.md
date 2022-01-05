@@ -1,5 +1,14 @@
 # Change history
 
+## 1.223.0
+
+### Other changes
+
+- deps: bump express from 4.17.1 to 4.17.2 (#11509) ([e6433d1de](https://github.com/mozilla/fxa/commit/e6433d1de))
+- deps: bump helmet from 4.6.0 to 5.0.0 (#11485) ([511acb701](https://github.com/mozilla/fxa/commit/511acb701))
+- deps-dev: bump @nestjs/cli from 8.1.5 to 8.1.6 (#11446) ([f6b430f74](https://github.com/mozilla/fxa/commit/f6b430f74))
+- deps: bump @nestjs/platform-express from 8.2.3 to 8.2.4 (#11433) ([b4967a6c6](https://github.com/mozilla/fxa/commit/b4967a6c6))
+
 ## 1.222.0
 
 ### Other changes

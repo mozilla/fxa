@@ -1,3 +1,14 @@
+## 1.223.0
+
+### Refactorings
+
+- admin-panel, payments: Upgrade to react-router v6 (#11463) ([24bf98e99](https://github.com/mozilla/fxa/commit/24bf98e99))
+
+### Other changes
+
+- deps: bump express from 4.17.1 to 4.17.2 (#11509) ([e6433d1de](https://github.com/mozilla/fxa/commit/e6433d1de))
+- deps: bump helmet from 4.6.0 to 5.0.0 (#11485) ([511acb701](https://github.com/mozilla/fxa/commit/511acb701))
+
 ## 1.222.0
 
 ### New features

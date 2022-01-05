@@ -1,3 +1,13 @@
+## 1.223.0
+
+### Bug fixes
+
+- settings: redirect /settings/avatar/change to /settings/avatar/ (#11504) ([f98044eb3](https://github.com/mozilla/fxa/commit/f98044eb3))
+
+### Other changes
+
+- deps: bump node-sass from 7.0.0 to 7.0.1 (#11452) ([7f933398b](https://github.com/mozilla/fxa/commit/7f933398b))
+
 ## 1.222.0
 
 ### Bug fixes

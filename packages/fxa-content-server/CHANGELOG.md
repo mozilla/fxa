@@ -1,3 +1,17 @@
+## 1.223.0
+
+### Bug fixes
+
+- settings: redirect /settings/avatar/change to /settings/avatar/ (#11504) ([f98044eb3](https://github.com/mozilla/fxa/commit/f98044eb3))
+
+### Other changes
+
+- deps: bump express from 4.17.1 to 4.17.2 (#11509) ([e6433d1de](https://github.com/mozilla/fxa/commit/e6433d1de))
+- deps: bump helmet from 4.6.0 to 5.0.0 (#11485) ([511acb701](https://github.com/mozilla/fxa/commit/511acb701))
+- deps: bump @babel/plugin-proposal-class-properties from 7.16.5 to 7.16.7 (#11487) ([ba521a7fa](https://github.com/mozilla/fxa/commit/ba521a7fa))
+- deps-dev: bump @babel/cli from 7.16.0 to 7.16.7 (#11483) ([4f463913c](https://github.com/mozilla/fxa/commit/4f463913c))
+- deps: bump node-sass from 7.0.0 to 7.0.1 (#11452) ([7f933398b](https://github.com/mozilla/fxa/commit/7f933398b))
+
 ## 1.222.0
 
 ### New features
