@@ -26,6 +26,7 @@ export type CancelSubscriptionPanelProps = {
   customerSubscription: WebSubscription;
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
   paymentProvider: PaymentProvider | undefined;
+  promotionCode: string | undefined;
 };
 
 const CancelSubscriptionPanel = ({
@@ -34,6 +35,7 @@ const CancelSubscriptionPanel = ({
   customerSubscription: { subscription_id, current_period_end },
   cancelSubscriptionStatus,
   paymentProvider,
+  promotionCode,
 }: CancelSubscriptionPanelProps) => {
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
   const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
@@ -46,29 +48,40 @@ const CancelSubscriptionPanel = ({
   const confirmCancellation = useCallback(async () => {
     setIsLocalCancellation();
     try {
-      await cancelSubscription(subscription_id, plan, paymentProvider);
+      await cancelSubscription(
+        subscription_id,
+        plan,
+        paymentProvider,
+        promotionCode
+      );
     } catch (err) {
       // no-op, error is displayed in the Subscriptions route parent
     }
     resetIsLocalCancellation();
-  }, [cancelSubscription, subscription_id, plan, paymentProvider]);
+  }, [
+    cancelSubscription,
+    subscription_id,
+    plan,
+    paymentProvider,
+    promotionCode,
+  ]);
 
   const viewed = useRef(false);
   const engaged = useRef(false);
 
   useEffect(() => {
     if (!viewed.current && cancelRevealed) {
-      Amplitude.cancelSubscriptionMounted(plan);
+      Amplitude.cancelSubscriptionMounted({ ...plan, promotionCode });
       viewed.current = true;
     }
-  }, [cancelRevealed, viewed, plan]);
+  }, [cancelRevealed, viewed, plan, promotionCode]);
 
   const engage = useCallback(() => {
     if (!engaged.current) {
-      Amplitude.cancelSubscriptionEngaged(plan);
+      Amplitude.cancelSubscriptionEngaged({ ...plan, promotionCode });
       engaged.current = true;
     }
-  }, [engaged, plan]);
+  }, [engaged, plan, promotionCode]);
 
   const engagedOnHideCancel = useCallback(
     (evt) => {

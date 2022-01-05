@@ -9,6 +9,9 @@ jest.mock('./actions', () => ({
     updateSubscriptionPlan: jest
       .fn()
       .mockReturnValue({ type: 'updateSubscriptionPlan' }),
+    cancelSubscription: jest
+      .fn()
+      .mockReturnValue({ type: 'updateSubscriptionPlan' }),
     fetchCustomer: jest.fn().mockReturnValue({ type: 'fetchCustomer' }),
     fetchSubscriptions: jest
       .fn()
@@ -68,6 +71,35 @@ describe('updateSubscriptionPlanAndRefresh', () => {
       subscriptionId,
       plan,
       paymentProvider
+    );
+    expect(actions.fetchCustomer).toBeCalled();
+  });
+});
+
+describe('cancelSubscriptionAndRefresh', () => {
+  const plan = MOCK_PLANS[0];
+  const subscriptionId = 'sub-8675309';
+  const paymentProvider = 'paypal';
+  const promotionCode = 'takemymoney';
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('calls actions as expected', async () => {
+    await sequences.cancelSubscriptionAndRefresh(
+      subscriptionId,
+      plan,
+      paymentProvider,
+      promotionCode
+    )(dispatch);
+
+    expect(dispatch).toHaveBeenCalledTimes(3);
+    expect(actions.cancelSubscription).toHaveBeenCalledWith(
+      subscriptionId,
+      plan,
+      paymentProvider,
+      promotionCode
     );
     expect(actions.fetchCustomer).toBeCalled();
   });
