@@ -16,7 +16,7 @@
   <mj-column>
     <mj-text css-class="text-body">
       <span
-        data-l10n-id="postVerifySecondary-description"
+        data-l10n-id="postVerifySecondary-content"
         data-l10n-args="<%= JSON.stringify({secondaryEmail}) %>">
         You have successfully verified <%- secondaryEmail %> as a secondary
         email for your Firefox account. Security notifications and sign-in
