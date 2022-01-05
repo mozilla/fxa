@@ -82,6 +82,7 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
               to="/settings#connected-services"
               noThrow
             />
+            {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
             <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
           </ScrollToTop>
         </Router>
