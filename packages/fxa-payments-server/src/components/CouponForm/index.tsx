@@ -75,78 +75,76 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
   };
 
   return (
-    <section
+    <div
       className={`coupon-component ${coupon ? 'has-coupon' : ''}`}
       data-testid="coupon-component"
     >
-      <div className="coupon-component-inner">
-        {hasCoupon ? (
-          <div className="coupon-header">
-            <h4>
-              <Localized id="coupon-discount-applied">
-                Discount Reward Applied
-              </Localized>
-            </h4>
+      {hasCoupon ? (
+        <div className="coupon-header">
+          <h4>
+            <Localized id="coupon-discount-applied">
+              Discount Reward Applied
+            </Localized>
+          </h4>
+        </div>
+      ) : (
+        <div className="coupon-header">
+          <h4>
+            <Localized id="coupon-discount">Discount</Localized>
+          </h4>
+        </div>
+      )}
+      {hasCoupon ? (
+        <div className="flex" data-testid="coupon-hascoupon">
+          <div className="coupon-details">
+            <div>{promotionCode}</div>
           </div>
-        ) : (
-          <div className="coupon-header">
-            <h4>
-              <Localized id="coupon-discount">Discount</Localized>
-            </h4>
+          <button onClick={removeCoupon}>
+            <Localized id="coupon-remove">
+              <span>Remove</span>
+            </Localized>
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={onSubmit} data-testid="coupon-form">
+          <div className="input-row">
+            <Localized attrs={{ placeholder: true }} id="coupon-enter-code">
+              <input
+                className={`${error ? 'invalid' : ''}`}
+                type="text"
+                name="coupon"
+                data-testid="coupon-input"
+                value={promotionCode}
+                onChange={(event) => {
+                  setError('');
+                  setPromotionCode(event.target.value);
+                }}
+                placeholder="Enter code"
+                disabled={loading}
+              />
+            </Localized>
           </div>
-        )}
-        {hasCoupon ? (
-          <div className="flex" data-testid="coupon-hascoupon">
-            <div className="coupon-details">
-              <div>{promotionCode}</div>
-            </div>
-            <button onClick={removeCoupon}>
-              <Localized id="coupon-remove">
-                <span>Remove</span>
-              </Localized>
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={onSubmit} data-testid="coupon-form">
-            <div className="input-row">
-              <Localized attrs={{ placeholder: true }} id="coupon-enter-code">
-                <input
-                  className={`${error ? 'invalid' : ''}`}
-                  type="text"
-                  name="coupon"
-                  data-testid="coupon-input"
-                  value={promotionCode}
-                  onChange={(event) => {
-                    setError('');
-                    setPromotionCode(event.target.value);
-                  }}
-                  placeholder="Enter code"
-                  disabled={loading}
-                />
-              </Localized>
-            </div>
 
-            <button
-              name="apply"
-              type="submit"
-              data-testid="coupon-button"
-              disabled={loading}
-            >
-              <Localized id="coupon-submit">
-                <span>Apply</span>
-              </Localized>
-            </button>
-          </form>
-        )}
-        {error ? (
-          <Localized id="coupon-error">
-            <div className="coupon-error" data-testid="coupon-error">
-              {error}
-            </div>
-          </Localized>
-        ) : null}
-      </div>
-    </section>
+          <button
+            name="apply"
+            type="submit"
+            data-testid="coupon-button"
+            disabled={loading}
+          >
+            <Localized id="coupon-submit">
+              <span>Apply</span>
+            </Localized>
+          </button>
+        </form>
+      )}
+      {error ? (
+        <Localized id="coupon-error">
+          <div className="coupon-error" data-testid="coupon-error">
+            {error}
+          </div>
+        </Localized>
+      ) : null}
+    </div>
   );
 };
 

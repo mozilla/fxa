@@ -40,6 +40,12 @@
   margin: 32px 0;
   padding: 0;
 
+  @include min-width('tablet') {
+    display: flex;
+    flex-direction: column;
+    height: 0px;
+  }
+
   @include max-width('tablet') {
     grid-row: 2/3;
     margin-top: 0;
@@ -66,7 +72,7 @@
   .plan-details-component-inner {
     @include min-width('tablet') {
       max-width: 327px;
-      position: fixed;
+      // position: fixed;
     }
   }
 
