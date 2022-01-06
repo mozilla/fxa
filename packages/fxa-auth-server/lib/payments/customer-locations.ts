@@ -15,7 +15,7 @@ type PayPalUserLocationResult = {
 };
 
 // The countries we need region data for
-const COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP = {
+export const COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP = {
   // The long name is used in the BigQuery metrics logs; the short name is used
   // in the Stripe customer billing address
   'United States': 'US',

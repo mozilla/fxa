@@ -602,7 +602,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('creates a subscription with a payment method', async () => {
-      const sourceCountry = 'us';
+      const sourceCountry = 'US';
       directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
         sourceCountry
       );
@@ -647,7 +647,7 @@ describe('DirectStripeRoutes', () => {
         {
           customerId: emptyCustomer.id,
           postalCode: paymentMethod.billing_details.address.postal_code,
-          country: 'us',
+          country: 'US',
         }
       );
 
@@ -864,7 +864,7 @@ describe('DirectStripeRoutes', () => {
       sandbox.stub(Sentry, 'captureMessage');
 
       delete paymentMethod.billing_details.address;
-      const sourceCountry = 'us';
+      const sourceCountry = 'US';
       directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
         sourceCountry
       );
@@ -929,9 +929,37 @@ describe('DirectStripeRoutes', () => {
       );
       sinon.assert.calledOnceWithExactly(
         Sentry.captureMessage,
-        `Cannot find a postal code or country for customer ${emptyCustomer.id}`,
+        `Cannot find a postal code for customer ${emptyCustomer.id}`,
         Sentry.Severity.Error
       );
+    });
+
+    it('skips location lookup when source country is not needed', async () => {
+      const sourceCountry = 'DE';
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+        sourceCountry
+      );
+      const expected = deepCopy(subscription2);
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+        expected
+      );
+      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
+      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
+
+      const sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureMessage');
+
+      await directStripeRoutesInstance.createSubscriptionWithPMI(VALID_REQUEST);
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.setCustomerLocation
+      );
+      sinon.assert.notCalled(Sentry.withScope);
     });
   });
 
@@ -1179,6 +1207,50 @@ describe('DirectStripeRoutes', () => {
         `Cannot find a postal code or country for customer ${emptyCustomer.id}`,
         Sentry.Severity.Error
       );
+    });
+
+    it('skips location lookup when source country is not needed', async () => {
+      const customer = deepCopy(emptyCustomer);
+      customer.currency = 'USD';
+      paymentMethod.card.country = 'GB';
+      const paymentMethodId = 'card_1G9Vy3Kb9q6OnNsLYw9Zw0Du';
+      const sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureMessage');
+
+      const expected = deepCopy(emptyCustomer);
+      expected.invoice_settings.default_payment_method = paymentMethodId;
+
+      directStripeRoutesInstance.stripeHelper.fetchCustomer
+        .onCall(0)
+        .resolves(customer);
+      directStripeRoutesInstance.stripeHelper.fetchCustomer
+        .onCall(1)
+        .resolves(expected);
+      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.resolves(
+        {
+          ...customer,
+          invoice_settings: { default_payment_method: paymentMethodId },
+        }
+      );
+      directStripeRoutesInstance.stripeHelper.removeSources.resolves([
+        {},
+        {},
+        {},
+      ]);
+
+      VALID_REQUEST.payload = {
+        paymentMethodId,
+      };
+
+      await directStripeRoutesInstance.updateDefaultPaymentMethod(
+        VALID_REQUEST
+      );
+
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.setCustomerLocation
+      );
+      sinon.assert.notCalled(Sentry.withScope);
     });
   });
 
