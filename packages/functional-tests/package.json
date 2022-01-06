@@ -3,6 +3,7 @@
   "version": "1.218.5",
   "private": true,
   "scripts": {
+    "record": "playwright test --project=stub --debug",
     "test": "playwright test --project=local",
     "test-local": "playwright test --project=local",
     "test-stage": "playwright test --project=stage",

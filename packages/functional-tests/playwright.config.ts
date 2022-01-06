@@ -1,4 +1,4 @@
-import { PlaywrightTestConfig } from '@playwright/test';
+import { PlaywrightTestConfig, Project } from '@playwright/test';
 import path from 'path';
 import { TargetNames } from './lib/targets';
 import { TestOptions, WorkerOptions } from './lib/fixtures/standard';
@@ -18,22 +18,41 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
   use: {
     viewport: { width: 1280, height: 720 },
   },
-  projects: TargetNames.map((name) => ({
-    name,
-    use: {
-      browserName: 'firefox',
-      targetName: name,
-      launchOptions: {
-        args: DEBUG ? ['-start-debugger-server'] : undefined,
-        firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
-        headless: !DEBUG,
+  projects: [
+    ...TargetNames.map(
+      (name) =>
+        ({
+          name,
+          testIgnore: 'stub.spec.ts',
+          use: {
+            browserName: 'firefox',
+            targetName: name,
+            launchOptions: {
+              args: DEBUG ? ['-start-debugger-server'] : undefined,
+              firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
+              headless: !DEBUG,
+            },
+            trace: CI ? 'on-first-retry' : 'retain-on-failure',
+          },
+        } as Project)
+    ),
+    {
+      name: 'stub',
+      testMatch: 'stub.spec.ts',
+      use: {
+        browserName: 'firefox',
+        targetName: 'local',
+        launchOptions: {
+          args: DEBUG ? ['-start-debugger-server'] : undefined,
+          firefoxUserPrefs: getFirefoxUserPrefs('local', DEBUG),
+          headless: !DEBUG,
+        },
       },
-      trace: CI ? 'on-first-retry' : 'retain-on-failure',
     },
-  })),
+  ],
   reporter: CI
     ? [
-        ['line'],
+        ['./lib/ci-reporter.ts'],
         [
           'junit',
           {
@@ -45,7 +64,7 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
         ],
       ]
     : 'list',
-  workers: CI ? 1 : undefined,
+  workers: CI ? 3 : undefined,
   maxFailures: CI ? 2 : 0,
 };
 
