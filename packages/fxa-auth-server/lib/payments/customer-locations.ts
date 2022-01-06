@@ -14,13 +14,17 @@ type PayPalUserLocationResult = {
   count: number;
 };
 
+const stateNames = STATES_LONG_NAME_TO_SHORT_NAME_MAP as {
+  [key: string]: { [key: string]: string };
+};
+
 // The countries we need region data for
 export const COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP = {
   // The long name is used in the BigQuery metrics logs; the short name is used
   // in the Stripe customer billing address
   'United States': 'US',
   Canada: 'CA',
-};
+} as { [key: string]: string };
 
 export class CustomerLocations {
   private log: Logger;
@@ -90,10 +94,10 @@ export class CustomerLocations {
    */
   mapLongToShortStateName(country: string, state: string): string {
     if (
-      Object.keys(STATES_LONG_NAME_TO_SHORT_NAME_MAP).includes(country) &&
-      Object.keys(STATES_LONG_NAME_TO_SHORT_NAME_MAP[country]).includes(state)
+      Object.keys(stateNames).includes(country) &&
+      Object.keys(stateNames[country]).includes(state)
     ) {
-      return STATES_LONG_NAME_TO_SHORT_NAME_MAP[country][state];
+      return stateNames[country][state];
     }
     // We don't care about any other country/state combos.
     this.log.debug('customerLocations.mapLongToShortStateName', {
@@ -116,7 +120,12 @@ export class CustomerLocations {
     uid: string,
     results: PayPalUserLocationResult[]
   ): Promise<PayPalUserLocationResult | null> {
-    let bestLocation = { uid, state: 'unknown', country: 'unknown', count: 1 };
+    let bestLocation = {
+      uid,
+      state: 'unknown',
+      country: 'unknown',
+      count: 1,
+    };
     const country = await this.getPayPalCustomerCountry(uid);
     if (!country) {
       this.log.debug('customerLocations.getBestLocationForPayPalUser', {
@@ -133,7 +142,9 @@ export class CustomerLocations {
       });
       return null;
     }
-    let locations = results.filter((result) => result.uid === uid);
+    let locations: PayPalUserLocationResult[] = results.filter(
+      (result) => result.uid === uid
+    );
     if (locations.length === 0) {
       return { ...bestLocation, country };
     }
@@ -148,9 +159,9 @@ export class CustomerLocations {
     // Prioritize country from Stripe customer
     if (modeLocation.country === country) {
       bestLocation = { ...modeLocation, count: 1 };
-    } else if (locations.find((location) => location.country === country)) {
+    } else if (locations.some((location) => location.country === country)) {
       bestLocation = {
-        ...locations.find((location) => location.country === country),
+        ...locations.find((location) => location.country === country)!,
         count: 1,
       };
     } else {
