@@ -22,4 +22,6 @@ subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
 subplat-cloud-terms = { -product-firefox-cloud } Terms of Service
 subplat-cloud-terms-plaintext = { subplat-cloud-terms }:
 subplat-legal = Legal
+subplat-legal-plaintext = { subplat-legal }:
 subplat-privacy = Privacy
+subplat-privacy-website-plaintext = { subplat-privacy }:
