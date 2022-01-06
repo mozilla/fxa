@@ -31,6 +31,7 @@ const eventInvoiceCreated = require('../../payments/fixtures/stripe/event_invoic
 const eventInvoicePaid = require('../../payments/fixtures/stripe/event_invoice_paid.json');
 const eventInvoicePaidDiscount = require('../../payments/fixtures/stripe/invoice_paid_subscription_create_discount.json');
 const eventInvoicePaymentFailed = require('../../payments/fixtures/stripe/event_invoice_payment_failed.json');
+const eventCouponCreated = require('../../payments/fixtures/stripe/event_coupon_created.json');
 const eventCustomerUpdated = require('../../payments/fixtures/stripe/event_customer_updated.json');
 const eventCustomerSubscriptionUpdated = require('../../payments/fixtures/stripe/event_customer_subscription_updated.json');
 const eventCustomerSourceExpiring = require('../../payments/fixtures/stripe/event_customer_source_expiring.json');
@@ -161,6 +162,7 @@ describe('StripeWebhookHandler', () => {
         },
       };
       const handlerNames = [
+        'handleCouponEvent',
         'handleCustomerCreatedEvent',
         'handleSubscriptionCreatedEvent',
         'handleSubscriptionUpdatedEvent',
@@ -255,6 +257,20 @@ describe('StripeWebhookHandler', () => {
             )
           )
         );
+      });
+
+      describe('when the event.type is coupon.created', () => {
+        itOnlyCallsThisHandler('handleCouponEvent', {
+          data: { object: { id: 'coupon_123' } },
+          type: 'coupon.created',
+        });
+      });
+
+      describe('when the event.type is coupon.updated', () => {
+        itOnlyCallsThisHandler('handleCouponEvent', {
+          data: { object: { id: 'coupon_123' } },
+          type: 'coupon.updated',
+        });
       });
 
       describe('when the event.type is customer.created', () => {
@@ -374,6 +390,34 @@ describe('StripeWebhookHandler', () => {
           sinon.assert.notCalled(scopeContextSpy);
         });
       });
+    });
+
+    describe('handleCouponEvents', () => {
+      for (const eventType of ['coupon.created', 'coupon.updated']) {
+        it(`allows a valid coupon on ${eventType}`, async () => {
+          const event = deepCopy(eventCouponCreated);
+          event.type = eventType;
+          const coupon = deepCopy(event.data.object);
+          const sentryModule = require('../../../../lib/sentry');
+          coupon.applies_to = { products: [] };
+          sandbox.stub(sentryModule, 'reportSentryError').returns({});
+          StripeWebhookHandlerInstance.stripeHelper.getCoupon.resolves(coupon);
+          await StripeWebhookHandlerInstance.handleCouponEvent({}, event);
+          sinon.assert.notCalled(sentryModule.reportSentryError);
+        });
+
+        it(`reports an error for invalid coupon on ${eventType}`, async () => {
+          const event = deepCopy(eventCouponCreated);
+          event.type = eventType;
+          const coupon = deepCopy(event.data.object);
+          const sentryModule = require('../../../../lib/sentry');
+          coupon.applies_to = { products: ['productOhNo'] };
+          sandbox.stub(sentryModule, 'reportSentryError').returns({});
+          StripeWebhookHandlerInstance.stripeHelper.getCoupon.resolves(coupon);
+          await StripeWebhookHandlerInstance.handleCouponEvent({}, event);
+          sinon.assert.calledOnce(sentryModule.reportSentryError);
+        });
+      }
     });
 
     describe('handleCustomerCreatedEvent', () => {

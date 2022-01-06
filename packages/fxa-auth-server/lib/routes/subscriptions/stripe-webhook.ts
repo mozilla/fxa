@@ -75,6 +75,10 @@ export class StripeWebhookHandler extends StripeHandler {
             await this.handleCreditNoteEvent(request, event);
           }
           break;
+        case 'coupon.created':
+        case 'coupon.updated':
+          await this.handleCouponEvent(request, event);
+          break;
         case 'customer.created':
           // We don't need to setup the local customer if it happened via API
           // because we already set this up during creation.
@@ -210,6 +214,25 @@ export class StripeWebhookHandler extends StripeHandler {
     }
     await this.paypalHelper.issueRefund(invoice, transactionId);
     return;
+  }
+
+  /**
+   * Handle `coupon.created` and `coupon.updated` Stripe webhook events.
+   *
+   * Verify that the coupon confirms to our requirements, currently that it:
+   *  - Does not have a product ID requirement.
+   */
+  async handleCouponEvent(request: AuthRequest, event: Stripe.Event) {
+    const eventCoupon = event.data.object as Stripe.Coupon;
+    const coupon = await this.stripeHelper.getCoupon(eventCoupon.id);
+
+    if (coupon.applies_to?.products && coupon.applies_to?.products.length > 0) {
+      reportSentryError(
+        new Error(`Coupon has a product requirement: ${coupon.id}.`),
+        request
+      );
+      return;
+    }
   }
 
   /**
