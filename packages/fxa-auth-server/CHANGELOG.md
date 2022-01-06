@@ -1,3 +1,15 @@
+## 1.223.1
+
+### Bug fixes
+
+- ts: fix auth-server TS errors (#11544) ([8dc88f1fa](https://github.com/mozilla/fxa/commit/8dc88f1fa))
+- subscriptions: do addr lookup for only US and CA (#11542) ([efe6c3321](https://github.com/mozilla/fxa/commit/efe6c3321))
+- auth: setup appconfig where needed for scripts ([2796d38db](https://github.com/mozilla/fxa/commit/2796d38db))
+
+### Other changes
+
+- auth: Don't fail when l10n id is missing from en bundle (#11530) ([262116b8e](https://github.com/mozilla/fxa/commit/262116b8e))
+
 ## 1.223.0
 
 ### New features
