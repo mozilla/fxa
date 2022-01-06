@@ -30,6 +30,13 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
+import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/customer-locations';
+
+// List of countries for which we need to look up the province/state of the
+// customer.
+const addressLookupCountries = Object.values(
+  COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP
+);
 
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
@@ -486,24 +493,26 @@ export class StripeHandler {
     const sourceCountry =
       this.stripeHelper.extractSourceCountryFromSubscription(subscription);
 
-    if (paymentMethod?.billing_details?.address?.postal_code && sourceCountry) {
-      this.stripeHelper.setCustomerLocation({
-        customerId: customer.id,
-        postalCode: paymentMethod.billing_details.address.postal_code,
-        country: sourceCountry,
-      });
-    } else {
-      Sentry.withScope((scope) => {
-        scope.setContext('createSubscriptionWithPMI', {
+    if (addressLookupCountries.includes(sourceCountry)) {
+      if (paymentMethod?.billing_details?.address?.postal_code) {
+        this.stripeHelper.setCustomerLocation({
           customerId: customer.id,
-          subscriptionId: subscription.id,
-          paymentMethodId: paymentMethod?.id,
+          postalCode: paymentMethod.billing_details.address.postal_code,
+          country: sourceCountry,
         });
-        Sentry.captureMessage(
-          `Cannot find a postal code or country for customer ${customer.id}`,
-          Sentry.Severity.Error
-        );
-      });
+      } else {
+        Sentry.withScope((scope) => {
+          scope.setContext('createSubscriptionWithPMI', {
+            customerId: customer.id,
+            subscriptionId: subscription.id,
+            paymentMethodId: paymentMethod?.id,
+          });
+          Sentry.captureMessage(
+            `Cannot find a postal code for customer ${customer.id}`,
+            Sentry.Severity.Error
+          );
+        });
+      }
     }
 
     await this.customerChanged(request, uid, email);
@@ -585,26 +594,25 @@ export class StripeHandler {
       paymentMethodId
     );
 
-    if (
-      paymentMethod?.billing_details?.address?.postal_code &&
-      paymentMethodCountry
-    ) {
-      this.stripeHelper.setCustomerLocation({
-        customerId: customer.id,
-        postalCode: paymentMethod.billing_details.address.postal_code,
-        country: paymentMethodCountry,
-      });
-    } else {
-      Sentry.withScope((scope) => {
-        scope.setContext('updateDefaultPaymentMethod', {
-          customerId: customer!.id,
-          paymentMethodId: paymentMethod?.id,
+    if (addressLookupCountries.includes(paymentMethodCountry)) {
+      if (paymentMethod?.billing_details?.address?.postal_code) {
+        this.stripeHelper.setCustomerLocation({
+          customerId: customer.id,
+          postalCode: paymentMethod.billing_details.address.postal_code,
+          country: paymentMethodCountry,
         });
-        Sentry.captureMessage(
-          `Cannot find a postal code or country for customer ${customer!.id}`,
-          Sentry.Severity.Error
-        );
-      });
+      } else {
+        Sentry.withScope((scope) => {
+          scope.setContext('updateDefaultPaymentMethod', {
+            customerId: customer!.id,
+            paymentMethodId: paymentMethod?.id,
+          });
+          Sentry.captureMessage(
+            `Cannot find a postal code or country for customer ${customer!.id}`,
+            Sentry.Severity.Error
+          );
+        });
+      }
     }
 
     await this.stripeHelper.removeSources(customer.id);
