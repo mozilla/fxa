@@ -5,7 +5,6 @@ test.describe('severity-1', () => {
     pages: { relier, login, subscribe },
   }, { project }) => {
     test.skip(project.name === 'production', 'prod needs a valid credit card');
-    test.fixme(project.name === 'local', 'needs correct product');
     test.slow();
     await relier.goto();
     await relier.clickSubscribe();
