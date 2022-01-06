@@ -493,7 +493,7 @@ export class StripeHandler {
     const sourceCountry =
       this.stripeHelper.extractSourceCountryFromSubscription(subscription);
 
-    if (addressLookupCountries.includes(sourceCountry)) {
+    if (sourceCountry && addressLookupCountries.includes(sourceCountry)) {
       if (paymentMethod?.billing_details?.address?.postal_code) {
         this.stripeHelper.setCustomerLocation({
           customerId: customer.id,
@@ -594,7 +594,10 @@ export class StripeHandler {
       paymentMethodId
     );
 
-    if (addressLookupCountries.includes(paymentMethodCountry)) {
+    if (
+      paymentMethodCountry &&
+      addressLookupCountries.includes(paymentMethodCountry)
+    ) {
       if (paymentMethod?.billing_details?.address?.postal_code) {
         this.stripeHelper.setCustomerLocation({
           customerId: customer.id,
