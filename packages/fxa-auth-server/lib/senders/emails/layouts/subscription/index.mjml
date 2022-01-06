@@ -77,6 +77,11 @@
               &nbsp;&nbsp;&bull;&nbsp;&nbsp;
             <% } %>
 
+            <% if (locals.productName) { %>
+              <a href="<%- subscriptionPrivacyUrl %>" class="footer-link" data-l10n-id="subplat-privacy-notice">Privacy notice</a>
+              &nbsp;&nbsp;&bull;&nbsp;&nbsp;
+            <% } %>
+
             <% if (locals.isCancellationEmail) { %>
               <a href="<%- reactivateSubscriptionUrl %>" class="footer-link" data-l10n-id="subplat-reactivate">Reactivate subscription</a>
               &nbsp;&nbsp;&bull;&nbsp;&nbsp;

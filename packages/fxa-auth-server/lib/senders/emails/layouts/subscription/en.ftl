@@ -1,4 +1,5 @@
 subplat-automated-email = This is an automated email; if you received it in error, no action is required.
+subplat-privacy-notice = Privacy notice
 subplat-privacy-plaintext = Privacy notice:
 subplat-update-billing-plaintext = { subplat-update-billing }:
 # Variables:
