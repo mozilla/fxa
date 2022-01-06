@@ -8,7 +8,7 @@ import Container from 'typedi';
 import { setupFirestore } from '../firestore-db';
 import { CurrencyHelper } from '../payments/currencies';
 import { configureSentry } from '../sentry';
-import { AuthFirestore, AuthLogger, ProfileClient } from '../types';
+import { AppConfig, AuthFirestore, AuthLogger, ProfileClient } from '../types';
 import { StripeHelper } from './stripe';
 
 const config = require('../../config').getProperties();
@@ -17,6 +17,8 @@ export async function setupProcesingTaskObjects(processName: string) {
   configureSentry(undefined, config, processName);
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth);
+
+  Container.set(AppConfig, config);
 
   const statsd = config.statsd.enabled
     ? new StatsD({
