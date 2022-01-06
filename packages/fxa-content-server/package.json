@@ -37,7 +37,7 @@
     "@babel/plugin-proposal-class-properties": "^7.16.7",
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/preset-env": "^7.16.7",
-    "@babel/preset-react": "^7.14.5",
+    "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.15.0",
     "@sentry/browser": "^6.16.1",
     "@sentry/node": "^6.16.1",
