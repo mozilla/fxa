@@ -121,7 +121,7 @@ export class CustomerLocations {
     results: PayPalUserLocationResult[]
   ): Promise<PayPalUserLocationResult | null> {
     let bestLocation = {
-      uid: '',
+      uid,
       state: 'unknown',
       country: 'unknown',
       count: 1,
