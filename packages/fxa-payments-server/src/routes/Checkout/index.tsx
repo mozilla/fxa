@@ -59,7 +59,10 @@ import * as apiClient from '../../lib/apiClient';
 import sentry from '../../lib/sentry';
 import { ButtonBaseProps } from '../../components/PayPalButton';
 import { AlertBar } from '../../components/AlertBar';
-import { PaymentMethodHeader } from '../../components/PaymentMethodHeader';
+import {
+  PaymentMethodHeader,
+  PaymentMethodHeaderType,
+} from '../../components/PaymentMethodHeader';
 import CouponForm from '../../components/CouponForm';
 import { Coupon } from '../../lib/Coupon';
 import { useParams } from 'react-router-dom';
@@ -325,7 +328,7 @@ export const Checkout = ({
           <PaymentMethodHeader
             plan={selectedPlan}
             onClick={() => setCheckboxSet(!checkboxSet)}
-            prefix="2."
+            type={PaymentMethodHeaderType.SecondStep}
           />
           <>
             {paypalScriptLoaded && (
