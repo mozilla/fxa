@@ -1,7 +1,7 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { cleanup, fireEvent, render, act } from '@testing-library/react';
-import { PaymentMethodHeader } from '.';
+import { PaymentMethodHeader, PaymentMethodHeaderType } from '.';
 import {
   getLocalizedMessage,
   MOCK_PLANS,
@@ -27,7 +27,11 @@ describe('components/PaymentMethodHeader', () => {
 
   it('render header with prefix', async () => {
     const plan = MOCK_PLANS[0];
-    const props = { plan, onClick: () => {}, prefix: '2.' };
+    const props = {
+      plan,
+      onClick: () => {},
+      type: PaymentMethodHeaderType.SecondStep,
+    };
     const { queryByTestId } = render(<PaymentMethodHeader {...props} />);
 
     expect(queryByTestId('header')).not.toBeInTheDocument();
@@ -46,10 +50,9 @@ describe('components/PaymentMethodHeader', () => {
     });
 
     it('returns correct heading with prefix', async () => {
-      const msgId = 'payment-method-header-prefix';
-      const prefix = '2.';
+      const msgId = 'payment-method-header-second-step';
       const expected = '2. Choose your payment method';
-      const actual = getLocalizedMessage(bundle, msgId, { prefix });
+      const actual = getLocalizedMessage(bundle, msgId, {});
 
       expect(actual).toEqual(expected);
     });

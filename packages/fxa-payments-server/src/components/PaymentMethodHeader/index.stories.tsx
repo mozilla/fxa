@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
-import { PaymentMethodHeader } from './index';
+import { PaymentMethodHeader, PaymentMethodHeaderType } from './index';
 import { Plan } from '../../store/types';
 
 const selectedPlan: Plan = {
@@ -25,7 +25,11 @@ storiesOf('components/PaymentMethodHeader', module)
   .add('With prefix', () => (
     <MockApp>
       <PaymentMethodHeader
-        {...{ plan: selectedPlan, onClick: () => {}, prefix: '2. ' }}
+        {...{
+          plan: selectedPlan,
+          onClick: () => {},
+          type: PaymentMethodHeaderType.SecondStep,
+        }}
       />
     </MockApp>
   ));

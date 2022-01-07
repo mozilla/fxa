@@ -7,33 +7,48 @@ import { PaymentConsentCheckbox } from '../PaymentConsentCheckbox';
 
 import './index.scss';
 
-export type PaymentMethodHeaderProps = {
-  plan: Plan;
-  onClick: (event: React.MouseEvent<HTMLInputElement>) => void;
-  prefix?: string;
-};
+export enum PaymentMethodHeaderType {
+  NoPrefix,
+  SecondStep,
+}
 
-export const PaymentMethodHeader = ({
-  plan,
-  onClick,
-  prefix = '',
-}: PaymentMethodHeaderProps) => {
-  const checkboxValidator = useValidatorState();
-  return (
-    <>
-      {prefix ? (
-        <Localized id="payment-method-header-prefix" vars={{ prefix }}>
+const returnPaymentMethodHeader = (type: PaymentMethodHeaderType) => {
+  switch (type) {
+    case PaymentMethodHeaderType.SecondStep:
+      return (
+        <Localized id="payment-method-header-second-step">
           <h2 className="step-header" data-testid="header-prefix">
-            {`${prefix} Choose your payment method`}
+            2. Choose your payment method
           </h2>
         </Localized>
-      ) : (
+      );
+    case PaymentMethodHeaderType.NoPrefix:
+    default:
+      return (
         <Localized id="payment-method-header">
           <h2 className="step-header" data-testid="header">
             Choose your payment method
           </h2>
         </Localized>
-      )}
+      );
+  }
+};
+
+export type PaymentMethodHeaderProps = {
+  plan: Plan;
+  onClick: (event: React.MouseEvent<HTMLInputElement>) => void;
+  type?: PaymentMethodHeaderType;
+};
+
+export const PaymentMethodHeader = ({
+  plan,
+  onClick,
+  type,
+}: PaymentMethodHeaderProps) => {
+  const checkboxValidator = useValidatorState();
+  return (
+    <>
+      {returnPaymentMethodHeader(type || PaymentMethodHeaderType.NoPrefix)}
       <Localized id="payment-method-required">
         <strong>Required</strong>
       </Localized>
