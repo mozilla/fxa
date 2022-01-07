@@ -10604,10 +10604,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async-wait-until@npm:^2.0.9":
-  version: 2.0.9
-  resolution: "async-wait-until@npm:2.0.9"
-  checksum: 3bfafe72ce037051e9711a398a82c10cbe5cd5487eab4ae9ee8149fd607e2b64c78b7ffe89bf30eb2b1ea444f4f0a722436f40f6ea0ad941901c1e86acfca472
+"async-wait-until@npm:^2.0.12":
+  version: 2.0.12
+  resolution: "async-wait-until@npm:2.0.12"
+  checksum: e65ce34901efefca188058b38071b2f8d87b8d5ab92b55dfbd5e217a8fadde9b0ebebbe33c337683b3fea367ed0f0161ff75c54d506fb160233f9fffa8716705
   languageName: node
   linkType: hard
 
@@ -20353,7 +20353,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
     accept-language-parser: ^1.5.0
-    async-wait-until: ^2.0.9
+    async-wait-until: ^2.0.12
     audit-filter: ^0.5.0
     babel-eslint: ^10.1.0
     babel-loader: ^8.2.2
@@ -20506,7 +20506,7 @@ fsevents@~2.1.1:
     "@types/react-transition-group": ^4.4.2
     "@types/rimraf": 3.0.0
     "@types/sinon": ^10
-    async-wait-until: ^2.0.9
+    async-wait-until: ^2.0.12
     babel-eslint: ^10.1.0
     babel-loader: ^8.2.2
     babel-preset-react-app: ^10.0.1
