@@ -1,5 +1,37 @@
 # Change history
 
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+### New features
+
+- metrics: include promo code for cancel sub events (#11500) ([70f447d2a](https://github.com/mozilla/fxa/commit/70f447d2a))
+- coupons: add coupon metrics (#11362) ([2f507cb19](https://github.com/mozilla/fxa/commit/2f507cb19))
+- payments: update requests to include coupon code (#11469) ([6a82bba8a](https://github.com/mozilla/fxa/commit/6a82bba8a))
+
+### Bug fixes
+
+- payments: coupon Component Overlap (#11505) ([eeb45e700](https://github.com/mozilla/fxa/commit/eeb45e700))
+- coupon: plan total price interval translation (#11473) ([e55bff3aa](https://github.com/mozilla/fxa/commit/e55bff3aa))
+- payments: remove hard-coded test coupon code (#11432) ([a62b4ceb3](https://github.com/mozilla/fxa/commit/a62b4ceb3))
+
+### Refactorings
+
+- admin-panel, payments: Upgrade to react-router v6 (#11463) ([24bf98e99](https://github.com/mozilla/fxa/commit/24bf98e99))
+
+### Other changes
+
+- deps: bump express from 4.17.1 to 4.17.2 (#11509) ([e6433d1de](https://github.com/mozilla/fxa/commit/e6433d1de))
+- deps-dev: bump @babel/register from 7.16.5 to 7.16.7 (#11495) ([fde38d50f](https://github.com/mozilla/fxa/commit/fde38d50f))
+- deps: bump helmet from 4.6.0 to 5.0.0 (#11485) ([511acb701](https://github.com/mozilla/fxa/commit/511acb701))
+- deps-dev: bump caniuse-lite from 1.0.30001287 to 1.0.30001294 (#11478) ([9876385e5](https://github.com/mozilla/fxa/commit/9876385e5))
+- deps: bump @fluent/langneg from 0.5.2 to 0.6.1 (#11477) ([67057664c](https://github.com/mozilla/fxa/commit/67057664c))
+- deps: bump @fluent/bundle from 0.17.0 to 0.17.1 (#11454) ([aaa3446c9](https://github.com/mozilla/fxa/commit/aaa3446c9))
+- deps: bump node-sass from 7.0.0 to 7.0.1 (#11452) ([7f933398b](https://github.com/mozilla/fxa/commit/7f933398b))
+
 ## 1.222.0
 
 ### New features

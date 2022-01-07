@@ -1,3 +1,48 @@
+## 1.223.1
+
+### Bug fixes
+
+- ts: fix auth-server TS errors (#11544) ([8dc88f1fa](https://github.com/mozilla/fxa/commit/8dc88f1fa))
+- subscriptions: do addr lookup for only US and CA (#11542) ([efe6c3321](https://github.com/mozilla/fxa/commit/efe6c3321))
+- auth: setup appconfig where needed for scripts ([2796d38db](https://github.com/mozilla/fxa/commit/2796d38db))
+
+### Other changes
+
+- auth: Don't fail when l10n id is missing from en bundle (#11530) ([262116b8e](https://github.com/mozilla/fxa/commit/262116b8e))
+
+## 1.223.0
+
+### New features
+
+- coupons: add discount to 1st invoice email (#11503) ([a1289ee23](https://github.com/mozilla/fxa/commit/a1289ee23))
+- auth: add helper to determine the best location for existing Pa… (#11492) ([853eef1b7](https://github.com/mozilla/fxa/commit/853eef1b7))
+- subscriptions: create subs with promo codes (#11474) ([614061b20](https://github.com/mozilla/fxa/commit/614061b20))
+- auth: 397c59068 feat(auth) - Phaseout mjml auth server (#11482) ([397c59068](https://github.com/mozilla/fxa/commit/397c59068))
+- payments: update requests to include coupon code (#11469) ([6a82bba8a](https://github.com/mozilla/fxa/commit/6a82bba8a))
+- subscriptions: set customer location with payment info (#11490) ([e500c261a](https://github.com/mozilla/fxa/commit/e500c261a))
+
+### Bug fixes
+
+- auth-server: Text difference in postVerifySecondary template (#11514) ([2efeecd52](https://github.com/mozilla/fxa/commit/2efeecd52))
+- auth-server: subject for 2FA email template is different (#11459) ([c1699e78e](https://github.com/mozilla/fxa/commit/c1699e78e))
+- auth-server: misplaced text in emails (#11405) ([e36cb6236](https://github.com/mozilla/fxa/commit/e36cb6236))
+- subscriptions: update a payment method webhook event type (#11431) ([85ce4e5c2](https://github.com/mozilla/fxa/commit/85ce4e5c2))
+- scripts: add new deps to delete acct script (#11443) ([3b45ef0f7](https://github.com/mozilla/fxa/commit/3b45ef0f7))
+- scripts: add deps and fix route init for delete acct script (#11424) ([a53d4549a](https://github.com/mozilla/fxa/commit/a53d4549a))
+
+### Other changes
+
+- auth: 6d7b18763 bug(auth) - Button text missing in email templates (#11462) ([6d7b18763](https://github.com/mozilla/fxa/commit/6d7b18763))
+- deps: bump luxon from 2.2.0 to 2.3.0 (#11496) ([c79ca4d19](https://github.com/mozilla/fxa/commit/c79ca4d19))
+- deps: bump google-libphonenumber from 3.2.25 to 3.2.26 (#11486) ([071ab9a12](https://github.com/mozilla/fxa/commit/071ab9a12))
+- deps: bump @fluent/langneg from 0.5.2 to 0.6.1 (#11477) ([67057664c](https://github.com/mozilla/fxa/commit/67057664c))
+- deps: bump @googlemaps/google-maps-services-js from 3.3.4 to 3.3.5 (#11464) ([1d549e2ef](https://github.com/mozilla/fxa/commit/1d549e2ef))
+- deps: bump aws-sdk from 2.1046.0 to 2.1048.0 (#11456) ([336f4de77](https://github.com/mozilla/fxa/commit/336f4de77))
+- deps: bump @fluent/bundle from 0.17.0 to 0.17.1 (#11454) ([aaa3446c9](https://github.com/mozilla/fxa/commit/aaa3446c9))
+- deps: bump stripe from 8.194.0 to 8.195.0 (#11451) ([b13aa1326](https://github.com/mozilla/fxa/commit/b13aa1326))
+- deps: bump ioredis from 4.28.0 to 4.28.2 (#11449) ([5577e08e4](https://github.com/mozilla/fxa/commit/5577e08e4))
+- deps: bump @fluent/dom from 0.7.0 to 0.8.1 (#11436) ([e8c94183b](https://github.com/mozilla/fxa/commit/e8c94183b))
+
 ## 1.222.0
 
 ### New features

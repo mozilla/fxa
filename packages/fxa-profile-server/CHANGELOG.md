@@ -1,3 +1,13 @@
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1046.0 to 2.1048.0 (#11456) ([336f4de77](https://github.com/mozilla/fxa/commit/336f4de77))
+
 ## 1.222.0
 
 ### New features

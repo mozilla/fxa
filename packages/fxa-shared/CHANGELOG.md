@@ -1,5 +1,24 @@
 # Change history
 
+## 1.223.1
+
+No changes.
+
+## 1.223.0
+
+### New features
+
+- coupons: add coupon metrics (#11362) ([2f507cb19](https://github.com/mozilla/fxa/commit/2f507cb19))
+- subscriptions: create subs with promo codes (#11474) ([614061b20](https://github.com/mozilla/fxa/commit/614061b20))
+
+### Other changes
+
+- deps: bump aws-sdk from 2.1046.0 to 2.1048.0 (#11456) ([336f4de77](https://github.com/mozilla/fxa/commit/336f4de77))
+- deps: bump stripe from 8.194.0 to 8.195.0 (#11451) ([b13aa1326](https://github.com/mozilla/fxa/commit/b13aa1326))
+- deps: bump ioredis from 4.28.0 to 4.28.2 (#11449) ([5577e08e4](https://github.com/mozilla/fxa/commit/5577e08e4))
+- deps-dev: bump @nestjs/testing from 8.2.3 to 8.2.4 (#11448) ([052f06ba0](https://github.com/mozilla/fxa/commit/052f06ba0))
+- deps: bump knex from 0.95.14 to 0.95.15 (#11435) ([113cad186](https://github.com/mozilla/fxa/commit/113cad186))
+
 ## 1.222.0
 
 ### New features
