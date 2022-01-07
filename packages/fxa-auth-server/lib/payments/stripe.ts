@@ -580,6 +580,13 @@ export class StripeHelper {
     });
   }
 
+  /** Fetch a coupon with `applies_to` expanded. */
+  async getCoupon(couponId: string) {
+    return this.stripe.coupons.retrieve(couponId, {
+      expand: ['applies_to'],
+    });
+  }
+
   /**
    * Determines whether a given promotion code is
    * a valid code in the system for the given price, and if it hasn't

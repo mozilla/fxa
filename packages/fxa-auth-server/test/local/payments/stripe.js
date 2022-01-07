@@ -1020,6 +1020,15 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('getCoupon', () => {
+    it('returns a coupon', async () => {
+      const coupon = { id: 'couponId' };
+      sandbox.stub(stripeHelper.stripe.coupons, 'retrieve').resolves(coupon);
+      const actual = await stripeHelper.getCoupon('couponId');
+      assert.deepEqual(actual, coupon);
+    });
+  });
+
   describe('findValidPromoCode', () => {
     it('finds a valid promotionCode with plan metadata', async () => {
       const promotionCode = { code: 'promo1', coupon: { valid: true } };
