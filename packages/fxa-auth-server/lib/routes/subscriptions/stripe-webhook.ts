@@ -219,7 +219,7 @@ export class StripeWebhookHandler extends StripeHandler {
   /**
    * Handle `coupon.created` and `coupon.updated` Stripe webhook events.
    *
-   * Verify that the coupon confirms to our requirements, currently that it:
+   * Verify that the coupon conforms to our requirements, currently that it:
    *  - Does not have a product ID requirement.
    */
   async handleCouponEvent(request: AuthRequest, event: Stripe.Event) {

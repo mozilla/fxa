@@ -1026,6 +1026,11 @@ describe('StripeHelper', () => {
       sandbox.stub(stripeHelper.stripe.coupons, 'retrieve').resolves(coupon);
       const actual = await stripeHelper.getCoupon('couponId');
       assert.deepEqual(actual, coupon);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.coupons.retrieve,
+        coupon.id,
+        { expand: ['applies_to'] }
+      );
     });
   });
 
