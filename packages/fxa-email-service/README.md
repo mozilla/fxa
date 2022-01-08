@@ -33,6 +33,15 @@ You can find out more
 about the structure of the code
 from the [developer docs](https://mozilla.github.io/fxa/fxa-email-service/fxa_email_service).
 
+## Quick Start
+
+The pm2 scripts run the `latest` docker version of the email service by default. If you want to
+start making changes to the email service then do the following:
+
+1. Stop the email-service using `yarn pm2 stop <email_service_id>`
+1. Build the service: `cd packages/fxa-email-service; cargo build --bin fxa_email_send`
+1. Run the service: `cd packages/fxa-email-service; ./scripts/run_send.sh`
+
 ## How can I set up a dev environment?
 
 ### For standalone development
