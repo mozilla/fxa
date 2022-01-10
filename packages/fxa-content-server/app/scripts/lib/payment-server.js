@@ -36,18 +36,28 @@ const PaymentServer = {
     const { deviceId, flowBeginTime, flowId } =
       view.metrics.getFlowEventMetadata();
 
-    const queryString = Url.objToSearchString({
-      // device_id, flow_begin_time, and flow_id need to be propagated to
-      // the payments server so that the user funnel can be traced from the RP,
-      // through the content server, and to the payments server, appearing as
-      // the same user throughout.
-      device_id: deviceId,
-      flow_begin_time: flowBeginTime,
-      flow_id: flowId,
-      ...queryParams,
-    });
-    const url = `${managementUrl}/${redirectPath}${queryString}`;
     const account = view.getSignedInAccount();
+    const metricsEnabled = account
+      ? account.pick('metricsEnabled').metricsEnabled
+      : true;
+
+    // explicitly check for `false` because `undefined` means the user isn't logged in
+    const queryString =
+      metricsEnabled === false
+        ? Url.objToSearchString(queryParams)
+        : Url.objToSearchString({
+            // device_id, flow_begin_time, and flow_id need to be propagated to
+            // the payments server so that the user funnel can be traced from the RP,
+            // through the content server, and to the payments server, appearing as
+            // the same user throughout. We do _not_ include these for logged in users
+            // that have opted out of metrics collection.
+            device_id: deviceId,
+            flow_begin_time: flowBeginTime,
+            flow_id: flowId,
+            ...queryParams,
+          });
+    const url = `${managementUrl}/${redirectPath}${queryString}`;
+
     const unauthenticatedRedirect = () => {
       if (isAllowedUnauthenticatedRoute(redirectPath)) {
         return view.navigateAway(url);

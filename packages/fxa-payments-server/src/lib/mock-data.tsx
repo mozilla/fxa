@@ -13,6 +13,7 @@ export const PROFILE: Profile = {
   locale: 'en-US',
   twoFactorAuthentication: true,
   uid: '8675309asdf',
+  metricsEnabled: true,
 };
 
 export const NEW_CUSTOMER: Customer = {

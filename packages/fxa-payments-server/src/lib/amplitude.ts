@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import sentryMetrics from './sentry';
 import { logAmplitudeEvent } from './flow-event';
 import { PaymentProvider } from '../lib/PaymentProvider';
@@ -69,7 +73,11 @@ export function subscribeToReduxStore(store: Store) {
   let unsubscribe: ReturnType<typeof store.subscribe>;
   const uidObs = () => {
     const profile = selectors.profile(store.getState());
-    if (profile && profile.result && profile.result.uid) {
+    if (
+      profile?.result &&
+      profile.result.uid &&
+      profile.result.metricsEnabled !== false
+    ) {
       addGlobalEventProperties({ uid: profile.result.uid });
       unsubscribe?.();
     }
