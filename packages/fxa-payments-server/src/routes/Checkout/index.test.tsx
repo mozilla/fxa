@@ -7,6 +7,7 @@ import {
   fireEvent,
   act,
   screen,
+  queryByTestId,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
@@ -212,19 +213,8 @@ describe('routes/Checkout', () => {
     const termsAndPrivacyEl = getByTestId('terms-and-privacy-component');
     expect(termsAndPrivacyEl).toBeInTheDocument();
 
-    expect(document.getElementById('coupon-component')).not.toBeInTheDocument();
-  });
-
-  it('renders as expected with coupons enabled', async () => {
-    updateConfig({
-      featureFlags: {
-        subscriptionCoupons: true,
-      },
-    });
-
-    const { findByTestId } = render(<Subject planId="testo" />);
-    const element = await findByTestId('coupon-component');
-    expect(element).toBeInTheDocument();
+    const couponEl = getByTestId('coupon-component');
+    expect(couponEl).toBeInTheDocument();
   });
 
   it('displays an error with invalid product ID', async () => {

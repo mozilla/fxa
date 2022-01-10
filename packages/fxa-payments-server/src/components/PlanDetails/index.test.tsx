@@ -12,7 +12,6 @@ import {
 } from '../../lib/test-utils';
 import { updateConfig } from '../../lib/config';
 import { Plan } from 'fxa-shared/subscriptions/types';
-import CouponForm from '../CouponForm';
 import { Coupon } from '../../lib/Coupon';
 
 const userProfile = {
@@ -188,9 +187,7 @@ describe('PlanDetails', () => {
   describe('Valid Coupon Used', () => {
     it('updates price', async () => {
       updateConfig({
-        featureFlags: {
-          subscriptionCoupons: true,
-        },
+        featureFlags: {},
       });
 
       const coupon: Coupon = { amount: 200, promotionCode: '' };
