@@ -19903,7 +19903,7 @@ fsevents@~2.1.1:
     jwks-rsa: ^2.0.4
     jws: 4.0.0
     keypair: 1.0.4
-    keyv: 4.0.4
+    keyv: 4.0.5
     leftpad: 0.0.1
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
@@ -26922,12 +26922,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"keyv@npm:4.0.4, keyv@npm:^4.0.0":
-  version: 4.0.4
-  resolution: "keyv@npm:4.0.4"
+"keyv@npm:4.0.5":
+  version: 4.0.5
+  resolution: "keyv@npm:4.0.5"
   dependencies:
     json-buffer: 3.0.1
-  checksum: 73f0f45e149be12aab0449a59c9a490195f231ef90024222e544f4c24221fa2b4ec1cd432f92384f0f852e6ae48b7e97f1bf2147c29616b2feddf8ffbc401777
+  checksum: 968ec062e66a660bd1c403b2932f602948ea76b17f8419bb04166491c1f186da1c3b39db4ccd1fdb6a19a4dcb374334455dd3ac31e13a70000c81e2daa866117
   languageName: node
   linkType: hard
 
@@ -26937,6 +26937,15 @@ fsevents@~2.1.1:
   dependencies:
     json-buffer: 3.0.0
   checksum: bb7e8f3acffdbafbc2dd5b63f377fe6ec4c0e2c44fc82720449ef8ab54f4a7ce3802671ed94c0f475ae0a8549703353a2124561fcf3317010c141b32ca1ce903
+  languageName: node
+  linkType: hard
+
+"keyv@npm:^4.0.0":
+  version: 4.0.4
+  resolution: "keyv@npm:4.0.4"
+  dependencies:
+    json-buffer: 3.0.1
+  checksum: 73f0f45e149be12aab0449a59c9a490195f231ef90024222e544f4c24221fa2b4ec1cd432f92384f0f852e6ae48b7e97f1bf2147c29616b2feddf8ffbc401777
   languageName: node
   linkType: hard
 
