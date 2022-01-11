@@ -1,5 +1,11 @@
 # Change history
 
+## 1.223.2
+
+### Other changes
+
+- deps: switch from git to https for deps (#11587) ([2611a980d](https://github.com/mozilla/fxa/commit/2611a980d))
+
 ## 1.223.1
 
 No changes.

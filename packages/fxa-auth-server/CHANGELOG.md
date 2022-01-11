@@ -1,3 +1,18 @@
+## 1.223.2
+
+### New features
+
+- subscriptions: save promo code to subscription metadata (#11595) ([6b376c56e](https://github.com/mozilla/fxa/commit/6b376c56e))
+
+### Bug fixes
+
+- email: lower the maxMessages sent via nodemailer before creating a new connection ([c909fde86](https://github.com/mozilla/fxa/commit/c909fde86))
+
+### Other changes
+
+- auth: make customer address format consistent ([3a419bd0b](https://github.com/mozilla/fxa/commit/3a419bd0b))
+- deps: switch from git to https for deps (#11587) ([2611a980d](https://github.com/mozilla/fxa/commit/2611a980d))
+
 ## 1.223.1
 
 ### Bug fixes
