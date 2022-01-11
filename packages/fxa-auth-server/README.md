@@ -30,7 +30,7 @@ On some systems running the server as root will cause working directory permissi
 
 Clone the git repository and install dependencies:
 
-    git clone git://github.com/mozilla/fxa-auth-server.git
+    git clone https://github.com/mozilla/fxa-auth-server.git
     cd fxa-auth-server
     npm install
 
