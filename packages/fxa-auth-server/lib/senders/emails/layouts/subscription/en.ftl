@@ -1,4 +1,5 @@
 subplat-automated-email = This is an automated email; if you received it in error, no action is required.
+subplat-privacy-notice = Privacy notice
 subplat-privacy-plaintext = Privacy notice:
 subplat-update-billing-plaintext = { subplat-update-billing }:
 # Variables:
@@ -22,4 +23,6 @@ subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
 subplat-cloud-terms = { -product-firefox-cloud } Terms of Service
 subplat-cloud-terms-plaintext = { subplat-cloud-terms }:
 subplat-legal = Legal
+subplat-legal-plaintext = { subplat-legal }:
 subplat-privacy = Privacy
+subplat-privacy-website-plaintext = { subplat-privacy }:
