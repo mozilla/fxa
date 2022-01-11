@@ -189,7 +189,7 @@ describe('CustomerLocations', () => {
 
   describe('mapLongToShortStateName', () => {
     it('returns the state short name when a valid country and state long name is passed', () => {
-      const expected = 'US-PA';
+      const expected = 'PA';
       const result = customerLocations.mapLongToShortStateName(
         'United States',
         'Pennsylvania'
