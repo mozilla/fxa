@@ -30060,7 +30060,7 @@ fsevents@~2.1.1:
   resolution: "node-uap@https://github.com/mozilla-fxa/node-uap.git#commit=96dc1f9f224422ec184395b6408cd1fc40ee452a"
   dependencies:
     array.prototype.find: 2.0.0
-    uap-core: "git://github.com/ua-parser/uap-core#2e6c983e42e7aae7d957a263cb4d3de7ccbd92af"
+    uap-core: "https://github.com/ua-parser/uap-core#2e6c983e42e7aae7d957a263cb4d3de7ccbd92af"
     uap-ref-impl: 0.2.0
     yamlparser: 0.0.2
   checksum: 276cf06bfabf27aeee6f6a5aed742d2842cee5b520892d57a2bb8df99acacc5c11e152072c109ed7cb4e9ef4f6018a6c1531c40800b192c07b4b174f77e8b999
@@ -39761,9 +39761,9 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"uap-core@git://github.com/ua-parser/uap-core#2e6c983e42e7aae7d957a263cb4d3de7ccbd92af":
+"uap-core@https://github.com/ua-parser/uap-core#2e6c983e42e7aae7d957a263cb4d3de7ccbd92af":
   version: 0.6.7
-  resolution: "uap-core@git://github.com/ua-parser/uap-core#commit=2e6c983e42e7aae7d957a263cb4d3de7ccbd92af"
+  resolution: "uap-core@https://github.com/ua-parser/uap-core#commit=2e6c983e42e7aae7d957a263cb4d3de7ccbd92af"
   checksum: 66623ae9913352f46d18f3e0ce6b9dfb9415323f02dba860ef7d855c04412f248318024b9ba77dc375dc366bda98ee10d0309feaccef7f7572869ffdc3f6fce2
   languageName: node
   linkType: hard
@@ -40858,9 +40858,9 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"webcrypto-core@git://github.com/mozilla-fxa/webcrypto-core.git#e0bb9e60e7df2abc6d13caf4a15cf22188e2981a":
+"webcrypto-core@https://github.com/mozilla-fxa/webcrypto-core.git#e0bb9e60e7df2abc6d13caf4a15cf22188e2981a":
   version: 0.1.19
-  resolution: "webcrypto-core@git://github.com/mozilla-fxa/webcrypto-core.git#commit=e0bb9e60e7df2abc6d13caf4a15cf22188e2981a"
+  resolution: "webcrypto-core@https://github.com/mozilla-fxa/webcrypto-core.git#commit=e0bb9e60e7df2abc6d13caf4a15cf22188e2981a"
   dependencies:
     tslib: ^1.7.1
   checksum: f4517671da54620b5ac643749313c63b479427e8ffd59e4dc52b0c2b255555fec5d02b9aa4c55fe1d3d582a2bf3800313a20164ff9fbe2c284694994605660d7
@@ -40886,7 +40886,7 @@ resolve@^2.0.0-next.3:
   dependencies:
     "@dannycoates/elliptic": ^6.4.2
     asmcrypto.js: ^0.22.0
-    webcrypto-core: "git://github.com/mozilla-fxa/webcrypto-core.git#e0bb9e60e7df2abc6d13caf4a15cf22188e2981a"
+    webcrypto-core: "https://github.com/mozilla-fxa/webcrypto-core.git#e0bb9e60e7df2abc6d13caf4a15cf22188e2981a"
   checksum: ca2b7ea2b8af2d8def878ecfa69b5fdf49ea3d848fb30f3db87fc1a763bdaeaa9de54715bebea4f05acac2a2967164b76420a42bf84e98984643ec2369151181
   languageName: node
   linkType: hard
