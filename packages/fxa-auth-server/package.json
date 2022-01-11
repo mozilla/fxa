@@ -105,7 +105,7 @@
     "moment-timezone": "^0.5.34",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
-    "node-uap": "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
+    "node-uap": "https://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
     "node-zendesk": "^2.1.0",
     "nodemailer": "^6.7.2",
     "otplib": "^11.0.1",
