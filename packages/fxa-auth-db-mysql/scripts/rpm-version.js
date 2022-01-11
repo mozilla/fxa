@@ -13,7 +13,7 @@ var util = require('util');
 //     "hash": "88f6f24e53da56faa933c357bffb61cbeaec7ff3",
 //     "subject": "Merge pull request #2939 from vladikoff/sentry-patch3",
 //     "committer date": "1439472293",
-//     "source": "git://github.com/mozilla/fxa-content-server.git"
+//     "source": "https://github.com/mozilla/fxa-content-server.git"
 //   }
 // }
 //

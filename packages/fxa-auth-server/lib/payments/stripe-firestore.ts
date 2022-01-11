@@ -83,8 +83,7 @@ export class StripeFirestore {
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND) {
         const subscription = await this.stripe.subscriptions.retrieve(
-          subscriptionId,
-          { expand: ['discount.promotion_code'] }
+          subscriptionId
         );
         await this.fetchAndInsertCustomer(subscription.customer as string);
         return subscription;
@@ -105,7 +104,6 @@ export class StripeFirestore {
       this.stripe.subscriptions
         .list({
           customer: customerId,
-          expand: ['data.discount.promotion_code'],
         })
         .autoPagingToArray({ limit: 100 }),
     ]);

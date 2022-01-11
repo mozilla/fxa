@@ -280,7 +280,6 @@ describe('subscriptions payPalRoutes', () => {
         requestOptions.geo = {
           location: {
             countryCode: 'CA',
-            city: 'Toronto',
             state: 'Ontario',
           },
         };
@@ -320,12 +319,12 @@ describe('subscriptions payPalRoutes', () => {
           stripeHelper.updateCustomerBillingAddress,
           accountCustomer.stripeCustomerId,
           {
-            city: 'Toronto',
+            city: undefined,
             country: 'CA',
             line1: undefined,
             line2: undefined,
             postalCode: undefined,
-            state: 'Ontario',
+            state: 'ON',
           }
         );
       });
@@ -700,7 +699,6 @@ describe('subscriptions payPalRoutes', () => {
       requestOptions.geo = {
         location: {
           countryCode: 'CA',
-          city: 'Toronto',
           state: 'Ontario',
         },
       };
@@ -722,12 +720,12 @@ describe('subscriptions payPalRoutes', () => {
         stripeHelper.updateCustomerBillingAddress,
         accountCustomer.stripeCustomerId,
         {
-          city: 'Toronto',
+          city: undefined,
           country: 'CA',
           line1: undefined,
           line2: undefined,
           postalCode: undefined,
-          state: 'Ontario',
+          state: 'ON',
         }
       );
     });

@@ -257,6 +257,7 @@ module.exports = function (log, config, bounces) {
       ignoreTLS: !mailerConfig.secure,
       port: mailerConfig.port,
       pool: true,
+      maxMessages: 10,
     };
 
     if (mailerConfig.user && mailerConfig.password) {
