@@ -55,7 +55,7 @@ echo "Firefox builds update needed. Beginning update... "
 
 echo "Updating jrgm/fxdownload repo, if needed ... "
 if [ ! -d $FXDOWNLOAD_DIR ]; then
-  git clone git://github.com/jrgm/fxdownload $FXDOWNLOAD_DIR
+  git clone https://github.com/jrgm/fxdownload $FXDOWNLOAD_DIR
 else
   (cd $FXDOWNLOAD_DIR && git pull)
 fi
