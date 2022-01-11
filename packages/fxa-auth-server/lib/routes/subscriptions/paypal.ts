@@ -17,7 +17,9 @@ import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
+import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/customer-locations';
 import { PayPalHelper } from '../../payments/paypal';
+import STATES_LONG_NAME_TO_SHORT_NAME_MAP from '../../payments/states-long-name-to-short-name-map.json';
 import { StripeHelper } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { msToSec } from '../../time';
@@ -26,7 +28,12 @@ import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { StripeWebhookHandler } from './stripe-webhook';
 import { handleAuth } from './utils';
+
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
+
+const stateNames = STATES_LONG_NAME_TO_SHORT_NAME_MAP as {
+  [key: string]: { [key: string]: string };
+};
 
 export class PayPalHandler extends StripeWebhookHandler {
   protected paypalHelper: PayPalHelper;
@@ -372,7 +379,6 @@ export class PayPalHandler extends StripeWebhookHandler {
     token: string;
     currency: string;
     location?: {
-      city: string;
       state: string;
       country: string;
       countryCode: string;
@@ -393,8 +399,16 @@ export class PayPalHandler extends StripeWebhookHandler {
     if (accountCustomer.stripeCustomerId) {
       let locationDetails = {} as any;
       if (agreementDetails.countryCode === options.location?.countryCode) {
-        locationDetails.city = options.location?.city;
-        locationDetails.state = options.location?.state;
+        // Record the state (short name) if needed
+        const state = options.location?.state;
+        const country = Object.keys(COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP).find(
+          (key) =>
+            COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP[key] ===
+            agreementDetails.countryCode
+        );
+        if (country && stateNames[country][state]) {
+          locationDetails.state = stateNames[country][state];
+        }
       }
       this.stripeHelper.updateCustomerBillingAddress(
         accountCustomer.stripeCustomerId,
