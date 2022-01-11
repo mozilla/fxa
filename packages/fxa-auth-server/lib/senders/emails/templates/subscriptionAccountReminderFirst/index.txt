@@ -10,5 +10,3 @@ subscriptionAccountReminderFirst-action-plaintext = "Create Password:"
 <%- link %>
 
 <%- include ('/partials/subscriptionSupport/index.txt') %>
-
-<%- include ('/partials/automatedEmailResetPassword/index.txt') %>
