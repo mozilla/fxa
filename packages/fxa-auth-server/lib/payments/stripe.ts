@@ -67,6 +67,8 @@ export const STRIPE_PRODUCTS_CACHE_KEY = 'listStripeProducts';
 export const STRIPE_PLANS_CACHE_KEY = 'listStripePlans';
 export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';
 
+export const SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY = 'appliedPromotionCode';
+
 enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
 }
@@ -458,16 +460,12 @@ export class StripeHelper {
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
-    if (promotionCode && subscription.discount?.promotion_code) {
-      subscription.discount.promotion_code = promotionCode;
-    }
-    await this.stripeFirestore.insertSubscriptionRecordWithBackfill({
-      ...subscription,
-      latest_invoice: subscription.latest_invoice
-        ? (subscription.latest_invoice as Stripe.Invoice).id
-        : null,
+    const updatedSubscription = await this.postSubscriptionCreationUpdates({
+      subscription,
+      promotionCode,
     });
-    return subscription;
+
+    return updatedSubscription;
   }
 
   /**
@@ -522,15 +520,45 @@ export class StripeHelper {
       },
       { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
-    if (promotionCode && subscription.discount?.promotion_code) {
-      subscription.discount.promotion_code = promotionCode;
+
+    const updatedSubscription = await this.postSubscriptionCreationUpdates({
+      subscription,
+      promotionCode,
+    });
+
+    return updatedSubscription;
+  }
+
+  private async postSubscriptionCreationUpdates({
+    subscription,
+    promotionCode,
+  }: {
+    subscription: Stripe.Response<Stripe.Subscription>;
+    promotionCode?: Stripe.PromotionCode;
+  }) {
+    // Save the promotion code into the subscription's metadata now that the
+    // subscription has been successfully created.
+    if (
+      promotionCode &&
+      (subscription.latest_invoice as Stripe.Invoice).discount
+    ) {
+      const subscriptionMetadata = {
+        ...subscription.metadata,
+        [SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY]: promotionCode.code,
+      };
+      subscription.metadata = subscriptionMetadata;
+      await this.stripe.subscriptions.update(subscription.id, {
+        metadata: subscriptionMetadata,
+      });
     }
+
     await this.stripeFirestore.insertSubscriptionRecordWithBackfill({
       ...subscription,
       latest_invoice: subscription.latest_invoice
         ? (subscription.latest_invoice as Stripe.Invoice).id
         : null,
     });
+
     return subscription;
   }
 
@@ -1488,32 +1516,6 @@ export class StripeHelper {
     }
   }
 
-  /**
-   * While we do update the subscription in Firestore on webhook events, we
-   * need to keep the subscription in a consistent shape in the time after the
-   * API update but before the webhook handling.  This function copies expanded
-   * properties that are not returned by Stripe.subscriptions.update from the
-   * old subscription object into the returned one.
-   *
-   * Currently it only handles `discount.promotion_code`.
-   */
-  copyExpandedSubscriptionProperties(
-    oldSubscription: Stripe.Subscription,
-    newSubscription: Stripe.Subscription
-  ) {
-    if (
-      oldSubscription.discount?.promotion_code &&
-      newSubscription.discount?.promotion_code &&
-      (oldSubscription.discount.promotion_code as Stripe.PromotionCode).id ===
-        newSubscription.discount?.promotion_code
-    ) {
-      newSubscription.discount.promotion_code =
-        oldSubscription.discount.promotion_code;
-    }
-
-    return newSubscription;
-  }
-
   async updateSubscriptionAndBackfill(
     subscription: Stripe.Subscription,
     newProps: Stripe.SubscriptionUpdateParams
@@ -1522,14 +1524,10 @@ export class StripeHelper {
       subscription.id,
       newProps
     );
-    const newSubscription = this.copyExpandedSubscriptionProperties(
-      subscription,
+    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
       updatedSubscription
     );
-    await this.stripeFirestore.insertSubscriptionRecordWithBackfill(
-      newSubscription
-    );
-    return newSubscription;
+    return updatedSubscription;
   }
 
   /**
@@ -1933,7 +1931,7 @@ export class StripeHelper {
         failure_code,
         failure_message,
         promotion_code:
-          (sub.discount?.promotion_code as Stripe.PromotionCode)?.code ?? null,
+          sub.metadata[SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY] ?? null,
       });
     }
     return subs;
@@ -2700,8 +2698,7 @@ export class StripeHelper {
    */
   async processSubscriptionEventToFirestore(event: Stripe.Event) {
     const subscription = await this.stripe.subscriptions.retrieve(
-      (event.data.object as Stripe.Subscription).id,
-      { expand: ['discount.promotion_code'] }
+      (event.data.object as Stripe.Subscription).id
     );
     return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
       subscription
