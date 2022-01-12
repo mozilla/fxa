@@ -110,7 +110,7 @@
     "@types/testing-library__react-hooks": "^4",
     "@types/uuid": "^8",
     "@types/webpack": "5.28.0",
-    "autoprefixer": "^10.4.2",
+    "autoprefixer": "^9.8.6",
     "babel-loader": "^8.2.2",
     "css-loader": "^3.6.0",
     "eslint": "^7.32.0",
