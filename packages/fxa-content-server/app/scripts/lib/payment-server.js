@@ -36,18 +36,26 @@ const PaymentServer = {
     const { deviceId, flowBeginTime, flowId } =
       view.metrics.getFlowEventMetadata();
 
-    const queryString = Url.objToSearchString({
-      // device_id, flow_begin_time, and flow_id need to be propagated to
-      // the payments server so that the user funnel can be traced from the RP,
-      // through the content server, and to the payments server, appearing as
-      // the same user throughout.
-      device_id: deviceId,
-      flow_begin_time: flowBeginTime,
-      flow_id: flowId,
-      ...queryParams,
-    });
-    const url = `${managementUrl}/${redirectPath}${queryString}`;
     const account = view.getSignedInAccount();
+    const { metricsEnabled } = account.pick('metricsEnabled');
+
+    console.log('account', account);
+    console.log('metricsEnabled', metricsEnabled);
+
+    const queryString =
+      metricsEnabled === false
+        ? Url.objToSearchString({ ...queryParams })
+        : Url.objToSearchString({
+            // device_id, flow_begin_time, and flow_id need to be propagated to
+            // the payments server so that the user funnel can be traced from the RP,
+            // through the content server, and to the payments server, appearing as
+            // the same user throughout.
+            device_id: deviceId,
+            flow_begin_time: flowBeginTime,
+            flow_id: flowId,
+            ...queryParams,
+          });
+    const url = `${managementUrl}/${redirectPath}${queryString}`;
     const unauthenticatedRedirect = () => {
       if (isAllowedUnauthenticatedRoute(redirectPath)) {
         return view.navigateAway(url);

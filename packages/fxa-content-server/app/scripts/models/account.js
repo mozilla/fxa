@@ -654,6 +654,7 @@ const Account = Backbone.Model.extend(
         this.setProfileImage(profileImage);
         this.set('displayName', result.displayName);
         this.set('ecosystemAnonId', result.ecosystemAnonId);
+        this.set('metricsEnabled', result.metricsEnabled);
 
         this.on('change', this._boundOnChange);
       });
