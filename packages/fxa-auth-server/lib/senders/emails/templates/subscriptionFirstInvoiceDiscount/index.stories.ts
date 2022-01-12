@@ -10,8 +10,8 @@ export default {
 } as Meta;
 
 const createStory = subplatStoryWithProps(
-  'subscriptionFirstInvoice',
-  'Sent to inform a user that their first payment is currently being processed.',
+  'subscriptionFirstInvoiceDiscount',
+  'Sent to inform a user that their first payment, with a discount coupon, is currently being processed.',
   {
     productName: 'Firefox Fortress',
     icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
@@ -20,8 +20,8 @@ const createStory = subplatStoryWithProps(
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
     invoiceNumber: '8675309',
     invoiceTotal: '$18.00',
-    subtotal: '$20.00',
-    discountAmount: '-$2.00',
+    invoiceSubtotal: '$20.00',
+    invoiceDiscountAmount: '$2.00',
     nextInvoiceDateOnly: '11/13/2021',
     subscriptionSupportUrl: 'http://localhost:3030/support',
   }
