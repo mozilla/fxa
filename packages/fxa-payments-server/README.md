@@ -6,9 +6,20 @@ This is the server that handles payments.
 
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
 
-You can view the Storybook built from the most recent main at http://mozilla.github.io/fxa/fxa-payments-server/
-
 In local development, `yarn storybook` should start a Storybook server at <http://localhost:6006> with hot module replacement to reflect live changes.
+
+### Published links
+
+The latest builds of the various FXA Storybooks are published to Google Cloud Platform, using this GCP Storybook Publisher, and can be found in the following ways.
+
+- Via direct URL
+  - Navigate to the [Mozilla Storybooks FXA URL](https://storage.googleapis.com/mozilla-storybooks-fxa/index.html)
+  - Click the commit you’d like to view. (This includes both main and PR commits)
+  - Click fxa-payments-server
+- From the [FXA Github repo](https://github.com/mozilla/fxa)
+  - Click on the green check mark next to the latest commit off of main. (Near the top of the page)
+  - Scroll down and click on “Details” for entry storybooks:pull request
+  - Click fxa-payments-server
 
 ## Installation notes
 
