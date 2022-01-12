@@ -1601,7 +1601,7 @@ export class AccountHandler {
     if (!googleRecord) {
       const email = payload.email;
       try {
-        // This is an existing FxA user linking a new Google account
+        // This is a new Google account linking an existing FxA account
         accountRecord = await this.db.accountRecord(payload.email);
         await this.db.createLinkedGoogleAccount(accountRecord.uid, userid);
       } catch (err) {
@@ -1631,7 +1631,7 @@ export class AccountHandler {
         await this.db.createLinkedGoogleAccount(accountRecord.uid, userid);
       }
     } else {
-      // Lookup the associated FxA user from the current Google user
+      // This is an existing Google user and existing FxA user
       accountRecord = await this.db.account(googleRecord.uid);
     }
 
@@ -1808,6 +1808,7 @@ export const accountRoutes = (
         validate: {
           payload: {
             token: isA.string().required(),
+            provider: isA.string().optional(),
           },
         },
       },
