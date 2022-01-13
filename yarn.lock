@@ -5831,7 +5831,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-links@npm:*, @storybook/addon-links@npm:^6.3.12":
+"@storybook/addon-links@npm:*":
   version: 6.3.12
   resolution: "@storybook/addon-links@npm:6.3.12"
   dependencies:
@@ -5856,6 +5856,34 @@ __metadata:
     react-dom:
       optional: true
   checksum: e5b7c2d71c612c57c93fea2651c5906240d744de1f42479a972f9dcf78e798e02eb223e1d6c1d6be05cca23778a6c7dfd8df855e210257baeaf045c7fa311907
+  languageName: node
+  linkType: hard
+
+"@storybook/addon-links@npm:^6.3.13":
+  version: 6.4.12
+  resolution: "@storybook/addon-links@npm:6.4.12"
+  dependencies:
+    "@storybook/addons": 6.4.12
+    "@storybook/client-logger": 6.4.12
+    "@storybook/core-events": 6.4.12
+    "@storybook/csf": 0.0.2--canary.87bc651.0
+    "@storybook/router": 6.4.12
+    "@types/qs": ^6.9.5
+    core-js: ^3.8.2
+    global: ^4.4.0
+    prop-types: ^15.7.2
+    qs: ^6.10.0
+    regenerator-runtime: ^0.13.7
+    ts-dedent: ^2.0.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 332a91910e3d52e91307cabd5ba8114658bec0025607e25f545c20faf4f5556135323df1d657fb29b50498ae8407b2397b8e4cf0f044a5b454554ec1cf8e8647
   languageName: node
   linkType: hard
 
@@ -19946,7 +19974,7 @@ fsevents@~2.1.1:
     "@emotion/react": ^11.7.1
     "@rescripts/cli": 0.0.16
     "@storybook/addon-actions": ^6.3.12
-    "@storybook/addon-links": ^6.3.12
+    "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
     "@storybook/react": ^6.3.12
     "@tailwindcss/postcss7-compat": ^2.2.17
@@ -20793,7 +20821,7 @@ fsevents@~2.1.1:
     "@sentry/browser": ^6.16.1
     "@sentry/node": ^6.16.1
     "@storybook/addon-actions": ^6.3.12
-    "@storybook/addon-links": ^6.3.12
+    "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
     "@storybook/react": ^6.3.12
     "@stripe/react-stripe-js": ^1.7.0
@@ -20956,7 +20984,7 @@ fsevents@~2.1.1:
     "@fluent/langneg": ^0.6.1
     "@fluent/react": ^0.13.1
     "@storybook/addon-actions": ^6.3.12
-    "@storybook/addon-links": ^6.3.12
+    "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
     "@storybook/react": ^6.3.12
     "@svgr/webpack": ^5.5.0
@@ -21022,7 +21050,7 @@ fsevents@~2.1.1:
     "@rescripts/cli": 0.0.16
     "@sentry/browser": ^6.16.1
     "@storybook/addon-actions": ^6.3.12
-    "@storybook/addon-links": ^6.3.12
+    "@storybook/addon-links": ^6.3.13
     "@storybook/addons": ^6.3.12
     "@storybook/react": ^6.3.12
     "@tailwindcss/postcss7-compat": ^2.2.17
