@@ -26,5 +26,8 @@
   </mj-column>
 </mj-section>
 
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "postVerifySecondary-action",
+  buttonText: "Manage account"
+}) %>
 <%- include('/partials/automatedEmailChangePassword/index.mjml') %>

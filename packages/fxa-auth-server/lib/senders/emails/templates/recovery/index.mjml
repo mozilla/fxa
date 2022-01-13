@@ -18,5 +18,8 @@ can obtain one at http://mozilla.org/MPL/2.0/. %>
 </mj-section>
 
 <%- include('/partials/location/index.mjml') %>
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "recovery-action",
+  buttonText: "Create new password"
+}) %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>

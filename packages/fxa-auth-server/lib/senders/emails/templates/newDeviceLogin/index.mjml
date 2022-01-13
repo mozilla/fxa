@@ -11,5 +11,8 @@
 </mj-section>
 
 <%- include('/partials/location/index.mjml') %>
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "newDeviceLogin-action",
+  buttonText: "Manage account"
+}) %>
 <%- include('/partials/automatedEmailChangePassword/index.mjml') %>

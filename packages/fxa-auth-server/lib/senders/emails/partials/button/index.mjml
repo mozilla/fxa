@@ -7,7 +7,7 @@
 <mj-section>
   <mj-column css-class="<%= locals.cssClass || undefined %>">
     <mj-button css-class="primary-button" href="<%- link %>">
-      <span data-l10n-id="<%- template %>-action">Click here</span>
+      <span data-l10n-id="<%- locals.buttonL10nId %>"><%- locals.buttonText %></span>
     </mj-button>
   </mj-column>
 </mj-section>
