@@ -24,5 +24,8 @@
   </mj-column>
 </mj-section>
 
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "postRemoveSecondary-action",
+  buttonText: "Manage account"
+}) %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>

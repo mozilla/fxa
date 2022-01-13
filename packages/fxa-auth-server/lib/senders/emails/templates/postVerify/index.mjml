@@ -22,6 +22,9 @@
   </mj-column>
 </mj-section>
 
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "postVerify-action",
+  buttonText: "Set up next device"
+}) %>
 <%- include('/partials/appBadges/index.mjml') %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>

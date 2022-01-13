@@ -24,6 +24,9 @@
   </mj-column>
 </mj-section>
 
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "passwordResetAccountRecovery-action",
+  buttonText: "Create new recovery key"
+}) %>
 
 <%- include('/partials/automatedEmailChangePassword/index.mjml') %>

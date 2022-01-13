@@ -22,6 +22,10 @@
   </mj-column>
 </mj-section>
 
-<%- include ('/partials/button/index.mjml', { cssClass: 'mb-8' }) %>
+<%- include ('/partials/button/index.mjml', {
+  buttonL10nId: "subscriptionAccountReminderFirst-action",
+  buttonText: "Create Password",
+  cssClass: 'mb-8'
+  }) %>
 <%- include ('/partials/subscriptionSupport/index.mjml') %>
 <%- include ('/partials/automatedEmailResetPassword/index.mjml') %>
