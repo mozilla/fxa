@@ -14,6 +14,7 @@
   "subscriptionFailedPaymentsCancellation": 1,
   "subscriptionSubsequentInvoice": 1,
   "subscriptionFirstInvoice": 1,
+  "subscriptionFirstInvoiceDiscount": 1,
   "downloadSubscription": 1,
   "lowRecoveryCodes": 5,
   "newDeviceLogin": 5,
