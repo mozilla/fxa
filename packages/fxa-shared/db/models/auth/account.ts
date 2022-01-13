@@ -7,6 +7,7 @@ import { fn, raw } from 'objection';
 import { BaseAuthModel, Proc } from './base-auth';
 import { Email } from './email';
 import { Device } from './device';
+import { LinkedAccount } from './linked-account';
 import { intBoolTransformer, uuidTransformer } from '../../transformers';
 import { convertError, notFound } from '../../mysql';
 
@@ -86,6 +87,14 @@ export class Account extends BaseAuthModel {
         to: 'devices.uid',
       },
       modelClass: Device,
+      relation: BaseAuthModel.HasManyRelation,
+    },
+    linkedAccounts: {
+      join: {
+        from: 'accounts.uid',
+        to: 'linkedAccounts.uid',
+      },
+      modelClass: LinkedAccount,
       relation: BaseAuthModel.HasManyRelation,
     },
   };

@@ -30,6 +30,7 @@ import { AuthLogger, AuthRequest } from '../types';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
+import { OAuth2Client } from 'google-auth-library';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -50,6 +51,7 @@ export class AccountHandler {
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
   private capabilityService: CapabilityService;
+  private googleAuthClient: any;
 
   constructor(
     private log: AuthLogger,
@@ -88,6 +90,12 @@ export class AccountHandler {
       this.paypalHelper = Container.get(PayPalHelper);
     }
     this.capabilityService = Container.get(CapabilityService);
+
+    if (config.googleAuthConfig && config.googleAuthConfig.clientId) {
+      this.googleAuthClient = new OAuth2Client(
+        config.googleAuthConfig.clientId
+      );
+    }
   }
 
   private async deleteAccountIfUnverified(request: AuthRequest, email: string) {
@@ -1569,6 +1577,81 @@ export class AccountHandler {
 
     return {};
   }
+
+  async loginOrCreateAccountFromThirdParty(request: AuthRequest) {
+    if (!this.googleAuthClient) {
+      throw error.thirdPartyAccountError();
+    }
+
+    const requestPayload = request.payload as any;
+    const token = JSON.parse(requestPayload.token);
+    const idToken = token.credential;
+    const { clientId } = this.config.googleAuthConfig;
+    const verifiedToken = await this.googleAuthClient.verifyIdToken({
+      idToken,
+      audience: clientId,
+    });
+
+    const payload = verifiedToken.getPayload();
+    const userid = payload['sub'];
+
+    let accountRecord;
+    let googleRecord = await this.db.getGoogleId(userid);
+
+    if (!googleRecord) {
+      const email = payload.email;
+      try {
+        // This is a new Google account linking an existing FxA account
+        accountRecord = await this.db.accountRecord(payload.email);
+        await this.db.createLinkedGoogleAccount(accountRecord.uid, userid);
+      } catch (err) {
+        if (err.errno !== error.ERRNO.ACCOUNT_UNKNOWN) {
+          throw err;
+        }
+        // This is a new Google user creating a new FxA account, we
+        // create the FxA account with random password and mark email
+        // verified
+        const { hex16: emailCode, hex32: authSalt } =
+          await this.generateRandomValues();
+        const [kA, wrapWrapKb] = await random.hex(32, 32);
+        accountRecord = await this.db.createAccount({
+          uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
+          createdAt: Date.now(),
+          email,
+          emailCode,
+          emailVerified: true,
+          kA,
+          wrapWrapKb,
+          authSalt,
+          verifierVersion: this.config.verifierVersion,
+          verifyHash: Buffer.alloc(32).toString('hex'),
+          verifierSetAt: 0,
+          locale: request.app.acceptLanguage,
+        });
+        await this.db.createLinkedGoogleAccount(accountRecord.uid, userid);
+      }
+    } else {
+      // This is an existing Google user and existing FxA user
+      accountRecord = await this.db.account(googleRecord.uid);
+    }
+
+    const sessionTokenOptions = {
+      uid: accountRecord.uid,
+      email: accountRecord.primaryEmail.email,
+      emailCode: accountRecord.primaryEmail.emailCode,
+      emailVerified: accountRecord.primaryEmail.isVerified,
+      verifierSetAt: accountRecord.verifierSetAt,
+      mustVerify: false,
+      tokenVerificationCodeExpiresAt: Date.now() + this.tokenCodeLifetime,
+    };
+
+    const sessionToken = await this.db.createSessionToken(sessionTokenOptions);
+
+    return {
+      uid: sessionToken.uid,
+      sessionToken: sessionToken.data,
+    };
+  }
 }
 
 export const accountRoutes = (
@@ -1717,6 +1800,20 @@ export const accountRoutes = (
         },
       },
       handler: (request: AuthRequest) => accountHandler.login(request),
+    },
+    {
+      method: 'POST',
+      path: '/account/login/third_party',
+      options: {
+        validate: {
+          payload: {
+            token: isA.string().required(),
+            provider: isA.string().optional(),
+          },
+        },
+      },
+      handler: async (request: AuthRequest) =>
+        accountHandler.loginOrCreateAccountFromThirdParty(request),
     },
     {
       method: 'GET',

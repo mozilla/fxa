@@ -137,6 +137,15 @@ const conf = convict({
       format: Boolean,
     },
   },
+  googleAuthConfig: {
+    clientId: {
+      default:
+        '218517873053-th4taguk9dvf03rrgk8sigon84oigf5l.apps.googleusercontent.com',
+      env: 'GOOGLE_AUTH_CLIENT_ID',
+      format: String,
+      doc: 'Google auth client id',
+    },
+  },
   googleMapsApiKey: {
     default: '',
     env: 'GOOGLE_MAPS_APIKEY',

@@ -19,6 +19,7 @@ const {
   KeyFetchToken: RawKeyFetchToken,
   PasswordChangeToken: RawPasswordChangeToken,
   PasswordForgotToken: RawPasswordForgotToken,
+  LinkedAccount,
   SessionToken: RawSessionToken,
   RecoveryKey,
   TotpToken,
@@ -362,6 +363,16 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       throw error.unknownSecondaryEmail();
     }
     return emailRecord;
+  };
+
+  DB.prototype.getGoogleId = async function (googleId) {
+    log.trace('DB.getGoogleId', { googleId });
+    return LinkedAccount.findByGoogleId(googleId);
+  };
+
+  DB.prototype.createLinkedGoogleAccount = async function (uid, googleUserId) {
+    log.trace('DB.createLinkedGoogleAccount', { uid, googleUserId });
+    return LinkedAccount.createLinkedGoogleAccount(uid, googleUserId);
   };
 
   DB.prototype.totpToken = async function (uid) {

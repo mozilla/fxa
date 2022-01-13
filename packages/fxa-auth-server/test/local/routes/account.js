@@ -3889,3 +3889,131 @@ describe('/account/ecosystemAnonId', () => {
     });
   });
 });
+
+describe('/account/login/third_party', () => {
+  let mockLog, mockDB, mockRequest, route;
+
+  const UID = 'fxauid';
+
+  describe('google auth', () => {
+    const mockGoogleUser = {
+      sub: '123123123',
+      email: `${Math.random()}@gmail.com`,
+    };
+
+    beforeEach(async () => {
+      mockLog = mocks.mockLog();
+      mockLog.info = sinon.spy();
+      mockDB = mocks.mockDB({
+        email: mockGoogleUser.email,
+        uid: UID,
+      });
+      const mockConfig = {
+        googleAuthConfig: { clientId: 'OooOoo' },
+      };
+      mockRequest = mocks.mockRequest({
+        log: mockLog,
+        payload: {
+          token: JSON.stringify({
+            credentials: 'id_token_returned_from_google_oauth_flow',
+          }),
+        },
+      });
+
+      const OAuth2ClientMock = class OAuth2Client {
+        verifyIdToken() {
+          return {
+            getPayload: () => {
+              return mockGoogleUser;
+            },
+          };
+        }
+      };
+
+      route = getRoute(
+        makeRoutes(
+          {
+            config: mockConfig,
+            db: mockDB,
+            log: mockLog,
+          },
+          {
+            'google-auth-library': {
+              OAuth2Client: OAuth2ClientMock,
+            },
+          }
+        ),
+        '/account/login/third_party'
+      );
+    });
+
+    it('fails if no google config', async () => {
+      const mockConfig = {};
+      mockConfig.googleAuthConfig = {};
+
+      route = getRoute(
+        makeRoutes({
+          config: mockConfig,
+          db: mockDB,
+          log: mockLog,
+        }),
+        '/account/login/third_party'
+      );
+
+      try {
+        await runTest(route, mockRequest);
+        assert.fail();
+      } catch (err) {
+        assert.equal(err.errno, error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR);
+      }
+    });
+
+    it('should create new fxa account from new google account and return session', async () => {
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(new error.unknownAccount(mockGoogleUser.email))
+      );
+
+      const result = await runTest(route, mockRequest);
+
+      assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+      assert.isTrue(mockDB.createAccount.calledOnce);
+      assert.isTrue(
+        mockDB.createLinkedGoogleAccount.calledOnceWith(UID, mockGoogleUser.sub)
+      );
+      assert.isTrue(mockDB.createSessionToken.calledOnce);
+      assert.equal(result.uid, UID);
+      assert.ok(result.sessionToken);
+    });
+
+    it('should linking existing fxa account and new google account and return session', async () => {
+      const result = await runTest(route, mockRequest);
+
+      assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+      assert.isTrue(mockDB.createAccount.notCalled);
+      assert.isTrue(
+        mockDB.createLinkedGoogleAccount.calledOnceWith(UID, mockGoogleUser.sub)
+      );
+      assert.isTrue(mockDB.createSessionToken.calledOnce);
+      assert.equal(result.uid, UID);
+      assert.ok(result.sessionToken);
+    });
+
+    it('should return session with valid google id token', async () => {
+      mockDB.getGoogleId = sinon.spy(() =>
+        Promise.resolve({
+          id: mockGoogleUser.sub,
+          uid: UID,
+        })
+      );
+
+      const result = await runTest(route, mockRequest);
+
+      assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+      assert.isTrue(mockDB.account.calledOnceWith(UID));
+      assert.isTrue(mockDB.createLinkedGoogleAccount.notCalled);
+      assert.isTrue(mockDB.createSessionToken.calledOnce);
+      assert.equal(result.uid, UID);
+      assert.ok(result.sessionToken);
+    });
+  });
+});

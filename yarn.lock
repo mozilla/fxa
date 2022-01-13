@@ -20166,6 +20166,7 @@ fsevents@~2.1.1:
     fxa-geodb: "workspace:*"
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
+    google-auth-library: ^7.11.0
     google-libphonenumber: ^3.2.26
     googleapis: ^92.0.0
     grunt: ^1.4.1
