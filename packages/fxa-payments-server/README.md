@@ -8,7 +8,7 @@ This project uses [Storybook](https://storybook.js.org/) to show each screen wit
 
 In local development, `yarn storybook` should start a Storybook server at <http://localhost:6006> with hot module replacement to reflect live changes.
 
-### Published links
+### Latest builds
 
 The latest builds of the various FXA Storybooks are published to Google Cloud Platform, using this GCP Storybook Publisher, and can be found in the following ways.
 
