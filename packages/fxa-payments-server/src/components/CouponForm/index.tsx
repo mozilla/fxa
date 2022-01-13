@@ -16,6 +16,49 @@ import sentry from '../../lib/sentry';
 import * as Amplitude from '../../lib/amplitude';
 import { useCallbackOnce } from '../../lib/hooks';
 
+enum CouponErrorMessageType {
+  Expired = 'Expired',
+  LimitReached = 'Maximally redeemed',
+  Invalid = 'No discount for coupon',
+  Generic = 'Generic',
+}
+
+type CouponErrorMessageProps = {
+  messageType: CouponErrorMessageType;
+};
+
+const CouponErrorMessage = ({ messageType }: CouponErrorMessageProps) => {
+  let localizedId, defaultMsg;
+  const localizedIdPrefix = 'coupon-error';
+
+  switch (messageType) {
+    case CouponErrorMessageType.Expired:
+      localizedId = `${localizedIdPrefix}-expired`;
+      defaultMsg = 'The coupon has expired111';
+      break;
+    case CouponErrorMessageType.LimitReached:
+      localizedId = `${localizedIdPrefix}-limit-reached`;
+      defaultMsg = 'The coupon limit has been reached';
+      break;
+    case CouponErrorMessageType.Invalid:
+      localizedId = `${localizedIdPrefix}-invalid`;
+      defaultMsg = 'The provided coupon is invalid';
+      break;
+    case CouponErrorMessageType.Generic:
+    default:
+      localizedId = `${localizedIdPrefix}-generic`;
+      defaultMsg = 'An error occurred processing the coupon. Please try again.';
+  }
+
+  return (
+    <Localized id={localizedId}>
+      <div className="coupon-error" data-testid="coupon-error">
+        {defaultMsg}
+      </div>
+    </Localized>
+  );
+};
+
 /*
  * Check if the coupon promotion code provided by the user is valid.
  * If it is valid, return the discounted amount in cents.
@@ -26,11 +69,29 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
       priceId: planId,
       promotionCode,
     });
+    // TODO - Mock items from apiInvoicePreview
+    const { type, expired, maximallyRedeemed } = {
+      type: 'forever',
+      expired: false,
+      maximallyRedeemed: false,
+    };
 
     if (!discount?.amount) {
-      throw new Error('No discount for coupon');
+      throw new Error(CouponErrorMessageType.Invalid);
     }
-    return discount.amount;
+
+    if (expired) {
+      throw new Error(CouponErrorMessageType.Expired);
+    }
+
+    if (maximallyRedeemed) {
+      throw new Error(CouponErrorMessageType.LimitReached);
+    }
+
+    return {
+      amount: discount.amount,
+      type,
+    };
   } catch (err) {
     if (err instanceof APIError) {
       sentry.captureException(err);
@@ -50,7 +111,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
   const [promotionCode, setPromotionCode] = useState(
     coupon ? coupon.promotionCode : ''
   );
-  const [error, setError] = useState('');
+  const [error, setError] = useState<CouponErrorMessageType | null>(null);
   const [loading, setLoading] = useState(false);
 
   const onFormMounted = useCallback(
@@ -74,7 +135,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
     event.stopPropagation();
     try {
       setLoading(true);
-      const amount = await checkPromotionCode(planId, promotionCode);
+      const { amount, type } = await checkPromotionCode(planId, promotionCode);
       setHasCoupon(true);
       setCoupon({
         promotionCode: promotionCode,
@@ -84,11 +145,8 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
       });
     } catch (err) {
       setCoupon(undefined);
-      if (err instanceof APIError) {
-        setError('An error occurred processing the coupon. Please try again.');
-      } else {
-        setError('The code you entered is invalid or expired.');
-      }
+      // setError(handlePromotionCodeError(err.message));
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -143,7 +201,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
                 data-testid="coupon-input"
                 value={promotionCode}
                 onChange={(event) => {
-                  setError('');
+                  setError(null);
                   setPromotionCode(event.target.value);
                 }}
                 placeholder="Enter code"
@@ -164,13 +222,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
           </button>
         </form>
       )}
-      {error ? (
-        <Localized id="coupon-error">
-          <div className="coupon-error" data-testid="coupon-error">
-            {error}
-          </div>
-        </Localized>
-      ) : null}
+      {error !== null && <CouponErrorMessage messageType={error} />}
     </div>
   );
 };
