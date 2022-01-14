@@ -1094,7 +1094,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   return DB;
 };
 
-// Note that these errno's are defined in the fxa-auth-db-mysql repo
+// Note that these errno's were defined in the fxa-auth-db-mysql repo
 // and don't necessarily match the errnos in this repo...
 
 function isRecordAlreadyExistsError(err) {

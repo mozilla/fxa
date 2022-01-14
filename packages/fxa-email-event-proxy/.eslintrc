@@ -1,4 +1,0 @@
-{
-  "extends": ["plugin:fxa/server"],
-  "plugins": ["fxa"]
-}

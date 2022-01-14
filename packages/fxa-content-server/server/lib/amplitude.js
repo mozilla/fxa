@@ -478,8 +478,6 @@ function receiveEvent(event, request, data) {
           'deviceId',
           'devices',
           'emailDomain',
-          'emailSender',
-          'emailService',
           'entrypoint_experiment',
           'entrypoint_variation',
           'entrypoint',

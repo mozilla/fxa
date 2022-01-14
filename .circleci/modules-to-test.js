@@ -68,9 +68,7 @@ async function modulesToSkip(org, repo, prNumber, branch) {
       `https://api.github.com/repos/${org}/${repo}/issues/${prNumber}/labels`
     );
     const labels = await labelRes.json();
-    const skipModules = branch.startsWith('email-service')
-      ? []
-      : ['fxa-email-service'];
+    const skipModules = [];
     if (Array.isArray(labels) && labels.find((l) => l.name === '🙈 skip ci')) {
       const skipLabels = labels
         .filter((l) => l.name.startsWith('fxa-'))

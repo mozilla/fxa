@@ -80,8 +80,6 @@ const deliveryQueue = new SQSReceiver(region, [deliveryQueueUrl]);
 const notificationQueue = new SQSReceiver(region, [notificationQueueUrl]);
 
 DB.connect(config).then((db) => {
-  // bounces and delivery are now deprecated, we'll delete them
-  // as soon as we're 100% confident in fxa-email-service
   bounces(bounceQueue, db);
   delivery(deliveryQueue);
   notifications(notificationQueue, db);

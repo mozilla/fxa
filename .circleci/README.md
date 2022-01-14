@@ -2,13 +2,6 @@
 
 `config.yml` defines the jobs and workflows of our CircleCI deployment.
 
-## Special Cases
-
-`fxa-email-service` isn't tested for most PRs because it doesn't change
-often and is relatively resource intensive. In order to
-trigger these tests the PR branch should be prefixed with `email-service-`.
-PRs that change those packages on other branches will (intentionally) fail.
-
 ## Scripts
 
 This directory contains scripts used by `config.yml` to run jobs. More

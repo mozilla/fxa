@@ -307,14 +307,11 @@ $1"
   fi
 }
 
-TARGETS="packages/fxa-auth-db-mysql
-packages/fxa-auth-server
+TARGETS="packages/fxa-auth-server
 packages/fxa-admin-server
 packages/fxa-admin-panel
 packages/fxa-content-server
 packages/fxa-customs-server
-packages/fxa-email-event-proxy
-packages/fxa-email-service
 packages/fxa-event-broker
 packages/fxa-geodb
 packages/fxa-graphql-api

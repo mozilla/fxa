@@ -9,7 +9,7 @@ import {
 
 // Note that these `*.Response` interfaces are purely for access to known
 // response keys and not an attempt to validate the return payloads from
-// fxa-auth-db-mysql.
+// the database.
 
 interface WebSubscription {
   created: string;
