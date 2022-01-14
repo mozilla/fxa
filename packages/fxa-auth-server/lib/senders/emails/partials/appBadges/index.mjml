@@ -1,11 +1,11 @@
-<%# This Source Code Form is subject to the terms of the Mozilla Public 
-  # License, v. 2.0. If a copy of the MPL was not distributed with this 
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
 <mj-include path="./css/appBadges/index.css" type="css" css-inline="inline" />
 
-<% locals.iosUrl = locals.iosUrl || locals.appStoreLink %> 
-<% locals.androidUrl = locals.androidUrl ||  locals.playStoreLink %> 
+<% locals.iosUrl = locals.iosUrl || locals.appStoreLink %>
+<% locals.androidUrl = locals.androidUrl ||  locals.playStoreLink %>
 
 <mj-section>
   <mj-group css-class="app-badges">
@@ -13,10 +13,10 @@
     <% if (locals.iosUrl) { %>
       <mj-column>
         <mj-image
-          css-class="app-badge"
+          css-class="app-badge-ios"
           href="<%- iosUrl %>"
           src="https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png"
-          alt="iOS badge"
+          alt="Download Firefox on the App Store"
         >
         </mj-image>
       </mj-column>
@@ -24,10 +24,10 @@
     <% if (locals.androidUrl) { %>
       <mj-column>
         <mj-image
-          css-class="app-badge"
+          css-class="app-badge-android"
           href="<%- androidUrl %>"
           src="https://accounts-static.cdn.mozilla.net/product-icons/google-play.png"
-          alt="android badge"
+          alt="Download Firefox on Google Play"
         >
         </mj-image>
       </mj-column>

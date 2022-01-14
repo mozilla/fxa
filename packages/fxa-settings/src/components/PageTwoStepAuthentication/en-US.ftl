@@ -22,8 +22,10 @@ tfa-scan-this-code = Scan this QR code using one of <linkExternal>these
 # This is the image alt text for a QR code.
 # Variables:
 #   $secret (String) - a long alphanumeric string that does not require translation
-tfa-qa-code-alt = Use the code { $secret } to set up two-step authentication in
-  supported applications.
+# DEV NOTE: Set image alt text per fluent/react documentation, do not use the below as an example
+tfa-qa-code-alt = Use the code { $secret } to set up two-step authentication in supported applications.
+tfa-qa-code =
+  .alt = { tfa-qa-code-alt }
 tfa-button-cant-scan-qr = Can’t scan code?
 
 # When the user cannot use a QR code.

@@ -19,6 +19,14 @@
   }
 }
 
+.app-badge-android {
+  @extend .app-badge;
+}
+
+.app-badge-ios {
+  @extend .app-badge;
+}
+
 .text-footer-appBadges {
   @extend .text-footer;
 }
