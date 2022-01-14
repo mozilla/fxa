@@ -870,7 +870,7 @@ export class StripeHelper {
     customerId: string;
     postalCode: string;
     country: string;
-  }): Promise<void> {
+  }): Promise<boolean> {
     try {
       const state = await this.googleMapsService.getStateFromZip(
         postalCode,
@@ -885,6 +885,7 @@ export class StripeHelper {
         country,
         postalCode,
       });
+      return true;
     } catch (err: unknown) {
       Sentry.withScope((scope) => {
         scope.setContext('setCustomerLocation', {
@@ -895,6 +896,7 @@ export class StripeHelper {
         Sentry.captureException(err);
       });
     }
+    return false;
   }
   /**
    * Update the customer object to add a PayPal Billing Agreement ID.

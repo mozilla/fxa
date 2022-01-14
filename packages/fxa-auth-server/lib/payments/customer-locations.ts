@@ -6,9 +6,10 @@ import { PayPalBillingAgreements } from 'fxa-shared/db/models/auth';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { Logger } from 'mozlog';
 import Stripe from 'stripe';
-import { StripeHelper, COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from './stripe';
+
 // Region codes from: https://en.wikipedia.org/wiki/ISO_3166-2:US and https://en.wikipedia.org/wiki/ISO_3166-2:CA with country prefixes removed
 import STATES_LONG_NAME_TO_SHORT_NAME_MAP from './states-long-name-to-short-name-map.json';
+import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP, StripeHelper } from './stripe';
 
 type PayPalUserLocationResult = {
   uid: string;
@@ -21,33 +22,38 @@ const stateNames = STATES_LONG_NAME_TO_SHORT_NAME_MAP as {
   [key: string]: { [key: string]: string };
 };
 
-// GCP credentials are stored in the GOOGLE_APPLICATION_CREDENTIALS env var
-// See https://cloud.google.com/docs/authentication/getting-started
-const GCP_PROJECT_NAME =
-  process.env.FXA_TAX_REPORTING_GCP_PROJECT_NAME || 'bdanforth-fxa-dev';
-const GCP_DATASET_ID =
-  process.env.FXA_TAX_REPORTING_GCP_DATASET_ID || 'fxa_auth_stage';
-const GCP_TABLE_NAME =
-  process.env.FXA_TAX_REPORTING_GCP_TABLE_NAME ||
-  'fxa_4218_uid_state_country_count_01042022';
-const DATASET_LOCATION = 'US';
-
 export class CustomerLocations {
-  private bigquery: any;
+  private bigquery: BigQuery;
   private log: Logger;
   private countriesStr: string;
   private stripeHelper: StripeHelper;
+  private projectName: string;
+  private datasetId: string;
+  private tableName: string;
+  private datasetLocation: string;
 
   constructor({
     log,
     stripeHelper,
+    projectName,
+    datasetId,
+    datasetLocation,
+    tableName,
   }: {
     log: Logger;
     stripeHelper: StripeHelper;
+    projectName: string;
+    datasetId: string;
+    tableName: string;
+    datasetLocation: string;
   }) {
     this.bigquery = new BigQuery();
     this.log = log;
     this.stripeHelper = stripeHelper;
+    this.projectName = projectName;
+    this.datasetId = datasetId;
+    this.datasetLocation = datasetLocation;
+    this.tableName = tableName;
     this.countriesStr = Object.keys(COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP)
       .map((country) => `"${country}"`)
       .join(',');
@@ -59,13 +65,13 @@ export class CustomerLocations {
    */
   async getLocationForUid(uid: string): Promise<PayPalUserLocationResult[]> {
     const query = `SELECT uid, state, country, count
-      FROM \`${GCP_PROJECT_NAME}.${GCP_DATASET_ID}.${GCP_TABLE_NAME}\`
+      FROM \`${this.projectName}.${this.datasetId}.${this.tableName}\`
       WHERE uid = \"${uid}\"
       AND country IN (${this.countriesStr})
       `;
     const options = {
       query,
-      location: DATASET_LOCATION,
+      location: this.datasetLocation,
     };
     const [job] = await this.bigquery.createQueryJob(options);
     const [rows] = await job.getQueryResults();
@@ -225,10 +231,10 @@ export class CustomerLocations {
       count++;
 
       try {
-        const paymentMethod = customer.invoice_settings
-          ?.default_payment_method as Stripe.PaymentMethod;
-        const paymentMethodCountry = paymentMethod?.card?.country;
-        let postalCode = paymentMethod?.billing_details?.address?.postal_code;
+        const { country: paymentMethodCountry, postalCode } =
+          await this.stripeHelper.extractCustomerDefaultPaymentDetails(
+            customer
+          );
 
         // Skip when...
         // The customer's address has a state already
@@ -300,11 +306,16 @@ export class CustomerLocations {
               country: paymentMethodCountry,
             });
           } else {
-            await this.stripeHelper.setCustomerLocation({
+            const isUpdated = await this.stripeHelper.setCustomerLocation({
               customerId: customer.id,
               postalCode: postalCode!,
               country: paymentMethodCountry!,
             });
+            if (!isUpdated) {
+              throw new Error(
+                'CustomerLocations setCustomerLocation failed to update the customer.'
+              );
+            }
           }
         }
         if (!isDryRun) {

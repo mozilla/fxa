@@ -4751,11 +4751,12 @@ describe('StripeHelper', () => {
 
     it('updates the Stripe customer address', async () => {
       sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
-      await stripeHelper.setCustomerLocation({
+      const result = await stripeHelper.setCustomerLocation({
         customerId: customer1.id,
         postalCode: expectedAddressArg.postalCode,
         country: expectedAddressArg.country,
       });
+      assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.googleMapsService.getStateFromZip,
         '99999',
@@ -4771,11 +4772,12 @@ describe('StripeHelper', () => {
     it('fails when an error is thrown by Google Maps service', async () => {
       sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').resolves();
       mockGoogleMapsService.getStateFromZip = sandbox.stub().rejects(err);
-      await stripeHelper.setCustomerLocation({
+      const result = await stripeHelper.setCustomerLocation({
         customerId: customer1.id,
         postalCode: expectedAddressArg.postalCode,
         country: expectedAddressArg.country,
       });
+      assert.isFalse(result);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.googleMapsService.getStateFromZip,
         '99999',
@@ -4797,11 +4799,12 @@ describe('StripeHelper', () => {
 
     it('fails when an error is thrown while updating the customer address', async () => {
       sandbox.stub(stripeHelper, 'updateCustomerBillingAddress').rejects(err);
-      await stripeHelper.setCustomerLocation({
+      const result = await stripeHelper.setCustomerLocation({
         customerId: customer1.id,
         postalCode: expectedAddressArg.postalCode,
         country: expectedAddressArg.country,
       });
+      assert.isFalse(result);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.googleMapsService.getStateFromZip,
         '99999',

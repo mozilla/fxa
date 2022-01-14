@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import program from 'commander';
-import { StatsD } from 'hot-shots';
-import Container from 'typedi';
-import { promisify } from 'util';
 
 import { CustomerLocations } from '../lib/payments/customer-locations';
 import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
@@ -24,12 +21,28 @@ async function init() {
   program
     .version(pckg.version)
     .option(
+      '-p, --gcp-project-name <string>',
+      'The GCP project name for the metrics logs table. This is used for inferring past PayPal customer locations.'
+    )
+    .option(
+      '-i, --gcp-dataset-id <string>',
+      'The dataset id for the specified GCP project.'
+    )
+    .option(
+      '-l, --gcp-dataset-location <string>',
+      'The dataset location for the specified GCP dataset.'
+    )
+    .option(
+      '-t, --gcp-table-name <string>',
+      'The table name for the specified GCP dataset.'
+    )
+    .option(
       '-d, --delay [milliseconds]',
       'Amount of time to wait between processing customers.  Defaults to 100ms.',
       100
     )
     .option(
-      '-m, --max-customers [customers]',
+      '-m, --max-customers [number]',
       'The maximum number of customers to process. 0 = all customers.  Defaults to all.',
       0
     )
@@ -43,16 +56,43 @@ async function init() {
   const { log, stripeHelper } = await setupProcesingTaskObjects(
     'set-stripe-customer-location'
   );
+
+  // GCP credentials are stored in the GOOGLE_APPLICATION_CREDENTIALS env var
+  // See https://cloud.google.com/docs/authentication/getting-started
+  const projectName = program.gcpProjectName;
+  const datasetId = program.gcpDatasetId;
+  const datasetLocation = program.gcpDatasetLocation;
+  const tableName = program.gcpTableName;
+  if (!projectName) {
+    throw new Error(
+      'GCP project name (--gcp-project-name) argument is required.'
+    );
+  }
+  if (!datasetId) {
+    throw new Error('GCP dataset ID (--gcp-dataset-id) argument is required.');
+  }
+  if (!datasetLocation) {
+    throw new Error(
+      'GCP dataset location (--gcp-dataset-location) argument is required.'
+    );
+  }
+  if (!tableName) {
+    throw new Error('GCP table name (--gcp-table-name) argument is required.');
+  }
+
   const isDryRun = parseDryRun(program.dryRun);
   const limit = parseMaxCustomers(program.maxCustomers);
   const delay = parseInt(program.delay);
 
-  const statsd = Container.get(StatsD);
-  statsd.increment('set-stripe-customer-locations.startup');
-  const customerLocations = new CustomerLocations({ log, stripeHelper });
+  const customerLocations = new CustomerLocations({
+    log,
+    stripeHelper,
+    projectName,
+    datasetId,
+    datasetLocation,
+    tableName,
+  });
   await customerLocations.backfillCustomerLocation({ limit, isDryRun, delay });
-  statsd.increment('set-stripe-customer-locations.shutdown');
-  await promisify(statsd.close).bind(statsd)();
   return 0;
 }
 

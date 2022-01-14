@@ -231,6 +231,8 @@ describe('CustomerLocations', () => {
 
     beforeEach(() => {
       customer = deepCopy(mockPayPalCustomer);
+      customerLocations.stripeHelper.extractCustomerDefaultPaymentDetails =
+        sandbox.stub().resolves({});
       backfillArguments = { limit: 5, isDryRun: false, delay: 0 };
       async function* customerGenerator() {
         yield customer;
@@ -282,7 +284,6 @@ describe('CustomerLocations', () => {
 
     it('skips when a Stripe customer does not have a postal code', async () => {
       sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(false);
-      customer.invoice_settings = {};
       await customerLocations.backfillCustomerLocation(backfillArguments);
       sinon.assert.calledOnceWithExactly(
         customerLocations.log.info,
@@ -318,12 +319,8 @@ describe('CustomerLocations', () => {
     });
 
     it('updates the address for a Stripe customer', async () => {
-      customer.invoice_settings = {
-        default_payment_method: {
-          billing_details: { address: { postal_code: '12345' } },
-          card: { country: 'US' },
-        },
-      };
+      customerLocations.stripeHelper.extractCustomerDefaultPaymentDetails =
+        sandbox.stub().resolves({ country: 'US', postalCode: '12345' });
       sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(false);
       customerLocations.stripeHelper.setCustomerLocation = sandbox
         .stub()
@@ -342,6 +339,24 @@ describe('CustomerLocations', () => {
     it('logs an error on exception', async () => {
       sandbox
         .stub(customerLocations, 'isPayPalCustomer')
+        .throws(new Error('catch me'));
+      await customerLocations.backfillCustomerLocation(backfillArguments);
+      sinon.assert.calledOnceWithExactly(
+        customerLocations.log.error,
+        'CustomerLocations.failure',
+        {
+          message: 'catch me',
+          customerId: customer.id,
+        }
+      );
+    });
+
+    it('logs an error on exception from setCustomerLocation', async () => {
+      customerLocations.stripeHelper.extractCustomerDefaultPaymentDetails =
+        sandbox.stub().resolves({ country: 'US', postalCode: '12345' });
+      sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(false);
+      customerLocations.stripeHelper.setCustomerLocation = sandbox
+        .stub()
         .throws(new Error('catch me'));
       await customerLocations.backfillCustomerLocation(backfillArguments);
       sinon.assert.calledOnceWithExactly(
