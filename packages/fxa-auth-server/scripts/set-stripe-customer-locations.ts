@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import program from 'commander';
 
-import { CustomerLocations } from '../lib/payments/customer-locations';
+import { CustomerLocations } from './set-stripe-customer-locations/customer-locations';
 import { setupProcesingTaskObjects } from '../lib/payments/processing-tasks-setup';
 
 const pckg = require('../package.json');

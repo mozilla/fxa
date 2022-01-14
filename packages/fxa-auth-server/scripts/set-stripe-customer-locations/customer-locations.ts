@@ -8,8 +8,11 @@ import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 
 // Region codes from: https://en.wikipedia.org/wiki/ISO_3166-2:US and https://en.wikipedia.org/wiki/ISO_3166-2:CA with country prefixes removed
-import STATES_LONG_NAME_TO_SHORT_NAME_MAP from './states-long-name-to-short-name-map.json';
-import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP, StripeHelper } from './stripe';
+import STATES_LONG_NAME_TO_SHORT_NAME_MAP from '../../lib/payments/states-long-name-to-short-name-map.json';
+import {
+  COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP,
+  StripeHelper,
+} from '../../lib/payments/stripe';
 
 type PayPalUserLocationResult = {
   uid: string;
@@ -224,6 +227,7 @@ export class CustomerLocations {
 
     for await (const customer of this.stripeHelper.stripe.customers.list({
       expand: ['data.invoice_settings.default_payment_method'],
+      limit: 100,
     })) {
       if (count >= limit) {
         break;

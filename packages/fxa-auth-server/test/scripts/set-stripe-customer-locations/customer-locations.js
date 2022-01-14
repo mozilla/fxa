@@ -8,11 +8,11 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 
 const STATES_LONG_NAME_TO_SHORT_NAME_MAP = require('../../../lib/payments/states-long-name-to-short-name-map.json');
-const { deepCopy } = require('./util');
+const { deepCopy } = require('../../local/payments/util');
 const { mockLog, mockStripeHelper } = require('../../mocks');
 const {
   CustomerLocations,
-} = require('../../../lib/payments/customer-locations');
+} = require('../../../scripts/set-stripe-customer-locations/customer-locations');
 const { PayPalBillingAgreements } = require('fxa-shared/db/models/auth');
 
 const sandbox = sinon.createSandbox();
@@ -242,13 +242,14 @@ describe('CustomerLocations', () => {
       };
     });
 
-    it('expands default payment method on customers', async () => {
+    it('batches at 100 while expands default payment method on customers', async () => {
       sandbox.stub(customerLocations, 'isPayPalCustomer').resolves(true);
       await customerLocations.backfillCustomerLocation(backfillArguments);
       sinon.assert.calledOnceWithExactly(
         customerLocations.stripeHelper.stripe.customers.list,
         {
           expand: ['data.invoice_settings.default_payment_method'],
+          limit: 100,
         }
       );
     });
