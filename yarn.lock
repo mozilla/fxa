@@ -10017,7 +10017,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:8.8.2":
+"ajv@npm:8.8.2, ajv@npm:^8.6.2":
   version: 8.8.2
   resolution: "ajv@npm:8.8.2"
   dependencies:
@@ -10041,7 +10041,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^6.1.0, ajv@npm:^6.10.0, ajv@npm:^6.10.2, ajv@npm:^6.12.2, ajv@npm:^6.12.4, ajv@npm:^6.12.5, ajv@npm:^6.12.6, ajv@npm:^6.5.5":
+"ajv@npm:^6.1.0, ajv@npm:^6.10.0, ajv@npm:^6.10.2, ajv@npm:^6.12.2, ajv@npm:^6.12.4, ajv@npm:^6.12.5, ajv@npm:^6.5.5":
   version: 6.12.6
   resolution: "ajv@npm:6.12.6"
   dependencies:
@@ -20605,7 +20605,7 @@ fsevents@~2.1.1:
     mozlog: ^3.0.2
     mysql: ^2.18.1
     nock: ^13.2.1
-    objection: ^2.2.17
+    objection: ^3.0.1
     passport: ^0.5.2
     passport-http-bearer: ^1.0.1
     pm2: ^5.1.2
@@ -21026,7 +21026,7 @@ fsevents@~2.1.1:
     mysql: ^2.18.1
     node-uap: "https://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     nyc: ^15.1.0
-    objection: ^2.2.17
+    objection: ^3.0.1
     pm2: ^5.1.2
     prettier: ^2.3.1
     proxyquire: ^2.1.3
@@ -30844,15 +30844,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"objection@npm:^2.2.17":
-  version: 2.2.17
-  resolution: "objection@npm:2.2.17"
+"objection@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "objection@npm:3.0.1"
   dependencies:
-    ajv: ^6.12.6
+    ajv: ^8.6.2
     db-errors: ^0.2.3
   peerDependencies:
-    knex: <0.95.0
-  checksum: 37d79de8525fce19f9bfdba52e7d81491a82ba1124a356aec7bba0ba5ad05263e3a5b1e7a82ddcbd1a928162494aa522d99dde55ec00a75779b128fec465101f
+    knex: ">=0.95.0"
+  checksum: 335a71941db15bab60bf7925d626a2931f40e29a005be292bfdfd4591529a607c639ea93ed8c2b3f69d5f6d62ba1dc16b7b7d9b81c80941bed00d04c46a6f322
   languageName: node
   linkType: hard
 
