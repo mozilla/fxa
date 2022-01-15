@@ -30,7 +30,7 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
-import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/customer-locations';
+import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 
 // List of countries for which we need to look up the province/state of the
 // customer.
