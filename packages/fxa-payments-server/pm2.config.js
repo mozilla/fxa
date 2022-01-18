@@ -43,5 +43,24 @@ module.exports = {
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],
       time: true,
     },
+    {
+      name: 'payments-css',
+      script: 'yarn build-postcss',
+      cwd: __dirname,
+      env: {
+        PATH,
+      },
+      filter_env: ['npm_'],
+      autorestart: false,
+      watch: [
+        'postcss.config.js',
+        'tailwind.config.js',
+        'src/styles',
+        'src/components/**/*.css',
+        require.resolve('fxa-react/configs/tailwind.js'),
+      ],
+      ignore_watch: ['src/styles/tailwind.out.css'],
+      time: true,
+    },
   ],
 };
