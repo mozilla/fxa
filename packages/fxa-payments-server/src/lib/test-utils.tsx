@@ -15,7 +15,7 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
-import { Plan, Token } from '../../src/store/types';
+import { Plan, Profile, Token } from '../../src/store/types';
 import {
   MozillaSubscription,
   MozillaSubscriptionTypes,
@@ -545,7 +545,7 @@ export const MOCK_PLANS: Plan[] = [
   },
 ];
 
-export const MOCK_PROFILE = {
+export const MOCK_PROFILE: Profile = {
   email: 'foo@example.com',
   locale: 'en-US,en;q=0.5',
   amrValues: ['pwd', 'email'],
@@ -554,6 +554,7 @@ export const MOCK_PROFILE = {
   avatar: 'http://localhost:1112/a/00000000000000000000000000000000',
   avatarDefault: true,
   displayName: 'Foxy77',
+  metricsEnabled: true,
 };
 
 export const MOCK_ACTIVE_SUBSCRIPTIONS = [

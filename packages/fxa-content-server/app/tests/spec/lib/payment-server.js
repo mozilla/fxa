@@ -89,6 +89,23 @@ describe('lib/payment-server-redirect', () => {
     });
   });
 
+  it('redirects without flow event params when logged in user opted out of metrics collection', () => {
+    const REDIRECT_PATH = 'example/path';
+    account.attributes.metricsEnabled = false;
+    return PaymentServer.navigateToPaymentServer(
+      view,
+      config.subscriptions,
+      REDIRECT_PATH,
+      { foo: 'bar', fizz: '', quuz: '&buzz', buzz: null }
+    ).then(() => {
+      assert.strictEqual(
+        view.navigateAway.args[0][0],
+        `${config.subscriptions.managementUrl}/${REDIRECT_PATH}?foo=bar&quuz=%26buzz#accessToken=MOCK_TOKEN`,
+        'should make the correct call to navigateAway'
+      );
+    });
+  });
+
   it('redirects to the checkout route when there is no account', () => {
     const REDIRECT_PATH = 'checkout/bleepbloop';
     view.getSignedInAccount = sinon.stub().returns(null);

@@ -1,13 +1,18 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React, { ReactNode } from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { defaultAppContextValue } from './lib/test-utils';
 import { AppContext } from './lib/AppContext';
 import { State } from './store/state';
-import { createAppStore } from './store';
+import { createAppStore, Store } from './store';
 import waitForExpect from 'wait-for-expect';
 import { Config } from './lib/config';
-
+import { App, AppErrorBoundary, AppErrorDialog, enableNavTiming } from './App';
+import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
 import { MemoryRouter } from 'react-router-dom';
 
 jest.mock('./lib/sentry');
@@ -43,8 +48,6 @@ jest.mock('./routes/Subscriptions', () => ({
   ),
 }));
 
-import { App, AppProps, AppErrorBoundary, AppErrorDialog } from './App';
-
 describe('App', () => {
   afterEach(() => {
     return cleanup();
@@ -58,31 +61,25 @@ describe('App', () => {
     await waitForExpect(() =>
       expect(screen.queryByTestId('loading-overlay')).not.toBeInTheDocument()
     );
-    [
-      'AppLocalizationProvider',
-      'StripeProvider',
-      'Subscriptions',
-    ].forEach((testid) =>
-      expect(screen.queryByTestId(testid)).toBeInTheDocument()
+    ['AppLocalizationProvider', 'StripeProvider', 'Subscriptions'].forEach(
+      (testid) => expect(screen.queryByTestId(testid)).toBeInTheDocument()
     );
     ['Firefox Accounts', 'Account Home', 'Subscriptions'].forEach((text) =>
       expect(screen.queryByText(text)).toBeInTheDocument()
     );
   });
 
-  const commonRoutePathTest = (
-    testid: string,
-    appPath?: string,
-    config?: Partial<Config>
-  ) => async () => {
-    render(<Subject appPath={appPath} config={config} />);
-    await waitForExpect(() =>
-      expect(screen.queryByTestId('loading-overlay')).not.toBeInTheDocument()
-    );
-    await waitForExpect(() =>
-      expect(screen.queryByTestId(testid)).toBeInTheDocument()
-    );
-  };
+  const commonRoutePathTest =
+    (testid: string, appPath?: string, config?: Partial<Config>) =>
+    async () => {
+      render(<Subject {...{ appPath, config }} />);
+      await waitForExpect(() =>
+        expect(screen.queryByTestId('loading-overlay')).not.toBeInTheDocument()
+      );
+      await waitForExpect(() =>
+        expect(screen.queryByTestId(testid)).toBeInTheDocument()
+      );
+    };
 
   it(
     'renders Subscriptions route for /subscriptions',
@@ -93,6 +90,62 @@ describe('App', () => {
     'renders Product route for /products/prod_fpn',
     commonRoutePathTest('Product', '/products/prod_fpn')
   );
+
+  describe('performance metrics', () => {
+    const navSpy = jest.spyOn(NavTiming, 'observeNavigationTiming');
+    const unsubscribe = jest.fn();
+    let callbackFromApp: Function;
+
+    afterEach(() => {
+      navSpy.mockClear();
+    });
+
+    it('should not call observeNavigationTiming when metrics collection is disabled', () => {
+      const storeMock = {
+        subscribe: (cb: Function) => {
+          callbackFromApp = cb;
+          return unsubscribe;
+        },
+        getState: jest
+          .fn()
+          .mockReturnValueOnce({})
+          .mockReturnValueOnce({
+            profile: { result: { metricsEnabled: false } },
+          }),
+      };
+      enableNavTiming(storeMock as unknown as Store);
+      callbackFromApp();
+      expect(unsubscribe).not.toHaveBeenCalled();
+      callbackFromApp();
+
+      expect(NavTiming.observeNavigationTiming).not.toHaveBeenCalled();
+      expect(unsubscribe).not.toHaveBeenCalled();
+    });
+
+    it('should call observeNavigationTiming when metrics collection is enabled, then unsubscribe', () => {
+      const storeMock = {
+        subscribe: (cb: Function) => {
+          callbackFromApp = cb;
+          return unsubscribe;
+        },
+        getState: jest
+          .fn()
+          .mockReturnValueOnce({})
+          .mockReturnValueOnce({
+            profile: { result: { metricsEnabled: true } },
+          }),
+      };
+      enableNavTiming(storeMock as unknown as Store);
+      callbackFromApp();
+      expect(unsubscribe).not.toHaveBeenCalled();
+      callbackFromApp();
+
+      expect(NavTiming.observeNavigationTiming).toHaveBeenCalledWith(
+        '/navigation-timing'
+      );
+      expect(unsubscribe).toHaveBeenCalled();
+    });
+  });
 
   const Subject = ({
     config,
@@ -119,6 +172,7 @@ describe('App', () => {
     } = defaultAppContextValue();
     return (
       <App
+        accessToken={null}
         {...{
           store: createAppStore(initialState, storeEnhancers),
           config: { ...defaultConfig, ...(config || {}) },
@@ -133,9 +187,14 @@ describe('App', () => {
           // HACK: Override BrowserRouter dynamically, because mocking
           // window.location.href changes seems not currently
           // supported in the JSDOM environment we're using
-          routerOverride: () => ({ children }: { children: ReactNode }) => (
-            <MemoryRouter initialEntries={[appPath]}>{children}</MemoryRouter>
-          ),
+          routerOverride:
+            () =>
+            ({ children }: { children: ReactNode }) =>
+              (
+                <MemoryRouter initialEntries={[appPath]}>
+                  {children}
+                </MemoryRouter>
+              ),
         }}
       />
     );

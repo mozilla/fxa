@@ -1,11 +1,14 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
 import PlanDetails from './index';
+import { Profile } from '../../store/types';
 
-import { defaultAppContext } from '../../lib/AppContext';
-
-const userProfile = {
+const userProfile: Profile = {
   avatar: 'http://placekitten.com/256/256',
   displayName: 'Foxy77',
   email: 'foxy@firefox.com',
@@ -14,6 +17,7 @@ const userProfile = {
   locale: 'en-US',
   twoFactorAuthentication: false,
   uid: 'UIDSTRINGHERE',
+  metricsEnabled: true,
 };
 
 const selectedPlan = {

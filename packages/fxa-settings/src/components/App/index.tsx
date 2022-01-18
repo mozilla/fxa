@@ -35,9 +35,14 @@ export const App = ({ flowQueryParams, navigatorLanguages }: AppProps) => {
   const { metricsEnabled } = useAccount();
 
   useEffect(() => {
-    config.metrics.navTiming.enabled &&
+    if (config.metrics.navTiming.enabled && metricsEnabled) {
       observeNavigationTiming(config.metrics.navTiming.endpoint);
-  });
+    }
+  }, [
+    metricsEnabled,
+    config.metrics.navTiming.enabled,
+    config.metrics.navTiming.endpoint,
+  ]);
 
   const { loading, error } = useInitialState();
   useEffect(() => {
