@@ -86,6 +86,7 @@ export class StripeHandler {
     priceId: string
   ) {
     let promotionCode: Stripe.PromotionCode | undefined;
+
     if (promotionCodeFromRequest) {
       promotionCode = await this.stripeHelper.findValidPromoCode(
         promotionCodeFromRequest,
@@ -418,6 +419,22 @@ export class StripeHandler {
       priceId,
     });
     return stripeInvoiceToInvoicePreviewDTO(previewInvoice);
+  }
+
+  async retrieveCouponDetails(request: AuthRequest): Promise<any> {
+    await this.customs.checkIpOnly(request, 'previewInvoice');
+    const { promotionCode, priceId } = request.payload as Record<
+      string,
+      string
+    >;
+    const country = request.app.geo.location?.country || 'US';
+    const couponDetails = this.stripeHelper.retrieveCouponDetails({
+      country,
+      priceId,
+      promotionCode,
+    });
+
+    return couponDetails;
   }
 
   /**
@@ -841,9 +858,9 @@ export const stripeRoutes = (
       path: '/oauth/subscriptions/invoice/preview',
       options: {
         auth: false,
-        response: {
-          schema: invoiceDTO.invoicePreviewSchema as any,
-        },
+        // response: {
+        //   schema: invoiceDTO.invoicePreviewSchema as any,
+        // },
         validate: {
           payload: {
             priceId: validators.subscriptionsPlanId.required(),
@@ -851,7 +868,8 @@ export const stripeRoutes = (
           },
         },
       },
-      handler: (request: AuthRequest) => stripeHandler.previewInvoice(request),
+      handler: (request: AuthRequest) =>
+        stripeHandler.retrieveCouponDetails(request),
     },
     {
       method: 'POST',

@@ -631,7 +631,7 @@ export class StripeHelper {
     const nowSecs = Date.now() / 1000;
 
     // Determine if code exists, is active, and has not expired.
-    const promotionCode = await this.findPromoCodeByCode(code);
+    const promotionCode = await this.findPromoCodeByCode(code, true);
     if (
       !promotionCode ||
       (promotionCode.expires_at && promotionCode.expires_at < nowSecs)
@@ -645,6 +645,118 @@ export class StripeHelper {
     }
 
     // Is the coupon valid for this price?
+    const planContainsPromo = await this.checkPromotionCodeForPlan(
+      code,
+      priceId
+    );
+    if (!planContainsPromo) {
+      return;
+    }
+
+    return promotionCode;
+  }
+
+  async retrieveCouponDetails({
+    country,
+    priceId,
+    promotionCode,
+  }: {
+    country: string;
+    priceId: string;
+    promotionCode: string;
+  }) {
+    try {
+      const stripePromotionCode = await this.retrievePromotionCodeForPlan(
+        promotionCode,
+        priceId
+      );
+
+      if (stripePromotionCode?.coupon.id) {
+        let invoice: Stripe.Invoice | undefined = undefined;
+        const stripeCoupon = await this.getCoupon(
+          stripePromotionCode?.coupon.id
+        );
+        try {
+          invoice = await this.previewInvoice({
+            country,
+            priceId,
+            promotionCode,
+          });
+        } catch {
+          // do nothing - the invoice may have thrown an invalidPromoCode error due to the code now being invalid and therefore no discount
+        }
+
+        const couponDetails: {
+          promotionCode: string;
+          type: string;
+          valid: boolean;
+          discountAmount?: number;
+          expired?: boolean;
+          maximallyRedeemed?: boolean;
+        } = {
+          promotionCode: promotionCode,
+          type: stripeCoupon.duration,
+          valid: false,
+        };
+
+        if (invoice?.discount && invoice?.total_discount_amounts) {
+          couponDetails.discountAmount =
+            invoice.total_discount_amounts[0].amount;
+        }
+
+        if (stripeCoupon.redeem_by) {
+          const expiry = new Date(stripeCoupon.redeem_by * 1000);
+          const now = new Date();
+          couponDetails.expired = now > expiry;
+        }
+
+        if (stripeCoupon.max_redemptions) {
+          couponDetails.maximallyRedeemed =
+            stripeCoupon.times_redeemed >= stripeCoupon.max_redemptions;
+        }
+
+        if (
+          couponDetails.discountAmount &&
+          !couponDetails.expired &&
+          !couponDetails.maximallyRedeemed &&
+          stripePromotionCode.active
+        ) {
+          couponDetails.valid = true;
+        }
+
+        return couponDetails;
+      } else {
+        throw error.invalidPromoCode(promotionCode);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async retrievePromotionCodeForPlan(
+    code: string,
+    priceId: string
+  ): Promise<Stripe.PromotionCode | undefined> {
+    const promotionCode = await this.findPromoCodeByCode(code, undefined);
+    if (!promotionCode) {
+      return;
+    }
+
+    const planContainsPromo = await this.checkPromotionCodeForPlan(
+      code,
+      priceId
+    );
+    if (!planContainsPromo) {
+      return;
+    }
+
+    return promotionCode;
+  }
+
+  async checkPromotionCodeForPlan(
+    code: string,
+    priceId: string
+  ): Promise<boolean> {
     const price = await this.findPlanById(priceId);
     const validPromotionCodes: string[] = [];
     if (
@@ -667,22 +779,20 @@ export class StripeHelper {
           .map((c) => c.trim())
       );
     }
-    if (!validPromotionCodes.includes(code)) {
-      return;
-    }
 
-    return promotionCode;
+    return validPromotionCodes.includes(code);
   }
 
   /**
-   * Queries Stripe for active promotion codes and returns a matching one if
+   * Queries Stripe for promotion codes and returns a matching one if
    * found.
    */
   async findPromoCodeByCode(
-    code: string
+    code: string,
+    active?: boolean
   ): Promise<Stripe.PromotionCode | undefined> {
     const promoCodes = await this.stripe.promotionCodes.list({
-      active: true,
+      active: active,
       code,
     });
     return promoCodes.data.find((c) => c.code === code);
