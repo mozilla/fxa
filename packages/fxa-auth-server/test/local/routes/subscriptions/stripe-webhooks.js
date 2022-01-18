@@ -205,7 +205,11 @@ describe('StripeWebhookHandler', () => {
         }
       };
 
-      const itOnlyCallsThisHandler = (expectedHandlerName, event) =>
+      const itOnlyCallsThisHandler = (
+        expectedHandlerName,
+        event,
+        expectSentry = false
+      ) =>
         it(`only calls ${expectedHandlerName}`, async () => {
           const createdEvent = deepCopy(event);
           StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
@@ -213,13 +217,21 @@ describe('StripeWebhookHandler', () => {
           );
           await StripeWebhookHandlerInstance.handleWebhookEvent(request);
           assertNamedHandlerCalled(expectedHandlerName);
-          assert.isTrue(
-            StripeWebhookHandlerInstance.stripeHelper.expandResource.calledOnce
-          );
-          assert.isTrue(
-            scopeContextSpy.notCalled,
-            'Expected to not call Sentry'
-          );
+          if (expectSentry) {
+            assert.isFalse(
+              scopeContextSpy.notCalled,
+              'Expected to call Sentry'
+            );
+          } else {
+            assert.isTrue(
+              scopeContextSpy.notCalled,
+              'Expected to not call Sentry'
+            );
+            assert.isTrue(
+              StripeWebhookHandlerInstance.stripeHelper.expandResource
+                .calledOnce
+            );
+          }
         });
 
       describe('ignorable errors', () => {
@@ -268,6 +280,15 @@ describe('StripeWebhookHandler', () => {
           data: { object: { id: 'coupon_123', object: 'coupon' } },
           type: 'coupon.created',
         });
+
+        itOnlyCallsThisHandler(
+          'handleCouponEvent',
+          {
+            data: { object: { id: 'coupon_123' } },
+            type: 'coupon.created',
+          },
+          true
+        );
       });
 
       describe('when the event.type is coupon.updated', () => {
