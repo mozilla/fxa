@@ -1,3 +1,9 @@
+## 1.223.3
+
+### New features
+
+- auth: add one-off script to update customer locations in Stripe (#11628) ([04f762c27](https://github.com/mozilla/fxa/commit/04f762c27))
+
 ## 1.223.2
 
 ### New features
