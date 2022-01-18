@@ -105,9 +105,14 @@ export const TermsAndPrivacy = ({
   ) : null;
 
   return (
-    <div className="terms" data-testid="terms-and-privacy-component">
+    <div
+      className="terms leading-5 clear-both text-center text-xs "
+      data-testid="terms-and-privacy-component"
+    >
       {FXALegal}
-      <p className="legal-heading">{plan?.product_name}</p>
+      <p className="legal-heading font-semibold text-neutral-700">
+        {plan?.product_name}
+      </p>
       {productLegalBlurb}
     </div>
   );
