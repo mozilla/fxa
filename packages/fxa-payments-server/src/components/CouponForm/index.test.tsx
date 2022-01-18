@@ -1,14 +1,39 @@
 import React from 'react';
-import { render, cleanup, fireEvent, act } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  fireEvent,
+  act,
+  waitFor,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import CouponForm from './index';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
-import { SELECTED_PLAN } from '../../lib/mock-data';
+import {
+  INVOICE_PREVIEW_WITHOUT_DISCOUNT,
+  SELECTED_PLAN,
+} from '../../lib/mock-data';
 import waitForExpect from 'wait-for-expect';
+
+jest.mock('../../lib/apiClient', () => {
+  return {
+    ...jest.requireActual('../../lib/apiClient'),
+    apiInvoicePreview: jest.fn(),
+  };
+});
+
+// eslint-disable-next-line import/first
+import { apiInvoicePreview } from '../../lib/apiClient';
+
+beforeEach(() => {
+  (apiInvoicePreview as jest.Mock)
+    .mockClear()
+    .mockResolvedValue(INVOICE_PREVIEW_WITHOUT_DISCOUNT);
+});
 
 afterEach(cleanup);
 
-describe('CouponForm', () => {
+describe.only('CouponForm', () => {
   it('renders as expected', () => {
     const subject = () => {
       return render(
@@ -42,8 +67,17 @@ describe('CouponForm', () => {
     fireEvent.change(getByTestId('coupon-input'), { target: { value: 'a' } });
     fireEvent.click(getByTestId('coupon-button'));
 
+    console.log('here wego');
+
     await waitForExpect(() =>
       expect(queryByTestId('coupon-error')).toBeInTheDocument()
+    );
+
+    const tester = getByTestId('coupon-error');
+    console.log({ tester });
+
+    expect(tester).toHaveTextContent(
+      'An error occurred processing the coupon. Please try again.'
     );
   });
 

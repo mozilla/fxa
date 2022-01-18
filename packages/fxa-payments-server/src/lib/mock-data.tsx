@@ -236,3 +236,30 @@ export const IAP_APPLE_SUBSCRIPTION = {
   product_id: 'prod_123',
   product_name: 'Cooking with Foxkeh',
 };
+
+export const INVOICE_PREVIEW_WITHOUT_DISCOUNT = {
+  line_items: {
+    amount: 500,
+    currency: 'usd',
+    id: 'plan_GqM9N64ksvxaVk',
+    name: '1 x 123Done Pro (at $5.00 / month)',
+  },
+  subtotal: 500,
+  total: 500,
+};
+
+export const INVOICE_PREVIEW_WITH_DISCOUNT = {
+  line_items: {
+    amount: 500,
+    currency: 'usd',
+    id: 'plan_GqM9N64ksvxaVk',
+    name: '1 x 123Done Pro (at $5.00 / month)',
+  },
+  subtotal: 500,
+  total: 450,
+  discount: {
+    amount: 50,
+    amount_off: null,
+    percent_off: 10,
+  },
+};

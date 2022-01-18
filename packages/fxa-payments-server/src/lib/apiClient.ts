@@ -404,6 +404,8 @@ export async function apiInvoicePreview(params: {
     }
 
     Amplitude.coupon_FULFILLED(metricsOptions);
+
+    console.log(result);
     return result;
   } catch (error) {
     Amplitude.coupon_REJECTED({
