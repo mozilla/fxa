@@ -858,13 +858,27 @@ export const stripeRoutes = (
       path: '/oauth/subscriptions/invoice/preview',
       options: {
         auth: false,
-        // response: {
-        //   schema: invoiceDTO.invoicePreviewSchema as any,
-        // },
+        response: {
+          schema: invoiceDTO.invoicePreviewSchema as any,
+        },
         validate: {
           payload: {
             priceId: validators.subscriptionsPlanId.required(),
             promotionCode: isA.string().optional(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) => stripeHandler.previewInvoice(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/coupon',
+      options: {
+        auth: false,
+        validate: {
+          payload: {
+            priceId: validators.subscriptionsPlanId.required(),
+            promotionCode: isA.string().required(),
           },
         },
       },
