@@ -67,8 +67,10 @@ const customer: Customer = {
 const productUrl = 'https://mozilla.org';
 
 const coupon: Coupon = {
-  amount: 200,
+  discountAmount: 200,
   promotionCode: 'TEST',
+  type: '',
+  valid: true,
 };
 
 storiesOf('components/PaymentConfirmation', module)

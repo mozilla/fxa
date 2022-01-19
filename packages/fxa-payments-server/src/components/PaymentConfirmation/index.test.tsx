@@ -102,8 +102,10 @@ const paypalCustomer: Customer = {
 };
 
 const coupon: Coupon = {
-  amount: 200,
+  discountAmount: 200,
   promotionCode: 'TEST',
+  type: '',
+  valid: true,
 };
 
 afterEach(cleanup);

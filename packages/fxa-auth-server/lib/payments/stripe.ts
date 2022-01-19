@@ -656,6 +656,16 @@ export class StripeHelper {
     return promotionCode;
   }
 
+  /**
+   * Retrieve details about a coupon for a given priceId and possible
+   * promotion code for a customer in the provided country. Will also
+   * provide the discount amount for the subscription via
+   * previewInvoice return value. Coupon details are returned
+   * regardless of current validity (expiry, redeemability).
+   *
+   * Throws invalidPromoCode error if the promotion code does not
+   * exist for the provided priceId.
+   */
   async retrieveCouponDetails({
     country,
     priceId,
@@ -733,6 +743,9 @@ export class StripeHelper {
     }
   }
 
+  /**
+   * Retrieves the stripe promotionCode object for a plan regardless of current validity.
+   */
   async retrievePromotionCodeForPlan(
     code: string,
     priceId: string
@@ -753,6 +766,9 @@ export class StripeHelper {
     return promotionCode;
   }
 
+  /**
+   * Checks plan meta-data to see if promotion code applies.
+   */
   async checkPromotionCodeForPlan(
     code: string,
     priceId: string

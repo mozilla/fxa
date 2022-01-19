@@ -193,7 +193,12 @@ describe('PlanDetails', () => {
         },
       });
 
-      const coupon: Coupon = { amount: 200, promotionCode: '' };
+      const coupon: Coupon = {
+        discountAmount: 200,
+        promotionCode: '',
+        type: '',
+        valid: true,
+      };
       const props = {
         ...{
           profile: userProfile,

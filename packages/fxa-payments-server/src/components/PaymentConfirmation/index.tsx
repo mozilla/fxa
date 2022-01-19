@@ -55,7 +55,10 @@ export const PaymentConfirmation = ({
     day: 'numeric',
   });
 
-  const finalAmount = coupon && amount ? amount - coupon.amount : amount;
+  const finalAmount =
+    coupon && coupon.discountAmount && amount
+      ? amount - coupon.discountAmount
+      : amount;
   const planPrice = formatPlanPricing(
     finalAmount,
     currency,

@@ -16,7 +16,6 @@ import { APIError } from '../../../lib/apiClient';
 import { PickPartial } from '../../../lib/types';
 import { SignInLayout } from '../../../components/AppLayout';
 import SubscriptionCreate, { SubscriptionCreateProps } from './index';
-import { Coupon } from '../../../lib/Coupon';
 
 // TODO: Move to some shared lib?
 const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));

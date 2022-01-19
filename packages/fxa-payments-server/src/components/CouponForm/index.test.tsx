@@ -49,8 +49,10 @@ describe('CouponForm', () => {
 
   it('shows the coupon code and hides the input when a coupon is used', () => {
     const coupon: Coupon = {
-      amount: 200,
+      discountAmount: 200,
       promotionCode: '',
+      type: '',
+      valid: true,
     };
     const subject = () => {
       return render(
