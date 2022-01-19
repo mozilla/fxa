@@ -13,7 +13,7 @@
     <% if (locals.iosUrl) { %>
       <mj-column>
         <mj-image
-          css-class="app-badge-ios"
+          css-class="app-badge app-badge-ios"
           href="<%- iosUrl %>"
           src="https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png"
           alt="Download Firefox on the App Store"
@@ -24,7 +24,7 @@
     <% if (locals.androidUrl) { %>
       <mj-column>
         <mj-image
-          css-class="app-badge-android"
+          css-class="app-badge app-badge-android"
           href="<%- androidUrl %>"
           src="https://accounts-static.cdn.mozilla.net/product-icons/google-play.png"
           alt="Download Firefox on Google Play"

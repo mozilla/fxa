@@ -1,5 +1,5 @@
-subplat-header-firefox-logo = <img data-l10n-name="fxa-logo-firefox" alt="Firefox logo">
-subplat-footer-mozilla-logo = <img data-l10n-name="mozilla-logo" alt="Mozilla logo">
+subplat-header-firefox-logo = <img data-l10n-name="fxa-logo-firefox" alt="{ -brand-firefox } logo">
+subplat-footer-mozilla-logo = <img data-l10n-name="mozilla-logo" alt="{ -brand-mozilla } logo">
 subplat-automated-email = This is an automated email; if you received it in error, no action is required.
 subplat-privacy-notice = Privacy notice
 subplat-privacy-plaintext = Privacy notice:
