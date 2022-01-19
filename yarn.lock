@@ -37271,7 +37271,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"telejson@npm:^5.3.2":
+"telejson@npm:^5.3.2, telejson@npm:^5.3.3":
   version: 5.3.3
   resolution: "telejson@npm:5.3.3"
   dependencies:
