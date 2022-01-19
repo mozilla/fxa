@@ -599,6 +599,73 @@ describe('deleteAccountIfUnverified', () => {
     assert.isTrue(failed);
     sinon.assert.notCalled(mockDB.deleteAccount);
   });
+  it('should delete a Stripe customer with no subscriptions', async () => {
+    const mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(false),
+      removeCustomer: sinon.stub().resolves(),
+    };
+    const accountHandler = new AccountHandler(
+      mockLog,
+      mockDB,
+      mockMailer,
+      mockPassword,
+      mockConfig,
+      mockCustoms,
+      mockSigninUtils,
+      mockSignupUtils,
+      mockPush,
+      mockVerificationReminders,
+      mockSubscriptionAccountReminders,
+      mockOauth,
+      mockStripeHelper
+    );
+    await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
+    sinon.assert.calledOnceWithExactly(
+      mockStripeHelper.removeCustomer,
+      emailRecord.uid,
+      emailRecord.email
+    );
+  });
+  it('should report to Sentry when a Stripe customer deletion fails', async () => {
+    const stripeError = new Error('no good');
+    const mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(false),
+      removeCustomer: sinon.stub().throws(stripeError),
+    };
+    const sentryModule = require('../../../lib/sentry');
+    sinon.stub(sentryModule, 'reportSentryError').returns({});
+    const accountHandler = new AccountHandler(
+      mockLog,
+      mockDB,
+      mockMailer,
+      mockPassword,
+      mockConfig,
+      mockCustoms,
+      mockSigninUtils,
+      mockSignupUtils,
+      mockPush,
+      mockVerificationReminders,
+      mockSubscriptionAccountReminders,
+      mockOauth,
+      mockStripeHelper
+    );
+    try {
+      await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.removeCustomer,
+        emailRecord.uid,
+        emailRecord.email
+      );
+      sinon.assert.calledOnceWithExactly(
+        sentryModule.reportSentryError,
+        stripeError,
+        mockRequest
+      );
+    } catch (e) {
+      assert.fail('should not have re-thrown');
+    }
+    sentryModule.reportSentryError.restore();
+  });
 });
 
 describe('/account/create', () => {
