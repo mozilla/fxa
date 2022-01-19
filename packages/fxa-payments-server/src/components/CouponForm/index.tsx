@@ -78,7 +78,9 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
       setHasCoupon(true);
       setCoupon({
         promotionCode: promotionCode,
-        amount,
+        discountAmount: amount,
+        type: '',
+        valid: true,
       });
     } catch (err) {
       setCoupon(undefined);
