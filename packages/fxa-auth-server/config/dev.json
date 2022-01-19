@@ -475,7 +475,6 @@
       "subscriptionDowngrade",
       "subscriptionFailedPaymentsCancellation",
       "subscriptionFirstInvoice",
-      "subscriptionFirstInvoiceDiscount",
       "subscriptionPaymentFailed",
       "subscriptionPaymentProviderCancelled",
       "subscriptionReactivation",
