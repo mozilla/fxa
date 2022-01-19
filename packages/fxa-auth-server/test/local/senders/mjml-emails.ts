@@ -41,7 +41,7 @@ const productMetadata = {
   'product:privacyNoticeDownloadURL': SUBSCRIPTION_PRIVACY_URL,
 };
 
-const locals = {
+const MESSAGE = {
   // Note: acceptLanguage is not just a single locale
   acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
   appStoreLink: 'https://example.com/app-store',
@@ -117,7 +117,7 @@ const locals = {
   ],
 };
 
-const MESSAGE = locals;
+// const MESSAGE = locals;
 
 const MESSAGE_FORMATTED = {
   // Note: Intl.NumberFormat rounds 1/10 cent up
