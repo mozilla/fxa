@@ -196,6 +196,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-first', 'support')) },
       { test: 'include', expected: 'alt="Firefox logo"' },
       { test: 'include', expected: 'alt="Devices"' },
+      { test: 'include', expected: `alt="Download Firefox on the App Store"` },
+      { test: 'include', expected: `alt="Download Firefox on Google Play"` },
       { test: 'notInclude', expected: 'alt="Sync devices"' },
       { test: 'notInclude', expected: 'alt="Mozilla logo"' },
       { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
