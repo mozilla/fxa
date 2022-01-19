@@ -10,12 +10,19 @@ import { mockAppContext, renderWithRouter } from '../../models/mocks';
 import { PageDeleteAccount } from '.';
 import { typeByTestIdFn } from '../../lib/test-utils';
 import { Account, AppContext } from '../../models';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+
+jest.mock('../../lib/metrics', () => ({
+  logViewEvent: jest.fn(),
+  usePageViewEvent: jest.fn(),
+}));
 
 const account = {
   primaryEmail: {
     email: 'rfeeley@mozilla.com',
   },
   uid: '0123456789abcdef',
+  metricsEnabled: true,
 } as unknown as Account;
 
 window.URL.createObjectURL = jest.fn();
@@ -30,6 +37,10 @@ const advanceStep = async () => {
 };
 
 describe('PageDeleteAccount', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders as expected', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
@@ -94,7 +105,7 @@ describe('PageDeleteAccount', () => {
     expect(screen.getByTestId('delete-account-button')).toBeEnabled();
   });
 
-  it('Gets valid response on submit', async () => {
+  it('Gets valid response on submit and emits metrics events', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <PageDeleteAccount />
@@ -103,6 +114,13 @@ describe('PageDeleteAccount', () => {
 
     await advanceStep();
     await typeByTestIdFn('delete-account-confirm-input-field')('hunter67');
+
+    // TODO: more extensive metrics tests
+    expect(usePageViewEvent).toHaveBeenCalledWith('settings.delete-account');
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'flow.settings.account-delete',
+      'terms-checked.success'
+    );
 
     const deleteAccountButton = screen.getByTestId('delete-account-button');
     expect(deleteAccountButton).toBeEnabled();
