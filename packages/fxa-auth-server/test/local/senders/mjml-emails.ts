@@ -117,8 +117,6 @@ const MESSAGE = {
   ],
 };
 
-// const MESSAGE = locals;
-
 const MESSAGE_FORMATTED = {
   // Note: Intl.NumberFormat rounds 1/10 cent up
   invoiceTotal: '€10,000.00',
