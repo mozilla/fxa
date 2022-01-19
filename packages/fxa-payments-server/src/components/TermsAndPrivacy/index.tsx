@@ -11,8 +11,6 @@ import { Plan } from '../../store/types';
 import { AppContext } from '../../lib/AppContext';
 import { legalDocsRedirectUrl } from '../../lib/formats';
 
-import './index.scss';
-
 export type TermsAndPrivacyProps = {
   plan: Plan;
   showFXALinks?: boolean;
@@ -110,9 +108,7 @@ export const TermsAndPrivacy = ({
       data-testid="terms-and-privacy-component"
     >
       {FXALegal}
-      <p className="legal-heading font-semibold text-neutral-700">
-        {plan?.product_name}
-      </p>
+      <p className="legal-heading">{plan?.product_name}</p>
       {productLegalBlurb}
     </div>
   );

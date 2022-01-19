@@ -9736,6 +9736,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/postcss-import@npm:^12":
+  version: 12.0.1
+  resolution: "@types/postcss-import@npm:12.0.1"
+  dependencies:
+    postcss: ^7.0.27
+  checksum: 471b482b068b1fd9e3f026fafde2d8a22a683c5f9723027122aba4bb3eae8f70180aa44e1dff30651fac94e641e49fbc6d20e2b496c27d363dbff3abd8aa44ff
+  languageName: node
+  linkType: hard
+
 "@types/prettier@npm:2.3.0":
   version: 2.3.0
   resolution: "@types/prettier@npm:2.3.0"
@@ -22060,6 +22069,7 @@ fsevents@~2.1.1:
     "@types/jsdom": ^16.2.11
     "@types/nock": ^11.1.0
     "@types/node": ^16.11.3
+    "@types/postcss-import": ^12
     "@types/react": ^17.0.14
     "@types/react-document-title": ^2.0.5
     "@types/react-dom": ^17.0.9
@@ -22125,6 +22135,7 @@ fsevents@~2.1.1:
     photon-colors: 1.0.3
     pm2: ^5.1.2
     postcss-cli: 7.1.1
+    postcss-import: 12.0.1
     prettier: ^2.3.1
     react: ^16.12.0
     react-document-title: ^2.0.3
@@ -34006,7 +34017,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss-import@npm:^12.0.1":
+"postcss-import@npm:12.0.1, postcss-import@npm:^12.0.1":
   version: 12.0.1
   resolution: "postcss-import@npm:12.0.1"
   dependencies:

@@ -1,5 +1,6 @@
 @import "~normalize.css";
 @import "~jquery-modal/jquery.modal";
+@import "./styles/tailwind.out.scss";
 @import "../../fxa-content-server/app/styles/variables";
 @import "../../fxa-content-server/app/styles/mixins";
 @import "../../fxa-content-server/app/styles/breakpoints";
@@ -17,7 +18,6 @@
 @import "../../fxa-content-server/app/styles/state";
 @import "./styles/mixins";
 @import "./styles/variables";
-@import "./styles/tailwind.out";
 
 // HACK: We render into <div id="root"> rather than <body>, so try to minimize
 // its impact on layout & styles

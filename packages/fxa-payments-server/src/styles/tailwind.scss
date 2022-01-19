@@ -1,0 +1,18 @@
+/* @tailwind base; // Removing for now, however we should strongly consider re-enabling once more completely migrating components to TailwindCSS*/
+/* @tailwind base; */
+@tailwind components;
+@tailwind utilities;
+
+.terms {
+  a {
+    @apply font-normal underline;
+  }
+}
+
+.legal-heading {
+  @apply font-semibold text-grey-500;
+}
+
+.payment-error .legal-heading {
+  @apply mt-5;
+}
