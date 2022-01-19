@@ -39,7 +39,7 @@
     "@nestjs/platform-express": "^8.2.5",
     "@sentry/integrations": "^6.16.1",
     "@sentry/node": "^6.16.1",
-    "apollo-server": "^2.25.3",
+    "apollo-server": "^3.6.2",
     "apollo-server-express": "^2.25.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
