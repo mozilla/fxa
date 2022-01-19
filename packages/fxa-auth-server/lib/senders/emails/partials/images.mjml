@@ -32,6 +32,7 @@
 
   <mj-selector path=".app-badge-android a">
     <mj-html-attribute name="data-l10n-id">body-android-badge</mj-html-attribute>
+    <mj-html-attribute name="data-l10n-args"><%= JSON.stringify({productName}) %></mj-html-attribute>
   </mj-selector>
   <mj-selector path=".app-badge-android img">
     <mj-html-attribute name="data-l10n-name">google-play-badge</mj-html-attribute>
@@ -39,6 +40,7 @@
 
   <mj-selector path=".app-badge-ios a">
     <mj-html-attribute name="data-l10n-id">body-ios-badge</mj-html-attribute>
+    <mj-html-attribute name="data-l10n-args"><%= JSON.stringify({productName}) %></mj-html-attribute>
   </mj-selector>
   <mj-selector path=".app-badge-ios img">
     <mj-html-attribute name="data-l10n-name">apple-app-badge</mj-html-attribute>
