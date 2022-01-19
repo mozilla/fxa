@@ -1741,14 +1741,6 @@ describe('lib/senders/mjml-emails:', () => {
     }
   });
 
-  it('mailer and emailService are not mocked', () => {
-    assert.isObject(mailer.mailer);
-    assert.isFunction(mailer.mailer.sendMail);
-    assert.isObject(mailer.emailService);
-    assert.isFunction(mailer.emailService.sendMail);
-    assert.notEqual(mailer.mailer, mailer.emailService);
-  });
-
   for (const [type, test, opts = {}] of TESTS) {
     it(`declarative test for ${type}`, async () => {
       mailer.mailer.sendMail = stubSendMail((message: Record<any, any>) => {
@@ -1948,152 +1940,6 @@ describe('lib/senders/mjml-emails:', () => {
       });
     });
   });
-
-  describe('sends request to the right mailer', () => {
-    beforeEach(() => {
-      sinon.stub(mailer.mailer, 'sendMail').callsFake((config, cb) => {
-        cb(null, { resp: 'whatevs' });
-      });
-      sinon.stub(mailer.emailService, 'sendMail').callsFake((config, cb) => {
-        cb(null, { resp: 'whatevs' });
-      });
-    });
-
-    it('correctly handles multiple email addresses from selectEmailServices', () => {
-      const message = {
-        email: 'foo@example.com',
-        ccEmails: ['bar@example.com', 'baz@example.com'],
-        subject: 'subject',
-        template: 'verifyLogin',
-        templateValues: {
-          action: 'action',
-          clientName: 'clientName',
-          device: 'device',
-          email: 'emailservice.foo@restmail.net',
-          ip: 'ip',
-          link: 'link',
-          location: 'location',
-          oneClickLink: 'oneClickLink',
-          passwordChangeLink: 'passwordChangeLink',
-          passwordChangeLinkAttributes: 'passwordChangeLinkAttributes',
-          privacyUrl: 'privacyUrl',
-          subject: 'subject',
-          supportLinkAttributes: 'supportLinkAttributes',
-          supportUrl: 'supportUrl',
-          timestamp: 'timestamp',
-        },
-      };
-      mailer.selectEmailServices = sinon.spy(() =>
-        Promise.resolve([
-          {
-            emailAddresses: [message.email, ...message.ccEmails],
-            emailService: 'fxa-auth-server',
-            emailSender: 'ses',
-            mailer: mailer.mailer,
-          },
-        ])
-      );
-
-      return mailer.send(message).then(() => {
-        assert.equal(mailer.selectEmailServices.callCount, 1);
-        assert.equal(mailer.mailer.sendMail.callCount, 1);
-        assert.equal(mailer.emailService.sendMail.callCount, 0);
-
-        const args = mailer.mailer.sendMail.args[0];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'foo@example.com');
-        assert.deepEqual(args[0].cc, ['bar@example.com', 'baz@example.com']);
-
-        const headers = args[0].headers;
-        assert.equal(headers['X-Email-Service'], 'fxa-auth-server');
-        assert.equal(headers['X-Email-Sender'], 'ses');
-      });
-    });
-
-    it('correctly handles multiple services from selectEmailServices', () => {
-      const message = {
-        email: 'foo@example.com',
-        ccEmails: ['bar@example.com', 'baz@example.com'],
-        subject: 'subject',
-        template: 'verifyLogin',
-        templateValues: {
-          action: 'action',
-          clientName: 'clientName',
-          device: 'device',
-          email: 'emailservice.foo@restmail.net',
-          ip: 'ip',
-          link: 'link',
-          location: 'location',
-          oneClickLink: 'oneClickLink',
-          passwordChangeLink: 'passwordChangeLink',
-          passwordChangeLinkAttributes: 'passwordChangeLinkAttributes',
-          privacyUrl: 'privacyUrl',
-          subject: 'subject',
-          supportLinkAttributes: 'supportLinkAttributes',
-          supportUrl: 'supportUrl',
-          timestamp: 'timestamp',
-        },
-      };
-      mailer.selectEmailServices = sinon.spy(() =>
-        Promise.resolve([
-          {
-            emailAddresses: [message.email],
-            emailService: 'fxa-email-service',
-            emailSender: 'sendgrid',
-            mailer: mailer.emailService,
-          },
-          {
-            emailAddresses: message.ccEmails.slice(0, 1),
-            emailService: 'fxa-email-service',
-            emailSender: 'ses',
-            mailer: mailer.emailService,
-          },
-          {
-            emailAddresses: message.ccEmails.slice(1),
-            emailService: 'fxa-auth-server',
-            emailSender: 'ses',
-            mailer: mailer.mailer,
-          },
-        ])
-      );
-
-      return mailer.send(message).then(() => {
-        assert.equal(mailer.selectEmailServices.callCount, 1);
-        assert.equal(mailer.emailService.sendMail.callCount, 2);
-        assert.equal(mailer.mailer.sendMail.callCount, 1);
-
-        let args = mailer.emailService.sendMail.args[0];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'foo@example.com');
-        assert.equal(args[0].cc, undefined);
-        assert.equal(args[0].provider, 'sendgrid');
-
-        let headers = args[0].headers;
-        assert.equal(headers['X-Email-Service'], 'fxa-email-service');
-        assert.equal(headers['X-Email-Sender'], 'sendgrid');
-
-        args = mailer.emailService.sendMail.args[1];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'bar@example.com');
-        assert.equal(args[0].cc, undefined);
-        assert.equal(args[0].provider, 'ses');
-
-        headers = args[0].headers;
-        assert.equal(headers['X-Email-Service'], 'fxa-email-service');
-        assert.equal(headers['X-Email-Sender'], 'ses');
-
-        args = mailer.mailer.sendMail.args[0];
-        assert.equal(args.length, 2);
-        assert.equal(args[0].to, 'baz@example.com');
-        assert.equal(args[0].cc, undefined);
-        assert.equal(args[0].provider, undefined);
-
-        headers = args[0].headers;
-        assert.equal(headers['X-Email-Service'], 'fxa-auth-server');
-        assert.equal(headers['X-Email-Sender'], 'ses');
-      });
-    });
-  });
 });
 
 describe('mailer constructor:', () => {
@@ -2132,11 +1978,6 @@ describe('mailer constructor:', () => {
       'en',
       'wibble'
     );
-  });
-
-  it('mailer and emailService are both mocked', () => {
-    assert.equal(mailer.mailer, 'wibble');
-    assert.equal(mailer.emailService, 'wibble');
   });
 
   it('set properties on self from config correctly', () => {
