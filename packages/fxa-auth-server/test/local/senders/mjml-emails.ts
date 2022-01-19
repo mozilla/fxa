@@ -72,6 +72,7 @@ const MESSAGE = {
   uid: 'uid',
   unblockCode: 'AS6334PK',
   cardType: 'mastercard',
+  icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
   invoiceDate: new Date(1584747098816),
   invoiceLink:
     'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
@@ -92,6 +93,10 @@ const MESSAGE = {
   planInterval: 'day',
   planIntervalCount: 2,
   playStoreLink: 'https://example.com/play-store',
+  productIconURLNew:
+    'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
+  productIconURLOld:
+    'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
   productId: 'wibble',
   productMetadata,
   productName: 'Firefox Fortress',
@@ -189,6 +194,12 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'another device' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'cad-reminder-first', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-first', 'support')) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: 'alt="Devices"' },
+      { test: 'include', expected: `alt="Download Firefox on the App Store"` },
+      { test: 'include', expected: `alt="Download Firefox on Google Play"` },
+      { test: 'notInclude', expected: 'alt="Sync devices"' },
+      { test: 'notInclude', expected: 'alt="Mozilla logo"' },
       { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
     ]],
     ['text', [
@@ -218,6 +229,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'cad-reminder-second', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-second', 'support')) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: 'alt="Devices"' },
     ]],
     ['text', [
       { test: 'include', expected: 'Last reminder to sync devices!' },
@@ -244,6 +257,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'low-recovery-codes', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'low-recovery-codes', 'support')) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -273,6 +287,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-verified', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-verified', 'support')) },
       { test: 'include', expected: decodeUrl(config.smtp.firefoxDesktopUrl) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: 'alt="Devices"' },
     ]],
     ['text', [
       { test: 'include', expected: 'Firefox account verified. You’re almost there.' },
@@ -373,6 +389,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: 'alt="Sync devices"' },
+      { test: 'notInclude', expected: 'alt="Firefox logo"' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1056,6 +1074,11 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `already downloaded ${MESSAGE.productName}` },
       { test: 'include', expected: `Download ${MESSAGE.productName}` },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: `alt="Download ${MESSAGE.productName} on the App Store"` },
+      { test: 'include', expected: `alt="Download ${MESSAGE.productName} on Google Play"` },
+      { test: 'include', expected: 'alt="Mozilla logo"' },
+      { test: 'notInclude', expected: 'alt="Devices"'},
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1081,6 +1104,11 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: 'alt="Mozilla logo"' },
+      { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
+      { test: 'notInclude', expected: 'alt="Devices"' },
+      { test: 'notInclude', expected: 'alt="Sync Devices"' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1106,6 +1134,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'include', expected: `create a Firefox account password and download ${MESSAGE.productName}` },
+      { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1174,6 +1203,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
       { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'include', expected: `alt="${MESSAGE.productNameNew}"` },
+      { test: 'include', expected: `alt="${MESSAGE.productNameOld}"` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1198,6 +1229,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
       { test: 'include', expected: `billing period, which is 04/19/2020.` },
+      { test: 'notInclude', expected: `alt="${MESSAGE.productName}"`},
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
