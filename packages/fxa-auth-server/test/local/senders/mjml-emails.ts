@@ -196,11 +196,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-first', 'support')) },
       { test: 'include', expected: 'alt="Firefox logo"' },
       { test: 'include', expected: 'alt="Devices"' },
-      // FIXME: these tests fail as all email tests utilize the same testing parameters
-      //    (e.g, while productName does not exist for this email template, it does within the test
-      //    returns Download Firefox Fortress on the App Store as it believes it has a productName)
-      // { test: 'include', expected: `alt="Download Firefox on the App Store"` },
-      // { test: 'include', expected: `alt="Download Firefox on Google Play"` },
+      { test: 'include', expected: `alt="Download Firefox on the App Store"` },
+      { test: 'include', expected: `alt="Download Firefox on Google Play"` },
       { test: 'notInclude', expected: 'alt="Sync devices"' },
       { test: 'notInclude', expected: 'alt="Mozilla logo"' },
       { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
@@ -214,7 +211,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: config.smtp.iosUrl },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
-  ])],
+  ]),
+    {updateTemplateValues: x => (
+      {...x, productName: undefined})}],
 
   ['cadReminderSecondEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Final Reminder: Complete Sync Setup' }],
