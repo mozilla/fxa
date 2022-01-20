@@ -1070,6 +1070,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: MESSAGE.planDownloadURL },
       { test: 'include', expected: MESSAGE.appStoreLink },
       { test: 'include', expected: MESSAGE.playStoreLink },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'new-subscription', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'new-subscription', 'subscription-support')) },
@@ -1085,6 +1086,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: MESSAGE.planDownloadURL },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy') },
       { test: 'include', expected: configUrl('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configUrl('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
@@ -1102,6 +1104,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountDeletion }],
     ])],
     ['html', [
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
@@ -1117,6 +1120,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
@@ -1130,6 +1134,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support')) },
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
@@ -1141,6 +1146,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
@@ -1304,6 +1310,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
     ])],
     ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
@@ -1311,6 +1318,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ]),
@@ -1325,6 +1333,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
     ])],
     ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-expired', 'subscription-terms') },
       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
@@ -1332,6 +1341,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
