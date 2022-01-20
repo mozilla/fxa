@@ -2,6 +2,7 @@
   # License, v. 2.0. If a copy of the MPL was not distributed with this
   # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
+<% if (!locals.productName) { locals.productName = 'Firefox' %><% } %>
 <mj-html-attributes>
   <mj-selector path=".fxa-logo-firefox a">
     <mj-html-attribute name="data-l10n-id">subplat-header-firefox-logo</mj-html-attribute>
