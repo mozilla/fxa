@@ -23,6 +23,7 @@ import {
   StripeHelper,
   STRIPE_OBJECT_TYPE_TO_RESOURCE,
   SUBSCRIPTION_UPDATE_TYPES,
+  VALID_RESOURCE_TYPES,
 } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
@@ -79,8 +80,8 @@ export class StripeWebhookHandler extends StripeHandler {
       if (resourceType) {
         // Replace the object with the latest version if we support this object.
         event.data.object = await this.stripeHelper.expandResource(
-          resourceType,
-          stripeObject.id
+          stripeObject.id,
+          resourceType as typeof VALID_RESOURCE_TYPES[number]
         );
       } else {
         // We shouldn't be handling events that we can't fetch the latest version
