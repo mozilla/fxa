@@ -64,8 +64,23 @@ export class GoogleMapsService {
     if (status === Status.ZERO_RESULTS)
       throw new Error(`Could not find any results for address. (${address})`);
 
-    if (results.length > 1)
-      throw new Error(`Could not find unique results. (${address})`);
+    if (results.length > 1) {
+      const stateShortNames = results.map(
+        (result) =>
+          result.address_components.find((addressComponent) =>
+            addressComponent.types.includes(
+              PlaceType2.administrative_area_level_1
+            )
+          )?.short_name
+      );
+      // Check if the state short names match for each result
+      const states = new Set(stateShortNames);
+      if (states.size === 1) {
+        return results[0];
+      } else {
+        throw new Error(`Could not find unique results. (${address})`);
+      }
+    }
 
     return results[0];
   }
