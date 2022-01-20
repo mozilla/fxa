@@ -1,5 +1,23 @@
 # Change history
 
+## 1.224.0
+
+### New features
+
+- services: remove fxa-auth-db-mysql, fxa-email-event-proxy, and fxa-email-service ([50e124b51](https://github.com/mozilla/fxa/commit/50e124b51))
+- google: Add backend support for google auth (#11499) ([643c12606](https://github.com/mozilla/fxa/commit/643c12606))
+
+### Other changes
+
+- deps-dev: bump @nestjs/testing from 8.2.4 to 8.2.5 (#11639) ([22d0bc002](https://github.com/mozilla/fxa/commit/22d0bc002))
+- deps: bump ajv from 6.12.6 to 8.9.0 (#11640)" ([1417149bd](https://github.com/mozilla/fxa/commit/1417149bd))
+- deps: bump ajv from 6.12.6 to 8.9.0 (#11640) ([3b043eb56](https://github.com/mozilla/fxa/commit/3b043eb56))
+- deps: bump aws-sdk from 2.1048.0 to 2.1057.0 (#11634) ([dbc9376b2](https://github.com/mozilla/fxa/commit/dbc9376b2))
+- deps: bump @nestjs/config from 1.1.5 to 1.1.6 (#11583) ([f44aee4f6](https://github.com/mozilla/fxa/commit/f44aee4f6))
+- deps: switch from git to https for deps (#11587) ([c1f0a3682](https://github.com/mozilla/fxa/commit/c1f0a3682))
+- deps-dev: bump jest from 27.4.3 to 27.4.7 (#11551) ([43c4bdebd](https://github.com/mozilla/fxa/commit/43c4bdebd))
+- deps: bump apollo-server from 2.25.2 to 2.25.3 (#11515) ([a66139d08](https://github.com/mozilla/fxa/commit/a66139d08))
+
 ## 1.223.2
 
 ### Other changes

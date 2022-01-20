@@ -1,3 +1,14 @@
+## 1.224.0
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-actions from 6.3.12 to 6.4.12 (#11635) ([b686fd5a9](https://github.com/mozilla/fxa/commit/b686fd5a9))
+- deps-dev: bump @storybook/addon-links from 6.3.12 to 6.3.13 (#11621) ([79d0f2abc](https://github.com/mozilla/fxa/commit/79d0f2abc))
+- deps-dev: bump supertest from 6.1.6 to 6.2.1 (#11619) ([443b0b099](https://github.com/mozilla/fxa/commit/443b0b099))
+- deps: bump autoprefixer from 9.8.8 to 10.4.2" (#11605) ([39377d88a](https://github.com/mozilla/fxa/commit/39377d88a))
+- deps: bump autoprefixer from 9.8.8 to 10.4.2 ([854eb5c4d](https://github.com/mozilla/fxa/commit/854eb5c4d))
+- deps-dev: bump jest from 27.4.3 to 27.4.7 (#11551) ([43c4bdebd](https://github.com/mozilla/fxa/commit/43c4bdebd))
+
 ## 1.223.2
 
 No changes.
