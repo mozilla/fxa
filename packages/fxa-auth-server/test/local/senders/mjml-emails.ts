@@ -212,7 +212,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: config.smtp.iosUrl },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
-  ])],
+  ]),
+    {updateTemplateValues: x => (
+      {...x, productName: undefined})}],
 
   ['cadReminderSecondEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Final Reminder: Complete Sync Setup' }],
