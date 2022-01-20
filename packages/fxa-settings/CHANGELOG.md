@@ -1,3 +1,24 @@
+## 1.224.0
+
+### New features
+
+- settings: Display DataCollection in UI, increase test coverage (#10924) ([26519ef33](https://github.com/mozilla/fxa/commit/26519ef33))
+- payments: Disable metrics collection for opted out users (#11623) ([5cf942f18](https://github.com/mozilla/fxa/commit/5cf942f18))
+- services: remove fxa-auth-db-mysql, fxa-email-event-proxy, and fxa-email-service ([50e124b51](https://github.com/mozilla/fxa/commit/50e124b51))
+
+### Bug fixes
+
+- auth-server: localize image alt text (#11579) ([c63244579](https://github.com/mozilla/fxa/commit/c63244579))
+- pocket: Update password reset and delete notice to mention pocket is not changed (#11608) ([073e43abe](https://github.com/mozilla/fxa/commit/073e43abe))
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-actions from 6.3.12 to 6.4.12 (#11635) ([b686fd5a9](https://github.com/mozilla/fxa/commit/b686fd5a9))
+- deps-dev: bump @storybook/addon-links from 6.3.12 to 6.3.13 (#11621) ([79d0f2abc](https://github.com/mozilla/fxa/commit/79d0f2abc))
+- deps: bump autoprefixer from 9.8.8 to 10.4.2" (#11605) ([39377d88a](https://github.com/mozilla/fxa/commit/39377d88a))
+- deps: bump autoprefixer from 9.8.8 to 10.4.2 ([854eb5c4d](https://github.com/mozilla/fxa/commit/854eb5c4d))
+- settings: Remove firefox lockwise from Delete Account page (#11517) ([ee88d43ce](https://github.com/mozilla/fxa/commit/ee88d43ce))
+
 ## 1.223.2
 
 No changes.

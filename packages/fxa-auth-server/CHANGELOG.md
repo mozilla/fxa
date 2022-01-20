@@ -1,3 +1,49 @@
+## 1.224.0
+
+### New features
+
+- auth: add one-off script to update customer locations in Stripe (#11628) ([b5adb432f](https://github.com/mozilla/fxa/commit/b5adb432f))
+- auth: test cleanup ([a0323420c](https://github.com/mozilla/fxa/commit/a0323420c))
+- auth: use latest stripe object with proper invoice close ([c9c2515f8](https://github.com/mozilla/fxa/commit/c9c2515f8))
+- services: remove fxa-auth-db-mysql, fxa-email-event-proxy, and fxa-email-service ([50e124b51](https://github.com/mozilla/fxa/commit/50e124b51))
+- google: Add backend support for google auth (#11499) ([643c12606](https://github.com/mozilla/fxa/commit/643c12606))
+- subscriptions: save promo code to subscription metadata (#11595) ([fe749ba9e](https://github.com/mozilla/fxa/commit/fe749ba9e))
+- auth: followup cleanup for FXA-4356 ([c8e71980f](https://github.com/mozilla/fxa/commit/c8e71980f))
+- auth: add coupon validation ([28ed143af](https://github.com/mozilla/fxa/commit/28ed143af))
+
+### Bug fixes
+
+- auth-server: localize image alt text (#11579) ([c63244579](https://github.com/mozilla/fxa/commit/c63244579))
+- auth-server: wrong email title - verifyLogin template (#11645) ([738e8ddc5](https://github.com/mozilla/fxa/commit/738e8ddc5))
+- auth-server: add mjml test for `subscriptionFirstInvoiceDiscount` (#11630) ([ed08fc906](https://github.com/mozilla/fxa/commit/ed08fc906))
+- emails: use static l10n-ids in email templates ([3b71771de](https://github.com/mozilla/fxa/commit/3b71771de))
+- auth-server: small difference between plaintext and HTML (#11594) ([6d96ee976](https://github.com/mozilla/fxa/commit/6d96ee976))
+- auth-server: updated template to match old email template (#11599) ([bb3b96fd4](https://github.com/mozilla/fxa/commit/bb3b96fd4))
+- email: Storybook fixes for invoice discount (#11606) ([2f2cf02a0](https://github.com/mozilla/fxa/commit/2f2cf02a0))
+- auth-server: Legal and Privacy links are not displayed in the plaintext version of the templates (#11549) ([4bfdcf248](https://github.com/mozilla/fxa/commit/4bfdcf248))
+- email: lower the maxMessages sent via nodemailer before creating a new connection ([3faeca26c](https://github.com/mozilla/fxa/commit/3faeca26c))
+- ts: fix auth-server TS errors (#11544) ([473348479](https://github.com/mozilla/fxa/commit/473348479))
+- subscriptions: do addr lookup for only US and CA (#11542) ([8eb9cac13](https://github.com/mozilla/fxa/commit/8eb9cac13))
+- auth: setup appconfig where needed for scripts ([e568035aa](https://github.com/mozilla/fxa/commit/e568035aa))
+
+### Other changes
+
+- deps-dev: bump @storybook/html from 6.3.12 to 6.3.13 (#11633) ([68baeca29](https://github.com/mozilla/fxa/commit/68baeca29))
+- auth-server: add mjml test for `subscriptionFirstInvoiceDiscount` (#11630)" ([0c25e457a](https://github.com/mozilla/fxa/commit/0c25e457a))
+- deps: bump ajv from 6.12.6 to 8.9.0 (#11640)" ([1417149bd](https://github.com/mozilla/fxa/commit/1417149bd))
+- deps: bump ajv from 6.12.6 to 8.9.0 (#11640) ([3b043eb56](https://github.com/mozilla/fxa/commit/3b043eb56))
+- deps: bump aws-sdk from 2.1048.0 to 2.1057.0 (#11634) ([dbc9376b2](https://github.com/mozilla/fxa/commit/dbc9376b2))
+- deps-dev: bump sass from 1.46.0 to 1.48.0 (#11620) ([e80eca3b6](https://github.com/mozilla/fxa/commit/e80eca3b6))
+- deps-dev: bump @storybook/addon-controls from 6.3.12 to 6.4.12 (#11602) ([af79f5d55](https://github.com/mozilla/fxa/commit/af79f5d55))
+- auth: make customer address format consistent ([af27813c0](https://github.com/mozilla/fxa/commit/af27813c0))
+- deps: switch from git to https for deps (#11587) ([c1f0a3682](https://github.com/mozilla/fxa/commit/c1f0a3682))
+- deps: bump @google-cloud/firestore from 5.0.1 to 5.0.2 (#11570) ([6cf6924f4](https://github.com/mozilla/fxa/commit/6cf6924f4))
+- deps: bump keyv from 4.0.4 to 4.0.5 (#11569) ([efa100f25](https://github.com/mozilla/fxa/commit/efa100f25))
+- deps-dev: bump sass from 1.45.1 to 1.46.0 (#11550) ([b71db1acd](https://github.com/mozilla/fxa/commit/b71db1acd))
+- auth: Don't fail when l10n id is missing from en bundle (#11530) ([a864cbc4d](https://github.com/mozilla/fxa/commit/a864cbc4d))
+- auth: Don't fail when l10n id is missing from en bundle (#11522)" (#11526) ([2427bb505](https://github.com/mozilla/fxa/commit/2427bb505))
+- auth: Don't fail when l10n id is missing from en bundle (#11522) ([2ea691e2b](https://github.com/mozilla/fxa/commit/2ea691e2b))
+
 ## 1.223.2
 
 ### New features

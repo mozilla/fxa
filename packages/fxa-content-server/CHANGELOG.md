@@ -1,3 +1,24 @@
+## 1.224.0
+
+### New features
+
+- payments: Disable metrics collection for opted out users (#11623) ([5cf942f18](https://github.com/mozilla/fxa/commit/5cf942f18))
+- services: remove fxa-auth-db-mysql, fxa-email-event-proxy, and fxa-email-service ([50e124b51](https://github.com/mozilla/fxa/commit/50e124b51))
+
+### Bug fixes
+
+- pocket: Update password reset and delete notice to mention pocket is not changed (#11608) ([073e43abe](https://github.com/mozilla/fxa/commit/073e43abe))
+
+### Other changes
+
+- deps: bump autoprefixer from 9.8.8 to 10.4.2" (#11605) ([39377d88a](https://github.com/mozilla/fxa/commit/39377d88a))
+- deps: bump autoprefixer from 9.8.8 to 10.4.2 ([854eb5c4d](https://github.com/mozilla/fxa/commit/854eb5c4d))
+- deps-dev: bump @babel/cli from 7.16.7 to 7.16.8 (#11582) ([a97ec5bb7](https://github.com/mozilla/fxa/commit/a97ec5bb7))
+- deps: switch from git to https for deps (#11587) ([c1f0a3682](https://github.com/mozilla/fxa/commit/c1f0a3682))
+- deps: bump @babel/preset-typescript from 7.16.5 to 7.16.7 (#11531) ([7018a5c48](https://github.com/mozilla/fxa/commit/7018a5c48))
+- deps: bump @babel/preset-react from 7.16.5 to 7.16.7 (#11533) ([0bff18ebe](https://github.com/mozilla/fxa/commit/0bff18ebe))
+- deps: bump @babel/preset-env from 7.16.5 to 7.16.7 ([a5b1349b4](https://github.com/mozilla/fxa/commit/a5b1349b4))
+
 ## 1.223.2
 
 ### Other changes
