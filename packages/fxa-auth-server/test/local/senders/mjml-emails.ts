@@ -14,6 +14,7 @@ const ROOT_DIR = '../../..';
 import { assert } from 'chai';
 import mocks from '../../mocks';
 import proxyquire from 'proxyquire';
+import sinon from 'sinon';
 import { URL } from 'url';
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
@@ -1294,6 +1295,40 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
 
+  ['subscriptionFirstInvoiceDiscountEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoiceDiscount') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]]
+  ])],
+
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expiring soon` }],
     ['headers', new Map([
@@ -1505,6 +1540,164 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 ];
 
+const PAYPAL_MESSAGE = Object.assign({}, MESSAGE);
+
+PAYPAL_MESSAGE.payment_provider = 'paypal';
+
+const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER = new Map([
+  [
+    'subscriptionFirstInvoiceEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice'),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionFirstInvoice' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
+        ],
+      ],
+    ]),
+  ],
+  [
+    'subscriptionFirstInvoiceDiscountEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue(
+                'subscriptionFirstInvoiceDiscount'
+              ),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
+        ],
+      ],
+    ]),
+  ],
+  [
+    'subscriptionSubsequentInvoiceEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment received`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue(
+                'subscriptionSubsequentInvoice'
+              ),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionSubsequentInvoice' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+    ]),
+  ],
+]);
+
 describe('lib/senders/mjml-emails:', () => {
   type LocalizeFn = (message: Record<any, any>) => Promise<Record<any, string>>;
 
@@ -1565,6 +1758,233 @@ describe('lib/senders/mjml-emails:', () => {
       await mailer[type](tmplVals);
     });
   }
+
+  describe('payment info is correctly rendered when payment_provider === "paypal"', () => {
+    for (const [type, test] of TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER) {
+      it(`"Paypal" is rendered instead of credit card and last four digits - ${type}`, async () => {
+        mailer.mailer.sendMail = stubSendMail((message) => {
+          test.forEach((assertions, property) => {
+            applyAssertions(type, message, property, assertions);
+          });
+        });
+        await mailer[type](PAYPAL_MESSAGE);
+      });
+    }
+  });
+
+  it('formats user-agent strings sanely', () => {
+    let result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Firefox on Windows 10');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Windows 10');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+    });
+    assert.equal(result, 'Firefox on Windows');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Firefox');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+    });
+    assert.equal(result, 'Firefox');
+
+    result = mailer._formatUserAgentInfo({ uaOS: 'Windows' });
+    assert.equal(result, 'Windows');
+
+    result = mailer._formatUserAgentInfo({});
+    assert.equal(result, '');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: '<a>Firefox</a>',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Windows 10');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'http://example.com/',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Firefox');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: 'dodgy-looking',
+    });
+    assert.equal(result, 'Firefox on Windows');
+  });
+
+  it('formats location strings sanely', () => {
+    const localMessage = {
+      ...MESSAGE,
+      location: {
+        city: 'Bournemouth',
+        state: 'England',
+        stateCode: 'EN',
+        country: 'United Kingdom',
+        countryCode: 'GB',
+      },
+    };
+    assert.equal(
+      mailer._constructLocationString(localMessage),
+      'Bournemouth, EN, United Kingdom (estimated)'
+    );
+
+    localMessage.location.stateCode = null;
+    assert.equal(
+      mailer._constructLocationString(localMessage),
+      'Bournemouth, United Kingdom (estimated)'
+    );
+
+    localMessage.location.city = null;
+    localMessage.location.stateCode = 'EN';
+    assert.equal(
+      mailer._constructLocationString(localMessage),
+      'EN, United Kingdom (estimated)'
+    );
+
+    localMessage.location.stateCode = null;
+    assert.equal(
+      mailer._constructLocationString(localMessage),
+      'United Kingdom (estimated)'
+    );
+
+    localMessage.location = null;
+    assert.equal(mailer._constructLocationString(localMessage), '');
+  });
+
+  it('defaults X-Template-Version to 1', () => {
+    mailer.localize = () => ({});
+    mailer.mailer.sendMail = stubSendMail((emailConfig) => {
+      assert.equal(emailConfig.headers['X-Template-Version'], 1);
+    });
+    return mailer.send({
+      ...MESSAGE,
+      template: 'wibble-blee-definitely-does-not-exist',
+    });
+  });
+
+  describe('mock sendMail method:', () => {
+    beforeEach(() => {
+      mailer.localize = () => ({ language: 'en' });
+      sinon.stub(mailer.mailer, 'sendMail').callsFake((config, cb) => {
+        cb(null, { resp: 'ok' });
+      });
+    });
+
+    it('logs emailEvent on send', () => {
+      const message = {
+        email: 'test@restmail.net',
+        flowId: 'wibble',
+        subject: 'subject',
+        template: 'verifyLogin',
+        uid: 'foo',
+      };
+
+      return mailer.send(message).then(() => {
+        assert.equal(mockLog.info.callCount, 1);
+        const emailEventLog = mockLog.info.getCalls()[0];
+        assert.equal(emailEventLog.args[0], 'emailEvent');
+        assert.equal(emailEventLog.args[1].domain, 'other');
+        assert.equal(emailEventLog.args[1].flow_id, 'wibble');
+        assert.equal(emailEventLog.args[1].template, 'verifyLogin');
+        assert.equal(emailEventLog.args[1].type, 'sent');
+        assert.equal(emailEventLog.args[1].locale, 'en');
+      });
+    });
+  });
+
+  describe('mock failing sendMail method:', () => {
+    beforeEach(() => {
+      mailer.localize = () => ({});
+      sinon
+        .stub(mailer.mailer, 'sendMail')
+        .callsFake((config, cb) => cb(new Error('Fail')));
+    });
+
+    it('rejects sendMail status', () => {
+      const message = {
+        email: 'test@restmail.net',
+        subject: 'subject',
+        template: 'verifyLogin',
+        uid: 'foo',
+      };
+
+      return mailer.send(message).then(assert.notOk, (err) => {
+        assert.equal(err.message, 'Fail');
+      });
+    });
+  });
+});
+
+describe('mailer constructor:', () => {
+  let mailerConfig, mockLog, mailer;
+
+  before(async () => {
+    mailerConfig = [
+      'accountSettingsUrl',
+      'accountRecoveryCodesUrl',
+      'androidUrl',
+      'initiatePasswordChangeUrl',
+      'initiatePasswordResetUrl',
+      'iosUrl',
+      'iosAdjustUrl',
+      'passwordManagerInfoUrl',
+      'passwordResetUrl',
+      'privacyUrl',
+      'reportSignInUrl',
+      'sender',
+      'sesConfigurationSet',
+      'supportUrl',
+      'syncUrl',
+      'verificationUrl',
+      'verifyLoginUrl',
+      'verifySecondaryEmailUrl',
+      'verifyPrimaryEmailUrl',
+    ].reduce((target, key) => {
+      target[key] = `mock ${key}`;
+      return target;
+    }, {});
+    mockLog = mocks.mockLog();
+    mailer = await setup(
+      mockLog,
+      { ...config, smtp: mailerConfig },
+      {},
+      'en',
+      'wibble'
+    );
+  });
+
+  it('set properties on self from config correctly', () => {
+    Object.entries(mailerConfig).forEach(([key, expected]) => {
+      assert.equal(mailer[key], expected, `${key} was correct`);
+    });
+  });
 });
 
 function sesMessageTagsHeaderValue(templateName: string, serviceName?: any) {
