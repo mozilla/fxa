@@ -49,6 +49,7 @@ module.exports = function () {
     'post_verify/secondary_email/add_secondary_email',
     'post_verify/secondary_email/confirm_secondary_email',
     'post_verify/secondary_email/verified_secondary_email',
+    'post_verify/third_party_auth/callback',
     'primary_email_verified',
     'push/completed',
     'push/confirm_login',

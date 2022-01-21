@@ -81,6 +81,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     data.verifierSetAt = data.verifierSetAt ?? Date.now(); // allow 0 to indicate no-password-set
     data.createdAt = Date.now();
     data.normalizedEmail = normalizeEmail(data.email);
+    data.primaryEmail = {
+      email,
+      emailCode: data.emailCode,
+      normalizeEmail: data.normalizedEmail,
+      isVerified: data.emailVerified,
+    };
     try {
       await Account.create(data);
       return data;

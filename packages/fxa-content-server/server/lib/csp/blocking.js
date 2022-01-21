@@ -35,6 +35,7 @@ module.exports = function (config) {
   );
   const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/, 'http');
   const SENTRY_SERVER = 'https://sentry.prod.mozaws.net';
+  const GOOGLE_AUTH = 'https://accounts.google.com';
   // create a unique array of origins from survey urls
   const SURVEYS = [...new Set(surveyList.map((s) => getOrigin(s.url)))];
   const surveysEnabledAndSet =
@@ -73,12 +74,22 @@ module.exports = function (config) {
     styleSrc.push("'unsafe-inline'");
   }
 
+  const frameSrc = addCdnRuleIfRequired(
+    surveysEnabledAndSet ? SURVEYS : [NONE]
+  );
+
+  const formAction = [SELF];
+  if (config.get('googleAuthConfig.enabled')) {
+    formAction.push(GOOGLE_AUTH);
+  }
+
   const rules = {
     directives: {
       connectSrc,
       defaultSrc: [SELF],
+      formAction,
       fontSrc: addCdnRuleIfRequired([SELF]),
-      frameSrc: addCdnRuleIfRequired(surveysEnabledAndSet ? SURVEYS : [NONE]),
+      frameSrc,
       imgSrc: addCdnRuleIfRequired([
         SELF,
         BLOB,

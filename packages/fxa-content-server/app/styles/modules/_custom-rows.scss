@@ -244,3 +244,45 @@
 .push-confirm-login-device {
   padding: 15px 0 45px 0;
 }
+
+.third-party-auth {
+  #google-login-button {
+    border: 1px solid #b2b2b2;
+    background-color: white;
+    .google-logo {
+      background: url('/images/third_party_auth/google_btn_normal.svg') 50% no-repeat;
+      width: 40px;
+      height: 40px;
+    }
+
+    &:hover {
+      border-color: #1a1a1a;
+    }
+  }
+  .separator {
+    font-weight: 200;
+    font-size: 16px;
+    line-height: 19px;
+    color: #919191;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 24px 0 24px 0;
+  }
+
+  .separator::before,
+  .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #919191;
+  }
+
+  .separator:not(:empty)::before {
+    margin-right: 2em;
+  }
+
+  .separator:not(:empty)::after {
+    margin-left: 2em;
+  }
+}

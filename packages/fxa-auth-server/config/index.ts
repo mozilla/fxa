@@ -140,10 +140,28 @@ const conf = convict({
   googleAuthConfig: {
     clientId: {
       default:
-        '218517873053-th4taguk9dvf03rrgk8sigon84oigf5l.apps.googleusercontent.com',
+        '210899493109-gll5587a3bo8huare772alo08734o4kh.apps.googleusercontent.com',
       env: 'GOOGLE_AUTH_CLIENT_ID',
       format: String,
       doc: 'Google auth client id',
+    },
+    clientSecret: {
+      default: 'SSHH',
+      env: 'GOOGLE_AUTH_CLIENT_SECRET',
+      format: String,
+      doc: 'Google auth client secret',
+    },
+    redirectUri: {
+      default: 'http://localhost:3030/post_verify/third_party_auth/callback',
+      env: 'GOOGLE_AUTH_REDIRECT_URI',
+      format: String,
+      doc: 'Google auth redirect uri',
+    },
+    tokenEndpoint: {
+      default: 'https://oauth2.googleapis.com/token',
+      env: 'GOOGLE_AUTH_TOKEN_ENDPOINT',
+      format: String,
+      doc: 'Google auth token endpoint',
     },
   },
   googleMapsApiKey: {
