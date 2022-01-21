@@ -11,7 +11,7 @@ executors:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: circleci/mysql:5.7.31
+      - image: cimg/mysql:5.7
       - image: jdlk7/firestore-emulator
         environment:
           NODE_ENV: dev
@@ -95,7 +95,7 @@ jobs:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: circleci/mysql:5.7.31
+      - image: cimg/mysql:5.7
       - image: jdlk7/firestore-emulator
         environment:
           NODE_ENV: dev
@@ -119,7 +119,7 @@ jobs:
     resource_class: medium+
     docker:
       - image: cimg/node:16.13
-      - image: circleci/mysql:5.7.31
+      - image: cimg/mysql:5.7
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
@@ -251,7 +251,7 @@ jobs:
       - image: mcr.microsoft.com/playwright:v1.18.0-focal
       - image: redis
       - image: memcached
-      - image: circleci/mysql:5.7.31
+      - image: cimg/mysql:5.7
       - image: jdlk7/firestore-emulator
     environment:
       NODE_ENV: dev
