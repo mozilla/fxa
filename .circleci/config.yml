@@ -271,7 +271,7 @@ jobs:
           path: artifacts/tests
 
   build-and-deploy-storybooks:
-    resource_class: small
+    resource_class: medium
     docker:
       - image: cimg/node:16.13
     steps:
