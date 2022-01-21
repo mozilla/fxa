@@ -158,6 +158,34 @@ export const COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP = {
   Canada: 'CA',
 } as { [key: string]: string };
 
+// Stripe minimum charge amounts as set here
+// https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
+export const STRIPE_MINIMUM_CHARGE_AMOUNTS = {
+  usd: 50,
+  aed: 200,
+  aud: 50,
+  bgn: 100,
+  brl: 50,
+  cad: 50,
+  chf: 50,
+  czk: 1500,
+  dkk: 250,
+  eur: 50,
+  gbp: 30,
+  hkd: 400,
+  huf: 17500,
+  inr: 50,
+  jpy: 50,
+  mxn: 1000,
+  myr: 200,
+  nok: 300,
+  nzd: 50,
+  pln: 200,
+  ron: 200,
+  sek: 300,
+  sgd: 50,
+} as { [key: string]: number };
+
 /**
  * The CacheUpdate decorator has an _optional_ property in its options
  * parameter named `cacheKeysToClear`.  However, if you do not pass in a value

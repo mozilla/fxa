@@ -399,7 +399,7 @@ export class PayPalHelper {
   public processZeroInvoice(invoice: Stripe.Invoice) {
     return Promise.all([
       this.stripeHelper.finalizeInvoice(invoice),
-      this.stripeHelper.payInvoiceOutOfBand(invoice),
+      // this.stripeHelper.payInvoiceOutOfBand(invoice),
     ]);
   }
 

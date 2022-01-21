@@ -17,7 +17,10 @@ import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
+import {
+  COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP,
+  STRIPE_MINIMUM_CHARGE_AMOUNTS,
+} from '../../payments/stripe';
 import { PayPalHelper } from '../../payments/paypal';
 import STATES_LONG_NAME_TO_SHORT_NAME_MAP from '../../payments/states-long-name-to-short-name-map.json';
 import { StripeHelper } from '../../payments/stripe';
@@ -195,7 +198,9 @@ export class PayPalHandler extends StripeWebhookHandler {
     ]);
 
     const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
-    if (latestInvoice.amount_due === 0) {
+    const minAmount =
+      STRIPE_MINIMUM_CHARGE_AMOUNTS[latestInvoice.currency] || 50;
+    if (latestInvoice.amount_due < minAmount) {
       await this.paypalHelper.processZeroInvoice(latestInvoice);
     } else {
       try {
@@ -253,7 +258,9 @@ export class PayPalHandler extends StripeWebhookHandler {
       taxRateId: taxRate?.id,
     });
     const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
-    if (latestInvoice.amount_due === 0) {
+    const minAmount =
+      STRIPE_MINIMUM_CHARGE_AMOUNTS[latestInvoice.currency] || 50;
+    if (latestInvoice.amount_due < minAmount) {
       await this.paypalHelper.processZeroInvoice(latestInvoice);
     } else {
       try {
@@ -356,7 +363,8 @@ export class PayPalHandler extends StripeWebhookHandler {
     invoice: Stripe.Invoice
   ) {
     try {
-      if (invoice.amount_due === 0) {
+      const minAmount = STRIPE_MINIMUM_CHARGE_AMOUNTS[invoice.currency] || 50;
+      if (invoice.amount_due < minAmount) {
         await this.paypalHelper.processZeroInvoice(invoice);
       } else {
         await this.paypalHelper.processInvoice({

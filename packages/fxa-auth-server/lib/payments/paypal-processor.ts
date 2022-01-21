@@ -16,7 +16,7 @@ import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
 } from './paypal-error-codes';
-import { StripeHelper } from './stripe';
+import { StripeHelper, STRIPE_MINIMUM_CHARGE_AMOUNTS } from './stripe';
 
 /**
  * Generest a timestamp in seconds that is `hours` before the current
@@ -222,7 +222,8 @@ export class PaypalProcessor {
    */
   private async makePaymentAttempt(invoice: Stripe.Invoice) {
     const customer = invoice.customer as Stripe.Customer;
-    if (invoice.amount_due === 0) {
+    const minAmount = STRIPE_MINIMUM_CHARGE_AMOUNTS[invoice.currency] || 50;
+    if (invoice.amount_due < minAmount) {
       await this.paypalHelper.processZeroInvoice(invoice);
       return true;
     }
