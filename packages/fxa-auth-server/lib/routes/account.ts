@@ -32,6 +32,7 @@ import { AuthLogger, AuthRequest } from '../types';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
+import axios from 'axios';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -1599,9 +1600,25 @@ export class AccountHandler {
     }
 
     const requestPayload = request.payload as any;
-    const token = JSON.parse(requestPayload.token);
-    const idToken = token.credential;
-    const { clientId } = this.config.googleAuthConfig;
+    const code = requestPayload.code;
+
+    const { clientId, clientSecret, redirectUri } =
+      this.config.googleAuthConfig;
+
+    const data = {
+      code,
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      grant_type: 'authorization_code',
+    };
+
+    const res = await axios.post(
+      this.config.googleAuthConfig.tokenEndpoint,
+      data
+    );
+    console.log('oauth res', res.data);
+    const idToken = res.data['id_token'];
     const verifiedToken = await this.googleAuthClient.verifyIdToken({
       idToken,
       audience: clientId,
@@ -1822,8 +1839,9 @@ export const accountRoutes = (
       options: {
         validate: {
           payload: {
-            token: isA.string().required(),
+            idToken: isA.string().optional(),
             provider: isA.string().optional(),
+            code: isA.string().optional(),
           },
         },
       },

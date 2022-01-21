@@ -18,6 +18,8 @@ import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_password.mustache';
 import UserCardMixin from './mixins/user-card-mixin';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
+import Storage from '../lib/storage';
+import GoogleAuthMixin from './mixins/google-auth-mixin';
 
 const SignInPasswordView = FormView.extend({
   template: Template,
@@ -40,6 +42,14 @@ const SignInPasswordView = FormView.extend({
   },
 
   beforeRender() {
+    const thirdPartyAuth = Storage.factory('localStorage').get(
+      'fxa_third_party_params'
+    );
+    if (thirdPartyAuth) {
+      console.log('beforeRender signin');
+      // return this.completeSignIn();
+    }
+
     const account = this.getAccount();
     if (!account || !account.get('email')) {
       this.navigate('/');
@@ -94,6 +104,7 @@ Cocktail.mixin(
   SignInMixin,
   SignedInNotificationMixin,
   UserCardMixin,
+  GoogleAuthMixin,
   PocketMigrationMixin
 );
 

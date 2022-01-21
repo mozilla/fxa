@@ -38,8 +38,8 @@ export class LinkedAccount extends BaseAuthModel {
   }
 
   static async createLinkedGoogleAccount(uid: string, id: string) {
-    await LinkedAccount.query().insert({
-      uid,
+    return LinkedAccount.query().insert({
+      uid: uuidTransformer.to(uid),
       id,
       authAt: Date.now(),
       enabled: true,
