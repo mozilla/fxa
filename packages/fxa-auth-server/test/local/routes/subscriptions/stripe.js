@@ -934,6 +934,64 @@ describe('DirectStripeRoutes', () => {
       );
     });
 
+    it('does not report to Sentry if the customer has a payment method on file', async () => {
+      const sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureMessage');
+
+      delete paymentMethod.billing_details.address;
+      const sourceCountry = 'US';
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+        sourceCountry
+      );
+      const expected = deepCopy(subscription2);
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+        subscription2
+      );
+      directStripeRoutesInstance.stripeHelper.customerTaxId.returns(false);
+      directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer.resolves({});
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        idempotencyKey: uuidv4(),
+      };
+
+      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
+        VALID_REQUEST
+      );
+
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.getPaymentMethod
+      );
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.customerChanged,
+        VALID_REQUEST,
+        UID,
+        TEST_EMAIL
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.taxRateByCountryCode
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.customerTaxId
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.addTaxIdToCustomer
+      );
+
+      assert.deepEqual(
+        {
+          sourceCountry,
+          subscription: filterSubscription(expected),
+        },
+        actual
+      );
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.setCustomerLocation
+      );
+      sinon.assert.notCalled(sentryScope.setContext);
+      sinon.assert.notCalled(Sentry.captureMessage);
+    });
+
     it('skips location lookup when source country is not needed', async () => {
       const sourceCountry = 'DE';
       directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
