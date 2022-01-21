@@ -15731,13 +15731,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookiejar@npm:^2.1.2":
-  version: 2.1.2
-  resolution: "cookiejar@npm:2.1.2"
-  checksum: 706cad1a56db51dfb13c1fef73dab8e7fabcfdfbe5d58d463139b4af1482603291832053cc85564bc998a05784956a6cf0ac667414a0a8d7765c65ed3ed42f3e
-  languageName: node
-  linkType: hard
-
 "cookiejar@npm:^2.1.3":
   version: 2.1.3
   resolution: "cookiejar@npm:2.1.3"
@@ -20308,13 +20301,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"formidable@npm:^1.2.2":
-  version: 1.2.2
-  resolution: "formidable@npm:1.2.2"
-  checksum: 43b3ec9a8f8055112e1a9a40eb748cdcd86cb9076dc9a17b0caa2bc26908eeae865dbee62d7c4bc26681fb75c2f42d60323af9c9d06c843e94f51f9b46954a0a
-  languageName: node
-  linkType: hard
-
 "formidable@npm:^2.0.1":
   version: 2.0.1
   resolution: "formidable@npm:2.0.1"
@@ -21011,7 +20997,7 @@ fsevents@~2.1.1:
     simplesmtp: 0.3.35
     sinon: ^9.0.3
     stripe: ^8.198.0
-    superagent: ^6.1.0
+    superagent: ^7.1.1
     through: 2.3.8
     typedi: ^0.8.0
     typesafe-node-firestore: ^1.4.0
@@ -21421,7 +21407,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rimraf: ^3.0.2
     rxjs: ^7.2.0
-    superagent: ^6.1.0
+    superagent: ^7.1.1
     supertest: ^6.2.1
     ts-jest: ^27.1.3
     tslib: ^2.3.1
@@ -21842,7 +21828,7 @@ fsevents@~2.1.1:
     rxjs: ^7.2.0
     sinon: ^9.0.3
     stripe: ^8.198.0
-    superagent: ^6.1.0
+    superagent: ^7.1.1
     ts-jest: ^27.1.3
     ts-loader: ^8.3.0
     tsconfig-paths: ^3.12.0
@@ -21893,7 +21879,7 @@ fsevents@~2.1.1:
     rimraf: ^3.0.2
     rxjs: ^7.2.0
     semver: ^7.3.5
-    superagent: ^6.1.0
+    superagent: ^7.1.1
     supertest: ^6.2.1
     ts-jest: ^27.1.3
     tslib: ^2.3.1
@@ -34838,7 +34824,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.10.0, qs@npm:^6.4.0, qs@npm:^6.6.0, qs@npm:^6.7.0, qs@npm:^6.9.4":
+"qs@npm:^6.10.0, qs@npm:^6.4.0, qs@npm:^6.6.0, qs@npm:^6.7.0":
   version: 6.10.1
   resolution: "qs@npm:6.10.1"
   dependencies:
@@ -39158,25 +39144,6 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"superagent@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "superagent@npm:6.1.0"
-  dependencies:
-    component-emitter: ^1.3.0
-    cookiejar: ^2.1.2
-    debug: ^4.1.1
-    fast-safe-stringify: ^2.0.7
-    form-data: ^3.0.0
-    formidable: ^1.2.2
-    methods: ^1.1.2
-    mime: ^2.4.6
-    qs: ^6.9.4
-    readable-stream: ^3.6.0
-    semver: ^7.3.2
-  checksum: 32ca1bc9805679cddeffdf5cf369da47359a0d38ee45ea668bba4116e17c247739e4084db9cc88217dd594a816e766a3dbf2431de017fbac0bc80efd6af30c1d
-  languageName: node
-  linkType: hard
-
 "superagent@npm:^7.0.2":
   version: 7.0.2
   resolution: "superagent@npm:7.0.2"
@@ -39193,6 +39160,25 @@ resolve@^2.0.0-next.3:
     readable-stream: ^3.6.0
     semver: ^7.3.5
   checksum: 144fce545496189ceacf984ab9c9d57396f526a46ea65a534949043e9ac351e5c604d4b531b4ce0abc83ee7745fedb32ab44b97fd65f511b7630233c988ca10b
+  languageName: node
+  linkType: hard
+
+"superagent@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "superagent@npm:7.1.1"
+  dependencies:
+    component-emitter: ^1.3.0
+    cookiejar: ^2.1.3
+    debug: ^4.3.3
+    fast-safe-stringify: ^2.1.1
+    form-data: ^4.0.0
+    formidable: ^2.0.1
+    methods: ^1.1.2
+    mime: ^2.5.0
+    qs: ^6.10.1
+    readable-stream: ^3.6.0
+    semver: ^7.3.5
+  checksum: 8710b84cf538f0b3e467b2e9be5ac41a169fe49656769301e01128fc5532900f5e447b9fb740cad2171a36b13b6939cd0f495e7ab4e805043b5cb13fe3051766
   languageName: node
   linkType: hard
 
