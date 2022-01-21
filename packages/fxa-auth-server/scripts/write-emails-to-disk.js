@@ -159,6 +159,7 @@ function sendMail(mailer, messageToSend) {
     unblockCode: '1ILO0Z5P',
     tokenCode: 'LIT12345',
     uid: '6510cb04abd742c6b3e4abefc7e39c9f',
+    metricsEnabled: true,
     productMetadata,
     subscription: {
       planDownloadURL: 'http://getfirefox.com/',
