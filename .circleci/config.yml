@@ -234,7 +234,7 @@ jobs:
   production-smoke-tests:
     resource_class: medium+
     docker:
-      - image: mcr.microsoft.com/playwright:v1.17.2-focal
+      - image: mcr.microsoft.com/playwright:v1.18.0-focal
     steps:
       - base-install
       - run:
@@ -248,7 +248,7 @@ jobs:
   playwright-functional-tests:
     resource_class: large
     docker:
-      - image: mcr.microsoft.com/playwright:v1.17.2-focal
+      - image: mcr.microsoft.com/playwright:v1.18.0-focal
       - image: redis
       - image: memcached
       - image: circleci/mysql:5.7.31
