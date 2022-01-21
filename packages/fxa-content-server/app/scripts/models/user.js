@@ -611,6 +611,13 @@ var User = Backbone.Model.extend({
     });
   },
 
+  verifyAccountThirdParty(account, relier, token) {
+    return account.verifyAccountThirdParty(relier, token).then(() => {
+      this._notifyOfAccountSignIn(account);
+      return this.setSignedInAccount(account);
+    });
+  },
+
   /**
    * Complete a password reset for the account using a recovery key. Notifies other tabs
    * of signin on success.

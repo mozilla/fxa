@@ -1182,6 +1182,12 @@ const Account = Backbone.Model.extend(
         .then(this.set.bind(this));
     },
 
+    verifyAccountThirdParty(relier, token, provider) {
+      return this._fxaClient
+        .verifyAccountThirdParty(relier, token, provider)
+        .then(this.set.bind(this));
+    },
+
     /**
      * Fetch the account's list of attached clients.
      *

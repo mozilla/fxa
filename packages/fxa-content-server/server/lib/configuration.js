@@ -240,6 +240,20 @@ const conf = (module.exports = convict({
     env: 'FXA_GQL_URL',
     format: 'url',
   },
+  googleAuthConfig: {
+    enabled: {
+      default: true,
+      env: 'GOOGLE_AUTH_ENABLED',
+      format: String,
+    },
+    clientId: {
+      default:
+        '218517873053-th4taguk9dvf03rrgk8sigon84oigf5l.apps.googleusercontent.com',
+      env: 'GOOGLE_AUTH_CLIENT_ID',
+      format: String,
+      doc: 'Google auth client id',
+    },
+  },
   geodb: {
     dbPath: {
       default: path.resolve(__dirname, '../../../fxa-geodb/db/cities-db.mmdb'),
