@@ -1,3 +1,13 @@
+## 1.224.1
+
+### Bug fixes
+
+- subscriptions: delete customer when deleting stub acct ([d728aa01d](https://github.com/mozilla/fxa/commit/d728aa01d))
+- auth-server: add Privacy notice link to subplat emails with multiple products (#11681) ([e7b15e878](https://github.com/mozilla/fxa/commit/e7b15e878))
+- auth-server: revised test ([1092eaf35](https://github.com/mozilla/fxa/commit/1092eaf35))
+- auth-server: revise `images` partial ([ed77d952e](https://github.com/mozilla/fxa/commit/ed77d952e))
+- subscriptions: use latest stripe object fix Because: ([d38abf998](https://github.com/mozilla/fxa/commit/d38abf998))
+
 ## 1.224.0
 
 ### New features
