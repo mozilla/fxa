@@ -2764,6 +2764,12 @@ export class StripeHelper {
    * only change in their entirety.
    */
   async processPaymentMethodEventToFirestore(event: Stripe.Event) {
+    // If this payment method is not attached, we can't store it in firestore as
+    // the customer may not exist.
+    if (!(event.data.object as Stripe.PaymentMethod).customer) {
+      return;
+    }
+
     const paymentMethod = await this.stripe.paymentMethods.retrieve(
       (event.data.object as Stripe.PaymentMethod).id
     );
