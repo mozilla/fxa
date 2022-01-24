@@ -397,10 +397,10 @@ export class PayPalHelper {
    * @param invoice
    */
   public processZeroInvoice(invoice: Stripe.Invoice) {
-    return Promise.all([
-      this.stripeHelper.finalizeInvoice(invoice),
-      // this.stripeHelper.payInvoiceOutOfBand(invoice),
-    ]);
+    // It appears for subscriptions that do not require payment, the invoice
+    // transitions to paid automatially.
+    // https://stripe.com/docs/billing/invoices/subscription#sub-invoice-lifecycle
+    return this.stripeHelper.finalizeInvoice(invoice);
   }
 
   /**

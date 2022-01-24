@@ -312,7 +312,8 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
   id: string;
   latest_invoice: {
     id: string;
-    payment_intent: {
+    status: string;
+    payment_intent?: {
       id: string;
       client_secret: string;
       status: string;
@@ -371,6 +372,7 @@ export async function apiRetryInvoice(params: {
   idempotencyKey: string;
 }): Promise<{
   id: string;
+  status: string;
   payment_intent: {
     id: string;
     client_secret: string;

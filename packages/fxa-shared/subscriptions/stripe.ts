@@ -148,7 +148,7 @@ export function filterProduct(item: Stripe.Product) {
  * @param item
  */
 export function filterInvoice(item: Stripe.Invoice) {
-  const invoice = pick(item, 'id', 'object', 'payment_intent');
+  const invoice = pick(item, 'id', 'status', 'object', 'payment_intent');
   if (invoice.payment_intent && typeof invoice.payment_intent !== 'string') {
     invoice.payment_intent = filterIntent(invoice.payment_intent) as any;
   }
