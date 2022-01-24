@@ -4459,6 +4459,21 @@ describe('StripeHelper', () => {
           event.data.object.id
         );
       });
+
+      it(`ignores ${type} operations with no customer attached`, async () => {
+        const event = deepCopy(eventPaymentMethodAttached);
+        event.type = type;
+        event.data.object.customer = null;
+        delete event.data.previous_attributes;
+        stripeHelper.stripe.paymentMethods.retrieve = sandbox.stub();
+        stripeFirestore.retrievePaymentMethod = sandbox.stub().resolves({});
+        stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox.stub();
+        await stripeHelper.processWebhookEventToFirestore(event);
+        sinon.assert.notCalled(
+          stripeHelper.stripeFirestore.insertPaymentMethodRecordWithBackfill
+        );
+        sinon.assert.notCalled(stripeHelper.stripe.paymentMethods.retrieve);
+      });
     }
 
     it('handles payment_method.detached operations', async () => {
