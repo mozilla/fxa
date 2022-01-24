@@ -22155,8 +22155,8 @@ fsevents@~2.1.1:
     sinon: ^9.0.3
     style-loader: ^1.3.0
     supertest: ^6.2.1
-    ts-jest: ^27.1.3
     tailwindcss: 1.9.1
+    ts-jest: ^27.1.3
     type-to-reducer: ^1.2.0
     typedi: ^0.8.0
     typescript: ^4.5.2
