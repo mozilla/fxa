@@ -500,7 +500,9 @@ export class StripeHandler {
           postalCode: paymentMethod.billing_details.address.postal_code,
           country: sourceCountry,
         });
-      } else {
+      } else if (paymentMethod) {
+        // Only report this if we have a payment method.
+        // Note: Payment method is already on the user if its a returning customer.
         Sentry.withScope((scope) => {
           scope.setContext('createSubscriptionWithPMI', {
             customerId: customer.id,
