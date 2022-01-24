@@ -51,7 +51,7 @@ function assertSource(item?: DeepPartial<Stripe.CustomerSource>) {
 }
 
 function assertInvoice(item?: DeepPartial<Stripe.Invoice>) {
-  assert.hasAllKeys(item, ['id', 'object', 'payment_intent']);
+  assert.hasAllKeys(item, ['id', 'object', 'payment_intent', 'status']);
 }
 
 function assertIntent(
