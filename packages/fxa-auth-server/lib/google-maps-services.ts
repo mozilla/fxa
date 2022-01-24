@@ -58,14 +58,24 @@ export class GoogleMapsService {
   /**
    * Retrieve a unique GeocodeResult for a given address.
    */
-  private async getOneGeocodeResult(address: string): Promise<GeocodeResult> {
+  private async getOneGeocodeResult(
+    address: string,
+    zip: string
+  ): Promise<GeocodeResult> {
     const { results, status } = await this.getGeocodeData(address);
 
     if (status === Status.ZERO_RESULTS)
       throw new Error(`Could not find any results for address. (${address})`);
 
     if (results.length > 1) {
-      const stateShortNames = results.map(
+      const resultsWithMatchingPostalCodes = results.filter((result) =>
+        result.address_components.some(
+          (addressComponent) =>
+            addressComponent.types.includes(PlaceType2.postal_code) &&
+            addressComponent.short_name === zip
+        )
+      );
+      const stateShortNames = resultsWithMatchingPostalCodes.map(
         (result) =>
           result.address_components.find((addressComponent) =>
             addressComponent.types.includes(
@@ -103,7 +113,7 @@ export class GoogleMapsService {
         );
 
       const { address_components: addressComponents } =
-        await this.getOneGeocodeResult(address);
+        await this.getOneGeocodeResult(address, zip);
 
       const state = addressComponents.find((address) =>
         address.types.includes(PlaceType2.administrative_area_level_1)

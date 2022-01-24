@@ -26,6 +26,11 @@ const geocodeResultMany = {
             short_name: 'MD',
             types: ['administrative_area_level_1', 'political'],
           },
+          {
+            long_name: '11111',
+            short_name: '11111',
+            types: ['postal_code'],
+          },
         ],
       },
       {
@@ -159,11 +164,11 @@ describe('GoogleMapsServices', () => {
     });
 
     it('Throws error if more than 1 result is returned with mismatching states', async () => {
-      const expectedMessage = 'Could not find unique results. (11111, Germany)';
+      const expectedMessage = 'Could not find unique results. (22222, Germany)';
       googleClient.geocode = sinon.stub().resolves(geocodeResultMany);
 
       try {
-        await googleMapsServices.getStateFromZip('11111', 'DE');
+        await googleMapsServices.getStateFromZip('22222', 'DE');
         assert.fail(expectedMessage);
       } catch (err) {
         assert.equal(
