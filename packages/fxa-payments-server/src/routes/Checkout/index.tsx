@@ -178,8 +178,10 @@ export const Checkout = ({
           retryStatus,
           onSuccess: fetchProfileAndCustomer,
           onFailure: setSubscriptionError,
-          onRetry: (status: RetryStatus) => {
-            setRetryStatus(status);
+          onRetry: () => {
+            // for a passwordless subscription we retry from a clean state
+            // every time.  new stub account, new customer, new invoice, etc.
+            setRetryStatus(undefined);
             setSubscriptionError({ type: 'card_error', code: 'card_declined' });
           },
         });
