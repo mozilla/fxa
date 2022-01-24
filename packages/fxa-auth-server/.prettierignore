@@ -4,6 +4,8 @@ LICENSE
 *.sql
 *.sh
 *.txt
+*.ftl
+*.lua
 *.po
 *.pot
 *.graffle

@@ -4,5 +4,7 @@ Dockerfile
 *.sh
 *.ico
 *.txt
+*.woff*
+*.ejs
 ansible/*
 static/img/*

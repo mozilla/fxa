@@ -4,6 +4,7 @@ LICENSE
 *.png
 *.svg
 *.docker
+*.sh
 Dockerfile*
 public/images/*
 coverage/*

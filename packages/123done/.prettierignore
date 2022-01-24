@@ -1,6 +1,7 @@
 LICENSE
 .*
 Dockerfile
+Procfile
 *.sh
 *.ico
 *.txt

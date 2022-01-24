@@ -5,3 +5,4 @@ LICENSE
 *.png
 Dockerfile*
 *.docker
+*.woff*

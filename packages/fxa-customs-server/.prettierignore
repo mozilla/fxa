@@ -3,3 +3,4 @@ LICENSE
 *.sh
 Dockerfile*
 test/mocks/*
+tap-parallel-not-ok
