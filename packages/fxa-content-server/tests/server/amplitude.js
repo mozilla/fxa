@@ -25,9 +25,9 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
     get(name) {
       if (name === 'oauth_client_id_map') {
         return {
-          '0': 'amo',
-          '1': 'pocket',
-          '2': 'fx-monitor',
+          0: 'amo',
+          1: 'pocket',
+          2: 'fx-monitor',
         };
       } else if (name === 'amplitude') {
         return amplitudeConfig;
@@ -1824,8 +1824,6 @@ registerSuite('amplitude', {
         device_id: 'a5fa745ba71b416cba3eb35acea47233',
         event_properties: {
           email_provider: 'other',
-          email_sender: undefined,
-          email_service: undefined,
           email_type: 'reset_password',
           service: 'sync',
         },

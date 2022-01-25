@@ -26,5 +26,9 @@
   </mj-column>
 </mj-section>
 
-<%- include ('/partials/button/index.mjml', { cssClass: 'mb-8'}) %>
+<%- include ('/partials/button/index.mjml', {
+  buttonL10nId: "subscriptionAccountFinishSetup-action",
+  buttonText: "Create a password",
+  cssClass: 'mb-8'
+  }) %>
 <%- include ('/partials/subscriptionSupport/index.mjml') %>

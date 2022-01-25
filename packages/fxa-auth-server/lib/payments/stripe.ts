@@ -53,18 +53,24 @@ import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 
-export const CUSTOMER_RESOURCE = 'customers';
-export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
-export const PRODUCT_RESOURCE = 'products';
-export const PLAN_RESOURCE = 'plans';
+export const CARD_RESOURCE = 'sources';
 export const CHARGES_RESOURCE = 'charges';
+export const COUPON_RESOURCE = 'coupons';
+export const CREDIT_NOTE_RESOURCE = 'credit_notes';
+export const CUSTOMER_RESOURCE = 'customers';
 export const INVOICES_RESOURCE = 'invoices';
 export const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
+export const PLAN_RESOURCE = 'plans';
+export const PRICE_RESOURCE = 'prices';
+export const PRODUCT_RESOURCE = 'products';
+export const SOURCE_RESOURSE = 'sources';
+export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
+export const TAX_RATE_RESOURCE = 'tax_rates';
 
 export const MOZILLA_TAX_ID = 'Tax ID';
 
-export const STRIPE_PRODUCTS_CACHE_KEY = 'listStripeProducts';
 export const STRIPE_PLANS_CACHE_KEY = 'listStripePlans';
+export const STRIPE_PRODUCTS_CACHE_KEY = 'listStripeProducts';
 export const STRIPE_TAX_RATES_CACHE_KEY = 'listStripeTaxRates';
 
 export const SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY = 'appliedPromotionCode';
@@ -72,6 +78,22 @@ export const SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY = 'appliedPromotionCode';
 enum STRIPE_CUSTOMER_METADATA {
   PAYPAL_AGREEMENT = 'paypalAgreementId',
 }
+
+export const STRIPE_OBJECT_TYPE_TO_RESOURCE: Record<string, string> = {
+  card: CARD_RESOURCE,
+  charge: CHARGES_RESOURCE,
+  coupon: COUPON_RESOURCE,
+  credit_note: CREDIT_NOTE_RESOURCE,
+  customer: CUSTOMER_RESOURCE,
+  invoice: INVOICES_RESOURCE,
+  payment_method: PAYMENT_METHOD_RESOURCE,
+  plan: PLAN_RESOURCE,
+  price: PRICE_RESOURCE,
+  product: PRODUCT_RESOURCE,
+  source: SOURCE_RESOURSE,
+  subscription: SUBSCRIPTIONS_RESOURCE,
+  tax_rate: TAX_RATE_RESOURCE,
+};
 
 export enum STRIPE_PRICE_METADATA {
   PROMOTION_CODES = 'promotionCodes',
@@ -89,14 +111,16 @@ export enum STRIPE_INVOICE_METADATA {
   RETRY_ATTEMPTS = 'paymentAttempts',
 }
 
-const VALID_RESOURCE_TYPES = [
+export const VALID_RESOURCE_TYPES = [
   CUSTOMER_RESOURCE,
   SUBSCRIPTIONS_RESOURCE,
   PRODUCT_RESOURCE,
   PLAN_RESOURCE,
+  PRICE_RESOURCE,
   CHARGES_RESOURCE,
   INVOICES_RESOURCE,
   PAYMENT_METHOD_RESOURCE,
+  TAX_RATE_RESOURCE,
 ] as const;
 
 export const SUBSCRIPTION_UPDATE_TYPES = {
@@ -131,6 +155,15 @@ export type PaymentBillingDetails = ReturnType<
   paypal_payment_error?: PaypalPaymentError;
   billing_agreement_id?: string;
 };
+
+// The countries we need region data for
+export const COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP = {
+  // The long name is used in the BigQuery metrics logs; the short name is used
+  // in the Stripe customer billing address.  The long names are also used to
+  // index into the country to states maps.
+  'United States': 'US',
+  Canada: 'CA',
+} as { [key: string]: string };
 
 /**
  * The CacheUpdate decorator has an _optional_ property in its options
@@ -1002,7 +1035,6 @@ export class StripeHelper {
         country,
         postalCode,
       });
-
       return true;
     } catch (err: unknown) {
       Sentry.withScope((scope) => {
@@ -1014,10 +1046,8 @@ export class StripeHelper {
         Sentry.captureException(err);
       });
     }
-
     return false;
   }
-
   /**
    * Update the customer object to add a PayPal Billing Agreement ID.
    *
@@ -2860,6 +2890,12 @@ export class StripeHelper {
    * only change in their entirety.
    */
   async processPaymentMethodEventToFirestore(event: Stripe.Event) {
+    // If this payment method is not attached, we can't store it in firestore as
+    // the customer may not exist.
+    if (!(event.data.object as Stripe.PaymentMethod).customer) {
+      return;
+    }
+
     const paymentMethod = await this.stripe.paymentMethods.retrieve(
       (event.data.object as Stripe.PaymentMethod).id
     );
@@ -2902,8 +2938,6 @@ export class StripeHelper {
           break;
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
-          await this.processSubscriptionEventToFirestore(event);
-          break;
         case 'customer.subscription.deleted':
           await this.processSubscriptionEventToFirestore(event);
           break;

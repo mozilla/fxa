@@ -36,6 +36,7 @@ export interface Profile {
   amrValues: Array<string>;
   avatar: string;
   avatarDefault: boolean;
+  metricsEnabled: boolean;
   displayName: string | null;
   email: string;
   locale: string;

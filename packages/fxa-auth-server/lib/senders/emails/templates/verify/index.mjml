@@ -15,5 +15,8 @@
 </mj-section>
 
 <%- include('/partials/location/index.mjml') %>
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "verify-action",
+  buttonText: "Confirm email"
+}) %>
 <%- include('/partials/automatedEmailNoAction/index.mjml') %>

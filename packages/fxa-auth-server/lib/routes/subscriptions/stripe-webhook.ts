@@ -21,7 +21,9 @@ import { PayPalHelper } from '../../payments/paypal';
 import {
   INVOICES_RESOURCE,
   StripeHelper,
+  STRIPE_OBJECT_TYPE_TO_RESOURCE,
   SUBSCRIPTION_UPDATE_TYPES,
+  VALID_RESOURCE_TYPES,
 } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
@@ -66,8 +68,39 @@ export class StripeWebhookHandler extends StripeHandler {
         request.headers['stripe-signature']
       );
 
+      // This must run before expansion below to ensure the types that Firestore
+      // can store are updated first to prevent multiple fetches from Stripe.
       const firestoreHandled =
         await this.stripeHelper.processWebhookEventToFirestore(event);
+
+      // Ensure the object is the latest version.
+      const stripeObject = event.data.object as Record<string, any>;
+      const resourceType =
+        STRIPE_OBJECT_TYPE_TO_RESOURCE[stripeObject.object as string];
+      if (resourceType) {
+        // Replace the object with the latest version if we support this object.
+        event.data.object = await this.stripeHelper.expandResource(
+          stripeObject.id,
+          resourceType as typeof VALID_RESOURCE_TYPES[number]
+        );
+      } else {
+        // We shouldn't be handling events that we can't fetch the latest version
+        // of with expandResource. If we have a handler below for this type, then
+        // we should have it included as a resource type to expand above.
+        Sentry.withScope((scope) => {
+          scope.setContext('stripeEvent', {
+            event: {
+              id: event.id,
+              type: event.type,
+              objectType: (event.data.object as any).object,
+            },
+          });
+          Sentry.captureMessage(
+            'Event being handled that is not using latest object from Stripe.',
+            Sentry.Severity.Info
+          );
+        });
+      }
 
       switch (event.type as Stripe.WebhookEndpointUpdateParams.EnabledEvent) {
         case 'credit_note.created':
@@ -357,7 +390,10 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
     const invoice = event.data.object as Stripe.Invoice;
-    if (!(await this.stripeHelper.invoicePayableWithPaypal(invoice))) {
+    if (
+      !(await this.stripeHelper.invoicePayableWithPaypal(invoice)) ||
+      invoice.status !== 'draft'
+    ) {
       return;
     }
     return this.stripeHelper.finalizeInvoice(invoice);

@@ -20,6 +20,15 @@ export interface FirefoxMessage {
   };
 }
 
+interface ProfileUid {
+  uid: hexstring;
+}
+
+interface ProfileMetricsEnabled {
+  metricsEnabled: boolean;
+}
+
+type Profile = ProfileUid | ProfileMetricsEnabled;
 type FirefoxEvent = CustomEvent<FirefoxMessage | string>;
 
 export class Firefox extends EventTarget {
@@ -142,9 +151,9 @@ export class Firefox extends EventTarget {
     });
   }
 
-  profileChanged(uid: hexstring) {
-    this.send(FirefoxCommand.ProfileChanged, { uid });
-    this.broadcast(FirefoxCommand.ProfileChanged, { uid });
+  profileChanged(profile: Profile) {
+    this.send(FirefoxCommand.ProfileChanged, profile);
+    this.broadcast(FirefoxCommand.ProfileChanged, profile);
   }
 }
 

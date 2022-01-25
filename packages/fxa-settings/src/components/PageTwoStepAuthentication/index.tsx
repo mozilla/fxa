@@ -215,12 +215,18 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
               </Localized>
               <div className="flex flex-col mb-4">
                 {totpInfo.result.qrCodeUrl && (
-                  <img
-                    className="mx-auto w-48 h-48 qr-code-border"
-                    data-testid="2fa-qr-code"
-                    src={totpInfo.result.qrCodeUrl}
-                    alt={`Use the code ${totpInfo.result.secret} to set up two-step authentication in supported applications.`}
-                  />
+                  <Localized
+                    id="tfa-qa-code"
+                    vars={{ secret: totpInfo.result.secret }}
+                    attrs={{ alt: true }}
+                  >
+                    <img
+                      className="mx-auto w-48 h-48 qr-code-border"
+                      data-testid="2fa-qr-code"
+                      src={totpInfo.result.qrCodeUrl}
+                      alt={`Use the code ${totpInfo.result.secret} to set up two-step authentication in supported applications.`}
+                    />
+                  </Localized>
                 )}
                 {!totpInfo.result.qrCodeUrl && (
                   <div className="h-48">{/* vertical space placeholder */}</div>

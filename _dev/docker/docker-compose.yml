@@ -20,21 +20,6 @@ services:
     init: true
     ports:
       - "5050:5050"
-  authdb:
-    image: fxa-auth-db-mysql:build
-    entrypoint: /bin/bash -c
-    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/db_patcher.js && node bin/server.js"]
-    environment:
-      - HOST=0.0.0.0
-      - PORT=8000
-      - NODE_ENV=dev
-      - MYSQL_HOST=mysql
-      - MYSQL_SLAVE_HOST=mysql
-    init: true
-    ports:
-      - "8000:8000"
-    depends_on:
-      - mysql
   auth:
     image: fxa-auth-server:build
     entrypoint: /bin/bash -c
@@ -156,11 +141,3 @@ services:
     image: jdlk7/firestore-emulator
     ports:
       - "9090:9090"
-  email:
-    image: mozilla/fxa-email-service
-    environment:
-      - NODE_ENV=dev
-      - FXA_EMAIL_ENV=dev
-      - FXA_EMAIL_LOG_LEVEL=debug
-    ports:
-      - "8001:8001"

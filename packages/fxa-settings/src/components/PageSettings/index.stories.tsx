@@ -69,23 +69,4 @@ storiesOf('Pages/Settings', module)
         <PageSettings />
       </AppLayout>
     </AppContext.Provider>
-  ))
-  .add('with telemetry opt-out', () => (
-    <AppContext.Provider
-      value={mockAppContext({
-        account: {
-          ...MOCK_ACCOUNT,
-          subscriptions: [{ created: 1, productName: 'x' }],
-          emails: [
-            mockEmail('johndope@example.com'),
-            mockEmail('johndope2@gmail.com', false),
-          ],
-          attachedClients: SERVICES_NON_MOBILE,
-        } as any,
-      })}
-    >
-      <AppLayout>
-        <PageSettings showDataCollection={true} />
-      </AppLayout>
-    </AppContext.Provider>
   ));

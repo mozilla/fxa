@@ -10,8 +10,8 @@ delete-account-confirm-title-2 = You’ve connected your { -product-firefox-acco
 
 delete-account-acknowledge = Please acknowledge that by deleting your account:
 
-delete-account-chk-box-1 =
- .label = Any paid subscriptions you have will be canceled
+delete-account-chk-box-1-v2 =
+ .label = Any paid subscriptions you have will be canceled (Except { product-pocket })
 delete-account-chk-box-2 =
  .label = You may lose saved information and features within { -brand-mozilla } products
 delete-account-chk-box-3 =

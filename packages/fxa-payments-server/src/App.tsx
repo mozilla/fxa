@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React, { ReactNode, useContext } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { loadStripe } from '@stripe/stripe-js';
@@ -20,6 +24,7 @@ import ScreenInfo from './lib/screen-info';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import * as FlowEvents from './lib/flow-event';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
+import selectors from './store/selectors';
 
 const Checkout = React.lazy(() => import('./routes/Checkout'));
 const Product = React.lazy(() => import('./routes/Product'));
@@ -47,6 +52,20 @@ export type AppProps = {
   stripePromise: ReturnType<typeof loadStripe>;
   routerOverride?: RouterOverride;
 };
+
+export function enableNavTiming(store: Store) {
+  let unsubscribe: ReturnType<typeof store.subscribe>;
+  const metricsObs = () => {
+    const profile = selectors.profile(store.getState());
+    // explicitly check for `false` because `undefined` means
+    // the user doesn't have an account or isn't signed in
+    if (profile?.result && profile.result.metricsEnabled !== false) {
+      observeNavigationTiming('/navigation-timing');
+      unsubscribe?.();
+    }
+  };
+  unsubscribe = store.subscribe(metricsObs);
+}
 
 export const App = ({
   config,
@@ -78,7 +97,7 @@ export const App = ({
     stripePromise,
   };
   FlowEvents.init(queryParams);
-  observeNavigationTiming('/navigation-timing');
+  enableNavTiming(store);
 
   return (
     <AppContext.Provider value={appContextValue}>

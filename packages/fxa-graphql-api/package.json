@@ -1,6 +1,6 @@
 {
   "name": "fxa-graphql-api",
-  "version": "1.223.2",
+  "version": "1.224.1",
   "description": "FxA GraphQL API",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -37,7 +37,7 @@
     "@nestjs/graphql": "^8.0.2",
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/passport": "^8.0.1",
-    "@nestjs/platform-express": "^8.2.4",
+    "@nestjs/platform-express": "^8.2.5",
     "@sentry/integrations": "^6.16.1",
     "@sentry/node": "^6.16.1",
     "apollo-datasource": "^0.9.0",
@@ -62,7 +62,7 @@
     "graphql-upload": "^13.0.0",
     "helmet": "^5.0.0",
     "ioredis": "^4.28.2",
-    "knex": "^0.95.15",
+    "knex": "^1.0.1",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "objection": "^2.2.17",
@@ -71,7 +71,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "superagent": "^6.1.0",
+    "superagent": "^7.1.1",
     "tslib": "^2.3.1"
   },
   "devDependencies": {
@@ -94,11 +94,11 @@
     "esbuild-register": "^3.2.0",
     "eslint": "^7.32.0",
     "jest": "27.4.7",
-    "nock": "^13.2.1",
+    "nock": "^13.2.2",
     "pm2": "^5.1.2",
     "prettier": "^2.3.1",
-    "supertest": "^6.1.6",
-    "ts-jest": "^27.1.2",
+    "supertest": "^6.2.2",
+    "ts-jest": "^27.1.3",
     "typescript": "^4.5.2"
   },
   "jest": {

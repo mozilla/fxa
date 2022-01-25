@@ -9,14 +9,14 @@
     "test-production": "playwright test --project=production"
   },
   "devDependencies": {
-    "@playwright/test": "^1.17.2",
+    "@playwright/test": "^1.18.0",
     "@types/upng-js": "^2",
     "fxa-auth-client": "workspace:*",
     "fxa-content-server": "workspace:*",
     "fxa-payments-server": "workspace:*",
     "fxa-settings": "workspace:*",
     "jsqr": "^1.4.0",
-    "playwright": "^1.17.2",
+    "playwright": "^1.18.0",
     "upng-js": "^2.1.0"
   }
 }

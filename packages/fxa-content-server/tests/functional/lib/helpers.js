@@ -131,52 +131,60 @@ const takeScreenshot = function () {
  */
 const visibleByQSA = thenify(function (selector, options = {}) {
   var timeout = options.timeout || config.pageLoadTimeout;
+  var retries = 0;
+  var maxRetries = 5;
+  function checkMatchingElements(selector, options) {
+    // document.querySelectorAll can fail if the document is queried when
+    // in an 'unloaded' state. By returning null, the pollUntil operation
+    // will keep trying and this transitory state can be avoided.
+    var matchingEls = [];
+    try {
+      matchingEls = document.querySelectorAll(selector);
+    } catch (err) {
+      if (++retries < maxRetries) {
+        return null;
+      } else {
+        throw err;
+      }
+    }
+
+    if (matchingEls.length === 0) {
+      return null;
+    }
+
+    if (matchingEls.length > 1) {
+      throw new Error(
+        'Multiple elements matched. Make a more precise selector - ' + selector
+      );
+    }
+
+    var matchingEl = matchingEls[0];
+
+    // Check if the element is visible. This is from jQuery source - see
+    // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
+    if (
+      !(
+        matchingEl.offsetWidth ||
+        matchingEl.offsetHeight ||
+        matchingEl.getClientRects().length
+      )
+    ) {
+      return null;
+    }
+
+    // use jQuery if available to check for jQuery animations.
+    if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
+      // If the element is animating, try again after a delay. Clicks
+      // do not always register if the element is in the midst of
+      // an animation.
+      return null;
+    }
+
+    return true;
+  }
 
   return this.parent
-    .then(
-      pollUntil(
-        function (selector, options) {
-          var matchingEls = document.querySelectorAll(selector);
-
-          if (matchingEls.length === 0) {
-            return null;
-          }
-
-          if (matchingEls.length > 1) {
-            throw new Error(
-              'Multiple elements matched. Make a more precise selector - ' +
-                selector
-            );
-          }
-
-          var matchingEl = matchingEls[0];
-
-          // Check if the element is visible. This is from jQuery source - see
-          // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
-          if (
-            !(
-              matchingEl.offsetWidth ||
-              matchingEl.offsetHeight ||
-              matchingEl.getClientRects().length
-            )
-          ) {
-            return null;
-          }
-
-          // use jQuery if available to check for jQuery animations.
-          if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
-            // If the element is animating, try again after a delay. Clicks
-            // do not always register if the element is in the midst of
-            // an animation.
-            return null;
-          }
-
-          return true;
-        },
-        [selector, options],
-        timeout
-      )
-    )
+    .then(pollUntil(checkMatchingElements, [selector, options], timeout))
     .then(null, function (err) {
       if (/ScriptTimeout/.test(String(err))) {
         throw new Error(`ElementNotVisible - ${selector}`);

@@ -120,6 +120,8 @@ const ERRNO = {
   BACKEND_SERVICE_FAILURE: 203,
   DISABLED_CLIENT_ID: 204,
 
+  THIRD_PARTY_ACCOUNT_ERROR: 205,
+
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };
@@ -1477,6 +1479,15 @@ AppError.anonIdNoCondition = (headerName) => {
     errno: ERRNO.ECOSYSTEM_ANON_ID_NO_CONDITION,
     message:
       'Header If-None-Match or If-Match is required to perform the request',
+  });
+};
+
+AppError.thirdPartyAccountError = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+    message: 'Could not login with third party account, please try again later',
   });
 };
 

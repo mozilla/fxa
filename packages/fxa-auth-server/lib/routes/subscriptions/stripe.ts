@@ -30,7 +30,7 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
-import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/customer-locations';
+import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 
 // List of countries for which we need to look up the province/state of the
 // customer.
@@ -517,7 +517,9 @@ export class StripeHandler {
           postalCode: paymentMethod.billing_details.address.postal_code,
           country: sourceCountry,
         });
-      } else {
+      } else if (paymentMethod) {
+        // Only report this if we have a payment method.
+        // Note: Payment method is already on the user if its a returning customer.
         Sentry.withScope((scope) => {
           scope.setContext('createSubscriptionWithPMI', {
             customerId: customer.id,
@@ -525,7 +527,7 @@ export class StripeHandler {
             paymentMethodId: paymentMethod?.id,
           });
           Sentry.captureMessage(
-            `Cannot find a postal code for customer ${customer.id}`,
+            `Cannot find a postal code for customer.`,
             Sentry.Severity.Error
           );
         });
@@ -628,7 +630,7 @@ export class StripeHandler {
             paymentMethodId: paymentMethod?.id,
           });
           Sentry.captureMessage(
-            `Cannot find a postal code or country for customer ${customer!.id}`,
+            `Cannot find a postal code or country for customer.`,
             Sentry.Severity.Error
           );
         });

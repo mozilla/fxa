@@ -16,6 +16,9 @@
 
 <%- include('/partials/location/index.mjml') %>
 
-<%- include('/partials/button/index.mjml') %>
+<%- include('/partials/button/index.mjml', {
+  buttonL10nId: "postNewRecoveryCodes-action",
+  buttonText: "Manage account"
+}) %>
 
 <%- include('/partials/automatedEmailChangePassword/index.mjml') %>

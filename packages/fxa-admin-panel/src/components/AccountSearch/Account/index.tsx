@@ -344,7 +344,7 @@ export const Account = ({
         )}
 
         <li className={styleClasses.li}>
-          <h3 className="mt-0 my-0 mb-1 text-lg">Current Session</h3>
+          <h3 className="mt-0 my-0 mb-1 text-lg">Connected Services</h3>
         </li>
         {sessionTokens && sessionTokens.length > 0 ? (
           <>

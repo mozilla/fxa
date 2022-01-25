@@ -1,5 +1,23 @@
 # Change history
 
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+### New features
+
+- services: remove fxa-auth-db-mysql, fxa-email-event-proxy, and fxa-email-service ([50e124b51](https://github.com/mozilla/fxa/commit/50e124b51))
+
+### Other changes
+
+- deps: bump @nestjs/platform-express from 8.2.4 to 8.2.5 (#11632) ([68eb4e726](https://github.com/mozilla/fxa/commit/68eb4e726))
+- deps-dev: bump supertest from 6.1.6 to 6.2.1 (#11619) ([443b0b099](https://github.com/mozilla/fxa/commit/443b0b099))
+- deps: bump @nestjs/config from 1.1.5 to 1.1.6 (#11583) ([f44aee4f6](https://github.com/mozilla/fxa/commit/f44aee4f6))
+- deps: switch from git to https for deps (#11587) ([c1f0a3682](https://github.com/mozilla/fxa/commit/c1f0a3682))
+- deps-dev: bump jest from 27.4.3 to 27.4.7 (#11551) ([43c4bdebd](https://github.com/mozilla/fxa/commit/43c4bdebd))
+
 ## 1.223.2
 
 ### Other changes

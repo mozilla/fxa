@@ -6,6 +6,10 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
+import { Account, AppContext } from '../../models';
+import { mockAppContext } from '../../models/mocks';
+import { Config } from '../../lib/config';
+import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -60,4 +64,40 @@ it('Initializes metrics flow data when present', async () => {
     flowBeginTime: BEGIN_TIME,
   });
   expect(window.location.replace).not.toHaveBeenCalled();
+});
+
+describe('performance metrics', () => {
+  const navSpy = jest.spyOn(NavTiming, 'observeNavigationTiming');
+
+  const config = {
+    metrics: { navTiming: { enabled: true, endpoint: '/foobar' } },
+  } as Config;
+
+  afterEach(() => {
+    navSpy.mockClear();
+  });
+
+  it('observeNavigationTiming is called when metrics collection is enabled', () => {
+    const account = {
+      metricsEnabled: true,
+    } as unknown as Account;
+    render(
+      <AppContext.Provider value={mockAppContext({ account, config })}>
+        <App {...appProps} />
+      </AppContext.Provider>
+    );
+    expect(NavTiming.observeNavigationTiming).toHaveBeenCalledWith('/foobar');
+  });
+
+  it('observeNavigationTiming is not called when metrics collection is disabled', () => {
+    const account = {
+      metricsEnabled: false,
+    } as unknown as Account;
+    render(
+      <AppContext.Provider value={mockAppContext({ account, config })}>
+        <App {...appProps} />
+      </AppContext.Provider>
+    );
+    expect(NavTiming.observeNavigationTiming).not.toHaveBeenCalled();
+  });
 });

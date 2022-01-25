@@ -11,6 +11,7 @@ export interface OldSettingsData {
   sessionToken: hexstring;
   alertText?: string;
   displayName?: string;
+  metricsEnabled?: boolean;
 }
 
 type LocalAccount = OldSettingsData | undefined;

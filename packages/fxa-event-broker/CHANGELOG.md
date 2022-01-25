@@ -1,5 +1,21 @@
 # Change history
 
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+### Other changes
+
+- deps-dev: bump @nestjs/testing from 8.2.4 to 8.2.5 (#11639) ([22d0bc002](https://github.com/mozilla/fxa/commit/22d0bc002))
+- deps: bump aws-sdk from 2.1048.0 to 2.1057.0 (#11634) ([dbc9376b2](https://github.com/mozilla/fxa/commit/dbc9376b2))
+- deps: bump @nestjs/platform-express from 8.2.4 to 8.2.5 (#11632) ([68eb4e726](https://github.com/mozilla/fxa/commit/68eb4e726))
+- deps-dev: bump supertest from 6.1.6 to 6.2.1 (#11619) ([443b0b099](https://github.com/mozilla/fxa/commit/443b0b099))
+- deps: bump @nestjs/config from 1.1.5 to 1.1.6 (#11583) ([f44aee4f6](https://github.com/mozilla/fxa/commit/f44aee4f6))
+- deps: bump @google-cloud/firestore from 5.0.1 to 5.0.2 (#11570) ([6cf6924f4](https://github.com/mozilla/fxa/commit/6cf6924f4))
+- deps-dev: bump jest from 27.4.3 to 27.4.7 (#11551) ([43c4bdebd](https://github.com/mozilla/fxa/commit/43c4bdebd))
+
 ## 1.223.2
 
 No changes.

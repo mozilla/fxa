@@ -8,7 +8,6 @@ PORTS=(
   8085 # google-pubsub-emulator
   9090 # google-firestore-emulator
   5000 # sync server
-  8001 # email-service
   8000 # auth-server db mysql
   9000 # auth-server key server
   3030 # content-server

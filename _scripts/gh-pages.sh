@@ -9,9 +9,6 @@ fi
 
 echo "Building docs."
 
-cd packages/fxa-email-service
-cargo doc --no-deps
-
 cd ../../packages/fxa-payments-server
 yarn workspaces focus fxa-payments-server
 npm run build-storybook
@@ -20,9 +17,6 @@ cd ../..
 git clone --branch gh-pages git@github.com:mozilla/fxa.git docs-build
 
 cd docs-build
-
-rm -rf ./fxa-email-service
-mv ../packages/fxa-email-service/target/doc fxa-email-service
 
 rm -rf ./fxa-payments-server
 mv ../packages/fxa-payments-server/storybook-static fxa-payments-server

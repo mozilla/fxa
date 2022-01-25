@@ -57,17 +57,6 @@ describe('Nav', () => {
 
     expect(screen.queryByTestId('nav-link-subscriptions')).toBeNull();
 
-    // TODO: shouldn't be null in FXA-4106, replace w/ DataCollection test
-    expect(screen.queryByTestId('nav-link-data-collection')).toBeNull();
-  });
-
-  it('conditionally renders DataCollection', () => {
-    render(
-      <AppContext.Provider value={{ account, config: getDefault() }}>
-        <Nav showDataCollection />
-      </AppContext.Provider>
-    );
-
     expect(screen.getByTestId('nav-link-data-collection')).toHaveTextContent(
       'Data Collection and Use'
     );

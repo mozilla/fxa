@@ -137,10 +137,6 @@ function logAmplitudeEvent(log, message, eventInfo) {
     },
     {
       email_domain: eventInfo.domain,
-      email_sender:
-        message.emailSender || getHeaderValue('X-Email-Sender', message),
-      email_service:
-        message.emailService || getHeaderValue('X-Email-Service', message),
       service: message.service || getHeaderValue('X-Service-Id', message),
       plan_id: eventInfo.planId,
       product_id: eventInfo.productId,

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import jwt from '../../oauth/jwt';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 
 export async function sendFinishSetupEmailForStubAccount({
   uid,
@@ -22,15 +23,23 @@ export async function sendFinishSetupEmailForStubAccount({
   metricsContext?: any;
 }) {
   // If this fxa user is a stub (no-password) this is where we
-  // send the "create a password" email
-  if (account && account.verifierSetAt <= 0) {
+  // send the "create a password" email.
+  //
+  // However, a successful subscription creation does not imply a successful
+  // payment. For a user creating an account and subscribing to a product at
+  // the same time, we should not send this email until we truly have a
+  // successful, active, subscription.  Otherwise, the user will see an error
+  // on the front end but also receive the welcome email.
+  if (
+    account &&
+    account.verifierSetAt <= 0 &&
+    ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)
+  ) {
     const token = await jwt.sign(
-      { uid },
       {
-        header: {
-          typ: 'fin+JWT',
-        },
-      }
+        uid,
+      },
+      { header: { typ: 'fin+JWT' } }
     );
     const invoiceDetails = await stripeHelper.extractInvoiceDetailsForEmail(
       subscription.latest_invoice

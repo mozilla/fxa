@@ -21,11 +21,12 @@ export const DataCollection = () => {
   );
 
   const handleMetricsOptOutToggle = useCallback(async () => {
+    setIsSubmitting(true);
+
     try {
-      setIsSubmitting(true);
       await account.metricsOpt(account.metricsEnabled ? 'out' : 'in');
-      setIsSubmitting(false);
       setEnabled(account.metricsEnabled);
+
       const alertArgs: [string, null, string] = account.metricsEnabled
         ? [
             'dc-opt-in-success',
@@ -38,12 +39,22 @@ export const DataCollection = () => {
             'Opt out successful. Firefox Accounts won’t send technical or interaction data to Mozilla.',
           ];
       alertBar.success(l10n.getString.apply(l10n, alertArgs));
-    } catch (err) {}
+    } catch (err) {
+      alertBar.error(
+        l10n.getString(
+          'dc-opt-in-out-error',
+          null,
+          'Sorry, there was a problem changing your data collection preference.'
+        )
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }, [account, alertBar, l10n, setIsSubmitting]);
 
   return (
     <section className="mt-11" data-testid="settings-data-collection">
-      <h2 className="font-header font-bold ltr:ml-4 rtl:mr-4 mb-4">
+      <h2 className="font-header font-bold relative ltr:ml-4 rtl:mr-4 mb-4">
         <span id="data-collection" className="nav-anchor" />
         {localizedHeader}
       </h2>

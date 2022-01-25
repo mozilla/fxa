@@ -190,6 +190,7 @@ const PROFILE: Profile = {
   locale: 'en-US',
   twoFactorAuthentication: true,
   uid: '8675309asdf',
+  metricsEnabled: true,
 };
 
 const PLANS: Plan[] = [

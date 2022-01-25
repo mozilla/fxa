@@ -90,8 +90,6 @@ describe('email utils helpers', () => {
       deviceId: 'bbb',
       flowBeginTime: 42,
       flowId: 'ccc',
-      emailService: 'fxa-email-service',
-      emailSender: 'ses',
       service: 'ddd',
       templateVersion: 'eee',
       uid: 'fff',
@@ -118,8 +116,6 @@ describe('email utils helpers', () => {
     });
     assert.deepEqual(args[2], {
       email_domain: 'other',
-      email_service: 'fxa-email-service',
-      email_sender: 'ses',
       plan_id: 'planId',
       product_id: 'productId',
       service: 'ddd',
@@ -141,8 +137,6 @@ describe('email utils helpers', () => {
         headers: [
           { name: 'Content-Language', value: 'a' },
           { name: 'X-Device-Id', value: 'b' },
-          { name: 'X-Email-Service', value: 'fxa-auth-server' },
-          { name: 'X-Email-Sender', value: 'wibble' },
           { name: 'X-Flow-Begin-Time', value: 1 },
           { name: 'X-Flow-Id', value: 'c' },
           { name: 'X-Service-Id', value: 'd' },
@@ -176,8 +170,6 @@ describe('email utils helpers', () => {
     });
     assert.deepEqual(args[2], {
       email_domain: 'gmail',
-      email_sender: 'wibble',
-      email_service: 'fxa-auth-server',
       service: 'd',
       templateVersion: 42,
       uid: 'e',

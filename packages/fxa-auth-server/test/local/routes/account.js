@@ -599,6 +599,73 @@ describe('deleteAccountIfUnverified', () => {
     assert.isTrue(failed);
     sinon.assert.notCalled(mockDB.deleteAccount);
   });
+  it('should delete a Stripe customer with no subscriptions', async () => {
+    const mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(false),
+      removeCustomer: sinon.stub().resolves(),
+    };
+    const accountHandler = new AccountHandler(
+      mockLog,
+      mockDB,
+      mockMailer,
+      mockPassword,
+      mockConfig,
+      mockCustoms,
+      mockSigninUtils,
+      mockSignupUtils,
+      mockPush,
+      mockVerificationReminders,
+      mockSubscriptionAccountReminders,
+      mockOauth,
+      mockStripeHelper
+    );
+    await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
+    sinon.assert.calledOnceWithExactly(
+      mockStripeHelper.removeCustomer,
+      emailRecord.uid,
+      emailRecord.email
+    );
+  });
+  it('should report to Sentry when a Stripe customer deletion fails', async () => {
+    const stripeError = new Error('no good');
+    const mockStripeHelper = {
+      hasActiveSubscription: async () => Promise.resolve(false),
+      removeCustomer: sinon.stub().throws(stripeError),
+    };
+    const sentryModule = require('../../../lib/sentry');
+    sinon.stub(sentryModule, 'reportSentryError').returns({});
+    const accountHandler = new AccountHandler(
+      mockLog,
+      mockDB,
+      mockMailer,
+      mockPassword,
+      mockConfig,
+      mockCustoms,
+      mockSigninUtils,
+      mockSignupUtils,
+      mockPush,
+      mockVerificationReminders,
+      mockSubscriptionAccountReminders,
+      mockOauth,
+      mockStripeHelper
+    );
+    try {
+      await accountHandler.deleteAccountIfUnverified(mockRequest, TEST_EMAIL);
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.removeCustomer,
+        emailRecord.uid,
+        emailRecord.email
+      );
+      sinon.assert.calledOnceWithExactly(
+        sentryModule.reportSentryError,
+        stripeError,
+        mockRequest
+      );
+    } catch (e) {
+      assert.fail('should not have re-thrown');
+    }
+    sentryModule.reportSentryError.restore();
+  });
 });
 
 describe('/account/create', () => {
@@ -3886,6 +3953,134 @@ describe('/account/ecosystemAnonId', () => {
       );
       assert.equal(mockLog.info.args[0][1].previous, oldAnonId);
       assert.equal(mockLog.info.args[0][1].next, ecosystemAnonId);
+    });
+  });
+});
+
+describe('/account/login/third_party', () => {
+  let mockLog, mockDB, mockRequest, route;
+
+  const UID = 'fxauid';
+
+  describe('google auth', () => {
+    const mockGoogleUser = {
+      sub: '123123123',
+      email: `${Math.random()}@gmail.com`,
+    };
+
+    beforeEach(async () => {
+      mockLog = mocks.mockLog();
+      mockLog.info = sinon.spy();
+      mockDB = mocks.mockDB({
+        email: mockGoogleUser.email,
+        uid: UID,
+      });
+      const mockConfig = {
+        googleAuthConfig: { clientId: 'OooOoo' },
+      };
+      mockRequest = mocks.mockRequest({
+        log: mockLog,
+        payload: {
+          token: JSON.stringify({
+            credentials: 'id_token_returned_from_google_oauth_flow',
+          }),
+        },
+      });
+
+      const OAuth2ClientMock = class OAuth2Client {
+        verifyIdToken() {
+          return {
+            getPayload: () => {
+              return mockGoogleUser;
+            },
+          };
+        }
+      };
+
+      route = getRoute(
+        makeRoutes(
+          {
+            config: mockConfig,
+            db: mockDB,
+            log: mockLog,
+          },
+          {
+            'google-auth-library': {
+              OAuth2Client: OAuth2ClientMock,
+            },
+          }
+        ),
+        '/account/login/third_party'
+      );
+    });
+
+    it('fails if no google config', async () => {
+      const mockConfig = {};
+      mockConfig.googleAuthConfig = {};
+
+      route = getRoute(
+        makeRoutes({
+          config: mockConfig,
+          db: mockDB,
+          log: mockLog,
+        }),
+        '/account/login/third_party'
+      );
+
+      try {
+        await runTest(route, mockRequest);
+        assert.fail();
+      } catch (err) {
+        assert.equal(err.errno, error.ERRNO.THIRD_PARTY_ACCOUNT_ERROR);
+      }
+    });
+
+    it('should create new fxa account from new google account and return session', async () => {
+      mockDB.accountRecord = sinon.spy(() =>
+        Promise.reject(new error.unknownAccount(mockGoogleUser.email))
+      );
+
+      const result = await runTest(route, mockRequest);
+
+      assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+      assert.isTrue(mockDB.createAccount.calledOnce);
+      assert.isTrue(
+        mockDB.createLinkedGoogleAccount.calledOnceWith(UID, mockGoogleUser.sub)
+      );
+      assert.isTrue(mockDB.createSessionToken.calledOnce);
+      assert.equal(result.uid, UID);
+      assert.ok(result.sessionToken);
+    });
+
+    it('should linking existing fxa account and new google account and return session', async () => {
+      const result = await runTest(route, mockRequest);
+
+      assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+      assert.isTrue(mockDB.createAccount.notCalled);
+      assert.isTrue(
+        mockDB.createLinkedGoogleAccount.calledOnceWith(UID, mockGoogleUser.sub)
+      );
+      assert.isTrue(mockDB.createSessionToken.calledOnce);
+      assert.equal(result.uid, UID);
+      assert.ok(result.sessionToken);
+    });
+
+    it('should return session with valid google id token', async () => {
+      mockDB.getGoogleId = sinon.spy(() =>
+        Promise.resolve({
+          id: mockGoogleUser.sub,
+          uid: UID,
+        })
+      );
+
+      const result = await runTest(route, mockRequest);
+
+      assert.isTrue(mockDB.getGoogleId.calledOnceWith(mockGoogleUser.sub));
+      assert.isTrue(mockDB.account.calledOnceWith(UID));
+      assert.isTrue(mockDB.createLinkedGoogleAccount.notCalled);
+      assert.isTrue(mockDB.createSessionToken.calledOnce);
+      assert.equal(result.uid, UID);
+      assert.ok(result.sessionToken);
     });
   });
 });

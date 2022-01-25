@@ -137,6 +137,15 @@ const conf = convict({
       format: Boolean,
     },
   },
+  googleAuthConfig: {
+    clientId: {
+      default:
+        '218517873053-th4taguk9dvf03rrgk8sigon84oigf5l.apps.googleusercontent.com',
+      env: 'GOOGLE_AUTH_CLIENT_ID',
+      format: String,
+      doc: 'Google auth client id',
+    },
+  },
   googleMapsApiKey: {
     default: '',
     env: 'GOOGLE_MAPS_APIKEY',
@@ -252,26 +261,6 @@ const conf = convict({
       doc: 'The url of the corresponding fxa-content-server instance',
       default: 'http://localhost:3030',
       env: 'CONTENT_SERVER_URL',
-    },
-  },
-  emailService: {
-    host: {
-      doc: 'host for fxa-email-service',
-      format: String,
-      default: 'localhost',
-      env: 'EMAIL_SERVICE_HOST',
-    },
-    port: {
-      doc: 'port for fxa-email-service',
-      format: 'port',
-      default: 8001,
-      env: 'EMAIL_SERVICE_PORT',
-    },
-    forcedEmailAddresses: {
-      doc: 'force usage of fxa-email-service when sending emails to addresses that match this pattern',
-      format: RegExp,
-      default: /emailservice\.[A-Za-z0-9._%+-]+@restmail\.net$/,
-      env: 'EMAIL_SERVICE_FORCE_EMAIL_REGEX',
     },
   },
   smtp: {

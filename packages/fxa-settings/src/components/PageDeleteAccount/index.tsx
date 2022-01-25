@@ -21,7 +21,7 @@ type FormData = {
 };
 
 const checkboxLabels = [
-  'delete-account-chk-box-1',
+  'delete-account-chk-box-1-v2',
   'delete-account-chk-box-2',
   'delete-account-chk-box-3',
   'delete-account-chk-box-4',

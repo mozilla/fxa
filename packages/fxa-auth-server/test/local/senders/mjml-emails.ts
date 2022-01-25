@@ -14,6 +14,7 @@ const ROOT_DIR = '../../..';
 import { assert } from 'chai';
 import mocks from '../../mocks';
 import proxyquire from 'proxyquire';
+import sinon from 'sinon';
 import { URL } from 'url';
 
 const config = require(`${ROOT_DIR}/config`).getProperties();
@@ -72,6 +73,7 @@ const MESSAGE = {
   uid: 'uid',
   unblockCode: 'AS6334PK',
   cardType: 'mastercard',
+  icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
   invoiceDate: new Date(1584747098816),
   invoiceLink:
     'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
@@ -92,6 +94,10 @@ const MESSAGE = {
   planInterval: 'day',
   planIntervalCount: 2,
   playStoreLink: 'https://example.com/play-store',
+  productIconURLNew:
+    'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
+  productIconURLOld:
+    'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
   productId: 'wibble',
   productMetadata,
   productName: 'Firefox Fortress',
@@ -151,7 +157,6 @@ const COMMON_TESTS = new Map<string, Test | any>([
     'headers',
     new Map([
       ['X-Device-Id', { test: 'equal', expected: MESSAGE.deviceId }],
-      ['X-Email-Service', { test: 'equal', expected: 'fxa-auth-server' }],
       ['X-Flow-Begin-Time', { test: 'equal', expected: MESSAGE.flowBeginTime }],
       ['X-Flow-Id', { test: 'equal', expected: MESSAGE.flowId }],
       ['X-Service-Id', { test: 'equal', expected: MESSAGE.service }],
@@ -190,6 +195,12 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'another device' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'cad-reminder-first', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-first', 'support')) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: 'alt="Devices"' },
+      { test: 'include', expected: `alt="Download Firefox on the App Store"` },
+      { test: 'include', expected: `alt="Download Firefox on Google Play"` },
+      { test: 'notInclude', expected: 'alt="Sync devices"' },
+      { test: 'notInclude', expected: 'alt="Mozilla logo"' },
       { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
     ]],
     ['text', [
@@ -201,7 +212,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: config.smtp.iosUrl },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
-  ])],
+  ]),
+    {updateTemplateValues: x => (
+      {...x, productName: undefined})}],
 
   ['cadReminderSecondEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Final Reminder: Complete Sync Setup' }],
@@ -219,6 +232,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'cad-reminder-second', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'cad-reminder-second', 'support')) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: 'alt="Devices"' },
     ]],
     ['text', [
       { test: 'include', expected: 'Last reminder to sync devices!' },
@@ -245,6 +260,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('accountRecoveryCodesUrl', 'low-recovery-codes', 'recovery-codes', 'low_recovery_codes=true', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'low-recovery-codes', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'low-recovery-codes', 'support')) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -274,6 +290,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-verified', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-verified', 'support')) },
       { test: 'include', expected: decodeUrl(config.smtp.firefoxDesktopUrl) },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: 'alt="Devices"' },
     ]],
     ['text', [
       { test: 'include', expected: 'Firefox account verified. You’re almost there.' },
@@ -374,6 +392,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: 'alt="Sync devices"' },
+      { test: 'notInclude', expected: 'alt="Firefox logo"' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1051,16 +1071,23 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: MESSAGE.planDownloadURL },
       { test: 'include', expected: MESSAGE.appStoreLink },
       { test: 'include', expected: MESSAGE.playStoreLink },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'new-subscription', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'new-subscription', 'subscription-support')) },
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `already downloaded ${MESSAGE.productName}` },
       { test: 'include', expected: `Download ${MESSAGE.productName}` },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: `alt="Download ${MESSAGE.productName} on the App Store"` },
+      { test: 'include', expected: `alt="Download ${MESSAGE.productName} on Google Play"` },
+      { test: 'include', expected: 'alt="Mozilla logo"' },
+      { test: 'notInclude', expected: 'alt="Devices"'},
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: MESSAGE.planDownloadURL },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy') },
       { test: 'include', expected: configUrl('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configUrl('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
@@ -1078,16 +1105,23 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountDeletion }],
     ])],
     ['html', [
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: 'alt="Firefox logo"' },
+      { test: 'include', expected: 'alt="Mozilla logo"' },
+      { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
+      { test: 'notInclude', expected: 'alt="Devices"' },
+      { test: 'notInclude', expected: 'alt="Sync Devices"' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
@@ -1101,16 +1135,19 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support')) },
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `Charged: ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'include', expected: `create a Firefox account password and download ${MESSAGE.productName}` },
+      { test: 'notInclude', expected: `alt="${MESSAGE.productName}"` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: configUrl('accountFinishSetupUrl', 'subscription-account-finish-setup', 'subscriptions', 'email', 'product_name', 'token', 'product_id', 'flowId', 'flowBeginTime', 'deviceId') },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-account-finish-setup', 'subscription-privacy') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'subscription-account-finish-setup', 'subscription-support') },
       { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
@@ -1175,6 +1212,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
       { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'include', expected: `alt="${MESSAGE.productNameNew}"` },
+      { test: 'include', expected: `alt="${MESSAGE.productNameOld}"` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1199,6 +1238,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
       { test: 'include', expected: `billing period, which is 04/19/2020.` },
+      { test: 'notInclude', expected: `alt="${MESSAGE.productName}"`},
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1263,6 +1303,40 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]]
   ])],
 
+  ['subscriptionFirstInvoiceDiscountEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoiceDiscount') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount }],
+    ])],
+    ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice-discount', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice-discount', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice-discount', 'subscription-support')) },
+      { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]]
+  ])],
+
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expiring soon` }],
     ['headers', new Map([
@@ -1271,6 +1345,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
     ])],
     ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms')) },
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
@@ -1278,6 +1353,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ]),
@@ -1292,6 +1368,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
     ])],
     ['html', [
+      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-expired', 'subscription-terms') },
       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
@@ -1299,6 +1376,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+      { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
@@ -1474,14 +1552,170 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 ];
 
+const PAYPAL_MESSAGE = Object.assign({}, MESSAGE);
+
+PAYPAL_MESSAGE.payment_provider = 'paypal';
+
+const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER = new Map([
+  [
+    'subscriptionFirstInvoiceEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice'),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionFirstInvoice' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
+        ],
+      ],
+    ]),
+  ],
+  [
+    'subscriptionFirstInvoiceDiscountEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment confirmed`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue(
+                'subscriptionFirstInvoiceDiscount'
+              ),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionFirstInvoiceDiscount' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionFirstInvoiceDiscount,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: 'MasterCard card ending in 5309' },
+        ],
+      ],
+    ]),
+  ],
+  [
+    'subscriptionSubsequentInvoiceEmail',
+    new Map<string, Test | any>([
+      [
+        'subject',
+        {
+          test: 'equal',
+          expected: `${PAYPAL_MESSAGE.productName} payment received`,
+        },
+      ],
+      [
+        'headers',
+        new Map([
+          [
+            'X-SES-MESSAGE-TAGS',
+            {
+              test: 'equal',
+              expected: sesMessageTagsHeaderValue(
+                'subscriptionSubsequentInvoice'
+              ),
+            },
+          ],
+          [
+            'X-Template-Name',
+            { test: 'equal', expected: 'subscriptionSubsequentInvoice' },
+          ],
+          [
+            'X-Template-Version',
+            {
+              test: 'equal',
+              expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice,
+            },
+          ],
+        ]),
+      ],
+      [
+        'html',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+      [
+        'text',
+        [
+          { test: 'include', expected: `PayPal` },
+          { test: 'notInclude', expected: `MasterCard card ending in 5309` },
+        ],
+      ],
+    ]),
+  ],
+]);
+
 describe('lib/senders/mjml-emails:', () => {
   type LocalizeFn = (message: Record<any, any>) => Promise<Record<any, string>>;
-  type SelectEmailServicesFn = (message: Record<any, any>) => Promise<any>;
 
   let mockLog: Record<any, any>,
     mailer: Record<any, any>,
     localize: LocalizeFn,
-    selectEmailServices: SelectEmailServicesFn,
     sendMail: Record<any, any>;
 
   before(async () => {
@@ -1497,10 +1731,8 @@ describe('lib/senders/mjml-emails:', () => {
     // after each case, give them carte blanche to do what they want then
     // restore the original methods in the top-level afterEach.
     localize = mailer.localize;
-    selectEmailServices = mailer.selectEmailServices;
     sendMail = {
       mailer: mailer.mailer.sendMail,
-      emailService: mailer.emailService.sendMail,
     };
   });
 
@@ -1515,14 +1747,9 @@ describe('lib/senders/mjml-emails:', () => {
     if (mailer.localize !== localize) {
       mailer.localize = localize;
     }
-    if (mailer.selectEmailServices !== selectEmailServices) {
-      mailer.selectEmailServices = selectEmailServices;
-    }
+
     if (mailer.mailer.sendMail !== sendMail.mailer) {
       mailer.mailer.sendMail = sendMail.mailer;
-    }
-    if (mailer.emailService.sendMail !== sendMail.emailService) {
-      mailer.emailService.sendMail = sendMail.emailService;
     }
   });
 
@@ -1543,6 +1770,233 @@ describe('lib/senders/mjml-emails:', () => {
       await mailer[type](tmplVals);
     });
   }
+
+  describe('payment info is correctly rendered when payment_provider === "paypal"', () => {
+    for (const [type, test] of TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER) {
+      it(`"Paypal" is rendered instead of credit card and last four digits - ${type}`, async () => {
+        mailer.mailer.sendMail = stubSendMail((message) => {
+          test.forEach((assertions, property) => {
+            applyAssertions(type, message, property, assertions);
+          });
+        });
+        await mailer[type](PAYPAL_MESSAGE);
+      });
+    }
+  });
+
+  it('formats user-agent strings sanely', () => {
+    let result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Firefox on Windows 10');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Windows 10');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+    });
+    assert.equal(result, 'Firefox on Windows');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Firefox');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+    });
+    assert.equal(result, 'Firefox');
+
+    result = mailer._formatUserAgentInfo({ uaOS: 'Windows' });
+    assert.equal(result, 'Windows');
+
+    result = mailer._formatUserAgentInfo({});
+    assert.equal(result, '');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: '<a>Firefox</a>',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Windows 10');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'http://example.com/',
+      uaOSVersion: '10',
+    });
+    assert.equal(result, 'Firefox');
+
+    result = mailer._formatUserAgentInfo({
+      uaBrowser: 'Firefox',
+      uaBrowserVersion: '70',
+      uaOS: 'Windows',
+      uaOSVersion: 'dodgy-looking',
+    });
+    assert.equal(result, 'Firefox on Windows');
+  });
+
+  it('formats location strings sanely', () => {
+    const localMessage = {
+      ...MESSAGE,
+      location: {
+        city: 'Bournemouth',
+        state: 'England',
+        stateCode: 'EN',
+        country: 'United Kingdom',
+        countryCode: 'GB',
+      },
+    };
+    assert.equal(
+      mailer._constructLocationString(localMessage),
+      'Bournemouth, EN, United Kingdom (estimated)'
+    );
+
+    localMessage.location.stateCode = null;
+    assert.equal(
+      mailer._constructLocationString(localMessage),
+      'Bournemouth, United Kingdom (estimated)'
+    );
+
+    localMessage.location.city = null;
+    localMessage.location.stateCode = 'EN';
+    assert.equal(
+      mailer._constructLocationString(localMessage),
+      'EN, United Kingdom (estimated)'
+    );
+
+    localMessage.location.stateCode = null;
+    assert.equal(
+      mailer._constructLocationString(localMessage),
+      'United Kingdom (estimated)'
+    );
+
+    localMessage.location = null;
+    assert.equal(mailer._constructLocationString(localMessage), '');
+  });
+
+  it('defaults X-Template-Version to 1', () => {
+    mailer.localize = () => ({});
+    mailer.mailer.sendMail = stubSendMail((emailConfig) => {
+      assert.equal(emailConfig.headers['X-Template-Version'], 1);
+    });
+    return mailer.send({
+      ...MESSAGE,
+      template: 'wibble-blee-definitely-does-not-exist',
+    });
+  });
+
+  describe('mock sendMail method:', () => {
+    beforeEach(() => {
+      mailer.localize = () => ({ language: 'en' });
+      sinon.stub(mailer.mailer, 'sendMail').callsFake((config, cb) => {
+        cb(null, { resp: 'ok' });
+      });
+    });
+
+    it('logs emailEvent on send', () => {
+      const message = {
+        email: 'test@restmail.net',
+        flowId: 'wibble',
+        subject: 'subject',
+        template: 'verifyLogin',
+        uid: 'foo',
+      };
+
+      return mailer.send(message).then(() => {
+        assert.equal(mockLog.info.callCount, 1);
+        const emailEventLog = mockLog.info.getCalls()[0];
+        assert.equal(emailEventLog.args[0], 'emailEvent');
+        assert.equal(emailEventLog.args[1].domain, 'other');
+        assert.equal(emailEventLog.args[1].flow_id, 'wibble');
+        assert.equal(emailEventLog.args[1].template, 'verifyLogin');
+        assert.equal(emailEventLog.args[1].type, 'sent');
+        assert.equal(emailEventLog.args[1].locale, 'en');
+      });
+    });
+  });
+
+  describe('mock failing sendMail method:', () => {
+    beforeEach(() => {
+      mailer.localize = () => ({});
+      sinon
+        .stub(mailer.mailer, 'sendMail')
+        .callsFake((config, cb) => cb(new Error('Fail')));
+    });
+
+    it('rejects sendMail status', () => {
+      const message = {
+        email: 'test@restmail.net',
+        subject: 'subject',
+        template: 'verifyLogin',
+        uid: 'foo',
+      };
+
+      return mailer.send(message).then(assert.notOk, (err) => {
+        assert.equal(err.message, 'Fail');
+      });
+    });
+  });
+});
+
+describe('mailer constructor:', () => {
+  let mailerConfig, mockLog, mailer;
+
+  before(async () => {
+    mailerConfig = [
+      'accountSettingsUrl',
+      'accountRecoveryCodesUrl',
+      'androidUrl',
+      'initiatePasswordChangeUrl',
+      'initiatePasswordResetUrl',
+      'iosUrl',
+      'iosAdjustUrl',
+      'passwordManagerInfoUrl',
+      'passwordResetUrl',
+      'privacyUrl',
+      'reportSignInUrl',
+      'sender',
+      'sesConfigurationSet',
+      'supportUrl',
+      'syncUrl',
+      'verificationUrl',
+      'verifyLoginUrl',
+      'verifySecondaryEmailUrl',
+      'verifyPrimaryEmailUrl',
+    ].reduce((target, key) => {
+      target[key] = `mock ${key}`;
+      return target;
+    }, {});
+    mockLog = mocks.mockLog();
+    mailer = await setup(
+      mockLog,
+      { ...config, smtp: mailerConfig },
+      {},
+      'en',
+      'wibble'
+    );
+  });
+
+  it('set properties on self from config correctly', () => {
+    Object.entries(mailerConfig).forEach(([key, expected]) => {
+      assert.equal(mailer[key], expected, `${key} was correct`);
+    });
+  });
 });
 
 function sesMessageTagsHeaderValue(templateName: string, serviceName?: any) {

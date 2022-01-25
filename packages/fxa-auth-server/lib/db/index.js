@@ -19,6 +19,7 @@ const {
   KeyFetchToken: RawKeyFetchToken,
   PasswordChangeToken: RawPasswordChangeToken,
   PasswordForgotToken: RawPasswordForgotToken,
+  LinkedAccount,
   SessionToken: RawSessionToken,
   RecoveryKey,
   TotpToken,
@@ -362,6 +363,16 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       throw error.unknownSecondaryEmail();
     }
     return emailRecord;
+  };
+
+  DB.prototype.getGoogleId = async function (googleId) {
+    log.trace('DB.getGoogleId', { googleId });
+    return LinkedAccount.findByGoogleId(googleId);
+  };
+
+  DB.prototype.createLinkedGoogleAccount = async function (uid, googleUserId) {
+    log.trace('DB.createLinkedGoogleAccount', { uid, googleUserId });
+    return LinkedAccount.createLinkedGoogleAccount(uid, googleUserId);
   };
 
   DB.prototype.totpToken = async function (uid) {
@@ -1083,7 +1094,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   return DB;
 };
 
-// Note that these errno's are defined in the fxa-auth-db-mysql repo
+// Note that these errno's were defined in the fxa-auth-db-mysql repo
 // and don't necessarily match the errnos in this repo...
 
 function isRecordAlreadyExistsError(err) {

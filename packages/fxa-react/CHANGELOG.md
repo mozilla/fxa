@@ -1,3 +1,18 @@
+## 1.224.1
+
+No changes.
+
+## 1.224.0
+
+### Other changes
+
+- deps-dev: bump @storybook/addon-actions from 6.3.12 to 6.4.12 (#11635) ([b686fd5a9](https://github.com/mozilla/fxa/commit/b686fd5a9))
+- deps-dev: bump @storybook/addon-links from 6.3.12 to 6.3.13 (#11621) ([79d0f2abc](https://github.com/mozilla/fxa/commit/79d0f2abc))
+- deps-dev: bump sass from 1.46.0 to 1.48.0 (#11620) ([e80eca3b6](https://github.com/mozilla/fxa/commit/e80eca3b6))
+- deps: bump async-wait-until from 2.0.9 to 2.0.12 (#11552) ([5f15dd4c7](https://github.com/mozilla/fxa/commit/5f15dd4c7))
+- deps-dev: bump jest from 27.4.3 to 27.4.7 (#11551) ([43c4bdebd](https://github.com/mozilla/fxa/commit/43c4bdebd))
+- deps-dev: bump sass from 1.45.1 to 1.46.0 (#11550) ([b71db1acd](https://github.com/mozilla/fxa/commit/b71db1acd))
+
 ## 1.223.2
 
 No changes.
