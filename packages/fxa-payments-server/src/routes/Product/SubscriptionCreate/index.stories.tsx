@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Stripe,
-  StripeCardElement,
-  StripeError,
-  PaymentMethod,
-  PaymentIntent,
-} from '@stripe/stripe-js';
+import { Stripe, PaymentMethod, PaymentIntent } from '@stripe/stripe-js';
 import { storiesOf } from '@storybook/react';
 import { linkTo } from '@storybook/addon-links';
 import MockApp, {
@@ -228,6 +222,7 @@ const SUBSCRIPTION_RESULT = {
   id: 'sub_1234',
   latest_invoice: {
     id: 'invoice_5678',
+    status: 'paid',
     payment_intent: {
       id: 'pi_7890',
       client_secret: 'cs_abcd',
@@ -239,6 +234,7 @@ const SUBSCRIPTION_RESULT = {
 
 const RETRY_INVOICE_RESULT = {
   id: 'invoice_5678',
+  status: 'paid',
   payment_intent: {
     id: 'pi_9876',
     client_secret: 'cs_erty',

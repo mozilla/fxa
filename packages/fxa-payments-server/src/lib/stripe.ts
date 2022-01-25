@@ -115,11 +115,10 @@ export async function handleSubscriptionPayment({
         idempotencyKey,
         promotionCode: promotionCode,
       });
-    console.log(createSubscriptionResult);
     return handlePaymentIntent({
       customer,
       invoiceId: createSubscriptionResult.latest_invoice.id,
-      status: createSubscriptionResult.latest_invoice.status,
+      invoiceStatus: createSubscriptionResult.latest_invoice.status,
       paymentIntentStatus:
         createSubscriptionResult.latest_invoice.payment_intent?.status,
       paymentIntentClientSecret:
@@ -179,7 +178,7 @@ export async function handleSubscriptionPayment({
     return handlePaymentIntent({
       customer,
       invoiceId: createSubscriptionResult.latest_invoice.id,
-      status: createSubscriptionResult.latest_invoice.status,
+      invoiceStatus: createSubscriptionResult.latest_invoice.status,
       paymentIntentStatus:
         createSubscriptionResult.latest_invoice.payment_intent?.status,
       paymentIntentClientSecret:
@@ -197,7 +196,7 @@ export async function handleSubscriptionPayment({
     return handlePaymentIntent({
       customer,
       invoiceId,
-      status: retryInvoiceResult.status,
+      invoiceStatus: retryInvoiceResult.status,
       paymentIntentStatus: retryInvoiceResult.payment_intent.status,
       paymentIntentClientSecret:
         retryInvoiceResult.payment_intent.client_secret,
@@ -209,7 +208,7 @@ export async function handleSubscriptionPayment({
 export async function handlePaymentIntent({
   customer,
   invoiceId,
-  status,
+  invoiceStatus,
   paymentIntentStatus,
   paymentIntentClientSecret,
   paymentMethodId,
@@ -221,7 +220,7 @@ export async function handlePaymentIntent({
 }: {
   customer: Customer | null;
   invoiceId: string;
-  status: string;
+  invoiceStatus: string;
   paymentIntentStatus: string | null | undefined;
   paymentIntentClientSecret: string | null | undefined;
   paymentMethodId: string | undefined;
@@ -232,7 +231,7 @@ export async function handlePaymentIntent({
   onSuccess: () => void;
 }): Promise<void> {
   // An invoice with amount less than Stripe minimums won't have a paymentIntent.
-  if (!paymentIntentStatus && status === 'paid') {
+  if (!paymentIntentStatus && invoiceStatus === 'paid') {
     return onSuccess();
   }
 
@@ -270,7 +269,7 @@ export async function handlePaymentIntent({
       return handlePaymentIntent({
         customer,
         invoiceId,
-        status,
+        invoiceStatus,
         paymentIntentStatus: confirmResult.paymentIntent.status,
         paymentIntentClientSecret: confirmResult.paymentIntent.client_secret,
         paymentMethodId,
