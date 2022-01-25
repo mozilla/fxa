@@ -41,7 +41,6 @@ const {
   type,
   visibleByQSA,
 } = FunctionalHelpers;
-const rmHelpers = FunctionalHelpers.helpersRemoteWrapped;
 
 registerSuite('oauth reset password', {
   beforeEach: function () {
@@ -255,39 +254,6 @@ registerSuite('oauth reset password', {
             .then(testElementTextInclude('.account-ready-service', '123done'))
         );
       },
-    'reset password using rp in pocket migration experiment': async ({
-      remote,
-    }) => {
-      await rmHelpers.openFxaFromRp('enter-email', {}, remote);
-      await rmHelpers.type(selectors.ENTER_EMAIL.EMAIL, email, remote);
-      await rmHelpers.click(
-        selectors.ENTER_EMAIL.SUBMIT,
-        selectors.SIGNIN_PASSWORD.HEADER,
-        remote
-      );
-      await rmHelpers.click(
-        selectors.SIGNIN_PASSWORD.LINK_FORGOT_PASSWORD,
-        selectors.RESET_PASSWORD.HEADER,
-        remote
-      );
-      await rmHelpers.fillOutResetPassword(email, {}, remote);
-      await rmHelpers.openVerificationLinkInSameTab(
-        email,
-        0,
-        {
-          query: {
-            forceExperiment: 'pocketMigration',
-            forceExperimentGroup: 'treatment',
-          },
-        },
-        remote
-      );
-      await rmHelpers.fillOutCompleteResetPassword(PASSWORD, PASSWORD, remote);
-      await rmHelpers.testElementExists(
-        selectors.POCKET_OAUTH.LOGO_IMG,
-        remote
-      );
-    },
   },
 });
 

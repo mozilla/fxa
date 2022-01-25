@@ -27,12 +27,6 @@ const {
   testUrlInclude,
   visibleByQSA,
 } = FunctionalHelpers;
-const {
-  openFxaFromRp: openFxaFromRpRm,
-  testElementExists: testElementExistsRm,
-  fillOutEmailFirstSignUp: fillOutEmailFirstSignUpRm,
-  fillOutEmailFirstEmail,
-} = FunctionalHelpers.helpersRemoteWrapped;
 
 registerSuite('oauth signup', {
   beforeEach: function () {
@@ -101,41 +95,6 @@ registerSuite('oauth signup', {
       return this.remote.then(
         openPage(SUCCESS_URL, '#fxa-oauth-success-header')
       );
-    },
-
-    'in pocket migration experiment': async ({ remote }) => {
-      await openFxaFromRpRm(
-        'enter-email',
-        {
-          query: {
-            forceExperiment: 'pocketMigration',
-            forceExperimentGroup: 'treatment',
-          },
-        },
-        remote
-      );
-
-      await testElementExistsRm(selectors.POCKET_OAUTH.LOGO_IMG, remote);
-      await testElementExistsRm(selectors.POCKET_OAUTH.SERVICE_TILE, remote);
-      await testElementExistsRm(selectors.POCKET_OAUTH.ALL_SERVICES, remote);
-
-      await fillOutEmailFirstEmail(
-        email,
-        selectors.SIGNUP_PASSWORD.HEADER,
-        remote
-      );
-      await testElementExistsRm(selectors.POCKET_OAUTH.LOGO_IMG, remote);
-      await testElementExistsRm(selectors.POCKET_OAUTH.TOS, remote);
-      await testElementExistsRm(selectors.POCKET_OAUTH.PP, remote);
-
-      await fillOutEmailFirstSignUpRm(
-        email,
-        PASSWORD,
-        { enterEmail: false },
-        remote
-      );
-
-      await testElementExistsRm(selectors.POCKET_OAUTH.LOGO_IMG, remote);
     },
   },
 });
