@@ -96,6 +96,8 @@ export abstract class LocalizerBindings {
    * @param locale Locale to use, defaults to en.
    */
   async fetchLocalizationMessages(locale?: string) {
+    // note: 'en' auth.ftl only exists for browser bindings / Storybook
+    // the fallback English strings within the templates will be shown in other envs
     const path = `${this.opts.l10n.basePath}/${locale || 'en'}/auth.ftl`;
 
     try {
