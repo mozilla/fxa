@@ -12,6 +12,10 @@ const { GoogleMapsService } = require('../../lib/google-maps-services');
 const { default: Container } = require('typedi');
 const { AuthLogger, AppConfig } = require('../../lib/types');
 
+function deepCopy(object) {
+  return JSON.parse(JSON.stringify(object));
+}
+
 const geocodeResultMany = {
   data: {
     results: [
@@ -21,6 +25,11 @@ const geocodeResultMany = {
             long_name: 'Maryland',
             short_name: 'MD',
             types: ['administrative_area_level_1', 'political'],
+          },
+          {
+            long_name: '11111',
+            short_name: '11111',
+            types: ['postal_code'],
           },
         ],
       },
@@ -132,7 +141,44 @@ describe('GoogleMapsServices', () => {
       );
     });
 
-    it('Throws Error for invalid country code', async () => {
+    it('returns location for zip code and country if more than 1 result is returned with matching states', async () => {
+      const geocodeResultManyMatchingStates = deepCopy(geocodeResultMany);
+      geocodeResultManyMatchingStates.data.results[1].address_components[0].short_name =
+        'MD';
+      const expectedResult = 'MD';
+      const expectedAddress = '11111, United States of America';
+      googleClient.geocode = sinon
+        .stub()
+        .resolves(geocodeResultManyMatchingStates);
+
+      const actualResult = await googleMapsServices.getStateFromZip(
+        '11111',
+        'US'
+      );
+      assert.equal(actualResult, expectedResult);
+      assert.isTrue(googleClient.geocode.calledOnce);
+      assert.equal(
+        googleClient.geocode.getCall(0).args[0].params.address,
+        expectedAddress
+      );
+    });
+
+    it('Throws error if more than 1 result is returned with mismatching states', async () => {
+      const expectedMessage = 'Could not find unique results. (22222, Germany)';
+      googleClient.geocode = sinon.stub().resolves(geocodeResultMany);
+
+      try {
+        await googleMapsServices.getStateFromZip('22222', 'DE');
+        assert.fail(expectedMessage);
+      } catch (err) {
+        assert.equal(
+          expectedMessage,
+          googleMapsServices.log.error.getCall(0).args[1].error.message
+        );
+      }
+    });
+
+    it('Throws error for invalid country code', async () => {
       const expectedMessage =
         'Invalid country (Germany). Only ISO 3166-1 alpha-2 country codes are supported.';
 
@@ -147,24 +193,9 @@ describe('GoogleMapsServices', () => {
       }
     });
 
-    it('Throws Error for zip cod without state', async () => {
+    it('Throws error for zip code without state', async () => {
       const expectedMessage = 'State could not be found. (11111, Germany)';
       googleClient.geocode = sinon.stub().resolves(geocodeResultWithoutState);
-
-      try {
-        await googleMapsServices.getStateFromZip('11111', 'DE');
-        assert.fail(expectedMessage);
-      } catch (err) {
-        assert.equal(
-          expectedMessage,
-          googleMapsServices.log.error.getCall(0).args[1].error.message
-        );
-      }
-    });
-
-    it('Throws error if more than 1 result is returned', async () => {
-      const expectedMessage = 'Could not find unique results. (11111, Germany)';
-      googleClient.geocode = sinon.stub().resolves(geocodeResultMany);
 
       try {
         await googleMapsServices.getStateFromZip('11111', 'DE');
