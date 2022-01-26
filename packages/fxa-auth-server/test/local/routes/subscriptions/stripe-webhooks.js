@@ -277,14 +277,10 @@ describe('StripeWebhookHandler', () => {
       });
 
       describe('when the event.type is coupon.created', () => {
-        itOnlyCallsThisHandler(
-          'handleCouponEvent',
-          {
-            data: { object: { id: 'coupon_123', object: 'coupon' } },
-            type: 'coupon.created',
-          },
-          false
-        );
+        itOnlyCallsThisHandler('handleCouponEvent', {
+          data: { object: { id: 'coupon_123', object: 'coupon' } },
+          type: 'coupon.created',
+        });
 
         itOnlyCallsThisHandler(
           'handleCouponEvent',

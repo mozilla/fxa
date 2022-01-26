@@ -34,6 +34,11 @@ import { StripeHandler } from './stripe';
 // object in the request payload.  Products and plans are excluded because
 // `expandResource` uses the cached lists for products and plans, but the
 // cached lists themselves are updated through webhooks.
+//
+// 'price' is included in this list of exclusion because the Prices API
+// replaced Plans, but since it is backwards compatible, we haven't needed to
+// update our plans handling code.  Prices should be treated in the same
+// fashion as plans, so it's on this list.
 const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product'];
 const ALLOWED_EXPAND_RESOURCE_TYPES = Object.fromEntries(
   Object.entries(STRIPE_OBJECT_TYPE_TO_RESOURCE).filter(
