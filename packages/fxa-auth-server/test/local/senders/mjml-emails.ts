@@ -71,6 +71,7 @@ const MESSAGE = {
   uaOS: 'Windows',
   uaOSVersion: '10',
   uid: 'uid',
+  metricsEnabled: true,
   unblockCode: 'AS6334PK',
   cardType: 'mastercard',
   icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
@@ -175,6 +176,13 @@ const COMMON_TESTS = new Map<string, Test | any>([
     ],
   ],
 ]);
+
+const COMMON_METRICS_OPT_OUT_TESTS: { test: string; expected: string }[] = [
+  { test: 'notInclude', expected: 'utm_source=email' },
+  { test: 'notInclude', expected: 'utm_medium=email' },
+  { test: 'notInclude', expected: 'utm_campaign=' },
+  { test: 'notInclude', expected: 'utm_context=' },
+];
 
 // prettier-ignore
 const TESTS: [string, any, Record<string, any>?][] = [
@@ -475,6 +483,10 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+  ['verifySecondaryCodeEmail', new Map<string, Test | any>([
+    ['html', COMMON_METRICS_OPT_OUT_TESTS],
+    ['text', COMMON_METRICS_OPT_OUT_TESTS]]),
+      {updateTemplateValues: values => ({...values, metricsEnabled: false })}],
 
   ['passwordResetEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Password updated' }],
@@ -1096,6 +1108,10 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+  ['downloadSubscriptionEmail', new Map<string, Test | any>([
+    ['html', COMMON_METRICS_OPT_OUT_TESTS],
+    ['text', COMMON_METRICS_OPT_OUT_TESTS]]),
+      {updateTemplateValues: values => ({...values, metricsEnabled: false })}],
 
   ['subscriptionAccountDeletionEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],

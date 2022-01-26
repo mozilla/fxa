@@ -306,6 +306,7 @@ module.exports = function (log, config, bounces) {
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
     this.fluentLocalizer = new FluentLocalizer(new NodeLocalizerBindings());
+    this.metricsEnabled = true;
   }
 
   Mailer.prototype.stop = function () {
@@ -3091,15 +3092,17 @@ module.exports = function (log, config, bounces) {
       parsedLink.searchParams.set(key, value);
     });
 
-    parsedLink.searchParams.set('utm_medium', 'email');
+    if (this.metricsEnabled) {
+      parsedLink.searchParams.set('utm_medium', 'email');
 
-    const campaign = templateNameToCampaignMap[templateName];
-    if (campaign && !parsedLink.searchParams.has('utm_campaign')) {
-      parsedLink.searchParams.set('utm_campaign', UTM_PREFIX + campaign);
-    }
+      const campaign = templateNameToCampaignMap[templateName];
+      if (campaign && !parsedLink.searchParams.has('utm_campaign')) {
+        parsedLink.searchParams.set('utm_campaign', UTM_PREFIX + campaign);
+      }
 
-    if (content) {
-      parsedLink.searchParams.set('utm_content', UTM_PREFIX + content);
+      if (content) {
+        parsedLink.searchParams.set('utm_content', UTM_PREFIX + content);
+      }
     }
 
     const isAccountOrEmailVerification =
@@ -3122,7 +3125,9 @@ module.exports = function (log, config, bounces) {
     appStoreLink,
     playStoreLink
   ) {
-    const { email, uid } = message;
+    const { email, uid, metricsEnabled } = message;
+    // set this to avoid passing `metricsEnabled` around to all link functions
+    this.metricsEnabled = metricsEnabled;
 
     const translator = this.translator(message.acceptLanguage);
     const {

@@ -67,6 +67,7 @@ module.exports = async (
             ccEmails: cc,
             email: to || account.email,
             uid: account.uid,
+            metricsEnabled: !account.metricsOptOutAt,
           });
         };
 
@@ -91,6 +92,7 @@ module.exports = async (
       email: emails[0].email,
       primaryEmail: account.email,
       uid: account.uid,
+      metricsEnabled: !account.metricsOptOutAt,
     });
   };
 
@@ -101,6 +103,7 @@ module.exports = async (
       email: emails[0].email,
       primaryEmail: account.email,
       uid: account.uid,
+      metricsEnabled: !account.metricsOptOutAt,
     });
   };
 
@@ -109,6 +112,7 @@ module.exports = async (
       ...options,
       acceptLanguage: options.acceptLanguage || defaultLanguage,
       email: account.primaryEmail.email,
+      metricsEnabled: !account.metricsOptOutAt,
     });
   };
 

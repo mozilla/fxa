@@ -108,6 +108,7 @@ const MESSAGE = {
   uaOS: 'Windows',
   uaOSVersion: '10',
   uid: 'uid',
+  metricsEnabled: true,
   unblockCode: 'AS6334PK',
 };
 
@@ -163,6 +164,13 @@ const COMMON_TESTS = new Map([
   ],
 ]);
 
+const COMMON_METRICS_OPT_OUT_TESTS = [
+  { test: 'notInclude', expected: 'utm_source=email' },
+  { test: 'notInclude', expected: 'utm_medium=email' },
+  { test: 'notInclude', expected: 'utm_campaign=' },
+  { test: 'notInclude', expected: 'utm_context=' },
+];
+
 // prettier-ignore
 const TESTS = [
   ['verifySecondaryCodeEmail', new Map([
@@ -203,6 +211,10 @@ const TESTS = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+  ['verifySecondaryCodeEmail', new Map([
+    ['html', COMMON_METRICS_OPT_OUT_TESTS],
+    ['text', COMMON_METRICS_OPT_OUT_TESTS]]),
+      {updateTemplateValues: values => ({...values, metricsEnabled: false })}],
   ['downloadSubscriptionEmail', new Map([
     ['subject', { test: 'equal', expected: `Welcome to ${MESSAGE.productName}` }],
     ['headers', new Map([
@@ -233,6 +245,10 @@ const TESTS = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+  ['downloadSubscriptionEmail', new Map([
+    ['html', COMMON_METRICS_OPT_OUT_TESTS],
+    ['text', COMMON_METRICS_OPT_OUT_TESTS]]),
+      {updateTemplateValues: values => ({...values, metricsEnabled: false })}],
   ['subscriptionFirstInvoiceEmail', new Map([
     ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
     ['headers', new Map([
