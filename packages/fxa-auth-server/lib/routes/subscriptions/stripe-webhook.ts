@@ -29,6 +29,18 @@ import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
 
+// ALLOWED_EXPAND_RESOURCE_TYPES is a map of "types" of Stripe objects that we
+// will fetch the latest of for the webhook event, _instead of_ using the
+// object in the request payload.  Products and plans are excluded because
+// `expandResource` uses the cached lists for products and plans, but the
+// cached lists themselves are updated through webhooks.
+const BYPASS_LATEST_FETCH_TYPES = ['plan', 'price', 'product'];
+const ALLOWED_EXPAND_RESOURCE_TYPES = Object.fromEntries(
+  Object.entries(STRIPE_OBJECT_TYPE_TO_RESOURCE).filter(
+    ([k, _]) => !BYPASS_LATEST_FETCH_TYPES.includes(k)
+  )
+);
+
 const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
   error.ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE,
   error.ERRNO.BOUNCE_HARD,
@@ -76,14 +88,16 @@ export class StripeWebhookHandler extends StripeHandler {
       // Ensure the object is the latest version.
       const stripeObject = event.data.object as Record<string, any>;
       const resourceType =
-        STRIPE_OBJECT_TYPE_TO_RESOURCE[stripeObject.object as string];
+        ALLOWED_EXPAND_RESOURCE_TYPES[stripeObject.object as string];
       if (resourceType) {
         // Replace the object with the latest version if we support this object.
         event.data.object = await this.stripeHelper.expandResource(
           stripeObject.id,
           resourceType as typeof VALID_RESOURCE_TYPES[number]
         );
-      } else {
+      } else if (
+        !BYPASS_LATEST_FETCH_TYPES.includes(stripeObject.object as string)
+      ) {
         // We shouldn't be handling events that we can't fetch the latest version
         // of with expandResource. If we have a handler below for this type, then
         // we should have it included as a resource type to expand above.

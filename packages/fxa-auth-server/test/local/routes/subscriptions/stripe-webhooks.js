@@ -208,7 +208,8 @@ describe('StripeWebhookHandler', () => {
       const itOnlyCallsThisHandler = (
         expectedHandlerName,
         event,
-        expectSentry = false
+        expectSentry = false,
+        expectExpandResource = true
       ) =>
         it(`only calls ${expectedHandlerName}`, async () => {
           const createdEvent = deepCopy(event);
@@ -227,11 +228,11 @@ describe('StripeWebhookHandler', () => {
               scopeContextSpy.notCalled,
               'Expected to not call Sentry'
             );
-            assert.isTrue(
-              StripeWebhookHandlerInstance.stripeHelper.expandResource
-                .calledOnce
-            );
           }
+          assert.equal(
+            StripeWebhookHandlerInstance.stripeHelper.expandResource.calledOnce,
+            expectExpandResource
+          );
         });
 
       describe('ignorable errors', () => {
@@ -276,10 +277,14 @@ describe('StripeWebhookHandler', () => {
       });
 
       describe('when the event.type is coupon.created', () => {
-        itOnlyCallsThisHandler('handleCouponEvent', {
-          data: { object: { id: 'coupon_123', object: 'coupon' } },
-          type: 'coupon.created',
-        });
+        itOnlyCallsThisHandler(
+          'handleCouponEvent',
+          {
+            data: { object: { id: 'coupon_123', object: 'coupon' } },
+            type: 'coupon.created',
+          },
+          false
+        );
 
         itOnlyCallsThisHandler(
           'handleCouponEvent',
@@ -287,7 +292,8 @@ describe('StripeWebhookHandler', () => {
             data: { object: { id: 'coupon_123' } },
             type: 'coupon.created',
           },
-          true
+          true,
+          false
         );
       });
 
@@ -343,14 +349,18 @@ describe('StripeWebhookHandler', () => {
       describe('when the event.type is product.updated', () => {
         itOnlyCallsThisHandler(
           'handleProductWebhookEvent',
-          eventProductUpdated
+          eventProductUpdated,
+          false,
+          false
         );
       });
 
       describe('when the event.type is plan.updated', () => {
         itOnlyCallsThisHandler(
           'handlePlanCreatedOrUpdatedEvent',
-          eventPlanUpdated
+          eventPlanUpdated,
+          false,
+          false
         );
       });
 
