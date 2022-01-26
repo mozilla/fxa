@@ -12531,20 +12531,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.1057.0":
-  version: 2.1057.0
-  resolution: "aws-sdk@npm:2.1057.0"
+"aws-sdk@npm:^2.1063.0":
+  version: 2.1063.0
+  resolution: "aws-sdk@npm:2.1063.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
     ieee754: 1.1.13
-    jmespath: 0.15.0
+    jmespath: 0.16.0
     querystring: 0.2.0
     sax: 1.2.1
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: 6eb7dc9181b9449cff3fe7dc7f8f77a260afbb698764aea72807a8b6bee12772eeeb0b8eeb977d66b7bc02103c0f893bb2188ab78532251d8285ff94221b3b45
+  checksum: f40ac12da5ea3575cc4d4831ffb948dc185b238ab597e6caa7a56ae985ae6b74674990b58b107109d431bd44187a8fd0440d97e51e0221f4443db643110270e2
   languageName: node
   linkType: hard
 
@@ -21496,7 +21496,7 @@ fsevents@~2.1.1:
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1057.0
+    aws-sdk: ^2.1063.0
     babel-loader: ^8.2.2
     base64url: 3.0.1
     binary-split: 1.0.5
@@ -21869,7 +21869,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1057.0
+    aws-sdk: ^2.1063.0
     axios: ^0.24.0
     chance: ^1.1.8
     class-transformer: ^0.5.1
@@ -22179,7 +22179,7 @@ fsevents@~2.1.1:
     "@sentry/node": ^6.16.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1057.0
+    aws-sdk: ^2.1063.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 1.0.0
@@ -22388,7 +22388,7 @@ fsevents@~2.1.1:
     ajv: ^6.12.2
     apollo-server: ^2.25.3
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1057.0
+    aws-sdk: ^2.1063.0
     celebrate: ^10.0.1
     chai: ^4.3.4
     chance: ^1.1.8
@@ -27744,10 +27744,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jmespath@npm:0.15.0":
-  version: 0.15.0
-  resolution: "jmespath@npm:0.15.0"
-  checksum: 353bb9e69cc4c1560be0a4df43cb4020abc246e1c60cb5b55dcc76d8c858383f1633faf22ccaf6a5e09568a2077d0f4f1e989e6fcfd496b5cef87964cc8cb9e7
+"jmespath@npm:0.16.0":
+  version: 0.16.0
+  resolution: "jmespath@npm:0.16.0"
+  checksum: 2d602493a1e4addfd1350ac8c9d54b1b03ed09e305fd863bab84a4ee1f52868cf939dd1a08c5cdea29ce9ba8f86875ebb458b6ed45dab3e1c3f2694503fb2fd9
   languageName: node
   linkType: hard
 
