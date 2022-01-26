@@ -4934,19 +4934,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:^8.2.5":
-  version: 8.2.5
-  resolution: "@nestjs/platform-express@npm:8.2.5"
+"@nestjs/platform-express@npm:^8.2.6":
+  version: 8.2.6
+  resolution: "@nestjs/platform-express@npm:8.2.6"
   dependencies:
     body-parser: 1.19.1
     cors: 2.8.5
-    express: 4.17.1
+    express: 4.17.2
     multer: 1.4.4
     tslib: 2.3.1
   peerDependencies:
     "@nestjs/common": ^8.0.0
     "@nestjs/core": ^8.0.0
-  checksum: bae6b6832ac1e598ca850c3ccbcf2a239f7db9a909ebf7191f23f5f85a585fd8c00018eb9bde7d6f476c94a4decf94b019392e722f481460cff5a370b88ff17c
+  checksum: 9ac5fce608fd3d2b06c8fb6003e9436e8ddc1b070ec98af7a5787a785c4edbe74fb106efe3e12e558ad1a3cd02ef8867235d086ebc0d1db88f14ad0626c46478
   languageName: node
   linkType: hard
 
@@ -19823,45 +19823,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:4.17.1, express@npm:^4.0.0, express@npm:^4.17.1, express@npm:~4.17.1":
-  version: 4.17.1
-  resolution: "express@npm:4.17.1"
-  dependencies:
-    accepts: ~1.3.7
-    array-flatten: 1.1.1
-    body-parser: 1.19.0
-    content-disposition: 0.5.3
-    content-type: ~1.0.4
-    cookie: 0.4.0
-    cookie-signature: 1.0.6
-    debug: 2.6.9
-    depd: ~1.1.2
-    encodeurl: ~1.0.2
-    escape-html: ~1.0.3
-    etag: ~1.8.1
-    finalhandler: ~1.1.2
-    fresh: 0.5.2
-    merge-descriptors: 1.0.1
-    methods: ~1.1.2
-    on-finished: ~2.3.0
-    parseurl: ~1.3.3
-    path-to-regexp: 0.1.7
-    proxy-addr: ~2.0.5
-    qs: 6.7.0
-    range-parser: ~1.2.1
-    safe-buffer: 5.1.2
-    send: 0.17.1
-    serve-static: 1.14.1
-    setprototypeof: 1.1.1
-    statuses: ~1.5.0
-    type-is: ~1.6.18
-    utils-merge: 1.0.1
-    vary: ~1.1.2
-  checksum: d964e9e17af331ea6fa2f84999b063bc47189dd71b4a735df83f9126d3bb2b92e830f1cb1d7c2742530eb625e2689d7a9a9c71f0c3cc4dd6015c3cd32a01abd5
-  languageName: node
-  linkType: hard
-
-"express@npm:^4.17.2":
+"express@npm:4.17.2, express@npm:^4.17.2":
   version: 4.17.2
   resolution: "express@npm:4.17.2"
   dependencies:
@@ -19896,6 +19858,44 @@ __metadata:
     utils-merge: 1.0.1
     vary: ~1.1.2
   checksum: 1535d56d20e65a1a39b5f056c025dd635290a744478ac69cc47633aeb4b2ce51458f8eb4080cfb7ba47c853ba5cfd794d404cff822a25127f1556b726ec3914a
+  languageName: node
+  linkType: hard
+
+"express@npm:^4.0.0, express@npm:^4.17.1, express@npm:~4.17.1":
+  version: 4.17.1
+  resolution: "express@npm:4.17.1"
+  dependencies:
+    accepts: ~1.3.7
+    array-flatten: 1.1.1
+    body-parser: 1.19.0
+    content-disposition: 0.5.3
+    content-type: ~1.0.4
+    cookie: 0.4.0
+    cookie-signature: 1.0.6
+    debug: 2.6.9
+    depd: ~1.1.2
+    encodeurl: ~1.0.2
+    escape-html: ~1.0.3
+    etag: ~1.8.1
+    finalhandler: ~1.1.2
+    fresh: 0.5.2
+    merge-descriptors: 1.0.1
+    methods: ~1.1.2
+    on-finished: ~2.3.0
+    parseurl: ~1.3.3
+    path-to-regexp: 0.1.7
+    proxy-addr: ~2.0.5
+    qs: 6.7.0
+    range-parser: ~1.2.1
+    safe-buffer: 5.1.2
+    send: 0.17.1
+    serve-static: 1.14.1
+    setprototypeof: 1.1.1
+    statuses: ~1.5.0
+    type-is: ~1.6.18
+    utils-merge: 1.0.1
+    vary: ~1.1.2
+  checksum: d964e9e17af331ea6fa2f84999b063bc47189dd71b4a735df83f9126d3bb2b92e830f1cb1d7c2742530eb625e2689d7a9a9c71f0c3cc4dd6015c3cd32a01abd5
   languageName: node
   linkType: hard
 
@@ -21373,7 +21373,7 @@ fsevents@~2.1.1:
     "@nestjs/core": ^8.2.4
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
-    "@nestjs/platform-express": ^8.2.5
+    "@nestjs/platform-express": ^8.2.6
     "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
@@ -21849,7 +21849,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.2.5
+    "@nestjs/platform-express": ^8.2.6
     "@nestjs/schedule": ^1.0.2
     "@nestjs/schematics": ^8.0.5
     "@nestjs/testing": ^8.2.6
@@ -21947,7 +21947,7 @@ fsevents@~2.1.1:
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.0.1
     "@nestjs/passport": ^8.0.1
-    "@nestjs/platform-express": ^8.2.5
+    "@nestjs/platform-express": ^8.2.6
     "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/chance": ^1.1.2
@@ -22448,7 +22448,7 @@ fsevents@~2.1.1:
     "@nestjs/config": ^1.1.6
     "@nestjs/core": ^8.2.4
     "@nestjs/mapped-types": ^1.0.1
-    "@nestjs/platform-express": ^8.2.5
+    "@nestjs/platform-express": ^8.2.6
     "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@types/convict": ^5.2.2
