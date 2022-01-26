@@ -47,12 +47,11 @@ export class LinkedAccount extends BaseAuthModel {
     });
   }
 
-  static async deleteLinkedGoogleAccount(uid: string, id: string) {
+  static async deleteLinkedGoogleAccount(uid: string) {
     await LinkedAccount.query()
       .delete()
       .where({
         uid: uuidTransformer.to(uid),
-        id,
         providerId: PROVIDER['GOOGLE'],
       });
   }

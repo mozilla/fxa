@@ -381,6 +381,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return LinkedAccount.createLinkedGoogleAccount(uid, googleUserId);
   };
 
+  DB.prototype.deleteLinkedGoogleAccount = async function (uid) {
+    log.trace('DB.deleteLinkedGoogleAccount', { uid });
+    return LinkedAccount.deleteLinkedGoogleAccount(uid);
+  };
+
   DB.prototype.totpToken = async function (uid) {
     log.trace('DB.totpToken', { uid });
     const totp = await TotpToken.findByUid(uid);

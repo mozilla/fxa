@@ -525,7 +525,7 @@ describe('auth', () => {
         const id = getRandomId();
         await LinkedAccount.createLinkedGoogleAccount(userId, id);
 
-        await LinkedAccount.deleteLinkedGoogleAccount(userId, id);
+        await LinkedAccount.deleteLinkedGoogleAccount(userId);
 
         const linkedAccount = await LinkedAccount.findByGoogleId(id);
         assert.isUndefined(linkedAccount);

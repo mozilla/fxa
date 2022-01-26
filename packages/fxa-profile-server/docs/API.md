@@ -96,7 +96,8 @@ curl -v \
   "displayName": "Max Power",
   "avatar": "https://firefoxusercontent.com/a9bff302615cd015692a099f691205cc",
   "avatarDefault": false,
-  "subscriptions": ["foo", "bar", "baz"]
+  "subscriptions": ["foo", "bar", "baz"],
+  "metricsEnabled": true
 }
 ```
 

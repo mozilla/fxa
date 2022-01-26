@@ -490,6 +490,15 @@ export default class AuthClient {
     return await this.request('POST', '/account/login/third_party', payload);
   }
 
+  async unlinkThirdParty(
+    sessionToken: hexstring,
+    provider: string
+  ): Promise<{ success: boolean }> {
+    return await this.sessionPost('/account/third_party/unlink', sessionToken, {
+      provider,
+    });
+  }
+
   async accountKeys(
     keyFetchToken: hexstring,
     unwrapBKey: hexstring

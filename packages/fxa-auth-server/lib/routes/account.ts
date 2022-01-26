@@ -53,7 +53,7 @@ export class AccountHandler {
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
   private capabilityService: CapabilityService;
-  private googleAuthClient: any;
+  private googleAuthClient: OAuth2Client | undefined;
 
   constructor(
     private log: AuthLogger,
@@ -1625,7 +1625,10 @@ export class AccountHandler {
     });
 
     const payload = verifiedToken.getPayload();
-    const userid = payload['sub'];
+    if (!payload) {
+      throw error.thirdPartyAccountError();
+    }
+    const userid = payload.sub;
 
     let accountRecord;
     let googleRecord = await this.db.getGoogleId(userid);
@@ -1682,6 +1685,20 @@ export class AccountHandler {
     return {
       uid: sessionToken.uid,
       sessionToken: sessionToken.data,
+    };
+  }
+
+  async unlinkAccount(request: AuthRequest) {
+    if (!this.googleAuthClient) {
+      throw error.thirdPartyAccountError();
+    }
+    const uid = request.auth.credentials.uid;
+    if ((request.payload as any).provider.toLowerCase() === 'google') {
+      // TODO: here we'll also delete any session tokens created via a google login
+      await this.db.deleteLinkedGoogleAccount(uid);
+    }
+    return {
+      success: true,
     };
   }
 }
@@ -1847,6 +1864,21 @@ export const accountRoutes = (
       },
       handler: async (request: AuthRequest) =>
         accountHandler.loginOrCreateAccountFromThirdParty(request),
+    },
+    {
+      method: 'POST',
+      path: '/account/third_party/unlink',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: {
+            provider: isA.string().required(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) => accountHandler.unlinkAccount(request),
     },
     {
       method: 'GET',

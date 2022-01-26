@@ -770,6 +770,13 @@ export class Account implements AccountData {
     firefox.profileChanged({ metricsEnabled: this.metricsEnabled });
   }
 
+  async unlinkThirdParty(provider: string) {
+    await this.withLoadingStatus(
+      this.authClient.unlinkThirdParty(sessionToken()!, provider)
+    );
+    // TODO: update cache model
+  }
+
   async destroy(password: string) {
     await this.withLoadingStatus(
       this.authClient.accountDestroy(
