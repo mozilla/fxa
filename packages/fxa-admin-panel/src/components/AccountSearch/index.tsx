@@ -68,13 +68,13 @@ export const GET_ACCOUNT_BY_UID = gql`
       disabledAt
       emails {
         email
-        templateName
         isVerified
         isPrimary
         createdAt
       }
       emailBounces {
         email
+        templateName
         createdAt
         bounceType
         bounceSubType
