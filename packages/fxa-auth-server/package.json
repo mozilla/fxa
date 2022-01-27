@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "yarn emails-scss && tsc --build && cp -R config fxa-content-server-l10n lib scripts dist/fxa-auth-server",
+    "build": "yarn emails-scss && tsc --build && cp -R config fxa-content-server-l10n public lib scripts dist/fxa-auth-server",
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
