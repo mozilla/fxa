@@ -26,6 +26,22 @@ const LOWERED_TOPICS = [
   t('not listed'),
 ];
 
+const PRODUCT_TAGS = {
+  'Mozilla VPN': 'firefox-private-network-vpn',
+  'Firefox Relay': 'relay',
+  'Firefox Account': 'firefox_accounts',
+  'Firefox Private Network': 'firefox-private-netowrk',
+  Other: 'product_other',
+};
+
+const CATEGORY_TAGS = {
+  'Payment & billing': 'payment',
+  'Account issues': 'accounts',
+  'Technical issues': 'technical',
+  'Provide feedback / request features': 'feedback',
+  'Not listed': 'not_listed',
+};
+
 const topicOptions = _.zipWith(TOPICS, LOWERED_TOPICS, (topic, lowered) => ({
   topic,
   lowered,
@@ -47,6 +63,12 @@ const SupportForm = Backbone.Model.extend({
   getLoweredTopic: function (topic) {
     const selected = topicOptions.find((t) => t.topic === topic);
     return selected ? selected.lowered : topic;
+  },
+  getProductTag: function (product) {
+    return PRODUCT_TAGS[product] || '';
+  },
+  getCategoryTag: function (category) {
+    return CATEGORY_TAGS[category] || '';
   },
 });
 

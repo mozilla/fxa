@@ -171,9 +171,11 @@ describe('support', () => {
     payload: {
       plan: '123done',
       productName: 'FxA - 123done Pro',
+      product: '',
       productPlatform: 'BeOS',
       productVersion: '5',
-      topic: 'Billing',
+      topic: 'Payments & Billing',
+      category: 'payment',
       app: 'FxOS Client',
       subject: 'Change of address',
       message: 'How do I change it?',
@@ -195,9 +197,11 @@ describe('support', () => {
 
     const customFieldsOnTicket = [
       'FxA - 123done Pro',
+      '',
       requestOptions.payload.productPlatform,
       requestOptions.payload.productVersion,
       requestOptions.payload.topic,
+      'payment',
       requestOptions.payload.app,
       'Mountain View',
       'California',

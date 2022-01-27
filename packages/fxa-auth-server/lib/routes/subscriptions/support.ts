@@ -97,9 +97,11 @@ export const supportRoutes = (
 
         const {
           productName,
+          product,
           productPlatform,
           productVersion,
           topic,
+          category,
           app,
           subject: payloadSubject,
           message,
@@ -111,12 +113,14 @@ export const supportRoutes = (
 
         const {
           productNameFieldId,
+          productFieldId,
           productPlatformFieldId,
           productVersionFieldId,
           locationCityFieldId,
           locationStateFieldId,
           locationCountryFieldId,
           topicFieldId,
+          categoryFieldId,
           appFieldId,
         } = config.zendesk;
 
@@ -130,9 +134,11 @@ export const supportRoutes = (
             },
             custom_fields: [
               { id: productNameFieldId, value: productName },
+              { id: productFieldId, value: product },
               { id: productPlatformFieldId, value: productPlatform },
               { id: productVersionFieldId, value: productVersion },
               { id: topicFieldId, value: topic },
+              { id: categoryFieldId, value: category },
               { id: appFieldId, value: app },
               { id: locationCityFieldId, value: location?.city },
               { id: locationStateFieldId, value: location?.state },

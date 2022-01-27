@@ -1951,6 +1951,12 @@ const conf = convict({
       env: 'ZENDESK_PRODUCT_NAME_FIELD_ID',
       format: Number,
     },
+    productFieldId: {
+      doc: 'Zendesk support ticket custom field for the product drop down',
+      default: 360047198211,
+      env: 'ZENDESK_PRODUCT_FIELD_ID',
+      format: Number,
+    },
     locationCityFieldId: {
       doc: 'Zendesk support ticket custom field for the city of the location',
       default: 360026463311,
@@ -1973,6 +1979,12 @@ const conf = convict({
       doc: 'Zendesk support ticket custom field for topic',
       default: 360028484432,
       env: 'ZENDESK_TOPIC_FIELD_ID',
+      format: Number,
+    },
+    categoryFieldId: {
+      doc: 'Zendesk support ticket category field for category drop down',
+      default: 360047206172,
+      env: 'ZENDESK_CATEGORY_FIELD_ID',
       format: Number,
     },
     appFieldId: {

@@ -36,6 +36,8 @@ describe('views/support', function () {
     app: 'Mobile',
     subject: '',
     message: 'inquiries from generals',
+    product: '',
+    category: 'payment',
   };
 
   function createSupportView() {
@@ -88,6 +90,12 @@ describe('views/support', function () {
         product_id: '123done_xyz',
         product_name: '123Done Pro',
       },
+      {
+        plan_id: 'moz_vpn_9001',
+        product_id: 'moz_vpn_premium',
+        product_name: 'Mozilla VPN',
+        product_metadata: {},
+      },
     ]);
     sinon.stub(account, 'fetchSubscriptionPlans').resolves([
       {
@@ -103,6 +111,12 @@ describe('views/support', function () {
         plan_id: 'foobar_9001',
         product_id: 'foobar_plus',
         product_name: 'FooBar Plus',
+        product_metadata: {},
+      },
+      {
+        plan_id: 'moz_vpn_9001',
+        product_id: 'moz_vpn_premium',
+        product_name: 'Mozilla VPN',
         product_metadata: {},
       },
     ]);
@@ -251,10 +265,46 @@ describe('views/support', function () {
         })
         .then(function () {
           view
-            .$('#product option:eq(2)')
+            .$('#product option:eq(3)')
             .prop('selected', true)
             .trigger('change');
           assert.equal(view.supportForm.get('productName'), 'FxA - Other');
+        });
+    });
+    it('should populate the correct product tag when selected', function () {
+      return view
+        .render()
+        .then(function () {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function () {
+          view
+            .$('#product option:eq(2)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(
+            view.supportForm.get('product'),
+            'firefox-private-network-vpn'
+          );
+        });
+    });
+  });
+
+  describe('category', function () {
+    it('should be the tag of the selected topic', function () {
+      return view
+        .render()
+        .then(function () {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function () {
+          view
+            .$('#topic option:eq(1)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(view.supportForm.get('category'), 'payment');
         });
     });
   });
