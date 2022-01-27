@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verifyShortCode-title">Is this you signing in?</span>
+      <span data-l10n-id="unblockCode-title">Is this you signing in?</span>
     </mj-text>
   </mj-column>
 </mj-section>

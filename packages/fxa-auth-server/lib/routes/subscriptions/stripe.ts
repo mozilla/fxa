@@ -500,7 +500,9 @@ export class StripeHandler {
           postalCode: paymentMethod.billing_details.address.postal_code,
           country: sourceCountry,
         });
-      } else {
+      } else if (paymentMethod) {
+        // Only report this if we have a payment method.
+        // Note: Payment method is already on the user if its a returning customer.
         Sentry.withScope((scope) => {
           scope.setContext('createSubscriptionWithPMI', {
             customerId: customer.id,
@@ -508,7 +510,7 @@ export class StripeHandler {
             paymentMethodId: paymentMethod?.id,
           });
           Sentry.captureMessage(
-            `Cannot find a postal code for customer ${customer.id}`,
+            `Cannot find a postal code for customer.`,
             Sentry.Severity.Error
           );
         });
@@ -611,7 +613,7 @@ export class StripeHandler {
             paymentMethodId: paymentMethod?.id,
           });
           Sentry.captureMessage(
-            `Cannot find a postal code or country for customer ${customer!.id}`,
+            `Cannot find a postal code or country for customer.`,
             Sentry.Severity.Error
           );
         });

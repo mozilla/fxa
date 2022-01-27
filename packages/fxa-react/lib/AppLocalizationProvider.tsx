@@ -6,10 +6,8 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 import { negotiateLanguages } from '@fluent/langneg';
 import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import React, { Component } from 'react';
-
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
-
-const OTHER_EN_LOCALES = ['en-NZ', 'en-SG', 'en-MY'];
+import { EN_GB_LOCALES } from 'fxa-shared/l10n/otherLanguages';
 
 async function fetchMessages(baseDir: string, locale: string, bundle: string) {
   try {
@@ -41,7 +39,7 @@ async function createFluentBundleGenerator(
 ) {
   const fetched = await Promise.all(
     currentLocales
-      .filter((l) => !OTHER_EN_LOCALES.includes(l))
+      .filter((l) => !EN_GB_LOCALES.includes(l))
       .map(async (locale) => {
         return { [locale]: await fetchAllMessages(baseDir, locale, bundles) };
       })
@@ -51,7 +49,7 @@ async function createFluentBundleGenerator(
 
   return function* generateFluentBundles() {
     for (const locale of currentLocales) {
-      const sourceLocale = OTHER_EN_LOCALES.includes(locale) ? 'en-GB' : locale;
+      const sourceLocale = EN_GB_LOCALES.includes(locale) ? 'en-GB' : locale;
       const cx = new FluentBundle(locale);
       for (const i of mergedBundle[sourceLocale]) {
         const resource = new FluentResource(i);
@@ -100,7 +98,7 @@ export default class AppLocalizationProvider extends Component<Props, State> {
 
     const currentLocales = negotiateLanguages(
       [...userLocales],
-      [...OTHER_EN_LOCALES, ...availableLocales],
+      [...EN_GB_LOCALES, ...availableLocales],
       {
         defaultLocale: 'en-US',
       }

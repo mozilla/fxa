@@ -1,6 +1,6 @@
 # Variables:
-#  $code (Number) - e.g. 123456
-verifyLoginCode-subject = Verification code: { $code }
+#  $serviceName (String) - A service the user hasn't signed into before (e.g. Firefox)
+verifyLoginCode-subject-line = Sign-in code for { $serviceName }
 verifyLoginCode-title = Is this you signing in?
 verifyLoginCode-prompt = If yes, here is the verification code:
 verifyLoginCode-expiry-notice = It expires in 5 minutes.

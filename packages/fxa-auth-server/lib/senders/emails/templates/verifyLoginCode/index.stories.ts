@@ -17,6 +17,7 @@ const createStory = storyWithProps(
     ...MOCK_LOCATION,
     code: '918398',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
+    serviceName: 'Firefox',
   }
 );
 

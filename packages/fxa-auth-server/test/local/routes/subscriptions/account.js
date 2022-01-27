@@ -33,6 +33,7 @@ describe('routes/subscriptions/account', () => {
       current_period_end: '2001',
       latest_invoice: invoice,
       plan,
+      status: 'active',
     };
     const invoiceDetails = {
       email,
@@ -59,6 +60,18 @@ describe('routes/subscriptions/account', () => {
 
     it('does not send an email when the account is not a stub', async () => {
       await sendFinishSetupEmailForStubAccount({ email, uid, account: null });
+      sinon.assert.notCalled(stripeHelper.findPlanById);
+      sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
+    });
+
+    it('does not send an email when the subscription is not active', async () => {
+      await sendFinishSetupEmailForStubAccount({
+        uid,
+        account,
+        subscription: { ...subscription, status: 'incomplete' },
+        stripeHelper,
+        mailer,
+      });
       sinon.assert.notCalled(stripeHelper.findPlanById);
       sinon.assert.notCalled(mailer.sendSubscriptionAccountFinishSetupEmail);
     });
