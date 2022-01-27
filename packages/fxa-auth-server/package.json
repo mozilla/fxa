@@ -185,7 +185,7 @@
     "lodash.chunk": "4.2.0",
     "lodash.pick": "4.4.0",
     "mailparser": "0.6.1",
-    "mjml-browser": "^4.11.0",
+    "mjml-browser": "^4.12.0",
     "mkdirp": "0.5.1",
     "mocha": "^9.1.2",
     "mocha-junit-reporter": "^2.0.2",
