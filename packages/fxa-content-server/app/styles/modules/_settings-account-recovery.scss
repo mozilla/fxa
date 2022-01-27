@@ -1,73 +1,9 @@
-.account-recovery-panel {
-  .list {
-    ul {
-      padding: 0;
-    }
-
-    li {
-      list-style: none;
-    }
-
-    .type {
-      display: flex;
-      height: 40px;
-      justify-content: space-between;
-      margin: 10px 0;
-      position: relative;
-
-      .name {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-
-        @include respond-to('big') {
-          width: calc(95% - 95px);
-        }
-
-        @include respond-to('small') {
-          width: 100%;
-        }
-      }
-
-      .details {
-        & .disabled {
-          color: $color-grey;
-        }
-      }
-    }
-  }
-
-  .input-row {
-    margin-top: 24px;
-  }
-}
-
 #fxa-recovery-key-confirm {
   margin-bottom: 40px;
 }
 
-.recovery-key-icon {
-  background-image: image-url('recovery_key_key.svg');
-  background-repeat: no-repeat;
-  background-size: 24px;
-  flex: 1;
-
-  html[dir='ltr'] & {
-    background-position: left 2px;
-    padding-left: 35px;
-  }
-
-  html[dir='rtl'] & {
-    background-position: right 2px;
-    padding-right: 35px;
-  }
-}
-
 #account-recovery-confirm-password,
-#account-recovery-confirm-revoke,
 .account-recovery-create-password,
-#account-recovery-section,
-#account-recovery-key,
 .save-recovery-key {
   .note {
     font-weight: bold;
@@ -131,10 +67,6 @@
     overflow: hidden;
     padding-bottom: 25px;
     text-overflow: ellipsis;
-  }
-
-  .revoke-description {
-    margin: 0 auto 75px 0;
   }
 
   .description {

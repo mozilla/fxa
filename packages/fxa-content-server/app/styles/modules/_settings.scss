@@ -42,21 +42,6 @@ body.settings #stage .settings {
   }
 }
 
-.cc-expired-alert {
-  background: #d70022;
-  color: #fff;
-  padding: 5px;
-  position: absolute;
-  text-align: center;
-  top: 0;
-  width: 100%;
-
-  a {
-    color: #fff;
-    text-decoration: underline;
-  }
-}
-
 #submit-btn.qr-code-button::before {
   content: image-url('icon-qr-code.svg');
   padding: 3px 10px 0 0;
@@ -151,7 +136,6 @@ body.settings #stage .settings {
     z-index: 2;
   }
 
-  .settings-error,
   .settings-success {
     margin: 0 auto;
     top: 0;
@@ -245,11 +229,6 @@ body.settings #stage .settings {
   &.unpaired {
     width: 100%;
   }
-}
-
-.button-flex-row {
-  margin-left: -8px;
-  margin-right: -8px;
 }
 
 // area above white box with avatar content
@@ -349,14 +328,6 @@ body.settings #stage .settings {
     font-size: $base-font + 2;
     font-weight: 400;
     margin: 0;
-  }
-
-  .settings-unit-subtitle {
-    color: $faint-text-color;
-    font-size: $small-font;
-    font-weight: normal;
-    line-height: 16px;
-    margin: 5px 0 0 0;
   }
 
   .settings-unit-title:only-child {
@@ -483,29 +454,6 @@ section.modal-panel {
   }
 }
 
-.client-list {
-  padding: 0;
-}
-
-.client-device {
-  &.client-current {
-    background-position: left 5px;
-  }
-}
-
-#client-disconnect {
-  .radio-header {
-    font-size: 14px;
-    font-weight: normal;
-    margin-bottom: 15px;
-    text-align: left;
-
-    html[dir='rtl'] & {
-      text-align: right;
-    }
-  }
-}
-
 .fxa-radio {
   html[dir='ltr'] & {
     text-align: left;
@@ -518,159 +466,6 @@ section.modal-panel {
   label {
     display: block;
   }
-}
-
-.email-list {
-  margin-bottom: 30px;
-  padding: 0;
-
-  .email-address {
-    list-style: none;
-    margin: 20px 0;
-    position: relative;
-
-    .email-address-row {
-      display: flex;
-      height: 40px;
-
-      .settings-button-group {
-        display: flex;
-
-        .settings-button {
-          display: inline-block;
-          height: 40px;
-          margin-left: 10px;
-          /*minimum width required for the button to look good without occupying too much space*/
-          /*is also the default computed width on desktop screen*/
-          min-width: 120px;
-          overflow: hidden;
-          text-align: center;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        @media screen and (max-width: 400px) {
-          display: none;
-        }
-      }
-    }
-
-    .email-address-details {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    html[dir='ltr'] & {
-      background-position: left 2px;
-    }
-
-    html[dir='rtl'] & {
-      background-position: right 2px;
-    }
-
-    .address {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
-  .email-options {
-    height: 40px;
-    list-style: none;
-    margin: 0 0 10px;
-    position: relative;
-
-    html[dir='ltr'] & {
-      background-position: left 2px;
-    }
-
-    html[dir='rtl'] & {
-      background-position: right 2px;
-    }
-
-    .settings-button-group {
-      display: flex;
-
-      .settings-button {
-        height: 40px;
-        /*minimum width required for the button to look good without occupying too much space*/
-        /*is also the default computed width on desktop screen*/
-        min-width: 100px;
-        overflow: hidden;
-        text-align: left;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-
-        &.set-primary {
-          margin-right: 10px;
-        }
-      }
-    }
-
-    @media screen and (min-width: 400px) {
-      display: none;
-    }
-  }
-}
-
-.details {
-  color: $color-grey;
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  &.not-verified {
-    color: $color-red;
-  }
-
-  &.verified {
-    color: $color-green;
-  }
-
-  > .disabled {
-    color: $color-red;
-  }
-
-  > .enabled {
-    color: $color-green;
-  }
-}
-
-.panel-settings-button-group {
-  position: absolute;
-  top: 0;
-
-  html[dir='ltr'] & {
-    right: 0;
-  }
-
-  html[dir='rtl'] & {
-    left: 0;
-  }
-
-  .settings-button {
-    height: 40px;
-    /*minimum width required for the button to look good without occupying too much space*/
-    /*is also the default computed width on desktop screen*/
-    min-width: 100px;
-    text-align: center;
-    width: 20%;
-
-    html[dir='ltr'] & {
-      margin-left: 10px;
-    }
-
-    html[dir='rtl'] & {
-      margin-right: 10px;
-    }
-  }
-}
-
-.header-lockup {
-  display: flex;
-  align-items: center;
 }
 
 .breadcrumbs {

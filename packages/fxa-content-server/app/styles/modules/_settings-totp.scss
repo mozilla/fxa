@@ -1,42 +1,4 @@
 .totp-panel {
-  .totp-list {
-    ul {
-      padding: 0;
-    }
-
-    li {
-      list-style: none;
-    }
-
-    .totp-type {
-      height: 40px;
-      margin: 10px 0;
-      position: relative;
-
-      html[dir='ltr'] & {
-        background-position: left 2px;
-      }
-
-      html[dir='rtl'] & {
-        background-position: right 2px;
-      }
-
-      .name {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-
-        @include respond-to('big') {
-          width: calc(95% - 95px);
-        }
-
-        @include respond-to('small') {
-          width: 100%;
-        }
-      }
-    }
-  }
-
   .totp-details {
     .qr-image-container {
       height: 228px;
@@ -48,11 +10,6 @@
         object-fit: scale-down;
         width: 100%;
       }
-    }
-
-    .setup-description,
-    .code-description {
-      margin-bottom: 10px;
     }
 
     .show-code-link {
@@ -72,11 +29,6 @@
 }
 
 #recovery-codes {
-  .recovery-code-options {
-    display: flex;
-    margin-top: 25px;
-  }
-
   .description {
     color: $faint-text-color;
     font-size: 12px;
@@ -104,21 +56,8 @@
     }
   }
 
-  .recovery-code-generate {
-    margin: 40px 0;
-  }
-
-  .two-step-authentication-done {
-    float: none;
-    width: 100%;
-  }
-
   .button-row {
     text-align: center;
-  }
-
-  .link-options {
-    text-align: left;
   }
 
   .nav {
@@ -132,15 +71,7 @@
   }
 }
 
-.replace-codes-link,
-.replace-codes-link:hover {
-  background: transparent url('/images/recovery_code_replace.svg') center left
-    no-repeat;
-  padding-left: 20px;
-}
-
-.temporary-copy-text-area,
-.recovery-code-text-area {
+.temporary-copy-text-area {
   background: transparent;
   border: 0;
   box-shadow: none;
@@ -151,10 +82,6 @@
   style: fixed;
   top: 0;
   width: 2em;
-}
-
-.recovery-code-download-link {
-  display: none;
 }
 
 .note {
