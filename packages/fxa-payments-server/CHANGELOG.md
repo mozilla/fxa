@@ -1,5 +1,11 @@
 # Change history
 
+## 1.224.2
+
+### Bug fixes
+
+- subscriptions: stop retry w/ old invoice ## 1.224.1 stop sending welcome email (#11701) ([dc01d558f](https://github.com/mozilla/fxa/commit/dc01d558f))
+
 ## 1.224.1
 
 No changes.

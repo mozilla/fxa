@@ -1,3 +1,9 @@
+## 1.224.2
+
+### Bug fixes
+
+- auth: Copy 'public' to dist, don't load non-existent Fluent bundles, Fluent strategy tweak (#11753) ([de74d2a65](https://github.com/mozilla/fxa/commit/de74d2a65))
+
 ## 1.224.1
 
 No changes.
