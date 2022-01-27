@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { JSDOM } from 'jsdom';
 import {
   LocalizerBindings,
@@ -48,7 +48,14 @@ export class NodeLocalizerBindings extends LocalizerBindings {
       opts
     );
 
-    console.log('l10n path', this.opts?.l10n?.basePath);
+    // Make sure config is legit
+    this.validateConfig();
+  }
+
+  protected validateConfig() {
+    if (!existsSync(this.opts.l10n.basePath)) {
+      throw new Error('Invalid l10n basePath');
+    }
   }
 
   protected async fetchResource(path: string): Promise<string> {
