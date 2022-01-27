@@ -78,7 +78,10 @@ class FluentLocalizer {
     context = { ...context, ...context.templateValues };
     if (template !== '_storybook') {
       // TODO: #11471 Improve dynamically rendered actions & subjects in email.js, etc.
-      if (template === 'postRemoveTwoStepAuthentication') {
+      if (
+        template === 'postRemoveTwoStepAuthentication' ||
+        template === 'verifyLoginCode'
+      ) {
         context.subject = await l10n.formatValue(
           `${template}-subject-line`,
           context
