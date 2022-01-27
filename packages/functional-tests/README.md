@@ -33,6 +33,10 @@ test('mocha tests', async ({ target, page }, info) => {
 });
 ```
 
+## Creating new tests
+
+`yarn record` is a convenient script to start with when creating a new test. It starts playwright in debug mode and runs the `tests/stub.spec.ts` test which creates a new account and prints the credentials to the terminal. From there you can use the Playwright inspector to record your test and copy the command output to your test file.
+
 ## Fixtures
 
 We have a standard [fixture](https://playwright.dev/docs/test-fixtures) for the most common kind of tests.

@@ -104,7 +104,7 @@ test.describe('severity-3 #smoke', () => {
     ]);
     await login.login(credentials.email, credentials.password);
     expect(page.url()).toMatch('https://monitor.firefox.com/user/dashboard');
-    await page.click('[aria-label="Open Firefox Account navigation"]');
+    await page.click('#avatar-wrapper');
     await Promise.all([
       page.click('text=Sign Out'),
       page.waitForNavigation({ waitUntil: 'networkidle' }),
