@@ -928,6 +928,14 @@ const conf = convict({
         env: 'SUBSCRIPTIONS_PLAY_API_ENABLED',
       },
     },
+    productConfigsFirestore: {
+      enabled: {
+        default: false,
+        doc: 'Whether to use Firestore for product configurations',
+        env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
+        format: Boolean,
+      },
+    },
     sharedSecret: {
       doc: 'Shared secret for authentication between backend subscription services',
       format: String,
