@@ -1,3 +1,9 @@
+## 1.224.3
+
+### Bug fixes
+
+- subscriptions: match expandable resource type to Stripe obj type list (#11787) ([cfee14c47](https://github.com/mozilla/fxa/commit/cfee14c47))
+
 ## 1.224.2
 
 ### New features
