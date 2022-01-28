@@ -3820,9 +3820,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/inert@npm:6.0.4":
-  version: 6.0.4
-  resolution: "@hapi/inert@npm:6.0.4"
+"@hapi/inert@npm:6.0.5":
+  version: 6.0.5
+  resolution: "@hapi/inert@npm:6.0.5"
   dependencies:
     "@hapi/ammo": 5.x.x
     "@hapi/boom": 9.x.x
@@ -3830,7 +3830,7 @@ __metadata:
     "@hapi/hoek": 9.x.x
     "@hapi/validate": 1.x.x
     lru-cache: ^6.0.0
-  checksum: 47788adc54655d3e1decdeb04d7da50098f27134fb071fd8482d3bad0bae3cea9c2839cb3aee09fc7a6a2c47e25a98106d826ed0e308c140055435ac77a08a3e
+  checksum: 8429a8074934c165d8d5d4534467e3fcc2d995885427699d3a1b5718c996844b3840eaa43576e5b8ab2466d60ff962e72f3a54917b6d6bb64112f67ea809d624
   languageName: node
   linkType: hard
 
@@ -22226,7 +22226,7 @@ fsevents@~2.1.1:
     "@hapi/catbox-memory": ~5.0.1
     "@hapi/catbox-redis": ~6.0.2
     "@hapi/hapi": ^20.2.1
-    "@hapi/inert": 6.0.4
+    "@hapi/inert": 6.0.5
     "@hapi/joi": ^17.1.1
     "@sentry/node": ^6.16.1
     "@types/sharp": ^0
