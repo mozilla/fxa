@@ -55,7 +55,7 @@
     "@fluent/langneg": "^0.6.1",
     "@google-cloud/bigquery": "^5.10.0",
     "@google-cloud/firestore": "^5.0.2",
-    "@googlemaps/google-maps-services-js": "^3.3.6",
+    "@googlemaps/google-maps-services-js": "^3.3.7",
     "@hapi/hapi": "^20.2.1",
     "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^9.2.0",
