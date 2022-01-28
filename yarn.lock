@@ -12583,9 +12583,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.1063.0":
-  version: 2.1063.0
-  resolution: "aws-sdk@npm:2.1063.0"
+"aws-sdk@npm:^2.1065.0":
+  version: 2.1065.0
+  resolution: "aws-sdk@npm:2.1065.0"
   dependencies:
     buffer: 4.9.2
     events: 1.1.1
@@ -12596,7 +12596,7 @@ __metadata:
     url: 0.10.3
     uuid: 3.3.2
     xml2js: 0.4.19
-  checksum: f40ac12da5ea3575cc4d4831ffb948dc185b238ab597e6caa7a56ae985ae6b74674990b58b107109d431bd44187a8fd0440d97e51e0221f4443db643110270e2
+  checksum: b65ddb86fff7dbba8e304d6c2b44b5abd75f88ea3994a18891f88d6c0dbdc15dc0ea659a3cc95eb3fe8b4ebb8301313c7b99c7ee4adcd487be003c4f16901714
   languageName: node
   linkType: hard
 
@@ -21548,7 +21548,7 @@ fsevents@~2.1.1:
     acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1063.0
+    aws-sdk: ^2.1065.0
     babel-loader: ^8.2.2
     base64url: 3.0.1
     binary-split: 1.0.5
@@ -21921,7 +21921,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1063.0
+    aws-sdk: ^2.1065.0
     axios: ^0.24.0
     chance: ^1.1.8
     class-transformer: ^0.5.1
@@ -22231,7 +22231,7 @@ fsevents@~2.1.1:
     "@sentry/node": ^6.16.1
     "@types/sharp": ^0
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1063.0
+    aws-sdk: ^2.1065.0
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 1.0.0
@@ -22440,7 +22440,7 @@ fsevents@~2.1.1:
     ajv: ^6.12.2
     apollo-server: ^2.25.3
     audit-filter: ^0.5.0
-    aws-sdk: ^2.1063.0
+    aws-sdk: ^2.1065.0
     celebrate: ^10.0.1
     chai: ^4.3.4
     chance: ^1.1.8
