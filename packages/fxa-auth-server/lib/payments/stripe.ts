@@ -95,6 +95,10 @@ export const STRIPE_OBJECT_TYPE_TO_RESOURCE: Record<string, string> = {
   tax_rate: TAX_RATE_RESOURCE,
 };
 
+export const VALID_RESOURCE_TYPES = Object.values(
+  STRIPE_OBJECT_TYPE_TO_RESOURCE
+);
+
 export enum STRIPE_PRICE_METADATA {
   PROMOTION_CODES = 'promotionCodes',
 }
@@ -110,18 +114,6 @@ export enum STRIPE_INVOICE_METADATA {
   EMAIL_SENT = 'emailSent',
   RETRY_ATTEMPTS = 'paymentAttempts',
 }
-
-export const VALID_RESOURCE_TYPES = [
-  CUSTOMER_RESOURCE,
-  SUBSCRIPTIONS_RESOURCE,
-  PRODUCT_RESOURCE,
-  PLAN_RESOURCE,
-  PRICE_RESOURCE,
-  CHARGES_RESOURCE,
-  INVOICES_RESOURCE,
-  PAYMENT_METHOD_RESOURCE,
-  TAX_RATE_RESOURCE,
-] as const;
 
 export const SUBSCRIPTION_UPDATE_TYPES = {
   UPGRADE: 'upgrade',
