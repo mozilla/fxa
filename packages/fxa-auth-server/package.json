@@ -67,7 +67,7 @@
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.0",
     "ajv": "^6.12.2",
-    "aws-sdk": "^2.1063.0",
+    "aws-sdk": "^2.1065.0",
     "base64url": "3.0.1",
     "buf": "0.1.1",
     "buffer-equal-constant-time": "1.0.1",
