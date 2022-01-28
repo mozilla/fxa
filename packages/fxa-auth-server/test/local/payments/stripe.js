@@ -1206,6 +1206,171 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('retrieveCouponDetails', () => {
+    it('retrieves coupon details', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        discountAmount: 1,
+        valid: true,
+      };
+      sandbox.stub(stripeHelper, 'previewInvoice').resolves({
+        discount: {},
+        total_discount_amounts: [{ amount: 1 }],
+      });
+
+      sandbox.stub(stripeHelper, 'getCoupon').resolves({
+        duration: 'forever',
+        valid: true,
+      });
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+        },
+      });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        county: 'US',
+        planId: 'planId',
+        promotionCode: 'promo',
+      });
+      assert.deepEqual(actual, expected);
+    });
+
+    it('retrieves details on an expired coupon', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        expired: true,
+        valid: false,
+      };
+      sandbox.stub(stripeHelper, 'previewInvoice').resolves({});
+
+      sandbox.stub(stripeHelper, 'getCoupon').resolves({
+        duration: 'forever',
+        valid: false,
+        redeem_by: 1000,
+      });
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+        },
+      });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        county: 'US',
+        planId: 'planId',
+        promotionCode: 'promo',
+      });
+      assert.deepEqual(actual, expected);
+    });
+
+    it('retrieves details on a maximally redeemed coupon', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        maximallyRedeemed: true,
+        valid: false,
+      };
+      sandbox.stub(stripeHelper, 'previewInvoice').resolves({});
+
+      sandbox.stub(stripeHelper, 'getCoupon').resolves({
+        duration: 'forever',
+        valid: false,
+        max_redemptions: 1,
+        times_redeemed: 1,
+      });
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+        },
+      });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        county: 'US',
+        planId: 'planId',
+        promotionCode: 'promo',
+      });
+      assert.deepEqual(actual, expected);
+    });
+  });
+
+  describe('retrievePromotionCodeForPlan', () => {
+    it('finds a stripe promotionCode object when a valid code is used', async () => {
+      const promotionCode = { code: 'promo1', coupon: { valid: true } };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promotionCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
+        },
+      });
+
+      const actual = await stripeHelper.retrievePromotionCodeForPlan(
+        'promo1',
+        'planId'
+      );
+      assert.deepEqual(actual, promotionCode);
+    });
+
+    it('returns undefined when an invalid promo code is used', async () => {
+      const promotionCode = { code: 'promo1', coupon: { valid: true } };
+      sandbox
+        .stub(stripeHelper.stripe.promotionCodes, 'list')
+        .resolves({ data: [promotionCode] });
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo2',
+        },
+      });
+
+      const actual = await stripeHelper.retrievePromotionCodeForPlan(
+        'promo1',
+        'planId'
+      );
+      assert.deepEqual(actual, undefined);
+    });
+  });
+
+  describe('checkPromotionCodeForPlan', () => {
+    it('finds a promo code for a given plan', async () => {
+      const promotionCode = 'promo1';
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo1',
+        },
+      });
+
+      const actual = await stripeHelper.checkPromotionCodeForPlan(
+        promotionCode,
+        'planId'
+      );
+      assert.deepEqual(actual, true);
+    });
+
+    it('does not find a promo code for a given plan', async () => {
+      const promotionCode = 'promo1';
+      sandbox.stub(stripeHelper, 'findPlanById').resolves({
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo2',
+        },
+      });
+
+      const actual = await stripeHelper.checkPromotionCodeForPlan(
+        promotionCode,
+        'planId'
+      );
+      assert.deepEqual(actual, false);
+    });
+  });
+
   describe('invoicePayableWithPaypal', () => {
     it('returns true if its payable via paypal', async () => {
       const mockInvoice = {
