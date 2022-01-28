@@ -186,6 +186,14 @@ const conf = convict({
       default: '3306',
       env: 'MYSQL_PORT',
     },
+    connectionLimit: {
+      default: 10,
+      env: 'MYSQL_CONNECTION_LIMIT',
+    },
+    queueLimit: {
+      default: 0,
+      env: 'MYSQL_QUEUE_LIMIT',
+    },
   },
   oauth: {
     url: {
