@@ -1,3 +1,9 @@
+## 1.224.4
+
+### Bug fixes
+
+- subscriptions: s/snake/camel case for Stripe resource names ([19b8cb91c](https://github.com/mozilla/fxa/commit/19b8cb91c))
+
 ## 1.224.3
 
 ### Bug fixes
