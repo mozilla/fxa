@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
+  jira: circleci/jira@1.3.1
 
 executors:
   content-server-executor:
@@ -114,6 +115,7 @@ jobs:
       - run:
           name: Reporting code coverage...
           command: bash <(curl -s https://codecov.io/bash) -F << parameters.package >> -X gcov
+      - jira/notify
 
   test-many:
     resource_class: medium+
@@ -151,47 +153,55 @@ jobs:
       - run:
           name: Reporting code coverage...
           command: bash <(curl -s https://codecov.io/bash) -F many -X gcov
+      - jira/notify
 
   test-settings-server:
     executor: content-server-executor
     steps:
       - test-settings-server
+      - jira/notify
 
   test-content-server-0:
     executor: content-server-executor
     steps:
       - test-content-server-part:
           index: 0
+      - jira/notify
 
   test-content-server-1:
     executor: content-server-executor
     steps:
       - test-content-server-part:
           index: 1
+      - jira/notify
 
   test-content-server-2:
     executor: content-server-executor
     steps:
       - test-content-server-part:
           index: 2
+      - jira/notify
 
   test-content-server-3:
     executor: content-server-executor
     steps:
       - test-content-server-part:
           index: 3
+      - jira/notify
 
   test-content-server-4:
     executor: content-server-executor
     steps:
       - test-content-server-part:
           index: 4
+      - jira/notify
 
   test-content-server-5:
     executor: content-server-executor
     steps:
       - test-content-server-part:
           index: 5
+      - jira/notify
 
   deploy-packages:
     resource_class: small
@@ -212,6 +222,7 @@ jobs:
           command: ./.circleci/deploy-all.sh
       - store_artifacts:
           path: artifacts
+      - jira/notify
 
   # This job is manually triggered for now. see .circleci/README.md
   test-content-server-remote:
@@ -229,6 +240,7 @@ jobs:
           destination: screenshots
       - store_test_results:
           path: artifacts/tests
+      - jira/notify
 
   # This job is manually triggered for now. see .circleci/README.md
   production-smoke-tests:
@@ -244,6 +256,7 @@ jobs:
           path: artifacts
       - store_test_results:
           path: artifacts/tests
+      - jira/notify
 
   playwright-functional-tests:
     resource_class: large
@@ -269,6 +282,7 @@ jobs:
           path: artifacts
       - store_test_results:
           path: artifacts/tests
+      - jira/notify
 
   build-and-deploy-storybooks:
     resource_class: medium
@@ -279,6 +293,7 @@ jobs:
       - run:
           name: Build and deploy Storybooks
           command: npx github:mozilla-fxa/storybook-gcp-publisher
+      - jira/notify
 
 workflows:
   test_pull_request:
