@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
+  jira: circleci/jira@1.3.1
 
 executors:
   content-server-executor:
@@ -151,6 +152,7 @@ jobs:
       - run:
           name: Reporting code coverage...
           command: bash <(curl -s https://codecov.io/bash) -F many -X gcov
+      - jira/notify
 
   test-settings-server:
     executor: content-server-executor
