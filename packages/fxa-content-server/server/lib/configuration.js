@@ -688,7 +688,13 @@ const conf = (module.exports = convict({
       default: true,
       doc: 'Whether to allow any redirects to Payments for an unauthenticated user',
       env: 'SUBSCRIPTIONS_UNAUTHED_REDIRECTS',
-      formlat: Boolean,
+      format: Boolean,
+    },
+    useFirestoreProductConfigs: {
+      default: false,
+      doc: 'Feature flag on whether to expect Firestore (and not Stripe metadata) based product and plan configurations',
+      env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
+      format: Boolean,
     },
   },
   surveyFeature: {
