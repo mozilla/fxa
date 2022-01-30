@@ -183,6 +183,7 @@ require('./spec/views/mixins/flow-begin-mixin');
 require('./spec/views/mixins/flow-events-mixin');
 require('./spec/views/mixins/form-prefill-mixin');
 require('./spec/views/mixins/has-modal-child-view-mixin');
+require('./spec/views/mixins/google-auth-mixin');
 require('./spec/views/mixins/last-checked-time-mixin');
 require('./spec/views/mixins/loading-mixin');
 require('./spec/views/mixins/marketing-mixin');

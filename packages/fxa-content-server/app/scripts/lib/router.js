@@ -187,6 +187,9 @@ const Router = Backbone.Router.extend({
         type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
       }
     ),
+    'post_verify/third_party_auth/callback': createViewHandler(
+      'post_verify/third_party_auth/callback'
+    ),
     'push/confirm_login(/)': createViewHandler('push/confirm_login'),
     'push/send_login(/)': createViewHandler('push/send_login'),
     'push/completed(/)': createViewHandler('push/completed'),

@@ -174,6 +174,9 @@ module.exports = function (
   const newsletters = require('./newsletters')(log, db);
   const util = require('./util')(log, config, config.smtp.redirectDomain);
 
+  const { linkedAccountRoutes } = require('./linked-accounts');
+  const linkedAccounts = linkedAccountRoutes(log, db, config);
+
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {
     basePath = '';
@@ -198,7 +201,8 @@ module.exports = function (
     recoveryKey,
     subscriptions,
     supportPanel,
-    newsletters
+    newsletters,
+    linkedAccounts
   );
   v1Routes.forEach((r) => {
     r.path = `${basePath}/v1${r.path}`;

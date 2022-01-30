@@ -479,15 +479,15 @@ export default class AuthClient {
     return await this.request('POST', '/account/finish_setup', payload);
   }
 
-  async verifyAccountThirdParty(token: string): Promise<{
+  async verifyAccountThirdParty(code: string): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
     verified: boolean;
   }> {
     const payload = {
-      token,
+      code,
     };
-    return await this.request('POST', '/account/login/third_party', payload);
+    return await this.request('POST', '/linked_account/login', payload);
   }
 
   async accountKeys(
