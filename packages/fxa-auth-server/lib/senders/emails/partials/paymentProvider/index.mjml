@@ -3,13 +3,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
 <mj-text css-class="text-body margin-top">
-  <span data-l10n-id="payment-method">Payment Method: </span>
-
   <% if (payment_provider === 'paypal') { %>
+    <span data-l10n-id="payment-method">Payment Method: </span>
     <span>PayPal</span>
-  <% } %>
-
-  <% if (payment_provider === "stripe" && lastFour) { %>
+  <% } else { %>
+    <span data-l10n-id="payment-method">Payment Method: </span>
     <span data-l10n-id="card-ending-in" data-l10n-args="<%= JSON.stringify({cardType, lastFour}) %>">
       <%- cardType %> card ending in <%- lastFour %>
     </span>
