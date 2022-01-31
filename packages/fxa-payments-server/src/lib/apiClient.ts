@@ -107,7 +107,7 @@ async function apiFetch(
 
 export async function apiFetchAccountStatus(
   email: string
-): Promise<{ exists: boolean }> {
+): Promise<{ exists: boolean; verifierSet?: boolean }> {
   return apiFetch('POST', `${config.servers.auth.url}/v1/account/status`, {
     body: JSON.stringify({ email }),
   });

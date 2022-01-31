@@ -900,6 +900,7 @@ by [fxa-customs-server](https://github.com/mozilla/fxa-customs-server).
 ##### Response body
 
 - `exists`: _boolean, required_
+- `verifierSet`: _boolean, optional_
 
   <!--begin-response-body-post-accountstatus-exists-->
 

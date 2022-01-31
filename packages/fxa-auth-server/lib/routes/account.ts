@@ -1065,9 +1065,10 @@ export class AccountHandler {
     await this.customs.check(request, email, 'accountStatusCheck');
 
     try {
-      const exist = await this.db.accountExists(email);
+      const account = await this.db.accountRecord(email);
       return {
-        exists: exist,
+        exists: !!account,
+        verifierSet: !!account && account.verifierSetAt > 0,
       };
     } catch (err) {
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -1762,6 +1763,7 @@ export const accountRoutes = (
         response: {
           schema: {
             exists: isA.boolean().required(),
+            verifierSet: isA.boolean().optional(),
           },
         },
       },

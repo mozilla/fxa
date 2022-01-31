@@ -7,7 +7,11 @@ jest.mock('../../lib/apiClient', () => ({
 }));
 import { apiFetchAccountStatus } from '../../lib/apiClient';
 
-import { NewUserEmailForm, emailInputValidationAndAccountCheck } from './index';
+import {
+  NewUserEmailForm,
+  checkAccountExists,
+  emailInputValidationAndAccountCheck,
+} from './index';
 import { Localized } from '@fluent/react';
 const selectedPlan = {
   plan_id: 'planId',
@@ -161,8 +165,7 @@ describe('NewUserEmailForm test', () => {
   });
 
   it('Notifies the user if they already have an account', async () => {
-    const checkAccountExists = (userAccount: string) =>
-      Promise.resolve({ exists: true });
+    const checkAccountExists = (userAccount: string) => Promise.resolve(true);
 
     const result = await emailInputValidationAndAccountCheck(
       'foxy@mozilla.com',
@@ -191,5 +194,19 @@ describe('NewUserEmailForm test', () => {
         </React.Fragment>
       </Localized>
     );
+  });
+
+  it('considers an unverified account to not be an existing account', async () => {
+    (apiFetchAccountStatus as jest.Mock)
+      .mockClear()
+      .mockResolvedValue({ exists: true, verifierSet: false });
+    const a = await checkAccountExists('testo@example.gg');
+    expect(a).toBeFalsy();
+
+    (apiFetchAccountStatus as jest.Mock)
+      .mockClear()
+      .mockResolvedValue({ exists: true, verifierSet: true });
+    const b = await checkAccountExists('testo@example.gg');
+    expect(b).toBeTruthy();
   });
 });

@@ -21,7 +21,7 @@ export type NewUserEmailFormProps = {
   setValidEmail: (value: string) => void;
   setAccountExists: (value: boolean) => void;
   setEmailsMatch: (value: boolean) => void;
-  checkAccountExists: (email: string) => Promise<{ exists: boolean }>;
+  checkAccountExists: (email: string) => Promise<boolean>;
   onToggleNewsletterCheckbox: () => void;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
@@ -160,8 +160,9 @@ export const NewUserEmailForm = ({
   );
 };
 
-export async function checkAccountExists(userEmail: string) {
-  return apiFetchAccountStatus(userEmail);
+export async function checkAccountExists(userEmail: string): Promise<boolean> {
+  const acctStatus = await apiFetchAccountStatus(userEmail);
+  return !!(acctStatus?.exists && acctStatus?.verifierSet);
 }
 
 export async function emailInputValidationAndAccountCheck(
@@ -170,24 +171,21 @@ export async function emailInputValidationAndAccountCheck(
   setValidEmail: (value: string) => void,
   setAccountExists: (value: boolean) => void,
   setEmailInputState: (value: string) => void,
-  checkAccountExists: (email: string) => Promise<{ exists: boolean }>,
+  checkAccountExists: (email: string) => Promise<boolean>,
   signInURL: string,
   onClickSignInButton: () => void,
   getString?: (id: string) => string
 ) {
   let error = null;
   let valid = false;
-  let hasAccount = false;
+  let accountExists = false;
   setEmailInputState(value);
   if (isEmailValid(value)) {
     valid = true;
     setValidEmail(value);
     if (!focused) {
-      const response = await checkAccountExists(value);
-      if (response?.exists) {
-        hasAccount = response.exists;
-      }
-      setAccountExists(hasAccount);
+      accountExists = await checkAccountExists(value);
+      setAccountExists(accountExists);
     }
   } else {
     setValidEmail('');
@@ -220,7 +218,7 @@ export async function emailInputValidationAndAccountCheck(
     error = errorMsg;
   }
 
-  if (hasAccount) {
+  if (accountExists) {
     error = accountExistsMsg;
   }
 

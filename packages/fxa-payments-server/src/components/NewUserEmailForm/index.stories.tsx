@@ -20,9 +20,7 @@ const WrapNewUserEmailForm = ({
         setAccountExists={setAccountExists}
         setEmailsMatch={setEmailsMatch}
         getString={(id: string) => id}
-        checkAccountExists={() =>
-          Promise.resolve({ exists: accountExistsReturnValue })
-        }
+        checkAccountExists={() => Promise.resolve(accountExistsReturnValue)}
         selectedPlan={{}}
         onToggleNewsletterCheckbox={() => {}}
       />

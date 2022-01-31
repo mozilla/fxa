@@ -3956,3 +3956,43 @@ describe('/account/ecosystemAnonId', () => {
     });
   });
 });
+
+describe('POST /account/status', () => {
+  let dbMock = {};
+  const email = 'testo@example.gg';
+  const mockRequest = mocks.mockRequest({ payload: { email } });
+
+  it('responds with false exists prop when account is not in db', async () => {
+    dbMock = {
+      accountRecord: sinon.stub().throws(new error.unknownAccount(email)),
+    };
+    const accountRoutes = makeRoutes({ db: dbMock });
+    const route = getRoute(accountRoutes, '/account/status', 'POST');
+    await runTest(route, mockRequest, (res) => {
+      assert.deepEqual(res, { exists: false });
+      sinon.assert.calledOnceWithExactly(dbMock.accountRecord, email);
+    });
+  });
+
+  it('responds with exists:true and verified:false properties', async () => {
+    dbMock = {
+      accountRecord: sinon.stub().resolves({ verifierSetAt: 0 }),
+    };
+    const accountRoutes = makeRoutes({ db: dbMock });
+    const route = getRoute(accountRoutes, '/account/status', 'POST');
+    await runTest(route, mockRequest, (res) => {
+      assert.deepEqual(res, { exists: true, verifierSet: false });
+    });
+  });
+
+  it('responds with exists:true and verified:true properties', async () => {
+    dbMock = {
+      accountRecord: sinon.stub().resolves({ verifierSetAt: 9001 }),
+    };
+    const accountRoutes = makeRoutes({ db: dbMock });
+    const route = getRoute(accountRoutes, '/account/status', 'POST');
+    await runTest(route, mockRequest, (res) => {
+      assert.deepEqual(res, { exists: true, verifierSet: true });
+    });
+  });
+});
