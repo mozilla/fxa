@@ -22413,7 +22413,7 @@ fsevents@~2.1.1:
     react-hook-form: ^6.15.8
     react-scripts: ^4.0.3
     react-test-renderer: ^17.0.2
-    react-webcam: ^6.0.0
+    react-webcam: ^6.0.1
     style-loader: ^1.3.0
     subscriptions-transport-ws: ^0.11.0
     tailwindcss: ^1.9.1
@@ -36340,13 +36340,23 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-webcam@npm:*, react-webcam@npm:^6.0.0":
+"react-webcam@npm:*":
   version: 6.0.0
   resolution: "react-webcam@npm:6.0.0"
   peerDependencies:
     react: ">=15.3.0"
     react-dom: ">=15.3.0"
   checksum: d028363f343a69fcd992b9b097daea48ed25378ee0dec2eecf00052e356a080b7db213030dbe38fc0abee3a041b59471bb3671d6f0948fdd62b00fdb3917304e
+  languageName: node
+  linkType: hard
+
+"react-webcam@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "react-webcam@npm:6.0.1"
+  peerDependencies:
+    react: ">=15.3.0"
+    react-dom: ">=15.3.0"
+  checksum: 122f3c92c3fb455d8ca2e2089d8deb6d07e930f97fbc3aed82475e408f29b7ef2406507b882221b4bb121ddbfb829f419c153667676777905226c21103920e89
   languageName: node
   linkType: hard
 
