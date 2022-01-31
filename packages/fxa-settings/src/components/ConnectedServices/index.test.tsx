@@ -5,7 +5,7 @@
 import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
 import ConnectedServices, { sortAndFilterConnectedClients } from '.';
-import { Account, AppContext } from '../../models';
+import { Account, AlertBarInfo, AppContext } from '../../models';
 import {
   renderWithRouter,
   mockAppContext,
@@ -24,6 +24,10 @@ const account = {
   attachedClients: MOCK_SERVICES,
   disconnectClient: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
+
+const alertBarInfo = {
+  success: jest.fn(),
+} as unknown as AlertBarInfo;
 
 const getIconAndServiceLink = async (name: string, testId: string) => {
   const servicesList = MOCK_SERVICES.filter((item) => item.name === name);
@@ -106,13 +110,16 @@ describe('Connected Services', () => {
       expect(result[result.length - 1]).toHaveTextContent('6 months ago');
     });
 
-    const sortedList = sortAndFilterConnectedClients(MOCK_SERVICES);
+    const { sortedAndUniqueClients, groupedByName } =
+      sortAndFilterConnectedClients(MOCK_SERVICES);
 
-    expect(sortedList.length).toEqual(8);
+    expect(sortedAndUniqueClients.length).toEqual(8);
 
     expect(
-      sortedList.filter((item) => item.name === 'Firefox Monitor').length
+      sortedAndUniqueClients.filter((item) => item.name === 'Firefox Monitor')
+        .length
     ).toEqual(1);
+    expect(groupedByName['Firefox Monitor'].length).toEqual(2);
   });
 
   it('should show the pocket icon and link', async () => {
@@ -258,24 +265,62 @@ describe('Connected Services', () => {
   });
 
   it('after a service is disconnected, removes the row from the UI, and emits metrics events', async () => {
+    const account = {
+      attachedClients: MOCK_SERVICES,
+      disconnectClient: () => account.attachedClients.shift(),
+    } as unknown as Account;
+
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
     const initialCount = (
       await screen.findAllByTestId('settings-connected-service')
     ).length;
+
     await clickFirstSignOutButton();
     await clickConfirmDisconnectButton();
     expect(logViewEvent).toHaveBeenCalledWith(
       'settings.clients.disconnect',
       'submit.'
     );
-    const finalCount = (
+    expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
+
+    expect(
       await screen.findAllByTestId('settings-connected-service')
-    ).length;
-    // TODO: fix this test, it no workey, FXA-4453 / #11658
-    expect(finalCount === initialCount - 1).toBeTruthy;
+    ).toHaveLength(initialCount - 1);
+  });
+
+  it('on disconnect, removes all sessions for that service', async () => {
+    const attachedClients = MOCK_SERVICES.filter(
+      (service) => service.name === 'Firefox Monitor'
+    );
+    const initialCount = attachedClients.length;
+    // make sure there's at least two for test validity
+    expect(initialCount).toBeGreaterThan(1);
+
+    const account = {
+      attachedClients,
+      disconnectClient: () => account.attachedClients.shift(),
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
+        <ConnectedServices />
+      </AppContext.Provider>
+    );
+
+    await clickFirstSignOutButton();
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'settings.clients.disconnect',
+      'submit.'
+    );
+    expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
+
+    // no services should show
+    expect(screen.queryAllByTestId('settings-connected-service')).toHaveLength(
+      0
+    );
   });
 });
