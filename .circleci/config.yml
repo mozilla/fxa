@@ -1,3 +1,13 @@
+# Some notes:
+#
+# 1) We can't store node_modules in the cache because we use yarn workspaces
+#    and circleci doesn't preserve symlinks
+# 2) fxa-content-server was originally split into six separate jobs because one
+#    failing test means you have to re-run all the tests, using more time and
+#    credits.  This divides that workload by 6.  See
+#    https://circleci.canny.io/cloud-feature-requests/p/rerun-failed-parallel-runs
+#    among other discussions on it.
+#
 version: 2.1
 
 orbs:
@@ -17,28 +27,41 @@ executors:
           NODE_ENV: dev
           FXA_EMAIL_ENV: dev
           FXA_EMAIL_LOG_LEVEL: debug
-          RUST_BACKTRACE: 1
           AUTH_FIRESTORE_EMULATOR_HOST: localhost:9090
     environment:
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
 
 commands:
+
+  prepare-environment:
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            # We depend on a job that builds the cache, so we always have an
+            # exact match
+            - wil---fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
+      - run: ./.circleci/base-install.sh
+      - run: node .circleci/modules-to-test.js | tee packages/test.list
+      - run: ./_scripts/create-version-json.sh
+
   base-install:
     steps:
       - checkout
       - restore_cache:
           keys:
             # prefer the exact hash
-            - fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
+            - wil---fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
             # any cache to start with is better than nothing
-            - fxa-yarn-cache-4-
+            - wil---fxa-yarn-cache-4-
       - run: ./.circleci/base-install.sh
       - save_cache:
-          key: fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
+          key: wil---fxa-yarn-cache-4-{{ checksum "yarn.lock" }}
           paths:
             - .yarn/cache
             - .yarn/build-state.yml
             - .yarn/install-state.gz
+
   test-content-server-part:
     parameters:
       index:
@@ -68,26 +91,12 @@ commands:
       - store_test_results:
           path: artifacts/tests
 
-  test-settings-server:
-    steps:
-      - browser-tools/install-firefox:
-          version: 78.9.0esr
-      - browser-tools/install-geckodriver:
-          version: v0.29.1
-      - base-install
-      - run:
-          name: Running test...
-          command: ./.circleci/test-package.sh fxa-settings
-      - store_artifacts:
-          path: ~/.pm2/logs
-          destination: logs
-      - store_artifacts:
-          path: ~/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: artifacts/tests
-
 jobs:
+  build-environment:
+    executor: content-server-executor
+    steps:
+      - base-install
+
   test-package:
     resource_class: medium+
     docker:
@@ -105,7 +114,7 @@ jobs:
       package:
         type: string
     steps:
-      - base-install
+      - prepare-environment
       - run:
           name: Testing << parameters.package >>
           command: ./.circleci/test-package.sh << parameters.package >>
@@ -124,7 +133,7 @@ jobs:
       - image: memcached
       - image: redis
     steps:
-      - base-install
+      - prepare-environment
       - run:
           name: Testing...
           command: |
@@ -155,7 +164,22 @@ jobs:
   test-settings-server:
     executor: content-server-executor
     steps:
-      - test-settings-server
+      - prepare-environment
+      - browser-tools/install-firefox:
+          version: 78.9.0esr
+      - browser-tools/install-geckodriver:
+          version: v0.29.1
+      - run:
+          name: Running test...
+          command: ./.circleci/test-package.sh fxa-settings
+      - store_artifacts:
+          path: ~/.pm2/logs
+          destination: logs
+      - store_artifacts:
+          path: ~/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: artifacts/tests
 
   test-content-server-0:
     executor: content-server-executor
@@ -283,18 +307,29 @@ jobs:
 workflows:
   test_pull_request:
     jobs:
+      - build-environment:
+          filters:
+            branches:
+              ignore: main
+
       - test-many:
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
+          requires:
+            - build-environment
+
       - test-settings-server:
           filters:
             branches:
               ignore: main
             tags:
               ignore: /.*/
+          requires:
+            - build-environment
+
       - test-package:
           name: test-auth-server
           package: fxa-auth-server
@@ -302,55 +337,10 @@ workflows:
             branches:
               ignore: main
             tags:
-              ignore: /.*/
-      - test-content-server-0:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-1:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-2:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-3:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-4:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - test-content-server-5:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - playwright-functional-tests:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
-      - build-and-deploy-storybooks:
-          filters:
-            branches:
-              ignore: main
-            tags:
-              ignore: /.*/
+              only: /.*/
+          requires:
+            - build-environment
+
   deploy_branch:
     jobs:
       - deploy-packages:
@@ -368,6 +358,7 @@ workflows:
               only: main
             tags:
               ignore: /.*/
+
   test_and_deploy_tag:
     jobs:
       - test-many:
