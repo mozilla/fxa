@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { STRIPE_MINIMUM_CHARGE_AMOUNTS } from 'fxa-shared/subscriptions/stripe';
 import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
@@ -16,7 +17,7 @@ import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
 } from './paypal-error-codes';
-import { StripeHelper, STRIPE_MINIMUM_CHARGE_AMOUNTS } from './stripe';
+import { StripeHelper } from './stripe';
 
 /**
  * Generest a timestamp in seconds that is `hours` before the current

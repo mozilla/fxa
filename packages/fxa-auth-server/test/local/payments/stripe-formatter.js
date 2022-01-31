@@ -20,6 +20,7 @@ describe('stripeInvoiceToInvoicePreviewDTO', () => {
     );
     assert.equal(invoice.total, previewInvoiceWithTax.total);
     assert.equal(invoice.subtotal, previewInvoiceWithTax.subtotal);
+    assert.equal(invoice.currency, previewInvoiceWithTax.currency);
     assert.equal(
       invoice.tax.amount,
       previewInvoiceWithTax.total_tax_amounts[0].amount
@@ -38,6 +39,7 @@ describe('stripeInvoiceToInvoicePreviewDTO', () => {
     );
     assert.equal(invoice.total, previewInvoiceWithDiscountAndTax.total);
     assert.equal(invoice.subtotal, previewInvoiceWithDiscountAndTax.subtotal);
+    assert.equal(invoice.currency, previewInvoiceWithDiscountAndTax.currency);
     assert.equal(
       invoice.tax.amount,
       previewInvoiceWithDiscountAndTax.total_tax_amounts[0].amount

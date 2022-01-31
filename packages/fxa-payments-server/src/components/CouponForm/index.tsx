@@ -14,6 +14,7 @@ import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 
 import * as Amplitude from '../../lib/amplitude';
 import { useCallbackOnce } from '../../lib/hooks';
+import { STRIPE_MINIMUM_CHARGE_AMOUNTS } from 'fxa-shared/subscriptions/stripe';
 
 class CouponError extends Error {
   constructor(message: string) {
@@ -39,6 +40,7 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
       priceId: planId,
       promotionCode,
     });
+    const minAmount = STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
 
     if (couponDetails?.expired) {
       throw new CouponError(CouponErrorMessageType.Expired);
@@ -53,6 +55,11 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
     }
 
     return couponDetails;
+    // if (total !== 0 && minAmount && total < minAmount) {
+    //   throw new Error('Total below minimum amount allowed.');
+    // }
+
+    // return discount.amount;
   } catch (err) {
     if (!(err instanceof CouponError)) {
       if (err instanceof APIError) {

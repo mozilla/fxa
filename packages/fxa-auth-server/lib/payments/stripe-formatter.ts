@@ -13,6 +13,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
   const invoicePreview: invoiceDTO.invoicePreviewSchema = {
     subtotal: invoice.subtotal,
     total: invoice.total,
+    currency: invoice.currency,
     line_items: invoice.lines.data.map((line) => ({
       amount: line.amount,
       currency: line.currency,

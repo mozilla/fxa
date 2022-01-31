@@ -11,16 +11,14 @@ import {
   filterCustomer,
   filterSubscription,
   hasPaypalSubscription,
+  STRIPE_MINIMUM_CHARGE_AMOUNTS,
 } from 'fxa-shared/subscriptions/stripe';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import {
-  COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP,
-  STRIPE_MINIMUM_CHARGE_AMOUNTS,
-} from '../../payments/stripe';
+import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { PayPalHelper } from '../../payments/paypal';
 import STATES_LONG_NAME_TO_SHORT_NAME_MAP from '../../payments/states-long-name-to-short-name-map.json';
 import { StripeHelper } from '../../payments/stripe';

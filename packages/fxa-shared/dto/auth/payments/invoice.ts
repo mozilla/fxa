@@ -31,6 +31,7 @@ export interface InvoicePreview {
   line_items: InvoiceLineItem[];
   subtotal: number;
   total: number;
+  currency: string;
   tax?: InvoiceTax;
   discount?: InvoiceDiscount;
 }
@@ -51,6 +52,7 @@ export const invoicePreviewSchema = joi.object({
     .required(),
   subtotal: joi.number().required(),
   total: joi.number().required(),
+  currency: joi.string().required(),
   tax: joi.object({
     amount: joi.number().required(),
     inclusive: joi.boolean().required(),
