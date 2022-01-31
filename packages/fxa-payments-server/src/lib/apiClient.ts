@@ -5,6 +5,7 @@ import { getFlowData } from './flow-event';
 import { PaymentMethod } from '@stripe/stripe-js';
 import { PaymentProvider } from './PaymentProvider';
 import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { CouponErrorMessageType } from '../components/CouponForm';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
@@ -400,7 +401,7 @@ export async function apiInvoicePreview(params: {
     );
 
     if (!result?.discount?.amount) {
-      throw new Error('No discount for coupon');
+      throw new Error(CouponErrorMessageType.Generic);
     }
 
     Amplitude.coupon_FULFILLED(metricsOptions);

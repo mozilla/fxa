@@ -61,7 +61,7 @@
   }
 
   .coupon-error {
-    margin: 0px 16px;
+    margin: 0px 16px 16px 16px;
     padding-bottom: 0px;
     width: 57%;
     color: red;
@@ -70,7 +70,7 @@
       padding-bottom: 16px;
     }
 
-    @media (orientation: landscape) and (max-width: 927px) and (max-height: 429px){
+    @media (orientation: landscape) and (max-width: 927px) and (max-height: 429px) {
       padding-bottom: 16px;
     }
   }
