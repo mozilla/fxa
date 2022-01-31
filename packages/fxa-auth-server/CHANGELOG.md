@@ -1,3 +1,31 @@
+## 1.224.4
+
+### Bug fixes
+
+- subscriptions: s/snake/camel case for Stripe resource names ([19b8cb91c](https://github.com/mozilla/fxa/commit/19b8cb91c))
+
+## 1.224.3
+
+### Bug fixes
+
+- subscriptions: match expandable resource type to Stripe obj type list (#11787) ([cfee14c47](https://github.com/mozilla/fxa/commit/cfee14c47))
+
+## 1.224.2
+
+### New features
+
+- auth: dont report location set on repeat customers ([46b3a543d](https://github.com/mozilla/fxa/commit/46b3a543d))
+
+### Bug fixes
+
+- auth: check for unique state on multiple results from Geocoding API (#11704) ([65d6a26f1](https://github.com/mozilla/fxa/commit/65d6a26f1))
+- subscriptions: fix product/plan webhook event handling (#11760) ([629940b25](https://github.com/mozilla/fxa/commit/629940b25))
+- subscriptions: stop retry w/ old invoice ## 1.224.1 stop sending welcome email (#11701) ([dc01d558f](https://github.com/mozilla/fxa/commit/dc01d558f))
+- auth: Copy 'public' to dist, don't load non-existent Fluent bundles, Fluent strategy tweak (#11753) ([de74d2a65](https://github.com/mozilla/fxa/commit/de74d2a65))
+- auth-server: wrong apostrophe in plaintext of `subscriptionAccountReminderFirst` (#11742) ([4820cc0b9](https://github.com/mozilla/fxa/commit/4820cc0b9))
+- auth-server: `subscriptionAccountFinishSetup` has some strings in purple (#11769) ([3a9d940f0](https://github.com/mozilla/fxa/commit/3a9d940f0))
+- auth-server: wrong HTML version displayed for verifyLoginCode template (#11697) ([7cfe9b1fb](https://github.com/mozilla/fxa/commit/7cfe9b1fb))
+
 ## 1.224.1
 
 ### Bug fixes

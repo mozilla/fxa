@@ -1,3 +1,17 @@
+## 1.224.4
+
+No changes.
+
+## 1.224.3
+
+### New features
+
+- config: Add options for connection pool limit ## 1.224.2 queue limit (#11790) ([343dcbf3d](https://github.com/mozilla/fxa/commit/343dcbf3d))
+
+## 1.224.2
+
+No changes.
+
 ## 1.224.1
 
 No changes.

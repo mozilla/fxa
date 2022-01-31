@@ -56,7 +56,7 @@ import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 export const CARD_RESOURCE = 'sources';
 export const CHARGES_RESOURCE = 'charges';
 export const COUPON_RESOURCE = 'coupons';
-export const CREDIT_NOTE_RESOURCE = 'credit_notes';
+export const CREDIT_NOTE_RESOURCE = 'creditNotes';
 export const CUSTOMER_RESOURCE = 'customers';
 export const INVOICES_RESOURCE = 'invoices';
 export const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
@@ -65,7 +65,7 @@ export const PRICE_RESOURCE = 'prices';
 export const PRODUCT_RESOURCE = 'products';
 export const SOURCE_RESOURSE = 'sources';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
-export const TAX_RATE_RESOURCE = 'tax_rates';
+export const TAX_RATE_RESOURCE = 'taxRates';
 
 export const MOZILLA_TAX_ID = 'Tax ID';
 
