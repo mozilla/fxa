@@ -10,7 +10,7 @@ import React, {
 } from 'react';
 
 import { APIError, apiInvoicePreview } from '../../lib/apiClient';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import sentry from '../../lib/sentry';
 
 import * as Amplitude from '../../lib/amplitude';
@@ -41,8 +41,8 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
 
 type CouponFormProps = {
   planId: string;
-  coupon?: Coupon;
-  setCoupon: (coupon: Coupon | undefined) => void;
+  coupon?: Coupon.couponDetailsSchema;
+  setCoupon: (coupon: Coupon.couponDetailsSchema | undefined) => void;
 };
 
 export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {

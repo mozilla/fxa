@@ -7,7 +7,7 @@ import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import PlanDetails from '../../../components/PlanDetails';
 import PaymentConfirmation from '../../../components/PaymentConfirmation';
 import Header from '../../../components/Header';
-import { Coupon } from '../../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 
 const defaultProductRedirectURL = 'https://mozilla.org';
 
@@ -17,7 +17,7 @@ export type SubscriptionSuccessProps = {
   profile: Profile;
   isMobile: boolean;
   accountExists?: boolean;
-  coupon?: Coupon;
+  coupon?: Coupon.couponDetailsSchema;
 };
 
 export const SubscriptionSuccess = ({

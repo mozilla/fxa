@@ -18,14 +18,14 @@ import ffLogo from '../../images/firefox-logo.svg';
 
 import './index.scss';
 import { Plan } from '../../store/types';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 
 type PlanDetailsProps = {
   selectedPlan: Plan;
   isMobile: boolean;
   showExpandButton?: boolean;
   className?: string;
-  coupon?: Coupon;
+  coupon?: Coupon.couponDetailsSchema;
   children?: any;
 };
 
@@ -53,8 +53,11 @@ export const PlanDetails = ({
     : '';
 
   const discountAmount =
-    coupon && amount && config.featureFlags.subscriptionCoupons
-      ? amount - coupon.amount
+    coupon &&
+    amount &&
+    coupon.discountAmount &&
+    config.featureFlags.subscriptionCoupons
+      ? amount - coupon.discountAmount
       : amount;
   const planPrice = formatPlanPricing(
     discountAmount,
@@ -121,7 +124,9 @@ export const PlanDetails = ({
                 className="plan-details-total"
                 aria-labelledby="plan-details-product"
               >
-                {coupon && config.featureFlags.subscriptionCoupons ? (
+                {coupon &&
+                coupon.discountAmount &&
+                config.featureFlags.subscriptionCoupons ? (
                   <div className="plan-details-coupon-details">
                     <div className="plan-details-total-inner">
                       <Localized id="plan-details-list-price">
@@ -150,13 +155,13 @@ export const PlanDetails = ({
                           attrs={{ title: true }}
                           vars={{
                             amount: getLocalizedCurrency(
-                              coupon.amount,
+                              coupon.discountAmount,
                               currency
                             ),
                             intervalCount: interval_count,
                           }}
                         >{`- ${getLocalizedCurrencyString(
-                          coupon.amount,
+                          coupon.discountAmount,
                           currency
                         )}`}</Localized>
                       </div>
@@ -173,9 +178,11 @@ export const PlanDetails = ({
                     attrs={{ title: true }}
                     vars={{
                       amount:
-                        coupon && config.featureFlags.subscriptionCoupons
+                        coupon &&
+                        coupon.discountAmount &&
+                        config.featureFlags.subscriptionCoupons
                           ? getLocalizedCurrency(
-                              amount ? amount - coupon.amount : amount,
+                              amount ? amount - coupon.discountAmount : amount,
                               currency
                             )
                           : getLocalizedCurrency(amount, currency),

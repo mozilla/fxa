@@ -17,7 +17,7 @@ import {
 import { updateConfig } from '../../lib/config';
 import { Plan } from 'fxa-shared/subscriptions/types';
 import CouponForm from '../CouponForm';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import { Profile } from '../../store/types';
 
 const userProfile: Profile = {
@@ -199,7 +199,7 @@ describe('PlanDetails', () => {
         },
       });
 
-      const coupon: Coupon = {
+      const coupon: Coupon.couponDetailsSchema = {
         discountAmount: 200,
         promotionCode: '',
         type: '',
@@ -223,8 +223,8 @@ describe('PlanDetails', () => {
       });
 
       const expectedAmount = getLocalizedCurrency(
-        selectedPlan.amount
-          ? selectedPlan.amount - coupon.amount
+        selectedPlan.amount && coupon.discountAmount
+          ? selectedPlan.amount - coupon.discountAmount
           : selectedPlan.amount,
         selectedPlan.currency
       );

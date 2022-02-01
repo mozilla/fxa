@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/node';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
+import * as couponDTO from 'fxa-shared/dto/auth/payments/coupon';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
@@ -421,8 +422,12 @@ export class StripeHandler {
     return stripeInvoiceToInvoicePreviewDTO(previewInvoice);
   }
 
-  async retrieveCouponDetails(request: AuthRequest): Promise<any> {
-    await this.customs.checkIpOnly(request, 'previewInvoice');
+  async retrieveCouponDetails(
+    request: AuthRequest
+  ): Promise<couponDTO.couponDetailsSchema> {
+    this.log.begin('subscriptions.retrieveCouponDetails', request);
+    await this.customs.checkIpOnly(request, 'retrieveCouponDetails');
+
     const { promotionCode, priceId } = request.payload as Record<
       string,
       string
@@ -877,6 +882,9 @@ export const stripeRoutes = (
       path: '/oauth/subscriptions/coupon',
       options: {
         auth: false,
+        response: {
+          schema: couponDTO.couponDetailsSchema as any,
+        },
         validate: {
           payload: {
             priceId: validators.subscriptionsPlanId.required(),

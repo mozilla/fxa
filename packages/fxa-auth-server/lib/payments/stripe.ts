@@ -52,6 +52,7 @@ import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 
 export const CARD_RESOURCE = 'sources';
 export const CHARGES_RESOURCE = 'charges';
@@ -707,7 +708,7 @@ export class StripeHelper {
     country: string;
     priceId: string;
     promotionCode: string;
-  }) {
+  }): Promise<Coupon.couponDetailsSchema> {
     try {
       const stripePromotionCode = await this.retrievePromotionCodeForPlan(
         promotionCode,
@@ -717,7 +718,7 @@ export class StripeHelper {
       if (stripePromotionCode?.coupon.id) {
         let invoice: Stripe.Invoice | undefined = undefined;
         const stripeCoupon = await this.getCoupon(
-          stripePromotionCode?.coupon.id
+          stripePromotionCode.coupon.id
         );
         try {
           invoice = await this.previewInvoice({
@@ -729,14 +730,7 @@ export class StripeHelper {
           // do nothing - the invoice may have thrown an invalidPromoCode error due to the code now being invalid and therefore no discount
         }
 
-        const couponDetails: {
-          promotionCode: string;
-          type: string;
-          valid: boolean;
-          discountAmount?: number;
-          expired?: boolean;
-          maximallyRedeemed?: boolean;
-        } = {
+        const couponDetails: Coupon.couponDetailsSchema = {
           promotionCode: promotionCode,
           type: stripeCoupon.duration,
           valid: false,

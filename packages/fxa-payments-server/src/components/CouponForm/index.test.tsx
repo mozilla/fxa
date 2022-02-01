@@ -2,7 +2,7 @@ import React from 'react';
 import { render, cleanup, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import CouponForm from './index';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 import waitForExpect from 'wait-for-expect';
 
@@ -48,7 +48,7 @@ describe('CouponForm', () => {
   });
 
   it('shows the coupon code and hides the input when a coupon is used', () => {
-    const coupon: Coupon = {
+    const coupon: Coupon.couponDetailsSchema = {
       discountAmount: 200,
       promotionCode: '',
       type: '',
