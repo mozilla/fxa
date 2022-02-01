@@ -259,3 +259,12 @@ export const getSubscriptionUpdateEligibility: (
 
   return SubscriptionUpdateEligibility.INVALID;
 };
+
+export const getMinimumAmount = (currency: string): number => {
+  if (STRIPE_MINIMUM_CHARGE_AMOUNTS.hasOwnProperty(currency))
+    return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
+
+  throw new Error(
+    `Currency "${currency}" does not have a minimum amount available.`
+  );
+};

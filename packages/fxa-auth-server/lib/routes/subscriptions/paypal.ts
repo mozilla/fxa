@@ -10,8 +10,8 @@ import {
 import {
   filterCustomer,
   filterSubscription,
+  getMinimumAmount,
   hasPaypalSubscription,
-  STRIPE_MINIMUM_CHARGE_AMOUNTS,
 } from 'fxa-shared/subscriptions/stripe';
 import { Stripe } from 'stripe';
 import Container from 'typedi';
@@ -196,9 +196,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     ]);
 
     const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
-    const minAmount =
-      STRIPE_MINIMUM_CHARGE_AMOUNTS[latestInvoice.currency] || 50;
-    if (latestInvoice.amount_due < minAmount) {
+    if (latestInvoice.amount_due < getMinimumAmount(latestInvoice.currency)) {
       await this.paypalHelper.processZeroInvoice(latestInvoice);
     } else {
       try {
@@ -256,9 +254,7 @@ export class PayPalHandler extends StripeWebhookHandler {
       taxRateId: taxRate?.id,
     });
     const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
-    const minAmount =
-      STRIPE_MINIMUM_CHARGE_AMOUNTS[latestInvoice.currency] || 50;
-    if (latestInvoice.amount_due < minAmount) {
+    if (latestInvoice.amount_due < getMinimumAmount(latestInvoice.currency)) {
       await this.paypalHelper.processZeroInvoice(latestInvoice);
     } else {
       try {
@@ -361,8 +357,7 @@ export class PayPalHandler extends StripeWebhookHandler {
     invoice: Stripe.Invoice
   ) {
     try {
-      const minAmount = STRIPE_MINIMUM_CHARGE_AMOUNTS[invoice.currency] || 50;
-      if (invoice.amount_due < minAmount) {
+      if (invoice.amount_due < getMinimumAmount(invoice.currency)) {
         await this.paypalHelper.processZeroInvoice(invoice);
       } else {
         await this.paypalHelper.processInvoice({

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { STRIPE_MINIMUM_CHARGE_AMOUNTS } from 'fxa-shared/subscriptions/stripe';
+import { getMinimumAmount } from 'fxa-shared/subscriptions/stripe';
 import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
@@ -223,8 +223,8 @@ export class PaypalProcessor {
    */
   private async makePaymentAttempt(invoice: Stripe.Invoice) {
     const customer = invoice.customer as Stripe.Customer;
-    const minAmount = STRIPE_MINIMUM_CHARGE_AMOUNTS[invoice.currency] || 50;
-    if (invoice.amount_due < minAmount) {
+
+    if (invoice.amount_due < getMinimumAmount(invoice.currency)) {
       await this.paypalHelper.processZeroInvoice(invoice);
       return true;
     }
