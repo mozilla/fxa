@@ -28,7 +28,7 @@
   @extend .mb-6;
 }
 
-// NOTE: some list items appeared purple in stage
+// NOTE: appeared purple in at least one instance/email client in stage
 .text-body li {
   color: global.$grey-500 !important;
 }
