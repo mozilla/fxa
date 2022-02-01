@@ -323,4 +323,56 @@ describe('Connected Services', () => {
       0
     );
   });
+
+  describe('redirects to /signin when active session is signed out', () => {
+    const mockWindowAssign = jest.fn();
+    Object.defineProperty(window, 'location', {
+      value: { origin: 'foo-bar', assign: mockWindowAssign },
+    });
+
+    it('with single service session', async () => {
+      const attachedClients = MOCK_SERVICES;
+      attachedClients[0].isCurrentSession = true;
+      attachedClients[0].deviceId = null;
+
+      const account = {
+        attachedClients,
+        disconnectClient: jest.fn().mockResolvedValue(true),
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <ConnectedServices />
+        </AppContext.Provider>
+      );
+      await clickFirstSignOutButton();
+      expect(mockWindowAssign).toHaveBeenCalledWith('foo-bar/signin');
+    });
+
+    it('with multiple service sessions', async () => {
+      const attachedClients = MOCK_SERVICES.filter(
+        (service) => service.name === 'Firefox Monitor'
+      );
+      attachedClients[0].isCurrentSession = true;
+
+      const account = {
+        attachedClients,
+        disconnectClient: jest.fn().mockResolvedValue(true),
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <ConnectedServices />
+        </AppContext.Provider>
+      );
+
+      await clickFirstSignOutButton();
+      expect(logViewEvent).toHaveBeenCalledWith(
+        'settings.clients.disconnect',
+        'submit.'
+      );
+
+      expect(mockWindowAssign).toHaveBeenCalledWith('foo-bar/signin');
+    });
+  });
 });
