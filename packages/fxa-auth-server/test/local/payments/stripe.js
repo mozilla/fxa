@@ -1232,10 +1232,22 @@ describe('StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
-        county: 'US',
-        planId: 'planId',
+        country: 'US',
+        priceId: 'planId',
         promotionCode: 'promo',
       });
+
+      sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
+        country: 'US',
+        priceId: 'planId',
+        promotionCode: 'promo',
+      });
+      sinon.assert.calledOnceWithExactly(stripeHelper.getCoupon, 'promo');
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.retrievePromotionCodeForPlan,
+        'promo',
+        'planId'
+      );
       assert.deepEqual(actual, expected);
     });
 

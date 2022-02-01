@@ -835,7 +835,7 @@ export class StripeHelper {
     active?: boolean
   ): Promise<Stripe.PromotionCode | undefined> {
     const promoCodes = await this.stripe.promotionCodes.list({
-      active: active,
+      active,
       code,
     });
     return promoCodes.data.find((c) => c.code === code);
