@@ -103,7 +103,7 @@
     "lodash": "^4.17.21",
     "luxon": "^2.3.0",
     "memcached": "^2.2.2",
-    "mjml": "^4.11.0",
+    "mjml": "^4.12.0",
     "moment-timezone": "^0.5.34",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
