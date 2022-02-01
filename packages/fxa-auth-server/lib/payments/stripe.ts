@@ -709,64 +709,58 @@ export class StripeHelper {
     priceId: string;
     promotionCode: string;
   }): Promise<Coupon.couponDetailsSchema> {
-    try {
-      const stripePromotionCode = await this.retrievePromotionCodeForPlan(
-        promotionCode,
-        priceId
-      );
+    const stripePromotionCode = await this.retrievePromotionCodeForPlan(
+      promotionCode,
+      priceId
+    );
 
-      if (stripePromotionCode?.coupon.id) {
-        let invoice: Stripe.Invoice | undefined = undefined;
-        const stripeCoupon = await this.getCoupon(
-          stripePromotionCode.coupon.id
-        );
-        try {
-          invoice = await this.previewInvoice({
-            country,
-            priceId,
-            promotionCode,
-          });
-        } catch {
-          // do nothing - the invoice may have thrown an invalidPromoCode error due to the code now being invalid and therefore no discount
-        }
+    if (stripePromotionCode?.coupon.id) {
+      const stripeCoupon = await this.getCoupon(stripePromotionCode.coupon.id);
 
-        const couponDetails: Coupon.couponDetailsSchema = {
-          promotionCode: promotionCode,
-          type: stripeCoupon.duration,
-          valid: false,
-        };
+      const couponDetails: Coupon.couponDetailsSchema = {
+        promotionCode: promotionCode,
+        type: stripeCoupon.duration,
+        valid: false,
+      };
+
+      try {
+        const invoice = await this.previewInvoice({
+          country,
+          priceId,
+          promotionCode,
+        });
 
         if (invoice?.discount && invoice?.total_discount_amounts) {
           couponDetails.discountAmount =
             invoice.total_discount_amounts[0].amount;
         }
-
-        if (stripeCoupon.redeem_by) {
-          const expiry = new Date(stripeCoupon.redeem_by * 1000);
-          const now = new Date();
-          couponDetails.expired = now > expiry;
-        }
-
-        if (stripeCoupon.max_redemptions) {
-          couponDetails.maximallyRedeemed =
-            stripeCoupon.times_redeemed >= stripeCoupon.max_redemptions;
-        }
-
-        if (
-          couponDetails.discountAmount &&
-          !couponDetails.expired &&
-          !couponDetails.maximallyRedeemed &&
-          stripePromotionCode.active
-        ) {
-          couponDetails.valid = true;
-        }
-
-        return couponDetails;
-      } else {
-        throw error.invalidPromoCode(promotionCode);
+      } catch {
+        couponDetails.discountAmount = undefined;
       }
-    } catch (error) {
-      throw error;
+
+      if (stripeCoupon.redeem_by) {
+        const expiry = new Date(stripeCoupon.redeem_by * 1000);
+        const now = new Date();
+        couponDetails.expired = now > expiry;
+      }
+
+      if (stripeCoupon.max_redemptions) {
+        couponDetails.maximallyRedeemed =
+          stripeCoupon.times_redeemed >= stripeCoupon.max_redemptions;
+      }
+
+      if (
+        couponDetails.discountAmount &&
+        !couponDetails.expired &&
+        !couponDetails.maximallyRedeemed &&
+        stripePromotionCode.active
+      ) {
+        couponDetails.valid = true;
+      }
+
+      return couponDetails;
+    } else {
+      throw error.invalidPromoCode(promotionCode);
     }
   }
 
