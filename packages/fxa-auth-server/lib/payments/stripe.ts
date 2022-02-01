@@ -101,11 +101,11 @@ export const VALID_RESOURCE_TYPES = Object.values(
 
 export enum STRIPE_PRICE_METADATA {
   PROMOTION_CODES = 'promotionCodes',
+  PLAY_SKU_IDS = 'playSkuIds',
 }
 
 export enum STRIPE_PRODUCT_METADATA {
   PROMOTION_CODES = 'promotionCodes',
-  PLAY_SKU_IDS = 'playSkuIds',
 }
 
 export enum STRIPE_INVOICE_METADATA {
@@ -1277,12 +1277,12 @@ export class StripeHelper {
   }
 
   /**
-   * Return a list of skus for a given product.
+   * Return a list of skus for a given price.
    */
-  productToPlaySkus(product: AbbrevProduct) {
-    const productSkus =
-      product.product_metadata[STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS] || '';
-    return productSkus
+  priceToPlaySkus(price: AbbrevPlan) {
+    const priceSkus =
+      price.plan_metadata?.[STRIPE_PRICE_METADATA.PLAY_SKU_IDS] || '';
+    return priceSkus
       .trim()
       .split(',')
       .map((c) => c.trim().toLowerCase())
@@ -1290,43 +1290,44 @@ export class StripeHelper {
   }
 
   /**
-   * Fetch all product ids that correspond to a list of Play SubscriptionPurchases.
+   * Fetch all price ids that correspond to a list of Play SubscriptionPurchases.
    */
-  async purchasesToProductIds(purchases: SubscriptionPurchase[]) {
-    const products = await this.allAbbrevProducts();
+  async purchasesToPriceIds(purchases: SubscriptionPurchase[]) {
+    const prices = await this.allAbbrevPlans();
     const purchasedSkus = purchases.map((purchase) =>
       purchase.sku.toLowerCase()
     );
-    const purchasedProducts = [];
-    for (const product of products) {
-      const playSkus = this.productToPlaySkus(product);
+    const purchasedPrices = [];
+    for (const price of prices) {
+      const playSkus = this.priceToPlaySkus(price);
       if (playSkus.some((sku) => purchasedSkus.includes(sku))) {
-        purchasedProducts.push(product.product_id);
+        purchasedPrices.push(price.plan_id);
       }
     }
-    return purchasedProducts;
+    return purchasedPrices;
   }
 
   /**
-   * Append any matching product ids and names to their corresponding AbbrevPlayPurchase.
+   * Append any matching price ids and names to their corresponding AbbrevPlayPurchase.
    */
-  async addProductInfoToAbbrevPlayPurchases(
+  async addPriceInfoToAbbrevPlayPurchases(
     purchases: AbbrevPlayPurchase[]
   ): Promise<
     (AbbrevPlayPurchase & { product_id: string; product_name: string })[]
   > {
-    const products = await this.allAbbrevProducts();
+    const plans = await this.allAbbrevPlans();
     const appendedAbbrevPlayPurchases = [];
-    for (const product of products) {
-      const playSkus = this.productToPlaySkus(product);
+    for (const plan of plans) {
+      const playSkus = this.priceToPlaySkus(plan);
       const matchingAbbrevPlayPurchases = purchases.filter((purchase) =>
         playSkus.includes(purchase.sku.toLowerCase())
       );
       for (const matchingAbbrevPlayPurchase of matchingAbbrevPlayPurchases) {
         appendedAbbrevPlayPurchases.push({
           ...matchingAbbrevPlayPurchase,
-          product_id: product.product_id,
-          product_name: product.product_name,
+          product_id: plan.product_id,
+          product_name: plan.product_name,
+          price_id: plan.plan_id,
         });
       }
     }
