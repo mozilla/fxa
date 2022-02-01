@@ -40,7 +40,7 @@ describe('models/auth_brokers/web', function () {
 
   testRedirectsToSettings('afterCompleteResetPassword');
   testRedirectsToSettings('afterForceAuth');
-  testRedirectsToSettingsOrRedirectTo('afterResetPasswordConfirmationPoll');
+  testRedirectsToSettings('afterResetPasswordConfirmationPoll');
   testRedirectsToSettings('afterSignIn');
   testRedirectsToSettingsOrRedirectTo('afterSignInConfirmationPoll');
   testRedirectsToSettingsOrRedirectTo('afterSignUpConfirmationPoll');
