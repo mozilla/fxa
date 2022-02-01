@@ -151,23 +151,12 @@
       background-size: cover;
     }
   }
-
-  .avatar-camera-wrapper {
-    border-radius: 50%;
-    position: relative;
-  }
 }
 
 .with-default {
   background: image-url('default-profile.svg') center;
   background-repeat: no-repeat;
   background-size: 100% 100%;
-}
-
-.change-avatar-text {
-  font-size: $small-font;
-  margin-top: 0;
-  visibility: hidden;
 }
 
 #done {
@@ -178,96 +167,6 @@
   color: $faint-text-color;
   font-size: $base-font;
   padding-top: 10px;
-}
-
-.main-avatar {
-  display: inline-block;
-  position: relative;
-  width: $avatar-size;
-}
-
-#avatar-options {
-  .remove {
-    display: inline-block;
-
-    &.hidden {
-      display: none;
-    }
-  }
-}
-
-/* Circle Avatar Styles */
-.avatar-camera canvas {
-  display: none;
-}
-
-.avatar-change {
-  nav {
-    margin: 0 -40px -20px -40px;
-    padding: 25px 20px 20px;
-
-    button,
-    a {
-      background: {
-        color: transparent;
-        repeat: no-repeat;
-        size: 48%;
-      }
-      color: $link-color-default;
-      display: inline-block;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 1.1;
-      padding-top: 11%;
-      text-decoration: none;
-      width: initial;
-
-      @include respond-to('big') {
-        height: 80px;
-        margin: 5px 5px 10px;
-        min-width: 80px;
-        padding-top: 52px;
-      }
-
-      @include respond-to('small') {
-        height: 65px;
-        margin: 0 0 10px 0;
-        min-width: 75px;
-        padding-top: 42px;
-      }
-
-      &#camera,
-      &#file,
-      &.remove {
-        background-position: 50% 0.7vw;
-
-        &:hover {
-          filter: hue-rotate(3deg) saturate(1.1) brightness(0.85);
-        }
-
-        &:active {
-          filter: hue-rotate(3deg) saturate(1.1) brightness(0.75);
-        }
-      }
-
-      &#camera {
-        background-image: image-url('glyph-camera-32.svg');
-        background-position-y: 0.45vw;
-      }
-
-      &#file {
-        background-image: image-url('glyph-upload-16.svg');
-      }
-
-      &.remove {
-        background-image: image-url('glyph-clear-16.svg');
-      }
-    }
-  }
-
-  .error {
-    position: static;
-  }
 }
 
 .no-getusermedia #camera {
