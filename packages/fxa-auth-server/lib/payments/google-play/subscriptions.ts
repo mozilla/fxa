@@ -85,7 +85,7 @@ export class PlaySubscriptions
     const iapSubscribedGooglePlayAbbrevPlayPurchases =
       await this.getAbbrevPlayPurchases(uid);
     const iapAbbrevPlayPurchasesWithStripeProductData =
-      await this.stripeHelper.addProductInfoToAbbrevPlayPurchases(
+      await this.stripeHelper.addPriceInfoToAbbrevPlayPurchases(
         iapSubscribedGooglePlayAbbrevPlayPurchases
       );
     return iapAbbrevPlayPurchasesWithStripeProductData.map((purchase) => ({
