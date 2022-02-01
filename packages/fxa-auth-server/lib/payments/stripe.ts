@@ -715,7 +715,7 @@ export class StripeHelper {
     );
 
     if (stripePromotionCode?.coupon.id) {
-      const stripeCoupon = await this.getCoupon(stripePromotionCode.coupon.id);
+      const stripeCoupon: Stripe.Coupon = stripePromotionCode.coupon;
 
       const couponDetails: Coupon.couponDetailsSchema = {
         promotionCode: promotionCode,
