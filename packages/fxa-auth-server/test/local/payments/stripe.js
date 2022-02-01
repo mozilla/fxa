@@ -1219,15 +1219,12 @@ describe('StripeHelper', () => {
         total_discount_amounts: [{ amount: 1 }],
       });
 
-      sandbox.stub(stripeHelper, 'getCoupon').resolves({
-        duration: 'forever',
-        valid: true,
-      });
-
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
         coupon: {
           id: 'promo',
+          duration: 'forever',
+          valid: true,
         },
       });
 
@@ -1242,7 +1239,6 @@ describe('StripeHelper', () => {
         priceId: 'planId',
         promotionCode: 'promo',
       });
-      sinon.assert.calledOnceWithExactly(stripeHelper.getCoupon, 'promo');
       sinon.assert.calledOnceWithExactly(
         stripeHelper.retrievePromotionCodeForPlan,
         'promo',
@@ -1260,16 +1256,13 @@ describe('StripeHelper', () => {
       };
       sandbox.stub(stripeHelper, 'previewInvoice').resolves({});
 
-      sandbox.stub(stripeHelper, 'getCoupon').resolves({
-        duration: 'forever',
-        valid: false,
-        redeem_by: 1000,
-      });
-
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
         coupon: {
           id: 'promo',
+          duration: 'forever',
+          valid: false,
+          redeem_by: 1000,
         },
       });
 
@@ -1290,17 +1283,14 @@ describe('StripeHelper', () => {
       };
       sandbox.stub(stripeHelper, 'previewInvoice').resolves({});
 
-      sandbox.stub(stripeHelper, 'getCoupon').resolves({
-        duration: 'forever',
-        valid: false,
-        max_redemptions: 1,
-        times_redeemed: 1,
-      });
-
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
         coupon: {
           id: 'promo',
+          duration: 'forever',
+          valid: false,
+          max_redemptions: 1,
+          times_redeemed: 1,
         },
       });
 
