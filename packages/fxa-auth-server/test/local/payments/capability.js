@@ -81,33 +81,41 @@ describe('CapabilityService', () => {
     };
     mockStripeHelper.allAbbrevPlans = sinon.spy(async () => [
       {
+        plan_id: 'plan_123456',
         product_id: 'prod_123456',
-        product_metadata: {
+        plan_metadata: {
           capabilities: 'capAll',
           'capabilities:c1': 'cap4,cap5',
           'capabilities:c2': 'cap5,cap6',
         },
+        product_metadata: {
+          'capabilities:c1': 'capZZ',
+        },
       },
       {
+        plan_id: 'plan_876543',
         product_id: 'prod_876543',
-        product_metadata: {
+        plan_metadata: {
           'capabilities:c2': 'capC,   capD',
           'capabilities:c3': 'capD, capE',
         },
       },
       {
+        plan_id: 'plan_ABCDEF',
         product_id: 'prod_ABCDEF',
         product_metadata: {
           'capabilities:c3': ' capZ,   capW   ',
         },
       },
       {
+        plan_id: 'plan_456789',
         product_id: 'prod_456789',
         product_metadata: {
           'capabilities:c3': '   capZ,capW',
         },
       },
       {
+        plan_id: 'plan_PLAY',
         product_id: 'prod_PLAY',
         product_metadata: {
           'capabilities:c3': '   capP',
@@ -134,40 +142,40 @@ describe('CapabilityService', () => {
         email: EMAIL,
       });
       sinon.replace(authDbModule, 'getUidAndEmailByStripeCustomerId', fake);
-      capabilityService.subscribedProductIds = sinon.fake.resolves([
-        'prod_FUUNYnlDso7FeB',
+      capabilityService.subscribedPriceIds = sinon.fake.resolves([
+        'price_GWScEDK6LT8cSV',
       ]);
-      capabilityService.processProductIdDiff = sinon.fake.resolves();
+      capabilityService.processPriceIdDiff = sinon.fake.resolves();
     });
 
-    it('handles a stripe product update with new products', async () => {
+    it('handles a stripe price update with new prices', async () => {
       const sub = deepCopy(subscriptionCreated);
       await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
       assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, UID);
-      assert.calledWith(capabilityService.processProductIdDiff, {
+      assert.calledWith(capabilityService.subscribedPriceIds, UID);
+      assert.calledWith(capabilityService.processPriceIdDiff, {
         uid: UID,
-        priorProductIds: [],
-        currentProductIds: ['prod_FUUNYnlDso7FeB'],
+        priorPriceIds: [],
+        currentPriceIds: ['price_GWScEDK6LT8cSV'],
       });
     });
 
-    it('handles a stripe product update with removed products', async () => {
+    it('handles a stripe price update with removed prices', async () => {
       const sub = deepCopy(subscriptionCreated);
-      capabilityService.subscribedProductIds = sinon.fake.resolves([]);
+      capabilityService.subscribedPriceIds = sinon.fake.resolves([]);
       await capabilityService.stripeUpdate({ sub, uid: UID, email: EMAIL });
       assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, UID);
-      assert.calledWith(capabilityService.processProductIdDiff, {
+      assert.calledWith(capabilityService.subscribedPriceIds, UID);
+      assert.calledWith(capabilityService.processPriceIdDiff, {
         uid: UID,
-        priorProductIds: ['prod_FUUNYnlDso7FeB'],
-        currentProductIds: [],
+        priorPriceIds: ['price_GWScEDK6LT8cSV'],
+        currentPriceIds: [],
       });
     });
 
-    it('handles a stripe product update without uid/email', async () => {
+    it('handles a stripe price update without uid/email', async () => {
       const sub = deepCopy(subscriptionCreated);
       await capabilityService.stripeUpdate({ sub });
       assert.calledWith(
@@ -175,11 +183,11 @@ describe('CapabilityService', () => {
         sub.customer
       );
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, UID);
-      assert.calledWith(capabilityService.processProductIdDiff, {
+      assert.calledWith(capabilityService.subscribedPriceIds, UID);
+      assert.calledWith(capabilityService.processPriceIdDiff, {
         uid: UID,
-        priorProductIds: [],
-        currentProductIds: ['prod_FUUNYnlDso7FeB'],
+        priorPriceIds: [],
+        currentPriceIds: ['price_GWScEDK6LT8cSV'],
       });
     });
   });
@@ -193,10 +201,10 @@ describe('CapabilityService', () => {
         email: EMAIL,
       });
       sinon.replace(authDbModule, 'getUidAndEmailByStripeCustomerId', fake);
-      capabilityService.subscribedProductIds = sinon.fake.resolves([
+      capabilityService.subscribedPriceIds = sinon.fake.resolves([
         'prod_FUUNYnlDso7FeB',
       ]);
-      capabilityService.processProductIdDiff = sinon.fake.resolves();
+      capabilityService.processPriceIdDiff = sinon.fake.resolves();
       subscriptionPurchase = SubscriptionPurchase.fromApiResponse(
         VALID_SUB_API_RESPONSE,
         'testPackage',
@@ -204,7 +212,7 @@ describe('CapabilityService', () => {
         'testSku',
         Date.now()
       );
-      mockStripeHelper.purchasesToProductIds = sinon.fake.resolves([
+      mockStripeHelper.purchasesToPriceIds = sinon.fake.resolves([
         'prod_FUUNYnlDso7FeB',
       ]);
     });
@@ -212,23 +220,23 @@ describe('CapabilityService', () => {
     it('handles a play purchase with new product', async () => {
       await capabilityService.playUpdate(UID, EMAIL, subscriptionPurchase);
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, UID);
-      assert.calledWith(capabilityService.processProductIdDiff, {
+      assert.calledWith(capabilityService.subscribedPriceIds, UID);
+      assert.calledWith(capabilityService.processPriceIdDiff, {
         uid: UID,
-        priorProductIds: [],
-        currentProductIds: ['prod_FUUNYnlDso7FeB'],
+        priorPriceIds: [],
+        currentPriceIds: ['prod_FUUNYnlDso7FeB'],
       });
     });
 
     it('handles a play purchase with a removed product', async () => {
-      capabilityService.subscribedProductIds = sinon.fake.resolves([]);
+      capabilityService.subscribedPriceIds = sinon.fake.resolves([]);
       await capabilityService.playUpdate(UID, EMAIL, subscriptionPurchase);
       assert.calledWith(mockProfileClient.deleteCache, UID);
-      assert.calledWith(capabilityService.subscribedProductIds, UID);
-      assert.calledWith(capabilityService.processProductIdDiff, {
+      assert.calledWith(capabilityService.subscribedPriceIds, UID);
+      assert.calledWith(capabilityService.processPriceIdDiff, {
         uid: UID,
-        priorProductIds: ['prod_FUUNYnlDso7FeB'],
-        currentProductIds: [],
+        priorPriceIds: ['prod_FUUNYnlDso7FeB'],
+        currentPriceIds: [],
       });
     });
   });
@@ -252,13 +260,13 @@ describe('CapabilityService', () => {
     });
   });
 
-  describe('processProductIdDiff', () => {
+  describe('processPriceIdDiff', () => {
     it('should process the product diff', async () => {
       mockAuthEvents.emit = sinon.fake.returns({});
-      await capabilityService.processProductIdDiff({
+      await capabilityService.processPriceIdDiff({
         uid: UID,
-        priorProductIds: ['prod_123456', 'prod_876543'],
-        currentProductIds: ['prod_876543', 'prod_ABCDEF'],
+        priorPriceIds: ['plan_123456', 'plan_876543'],
+        currentPriceIds: ['plan_876543', 'plan_ABCDEF'],
       });
       sinon.assert.calledTwice(log.notifyAttachedServices);
     });
@@ -272,27 +280,25 @@ describe('CapabilityService', () => {
             {
               status: 'active',
               items: {
-                data: [{ price: { product: 'prod_123456' } }],
+                data: [{ price: { id: 'plan_123456' } }],
               },
             },
             {
               status: 'active',
               items: {
-                data: [{ price: { product: 'prod_876543' } }],
+                data: [{ price: { id: 'plan_876543' } }],
               },
             },
             {
               status: 'incomplete',
               items: {
-                data: [{ price: { product: 'prod_456789' } }],
+                data: [{ price: { id: 'plan_456789' } }],
               },
             },
           ],
         },
       }));
-      mockStripeHelper.purchasesToProductIds = sinon.fake.returns([
-        'prod_PLAY',
-      ]);
+      mockStripeHelper.purchasesToPriceIds = sinon.fake.returns(['plan_PLAY']);
       mockSubscriptionPurchase = {
         sku: 'play_1234',
         isEntitlementActive: sinon.fake.returns(true),
@@ -327,7 +333,7 @@ describe('CapabilityService', () => {
       );
       assert.deepEqual(allCapabilities, {
         '*': ['capAll'],
-        c1: ['cap4', 'cap5'],
+        c1: ['cap4', 'cap5', 'capZZ'],
         c2: ['cap5', 'cap6', 'capC', 'capD'],
         c3: ['capD', 'capE'],
       });
@@ -340,7 +346,7 @@ describe('CapabilityService', () => {
     it('only reveals capabilities relevant to the client', async () => {
       const expected = {
         c0: ['capAll'],
-        c1: ['capAll', 'cap4', 'cap5'],
+        c1: ['capAll', 'cap4', 'cap5', 'capZZ'],
         c2: ['capAll', 'cap5', 'cap6', 'capC', 'capD'],
         c3: ['capAll', 'capD', 'capE', 'capP'],
         null: [
@@ -352,6 +358,7 @@ describe('CapabilityService', () => {
           'capD',
           'capE',
           'capP',
+          'capZZ',
         ],
       };
       for (const clientId in expected) {
@@ -362,18 +369,21 @@ describe('CapabilityService', () => {
     it('supports capabilities visible to all clients', async () => {
       mockStripeHelper.allAbbrevPlans = sinon.spy(async () => [
         {
+          plan_id: 'plan_123456',
           product_id: 'prod_123456',
           product_metadata: {
             capabilities: 'cap1,cap2,cap3',
           },
         },
         {
+          plan_id: 'plan_876543',
           product_id: 'prod_876543',
           product_metadata: {
             capabilities: 'capA,capB,capC',
           },
         },
         {
+          plan_id: 'plan_ABCDEF',
           product_id: 'prod_ABCDEF',
           product_metadata: {
             capabilities: 'cap00,  cap01,cap02',

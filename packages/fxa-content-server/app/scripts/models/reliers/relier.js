@@ -53,6 +53,9 @@ const QUERY_PARAMETER_SCHEMA = {
   entrypoint_variation: Vat.string().renameTo('entrypointVariation'),
   reset_password_confirm: Vat.boolean().renameTo('resetPasswordConfirm'),
   setting: Vat.string(),
+  // During the subscription flow, the service param is populated so that we
+  // can emit it correctly for metrics
+  service: Vat.string(),
   style: Vat.string().valid(Constants.STYLE_TRAILHEAD), // deprecated but still valid
   uid: Vat.uid(),
   utm_campaign: Vat.string().renameTo('utmCampaign'),
@@ -99,6 +102,7 @@ var Relier = BaseRelier.extend({
     entrypointVariation: null,
     resetPasswordConfirm: true,
     setting: null,
+    service: null,
     serviceName: t(Constants.RELIER_DEFAULT_SERVICE_NAME),
     subscriptionProductId: null,
     subscriptionProductName: null,

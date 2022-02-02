@@ -218,13 +218,14 @@ describe('remote subscriptions:', function () {
                 created: date,
                 cancelled_at: null,
                 plan: {
+                  id: PLAN_ID,
                   product: PRODUCT_ID,
                 },
                 items: {
                   data: [
                     {
-                      price: { product: PRODUCT_ID },
-                      plan: { product: PRODUCT_ID },
+                      price: { id: PLAN_ID, product: PRODUCT_ID },
+                      plan: { id: PLAN_ID, product: PRODUCT_ID },
                     },
                   ],
                 },
