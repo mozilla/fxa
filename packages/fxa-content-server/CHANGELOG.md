@@ -1,3 +1,25 @@
+## 1.225.0
+
+### New features
+
+- goog: Add google auth frontend login screens (#11743) ([9fd866c8c](https://github.com/mozilla/fxa/commit/9fd866c8c))
+- subscriptions: add feature flag for Firestore product configs ([7b1db3573](https://github.com/mozilla/fxa/commit/7b1db3573))
+
+### Bug fixes
+
+- settings: wrong green successful message is displayed when user resets password (#11816) ([72aa778d0](https://github.com/mozilla/fxa/commit/72aa778d0))
+- content-server: remove old unused settings css (#11752) ([ec96acc48](https://github.com/mozilla/fxa/commit/ec96acc48))
+- experiment: Remove pocket experiment mixin infavor of a regular mix (#11748) ([e2cc4a64d](https://github.com/mozilla/fxa/commit/e2cc4a64d))
+- content-server: Decrease flakiness of content server tests (#11684) ([e9c6b1fa3](https://github.com/mozilla/fxa/commit/e9c6b1fa3))
+- ios: Don't show Firefox iOS banner when loading signup/signin views (#11660) ([b11b5df8b](https://github.com/mozilla/fxa/commit/b11b5df8b))
+
+### Other changes
+
+- deps: bump webpack-cli from 4.9.1 to 4.9.2 (#11814) ([ac8f24ded](https://github.com/mozilla/fxa/commit/ac8f24ded))
+- deps: bump @sentry/browser from 6.16.1 to 6.17.2 (#11764) ([1b249659d](https://github.com/mozilla/fxa/commit/1b249659d))
+- content: add Product and Category Support field for Zendesk integration (#11749) ([bf8b1f6af](https://github.com/mozilla/fxa/commit/bf8b1f6af))
+- deps: bump jquery-ui from 1.13.0 to 1.13.1 (#11693) ([3d879e089](https://github.com/mozilla/fxa/commit/3d879e089))
+
 ## 1.224.4
 
 No changes.

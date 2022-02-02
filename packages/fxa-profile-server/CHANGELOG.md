@@ -1,3 +1,15 @@
+## 1.225.0
+
+### New features
+
+- config: Add options for connection pool limit ## 1.224.4 queue limit (#11790) ([38a80d8f5](https://github.com/mozilla/fxa/commit/38a80d8f5))
+
+### Other changes
+
+- deps: bump @hapi/inert from 6.0.4 to 6.0.5 (#11780) ([144cd2d2c](https://github.com/mozilla/fxa/commit/144cd2d2c))
+- deps: bump aws-sdk from 2.1057.0 to 2.1063.0 (#11755) ([3df6d7ac1](https://github.com/mozilla/fxa/commit/3df6d7ac1))
+- deps-dev: bump nock from 13.2.1 to 13.2.2 (#11712) ([50634bea9](https://github.com/mozilla/fxa/commit/50634bea9))
+
 ## 1.224.4
 
 No changes.

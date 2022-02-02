@@ -1,3 +1,16 @@
+## 1.225.0
+
+### Bug fixes
+
+- admin: Fix query by UID (#11744) ([7c96878bb](https://github.com/mozilla/fxa/commit/7c96878bb))
+
+### Other changes
+
+- deps-dev: bump supertest from 6.2.1 to 6.2.2 (#11735) ([ebd316a6a](https://github.com/mozilla/fxa/commit/ebd316a6a))
+- admin: Rename Current Session to Connected Services (#11685) ([a59f64bd1](https://github.com/mozilla/fxa/commit/a59f64bd1))
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+- deps-dev: bump @testing-library/dom from 8.11.1 to 8.11.2 ([ef8e66bec](https://github.com/mozilla/fxa/commit/ef8e66bec))
+
 ## 1.224.4
 
 No changes.

@@ -1,5 +1,19 @@
 # Change history
 
+## 1.225.0
+
+### Other changes
+
+- deps-dev: bump @nestjs/cli from 8.1.6 to 8.2.0 (#11794) ([afb783c44](https://github.com/mozilla/fxa/commit/afb783c44))
+- deps: bump axios from 0.24.0 to 0.25.0 (#11714) ([204995ac5](https://github.com/mozilla/fxa/commit/204995ac5))
+- deps: bump aws-sdk from 2.1057.0 to 2.1063.0 (#11755) ([3df6d7ac1](https://github.com/mozilla/fxa/commit/3df6d7ac1))
+- deps: bump @nestjs/passport from 8.0.1 to 8.1.0 (#11737) ([82491654a](https://github.com/mozilla/fxa/commit/82491654a))
+- deps: bump @nestjs/platform-express from 8.2.5 to 8.2.6 (#11756) ([ed9921fcd](https://github.com/mozilla/fxa/commit/ed9921fcd))
+- deps-dev: bump @nestjs/testing from 8.2.5 to 8.2.6 (#11736) ([8ab5a1536](https://github.com/mozilla/fxa/commit/8ab5a1536))
+- deps-dev: bump supertest from 6.2.1 to 6.2.2 (#11735) ([ebd316a6a](https://github.com/mozilla/fxa/commit/ebd316a6a))
+- deps-dev: bump nock from 13.2.1 to 13.2.2 (#11712) ([50634bea9](https://github.com/mozilla/fxa/commit/50634bea9))
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+
 ## 1.224.4
 
 No changes.

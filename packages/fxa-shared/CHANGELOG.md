@@ -1,5 +1,24 @@
 # Change history
 
+## 1.225.0
+
+### New features
+
+- auth: update API to Return Coupon Details (#11654) ([f667ebbbf](https://github.com/mozilla/fxa/commit/f667ebbbf))
+- goog: Add google auth frontend login screens (#11743) ([9fd866c8c](https://github.com/mozilla/fxa/commit/9fd866c8c))
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.16.1 to 6.17.2 (#11764) ([1b249659d](https://github.com/mozilla/fxa/commit/1b249659d))
+- deps: bump aws-sdk from 2.1057.0 to 2.1063.0 (#11755) ([3df6d7ac1](https://github.com/mozilla/fxa/commit/3df6d7ac1))
+- deps: bump stripe from 8.199.0 to 8.200.0 (#11754) ([7cbfa1981](https://github.com/mozilla/fxa/commit/7cbfa1981))
+- deps-dev: bump @nestjs/testing from 8.2.5 to 8.2.6 (#11736) ([8ab5a1536](https://github.com/mozilla/fxa/commit/8ab5a1536))
+- deps: bump knex from 0.95.15 to 1.0.1 (#11710) ([38870b60e](https://github.com/mozilla/fxa/commit/38870b60e))
+- deps: bump stripe from 8.198.0 to 8.199.0 (#11711) ([cec185e52](https://github.com/mozilla/fxa/commit/cec185e52))
+- deps: bump superagent from 6.1.0 to 7.1.1 (#11692) ([d4ad6314c](https://github.com/mozilla/fxa/commit/d4ad6314c))
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+- deps: bump stripe from 8.195.0 to 8.198.0 (#11662) ([6d1184041](https://github.com/mozilla/fxa/commit/6d1184041))
+
 ## 1.224.4
 
 No changes.

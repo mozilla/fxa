@@ -1,5 +1,25 @@
 # Change history
 
+## 1.225.0
+
+### New features
+
+- auth: update API to Return Coupon Details (#11654) ([f667ebbbf](https://github.com/mozilla/fxa/commit/f667ebbbf))
+- subscriptions: add feature flag for Firestore product configs ([7b1db3573](https://github.com/mozilla/fxa/commit/7b1db3573))
+- payments: add tailwind to payments (#11659) ([0ae60a1df](https://github.com/mozilla/fxa/commit/0ae60a1df))
+
+### Bug fixes
+
+- experiment: Remove pocket experiment mixin infavor of a regular mix (#11748) ([e2cc4a64d](https://github.com/mozilla/fxa/commit/e2cc4a64d))
+- subscriptions: stop retry w/ old invoice ## 1.224.4 stop sending welcome email (#11701) ([ff42c85f6](https://github.com/mozilla/fxa/commit/ff42c85f6))
+
+### Other changes
+
+- deps: bump @sentry/browser from 6.16.1 to 6.17.2 (#11764) ([1b249659d](https://github.com/mozilla/fxa/commit/1b249659d))
+- deps-dev: bump supertest from 6.2.1 to 6.2.2 (#11735) ([ebd316a6a](https://github.com/mozilla/fxa/commit/ebd316a6a))
+- deps-dev: bump nock from 13.2.1 to 13.2.2 (#11712) ([50634bea9](https://github.com/mozilla/fxa/commit/50634bea9))
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+
 ## 1.224.4
 
 No changes.
