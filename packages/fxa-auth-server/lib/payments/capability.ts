@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { getUidAndEmailByStripeCustomerId } from 'fxa-shared/db/models/auth';
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import { ClientIdCapabilityMap } from 'fxa-shared/subscriptions/types';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
+import error from '../error';
 import { authEvents } from '../events';
 import { AuthLogger, AuthRequest, ProfileClient } from '../types';
 import { PlayBilling } from './google-play/play-billing';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
-import { StripeHelper } from './stripe';
-import error from '../error';
 import { PurchaseQueryError } from './google-play/types';
+import { StripeHelper } from './stripe';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -55,7 +54,7 @@ export class CapabilityService {
     this.stripeHelper = Container.has(StripeHelper)
       ? Container.get(StripeHelper)
       : ({
-          purchasesToProductIds: () => Promise.resolve([]),
+          purchasesToPriceIds: () => Promise.resolve([]),
           fetchCustomer: () => Promise.resolve(null),
           allAbbrevPlans: () => Promise.resolve([]),
         } as unknown as StripeHelper);
@@ -77,15 +76,43 @@ export class CapabilityService {
   }
 
   /**
+   * Create a price id changeset, by returning a priorPriceIds that is a disjoint
+   * set from the currentPriceIds given the affectedPriceIds.
+   *
+   * Due to the asynchronous nature of Stripe, Google, and Apple, we have no method
+   * that lets us know with certainty what price ids the user had active before the
+   * incoming event that triggered this change. To compensate for this, we assume
+   * that whatever the new current state of a users price ids are, that they were
+   * different than before this event. This does imply that we may broadcast that a
+   * user has had a capability removed or added multiple times even if they already
+   * had it, but relying parties can handle this gracefully.
+   */
+  private createPriceIdChangeset({
+    currentPriceIds,
+    affectedPriceIds,
+  }: {
+    currentPriceIds: string[];
+    affectedPriceIds: string[];
+  }) {
+    const priorPriceIds = new Set([...currentPriceIds, ...affectedPriceIds]);
+    for (const affectedPriceId of affectedPriceIds) {
+      if (currentPriceIds.includes(affectedPriceId)) {
+        // Remove the price id from the prior list for processing to assume that it
+        // was previously inactive and ensure we broadcast a change.
+        priorPriceIds.delete(affectedPriceId);
+      }
+    }
+    return [...priorPriceIds];
+  }
+
+  /**
    * Handle a Stripe Webhook subscription change.
    *
    * This handles broadcasting and refreshing the subscription capabilities for
-   * the product ids that were possibly updated.
+   * the price ids that were possibly updated.
    *
    * Stripe supports aligned subscriptions such that a single subscription can
-   * include multiple items for multiple products. We iterate through this list
-   * comparing the current and prior product ids to determine which products
-   * have been added or removed.
+   * include multiple items for multiple products.
    */
   public async stripeUpdate({
     sub,
@@ -112,32 +139,23 @@ export class CapabilityService {
       return;
     }
 
-    // Stripe subscriptions from events do not have product expanded, we filter
-    // by product being the non-expanded string for type checks.
-    const affectedProductIds = sub.items.data
-      .map((item) => item.price.product)
-      .filter((product) => typeof product === 'string') as string[];
-    if (affectedProductIds.length === 0) {
+    // Stripe subscriptions from events do not have price expanded, we filter
+    // by price being the non-expanded string for type checks.
+    const affectedPriceIds = sub.items.data.map((item) => item.price.id);
+    if (affectedPriceIds.length === 0) {
       return;
     }
-    const currentProductIds = await this.subscribedProductIds(uid);
-    let priorProductIds = new Set([
-      ...currentProductIds,
-      ...affectedProductIds,
-    ]);
-    for (const affectedProductId of affectedProductIds) {
-      if (currentProductIds.includes(affectedProductId)) {
-        // Remove the product id from the prior list for processing to assume that it
-        // was previously inactive and ensure we broadcast a change.
-        priorProductIds.delete(affectedProductId);
-      }
-    }
+    const currentPriceIds = await this.subscribedPriceIds(uid);
+    const priorPriceIds = this.createPriceIdChangeset({
+      currentPriceIds,
+      affectedPriceIds,
+    });
     return Promise.all([
       this.profileClient.deleteCache(uid),
-      this.processProductIdDiff({
+      this.processPriceIdDiff({
         uid,
-        priorProductIds: [...priorProductIds],
-        currentProductIds,
+        priorPriceIds,
+        currentPriceIds,
       }),
     ]);
   }
@@ -146,43 +164,27 @@ export class CapabilityService {
    * Handle a Google Play purchase change.
    *
    * This handles broadcasting and refreshing the subscription capabilities for
-   * the product ids that were possibly updated.
-   *
-   * Note that due to the asynchronous nature of Real-Time Developer Notifications
-   * and possible concurrent cached purchase updates we cannot with certainty determine
-   * the prior state of the Google Play purchase. Therefore for the purpose of ensuring
-   * relying parties get notified of changes we assume the prior state was the opposite
-   * of the current state and broadcast the changes appropriately. This can result in
-   * duplicate broadcasts telling RPs to turn on/off the user capability, but ensures
-   * the user always has proper access to the purchased products.
+   * the price ids that were possibly updated.
    */
   public async playUpdate(uid: string, purchase: SubscriptionPurchase) {
-    const affectedProductId = (
-      await this.stripeHelper.purchasesToProductIds([purchase])
+    const affectedPriceId = (
+      await this.stripeHelper.purchasesToPriceIds([purchase])
     ).shift();
-    if (!affectedProductId) {
-      // Purchase is not mapped to a product id.
+    if (!affectedPriceId) {
+      // Purchase is not mapped to a price id.
       return;
     }
-    const currentProductIds = await this.subscribedProductIds(uid);
-    let priorProductIds;
-    if (currentProductIds.includes(affectedProductId)) {
-      // Remove the product id from the prior list for processing to assume that it
-      // was previously inactive and ensure we broadcast a change.
-      priorProductIds = currentProductIds.filter(
-        (id) => id !== affectedProductId
-      );
-    } else {
-      // Its not a current product. Make sure we broadcast that the capabilities
-      // associates with this product are gone by adding it to a prior product list.
-      priorProductIds = [...currentProductIds, affectedProductId];
-    }
+    const currentPriceIds = await this.subscribedPriceIds(uid);
+    const priorPriceIds = this.createPriceIdChangeset({
+      currentPriceIds,
+      affectedPriceIds: [affectedPriceId],
+    });
     return Promise.all([
       this.profileClient.deleteCache(uid),
-      this.processProductIdDiff({
+      this.processPriceIdDiff({
         uid,
-        priorProductIds,
-        currentProductIds,
+        priorPriceIds,
+        currentPriceIds,
       }),
     ]);
   }
@@ -193,41 +195,38 @@ export class CapabilityService {
   public async subscriptionCapabilities(
     uid: string
   ): Promise<ClientIdCapabilityMap> {
-    const subscribedProducts = await this.subscribedProductIds(uid);
-    return this.productIdsToClientCapabilities(subscribedProducts);
+    const subscribedPrices = await this.subscribedPriceIds(uid);
+    return this.priceIdsToClientCapabilities(subscribedPrices);
   }
 
   /**
-   * Return a list of all product ids with an active subscription.
+   * Return a list of all price ids with an active subscription.
    */
-  private async subscribedProductIds(uid: string) {
-    const [subscribedStripeProducts, subscribedPlayProducts] =
-      await Promise.all([
-        this.fetchSubscribedProductsFromStripe(uid),
-        this.fetchSubscribedProductsFromPlay(uid),
-      ]);
-    return [
-      ...new Set([...subscribedStripeProducts, ...subscribedPlayProducts]),
-    ];
+  private async subscribedPriceIds(uid: string) {
+    const [subscribedStripePrices, subscribedPlayPrices] = await Promise.all([
+      this.fetchSubscribedPricesFromStripe(uid),
+      this.fetchSubscribedPricesFromPlay(uid),
+    ]);
+    return [...new Set([...subscribedStripePrices, ...subscribedPlayPrices])];
   }
 
   /**
-   * Diff a list of prior product ids to the list of current product ids
-   * and emit the necessary events for added/removed products as well as
+   * Diff a list of prior price ids to the list of current price ids
+   * and emit the necessary events for added/removed prices as well as
    * added/removed capabilities.
    */
-  public async processProductIdDiff(options: {
+  public async processPriceIdDiff(options: {
     uid: string;
-    priorProductIds: string[];
-    currentProductIds: string[];
+    priorPriceIds: string[];
+    currentPriceIds: string[];
   }) {
-    const { uid, priorProductIds, currentProductIds } = options;
+    const { uid, priorPriceIds, currentPriceIds } = options;
 
     // Calculate and announce capability changes.
     const [priorClientCapabilities, currentClientCapabilities] =
       await Promise.all([
-        this.productIdsToClientCapabilities(priorProductIds),
-        this.productIdsToClientCapabilities(currentProductIds),
+        this.priceIdsToClientCapabilities(priorPriceIds),
+        this.priceIdsToClientCapabilities(currentPriceIds),
       ]);
     const [priorCapabilities, currentCapabilities] = [
       allCapabilities(priorClientCapabilities),
@@ -340,9 +339,7 @@ export class CapabilityService {
    * Fetch the list of subscription purchases from Google Play and return
    * the ids of the products purchased.
    */
-  private async fetchSubscribedProductsFromPlay(
-    uid: string
-  ): Promise<string[]> {
+  private async fetchSubscribedPricesFromPlay(uid: string): Promise<string[]> {
     if (!this.playBilling) {
       return [];
     }
@@ -354,7 +351,7 @@ export class CapabilityService {
       );
       return purchases.length === 0
         ? []
-        : this.stripeHelper.purchasesToProductIds(purchases);
+        : this.stripeHelper.purchasesToPriceIds(purchases);
     } catch (err) {
       if (err.name === PurchaseQueryError.OTHER_ERROR) {
         this.log.error('Failed to query purchases from Google Play', {
@@ -367,9 +364,9 @@ export class CapabilityService {
   }
 
   /**
-   * Fetch the list of ids of products purchased from Stripe.
+   * Fetch the list of ids of prices purchased from Stripe.
    */
-  private async fetchSubscribedProductsFromStripe(
+  private async fetchSubscribedPricesFromStripe(
     uid: string
   ): Promise<string[]> {
     const customer = await this.stripeHelper.fetchCustomer(uid, [
@@ -378,38 +375,43 @@ export class CapabilityService {
     if (!customer || !customer.subscriptions!.data) {
       return [];
     }
-    const subscribedProducts = customer
+    const subscribedPrices = customer
       .subscriptions!.data.filter((sub) =>
         ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
       )
       .flatMap((sub) => sub.items.data)
-      .map(({ price: { product: productId } }) => productId as string);
-    return subscribedProducts;
+      .map(({ price: { id: priceId } }) => priceId as string);
+    return subscribedPrices;
   }
 
   /**
-   * Fetch the list of capabilities for the given product ids.
+   * Fetch the list of capabilities for the given price ids.
    */
-  private async productIdsToClientCapabilities(
-    subscribedProducts: string[]
+  private async priceIdsToClientCapabilities(
+    subscribedPrices: string[]
   ): Promise<ClientIdCapabilityMap> {
     const allCapabilities: Record<string, Set<string>> = {};
-
     // Run through all plans and collect capabilities for subscribed products
-    const plans = await this.stripeHelper.allAbbrevPlans();
-    for (const plan of plans) {
-      if (!subscribedProducts.includes(plan.product_id)) {
+    const prices = await this.stripeHelper.allAbbrevPlans();
+    for (const price of prices) {
+      if (!subscribedPrices.includes(price.plan_id)) {
         continue;
       }
-      const metadata = metadataFromPlan(plan);
-      const capabilityKeys = Object.keys(metadata).filter((key) =>
-        key.startsWith('capabilities')
-      );
-      for (const key of capabilityKeys) {
-        const capabilities = splitCapabilities((metadata as any)[key]);
-        const clientId = key === 'capabilities' ? '*' : key.split(':')[1];
-        for (const capability of capabilities) {
-          (allCapabilities[clientId] ??= new Set()).add(capability);
+      // Add the capabilities for this price and product
+      for (const metadata of [price.plan_metadata, price.product_metadata]) {
+        if (!metadata) {
+          continue;
+        }
+        const capabilityKeys = Object.keys(metadata).filter((key) =>
+          key.startsWith('capabilities')
+        );
+        for (const key of capabilityKeys) {
+          const capabilities = splitCapabilities((metadata as any)[key]);
+          const clientId =
+            key === 'capabilities' ? '*' : key.split(':')[1].trim();
+          for (const capability of capabilities) {
+            (allCapabilities[clientId] ??= new Set()).add(capability);
+          }
         }
       }
     }

@@ -25,7 +25,6 @@ const dbStub = {
 };
 const {
   StripeHelper,
-  STRIPE_PRODUCT_METADATA,
   STRIPE_INVOICE_METADATA,
   SUBSCRIPTION_UPDATE_TYPES,
   MOZILLA_TAX_ID,
@@ -5014,50 +5013,54 @@ describe('StripeHelper', () => {
   describe('Google Play helpers', () => {
     let subPurchase;
     let productId;
+    let priceId;
     let productName;
-    let mockProduct;
-    let mockAllAbbrevProducts;
+    let mockPrice;
+    let mockAllAbbrevPlans;
 
     beforeEach(() => {
       productId = 'prod_test';
+      priceId = 'price_test';
       productName = 'testProduct';
-      mockProduct = {
+      mockPrice = {
+        plan_id: priceId,
+        plan_metadata: {
+          [STRIPE_PRICE_METADATA.PLAY_SKU_IDS]: 'testSku,testSku2',
+        },
         product_id: productId,
         product_name: productName,
-        product_metadata: {
-          [STRIPE_PRODUCT_METADATA.PLAY_SKU_IDS]: 'testSku,testSku2',
-        },
+        product_metadata: {},
       };
-      mockAllAbbrevProducts = [
-        mockProduct,
+      mockAllAbbrevPlans = [
+        mockPrice,
         {
+          plan_id: 'wrong_price_id',
           product_id: 'wrongProduct',
           product_name: 'Wrong Product',
+          plan_metadata: {},
           product_metadata: {},
         },
       ];
-      sandbox
-        .stub(stripeHelper, 'allAbbrevProducts')
-        .resolves(mockAllAbbrevProducts);
+      sandbox.stub(stripeHelper, 'allAbbrevPlans').resolves(mockAllAbbrevPlans);
     });
 
-    describe('productToPlaySkus', () => {
-      it('formats skus from product metadata, including transforming them to lowercase', () => {
-        const result = stripeHelper.productToPlaySkus(mockProduct);
+    describe('priceToPlaySkus', () => {
+      it('formats skus from price metadata, including transforming them to lowercase', () => {
+        const result = stripeHelper.priceToPlaySkus(mockPrice);
         assert.deepEqual(result, ['testsku', 'testsku2']);
       });
 
-      it('handles empty product metadata skus', () => {
-        const prod = {
-          ...mockProduct,
-          product_metadata: {},
+      it('handles empty price metadata skus', () => {
+        const price = {
+          ...mockPrice,
+          plan_metadata: {},
         };
-        const result = stripeHelper.productToPlaySkus(prod);
+        const result = stripeHelper.priceToPlaySkus(price);
         assert.deepEqual(result, []);
       });
     });
 
-    describe('purchasesToProductIds', () => {
+    describe('purchasesToPriceIds', () => {
       beforeEach(() => {
         const apiResponse = {
           kind: 'androidpublisher#subscriptionPurchase',
@@ -5081,21 +5084,21 @@ describe('StripeHelper', () => {
         );
       });
 
-      it('returns product ids for the subscription purchase', async () => {
-        const result = await stripeHelper.purchasesToProductIds([subPurchase]);
-        assert.deepEqual(result, [productId]);
-        sinon.assert.calledOnce(stripeHelper.allAbbrevProducts);
+      it('returns price ids for the subscription purchase', async () => {
+        const result = await stripeHelper.purchasesToPriceIds([subPurchase]);
+        assert.deepEqual(result, [priceId]);
+        sinon.assert.calledOnce(stripeHelper.allAbbrevPlans);
       });
 
-      it('returns no product ids for unknown subscription purchase', async () => {
+      it('returns no price ids for unknown subscription purchase', async () => {
         subPurchase.sku = 'wrongSku';
-        const result = await stripeHelper.purchasesToProductIds([subPurchase]);
+        const result = await stripeHelper.purchasesToPriceIds([subPurchase]);
         assert.deepEqual(result, []);
-        sinon.assert.calledOnce(stripeHelper.allAbbrevProducts);
+        sinon.assert.calledOnce(stripeHelper.allAbbrevPlans);
       });
     });
 
-    describe('addProductInfoToAbbrevPlayPurchases', () => {
+    describe('addPriceInfoToAbbrevPlayPurchases', () => {
       let mockAbbrevPlayPurchase;
 
       beforeEach(() => {
@@ -5110,10 +5113,11 @@ describe('StripeHelper', () => {
       it('adds matching product info to a subscription purchase', async () => {
         const expected = {
           ...mockAbbrevPlayPurchase,
+          price_id: priceId,
           product_id: productId,
           product_name: productName,
         };
-        const result = await stripeHelper.addProductInfoToAbbrevPlayPurchases([
+        const result = await stripeHelper.addPriceInfoToAbbrevPlayPurchases([
           mockAbbrevPlayPurchase,
         ]);
         assert.deepEqual([expected], result);
@@ -5123,7 +5127,7 @@ describe('StripeHelper', () => {
           ...mockAbbrevPlayPurchase,
           sku: 'notMatchingSku',
         };
-        const result = await stripeHelper.addProductInfoToAbbrevPlayPurchases([
+        const result = await stripeHelper.addPriceInfoToAbbrevPlayPurchases([
           mockAbbrevPlayPurchase1,
         ]);
         assert.isEmpty(result);

@@ -128,7 +128,7 @@ describe('PlaySubscriptions', () => {
       sandbox
         .stub(playSubscriptions, 'getAbbrevPlayPurchases')
         .resolves([mockAbbrevPlayPurchase]);
-      mockStripeHelper.addProductInfoToAbbrevPlayPurchases = sinon
+      mockStripeHelper.addPriceInfoToAbbrevPlayPurchases = sinon
         .stub()
         .resolves([mockIapAbbrevPlayPurchasesWithStripeProductData]);
       const result = await playSubscriptions.getSubscriptions(UID);
@@ -137,7 +137,7 @@ describe('PlaySubscriptions', () => {
         UID
       );
       assert.calledOnceWithExactly(
-        mockStripeHelper.addProductInfoToAbbrevPlayPurchases,
+        mockStripeHelper.addPriceInfoToAbbrevPlayPurchases,
         [mockAbbrevPlayPurchase]
       );
       const expected = [
