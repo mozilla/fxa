@@ -15958,22 +15958,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:2.18.0":
-  version: 2.18.0
-  resolution: "commander@npm:2.18.0"
-  checksum: 3a31585348a5000bbdc457c9839aabbdf0bb0020e5dfaa1c9f9903680073d67c06911b55368e4c8df2ed166e0d4468f9a668585c1667c321804034a2819a819f
-  languageName: node
-  linkType: hard
-
-"commander@npm:2.9.0":
-  version: 2.9.0
-  resolution: "commander@npm:2.9.0"
-  dependencies:
-    graceful-readlink: ">= 1.0.0"
-  checksum: 37939b6866ae190784fa946ea5b926dfe713731064c746e818642ac59e28f513b54e88e35d8c34b4d24d063cb465977dca2efd2ec974f91e495c743fcb2ae7a2
-  languageName: node
-  linkType: hard
-
 "commander@npm:4.0.1":
   version: 4.0.1
   resolution: "commander@npm:4.0.1"
@@ -15985,6 +15969,13 @@ __metadata:
   version: 4.1.1
   resolution: "commander@npm:4.1.1"
   checksum: d7b9913ff92cae20cb577a4ac6fcc121bd6223319e54a40f51a14740a681ad5c574fd29a57da478a5f234a6fa6c52cbf0b7c641353e03c648b1ae85ba670b977
+  languageName: node
+  linkType: hard
+
+"commander@npm:9.0.0, commander@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "commander@npm:9.0.0"
+  checksum: 15066e433d528315ded8261d16bc600d1f3c5671c75021e685ae67e4d62f7551243ff28411b28dc0a6f8b23c2a0f033550ec6f3e66bdf9d11a4fdc2d33dd9802
   languageName: node
   linkType: hard
 
@@ -21577,7 +21568,7 @@ fsevents@~2.1.1:
     chai-as-promised: ^7.1.1
     cldr-core: ^40.0.0
     cldr-localenames-full: 40.0.0
-    commander: 2.18.0
+    commander: 9.0.0
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
@@ -22040,7 +22031,7 @@ fsevents@~2.1.1:
     chance: ^1.1.8
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
-    commander: ^6.0.0
+    commander: ^9.0.0
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
@@ -22254,7 +22245,7 @@ fsevents@~2.1.1:
     bluebird: ^3.7.2
     buf: 0.1.1
     checksum: 1.0.0
-    commander: 2.9.0
+    commander: 9.0.0
     compute-cluster: 0.0.9
     convict: ^6.2.1
     convict-format-with-moment: ^6.2.0
