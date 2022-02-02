@@ -27,7 +27,7 @@ t(
 // See e.g. https://bugzilla.mozilla.org/show_bug.cgi?id=1131472
 // for why this could be necessary.
 t(
-  '<a href="https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account">Help</a>'
+  '<a href="https://support.mozilla.org/kb/im-having-problems-my-firefox-account">Help</a>'
 );
 
 // We're temporarily changing the string for marketing optin, see #3792.

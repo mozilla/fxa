@@ -361,7 +361,7 @@ const conf = convict({
       doc: 'url to Mozilla Support product page',
       format: String,
       default:
-        'https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account',
+        'https://support.mozilla.org/kb/im-having-problems-my-firefox-account',
     },
     redirectDomain: {
       doc: 'Domain that mail urls are allowed to redirect to',
