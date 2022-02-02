@@ -1,3 +1,9 @@
+## 1.224.5
+
+### Bug fixes
+
+- auth: Temporarily disable isMetricsEnabled db calls for oauth clients (#11835) ([eb2c2a6a8](https://github.com/mozilla/fxa/commit/eb2c2a6a8))
+
 ## 1.224.4
 
 ### Bug fixes
