@@ -9,12 +9,19 @@ import React, {
   useEffect,
 } from 'react';
 
-import { APIError, apiInvoicePreview } from '../../lib/apiClient';
+import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import sentry from '../../lib/sentry';
 
 import * as Amplitude from '../../lib/amplitude';
 import { useCallbackOnce } from '../../lib/hooks';
+
+class CouponError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CouponError';
+  }
+}
 
 export enum CouponErrorMessageType {
   Expired = 'coupon-error-expired',
@@ -29,37 +36,30 @@ export enum CouponErrorMessageType {
  */
 const checkPromotionCode = async (planId: string, promotionCode: string) => {
   try {
-    const { discount } = await apiInvoicePreview({
+    const couponDetails = await apiRetrieveCouponDetails({
       priceId: planId,
       promotionCode,
     });
-    // TODO - Mock items from apiInvoicePreview
-    const { type, expired, maximallyRedeemed } = {
-      type: 'forever',
-      expired: false,
-      maximallyRedeemed: false,
-    };
 
-    if (!discount?.amount) {
-      throw new Error(CouponErrorMessageType.Invalid);
+    if (couponDetails?.expired) {
+      throw new CouponError(CouponErrorMessageType.Expired);
     }
 
-    if (expired) {
-      throw new Error(CouponErrorMessageType.Expired);
+    if (couponDetails.maximallyRedeemed) {
+      throw new CouponError(CouponErrorMessageType.LimitReached);
     }
 
-    if (maximallyRedeemed) {
-      throw new Error(CouponErrorMessageType.LimitReached);
+    if (!couponDetails.valid || !couponDetails.discountAmount) {
+      throw new CouponError(CouponErrorMessageType.Invalid);
     }
 
-    return {
-      amount: discount.amount,
-      type,
-    };
+    return couponDetails;
   } catch (err) {
-    if (err instanceof APIError) {
-      sentry.captureException(err);
-      throw new Error(CouponErrorMessageType.Generic);
+    if (!(err instanceof CouponError)) {
+      if (err instanceof APIError) {
+        sentry.captureException(err);
+      }
+      throw new CouponError(CouponErrorMessageType.Generic);
     }
     throw err;
   }
@@ -100,13 +100,16 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
     event.stopPropagation();
     try {
       setLoading(true);
-      const { amount, type } = await checkPromotionCode(planId, promotionCode);
+      const { discountAmount, type, valid } = await checkPromotionCode(
+        planId,
+        promotionCode
+      );
       setHasCoupon(true);
       setCoupon({
-        promotionCode: promotionCode,
-        discountAmount: amount,
-        type: '',
-        valid: true,
+        promotionCode,
+        discountAmount,
+        type,
+        valid,
       });
     } catch (err) {
       setCoupon(undefined);

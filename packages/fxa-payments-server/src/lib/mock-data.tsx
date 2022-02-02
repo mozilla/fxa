@@ -1,4 +1,5 @@
 import { PaymentIntent, PaymentMethod } from '@stripe/stripe-js';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 
 import { FilteredSetupIntent } from '../lib/apiClient';
@@ -262,4 +263,33 @@ export const INVOICE_PREVIEW_WITH_DISCOUNT = {
     amount_off: null,
     percent_off: 10,
   },
+};
+
+export const COUPON_DETAILS_VALID: CouponDetails = {
+  promotionCode: 'VALID',
+  type: '',
+  valid: true,
+  discountAmount: 50,
+  expired: false,
+  maximallyRedeemed: false,
+};
+
+export const COUPON_DETAILS_INVALID: CouponDetails = {
+  promotionCode: 'INVALID',
+  type: '',
+  valid: false,
+};
+
+export const COUPON_DETAILS_EXPIRED: CouponDetails = {
+  promotionCode: 'EXPIRED',
+  type: '',
+  valid: false,
+  expired: true,
+};
+
+export const COUPON_DETAILS_MAX_REDEEMED: CouponDetails = {
+  promotionCode: 'EXPIRED',
+  type: '',
+  valid: false,
+  maximallyRedeemed: true,
 };

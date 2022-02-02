@@ -1,5 +1,14 @@
 import joi from 'typesafe-joi';
 
+export interface CouponDetails {
+  promotionCode: string;
+  type: string;
+  valid: boolean;
+  discountAmount?: number;
+  expired?: boolean;
+  maximallyRedeemed?: boolean;
+}
+
 export const couponDetailsSchema = joi.object({
   promotionCode: joi.string().required(),
   type: joi.string().required(),
