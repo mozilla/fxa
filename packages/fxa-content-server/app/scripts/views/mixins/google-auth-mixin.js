@@ -5,14 +5,21 @@
 import SigninMixin from './signin-mixin';
 import Storage from '../../lib/storage';
 import Url from '../../lib/url';
+import ThirdPartyAuthExperimentMixin from '../../views/mixins/third-party-auth-experiment-mixin';
 
 const DEFAULT_SCOPES = 'openid email profile';
 
 export default {
-  dependsOn: [SigninMixin],
+  dependsOn: [SigninMixin, ThirdPartyAuthExperimentMixin],
 
   events: {
     'click #google-login-button': 'googleSignIn',
+  },
+
+  setInitialContext(context) {
+    context.set({
+      isInThirdPartyAuthExperiment: this.isInThirdPartyAuthExperiment(),
+    });
   },
 
   beforeRender() {

@@ -30,9 +30,12 @@
       </div>
     </form>
 
-<!--    TODO: Enable in https://github.com/mozilla/fxa/issues/11312 -->
-<!--    {{{ unsafeThirdPartyAuthHTML }}}-->
+    {{#isInThirdPartyAuthExperiment}}
+      {{{ unsafeThirdPartyAuthHTML }}}
+    {{/isInThirdPartyAuthExperiment}}
 
-    {{{ unsafeFirefoxFamilyHTML }}}
+    {{^isInThirdPartyAuthExperiment}}
+      {{{ unsafeFirefoxFamilyHTML }}}
+    {{/isInThirdPartyAuthExperiment}}
   </section>
 </div>
