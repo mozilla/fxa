@@ -1,3 +1,14 @@
+## 1.225.1
+
+### New features
+
+- auth: use capabilities of subscribed price, not all prices ([869d2aff1](https://github.com/mozilla/fxa/commit/869d2aff1))
+
+### Bug fixes
+
+- auth: Temporarily disable isMetricsEnabled db calls for oauth clients (#11835) ([b428772cd](https://github.com/mozilla/fxa/commit/b428772cd))
+- auth-server: fix broken link for Mozilla Support (#11828) ([28df7da0e](https://github.com/mozilla/fxa/commit/28df7da0e))
+
 ## 1.225.0
 
 ### New features
