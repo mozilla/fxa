@@ -39,7 +39,7 @@
   "subscriptions": {
     "enabled": true
   },
-  "allowed_metrics_flow_cors_origins": ["http://localhost:8001"],
+  "allowed_metrics_flow_cors_origins": ["http://localhost:8001", "http://localhost:8080"],
   "allowed_parent_origins": ["http://localhost:8080"],
   "sourceMapType": "cheap-source-map",
   "csp": {

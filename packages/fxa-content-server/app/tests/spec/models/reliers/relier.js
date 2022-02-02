@@ -22,6 +22,7 @@ describe('models/reliers/relier', function () {
   var ENTRYPOINT_EXPERIMENT = 'wibble';
   var ENTRYPOINT_VARIATION = 'blee';
   var SETTING = 'avatar';
+  var SERVICE = 'some_service_client_id';
   var UID = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
   var UTM_CAMPAIGN = 'utm_campaign';
   var UTM_CONTENT = 'utm_content';
@@ -59,6 +60,7 @@ describe('models/reliers/relier', function () {
       entrypoint_variation: ENTRYPOINT_VARIATION, //eslint-disable-line camelcase
       ignored: 'ignored',
       setting: SETTING,
+      service: SERVICE,
       uid: UID,
       utm_campaign: UTM_CAMPAIGN, //eslint-disable-line camelcase
       utm_content: UTM_CONTENT, //eslint-disable-line camelcase
@@ -76,6 +78,7 @@ describe('models/reliers/relier', function () {
       assert.equal(relier.get('email'), EMAIL);
 
       assert.equal(relier.get('setting'), SETTING);
+      assert.equal(relier.get('service'), SERVICE);
       assert.equal(relier.get('uid'), UID);
       assert.equal(relier.get('entrypoint'), ENTRYPOINT);
       assert.equal(relier.get('entrypointExperiment'), ENTRYPOINT_EXPERIMENT);
