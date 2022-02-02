@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  render,
-  cleanup,
-  fireEvent,
-  act,
-  waitFor,
-} from '@testing-library/react';
+import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import CouponForm, { CouponErrorMessageType } from './index';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
@@ -14,7 +8,6 @@ import {
   COUPON_DETAILS_INVALID,
   COUPON_DETAILS_MAX_REDEEMED,
   COUPON_DETAILS_VALID,
-  INVOICE_PREVIEW_WITHOUT_DISCOUNT,
   SELECTED_PLAN,
 } from '../../lib/mock-data';
 import waitForExpect from 'wait-for-expect';

@@ -11,7 +11,6 @@ import React, {
 
 import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
-import sentry from '../../lib/sentry';
 
 import * as Amplitude from '../../lib/amplitude';
 import { useCallbackOnce } from '../../lib/hooks';
@@ -57,7 +56,8 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
   } catch (err) {
     if (!(err instanceof CouponError)) {
       if (err instanceof APIError) {
-        sentry.captureException(err);
+        if (err.errno === 199)
+          throw new CouponError(CouponErrorMessageType.Invalid);
       }
       throw new CouponError(CouponErrorMessageType.Generic);
     }
