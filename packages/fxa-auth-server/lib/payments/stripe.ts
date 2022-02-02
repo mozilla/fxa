@@ -52,6 +52,7 @@ import { AuthFirestore } from '../types';
 import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 
 export const CARD_RESOURCE = 'sources';
 export const CHARGES_RESOURCE = 'charges';
@@ -656,7 +657,7 @@ export class StripeHelper {
     const nowSecs = Date.now() / 1000;
 
     // Determine if code exists, is active, and has not expired.
-    const promotionCode = await this.findPromoCodeByCode(code);
+    const promotionCode = await this.findPromoCodeByCode(code, true);
     if (
       !promotionCode ||
       (promotionCode.expires_at && promotionCode.expires_at < nowSecs)
@@ -670,6 +671,121 @@ export class StripeHelper {
     }
 
     // Is the coupon valid for this price?
+    const planContainsPromo = await this.checkPromotionCodeForPlan(
+      code,
+      priceId
+    );
+    if (!planContainsPromo) {
+      return;
+    }
+
+    return promotionCode;
+  }
+
+  /**
+   * Retrieve details about a coupon for a given priceId and possible
+   * promotion code for a customer in the provided country. Will also
+   * provide the discount amount for the subscription via
+   * previewInvoice return value. Coupon details are returned
+   * regardless of current validity (expiry, redeemability).
+   *
+   * Throws invalidPromoCode error if the promotion code does not
+   * exist for the provided priceId.
+   */
+  async retrieveCouponDetails({
+    country,
+    priceId,
+    promotionCode,
+  }: {
+    country: string;
+    priceId: string;
+    promotionCode: string;
+  }): Promise<Coupon.couponDetailsSchema> {
+    const stripePromotionCode = await this.retrievePromotionCodeForPlan(
+      promotionCode,
+      priceId
+    );
+
+    if (stripePromotionCode?.coupon.id) {
+      const stripeCoupon: Stripe.Coupon = stripePromotionCode.coupon;
+
+      const couponDetails: Coupon.couponDetailsSchema = {
+        promotionCode: promotionCode,
+        type: stripeCoupon.duration,
+        valid: false,
+      };
+
+      try {
+        const invoice = await this.previewInvoice({
+          country,
+          priceId,
+          promotionCode,
+        });
+
+        if (invoice?.discount && invoice?.total_discount_amounts) {
+          couponDetails.discountAmount =
+            invoice.total_discount_amounts[0].amount;
+        }
+      } catch {
+        couponDetails.discountAmount = undefined;
+      }
+
+      if (stripeCoupon.redeem_by) {
+        const expiry = new Date(stripeCoupon.redeem_by * 1000);
+        const now = new Date();
+        couponDetails.expired = now > expiry;
+      }
+
+      if (stripeCoupon.max_redemptions) {
+        couponDetails.maximallyRedeemed =
+          stripeCoupon.times_redeemed >= stripeCoupon.max_redemptions;
+      }
+
+      if (
+        couponDetails.discountAmount &&
+        !couponDetails.expired &&
+        !couponDetails.maximallyRedeemed &&
+        stripePromotionCode.active
+      ) {
+        couponDetails.valid = true;
+      }
+
+      return couponDetails;
+    } else {
+      throw error.invalidPromoCode(promotionCode);
+    }
+  }
+
+  /**
+   * Retrieves the stripe promotionCode object for a plan regardless of current validity.
+   */
+  async retrievePromotionCodeForPlan(
+    code: string,
+    priceId: string
+  ): Promise<Stripe.PromotionCode | undefined> {
+    const promotionCode = await this.findPromoCodeByCode(code, undefined);
+    if (!promotionCode) {
+      return;
+    }
+
+    const planContainsPromo = await this.checkPromotionCodeForPlan(
+      code,
+      priceId
+    );
+    if (!planContainsPromo) {
+      return;
+    }
+
+    return promotionCode;
+  }
+
+  /**
+   * Checks plan meta-data to see if promotion code applies.
+   */
+  async checkPromotionCodeForPlan(
+    code: string,
+    priceId: string
+  ): Promise<boolean> {
     const price = await this.findPlanById(priceId);
     const validPromotionCodes: string[] = [];
     if (
@@ -692,22 +808,20 @@ export class StripeHelper {
           .map((c) => c.trim())
       );
     }
-    if (!validPromotionCodes.includes(code)) {
-      return;
-    }
 
-    return promotionCode;
+    return validPromotionCodes.includes(code);
   }
 
   /**
-   * Queries Stripe for active promotion codes and returns a matching one if
+   * Queries Stripe for promotion codes and returns a matching one if
    * found.
    */
   async findPromoCodeByCode(
-    code: string
+    code: string,
+    active?: boolean
   ): Promise<Stripe.PromotionCode | undefined> {
     const promoCodes = await this.stripe.promotionCodes.list({
-      active: true,
+      active,
       code,
     });
     return promoCodes.data.find((c) => c.code === code);

@@ -584,6 +584,38 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
+  describe('retrieveCouponDetails', () => {
+    it('returns the coupon details when the promoCode is valid', async () => {
+      const expected = {
+        promotionCode: 'FRIENDS10',
+        type: 'forever',
+        valid: true,
+        discountAmount: 50,
+      };
+
+      directStripeRoutesInstance.stripeHelper.retrieveCouponDetails.resolves(
+        expected
+      );
+
+      VALID_REQUEST.payload = {
+        promotionCode: 'promotionCode',
+        priceId: 'priceId',
+      };
+      VALID_REQUEST.app.geo = {};
+
+      const actual = await directStripeRoutesInstance.retrieveCouponDetails(
+        VALID_REQUEST
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.retrieveCouponDetails,
+        { country: 'US', promotionCode: 'promotionCode', priceId: 'priceId' }
+      );
+
+      assert.deepEqual(actual, expected);
+    });
+  });
+
   describe('createSubscriptionWithPMI', () => {
     let plan, paymentMethod;
 

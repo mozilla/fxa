@@ -32,7 +32,7 @@ import {
 import { isWebSubscription } from 'fxa-shared/subscriptions/subscriptions';
 import { findCustomerIapSubscriptionByProductId } from '../../lib/customer';
 import IapRoadblock from './IapRoadblock';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
 
 type PlansByIdType = {
@@ -167,7 +167,7 @@ export const Product = ({
     [productId, planId, plansByProductId]
   );
 
-  const [coupon, setCoupon] = useState<Coupon>();
+  const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
 
   if (!accessToken || customer.loading || plans.loading || profile.loading) {
     return <LoadingOverlay isLoading={true} />;

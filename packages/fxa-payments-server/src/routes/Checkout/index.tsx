@@ -64,7 +64,7 @@ import {
   PaymentMethodHeaderType,
 } from '../../components/PaymentMethodHeader';
 import CouponForm from '../../components/CouponForm';
-import { Coupon } from '../../lib/Coupon';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
@@ -124,7 +124,7 @@ export const Checkout = ({
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
   const [newsletterSignupError, setNewsletterSignupError] = useState(false);
 
-  const [coupon, setCoupon] = useState<Coupon>();
+  const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
 
   // Fetch plans on initial render or change in product ID
   useEffect(() => {
