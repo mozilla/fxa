@@ -22,7 +22,7 @@ const commonArgs = {
   iosUrl:
     'https://apps.apple.com/us/app/firefox-private-safe-browser/id989804926',
   supportUrl:
-    'https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account',
+    'https://support.mozilla.org/kb/im-having-problems-my-firefox-account',
   privacyUrl: 'https://www.mozilla.org/privacy',
 };
 
