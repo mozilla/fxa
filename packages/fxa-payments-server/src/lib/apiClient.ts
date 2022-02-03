@@ -414,10 +414,6 @@ export async function apiRetrieveCouponDetails(params: {
       { body: JSON.stringify(params) }
     );
 
-    if (!result.discountAmount) {
-      throw new Error(CouponErrorMessageType.Generic);
-    }
-
     Amplitude.coupon_FULFILLED(metricsOptions);
 
     return result;

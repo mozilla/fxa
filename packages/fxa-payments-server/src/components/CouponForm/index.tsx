@@ -44,20 +44,15 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
       throw new CouponError(CouponErrorMessageType.Expired);
     }
 
-    if (couponDetails.maximallyRedeemed) {
+    if (couponDetails?.maximallyRedeemed) {
       throw new CouponError(CouponErrorMessageType.LimitReached);
     }
 
-    if (!couponDetails.valid || !couponDetails.discountAmount) {
+    if (!couponDetails.valid || !couponDetails?.discountAmount) {
       throw new CouponError(CouponErrorMessageType.Invalid);
     }
 
     return couponDetails;
-    // if (total !== 0 && minAmount && total < minAmount) {
-    //   throw new Error('Total below minimum amount allowed.');
-    // }
-
-    // return discount.amount;
   } catch (err) {
     if (!(err instanceof CouponError)) {
       if (err instanceof APIError) {

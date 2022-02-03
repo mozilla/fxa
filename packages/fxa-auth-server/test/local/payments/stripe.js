@@ -1206,17 +1206,62 @@ describe('StripeHelper', () => {
   });
 
   describe('retrieveCouponDetails', () => {
+    const validInvoicePreview = {
+      total: 1000,
+      currency: 'usd',
+      discount: {},
+      total_discount_amounts: [{ amount: 200 }],
+    };
+
     it('retrieves coupon details', async () => {
       const expected = {
         promotionCode: 'promo',
         type: 'forever',
-        discountAmount: 1,
+        discountAmount: 200,
         valid: true,
       };
-      sandbox.stub(stripeHelper, 'previewInvoice').resolves({
-        discount: {},
-        total_discount_amounts: [{ amount: 1 }],
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves(validInvoicePreview);
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+          duration: 'forever',
+          valid: true,
+        },
       });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        country: 'US',
+        priceId: 'planId',
+        promotionCode: 'promo',
+      });
+
+      sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
+        country: 'US',
+        priceId: 'planId',
+        promotionCode: 'promo',
+      });
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.retrievePromotionCodeForPlan,
+        'promo',
+        'planId'
+      );
+      assert.deepEqual(actual, expected);
+    });
+
+    it('retrieves coupon details for 100% discount', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        discountAmount: 200,
+        valid: true,
+      };
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total: 0 });
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -1253,7 +1298,9 @@ describe('StripeHelper', () => {
         expired: true,
         valid: false,
       };
-      sandbox.stub(stripeHelper, 'previewInvoice').resolves({});
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -1280,7 +1327,9 @@ describe('StripeHelper', () => {
         maximallyRedeemed: true,
         valid: false,
       };
-      sandbox.stub(stripeHelper, 'previewInvoice').resolves({});
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total_discount_amounts: null });
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -1299,6 +1348,68 @@ describe('StripeHelper', () => {
         promotionCode: 'promo',
       });
       assert.deepEqual(actual, expected);
+    });
+
+    it('retrieves details when previewInvoice rejects', async () => {
+      const expected = {
+        promotionCode: 'promo',
+        type: 'forever',
+        valid: false,
+      };
+      sandbox.stub(stripeHelper, 'previewInvoice').rejects({});
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+          duration: 'forever',
+          valid: true,
+        },
+      });
+
+      const actual = await stripeHelper.retrieveCouponDetails({
+        county: 'US',
+        planId: 'planId',
+        promotionCode: 'promo',
+      });
+      assert.deepEqual(actual, expected);
+    });
+
+    it('throw an error when previewInvoice returns total less than stripe minimums', async () => {
+      sandbox
+        .stub(stripeHelper, 'previewInvoice')
+        .resolves({ ...validInvoicePreview, total: 20 });
+
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
+        active: true,
+        coupon: {
+          id: 'promo',
+          duration: 'forever',
+          valid: true,
+        },
+      });
+      try {
+        await stripeHelper.retrieveCouponDetails({
+          county: 'US',
+          planId: 'planId',
+          promotionCode: 'promo',
+        });
+      } catch (e) {
+        assert.equal(e.errno, error.ERRNO.INVALID_PROMOTION_CODE);
+      }
+    });
+
+    it('throw an error when retrievePromotionCodeForPlan returns no coupon', async () => {
+      sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves();
+      try {
+        await stripeHelper.retrieveCouponDetails({
+          county: 'US',
+          planId: 'planId',
+          promotionCode: 'promo',
+        });
+      } catch (e) {
+        assert.equal(e.errno, error.ERRNO.INVALID_PROMOTION_CODE);
+      }
     });
   });
 

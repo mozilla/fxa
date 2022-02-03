@@ -560,14 +560,10 @@ describe('API requests', () => {
         ...metricsOptionsBase,
         promotionCode,
       };
-      const expected: CouponDetails = {
-        promotionCode,
-        type: '',
-        valid: true,
-        expired: false,
-        maximallyRedeemed: false,
+      const expected = {
+        message: 'oops',
       };
-      const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
+      const requestMock = nock(AUTH_BASE_URL).post(path).reply(400, expected);
       let error = null;
 
       try {

@@ -53,6 +53,8 @@ import { CurrencyHelper } from './currencies';
 import { SubscriptionPurchase } from './google-play/subscription-purchase';
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { getMinimumAmount } from 'fxa-shared/subscriptions/stripe';
+import AppError from '../error';
 
 export const CARD_RESOURCE = 'sources';
 export const CHARGES_RESOURCE = 'charges';
@@ -716,18 +718,28 @@ export class StripeHelper {
       };
 
       try {
-        const invoice = await this.previewInvoice({
-          country,
-          priceId,
-          promotionCode,
-        });
+        const { currency, discount, total, total_discount_amounts } =
+          await this.previewInvoice({
+            country,
+            priceId,
+            promotionCode,
+          });
 
-        if (invoice?.discount && invoice?.total_discount_amounts) {
-          couponDetails.discountAmount =
-            invoice.total_discount_amounts[0].amount;
+        if (discount && total_discount_amounts) {
+          couponDetails.discountAmount = total_discount_amounts[0].amount;
         }
-      } catch {
-        couponDetails.discountAmount = undefined;
+
+        const minAmount = getMinimumAmount(currency);
+        if (total !== 0 && minAmount && total < minAmount) {
+          throw error.invalidPromoCode(promotionCode);
+        }
+      } catch (error) {
+        if (
+          error instanceof AppError &&
+          error.errno === AppError.ERRNO.INVALID_PROMOTION_CODE
+        ) {
+          throw error;
+        }
       }
 
       if (stripeCoupon.redeem_by) {

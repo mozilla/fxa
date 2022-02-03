@@ -99,69 +99,7 @@ describe('CouponForm', () => {
 
     const couponError = getByTestId('coupon-error');
 
-    expect(couponError).toHaveTextContent(
-      'The code you entered is invalid or expired.'
-    );
-  });
-
-  it('shows an error message when valid coupon takes total below Stripe minimum', async () => {
-    (apiRetrieveCouponDetails as jest.Mock)
-      .mockClear()
-      .mockResolvedValue(COUPON_DETAILS_INVALID);
-
-    const subject = () => {
-      return render(
-        <CouponForm
-          planId={SELECTED_PLAN.plan_id}
-          coupon={undefined}
-          setCoupon={() => {}}
-        />
-      );
-    };
-
-    const { queryByTestId, getByTestId } = subject();
-    fireEvent.change(getByTestId('coupon-input'), { target: { value: 'a' } });
-    fireEvent.click(getByTestId('coupon-button'));
-
-    await waitForExpect(() =>
-      expect(queryByTestId('coupon-error')).toBeInTheDocument()
-    );
-
-    const couponError = getByTestId('coupon-error');
-
     expect(couponError).toHaveTextContent(CouponErrorMessageType.Invalid);
-    expect(couponError).toHaveTextContent(
-      'The code you entered is invalid or expired.'
-    );
-  });
-
-  it('Successfully call setCoupon for a 100% discount coupon', async () => {
-    const expected = {
-      amount: 500,
-      promotionCode: '100OFF',
-    };
-    const mockSetCoupon = jest.fn();
-    (apiRetrieveCouponDetails as jest.Mock)
-      .mockClear()
-      .mockResolvedValue(COUPON_DETAILS_INVALID);
-
-    const subject = () => {
-      return render(
-        <CouponForm
-          planId={SELECTED_PLAN.plan_id}
-          coupon={undefined}
-          setCoupon={mockSetCoupon}
-        />
-      );
-    };
-
-    const { getByTestId } = subject();
-    fireEvent.change(getByTestId('coupon-input'), {
-      target: { value: '100OFF' },
-    });
-    fireEvent.click(getByTestId('coupon-button'));
-
-    await waitForExpect(() => expect(mockSetCoupon).toBeCalledWith(expected));
   });
 
   it('shows an error message when expired coupon code is used', async () => {
