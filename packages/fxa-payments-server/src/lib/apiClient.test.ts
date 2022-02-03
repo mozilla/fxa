@@ -57,9 +57,11 @@ import {
   apiCreatePasswordlessAccount,
   apiSignupForNewsletter,
   apiInvoicePreview,
+  apiRetrieveCouponDetails,
 } from './apiClient';
 import { PaymentProvider } from './PaymentProvider';
 import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 function nock(it: any) {
   //@ts-ignore
@@ -485,10 +487,6 @@ describe('API requests', () => {
 
     it(`POST {auth-server}${path} valid Coupon Code`, async () => {
       const promotionCode = 'VALID';
-      const metricsOptions: EventProperties = {
-        ...metricsOptionsBase,
-        promotionCode,
-      };
       const expected: InvoicePreview = {
         subtotal: 200,
         total: 170,
@@ -515,6 +513,41 @@ describe('API requests', () => {
         })
       ).toEqual(expected);
 
+      requestMock.done();
+    });
+  });
+
+  describe('apiRetrieveCouponDetails', () => {
+    const path = '/v1/oauth/subscriptions/coupon';
+    const priceId = 'price_kkljasdk32lkjasd';
+
+    const metricsOptionsBase: EventProperties = {
+      planId: priceId,
+    };
+
+    it(`POST {auth-server}${path} valid Coupon Code`, async () => {
+      const promotionCode = 'VALID';
+      const metricsOptions: EventProperties = {
+        ...metricsOptionsBase,
+        promotionCode,
+      };
+      const expected: CouponDetails = {
+        promotionCode,
+        type: '',
+        valid: true,
+        discountAmount: 50,
+        expired: false,
+        maximallyRedeemed: false,
+      };
+      const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
+
+      expect(
+        await apiRetrieveCouponDetails({
+          priceId,
+          promotionCode,
+        })
+      ).toEqual(expected);
+
       expect(<jest.Mock>coupon_PENDING).toBeCalledWith(metricsOptions);
       expect(<jest.Mock>coupon_FULFILLED).toBeCalledWith(metricsOptions);
 
@@ -527,28 +560,18 @@ describe('API requests', () => {
         ...metricsOptionsBase,
         promotionCode,
       };
-      const expected: InvoicePreview = {
-        subtotal: 200,
-        total: 170,
-        line_items: [
-          {
-            amount: 200,
-            currency: 'usd',
-            id: priceId,
-            name: 'Plan name',
-          },
-        ],
-        discount: {
-          amount: 0,
-          amount_off: null,
-          percent_off: 15,
-        },
+      const expected: CouponDetails = {
+        promotionCode,
+        type: '',
+        valid: true,
+        expired: false,
+        maximallyRedeemed: false,
       };
       const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
       let error = null;
 
       try {
-        await apiInvoicePreview({
+        await apiRetrieveCouponDetails({
           priceId,
           promotionCode,
         });

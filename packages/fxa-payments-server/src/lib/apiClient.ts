@@ -5,6 +5,8 @@ import { getFlowData } from './flow-event';
 import { PaymentMethod } from '@stripe/stripe-js';
 import { PaymentProvider } from './PaymentProvider';
 import { InvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { CouponErrorMessageType } from '../components/CouponForm';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
@@ -387,23 +389,35 @@ export async function apiInvoicePreview(params: {
   priceId: string;
   promotionCode: string;
 }): Promise<InvoicePreview> {
+  return await apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
+    { body: JSON.stringify(params) }
+  );
+}
+
+export async function apiRetrieveCouponDetails(params: {
+  priceId: string;
+  promotionCode: string;
+}): Promise<CouponDetails> {
   const metricsOptions: Amplitude.EventProperties = {
     planId: params.priceId,
     promotionCode: params.promotionCode,
   };
   try {
     Amplitude.coupon_PENDING(metricsOptions);
-    const result: InvoicePreview = await apiFetch(
+    const result: CouponDetails = await apiFetch(
       'POST',
-      `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
+      `${config.servers.auth.url}/v1/oauth/subscriptions/coupon`,
       { body: JSON.stringify(params) }
     );
 
-    if (!result?.discount?.amount) {
-      throw new Error('No discount for coupon');
+    if (!result.discountAmount) {
+      throw new Error(CouponErrorMessageType.Generic);
     }
 
     Amplitude.coupon_FULFILLED(metricsOptions);
+
     return result;
   } catch (error) {
     Amplitude.coupon_REJECTED({
