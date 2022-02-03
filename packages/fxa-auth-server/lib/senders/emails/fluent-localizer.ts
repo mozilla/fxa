@@ -95,7 +95,15 @@ class FluentLocalizer {
     // metadata.mjml needs a localized version of `action`,
     // but only if oneClickLink is present.
     if (context.oneClickLink) {
-      context.action = await l10n.formatValue(`${template}-action`, context);
+      // This is another gross hack due to dynamically rendering l10n IDs and will be fixed in #11471
+      if (template === 'downloadSubscription') {
+        context.action = await l10n.formatValue(
+          `${template}-link-action`,
+          context
+        );
+      } else {
+        context.action = await l10n.formatValue(`${template}-action`, context);
+      }
     }
 
     const { text, rootElement } = await this.bindings.renderTemplate(

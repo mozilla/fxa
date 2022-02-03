@@ -1464,20 +1464,6 @@ const conf = convict({
       env: 'SIGNIN_UNBLOCK_FORCED_EMAILS',
     },
   },
-  mjml: {
-    enabledEmailAddress: {
-      doc: 'If mjml email templates are enabled for specific email regex',
-      format: RegExp,
-      default: /^$/, // default is no one
-      env: 'MJML_ENABLED_EMAIL_ADDRESS',
-    },
-    templates: {
-      doc: 'Templates that have mjml email support',
-      format: Array,
-      default: [],
-      env: 'MJML_TEMPLATES',
-    },
-  },
   push: {
     allowedServerRegex: {
       doc: 'RegExp that validates the URI format of the Push Server',

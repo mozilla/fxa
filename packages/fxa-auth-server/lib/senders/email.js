@@ -36,7 +36,6 @@ module.exports = function (log, config, bounces) {
     require('../subscription-account-reminders')(log, config);
 
   const paymentsServerURL = new URL(config.subscriptions.paymentsServer.url);
-  const featureFlags = require('../features')(config);
 
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
@@ -435,44 +434,17 @@ module.exports = function (log, config, bounces) {
 
   Mailer.prototype.localize = async function (message) {
     const translator = this.translator(message.acceptLanguage);
-    let localized, localizedEmailHtml, localizedEmailText, localizedSubject;
     message.layout = message.layout || 'fxa';
 
-    const templateValues = {
-      ...message.templateValues,
-      action:
-        message.templateValues.action &&
-        translator.gettext(message.templateValues.action),
-      language: translator.language,
-      translator,
-    };
-
-    if (featureFlags.isMjmlEnabledForUser(message.email, message.template)) {
-      localized = await this.fluentLocalizer.localizeEmail(message);
-      localizedEmailHtml = localized.html;
-      localizedEmailText = localized.text;
-      localizedSubject = localized.subject;
-    } else {
-      localized = this.templates.render(
-        message.template,
-        message.layout,
-        templateValues
-      );
-      localizedEmailHtml = localized.html;
-      localizedEmailText = localized.text;
-    }
+    const { html, text, subject } = await this.fluentLocalizer.localizeEmail(
+      message
+    );
 
     return {
-      html: localizedEmailHtml,
+      html,
       language: translator.language,
-      subject:
-        localizedSubject ||
-        translator.format(
-          translator.gettext(message.subject),
-          templateValues,
-          true
-        ),
-      text: localizedEmailText,
+      subject,
+      text,
     };
   };
 
