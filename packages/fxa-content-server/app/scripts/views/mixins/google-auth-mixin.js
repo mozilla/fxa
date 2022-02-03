@@ -7,6 +7,8 @@ import Storage from '../../lib/storage';
 import Url from '../../lib/url';
 import ThirdPartyAuthExperimentMixin from '../../views/mixins/third-party-auth-experiment-mixin';
 
+const DEFAULT_SCOPES = 'openid email profile';
+
 export default {
   dependsOn: [SigninMixin, ThirdPartyAuthExperimentMixin],
 
@@ -24,7 +26,7 @@ export default {
     // Check to see if this page is being redirected to at the end of a
     // Google auth flow and if so, restore the original
     // query params and complete the FxA oauth signin
-    const thirdPartyAuth = Storage.factory('localStorage').get(
+    const thirdPartyAuth = Storage.factory('localStorage', this.window).get(
       'fxa_third_party_params'
     );
     if (thirdPartyAuth) {
@@ -33,7 +35,9 @@ export default {
   },
 
   clearStoredParams() {
-    Storage.factory('localStorage').remove('fxa_third_party_params');
+    Storage.factory('localStorage', this.window).remove(
+      'fxa_third_party_params'
+    );
   },
 
   googleSignIn() {
@@ -55,7 +59,7 @@ export default {
     /* eslint-disable camelcase */
     const params = {
       client_id: this.config.googleAuthConfig.clientId,
-      scope: 'openid email profile',
+      scope: DEFAULT_SCOPES,
       redirect_uri: this.config.googleAuthConfig.redirectUri,
       state,
       access_type: 'offline',
@@ -76,17 +80,21 @@ export default {
   },
 
   handleOauthResponse() {
+    // To finish the oauth flow, we will need to stash away the response from
+    // Google (contains state and code) and redirect back to the original FxA login page.
     const searchParams = Url.searchParams(this.window.location.search);
-    Storage.factory('localStorage').set('fxa_third_party_params', searchParams);
+    Storage.factory('localStorage', this.window).set(
+      'fxa_third_party_params',
+      searchParams
+    );
 
-    // Go back to fxa oauth page to complete the original login request
     const oauthState = decodeURIComponent(searchParams.state);
     this.navigateAway(`/oauth/${oauthState}`);
   },
 
   completeSignIn() {
     const account = this.getSignedInAccount();
-    const authParams = Storage.factory('localStorage').get(
+    const authParams = Storage.factory('localStorage', this.window).get(
       'fxa_third_party_params'
     );
     const code = authParams.code;
