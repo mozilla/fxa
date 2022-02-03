@@ -1,3 +1,60 @@
+## 1.225.1
+
+### New features
+
+- auth: use capabilities of subscribed price, not all prices ([869d2aff1](https://github.com/mozilla/fxa/commit/869d2aff1))
+
+### Bug fixes
+
+- auth: Temporarily disable isMetricsEnabled db calls for oauth clients (#11835) ([b428772cd](https://github.com/mozilla/fxa/commit/b428772cd))
+- auth-server: fix broken link for Mozilla Support (#11828) ([28df7da0e](https://github.com/mozilla/fxa/commit/28df7da0e))
+
+## 1.225.0
+
+### New features
+
+- auth: update API to Return Coupon Details (#11654) ([f667ebbbf](https://github.com/mozilla/fxa/commit/f667ebbbf))
+- config: Add options for mysql pool queue limit (#11803) ([edeb45275](https://github.com/mozilla/fxa/commit/edeb45275))
+- goog: Add google auth frontend login screens (#11743) ([9fd866c8c](https://github.com/mozilla/fxa/commit/9fd866c8c))
+- subscriptions: add feature flag for Firestore product configs ([7b1db3573](https://github.com/mozilla/fxa/commit/7b1db3573))
+- auth-server: Don't include email UTM params for metrics opted out users (#11706) ([30be98e73](https://github.com/mozilla/fxa/commit/30be98e73))
+- auth: dont report location set on repeat customers ([fb85d8806](https://github.com/mozilla/fxa/commit/fb85d8806))
+- auth: update webhook for payment method ([8cd7c5560](https://github.com/mozilla/fxa/commit/8cd7c5560))
+
+### Bug fixes
+
+- auth-server: Payment method not displayed for subscriptionSubsequentInvoice template (#11797) ([520e295b4](https://github.com/mozilla/fxa/commit/520e295b4))
+- auth-server: different order of text in plaintext version of `postRemoveAccountRecovery` (#11777) ([acdbb3fe8](https://github.com/mozilla/fxa/commit/acdbb3fe8))
+- subscriptions: match expandable resource type to Stripe obj type list (#11787) ([7666a5143](https://github.com/mozilla/fxa/commit/7666a5143))
+- subscriptions: fix product/plan webhook event handling (#11760) ([9025b9bea](https://github.com/mozilla/fxa/commit/9025b9bea))
+- admin-panel: update resp validation for Play subs (#11723) ([9e03bea12](https://github.com/mozilla/fxa/commit/9e03bea12))
+- auth: check for unique state on multiple results from Geocoding API (#11704) ([9890a4cb6](https://github.com/mozilla/fxa/commit/9890a4cb6))
+- subscriptions: stop retry w/ old invoice ## 1.224.4 stop sending welcome email (#11701) ([ff42c85f6](https://github.com/mozilla/fxa/commit/ff42c85f6))
+- subscriptions: delete customer when deleting stub acct ([778cbdb87](https://github.com/mozilla/fxa/commit/778cbdb87))
+- auth-server: add Privacy notice link to subplat emails with multiple products (#11681) ([0a7336fe4](https://github.com/mozilla/fxa/commit/0a7336fe4))
+- subscriptions: use latest stripe object fix Because: ([e41064f9a](https://github.com/mozilla/fxa/commit/e41064f9a))
+- auth-server: revise `images` partial (#11679) ([75f63c6be](https://github.com/mozilla/fxa/commit/75f63c6be))
+- auth-server: add mjml test for `subscriptionFirstInvoiceDiscount` (#11664) ([9ed1d030e](https://github.com/mozilla/fxa/commit/9ed1d030e))
+
+### Other changes
+
+- deps: bump mjml from 4.11.0 to 4.12.0 (#11813) ([1e9cd3cf9](https://github.com/mozilla/fxa/commit/1e9cd3cf9))
+- deps: bump @googlemaps/google-maps-services-js ([d4c9f01c5](https://github.com/mozilla/fxa/commit/d4c9f01c5))
+- deps-dev: bump mjml-browser from 4.11.0 to 4.12.0 (#11766) ([baaf7b550](https://github.com/mozilla/fxa/commit/baaf7b550))
+- content: add Product and Category Support field for Zendesk integration (#11749) ([bf8b1f6af](https://github.com/mozilla/fxa/commit/bf8b1f6af))
+- deps: bump aws-sdk from 2.1057.0 to 2.1063.0 (#11755) ([3df6d7ac1](https://github.com/mozilla/fxa/commit/3df6d7ac1))
+- deps: bump stripe from 8.199.0 to 8.200.0 (#11754) ([7cbfa1981](https://github.com/mozilla/fxa/commit/7cbfa1981))
+- deps-dev: bump @storybook/addon-controls from 6.4.12 to 6.4.14 (#11715) ([6b5ab2355](https://github.com/mozilla/fxa/commit/6b5ab2355))
+- deps: bump stripe from 8.198.0 to 8.199.0 (#11711) ([cec185e52](https://github.com/mozilla/fxa/commit/cec185e52))
+- deps-dev: bump nock from 13.2.1 to 13.2.2 (#11712) ([50634bea9](https://github.com/mozilla/fxa/commit/50634bea9))
+- deps-dev: bump @storybook/addon-docs from 6.4.13 to 6.4.14 (#11713) ([6e14ce933](https://github.com/mozilla/fxa/commit/6e14ce933))
+- deps: bump superagent from 6.1.0 to 7.1.1 (#11692) ([d4ad6314c](https://github.com/mozilla/fxa/commit/d4ad6314c))
+- deps: bump @googlemaps/google-maps-services-js from 3.3.5 to 3.3.6 (#11676) ([72e8618f9](https://github.com/mozilla/fxa/commit/72e8618f9))
+- deps: bump @type-cacheable/core from 10.0.2 to 10.0.3 (#11672) ([f1d76a53e](https://github.com/mozilla/fxa/commit/f1d76a53e))
+- deps-dev: bump @storybook/addon-docs from 6.3.12 to 6.4.13 (#11673) ([3319b4d25](https://github.com/mozilla/fxa/commit/3319b4d25))
+- deps: bump @google-cloud/bigquery from 5.9.3 to 5.10.0 ([b2448cace](https://github.com/mozilla/fxa/commit/b2448cace))
+- deps: bump stripe from 8.195.0 to 8.198.0 (#11662) ([6d1184041](https://github.com/mozilla/fxa/commit/6d1184041))
+
 ## 1.224.4
 
 ### Bug fixes

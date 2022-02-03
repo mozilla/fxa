@@ -1,3 +1,14 @@
+## 1.225.1
+
+No changes.
+
+## 1.225.0
+
+### Other changes
+
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+- deps-dev: bump @testing-library/dom from 8.11.1 to 8.11.2 ([ef8e66bec](https://github.com/mozilla/fxa/commit/ef8e66bec))
+
 ## 1.224.4
 
 No changes.

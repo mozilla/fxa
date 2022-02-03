@@ -1,3 +1,17 @@
+## 1.225.1
+
+No changes.
+
+## 1.225.0
+
+### Other changes
+
+- deps-dev: bump @nestjs/cli from 8.1.6 to 8.2.0 (#11794) ([afb783c44](https://github.com/mozilla/fxa/commit/afb783c44))
+- deps: bump @nestjs/platform-express from 8.2.5 to 8.2.6 (#11756) ([ed9921fcd](https://github.com/mozilla/fxa/commit/ed9921fcd))
+- deps-dev: bump supertest from 6.2.1 to 6.2.2 (#11735) ([ebd316a6a](https://github.com/mozilla/fxa/commit/ebd316a6a))
+- deps: bump knex from 0.95.15 to 1.0.1 (#11710) ([38870b60e](https://github.com/mozilla/fxa/commit/38870b60e))
+- deps-dev: bump ts-jest from 27.1.2 to 27.1.3 (#11675) ([8e8ffb6b2](https://github.com/mozilla/fxa/commit/8e8ffb6b2))
+
 ## 1.224.4
 
 No changes.

@@ -1,3 +1,19 @@
+## 1.225.1
+
+No changes.
+
+## 1.225.0
+
+### Bug fixes
+
+- settings: Disconnect all associated clients/sessions for given client name on sign out (#11809) ([71f9a6c2e](https://github.com/mozilla/fxa/commit/71f9a6c2e))
+
+### Other changes
+
+- deps: bump react-webcam from 6.0.0 to 6.0.1 (#11796) ([70b48acee](https://github.com/mozilla/fxa/commit/70b48acee))
+- deps: bump @sentry/browser from 6.16.1 to 6.17.2 (#11764) ([1b249659d](https://github.com/mozilla/fxa/commit/1b249659d))
+- deps-dev: bump @testing-library/dom from 8.11.1 to 8.11.2 ([ef8e66bec](https://github.com/mozilla/fxa/commit/ef8e66bec))
+
 ## 1.224.4
 
 No changes.
