@@ -1,7 +1,11 @@
 import Stripe from 'stripe';
 import pick from 'lodash.pick';
 import omitBy from 'lodash.omitby';
-import { Plan, SubscriptionUpdateEligibility } from './types';
+import {
+  Plan,
+  SubscriptionStripeErrorType,
+  SubscriptionUpdateEligibility,
+} from './types';
 import { metadataFromPlan } from './metadata';
 
 const isCapabilityKey = (value: string, key: string) =>
@@ -265,7 +269,5 @@ export const getMinimumAmount = (currency: string): number => {
     return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
   }
 
-  throw new Error(
-    `Currency "${currency}" does not have a minimum amount available.`
-  );
+  throw new Error(SubscriptionStripeErrorType.NO_MIN_AMOUNT_FOR_CURRENCY);
 };

@@ -481,10 +481,6 @@ describe('API requests', () => {
     const path = '/v1/oauth/subscriptions/invoice/preview';
     const priceId = 'price_kkljasdk32lkjasd';
 
-    const metricsOptionsBase: EventProperties = {
-      planId: priceId,
-    };
-
     it(`POST {auth-server}${path} valid Coupon Code`, async () => {
       const promotionCode = 'VALID';
       const expected: InvoicePreview = {
