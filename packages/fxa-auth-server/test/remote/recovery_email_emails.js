@@ -12,10 +12,6 @@ const ERRNO = require('../../lib/error').ERRNO;
 let config, server, client, email;
 const password = 'allyourbasearebelongtous';
 
-function includes(haystack, needle) {
-  return haystack.indexOf(needle) > -1;
-}
-
 describe('remote emails', function () {
   this.timeout(30000);
 
@@ -198,7 +194,7 @@ describe('remote emails', function () {
         })
         .then((emailData) => {
           const emailCode = emailData['headers']['x-verify-code'];
-          return anotherClient.verifySecondaryEmail(
+          return anotherClient.verifySecondaryEmailWithCode(
             emailCode,
             anotherUserSecondEmail
           );
@@ -268,123 +264,6 @@ describe('remote emails', function () {
     });
   });
 
-  describe('should verify additional email', () => {
-    let secondEmail;
-    beforeEach(() => {
-      secondEmail = server.uniqueEmail();
-      return client
-        .createEmail(secondEmail)
-        .then((res) => {
-          assert.ok(res, 'ok response');
-          return client.accountEmails();
-        })
-        .then((res) => {
-          assert.equal(res.length, 2, 'returns number of emails');
-          assert.equal(res[1].email, secondEmail, 'returns correct email');
-          assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
-          assert.equal(res[1].verified, false, 'returns correct verified');
-        });
-    });
-
-    it('can verify', () => {
-      return server.mailbox
-        .waitForEmail(secondEmail)
-        .then((emailData) => {
-          const templateName = emailData['headers']['x-template-name'];
-          const emailCode = emailData['headers']['x-verify-code'];
-          const verifyLink = emailData['headers']['x-link'];
-          assert.equal(templateName, 'verifySecondary');
-
-          assert.equal(
-            includes(verifyLink, 'type=secondary'),
-            true,
-            'contains type=secondary'
-          );
-          const secondaryEmailParam = `secondary_email_verified=${encodeURIComponent(
-            secondEmail
-          )}`;
-          assert.equal(
-            includes(verifyLink, secondaryEmailParam),
-            true,
-            'contains correct secondary_email_verified'
-          );
-
-          assert.ok(emailCode, 'emailCode set');
-          return client.verifySecondaryEmail(emailCode, secondEmail);
-        })
-        .then((res) => {
-          assert.ok(res, 'ok response');
-          return client.accountEmails();
-        })
-        .then((res) => {
-          assert.equal(res.length, 2, 'returns number of emails');
-          assert.equal(res[1].email, secondEmail, 'returns correct email');
-          assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
-          assert.equal(res[1].verified, true, 'returns correct verified');
-          return server.mailbox.waitForEmail(email);
-        })
-        .then((emailData) => {
-          const templateName = emailData['headers']['x-template-name'];
-          assert.equal(templateName, 'postVerifySecondary');
-        });
-    });
-
-    it('does not verify on random email code', () => {
-      return server.mailbox
-        .waitForEmail(secondEmail)
-        .then((emailData) => {
-          const templateName = emailData['headers']['x-template-name'];
-          const emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(templateName, 'verifySecondary');
-          assert.ok(emailCode, 'emailCode set');
-          return client.verifySecondaryEmail(
-            'd092f3155ec8d534a7ee7f53b68e9e8b',
-            secondEmail
-          );
-        })
-        .then(assert.fail)
-        .catch((err) => {
-          assert.equal(err.errno, 105, 'correct error errno');
-          assert.equal(err.code, 400, 'correct error code');
-        });
-    });
-
-    it('can resend verify email code for added address', () => {
-      let emailCode;
-      return server.mailbox
-        .waitForEmail(secondEmail)
-        .then((emailData) => {
-          const templateName = emailData['headers']['x-template-name'];
-          emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(templateName, 'verifySecondary');
-          assert.ok(emailCode, 'emailCode set');
-          client.options.email = secondEmail;
-          return client.requestVerifyEmail();
-        })
-        .then((res) => {
-          assert.ok(res, 'ok response');
-          return server.mailbox.waitForEmail(secondEmail);
-        })
-        .then((emailData) => {
-          const templateName = emailData['headers']['x-template-name'];
-          const resendEmailCode = emailData['headers']['x-verify-code'];
-          assert.equal(templateName, 'verifySecondary');
-          assert.equal(resendEmailCode, emailCode, 'emailCode matches');
-          return client.verifySecondaryEmail(emailCode, secondEmail);
-        })
-        .then((res) => {
-          assert.ok(res, 'ok response');
-          return client.accountEmails();
-        })
-        .then((res) => {
-          assert.equal(res.length, 2, 'returns number of emails');
-          assert.equal(res[1].email, secondEmail, 'returns correct email');
-          assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
-          assert.equal(res[1].verified, true, 'returns correct verified');
-        });
-    });
-  });
-
   describe('should delete additional email', () => {
     let secondEmail;
     beforeEach(() => {
@@ -397,8 +276,8 @@ describe('remote emails', function () {
         .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(templateName, 'verifySecondary');
-          return client.verifySecondaryEmail(emailCode, secondEmail);
+          assert.equal(templateName, 'verifySecondaryCode');
+          return client.verifySecondaryEmailWithCode(emailCode, secondEmail);
         })
         .then((res) => {
           assert.ok(res, 'ok response');
@@ -542,9 +421,9 @@ describe('remote emails', function () {
         .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(templateName, 'verifySecondary');
+          assert.equal(templateName, 'verifySecondaryCode');
           assert.ok(emailCode, 'emailCode set');
-          return client.verifySecondaryEmail(emailCode, secondEmail);
+          return client.verifySecondaryEmailWithCode(emailCode, secondEmail);
         })
         .then((res) => {
           assert.ok(res, 'ok response');
@@ -706,7 +585,7 @@ describe('remote emails', function () {
         })
         .then((emailData) => {
           const emailCode = emailData['headers']['x-verify-code'];
-          return client.verifySecondaryEmail(emailCode, fourthEmail);
+          return client.verifySecondaryEmailWithCode(emailCode, fourthEmail);
         })
         .then(() => {
           // Clear email added template
@@ -749,10 +628,12 @@ describe('remote emails', function () {
           return server.mailbox.waitForCode(secondEmail);
         })
         .then((code) => {
-          return client.verifySecondaryEmail(code, secondEmail).then(() => {
-            // Clear add secondary email notification
-            return server.mailbox.waitForEmail(email);
-          });
+          return client
+            .verifySecondaryEmailWithCode(code, secondEmail)
+            .then(() => {
+              // Clear add secondary email notification
+              return server.mailbox.waitForEmail(email);
+            });
         })
         .then(() => {
           // Create unverified email
@@ -786,7 +667,7 @@ describe('remote emails', function () {
         .then((emailData) => {
           const emailCode = emailData['headers']['x-verify-code'];
           assert.ok(emailCode, 'emailCode set');
-          return client.verifySecondaryEmail(emailCode, secondEmail);
+          return client.verifySecondaryEmailWithCode(emailCode, secondEmail);
         });
     });
 
@@ -834,9 +715,9 @@ describe('remote emails', function () {
         .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
-          assert.equal(templateName, 'verifySecondary');
+          assert.equal(templateName, 'verifySecondaryCode');
           assert.ok(emailCode, 'emailCode set');
-          return client.verifySecondaryEmail(emailCode, secondEmail);
+          return client.verifySecondaryEmailWithCode(emailCode, secondEmail);
         })
         .then((res) => {
           assert.ok(res, 'ok response');
@@ -882,7 +763,7 @@ describe('remote emails', function () {
 
     it('fails to create account using verified secondary email', () => {
       return client
-        .verifySecondaryEmail(emailCode, secondEmail)
+        .verifySecondaryEmailWithCode(emailCode, secondEmail)
         .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();

@@ -100,7 +100,7 @@ describe('metrics/amplitude:', () => {
             },
           ],
           [
-            /(verifySecondaryEmail)\.(\w+)/,
+            /(verifySecondaryCodeEmail)\.(\w+)/,
             {
               group: amplitude.GROUPS.email,
               event: 'emailEvent',
@@ -335,11 +335,11 @@ describe('metrics/amplitude:', () => {
 
       before(() => {
         result = transform(
-          { type: 'verifySecondaryEmail.wibble' },
+          { type: 'verifySecondaryCodeEmail.wibble' },
           {
             emailDomain: 'foo',
             emailTypes: {
-              verifySecondaryEmail: 'secondary_email',
+              verifySecondaryCodeEmail: 'secondary_email',
             },
             templateVersion: 'bar',
           }
@@ -350,7 +350,7 @@ describe('metrics/amplitude:', () => {
         assert.equal(result.event_type, 'fxa_email - emailEvent');
         assert.deepEqual(result.event_properties, {
           email_provider: 'foo',
-          email_template: 'verifySecondaryEmail',
+          email_template: 'verifySecondaryCodeEmail',
           email_type: 'secondary_email',
           email_version: 'bar',
         });

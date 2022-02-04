@@ -1986,7 +1986,6 @@ describe('mailer constructor:', () => {
       'syncUrl',
       'verificationUrl',
       'verifyLoginUrl',
-      'verifySecondaryEmailUrl',
       'verifyPrimaryEmailUrl',
     ].reduce((target, key) => {
       target[key] = `mock ${key}`;

@@ -83,7 +83,6 @@ module.exports = function (log, config, bounces) {
     verifyLogin: 'new-signin',
     verifyLoginCode: 'new-signin-verify-code',
     verifyPrimary: 'welcome-primary',
-    verifySecondary: 'welcome-secondary',
     verifySecondaryCode: 'welcome-secondary',
   };
 
@@ -132,7 +131,6 @@ module.exports = function (log, config, bounces) {
     verifyLogin: 'confirm-signin',
     verifyLoginCode: 'new-signin-verify-code',
     verifyPrimary: 'activate',
-    verifySecondary: 'activate',
     verifySecondaryCode: 'activate',
   };
 
@@ -302,7 +300,6 @@ module.exports = function (log, config, bounces) {
     this.translator = translator.getTranslator;
     this.verificationUrl = mailerConfig.verificationUrl;
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
-    this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
     this.fluentLocalizer = new FluentLocalizer(new NodeLocalizerBindings());
     this.metricsEnabled = true;
@@ -1046,78 +1043,6 @@ module.exports = function (log, config, bounces) {
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
-        subject,
-        supportLinkAttributes: links.supportLinkAttributes,
-        supportUrl: links.supportUrl,
-        time,
-      },
-    });
-  };
-
-  Mailer.prototype.verifySecondaryEmail = function (message) {
-    log.trace('mailer.verifySecondaryEmail', {
-      email: message.email,
-      uid: message.uid,
-    });
-
-    const templateName = 'verifySecondary';
-    const subject = gettext('Confirm secondary email');
-    const action = gettext('Verify email');
-    const query = {
-      code: message.code,
-      uid: message.uid,
-      type: 'secondary',
-      secondary_email_verified: message.email,
-    };
-
-    if (message.service) {
-      query.service = message.service;
-    }
-    if (message.redirectTo) {
-      query.redirectTo = message.redirectTo;
-    }
-    if (message.resume) {
-      query.resume = message.resume;
-    }
-
-    const links = this._generateLinks(
-      this.verifySecondaryEmailUrl,
-      message,
-      query,
-      templateName
-    );
-    const [time, date] = this._constructLocalTimeString(
-      message.timeZone,
-      message.acceptLanguage,
-      message.date,
-      message.time
-    );
-
-    const headers = {
-      'X-Link': links.link,
-      'X-Verify-Code': message.code,
-    };
-
-    return this.send({
-      ...message,
-      headers,
-      subject,
-      template: templateName,
-      templateValues: {
-        action,
-        date,
-        device: this._formatUserAgentInfo(message),
-        email: message.email,
-        ip: message.ip,
-        link: links.link,
-        location: this._constructLocationString(message),
-        oneClickLink: links.oneClickLink,
-        passwordChangeLink: links.passwordChangeLink,
-        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-        primaryEmail: message.primaryEmail,
-        privacyUrl: links.privacyUrl,
-        reportSignInLink: links.reportSignInLink,
-        reportSignInLinkAttributes: links.reportSignInLinkAttributes,
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
