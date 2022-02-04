@@ -45,7 +45,7 @@
     "@nestjs/platform-express": "^8.2.6",
     "@nestjs/schedule": "^1.0.2",
     "@sentry/integrations": "^6.16.1",
-    "@sentry/node": "^6.16.1",
+    "@sentry/node": "^6.17.4",
     "@types/sinon": "10.0.1",
     "aws-sdk": "^2.1063.0",
     "axios": "^0.25.0",
