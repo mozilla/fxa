@@ -10,7 +10,7 @@
     <mj-text css-class="text-header">
       <span data-l10n-id="postVerify-title">Next sync between your devices!</span>
     </mj-text>
-    <mj-image css-class="sync-logo" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
+    <mj-image width="240px" css-class="sync-logo" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
   </mj-column>
 </mj-section>
 
