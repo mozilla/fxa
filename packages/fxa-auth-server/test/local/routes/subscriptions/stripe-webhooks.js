@@ -13,6 +13,7 @@ const Sentry = require('@sentry/node');
 const {
   StripeHelper,
   SUBSCRIPTION_UPDATE_TYPES,
+  CUSTOMER_RESOURCE,
 } = require('../../../../lib/payments/stripe');
 const moment = require('moment');
 const authDbModule = require('fxa-shared/db/models/auth');
@@ -841,7 +842,7 @@ describe('StripeWebhookHandler', () => {
 
     describe('handleSubscriptionDeletedEvent', () => {
       it('sends email and emits a notification when a subscription is deleted', async () => {
-        StripeWebhookHandlerInstance.stripeHelper.fetchCustomer.resolves(
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
           customerFixture
         );
         const deletedEvent = deepCopy(subscriptionDeleted);
@@ -854,7 +855,7 @@ describe('StripeWebhookHandler', () => {
         );
         assert.calledWith(mockCapabilityService.stripeUpdate, {
           sub: deletedEvent.data.object,
-          uid: UID,
+          uid: customerFixture.metadata.userid,
         });
         assert.calledWith(
           sendSubscriptionDeletedEmailStub,
@@ -862,9 +863,9 @@ describe('StripeWebhookHandler', () => {
         );
         assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
         assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.fetchCustomer,
-          UID,
-          ['subscriptions']
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          deletedEvent.data.object.customer,
+          CUSTOMER_RESOURCE
         );
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.paypalHelper
@@ -875,6 +876,7 @@ describe('StripeWebhookHandler', () => {
 
       it('does not conditionally delete without customer record', async () => {
         const deletedEvent = deepCopy(subscriptionDeleted);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves();
         const sendSubscriptionDeletedEmailStub = sandbox
           .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
           .resolves({ uid: UID, email: TEST_EMAIL });
@@ -882,19 +884,41 @@ describe('StripeWebhookHandler', () => {
           {},
           deletedEvent
         );
-        assert.calledWith(
-          sendSubscriptionDeletedEmailStub,
-          deletedEvent.data.object
-        );
         assert.calledOnceWithExactly(
-          StripeWebhookHandlerInstance.stripeHelper.fetchCustomer,
-          UID,
-          ['subscriptions']
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          deletedEvent.data.object.customer,
+          CUSTOMER_RESOURCE
         );
+        assert.notCalled(sendSubscriptionDeletedEmailStub);
         assert.notCalled(
           StripeWebhookHandlerInstance.paypalHelper
             .conditionallyRemoveBillingAgreement
         );
+      });
+
+      it('does not send an email to an unverified PayPal user', async () => {
+        const deletedEvent = deepCopy(subscriptionDeleted);
+        deletedEvent.data.object.collection_method = 'send_invoice';
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          customerFixture
+        );
+        StripeWebhookHandlerInstance.db.account = sandbox.stub().resolves({
+          email: customerFixture.email,
+          verifierSetAt: 0,
+        });
+        const sendSubscriptionDeletedEmailStub = sandbox
+          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .resolves({ uid: UID, email: TEST_EMAIL });
+        await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
+          {},
+          deletedEvent
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper.expandResource,
+          deletedEvent.data.object.customer,
+          CUSTOMER_RESOURCE
+        );
+        assert.notCalled(sendSubscriptionDeletedEmailStub);
       });
     });
 
