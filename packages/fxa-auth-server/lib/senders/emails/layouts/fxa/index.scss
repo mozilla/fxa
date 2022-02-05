@@ -12,7 +12,6 @@
 .fxa-logo {
   padding: global.$s-5 global.$s-0 !important;
   height: 60px !important;
-  width: 60px !important;
   margin: 0 auto !important;
   display: block !important;
 }
@@ -20,7 +19,6 @@
 .sync-img {
   padding: global.$s-5 global.$s-0 !important;
   height: 137px;
-  width: 300px;
   margin: 0 auto !important;
   display: block !important;
 }
@@ -70,14 +68,12 @@
 }
 
 .sync-logo img {
-  width: 240px !important;
   margin: 0 auto;
   @extend .mb-5;
   @extend .mt-2;
 }
 
 .graphic-devices img {
-  width: 240px !important;
   margin: 0 auto;
   @extend .mb-5;
   @extend .mt-2;

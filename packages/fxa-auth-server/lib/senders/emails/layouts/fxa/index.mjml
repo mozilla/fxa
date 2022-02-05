@@ -17,37 +17,35 @@
     <mj-include path="./css/fxa/index.css" type="css" css-inline="inline" />
     <mj-include path="./css/locale-dir.css" type="css" />
 
-    <mj-raw>
-      <% if (locals.preHeader) { %>
-        <div class="hidden">
-          <%- preHeader %>
-          &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-          &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-          &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-          ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
-          ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌‌‌
-        </div>
-      <% } %>
-      <% if (!locals.sync) { %>
-        <div data-l10n-id="fxa-header-firefox-logo">
-          <img
-            data-l10n-name="fxa-logo"
+    <mj-section>
+      <mj-column>
+        <% if (locals.preHeader) { %>
+          <mj-text css-class="hidden">
+            <%- preHeader %>
+            &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
+            &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
+            &nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
+            ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;
+            ‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌&nbsp;‌‌‌
+          </mj-text>
+        <% } %>
+        <% if (!locals.sync) { %>
+          <mj-image css-class="fxa-logo"
+            width="60px"
             src="https://accounts-static.cdn.mozilla.net/product-icons/firefox-logo.png"
-            class="fxa-logo"
             alt="Firefox logo"
-          />
-        </div>
-      <% } else { %>
-        <div data-l10n-id="fxa-header-sync-devices-image" data-l10n-attrs="alt">
-          <img
-            data-l10n-name="sync-devices-image"
+            title="Firefox logo">
+          </mj-image>
+        <% } else { %>
+          <mj-image css-class="sync-img"
+            width="300px"
             src="https://accounts-static.cdn.mozilla.net/other/sync-devices.png"
-            class="sync-img"
             alt="Sync devices"
-          />
-        </div>
-      <% } %>
-    </mj-raw>
+            title="Sync devices">
+          </mj-image>
+        <% } %>
+      </mj-column>
+    </mj-section>
 
     <%- body %>
 
