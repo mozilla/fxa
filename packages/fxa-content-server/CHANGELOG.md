@@ -1,3 +1,15 @@
+## 1.225.2
+
+### New features
+
+- experiment: Add feature flag for google auth (#11829) ([841743d8b](https://github.com/mozilla/fxa/commit/841743d8b))
+- google: Add tests for google auth (#11801) ([a5018e919](https://github.com/mozilla/fxa/commit/a5018e919))
+
+### Bug fixes
+
+- auth-server: fix broken link for Mozilla Support (#11828) ([79910ffda](https://github.com/mozilla/fxa/commit/79910ffda))
+- metrics: Populate relier `service` value if param exists (#11818) ([b5eafa124](https://github.com/mozilla/fxa/commit/b5eafa124))
+
 ## 1.225.1
 
 ### New features
