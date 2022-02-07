@@ -42,3 +42,14 @@ export const SubscriptionFirstInvoiceWithStripe = createStory(
   },
   'Payment method - Stripe'
 );
+
+export const SubscriptionFirstInvoiceWithCoupon = createStory(
+  {
+    cardType: null,
+    lastFour: null,
+    payment_provider: 'stripe',
+    invoiceTotal: '$0.00',
+    invoiceDiscountAmount: '$20.00',
+  },
+  'Payment method - coupon covered entire amount'
+);
