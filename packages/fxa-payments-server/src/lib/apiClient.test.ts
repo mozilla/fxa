@@ -14,9 +14,6 @@ import {
   updateDefaultPaymentMethod_FULFILLED,
   updateDefaultPaymentMethod_REJECTED,
   EventProperties,
-  coupon_PENDING,
-  coupon_FULFILLED,
-  coupon_REJECTED,
 } from './amplitude';
 
 import { Config, defaultConfig } from './config';
@@ -517,16 +514,8 @@ describe('API requests', () => {
     const path = '/v1/oauth/subscriptions/coupon';
     const priceId = 'price_kkljasdk32lkjasd';
 
-    const metricsOptionsBase: EventProperties = {
-      planId: priceId,
-    };
-
     it(`POST {auth-server}${path} valid Coupon Code`, async () => {
       const promotionCode = 'VALID';
-      const metricsOptions: EventProperties = {
-        ...metricsOptionsBase,
-        promotionCode,
-      };
       const expected: CouponDetails = {
         promotionCode,
         type: '',
@@ -543,40 +532,6 @@ describe('API requests', () => {
           promotionCode,
         })
       ).toEqual(expected);
-
-      expect(<jest.Mock>coupon_PENDING).toBeCalledWith(metricsOptions);
-      expect(<jest.Mock>coupon_FULFILLED).toBeCalledWith(metricsOptions);
-
-      requestMock.done();
-    });
-
-    it(`POST {auth-server}${path} invalid Coupon Code`, async () => {
-      const promotionCode = 'INVALID';
-      const metricsOptions: EventProperties = {
-        ...metricsOptionsBase,
-        promotionCode,
-      };
-      const expected = {
-        message: 'oops',
-      };
-      const requestMock = nock(AUTH_BASE_URL).post(path).reply(400, expected);
-      let error = null;
-
-      try {
-        await apiRetrieveCouponDetails({
-          priceId,
-          promotionCode,
-        });
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error).not.toBeNull();
-      expect(<jest.Mock>coupon_PENDING).toBeCalledWith(metricsOptions);
-      expect(<jest.Mock>coupon_REJECTED).toBeCalledWith({
-        ...metricsOptions,
-        error,
-      });
 
       requestMock.done();
     });

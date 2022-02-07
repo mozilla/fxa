@@ -1,18 +1,24 @@
 import './index.scss';
 
 import { Localized } from '@fluent/react';
+import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import React, {
   FormEventHandler,
   MouseEventHandler,
-  useState,
   useCallback,
   useEffect,
+  useState,
 } from 'react';
 
+import {
+  coupon_FULFILLED,
+  coupon_PENDING,
+  coupon_REJECTED,
+  couponEngaged,
+  couponMounted,
+  EventProperties,
+} from '../../lib/amplitude';
 import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
-import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
-
-import * as Amplitude from '../../lib/amplitude';
 import { useCallbackOnce } from '../../lib/hooks';
 
 class CouponError extends Error {
@@ -33,8 +39,17 @@ export enum CouponErrorMessageType {
  * Check if the coupon promotion code provided by the user is valid.
  * If it is valid, return the discounted amount in cents.
  */
-const checkPromotionCode = async (planId: string, promotionCode: string) => {
+export const checkPromotionCode = async (
+  planId: string,
+  promotionCode: string
+) => {
+  const metricsOptions: EventProperties = {
+    planId,
+    promotionCode,
+  };
+
   try {
+    coupon_PENDING(metricsOptions);
     const couponDetails = await apiRetrieveCouponDetails({
       priceId: planId,
       promotionCode,
@@ -52,8 +67,14 @@ const checkPromotionCode = async (planId: string, promotionCode: string) => {
       throw new CouponError(CouponErrorMessageType.Invalid);
     }
 
+    coupon_FULFILLED(metricsOptions);
     return couponDetails;
   } catch (err) {
+    coupon_REJECTED({
+      planId,
+      promotionCode,
+      error: err,
+    });
     if (!(err instanceof CouponError)) {
       if (err instanceof APIError) {
         if (err.errno === 199)
@@ -79,16 +100,13 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
   const [error, setError] = useState<CouponErrorMessageType | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const onFormMounted = useCallback(
-    () => Amplitude.couponMounted({ planId }),
-    [planId]
-  );
+  const onFormMounted = useCallback(() => couponMounted({ planId }), [planId]);
   useEffect(() => {
     onFormMounted();
   }, [onFormMounted, planId]);
 
   const onFormEngaged = useCallbackOnce(
-    () => Amplitude.couponEngaged({ planId }),
+    () => couponEngaged({ planId }),
     [planId]
   );
   const onChange = useCallback(() => {

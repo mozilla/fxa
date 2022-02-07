@@ -739,6 +739,14 @@ export class StripeHelper {
           error.errno === AppError.ERRNO.INVALID_PROMOTION_CODE
         ) {
           throw error;
+        } else {
+          Sentry.withScope((scope) => {
+            scope.setContext('retrieveCouponDetails', {
+              priceId,
+              promotionCode,
+            });
+            Sentry.captureException(error);
+          });
         }
       }
 

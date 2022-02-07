@@ -3,6 +3,7 @@ import pick from 'lodash.pick';
 import omitBy from 'lodash.omitby';
 import {
   Plan,
+  SubscriptionStripeError,
   SubscriptionStripeErrorType,
   SubscriptionUpdateEligibility,
 } from './types';
@@ -269,5 +270,7 @@ export const getMinimumAmount = (currency: string): number => {
     return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
   }
 
-  throw new Error(SubscriptionStripeErrorType.NO_MIN_AMOUNT_FOR_CURRENCY);
+  throw new SubscriptionStripeError(
+    SubscriptionStripeErrorType.NO_MIN_CHARGE_AMOUNT
+  );
 };

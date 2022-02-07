@@ -391,7 +391,7 @@ export async function apiInvoicePreview(params: {
   priceId: string;
   promotionCode: string;
 }): Promise<InvoicePreview> {
-  return await apiFetch(
+  return apiFetch(
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/preview`,
     { body: JSON.stringify(params) }
@@ -402,28 +402,11 @@ export async function apiRetrieveCouponDetails(params: {
   priceId: string;
   promotionCode: string;
 }): Promise<CouponDetails> {
-  const metricsOptions: Amplitude.EventProperties = {
-    planId: params.priceId,
-    promotionCode: params.promotionCode,
-  };
-  try {
-    Amplitude.coupon_PENDING(metricsOptions);
-    const result: CouponDetails = await apiFetch(
-      'POST',
-      `${config.servers.auth.url}/v1/oauth/subscriptions/coupon`,
-      { body: JSON.stringify(params) }
-    );
-
-    Amplitude.coupon_FULFILLED(metricsOptions);
-
-    return result;
-  } catch (error) {
-    Amplitude.coupon_REJECTED({
-      ...metricsOptions,
-      error,
-    });
-    throw error;
-  }
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/coupon`,
+    { body: JSON.stringify(params) }
+  );
 }
 
 export type FilteredSetupIntent = {
