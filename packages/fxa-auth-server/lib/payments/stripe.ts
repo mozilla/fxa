@@ -2042,6 +2042,25 @@ export class StripeHelper {
         );
       }
 
+      // If there's a discount and sub is not cancelled, get next invoice
+      // If there's no discount object, no promo code was used, or it's a once off code.
+      let nextInvoiceTotal: number | null = null;
+      let nextInvoiceStart: number | null = null;
+      if (!sub.cancel_at_period_end && !sub.ended_at) {
+        const upcomingInvoice =
+          sub.discount &&
+          (await this.stripe.invoices.retrieveUpcoming({
+            subscription: sub.id,
+          }));
+        if (upcomingInvoice) {
+          nextInvoiceTotal = upcomingInvoice.total;
+          nextInvoiceStart = upcomingInvoice.period_end;
+        } else {
+          nextInvoiceTotal = sub.items.data[0].plan.amount;
+          nextInvoiceStart = sub.current_period_end;
+        }
+      }
+
       // If this is a charge-automatically payment that is past_due, attempt
       // to get details of why it failed. The caller should expand the last_invoice
       // calls by passing ['data.subscriptions.data.latest_invoice'] to `fetchCustomer`
@@ -2089,6 +2108,8 @@ export class StripeHelper {
         failure_message,
         promotion_code:
           sub.metadata[SUBSCRIPTION_PROMOTION_CODE_METADATA_KEY] ?? null,
+        next_invoice_total: nextInvoiceTotal ?? null,
+        next_invoice_period_start: nextInvoiceStart ?? null,
       });
     }
     return subs;
