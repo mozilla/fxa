@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BaseAuthModel, Proc } from './base-auth';
+import { BaseAuthModel } from './base-auth';
 import { uuidTransformer } from '../../transformers';
 
 const PROVIDER = {
@@ -47,13 +47,17 @@ export class LinkedAccount extends BaseAuthModel {
     });
   }
 
-  static async deleteLinkedGoogleAccount(uid: string, id: string) {
-    await LinkedAccount.query()
+  static async deleteLinkedGoogleAccount(uid: string) {
+    return LinkedAccount.query()
       .delete()
       .where({
         uid: uuidTransformer.to(uid),
-        id,
         providerId: PROVIDER['GOOGLE'],
       });
+
+    // TODO: In a follow up we can consider automatically revoking sessions
+    // that were created from a Google auth flow. Currently, a user
+    // can manually disconnect a connection in the `Connected services`
+    // section in settings
   }
 }

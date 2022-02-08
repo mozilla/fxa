@@ -66,6 +66,9 @@ describe('AccountResolver', () => {
     describe('account', () => {
       it('locates the user by id', async () => {
         (resolver as any).shouldIncludeEmails = jest.fn().mockReturnValue(true);
+        (resolver as any).shouldIncludeLinkedAccounts = jest
+          .fn()
+          .mockReturnValue(true);
         const result = await resolver.account(USER_1.uid, {} as any);
         expect(result?.createdAt).toBe(USER_1.createdAt);
       });
@@ -125,6 +128,26 @@ describe('AccountResolver', () => {
         authClient.attachedClients = jest.fn().mockResolvedValue(true);
         const result = await resolver.attachedClients('token');
         expect(result).toBeTruthy();
+      });
+
+      it('resolves linked accounts with empty array', async () => {
+        const user = await Account.findByUid(USER_1.uid);
+        const linkedAccounts = resolver.linkedAccounts(user!);
+        expect(linkedAccounts).toEqual([]);
+      });
+
+      it('resolves linked accounts when loaded', async () => {
+        const user = await Account.findByUid(USER_1.uid, {
+          include: ['linkedAccounts'],
+        });
+        const authAt = Date.now();
+        (user!.linkedAccounts as any) = [
+          { providerId: 1, enabled: true, authAt },
+        ];
+        const linkedAccounts = resolver.linkedAccounts(user!);
+        expect(linkedAccounts).toStrictEqual([
+          { providerId: 1, enabled: true, authAt },
+        ]);
       });
     });
   });

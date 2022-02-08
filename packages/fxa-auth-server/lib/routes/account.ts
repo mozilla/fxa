@@ -51,7 +51,6 @@ export class AccountHandler {
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
   private capabilityService: CapabilityService;
-  private googleAuthClient: any;
 
   constructor(
     private log: AuthLogger,

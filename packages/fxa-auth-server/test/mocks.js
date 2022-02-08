@@ -106,6 +106,7 @@ const DB_METHOD_NAMES = [
   'fetchAccountSubscriptions',
   'getGoogleId',
   'createLinkedGoogleAccount',
+  'deleteLinkedGoogleAccount',
 ];
 
 const LOG_METHOD_NAMES = [
