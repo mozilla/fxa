@@ -19,6 +19,7 @@ coverage:
         flags:
           - fxa-auth-server
           - many
+          - settings
 
 parsers:
   gcov:
@@ -30,16 +31,14 @@ parsers:
 
 comment: false
 
-flags:
-  fxa-auth-server:
-    paths:
-      - packages/fxa-auth-server
+flag_management:
+  default_rules:
     carryforward: true
-  many:
-    paths:
-      - packages/fxa-admin-panel
-      - packages/fxa-customs-server
-      - packages/fxa-payments-server
-      - packages/fxa-profile-server
-      - packages/fxa-shared
-    carryforward: true
+  individual_flags:
+    - name: many
+      paths:
+        - packages/fxa-admin-panel
+        - packages/fxa-customs-server
+        - packages/fxa-payments-server
+        - packages/fxa-profile-server
+        - packages/fxa-shared
