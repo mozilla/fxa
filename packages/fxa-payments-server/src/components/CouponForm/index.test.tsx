@@ -56,6 +56,7 @@ describe('CouponForm', () => {
             planId={SELECTED_PLAN.plan_id}
             coupon={undefined}
             setCoupon={() => {}}
+            readOnly={false}
           />
         );
       };
@@ -81,6 +82,7 @@ describe('CouponForm', () => {
             planId={SELECTED_PLAN.plan_id}
             coupon={coupon}
             setCoupon={(coupon) => {}}
+            readOnly={false}
           />
         );
       };
@@ -103,6 +105,7 @@ describe('CouponForm', () => {
             planId={SELECTED_PLAN.plan_id}
             coupon={undefined}
             setCoupon={mockSetCoupon}
+            readOnly={false}
           />
         );
       };

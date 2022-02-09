@@ -6,16 +6,50 @@ import MockApp from '../../../.storybook/components/MockApp';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 
-storiesOf('components/Coupon', module).add('default', () => {
-  const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
+storiesOf('components/Coupon', module)
+  .add('default', () => {
+    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
 
-  return (
-    <MockApp>
-      <CouponForm
-        planId={SELECTED_PLAN.plan_id}
-        coupon={coupon}
-        setCoupon={setCoupon}
-      />
-    </MockApp>
-  );
-});
+    return (
+      <MockApp>
+        <CouponForm
+          planId={SELECTED_PLAN.plan_id}
+          coupon={coupon}
+          setCoupon={setCoupon}
+          readOnly={false}
+        />
+      </MockApp>
+    );
+  })
+  .add('readOnly', () => {
+    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>();
+
+    return (
+      <MockApp>
+        <CouponForm
+          planId={SELECTED_PLAN.plan_id}
+          coupon={coupon}
+          setCoupon={setCoupon}
+          readOnly={true}
+        />
+      </MockApp>
+    );
+  })
+  .add('readOnly with Coupon', () => {
+    const [coupon, setCoupon] = useState<Coupon.couponDetailsSchema>({
+      promotionCode: 'Test',
+      type: 'repeating',
+      discountAmount: 10,
+      valid: true,
+    });
+    return (
+      <MockApp>
+        <CouponForm
+          planId={SELECTED_PLAN.plan_id}
+          coupon={coupon}
+          setCoupon={setCoupon}
+          readOnly={true}
+        />
+      </MockApp>
+    );
+  });

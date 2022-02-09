@@ -438,7 +438,12 @@ export const Checkout = ({
         >
           {config.featureFlags.subscriptionCoupons ? (
             <CouponForm
-              {...{ planId: selectedPlan.plan_id, coupon, setCoupon }}
+              {...{
+                planId: selectedPlan.plan_id,
+                readOnly: false,
+                coupon,
+                setCoupon,
+              }}
             />
           ) : null}
         </PlanDetails>

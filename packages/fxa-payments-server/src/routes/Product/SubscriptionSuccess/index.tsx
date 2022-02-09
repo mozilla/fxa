@@ -8,6 +8,8 @@ import PlanDetails from '../../../components/PlanDetails';
 import PaymentConfirmation from '../../../components/PaymentConfirmation';
 import Header from '../../../components/Header';
 import * as Coupon from 'fxa-shared/dto/auth/payments/coupon';
+import { config } from '../../../lib/config';
+import CouponForm from '../../../components/CouponForm';
 
 const defaultProductRedirectURL = 'https://mozilla.org';
 
@@ -58,7 +60,15 @@ export const SubscriptionSuccess = ({
             showExpandButton: isMobile,
             coupon: coupon,
           }}
-        />
+        >
+          {config.featureFlags.subscriptionCoupons ? (
+            <CouponForm
+              readOnly={true}
+              setCoupon={() => {}}
+              {...{ planId: plan.plan_id, coupon }}
+            />
+          ) : null}
+        </PlanDetails>
       </div>
     </>
   );

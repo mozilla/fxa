@@ -88,11 +88,17 @@ export const checkPromotionCode = async (
 
 type CouponFormProps = {
   planId: string;
+  readOnly: boolean;
   coupon?: Coupon.couponDetailsSchema;
   setCoupon: (coupon: Coupon.couponDetailsSchema | undefined) => void;
 };
 
-export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
+export const CouponForm = ({
+  planId,
+  readOnly,
+  coupon,
+  setCoupon,
+}: CouponFormProps) => {
   const [hasCoupon, setHasCoupon] = useState(coupon ? true : false);
   const [promotionCode, setPromotionCode] = useState(
     coupon ? coupon.promotionCode : ''
@@ -169,7 +175,10 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
           <div className="coupon-details">
             <div>{promotionCode}</div>
           </div>
-          <button onClick={removeCoupon}>
+          <button
+            className={`${readOnly ? 'hidden' : ''}`}
+            onClick={removeCoupon}
+          >
             <Localized id="coupon-remove">
               <span>Remove</span>
             </Localized>
@@ -190,7 +199,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
                   setPromotionCode(event.target.value);
                 }}
                 placeholder="Enter code"
-                disabled={loading}
+                disabled={loading || readOnly}
               />
             </Localized>
           </div>
@@ -199,7 +208,7 @@ export const CouponForm = ({ planId, coupon, setCoupon }: CouponFormProps) => {
             name="apply"
             type="submit"
             data-testid="coupon-button"
-            disabled={loading}
+            disabled={loading || readOnly}
           >
             <Localized id="coupon-submit">
               <span>Apply</span>
