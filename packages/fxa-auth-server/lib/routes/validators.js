@@ -694,3 +694,12 @@ module.exports.newsletters = isA
   )
   .default([])
   .optional();
+
+module.exports.thirdPartyProvider = isA
+  .string()
+  .max(256)
+  .allow(['google', 'apple'])
+  .required();
+
+module.exports.thirdPartyIdToken = module.exports.jwt.optional();
+module.exports.thirdPartyOAuthCode = isA.string().optional();
