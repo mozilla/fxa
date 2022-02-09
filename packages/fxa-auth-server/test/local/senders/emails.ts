@@ -2086,10 +2086,9 @@ async function setup(
   locale: string = 'en',
   sender: any = null
 ) {
-  const [translator, templates] = await Promise.all([
-    require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale),
-    require(`${ROOT_DIR}/lib/senders/templates`)(log),
-  ]);
+  const translator = await Promise.resolve(
+    require(`${ROOT_DIR}/lib/senders/translator`)([locale], locale)
+  );
   const Mailer = proxyquire(`${ROOT_DIR}/lib/senders/email`, mocks)(
     log,
     config,
@@ -2097,7 +2096,7 @@ async function setup(
       check: () => Promise.resolve(),
     }
   );
-  return new Mailer(translator, templates, config.smtp, sender);
+  return new Mailer(translator, config.smtp, sender);
 }
 
 type CallbackFunction = (arg: any) => void;

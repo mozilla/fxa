@@ -21,7 +21,7 @@ module.exports = async (
   async function createSenders() {
     const templates = await require('./templates')(log, translator);
     return {
-      email: new Mailer(translator, templates, config.smtp, sender),
+      email: new Mailer(translator, config.smtp, sender),
       sms: createSms(log, translator, templates, config, statsd),
     };
   }

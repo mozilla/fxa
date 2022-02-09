@@ -249,7 +249,7 @@ module.exports = function (log, config, bounces) {
     );
   }
 
-  function Mailer(translator, templates, mailerConfig, sender) {
+  function Mailer(translator, mailerConfig, sender) {
     let options = {
       host: mailerConfig.host,
       secure: mailerConfig.secure,
@@ -298,7 +298,6 @@ module.exports = function (log, config, bounces) {
     this.subscriptionTermsUrl = mailerConfig.subscriptionTermsUrl;
     this.supportUrl = mailerConfig.supportUrl;
     this.syncUrl = mailerConfig.syncUrl;
-    this.templates = templates;
     this.translator = translator.getTranslator;
     this.verificationUrl = mailerConfig.verificationUrl;
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
