@@ -14,7 +14,7 @@ const { decodeJWT } = require('../lib/util');
 const sinon = require('sinon');
 
 const db = require('../../lib/oauth/db');
-const encrypt = require('../../lib/oauth/encrypt');
+const encrypt = require('fxa-shared/auth/encrypt');
 const config = testServer.config;
 let Server;
 

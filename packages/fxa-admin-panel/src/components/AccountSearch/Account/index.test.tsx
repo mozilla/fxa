@@ -64,6 +64,27 @@ let accountResponse: AccountProps = {
       lastAccessTime: 1589467100317,
     }
   ],
+  attachedClients: [
+    {
+      clientId: 'abcd1234',
+      deviceId: 'abcd1234',
+      sessionTokenId: 'abcd1234',
+      refreshTokenId: 'abcd1234',
+      isCurrentSession: true,
+      deviceType: 'desktop',
+      name: 'device 1',
+      scope: [],
+      location: null,
+      userAgent: 'Chrome',
+      os: 'Linux',
+      createdTime: Date.now() - 180e3,
+      createdTimeFormatted: 'a few minutes ago',
+      lastAccessTime: Date.now() - 5e3,
+      lastAccessTimeFormatted: 'a few sedconds ago',
+      approximateLastAccessTime: Date.now() - 5e3,
+      approximateLastAccessTimeFormatted: 'a few sedconds ago',
+    },
+  ],
   securityEvents: [],
 };
 
