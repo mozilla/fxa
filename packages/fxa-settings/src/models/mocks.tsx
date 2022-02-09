@@ -44,6 +44,7 @@ export const MOCK_ACCOUNT: AccountData = {
     exists: true,
     verified: true,
   },
+  linkedAccounts: [],
 };
 
 export function renderWithRouter(
