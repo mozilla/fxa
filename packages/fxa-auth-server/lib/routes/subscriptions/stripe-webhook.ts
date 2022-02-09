@@ -19,6 +19,7 @@ import error from '../../error';
 import { CapabilityService } from '../../payments/capability';
 import { PayPalHelper } from '../../payments/paypal';
 import {
+  CUSTOMER_RESOURCE,
   INVOICES_RESOURCE,
   StripeHelper,
   STRIPE_OBJECT_TYPE_TO_RESOURCE,
@@ -355,10 +356,39 @@ export class StripeWebhookHandler extends StripeHandler {
     request: AuthRequest,
     event: Stripe.Event
   ) {
-    const sub = event.data.object as Stripe.Subscription;
-    let uid;
     try {
-      ({ uid } = await this.sendSubscriptionDeletedEmail(sub));
+      const sub = event.data.object as Stripe.Subscription;
+      const customer = await this.stripeHelper.expandResource(
+        sub.customer,
+        CUSTOMER_RESOURCE
+      );
+
+      if (!customer || customer.deleted) {
+        throw error.unknownCustomer(sub.customer);
+      }
+
+      const uid = customer.metadata.userid;
+      const account = await this.db.account(uid);
+
+      if (
+        // When SubPlat cannot collect a PayPal customer's first payment while
+        // attempting to subscribe to a product, the subscription is canceled.
+        // (At the time of writing, this is happening in
+        // `_createPaypalBillingAgreementAndSubscription` of the
+        // `PayPalHandler` route handler.)  We should not send an email in that
+        // case.
+        !(
+          sub.collection_method === 'send_invoice' && account.verifierSetAt <= 0
+        )
+      ) {
+        await this.sendSubscriptionDeletedEmail(sub);
+      }
+
+      await this.capabilityService.stripeUpdate({ sub, uid });
+
+      if (this.paypalHelper) {
+        await this.paypalHelper.conditionallyRemoveBillingAgreement(customer);
+      }
     } catch (err) {
       // FIXME: If the customer was deleted, we don't send an email that their subscription
       //        was cancelled. This is because the email requires a bunch of details that
@@ -367,19 +397,7 @@ export class StripeWebhookHandler extends StripeHandler {
         return;
       }
       reportSentryError(err, request);
-      return;
     }
-    await this.capabilityService.stripeUpdate({ sub, uid });
-    if (this.paypalHelper) {
-      const customer = await this.stripeHelper.fetchCustomer(uid, [
-        'subscriptions',
-      ]);
-      if (!customer || customer.deleted) {
-        return;
-      }
-      return this.paypalHelper.conditionallyRemoveBillingAgreement(customer);
-    }
-    return;
   }
 
   /**
